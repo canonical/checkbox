@@ -41,14 +41,16 @@ plugin: resource
 user: root
 environ: OPTEE_CASES XTEST
 command:
-    filepath=""
-    if [[ -n "$OPTEE_CASES" ]]; then
-        filepath="$OPTEE_CASES"
-    else
-        filepath="$PLAINBOX_PROVIDER_DATA/optee-test-319.json"
-    fi
-    parse_optee_test.py "$filepath"
+    optee_helper.py generate
 _summary: Collect the test cases support by OP-TEE test(xtest)
+
+id: ce-oem-optee-firmware-version
+estimated_duration: 1
+plugin: resource
+user: root
+command:
+    optee_helper.py dump_version
+_summary: Collect the OP-TEE firmware version
 
 id: ce-oem-optee-test-list-pkcs11
 estimated_duration: 1
@@ -56,13 +58,7 @@ plugin: resource
 user: root
 environ: OPTEE_CASES XTEST
 command:
-    filepath=""
-    if [[ -n "$OPTEE_CASES" ]]; then
-        filepath="$OPTEE_CASES"
-    else
-        filepath="$PLAINBOX_PROVIDER_DATA/optee-test-319.json"
-    fi
-    parse_optee_test.py "$filepath" -p
+    optee_helper.py generate -p
 _summary: Collect the test cases related with PKCS11 support by OP-TEE test(xtest)
 
 unit: template

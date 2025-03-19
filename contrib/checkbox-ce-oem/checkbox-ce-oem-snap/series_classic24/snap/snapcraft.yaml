@@ -75,6 +75,23 @@ parts:
       PART_SRC=${CRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
       gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
       cp -v ${PART_SRC}/src/beep ${CRAFT_PART_INSTALL}/usr/bin/
+  xtest:
+    plugin: dump
+    after: [checkbox-provider-ce-oem]
+    source: https://github.com/OP-TEE/optee_test.git
+    source-type: git
+    build-packages:
+      - jq
+    override-build: |
+      export PYTHONPATH=$PYTHONPATH:${CRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/bin/
+      source_file=${CRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/data/xtest_supported_version.json
+      script_file=${CRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/bin/optee_helper.py
+      for ver in $(cat $source_file | jq -r .xtest_suite_tag[])
+      do
+        git checkout $ver
+        python3 $script_file parse_xtest_src $ver
+      done
+      cp optee-test*.json ${CRAFT_PART_INSTALL}/providers/checkbox-provider-ce-oem/data/
   spidev-test:
     plugin: make
     source: https://github.com/torvalds/linux.git

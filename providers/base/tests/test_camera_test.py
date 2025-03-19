@@ -836,7 +836,10 @@ class CameraTestTests(unittest.TestCase):
         mock_exists.return_value = True
         data = b"......bad-format.........................."
         with patch("builtins.open", mock_open(read_data=data)):
-            with patch("builtins.print") as mocked_print:
+            with patch("builtins.print") as mocked_print, patch(
+                "camera_test.check_output"
+            ) as mock_check_output:
+                mock_check_output.return_value = "inode/empty"
                 result = CameraTest._validate_image(
                     mock_camera, "/tmp/test.jpg", 480, 320
                 )

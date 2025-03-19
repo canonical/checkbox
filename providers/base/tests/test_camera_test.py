@@ -445,7 +445,7 @@ class CameraTestTests(unittest.TestCase):
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
         )
         make_calls = mock_make.call_args_list
-        print(make_calls, flush=sys.stderr)
+        print(make_calls, flush=True)
         self.assertListEqual(
             make_calls,
             [
@@ -482,7 +482,7 @@ class CameraTestTests(unittest.TestCase):
             mock_camera, "/tmp/test.jpg", 640, 480, "RG10"
         )
         make_calls = mock_make.call_args_list
-        print(make_calls, flush=sys.stderr)
+        print(make_calls, flush=True)
         self.assertEqual(
             make_calls,
             [

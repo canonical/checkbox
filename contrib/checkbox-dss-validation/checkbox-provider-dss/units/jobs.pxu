@@ -4,7 +4,6 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires:
   executable.name == 'dss'
-  executable.name == 'microk8s'
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
 command:
@@ -254,7 +253,7 @@ command: run_dss.sh remove pytorch-intel
 
 # NVIDIA CUDA jobs ############################################################
 
-id: microk8s_nvidia_gpu_addon/enable
+id: nvidia_gpu_operator/install
 category_id: dss-regress
 flags: simple
 imports:
@@ -262,23 +261,29 @@ imports:
   from com.canonical.certification import graphics_card
 requires:
   graphics_card.vendor == 'NVIDIA Corporation'
-  executable.name == 'microk8s'
+  executable.name == 'helm'
   executable.name == 'kubectl'
 depends: dss/initialize
-_summary: Enable NVIDIA GPU addon in microk8s
+_summary: Install NVIDIA GPU operator in the Kubernetes cluster
 estimated_duration: 10m
 command:
   set -eou pipefail
-  OPERATOR_VERSION="24.6.2"
-  microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
-  check_cuda_rollout.sh
+  helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+  helm repo update
+  helm install --wait --generate-name -n gpu-operator-resources --create-namespace nvidia/gpu-operator --kubeconfig ~/.kube/config
+  sleep 15
+  check_nvidia_gpu_rollout.sh
 
-id: nvidia_gpu_addon/validations_succeed
+id: nvidia_gpu_operator/validations_succeed
 category_id: dss-regress
 flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'kubectl'
-depends: microk8s_nvidia_gpu_addon/enable
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  graphics_card.vendor == 'NVIDIA Corporation'
+  executable.name == 'kubectl'
+depends: nvidia_gpu_operator/install
 _summary: NVIDIA GPU validations should succeed
 estimated_duration: 10s
 command:
@@ -292,7 +297,7 @@ category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-depends: nvidia_gpu_addon/validations_succeed
+depends: nvidia_gpu_operator/validations_succeed
 _summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
 estimated_duration: 5s
 command:

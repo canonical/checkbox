@@ -21,10 +21,6 @@ inputs:
   checkbox_revision:
     description: "Revision of checkbox that has to be provisioned (ex. commit_hash, branch name, can be `beta`)"
     required: true
-  zapper_channel:
-    description: "Zapper channel to be used, will be ignored if no Zapper (ex. edge, beta, stable)"
-    required: false
-    default: "beta"
 runs:
   using: composite
   steps:
@@ -42,14 +38,13 @@ runs:
         INPUT_TEST_PLAN: ${{ inputs.test_plan }}
         INPUT_LAUNCHER_OVERRIDE: ${{ inputs.launcher_override }}
         INPUT_CHECKBOX_REVISION: ${{ inputs.checkbox_revision }}
-        INPUT_ZAPPER_CHANNEL: ${{ inputs.zapper_channel || 'beta' }}
       working-directory: ${{ github.action_path }}/../../../tools/lab_dispatch
       run: |
         echo "::group::Building the testflinger job"
         if [ -n "$INPUT_DATA_SOURCE" ]; then
           INPUT_DATA_SOURCE="provision_data: $INPUT_DATA_SOURCE"
         fi
-        envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE $INPUT_ZAPPER_CHANNEL' < generic_source.yaml | tee job.yaml
+        envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE' < generic_source.yaml | tee job.yaml
         echo "::endgroup::"
 
         echo "::group::Building the Checkbox launcher"

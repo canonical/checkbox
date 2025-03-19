@@ -28,7 +28,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
     - name: Install dependencies
       shell: bash
       run: |
@@ -77,7 +77,7 @@ runs:
           cp -rT "$action_path" "$workdir_path"
         fi
     - name: Submit and monitor job
-      uses: canonical/testflinger/.github/actions/submit@main
+      uses: canonical/testflinger/.github/actions/submit@2c10f8bbb78532c12034dc668971ddae3b44edc9
       with:
         poll: true
         job-path: tools/lab_dispatch/job.yaml

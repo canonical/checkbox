@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }}  (${{matrix.arch}})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -59,7 +59,7 @@ jobs:
           ./prepare.sh series${{ matrix.release }}
 
       - id: snap_build
-        uses: Wandalen/wretry.action@v3.4.0_js_action
+        uses: Wandalen/wretry.action@e68c23e6309f2871ca8ae4763e7629b9c258e1ea
         name: Build the snap
         timeout-minutes: 600 # 10hours
         with:
@@ -70,7 +70,7 @@ jobs:
             path: checkbox-core-snap/series${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload logs on failure
         if: failure()
         with:
@@ -80,7 +80,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload the snap as artifact
         with:
           name: checkbox${{ matrix.release }}_${{ matrix.arch }}
@@ -88,7 +88,7 @@ jobs:
 
       - name: Publish track
         if: inputs.store_upload
-        uses: canonical/action-publish@v1
+        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
         with:
@@ -122,7 +122,7 @@ jobs:
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -134,7 +134,7 @@ jobs:
           ./prepare_${{ matrix.type }}.sh series_${{ matrix.type }}${{ matrix.release }}
 
       - id: snap_build
-        uses: Wandalen/wretry.action@v3.4.0_js_action
+        uses: Wandalen/wretry.action@e68c23e6309f2871ca8ae4763e7629b9c258e1ea
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:
@@ -145,7 +145,7 @@ jobs:
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload logs on failure
         if: failure()
         with:
@@ -155,7 +155,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload the snaps as artefacts
         with:
           name: series_${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}
@@ -164,7 +164,7 @@ jobs:
       - name: Publish track
         # this is done this way because the store doesn't allow the same artifact to be uploaded twice
         if: inputs.store_upload && (matrix.release != 24 || matrix.type != 'classic')
-        uses: canonical/action-publish@v1
+        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
         with:
@@ -174,7 +174,7 @@ jobs:
 
       - name: Publish track + latest
         if: inputs.store_upload && matrix.release == 24 && matrix.type == 'classic'
-        uses: canonical/action-publish@v1
+        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
         with:

@@ -33,7 +33,7 @@ jobs:
       SNAPCRAFT_BUILDER_ID: checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}
     name: Frontend ${{ matrix.type }}${{ matrix.releases }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -46,7 +46,7 @@ jobs:
       - name: Print Launchpad build repository
         run: |
           echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
-      - uses: Wandalen/wretry.action@v3.4.0_js_action
+      - uses: Wandalen/wretry.action@e68c23e6309f2871ca8ae4763e7629b9c258e1ea
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:
@@ -57,7 +57,7 @@ jobs:
             path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
             snapcraft-args: remote-build --build-for amd64,arm64,armhf --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload logs on failure
         if: failure()
         with:
@@ -66,12 +66,12 @@ jobs:
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
             contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.releases }}/checkbox*.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload the snaps as artefacts
         with:
           name: ce_oem_snap${{ matrix.type }}${{ matrix.releases }}
           path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action@v3.4.0_js_action
+      - uses: Wandalen/wretry.action@e68c23e6309f2871ca8ae4763e7629b9c258e1ea
         name: Upload the snaps to the store
         timeout-minutes: 600 # 10hours
         with:

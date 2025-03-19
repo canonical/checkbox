@@ -20,11 +20,11 @@ jobs:
         working-directory: tools/release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
         with:
           python-version: "3.10"
       - name: Install tox
@@ -32,7 +32,7 @@ jobs:
       - name: Run tox
         run: tox -e py310
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: release-tools

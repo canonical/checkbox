@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       - name: Install action-validator with asdf
-        uses: asdf-vm/actions/install@v3
+        uses: asdf-vm/actions/install@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
         with:
           tool_versions: |
             action-validator 0.6.0
@@ -29,11 +29,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       - name: Install zizmor from crates.io
-        uses: baptiste0928/cargo-install@v3
+        uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3
         with:
           crate: zizmor
           version: '1.4.1'
@@ -41,4 +41,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          zizmor $(ls .github/workflows/*.{yaml,yml})
+          zizmor --pedantic $(ls .github/workflows/*.{yaml,yml})

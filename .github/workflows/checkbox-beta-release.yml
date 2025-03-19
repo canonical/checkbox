@@ -24,16 +24,17 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y gh
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Verify Promotion Conditions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           # check if can_promote but ignore (only print an error) if the workflow was manually triggered
-          tools/release/can_promote_edge.py || ${{ github.event_name == 'workflow_dispatch' }}
+          tools/release/can_promote_edge.py || [ "$WORKFLOW_DISPATCH" == "true" ]
 
   checkbox_deb_packages:
     needs: should-run
@@ -45,7 +46,7 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       - name: Copy deb packages from edge to beta ppa

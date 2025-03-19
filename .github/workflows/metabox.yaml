@@ -16,7 +16,7 @@ jobs:
     outputs:
       required_run: ${{ steps.check_diff.outputs.required_run }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -54,11 +54,11 @@ jobs:
       PYCHARM_HOSTED: True
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       - name: Setup LXD
-        uses: canonical/setup-lxd@main
+        uses: canonical/setup-lxd@2fa6235ef2dfd3288e0de09edac03f2ebf922968
       - name: Add ZFS storage
         run: |
           lxc storage list

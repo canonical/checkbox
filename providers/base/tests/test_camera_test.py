@@ -401,7 +401,9 @@ class CameraTestTests(unittest.TestCase):
 
     @patch("camera_test.check_call")
     @patch("os.path.getsize")
-    def test_capture_image_fswebcam(self, mock_get_size, mock_check_call):
+    def test_capture_image_fswebcam(
+        self, mock_get_size: MagicMock, mock_check_call: MagicMock
+    ):
         mock_camera = MagicMock()
         mock_camera.photo_wait_seconds = 3
         mock_get_size.return_value = 1
@@ -410,6 +412,26 @@ class CameraTestTests(unittest.TestCase):
         )
         self.assertEqual(mock_check_call.call_count, 1)
         self.assertEqual(result, True)
+
+        mock_check_call.reset_mock()
+        mock_camera.photo_wait_seconds = 0
+        result = CameraTest._capture_image_fswebcam(
+            mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
+        )
+        # delay arg should not be inserted when wait is 0
+        self.assertFalse(
+            any("-D" in arg for arg in mock_check_call.call_args[-1])
+        )
+
+        mock_check_call.reset_mock()
+        mock_camera.photo_wait_seconds = 0
+        result = CameraTest._capture_image_fswebcam(
+            mock_camera, "/tmp/test.jpg", 640, 480, None
+        )
+        # pixel format arg should not be inserted if not specified
+        self.assertFalse(
+            any("-p" in arg for arg in mock_check_call.call_args[-1])
+        )
 
     @patch("camera_test.check_call", MagicMock())
     @patch("os.path.getsize")
@@ -834,8 +856,7 @@ class CameraTestTests(unittest.TestCase):
     def test_validate_image_wrong_format(self, mock_exists):
         mock_camera = MagicMock()
         mock_exists.return_value = True
-        data = b"......bad-format.........................."
-        with patch("builtins.open", mock_open(read_data=data)):
+        with patch("builtins.open", mock_open(read_data=b"")):
             with patch("builtins.print") as mocked_print, patch(
                 "camera_test.check_output"
             ) as mock_check_output:
@@ -843,10 +864,12 @@ class CameraTestTests(unittest.TestCase):
                 result = CameraTest._validate_image(
                     mock_camera, "/tmp/test.jpg", 480, 320
                 )
+                # should not even start reading the file if the `file` command
+                # check didn't pass
                 mocked_print.assert_any_call(
                     "Image is not a standard JPEG file"
                 )
-        self.assertEqual(result, False)
+                self.assertEqual(result, False)
 
     @patch("camera_test.glob")
     def test_device_options(self, mock_glob):

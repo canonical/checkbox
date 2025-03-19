@@ -840,8 +840,8 @@ class CameraTestTests(unittest.TestCase):
                 result = CameraTest._validate_image(
                     mock_camera, "/tmp/test.jpg", 480, 320
                 )
-                mocked_print.assert_called_once_with(
-                    "Image is not a JPEG file"
+                mocked_print.assert_any_call(
+                    "Image is not a standard JPEG file"
                 )
         self.assertEqual(result, False)
 
@@ -896,3 +896,7 @@ class CameraTestTests(unittest.TestCase):
     def tearDown(self):
         # release stdout
         sys.stdout = sys.__stdout__
+
+
+if __name__ == "__main__":
+    unittest.main()

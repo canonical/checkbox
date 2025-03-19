@@ -7,6 +7,7 @@
 #   Matt Fischer <matt@mattfischer.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
 #   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 #
 # The v4l2 ioctl code comes from the Python bindings for the v4l2
 # userspace api (http://pypi.python.org/pypi/v4l2):

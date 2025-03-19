@@ -876,25 +876,16 @@ class CameraTest:
 
         outw = outh = 0
         with open(filename, mode="rb") as f:
-            # this won't return non-zero unless -E is specified
-            # printing this to help with debugging
+            # `file` won't return non-zero unless -E is specified
+            # so it won't throw an exception here
             mime_type = check_output(
                 ["file", "--mime-type", "--brief", filename],
                 universal_newlines=True,
             ).strip()
             print("The mime type found by the file command is:", mime_type)
 
-            f.seek(0)
-            start_of_image = f.read(2)  # first 2 bytes
-            f.seek(-2, 2)
-            end_of_image = f.read(2)  # last 2 bytes
-            # JPEGs should start with FFD8 and end with FFD9
-            if (start_of_image, end_of_image) != (b"\xff\xd8", b"\xff\xd9"):
+            if mime_type != "image/jpeg":
                 print("Image is not a standard JPEG file")
-                print(
-                    "Use `hexdump -C {}`".format(filename),
-                    "to see if unexpected bytes are in the file",
-                )
                 return False
 
             f.seek(2)

@@ -40,7 +40,7 @@ import struct
 import sys
 
 from glob import glob
-from subprocess import check_call, CalledProcessError, STDOUT
+from subprocess import check_call, CalledProcessError, STDOUT, check_output
 from tempfile import NamedTemporaryFile
 
 
@@ -875,15 +875,25 @@ class CameraTest:
 
         outw = outh = 0
         with open(filename, mode="rb") as f:
+            # this won't return non-zero unless -E is specified
+            # printing this to help with debugging
+            mime_type = check_output(
+                ["file", "--mime-type", "--brief", filename],
+                universal_newlines=True,
+            ).strip()
+            print("The mime type found by the file command is:", mime_type)
 
-            # Check if the header of the image to see if it's a valid JPEG file
-            header = f.read(32)
-            if (
-                header[6:10] != b"JFIF"
-                and header[6:10] != b"Exif"
-                and header[6:11] != b"Adobe"
-            ):
-                print("Image is not a JPEG file")
+            f.seek(0)
+            start_of_image = f.read(2)  # first 2 bytes
+            f.seek(-2, 2)
+            end_of_image = f.read(2)  # last 2 bytes
+            # JPEGs should start with FFD8 and end with FFD9
+            if (start_of_image, end_of_image) != (b"\xff\xd8", b"\xff\xd9"):
+                print("Image is not a standard JPEG file")
+                print(
+                    "Use `hexdump -C {}`".format(filename),
+                    "to see if unexpected bytes are in the file",
+                )
                 return False
 
             f.seek(2)
@@ -1023,6 +1033,18 @@ def parse_arguments(argv):
         "--output",
         default="",
         help="Output directory to store a small debug image",
+    )
+    resolutions_parser.add_argument(
+        "-ws",
+        "--wait-seconds",
+        type=int,
+        default=CameraTest.DEFAULT_PHOTO_WAIT_SECONDS,
+        help=(
+            "The number of seconds to keep the camera open "
+            "before taking the picture. Default = {} seconds".format(
+                CameraTest.DEFAULT_PHOTO_WAIT_SECONDS
+            )
+        ),
     )
     add_device_parameter(resolutions_parser)
 

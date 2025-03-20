@@ -135,10 +135,12 @@ class TestMountUsbStorage(unittest.TestCase):
           - Verify that the following commands are called in order:
               1. ["sync"]
               2. ["udevadm", "settle", "--timeout=10"]
-              3. ["umount", FOLDER_TO_MOUNT] (here we patch FOLDER_TO_MOUNT to "/mnt/usb")
+              3. ["umount", FOLDER_TO_MOUNT] (here we patch FOLDER_TO_MOUNT to
+                 "/mnt/usb")
               4. ["umount", "/dev/sda1"]
               5. ["mount", "/dev/sda1", "/mnt/usb"]
-          - Upon exiting the context, the finally block should also call unmount on the folder (["umount", "/mnt/usb"]).
+          - Upon exiting the context, the finally block should also call
+            unmount on the folder (["umount", "/mnt/usb"]).
           - And sys.exit should not be called.
         """
 

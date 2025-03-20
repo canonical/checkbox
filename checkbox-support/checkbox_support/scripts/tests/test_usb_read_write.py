@@ -4,6 +4,7 @@
 # Copyright 2024-2025 Canonical Ltd.
 # Authors:
 #   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
+#   Jeffery Yen <songpao2262gmail.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -196,9 +197,7 @@ class TestMountUsbStorage(unittest.TestCase):
         self.assertEqual(context.exception.code, 1)
 
         # Verify that the program logs the error message
-        mock_log.assert_called_once_with(
-            "mount /dev/sda1 on /mnt/usb failed."
-        )
+        mock_log.assert_called_once_with("mount /dev/sda1 on /mnt/usb failed.")
 
 
 if __name__ == "__main__":

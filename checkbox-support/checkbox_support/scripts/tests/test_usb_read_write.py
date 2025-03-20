@@ -24,12 +24,8 @@ import sys
 from unittest.mock import patch, MagicMock, call
 from subprocess import CompletedProcess
 
-
-# Import mount_usb_storage from the module
-from checkbox_support.scripts.usb_read_write import mount_usb_storage
-
-
 from checkbox_support.scripts.usb_read_write import (
+    mount_usb_storage,
     write_test_unit,
 )
 

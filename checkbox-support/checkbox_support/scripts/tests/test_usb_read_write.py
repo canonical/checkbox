@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2024 Canonical Ltd.
+# Copyright 2024-2025 Canonical Ltd.
 # Authors:
 #   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
 #

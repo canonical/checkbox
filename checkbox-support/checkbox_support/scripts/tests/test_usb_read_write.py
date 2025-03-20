@@ -20,9 +20,7 @@
 import unittest
 import subprocess
 import contextlib
-import sys
 from unittest.mock import patch, MagicMock, call
-from subprocess import CompletedProcess
 
 from checkbox_support.scripts.usb_read_write import (
     mount_usb_storage,

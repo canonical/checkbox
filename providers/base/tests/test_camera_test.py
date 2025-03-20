@@ -895,7 +895,7 @@ class CameraTestTests(unittest.TestCase):
             "031101ffc4001400010000000000000000000000000000000bffc400141001000"
             "00000000000000000000000000000ffc400140101000000000000000000000000"
             "00000000ffc40014110100000000000000000000000000000000ffda000c03010"
-            "002110311003f003ff07fffd90000" # shouldn't fail with trailing 0s
+            "002110311003f003ff07fffd90000"  # shouldn't fail with trailing 0s
         )
 
         with NamedTemporaryFile() as f:

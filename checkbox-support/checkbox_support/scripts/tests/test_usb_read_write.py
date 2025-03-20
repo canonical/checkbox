@@ -153,7 +153,8 @@ class TestMountUsbStorage(unittest.TestCase):
             # Enter the mount_usb_storage context using a context manager
             with contextlib.ExitStack() as stack:
                 stack.enter_context(mount_usb_storage("sda1"))
-                # When entering the context, the following commands should be executed in order:
+                # When entering the context, the following commands should be
+                # executed in order:
                 expected_calls_entry = [
                     call(["sync"]),
                     call(["udevadm", "settle", "--timeout=10"]),

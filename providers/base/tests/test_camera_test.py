@@ -22,6 +22,7 @@ import sys
 
 import unittest
 from unittest.mock import patch, MagicMock, call, mock_open
+from tempfile import NamedTemporaryFile
 import unittest.mock
 
 from camera_test import (
@@ -870,6 +871,40 @@ class CameraTestTests(unittest.TestCase):
                     "Image is not a standard JPEG file"
                 )
                 self.assertEqual(result, False)
+
+    @patch("builtins.open")
+    @patch("os.path.exists")
+    @patch("camera_test.check_output")
+    def test_validate_image_correct_jpeg_format(
+        self, mock_output, mock_exists, mock_open
+    ):
+        mock_camera = MagicMock()
+        mock_exists.return_value = True
+
+        # Create a temporary file with a valid 1x1 JPEG image
+        # ffc0 is the start of the dimension section
+        # ffc0 00 11 08 00 01 00 01
+        #               h^^^^ w^^^^
+        data = (
+            "ffd8ffe000104a46494600010101004800480000fffe001343726561746564207"
+            "76974682047494d50ffdb00430001010101010101010101010101010101010101"
+            "01010101010101010101010101010101010101010101010101010101010101010"
+            "1010101010101010101010101ffdb004301010101010101010101010101010101"
+            "01010101010101010101010101010101010101010101010101010101010101010"
+            "101010101010101010101010101010101ffc00011080001000103011100021101"
+            "031101ffc4001400010000000000000000000000000000000bffc400141001000"
+            "00000000000000000000000000000ffc400140101000000000000000000000000"
+            "00000000ffc40014110100000000000000000000000000000000ffda000c03010"
+            "002110311003f003ff07fffd90000" # shouldn't fail with trailing 0s
+        )
+
+        with NamedTemporaryFile() as f:
+            f.write(bytes.fromhex(data))
+            f.seek(0)
+            mock_open.return_value = f
+            mock_output.return_value = "image/jpeg"
+            result = CameraTest._validate_image(mock_camera, f.name, 1, 1)
+            self.assertEqual(result, True)
 
     @patch("camera_test.glob")
     def test_device_options(self, mock_glob):

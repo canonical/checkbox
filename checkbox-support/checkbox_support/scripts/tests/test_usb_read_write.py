@@ -170,15 +170,8 @@ class TestMountUsbStorage(unittest.TestCase):
         mock_exit.assert_not_called()
 
     @patch("checkbox_support.scripts.usb_read_write.subprocess.call")
-    @patch(
-        "checkbox_support.scripts.usb_read_write.os.path.join",
-        return_value="/dev/sda1",
-    )
-    @patch(
-        "checkbox_support.scripts.usb_read_write.sys.exit",
-        side_effect=SystemExit,
-    )
-    def test_mount_usb_storage_failure(self, mock_exit, mock_join, mock_call):
+    @patch("logging.error")
+    def test_mount_usb_storage_failure(self, mock_log, mock_call):
         """
         Test the failure scenario:
           - Simulate that the mount command returns 1 (failure).
@@ -197,13 +190,18 @@ class TestMountUsbStorage(unittest.TestCase):
             "checkbox_support.scripts.usb_read_write.FOLDER_TO_MOUNT",
             "/mnt/usb",
         ):
-            with self.assertRaises(SystemExit):
+            with self.assertRaises(SystemExit) as context:
                 with mount_usb_storage("sda1"):
-                    # As soon as we enter the context, a non-zero return from mount should trigger sys.exit(1)
+                    # As soon as we enter the context, a non-zero return from
+                    # mount should trigger sys.exit(1)
                     pass
 
-        # Check that sys.exit was called correctly (with 1)
-        mock_exit.assert_called_once_with(1)
+        self.assertEqual(context.exception.code, 1)
+
+        # Verify that the program logs the error message
+        mock_log.assert_called_once_with(
+            "mount /dev/sda1 on /mnt/usb failed."
+        )
 
 
 if __name__ == "__main__":

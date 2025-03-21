@@ -75,6 +75,26 @@ parts:
       PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
       gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
       cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
+  xtest:
+    plugin: dump
+    after: [checkbox-provider-ce-oem]
+    source: https://github.com/OP-TEE/optee_test.git
+    source-type: git
+    build-snaps:
+      - checkbox22
+    build-packages:
+      - jq
+    override-build: |
+      part_dest=${SNAPCRAFT_PART_INSTALL}/providers/checkbox-provider-ce-oem/data/
+      mkdir -p ${part_dest}
+      export PYTHONPATH=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/bin/:/snap/checkbox22/current/lib/python3.10/site-packages/
+      source_file=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/data/xtest_supported_version.json
+      script_file=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/bin/optee_helper.py
+      for ver in `cat ${source_file} | jq -r .xtest_suite_tag[]`; do
+          git checkout $ver
+          python3 ${script_file} parse_xtest_src $ver
+      done
+      cp -v optee-test-*.json ${part_dest}
   spidev-test:
     plugin: make
     source: https://github.com/torvalds/linux.git

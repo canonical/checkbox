@@ -53,7 +53,7 @@ jobs:
 
       - id: snap_build
         name: Build (retries on fail)
-        uses: Wandalen/wretry.action@e68c23e6309f2871ca8ae4763e7629b9c258e1ea
+        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
         with:
           attempt_limit: 5
           action: canonical/snapcraft-multiarch-action@v1
@@ -132,7 +132,7 @@ jobs:
 
       - id: snap_build
         name: Build (retries on fail)
-        uses: Wandalen/wretry.action@e68c23e6309f2871ca8ae4763e7629b9c258e1ea
+        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
         with:
           attempt_limit: 5
           action: canonical/snapcraft-multiarch-action@v1

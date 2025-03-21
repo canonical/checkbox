@@ -4,13 +4,52 @@ import glob
 import json
 import os
 import re
+import shlex
+import subprocess
 
 from look_up_xtest import look_up_app
 from pathlib import Path
 from systemd import journal
+from xtest_install_ta import find_ta_path, install_ta
 
 
 TEST_FILE_PREFIX = "optee-test-"
+
+
+def check_tee_supplicant_service():
+    try:
+        print("Looking for PID of tee-supplicant..")
+        subprocess.run(shlex.split("pgrep tee-supplicant"), check=True)
+        return True
+    except subprocess.CalledProcessError:
+        print("tee-supplicant service is not activated")
+        return False
+
+
+def launch_xtest(test_suite, test_id):
+    test_utility = look_up_app("xtest", os.environ.get("XTEST"))
+
+    if not check_tee_supplicant_service():
+        raise SystemExit("enable tee-supplicant service before launch xtest")
+
+    optee_fw = _lookup_optee_version()
+
+    if optee_fw is None:
+        print(
+            (
+                "OPTEE firmware version unavailable in journal log"
+                ", check OPTEE OS is activate"
+            )
+        )
+        return 2
+    elif optee_fw < "4.0":
+        ta_path = find_ta_path()
+        install_ta(test_utility, ta_path)
+
+    ret = subprocess.run(
+        shlex.split("{} -t {} {}".format(test_utility, test_suite, test_id))
+    )
+    return ret.returncode
 
 
 def parse_test_cases():
@@ -57,29 +96,43 @@ def _lookup_optee_version():
     return None
 
 
-def dump_version():
+def check_version(expected_ver):
 
     optee_version = _lookup_optee_version() or "unknown"
     print("optee_firmware: {}".format(optee_version))
+    print("expected version: {}".format(expected_ver))
+    if not expected_ver or optee_version != expected_ver:
+        raise SystemExit("Error: OPTEE firmware version is not expected")
+    else:
+        print("Passed: OPTEE firmware version is expected")
 
 
-def parse_json_file(filepath, filter=False, xtest=None):
+def parse_json_file(filepath, filter=False):
 
     if not filepath:
+        default_provider_path = (
+            "/snap/checkbox-ce-oem/current/providers"
+            "/checkbox-provider-ce-oem/data/"
+        )
         fw_ver = _lookup_optee_version()
-        filepath = "{}{}".format(TEST_FILE_PREFIX, fw_ver)
+
         # append 0 when the version is not fit
         if len(fw_ver.split(".")) == 2:
-            filepath += ".0"
-        filepath += ".json"
+            filepath = "{}{}{}.0.json".format(
+                default_provider_path, TEST_FILE_PREFIX, fw_ver
+            )
+        else:
+            filepath = "{}{}{}.json".format(
+                default_provider_path, TEST_FILE_PREFIX, fw_ver
+            )
 
     fp = Path(filepath)
     if not fp.exists():
-        print("suite: {} is not available".format(filepath))
+        print("error: {} is not available".format(filepath))
     else:
         for test in json.loads(fp.read_text()):
             if check_suite(test["suite"], filter):
-                print_test_info(test, xtest)
+                print_test_info(test)
 
 
 def check_suite(suite, filter):
@@ -89,12 +142,12 @@ def check_suite(suite, filter):
         return suite != "pkcs11"
 
 
-def print_test_info(test, xtest):
+def print_test_info(test):
     print("suite: {}".format(test["suite"]))
     print("test_id: {}".format(test["test_id"]))
     print("test_name: {}".format(test["test_name"]))
     print("description: {}".format(test["test_description"]))
-    print("tool: {}\n".format(xtest))
+    print()
 
 
 def register_arguments():
@@ -112,28 +165,34 @@ def register_arguments():
     )
 
     parse_src_parser = sub_parsers.add_parser(
-        "parse_xtest_src", description="Parse xtest source code and dump a JSON file"
+        "parse_xtest_src",
+        description="Parse xtest source code and dump a JSON file",
     )
     parse_src_parser.add_argument("file_suffix")
 
     sub_parsers.add_parser(
-        "firmware_version", description="dump OPTEE firmware and test suite source"
+        "check_firmware_version", description="check OPTEE firmware"
     )
+
+    test_parser = sub_parsers.add_parser(
+        "xtest", description="perform xtest case"
+    )
+    test_parser.add_argument("test_suite", type=str)
+    test_parser.add_argument("test_id", type=str)
+
     return parser.parse_args()
 
 
 def main():
     args = register_arguments()
     if args.action == "generate":
-        try:
-            xtest = look_up_app("xtest", os.environ.get("XTEST"))
-        except SystemError:
-            xtest = None
-        parse_json_file(os.environ.get("OPTEE_CASES"), args.pkcs11, xtest)
-    elif args.action == "firmware_version":
-        dump_version()
+        parse_json_file(os.environ.get("OPTEE_CASES"), args.pkcs11)
+    elif args.action == "check_firmware_version":
+        check_version(args.expected_version)
     elif args.action == "parse_xtest_src":
         parse_xtest_src(args.file_suffix)
+    elif args.action == "xtest":
+        raise SystemExit(launch_xtest(args.test_suite, args.test_id))
 
 
 if __name__ == "__main__":

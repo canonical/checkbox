@@ -79,7 +79,7 @@ _steps:
     2. Switch display modes within your Display Settings, check if it can be
     set to mirrored, extended, displayed on external or onboard only.
 _verification:
-    Was the desktop displayed correctly with {vendor} {product} on the HDMI-connected 
+    Was the desktop displayed correctly with {vendor} {product} on the HDMI-connected
     screen in every mode?
 _summary: Check HDMI port functionality as a monitor interconnect for {vendor} {product}.
 
@@ -225,7 +225,7 @@ _steps:
     2. Switch display modes between in your Display Settings, check if it can be
        set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly with {vendor} {product} on the Thunderbolt-connected 
+    Was the desktop displayed correctly with {vendor} {product} on the Thunderbolt-connected
     screen in every mode?
 
 unit: template
@@ -248,7 +248,7 @@ _steps:
     2. Switch display modes between in your Display Settings, check if it can be
        set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly with {vendor} {product} on the Thunderbolt-connected 
+    Was the desktop displayed correctly with {vendor} {product} on the Thunderbolt-connected
     screen in every mode?
 
 unit: template
@@ -455,6 +455,22 @@ _steps:
      Skip this test if your system does not have a DisplayPort port.
      1. If a display is already connected, unplug it.
      2. (Re-)Connect a display to the DisplayPort port on your system
+_verification:
+     Was the interface displayed correctly on the screen?
+flags: also-after-suspend
+
+id: monitor/hdmi_hotplug
+_summary: Can hotplug monitor (HDMI)
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi == 'True'
+_purpose:
+     This test will check the HDMI port and the ability to do hotplugging.
+_steps:
+     Skip this test if your system does not have a HDMI port.
+     1. If a display is already connected, unplug it.
+     2. (Re-)Connect a display to the HDMI port on your system
 _verification:
      Was the interface displayed correctly on the screen?
 flags: also-after-suspend

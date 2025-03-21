@@ -152,7 +152,7 @@ def print_test_info(test):
 
 def register_arguments():
     parser = argparse.ArgumentParser(description="OPTEE helper scripts")
-    sub_parsers = parser.add_subparsers(dest="action")
+    sub_parsers = parser.add_subparsers(dest="action", required=True)
 
     gen_tests_parser = sub_parsers.add_parser(
         "generate", description="Parse an OPTEE JSON file"
@@ -170,8 +170,11 @@ def register_arguments():
     )
     parse_src_parser.add_argument("file_suffix")
 
-    sub_parsers.add_parser(
+    check_parser = sub_parsers.add_parser(
         "check_firmware_version", description="check OPTEE firmware"
+    )
+    check_parser.add_argument(
+        "expected_version", help="OPTEE firmware version"
     )
 
     test_parser = sub_parsers.add_parser(

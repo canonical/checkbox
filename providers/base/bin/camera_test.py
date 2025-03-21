@@ -874,20 +874,22 @@ class CameraTest:
             print("Image file not found")
             return False
 
+        # core doesn't have the file command, but it has gst-typefind
+        # this doesn't return non-zero even if it fails, but prints to stderr
+        typefind_output = check_output(
+            ["gst-typefind-1.0", filename],
+            universal_newlines=True,
+            stderr=STDOUT,
+        ).strip()
+
+        print("The file type found by gst-typefind-1.0 is:", typefind_output)
+
+        if "image/jpeg" not in typefind_output:
+            print("Image is not a standard JPEG file")
+            return False
+
         outw = outh = 0
         with open(filename, mode="rb") as f:
-            # `file` won't return non-zero unless -E is specified
-            # so it won't throw an exception here
-            mime_type = check_output(
-                ["file", "--mime-type", "--brief", filename],
-                universal_newlines=True,
-            ).strip()
-            print("The mime type found by the file command is:", mime_type)
-
-            if mime_type != "image/jpeg":
-                print("Image is not a standard JPEG file")
-                return False
-
             f.seek(2)
             b = f.read(1)
             try:

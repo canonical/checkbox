@@ -68,6 +68,9 @@ plugin: shell
 user: root
 estimated_duration: 2.0
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_socket_can_fd == 'True'
 command:
   BASH_XTRACEFD=1
   set -ex
@@ -141,7 +144,9 @@ user: root
 estimated_duration: 2.0
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
-requires: manifest.socket_can_echo_server_running == 'False'
+requires:
+  manifest.socket_can_echo_server_running == 'False'
+  manifest.has_socket_can_fd == 'True'
 command:
  BASH_XTRACEFD=1
  set -ex
@@ -224,7 +229,9 @@ user: root
 estimated_duration: 5.0
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
-requires: manifest.socket_can_echo_server_running == 'True'
+requires:
+  manifest.socket_can_echo_server_running == 'True'
+  manifest.has_socket_can_fd == 'True'
 command:
   BASH_XTRACEFD=1
   set -ex

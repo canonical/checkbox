@@ -35,12 +35,15 @@ from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
-from plainbox.impl.session.suspend import SessionSuspendHelper1
-from plainbox.impl.session.suspend import SessionSuspendHelper2
-from plainbox.impl.session.suspend import SessionSuspendHelper3
-from plainbox.impl.session.suspend import SessionSuspendHelper4
-from plainbox.impl.session.suspend import SessionSuspendHelper5
-from plainbox.impl.session.suspend import SessionSuspendHelper6
+from plainbox.impl.session.suspend import (
+    SessionSuspendHelper1,
+    SessionSuspendHelper2,
+    SessionSuspendHelper3,
+    SessionSuspendHelper4,
+    SessionSuspendHelper5,
+    SessionSuspendHelper6,
+    SessionSuspendHelper9,
+)
 from plainbox.impl.testing_utils import make_job
 from plainbox.vendor import mock
 
@@ -928,6 +931,20 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
                 "rejected_jobs": [],
             },
         )
+
+
+class SessionSuspendHelper9Tests:
+    @mock.patch("plainbox.impl.session.state.collect_system_information")
+    def test_collect_on_checkpoint_disabled(self, collect_mock):
+        SessionState_mock = mock.MagicMock()
+        SessionState_mock.system_information = SessionState.system_information
+        session_state_mock = SessionState_mock()
+        session_state_mock._system_information = None
+        data = SessionSuspendHelper9._repr_SessionState(
+            session_state_mock, None
+        )
+        self.assertIn("system_information", data)
+        self.assertFalse(collect_mock.called)
 
 
 class RegressionTests(TestCase):

@@ -185,23 +185,20 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
         logger.debug(json.dumps(json_repr, indent=4))
         _validate(json_repr, value_type=dict)
         version = _validate(json_repr, key="version", choice=[1])
-        if version == 1:
-            return SessionPeekHelper1().peek_json(json_repr)
-        elif version == 2:
-            return SessionPeekHelper2().peek_json(json_repr)
-        elif version == 3:
-            return SessionPeekHelper3().peek_json(json_repr)
-        elif version == 4:
-            return SessionPeekHelper4().peek_json(json_repr)
-        elif version == 5:
-            return SessionPeekHelper5().peek_json(json_repr)
-        elif version == 6:
-            return SessionPeekHelper6().peek_json(json_repr)
-        elif version == 7:
-            return SessionPeekHelper7().peek_json(json_repr)
-        elif version == 8:
-            return SessionPeekHelper8().peek_json(json_repr)
-        else:
+        version_peek_helper_map = {
+            1: SessionPeekHelper1,
+            2: SessionPeekHelper2,
+            3: SessionPeekHelper3,
+            4: SessionPeekHelper4,
+            5: SessionPeekHelper5,
+            6: SessionPeekHelper6,
+            7: SessionPeekHelper7,
+            8: SessionPeekHelper8,
+            9: SessionPeekHelper9,
+        }
+        try:
+            return version_peek_helper_map[version]().peek_json(json_repr)
+        except KeyError:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version)
             )
@@ -313,38 +310,25 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         logger.debug(json.dumps(json_repr, indent=4))
         _validate(json_repr, value_type=dict)
         version = _validate(json_repr, key="version", choice=[1])
-        if version == 1:
-            helper = SessionResumeHelper1(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 2:
-            helper = SessionResumeHelper2(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 3:
-            helper = SessionResumeHelper3(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 4:
-            helper = SessionResumeHelper4(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 5:
-            helper = SessionResumeHelper5(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 6:
-            helper = SessionResumeHelper6(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 7:
-            helper = SessionResumeHelper7(
-                self.job_list, self.flags, self.location
-            )
-        else:
+        version_session_resume_map = {
+            1: SessionResumeHelper1,
+            2: SessionResumeHelper2,
+            3: SessionResumeHelper3,
+            4: SessionResumeHelper4,
+            5: SessionResumeHelper5,
+            6: SessionResumeHelper6,
+            7: SessionResumeHelper7,
+            8: SessionResumeHelper8,
+            9: SessionResumeHelper9,
+        }
+        try:
+            helper_class = version_session_resume_map[version]
+        except KeyError:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version)
             )
+
+        helper = helper_class(self.job_list, self.flags, self.location)
         return helper.resume_json(json_repr, early_cb)
 
 
@@ -595,7 +579,7 @@ class SessionPeekHelper6(MetaDataHelper6MixIn, SessionPeekHelper5):
     """
 
 
-class SessionPeekHelper7(MetaDataHelper7MixIn, SessionPeekHelper6):
+class SessionPeekHelper7(SessionPeekHelper6):
     """
     Helper class for implementing session peek feature
 
@@ -608,7 +592,20 @@ class SessionPeekHelper7(MetaDataHelper7MixIn, SessionPeekHelper6):
     """
 
 
-class SessionPeekHelper8(MetaDataHelper7MixIn, SessionPeekHelper6):
+class SessionPeekHelper8(SessionPeekHelper7):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper7` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
+class SessionPeekHelper9(MetaDataHelper7MixIn, SessionPeekHelper6):
     """
     Helper class for implementing session peek feature
 
@@ -1261,6 +1258,33 @@ class SessionResumeHelper6(MetaDataHelper6MixIn, SessionResumeHelper5):
 
 
 class SessionResumeHelper7(MetaDataHelper7MixIn, SessionResumeHelper6):
+    pass
+
+
+class SessionResumeHelper8(SessionResumeHelper7):
+    def _restore_SessionState_system_information(
+        self, session_state, session_repr
+    ):
+        _validate(session_repr, key="system_information", value_type=dict)
+        system_information = CollectorOutputs(
+            {
+                tool_name: CollectionOutput.from_dict(tool_output_json)
+                for (tool_name, tool_output_json) in session_repr[
+                    "system_information"
+                ].items()
+            }
+        )
+        session_state.system_information = system_information
+
+    def _build_SessionState(self, session_repr, early_cb=None):
+        session_state = super()._build_SessionState(session_repr, early_cb)
+        self._restore_SessionState_system_information(
+            session_state, session_repr
+        )
+        return session_state
+
+
+class SessionResumeHelper9(SessionResumeHelper8):
     pass
 
 

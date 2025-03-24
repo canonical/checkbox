@@ -35,31 +35,32 @@ from plainbox.abc import IUnitQualifier
 from plainbox.abc import IJobResult
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import Resource
-from plainbox.impl.result import DiskJobResult
-from plainbox.impl.result import IOLogRecord
-from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.session.resume import CorruptedSessionError
-from plainbox.impl.session.resume import IncompatibleJobError
-from plainbox.impl.session.resume import IncompatibleSessionError
-from plainbox.impl.session.resume import ResumeDiscardQualifier
-from plainbox.impl.session.resume import SessionPeekHelper
-from plainbox.impl.session.resume import SessionPeekHelper1
-from plainbox.impl.session.resume import SessionPeekHelper2
-from plainbox.impl.session.resume import SessionPeekHelper3
-from plainbox.impl.session.resume import SessionPeekHelper4
-from plainbox.impl.session.resume import SessionPeekHelper5
-from plainbox.impl.session.resume import SessionPeekHelper6
-from plainbox.impl.session.resume import SessionPeekHelper7
-from plainbox.impl.session.resume import SessionPeekHelper8
-from plainbox.impl.session.resume import SessionResumeError
-from plainbox.impl.session.resume import SessionResumeHelper
-from plainbox.impl.session.resume import SessionResumeHelper1
-from plainbox.impl.session.resume import SessionResumeHelper2
-from plainbox.impl.session.resume import SessionResumeHelper3
-from plainbox.impl.session.resume import SessionResumeHelper4
-from plainbox.impl.session.resume import SessionResumeHelper5
-from plainbox.impl.session.resume import SessionResumeHelper6
-from plainbox.impl.session.resume import SessionResumeHelper7
+from plainbox.impl.result import DiskJobResult, IOLogRecord, MemoryJobResult
+from plainbox.impl.session.resume import (
+    CorruptedSessionError,
+    IncompatibleJobError,
+    IncompatibleSessionError,
+    ResumeDiscardQualifier,
+    SessionPeekHelper,
+    SessionPeekHelper1,
+    SessionPeekHelper2,
+    SessionPeekHelper3,
+    SessionPeekHelper4,
+    SessionPeekHelper5,
+    SessionPeekHelper6,
+    SessionPeekHelper7,
+    SessionPeekHelper8,
+    SessionResumeError,
+    SessionResumeHelper,
+    SessionResumeHelper1,
+    SessionResumeHelper2,
+    SessionResumeHelper3,
+    SessionResumeHelper4,
+    SessionResumeHelper5,
+    SessionResumeHelper6,
+    SessionResumeHelper7,
+    SessionResumeHelper8,
+)
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
@@ -339,11 +340,45 @@ class SessionResumeHelperTests(TestCase):
                 None,
             )
 
-    def test_resume_dispatch_v9(self):
-        data = gzip.compress(b'{"version":9}')
+    def test_resume_dispatch_v8(self):
+        helper8 = SessionResumeHelper8
+        with mock.patch.object(helper8, "resume_json"):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"app_id":null,"custom_joblist":false,"flags":[],'
+                b'"rejected_jobs":[],"running_job_name":null,"title":null,'
+                b'"last_job_start_time": null'
+                b'},"results":{}},"version":8, "system_information" : {}}'
+            )
+            SessionResumeHelper([], None, None).resume(data)
+            helper8.resume_json.assert_called_once_with(
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "last_job_start_time": None,
+                            "app_id": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                            "custom_joblist": False,
+                            "rejected_jobs": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 8,
+                    "system_information": {},
+                },
+                None,
+            )
+
+    def test_resume_dispatch_vunsupported(self):
+        data = gzip.compress(b'{"version":12345}')
         with self.assertRaises(IncompatibleSessionError) as boom:
             SessionResumeHelper([], None, None).resume(data)
-        self.assertEqual(str(boom.exception), "Unsupported version 9")
+        self.assertEqual(str(boom.exception), "Unsupported version 12345")
 
 
 class SessionPeekHelperTests(TestCase):
@@ -562,10 +597,41 @@ class SessionPeekHelperTests(TestCase):
             )
 
     def test_peek_dispatch_v9(self):
-        data = gzip.compress(b'{"version":9}')
+        data = gzip.compress(b'{"version":12345}')
         with self.assertRaises(IncompatibleSessionError) as boom:
             SessionPeekHelper().peek(data)
-        self.assertEqual(str(boom.exception), "Unsupported version 9")
+        self.assertEqual(str(boom.exception), "Unsupported version 12345")
+
+
+class SessionStateResumeHelper8Tests(TestCase):
+    def test_calls_restore_SessionState_system_information(self):
+        self_mock = mock.MagicMock()
+        session_state_mock = mock.MagicMock()
+
+        session_repr = {"system_information": {}}
+
+        SessionResumeHelper8._restore_SessionState_system_information(
+            self_mock, session_state_mock, session_repr
+        )
+
+        with mock.patch(
+            "plainbox.impl.session.system_information.collect"
+        ) as collect_mock:
+            _ = session_state_mock.system_information
+            self.assertFalse(collect_mock.called)
+
+    @mock.patch("plainbox.impl.session.system_information.collect")
+    def test_calls_build_SessionState(self, collect_mock):
+        # mock super to avoid super._build_SessionState call in this test
+        with mock.patch(
+            "plainbox.impl.session.resume.SessionResumeHelper7._build_SessionState"
+        ):
+            session_resume_helper = SessionResumeHelper8([], None, None)
+            session_state = session_resume_helper._build_SessionState(
+                {"system_information": {}}
+            )
+        self.assertNotEqual(session_state.system_information, None)
+        self.assertFalse(collect_mock.called)
 
 
 class SessionResumeTests(TestCase):

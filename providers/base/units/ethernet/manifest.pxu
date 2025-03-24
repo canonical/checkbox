@@ -9,6 +9,11 @@ _name: Wake-on-LAN support through Ethernet port
 value-type: bool
 
 unit: manifest entry
+id: has_wake_on_lan_server
+_name: Has wake-on-Lan server for automation setup and running
+value-type: bool
+
+unit: manifest entry
 id: _ignore_disconnected_ethernet_interfaces
 _name: Ignore disconnected Ethernet interfaces
 value-type: bool

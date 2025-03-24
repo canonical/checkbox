@@ -597,7 +597,7 @@ class SessionPeekHelper8(SessionPeekHelper7):
     Helper class for implementing session peek feature
 
     This class works with data constructed by
-    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper7` which has
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper8` which has
     been pre-processed by :class:`SessionPeekHelper` (to strip the initial
     envelope).
 
@@ -610,7 +610,7 @@ class SessionPeekHelper9(MetaDataHelper7MixIn, SessionPeekHelper6):
     Helper class for implementing session peek feature
 
     This class works with data constructed by
-    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper7` which has
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper9` which has
     been pre-processed by :class:`SessionPeekHelper` (to strip the initial
     envelope).
 

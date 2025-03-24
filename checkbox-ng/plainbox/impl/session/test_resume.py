@@ -50,6 +50,7 @@ from plainbox.impl.session.resume import (
     SessionPeekHelper6,
     SessionPeekHelper7,
     SessionPeekHelper8,
+    SessionPeekHelper9,
     SessionResumeError,
     SessionResumeHelper,
     SessionResumeHelper1,
@@ -60,6 +61,7 @@ from plainbox.impl.session.resume import (
     SessionResumeHelper6,
     SessionResumeHelper7,
     SessionResumeHelper8,
+    SessionResumeHelper9,
 )
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
@@ -374,6 +376,40 @@ class SessionResumeHelperTests(TestCase):
                 None,
             )
 
+    def test_resume_dispatch_v9(self):
+        helper9 = SessionResumeHelper9
+        with mock.patch.object(helper9, "resume_json"):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"app_id":null,"custom_joblist":false,"flags":[],'
+                b'"rejected_jobs":[],"running_job_name":null,"title":null,'
+                b'"last_job_start_time": null'
+                b'},"results":{}},"version":9, "system_information" : {}}'
+            )
+            SessionResumeHelper([], None, None).resume(data)
+            helper9.resume_json.assert_called_once_with(
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "last_job_start_time": None,
+                            "app_id": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                            "custom_joblist": False,
+                            "rejected_jobs": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 9,
+                    "system_information": {},
+                },
+                None,
+            )
+
     def test_resume_dispatch_vunsupported(self):
         data = gzip.compress(b'{"version":12345}')
         with self.assertRaises(IncompatibleSessionError) as boom:
@@ -597,6 +633,35 @@ class SessionPeekHelperTests(TestCase):
             )
 
     def test_peek_dispatch_v9(self):
+        helper9 = SessionPeekHelper9
+        with mock.patch.object(helper9, "peek_json"):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null, "last_job_start_time": null},'
+                b'"results":{}},"version":9, "system_information" : {}}'
+            )
+            SessionPeekHelper().peek(data)
+            helper9.peek_json.assert_called_once_with(
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "last_job_start_time": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 9,
+                    "system_information": {},
+                }
+            )
+
+    def test_peek_dispatch_vunsupported(self):
         data = gzip.compress(b'{"version":12345}')
         with self.assertRaises(IncompatibleSessionError) as boom:
             SessionPeekHelper().peek(data)

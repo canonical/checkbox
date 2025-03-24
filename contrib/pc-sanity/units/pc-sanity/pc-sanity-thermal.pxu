@@ -238,7 +238,7 @@ _description:
 unit: template
 template-resource: device
 template-filter:
- device.path in ['/devices/platform/INT3400:00','/devices/platform/INT3403:00','/devices/platform/INTC1040:00','/devices/platform/INTC1041:00','/devices/platform/INTC1042:00','/devices/platform/INTC1043:00','/devices/platform/INTC1046:00','/devices/platform/INTC1062:00','/devices/platform/INTC10A0:00','/devices/platform/INTC10A1:00']
+ device.path in ['/devices/platform/INT3400:00','/devices/platform/INT3403:00','/devices/platform/INTC1040:00','/devices/platform/INTC1041:00','/devices/platform/INTC1042:00','/devices/platform/INTC1043:00','/devices/platform/INTC1046:00','/devices/platform/INTC1062:00', '/devices/platform/INTC1068:00', '/devices/platform/INTC1069:00', '/devices/platform/INTC10A0:00','/devices/platform/INTC10A1:00']
 template-unit: job
 plugin: shell
 depends: miscellanea/thermald

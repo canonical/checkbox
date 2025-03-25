@@ -115,7 +115,9 @@ def parse_json_file(filepath, filter=False):
             "/checkbox-provider-ce-oem/data/"
         )
         fw_ver = _lookup_optee_version()
-
+        if not fw_ver:
+            print("error: failed to retrieve the version of optee")
+            return
         # append 0 when the version is not fit
         if len(fw_ver.split(".")) == 2:
             filepath = "{}{}{}.0.json".format(

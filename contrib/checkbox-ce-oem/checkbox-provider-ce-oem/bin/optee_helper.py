@@ -36,10 +36,8 @@ def launch_xtest(test_suite, test_id):
 
     if optee_fw is None:
         print(
-            (
-                "OPTEE firmware version unavailable in journal log"
-                ", check OPTEE OS is activate"
-            )
+            "OPTEE firmware version unavailable in journal log"
+            ", check OPTEE OS is activate"
         )
         return 2
     elif optee_fw < "4.0":

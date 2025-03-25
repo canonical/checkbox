@@ -77,7 +77,6 @@ parts:
       cp -v ${PART_SRC}/src/beep ${CRAFT_PART_INSTALL}/usr/bin/
   xtest:
     plugin: dump
-    after: [checkbox-provider-ce-oem]
     source: https://github.com/OP-TEE/optee_test.git
     source-type: git
     build-snaps:

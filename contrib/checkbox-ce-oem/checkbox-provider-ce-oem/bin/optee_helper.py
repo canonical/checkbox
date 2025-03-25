@@ -107,7 +107,7 @@ def check_version(expected_ver):
         print("Passed: OPTEE firmware version is expected")
 
 
-def parse_json_file(filepath, filter=False):
+def parse_json_file(filepath, filter_pkcs11=False):
 
     if not filepath:
         default_provider_path = (
@@ -133,15 +133,12 @@ def parse_json_file(filepath, filter=False):
         print("error: {} is not available".format(filepath))
     else:
         for test in json.loads(fp.read_text()):
-            if check_suite(test["suite"], filter):
+            if (
+                filter_pkcs11 and test["suite"] == "pkcs11" or
+                not filter_pkcs11 and test["suite"] != "pkcs11"
+
+            ):           
                 print_test_info(test)
-
-
-def check_suite(suite, filter):
-    if filter:
-        return suite == "pkcs11"
-    else:
-        return suite != "pkcs11"
 
 
 def print_test_info(test):

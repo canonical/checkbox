@@ -668,30 +668,33 @@ class SessionSuspendHelper7(SessionSuspendHelper6):
 class SessionSuspendHelper8(SessionSuspendHelper7):
     VERSION = 8
 
-    def _repr_SessionState(self, obj, session_dir):
-        data = super()._repr_SessionState(obj, session_dir)
-        data["system_information"] = {
+    def _repr_system_information(self, obj, session_dir):
+        return {
             tool_name: tool_output.to_dict()
             for (tool_name, tool_output) in obj.system_information.items()
         }
+
+    def _repr_SessionState(self, obj, session_dir):
+        data = super()._repr_SessionState(obj, session_dir)
+        data["system_information"] = self._repr_system_information(
+            obj, session_dir
+        )
         return data
 
 
 class SessionSuspendHelper9(SessionSuspendHelper8):
     VERSION = 9
 
-    def _repr_SessionState(self, obj, session_dir):
-        data = super()._repr_SessionState(obj, session_dir)
+    def _repr_system_information(self, obj, session_dir):
         # this effectively disables the fetch-on-checkpoint load of
         # system_information. This only saves it if it was already set
         if obj._system_information:
-            data["system_information"] = {
+            return {
                 tool_name: tool_output.to_dict()
                 for (tool_name, tool_output) in obj.system_information.items()
             }
         else:
-            data["system_information"] = None
-        return data
+            return None
 
 
 # Alias for the most recent version

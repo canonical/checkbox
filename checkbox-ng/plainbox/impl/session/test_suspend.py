@@ -42,6 +42,7 @@ from plainbox.impl.session.suspend import (
     SessionSuspendHelper4,
     SessionSuspendHelper5,
     SessionSuspendHelper6,
+    SessionSuspendHelper8,
     SessionSuspendHelper9,
 )
 from plainbox.impl.testing_utils import make_job
@@ -933,18 +934,32 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         )
 
 
-class SessionSuspendHelper9Tests:
-    @mock.patch("plainbox.impl.session.state.collect_system_information")
-    def test_collect_on_checkpoint_disabled(self, collect_mock):
+class SessionSuspendHelper8Tests(TestCase):
+    @mock.patch("base64.b64encode", new=lambda x: x)
+    def test_collect_on_checkpoint_disabled(self):
         SessionState_mock = mock.MagicMock()
-        SessionState_mock.system_information = SessionState.system_information
         session_state_mock = SessionState_mock()
         session_state_mock._system_information = None
-        data = SessionSuspendHelper9._repr_SessionState(
+        session_suspend_helper = SessionSuspendHelper8()
+        data = session_suspend_helper._repr_SessionState(
             session_state_mock, None
         )
         self.assertIn("system_information", data)
-        self.assertFalse(collect_mock.called)
+        self.assertTrue(session_state_mock.system_information.items.called)
+
+
+class SessionSuspendHelper9Tests(TestCase):
+    @mock.patch("base64.b64encode", new=lambda x: x)
+    def test_collect_on_checkpoint_disabled(self):
+        SessionState_mock = mock.MagicMock()
+        session_state_mock = SessionState_mock()
+        session_state_mock._system_information = None
+        session_suspend_helper = SessionSuspendHelper9()
+        data = session_suspend_helper._repr_SessionState(
+            session_state_mock, None
+        )
+        self.assertIn("system_information", data)
+        self.assertFalse(session_state_mock.system_information.items.called)
 
 
 class RegressionTests(TestCase):

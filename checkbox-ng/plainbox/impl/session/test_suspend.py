@@ -959,7 +959,28 @@ class SessionSuspendHelper9Tests(TestCase):
             session_state_mock, None
         )
         self.assertIn("system_information", data)
+        self.assertFalse(data["system_information"])
         self.assertFalse(session_state_mock.system_information.items.called)
+
+    @mock.patch("base64.b64encode", new=lambda x: x)
+    def test_checkpoint_still_works(self):
+        SessionState_mock = mock.MagicMock()
+        session_state_mock = SessionState_mock()
+        tool_output = mock.MagicMock()
+        session_state_mock._system_information = {"example_tool": tool_output}
+        session_state_mock.system_information.items.side_effect = (
+            session_state_mock._system_information.items
+        )
+        session_suspend_helper = SessionSuspendHelper9()
+        data = session_suspend_helper._repr_SessionState(
+            session_state_mock, None
+        )
+        self.assertIn("system_information", data)
+        print(data["system_information"])
+        self.assertEqual(
+            data["system_information"]["example_tool"], tool_output.to_dict()
+        )
+        self.assertTrue(session_state_mock.system_information.items.called)
 
 
 class RegressionTests(TestCase):

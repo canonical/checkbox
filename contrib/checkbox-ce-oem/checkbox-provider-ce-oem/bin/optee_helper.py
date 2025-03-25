@@ -133,11 +133,9 @@ def parse_json_file(filepath, filter_pkcs11=False):
         print("error: {} is not available".format(filepath))
     else:
         for test in json.loads(fp.read_text()):
-            if (
-                filter_pkcs11 and test["suite"] == "pkcs11" or
+            if (filter_pkcs11 and test["suite"] == "pkcs11") or (
                 not filter_pkcs11 and test["suite"] != "pkcs11"
-
-            ):           
+            ):
                 print_test_info(test)
 
 

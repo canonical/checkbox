@@ -84,17 +84,21 @@ parts:
       - checkbox22
     build-packages:
       - jq
+    build-environment:
+      - PART_DEST: ${SNAPCRAFT_PART_INSTALL}/providers/checkbox-provider-ce-oem/data/
+      - PROVIDER_SRC: ${SNAPCRAFT_PROJECT_DIR}/../../checkbox-provider-ce-oem
+      - PYTHONPATH: /snap/checkbox22/current/lib/python3.10/site-packages/
+    override-pull: |
+      snapcraftctl pull
+      cp ${PROVIDER_SRC}/data/xtest_supported_version.json .
+      cp ${PROVIDER_SRC}/bin/optee_helper.py .
+      cp ${PROVIDER_SRC}/bin/look_up_xtest.py .
     override-build: |
-      part_dest=${SNAPCRAFT_PART_INSTALL}/providers/checkbox-provider-ce-oem/data/
-      mkdir -p ${part_dest}
-      export PYTHONPATH=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/bin/:/snap/checkbox22/current/lib/python3.10/site-packages/
-      source_file=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/data/xtest_supported_version.json
-      script_file=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/bin/optee_helper.py
-      for ver in `cat ${source_file} | jq -r .xtest_suite_tag[]`; do
+      for ver in `cat xtest_supported_version.json | jq -r .xtest_suite_tag[]`; do
           git checkout $ver
-          python3 ${script_file} parse_xtest_src $ver
+          python3 optee_helper.py parse_xtest_src $ver
       done
-      cp -v optee-test-*.json ${part_dest}
+      cp -v optee-test-*.json ${PART_DEST}
   spidev-test:
     plugin: make
     source: https://github.com/torvalds/linux.git

@@ -16,36 +16,42 @@ from xtest_install_ta import find_ta_path, install_ta
 TEST_FILE_PREFIX = "optee-test-"
 
 
-def check_tee_supplicant_service():
+def _run_command(cmd, **kwargs):
+    """Helper function to run commands and print out the command and output"""
+    print(f"Running command: {cmd}", flush=True)
     try:
-        print("Looking for PID of tee-supplicant..")
-        subprocess.run(shlex.split("pgrep tee-supplicant"), check=True)
-        return True
-    except subprocess.CalledProcessError:
-        print("tee-supplicant service is not activated")
-        return False
+        return subprocess.run(shlex.split(cmd), **kwargs)
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with return code {e.returncode}", flush=True)
+        print(f"Error output: {e.stderr}", flush=True)
+        raise e
+    except Exception as e:
+        print(f"Unexpected error running command: {str(e)}", flush=True)
+        raise e
 
 
 def launch_xtest(test_suite, test_id):
     test_utility = look_up_app("xtest", os.environ.get("XTEST"))
 
-    if not check_tee_supplicant_service():
-        raise SystemExit("enable tee-supplicant service before launch xtest")
+    print("Looking for PID of tee-supplicant..", flush=True)
+    _run_command("pgrep tee-supplicant", check=True)
 
     optee_fw = _lookup_optee_version()
 
     if optee_fw is None:
         print(
             "OPTEE firmware version unavailable in journal log"
-            ", check OPTEE OS is activate"
+            ", check OPTEE OS is activate",
+            flush=True,
         )
         return 2
     elif optee_fw < "4.0":
         ta_path = find_ta_path()
         install_ta(test_utility, ta_path)
 
-    ret = subprocess.run(
-        shlex.split("{} -t {} {}".format(test_utility, test_suite, test_id))
+    ret = _run_command(
+        "{} -t {} {}".format(test_utility, test_suite, test_id),
+        check=False
     )
     return ret.returncode
 

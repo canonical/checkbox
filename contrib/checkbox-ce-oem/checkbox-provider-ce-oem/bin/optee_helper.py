@@ -50,8 +50,7 @@ def launch_xtest(test_suite, test_id):
         install_ta(test_utility, ta_path)
 
     ret = _run_command(
-        "{} -t {} {}".format(test_utility, test_suite, test_id),
-        check=False
+        "{} -t {} {}".format(test_utility, test_suite, test_id), check=False
     )
     return ret.returncode
 

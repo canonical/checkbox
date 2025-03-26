@@ -1,4 +1,6 @@
 import json
+import textwrap
+
 from copy import copy
 from unittest import TestCase
 from contextlib import contextmanager
@@ -11,7 +13,7 @@ from plainbox.impl.session.system_information import (
     OutputSuccess,
     OutputFailure,
     CollectionOutput,
-    collect,
+    JournalctlCollector,
 )
 
 
@@ -263,3 +265,24 @@ class TestCollectorMeta(TestCase):
                 COLLECTOR_NAME = "will_register"
 
             self.assertIn("will_register", CollectorMeta.collectors)
+
+
+class TestJournalctlCollector(TestCase):
+
+    @patch("plainbox.impl.session.system_information.run")
+    def test_collect_nonjson_json(self, run_mock):
+        run_return_mock = MagicMock()
+        run_return_mock.returncode = 0
+        # note, journalctl doesn't return json when called json, it returns
+        # events as json, one per line
+        run_return_mock.stdout = textwrap.dedent(
+            """
+            {"PRIORITY":"6","__SEQNUM":"0","MESSAGE":"some"}
+            {"PRIORITY":"6","__SEQNUM":"1","MESSAGE":"some"}
+            {"PRIORITY":"6","__SEQNUM":"2","MESSAGE":"some"}
+            """
+        ).strip()
+        run_mock.return_value = run_return_mock
+        collection_output = JournalctlCollector().collect()
+        self.assertTrue(collection_output.success)
+        self.assertIsInstance(collection_output.outputs, OutputSuccess)

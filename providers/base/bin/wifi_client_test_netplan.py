@@ -25,6 +25,8 @@ import sys
 import ipaddress
 import yaml
 
+from contextlib import contextmanager
+
 from gateway_ping_test import ping
 from checkbox_support.snap_utils.system import get_series
 
@@ -235,6 +237,7 @@ def netplan_apply_config():
     env.pop("PYTHONUSERBASE", None)
     retcode = sp.call(cmd, shell=True, env=env)
     if retcode != 0:
+        print_journal_entries(start_time, renderer)
         raise SystemExit("ERROR: failed netplan apply call")
     print()
 
@@ -450,58 +453,65 @@ def parse_args():
     return parser.parse_args()
 
 
+@contextmanager
+def handle_original_np_config():
+    netplan_config_backup()
+    netplan_config_wipe()
+    try:
+        yield
+    finally:
+        netplan_config_restore()
+        netplan_apply_config()
+
+
+@contextmanager
+def handle_test_np_config(args):
+    print_head("Generate a test netplan configuration")
+    config_data = generate_test_config(**vars(args))
+    print(config_data)
+    print()
+    write_test_config(config_data)
+
+    # Bring up the interface
+    print_head("Apply the test configuration")
+    netplan_apply_config()
+    time.sleep(20)
+    try:
+        yield
+    finally:
+        delete_test_config()
+
+
 def main():
     args = parse_args()
 
+    global start_time
+    global renderer
     start_time = datetime.datetime.now()
-
     renderer = check_and_get_renderer(args.renderer)
     args.renderer = renderer
-    netplan_config_backup()
-    netplan_config_wipe()
 
-    try:
-        # Create wireless network test configuration file
-        print_head("Generate a test netplan configuration")
-        config_data = generate_test_config(**vars(args))
-        print(config_data)
-        print()
-        write_test_config(config_data)
+    with handle_original_np_config():
+        with handle_test_np_config(args):
+            print_head("Wait for interface to be routable")
+            reached_routable = wait_for_routable(args.interface, renderer)
 
-        # Bring up the interface
-        print_head("Apply the test configuration")
-        netplan_apply_config()
-        time.sleep(20)
+            test_result = False
+            if reached_routable:
+                print_head("Display address")
+                print_address_info(args.interface)
 
-        print_head("Wait for interface to be routable")
-        reached_routable = wait_for_routable(args.interface, renderer)
+                print_head("Display route table")
+                print_route_info()
 
-        test_result = False
-        if reached_routable:
-            print_head("Display address")
-            print_address_info(args.interface)
-
-            print_head("Display route table")
-            print_route_info()
-
-            # Check connection by ping or link status
-            print_head("Perform a ping test")
-            test_result = perform_ping_test(args.interface, renderer)
-            if test_result:
-                print("Connection test passed\n")
-            else:
-                print("Connection test failed\n")
-    except SystemExit:
-        print_journal_entries(start_time, renderer)
-        raise
-    finally:
-        delete_test_config()
-        netplan_config_restore()
-
-    try:
-        netplan_apply_config()
-    finally:
-        print_journal_entries(start_time, renderer)
+                # Check connection by ping or link status
+                print_head("Perform a ping test")
+                test_result = perform_ping_test(args.interface, renderer)
+                if test_result:
+                    print("Connection test passed\n")
+                else:
+                    print("Connection test failed\n")
+    print_journal_entries(start_time, renderer)
     if not test_result:
         raise SystemExit(1)
 

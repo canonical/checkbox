@@ -693,8 +693,7 @@ class SessionSuspendHelper9(SessionSuspendHelper8):
                 tool_name: tool_output.to_dict()
                 for (tool_name, tool_output) in obj.system_information.items()
             }
-        else:
-            return None
+        return {}
 
 
 # Alias for the most recent version

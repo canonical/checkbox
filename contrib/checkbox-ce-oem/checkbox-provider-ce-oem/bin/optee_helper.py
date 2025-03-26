@@ -26,7 +26,7 @@ def _run_command(cmd, **kwargs):
             "Command failed with return code {}".format(e.returncode),
             flush=True,
         )
-        print("Error output: ()".format(e.stderr), flush=True)
+        print("Error output: {}".format(e.stderr), flush=True)
         raise e
     except Exception as e:
         print(

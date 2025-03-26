@@ -29,6 +29,7 @@ estimated_duration: 180
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_led_power == 'True'
+ suspend.type != 's2idle'
 
 plugin: manual
 category_id: led
@@ -37,6 +38,7 @@ estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_led_suspend == 'True'
+ suspend.type != 's2idle'
 depends: suspend/suspend_advanced_auto
 _purpose:
  Suspend LED verification.

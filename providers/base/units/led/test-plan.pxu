@@ -113,6 +113,7 @@ include:
     led/sysfs_led_brightness_off_.*
 bootstrap_include:
     dmi
+    suspend
 
 id: led-indicator-manual
 unit: test plan

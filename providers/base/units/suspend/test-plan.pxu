@@ -24,6 +24,8 @@ include:
     suspend/oops_results_after_suspend.log
     led/power-blink-suspend                        certification-status=blocker
     led/suspend                                    certification-status=blocker
+bootstrap_include:
+	suspend
 
 id: before-suspend-reference-cert-automated
 unit: test plan

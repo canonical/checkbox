@@ -25,10 +25,16 @@ def get_kernel_version_from_journal(boot_id):
 
 
 def check_error(boot_id, error="Microcode SW error detected"):
-    journal = subprocess.check_output(["journalctl", "-k", "-b", boot_id], universal_newlines=True)
+    journal = subprocess.check_output(
+        ["journalctl", "-k", "-b", boot_id], universal_newlines=True
+    )
     for line in journal.splitlines():
         if error in line:
-            raise SystemExit("Microcode software error detected during boot {}.".format(boot_id))
+            raise SystemExit(
+                "Microcode software error detected during boot {}.".format(
+                    boot_id
+                )
+            )
 
 
 def main(current_linux_version):

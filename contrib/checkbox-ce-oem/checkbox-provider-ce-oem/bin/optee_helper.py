@@ -22,11 +22,16 @@ def _run_command(cmd, **kwargs):
     try:
         return subprocess.run(shlex.split(cmd), **kwargs)
     except subprocess.CalledProcessError as e:
-        print("Command failed with return code {}".format(e.returncode), flush=True)
+        print(
+            "Command failed with return code {}".format(e.returncode),
+            flush=True,
+        )
         print("Error output: ()".format(e.stderr), flush=True)
         raise e
     except Exception as e:
-        print("Unexpected error running command: {}".format(str(e)), flush=True)
+        print(
+            "Unexpected error running command: {}".format(str(e)), flush=True
+        )
         raise e
 
 

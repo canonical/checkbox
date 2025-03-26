@@ -7,7 +7,7 @@ def get_mem_sleep_types():
     return types.split()
 
 
-def get_supported_suspend_type(types: list[str]):
+def get_supported_suspend_type(types):
     for type in types:
         if type.startswith("[") and type.endswith("]"):
             return type[1:-1]

@@ -18,15 +18,15 @@ TEST_FILE_PREFIX = "optee-test-"
 
 def _run_command(cmd, **kwargs):
     """Helper function to run commands and print out the command and output"""
-    print(f"Running command: {cmd}", flush=True)
+    print("Running command: {}".format(cmd), flush=True)
     try:
         return subprocess.run(shlex.split(cmd), **kwargs)
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with return code {e.returncode}", flush=True)
-        print(f"Error output: {e.stderr}", flush=True)
+        print("Command failed with return code {}".format(e.returncode), flush=True)
+        print("Error output: ()".format(e.stderr), flush=True)
         raise e
     except Exception as e:
-        print(f"Unexpected error running command: {str(e)}", flush=True)
+        print("Unexpected error running command: {}".format(str(e)), flush=True)
         raise e
 
 

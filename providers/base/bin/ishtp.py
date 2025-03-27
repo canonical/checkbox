@@ -12,7 +12,7 @@ def get_release_version():
         ).strip()
         return int(
             float(output)
-        )  # Convert to float first to handle versions like '24.04', then to int
+        )
     except (subprocess.CalledProcessError, ValueError):
         print("Error: Unable to determine release version.")
         sys.exit(1)

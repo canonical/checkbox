@@ -25,6 +25,8 @@ import sys
 import ipaddress
 import yaml
 
+from contextlib import contextmanager
+
 from gateway_ping_test import ping
 from checkbox_support.snap_utils.system import get_series
 
@@ -218,7 +220,10 @@ def write_test_config(config):
 
 def delete_test_config():
     print_head("Delete the test file")
-    os.remove(NETPLAN_TEST_CFG)
+    try:
+        os.remove(NETPLAN_TEST_CFG)
+    except FileNotFoundError:
+        print("Test config {} not found, ignoring...".format(NETPLAN_TEST_CFG))
     print()
 
 
@@ -232,11 +237,9 @@ def netplan_apply_config():
     env.pop("PYTHONUSERBASE", None)
     retcode = sp.call(cmd, shell=True, env=env)
     if retcode != 0:
-        print("ERROR: failed netplan apply call")
-        print()
-        return False
+        print_journal_entries(start_time, renderer)
+        raise SystemExit("ERROR: failed netplan apply call")
     print()
-    return True
 
 
 def get_interface_info(interface, renderer):
@@ -450,64 +453,68 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
-    args = parse_args()
-
-    start_time = datetime.datetime.now()
-
-    renderer = check_and_get_renderer(args.renderer)
-    args.renderer = renderer
+@contextmanager
+def handle_original_np_config():
     netplan_config_backup()
     netplan_config_wipe()
+    try:
+        yield
+    finally:
+        delete_test_config()
+        netplan_config_restore()
+        netplan_apply_config()
 
-    # Create wireless network test configuration file
+
+@contextmanager
+def handle_test_np_config(args):
     print_head("Generate a test netplan configuration")
     config_data = generate_test_config(**vars(args))
     print(config_data)
     print()
-
     write_test_config(config_data)
 
     # Bring up the interface
     print_head("Apply the test configuration")
-    if not netplan_apply_config():
-        delete_test_config()
-        netplan_config_restore()
-        print_journal_entries(start_time, renderer)
-        raise SystemExit(1)
+    netplan_apply_config()
     time.sleep(20)
+    try:
+        yield
+    finally:
+        delete_test_config()
 
-    print_head("Wait for interface to be routable")
-    reached_routable = wait_for_routable(args.interface, renderer)
 
-    test_result = False
-    if reached_routable:
-        print_head("Display address")
-        print_address_info(args.interface)
+def main():
+    args = parse_args()
 
-        print_head("Display route table")
-        print_route_info()
+    global start_time
+    global renderer
+    start_time = datetime.datetime.now()
+    renderer = check_and_get_renderer(args.renderer)
+    args.renderer = renderer
 
-        # Check connection by ping or link status
-        print_head("Perform a ping test")
-        test_result = perform_ping_test(args.interface, renderer)
-        if test_result:
-            print("Connection test passed\n")
-        else:
-            print("Connection test failed\n")
+    with handle_original_np_config():
+        with handle_test_np_config(args):
+            print_head("Wait for interface to be routable")
+            reached_routable = wait_for_routable(args.interface, renderer)
 
-    delete_test_config()
-    netplan_config_restore()
+            test_result = False
+            if reached_routable:
+                print_head("Display address")
+                print_address_info(args.interface)
 
-    if not netplan_apply_config():
-        print_journal_entries(start_time, renderer)
-        raise SystemExit("ERROR: failed to apply restored config")
+                print_head("Display route table")
+                print_route_info()
 
-    if not test_result:
-        print_journal_entries(start_time, renderer)
-        raise SystemExit(1)
-
+                # Check connection by ping or link status
+                print_head("Perform a ping test")
+                test_result = perform_ping_test(args.interface, renderer)
+                if test_result:
+                    print("Connection test passed\n")
+                else:
+                    print("Connection test failed\n")
     print_journal_entries(start_time, renderer)
+    if not test_result:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

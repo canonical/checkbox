@@ -460,6 +460,7 @@ def handle_original_np_config():
     try:
         yield
     finally:
+        delete_test_config()
         netplan_config_restore()
         netplan_apply_config()
 

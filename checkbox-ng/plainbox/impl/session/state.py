@@ -942,6 +942,8 @@ class SessionState:
         # Update all job readiness state
         self._recompute_job_readiness()
         # Return all dependency problems to the caller
+        for problem in problems:
+            logger.error("Dependency problem: %s", str(problem))
         return problems
 
     def get_estimated_duration(self, manual_overhead=30.0):

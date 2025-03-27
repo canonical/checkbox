@@ -10,9 +10,7 @@ def get_release_version():
         output = subprocess.check_output(
             ["lsb_release", "-rs"], text=True
         ).strip()
-        return int(
-            float(output)
-        )
+        return int(float(output))
     except (subprocess.CalledProcessError, ValueError):
         print("Error: Unable to determine release version.")
         sys.exit(1)
@@ -73,7 +71,7 @@ def check_devices():
     return 0
 
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-m",
@@ -95,7 +93,3 @@ def main():
         exit_code |= check_devices()
 
     sys.exit(exit_code)
-
-
-if __name__ == "__main__":
-    main()

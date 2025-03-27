@@ -542,7 +542,7 @@ _summary: Check whether a desktop session is available and of which type.
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command: desktop_session_resource.py resources
 
-id: suspend
+id: suspend_state
 plugin: resource
 _summary: Provide supported suspend type ("deep", "s2idle", etc.)
 command: suspend_resource.py

@@ -25,7 +25,7 @@ include:
     led/power-blink-suspend                        certification-status=blocker
     led/suspend                                    certification-status=blocker
 bootstrap_include:
-    suspend
+    suspend_state
 
 id: before-suspend-reference-cert-automated
 unit: test plan

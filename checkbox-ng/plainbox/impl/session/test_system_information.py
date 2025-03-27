@@ -1,4 +1,6 @@
 import json
+import textwrap
+
 from copy import copy
 from unittest import TestCase
 from contextlib import contextmanager
@@ -11,13 +13,19 @@ from plainbox.impl.session.system_information import (
     OutputSuccess,
     OutputFailure,
     CollectionOutput,
-    collect,
+    JournalctlCollector,
 )
 
 
 class TestCollector(TestCase):
-    def test_collect_version_success(self):
+    def get_self_mock(self):
         self_mock = MagicMock()
+        self_mock.collector_parser = Collector.collector_parser
+        self_mock.collector_exceptions = Collector.collector_exceptions
+        return self_mock
+
+    def test_collect_version_success(self):
+        self_mock = self.get_self_mock()
         with patch(
             "plainbox.impl.session.system_information.check_output"
         ) as check_output_mock:
@@ -28,7 +36,7 @@ class TestCollector(TestCase):
         self.assertEqual(version, "some_version_string")
 
     def test_collect_version_failure(self):
-        self_mock = MagicMock()
+        self_mock = self.get_self_mock()
         with patch(
             "plainbox.impl.session.system_information.check_output"
         ) as check_output_mock:
@@ -41,7 +49,7 @@ class TestCollector(TestCase):
         self.assertIn("Command failed", version)
 
     def test_collect_outputs_success(self):
-        self_mock = MagicMock()
+        self_mock = self.get_self_mock()
 
         collection_result = MagicMock()
         collection_result.returncode = 0
@@ -57,7 +65,7 @@ class TestCollector(TestCase):
         self.assertTrue(outputs.payload["key"], "value")
 
     def test_collect_outputs_failure_command(self):
-        self_mock = MagicMock()
+        self_mock = self.get_self_mock()
 
         collection_result = MagicMock()
         collection_result.returncode = 1
@@ -77,7 +85,7 @@ class TestCollector(TestCase):
         self.assertEqual(outputs.return_code, 1)
 
     def test_collect_outputs_failure_json(self):
-        self_mock = MagicMock()
+        self_mock = self.get_self_mock()
 
         collection_result = MagicMock()
         collection_result.returncode = 0
@@ -257,3 +265,24 @@ class TestCollectorMeta(TestCase):
                 COLLECTOR_NAME = "will_register"
 
             self.assertIn("will_register", CollectorMeta.collectors)
+
+
+class TestJournalctlCollector(TestCase):
+
+    @patch("plainbox.impl.session.system_information.run")
+    def test_collect_nonjson_json(self, run_mock):
+        run_return_mock = MagicMock()
+        run_return_mock.returncode = 0
+        # note, journalctl doesn't return json when called json, it returns
+        # events as json, one per line
+        run_return_mock.stdout = textwrap.dedent(
+            """
+            {"PRIORITY":"6","__SEQNUM":"0","MESSAGE":"some"}
+            {"PRIORITY":"6","__SEQNUM":"1","MESSAGE":"some"}
+            {"PRIORITY":"6","__SEQNUM":"2","MESSAGE":"some"}
+            """
+        ).strip()
+        run_mock.return_value = run_return_mock
+        collection_output = JournalctlCollector().collect()
+        self.assertTrue(collection_output.success)
+        self.assertIsInstance(collection_output.outputs, OutputSuccess)

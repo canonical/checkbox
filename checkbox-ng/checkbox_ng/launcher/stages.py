@@ -532,6 +532,28 @@ class ReportsStage(CheckboxUiStage):
                 self.sa.config.update_from_another(
                     additional_config, new_origin
                 )
+        elif report == "submission_json":
+            exporter = "json"
+            file_ext = ".json"
+            path = self._get_submission_file_path(file_ext)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            template = textwrap.dedent(
+                """
+                [transport:{exporter}_file]
+                path = {path}
+                type = file
+                [exporter:{exporter}]
+                unit = com.canonical.plainbox::{exporter}
+                [report:2_{exporter}_file]
+                exporter = {exporter}
+                forced = yes
+                transport = {exporter}_file
+                """
+            )
+            additional_config = Configuration.from_text(
+                template.format(exporter=exporter, path=path), new_origin
+            )
+            self.sa.config.update_from_another(additional_config, new_origin)
 
     def _get_submission_file_path(self, file_ext):
         # LP:1585326 maintain isoformat but removing ':' chars that cause

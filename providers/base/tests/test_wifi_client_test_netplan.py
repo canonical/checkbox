@@ -838,7 +838,7 @@ class TestMain(TestCase):
         mock_print_address.assert_called_once_with("wlan0")
         self.assertEqual(mock_print_route.call_count, 1)
         mock_ping.assert_called_once_with("wlan0", "networkd")
-        self.assertEqual(mock_delete.call_count, 1)
+        self.assertEqual(mock_delete.call_count, 2)
         self.assertEqual(mock_restore.call_count, 1)
         self.assertEqual(mock_print_journal.call_count, 1)
 
@@ -848,20 +848,20 @@ class TestMain(TestCase):
     @patch("wifi_client_test_netplan.netplan_config_wipe")
     @patch("wifi_client_test_netplan.generate_test_config")
     @patch("wifi_client_test_netplan.write_test_config")
-    @patch("wifi_client_test_netplan.netplan_apply_config")
     @patch("wifi_client_test_netplan.time.sleep")
     @patch("wifi_client_test_netplan.wait_for_routable")
     @patch("wifi_client_test_netplan.delete_test_config")
     @patch("wifi_client_test_netplan.netplan_config_restore")
     @patch("wifi_client_test_netplan.print_journal_entries")
+    @patch("wifi_client_test_netplan.sp.call")
     def test_main_apply_config_failure(
         self,
+        mock_sp_call,
         mock_print_journal,
         mock_restore,
         mock_delete,
         mock_wait_routable,
         mock_sleep,
-        mock_apply,
         mock_write,
         mock_generate,
         mock_wipe,
@@ -874,7 +874,7 @@ class TestMain(TestCase):
         mock_args.renderer = "networkd"
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
-        mock_apply.side_effect = SystemExit("ERROR: failed netplan apply call")
+        mock_sp_call.return_value = 1  # Simulating an error
 
         # Execute and Assert
         with self.assertRaises(SystemExit):
@@ -882,7 +882,7 @@ class TestMain(TestCase):
 
         self.assertEqual(mock_delete.call_count, 1)
         self.assertEqual(mock_restore.call_count, 1)
-        self.assertEqual(mock_print_journal.call_count, 1)
+        self.assertEqual(mock_print_journal.call_count, 2)
 
     @patch("wifi_client_test_netplan.parse_args")
     @patch("wifi_client_test_netplan.check_and_get_renderer")
@@ -926,7 +926,7 @@ class TestMain(TestCase):
         with self.assertRaises(SystemExit):
             main()
 
-        self.assertEqual(mock_delete.call_count, 1)
+        self.assertEqual(mock_delete.call_count, 2)
         self.assertEqual(mock_restore.call_count, 1)
         self.assertEqual(mock_apply.call_count, 2)
         self.assertEqual(mock_print_journal.call_count, 1)

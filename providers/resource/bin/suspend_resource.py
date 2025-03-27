@@ -7,17 +7,23 @@ def get_mem_sleep_types():
     return types.split()
 
 
-def get_supported_suspend_type(types):
-    for type in types:
-        if type.startswith("[") and type.endswith("]"):
-            return type[1:-1]
-    return None
+def get_supported_suspend_types(types):
+    supported_types = {}
+    for t in types:
+        if t.startswith("[") and t.endswith("]"):
+            supported_types[t[1:-1]] = "yes"
+        elif t:
+            supported_types[t] = "no"
+    return supported_types
 
 
 def main():
     types = get_mem_sleep_types()
-    suspend_type = get_supported_suspend_type(types)
-    print("type: {}".format(suspend_type))
+    supported_types = get_supported_suspend_types(types)
+    for type, active in supported_types.items():
+        print("type:", type)
+        print("active:", active)
+        print()
 
 
 if __name__ == "__main__":

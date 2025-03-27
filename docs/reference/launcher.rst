@@ -102,6 +102,8 @@ future.
     * ``certification``: Send results to certification site
     * ``certification-staging``: Send results to staging version of
       certification site
+    * ``submission_json``: Writes the ``submission.json`` to ``$XDG_DATA_HOME``
+      (or ``~/.local/share`` if it is not defined)
 
     If you don't want to have any stock report automatically generated use
     ``none`` as the value.

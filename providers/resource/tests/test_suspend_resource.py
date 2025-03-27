@@ -42,4 +42,6 @@ class SuspendResourceTests(unittest.TestCase):
     def test_main(self, mock_stdout, mock_supported_types, mock_mem_sleep):
         mock_supported_types.return_value = {"s2idle": "yes"}
         suspend_resource.main()
-        self.assertEqual(mock_stdout.getvalue(), "type: s2idle\nactive: yes\n\n")
+        self.assertEqual(
+            mock_stdout.getvalue(), "type: s2idle\nactive: yes\n\n"
+        )

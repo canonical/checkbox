@@ -55,7 +55,7 @@ def configure_local_network(interface, net_info):
         shell=True,
         text=True,
     )
-    logging.info("Turn down the link of %s interface", interface)
+    logging.info("Configure the %s interface to %s", interface, net_info)
     subprocess.check_output(
         "ip addr add {} dev {}".format(net_info, interface),
         shell=True,

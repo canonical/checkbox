@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import copy
 import glob
 import logging
 import os
@@ -102,7 +103,8 @@ class OtgConfigFsOperatorBase:
             text=True,
             universal_newlines=True,
         )
-        return output.strip("\n").split(",") if output.strip("\n") else []
+        output = output.strip("\n")
+        return output.split(",") if output else []
 
     def enable_otg_module(self, modules):
         for module in modules:
@@ -111,9 +113,23 @@ class OtgConfigFsOperatorBase:
             )
 
     def disable_otg_related_modules(self, modules):
-        for module in modules:
-            subprocess.run(
-                "modprobe -r {}".format(module), shell=True, check=True
+        cp_modules = copy.deepcopy(modules)
+        i = 0
+        while i <= 3 and cp_modules:
+            for module in modules:
+                if module not in cp_modules:
+                    continue
+                cmd = "modprobe -r {}".format(module)
+                logging.info("Removing %s module", module)
+                logging.info("$ %s", cmd)
+                ret = subprocess.run(cmd, shell=True)
+                if ret.returncode == 0:
+                    cp_modules.remove(module)
+            i += 1
+
+        if cp_modules:
+            raise RuntimeError(
+                "failed to remove modules: {}".format(cp_modules)
             )
 
     def otg_setup(self):
@@ -340,6 +356,8 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
             self._target_net_dev,
             "169.254.0.10/24",
         )
+        # wait few seconds to activate networking
+        time.sleep(2)
         logging.info("Ping from DUT to Target")
         _module = SourceFileLoader(
             "_",
@@ -348,7 +366,8 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
         test_func = getattr(_module, "perform_ping_test")
         ret = test_func([self._net_dev], "169.254.0.10")
         if ret != 0:
-            raise RuntimeError("Failed to ping DUT from RPYC server")
+            raise RuntimeError(
+                "Failed to ping RPYC server from DUT through OTG network")
 
     def otg_test_process(self, rpyc_ip):
         self.enable_otg()
@@ -379,7 +398,7 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
         logging.info("Validate a new serial interface been generated")
         cur_ser_intfs = self._collect_serial_intfs()
         if len(cur_ser_intfs) == len(self._ser_intfs):
-            raise RuntimeError("OTG network interface not available")
+            raise RuntimeError("OTG serial interface not available")
 
         otg_ser_intf = [x for x in cur_ser_intfs if x not in self._ser_intfs]
         if len(otg_ser_intf) != 1:
@@ -387,7 +406,7 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
                 "Found more than one new interface. %s", otg_ser_intf
             )
         else:
-            logging.info("Found new network interface '%s'", otg_ser_intf[0])
+            logging.info("Found new serial interface '%s'", otg_ser_intf[0])
         self._serial_iface = otg_ser_intf[0]
 
     def detection_check_on_rpyc(self, rpyc_ip):
@@ -399,18 +418,11 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
         self._target_serial_dev = list(ret)[0]
 
     def function_check_with_rpyc(self, rpyc_ip):
-        logging.info("perform serial client test on DUT")
-        func = getattr(import_module("serial_test"), "client_mode")
-        func(
-            "/dev/{}".format(self._serial_iface),
-            "USB",
-            [],
-            115200,
-            8,
-            "N",
-            1,
-            3,
-            1024,
+        logging.info("perform serial client test on Rpyc server")
+        rpyc_client(
+            rpyc_ip,
+            "serial_client_test",
+            "/dev/serial/by-id/{}".format(self._target_serial_dev),
         )
 
     def otg_test_process(self, rpyc_ip):
@@ -419,28 +431,16 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
         self.detection_check_on_rpyc(rpyc_ip)
 
         try:
-            logging.info("start serial server on rpyc server")
+            logging.info(
+                "start serial server on %s interface", self._serial_iface
+            )
+            func = getattr(import_module("serial_test"), "server_mode")
             t_thread = Process(
-                target=rpyc_client,
-                args=(
-                    rpyc_ip,
-                    "enable_serial_server",
-                    "/dev/serial/by-id/{}".format(self._target_serial_dev),
-                    "USB",
-                    [],
-                    115200,
-                    8,
-                    "N",
-                    1,
-                    3,
-                    1024,
-                ),
+                target=func, args=("/dev/{}".format(self._serial_iface),)
             )
             t_thread.start()
             time.sleep(3)
             self.function_check_with_rpyc(rpyc_ip)
-        except SystemExit as err:
-            logging.debug(err)
         finally:
             t_thread.kill()
         self.disable_otg()

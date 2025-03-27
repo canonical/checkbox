@@ -17,6 +17,12 @@ class TestISHTP(unittest.TestCase):
     def test_get_release_version(self, mock_subproc):
         self.assertEqual(get_release_version(), 24)
 
+    @patch("subprocess.check_output", return_value="somethingwrong\n")
+    def test_get_release_version_value_error(self, mock_subproc):
+        with self.assertRaises(SystemExit) as cm:
+            get_release_version()
+        self.assertEqual(cm.exception.code, 1)
+
     @patch("subprocess.check_output", return_value="intel_ishtp 123 0\n")
     def test_is_module_loaded(self, mock_subproc):
         self.assertTrue(is_module_loaded("intel_ishtp"))

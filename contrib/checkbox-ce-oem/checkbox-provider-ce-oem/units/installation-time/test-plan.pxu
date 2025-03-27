@@ -22,3 +22,4 @@ include:
     ce-oem-info/snapd_installation_.*
     ce-oem-info/cloud_init_.*
     ce-oem-info/install_.*
+    ce-oem-info/image-url-iot

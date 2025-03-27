@@ -39,9 +39,9 @@ def check_modules():
 
     exit_code = 0
     for module in expected_modules:
-        print(f"Checking module: {module}")
+        print("Checking module: {}".format(module))
         if not is_module_loaded(module):
-            print(f"FAIL: The '{module}' module is not loaded!")
+            print("FAIL: The '{}' module is not loaded!".format(module))
             exit_code = 1
         else:
             print("PASS: It's loaded")

@@ -18,6 +18,7 @@ include:
     wwan/detect    certification-status=blocker
     wwan/3gpp-scan-manufacturer-model-hw_id-auto
     wwan/gsm-connection-.*-auto    certification-status=blocker
+    wwan/gsm-reconnection-.*-auto    certification-status=blocker
     wwan/check-sim-present-.*-auto
 bootstrap_include:
     wwan_resource

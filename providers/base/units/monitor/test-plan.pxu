@@ -364,6 +364,7 @@ include:
     monitor/dvi-to-vga
     monitor/hdmi-to-vga
     monitor/displayport_hotplug  certification-status=blocker
+    monitor/hdmi_hotplug         certification-status=blocker
     monitor/vga
 
 id: after-suspend-monitor-full

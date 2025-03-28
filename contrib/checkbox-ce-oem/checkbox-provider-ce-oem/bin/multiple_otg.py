@@ -367,7 +367,8 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
         ret = test_func([self._net_dev], "169.254.0.10")
         if ret != 0:
             raise RuntimeError(
-                "Failed to ping RPYC server from DUT through OTG network")
+                "Failed to ping RPYC server from DUT through OTG network"
+            )
 
     def otg_test_process(self, rpyc_ip):
         self.enable_otg()

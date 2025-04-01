@@ -49,7 +49,7 @@ jobs:
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
     with:
-      store_upload: true
+      store_upload: false
 
   checkbox-ce-oem-snap-native-build-upload-daily:
     needs: check_for_commits
@@ -58,4 +58,4 @@ jobs:
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
     with:
-      store_upload: true
+      store_upload: false

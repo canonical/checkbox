@@ -117,7 +117,8 @@ def rand_mouse_moves(device):
     x = random.randint(-MOVE_MAX // 2, MOVE_MAX // 2)
     y = random.randint(-MOVE_MAX // 2, MOVE_MAX // 2)
     steps = max(abs(x), abs(y)) // MOVE_DELTA  # Calculate the number of steps
-
+    if steps == 0:
+        return
     # Move the mouse in small steps for smooth movement
     for _ in range(steps):
         mouse_move(device, x // steps, y // steps)
@@ -157,7 +158,6 @@ def main():
 
     # Destroy the virtual input device
     dev_deinit(device)
-
 
 if __name__ == "__main__":
     main()

@@ -24,10 +24,12 @@ from mouse_keyboard import (
     N_EPISODES,
 )
 
+
 class TestMouseKeyboard(unittest.TestCase):
 
-    @patch('mouse_keyboard.UInput')
-    def test_dev_init(self, mock_uinput):
+    @patch("mouse_keyboard.UInput")
+    @patch("mouse_keyboard.time.sleep")
+    def test_dev_init(self, mock_sleep, mock_uinput):
         # Mock the UInput class
         mock_device = MagicMock()
         mock_uinput.return_value = mock_device
@@ -37,16 +39,19 @@ class TestMouseKeyboard(unittest.TestCase):
 
         # Assertions
         mock_uinput.assert_called_once_with(
-            {e.EV_KEY: KEYBOARD_KEYS + MOUSE_BUTTONS, e.EV_REL: [e.REL_X, e.REL_Y]},
+            {
+                e.EV_KEY: KEYBOARD_KEYS + MOUSE_BUTTONS,
+                e.EV_REL: [e.REL_X, e.REL_Y],
+            },
             name="umad",
             vendor=0xBAD,
             product=0xA55,
             version=777,
         )
         self.assertEqual(device, mock_device)
-        time.sleep.assert_called_once_with(1)
+        mock_sleep.assert_called_once_with(1)
 
-    @patch('mouse_keyboard.time.sleep')
+    @patch("mouse_keyboard.time.sleep")
     def test_dev_deinit(self, mock_sleep):
         # Mock the device
         mock_device = MagicMock()
@@ -82,8 +87,8 @@ class TestMouseKeyboard(unittest.TestCase):
         mock_device.write.assert_any_call(e.EV_REL, e.REL_Y, 20)
         mock_device.syn.assert_called_once()
 
-    @patch('mouse_keyboard.random.choice')
-    @patch('mouse_keyboard.time.sleep')
+    @patch("mouse_keyboard.random.choice")
+    @patch("mouse_keyboard.time.sleep")
     def test_rand_key_press(self, mock_sleep, mock_choice):
         # Mock the device and random choice
         mock_device = MagicMock()
@@ -98,8 +103,8 @@ class TestMouseKeyboard(unittest.TestCase):
         mock_device.write.assert_any_call(e.EV_KEY, e.KEY_B, 0)
         mock_sleep.assert_called_once_with(FREQUENCY_USEC / 1000000.0)
 
-    @patch('mouse_keyboard.random.randint')
-    @patch('mouse_keyboard.time.sleep')
+    @patch("mouse_keyboard.random.randint")
+    @patch("mouse_keyboard.time.sleep")
     def test_rand_mouse_moves(self, mock_sleep, mock_randint):
         # Mock the device and random.randint
         mock_device = MagicMock()
@@ -110,28 +115,45 @@ class TestMouseKeyboard(unittest.TestCase):
 
         # Assertions
         self.assertEqual(mock_randint.call_count, 2)
-        mock_device.write.assert_any_call(e.EV_REL, e.REL_X, 50 // (50 // MOVE_DELTA))
-        mock_device.write.assert_any_call(e.EV_REL, e.REL_Y, -30 // (50 // MOVE_DELTA))
+        mock_device.write.assert_any_call(
+            e.EV_REL, e.REL_X, 50 // (50 // MOVE_DELTA)
+        )
+        mock_device.write.assert_any_call(
+            e.EV_REL, e.REL_Y, -30 // (50 // MOVE_DELTA)
+        )
         self.assertGreaterEqual(mock_sleep.call_count, 1)
 
-    @patch('mouse_keyboard.random.seed')
-    @patch('mouse_keyboard.random.randint')
-    @patch('mouse_keyboard.dev_init')
-    @patch('mouse_keyboard.dev_deinit')
-    def test_main(self, mock_dev_deinit, mock_dev_init, mock_randint, mock_seed):
+    @patch("mouse_keyboard.time.time")
+    @patch("mouse_keyboard.rand_mouse_moves")
+    @patch("mouse_keyboard.random.seed")
+    @patch("mouse_keyboard.random.randint")
+    @patch("mouse_keyboard.dev_init")
+    @patch("mouse_keyboard.dev_deinit")
+    def test_main(
+        self,
+        mock_dev_deinit,
+        mock_dev_init,
+        mock_randint,
+        mock_seed,
+        mock_rand_mouse_moves,
+        mock_time,
+    ):
         # Mock the device and random functions
         mock_device = MagicMock()
         mock_dev_init.return_value = mock_device
-        mock_randint.side_effect = [0] * N_EPISODES  # Always choose mouse movement
+        mock_randint.side_effect = [
+            0
+        ] * N_EPISODES  # Always choose mouse movement
 
         # Call the function
         main()
 
         # Assertions
-        mock_seed.assert_called_once_with(time.time())
+        mock_seed.assert_called_once_with(mock_time())
         mock_dev_init.assert_called_once_with("umad")
         self.assertEqual(mock_randint.call_count, N_EPISODES)
         mock_dev_deinit.assert_called_once_with(mock_device)
+
 
 if __name__ == "__main__":
     unittest.main()

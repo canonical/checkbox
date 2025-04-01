@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import json
-import os
 import subprocess
 
 
@@ -13,15 +12,20 @@ def get_boot_ids():
 
 
 def get_kernel_version_from_journal(boot_id):
-    # Capture first line of journal (info about booted Linux kernel)
-    cmd = ["journalctl", "-k", "-b", boot_id, "-n", "+1", "--output", "json"]
-    journalctl_log = json.loads(
-        subprocess.check_output(cmd, universal_newlines=True)
-    )
-    linux_line = journalctl_log["MESSAGE"]
-    # "Linux version 6.11.0-19-generic ..."
-    linux_version = linux_line.split()[2]
-    return linux_version
+    """
+    Return the first occurence of the Linux version in journal from boot
+    ``boot_id``, or None if nothing was found.
+    """
+    cmd = ["journalctl", "-k", "-b", boot_id, "--output", "json"]
+    journalctl_log = subprocess.check_output(cmd, universal_newlines=True)
+    journalctl_lines = journalctl_log.splitlines()
+    for line in journalctl_lines:
+        j = json.loads(line)
+        msg = j.get("MESSAGE")
+        # "Linux version 6.11.0-19-generic ..."
+        if msg.startswith("Linux version"):
+            return msg.split()[2]
+    return None
 
 
 def check_error(boot_id, error="Microcode SW error detected"):
@@ -37,8 +41,9 @@ def check_error(boot_id, error="Microcode SW error detected"):
             )
 
 
-def main(current_linux_version):
+def main():
     boot_ids = get_boot_ids()
+    current_linux_version = get_kernel_version_from_journal(boot_ids[-1])
     for boot_id in boot_ids:
         linux_version = get_kernel_version_from_journal(boot_id)
         if linux_version == current_linux_version:
@@ -47,5 +52,4 @@ def main(current_linux_version):
 
 
 if __name__ == "__main__":
-    current_linux_version = os.uname().release
-    main(current_linux_version)
+    main()

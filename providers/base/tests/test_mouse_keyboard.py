@@ -61,7 +61,7 @@ class TestMouseKeyboard(unittest.TestCase):
 
         # Assertions
         mock_sleep.assert_called_once_with(1)
-        mock_device.close.assert_called_once()
+        mock_device.close.assert_called_once_with()
 
     def test_key_press(self):
         # Mock the device
@@ -85,7 +85,7 @@ class TestMouseKeyboard(unittest.TestCase):
         # Assertions
         mock_device.write.assert_any_call(e.EV_REL, e.REL_X, 10)
         mock_device.write.assert_any_call(e.EV_REL, e.REL_Y, 20)
-        mock_device.syn.assert_called_once()
+        mock_device.syn.assert_called_once_with()
 
     @patch("mouse_keyboard.random.choice")
     @patch("mouse_keyboard.time.sleep")

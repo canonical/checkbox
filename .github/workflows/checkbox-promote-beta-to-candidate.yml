@@ -80,7 +80,7 @@ jobs:
         echo "job=$JOB_PATH" >> $GITHUB_OUTPUT
 
     - name: Submit job
-      uses: canonical/testflinger/.github/actions/submit@2c10f8bbb78532c12034dc668971ddae3b44edc9
+      uses: canonical/testflinger/.github/actions/submit@eeb3d133c5f8b0604e2464f86e667e934e72aabd
       with:
         poll: true
         job-path: ${{ steps.create-job.outputs.job }}

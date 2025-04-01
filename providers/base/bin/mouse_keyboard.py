@@ -21,7 +21,6 @@
 """mouse_key_random utility."""
 
 
-import evdev
 from evdev import UInput, ecodes as e
 import time
 import random

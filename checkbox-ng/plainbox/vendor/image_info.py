@@ -47,7 +47,7 @@ def dcd_string_to_info(dcd_string):
     - url
     """
     # prefix, should always be present
-    dcd_string = dcd_string.removeprefix("canonical-").strip()
+    dcd_string = dcd_string.replace("canonical-", "").strip()
     dcd_string_arr = dcd_string.split("-")
     if len(dcd_string_arr) == 5:
         project, series, kernel_type, build_date, build_number = dcd_string_arr

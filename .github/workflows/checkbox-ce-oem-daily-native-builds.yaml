@@ -1,0 +1,103 @@
+name: checkbox-ce-oem Snap daily native builds
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      store_upload:
+        description: 'Should the workflow upload to the store?'
+        default: false
+        required: false
+        type: boolean
+  workflow_call:
+    inputs:
+      store_upload:
+        description: 'Should the workflow upload to the store?'
+        default: false
+        required: false
+        type: boolean
+    secrets:
+      SNAPCRAFT7_CREDS:
+        required: true
+
+jobs:
+  snap_frontend_native:
+    strategy:
+      fail-fast: false
+      matrix:
+        # other confs cross-built by checkbox-daily-cross-build.yaml
+        type: [classic, uc]
+        release: [20, 22, 24]
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            tag: X64
+          - arch: arm64
+            tag: ARM64
+          - release: 18
+            snapcraft_version: 7.x
+          - release: 20
+            snapcraft_version: 7.x
+          - release: 22
+            snapcraft_version: 8.x
+          - release: 24
+            snapcraft_version: 8.x
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels: ["self-hosted", "linux", "jammy", "large", "${{ matrix.tag }}"]
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - id: snap_build
+        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        name: Building the snaps
+        timeout-minutes: 600 # 10hours
+        with:
+          action: snapcore/action-build@v1.3.0
+          attempt_delay: 600000 # 10min
+          attempt_limit: 5
+          with: |
+            path: contrib/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}
+            snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
+
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
+        name: Upload logs on failure
+        if: failure()
+        with:
+          name: snapcraft-log-series-${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}
+          path: |
+            /home/runner/.cache/snapcraft/log/
+            /home/runner/.local/state/snapcraft/log/
+            contrib/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
+
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
+        name: Upload the snaps as artefacts
+        with:
+          name: series_${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}
+          path: ${{ steps.snap_build.outputs.snap }}
+
+      - name: Publish track
+        # this is done this way because the store doesn't allow the same artifact to be uploaded twice
+        if: inputs.store_upload && (matrix.release != 24 || matrix.type != 'classic')
+        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+        with:
+          snap: ${{ steps.snap_build.outputs.snap }}
+          # channel is ucXX for uc snaps and XX.04 for classic snaps
+          release: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge
+
+      - name: Publish track + latest
+        if: inputs.store_upload && matrix.release == 24 && matrix.type == 'classic'
+        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+        with:
+          snap: ${{ steps.snap_build.outputs.snap }}
+          # classic 24.04 is published to latest/edge as well
+          release: 24.04/edge,latest/edge

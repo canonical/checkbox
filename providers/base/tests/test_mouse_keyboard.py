@@ -142,7 +142,8 @@ class TestMouseKeyboard(unittest.TestCase):
         mock_device = MagicMock()
         mock_dev_init.return_value = mock_device
         mock_randint.side_effect = [
-            0,10
+            0,
+            10,
         ] * N_EPISODES  # Always choose mouse movement
 
         # Call the function

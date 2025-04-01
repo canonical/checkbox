@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: '00 01 * * *'
   workflow_dispatch:
+  push:
+    branches:
+      - ceoem_workflow
 
 jobs:
   check_for_commits:

@@ -159,5 +159,6 @@ def main():
     # Destroy the virtual input device
     dev_deinit(device)
 
+
 if __name__ == "__main__":
     main()

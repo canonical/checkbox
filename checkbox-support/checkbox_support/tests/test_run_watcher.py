@@ -21,7 +21,6 @@ import unittest
 from unittest.mock import patch, call, MagicMock
 
 import argparse
-from systemd import journal
 
 from checkbox_support.scripts.run_watcher import (
     StorageWatcher,
@@ -38,17 +37,16 @@ from checkbox_support.helpers.timeout import mock_timeout
 
 class TestRunWatcher(unittest.TestCase):
 
-    @patch("systemd.journal.Reader")
-    @patch("select.poll")
-    def test_storage_watcher_run_with_insertion(self, mock_poll, mock_journal):
-        mock_journal.return_value.process.side_effect = [journal.APPEND, None]
-        mock_journal.return_value.__iter__.return_value = [
-            {"MESSAGE": "line1"}
-        ]
-        mock_poll.return_value.poll.side_effect = [True, True, False]
+    @patch("subprocess.Popen")
+    def test_storage_watcher_run_with_insertion(self, mock_popen):
+        mock_popen.return_value.stdout = ["inserted"]
 
         mock_storage_watcher = MagicMock()
         mock_storage_watcher._controller = ManualController()
+
+        mock_storage_watcher._process_line.side_effect = lambda x: setattr(
+            mock_storage_watcher, "test_passed", True
+        )
 
         # Test insertion
         mock_storage_watcher.testcase = "insertion"
@@ -61,19 +59,18 @@ class TestRunWatcher(unittest.TestCase):
                 ]
             )
         StorageWatcher.run(mock_storage_watcher)
-        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+        mock_storage_watcher._process_line.assert_called_with("inserted")
 
-    @patch("systemd.journal.Reader")
-    @patch("select.poll")
-    def test_storage_watcher_run_with_removal(self, mock_poll, mock_journal):
-        mock_journal.return_value.process.return_value = journal.APPEND
-        mock_journal.return_value.__iter__.return_value = [
-            {"MESSAGE": "line1"}
-        ]
-        mock_poll.return_value.poll.side_effect = [True, False]
+    @patch("subprocess.Popen")
+    def test_storage_watcher_run_with_removal(self, mock_popen):
+        mock_popen.return_value.stdout = ["removed"]
 
         mock_storage_watcher = MagicMock()
         mock_storage_watcher._controller = ManualController()
+
+        mock_storage_watcher._process_line.side_effect = lambda x: setattr(
+            mock_storage_watcher, "test_passed", True
+        )
 
         # Test removal
         mock_storage_watcher.testcase = "removal"
@@ -85,7 +82,7 @@ class TestRunWatcher(unittest.TestCase):
                     call("Timeout: 30 seconds", flush=True),
                 ]
             )
-        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+        mock_storage_watcher._process_line.assert_called_with("removed")
 
     def test_storage_watcher_run_invalid_testcase(self):
         mock_storage_watcher = MagicMock()
@@ -96,66 +93,32 @@ class TestRunWatcher(unittest.TestCase):
             StorageWatcher.run(mock_storage_watcher)
         self.assertEqual(cm.exception.args[0], "Invalid test case")
 
-    @patch("systemd.journal.Reader")
-    @patch("select.poll")
-    def test_storage_watcher_run_not_passed(self, mock_poll, mock_journal):
-        mock_journal.return_value.process.return_value = journal.APPEND
-        mock_journal.return_value.__iter__.return_value = [
-            {"MESSAGE": "line1"}
-        ]
-        mock_poll.return_value.poll.side_effect = [True, False]
-
-        mock_storage_watcher = MagicMock()
-        mock_storage_watcher.test_passed = False
-
-        # Test not passed
-        mock_storage_watcher.testcase = "insertion"
-        mock_storage_watcher.test_passed = False
-        StorageWatcher.run(mock_storage_watcher)
-        mock_storage_watcher._process_lines.assert_called_with(["line1"])
-
-    def test_storage_watcher_process_lines_insertion(self):
-        lines = ["line1", "line2", "line3"]
-
+    def test_storage_watcher_process_line_insertion(self):
+        lines = "line1"
         mock_insertion_watcher = MagicMock()
         mock_insertion_watcher._parse_journal_line = MagicMock()
         mock_insertion_watcher.testcase = "insertion"
         mock_insertion_watcher.test_passed = False
-        StorageWatcher._process_lines(mock_insertion_watcher, lines)
-        mock_insertion_watcher._parse_journal_line.assert_has_calls(
-            [call("line1"), call("line2"), call("line3")]
-        )
+        StorageWatcher._process_line(mock_insertion_watcher, lines)
+        mock_insertion_watcher._parse_journal_line.assert_called_with("line1")
 
-    def test_storage_watcher_process_lines_removal(self):
-        lines = ["line1", "line2", "line3"]
-
+    def test_storage_watcher_process_line_removal(self):
+        lines = "line1"
         mock_removal_watcher = MagicMock()
         mock_removal_watcher._parse_journal_line = MagicMock()
         mock_removal_watcher.testcase = "removal"
         mock_removal_watcher.test_passed = False
-        StorageWatcher._process_lines(mock_removal_watcher, lines)
-        mock_removal_watcher._parse_journal_line.assert_has_calls(
-            [call("line1"), call("line2"), call("line3")]
-        )
+        StorageWatcher._process_line(mock_removal_watcher, lines)
+        mock_removal_watcher._parse_journal_line.assert_called_with("line1")
 
-    def test_storage_watcher_process_lines_passed(self):
-        lines = ["line1", "line2", "line3"]
-
-        mock_watcher = MagicMock()
-        mock_watcher._parse_journal_line = MagicMock()
-        mock_watcher.testcase = "insertion"
-        mock_watcher.test_passed = True
-        StorageWatcher._process_lines(mock_watcher, lines)
-        mock_watcher._parse_journal_line.assert_has_calls([call("line1")])
-
-    def test_storage_watcher_process_lines_no_testcase(self):
-        lines = ["line1", "line2", "line3"]
-
-        mock_watcher = MagicMock()
-        mock_watcher._parse_journal_line = MagicMock()
-        mock_watcher.testcase = None
-        StorageWatcher._process_lines(mock_watcher, lines)
-        self.assertEqual(mock_watcher._parse_journal_line.call_count, 0)
+    def test_storage_watcher_process_line_no_testcase(self):
+        lines = "line1"
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher._parse_journal_line = MagicMock()
+        mock_storage_watcher.testcase = ""
+        mock_storage_watcher.test_passed = False
+        StorageWatcher._process_line(mock_storage_watcher, lines)
+        mock_storage_watcher._parse_journal_line.assert_not_called()
 
     @mock_timeout()
     def test_storage_watcher_run_insertion(self):

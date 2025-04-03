@@ -24,8 +24,6 @@ import sys
 
 def main():
     release_info = get_release_info()
-    print("Release information:")
-    print(release_info)
     for key, value in release_info.items():
         print("%s: %s" % (key, value))
 

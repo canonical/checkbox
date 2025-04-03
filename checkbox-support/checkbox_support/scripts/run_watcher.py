@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
-# Copyright 2015-2018 Canonical Ltd.
+# Copyright 2015-2025 Canonical Ltd.
 # All rights reserved.
 #
-# Written by:
+# Authors:
 #   Taihsiang Ho <taihsiang.ho@canonical.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
 this script monitors the systemd journal to catch insert/removal USB events
 """
@@ -115,7 +128,8 @@ class StorageWatcher(StorageInterface):
             for line in process.stdout:
                 self._process_line(line)
                 if self.test_passed:
-                    return
+                    process.terminate()
+                    break
 
     def _process_line(self, line):
         """

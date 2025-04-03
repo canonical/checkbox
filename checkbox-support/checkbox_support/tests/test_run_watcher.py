@@ -39,7 +39,7 @@ class TestRunWatcher(unittest.TestCase):
 
     @patch("subprocess.Popen")
     def test_storage_watcher_run_with_insertion(self, mock_popen):
-        mock_popen.return_value.stdout = ["inserted"]
+        mock_popen.return_value.__enter__.return_value.stdout = ["inserted"]
 
         mock_storage_watcher = MagicMock()
         mock_storage_watcher._controller = ManualController()
@@ -63,7 +63,7 @@ class TestRunWatcher(unittest.TestCase):
 
     @patch("subprocess.Popen")
     def test_storage_watcher_run_with_removal(self, mock_popen):
-        mock_popen.return_value.stdout = ["removed"]
+        mock_popen.return_value.__enter__.return_value.stdout = ["removed"]
 
         mock_storage_watcher = MagicMock()
         mock_storage_watcher._controller = ManualController()

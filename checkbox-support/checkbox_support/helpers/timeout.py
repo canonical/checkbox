@@ -127,7 +127,14 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
 
     process = Process(target=_f, args=args, kwargs=kwargs)
     process.start()
-    process.join(timeout_s)
+    try:
+        process.join(timeout_s)
+    except BaseException:
+        # If an exception is raised in the main process, we will kill the
+        # process tree
+        kill_tree(process.pid)
+        # Re-raise so the parent can exit
+        raise
 
     if process.is_alive():
         # this tries to kill the whole process tree, not just the child.

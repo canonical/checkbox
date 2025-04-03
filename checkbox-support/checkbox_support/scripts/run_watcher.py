@@ -120,7 +120,7 @@ class StorageWatcher(StorageInterface):
         cmd = ["journalctl", "-f", "-o", "cat"]
 
         with subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, universal_newlines=True
+            cmd, stdout=subprocess.PIPE, universal_newlines=True, bufsize=1
         ) as process:
             # Call the corresponding action method
             self._controller.action(self.testcase)

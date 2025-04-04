@@ -1,7 +1,7 @@
 .. _job:
 
 ========
-Job Unit
+Job unit
 ========
 
 A job unit is a smallest unit of testing that can be performed by Checkbox.
@@ -16,7 +16,7 @@ Jobs are expressed as sections in text files that conform somewhat to the
 ``rfc822`` specification format. Our variant of the format is described in
 :ref:`rfc822`. Each record defines a single job.
 
-Job Fields
+Fields
 ==========
 
 Following fields may be used by the job unit:

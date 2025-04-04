@@ -1,7 +1,7 @@
 .. _manifest_entry:
 
 ===================
-Manifest Entry Unit
+Manifest entry unit
 ===================
 
 A manifest entry unit describes a single entry in a *manifest* that describes
@@ -92,7 +92,7 @@ This is an example manifest entry definition::
     _name: Thunderbolt Support
     value-type: bool
 
-Naming Manifest Entries
+Naming manifest entries
 -----------------------
 
 To keep the code consistent there's one naming scheme that should be followed.
@@ -102,7 +102,7 @@ entries and it's all a bit weird what them mean ``has_thunderbolt`` or
 ``thunderbolt_supported`` or ``tb`` or whatever we come up with. It's a
 convention, please stick to it.
 
-Using Manifest Entries in Jobs
+Using manifest entries in jobs
 ------------------------------
 
 Manifest data can be used to decide if a given test is applicable for a given
@@ -130,7 +130,7 @@ provider can ship additional manifest entries and then all share the flat
 namespace of resource attributes looking at the ``.ns`` attribute is a way to
 uniquely identify a given manifest entry.
 
-Collecting Manifest Data
+Collecting manifest data
 ------------------------
 
 When running Checkbox, if some jobs in the selected test plan depend on a
@@ -168,7 +168,7 @@ or highlight an entry and select the right answer using the arrow and the
     file (see below) will be used; if there is no value for a given entry,
     Checkbox will use ``False`` by default.
 
-Supplying External Manifest
+Supplying external manifest
 ---------------------------
 
 The manifest file is stored in ``/var/tmp/checkbox-ng/machine-manifest.json``.

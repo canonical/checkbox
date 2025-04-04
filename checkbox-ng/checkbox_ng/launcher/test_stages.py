@@ -146,7 +146,7 @@ class TestReportsStage(TestCase):
             )
 
     @mock.patch("os.makedirs")
-    def test__prepare_stock_report(self, makedirs):
+    def test__prepare_stock_report_submission_files(self, makedirs):
         self_mock = mock.MagicMock()
         self_mock._get_submission_file_path = partial(
             ReportsStage._get_submission_file_path, self_mock
@@ -156,4 +156,21 @@ class TestReportsStage(TestCase):
         ReportsStage._prepare_stock_report(self_mock, "submission_files")
 
         self.assertEqual(self_mock.sa.config.update_from_another.call_count, 3)
+        self.assertTrue(makedirs.called)
+
+    @mock.patch("os.makedirs")
+    def test__prepare_stock_report_submission_json(self, makedirs):
+        self_mock = mock.MagicMock()
+        self_mock._get_submission_file_path = partial(
+            ReportsStage._get_submission_file_path, self_mock
+        )
+        self_mock.base_dir = "~/.local/share"
+
+        ReportsStage._prepare_stock_report(self_mock, "submission_json")
+
+        # called to adopt the generated config
+        self_mock_update_from_another = self_mock.sa.config.update_from_another
+        self.assertEqual(self_mock_update_from_another.call_count, 1)
+        config = self_mock_update_from_another.call_args[0][0]
+        self.assertFalse(config.get_problems())
         self.assertTrue(makedirs.called)

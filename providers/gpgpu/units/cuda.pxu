@@ -1,0 +1,89 @@
+id: gpgpu/cuda-samples-0-int
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+    manifest.has_rpi_camera == 'True'
+_summary: NVIDIA CUDA 0 - introduction
+command: run_cuda_samples_set.sh 0
+
+id: gpgpu/cuda-samples-1-utils
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 1 - utilities
+command: run_cuda_samples_set.sh 1
+
+id: gpgpu/cuda-samples-2-conc
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 2 - concepts-techniques
+command: run_cuda_samples_set.sh 2
+
+id: gpgpu/cuda-samples-3-feat
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 3 - features testing
+command: run_cuda_samples_set.sh 3
+
+id: gpgpu/cuda-samples-4-libs
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 4 - libraries
+command: run_cuda_samples_set.sh 4
+
+id: gpgpu/cuda-samples-5-dom
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 5 - domain specific
+command: run_cuda_samples_set.sh 5
+
+id: gpgpu/cuda-samples-6-perf
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 6 - performance
+command: run_cuda_samples_set.sh 6
+
+id: gpgpu/cuda-samples-7-nvvm
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 7 - libNVVM
+command: run_cuda_samples_set.sh 7
+
+id: gpgpu/cuda-samples-8-plat
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 8 - platform specific
+command: run_cuda_samples_set.sh 8
+
+id: extended_tutorial_dependencies
+unit: packaging meta-data
+os-id: debian
+Depends:
+  cmake
+  git
+  /usr/local/cuda/bin/nvcc

@@ -1,22 +1,32 @@
 #!/usr/bin/env python3
-# Copyright 2015-2018 Canonical Ltd.
+# Copyright 2015-2025 Canonical Ltd.
 # All rights reserved.
 #
-# Written by:
+# Authors:
 #   Taihsiang Ho <taihsiang.ho@canonical.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
 this script monitors the systemd journal to catch insert/removal USB events
 """
 import argparse
 import logging
 import re
-import select
 import sys
-import time
-from systemd import journal
+import subprocess
 from abc import ABC, abstractmethod
-
 from checkbox_support.helpers.timeout import timeout
 from checkbox_support.scripts.usb_read_write import (
     mount_usb_storage,
@@ -24,7 +34,6 @@ from checkbox_support.scripts.usb_read_write import (
     write_test,
     read_test,
 )
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -105,38 +114,36 @@ class StorageWatcher(StorageInterface):
         self._controller = controller
 
     def run(self):
-        j = journal.Reader()
-        j.seek_realtime(time.time())
-        p = select.poll()
-        p.register(j, j.get_events())
+        self.test_passed = False
 
-        self._controller.action(self.testcase)
+        # Spawn journal subprocess
+        cmd = ["journalctl", "-f", "-o", "cat"]
 
-        while p.poll():
-            if j.process() != journal.APPEND:
-                continue
-            self._process_lines(
-                [e["MESSAGE"] for e in j if e and "MESSAGE" in e]
-            )
-            if self.test_passed:
-                return
+        with subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, universal_newlines=True, bufsize=1
+        ) as process:
+            # Call the corresponding action method
+            self._controller.action(self.testcase)
 
-    def _process_lines(self, lines):
+            for line in process.stdout:
+                self._process_line(line)
+                if self.test_passed:
+                    process.terminate()
+                    break
+
+    def _process_line(self, line):
         """
-        Process the lines from the journal and call the callback function to
+        Process one line from the journal and call the callback function to
         validate the insertion or removal of the storage.
         """
-        for line in lines:
-            line_str = str(line)
-            logger.debug(line_str)
-            if self.testcase == "insertion":
-                self._parse_journal_line(line_str)
-                self._validate_insertion()
-            elif self.testcase == "removal":
-                self._parse_journal_line(line_str)
-                self._validate_removal()
-            if self.test_passed:
-                return
+        line = line.rstrip("\n")
+        logger.debug(line)
+        if self.testcase == "insertion":
+            self._parse_journal_line(line)
+            self._validate_insertion()
+        elif self.testcase == "removal":
+            self._parse_journal_line(line)
+            self._validate_removal()
 
     @timeout(ACTION_TIMEOUT)  # 30 seconds timeout
     def run_insertion(self):
@@ -221,7 +228,9 @@ class USBStorage(StorageWatcher):
             "high_speed_usb": "new high-speed USB device",
             "super_speed_usb": "new SuperSpeed USB device",
             "super_speed_gen1_usb": "new SuperSpeed Gen 1 USB device",
-            "super_speed_plus_gen2x1_usb": "new SuperSpeed Plus Gen 2x1 USB device",
+            "super_speed_plus_gen2x1_usb": (
+                "new SuperSpeed Plus Gen 2x1 USB device"
+            ),
         }
 
         driver_log_dict = {

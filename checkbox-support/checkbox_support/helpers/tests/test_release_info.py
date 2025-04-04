@@ -2,7 +2,10 @@ import textwrap
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 
-import os_resource
+from checkbox_support.helpers.release_info import (
+    get_release_info,
+    get_release_file_content,
+)
 
 
 class OsResourceTests(unittest.TestCase):
@@ -26,9 +29,10 @@ class OsResourceTests(unittest.TestCase):
 
     def test_get_release_file_content(self):
         with patch(
-            "os_resource.open", mock_open(read_data=self.os_release_data)
+            "checkbox_support.helpers.release_info.open",
+            mock_open(read_data=self.os_release_data),
         ):
-            os_release_data = os_resource.get_release_file_content()
+            os_release_data = get_release_file_content()
         self.assertIn("UBUNTU_CODENAME=noble\n", os_release_data)
 
     def test_get_release_file_content_classic(self):
@@ -38,12 +42,14 @@ class OsResourceTests(unittest.TestCase):
                 FileNotFoundError("first"),
                 self.os_release_data,
             ]
-        with patch("os_resource.open", open_mock):
-            os_release_data = os_resource.get_release_file_content()
+        with patch("checkbox_support.helpers.release_info.open", open_mock):
+            os_release_data = get_release_file_content()
         self.assertIn("UBUNTU_CODENAME=noble\n", os_release_data)
 
-    def test_get_release_info(self):
-        os_release = os_resource.get_release_info(self.os_release_data)
+    @patch("checkbox_support.helpers.release_info.get_release_file_content")
+    def test_get_release_info(self, mock_file_content):
+        mock_file_content.return_value = self.os_release_data
+        os_release = get_release_info()
         expected = {
             "distributor_id": "Ubuntu",
             "description": "Ubuntu 24.04.2 LTS",
@@ -52,7 +58,8 @@ class OsResourceTests(unittest.TestCase):
         }
         self.assertEqual(os_release, expected)
 
-    def test_get_release_info_empty_lines(self):
+    @patch("checkbox_support.helpers.release_info.get_release_file_content")
+    def test_get_release_info_empty_lines(self, mock_file_content):
         os_release_data = textwrap.dedent(
             """
         PRETTY_NAME="Ubuntu 22.04.5 LTS"
@@ -63,7 +70,8 @@ class OsResourceTests(unittest.TestCase):
         VERSION_CODENAME=jammy
         """
         ).strip()
-        os_release = os_resource.get_release_info(os_release_data)
+        mock_file_content.return_value = os_release_data
+        os_release = get_release_info()
         expected = {
             "distributor_id": "Ubuntu",
             "description": "Ubuntu 22.04.5 LTS",
@@ -72,7 +80,8 @@ class OsResourceTests(unittest.TestCase):
         }
         self.assertEqual(os_release, expected)
 
-    def test_get_release_info_core_no_codename(self):
+    @patch("checkbox_support.helpers.release_info.get_release_file_content")
+    def test_get_release_info_core_no_codename(self, mock_file_content):
         # core doesn't have codename
         os_release_data = textwrap.dedent(
             """
@@ -85,7 +94,9 @@ class OsResourceTests(unittest.TestCase):
             BUG_REPORT_URL="https://bugs.launchpad.net/snappy/
             """
         ).strip()
-        os_release = os_resource.get_release_info(os_release_data)
+
+        mock_file_content.return_value = os_release_data
+        os_release = get_release_info()
         expected = {
             "distributor_id": "Ubuntu Core",
             "description": "Ubuntu Core 22",

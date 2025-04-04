@@ -1,0 +1,47 @@
+id: gpgpu/cuda-samples-0-int
+category_id: gpgpu
+environ:
+    CUDA_SAMPLES_VERSION
+    CUDA_IGNORE_TESTS
+    CUDA_IGNORE_TENSORCORE
+    CUDA_MULTIGPU
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'NVIDIA Corporation'
+_summary: NVIDIA CUDA 0 - introduction
+command: run_cuda_sample_set.py introduction
+_siblings: [
+  { "id": "gpgpu/cuda-samples-1-utils",
+    "_summary": "NVIDIA CUDA 1 - utilities",
+    "command": "run_cuda_sample_set.py utilities"},
+  { "id": "gpgpu/cuda-samples-2-conc",
+    "_summary": "NVIDIA CUDA 2 - concepts-techniques",
+    "command": "run_cuda_sample_set.py concepts"},
+  { "id": "gpgpu/cuda-samples-3-feat",
+    "_summary": "NVIDIA CUDA 3 - features testing",
+    "command": "run_cuda_sample_set.py features"},
+  { "id": "gpgpu/cuda-samples-4-libs",
+    "_summary": "NVIDIA CUDA 4 - libraries",
+    "command": "run_cuda_sample_set.py libraries"},
+  { "id": "gpgpu/cuda-samples-5-dom",
+    "_summary": "NVIDIA CUDA 5 - domain specific",
+    "command": "run_cuda_sample_set.py domain"},
+  { "id": "gpgpu/cuda-samples-6-perf",
+    "_summary": "NVIDIA CUDA 6 - performance",
+    "command": "run_cuda_sample_set.py performance"},
+  { "id": "gpgpu/cuda-samples-7-nvvm",
+    "_summary": "NVIDIA CUDA 7 - libNVVM",
+    "command": "run_cuda_sample_set.py libnvvm"},
+  { "id": "gpgpu/cuda-samples-8-plat",
+    "_summary": "NVIDIA CUDA 8 - platform specific",
+    "command": "run_cuda_sample_set.py platform"}
+    ]
+
+unit: packaging meta-data
+os-id: debian
+Depends: cmake
+
+unit: packaging meta-data
+os-id: debian
+Depends: git

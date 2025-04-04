@@ -3,6 +3,14 @@ from unittest.mock import patch
 from plainbox.vendor import image_info
 
 
+class TestRemovePrefix(TestCase):
+    def test_remove_prefix_present(self):
+        self.assertEqual(image_info.remove_prefix("abc", "a"), "bc")
+
+    def test_remove_prefix_not_present(self):
+        self.assertEqual(image_info.remove_prefix("abc", "d"), "abc")
+
+
 class TestDCDStringToInfo(TestCase):
     def test_len_5(self):
         example = "canonical-pinktiger-noble-hwe-20240709-33"

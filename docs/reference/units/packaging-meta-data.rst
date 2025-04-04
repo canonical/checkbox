@@ -1,5 +1,5 @@
 ========================
-Packaging Meta Data Unit
+Packaging meta-data unit
 ========================
 
 The packaging meta-data unit describes system-level dependencies of a provider
@@ -63,7 +63,7 @@ for **Debian** are:
 
     (optional) - same as ``Depends``.
 
-Matching Packaging Meta-Data Units
+Matching packaging meta-data units
 ----------------------------------
 
 The base Linux distribution driver parses the ``/etc/os-release`` file, looks
@@ -121,7 +121,7 @@ we can use the following packaging meta-data unit::
     Depends: libsvm3
 
 
-Using Packaging Meta-Data in Debian
+Using packaging meta-data in debian
 -----------------------------------
 
 To make use of the packaging meta-data, follow those steps:

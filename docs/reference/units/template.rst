@@ -1,7 +1,7 @@
 .. _templates:
 
 =============
-Template Unit
+Template unit
 =============
 
 The template unit is a variant of Checkbox unit types. A template is a skeleton
@@ -28,7 +28,7 @@ instead of::
   template-unit: job
   id: chromium_webcam_encoding
 
-Template-Specific Fields
+Template-specific fields
 ========================
 
 The following fields are specific to the template unit:

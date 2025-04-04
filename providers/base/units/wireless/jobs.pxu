@@ -690,7 +690,7 @@ id: wireless/check_iwlwifi_microcode_crash_{interface}
 template-id: wireless/check_iwlwifi_microcode_crash_interface
 _summary: Check there have been no iwlwifi crashes
 plugin: shell
-command: check-iwlwifi-microcode-sw-error.sh
+command: check_iwlwifi_microcode_errors.py
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend

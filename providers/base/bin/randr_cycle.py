@@ -161,7 +161,7 @@ class MonitorTest:
         )
         parser.add_argument(
             "--screenshot_dir",
-            default=os.environ["HOME"],
+            default=os.getenv("HOME", "~"),
             help=(
                 "Specify a directory to store screenshots in. "
                 "(default: %(default)s)"

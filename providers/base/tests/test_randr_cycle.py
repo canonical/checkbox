@@ -258,26 +258,28 @@ class TestScreenshotTarring(unittest.TestCase):
 class ParseArgsTests(unittest.TestCase):
     def test_success(self):
         mt = MonitorTest()
+
+        home = os.getenv("HOME", "~")
         # no arguments, load default
         args = []
         rv = mt.parse_args(args)
         self.assertEqual(rv.cycle, "both")
         self.assertEqual(rv.keyword, "")
-        self.assertEqual(rv.screenshot_dir, os.environ["HOME"])
+        self.assertEqual(rv.screenshot_dir, home)
 
         # change cycle type
         args = ["--cycle", "resolution"]
         rv = mt.parse_args(args)
         self.assertEqual(rv.cycle, "resolution")
         self.assertEqual(rv.keyword, "")
-        self.assertEqual(rv.screenshot_dir, os.environ["HOME"])
+        self.assertEqual(rv.screenshot_dir, home)
 
         # change keyword
         args = ["--keyword", "key"]
         rv = mt.parse_args(args)
         self.assertEqual(rv.cycle, "both")
         self.assertEqual(rv.keyword, "key")
-        self.assertEqual(rv.screenshot_dir, os.environ["HOME"])
+        self.assertEqual(rv.screenshot_dir, home)
 
         # change screenshot_dir
         args = ["--screenshot_dir", "dir"]

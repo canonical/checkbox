@@ -15,8 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from randr_cycle import resolution_filter, action, MonitorTest
 from unittest.mock import patch, MagicMock, mock_open
+import sys
+
+sys.modules["dbus"] = MagicMock()
+sys.modules["dbus.mainloop.glib"] = MagicMock()
+
+from randr_cycle import resolution_filter, action, MonitorTest
 from checkbox_support.dbus.gnome_monitor import Mode
 import subprocess
 import unittest

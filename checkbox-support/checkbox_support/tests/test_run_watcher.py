@@ -84,6 +84,7 @@ class TestRunWatcher(unittest.TestCase):
             )
         mock_storage_watcher._process_line.assert_called_with("removed")
 
+    @patch("subprocess.Popen", MagicMock())
     def test_storage_watcher_run_invalid_testcase(self):
         mock_storage_watcher = MagicMock()
         mock_storage_watcher.testcase = "invalid"

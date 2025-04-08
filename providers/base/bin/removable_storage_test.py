@@ -47,6 +47,7 @@ from checkbox_support.udev import get_udev_xhci_devices  # noqa: E402
 
 from checkbox_support.snap_utils.system import on_ubuntucore  # noqa: E402
 
+
 class ActionTimer:
     """Class to implement a simple timer"""
 

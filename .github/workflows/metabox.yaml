@@ -47,7 +47,7 @@ jobs:
         working-directory: metabox
     needs: metabox_run_required
     # use 20.04 as we need xenial containers support => cgroup v1
-    runs-on: ubuntu-20.04
+    runs-on: [self-hosted, focal]
     env:
       # Workaround to get loguru colored output
       # See https://github.com/Delgan/loguru/issues/604

@@ -53,7 +53,7 @@ def main():
     try:
         repo.code_import.requestImport()
     except Exception as e:
-        if "This code import is already running" not in e:
+        if "This code import is already running" not in str(e):
             return 1
     while repo.code_import.date_last_successful.replace(tzinfo=None) < start:
         if datetime.utcnow() - start > timedelta(seconds=120):

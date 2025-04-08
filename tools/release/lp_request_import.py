@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 # This file is part of Checkbox.
 #
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022-2025 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -27,41 +28,49 @@ References:
 - https://launchpad.net/+apidoc/devel.html#code_import
 """
 
-import os
 import sys
 import time
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from datetime import datetime, timedelta
 
-from launchpadlib.credentials import Credentials
-from launchpadlib.launchpad import Launchpad
+from utils import get_launchpad_client
+
+IMPORT_MAX_TIME_WAIT_S = 120
 
 
-def main():
+def parse_args(argv: list[str]) -> Namespace:
     parser = ArgumentParser("A script to force code import in Launchpad.")
     parser.add_argument("repo", help="Unique name of the repository")
-    args = parser.parse_args()
-    credentials = Credentials.from_string(os.getenv("LP_CREDENTIALS"))
-    lp = Launchpad(
-        credentials, None, None, service_root="production", version="devel"
-    )
+    return parser.parse_args()
+
+
+def main(argv: list[str] = None):
+    args = parse_args(argv if argv else [])
+    lp = get_launchpad_client()
     repo = lp.git_repositories.getByPath(path=args.repo)
     if not repo:
-        parser.error("{} repo was not found in Launchpad.".format(args.repo))
+        raise SystemExit(f"{args.repo} repo was not found in Launchpad.")
+
     start = datetime.utcnow()
     try:
         repo.code_import.requestImport()
     except Exception as e:
-        if "This code import is already running" not in str(e):
-            return 1
+        err_str = str(e)
+        if "This code import is already running" not in err_str:
+            raise SystemExit(err_str)
+
+    max_wait_timedelta = timedelta(seconds=IMPORT_MAX_TIME_WAIT_S)
     while repo.code_import.date_last_successful.replace(tzinfo=None) < start:
-        if datetime.utcnow() - start > timedelta(seconds=120):
-            return 1
+        if datetime.utcnow() - start > max_wait_timedelta:
+            raise SystemExit(
+                "Launchpad failed to import, "
+                f"timed out after {IMPORT_MAX_TIME_WAIT_S}s"
+            )
+        print("Code import not yet completed, waiting...")
         time.sleep(5)
-    print("Code import completed ({})".format(repo.web_link))
-    return 0
+    print(f"Code import completed ({repo.web_link})")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main(sys.argv[1:])

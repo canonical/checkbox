@@ -42,11 +42,11 @@ IMPORT_MAX_TIME_WAIT_S = 120
 def parse_args(argv: list[str]) -> Namespace:
     parser = ArgumentParser("A script to force code import in Launchpad.")
     parser.add_argument("repo", help="Unique name of the repository")
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main(argv: list[str] = None):
-    args = parse_args(argv if argv else [])
+def main(argv: list[str] = []):
+    args = parse_args(argv)
     lp = get_launchpad_client()
     repo = lp.git_repositories.getByPath(path=args.repo)
     if not repo:

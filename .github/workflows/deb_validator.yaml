@@ -75,7 +75,7 @@ jobs:
         # note: no 16, we don't support debs for 16 anymore
         #       no 18, not supported by github
         os:
-          - ubuntu-20.04
+          - [self-hosted, focal]
           - ubuntu-22.04
           - ubuntu-24.04
         path: ${{ fromJson(needs.get_path_matrix.outputs.paths) }}

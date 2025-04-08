@@ -45,6 +45,7 @@ from checkbox_support.udev import get_interconnect_speed  # noqa: E402
 from checkbox_support.udev import get_udev_block_devices  # noqa: E402
 from checkbox_support.udev import get_udev_xhci_devices  # noqa: E402
 
+from checkbox_support.snap_utils.system import on_ubuntucore  # noqa: E402
 
 class ActionTimer:
     """Class to implement a simple timer"""
@@ -109,20 +110,6 @@ def md5_hash_file(path):
         return None
     else:
         return md5.hexdigest()
-
-
-def on_ubuntucore():
-    """
-    Check if running from on ubuntu core
-    """
-    snap = os.getenv("SNAP")
-    if snap:
-        with open(os.path.join(snap, "meta/snap.yaml")) as f:
-            for line in f.readlines():
-                if line == "confinement: classic\n":
-                    return False
-        return True
-    return False
 
 
 class DiskTest:

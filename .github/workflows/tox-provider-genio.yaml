@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         working-directory: providers/genio
-    runs-on: ubuntu-20.04
+    runs-on: [self-hosted, focal]
     strategy:
       matrix:
         python: ["3.5", "3.6", "3.8", "3.10"]

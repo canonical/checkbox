@@ -28,6 +28,7 @@ depends:
  system_info_json
  kernel_cmdline_attachment
  kernel_config_attachment
+ kernel_package
 estimated_duration: 1.0
 command: true
 _summary:

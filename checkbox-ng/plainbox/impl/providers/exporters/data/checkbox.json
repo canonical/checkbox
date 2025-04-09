@@ -157,6 +157,13 @@
 {%- set uname_resource = state.resource_map[ns ~ 'uname'][0] %}
     "kernel": "{{ uname_resource.release }}"
 {%- endif %}
+{%- if ns ~ 'kernel_package' in state.resource_map and state.resource_map[ns ~ 'kernel_package'][0] %},
+{%- set kernel_package_resource = state.resource_map[ns ~ 'kernel_package'][0] %}
+    "kernel_package": {
+        "name": "{{ kernel_package_resource.name }}",
+        "version": "{{ kernel_package_resource.release }}"
+    }
+{%- endif %}
 {%- if ns ~ 'dpkg' in state.resource_map and state.resource_map[ns ~ 'dpkg'][0] %},
 {%- set dpkg_resource = state.resource_map[ns ~ 'dpkg'][0] %}
     "architecture": "{{ dpkg_resource.architecture }}"

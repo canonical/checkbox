@@ -800,10 +800,10 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             testplan
         ):
             override_map[pattern].append((field, value))
-        return sorted(
+        return [
             (key, field_value_list)
             for key, field_value_list in override_map.items()
-        )
+        ]
 
     def _get_category_overrides(
         self, testplan: TestPlanUnit

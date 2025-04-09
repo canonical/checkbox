@@ -33,7 +33,7 @@ jobs:
           - release: 16
             arch: arm64
     # uc16 needs ubuntu20 because we need cgroup v1 to build it
-    runs-on: ${{ matrix.release == 16 && '["self-hosted", "focal"]' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
     steps:
@@ -112,7 +112,7 @@ jobs:
           - release: 24
             arch: arm64
     # uc16 needs ubuntu20 because we need cgroup v1 to build it
-    runs-on: ${{ matrix.release == 16 && '["self-hosted", "focal"]' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:

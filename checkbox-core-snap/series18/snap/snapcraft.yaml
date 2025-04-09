@@ -137,7 +137,6 @@ parts:
       - pybluez
     build-packages:
       - libbluetooth-dev
-      - libsystemd-dev
       - python3-dev
     after: [acpi-tools]
     build-environment:

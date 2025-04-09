@@ -96,6 +96,6 @@ jobs:
           MATRIX_PATH: ${{ matrix.path }}
         run: mv "$MATRIX_PATH/debian" .
       - name: Install dependencies
-        run: sudo apt-get build-dep .
+        run: sudo apt-get -qq -y build-dep .
       - name: Build source, test and build binary
         run: dpkg-buildpackage

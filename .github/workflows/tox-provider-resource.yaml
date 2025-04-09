@@ -6,10 +6,12 @@ on:
     branches: [ main ]
     paths:
       - providers/resource/**
+      - .github/workflows/tox-provider-resource.yaml
   pull_request:
     branches: [ main ]
     paths:
       - providers/resource/**
+      - .github/workflows/tox-provider-resource.yaml
   workflow_dispatch:
 
 jobs:
@@ -50,8 +52,11 @@ jobs:
           python-version: ${{ matrix.python }}
         env:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
-      - name: Install tox
-        run: pip install tox
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq libgl1
+          pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Upload coverage reports to Codecov

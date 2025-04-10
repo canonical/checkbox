@@ -33,7 +33,7 @@ jobs:
             tox_env_name: "py38"
           - python: "3.10"
             tox_env_name: "py310"
-    runs-on: ${{ matrix.python == '3.5' && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:

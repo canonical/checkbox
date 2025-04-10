@@ -62,7 +62,7 @@ jobs:
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |
-            path: contrib/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}
+            path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
 
       - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
@@ -73,7 +73,7 @@ jobs:
           path: |
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
-            contrib/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
+            contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
       - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload the snaps as artefacts

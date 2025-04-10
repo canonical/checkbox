@@ -53,9 +53,11 @@ jobs:
         env:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
       - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y -qq libgl1 gcc python3-dev
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
           pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}

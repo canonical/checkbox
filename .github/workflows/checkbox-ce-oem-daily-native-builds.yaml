@@ -34,8 +34,6 @@ jobs:
             tag: X64
           - arch: arm64
             tag: ARM64
-          - release: 18
-            snapcraft_version: 7.x
           - release: 20
             snapcraft_version: 7.x
           - release: 22

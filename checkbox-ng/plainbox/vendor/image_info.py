@@ -7,6 +7,15 @@ import subprocess
 BASE_URL = "https://oem-share.canonical.com/partners"
 VERSION = 1
 
+try:
+    remove_prefix = str.removeprefix
+except AttributeError:
+
+    def remove_prefix(x: str, prefix: str):
+        if x.startswith(prefix):
+            return x[len(prefix) :]
+        return x
+
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
@@ -47,8 +56,8 @@ def dcd_string_to_info(dcd_string):
     - url
     """
     # prefix, should always be present
-    dcd_string = dcd_string.replace("canonical-", "")
-    dcd_string = dcd_string.replace("oem-", "")
+    dcd_string = remove_prefix(dcd_string, "canonical-").strip()
+    dcd_string = remove_prefix(dcd_string, "oem-")
     dcd_string_arr = dcd_string.split("-")
     if len(dcd_string_arr) == 5:
         project, series, kernel_type, build_date, build_number = dcd_string_arr

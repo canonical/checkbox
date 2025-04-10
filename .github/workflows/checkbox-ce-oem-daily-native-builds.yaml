@@ -57,7 +57,7 @@ jobs:
         run: |
           cd contrib/checkbox-ce-oem/checkbox-ce-oem-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
-          ./prepare.sh series${{ matrix.release }}
+          ./prepare.sh series_${{ matrix.type }}${{ matrix.release }}
 
       - id: snap_build
         uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49

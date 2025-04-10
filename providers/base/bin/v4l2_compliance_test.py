@@ -19,6 +19,7 @@
 
 import argparse
 import typing as T
+import sys
 from checkbox_support.parsers.v4l2_compliance import (
     parse_v4l2_compliance,
     IOCTL_USED_BY_V4L2SRC,
@@ -91,18 +92,18 @@ def main():
     for ioctl_name in ioctls_to_check:
         if ioctl_name in details["failed"]:
             all_passed = False
-            print(ioctl_name, "failed")
-        if (
+            print(ioctl_name, "failed", file=sys.stderr)
+        elif (
             args.treat_unsupported_as_fail
             and ioctl_name in details["not_supported"]
         ):
             all_passed = False
-            print(ioctl_name, "is not supported but required")
+            print(ioctl_name, "is not supported but required", file=sys.stderr)
 
     if all_passed:
         print(
-            "All the {} ioctls passed the compliance test!".format(
-                args.ioctl_selection[:-1]  # trim the 's'
+            "Ioctls in the set '{}' passed the compliance test!".format(
+                args.ioctl_selection
             )
         )
     else:

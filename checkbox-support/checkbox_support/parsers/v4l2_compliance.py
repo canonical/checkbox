@@ -95,6 +95,44 @@ TEST_NAME_TO_IOCTL_MAP = {
     "VIDIOC_EXPBUF": ["VIDIOC_EXPBUF"],
 }
 
+# These are ioctls used by gstreamer's v4l2src element that are
+# tested by v4l2-compliance
+IOCTL_USED_BY_V4L2SRC = {
+    "VIDIOC_CREATE_BUFS",
+    "VIDIOC_DECODER_CMD",
+    "VIDIOC_ENCODER_CMD",
+    "VIDIOC_ENUMINPUT",
+    "VIDIOC_ENUMSTD",
+    "VIDIOC_ENUM_FMT",
+    "VIDIOC_ENUM_FRAMEINTERVALS",
+    "VIDIOC_ENUM_FRAMESIZES",
+    "VIDIOC_EXPBUF",
+    "VIDIOC_G_CTRL",
+    "VIDIOC_G_FMT",
+    "VIDIOC_G_FREQUENCY",
+    "VIDIOC_G_OUTPUT",
+    "VIDIOC_G_PARM",
+    "VIDIOC_G_SELECTION",
+    "VIDIOC_G_STD",
+    "VIDIOC_G_TUNER",
+    "VIDIOC_QUERYBUF",
+    "VIDIOC_QUERYCAP",
+    "VIDIOC_QUERYCTRL",
+    "VIDIOC_QUERYMENU",
+    "VIDIOC_QUERY_DV_TIMINGS",
+    "VIDIOC_REQBUFS",
+    "VIDIOC_SUBSCRIBE_EVENT",
+    "VIDIOC_S_CTRL",
+    "VIDIOC_S_EXT_CTRLS",
+    "VIDIOC_S_FMT",
+    "VIDIOC_S_FREQUENCY",
+    "VIDIOC_S_INPUT",
+    "VIDIOC_S_OUTPUT",
+    "VIDIOC_S_PARM",
+    "VIDIOC_S_STD",
+    "VIDIOC_TRY_FMT",
+}
+
 
 # see the summary dict literal for actual keys
 Summary = T.Dict[str, T.Union[int, T.Optional[str]]]

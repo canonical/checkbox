@@ -51,6 +51,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Copy over the common files for series ${{ matrix.release }}
+        run: |
+          cd contrib/checkbox-ce-oem/checkbox-ce-oem-snap/
+          sudo apt update && sudo apt install -qq -y python3-setuptools-scm
+          ./prepare.sh series${{ matrix.release }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392
 

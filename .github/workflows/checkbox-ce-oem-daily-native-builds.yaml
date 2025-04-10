@@ -53,6 +53,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Copy over the common files for series ${{ matrix.release }}
+        run: |
+          cd contrib/checkbox-ce-oem/checkbox-ce-oem-snap/
+          sudo apt update && sudo apt install -qq -y python3-setuptools-scm
+          ./prepare.sh series${{ matrix.release }}
+
       - id: snap_build
         uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
         name: Building the snaps

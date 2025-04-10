@@ -35,7 +35,7 @@ passthrough:
 parts:
   checkbox-provider-ce-oem:
     plugin: dump
-    source: ../../checkbox-provider-ce-oem
+    source: checkbox-provider-ce-oem
     source-type: local
     stage-packages:
       - alsa-utils
@@ -85,7 +85,7 @@ parts:
       - jq
     build-environment:
       - PART_DEST: ${SNAPCRAFT_PART_INSTALL}/providers/checkbox-provider-ce-oem/data/
-      - PROVIDER_SRC: ${SNAPCRAFT_PROJECT_DIR}/../../checkbox-provider-ce-oem
+      - PROVIDER_SRC: ${SNAPCRAFT_PROJECT_DIR}/checkbox-provider-ce-oem
       - PYTHONPATH: /snap/checkbox22/current/lib/python3.10/site-packages/
     override-pull: |
       snapcraftctl pull

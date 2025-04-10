@@ -36,13 +36,13 @@ _description: Camera tests (automated)
 include:
  camera/detect                                     certification-status=blocker
  camera/multiple-resolution-images_.*              certification-status=blocker
- camera/v4l2-compliance_.*                         certification-status=blocker
+ camera/v4l2-compliance_blockers_.*                certification-status=blocker
  camera/multiple-resolution-images-attachment_.*   certification-status=non-blocker
  camera/camera-quality_.*                          certification-status=non-blocker
  camera/camera-quality-image_.*                    certification-status=non-blocker
+ camera/v4l2-compliance-non-blockers_.*            certification-status=non-blocker
 bootstrap_include:
  device
- camera/v4l2-ioctl_resource
 
 id: camera-cert-blockers
 unit: test plan
@@ -53,6 +53,7 @@ include:
  camera/still_.*                                   certification-status=blocker
  camera/display_.*                                 certification-status=blocker
  camera/multiple-resolution-images_.*              certification-status=blocker
+ camera/v4l2-compliance-blockers_.*                certification-status=blocker
 bootstrap_include:
  device
 

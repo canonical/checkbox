@@ -101,7 +101,7 @@ def main():
 
     if all_passed:
         print(
-            "All the {} ioctls are supported!".format(
+            "All the {} ioctls passed the compliance test!".format(
                 args.ioctl_selection[:-1]  # trim the 's'
             )
         )

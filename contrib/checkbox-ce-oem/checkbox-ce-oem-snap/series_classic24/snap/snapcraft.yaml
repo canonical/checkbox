@@ -83,6 +83,7 @@ parts:
       - checkbox24
     build-packages:
       - jq
+      - python3-requests-unixsocket
     build-environment:
       - PART_DEST: ${CRAFT_PART_INSTALL}/providers/checkbox-provider-ce-oem/data/
       - PROVIDER_SRC: ${CRAFT_PROJECT_DIR}/checkbox-provider-ce-oem
@@ -92,6 +93,7 @@ parts:
       cp ${PROVIDER_SRC}/data/xtest_supported_version.json .
       cp ${PROVIDER_SRC}/bin/optee_helper.py .
       cp ${PROVIDER_SRC}/bin/look_up_xtest.py .
+      cp ${PROVIDER_SRC}/bin/xtest_install_ta.py .
     override-build: |
       for ver in `cat xtest_supported_version.json | jq -r .xtest_suite_tag[]`; do
           git checkout $ver

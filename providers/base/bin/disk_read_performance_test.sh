@@ -65,10 +65,10 @@ for disk in "$@"; do
   echo "INFO: $disk type is $disk_type"
 
   case $disk_type in
-    "usb" ) 
+    "usb" )
             #Custom metrics are guesstimates for now...
             MIN_BUF_READ=7
-            
+
             # Increase MIN_BUF_READ if a USB3 device is plugged in a USB3 hub port
             if  [[ $dev_path =~ ((.*usb[0-9]+).*\/)[0-9]-[0-9\.:-]+/.* ]]; then
                 device_version=$(cat '/sys/'"${BASH_REMATCH[1]}"'/version')
@@ -110,7 +110,7 @@ for disk in "$@"; do
     fi
 
     speed=${speed/.*}
-    if [ "$speed" -gt $max_speed ]; then
+    if [ "$speed" -gt "$max_speed" ]; then
       max_speed=$speed
     fi
   done
@@ -126,7 +126,7 @@ for disk in "$@"; do
   fi
 done
 
-if [ $result -gt 0 ]; then
+if [ "$result" -gt 0 ]; then
   echo "WARNING: One or more disks failed testing!"
   exit 1
 else

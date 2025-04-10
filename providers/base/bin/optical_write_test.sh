@@ -77,14 +77,14 @@ check_disk(){
     while true; do
         sleep $INTERVAL
         SLEEP_COUNT=$((SLEEP_COUNT + INTERVAL))
-        
+
         mount "$OPTICAL_DRIVE" 2>&1 | grep -E -q "already mounted"
         rt=$?
         if [ $rt -eq 0 ]; then
             echo "Drive appears to be mounted now"
             break
         fi
-        
+
         # If they exceed the timeout limit, make a best effort to load the tray
         # in the next steps
         if [ $SLEEP_COUNT -ge $TIMEOUT ]; then
@@ -93,7 +93,7 @@ check_disk(){
         fi
     done
 
-        
+
     echo "Deleting original data files ..."
     rm -rf $SAMPLE_FILE
     if mount | grep -q "$OPTICAL_DRIVE"; then
@@ -113,7 +113,7 @@ check_disk(){
         fi
     fi
     echo "Copying files from ISO ..."
-    cp $MOUNT_PT/* $TEMP_DIR
+    cp "$MOUNT_PT"/* $TEMP_DIR
     check_md5 $MD5SUM_FILE
     return $?
 }
@@ -140,7 +140,7 @@ if [ -e "$1" ]; then
     OPTICAL_DRIVE=$(readlink -f "$1")
 else
     OPTICAL_DRIVE='/dev/sr0'
-fi    
+fi
 
 if [ -n "$2" ]; then
     OPTICAL_TYPE=$2

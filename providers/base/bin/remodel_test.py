@@ -42,28 +42,48 @@ def resolve_model(uc_ver):
 
 
 def resolve_snaps(uc_ver):
-    subprocess.run([
-        "snap", "download", f"core{uc_ver}",
-        f"--basename=core{uc_ver}"])
+    subprocess.run(
+        ["snap", "download", f"core{uc_ver}", f"--basename=core{uc_ver}"]
+    )
     # for the kernel snap use beta
     if "pi" in get_platform():
-        subprocess.run([
-            "snap", "download",
-            "pi", f"--channel={uc_ver}/edge",
-            "--basename=gadget"])
-        subprocess.run([
-            "snap", "download",
-            "pi-kernel",  f"--channel={uc_ver}/beta",
-            "--basename=kernel"])
+        subprocess.run(
+            [
+                "snap",
+                "download",
+                "pi",
+                f"--channel={uc_ver}/edge",
+                "--basename=gadget",
+            ]
+        )
+        subprocess.run(
+            [
+                "snap",
+                "download",
+                "pi-kernel",
+                f"--channel={uc_ver}/beta",
+                "--basename=kernel",
+            ]
+        )
     else:
-        subprocess.run([
-            "snap", "download",
-            "pc", f"--channel={uc_ver}/edge",
-            "--basename=gadget"])
-        subprocess.run([
-            "snap", "download",
-            "pc-kernel",  f"--channel={uc_ver}/beta",
-            "--basename=kernel"])
+        subprocess.run(
+            [
+                "snap",
+                "download",
+                "pc",
+                f"--channel={uc_ver}/edge",
+                "--basename=gadget",
+            ]
+        )
+        subprocess.run(
+            [
+                "snap",
+                "download",
+                "pc-kernel",
+                f"--channel={uc_ver}/beta",
+                "--basename=kernel",
+            ]
+        )
 
 
 def main():
@@ -82,7 +102,7 @@ def main():
     # (currently offline was used for testing in certain scenarios during
     # test development) - for normal testing offline should not be needed
     offline = False
-    if len(sys.argv) > 2 and sys.argv[2] == 'offline':
+    if len(sys.argv) > 2 and sys.argv[2] == "offline":
         offline = True
 
     if offline:
@@ -90,15 +110,27 @@ def main():
 
         # instantiate the offline remodel
         print("initiating offline device remodel")
-        subprocess.run([
-            "sudo", "snap", "remodel", "--offline",
-            "--snap", f"core{uc_ver}.snap",
-            "--assertion", f"core{uc_ver}.assert",
-            "--snap", "gadget.snap",
-            "--assertion", "gadget.assert",
-            "--snap", "kernel.snap",
-            "--assertion", "kernel.assert",
-            model_path])
+        subprocess.run(
+            [
+                "sudo",
+                "snap",
+                "remodel",
+                "--offline",
+                "--snap",
+                f"core{uc_ver}.snap",
+                "--assertion",
+                f"core{uc_ver}.assert",
+                "--snap",
+                "gadget.snap",
+                "--assertion",
+                "gadget.assert",
+                "--snap",
+                "kernel.snap",
+                "--assertion",
+                "kernel.assert",
+                model_path,
+            ]
+        )
     else:
         # instantiate the remodel
         print("initiating device remodel")

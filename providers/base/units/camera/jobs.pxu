@@ -22,26 +22,31 @@ command:
   udev_resource.py -f MMAL | grep "category: MMAL"
 _summary: Detect presence of a MMAL camera.
 
-id: camera/v4l2-ioctl_resource
-_summary: Generates ioctl names for v4l2 compliance test
-_description: Generates ioctl names for v4l2 compliance test
-estimated_duration: 0.02
+unit: template
 category_id: com.canonical.plainbox::camera
-plugin: resource
+template-resource: device
+template-filter: device.category == 'CAPTURE'
+template-unit: job
+template-id: camera/v4l2-compliance-blockers_name
+_template-summary: To check if the ioctl request works on a v4l2 device
+id: camera/v4l2-compliance-blockers_{name}
+_summary: v4l2 compliance for {product_slug}, blockers
+plugin: shell
 command:
-  v4l2_ioctl_resource.py
+  v4l2_compliance_test.py --device /dev/{name} --ioctl-selection blockers
 
 unit: template
 category_id: com.canonical.plainbox::camera
-template-resource: camera/v4l2-ioctl_resource
+template-resource: device
+template-filter: device.category == 'CAPTURE'
 template-unit: job
-template-id: camera/v4l2-compliance_ioctl_name
+template-id: camera/v4l2-compliance-non-blockers_name
 _template-summary: To check if the ioctl request works on a v4l2 device
-id: camera/v4l2-compliance_{ioctl_name}
-_summary: v4l2 compliance for {ioctl_name} on {name}
+id: camera/v4l2-compliance-non-blockers_{name}
+_summary: v4l2 compliance for {product_slug}, non-blockers
 plugin: shell
 command:
-  v4l2_compliance_test.py --device /dev/{name} --ioctl {ioctl_name}
+  v4l2_compliance_test.py --device /dev/{name} --ioctl-selection non-blockers
 
 unit: template
 template-resource: device

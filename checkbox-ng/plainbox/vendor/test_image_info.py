@@ -3,29 +3,41 @@ from unittest.mock import patch
 from plainbox.vendor import image_info
 
 
+class TestRemovePrefix(TestCase):
+    def test_remove_prefix_present(self):
+        self.assertEqual(image_info.remove_prefix("abc", "a"), "bc")
+
+    def test_remove_prefix_not_present(self):
+        self.assertEqual(image_info.remove_prefix("abc", "d"), "abc")
+
+
 class TestDCDStringToInfo(TestCase):
     def test_len_5(self):
-        example = "canonical-oem-pinktiger-noble-hwe-20240709-33.iso"
+        example = "canonical-pinktiger-noble-hwe-20240709-33"
         info = image_info.dcd_string_to_info(example)
 
         self.assertEqual(info["project"], "pinktiger")
         self.assertEqual(info["series"], "noble")
+        # its 5 matched + url + base_url
+        self.assertEqual(len(info), 7)
 
     def test_len_6(self):
-        example = "canonical-oem-pinktiger-noble-oem-24.04a-20240709-33.iso"
+        example = "canonical-pinktiger-noble-oem-24.04a-20240709-33"
         info = image_info.dcd_string_to_info(example)
 
         self.assertEqual(info["project"], "pinktiger")
         self.assertEqual(info["series"], "noble")
+        # its 6 matched + url + base_url
+        self.assertEqual(len(info), 8)
 
     def test_len_7(self):
-        example = (
-            "canonical-oem-pinktiger-noble-oem-24.04a-proposed-20240709-33.iso"
-        )
+        example = "canonical-pinktiger-noble-oem-24.04a-proposed-20240709-33"
         info = image_info.dcd_string_to_info(example)
 
         self.assertEqual(info["project"], "pinktiger")
         self.assertEqual(info["series"], "noble")
+        # its 7 matched + url + base_url
+        self.assertEqual(len(info), 9)
 
     def test_len_wrong(self):
         with self.assertRaises(SystemExit):

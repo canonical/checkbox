@@ -6,10 +6,12 @@ on:
     branches: [ main ]
     paths:
       - tools/release/*
+      - .github/workflows/tox-tools-release.yaml
   pull_request:
     branches: [ main ]
     paths:
       - tools/release/*
+      - .github/workflows/tox-tools-release.yaml
   workflow_dispatch:
 
 jobs:

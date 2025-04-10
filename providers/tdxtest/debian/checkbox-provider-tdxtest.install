@@ -1,0 +1,4 @@
+debian/tmp/usr/lib/checkbox-provider-tdxtest/*
+debian/tmp/usr/share/checkbox-provider-tdxtest/*
+debian/tmp/usr/share/plainbox-providers-1/*.provider
+usr/bin/install-tdx-test

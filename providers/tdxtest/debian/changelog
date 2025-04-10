@@ -1,0 +1,6 @@
+checkbox-provider-tdxtest (0.1-1) noble; urgency=medium
+
+  * Initial release
+  * Adding launchers to install tdx tests 
+
+ -- Michael Reed <michael.reed@canonical.com>  Thur, 10 April 2025 14:49:13 -0400

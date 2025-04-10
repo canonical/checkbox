@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+export SRCTOP=providers/tdxtest
+
+%:
+	dh $@ --sourcedirectory=$(SRCTOP)
+
+override_dh_auto_clean:
+	python3 $(SRCTOP)/manage.py clean
+
+override_dh_auto_build:
+	python3 $(SRCTOP)/manage.py build
+	python3 $(SRCTOP)/manage.py i18n --dont-update-pot --dont-merge-po
+
+override_dh_auto_test:
+	python3 $(SRCTOP)/manage.py validate
+
+override_dh_auto_install:
+	python3 $(SRCTOP)/manage.py install \
+		--prefix=/usr --layout=unix \
+		--root=$(CURDIR)/debian/tmp/
+
+override_dh_gencontrol:
+	python3 $(SRCTOP)/manage.py packaging
+	dh_gencontrol

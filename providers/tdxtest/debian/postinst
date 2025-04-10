@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+sudo snap install checkbox24
+sudo snap install --edge checkbox-tdx --classic

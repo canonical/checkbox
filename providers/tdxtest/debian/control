@@ -1,0 +1,25 @@
+Source: checkbox-provider-tdxtest
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
+Uploaders: Michael Reed <michael.reed@canonical.com>
+Build-Depends: checkbox-ng,
+               debhelper (>= 9),
+               intltool,
+               pkg-config,
+               checkbox-provider-base,
+               python3,
+               python3-checkbox-ng,
+               python3-debian,
+               python3-setuptools
+Standards-Version: 3.9.6
+
+Package: checkbox-provider-tdxtest
+Architecture: any-amd64 arm64
+Depends: checkbox-provider-base, ${plainbox:Depends}, ${misc:Depends}
+Suggests: ubuntu-drivers-common, ${plainbox:Suggests}
+X-Plainbox-Provider: yes
+Description: Checkbox provider for Installing TDX testing
+ This package provides a test plan and tooling to be used by Canonical for the
+ testing and certification of tdx  in "server" computer systems
+ .

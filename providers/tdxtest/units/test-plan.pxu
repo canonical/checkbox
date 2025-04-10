@@ -1,0 +1,12 @@
+id: tdxtest_inlstall
+unit: test plan
+_name:  Install TDX
+_description:
+ Verify the Enviroment is TDX Enabled
+include:
+    tdxtest/install_tdx     certification-status=non-blocker
+bootstrap_include:
+    snap
+    uname
+
+

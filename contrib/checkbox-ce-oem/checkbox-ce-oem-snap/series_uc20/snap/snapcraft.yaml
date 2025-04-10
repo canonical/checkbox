@@ -135,6 +135,7 @@ parts:
           git checkout $ver
           python3 optee_helper.py parse_xtest_src $ver
       done
+      mkdir -p ${PART_DEST}
       cp -v optee-test-*.json ${PART_DEST}
   spidev-test:
     plugin: make

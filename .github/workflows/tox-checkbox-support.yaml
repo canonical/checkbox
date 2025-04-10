@@ -6,10 +6,12 @@ on:
     branches: [ main ]
     paths:
       - checkbox-support/**
+      - .github/workflows/tox-checkbox-support.yaml
   pull_request:
     branches: [ main ]
     paths:
       - checkbox-support/**
+      - .github/workflows/tox-checkbox-support.yaml
   workflow_dispatch:
 
 jobs:
@@ -18,7 +20,6 @@ jobs:
     defaults:
       run:
         working-directory: checkbox-support
-    runs-on: [self-hosted, focal]
     strategy:
       matrix:
         python: ["3.5", "3.6", "3.8", "3.10"]
@@ -31,6 +32,7 @@ jobs:
             tox_env_name: "py38"
           - python: "3.10"
             tox_env_name: "py310"
+    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -50,12 +52,14 @@ jobs:
           python-version: ${{ matrix.python }}
         env:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
-      - name: Install tox
-        run: pip install tox
-      - name: Install libsystemd-dev
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
         run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
           sudo apt-get update
-          sudo apt-get install -y libsystemd-dev
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
+          pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Upload coverage reports to Codecov

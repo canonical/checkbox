@@ -151,7 +151,7 @@ depends: power-management/suspend_30_cycles_with_reboots
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
 _summary: 30 suspend/resume cycles and 1 reboot, 3 times (check logs for errors)
-_purpose: 
+_purpose:
  Automated check of the '30 cycle suspend and 1 reboot times 3' logs for errors detected by fwts.
 _siblings: [
     { "id": "power-management/suspend-30-cycles-log-check-with-coldboots",
@@ -716,7 +716,7 @@ command:
  nmcli d wifi connect "${SSID}" password "${PSK}"
  UUID=$(nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*")
  i=1
- while [ ! $i -gt $NUM ]
+ while [ ! $i -gt "$NUM" ]
  do
      echo "Connect/Disconnect Round ${i}"
      nmcli c up uuid "${UUID}"

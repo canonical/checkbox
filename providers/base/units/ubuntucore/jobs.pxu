@@ -50,6 +50,42 @@ _verification:
 plugin: manual
 category_id: ubuntucore
 
+id: ubuntucore/remodel-20-to-22
+category_id: ubuntucore
+_summary: Remodel Ubuntu Core 20 to 22
+_purpose:
+ Verify the system can remodel from ubuntu core 22 to 24 under normal
+ circumstances. The requirement is that the official models from canonical
+ are used for the running Ubuntu Core host. Multiple reboots will happen
+ as a part of this test.
+unit: job
+plugin: shell
+user: root
+flags: noreturn
+estimated_duration: 180.0
+command:
+  snap model | grep "ubuntu-core-20"
+  remodel_test.py 22
+  reboot
+
+id: ubuntucore/remodel-22-to-24
+category_id: ubuntucore
+_summary: Remodel Ubuntu Core 22 to 24
+_purpose:
+ Verify the system can remodel from ubuntu core 22 to 24 under normal
+ circumstances. The requirement is that the official models from canonical
+ are used for the running Ubuntu Core host. Multiple reboots will happen
+ as a part of this test.
+unit: job
+plugin: shell
+user: root
+flags: noreturn
+estimated_duration: 180.0
+command:
+  snap model | grep "ubuntu-core-22"
+  remodel_test.py 24
+  reboot
+
 unit: template
 template-resource: lsb
 template-filter: lsb.distributor_id == 'Ubuntu Core'

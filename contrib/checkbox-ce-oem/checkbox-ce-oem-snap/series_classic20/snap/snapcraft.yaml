@@ -70,10 +70,8 @@ parts:
       - gcc
       - libc6-dev
     override-build: |
-      mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/bin
-      PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
-      gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
-      cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
+      mkdir -p ${CRAFT_PART_INSTALL}/usr/bin
+      gcc ${CRAFT_PROJECT_DIR}/checkbox-provider-ce-oem/src/input-pcspkr.c -o ${CRAFT_PART_INSTALL}/usr/bin/beep
   xtest:
     plugin: dump
     after: [checkbox-provider-ce-oem]

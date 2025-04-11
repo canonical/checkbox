@@ -41,15 +41,14 @@ def get_non_blockers(blockers: T.Iterable[str]) -> T.List[str]:
     return non_blockers
 
 
-"""
-class Input:
-    device: str
-    ioctl_selection: Literal['blockers', 'non-blockers', 'all']
-    treat_unsupported_as_fail: bool
-"""
-
-
 def parse_args():
+    """
+    class Input:
+        device: str
+        ioctl_selection: Literal['blockers', 'non-blockers', 'all']
+        treat_unsupported_as_fail: bool
+    """
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--device",
@@ -77,7 +76,6 @@ def main():
     args = parse_args()
     _, details = parse_v4l2_compliance(args.device)
 
-    all_passed = True
     if args.ioctl_selection == "blockers":
         ioctls_to_check = BLOCKERS
     elif args.ioctl_selection == "non-blockers":
@@ -89,6 +87,7 @@ def main():
             for ioctl_name in ioctl_names
         ]
 
+    all_passed = True
     for ioctl_name in ioctls_to_check:
         if ioctl_name in details["failed"]:
             all_passed = False
@@ -102,12 +101,12 @@ def main():
 
     if all_passed:
         print(
-            "Ioctls in the set '{}' passed the compliance test!".format(
+            "[ OK ] Ioctls in the set '{}' passed the compliance test!".format(
                 args.ioctl_selection
             )
         )
     else:
-        raise SystemExit("V4L2 compliance test failed")
+        raise SystemExit("[ ERR ] V4L2 compliance test failed")
 
 
 if __name__ == "__main__":

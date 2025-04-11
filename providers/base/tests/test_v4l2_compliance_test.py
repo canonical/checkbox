@@ -1,7 +1,8 @@
 import unittest as ut
-from unittest.mock import MagicMock, call, patch
-from v4l2_compliance_test import main as main_under_test
 from shlex import split as sh_split
+from unittest.mock import MagicMock, call, patch
+
+from v4l2_compliance_test import main as main_under_test
 
 
 class TestV4L2ComplianceTest(ut.TestCase):
@@ -12,8 +13,8 @@ class TestV4L2ComplianceTest(ut.TestCase):
             "sys.argv",
             [
                 "v4l2_compliance_test.py",
-                "--include",
-                "VIDIOC_QUERYCAP",
+                "--ioctl-selection",
+                "blockers",
                 "--device",
                 "/dev/video0",
             ],
@@ -34,8 +35,8 @@ class TestV4L2ComplianceTest(ut.TestCase):
             "sys.argv",
             [
                 "v4l2_compliance_test.py",
-                "--include",
-                "VIDIOC_ENUM_FMT",
+                "--ioctl-selection",
+                "blockers",
                 "--device",
                 "/dev/video0",
             ],
@@ -53,7 +54,13 @@ class TestV4L2ComplianceTest(ut.TestCase):
 
     @patch(
         "sys.argv",
-        ["v4l2_compliance_test.py", "--device", "/dev/video1"],
+        [
+            "v4l2_compliance_test.py",
+            "--ioctl-selection",
+            "non-blockers",
+            "--device",
+            "/dev/video0",
+        ],
     )
     @patch("sys.stderr")
     @patch("builtins.print")
@@ -68,59 +75,79 @@ class TestV4L2ComplianceTest(ut.TestCase):
             {},
             {
                 "succeeded": [],
-                "failed": ["VIDIOC_ENUM_FMT"],
+                "failed": ["VIDIOC_DECODER_CMD"],
                 "not_supported": [],
             },
         )
-
         self.assertRaises(SystemExit, main_under_test)
-        mock_print.assert_called_with(
-            mock_parser.return_value[1]["failed"],
-            "failed the test",
-            file=mock_stderr,
+        mock_print.assert_has_calls(
+            [
+                call(
+                    ioctl_name,
+                    "failed",
+                    file=mock_stderr,
+                )
+                for ioctl_name in mock_parser.return_value[1]["failed"]
+            ],
+            any_order=True,
         )
 
         mock_print.reset_mock()
+
         mock_parser.return_value = (
             {},
             {
                 "succeeded": [],
-                "failed": ["VIDIOC_QUERYCTRL"],
+                "failed": ["VIDIOC_DECODER_CMD"],
                 "not_supported": [],
             },
         )
-
         self.assertRaises(SystemExit, main_under_test)
-        mock_print.assert_called_with(
-            mock_parser.return_value[1]["failed"],
-            "failed the test",
-            file=mock_stderr,
+        mock_print.assert_has_calls(
+            [
+                call(
+                    ioctl_name,
+                    "failed",
+                    file=mock_stderr,
+                )
+                for ioctl_name in mock_parser.return_value[1]["failed"]
+            ],
+            any_order=True,
         )
 
         mock_print.reset_mock()
+
         mock_parser.return_value = (
             {},
             {
                 "succeeded": [],
-                "failed": ["VIDIOC_QUERYCTRL", "VIDIOC_ENUM_FMT"],
+                "failed": ["VIDIOC_ENUM_FMT", "VIDIOC_DECODER_CMD"],
                 "not_supported": [],
             },
         )
-
         self.assertRaises(SystemExit, main_under_test)
-        mock_print.assert_called_with(
-            mock_parser.return_value[1]["failed"],
-            "failed the test",
-            file=mock_stderr,
+        mock_print.assert_has_calls(
+            [
+                call(
+                    ioctl_name,
+                    "failed",
+                    file=mock_stderr,
+                )
+                for ioctl_name in mock_parser.return_value[1]["failed"]
+            ],
+            any_order=True,
         )
 
     @patch(
         "sys.argv",
-        sh_split(
-            "v4l2_compliance_test.py "
-            + "--include VIDOC_G_FMT --device /dev/video1 "
-            + "--treat-unsupported-as-fail"
-        ),
+        [
+            "v4l2_compliance_test.py",
+            "--ioctl-selection",
+            "non-blockers",
+            "--device",
+            "/dev/video0",
+            "--treat-unsupported-as-fail",
+        ],
     )
     @patch("v4l2_compliance_test.parse_v4l2_compliance")
     def test_treat_unsupported_as_fail(
@@ -132,7 +159,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             {
                 "succeeded": [],
                 "failed": [],
-                "not_supported": ["VIDOC_G_FMT"],
+                "not_supported": ["VIDIOC_G_FMT"],
             },
         )
 

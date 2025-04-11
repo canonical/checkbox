@@ -1,8 +1,8 @@
 id: tdxtest-only
 unit: test plan
-_name: GPGPU Compute Testing
+_name: Install TDX Testing
 _description:
- Tests for GPGPU Computations (non-graphical)
+ InstallTDX Tests for TDX
 nested_part:
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-firmware

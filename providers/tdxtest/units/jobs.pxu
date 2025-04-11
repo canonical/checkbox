@@ -1,6 +1,6 @@
-id: tdx/tdxtest
+id: tdxtest/tdx-install
 category_id: tdxtest
 plugin: shell
-estimated_duration: 14400
+estimated_duration: 300
 _summary: Install TDX Testsuite
 command:  install_tdx.py

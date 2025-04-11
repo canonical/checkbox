@@ -1,5 +1,4 @@
 import unittest as ut
-from shlex import split as sh_split
 from unittest.mock import MagicMock, call, patch
 
 from v4l2_compliance_test import main as main_under_test

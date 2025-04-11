@@ -66,12 +66,14 @@ parts:
   input-pcspkr:
     plugin: nil
     after: [checkbox-provider-ce-oem]
+    source: ../checkbox-provider-ce-oem/src
+    source-type: local
     build-packages:
       - gcc
       - libc6-dev
     override-build: |
       mkdir -p "${SNAPCRAFT_PART_INSTALL}/usr/bin"
-      gcc "${SNAPCRAFT_PART_SRC}/checkbox-provider-ce-oem/src/input-pcspkr.c" -o "${SNAPCRAFT_PART_INSTALL}/usr/bin/beep"
+      gcc "${SNAPCRAFT_PART_SRC}/input-pcspkr.c" -o "${SNAPCRAFT_PART_INSTALL}/usr/bin/beep"
   xtest:
     plugin: dump
     after: [checkbox-provider-ce-oem]

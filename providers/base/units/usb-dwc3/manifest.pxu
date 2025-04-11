@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_usb_dwc3_controller
+_name: A DesignWare Core SuperSpeed USB 3.0 Controller (DWC3)
+value-type: bool

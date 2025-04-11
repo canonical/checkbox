@@ -25,13 +25,13 @@ _summary: Detect presence of a MMAL camera.
 unit: template
 category_id: com.canonical.plainbox::camera
 template-resource: device
-template-filter: device.category == 'CAPTURE'
+template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 template-id: camera/v4l2-compliance-blockers_name
 flags: also-after-suspend
 _template-summary: To check if the ioctl request works on a v4l2 device
 id: camera/v4l2-compliance-blockers_{name}
-_summary: v4l2 compliance for {product_slug}, blockers
+_summary: v4l2 compliance for {product_slug} at /dev/video{name}, blockers
 plugin: shell
 command:
   v4l2_compliance_test.py --device /dev/{name} --ioctl-selection blockers
@@ -39,13 +39,13 @@ command:
 unit: template
 category_id: com.canonical.plainbox::camera
 template-resource: device
-template-filter: device.category == 'CAPTURE'
+template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 template-id: camera/v4l2-compliance-non-blockers_name
 flags: also-after-suspend
 _template-summary: To check if the ioctl request works on a v4l2 device
 id: camera/v4l2-compliance-non-blockers_{name}
-_summary: v4l2 compliance for {product_slug}, non-blockers
+_summary: v4l2 compliance for {product_slug} at /dev/video{name}, non-blockers
 plugin: shell
 command:
   v4l2_compliance_test.py --device /dev/{name} --ioctl-selection non-blockers

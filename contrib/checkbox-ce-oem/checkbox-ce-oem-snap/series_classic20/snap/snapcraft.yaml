@@ -67,6 +67,7 @@ parts:
     plugin: nil
     after: [checkbox-provider-ce-oem]
     source: ../checkbox-provider-ce-oem
+    source-type: local
     source-subdir: src
     build-packages:
       - gcc

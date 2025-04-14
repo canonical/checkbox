@@ -18,6 +18,7 @@
 
 import subprocess
 import unittest
+from subprocess import CalledProcessError
 from unittest.mock import patch, call, MagicMock
 
 from checkbox_support.helpers.retry import mock_retry
@@ -39,7 +40,6 @@ from wifi_nmcli_test import (
     print_address_info,
     print_route_info,
     perform_ping_test,
-    hotspot,
     parser_args,
     main,
 )
@@ -404,9 +404,42 @@ class TestSecuredConnection(unittest.TestCase):
 
 
 class TestDeviceRescan(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.check_call")
+    @patch("wifi_nmcli_test.sp.check_output")
     def test_device_rescan_success(self, mock_sp_check_call):
         device_rescan()
+
+    @patch("wifi_nmcli_test.sp.check_output")
+    def test_device_rescan_success_ok_failure_immediate(
+        self, mock_sp_check_call
+    ):
+        mock_sp_check_call.side_effect = CalledProcessError(
+            1,
+            cmd="",
+            output="Error: Scanning not allowed immediately following previous scan",
+        )
+        device_rescan()
+
+    @patch("wifi_nmcli_test.sp.check_output")
+    def test_device_rescan_success_ok_failure_already(
+        self, mock_sp_check_call
+    ):
+        mock_sp_check_call.side_effect = CalledProcessError(
+            1,
+            cmd="",
+            output="Error: Scanning not allowed while already scanning",
+        )
+        device_rescan()
+
+    @patch("wifi_nmcli_test.sp.check_output")
+    @mock_retry()
+    def test_device_rescan_failure(self, mock_sp_check_call):
+        mock_sp_check_call.side_effect = CalledProcessError(
+            1,
+            cmd="",
+            output="Error: Very serious error we can't ignore",
+        )
+        with self.assertRaises(CalledProcessError):
+            device_rescan()
 
 
 class TestPrintAddressInfo(unittest.TestCase):

@@ -115,7 +115,22 @@ def device_rescan():
     print_head("Calling a rescan")
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
-    sp.check_call(shlex.split(cmd))
+    try:
+        sp.check_output(
+            shlex.split(cmd), stderr=sp.STDOUT, universal_newlines=True
+        )
+    except sp.CalledProcessError as e:
+        error = e.output
+        # the objective here is to trigger a rescan, so if one is already
+        # started or was just triggered, we can continue
+        print(error)
+        if "Scanning not allowed immediately following previous scan" in error:
+            pass
+        elif "Scanning not allowed while already scanning" in error:
+            pass
+        else:
+            raise
+
     print()
 
 

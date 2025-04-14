@@ -113,6 +113,8 @@ def delete_test_ap_ssid_connection():
 @retry(max_attempts=5, delay=60)
 def device_rescan():
     print_head("Calling a rescan")
+    # Note: once we don't need xenial support anymore, we can use --rescan on
+    #       list_aps and completely remove this function!
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
     try:

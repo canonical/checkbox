@@ -4,7 +4,7 @@ permissions:
   actions: read # used by gh api
 on:
   schedule:
-    - cron: '00 21 * * *'
+    - cron: '00 01 * * *'
   workflow_dispatch:
 
 jobs:
@@ -39,9 +39,20 @@ jobs:
           commit_count=$(git log --since="$LAST_PASS_DAILY_BUILD" --oneline -- contrib/checkbox-ce-oem | wc -l)
           echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT
 
-  checkbox-ce-oem-snap-daily:
+  checkbox-ce-oem-snap-cross-build-upload-daily:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
-    uses: ./.github/workflows/checkbox-ce-oem-edge-builds.yml
+    uses: ./.github/workflows/checkbox-ce-oem-daily-cross-builds.yaml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    with:
+      store_upload: true
+
+  checkbox-ce-oem-snap-native-build-upload-daily:
+    needs: check_for_commits
+    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/checkbox-ce-oem-daily-native-builds.yaml
+    secrets:
+      SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    with:
+      store_upload: true

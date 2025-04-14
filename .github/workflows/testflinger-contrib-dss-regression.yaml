@@ -54,7 +54,7 @@ jobs:
           ${GITHUB_WORKSPACE}/contrib/checkbox-dss-validation/testflinger/job-def.yaml > \
           ${GITHUB_WORKSPACE}/job.yaml
       - name: Submit testflinger job
-        uses: canonical/testflinger/.github/actions/submit@2c10f8bbb78532c12034dc668971ddae3b44edc9
+        uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
         with:
           poll: true
           job-path: ${GITHUB_WORKSPACE}/job.yaml

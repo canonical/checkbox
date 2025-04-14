@@ -38,7 +38,7 @@ class TestISHTP(unittest.TestCase):
     )
     @patch(
         "checkbox_support.helpers.release_info.get_release_info",
-        return_value="24.04",
+        return_value={"release": "24.04"},
     )
     def test_check_modules_success_24(self, mock_release, mock_module):
         self.assertEqual(check_modules(), 0)
@@ -49,7 +49,7 @@ class TestISHTP(unittest.TestCase):
     )
     @patch(
         "checkbox_support.helpers.release_info.get_release_info",
-        return_value="24.04",
+        return_value={"release": "24.04"},
     )
     def test_check_modules_fail_24(self, mock_release, mock_module):
         self.assertRaises(SystemExit)
@@ -65,7 +65,7 @@ class TestISHTP(unittest.TestCase):
     )
     @patch(
         "checkbox_support.helpers.release_info.get_release_info",
-        return_value="22.04",
+        return_value={"release": "22.04"},
     )
     def test_check_modules_success_22(self, mock_release, mock_module):
         self.assertEqual(check_modules(), 0)
@@ -76,7 +76,7 @@ class TestISHTP(unittest.TestCase):
     )
     @patch(
         "checkbox_support.helpers.release_info.get_release_info",
-        return_value="22.04",
+        return_value={"release": "22.04"},
     )
     def test_check_modules_fail_22(self, mock_release, mock_module):
         self.assertRaises(SystemExit)

@@ -1669,11 +1669,18 @@ class TestCommand(ManageCommand):
             action="store_true",
             help=_("Only unittest from tests/ dir"),
         )
+        group.add_argument(
+            "-k",
+            help=_("Only tests/test class with name matching the glob"),
+            default="*",
+        )
 
     def invoked(self, ns):
         sys.path.insert(0, self.scripts_dir)
         runner = TextTestRunner(verbosity=2)
         provider = self.get_provider()
+
+        defaultTestLoader.testNamePatterns = [ns.k]
 
         # create unittest for each bin/*.sh file
         for file in glob.glob(self.scripts_dir + "/*.sh"):

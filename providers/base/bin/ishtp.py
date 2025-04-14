@@ -1,31 +1,17 @@
 #!/usr/bin/env python3
 import subprocess
-import sys
 import os
 import argparse
+from checkbox_support.helpers.release_info import get_release_info
 
 
-def get_release_version():
-    try:
-        output = subprocess.check_output(
-            ["lsb_release", "-rs"], text=True
-        ).strip()
-        return int(float(output))
-    except (subprocess.CalledProcessError, ValueError):
-        print("Error: Unable to determine release version.")
-        sys.exit(1)
-
-
-def is_module_loaded(module_name):
-    try:
-        output = subprocess.check_output(["lsmod"], text=True)
-        return module_name in output
-    except subprocess.CalledProcessError:
-        return False
+def get_module_list():
+    output = subprocess.check_output(["lsmod"], text=True)
+    return [line.split()[0] for line in output.splitlines() if line]
 
 
 def check_modules():
-    release = get_release_version()
+    release = int(get_release_info()["release"].split(".")[0])
 
     if release >= 24:
         expected_modules = ["intel_ishtp_hid", "intel_ish_ipc", "intel_ishtp"]
@@ -37,32 +23,33 @@ def check_modules():
             "intel_ishtp",
         ]
 
-    exit_code = 0
+    module_list = get_module_list()
     for module in expected_modules:
         print("Checking module: {}".format(module))
-        if not is_module_loaded(module):
-            print("FAIL: The '{}' module is not loaded!".format(module))
-            exit_code = 1
+        if module not in module_list:
+            raise SystemExit(
+                "FAIL: The '{}' module is not loaded!".format(module)
+            )
         else:
             print("PASS: It's loaded")
         print()
 
-    return exit_code
+    return 0
 
 
 def check_devices():
     ishtp_dir = "/sys/bus/ishtp/devices/"
 
     if not os.path.isdir(ishtp_dir):
-        print("ISHTP devices directory does not exist!")
-        print("The ISHTP folder: {}".format(ishtp_dir))
-        return 1
+        raise SystemExit(
+            "The ISHTP folder does not exist:  {}".format(ishtp_dir)
+        )
 
     devices = os.listdir(ishtp_dir)
     if not devices:
-        print("ISHTP devices directory empty - no devices found!")
-        print("The ISHTP folder: {}".format(ishtp_dir))
-        return 1
+        raise SystemExit(
+            "No devices found on the ISHTP folder:  {}".format(ishtp_dir)
+        )
 
     print("Found ishtp devices under {}:".format(ishtp_dir))
     for device in devices:
@@ -84,12 +71,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    exit_code = 0
-
     if args.module:
-        exit_code |= check_modules()
+        check_modules()
 
     if args.device:
-        exit_code |= check_devices()
-
-    sys.exit(exit_code)
+        check_devices()

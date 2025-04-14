@@ -4,8 +4,7 @@ import sys
 import os
 import subprocess
 from ishtp import (
-    get_release_version,
-    is_module_loaded,
+    get_module_list,
     check_modules,
     check_devices,
 )
@@ -13,30 +12,11 @@ from ishtp import (
 
 class TestISHTP(unittest.TestCase):
 
-    @patch("subprocess.check_output", return_value="24.04\n")
-    def test_get_release_version(self, mock_subproc):
-        self.assertEqual(get_release_version(), 24)
-
-    @patch("subprocess.check_output", return_value="somethingwrong\n")
-    def test_get_release_version_value_error(self, mock_subproc):
-        with self.assertRaises(SystemExit) as cm:
-            get_release_version()
-        self.assertEqual(cm.exception.code, 1)
-
-    @patch("subprocess.check_output", return_value="intel_ishtp 123 0\n")
-    def test_is_module_loaded(self, mock_subproc):
-        self.assertTrue(is_module_loaded("intel_ishtp"))
-
-    @patch("subprocess.check_output", return_value="")
-    def test_is_module_not_loaded(self, mock_subproc):
-        self.assertFalse(is_module_loaded("intel_ishtp"))
-
     @patch(
-        "subprocess.check_output",
-        side_effect=subprocess.CalledProcessError(1, "lsmod"),
+        "subprocess.check_output", return_value="module1\nnodule2\nmodule3\n"
     )
-    def test_is_module_loaded_error(self, mock_subproc):
-        self.assertFalse(is_module_loaded("intel_ishtp"))
+    def test_get_module_list(self, mock_subproc):
+        self.assertEqual(get_module_list(), ["module1", "nodule2", "module3"])
 
     @patch("os.path.isdir", return_value=True)
     @patch("os.listdir", return_value=["device1", "device2"])
@@ -45,22 +25,61 @@ class TestISHTP(unittest.TestCase):
 
     @patch("os.path.isdir", return_value=False)
     def test_check_devices_no_directory(self, mock_isdir):
-        self.assertEqual(check_devices(), 1)
+        self.assertRaises(SystemExit)
 
     @patch("os.path.isdir", return_value=True)
     @patch("os.listdir", return_value=[])
     def test_check_devices_empty_directory(self, mock_listdir, mock_isdir):
-        self.assertEqual(check_devices(), 1)
+        self.assertRaises(SystemExit)
 
-    @patch("ishtp.is_module_loaded", return_value=True)
-    @patch("ishtp.get_release_version", return_value=24)
-    def test_check_modules_success(self, mock_release, mock_module):
+    @patch(
+        "ishtp.get_module_list",
+        return_value=["intel_ishtp_hid", "intel_ish_ipc", "intel_ishtp"],
+    )
+    @patch(
+        "checkbox_support.helpers.release_info.get_release_info",
+        return_value="24.04",
+    )
+    def test_check_modules_success_24(self, mock_release, mock_module):
         self.assertEqual(check_modules(), 0)
 
-    @patch("ishtp.is_module_loaded", return_value=False)
-    @patch("ishtp.get_release_version", return_value=24)
-    def test_check_modules_fail(self, mock_release, mock_module):
-        self.assertEqual(check_modules(), 1)
+    @patch(
+        "ishtp.get_module_list",
+        return_value=["intel_ishtp_hid", "intel_ish_ipc"],
+    )
+    @patch(
+        "checkbox_support.helpers.release_info.get_release_info",
+        return_value="24.04",
+    )
+    def test_check_modules_fail_24(self, mock_release, mock_module):
+        self.assertRaises(SystemExit)
+
+    @patch(
+        "ishtp.get_module_list",
+        return_value=[
+            "intel_ishtp_loader",
+            "intel_ishtp_hid",
+            "intel_ish_ipc",
+            "intel_ishtp",
+        ],
+    )
+    @patch(
+        "checkbox_support.helpers.release_info.get_release_info",
+        return_value="22.04",
+    )
+    def test_check_modules_success_22(self, mock_release, mock_module):
+        self.assertEqual(check_modules(), 0)
+
+    @patch(
+        "ishtp.get_module_list",
+        return_value=["intel_ishtp_hid", "intel_ish_ipc"],
+    )
+    @patch(
+        "checkbox_support.helpers.release_info.get_release_info",
+        return_value="22.04",
+    )
+    def test_check_modules_fail_22(self, mock_release, mock_module):
+        self.assertRaises(SystemExit)
 
 
 if __name__ == "__main__":

@@ -104,6 +104,8 @@ IOCTL_USED_BY_V4L2SRC = {
     "VIDIOC_G_INPUT",
     "VIDIOC_QUERYCAP",
     "VIDIOC_QUERYCTRL",
+    # needs special handling, REQBUFS is tested together with CREATE_BUFS,
+    # but CREATE_BUFS failing won't break the camera by default
     "VIDIOC_REQBUFS",
 }
 

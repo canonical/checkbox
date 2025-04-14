@@ -16,14 +16,23 @@ def is_laptop():
 
 
 def find_internal_panel_edid():
-    """Find internal panel edid"""
-    drmdir = "/sys/class/drm/"
-    for i in "card0-eDP-1", "card1-eDP-1", "card0-LVDS-1", "card1-LVDS-1":
-        for edid_file_path in glob.glob(drmdir + i):
-            edid_file = edid_file_path + "/edid"
-            if os.path.isfile(edid_file):
-                print(edid_file)
-                return edid_file
+    root_dir = "/sys/class/drm"
+    max_depth = 1
+    lcd_interface_list = ["eDP-1", "LVDS-1"]
+    root_depth = root_dir.rstrip(os.path.sep).count(os.path.sep)
+    for dirpath, dirnames, filenames in os.walk(root_dir, followlinks=True):
+        current_depth = (
+            dirpath.rstrip(os.path.sep).count(os.path.sep) - root_depth
+        )
+        if current_depth >= max_depth:
+            dirnames[:] = []
+        if (
+            any(interface in dirpath for interface in lcd_interface_list)
+            and "edid" in filenames
+        ):
+            edid_file = f"{dirpath}/edid"
+            print(edid_file)
+            return edid_file
     raise SystemExit("Can not find edid from sysfs !")
 
 
@@ -129,7 +138,7 @@ def main():
                         read_edid(fobj, 0x36, 18)
                     ),
                 ):  # noqa: E501
-                    print("EDID Display Range Limits Descriptor checke: pass")
+                    print("EDID Display Range Limits Descriptor check: pass")
                 else:
                     raise SystemExit(
                         "EDID Display Range Limits Descriptor check failed!"

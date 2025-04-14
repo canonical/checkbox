@@ -25,12 +25,14 @@ class TestISHTP(unittest.TestCase):
 
     @patch("os.path.isdir", return_value=False)
     def test_check_devices_no_directory(self, mock_isdir):
-        self.assertRaises(SystemExit)
+        with self.assertRaises(SystemExit):
+            check_devices()
 
     @patch("os.path.isdir", return_value=True)
     @patch("os.listdir", return_value=[])
     def test_check_devices_empty_directory(self, mock_listdir, mock_isdir):
-        self.assertRaises(SystemExit)
+        with self.assertRaises(SystemExit):
+            check_devices()
 
     @patch(
         "ishtp.get_module_list",
@@ -52,7 +54,8 @@ class TestISHTP(unittest.TestCase):
         return_value={"release": "24.04"},
     )
     def test_check_modules_fail_24(self, mock_release, mock_module):
-        self.assertRaises(SystemExit)
+        with self.assertRaises(SystemExit):
+            check_devices()
 
     @patch(
         "ishtp.get_module_list",
@@ -79,7 +82,8 @@ class TestISHTP(unittest.TestCase):
         return_value={"release": "22.04"},
     )
     def test_check_modules_fail_22(self, mock_release, mock_module):
-        self.assertRaises(SystemExit)
+        with self.assertRaises(SystemExit):
+            check_devices()
 
 
 if __name__ == "__main__":

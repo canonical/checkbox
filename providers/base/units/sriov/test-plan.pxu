@@ -14,3 +14,6 @@ include:
     sriov/verify_lxd_vm_sriov-.*             certification-status=blocker
 bootstrap_include:
     device
+    executable
+    package
+    snap

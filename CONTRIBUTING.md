@@ -112,11 +112,10 @@ Under the hood, this command will
 You can run each part separately. See `./manage.py test -h` for more
 information.
 
-If you only want to run one test script from the test suite, you have to
-point the `PYTHONPATH` environment variable to the provider's `bin/` directory,
-then go to the `tests/` directory and run the unit tests for your test file:
+If you only want to run one test script from the test suite, you can use the
+`-k` selector, similarly to what you would do with pytest:
 
-    (venv) $ PYTHONPATH=~/checkbox/providers/base/bin python -m unittest <your_test_file.py>
+    (venv) $ ./manage.py -k <your_test_name>
 
 ### Coverage
 

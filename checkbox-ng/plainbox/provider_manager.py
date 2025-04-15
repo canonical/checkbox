@@ -54,7 +54,6 @@ from plainbox.impl.logging import setup_logging, LoggingHelper
 from plainbox.impl.providers.special import get_categories
 from plainbox.impl.providers.special import get_manifest
 from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
-from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.resource import Resource
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.config import (
@@ -1674,36 +1673,36 @@ class TestCommand(ManageCommand):
             help=_("Only tests/test class with name matching the glob"),
             default="*",
         )
+        group.add_argument(
+            "-v", help=_("Enable verbose output"), action="store_true"
+        )
 
-    def invoked(self, ns):
-        sys.path.insert(0, self.scripts_dir)
-        runner = TextTestRunner(verbosity=2)
-        provider = self.get_provider()
-
-        defaultTestLoader.testNamePatterns = [ns.k]
-
+    def get_sh_tests(self):
         # create unittest for each bin/*.sh file
         for file in glob.glob(self.scripts_dir + "/*.sh"):
             test_method = create_shellcheck_test(file)
-            test_method.__name__ = "test_shellcheck_{}".format(file)
+            test_method.__name__ = "test_shellcheck[{}]".format(file)
             setattr(ShellcheckTests, test_method.__name__, test_method)
+        return ShellcheckTests
 
-        shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
-            ShellcheckTests
-        )
-
+    def get_flake8_tests(self):
         # create unittest for each bin/*.py file
         for file in glob.glob(self.scripts_dir + "/*.py"):
             test_method = create_flake8_test(file)
             test_method.__name__ = "test_flake8_{}".format(file)
             setattr(Flake8Tests, test_method.__name__, test_method)
+        return Flake8Tests
 
-        flake8_suite = defaultTestLoader.loadTestsFromTestCase(Flake8Tests)
-
+    def get_inline_shellcheck_tests(self):
+        provider = self.get_provider()
         # create unittest for each job unit command
         unit_list = provider.unit_list
-        for unit in unit_list:
+        relevant_unit_list = (
+            x for x in unit_list if x.Meta.name in ["template", "job"]
+        )
+        for unit in relevant_unit_list:
             if unit.Meta.name == "template":
+                # templates need to be instantiated to be maningful
                 unit._fake_resources = True
                 accessed_parameters = unit.get_accessed_parameters(
                     force=True, template_engine=unit.template_engine
@@ -1717,29 +1716,40 @@ class TestCommand(ManageCommand):
                     }
                 )
                 command = unit.instantiate_one(resource).command
-                if command:
-                    test_method = create_inline_shellcheck_test(command)
-                    test_method.__name__ = "test_job_command_{}_{}".format(
-                        unit.origin.relative_to(self.definition.location),
-                        unit.partial_id,
-                    )
-                    setattr(
-                        InlineShellcheckTests,
-                        test_method.__name__,
-                        test_method,
-                    )
-            elif unit.Meta.name == "job" and unit.command:
-                test_method = create_inline_shellcheck_test(unit.command)
+            else:
+                # job units always have a command field
+                command = unit.command
+
+            if command:
+                test_method = create_inline_shellcheck_test(command)
                 test_method.__name__ = "test_job_command_{}_{}".format(
                     unit.origin.relative_to(self.definition.location),
                     unit.partial_id,
                 )
                 setattr(
-                    InlineShellcheckTests, test_method.__name__, test_method
+                    InlineShellcheckTests,
+                    test_method.__name__,
+                    test_method,
                 )
 
+        return InlineShellcheckTests
+
+    def invoked(self, ns):
+        sys.path.insert(0, self.scripts_dir)
+        runner = TextTestRunner(verbosity=2 if ns.v else 1, buffer=True)
+
+        defaultTestLoader.testNamePatterns = [ns.k]
+
+        shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
+            self.get_sh_tests()
+        )
+
+        flake8_suite = defaultTestLoader.loadTestsFromTestCase(
+            self.get_flake8_tests()
+        )
+
         inline_shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
-            InlineShellcheckTests
+            self.get_inline_shellcheck_tests()
         )
 
         # find tests defined in tests/

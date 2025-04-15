@@ -116,6 +116,7 @@ nested_part:
     usb-automated
     wireless-cert-automated
     wireless-netplan-cert-automated
+    ishtp-automated
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point

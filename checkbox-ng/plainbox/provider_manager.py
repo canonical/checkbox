@@ -1566,12 +1566,21 @@ def create_inline_shellcheck_test(command):
     """Creates the target for the monkey patched methods in ShellcheckTests"""
 
     def run_inline_shellcheck(self):
-        result = subprocess.run(
-            ["shellcheck", "-", "--shell=bash"],
-            input=command,
-            universal_newlines=True,
-        )
-        self.assertEqual(result.returncode, 0)
+        try:
+            _ = subprocess.check_output(
+                ["shellcheck", "-", "--shell=bash"],
+                input=command,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
+            failed = False
+        except subprocess.CalledProcessError as e:
+            failed = True
+            failure_reason = e.output
+
+        # this is to avoid having an ugly error traceback
+        if failed:
+            self.fail(failure_reason)
 
     return run_inline_shellcheck
 
@@ -1592,8 +1601,20 @@ def create_shellcheck_test(shellfile):
     """Creates the target for the monkey patched methods in ShellcheckTests"""
 
     def run_shellcheck(self):
-        result = subprocess.run(["shellcheck", shellfile])
-        self.assertEqual(result.returncode, 0)
+        try:
+            _ = subprocess.check_output(
+                ["shellcheck", shellfile],
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
+            failed = False
+        except subprocess.CalledProcessError as e:
+            failed = True
+            failure_reason = e.output
+
+        # this is to avoid having an ugly error traceback
+        if failed:
+            self.fail(failure_reason)
 
     return run_shellcheck
 

@@ -1562,29 +1562,6 @@ class InlineShellcheckTests(unittest.TestCase):
     pass
 
 
-def create_inline_shellcheck_test(command):
-    """Creates the target for the monkey patched methods in ShellcheckTests"""
-
-    def run_inline_shellcheck(self):
-        try:
-            _ = subprocess.check_output(
-                ["shellcheck", "-", "--shell=bash"],
-                input=command,
-                stderr=subprocess.STDOUT,
-                universal_newlines=True,
-            )
-            failed = False
-        except subprocess.CalledProcessError as e:
-            failed = True
-            failure_reason = e.output
-
-        # this is to avoid having an ugly error traceback
-        if failed:
-            self.fail(failure_reason)
-
-    return run_inline_shellcheck
-
-
 class ShellcheckTests(unittest.TestCase):
     """
     Holder of shellcheck test cases.
@@ -1595,28 +1572,6 @@ class ShellcheckTests(unittest.TestCase):
     """
 
     pass
-
-
-def create_shellcheck_test(shellfile):
-    """Creates the target for the monkey patched methods in ShellcheckTests"""
-
-    def run_shellcheck(self):
-        try:
-            _ = subprocess.check_output(
-                ["shellcheck", shellfile],
-                stderr=subprocess.STDOUT,
-                universal_newlines=True,
-            )
-            failed = False
-        except subprocess.CalledProcessError as e:
-            failed = True
-            failure_reason = e.output
-
-        # this is to avoid having an ugly error traceback
-        if failed:
-            self.fail(failure_reason)
-
-    return run_shellcheck
 
 
 class Flake8Tests(unittest.TestCase):
@@ -1631,14 +1586,47 @@ class Flake8Tests(unittest.TestCase):
     pass
 
 
+def create_subprocess_test(*args, **kwargs):
+    def _test(self):
+        try:
+            _ = subprocess.check_output(
+                *args,
+                **kwargs,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
+            failed = False
+        except subprocess.CalledProcessError as e:
+            failed = True
+            failure_reason = e.output
+
+        # this is to avoid having an ugly error traceback
+        if failed:
+            self.fail(failure_reason)
+
+    return _test
+
+
+def create_inline_shellcheck_test(command):
+    """Creates the target for the monkey patched methods in ShellcheckTests"""
+
+    return create_subprocess_test(
+        ["shellcheck", "-", "--shell=bash"], input=command
+    )
+
+
+def create_shellcheck_test(shellfile):
+    """Creates the target for the monkey patched methods in ShellcheckTests"""
+
+    return create_subprocess_test(
+        ["shellcheck", shellfile],
+    )
+
+
 def create_flake8_test(pyfile):
     """Creates the target for the monkey patched methods in Flake8Tests"""
 
-    def run_flake8(self):
-        result = subprocess.run(["flake8", "--extend-ignore=E203", pyfile])
-        self.assertEqual(result.returncode, 0)
-
-    return run_flake8
+    return create_subprocess_test(["flake8", "--extend-ignore=E203", pyfile])
 
 
 class TestCommand(ManageCommand):

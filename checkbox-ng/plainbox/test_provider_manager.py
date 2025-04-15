@@ -29,6 +29,7 @@ import shutil
 import tarfile
 import tempfile
 import textwrap
+import subprocess
 
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
@@ -40,6 +41,7 @@ from plainbox.provider_manager import (
     ProviderManagerTool,
     manage_py_extension,
     TestCommand,
+    create_subprocess_test,
 )
 from plainbox.testing_utils.io import TestIO
 
@@ -51,39 +53,39 @@ def inline_output(text):
 class TestCommandTests(TestCase):
     @patch("glob.glob")
     @patch("plainbox.provider_manager.ShellcheckTests")
-    @patch("plainbox.provider_manager.create_shellcheck_test")
+    @patch("plainbox.provider_manager.create_subprocess_test")
     def test_get_sh_tests(
-        self, mock_create_shellcheck_test, mock_ShellcheckTests, mock_glob
+        self, mock_create_subprocess_test, mock_ShellcheckTests, mock_glob
     ):
         mock_self = MagicMock()
         mock_glob.return_value = (str(x) for x in range(10))
 
         TestCommand.get_sh_tests(mock_self)
 
-        self.assertEqual(mock_create_shellcheck_test.call_count, 10)
+        self.assertEqual(mock_create_subprocess_test.call_count, 10)
 
     @patch("glob.glob")
     @patch("plainbox.provider_manager.Flake8Tests")
-    @patch("plainbox.provider_manager.create_flake8_test")
+    @patch("plainbox.provider_manager.create_subprocess_test")
     def test_get_flake8_tests(
-        self, mock_create_flake8_test, mock_ShellcheckTests, mock_glob
+        self, mock_create_subprocess_test, mock_ShellcheckTests, mock_glob
     ):
         mock_self = MagicMock()
         mock_glob.return_value = (str(x) for x in range(10))
 
         TestCommand.get_flake8_tests(mock_self)
 
-        self.assertEqual(mock_create_flake8_test.call_count, 10)
+        self.assertEqual(mock_create_subprocess_test.call_count, 10)
 
     def create_unit(self, meta_name, **kwargs):
         to_r = MagicMock(**kwargs)
         to_r.Meta.name = meta_name
         return to_r
 
-    @patch("plainbox.provider_manager.create_inline_shellcheck_test")
+    @patch("plainbox.provider_manager.create_subprocess_test")
     @patch("plainbox.provider_manager.InlineShellcheckTests", new=MagicMock())
     def test_get_inline_shellcheck_tests_jobs(
-        self, mock_create_inline_shellcheck_test
+        self, mock_create_subprocess_test
     ):
         mock_self = MagicMock()
         mock_self.get_provider().unit_list = [
@@ -93,12 +95,12 @@ class TestCommandTests(TestCase):
 
         TestCommand.get_inline_shellcheck_tests(mock_self)
 
-        self.assertEqual(mock_create_inline_shellcheck_test.call_count, 1)
+        self.assertEqual(mock_create_subprocess_test.call_count, 1)
 
-    @patch("plainbox.provider_manager.create_inline_shellcheck_test")
+    @patch("plainbox.provider_manager.create_subprocess_test")
     @patch("plainbox.provider_manager.InlineShellcheckTests", new=MagicMock())
     def test_get_inline_shellcheck_tests_templates(
-        self, mock_create_inline_shellcheck_test
+        self, mock_create_subprocess_test
     ):
         mock_self = MagicMock()
         mock_self.get_provider().unit_list = [
@@ -108,7 +110,7 @@ class TestCommandTests(TestCase):
 
         TestCommand.get_inline_shellcheck_tests(mock_self)
 
-        self.assertEqual(mock_create_inline_shellcheck_test.call_count, 1)
+        self.assertEqual(mock_create_subprocess_test.call_count, 1)
 
     @patch("sys.path", new=MagicMock())
     @patch("os.path")
@@ -136,6 +138,29 @@ class TestCommandTests(TestCase):
         test_runner.run.return_value.wasSuccessful.return_value = True
         self.assertTrue(test_runner.run.called)
         self.assertEqual(result, None)
+
+    def test_create_subprocess_test_fail(self):
+        test = create_subprocess_test()
+        with patch(
+            "subprocess.check_output",
+            side_effect=subprocess.CalledProcessError(
+                1, "some", output="some output"
+            ),
+        ):
+            self_mock = MagicMock()
+            test(self_mock)
+
+        self.assertTrue(self_mock.fail.called)
+
+    def test_create_subprocess_test_pass(self):
+        test = create_subprocess_test()
+        with patch(
+            "subprocess.check_output",
+        ):
+            self_mock = MagicMock()
+            test(self_mock)
+
+        self.assertFalse(self_mock.fail.called)
 
 
 class ProviderManagerToolTests(TestCase):

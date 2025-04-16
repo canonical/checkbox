@@ -56,6 +56,9 @@
                     }
                 }
             },
+                "launcher": {
+                  "$ref": "#/definitions/Launcher"
+                },
                 "testplan_id": {
                     "type": "string"
                 },

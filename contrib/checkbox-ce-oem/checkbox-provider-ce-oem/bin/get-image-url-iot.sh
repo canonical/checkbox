@@ -19,7 +19,6 @@ convert_to_url() {
     local project_name="${BASH_REMATCH[1]}"
     local series="${BASH_REMATCH[2]}"  # optional
     local build_id="${BASH_REMATCH[3]}"
-    local additional_info="${BASH_REMATCH[4]}"  # optional
     local image_name=""
 
     if [ -n "$series" ]; then

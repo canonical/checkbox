@@ -529,6 +529,206 @@
             ],
             "title": "Package"
         },
+        "Launcher": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "launcher": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "launcher_version": {
+                  "type": "string"
+                },
+                "app_id": {
+                  "type": "string",
+                  "default": "checkbox-cli"
+                },
+                "app_version": {
+                  "type": "string",
+                  "default": ""
+                },
+                "stock_reports": {
+                  "type": "array",
+                  "default": ["text", "certification", "submission_files"]
+                },
+                "local_submission": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "session_title": {
+                  "type": "string",
+                  "default": "session title"
+                },
+                "session_desc": {
+                  "type": "string",
+                  "default" : ""
+                }
+              },
+              "required": [
+                "launcher_version",
+                "app_id",
+                "app_version",
+                "stock_reports",
+                "local_submission",
+                "session_title",
+                "session_desc"
+              ]
+            },
+            "test plan": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "filter": {
+                  "type": "array",
+                  "default": ["*"]
+                },
+                "unit": {
+                  "type": "string",
+                  "default": ""
+                },
+                "forced": {
+                  "default": "boolean",
+                  "default" : false
+                }
+              }
+            },
+            "test selection": {
+              "forced": {
+                "type": "boolean",
+                "default": false
+              },
+              "exclude": {
+                "type": "array",
+                "default": []
+              },
+              "match": {
+                "type" : "array",
+                "default": []
+              }
+            },
+            "features": {
+              "type": "object",
+              "properties": {
+                "strict_template_expansion": {
+                  "type": "boolean",
+                  "default": true
+                }
+              }
+            },
+            "ui": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "default": "interactive"
+                },
+                "output": {
+                  "type": "string",
+                  "default": "show"
+                },
+                "dont_suppress_output": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "verbosity": {
+                  "type": "string",
+                  "default": "normal"
+                },
+                "auto_retry": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "max_attempts": {
+                  "type": "integer",
+                  "default": 3
+                },
+                "delay_before_retry": {
+                  "type": "integer",
+                  "default": 1
+                }
+              }
+            },
+            "agent": {
+              "type": "object",
+              "normal_user": {
+                "type": "string",
+                "default": ""
+              }
+            },
+            "restart": {
+              "type": "object",
+              "strategy": {
+                "type": "string",
+                "default": ""
+              }
+            }
+          },
+          "patternProperties": {
+            "report:.+": {
+              "type": "object",
+              "properties":{
+                "exporter": {
+                  "type": "string",
+                  "default": ""
+                },
+                "transport": {
+                  "type": "string",
+                  "default": ""
+                },
+                "forced": {
+                    "type": "boolean",
+                    "default": false
+                }
+              }
+            },
+            "transport:.+": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "default": ""
+                },
+                "stream": {
+                    "type": "string",
+                    "default": "stdout"
+                },
+                "path": {
+                  "type": "string",
+                  "default": ""
+                },
+                "secure_id": {
+                  "type": "string",
+                  "default": ""
+                },
+                "staging": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            },
+            "exporter:.+": {
+              "type": "object",
+              "properties": {
+                "unit": {
+                  "type": "string",
+                  "default": ""
+                },
+                "options": {
+                  "type": "array",
+                  "default": []
+                }
+              }
+            },
+            "environment": {
+              "type": "array",
+              "default": []
+            },
+            "manifest": {
+              "type": "array"
+            }
+          }
+        },
         "Processor": {
             "type": "object",
             "additionalProperties": false,

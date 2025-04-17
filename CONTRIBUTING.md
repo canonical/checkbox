@@ -115,7 +115,7 @@ information.
 If you only want to run one test script from the test suite, you can use the
 `-k` selector, similarly to what you would do with pytest:
 
-    (venv) $ ./manage.py -k <your_test_name>
+    (venv) $ ./manage.py test -k <your_test_name>
 
 ### Coverage
 

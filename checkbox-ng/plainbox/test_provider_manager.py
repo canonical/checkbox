@@ -162,6 +162,13 @@ class TestCommandTests(TestCase):
 
         self.assertFalse(self_mock.fail.called)
 
+    def test_starwrap(self):
+        self.assertEqual(TestCommand._starwrap("test_a"), "*test_a*")
+        self.assertEqual(TestCommand._starwrap("test_a*"), "*test_a*")
+        self.assertEqual(TestCommand._starwrap("*test_a"), "*test_a*")
+        self.assertEqual(TestCommand._starwrap("*test_a*"), "*test_a*")
+        self.assertEqual(TestCommand._starwrap("*"), "*")
+
 
 class ProviderManagerToolTests(TestCase):
     """

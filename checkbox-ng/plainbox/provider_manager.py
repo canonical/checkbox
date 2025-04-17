@@ -1743,11 +1743,31 @@ class TestCommand(ManageCommand):
 
         return InlineShellcheckTests
 
+    @staticmethod
+    def _starwrap(s):
+        # wraps a string in *, this is used to make pytest's -k and
+        # testNamePatterns work the same way
+        if not s.startswith("*"):
+            s = "*" + s
+        if not s.endswith("*"):
+            s = s + "*"
+        return s
+
     def invoked(self, ns):
         sys.path.insert(0, self.scripts_dir)
         runner = TextTestRunner(verbosity=2 if ns.v else 1, buffer=True)
 
-        defaultTestLoader.testNamePatterns = [ns.k]
+        # ["*"] is the default, this means if the user tries to use the feature
+        # and it is not supported
+        if ns.k != ["*"] and not hasattr(
+            defaultTestLoader, "testNamePatterns"
+        ):
+            # testNamePatterns is 3.7+
+            _logger.error(
+                "-k used but your python version is too old to support it"
+            )
+        else:
+            defaultTestLoader.testNamePatterns = [self._starwrap(ns.k)]
 
         shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
             self.get_sh_tests()

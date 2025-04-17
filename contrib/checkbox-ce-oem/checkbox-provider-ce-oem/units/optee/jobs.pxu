@@ -25,6 +25,8 @@ _summary: Validate OPTEE tee-supplicant is activate
 plugin: shell
 user: root
 estimated_duration: 5.0
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
 depends: ce-oem-optee/device-node
 command:
     if pgrep -x "tee-supplicant" > /dev/null; then
@@ -40,6 +42,8 @@ _summary: Install Trusted Applications for xtest
 plugin: shell
 user: root
 estimated_duration: 20.0
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
 environ: XTEST
 depends:
     ce-oem-optee/device-node
@@ -52,6 +56,8 @@ estimated_duration: 1
 plugin: shell
 user: root
 category_id: optee
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
 environ: OPTEE_FW_VERSION
 command:
     optee_helper.py check_firmware_version "${OPTEE_FW_VERSION:-NotDefined}"

@@ -1,5 +1,6 @@
 id: gpgpu/cuda-samples-0-int
-category_id: gpgpu
+imports: from com.canonical.plainbox import manifest
+category_id: nvgpgpu
 environ:
     CUDA_SAMPLES_VERSION
     CUDA_IGNORE_TESTS
@@ -8,7 +9,7 @@ environ:
 plugin: shell
 estimated_duration: 4
 requires:
-    graphics_card.vendor == 'NVIDIA Corporation'
+    manifest.has_nvidia_gpu == 'True'
 _summary: NVIDIA CUDA 0 - introduction
 command: run_cuda_sample_set.py introduction
 _siblings: [
@@ -37,6 +38,31 @@ _siblings: [
     "_summary": "NVIDIA CUDA 8 - platform specific",
     "command": "run_cuda_sample_set.py platform"}
     ]
+
+id: gpgpu/nv-container-smi
+_summary: NVIDIA container toolkit
+category_id: nvgpgpu
+plugin: shell
+estimated_duration: 5
+imports: from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'docker'
+    executable.name == 'nvidia-ctk'
+    manifest.has_nvidia_gpu == 'True'
+command:
+    sudo docker run --gpus all ubuntu:24.04 nvidia-smi
+
+id: gpgpu/nvidia-detect
+_summary: Check that the nvidia graphic card is detected
+category_id: nvgpgpu
+plugin: shell
+estimated_duration: 1
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_nvidia_gpu == 'True'
+command:
+    echo "Searching for a graphics card in graphics_card_resource with vendor: NVIDIA Corporation"
+    graphics_card_resource.py | grep -o "vendor: NVIDIA Corporation"
 
 unit: packaging meta-data
 os-id: debian

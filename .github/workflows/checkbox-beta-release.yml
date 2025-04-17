@@ -34,7 +34,13 @@ jobs:
           WORKFLOW_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           # check if can_promote but ignore (only print an error) if the workflow was manually triggered
-          tools/release/can_promote_edge.py || [ "$WORKFLOW_DISPATCH" == "true" ]
+          BUMPED_TO_VERSION=`python3 tools/release/get_version.py --dev --output-format=snap`
+          echo "Promoting version $BUMPED_TO_VERSION"
+
+          git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
+          cd hwcert-jenkins-tools
+          # check that all the snaps/debs were published and are still all at the same version
+          python3 version-published/checkbox_version_published.py $BUMPED_TO_VERSION version-published/checkbox-canary.yaml --timeout 0 || [ "$WORKFLOW_DISPATCH" == "true" ]
 
   checkbox_deb_packages:
     needs: should-run

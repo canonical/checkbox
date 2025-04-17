@@ -6,7 +6,7 @@ from checkbox_support.helpers.release_info import get_release_info
 
 
 def get_module_list():
-    output = subprocess.check_output(["lsmod"], text=True)
+    output = subprocess.check_output(["lsmod"], universal_newlines=True)
     return [line.split()[0] for line in output.splitlines() if line]
 
 

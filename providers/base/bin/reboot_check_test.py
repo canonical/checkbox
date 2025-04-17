@@ -542,7 +542,7 @@ def main() -> int:
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
-                "These services failed: {}".format("\n".join(failed_services)),
+                "These services failed:\n{}".format("\n".join(failed_services)),
                 file=sys.stderr,
             )
             service_check_passed = False

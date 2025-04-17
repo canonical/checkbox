@@ -39,6 +39,7 @@ jobs:
 
           git clone https://github.com/canonical/hwcert-jenkins-tools
           cd hwcert-jenkins-tools
+          # check that all the snaps/debs were published and are still all at the same version
           python3 version-published/checkbox_version_published.py $BUMPED_TO_VERSION version-published/checkbox-canary.yaml --timeout 0 || [ "$WORKFLOW_DISPATCH" == "true" ]
 
   checkbox_deb_packages:

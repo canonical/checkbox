@@ -82,8 +82,6 @@ parts:
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
-    autotools-configure-parameters:
-      - --prefix=/
     stage-packages:
       - libfdt1
       - libbsd0

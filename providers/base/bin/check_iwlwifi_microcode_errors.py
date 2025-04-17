@@ -26,6 +26,7 @@ def get_boot_ids():
         boots = json.loads(boots_txt)
     except json.decoder.JSONDecodeError:
         # some ancient versions of journalctl ignore the --output flag
+        # See: https://github.com/canonical/checkbox/issues/1875
         boots = text_fallback_boots_parser(boots_txt)
     boot_ids = [boot["boot_id"] for boot in boots]
     return boot_ids

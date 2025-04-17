@@ -336,10 +336,9 @@ def serial_tty_test(cpu_type, data_size):
     path_obj = Path("/dev")
     rpmsg_devs = check_rpmsg_tty_devices(path_obj, check_pattern, probe_cmd)
     if rpmsg_devs:
-        serial_dev = serial_test.Serial(
+        serial_test.client_mode(
             str(rpmsg_devs[0]), "rpmsg-tty", [], 115200, 8, "N", 1, 3, 1024
         )
-        serial_test.client_mode(serial_dev, data_size)
     else:
         raise SystemExit("No RPMSG TTY devices found.")
 

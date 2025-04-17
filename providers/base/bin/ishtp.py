@@ -35,7 +35,6 @@ def check_modules():
         print()
 
 
-
 def check_devices():
     ishtp_dir = "/sys/bus/ishtp/devices/"
 
@@ -53,7 +52,6 @@ def check_devices():
     print("Found ishtp devices under {}:".format(ishtp_dir))
     for device in devices:
         print(" - {}".format(device))
-
 
 
 if __name__ == "__main__":

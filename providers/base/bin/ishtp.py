@@ -34,7 +34,6 @@ def check_modules():
             print("PASS: It's loaded")
         print()
 
-    return 0
 
 
 def check_devices():
@@ -55,7 +54,6 @@ def check_devices():
     for device in devices:
         print(" - {}".format(device))
 
-    return 0
 
 
 if __name__ == "__main__":

@@ -75,12 +75,14 @@ parts:
     stage:
       - version.txt
 ################################################################################
-# Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
+# Upstream: https://github.com/fwts/fwts/blob/master/snapcraft.yaml
   fwts:
-    source-tag: "V23.09.00"
+    source-tag: "V25.03.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
+    autotools-configure-parameters:
+      - --prefix=/
     stage-packages:
       - libfdt1
       - libbsd0
@@ -91,7 +93,6 @@ parts:
       - autoconf
       - automake
       - libtool
-      - libjson-c-dev
       - flex
       - bison
       - dh-autoreconf

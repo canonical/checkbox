@@ -7,8 +7,8 @@ requires:
 plugin: shell
 flags: simple
 command:
-  lspci -v | grep dwc3-pci
-  if [[ "$?" -ne 0 ]]; then
+  if ! lspci -v | grep dwc3-pci
+  then
     echo "The 'dwc3-pci' driver is not loaded!"
     echo "Please make sure this feature is supported on this platform and check the value of xDCI in BIOS setting."
     exit 1
@@ -24,8 +24,8 @@ requires:
 plugin: shell
 flags: simple
 command:
-  lsmod | grep dwc3_pci
-  if [[ "$?" -ne 0 ]]; then
+  if ! lsmod | grep dwc3_pci
+  then
     echo "The 'dwc3_pci' module is not loaded!"
     echo "Please make sure this feature is supported on this platform and check the value of xDCI in BIOS setting."
     exit 1

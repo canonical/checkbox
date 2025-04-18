@@ -275,7 +275,7 @@ class HardwareRendererTester:
 
     def is_hardware_renderer_available(self) -> bool:
         """
-        Checks if hardware rendering is being used.
+        Checks if hardware rendering is being used by calling glmark2
         THIS ASSUMES A DRM CONNECTION EXISTS
         - self.has_display_connection() should be called first if unsure
 
@@ -289,24 +289,29 @@ class HardwareRendererTester:
         if not DISPLAY:
             print("$DISPLAY is not set, marking the test as failed")
             return False
-        else:
-            print("Checking $DISPLAY={}".format(DISPLAY))
 
         if not XDG_SESSION_TYPE:
             print("$XDG_SESSION_TYPE is not set, marking the test as failed")
             return False
-        else:
-            print("Checking $XDG_SESSION_TYPE={}".format(XDG_SESSION_TYPE))
+
+        print(
+            "Checking hardware renderer with these env variables:",
+            "DISPLAY={}".format(DISPLAY),
+            "XDG_SESSION_TYPE={}".format(XDG_SESSION_TYPE),
+        )
 
         # here we don't really care whether if it's es2 or full opengl
         # if the DUT supports full opengl, then it also supports es2
-        # => it should produce the same renderer string on those machines
+        # => glmark2 & glmark2-es2 should produce the same renderer string
         # so es2 provides best compatibility since it works on arm too
 
         if XDG_SESSION_TYPE == "wayland":
             glmark2_executable = "glmark2-es2-wayland"
-        else:
+        elif XDG_SESSION_TYPE == "x11":
             glmark2_executable = "glmark2-es2"
+        else:
+            print("Unsupported session type: {}".format(XDG_SESSION_TYPE))
+            return False
 
         try:
             glmark2_output = sp.run(
@@ -397,31 +402,6 @@ class HardwareRendererTester:
                 return False
 
         return False
-
-    def parse_unity_support_output(
-        self, unity_output_string: str
-    ) -> T.Dict[str, str]:
-        """
-        Parses the output of `unity_support_test` into a dictionary
-
-        :param output_string: the raw output from running unity_support_test -p
-        :type output_string: str
-        :return: string key-value pairs that mirror the output of unity_support
-        Left hand side of the first colon are the keys;
-        right hand side are the values.
-        :rtype: dict[str, str]
-        """
-
-        output = {}  # type: dict[str, str]
-        for line in unity_output_string.split("\n"):
-            # max_split=1 to prevent splitting the string after the 1st colon
-            words = line.split(":", maxsplit=1)
-            if len(words) == 2:
-                key = words[0].strip()
-                value = remove_color_code(words[1].strip())
-                output[key] = value
-
-        return output
 
 
 def get_failed_services() -> T.List[str]:
@@ -614,5 +594,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    return_code = main()
-    exit(return_code)
+    exit(main())

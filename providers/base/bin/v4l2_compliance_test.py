@@ -3,6 +3,7 @@
 # Copyright 2025 Canonical Ltd.
 # Written by:
 #   Zhongning Li <zhongning.li@canonical.com>
+#   Fernando Bravo Hernández<fernando.bravo.hernandez@canonical.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -19,7 +20,6 @@
 
 import argparse
 import typing as T
-import sys
 from checkbox_support.parsers.v4l2_compliance import (
     parse_v4l2_compliance,
     IOCTL_USED_BY_V4L2SRC,
@@ -29,16 +29,6 @@ from checkbox_support.parsers.v4l2_compliance import (
 
 # add more or exclude blockers here
 BLOCKERS = IOCTL_USED_BY_V4L2SRC
-
-
-def get_non_blockers(blockers: T.Iterable[str]) -> T.List[str]:
-    # add more or exclude non-blockers here
-    non_blockers = []
-    for ioctl_names in TEST_NAME_TO_IOCTL_MAP.values():
-        for ioctl_name in ioctl_names:
-            if ioctl_name not in blockers:
-                non_blockers.append(ioctl_name)
-    return non_blockers
 
 
 def parse_args():
@@ -76,37 +66,51 @@ def main():
     args = parse_args()
     _, details = parse_v4l2_compliance(args.device)
 
+    # Gather all known IOCTLs (flattening the map)
+    all_ioctls = {
+        ioctl
+        for ioctl_group in TEST_NAME_TO_IOCTL_MAP.values()
+        for ioctl in ioctl_group
+    }
+
+    # Pick which IOCTLs to test based on user selection
     if args.ioctl_selection == "blockers":
         ioctls_to_check = BLOCKERS
     elif args.ioctl_selection == "non-blockers":
-        ioctls_to_check = get_non_blockers(BLOCKERS)
-    else:
-        ioctls_to_check = [
-            ioctl_name
-            for ioctl_names in TEST_NAME_TO_IOCTL_MAP.values()
-            for ioctl_name in ioctl_names
+        ioctls_to_check = all_ioctls - BLOCKERS
+    else:  # "all"
+        ioctls_to_check = all_ioctls
+
+    # Check if the IOCTLs are in the details and categorize them into succeeded
+    # failed, and not supported
+    results = {
+        "succeeded": [],
+        "failed": [],
+        "not_supported": [],
+    }
+
+    for result in results.keys():
+        results[result] = [
+            ioctl for ioctl in ioctls_to_check if ioctl in details[result]
         ]
+        if not results[result]:
+            print(f"No {result} IOCTLs detected")
+        else:
+            print(f"{result} IOCTLs:")
+            for item in results[result]:
+                print(" - {}".format(item))
 
-    all_passed = True
-    for ioctl_name in ioctls_to_check:
-        if ioctl_name in details["failed"]:
-            all_passed = False
-            print(ioctl_name, "failed", file=sys.stderr)
-        elif (
-            args.treat_unsupported_as_fail
-            and ioctl_name in details["not_supported"]
-        ):
-            all_passed = False
-            print(ioctl_name, "is not supported but required", file=sys.stderr)
+    if results["failed"]:
+        raise SystemExit(
+            "The following IOCTLs failed: {}".format(results["failed"])
+        )
 
-    if all_passed:
-        print(
-            "[ OK ] Ioctls in the set '{}' passed the compliance test!".format(
-                args.ioctl_selection
+    if args.treat_unsupported_as_fail and results["not_supported"]:
+        raise SystemExit(
+            "The following IOCTLs are not supported: {}".format(
+                results["not_supported"]
             )
         )
-    else:
-        raise SystemExit("[ ERR ] V4L2 compliance test failed")
 
 
 if __name__ == "__main__":

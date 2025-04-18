@@ -30,8 +30,8 @@ print = functools.partial(print, flush=True)
 
 def legacy_nmcli():
     cmd = "nmcli -v"
-    output = sp.check_output(shlex.split(cmd))
-    version = version_parser.parse(output.strip().split()[-1].decode())
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
+    version = version_parser.parse(output.strip().split()[-1])
     # check if using the 16.04 nmcli because of this bug
     # https://bugs.launchpad.net/plano/+bug/1896806
     return version < version_parser.parse("1.9.9")
@@ -48,9 +48,9 @@ def print_cmd(cmd):
 def _get_nm_wireless_connections():
     cmd = "nmcli -t -f TYPE,UUID,NAME,STATE connection"
     print_cmd(cmd)
-    output = sp.check_output(shlex.split(cmd))
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
     connections = {}
-    for line in output.decode(sys.stdout.encoding).splitlines():
+    for line in output.splitlines():
         type, uuid, name, state = line.strip().split(":", 3)
         if type == "802-11-wireless":
             connections[name] = {"uuid": uuid, "state": state}
@@ -144,8 +144,8 @@ def list_aps(ifname, essid=None):
     aps_dict = {}
     fields = "SSID,CHAN,FREQ,SIGNAL"
     cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, ifname)
-    output = sp.check_output(shlex.split(cmd))
-    for line in output.decode(sys.stdout.encoding).splitlines():
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
+    for line in output.splitlines():
         # lp bug #1723372 - extra line in output on zesty
         if line.strip() == ifname:  # Skip device name line
             continue
@@ -184,8 +184,8 @@ def perform_ping_test(interface):
     target = None
     cmd = "nmcli --mode tabular --terse --fields IP4.GATEWAY c show TEST_CON"
     print_cmd(cmd)
-    output = sp.check_output(shlex.split(cmd))
-    target = output.decode(sys.stdout.encoding).strip()
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
+    target = output.strip()
     print("Got gateway address: {}".format(target))
 
     if target:

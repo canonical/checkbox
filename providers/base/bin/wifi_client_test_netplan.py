@@ -21,7 +21,6 @@ import subprocess as sp
 import textwrap
 import time
 import shutil
-import sys
 import ipaddress
 import yaml
 
@@ -258,8 +257,8 @@ def get_interface_info(interface, renderer):
 def _get_cmd_info(cmd, key_map, renderer):
     info = {}
     try:
-        output = sp.check_output(cmd, shell=True)
-        for line in output.decode(sys.stdout.encoding).splitlines():
+        output = sp.check_output(cmd, shell=True, universal_newlines=True)
+        for line in output.splitlines():
             # Skip lines that don't have a "key: value" format
             if ":" not in line:
                 continue

@@ -51,14 +51,12 @@ class TestV4L2ComplianceTest(ut.TestCase):
             # also fail even if query cap is not listed in the args
             self.assertRaises(SystemExit, main_under_test)
 
-    @patch("sys.stderr")
     @patch("builtins.print")
     @patch("v4l2_compliance_test.parse_v4l2_compliance")
     def test_report_correct_failures(
         self,
         mock_parser: MagicMock,
         mock_print: MagicMock,
-        mock_stderr: MagicMock,
     ):
         with patch(
             "sys.argv",
@@ -82,9 +80,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             mock_print.assert_has_calls(
                 [
                     call(
-                        ioctl_name,
-                        "failed",
-                        file=mock_stderr,
+                        " - {}".format(ioctl_name),
                     )
                     for ioctl_name in mock_parser.return_value[1]["failed"]
                 ],
@@ -105,9 +101,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             mock_print.assert_has_calls(
                 [
                     call(
-                        ioctl_name,
-                        "failed",
-                        file=mock_stderr,
+                        " - {}".format(ioctl_name),
                     )
                     for ioctl_name in mock_parser.return_value[1]["failed"]
                 ],
@@ -128,9 +122,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             mock_print.assert_has_calls(
                 [
                     call(
-                        ioctl_name,
-                        "failed",
-                        file=mock_stderr,
+                        " - {}".format(ioctl_name),
                     )
                     for ioctl_name in mock_parser.return_value[1]["failed"]
                 ],
@@ -161,9 +153,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             mock_print.assert_has_calls(
                 [
                     call(
-                        ioctl_name,
-                        "failed",
-                        file=mock_stderr,
+                        " - {}".format(ioctl_name),
                     )
                     for ioctl_name in mock_parser.return_value[1]["failed"]
                 ],

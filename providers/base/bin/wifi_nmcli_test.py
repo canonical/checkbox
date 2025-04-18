@@ -146,7 +146,6 @@ def list_aps(ifname, essid=None):
     cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, ifname)
     output = sp.check_output(shlex.split(cmd), universal_newlines=True)
     for line in output.splitlines():
-    # for line in output.decode(sys.stdout.encoding).splitlines():
         # lp bug #1723372 - extra line in output on zesty
         if line.strip() == ifname:  # Skip device name line
             continue

@@ -21,7 +21,6 @@ import subprocess as sp
 import textwrap
 import time
 import shutil
-import sys
 import ipaddress
 import yaml
 

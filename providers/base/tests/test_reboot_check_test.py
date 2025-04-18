@@ -1,11 +1,12 @@
 import shutil
 from shlex import split as sh_split
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, call, mock_open, patch
 import reboot_check_test as RCT
 import unittest
 import os
 import typing as T
 import subprocess as sp
+import textwrap
 
 
 def do_nothing(args: T.List[str], **kwargs):
@@ -13,73 +14,6 @@ def do_nothing(args: T.List[str], **kwargs):
         return sp.CompletedProcess(args, 0, "", "")
     else:
         return sp.CompletedProcess(args, 0, "".encode(), "".encode())
-
-
-class UnitySupportParserTests(unittest.TestCase):
-    def setUp(self):
-        self.tester = RCT.HardwareRendererTester()
-
-    def test_parse_ok_unity_support_string(self):
-        OK_UNITY_STRING = """\
-        OpenGL vendor string:   Intel
-        OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
-        OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1
-
-        Not software rendered:    \x1b[033myes\x1b[0m
-        Not blacklisted:          \x1b[033myes\x1b[0m
-        GLX fbconfig:             \x1b[033myes\x1b[0m
-        GLX texture from pixmap:  \x1b[033myes\x1b[0m
-        GL npot or rect textures: \x1b[033myes\x1b[0m
-        GL vertex program:        \x1b[033myes\x1b[0m
-        GL fragment program:      \x1b[033myes\x1b[0m
-        GL vertex buffer object:  \x1b[033mno\x1b[0m
-        GL framebuffer object:    \x1b[033myes\x1b[0m
-        GL version is 1.4+:       \x1b[033myes\x1b[0m
-
-        Unity 3D supported:       \x1b[033myes\x1b[0m
-        """
-
-        expected = {
-            "OpenGL vendor string": "Intel",
-            "OpenGL renderer string": "Mesa Intel(R) UHD Graphics (ICL GT1)",
-            "OpenGL version string": "4.6 (Compatibility Profile) Mesa 23.2.1",
-            "Not software rendered": "yes",
-            "Not blacklisted": "yes",
-            "GLX fbconfig": "yes",
-            "GLX texture from pixmap": "yes",
-            "GL npot or rect textures": "yes",
-            "GL vertex program": "yes",
-            "GL fragment program": "yes",
-            "GL vertex buffer object": "no",
-            "GL framebuffer object": "yes",
-            "GL version is 1.4+": "yes",
-            "Unity 3D supported": "yes",
-        }
-
-        actual = self.tester.parse_unity_support_output(OK_UNITY_STRING)
-        self.assertDictEqual(expected, actual)
-
-    def test_parse_bad_unity_support_string(self):
-        BAD_UNITY_STRING = """
-        OpenGL vendor string   Intel
-        OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
-        OpenGL version string  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu
-        GL version is 1.4+%       \x1b[033myes\x1b[0m
-        """
-        actual = self.tester.parse_unity_support_output(BAD_UNITY_STRING)
-
-        expected = {
-            "OpenGL renderer string": "Mesa Intel(R) UHD Graphics (ICL GT1)",
-        }
-
-        self.assertDictEqual(expected, actual)
-
-        ARBITRARY_STRING = "askjaskdnasdn"
-        # should return empty dict if input string literally doesn't make sense
-        self.assertEqual(
-            self.tester.parse_unity_support_output(ARBITRARY_STRING),
-            {},
-        )
 
 
 class DisplayConnectionTests(unittest.TestCase):
@@ -109,42 +43,36 @@ class DisplayConnectionTests(unittest.TestCase):
         ):
             self.assertFalse(self.tester.has_display_connection())
 
-    @patch(
-        "reboot_check_test.HardwareRendererTester.parse_unity_support_output"
-    )
-    @patch("subprocess.run")
-    def test_is_hardware_renderer_available(
-        self,
-        mock_run: MagicMock,
-        mock_parse: MagicMock,
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_missing_env(
+        self, mock_getenv: MagicMock
     ):
-        mock_run.side_effect = do_nothing
-        mock_parse.return_value = {
-            "Not software rendered": "yes",
-        }
-        tester = RCT.HardwareRendererTester()
-        self.assertTrue(tester.is_hardware_renderer_available())
-
-    @patch(
-        "reboot_check_test.HardwareRendererTester.parse_unity_support_output"
-    )
-    @patch("subprocess.run")
-    def test_is_hardware_renderer_available_fail(
-        self,
-        mock_run: MagicMock,
-        mock_parse: MagicMock,
-    ):
-        mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
-            [], 1, "", ""
-        )
+        mock_getenv.return_value = None
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
+        mock_getenv.assert_has_calls(
+            [call("DISPLAY"), call("XDG_SESSION_TYPE")], any_order=True
+        )
 
-        mock_run.reset_mock()
-        mock_run.side_effect = do_nothing
-        mock_parse.return_value = {
-            "Not software rendered": "no",
-        }
+    @patch("subprocess.run")
+    def test_is_hardware_renderer_available_fail(self, mock_run: MagicMock):
+        mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
+            [],
+            0,  # glmark2 returns 0 as long as it finishes
+            textwrap.dedent(
+                """
+                =======================================================
+                    glmark2 2014.03+git20150611.fa71af2d
+                =======================================================
+                    OpenGL Information
+                    GL_VENDOR:     VMware, Inc.
+                    GL_RENDERER:   llvmpipe (LLVM 10.0.0, 256 bits)
+                    GL_VERSION:    3.1 Mesa 20.0.8
+                =======================================================
+                """
+            ),
+            "",
+        )
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
@@ -417,3 +345,7 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
+
+
+if __name__ == "__main__":
+    unittest.main()

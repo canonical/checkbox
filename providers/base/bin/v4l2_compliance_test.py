@@ -19,7 +19,6 @@
 
 
 import argparse
-import typing as T
 from checkbox_support.parsers.v4l2_compliance import (
     parse_v4l2_compliance,
     IOCTL_USED_BY_V4L2SRC,

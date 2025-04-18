@@ -283,28 +283,51 @@ class HardwareRendererTester:
         :rtype: bool
         """
 
-        DISPLAY = os.getenv("DISPLAY", "")
+        DISPLAY = os.getenv("DISPLAY")
+        XDG_SESSION_TYPE = os.getenv("XDG_SESSION_TYPE")
 
-        if DISPLAY == "":
-            print("$DISPLAY is not set, we will let glmark2 infer this")
+        if not DISPLAY:
+            print("$DISPLAY is not set, marking the test as failed")
+            return False
         else:
             print("Checking $DISPLAY={}".format(DISPLAY))
 
+        if not XDG_SESSION_TYPE:
+            print("$XDG_SESSION_TYPE is not set, marking the test as failed")
+            return False
+        else:
+            print("Checking $XDG_SESSION_TYPE={}".format(XDG_SESSION_TYPE))
+
+        # here we don't really care whether if it's es2 or full opengl
+        # if the DUT supports full opengl, then it also supports es2
+        # => it should produce the same renderer string on those machines
+        # so es2 provides best compatibility since it works on arm too
+
+        if XDG_SESSION_TYPE == "wayland":
+            glmark2_executable = "glmark2-es2-wayland"
+        else:
+            glmark2_executable = "glmark2-es2"
+
         try:
             glmark2_output = sp.run(
-                ["glmark2-es2", "--off-screen", "--validate"],
+                [glmark2_executable, "--off-screen", "--validate"],
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
                 universal_newlines=True,
                 timeout=60,
             )
         except sp.TimeoutExpired:
-            print("[ ERR ] glmark2 timed out. Marking this test as failed.")
+            print(
+                "[ ERR ] {} timed out. Marking this test as failed.".format(
+                    glmark2_executable
+                )
+            )
             return False
 
         if glmark2_output.returncode != 0:
             print(
-                "[ ERR ] glmark2 returned {}. Error is: {}".format(
+                "[ ERR ] {} returned {}. Error is: {}".format(
+                    glmark2_executable,
                     glmark2_output.returncode,
                     glmark2_output.stdout,
                 ),
@@ -318,19 +341,24 @@ class HardwareRendererTester:
                 gl_renderer_line = line
                 break
 
+        if gl_renderer_line is None:
+            print(
+                "[ ERR ] {} did not return a renderer string".format(
+                    glmark2_executable
+                )
+            )
+            return False
+
         # See the discussion on checkbox issue 1630
         # the same logic as unity_support_test
         is_hardware_rendered = True
-        if gl_renderer_line is not None:
-            gl_renderer = gl_renderer_line.split(":")[-1].strip()
-            print("Found GL_RENDERER: {}".format(gl_renderer))
-            if gl_renderer in ("Software Rasterizer", "Mesa X11"):
-                is_hardware_rendered = False
-            if "llvmpipe" in gl_renderer or "on softpipe" in gl_renderer:
-                is_hardware_rendered = False
-        else:
-            print("[ ERR ] glmark2 did not return a renderer string")
-            return False
+        gl_renderer = gl_renderer_line.split(":")[-1].strip()
+        print("Found GL_RENDERER: {}".format(gl_renderer))
+
+        if gl_renderer in ("Software Rasterizer", "Mesa X11"):
+            is_hardware_rendered = False
+        if "llvmpipe" in gl_renderer or "on softpipe" in gl_renderer:
+            is_hardware_rendered = False
 
         if is_hardware_rendered:
             print("[ OK ] This machine is using a hardware renderer!")
@@ -542,7 +570,9 @@ def main() -> int:
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
-                "These services failed:\n{}".format("\n".join(failed_services)),
+                "These services failed:\n{}".format(
+                    "\n".join(failed_services)
+                ),
                 file=sys.stderr,
             )
             service_check_passed = False

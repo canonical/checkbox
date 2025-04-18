@@ -450,28 +450,28 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch("subprocess.check_output")
     def test_networkd_routable(self, mock_check_output):
-        mock_check_output.return_value = b"State: routable"
+        mock_check_output.return_value = "State: routable"
         routable, state = _check_routable_state("wlan0", "networkd")
         self.assertTrue(routable)
         self.assertIn("routable", state)
 
     @patch("subprocess.check_output")
     def test_networkd_not_routable(self, mock_check_output):
-        mock_check_output.return_value = b"State: degraded"
+        mock_check_output.return_value = "State: degraded"
         routable, state = _check_routable_state("wlan0", "networkd")
         self.assertFalse(routable)
         self.assertIn("degraded", state)
 
     @patch("subprocess.check_output")
     def test_networkmanager_connected(self, mock_check_output):
-        mock_check_output.return_value = b"GENERAL.STATE: 100 (connected)"
+        mock_check_output.return_value = "GENERAL.STATE: 100 (connected)"
         routable, state = _check_routable_state("wlan0", "NetworkManager")
         self.assertTrue(routable)
         self.assertIn("connected", state)
 
     @patch("subprocess.check_output")
     def test_networkmanager_not_connected(self, mock_check_output):
-        mock_check_output.return_value = b"GENERAL.STATE: 30 (disconnected)"
+        mock_check_output.return_value = "GENERAL.STATE: 30 (disconnected)"
         routable, state = _check_routable_state("wlan0", "NetworkManager")
         self.assertFalse(routable)
         self.assertIn("disconnected", state)
@@ -483,7 +483,7 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nGateway: 192.168.1.1\nPath: pci-0000:02:00.0"
+            "State: routable\nGateway: 192.168.1.1\nPath: pci-0000:02:00.0"
         )
         interface = "wlan0"
         renderer = "networkd"
@@ -494,8 +494,8 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_any_name(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nGateway: 192.168.1.1 (TP-Link 123)\n"
-            b"Path: pci-0000:02:00.0"
+            "State: routable\nGateway: 192.168.1.1 (TP-Link 123)\n"
+            "Path: pci-0000:02:00.0"
         )
         interface = "wlan0"
         renderer = "networkd"
@@ -506,7 +506,7 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_no_state(self, mock_check_output):
         mock_check_output.return_value = (
-            b"Some other info: value\nsome more info"
+            "Some other info: value\nsome more info"
         )
         interface = "wlan0"
         renderer = "networkd"
@@ -516,7 +516,7 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_empty_output(self, mock_check_output):
-        mock_check_output.return_value = b""
+        mock_check_output.return_value = ""
         interface = "wlan0"
         renderer = "networkd"
         info = get_interface_info(interface, renderer)
@@ -537,9 +537,9 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkmanager(self, mock_check_output):
         mock_check_output.return_value = (
-            b"GENERAL.MTU:                            1500\n"
-            b"GENERAL.STATE:                          100 (connected)\n"
-            b"IP4.GATEWAY:                            192.168.1.1"
+            "GENERAL.MTU:                            1500\n"
+            "GENERAL.STATE:                          100 (connected)\n"
+            "IP4.GATEWAY:                            192.168.1.1"
         )
         interface = "wlan0"
         renderer = "NetworkManager"
@@ -551,7 +551,7 @@ class WifiClientTestNetplanTests(TestCase):
     def test_get_interface_info_networkmanager_unexpected_output(
         self, mock_check_output
     ):
-        mock_check_output.return_value = b"some unexpected output"
+        mock_check_output.return_value = "some unexpected output"
         interface = "wlan0"
         renderer = "NetworkManager"
         info = get_interface_info(interface, renderer)

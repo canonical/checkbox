@@ -49,20 +49,20 @@ class WifiNmcliBackupTests(unittest.TestCase):
     @patch("wifi_nmcli_test.sp")
     def test_legacy_nmcli_true(self, subprocess_mock):
         subprocess_mock.check_output.return_value = (
-            b"nmcli tool, version 1.9.8-5"
+            "nmcli tool, version 1.9.8-5"
         )
         self.assertTrue(legacy_nmcli())
 
     @patch("wifi_nmcli_test.sp")
     def test_legacy_nmcli_false(self, subprocess_mock):
         subprocess_mock.check_output.return_value = (
-            b"nmcli tool, version 1.46.0-2"
+            "nmcli tool, version 1.46.0-2"
         )
         self.assertFalse(legacy_nmcli())
 
 
 class TestGetNmWirelessConnections(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.check_output", return_value=b"")
+    @patch("wifi_nmcli_test.sp.check_output", return_value="")
     def test_no_wireless_connections(self, check_output_mock):
         expected = {}
         self.assertEqual(_get_nm_wireless_connections(), expected)
@@ -70,9 +70,9 @@ class TestGetNmWirelessConnections(unittest.TestCase):
     @patch(
         "wifi_nmcli_test.sp.check_output",
         return_value=(
-            b"802-11-wireless:uuid1:Wireless1:activated\n"
-            b"802-3-ethernet:uuid2:Ethernet1:activated\n"
-            b"802-11-wireless:uuid3:Wireless2:deactivated\n"
+            "802-11-wireless:uuid1:Wireless1:activated\n"
+            "802-3-ethernet:uuid2:Ethernet1:activated\n"
+            "802-11-wireless:uuid3:Wireless2:deactivated\n"
         ),
     )
     def test_multiple_wireless_connections(self, check_output_mock):
@@ -224,7 +224,7 @@ class TestListAps(unittest.TestCase):
     @patch("wifi_nmcli_test.sp.check_output")
     def test_list_aps_no_essid(self, check_output_mock):
         check_output_mock.return_value = (
-            b"wlan0 \nSSID1:1:2412:60\nSSID2:6:2437:70\nSSID3:11:2462:80"
+            "wlan0 \nSSID1:1:2412:60\nSSID2:6:2437:70\nSSID3:11:2462:80"
         )
         expected = {
             "SSID1": {"Chan": "1", "Freq": "2412", "Signal": "60"},
@@ -236,7 +236,7 @@ class TestListAps(unittest.TestCase):
     @patch("wifi_nmcli_test.sp.check_output")
     def test_list_aps_with_essid(self, check_output_mock):
         check_output_mock.return_value = (
-            b"SSID1:1:2412:60\nSSID2:6:2437:70\nSSID3:11:2462:80"
+            "SSID1:1:2412:60\nSSID2:6:2437:70\nSSID3:11:2462:80"
         )
         expected = {
             "SSID2": {"Chan": "6", "Freq": "2437", "Signal": "70"},
@@ -245,7 +245,7 @@ class TestListAps(unittest.TestCase):
 
     @patch("wifi_nmcli_test.sp.check_output")
     def test_list_aps_empty_output(self, check_output_mock):
-        check_output_mock.return_value = b""
+        check_output_mock.return_value = ""
         expected = {}
         self.assertEqual(list_aps("wlan0"), expected)
 

@@ -1759,9 +1759,7 @@ class TestCommand(ManageCommand):
 
         # ["*"] is the default, this means if the user tries to use the feature
         # and it is not supported
-        if ns.k != ["*"] and not hasattr(
-            defaultTestLoader, "testNamePatterns"
-        ):
+        if ns.k != "*" and not hasattr(defaultTestLoader, "testNamePatterns"):
             # testNamePatterns is 3.7+
             _logger.error(
                 "-k used but your python version is too old to support it"

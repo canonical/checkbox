@@ -1,3 +1,7 @@
 unit: category
 id: gpgpu
 _name: GPGPU Compute Tests
+
+unit: category
+id: nvcontainer
+_name: Container-based NVIDIA Tests

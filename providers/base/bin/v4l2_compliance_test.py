@@ -88,15 +88,15 @@ def main():
         "not_supported": [],
     }
 
-    for result in results.keys():
-        results[result] = [
-            ioctl for ioctl in ioctls_to_check if ioctl in details[result]
+    for result_type in results.keys():
+        results[result_type] = [
+            ioctl for ioctl in ioctls_to_check if ioctl in details[result_type]
         ]
-        if not results[result]:
-            print(f"No {result} IOCTLs detected")
+        if not results[result_type]:
+            print("No {} IOCTLs detected".format(result_type))
         else:
-            print(f"{result} IOCTLs:")
-            for item in results[result]:
+            print("{} IOCTLs:".format(result_type))
+            for item in results[result_type]:
                 print(" - {}".format(item))
 
     if results["failed"]:

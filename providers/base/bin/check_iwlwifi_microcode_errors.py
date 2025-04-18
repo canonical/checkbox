@@ -1,12 +1,33 @@
 #!/usr/bin/env python3
 
 import json
+import itertools
 import subprocess
+
+
+def text_fallback_boots_parser(boots_txt):
+    boots_lines = boots_txt.splitlines()
+    boots_lines_items = map(str.split, boots_lines)
+    # for malformed lines with just one item, lets set the boot id to none
+    boots_lines_items = (
+        itertools.chain(x, [None, None]) for x in boots_lines_items
+    )
+    return [
+        {"boot_id": boot_id}
+        for (boot_number, boot_id, *_) in boots_lines_items
+        if boot_id
+    ]
 
 
 def get_boot_ids():
     cmd = ["journalctl", "--list-boots", "--output", "json"]
-    boots = json.loads(subprocess.check_output(cmd, universal_newlines=True))
+    boots_txt = subprocess.check_output(cmd, universal_newlines=True)
+    try:
+        boots = json.loads(boots_txt)
+    except json.decoder.JSONDecodeError:
+        # some ancient versions of journalctl ignore the --output flag
+        # See: https://github.com/canonical/checkbox/issues/1875
+        boots = text_fallback_boots_parser(boots_txt)
     boot_ids = [boot["boot_id"] for boot in boots]
     return boot_ids
 

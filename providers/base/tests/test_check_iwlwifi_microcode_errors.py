@@ -1,5 +1,5 @@
 import unittest
-import os
+import textwrap
 import json
 from unittest.mock import patch
 from check_iwlwifi_microcode_errors import (
@@ -109,4 +109,22 @@ class TestCheckIwlwifi(unittest.TestCase):
         mock_ce.assert_not_called()
         mock_print.assert_called_once_with(
             "No microcode software errors detected."
+        )
+
+    @patch("subprocess.check_output")
+    def test_text_fallback_list_boots(self, mock_sp_check_output):
+        mock_sp_check_output.return_value = textwrap.dedent(
+            """
+            -5 99493f Thu 2025-04-17 07:15:53 EDT—Thu 2025-04-17 07:16:17 EDT
+            -4 663433 Thu 2025-04-17 07:17:49 EDT—Thu 2025-04-17 07:30:46 EDT
+            -3 402991 Thu 2025-04-17 07:31:48 EDT—Thu 2025-04-17 07:33:43 EDT
+            -2 3e1a21 Thu 2025-04-17 07:38:02 EDT—Thu 2025-04-17 08:09:19 EDT
+            -1 350a81 Thu 2025-04-17 08:10:07 EDT—Thu 2025-04-17 08:10:34 EDT
+             0 335e02 Thu 2025-04-17 08:12:49 EDT—Thu 2025-04-17 10:30:01 EDT
+            """
+        ).strip()
+
+        res = get_boot_ids()
+        self.assertEqual(
+            res, ["99493f", "663433", "402991", "3e1a21", "350a81", "335e02"]
         )

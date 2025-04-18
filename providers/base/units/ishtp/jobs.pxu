@@ -8,20 +8,7 @@ requires:
     manifest.has_ishtp == 'True'
 flags: simple
 command:
-    expected_modules='intel_ishtp_loader intel_ishtp_hid intel_ish_ipc intel_ishtp'
-    EXIT=0
-    for m in $expected_modules
-    do
-        echo "Checking module: $m"
-        if ! lsmod | grep -qw "$m"; then
-            echo "FAIL: The '$m' module is not loaded!"
-            EXIT=1
-        else
-            echo "PASS: It's loaded"
-        fi
-        echo
-    done
-    exit $EXIT
+    ishtp.py -m
 
 unit: job
 category_id: intel-ishtp
@@ -30,18 +17,7 @@ plugin: shell
 _summary: Verify that at least 1 device entry exists in /sys/bus/ishtp/devices
 depends: ishtp/module-detect
 command:
-    DIR="/sys/bus/ishtp/devices/"
-    if ! [ -d "$DIR" ]; then
-        echo "ishtp devices directory does not exist!"
-        exit 1
-    fi
-    if ! [ "$(ls -A $DIR)" ]; then
-        # empty, fail
-        echo "ishtp devices directory empty - no devices found!"
-        exit 1
-    fi
-    echo "found ishtp devices"
-    exit 0
+    ishtp.py -d
 
 unit: job
 category_id: intel-ishtp

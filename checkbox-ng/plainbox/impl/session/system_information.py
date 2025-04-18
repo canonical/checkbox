@@ -285,6 +285,8 @@ class JournalctlCollector(Collector):
                 "json",
                 "--since",
                 "-3 days",
+                "-n",
+                "80000",  # limit the lines to 80k, ~80Mb of memory
             ],
             version_cmd=["journalctl", "--version"],
         )

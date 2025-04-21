@@ -77,6 +77,30 @@ class DisplayConnectionTests(unittest.TestCase):
         self.assertFalse(tester.is_hardware_renderer_available())
 
     @patch("subprocess.run")
+    def test_is_hardware_renderer_available_happy_path(
+        self, mock_run: MagicMock
+    ):
+        mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
+            [],
+            0,  # glmark2 returns 0 as long as it finishes
+            """
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Intel
+    GL_RENDERER:    Mesa Intel(R) Graphics (LNL)
+    GL_VERSION:     4.6 (Compatibility Profile) Mesa 24.2.8-1ubuntu1~24.04.1
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================
+            """,
+            "",
+        )
+        tester = RCT.HardwareRendererTester()
+        self.assertTrue(tester.is_hardware_renderer_available())
+
+    @patch("subprocess.run")
     @patch("os.getenv")
     def test_is_hardware_renderer_available_chooses_correct_glmark(
         self, mock_getenv: MagicMock, mock_run: MagicMock

@@ -1,6 +1,6 @@
 import shutil
 from shlex import split as sh_split
-from unittest.mock import MagicMock, call, mock_open, patch
+from unittest.mock import MagicMock, call, mock_open, patch, DEFAULT
 import reboot_check_test as RCT
 import unittest
 import os
@@ -43,15 +43,38 @@ class DisplayConnectionTests(unittest.TestCase):
         ):
             self.assertFalse(self.tester.has_display_connection())
 
+    @patch("builtins.print")
     @patch("os.getenv")
     def test_is_hardware_renderer_available_missing_env(
-        self, mock_getenv: MagicMock
+        self, mock_getenv: MagicMock, mock_print: MagicMock
     ):
         mock_getenv.return_value = None
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
         mock_getenv.assert_has_calls(
             [call("DISPLAY"), call("XDG_SESSION_TYPE")], any_order=True
+        )
+        mock_print.assert_has_calls(
+            [
+                # it exits early
+                call("$DISPLAY is not set, marking the test as failed"),
+            ],
+            any_order=True,
+        )
+
+        mock_getenv.reset_mock()
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else None
+        )
+        self.assertFalse(tester.is_hardware_renderer_available())
+        mock_print.assert_has_calls(
+            [
+                # exit early
+                call(
+                    "$XDG_SESSION_TYPE is not set, marking the test as failed"
+                ),
+            ],
+            any_order=True,
         )
 
     @patch("subprocess.run")
@@ -108,15 +131,19 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_getenv.side_effect = lambda k: (
             "x11" if k == "XDG_SESSION_TYPE" else ":0"
         )
+        mock_run.side_effect = lambda *args, **kwargs: (
+            sp.CompletedProcess(args, 0, "x86_64")
+            if args[0][0] == "uname"
+            else DEFAULT
+        )
         tester = RCT.HardwareRendererTester()
         tester.is_hardware_renderer_available()
         # -1 is most recent call -> (args, kwargs, ...)
         # 0 takes the list of positional args
         # 0 again takes the 1st positional arg
         # last 0 is the 1st element in sp.run()'s command array
-        self.assertEqual(mock_run.call_args_list[-1][0][0][0], "glmark2-es2")
+        self.assertEqual(mock_run.call_args_list[-1][0][0][0], "glmark2")
 
-        mock_run.reset_mock()
         mock_getenv.side_effect = lambda k: (
             "wayland" if k == "XDG_SESSION_TYPE" else ":0"
         )
@@ -126,7 +153,7 @@ class DisplayConnectionTests(unittest.TestCase):
         # 0 again takes the 1st positional arg
         # last 0 is the 1st element in sp.run()'s command array
         self.assertEqual(
-            mock_run.call_args_list[-1][0][0][0], "glmark2-es2-wayland"
+            mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
         )
 
     def test_slow_boot_scenario(self):

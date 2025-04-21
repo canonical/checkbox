@@ -329,7 +329,7 @@ class HardwareRendererTester:
                 "[ ERR ] {} timed out. Marking this test as failed.".format(
                     glmark2_executable
                 ),
-                file=sys.stderr
+                file=sys.stderr,
             )
             return False
 
@@ -355,7 +355,7 @@ class HardwareRendererTester:
                 "[ ERR ] {} did not return a renderer string".format(
                     glmark2_executable
                 ),
-                file=sys.stderr
+                file=sys.stderr,
             )
             return False
 

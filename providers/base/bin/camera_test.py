@@ -7,6 +7,7 @@
 #   Matt Fischer <matt@mattfischer.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
 #   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 #
 # The v4l2 ioctl code comes from the Python bindings for the v4l2
 # userspace api (http://pypi.python.org/pypi/v4l2):
@@ -40,7 +41,7 @@ import struct
 import sys
 
 from glob import glob
-from subprocess import check_call, CalledProcessError, STDOUT
+from subprocess import check_call, CalledProcessError, STDOUT, check_output
 from tempfile import NamedTemporaryFile
 
 
@@ -873,19 +874,22 @@ class CameraTest:
             print("Image file not found")
             return False
 
+        # core doesn't have the file command, but it has gst-typefind
+        # this doesn't return non-zero even if it fails, but prints to stderr
+        typefind_output = check_output(
+            ["gst-typefind-1.0", filename],
+            universal_newlines=True,
+            stderr=STDOUT,
+        ).strip()
+
+        print("The file type found by gst-typefind-1.0 is:", typefind_output)
+
+        if "image/jpeg" not in typefind_output:
+            print("Image is not a standard JPEG file")
+            return False
+
         outw = outh = 0
         with open(filename, mode="rb") as f:
-
-            # Check if the header of the image to see if it's a valid JPEG file
-            header = f.read(32)
-            if (
-                header[6:10] != b"JFIF"
-                and header[6:10] != b"Exif"
-                and header[6:11] != b"Adobe"
-            ):
-                print("Image is not a JPEG file")
-                return False
-
             f.seek(2)
             b = f.read(1)
             try:
@@ -1023,6 +1027,18 @@ def parse_arguments(argv):
         "--output",
         default="",
         help="Output directory to store a small debug image",
+    )
+    resolutions_parser.add_argument(
+        "-ws",
+        "--wait-seconds",
+        type=int,
+        default=CameraTest.DEFAULT_PHOTO_WAIT_SECONDS,
+        help=(
+            "The number of seconds to keep the camera open "
+            "before taking the picture. Default = {} seconds".format(
+                CameraTest.DEFAULT_PHOTO_WAIT_SECONDS
+            )
+        ),
     )
     add_device_parameter(resolutions_parser)
 

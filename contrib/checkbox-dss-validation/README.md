@@ -120,7 +120,7 @@ Please note that only Python 3.10 is currently tested, and will be the minimum s
 Running the tests locally may require some additional packages.  Here's what a run from clean slate may look like:
 
 ```console
-$ sudo apt install python3-dev python3-venv shellcheck pkg-config libsystemd-dev gcc
+$ sudo apt install python3-dev python3-venv shellcheck pkg-config gcc
 $ cd checkbox/contrib/checkbox-dss-validation/checkbox-provider-dss
 $ python3 -m venv .venv
 $ . .venv/bin/activate

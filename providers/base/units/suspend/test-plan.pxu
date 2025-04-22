@@ -46,6 +46,8 @@ include:
     suspend/audio_after_suspend_auto                    certification-status=blocker
     suspend/cpu_after_suspend_auto                      certification-status=blocker
     suspend/memory_after_suspend_auto                   certification-status=blocker
+    suspend/validate_suspend_status
+    suspend/any_suspend_failure
 bootstrap_include:
     device
 

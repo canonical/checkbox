@@ -86,6 +86,12 @@ class TestTimeoutExec(TestCase):
         with self.assertRaises(ValueError):
             run_with_timeout(some_exception_raiser, 1)
 
+    @patch("checkbox_support.helpers.timeout.Process.join")
+    def test_function_exception_propagation_in_process(self, mock_join):
+        mock_join.side_effect = KeyboardInterrupt()
+        with self.assertRaises(BaseException):
+            run_with_timeout(heavy_function, 1)
+
     def test_function_systemexit_propagation(self):
         with self.assertRaises(SystemExit):
             system_exit_raiser()

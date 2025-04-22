@@ -17,40 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
-import re
+
+from checkbox_support.helpers.release_info import get_release_info
 import sys
-from contextlib import suppress
-
-
-def get_release_file_content():
-    with suppress(FileNotFoundError):
-        with open("/var/lib/snapd/hostfs/etc/os-release", "r") as fp:
-            return fp.read()
-    with open("/etc/os-release", "r") as fp:
-        return fp.read()
-
-
-def get_release_info(release_file_content: str):
-    os_release_map = {
-        "NAME": "distributor_id",
-        "PRETTY_NAME": "description",
-        "VERSION_ID": "release",
-        "VERSION_CODENAME": "codename",
-    }
-    os_release = {}
-    for line in release_file_content.strip().splitlines():
-        if line:
-            (key, value) = line.split("=", 1)
-            if key in os_release_map:
-                k = os_release_map[key]
-                # Strip out quotes and newlines
-                os_release[k] = re.sub('["\n]', "", value)
-    return os_release
 
 
 def main():
-    release_file_content = get_release_file_content()
-    release_info = get_release_info(release_file_content)
+    release_info = get_release_info()
     for key, value in release_info.items():
         print("%s: %s" % (key, value))
 

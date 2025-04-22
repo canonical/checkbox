@@ -1,6 +1,6 @@
 .. _units:
 
-Checkbox Unit Types
+Checkbox unit types
 ===================
 
 Checkbox execution is governed by Units.

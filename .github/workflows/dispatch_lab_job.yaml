@@ -11,7 +11,6 @@ on:
       # - queue: machine that will run the job (ex. 202012-28526)
       # - test_plan: Checkbox test plan to run (ex. com.canonical.certification::sru)
       # - match: subset of jobs to run (ex. .*wireless.*)
-      # - zapper_channel: refreshes the zapper snap to the channel if provided, default is beta (ex. "beta")
       #
       # One possible matrix_to_create would therefore look like this:
       # matrix_to_create=[{ data_source: "distro: desktop-22-04-2-uefi", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
@@ -36,7 +35,7 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
 
@@ -45,13 +44,12 @@ jobs:
         run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Run the spec
-        uses: canonical/checkbox/.github/actions/checkbox_source_deb@main
+        uses: canonical/checkbox/.github/actions/checkbox_source_deb@e85a72288135b48873cd6364f9b85941c1bce552
         with:
           data_source: ${{ matrix.spec.data_source }}
           queue: ${{ matrix.spec.queue }}
           test_plan: ${{ matrix.spec.test_plan }}
           match: ${{ matrix.spec.match }}
-          zapper_channel: ${{ matrix.spec.zapper_channel }}
           launcher_override: |
             [environment]
             WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}

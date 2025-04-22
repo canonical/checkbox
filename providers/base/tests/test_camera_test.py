@@ -22,6 +22,7 @@ import sys
 
 import unittest
 from unittest.mock import patch, MagicMock, call, mock_open
+from tempfile import NamedTemporaryFile
 import unittest.mock
 
 from camera_test import (
@@ -401,7 +402,9 @@ class CameraTestTests(unittest.TestCase):
 
     @patch("camera_test.check_call")
     @patch("os.path.getsize")
-    def test_capture_image_fswebcam(self, mock_get_size, mock_check_call):
+    def test_capture_image_fswebcam(
+        self, mock_get_size: MagicMock, mock_check_call: MagicMock
+    ):
         mock_camera = MagicMock()
         mock_camera.photo_wait_seconds = 3
         mock_get_size.return_value = 1
@@ -410,6 +413,26 @@ class CameraTestTests(unittest.TestCase):
         )
         self.assertEqual(mock_check_call.call_count, 1)
         self.assertEqual(result, True)
+
+        mock_check_call.reset_mock()
+        mock_camera.photo_wait_seconds = 0
+        result = CameraTest._capture_image_fswebcam(
+            mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
+        )
+        # delay arg should not be inserted when wait is 0
+        self.assertFalse(
+            any("-D" in arg for arg in mock_check_call.call_args[-1])
+        )
+
+        mock_check_call.reset_mock()
+        mock_camera.photo_wait_seconds = 0
+        result = CameraTest._capture_image_fswebcam(
+            mock_camera, "/tmp/test.jpg", 640, 480, None
+        )
+        # pixel format arg should not be inserted if not specified
+        self.assertFalse(
+            any("-p" in arg for arg in mock_check_call.call_args[-1])
+        )
 
     @patch("camera_test.check_call", MagicMock())
     @patch("os.path.getsize")
@@ -445,7 +468,7 @@ class CameraTestTests(unittest.TestCase):
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
         )
         make_calls = mock_make.call_args_list
-        print(make_calls, flush=sys.stderr)
+        print(make_calls, flush=True)
         self.assertListEqual(
             make_calls,
             [
@@ -482,7 +505,7 @@ class CameraTestTests(unittest.TestCase):
             mock_camera, "/tmp/test.jpg", 640, 480, "RG10"
         )
         make_calls = mock_make.call_args_list
-        print(make_calls, flush=sys.stderr)
+        print(make_calls, flush=True)
         self.assertEqual(
             make_calls,
             [
@@ -834,16 +857,54 @@ class CameraTestTests(unittest.TestCase):
     def test_validate_image_wrong_format(self, mock_exists):
         mock_camera = MagicMock()
         mock_exists.return_value = True
-        data = b"......bad-format.........................."
-        with patch("builtins.open", mock_open(read_data=data)):
-            with patch("builtins.print") as mocked_print:
+        with patch("builtins.open", mock_open(read_data=b"")):
+            with patch("builtins.print") as mocked_print, patch(
+                "camera_test.check_output"
+            ) as mock_check_output:
+                mock_check_output.return_value = "inode/empty"
                 result = CameraTest._validate_image(
                     mock_camera, "/tmp/test.jpg", 480, 320
                 )
-                mocked_print.assert_called_once_with(
-                    "Image is not a JPEG file"
+                # should not even start reading the file if the `file` command
+                # check didn't pass
+                mocked_print.assert_any_call(
+                    "Image is not a standard JPEG file"
                 )
-        self.assertEqual(result, False)
+                self.assertEqual(result, False)
+
+    @patch("builtins.open")
+    @patch("os.path.exists")
+    @patch("camera_test.check_output")
+    def test_validate_image_correct_jpeg_format(
+        self, mock_output, mock_exists, mock_open
+    ):
+        mock_camera = MagicMock()
+        mock_exists.return_value = True
+
+        # Create a temporary file with a valid 1x1 JPEG image
+        # ffc0 is the start of the dimension section
+        # ffc0 00 11 08 00 01 00 01
+        #               h^^^^ w^^^^
+        data = (
+            "ffd8ffe000104a46494600010101004800480000fffe001343726561746564207"
+            "76974682047494d50ffdb00430001010101010101010101010101010101010101"
+            "01010101010101010101010101010101010101010101010101010101010101010"
+            "1010101010101010101010101ffdb004301010101010101010101010101010101"
+            "01010101010101010101010101010101010101010101010101010101010101010"
+            "101010101010101010101010101010101ffc00011080001000103011100021101"
+            "031101ffc4001400010000000000000000000000000000000bffc400141001000"
+            "00000000000000000000000000000ffc400140101000000000000000000000000"
+            "00000000ffc40014110100000000000000000000000000000000ffda000c03010"
+            "002110311003f003ff07fffd90000"  # shouldn't fail with trailing 0s
+        )
+
+        with NamedTemporaryFile() as f:
+            f.write(bytes.fromhex(data))
+            f.seek(0)
+            mock_open.return_value = f
+            mock_output.return_value = "image/jpeg"
+            result = CameraTest._validate_image(mock_camera, f.name, 1, 1)
+            self.assertEqual(result, True)
 
     @patch("camera_test.glob")
     def test_device_options(self, mock_glob):
@@ -896,3 +957,7 @@ class CameraTestTests(unittest.TestCase):
     def tearDown(self):
         # release stdout
         sys.stdout = sys.__stdout__
+
+
+if __name__ == "__main__":
+    unittest.main()

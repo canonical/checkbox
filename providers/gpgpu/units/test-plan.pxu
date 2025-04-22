@@ -45,3 +45,23 @@ bootstrap_include:
     executable
     package
     snap
+
+id: gpgpu-cuda-features
+unit: test plan
+_name: NVIDIA CUDA Feature testing
+_description: Feature testing for various CUDA versions
+include:
+    gpgpu/cuda-samples-0-int        certification-status=non-blocker
+    gpgpu/cuda-samples-1-utils      certification-status=non-blocker
+    gpgpu/cuda-samples-2-conc       certification-status=non-blocker
+    gpgpu/cuda-samples-3-feat       certification-status=non-blocker
+    gpgpu/cuda-samples-4-libs       certification-status=non-blocker
+    gpgpu/cuda-samples-5-dom        certification-status=non-blocker
+    gpgpu/cuda-samples-6-perf       certification-status=non-blocker
+    gpgpu/cuda-samples-7-nvvm       certification-status=non-blocker
+    gpgpu/cuda-samples-8-plat       certification-status=non-blocker
+bootstrap_include:
+    graphics_card
+    executable
+    package
+    snap

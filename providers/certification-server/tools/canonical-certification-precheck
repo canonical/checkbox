@@ -366,8 +366,8 @@ for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
         fi
     fi
 done
-if [ -z "$usb2_disks" ]; then
-    echo " No USB2 disks detected."
+if [ -z "$usb2_disks" ] && [ -z "$usb3_disks" ]; then
+    echo " No USB disks detected."
     all_ok="N"
 else
     echo " Detected USB2 disk(s): ${usb2_disks[*]}"

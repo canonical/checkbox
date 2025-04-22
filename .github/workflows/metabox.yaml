@@ -16,7 +16,7 @@ jobs:
     outputs:
       required_run: ${{ steps.check_diff.outputs.required_run }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -47,18 +47,18 @@ jobs:
         working-directory: metabox
     needs: metabox_run_required
     # use 20.04 as we need xenial containers support => cgroup v1
-    runs-on: ubuntu-20.04
+    runs-on: [self-hosted, focal]
     env:
       # Workaround to get loguru colored output
       # See https://github.com/Delgan/loguru/issues/604
       PYCHARM_HOSTED: True
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       - name: Setup LXD
-        uses: canonical/setup-lxd@main
+        uses: canonical/setup-lxd@d14f946da89caa319fd083d39b1960f4978fb982
       - name: Add ZFS storage
         run: |
           lxc storage list

@@ -23,7 +23,6 @@ Build-Depends:
  python3-yaml,
  python3-numpy,
  python3-opencv,
- python3-systemd,
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.5
 XS-Testsuite: autopkgtest
@@ -37,7 +36,6 @@ Depends: gir1.2-gudev-1.0,
          python3-gi,
          python3-importlib-metadata | python3 (>> 3.8),
          python3-lxml,
-         python3-systemd,
          python3-pyparsing,
          python3-requests,
          python3-requests-unixsocket,

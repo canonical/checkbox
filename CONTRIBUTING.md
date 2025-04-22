@@ -27,7 +27,7 @@ install everything you need in a Python virtual environment.
 
 Install the required tools:
 
-    $ sudo apt install git python3-virtualenv libasound2-dev pkg-config libsystemd-dev
+    $ sudo apt install git python3-virtualenv libasound2-dev pkg-config
 
 Prepare the development environment. If you are an external contributor and
 plan on submitting some changes, you will have to [fork the Checkbox repository
@@ -112,11 +112,10 @@ Under the hood, this command will
 You can run each part separately. See `./manage.py test -h` for more
 information.
 
-If you only want to run one test script from the test suite, you have to
-point the `PYTHONPATH` environment variable to the provider's `bin/` directory,
-then go to the `tests/` directory and run the unit tests for your test file:
+If you only want to run one test script from the test suite, you can use the
+`-k` selector, similarly to what you would do with pytest:
 
-    (venv) $ PYTHONPATH=~/checkbox/providers/base/bin python -m unittest <your_test_file.py>
+    (venv) $ ./manage.py test -k <your_test_name>
 
 ### Coverage
 

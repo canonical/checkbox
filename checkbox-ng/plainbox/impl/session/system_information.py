@@ -16,7 +16,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 1
+    COLLECTOR_OUTPUTS_VERSION = 2
 
     def to_json(self) -> str:
         to_dump = {
@@ -164,6 +164,11 @@ class CollectionOutput:
 
 
 class Collector(metaclass=CollectorMeta):
+    # Function that parses the stdout of a collector and turns it into an object
+    collector_parser = staticmethod(json.loads)
+    # Exception(s) that the function may raise on failure
+    collector_exceptions = (json.JSONDecodeError,)
+
     def __init__(self, collection_cmd: list, version_cmd: list):
         self.collection_cmd = collection_cmd
         self.version_cmd = version_cmd
@@ -209,12 +214,12 @@ class Collector(metaclass=CollectorMeta):
             )
         else:
             try:
-                json_out = json.loads(collection_result.stdout)
+                dict_out = self.collector_parser(collection_result.stdout)
                 outputs = OutputSuccess(
-                    json_out,
+                    dict_out,
                     stderr=collection_result.stderr,
                 )
-            except json.JSONDecodeError as e:
+            except self.collector_exceptions as e:
                 output = (
                     "Failed to decode with error: {}\n"
                     "Collection output:\n{}"
@@ -263,6 +268,27 @@ class ImageInfoCollector(Collector):
                 str(vendor.IMAGE_INFO),
             ],
             version_cmd=["python3", str(vendor.IMAGE_INFO), "--version"],
+        )
+
+
+class JournalctlCollector(Collector):
+    COLLECTOR_NAME = "journalctl"
+
+    def collector_parser(self, collector_output):
+        return list(map(json.loads, collector_output.splitlines()))
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=[
+                "journalctl",
+                "--output",
+                "json",
+                "--since",
+                "-3 days",
+                "-n",
+                "80000",  # limit the lines to 80k, ~80Mb of memory
+            ],
+            version_cmd=["journalctl", "--version"],
         )
 
 

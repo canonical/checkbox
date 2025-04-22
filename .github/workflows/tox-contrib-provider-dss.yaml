@@ -6,10 +6,12 @@ on:
     branches: [ main ]
     paths:
       - contrib/checkbox-dss-validation/checkbox-provider-dss/**
+      - .github/workflows/tox-contrib-provider-dss.yaml
   pull_request:
     branches: [ main ]
     paths:
       - contrib/checkbox-dss-validation/checkbox-provider-dss/**
+      - .github/workflows/tox-contrib-provider-dss.yaml
   workflow_dispatch:
 
 jobs:
@@ -26,25 +28,27 @@ jobs:
           - python: "3.10"
             tox_env_name: "py310"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
         with:
           python-version: ${{ matrix.python }}
         env:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
-      - name: Install libsystemd-dev
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
         run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
           sudo apt-get update
-          sudo apt-get install -y libsystemd-dev
-      - name: Install tox
-        run: pip install tox
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
+          pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: provider-dss

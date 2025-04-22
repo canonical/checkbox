@@ -1,6 +1,6 @@
 .. _checkbox_configs:
 
-Checkbox Configs
+Checkbox configs
 ^^^^^^^^^^^^^^^^
 
 Configuration file path

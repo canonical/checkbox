@@ -38,6 +38,7 @@ def get_kernel_package_info():
     linux_modules_info = subprocess.check_output(
         ["apt-cache", "show", "linux-modules-{}".format(kernel_version)],
         universal_newlines=True,
+        stderr=subprocess.DEVNULL,
     )
     for line in linux_modules_info.splitlines():
         if line.startswith("Source:"):

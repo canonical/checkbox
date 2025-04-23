@@ -26,3 +26,12 @@ mandatory_include:
     info/systemd-analyze                  certification-status=non-blocker
     info/systemd-analyze-critical-chain   certification-status=non-blocker
     info/kernel-config-iommu-flag           certification-status=non-blocker
+
+
+id: test-kernel-package
+unit: test plan
+_name: Automated submission resources
+_description: Automated submission resources
+include:
+mandatory_include:
+    kernel_package

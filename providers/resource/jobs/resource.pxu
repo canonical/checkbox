@@ -121,7 +121,8 @@ plugin: resource
 category_id: information_gathering
 command: kernel_package_resource.py
 _description: 
- Gets kernel package from the source of the linux-modules package
+ Gets kernel package from the source of the linux-modules package or from
+ snapd if we are on Ubuntu Core.
 _summary: Collect information about the kernel package
 
 id: executable

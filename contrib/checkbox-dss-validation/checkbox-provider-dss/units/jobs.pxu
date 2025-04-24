@@ -110,7 +110,8 @@ estimated_duration: 2m
 command:
   set -eou pipefail
   enable_intel_gpu_plugin.sh "v0.30.0" "10"
-  check_gpu_rollout.sh intel
+  sleep 30
+  timeout 1m kubectl -n default rollout status ds/intel-gpu-plugin
 
 id: intel_gpu_plugin/labels
 category_id: dss-regress

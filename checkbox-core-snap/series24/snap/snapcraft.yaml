@@ -78,9 +78,26 @@ parts:
       - version.txt
 ################################################################################
   fwts:
-    plugin: nil
+    source-tag: "V25.03.00"
+    source-depth: 1
+    plugin: autotools
+    source: https://github.com/fwts/fwts.git
     stage-packages:
-      - fwts
+      - libfdt1
+      - libbsd0
+      - libpci3
+    build-packages:
+      - gcc
+      - make
+      - autoconf
+      - automake
+      - libtool
+      - flex
+      - bison
+      - dh-autoreconf
+      - libglib2.0-dev
+      - libfdt-dev
+      - libbsd-dev
     after: [version-calculator]
 ################################################################################
   stress-ng:

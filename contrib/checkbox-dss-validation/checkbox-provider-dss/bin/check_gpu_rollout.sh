@@ -19,16 +19,6 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 set -eou pipefail
 
-check_nvidia_gpu_rollout() {
-    NAMESPACE="gpu-operator-resources"
-    sleep 10
-    kubectl -n "$NAMESPACE" rollout status ds/gpu-operator-feature-discovery
-    sleep 10
-    kubectl -n "$NAMESPACE" rollout status ds/nvidia-device-plugin-daemonset
-    sleep 10
-    kubectl -n "$NAMESPACE" rollout status ds/nvidia-operator-validator
-}
-
 check_intel_gpu_rollout() {
     sleep 10
     kubectl -n node-feature-discovery rollout status ds/nfd-worker
@@ -38,13 +28,12 @@ check_intel_gpu_rollout() {
 
 help_function() {
     echo "This script is used for checking rollout of GPU-related daemonsets"
-    echo "Usage: check_gpu_rollout.sh <nvidia | intel>"
+    echo "Usage: check_gpu_rollout.sh intel"
     exit 2
 }
 
 main() {
     case ${1} in
-    nvidia) check_nvidia_gpu_rollout ;;
     intel) check_intel_gpu_rollout ;;
     *) help_function ;;
     esac

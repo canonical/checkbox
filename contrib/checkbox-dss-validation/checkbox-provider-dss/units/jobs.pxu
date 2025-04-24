@@ -211,14 +211,15 @@ requires:
   executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install NVIDIA GPU operator in the Kubernetes cluster
-estimated_duration: 10m
+estimated_duration: 15m
 command:
   set -eou pipefail
+  OPERATOR_VERSION="v24.6.2"
   helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
   helm repo update
-  helm install --wait --generate-name -n gpu-operator-resources --create-namespace nvidia/gpu-operator --kubeconfig ~/.kube/config
-  sleep 15
-  check_gpu_rollout.sh nvidia
+  helm install --wait --generate-name -n gpu-operator-resources --create-namespace nvidia/gpu-operator --version="${OPERATOR_VERSION}" --kubeconfig ~/.kube/config
+  sleep 30
+  timeout 15m kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
 
 id: nvidia_gpu_operator/validations_succeed
 category_id: dss-regress

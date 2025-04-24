@@ -227,7 +227,11 @@ class RemoteController(ReportsStage, MainLoopStage):
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config["allow_all_attrs"] = True
-        config["sync_request_timeout"] = 120
+        # this is the max client to server attr accessing speed, unbounded (-1)
+        # to avoid timing out on any attr request on an enstablished call. This
+        # way even particularly slow @properties won't fail
+        config["sync_request_timeout"] = -1
+
         keep_running = False
         server_msg = None
         self._prepare_transports()

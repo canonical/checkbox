@@ -762,16 +762,16 @@ class ReportsStage(CheckboxUiStage):
                     _logger.error(
                         _(
                             "Problem with a '%s' report using '%s' exporter "
-                            "sent to '%s' transport. Reason %s"
+                            "sent to '%s' transport. Reason: %s"
                         ),
                         name,
                         exporter_id,
                         transport.url,
-                        exc,
+                        repr(exc),
                     )
                     import traceback
 
-                    traceback.print_tb(exc)
+                    traceback.print_exception(exc)
 
                 self._reset_auto_submission_retries()
                 done_sending = True

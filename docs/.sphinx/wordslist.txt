@@ -65,6 +65,7 @@ keypresses
 libre
 loopback
 LTS
+LXD
 lv
 Makefile
 mis
@@ -128,6 +129,7 @@ unselect
 URI
 validator
 vendorize
+venv
 vfork
 whitespace
 Wi

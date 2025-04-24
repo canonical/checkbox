@@ -37,7 +37,7 @@ environment
    root@python35:~# cloud-init status --wait
    ...........................................status: done
 
-The ``cloud-init`` file has prepared you a fesh clone of the Checkbox repo in
+The ``cloud-init`` file has prepared you a fresh clone of the Checkbox repo in
 ``/root/checkbox``, it has created a venv you can use in ``/root/venv`` with
 Python3.5 and it has developed the ``resource`` and ``base`` provider. You
 should now be able to iterate on your tests!

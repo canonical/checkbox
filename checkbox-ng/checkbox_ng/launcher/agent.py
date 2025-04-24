@@ -145,7 +145,8 @@ class RemoteAgent:
             protocol_config={
                 "allow_all_attrs": True,
                 "allow_setattr": True,
-                "sync_request_timeout": 1,
+                # this is the max server to client attr accessing speed,
+                "sync_request_timeout": 30,
                 "propagate_SystemExit_locally": True,
             },
         )

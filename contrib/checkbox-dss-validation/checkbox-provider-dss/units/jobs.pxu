@@ -106,15 +106,7 @@ requires:
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
-command:
-  set -eou pipefail
-  PLUGIN_VERSION="v0.30.0"
-  REPO_URL="https://github.com/intel/intel-device-plugins-for-kubernetes/deployments"
-  kubectl apply -k "${REPO_URL}/nfd?ref=${PLUGIN_VERSION}"
-  kubectl apply -k "${REPO_URL}/nfd/overlays/node-feature-rules?ref=${PLUGIN_VERSION}"
-  kubectl apply -k "${REPO_URL}/gpu_plugin/overlays/nfd_labeled_nodes?ref=${PLUGIN_VERSION}"
-  sleep 30
-  timeout 1m kubectl -n default rollout status ds/intel-gpu-plugin
+command: timeout 2m k8s_gpu_setup.py intel "${INTEL_GPU_PLUGIN_VERSION:-"v0.30.0"}"
 
 id: intel_gpu_plugin/labels
 category_id: dss-regress
@@ -216,14 +208,7 @@ requires:
 depends: dss/initialize
 _summary: Install NVIDIA GPU operator in the Kubernetes cluster
 estimated_duration: 15m
-command:
-  set -eou pipefail
-  OPERATOR_VERSION="v24.6.2"
-  helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
-  helm repo update
-  helm install --wait --generate-name -n gpu-operator-resources --create-namespace nvidia/gpu-operator --version="${OPERATOR_VERSION}" --kubeconfig ~/.kube/config
-  sleep 30
-  timeout 15m kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
+command: timeout 15m k8s_gpu_setup.py nvidia "${NVIDIA_GPU_OPERATOR_VERSION:-"v24.6.2"}"
 
 id: nvidia_gpu_operator/validations_succeed
 category_id: dss-regress

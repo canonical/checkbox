@@ -8,8 +8,7 @@ _summary: Check that the DSS environment initializes
 estimated_duration: 2m
 command:
   set -eo pipefail
-  KUBECONFIG="$(cat ~/.kube/config)"
-  run_dss.sh initialize --kubeconfig "$KUBECONFIG"
+  run_dss.sh initialize --kubeconfig "$(cat ~/.kube/config)"
 
 id: dss/namespace
 category_id: dss-regress

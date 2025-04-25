@@ -6,7 +6,6 @@ import unittest
 import os
 import typing as T
 import subprocess as sp
-import textwrap
 
 
 def do_nothing(args: T.List[str], **kwargs):
@@ -78,24 +77,39 @@ class DisplayConnectionTests(unittest.TestCase):
 
     @patch("subprocess.run")
     def test_is_hardware_renderer_available_fail(self, mock_run: MagicMock):
-        mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
+        mock_run.return_value = sp.CompletedProcess(
             [],
             0,  # glmark2 returns 0 as long as it finishes
-            textwrap.dedent(
-                """
-                =======================================================
-                    glmark2 2014.03+git20150611.fa71af2d
-                =======================================================
-                    OpenGL Information
-                    GL_VENDOR:     VMware, Inc.
-                    GL_RENDERER:   llvmpipe (LLVM 10.0.0, 256 bits)
-                    GL_VERSION:    3.1 Mesa 20.0.8
-                =======================================================
-                """
-            ),
-            "",
+            """
+=======================================================
+    glmark2 2014.03+git20150611.fa71af2d
+=======================================================
+    OpenGL Information
+    GL_VENDOR:     VMware, Inc.
+    GL_RENDERER:   llvmpipe (LLVM 10.0.0, 256 bits)
+    GL_VERSION:    3.1 Mesa 20.0.8
+=======================================================
+            """,
         )
         tester = RCT.HardwareRendererTester()
+        self.assertFalse(tester.is_hardware_renderer_available())
+
+        mock_run.return_value = sp.CompletedProcess(
+            [],
+            0,
+            """
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Mesa
+    GL_RENDERER:    softpipe
+    GL_VERSION:     3.3 (Compatibility Profile) Mesa 24.2.8-1ubuntu1~24.04.1
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================
+            """,
+        )
         self.assertFalse(tester.is_hardware_renderer_available())
 
     @patch("subprocess.run")
@@ -106,7 +120,7 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
         )
-        mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
+        mock_run.return_value = sp.CompletedProcess(
             [],
             0,  # glmark2 returns 0 as long as it finishes
             """
@@ -121,10 +135,20 @@ class DisplayConnectionTests(unittest.TestCase):
     Surface Size:   800x600 windowed
 =======================================================
             """,
-            "",
         )
         tester = RCT.HardwareRendererTester()
         self.assertTrue(tester.is_hardware_renderer_available())
+
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_bad_session_type(
+        self, mock_getenv: MagicMock, mock_run: MagicMock
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "tty"
+        )
+        tester = RCT.HardwareRendererTester()
+        self.assertFalse(tester.is_hardware_renderer_available())
 
     @patch("subprocess.run")
     @patch("os.getenv")
@@ -399,11 +423,11 @@ class MainFunctionTests(unittest.TestCase):
             }
 
             actual = set()
-            for call in mock_run.call_args_list:
+            for _call in mock_run.call_args_list:
                 # [0] takes the 1st from (args, kwargs, ) = call,
                 # then take tha actual list from args
                 # then take the 1st element, which is the command name
-                actual.add(call[0][0][0])
+                actual.add(_call[0][0][0])
 
             # <= is an overloaded operator for sets
             # that checks the isSubset relation

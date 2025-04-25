@@ -48,7 +48,7 @@ def main(args: t.List[str] | None = None) -> None:
 
 def install_nvidia_gpu_operator(operator_version: str) -> None:
     subprocess.check_call(
-        "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia"
+        "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia".split()
     )
     subprocess.check_call("helm repo update")
 
@@ -56,34 +56,37 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
     cmd = "helm install --wait --generate-name --create-namespace"
     cmd = f"{cmd} -n {k8s_ns} nvidia/gpu-operator --version={operator_version}"
     cmd = f"{cmd} --kubeconfig ~/.kube/config"
-    subprocess.check_call(cmd)
+    subprocess.check_call(cmd.split())
 
     time.sleep(30)  # node feature discovery will need some time
     subprocess.check_call(
-        f"kubectl -n {k8s_ns} rollout status ds/nvidia-operator-validator"
+        f"kubectl -n {k8s_ns} rollout status ds/nvidia-operator-validator".split()
     )
 
 
 def install_intel_gpu_plugin(plugin_version: str) -> None:
     repo_url = (
-        "https://github.com/intel/"
-        "intel-device-plugins-for-kubernetes/deployments"
+        "https://github.com/intel/" "intel-device-plugins-for-kubernetes/deployments"
     )
     subprocess.check_call(
-        f"kubectl apply -k {repo_url}/nfd?ref={plugin_version}"
+        f"kubectl apply -k {repo_url}/nfd?ref={plugin_version}".split()
     )
     subprocess.check_call(
-        f"kubectl apply -k {repo_url}/nfd/"
-        f"overlays/node-feature-rules?ref={plugin_version}"
+        (
+            f"kubectl apply -k {repo_url}/nfd/"
+            f"overlays/node-feature-rules?ref={plugin_version}"
+        ).split()
     )
     subprocess.check_call(
-        f"kubectl apply -k {repo_url}/gpu_plugin/"
-        f"overlays/nfd_labeled_nodes?ref={plugin_version}"
+        (
+            f"kubectl apply -k {repo_url}/gpu_plugin/"
+            f"overlays/nfd_labeled_nodes?ref={plugin_version}"
+        ).split()
     )
 
     time.sleep(30)  # node feature discovery will need some time
     subprocess.check_call(
-        "kubectl -n default rollout status ds/intel-gpu-plugin"
+        "kubectl -n default rollout status ds/intel-gpu-plugin".split()
     )
 
 

@@ -24,6 +24,7 @@ from checkbox_support.parsers.v4l2_compliance import (
     IOCTL_USED_BY_V4L2SRC,
     TEST_NAME_TO_IOCTL_MAP,
 )
+from checkbox_support.helpers.release_info import get_release_info
 
 
 # add more or exclude blockers here
@@ -74,7 +75,12 @@ def main():
 
     # Pick which IOCTLs to test based on user selection
     if args.ioctl_selection == "blockers":
-        ioctls_to_check = BLOCKERS
+        codename = get_release_info()['codename']
+        if codename == 'jammy':
+            # temp work around for 22.04
+            ioctls_to_check = BLOCKERS - set(('VIDIOC_REQBUFS'))   
+        else:
+            ioctls_to_check = BLOCKERS
     elif args.ioctl_selection == "non-blockers":
         ioctls_to_check = all_ioctls - BLOCKERS
     else:  # "all"

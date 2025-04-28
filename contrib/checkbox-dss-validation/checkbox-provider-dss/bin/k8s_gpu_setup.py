@@ -50,7 +50,7 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
     subprocess.check_call(
         "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia".split()
     )
-    subprocess.check_call("helm repo update")
+    subprocess.check_call("helm repo update".split())
 
     k8s_ns = "gpu-operator-resources"
     cmd = "helm install --wait --generate-name --create-namespace"

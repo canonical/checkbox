@@ -62,7 +62,7 @@ jobs:
         name: Download the artifact with the built snap
         with:
           name: checkbox-dss.snap
-          path: checkbox-dss.snap
+          path: contrib/checkbox-dss-validation/checkbox-dss.snap
       - run: |  # FIXME:@motjuste: remove after dev
           ls -lah
       - name: Build job file from template

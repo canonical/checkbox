@@ -81,6 +81,10 @@ parts:
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
+    # needed because default is /usr/local
+    # if you change this update LD_LIBRARY_PATH
+    configflags:
+      - --prefix=/
     stage-packages:
       - libfdt1
       - libbsd0

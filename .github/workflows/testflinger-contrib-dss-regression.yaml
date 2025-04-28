@@ -62,7 +62,7 @@ jobs:
         name: Download the artifact with the built snap
         with:
           name: checkbox-dss.snap
-          path: contrib/checkbox-dss-validation/checkbox-dss.snap
+          path: checkbox-dss.snap
       - name: Build job file from template
         env:
           DSS_CHANNEL: ${{ inputs.dss_channel }}

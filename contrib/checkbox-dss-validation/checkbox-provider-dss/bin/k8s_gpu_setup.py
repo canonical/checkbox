@@ -55,7 +55,6 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
     k8s_ns = "gpu-operator-resources"
     cmd = "helm install --wait --generate-name --create-namespace"
     cmd = f"{cmd} -n {k8s_ns} nvidia/gpu-operator --version={operator_version}"
-    cmd = f"{cmd} --kubeconfig ~/.kube/config"
     subprocess.check_call(cmd.split())
 
     time.sleep(30)  # node feature discovery will need some time

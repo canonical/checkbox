@@ -64,13 +64,17 @@ jobs:
           name: checkbox-dss.snap
           path: contrib/checkbox-dss-validation/checkbox-dss.snap
       - name: Build job file from template
+        env:
+          DSS_CHANNEL: ${{ inputs.dss_channel }}
+          K8S_TYPE: ${{ inputs.k8s_type }}
+          K8S_CHANNEL: ${{ inputs.k8s_channel }}
         run: |
           sed -e "s|REPLACE_BRANCH|${BRANCH}|" \
           -e "s|REPLACE_QUEUE|${{ matrix.queue.name }}|" \
           -e "s|REPLACE_PROVISION_DATA|${{ matrix.queue.provision_data }}|" \
-          -e "s|REPLACE_DSS_CHANNEL|${{ inputs.dss_channel }}|" \
-          -e "s|REPLACE_K8S_TYPE|${{ inputs.k8s_type }}|" \
-          -e "s|REPLACE_K8S_CHANNEL|${{ inputs.k8s_channel }}|" \
+          -e "s|REPLACE_DSS_CHANNEL|${DSS_CHANNEL}|" \
+          -e "s|REPLACE_K8S_TYPE|${K8S_TYPE}|" \
+          -e "s|REPLACE_K8S_CHANNEL|${K8S_CHANNEL}|" \
           ${GITHUB_WORKSPACE}/contrib/checkbox-dss-validation/testflinger/job-def.yaml > \
           ${GITHUB_WORKSPACE}/job.yaml
           cat ${GITHUB_WORKSPACE}/job.yaml

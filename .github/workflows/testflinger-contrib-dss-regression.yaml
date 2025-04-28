@@ -21,6 +21,7 @@ jobs:
 
   download-built-snap:
     needs: dss-snap-frontend-native-build
+    runs-on: [ubuntu-latest]
     steps:
       - id: download-snap-artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093

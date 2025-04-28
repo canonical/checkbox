@@ -15,13 +15,13 @@ on:
   workflow_dispatch:
   workflow_call:
     outputs:
-      checkbox_dss_snap:
-        value: ${{ jobs.snap_frontend_native.outputs.checkbox_dss_snap }}
+      artifact-url:
+        value: ${{ jobs.snap_frontend_native.outputs.artifact-url }}
 
 jobs:
   snap_frontend_native:
     outputs:
-      checkbox_dss_snap: ${{ steps.snap_build.outputs.snap }}
+      artifact-url: ${{ steps.upload_artifact.outputs.artifact-url }}
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "jammy", "large", "X64"]
@@ -55,7 +55,8 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             contrib/checkbox-dss-validation/checkbox*.txt
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - id: upload_artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         name: Upload the snaps as artifact
         with:
           name: checkbox-dss.snap

@@ -19,12 +19,16 @@ jobs:
   dss-snap-frontend-native-build:
     uses: ./.github/workflows/checkbox-dss-build.yaml
 
-  see-snap-exists:
-    runs-on: [ubuntu-latest]
+  download-built-snap:
     needs: dss-snap-frontend-native-build
     steps:
-      - run: |
-          echo ${{ needs.dss-snap-frontend-native-build.outputs.checkbox_dss_snap }}
+      - id: download-snap-artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        name: Download the artifact with the built snap
+        with:
+          name: checkbox-dss.snap
+      - id: unzip-snap-artifact
+        run: |
           ls -lah
 
   regression-tests:

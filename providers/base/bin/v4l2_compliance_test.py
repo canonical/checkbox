@@ -76,8 +76,8 @@ def main():
     # Pick which IOCTLs to test based on user selection
     if args.ioctl_selection == "blockers":
         codename = get_release_info()["codename"]
-        if codename == "jammy":
-            # temp work around for 22.04
+        if codename in ("jammy", "bionic"):
+            # temp workaround for 22.04 & 18.04
             ioctls_to_check = BLOCKERS - set(("VIDIOC_REQBUFS"))
         else:
             ioctls_to_check = BLOCKERS

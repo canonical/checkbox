@@ -2,6 +2,16 @@ name: checkbox-dss Snap build
 permissions:
   contents: read
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-dss-validation/checkbox-provider-dss/**
+      - .github/workflows/checkbox-dss-build.yaml
+  pull_request:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-dss-validation/checkbox-provider-dss/**
+      - .github/workflows/checkbox-dss-build.yaml
   workflow_dispatch:
   workflow_call:
 

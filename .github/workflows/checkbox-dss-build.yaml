@@ -22,22 +22,11 @@ jobs:
   snap_frontend_native:
     outputs:
       checkbox_dss_snap: ${{ steps.snap_build.outputs.snap }}
-    strategy:
-      fail-fast: false
-      matrix:
-        type: [classic]
-        release: [22]
-        arch: [amd64]
-        include:
-          - arch: amd64
-            tag: X64
-          - release: 22
-            snapcraft_version: 8.x
     runs-on:
       group: "Canonical self-hosted runners"
-      labels: ["self-hosted", "linux", "jammy", "large", "${{ matrix.tag }}"]
+      labels: ["self-hosted", "linux", "jammy", "large", "X64"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
-    name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
+    name: Checkbox DSS validation snap
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -54,13 +43,13 @@ jobs:
           attempt_limit: 5
           with: |
             path: contrib/checkbox-dss-validation/
-            snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
+            snapcraft-channel: 8.x/stable
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         name: Upload logs on failure
         if: failure()
         with:
-          name: snapcraft-log-series-${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}
+          name: snapcraft-log-checkbox-dss-snap
           path: |
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
@@ -69,7 +58,7 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         name: Upload the snaps as artifact
         with:
-          name: series_${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}
+          name: checkbox-dss.snap
           path: ${{ steps.snap_build.outputs.snap }}
 
       # NOTE:@motjuste: We currently don't publish the checkbox-dss Snap

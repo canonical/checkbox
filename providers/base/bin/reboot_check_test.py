@@ -344,6 +344,7 @@ class HardwareRendererTester:
                 else:
                     time.sleep(1)
             except sp.TimeoutExpired:
+                print("systemd-analyze timed out!")
                 return False
 
         return False

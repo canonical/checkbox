@@ -50,41 +50,63 @@ _verification:
 plugin: manual
 category_id: ubuntucore
 
-id: ubuntucore/remodel-20-to-22
+id: ubuntucore/remodels
 category_id: ubuntucore
-_summary: Remodel Ubuntu Core 20 to 22
-_purpose:
- Verify the system can remodel from ubuntu core 22 to 24 under normal
- circumstances. The requirement is that the official models from canonical
- are used for the running Ubuntu Core host. Multiple reboots will happen
- as a part of this test.
-unit: job
-plugin: shell
-user: root
-flags: noreturn
-estimated_duration: 180.0
+unit: resource
 command:
-  snap model | grep "ubuntu-core-20"
-  remodel_test.py 22
-  reboot
+  echo source: 22
+  echo destination: 24
+  echo
+  echo source: 20
+  echo destination: 22
 
-id: ubuntucore/remodel-22-to-24
+id: ubuntucore/remodel-{{source}}-to-{{destination}}
 category_id: ubuntucore
-_summary: Remodel Ubuntu Core 22 to 24
+_summary: Remodel Ubuntu Core {{source}} to {{destination}}
 _purpose:
- Verify the system can remodel from ubuntu core 22 to 24 under normal
+ Verify the system can remodel from ubuntu core {{source}} to {{destination}} under normal
  circumstances. The requirement is that the official models from canonical
  are used for the running Ubuntu Core host. Multiple reboots will happen
  as a part of this test.
-unit: job
+unit: template
+template-id: ubuntucore_remodel
+template-resource: ubuntucore/remodels
+template-filter: lsb.distributor_id == 'Ubuntu Core'
+template-unit: job
 plugin: shell
 user: root
 flags: noreturn
-estimated_duration: 180.0
+estimated_duration: 300.0
 command:
-  snap model | grep "ubuntu-core-22"
-  remodel_test.py 24
-  reboot
+ snap model | grep "ubuntu-core-{{source}}"
+ remodel_test.py {{destination}}
+ reboot
+
+id: ubuntucore/remodel-check-up
+category_id: ubuntucore
+_summary: Remodel checkpoint to verify system.
+_purpose:
+ Verify the current system status, if the system is up, then we exit cleanly.
+unit: job
+plugin: shell
+user: root
+estimated_duration: 0.1
+command:
+  cat /proc/cmdline | grep snapd_recovery_mode=run
+
+id: ubuntucore/remodel-{{source}}-to-{{destination}}-verify
+category_id: ubuntucore
+_summary: Verify remodel of Ubuntu Core {{source}} to {{destination}}
+unit: template
+template-id: ubuntucore_remodel_verify
+template-resource: ubuntucore/remodels
+template-filter: lsb.distributor_id == 'Ubuntu Core'
+template-unit: job
+plugin: shell
+user: root
+estimated_duration: 0.1
+command:
+ snap model | grep "ubuntu-core-{{destination}}"
 
 unit: template
 template-resource: lsb

@@ -59,14 +59,14 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
     subprocess.check_call(cmd.split())
 
     time.sleep(30)  # node feature discovery will need some time
-    subprocess.check_call(
-        f"kubectl -n {k8s_ns} rollout status ds/nvidia-operator-validator".split()
-    )
+    cmd = f"kubectl -n {k8s_ns} rollout status ds/nvidia-operator-validator"
+    subprocess.check_call(cmd.split())
 
 
 def install_intel_gpu_plugin(plugin_version: str) -> None:
     repo_url = (
-        "https://github.com/intel/" "intel-device-plugins-for-kubernetes/deployments"
+        "https://github.com/intel/"
+        "intel-device-plugins-for-kubernetes/deployments"
     )
     subprocess.check_call(
         f"kubectl apply -k {repo_url}/nfd?ref={plugin_version}".split()

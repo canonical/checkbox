@@ -14,9 +14,14 @@ on:
       - .github/workflows/checkbox-dss-build.yaml
   workflow_dispatch:
   workflow_call:
+    outputs:
+      checkbox_dss_snap:
+        value: ${{ jobs.snap_frontend_native.outputs.checkbox_dss_snap }}
 
 jobs:
   snap_frontend_native:
+    outputs:
+      checkbox_dss_snap: ${{ steps.snap_build.outputs.snap }}
     strategy:
       fail-fast: false
       matrix:

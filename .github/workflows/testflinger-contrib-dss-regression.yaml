@@ -16,7 +16,19 @@ env:
   BRANCH: ${{ github.head_ref || github.ref_name }}
 
 jobs:
+  dss-snap-frontend-native-build:
+    uses: ./.github/workflows/checkbox-dss-build.yaml
+
+  see-snap-exists:
+    runs-on: [ubuntu-latest]
+    needs: dss-snap-frontend-native-build
+    steps:
+      - run: |
+          echo ${{ needs.dss-snap-frontend-native-build.outputs.checkbox_dss_snap }}
+          ls -lah
+
   regression-tests:
+    if: false  # FIXME:@motjuste: enable after testing is done
     name: Regression tests
     runs-on: [testflinger]
     defaults:

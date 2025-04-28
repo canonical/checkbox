@@ -19,21 +19,8 @@ jobs:
   dss-snap-frontend-native-build:
     uses: ./.github/workflows/checkbox-dss-build.yaml
 
-  download-built-snap:
-    needs: dss-snap-frontend-native-build
-    runs-on: [ubuntu-latest]
-    steps:
-      - id: download-snap-artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        name: Download the artifact with the built snap
-        with:
-          name: checkbox-dss.snap
-      - id: unzip-snap-artifact
-        run: |
-          ls -lah
-
   regression-tests:
-    if: false  # FIXME:@motjuste: enable after testing is done
+    needs: dss-snap-frontend-native-build
     name: Regression tests
     runs-on: [testflinger]
     defaults:
@@ -61,6 +48,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        name: Download the artifact with the built snap
+        with:
+          name: checkbox-dss.snap
       - name: Build job file from template
         run: |
           sed -e "s|REPLACE_BRANCH|${BRANCH}|" \

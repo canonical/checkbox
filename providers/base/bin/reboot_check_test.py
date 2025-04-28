@@ -337,7 +337,7 @@ class HardwareRendererTester:
                     ],
                     stdout=sp.DEVNULL,
                     stderr=sp.DEVNULL,
-                    timeout=min(5, max_wait_seconds),
+                    timeout=min(10, max_wait_seconds),
                 )
                 if out.returncode == 0:
                     return True

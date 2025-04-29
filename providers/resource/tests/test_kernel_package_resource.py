@@ -22,40 +22,6 @@ from unittest.mock import Mock, call, patch
 
 from kernel_package_resource import get_kernel_package_info, main
 
-# def get_kernel_package_info():
-
-#     # If we are on Ubuntu Core, just call the get_kernel_snap function
-#     if on_ubuntucore():
-#         return get_kernel_snap()
-
-#     # If we are not on Ubuntu Core, we need to check the kernel package
-#     # installed on the system.
-
-#     # Get the kernel version
-#     kernel_version = os.uname().release
-#     linux_modules_info = subprocess.check_output(
-#         ["apt-cache", "show", "linux-modules-{}".format(kernel_version)],
-#         universal_newlines=True,
-#         stderr=subprocess.DEVNULL,
-#     )
-#     for line in linux_modules_info.splitlines():
-#         if line.startswith("Source:"):
-#             kernel_package = line.split(":")[1].strip()
-#             return kernel_package
-
-
-# def main():
-#     release = get_release_info().get("release")
-#     if not release:
-#         raise SystemExit("Unable to get release information.")
-
-#     kernel_package = get_kernel_package_info()
-#     if not kernel_package:
-#         raise SystemExit("No kernel package found.")
-
-#     print("name: {}".format(kernel_package))
-#     print("release: {}".format(release))
-
 
 class TestKernelPackageResource(unittest.TestCase):
 

@@ -1,4 +1,5 @@
 name: Data Science Stack (DSS) Regression Testing
+run-name: Testing DSS ${{ inputs.dss_channel }} on ${{ inputs.k8s_type }} ${{ inputs.k8s_channel }}
 permissions:
   contents: read
 on:
@@ -38,7 +39,7 @@ jobs:
 
   regression-tests:
     needs: dss-snap-frontend-native-build
-    name: Regression tests for DSS ${{ inputs.dss_channel }} on ${{ inputs.k8s_type }} ${{ inputs.k8s_channel }}
+    name: Regression tests
     runs-on: [testflinger]
     strategy:
       fail-fast: false

@@ -64,9 +64,9 @@ jobs:
           name: checkbox-dss.snap
       - name: Rename snap artifact to match attachment
         run: |
-          ls -lah checkbox-dss*.snap
+          ls -lah
           mv checkbox-dss*.snap checkbox-dss.snap
-          ls -lah checkbox-dss*.snap
+          ls -lah
       - name: Build job file from template
         env:
           DSS_CHANNEL: ${{ inputs.dss_channel }}

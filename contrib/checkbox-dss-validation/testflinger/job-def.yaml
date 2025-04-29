@@ -5,7 +5,6 @@ provision_data:
 test_data:
   attachments:
     - local: checkbox-dss.snap
-      agent: checkbox-dss.snap
   test_cmds: |
 
     # Exit immediately if a test fails

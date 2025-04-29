@@ -3,53 +3,21 @@ output_timeout: 1800
 provision_data:
   REPLACE_PROVISION_DATA
 test_data:
+  attatchments:
+    - local: checkbox-dss.snap
+      agent: checkbox-dss.snap
   test_cmds: |
 
     # Exit immediately if a test fails
     set -e
 
-    # Clone repo from appropriate branch/commit.
-    ssh -t ubuntu@$DEVICE_IP '
-      export DEBIAN_FRONTEND=noninteractive
-      export NEEDRESTART_MODE=a
-      sudo -E apt update
-      sudo -E apt -y upgrade
-      sudo -E apt -y install git
-      git clone -b REPLACE_BRANCH \
-        https://github.com/canonical/checkbox.git \
-        ~ubuntu/checkbox
-      cd ~ubuntu/checkbox/contrib/checkbox-dss-validation
-      echo "Current git branch: $(git branch --show-current)"
-      echo "Latest commit:"
-      git log --name-status HEAD^..HEAD
-    '
+    # Copy the checkbox-dss.snap to the device
+    scp attachments/test/checkbox-dss.snap ubuntu@$DEVICE_IP:~ubuntu/checkbox-dss.snap
 
     # Install dependencies
     ssh -t ubuntu@$DEVICE_IP '
-      sudo snap install --classic snapcraft
       sudo snap install checkbox22
-      sudo snap install lxd --channel=5.21/stable
-      sudo adduser ubuntu lxd
-      sudo snap refresh
-    '
-
-    # Disable swap and IPv6
-    ssh -t ubuntu@$DEVICE_IP '
-      sudo sysctl -w vm.swappiness=0
-      sudo echo "vm.swappiness = 0" | sudo tee -a /etc/sysctl.conf
-      sudo swapoff -a
-      echo "net.ipv6.conf.all.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
-      echo "net.ipv6.conf.default.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
-      echo "net.ipv6.conf.lo.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
-      sudo sysctl -p
-    '
-
-    # Build and install checkbox-dss snap
-    ssh -t ubuntu@$DEVICE_IP '
-      lxd init --auto
-      cd ~ubuntu/checkbox/contrib/checkbox-dss-validation
-      snapcraft
-      sudo snap install --dangerous --classic ./checkbox-dss_*_amd64.snap
+      sudo snap install --dangerous --classic ./checkbox-dss.snap
     '
 
     # Install test dependencies

@@ -23,8 +23,10 @@
 
 import argparse
 import subprocess
-import time
 import typing as t
+
+from checkbox_support.helpers.retry import run_with_retry
+from checkbox_support.helpers.timeout import timeout
 
 
 def main(args: t.List[str] | None = None) -> None:
@@ -46,6 +48,7 @@ def main(args: t.List[str] | None = None) -> None:
         install_intel_gpu_plugin(given.version)
 
 
+@timeout(120)  # 2 minutes
 def install_nvidia_gpu_operator(operator_version: str) -> None:
     subprocess.check_call(
         "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia".split()
@@ -57,11 +60,13 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
     cmd = f"{cmd} -n {k8s_ns} nvidia/gpu-operator --version={operator_version}"
     subprocess.check_call(cmd.split())
 
-    time.sleep(30)  # node feature discovery will need some time
-    cmd = f"kubectl -n {k8s_ns} rollout status ds/nvidia-operator-validator"
-    subprocess.check_call(cmd.split())
+    rollout_status = (
+        f"kubectl -n {k8s_ns} rollout status ds/nvidia-operator-validator"
+    )
+    run_with_retry(subprocess.check_call, 10, 3, rollout_status.split())
 
 
+@timeout(900)  # 15 minutes
 def install_intel_gpu_plugin(plugin_version: str) -> None:
     repo_url = (
         "https://github.com/intel/"
@@ -83,10 +88,10 @@ def install_intel_gpu_plugin(plugin_version: str) -> None:
         ).split()
     )
 
-    time.sleep(30)  # node feature discovery will need some time
-    subprocess.check_call(
-        "kubectl -n default rollout status ds/intel-gpu-plugin".split()
+    rollout_status = (
+        "kubectl -n default rollout status ds/intel-gpu-plugin"
     )
+    run_with_retry(subprocess.check_call, 10, 3, rollout_status.split())
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ output_timeout: 1800
 provision_data:
   REPLACE_PROVISION_DATA
 test_data:
-  attatchments:
+  attachments:
     - local: checkbox-dss.snap
       agent: checkbox-dss.snap
   test_cmds: |

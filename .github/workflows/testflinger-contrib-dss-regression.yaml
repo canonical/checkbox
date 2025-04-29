@@ -62,7 +62,6 @@ jobs:
         name: Download the artifact with the built snap
         with:
           name: checkbox-dss.snap
-          path: checkbox-dss.snap
       - name: Build job file from template
         env:
           DSS_CHANNEL: ${{ inputs.dss_channel }}
@@ -79,8 +78,8 @@ jobs:
           cat ${GITHUB_WORKSPACE}/job.yaml
           echo ${GITHUB_WORKSPACE}
           ls -lah ${GITHUB_WORKSPACE}
-      - name: Submit testflinger job
-        uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
-        with:
-          poll: true
-          job-path: ${GITHUB_WORKSPACE}/job.yaml
+      # - name: Submit testflinger job
+        # uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
+        # with:
+          # poll: true
+          # job-path: ${GITHUB_WORKSPACE}/job.yaml

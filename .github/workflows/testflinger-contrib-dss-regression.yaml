@@ -69,8 +69,7 @@ jobs:
           K8S_TYPE: ${{ inputs.k8s_type }}
           K8S_CHANNEL: ${{ inputs.k8s_channel }}
         run: |
-          sed -e "s|REPLACE_BRANCH|${BRANCH}|" \
-          -e "s|REPLACE_QUEUE|${{ matrix.queue.name }}|" \
+          sed -e "s|REPLACE_QUEUE|${{ matrix.queue.name }}|" \
           -e "s|REPLACE_PROVISION_DATA|${{ matrix.queue.provision_data }}|" \
           -e "s|REPLACE_DSS_CHANNEL|${DSS_CHANNEL}|" \
           -e "s|REPLACE_K8S_TYPE|${K8S_TYPE}|" \

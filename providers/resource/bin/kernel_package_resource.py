@@ -28,7 +28,7 @@ def get_kernel_package_info():
 
     # If we are on Ubuntu Core, just call the get_kernel_snap function
     if on_ubuntucore():
-        return get_kernel_snap()
+        return get_kernel_snap(), "snap"
 
     # If we are not on Ubuntu Core, we need to check the kernel package
     # installed on the system.
@@ -43,7 +43,7 @@ def get_kernel_package_info():
     for line in linux_modules_info.splitlines():
         if line.startswith("Source:"):
             kernel_package = line.split(":")[1].strip()
-            return kernel_package
+            return kernel_package, "deb"
 
 
 def main():
@@ -51,11 +51,12 @@ def main():
     if not release:
         raise SystemExit("Unable to get release information.")
 
-    kernel_package = get_kernel_package_info()
+    kernel_package, kernel_type = get_kernel_package_info()
     if not kernel_package:
         raise SystemExit("No kernel package found.")
 
     print("name: {}".format(kernel_package))
+    print("type: {}".format(kernel_type))
     print("release: {}".format(release))
 
 

@@ -40,9 +40,6 @@ jobs:
     needs: dss-snap-frontend-native-build
     name: Regression tests
     runs-on: [testflinger]
-    defaults:
-      run:
-        working-directory: contrib/checkbox-dss-validation
     strategy:
       fail-fast: false
       matrix:
@@ -64,9 +61,9 @@ jobs:
           name: checkbox-dss.snap
       - name: Rename snap artifact to match attachment
         run: |
-          ls -lah
+          ls -lah checkbox-dss*.snap
           mv checkbox-dss*.snap checkbox-dss.snap
-          ls -lah
+          ls -lah checkbox-dss*.snap
       - name: Build job file from template
         env:
           DSS_CHANNEL: ${{ inputs.dss_channel }}

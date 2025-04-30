@@ -200,24 +200,11 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
     @mock.patch("k8s_gpu_setup.detect_if_microk8s")
     def test_timed_out_detecting_microk8s(self, mock_detect, mock_call):
         mock_call.__name__ = "subprocess.check_call"
-        mock_detect.side_effect = TimeoutError()
-        k8s_gpu_setup.install_nvidia_gpu_operator(self.version)
-
-        helm_install = (
-            "helm install --wait --generate-name --create-namespace "
-            f"-n {self.namespace} nvidia/gpu-operator "
-            f"--version={self.version}"
-        )
-        calls = [
-            *self.helm_repo_calls(),
-            mock.call(helm_install.split(), input=None, check=True),
-            self.rollout_call(),
-        ]
-
-        with self.subTest("number of calls"):
-            self.assertEqual(len(mock_call.mock_calls), len(calls))
-        with self.subTest("order of calls"):
-            mock_call.assert_has_calls(calls)
+        exception = TimeoutError()
+        mock_detect.side_effect = exception
+        with self.assertRaises(TimeoutError) as caught:
+            k8s_gpu_setup.install_nvidia_gpu_operator(self.version)
+        self.assertEqual(caught.exception, exception)
 
     @mock.patch("subprocess.run")
     @mock.patch("k8s_gpu_setup.detect_if_microk8s", lambda: True)

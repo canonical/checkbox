@@ -99,11 +99,7 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
         f" -n {ns} nvidia/gpu-operator --version={operator_version}"
     )
 
-    try:
-        is_microk8s = detect_if_microk8s()
-    except TimeoutError:
-        is_microk8s = False
-
+    is_microk8s = detect_if_microk8s()
     print(f"Detected Microk8s? {is_microk8s}", flush=True)
 
     helm_config = None

@@ -195,7 +195,7 @@ command: run_dss.sh remove pytorch-intel
 
 # NVIDIA CUDA jobs ############################################################
 
-id: nvidia_gpu_operator/install_on_canonical_k8s
+id: nvidia_gpu_operator/install
 category_id: dss-regress
 flags: simple
 imports:
@@ -205,27 +205,10 @@ requires:
   graphics_card.vendor == 'NVIDIA Corporation'
   executable.name == 'helm'
   executable.name == 'kubectl'
-  executable.name == 'k8s'
 depends: dss/initialize
-_summary: Install NVIDIA GPU operator in the Canonical K8s cluster
+_summary: Install NVIDIA GPU operator in the Kubernetes cluster
 estimated_duration: 15m
 command: k8s_gpu_setup.py nvidia
-
-id: nvidia_gpu_operator/install_on_microk8s
-category_id: dss-regress
-flags: simple
-imports:
-  from com.canonical.certification import executable
-  from com.canonical.certification import graphics_card
-requires:
-  graphics_card.vendor == 'NVIDIA Corporation'
-  executable.name == 'helm'
-  executable.name == 'kubectl'
-  executable.name == 'microk8s
-depends: dss/initialize
-_summary: Install NVIDIA GPU operator in the microk8s cluster
-estimated_duration: 15m
-command: k8s_gpu_setup.py nvidia --is-microk8s
 
 id: nvidia_gpu_operator/validations_succeed
 category_id: dss-regress

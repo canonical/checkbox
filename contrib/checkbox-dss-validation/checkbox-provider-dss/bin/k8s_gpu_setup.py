@@ -85,29 +85,20 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
 
 @timeout(900)  # 15 minutes
 def install_intel_gpu_plugin(plugin_version: str) -> None:
-    repo_url = (
+    repo = (
         "https://github.com/intel/"
         "intel-device-plugins-for-kubernetes/deployments"
     )
-    subprocess.check_call(
-        f"kubectl apply -k {repo_url}/nfd?ref={plugin_version}".split()
-    )
-    subprocess.check_call(
-        (
-            f"kubectl apply -k {repo_url}/nfd/"
-            f"overlays/node-feature-rules?ref={plugin_version}"
-        ).split()
-    )
-    subprocess.check_call(
-        (
-            f"kubectl apply -k {repo_url}/gpu_plugin/"
-            f"overlays/nfd_labeled_nodes?ref={plugin_version}"
-        ).split()
-    )
+    urls = [
+        f"{repo}/nfd?ref={plugin_version}",
+        f"{repo}/nfd/overlays/node-feature-rules?ref={plugin_version}",
+        f"{repo}/gpu_plugin/overlays/nfd_labeled_nodes?ref={plugin_version}",
+    ]
+    for url in urls:
+        setup_command = f"kubectl apply -k {url}"
+        subprocess.check_call(setup_command.split())
 
-    rollout_status = (
-        "kubectl -n default rollout status ds/intel-gpu-plugin"
-    )
+    rollout_status = "kubectl -n default rollout status ds/intel-gpu-plugin"
     run_with_retry(subprocess.check_call, 10, 3, rollout_status.split())
 
 

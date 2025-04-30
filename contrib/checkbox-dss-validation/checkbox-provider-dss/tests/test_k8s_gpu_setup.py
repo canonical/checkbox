@@ -26,6 +26,7 @@ import unittest
 from unittest import mock
 
 from checkbox_support.helpers.timeout import mock_timeout
+from checkbox_support.helpers.retry import mock_retry
 
 import k8s_gpu_setup
 
@@ -71,3 +72,37 @@ class TestMain(unittest.TestCase):
         os.environ["NVIDIA_GPU_OPERATOR_VERSION"] = version
         k8s_gpu_setup.main(["nvidia", "--version", version])
         mocked.assert_called_once_with(version)
+
+
+@mock_retry()
+@mock_timeout()
+class TestInstallIntelGpuPlugin(unittest.TestCase):
+    version = k8s_gpu_setup.DEFAULT_INTEL_PLUGIN_VERSION
+    repo = (
+        "https://github.com/intel/"
+        "intel-device-plugins-for-kubernetes/deployments"
+    )
+    apply = "kubectl apply -k "
+
+    @mock.patch("subprocess.check_call")
+    def test_kustomizes_and_checks_rollout(self, mock_call):
+        mock_call.__name__ = "subprocess.check_call"
+        k8s_gpu_setup.install_intel_gpu_plugin(self.version)
+
+        urls = [
+            f"{self.repo}/nfd?ref={self.version}",
+            f"{self.repo}/nfd/overlays/node-feature-rules?ref={self.version}",
+            (
+                f"{self.repo}/gpu_plugin/overlays/"
+                f"nfd_labeled_nodes?ref={self.version}"
+            ),
+        ]
+        calls = [mock.call(f"{self.apply} {url}".split()) for url in urls]
+
+        rollout = "kubectl -n default rollout status ds/intel-gpu-plugin"
+        calls.append(mock.call(rollout.split()))
+
+        with self.subTest("number of calls"):
+            self.assertEqual(len(mock_call.mock_calls), len(calls))
+        with self.subTest("order of calls"):
+            mock_call.assert_has_calls(calls)

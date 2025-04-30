@@ -106,3 +106,38 @@ class TestInstallIntelGpuPlugin(unittest.TestCase):
             self.assertEqual(len(mock_call.mock_calls), len(calls))
         with self.subTest("order of calls"):
             mock_call.assert_has_calls(calls)
+
+
+@mock_retry()
+@mock_timeout()
+class TestInstallNvidialGpuOperator(unittest.TestCase):
+    version = k8s_gpu_setup.DEFAULT_NVIDIA_OPERATOR_VERSION
+    namespace = "gpu-operator-resources"
+
+    @mock.patch("subprocess.check_call")
+    def test_helm_installs_and_checks_rollout(self, mock_call):
+        mock_call.__name__ = "subprocess.check_call"
+        k8s_gpu_setup.install_nvidia_gpu_operator(self.version)
+
+        helm_install = (
+            "helm install --wait --generate-name --create-namespace "
+            f"-n {self.namespace} nvidia/gpu-operator "
+            f"--version={self.version}"
+        )
+        repo_url = "https://helm.ngc.nvidia.com/nvidia"
+        calls = [
+            mock.call(f"helm repo add nvidia {repo_url}".split()),
+            mock.call("helm repo update".split()),
+            mock.call(helm_install.split()),
+            mock.call(
+                (
+                    f"kubectl -n {self.namespace} "
+                    "rollout status ds/nvidia-operator-validator"
+                ).split()
+            ),
+        ]
+
+        with self.subTest("number of calls"):
+            self.assertEqual(len(mock_call.mock_calls), len(calls))
+        with self.subTest("order of calls"):
+            mock_call.assert_has_calls(calls)

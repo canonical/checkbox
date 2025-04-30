@@ -9,7 +9,7 @@ command:
   fi
   echo "/proc/net/if_inet6 not present"
   echo "Running kernel does not appear to be IPv6 ready"
-  exit 1  
+  exit 1
 flags: simple also-after-suspend
 
 unit: template
@@ -22,6 +22,42 @@ template-id: ipv6_link_local_address_interface
 _summary: Test that {interface} has an IPv6 link local address
 plugin: shell
 category_id: com.canonical.plainbox::networking
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest._ignore_disconnected_ethernet_interfaces == 'False'
 command:
-  [ "$(ip -6 -o addr show dev {interface} scope link | wc -l)" -eq 1 ]
+  IPV6_ADDR="$(ip -6 -o addr show dev {interface} scope link)"
+  echo ip -6 -o addr show dev {interface} scope link
+  echo "$IPV6_ADDR"
+  echo
+  COUNT=$(echo -n "$IPV6_ADDR" | grep -cve '^\s*$') # count non-empty lines
+  if [ "$COUNT" -gt 0 ]; then
+    echo PASS: At least one IPv6 address reported for interface {interface}
+  else
+    echo FAIL: No IPv6 address reported for the interface {interface}
+    exit 1
+  fi
+flags: also-after-suspend
+
+unit: job
+depends: ipv6_detect
+id: ipv6_link_local_address_any_if
+_summary: Test that any interface has an IPv6 address
+plugin: shell
+category_id: com.canonical.plainbox::networking
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest._ignore_disconnected_ethernet_interfaces == 'True'
+command:
+  IPV6_ADDR="$(ip -6 -o addr show scope link)"
+  echo ip -6 -o addr show scope link
+  echo "$IPV6_ADDR"
+  echo
+  COUNT=$(echo -n "$IPV6_ADDR" | grep -cve '^\s*$') # count non-empty lines
+  if [ "$COUNT" -gt 0 ]; then
+    echo PASS: At least 1 IPv6 reported
+  else
+    echo FAIL: No IPv6 address reported
+    exit 1
+  fi
 flags: also-after-suspend

@@ -83,9 +83,7 @@ def detect_if_microk8s() -> bool:
 
 
 @timeout(120)  # 2 minutes
-def install_nvidia_gpu_operator(
-    operator_version: str, is_microk8s: bool = False
-) -> None:
+def install_nvidia_gpu_operator(operator_version: str) -> None:
     setup_commands = [
         "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia",
         "helm repo update",
@@ -99,6 +97,11 @@ def install_nvidia_gpu_operator(
         "helm install --wait --generate-name --create-namespace"
         f" -n {ns} nvidia/gpu-operator --version={operator_version}"
     )
+
+    try:
+        is_microk8s = detect_if_microk8s()
+    except TimeoutError:
+        is_microk8s = False
 
     helm_config = None
     if is_microk8s:

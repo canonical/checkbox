@@ -76,6 +76,7 @@ class TestMain(unittest.TestCase):
         k8s_gpu_setup.main(["nvidia", "--version", version])
         mocked.assert_called_once_with(version)
 
+
 @mock_retry()
 @mock_timeout()
 class TestInstallIntelGpuPlugin(unittest.TestCase):
@@ -173,9 +174,10 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         )
 
     @mock.patch("subprocess.check_call")
-    def test_helm_installs_and_checks_rollout(self, mock_call):
+    @mock.patch("k8s_gpu_setup.detect_if_microk8s", lambda: False)
+    def test_microk8s_not_detected(self, mock_call):
         mock_call.__name__ = "subprocess.check_call"
-        k8s_gpu_setup.install_nvidia_gpu_operator(self.version, False)
+        k8s_gpu_setup.install_nvidia_gpu_operator(self.version)
 
         helm_install = (
             "helm install --wait --generate-name --create-namespace "
@@ -194,9 +196,33 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
             mock_call.assert_has_calls(calls)
 
     @mock.patch("subprocess.check_call")
-    def test_helm_installs_and_checks_rollout_microk8s(self, mock_call):
+    @mock.patch("k8s_gpu_setup.detect_if_microk8s")
+    def test_timed_out_detecting_microk8s(self, mock_detect, mock_call):
         mock_call.__name__ = "subprocess.check_call"
-        k8s_gpu_setup.install_nvidia_gpu_operator(self.version, True)
+        mock_detect.side_effect = TimeoutError()
+        k8s_gpu_setup.install_nvidia_gpu_operator(self.version)
+
+        helm_install = (
+            "helm install --wait --generate-name --create-namespace "
+            f"-n {self.namespace} nvidia/gpu-operator "
+            f"--version={self.version}"
+        )
+        calls = [
+            *self.helm_repo_calls(),
+            mock.call(helm_install.split(), input=None),
+            self.rollout_call(),
+        ]
+
+        with self.subTest("number of calls"):
+            self.assertEqual(len(mock_call.mock_calls), len(calls))
+        with self.subTest("order of calls"):
+            mock_call.assert_has_calls(calls)
+
+    @mock.patch("subprocess.check_call")
+    @mock.patch("k8s_gpu_setup.detect_if_microk8s", lambda: True)
+    def test_microk8s_detected(self, mock_call):
+        mock_call.__name__ = "subprocess.check_call"
+        k8s_gpu_setup.install_nvidia_gpu_operator(self.version)
 
         helm_install = (
             "helm install --wait --generate-name --create-namespace "

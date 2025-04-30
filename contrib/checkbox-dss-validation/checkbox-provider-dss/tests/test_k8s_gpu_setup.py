@@ -160,8 +160,8 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
     def helm_repo_calls(self):
         repo_url = "https://helm.ngc.nvidia.com/nvidia"
         calls = [
-            mock.call(f"helm repo add nvidia {repo_url}".split()),
-            mock.call("helm repo update".split()),
+            mock.call(f"helm repo add nvidia {repo_url}".split(), check=True),
+            mock.call("helm repo update".split(), check=True),
         ]
         return calls
 
@@ -170,10 +170,11 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
             (
                 f"kubectl -n {self.namespace} "
                 "rollout status ds/nvidia-operator-validator"
-            ).split()
+            ).split(),
+            check=True,
         )
 
-    @mock.patch("subprocess.check_call")
+    @mock.patch("subprocess.run")
     @mock.patch("k8s_gpu_setup.detect_if_microk8s", lambda: False)
     def test_microk8s_not_detected(self, mock_call):
         mock_call.__name__ = "subprocess.check_call"
@@ -186,7 +187,7 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         )
         calls = [
             *self.helm_repo_calls(),
-            mock.call(helm_install.split(), input=None),
+            mock.call(helm_install.split(), input=None, check=True),
             self.rollout_call(),
         ]
 
@@ -195,7 +196,7 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         with self.subTest("order of calls"):
             mock_call.assert_has_calls(calls)
 
-    @mock.patch("subprocess.check_call")
+    @mock.patch("subprocess.run")
     @mock.patch("k8s_gpu_setup.detect_if_microk8s")
     def test_timed_out_detecting_microk8s(self, mock_detect, mock_call):
         mock_call.__name__ = "subprocess.check_call"
@@ -209,7 +210,7 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         )
         calls = [
             *self.helm_repo_calls(),
-            mock.call(helm_install.split(), input=None),
+            mock.call(helm_install.split(), input=None, check=True),
             self.rollout_call(),
         ]
 
@@ -218,7 +219,7 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         with self.subTest("order of calls"):
             mock_call.assert_has_calls(calls)
 
-    @mock.patch("subprocess.check_call")
+    @mock.patch("subprocess.run")
     @mock.patch("k8s_gpu_setup.detect_if_microk8s", lambda: True)
     def test_microk8s_detected(self, mock_call):
         mock_call.__name__ = "subprocess.check_call"
@@ -253,7 +254,9 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         calls = [
             *self.helm_repo_calls(),
             mock.call(
-                helm_install.split(), input=json.dumps(helm_config).encode()
+                helm_install.split(),
+                input=json.dumps(helm_config).encode(),
+                check=True,
             ),
             self.rollout_call(),
         ]

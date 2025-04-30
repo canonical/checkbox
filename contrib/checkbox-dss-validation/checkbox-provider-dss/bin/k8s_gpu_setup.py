@@ -90,7 +90,7 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
     ]
 
     for command in setup_commands:
-        subprocess.check_call(command.split())
+        subprocess.run(command.split(), check=True)
 
     ns = "gpu-operator-resources"
     helm_install = (
@@ -117,10 +117,10 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
             }
         ).encode()
 
-    subprocess.check_call(helm_install.split(), input=helm_config)
+    subprocess.run(helm_install.split(), input=helm_config, check=True)
 
     rollout = f"kubectl -n {ns} rollout status ds/nvidia-operator-validator"
-    run_with_retry(subprocess.check_call, 10, 3, rollout.split())
+    run_with_retry(subprocess.run, 10, 3, rollout.split(), check=True)
 
 
 @timeout(900)  # 15 minutes

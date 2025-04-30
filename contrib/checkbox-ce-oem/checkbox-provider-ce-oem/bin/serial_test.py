@@ -20,6 +20,7 @@ import logging
 import os
 import random
 import string
+import serial.rs485
 
 
 def init_logger():
@@ -74,6 +75,10 @@ class Serial:
         self.stopbits = stopbits if stopbits else serial.STOPBITS_ONE
         self.timeout = timeout if timeout else 3
         self.datasize = datasize if datasize else 1024
+        """
+        Assign default config since no addtional RS485 config that
+        input by user.
+        """
         self.rs485_settings = (
             rs485_settings
             if rs485_settings
@@ -88,7 +93,10 @@ class Serial:
         self.ser = self.serial_init(node)
         self.group = []
         for ser in group:
-            self.group.append(self.serial_init(ser))
+            try:
+                self.group.append(self.serial_init(ser))
+            except Exception:
+                raise SystemError("Failed to init serial port: {}".format(ser))
 
     def serial_init(self, node: str) -> serial.Serial:
         """Create a serial.Serial object based on the class variables"""
@@ -100,6 +108,54 @@ class Serial:
             stopbits=self.stopbits,
             timeout=self.timeout,
         )
+        if self.type == "RS485":
+            """
+            Mapping RS485 node with specific RS485 settings to
+            handle different rts_level.
+            """
+            if node in self.rs485_settings:
+                ser.rs485_mode = serial.rs485.RS485Settings(
+                    rts_level_for_tx=self.rs485_settings[node].get(
+                        "rts_level_for_tx"
+                    )
+                    == "True",
+                    rts_level_for_rx=self.rs485_settings[node].get(
+                        "rts_level_for_rx"
+                    )
+                    == "True",
+                    delay_before_tx=float(
+                        self.rs485_settings[node].get("delay_before_tx")
+                    ),
+                    delay_before_rx=float(
+                        self.rs485_settings[node].get("delay_before_rx")
+                    ),
+                )
+            else:
+                """
+                Use default RS485 setting if node does not have it own config
+                """
+                ser.rs485_mode = serial.rs485.RS485Settings(
+                    rts_level_for_tx=self.rs485_settings.get(
+                        "rts_level_for_tx"
+                    ),
+                    rts_level_for_rx=self.rs485_settings.get(
+                        "rts_level_for_rx"
+                    ),
+                    delay_before_tx=self.rs485_settings.get("delay_before_tx"),
+                    delay_before_rx=self.rs485_settings.get("delay_before_rx"),
+                )
+            logging.info(
+                "Init port %s with RS485 config "
+                "rts_level_for_tx: %s "
+                "rts_level_for_rx: %s "
+                "delay_befor_tx: %s "
+                "delay_befor_rx: %s ",
+                node,
+                ser.rs485_mode.rts_level_for_tx,
+                ser.rs485_mode.rts_level_for_rx,
+                ser.rs485_mode.delay_before_tx,
+                ser.rs485_mode.delay_before_rx,
+            )
         ser.reset_input_buffer()
         ser.reset_output_buffer()
         return ser
@@ -129,6 +185,42 @@ def generate_random_string(length):
     """Generate random ascii string"""
     letters = string.ascii_letters + string.digits + string.punctuation
     return "".join(random.choice(letters) for _ in range(length))
+
+
+def parse_rs485_config(rs485_conf: str = None):
+    rs485_conf_lists = {}
+    """
+    Parse RS485 config,
+    e.g.
+    Input:
+    RS485_CONFIG = "/dev/ttySC0:True:False:0.0:0.0
+    /dev/ttySC2:True:False:0.0:0.0"
+
+    Output:
+    rs485_conf_lists = {
+        "/dev/ttySC0": {
+            "rts_level_for_tx": True,
+            "rts_level_for_rx": False,
+            "delay_before_tx: 0.0,
+            "delay_before_rx: 0.0,
+        }
+        "/dev/ttySC2": {
+            "rts_level_for_tx": True,
+            "rts_level_for_rx": False,
+            "delay_before_tx: 0.0,
+            "delay_before_rx: 0.0,
+        }
+    }
+    """
+    for rs485_conf_list in rs485_conf.split():
+        node, rts_tx, rts_rx, delay_tx, delay_rx = rs485_conf_list.split(":")
+        rs485_conf_lists[node] = {
+            "rts_level_for_tx": rts_tx,
+            "rts_level_for_rx": rts_rx,
+            "delay_before_tx": delay_tx,
+            "delay_before_rx": delay_rx,
+        }
+    return rs485_conf_lists
 
 
 def server_mode(
@@ -274,7 +366,7 @@ def console_mode(
         raise SystemExit(1)
 
 
-def main():
+def create_args():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -349,35 +441,37 @@ def main():
         help="Timeout to receive",
         default=3,
     )
-    args = parser.parse_args()
-    init_logger()
-    rs485_settings = {}
-    if args.type == "RS485":
-        rs485_settings = {
-            "rts_level_for_tx": (
-                True if args.rts_level_for_tx == "True" else False
-            ),
-            "rts_level_for_rx": (
-                True if args.rts_level_for_rx == "True" else False
-            ),
-            "delay_before_tx": args.rts_delay_before_tx,
-            "delay_before_rx": args.rts_delay_before_rx,
-        }
-    ser = Serial(
-        args.node,
-        args.type,
-        args.group,
-        baudrate=args.baudrate,
-        bytesize=args.bytesize,
-        parity=args.parity,
-        stopbits=args.stopbits,
-        timeout=args.timeout,
-        data_size=args.datasize,
-        rs485_settings=rs485_settings,
+    parser.add_argument(
+        "--rs485-config",
+        type=str,
+        help="RS485 configuration",
     )
+    return parser
+
+
+def main():
+    parser = create_args()
+    args = parser.parse_args()
+
+    init_logger()
+    if args.rs485_config:
+        rs485_settings = parse_rs485_config(args.rs485_config)
+    else:
+        rs485_settings = None
 
     if args.mode == "server":
-        server_mode(ser)
+        server_mode(
+            args.node,
+            args.type,
+            args.group,
+            args.baudrate,
+            args.bytesize,
+            args.parity,
+            args.stopbits,
+            args.timeout,
+            args.datasize,
+            rs485_settings,
+        )
     elif args.mode == "client":
         client_mode(
             args.node,

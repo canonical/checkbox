@@ -106,7 +106,7 @@ requires:
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
-command: k8s_gpu_setup.py intel "${INTEL_GPU_PLUGIN_VERSION:-"v0.30.0"}"
+command: k8s_gpu_setup.py intel
 
 id: intel_gpu_plugin/labels
 category_id: dss-regress
@@ -208,7 +208,7 @@ requires:
 depends: dss/initialize
 _summary: Install NVIDIA GPU operator in the Kubernetes cluster
 estimated_duration: 15m
-command: k8s_gpu_setup.py nvidia "${NVIDIA_GPU_OPERATOR_VERSION:-"v24.6.2"}"
+command: k8s_gpu_setup.py nvidia
 
 id: nvidia_gpu_operator/validations_succeed
 category_id: dss-regress

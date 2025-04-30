@@ -22,11 +22,15 @@
 """Setup K8s to use GPU from NVIDIA or Intel"""
 
 import argparse
+import os
 import subprocess
 import typing as t
 
 from checkbox_support.helpers.retry import run_with_retry
 from checkbox_support.helpers.timeout import timeout
+
+DEFAULT_NVIDIA_OPERATOR_VERSION = "v24.6.2"
+DEFAULT_INTEL_PLUGIN_VERSION = "v0.30.0"
 
 
 def main(args: t.List[str] | None = None) -> None:
@@ -36,15 +40,28 @@ def main(args: t.List[str] | None = None) -> None:
     )
     parser.add_argument("vendor", choices=["nvidia", "intel"])
     parser.add_argument(
-        "version",
-        type=str,
-        help="Version of NVIDIA GPU Operator or Intel GPU Plugin, resp.",
+        "--version",
+        required=False,
+        default=None,
+        help=(
+            "Version of NVIDIA GPU Operator or Intel GPU Plugin, respectively;"
+            " overrides respective env variables"
+            " NVIDIA_GPU_OPERATOR_VERSION, or INTEL_GPU_PLUGIN_VERSION"
+        ),
     )
     given = parser.parse_args(args)
 
     if given.vendor == "nvidia":
+        if given.version is None:
+            given.version = os.getenv(
+                "NVIDIA_GPU_OPERATOR_VERSION", DEFAULT_NVIDIA_OPERATOR_VERSION
+            )
         install_nvidia_gpu_operator(given.version)
     else:
+        if given.version is None:
+            given.version = os.getenv(
+                "INTEL_GPU_PLUGIN_VERSION", DEFAULT_INTEL_PLUGIN_VERSION
+            )
         install_intel_gpu_plugin(given.version)
 
 

@@ -84,6 +84,7 @@ def detect_if_microk8s() -> bool:
 
 @timeout(120)  # 2 minutes
 def install_nvidia_gpu_operator(operator_version: str) -> None:
+    print(f"Installing NVIDIA GPU Operator {operator_version}")
     setup_commands = [
         "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia",
         "helm repo update",
@@ -102,6 +103,8 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
         is_microk8s = detect_if_microk8s()
     except TimeoutError:
         is_microk8s = False
+
+    print(f"Detected Microk8s? {is_microk8s}")
 
     helm_config = None
     if is_microk8s:
@@ -125,6 +128,7 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
 
 @timeout(900)  # 15 minutes
 def install_intel_gpu_plugin(plugin_version: str) -> None:
+    print(f"installing Intel GPU plugin {plugin_version}")
     repo = (
         "https://github.com/intel/"
         "intel-device-plugins-for-kubernetes/deployments"

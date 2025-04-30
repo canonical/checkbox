@@ -58,29 +58,21 @@ class TestMain(unittest.TestCase):
     def test_uses_default_version_for_nvidia_gpu_operator(self, mocked):
         k8s_gpu_setup.main(["nvidia"])
         mocked.assert_called_once_with(
-            k8s_gpu_setup.DEFAULT_NVIDIA_OPERATOR_VERSION, False
+            k8s_gpu_setup.DEFAULT_NVIDIA_OPERATOR_VERSION
         )
 
     @mock.patch("k8s_gpu_setup.install_nvidia_gpu_operator")
     def test_uses_given_version_for_nvidia_gpu_operator(self, mocked):
         version = "v25.3.9"
         k8s_gpu_setup.main(["nvidia", "--version", version])
-        mocked.assert_called_once_with(version, False)
+        mocked.assert_called_once_with(version)
 
     @mock.patch("k8s_gpu_setup.install_nvidia_gpu_operator")
     def test_uses_version_from_env_for_nvidia_gpu_operator(self, mocked):
         version = "Total Valid Version"
         os.environ["NVIDIA_GPU_OPERATOR_VERSION"] = version
         k8s_gpu_setup.main(["nvidia", "--version", version])
-        mocked.assert_called_once_with(version, False)
-
-    @mock.patch("k8s_gpu_setup.install_nvidia_gpu_operator")
-    def test_sets_is_microk8s_for_nvidia_gpu_operator(self, mocked):
-        k8s_gpu_setup.main(["nvidia", "--is-microk8s"])
-        mocked.assert_called_once_with(
-            k8s_gpu_setup.DEFAULT_NVIDIA_OPERATOR_VERSION, True
-        )
-
+        mocked.assert_called_once_with(version)
 
 @mock_retry()
 @mock_timeout()

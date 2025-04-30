@@ -56,11 +56,6 @@ def main(args: t.List[str] | None = None) -> None:
             " NVIDIA_GPU_OPERATOR_VERSION, or INTEL_GPU_PLUGIN_VERSION"
         ),
     )
-    parser.add_argument(
-        "--is-microk8s",
-        action="store_true",
-        help="Whether the K8s is microk8s",
-    )
 
     given = parser.parse_args(args)
 
@@ -69,7 +64,7 @@ def main(args: t.List[str] | None = None) -> None:
             given.version = os.getenv(
                 "NVIDIA_GPU_OPERATOR_VERSION", DEFAULT_NVIDIA_OPERATOR_VERSION
             )
-        install_nvidia_gpu_operator(given.version, given.is_microk8s)
+        install_nvidia_gpu_operator(given.version)
     else:
         if given.version is None:
             given.version = os.getenv(

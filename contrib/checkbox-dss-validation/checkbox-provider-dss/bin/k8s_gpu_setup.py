@@ -67,20 +67,20 @@ def main(args: t.List[str] | None = None) -> None:
 
 @timeout(120)  # 2 minutes
 def install_nvidia_gpu_operator(operator_version: str) -> None:
-    subprocess.check_call(
-        "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia".split()
-    )
-    subprocess.check_call("helm repo update".split())
+    ns = "gpu-operator-resources"
+    setup_commands = [
+        "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia",
+        "helm repo update",
+        (
+            "helm install --wait --generate-name --create-namespace"
+            f" -n {ns} nvidia/gpu-operator --version={operator_version}"
+        ),
+    ]
+    for command in setup_commands:
+        subprocess.check_call(command.split())
 
-    k8s_ns = "gpu-operator-resources"
-    cmd = "helm install --wait --generate-name --create-namespace"
-    cmd = f"{cmd} -n {k8s_ns} nvidia/gpu-operator --version={operator_version}"
-    subprocess.check_call(cmd.split())
-
-    rollout_status = (
-        f"kubectl -n {k8s_ns} rollout status ds/nvidia-operator-validator"
-    )
-    run_with_retry(subprocess.check_call, 10, 3, rollout_status.split())
+    rollout = f"kubectl -n {ns} rollout status ds/nvidia-operator-validator"
+    run_with_retry(subprocess.check_call, 10, 3, rollout.split())
 
 
 @timeout(900)  # 15 minutes

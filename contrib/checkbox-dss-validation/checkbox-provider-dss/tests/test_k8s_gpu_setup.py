@@ -23,6 +23,8 @@
 
 import json
 import os
+import subprocess
+import textwrap
 import unittest
 from unittest import mock
 
@@ -106,6 +108,46 @@ class TestInstallIntelGpuPlugin(unittest.TestCase):
             self.assertEqual(len(mock_call.mock_calls), len(calls))
         with self.subTest("order of calls"):
             mock_call.assert_has_calls(calls)
+
+
+@mock_timeout()
+@mock.patch("subprocess.check_output")
+class TestDetectIfMicrok8s(unittest.TestCase):
+    def test_microk8s_is_running(self, mocked_call):
+        mocked_call.return_value = textwrap.dedent(
+            """\
+            microk8s is running
+            high-availability: no
+              datastore master nodes: 127.0.0.1:19001
+              datastore standby nodes: none
+            addons:
+              enabled:
+                <snip>
+            """
+        )
+        result = k8s_gpu_setup.detect_if_microk8s()
+
+        with self.subTest("mock was called"):
+            mocked_call.assert_called_once_with(
+                ["microk8s", "status"], text=True
+            )
+
+        with self.subTest("result is True"):
+            self.assertTrue(result)
+
+    def test_microk8s_is_not_running(self, mocked_call):
+        mocked_call.return_value = (
+            "microk8s is not running, try microk8s start"
+        )
+        result = k8s_gpu_setup.detect_if_microk8s()
+
+        with self.subTest("result is False"):
+            self.assertFalse(result)
+
+    def test_called_process_error(self, mocked_call):
+        mocked_call.side_effect = subprocess.CalledProcessError(2, "command")
+        result = k8s_gpu_setup.detect_if_microk8s()
+        self.assertFalse(result)
 
 
 @mock_retry()

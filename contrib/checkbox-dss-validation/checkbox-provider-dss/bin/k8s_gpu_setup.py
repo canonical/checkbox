@@ -73,6 +73,15 @@ def main(args: t.List[str] | None = None) -> None:
         install_intel_gpu_plugin(given.version)
 
 
+@timeout(2)
+def detect_if_microk8s() -> bool:
+    try:
+        status = subprocess.check_output(["microk8s", "status"], text=True)
+        return status.startswith("microk8s is running")
+    except subprocess.CalledProcessError:
+        return False
+
+
 @timeout(120)  # 2 minutes
 def install_nvidia_gpu_operator(
     operator_version: str, is_microk8s: bool = False

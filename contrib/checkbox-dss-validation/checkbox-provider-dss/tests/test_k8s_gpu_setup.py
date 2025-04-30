@@ -121,10 +121,26 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
     version = k8s_gpu_setup.DEFAULT_NVIDIA_OPERATOR_VERSION
     namespace = "gpu-operator-resources"
 
+    def helm_repo_calls(self):
+        repo_url = "https://helm.ngc.nvidia.com/nvidia"
+        calls = [
+            mock.call(f"helm repo add nvidia {repo_url}".split()),
+            mock.call("helm repo update".split()),
+        ]
+        return calls
+
+    def rollout_call(self):
+        return mock.call(
+            (
+                f"kubectl -n {self.namespace} "
+                "rollout status ds/nvidia-operator-validator"
+            ).split()
+        )
+
     @mock.patch("subprocess.check_call")
     def test_helm_installs_and_checks_rollout(self, mock_call):
         mock_call.__name__ = "subprocess.check_call"
-        k8s_gpu_setup.install_nvidia_gpu_operator(self.version)
+        k8s_gpu_setup.install_nvidia_gpu_operator(self.version, False)
 
         helm_install = (
             "helm install --wait --generate-name --create-namespace "
@@ -132,15 +148,9 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
             f"--version={self.version}"
         )
         calls = [
-            mock.call(f"helm repo add nvidia {repo_url}".split()),
-            mock.call("helm repo update".split()),
-            mock.call(helm_install.split()),
-            mock.call(
-                (
-                    f"kubectl -n {self.namespace} "
-                    "rollout status ds/nvidia-operator-validator"
-                ).split()
-            ),
+            *self.helm_repo_calls(),
+            mock.call(helm_install.split(), input=None),
+            self.rollout_call(),
         ]
 
         with self.subTest("number of calls"):

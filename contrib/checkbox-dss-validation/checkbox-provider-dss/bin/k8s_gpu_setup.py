@@ -22,6 +22,7 @@
 """Setup K8s to use GPU from NVIDIA or Intel"""
 
 import argparse
+import json
 import os
 import subprocess
 import typing as t
@@ -31,6 +32,12 @@ from checkbox_support.helpers.timeout import timeout
 
 DEFAULT_NVIDIA_OPERATOR_VERSION = "v24.6.2"
 DEFAULT_INTEL_PLUGIN_VERSION = "v0.30.0"
+
+SNAP_MK8S = "/var/snap/microk8s"
+MK8S_CONTAINERD_INFO = {
+    "CONTAINERD_CONFIG": f"{SNAP_MK8S}/current/args/containerd-template.toml",
+    "CONTAINERD_SOCKET": f"{SNAP_MK8S}/common/run/containerd.sock",
+}
 
 
 def main(args: t.List[str] | None = None) -> None:
@@ -75,17 +82,35 @@ def main(args: t.List[str] | None = None) -> None:
 def install_nvidia_gpu_operator(
     operator_version: str, is_microk8s: bool = False
 ) -> None:
-    ns = "gpu-operator-resources"
     setup_commands = [
         "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia",
         "helm repo update",
-        (
-            "helm install --wait --generate-name --create-namespace"
-            f" -n {ns} nvidia/gpu-operator --version={operator_version}"
-        ),
     ]
+
     for command in setup_commands:
         subprocess.check_call(command.split())
+
+    ns = "gpu-operator-resources"
+    helm_install = (
+        "helm install --wait --generate-name --create-namespace"
+        f" -n {ns} nvidia/gpu-operator --version={operator_version}"
+    )
+
+    helm_config = None
+    if is_microk8s:
+        helm_install = f"{helm_install} -f -"
+        helm_config = json.dumps(
+            {
+                "toolkit": {
+                    "env": [
+                        {"name": name, "value": value}
+                        for name, value in MK8S_CONTAINERD_INFO.items()
+                    ]
+                }
+            }
+        ).encode()
+
+    subprocess.check_call(helm_install.split(), input=helm_config)
 
     rollout = f"kubectl -n {ns} rollout status ds/nvidia-operator-validator"
     run_with_retry(subprocess.check_call, 10, 3, rollout.split())

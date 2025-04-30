@@ -21,6 +21,7 @@
 #
 """Tests for `k8s_gpu_setup.py`"""
 
+import json
 import os
 import unittest
 from unittest import mock
@@ -150,6 +151,50 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         calls = [
             *self.helm_repo_calls(),
             mock.call(helm_install.split(), input=None),
+            self.rollout_call(),
+        ]
+
+        with self.subTest("number of calls"):
+            self.assertEqual(len(mock_call.mock_calls), len(calls))
+        with self.subTest("order of calls"):
+            mock_call.assert_has_calls(calls)
+
+    @mock.patch("subprocess.check_call")
+    def test_helm_installs_and_checks_rollout_microk8s(self, mock_call):
+        mock_call.__name__ = "subprocess.check_call"
+        k8s_gpu_setup.install_nvidia_gpu_operator(self.version, True)
+
+        helm_install = (
+            "helm install --wait --generate-name --create-namespace "
+            f"-n {self.namespace} nvidia/gpu-operator "
+            f"--version={self.version} -f -"
+        )
+
+        containerd_config_path = (
+            "/var/snap/microk8s/current/args/containerd-template.toml"
+        )
+        containerd_socket_path = (
+            "/var/snap/microk8s/common/run/containerd.sock"
+        )
+        helm_config = {
+            "toolkit": {
+                "env": [
+                    {
+                        "name": "CONTAINERD_CONFIG",
+                        "value": containerd_config_path,
+                    },
+                    {
+                        "name": "CONTAINERD_SOCKET",
+                        "value": containerd_socket_path,
+                    },
+                ]
+            }
+        }
+        calls = [
+            *self.helm_repo_calls(),
+            mock.call(
+                helm_install.split(), input=json.dumps(helm_config).encode()
+            ),
             self.rollout_call(),
         ]
 

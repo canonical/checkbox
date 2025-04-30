@@ -82,7 +82,7 @@ def detect_if_microk8s() -> bool:
         return False
 
 
-@timeout(120)  # 2 minutes
+@timeout(900)  # 15 minutes
 def install_nvidia_gpu_operator(operator_version: str) -> None:
     print(f"Installing NVIDIA GPU Operator {operator_version}", flush=True)
     setup_commands = [
@@ -122,7 +122,7 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
     run_with_retry(subprocess.run, 10, 3, rollout.split(), check=True)
 
 
-@timeout(900)  # 15 minutes
+@timeout(120)  # 2 minutes
 def install_intel_gpu_plugin(plugin_version: str) -> None:
     print(f"Installing Intel GPU plugin {plugin_version}", flush=True)
     repo = (

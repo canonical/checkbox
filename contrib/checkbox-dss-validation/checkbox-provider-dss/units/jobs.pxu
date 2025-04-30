@@ -222,9 +222,10 @@ requires:
   executable.name == 'kubectl'
 depends: nvidia_gpu_operator/install
 _summary: NVIDIA GPU validations should succeed
-estimated_duration: 10s
+estimated_duration: 5m
 command:
   set -eou pipefail
+  sleep 10
   APP="nvidia-operator-validator"
   logs="$(kubectl -n gpu-operator-resources logs -lapp="$APP" -c "$APP")"
   echo "$logs" | grep "all validations are successful"

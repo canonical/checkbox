@@ -49,6 +49,12 @@ def main(args: t.List[str] | None = None) -> None:
             " NVIDIA_GPU_OPERATOR_VERSION, or INTEL_GPU_PLUGIN_VERSION"
         ),
     )
+    parser.add_argument(
+        "--is-microk8s",
+        action="store_true",
+        help="Whether the K8s is microk8s",
+    )
+
     given = parser.parse_args(args)
 
     if given.vendor == "nvidia":
@@ -56,7 +62,7 @@ def main(args: t.List[str] | None = None) -> None:
             given.version = os.getenv(
                 "NVIDIA_GPU_OPERATOR_VERSION", DEFAULT_NVIDIA_OPERATOR_VERSION
             )
-        install_nvidia_gpu_operator(given.version)
+        install_nvidia_gpu_operator(given.version, given.is_microk8s)
     else:
         if given.version is None:
             given.version = os.getenv(
@@ -66,7 +72,9 @@ def main(args: t.List[str] | None = None) -> None:
 
 
 @timeout(120)  # 2 minutes
-def install_nvidia_gpu_operator(operator_version: str) -> None:
+def install_nvidia_gpu_operator(
+    operator_version: str, is_microk8s: bool = False
+) -> None:
     ns = "gpu-operator-resources"
     setup_commands = [
         "helm repo add nvidia https://helm.ngc.nvidia.com/nvidia",

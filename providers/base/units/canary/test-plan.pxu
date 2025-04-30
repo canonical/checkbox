@@ -75,6 +75,7 @@ include:
  com.canonical.certification::memory/info
  com.canonical.certification::ipv6_detect
  com.canonical.certification::ipv6_link_local_address_.*
+ com.canonical.certification::ipv6_link_local_address_any_if
  com.canonical.certification::networking/predictable_names
  com.canonical.certification::power-management/warm-reboot
  com.canonical.certification::power-management/post-warm-reboot

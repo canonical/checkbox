@@ -25,6 +25,7 @@ import argparse
 import json
 import os
 import subprocess
+import time
 import typing as t
 
 from checkbox_support.helpers.retry import run_with_retry
@@ -118,8 +119,21 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
 
     subprocess.run(helm_install.split(), input=helm_config, check=True)
 
-    rollout = f"kubectl -n {ns} rollout status ds/nvidia-operator-validator"
-    run_with_retry(subprocess.run, 10, 3, rollout.split(), check=True)
+    # NOTE:@motjuste: Even with retry, we need to time.sleep
+    #   run_with_retry keeps trying until it succeeds, or timeouts.
+    #   Unfortunately, it was observed that the following daemonsets
+    #   rollout successfully once, but then a few seconds later, their
+    #   rollout is updated, and it is these updated rollouts that we
+    #   want to await.  We wait here before awaiting those updated
+    #   rollouts using run_with_retry.
+    time.sleep(15)
+    rollouts_to_await = [
+        "ds/nvidia-device-plugin-daemonset",
+        "ds/nvidia-operator-validator",
+    ]
+    for rollout in rollouts_to_await:
+        command = f"kubectl -n {ns} rollout status {rollout}"
+        run_with_retry(subprocess.run, 10, 3, command.split(), check=True)
 
 
 @timeout(120)  # 2 minutes

@@ -153,6 +153,7 @@ class TestDetectIfMicrok8s(unittest.TestCase):
 
 @mock_retry()
 @mock_timeout()
+@mock.patch("time.sleep", new=lambda x: None)
 class TestInstallNvidialGpuOperator(unittest.TestCase):
     version = k8s_gpu_setup.DEFAULT_NVIDIA_OPERATOR_VERSION
     namespace = "gpu-operator-resources"
@@ -166,13 +167,22 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         return calls
 
     def rollout_call(self):
-        return mock.call(
-            (
-                f"kubectl -n {self.namespace} "
-                "rollout status ds/nvidia-operator-validator"
-            ).split(),
-            check=True,
-        )
+        return [
+            mock.call(
+                (
+                    f"kubectl -n {self.namespace} "
+                    "rollout status ds/nvidia-device-plugin-daemonset"
+                ).split(),
+                check=True,
+            ),
+            mock.call(
+                (
+                    f"kubectl -n {self.namespace} "
+                    "rollout status ds/nvidia-operator-validator"
+                ).split(),
+                check=True,
+            ),
+        ]
 
     @mock.patch("subprocess.run")
     @mock.patch("k8s_gpu_setup.detect_if_microk8s", lambda: False)
@@ -188,7 +198,7 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         calls = [
             *self.helm_repo_calls(),
             mock.call(helm_install.split(), input=None, check=True),
-            self.rollout_call(),
+            *self.rollout_call(),
         ]
 
         with self.subTest("number of calls"):
@@ -245,7 +255,7 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
                 input=json.dumps(helm_config).encode(),
                 check=True,
             ),
-            self.rollout_call(),
+            *self.rollout_call(),
         ]
 
         with self.subTest("number of calls"):

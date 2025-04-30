@@ -202,17 +202,17 @@ class UdevadmDevice(object):
             and self._environment.get("DEVTYPE") == "partition"
             and self._stack
         ):
-            if CARD_READER_RE.search(self._environment.get("ID_MODEL", "")):
-                return "mediacard"
-            elif any(d.bus == "mmc" for d in self._stack):
-                return "mediacard"
-            elif any(d.bus == "usb" for d in self._stack):
+            if any(d.bus == "usb" for d in self._stack):
                 for d in self._stack:
                     # Report the current usb hub version
                     if d._environment.get("ID_MODEL_ID") == "0003":
                         return "usb3"
                 else:
                     return "usb"
+            elif CARD_READER_RE.search(self._environment.get("ID_MODEL", "")):
+                return "mediacard"
+            elif any(d.bus == "mmc" for d in self._stack):
+                return "mediacard"
             else:
                 if len(self._stack) >= 2:
                     return self._stack[-2]._environment.get("SUBSYSTEM")
@@ -447,6 +447,7 @@ class UdevadmDevice(object):
             # As it's not possible to distinguish them from simple MMC
             # removable storage, only those with a partition mounted as /
             # will be considered.
+
             if self.driver.startswith("mmc"):
                 if self._mmc_type == "MMC" and find_pkname_is_root_mountpoint(
                     self.name, self._lsblk

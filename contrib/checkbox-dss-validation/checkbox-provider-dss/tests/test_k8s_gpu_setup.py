@@ -145,8 +145,15 @@ class TestDetectIfMicrok8s(unittest.TestCase):
         with self.subTest("result is False"):
             self.assertFalse(result)
 
-    def test_called_process_error(self, mocked_call):
-        mocked_call.side_effect = subprocess.CalledProcessError(2, "command")
+    def test_called_process_error_is_raised(self, mocked_call):
+        exception = subprocess.CalledProcessError(2, "command")
+        mocked_call.side_effect = exception
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
+            k8s_gpu_setup.detect_if_microk8s()
+        self.assertEqual(caught.exception, exception)
+
+    def test_file_not_found_error_on_missing_microk8s(self, mocked_call):
+        mocked_call.side_effect = FileNotFoundError()
         result = k8s_gpu_setup.detect_if_microk8s()
         self.assertFalse(result)
 

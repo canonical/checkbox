@@ -79,7 +79,7 @@ def detect_if_microk8s() -> bool:
     try:
         status = subprocess.check_output(["microk8s", "status"], text=True)
         return status.startswith("microk8s is running")
-    except subprocess.CalledProcessError:
+    except FileNotFoundError:
         return False
 
 

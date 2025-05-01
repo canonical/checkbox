@@ -43,7 +43,7 @@ responsible for validating edge snap of Checkbox.
               export PATH=$PATH:hwcert-jenkins-tools/scriptlets
 
               # install checkbox
-              _run_retry sudo snap install checkbox22 --no-wait --channel=latest/edge 
+              _run_retry sudo snap install checkbox22 --no-wait --channel=latest/edge
               wait_for_snap_complete
               # Let's list all the installed snaps for future debugging ease
               _run snap list

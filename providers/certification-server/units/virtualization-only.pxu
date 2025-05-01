@@ -3,8 +3,8 @@ _name: Virtualization Only Test Plan (Only runs Virtualization tests)
 unit: test plan
 _description:
     This test plan is intended to be used for retesting of virtualization
-    capabilities only.  It does not provide any testing of other hardware 
-    and should only be run at the direction of the Cert Team when re-testing 
+    capabilities only.  It does not provide any testing of other hardware
+    and should only be run at the direction of the Cert Team when re-testing
     of virtualization capabilites is requried.
 nested_part:
     com.canonical.certification::server-info-attachment-automated

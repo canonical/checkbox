@@ -67,7 +67,7 @@ checkbox-support (0.20-1) unstable; urgency=medium
   * debian/patches/ship-{cpuinfo-test,package,xml-test}-data: drop, applied
     upstream
   * debian/control: Use the new email address for the team
-    (checkbox-devel@lists.ubuntu.com). 
+    (checkbox-devel@lists.ubuntu.com).
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 21 Jul 2015 14:40:23 +0200
 
@@ -76,19 +76,19 @@ checkbox-support (0.18-1) unstable; urgency=medium
   * debian/watch: use the new pypi redirector
   * debian/copyright: correct license of xrandr.py (it's actually "or later"
     so it is compatible with the rest of the GPL3 code).
-  * debian/copyright: remove duplicate entry for mock.py 
-  * debian/control: correct capitalization of 'Python' 
-  * debian/control: bump Standards-Version to 3.9.6 (no change required) 
+  * debian/copyright: remove duplicate entry for mock.py
+  * debian/control: correct capitalization of 'Python'
+  * debian/control: bump Standards-Version to 3.9.6 (no change required)
   * debian/patches/ship-package-data: ship package data files so that DEP-8
     tests can be written
-  * debian/control, debian/tests: add DEP-8 tests 
-  * New upstream release 
+  * debian/control, debian/tests: add DEP-8 tests
+  * New upstream release
   * debian/control: build-depend on python-libxml (new dependency)
   * debian/patches/unvendorize: refresh
   * debian/patches/ship-package-data, debian/patches/ship-xml-test-data,
     debian/patches/ship-cpuinfo-test-data: bundle test data that was missing
     from the last release (MANIFEST.in out of date) so that tests can pass
-  * debian/copyright: refresh dates 
+  * debian/copyright: refresh dates
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 13:30:17 +0100
 
@@ -107,7 +107,7 @@ checkbox-support (0.2-1) unstable; urgency=low
   [ Zygmunt Krynicki ]
   * Use armoured gpg keys to avoid having to keep binary files in Debian
     packaging. Also, replace that with my key since I made the 0.2 release
-    upstream. 
+    upstream.
   * Patch away checkbox_support.vendor.mock. Also add a copyright entry for
     that module. Both changes are similar to what we do in python3-plainbox.
 

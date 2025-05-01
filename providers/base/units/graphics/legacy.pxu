@@ -71,7 +71,7 @@ requires:
 command: resolution_test.py --horizontal 800 --vertical 600
 estimated_duration: 0.331
 _summary: Test that system meets minimum resolution requirement
-_purpose: 
+_purpose:
  Ensure the current resolution meets or exceeds the recommended minimum
  resolution (800x600). See here for details:
  .

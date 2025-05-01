@@ -4,7 +4,7 @@ ctrl_interface_group=0
 
 ssid=UbuntuCoreTest
 
-# a = IEEE 802.11a, b = IEEE 802.11b, g = IEEE 802.11g, ad = IEEE 802.11ad 
+# a = IEEE 802.11a, b = IEEE 802.11b, g = IEEE 802.11g, ad = IEEE 802.11ad
 hw_mode=$PROTOCOL
 channel=1
 

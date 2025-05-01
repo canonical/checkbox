@@ -42,7 +42,7 @@ def _parse_docstring(doc):
             break
         info_lines.append(line)
     info = '\n'.join(info_lines)
-    # the rest of lines should now contain information about params or the 
+    # the rest of lines should now contain information about params or the
     # return value
     param_re = re.compile(
         r":param(\s[A-Za-z_][A-Za-z0-9_]*)?\s([A-Za-z_][A-Za-z0-9_]*):(.*)")

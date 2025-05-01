@@ -148,7 +148,7 @@ _steps:
             $ pacmd set-default-sink 0  # jack
             $ pacmd set-sink-port 0 "[Out] Headphones" # Headset
             $ pacmd set-default-source 3 # PMIC
-            $ pacmd set-source-port 3 "[In] Mic2" # Headset Mic 
+            $ pacmd set-source-port 3 "[In] Mic2" # Headset Mic
     3. Record for 10 seconds to a wav file
         $ arecord -D pulse -r 48000 -f S16_LE -d 10 headset_record.wav
     4. Play the record

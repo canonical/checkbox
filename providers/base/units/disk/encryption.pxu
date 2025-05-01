@@ -29,7 +29,7 @@ _purpose:
  device boots, it checks PCR7 to unseal TPM and retrieves master key from TPM
  to decrypt its data partition. If TPM PCR7 is modified (e.g. by flashing the
  BIOS), the device won't be able to get the master key and decrypt its data
- partition. This test verifies the system's resilience against unauthorized 
+ partition. This test verifies the system's resilience against unauthorized
  modifications by ensuring it cannot boot if the PCR7 value is altered.
 _steps:
  NOTE: YOU'LL HAVE TO RE-INSTALL THE IMAGE AFTER THIS TEST.

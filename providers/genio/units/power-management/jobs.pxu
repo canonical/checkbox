@@ -3,7 +3,7 @@ unit: job
 category_id: genio-power-management
 plugin: manual
 estimated_duration: 60
-_summary: Check the device can be shutdown by pressing the power button 
+_summary: Check the device can be shutdown by pressing the power button
 _purpose:
     Check the device can be shut down by pressing the power button
 _steps:

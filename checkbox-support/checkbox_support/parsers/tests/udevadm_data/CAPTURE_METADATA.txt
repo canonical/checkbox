@@ -2900,7 +2900,7 @@ E: ID_WWN_WITH_EXTENSION=0x50014ee65d3459d5
 E: MAJOR=8
 E: MINOR=1
 E: PARTN=1
-E: PARTNAME= 
+E: PARTNAME=
 E: SUBSYSTEM=block
 E: TAGS=:systemd:
 E: USEC_INITIALIZED=1847417
@@ -7421,4 +7421,3 @@ E: SUBSYSTEM=workqueue
 P: /devices/virtual/workqueue/writeback
 E: DEVPATH=/devices/virtual/workqueue/writeback
 E: SUBSYSTEM=workqueue
-

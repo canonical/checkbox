@@ -138,7 +138,7 @@ back_to_original_mode_from_performance() {
         for i in 0 6
         do
             cat "$STORE_HOUSE"/p"$i"_sg > /sys/devices/system/cpu/cpufreq/policy$i/scaling_governor
-        done  
+        done
         # enable cpuidle
         toggle_cpuidle_state_disable 2 7 set_0
         for i in {0..2}

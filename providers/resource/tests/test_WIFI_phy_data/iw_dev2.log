@@ -33,4 +33,3 @@ phy#1
                 multicast TXQ:
                         qsz-byt qsz-pkt flows   drops   marks   overlmt hashcol tx-bytes        tx-packets
                         0       0       0       0       0       0       0       0               0
-

@@ -1,9 +1,9 @@
 plugin: shell
 category_id: com.canonical.certification::nvdimm
 id: nvdimm/info
-estimated_duration: 1.0  
+estimated_duration: 1.0
 user: root
-requires: 
+requires:
  executable.name == "ipmctl"
  lsb.release >= "18.04"
  nvdimm_resource.detected == "true"
@@ -18,7 +18,7 @@ category_id: com.canonical.certification::nvdimm
 id: nvdimm/health
 estimated_duration: 1.0
 user: root
-requires: 
+requires:
  executable.name == "ipmctl"
  lsb.release >= "18.04"
  nvdimm_resource.detected == "true"

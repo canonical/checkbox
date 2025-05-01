@@ -15,7 +15,7 @@ _name: Device Tree manual tests
 _description: Manual Device Tree tests for devices
 bootstrap_include:
 include:
-    
+
 id: ce-oem-dtb-automated
 unit: test plan
 _name: Device Tree auto tests
@@ -29,7 +29,7 @@ _name: After suspend Device Tree manual tests
 _description: Manual after suspend Device Tree tests for devices
 bootstrap_include:
 include:
-    
+
 id: after-suspend-ce-oem-dtb-automated
 unit: test plan
 _name: After suspend Device Tree auto tests

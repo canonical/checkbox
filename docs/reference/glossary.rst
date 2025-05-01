@@ -26,7 +26,7 @@ Glossary
 
         Checkbox is a hardware testing tool developed by Canonical for
         certifying hardware with Ubuntu. Checkbox is free software and is
-        available at http://launchpad.net/checkbox. 
+        available at http://launchpad.net/checkbox.
 
     Checkbox-ng
 

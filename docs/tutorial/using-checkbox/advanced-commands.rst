@@ -90,7 +90,7 @@ Or let's list all the available jobs (test cases):
 .. code-block:: none
 
     checkbox.checkbox-cli list all-jobs
-    
+
     id: com.canonical.certification::6lowpan/kconfig
     kernel config options for 6LoWPAN
     id: com.canonical.certification::IEEE_80211
@@ -107,7 +107,7 @@ fields available from the jobs. To see what fields are available, run:
 .. code-block:: none
 
     checkbox.checkbox-cli list all-jobs --format ?
-    
+
     Available fields are:
     _description, _purpose, _siblings, _steps, _summary, _verification, after,
     category_id, command, depends, environ, estimated_duration, flags, full_id,

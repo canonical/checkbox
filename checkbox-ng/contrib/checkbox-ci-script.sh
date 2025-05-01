@@ -59,7 +59,7 @@ if which canonical-hw-collection ; then
     canonical-hw-collection --staging "$(checkbox check-config|grep secure_id|cut -d= -f2 )"
 
 else
-    
+
     echo "canonical-hw-collection may not install correctly"
 
 fi
@@ -79,4 +79,3 @@ case "$1" in
       echo "Usage: $0 {notification|mailer}"
    ;;
 esac
-

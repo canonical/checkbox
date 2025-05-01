@@ -21,7 +21,7 @@ bootstrap_include:
     ce-oem-ptp/ptp-devices
 include:
     ce-oem-ptp/ptp4l-time-sync-for-.*-manual
-    
+
 id: ce-oem-ptp-automated
 unit: test plan
 _name: PTP auto tests
@@ -44,7 +44,7 @@ bootstrap_include:
     ce-oem-ptp/ptp-devices
 include:
     after-suspend-ce-oem-ptp/ptp4l-time-sync-for-.*-manual
-    
+
 id: after-suspend-ce-oem-ptp-automated
 unit: test plan
 _name: After suspend PTP auto tests
@@ -54,4 +54,3 @@ bootstrap_include:
 include:
     after-suspend-ce-oem-ptp/verify-PTP-support-for-.*
     after-suspend-ce-oem-ptp/ptp4l-time-sync-for-.*-auto
-

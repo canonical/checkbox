@@ -190,7 +190,7 @@ include:
   dock/thunderbolt3-daisy-chain
   dock/network-before-suspend           certification-status=blocker
   dock/audio-before-suspend             certification-status=blocker
-  
+
 id: dock-hot-plug
 unit: test plan
 _name: Dock Hot Plug tests
@@ -209,7 +209,7 @@ include:
   dock/hotplug-playback-hdmi
   dock/hotplug-playback-type-c-displayport
   dock/hotplug-playback-thumderbolt3
-  
+
 id: after-suspend-dock-cert
 unit: test plan
 _name: After suspend Dock Cert tests
@@ -282,7 +282,7 @@ _name: Suspend dock resume tests
 _description:
  Tests for suspend dock then resume it.
 include:
-  dock/suspend-dock-resume 
+  dock/suspend-dock-resume
   dock/ethernet-after-suspend-dock-resume
   dock/usb-insert-after-suspend-dock-resume
   dock/usb-storage-automated-after-suspend-dock-resume

@@ -76,7 +76,7 @@ command:
     hdmirx_tool_runner.sh "$temp_log" check_cable
     echo
     hdmirx_output_checker.sh "$temp_log" verify_check_cable_output "hdmi connected"
-_summary: Check the HDMI connection by using hdmi_rx tool 
+_summary: Check the HDMI connection by using hdmi_rx tool
 _description:
     This test checks the hdmi_rx tool should shows the "hdmi connected" information after
     the HDMI RX port be connected with a Host or Player such as Laptop through HDMI cable.
@@ -251,4 +251,3 @@ _steps:
     1. Plug the HDMI cable to HDMI RX port if it's not connected yet
     2. Press "Enter" to perform event detection
     3. You will have 15 seconds to remove the HDMI cable from HDMI RX port
-

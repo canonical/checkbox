@@ -10,10 +10,10 @@ They can be installed as Debian packages or loaded from source to build a snap.
 To load the tests and run them we need a test plan. Test plans for checkbox are
 a collection of job (test) ids meant to be run one by one.
 
-Most of the time when we create a new test plan, there's a need to include a 
-generic section, common to several other test plans. But the test plan unit was 
-not allowing such feature and we ended up having a lot of duplication across 
-our projects. And duplication means duplicated efforts to maintain all those 
+Most of the time when we create a new test plan, there's a need to include a
+generic section, common to several other test plans. But the test plan unit was
+not allowing such feature and we ended up having a lot of duplication across
+our projects. And duplication means duplicated efforts to maintain all those
 test plan sections in sync and up-to-date.
 
 What if it could be possible now to have nested test plans. One being built by
@@ -32,24 +32,24 @@ want to include, as follow:
     nested_part:
         com.canonical.certification::my_base_test_plan
 
-The test plan order will then be test plan ``include`` + all nested test plan 
+The test plan order will then be test plan ``include`` + all nested test plan
 ``include``, in that order.
 
-Loading nested parts will load the ``include``, ``mandatory_include`` and 
-``bootstrap_include`` sections and all the overrides (``category``, 
+Loading nested parts will load the ``include``, ``mandatory_include`` and
+``bootstrap_include`` sections and all the overrides (``category``,
 ``certification status``).
 
 Note: All mandatory includes will always be run first.
 
-Note: Job and test plan ids can be listed in their abbreviated form (without 
-the namespace prefix) if the job definitions reside in the same namespace as 
+Note: Job and test plan ids can be listed in their abbreviated form (without
+the namespace prefix) if the job definitions reside in the same namespace as
 the provider that is defining the test plan.
 
 Use cases
 =========
 
-All the following examples are available here: 
-https://github.com/yphus/nested_testplan_demo To test them locally you just 
+All the following examples are available here:
+https://github.com/yphus/nested_testplan_demo To test them locally you just
 need to develop the 3 providers and run one of the demo launchers:
 
 ::
@@ -66,7 +66,7 @@ Let's use two providers, both belonging to the same namespace, ``com.ubuntu``:
 
 ``com.ubuntu:foo`` and ``com.ubuntu:baz``
 
-Baz provider contains the following units, 4 jobs and a test plan (our base 
+Baz provider contains the following units, 4 jobs and a test plan (our base
 test plan):
 
 ::
@@ -74,20 +74,20 @@ test plan):
     id: hello
     command: echo hello
     flags: simple
-    
+
     id: bye
     command: echo bye
     flags: simple
-    
+
     id: mandatory
     command: true
     flags: simple
-    
+
     id: bootstrap
     command: echo os: ubuntu
     plugin: resource
     flags: simple
-    
+
     unit: test plan
     id: baz_tp
     _name: Generic baz test plan
@@ -108,12 +108,12 @@ Foo provider contains two new tests:
     id: always-pass
     command: true
     flags: simple
-    
+
     id: always-fail
     command: true
     flags: simple
 
-We want to reuse the ``baz_tp`` in a new test plan (in the Foo provider) with 
+We want to reuse the ``baz_tp`` in a new test plan (in the Foo provider) with
 the two new tests. Such test plan will look like this:
 
 
@@ -141,9 +141,9 @@ The jobs execution order is:
 How to use a base test plan, but without running them last?
 -----------------------------------------------------------
 
-Let's keep the previous providers, Foo and Baz. This time we want to run the 
-base test plan between ``always-pass`` and ``always-fail``. In order to change 
-the job execution order, the new test plan will be made of several nested 
+Let's keep the previous providers, Foo and Baz. This time we want to run the
+base test plan between ``always-pass`` and ``always-fail``. In order to change
+the job execution order, the new test plan will be made of several nested
 parts, since they will follow the list order. Let's create in the Foo provider
 2 new test plans that we'll use as nested parts to fine tune the job ordering:
 
@@ -156,7 +156,7 @@ parts, since they will follow the list order. Let's create in the Foo provider
     estimated_duration: 1m
     include:
         always-pass       certification-status=blocker
-    
+
     unit: test plan
     id: foo_tp_part2
     _name: Foo test plan part 2
@@ -180,8 +180,8 @@ The final test plan will only contain nested parts:
         baz_tp
         foo_tp_part2
 
-Note: Always keep the ``include`` section (even empty) as this field is 
-mandatory and validation would fail otherwise (and the test plan would never be loaded 
+Note: Always keep the ``include`` section (even empty) as this field is
+mandatory and validation would fail otherwise (and the test plan would never be loaded
 by checkbox)
 
 The jobs execution order is:
@@ -218,7 +218,7 @@ Let's update the previous use case:
     category_overrides:
         apply com.canonical.plainbox::audio to hello
 
-To check that overrides worked as expected, you can open the json exporter 
+To check that overrides worked as expected, you can open the json exporter
 report:
 
 ::
@@ -244,11 +244,11 @@ example:
     id: sleep
     command: sleep 1
     flags: simple
-    
+
     id: uname
     command: uname -a
     flags: simple
-    
+
     unit: test plan
     id: bar_tp
     _name: bar test plan
@@ -258,7 +258,7 @@ example:
         sleep
         uname
 
-Now in provider Foo, a test plan including a part from provider Bar will look 
+Now in provider Foo, a test plan including a part from provider Bar will look
 like this:
 
 ::
@@ -290,7 +290,7 @@ The jobs execution order is:
 Is it possible to have multiple levels of nesting?
 --------------------------------------------------
 
-Yes, it's possible to have multiple levels of nesting, a nested part being 
+Yes, it's possible to have multiple levels of nesting, a nested part being
 built from another nested part, each level bringing its own set of new tests.
 
 Let's add a new test plan to provider Baz:
@@ -311,8 +311,8 @@ Let's add a new test plan to provider Baz:
     nested_part:
         com.ubuntu::bar_tp
 
-As you can see this test plan includes a part from provider Bar (the same used 
-in the previous example). In provider Foo, we can create a new test plan 
+As you can see this test plan includes a part from provider Bar (the same used
+in the previous example). In provider Foo, we can create a new test plan
 including `baz_tp_2`:
 
 ::
@@ -342,12 +342,12 @@ How to use a base test plan except a few jobs?
 ----------------------------------------------
 
 The test plan units support an optional field - ``exclude`` - that we can use
-to remove jobs from a nested part ``include`` section. 
+to remove jobs from a nested part ``include`` section.
 
-Note: The ``exclude`` ids cannot remove jobs that are parts of the 
+Note: The ``exclude`` ids cannot remove jobs that are parts of the
 ``mandatory_include`` sections (nested or not).
 
-The test plan below (from provider Foo) won't run the ``hello`` job of provider 
+The test plan below (from provider Foo) won't run the ``hello`` job of provider
 Baz:
 
 ::
@@ -375,6 +375,6 @@ The jobs execution order is:
 Known limitations
 =================
 
-You can create infinite loops if a nested part is calling itself or if 
-somewhere in the nested chain such a loop exists. Checkbox won't like that and 
+You can create infinite loops if a nested part is calling itself or if
+somewhere in the nested chain such a loop exists. Checkbox won't like that and
 so far there's no validation to prevent it, be warned!

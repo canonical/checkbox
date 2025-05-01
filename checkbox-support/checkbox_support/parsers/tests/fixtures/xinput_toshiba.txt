@@ -163,4 +163,3 @@
 	Reporting 1 classes:
 		Class originated from: 13. Type: XIKeyClass
 		Keycodes supported: 248
-

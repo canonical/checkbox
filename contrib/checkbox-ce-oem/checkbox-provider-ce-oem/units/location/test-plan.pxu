@@ -15,7 +15,7 @@ _name: GPS manual tests
 _description: Manual GPS tests for devices
 bootstrap_include:
 include:
-    ce-oem-location/gps_coordinate 
+    ce-oem-location/gps_coordinate
 
 id: ce-oem-gps-automated
 unit: test plan
@@ -29,7 +29,7 @@ _name: After suspend GPS manual tests
 _description: Manual after-suspend GPS tests for devices
 bootstrap_include:
 include:
-    after-suspend-ce-oem-location/gps_coordinate 
+    after-suspend-ce-oem-location/gps_coordinate
 
 id: after-suspend-ce-oem-gps-automated
 unit: test plan

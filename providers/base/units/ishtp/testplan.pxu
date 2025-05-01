@@ -1,7 +1,7 @@
 id: ishtp-full
 _name: Intel Integrated Sensor Hub Transport Protocol (ISHTP) tests (Full)
 unit: test plan
-include: 
+include:
 nested_part:
     ishtp-manual
     ishtp-automated
@@ -9,7 +9,7 @@ nested_part:
 id: ishtp-manual
 _name: Intel Integrated Sensor Hub Transport Protocol (ISHTP) tests (Manual)
 unit: test plan
-include: 
+include:
 nested_part:
 
 id: ishtp-automated

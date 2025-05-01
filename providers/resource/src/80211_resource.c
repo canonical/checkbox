@@ -185,7 +185,7 @@ static int print_phy_handler(struct nl_msg *msg, void *arg)
                     }
 					freq = nla_get_u32(tb_freq[NL80211_FREQUENCY_ATTR_FREQ]);
                     /* http://en.wikipedia.org/wiki/List_of_WLAN_channels */
-                    if (freq >= 4915 && freq <= 5825) 
+                    if (freq >= 4915 && freq <= 5825)
 						cap->band_5GHz_support = true;
 				}
 			}

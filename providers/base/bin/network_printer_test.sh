@@ -54,4 +54,3 @@ cupsenable "${printer}"
 cupsaccept "${printer}"
 
 lsb_release -a | lp -t "lsb_release" -d "${printer}"
-

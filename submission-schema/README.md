@@ -6,7 +6,7 @@ In this folder you can find the schema for the submission.json that's sent to ce
 
 `schema.json` contains the schema that was generated using ~2000 latest (at the time of writing) submissions uploaded to C3.
 
-This json file is referenced by the `docs/reference/submission-schema.rst` file, which is used to generate the 
+This json file is referenced by the `docs/reference/submission-schema.rst` file, which is used to generate the
 [submission schema reference documentation](https://checkbox.readthedocs.io/en/latest/reference/submission-schema.html).
 Changes in the schema are reflected after successful documentation build.
 

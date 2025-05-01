@@ -46,7 +46,7 @@ Is parsed as an ENTRY (in python syntax)::
 
     ("key", "\nmore value")
 
-Quirk 2 -- the # comments 
+Quirk 2 -- the # comments
 -------------------------
 
 Since it's a line-oriented format and people are used to being able to insert

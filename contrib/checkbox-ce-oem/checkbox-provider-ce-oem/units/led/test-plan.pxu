@@ -15,7 +15,7 @@ _name: LED manual tests
 _description: Manual LED tests for devices
 bootstrap_include:
 include:
-    
+
 id: ce-oem-led-automated
 unit: test plan
 _name: LED auto tests
@@ -28,7 +28,7 @@ _name: LED manual tests
 _description: Manual LED tests for devices
 bootstrap_include:
 include:
-    
+
 id: after-suspend-ce-oem-led-automated
 unit: test plan
 _name: LED auto tests

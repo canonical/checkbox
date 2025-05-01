@@ -10839,4 +10839,3 @@ P: /devices/virtual/workqueue/writeback
 L: 0
 E: DEVPATH=/devices/virtual/workqueue/writeback
 E: SUBSYSTEM=workqueue
-

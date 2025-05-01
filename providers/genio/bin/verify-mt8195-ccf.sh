@@ -56,7 +56,7 @@ done
 # Extract clocks names from clock table header
 grep -oP '(?<=#define CLK_).*' "${CLK_TABLE}" | awk '{print tolower($1)}' > clk-table-parsed.txt
 
-# Remove some prefixes and suffixes to match clock summary 
+# Remove some prefixes and suffixes to match clock summary
 sed -i '/_nr_clk/d' clk-table-parsed.txt # number of clocks
 sed -i 's/_self$/f/g' clk-table-parsed.txt
 sed -i 's/^apmixed_//g' clk-table-parsed.txt

@@ -76,7 +76,7 @@ if [ -z "$type" ]; then
     echo -e "Error: LED type is needed!"
     help_function
     exit 1
-elif [ "$type" == "gpio" ]; then   
+elif [ "$type" == "gpio" ]; then
     if [ -z "$name" ] && [ -z "$port" ]; then
         echo -e "Error: LED name and GPIO port number is needed for GPIO LED test.\n"
         help_function

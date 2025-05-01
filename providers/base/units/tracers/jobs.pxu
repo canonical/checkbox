@@ -16,7 +16,7 @@ _purpose:
 
 id: tracers/ftrace
 plugin: shell
-command: 
+command:
   if grep -q -e "^CONFIG_FTRACE=y" /boot/config-"$(uname -r)"
   then
       echo "ftrace: supported"
@@ -34,7 +34,7 @@ requires:
 
 id: tracers/tracefs
 plugin: shell
-command: 
+command:
   if mount | grep -q tracefs
   then
       echo "tracefs: supported"

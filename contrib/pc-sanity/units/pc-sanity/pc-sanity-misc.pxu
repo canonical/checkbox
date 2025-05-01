@@ -222,4 +222,3 @@ command:
  ! grep "# FAILED:" /var/log/installer/sideload-hook.sh.*.log
 _description:
   Check the result of sideload/hook.sh, used for OEM PC enablements since 24.04
-

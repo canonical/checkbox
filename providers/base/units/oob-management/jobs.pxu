@@ -13,7 +13,7 @@ command:
 _verification:
   Check the command ran correctly.
   Check the correct ME FW version is shown.
-  Correct Provisioning state is shown (should be pre-provisioning for 
+  Correct Provisioning state is shown (should be pre-provisioning for
   unprovisioned SUT).
 
 id: oob-management/amt/smbios_cmd
@@ -79,8 +79,8 @@ _steps:
   Use a desktop PC on the same network as the SUT to attempt to connect to the WebUI.
   In a browser, enter http://<address-of-sut>:16992 as the location.
 _verification:
-  Verify that the WebUI is shown. 
-  Check the HW inventory is correct. 
+  Verify that the WebUI is shown.
+  Check the HW inventory is correct.
   Run a couple of remote power commands and verify they are executed successfully.
 
 id: oob-management/amt/amtccm_deactivate

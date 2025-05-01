@@ -29,4 +29,3 @@ case $component_count in
 esac
 
 echo "$url"
- 

@@ -73,7 +73,7 @@ include:
  after-suspend-camera/multiple-resolution-images_.*              certification-status=blocker
  after-suspend-camera/multiple-resolution-images-attachment_.*   certification-status=non-blocker
  after-suspend-camera/camera-quality_.*                          certification-status=non-blocker
- after-suspend-camera/camera-quality-image_.*                    certification-status=non-blocker 
+ after-suspend-camera/camera-quality-image_.*                    certification-status=non-blocker
 bootstrap_include:
  device
 

@@ -219,7 +219,7 @@ template-filter: device.category == 'SOCKETCAN'
 id: socketcan/send_packet_remote_fd_{interface}
 template-id: socketcan/send_packet_remote_fd_interface
 _summary: CAN device support test {interface} (Raw, Remote, FD)
-_purpose:  
+_purpose:
   Test a CAN device by sending packets using a raw socket to a remote device.
   As a prerequisite, the remote device should have can-echo-server installed so
   as to return the predicted packet.

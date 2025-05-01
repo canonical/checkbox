@@ -10,10 +10,10 @@ There are some separated .sh for each of tpm2-tool. Name convention is test_tpm2
 
 ##3: algorithm testing
 Named as test_algs_tpm2_XXX.sh, test all algorithms involved in the parameters of tpm2-tools.
-A part of test_tpm2_XXX_all.sh also contain algorithm testing.     
+A part of test_tpm2_XXX_all.sh also contain algorithm testing.
 
-##4: others 
-test_tpm2_XXX_func.sh for adding some test cases in furture.   
+##4: others
+test_tpm2_XXX_func.sh for adding some test cases in furture.
 
 ##Condition and Operation instructions:
 1.TPM is initialized
@@ -21,5 +21,4 @@ test_tpm2_XXX_func.sh for adding some test cases in furture.
 3.must start resourcemgr before run all test scripts
 4.clean up all log files
 5.run xxx.sh for automatic test
-6.results record in XXX_pass.log or XXX_fail.log 
-
+6.results record in XXX_pass.log or XXX_fail.log

@@ -29,7 +29,7 @@ testing that Ubuntu Server Certification involves.
 
 This program will give you a summary at the end of any issues discovered so
 that you can correct them before running the Server Test Suite. In some cases,
-it will offer to fix issues for you. 
+it will offer to fix issues for you.
 
 Using this program is not required for Certification, but it is provided as a
 convenience to testers to catch commonly misconfigured items.

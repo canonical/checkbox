@@ -59,9 +59,9 @@ plainbox-provider-resource-generic (0.19-1) unstable; urgency=medium
     https://launchpad.net/plainbox-provider-resource/trunk/0.18
     https://launchpad.net/plainbox-provider-resource/trunk/0.19
   * Allow debian/rules 'clean' to fail so that plainbox doesn't have to be
-    installed to build the source package in a clean tree. 
+    installed to build the source package in a clean tree.
   * debian/control: Use the new email address for the team
-    (checkbox-devel@lists.ubuntu.com). 
+    (checkbox-devel@lists.ubuntu.com).
   * debian/control: Depend on more recent version of plainbox to get the
     packaging meta-data unit which blocks validation.
   * debian/control, debian/rules: Depend on python3-debian for plainbox
@@ -80,16 +80,16 @@ plainbox-provider-resource-generic (0.19-1) unstable; urgency=medium
 
 plainbox-provider-resource-generic (0.17-1) unstable; urgency=medium
 
-  * New upstream release 
-  * debian/copyright: refresh dates 
+  * New upstream release
+  * debian/copyright: refresh dates
   * debian/rules: rename provider directories to avoid having colon in any
-    filesystem path 
-  * debian/control: bump Standards-Version to 3.9.6 (no change required) 
+    filesystem path
+  * debian/control: bump Standards-Version to 3.9.6 (no change required)
   * debian/upstream/signing-key.asc: Re-export the public key of Sylvain
     Pineau (using gpg --armor --export-options export-minimal --export
     '7ED72CD1'). The old key there didn't validate and I'm not quite sure
-    whose key that was. 
-  * debian/watch: escape one more dot 
+    whose key that was.
+  * debian/watch: escape one more dot
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 14:42:54 +0100
 
@@ -104,12 +104,12 @@ plainbox-provider-resource-generic (0.3-1) unstable; urgency=medium
   * debian/rules: stop using pybuild and use manage.py
     {i18n,build,install,validate} instead. The build rule also regenerates.
     autotools scripts that are present in the tarball.
-  * debian/control: drop X-Python3-Version 
+  * debian/control: drop X-Python3-Version
   * debian/patches: drop (no longer needed)
   * debian/upstream/signing-key.asc: Use armoured gpg keys to avoid having to
     keep binary files in Debian packaging. Also, replace that with my key
     since I made the 0.3 release upstream.
-  * debian/source/include-binaries: no longer needed 
+  * debian/source/include-binaries: no longer needed
   * Stop being a python3 module, move to from DPMT to PAPT
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Mon, 07 Apr 2014 14:12:51 +0200

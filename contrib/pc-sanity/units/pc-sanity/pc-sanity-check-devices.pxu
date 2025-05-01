@@ -267,7 +267,7 @@ command:
  exit 0
 _summary: Check the status of Intel VT-d ({driver})
 _description:
- The test case is for checking the status of Intel VT-d (Virtualization 
+ The test case is for checking the status of Intel VT-d (Virtualization
  Technology direct I/O)
 
 unit: template

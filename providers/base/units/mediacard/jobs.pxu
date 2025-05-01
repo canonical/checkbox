@@ -3,7 +3,7 @@
 plugin: user-interact
 category_id: com.canonical.plainbox::mediacard
 id: mediacard/mmc-storage-manual
-estimated_duration: 120 
+estimated_duration: 120
 command:
  checkbox-support-run_watcher storage mediacard_combo
 imports: from com.canonical.plainbox import manifest
@@ -46,7 +46,7 @@ _purpose:
      This test will check that the system's media card reader can
      detect the insertion of a UNLOCKED Secure Digital High-Capacity
      (SDHC) media card
-     Then it performs a read and write test on the SDHC card. 
+     Then it performs a read and write test on the SDHC card.
      Finally, it checks that the system detects the removal of the SDHC card.
 _steps:
      1. Commence the test and then insert an UNLOCKED SDHC card into the reader.
@@ -75,7 +75,7 @@ user: root
 _purpose:
      This test will check that the system's media card reader can
      detect the insertion of a Compact Flash (CF) media card
-     Then it performs a read and write test on the CF card. 
+     Then it performs a read and write test on the CF card.
      Finally, it checks that the system detects the removal of the CF card.
 _steps:
      1. Commence the test and then insert a CF card into the reader.
@@ -106,7 +106,7 @@ _summary: Test SDXC card insertion + read/write + removal.
 _purpose:
      This test will check that the system's media card reader can
      detect the insertion of a Secure Digital Extended Capacity (SDXC) media card
-     Then it performs a read and write test on the SDXC card. 
+     Then it performs a read and write test on the SDXC card.
      Finally, it checks that the system detects the removal of the SDXC card.
 _steps:
      1. Commence the test and then insert an UNLOCKED SDXC card into the reader.
@@ -135,7 +135,7 @@ user: root
 _purpose:
      This test will check that the system's media card reader can
      detect the insertion of a Memory Stick (MS) media card
-     Then it performs a read and write test on the MS card. 
+     Then it performs a read and write test on the MS card.
      Finally, it checks that the system detects the removal of the MS card.
 _steps:
      1. Commence the test and then insert a MS card into the reader.
@@ -167,7 +167,7 @@ _description:
 _purpose:
      This test will check that the system's media card reader can
      detect the insertion of a Memory Stick Pro (MSP) media card
-     Then it performs a read and write test on the MSP card. 
+     Then it performs a read and write test on the MSP card.
      Finally, it checks that the system detects the removal of the MSP card.
 _steps:
      1. Commence the test and then insert a MSP card into the reader.
@@ -180,7 +180,7 @@ _steps:
 _verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
-_summary: 
+_summary:
  Test Memory Stick Pro (MSP) card insertion + read/write + removal.
 
 ### xD Card ###
@@ -198,7 +198,7 @@ user: root
 _purpose:
      This test will check that the system's media card reader can
      detect the insertion of an Extreme Digital (xD) media card.
-     Then it performs a read and write test on the XD card. 
+     Then it performs a read and write test on the XD card.
      Finally, it checks that the system detects the removal of the XD card.
 _steps:
      1. Commence the test and then insert an xD card into the reader.
@@ -211,7 +211,7 @@ _steps:
 _verification:
  The verification of this test is automated. Do not change the
  automatically selected result.
-_summary: 
+_summary:
  Test Extreme Digital (xD) card insertion + read/write + removal.
 
 ### GENERAL ###

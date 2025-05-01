@@ -35,7 +35,7 @@
         });
         {%- endfor %}
         $(document).on( "pagecontainerbeforechange", function( event, ui ) {
-            pageId = $('body').pagecontainer('getActivePage').prop('id'); 
+            pageId = $('body').pagecontainer('getActivePage').prop('id');
             {%- for manager in manager_list %}
             if (pageId === "session-{{ loop.index - 1 }}") {
                 window.myPie{{ loop.index }}.destroy();
@@ -43,7 +43,7 @@
             {%- endfor %}
         });
         $(document).on( "pagecontainershow", function( event, ui ) {
-            pageId = $('body').pagecontainer('getActivePage').prop('id'); 
+            pageId = $('body').pagecontainer('getActivePage').prop('id');
             {%- for manager in manager_list %}
             if (pageId === "session-{{ loop.index - 1 }}") {
                 var ctx{{ loop.index }} = document.getElementById('chart-area{{ loop.index }}').getContext('2d');
@@ -173,10 +173,10 @@
                                     var fill = custom.backgroundColor ? custom.backgroundColor : getValueAtIndexOrDefault(ds.backgroundColor, i, arcOpts.backgroundColor);
                                     var stroke = custom.borderColor ? custom.borderColor : getValueAtIndexOrDefault(ds.borderColor, i, arcOpts.borderColor);
                                     var bw = custom.borderWidth ? custom.borderWidth : getValueAtIndexOrDefault(ds.borderWidth, i, arcOpts.borderWidth);
-        
+
                                     // We get the value of the current label
                                     var value = chart.config.data.datasets[arc._datasetIndex].data[arc._index];
-        
+
                                     return {
                                         // Instead of `text: label,`
                                         // We add the value to the string

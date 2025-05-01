@@ -256,7 +256,7 @@ Memory Device
 	Manufacturer: Hynix
 	Serial Number: 108DEFAD
 	Asset Tag: Unknown
-	Part Number: HMA42GR7MFR4N-TF  
+	Part Number: HMA42GR7MFR4N-TF
 	Rank: 2
 	Configured Memory Speed: 2133 MT/s
 	Minimum Voltage: 1.2 V
@@ -328,7 +328,7 @@ Memory Device
 	Manufacturer: Hynix
 	Serial Number: 108DEFB5
 	Asset Tag: Unknown
-	Part Number: HMA42GR7MFR4N-TF  
+	Part Number: HMA42GR7MFR4N-TF
 	Rank: 2
 	Configured Memory Speed: 2133 MT/s
 	Minimum Voltage: 1.2 V
@@ -544,7 +544,7 @@ Memory Device
 	Manufacturer: Hynix
 	Serial Number: 108DF039
 	Asset Tag: Unknown
-	Part Number: HMA42GR7MFR4N-TF  
+	Part Number: HMA42GR7MFR4N-TF
 	Rank: 2
 	Configured Memory Speed: 2133 MT/s
 	Minimum Voltage: 1.2 V
@@ -616,7 +616,7 @@ Memory Device
 	Manufacturer: Hynix
 	Serial Number: 108DEFB8
 	Asset Tag: Unknown
-	Part Number: HMA42GR7MFR4N-TF  
+	Part Number: HMA42GR7MFR4N-TF
 	Rank: 2
 	Configured Memory Speed: 2133 MT/s
 	Minimum Voltage: 1.2 V
@@ -1105,7 +1105,7 @@ OEM Strings
 
 Handle 0x0044, DMI type 11, 5 bytes
 OEM Strings
-	String 1: $CS CSM Version -[TESTBLDUS]- 
+	String 1: $CS CSM Version -[TESTBLDUS]-
 
 Handle 0x0045, DMI type 11, 5 bytes
 OEM Strings
@@ -1189,4 +1189,3 @@ Onboard Device
 
 Handle 0xFEFF, DMI type 127, 4 bytes
 End Of Table
-

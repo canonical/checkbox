@@ -173,4 +173,3 @@ nested_part:
     ce-oem-ethernet-tcp-stress
 certification_status_overrides:
     apply blocker to .*
-

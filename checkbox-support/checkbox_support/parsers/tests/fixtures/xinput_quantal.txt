@@ -2,8 +2,8 @@
 Reporting 4 classes:
 Class originated from: 10. Type: XIButtonClass
 Buttons supported: 10
-Button labels: "Button Unknown" "Button Unknown" "Button Unknown" 
-"Button Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button 
+Button labels: "Button Unknown" "Button Unknown" "Button Unknown"
+"Button Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button
 Horiz Wheel Right" None None None
 Button state:
 Class originated from: 10. Type: XIValuatorClass
@@ -28,8 +28,8 @@ Max number of touches: 17
 Reporting 3 classes:
 Class originated from: 4. Type: XIButtonClass
 Buttons supported: 10
-Button labels: "Button Left" "Button Middle" "Button Right" "Button 
-Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button Horiz 
+Button labels: "Button Left" "Button Middle" "Button Right" "Button
+Wheel Up" "Button Wheel Down" "Button Horiz Wheel Left" "Button Horiz
 Wheel Right" None None None
 Button state:
 Class originated from: 4. Type: XIValuatorClass
@@ -49,7 +49,7 @@ Mode: relative
 Reporting 4 classes:
 Class originated from: 10. Type: XIButtonClass
 Buttons supported: 5
-Button labels: "Button Unknown" "Button Unknown" "Button Unknown" 
+Button labels: "Button Unknown" "Button Unknown" "Button Unknown"
 "Button Wheel Up" "Button Wheel Down"
 Button state:
 Class originated from: 10. Type: XIValuatorClass
@@ -74,7 +74,7 @@ Max number of touches: 9
 Reporting 4 classes:
 Class originated from: 12. Type: XIButtonClass
 Buttons supported: 5
-Button labels: "Button Left" "Button Unknown" "Button Right" "Button 
+Button labels: "Button Left" "Button Unknown" "Button Right" "Button
 Wheel Up" "Button Wheel Down"
 Button state:
 Class originated from: 12. Type: XIKeyClass

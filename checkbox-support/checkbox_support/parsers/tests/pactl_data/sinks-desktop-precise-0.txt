@@ -14,7 +14,7 @@ Sink #0
 	             0.00 dB
 	Monitor Source: alsa_output.pci-0000_02_00.1.hdmi-stereo-extra1.monitor
 	Latency: 64486 usec, configured 90000 usec
-	Flags: HARDWARE DECIBEL_VOLUME LATENCY SET_FORMATS 
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY SET_FORMATS
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"

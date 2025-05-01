@@ -37,7 +37,7 @@ For more details about the ``ui`` section in Checkbox launchers, see
 :doc:`../../reference/launcher`.
 
 Skip auto-retry
----------------- 
+----------------
 
 When ``auto_retry`` is set to ``yes``, **every** failing job will be retried.
 This can be a problem: for instance, for jobs that take a really long time

@@ -1,6 +1,6 @@
 Module #0
 	Name: module-device-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -9,7 +9,7 @@ Module #0
 
 Module #1
 	Name: module-stream-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -18,7 +18,7 @@ Module #1
 
 Module #2
 	Name: module-card-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -27,7 +27,7 @@ Module #2
 
 Module #3
 	Name: module-augment-properties
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -36,10 +36,10 @@ Module #3
 
 Module #4
 	Name: module-switch-on-port-available
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
-		
+
 
 Module #5
 	Name: module-alsa-card
@@ -61,7 +61,7 @@ Module #6
 
 Module #7
 	Name: module-udev-detect
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -70,7 +70,7 @@ Module #7
 
 Module #8
 	Name: module-bluetooth-policy
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Frédéric Dalleau"
@@ -79,7 +79,7 @@ Module #8
 
 Module #9
 	Name: module-bluetooth-discover
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Joao Paulo Rechi Vita"
@@ -88,7 +88,7 @@ Module #9
 
 Module #10
 	Name: module-native-protocol-unix
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -97,7 +97,7 @@ Module #10
 
 Module #11
 	Name: module-default-device-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -106,7 +106,7 @@ Module #11
 
 Module #12
 	Name: module-rescue-streams
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -115,7 +115,7 @@ Module #12
 
 Module #13
 	Name: module-always-sink
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -124,7 +124,7 @@ Module #13
 
 Module #14
 	Name: module-intended-roles
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -133,7 +133,7 @@ Module #14
 
 Module #15
 	Name: module-suspend-on-idle
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -142,7 +142,7 @@ Module #15
 
 Module #16
 	Name: module-systemd-login
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -151,7 +151,7 @@ Module #16
 
 Module #17
 	Name: module-position-event-sounds
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -160,7 +160,7 @@ Module #17
 
 Module #18
 	Name: module-filter-heuristics
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -169,7 +169,7 @@ Module #18
 
 Module #19
 	Name: module-filter-apply
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -214,7 +214,7 @@ Module #23
 
 Module #24
 	Name: module-cli-protocol-unix
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -246,7 +246,7 @@ Sink #1
 	             0.00 dB
 	Monitor Source: alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
 	Latency: 0 usec, configured 0 usec
-	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"
@@ -304,7 +304,7 @@ Sink #2
 	             0.00 dB
 	Monitor Source: alsa_output.pci-0000_00_03.0.hdmi-stereo-extra1.monitor
 	Latency: 0 usec, configured 0 usec
-	Flags: HARDWARE DECIBEL_VOLUME LATENCY SET_FORMATS 
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY SET_FORMATS
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"
@@ -358,7 +358,7 @@ Sink #3
 	Base Volume: 100%
 	Monitor Source: bluez_sink.8C_64_22_BE_B2_9A.monitor
 	Latency: 0 usec, configured 0 usec
-	Flags: HARDWARE HW_VOLUME_CTRL LATENCY 
+	Flags: HARDWARE HW_VOLUME_CTRL LATENCY
 	Properties:
 		bluetooth.protocol = "hsp"
 		device.intended_roles = "phone"
@@ -394,7 +394,7 @@ Source #1
 	             0.00 dB
 	Monitor of Sink: alsa_output.pci-0000_00_1b.0.analog-stereo
 	Latency: 0 usec, configured 0 usec
-	Flags: DECIBEL_VOLUME LATENCY 
+	Flags: DECIBEL_VOLUME LATENCY
 	Properties:
 		device.description = "Monitor of Built-in Audio Analog Stereo"
 		device.class = "monitor"
@@ -432,7 +432,7 @@ Source #2
 	             -60.00 dB
 	Monitor of Sink: n/a
 	Latency: 0 usec, configured 0 usec
-	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"
@@ -492,7 +492,7 @@ Source #3
 	             0.00 dB
 	Monitor of Sink: alsa_output.pci-0000_00_03.0.hdmi-stereo-extra1
 	Latency: 0 usec, configured 0 usec
-	Flags: DECIBEL_VOLUME LATENCY 
+	Flags: DECIBEL_VOLUME LATENCY
 	Properties:
 		device.description = "Monitor of Built-in Audio Digital Stereo (HDMI)"
 		device.class = "monitor"
@@ -529,7 +529,7 @@ Source #4
 	             0.00 dB
 	Monitor of Sink: bluez_sink.8C_64_22_BE_B2_9A
 	Latency: 0 usec, configured 0 usec
-	Flags: DECIBEL_VOLUME LATENCY 
+	Flags: DECIBEL_VOLUME LATENCY
 	Properties:
 		device.description = "Monitor of MW600"
 		device.class = "monitor"
@@ -559,7 +559,7 @@ Source #5
 	Base Volume: 100%
 	Monitor of Sink: n/a
 	Latency: 0 usec, configured 0 usec
-	Flags: HARDWARE HW_VOLUME_CTRL LATENCY 
+	Flags: HARDWARE HW_VOLUME_CTRL LATENCY
 	Properties:
 		bluetooth.protocol = "hsp"
 		device.intended_roles = "phone"

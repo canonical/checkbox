@@ -34,7 +34,7 @@ This job will connect to server listened ports(200 ports in total),
 and send the payload(64KB) for few times of each port. This job will
 send the payload after all ports connection is established.
 Need a server(the same as DUT) to run the following command
-before running the test. 
+before running the test.
 e.g. Run a server to listen on port range from 1024 to 1223.
 $ tcp_multi_connections.py server -p 1024 -e 1223
 ```

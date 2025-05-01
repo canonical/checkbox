@@ -12,13 +12,13 @@ performs interactive system testing in console mode and sends results to Canonic
 SYNOPSIS
 ========
   For certifying bare metal servers (the most common scenario):
-    certify-22.04 
+    certify-22.04
     certify-20.04
 
   For certifying Systems on Chip (For SoC vendors):
     certify-soc-22.04
     certify-soc-20.04
-  
+
   For certifying Ubuntu as a Guest on a Hypervisor:
     certify-vm-22.04
     certify-vm-20.04
@@ -53,10 +53,10 @@ certification purposes, the device under test must have a valid *Secure-ID*
 number.  To learn how to create or locate the Secure ID, please see here:
 https://certification.canonical.com/
 
-This program will first gather information from your system. Next, it will run 
-a series of automated test cases that test functionality and generate stress 
-to test various subsystems.  When complete, you will be asked for the Secure 
-ID of the computer to submit the information to the certification.canonical.com 
+This program will first gather information from your system. Next, it will run
+a series of automated test cases that test functionality and generate stress
+to test various subsystems.  When complete, you will be asked for the Secure
+ID of the computer to submit the information to the certification.canonical.com
 database.
 
 Testers shoud run any of the certify-* commands to submit official

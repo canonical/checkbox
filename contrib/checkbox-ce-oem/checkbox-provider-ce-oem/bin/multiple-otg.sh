@@ -18,29 +18,29 @@ pid="0x1234"
 language="0x409"  # specifically refers to the English language (English-US).
 
 otg_info() {
-    # Mapping following information: 
+    # Mapping following information:
     # USB port, USB node, working mode(host/device/otg), UDC
     # Read -c list from checkbox var $OTG
     # e.g. OTG=USB-C1:11200000 USB-Micro:112a1000
     IFS=' ' read -ra usb_list <<< "$1"
 
-    # For loop to split $OTG by space, we intend to map the USB node 
+    # For loop to split $OTG by space, we intend to map the USB node
     # input by checkbox config to the USB node that exists in the system.
-    for usb in "${usb_list[@]}"; do     
-    
+    for usb in "${usb_list[@]}"; do
+
         # Split by ":" and assigne to "port" "node".
         IFS=':' read -r port node <<< "$usb"
-    
+
         # For loop to mapping checkbox config to the dr_mode that exist in the system.
         for dr_mode_file in "${usb_dr_modes[@]}"; do
-            
+
             # usb_node is the USB node of dr_mode
             usb_node=$(awk -F'[/@]' '{print $(NF-1)}' <<< "$dr_mode_file")
 
             # otg_mode is the working mode of the USB node. Could be in host/device/otg
             otg_mode=$(tr -d '\0' < "$dr_mode_file")
 
-            # The USB ports and nodes input through the checkbox configuration 
+            # The USB ports and nodes input through the checkbox configuration
             # will be mapped to the UDC (USB Device Controller) in the system.
             if [ "$node" == "$usb_node" ]; then
                 echo -e "USB_port: $port"
@@ -51,7 +51,7 @@ otg_info() {
                 # For loop to mapping UDC to checkbox config
                 # We observed a few patterns on different ARM-based platforms.
                 for udc in "${udc_list[@]}"; do
-                    
+
                     # UDC name is include USB node.
                     # UDC name is not the same as USB node, but can find USB node under UDC folder.
                     # UDC name is not the same as USB node, but can find UDC folder is under the USB node.
@@ -69,7 +69,7 @@ otg_info() {
 }
 
 init_gadget() {
-    # Remove the OTG gadget module if it has already been loaded, 
+    # Remove the OTG gadget module if it has already been loaded,
     # as loading the gadget module will occupy the USB port."
     IFS=',' read -ra modules <<< "$(lsmod | awk '/^libcomposite/ {print $4}')"
     echo -e "\nInfo: Attempting to remove preloaded gedget module ..."

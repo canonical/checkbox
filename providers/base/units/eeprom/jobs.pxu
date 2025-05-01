@@ -1,8 +1,8 @@
 id: eeprom/read-write
-_summary: Test EEPROM read and write functions for the system. 
+_summary: Test EEPROM read and write functions for the system.
 plugin: shell
 user: root
-category_id: eeprom 
+category_id: eeprom
 flags: also-after-suspend
 estimated_duration: 5
 imports: from com.canonical.plainbox import manifest

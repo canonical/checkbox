@@ -8,4 +8,3 @@ command:
  done
 _summary: kernel config options for 6LoWPAN
 _purpose: Checks the kernel config options for 6LoWPAN / IEEE802.15.4 support
-

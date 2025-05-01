@@ -83,7 +83,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x19 0x1c 0xc7 0x71 
+			PPE Threshold 0x19 0x1c 0xc7 0x71
 		HE Iftypes: AP
 			HE MAC Capabilities (0x000f82100040):
 				+HTC HE Supported
@@ -129,7 +129,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x19 0x1c 0xc7 0x71 
+			PPE Threshold 0x19 0x1c 0xc7 0x71
 		HE Iftypes: mesh point
 			HE MAC Capabilities (0x000982000040):
 				+HTC HE Supported
@@ -167,7 +167,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x19 0x1c 0xc7 0x71 
+			PPE Threshold 0x19 0x1c 0xc7 0x71
 		Bitrates (non-HT):
 			* 1.0 Mbps
 			* 2.0 Mbps (short preamble supported)
@@ -302,7 +302,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71 
+			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71
 		HE Iftypes: AP
 			HE MAC Capabilities (0x000f9a100840):
 				+HTC HE Supported
@@ -376,7 +376,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71 
+			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71
 		HE Iftypes: mesh point
 			HE MAC Capabilities (0x00098a000040):
 				+HTC HE Supported
@@ -437,7 +437,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71 
+			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71
 		Bitrates (non-HT):
 			* 6.0 Mbps
 			* 9.0 Mbps
@@ -523,7 +523,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71 
+			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71
 		HE Iftypes: AP
 			HE MAC Capabilities (0x000f9a100840):
 				+HTC HE Supported
@@ -597,7 +597,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71 
+			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71
 		HE Iftypes: mesh point
 			HE MAC Capabilities (0x00098a000040):
 				+HTC HE Supported
@@ -658,7 +658,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71 
+			PPE Threshold 0x79 0x1c 0xc7 0x71 0x1c 0xc7 0x71
 		Bitrates (non-HT):
 			* 6.0 Mbps
 			* 9.0 Mbps

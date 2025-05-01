@@ -121,4 +121,3 @@ Rectangle{
         rotation: 45
     }
 }
-

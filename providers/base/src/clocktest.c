@@ -103,7 +103,7 @@ int test_clock_jitter(){
 
 /*
  * This is the original test_clock_direction() function. I've left it here for
- * reference and in case we wish to resurrect it for some reason. 
+ * reference and in case we wish to resurrect it for some reason.
  * This should be removed in the future if the new version pans out.
 int test_clock_direction()
 {
@@ -136,7 +136,7 @@ int test_clock_direction()
     int failures = 0;
     int iteration;
     double deltas[5];
-    
+
     printf("\nTesting clock direction for 5 minutes...\n");
     /* Because skew can vary, we'll run it 5 times */
     for (iteration = 0; iteration < 5; iteration++) {
@@ -144,7 +144,7 @@ int test_clock_direction()
         gettimeofday(&tval_start, NULL);
         sleep(sleeptime);
         gettimeofday(&tval_stop, NULL);
- 
+
         /* timersub() gives us the delta pretty simply */
         timersub(&tval_stop, &tval_start, &tval_result);
         deltas[iteration] = (tval_result.tv_sec - sleeptime) + (tval_result.tv_usec / 1000000.0);

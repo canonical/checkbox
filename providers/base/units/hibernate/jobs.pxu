@@ -37,7 +37,7 @@ environ: PLAINBOX_SESSION_SHARE
 user: root
 command: checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate-single.log -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
 estimated_duration: 300.00
-_purpose: 
+_purpose:
  This is the automated version of suspend/hibernate_advanced.
 _summary: Test the automated suspend/hibernate advanced features.
 

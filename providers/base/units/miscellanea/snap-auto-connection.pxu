@@ -1,6 +1,6 @@
 # This template job can be used to check any required snap interface connections.
-# For example, if you wish to check that the "home" 
-# plug of the "multipass" snap is connected to a corresponding slot, 
+# For example, if you wish to check that the "home"
+# plug of the "multipass" snap is connected to a corresponding slot,
 # simply run the job com.canonical.certification::miscellanea/check-plug_multipass_home
 unit: template
 template-engine: jinja2

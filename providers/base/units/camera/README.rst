@@ -19,8 +19,7 @@ Jobs
 
     **NOTE:**
 
-    The python svm library is vendorized and imports `libsvm.so.3` from the 
+    The python svm library is vendorized and imports `libsvm.so.3` from the
     `LD_LIBRARY_PATH`. If the version is updated in the future, it should be
-    changed manually in the `svm.py` file under 
+    changed manually in the `svm.py` file under
     `checkbox-support/vendor/brisque/svm`.
-

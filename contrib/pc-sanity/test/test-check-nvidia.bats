@@ -145,4 +145,3 @@ function setup() {
     run check_nvidia_sleep
     [ "$status" -eq 0 ]
 }
-

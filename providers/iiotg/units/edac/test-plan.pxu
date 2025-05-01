@@ -17,4 +17,3 @@ unit: test plan
 include:
     edac/detect
     edac/default-report
-

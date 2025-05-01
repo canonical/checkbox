@@ -87,7 +87,7 @@ For example:
    URIs: https://ppa.launchpadcontent.net/~checkbox-dev/beta/ubuntu/
    Suites: noble
    Components: main
-   Signed-By: {KEY} 
+   Signed-By: {KEY}
 
 For Ubuntu 23.10 and earlier
 ''''''''''''''''''''''''''''
@@ -132,7 +132,7 @@ For Ubuntu 24.04 LTS
 ''''''''''''''''''''
 
 .. code-block:: text
-   
+
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-noble.list”
    Types: deb
    URIs: https://ppa.launchpadcontent.net/~checkbox-dev/beta/ubuntu/
@@ -193,10 +193,10 @@ To set the URL to point to a specific snapshot, you have to edit:
 ``/etc/apt/sources.list.d/checkbox-dev-ubuntu-{ppa-name}-{ubuntu-version}.list``
 and change the URL:
 
-* ``ppa.launchpadcontent.net``  ->  ``snapshot.ppa.launchpadcontent.net`` 
+* ``ppa.launchpadcontent.net``  ->  ``snapshot.ppa.launchpadcontent.net``
 * Append the timestamp to the end of the URL
 
-For example: 
+For example:
 
 .. code-block:: text
 

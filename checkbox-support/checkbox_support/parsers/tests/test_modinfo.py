@@ -43,7 +43,7 @@ alias:          usb:v*p*d*dc*dsc*dp*ic0Eisc01ip00in*
 alias:          usb:v0416pA91Ad*dc*dsc*dp*ic0Eisc01ip00in*
 depends:        videodev,videobuf2-core,videobuf2-vmalloc
 intree:         Y
-vermagic:       3.13.0-48-generic SMP mod_unload modversions 
+vermagic:       3.13.0-48-generic SMP mod_unload modversions
 signer:         Magrathea: Glacier signing key
 sig_key:        4E:B2:DE:24:99:17:CB:F3:9C:B8:56:92:E5:4C:EB:AD:E5:94:D6:80
 sig_hashalgo:   sha512
@@ -65,22 +65,22 @@ srcversion:     92BBF15FFC6F4BABEA6EB29
 alias:          usb:v*p*d*dc*dsc*dp*ic0Eisc01ip00in*
 depends:        videodev,videobuf2-core,videobuf2-vmalloc
 intree:         Y
-vermagic:       3.13.0-48-generic SMP mod_unload modversions 
+vermagic:       3.13.0-48-generic SMP mod_unload modversions
 signer:         Magrathea: Glacier signing key
 sig_key:        4E:B2:DE:24:99:17:CB:F3:9C:B8:56:92:E5:4C:EB:AD:E5:94:D6:80
 sig_hashalgo:   sha512
 parm:           clock:Video buffers timestamp clock
 
-   
+
 name:           ccm
 filename:       /lib/modules/3.13.0-48-generic/kernel/crypto/ccm.ko
 alias:          crypto-ccm
 description:    Counter with CBC MAC
 license:        GPL
 srcversion:     5DEAB3AB626E8E116D01BEF
-depends:        
+depends:
 intree:         Y
-vermagic:       3.13.0-48-generic SMP mod_unload modversions 
+vermagic:       3.13.0-48-generic SMP mod_unload modversions
 """
 
 # This is a malformed record which only has a name
@@ -96,9 +96,9 @@ alias:          crypto-ccm
 description:    Counter with CBC MAC
 license:        GPL
 srcversion:     5DEAB3AB626E8E116D01BEF
-depends:        
+depends:
 intree:         Y
-vermagic:       3.13.0-48-generic SMP mod_unload modversions 
+vermagic:       3.13.0-48-generic SMP mod_unload modversions
 
 """
 

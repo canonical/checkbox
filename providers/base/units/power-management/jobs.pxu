@@ -204,7 +204,7 @@ requires:
   cpuinfo.other != 'emulated by qemu'
 user: root
 environ: RTC_DEVICE_FILE
-command: 
+command:
   if [[ -n "$RTC_DEVICE_FILE" ]]; then
     rtc_path="/sys/class/rtc/${RTC_DEVICE_FILE/#\/dev\/}"
   else
@@ -550,13 +550,13 @@ command: light_sensor_test.sh
 _purpose:
     This test will check your Ambient Light Sensor work, if you don't have it, please skip this test.
 _steps:
-    1. Make sure "Automatic brightness" is ON in Power settings. 
+    1. Make sure "Automatic brightness" is ON in Power settings.
     2. Locate the Ambient Light Sensor, which should be around the Camera.
     3. Cover your hand over the Ambient Light Sensor.
     4. When the backlight dims, press Enter to start testing.
     5. Wait until the message "Has ambient light sensor" is printed on the screen and wave your hand slowly during testing.
 _verification:
-    Did the Ambient Light Sensor values change when you _shook_ your hands over the sensor? 
+    Did the Ambient Light Sensor values change when you _shook_ your hands over the sensor?
     Did the Screen backlight also change?
 _summary: Test the functionality of the Ambient Light Sensor by checking if sensor values and screen backlight change when covered.
 

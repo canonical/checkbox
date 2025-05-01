@@ -155,19 +155,19 @@ After a few seconds, you will see the following:
     ID: com.canonical.certification::tutorial/manual
     Category: com.canonical.certification::tutorial
     Purpose:
-    
+
     This is a manual job. User needs to select an outcome.
-    
+
     Steps:
-    
+
     1. Read the content of this job.
     2. Check that there are 3 sections (Purpose, Steps, Verification).
-    
+
     Outcome: job needs verification
     Verification:
-    
+
     Did Checkbox display all 3 sections of the manual job?
-    
+
     Please decide what to do next:
       outcome: job needs verification
       comments: none
@@ -176,7 +176,7 @@ After a few seconds, you will see the following:
       p => set outcome to pass
       f => set outcome to fail
       s => set outcome to skip
-    [cpfs]: 
+    [cpfs]:
 
 This is a manual job. Checkbox provides some explanation and is waiting for
 the user to provide feedback.
@@ -192,26 +192,26 @@ Checkbox moves on to the next job, which is a semi-automated one:
     ID: com.canonical.certification::tutorial/user-interact
     Category: com.canonical.certification::tutorial
     Purpose:
-    
+
     This is a "user-interact" semi-automated job. It requires the user to perform
     an interaction, after which the outcome is automatically set and Checkbox moves
     on to the next job.
-    
+
     This test will run the command `true`, which always returns 0.
-    
+
     Steps:
-    
+
     1. Read the content of this job.
     2. Press Enter to start the test. The outcome will be set automatically to
     "pass" based on the return value from the command, and Checkbox will then
     move on to the next job.
-    
+
     Pick an action
         => press ENTER to continue
       c => add a comment
       s => skip this job
       q => save the session and quit
-    [csq]: 
+    [csq]:
 
 This time, you cannot set the outcome directly. Follow the instructions by
 pressing ``Enter`` to start the test, and notice that the job is marked as
@@ -224,26 +224,26 @@ pressing ``Enter`` to start the test, and notice that the job is marked as
     ID: com.canonical.certification::tutorial/user-interact-verify
     Category: com.canonical.certification::tutorial
     Purpose:
-    
+
     This is a "user-interact-verify" semi-automated job. It requires the user
     to perform an interaction, then Checkbox executes a command and suggests
     an outcome based its return code. However, in the end it is up to the user
     to manually choose the right outcome.
-    
+
     This test will run the command `true`, which always returns 0.
-    
+
     Steps:
-    
+
     1. Read the content of this job.
     2. Press Enter to start the test. The outcome will be automatically set to
     "pass" but you will have a chance to manually select another outcome.
-    
+
     Pick an action
         => press ENTER to continue
       c => add a comment
       s => skip this job
       q => save the session and quit
-    [csq]: 
+    [csq]:
 
 This is another type of semi-automated job. Press ``Enter`` to run it:
 
@@ -251,10 +251,10 @@ This is another type of semi-automated job. Press ``Enter`` to run it:
 
     Outcome: job needs verification
     Verification:
-    
+
     Make sure that Checkbox suggested the outcome to be "pass", yet you can
     still manually select another outcome.
-    
+
     Please decide what to do next:
       outcome: job needs verification
       comments: none
@@ -265,7 +265,7 @@ This is another type of semi-automated job. Press ``Enter`` to run it:
       s => set outcome to skip
       r => re-run this job
         => set suggested outcome [job passed]
-    [cpfsr]: 
+    [cpfsr]:
 
 Notice the two new actions available:
 
@@ -313,7 +313,7 @@ ending with:
       p => set outcome to pass
       f => set outcome to fail
       s => set outcome to skip
-    [cpfs]: 
+    [cpfs]:
 
 Adding comments
 ===============
@@ -332,7 +332,7 @@ passed". Validate by pressing ``Enter`` one more time:
       p => set outcome to pass
       f => set outcome to fail
       s => set outcome to skip
-    [cpfs]: 
+    [cpfs]:
 
 You can see your comment has been saved. Press ``p`` and ``Enter`` to mark
 this job as passed. You are taken back to the jobs re-run screen, but this

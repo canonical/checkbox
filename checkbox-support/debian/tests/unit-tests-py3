@@ -1,7 +1,7 @@
 #!/bin/sh
 # autopkgtest check: run checkbox_support unit tests and ensure everything passes
 # (C) 2015 Canonical Ltd.
-# Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com> 
+# Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 
 set -e
 

@@ -9,7 +9,7 @@ usually include a summary in HTML and other submission files. You can also
 customize how each test report should be generated for different use cases.
 
 In Checkbox, the representation of a test report is controlled by two major
-configurations in launcher: 
+configurations in launcher:
 
 - ``exporter``: the format in which test report should be presented, such as
   text, HTML, JSON and others
@@ -32,7 +32,7 @@ the running console in the textual form. For example, the following text is a
 summary displayed after running the ``tutorial-base`` test plan:
 
 .. code-block:: none
- 
+
   ☑ : A job that always passes
   ☒ : A job that always fails
   ⚠ : A job that always crashes
@@ -48,7 +48,7 @@ summary displayed after running the ``tutorial-base`` test plan:
 
 
 It may be tempting to redirect this output to file manually, but it is possible
-to save it in a file using the Checkbox ``transport`` configuration. 
+to save it in a file using the Checkbox ``transport`` configuration.
 
 The following example shows how to define a ``transport`` section in a launcher
 file. In the section header, the colon symbol (``:``) leads the name of the
@@ -56,7 +56,7 @@ transport (``out_to_file``). The value ``type = file`` specifies that the output
 is directed to a file that is located at the given path.
 
 .. code-block:: ini
-  
+
   [transport:out_to_file]
   type = file
   path = /tmp/output.txt
@@ -64,7 +64,7 @@ is directed to a file that is located at the given path.
 Similarly, you can also direct the output to the standard output as a stream:
 
 .. code-block:: ini
-  
+
   [transport:out_to_stdout]
   type = stream
   # standard out, you can also try "stderr" for standard error
@@ -101,16 +101,16 @@ file. Try the following launcher:
   exporter = text
   transport = out_to_file
 
-In this example, you defined two new sections: 
+In this example, you defined two new sections:
 
 - ``exporter``: named ``text``, specifies that the output unit being used is
-  ``com.canonical.plainbox::text``. 
+  ``com.canonical.plainbox::text``.
 - ``report``: named ``file_report``, specifies that a customized report
   configuration is used. The customized report uses an exporter called ``text``
   and a transport called ``out_to_file``, which you defined in the same file.
 
 Launch Checkbox, and after the jobs are completed, you should see a new line in
-the console output:: 
+the console output::
 
   file:///tmp/output.txt
 
@@ -123,14 +123,14 @@ Now you have a text report to check at ``/tmp/output.txt``.
   See the example below to know how to avoid having to give confirmation
   (using `forced`).
 
-Export report in different formats 
+Export report in different formats
 ===================================
 
 If you want to process the test results in another application or visualize the
-test report, you need to create representations other than the plain text form. 
+test report, you need to create representations other than the plain text form.
 
 In Checkbox, it is the ``exporter`` configuration that defines the form of
-report output, including HTML, JSON, and other common formats. 
+report output, including HTML, JSON, and other common formats.
 
 To view the supported types of exporters on your machine, run::
 
@@ -180,7 +180,7 @@ jobs. Create a new launcher:
 
 Run Checkbox again with the new launcher, a new file is generated at
 ``/tmp/output.json``. This JSON report contains much more detailed information
-about the test job execution: 
+about the test job execution:
 
 .. code-block:: json
 
@@ -231,7 +231,7 @@ Generate multiple reports
 
 You can configure multiple exporters in the same launcher for different use
 cases. When a test session is completed, you will obtain multiple reports for
-the same test results. 
+the same test results.
 
 Try the following launcher to produce HTML, JSON and textual reports for the
 same test results:

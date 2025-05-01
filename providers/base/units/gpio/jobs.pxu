@@ -18,7 +18,7 @@ flags: preserve-locale also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.gpio_loopback == 'True'
 
-# Filtering this job by the same devices as above as uses the same pin 
+# Filtering this job by the same devices as above as uses the same pin
 # definition file and uses the RPi python module
 unit: template
 template-resource: com.canonical.certification::model_assertion

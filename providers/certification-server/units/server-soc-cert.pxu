@@ -3,7 +3,7 @@ _name: System On Chip Certification (For SoC Testing)
 unit: test plan
 _description:
     This whitelist is intended to be used for testing Server SoCs.  The tests
-    contained here should work in any test lab envrionement. Please use this 
+    contained here should work in any test lab envrionement. Please use this
     whitelist for the Ubuntu Certification self-testing programme.
 nested_part:
     com.canonical.certification::server-cpu

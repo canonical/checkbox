@@ -27,7 +27,7 @@ category_id: rtc_category
 command:
     if [ -z "$TOTAL_RTC_NUM" ]; then
         echo "TOTAL_RTC_NUM not defined, defaulting to 1"
-        TOTAL_RTC_NUM=1; 
+        TOTAL_RTC_NUM=1;
     fi
     SYSFS_RTC_NUM=$(find /dev/ -name "rtc[0-9]" | wc -l)
     echo "TOTAL_RTC_NUM: $TOTAL_RTC_NUM"
@@ -66,12 +66,12 @@ plugin: shell
 user: root
 category_id: rtc_category
 estimated_duration: 40
-command: 
-    if [ -f "/sys/class/rtc/{rtc}/wakealarm" ]; then 
+command:
+    if [ -f "/sys/class/rtc/{rtc}/wakealarm" ]; then
         rtcwake -d {rtc} -v -m on -s 30
-    else 
+    else
         echo "{rtc} does not support wakealarm"
-        exit 1 
+        exit 1
     fi
 flags: also-after-suspend
 
@@ -86,7 +86,7 @@ user: root
 category_id: rtc_category
 estimated_duration: 5
 environ:
-command: 
+command:
     rtc_time=$(cat "/sys/class/rtc/{rtc}/since_epoch")
     sys_time=$(date +"%s")
     result=$(("$sys_time" - "$rtc_time"))

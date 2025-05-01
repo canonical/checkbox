@@ -8,8 +8,8 @@ requires: lsb.distributor_id == 'Ubuntu Core'
 command:
     installation_time.py snapd -a timing
     exit 0  # Make attachment job always pass
-_description: 
-    Fetch the time of snapd change log, include 
+_description:
+    Fetch the time of snapd change log, include
     "Initialize system state" and "Initialize device"
 
 plugin: attachment
@@ -37,7 +37,7 @@ command:
     installation_time.py cloud-init -f cloud-init.log -a timing
     exit 0  # Make attachment job always pass
 user: root
-_description: 
+_description:
     Fetch the time from Cloud-init.log
 
 plugin: attachment
@@ -64,7 +64,7 @@ command:
     installation_time.py gzip-log -f install-timings.txt.gz -a timing
     exit 0  # Make attachment job always pass
 user: root
-_description: 
+_description:
     Fetch the time from install-timing.txt.gz
 
 plugin: attachment
@@ -91,7 +91,7 @@ command:
     installation_time.py gzip-log -f install-mode.log.gz -a timing
     exit 0  # Make attachment job always pass
 user: root
-_description: 
+_description:
     Fetch the time from install-mode.log.gz
 
 plugin: attachment

@@ -114,7 +114,7 @@ withaplay() {
         echo "!!--------------------" >> $FILE
         echo "" >> $FILE
        	echo "APLAY" >> $FILE
-	echo "" >> $FILE 
+	echo "" >> $FILE
 	aplay -l >> $FILE 2>&1
         echo "" >> $FILE
        	echo "ARECORD" >> $FILE
@@ -392,7 +392,7 @@ trap cleanup 0
 
 if [ "$PROCEED" = "yes" ]; then
 
-if [[ -z "$LSPCI" ]] 
+if [[ -z "$LSPCI" ]]
 then
 	echo "This script requires lspci. Please install it, and re-run this script."
 	exit 0
@@ -404,7 +404,7 @@ KERNEL_VERSION=`uname -r`
 KERNEL_PROCESSOR=`uname -p`
 KERNEL_MACHINE=`uname -m`
 KERNEL_OS=`uname -o`
-[[ `uname -v |grep SMP`  ]] && KERNEL_SMP="Yes" || KERNEL_SMP="No" 
+[[ `uname -v |grep SMP`  ]] && KERNEL_SMP="Yes" || KERNEL_SMP="No"
 ALSA_DRIVER_VERSION=`cat /proc/asound/version |head -n1|awk {'print $7'} |sed 's/\.$//'`
 get_alsa_library_version
 ALSA_UTILS_VERSION=`amixer -v |awk {'print $3'}`
@@ -587,7 +587,7 @@ done
 echo "" >> $FILE
 fi
 
-if [ -s "$TEMPDIR/alsa-hda-intel.tmp" ] 
+if [ -s "$TEMPDIR/alsa-hda-intel.tmp" ]
 then
 	echo "!!HDA-Intel Codec information" >> $FILE
 	echo "!!---------------------------" >> $FILE
@@ -630,7 +630,7 @@ if [[ -z "$1" ]]
 then
 	update
 	withall
-	pbcheck	
+	pbcheck
 fi
 
 fi # proceed
@@ -740,7 +740,7 @@ then
 			echo "	--with-amixer (includes the output of amixer)"
 			echo "	--with-alsactl (includes the output of alsactl)"
 			echo "	--with-configs (includes the output of ~/.asoundrc and"
-			echo "	    /etc/asound.conf if they exist)" 
+			echo "	    /etc/asound.conf if they exist)"
 			echo "	--with-devices (shows the device nodes in /dev/snd/)"
 			echo "	--with-dmesg (shows the ALSA/HDA kernel messages)"
 			echo ""
@@ -823,7 +823,7 @@ if [ "$UPLOAD" = "no" ]; then
 
 fi # UPLOAD
 
-#Test that wget is installed, and supports --post-file. Upload $FILE if it does, and prompt user to upload file if it doesnt. 
+#Test that wget is installed, and supports --post-file. Upload $FILE if it does, and prompt user to upload file if it doesnt.
 if
 WGET=$(which wget 2>/dev/null| sed 's|^[^/]*||' 2>/dev/null); [[ -n "${WGET}" ]] && [[ -x "${WGET}" ]] && [[ `wget --help |grep post-file` ]]
 then
@@ -847,7 +847,7 @@ else
 	echo; } |dialog --backtitle "$BGTITLE" --guage "Uploading information to www.pastebin.ca ..." 6 70 0
 fi
 
-dialog --backtitle "$BGTITLE" --title "Information uploaded" --yesno "Would you like to see the uploaded information?" 5 100 
+dialog --backtitle "$BGTITLE" --title "Information uploaded" --yesno "Would you like to see the uploaded information?" 5 100
 DIALOG_EXIT_CODE=$?
 if [ $DIALOG_EXIT_CODE = 0 ]; then
 	grep -v "alsa-info.txt" $FILE >$TEMPDIR/uploaded.txt
@@ -860,10 +860,10 @@ clear
 else
 
 if [[ -z $PASTEBIN ]]; then
-	echo -n "Uploading information to www.alsa-project.org ... " 
+	echo -n "Uploading information to www.alsa-project.org ... "
 	wget -O - --tries=5 --timeout=60 --post-file=$FILE http://www.alsa-project.org/cardinfo-db/ &>$TEMPDIR/wget.tmp &
 else
-	echo -n "Uploading information to www.pastebin.ca ... " 
+	echo -n "Uploading information to www.pastebin.ca ... "
 	wget -O - --tries=5 --timeout=60 --post-file=$FILE http://pastebin.ca/quiet-paste.php?api=$PASTEBINKEY &>$TEMPDIR/wget.tmp &
 fi
 
@@ -881,7 +881,7 @@ echo ""
 
 fi #dialog
 
-#See if tput is available, and use it if it is.	
+#See if tput is available, and use it if it is.
 if [[ -n "$TPUT" ]]
 then
 	if [[ -z $PASTEBIN ]]; then
@@ -897,7 +897,7 @@ else
 	fi
 fi
 
-#Output the URL of the uploaded file.	
+#Output the URL of the uploaded file.
 echo "Your ALSA information is located at $FINAL_URL"
 echo "Please inform the person helping you."
 echo ""
@@ -935,5 +935,3 @@ else
 		fi
 	fi
 fi
-
-

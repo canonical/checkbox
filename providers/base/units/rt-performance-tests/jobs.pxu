@@ -4,7 +4,7 @@ estimated_duration: 24h
 _summary:
     Run cyclictest to test scheduling latency. Default run time is 24 hours.
 _purpose:
-    This test executes the cyclictest command for a long period of time to 
+    This test executes the cyclictest command for a long period of time to
     evaluate the system's ability to maintain scheduling latency. It checks
     that the maximum latency did not exceed the threshold and that there are no
     overflows (scheduling misses) for each thread.

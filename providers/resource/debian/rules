@@ -15,7 +15,7 @@ override_dh_auto_build:
 	python3 $(SRCTOP)/manage.py i18n --dont-update-pot --dont-merge-po
 
 override_dh_auto_test:
-	python3 $(SRCTOP)/manage.py validate 
+	python3 $(SRCTOP)/manage.py validate
 
 override_dh_auto_install:
 	python3 $(SRCTOP)/manage.py install \

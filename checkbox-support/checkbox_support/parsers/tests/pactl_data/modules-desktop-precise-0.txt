@@ -1,6 +1,6 @@
 Module #0
 	Name: module-device-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"

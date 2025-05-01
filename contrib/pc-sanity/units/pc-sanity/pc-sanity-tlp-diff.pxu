@@ -38,4 +38,3 @@ _description:
 unit: test plan
 include:
   com.canonical.certification::miscellanea/tlp_diff_run
-

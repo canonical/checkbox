@@ -24,9 +24,9 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_tpm2_chip == 'True'
  executable.name == 'fwts'
-_summary: Dump the contents of the TPM Event Log 
+_summary: Dump the contents of the TPM Event Log
 _description:
  The information in the TPM Event Log can be useful in debugging problems with
  TPM command support and adherance to standards. This can be of particular help
- when checking whether a device can support Ubuntu Core Full Disk Encryption. 
+ when checking whether a device can support Ubuntu Core Full Disk Encryption.
 command: fwts tpmevlogdump -r stdout

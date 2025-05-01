@@ -355,7 +355,7 @@ environ:
  TEST_TARGET_IPERF
  LD_LIBRARY_PATH
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4
-_purpose: 
+_purpose:
  This test uses iperf3 to ensure network devices pass data at an acceptable
  minimum percentage of advertised speed.
 

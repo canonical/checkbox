@@ -107,4 +107,3 @@ Rectangle{
         color: "blue"
     }
 }
-

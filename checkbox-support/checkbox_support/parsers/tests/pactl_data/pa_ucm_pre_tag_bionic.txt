@@ -1,6 +1,6 @@
 Module #0
 	Name: module-device-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -9,7 +9,7 @@ Module #0
 
 Module #1
 	Name: module-stream-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -18,7 +18,7 @@ Module #1
 
 Module #2
 	Name: module-card-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -27,7 +27,7 @@ Module #2
 
 Module #3
 	Name: module-augment-properties
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -36,14 +36,14 @@ Module #3
 
 Module #4
 	Name: module-switch-on-port-available
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
-		
+
 
 Module #5
 	Name: module-switch-on-connect
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Michael Terry"
@@ -52,7 +52,7 @@ Module #5
 
 Module #6
 	Name: module-udev-detect
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -70,7 +70,7 @@ Module #7
 
 Module #8
 	Name: module-bluetooth-policy
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "FrÃ©dÃ©ric Dalleau, Pali RohÃ¡r"
@@ -79,7 +79,7 @@ Module #8
 
 Module #9
 	Name: module-bluetooth-discover
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "JoÃ£o Paulo Rechi Vita"
@@ -88,7 +88,7 @@ Module #9
 
 Module #10
 	Name: module-bluez5-discover
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "JoÃ£o Paulo Rechi Vita"
@@ -97,7 +97,7 @@ Module #10
 
 Module #11
 	Name: module-native-protocol-unix
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -106,7 +106,7 @@ Module #11
 
 Module #12
 	Name: module-default-device-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -115,7 +115,7 @@ Module #12
 
 Module #13
 	Name: module-rescue-streams
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -124,7 +124,7 @@ Module #13
 
 Module #14
 	Name: module-always-sink
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -133,7 +133,7 @@ Module #14
 
 Module #15
 	Name: module-intended-roles
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -142,7 +142,7 @@ Module #15
 
 Module #16
 	Name: module-suspend-on-idle
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -151,7 +151,7 @@ Module #16
 
 Module #17
 	Name: module-console-kit
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -160,7 +160,7 @@ Module #17
 
 Module #18
 	Name: module-systemd-login
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -169,7 +169,7 @@ Module #18
 
 Module #19
 	Name: module-position-event-sounds
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -178,7 +178,7 @@ Module #19
 
 Module #20
 	Name: module-role-cork
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -187,7 +187,7 @@ Module #20
 
 Module #21
 	Name: module-filter-heuristics
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -196,7 +196,7 @@ Module #21
 
 Module #22
 	Name: module-filter-apply
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -253,7 +253,7 @@ Sink #0
 	Base Volume: 65536 / 100% / 0.00 dB
 	Monitor Source: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofsklhdacard_0__sink.monitor
 	Latency: 0 usec, configured 0 usec
-	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"
@@ -305,7 +305,7 @@ Source #0
 	Base Volume: 65536 / 100% / 0.00 dB
 	Monitor of Sink: alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__hw_sofsklhdacard_0__sink
 	Latency: 0 usec, configured 0 usec
-	Flags: DECIBEL_VOLUME LATENCY 
+	Flags: DECIBEL_VOLUME LATENCY
 	Properties:
 		device.description = "Monitor of sof-skl_hda_card Speaker + Headphone"
 		device.class = "monitor"
@@ -339,7 +339,7 @@ Source #1
 	Base Volume: 65536 / 100% / 0.00 dB
 	Monitor of Sink: n/a
 	Latency: 0 usec, configured 0 usec
-	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"
@@ -390,7 +390,7 @@ Source #2
 	Base Volume: 65536 / 100% / 0.00 dB
 	Monitor of Sink: n/a
 	Latency: 0 usec, configured 0 usec
-	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"

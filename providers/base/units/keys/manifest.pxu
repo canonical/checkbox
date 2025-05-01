@@ -93,4 +93,3 @@ id: has_key_wireless
 _name: Wireless on/off
 _prompt: Does this machine have the following special keys?
 value-type: bool
-

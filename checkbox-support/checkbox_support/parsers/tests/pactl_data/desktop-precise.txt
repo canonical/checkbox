@@ -1,6 +1,6 @@
 Module #0
 	Name: module-device-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -9,7 +9,7 @@ Module #0
 
 Module #1
 	Name: module-stream-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -18,7 +18,7 @@ Module #1
 
 Module #2
 	Name: module-card-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -27,7 +27,7 @@ Module #2
 
 Module #3
 	Name: module-augment-properties
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -45,7 +45,7 @@ Module #4
 
 Module #5
 	Name: module-udev-detect
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -54,7 +54,7 @@ Module #5
 
 Module #6
 	Name: module-bluetooth-discover
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Joao Paulo Rechi Vita"
@@ -63,7 +63,7 @@ Module #6
 
 Module #7
 	Name: module-native-protocol-unix
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -72,7 +72,7 @@ Module #7
 
 Module #8
 	Name: module-gconf
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -81,7 +81,7 @@ Module #8
 
 Module #9
 	Name: module-default-device-restore
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -90,7 +90,7 @@ Module #9
 
 Module #10
 	Name: module-rescue-streams
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -99,7 +99,7 @@ Module #10
 
 Module #11
 	Name: module-always-sink
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -108,7 +108,7 @@ Module #11
 
 Module #12
 	Name: module-intended-roles
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -117,7 +117,7 @@ Module #12
 
 Module #13
 	Name: module-suspend-on-idle
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -126,7 +126,7 @@ Module #13
 
 Module #14
 	Name: module-console-kit
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -135,7 +135,7 @@ Module #14
 
 Module #15
 	Name: module-position-event-sounds
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -144,7 +144,7 @@ Module #15
 
 Module #16
 	Name: module-filter-heuristics
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -153,7 +153,7 @@ Module #16
 
 Module #17
 	Name: module-filter-apply
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Colin Guthrie"
@@ -162,10 +162,10 @@ Module #17
 
 Module #18
 	Name: module-switch-on-port-available
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
-		
+
 
 Module #19
 	Name: module-x11-publish
@@ -205,7 +205,7 @@ Module #22
 
 Module #23
 	Name: module-cli-protocol-unix
-	Argument: 
+	Argument:
 	Usage counter: n/a
 	Properties:
 		module.author = "Lennart Poettering"
@@ -228,7 +228,7 @@ Sink #0
 	             0.00 dB
 	Monitor Source: alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
 	Latency: 86152 usec, configured 86000 usec
-	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"
@@ -285,7 +285,7 @@ Source #0
 	             0.00 dB
 	Monitor of Sink: alsa_output.pci-0000_00_1b.0.analog-stereo
 	Latency: 0 usec, configured 371519 usec
-	Flags: DECIBEL_VOLUME LATENCY 
+	Flags: DECIBEL_VOLUME LATENCY
 	Properties:
 		device.description = "Monitor of Wbudowany dźwięk Analogowe stereo"
 		device.class = "monitor"
@@ -322,7 +322,7 @@ Source #1
 	             -46.00 dB
 	Monitor of Sink: n/a
 	Latency: 3425 usec, configured 56000 usec
-	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"

@@ -1,13 +1,13 @@
 #
-# The GPIO IDs as presented by sysfs correspond to the BCM IDs presented on 
+# The GPIO IDs as presented by sysfs correspond to the BCM IDs presented on
 # https://pinout.xyz/
 # !!! The numbers below are therefore NOT the physical pin location on the header
-# 
+#
 # See the gadget snap slot definitions here:
 # https://github.com/snapcore/pi3-gadget/blob/master/snapcraft.yaml
 #
 # These pairs have been chosen to be physically close and so easier to connect:
-# 
+#
 2,3
 4,17
 27,22

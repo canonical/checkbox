@@ -79,7 +79,7 @@ exclude:
 id: client-cert-desktop-24-04-automated
 _name: Desktop Preload Certification Tests for 24.04 (Automated Tests)
 unit: test plan
-_description: 
+_description:
  Includes tests that do not require operator input.
 include:
     recovery_info_attachment

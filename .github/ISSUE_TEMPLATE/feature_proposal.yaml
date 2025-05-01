@@ -12,6 +12,6 @@ body:
     attributes:
       label: Enhancement Proposal
       description: >
-        Describe the enhancement you would like to see in as much detail as needed.      
+        Describe the enhancement you would like to see in as much detail as needed.
     validations:
       required: true

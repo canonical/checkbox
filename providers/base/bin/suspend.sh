@@ -12,4 +12,3 @@ if [ "$architecture" = "x86_64" ] || [ "$architecture" = "i386" ]; then
 else
     rtcwake -v -d "${RTC_DEVICE_FILE:-/dev/rtc0}" -m no -s "${STRESS_S3_SLEEP_DELAY:-30}" && systemctl suspend || exit 1
 fi
-

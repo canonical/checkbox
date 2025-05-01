@@ -107,7 +107,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x61 0x1c 0xc7 0x71 
+			PPE Threshold 0x61 0x1c 0xc7 0x71
 		EHT Iftypes: managed
 			EHT MAC Capabilities (0xa200):
 				EHT OM Control Supported
@@ -133,7 +133,7 @@ Wiphy phy0
 			EHT bw=20 MHz, max NSS for MCS 8-9: Rx=2, Tx=2
 			EHT bw=20 MHz, max NSS for MCS 10-11: Rx=2, Tx=2
 			EHT bw=20 MHz, max NSS for MCS 12-13: Rx=0, Tx=0
-			EHT PPE Thresholds 0xc1 0x0e 0xe0 
+			EHT PPE Thresholds 0xc1 0x0e 0xe0
 		HE Iftypes: AP
 			HE MAC Capabilities (0x78011a100000):
 				+HTC HE Supported
@@ -174,7 +174,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x61 0x1c 0xc7 0x71 
+			PPE Threshold 0x61 0x1c 0xc7 0x71
 		EHT Iftypes: AP
 			EHT MAC Capabilities (0x8200):
 				EHT OM Control Supported
@@ -188,7 +188,7 @@ Wiphy phy0
 			EHT bw=20 MHz, max NSS for MCS 8-9: Rx=2, Tx=2
 			EHT bw=20 MHz, max NSS for MCS 10-11: Rx=2, Tx=2
 			EHT bw=20 MHz, max NSS for MCS 12-13: Rx=0, Tx=0
-			EHT PPE Thresholds 0xc1 0x0e 0xe0 
+			EHT PPE Thresholds 0xc1 0x0e 0xe0
 		Bitrates (non-HT):
 			* 1.0 Mbps
 			* 2.0 Mbps (short preamble supported)
@@ -329,7 +329,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x61 0x1c 0xc7 0x71 
+			PPE Threshold 0x61 0x1c 0xc7 0x71
 		EHT Iftypes: managed
 			EHT MAC Capabilities (0x2200):
 				EHT OM Control Supported
@@ -357,7 +357,7 @@ Wiphy phy0
 			EHT bw=160 MHz, max NSS for MCS 8-9: Rx=0, Tx=0
 			EHT bw=160 MHz, max NSS for MCS 10-11: Rx=0, Tx=0
 			EHT bw=160 MHz, max NSS for MCS 12-13: Rx=0, Tx=0
-			EHT PPE Thresholds 0xc1 0x0e 0xe0 
+			EHT PPE Thresholds 0xc1 0x0e 0xe0
 		HE Iftypes: AP
 			HE MAC Capabilities (0x78010a100000):
 				+HTC HE Supported
@@ -417,7 +417,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x61 0x1c 0xc7 0x71 
+			PPE Threshold 0x61 0x1c 0xc7 0x71
 		EHT Iftypes: AP
 			EHT MAC Capabilities (0x0200):
 				EHT OM Control Supported
@@ -433,7 +433,7 @@ Wiphy phy0
 			EHT bw=160 MHz, max NSS for MCS 8-9: Rx=0, Tx=0
 			EHT bw=160 MHz, max NSS for MCS 10-11: Rx=0, Tx=0
 			EHT bw=160 MHz, max NSS for MCS 12-13: Rx=0, Tx=0
-			EHT PPE Thresholds 0xc1 0x0e 0xe0 
+			EHT PPE Thresholds 0xc1 0x0e 0xe0
 		Bitrates (non-HT):
 			* 6.0 Mbps
 			* 9.0 Mbps
@@ -526,7 +526,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x61 0x1c 0xc7 0x71 
+			PPE Threshold 0x61 0x1c 0xc7 0x71
 		EHT Iftypes: managed
 			EHT MAC Capabilities (0x2200):
 				EHT OM Control Supported
@@ -559,7 +559,7 @@ Wiphy phy0
 			EHT bw=320 MHz, max NSS for MCS 8-9: Rx=0, Tx=0
 			EHT bw=320 MHz, max NSS for MCS 10-11: Rx=0, Tx=0
 			EHT bw=320 MHz, max NSS for MCS 12-13: Rx=0, Tx=0
-			EHT PPE Thresholds 0xc1 0x0e 0xe0 
+			EHT PPE Thresholds 0xc1 0x0e 0xe0
 		HE Iftypes: AP
 			HE MAC Capabilities (0x780112100000):
 				+HTC HE Supported
@@ -619,7 +619,7 @@ Wiphy phy0
 				6 streams: not supported
 				7 streams: not supported
 				8 streams: not supported
-			PPE Threshold 0x61 0x1c 0xc7 0x71 
+			PPE Threshold 0x61 0x1c 0xc7 0x71
 		EHT Iftypes: AP
 			EHT MAC Capabilities (0x0200):
 				EHT OM Control Supported
@@ -640,7 +640,7 @@ Wiphy phy0
 			EHT bw=320 MHz, max NSS for MCS 8-9: Rx=0, Tx=0
 			EHT bw=320 MHz, max NSS for MCS 10-11: Rx=0, Tx=0
 			EHT bw=320 MHz, max NSS for MCS 12-13: Rx=0, Tx=0
-			EHT PPE Thresholds 0xc1 0x0e 0xe0 
+			EHT PPE Thresholds 0xc1 0x0e 0xe0
 		Bitrates (non-HT):
 			* 6.0 Mbps
 			* 9.0 Mbps

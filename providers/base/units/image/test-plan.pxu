@@ -17,4 +17,3 @@ id: iot-cert-image-manual
 unit: test plan
 _name: Manual Sanity checks for images being certified on IoT devices
 include:
-

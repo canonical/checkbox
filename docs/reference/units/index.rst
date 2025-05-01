@@ -9,7 +9,7 @@ All units follow :ref:`rfc822`.
 
 .. toctree::
     :maxdepth: 2
-    
+
     job.rst
     test-plan.rst
     category.rst

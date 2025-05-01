@@ -1,7 +1,7 @@
 plugin: shell
 category_id: com.canonical.plainbox::memory
 id: memory/info
-estimated_duration: 5.0 
+estimated_duration: 5.0
 user: root
 command: memory_compare.py
 _summary:

@@ -33,7 +33,7 @@ depends: led/sysfs_led_brightness_on_{vendor}_{product}
 command:
   led_sysfs_brightness.py {product} off
 _purpose:
-  Verify that the leds_aaeon driver is working by setting all LEDs to off / 
+  Verify that the leds_aaeon driver is working by setting all LEDs to off /
   minimum brightness
 _steps:
   Press ENTER to start the test while watching external LEDs on the System Under Test (SUT).

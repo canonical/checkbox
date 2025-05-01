@@ -204,7 +204,7 @@ command:
     else
         echo "$info"
         exit 1
-    fi 
+    fi
 _purpose:
     This test will check if your touchpad was detected as a mouse.
 _summary: Check if the touchpad is recognized as a mouse by the system.

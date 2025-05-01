@@ -17,7 +17,7 @@ requires: manifest.has_usbc_data == 'True'
 estimated_duration: 60
 
 id: usb-c/c-to-a-adapter/storage-manual
-_summary: 
+_summary:
     Test USB 3 storage device insertion + read/write + removal using a "Type-C to Type-A" adapter.
 _purpose:
     This test will check that the system correctly detects the insertion of
@@ -155,10 +155,10 @@ _purpose:
   (host), the DUT can be detected as a mass storage device by the host.
 _steps:
   1. Press Enter to setup a 16 MB FAT32 image on the device.
-  2. From an Ubuntu host, connect a cable to the USB OTG port 
+  2. From an Ubuntu host, connect a cable to the USB OTG port
      (it's the USB Type-C connector) of the DUT.
 _verification:
-  The host detects and mounts the mass storage device. It has read and write 
+  The host detects and mounts the mass storage device. It has read and write
   permissions on it.
 plugin: user-interact-verify
 command:
@@ -200,11 +200,11 @@ requires: manifest.has_usbc_otg == 'True'
 id: usb-c-otg/g_ether
 _summary: Check DUT can be detected as USB ethernet device
 _steps:
-  1. From an Ubuntu host, connect a cable to the USB OTG port 
+  1. From an Ubuntu host, connect a cable to the USB OTG port
      (it's the USB Type-C connector) of the DUT.
   2. Press Enter to configure the IP address for the USB OTG ethernet interface on the DUT.
      (IP will be 192.168.9.1/24)
-  3. On the host, configure the IP address for the USB OTG ethernet interface. It should be 
+  3. On the host, configure the IP address for the USB OTG ethernet interface. It should be
      in the same subnet as the DUT. (e.g., 192.168.9.2/24)
   4. Try to ping between the host and DUT.
 _verification:
@@ -213,12 +213,12 @@ plugin: user-interact-verify
 command:
    echo "Setting up the IP address for USB OTG ethernet interface..."
    modprobe g_ether
-   if  (ip -c a | grep -q usb0) ; then 
+   if  (ip -c a | grep -q usb0) ; then
       echo "USB OTG ethernet interface exists. Configuring..."
       ip addr add 192.168.9.1/24 dev usb0
       echo "USB OTG ethernet interface IP address has been set as 192.168.9.1/24"
       ip link set dev usb0 up
-   else 
+   else
       echo "USB OTG ethernet interface does not exist."
       exit 1
    fi

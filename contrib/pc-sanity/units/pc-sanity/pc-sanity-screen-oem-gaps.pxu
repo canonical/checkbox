@@ -15,4 +15,3 @@ command: screen-pkg.py --out "$PLAINBOX_SESSION_SHARE" check-component
 _summary: check if pkgs are not supported by Canonical
 _description:
  This lists the packages which is not coming from main or restricted component.
-

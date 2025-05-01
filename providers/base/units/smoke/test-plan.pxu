@@ -27,4 +27,3 @@ include:
     smoke/requirement/good
     smoke/requirement/bad
     smoke/manual
-    

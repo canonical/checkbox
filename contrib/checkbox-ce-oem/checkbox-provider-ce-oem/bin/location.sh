@@ -36,7 +36,7 @@ if [ $result == 1 ]; then
 else
     latitude=$(echo "$locations" | awk -F, '{print $2}')
     longitude=$(echo "$locations" | awk -F, '{print $3}')
-    echo "Latitude : ${latitude}" 
+    echo "Latitude : ${latitude}"
     echo "Longitude : ${longitude}"
 fi
 exit ${result}

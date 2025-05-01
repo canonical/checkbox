@@ -3,7 +3,7 @@ id: stress-ng-stressors
 plugin: resource
 _summary: Gather list of test stressors from stress-ng
 _description:
- _purpose: 
+ _purpose:
   stress-ng divides tests into stressors. The goal is to get a list of stressors so tests can be divided
   up accordingly.
 command:

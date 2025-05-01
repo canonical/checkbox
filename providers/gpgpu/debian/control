@@ -27,4 +27,3 @@ Description: Checkbox provider for GPGPU testing
  This provider depends heavily on the installation of the latest NVIDIA drivers
  and the CUDA tool kit from NVIDIA, as well as testing software hosted on
  GitHub.
-

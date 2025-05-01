@@ -1,6 +1,6 @@
 #!/bin/bash
 
-codename=$(/usr/bin/lsb_release -s -c) 
+codename=$(/usr/bin/lsb_release -s -c)
 arch=$(dpkg --print-architecture)
 configfile="/etc/xdg/canonical-certification.conf"
 
@@ -157,7 +157,7 @@ if [[ $ccs = *none* ]] ; then
 		sudo apt-get -q install -y canonical-certification-server 1>/dev/null
 		CCS_Version
    	else
-		echo 
+		echo
 		fail
 	fi
 else
@@ -168,7 +168,7 @@ fi
 
 # Secure ID is set in $configfile (?)
 configure_SID(){
-    read -e -p " Please enter the secure_id of your SUT: " sid 
+    read -e -p " Please enter the secure_id of your SUT: " sid
     if grep "#secure_id" $configfile >/dev/null ; then
         sudo sed -i "s/#\[transport:c3\]/\[transport:c3\]/g" $configfile
 	    sudo sed -i "s/#secure_id =.*/secure_id = $sid/g" $configfile
@@ -435,7 +435,7 @@ else
     get_yn " Would you like to configure it now?" "Y"
     if [[ $YN == "Y" ]]; then
         read -e -p " Enter the path of your KVM Image: " kvm
-        sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile 
+        sudo sed -i "s,#KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile
         kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
         /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
         if [ $? = "0" ]; then
@@ -668,7 +668,7 @@ if [ $routable == 'dev' ]; then
 fi
 }
 
-# Check if iperf3 is available on server specified in $configfile 
+# Check if iperf3 is available on server specified in $configfile
 IPERF(){
 echoname "Iperf"
 if [ $(grep ^TEST_TARGET_IPERF $configfile|wc -l) = 1 ];then
@@ -936,7 +936,7 @@ fi
 
 
 runchoices() {
- echo 
+ echo
  for i in $steps
   do
    eval "status=\$check${i}"

@@ -16,7 +16,7 @@ Generates a serial console resource based on user supplied configuration
 - **description:**
 ```
 A serial console resource that relies on the user
-specifying the number of serial console port. 
+specifying the number of serial console port.
 This is to allow template jobs to then be instantiated.
 TYPE:NODE:BAUDRATE
 SERIAL_CONSOLE_PORTS=USB:/dev/ttyUSB1:115200
@@ -44,7 +44,7 @@ Generates a serial resource based on user supplied configuration
 - **description:**
 ```
 A serial resource that relies on the user
-specifying the number of serial port. 
+specifying the number of serial port.
 This is to allow template jobs to then be instantiated.
 TYPE:NODE:BAUDRATE
 SERIAL_PORTS="RS485:/dev/ttyS0:9600 RS485:/dev/ttyS1:9600 RS232:/dev/ttyS2:115200"

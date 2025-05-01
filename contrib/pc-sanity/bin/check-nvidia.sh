@@ -220,4 +220,3 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
         exit "$function_failed"
     fi
 fi
-

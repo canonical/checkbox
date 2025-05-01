@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-# This script is used to verify the output of the mtk_hdmirx_tool. 
+# This script is used to verify the output of the mtk_hdmirx_tool.
 
 verify_check_cable_output() {
     # $1 is the log file who records the output of hdmi_rx tool
@@ -58,7 +58,7 @@ verify_get_video_info_output() {
             echo " - PASS"
         fi
     done
-    exit $EXIT    
+    exit $EXIT
 }
 
 verify_get_audio_info_output() {
@@ -80,7 +80,7 @@ verify_get_audio_info_output() {
             echo " - PASS"
         fi
     done
-    exit $EXIT    
+    exit $EXIT
 }
 
 help_function() {

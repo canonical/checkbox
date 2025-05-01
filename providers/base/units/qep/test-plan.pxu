@@ -1,7 +1,7 @@
 id: qep-full
 _name: Quadrature Encoder Peripheral (QEP) tests
 unit: test plan
-include: 
+include:
 bootstrap_include:
   qep/qep-devices
 nested_part:
@@ -13,7 +13,7 @@ _name: Quadrature Encoder Peripheral (QEP) test (manual)
 unit: test plan
 bootstrap_include:
   qep/qep-devices
-include: 
+include:
 
 id: qep-automated
 _name: Quadrature Encoder Peripheral (QEP) test (automated)

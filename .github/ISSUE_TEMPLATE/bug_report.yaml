@@ -13,7 +13,7 @@ body:
       label: Bug Description
       description: >
         A clear and concise description of what the bug is.
-        If applicable, add screenshots to help explain the problem you are facing.      
+        If applicable, add screenshots to help explain the problem you are facing.
     validations:
       required: true
   - type: checkboxes
@@ -75,11 +75,10 @@ body:
         Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       placeholder: |
         - Checkbox session(s) (located in `/var/tmp/checkbox-ng/sessions/`, you usually want to select the most recent one)
-        
+
         - logs from the impacted components (e.g. `lsblk` if this is related to an issue when testing a disk...); a safe option is to install and run `sosreport` to gather as much log as possible.
       render: shell
   - type: textarea
     id: additional-context
     attributes:
       label: Additional context
-

@@ -133,7 +133,7 @@ _description:
 _purpose:
  Block Caps Lock key LED verification
 _steps:
- 1. Press "Caps Lock Key" to activate/deactivate caps lock 
+ 1. Press "Caps Lock Key" to activate/deactivate caps lock
  2. Caps Lock LED should be switched on/off every time the key is pressed
 _verification:
  Did the Caps Lock LED light as expected?

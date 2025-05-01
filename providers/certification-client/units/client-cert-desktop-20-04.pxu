@@ -81,7 +81,7 @@ exclude:
 id: client-cert-desktop-20-04-automated
 _name: Desktop Preload Certification Tests for 20.04 (Automated Tests)
 unit: test plan
-_description: 
+_description:
  Includes tests that do not require operator input.
 include:
     audio/alsa_record_playback_automated

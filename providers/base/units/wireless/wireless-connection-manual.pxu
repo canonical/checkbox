@@ -224,7 +224,7 @@ command:
     exit $?
 estimated_duration: 330.0
 _summary: Wireless connection iperf3 test
-_purpose: 
+_purpose:
  Tests the performance of a system's wireless connection through the iperf3 tool using UDP packets.
 
 plugin: shell

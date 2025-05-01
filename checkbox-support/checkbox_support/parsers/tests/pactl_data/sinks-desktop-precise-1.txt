@@ -14,7 +14,7 @@ Sink #1
 	             0.00 dB
 	Monitor Source: alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
 	Latency: 85065 usec, configured 90000 usec
-	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY
 	Properties:
 		alsa.resolution_bits = "16"
 		device.api = "alsa"

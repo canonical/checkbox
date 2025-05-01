@@ -36,8 +36,8 @@ failed_resume: 0
 failed_resume_early: 0
 failed_resume_noirq: 0
 failures:
-  last_failed_dev:	
-			
+  last_failed_dev:
+
   last_failed_errno:	0
 			0
   last_failed_step:

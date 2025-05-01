@@ -3,4 +3,3 @@ FAIL
 {%- else -%}
 PASS
 {%- endif %}
-

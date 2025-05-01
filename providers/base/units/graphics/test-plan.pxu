@@ -305,7 +305,7 @@ include:
     suspend/1_resolution_after_suspend_.*_auto             certification-status=blocker
     suspend/1_display_after_suspend_.*_graphics            certification-status=blocker
     suspend/1_glxgears_after_suspend_.*_graphics           certification-status=blocker
-    suspend/1_rotation_after_suspend_.*_graphics           certification-status=blocker 
+    suspend/1_rotation_after_suspend_.*_graphics           certification-status=blocker
     suspend/1_video_after_suspend_.*_graphics              certification-status=blocker
     power-management/lid_close_suspend_open                certification-status=blocker
     power-management/lid                                   certification-status=blocker

@@ -3,8 +3,8 @@ _name: Nvdimm Only Test Plan (Only tests memory and storage)
 unit: test plan
 _description:
     This test plan is intended to be used for retesting of nvdimm devices in
-    storage and memory modes only.  It does not provide any testing of other 
-    hardware and should only be run at the direction of the Cert Team when 
+    storage and memory modes only.  It does not provide any testing of other
+    hardware and should only be run at the direction of the Cert Team when
     re-testing nvdimm devices is required.
 nested_part:
     com.canonical.certification::server-info-attachment-automated

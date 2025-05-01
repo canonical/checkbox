@@ -198,4 +198,3 @@ exclude:
     com.canonical.certification::stress-tests/hibernate.*
 certification_status_overrides:
     apply blocker to .*
-

@@ -47,11 +47,11 @@ For example, if the following config file is created at a custom location
 .. code-block:: none
    :caption: /tmp/my_config_name.conf
 
-   [test plan] 
-   unit = com.canonical.certification::smoke 
+   [test plan]
+   unit = com.canonical.certification::smoke
    forced = yes
 
-   [test selection] 
+   [test selection]
    forced = yes
 
 And another config file at the one of the default lookup locations
@@ -60,7 +60,7 @@ And another config file at the one of the default lookup locations
 .. code-block:: none
    :caption: ~/.config/checkbox.conf
 
-   [test plan] 
+   [test plan]
    unit = wrong_name
 
 Then invoke Checkbox with the following launcher:
@@ -69,7 +69,7 @@ Then invoke Checkbox with the following launcher:
    :caption: my_launcher
    :emphasize-lines: 2
 
-   [config] 
+   [config]
    config_filename = /tmp/my_config_name.conf
 
 Checkbox will load the correct test plan specified in the launcher. The ``unit``
@@ -117,7 +117,7 @@ both configuration sources are taken into account:
 .. code-block:: none
    :caption: my_launcher
    :emphasize-lines: 2
- 
+
    [config]
    config_filename = ~/.config/checkbox_global.conf
 
@@ -149,7 +149,7 @@ where the ``stock_reports`` value overrides the imported value:
 
 The configuration value inheritance (when a config or a launcher imports
 another config/launcher) allows every value to be inherited and
-overridden. It is helpful to use the :ref:`'check-config' command <check_config_cmd>` to track 
+overridden. It is helpful to use the :ref:`'check-config' command <check_config_cmd>` to track
 the origin of config values before running tests.
 
 .. warning::
@@ -157,7 +157,7 @@ the origin of config values before running tests.
    Circular import is not allowed. We advise you to use this feature in
    moderation since whilst it can simplify the maintenance of multiple
    configurations by avoiding copy-pasting values around, it can also make
-   debugging a configuration complicated. 
+   debugging a configuration complicated.
 
 .. _check_config_cmd:
 

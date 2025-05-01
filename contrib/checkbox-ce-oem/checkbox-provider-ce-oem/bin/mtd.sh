@@ -18,7 +18,7 @@ countMtd() {
         ret=0
     else
         echo "The number of MTD is incorrect!"
-        ret=1 
+        ret=1
     fi
     echo "Expected: ${1}"
     echo "Actual: ${count}"

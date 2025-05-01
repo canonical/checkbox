@@ -6207,4 +6207,3 @@ P: /devices/virtual/vtconsole/vtcon1
 E: DEVPATH=/devices/virtual/vtconsole/vtcon1
 E: SUBSYSTEM=vtconsole
 E: UDEV_LOG=3
-

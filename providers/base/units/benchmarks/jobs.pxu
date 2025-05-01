@@ -8,7 +8,7 @@ template-id: benchmarks/disk/hdparm-read_name
 flags: also-after-suspend
 estimated_duration: 15.0
 user: root
-command: 
+command:
  # Check if the disk size is smaller than the threshold (2MB)
  disk_size=$(blockdev --getsize64 /dev/{name})
  if [ "$disk_size" -gt 2097152 ]; then

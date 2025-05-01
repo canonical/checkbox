@@ -89,16 +89,16 @@ A bit below, we see a ``Hardware Manifest`` job being executed:
     ... 8< -------------------------------------------------------------------------
     ns: com.canonical.certification
     name: checkbox-provider-base
-    has_audio_playback: 
+    has_audio_playback:
     (...)
-    has_touchpad: 
+    has_touchpad:
     has_touchscreen: True
     (...)
-    has_wlan_adapter: 
+    has_wlan_adapter:
     has_wwan_module:
-     
+
     (...)
-    
+
     ------------------------------------------------------------------------- >8 ---
     Outcome: job passed
 
@@ -156,16 +156,16 @@ now set to ``False``:
     ... 8< -------------------------------------------------------------------------
     ns: com.canonical.certification
     name: checkbox-provider-base
-    has_audio_playback: 
+    has_audio_playback:
     (...)
-    has_touchpad: 
+    has_touchpad:
     has_touchscreen: False
     (...)
-    has_wlan_adapter: 
+    has_wlan_adapter:
     has_wwan_module:
-     
+
     (...)
-    
+
     ------------------------------------------------------------------------- >8 ---
     Outcome: job passed
 
@@ -189,7 +189,7 @@ Let's check the content of the manifest file:
 .. code-block:: none
 
     $ cat /var/tmp/checkbox-ng/machine-manifest.json
-	
+
     {
       "com.canonical.certification::has_touchscreen": false
     }
@@ -221,7 +221,7 @@ First of all, make sure the information in the manifest file is correct:
 .. code-block:: none
 
     $ cat /var/tmp/checkbox-ng/machine-manifest.json
-	
+
     {
       "com.canonical.certification::has_touchscreen": true
     }
@@ -239,10 +239,10 @@ Next, create a launcher file named ``auto-manifest`` with the following content:
     [test plan]
     unit = com.canonical.certification::tutorial-base-manifest
     forced = yes
-    
+
     [test selection]
     forced = yes
-    
+
     [ui]
     type = silent
 
@@ -263,18 +263,18 @@ Now, run Checkbox using this launcher:
     Reports will be saved to: /home/user/.local/share/checkbox-ng
     =========[ Running job 1 / 3. Estimated time left (at least): 0:00:02 ]=========
     --------------------------[ A job that always passes ]--------------------------
-    
+
     (...)
-    
+
     =========[ Running job 2 / 3. Estimated time left (at least): 0:00:02 ]=========
     -----------------------------[ Hardware Manifest ]------------------------------
-    
+
     (...)
-    
+
     has_touchscreen: True
-    
+
     (...)
-    
+
     =========[ Running job 3 / 3. Estimated time left (at least): 0:00:01 ]=========
     ---------------------------[ A job using a manifest ]---------------------------
     ID: com.canonical.certification::tutorial/manifest

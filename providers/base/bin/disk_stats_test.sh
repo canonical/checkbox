@@ -69,7 +69,7 @@ check_return_code $? "Stats in /proc/diskstats did not change" \
 check_return_code $? "Stats in /sys/block/$DISK/stat did not change" \
     "$SYS_STAT_BEGIN" "$SYS_STAT_END"
 
-if [[ $STATUS -eq 0 ]]; then 
+if [[ $STATUS -eq 0 ]]; then
     echo "PASS: Finished testing stats for $DISK"
 fi
 

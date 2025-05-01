@@ -3,21 +3,21 @@ Changing output verbosity
 
 When test are executed, by default, Checkbox prints errors and warnings of all
 test jobs on the standard output. But sometimes you may want to know more on the
-tests that are executing, or you may only care about the results. 
+tests that are executing, or you may only care about the results.
 
 To customize the types of output information produced while running tests, you can
-either apply verbosity options when you launch Checkbox, or change the UI output 
+either apply verbosity options when you launch Checkbox, or change the UI output
 options in a launcher: ``ui.output`` and ``ui.verbosity``.
 
 Hide output by job types
 -------------------------
 
 You can hide output from resource jobs and automatic jobs by toggling the
-``ui.output`` option. 
+``ui.output`` option.
 
 For example, when resource jobs are plenty, the standard output may fill up with their
-output. In this case, consider the ``hide-resource-and-attachment`` option in the 
-following launcher: 
+output. In this case, consider the ``hide-resource-and-attachment`` option in the
+following launcher:
 
 .. code-block:: ini
   :emphasize-lines: 9

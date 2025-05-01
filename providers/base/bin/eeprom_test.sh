@@ -6,10 +6,10 @@ echo "Error: Can't find EEPROM in system!!"
 exit 1
 fi
 status=0
-# This for loop is just in case multiple EEPROMs are on the platform. 
+# This for loop is just in case multiple EEPROMs are on the platform.
 for eeprom in $eeprom_path
 do
-# Generates random data for test. 
+# Generates random data for test.
 data=$(echo $RANDOM | md5sum | head -c 10)
 echo "Write data ${data} into ${eeprom}"
 if (echo "$data" > "$eeprom")

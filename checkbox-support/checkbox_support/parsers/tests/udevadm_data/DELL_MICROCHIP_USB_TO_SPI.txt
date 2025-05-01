@@ -6249,4 +6249,3 @@ E: SUBSYSTEM=vtconsole
 P: /devices/virtual/workqueue/writeback
 E: DEVPATH=/devices/virtual/workqueue/writeback
 E: SUBSYSTEM=workqueue
-

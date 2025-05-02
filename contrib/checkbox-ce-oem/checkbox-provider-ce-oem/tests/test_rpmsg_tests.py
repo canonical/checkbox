@@ -1,9 +1,8 @@
 import unittest
 import sys
 import argparse
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, Mock
 
-sys.modules["systemd"] = MagicMock()
 # flake8: noqa: E402
 import rpmsg_tests
 
@@ -163,7 +162,6 @@ class TestRpmsgSerialTty(unittest.TestCase):
         """
         String-ECHO test passed through RPMSG TTY device
         """
-        serial_dev = "serial-dev"
         tty_device = "/dev/ttyRPMSG30"
         mock_check_rpmsg_tty_devices.return_value = [tty_device]
 

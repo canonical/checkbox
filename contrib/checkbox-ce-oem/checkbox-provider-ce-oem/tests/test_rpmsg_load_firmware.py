@@ -4,9 +4,8 @@ import argparse
 from pathlib import Path
 from io import StringIO
 from contextlib import redirect_stdout
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, Mock
 
-sys.modules["systemd"] = MagicMock()
 # flake8: noqa: E402
 import rpmsg_load_firmware
 
@@ -126,30 +125,26 @@ class RpmsgLoardFirmwareTests(unittest.TestCase):
 
     def test_lookup_reload_logs_not_last_one(self):
         self._rpmsg_load_fw_test.search_pattern = self._default_search_pattern
-        entry = {
-            "MESSAGE": (
-                "Apr 25 07:12:53 ubuntu kernel: remoteproc "
-                "remoteproc0: powering up imx-rproc"
-            )
-        }
+        entry = (
+            "Apr 25 07:12:53 ubuntu kernel: remoteproc "
+            "remoteproc0: powering up imx-rproc"
+        )
         self.assertTrue(self._rpmsg_load_fw_test.lookup_reload_logs(entry))
         self.assertEqual(
             self._rpmsg_load_fw_test.expected_events,
-            [("start", entry["MESSAGE"])],
+            [("start", entry)],
         )
 
     def test_lookup_reload_logs_last_one(self):
         self._rpmsg_load_fw_test.search_pattern = self._default_search_pattern
-        entry = {
-            "MESSAGE": (
-                "Apr 25 07:12:53 ubuntu kernel: remoteproc "
-                "remoteproc0: remote processor imx-rproc is now up"
-            )
-        }
+        entry = (
+            "Apr 25 07:12:53 ubuntu kernel: remoteproc "
+            "remoteproc0: remote processor imx-rproc is now up"
+        )
         self.assertFalse(self._rpmsg_load_fw_test.lookup_reload_logs(entry))
         self.assertEqual(
             self._rpmsg_load_fw_test.expected_events,
-            [("ready", entry["MESSAGE"])],
+            [("ready", entry)],
         )
 
     def test_verify_load_firmware_logs_successful(self):

@@ -10,7 +10,6 @@ import shlex
 import select
 import logging
 import threading
-from systemd import journal
 from pathlib import Path
 import serial_test
 
@@ -141,30 +140,21 @@ class RpmsgPingPongTest:
         self._init_logger()
 
     def _init_logger(self):
-        self.log_reader = journal.Reader()
-        self.log_reader.this_boot()
-        self.log_reader.seek_tail()
-        self.log_reader.get_previous()
-
+        self.log_reader = subprocess.Popen(
+            ["journalctl", "-f"], stdout=subprocess.PIPE
+        )
         self._poller = select.poll()
-        self._poller.register(self.log_reader, self.log_reader.get_events())
+        self._poller.register(self.log_reader.stdout, select.POLLIN)
 
-    def lookup_pingpong_logs(self):
+    def lookup_pingpong_logs(self, entry):
         keep_looking = True
-        for entry in self.log_reader:
-            logging.info(entry["MESSAGE"])
-            if entry["MESSAGE"] == "":
-                continue
 
-            if re.search(self.pingpong_end_pattern, entry["MESSAGE"]):
-                keep_looking = False
-                break
-            else:
-                result = re.search(
-                    self.pingpong_event_pattern, entry["MESSAGE"]
-                )
-                if result and result.groups()[0] in self.rpmsg_channels:
-                    self.pingpong_events.append(entry["MESSAGE"])
+        if re.search(self.pingpong_end_pattern, entry):
+            keep_looking = False
+        else:
+            result = re.search(self.pingpong_event_pattern, entry)
+            if result and result.groups()[0] in self.rpmsg_channels:
+                self.pingpong_events.append(entry)
 
         return keep_looking
 
@@ -174,12 +164,14 @@ class RpmsgPingPongTest:
         logging.info("# start time: %s", start_time)
 
         self.pingpong_events = []
-
-        while self._poller.poll(1000):
-            if self.log_reader.process() == journal.APPEND:
-                if self.lookup_pingpong_logs() is False:
-                    return self.pingpong_events
-
+        while True:
+            events = self._poller.poll(1000)
+            for _, event in events:
+                if event & select.POLLIN:
+                    raw = self.log_reader.stdout.readline().decode()
+                    logging.info(raw)
+                    if self.lookup_pingpong_logs(raw) is False:
+                        return self.pingpong_events
             cur_time = time.time()
             if (cur_time - start_time) > 60:
                 return self.pingpong_events
@@ -217,8 +209,8 @@ class RpmsgPingPongTest:
             subprocess.Popen(shlex.split(self.probe_cmd))
             thread.join()
 
-            self._poller.unregister(self.log_reader)
-            self.log_reader.close()
+            self._poller.unregister(self.log_reader.stdout)
+            self.log_reader.kill()
         except subprocess.CalledProcessError:
             pass
 

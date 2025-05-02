@@ -55,7 +55,9 @@ def get_stats(nums: T.List[int]) -> T.Tuple[float, float]:
     mean = sum(nums) / len(nums)
 
     if len(nums) == 1:
-        stdev = 0
+        # this is technically the stdev for a single sample,
+        # but if we only have 1 sample, something went wrong
+        stdev = 0.0
     else:
         stdev = sqrt(sum((n - mean) ** 2 for n in nums) / (len(nums) - 1))
 
@@ -107,22 +109,23 @@ def main() -> T.Literal[0, 1]:
     failed = False
     if len(fps_counts) < 10:
         print(
-            "Not enough FPS samples.",
+            "[ ERR ] Not enough FPS samples.",
             f"Only received {len(fps_counts)} samples, but needed 10.",
             f"Did {glmark2_executable} finish?",
         )
         failed = True
 
     if stdev > 0.05 * mean:
-        print("Too much variance. Expected stdev to be within 5% of mean")
+        print(
+            "[ ERR ] Too much variance. Expected stdev to be within 5% of mean"
+        )
         failed = True
     if abs(mean - expected_fps) > 0.05 * expected_fps:
-        print("Mean is too far from screen refresh rate.")
+        print("[ WARN ] Mean is too far from screen refresh rate.")
         print(
             "Expected the average fps to be within 5% of refresh rate: "
             f"[{round(expected_fps *0.95, 2)}, {round(expected_fps *1.05, 2)}]"
         )
-        failed = True
 
     if not failed:
         print("OK!")

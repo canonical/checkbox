@@ -65,7 +65,6 @@ def get_stats(nums: T.List[int]) -> T.Tuple[float, float]:
 
 
 def main() -> T.Literal[0, 1]:
-
     XDG_SESSION_TYPE = os.getenv("XDG_SESSION_TYPE")
 
     if XDG_SESSION_TYPE is None:
@@ -94,7 +93,9 @@ def main() -> T.Literal[0, 1]:
     for line in glmark2_out.splitlines():
         if "FPS" not in line:
             continue
-        fps_counts.append(int(line.split()[3]))
+        words = line.split()
+        fps_str_idx = words.index("FPS:") + 1
+        fps_counts.append(int(words[fps_str_idx]))
 
     mean, stdev = get_stats(fps_counts)
     expected_fps = get_expected_refresh_rate(XDG_SESSION_TYPE)

@@ -83,7 +83,7 @@ class PrimeOffloader:
 
         :returns: card id
         """
-        pci_bdf_format = "[0-9]{4}:[0-9,a-f]{2}:[0-9,a-f]{2}.[0-9]"
+        pci_bdf_format = "[0-9]{2}[0-9,a-f]{2}:[0-9,a-f]{2}:[0-9,a-f]{2}.[0-9]"
         if not re.match(pci_bdf_format, pci_bdf.lower()):
             raise SystemExit("pci BDF format error")
 

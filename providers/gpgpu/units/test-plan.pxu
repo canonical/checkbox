@@ -60,6 +60,7 @@ include:
     gpgpu/cuda-samples-6-perf       certification-status=non-blocker
     gpgpu/cuda-samples-7-nvvm       certification-status=non-blocker
     gpgpu/cuda-samples-8-plat       certification-status=non-blocker
+    gpgpu/nv-container-smi          certification-status=non-blocker
 bootstrap_include:
     graphics_card
     executable

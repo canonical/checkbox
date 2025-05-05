@@ -73,6 +73,8 @@ help_function() {
 }
 
 main() {
+    sudo snap refresh snapd
+
     while [ $# -ne 0 ]; do
         case $1 in
         --dss-snap-channel)

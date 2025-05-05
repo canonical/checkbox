@@ -9,7 +9,6 @@ import subprocess
 
 from look_up_xtest import look_up_app
 from pathlib import Path
-from systemd import journal
 from xtest_install_ta import find_ta_path, install_ta
 
 
@@ -93,11 +92,13 @@ def parse_xtest_src(version):
 
 
 def _lookup_optee_version():
-    j_reader = journal.Reader()
-    j_reader.this_boot()
-    for entry in j_reader:
+    ret = subprocess.run(
+        shlex.split("journalctl -b 0 -g 'optee: (version|revision)'"),
+        capture_output=True,
+    )
+    if ret.returncode == 0:
         match = re.search(
-            r"optee: (version|revision) (\d+.\d+)", entry["MESSAGE"]
+            r"optee: (version|revision) (\d+.\d+)", ret.stdout.decode("utf-8")
         )
         if match:
             return match.group(2)

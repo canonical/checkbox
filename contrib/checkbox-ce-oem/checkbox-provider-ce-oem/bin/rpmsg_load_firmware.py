@@ -156,7 +156,7 @@ class RpmsgLoadFirmwareTest:
 
         return keep_looking
 
-    def _monitor_journal_logs(self, lookup_func) -> list:
+    def _monitor_journal_logs(self, lookup_func) -> None:
         start_time = time.time()
         logging.info("# start time: %s", start_time)
 

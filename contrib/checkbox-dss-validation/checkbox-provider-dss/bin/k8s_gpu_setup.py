@@ -156,5 +156,5 @@ def install_intel_gpu_plugin(plugin_version: str) -> None:
     run_with_retry(subprocess.check_call, 10, 3, rollout_status.split())
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

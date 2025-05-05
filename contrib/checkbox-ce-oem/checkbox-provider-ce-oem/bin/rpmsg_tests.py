@@ -7,7 +7,6 @@ import time
 import re
 import subprocess
 import shlex
-import select
 import logging
 import threading
 from pathlib import Path
@@ -143,8 +142,6 @@ class RpmsgPingPongTest:
         self.log_reader = subprocess.Popen(
             ["journalctl", "-f"], stdout=subprocess.PIPE
         )
-        self._poller = select.poll()
-        self._poller.register(self.log_reader.stdout, select.POLLIN)
 
     def lookup_pingpong_logs(self, entry):
         keep_looking = True
@@ -165,16 +162,13 @@ class RpmsgPingPongTest:
 
         self.pingpong_events = []
         while True:
-            events = self._poller.poll(1000)
-            for _, event in events:
-                if event & select.POLLIN:
-                    raw = self.log_reader.stdout.readline().decode()
-                    logging.info(raw)
-                    if self.lookup_pingpong_logs(raw) is False:
-                        return self.pingpong_events
+            raw = self.log_reader.stdout.readline().decode()
+            logging.info(raw)
+            if raw and self.lookup_pingpong_logs(raw) is False:
+                return
             cur_time = time.time()
             if (cur_time - start_time) > 60:
-                return self.pingpong_events
+                return
 
     def pingpong_test(self):
         """
@@ -209,7 +203,6 @@ class RpmsgPingPongTest:
             subprocess.Popen(shlex.split(self.probe_cmd))
             thread.join()
 
-            self._poller.unregister(self.log_reader.stdout)
             self.log_reader.kill()
         except subprocess.CalledProcessError:
             pass

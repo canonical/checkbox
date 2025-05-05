@@ -22,7 +22,6 @@ import re
 import argparse
 import time
 import logging
-import select
 import subprocess
 from collections import OrderedDict
 from pathlib import Path
@@ -145,8 +144,6 @@ class RpmsgLoadFirmwareTest:
         self.log_reader = subprocess.Popen(
             ["journalctl", "-f"], stdout=subprocess.PIPE
         )
-        self._poller = select.poll()
-        self._poller.register(self.log_reader.stdout, select.POLLIN)
 
     def lookup_reload_logs(self, entry: str) -> bool:
         keep_looking = True
@@ -164,16 +161,13 @@ class RpmsgLoadFirmwareTest:
         logging.info("# start time: %s", start_time)
 
         while True:
-            events = self._poller.poll(1000)
-            for _, event in events:
-                if event & select.POLLIN:
-                    raw = self.log_reader.stdout.readline().decode()
-                    logging.info(raw)
-                    if lookup_func(raw) is False:
-                        return self.expected_events
+            raw = self.log_reader.stdout.readline().decode()
+            logging.info(raw)
+            if raw and lookup_func(raw) is False:
+                return
             cur_time = time.time()
             if (cur_time - start_time) > 60:
-                return self.expected_events
+                return
 
 
 def verify_load_firmware_logs(
@@ -228,7 +222,6 @@ def load_firmware_test(args) -> None:
         logging.info("Start the Remote processor")
         rpmsg_handler.rpmsg_state = "start"
         rpmsg_handler._monitor_journal_logs(rpmsg_handler.lookup_reload_logs)
-        rpmsg_handler._poller.unregister(rpmsg_handler.log_reader.stdout)
         rpmsg_handler.log_reader.kill()
 
         if verify_load_firmware_logs(

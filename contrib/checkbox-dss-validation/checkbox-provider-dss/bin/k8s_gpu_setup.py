@@ -126,7 +126,7 @@ def install_nvidia_gpu_operator(operator_version: str) -> None:
     #   rollout is updated, and it is these updated rollouts that we
     #   want to await.  We wait here before awaiting those updated
     #   rollouts using run_with_retry.
-    time.sleep(15)
+    time.sleep(30)
     rollouts_to_await = [
         "ds/nvidia-device-plugin-daemonset",
         "ds/nvidia-operator-validator",

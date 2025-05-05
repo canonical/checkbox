@@ -105,7 +105,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         )
         busses = [d.bus for d in devices]
         self.assertEqual(["usb", "usb"], busses)
-        breakpoint()
+        self.assertEqual(self.count(devices, "PARTITION"), 1)
 
     def test_DELL_INSPIRON3521_TOUCHSCREEN(self):
         """

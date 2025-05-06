@@ -228,7 +228,7 @@ category_id: com.canonical.plainbox::usb
 plugin: shell
 _summary: Detect storage partitions on a device on the USB bus
 command:
-  echo "Searching udev for a partitioned device connected via usb"
+  echo "Searching udev for a partitioned device connected via USB..."
   udev_resource.py -f PARTITION | grep "bus: usb"
 estimated_duration: 1.0
 flags: also-after-suspend

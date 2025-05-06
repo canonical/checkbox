@@ -25,6 +25,15 @@ class CollectorOutputs(dict):
         to_dump["version"] = self.COLLECTOR_OUTPUTS_VERSION
         return json.dumps(to_dump, indent=4)
 
+    @classmethod
+    def from_dict(cls, dct):
+        _ = dct.pop("version")
+        to_load = {
+            name: CollectionOutput.from_dict(value)
+            for (name, value) in dct.items()
+        }
+        return cls(to_load)
+
 
 class CollectorMeta(type):
     """

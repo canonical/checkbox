@@ -55,6 +55,7 @@ class MergeSubmissions(MergeReports):
         tmpdir = TemporaryDirectory()
         self.job_dict = {}
         self.category_dict = {}
+        self.system_information = {}
         for submission in ctx.args.submission:
             session_title = self._parse_submission(
                 submission, tmpdir, mode="dict"

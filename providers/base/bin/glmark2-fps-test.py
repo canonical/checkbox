@@ -6,7 +6,7 @@ from sys import argv
 
 
 def get_expected_refresh_rate(
-    xdg_session_type: T.Literal["wayland", "x11"],
+    xdg_session_type: str,
 ) -> float:
     if xdg_session_type == "x11":
         xrandr_out = sp.check_output(["xrandr"], universal_newlines=True)
@@ -30,7 +30,7 @@ def get_expected_refresh_rate(
     )
 
 
-def select_glmark2_exec(xdg_session_type: T.Literal["wayland", "x11"]):
+def select_glmark2_exec(xdg_session_type: str):
     cpu_arch = sp.check_output(
         ["uname", "-m"], universal_newlines=True
     ).strip()
@@ -46,6 +46,12 @@ def select_glmark2_exec(xdg_session_type: T.Literal["wayland", "x11"]):
         glmark2_executable += "-wayland"
 
     return glmark2_executable
+
+
+def unbiased_coef_of_variation(n: int, mean: float, stdev: float) -> float:
+    # assuming normal distribution
+    # https://en.wikipedia.org/wiki/Coefficient_of_variation#Estimation
+    return (1 + (1 / (4 * n))) * (stdev / mean)
 
 
 def get_stats(nums: T.List[int]) -> T.Tuple[float, float]:
@@ -64,7 +70,7 @@ def get_stats(nums: T.List[int]) -> T.Tuple[float, float]:
     return mean, stdev
 
 
-def main() -> T.Literal[0, 1]:
+def main() -> int:
     XDG_SESSION_TYPE = os.getenv("XDG_SESSION_TYPE")
 
     if XDG_SESSION_TYPE is None:
@@ -85,8 +91,10 @@ def main() -> T.Literal[0, 1]:
     # the --swap-mode fifo option is available on all glmark2 variants
     # and is the official way to enable vsync
     glmark2_out = sp.check_output(
-        [glmark2_executable, "--swap-mode", "fifo", *argv[1:]],
+        [glmark2_executable, *argv[1:]],
         universal_newlines=True,
+        # kinda ugly, but dict union | isn't introduced until 3.9
+        env={**os.environ, "vblank_mode": "3"},
     )
 
     fps_counts = []  # type: list[int]
@@ -111,21 +119,28 @@ def main() -> T.Literal[0, 1]:
     if len(fps_counts) < 10:
         print(
             "[ ERR ] Not enough FPS samples.",
-            f"Only received {len(fps_counts)} samples, but needed 10.",
-            f"Did {glmark2_executable} finish?",
+            "Only received {} samples, but needed 10.".format(len(fps_counts)),
+            "Did {} finish?".format(glmark2_executable),
         )
-        failed = True
+        # fail early here to avoid division by 0
+        return 1
 
-    if stdev > 0.05 * mean:
+    coef_of_var = unbiased_coef_of_variation(len(fps_counts), mean, stdev)
+    print("Coefficient of variation: {}".format(coef_of_var))
+    if coef_of_var >= 0.2:
+        # typically the threshold is 1, but that pretty much accepts everything
         print(
-            "[ ERR ] Too much variance. Expected stdev to be within 5% of mean"
+            "[ ERR ] Too much variance. Expected coef_of_var < 0.2",
+            "but got {}".format(coef_of_var),
         )
         failed = True
     if abs(mean - expected_fps) > 0.05 * expected_fps:
         print("[ WARN ] Mean is too far from screen refresh rate.")
         print(
             "Expected the average fps to be within 5% of refresh rate: "
-            f"[{round(expected_fps *0.95, 2)}, {round(expected_fps *1.05, 2)}]"
+            "[{}, {}]".format(
+                round(expected_fps * 0.95, 2), round(expected_fps * 1.05, 2)
+            )
         )
 
     if not failed:

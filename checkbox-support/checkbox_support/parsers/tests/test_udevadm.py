@@ -97,6 +97,16 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = parser.run()
         self.assertEqual(devices[0].category, "NETWORK")
 
+    def test_KIOXIA_TransMemory(self):
+        # this is a non-regression test to check that the KIOXIA TransMemory
+        # USB stick is detected as a usb stick and not a mediacard
+        devices = self.parse(
+            "KIOXIA_TransMemory", with_lsblk=True, with_partitions=True
+        )
+        busses = [d.bus for d in devices]
+        self.assertEqual(["usb", "usb"], busses)
+        self.assertEqual(self.count(devices, "PARTITION"), 1)
+
     def test_DELL_INSPIRON3521_TOUCHSCREEN(self):
         """
         Check devices category having the ID_INPUT_TOUCHSCREEN property

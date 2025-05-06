@@ -30,11 +30,7 @@ def get_expected_refresh_rate(
     )
 
 
-def select_glmark2_exec(xdg_session_type: str):
-    cpu_arch = sp.check_output(
-        ["uname", "-m"], universal_newlines=True
-    ).strip()
-
+def select_glmark2_exec(xdg_session_type: str, cpu_arch: str):
     if cpu_arch in ("x86_64", "amd64"):
         # x86 devices should run the version that uses the full opengl api
         glmark2_executable = "glmark2"
@@ -72,6 +68,9 @@ def get_stats(nums: T.List[int]) -> T.Tuple[float, float]:
 
 def main() -> int:
     XDG_SESSION_TYPE = os.getenv("XDG_SESSION_TYPE")
+    CPU_ARCH = sp.check_output(
+        ["uname", "-m"], universal_newlines=True
+    ).strip()
 
     if XDG_SESSION_TYPE is None:
         raise ValueError("XDG_SESSION_TYPE is not set")
@@ -80,9 +79,9 @@ def main() -> int:
             "Unsupported XDG_SESSION_TYPE: {}".format(XDG_SESSION_TYPE)
         )
 
-    glmark2_executable = select_glmark2_exec(XDG_SESSION_TYPE)
-    # flush stdout here since opening a GUI window will cause
-    # stdout to wait until the window is closed to flush everything
+    glmark2_executable = select_glmark2_exec(XDG_SESSION_TYPE, CPU_ARCH)
+    # flush stdout here since opening a GUI window might cause
+    # stdout to be buffered until the window is closed
     print(
         "Running {} with forced vsync.".format(glmark2_executable), flush=True
     )
@@ -93,11 +92,13 @@ def main() -> int:
     glmark2_out = sp.check_output(
         [glmark2_executable, *argv[1:]],
         universal_newlines=True,
-        # kinda ugly, but dict union | isn't introduced until 3.9
+        # spread with ** is kinda ugly, but dict | isn't introduced until 3.9
         env={**os.environ, "vblank_mode": "3"},
     )
 
     fps_counts = []  # type: list[int]
+    # ideally we use the clean csv output provided in newer glmark2 versions
+    # but we don't have that on 16.04 so we still have to parse it
     for line in glmark2_out.splitlines():
         if "FPS" not in line:
             continue
@@ -126,16 +127,20 @@ def main() -> int:
         return 1
 
     coef_of_var = unbiased_coef_of_variation(len(fps_counts), mean, stdev)
+    threshold = 0.1
+
     print("Coefficient of variation: {}".format(coef_of_var))
-    if coef_of_var >= 0.2:
+    if coef_of_var >= threshold:
         # typically the threshold is 1, but that pretty much accepts everything
         print(
-            "[ ERR ] Too much variance. Expected coef_of_var < 0.2",
+            "[ ERR ] Too much variance. Expected coef_of_var < ".format(
+                threshold
+            ),
             "but got {}".format(coef_of_var),
         )
         failed = True
     if abs(mean - expected_fps) > 0.05 * expected_fps:
-        print("[ WARN ] Mean is too far from screen refresh rate.")
+        print("[ WARN ] Mean fps is too far from screen refresh rate.")
         print(
             "Expected the average fps to be within 5% of refresh rate: "
             "[{}, {}]".format(

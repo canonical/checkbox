@@ -17,7 +17,8 @@
     'Jinja2 >= 2.7',
     'xlsxwriter',
     'tqdm',
-    'importlib_metadata; python_version < "3.8"'
+    'importlib_metadata; python_version < "3.8"',
+    'filetype; python_version > "3.12"'
   ]
   #test_suite='checkbox_ng.tests.test_suite'
   license={"text" = "GPLv3"}

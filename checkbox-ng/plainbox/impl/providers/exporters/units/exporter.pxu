@@ -20,6 +20,13 @@ file_extension: json
 data: {"template": "checkbox.json"}
 
 unit: exporter
+id: json-nosysinfo
+_summary: Generate JSON output without collecting system info (just jobs)
+entry_point: jinja2
+file_extension: json
+data: {"template": "checkbox-nosysinfo.json"}
+
+unit: exporter
 id: text
 _summary: Generate plain text output
 entry_point: text

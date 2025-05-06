@@ -65,7 +65,9 @@ class MergeSubmissions(MergeReports):
         manager.state.metadata.title = ctx.args.title or session_title
         for job in self.job_dict.values():
             self._populate_session_state(job, manager.state)
-        exporter = self._create_exporter("com.canonical.plainbox::tar")
+        exporter = self._create_exporter(
+            "com.canonical.plainbox::tar", ["skip-sysinfo-in-json"]
+        )
         with open(ctx.args.output_file, "wb") as stream:
             exporter.dump_from_session_manager(manager, stream)
         with tarfile.open(ctx.args.output_file) as tar:

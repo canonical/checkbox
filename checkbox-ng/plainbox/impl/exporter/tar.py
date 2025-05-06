@@ -25,6 +25,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+from io import BufferedWriter
 import os
 import tarfile
 import time
@@ -33,15 +34,20 @@ from tempfile import SpooledTemporaryFile
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.providers import get_providers
+from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.unit.exporter import ExporterUnitSupport
 
 
 class TARSessionStateExporter(SessionStateExporterBase):
     """Session state exporter creating Tar archives."""
 
-    SUPPORTED_OPTION_LIST = ()
+    OPTION_SKIP_SYSINFO_IN_JSON = "skip-sysinfo-in-json"
 
-    def dump_from_session_manager(self, manager, stream):
+    SUPPORTED_OPTION_LIST = (OPTION_SKIP_SYSINFO_IN_JSON,)
+
+    def dump_from_session_manager(
+        self, manager: SessionManager, stream: BufferedWriter
+    ) -> None:
         """
         Extract data from session manager and dump it into the stream.
 
@@ -66,9 +72,19 @@ class TARSessionStateExporter(SessionStateExporterBase):
         job_state_map = manager.default_device_context.state.job_state_map
         with tarfile.TarFile.open(None, "w:xz", stream, preset=preset) as tar:
             for fmt in ("html", "json", "junit"):
-                unit = self._get_all_exporter_units()[
-                    "com.canonical.plainbox::{}".format(fmt)
-                ]
+                if (
+                    fmt == "json"
+                    and self.OPTION_SKIP_SYSINFO_IN_JSON in self._option_list
+                ):
+                    # special handling to avoid re-collecting journals in
+                    # merge-submissions
+                    unit = self._get_all_exporter_units()[
+                        "com.canonical.plainbox::json-nosysinfo"
+                    ]
+                else:
+                    unit = self._get_all_exporter_units()[
+                        "com.canonical.plainbox::{}".format(fmt)
+                    ]
                 exporter = Jinja2SessionStateExporter(exporter_unit=unit)
                 with SpooledTemporaryFile(max_size=102400, mode="w+b") as _s:
                     exporter.dump_from_session_manager(manager, _s)

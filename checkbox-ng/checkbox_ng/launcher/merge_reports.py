@@ -24,6 +24,7 @@ import json
 import os
 import tarfile
 from tempfile import TemporaryDirectory
+from typing import List, Any
 
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
 from plainbox.impl.providers.special import get_exporters
@@ -55,12 +56,14 @@ class MergeReports:
             help="save combined test results to the specified FILE",
         )
 
-    def _parse_submission(self, submission, tmpdir, mode="list"):
+    def _parse_submission(
+        self, submission: str, tmpdir: TemporaryDirectory, mode="list"
+    ):
         try:
             with tarfile.open(submission) as tar:
                 tar.extractall(tmpdir.name)
                 with open(os.path.join(tmpdir.name, "submission.json")) as f:
-                    data = json.load(f)
+                    data = json.load(f)  # type: dict[str, Any]
             for result in data["results"]:
                 result["plugin"] = "shell"  # Required so default to shell
                 result["summary"] = result["name"]
@@ -144,7 +147,9 @@ class MergeReports:
             "certification_status", "non-blocker"
         )
 
-    def _create_exporter(self, exporter_id):
+    def _create_exporter(
+        self, exporter_id: str, exporter_options: List[str] = []
+    ):
         exporter_map = {}
         exporter_units = get_exporters().unit_list
         for unit in exporter_units:
@@ -154,7 +159,7 @@ class MergeReports:
                     exporter_map[unit.id] = support
         exporter_support = exporter_map[exporter_id]
         return exporter_support.exporter_cls(
-            [], exporter_unit=exporter_support
+            exporter_options, exporter_unit=exporter_support
         )
 
     def _output_potential_action(self, message):

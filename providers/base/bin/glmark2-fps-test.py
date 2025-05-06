@@ -9,11 +9,13 @@ def get_expected_refresh_rate(
     xdg_session_type: str,
 ) -> float:
     if xdg_session_type == "x11":
-        xrandr_out = sp.check_output(["xrandr"], universal_newlines=True)
+        randr_executable = "xrandr"
         fps_str_idx = 1
     else:
-        xrandr_out = sp.check_output(["gnome-randr"], universal_newlines=True)
+        randr_executable = "gnome-randr"
         fps_str_idx = 2
+
+    xrandr_out = sp.check_output([randr_executable], universal_newlines=True)
 
     curr_display_mode = None  # type: str | None
     for line in xrandr_out.splitlines():
@@ -21,7 +23,8 @@ def get_expected_refresh_rate(
             curr_display_mode = line
             break
 
-    assert curr_display_mode is not None, "No selected display mode was found"
+    if curr_display_mode is None:
+        raise RuntimeError("No display mode was found")
 
     return float(
         curr_display_mode.split()[fps_str_idx]
@@ -116,7 +119,6 @@ def main() -> int:
         )
     )
 
-    failed = False
     if len(fps_counts) < 10:
         print(
             "[ ERR ] Not enough FPS samples.",
@@ -126,10 +128,12 @@ def main() -> int:
         # fail early here to avoid division by 0
         return 1
 
-    coef_of_var = unbiased_coef_of_variation(len(fps_counts), mean, stdev)
-    threshold = 0.1
+    failed = False
 
+    coef_of_var = unbiased_coef_of_variation(len(fps_counts), mean, stdev)
+    threshold = 0.05
     print("Coefficient of variation: {}".format(coef_of_var))
+
     if coef_of_var >= threshold:
         # typically the threshold is 1, but that pretty much accepts everything
         print(
@@ -139,6 +143,7 @@ def main() -> int:
             "but got {}".format(coef_of_var),
         )
         failed = True
+
     if abs(mean - expected_fps) > 0.05 * expected_fps:
         print("[ WARN ] Mean fps is too far from screen refresh rate.")
         print(
@@ -148,11 +153,11 @@ def main() -> int:
             )
         )
 
-    if not failed:
+    if failed:
+        return 1
+    else:
         print("OK!")
         return 0
-    else:
-        return 1
 
 
 if __name__ == "__main__":

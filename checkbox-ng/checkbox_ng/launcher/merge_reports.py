@@ -108,14 +108,9 @@ class MergeReports:
                         {"id": cat_id, "name": cat_name}
                     )
             if mode == "list":
-                self.system_information["version"].append(
-                    data["system_information"].pop("version")
+                self.system_information.append(
+                    CollectorOutputs.from_dict(data["system_information"])
                 )
-                for collector_id, collection in data[
-                    "system_information"
-                ].items():
-                    collection = CollectionOutput.from_dict(collection)
-                    self.system_information[collector_id].append(collection)
             elif mode == "dict":
                 self.system_information = CollectorOutputs.from_dict(
                     data["system_information"]

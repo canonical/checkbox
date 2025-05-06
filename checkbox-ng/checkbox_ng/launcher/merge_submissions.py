@@ -21,6 +21,7 @@
 ==============================================================================
 """
 import tarfile
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from checkbox_ng.launcher.merge_reports import MergeReports
@@ -51,6 +52,14 @@ class MergeSubmissions(MergeReports):
             help="title of the session to use",
         )
 
+    def export(self, manager, temp_dir, exporter):
+        export_file = temp_dir / "submission.{}".format(exporter)
+        exporter = self._create_exporter(
+            "com.canonical.plainbox::{}".format(exporter)
+        )
+        with export_file.open("wb+") as f:
+            exporter.dump_from_session_manager(manager, f)
+
     def invoked(self, ctx):
         tmpdir = TemporaryDirectory()
         self.job_dict = {}
@@ -66,11 +75,15 @@ class MergeSubmissions(MergeReports):
         manager.state.metadata.title = ctx.args.title or session_title
         for job in self.job_dict.values():
             self._populate_session_state(job, manager.state)
-        exporter = self._create_exporter("com.canonical.plainbox::tar")
-        with open(ctx.args.output_file, "wb") as stream:
-            exporter.dump_from_session_manager(manager, stream)
-        with tarfile.open(ctx.args.output_file) as tar:
-            tar.extractall(tmpdir.name)
+        for exporter in ["html", "json", "junit"]:
+            self.export(manager, Path(tmpdir.name), exporter)
+        # Note: This is not using the tar exporter but the 3 separate exporters
+        #   instead because the tar exporter can't include the attachments and
+        #   iologs in the generated submission (the session state is not fully
+        #   recovered and its a mess to do, try it, you have to fix the
+        #   io_log_filename for all non-in memory results!) Historically the
+        #   solution here was to use tar and then unpack/include/repack, but
+        #   that is twice as slow.
         with tarfile.open(ctx.args.output_file, mode="w:xz") as tar:
             tar.add(tmpdir.name, arcname="")
         print(ctx.args.output_file)

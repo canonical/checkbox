@@ -34,7 +34,7 @@ class TestKernelPackageResource(unittest.TestCase):
         mock_get_kernel_snap.return_value = "pc-kernel"
         mock_on_ubuntucore.return_value = True
         result = get_kernel_package_info()
-        self.assertEqual(result, "pc-kernel")
+        self.assertEqual(result, ("pc-kernel", "snap"))
 
     @patch("kernel_package_resource.subprocess.check_output")
     @patch("kernel_package_resource.os.uname")
@@ -54,19 +54,19 @@ class TestKernelPackageResource(unittest.TestCase):
         mock_uname.return_value.release = "6.8.0-57-generic"
         mock_check_output.return_value = apt_result
         result = get_kernel_package_info()
-        self.assertEqual(result, "linux")
+        self.assertEqual(result, ("linux", "deb"))
 
     @patch("kernel_package_resource.get_release_info")
     @patch("kernel_package_resource.get_kernel_package_info")
     def test_main(self, mock_get_kernel_package_info, mock_get_release_info):
         "Test the main function"
         mock_get_release_info.return_value = {"release": "22.04"}
-        mock_get_kernel_package_info.return_value = "linux"
+        mock_get_kernel_package_info.return_value = ("linux", "deb")
         with patch("builtins.print") as mock_print:
             main()
 
         mock_print.assert_has_calls(
-            [call("name: linux"), call("release: 22.04")]
+            [call("name: linux"), call('type: deb'), call("release: 22.04")]
         )
 
     @patch("kernel_package_resource.get_release_info")
@@ -83,7 +83,7 @@ class TestKernelPackageResource(unittest.TestCase):
     @patch("kernel_package_resource.get_kernel_package_info")
     def test_main_no_kernel_package(self, mock_get_kernel_package_info):
         "Test the main function with no kernel package"
-        mock_get_kernel_package_info.return_value = None
+        mock_get_kernel_package_info.return_value = (None, None)
         with self.assertRaises(SystemExit) as cm:
             main()
         self.assertEqual(str(cm.exception), "No kernel package found.")

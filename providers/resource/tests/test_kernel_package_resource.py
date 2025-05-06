@@ -66,7 +66,7 @@ class TestKernelPackageResource(unittest.TestCase):
             main()
 
         mock_print.assert_has_calls(
-            [call("name: linux"), call('type: deb'), call("release: 22.04")]
+            [call("name: linux"), call("type: deb"), call("release: 22.04")]
         )
 
     @patch("kernel_package_resource.get_release_info")

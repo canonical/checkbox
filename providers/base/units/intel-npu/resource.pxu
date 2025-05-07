@@ -1,0 +1,61 @@
+id: dmesg_logs_firmware_version
+category_id: npu
+plugin: resource
+_description: Creates resource for firwmare version logging support in dmesg
+estimated_duration: 2s
+command:
+  # support added in kernel version 6.8
+  MIN_VERSION=6.8
+  result=$(printf "${MIN_VERSION}\n$(uname -r | cut -f1-2 -d.)\n" | sort -V | head -n1)
+  if [ "${result}" = "${MIN_VERSION}" ]; then
+    # indicates that the running kernel is >= 6.8
+    echo "state: supported"
+  else
+    echo "state: unsupported"
+  fi
+
+id: npu_type
+category_id: npu
+plugin: resource
+_description: Detects NPU type, if available, on the platform
+estimated_duration: 2s
+command:
+  if lspci -nn | grep "Meteor Lake NPU"; then
+    echo "name: meteor_lake"
+  elif lspci -nn | grep "Lunar Lake NPU"; then
+    echo "name: lunar_lake"
+  elif lspci -nn | grep "Arrow Lake NPU"; then
+    echo "name: arrow_lake"
+  fi
+
+id: metric_streamer
+category_id: npu
+plugin: resource
+_description: Creates resource for metric streamer feature support
+estimated_duration: 2s
+command:
+  # support added in kernel version 6.9
+  MIN_VERSION=6.9
+  result=$(printf "${MIN_VERSION}\n$(uname -r | cut -f1-2 -d.)\n" | sort -V | head -n1)
+  if [ "${result}" = "${MIN_VERSION}" ]; then
+    # indicates that the running kernel is >= 6.9
+    echo "state: supported"
+  else
+    echo "state: unsupported"
+  fi
+
+id: ivpu_bo_create
+category_id: npu
+plugin: resource
+_description: Creates resource for DRM_IOCTL_IVPU_BO_CREATE support
+estimated_duration: 2s
+command:
+  # support added in kernel version 6.6
+  MIN_VERSION=6.6
+  result=$(printf "${MIN_VERSION}\n$(uname -r | cut -f1-2 -d.)\n" | sort -V | head -n1)
+  if [ "${result}" = "${MIN_VERSION}" ]; then
+    # indicates that the running kernel is >= 6.6
+    echo "state: supported"
+  else
+    echo "state: unsupported"
+  fi

@@ -1,0 +1,624 @@
+# For 1.16.0 there are known tests that we do not run in the test plan
+#
+# Device.GetZesEngineGetActivity -- No sysfs access for NPU activity data
+# ExternalMemoryZe.GpuZeFillToNpuZeCopy -- No GPU support for test
+# ExternalMemoryZe.NpuZeFillToGpuZeCopy -- No GPU support for test
+# ModelCacheTest.CheckIfModelIsCachedWithBuildLog -- Requires cached model, awaiting upstream docs
+# CommandQueuePriority.executeManyLowPriorityJobsExpectHighPriorityJobCompletesFirst -- known failure since 1.6.0
+# ExternalMemoryDmaHeap.DmaHeapToNpu/2KB -- requires access to /dev/dma_heap/system
+# ExternalMemoryDmaHeap.DmaHeapToNpu/16MB -- requires access to /dev/dma_heap/system
+# ExternalMemoryDmaHeap.DmaHeapToNpu/255MB -- requires access to /dev/dma_heap/system
+# CommandGraphLong.InferenceDeviceResetInference/add_abc -- known failure
+#
+
+id: kmd/CharDevicePermissions
+category_id: npu
+flags: simple
+_summary: Check that user has read and write access to NPU char device node
+estimated_duration: 2s
+command:
+  if ! test -r /dev/accel/accel0 ; then
+    >&2 echo "Test failure: user must have read permissions to /dev/accel/accel0"
+    >&2 echo "Please run 'sudo usermod -a -G render $USER' then log out and back in"
+    >&2 echo "Then run 'sudo chown root:render /dev/accel/accel0 && sudo chmod g+rw /dev/accel/accel0'"
+    exit 1
+  fi
+  if ! test -w /dev/accel/accel0 ; then
+    >&2 echo "Test failure: user must have write permissions to /dev/accel/accel0"
+    >&2 echo "Please run 'sudo usermod -a -G render $USER' then log out and back in"
+    >&2 echo "Then run 'sudo chown root:render /dev/accel/accel0 && sudo chmod g+rw /dev/accel/accel0'"
+    exit 1
+  fi
+  echo "Test success: user has read and write access to /dev/accel/accel0"
+
+id: kmd/firmware_version_meteor_and_arrow_lake
+category_id: npu
+flags: simple
+requires:
+  dmesg_logs_firmware_version.state == 'supported'
+  npu_type.name in ['meteor_lake', 'arrow_lake']
+_summary: Check NPU firmware version for Meteor Lake and Arrow Lake
+estimated_duration: 2s
+command:
+  printf "[INFO]: dmesg logs for intel_vpu kernel module:\n $(sudo dmesg | grep intel_vpu)"
+  intel_vpu_dmesg=$(sudo dmesg | grep "Firmware: intel/vpu" | tail -n1)
+  # Expected version strings: https://github.com/intel/linux-npu-driver/releases/tag/v1.10.1
+  # Don't forget to escape special characters (asterix) in the following string
+  EXPECTED_VERSION="20250306\*MTL_CLIENT_SILICON-release\*1130\*ci_tag_ud202512_vpu_rc_20250306_1130\*5064b5debc3"
+  if echo "${intel_vpu_dmesg}" | grep -w "${EXPECTED_VERSION}"; then
+    echo "Test success: expected firmware version successfully loaded to NPU device!"
+  else
+    >&2 echo "Test failure: NPU not running expected version ${EXPECTED_VERSION}"
+    exit 1
+  fi
+
+id: kmd/firmware_version_lunar_lake
+category_id: npu
+flags: simple
+requires:
+  dmesg_logs_firmware_version.state == 'supported'
+  npu_type.name == 'lunar_lake'
+_summary: Check NPU firmware version for Lunar Lake
+estimated_duration: 2s
+command:
+  printf "[INFO]: dmesg logs for intel_vpu kernel module:\n $(sudo journalctl -k | grep intel_vpu)"
+  intel_vpu_dmesg=$(sudo journalctl -k | grep "Firmware: intel/vpu" | tail -n1)
+  # Expected version strings: https://github.com/intel/linux-npu-driver/releases/tag/v1.10.1
+  # Don't forget to escape special characters (asterix) in the following string
+  EXPECTED_VERSION="Mar  6 2025\*NPU40xx\*ci_tag_ud202512_vpu_rc_20250306_1130\*5064b5debc377e1c4b74f69dc14e2e536dba393d"
+  if echo "${intel_vpu_dmesg}" | grep -w "${EXPECTED_VERSION}"; then
+    echo "Test success: expected firmware version successfully loaded to NPU device!"
+  else
+    >&2 echo "Test failure: NPU not running expected version ${EXPECTED_VERSION}"
+    exit 1
+  fi
+
+id: umd/Umd
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: Umd
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=Umd.* --config=basic.yaml
+
+id: umd/Command
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: Command
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=Command.* --config=basic.yaml
+
+id: umd/CommandTimestamp
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CommandTimestamp
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandTimestamp.* --config=basic.yaml
+
+id: umd/CommandCopy
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CommandCopy
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandCopy.* --config=basic.yaml
+
+id: umd/CommandBarrier
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CommandBarrier
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandBarrier.* --config=basic.yaml
+
+id: umd/CommandStress
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CommandStress
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandStress.* --config=basic.yaml
+
+id: umd/Context
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: Context
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=Context.* --config=basic.yaml
+
+# Filter out known failure Device.GetZesEngineGetActivity
+id: umd/Device
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: Device
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=Device.GetProp*:Device.GetGlobal*:Device.GetZesDevice*:Device.Verify* --config=basic.yaml
+
+id: umd/Driver
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: Driver
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=Driver.* --config=basic.yaml
+
+id: umd/DriverCache
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: DriverCache
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  sed 's|graph_execution|driver_cache|' basic.yaml > driver_cache.yaml
+  intel-npu-driver.npu-umd-test -S --gtest_filter=DriverCache.* --config=driver_cache.yaml
+
+id: umd/Event
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: Event
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=Event.* --config=basic.yaml
+
+id: umd/EventSync
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: EventSync
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=EventSync.* --config=basic.yaml
+
+id: umd/EventPool
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: EventPool
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=EventPool.* --config=basic.yaml
+
+# Not running ExternalMemoryZe.* (which would usually run next when
+# all tests are run without gtest filters) due to need for GPU support
+
+id: umd/ExternalMemory
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: ExternalMemory
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=ExternalMemory.* --config=basic.yaml
+
+id: umd/Fence
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: Fence
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=Fence.* --config=basic.yaml
+
+id: umd/FenceSync
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: Fence Sync
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=FenceSync.* --config=basic.yaml
+
+id: umd/GraphApiBase
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: GraphApiBase
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=GraphApiBase.* --config=basic.yaml
+
+id: umd/GraphApi
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: GraphApi
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=GraphApi.* --config=basic.yaml
+
+# Skipping ModelCacheTest.CheckIfModelIsCachedWithBuildLog for now while we
+# await for instructions from upstream
+
+id: umd/ImmediateCmdList
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: ImmediateCmdList
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=ImmediateCmdList.Create*:ImmediateCmdList.Get* --config=basic.yaml
+
+id: umd/ImmediateCmdList.FillCopyUsingBarriers
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires:
+  executable.name == 'intel-npu-driver.npu-umd-test'
+  ivpu_bo_create.state == 'supported'
+_summary: ImmediateCmdList.FillCopyUsingBarriers
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=ImmediateCmdList.FillCopyUsingBarriers --config=basic.yaml
+
+# note, the ZeInitDrivers tests must be run in serial
+id: umd/ZeInitDrivers.FailWithoutInit
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: ZeInitDrivers.FailWithoutInit
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -I zeInitDrivers.FailWithoutInit
+
+# note, the ZeInitDrivers tests must be run in serial
+id: umd/ZeInitDrivers.InitializeAndExecuteCopyCommand
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: ZeInitDrivers.InitializeAndExecuteCopyCommand
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -I zeInitDrivers.InitializeAndExecuteCopyCommand
+
+id: umd/MemoryAllocation
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: MemoryAllocation
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=MemoryAllocation.* --config=basic.yaml
+
+id: umd/MemoryExecution
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: MemoryExecution
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=MemoryExecution.* --config=basic.yaml
+
+id: umd/MemoryAllocationThreaded
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: MemoryAllocationThreaded
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=MemoryAllocationThreaded.* --config=basic.yaml
+
+# filter out known failure CommandQueuePriority.executeManyLowPriorityJobsExpectHighPriorityJobCompletesFirst
+id: umd/CommandQueuePriority
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CommandQueuePriority
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandQueuePriority.create*:CommandQueuePriority.executeCopy* --config=basic.yaml
+
+id: umd/CommandMemoryFill
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires:
+  executable.name == 'intel-npu-driver.npu-umd-test'
+  ivpu_bo_create.state == 'supported'
+_summary: CommandMemoryFill
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandMemoryFill.* --config=basic.yaml
+
+id: umd/MultiContext
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: MultiContext
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=MultiContext.* --config=basic.yaml
+
+id: umd/MultiContextGraph
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: MultiContextGraph
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=MultiContextGraph.* --config=basic.yaml
+
+id: umd/CommandCopyPerf
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CommandCopyPerf
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandCopyPerf.* --config=basic.yaml
+
+id: umd/SystemToSystem/CommandCopyFlag
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: SystemToSystem/CommandCopyFlag
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=SystemToSystem/CommandCopyFlag.* --config=basic.yaml
+
+# Skipping three ExternalMemoryDmaHeap.* tests due to needing access
+# to /dev/dma_heap/system
+
+id: umd/CompilerInDriverLong
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CompilerInDriverLong
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CompilerInDriverLong.* --config=basic.yaml
+
+id: umd/CompilerInDriverWithProfiling
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires:
+  executable.name == 'intel-npu-driver.npu-umd-test'
+  ivpu_bo_create.state == 'supported'
+_summary: CompilerInDriverWithProfiling
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CompilerInDriverWithProfiling.* --config=basic.yaml
+
+# filtering out known failure CommandGraphLong.InferenceDeviceResetInference/add_abc
+id: umd/CommandGraphLong
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CommandGraphLong
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandGraphLong.*:-CommandGraphLong.Inference* --config=basic.yaml
+
+id: umd/CommandGraphLongThreaded
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: CommandGraphLongThreaded
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=CommandGraphLongThreaded.* --config=basic.yaml
+
+id: umd/GraphInference
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: GraphInference
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=GraphInference.* --config=basic.yaml
+
+id: umd/GraphQueryNetwork
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: GraphQueryNetwork
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=GraphQueryNetwork.* --config=basic.yaml
+
+id: umd/InferencePerformance
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: InferencePerformance
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=InferencePerformance.* --config=basic.yaml
+
+# note, the ZeInit tests must be run in serial
+id: umd/ZeInit.CallzeInitThenzeInitDriversThenExecuteCopyCommand/0
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: ZeInit.CallzeInitThenzeInitDriversThenExecuteCopyCommand/0
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -I zeInit.CallzeInitThenzeInitDriversThenExecuteCopyCommand/0
+
+# note, the ZeInit tests must be run in serial
+id: umd/ZeInit.CallzeInitThenzeInitDriversThenExecuteCopyCommand/1
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: ZeInit.CallzeInitThenzeInitDriversThenExecuteCopyCommand/1
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -I zeInit.CallzeInitThenzeInitDriversThenExecuteCopyCommand/1
+
+# note, the ZeInit tests must be run in serial
+id: umd/ZeInit.CallzeInitThenExecuteCopyCommand/0
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: ZeInit.CallzeInitThenExecuteCopyCommand/0
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -I zeInit.CallzeInitThenExecuteCopyCommand/0
+
+# note, the ZeInit tests must be run in serial
+id: umd/ZeInit.CallzeInitThenExecuteCopyCommand/1
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: ZeInit.CallzeInitThenExecuteCopyCommand/1
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -I zeInit.CallzeInitThenExecuteCopyCommand/1
+
+id: umd/MultiMemoryExecution
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires: executable.name == 'intel-npu-driver.npu-umd-test'
+_summary: MultiMemoryExecution
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=MultiMemoryExecution.* --config=basic.yaml
+
+id: umd/Metric
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires:
+  executable.name == 'intel-npu-driver.npu-umd-test'
+  metric_streamer.state == 'supported'
+_summary: Metric
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=Metric.* --config=basic.yaml
+
+id: umd/MetricQueryPool
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires:
+  executable.name == 'intel-npu-driver.npu-umd-test'
+  metric_streamer.state == 'supported'
+_summary: MetricQueryPool
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=MetricQueryPool.* --config=basic.yaml
+
+id: umd/MetricQuery
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires:
+  executable.name == 'intel-npu-driver.npu-umd-test'
+  metric_streamer.state == 'supported'
+_summary: MetricQuery
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=MetricQuery.* --config=basic.yaml
+
+id: umd/ImmediateCmdList.MetricQuerryTest
+category_id: npu
+flags: simple
+depends: kmd/CharDevicePermissions
+requires:
+  executable.name == 'intel-npu-driver.npu-umd-test'
+  metric_streamer.state == 'supported'
+_summary: ImmediateCmdLIst.MetricQuerryTest
+estimated_duration: 2s
+command:
+  cd $HOME/snap/intel-npu-driver/current
+  intel-npu-driver.npu-umd-test -S --gtest_filter=ImmediateCmdList.MetricQuerryTest --config=basic.yaml

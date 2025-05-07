@@ -2,7 +2,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2016 Canonical Ltd.
+# Copyright 2025 Canonical Ltd.
 #
 # Authors:
 #   Gabriel Chen <gabriel.chen@canonical.com>
@@ -20,10 +20,20 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """mouse_key_random utility."""
 
-
-from evdev import UInput, ecodes as e
 import time
 import random
+from evdev import UInput, ecodes as e
+
+# Constants
+FREQUENCY_USEC = 100000  # Frequency of events in microseconds
+N_EPISODES = 81  # Number of events to generate
+WEIGHT_MOUSEMOVE = 10  # Weight of mouse movements
+WEIGHT_KEYPRESS = 1  # Weight of key presses
+WEIGHT_SUM = WEIGHT_MOUSEMOVE + WEIGHT_KEYPRESS  # Total weight
+ 
+MOVE_MAX = 100  # Maximum mouse movement distance
+MOVE_DELTA = 5  # Mouse movement step size
+
 
 # Define keyboard keys and mouse buttons
 KEYBOARD_KEYS = [
@@ -91,7 +101,6 @@ def dev_deinit(device):
 # Simulate a key press
 def key_press(device, key):
     device.write(e.EV_KEY, key, 1)  # Press the key
-    device.syn()  # Synchronize the event
     device.write(e.EV_KEY, key, 0)  # Release the key
     device.syn()  # Synchronize the event
 
@@ -129,17 +138,6 @@ def rand_mouse_moves(device):
     if rest_x or rest_y:
         mouse_move(device, rest_x, rest_y)
         time.sleep(FREQUENCY_USEC / 1000000.0 / MOVE_DELTA)
-
-
-# Constants
-FREQUENCY_USEC = 100000  # Frequency of events in microseconds
-N_EPISODES = 81  # Number of events to generate
-WEIGHT_MOUSEMOVE = 10  # Weight of mouse movements
-WEIGHT_KEYPRESS = 1  # Weight of key presses
-WEIGHT_SUM = WEIGHT_MOUSEMOVE + WEIGHT_KEYPRESS  # Total weight
-
-MOVE_MAX = 100  # Maximum mouse movement distance
-MOVE_DELTA = 5  # Mouse movement step size
 
 
 def main():

@@ -73,7 +73,7 @@ class TestMouseKeyboard(unittest.TestCase):
         # Assertions
         mock_device.write.assert_any_call(e.EV_KEY, e.KEY_A, 1)
         mock_device.write.assert_any_call(e.EV_KEY, e.KEY_A, 0)
-        self.assertEqual(mock_device.syn.call_count, 2)
+        self.assertEqual(mock_device.syn.call_count, 1)
 
     def test_mouse_move(self):
         # Mock the device

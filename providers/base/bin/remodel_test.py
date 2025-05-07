@@ -72,7 +72,7 @@ def main():
     parser.add_argument(
         "target",
         help="which verison of ubuntu-core that should be remodeled to",
-        choices=["22", "24"]
+        choices=["22", "24"],
     )
 
     # resolve the snaps for the remodel if offline has been requested
@@ -81,7 +81,7 @@ def main():
     parser.add_argument(
         "--offline",
         help="whether the remodel should be offline",
-        action='store_true'
+        action='store_true',
     )
     args = parser.parse_args()
 

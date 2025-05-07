@@ -19,6 +19,7 @@
     'distro == 1.0.1; python_version == "3.5"',
     'PyYAML == 3.11; python_version == "3.5"',
     'requests-unixsocket == 0.3.0; python_version == "3.5"',
+    'numpy == 1.17.4; python_version == "3.5"',
     # Pinned to bionic universe
     'requests == 2.18.4; python_version > "3.5" and python_version <= "3.6"',
     'opencv_python == 4.4.0.42; python_version > "3.5" and python_version <= "3.6"',
@@ -26,6 +27,7 @@
     'distro == 1.0.1; python_version > "3.5" and python_version <= "3.6"',
     'PyYAML == 3.12; python_version > "3.5" and python_version <= "3.6"',
     'requests-unixsocket == 0.1.5; python_version > "3.5" and python_version <= "3.6"',
+    'numpy == 1.17.4; python_version > "3.5" and python_version <= "3.6"',
     # Pinned to focal universe
     'requests == 2.22.0; python_version > "3.6" and python_version <= "3.8"',
     'opencv_python == 4.2.0.34; python_version > "3.6" and python_version <= "3.8"',
@@ -33,6 +35,7 @@
     'distro == 1.4.0; python_version > "3.6" and python_version <= "3.8"',
     'PyYAML == 5.3.1; python_version > "3.6" and python_version <= "3.8"',
     'requests-unixsocket == 0.2.0; python_version > "3.6" and python_version <= "3.8"',
+    'numpy == 1.17.4; python_version > "3.6" and python_version <= "3.8"',
     # Pinned to jammy universe
     'requests == 2.25.1; python_version > "3.8" and python_version <= "3.10"',
     'opencv_python == 4.5.4.60; python_version > "3.8" and python_version <= "3.10"',
@@ -40,6 +43,7 @@
     'distro == 1.7.0; python_version > "3.8" and python_version <= "3.10"',
     'PyYAML == 6.0.1; python_version > "3.8" and python_version <= "3.10"',
     'requests-unixsocket == 0.2.0; python_version > "3.8" and python_version <= "3.10"',
+    'numpy == 1.21.5; python_version > "3.8" and python_version <= "3.10"',
     # Pinned to noble universe
     'requests == 2.31.0; python_version > "3.10" and python_version <= "3.12"',
     'opencv_python == 4.6.0.66; python_version > "3.10" and python_version <= "3.12"',
@@ -47,6 +51,7 @@
     'distro == 1.9.0; python_version > "3.10" and python_version <= "3.12"',
     'PyYAML == 6.0.1; python_version > "3.10" and python_version <= "3.12"',
     'requests-unixsocket == 0.3.0; python_version > "3.10" and python_version <= "3.12"',
+    'numpy == 1.26.4; python_version > "3.10" and python_version <= "3.12"',
     # any other version is unbounded
     'requests; python_version > "3.12"',
     'opencv_python; python_version > "3.12"',
@@ -54,6 +59,7 @@
     'distro; python_version > "3.12"',
     'PyYAML; python_version > "3.12"',
     'requests-unixsocket; python_version > "3.12"',
+    'numpy; python_version > "3.12"'
   ]
 [metadata]
   long_description={'file' = 'README.md'}

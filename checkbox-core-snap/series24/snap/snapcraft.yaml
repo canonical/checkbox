@@ -269,7 +269,10 @@ parts:
       - gir1.2-clutter-1.0
       - gir1.2-gst-plugins-base-1.0
       - gir1.2-gudev-1.0
+      - glmark2
       - glmark2-es2
+      - glmark2-wayland
+      - glmark2-es2-wayland
       - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-plugins-bad

@@ -30,7 +30,7 @@ N_EPISODES = 81  # Number of events to generate
 WEIGHT_MOUSEMOVE = 10  # Weight of mouse movements
 WEIGHT_KEYPRESS = 1  # Weight of key presses
 WEIGHT_SUM = WEIGHT_MOUSEMOVE + WEIGHT_KEYPRESS  # Total weight
- 
+
 MOVE_MAX = 100  # Maximum mouse movement distance
 MOVE_DELTA = 5  # Mouse movement step size
 

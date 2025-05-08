@@ -454,7 +454,7 @@ _purpose: Verify that mixer settings after suspend are the same as before suspen
 command:
   if check_audio_daemon.sh ; then
       wpctl status > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
-      pipewire_utils.py compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+      checkbox-support-pipewire-utils compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
       audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
       diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
@@ -475,7 +475,7 @@ _purpose: Verify that mixer settings after suspend are the same as before suspen
 command:
   if check_audio_daemon.sh ; then
     wpctl status > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
-    pipewire_utils.py compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+    checkbox-support-pipewire-utils compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
     diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend

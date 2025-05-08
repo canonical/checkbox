@@ -48,8 +48,8 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -87,8 +87,8 @@ requires:
 flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -124,8 +124,8 @@ requires:
 flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -161,8 +161,8 @@ requires:
 flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -198,8 +198,8 @@ requires:
 flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -235,8 +235,8 @@ requires:
 flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -272,8 +272,8 @@ requires:
 flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -308,8 +308,8 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -345,7 +345,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
+    checkbox-support-pipewire-utils show -t audio
     alsa_record_playback.sh
     EXIT_CODE=$?
   else
@@ -382,7 +382,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
+    checkbox-support-pipewire-utils show -t audio
     alsa_record_playback.sh
     EXIT_CODE=$?
   else
@@ -475,7 +475,7 @@ requires:
   manifest.has_audio_playback == 'True'
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py detect -t audio -c sinks
+    checkbox-support-pipewire-utils detect -t audio -c sinks
   else
     pactl_list.sh sinks
   fi
@@ -493,7 +493,7 @@ requires:
   manifest.has_audio_capture == 'True'
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py detect -t audio -c sources
+    checkbox-support-pipewire-utils detect -t audio -c sources
   else
     pactl_list.sh sources
   fi
@@ -592,7 +592,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
+    checkbox-support-pipewire-utils show -t audio
     alsa_record_playback.sh
     EXIT_CODE=$?
   else
@@ -626,7 +626,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py monitor -t 30 -m sinks
+    checkbox-support-pipewire-utils monitor -t 30 -m sinks
   else
     pulse_active_port_change.py sinks
   fi
@@ -655,7 +655,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py monitor -t 30 -m sources
+    checkbox-support-pipewire-utils monitor -t 30 -m sources
   else
     pulse_active_port_change.py sources
   fi
@@ -699,8 +699,8 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    checkbox-support-pipewire-utils show -t audio
+    checkbox-support-pipewire-utils gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
@@ -755,7 +755,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py detect -t audio -c sinks
+    checkbox-support-pipewire-utils detect -t audio -c sinks
   else
     pactl_list.sh sinks
   fi

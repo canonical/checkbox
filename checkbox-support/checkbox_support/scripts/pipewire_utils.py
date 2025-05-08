@@ -17,21 +17,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from enum import IntEnum
-import subprocess
 import argparse
-import logging
 import difflib
-import time
 import json
-import sys
+import logging
 import re
+import subprocess
+import sys
+import time
+from enum import IntEnum
+
 import gi
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GLib", "2.0")
-from gi.repository import Gst  # noqa: E402
-from gi.repository import GLib  # noqa: E402
+from gi.repository import (
+    GLib,  # noqa: E402
+    Gst,  # noqa: E402
+)
 
 
 class PipewireTestError(IntEnum):
@@ -165,8 +168,7 @@ class PipewireTest:
             props = client["info"]["props"]
             if mclass == props.get("media.class"):
                 self.logger.info(
-                    "device id:[{}] media.class:[{}]"
-                    " node.name:[{}]".format(
+                    "device id:[{}] media.class:[{}] node.name:[{}]".format(
                         client["id"], mclass, props.get("node.name")
                     )
                 )
@@ -216,8 +218,9 @@ class PipewireTest:
         node_id = None
         while not chosen:
             self.logger.info(
-                "Which {} would you like to test?"
-                " -1 means don't change".format(mclass)
+                "Which {} would you like to test? -1 means don't change".format(
+                    mclass
+                )
             )
             self.logger.info("    {} id:".format(mclass))
             node_id = input()
@@ -399,7 +402,10 @@ class PipewireTest:
                     chosen = None
                     if p["direction"] == self._get_pw_type(mode) and p[
                         "available"
-                    ] in ["yes", "unknown"]:
+                    ] in [
+                        "yes",
+                        "unknown",
+                    ]:
                         while chosen != "yes":
                             self.logger.info(
                                 "Please select [{}] for "
@@ -421,9 +427,7 @@ class PipewireTest:
                                     self.logger.info(line)
                                 p.kill()
                             self.logger.info(
-                                "Is working ?  "
-                                "please enter 'yes' "
-                                "to leave"
+                                "Is working ?  please enter 'yes' to leave"
                             )
 
                             checked = input()
@@ -562,16 +566,14 @@ class PipewireTest:
             "--type",
             type=str,
             default="Audio",
-            help="device type such as Audio "
-            "or Video (default: %(default)s)",
+            help="device type such as Audio or Video (default: %(default)s)",
         )
         parser_detect.add_argument(
             "-c",
             "--clazz",
             type=str,
             default="Sink",
-            help="device type such as Sink or "
-            "Source (default: %(default)s)",
+            help="device type such as Sink or Source (default: %(default)s)",
         )
 
         # Add parser for selecting audio/video function
@@ -583,23 +585,21 @@ class PipewireTest:
             "--type",
             type=str,
             default="Audio",
-            help="device type such as Audio "
-            "or Video (default: %(default)s)",
+            help="device type such as Audio or Video (default: %(default)s)",
         )
         parser_select.add_argument(
             "-c",
             "--clazz",
             type=str,
             default="Sink",
-            help="device type such as Sink or "
-            "Source (default: %(default)s)",
+            help="device type such as Sink or Source (default: %(default)s)",
         )
         parser_select.add_argument(
             "-d",
             "--device",
             type=str,
             default="",
-            help="device type such as hdmi or " "bluz (default: %(default)s)",
+            help="device type such as hdmi or bluz (default: %(default)s)",
         )
 
         # Add parser for gst pipeline function(Audio only)
@@ -703,7 +703,7 @@ class PipewireTest:
             return self.compare_wpctl_status(args.status_1, args.status_2)
 
 
-if __name__ == "__main__":
+def main():
     pw = PipewireTest()
 
     # create logger formatter
@@ -719,3 +719,7 @@ if __name__ == "__main__":
     # Add console handler to logger
     pw.logger.addHandler(console_handler)
     sys.exit(pw.function_select(pw._args_parsing()))
+
+
+if __name__ == "__main__":
+    main()

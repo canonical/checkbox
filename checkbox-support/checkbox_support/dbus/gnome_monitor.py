@@ -22,6 +22,7 @@ Original script that inspired this class:
 """
 
 import itertools
+from enum import IntEnum
 from typing import (
     Any,
     Callable,
@@ -45,11 +46,15 @@ class Mode(NamedTuple):
     is_current: bool
 
 
-class Transform:
-    NORMAL_0 = 0
-    NORMAL_90 = 1
-    NORMAL_180 = 2
-    NORMAL_270 = 3
+class Transform(IntEnum):
+    NORMAL_0 = 0  # landscape
+    NORMAL_90 = 1  # portrait right
+    NORMAL_180 = 2  # landscape flipped
+    NORMAL_270 = 3  # portrait left
+
+    # The following are listed in the xml file
+    # but they aren't available in gnome control center
+    # maybe it's only intended for devices with an accelerometer?
     FLIPPED_0 = 4
     FLIPPED_90 = 5
     FLIPPED_180 = 6
@@ -66,6 +71,14 @@ class MutterDisplayMode(NamedTuple):
     # usually has the 'is-current' and 'is-preferred' keys
     properties: Mapping[str, Any]
 
+    @property
+    def is_current(self) -> bool:
+        return self.properties.get("is-current", False)
+
+    @property
+    def is_preferred(self) -> bool:
+        return self.properties.get("is-preferred", False)
+
 
 class MonitorInfo(NamedTuple):
     connector: str  # HDMI-1, eDP-1, ...
@@ -80,7 +93,7 @@ class PhysicalMonitor(NamedTuple):
     # optional props may include
     # "width-mm": int, "height-mm": int, "is-underscanning": bool,
     # "max-screen-size": str,
-    # "is-builtin", "display-name"
+    # "is-builtin": bool, "display-name": str
     properties: Mapping[str, Any]
 
     @classmethod
@@ -105,19 +118,20 @@ class LogicalMonitor(NamedTuple):
     def from_tuple(cls, t: Tuple):
         assert len(t) == 7
         return cls(
-            *t[0:5], # first 5 elements are "flat"
+            *t[0:5],  # first 5 elements are "flat"
             [MonitorInfo(*m) for m in t[5]],  # type: ignore
             t[6],  # type: ignore
         )
 
 
 class MutterDisplayConfig(NamedTuple):
+    """The top level object that represents
+    the return value of the GetCurrentState dbus call
+    """
+
     serial: int
     physical_monitors: List[PhysicalMonitor]
     logical_monitors: List[LogicalMonitor]
-    # optional properties, may contain
-    # "supports-mirroring", "layout-mode", "supports-changing-layout-mode"
-    # "global-scale-required"
     properties: Mapping[str, Any]
 
     @classmethod
@@ -129,6 +143,25 @@ class MutterDisplayConfig(NamedTuple):
             [LogicalMonitor.from_tuple(logical) for logical in t[2]],
             t[3],
         )
+
+    @property
+    def supports_mirroring(self) -> bool:
+        return self.properties.get("supports-mirroring", False)
+
+    @property
+    def layout_mode(self) -> Any:
+        # only 2 possible layouts
+        # layout-mode = 2 => Physical, everything other value => Logical
+        # If the key doesn't exist, then layout mode can't be changed
+        return self.properties.get("layout-mode", None)
+
+    @property
+    def supports_changing_layout_mode(self) -> bool:
+        return self.properties.get("supports-changing-layout-mode", False)
+
+    @property
+    def global_scale_required(self) -> bool:
+        return self.properties.get("global-scale-required", False)
 
 
 class MonitorConfigGnome(MonitorConfig):
@@ -352,3 +385,16 @@ class MonitorConfigGnome(MonitorConfig):
             timeout_msec=-1,
             cancellable=None,
         )
+
+
+if __name__ == "__main__":
+    s = MonitorConfigGnome().get_current_state_raw()
+    for i, m in enumerate(s.physical_monitors):
+        print("monitor", m.info.connector)
+        for mode in m.modes:
+            if mode.is_current:
+                print(mode, "is current")
+            if mode.is_preferred:
+                print(mode, "is preferred")
+    print(s.properties)
+    print("physical", s.layout_mode == 2)

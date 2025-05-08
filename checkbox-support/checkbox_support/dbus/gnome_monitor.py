@@ -22,8 +22,17 @@ Original script that inspired this class:
 """
 
 import itertools
-from typing import (Any, Callable, Dict, List, Mapping, NamedTuple, Optional,
-                    Set, Tuple)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    NamedTuple,
+    Optional,
+    Set,
+    Tuple,
+)
 
 from checkbox_support.monitor_config import MonitorConfig
 from gi.repository import Gio, GLib  # type: ignore
@@ -36,50 +45,90 @@ class Mode(NamedTuple):
     is_current: bool
 
 
-PhysicalMonitor = Tuple[
-    Tuple[str, str, str, str],  # (connector, vendor, product, serial)
-    List[  # list of modes
-        Tuple[
-            str,  # mode id
-            int,  # width
-            int,  # height
-            float,  # refresh rate
-            float,  # preferred scale
-            List[float],  # supported scales
-            # map of all properties
-            # usually has the 'is-current' and 'is-preferred' keys
-            Mapping[str, GLib.Variant],
-        ]
-    ],
-    # optional properties, all keys may or may not exist
+class Transform:
+    NORMAL_0 = 0
+    NORMAL_90 = 1
+    NORMAL_180 = 2
+    NORMAL_270 = 3
+    FLIPPED_0 = 4
+    FLIPPED_90 = 5
+    FLIPPED_180 = 6
+    FLIPPED_270 = 7
+
+
+class MutterDisplayMode(NamedTuple):
+    id: str
+    width: int
+    height: int
+    refresh_rate: float
+    preferred_scale: float
+    supported_scales: List[float]
+    # usually has the 'is-current' and 'is-preferred' keys
+    properties: Mapping[str, Any]
+
+
+class MonitorInfo(NamedTuple):
+    connector: str  # HDMI-1, eDP-1, ...
+    vendor: str  # vendor string like BOE
+    product: str
+    serial: str
+
+
+class PhysicalMonitor(NamedTuple):
+    info: MonitorInfo
+    modes: List[MutterDisplayMode]
+    # optional props may include
     # "width-mm": int, "height-mm": int, "is-underscanning": bool,
     # "max-screen-size": str,
     # "is-builtin", "display-name"
-    Mapping[str, GLib.Variant],
-]
+    properties: Mapping[str, Any]
 
-LogicalMonitor = Tuple[
-    int,  # x offset
-    int,  # y offset
-    float,  # scale multiplier
-    int,  # transform bitmask, has is_flipped state & rotation
-    bool,  # is primary
-    # list of monitors info, (connector, vendor, product, serial)
-    List[Tuple[str, str, str, str]],
-    # arbitrary properties
-    Mapping[str, GLib.Variant],
-]
+    @classmethod
+    def from_tuple(cls, t: Tuple):
+        assert len(t) == 3
+        return cls(
+            MonitorInfo(*t[0]), [MutterDisplayMode(*raw) for raw in t[1]], t[2]
+        )
 
-# The raw return type from calling DisplayConfig GetCurrentState
-DisplayConfig = Tuple[
-    int,  # serial
-    List[PhysicalMonitor],  # list of physical monitors
-    List[LogicalMonitor],  # list of logical monitors
+
+class LogicalMonitor(NamedTuple):
+    x: int
+    y: int
+    scale: float
+    transform: Transform  # u32 enum
+    is_primary: bool
+    # list of physical monitors that formed this logical monitor
+    monitors: List[MonitorInfo]
+    properties: Mapping[str, Any]
+
+    @classmethod
+    def from_tuple(cls, t: Tuple):
+        assert len(t) == 7
+        return cls(
+            *t[0:5], # first 5 elements are "flat"
+            [MonitorInfo(*m) for m in t[5]],  # type: ignore
+            t[6],  # type: ignore
+        )
+
+
+class MutterDisplayConfig(NamedTuple):
+    serial: int
+    physical_monitors: List[PhysicalMonitor]
+    logical_monitors: List[LogicalMonitor]
     # optional properties, may contain
     # "supports-mirroring", "layout-mode", "supports-changing-layout-mode"
     # "global-scale-required"
-    Mapping[str, GLib.Variant],
-]
+    properties: Mapping[str, Any]
+
+    @classmethod
+    def from_tuple(cls, t: Tuple):
+        assert len(t) == 4
+        return cls(
+            t[0],
+            [PhysicalMonitor.from_tuple(physical) for physical in t[1]],
+            [LogicalMonitor.from_tuple(logical) for logical in t[2]],
+            t[3],
+        )
 
 
 class MonitorConfigGnome(MonitorConfig):
@@ -237,14 +286,16 @@ class MonitorConfigGnome(MonitorConfig):
         # change back to preferred monitor configuration
         self.set_extended_mode()
 
-    def get_current_state_raw(self) -> DisplayConfig:
-        return self._proxy.call_sync(
+    def get_current_state_raw(self) -> MutterDisplayConfig:
+        raw = self._proxy.call_sync(
             method_name="GetCurrentState",
             parameters=None,
             flags=Gio.DBusCallFlags.NO_AUTO_START,
             timeout_msec=-1,
             cancellable=None,
-        )  # type: ignore # have to cast
+        ).unpack()
+        assert type(raw) is tuple
+        return MutterDisplayConfig.from_tuple(raw)
 
     def _get_current_state(self) -> Tuple[str, Dict[str, List[Mode]]]:
         """
@@ -261,13 +312,7 @@ class MonitorConfigGnome(MonitorConfig):
             timeout_msec=-1,
             cancellable=None,
         )
-        # from gnome-randr, the type for state[2] is
-        # type LogicalMonitor = Vec<(i32,i32,f64,u32,bool,
-        #     Vec<(String, String, String, String)>,
-        #     dbus::arg::PropMap)>
-        # namely: [x, y, scale, transform bitmask,
-        #   list[tuple[connector, vendor, product, serial]], properties]
-        print(state[2])
+
         return (
             state[0],
             {

@@ -106,3 +106,12 @@ command:
 user: root
 _description:
     Attaches install mode log to the results.
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: ce-oem-info/image-url-iot
+estimated_duration: 0.1
+_description: Get installed image URL based on DCD
+_summary: Provides image URL based on DistributionChannelDescriptor meta data
+_purpose: To provide a URL to image file that was installed on the system
+command: get-image-url-iot.sh

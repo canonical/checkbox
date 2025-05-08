@@ -117,7 +117,7 @@ jobs:
           snapcraft promote checkbox --from-channel uc18/beta --to-channel uc18/stable --yes
           snapcraft promote checkbox --from-channel uc20/beta --to-channel uc20/stable --yes
           snapcraft promote checkbox --from-channel uc22/beta --to-channel uc22/stable --yes
-          snapcraft promote checkbox --from-channel uc24/beta --to-channel uc22/stable --yes
+          snapcraft promote checkbox --from-channel uc24/beta --to-channel uc24/stable --yes
           snapcraft promote checkbox --from-channel 16.04/beta --to-channel 16.04/stable --yes
           snapcraft promote checkbox --from-channel 18.04/beta --to-channel 18.04/stable --yes
           snapcraft promote checkbox --from-channel 20.04/beta --to-channel 20.04/stable --yes

@@ -64,7 +64,6 @@ nested_part:
   usb-manual
   usb-c-manual
   usb3-manual
-  usb-dwc3-manual
   thunderbolt-cert-manual
   watchdog-manual
   wireless-manual
@@ -155,7 +154,6 @@ nested_part:
   thunderbolt-cert-automated
   ubuntucore-automated
   usb-automated
-  usb-dwc3-automated
   watchdog-automated
   wireless-automated
   wireless-wifi-master-mode-auto

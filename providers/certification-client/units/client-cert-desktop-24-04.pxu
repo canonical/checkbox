@@ -45,6 +45,7 @@ nested_part:
     usb-cert-manual
     usb3-cert-manual
     usb-c-cert-full # no manual only
+    usb-dwc3-manual
     wireless-cert-manual
     # start of suspend related tests
     # suspend point
@@ -114,6 +115,7 @@ nested_part:
     touchscreen-cert-automated
     usb-cert-automated
     usb-automated
+    usb-dwc3-automated
     wireless-cert-automated
     wireless-netplan-cert-automated
     # start of suspend related tests

@@ -34,7 +34,6 @@ from typing import (
     Optional,
     Set,
 )
-from typing_extensions import override
 from checkbox_support.monitor_config import MonitorConfig
 from gi.repository import Gio, GLib  # type: ignore
 
@@ -231,7 +230,6 @@ class MonitorConfigGnome(MonitorConfig):
             cancellable=None,
         )
 
-    @override
     def get_connected_monitors(self) -> Set[str]:
         """
         Get the connector name of each connected monitor, even if inactive.
@@ -239,7 +237,6 @@ class MonitorConfigGnome(MonitorConfig):
         state = self.get_current_state()
         return {monitor.info.connector for monitor in state.physical_monitors}
 
-    @override
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""
 
@@ -252,7 +249,6 @@ class MonitorConfigGnome(MonitorConfig):
                     resolution_map[monitor.info.connector] = mode.resolution
         return resolution_map
 
-    @override
     def set_extended_mode(self) -> Dict[str, str]:
         """
         Set to extend mode so that each monitor can be displayed

@@ -33,6 +33,7 @@ from typing import (
     NamedTuple,
     Optional,
     Set,
+    override,
 )
 import time
 
@@ -97,6 +98,8 @@ class MutterDisplayMode(_MutterDisplayModeT):
         """
         Resolution string, makes this class compatible with the Mode type
         !! WARNING: This property does not exist on the original dbus object
+        !! This is only here for code that expects a string, new code should
+        !! use the width and height numbers
         """
         return "{}x{}".format(self.width, self.height)
 
@@ -116,12 +119,12 @@ _PhysicalMonitorT = NamedTuple(
 class PhysicalMonitor(_PhysicalMonitorT):
 
     @classmethod
-    def from_variant(cls, t: GLib.Variant):
+    def from_variant(cls, v: GLib.Variant):
         # not going to do extensive checks here
         # since get_current_state already checked
-        assert len(t) == 3
+        assert len(v) == 3
         return cls(
-            MonitorInfo(*t[0]), [MutterDisplayMode(*raw) for raw in t[1]], t[2]
+            MonitorInfo(*v[0]), [MutterDisplayMode(*raw) for raw in v[1]], v[2]
         )
 
     @property
@@ -145,12 +148,12 @@ _LogicalMonitorT = NamedTuple(
 
 class LogicalMonitor(_LogicalMonitorT):
     @classmethod
-    def from_variant(cls, t: GLib.Variant):
-        assert len(t) == 7
+    def from_variant(cls, v: GLib.Variant):
+        assert len(v) == 7
         return cls(
-            *t[0:5],  # the first 5 elements are flat, so just spread them
-            [MonitorInfo(*m) for m in t[5]],  # type: ignore
-            t[6],  # type: ignore
+            *v[0:5],  # the first 5 elements are flat, so just spread them
+            [MonitorInfo(*m) for m in v[5]],  # type: ignore
+            v[6],  # type: ignore
         )
 
 
@@ -172,12 +175,12 @@ class MutterDisplayConfig(_MutterDisplayConfigT):
     """
 
     @classmethod
-    def from_variant(cls, t: GLib.Variant):
+    def from_variant(cls, v: GLib.Variant):
         return cls(
-            t[0],
-            [PhysicalMonitor.from_variant(physical) for physical in t[1]],
-            [LogicalMonitor.from_variant(logical) for logical in t[2]],
-            t[3],
+            v[0],
+            [PhysicalMonitor.from_variant(physical) for physical in v[1]],
+            [LogicalMonitor.from_variant(logical) for logical in v[2]],
+            v[3],
         )
 
     @property
@@ -230,6 +233,7 @@ class MonitorConfigGnome(MonitorConfig):
             cancellable=None,
         )
 
+    @override
     def get_connected_monitors(self) -> Set[str]:
         """
         Get the connector name of each connected monitor, even if inactive.
@@ -237,6 +241,7 @@ class MonitorConfigGnome(MonitorConfig):
         state = self.get_current_state()
         return {monitor.info.connector for monitor in state.physical_monitors}
 
+    @override
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""
 
@@ -249,6 +254,7 @@ class MonitorConfigGnome(MonitorConfig):
                     resolution_map[monitor.info.connector] = mode.resolution
         return resolution_map
 
+    @override
     def set_extended_mode(self) -> Dict[str, str]:
         """
         Set to extend mode so that each monitor can be displayed
@@ -272,9 +278,8 @@ class MonitorConfigGnome(MonitorConfig):
                     if mode.is_preferred
                 )
             except StopIteration:
-                target_mode = self._get_mode_at_max(
-                    physical_monitor.modes  # type: ignore
-                )
+                target_mode = self._get_mode_at_max(physical_monitor.modes)
+
             extended_logical_monitors.append(
                 (
                     position_x,  # x
@@ -313,15 +318,14 @@ class MonitorConfigGnome(MonitorConfig):
                     it will take List[Mode] as parameter and return
                     the same data type
 
-            post_cycle_action: Call this function after each cycle
-                    for each monitor, the string is constructed by
+            post_cycle_action: Called after each cycle for each monitor,
+                    the string is constructed by
                     [monitor name]_[resolution]_[transform]_.
                     Please note that the delay is needed inside this
                     callback to wait the monitors to response
         """
         connectors = []  # type: list[str]
         modes_list = []  # type: list[list[MutterDisplayMode]]
-        # ["normal": 0, "left": 1, "inverted": 6, "right": 3]
         trans_list = (
             [
                 Transform.NORMAL_0,
@@ -341,23 +345,21 @@ class MonitorConfigGnome(MonitorConfig):
                 modes_list.append(resolution_filter(connector.modes))
             else:
                 modes_list.append(connector.modes)
-        combined_modes = list(itertools.product(*modes_list))
 
-        for combined_mode in combined_modes:
+        for combined_mode in itertools.product(*modes_list):
             for trans in trans_list:
                 logical_monitors = []
                 position_x = 0
                 uni_string = ""
                 for connector, mode in zip(connectors, combined_mode):
+                    transformation_str = {
+                        0: "normal",
+                        1: "left",
+                        3: "right",
+                        2: "inverted",
+                    }.get(trans)
                     uni_string += "{}_{}_{}_".format(
-                        connector,
-                        mode.resolution,
-                        {
-                            0: "normal",
-                            1: "left",
-                            3: "right",
-                            2: "inverted",
-                        }.get(trans),
+                        connector, mode.resolution, transformation_str
                     )
                     logical_monitors.append(
                         (
@@ -369,6 +371,14 @@ class MonitorConfigGnome(MonitorConfig):
                             [(connector, mode.id, {})],
                         )
                     )
+                    print(
+                        "Setting",
+                        connector,
+                        "to",
+                        mode.id,
+                        ", transform:",
+                        transformation_str,
+                    )
                     # left and right should convert x and y
                     x_offset = (
                         mode.height
@@ -376,7 +386,6 @@ class MonitorConfigGnome(MonitorConfig):
                         else mode.width
                     )
                     position_x += x_offset
-                print(logical_monitors)
                 # Sometimes the NVIDIA driver won't update the state.
                 # Get the state before applying to avoid this issue.
                 state = self.get_current_state()
@@ -397,13 +406,14 @@ class MonitorConfigGnome(MonitorConfig):
             timeout_msec=-1,
             cancellable=None,
         )
+
         if not raw.get_type().equal(self.CONFIG_VARIANT_TYPE):
             raise TypeError(
                 "DBus GetCurrentState returned unexpected type: "
                 + str(raw.get_type())
             )
 
-        return MutterDisplayConfig.from_variant(raw.unpack())
+        return MutterDisplayConfig.from_variant(raw)
 
     def _apply_monitors_config(self, serial: int, logical_monitors: List):
         """
@@ -428,9 +438,3 @@ class MonitorConfigGnome(MonitorConfig):
             timeout_msec=-1,
             cancellable=None,
         )
-
-if __name__ == "__main__":
-    mg = MonitorConfigGnome()
-    s =mg.get_current_state()
-    for m in s.physical_monitors:
-        print(m.properties)

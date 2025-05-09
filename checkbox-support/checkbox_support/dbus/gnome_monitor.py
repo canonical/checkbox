@@ -68,7 +68,7 @@ MonitorInfo = NamedTuple(
 
 
 # py3.5 can't use inline type annotations,
-# otherwise the _T types should be merged with
+# otherwise the _*T types should be merged with their no-underscore conterparts
 _MutterDisplayModeT = NamedTuple(
     "_MutterDisplayModeT",
     [
@@ -116,7 +116,7 @@ _PhysicalMonitorT = NamedTuple(
 class PhysicalMonitor(_PhysicalMonitorT):
 
     @classmethod
-    def from_tuple(cls, t: GLib.Variant):
+    def from_variant(cls, t: GLib.Variant):
         # not going to do extensive checks here
         # since get_current_state already checked
         assert len(t) == 3
@@ -145,10 +145,10 @@ _LogicalMonitorT = NamedTuple(
 
 class LogicalMonitor(_LogicalMonitorT):
     @classmethod
-    def from_tuple(cls, t: GLib.Variant):
+    def from_variant(cls, t: GLib.Variant):
         assert len(t) == 7
         return cls(
-            *t[0:5],  # first 5 elements are "flat", so just spread them
+            *t[0:5],  # the first 5 elements are flat, so just spread them
             [MonitorInfo(*m) for m in t[5]],  # type: ignore
             t[6],  # type: ignore
         )
@@ -160,7 +160,7 @@ _MutterDisplayConfigT = NamedTuple(
         ("serial", int),
         ("physical_monitors", List[PhysicalMonitor]),
         ("logical_monitors", List[LogicalMonitor]),
-        # technically value type is GLib.Variant, but it can be indexed
+        # technically value type is GLib.Variant
         ("properties", Mapping[str, Any]),
     ],
 )
@@ -172,11 +172,11 @@ class MutterDisplayConfig(_MutterDisplayConfigT):
     """
 
     @classmethod
-    def from_tuple(cls, t: GLib.Variant):
+    def from_variant(cls, t: GLib.Variant):
         return cls(
             t[0],
-            [PhysicalMonitor.from_tuple(physical) for physical in t[1]],
-            [LogicalMonitor.from_tuple(logical) for logical in t[2]],
+            [PhysicalMonitor.from_variant(physical) for physical in t[1]],
+            [LogicalMonitor.from_variant(logical) for logical in t[2]],
             t[3],
         )
 
@@ -403,7 +403,7 @@ class MonitorConfigGnome(MonitorConfig):
                 + str(raw.get_type())
             )
 
-        return MutterDisplayConfig.from_tuple(raw.unpack())
+        return MutterDisplayConfig.from_variant(raw.unpack())
 
     def _apply_monitors_config(self, serial: int, logical_monitors: List):
         """
@@ -428,3 +428,9 @@ class MonitorConfigGnome(MonitorConfig):
             timeout_msec=-1,
             cancellable=None,
         )
+
+if __name__ == "__main__":
+    mg = MonitorConfigGnome()
+    s =mg.get_current_state()
+    for m in s.physical_monitors:
+        print(m.properties)

@@ -349,12 +349,12 @@ class MonitorConfigGnome(MonitorConfig):
                 position_x = 0
                 uni_string = ""
                 for connector, mode in zip(connectors, combined_mode):
-                    transformation_str = (
-                        "normal",
-                        "left",
-                        "inverted",
-                        "right",
-                    )[trans]
+                    transformation_str = {
+                        Transform.NORMAL_0: "normal",
+                        Transform.NORMAL_270: "left",
+                        Transform.FLIPPED_180: "inverted",
+                        Transform.NORMAL_90: "right",
+                    }[trans]
                     uni_string += "{}_{}_{}_".format(
                         connector, mode.resolution, transformation_str
                     )

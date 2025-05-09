@@ -39,13 +39,6 @@ from checkbox_support.monitor_config import MonitorConfig
 from gi.repository import Gio, GLib  # type: ignore
 
 
-class Mode(NamedTuple):
-    id: str
-    resolution: str
-    is_preferred: bool
-    is_current: bool
-
-
 class Transform(IntEnum):
     NORMAL_0 = 0  # landscape
     NORMAL_90 = 1  # portrait right
@@ -61,16 +54,35 @@ class Transform(IntEnum):
     FLIPPED_270 = 7
 
 
-class MutterDisplayMode(NamedTuple):
-    id: str
-    width: int
-    height: int
-    refresh_rate: float
-    preferred_scale: float
-    supported_scales: List[float]
-    # usually has the 'is-current' and 'is-preferred' keys
-    properties: Mapping[str, Any]
+"""A plain 4-tuple with some basic info about the monitor"""
+MonitorInfo = NamedTuple(
+    "MonitorInfo",
+    [
+        ("connector", str),  # HDMI-1, eDP-1, ...
+        ("vendor", str),  # vendor string like BOE, Asus, etc.
+        ("product", str),
+        ("serial", str),
+    ],
+)
 
+
+# py3.5 can't use inline type annotations,
+# otherwise the _T types should be merged with 
+_MutterDisplayModeT = NamedTuple(
+    "_MutterDisplayModeT",
+    [
+        ("id", str),
+        ("width", int),
+        ("height", int),
+        ("refresh_rate", float),
+        ("preferred_scale", float),
+        ("supported_scales", List[float]),
+        ("properties", Mapping[str, Any]),
+    ],
+)
+
+
+class MutterDisplayMode(_MutterDisplayModeT):
     @property
     def is_current(self) -> bool:
         return self.properties.get("is-current", False)
@@ -79,25 +91,30 @@ class MutterDisplayMode(NamedTuple):
     def is_preferred(self) -> bool:
         return self.properties.get("is-preferred", False)
 
+    @property
+    def resolution(self) -> str:
+        """
+        Resolution string, makes this class compatible with the Mode type
+        !! WARNING: This property does not exist on the original dbus object
+        """
+        return "{}x{}".format(self.width, self.height)
 
-class MonitorInfo(NamedTuple):
-    """A plain 4-tuple with some basic info about the monitor"""
 
-    connector: str  # HDMI-1, eDP-1, ...
-    vendor: str  # vendor string like BOE, Asus, etc.
-    product: str
-    serial: str
+_PhysicalMonitorT = NamedTuple(
+    "_PhysicalMonitorT",
+    [
+        ("info", MonitorInfo),
+        ("modes", List[MutterDisplayMode]),
+        # optional keys in properties may include
+        # "width-mm": int, "height-mm": int, "is-underscanning": bool,
+        # "max-screen-size": str,
+        # "is-builtin": bool, "display-name": str
+        ("properties", Mapping[str, Any]),
+    ],
+)
 
 
-class PhysicalMonitor(NamedTuple):
-    info: MonitorInfo
-    modes: List[MutterDisplayMode]
-    # optional props may include
-    # "width-mm": int, "height-mm": int, "is-underscanning": bool,
-    # "max-screen-size": str,
-    # "is-builtin": bool, "display-name": str
-    properties: Mapping[str, Any]
-
+class PhysicalMonitor(_PhysicalMonitorT):
     @classmethod
     def from_tuple(cls, t: Tuple):
         assert len(t) == 3
@@ -110,35 +127,47 @@ class PhysicalMonitor(NamedTuple):
         return self.properties.get("is-builtin", False)
 
 
-class LogicalMonitor(NamedTuple):
-    x: int
-    y: int
-    scale: float
-    transform: Transform  # u32 enum
-    is_primary: bool
-    # list of physical monitors that formed this logical monitor
-    monitors: List[MonitorInfo]
-    properties: Mapping[str, Any]
+_LogicalMonitorT = NamedTuple(
+    "_LogicalMonitorT",
+    [
+        ("x", int),
+        ("y", int),
+        ("scale", float),
+        ("transform", Transform),
+        ("is_primary", bool),
+        ("monitors", List[MonitorInfo]),
+        ("properties", Mapping[str, Any]),
+    ],
+)
 
+
+class LogicalMonitor(_LogicalMonitorT):
     @classmethod
     def from_tuple(cls, t: Tuple):
         assert len(t) == 7
         return cls(
-            *t[0:5],  # first 5 elements are "flat"
-            [MonitorInfo(*m) for m in t[5]],  # type: ignore
-            t[6],  # type: ignore
+            *t[0:5],  # first 5 elements are "flat", so just spread them
+            [MonitorInfo(*m) for m in t[5]],
+            t[6],
         )
 
 
-class MutterDisplayConfig(NamedTuple):
+_MutterDisplayConfigT = NamedTuple(
+    "_MutterDisplayConfigT",
+    [
+        ("serial", int),
+        ("physical_monitors", List[PhysicalMonitor]),
+        ("logical_monitors", List[LogicalMonitor]),
+        # technically value type is GLib.Variant, but it can be indexed
+        ("properties", Mapping[str, Any]),
+    ],
+)
+
+
+class MutterDisplayConfig(_MutterDisplayConfigT):
     """The top level object that represents
     the return value of the GetCurrentState dbus call
     """
-
-    serial: int
-    physical_monitors: List[PhysicalMonitor]
-    logical_monitors: List[LogicalMonitor]
-    properties: Mapping[str, Any]  # technically ValueT is GLib.Variant
 
     @classmethod
     def from_tuple(cls, t: Tuple):
@@ -155,7 +184,7 @@ class MutterDisplayConfig(NamedTuple):
         return self.properties.get("supports-mirroring", False)
 
     @property
-    def layout_mode(self) -> Any:
+    def layout_mode(self) -> Optional[Any]:
         # only 2 possible layouts
         # layout-mode = 2 => Physical, everything other value => Logical
         # If the key doesn't exist, then layout mode can't be changed
@@ -168,6 +197,9 @@ class MutterDisplayConfig(NamedTuple):
     @property
     def global_scale_required(self) -> bool:
         return self.properties.get("global-scale-required", False)
+
+
+ResolutionFilter = Callable[[List[MutterDisplayMode]], List[MutterDisplayMode]]
 
 
 class MonitorConfigGnome(MonitorConfig):
@@ -195,7 +227,9 @@ class MonitorConfigGnome(MonitorConfig):
         )
 
     def get_connected_monitors(self) -> Set[str]:
-        """Get list of connected monitors, even if inactive."""
+        """
+        Get the connector name of each connected monitor, even if inactive.
+        """
         state = self.get_current_state_complete()
         return {monitor.info.connector for monitor in state.physical_monitors}
 
@@ -203,15 +237,15 @@ class MonitorConfigGnome(MonitorConfig):
         """Get current active resolutions for each monitor."""
 
         state = self.get_current_state_complete()
-        out = {}  # type: dict[str, str]
+        resolution_map = {}  # type: dict[str, str]
 
         for monitor in state.physical_monitors:
             for mode in monitor.modes:
                 if mode.is_current:
-                    out[monitor.info.connector] = "{}x{}".format(
+                    resolution_map[monitor.info.connector] = "{}x{}".format(
                         mode.width, mode.height
                     )
-        return out
+        return resolution_map
 
     def set_extended_mode(self) -> Dict[str, str]:
         """
@@ -220,17 +254,21 @@ class MonitorConfigGnome(MonitorConfig):
 
         :return configuration: ordered list of applied Configuration
         """
-        state = self._get_current_state()
+        state = self.get_current_state_complete()
 
         extended_logical_monitors = []
-        configuration = {}
+        configuration = {}  # type: dict[str, str] # [connector] = resolution
 
         position_x = 0
-        for monitor, modes in state[1].items():
+        for pmonitor in state.physical_monitors:
             try:
-                target_mode = next(mode for mode in modes if mode.is_preferred)
+                target_mode = next(
+                    mode for mode in pmonitor.modes if mode.is_preferred
+                )
             except StopIteration:
-                target_mode = self._get_mode_at_max(modes)
+                target_mode = self._get_mode_at_max(
+                    pmonitor.modes  # type: ignore
+                )
             extended_logical_monitors.append(
                 (
                     position_x,
@@ -238,20 +276,20 @@ class MonitorConfigGnome(MonitorConfig):
                     1.0,
                     0,
                     position_x == 0,  # first monitor is primary
-                    [(monitor, target_mode.id, {})],
+                    [(pmonitor.info.connector, target_mode.id, {})],
                 )
             )
             position_x += int(target_mode.resolution.split("x")[0])
-            configuration[monitor] = target_mode.resolution
+            configuration[pmonitor.info.connector] = target_mode.resolution
 
-        self._apply_monitors_config(state[0], extended_logical_monitors)
+        self._apply_monitors_config(state.serial, extended_logical_monitors)
         return configuration
 
     def cycle(
         self,
         resolution: bool = True,
         transform: bool = False,
-        resolution_filter: Optional[Callable[[List[Mode]], List[Mode]]] = None,
+        resolution_filter: Optional[ResolutionFilter] = None,
         action: Optional[Callable[..., Any]] = None,
         **kwargs
     ):
@@ -273,19 +311,19 @@ class MonitorConfigGnome(MonitorConfig):
                     Please note that the delay is needed inside this
                     callback to wait the monitors to response
         """
-        monitors = []
-        modes_list = []
+        monitors = []  # type: list[str]
+        modes_list = []  # type: list[list[MutterDisplayMode]]
         # ["normal": 0, "left": 1, "inverted": 6, "right": 3]
         trans_list = [0, 1, 6, 3] if transform else [0]
 
         # for multiple monitors, we need to create resolution combination
-        state = self._get_current_state()
-        for monitor, modes in state[1].items():
-            monitors.append(monitor)
+        state = self.get_current_state_complete()
+        for monitor in state.physical_monitors:
+            monitors.append(monitor.info.connector)
             if resolution_filter:
-                modes_list.append(resolution_filter(modes))
+                modes_list.append(resolution_filter(monitor.modes))
             else:
-                modes_list.append(modes)
+                modes_list.append(monitor.modes)
         mode_combination = list(itertools.product(*modes_list))
 
         for mode in mode_combination:
@@ -319,8 +357,8 @@ class MonitorConfigGnome(MonitorConfig):
                     position_x += int(m.resolution.split("x")[xy])
                 # Sometimes the NVIDIA driver won't update the state.
                 # Get the state before applying to avoid this issue.
-                state = self._get_current_state()
-                self._apply_monitors_config(state[0], logical_monitors)
+                state = self.get_current_state_complete()
+                self._apply_monitors_config(state.serial, logical_monitors)
                 if action:
                     action(uni_string, **kwargs)
             if not resolution:
@@ -339,39 +377,7 @@ class MonitorConfigGnome(MonitorConfig):
         assert type(raw) is tuple
         return MutterDisplayConfig.from_tuple(raw)
 
-    def _get_current_state(self) -> Tuple[str, Dict[str, List[Mode]]]:
-        """
-        Using DBus signal 'GetCurrentState' to get the available monitors
-        and related modes.
-
-        Check the related DBus XML definition for details over the expected
-        output data format.
-        """
-        state = self._proxy.call_sync(
-            method_name="GetCurrentState",
-            parameters=None,
-            flags=Gio.DBusCallFlags.NO_AUTO_START,
-            timeout_msec=-1,
-            cancellable=None,
-        )
-
-        return (
-            state[0],
-            {
-                monitor[0][0]: [
-                    Mode(
-                        mode[0],
-                        "{}x{}".format(mode[1], mode[2]),
-                        mode[6].get("is-preferred", False),
-                        mode[6].get("is-current", False),
-                    )
-                    for mode in monitor[1]
-                ]
-                for monitor in state[1]
-            },
-        )
-
-    def _apply_monitors_config(self, serial: str, logical_monitors: List):
+    def _apply_monitors_config(self, serial: int, logical_monitors: List):
         """
         Using DBus signal 'ApplyMonitorsConfig' to apply the given monitor
         configuration.
@@ -395,3 +401,8 @@ class MonitorConfigGnome(MonitorConfig):
             cancellable=None,
         )
 
+
+if __name__ == "__main__":
+    s = MonitorConfigGnome().get_current_state_complete()
+    for i, m in enumerate(s.physical_monitors):
+        print(m.info.connector)

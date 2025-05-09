@@ -79,16 +79,7 @@ class Serial:
         Assign default config since no addtional RS485 config that
         input by user.
         """
-        self.rs485_settings = (
-            rs485_settings
-            if rs485_settings
-            else {
-                "rts_level_for_tx": True,
-                "rts_level_for_rx": False,
-                "delay_before_tx": 0.0,
-                "delay_before_rx": 0.0,
-            }
-        )
+        self.rs485_settings = rs485_settings
         group = group if group else []
         self.ser = self.serial_init(node)
         self.group = []
@@ -108,42 +99,25 @@ class Serial:
             stopbits=self.stopbits,
             timeout=self.timeout,
         )
-        if self.type == "RS485":
+        if self.rs485_settings:
             """
             Mapping RS485 node with specific RS485 settings to
             handle different rts_level.
             """
-            if node in self.rs485_settings:
-                ser.rs485_mode = serial.rs485.RS485Settings(
-                    rts_level_for_tx=self.rs485_settings[node].get(
-                        "rts_level_for_tx"
-                    )
-                    == "True",
-                    rts_level_for_rx=self.rs485_settings[node].get(
-                        "rts_level_for_rx"
-                    )
-                    == "True",
-                    delay_before_tx=float(
-                        self.rs485_settings[node].get("delay_before_tx")
-                    ),
-                    delay_before_rx=float(
-                        self.rs485_settings[node].get("delay_before_rx")
-                    ),
-                )
-            else:
-                """
-                Use default RS485 setting if node does not have it own config
-                """
-                ser.rs485_mode = serial.rs485.RS485Settings(
-                    rts_level_for_tx=self.rs485_settings.get(
-                        "rts_level_for_tx"
-                    ),
-                    rts_level_for_rx=self.rs485_settings.get(
-                        "rts_level_for_rx"
-                    ),
-                    delay_before_tx=self.rs485_settings.get("delay_before_tx"),
-                    delay_before_rx=self.rs485_settings.get("delay_before_rx"),
-                )
+            ser.rs485_mode = serial.rs485.RS485Settings(
+                rts_level_for_tx=self.rs485_settings[node].get(
+                    "rts_level_for_tx"
+                ),
+                rts_level_for_rx=self.rs485_settings[node].get(
+                    "rts_level_for_rx"
+                ),
+                delay_before_tx=self.rs485_settings[node].get(
+                    "delay_before_tx"
+                ),
+                delay_before_rx=self.rs485_settings[node].get(
+                    "delay_before_rx"
+                ),
+            )
             logging.info(
                 "Init port %s with RS485 config "
                 "rts_level_for_tx: %s "
@@ -187,7 +161,9 @@ def generate_random_string(length):
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def parse_rs485_config(rs485_conf: str = None):
+def parse_rs485_config(
+    target_node: str, rs485_conf: str = "", group: list = []
+):
     rs485_conf_lists = {}
     """
     Parse RS485 config,
@@ -212,13 +188,31 @@ def parse_rs485_config(rs485_conf: str = None):
         }
     }
     """
+    # Mapping rs485 config
     for rs485_conf_list in rs485_conf.split():
         node, rts_tx, rts_rx, delay_tx, delay_rx = rs485_conf_list.split(":")
         rs485_conf_lists[node] = {
-            "rts_level_for_tx": rts_tx,
-            "rts_level_for_rx": rts_rx,
-            "delay_before_tx": delay_tx,
-            "delay_before_rx": delay_rx,
+            "rts_level_for_tx": True if rts_tx == "True" else False,
+            "rts_level_for_rx": True if rts_rx == "True" else False,
+            "delay_before_tx": float(delay_tx),
+            "delay_before_rx": float(delay_rx),
+        }
+    # Asign default value to the RS485 in group but not defined in RS485_CONFIG
+    for group_port in group:
+        if group_port not in rs485_conf_lists.keys():
+            rs485_conf_lists[group_port] = {
+                "rts_level_for_tx": True,
+                "rts_level_for_rx": False,
+                "delay_before_tx": 0.0,
+                "delay_before_rx": 0.0,
+            }
+    # mapping target port
+    if target_node not in rs485_conf_lists.keys():
+        rs485_conf_lists[target_node] = {
+            "rts_level_for_tx": True,
+            "rts_level_for_rx": False,
+            "delay_before_tx": 0.0,
+            "delay_before_rx": 0.0,
         }
     return rs485_conf_lists
 
@@ -445,6 +439,8 @@ def create_args():
         "--rs485-config",
         type=str,
         help="RS485 configuration",
+        required=False,
+        default="",
     )
     return parser
 
@@ -454,8 +450,10 @@ def main():
     args = parser.parse_args()
 
     init_logger()
-    if args.rs485_config:
-        rs485_settings = parse_rs485_config(args.rs485_config)
+    if args.type == "RS485":
+        rs485_settings = parse_rs485_config(
+            args.node, args.rs485_config, args.group
+        )
     else:
         rs485_settings = None
 

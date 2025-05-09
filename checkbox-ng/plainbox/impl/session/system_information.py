@@ -27,6 +27,13 @@ class CollectorOutputs(dict):
 
     @classmethod
     def from_dict(cls, dct):
+        """
+        This loads the class from a dct
+        Note: this ignores the version the CollectionOutputs was generated from
+              as we have no good way of using it for now
+        """
+        # ignore the version, this shouldn't matter as this is only used in
+        # merge-reports and merge-submissions
         _ = dct.pop("version")
         to_load = {
             name: CollectionOutput.from_dict(value)

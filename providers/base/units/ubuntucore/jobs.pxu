@@ -79,24 +79,55 @@ requires: os.distributor_id == 'Ubuntu Core'
 template-unit: job
 plugin: shell
 user: root
-flags: noreturn
-estimated_duration: 210.0
+estimated_duration: 60.0
 command:
   set -e
   snap model
   snap model | grep "ubuntu-core-{source}"
   remodel_test.py {destination}
 
-id: ubuntucore/remodel-reboot-{source}
+id: ubuntucore/remodel-reboot-{source}-first
 category_id: ubuntucore
-_summary: Remodel checkpoint to reboot system during remodel.
+_summary: First remodel checkpoint to reboot system during remodel.
+_purpose:
+ A system reboot will be requested as a part of requesting a remodel, this serves
+ to be a checkpoint for that, and waits for the reboot to be requested.
+unit: template
+template-id: ubuntucore/remodel-reboot-first
+template-resource: ubuntucore/remodels
+requires: os.distributor_id == 'Ubuntu Core'
+template-unit: job
+plugin: shell
+user: root
+flags: noreturn
+estimated_duration: 30.0
+command:
+  set -e
+  max_attempts=30
+  attempt_num=1
+  success=false
+  while [ $success = false ] && [ $attempt_num -le $max_attempts ]; do
+    journalctl -b -u snapd | grep "Waiting for system reboot"
+    if [ $? -eq 0 ]; then
+      success=true
+    else
+      echo "Attemp $attempt_num: waiting for reboot request"
+      attempt_num=$(( attempt_num + 1 ))
+      sleep 1
+    fi
+  done
+  reboot
+
+id: ubuntucore/remodel-reboot-{source}-second
+category_id: ubuntucore
+_summary: Second remodel checkpoint to reboot system during remodel.
 _purpose:
  At this point, the remodel will start, the first reboot was to create a 
  recovery system and the next will be to start the remodel itself. 
  This will take a while and do several reboots but not be observed by
  checkbox 
 unit: template
-template-id: ubuntucore/remodel-reboot
+template-id: ubuntucore/remodel-reboot-second
 template-resource: ubuntucore/remodels
 requires: os.distributor_id == 'Ubuntu Core'
 template-unit: job

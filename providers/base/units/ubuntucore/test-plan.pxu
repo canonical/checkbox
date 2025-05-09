@@ -34,7 +34,8 @@ bootstrap_include:
     ubuntucore/remodels
 include:
     ubuntucore/remodel-20-to-22
-    ubuntucore/remodel-reboot-20
+    ubuntucore/remodel-reboot-20-first
+    ubuntucore/remodel-reboot-20-second
     ubuntucore/remodel-20-to-22-verify
 
 id: ubuntucore-22-team
@@ -46,5 +47,6 @@ bootstrap_include:
     ubuntucore/remodels
 include:
     ubuntucore/remodel-22-to-24
-    ubuntucore/remodel-reboot-22
+    ubuntucore/remodel-reboot-22-first
+    ubuntucore/remodel-reboot-22-second
     ubuntucore/remodel-22-to-24-verify

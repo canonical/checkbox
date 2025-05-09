@@ -37,6 +37,7 @@ category_id: com.canonical.plainbox::power-management
 _summary: Post watchdog reset service check
 _purpose: Check there are no failed services after the watchdog triggered
 unit: job
+user: root
 plugin: shell
 command: failed_service_check.sh
 estimated_duration: 1.0

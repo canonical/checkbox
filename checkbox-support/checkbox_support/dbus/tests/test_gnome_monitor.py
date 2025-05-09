@@ -12,7 +12,6 @@ from gi.repository import GLib, Gio  # type: ignore
 from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
 
 
-@patch("time.sleep")
 class MonitorConfigGnomeTests(unittest.TestCase):
     """This class provides test cases for the MonitorConfig DBus class."""
 
@@ -33,7 +32,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             return self.MockGLibType()
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_get_connected_monitors(self, mock_dbus_proxy, mock_sleep):
+    def test_get_connected_monitors(self, mock_dbus_proxy):
         """
         Test whether the function returns a list of connected
         monitors, even if inactive.
@@ -99,7 +98,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         self.assertSetEqual(monitors, {"eDP-1", "HDMI-1"})
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_get_current_resolution(self, mock_dbus_proxy ,mock_sleep):
+    def test_get_current_resolution(self, mock_dbus_proxy):
         """
         Test whether the function returns a dictionary of
         monitor-id:resolution for any active monitors.
@@ -168,7 +167,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         )
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_set_extended_mode(self, mock_dbus_proxy, mock_sleep):
+    def test_set_extended_mode(self, mock_dbus_proxy):
         """
         Test whether the function set the logical display
         configuration to two screens at preferred resolution
@@ -260,7 +259,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         self.assertDictEqual(configuration, expected)
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_cycle(self, mock_dbus_proxy, mock_sleep):
+    def test_cycle(self, mock_dbus_proxy):
         """
         Test the cycle could get the right monitors configuration
         and send to ApplyMonitorsConfig.
@@ -349,7 +348,10 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         )
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_cycle_no_cycling(self, mock_dbus_proxy,mock_sleep):
+    def test_cycle_no_cycling(
+        self,
+        mock_dbus_proxy,
+    ):
         """
         Test the cycle could get the right monitors configuration
         (without res and transform change) and send to ApplyMonitorsConfig.

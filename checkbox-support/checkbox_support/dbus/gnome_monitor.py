@@ -35,7 +35,6 @@ from typing import (
     Set,
     override,
 )
-import time
 
 from checkbox_support.monitor_config import MonitorConfig
 from gi.repository import Gio, GLib  # type: ignore
@@ -395,7 +394,6 @@ class MonitorConfigGnome(MonitorConfig):
                 # Get the state before applying to avoid this issue.
                 state = self.get_current_state()
                 self._apply_monitors_config(state.serial, logical_monitors)
-                time.sleep(5)  # wait before calling apply() again
 
                 if post_cycle_action is not None:
                     post_cycle_action(uni_string, **kwargs)

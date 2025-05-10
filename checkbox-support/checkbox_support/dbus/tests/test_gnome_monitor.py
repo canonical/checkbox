@@ -8,12 +8,28 @@ sys.modules["dbus.mainloop.glib"] = MagicMock()
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
 
-from gi.repository import GLib, Gio
+from gi.repository import GLib, Gio  # type: ignore
 from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
 
 
 class MonitorConfigGnomeTests(unittest.TestCase):
     """This class provides test cases for the MonitorConfig DBus class."""
+
+    class MockGetCurrentStateReturnValue:
+
+        class MockGLibType:
+            def equal(self, o):
+                return True
+
+        def __init__(self, t):
+            self.t = t
+            super()
+
+        def __getitem__(self, k):
+            return self.t[k]
+
+        def get_type(self):
+            return self.MockGLibType()
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_get_connected_monitors(self, mock_dbus_proxy):
@@ -26,7 +42,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
         gnome_monitor = MonitorConfigGnome()
-        mock_proxy.call_sync.return_value = (
+        raw = (
             1,
             [
                 (
@@ -75,6 +91,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         monitors = gnome_monitor.get_connected_monitors()
         self.assertSetEqual(monitors, {"eDP-1", "HDMI-1"})
 
@@ -89,7 +108,8 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
         gnome_monitor = MonitorConfigGnome()
-        mock_proxy.call_sync.return_value = (
+
+        raw = (
             1,
             [
                 (
@@ -138,6 +158,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         resolutions = gnome_monitor.get_current_resolutions()
         self.assertEqual(
             resolutions, {"eDP-1": "1920x1200", "HDMI-1": "2560x1440"}
@@ -155,7 +178,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
         gnome_monitor = MonitorConfigGnome()
-        mock_proxy.call_sync.return_value = (
+        raw = (
             1,
             [
                 (
@@ -204,6 +227,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         configuration = gnome_monitor.set_extended_mode()
 
         logical_monitors = [
@@ -243,7 +269,8 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
         gnome_monitor = MonitorConfigGnome()
-        mock_proxy.call_sync.return_value = (
+
+        raw = (
             1,
             [
                 (
@@ -291,6 +318,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             ],
             [],
             {},
+        )
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
         )
         gnome_monitor.cycle()
 
@@ -318,7 +348,10 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         )
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_cycle_no_cycling(self, mock_dbus_proxy):
+    def test_cycle_no_cycling(
+        self,
+        mock_dbus_proxy,
+    ):
         """
         Test the cycle could get the right monitors configuration
         (without res and transform change) and send to ApplyMonitorsConfig.
@@ -328,7 +361,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
         gnome_monitor = MonitorConfigGnome()
-        mock_proxy.call_sync.return_value = (
+        raw = (
             1,
             [
                 (
@@ -377,13 +410,20 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         # mock callback
-        mock_callback = MagicMock()
+        mock_resolution_filter = MagicMock()
+        mock_resolution_filter.side_effect = (
+            lambda x: x
+        )  # keep the real mode values
+        mock_post_cycle_action = MagicMock()
         gnome_monitor.cycle(
             resolution=False,
             transform=False,
-            resoultion_filter=mock_callback,
-            action=mock_callback,
+            resolution_filter=mock_resolution_filter,
+            post_cycle_action=mock_post_cycle_action,
         )
 
         logical_monitors = [
@@ -408,8 +448,12 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             timeout_msec=-1,
             cancellable=None,
         )
-        argument_string = mock_callback.call_args[0][0]
+        argument_string = mock_post_cycle_action.call_args[0][0]
         p1 = "HDMI-1_2560x1440_normal_"
         p2 = "eDP-1_1920x1200_normal_"
         pattern = re.compile("{}{}|{}{}".format(p1, p2, p2, p1))
         assert pattern.match(argument_string)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -187,6 +187,42 @@ class TestV4L2ComplianceTest(ut.TestCase):
 
         self.assertRaises(SystemExit, main_under_test)
 
+    @patch(
+        "sys.argv",
+        [
+            "v4l2_compliance_test.py",
+            "--ioctl-selection",
+            "blockers",
+            "--device",
+            "/dev/video0",
+        ],
+    )
+    @patch("v4l2_compliance_test.get_release_info")
+    @patch("builtins.print")
+    @patch("v4l2_compliance_test.parse_v4l2_compliance")
+    def test_18_22_workaround(
+        self,
+        mock_parser: MagicMock,
+        mock_print: MagicMock,
+        mock_get_release_info: MagicMock,
+    ):
+        # this test is only intended for the temp workaround for 18 and 22
+        # VIDOC_REQBUFS is skipped on these 2 versions
+        mock_parser.return_value = (
+            {},
+            {
+                "succeeded": ["VIDIOC_QUERYCAP"],
+                "failed": ["VIDIOC_REQBUFS"],
+                "not_supported": [],
+            },
+        )
+        mock_get_release_info.return_value = {"codename": "jammy"}
+        main_under_test()
+        mock_print.assert_has_calls(
+            [call("No failed IOCTLs detected")],
+            any_order=True,
+        )
+
 
 if __name__ == "__main__":
     ut.main()

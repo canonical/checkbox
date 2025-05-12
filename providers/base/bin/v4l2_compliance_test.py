@@ -78,7 +78,7 @@ def main():
         codename = get_release_info()["codename"]
         if codename in ("jammy", "bionic"):
             # temp workaround for 22.04 & 18.04
-            ioctls_to_check = BLOCKERS - set(("VIDIOC_REQBUFS"))
+            ioctls_to_check = BLOCKERS - set(["VIDIOC_REQBUFS"])
         else:
             ioctls_to_check = BLOCKERS
     elif args.ioctl_selection == "non-blockers":

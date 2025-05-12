@@ -251,7 +251,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/suspend_advanced_auto
 requires:
     sleep.mem == 'supported'
-    rtc.state == 'supported'
+    rtc.state == 'supported' and rtc.wakealarm == 'supported'
 _summary: Automated test of suspend function
 _purpose:
  This is the automated version of suspend/suspend_advanced.

@@ -36,9 +36,11 @@ _description: Camera tests (automated)
 include:
  camera/detect                                     certification-status=blocker
  camera/multiple-resolution-images_.*              certification-status=blocker
+ camera/v4l2-compliance-blockers_.*                certification-status=blocker
  camera/multiple-resolution-images-attachment_.*   certification-status=non-blocker
  camera/camera-quality_.*                          certification-status=non-blocker
  camera/camera-quality-image_.*                    certification-status=non-blocker
+ camera/v4l2-compliance-non-blockers_.*            certification-status=non-blocker
 bootstrap_include:
  device
 
@@ -51,6 +53,7 @@ include:
  camera/still_.*                                   certification-status=blocker
  camera/display_.*                                 certification-status=blocker
  camera/multiple-resolution-images_.*              certification-status=blocker
+ camera/v4l2-compliance-blockers_.*                certification-status=blocker
 bootstrap_include:
  device
 
@@ -61,6 +64,7 @@ _description: Camera tests (after suspend, certification blockers only)
 include:
  after-suspend-camera/still_.*                     certification-status=blocker
  after-suspend-camera/display_.*                   certification-status=blocker
+ after-suspend-camera/v4l2-compliance-blockers_.*  certification-status=blocker
 bootstrap_include:
  device
 
@@ -71,9 +75,11 @@ _description: Camera tests After Suspend (automated)
 include:
  after-suspend-camera/detect                                     certification-status=blocker
  after-suspend-camera/multiple-resolution-images_.*              certification-status=blocker
+ after-suspend-camera/v4l2-compliance-blockers_.*                certification-status=blocker
  after-suspend-camera/multiple-resolution-images-attachment_.*   certification-status=non-blocker
  after-suspend-camera/camera-quality_.*                          certification-status=non-blocker
  after-suspend-camera/camera-quality-image_.*                    certification-status=non-blocker 
+ after-suspend-camera/v4l2-compliance-non-blockers_.*            certification-status=non-blocker
 bootstrap_include:
  device
 

@@ -2,7 +2,7 @@ name: checkbox-dss
 summary: Checkbox tests for validating the Data Science Stack
 description: |
   Collection of tests to be run on devices that are part of the dss-validation project
-version: '3.0'
+version: '3.1'
 confinement: classic
 grade: stable
 

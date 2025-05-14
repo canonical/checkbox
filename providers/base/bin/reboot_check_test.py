@@ -274,8 +274,8 @@ class HardwareRendererTester:
 
     def is_hardware_renderer_available(self) -> bool:
         """
-        Checks if hardware rendering is being used by calling glmark2-es2
-        - THIS ASSUMES A DRM CONNECTION EXISTS
+        Checks if hardware rendering is being used by calling glmark2
+        - THIS ASSUMES A DRM CONNECTION EXISTS AND ALL ENVS HAVE BEEN SET
         - self.has_display_connection() should be called first if unsure
 
         :return: True if a hardware renderer is active, otherwise return False

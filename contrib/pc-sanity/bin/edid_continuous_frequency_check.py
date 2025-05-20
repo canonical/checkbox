@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import glob
 import argparse
 
 
@@ -28,7 +27,7 @@ def find_internal_panel_edid():
             dirnames[:] = []
         if (
             any(interface in dirpath for interface in lcd_interface_list)
-            and "edid" in filenames
+            and "edid" in filenames  # noqa: W503
         ):
             edid_file = f"{dirpath}/edid"
             print(edid_file)
@@ -92,7 +91,7 @@ def check_display_range_limits_descriptor(
             ):  # noqa: E501
                 if (
                     horizontal_address_video_in_pixels
-                    == maximum_horizontal_active_pixels(
+                    == maximum_horizontal_active_pixels(  # noqa: W503
                         data_block_of_DRLD[12], data_block_of_DRLD[13]
                     )
                 ):  # noqa: E501

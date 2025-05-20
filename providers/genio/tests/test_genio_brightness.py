@@ -1,7 +1,7 @@
 import unittest
 import os
 from unittest.mock import patch, mock_open, MagicMock
-from brightness_test import Brightness, main
+from genio_brightness_test import Brightness, main
 
 
 class TestBrightness(unittest.TestCase):
@@ -83,7 +83,7 @@ class TestBrightness(unittest.TestCase):
         )
 
     @patch("os.path.isdir")
-    @patch("brightness_test.glob")
+    @patch("genio_brightness_test.glob")
     def test_get_interfaces_from_path(self, mock_glob, mock_isdir):
         mock_brightness = MagicMock()
         mock_brightness.sysfs_path = "/sys/class/backlight"
@@ -178,7 +178,7 @@ class TestBrightness(unittest.TestCase):
         self.assertIn("ERROR", str(cm.exception))
 
     @patch("os.geteuid")
-    @patch("brightness_test.Brightness")
+    @patch("genio_brightness_test.Brightness")
     def test_main(self, mock_brightness, mock_getuid):
         mock_getuid.return_value = 0
         argv = ["script_name", "-p", "G1200-evk", "-d", "dsi"]
@@ -187,7 +187,7 @@ class TestBrightness(unittest.TestCase):
         self.assertEqual(mock_brightness.call_count, 1)
 
     @patch("os.geteuid")
-    @patch("brightness_test.Brightness", MagicMock())
+    @patch("genio_brightness_test.Brightness", MagicMock())
     def test_main_bad_args(self, mock_getuid):
         mock_getuid.return_value = 0
         argv = ["script_name", "-p", "bad_platform", "-d", "dsi"]
@@ -201,7 +201,7 @@ class TestBrightness(unittest.TestCase):
                 main()
 
     @patch("os.geteuid")
-    @patch("brightness_test.Brightness", MagicMock())
+    @patch("genio_brightness_test.Brightness", MagicMock())
     def test_main_no_root(self, mock_getuid):
         mock_getuid.return_value = 1
         argv = ["script_name", "-p", "G1200-evk", "-d", "dsi"]
@@ -210,7 +210,7 @@ class TestBrightness(unittest.TestCase):
                 main()
 
     @patch("os.geteuid")
-    @patch("brightness_test.Brightness", MagicMock())
+    @patch("genio_brightness_test.Brightness", MagicMock())
     def test_main_wrong_interfaces(self, mock_getuid):
         mock_getuid.return_value = 0
         argv = ["script_name", "-p", "G350", "-d", "lvds"]

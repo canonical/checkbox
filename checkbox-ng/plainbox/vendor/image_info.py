@@ -157,10 +157,14 @@ def dcd_string_to_info_iot(dcd_string):
 
 
 def dcd_info():
-    if DCD_FILE_IOT.is_file():
-        dcd_string = DCD_FILE_IOT.read_text().strip()
-        print(f"Found IoT dcd string: {dcd_string}", file=sys.stderr)
-        return dcd_string_to_info_iot(dcd_string)
+    try:
+        if DCD_FILE_IOT.is_file():
+            with DCD_FILE_IOT.open("r", encoding="utf-8") as f:
+                dcd_string = f.read().strip()
+            print("Found IoT dcd string: {}".format(dcd_string), file=sys.stderr)
+            return dcd_string_to_info_iot(dcd_string)
+    except (IOError, OSError):
+        print("IoT dcd file not found. Assuming PC platform", file=sys.stderr)
 
     ubuntu_report = parse_ubuntu_report()
     print(

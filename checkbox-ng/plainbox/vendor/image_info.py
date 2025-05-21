@@ -149,9 +149,9 @@ def dcd_string_to_info_iot(dcd_string):
     }
 
     image_name = f"{project_name}-{series}-{build_id}.tar.xz"
-    info["url"] = (
-        f"{BASE_URL}/{project_name}/share/{series}/{build_id}/{image_name}"
-    )
+    info[
+        "url"
+    ] = f"{BASE_URL}/{project_name}/share/{series}/{build_id}/{image_name}"
 
     return info
 
@@ -159,7 +159,7 @@ def dcd_string_to_info_iot(dcd_string):
 def dcd_info():
     try:
         if DCD_FILE_IOT.is_file():
-            with DCD_FILE_IOT.open("r", encoding="utf-8") as f:
+            with open(str(DCD_FILE_IOT), "r", encoding="utf-8") as f:
                 dcd_string = f.read().strip()
             print("Found IoT dcd string: {}".format(dcd_string), file=sys.stderr)
             return dcd_string_to_info_iot(dcd_string)

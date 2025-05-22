@@ -137,7 +137,7 @@ def dcd_string_to_info_iot(dcd_string):
 
     match = re.match(pattern, dcd_string)
     if not match:
-        raise ValueError(f"Invalid DCD format: {dcd_string}")
+        raise ValueError("Invalid DCD format: {}".format(dcd_string))
 
     project_name, series, build_id, _, additional_info = match.groups()
 
@@ -147,11 +147,16 @@ def dcd_string_to_info_iot(dcd_string):
         "series": series,
         "build_id": build_id,
     }
-
-    image_name = f"{project_name}-{series}-{build_id}.tar.xz"
-    info[
-        "url"
-    ] = f"{BASE_URL}/{project_name}/share/{series}/{build_id}/{image_name}"
+    image_name = "{}-{}-{}.tar.xz".format(project_name, series, build_id)
+    info["url"] = (
+        "{base_url}/{project}/share/{series}/{build_id}/{image_name}"
+    ).format(
+        base_url=BASE_URL,
+        project=project_name,
+        series=series,
+        build_id=build_id,
+        image_name=image_name,
+    )
 
     return info
 
@@ -161,7 +166,9 @@ def dcd_info():
         if DCD_FILE_IOT.is_file():
             with open(str(DCD_FILE_IOT), "r", encoding="utf-8") as f:
                 dcd_string = f.read().strip()
-            print("Found IoT dcd string: {}".format(dcd_string), file=sys.stderr)
+            print(
+                "Found IoT dcd string: {}".format(dcd_string), file=sys.stderr
+            )
             return dcd_string_to_info_iot(dcd_string)
     except (IOError, OSError):
         print("IoT dcd file not found. Assuming PC platform", file=sys.stderr)

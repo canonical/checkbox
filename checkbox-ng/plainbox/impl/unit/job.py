@@ -223,6 +223,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             controller = checkbox_session_state_ctrl
         self._resource_program = None
         self._controller = controller
+        self._before_references = set()
 
     @classmethod
     def instantiate_template(
@@ -337,6 +338,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
     @cached_property
     def after(self):
         return self.get_record_value("after")
+
+    @cached_property
+    def before(self):
+        return self.get_record_value("before")
 
     @cached_property
     def salvages(self):
@@ -682,9 +687,38 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 deps.add(self.qualify_id(node.text))
 
             def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse depends: %s"), node.msg)
+                logger.warning(_("unable to parse after: %s"), node.msg)
 
         V().visit(WordList.parse(self.after))
+        return deps
+
+    def get_before_dependencies(self):
+        """
+        Compute and return a set of after dependencies.
+
+        If this job (A) is referenced in the "before" field of another job (B),
+        then the job B will be added to the set of dependencies of A. This way
+        the dependency graph only works with "after" dependencies:
+
+            id: A          id: A
+                       ->  after: B
+            id: B      ->
+            before: A      id: B
+        """
+
+        deps = set()
+        if self.before is None:
+            return deps
+
+        class V(Visitor):
+
+            def visit_Text_node(visitor, node: Text):
+                deps.add(self.qualify_id(node.text))
+
+            def visit_Error_node(visitor, node: Error):
+                logger.warning(_("unable to parse before: %s"), node.msg)
+
+        V().visit(WordList.parse(self.before))
         return deps
 
     def get_salvage_dependencies(self):
@@ -765,6 +799,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             estimated_duration = "estimated_duration"
             depends = "depends"
             after = "after"
+            before = "before"
             salvages = "salvages"
             requires = "requires"
             shell = "shell"
@@ -931,6 +966,23 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_after_dependencies(),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        )
+                    ],
+                ),
+            ],
+            fields.before: [
+                concrete_validators.untranslatable,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        unit.get_before_dependencies() is not None
+                    )
+                ),
+                UnitReferenceValidator(
+                    lambda unit: unit.get_before_dependencies(),
                     constraints=[
                         ReferenceConstraint(
                             lambda referrer, referee: referee.unit == "job",

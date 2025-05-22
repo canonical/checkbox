@@ -51,7 +51,7 @@ class DependencyCycleErrorTests(TestCase):
         self.assertIs(self.exc.affecting_job, self.A)
 
     def test_str(self):
-        expected = "dependency cycle detected: A -> B -> A"
+        expected = "dependency cycle detected: A <- B <- A"
         observed = str(self.exc)
         self.assertEqual(expected, observed)
 
@@ -185,34 +185,54 @@ class TestDependencySolver(TestCase):
 
     def test_direct_deps(self):
         # This tests the following simple job chain
+        # A <- B <- A
+        A = make_job(id="A")
+        B = make_job(id="B", depends="A")
+        C = make_job(id="C", depends="B")
+        job_list = [C, B, A]
+        expected = [A, B, C]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_before_deps(self):
+        # This tests the following simple inverse job chain
         # A -> B -> C
-        A = make_job(id="A", depends="B")
-        B = make_job(id="B", depends="C")
+        A = make_job(id="A", before="B")
+        B = make_job(id="B", before="C")
         C = make_job(id="C")
-        job_list = [A, B, C]
-        expected = [C, B, A]
+        job_list = [C, B, A]
+        expected = [A, B, C]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_mixed_after_before_deps(self):
+        # This tests a job chain containing after and before deps
+        # A -> B <- C
+        A = make_job(id="A", before="B")
+        B = make_job(id="B")
+        C = make_job(id="C", after="B")
+        job_list = [C, B, A]
+        expected = [A, B, C]
         observed = DependencySolver.resolve_dependencies(job_list)
         self.assertEqual(expected, observed)
 
     def test_independent_groups_deps(self):
         # This tests two independent job chains
-        # A1 -> B1
-        # A2 -> B2
-        A1 = make_job(id="A1", depends="B1")
-        B1 = make_job(
-            id="B1",
-        )
-        A2 = make_job(id="A2", depends="B2")
-        B2 = make_job(id="B2")
-        job_list = [A1, B1, A2, B2]
-        expected = [B1, A1, B2, A2]
+        # A1 <- B1
+        # A2 <- B2
+        A1 = make_job(id="A1")
+        B1 = make_job(id="B1", depends="A1")
+        A2 = make_job(id="A2")
+        B2 = make_job(id="B2", depends="A2")
+        job_list = [B1, A1, B2, A2]
+        expected = [A1, B1, A2, B2]
         observed = DependencySolver.resolve_dependencies(job_list)
         self.assertEqual(expected, observed)
 
     def test_visiting_blackend_node(self):
         # This tests a visit to already visited job
         # A
-        # B -> A
+        # A <- B
         # A will be visited twice
         A = make_job(id="A")
         B = make_job(id="B", depends="A")
@@ -223,7 +243,7 @@ class TestDependencySolver(TestCase):
 
     def test_resource_deps(self):
         # This tests resource deps
-        # A ~> R
+        # R <~ A
         A = make_job(id="A", requires='R.foo == "bar"')
         R = make_job(id="R", plugin="resource")
         job_list = [A, R]
@@ -242,20 +262,20 @@ class TestDependencySolver(TestCase):
 
     def test_missing_direct_dependency(self):
         # This tests missing dependencies
-        # A -> (inexisting B)
-        A = make_job(id="A", depends="B")
-        job_list = [A]
+        # (inexisting A) <- B
+        B = make_job(id="B", depends="A")
+        job_list = [B]
         with self.assertRaises(DependencyMissingError) as call:
             DependencySolver.resolve_dependencies(job_list)
-        self.assertIs(call.exception.job, A)
-        self.assertEqual(call.exception.missing_job_id, "B")
+        self.assertIs(call.exception.job, B)
+        self.assertEqual(call.exception.missing_job_id, "A")
         self.assertEqual(
             call.exception.dep_type, call.exception.DEP_TYPE_DIRECT
         )
 
     def test_missing_resource_dependency(self):
         # This tests missing resource dependencies
-        # A ~> (inexisting R)
+        # (inexisting R) <~ A
         A = make_job(id="A", requires='R.attr == "value"')
         job_list = [A]
         with self.assertRaises(DependencyMissingError) as call:
@@ -268,7 +288,7 @@ class TestDependencySolver(TestCase):
 
     def test_dependency_cycle_self(self):
         # This tests dependency loops
-        # A -> A
+        # A <- A
         A = make_job(id="A", depends="A")
         job_list = [A]
         with self.assertRaises(DependencyCycleError) as call:
@@ -277,7 +297,7 @@ class TestDependencySolver(TestCase):
 
     def test_dependency_cycle_simple(self):
         # This tests dependency loops
-        # A -> B -> A
+        # A <- B <- A
         A = make_job(id="A", depends="B")
         B = make_job(id="B", depends="A")
         job_list = [A, B]
@@ -287,19 +307,53 @@ class TestDependencySolver(TestCase):
 
     def test_dependency_cycle_longer(self):
         # This tests dependency loops
-        # A -> B -> C -> D -> B
-        A = make_job(id="A", depends="B")
-        B = make_job(id="B", depends="C")
-        C = make_job(id="C", depends="D")
-        D = make_job(id="D", depends="B")
+        # A <- B <- C <- A
+        # C <- D
+        A = make_job(id="A", depends="C")
+        B = make_job(id="B", depends="A")
+        C = make_job(id="C", depends="B")
+        D = make_job(id="D", depends="C")
         job_list = [A, B, C, D]
         with self.assertRaises(DependencyCycleError) as call:
             DependencySolver.resolve_dependencies(job_list)
-        self.assertEqual(call.exception.job_list, [B, C, D, B])
+        self.assertEqual(call.exception.job_list, [A, C, B, A])
+
+    def test_dependency_cycle_after(self):
+        # This tests dependency loops just using after flag
+        # A <- B <- C <- A
+        A = make_job(id="A", after="C")
+        B = make_job(id="B", after="A")
+        C = make_job(id="C", after="B")
+        job_list = [A, B, C]
+        with self.assertRaises(DependencyCycleError) as call:
+            DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(call.exception.job_list, [A, C, B, A])
+
+    def test_dependency_cycle_before(self):
+        # This tests dependency loops just using after flag
+        # A -> B -> C -> A
+        A = make_job(id="A", before="B")
+        B = make_job(id="B", before="C")
+        C = make_job(id="C", before="A")
+        job_list = [A, B, C]
+        with self.assertRaises(DependencyCycleError) as call:
+            DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(call.exception.job_list, [A, C, B, A])
+
+    def test_dependency_cycle_mixed(self):
+        # This tests dependency loops just using after flag
+        # A -> B <- C -> A
+        A = make_job(id="A", before="B")
+        B = make_job(id="B")
+        C = make_job(id="C", after="B", before="A")
+        job_list = [A, B, C]
+        with self.assertRaises(DependencyCycleError) as call:
+            DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(call.exception.job_list, [A, C, B, A])
 
     def test_dependency_cycle_via_resource(self):
         # This tests dependency loops
-        # A -> R -> A
+        # A <- R <- A
         A = make_job(id="A", requires='R.key == "value"')
         R = make_job(id="R", depends="A", plugin="resource")
         job_list = [A, R]

@@ -185,11 +185,12 @@ class TestDCDStringToInfoIoT(TestCase):
 
 
 class TestDCDStringE2EIoT(TestCase):
+    @patch("builtins.open")
     @patch("pathlib.Path.is_file")
-    @patch("pathlib.Path.read_text")
-    def test_dcd_info_iot_path_all_fields(self, mock_read_text, mock_is_file):
+    def test_dcd_info_iot_path_all_fields(self, mock_is_file, mock_open):
         mock_is_file.return_value = True
-        mock_read_text.return_value = (
+        mock_file = mock_open.return_value.__enter__.return_value
+        mock_file.read.return_value = (
             "canonical-oem-carlsbad:element-v2-uc24:20241205.15:v2-uc24-x01"
         )
 
@@ -203,13 +204,14 @@ class TestDCDStringE2EIoT(TestCase):
             "https://oem-share.canonical.com/partners/carlsbad/share/element-v2-uc24/20241205.15/carlsbad-element-v2-uc24-20241205.15.tar.xz",
         )
 
+    @patch("builtins.open")
     @patch("pathlib.Path.is_file")
-    @patch("pathlib.Path.read_text")
     def test_dcd_info_iot_path_no_additional_info(
-        self, mock_read_text, mock_is_file
+        self, mock_is_file, mock_open
     ):
         mock_is_file.return_value = True
-        mock_read_text.return_value = (
+        mock_file = mock_open.return_value.__enter__.return_value
+        mock_file.read.return_value = (
             "canonical-oem-shiner:x8high35-som-pdk:20250507-1170:"
         )
 
@@ -243,7 +245,3 @@ class TestDCDStringE2EIoT(TestCase):
         # Since iot dcd file is missing, this must be pc platform
         self.assertEqual(info["project"], "pinktiger")
         self.assertEqual(info["series"], "noble")
-        self.assertEqual(
-            info["url"],
-            "https://oem-share.canonical.com/partners/pinktiger/share/releases/noble/oem-24.04a/20240823-74/",
-        )

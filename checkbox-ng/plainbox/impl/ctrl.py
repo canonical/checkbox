@@ -109,6 +109,8 @@ class CheckBoxSessionStateController(ISessionStateController):
         resource = DependencyMissingError.DEP_TYPE_RESOURCE
         direct_deps = job.get_direct_dependencies()
         after_deps = job.get_after_dependencies()
+        # Add the the jobs that have this job in their "before" field
+        after_deps = after_deps | job._before_references
         try:
             resource_deps = job.get_resource_dependencies()
         except ResourceProgramError:
@@ -133,12 +135,24 @@ class CheckBoxSessionStateController(ISessionStateController):
         )
         return result
 
+    def add_before_deps(self, job, job_map):
+        """
+        Add a all "before" references declared in a job to the corresponding
+        jobs as an "after" dependency in the _before_references set.
+
+        If a job (B) has a "before" field, we add this job as an "after"
+        dependency to the job (A).
+        """
+        before_deps = job.get_before_dependencies()
+        for dep_id in before_deps:
+            job_map[dep_id]._before_references.add(job.id)
+
     def _get_before_suspend_dependency_set(self, suspend_job_id, job_list):
         """
         Get the set of after dependencies of a suspend job.
 
         Jobs that have a ``also-after-suspend[-manual]`` flag should be run
-        before their associated suspend job. Similary, jobs that declare a
+        before their associated suspend job. Similarly, jobs that declare a
         sibling with a dependency on a suspend job should be run before said
         suspend job. This function finds these jobs and add them as a
         dependency for their associated suspend job.

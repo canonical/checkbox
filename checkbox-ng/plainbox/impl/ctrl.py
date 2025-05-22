@@ -145,6 +145,13 @@ class CheckBoxSessionStateController(ISessionStateController):
         """
         before_deps = job.get_before_dependencies()
         for dep_id in before_deps:
+            # Check if the dep_id is a valid job
+            if dep_id not in job_map:
+                raise DependencyMissingError(
+                    job=job,
+                    missing_job_id=dep_id,
+                    dep_type=DependencyMissingError.DEP_TYPE_ORDERING_BEFORE,
+                )
             job_map[dep_id]._before_references.add(job.id)
 
     def _get_before_suspend_dependency_set(self, suspend_job_id, job_list):

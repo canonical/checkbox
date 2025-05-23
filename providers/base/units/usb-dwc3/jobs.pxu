@@ -7,8 +7,9 @@ requires:
 plugin: shell
 flags: simple
 command:
-  if ! lspci -v | grep dwc3-pci; then
-    echo "Cannot find the 'dwc3-pci' driver be used!"
+  if ! lspci -v | grep dwc3-pci
+  then
+    echo "The 'dwc3-pci' driver is not loaded!"
     echo "Please make sure this feature is supported on this platform and check the value of xDCI in BIOS setting."
     exit 1
   fi
@@ -23,11 +24,13 @@ requires:
 plugin: shell
 flags: simple
 command:
-  if ! lsmod | grep dwc3_pci; then
-    echo "Cannot find the 'dwc3_pci' module be loaded!"
+  if ! lsmod | grep dwc3_pci
+  then
+    echo "The 'dwc3_pci' module is not loaded!"
     echo "Please make sure this feature is supported on this platform and check the value of xDCI in BIOS setting."
     exit 1
   fi
+  echo "dwc3_pci module loaded"
 
 id: usb-dwc3/mass-storage
 _summary: Check DUT can be detected as mass storage device
@@ -35,11 +38,9 @@ _purpose:
   Check that after connecting the device under test (DUT) to another device
   (host), DUT can be detected as mass storage device by the host.
 _steps:
-  1. In BIOS, enable USB xDCI support (Advanced Menu -> USB Configuration ->
-  xDCI Support -> [Enabled]).
+  1. In BIOS, enable USB xDCI support.
   2. Press Enter to setup a 256 MB FAT32 image on the device.
-  3. From an Ubuntu (or Windows) host, connect a cable to the USB OTG port (on
-  Aaeon EHL board, it's the USB type C connector) of the DUT.
+  3. From an Ubuntu (or Windows) host, connect a cable to the USB OTG port of the DUT.
 _verification:
   The host detects and mounts a mass storage device. It has read and write
   permissions on it.
@@ -62,7 +63,6 @@ flags: preserve-locale
 id: usb-dwc3/mass-storage-cleanup
 _summary: Cleanup mass storage setup after mass storage device test
 plugin: shell
-category_id: usb-dwc3
 after: usb-dwc3/mass-storage
 command:
   echo "Removing g_mass_storage module..."
@@ -72,4 +72,6 @@ command:
     rm "${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img
   fi
 user: root
+category_id: usb-dwc3
 estimated_duration: 1s
+

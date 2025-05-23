@@ -180,7 +180,7 @@ def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
     - Failed to build - retry or note failure
     - Dependency wait - retry or note failure
     - Chroot problem - retry or note failure
-    - Failed to upload - retry or note failure
+    - Failed to upload -  note failure
     - Build for superseded Source - retry or note failure
     - Cancelling build - retry or note failure
     - Cancelled build - retry or note failure
@@ -221,7 +221,10 @@ def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
             # avoid flooding LP with requests
             time.sleep(LP_POLLING_DELAY)
             builds_to_check.insert(0, build)
-        elif build.can_be_retried:
+        # Failed to upload is basically always pointless to retry, as it
+        # happens mostly when we have re-triggered a build that was already
+        # uploaded previously
+        elif build.can_be_retried and buildstate != "Failed to upload":
             print(f"Build failed with status '{buildstate}'")
             print(f"  retrying: {build.web_link}")
             # avoid flooding LP with requests

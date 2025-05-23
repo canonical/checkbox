@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_md_raid
 _name: Software RAID
 value-type: bool
+
+unit: manifest entry
+id: has_fde
+_name: Full Disk Encryption (FDE)
+value-type: bool

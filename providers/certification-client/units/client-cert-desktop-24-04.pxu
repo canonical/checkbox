@@ -90,6 +90,7 @@ nested_part:
     audio-cert-automated
     bluetooth-cert-automated
     camera-cert-automated
+    camera-v4l2-compliance
     thunderbolt-cert-automated
     monitor-gpu-cert-automated
     graphics-gpu-cert-automated

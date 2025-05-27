@@ -216,6 +216,34 @@ class TestDependencySolver(TestCase):
         observed = DependencySolver.resolve_dependencies(job_list)
         self.assertEqual(expected, observed)
 
+    def test_multiple_before_deps(self):
+        # This tests a job chain with multiple before deps
+        # A -> B
+        # A -> C -> D
+        # A -> D
+        A = make_job(id="A", before="B C D")
+        B = make_job(id="B")
+        C = make_job(id="C")
+        D = make_job(id="D")
+        job_list = [D, C, B, A]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        # Check that A is the first job
+        self.assertEqual(observed[0], A)
+
+    def test_multiple_after_deps(self):
+        # This tests a job chain with multiple after deps
+        # A <- D
+        # C <- B
+        # D <- B
+        A = make_job(id="A")
+        B = make_job(id="B")
+        C = make_job(id="C")
+        D = make_job(id="D", depends="A B C")
+        job_list = [D, C, B, A]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        # Check that D is the last job
+        self.assertEqual(observed[-1], D)
+
     def test_independent_groups_deps(self):
         # This tests two independent job chains
         # A1 <- B1

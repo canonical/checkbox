@@ -53,7 +53,7 @@ apps:
     command: bin/checkbox-cli-wrapper
     plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
       gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
-      system-observe, tpm, udisks2]
+      system-observe, tpm, udisks2, checkbox-support]
   test-runner:
     command-chain: [bin/wrapper_local]
     command: bin/test-runner

@@ -51,7 +51,7 @@ class DependencyCycleErrorTests(TestCase):
         self.assertIs(self.exc.affecting_job, self.A)
 
     def test_str(self):
-        expected = "dependency cycle detected: A <- B <- A"
+        expected = "dependency cycle detected: A -> B -> A"
         observed = str(self.exc)
         self.assertEqual(expected, observed)
 

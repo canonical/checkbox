@@ -70,6 +70,7 @@ from plainbox.impl.unit.unit import (
     get_snap_base,
     on_os_ubuntucore,
     on_ubuntucore,
+    strictly_confined,
 )
 from plainbox.vendor import extcmd
 
@@ -775,7 +776,7 @@ def get_execution_command_subshell(
     ]
     # Run the command unconfined on ubuntu core because of snap-confine fixes
     # related to https://ubuntu.com/security/CVE-2021-44731
-    if on_ubuntucore():
+    if strictly_confined():
         cmd += ["aa-exec", "-p", "unconfined"]
     cmd += [job.shell, "-c", job.command]
     yield cmd

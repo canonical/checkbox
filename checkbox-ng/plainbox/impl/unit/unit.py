@@ -33,6 +33,7 @@ from contextlib import suppress
 from functools import lru_cache, partial
 from pathlib import Path
 
+import yaml
 from jinja2 import Template
 
 from plainbox.i18n import gettext as _
@@ -55,7 +56,7 @@ logger = logging.getLogger("plainbox.unit")
 
 
 @lru_cache(maxsize=None)
-def on_ubuntucore():
+def in_strict_snap():
     """
     Returns `True` when running in a strict snap
     """
@@ -67,6 +68,39 @@ def on_ubuntucore():
                     return False
         return True
     return False
+
+
+@lru_cache(maxsize=None)
+def strictly_confined():
+    """
+    Check if the snap is running with the checkbox_support snapd interface
+
+    Note: we may be in a strict snap but not be strictly confined because of
+          the checkbox-support interface which excludes the snap from AA
+          (no relation with the checkbox_support module!)
+    """
+    snap = os.getenv("SNAP")
+    if not snap:
+        return False
+    with Path(snap, "meta", "snap.yaml").open("r") as f:
+        meta = yaml.load(f, yaml.FullLoader)
+    if meta.get("confinement") != "strict":
+        # we are inside a classic snap
+        return False
+    apps = meta.get("apps")
+    if any(
+        "checkbox-support" in value.get("plugs", []) for value in apps.values()
+    ):
+        # we are in a uc snap but we have the checkbox-support interface
+        # this is "an heuristic" as we don't really know if we are THE app that
+        # has the checkbox-support plug, but I sure hope once it is added, it
+        # is either added to all of them or none of them
+        return False
+    logger.warning(
+        "Falling back to aa-unconstrained workaroud, consider adopting the "
+        "new `checkbox-support` snapd interface"
+    )
+    return True
 
 
 @lru_cache(maxsize=None)
@@ -809,7 +843,7 @@ class Unit(metaclass=UnitType):
                 tmp_params = self.parameters.copy()
                 tmp_params.update({"__checkbox_env__": self._checkbox_env()})
                 tmp_params.update({"__system_env__": os.environ})
-                tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
+                tmp_params.update({"__on_ubuntucore__": in_strict_snap()})
                 value = Template(value).render(tmp_params)
             else:
                 value = string.Formatter().vformat(value, (), self.parameters)
@@ -822,7 +856,7 @@ class Unit(metaclass=UnitType):
             tmp_params = {
                 "__checkbox_env__": self._checkbox_env(),
                 "__system_env__": os.environ,
-                "__on_ubuntucore__": on_ubuntucore(),
+                "__on_ubuntucore__": in_strict_snap(),
             }
             value = Template(value).render(tmp_params)
         return value
@@ -870,7 +904,7 @@ class Unit(metaclass=UnitType):
                         {"__checkbox_env__": self._checkbox_env()}
                     )
                     tmp_params.update({"__system_env__": os.environ})
-                    tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
+                    tmp_params.update({"__on_ubuntucore__": in_strict_snap()})
                     msgstr = Template(msgstr).render(tmp_params)
                 else:
                     msgstr = string.Formatter().vformat(
@@ -880,7 +914,7 @@ class Unit(metaclass=UnitType):
                 tmp_params = {
                     "__checkbox_env__": self._checkbox_env(),
                     "__system_env__": os.environ,
-                    "__on_ubuntucore__": on_ubuntucore(),
+                    "__on_ubuntucore__": in_strict_snap(),
                 }
                 msgstr = Template(msgstr).render(tmp_params)
             return msgstr
@@ -897,7 +931,7 @@ class Unit(metaclass=UnitType):
                         {"__checkbox_env__": self._checkbox_env()}
                     )
                     tmp_params.update({"__system_env__": os.environ})
-                    tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
+                    tmp_params.update({"__on_ubuntucore__": in_strict_snap()})
                     msgstr = Template(msgstr).render(tmp_params)
                 else:
                     msgstr = string.Formatter().vformat(
@@ -907,7 +941,7 @@ class Unit(metaclass=UnitType):
                 tmp_params = {
                     "__checkbox_env__": self._checkbox_env(),
                     "__system_env__": os.environ,
-                    "__on_ubuntucore__": on_ubuntucore(),
+                    "__on_ubuntucore__": in_strict_snap(),
                 }
                 msgstr = Template(msgstr).render(tmp_params)
             return msgstr

@@ -29,7 +29,7 @@ import subprocess
 import tempfile
 
 from plainbox.impl.secure.config import PlainBoxConfigParser
-from plainbox.impl.unit.unit import on_ubuntucore
+from plainbox.impl.unit.unit import in_strict_snap
 
 
 class IRestartStrategy(metaclass=abc.ABCMeta):
@@ -307,7 +307,7 @@ def detect_restart_strategy(
         return RemoteSnappyRestartStrategy(debug=True)
     # If we are running as a confined Snappy app this variable will have been
     # set by the launcher script
-    if on_ubuntucore():
+    if in_strict_snap():
         try:
             agent_status = subprocess.check_output(
                 ["snapctl", "get", "agent"], universal_newlines=True

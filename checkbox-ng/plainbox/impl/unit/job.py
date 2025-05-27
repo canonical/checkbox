@@ -223,7 +223,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             controller = checkbox_session_state_ctrl
         self._resource_program = None
         self._controller = controller
-        self._before_references = set()
+        self.before_references = set()
 
     @classmethod
     def instantiate_template(

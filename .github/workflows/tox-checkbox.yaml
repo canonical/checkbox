@@ -1,0 +1,134 @@
+name: Test checkbox-ng with tox
+permissions:
+  contents: read
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - providers/base/**
+      - providers/certification-client/**
+      - providers/certification-server/**
+      - providers/genio/**
+      - providers/gpgpu/**
+      - providers/resource/**
+      - providers/sru/**
+      - providers/tpm2/**
+      - .github/workflows/tox-checkbox.yaml
+  pull_request:
+    branches: [ main ]
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - providers/base/**
+      - providers/certification-client/**
+      - providers/certification-server/**
+      - providers/gpgpu/**
+      - providers/resource/**
+      - providers/sru/**
+      - providers/tpm2/**
+      - .github/workflows/tox-checkbox.yaml
+  workflow_dispatch:
+
+jobs:
+  get_path_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      paths: ${{ steps.paths.outputs.paths }}
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: paths
+        run: |
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [ "$CURRENT_BRANCH" == "main" ]; then
+            echo "Workflow triggered on main, diffing with HEAD~1"
+            DIFF=$(git diff --name-only HEAD~1)
+          else
+            echo "Workflow triggered on a branch, diffing with origin/main"
+            DIFF=$(git diff --name-only origin/main)
+          fi
+          changed(){ echo "$DIFF" | grep -o $1; }
+          if changed ".github/workflows/tox-checkbox.yaml"; then
+            # when changing the workflow, re-test all tox to check they still work
+            changed(){ true; }
+          fi;
+
+          paths=()
+          for path in \
+              checkbox-ng \
+              checkbox-support \
+              providers/base \
+              providers/certification-client \
+              providers/certification-server \
+              providers/gpgpu \
+              providers/resource \
+              providers/sru \
+              providers/tpm2; do
+            if changed $path; then
+              paths+=("\"$path\"");
+            fi;
+          done
+          path_array=`echo "["${paths[*]}"]" | sed 's/" "/","/g'`
+          echo "paths=$path_array" >> $GITHUB_OUTPUT
+
+  tox_test_checkbox_component:
+    needs: get_path_matrix
+    strategy:
+      matrix:
+        path: ${{ fromJson(needs.get_path_matrix.outputs.paths) }}
+        python: ["3.5", "3.6", "3.8", "3.10", "3.12"]
+        include:
+          - python: "3.5"
+            tox_env_name: "py35"
+          - python: "3.6"
+            tox_env_name: "py36"
+          - python: "3.8"
+            tox_env_name: "py38"
+          - python: "3.10"
+            tox_env_name: "py310"
+          - python: "3.12"
+            tox_env_name: "py312"
+    name: Tox ${{ matrix.path }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }]
+    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED
+      # error. To fix this, we have set up manually PIP_TRUSTED_HOST, checking
+      # first that we can "curl" the hosts, since they will fail in case of
+      # expired/invalid/self-signed certificate.
+      - name: Workaround SSL Certificates manual verification for Python
+        run: |
+          curl --fail --silent --show-error https://pypi.python.org
+          curl --fail --silent --show-error https://pypi.org
+          curl --fail --silent --show-error https://files.pythonhosted.org
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ matrix.python }}
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get update
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev shellcheck
+          pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}
+      #- name: Upload coverage reports to Codecov
+      #  uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24
+      #  with:
+      #    token: ${{ secrets.CODECOV_TOKEN }}
+      #    flags: checkbox-ng

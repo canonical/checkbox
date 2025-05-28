@@ -1,0 +1,65 @@
+name: checkbox-dss Snap build
+permissions:
+  contents: read
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-dss-validation/checkbox-provider-dss/**
+      - .github/workflows/checkbox-dss-build.yaml
+  pull_request:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-dss-validation/checkbox-provider-dss/**
+      - .github/workflows/checkbox-dss-build.yaml
+  workflow_dispatch:
+  workflow_call:
+    outputs:
+      artifact-url:
+        value: ${{ jobs.snap_frontend_native.outputs.artifact-url }}
+
+jobs:
+  snap_frontend_native:
+    outputs:
+      artifact-url: ${{ steps.upload_artifact.outputs.artifact-url }}
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels: ["self-hosted", "linux", "jammy", "large", "X64"]
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    name: Checkbox DSS validation snap
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - id: snap_build
+        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        name: Building the snaps
+        timeout-minutes: 600 # 10hours
+        with:
+          action: snapcore/action-build@v1.3.0
+          attempt_delay: 600000 # 10min
+          attempt_limit: 5
+          with: |
+            path: contrib/checkbox-dss-validation/
+            snapcraft-channel: 8.x/stable
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        name: Upload logs on failure
+        if: failure()
+        with:
+          name: snapcraft-log-checkbox-dss-snap
+          path: |
+            /home/runner/.cache/snapcraft/log/
+            /home/runner/.local/state/snapcraft/log/
+            contrib/checkbox-dss-validation/checkbox*.txt
+
+      - id: upload_artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        name: Upload the snaps as artifact
+        with:
+          name: checkbox-dss.snap
+          path: ${{ steps.snap_build.outputs.snap }}
+
+      # NOTE:@motjuste: We currently don't publish the checkbox-dss Snap

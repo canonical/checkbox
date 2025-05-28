@@ -10,9 +10,6 @@ on:
   pull_request_review:
     branches: [ main ]
     types: [submitted]
-    paths:
-      - contrib/checkbox-dss-validation/checkbox-provider-dss/**
-      - .github/workflows/checkbox-dss-build.yaml
   workflow_dispatch:
   workflow_call:
     outputs:

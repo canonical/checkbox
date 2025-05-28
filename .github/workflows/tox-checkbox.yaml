@@ -14,7 +14,8 @@ on:
       - providers/gpgpu/**
       - providers/resource/**
       - providers/sru/**
-      - providers/tpm2/**
+      - providers/genio/**
+      - providers/iiotg/**
       - .github/workflows/tox-checkbox.yaml
   pull_request:
     branches: [ main ]
@@ -27,7 +28,8 @@ on:
       - providers/gpgpu/**
       - providers/resource/**
       - providers/sru/**
-      - providers/tpm2/**
+      - providers/genio/**
+      - providers/iiotg/**
       - .github/workflows/tox-checkbox.yaml
   workflow_dispatch:
 
@@ -58,7 +60,11 @@ jobs:
             changed(){ true; }
           fi;
 
+          # providers have the tag provider-provider-name
+          get_codecov_tag(){ echo "$1" | sed 's|providers/|provider-|g'; }
+
           paths=()
+          codecov_tags=()
           for path in \
               checkbox-ng \
               checkbox-support \
@@ -67,20 +73,27 @@ jobs:
               providers/certification-server \
               providers/gpgpu \
               providers/resource \
-              providers/sru \
-              providers/tpm2; do
+              providers/genio \
+              providers/iiotg \
+              providers/sru; do
             if changed $path; then
               paths+=("\"$path\"");
+              codecov_tag=`get_codecov_tag $path`
+              codecov_tags+=("\"$codecov_tag\"");
             fi;
           done
           path_array=`echo "["${paths[*]}"]" | sed 's/" "/","/g'`
           echo "paths=$path_array" >> $GITHUB_OUTPUT
+
+          codecov_tag_array=`echo "["${codecov_tags[*]}"]" | sed 's/" "/","/g'`
+          echo "codecov_tags=$codecov_tag_array" >> $GITHUB_OUTPUT
 
   tox_test_checkbox_component:
     needs: get_path_matrix
     strategy:
       matrix:
         path: ${{ fromJson(needs.get_path_matrix.outputs.paths) }}
+        codecov_tag: ${{ fromJson(needs.get_path_matrix.outputs.codecov_tags) }}
         python: ["3.5", "3.6", "3.8", "3.10", "3.12"]
         include:
           - python: "3.5"
@@ -93,7 +106,7 @@ jobs:
             tox_env_name: "py310"
           - python: "3.12"
             tox_env_name: "py312"
-    name: Tox ${{ matrix.path }}
+    name: Tox ${{ matrix.path }} (${{matrix.python}})
     defaults:
       run:
         working-directory: ${{ matrix.path }}
@@ -127,6 +140,11 @@ jobs:
           pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
+      - name: Print out the codecov tag
+        env:
+          CODECOV_TAG: ${{ matrix.codecov_tag }}
+        run: |
+          echo "$CODECOV_TAG"
       #- name: Upload coverage reports to Codecov
       #  uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24
       #  with:

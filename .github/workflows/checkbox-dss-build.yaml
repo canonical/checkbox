@@ -7,11 +7,9 @@ on:
     paths:
       - contrib/checkbox-dss-validation/checkbox-provider-dss/**
       - .github/workflows/checkbox-dss-build.yaml
-  pull_request:
+  pull_request_review:
     branches: [ main ]
-    paths:
-      - contrib/checkbox-dss-validation/checkbox-provider-dss/**
-      - .github/workflows/checkbox-dss-build.yaml
+    types: [submitted]
   workflow_dispatch:
   workflow_call:
     outputs:
@@ -19,10 +17,33 @@ on:
         value: ${{ jobs.snap_frontend_native.outputs.artifact-url }}
 
 jobs:
+  dss_snap_build_required:
+    runs-on: ubuntu-latest
+    name: Check for changes in checkbox-dss dirs
+    outputs:
+      build_required: ${{ steps.check_diff.outputs.build_required }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use git diff to see if there are any changes in the checkbox-dss directories
+        id: check_diff
+        run: |
+          DIFF_LENGTH=`git diff HEAD origin/main -- contrib/checkbox-dss-validation .github/workflows/checkbox-dss-build.yaml | wc -l`
+          if [[ $DIFF_LENGTH -eq 0 ]]
+            then
+              echo "No checkbox-dss snap build required."
+              echo "build_required=false" >> $GITHUB_OUTPUT
+            else
+              echo "checkbox-dss snap build required!"
+              echo "build_required=true" >> $GITHUB_OUTPUT
+          fi
 
   snap_frontend_native:
+    needs: dss_snap_build_required
     # When running for a PR, run only after approval
-    if: github.event_name != 'pull_request' || github.event.review.state == 'approved'
+    if: github.event_name != 'pull_request_review' || (github.event.review.state == 'approved' && true == fromJSON(needs.dss_snap_build_required.outputs.build_required))
     outputs:
       artifact-url: ${{ steps.upload_artifact.outputs.artifact-url }}
     runs-on:

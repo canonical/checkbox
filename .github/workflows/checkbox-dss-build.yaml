@@ -7,8 +7,9 @@ on:
     paths:
       - contrib/checkbox-dss-validation/checkbox-provider-dss/**
       - .github/workflows/checkbox-dss-build.yaml
-  pull_request:
+  pull_request_review:
     branches: [ main ]
+    types: [submitted]
     paths:
       - contrib/checkbox-dss-validation/checkbox-provider-dss/**
       - .github/workflows/checkbox-dss-build.yaml
@@ -20,6 +21,8 @@ on:
 
 jobs:
   snap_frontend_native:
+    # When running for a PR, run only after approval
+    if: ${{ github.event_name != 'pull_request_review' || github.event.review.state == 'approved' }}
     outputs:
       artifact-url: ${{ steps.upload_artifact.outputs.artifact-url }}
     runs-on:

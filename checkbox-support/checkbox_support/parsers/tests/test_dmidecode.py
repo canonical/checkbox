@@ -24,7 +24,14 @@ from __future__ import unicode_literals
 from io import StringIO
 from unittest import TestCase
 
-from pkg_resources import resource_filename
+try:
+    from importlib.resources import files
+
+    def resource_filename(name, path):
+        return files(name) / path
+
+except ImportError:
+    from pkg_resources import resource_filename
 
 from checkbox_support.parsers.dmidecode import DmidecodeParser
 from checkbox_support.parsers.tests.test_dmi import TestDmiMixin, DmiResult

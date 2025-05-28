@@ -19,7 +19,14 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 from textwrap import dedent
 
-from pkg_resources import resource_filename
+try:
+    from importlib.resources import files
+
+    def resource_filename(name, path):
+        return files(name) / path
+
+except ImportError:
+    from pkg_resources import resource_filename
 
 from checkbox_support.parsers.udevadm import UdevadmParser, decode_id
 from checkbox_support.parsers.udevadm import parse_udevadm_output

@@ -33,7 +33,14 @@ from math import log10, floor, ceil
 from unittest import TestCase
 from io import open
 
-from pkg_resources import resource_filename
+try:
+    from importlib.resources import files
+
+    def resource_filename(name, path):
+        return files(name) / path
+
+except ImportError:
+    from pkg_resources import resource_filename
 import pyparsing as p
 
 from checkbox_support.parsers import pactl

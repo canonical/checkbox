@@ -1,4 +1,4 @@
-name: Test checkbox-ng with tox
+name: Tox and push to codecov core components
 permissions:
   contents: read
 on:
@@ -37,8 +37,7 @@ jobs:
   get_path_matrix:
     runs-on: ubuntu-latest
     outputs:
-      paths: ${{ steps.paths.outputs.paths }}
-      codecov_tags: ${{ steps.paths.outputs.codecov_tags }}
+      path_flag: ${{ steps.paths.outputs.paths }}
     steps:
       - name: Checkout Checkbox monorepo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -61,11 +60,10 @@ jobs:
             changed(){ true; }
           fi;
 
-          # providers have the tag provider-provider-name
-          get_codecov_tag(){ echo "$1" | sed 's|providers/|provider-|g'; }
+          # providers have the flag provider-provider-name
+          get_codecov_flag(){ echo "$1" | sed 's|providers/|provider-|g'; }
 
-          paths=()
-          codecov_tags=()
+          echo -n "paths=[" >> to_output
           for path in \
               checkbox-ng \
               checkbox-support \
@@ -78,28 +76,24 @@ jobs:
               providers/iiotg \
               providers/sru; do
             if changed $path; then
-              paths+=("\"$path\"");
-              codecov_tag=`get_codecov_tag $path`
-              codecov_tags+=("\"$codecov_tag\"");
+              echo -n '{ "path":' >> to_output
+              echo -n "\"$path\"" >> to_output
+              codecov_flag=`get_codecov_flag $path`
+              echo -n ', "codecov_flag": ' >> to_output
+              echo -n "\"$codecov_flag\" }," >> to_output
             fi;
           done
+          sed -i '$ s/.$//' to_output
+          echo -n "]" >> to_output
 
-          path_array=`echo "["${paths[*]}"]" | sed 's/" "/","/g'`
-          echo "paths=$path_array" >> $GITHUB_OUTPUT
-          echo "paths=$path_array" >> $GITHUB_STEP_SUMMARY
-
-          codecov_tag_array=`echo "["${codecov_tags[*]}"]" | sed 's/" "/","/g'`
-          echo "codecov_tags=$codecov_tag_array" >> $GITHUB_OUTPUT
-          echo "codecov_tags=$codecov_tag_array" >> $GITHUB_STEP_SUMMARY
-
-
+          cat to_output >> $GITHUB_STEP_SUMMARY
+          cat to_output >> $GITHUB_OUTPUT
 
   tox_test_checkbox_component:
     needs: get_path_matrix
     strategy:
       matrix:
-        path: ${{ fromJson(needs.get_path_matrix.outputs.paths) }}
-        codecov_tag: ${{ fromJson(needs.get_path_matrix.outputs.codecov_tags) }}
+        path_flag: ${{ fromJson(needs.get_path_matrix.outputs.path_flag) }}
         python: ["3.5", "3.6", "3.8", "3.10", "3.12"]
         include:
           - python: "3.5"
@@ -112,10 +106,10 @@ jobs:
             tox_env_name: "py310"
           - python: "3.12"
             tox_env_name: "py312"
-    name: Tox ${{ matrix.path }} (${{matrix.python}})
+    name: Tox ${{ matrix.path_flag.path }} (${{matrix.python}}) and upload coverage
     defaults:
       run:
-        working-directory: ${{ matrix.path }}
+        working-directory: ${{ matrix.path_flag.path }}
     runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -146,13 +140,13 @@ jobs:
           pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
-      - name: Print out the codecov tag
+      - name: Print out the codecov flag
         env:
-          CODECOV_TAG: ${{ matrix.codecov_tag }}
+          CODECOV_TAG: ${{ matrix.path_flag.codecov_flag }}
         run: |
           echo "$CODECOV_TAG"
-      #- name: Upload coverage reports to Codecov
-      #  uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24
-      #  with:
-      #    token: ${{ secrets.CODECOV_TOKEN }}
-      #    flags: checkbox-ng
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{ matrix.path_flag.codecov_flag }}

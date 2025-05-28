@@ -82,11 +82,19 @@ jobs:
               codecov_tags+=("\"$codecov_tag\"");
             fi;
           done
+
           path_array=`echo "["${paths[*]}"]" | sed 's/" "/","/g'`
-          echo "paths=$path_array" >> $GITHUB_OUTPUT
+          echo "{" >> step_output
+          echo "paths=$path_array" >> step_output
 
           codecov_tag_array=`echo "["${codecov_tags[*]}"]" | sed 's/" "/","/g'`
-          echo "codecov_tags=$codecov_tag_array" >> $GITHUB_OUTPUT
+          echo "codecov_tags=$codecov_tag_array" >> step_output
+          echo "}" >> step_output
+
+          cat step_output >> "$GITHUB_OUTPUT"
+          cat step_output >> "$GITHUB_STEP_SUMMARY"
+
+
 
   tox_test_checkbox_component:
     needs: get_path_matrix

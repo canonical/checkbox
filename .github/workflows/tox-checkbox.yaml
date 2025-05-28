@@ -96,7 +96,7 @@ jobs:
     name: Tox ${{ matrix.path }}
     defaults:
       run:
-        working-directory: ${{ matrix.path }]
+        working-directory: ${{ matrix.path }}
     runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683

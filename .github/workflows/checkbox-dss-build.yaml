@@ -43,7 +43,7 @@ jobs:
   snap_frontend_native:
     needs: dss_snap_build_required
     # When running for a PR, run only after approval
-    if: true == fromJSON(needs.dss_snap_build_required.outputs.build_required) && (github.event_name != 'pull_request_review' || github.event.review.state == 'approved')
+    if: (github.event.review.state == 'approved' && true == fromJSON(needs.dss_snap_build_required.outputs.build_required)) || github.event_name != 'pull_request_review'
     outputs:
       artifact-url: ${{ steps.upload_artifact.outputs.artifact-url }}
     runs-on:

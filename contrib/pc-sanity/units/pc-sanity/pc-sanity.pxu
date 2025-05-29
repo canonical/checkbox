@@ -6,7 +6,6 @@ _description:
     devices check, GPU check and thermal check. It will be used to qualify OEM image before
     release the image to QA team.
 include:
-    com.canonical.certification::miscellanea/dpkg-l
     com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
     com.canonical.certification::miscellanea/side-load-changes
     com.canonical.certification::somerville-installation

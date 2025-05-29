@@ -52,6 +52,16 @@ estimated_duration: 0.030
 _description: Attaches dmidecode output
 _summary: Attach output of dmidecode
 
+id: dpkg_attachment
+plugin: attachment
+category_id: com.canonical.plainbox::info
+requires:
+  executable.name == 'dpkg'
+command: dpkg -l
+estimated_duration: 2.0
+_summary: Attach dpkg -l output
+_purpose: Attach system debian packages status
+
 id: lshw_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info

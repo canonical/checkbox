@@ -3,7 +3,6 @@
 import argparse
 import os
 import subprocess as sp
-import re
 import shutil
 import filecmp
 import sys
@@ -275,42 +274,118 @@ class HardwareRendererTester:
 
     def is_hardware_renderer_available(self) -> bool:
         """
-        Checks if hardware rendering is being used.
-        THIS ASSUMES A DRM CONNECTION EXISTS
+        Checks if hardware rendering is being used by calling glmark2
+        - THIS ASSUMES A DRM CONNECTION EXISTS AND ALL ENVS HAVE BEEN SET
         - self.has_display_connection() should be called first if unsure
 
         :return: True if a hardware renderer is active, otherwise return False
         :rtype: bool
         """
 
-        DISPLAY = os.getenv("DISPLAY", "")
+        DISPLAY = os.getenv("DISPLAY")
+        XDG_SESSION_TYPE = os.getenv("XDG_SESSION_TYPE")
 
-        if DISPLAY == "":
-            print("$DISPLAY is not set, we will let unity_support infer this")
-        else:
-            print("Checking $DISPLAY={}".format(DISPLAY))
+        if not DISPLAY:
+            print("$DISPLAY is not set, marking the test as failed")
+            return False
 
-        unity_support_output = sp.run(
-            ["{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT), "-p"],
-            stdout=sp.PIPE,
-            universal_newlines=True,
-        )
-        if unity_support_output.returncode != 0:
+        if not XDG_SESSION_TYPE:
+            print("$XDG_SESSION_TYPE is not set, marking the test as failed")
+            return False
+
+        if XDG_SESSION_TYPE not in ("x11", "wayland"):
+            # usually it's tty if we get here,
+            # happens when gnome failed to start or not using graphical session
             print(
-                "[ ERR ] unity support test returned {}. Error is: {}".format(
-                    unity_support_output.returncode,
-                    unity_support_output.stdout,
+                "Unsupported session type: {}".format(XDG_SESSION_TYPE),
+                file=sys.stderr,
+            )
+            return False
+
+        print(
+            "Checking hardware renderer with these env variables:",
+            "DISPLAY={}".format(DISPLAY),
+            "XDG_SESSION_TYPE={}".format(XDG_SESSION_TYPE),
+        )
+
+        cpu_arch = sp.check_output(
+            ["uname", "-m"], universal_newlines=True
+        ).strip()
+
+        if cpu_arch in ("x86_64", "amd64"):
+            # x86 duts should run the version that uses the full opengl api
+            glmark2_executable = "glmark2"
+        else:
+            # TODO: explicity check for aarch64?
+            glmark2_executable = "glmark2-es2"
+
+        if XDG_SESSION_TYPE == "wayland":
+            glmark2_executable += "-wayland"
+        # if x11, don't add anything
+
+        try:
+            glmark2_output = sp.run(
+                # all glmark2 programs share the same args
+                [glmark2_executable, "--off-screen", "--validate"],
+                stdout=sp.PIPE,
+                stderr=sp.STDOUT,
+                universal_newlines=True,
+                timeout=60,
+            )
+        except sp.TimeoutExpired:
+            print(
+                "[ ERR ] {} timed out. Marking this test as failed.".format(
+                    glmark2_executable
                 ),
                 file=sys.stderr,
             )
             return False
 
-        is_hardware_rendered = (
-            self.parse_unity_support_output(unity_support_output.stdout).get(
-                "Not software rendered"
+        if glmark2_output.returncode != 0:
+            print(
+                "[ ERR ] {} returned {}. Error is: {}".format(
+                    glmark2_executable,
+                    glmark2_output.returncode,
+                    glmark2_output.stdout,
+                ),
+                file=sys.stderr,
             )
-            == "yes"
+            return False
+
+        gl_renderer_line = None  # type: str | None
+        for line in glmark2_output.stdout.splitlines():
+            if "GL_RENDERER" in line:
+                gl_renderer_line = line
+                break
+
+        if gl_renderer_line is None:
+            print(
+                "[ ERR ] {} did not return a renderer string".format(
+                    glmark2_executable
+                ),
+                file=sys.stderr,
+            )
+            return False
+
+        # See the discussion on checkbox issue 1630
+        # this is the same logic as unity_support_test
+        is_hardware_rendered = True
+        gl_renderer = gl_renderer_line.split(":")[-1].strip()
+        print(
+            "GL_RENDERER found by {} is: {}".format(
+                glmark2_executable, gl_renderer
+            )
         )
+
+        # this is carried over from unity_support_test
+        # never seen this before on devices after ubuntu 16
+        if gl_renderer in ("Software Rasterizer", "Mesa X11"):
+            is_hardware_rendered = False
+        # https://docs.mesa3d.org/envvars.html#envvar-GALLIUM_DRIVER
+        # it's almost always the 'llvmpipe' case if we find software rendering
+        if "llvmpipe" in gl_renderer or "softpipe" in gl_renderer:
+            is_hardware_rendered = False
+
         if is_hardware_rendered:
             print("[ OK ] This machine is using a hardware renderer!")
             return True
@@ -348,31 +423,6 @@ class HardwareRendererTester:
                 return False
 
         return False
-
-    def parse_unity_support_output(
-        self, unity_output_string: str
-    ) -> T.Dict[str, str]:
-        """
-        Parses the output of `unity_support_test` into a dictionary
-
-        :param output_string: the raw output from running unity_support_test -p
-        :type output_string: str
-        :return: string key-value pairs that mirror the output of unity_support
-        Left hand side of the first colon are the keys;
-        right hand side are the values.
-        :rtype: dict[str, str]
-        """
-
-        output = {}  # type: dict[str, str]
-        for line in unity_output_string.split("\n"):
-            # max_split=1 to prevent splitting the string after the 1st colon
-            words = line.split(":", maxsplit=1)
-            if len(words) == 2:
-                key = words[0].strip()
-                value = remove_color_code(words[1].strip())
-                output[key] = value
-
-        return output
 
 
 def get_failed_services() -> T.List[str]:
@@ -451,16 +501,6 @@ def create_parser():
     return parser
 
 
-def remove_color_code(string: str) -> str:
-    """
-    Removes ANSI color escape sequences from string
-
-    :param string: the string that you would like to remove color code
-    credit: Hanhsuan Lee <hanhsuan.lee@canonical.com>
-    """
-    return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", string)
-
-
 def main() -> int:
     """Main routine
 
@@ -521,7 +561,9 @@ def main() -> int:
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
-                "These services failed: {}".format("\n".join(failed_services)),
+                "These services failed:\n{}".format(
+                    "\n".join(failed_services)
+                ),
                 file=sys.stderr,
             )
             service_check_passed = False
@@ -563,5 +605,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    return_code = main()
-    exit(return_code)
+    exit(main())

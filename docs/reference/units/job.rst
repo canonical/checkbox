@@ -139,6 +139,14 @@ Following fields may be used by the job unit:
     run (regardless of the outcome). Multiple job names, separated by spaces,
     can be specified.
 
+.. option:: before
+
+    (optional). If specified, the job will only run before all the listed jobs
+    have run (regardless of the outcome). Multiple job names, separated by
+    spaces, can be specified.
+    The way the before flag works is by adding the current job as an after
+    dependency of the jobs listed in the before field.
+
 .. option:: salvages
 
     (optional). If specified, the job will only run if all the listed jobs have

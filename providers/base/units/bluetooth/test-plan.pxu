@@ -27,6 +27,7 @@ include:
     bluetooth/detect-output                        certification-status=blocker
     bluetooth/bluetooth_obex_send                  certification-status=blocker
     bluetooth4/beacon_eddystone_url_.*             certification-status=blocker
+    bluetooth/bluetooth-state-synchronization_.*
 bootstrap_include:
     device
 

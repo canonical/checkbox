@@ -27,6 +27,19 @@ command:
 estimated_duration: 2s
 flags: preserve-locale
 
+unit: job
+plugin: shell
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/bluetooth-state-synchronization
+depends: bluetooth/detect
+requires:
+ package.name == 'bluez'
+ package.name == 'gnome-control-center'
+estimated_duration: 10.0
+_summary: Check that Bluetooth controller status is aligned with settings UI using the same dbus calls to power it on/off
+command:
+ bt_state_test.py
+
 plugin: shell
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/detect-output

@@ -45,7 +45,6 @@ include:
     com.canonical.certification::miscellanea/screen-pkg-not-public
     com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
     com.canonical.certification::miscellanea/edid-continuous-frequency
-    com.canonical.certification::miscellanea/bluetooth-on-off-rfkill_.*
     com.canonical.certification::miscellanea/csme-detection-tool
     com.canonical.certification::miscellanea/bluetooth-scan
     com.canonical.certification::miscellanea/mesa-libdrm-gating_.*

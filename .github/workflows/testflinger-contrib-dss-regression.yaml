@@ -16,7 +16,11 @@ env:
   BRANCH: ${{ github.head_ref || github.ref_name }}
 
 jobs:
+  checkbox-dss-snap-build:
+    uses: ./.github/workflows/checkbox-dss-build.yaml
+
   regression-tests:
+    needs: checkbox-dss-snap-build
     name: Regression tests
     runs-on: [testflinger]
     defaults:
@@ -44,6 +48,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        name: Download artifact with the built snap
+        with:
+          name: checkbox-dss.snap
       - name: Build job file from template
         run: |
           sed -e "s|REPLACE_BRANCH|${BRANCH}|" \

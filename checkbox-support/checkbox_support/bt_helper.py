@@ -176,6 +176,14 @@ class BtAdapter:
         self._bt_mgr = bt_mgr
         self._prop_if = bt_mgr.get_prop_iface(dbus_iface)
 
+    def get_bool_prop(self, prop_name):
+        """Return the named adapter property as a bool."""
+        return bool(self._prop_if.Get(IFACE, prop_name))
+
+    def get_string_prop(self, prop_name):
+        """Return the named adapter property as a str."""
+        return str(self._prop_if.Get(IFACE, prop_name))
+
     def set_bool_prop(self, prop_name, value):
         self._prop_if.Set(IFACE, prop_name, dbus.Boolean(value))
 

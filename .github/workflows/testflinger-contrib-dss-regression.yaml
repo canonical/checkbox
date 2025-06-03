@@ -39,7 +39,7 @@ jobs:
 
   regression-tests:
     needs: checkbox-dss-snap-build
-    name: Regression tests
+    name: Tests
     runs-on: [testflinger]
     defaults:
       run:
@@ -48,11 +48,14 @@ jobs:
       fail-fast: false
       matrix:
         queue:
-          - name: dell-precision-3470-c30322 #ADL iGPU + NVIDIA GPU
+          - summary: "iGPU + NVIDIA GPU"
+            name: dell-precision-3470-c30322
             provision_data: "distro: jammy"
-          # - name: dell-precision-5680-c31665 #RPL iGPU + Arc Pro A60M dGPU
+          # - summary: "iGPU + Arc Pro A60M dGPU"
+          #   name: dell-precision-5680-c31665
           #   provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X96_A00/dell-bto-jammy-jellyfish-muk-X96-20230419-19_A00.iso"
-          # - name: nvidia-dgx-station-c25989  # NO iGPU + NVIDIA GPU
+          # - summary: "Only NVIDIA GPU"
+          #   name: nvidia-dgx-station-c25989
           #   provision_data: "distro: jammy"
     steps:
       - name: Check out code

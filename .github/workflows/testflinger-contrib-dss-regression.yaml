@@ -53,7 +53,7 @@ jobs:
             provision_data: "distro: jammy"
           # - summary: "iGPU + Arc Pro A60M dGPU"
           #   name: dell-precision-5680-c31665
-          #   provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X96_A00/dell-bto-jammy-jellyfish-muk-X96-20230419-19_A00.iso"
+          #   provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X105_A02/dell-bto-jammy-jellyfish-muk-X105-20231026-26_A02.iso"
           # - summary: "Only NVIDIA GPU"
           #   name: nvidia-dgx-station-c25989
           #   provision_data: "distro: jammy"

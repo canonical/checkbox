@@ -76,6 +76,7 @@ jobs:
           echo "::endgroup::"
           echo "local_path=$(find checkbox-dss*.snap | head -1)" >> $GITHUB_OUTPUT
       - name: Build job file from template
+        id: build-job-file
         env:
           WITH_QUEUE: "${{ matrix.queue.name }}"
           WITH_PROVISION_DATA: "${{ matrix.queue.provision_data }}"
@@ -94,9 +95,9 @@ jobs:
           echo "::group::Built job file"
           cat job.yaml
           echo "::endgroup::"
-      # TODO:@motjuste: remove after dev
-      # - name: Submit testflinger job
-      #   uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
-      #   with:
-      #     poll: true
-      #     job-path: job.yaml
+          echo "local_path=$PWD/job.yaml" >> $GITHUB_OUTPUT
+      - name: Submit testflinger job
+        uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
+        with:
+          poll: true
+          job-path: ${{ steps.build-job-file.outputs.local_path }}

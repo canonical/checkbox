@@ -52,6 +52,14 @@ jobs:
         name: Download artifact with the built snap
         with:
           name: checkbox-dss.snap
+      - name: Find path to the built snap
+        id: built-snap
+        run: |
+          echo "::group::State of current directory"
+          pwd
+          ls -lah
+          echo "::endgroup::"
+          echo "local_path=$(find checkbox-dss*.snap | head -1)" >> $GITHUB_OUTPUT
       - name: Build job file from template
         run: |
           sed -e "s|REPLACE_BRANCH|${BRANCH}|" \

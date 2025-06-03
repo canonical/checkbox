@@ -12,9 +12,6 @@ on:
   #   branches:
   #     - main
 
-env:
-  BRANCH: ${{ github.head_ref || github.ref_name }}
-
 jobs:
   checkbox-dss-snap-build:
     uses: ./.github/workflows/checkbox-dss-build.yaml
@@ -68,8 +65,7 @@ jobs:
           WITH_MICROK8S_CHANNEL: "${{ matrix.microk8s_channel }}"
           WITH_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
         run: |
-          sed -e "s|REPLACE_BRANCH|${BRANCH}|" \
-          -e "s|REPLACE_QUEUE|${WITH_QUEUE}|" \
+          sed -e "s|REPLACE_QUEUE|${WITH_QUEUE}|" \
           -e "s|REPLACE_PROVISION_DATA|${WITH_PROVISION_DATA}|" \
           -e "s|REPLACE_DSS_CHANNEL|${WITH_DSS_CHANNEL}|" \
           -e "s|REPLACE_MICROK8S_CHANNEL|${WITH_MICROK8S_CHANNEL}|" \

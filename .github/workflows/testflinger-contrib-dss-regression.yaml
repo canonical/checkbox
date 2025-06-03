@@ -51,12 +51,12 @@ jobs:
           - summary: "iGPU + NVIDIA GPU"
             name: dell-precision-3470-c30322
             provision_data: "distro: jammy"
-          # - summary: "iGPU + Arc Pro A60M dGPU"
-          #   name: dell-precision-5680-c31665
-          #   provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X105_A02/dell-bto-jammy-jellyfish-muk-X105-20231026-26_A02.iso"
-          # - summary: "Only NVIDIA GPU"
-          #   name: nvidia-dgx-station-c25989
-          #   provision_data: "distro: jammy"
+          - summary: "iGPU + Arc Pro A60M dGPU"
+            name: dell-precision-5680-c31665
+            provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X105_A02/dell-bto-jammy-jellyfish-muk-X105-20231026-26_A02.iso"
+          - summary: "Only NVIDIA GPU"
+            name: nvidia-dgx-station-c25989
+            provision_data: "distro: jammy"
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683

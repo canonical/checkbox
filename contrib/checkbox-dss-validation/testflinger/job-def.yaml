@@ -5,12 +5,15 @@ provision_data:
 test_data:
   attachments:
     - local: REPLACE_CB_DSS_SNAP
+    - local: REPLACE_LAUNCHER
+      agent: launcher.conf
   test_cmds: |
 
     # Exit immediately if a test fails
     set -e
 
     scp attachments/test/REPLACE_CB_DSS_SNAP ubuntu@$DEVICE_IP:
+    scp attachments/test/launcher.conf ubuntu@$DEVICE_IP:
 
     # Initial setup
     ssh -t ubuntu@$DEVICE_IP '
@@ -34,5 +37,5 @@ test_data:
 
     # Run tests
     ssh -t ubuntu@$DEVICE_IP '
-      checkbox-dss.validate-with-gpu
+      checkbox-dss.checkbox-cli control 127.0.0.1 launcher.conf
     '

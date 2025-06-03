@@ -35,9 +35,6 @@ apps:
   configure:
     command-chain: [bin/wrapper_local]
     command: bin/configure
-  validate-with-gpu:
-    command-chain: [bin/wrapper_local]
-    command: bin/validate-with-gpu
   remote-slave:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper slave

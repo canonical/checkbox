@@ -61,16 +61,23 @@ jobs:
           echo "::endgroup::"
           echo "local_path=$(find checkbox-dss*.snap | head -1)" >> $GITHUB_OUTPUT
       - name: Build job file from template
+        env:
+          WITH_QUEUE: "${{ matrix.queue.name }}"
+          WITH_PROVISION_DATA: "${{ matrix.queue.provision_data }}"
+          WITH_DSS_CHANNEL: "${{ matrix.dss_channel }}"
+          WITH_MICROK8S_CHANNEL: "${{ matrix.microk8s_channel }}"
         run: |
           sed -e "s|REPLACE_BRANCH|${BRANCH}|" \
-          -e "s|REPLACE_QUEUE|${{ matrix.queue.name }}|" \
-          -e "s|REPLACE_PROVISION_DATA|${{ matrix.queue.provision_data }}|" \
-          -e "s|REPLACE_DSS_CHANNEL|${{ matrix.dss_channel }}|" \
-          -e "s|REPLACE_MICROK8S_CHANNEL|${{ matrix.microk8s_channel }}|" \
-          ${GITHUB_WORKSPACE}/contrib/checkbox-dss-validation/testflinger/job-def.yaml > \
-          ${GITHUB_WORKSPACE}/job.yaml
+          -e "s|REPLACE_QUEUE|${WITH_QUEUE}|" \
+          -e "s|REPLACE_PROVISION_DATA|${WITH_PROVISION_DATA}|" \
+          -e "s|REPLACE_DSS_CHANNEL|${WITH_DSS_CHANNEL}|" \
+          -e "s|REPLACE_MICROK8S_CHANNEL|${WITH_MICROK8S_CHANNEL}|" \
+          testflinger/job-def.yaml > job.yaml
+          echo "::group::Built job file"
+          cat job.yaml
+          echo "::endgroup::"
       - name: Submit testflinger job
         uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
         with:
           poll: true
-          job-path: ${GITHUB_WORKSPACE}/job.yaml
+          job-path: job.yaml

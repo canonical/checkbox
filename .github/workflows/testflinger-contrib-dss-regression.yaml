@@ -49,6 +49,7 @@ jobs:
         name: Download artifact with the built snap
         with:
           name: checkbox-dss.snap
+          path: contrib/checkbox-dss-validation
       - name: Find path to the built snap
         id: built-snap
         run: |

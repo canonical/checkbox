@@ -3,6 +3,8 @@ output_timeout: 1800
 provision_data:
   REPLACE_PROVISION_DATA
 test_data:
+  attachments:
+    - local: REPLACE_CB_DSS_SNAP
   test_cmds: |
 
     # Exit immediately if a test fails

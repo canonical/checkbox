@@ -66,12 +66,14 @@ jobs:
           WITH_PROVISION_DATA: "${{ matrix.queue.provision_data }}"
           WITH_DSS_CHANNEL: "${{ matrix.dss_channel }}"
           WITH_MICROK8S_CHANNEL: "${{ matrix.microk8s_channel }}"
+          WITH_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
         run: |
           sed -e "s|REPLACE_BRANCH|${BRANCH}|" \
           -e "s|REPLACE_QUEUE|${WITH_QUEUE}|" \
           -e "s|REPLACE_PROVISION_DATA|${WITH_PROVISION_DATA}|" \
           -e "s|REPLACE_DSS_CHANNEL|${WITH_DSS_CHANNEL}|" \
           -e "s|REPLACE_MICROK8S_CHANNEL|${WITH_MICROK8S_CHANNEL}|" \
+          -e "s|REPLACE_CB_DSS_SNAP|${WITH_CB_DSS_SNAP}|" \
           testflinger/job-def.yaml > job.yaml
           echo "::group::Built job file"
           cat job.yaml

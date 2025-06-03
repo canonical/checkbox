@@ -185,7 +185,7 @@ class TestDependencySolver(TestCase):
 
     def test_direct_deps(self):
         # This tests the following simple job chain
-        # A <- B <- A
+        # A <- B <- C
         A = make_job(id="A")
         B = make_job(id="B", depends="A")
         C = make_job(id="C", depends="B")

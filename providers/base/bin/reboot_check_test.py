@@ -26,7 +26,7 @@ def get_timestamp_str() -> str:
         # take the 1st one
         uptime_seconds = f.readline().split()[0]
 
-    return "Time: {}; Uptime: {} seconds".format(
+    return "Time: {}. Uptime: {} seconds".format(
         datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), uptime_seconds
     )
 
@@ -313,10 +313,10 @@ class HardwareRendererTester:
         ).strip()
 
         if cpu_arch in ("x86_64", "amd64"):
-            # x86 duts should run the version that uses the full opengl api
+            # x86 DUTs should run the version that uses the full opengl api
             glmark2_executable = "glmark2"
         else:
-            # TODO: explicity check for aarch64?
+            # TODO: explicitly check for aarch64?
             glmark2_executable = "glmark2-es2"
 
         if XDG_SESSION_TYPE == "wayland":
@@ -324,6 +324,16 @@ class HardwareRendererTester:
         # if x11, don't add anything
 
         try:
+            if RUNTIME_ROOT:
+                # the official way to specify the location of the data files
+                # is "--data-path path/to/data/files"
+                # but 16, 18, 20 doesn't have this option
+                # and the /usr/share/glmark2 is hard-coded inside glmark2
+                os.symlink(
+                    "{}/usr/share/glmark2".format(RUNTIME_ROOT),
+                    "/usr/share/glmark2",
+                    target_is_directory=True,
+                )
             glmark2_output = sp.run(
                 # all glmark2 programs share the same args
                 [glmark2_executable, "--off-screen", "--validate"],
@@ -332,6 +342,9 @@ class HardwareRendererTester:
                 universal_newlines=True,
                 timeout=60,
             )
+            # immediately cleanup
+            if RUNTIME_ROOT:
+                os.unlink("/usr/share/glmark2")
         except sp.TimeoutExpired:
             print(
                 "[ ERR ] {} timed out. Marking this test as failed.".format(

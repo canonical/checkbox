@@ -342,9 +342,6 @@ class HardwareRendererTester:
                 universal_newlines=True,
                 timeout=60,
             )
-            # immediately cleanup
-            if RUNTIME_ROOT:
-                os.unlink("/usr/share/glmark2")
         except sp.TimeoutExpired:
             print(
                 "[ ERR ] {} timed out. Marking this test as failed.".format(
@@ -353,6 +350,11 @@ class HardwareRendererTester:
                 file=sys.stderr,
             )
             return False
+        finally:
+            # immediately cleanup
+            if RUNTIME_ROOT and os.path.islink("/usr/share/glmark2"):
+                print("Unlinking glmark2 data directory")
+                os.unlink("/usr/share/glmark2")
 
         if glmark2_output.returncode != 0:
             print(

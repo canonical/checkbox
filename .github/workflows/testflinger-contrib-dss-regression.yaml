@@ -92,9 +92,8 @@ jobs:
           echo "::group::Built job file"
           cat job.yaml
           echo "::endgroup::"
-      # TODO:@motjuste: remove after dev
-      # - name: Submit testflinger job
-      #   uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
-      #   with:
-      #     poll: true
-      #     job-path: job.yaml
+      - name: Submit testflinger job
+        uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
+        with:
+          poll: true
+          job-path: job.yaml

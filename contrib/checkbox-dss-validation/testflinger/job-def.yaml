@@ -29,12 +29,13 @@ test_data:
     # Install runtime and provider on device
     echo "Installing checkbox runtime on device (from snap)"
     _run sudo snap install $CHECKBOX_RUNTIME --no-wait
+    wait_for_snap_changes
 
     echo "Installing checkbox-dss snap from attachment"
     _put $RESOURCES_PATH/REPLACE_CB_DSS_SNAP :
     _run sudo snap install --dangerous --classic ./REPLACE_CB_DSS_SNAP --no-wait
-
     wait_for_snap_changes
+
     echo "Available snaps on device"
     _run sudo snap list
 

@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import textwrap
+
 from metabox.core.actions import (
     AssertPrinted,
     Start,
@@ -26,64 +28,151 @@ from metabox.core.utils import tag
 
 @tag("ordering")
 class OrderingDepends(Scenario):
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_depends
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """
+    )
     steps = [
-        Start("run 2021.com.canonical.certification::ordering_depends"),
+        Start(),
         AssertPrinted(
             r"(?m)"
-            r".*job passed   : test_1_A\n"
-            r".*job passed   : test_1_B\n"
-            r".*job passed   : test_1_C"
+            r".*job passed   : ordering_1_A\n"
+            r".*job passed   : ordering_1_B\n"
+            r".*job passed   : ordering_1_C"
         ),
     ]
 
 
 @tag("ordering")
 class OrderingBefore(Scenario):
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_before
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """
+    )
     steps = [
-        Start("run 2021.com.canonical.certification::ordering_before"),
+        Start(),
         AssertPrinted(
             r"(?m)"
-            r".*job passed   : test_2_A\n"
-            r".*job passed   : test_2_B\n"
-            r".*job passed   : test_2_C"
+            r".*job passed   : ordering_2_A\n"
+            r".*job passed   : ordering_2_B\n"
+            r".*job passed   : ordering_2_C"
         ),
     ]
 
 
 @tag("ordering")
 class OrderingMixed(Scenario):
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_mixed
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+"""
+    )
     steps = [
-        Start("run 2021.com.canonical.certification::ordering_mixed"),
+        Start(),
         AssertPrinted(
             r"(?m)"
-            r".*job passed   : test_3_A\n"
-            r".*job passed   : test_3_B\n"
-            r".*job passed   : test_3_C"
+            r".*job passed   : ordering_3_A\n"
+            r".*job passed   : ordering_3_B\n"
+            r".*job passed   : ordering_3_C"
         ),
     ]
 
 
 @tag("ordering")
 class OrderingResource(Scenario):
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_resource
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """
+    )
     steps = [
-        Start("run 2021.com.canonical.certification::ordering_resource"),
+        Start(),
         AssertPrinted(
-            r"(?m).*job passed   : test_4_R\n.*job passed   : test_4_A"
+            r"(?m).*job passed   : ordering_4_R\n.*job passed   : ordering_4_A"
         ),
     ]
 
 
 @tag("ordering")
 class OrderingDependsCycle(Scenario):
+    modes = ["local"]
     steps = [
-        Start("run 2021.com.canonical.certification::ordering_depends_cycle"),
+        Start("run 2021.com.canonical.certification::ordering_before_cycle"),
         AssertPrinted(r"Dependency problem: dependency cycle detected"),
     ]
 
 
 @tag("ordering")
 class OrderingBeforeCycle(Scenario):
+    modes = ["local"]
     steps = [
         Start("run 2021.com.canonical.certification::ordering_before_cycle"),
         AssertPrinted(r"Dependency problem: dependency cycle detected"),
+    ]
+
+
+@tag("ordering")
+class OrderingResource(Scenario):
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_after_suspend
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """
+    )
+    steps = [
+        Start(),
+        AssertPrinted(
+            r"(?s)"
+            r".*ordering_7_A"
+            r".*ordering_7_B"
+            r".*suspend/suspend_advanced_auto"
+            r".*after-suspend-ordering_7_B"
+            r".*after-suspend-ordering_7_A"
+        ),
     ]

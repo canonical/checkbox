@@ -1,36 +1,36 @@
-id: test_1_A
+id: ordering_1_A
 flags: simple
 command: true
 
-id: test_1_B
+id: ordering_1_B
 flags: simple
-depends: test_1_A
+depends: ordering_1_A
 command: true
 
-id: test_1_C
+id: ordering_1_C
 flags: simple
-depends: test_1_B
+depends: ordering_1_B
 command: true
 
 id: ordering_depends
 name: ordering_depends
 unit: test plan
 include:
- test_1_C
- test_1_B
- test_1_A
+ ordering_1_C
+ ordering_1_B
+ ordering_1_A
 
-id: test_2_A
+id: ordering_2_A
 flags: simple
-before: test_2_B
+before: ordering_2_B
 command: true
 
-id: test_2_B
+id: ordering_2_B
 flags: simple
-before: test_2_C
+before: ordering_2_C
 command: true
 
-id: test_2_C
+id: ordering_2_C
 flags: simple
 command: true
 
@@ -38,91 +38,112 @@ id: ordering_before
 name: ordering_before
 unit: test plan
 include:
- test_2_C
- test_2_B
- test_2_A
+ ordering_2_C
+ ordering_2_B
+ ordering_2_A
 
-id: test_3_A
+id: ordering_3_A
 flags: simple
-before: test_3_B
+before: ordering_3_B
 command: true
 
-id: test_3_B
+id: ordering_3_B
 flags: simple
 command: true
 
-id: test_3_C
+id: ordering_3_C
 flags: simple
-after: test_3_B
+after: ordering_3_B
 command: true
 
 id: ordering_mixed
 name: ordering_mixed
 unit: test plan
 include:
- test_3_C
- test_3_B
- test_3_A
+ ordering_3_C
+ ordering_3_B
+ ordering_3_A
 
-id: test_4_R
+id: ordering_4_R
 plugin: resource
 command:
     echo 'type: included'
 
-id: test_4_A
+id: ordering_4_A
 flags: simple
-requires: test_4_R.type == "included"
+requires: ordering_4_R.type == "included"
 command: true
 
 id: ordering_resource
 name: ordering_resource
 unit: test plan
 include:
- test_4_A
- test_4_R
+ ordering_4_A
+ ordering_4_R
 
-id: test_5_A
+id: ordering_5_A
 flags: simple
 command: true
-depends: test_5_C
+depends: ordering_5_C
 
-id: test_5_B
+id: ordering_5_B
 flags: simple
-depends: test_5_A
+depends: ordering_5_A
 command: true
 
-id: test_5_C
+id: ordering_5_C
 flags: simple
-depends: test_5_B
+depends: ordering_5_B
 command: true
 
 id: ordering_depends_cycle
 name: ordering_depends_cycle
 unit: test plan
 include:
- test_5_A
- test_5_B
- test_5_C
+ ordering_5_A
+ ordering_5_B
+ ordering_5_C
 
-id: test_6_A
+id: ordering_6_A
 flags: simple
-before: test_6_B
+before: ordering_6_B
 command: true
 
-id: test_6_B
+id: ordering_6_B
 flags: simple
-before: test_6_C
+before: ordering_6_C
 command: true
 
-id: test_6_C
+id: ordering_6_C
 flags: simple
-before: test_6_A
+before: ordering_6_A
 command: true
 
 id: ordering_before_cycle
 name: ordering_before_cycle
 unit: test plan
 include:
- test_6_A
- test_6_B
- test_6_C
+ ordering_6_A
+ ordering_6_B
+ ordering_6_C
+
+id: ordering_7_B
+flags: simple, also-after-suspend
+command: true
+
+id: ordering_7_A
+flags: simple
+before: suspend/suspend_advanced_auto, ordering_7_B
+command: true
+
+id: after-suspend-ordering_7_A
+flags: simple
+after: suspend/suspend_advanced_auto
+before: after-suspend-ordering_7_B
+command: true
+
+id: ordering_after_suspend
+name: ordering_after_suspend
+unit: test plan
+include:
+ .*ordering_7.*

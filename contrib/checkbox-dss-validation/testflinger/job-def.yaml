@@ -26,6 +26,10 @@ test_data:
     _run install_packages git
     wait_for_ssh --allow-degraded
 
+    # Refresh snaps
+    _run sudo snap refresh --no-wait
+    wait_for_snap_changes
+
     # Install runtime and provider on device
     echo "Installing checkbox runtime on device (from snap)"
     _run sudo snap install $CHECKBOX_RUNTIME --no-wait

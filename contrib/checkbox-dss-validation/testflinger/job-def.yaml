@@ -20,11 +20,11 @@ test_data:
     curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/certification-lab-ci-tools/main/install_tools.sh
     source install_tools.sh $TOOLS_PATH --branch main
 
-    wait_for_ssh
+    wait_for_ssh --allow-degraded
     _run clean_machine --im-sure
 
     _run install_packages git
-    wait_for_ssh
+    wait_for_ssh --allow-degraded
 
     # Install runtime and provider on device
     echo "Installing checkbox runtime on device (from snap)"
@@ -53,7 +53,7 @@ test_data:
     _run wait_for_packages_complete
     _run checkbox-dss.install-deps --dss-snap-channel REPLACE_DSS_CHANNEL --microk8s-snap-channel REPLACE_MICROK8S_CHANNEL
     _run wait_for_packages_complete
-    wait_for_ssh
+    wait_for_ssh --allow-degraded
 
     # run the test plan
     PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP $RESOURCES_PATH/REPLACE_LAUNCHER

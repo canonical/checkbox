@@ -1,0 +1,128 @@
+id: test_1_A
+flags: simple
+command: true
+
+id: test_1_B
+flags: simple
+depends: test_1_A
+command: true
+
+id: test_1_C
+flags: simple
+depends: test_1_B
+command: true
+
+id: ordering_depends
+name: ordering_depends
+unit: test plan
+include:
+ test_1_C
+ test_1_B
+ test_1_A
+
+id: test_2_A
+flags: simple
+before: test_2_B
+command: true
+
+id: test_2_B
+flags: simple
+before: test_2_C
+command: true
+
+id: test_2_C
+flags: simple
+command: true
+
+id: ordering_before
+name: ordering_before
+unit: test plan
+include:
+ test_2_C
+ test_2_B
+ test_2_A
+
+id: test_3_A
+flags: simple
+before: test_3_B
+command: true
+
+id: test_3_B
+flags: simple
+command: true
+
+id: test_3_C
+flags: simple
+after: test_3_B
+command: true
+
+id: ordering_mixed
+name: ordering_mixed
+unit: test plan
+include:
+ test_3_C
+ test_3_B
+ test_3_A
+
+id: test_4_R
+plugin: resource
+command:
+    echo 'type: included'
+
+id: test_4_A
+flags: simple
+requires: test_4_R.type == "included"
+command: true
+
+id: ordering_resource
+name: ordering_resource
+unit: test plan
+include:
+ test_4_A
+ test_4_R
+
+id: test_5_A
+flags: simple
+command: true
+depends: test_5_C
+
+id: test_5_B
+flags: simple
+depends: test_5_A
+command: true
+
+id: test_5_C
+flags: simple
+depends: test_5_B
+command: true
+
+id: ordering_depends_cycle
+name: ordering_depends_cycle
+unit: test plan
+include:
+ test_5_A
+ test_5_B
+ test_5_C
+
+id: test_6_A
+flags: simple
+before: test_6_B
+command: true
+
+id: test_6_B
+flags: simple
+before: test_6_C
+command: true
+
+id: test_6_C
+flags: simple
+before: test_6_A
+command: true
+
+id: ordering_before_cycle
+name: ordering_before_cycle
+unit: test plan
+include:
+ test_6_A
+ test_6_B
+ test_6_C

@@ -33,6 +33,8 @@ from plainbox.impl.ctrl import (
     SymLinkNest,
     gen_rfc822_records_from_io_log,
 )
+
+from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.unit.job import InvalidJob
 from plainbox.impl.resource import Resource, ResourceExpression
@@ -100,6 +102,33 @@ class CheckBoxSessionStateControllerTests(TestCase):
             self.ctrl.get_dependency_set(suspend_job, [job_g]),
             {("ordering", "j7")},
         )
+
+    def test_add_before_deps(self):
+        """
+        Verify that add_before_deps() adds all "before" references declared
+        in a job to the corresponding jobs as an "after" dependency.
+        """
+        job_a = JobDefinition({"id": "a", "before": "c"})
+        job_b = JobDefinition({"id": "b", "before": "c"})
+        job_c = JobDefinition({"id": "c"})
+        job_map = {"a": job_a, "b": job_b, "c": job_c}
+        # Add before dependencies
+        self.ctrl.add_before_deps(job_a, job_map)
+        self.ctrl.add_before_deps(job_b, job_map)
+        self.assertIn("a", job_c.before_references)
+        self.assertIn("b", job_c.before_references)
+        self.assertEqual(len(job_c.before_references), 2)
+
+    def test_add_before_deps_missing_dep(self):
+        """
+        Verify that add_before_deps() raises DependencyMissingError
+        if a job has a "before" dependency on a job that does not exist.
+        """
+        job_a = JobDefinition({"id": "a", "before": "c"})
+        job_map = {"a": job_a}
+        with self.assertRaises(DependencyMissingError) as cm:
+            self.ctrl.add_before_deps(job_a, job_map)
+        self.assertEqual(cm.exception.missing_job_id, "c")
 
     def test_get_inhibitor_list_PENDING_RESOURCE(self):
         # verify that jobs that require a resource that hasn't been

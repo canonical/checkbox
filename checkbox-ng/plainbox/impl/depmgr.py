@@ -164,6 +164,7 @@ class DependencyMissingError(DependencyError):
     DEP_TYPE_RESOURCE = "resource"
     DEP_TYPE_DIRECT = "direct"
     DEP_TYPE_ORDERING = "ordering"
+    DEP_TYPE_ORDERING_BEFORE = "ordering before"
 
     def __init__(self, job, missing_job_id, dep_type):
         """Initialize a new error with given data."""
@@ -320,6 +321,9 @@ class DependencySolver:
         self._job_list = job_list
         # Build a map of jobs (by id)
         self._job_map = self._get_job_map(job_list)
+        # Add before deps
+        for job in job_list:
+            job.controller.add_before_deps(job, self._job_map)
         # Job colors, maps from job.id to COLOR_xxx
         self._job_color_map = {job.id: self.COLOR_WHITE for job in job_list}
         # The computed solution, made out of job instances. This is not

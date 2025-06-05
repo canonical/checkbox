@@ -20,11 +20,6 @@ _description: Automated watchdog tests
 include:
     watchdog/check-timeout
     watchdog/check-service
-    watchdog/probe-module
     watchdog/detect
-    watchdog/set-timeout
     watchdog/trigger-system-reset-auto
     watchdog/post-trigger-system-reset-auto
-    watchdog/revert-timeout
-bootstrap_include:
-    image_source_and_type

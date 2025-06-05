@@ -5,6 +5,8 @@ from watchdog_config_test import (
     watchdog_argparse,
     get_systemd_wdt_usec,
     watchdog_service_check,
+    check_timeout,
+    check_service,
     main,
 )
 
@@ -67,399 +69,191 @@ class TestWatchdogConfigTest(unittest.TestCase):
 
     @patch("watchdog_config_test.subprocess.run")
     def test_watchdog_service_check_active(self, mock_subprocess_run):
-        # Mock subprocess.run to return a process with returncode 0 (active)
         mock_process = Mock(returncode=0)
         mock_subprocess_run.return_value = mock_process
 
-        # Call the function under test
         result = watchdog_service_check()
 
-        # Assert that subprocess.run was called with the correct arguments
         mock_subprocess_run.assert_called_once_with(
             ["systemctl", "is-active", "watchdog.service", "--quiet"]
         )
 
-        # Assert that the correct value was returned
         self.assertTrue(result)
 
     @patch("watchdog_config_test.subprocess.run")
     def test_watchdog_service_check_inactive(self, mock_subprocess_run):
-        # Mock subprocess.run to return a process with returncode 1 (inactive)
         mock_process = Mock(returncode=1)
         mock_subprocess_run.return_value = mock_process
 
-        # Call the function under test
         result = watchdog_service_check()
 
-        # Assert that subprocess.run was called with the correct arguments
         mock_subprocess_run.assert_called_once_with(
             ["systemctl", "is-active", "watchdog.service", "--quiet"]
         )
 
-        # Assert that the correct value was returned
         self.assertFalse(result)
 
     @patch("watchdog_config_test.subprocess.run")
     def test_watchdog_service_check_exception(self, mock_subprocess_run):
-        # Mock subprocess.run to raise an exception
         mock_subprocess_run.side_effect = Exception("Something went wrong")
 
-        # Call the function under test
         with self.assertRaises(SystemExit):
             watchdog_service_check()
 
-    @patch("watchdog_config_test.watchdog_argparse")
+    @patch("builtins.print")
+    @patch("watchdog_config_test.get_systemd_wdt_usec")
     @patch("watchdog_config_test.get_series")
+    def test_check_timeout_classic_jammy(
+        self, mock_series, mock_get_wdt_sec, mock_print
+    ):
+        mock_series.return_value = "22.04"
+        mock_get_wdt_sec.return_value = "30"
+
+        check_timeout()
+        mock_series.assert_called_with()
+        self.assertEqual(mock_print.call_count, 1)
+
     @patch("watchdog_config_test.get_systemd_wdt_usec")
     @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_time_and_service(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_systemd_wdt_usec,
-        mock_get_series,
-        mock_watchdog_argparse,
-    ):
-        # Mock arguments
-        mock_args = MagicMock()
-        mock_args.check_time = True
-        mock_args.check_service = True
-        mock_watchdog_argparse.return_value = mock_args
-
-        # Mock get_series
-        mock_get_series.return_value = "20.04"
-
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock get_systemd_wdt_usec
-        mock_get_systemd_wdt_usec.return_value = "1000000"
-
-        # Mock watchdog_service_check
-        mock_watchdog_service_check.return_value = False
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-
-        # Assert that the expected messages are printed
-        mock_print.assert_any_call(
-            "systemd watchdog enabled, reset timeout: 1000000"
-        )
-        mock_print.assert_any_call("watchdog.service is not active")
-
-    @patch("watchdog_config_test.watchdog_argparse")
     @patch("watchdog_config_test.get_series")
+    def test_check_timeout_core_bionic(
+        self, mock_series, mock_on_uc, mock_get_wdt_sec
+    ):
+        mock_series.return_value = "18"
+        mock_get_wdt_sec.return_value = "0"
+        mock_on_uc.return_value = True
+
+        with self.assertRaises(SystemExit):
+            check_timeout()
+        mock_series.assert_called_with()
+        mock_on_uc.assert_called_with()
+
+    @patch("builtins.print")
     @patch("watchdog_config_test.get_systemd_wdt_usec")
     @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_time_ubuntucore(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_systemd_wdt_usec,
-        mock_get_series,
-        mock_watchdog_argparse,
-    ):
-        # Mock arguments
-        mock_args = MagicMock()
-        mock_args.check_time = True
-        mock_args.check_service = False
-        mock_watchdog_argparse.return_value = mock_args
-
-        # Mock get_systemd_wdt_usec
-        mock_get_systemd_wdt_usec.return_value = 1000000
-
-        # Mock get_series
-        mock_get_series.return_value = "18.04"
-
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = True
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-
-        # Assert that the expected messages are printed
-        mock_print.assert_any_call(
-            "systemd watchdog enabled, reset timeout: 1000000"
-        )
-
-    @patch("watchdog_config_test.watchdog_argparse")
     @patch("watchdog_config_test.get_series")
+    def test_check_timeout_classic_bionic_passed(
+        self, mock_series, mock_on_uc, mock_get_wdt_sec, mock_print
+    ):
+        mock_series.return_value = "18.04"
+        mock_get_wdt_sec.return_value = "0"
+        mock_on_uc.return_value = False
+
+        check_timeout()
+        mock_series.assert_called_with()
+        mock_on_uc.assert_called_with()
+        self.assertEqual(mock_print.call_count, 1)
+
     @patch("watchdog_config_test.get_systemd_wdt_usec")
     @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_time_not_active(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_systemd_wdt_usec,
-        mock_get_series,
-        mock_watchdog_argparse,
+    @patch("watchdog_config_test.get_series")
+    def test_check_timeout_classic_bionic_failed(
+        self, mock_series, mock_on_uc, mock_get_wdt_sec
     ):
-        # Mock arguments
+        mock_series.return_value = "18.04"
+        mock_get_wdt_sec.return_value = "30"
+        mock_on_uc.return_value = False
+
+        with self.assertRaises(SystemExit):
+            check_timeout()
+        mock_series.assert_called_with()
+        mock_on_uc.assert_called_with()
+
+    @patch("builtins.print")
+    @patch("watchdog_config_test.watchdog_service_check")
+    @patch("watchdog_config_test.get_series")
+    def test_check_service_classic_jammy(
+        self, mock_series, mock_service, mock_print
+    ):
+        mock_series.return_value = "22.04"
+        mock_service.return_value = False
+
+        check_service()
+        mock_series.assert_called_with()
+        mock_service.assert_called_with()
+        self.assertEqual(mock_print.call_count, 1)
+
+    @patch("watchdog_config_test.watchdog_service_check")
+    @patch("watchdog_config_test.on_ubuntucore")
+    @patch("watchdog_config_test.get_series")
+    def test_check_service_core_bionic(
+        self, mock_series, mock_on_uc, mock_service
+    ):
+        mock_series.return_value = "18"
+        mock_service.return_value = True
+        mock_on_uc.return_value = True
+
+        with self.assertRaises(SystemExit):
+            check_service()
+        mock_series.assert_called_with()
+        mock_on_uc.assert_called_with()
+
+    @patch("builtins.print")
+    @patch("watchdog_config_test.watchdog_service_check")
+    @patch("watchdog_config_test.on_ubuntucore")
+    @patch("watchdog_config_test.get_series")
+    def test_check_service_classic_bionic_passed(
+        self, mock_series, mock_on_uc, mock_service, mock_print
+    ):
+        mock_series.return_value = "18.04"
+        mock_service.return_value = True
+        mock_on_uc.return_value = False
+
+        check_service()
+        mock_series.assert_called_with()
+        mock_on_uc.assert_called_with()
+        self.assertEqual(mock_print.call_count, 1)
+
+    @patch("watchdog_config_test.watchdog_service_check")
+    @patch("watchdog_config_test.on_ubuntucore")
+    @patch("watchdog_config_test.get_series")
+    def test_check_service_classic_bionic_failed(
+        self, mock_series, mock_on_uc, mock_service
+    ):
+        mock_series.return_value = "18.04"
+        mock_service.return_value = False
+        mock_on_uc.return_value = False
+
+        with self.assertRaises(SystemExit):
+            check_service()
+        mock_series.assert_called_with()
+        mock_on_uc.assert_called_with()
+
+    @patch("watchdog_config_test.check_timeout")
+    @patch("watchdog_config_test.watchdog_argparse")
+    def test_main_check_time(self, mock_argparse, mock_check_timeout):
+
         mock_args = MagicMock()
         mock_args.check_time = True
-        mock_args.check_service = False
-        mock_watchdog_argparse.return_value = mock_args
+        mock_argparse.return_value = mock_args
 
-        # Mock get_series
-        mock_get_series.return_value = "20.04"
+        main()
+        mock_check_timeout.assert_called_once_with()
 
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock get_systemd_wdt_usec
-        mock_get_systemd_wdt_usec.return_value = "0"
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-
-        # Assert that the expected message is printed
-        mock_print.assert_any_call(
-            "systemd watchdog should be enabled but reset timeout: 0"
-        )
-
+    @patch("watchdog_config_test.check_service")
     @patch("watchdog_config_test.watchdog_argparse")
-    @patch("watchdog_config_test.get_series")
-    @patch("watchdog_config_test.get_systemd_wdt_usec")
-    @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_time_and_systemd_wdt_configured(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_systemd_wdt_usec,
-        mock_get_series,
-        mock_watchdog_argparse,
-    ):
-        # Mock arguments
-        mock_args = MagicMock()
-        mock_args.check_time = True
-        mock_args.check_service = False
-        mock_watchdog_argparse.return_value = mock_args
-
-        # Mock get_series
-        mock_get_series.return_value = "20.04"
-
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock get_systemd_wdt_usec
-        mock_get_systemd_wdt_usec.return_value = "1000000"
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-        # Assert that the expected messages are printed
-        mock_print.assert_any_call(
-            "systemd watchdog enabled, reset timeout: 1000000"
-        )
-
-    @patch("watchdog_config_test.watchdog_argparse")
-    @patch("watchdog_config_test.get_series")
-    @patch("watchdog_config_test.get_systemd_wdt_usec")
-    @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_time_and_watchdog_config_ready(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_systemd_wdt_usec,
-        mock_get_series,
-        mock_watchdog_argparse,
-    ):
-        # Mock arguments
-        mock_args = MagicMock()
-        mock_args.check_time = True
-        mock_args.check_service = False
-        mock_watchdog_argparse.return_value = mock_args
-
-        # Mock get_series
-        mock_get_series.return_value = "18.04"
-
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock get_systemd_wdt_usec
-        mock_get_systemd_wdt_usec.return_value = "0"
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-        # Assert that the expected messages are printed
-        mock_print.assert_any_call("systemd watchdog disabled")
-
-    @patch("watchdog_config_test.watchdog_argparse")
-    @patch("watchdog_config_test.get_series")
-    @patch("watchdog_config_test.get_systemd_wdt_usec")
-    @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_time_is_systemd_wdt_configured(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_systemd_wdt_usec,
-        mock_get_series,
-        mock_watchdog_argparse,
-    ):
-        # Mock arguments
-        mock_args = MagicMock()
-        mock_args.check_time = True
-        mock_args.check_service = False
-        mock_watchdog_argparse.return_value = mock_args
-
-        # Mock get_series
-        mock_get_series.return_value = "18.04"
-
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock get_systemd_wdt_usec
-        mock_get_systemd_wdt_usec.return_value = "1000000"
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-        # Assert that the expected messages are printed
-        mock_print.assert_any_call(
-            "systemd watchdog should not be enabled but reset timeout: 1000000"
-        )
-
-    @patch("watchdog_config_test.watchdog_argparse")
-    @patch("watchdog_config_test.get_series")
-    @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_service_ubuntucore_not_active(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_series,
-        mock_watchdog_argparse,
-    ):
-        # Mock arguments
+    def test_main_check_service(self, mock_argparse, mock_check_service):
         mock_args = MagicMock()
         mock_args.check_time = False
         mock_args.check_service = True
-        mock_watchdog_argparse.return_value = mock_args
+        mock_argparse.return_value = mock_args
 
-        # Mock get_series
-        mock_get_series.return_value = "20.04"
+        main()
+        mock_check_service.assert_called_once_with()
 
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock watchdog_service_check
-        mock_watchdog_service_check.return_value = False
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-
-        # Assert that the expected message is printed
-        mock_print.assert_any_call("watchdog.service is not active")
-
+    @patch("watchdog_config_test.check_timeout")
+    @patch("watchdog_config_test.check_service")
     @patch("watchdog_config_test.watchdog_argparse")
-    @patch("watchdog_config_test.get_series")
-    @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_service_ubuntucore_is_wdt_service_configured(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_series,
-        mock_watchdog_argparse,
+    def test_main_invalid_argument(
+        self, mock_argparse, mock_check_service, mock_check_timeout
     ):
-        # Mock arguments
         mock_args = MagicMock()
         mock_args.check_time = False
-        mock_args.check_service = True
-        mock_watchdog_argparse.return_value = mock_args
+        mock_args.check_service = False
+        mock_argparse.return_value = mock_args
 
-        # Mock get_series
-        mock_get_series.return_value = "20.04"
-
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock watchdog_service_check
-        mock_watchdog_service_check.return_value = True
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
+        with self.assertRaises(SystemExit):
             main()
 
-        # Assert that the expected message is printed
-        mock_print.assert_any_call(
-            "found unexpected active watchdog.service unit"
-        )
-
-    @patch("watchdog_config_test.watchdog_argparse")
-    @patch("watchdog_config_test.get_series")
-    @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_service_active(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_series,
-        mock_watchdog_argparse,
-    ):
-        # Mock arguments
-        mock_args = MagicMock()
-        mock_args.check_time = False
-        mock_args.check_service = True
-        mock_watchdog_argparse.return_value = mock_args
-
-        # Mock get_series
-        mock_get_series.return_value = "18.04"
-
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock watchdog_service_check
-        mock_watchdog_service_check.return_value = True
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-
-        # Assert that the expected message is printed
-        mock_print.assert_any_call("watchdog.service is active")
-
-    @patch("watchdog_config_test.watchdog_argparse")
-    @patch("watchdog_config_test.get_series")
-    @patch("watchdog_config_test.on_ubuntucore")
-    @patch("watchdog_config_test.watchdog_service_check")
-    def test_main_check_service_is_wdt_service_configured(
-        self,
-        mock_watchdog_service_check,
-        mock_on_ubuntucore,
-        mock_get_series,
-        mock_watchdog_argparse,
-    ):
-        # Mock arguments
-        mock_args = MagicMock()
-        mock_args.check_time = False
-        mock_args.check_service = True
-        mock_watchdog_argparse.return_value = mock_args
-
-        # Mock get_series
-        mock_get_series.return_value = "18.04"
-
-        # Mock on_ubuntucore
-        mock_on_ubuntucore.return_value = False
-
-        # Mock watchdog_service_check
-        mock_watchdog_service_check.return_value = False
-
-        # Call the function under test
-        with patch("builtins.print") as mock_print:
-            main()
-
-        # Assert that the expected message is printed
-        mock_print.assert_any_call(
-            "watchdog.service unit does not report as active"
-        )
+        mock_check_service.assert_not_called()
+        mock_check_timeout.assert_not_called()

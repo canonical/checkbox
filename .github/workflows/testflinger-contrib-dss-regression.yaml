@@ -74,7 +74,14 @@ jobs:
           pwd
           ls -lah
           echo "::endgroup::"
-          echo "local_path=$(find checkbox-dss*.snap | head -1)" >> $GITHUB_OUTPUT
+
+          echo "::group::Finding checkbox-dss snaps"
+          found_snaps="$(find . -name "checkbox-dss*.snap" -printf "%P\n")"
+          echo $found_snaps
+          echo "::endgroup::"
+
+          to_use="$(echo $found_snaps | head -1)"
+          echo "local_path=$to_use" >> $GITHUB_OUTPUT
       - name: Build job file from template
         id: build-job-file
         env:

@@ -44,7 +44,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - id: paths
+      - name: Fetch all modified paths
+        id: paths
         run: |
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           if [ "$CURRENT_BRANCH" == "main" ]; then

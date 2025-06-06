@@ -85,6 +85,7 @@ _description:
 include:
     recovery_info_attachment
 nested_part:
+    camera-v4l2-compliance
     submission-cert-automated
     info-attachment-cert-automated
     acpi-automated

@@ -146,6 +146,8 @@ Following fields may be used by the job unit:
     spaces, can be specified.
     The way the before flag works is by adding the current job as an after
     dependency of the jobs listed in the before field.
+    In the case of the before field, if the job was not previously included in
+    the test plan, it won't be added and the dependency will be ignored.
 
 .. option:: salvages
 

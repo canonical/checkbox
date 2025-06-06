@@ -63,6 +63,8 @@ slots:
 package-repositories:
   - type: apt
     ppa: colin-king/stress-ng
+  - type: apt
+    ppa: colin-king/ppa
 
 parts:
   version-calculator:

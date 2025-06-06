@@ -118,18 +118,6 @@ _description:
 include:
 
 unit: test plan
-id: tpm-cert-focal-automated
-_name: TPM tests for Ubuntu 20.04 Focal Fossa (Automated)
-_description:
-  TPM tests that should be run as part of Certification.
-  Include the tpm2-tools 4.1.1 integration tests for 20.04/UC20.
-include:
-    tpm2/fwts-event-log-dump
-nested_part:
-    tpm2.0_4.1.1-automated
-    clevis-automated
-
-unit: test plan
 id: tpm-cert-automated
 _name: TPM tests (Automated)
 _description:

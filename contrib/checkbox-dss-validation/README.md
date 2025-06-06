@@ -59,10 +59,11 @@ the appropriate channel name for `--kubectl-snap-channel`.
 
 # Automated Run
 
-To run the test plans:
+Use the launcher [`launchers/checkbox-dss.conf`](./launchers/checkbox-dss.conf)
+to run the test plan:
 
 ```shell
-checkbox-dss.validate-with-gpu
+checkbox-dss.checkbox-cli control 127.0.0.1 launchers/checkbox-dss.conf
 ```
 
 # Cleanup

@@ -84,7 +84,7 @@ jobs:
           REPLACE_MICROK8S_CHANNEL: "${{ inputs.microk8s_channel }}"
           REPLACE_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
         run: |
-          enbsubst '$REPLACE_QUEUE $REPLACE_PROVISION_DATA $REPLACE_DSS_CHANNEL $REPLACE_MICROK8S_CHANNEL $REPLACE_CB_DSS_SNAP' \
+          envsubst '$REPLACE_QUEUE $REPLACE_PROVISION_DATA $REPLACE_DSS_CHANNEL $REPLACE_MICROK8S_CHANNEL $REPLACE_CB_DSS_SNAP' \
             < testflinger/job-def.yaml > job.yaml
           echo "::group::Built job file"
           cat job.yaml

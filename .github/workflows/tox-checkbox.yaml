@@ -54,9 +54,11 @@ jobs:
             echo "Workflow triggered on a branch, diffing with origin/main"
             DIFF=$(git diff --name-only origin/main)
           fi
+          # Checks if a specific path has changed
           changed(){ echo "$DIFF" | grep -o $1; }
           if changed ".github/workflows/tox-checkbox.yaml"; then
             # when changing the workflow, re-test all tox to check they still work
+            echo "The workflow has been changed, all tox will be retriggered"
             changed(){ true; }
           fi;
 

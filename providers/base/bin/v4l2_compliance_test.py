@@ -64,6 +64,11 @@ def parse_args():
 
 def main():
     args = parse_args()
+    codename = get_release_info()["codename"]
+    if codename == "xenial":
+        print("This test is skipped on 16.04")
+        return
+
     _, details = parse_v4l2_compliance(args.device)
 
     # Gather all known IOCTLs (flattening the map)
@@ -75,7 +80,6 @@ def main():
 
     # Pick which IOCTLs to test based on user selection
     if args.ioctl_selection == "blockers":
-        codename = get_release_info()["codename"]
         if codename in ("jammy", "bionic"):
             # temp workaround for 22.04 & 18.04
             ioctls_to_check = BLOCKERS - set(["VIDIOC_REQBUFS"])

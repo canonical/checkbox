@@ -133,8 +133,15 @@ parts:
     stage-packages:
       # actual requirements
       - python3-bluez
+      - python3-dbus
+      - python3-distro
+      - python3-gi
       - python3-pyparsing
+      - python3-requests
       - python3-requests-unixsocket
+      - python3-yaml
+      - python3-opencv
+      - python3-numpy
       - libsystemd0
       - v4l-utils
       # added to stage python:
@@ -179,9 +186,13 @@ parts:
       - python3-markupsafe
       - python3-jinja2
       - python3-packaging
+      - python3-requests
       - python3-requests-oauthlib
+      - python3-tqdm
       - python3-urwid
       - python3-xlsxwriter
+      - python3-psutil
+      - python3-yaml
       # added to stage python:
       - libpython3-stdlib
       - libpython3.8-stdlib
@@ -194,9 +205,7 @@ parts:
       - python3-distutils
       - python3-pkg-resources
       - python3.8-minimal
-      - python3-yaml
     python-packages:
-      - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
     after: [checkbox-support, version-calculator]
     stage:
@@ -305,7 +314,6 @@ parts:
       - python3-gi
       - python3-natsort
       - python3-pil
-      - python3-psutil
       - python3-pyqrcode
       - python3-serial
       - python3-yaml

@@ -186,6 +186,8 @@ parts:
       - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter
+      - python3-psutil
+      - python3-yaml
       # added to stage python:
       - libpython3-stdlib
       - libpython3.10-stdlib
@@ -198,7 +200,6 @@ parts:
       - python3-distutils
       - python3-pkg-resources
       - python3.10-minimal
-      - python3-yaml
     python-packages:
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
@@ -308,7 +309,6 @@ parts:
       - python3-gi
       - python3-natsort
       - python3-pil
-      - python3-psutil
       - python3-pyqrcode
       - python3-serial
       - python3-yaml

@@ -83,8 +83,9 @@ jobs:
           REPLACE_DSS_CHANNEL: "${{ inputs.dss_channel }}"
           REPLACE_MICROK8S_CHANNEL: "${{ inputs.microk8s_channel }}"
           REPLACE_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
+          REPLACE_LAUNCHER: "launchers/checkbox-dss.conf"
         run: |
-          envsubst '$REPLACE_QUEUE $REPLACE_PROVISION_DATA $REPLACE_DSS_CHANNEL $REPLACE_MICROK8S_CHANNEL $REPLACE_CB_DSS_SNAP' \
+          envsubst '$REPLACE_QUEUE $REPLACE_PROVISION_DATA $REPLACE_DSS_CHANNEL $REPLACE_MICROK8S_CHANNEL $REPLACE_CB_DSS_SNAP $REPLACE_LAUNCHER' \
             < testflinger/job-def.yaml > job.yaml
           echo "::group::Built job file"
           cat job.yaml

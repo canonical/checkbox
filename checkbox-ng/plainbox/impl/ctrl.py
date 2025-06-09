@@ -142,6 +142,11 @@ class CheckBoxSessionStateController(ISessionStateController):
 
         If a job (B) has a "before" field, we add this job as an "after"
         dependency to the job (A).
+
+        id: A          id: A
+                   ->  after: B
+        id: B      ->
+        before: A      id: B
         """
         before_deps = job.get_before_dependencies()
         for dep_id in before_deps:

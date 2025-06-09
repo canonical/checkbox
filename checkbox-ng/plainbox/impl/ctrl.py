@@ -142,7 +142,7 @@ class CheckBoxSessionStateController(ISessionStateController):
 
     def add_before_deps(self, job, job_map, global_job_map):
         """
-        Add a all "before" references declared in a job to the corresponding
+        Add all "before" references declared in a job to the corresponding
         jobs as an "after" dependency in the before_references set.
 
         If a job (B) has a "before" field, we add this job as an "after"

@@ -88,7 +88,7 @@ class CheckBoxSessionStateController(ISessionStateController):
           of resource definitions.
     """
 
-    def get_dependency_set(self, job, job_list=None):
+    def get_dependency_set(self, job, job_map, job_list=None):
         """
         Get the set of direct dependencies of a particular job.
 
@@ -106,11 +106,20 @@ class CheckBoxSessionStateController(ISessionStateController):
         """
         direct = DependencyMissingError.DEP_TYPE_DIRECT
         ordering = DependencyMissingError.DEP_TYPE_ORDERING
+        placement = DependencyMissingError.DEP_TYPE_PLACEMENT
         resource = DependencyMissingError.DEP_TYPE_RESOURCE
         direct_deps = job.get_direct_dependencies()
         after_deps = job.get_after_dependencies()
-        # Add the the jobs that have this job in their "before" field
+        # Add the the jobs that have this job in their "before" field. We sould
+        # only add the references of the jobs we are visiting.
+        self.add_before_deps(job, job_map)
         after_deps = after_deps | job.before_references
+        print("job is: ")
+        print(job.id)
+        print("after deps are: ")
+        print(after_deps)
+        print("------------")
+
         try:
             resource_deps = job.get_resource_dependencies()
         except ResourceProgramError:

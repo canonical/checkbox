@@ -35,7 +35,6 @@ import enum
 
 from plainbox.i18n import gettext as _
 
-
 logger = getLogger("plainbox.depmgr")
 
 
@@ -165,6 +164,7 @@ class DependencyMissingError(DependencyError):
     DEP_TYPE_DIRECT = "direct"
     DEP_TYPE_ORDERING = "ordering"
     DEP_TYPE_ORDERING_BEFORE = "ordering before"
+    DEP_TYPE_PLACEMENT = "placement"
 
     def __init__(self, job, missing_job_id, dep_type):
         """Initialize a new error with given data."""
@@ -321,15 +321,20 @@ class DependencySolver:
         self._job_list = job_list
         # Build a map of jobs (by id)
         self._job_map = self._get_job_map(job_list)
-        # Add before deps
-        for job in job_list:
-            job.controller.add_before_deps(job, self._job_map)
+        # # Add before deps
+        # for job in job_list:
+        #     job.controller.add_before_deps(job, self._job_map)
         # Job colors, maps from job.id to COLOR_xxx
         self._job_color_map = {job.id: self.COLOR_WHITE for job in job_list}
         # The computed solution, made out of job instances. This is not
         # necessarily the only solution but the algorithm computes the same
         # value each time, given the same input.
         self._solution = []
+
+    def _clear_map(self):
+        self._job_color_map = {
+            job.id: self.COLOR_WHITE for job in self._job_list
+        }
 
     def _solve(self, visit_list=None):
         """
@@ -345,13 +350,28 @@ class DependencySolver:
         logger.debug(_("Solver visit list: %r"), visit_list)
         if visit_list is None:
             visit_list = self._job_list
+
+        # Solve first for direct dependencies
+        print("Solving direct dependencies...")
+        direct_solution = []
         for job in visit_list:
-            self._visit(job=job, visit_list=visit_list)
+            self._visit(job, visit_list, direct_solution)
+            print(direct_solution)
+        # Solve again for indirect dependencies
+        print(self._solution)
+        print("Solving again indirect dependencies...")
+        self._job_color_map = {
+            job.id: self.COLOR_WHITE for job in self._job_list
+        }
+        indirect_solution = []
+        for job in direct_solution:
+            self._visit(job, visit_list, indirect_solution)
+        print("Done Solving")
         logger.debug(_("Done solving"))
         # Return the solution
-        return self._solution
+        return indirect_solution
 
-    def _visit(self, job, visit_list, trail=None):
+    def _visit(self, job, visit_list, solution, trail=None):
         """
         Internal method of DependencySolver.
 
@@ -374,7 +394,7 @@ class DependencySolver:
             if trail is None:
                 trail = [job]
             for dep_type, job_id in job.controller.get_dependency_set(
-                job, visit_list
+                job, self._job_map, visit_list
             ):
                 # Dependency is just an id, we need to resolve it
                 # to a job instance. This can fail (missing dependencies)
@@ -392,13 +412,13 @@ class DependencySolver:
                     logger.debug(_("Visiting dependency: %r"), next_job)
                     # Update the trail as we visit that node
                     trail.append(next_job)
-                    self._visit(next_job, visit_list, trail)
+                    self._visit(next_job, visit_list, solution, trail)
                     trail.pop()
             # We've visited (recursively) all dependencies of this node,
             # let's color it black and append it to the solution list.
             logger.debug(_("Appending %r to solution"), job)
             self._job_color_map[job.id] = self.COLOR_BLACK
-            self._solution.append(job)
+            solution.append(job)
         elif color == self.COLOR_GRAY:
             # This node is not fully traced yet but has been visited already
             # so we've found a dependency loop. We need to cut the initial

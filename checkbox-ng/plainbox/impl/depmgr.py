@@ -38,6 +38,25 @@ from plainbox.i18n import gettext as _
 logger = getLogger("plainbox.depmgr")
 
 
+class DependencyType(enum.StrEnum):
+    """
+    The types of dependencies that can be expressed in the system.
+    - resource:
+       ...
+    - direct:
+        ...
+    - ordering:
+        ...
+    - placement before:
+        ...
+    """
+
+    RESOURCE = "resource"
+    DIRECT = "direct"
+    ORDERING = "ordering"
+    PLACEMENT_BEFORE = "placement before"
+
+
 class DependencyError(Exception, metaclass=ABCMeta):
     """Exception raised when a dependency error is detected."""
 
@@ -160,17 +179,16 @@ class DependencyCycleError(DependencyError):
 class DependencyMissingError(DependencyError):
     """Exception raised when a job has an unsatisfied dependency."""
 
-    DEP_TYPE_RESOURCE = "resource"
-    DEP_TYPE_DIRECT = "direct"
-    DEP_TYPE_ORDERING = "ordering"
-    DEP_TYPE_ORDERING_BEFORE = "ordering before"
-    DEP_TYPE_PLACEMENT = "placement"
-
     def __init__(self, job, missing_job_id, dep_type):
         """Initialize a new error with given data."""
         self.job = job
         self.missing_job_id = missing_job_id
-        self.dep_type = dep_type
+        
+        if dep_type not in DependencyType:
+            raise ValueError(
+                "Invalid dependency type: {!r}".format(dep_type)
+            )
+        self.dep_type = dep_type.value
 
     @property
     def affected_job(self):
@@ -366,7 +384,9 @@ class DependencySolver:
 
         # Add the before dependencies for the jobs in the map
         for job in pull_solution:
-            job.controller.add_before_deps(job, self._pulled_map, self._job_map)
+            job.controller.add_before_deps(
+                job, self._pulled_map, self._job_map
+            )
 
         # Solve again for soft dependencies
         print("Solving again soft dependencies...")
@@ -406,8 +426,8 @@ class DependencySolver:
                 job, self._job_map, visit_list
             ):
                 if dep_type in (
-                    DependencyMissingError.DEP_TYPE_DIRECT,
-                    DependencyMissingError.DEP_TYPE_RESOURCE,
+                    DependencyType.DIRECT,
+                    DependencyType.RESOURCE,
                 ):
                     # Dependency is just an id, we need to resolve it
                     # to a job instance. This can fail (missing dependencies)
@@ -442,7 +462,9 @@ class DependencySolver:
                         next_job = self._pulled_map[job_id]
                     except KeyError:
                         print("******************")
-                        logger.error(f"Found missing dependency: {job_id} from {job}")
+                        logger.error(
+                            f"Found missing dependency: {job_id} from {job}"
+                        )
                         print("******************")
                     else:
                         # For each dependency that we visit let's reuse the trail
@@ -454,7 +476,6 @@ class DependencySolver:
                             next_job, visit_list, solution, trail, pull
                         )
                         trail.pop()
-
             # We've visited (recursively) all dependencies of this node,
             # let's color it black and append it to the solution list.
             logger.debug(_("Appending %r to solution"), job)

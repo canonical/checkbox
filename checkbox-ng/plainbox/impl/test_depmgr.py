@@ -26,6 +26,7 @@ Test definitions for plainbox.impl.depmgr module
 
 from unittest import TestCase
 
+from plainbox.impl.depmgr import DependencyType
 from plainbox.impl.depmgr import DependencyCycleError
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
@@ -71,10 +72,10 @@ class DependencyMissingErrorTests(TestCase):
     def setUp(self):
         self.A = make_job("A")
         self.exc_direct = DependencyMissingError(
-            self.A, "B", DependencyMissingError.DEP_TYPE_DIRECT
+            self.A, "B", DependencyType.DIRECT
         )
         self.exc_resource = DependencyMissingError(
-            self.A, "B", DependencyMissingError.DEP_TYPE_RESOURCE
+            self.A, "B", DependencyType.RESOURCE
         )
 
     def test_job(self):
@@ -298,7 +299,7 @@ class TestDependencySolver(TestCase):
         self.assertIs(call.exception.job, B)
         self.assertEqual(call.exception.missing_job_id, "A")
         self.assertEqual(
-            call.exception.dep_type, call.exception.DEP_TYPE_DIRECT
+            call.exception.dep_type, DependencyType.DIRECT.value
         )
 
     def test_missing_resource_dependency(self):
@@ -311,8 +312,9 @@ class TestDependencySolver(TestCase):
         self.assertIs(call.exception.job, A)
         self.assertEqual(call.exception.missing_job_id, "R")
         self.assertEqual(
-            call.exception.dep_type, call.exception.DEP_TYPE_RESOURCE
+            call.exception.dep_type, DependencyType.RESOURCE.value
         )
+        
 
     def test_dependency_cycle_self(self):
         # This tests dependency loops

@@ -44,7 +44,7 @@ from functools import partial
 
 from plainbox.abc import IJobResult, ISessionStateController
 from plainbox.i18n import gettext as _
-from plainbox.impl.depmgr import DependencyMissingError
+from plainbox.impl.depmgr import DependencyType
 from plainbox.impl.resource import (
     ExpressionCannotEvaluateError,
     ExpressionFailedError,
@@ -104,14 +104,15 @@ class CheckBoxSessionStateController(ISessionStateController):
         dep_type, is either DEP_TYPE_DIRECT, DEP_TYPE_ORDERING or
         DEP_TYPE_RESOURCE. The second element is the id of the job.
         """
-        direct = DependencyMissingError.DEP_TYPE_DIRECT
-        ordering = DependencyMissingError.DEP_TYPE_ORDERING
-        placement = DependencyMissingError.DEP_TYPE_PLACEMENT
-        resource = DependencyMissingError.DEP_TYPE_RESOURCE
+        direct = DependencyType.DIRECT
+        ordering = DependencyType.ORDERING
+        resource = DependencyType.RESOURCE
+        placement_before = DependencyType.PLACEMENT_BEFORE
         direct_deps = job.get_direct_dependencies()
         after_deps = job.get_after_dependencies()
         # Add the the jobs that have this job in their "before" field.
-        after_deps = after_deps | job.before_references
+        before_refs = job.before_references
+        
         print("job is: ")
         print(job.id)
         print("after deps are: ")
@@ -138,6 +139,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                 zip(itertools.repeat(resource), resource_deps),
                 zip(itertools.repeat(ordering), after_deps),
                 zip(itertools.repeat(ordering), suspend_deps),
+                zip(itertools.repeat(placement_before), before_refs),
             )
         )
         return result

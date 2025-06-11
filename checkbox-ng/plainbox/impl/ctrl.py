@@ -110,9 +110,7 @@ class CheckBoxSessionStateController(ISessionStateController):
         resource = DependencyMissingError.DEP_TYPE_RESOURCE
         direct_deps = job.get_direct_dependencies()
         after_deps = job.get_after_dependencies()
-        # Add the the jobs that have this job in their "before" field. We sould
-        # only add the references of the jobs we are visiting.
-        self.add_before_deps(job, job_map)
+        # Add the the jobs that have this job in their "before" field.
         after_deps = after_deps | job.before_references
         print("job is: ")
         print(job.id)
@@ -144,7 +142,7 @@ class CheckBoxSessionStateController(ISessionStateController):
         )
         return result
 
-    def add_before_deps(self, job, job_map):
+    def add_before_deps(self, job, job_map, global_job_map):
         """
         Add a all "before" references declared in a job to the corresponding
         jobs as an "after" dependency in the before_references set.
@@ -160,13 +158,18 @@ class CheckBoxSessionStateController(ISessionStateController):
         before_deps = job.get_before_dependencies()
         for dep_id in before_deps:
             # Check if the dep_id is a valid job
-            if dep_id not in job_map:
-                raise DependencyMissingError(
-                    job=job,
-                    missing_job_id=dep_id,
-                    dep_type=DependencyMissingError.DEP_TYPE_ORDERING_BEFORE,
+            if dep_id not in global_job_map:
+                logger.error(
+                    "Job {} has a before dependency on {} which does not "
+                    "exist".format(job.id, dep_id)
                 )
-            job_map[dep_id].before_references.add(job.id)
+            elif dep_id not in job_map:
+                logger.error(
+                    "Job {} has a before dependency on {} which is not "
+                    "in the current test plan".format(job.id, dep_id)
+                )
+            else:
+                job_map[dep_id].before_references.add(job.id)
 
     def _get_before_suspend_dependency_set(self, suspend_job_id, job_list):
         """

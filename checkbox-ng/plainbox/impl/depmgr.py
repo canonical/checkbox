@@ -183,11 +183,9 @@ class DependencyMissingError(DependencyError):
         """Initialize a new error with given data."""
         self.job = job
         self.missing_job_id = missing_job_id
-        
+
         if dep_type not in DependencyType:
-            raise ValueError(
-                "Invalid dependency type: {!r}".format(dep_type)
-            )
+            raise ValueError("Invalid dependency type: {!r}".format(dep_type))
         self.dep_type = dep_type.value
 
     @property
@@ -339,11 +337,7 @@ class DependencySolver:
         self._job_list = job_list
         # Build a map of jobs (by id)
         self._job_map = self._get_job_map(job_list)
-        # # Add before deps
-        # for job in job_list:
-        #     job.controller.add_before_deps(job, self._job_map)
-        # Job colors, maps from job.id to COLOR_xxx
-        self._job_color_map = {job.id: self.COLOR_WHITE for job in job_list}
+
         # The computed solution, made out of job instances. This is not
         # necessarily the only solution but the algorithm computes the same
         # value each time, given the same input.
@@ -375,32 +369,30 @@ class DependencySolver:
         self._clear_color_map()
         pull_solution = []
         for job in visit_list:
-            self._visit(job, visit_list, pull_solution, pull=True)
-            print(pull_solution)
-        print(pull_solution)
+            self._visit(job, visit_list, pull_solution, self._job_map, pull=True)
 
         # Create a map of pulled jobs
-        self._pulled_map = {job.id: job for job in pull_solution}
+        pulled_map = {job.id: job for job in pull_solution}
 
         # Add the before dependencies for the jobs in the map
         for job in pull_solution:
             job.controller.add_before_deps(
-                job, self._pulled_map, self._job_map
+                job, pulled_map, self._job_map
             )
 
-        # Solve again for soft dependencies
-        print("Solving again soft dependencies...")
+        # Solve again for order dependencies
+        print("Solving order dependencies...")
         order_solution = []
         self._clear_color_map()
         for job in pull_solution:
-            self._visit(job, visit_list, order_solution)
+            self._visit(job, pull_solution, order_solution, pulled_map)
         print("Done Solving")
-        logger.debug(_("Done solving"))
+        # logger.debug(_("Done solving"))
 
         # Return the final solution
         return order_solution
 
-    def _visit(self, job, visit_list, solution, trail=None, pull=False):
+    def _visit(self, job, visit_list, solution, search_map, trail=None, pull=False):
         """
         Internal method of DependencySolver.
 
@@ -414,6 +406,7 @@ class DependencySolver:
         except KeyError:
             logger.debug(_("Visiting job that's not on the job_list: %r"), job)
             raise DependencyUnknownError(job)
+
         logger.debug(_("Visiting job %s (color %s)"), job.id, color)
         if color == self.COLOR_WHITE:
             # This node has not been visited yet. Let's mark it as GRAY (being
@@ -422,28 +415,29 @@ class DependencySolver:
             # If the trail was not specified start a trail for this node
             if trail is None:
                 trail = [job]
+
             for dep_type, job_id in job.controller.get_dependency_set(
-                job, self._job_map, visit_list
+                job, search_map, visit_list
             ):
-                if dep_type in (
+                if not pull or dep_type in (
                     DependencyType.DIRECT,
                     DependencyType.RESOURCE,
+                    DependencyType.ORDERING,
                 ):
                     # Dependency is just an id, we need to resolve it
                     # to a job instance. This can fail (missing dependencies)
                     # so let's guard against that.
                     try:
-                        next_job = self._job_map[job_id]
+                        next_job = search_map[job_id]
                     except KeyError:
-                        print("******************")
                         logger.error(
-                            _("Found missing dependency: %r from %r"),
+                            _("Found missing dependency: %r from %r (%r)"),
                             job_id,
                             job,
+                            dep_type.value,
                         )
-                        print(f"Found missing dependency: {job_id} from {job}")
-                        print("******************")
-                        raise DependencyMissingError(job, job_id, dep_type)
+                        if pull:
+                            raise DependencyMissingError(job, job_id, dep_type)
                     else:
                         # For each dependency that we visit let's reuse the trail
                         # to give proper error messages if a dependency loop exists
@@ -451,31 +445,10 @@ class DependencySolver:
                         # Update the trail as we visit that node
                         trail.append(next_job)
                         self._visit(
-                            next_job, visit_list, solution, trail, pull
+                            next_job, visit_list, solution, search_map, trail, pull
                         )
                         trail.pop()
-                else:
-                    # Dependency is just an id, we need to resolve it
-                    # to a job instance. This can fail (missing dependencies)
-                    # so let's guard against that.
-                    try:
-                        next_job = self._pulled_map[job_id]
-                    except KeyError:
-                        print("******************")
-                        logger.error(
-                            f"Found missing dependency: {job_id} from {job}"
-                        )
-                        print("******************")
-                    else:
-                        # For each dependency that we visit let's reuse the trail
-                        # to give proper error messages if a dependency loop exists
-                        logger.debug(_("Visiting dependency: %r"), next_job)
-                        # Update the trail as we visit that node
-                        trail.append(next_job)
-                        self._visit(
-                            next_job, visit_list, solution, trail, pull
-                        )
-                        trail.pop()
+
             # We've visited (recursively) all dependencies of this node,
             # let's color it black and append it to the solution list.
             logger.debug(_("Appending %r to solution"), job)

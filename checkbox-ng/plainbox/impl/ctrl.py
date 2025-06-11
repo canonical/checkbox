@@ -101,8 +101,7 @@ class CheckBoxSessionStateController(ISessionStateController):
 
         Returns a set of pairs (dep_type, job_id) that describe all
         dependencies of the specified job. The first element in the pair,
-        dep_type, is either DEP_TYPE_DIRECT, DEP_TYPE_ORDERING or
-        DEP_TYPE_RESOURCE. The second element is the id of the job.
+        dep_type, is a DependencyType. The second element is the id of the job.
         """
         direct = DependencyType.DIRECT
         ordering = DependencyType.ORDERING
@@ -112,12 +111,6 @@ class CheckBoxSessionStateController(ISessionStateController):
         after_deps = job.get_after_dependencies()
         # Add the the jobs that have this job in their "before" field.
         before_refs = job.before_references
-        
-        print("job is: ")
-        print(job.id)
-        print("after deps are: ")
-        print(after_deps)
-        print("------------")
 
         try:
             resource_deps = job.get_resource_dependencies()
@@ -142,6 +135,11 @@ class CheckBoxSessionStateController(ISessionStateController):
                 zip(itertools.repeat(placement_before), before_refs),
             )
         )
+        for r in result:
+            if r[1] not in job_map:
+                logger.error(
+                    "Job {} has a dependency on {} which is not defined".format(job.id, r[1])
+                )
         return result
 
     def add_before_deps(self, job, job_map, global_job_map):

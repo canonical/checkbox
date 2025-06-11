@@ -55,6 +55,7 @@ class DependencyType(enum.StrEnum):
     DIRECT = "direct"
     ORDERING = "ordering"
     PLACEMENT_BEFORE = "placement before"
+    # TODO Get rid of this
 
 
 class DependencyError(Exception, metaclass=ABCMeta):
@@ -275,22 +276,22 @@ class DependencyDuplicateError(DependencyError):
         )
 
 
-class Color(enum.Enum):
+class State(enum.Enum):
     """
-    Three classic colors for recursive graph visitor.
+    Three classic states for recursive graph visitor.
 
-    WHITE:
+    NOT_VISITED:
         For nodes have not been visited yet.
-    GRAY:
+    VISITED:
         For nodes that are currently being visited but the visit is not
-        complete.
-    BLACK:
-        For nodes that have been visited and are complete.
+        completed.
+    COMPLETED:
+        For nodes that have been visited and are completed.
     """
 
-    WHITE = "white"
-    GRAY = "gray"
-    BLACK = "black"
+    NOT_VISITED = "not_visited"
+    VISITED = "visited"
+    COMPLETED = "completed"
 
 
 class DependencySolver:
@@ -299,11 +300,12 @@ class DependencySolver:
 
     Uses a simple depth-first search to discover the sequence of jobs that can
     run. Use the resolve_dependencies() class method to get the solution.
+    https://en.wikipedia.org/wiki/Cycle_%28graph_theory%29?#Algorithm
     """
 
-    COLOR_WHITE = Color.WHITE
-    COLOR_GRAY = Color.GRAY
-    COLOR_BLACK = Color.BLACK
+    STATE_NOT_VISITED = State.NOT_VISITED
+    STATE_VISITED = State.VISITED
+    STATE_COMPLETED = State.COMPLETED
 
     @classmethod
     def resolve_dependencies(cls, job_list, visit_list=None):
@@ -346,7 +348,7 @@ class DependencySolver:
 
     def _clear_color_map(self):
         self._job_color_map = {
-            job.id: self.COLOR_WHITE for job in self._job_list
+            job.id: State.NOT_VISITED for job in self._job_list
         }
 
     def _solve(self, visit_list=None):
@@ -408,10 +410,10 @@ class DependencySolver:
             raise DependencyUnknownError(job)
 
         logger.debug(_("Visiting job %s (color %s)"), job.id, color)
-        if color == self.COLOR_WHITE:
+        if color == State.NOT_VISITED:
             # This node has not been visited yet. Let's mark it as GRAY (being
             # visited) and iterate through the list of dependencies
-            self._job_color_map[job.id] = self.COLOR_GRAY
+            self._job_color_map[job.id] = State.VISITED
             # If the trail was not specified start a trail for this node
             if trail is None:
                 trail = [job]
@@ -422,7 +424,7 @@ class DependencySolver:
                 if not pull or dep_type in (
                     DependencyType.DIRECT,
                     DependencyType.RESOURCE,
-                    DependencyType.ORDERING,
+                    # DependencyType.ORDERING,
                 ):
                     # Dependency is just an id, we need to resolve it
                     # to a job instance. This can fail (missing dependencies)
@@ -452,9 +454,9 @@ class DependencySolver:
             # We've visited (recursively) all dependencies of this node,
             # let's color it black and append it to the solution list.
             logger.debug(_("Appending %r to solution"), job)
-            self._job_color_map[job.id] = self.COLOR_BLACK
+            self._job_color_map[job.id] = State.COMPLETED
             solution.append(job)
-        elif color == self.COLOR_GRAY:
+        elif color == State.VISITED:
             # This node is not fully traced yet but has been visited already
             # so we've found a dependency loop. We need to cut the initial
             # part of the trail so that we only report the part that actually
@@ -463,7 +465,7 @@ class DependencySolver:
             logger.debug(_("Found dependency cycle: %r"), trail)
             raise DependencyCycleError(trail)
         else:
-            assert color == self.COLOR_BLACK
+            assert color == State.COMPLETED
             # This node has been visited and is fully traced.
             # We can just skip it and go back
 

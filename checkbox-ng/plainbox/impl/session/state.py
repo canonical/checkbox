@@ -915,6 +915,8 @@ class SessionState:
             # XXX: it might be more efficient to incorporate this 'recovery
             # mode' right into the solver, this way we'd probably save some
             # resources or runtime complexity.
+            # Or just get rid of the recovery mode all together and raise
+            # DependencyError immediately.
             try:
                 self._run_list = DependencySolver.resolve_dependencies(
                     job_list, self._desired_job_list

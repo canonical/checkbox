@@ -144,12 +144,20 @@ def parse_v4l2_compliance(
     :rtype: T.Tuple[Summary, Details]
     """
 
-    out = sp.run(
-        ["v4l2-compliance", *(["-d", str(device)] if device else [])],
-        universal_newlines=True,
-        stdout=sp.PIPE,
-        stderr=sp.PIPE,
-    )  # can't really depend on the return code here
+    if device is not None:
+        out = sp.run(
+            ["v4l2-compliance", "-d", str(device)],
+            universal_newlines=True,
+            stdout=sp.PIPE,
+            stderr=sp.PIPE,
+        )  # can't really depend on the return code here
+    else:
+        out = sp.run(
+            ["v4l2-compliance"],
+            universal_newlines=True,
+            stdout=sp.PIPE,
+            stderr=sp.PIPE,
+        )
     # since any failure => return code 1
 
     error_prefixes = ("Failed to open", "Cannot open device")

@@ -34,7 +34,7 @@ from plainbox.impl.ctrl import (
     gen_rfc822_records_from_io_log,
 )
 
-from plainbox.impl.depmgr import DependencyMissingError
+from plainbox.impl.depmgr import DependencyType
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.unit.job import InvalidJob
 from plainbox.impl.resource import Resource, ResourceExpression
@@ -68,31 +68,31 @@ class CheckBoxSessionStateControllerTests(TestCase):
         job_b = JobDefinition({"depends": "j1, j2"})
         self.assertEqual(
             self.ctrl.get_dependency_set(job_b),
-            {("depends", "j1"), ("depends", "j2")},
+            {(DependencyType.DEPENDS, "j1"), (DependencyType.DEPENDS, "j2")},
         )
         # Job with resouce dependencies
         job_c = JobDefinition({"requires": "j3.attr == 1"})
         self.assertEqual(
-            self.ctrl.get_dependency_set(job_c), {("resource", "j3")}
+            self.ctrl.get_dependency_set(job_c), {(DependencyType.RESOURCE, "j3")}
         )
         # Job with after dependencies
         job_d = JobDefinition({"after": "j1, j2"})
         self.assertEqual(
             self.ctrl.get_dependency_set(job_d),
-            {("after", "j1"), ("after", "j2")},
+            {(DependencyType.AFTER, "j1"), (DependencyType.AFTER, "j2")},
         )
         # Job with both depends and resource dependencies
         job_e = JobDefinition({"depends": "j4", "requires": "j5.attr == 1"})
         self.assertEqual(
             self.ctrl.get_dependency_set(job_e),
-            {("depends", "j4"), ("resource", "j5")},
+            {(DependencyType.DEPENDS, "j4"), (DependencyType.RESOURCE, "j5")},
         )
         # Job with both depends and resource dependencies
         # on the same job (j6)
         job_f = JobDefinition({"depends": "j6", "requires": "j6.attr == 1"})
         self.assertEqual(
             self.ctrl.get_dependency_set(job_f),
-            {("depends", "j6"), ("resource", "j6")},
+            {(DependencyType.DEPENDS, "j6"), (DependencyType.RESOURCE, "j6")},
         )
         # Job with an "also-after-suspend" flag, meaning this job should be
         # set to run before the suspend job
@@ -100,7 +100,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         suspend_job = JobDefinition({"id": Suspend.AUTO_JOB_ID})
         self.assertEqual(
             self.ctrl.get_dependency_set(suspend_job, [job_g]),
-            {("after", "j7")},
+            {(DependencyType.AFTER, "j7")},
         )
 
     def test_add_before_deps(self):

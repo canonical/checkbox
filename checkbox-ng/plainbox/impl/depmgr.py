@@ -38,7 +38,7 @@ from plainbox.i18n import gettext as _
 logger = getLogger("plainbox.depmgr")
 
 
-class DependencyType(enum.StrEnum):
+class DependencyType(enum.Enum):
     """
     The types of dependencies that can be expressed in the system.
     - resource:

@@ -88,7 +88,7 @@ class CheckBoxSessionStateController(ISessionStateController):
           of resource definitions.
     """
 
-    def get_dependency_set(self, job, job_map, job_list=None):
+    def get_dependency_set(self, job, job_list=None):
         """
         Get the set of direct dependencies of a particular job.
 
@@ -103,19 +103,21 @@ class CheckBoxSessionStateController(ISessionStateController):
         dependencies of the specified job. The first element in the pair,
         dep_type, is a DependencyType. The second element is the id of the job.
         """
-        direct = DependencyType.DIRECT
-        ordering = DependencyType.ORDERING
+        depends = DependencyType.DEPENDS
+        after = DependencyType.AFTER
         resource = DependencyType.RESOURCE
-        placement_before = DependencyType.PLACEMENT_BEFORE
+        before = DependencyType.BEFORE
         direct_deps = job.get_direct_dependencies()
         after_deps = job.get_after_dependencies()
-        # Add the the jobs that have this job in their "before" field.
+        # Add the jobs that have this job referenced in their "before" field.
         before_refs = job.before_references
 
         try:
             resource_deps = job.get_resource_dependencies()
         except ResourceProgramError:
             resource_deps = ()
+
+        # This step is here to add the dependencies to the suspend jobs.
         suspend_job_id_list = [
             Suspend.AUTO_JOB_ID,
             Suspend.MANUAL_JOB_ID,
@@ -126,20 +128,16 @@ class CheckBoxSessionStateController(ISessionStateController):
             )
         else:
             suspend_deps = set()
+
         result = set(
             itertools.chain(
-                zip(itertools.repeat(direct), direct_deps),
+                zip(itertools.repeat(depends), direct_deps),
                 zip(itertools.repeat(resource), resource_deps),
-                zip(itertools.repeat(ordering), after_deps),
-                zip(itertools.repeat(ordering), suspend_deps),
-                zip(itertools.repeat(placement_before), before_refs),
+                zip(itertools.repeat(after), after_deps),
+                zip(itertools.repeat(after), suspend_deps),
+                zip(itertools.repeat(before), before_refs),
             )
         )
-        for r in result:
-            if r[1] not in job_map:
-                logger.error(
-                    "Job {} has a dependency on {} which is not defined".format(job.id, r[1])
-                )
         return result
 
     def add_before_deps(self, job, job_map, global_job_map):
@@ -164,7 +162,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                     "exist".format(job.id, dep_id)
                 )
             elif dep_id not in job_map:
-                logger.error(
+                logger.debug(
                     "Job {} has a before dependency on {} which is not "
                     "in the current test plan".format(job.id, dep_id)
                 )
@@ -299,6 +297,8 @@ class CheckBoxSessionStateController(ISessionStateController):
                 )
                 inhibitors.append(inhibitor)
         # Check if all "after" dependencies ran yet
+        # TODO: If we get rid of the "pulling" behavior of after dependencies,
+        # we could remove this loop. 
         for dep_id in sorted(job.get_after_dependencies()):
             dep_job_state = session_state.job_state_map[dep_id]
             # If the dependency did not have a chance to run yet add the

@@ -125,7 +125,7 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: Test that system booted in EFI mode
 _purpose:
- Test to verify that the system booted in EFI mode with Secure Boot active.
+ Test to verify that the system booted in EFI mode.
 command: boot_mode_test.py efi
 
 plugin: shell

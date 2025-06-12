@@ -24,6 +24,7 @@ import shlex
 import subprocess
 import urllib.request
 import uuid
+from datetime import datetime, timezone
 from typing import List, Optional
 from urllib.parse import urlparse
 
@@ -78,13 +79,23 @@ class LXD:
         name: str = "testbed",
         remote: str = "ubuntu:",
         release: Optional[str] = None,
-    ):
+    ) -> None:
+        """Initializes the LXD instance.
+
+        :param template_url: URL to the LXD template tarball.
+        :param image_url: URL to the LXD image tarball.
+        :param name: Name of the LXD instance. A timestamp will be appended to this name.
+        :param remote: Remote LXD server to use for image import.
+        :param release: Release version of the LXD image. Defaults to the host's release.
+        """
         self.template_url = template_url
         self.image_url = image_url
-        self.name = name
         self.remote = remote
         self.image_alias = uuid.uuid4()
         self.release = release or HOST_RELEASE
+
+        timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%d%H%M%S")
+        self.name = "{}-{}".format(name, timestamp)
 
     @cached_property
     def template(self) -> Optional[str]:
@@ -239,16 +250,20 @@ class LXDVM(LXD):
                     self.template, self.image, self.image_alias.hex
                 )
             )
+        else:
+            logger.debug("No local images, attempting import from remote")
+            run_with_retry(
+                self.run,
+                5,
+                2,
+                "lxc image copy {}{} local: --alias {} --vm".format(
+                    self.remote, self.release, self.image_alias.hex
+                ),
+            )
 
     def launch(self, options: Optional[List[str]] = None):
         logger.debug("Initializing virtual machine")
-        cmd = ["lxc", "init"]
-        if not self.image and not self.template:
-            logger.debug("No local image, importing from remote")
-            cmd += ["{}{}".format(self.remote, self.release)]
-        else:
-            cmd += [self.image_alias.hex]
-        cmd += [self.name, "--vm"]
+        cmd = ["lxc", "init", self.image_alias.hex, self.name, "--vm"]
         if options:
             cmd += options
         self.run(" ".join(cmd))

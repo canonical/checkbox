@@ -77,7 +77,7 @@ nested_part:
   wireless-wifi-master-mode-manual
   wwan-manual
   va-api-manual
-  after-suspend-audio-manual
+  after-suspend-audio-cert-full
   after-suspend-bluetooth-cert-manual
   after-suspend-ethernet-manual
   after-suspend-led-indicator-manual
@@ -171,7 +171,7 @@ nested_part:
   wireless-wifi-master-mode-auto
   wwan-automated
   va-api-automated
-  after-suspend-audio-automated
+  after-suspend-audio-cert-automated
   after-suspend-bluez-automated
   after-suspend-eeprom-automated
   after-suspend-ethernet-automated

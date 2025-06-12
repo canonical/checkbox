@@ -132,8 +132,10 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/secure_boot_mode
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
+ manifest.has_secure_boot == 'True'
 depends: miscellanea/efi_boot_mode
 _summary: Test that system booted with Secure Boot active
 _purpose:
@@ -158,8 +160,10 @@ estimated_duration: 0.5
 unit: template
 template-resource: model_assertion
 template-unit: job
+imports: from com.canonical.plainbox import manifest
 requires:
- executable.name == 'dumpimage' or executable.name == 'mokutil'
+ (executable.name == 'dumpimage' or executable.name == 'mokutil')
+ manifest.has_secure_boot == 'True'
 id: miscellanea/secure_boot_mode_{gadget}
 template-id: miscellanea/secure_boot_mode_gadget
 _summary: Test that {gadget} Ubuntu Core system booted with Secure Boot active

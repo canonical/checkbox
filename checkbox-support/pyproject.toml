@@ -13,7 +13,6 @@
     'pyparsing>=2.2.0',
     'requests>=1.0',
     'distro>=1.0',
-    'configparser; python_version=="2.7"',
     'requests_unixsocket>=0.1.2; python_version>="3.5" and python_version<="3.11"',
     'requests_unixsocket2; python_version>="3.12"',
     'importlib_metadata; python_version<"3.8"',
@@ -22,6 +21,37 @@
 [metadata]
   long_description={'file' = 'README.md'}
   long_description_content_type='text/x-rst'
+[project.optional-dependencies]
+# this is the prod setup for provisioning from source. The versions are
+# pinned to the jammy universe because that is what testflinger agent uses
+jammy_prod = [ # Note: ancient versions of pip fail to see this section, use pipx!
+  'certifi==2020.6.20',
+  'charset-normalizer==2.0.6',
+  'distro==1.7.0',
+  'idna==2.10', # universe is 3.3 but it is incompatible with requests
+  'pyparsing==2.4.7',
+  'requests==2.25.1',
+  'distro==1.7.0',
+  'requests_unixsocket==0.2.0',
+  'pyyaml==6.0', # universe is 5.4.1 but it doesn't install anymore (cython issue)
+  'urllib3==1.26.5', # called python3-yaml in universe
+  'numpy==1.21.5',
+  'opencv==4.5.4'
+]
+# useful to get up to date packages and future version of testflinger agent
+noble_prod = [
+  'certifi==2023.11.17',
+  'charset-normalizer==3.3.2',
+  'distro==1.9.0',
+  'idna==3.6',
+  'pyparsing==3.1.1',
+  'PyYAML==6.0.1',
+  'requests==2.31.0',
+  'requests-unixsocket==0.3.0',
+  'urllib3==2.0.7',
+  'numpy==1.26.4',
+  'opencv-python==4.6.0.66'
+]
 [tool.black]
   line-length = 79
   # Exclude vendorized code (e.g. the stuff in checkbox_support/vendor)

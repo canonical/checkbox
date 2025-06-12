@@ -40,7 +40,7 @@ bootstrap_include:
   interface
   net_if_management
 nested_part:
-  audio-manual
+  audio-cert-manual
   bluetooth-cert-manual
   camera-manual
   cpu-manual
@@ -130,7 +130,7 @@ bootstrap_include:
   net_if_management
 nested_part:
   acpi-automated
-  audio-automated
+  audio-cert-automated
   bluetooth-cert-automated
   bluez-automated
   camera-automated

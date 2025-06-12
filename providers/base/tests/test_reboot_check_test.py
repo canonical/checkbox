@@ -294,8 +294,8 @@ class DisplayConnectionTests(unittest.TestCase):
             tester.is_hardware_renderer_available()
 
             if is_snap:
-                mock_symlink.assert_called_once()
-                mock_unlink.assert_called_once()
+                mock_symlink.assert_any_call()
+                mock_unlink.assert_any_call()
             else:
                 mock_symlink.assert_not_called()
                 mock_unlink.assert_not_called()

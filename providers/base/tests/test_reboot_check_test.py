@@ -576,6 +576,3 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
-
-
-unittest.main()

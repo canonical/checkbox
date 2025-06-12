@@ -150,7 +150,7 @@ class OrderingBeforeCycle(Scenario):
 
 
 @tag("ordering")
-class OrderingResource(Scenario):
+class OrderingAfterSuspend(Scenario):
     launcher = textwrap.dedent(
         """
         [launcher]

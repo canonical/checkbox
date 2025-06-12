@@ -298,7 +298,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                 inhibitors.append(inhibitor)
         # Check if all "after" dependencies ran yet
         # TODO: If we get rid of the "pulling" behavior of after dependencies,
-        # we could remove this loop. 
+        # we could remove this loop.
         for dep_id in sorted(job.get_after_dependencies()):
             dep_job_state = session_state.job_state_map[dep_id]
             # If the dependency did not have a chance to run yet add the

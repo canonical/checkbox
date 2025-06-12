@@ -17,6 +17,7 @@
     'Jinja2 >= 2.7',
     'xlsxwriter',
     'tqdm',
+    'pyyaml',
     'importlib_metadata; python_version < "3.8"',
     'filetype; python_version > "3.12"'
   ]
@@ -33,10 +34,14 @@
     'Intended Audience :: Manufacturing',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     'Natural Language :: English',
-    'Natural Language :: Polish',
     'Operating System :: POSIX',
     'Operating System :: POSIX :: Linux',
-    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
     'Topic :: Software Development :: Libraries :: Python Modules',
     'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
@@ -44,6 +49,47 @@
     'Topic :: Utilities',
   ]
   dynamic = ["version"]
+[project.optional-dependencies]
+# this is the prod setup for provisioning from source. The versions are
+# pinned to the jammy universe because that is what testflinger agent uses
+jammy_prod = [
+  'certifi==2020.6.20',
+  'chardet==4.0.0',
+  'filetype==1.0.10',
+  'idna==2.10', # universe is 3.3 but it is incompatible with requests
+  'jinja2==3.0.3',
+  'markupsafe==2.0.1',
+  'packaging==21.3',
+  'psutil==5.9.0',
+  'pyparsing==2.4.7',
+  'requests==2.25.1',
+  'tqdm==4.57.0',
+  'urllib3==1.26.5',
+  'urwid==2.1.2',
+  'xlsxwriter==3.0.2',
+  'pyyaml==6.0', # universe is 5.4.1 but it doesn't install anymore (cython issue)
+]
+# useful to get up to date packages and future version of testflinger agent
+noble_prod = [
+  'certifi==2023.11.17',
+  'chardet==5.2.0',
+  'charset-normalizer==3.3.2',
+  'filetype==1.2.0',
+  'idna==3.6',
+  'jinja2==3.1.2',
+  'markupsafe==2.1.5',
+  'packaging==24.0',
+  'psutil==5.9.8',
+  'pyparsing==3.1.1',
+  'requests==2.31.0',
+  'tqdm==4.66.2',
+  'typing-extensions==4.10.0',
+  'urllib3==2.0.7',
+  'urwid==2.6.10',
+  'wcwidth==0.2.5',
+  'xlsxwriter==3.1.9',
+  'pyyaml==6.0.1',
+]
 [tool.black]
   line-length = 79
   # Exclude vendorized code (e.g. the stuff in plainbox/vendor/)

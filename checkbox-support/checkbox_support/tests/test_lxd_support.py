@@ -301,10 +301,11 @@ class TestLXDVM(TestCase):
         self_mock.image = "/tmp/image"
         LXDVM.insert_images(self_mock)
 
-    def test_insert_images_no_images(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.template = None
-        self_mock.image = None
+    @patch("checkbox_support.lxd_support.run_with_retry")
+    def test_insert_images_remote_success(
+        self, logging_mock, run_with_retry_mock
+    ):
+        self_mock = MagicMock(template=None, image=None, remote="ubuntu:")
         LXDVM.insert_images(self_mock)
 
     def test_launch_images(self, logging_mock):

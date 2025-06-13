@@ -83,7 +83,7 @@ requires:
 category_id: gpgpu
 plugin: shell
 estimated_duration: 1m 45s
-command: gpu_passthrough.py --vendor=nvidia --pci={pci_device_name} lxd
+command: gpu_passthrough.py -v --vendor=nvidia --pci={pci_device_name} lxd
 _purpose: Creates a LXD container and passes {pci_device_name} GPU through
 _summary: Test LXD GPU passthrough on NVIDIA GPU {pci_device_name}
 _template-summary: Test LXD GPU passthrough on NVIDIA GPU
@@ -99,7 +99,7 @@ requires:
 category_id: gpgpu
 plugin: shell
 estimated_duration: 12m
-command: gpu_passthrough.py --vendor=nvidia --pci={pci_device_name} lxdvm
+command: gpu_passthrough.py -v --vendor=nvidia --pci={pci_device_name} lxdvm
 _purpose: Creates a LXD virtual machine and passes {pci_device_name} GPU through
 _summary: Test LXD VM GPU passthrough on NVIDIA GPU {pci_device_name}
 _template-summary: Test LXD VM GPU passthrough on NVIDIA GPU

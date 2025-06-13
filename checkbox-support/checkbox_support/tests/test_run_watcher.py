@@ -225,6 +225,12 @@ class TestRunWatcher(unittest.TestCase):
         mock_usb_storage.action = ""
         USBStorage._validate_removal(mock_usb_storage)
 
+    @patch("builtins.print")
+    def test_parse_journal_line(self, mock_print):
+        mock_storage = MagicMock()
+        StorageWatcher._parse_journal_line(mock_storage, "hello")
+        mock_print.assert_called_once_with("hello")
+
     @patch("checkbox_support.scripts.run_watcher.super")
     def test_usb_storage_parse_journal_line(self, mock_super):
         line_str = "new high-speed USB device"

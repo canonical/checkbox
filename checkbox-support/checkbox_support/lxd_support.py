@@ -255,7 +255,7 @@ class LXDVM(LXD):
             run_with_retry(
                 self.run,
                 5,
-                2,
+                15,
                 "lxc image copy {}{} local: --alias {} --vm".format(
                     self.remote, self.release, self.image_alias.hex
                 ),

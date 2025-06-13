@@ -225,11 +225,14 @@ class TestRunWatcher(unittest.TestCase):
         mock_usb_storage.action = ""
         USBStorage._validate_removal(mock_usb_storage)
 
-    def test_usb_storage_parse_journal_line(self):
+    @patch("checkbox_support.scripts.run_watcher.super")
+    def test_usb_storage_parse_journal_line(self, mock_super):
         line_str = "new high-speed USB device"
         mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.device, "high_speed_usb")
+        super_method = mock_super.return_value._parse_journal_line
+        super_method.assert_called_once_with(line_str)
 
         line_str = "new SuperSpeed USB device"
         mock_usb_storage = MagicMock()
@@ -312,11 +315,14 @@ class TestRunWatcher(unittest.TestCase):
         mock_mediacard_storage.action = ""
         MediacardStorage._validate_removal(mock_mediacard_storage)
 
-    def test_mediacard_storage_parse_journal_line(self):
+    @patch("checkbox_support.scripts.run_watcher.super")
+    def test_mediacard_storage_parse_journal_line(self, mock_super):
         line_str = "mmcblk0: p1"
         mock_mediacard_storage = MagicMock()
         MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
         self.assertEqual(mock_mediacard_storage.mounted_partition, "mmcblk0p1")
+        super_method = mock_super.return_value._parse_journal_line
+        super_method.assert_called_once_with(line_str)
 
         line_str = "new SD card at address 123456"
         mock_mediacard_storage = MagicMock()
@@ -382,7 +388,8 @@ class TestRunWatcher(unittest.TestCase):
         mock_mediacard_combo_storage.action = ""
         MediacardComboStorage._validate_removal(mock_mediacard_combo_storage)
 
-    def test_mediacard_combo_storage_parse_journal_line(self):
+    @patch("checkbox_support.scripts.run_watcher.super")
+    def test_mediacard_combo_storage_parse_journal_line(self, mock_super):
         line_str = "mmcblk0: p1"
         mock_mediacard_combo_storage = MagicMock()
         MediacardComboStorage._parse_journal_line(
@@ -391,6 +398,8 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(
             mock_mediacard_combo_storage.mounted_partition, "mmcblk0p1"
         )
+        super_method = mock_super.return_value._parse_journal_line
+        super_method.assert_called_with(line_str)
 
         line_str = "new SD card at address 123456"
         mock_mediacard_combo_storage = MagicMock()
@@ -448,7 +457,8 @@ class TestRunWatcher(unittest.TestCase):
         mock_thunderbolt_storage.action = ""
         ThunderboltStorage._validate_removal(mock_thunderbolt_storage)
 
-    def test_thunderbolt_storage_parse_journal_line(self):
+    @patch("checkbox_support.scripts.run_watcher.super")
+    def test_thunderbolt_storage_parse_journal_line(self, mock_super):
         line_str = "nvme0n1: p1"
         mock_thunderbolt_storage = MagicMock()
         ThunderboltStorage._parse_journal_line(
@@ -457,6 +467,8 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(
             mock_thunderbolt_storage.mounted_partition, "nvme0n1p1"
         )
+        super_method = mock_super.return_value._parse_journal_line
+        super_method.assert_called_once_with(line_str)
 
         line_str = "thunderbolt 1-1: new device found"
         mock_thunderbolt_storage = MagicMock()

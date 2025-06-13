@@ -75,7 +75,6 @@ class StorageInterface(ABC):
     these methods
     """
 
-    @abstractmethod
     def _parse_journal_line(self, line_str):
         """
         Parse the journal line and update the attributes based on the line
@@ -83,7 +82,8 @@ class StorageInterface(ABC):
 
         :param line_str: str of the scanned log lines.
         """
-        pass
+
+        print(line_str)
 
     @abstractmethod
     def _validate_insertion(self):
@@ -265,6 +265,8 @@ class USBStorage(StorageWatcher):
         if match:
             self.mounted_partition = match.group("part_name")
 
+        return super()._parse_journal_line(line_str)
+
 
 class MediacardStorage(StorageWatcher):
     """
@@ -322,6 +324,8 @@ class MediacardStorage(StorageWatcher):
         removal_re = re.compile(r"card ([0-9a-fA-F]+) removed")
         if re.search(removal_re, line_str):
             self.action = "removal"
+
+        return super()._parse_journal_line(line_str)
 
 
 class MediacardComboStorage(StorageWatcher):
@@ -410,6 +414,8 @@ class ThunderboltStorage(StorageWatcher):
         removal_re = re.compile(r"{} device disconnected".format(RE_PREFIX))
         if re.search(removal_re, line_str):
             self.action = "removal"
+
+        return super()._parse_journal_line(line_str)
 
 
 def parse_args():

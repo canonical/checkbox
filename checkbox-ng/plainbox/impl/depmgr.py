@@ -38,7 +38,7 @@ from plainbox.i18n import gettext as _
 logger = getLogger("plainbox.depmgr")
 
 
-class DependencyType(enum.StrEnum):
+class DependencyType(enum.Enum):
     """
     The types of dependencies that can be expressed in the system.
     - resource:
@@ -430,8 +430,13 @@ class DependencySolver:
                 state = State.FINISHED
                 solution.append(job)
         """
-        # Get the state of the job from the state map
-        state = self._job_state_map[job.id]
+        # Perform a sanity check to ensure that we have defined the state of
+        # this job.
+        try:
+            state = self._job_state_map[job.id]
+        except KeyError:
+            logger.debug(_("Visiting job that's not on the job_list: %r"), job)
+            raise DependencyUnknownError(job)
 
         if state == State.NOT_VISITED:
             # This node has not been visited yet. Let's mark it as visited

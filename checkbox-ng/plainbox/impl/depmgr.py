@@ -184,8 +184,8 @@ class DependencyMissingError(DependencyError):
         self.job = job
         self.missing_job_id = missing_job_id
 
-        if dep_type not in DependencyType:
-            raise ValueError("Invalid dependency type: {!r}".format(dep_type))
+        if not isinstance(dep_type, DependencyType):
+            raise TypeError("Invalid dependency type: {!r}".format(dep_type))
         self.dep_type = dep_type.value
 
     @property

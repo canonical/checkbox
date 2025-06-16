@@ -125,7 +125,7 @@ class DependencyMissingErrorTests(TestCase):
         self.assertEqual(expected, observed)
 
     def test_wrong_dep_type(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             DependencyMissingError(self.A, "B", "invalid")
 
 

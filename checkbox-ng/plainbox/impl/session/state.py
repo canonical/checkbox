@@ -44,7 +44,6 @@ from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 
-
 logger = logging.getLogger("plainbox.session.state")
 
 

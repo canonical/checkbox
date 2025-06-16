@@ -72,7 +72,7 @@ class DependencyMissingErrorTests(TestCase):
     def setUp(self):
         self.A = make_job("A")
         self.exc_direct = DependencyMissingError(
-            self.A, "B", DependencyType.DIRECT
+            self.A, "B", DependencyType.DEPENDS
         )
         self.exc_resource = DependencyMissingError(
             self.A, "B", DependencyType.RESOURCE
@@ -95,7 +95,7 @@ class DependencyMissingErrorTests(TestCase):
         self.assertEqual(self.exc_resource.missing_job_id, "B")
 
     def test_str_direct(self):
-        expected = "missing dependency: 'B' (direct)"
+        expected = "missing dependency: 'B' (depends)"
         observed = str(self.exc_direct)
         self.assertEqual(expected, observed)
 
@@ -109,7 +109,7 @@ class DependencyMissingErrorTests(TestCase):
             "<DependencyMissingError "
             "job:<JobDefinition id:'A' plugin:'dummy'> "
             "missing_job_id:'B' "
-            "dep_type:'direct'>"
+            "dep_type:'depends'>"
         )
         observed = repr(self.exc_direct)
         self.assertEqual(expected, observed)
@@ -123,6 +123,10 @@ class DependencyMissingErrorTests(TestCase):
         )
         observed = repr(self.exc_resource)
         self.assertEqual(expected, observed)
+
+    def test_wrong_dep_type(self):
+        with self.assertRaises(ValueError):
+            DependencyMissingError(self.A, "B", "invalid")
 
 
 class DependencyDuplicateErrorTests(TestCase):
@@ -298,9 +302,7 @@ class TestDependencySolver(TestCase):
             DependencySolver.resolve_dependencies(job_list)
         self.assertIs(call.exception.job, B)
         self.assertEqual(call.exception.missing_job_id, "A")
-        self.assertEqual(
-            call.exception.dep_type, DependencyType.DIRECT.value
-        )
+        self.assertEqual(call.exception.dep_type, DependencyType.DEPENDS.value)
 
     def test_missing_resource_dependency(self):
         # This tests missing resource dependencies
@@ -314,7 +316,6 @@ class TestDependencySolver(TestCase):
         self.assertEqual(
             call.exception.dep_type, DependencyType.RESOURCE.value
         )
-        
 
     def test_dependency_cycle_self(self):
         # This tests dependency loops

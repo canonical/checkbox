@@ -184,7 +184,7 @@ class StartProvider:
         parser.add_argument(
             "name",
             metavar=_("name"),
-            type=IQN,
+            type=str,
             # TRANSLATORS: please keep the YYYY.example... text unchanged or at
             # the very least translate only YYYY and some-name. In either case
             # some-name must be a reasonably-ASCII string (should be safe for a
@@ -1075,6 +1075,11 @@ class Run(MainLoopStage):
         parser.add_argument(
             "-m", "--message", help=_("submission description")
         )
+        parser.add_argument(
+            "--exact",
+            action="store_true",
+            help="only expand the test-plan that exactly matches",
+        )
 
     @property
     def C(self):
@@ -1097,6 +1102,23 @@ class Run(MainLoopStage):
             and not self.ctx.args.non_interactive
         )
 
+    def _get_relevant_units(self, patterns, exact=False):
+        if exact:
+            return patterns
+        providers = self.sa.get_selected_providers()
+        root = Explorer(providers).get_object_tree()
+        # here handle the patterns one by one to not change the order
+        matching_units = [
+            root.find_children_by_name([pattern]) for pattern in patterns
+        ]
+        all_ids = [
+            [pattern] if not matches else [match.name for match in matches]
+            for matching_unit in matching_units
+            for (pattern, matches) in matching_unit.items()
+        ]
+        all_ids = [id for all_id in all_ids for id in all_id]
+        return all_ids
+
     def invoked(self, ctx):
         try:
             self._C = Colorizer()
@@ -1111,6 +1133,7 @@ class Run(MainLoopStage):
             tps = self.sa.get_test_plans()
             self._configure_report()
             selection = ctx.args.PATTERN
+            selection = self._get_relevant_units(selection, ctx.args.exact)
             submission_message = self.ctx.args.message
             if len(selection) == 1 and selection[0] in tps:
                 self.ctx.sa.update_app_blob(
@@ -1133,7 +1156,7 @@ class Run(MainLoopStage):
                 self._run_jobs(self.sa.get_dynamic_todo_list())
                 # there might have been new jobs instantiated
                 while True:
-                    self.sa.hand_pick_jobs(ctx.args.PATTERN)
+                    self.sa.hand_pick_jobs(selection)
                     todos = self.sa.get_dynamic_todo_list()
                     if not todos:
                         break
@@ -1333,6 +1356,11 @@ class Expand:
             default="text",
             help=_("output format: 'text' or 'json' (default: %(default)s)"),
         )
+        parser.add_argument(
+            "--exact",
+            action="store_true",
+            help="only expand the test-plan that exactly matches",
+        )
 
     def _get_relevant_manifest_units(self, jobs_and_templates_list):
         """
@@ -1372,9 +1400,12 @@ class Expand:
         session_title = "checkbox-expand-{}".format(ctx.args.TEST_PLAN)
         self.sa.start_new_session(session_title)
         tps = self.sa.get_test_plans()
-        if ctx.args.TEST_PLAN not in tps:
+        testplan_id = get_testplan_id_by_id(
+            tps, ctx.args.TEST_PLAN, self.sa, ctx.args.exact
+        )
+        if testplan_id not in tps:
             raise SystemExit("Test plan not found")
-        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        self.sa.select_test_plan(testplan_id)
         all_jobs_and_templates = [
             unit
             for unit in self.sa._context.state.unit_list
@@ -1447,6 +1478,11 @@ class ListBootstrapped:
         return self.ctx.sa
 
     def register_arguments(self, parser):
+        parser.add_argument(
+            "--exact",
+            action="store_true",
+            help="only bootstrap test-plan that exactly match",
+        )
         parser.add_argument("TEST_PLAN", help=_("test-plan id to bootstrap"))
         parser.add_argument(
             "-f",
@@ -1464,10 +1500,14 @@ class ListBootstrapped:
     def invoked(self, ctx):
         self.ctx = ctx
         self.sa.start_new_session("checkbox-listing-ephemeral")
+
         tps = self.sa.get_test_plans()
-        if ctx.args.TEST_PLAN not in tps:
+        testplan_id = get_testplan_id_by_id(
+            tps, ctx.args.TEST_PLAN, self.sa, ctx.args.exact
+        )
+        if testplan_id not in tps:
             raise SystemExit("Test plan not found")
-        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        self.sa.select_test_plan(testplan_id)
         self.sa.bootstrap()
         jobs = []
         for job in self.sa.get_static_todo_list():
@@ -1537,6 +1577,29 @@ class TestPlanExport:
             slugify(self.sa._manager.test_plans[0].name),
         )
         print(path)
+
+
+def get_testplan_id_by_id(tps, testplan_id, sa, exact=False):
+    """
+    Searches for a testplan that matches the given testplan_id
+
+    The input id may not match the testplan id because it is missing the
+    namespace. When the search is not exact, this searches any test plan that
+    has the same id ignoring the namespace.
+    """
+    if exact:
+        return testplan_id
+    if testplan_id in tps:
+        # no need to search for the testplan id
+        return testplan_id
+    providers = sa.get_selected_providers()
+    root = Explorer(providers).get_object_tree()
+
+    relevant = root.find_children_by_name([testplan_id], exact).values()
+    relevant = [unit for units in relevant for unit in units]
+    if relevant:
+        return relevant[0].name
+    return testplan_id  # parent will fail
 
 
 def get_all_jobs(sa):
@@ -1609,18 +1672,26 @@ class Show:
         parser.add_argument(
             "IDs", nargs="+", help=_("Show the definitions of objects")
         )
+        parser.add_argument(
+            "--exact",
+            action="store_true",
+            help=_("Only show units that exactly match the id"),
+        )
 
     def invoked(self, ctx):
         providers = ctx.sa.get_selected_providers()
         self._searched_names = ctx.args.IDs
         root = Explorer(providers).get_object_tree()
-        self._traverse_obj_tree(root)
+        relevant = root.find_children_by_name(ctx.args.IDs, ctx.args.exact)
 
-    def _traverse_obj_tree(self, obj):
-        if obj.name in self._searched_names:
-            self._print_obj(obj)
-        for child in obj.children:
-            self._traverse_obj_tree(child)
+        failed = [id for id, founds in relevant.items() if not founds]
+        to_prints = [unit for units in relevant.values() for unit in units]
+
+        for to_print in to_prints:
+            self._print_obj(to_print)
+
+        if failed:
+            raise SystemExit("Failed to find: {}".format(", ".join(failed)))
 
     def _print_obj(self, obj):
         if "origin" in obj.attrs:

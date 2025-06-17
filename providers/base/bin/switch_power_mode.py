@@ -59,14 +59,18 @@ def set_power_profile(profile):
         "cool": "balanced",
         "performance": "performance",
     }
+
     if profile not in profile_mappings:
-        raise SystemExit(f"Unhandled ACPI platform profile: {profile}")
+        raise SystemExit("Unhandled ACPI platform profile: {}".format(profile))
+
     profile = profile_mappings[profile]
 
     try:
         subprocess.check_call(["powerprofilesctl", "set", profile])
     except subprocess.CalledProcessError as e:
-        raise SystemExit(f"Failed to set power mode to {profile}.") from e
+        raise SystemExit(
+            "Failed to set power mode to {}.".format(profile)
+        ) from e
 
 
 @contextlib.contextmanager

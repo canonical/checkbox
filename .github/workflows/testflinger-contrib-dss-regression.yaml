@@ -78,13 +78,14 @@ jobs:
       - name: Build job file from template
         id: build-job-file
         env:
-          REPLACE_QUEUE: "${{ matrix.queue.name }}"
-          REPLACE_PROVISION_DATA: "${{ matrix.queue.provision_data }}"
-          REPLACE_DSS_CHANNEL: "${{ inputs.dss_channel }}"
-          REPLACE_MICROK8S_CHANNEL: "${{ inputs.microk8s_channel }}"
-          REPLACE_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
+          ENV_QUEUE: "${{ matrix.queue.name }}"
+          ENV_PROVISION_DATA: "${{ matrix.queue.provision_data }}"
+          ENV_DSS_CHANNEL: "${{ inputs.dss_channel }}"
+          ENV_MICROK8S_CHANNEL: "${{ inputs.microk8s_channel }}"
+          ENV_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
+          ENV_LAUNCHER: "launchers/checkbox-dss.conf"
         run: |
-          envsubst '$REPLACE_QUEUE $REPLACE_PROVISION_DATA $REPLACE_DSS_CHANNEL $REPLACE_MICROK8S_CHANNEL $REPLACE_CB_DSS_SNAP' \
+          envsubst '$ENV_QUEUE $ENV_PROVISION_DATA $ENV_DSS_CHANNEL $ENV_MICROK8S_CHANNEL $ENV_CB_DSS_SNAP $ENV_LAUNCHER' \
             < testflinger/job-def.yaml > job.yaml
           echo "::group::Built job file"
           cat job.yaml

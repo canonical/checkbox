@@ -50,21 +50,23 @@ def set_power_profile(profile):
     """
     # In sys file the modes are quiet, low-power, cool, balanced or performance
     # but powerprofilesctl only accepts power-saver, balanced or performance
-    profile = (
-        "power-saver"
-        if profile in ["low-power", "quiet"]
-        else (
-            "balanced"
-            if profile in ["cool", "balanced_performance"]
-            else profile
-        )
-    )
+    profile_mappings = {
+        "low-power": "power-saver",
+        "power-saver": "power-saver",
+        "quiet": "power-saver",
+        "balanced": "balanced",
+        "balanced_performance": "balanced",
+        "cool": "balanced",
+        "performance": "performance",
+    }
+    if profile not in profile_mappings:
+        raise SystemExit(f"Unhandled ACPI platform profile: {profile}")
+    profile = profile_mappings[profile]
+
     try:
         subprocess.check_call(["powerprofilesctl", "set", profile])
     except subprocess.CalledProcessError as e:
-        raise SystemExit(
-            "Failed to set power mode to {}.".format(profile)
-        ) from e
+        raise SystemExit(f"Failed to set power mode to {profile}.") from e
 
 
 @contextlib.contextmanager

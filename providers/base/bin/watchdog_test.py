@@ -23,6 +23,7 @@ import os
 import shlex
 import shutil
 import subprocess
+import sys
 import time
 
 from configparser import ConfigParser
@@ -142,23 +143,42 @@ def collect_hardware_watchdogs(watchdog_identity: str) -> dict:
     hardware_watchdogs = {}
 
     fs_wtdgs = glob.glob("/sys/class/watchdog/watchdog*")
-    print("detecting watchdog devices")
+    print("\ncollect watchdog devices..")
     for node in fs_wtdgs:
         p_node = Path(node)
         link = str(p_node.readlink())
         identity = p_node.joinpath("identity").read_text().strip()
-        print("- {}:{} is a hardware watchdog".format(p_node.name, identity))
-        if "devices/virtual" in link:
-            print("- {} is a software watchdog".format(p_node.name))
+        print("- {}: {}".format(p_node.name, identity))
+        if watchdog_identity and identity == watchdog_identity:
+            # include watchdog dev
+            # when watchdog_identify is provided and the match identity
+            hardware_watchdogs[p_node.name] = identity
             continue
-        elif watchdog_identity and identity != watchdog_identity:
-            # when watchdog_identify is provided
-            # bypass the watchdog if it's not expected identity
+
+        if "devices/virtual" in link:
+            # Filter the software watchdog
+            print(
+                "# Ignore {} due to it's a software watchdog".format(
+                    p_node.name
+                ),
+                file=sys.stderr,
+            )
             continue
 
         hardware_watchdogs[p_node.name] = identity
 
     return hardware_watchdogs
+
+
+def check_hardware_watchdog(watchdog_devs, watchdog_identity) -> bool:
+    if watchdog_identity and watchdog_devs:
+        print(
+            "\nPassed: {} watchdog detected".format(watchdog_identity)
+        )
+        return True
+    elif watchdog_devs:
+        print("\nPassed: hardware watchdog detected")
+        return True
 
 
 def detect(watchdog_module, watchdog_identity) -> None:
@@ -185,35 +205,40 @@ def detect(watchdog_module, watchdog_identity) -> None:
     """
     print("# Perform watchdog detection test")
     # Get the watchdog devices
-    if collect_hardware_watchdogs(watchdog_identity):
-        print("Found hardware watchdog")
-        return True
+    print(collect_hardware_watchdogs(watchdog_identity))
+    if check_hardware_watchdog(
+        collect_hardware_watchdogs(watchdog_identity),
+        watchdog_identity,
+    ):
+        return
 
-    if watchdog_identity:
+    if watchdog_identity and watchdog_module:
         with probe_watchdog_module(watchdog_module):
-            if collect_hardware_watchdogs(watchdog_identity):
-                print("Found expected hardware watchdog")
-                return True
+            if check_hardware_watchdog(
+                collect_hardware_watchdogs(watchdog_identity),
+                watchdog_identity,
+            ):
+                return
 
-        raise SystemExit("No expected hardware watchdog been detected")
-    raise SystemExit("No hardware watchdog available")
+        raise SystemExit("Error: No expected hardware watchdog been detected")
+    raise SystemExit("Error: No hardware watchdog available")
 
 
-def backup_systemd_config(backup_dir):
+def backup_systemd_config(backup_dir) -> None:
     shutil.copy(WATCHDOG_CONFIG_FILE, backup_dir)
 
 
-def restore_systemd_config(backup_dir):
+def restore_systemd_config(backup_dir) -> None:
     backup_file = Path(backup_dir).joinpath("system.conf")
     shutil.copy(backup_file, WATCHDOG_CONFIG_FILE)
 
 
-def dump_watchdog_config():
+def dump_watchdog_config() -> None:
     print("# Dump systemd.conf")
     print(Path(WATCHDOG_CONFIG_FILE).read_text())
 
 
-def configure_watchdog_config(watchdog_dev):
+def configure_watchdog_config(watchdog_dev) -> None:
     """
     update the system.conf under /etc/systemd and reload daemon.
     this function update RuntimeWatchdogSec and WatchdogDevice in system.conf
@@ -251,7 +276,7 @@ def watchdog_test_timestamp(log_dir):
     log_file.write_text(str(time.time()))
 
 
-def trigger_system_reset(backup_dir, watchdog_dev):
+def trigger_system_reset(backup_dir, watchdog_dev) -> None:
     """
     Trigger kernel panic and system shall recover by watchdog device
 
@@ -280,7 +305,7 @@ def trigger_system_reset(backup_dir, watchdog_dev):
     Path("/proc/sysrq-trigger").write_text("c")
 
 
-def watchdog_reset_test(kernel_module, watchdog_identity, log_dir):
+def watchdog_reset_test(kernel_module, watchdog_identity, log_dir) -> None:
     """
     perform watchdog reset test
     this scripts would reset system by systemctl command when no kernel panic
@@ -306,7 +331,7 @@ def watchdog_reset_test(kernel_module, watchdog_identity, log_dir):
     finally:
         # Reboot the system manually, cause the system is not restart by watchdog
         # When this file exists, it means test failed
-        time.sleep(70)
+        time.sleep(60)
         log_file = Path(log_dir).joinpath("watchdog_manual_reset.log")
         log_file.write_text("system reset by watchdog")
         subprocess.run(shlex.split("sync"))
@@ -326,12 +351,15 @@ def post_check(log_dir):
     print("# Post check test")
     restore_systemd_config(log_dir)
     if Path(log_dir).joinpath("watchdog_manual_reset.log").exists():
-        raise SystemExit("System reset by scripts, not watchdog")
+        raise SystemExit("Error: System reset by scripts, not watchdog")
+
     start_time = Path(log_dir).joinpath(WATCHDOG_LOG_FILE).read_text()
-    time_diff = time.time() - float(start_time)
-    time_max = 60 + int(os.getenv("COLD_REBOOT_DELAY", 120))
-    if time_diff < 60 or time_diff > time_max:
-        raise SystemExit("System reset by user interaction, not watchdog")
+    system_uptime = float(Path("/proc/uptime").read_text().split(" ")[0])
+    time_diff = time.time() - system_uptime - float(start_time)
+    if time_diff > 300:
+        raise SystemExit("Error: System reset by user interaction, not watchdog")
+
+    print("Passed: system been reset by watchdog")
 
 
 def main():

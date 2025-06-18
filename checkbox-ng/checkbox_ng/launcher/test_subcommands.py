@@ -30,6 +30,7 @@ from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
 
 from checkbox_ng.launcher.subcommands import (
+    Run,
     Expand,
     List,
     Launcher,
@@ -39,6 +40,7 @@ from checkbox_ng.launcher.subcommands import (
     IJobResult,
     request_comment,
     generate_resume_candidate_description,
+    get_testplan_id_by_id,
     print_objs,
 )
 
@@ -1098,3 +1100,80 @@ class TestUtilsFunctions(TestCase):
         self.assertIn("123", description)
         self.assertIn("Title", description)
         self.assertIn("Test", description)
+
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_multiple_relevant_found_raises_system_exit(
+        self, mock_explorer_class
+    ):
+        mock_unit1 = MagicMock()
+        mock_unit1.name = "namespace1::some"
+        mock_unit2 = MagicMock()
+        mock_unit2.name = "namespace2::some"
+
+        mock_root = MagicMock()
+        mock_root.find_children_by_name.return_value = {
+            "key": [mock_unit1, mock_unit2]
+        }
+        mock_explorer_instance = mock_explorer_class()
+        mock_explorer_instance.get_object_tree.return_value = mock_root
+
+        with self.assertRaises(SystemExit):
+            get_testplan_id_by_id(
+                ["namespace1::some", "namespace2::some"],
+                "some",
+                MagicMock(),
+                exact=False,
+            )
+
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_single_relevant_found_returns_name(self, mock_explorer_class):
+        mock_unit = MagicMock()
+        mock_unit.name = "namespace1::some"
+
+        mock_root = MagicMock()
+        mock_root.find_children_by_name.return_value = {"some": [mock_unit]}
+        mock_explorer_instance = mock_explorer_class()
+        mock_explorer_instance.get_object_tree.return_value = mock_root
+
+        result = get_testplan_id_by_id(
+            ["namespace1::some"], "some", MagicMock(), exact=False
+        )
+        self.assertEqual(result, "namespace1::some")
+
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_no_relevant_found_returns_original_id(self, mock_explorer_class):
+        mock_root = MagicMock()
+        mock_root.find_children_by_name.return_value = {}
+        mock_explorer_instance = mock_explorer_class()
+        mock_explorer_instance.get_object_tree.return_value = mock_root
+
+        result = get_testplan_id_by_id([], "some", MagicMock(), exact=False)
+        self.assertEqual(result, "some")
+
+
+class TestRun(TestCase):
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test__get_relevant_units(self, explorer_mock):
+        self_mock = MagicMock()
+        root = explorer_mock().get_object_tree()
+        should_find = [
+            "com.canonical.certification::some",
+            "2021.com.canonica.certification::some",
+        ]
+
+        def find_children_by_name(pattern):
+            if pattern == ["some"]:
+                to_r = [MagicMock(), MagicMock()]
+                to_r[0].name = should_find[0]
+                to_r[1].name = should_find[1]
+                return {"some": to_r}
+            return {x: [] for x in pattern}
+
+        root.find_children_by_name = find_children_by_name
+        found_ids = Run._get_relevant_units(
+            self_mock, ["other2.*", "some", "other1.*"], exact=False
+        )
+
+        # we expect the relevant unit function to leave unfound values the same
+        # and all in the same order
+        self.assertEqual(found_ids, ["other2.*", *should_find, "other1.*"])

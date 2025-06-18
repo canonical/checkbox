@@ -1598,6 +1598,12 @@ def get_testplan_id_by_id(tps, testplan_id, sa, exact=False):
 
     relevant = root.find_children_by_name([testplan_id], exact).values()
     relevant = [unit for units in relevant for unit in units]
+    if len(relevant) > 1:
+        raise SystemExit(
+            "More than one testplan match the id {}. Use either:\n- {}".format(
+                testplan_id, "\n- ".join(unit.name for unit in relevant)
+            )
+        )
     if relevant:
         return relevant[0].name
     return testplan_id  # parent will fail

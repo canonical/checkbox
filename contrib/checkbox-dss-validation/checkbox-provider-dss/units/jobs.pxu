@@ -3,9 +3,9 @@ category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires:
-  # dss and kubectl are installed in setup jobs after bootstrap
-  # executable.name == 'dss'
   executable.name == 'microk8s'
+# dss and kubectl will be installed in the setup jobs
+# executable.name == 'dss'
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
 command:
@@ -105,7 +105,7 @@ imports:
   from com.canonical.certification import graphics_card
 requires:
   graphics_card.vendor == 'Intel Corporation'
-  # executable.name == 'kubectl'
+# executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
@@ -210,7 +210,7 @@ imports:
 requires:
   graphics_card.vendor == 'NVIDIA Corporation'
   executable.name == 'microk8s'
-  # executable.name == 'kubectl'
+# executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Enable NVIDIA GPU addon in microk8s
 estimated_duration: 10m

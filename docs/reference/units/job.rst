@@ -142,10 +142,9 @@ Following fields may be used by the job unit:
 .. option:: before
 
     (optional). If specified, the job will only run before all the listed jobs
-    have run (regardless of the outcome). Multiple job names, separated by
-    spaces, can be specified.
-    The way the before flag works is by adding the current job as an ``after``
-    dependency of the jobs listed in the before field.
+    have run. Even if the referenced job fails, the current job will be run.
+
+    Multiple job names, separated by spaces, can be specified.
     In the case of the before field, if the job was not previously included in
     the test plan, it won't be added and the dependency will be ignored.
 

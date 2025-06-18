@@ -127,10 +127,10 @@ fields available from the jobs. To see what fields are available, run:
 
 .. note::
 
-    This command does not actually list all the available fields, but the
-    fields that are used in all the jobs in the scope. In most cases, this
-    will be all the fields available, but a new field that is not used in
-    any job will not be listed.
+    There is currently a bug with this command. It does not actually list all
+    the available fields, but the fields that are used in all the jobs in the
+    scope. In most cases, this will be all the fields available, but a new field
+    that is not used in any job will not be listed.
 
 To create a table listing each job id and their summary, run:
 

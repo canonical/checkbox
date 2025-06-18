@@ -23,6 +23,7 @@
 """
 
 from collections import OrderedDict
+import operator
 import logging
 
 from plainbox.impl.session.storage import WellKnownDirsHelper

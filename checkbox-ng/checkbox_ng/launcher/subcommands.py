@@ -184,7 +184,7 @@ class StartProvider:
         parser.add_argument(
             "name",
             metavar=_("name"),
-            type=str,
+            type=IQN,
             # TRANSLATORS: please keep the YYYY.example... text unchanged or at
             # the very least translate only YYYY and some-name. In either case
             # some-name must be a reasonably-ASCII string (should be safe for a
@@ -1132,8 +1132,9 @@ class Run(MainLoopStage):
             )
             tps = self.sa.get_test_plans()
             self._configure_report()
-            selection = ctx.args.PATTERN
-            selection = self._get_relevant_units(selection, ctx.args.exact)
+            selection = self._get_relevant_units(
+                ctx.args.PATTERN, ctx.args.exact
+            )
             submission_message = self.ctx.args.message
             if len(selection) == 1 and selection[0] in tps:
                 self.ctx.sa.update_app_blob(

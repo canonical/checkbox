@@ -1,4 +1,7 @@
 unit: category
+id: setup-dss-regress
+_name: Setup DSS regression tests
+
+unit: category
 id: dss-regress
 _name: DSS regression tests
-

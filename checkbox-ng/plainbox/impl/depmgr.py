@@ -393,12 +393,14 @@ class DependencySolver:
 
         # Perform a sanity check to ensure that no jobs have been added or
         # removed from the solution.
-        if len(self._order_solution) != len(self._pull_solution):
+        pull_jobs = set(self._pull_solution)
+        order_jobs = set(self._order_solution)
+        if pull_jobs != order_jobs:
             raise ValueError(
-                "The number of jobs in the ordered solution ({}) does not "
-                "match the number of jobs in the pull solution ({})".format(
-                    len(self._order_solution), len(self._pull_solution)
-                )
+                "The dependency manager failed ordering the jobs, some jobs "
+                "have changed during the ordering process:\n"
+                "Pull solution: {!r}\n"
+                "Order solution: {!r}".format(pull_jobs, order_jobs)
             )
 
         logger.debug(_("Done solving"))

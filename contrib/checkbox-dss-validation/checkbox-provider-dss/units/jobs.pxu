@@ -1,10 +1,14 @@
+# XXX:@motjuste: re-enable commented-out requires clauses when we have setup phase
+#   Currently, the following executables are installed after bootstrap in setup jobs:
+#       * dss
+#       * kubectl
+
 id: dss/initialize
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires:
   executable.name == 'microk8s'
-# dss and kubectl will be installed in the setup jobs
 # executable.name == 'dss'
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m

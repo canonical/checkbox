@@ -1,6 +1,13 @@
-id: dss-validation
+id: setup-dss-validation
 unit: test plan
-_name: DSS validations with Intel and NVIDIA GPUs if available
+_name: Setup to run DSS validations
+include:
+    setup_dss/install_snap_.*
+    setup_dss/install_package_.*
+
+id: run-dss-validation
+unit: test plan
+_name: Run DSS validations
 include:
     dss/initialize
     dss/namespace
@@ -34,3 +41,12 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+
+
+id: dss-validation
+unit: test plan
+_name: DSS validations with Intel and NVIDIA GPUs if available
+include:
+nested_part:
+    setup-dss-validation
+    run-dss-validation

@@ -416,8 +416,8 @@ class DependencySolver:
         skipped. Attempts to enumerate all dependencies (both direct and
         resource) and resolve them. Missing jobs cause DependencyMissingError
         to be raised. Calls _visit recursively on all dependencies.
-        If the pull flag is set to True, the dependencies are pulled form the
-        search_map, if not, not.
+        Dependencies are pulled form the search_map only if the pull flag is
+        set to True.
 
         Pseudocode of the algorithm:
         visit(job)

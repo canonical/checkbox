@@ -47,6 +47,8 @@ class HCIVersion(IntEnum):
     BT_CORE_SPEC_5_2 = 11
     BT_CORE_SPEC_5_3 = 12
     BT_CORE_SPEC_5_4 = 13
+    BT_CORE_SPEC_6_0 = 14
+    BT_CORE_SPEC_6_1 = 15
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -58,7 +60,7 @@ _LOGGER.setLevel(logging.DEBUG)
 class BeaconScanner(object):
     """Scan for Beacon advertisements."""
 
-    def __init__(self, callback, bt_device_id=0, device_filter=None, packet_filter=None, scan_parameters=None):
+    def __init__(self, callback, bt_device_id=0, device_filter=None, packet_filter=None, scan_parameters=None, debug=False):
         """Initialize scanner."""
         # check if device filters are valid
         if device_filter is not None:
@@ -85,7 +87,7 @@ class BeaconScanner(object):
         if scan_parameters is None:
             scan_parameters = {}
 
-        self._mon = Monitor(callback, bt_device_id, device_filter, packet_filter, scan_parameters)
+        self._mon = Monitor(callback, bt_device_id, device_filter, packet_filter, scan_parameters, debug=debug)
 
     def start(self):
         """Start beacon scanning."""
@@ -99,7 +101,7 @@ class BeaconScanner(object):
 class Monitor(threading.Thread):
     """Continously scan for BLE advertisements."""
 
-    def __init__(self, callback, bt_device_id, device_filter, packet_filter, scan_parameters):
+    def __init__(self, callback, bt_device_id, device_filter, packet_filter, scan_parameters, debug=False):
         """Construct interface object."""
         # do import here so that the package can be used in parsing-only mode (no bluez required)
         self.backend = import_module('checkbox_support.vendor.beacontools.backend')
@@ -108,6 +110,7 @@ class Monitor(threading.Thread):
         self.daemon = False
         self.keep_going = True
         self.callback = callback
+        self.debug = debug
 
         # number of the bt device (hciX)
         self.bt_device_id = bt_device_id
@@ -153,7 +156,18 @@ class Monitor(threading.Thread):
             pkt = self.socket.recv(255)
             event = to_int(pkt[1])
             subevent = to_int(pkt[3])
-            if event == LE_META_EVENT and subevent in [EVT_LE_ADVERTISING_REPORT, EVT_LE_EXT_ADVERTISING_REPORT]:
+            # Print pkt for debugging purpose
+            if self.debug:
+                print(
+                    "BT PKT: {}".format(" ".join([hex(pk) for pk in pkt]))
+                )
+            # Print opcode and error code when HCI command failed
+            # This may helps to identify issue
+            if event == EVT_CMD_COMPLETE and to_int(pkt[-1]) != 0:
+                opcode = "0x{}".format(pkt[-3: -1].hex())
+                error_code = hex(to_int(pkt[-1]))
+                print("Warning: HCI Command failed. Opcode: ", opcode, ", Error code: ", error_code)
+            elif event == LE_META_EVENT and subevent in [EVT_LE_ADVERTISING_REPORT, EVT_LE_EXT_ADVERTISING_REPORT]:
                 # we have an BLE advertisement
                 self.process_packet(pkt)
         self.socket.close()
@@ -216,6 +230,7 @@ class Monitor(threading.Thread):
         interval_fractions, window_fractions = int(interval_fractions), int(window_fractions)
 
         if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0:
+            print("Issue LE Set Scan Parameters by hci command")
             command_field = OCF_LE_SET_SCAN_PARAMETERS
             scan_parameter_pkg = struct.pack(
                 "<BHHBB",
@@ -225,6 +240,7 @@ class Monitor(threading.Thread):
                 address_type,
                 filter_type)
         else:
+            print("Issue LE Set Extended Scan Parameters by hci command")
             command_field = OCF_LE_SET_EXT_SCAN_PARAMETERS
             scan_parameter_pkg = struct.pack(
                 "<BBBBHH",
@@ -250,9 +266,11 @@ class Monitor(threading.Thread):
             filter_duplicates: boolean value to enable/disable filter, that
                 omits duplicated packets"""
         if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0:
+            print("Issue LE Set Scan Enable by hci command")
             command_field = OCF_LE_SET_SCAN_ENABLE
             command = struct.pack("BB", enable, filter_duplicates)
         else:
+            print("Issue LE Set Extended Scan Enable by hci command")
             command_field = OCF_LE_SET_EXT_SCAN_ENABLE
             command = struct.pack("<BBHH", enable, filter_duplicates,
                                   0,  # duration

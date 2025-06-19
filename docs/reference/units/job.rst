@@ -148,10 +148,10 @@ Following fields may be used by the job unit:
     In the case of the before field, if the job was not previously included in
     the test plan, it won't be added and the dependency will be ignored.
 
-    If a job has another in the before field and uses with the 
-    ``also-after-suspend`` flag, both of the job and the generated  sibling
-    will include the same before dependency. This means that the referenced
-    job will be moved to the end of the test plan, after the
+    When a job lists another job in its ``before`` field and has the
+    ``also-after-suspend`` flag, both the original job and its generated sibling
+    share that identical ``before`` dependency. As a result, the referenced job
+    is pushed to the end of the test plan, positioned after the
     ``also-after-suspend`` sibling.
 
 .. option:: salvages

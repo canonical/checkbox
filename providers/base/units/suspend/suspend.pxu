@@ -10,6 +10,7 @@ user: root
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/resolution_before_suspend
+before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
 command: xrandr -q | grep "[*]" | awk '{print $1}' > "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt
@@ -22,6 +23,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_before_suspend_{product_slug}
 template-id: suspend/index_resolution_before_suspend_product_slug
 depends: graphics/{index}_switch_card_{product_slug}
+before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
 command: xrandr -q | grep "[*]" | awk '{{print $1}}' > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt

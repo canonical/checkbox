@@ -1,15 +1,10 @@
-# XXX:@motjuste: re-enable commented-out requires clauses when we have setup phase
-#   Currently, the following executables are installed after bootstrap in setup jobs:
-#       * dss
-#       * kubectl
-
 id: dss/initialize
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires:
+  executable.name == 'dss'
   executable.name == 'microk8s'
-# executable.name == 'dss'
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
 command:
@@ -21,7 +16,7 @@ id: dss/namespace
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
@@ -31,7 +26,7 @@ id: dss/status_mlflow
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/namespace
 _summary: Check that the dss mlflow is deployed
 estimated_duration: 5s
@@ -43,7 +38,7 @@ id: dss/create_pytorch_cpu_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an PyTorch CPU notebook can be successfully created
 estimated_duration: 5m
@@ -53,7 +48,7 @@ id: cpu/pytorch_can_use_cpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that PyTorch can use CPU in notebook
 estimated_duration: 1m
@@ -63,7 +58,7 @@ id: dss/remove_pytorch_cpu_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that the PyTorch CPU notebook can be removed
 estimated_duration: 1m
@@ -73,7 +68,7 @@ id: dss/create_tensorflow_cpu_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an Tensorflow CPU notebook can be successfully created
 estimated_duration: 5m
@@ -83,7 +78,7 @@ id: cpu/tensorflow_can_use_cpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that Tensorflow can use CPU in notebook
 estimated_duration: 1m
@@ -93,7 +88,7 @@ id: dss/remove_tensorflow_cpu_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that the Tensorflow CPU notebook can be removed
 estimated_duration: 1m
@@ -109,7 +104,7 @@ imports:
   from com.canonical.certification import graphics_card
 requires:
   graphics_card.vendor == 'Intel Corporation'
-# executable.name == 'kubectl'
+  executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
@@ -122,7 +117,7 @@ id: intel_gpu_plugin/labels
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: intel_gpu_plugin/install
 _summary: Check that at least one k8s node has label Intel GPU label attached
 estimated_duration: 5s
@@ -135,7 +130,7 @@ id: dss/status_intel_gpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: intel_gpu_plugin/labels
 _summary: Check that DSS status reports Intel GPU acceleration is enabled
 estimated_duration: 5s
@@ -147,7 +142,7 @@ id: dss/create_tensorflow_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a Tensorflow Intel notebook can be successfully created
 estimated_duration: 5m
@@ -157,7 +152,7 @@ id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that Tensorflow can use XPU in the notebook
 estimated_duration: 1m
@@ -167,7 +162,7 @@ id: dss/remove_tensorflow_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that the Tensorflow Intel notebook can be removed
 estimated_duration: 1m
@@ -177,7 +172,7 @@ id: dss/create_pytorch_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a PyTorch Intel notebook can be successfully created
 estimated_duration: 5m
@@ -187,7 +182,7 @@ id: xpu/pytorch_can_use_xpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that Pytorch can use XPU in the notebook
 estimated_duration: 1m
@@ -197,7 +192,7 @@ id: dss/remove_pytorch_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that the PyTorch Intel notebook can be removed
 estimated_duration: 1m
@@ -214,7 +209,7 @@ imports:
 requires:
   graphics_card.vendor == 'NVIDIA Corporation'
   executable.name == 'microk8s'
-# executable.name == 'kubectl'
+  executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Enable NVIDIA GPU addon in microk8s
 estimated_duration: 10m
@@ -228,7 +223,7 @@ id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: microk8s_nvidia_gpu_addon/enable
 _summary: NVIDIA GPU validations should succeed
 estimated_duration: 10s
@@ -242,7 +237,7 @@ id: dss/status_nvidia_gpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: nvidia_gpu_addon/validations_succeed
 _summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
 estimated_duration: 5s
@@ -254,7 +249,7 @@ id: dss/create_pytorch_cuda_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an PyTorch CUDA notebook can be successfully created
 estimated_duration: 5m
@@ -264,7 +259,7 @@ id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check PyTorch can use CUDA
 estimated_duration: 1m
@@ -274,7 +269,7 @@ id: dss/remove_pytorch_cuda_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check that the PyTorch CUDA notebook can be removed
 estimated_duration: 1m
@@ -284,7 +279,7 @@ id: dss/create_tensorflow_cuda_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an Tensorflow CUDA notebook can be successfully created
 estimated_duration: 5m
@@ -294,7 +289,7 @@ id: cuda/tensorflow_can_use_cuda
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'kubectl'
+requires: executable.name == 'kubectl'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check Tensorflow can use CUDA
 estimated_duration: 1m
@@ -304,7 +299,7 @@ id: dss/remove_tensorflow_cuda_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
@@ -314,7 +309,7 @@ id: dss/purge
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-# requires: executable.name == 'dss'
+requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that DSS can be purged
 estimated_duration: 5m

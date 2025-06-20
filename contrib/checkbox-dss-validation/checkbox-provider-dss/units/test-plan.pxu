@@ -1,3 +1,10 @@
+id: setup-dss-validation
+unit: test plan
+_name: Setup to run DSS validations
+include:
+    setup_dss/install_snap_.*
+    setup_dss/install_package_.*
+
 id: dss-validation
 unit: test plan
 _name: DSS validations with Intel and NVIDIA GPUs if available

@@ -18,12 +18,17 @@ import os
 import subprocess as sp
 import sys
 import shlex
+from pathlib import Path
+import shutil
+import glob
 
 from packaging import version as version_parser
 
 from checkbox_support.helpers.retry import retry
 from gateway_ping_test import ping
 
+BACKUP_DIR = "/tmp/netplan_backup"  # hardcoded so that no one can send "/"
+NETPLAN_DIR = "/lib/netplan"
 
 print = functools.partial(print, flush=True)
 
@@ -386,6 +391,100 @@ def parser_args():
     return args
 
 
+def backup_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
+    """
+    Backup netplan YAML files from /etc/netplan/ to a
+    temporary directory, if there are.
+
+    Returns:
+        bool: True if the operation succeded.
+    """
+    netplan_pattern = os.path.join(netplan_dir, "*.yaml")
+
+    # Find all netplan YAML files
+    yaml_files = glob.glob(netplan_pattern)
+
+    if not yaml_files:
+        print("No netplan YAML files found")
+        return True
+
+    # Create temporary directory
+    Path(backup_dir).mkdir(parents=True, exist_ok=True)
+
+    # Copy each file to temp directory
+    for yaml_file in yaml_files:
+        filename = os.path.basename(yaml_file)
+        temp_path = os.path.join(backup_dir, filename)
+        shutil.copy2(yaml_file, temp_path)
+        # Then copy ownership
+        st = os.stat(yaml_file)
+        os.chown(temp_path, st.st_uid, st.st_gid)
+        print("Backed up: {} -> {}".format(yaml_file, temp_path))
+
+    print("Netplan files backed up to: {}", backup_dir)
+    return True
+
+
+def restore_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
+    """
+    Restore netplan YAML files from backup directory to /etc/netplan/.
+
+    Returns:
+        bool: True if restoration successful, False otherwise
+    """
+    if not backup_dir or not os.path.exists(backup_dir):
+        print("Backup directory does not exist: {}".format(netplan_dir))
+        return False
+
+    # Clean up existing netplan files first
+    existing_files = glob.glob(os.path.join(netplan_dir, "*.yaml"))
+    for existing_file in existing_files:
+        os.remove(existing_file)
+        print("Removed: {}".format(existing_file))
+
+    # Find all YAML files in backup directory
+    backup_pattern = os.path.join(backup_dir, "*.yaml")
+    backup_files = glob.glob(backup_pattern)
+
+    if not backup_files:
+        print("No netplan files found in backup directory")
+        return False
+
+    try:
+        # Restore each file
+        for backup_file in backup_files:
+            filename = os.path.basename(backup_file)
+            target_path = os.path.join(netplan_dir, filename)
+            shutil.copy2(backup_file, target_path)
+            # Then copy ownership
+            st = os.stat(backup_file)
+            os.chown(target_path, st.st_uid, st.st_gid)
+            print("Restored: {} -> {}".format(backup_file, target_path))
+
+        print("Netplan files restored successfully")
+        return True
+
+    except Exception as e:
+        print("Error during restoration: {}".format(e))
+        return False
+
+
+def cleanup_netplan_backup(backup_dir: str) -> bool:
+    """
+    Clean up temporary backup directory.
+    """
+    if not os.path.exists(backup_dir):
+        return True
+
+    try:
+        shutil.rmtree(backup_dir)
+        print("Cleaned up backup directory: {}".format(backup_dir))
+        return True
+    except Exception as e:
+        print("Error cleaning up backup: {}".format(e))
+        return False
+
+
 @retry(max_attempts=5, delay=60)
 def main():
     args = parser_args()
@@ -408,6 +507,11 @@ def main():
         )
 
     if args.func:
+        # backup the test plans, because nmcli corrupts them
+        # and debsums will complain afterwards
+        # This is ugly. Ideally, nmcli should be patched instead
+        backup_netplan_files(BACKUP_DIR, NETPLAN_DIR)
+
         delete_test_ap_ssid_connection()
         activated_uuid = get_nm_activate_connection()
         turn_down_nm_connections()
@@ -423,6 +527,8 @@ def main():
         finally:
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()
+            restore_netplan_files(BACKUP_DIR, NETPLAN_DIR)
+            cleanup_netplan_backup(BACKUP_DIR)
 
 
 if __name__ == "__main__":

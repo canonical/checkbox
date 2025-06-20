@@ -109,10 +109,12 @@ fields available from the jobs. To see what fields are available, run:
     checkbox.checkbox-cli list all-jobs --format ?
     
     Available fields are:
-    _description, _purpose, _siblings, _steps, _summary, _verification, after,
-    category_id, command, depends, environ, estimated_duration, flags, full_id,
-    id, imports, plugin, require, requires, template-engine, template-filter,
-    template-resource, template-unit, unit, user
+    _description, _purpose, _siblings, _steps, _summary, _template-summary,
+    _verification, after, before, category_id, command, depends, description,
+    environ, estimate_duration, estimated_duration, flags, full_id, id,
+    imports, plugin, purpose, require, requires, steps, summary,
+    template-engine, template-filter, template-id, template-resource,
+    template-unit, unit, user, verification
 
 .. note::
 
@@ -122,6 +124,13 @@ fields available from the jobs. To see what fields are available, run:
 
     The underscore before some of the fields names simply means the content
     of this field can be translated into another language.
+
+.. note::
+
+    There is currently a bug with this command. It does not actually list all
+    the available fields. It shows only the fields that are used throughout the
+    jobs that are in scope. In most cases, this will be all the fields
+    available, but a new field that is not used in any job will not be listed.
 
 To create a table listing each job id and their summary, run:
 

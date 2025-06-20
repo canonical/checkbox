@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 #
 # This file is part of Checkbox.
 #
@@ -48,9 +48,23 @@ def set_power_profile(profile):
     Raises:
         SystemExit: If the power profile could not be set.
     """
-    # In sys file the modes are low-power, balanced, or performance
+    # In sys file the modes are quiet, low-power, cool, balanced or performance
     # but powerprofilesctl only accepts power-saver, balanced or performance
-    profile = "power-saver" if profile == "low-power" else profile
+    profile_mappings = {
+        "low-power": "power-saver",
+        "power-saver": "power-saver",
+        "quiet": "power-saver",
+        "balanced": "balanced",
+        "balanced_performance": "balanced",
+        "cool": "balanced",
+        "performance": "performance",
+    }
+
+    if profile not in profile_mappings:
+        raise SystemExit("Unhandled ACPI platform profile: {}".format(profile))
+
+    profile = profile_mappings[profile]
+
     try:
         subprocess.check_call(["powerprofilesctl", "set", profile])
     except subprocess.CalledProcessError as e:

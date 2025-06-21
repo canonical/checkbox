@@ -323,15 +323,16 @@ class HardwareRendererTester:
             glmark2_executable += "-wayland"
         # if x11, don't add anything
 
+        glmark2_data_path = "/usr/share/glmark2"
         try:
-            if RUNTIME_ROOT:
+            if RUNTIME_ROOT and not os.path.exists(glmark2_data_path):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 is hard-coded inside glmark2
                 os.symlink(
                     "{}/usr/share/glmark2".format(RUNTIME_ROOT),
-                    "/usr/share/glmark2",
+                    glmark2_data_path,
                     target_is_directory=True,
                 )
             glmark2_output = sp.run(
@@ -352,9 +353,9 @@ class HardwareRendererTester:
             return False
         finally:
             # immediately cleanup
-            if RUNTIME_ROOT and os.path.islink("/usr/share/glmark2"):
+            if RUNTIME_ROOT and os.path.islink(glmark2_data_path):
                 print("Unlinking glmark2 data directory")
-                os.unlink("/usr/share/glmark2")
+                os.unlink(glmark2_data_path)
 
         if glmark2_output.returncode != 0:
             print(

@@ -1,6 +1,6 @@
 import shutil
 from shlex import split as sh_split
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, call, mock_open, patch, DEFAULT
 import reboot_check_test as RCT
 import unittest
 import os
@@ -15,77 +15,12 @@ def do_nothing(args: T.List[str], **kwargs):
         return sp.CompletedProcess(args, 0, "".encode(), "".encode())
 
 
-class UnitySupportParserTests(unittest.TestCase):
-    def setUp(self):
-        self.tester = RCT.HardwareRendererTester()
-
-    def test_parse_ok_unity_support_string(self):
-        OK_UNITY_STRING = """\
-        OpenGL vendor string:   Intel
-        OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
-        OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1
-
-        Not software rendered:    \x1b[033myes\x1b[0m
-        Not blacklisted:          \x1b[033myes\x1b[0m
-        GLX fbconfig:             \x1b[033myes\x1b[0m
-        GLX texture from pixmap:  \x1b[033myes\x1b[0m
-        GL npot or rect textures: \x1b[033myes\x1b[0m
-        GL vertex program:        \x1b[033myes\x1b[0m
-        GL fragment program:      \x1b[033myes\x1b[0m
-        GL vertex buffer object:  \x1b[033mno\x1b[0m
-        GL framebuffer object:    \x1b[033myes\x1b[0m
-        GL version is 1.4+:       \x1b[033myes\x1b[0m
-
-        Unity 3D supported:       \x1b[033myes\x1b[0m
-        """
-
-        expected = {
-            "OpenGL vendor string": "Intel",
-            "OpenGL renderer string": "Mesa Intel(R) UHD Graphics (ICL GT1)",
-            "OpenGL version string": "4.6 (Compatibility Profile) Mesa 23.2.1",
-            "Not software rendered": "yes",
-            "Not blacklisted": "yes",
-            "GLX fbconfig": "yes",
-            "GLX texture from pixmap": "yes",
-            "GL npot or rect textures": "yes",
-            "GL vertex program": "yes",
-            "GL fragment program": "yes",
-            "GL vertex buffer object": "no",
-            "GL framebuffer object": "yes",
-            "GL version is 1.4+": "yes",
-            "Unity 3D supported": "yes",
-        }
-
-        actual = self.tester.parse_unity_support_output(OK_UNITY_STRING)
-        self.assertDictEqual(expected, actual)
-
-    def test_parse_bad_unity_support_string(self):
-        BAD_UNITY_STRING = """
-        OpenGL vendor string   Intel
-        OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
-        OpenGL version string  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu
-        GL version is 1.4+%       \x1b[033myes\x1b[0m
-        """
-        actual = self.tester.parse_unity_support_output(BAD_UNITY_STRING)
-
-        expected = {
-            "OpenGL renderer string": "Mesa Intel(R) UHD Graphics (ICL GT1)",
-        }
-
-        self.assertDictEqual(expected, actual)
-
-        ARBITRARY_STRING = "askjaskdnasdn"
-        # should return empty dict if input string literally doesn't make sense
-        self.assertEqual(
-            self.tester.parse_unity_support_output(ARBITRARY_STRING),
-            {},
-        )
-
-
 class DisplayConnectionTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.tester = RCT.HardwareRendererTester()
+        RCT.RUNTIME_ROOT = ""
+        RCT.SNAP = ""
 
     def test_display_check_happy_path(self):
         with patch(
@@ -109,44 +44,268 @@ class DisplayConnectionTests(unittest.TestCase):
         ):
             self.assertFalse(self.tester.has_display_connection())
 
-    @patch(
-        "reboot_check_test.HardwareRendererTester.parse_unity_support_output"
-    )
-    @patch("subprocess.run")
-    def test_is_hardware_renderer_available(
-        self,
-        mock_run: MagicMock,
-        mock_parse: MagicMock,
+    @patch("builtins.print")
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_missing_env(
+        self, mock_getenv: MagicMock, mock_print: MagicMock
     ):
-        mock_run.side_effect = do_nothing
-        mock_parse.return_value = {
-            "Not software rendered": "yes",
-        }
+        mock_getenv.return_value = None
         tester = RCT.HardwareRendererTester()
-        self.assertTrue(tester.is_hardware_renderer_available())
+        self.assertFalse(tester.is_hardware_renderer_available())
+        mock_getenv.assert_has_calls(
+            [call("DISPLAY"), call("XDG_SESSION_TYPE")], any_order=True
+        )
+        mock_print.assert_has_calls(
+            [
+                # it exits early
+                call("$DISPLAY is not set, marking the test as failed"),
+            ],
+            any_order=True,
+        )
 
-    @patch(
-        "reboot_check_test.HardwareRendererTester.parse_unity_support_output"
-    )
+        mock_getenv.reset_mock()
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else None
+        )
+        self.assertFalse(tester.is_hardware_renderer_available())
+        mock_print.assert_has_calls(
+            [
+                call(
+                    "$XDG_SESSION_TYPE is not set, marking the test as failed"
+                ),
+            ],
+            any_order=True,
+        )
+
     @patch("subprocess.run")
+    @patch("os.getenv")
     def test_is_hardware_renderer_available_fail(
-        self,
-        mock_run: MagicMock,
-        mock_parse: MagicMock,
+        self, mock_getenv: MagicMock, mock_run: MagicMock
     ):
-        mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
-            [], 1, "", ""
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+        mock_run.return_value = sp.CompletedProcess(
+            [],
+            0,  # glmark2 returns 0 as long as it finishes
+            """
+=======================================================
+    glmark2 2014.03+git20150611.fa71af2d
+=======================================================
+    OpenGL Information
+    GL_VENDOR:     VMware, Inc.
+    GL_RENDERER:   llvmpipe (LLVM 10.0.0, 256 bits)
+    GL_VERSION:    3.1 Mesa 20.0.8
+=======================================================
+            """,
         )
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
         mock_run.reset_mock()
-        mock_run.side_effect = do_nothing
-        mock_parse.return_value = {
-            "Not software rendered": "no",
-        }
+        mock_run.return_value = sp.CompletedProcess(
+            [],
+            0,
+            """
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Mesa
+    GL_RENDERER:    softpipe
+    GL_VERSION:     3.3 (Compatibility Profile) Mesa 24.2.8-1ubuntu1~24.04.1
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================
+            """,
+        )
+        self.assertFalse(tester.is_hardware_renderer_available())
+
+        # somehow got no renderer string
+        mock_run.reset_mock()
+        mock_run.return_value = sp.CompletedProcess(
+            [],
+            0,
+            """
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Mesa
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================
+            """,
+        )
+        self.assertFalse(tester.is_hardware_renderer_available())
+
+        # Real life example:
+        # https://community.khronos.org/t/finding-opengl-es-2-0-mesa-
+        # 18-3-4-on-rhel-7-for-mfix/108359
+        mock_run.reset_mock()
+        mock_run.return_value = sp.CompletedProcess(
+            [],
+            0,
+            """
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Mesa
+    GL_RENDERER:    Software Rasterizer
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================
+            """,
+        )
+        self.assertFalse(tester.is_hardware_renderer_available())
+
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_glmark2_timeout(
+        self, mock_getenv: MagicMock, mock_run: MagicMock
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+
+        def mock_run_side_effect(*args, **kwargs):
+            if "glmark2" in args[0][0]:
+                raise sp.TimeoutExpired(
+                    ["glmark2"], 60, "glmark2 didn't return in 60 seconds"
+                )
+            else:
+                return DEFAULT
+
+        mock_run.side_effect = mock_run_side_effect
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
+
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_happy_path(
+        self, mock_getenv: MagicMock, mock_run: MagicMock
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+        mock_run.return_value = sp.CompletedProcess(
+            [],
+            0,  # glmark2 returns 0 as long as it finishes
+            """
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Intel
+    GL_RENDERER:    Mesa Intel(R) Graphics (LNL)
+    GL_VERSION:     4.6 (Compatibility Profile) Mesa 24.2.8-1ubuntu1~24.04.1
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================
+            """,
+        )
+        tester = RCT.HardwareRendererTester()
+        self.assertTrue(tester.is_hardware_renderer_available())
+
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_bad_session_type(
+        self, mock_getenv: MagicMock, mock_run: MagicMock
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "tty"
+        )
+        tester = RCT.HardwareRendererTester()
+        self.assertFalse(tester.is_hardware_renderer_available())
+
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_chooses_correct_glmark(
+        self, mock_getenv: MagicMock, mock_run: MagicMock
+    ):
+        mock_getenv.side_effect = lambda k: (
+            "x11" if k == "XDG_SESSION_TYPE" else ":0"
+        )
+        mock_run.side_effect = lambda *args, **kwargs: (
+            sp.CompletedProcess(args, 0, "x86_64")
+            if args[0][0] == "uname"
+            else DEFAULT
+        )
+        tester = RCT.HardwareRendererTester()
+        tester.is_hardware_renderer_available()
+        # -1 is most recent call -> (args, kwargs, ...)
+        # 0 takes the list of positional args
+        # 0 again takes the 1st positional arg
+        # last 0 is the 1st element in sp.run()'s command array
+        self.assertEqual(mock_run.call_args_list[-1][0][0][0], "glmark2")
+
+        mock_getenv.side_effect = lambda k: (
+            "wayland" if k == "XDG_SESSION_TYPE" else ":0"
+        )
+        tester.is_hardware_renderer_available()
+        # -1 is most recent call -> (args, kwargs, ...)
+        # 0 takes the list of positional args
+        # 0 again takes the 1st positional arg
+        # last 0 is the 1st element in sp.run()'s command array
+        self.assertEqual(
+            mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
+        )
+
+    @patch("os.path.islink")
+    @patch("os.unlink")
+    @patch("os.symlink")
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_cleanup_glmark2_data_symlink(
+        self,
+        mock_getenv: MagicMock,
+        mock_run: MagicMock,
+        mock_symlink: MagicMock,
+        mock_unlink: MagicMock,
+        mock_islink: MagicMock,
+    ):
+        def custom_env(key: str, is_snap: bool) -> str:
+            if key == "XDG_SESSION_TYPE":
+                return "wayland"
+            if key == "DISPLAY":
+                return ":0"
+            if key == "CHECKBOX_RUNTIME":
+                return "/snap/runtime/path/" if is_snap else ""
+            if key == "SNAP":
+                return "/snap/checkbox/path/" if is_snap else ""
+
+            raise Exception("unexpected use of this mock")
+
+        mock_run.side_effect = lambda *args, **kwargs: (
+            sp.CompletedProcess(args, 0, "x86_64")
+            if args[0][0] == "uname"
+            else DEFAULT
+        )
+
+        for is_snap in (True, False):
+
+            mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
+            RCT.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
+            RCT.SNAP = custom_env("SNAP", is_snap)
+            mock_islink.return_value = is_snap
+            # reapply the env variables
+            tester = RCT.HardwareRendererTester()
+            tester.is_hardware_renderer_available()
+
+            if is_snap:
+                mock_symlink.assert_called_once_with(
+                    "{}/usr/share/glmark2".format(RCT.RUNTIME_ROOT),
+                    "/usr/share/glmark2",
+                    target_is_directory=True,
+                )
+                mock_unlink.assert_called_once_with("/usr/share/glmark2")
+            else:
+                mock_symlink.assert_not_called()
+                mock_unlink.assert_not_called()
+
+            mock_symlink.reset_mock()
+            mock_unlink.reset_mock()
 
     def test_slow_boot_scenario(self):
 
@@ -388,11 +547,11 @@ class MainFunctionTests(unittest.TestCase):
             }
 
             actual = set()
-            for call in mock_run.call_args_list:
+            for _call in mock_run.call_args_list:
                 # [0] takes the 1st from (args, kwargs, ) = call,
                 # then take tha actual list from args
                 # then take the 1st element, which is the command name
-                actual.add(call[0][0][0])
+                actual.add(_call[0][0][0])
 
             # <= is an overloaded operator for sets
             # that checks the isSubset relation

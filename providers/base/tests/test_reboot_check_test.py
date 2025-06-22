@@ -252,6 +252,7 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
         )
 
+    @patch("os.path.exists")
     @patch("os.path.islink")
     @patch("os.unlink")
     @patch("os.symlink")
@@ -264,6 +265,7 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_symlink: MagicMock,
         mock_unlink: MagicMock,
         mock_islink: MagicMock,
+        mock_path_exists: MagicMock,
     ):
         def custom_env(key: str, is_snap: bool) -> str:
             if key == "XDG_SESSION_TYPE":
@@ -289,6 +291,8 @@ class DisplayConnectionTests(unittest.TestCase):
             RCT.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
             RCT.SNAP = custom_env("SNAP", is_snap)
             mock_islink.return_value = is_snap
+            # deb case, the file actually exists
+            mock_path_exists.return_value = not is_snap
             # reapply the env variables
             tester = RCT.HardwareRendererTester()
             tester.is_hardware_renderer_available()
@@ -576,3 +580,6 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
+
+if __name__ == "__main__":
+    unittest.main()

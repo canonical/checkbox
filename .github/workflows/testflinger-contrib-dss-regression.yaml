@@ -79,7 +79,7 @@ jobs:
           ls -lah
           echo "::endgroup::"
           echo "local_path="$(find . -name "checkbox-dss*.snap" -printf "%P\n" | head -1)"" >> $GITHUB_OUTPUT
-      - name: Build job file from template
+      - name: Build job and launcher files from templates
         id: build-job-file
         env:
           ENV_QUEUE: "${{ matrix.queue.name }}"
@@ -88,12 +88,22 @@ jobs:
           ENV_MICROK8S_CHANNEL: "${{ inputs.microk8s_channel }}"
           ENV_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
           ENV_LAUNCHER: "launchers/checkbox-dss.conf"
+          ENV_KUBECTL_CHANNEL: "${{ inputs.kubectl_channel }}"
         run: |
-          envsubst '$ENV_QUEUE $ENV_PROVISION_DATA $ENV_DSS_CHANNEL $ENV_MICROK8S_CHANNEL $ENV_CB_DSS_SNAP $ENV_LAUNCHER' \
+          envsubst '$ENV_DSS_CHANNEL $ENV_KUBECTL_CHANNEL' \
+            < testflinger/setup-def.conf > setup.conf
+          echo "::group::Built setup launcher"
+          cat setup.conf
+          echo "::endgroup::"
+
+          export ENV_SETUP_LAUNCHER=setup.conf
+
+          envsubst '$ENV_QUEUE $ENV_PROVISION_DATA $ENV_MICROK8S_CHANNEL $ENV_CB_DSS_SNAP $ENV_LAUNCHER $ENV_SETUP_LAUNCHER' \
             < testflinger/job-def.yaml > job.yaml
           echo "::group::Built job file"
           cat job.yaml
           echo "::endgroup::"
+
           echo "local_path=$PWD/job.yaml" >> $GITHUB_OUTPUT
       - name: Submit testflinger job
         uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a

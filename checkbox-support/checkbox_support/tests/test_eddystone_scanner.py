@@ -42,9 +42,11 @@ class TestEddystoneScanner(unittest.TestCase):
 
         mock_beacon_scanner.side_effect = BeaconScanner
         self.assertEqual(eddystone_scanner.beacon_scan("1", True), 0)
-        call_args = mock_beacon_scanner.mock_calls[0].kwargs
-        self.assertEqual(call_args["bt_device_id"], "1")
-        self.assertEqual(call_args["debug"], True)
+        call_args = mock_beacon_scanner.call_args
+        _, kwargs = call_args
+
+        self.assertEqual(kwargs["bt_device_id"], "1")
+        self.assertEqual(kwargs["debug"], True)
         mock_print.assert_called_with(
             "Eddystone beacon detected: [Adv Report Type: type] "
             "URL: packet_url <mac: address> <rssi: rssi>"

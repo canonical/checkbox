@@ -1,6 +1,6 @@
 import shutil
 from shlex import split as sh_split
-from unittest.mock import MagicMock, call, mock_open, patch, DEFAULT
+from unittest.mock import MagicMock, mock_open, patch, DEFAULT
 import reboot_check_test as RCT
 import unittest
 import os
@@ -44,51 +44,9 @@ class DisplayConnectionTests(unittest.TestCase):
         ):
             self.assertFalse(self.tester.has_display_connection())
 
-    # @patch(
-    #     "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
-    # )
-    # @patch("builtins.print")
-    # @patch("os.getenv")
-    # def test_is_hardware_renderer_available_missing_env(
-    #     self,
-    #     mock_getenv: MagicMock,
-    #     mock_print: MagicMock,
-    #     mock_get_desktop_envs,
-    # ):
-    #     mock_getenv.return_value = None
-    #     mock_get_desktop_envs.return_value = {
-    #         "DISPLAY": ":0",
-    #         "XDG_SESSION_TYPE": "wayland",
-    #     }
-    #     tester = RCT.HardwareRendererTester()
-    #     self.assertFalse(tester.is_hardware_renderer_available())
-    #     mock_getenv.assert_has_calls(
-    #         [call("DISPLAY"), call("XDG_SESSION_TYPE")], any_order=True
-    #     )
-    #     mock_print.assert_has_calls(
-    #         [
-    #             # it exits early
-    #             call("$DISPLAY is not set, marking the test as failed"),
-    #         ],
-    #         any_order=True,
-    #     )
-
-    #     mock_getenv.reset_mock()
-    #     mock_getenv.side_effect = lambda key: (
-    #         ":0" if key == "DISPLAY" else None
-    #     )
-    #     self.assertFalse(tester.is_hardware_renderer_available())
-    #     mock_print.assert_has_calls(
-    #         [
-    #             call(
-    #                 "$XDG_SESSION_TYPE is not set, marking the test as failed"
-    #             ),
-    #         ],
-    #         any_order=True,
-    #     )
-
     @patch(
-        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+        "reboot_check_test."
+        + "HardwareRendererTester.get_desktop_environment_variables"
     )
     @patch("subprocess.run")
     @patch("os.getenv")
@@ -202,7 +160,8 @@ class DisplayConnectionTests(unittest.TestCase):
         self.assertFalse(tester.is_hardware_renderer_available())
 
     @patch(
-        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+        "reboot_check_test."
+        + "HardwareRendererTester.get_desktop_environment_variables"
     )
     @patch("subprocess.run")
     @patch("os.getenv")
@@ -250,7 +209,8 @@ class DisplayConnectionTests(unittest.TestCase):
         self.assertFalse(tester.is_hardware_renderer_available())
 
     @patch(
-        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+        "reboot_check_test."
+        + "HardwareRendererTester.get_desktop_environment_variables"
     )
     @patch("subprocess.run")
     def test_is_hardware_renderer_available_chooses_correct_glmark(
@@ -289,7 +249,8 @@ class DisplayConnectionTests(unittest.TestCase):
         )
 
     @patch(
-        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+        "reboot_check_test."
+        + "HardwareRendererTester.get_desktop_environment_variables"
     )
     @patch("os.path.exists")
     @patch("os.path.islink")
@@ -563,7 +524,8 @@ class MainFunctionTests(unittest.TestCase):
             self.assertEqual(rv, 1)
 
     @patch(
-        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+        "reboot_check_test."
+        + "HardwareRendererTester.get_desktop_environment_variables"
     )
     @patch("subprocess.run")
     def test_main_function_full(
@@ -630,6 +592,3 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
-
-
-unittest.main()

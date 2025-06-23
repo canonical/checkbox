@@ -33,8 +33,8 @@ def get_timestamp_str() -> str:
 
 def get_current_boot_id() -> str:
     with open("/proc/sys/kernel/random/boot_id", "r") as f:
-        # the boot_id file has a Version 4 UUID with hypens
-        # journalctl doesn't use hypens so we just remove it
+        # the boot_id file has a Version 4 UUID with hyphens
+        # journalctl doesn't use hyphens so we just remove it
         return f.read().strip().replace("-", "")
 
 
@@ -382,6 +382,7 @@ class HardwareRendererTester:
                 stderr=sp.STDOUT,
                 universal_newlines=True,
                 timeout=60,
+                # literally dump all envs from gnome/unity to glmark2
                 env=desktop_env_vars,
             )
         except sp.TimeoutExpired:

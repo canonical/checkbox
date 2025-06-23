@@ -113,14 +113,14 @@ class MonitorTests(unittest.TestCase):
             "03", "6e", "02", "02", "11", "22", "33", "44", "55", "66",
             "77", "88", "99", "00", "11", "22", "33", "44", "55", "66",
         ]
-        packet = b"".join([int(p, 16).to_bytes() for p in pkts])
+        packet = b"".join([int(p, 16).to_bytes(1) for p in pkts])
         mon = Monitor()
         mon.debug = True
         event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
         self.assertEqual(event, int(pkts[3], 16))
         self.assertEqual(
             payload,
-            b"".join([int(p, 16).to_bytes() for p in pkts[14:-1]])
+            b"".join([int(p, 16).to_bytes(1) for p in pkts[14:-1]])
         )
         self.assertEqual(rssi, int(pkts[-1], 16))
         self.assertEqual(addr, "99:88:77:66:55:44")
@@ -136,14 +136,14 @@ class MonitorTests(unittest.TestCase):
             "77", "88", "99", "00", "11", "22", "33", "44", "55", "66",
             "77", "88", "99", "00", "11", "22", "33", "44", "55", "66",
         ]
-        packet = b"".join([int(p, 16).to_bytes() for p in pkts])
+        packet = b"".join([int(p, 16).to_bytes(1) for p in pkts])
         mon = Monitor()
         mon.debug = False
         event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
         self.assertEqual(event, int(pkts[3], 16))
         self.assertEqual(
             payload,
-            b"".join([int(p, 16).to_bytes() for p in pkts[29:]])
+            b"".join([int(p, 16).to_bytes(1) for p in pkts[29:]])
         )
         self.assertEqual(rssi, int(pkts[18], 16))
         self.assertEqual(addr, "99:88:77:66:55:44")
@@ -157,7 +157,7 @@ class MonitorTests(unittest.TestCase):
 
         pkts = ["03", "6e", "02", "ff", "11", "22", "33", "44", "55", "66"]
 
-        packet = b"".join([int(p, 16).to_bytes() for p in pkts])
+        packet = b"".join([int(p, 16).to_bytes(1) for p in pkts])
         mon = Monitor()
         mon.debug = False
         event, payload, rssi, addr = mon.analyze_le_adv_event(packet)

@@ -42,15 +42,16 @@ def init_bluetooth():
         btctl.kill()
 
 
-def beacon_scan(hci_device, debug):
+def beacon_scan(hci_device, debug=False):
     TIMEOUT = 10
 
-    beacon_mac = beacon_rssi = beacon_packet = ""
+    beacon_mac = beacon_rssi = beacon_packet = report_type = ""
 
-    def callback(bt_addr, rssi, packet, additional_info):
-        nonlocal beacon_mac, beacon_rssi, beacon_packet
-        beacon_mac, beacon_rssi, beacon_packet = bt_addr, rssi, packet
-
+    def callback(sub_event, bt_addr, rssi, packet, additional_info):
+        nonlocal beacon_mac, beacon_rssi, beacon_packet, report_type
+        report_type, beacon_mac, beacon_rssi, beacon_packet = (
+            sub_event, bt_addr, rssi, packet
+        )
     scanner = BeaconScanner(
         callback,
         bt_device_id=hci_device,
@@ -61,12 +62,14 @@ def beacon_scan(hci_device, debug):
     scanner.start()
     start = time.time()
     while not beacon_packet and time.time() - start < TIMEOUT:
-        time.sleep(1)
+        time.sleep(0.5)
     scanner.stop()
     if beacon_packet:
         print(
-            "Eddystone beacon detected: URL: {} <mac: {}> "
-            "<rssi: {}>".format(beacon_packet.url, beacon_mac, beacon_rssi)
+            "Eddystone beacon detected: [Adv Report Type: {}] URL: {} "
+            "<mac: {}> <rssi: {}>".format(
+                report_type, beacon_packet.url, beacon_mac, beacon_rssi
+            )
         )
         return 0
     print("No EddyStone URL advertisement detected!")

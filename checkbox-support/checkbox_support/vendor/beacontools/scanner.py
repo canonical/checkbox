@@ -1,6 +1,7 @@
 """Classes responsible for Beacon scanning."""
 import logging
 import struct
+import sys
 import threading
 from importlib import import_module
 from enum import IntEnum
@@ -156,17 +157,18 @@ class Monitor(threading.Thread):
             pkt = self.socket.recv(255)
             event = to_int(pkt[1])
             subevent = to_int(pkt[3])
-            # Print pkt for debugging purpose
-            if self.debug:
-                print(
-                    "BT PKT: {}".format(" ".join([hex(pk) for pk in pkt]))
-                )
+
             # Print opcode and error code when HCI command failed
             # This may helps to identify issue
             if event == EVT_CMD_COMPLETE and to_int(pkt[-1]) != 0:
-                opcode = "0x{}".format(pkt[-3: -1].hex())
+                # opcode = "0x{}".format(pkt[-3: -1].hex())
                 error_code = hex(to_int(pkt[-1]))
-                print("Warning: HCI Command failed. Opcode: ", opcode, ", Error code: ", error_code)
+                print(
+                    "Warning: HCI Command failed. "
+                    "Error code: {}, Payload: {}".format(
+                        error_code, pkt
+                    )
+                )
             elif event == LE_META_EVENT and subevent in [EVT_LE_ADVERTISING_REPORT, EVT_LE_EXT_ADVERTISING_REPORT]:
                 # we have an BLE advertisement
                 self.process_packet(pkt)
@@ -279,22 +281,70 @@ class Monitor(threading.Thread):
 
         self.backend.send_cmd(self.socket, OGF_LE_CTL, command_field, command)
 
+    def analyze_le_adv_event(self, pkt):
+        subevent = to_int(pkt[3])
+        if subevent == EVT_LE_ADVERTISING_REPORT:
+            rssi = bin_to_int(pkt[-1])
+            payload = pkt[14:-1]
+        elif subevent == EVT_LE_EXT_ADVERTISING_REPORT:
+            rssi = bin_to_int(pkt[18])
+            payload = pkt[29:]
+        else:
+            print("Error pkt: ", pkt)
+            return None, None, None, None
+        rssi = bin_to_int(
+            pkt[-1] if subevent == EVT_LE_ADVERTISING_REPORT else pkt[18]
+        )
+        bt_addr = bt_addr_to_string(pkt[7:13])
+        # Print pkt for debugging purpose
+        if self.debug:
+            print(
+                "Raw packet: {}".format(" ".join([hex(pk) for pk in pkt]))
+            )
+            print(
+                "LE Meta Event: subevent: {}, payload: {}, "
+                "rssi: {}, bt_addr: {}".format(
+                    hex(subevent),
+                    " ".join([hex(p) for p in payload]),
+                    rssi,
+                    bt_addr
+                )
+            )
+
+        return subevent, payload, rssi, bt_addr
+
     def process_packet(self, pkt):
         """Parse the packet and call callback if one of the filters matches."""
-        payload = pkt[14:-1] if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0 else pkt[29:]
-
-        # check if this could be a valid packet before parsing
-        # this reduces the CPU load significantly
-        if not self.kwtree.search(payload):
-            return
-
-        bt_addr = bt_addr_to_string(pkt[7:13])
-        rssi = bin_to_int(pkt[-1] if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0 else pkt[18])
+        subevent = payload = rssi = bt_addr = None
+        subevent, payload, rssi, bt_addr = self.analyze_le_adv_event(pkt)
         # strip bluetooth address and parse packet
-        packet = parse_packet(payload)
+        if payload:
+            packet = parse_packet(payload)
 
         # return if packet was not an beacon advertisement
         if not packet:
+            return
+
+        # For bluetooth 5.0+
+        # EVT_LE_EXT_ADVERTISING_REPORT with eddystone URL frame
+        #       is expected to received
+        # For bluetooth 4.0+
+        # EVT_LE_ADVERTISING_REPORT with eddystone URL frame
+        #       is expected to received
+        expect_evt = (
+            EVT_LE_EXT_ADVERTISING_REPORT
+            if self.hci_version >= HCIVersion.BT_CORE_SPEC_5_0
+            else EVT_LE_ADVERTISING_REPORT
+        )
+
+        if subevent != expect_evt:
+            print(
+                "Unexpected Eddystone beacon detected: Type: {} "
+                "URL: {} <mac: {}> <rssi: {}>".format(
+                    subevent, packet.url, bt_addr, rssi
+                ),
+                file=sys.stderr,
+            )
             return
 
         # we need to remeber which eddystone beacon has which bt address
@@ -306,12 +356,12 @@ class Monitor(threading.Thread):
 
         if self.device_filter is None and self.packet_filter is None:
             # no filters selected
-            self.callback(bt_addr, rssi, packet, properties)
+            self.callback(subevent, bt_addr, rssi, packet, properties)
 
         elif self.device_filter is None:
             # filter by packet type
             if is_one_of(packet, self.packet_filter):
-                self.callback(bt_addr, rssi, packet, properties)
+                self.callback(subevent, bt_addr, rssi, packet, properties)
         else:
             # filter by device and packet type
             if self.packet_filter and not is_one_of(packet, self.packet_filter):
@@ -322,11 +372,11 @@ class Monitor(threading.Thread):
             for filtr in self.device_filter:
                 if isinstance(filtr, BtAddrFilter):
                     if filtr.matches({'bt_addr':bt_addr}):
-                        self.callback(bt_addr, rssi, packet, properties)
+                        self.callback(subevent, bt_addr, rssi, packet, properties)
                         return
 
                 elif filtr.matches(properties):
-                    self.callback(bt_addr, rssi, packet, properties)
+                    self.callback(subevent, bt_addr, rssi, packet, properties)
                     return
 
     def save_bt_addr(self, packet, bt_addr):

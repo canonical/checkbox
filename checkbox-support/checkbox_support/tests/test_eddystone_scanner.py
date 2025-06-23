@@ -24,21 +24,28 @@ from checkbox_support.scripts import eddystone_scanner
 
 
 class TestEddystoneScanner(unittest.TestCase):
+    @patch("builtins.print")
     @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")
-    def test_beacon_scan_ok(self, mock_beacon_scanner):
+    def test_beacon_scan_ok(self, mock_beacon_scanner, mock_print):
         class BeaconScanner:
             def __init__(self, callback, *args, **kwargs):
                 self.callback = callback
 
             def start(self):
                 packet = MagicMock(url="packet_url")
-                self.callback("address", "rssi", packet, None)
+                self.callback("type", "address", "rssi", packet, None)
 
             def stop(self):
                 pass
 
         mock_beacon_scanner.side_effect = BeaconScanner
-        self.assertEqual(eddystone_scanner.beacon_scan("1"), 0)
+        self.assertEqual(eddystone_scanner.beacon_scan("1", True), 0)
+        call_args = mock_beacon_scanner.mock_calls[0].kwargs
+        self.assertEqual(call_args["bt_device_id"], "1")
+        self.assertEqual(call_args["debug"], True)
+        mock_print.assert_called_with(
+            "Eddystone beacon detected: [Adv Report Type: type] "
+            "URL: packet_url <mac: address> <rssi: rssi>")
 
     @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")
     @patch("time.time")
@@ -46,8 +53,9 @@ class TestEddystoneScanner(unittest.TestCase):
     def test_beacon_scan_fail(
         self, mock_sleep, mock_time, mock_beacon_scanner
     ):
-        mock_time.side_effect = [0, 60 * 60 * 60]  # 60h, trigger timeout
+        mock_time.side_effect = [0, 1, 60 * 60 * 60]  # 60h, trigger timeout
         self.assertEqual(eddystone_scanner.beacon_scan("1"), 1)
+        mock_sleep.assert_called_with(0.5)
 
     @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")
     @patch("checkbox_support.scripts.eddystone_scanner.InteractiveCommand")
@@ -61,7 +69,7 @@ class TestEddystoneScanner(unittest.TestCase):
 
             def start(self):
                 packet = MagicMock(url="packet_url")
-                self.callback("address", "rssi", packet, None)
+                self.callback("type", "address", "rssi", packet, None)
 
             def stop(self):
                 pass

@@ -218,6 +218,51 @@ class FwtsTester:
 
 class HardwareRendererTester:
 
+    def get_desktop_environment_variables(
+        self,
+    ) -> T.Optional[T.Dict[str, str]]:
+        """Gets all the environment variables used by the desktop process
+
+        :return: dict[str, str] similar to os.environ
+            None if the desktop process is not found
+        """
+        # "-s" guarantees at most 1 result
+        # do not use check_output here,
+        # pidof will return 1 when process is not found
+        gnome_pid = sp.run(["pidof", "-s", "gnome-shell"], stdout=sp.PIPE)
+        # TODO: remove unity related checks after 16.04 reaches EOL
+        compiz_pid = sp.run(  # 16.04 only
+            ["pidof", "-s", "compiz"], stdout=sp.PIPE
+        )
+
+        desktop_pid = None  # type: int | None
+        if gnome_pid.returncode == 0:
+            desktop_pid = int(gnome_pid.stdout)
+        elif compiz_pid.returncode == 0:
+            desktop_pid = int(compiz_pid.stdout)
+
+        if desktop_pid is None:
+            # this means the desktop failed to load
+            # or we are not in a graphical session
+            return None
+
+        # /proc/pid/environ is a null-char separated string
+        proc_env_strings = sp.check_output(
+            ["cat", "/proc/{}/environ".format(desktop_pid)],
+            universal_newlines=True,
+        ).split("\0")
+
+        # ideally we don't manually parse this and just use the env file
+        # but py3.5 only takes a mapping for the env param
+        desktop_env_vars = {}  # type: dict[str, str]
+        for env_str in proc_env_strings:
+            kv = env_str.split("=")  # DISPLAY=:0
+            if len(kv) == 2:
+                key, value = kv
+                desktop_env_vars[key] = value
+
+        return desktop_env_vars
+
     def has_display_connection(self) -> bool:
         """
         Checks if a display is connected by searching /sys/class/drm
@@ -282,31 +327,25 @@ class HardwareRendererTester:
         :rtype: bool
         """
 
-        DISPLAY = os.getenv("DISPLAY")
-        XDG_SESSION_TYPE = os.getenv("XDG_SESSION_TYPE")
-
-        if not DISPLAY:
-            print("$DISPLAY is not set, marking the test as failed")
+        desktop_env_vars = self.get_desktop_environment_variables()
+        if desktop_env_vars is None:
+            print(
+                "[ ERR ] Unable to get the environment variables "
+                "used by the current desktop. Is the desktop process running?"
+            )
             return False
 
-        if not XDG_SESSION_TYPE:
-            print("$XDG_SESSION_TYPE is not set, marking the test as failed")
-            return False
-
+        XDG_SESSION_TYPE = desktop_env_vars.get("XDG_SESSION_TYPE")
         if XDG_SESSION_TYPE not in ("x11", "wayland"):
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
             print(
-                "Unsupported session type: {}".format(XDG_SESSION_TYPE),
+                "[ WARN ] Unsupported session type: {}. ".format(
+                    XDG_SESSION_TYPE
+                )
+                + "Passing all envs to glmark2 as is",
                 file=sys.stderr,
             )
-            return False
-
-        print(
-            "Checking hardware renderer with these env variables:",
-            "DISPLAY={}".format(DISPLAY),
-            "XDG_SESSION_TYPE={}".format(XDG_SESSION_TYPE),
-        )
 
         cpu_arch = sp.check_output(
             ["uname", "-m"], universal_newlines=True
@@ -330,6 +369,7 @@ class HardwareRendererTester:
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 is hard-coded inside glmark2
+                print("[ DEBUG ] Symlinking glmark2 data")
                 os.symlink(
                     "{}/usr/share/glmark2".format(RUNTIME_ROOT),
                     glmark2_data_path,
@@ -354,7 +394,7 @@ class HardwareRendererTester:
         finally:
             # immediately cleanup
             if RUNTIME_ROOT and os.path.islink(glmark2_data_path):
-                print("Unlinking glmark2 data directory")
+                print("[ DEBUG ] Un-symlinking glmark2 data")
                 os.unlink(glmark2_data_path)
 
         if glmark2_output.returncode != 0:

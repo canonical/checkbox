@@ -455,7 +455,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         configuration["normal_user"] = self._normal_user
         try:
             _logger.info("remote: Starting new session.")
-            tps = self.sa.start_session(configuration)
+            tps = self.sa.start_session_json(configuration)
+            tps = json.loads(tps)
             if self.sa.sideloaded_providers:
                 _logger.warning("Agent is using sideloaded providers")
         except RuntimeError as exc:
@@ -604,7 +605,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             _logger.error('The test plan "%s" is not available!', tp)
             raise SystemExit(1)
         self._is_bootstrapping = True
-        bs_todo = self.sa.get_bootstrapping_todo_list()
+        bs_todo = json.loads(self.sa.get_bootstrapping_todo_list_json())
         for job_no, job_id in enumerate(bs_todo, start=1):
             print(
                 self.C.header(
@@ -616,13 +617,14 @@ class RemoteController(ReportsStage, MainLoopStage):
             self.sa.run_bootstrapping_job(job_id)
             self.wait_for_job()
         self._is_bootstrapping = False
-        self.jobs = self.sa.finish_bootstrap()
+        self.jobs = json.loads(self.sa.finish_bootstrap_json())
 
     def _strtobool(self, val):
         return val.lower() in ("y", "yes", "t", "true", "on", "1")
 
     def _save_manifest(self, interactive):
-        manifest_repr = self.sa.get_manifest_repr()
+        manifest_repr = self.sa.get_manifest_repr_json()
+        manifest_repr = json.loads(manifest_repr)
         if not manifest_repr:
             _logger.info("Skipping saving of the manifest")
             return
@@ -644,7 +646,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             to_save_manifest = {
                 conf["id"]: conf["value"] for conf in all_preconf
             }
-        self.sa.save_manifest(to_save_manifest)
+        self.sa.save_manifest_json(json.dumps(to_save_manifest))
 
     def select_jobs(self, all_jobs):
         if self.launcher.get_value("test selection", "forced"):
@@ -652,7 +654,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self._save_manifest(interactive=False)
         else:
             _logger.info("controller: Selecting jobs.")
-            reprs = json.loads(self.sa.get_jobs_repr(all_jobs))
+            reprs = json.loads(
+                self.sa.get_jobs_repr_json(json.dumps(all_jobs))
+            )
             wanted_set = CategoryBrowser(
                 "Choose tests to run on your system:", reprs
             ).run()
@@ -662,7 +666,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 # the original list
                 chosen_jobs = [job for job in all_jobs if job in wanted_set]
                 _logger.debug("controller: Selected jobs: %s", chosen_jobs)
-                self.sa.modify_todo_list(chosen_jobs)
+                self.sa.modify_todo_list_json(json.dumps(chosen_jobs))
             self._save_manifest(interactive=True)
         self.sa.finish_job_selection()
 
@@ -760,7 +764,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         ):
             self._handle_last_job_after_resume(resumed_ongoing_session_info)
         _logger.info("controller: Running jobs.")
-        jobs = self.sa.get_session_progress()
+        jobs = json.loads(self.sa.get_session_progress_json())
         _logger.debug(
             "controller: Jobs to be run:\n%s",
             "\n".join(["  " + job for job in jobs]),
@@ -768,7 +772,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         total_num = len(jobs["done"]) + len(jobs["todo"])
 
         jobs_repr = json.loads(
-            self.sa.get_jobs_repr(jobs["todo"], len(jobs["done"]))
+            self.sa.get_jobs_repr_json(
+                json.dumps(jobs["todo"]), len(jobs["done"])
+            )
         )
 
         self._run_jobs(jobs_repr, total_num)
@@ -901,6 +907,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         return True
 
     def _run_jobs(self, jobs_repr, total_num=0):
+        raise SystemExit("Done bootstrapping")
         for job in jobs_repr:
             job_state = self.sa.get_job_state(job["id"])
             self.sa.note_metadata_starting_job(job, job_state)

@@ -285,6 +285,12 @@ class RemoteSessionAssistant:
         return extra_env
 
     @allowed_when(Idle)
+    def start_session_json(self, configuration):
+        import json
+
+        return json.dumps(self.start_session(configuration))
+
+    @allowed_when(Idle)
     def start_session(self, configuration):
         self._reset_sa()
         _logger.info("start_session: %r", configuration)
@@ -338,6 +344,14 @@ class RemoteSessionAssistant:
         filtered_tps = set()
         for filter in self._launcher.get_value("test plan", "filter"):
             filtered_tps.update(fnmatch.filter(tps, filter))
+        launcher_tp_unit = self._launcher.get_value("test plan", "unit")
+        if (
+            self._launcher.get_value("test plan", "forced")
+            and launcher_tp_unit
+        ):
+            # this seems useless (as if the test plan selection is forced,
+            # the test selection screen won't be shown)
+            filtered_tps = {launcher_tp_unit}
         filtered_tps = list(filtered_tps)
         response = zip(
             filtered_tps,
@@ -347,7 +361,8 @@ class RemoteSessionAssistant:
         self._available_testplans = sorted(
             response, key=lambda x: x[1]
         )  # sorted by name
-        return self._available_testplans
+        self._available_testplans = list(self._available_testplans)
+        return list(self._available_testplans)
 
     def select_test_plan(self, test_plan_id):
         return self._sa.select_test_plan(test_plan_id)
@@ -371,8 +386,15 @@ class RemoteSessionAssistant:
         return False
 
     @allowed_when(Started)
+    def get_bootstrapping_todo_list_json(self):
+        return json.dumps(self.get_bootstrapping_todo_list())
+
+    @allowed_when(Started)
     def get_bootstrapping_todo_list(self):
         return self._sa.get_bootstrap_todo_list()
+
+    def finish_bootstrap_json(self):
+        return json.dumps(self.finish_bootstrap())
 
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
@@ -385,11 +407,21 @@ class RemoteSessionAssistant:
                 )
         return self._sa.get_static_todo_list()
 
+    def get_manifest_repr_json(self):
+        return json.dumps(self.get_manifest_repr())
+
     def get_manifest_repr(self):
         return self._sa.get_manifest_repr()
 
+    def save_manifest_json(self, manifest_answers):
+        manifest_answers = json.loads(manifest_answers)
+        return json.dumps(self.save_manifest(manifest_answers))
+
     def save_manifest(self, manifest_answers):
         return self._sa.save_manifest(manifest_answers)
+
+    def modify_todo_list_json(self, chosen_jobs):
+        self._sa.use_alternate_selection(json.loads(chosen_jobs))
 
     def modify_todo_list(self, chosen_jobs):
         self._sa.use_alternate_selection(chosen_jobs)
@@ -582,10 +614,14 @@ class RemoteSessionAssistant:
         if self.terminate_cb:
             self.terminate_cb()
 
+    def get_session_progress_json(self):
+        return json.dumps(self.get_session_progress())
+
     def get_session_progress(self):
         """Return list of completed and not completed jobs in a dict."""
 
         _logger.debug("get_session_progress()")
+        print("Called get_session_progress")
         return {
             "done": self._sa.get_dynamic_done_list(),
             "todo": self._sa.get_dynamic_todo_list(),
@@ -640,6 +676,10 @@ class RemoteSessionAssistant:
 
     def get_job_state(self, job_id):
         return self._sa.get_job_state(job_id)
+
+    def get_jobs_repr_json(self, job_ids, offset=0):
+        job_ids = json.loads(job_ids)
+        return self.get_jobs_repr(job_ids, offset)
 
     def get_jobs_repr(self, job_ids, offset=0):
         """

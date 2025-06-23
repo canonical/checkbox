@@ -1,0 +1,24 @@
+id: setup_dss/install_snap_kubectl
+category_id: setup-dss-regress
+flags: simple
+_summary: Install Snap kubectl
+estimated_duration: 2m
+command:
+  sudo snap install kubectl --classic --channel="${SETUP_KUBECTL_CHANNEL}"
+
+id: setup_dss/install_snap_data-science-stack
+category_id: setup-dss-regress
+flags: simple
+_summary: Install Snap data-science-stack
+estimated_duration: 2m
+command:
+  sudo snap install data-science-stack --channel="${SETUP_DSS_CHANNEL}"
+
+id: setup_dss/install_package_intel-gpu-tools
+category_id: setup-dss-regress
+flags: simple
+_summary: Install Package intel-gpu-tools
+estimated_duration: 2m
+command:
+  sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
+    apt-get install -y intel-gpu-tools

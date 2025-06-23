@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
 
-dss_snap_channel="latest/stable"
 microk8s_snap_channel="1.28/stable"
-kubectl_snap_channel="1.29/stable"
 
 setup_microk8s_snap() {
     echo -e "\nInstalling microk8s snap from channel $1"
@@ -35,13 +33,7 @@ setup_microk8s_snap() {
         deployment/coredns \
         deployment/hostpath-provisioner
     sudo microk8s.kubectl -n kube-system rollout status ds/calico-node
-}
 
-setup_kubectl_snap() {
-    # This is needed to overcome the following bug within microk8s:
-    # https://github.com/canonical/microk8s/issues/4453
-    echo -e "\nInstalling kubectl snap from channel $1"
-    sudo snap install kubectl --classic --channel="$1"
     # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
     # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
     sudo microk8s.kubectl config view --raw | tee "${SNAP_REAL_HOME}/.kube/config" >/dev/null
@@ -49,41 +41,22 @@ setup_kubectl_snap() {
 
 help_function() {
     echo "This script is used install all dependencies for checkbox-dss to run; defaults for optional arguments are shown in usage"
-    echo "Usage: checkbox-dss.install-deps [--dss-snap-channel $dss_snap_channel] [--microk8s-snap-channel $microk8s_snap_channel] [--kubectl-snap-channel $kubectl_snap_channel]"
+    echo "Usage: checkbox-dss.install-deps [--microk8s-snap-channel $microk8s_snap_channel]"
 }
 
 main() {
     while [ $# -ne 0 ]; do
         case $1 in
-        --dss-snap-channel)
-            dss_snap_channel="$2"
-            shift 2
-            ;;
         --microk8s-snap-channel)
             microk8s_snap_channel="$2"
-            shift 2
-            ;;
-        --kubectl-snap-channel)
-            kubectl_snap_channel="$2"
             shift 2
             ;;
         *) help_function ;;
         esac
     done
 
-    echo -e "\n Step 1/4: Setting up microk8s"
+    echo -e "\n : Setting up microk8s"
     setup_microk8s_snap "$microk8s_snap_channel"
-
-    echo -e "\n Step 2/4: Setting up kubectl"
-    setup_kubectl_snap "$kubectl_snap_channel"
-
-    # intel_gpu_top command used for host-level GPU check
-    # jq used for cases where jsonpath is insufficient for parsing json results
-    echo -e "\nStep 3/4: Installing intel-gpu-tools"
-    DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a sudo -E apt install -y intel-gpu-tools jq
-
-    echo -e "\nStep 4/4: Installing data-science-stack snap from channel $dss_snap_channel"
-    sudo snap install data-science-stack --channel "$dss_snap_channel"
 }
 
 main "$@"

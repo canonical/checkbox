@@ -32,20 +32,20 @@ systemctl status snap.checkbox-dss.remote-slave.service
 
 # Install dependencies
 
-Some test need dependencies, and a helper script is available to install them:
+> [!NOTE]
+> We are migrating to using `setup_include` from Checkbox.
+> While it is not available, installing dependencies is currently a 2 stage process.
+> Most importantly, the `install-deps` **will soon be removed**.
+
+## `microk8s`
+
+Run the helper script `install-deps` as shown below:
 
 ```shell
 checkbox-dss.install-deps
 ```
 
-By default this will install the `data-science-stack` snap from the `latest/stable`
-channel. To instead install from `latest/edge` use:
-
-```shell
-checkbox-dss.install-deps --dss-snap-channel latest/edge
-```
-
-Furthermore, the default `microk8s` snap channel is `1.28/stable` in classic mode,
+By default this will install `microk8s` from `1.28/stable` in classic mode,
 but this can be customized as
 (please note that this snap must to be `--classic` to enable GPU support):
 
@@ -53,9 +53,24 @@ but this can be customized as
 checkbox-dss.install-deps --microk8s-snap-channel 1.31/stable
 ```
 
-These validations also need the `kubectl` snap installed, and the default channel
-used for that is `1.29/stable`, but can be customized as shown previously by passing
-the appropriate channel name for `--kubectl-snap-channel`.
+## `data-science-stack`, `kubectl`, and `intel-gpu-tools`
+
+> [!NOTE]
+> This step will become unnecessary once we can use `setup_include` from Checkbox.
+
+Run Checkbox CLI with the setup launcher:
+
+```shell
+checkbox-dss.checkbox-cli control 127.0.0.1 launchers/setup.conf
+```
+
+By default it will attempt to install the following:
+
+- `data-science-stack` snap from channel `1.0/stable`
+- `kubectl` snap from `1.29/stable`
+- `intel-gpu-tools` package
+
+Please edit the environment section in the setup launcher to customize the channels.
 
 # Automated Run
 
@@ -102,7 +117,7 @@ The jobs in the provider are implemented as Python scripts, located in `checkbox
 
 Please note that only Python 3.10 is currently tested, and will be the minimum supported version for the foreseeable future.
 
-Running the tests locally may require some additional packages.  Here's what a run from clean slate may look like:
+Running the tests locally may require some additional packages. Here's what a run from clean slate may look like:
 
 ```console
 $ sudo apt install python3-dev python3-venv shellcheck pkg-config gcc

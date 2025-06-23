@@ -32,6 +32,10 @@ on:
         description: "Channel of the microk8s snap to deploy"
         default: "1.28/stable"
         type: string
+      kubectl_channel:
+        description: "Channel of kubectl snap to use"
+        default: "1.29/stable"
+        type: string
 
 jobs:
   checkbox-dss-snap-build:

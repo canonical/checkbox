@@ -24,14 +24,13 @@ Tests for checkbox_support.vendor.beacontools.scanner module
 """
 
 import unittest
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 
 from checkbox_support.vendor.beacontools.scanner import HCIVersion
 from checkbox_support.vendor.beacontools.scanner import Monitor
 from checkbox_support.vendor.beacontools.device_filters import (
-    BtAddrFilter, DeviceFilter
+    BtAddrFilter,
+    DeviceFilter,
 )
 
 
@@ -109,19 +108,17 @@ class MonitorTests(unittest.TestCase):
     def test_analyze_le_adv_event_report(self, mock_mon_init, mock_print):
         mock_mon_init.return_value = None
 
-        pkts = [
-            "03", "6e", "02", "02", "11", "22", "33", "44", "55", "66",
-            "77", "88", "99", "00", "11", "22", "33", "44", "55", "66",
-        ]
-        packet = b"".join([int(p, 16).to_bytes(1, byteorder="big") for p in pkts])
+        pkts = (
+            "03 6e 02 02 11 22 33 44 55 66 77 88 99 00 11 22 33 44 55 66"
+        ).split()
+        packet = b"".join(
+            [int(p, 16).to_bytes(1, byteorder="big") for p in pkts]
+        )
         mon = Monitor()
         mon.debug = True
         event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
         self.assertEqual(event, int(pkts[3], 16))
-        self.assertEqual(
-            payload,
-            b"".join([int(p, 16).to_bytes(1, byteorder="big") for p in pkts[14:-1]])
-        )
+        self.assertEqual(payload, packet[14:-1])
         self.assertEqual(rssi, int(pkts[-1], 16))
         self.assertEqual(addr, "99:88:77:66:55:44")
         mock_print.assert_called()
@@ -130,21 +127,18 @@ class MonitorTests(unittest.TestCase):
     def test_analyze_le_adv_ext_event_report(self, mock_mon_init):
         mock_mon_init.return_value = None
 
-        pkts = [
-            "03", "6e", "02", "0d", "11", "22", "33", "44", "55", "66",
-            "77", "88", "99", "00", "11", "22", "33", "44", "55", "66",
-            "77", "88", "99", "00", "11", "22", "33", "44", "55", "66",
-            "77", "88", "99", "00", "11", "22", "33", "44", "55", "66",
-        ]
-        packet = b"".join([int(p, 16).to_bytes(1, byteorder="big") for p in pkts])
+        pkts = (
+            "03 6e 02 0d 11 22 33 44 55 66 77 88 99 00 11 22 33 44 55 66 "
+            "77 88 99 00 11 22 33 44 55 66 77 88 99 00 11 22 33 44 55 66"
+        ).split()
+        packet = b"".join(
+            [int(p, 16).to_bytes(1, byteorder="big") for p in pkts]
+        )
         mon = Monitor()
         mon.debug = False
         event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
         self.assertEqual(event, int(pkts[3], 16))
-        self.assertEqual(
-            payload,
-            b"".join([int(p, 16).to_bytes(1, byteorder="big") for p in pkts[29:]])
-        )
+        self.assertEqual(payload, packet[29:])
         self.assertEqual(rssi, int(pkts[18], 16))
         self.assertEqual(addr, "99:88:77:66:55:44")
 
@@ -157,7 +151,9 @@ class MonitorTests(unittest.TestCase):
 
         pkts = ["03", "6e", "02", "ff", "11", "22", "33", "44", "55", "66"]
 
-        packet = b"".join([int(p, 16).to_bytes(1, byteorder="big") for p in pkts])
+        packet = b"".join(
+            [int(p, 16).to_bytes(1, byteorder="big") for p in pkts]
+        )
         mon = Monitor()
         mon.debug = False
         event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
@@ -167,10 +163,14 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(addr, None)
         mock_print.assert_called()
 
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.get_properties")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
     @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
     def test_process_packet_no_filter_ok(
         self, mock_init, mock_ana, mock_parse, mock_addr, mock_properties
@@ -199,10 +199,14 @@ class MonitorTests(unittest.TestCase):
         )
 
     @patch("checkbox_support.vendor.beacontools.scanner.is_one_of")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.get_properties")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
     @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
     def test_process_packet_packet_filter_ok(
         self,
@@ -239,10 +243,14 @@ class MonitorTests(unittest.TestCase):
         )
 
     @patch("checkbox_support.vendor.beacontools.scanner.is_one_of")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.get_properties")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
     @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
     def test_process_packet_device_filter_not_match(
         self,
@@ -278,10 +286,14 @@ class MonitorTests(unittest.TestCase):
 
     @patch.object(BtAddrFilter, "matches")
     @patch("checkbox_support.vendor.beacontools.scanner.is_one_of")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.get_properties")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
     @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
     def test_process_packet_filters_addr_ok(
         self,
@@ -321,10 +333,14 @@ class MonitorTests(unittest.TestCase):
 
     @patch.object(DeviceFilter, "matches")
     @patch("checkbox_support.vendor.beacontools.scanner.is_one_of")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.get_properties")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
     @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
+    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
     def test_process_packet_filters_device_ok(
         self,

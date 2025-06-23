@@ -17,9 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import argparse
 import unittest
 from unittest.mock import patch, MagicMock
 
+from checkbox_support.helpers.timeout import mock_timeout
 from checkbox_support.scripts import eddystone_scanner
 
 
@@ -45,7 +47,8 @@ class TestEddystoneScanner(unittest.TestCase):
         self.assertEqual(call_args["debug"], True)
         mock_print.assert_called_with(
             "Eddystone beacon detected: [Adv Report Type: type] "
-            "URL: packet_url <mac: address> <rssi: rssi>")
+            "URL: packet_url <mac: address> <rssi: rssi>"
+        )
 
     @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")
     @patch("time.time")
@@ -57,11 +60,13 @@ class TestEddystoneScanner(unittest.TestCase):
         self.assertEqual(eddystone_scanner.beacon_scan("1"), 1)
         mock_sleep.assert_called_with(0.5)
 
-    @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")
-    @patch("checkbox_support.scripts.eddystone_scanner.InteractiveCommand")
-    @patch("time.sleep")
+    @mock_timeout()
+    @patch.object(argparse.ArgumentParser, "parse_args")
+    @patch.object(argparse.ArgumentParser, "add_argument")
+    @patch("checkbox_support.scripts.eddystone_scanner.beacon_scan")
+    @patch("checkbox_support.scripts.eddystone_scanner.init_bluetooth")
     def test_main_ok(
-        self, mock_sleep, mock_interactive_command, mock_beacon_scanner
+        self, mock_init, mock_beacon_scan, mock_add_arg, mock_parse_args
     ):
         class BeaconScanner:
             def __init__(self, callback, *args, **kwargs):
@@ -69,10 +74,21 @@ class TestEddystoneScanner(unittest.TestCase):
 
             def start(self):
                 packet = MagicMock(url="packet_url")
-                self.callback("type", "address", "rssi", packet, None)
+                self.callback("address", "rssi", packet, None)
 
             def stop(self):
                 pass
 
-        mock_beacon_scanner.side_effect = BeaconScanner
-        self.assertEqual(eddystone_scanner.main(["--device", "hc1"]), 0)
+        mock_parse_args.return_value = argparse.Namespace(
+            device="hci1", debug=True
+        )
+        mock_beacon_scan.return_value = 0
+
+        input_args = ["--device", "hci1", "--debug"]
+        self.assertEqual(eddystone_scanner.main(input_args), 0)
+
+        mock_add_arg.assert_called_with(
+            "--debug", action="store_true", default=False
+        )
+        mock_init.assert_called_once()
+        mock_beacon_scan.assert_called_with(1, True)

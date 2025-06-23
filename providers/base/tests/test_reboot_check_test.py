@@ -82,7 +82,7 @@ class DisplayConnectionTests(unittest.TestCase):
         self.assertIsNotNone(out)
 
         self.assertDictEqual(
-            out, # type: ignore
+            out,  # type: ignore
             {
                 "XDG_CONFIG_DIRS": "/etc/xdg/xdg-ubuntu:/etc/xdg",
                 "XDG_CURRENT_DESKTOP": "ubuntu:GNOME",

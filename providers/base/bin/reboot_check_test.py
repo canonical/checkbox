@@ -256,7 +256,7 @@ class HardwareRendererTester:
         # but py3.5 only takes a mapping for the env param
         desktop_env_vars = {}  # type: dict[str, str]
         for env_str in proc_env_strings:
-            kv = env_str.split("=")  # DISPLAY=:0
+            kv = env_str.split("=", maxsplit=1)  # DISPLAY=:0
             if len(kv) == 2:
                 key, value = kv
                 desktop_env_vars[key] = value

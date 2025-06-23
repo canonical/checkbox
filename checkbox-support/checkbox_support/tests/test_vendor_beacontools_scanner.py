@@ -61,7 +61,7 @@ class MonitorTests(unittest.TestCase):
         self, mock_import, mock_get_mode, mock_keyword, mock_bytes
     ):
         mock_import.return_value = "import"
-        mock_get_mode.return_value = 100
+        mock_get_mode.return_value = 1000
 
         mock_instance = Mock()
         mock_instance.add.return_value = None
@@ -84,14 +84,14 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(mon.debug, True)
         self.assertEqual(mon.bt_device_id, "1")
         self.assertEqual(mon.device_filter, "dev_filter")
-        self.assertEqual(mon.mode, 100)
+        self.assertEqual(mon.mode, 1000)
         self.assertEqual(mon.packet_filter, "pkt_filter")
         self.assertEqual(mon.socket, None)
         self.assertEqual(mon.eddystone_mappings, [])
         self.assertEqual(mon.scan_parameters, "scan_params")
         self.assertEqual(mon.hci_version, HCIVersion.BT_CORE_SPEC_1_0)
         self.assertEqual(mon.kwtree, mock_instance)
-        mock_instance.add.assert_called()
+        mock_instance.add.assert_called_with(b"bytesr\x04")
         mock_instance.finalize.assert_called_once()
 
     def test_run_ok(self):
@@ -121,7 +121,10 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(payload, packet[14:-1])
         self.assertEqual(rssi, int(pkts[-1], 16))
         self.assertEqual(addr, "99:88:77:66:55:44")
-        mock_print.assert_called()
+        mock_print.assert_called_with(
+            "LE Meta Event: subevent: 0x2, payload: 0x11 0x22 0x33 0x44 0x55, "
+            "rssi: 102, bt_addr: 99:88:77:66:55:44"
+        )
 
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
     def test_analyze_le_adv_ext_event_report(self, mock_mon_init):
@@ -161,7 +164,7 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(payload, None)
         self.assertEqual(rssi, None)
         self.assertEqual(addr, None)
-        mock_print.assert_called()
+        mock_print.assert_called_with("Error pkt: ", packet)
 
     @patch(
         "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"

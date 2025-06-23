@@ -50,8 +50,12 @@ def beacon_scan(hci_device, debug=False):
     def callback(sub_event, bt_addr, rssi, packet, additional_info):
         nonlocal beacon_mac, beacon_rssi, beacon_packet, report_type
         report_type, beacon_mac, beacon_rssi, beacon_packet = (
-            sub_event, bt_addr, rssi, packet
+            sub_event,
+            bt_addr,
+            rssi,
+            packet,
         )
+
     scanner = BeaconScanner(
         callback,
         bt_device_id=hci_device,

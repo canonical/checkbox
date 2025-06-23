@@ -65,7 +65,8 @@ test_data:
     # XXX:@motjuste: will be part of main test plan when setup_include is available
     PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP $RESOURCES_PATH/$ENV_SETUP_LAUNCHER
     EXITCODE=$?
-    [ $EXITCODE ] && exit $EXITCODE
+    if [ $EXITCODE -ne 0 ]; then exit $EXITCODE
+    fi
 
     # run the test plan
     PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP $RESOURCES_PATH/$ENV_LAUNCHER

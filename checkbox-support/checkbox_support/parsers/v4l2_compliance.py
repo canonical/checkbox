@@ -18,7 +18,7 @@ TEST_NAME_TO_IOCTL_MAP = {
     "VIDIOC_G/S_TUNER/ENUM_FREQ_BANDS": [
         "VIDIOC_G_TUNER",
         "VIDIOC_S_TUNER",
-        "VIDIO_ENUM_FREQ_BANDS",
+        "VIDIOC_ENUM_FREQ_BANDS",
     ],
     "VIDIOC_S_HW_FREQ_SEEK": ["VIDIOC_S_HW_FREQ_SEEK"],
     "VIDIOC_ENUMAUDIO": ["VIDIOC_ENUMAUDIO"],
@@ -145,12 +145,14 @@ def parse_v4l2_compliance(
     """
 
     if device is not None:
+        # since any failure => return code 1
+        # can't really depend on the return code or use check_output here
         out = sp.run(
             ["v4l2-compliance", "-d", str(device)],
             universal_newlines=True,
             stdout=sp.PIPE,
             stderr=sp.PIPE,
-        )  # can't really depend on the return code here
+        )  
     else:
         out = sp.run(
             ["v4l2-compliance"],
@@ -158,7 +160,7 @@ def parse_v4l2_compliance(
             stdout=sp.PIPE,
             stderr=sp.PIPE,
         )
-    # since any failure => return code 1
+    
 
     error_prefixes = ("Failed to open", "Cannot open device")
     if any(out.stderr.startswith(prefix) for prefix in error_prefixes):

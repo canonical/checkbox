@@ -152,7 +152,7 @@ def parse_v4l2_compliance(
             universal_newlines=True,
             stdout=sp.PIPE,
             stderr=sp.PIPE,
-        )  
+        )
     else:
         out = sp.run(
             ["v4l2-compliance"],
@@ -160,7 +160,6 @@ def parse_v4l2_compliance(
             stdout=sp.PIPE,
             stderr=sp.PIPE,
         )
-    
 
     error_prefixes = ("Failed to open", "Cannot open device")
     if any(out.stderr.startswith(prefix) for prefix in error_prefixes):

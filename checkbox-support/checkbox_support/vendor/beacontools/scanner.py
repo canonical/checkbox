@@ -315,7 +315,7 @@ class Monitor(threading.Thread):
 
     def process_packet(self, pkt):
         """Parse the packet and call callback if one of the filters matches."""
-        subevent = payload = rssi = bt_addr = None
+        subevent = payload = rssi = bt_addr = packet = None
         subevent, payload, rssi, bt_addr = self.analyze_le_adv_event(pkt)
         # strip bluetooth address and parse packet
         if payload:

@@ -92,5 +92,5 @@ class TestEddystoneScanner(unittest.TestCase):
         mock_add_arg.assert_called_with(
             "--debug", action="store_true", default=False
         )
-        mock_init.assert_called_once()
+        mock_init.assert_called_once_with()
         mock_beacon_scan.assert_called_with(1, True)

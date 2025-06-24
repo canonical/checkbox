@@ -836,7 +836,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         _logger.info("controller: Exporting locally'")
         rf = self.sa.cache_report(exporter_id, options)
         exported_stream = SpooledTemporaryFile(max_size=102400, mode="w+b")
-        chunk_size = 16384
+        chunk_size = 160 * 1024
         with tqdm(
             total=rf.tell(),
             unit="B",

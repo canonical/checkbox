@@ -455,7 +455,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         configuration["normal_user"] = self._normal_user
         try:
             _logger.info("remote: Starting new session.")
-            tps = self.sa.start_session_json(configuration)
+            tps = self.sa.start_session_json(json.dumps(configuration))
             tps = json.loads(tps)
             if self.sa.sideloaded_providers:
                 _logger.warning("Agent is using sideloaded providers")
@@ -714,18 +714,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 stack.callback(signal.signal, signal.SIGINT, tmp_sig)
                 self._export_results()
         # let's see if any of the jobs failed, if so, let's return an error code of 1
-        job_state_map = (
-            self._sa.manager.default_device_context._state._job_state_map
-        )
-        failing_outcomes = (
-            IJobResult.OUTCOME_FAIL,
-            IJobResult.OUTCOME_CRASH,
-        )
-        self._has_anything_failed = any(
-            job.result.outcome in failing_outcomes
-            for job in job_state_map.values()
-        )
-
+        self._has_anything_failed = self.sa.has_any_job_failed()
         self.sa.finalize_session()
         return False
 
@@ -796,9 +785,12 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def wait_for_job(self, dont_finish=False):
         _logger.info("controller: Waiting for job to finish.")
+        polling_backoff = [0, 0.1, 0.2, 0.5]
+        polling_i = 0
         while True:
             state, payload = self.sa.monitor_job()
             if payload and not self._is_bootstrapping:
+                polling_i = 0
                 for line in payload.splitlines():
                     if line.startswith("stderr"):
                         SimpleUI.red_text(line[6:])
@@ -807,7 +799,8 @@ class RemoteController(ReportsStage, MainLoopStage):
                     else:
                         SimpleUI.black_text(line[6:])
             if state == "running":
-                time.sleep(0.5)
+                time.sleep(polling_backoff[polling_i])
+                polling_i = min(polling_i + 1, len(polling_backoff))
                 while True:
                     res = select.select([sys.stdin], [], [], 0)
                     if not res[0]:
@@ -907,10 +900,10 @@ class RemoteController(ReportsStage, MainLoopStage):
         return True
 
     def _run_jobs(self, jobs_repr, total_num=0):
-        raise SystemExit("Done bootstrapping")
         for job in jobs_repr:
             job_state = self.sa.get_job_state(job["id"])
-            self.sa.note_metadata_starting_job(job, job_state)
+            # Note: job_state is a remote object, no need to json encode it
+            self.sa.note_metadata_starting_job_json(json.dumps(job), job_state)
             SimpleUI.header(
                 _("Running job {} / {}").format(
                     job["num"], total_num, fill="-"

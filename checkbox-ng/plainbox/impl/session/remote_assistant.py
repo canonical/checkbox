@@ -175,6 +175,11 @@ class RemoteSessionAssistant:
         self.session_change_lock.acquire(blocking=False)
         self.session_change_lock.release()
 
+    def note_metadata_starting_job_json(self, job, job_state):
+        # job_state is a netref, it lives on this (agent) side!
+        job = json.loads(job)
+        return self.note_metadata_starting_job(job, job_state)
+
     def note_metadata_starting_job(self, job, job_state):
         self._sa.note_metadata_starting_job(job, job_state)
 
@@ -185,6 +190,12 @@ class RemoteSessionAssistant:
     @property
     def config(self):
         return self._sa.config
+
+    def configuration_type(self):
+        return Configuration
+
+    def get_config_json(self):
+        return json.dumps(self._sa.config.sections)
 
     def update_app_blob(self, app_blob):
         self._sa.update_app_blob(app_blob)
@@ -286,9 +297,7 @@ class RemoteSessionAssistant:
 
     @allowed_when(Idle)
     def start_session_json(self, configuration):
-        import json
-
-        return json.dumps(self.start_session(configuration))
+        return json.dumps(self.start_session(json.loads(configuration)))
 
     @allowed_when(Idle)
     def start_session(self, configuration):
@@ -627,6 +636,17 @@ class RemoteSessionAssistant:
             "todo": self._sa.get_dynamic_todo_list(),
         }
 
+    def finish_job_json(self, result=None):
+        if result:
+            result = json.loads(result)
+        result = self.finish_job(result)
+        return json.dumps(
+            {
+                "tr_outcome": result.tr_outcome(),
+                "outcome_color": result.outcome_color_ansi(),
+            }
+        )
+
     def finish_job(self, result=None):
         # assert the thread completed
         self.session_change_lock.acquire(blocking=False)
@@ -846,6 +866,19 @@ class RemoteSessionAssistant:
                 ) - len(job_state.result_history)
 
         self._state = TestsSelected
+
+    def has_any_job_failed(self):
+        job_state_map = (
+            self.manager.default_device_context._state._job_state_map
+        )
+        failing_outcomes = (
+            IJobResult.OUTCOME_FAIL,
+            IJobResult.OUTCOME_CRASH,
+        )
+        return any(
+            job.result.outcome in failing_outcomes
+            for job in job_state_map.values()
+        )
 
     def finalize_session(self):
         self._sa.finalize_session()

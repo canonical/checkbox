@@ -92,7 +92,7 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(mon.hci_version, HCIVersion.BT_CORE_SPEC_1_0)
         self.assertEqual(mon.kwtree, mock_instance)
         mock_instance.add.assert_called_with(b"bytesr\x04")
-        mock_instance.finalize.assert_called_once()
+        mock_instance.finalize.assert_called_once_with()
 
     def test_run_ok(self):
         pass

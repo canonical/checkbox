@@ -494,7 +494,8 @@ def main():
         # and debsums will complain afterwards
         # This is ugly. Ideally, nmcli should be patched instead
         temp_dir = tempfile.TemporaryDirectory()
-        backup_netplan_files(temp_dir, NETPLAN_DIR)
+
+        backup_netplan_files(str(temp_dir.name), NETPLAN_DIR)
 
         delete_test_ap_ssid_connection()
         activated_uuid = get_nm_activate_connection()
@@ -511,9 +512,9 @@ def main():
         finally:
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()
-            restore_netplan_files(temp_dir, NETPLAN_DIR)
+            restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
             # cannot use temp_dir.cleanup to support old pythons
-            cleanup_netplan_backup(temp_dir)
+            cleanup_netplan_backup(str(temp_dir.name))
 
 
 if __name__ == "__main__":

@@ -27,6 +27,8 @@ from collections import namedtuple
 from contextlib import suppress
 from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
+from enum import Enum
+
 from plainbox.impl.config import Configuration
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
@@ -141,9 +143,18 @@ class BackgroundExecutor(Thread):
 
 
 class RemoteSessionAssistant:
-    """Remote execution enabling wrapper for the SessionAssistant"""
+    """
+    This is the main API surface for controller-agent communication
 
-    REMOTE_API_VERSION = 13
+    Code in this class runs in the agent. Returning mutable types or receiving
+    mutable types as parameter from any of these functions creates an implicit
+    remote API (as any function/attribute used on the returned value will
+    result in a remote API call) and should therefore be avoided.
+    Favour creating a JSON API version of the function that returns the same
+    object but JSON encoded.
+    """
+
+    REMOTE_API_VERSION = 14
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -353,14 +364,6 @@ class RemoteSessionAssistant:
         filtered_tps = set()
         for filter in self._launcher.get_value("test plan", "filter"):
             filtered_tps.update(fnmatch.filter(tps, filter))
-        launcher_tp_unit = self._launcher.get_value("test plan", "unit")
-        if (
-            self._launcher.get_value("test plan", "forced")
-            and launcher_tp_unit
-        ):
-            # this seems useless (as if the test plan selection is forced,
-            # the test selection screen won't be shown)
-            filtered_tps = {launcher_tp_unit}
         filtered_tps = list(filtered_tps)
         response = zip(
             filtered_tps,
@@ -371,7 +374,7 @@ class RemoteSessionAssistant:
             response, key=lambda x: x[1]
         )  # sorted by name
         self._available_testplans = list(self._available_testplans)
-        return list(self._available_testplans)
+        return self._available_testplans
 
     def select_test_plan(self, test_plan_id):
         return self._sa.select_test_plan(test_plan_id)
@@ -630,7 +633,6 @@ class RemoteSessionAssistant:
         """Return list of completed and not completed jobs in a dict."""
 
         _logger.debug("get_session_progress()")
-        print("Called get_session_progress")
         return {
             "done": self._sa.get_dynamic_done_list(),
             "todo": self._sa.get_dynamic_todo_list(),

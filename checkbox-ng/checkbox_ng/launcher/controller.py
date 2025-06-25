@@ -800,7 +800,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                         SimpleUI.black_text(line[6:])
             if state == "running":
                 time.sleep(polling_backoff[polling_i])
-                polling_i = min(polling_i + 1, len(polling_backoff))
+                polling_i = min(polling_i + 1, len(polling_backoff) - 1)
                 while True:
                     res = select.select([sys.stdin], [], [], 0)
                     if not res[0]:

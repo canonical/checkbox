@@ -418,6 +418,7 @@ def backup_netplan_files(backup_dir: str, netplan_dir: str):
 
     print("Netplan files backed up to: {}", backup_dir)
 
+
 def restore_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
     """
     Restore netplan YAML files from backup directory to /etc/netplan/.
@@ -455,6 +456,7 @@ def restore_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
     print("Netplan files restored successfully")
     return True
 
+
 def cleanup_netplan_backup(backup_dir: str):
     """
     Clean up temporary backup directory.
@@ -464,6 +466,7 @@ def cleanup_netplan_backup(backup_dir: str):
 
     shutil.rmtree(backup_dir)
     print("Cleaned up backup directory: {}".format(backup_dir))
+
 
 @retry(max_attempts=5, delay=60)
 def main():
@@ -509,7 +512,8 @@ def main():
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()
             restore_netplan_files(temp_dir, NETPLAN_DIR)
-            cleanup_netplan_backup(temp_dir) # cannot use temp_dir.cleanup to support old pythons
+            # cannot use temp_dir.cleanup to support old pythons
+            cleanup_netplan_backup(temp_dir)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_before_suspend_{product_slug}_auto
 template-id: suspend/index_resolution_before_suspend_product_slug_auto
 after: graphics/{index}_auto_switch_card_{product_slug}
+before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _purpose: Record the current resolution before suspending.
 command:

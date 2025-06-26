@@ -4,13 +4,12 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires:
   executable.name == 'dss'
-  executable.name == 'microk8s'
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
 command:
   set -eo pipefail
-  KUBECONFIG="$(cat ~/.kube/config)"
-  run_dss.sh initialize --kubeconfig "$KUBECONFIG"
+  KUBE_CONFIG="$(cat ~/.kube/config)"
+  run_dss.sh initialize --kubeconfig "$KUBE_CONFIG"
 
 id: dss/namespace
 category_id: dss-regress

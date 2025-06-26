@@ -215,7 +215,7 @@ estimated_duration: 10m
 command:
   set -eou pipefail
   OPERATOR_VERSION="24.6.2"
-  microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
+  sudo microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
   check_gpu_rollout.sh nvidia
 
 id: nvidia_gpu_addon/validations_succeed

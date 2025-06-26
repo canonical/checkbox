@@ -47,7 +47,6 @@ from wifi_nmcli_test import (
     main,
     restore_netplan_files,
     backup_netplan_files,
-    cleanup_netplan_backup,
 )
 
 
@@ -614,7 +613,6 @@ class TestMainFunction(unittest.TestCase):
     )
     @patch("wifi_nmcli_test.backup_netplan_files")
     @patch("wifi_nmcli_test.restore_netplan_files")
-    @patch("wifi_nmcli_test.cleanup_netplan_backup")
     @patch("wifi_nmcli_test.open_connection", return_value=0)
     @patch(
         "wifi_nmcli_test.sys.argv",
@@ -625,7 +623,6 @@ class TestMainFunction(unittest.TestCase):
         list_aps_mock,
         get_nm_activate_connection_mock,
         mock_open_connection,
-        mock_cleanup_back,
         mock_rest_back,
         mock_cr_back,
     ):
@@ -634,12 +631,8 @@ class TestMainFunction(unittest.TestCase):
 
 class TestNetplanBackupFunctions(unittest.TestCase):
     def setUp(self):
-        self.TEST_BACKUP_DIR.name = tempfile.TemporaryDirectory()
-        self.TEST_NETPLAN_DIR.name = tempfile.TemporaryDirectory()
-        """Set up test fixtures before each test method."""
-        Path(str(self.TEST_BACKUP_DIR.name)).mkdir(parents=True, exist_ok=True)
-        Path(str(self.TEST_NETPLAN_DIR.name)).mkdir(
-            parents=True, exist_ok=True)
+        self.TEST_BACKUP_DIR = tempfile.TemporaryDirectory()
+        self.TEST_NETPLAN_DIR = tempfile.TemporaryDirectory()
 
     @patch("glob.glob")
     @patch("builtins.print")
@@ -729,26 +722,6 @@ class TestNetplanBackupFunctions(unittest.TestCase):
             str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"
         )
         self.assertEqual(mock_copy2.call_count, 2)
-
-    @patch("os.path.exists")
-    @patch("builtins.print")
-    def test_cleanup_backup_not_exists(self, mock_print, mock_exists):
-        """Test cleanup when backup directory doesn't exist."""
-        mock_exists.return_value = False
-        cleanup_netplan_backup(str(self.TEST_BACKUP_DIR.name))
-
-    @patch("os.path.exists")
-    @patch("shutil.rmtree")
-    @patch("builtins.print")
-    def test_cleanup_backup_success(
-        self, mock_print, mock_rmtree, mock_exists
-    ):
-        """Test successful cleanup of backup directory."""
-        mock_exists.return_value = True
-
-        cleanup_netplan_backup(str(self.TEST_BACKUP_DIR.name))
-
-        mock_rmtree.assert_called_once_with(str(self.TEST_BACKUP_DIR.name))
 
     @patch("os.path.exists")
     @patch("glob.glob")

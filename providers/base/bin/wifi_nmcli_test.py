@@ -457,19 +457,8 @@ def restore_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
     return True
 
 
-def cleanup_netplan_backup(backup_dir: str):
-    """
-    Clean up temporary backup directory.
-    """
-    if not os.path.exists(backup_dir):
-        return
-
-    shutil.rmtree(backup_dir)
-    print("Cleaned up backup directory: {}".format(backup_dir))
-
-
 @retry(max_attempts=5, delay=60)
-def main():
+def run():
     args = parser_args()
     start_time = datetime.datetime.now()
     device_rescan()
@@ -493,10 +482,6 @@ def main():
         # backup the test plans, because nmcli corrupts them
         # and debsums will complain afterwards
         # This is ugly. Ideally, nmcli should be patched instead
-        temp_dir = tempfile.TemporaryDirectory()
-
-        backup_netplan_files(str(temp_dir.name), NETPLAN_DIR)
-
         delete_test_ap_ssid_connection()
         activated_uuid = get_nm_activate_connection()
         turn_down_nm_connections()
@@ -512,9 +497,18 @@ def main():
         finally:
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()
-            restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
-            # cannot use temp_dir.cleanup to support old pythons
-            cleanup_netplan_backup(str(temp_dir.name))
+
+
+def main():
+    temp_dir = tempfile.TemporaryDirectory()
+    backup_netplan_files(str(temp_dir.name), NETPLAN_DIR)
+    try:
+        run()
+    except Exception:
+        restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
+        raise
+
+    restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
 
 
 if __name__ == "__main__":

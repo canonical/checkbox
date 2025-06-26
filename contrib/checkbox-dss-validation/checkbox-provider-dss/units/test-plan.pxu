@@ -4,6 +4,8 @@ _name: Setup to run DSS validations
 include:
     setup_dss/install_snap_.*
     setup_dss/install_package_.*
+    setup_dss/enable_microk8s_addons
+    setup_dss/write_microk8s_kube_config
 
 id: dss-validation
 unit: test plan

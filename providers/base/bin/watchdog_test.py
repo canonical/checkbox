@@ -35,6 +35,7 @@ WATCHDOG_CONFIG_FILE = "/etc/systemd/system.conf"
 WATCHDOG_DEV_PATTERN = "WatchdogDevice"
 WATCHDOG_TIMEOUT_PATTERN = "RuntimeWatchdogSec"
 WATCHDOG_LOG_FILE = "watchdog_test.log"
+MAX_WATCHDOG_TIMEOUT = 30
 
 
 def watchdog_argparse() -> argparse.Namespace:
@@ -81,6 +82,12 @@ def watchdog_argparse() -> argparse.Namespace:
     )
     system_reset_parser.add_argument(
         "--identity", type=str, default="", help="watchdog identity value"
+    )
+    system_reset_parser.add_argument(
+        "--timeout",
+        type=int,
+        default=MAX_WATCHDOG_TIMEOUT,
+        help="WatchdogRuntimeSec",
     )
     system_reset_parser.add_argument(
         "--log-dir",
@@ -170,7 +177,18 @@ def collect_hardware_watchdogs(watchdog_identity: str) -> dict:
     return hardware_watchdogs
 
 
-def check_hardware_watchdog(watchdog_devs, watchdog_identity) -> bool:
+def check_hardware_watchdog(watchdog_identity) -> bool:
+    """
+
+
+    Args:
+        watchdog_devs (_type_): _description_
+        watchdog_identity (_type_): _description_
+
+    Returns:
+        bool: _description_
+    """
+    watchdog_devs = collect_hardware_watchdogs(watchdog_identity)
     if watchdog_identity and watchdog_devs:
         print(
             "\nPassed: {} watchdog detected".format(watchdog_identity)
@@ -179,49 +197,7 @@ def check_hardware_watchdog(watchdog_devs, watchdog_identity) -> bool:
     elif watchdog_devs:
         print("\nPassed: hardware watchdog detected")
         return True
-
-
-def detect(watchdog_module, watchdog_identity) -> None:
-    """
-    Detects watchdog under /sys/class/watchdog/.
-
-    This function executes the watchdog detection process. It then iterates
-    over the watchdog devices under "/sys/class/watchdog/", verifies their
-    identities to ensure it's not a software watchdog.
-
-    additional information
-    - load the module if expected hardware watchdog is not enabled by default.
-    - filter watchdog if watchdog_identity is provided.
-
-    Args:
-        watchdog_module:
-            probe module when watchdog kernel module is not probe by default
-            DO NOT provide kernel module
-                if a watchdog expected to be enable by default
-        watchdog_identity: expected identity string of watchdog device
-
-    Raises:
-        SystemExit: when no watchdog device available
-    """
-    print("# Perform watchdog detection test")
-    # Get the watchdog devices
-    print(collect_hardware_watchdogs(watchdog_identity))
-    if check_hardware_watchdog(
-        collect_hardware_watchdogs(watchdog_identity),
-        watchdog_identity,
-    ):
-        return
-
-    if watchdog_identity and watchdog_module:
-        with probe_watchdog_module(watchdog_module):
-            if check_hardware_watchdog(
-                collect_hardware_watchdogs(watchdog_identity),
-                watchdog_identity,
-            ):
-                return
-
-        raise SystemExit("Error: No expected hardware watchdog been detected")
-    raise SystemExit("Error: No hardware watchdog available")
+    return False
 
 
 def backup_systemd_config(backup_dir) -> None:
@@ -261,7 +237,7 @@ def configure_watchdog_config(watchdog_dev) -> None:
     ):
         parser.set("Manager", WATCHDOG_DEV_PATTERN, watchdog_devstr)
 
-    # Update watchdog timeout to 60s
+    # Update watchdog timeout to 30s
     parser.set("Manager", WATCHDOG_TIMEOUT_PATTERN, "60")
 
     with open(WATCHDOG_CONFIG_FILE, "w") as fp:
@@ -271,12 +247,18 @@ def configure_watchdog_config(watchdog_dev) -> None:
 
 
 def watchdog_test_timestamp(log_dir):
+    """
+    Log the timestamp before perform watchdog reset test
+
+    Args:
+        log_dir (str): the directory to store WATCHDOG_LOG_FILE
+    """
     # Add a watchdog test timestamp
     log_file = Path(log_dir).joinpath(WATCHDOG_LOG_FILE)
     log_file.write_text(str(time.time()))
 
 
-def trigger_system_reset(backup_dir, watchdog_dev) -> None:
+def trigger_system_reset(backup_dir, watchdog_dev, watchdog_timeout) -> None:
     """
     Trigger kernel panic and system shall recover by watchdog device
 
@@ -286,6 +268,7 @@ def trigger_system_reset(backup_dir, watchdog_dev) -> None:
     Args:
         backup_dir: directory to store system.conf and log file
         watchdog_dev: watchdog device
+        watchdog_timeout: watchdog timeout
 
     Raises:
         SystemExit: when no watchdog device available
@@ -297,7 +280,7 @@ def trigger_system_reset(backup_dir, watchdog_dev) -> None:
     )
     watchdog_test_timestamp(backup_dir)
     backup_systemd_config(backup_dir)
-    configure_watchdog_config(watchdog_dev)
+    configure_watchdog_config(watchdog_dev, watchdog_timeout)
     subprocess.run(shlex.split("sync"))
     subprocess.run(shlex.split("sleep 5"))
     Path("/proc/sys/kernel/sysrq").write_text("1")
@@ -305,7 +288,45 @@ def trigger_system_reset(backup_dir, watchdog_dev) -> None:
     Path("/proc/sysrq-trigger").write_text("c")
 
 
-def watchdog_reset_test(kernel_module, watchdog_identity, log_dir) -> None:
+def watchdog_detection_test(watchdog_module, watchdog_identity) -> None:
+    """
+    Detects watchdog under /sys/class/watchdog/.
+
+    This function executes the watchdog detection process. It then iterates
+    over the watchdog devices under "/sys/class/watchdog/", verifies their
+    identities to ensure it's not a software watchdog.
+
+    additional information
+    - load the module if expected hardware watchdog is not enabled by default.
+    - filter watchdog if watchdog_identity is provided.
+
+    Args:
+        watchdog_module:
+            probe module when watchdog kernel module is not probe by default
+            DO NOT provide kernel module
+                if a watchdog expected to be enable by default
+        watchdog_identity: expected identity string of watchdog device
+
+    Raises:
+        SystemExit: when no watchdog device available
+    """
+    print("# Perform watchdog detection test")
+    # Get the watchdog devices
+    if check_hardware_watchdog(watchdog_identity):
+        return
+
+    if watchdog_identity and watchdog_module:
+        with probe_watchdog_module(watchdog_module):
+            if check_hardware_watchdog(watchdog_identity):
+                return
+
+        raise SystemExit("Error: No expected hardware watchdog been detected")
+    raise SystemExit("Error: No hardware watchdog available")
+
+
+def watchdog_reset_test(
+        kernel_module, watchdog_identity, log_dir, watchdog_timeout
+    ) -> None:
     """
     perform watchdog reset test
     this scripts would reset system by systemctl command when no kernel panic
@@ -314,6 +335,7 @@ def watchdog_reset_test(kernel_module, watchdog_identity, log_dir) -> None:
         kernel_module: watchdog kernel module
         watchdog_identity: expected identity string of watchdog device
         log_dir: directory to store system.conf and log file
+        watchdog_timeout: watchdog timeout
 
     Raises:
         SystemExit: when no watchdog device available
@@ -322,12 +344,19 @@ def watchdog_reset_test(kernel_module, watchdog_identity, log_dir) -> None:
     try:
         watchdog_dev = collect_hardware_watchdogs(watchdog_identity)
         if watchdog_dev:
-            trigger_system_reset(log_dir, next(iter(watchdog_dev)))
+            trigger_system_reset(
+                log_dir, next(iter(watchdog_dev)), watchdog_timeout
+            )
         else:
             with probe_watchdog_module(kernel_module):
                 watchdog_dev = collect_hardware_watchdogs(watchdog_identity)
                 if watchdog_dev:
-                    trigger_system_reset(next(iter(watchdog_dev)))
+                    trigger_system_reset(
+                        log_dir, next(iter(watchdog_dev)), watchdog_timeout
+                    )
+    except Exception as err:
+        # bypass all exceptions as this is a no return job in checkbox
+        print(err, sys.stderr)
     finally:
         # Reboot the system manually, cause the system is not restart by watchdog
         # When this file exists, it means test failed
@@ -338,7 +367,7 @@ def watchdog_reset_test(kernel_module, watchdog_identity, log_dir) -> None:
         subprocess.run(shlex.split("systemctl reboot"))
 
 
-def post_check(log_dir):
+def post_check_test(log_dir):
     """
     post watchdog check test
 
@@ -357,7 +386,10 @@ def post_check(log_dir):
     system_uptime = float(Path("/proc/uptime").read_text().split(" ")[0])
     time_diff = time.time() - system_uptime - float(start_time)
     if time_diff > 300:
-        raise SystemExit("Error: System reset by user interaction, not watchdog")
+        raise SystemExit(
+            "Error: system reset take more than 300 seconds, "
+            "this may be caused by reseting by user interaction"
+        )
 
     print("Passed: system been reset by watchdog")
 
@@ -365,11 +397,16 @@ def post_check(log_dir):
 def main():
     args = watchdog_argparse()
     if args.method == "detect":
-        detect(args.module, args.identity)
+        watchdog_detection_test(args.module, args.identity)
     elif args.method == "trigger-reset":
-        watchdog_reset_test(args.module, args.identity, args.log_dir)
+        watchdog_reset_test(
+            args.module,
+            args.identity,
+            args.log_dir,
+            max(args.timeout, MAX_WATCHDOG_TIMEOUT),
+        )
     elif args.method == "post-check":
-        post_check(args.log_dir)
+        post_check_test(args.log_dir)
     else:
         raise SystemExit("Unexpected arguments")
 

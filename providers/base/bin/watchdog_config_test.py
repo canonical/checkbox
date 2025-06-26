@@ -26,9 +26,6 @@ the original test for prior releases
 
 import subprocess
 import argparse
-import shlex
-import os
-import re
 
 from checkbox_support.snap_utils.system import on_ubuntucore
 from checkbox_support.snap_utils.system import get_series
@@ -62,13 +59,6 @@ def watchdog_argparse() -> argparse.Namespace:
         "--check-service",
         action="store_true",
         help="Check if watchdog service is running",
-    )
-    group.add_argument(
-        "-d",
-        "--detect",
-        action="store_true",
-        help="Check if there is watchdog under the /sys/class/watchdog/ "
-        "and no other type of watchdog is detected",
     )
     return parser.parse_args()
 

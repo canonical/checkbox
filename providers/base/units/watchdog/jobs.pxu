@@ -47,9 +47,9 @@ estimated_duration: 60
 depends:
     watchdog/check-service
     watchdog/detect
-environ: WATCHDOG_TYPE WATCHDOG_IDENTITY
+environ: WATCHDOG_TYPE WATCHDOG_IDENTITY WATCHDOG_TIMEOUT
 command:
-    watchdog_test.py trigger-reset --module "$WATCHDOG_TYPE" --identity "$WATCHDOG_IDENTITY" --log-dir "$PLAINBOX_SESSION_SHARE"
+    watchdog_test.py trigger-reset --module "$WATCHDOG_TYPE" --identity "$WATCHDOG_IDENTITY" --log-dir "$PLAINBOX_SESSION_SHARE" --timeout "$WATCHDOG_TIMEOUT"
 
 
 id: watchdog/post-trigger-system-reset-auto

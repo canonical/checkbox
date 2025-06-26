@@ -18,10 +18,8 @@ unit: test plan
 _name: Automated watchdog tests
 _description: Automated watchdog tests
 include:
+    watchdog/check-timeout
     watchdog/check-service
     watchdog/detect
-    watchdog/trigger-system-reset-setup
     watchdog/trigger-system-reset-auto
-    watchdog/trigger-system-reset-teardown
-bootstrap_include:
-    image_source_and_type
+    watchdog/post-trigger-system-reset-auto

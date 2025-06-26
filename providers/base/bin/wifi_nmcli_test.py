@@ -479,9 +479,6 @@ def run():
         )
 
     if args.func:
-        # backup the test plans, because nmcli corrupts them
-        # and debsums will complain afterwards
-        # This is ugly. Ideally, nmcli should be patched instead
         delete_test_ap_ssid_connection()
         activated_uuid = get_nm_activate_connection()
         turn_down_nm_connections()
@@ -500,8 +497,13 @@ def run():
 
 
 def main():
+
+    # backup the test plans, because nmcli corrupts them
+    # and debsums will complain afterwards
+    # This is ugly. Ideally, nmcli should be patched instead
     temp_dir = tempfile.TemporaryDirectory()
     backup_netplan_files(str(temp_dir.name), NETPLAN_DIR)
+
     try:
         run()
     except Exception:

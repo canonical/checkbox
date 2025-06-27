@@ -20,7 +20,9 @@ include:
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
     benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
     power-management/rtc                       certification-status=blocker
-    stress/cpu_stress_ng_test                  certification-status=blocker
+    disk/disk_stress_ng_sru_.*                 certification-status=blocker 
+    stress/cpu_stress_ng_test_sru              certification-status=blocker
+    stress/memory_stress_ng_sru                certification-status=blocker
     usb/detect                                 certification-status=non-blocker
     virtualization/verify_lxd                  certification-status=blocker
     virtualization/verify_lxd_vm               certification-status=blocker
@@ -31,6 +33,9 @@ include:
     miscellanea/olog_results.log
     miscellanea/klog                           certification-status=blocker
     miscellanea/klog_results.log
+exclude:
+    disk/disk_stress_ng_(?!sru).*
+    stress/memory_stress_ng
 bootstrap_include:
     device
     fwts

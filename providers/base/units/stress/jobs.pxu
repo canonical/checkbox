@@ -731,3 +731,33 @@ command:
 environ: WPA_N_SSID WPA_N_PSK
 category_id: com.canonical.plainbox::stress
 flags: preserve-locale also-after-suspend
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/cpu_stress_ng_test_sru
+estimated_duration: 1800.0
+requires:
+ executable.name == 'stress-ng'
+user: root
+command: systemd-inhibit stress_ng_test.py cpu --base-time 1800
+_summary:
+ Stress of CPUs (SRU shortened runtime)
+_purpose:
+ Impose a high system load using the 'stress-ng' tool to exercise the CPU for
+ 1800 seconds. The test is considered passed if the system does not freeze and
+ if the stress-ng tool does not report errors. This is a shortened version
+ for SRU testing.
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/memory_stress_ng_sru
+estimated_duration: 1800.0
+user: root
+requires:
+ executable.name == 'stress-ng'
+command: systemd-inhibit stress_ng_test.py memory --base-time 60 --time-per-gig 0
+_summary: Stress test of system memory (SRU shortened runtime)
+_purpose:
+ Test to perform some basic stress and exercise of system memory via the
+ stress-ng tool with shortened timeout for SRU testing. This test runs for
+ 60 seconds with no additional time per gigabyte of memory.

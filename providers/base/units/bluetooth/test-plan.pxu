@@ -1,6 +1,6 @@
 id: bluetooth-cert-full
 unit: test plan
-_name: Bluetooth tests
+_name: Bluetooth tests (Full Cert tests)
 _description:
  Bluetooth tests
 include:
@@ -42,7 +42,7 @@ include:
 
 id: bluetooth-full
 unit: test plan
-_name: Bluetooth tests
+_name: Bluetooth tests (QA tests)
 _description: QA tests for Bluetooth
 estimated_duration: 6m
 include:
@@ -112,7 +112,7 @@ nested_part:
 
 id: after-suspend-bluetooth-manual
 unit: test plan
-_name: Manual Bluetooth tests
+_name: Manual Bluetooth tests (after suspend)
 _description: Manual QA tests for Bluetooth
 estimated_duration: 5m
 include:
@@ -120,7 +120,7 @@ include:
 
 id: after-suspend-bluez-automated
 unit: test plan
-_name: Automated tests for bluez
+_name: Automated tests for bluez (after suspend)
 _description:
  Automated tests for bluez
 estimated_duration: 1m

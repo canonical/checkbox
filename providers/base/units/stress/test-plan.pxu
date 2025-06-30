@@ -1,6 +1,6 @@
 id: stress-cert-full
 unit: test plan
-_name: Stress tests
+_name: Stress tests (Cert Full)
 _description:
  Stress tests
 include:

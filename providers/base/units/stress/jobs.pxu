@@ -755,7 +755,7 @@ estimated_duration: 60.0
 user: root
 requires:
  executable.name == 'stress-ng'
-command: systemd-inhibit stress_ng_test.py memory --base-time 30 --time-per-gig 0
+command: systemd-inhibit stress_ng_test.py memory --base-time 60 --time-per-gig 0
 _summary: Stress test of system memory (SRU shortened runtime)
 _purpose:
  Test to perform some basic stress and exercise of system memory via the

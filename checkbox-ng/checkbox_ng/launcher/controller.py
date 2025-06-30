@@ -916,14 +916,13 @@ class RemoteController(ReportsStage, MainLoopStage):
             next_job = False
             while next_job is False:
                 for interaction in self.sa.run_job(job["id"]):
-                    if interaction.kind == "purpose":
-                        SimpleUI.description(
-                            _("Purpose:"), interaction.message
-                        )
-                    elif interaction.kind == "description":
-                        SimpleUI.description(
-                            _("Description:"), interaction.message
-                        )
+                    # interaction is a netref, cache attributes here
+                    kind = interaction.kind
+                    message = interaction.message
+                    if kind == "purpose":
+                        SimpleUI.description(_("Purpose:"), message)
+                    elif kind == "description":
+                        SimpleUI.description(_("Description:"), message)
                         if job["command"] is None:
                             cmd = "run"
                         else:
@@ -937,8 +936,8 @@ class RemoteController(ReportsStage, MainLoopStage):
                             raise SystemExit("Session paused by the user")
                         self.sa.remember_users_response(cmd)
                         self.wait_for_job(dont_finish=True)
-                    elif interaction.kind in "steps":
-                        SimpleUI.description(_("Steps:"), interaction.message)
+                    elif kind in "steps":
+                        SimpleUI.description(_("Steps:"), message)
                         if job["command"] is None:
                             cmd = "run"
                         else:
@@ -951,12 +950,10 @@ class RemoteController(ReportsStage, MainLoopStage):
                             self.sa.remember_users_response(cmd)
                             raise SystemExit("Session paused by the user")
                         self.sa.remember_users_response(cmd)
-                    elif interaction.kind == "verification":
+                    elif kind == "verification":
                         self.wait_for_job(dont_finish=True)
-                        if interaction.message:
-                            SimpleUI.description(
-                                _("Verification:"), interaction.message
-                            )
+                        if message:
+                            SimpleUI.description(_("Verification:"), message)
                         JobAdapter = namedtuple("job_adapter", ["command"])
                         job_lite = JobAdapter(job["command"])
                         try:
@@ -976,14 +973,14 @@ class RemoteController(ReportsStage, MainLoopStage):
                                 interaction.extra._builder.get_result(),
                             )
                             break
-                    elif interaction.kind == "comment":
+                    elif kind == "comment":
                         new_comment = input(
                             SimpleUI.C.BLUE(
                                 _("Please enter your comments:") + "\n"
                             )
                         )
                         self.sa.remember_users_response(new_comment + "\n")
-                    elif interaction.kind == "skip":
+                    elif kind == "skip":
                         if (
                             job_state.effective_certification_status
                             == "blocker"

@@ -18,6 +18,7 @@
 
 
 import socket
+import json
 
 from unittest import TestCase, mock
 from functools import partial
@@ -180,13 +181,8 @@ class ControllerTests(TestCase):
         """
         self_mock = mock.MagicMock()
 
-        mock_job_state_map = {
-            "job1": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
-            "job2": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
-        }
-        self_mock.manager.default_device_context._state._job_state_map = (
-            mock_job_state_map
-        )
+        self_mock.sa.has_any_job_failed.return_value = False
+
         RemoteController.finish_session(self_mock)
 
         self.assertFalse(self_mock._has_anything_failed)
@@ -1037,14 +1033,14 @@ class ControllerTests(TestCase):
             "normal_user": True,
         }
 
-        self_mock.sa.start_session.return_value = "session_started"
+        self_mock.sa.start_session_json.return_value = '["testplan1"]'
 
         tps = RemoteController.start_session(self_mock)
 
-        self_mock.sa.start_session.assert_called_once_with(
-            expected_configuration
+        self_mock.sa.start_session_json.assert_called_once_with(
+            json.dumps(expected_configuration)
         )
-        self.assertEqual(tps, "session_started")
+        self.assertEqual(tps, ["testplan1"])
 
     def test_start_session_with_sideloaded_providers(self):
         self_mock = mock.MagicMock()
@@ -1052,7 +1048,7 @@ class ControllerTests(TestCase):
         self_mock._normal_user = True
         self_mock.sa.sideloaded_providers = True
 
-        self_mock.sa.start_session.return_value = "session_started"
+        self_mock.sa.start_session_json.return_value = '["testplan1"]'
 
         RemoteController.start_session(self_mock)
 
@@ -1060,7 +1056,7 @@ class ControllerTests(TestCase):
         self_mock = mock.MagicMock()
         self_mock._launcher_text = "launcher_example"
         self_mock._normal_user = True
-        self_mock.sa.start_session.side_effect = RuntimeError(
+        self_mock.sa.start_session_json.side_effect = RuntimeError(
             "Failed to start session"
         )
 

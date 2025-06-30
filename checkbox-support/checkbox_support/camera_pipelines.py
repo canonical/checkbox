@@ -18,7 +18,6 @@
 
 
 from collections import OrderedDict
-from os.path import basename
 import gi
 import typing as T
 import logging
@@ -335,7 +334,7 @@ def take_photo(
         - 0 is allowed here to indicate that the pipeline to terminate as soon
           as a photo is produced
     """
-    if not basename(file_path).endswith(("jpeg", "jpg")):
+    if not str(file_path).endswith(("jpeg", "jpg")):
         raise ValueError(
             "File name should end with jpeg or jpg. Got {}".format(file_path)
         )

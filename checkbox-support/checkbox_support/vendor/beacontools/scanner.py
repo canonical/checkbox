@@ -160,15 +160,28 @@ class Monitor(threading.Thread):
 
             # Print opcode and error code when HCI command failed
             # This may helps to identify issue
-            if event == EVT_CMD_COMPLETE and to_int(pkt[-1]) != 0:
-                # opcode = "0x{}".format(pkt[-3: -1].hex())
-                error_code = hex(to_int(pkt[-1]))
-                print(
-                    "Warning: HCI Command failed. "
-                    "Error code: {}, Payload: {}".format(
-                        error_code, pkt
+            if event == EVT_CMD_COMPLETE:
+                # HCI completed command event
+                # pkt[1] = event type
+                # pkt[2] = the length of data
+                # pkt[3] = number of packets
+                # pkt[5] + pkt[4] = opcode
+                # pkt[6:] = return parameter(s)
+                # pkt[6] is the command status for following commands
+                #   - LE_Set_Extended_Scan_Enable
+                #   - LE_Set_Extended_Scan_Parameters
+                #   - LE_Set_Scan_Enable
+                #   - LE_Set_Scan_Parameters
+                # 0x0 means command succeeded for following commands
+                # Others means command failed.
+                error_code = to_int(pkt[6])
+                if error_code != 0:
+                    print(
+                        "Warning: HCI Command failed. "
+                        "Error code: {}, Payload: {}".format(
+                            hex(error_code), pkt
+                        )
                     )
-                )
             elif event == LE_META_EVENT and subevent in [EVT_LE_ADVERTISING_REPORT, EVT_LE_EXT_ADVERTISING_REPORT]:
                 # we have an BLE advertisement
                 self.process_packet(pkt)

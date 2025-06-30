@@ -76,11 +76,11 @@ requires:
   sleep.mem == 'supported'
   rtc.state == 'supported'
 estimated_duration: 75.0
-environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH RTC_DEVICE_FILE
+environ: PLAINBOX_SESSION_SHARE STRESS_S3_INIT_DELAY STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH RTC_DEVICE_FILE
 user: root
 command:
    echo "Current boot ID is: $(tr -d - < /proc/sys/kernel/random/boot_id)"
-   suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+   suspend_trigger.py --wait "${STRESS_S3_INIT_DELAY:-120}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
     Suspend and resume device (suspend cycle 1, reboot cycle 1)
 _purpose: Suspend and resume device (suspend cycle 1, reboot cycle 1)
@@ -101,12 +101,12 @@ requires:
   sleep.mem == 'supported'
   rtc.state == 'supported'
 estimated_duration: 75.0
-environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH RTC_DEVICE_FILE
+environ: PLAINBOX_SESSION_SHARE STRESS_S3_INIT_DELAY STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH RTC_DEVICE_FILE
 after: stress-tests/suspend_cycles_reboot{{suspend_reboot_previous}}
 user: root
 command:
  echo "Current boot ID is: $(tr -d - < /proc/sys/kernel/random/boot_id)"
- suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+ suspend_trigger.py --wait "${STRESS_S3_INIT_DELAY:-120}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
     Suspend and resume device (suspend cycle 1, reboot cycle {{suspend_reboot_id}})
 
@@ -130,7 +130,7 @@ after: stress-tests/suspend_cycles_{{suspend_id_previous}}_reboot{{suspend_reboo
 user: root
 command:
  echo "Current boot ID is: $(tr -d - < /proc/sys/kernel/random/boot_id)"
- suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+ suspend_trigger.py 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
     Suspend and resume device (suspend cycle {{suspend_id}}, reboot cycle {{suspend_reboot_id}})
 _summary:

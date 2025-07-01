@@ -68,9 +68,9 @@ def analyze_file(filepath):
     duplicates = find_duplicates(plans)
 
     results = {
-        "file": filepath, 
-        "total_plans": len(plans), 
-        "duplicates": duplicates
+        "file": filepath,
+        "total_plans": len(plans),
+        "duplicates": duplicates,
     }
 
     return results

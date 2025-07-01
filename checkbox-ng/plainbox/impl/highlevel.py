@@ -119,7 +119,7 @@ class PlainBoxObject:
 
     def find_children_by_name(self, names: list, exact=False):
         to_explore = [self]
-        name_founds = {name: [] for name in names}
+        name_matches = {name: [] for name in names}
 
         def match_f(a, b):
             # a is namespace::id, b may not contain namespace
@@ -132,10 +132,10 @@ class PlainBoxObject:
             node = to_explore.pop()
             matching = [name for name in names if match_f(node.name, name)]
             for match in matching:
-                name_founds[match].append(node)
+                name_matches[match].append(node)
             to_explore += node.children
 
-        return name_founds
+        return name_matches
 
 
 class Explorer:

@@ -1063,6 +1063,148 @@ class ControllerTests(TestCase):
         with self.assertRaises(SystemExit) as _:
             RemoteController.start_session(self_mock)
 
+    def test__save_manifest_no_repr(self):
+        self_mock = mock.MagicMock()
+        self_mock.sa.get_manifest_repr_json.return_value = "{}"
+        RemoteController._save_manifest(self_mock, False)
+
+    @mock.patch("checkbox_ng.launcher.controller.ManifestBrowser")
+    def test__save_manifest_interactive(self, manifest_browser_mock):
+        self_mock = mock.MagicMock()
+        manifest_repr = {"Question 1": [{"id": "conf1", "value": "val1"}]}
+        self_mock.sa.get_manifest_repr_json.return_value = json.dumps(
+            manifest_repr
+        )
+        to_save_manifest = {"conf1": "new_val"}
+        manifest_browser_mock.return_value.run.return_value = to_save_manifest
+
+        RemoteController._save_manifest(self_mock, True)
+
+        manifest_browser_mock.assert_called_once_with(
+            "System Manifest:", manifest_repr
+        )
+        self_mock.sa.save_manifest_json.assert_called_once_with(
+            json.dumps(to_save_manifest)
+        )
+
+    def test__save_manifest_non_interactive(self):
+        self_mock = mock.MagicMock()
+        manifest_repr = {
+            "Question 1": [
+                {"id": "conf1", "value": "val1"},
+                {"id": "conf2", "value": "val2"},
+            ],
+            "Question 2": [{"id": "conf3", "value": "val3"}],
+        }
+        self_mock.sa.get_manifest_repr_json.return_value = json.dumps(
+            manifest_repr
+        )
+
+        RemoteController._save_manifest(self_mock, False)
+
+        expected_to_save = {
+            "conf1": "val1",
+            "conf2": "val2",
+            "conf3": "val3",
+        }
+        self_mock.sa.save_manifest_json.assert_called_once_with(
+            json.dumps(expected_to_save)
+        )
+
+    def test_select_jobs_forced_with_manifest(self):
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = True
+        self_mock.launcher.manifest = True
+
+        RemoteController.select_jobs(self_mock, [])
+
+        self.assertTrue(self_mock._save_manifest.called)
+        self.assertTrue(self_mock.sa.finish_job_selection.called)
+        self.assertFalse(self_mock.sa.get_jobs_repr_json.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
+    def test_select_jobs_interactive_modified(self, category_browser_mock):
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = False
+        all_jobs = ["job1", "job2", "job3"]
+        self_mock.sa.get_jobs_repr_json.return_value = json.dumps(all_jobs)
+        wanted_set = {"job1", "job3"}
+        category_browser_mock.return_value.run.return_value = wanted_set
+
+        RemoteController.select_jobs(self_mock, all_jobs)
+
+        self.assertTrue(category_browser_mock.called)
+        self.assertTrue(self_mock.sa.modify_todo_list_json.called)
+        self.assertTrue(self_mock._save_manifest.called)
+        self.assertTrue(self_mock.sa.finish_job_selection.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
+    def test_select_jobs_interactive_not_modified(self, category_browser_mock):
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = False
+        all_jobs = ["job1", "job2", "job3"]
+        self_mock.sa.get_jobs_repr_json.return_value = json.dumps(all_jobs)
+        wanted_set = {"job1", "job2", "job3"}
+        category_browser_mock.return_value.run.return_value = wanted_set
+
+        RemoteController.select_jobs(self_mock, all_jobs)
+
+        self.assertTrue(category_browser_mock.called)
+        self.assertFalse(self_mock.sa.modify_todo_list_json.called)
+        self.assertTrue(self_mock._save_manifest.called)
+        self.assertTrue(self_mock.sa.finish_job_selection.called)
+
+    @mock.patch("time.sleep")
+    def test_wait_for_job_finishes_on_non_running_state(self, sleep_mock):
+        self_mock = mock.MagicMock()
+        self_mock.sa.monitor_job.side_effect = [("completed", None)]
+
+        RemoteController.wait_for_job(self_mock, dont_finish=False)
+
+        self.assertTrue(self_mock.finish_job.called)
+        self.assertFalse(sleep_mock.called)
+
+    @mock.patch("select.select")
+    @mock.patch("time.sleep")
+    def test_wait_for_job_sleeps_increasingly(self, sleep_mock, select_mock):
+        self_mock = mock.MagicMock()
+        select_mock.return_value = ([], [], [])
+        self_mock.sa.monitor_job.side_effect = [
+            ("running", None),
+            ("running", None),
+            ("running", None),
+            ("running", None),
+            ("running", None),
+            ("finished", None),
+        ]
+
+        RemoteController.wait_for_job(self_mock)
+
+        self.assertTrue(sleep_mock.called)
+        calls = sleep_mock.call_args_list
+        self.assertEqual(calls[0], mock.call(0))
+        self.assertEqual(calls[1], mock.call(0.1))
+        self.assertEqual(calls[2], mock.call(0.2))
+        self.assertEqual(calls[3], mock.call(0.5))
+        self.assertEqual(calls[4], mock.call(0.5))
+        self.assertTrue(self_mock.finish_job.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test_wait_for_job_with_payload(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        self_mock._is_bootstrapping = False
+        payload = "stdout:OK\nstderr:ERROR"
+        self_mock.sa.monitor_job.side_effect = [
+            ("finished", payload),
+        ]
+
+        RemoteController.wait_for_job(self_mock)
+
+        self.assertTrue(self_mock.sa.monitor_job.called)
+        self.assertTrue(simple_ui_mock.green_text.called)
+        self.assertTrue(simple_ui_mock.red_text.called)
+        self.assertTrue(self_mock.finish_job.called)
+
 
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")

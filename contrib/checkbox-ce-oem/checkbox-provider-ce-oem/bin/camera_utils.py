@@ -613,8 +613,8 @@ class MediaController:
                 self._validate_camera_config(c)
 
                 logger.info(
-                    "Configuring the camera at physical interface '{}'..."
-                    .format(c["physical_interface"])
+                    "Configuring the camera physical "
+                    "interface '{}'...".format(c["physical_interface"])
                 )
 
                 # Create Link

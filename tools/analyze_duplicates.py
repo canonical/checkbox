@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-import re
-from collections import defaultdict, Counter
+from collections import defaultdict
 from pathlib import Path
 
 

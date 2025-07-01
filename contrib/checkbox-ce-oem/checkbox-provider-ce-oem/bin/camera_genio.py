@@ -4,6 +4,7 @@
 # Copyright 2025 Canonical Ltd.
 # Written by:
 #   Patrick Chang <patrick.chang@canonical.com>
+#   Isaac Yang    <isaac.yang@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -20,12 +21,19 @@ import logging
 import os
 
 from enum import Enum
+from typing import Union, Dict, List
 from camera_utils import (
     CameraInterface,
     execute_command,
-    get_video_node,
     SupportedMethods,
     GST_LAUNCH_BIN,
+    V4L2_CTL_CMD,
+    MEDIA_CTL_CMD,
+    CameraError,
+    CameraConfigurationError,
+    CameraOperationError,
+    VideoMediaNodeResolver,
+    log_and_raise_error,
 )
 
 logger = logging.getLogger(__name__)
@@ -33,15 +41,19 @@ logger = logging.getLogger(__name__)
 
 class SoftwareArchitectures(Enum):
     """
-    There are two software architectures supported on the Genio series EVK.
-    One is MediaTek Imgsensor and another is V4L2 sensor.
+    Software architectures supported on the Genio series EVK.
 
-        MediaTek Imgsensor is mainly for driving the SoC-internal ISP to
-        process the Bayer RAW sensor. It needs more sensor-level controls to
-        support the advanced features.
+    There are two architectures:
 
-        V4L2 sensor provides a simpler way to use the V4L2 sensor driver.
-        This is for the YUV sensor which doesn’t need any ISP processing
+    MediaTek_Imgsensor:
+        Drives the SoC-internal ISP to process Bayer RAW sensor data.
+        Requires sensor-level controls for advanced features.
+        Used with sensors that output RAW data needing ISP processing.
+
+    V4L2_Sensor:
+        Simple V4L2 sensor driver interface.
+        Used with YUV sensors that don't require ISP processing.
+        Provides basic camera functionality through standard V4L2 controls.
     """
 
     MediaTek_Imgsensor = "MediaTek_Imgsensor"
@@ -53,76 +65,61 @@ class SoftwareArchitectures(Enum):
 
 class SupportedCamera(Enum):
     """
-    This enum reveals what camera module be supported on Genio platforms
+    Supported camera modules on Genio platforms.
 
-    We need to implement the Class for each item
+    Each enum value corresponds to a concrete camera implementation class.
+    The string value matches the camera module identifier used in the system.
     """
 
-    ONSEMI_AP1302_AR0430 = "onsemi_ap1302_ar0430"
-    ONSEMI_AP1302_AR0830 = "onsemi_ap1302_ar0830"
-    SONY_IMX214 = "sony_imx214"
+    ONSEMI_AP1302_AR0430 = (
+        "onsemi_ap1302_ar0430"  # OnSemi AP1302 + AR0430 sensor
+    )
+    ONSEMI_AR0430 = "onsemi_ar0430"  # OnSemi AR0430 sensor only
+    ONSEMI_AP1302_AR0830 = (
+        "onsemi_ap1302_ar0830"  # OnSemi AP1302 + AR0830 sensor
+    )
+    SONY_IMX214 = "sony_imx214"  # Sony IMX214 sensor
 
     def __str__(self):
         return self.value
 
 
 def genio_camera_factory(camera_module: str) -> CameraInterface:
+    """
+    Factory function to create camera handler instances.
+
+    Args:
+        camera_module: String identifier of the camera module
+
+    Returns:
+        Camera handler class that implements CameraInterface
+
+    Raises:
+        ValueError: If camera_module is not supported
+    """
+    # Map camera module strings to their handler classes
     camera_handlers = {
-        SupportedCamera.ONSEMI_AP1302_AR0430.value: OnsemiAP1302AR0430,
-        SupportedCamera.ONSEMI_AP1302_AR0830.value: OnsemiAP1302AR0830,
-        SupportedCamera.SONY_IMX214.value: SonyIMX214,
+        str(cam): handler
+        for cam, handler in {
+            SupportedCamera.ONSEMI_AP1302_AR0430: OnsemiAP1302AR0430,
+            SupportedCamera.ONSEMI_AR0430: OnsemiAR0430,
+            SupportedCamera.ONSEMI_AP1302_AR0830: OnsemiAP1302AR0830,
+            SupportedCamera.SONY_IMX214: SonyIMX214,
+        }.items()
     }
 
     handler_class = camera_handlers.get(camera_module)
-    if handler_class:
-        return handler_class
-    else:
-        raise ValueError(f"Unsupported camera module: {camera_module}")
-
-
-def get_dev_video_node_under_mediaTek_imgsensor_arch(
-    v4l2_devices: str, camera: str, v4l2_device_name: str
-) -> dict:
-    dev_video_nodes = []
-    lines = v4l2_devices.strip().split("\n")
-    find_target = False
-    count_of_line_be_parsed = 1
-    if camera == SupportedCamera.SONY_IMX214:
-        count_of_line_be_parsed = 3
-
-    for line in lines:
-        line = line.strip()
-        if v4l2_device_name in line:
-            find_target = True
-            logger.debug("Find target node: {}".format(v4l2_device_name))
-            continue
-        elif (
-            line.startswith("/dev/video")
-            and find_target
-            and count_of_line_be_parsed
-        ):
-            dev_video_nodes.append(line)
-            count_of_line_be_parsed -= 1
-
-    if not dev_video_nodes:
-        logger.error(
-            "Fail to get the video device node based on '{}'".format(
-                v4l2_device_name
+    if not handler_class:
+        raise CameraError(
+            "Unsupported camera module: {}. "
+            "Supported modules are: {}".format(
+                camera_module, list(camera_handlers.keys())
             )
         )
-        raise SystemExit(1)
-
-    if camera == SupportedCamera.SONY_IMX214:
-        return {
-            "preview": dev_video_nodes[0],
-            "record": dev_video_nodes[1],
-            "capture": dev_video_nodes[2],
-        }
-    elif camera == SupportedCamera.ONSEMI_AP1302_AR0830:
-        return {"all": dev_video_nodes[0]}
+    return handler_class
 
 
-def is_mediaTek_imgsensor_arch(v4l2_devices: str) -> bool:
+def img_sensor_arch(v4l2_devices: str) -> bool:
     """
     Helper function to check if there's User Space Middleware in System
     """
@@ -134,14 +131,328 @@ def is_mediaTek_imgsensor_arch(v4l2_devices: str) -> bool:
             else SoftwareArchitectures.V4L2_Sensor
         )
     )
-    return has_middleware
+    return (
+        SoftwareArchitectures.MediaTek_Imgsensor
+        if has_middleware
+        else SoftwareArchitectures.V4L2_Sensor
+    )
 
 
-class OnsemiAP1302AR0430(CameraInterface):
+class GenioVideoNodeResolver(VideoMediaNodeResolver):
+    """
+    Genio-specific video node resolver that extends the general
+    VideoMediaNodeResolver.
+
+    This class provides Genio-specific logic for resolving video device nodes
+    based on camera type and architecture while leveraging the general parsing
+    functionality from VideoMediaNodeResolver.
+    """
+
+    def get_camera_video_nodes(
+        self,
+        camera: Union[str, SupportedCamera],
+        v4l2_device_name: str,
+        arch: SoftwareArchitectures,
+    ) -> Dict[str, str]:
+        """
+        Get video device nodes classified by camera type.
+
+        Args:
+            camera: Camera type (string or SupportedCamera enum)
+            v4l2_device_name: Name of the V4L2 device
+            arch: Software architecture
+
+        Returns:
+            Dictionary mapping node types to device paths
+
+        Raises:
+            CameraError: For unsupported camera types or architectures
+            CameraOperationError: For operational errors
+        """
+        camera_value = (
+            camera.value if isinstance(camera, SupportedCamera) else camera
+        )
+
+        # Classify by camera type instead of architecture
+        if camera_value == SupportedCamera.SONY_IMX214.value:
+            return self._resolve_sony_imx214(
+                v4l2_device_name, arch, camera_value
+            )
+        elif camera_value == SupportedCamera.ONSEMI_AP1302_AR0830.value:
+            return self._resolve_onsemi_ap1302_ar0830(
+                v4l2_device_name, arch, camera_value
+            )
+        elif camera_value in (
+            SupportedCamera.ONSEMI_AP1302_AR0430.value,
+            SupportedCamera.ONSEMI_AR0430.value,
+        ):
+            return self._resolve_onsemi_ar0430(
+                v4l2_device_name, arch, camera_value
+            )
+        else:
+            log_and_raise_error(
+                "Unsupported camera type: {}".format(camera), CameraError
+            )
+
+    def _resolve_sony_imx214(
+        self,
+        v4l2_device_name: str,
+        arch: SoftwareArchitectures,
+        camera_value: str,
+    ) -> Dict[str, str]:
+        """Resolve video nodes for SONY IMX214 camera."""
+        self._validate_architecture_support(
+            arch, [SoftwareArchitectures.MediaTek_Imgsensor], camera_value
+        )
+
+        # SONY_IMX214 requires 3 video nodes (preview, record, capture)
+        dev_video_nodes = self.get_video_nodes(v4l2_device_name)
+        self._validate_video_nodes(
+            dev_video_nodes, 3, camera_value, v4l2_device_name
+        )
+
+        return {
+            "preview": dev_video_nodes[0],
+            "record": dev_video_nodes[1],
+            "capture": dev_video_nodes[2],
+        }
+
+    def _resolve_onsemi_ap1302_ar0830(
+        self,
+        v4l2_device_name: str,
+        arch: SoftwareArchitectures,
+        camera_value: str,
+    ) -> Dict[str, str]:
+        """Resolve video nodes for ONSEMI AP1302 AR0830 camera."""
+        if arch == SoftwareArchitectures.MediaTek_Imgsensor:
+            # MediaTek Imgsensor: use first video node
+            dev_video_nodes = self.get_video_nodes(v4l2_device_name)
+            self._validate_video_nodes(
+                dev_video_nodes, 1, camera_value, v4l2_device_name
+            )
+            return {"all": dev_video_nodes[0]}
+
+        elif arch == SoftwareArchitectures.V4L2_Sensor:
+            # V4L2 Sensor: use media-ctl to find video node
+            return self._resolve_v4l2_sensor_ap1302_ar0830(
+                v4l2_device_name, camera_value
+            )
+        else:
+            self._validate_architecture_support(
+                arch,
+                [
+                    SoftwareArchitectures.MediaTek_Imgsensor,
+                    SoftwareArchitectures.V4L2_Sensor,
+                ],
+                camera_value,
+            )
+
+    def _resolve_v4l2_sensor_ap1302_ar0830(
+        self, v4l2_device_name: str, camera_value: str
+    ) -> Dict[str, str]:
+        """Resolve video nodes for V4L2 sensor AP1302 AR0830."""
+        media_dev = self.get_first_media_node(v4l2_device_name)
+        if not media_dev:
+            log_and_raise_error(
+                "Could not find media device for {}".format(camera_value),
+                CameraConfigurationError,
+            )
+
+        self._log_info(
+            "Found media device for '{}' - '{}': {}".format(
+                v4l2_device_name, camera_value, media_dev
+            )
+        )
+
+        cmd = "{} -d {} --entity 'mtk-cam camsv-0 main-stream'".format(
+            MEDIA_CTL_CMD, media_dev
+        )
+        video_node = execute_command(cmd).strip()
+        if not video_node:
+            log_and_raise_error(
+                "Could not find video node for {}".format(camera_value),
+                CameraConfigurationError,
+            )
+        return {"all": video_node}
+
+    def _resolve_onsemi_ar0430(
+        self,
+        v4l2_device_name: str,
+        arch: SoftwareArchitectures,
+        camera_value: str,
+    ) -> Dict[str, str]:
+        """Resolve video nodes for ONSEMI AR0430 cameras."""
+        self._validate_architecture_support(
+            arch, [SoftwareArchitectures.V4L2_Sensor], camera_value
+        )
+
+        # ONSEMI_AP1302_AR0430 and ONSEMI_AR0430: simple video node lookup
+        video_nodes = self.get_video_nodes(v4l2_device_name)
+        if not video_nodes:
+            log_and_raise_error(
+                "Could not find video node for {}".format(camera_value),
+                CameraConfigurationError,
+            )
+        return {"all": video_nodes[0]}
+
+    def _validate_video_nodes(
+        self,
+        dev_video_nodes: List[str],
+        expected_count: int,
+        camera_value: str,
+        v4l2_device_name: str,
+    ) -> None:
+        """Validate video nodes count and log results."""
+        if not dev_video_nodes:
+            log_and_raise_error(
+                "No video device nodes found for '{}'".format(
+                    v4l2_device_name
+                ),
+                CameraConfigurationError,
+            )
+
+        self._log_info(
+            "Found {} video device nodes for '{}' - '{}': {}".format(
+                len(dev_video_nodes),
+                v4l2_device_name,
+                camera_value,
+                dev_video_nodes,
+            )
+        )
+
+        if len(dev_video_nodes) != expected_count:
+            log_and_raise_error(
+                "Expected {} video node(s) for {}, found {}".format(
+                    expected_count, camera_value, len(dev_video_nodes)
+                ),
+                CameraConfigurationError,
+            )
+
+    def _validate_architecture_support(
+        self,
+        arch: SoftwareArchitectures,
+        supported_archs: List[SoftwareArchitectures],
+        camera_value: str,
+    ) -> None:
+        """Validate architecture support for camera."""
+        if arch not in supported_archs:
+            log_and_raise_error(
+                "Unsupported architecture: {} on {}".format(
+                    arch, camera_value
+                ),
+                CameraError,
+            )
+
+    def _log_info(self, msg: str):
+        """Log info message."""
+        logger.info(msg)
+
+
+# Update the existing function to use the new class
+def get_genio_camera_dev_video_node(
+    v4l2_devices: str,
+    camera: Union[str, SupportedCamera],
+    v4l2_device_name: str,
+    arch: SoftwareArchitectures,
+) -> Dict[str, str]:
+    """
+    Get video device nodes classified by camera type.
+
+    This function maintains backward compatibility while using the new
+    GenioVideoNodeResolver class internally.
+    """
+    resolver = GenioVideoNodeResolver(v4l2_devices)
+    return resolver.get_camera_video_nodes(camera, v4l2_device_name, arch)
+
+
+class GenioBaseCamera(CameraInterface):
+    """
+    Base class for Genio camera implementations.
+    """
+
     def __init__(self, v4l2_devices: str):
         super().__init__(v4l2_devices)  # Call ABC's __init__
         self._v4l2_devices = v4l2_devices
-        self._has_middleware = is_mediaTek_imgsensor_arch(v4l2_devices)
+        self._img_sensor_arch = img_sensor_arch(v4l2_devices)
+
+    def _get_artifact_path(
+        self, store_path: str, artifact_name: str, format: str
+    ) -> str:
+        """Get the appropriate file extension based on format."""
+        suffix = ".jpg" if format == "JPEG" else ".yuv"
+        return os.path.join(store_path, artifact_name + suffix)
+
+    def _build_gstreamer_cmd(
+        self,
+        dev_video_node: str,
+        width: int,
+        height: int,
+        format: str,
+        full_artifact_path: str,
+        **kwargs,
+    ) -> str:
+        """Build the GStreamer command."""
+        base_cmd = "{} -v v4l2src device={} io-mode=dmabuf ".format(
+            GST_LAUNCH_BIN, dev_video_node
+        )
+
+        if "count" in kwargs:
+            base_cmd += "num-buffers={} ! ".format(kwargs["count"])
+        else:
+            base_cmd += "num-buffers=30 ! "
+
+        if format == "JPEG":
+            format_str = "image/jpeg"
+        else:
+            format_str = "video/x-raw"
+        format_str += ",width={},height={},format={}".format(
+            width, height, format
+        )
+
+        if "framerate" in kwargs:
+            format_str += ",framerate={}/1".format(kwargs["framerate"])
+
+        if "count" in kwargs:
+            sink = "filesink location={}".format(full_artifact_path)
+        else:
+            sink = "multifilesink location={} max-files=1".format(
+                full_artifact_path
+            )
+
+        return base_cmd + format_str + " ! " + sink
+
+    def _build_v4l2_cmd(
+        self,
+        dev_video_node: str,
+        width: int,
+        height: int,
+        format: str,
+        full_artifact_path: str,
+        **kwargs,
+    ) -> str:
+        """Build the v4l2-ctl command."""
+        base_cmd = (
+            "{} -d {} --set-fmt-video=width={},height={},pixelformat={} "
+            "--stream-mmap"
+        ).format(V4L2_CTL_CMD, dev_video_node, width, height, format)
+
+        if "count" in kwargs:
+            base_cmd += " --stream-count={}".format(kwargs["count"])
+        else:
+            base_cmd += " --stream-skip=30 --stream-count=1"
+
+        return base_cmd + " --stream-to={} --verbose".format(
+            full_artifact_path
+        )
+
+    def _get_camera_dev_video_node(self, v4l2_device_name: str) -> dict:
+        """Get the video device node for the given v4l2 device name."""
+        return get_genio_camera_dev_video_node(
+            v4l2_devices=self._v4l2_devices,
+            camera=self._camera,
+            v4l2_device_name=v4l2_device_name,
+            arch=self._img_sensor_arch,
+        )
 
     def capture_image(
         self,
@@ -153,273 +464,122 @@ class OnsemiAP1302AR0430(CameraInterface):
         method: str,
         v4l2_device_name: str,
     ) -> str:
-        if method == SupportedMethods.GSTREANER:
-            full_artifact_path = os.path.join(
-                store_path, artifact_name + ".jpg"
-            )
-            logging.info("Capture image as {}".format(full_artifact_path))
-            dev_video_node = get_video_node(
-                self._v4l2_devices, v4l2_device_name
+        """Capture an image using the specified method."""
+        full_artifact_path = self._get_artifact_path(
+            store_path, artifact_name, format
+        )
+        logging.info("Capture image as {}".format(full_artifact_path))
+
+        dev_video_nodes = self._get_camera_dev_video_node(v4l2_device_name)
+        dev_video_node = dev_video_nodes.get("capture") or dev_video_nodes.get(
+            "all"
+        )
+        if not dev_video_node:
+            log_and_raise_error(
+                "No video device node found for {}".format(v4l2_device_name),
+                CameraConfigurationError,
             )
 
-            # G350 doesn't support v4l2jpecenc hardware codec, therefore,
-            # use software codec, jpecenc, instead.
-            cmd = (
-                "{} v4l2src device={} num-buffers=1 ! video/x-raw,"
-                "width={},height={},format={} ! jpegenc ! filesink"
-                " location={}"
-            ).format(
-                GST_LAUNCH_BIN,
+        logger.info("Capture image with {}".format(method))
+
+        if method == SupportedMethods.GSTREANER:
+            cmd = self._build_gstreamer_cmd(
+                dev_video_node, width, height, format, full_artifact_path
+            )
+        elif method == SupportedMethods.V4L2_CTL:
+            cmd = self._build_v4l2_cmd(
+                dev_video_node, width, height, format, full_artifact_path
+            )
+        else:
+            msg = "No suitable method such as '{}' or '{}' be provided".format(
+                SupportedMethods.GSTREANER, SupportedMethods.V4L2_CTL
+            )
+            logger.error(msg)
+            raise CameraConfigurationError(msg)
+
+        logger.info("Executing command:\n{}".format(cmd))
+        output = execute_command(cmd=cmd)
+        logger.info("Output:\n{}".format(output))
+
+    def record_video(
+        self,
+        width: int,
+        height: int,
+        framerate: int,
+        format: str,
+        count: int,
+        store_path: str,
+        artifact_name: str,
+        method: str,
+        v4l2_device_name: str,
+    ) -> str:
+        """Record a video using the specified method."""
+        full_artifact_path = self._get_artifact_path(
+            store_path, artifact_name, "YUV"
+        )
+        logging.info("Record a video as {}".format(full_artifact_path))
+
+        dev_video_nodes = self._get_camera_dev_video_node(v4l2_device_name)
+        dev_video_node = dev_video_nodes.get("record") or dev_video_nodes.get(
+            "all"
+        )
+        if not dev_video_node:
+            log_and_raise_error(
+                "No video device node found for {}".format(v4l2_device_name),
+                CameraConfigurationError,
+            )
+
+        logger.info("Record video with {}".format(method))
+
+        if method == SupportedMethods.GSTREANER:
+            cmd = self._build_gstreamer_cmd(
                 dev_video_node,
                 width,
                 height,
                 format,
                 full_artifact_path,
+                count=count,
+                framerate=framerate,
             )
-            logger.info("Executing command:\n{}".format(cmd))
-            execute_command(cmd=cmd)
-        else:
-            logger.error("No suitable method such as 'gstreamer' be provided")
-            raise SystemExit(1)
-
-    def record_video(
-        self,
-        width: int,
-        height: int,
-        framerate: int,
-        format: str,
-        count: int,
-        store_path: str,
-        artifact_name: str,
-        method: str,
-        v4l2_device_name: str,
-    ) -> str:
-        if method == SupportedMethods.GSTREANER:
-            full_artifact_path = os.path.join(
-                store_path, artifact_name + ".mp4"
-            )
-            logging.info("Record a video as {}".format(full_artifact_path))
-            dev_video_node = get_video_node(
-                self._v4l2_devices, v4l2_device_name
-            )
-
-            # https://bugs.launchpad.net/baoshan/+bug/2039380/comments/4
-            cmd = (
-                "{} -v v4l2src device={} num-buffers={} ! "
-                "video/x-raw,width={},height={},format={},framerate={}/1 !"
-                ' capssetter replace=true caps="video/x-raw, width={}, '
-                "height={}, framerate=(fraction){}/1, "
-                "multiview-mode=(string)mono, "
-                "interlace-mode=(string)progressive, format=(string){}"
-                ',colorimetry=(string)bt709" ! v4l2convert '
-                "output-io-mode=5 ! video/x-raw,width={},height={},"
-                "framerate={}/1 ! v4l2h264enc ! h264parse ! queue ! mp4mux"
-                " ! filesink location={}"
-            ).format(
-                GST_LAUNCH_BIN,
+        elif method == SupportedMethods.V4L2_CTL:
+            cmd = self._build_v4l2_cmd(
                 dev_video_node,
-                count,
                 width,
                 height,
                 format,
-                framerate,
-                width,
-                height,
-                framerate,
-                format,
-                width,
-                height,
-                framerate,
                 full_artifact_path,
+                count=count,
             )
-            logger.info("Executing command:\n{}".format(cmd))
-            execute_command(cmd=cmd)
         else:
-            logger.error("No suitable method such as 'gstreamer' be provided")
-            raise SystemExit(1)
+            msg = "No suitable method such as '{}' or '{}' be provided".format(
+                SupportedMethods.GSTREANER, SupportedMethods.V4L2_CTL
+            )
+            log_and_raise_error(msg, CameraConfigurationError)
+
+        logger.info("Executing command:\n {}".format(cmd))
+        output = execute_command(cmd=cmd)
+        logger.info("Output:\n{}".format(output))
 
 
-class OnsemiAP1302AR0830(CameraInterface):
+class OnsemiAP1302AR0430(GenioBaseCamera):
     def __init__(self, v4l2_devices: str):
-        super().__init__(v4l2_devices)  # Call ABC's __init__
-        self._v4l2_devices = v4l2_devices
-        self._has_middleware = is_mediaTek_imgsensor_arch(v4l2_devices)
-
-    def capture_image(
-        self,
-        width: int,
-        height: int,
-        format: str,
-        store_path: str,
-        artifact_name: str,
-        method: str,
-        v4l2_device_name: str,
-    ) -> str:
-        if method == SupportedMethods.GSTREANER:
-            full_artifact_path = os.path.join(
-                store_path, artifact_name + ".jpg"
-            )
-            logging.info("Capture image as {}".format(full_artifact_path))
-            dev_video_capture_node = (
-                get_dev_video_node_under_mediaTek_imgsensor_arch(
-                    v4l2_devices=self._v4l2_devices,
-                    camera=SupportedCamera.ONSEMI_AP1302_AR0830,
-                    v4l2_device_name=v4l2_device_name,
-                )
-            )["all"]
-
-            cmd = (
-                "{} v4l2src device={} num-buffers=1 ! "
-                "video/x-raw,width={},height={},format={} !"
-                " v4l2convert ! v4l2jpegenc ! filesink location={}"
-            ).format(
-                GST_LAUNCH_BIN,
-                dev_video_capture_node,
-                width,
-                height,
-                format,
-                full_artifact_path,
-            )
-
-            logger.info("Executing command:\n{}".format(cmd))
-            execute_command(cmd=cmd)
-            # TODO: handle gstreamer under V4L2 Sensor Arch
-        else:
-            logger.error("No suitable method such as 'gstreamer' be provided")
-            raise SystemExit(1)
-
-    def record_video(
-        self,
-        width: int,
-        height: int,
-        framerate: int,
-        format: str,
-        count: int,
-        store_path: str,
-        artifact_name: str,
-        method: str,
-        v4l2_device_name: str,
-    ) -> str:
-        if method == SupportedMethods.GSTREANER:
-            full_artifact_path = os.path.join(
-                store_path, artifact_name + ".mp4"
-            )
-            logging.info("Record video as {}".format(full_artifact_path))
-            dev_video_record_node = (
-                get_dev_video_node_under_mediaTek_imgsensor_arch(
-                    v4l2_devices=self._v4l2_devices,
-                    camera=SupportedCamera.ONSEMI_AP1302_AR0830,
-                    v4l2_device_name=v4l2_device_name,
-                )
-            )["all"]
-
-            cmd = (
-                "{} v4l2src device={} num-buffers={} !"
-                " video/x-raw,width={},height={},format={} ! v4l2h264enc ! "
-                "h264parse ! queue ! mp4mux ! filesink location={}"
-            ).format(
-                GST_LAUNCH_BIN,
-                dev_video_record_node,
-                count,
-                width,
-                height,
-                format,
-                full_artifact_path,
-            )
-            logger.info("Executing command:\n{}".format(cmd))
-            execute_command(cmd=cmd)
-        else:
-            logger.error("No suitable method such as 'gstreamer' be provided")
-            raise SystemExit(1)
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.ONSEMI_AP1302_AR0430
 
 
-class SonyIMX214(CameraInterface):
+class OnsemiAR0430(GenioBaseCamera):
     def __init__(self, v4l2_devices: str):
-        super().__init__(v4l2_devices)  # Call ABC's __init__
-        self._v4l2_devices = v4l2_devices
-        self._has_middleware = is_mediaTek_imgsensor_arch(v4l2_devices)
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.ONSEMI_AR0430
 
-    def capture_image(
-        self,
-        width: int,
-        height: int,
-        format: str,
-        store_path: str,
-        artifact_name: str,
-        method: str,
-        v4l2_device_name: str,
-    ) -> str:
-        if method == SupportedMethods.GSTREANER:
-            full_artifact_path = os.path.join(
-                store_path, artifact_name + ".jpg"
-            )
-            logging.info("Capture image as {}".format(full_artifact_path))
-            dev_video_capture_node = (
-                get_dev_video_node_under_mediaTek_imgsensor_arch(
-                    v4l2_devices=self._v4l2_devices,
-                    camera=SupportedCamera.SONY_IMX214,
-                    v4l2_device_name=v4l2_device_name,
-                )
-            )["capture"]
 
-            cmd = (
-                "{} v4l2src device={} num-buffers=1 ! image/jpeg,"
-                "width={},height={},format={} ! filesink"
-                " location={}"
-            ).format(
-                GST_LAUNCH_BIN,
-                dev_video_capture_node,
-                width,
-                height,
-                format,
-                full_artifact_path,
-            )
-            logger.info("Executing command:\n{}".format(cmd))
-            execute_command(cmd=cmd)
-        else:
-            logger.error("No suitable method such as 'gstreamer' be provided")
-            raise SystemExit(1)
+class OnsemiAP1302AR0830(GenioBaseCamera):
+    def __init__(self, v4l2_devices: str):
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.ONSEMI_AP1302_AR0830
 
-    def record_video(
-        self,
-        width: int,
-        height: int,
-        framerate: int,
-        format: str,
-        count: int,
-        store_path: str,
-        artifact_name: str,
-        method: str,
-        v4l2_device_name: str,
-    ) -> str:
-        if method == SupportedMethods.GSTREANER:
-            full_artifact_path = os.path.join(
-                store_path, artifact_name + ".mp4"
-            )
-            logging.info("Record video as {}".format(full_artifact_path))
-            dev_video_record_node = (
-                get_dev_video_node_under_mediaTek_imgsensor_arch(
-                    v4l2_devices=self._v4l2_devices,
-                    camera=SupportedCamera.SONY_IMX214,
-                    v4l2_device_name=v4l2_device_name,
-                )
-            )["record"]
 
-            cmd = (
-                "{} v4l2src device={} num-buffers={} !"
-                " video/x-raw,width={},height={},format={} ! v4l2h264enc ! "
-                "h264parse ! queue ! mp4mux ! filesink location={}"
-            ).format(
-                GST_LAUNCH_BIN,
-                dev_video_record_node,
-                count,
-                width,
-                height,
-                format,
-                full_artifact_path,
-            )
-            logger.info("Executing command:\n{}".format(cmd))
-            execute_command(cmd=cmd)
-        else:
-            logger.error("No suitable method such as 'gstreamer' be provided")
-            raise SystemExit(1)
+class SonyIMX214(GenioBaseCamera):
+    def __init__(self, v4l2_devices: str):
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.SONY_IMX214

@@ -549,6 +549,18 @@ class MediaController:
 
     def _create_links(self, links: list) -> None:
         logger.debug("Configuring links...")
+        base_cmd = "{} -d {} -l".format(MEDIA_CTL_CMD, self._dev_media_node)
+        for link in links:
+            cmd = "{} '{}':{} -> '{}':{} [{}]".format(
+                base_cmd,
+                link["source_entity"],
+                link["source_pad_number"],
+                link["sink_entity"],
+                link["sink_pad_number"],
+                link["flags"],
+            )
+            logger.debug(cmd)
+            execute_command(cmd=cmd)
 
     def _validate_setup_config(self) -> None:
         """

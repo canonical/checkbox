@@ -205,9 +205,6 @@ class RemoteSessionAssistant:
     def configuration_type(self):
         return Configuration
 
-    def get_config_json(self):
-        return json.dumps(self._sa.config.sections)
-
     def update_app_blob(self, app_blob):
         self._sa.update_app_blob(app_blob)
 
@@ -433,7 +430,7 @@ class RemoteSessionAssistant:
         return self._sa.save_manifest(manifest_answers)
 
     def modify_todo_list_json(self, chosen_jobs):
-        self._sa.use_alternate_selection(json.loads(chosen_jobs))
+        self.modify_todo_list(json.loads(chosen_jobs))
 
     def modify_todo_list(self, chosen_jobs):
         self._sa.use_alternate_selection(chosen_jobs)
@@ -642,12 +639,14 @@ class RemoteSessionAssistant:
         if result:
             result = json.loads(result)
         result = self.finish_job(result)
-        return json.dumps(
-            {
-                "tr_outcome": result.tr_outcome(),
-                "outcome_color": result.outcome_color_ansi(),
-            }
-        )
+        if result is not None:
+            return json.dumps(
+                {
+                    "tr_outcome": result.tr_outcome(),
+                    "outcome_color": result.outcome_color_ansi(),
+                }
+            )
+        return
 
     def finish_job(self, result=None):
         # assert the thread completed

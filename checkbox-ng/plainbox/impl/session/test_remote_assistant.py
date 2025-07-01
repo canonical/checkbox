@@ -510,7 +510,7 @@ class RemoteAssistantTests(TestCase):
             self_mock, chosen_jobs_json
         )
 
-        self.assertTrue(self_mock._sa.use_alternate_selection.assert_called)
+        self.assertTrue(self_mock._sa.use_alternate_selection.called)
 
     def test_finish_job_json_with_result(self):
         self_mock = mock.MagicMock()

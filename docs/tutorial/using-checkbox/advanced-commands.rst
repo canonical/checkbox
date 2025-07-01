@@ -90,7 +90,7 @@ Or let's list all the available jobs (test cases):
 .. code-block:: none
 
     checkbox.checkbox-cli list all-jobs
-    
+
     id: com.canonical.certification::6lowpan/kconfig
     kernel config options for 6LoWPAN
     id: com.canonical.certification::IEEE_80211
@@ -107,7 +107,7 @@ fields available from the jobs. To see what fields are available, run:
 .. code-block:: none
 
     checkbox.checkbox-cli list all-jobs --format ?
-    
+
     Available fields are:
     _description, _purpose, _siblings, _steps, _summary, _verification, after,
     category_id, command, depends, environ, estimated_duration, flags, full_id,
@@ -156,7 +156,7 @@ it contains:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli list-bootstrapped com.canonical.certification::audio-cert-automated
+    checkbox.checkbox-cli list-bootstrapped audio-cert-automated
 
     com.canonical.plainbox::manifest
     com.canonical.certification::package
@@ -168,6 +168,17 @@ it contains:
     com.canonical.certification::audio/alsa_info_attachment
     com.canonical.certification::audio/list_devices
     com.canonical.certification::audio/valid-sof-firmware-sig
+
+.. note::
+
+    You can omit the namespace (that would be ``com.canonical.certification``
+    in this case from any of the following commands). When doing so, Checkbox
+    will do its best to find what you are asking for, disregarding the
+    namespace. If it the match is not unique (there is more than one unit
+    matching), the command may either fail (if it wouldn't make sense to apply
+    the same action to all matches) or run the action for all matches. If this
+    is undesirable, you can use ``--exact`` to fail if nothing exactly matches
+    your query.
 
 If you were to run this test plan with Checkbox, it would run these jobs in
 the order shown above.

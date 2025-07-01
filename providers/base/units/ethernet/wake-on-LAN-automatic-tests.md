@@ -70,6 +70,7 @@ usage: wol_check.py [-h] --interface INTERFACE [--powertype POWERTYPE] [--timest
 ### 3. wol_server.py
 
 Listen on the specified port to receive and handle the DUT's requests.
+The `wol_server.py` can be found [here](https://github.com/canonical/oem-qa-tools/blob/main/Tools/env-setup/wol_server.py).
 
 ```
 uvicorn wol_server:app --host 0.0.0.0 --port 8090

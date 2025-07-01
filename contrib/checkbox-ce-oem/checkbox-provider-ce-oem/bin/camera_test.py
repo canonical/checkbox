@@ -21,6 +21,7 @@ import argparse
 import json
 import logging
 import os
+import shutil
 import uuid
 
 from camera_utils import (
@@ -270,6 +271,15 @@ def main() -> None:
             )
         )
         check_nonzero_files(artifact_store_path)
+
+        # Only when the test is successful, we will delete the artifacts
+        # This is the workaround for the devices storage is not enough
+        if args.scenario_name == CameraScenarios.RECORD_VIDEO:
+            logger.info(
+                "The storage is not enough to store all videos, so we need to "
+                "delete the artifacts for 'record video' after testing"
+            )
+            shutil.rmtree(artifact_store_path)
 
 
 if __name__ == "__main__":

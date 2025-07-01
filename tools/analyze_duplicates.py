@@ -67,7 +67,11 @@ def analyze_file(filepath):
     plans = parse_test_plan_file(filepath)
     duplicates = find_duplicates(plans)
 
-    results = {"file": filepath, "total_plans": len(plans), "duplicates": duplicates}
+    results = {
+        "file": filepath, 
+        "total_plans": len(plans), 
+        "duplicates": duplicates
+    }
 
     return results
 

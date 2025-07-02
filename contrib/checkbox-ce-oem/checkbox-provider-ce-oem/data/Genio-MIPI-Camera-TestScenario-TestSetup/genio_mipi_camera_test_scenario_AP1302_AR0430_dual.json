@@ -1,0 +1,86 @@
+{
+    "capture_image": [
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050000.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 2316, "height": 1746}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050800.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 2316, "height": 1746}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050000.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 2316, "height": 1746}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050800.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 2316, "height": 1746}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050000.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 2316, "height": 1746, "fps": 30}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050800.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 2316, "height": 1746, "fps": 30}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050000.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 2316, "height": 1746, "fps": 30}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050800.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 2316, "height": 1746, "fps": 30}
+            ]
+        }
+    ]
+}

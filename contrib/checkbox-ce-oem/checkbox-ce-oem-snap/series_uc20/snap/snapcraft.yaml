@@ -75,7 +75,6 @@ parts:
     source: checkbox-provider-ce-oem
     source-type: local
     stage-packages:
-      - alsa-utils
       - mtd-utils
       - u-boot-tools
       - v4l-utils
@@ -84,7 +83,6 @@ parts:
       - snmp
     override-prime: |
       snapcraftctl prime
-      rm lib/systemd/system/alsa-utils.service
     override-build: |
       export PYTHONPATH=/snap/checkbox20/current/lib/python3.8/site-packages/
       for path in $(find "/snap/checkbox20/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done

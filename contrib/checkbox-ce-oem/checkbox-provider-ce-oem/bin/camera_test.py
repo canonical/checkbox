@@ -126,7 +126,7 @@ def register_arguments() -> argparse.Namespace:
 
     parser_testing.add_argument(
         "-vdn",
-        "--v4l2_deivce_name",
+        "--v4l2_device_name",
         type=str,
         help=("Name of v4l2 deivce"),
     )
@@ -233,7 +233,7 @@ def main() -> None:
                     method=args.method,
                     store_path=artifact_store_path,
                     artifact_name=artifact_name + "_{}".format(i),
-                    v4l2_device_name=args.v4l2_deivce_name,
+                    v4l2_device_name=args.v4l2_device_name,
                 )
             # For loop to capture multiple images
         elif args.scenario_name == CameraScenarios.RECORD_VIDEO:
@@ -262,7 +262,7 @@ def main() -> None:
                 store_path=artifact_store_path,
                 artifact_name=artifact_name,
                 method=args.method,
-                v4l2_device_name=args.v4l2_deivce_name,
+                v4l2_device_name=args.v4l2_device_name,
             )
 
         logger.debug(

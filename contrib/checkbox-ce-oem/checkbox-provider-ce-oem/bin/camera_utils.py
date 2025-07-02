@@ -35,7 +35,9 @@ PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 GST_LAUNCH_BIN = shutil.which(os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0"))
 MEDIA_CTL_CMD = shutil.which(os.getenv("MEDIA_CTL_CMD", "media-ctl"))
 V4L2_CTL_CMD = shutil.which(os.getenv("V4L2_CTL_CMD", "v4l2-ctl"))
-GST_DISCOVERER = shutil.which(os.getenv("GST_DISCOVERER", "gst-discoverer-1.0"))
+GST_DISCOVERER = shutil.which(
+    os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
+)
 
 logger = logging.getLogger(__name__)
 
@@ -818,7 +820,7 @@ class CameraResources:
             "camera",
             "method",
             "physical_interface",
-            "v4l2_deivce_name",
+            "v4l2_device_name",
             "resolutions",
             "formats",
         ]
@@ -833,7 +835,7 @@ class CameraResources:
                         "camera": item["camera"],
                         "method": item["method"],
                         "physical_interface": item["physical_interface"],
-                        "v4l2_deivce_name": item["v4l2_deivce_name"],
+                        "v4l2_device_name": item["v4l2_device_name"],
                         "format": f,
                         "width": r["width"],
                         "height": r["height"],

@@ -34,7 +34,7 @@ requires:
     manifest.has_vendor_specific_mipi_camera == "True"
 environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
 command:
-    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_deivce_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH"
+    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_device_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH"
 
 unit: template
 template-engine: jinja2
@@ -62,4 +62,4 @@ requires:
     manifest.has_vendor_specific_mipi_camera == "True"
 environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
 command:
-    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_deivce_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH" -fps {{ fps }}
+    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_device_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH" -fps {{ fps }}

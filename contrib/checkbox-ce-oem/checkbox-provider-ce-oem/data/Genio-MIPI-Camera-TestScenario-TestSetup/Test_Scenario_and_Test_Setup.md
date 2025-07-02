@@ -50,6 +50,8 @@ V4L2 Sensor configurations require both test scenario and test setup files to be
 - Documentation: [G350 EVK V4L2 RAW](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g350-evk-v4l2-raw.html)
 - Configuration: [`genio_mipi_camera_test_scenario_AR0430_dual.json`](genio_mipi_camera_test_scenario_AR0430_dual.json)
 
+> **Note:** The ONSEMI_AR0430 sensor only supports v4l2-ctl capture method (gstreamer pipeline not supported), and the picture/video is in RAW (bayer) frames in SGRBG10 packed format.
+
 **Test Setup:**
 
 - Documentation: [G350 EVK V4L2 RAW](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g350-evk-v4l2-raw.html)

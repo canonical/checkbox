@@ -31,7 +31,7 @@
                 {
                     "action": "set_format",
                     "node": "ar0430 3-0036",
-                    "source": 2,
+                    "source": 0,
                     "fmt": "SGRBG10_1X10"
                 },
                 {

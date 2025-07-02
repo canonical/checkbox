@@ -21,7 +21,7 @@ import logging
 import os
 
 from enum import Enum
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Optional
 from camera_utils import (
     CameraInterface,
     execute_command,
@@ -388,15 +388,16 @@ class GenioBaseCamera(CameraInterface):
         height: int,
         format: str,
         full_artifact_path: str,
-        **kwargs
+        count: Optional[int] = None,
+        framerate: Optional[int] = None,
     ) -> str:
         """Build the GStreamer command."""
         base_cmd = "{} -v v4l2src device={} io-mode=dmabuf ".format(
             GST_LAUNCH_BIN, dev_video_node
         )
 
-        if "count" in kwargs:
-            base_cmd += "num-buffers={} ! ".format(kwargs["count"])
+        if count is not None:
+            base_cmd += "num-buffers={} ! ".format(count)
         else:
             base_cmd += "num-buffers=30 ! "
 
@@ -408,10 +409,10 @@ class GenioBaseCamera(CameraInterface):
             width, height, format
         )
 
-        if "framerate" in kwargs:
-            format_str += ",framerate={}/1".format(kwargs["framerate"])
+        if framerate is not None:
+            format_str += ",framerate={}/1".format(framerate)
 
-        if "count" in kwargs:
+        if count is not None:
             sink = "filesink location={}".format(full_artifact_path)
         else:
             sink = "multifilesink location={} max-files=1".format(
@@ -427,7 +428,7 @@ class GenioBaseCamera(CameraInterface):
         height: int,
         format: str,
         full_artifact_path: str,
-        **kwargs,
+        count: Optional[int] = None,
     ) -> str:
         """Build the v4l2-ctl command."""
         base_cmd = (
@@ -435,8 +436,8 @@ class GenioBaseCamera(CameraInterface):
             "--stream-mmap"
         ).format(V4L2_CTL_CMD, dev_video_node, width, height, format)
 
-        if "count" in kwargs:
-            base_cmd += " --stream-count={}".format(kwargs["count"])
+        if count is not None:
+            base_cmd += " --stream-count={}".format(count)
         else:
             base_cmd += " --stream-skip=30 --stream-count=1"
 

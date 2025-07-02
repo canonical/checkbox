@@ -713,7 +713,7 @@ class CameraResources:
 
         if not os.path.exists(scenario_file_path):
             logger.warning(
-                f"Scenario file does not exist: {scenario_file_path}"
+                "Scenario file does not exist: {}".format(scenario_file_path)
             )
             return {}
 

@@ -208,7 +208,7 @@ Test your platform with:
 
 ```bash
 # Set environment variables
-export PLATFORM_NAME=yourplatform
+export PLATFORM_NAME=<platform>
 export MIPI_SCENARIO_DEFINITION_FILE_PATH=path/to/your_scenario.json
 export MIPI_CAMERA_SETUP_CONF_FILE_PATH=path/to/your_setup.json
 
@@ -216,7 +216,7 @@ export MIPI_CAMERA_SETUP_CONF_FILE_PATH=path/to/your_setup.json
 python3 camera_test.py generate_resource -sf path/to/your_scenario.json
 
 # Run tests
-python3 camera_test.py testing -sn capture_image -p yourplatform -c camera_model_1 ...
+python3 camera_test.py testing -sn capture_image -p <platform> -c camera_model_1 ...
 ```
 
 ### 7. Best Practices
@@ -242,7 +242,7 @@ python3 camera_test.py testing -sn capture_image -p yourplatform -c camera_model
 **Setup Configuration File** (`MIPI_CAMERA_SETUP_CONF_FILE_PATH`):
 [`genio_mipi_camera_test_setup_AP1302_AR0430_dual.json`](../../data/Genio-MIPI-Camera-TestScenario-TestSetup/genio_mipi_camera_test_setup_AP1302_AR0430_dual.json)
 
-### Environment Variable config should be like this
+### Environment Variable Configuration
 
 ```ini
 PLATFORM_NAME=genio
@@ -250,9 +250,9 @@ MIPI_SCENARIO_DEFINITION_FILE_PATH=path/to/genio_mipi_camera_test_scenario_AP130
 MIPI_CAMERA_SETUP_CONF_FILE_PATH=path/to/genio_mipi_camera_test_setup_AP1302_AR0430_dual.json
 ```
 
-## Platform's Test Scenario and Test Setup Documentation
+## Platform Test Scenario and Test Setup Documentation
 
-The following will introduce the test scenario and test setup documentation for each platform.
+The following sections introduce the test scenario and test setup documentation for each platform.
 
 ### Genio Test Scenario and Test Setup Documentation
 
@@ -266,3 +266,23 @@ This documentation includes:
 - Mediatek Imgsensor Configurations  
 - Available camera models and their configurations
 - Quick reference table for all supported configurations
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"Cannot find platform" error**
+   - Ensure `PLATFORM_NAME` is set correctly
+   - Check that platform module exists (e.g., `camera_genio.py`)
+
+2. **"No video device node found" error**
+   - Run `v4l2-ctl --list-devices` to verify device names
+   - Check that camera is properly connected and detected
+
+3. **JSON parsing errors**
+   - Validate JSON syntax using online tools
+   - Check for missing required fields in configuration files
+
+4. **Permission denied errors**
+   - Ensure user has access to `/dev/video*` devices
+   - Run with appropriate permissions or add user to video group

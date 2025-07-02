@@ -45,8 +45,8 @@
         {
             "camera": "sony_imx214",
             "method": "gstreamer",
-            "physical_interface": "csi2",
-            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam2)",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam1)",
             "formats": ["JPEG"],
             "resolutions": [
                 {"width": 320, "height": 240},
@@ -66,8 +66,8 @@
         {
             "camera": "sony_imx214",
             "method": "v4l2-ctl",
-            "physical_interface": "csi2",
-            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam2)",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam1)",
             "formats": ["JPEG"],
             "resolutions": [
                 {"width": 320, "height": 240},
@@ -135,8 +135,8 @@
         {
             "camera": "sony_imx214",
             "method": "gstreamer",
-            "physical_interface": "csi2",
-            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam2)",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam1)",
             "formats": ["YUY2", "NV12", "RGB"],
             "resolutions": [
                 {"width": 640, "height": 360, "fps": 30},
@@ -158,8 +158,8 @@
         {
             "camera": "sony_imx214",
             "method": "v4l2-ctl",
-            "physical_interface": "csi2",
-            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam2)",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam1)",
             "formats": ["YUYV", "YM21", "NM12", "RGB3"],
             "resolutions": [
                 {"width": 640, "height": 360, "fps": 30},

@@ -553,7 +553,7 @@ class MediaController:
         logger.debug("Configuring links...")
         base_cmd = "{} -d {} -l".format(MEDIA_CTL_CMD, self._dev_media_node)
         for link in links:
-            cmd = "{} '{}':{} -> '{}':{} [{}]".format(
+            cmd = "{} \"'{}':{} -> '{}':{} [{}]\"".format(
                 base_cmd,
                 link["source_entity"],
                 link["source_pad_number"],

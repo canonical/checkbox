@@ -231,6 +231,17 @@ class LXD:
             )
         )
 
+    def set_config(
+        self,
+        config_str: str,
+    ):
+        """Sets a config option for the LXD instance."""
+        self.run(
+            "lxc config set {} {}".format(
+                self.name, config_str
+            )
+        )
+
     def __enter__(self):
         self.init_lxd()
         return self

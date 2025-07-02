@@ -58,7 +58,7 @@ estimated_duration: 2s
 command:
   set -e
   destination_dir="${HOME}/.kube"
-  mkdir -p $destination_dir
+  mkdir -p "${destination_dir}"
   destination="${destination_dir}/config"
   # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
   # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4

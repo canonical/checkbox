@@ -31,7 +31,6 @@ from camera_utils import (
     MEDIA_CTL_CMD,
     CameraError,
     CameraConfigurationError,
-    CameraOperationError,
     VideoMediaNodeResolver,
     log_and_raise_error,
 )

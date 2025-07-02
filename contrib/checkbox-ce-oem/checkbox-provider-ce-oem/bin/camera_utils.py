@@ -604,7 +604,9 @@ class MediaController:
         ]
         if missing_fields:
             log_and_raise_error(
-                f"Missing required fields in camera config: {missing_fields}",
+                "Missing required fields in camera config: {}".format(
+                    missing_fields
+                ),
                 CameraConfigurationError,
             )
 

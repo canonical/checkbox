@@ -388,7 +388,7 @@ class GenioBaseCamera(CameraInterface):
         height: int,
         format: str,
         full_artifact_path: str,
-        **kwargs,
+        **kwargs
     ) -> str:
         """Build the GStreamer command."""
         base_cmd = "{} -v v4l2src device={} io-mode=dmabuf ".format(

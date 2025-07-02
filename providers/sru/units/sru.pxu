@@ -78,7 +78,6 @@ nested_part:
     power-automated
     tpm-cert-automated
     stress-ng-cert-automated
-    stress-10-reboot-poweroff-automated
 bootstrap_include:
     device
     graphics_card

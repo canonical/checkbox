@@ -10,7 +10,7 @@ unit = com.canonical.certification::22.04-server-functional
 forced = yes
 
 [test selection]
-forced = yes
+forced = no
 
 [ui]
 output = hide-resource-and-attachment

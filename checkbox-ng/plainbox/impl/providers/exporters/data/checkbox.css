@@ -41,6 +41,10 @@
     src: local("Ubuntu Mono"), local("UbuntuMono-Regular"), url("https://fonts.gstatic.com/s/ubuntumono/v6/ViZhet7Ak-LRXZMXzuAfkYbN6UDyHWBl620a-IRfuBk.woff") format("woff");
 }
 
+.ui-loader{
+    display: none !important;
+}
+
 /* JQM Demos custom CSS */
 
 .ui-collapsible-content,

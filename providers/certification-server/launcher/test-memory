@@ -10,7 +10,7 @@ unit = com.canonical.certification::memory-only
 forced = yes
 
 [test selection]
-forced = yes
+forced = no
 
 [ui]
 output = hide-resource-and-attachment

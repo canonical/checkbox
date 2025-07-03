@@ -34,29 +34,7 @@ systemctl status snap.checkbox-dss.remote-slave.service
 
 > [!NOTE]
 > We are migrating to using `setup_include` from Checkbox.
-> While it is not available, installing dependencies is currently a 2 stage process.
-> Most importantly, the `install-deps` **will soon be removed**.
-
-## `microk8s`
-
-Run the helper script `install-deps` as shown below:
-
-```shell
-checkbox-dss.install-deps
-```
-
-By default this will install `microk8s` from `1.28/stable` in classic mode,
-but this can be customized as
-(please note that this snap must to be `--classic` to enable GPU support):
-
-```shell
-checkbox-dss.install-deps --microk8s-snap-channel 1.31/stable
-```
-
-## `data-science-stack`, `kubectl`, and `intel-gpu-tools`
-
-> [!NOTE]
-> This step will become unnecessary once we can use `setup_include` from Checkbox.
+> While it is not available, installing dependencies is currently done in a separate test plan.
 
 Run Checkbox CLI with the setup launcher:
 
@@ -66,6 +44,7 @@ checkbox-dss.checkbox-cli control 127.0.0.1 launchers/setup.conf
 
 By default it will attempt to install the following:
 
+- `microk8s` snap from channel `1.28/stable` in `--classic` mode
 - `data-science-stack` snap from channel `1.0/stable`
 - `kubectl` snap from `1.29/stable`
 - `intel-gpu-tools` package

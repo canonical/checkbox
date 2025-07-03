@@ -54,13 +54,6 @@ test_data:
     echo "Installing checkbox $CHECKBOX_VERSION on agent container from source"
     install_checkbox_agent_source $CHECKBOX_VERSION $TOOLS_PATH
 
-    # Install dependencies on device for running checkbox-dss tests
-    # XXX:@motjuste: to be moved to Checkbox setup phase
-    _run wait_for_packages_complete
-    _run checkbox-dss.install-deps --microk8s-snap-channel $ENV_MICROK8S_CHANNEL
-    _run wait_for_packages_complete
-    wait_for_ssh --allow-degraded
-
     # run the setup test plan
     # XXX:@motjuste: will be part of main test plan when setup_include is available
     PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP $RESOURCES_PATH/$ENV_SETUP_LAUNCHER

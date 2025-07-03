@@ -1,0 +1,4 @@
+# For smartcard/*
+unit: packaging meta-data
+os-id: ubuntu
+Depends: python3-pyscard

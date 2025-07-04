@@ -679,7 +679,8 @@ def main():
     print()
     print(" Please review the following log for more information:")
     print()
-    print_log(args.log)
+    if not unavailable:
+        print_log(args.log)
 
     if args.fail_level != "none":
         if fail_priority == fail_levels["FAILED_CRITICAL"]:

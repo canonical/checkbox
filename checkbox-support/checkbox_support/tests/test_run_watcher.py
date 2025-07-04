@@ -394,42 +394,31 @@ class TestRunWatcher(unittest.TestCase):
         mock_mediacard_combo_storage.action = ""
         MediacardComboStorage._validate_removal(mock_mediacard_combo_storage)
 
-    @patch("checkbox_support.scripts.run_watcher.super")
-    def test_mediacard_combo_storage_parse_journal_line(self, mock_super):
+    def test_mediacard_combo_storage_parse_journal_line(self):
         line_str = "mmcblk0: p1"
-        mock_mediacard_combo_storage = MagicMock()
-        MediacardComboStorage._parse_journal_line(
-            mock_mediacard_combo_storage, line_str
-        )
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
         self.assertEqual(
-            mock_mediacard_combo_storage.mounted_partition, "mmcblk0p1"
+            mediacard_combo_storage.mounted_partition, "mmcblk0p1"
         )
-        super_method = mock_super.return_value._parse_journal_line
-        super_method.assert_called_with(line_str)
 
         line_str = "new SD card at address 123456"
-        mock_mediacard_combo_storage = MagicMock()
-        MediacardComboStorage._parse_journal_line(
-            mock_mediacard_combo_storage, line_str
-        )
-        self.assertEqual(mock_mediacard_combo_storage.action, "insertion")
-        self.assertEqual(mock_mediacard_combo_storage.device, "SD")
-        self.assertEqual(mock_mediacard_combo_storage.address, "123456")
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, "insertion")
+        self.assertEqual(mediacard_combo_storage.device, "SD")
+        self.assertEqual(mediacard_combo_storage.address, "123456")
 
         line_str = "card 123456 removed"
-        mock_mediacard_combo_storage = MagicMock()
-        MediacardComboStorage._parse_journal_line(
-            mock_mediacard_combo_storage, line_str
-        )
-        self.assertEqual(mock_mediacard_combo_storage.action, "removal")
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, "removal")
 
         line_str = "Invalid line"
-        mock_mediacard_combo_storage = MagicMock()
-        mock_mediacard_combo_storage.action = None
-        MediacardComboStorage._parse_journal_line(
-            mock_mediacard_combo_storage, line_str
-        )
-        self.assertEqual(mock_mediacard_combo_storage.action, None)
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage.action = None
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, None)
 
     def test_thunderbolt_storage_init(self):
         thunderbolt_storage = ThunderboltStorage("thunderbolt")

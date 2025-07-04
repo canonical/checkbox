@@ -4,7 +4,7 @@ import urwid
 from checkbox_ng.urwid_ui import ManifestBrowser
 
 
-class ManifestBrowserTest(unittest.TestCase):
+class TestManifestBrowser(unittest.TestCase):
 
     @patch("checkbox_ng.urwid_ui.urwid.MainLoop")
     def test_handle_focused_question_input_empty_pile(self, mock_mainloop):
@@ -52,6 +52,70 @@ class ManifestBrowserTest(unittest.TestCase):
 
         with self.assertRaises(urwid.ExitMainLoop):
             browser.handle_submit_key()
+
+    def test_has_visible_manifests_with_visible_manifests(self):
+        manifest_repr = {
+            "section1": [
+                {"id": "visible1", "hidden": False},
+                {"id": "hidden1", "hidden": True},
+            ],
+            "section2": [
+                {"id": "visible2", "hidden": False},
+            ],
+        }
+
+        self.assertTrue(ManifestBrowser.has_visible_manifests(manifest_repr))
+
+    def test_has_visible_manifests_no_visible_manifests(self):
+        manifest_repr = {
+            "section1": [
+                {"id": "hidden1", "hidden": True},
+                {"id": "hidden2", "hidden": True},
+            ],
+            "section2": [
+                {"id": "hidden3", "hidden": True},
+            ],
+        }
+
+        self.assertFalse(ManifestBrowser.has_visible_manifests(manifest_repr))
+
+    def test_has_visible_manifests_missing_hidden_field(self):
+        manifest_repr = {
+            "section1": [
+                {
+                    "id": "default_visible",
+                    "value": "test",
+                },  # No 'hidden' field ⟶ hidden==False
+                {"id": "hidden1", "hidden": True},
+            ]
+        }
+
+        self.assertTrue(ManifestBrowser.has_visible_manifests(manifest_repr))
+
+    def test_has_visible_manifests_empty_manifest(self):
+        self.assertFalse(ManifestBrowser.has_visible_manifests({}))
+
+    def test_get_default_values(self):
+        manifest_repr = {
+            "section1": [
+                {"id": "visible1", "value": "visible_1", "hidden": False},
+                {"id": "hidden1", "value": "hidden_1", "hidden": True},
+            ],
+            "section2": [
+                {"id": "visible2", "value": "visible_2", "hidden": False},
+                {"id": "hidden2", "value": "hidden_2", "hidden": True},
+            ],
+        }
+
+        result = ManifestBrowser.get_default_values(manifest_repr)
+
+        expected = {
+            "visible1": "visible_1",
+            "hidden1": "hidden_1",
+            "visible2": "visible_2",
+            "hidden2": "hidden_2",
+        }
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":

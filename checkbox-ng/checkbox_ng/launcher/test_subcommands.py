@@ -1198,7 +1198,7 @@ class TestSaveManifest(TestCase):
             with self.subTest(case=case_name):
                 self.ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
                 self.launcher._save_manifest(interactive=True)
-                self.ctx_mock.sa.save_manifest.assert_not_called()
+                self.assertEqual(self.ctx_mock.sa.save_manifest.call_count, 0)
 
     @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
     def test__save_manifest_interactive_with_visible_manifests(
@@ -1222,8 +1222,9 @@ class TestSaveManifest(TestCase):
 
         self.launcher._save_manifest(interactive=True)
 
-        mock_browser.run.assert_called_once()
-        self.ctx_mock.sa.save_manifest.assert_called_once_with(
+        self.assertEqual(mock_browser.run.call_count, 1)
+        self.assertEqual(self.ctx_mock.sa.save_manifest.call_count, 1)
+        self.ctx_mock.sa.save_manifest.assert_called_with(
             {"visible1": "user_value1", "visible2": "user_value2"}
         )
 
@@ -1246,10 +1247,13 @@ class TestSaveManifest(TestCase):
 
         self.launcher._save_manifest(interactive=True)
 
-        mock_browser_class.assert_not_called()
-        mock_browser_class.has_visible_manifests.assert_called_once()
-        mock_browser_class.get_default_values.assert_called_once()
-        self.ctx_mock.sa.save_manifest.assert_called_once_with(
+        self.assertEqual(mock_browser_class.call_count, 0)
+        self.assertEqual(
+            mock_browser_class.has_visible_manifests.call_count, 1
+        )
+        self.assertEqual(mock_browser_class.get_default_values.call_count, 1)
+        self.assertEqual(self.ctx_mock.sa.save_manifest.call_count, 1)
+        self.ctx_mock.sa.save_manifest.assert_called_with(
             {"hidden1": "default1", "hidden2": "default2"}
         )
 
@@ -1270,11 +1274,13 @@ class TestSaveManifest(TestCase):
 
         self.launcher._save_manifest(interactive=False)
 
-        mock_browser_class.assert_not_called()
-        mock_browser_class.has_visible_manifests.assert_not_called()
-        mock_browser_class.get_default_values.assert_called_once_with(
-            manifest_repr
+        self.assertEqual(mock_browser_class.call_count, 0)
+        self.assertEqual(
+            mock_browser_class.has_visible_manifests.call_count, 0
         )
-        self.ctx_mock.sa.save_manifest.assert_called_once_with(
+        self.assertEqual(mock_browser_class.get_default_values.call_count, 1)
+        mock_browser_class.get_default_values.assert_called_with(manifest_repr)
+        self.assertEqual(self.ctx_mock.sa.save_manifest.call_count, 1)
+        self.ctx_mock.sa.save_manifest.assert_called_with(
             {"manifest1": "default1", "manifest2": "default2"}
         )

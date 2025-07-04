@@ -765,6 +765,198 @@ class TestFITImageSecureBootChecker(unittest.TestCase):
         self.assertFalse(is_signed)
         self.assertIn("dumpimage failed", error_msg)
 
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._get_boot_kernel_path"
+    )
+    def test_find_fit_images_with_boot_kernel(self, mock_get_boot_kernel):
+        """Test _find_fit_images when boot kernel is found."""
+        mock_get_boot_kernel.return_value = "/boot/vmlinuz-5.4.0"
+        images = self.checker._find_fit_images()
+        self.assertEqual(images, ["/boot/vmlinuz-5.4.0"])
+
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._get_boot_kernel_path"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._get_snap_kernel_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._build_search_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._find_files_by_patterns"
+    )
+    def test_find_fit_images_core_variant(
+        self,
+        mock_find_files,
+        mock_build_patterns,
+        mock_get_patterns,
+        mock_get_boot_kernel,
+    ):
+        """Test _find_fit_images for Ubuntu Core variant."""
+        # Setup mocks
+        mock_get_boot_kernel.return_value = None
+        self.checker.ubuntu_variant = UbuntuVariant.CORE
+        mock_get_patterns.return_value = ["/snap/*/current/kernel.img"]
+        mock_build_patterns.return_value = ["/snap/*/current/kernel.img"]
+        mock_find_files.return_value = ["/snap/test/current/kernel.img"]
+
+        images = self.checker._find_fit_images()
+
+        self.assertEqual(images, ["/snap/test/current/kernel.img"])
+        mock_get_patterns.assert_called_once()
+        mock_build_patterns.assert_called_once_with(
+            ["/snap/*/current/kernel.img"]
+        )
+
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._get_boot_kernel_path"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._get_classic_fit_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._build_search_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker"
+        "._find_files_by_patterns"
+    )
+    def test_find_fit_images_classic_variant(
+        self,
+        mock_find_files,
+        mock_build_patterns,
+        mock_get_patterns,
+        mock_get_boot_kernel,
+    ):
+        """Test _find_fit_images for Ubuntu Classic variant."""
+        # Setup mocks
+        mock_get_boot_kernel.return_value = None
+        self.checker.ubuntu_variant = UbuntuVariant.CLASSIC
+        mock_get_patterns.return_value = ["/boot/*.img"]
+        mock_build_patterns.return_value = ["/boot/*.img"]
+        mock_find_files.return_value = ["/boot/vmlinuz-5.4.0"]
+
+        images = self.checker._find_fit_images()
+
+        self.assertEqual(images, ["/boot/vmlinuz-5.4.0"])
+        mock_get_patterns.assert_called_once()
+        mock_build_patterns.assert_called_once_with(["/boot/*.img"])
+
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._get_boot_kernel_path"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._get_snap_kernel_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._build_search_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._find_files_by_patterns"
+    )
+    def test_find_fit_images_no_images_found(
+        self,
+        mock_find_files,
+        mock_build_patterns,
+        mock_get_patterns,
+        mock_get_boot_kernel,
+    ):
+        """Test _find_fit_images when no images are found."""
+        # Setup mocks
+        mock_get_boot_kernel.return_value = None
+        self.checker.ubuntu_variant = UbuntuVariant.CORE
+        mock_get_patterns.return_value = ["/snap/*/current/kernel.img"]
+        mock_build_patterns.return_value = ["/snap/*/current/kernel.img"]
+        mock_find_files.return_value = []
+
+        images = self.checker._find_fit_images()
+
+        self.assertEqual(images, [])
+
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._get_boot_kernel_path"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._get_snap_kernel_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._build_search_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._find_files_by_patterns"
+    )
+    def test_find_fit_images_with_hostfs_prefix(
+        self,
+        mock_find_files,
+        mock_build_patterns,
+        mock_get_patterns,
+        mock_get_boot_kernel,
+    ):
+        """Test _find_fit_images with hostfs prefix."""
+        # Setup mocks
+        mock_get_boot_kernel.return_value = None
+        self.checker.ubuntu_variant = UbuntuVariant.CORE
+        self.checker.hostfs_prefix = "/var/lib/snapd/hostfs"
+        mock_get_patterns.return_value = ["/snap/*/current/kernel.img"]
+        mock_build_patterns.return_value = [
+            "/var/lib/snapd/hostfs/snap/*/current/kernel.img",
+            "/snap/*/current/kernel.img",
+        ]
+        mock_find_files.return_value = [
+            "/var/lib/snapd/hostfs/snap/test/current/kernel.img"
+        ]
+
+        images = self.checker._find_fit_images()
+
+        self.assertEqual(
+            images, ["/var/lib/snapd/hostfs/snap/test/current/kernel.img"]
+        )
+        mock_build_patterns.assert_called_once_with(
+            ["/snap/*/current/kernel.img"]
+        )
+
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._get_boot_kernel_path"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._get_classic_fit_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._build_search_patterns"
+    )
+    @patch(
+        "check_secure_boot_state.FITImageSecureBootChecker._find_files_by_patterns"
+    )
+    def test_find_fit_images_unknown_variant(
+        self,
+        mock_find_files,
+        mock_build_patterns,
+        mock_get_patterns,
+        mock_get_boot_kernel,
+    ):
+        """Test _find_fit_images for unknown Ubuntu variant."""
+        # Setup mocks
+        mock_get_boot_kernel.return_value = None
+        self.checker.ubuntu_variant = UbuntuVariant.UNKNOWN
+        mock_get_patterns.return_value = ["/boot/*.img"]
+        mock_build_patterns.return_value = ["/boot/*.img"]
+        mock_find_files.return_value = ["/boot/vmlinuz-5.4.0"]
+
+        images = self.checker._find_fit_images()
+
+        self.assertEqual(images, ["/boot/vmlinuz-5.4.0"])
+        # Should default to classic patterns for unknown variant
+        mock_get_patterns.assert_called_once()
+
 
 class TestUtilityFunctions(unittest.TestCase):
     """Test cases for utility functions."""
@@ -957,6 +1149,45 @@ class TestMainFunction(unittest.TestCase):
         mock_checker = Mock()
         mock_checker.get_secure_boot_state.return_value = (
             SecureBootState.ENABLED,
+            None,
+        )
+        mock_create_checker.return_value = (mock_checker, "Test Checker")
+
+        # Mock logger
+        mock_logger = Mock()
+        mock_logger_class.return_value = mock_logger
+
+        with patch("check_secure_boot_state.logger", mock_logger):
+            main()
+
+        mock_exit.assert_called_with(0)
+
+    @patch("sys.exit")
+    @patch("check_secure_boot_state.create_checker")
+    @patch("check_secure_boot_state.create_parser")
+    @patch("check_secure_boot_state.SecureBootLogger")
+    def test_main_success_disabled(
+        self,
+        mock_logger_class,
+        mock_create_parser,
+        mock_create_checker,
+        mock_exit,
+    ):
+        """Test main function - success case with disabled check."""
+        # Mock parser
+        mock_parser = Mock()
+        mock_args = Mock()
+        mock_args.enable = False
+        mock_args.disabled = True
+        mock_args.verbose = False
+        mock_args.method = "auto"
+        mock_parser.parse_args.return_value = mock_args
+        mock_create_parser.return_value = mock_parser
+
+        # Mock checker
+        mock_checker = Mock()
+        mock_checker.get_secure_boot_state.return_value = (
+            SecureBootState.DISABLED,
             None,
         )
         mock_create_checker.return_value = (mock_checker, "Test Checker")

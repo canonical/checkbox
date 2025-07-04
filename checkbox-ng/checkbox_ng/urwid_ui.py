@@ -1109,11 +1109,20 @@ class ManifestBrowser:
 
     def unhandled_input(self, key):
         if key in ("t", "T"):
-            for w in self._question_store:
-                if w.value is None:
-                    break
-            else:
-                raise urwid.ExitMainLoop()
+            self.handle_submit_key(self)
+        else:
+            self.handle_focused_question_input(key)
+
+    def handle_submit_key(self):
+        for w in self._question_store:
+            if w.value is None:
+                break
+        else:
+            raise urwid.ExitMainLoop()
+
+    def handle_focused_question_input(self, key):
+        if self._pile.focus is None:
+            return
         if self._pile.focus._value_type == "bool":
             if key in ("y", "Y"):
                 self.loop.process_input(["left", " ", "down"])

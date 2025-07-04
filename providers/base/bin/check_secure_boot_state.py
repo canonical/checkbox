@@ -148,6 +148,12 @@ class SecureBootNotSupportedError(SecureBootError):
     pass
 
 
+class SecureBootConfigurationError(SecureBootError):
+    """Exception raised when there's a configuration error."""
+
+    pass
+
+
 class UbuntuVariant(Enum):
     """Enumeration of Ubuntu variants."""
 
@@ -810,8 +816,10 @@ def create_checker(method: CheckerType) -> Tuple[SecureBootChecker, str]:
         Tuple of (checker_instance, checker_name)
 
     Raises:
-        ValueError: If method is not one of the valid options
-        RuntimeError: If no supported secure boot method is found
+        SecureBootConfigurationError: If method is not one of the valid
+            options
+        SecureBootNotSupportedError: If no supported secure boot method is
+            found
     """
     # Define available checkers with their support checks and names
     checkers = [
@@ -827,7 +835,7 @@ def create_checker(method: CheckerType) -> Tuple[SecureBootChecker, str]:
                 return checker, checker_name
 
         # No supported method found
-        raise RuntimeError(
+        raise SecureBootNotSupportedError(
             "No supported secure boot method found. "
             "Neither UEFI (mokutil) nor FIT (dumpimage) are available."
         )
@@ -846,16 +854,18 @@ def create_checker(method: CheckerType) -> Tuple[SecureBootChecker, str]:
                             "system (dumpimage command not found)"
                         ),
                     }
-                    raise RuntimeError(error_messages[method])
+                    raise SecureBootNotSupportedError(error_messages[method])
                 checker = checker_class()
                 return checker, checker_name
 
         # This should never happen due to argument validation
-        raise ValueError("Unknown method: {}".format(method.value))
+        raise SecureBootConfigurationError(
+            "Unknown method: {}".format(method.value)
+        )
 
 
-def main() -> None:
-    """Main entry point for the secure boot state checker."""
+def create_parser() -> argparse.ArgumentParser:
+    """Create and configure the argument parser."""
     parser = argparse.ArgumentParser(
         description="Check and validate secure boot state",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -891,6 +901,12 @@ def main() -> None:
         ),
     )
 
+    return parser
+
+
+def main() -> None:
+    """Main entry point for the secure boot state checker."""
+    parser = create_parser()
     args = parser.parse_args()
 
     # Setup logging
@@ -918,11 +934,11 @@ def main() -> None:
         exit_code = check_secure_boot_result(state, error_msg, check_mode)
         sys.exit(exit_code)
 
-    except ValueError as e:
+    except SecureBootConfigurationError as e:
         logger.error("Configuration error: {}".format(str(e)))
         sys.exit(1)
-    except RuntimeError as e:
-        logger.error("Runtime error: {}".format(str(e)))
+    except SecureBootNotSupportedError as e:
+        logger.error("Not supported error: {}".format(str(e)))
         sys.exit(1)
     except KeyboardInterrupt:
         logger.info("Operation cancelled by user")

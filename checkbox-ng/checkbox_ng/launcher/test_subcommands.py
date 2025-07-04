@@ -43,6 +43,7 @@ from checkbox_ng.launcher.subcommands import (
     get_testplan_id_by_id,
     print_objs,
 )
+from checkbox_ng.urwid_ui import ManifestBrowser
 
 
 class TestSharedFunctions(TestCase):
@@ -1177,3 +1178,103 @@ class TestRun(TestCase):
         # we expect the relevant unit function to leave unfound values the same
         # and all in the same order
         self.assertEqual(found_ids, ["other2.*", *should_find, "other1.*"])
+
+
+class TestSaveManifest(TestCase):
+
+    def setUp(self):
+        self.launcher = Launcher()
+        self.ctx_mock = MagicMock()
+        self.launcher.ctx = self.ctx_mock
+
+    def test__save_manifest_no_or_empty_manifest_repr(self):
+
+        cases = [
+            ("None", None),
+            ("Empty", {}),
+        ]
+
+        for case_name, manifest_repr in cases:
+            with self.subTest(case=case_name):
+                self.ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+                self.launcher._save_manifest(interactive=True)
+                self.ctx_mock.sa.save_manifest.assert_not_called()
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_interactive_with_visible_manifests(
+        self, mock_browser_class
+    ):
+        manifest_repr = {
+            "section1": [
+                {"id": "visible1", "value": "default1", "hidden": False},
+                {"id": "visible2", "value": "default2", "hidden": False},
+            ]
+        }
+        self.ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+
+        mock_browser = MagicMock()
+        mock_browser.run.return_value = {
+            "visible1": "user_value1",
+            "visible2": "user_value2",
+        }
+        mock_browser_class.return_value = mock_browser
+        mock_browser_class.has_visible_manifests.return_value = True
+
+        self.launcher._save_manifest(interactive=True)
+
+        mock_browser.run.assert_called_once()
+        self.ctx_mock.sa.save_manifest.assert_called_once_with(
+            {"visible1": "user_value1", "visible2": "user_value2"}
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_interactive_no_visible_manifests(
+        self, mock_browser_class
+    ):
+        manifest_repr = {
+            "section1": [
+                {"id": "hidden1", "value": "default1", "hidden": True},
+                {"id": "hidden2", "value": "default2", "hidden": True},
+            ]
+        }
+        self.ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+        mock_browser_class.has_visible_manifests.return_value = False
+        mock_browser_class.get_default_values.return_value = {
+            "hidden1": "default1",
+            "hidden2": "default2",
+        }
+
+        self.launcher._save_manifest(interactive=True)
+
+        mock_browser_class.assert_not_called()
+        mock_browser_class.has_visible_manifests.assert_called_once()
+        mock_browser_class.get_default_values.assert_called_once()
+        self.ctx_mock.sa.save_manifest.assert_called_once_with(
+            {"hidden1": "default1", "hidden2": "default2"}
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_non_interactive(self, mock_browser_class):
+        """Test _save_manifest in non-interactive mode."""
+        manifest_repr = {
+            "section1": [
+                {"id": "manifest1", "value": "default1", "hidden": False},
+                {"id": "manifest2", "value": "default2", "hidden": True},
+            ]
+        }
+        self.ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+        mock_browser_class.get_default_values.return_value = {
+            "manifest1": "default1",
+            "manifest2": "default2",
+        }
+
+        self.launcher._save_manifest(interactive=False)
+
+        mock_browser_class.assert_not_called()
+        mock_browser_class.has_visible_manifests.assert_not_called()
+        mock_browser_class.get_default_values.assert_called_once_with(
+            manifest_repr
+        )
+        self.ctx_mock.sa.save_manifest.assert_called_once_with(
+            {"manifest1": "default1", "manifest2": "default2"}
+        )

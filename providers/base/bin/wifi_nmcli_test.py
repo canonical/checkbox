@@ -402,6 +402,7 @@ def backup_netplan_files(backup_dir: str, netplan_dir: str):
 
     if not yaml_files:
         print("No netplan YAML files found")
+        return
 
     # Create temporary directory
     Path(backup_dir).mkdir(parents=True, exist_ok=True)
@@ -419,7 +420,7 @@ def backup_netplan_files(backup_dir: str, netplan_dir: str):
     print("Netplan files backed up to: {}", backup_dir)
 
 
-def restore_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
+def restore_netplan_files(backup_dir: str, netplan_dir: str):
     """
     Restore netplan YAML files from backup directory to /etc/netplan/.
 
@@ -428,7 +429,7 @@ def restore_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
     """
     if not backup_dir or not os.path.exists(backup_dir):
         print("Backup directory does not exist: {}".format(netplan_dir))
-        return False
+        return
 
     # Clean up existing netplan files first
     existing_files = glob.glob(os.path.join(netplan_dir, "*.yaml"))
@@ -441,7 +442,7 @@ def restore_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
 
     if not backup_files:
         print("No netplan files found in backup directory")
-        return False
+        return
 
     # Restore each file
     for backup_file in backup_files:
@@ -454,7 +455,7 @@ def restore_netplan_files(backup_dir: str, netplan_dir: str) -> bool:
         print("Restored: {} -> {}".format(backup_file, target_path))
 
     print("Netplan files restored successfully")
-    return True
+    return
 
 
 @retry(max_attempts=5, delay=60)
@@ -498,7 +499,7 @@ def run():
 
 def main():
 
-    # backup the test plans, because nmcli corrupts them
+    # backup the netplans, because nmcli corrupts them
     # and debsums will complain afterwards
     # This is ugly. Ideally, nmcli should be patched instead
     temp_dir = tempfile.TemporaryDirectory()
@@ -506,11 +507,10 @@ def main():
 
     try:
         run()
-    except Exception:
-        restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
+    except:
         raise
-
-    restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
+    finally:
+        restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
 
 
 if __name__ == "__main__":

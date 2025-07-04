@@ -699,8 +699,8 @@ class TestNetplanBackupFunctions(unittest.TestCase):
             [],
         ]
 
-        result = restore_netplan_files(None, str(self.TEST_NETPLAN_DIR.name))
-        result = restore_netplan_files(
+        restore_netplan_files(None, str(self.TEST_NETPLAN_DIR.name))
+        restore_netplan_files(
             str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
         )
 
@@ -713,11 +713,10 @@ class TestNetplanBackupFunctions(unittest.TestCase):
             ],  # Backup files
         ]
 
-        result = restore_netplan_files(
+        restore_netplan_files(
             str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
         )
 
-        self.assertTrue(result)
         mock_remove.assert_called_once_with(
             str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"
         )
@@ -740,7 +739,7 @@ class TestNetplanBackupFunctions(unittest.TestCase):
         ]
         mock_remove.side_effect = OSError("Permission denied")
         with self.assertRaises(OSError):
-            result = restore_netplan_files(
+            restore_netplan_files(
                 str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
             )
 

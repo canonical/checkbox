@@ -161,6 +161,7 @@ class TestReportsStage(TestCase):
     @mock.patch("os.makedirs")
     def test__prepare_stock_report_submission_json(self, makedirs):
         self_mock = mock.MagicMock()
+        self_mock.sa.configuration_type.side_effect = AttributeError
         self_mock._get_submission_file_path = partial(
             ReportsStage._get_submission_file_path, self_mock
         )

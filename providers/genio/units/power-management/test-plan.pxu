@@ -35,13 +35,13 @@ include:
 
 id: after-suspend-genio-power-management-manual
 unit: test plan
-_name: Genio Manual power management test
+_name: Genio Manual power management test (after suspend)
 _description: Manual after suspend power management test for G1200-evk, G700 and G350 platforms
 include:
 
 id: after-suspend-genio-power-management-automated
 unit: test plan
-_name: Genio Auto Power Management test
+_name: Genio Auto Power Management test (after suspend)
 _description: Automated after suspend power management test for G1200-evk, G700 and G350 platforms
 include:
     after-suspend-genio-power-management/dvfs-gpufreq.*

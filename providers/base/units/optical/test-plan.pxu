@@ -65,8 +65,8 @@ bootstrap_include:
 
 id: after-suspend-optical-cert-blockers
 unit: test plan
-_name: Optical drive tests (certification blockers only)
-_description: Optical drive tests (certification blockers only)
+_name: Optical drive tests (certification blockers only after suspend)
+_description: Optical drive tests (certification blockers only after suspend)
 include:
     optical/detect                                                      certification-status=blocker
     after-suspend-optical/read_.*                                       certification-status=blocker

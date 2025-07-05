@@ -53,7 +53,7 @@ bootstrap_include:
 
 id: ethernet-full
 unit: test plan
-_name: QA tests for ethernet
+_name: QA tests for ethernet (Core devices)
 _description: Ethernet tests for Ubuntu Core devices
 estimated_duration: 1m
 include:

@@ -85,7 +85,7 @@ def action(filename, **kwargs):
     :param filename: The string is constructed by
                      [monitor name]_[resolution]_[transform]_.
     """
-    print("Test: {}".format(filename))
+    print("Test: {}".format(filename), flush=True)
     if "path" in kwargs:
         path_and_filename = "{}/{}.jpg".format(kwargs.get("path"), filename)
     else:
@@ -96,7 +96,9 @@ def action(filename, **kwargs):
 
 
 class MonitorTest:
-    def gen_screenshot_path(self, keyword: str, screenshot_dir: str) -> str:
+    def gen_screenshot_path(
+        self, prefix: str, postfix: str, screenshot_dir: str
+    ) -> str:
         """
         Generate the screenshot path and create the folder.
         If the keyword is not defined, it will check the suspend_stats to
@@ -106,9 +108,14 @@ class MonitorTest:
 
         :param screenshot_dir: the dictionary for screenshot
         """
-        path = os.path.join(screenshot_dir, "xrandr_screens")
-        if keyword and keyword != "":
-            path = path + "_" + keyword
+        path = ""
+        if prefix and prefix != "":
+            path = os.path.join(screenshot_dir, prefix + "_xrandr_screens")
+        else:
+            path = os.path.join(screenshot_dir, "xrandr_screens")
+
+        if postfix and postfix != "":
+            path = path + "_" + postfix
         else:
             # check the status is before or after suspend
             with open("/sys/power/suspend_stats/success", "r") as s:
@@ -152,7 +159,15 @@ class MonitorTest:
             help="cycling resolution, transform or both(default: %(default)s)",
         )
         parser.add_argument(
-            "--keyword",
+            "--prefix",
+            default="",
+            help=(
+                "A keyword to distinguish the screenshots "
+                "taken in this run of the script(default: %(default)s)"
+            ),
+        )
+        parser.add_argument(
+            "--postfix",
             default="",
             help=(
                 "A keyword to distinguish the screenshots "
@@ -179,7 +194,7 @@ class MonitorTest:
             raise SystemExit("Current host is not support: {}".format(e))
 
         screenshot_path = self.gen_screenshot_path(
-            args.keyword, args.screenshot_dir
+            args.prefix, args.postfix, args.screenshot_dir
         )
         if args.cycle == "resolution":
             monitor_config.cycle(

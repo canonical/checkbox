@@ -177,7 +177,7 @@ class GenScreenshotPath(unittest.TestCase):
         mt = MonitorTest()
         with patch("builtins.open", mock_open(read_data="0")) as mock_file:
             self.assertEqual(
-                mt.gen_screenshot_path("", "test"), "test/xrandr_screens"
+                mt.gen_screenshot_path("", "", "test"), "test/xrandr_screens"
             )
         mock_file.assert_called_with("/sys/power/suspend_stats/success", "r")
         mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
@@ -188,7 +188,7 @@ class GenScreenshotPath(unittest.TestCase):
         mt = MonitorTest()
         with patch("builtins.open", mock_open(read_data="1")) as mock_file:
             self.assertEqual(
-                mt.gen_screenshot_path(None, "test"),
+                mt.gen_screenshot_path("", "", "test"),
                 "test/xrandr_screens_after_suspend",
             )
         mock_file.assert_called_with("/sys/power/suspend_stats/success", "r")
@@ -201,7 +201,7 @@ class GenScreenshotPath(unittest.TestCase):
 
         mt = MonitorTest()
         self.assertEqual(
-            mt.gen_screenshot_path("key", "test"), "test/xrandr_screens_key"
+            mt.gen_screenshot_path("", "key", "test"), "test/xrandr_screens_key"
         )
         mock_mkdir.assert_called_with("test/xrandr_screens_key", exist_ok=True)
 
@@ -264,42 +264,45 @@ class ParseArgsTests(unittest.TestCase):
         args = []
         rv = mt.parse_args(args)
         self.assertEqual(rv.cycle, "both")
-        self.assertEqual(rv.keyword, "")
+        self.assertEqual(rv.postfix, "")
         self.assertEqual(rv.screenshot_dir, home)
 
         # change cycle type
         args = ["--cycle", "resolution"]
         rv = mt.parse_args(args)
         self.assertEqual(rv.cycle, "resolution")
-        self.assertEqual(rv.keyword, "")
+        self.assertEqual(rv.postfix, "")
         self.assertEqual(rv.screenshot_dir, home)
 
         # change keyword
-        args = ["--keyword", "key"]
+        args = ["--postfix", "key"]
         rv = mt.parse_args(args)
         self.assertEqual(rv.cycle, "both")
-        self.assertEqual(rv.keyword, "key")
+        self.assertEqual(rv.postfix, "key")
         self.assertEqual(rv.screenshot_dir, home)
 
         # change screenshot_dir
         args = ["--screenshot_dir", "dir"]
         rv = mt.parse_args(args)
         self.assertEqual(rv.cycle, "both")
-        self.assertEqual(rv.keyword, "")
+        self.assertEqual(rv.postfix, "")
         self.assertEqual(rv.screenshot_dir, "dir")
 
         # change all
         args = [
             "-c",
             "transform",
-            "--keyword",
+            "--prefix",
+            "pre",
+            "--postfix",
             "key",
             "--screenshot_dir",
             "dir",
         ]
         rv = mt.parse_args(args)
         self.assertEqual(rv.cycle, "transform")
-        self.assertEqual(rv.keyword, "key")
+        self.assertEqual(rv.prefix, "pre")
+        self.assertEqual(rv.postfix, "key")
         self.assertEqual(rv.screenshot_dir, "dir")
 
 

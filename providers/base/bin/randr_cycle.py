@@ -91,7 +91,6 @@ def action(filename, **kwargs):
     else:
         path_and_filename = "{}.jpg".format(filename)
     time.sleep(5)
-    # subprocess.check_output(["sudo", "keyboard_mouse"])
     subprocess.check_output(["gnome-screenshot", "-f", path_and_filename])
 
 

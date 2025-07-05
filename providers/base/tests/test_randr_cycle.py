@@ -201,7 +201,8 @@ class GenScreenshotPath(unittest.TestCase):
 
         mt = MonitorTest()
         self.assertEqual(
-            mt.gen_screenshot_path("", "key", "test"), "test/xrandr_screens_key"
+            mt.gen_screenshot_path("", "key", "test"),
+            "test/xrandr_screens_key",
         )
         mock_mkdir.assert_called_with("test/xrandr_screens_key", exist_ok=True)
 

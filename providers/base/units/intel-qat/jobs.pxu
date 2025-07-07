@@ -17,7 +17,7 @@ _description: The purpose of this job is to check the QAT device presence
 command:
   PFS=$(qatctl.py list --short | wc -l)
   if [ "${PFS}" -le 0 ]; then
-    echo "manifest.has_intel_qat is set to True but no device found !"
+    echo "This system is supposed to support Intel QuickAssist Technology, but no Intel QAT device were found!"
     exit 1
   fi
 

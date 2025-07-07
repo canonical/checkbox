@@ -143,6 +143,7 @@ command:
   # 2  : RSA crypto tests only
   # 32 : Compression tests only
   # switch all devices to crypto sym mode
+  mkdir -p /etc/sysconfig
   printf "POLICY=0\nServicesEnabled=sym\n" | tee /etc/sysconfig/qat
   systemctl restart qat
   cpa_sample_code runTests=1
@@ -164,6 +165,7 @@ command:
   # 2  : RSA crypto tests only
   # 32 : Compression tests only
   # switch all devices to crypto asym mode
+  mkdir -p /etc/sysconfig
   printf "POLICY=0\nServicesEnabled=asym\n" | tee /etc/sysconfig/qat
   systemctl restart qat
   cpa_sample_code runTests=2
@@ -184,6 +186,7 @@ command:
   # 1  : symmetric crypto tests only
   # 2  : RSA crypto tests only
   # 32 : Compression tests only
+  mkdir -p /etc/sysconfig
   printf "POLICY=0\nServicesEnabled=dc\n" | tee /etc/sysconfig/qat
   systemctl restart qat
   cpa_sample_code runTests=32
@@ -206,6 +209,7 @@ command:
   # 32 : Compression tests only
   # switch all devices to crypto sym mode
   systemctl stop qat
+  mkdir -p /etc/sysconfig
   printf "ServicesEnabled=sym\n" | tee /etc/sysconfig/qat
   qat_init.sh
   cpa_sample_code runTests=1
@@ -228,6 +232,7 @@ command:
   # 32 : Compression tests only
   # switch all devices to crypto asym mode
   systemctl stop qat
+  mkdir -p /etc/sysconfig
   printf "ServicesEnabled=asym\n" | tee /etc/sysconfig/qat
   qat_init.sh
   cpa_sample_code runTests=2
@@ -249,6 +254,7 @@ command:
   # 2  : RSA crypto tests only
   # 32 : Compression tests only
   systemctl stop qat
+  mkdir -p /etc/sysconfig
   printf "ServicesEnabled=dc\n" | tee /etc/sysconfig/qat
   qat_init.sh
   cpa_sample_code runTests=32

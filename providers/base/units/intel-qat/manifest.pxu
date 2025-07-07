@@ -1,4 +1,4 @@
 unit: manifest entry
 id: has_intel_qat
-_name: A Intel Quick-Assist Technology (QAT) device
+_name: An Intel QuickAssist Technology (QAT) device
 value-type: bool

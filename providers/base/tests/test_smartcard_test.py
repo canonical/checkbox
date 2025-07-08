@@ -13,6 +13,7 @@ from smartcard_test import (
 )
 
 
+@mock_timeout()
 class TestSmartcardTest(unittest.TestCase):
 
     def setUp(self):
@@ -246,6 +247,13 @@ class TestSmartcardTest(unittest.TestCase):
         )
         mock_logger_info.assert_not_called()  # Should not log success if exception occurs
 
+        mock_get_real_reader_instance.return_value = None
+        with self.assertRaises(SystemExit) as cm:
+            self.sc.get_connection("Test Reader Stringified")
+        self.assertEqual(
+            cm.exception.code, "no card inserted or card is unsupported"
+        )
+
     @patch("smartcard_test.SmartcardTest.get_real_reader_instance")
     @patch("sys.exit")
     @patch("smartcard_test.SmartcardTest.logger.info")
@@ -268,64 +276,65 @@ class TestSmartcardTest(unittest.TestCase):
         )
         mock_logger_info.assert_not_called()  # Should not log success if exception occurs
 
-    #@patch("smartcard_test.SmartcardTest.get_real_reader_instance")
-    #@patch("smartcard_test.SmartcardTest.logger.info")
-    #@patch("smartcard.CardRequest.CardRequest")
-    #@mock_timeout()
-    #def test_detect_smartcard_success(
-    #    self, MockCardRequest, mock_logger_info, mock_get_real_reader_instance
-    #):
-    #    """
-    #    Test detect_smartcard method for successful insertion and removal.
-    #    """
-    #    mock_real_reader = MagicMock()
-    #    mock_real_reader.name = "Mock Reader 1"
-    #    mock_get_real_reader_instance.return_value = mock_real_reader
+    @patch("smartcard_test.SmartcardTest.get_real_reader_instance")
+    @patch("smartcard_test.SmartcardTest.logger.info")
+    @patch("smartcard_test.CardRequest")
+    def test_detect_smartcard_success(
+        self, MockCardRequest, mock_logger_info, mock_get_real_reader_instance
+    ):
+        """
+        Test detect_smartcard method for successful insertion and removal.
+        """
+        mock_real_reader = MagicMock()
+        mock_real_reader.name = "Mock Reader 1"
+        mock_get_real_reader_instance.return_value = mock_real_reader
 
-    #    mock_card_insert = MagicMock()
-    #    mock_card_insert.reader = "Mock Reader 1"
-    #    mock_card_insert.atr = [0x3B, 0x00]  # Example ATR
+        mock_card_insert = MagicMock()
+        mock_card_insert.reader = "Mock Reader 1"
+        mock_card_insert.atr = [0x3B, 0x00]  # Example ATR
 
-    #    mock_card_request_instance_new = MagicMock()
-    #    mock_card_request_instance_new.waitforcardevent.side_effect = [
-    #        [mock_card_insert]
-    #    ]
-    #    mock_card_request_instance_old = MagicMock()
-    #    mock_card_request_instance_old.waitforcardevent.side_effect = [[]]
+        mock_card_request_instance_new = MagicMock()
+        mock_card_request_instance_new.waitforcardevent.side_effect = [
+            [mock_card_insert],
+        ]
+        mock_card_request_instance_old = MagicMock()
+        mock_card_request_instance_old.waitforcardevent.side_effect = [
+            [],
+        ]
 
-    #    MockCardRequest.side_effect = [
-    #        mock_card_request_instance_new,
-    #        mock_card_request_instance_old,
-    #    ]
-    #    self.sc.detect_smartcard("Mock-Reader-1")
+        MockCardRequest.side_effect=[
+                mock_card_request_instance_new,
+                mock_card_request_instance_old,
+            ]
+        self.sc.detect_smartcard("Mock-Reader-1")
 
-    #    mock_get_real_reader_instance.assert_called_once_with("Mock-Reader-1")
-    #    self.assertEqual(MockCardRequest.call_count, 2)
-    #    MockCardRequest.assert_has_calls(
-    #        [
-    #            unittest.mock.call(timeout=30, newcardonly=True),
-    #            unittest.mock.call(timeout=30, newcardonly=False),
-    #        ]
-    #    )
-    #    mock_card_request_instance_new.waitforcardevent.assert_called_once()
-    #    mock_card_request_instance_old.waitforcardevent.assert_called_once()
+        mock_get_real_reader_instance.assert_called_once_with("Mock-Reader-1")
+        self.assertEqual(MockCardRequest.call_count, 2)
+        MockCardRequest.assert_has_calls(
+            [
+                unittest.mock.call(timeout=30, newcardonly=True),
+                unittest.mock.call(timeout=30, newcardonly=False),
+            ]
+        )
+        mock_card_request_instance_new.waitforcardevent.assert_called_once()
+        mock_card_request_instance_old.waitforcardevent.assert_called_once()
 
-    #    expected_logger_calls = [
-    #        unittest.mock.call(
-    #            "Smartcard insertion and removal detection test is starting"
-    #        ),
-    #        unittest.mock.call(
-    #            "Please insert and remove the smartcard within 30 seconds.\n"
-    #        ),
-    #        unittest.mock.call("Smart card insertion detected:"),
-    #        unittest.mock.call(mock_card_insert),
-    #        unittest.mock.call(
-    #            "\nPlease remove it to test the removal detection\n"
-    #        ),
-    #        unittest.mock.call("Smart card removal detected:"),
-    #        unittest.mock.call(mock_card_insert),
-    #    ]
-    #    mock_logger_info.assert_has_calls(expected_logger_calls)
+        expected_logger_calls = [
+            unittest.mock.call(
+                "Smartcard insertion and removal detection test is starting"
+            ),
+            unittest.mock.call(
+                "Please insert and remove the smartcard within 30 seconds.\n"
+            ),
+            unittest.mock.call("Smart card insertion detected:"),
+            unittest.mock.call(mock_card_insert),
+            unittest.mock.call(
+                "\nPlease remove it to test the removal detection\n"
+            ),
+            unittest.mock.call("Smart card removal detected:"),
+            unittest.mock.call(mock_card_insert),
+        ]
+        mock_logger_info.assert_has_calls(expected_logger_calls)
 
     @patch("smartcard_test.SmartcardTest.get_connection")
     @patch("smartcard_test.SmartcardTest.logger.info")
@@ -400,6 +409,13 @@ class TestSmartcardTest(unittest.TestCase):
         self.assertNotIn(
             unittest.mock.call("Send/Receive APDU command is working"),
             mock_logger_info.call_args_list,
+        )
+
+        mock_get_connection.return_value = None # No return value from connection
+        with self.assertRaises(SystemExit) as cm:
+            self.sc.send_apdu_test("Test Reader Stringified")
+        self.assertEqual(
+            cm.exception.code, "Could not working for this smartcard reader"
         )
 
     def test_args_parsing_resources(self):

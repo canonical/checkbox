@@ -1,5 +1,21 @@
 plugin: shell
 category_id: smartcard
+id: smartcard/smartcard-reader-info
+user: root
+estimated_duration: 1.0
+_description:
+ Check if Smartcard reader exist or not
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_contact_smartcard_reader == 'True'
+ package.name == 'pcscd' or snap.name == 'pcscd'
+command:
+ pcscd --debug
+ journalctl -b 0 -t pcscd
+
+plugin: shell
+category_id: smartcard
 id: smartcard/smartcard-reader-detect-contact
 estimated_duration: 1.0
 _description:

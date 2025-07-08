@@ -29,6 +29,7 @@ bootstrap_include:
   smartcard_resource_contact
   smartcard_resource_contactless
 include:
+ smartcard/smartcard-reader-info
  smartcard/smartcard-reader-detect-contact
  smartcard/smartcard-reader-detect-contactless
  smartcard/smartcard-reader-send-apdu-auto

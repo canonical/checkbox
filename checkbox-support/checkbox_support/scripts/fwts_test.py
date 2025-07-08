@@ -180,7 +180,7 @@ def get_available_fwts_tests():
     stdout, stderr = result.communicate()
 
     if result.returncode != 0:
-        raise RuntimeError(f"FWTS command failed: {stderr.decode()}")
+        raise RuntimeError("FWTS command failed: {}".format(stderr.decode()))
 
     # Parse the output to extract test names
     output_lines = stdout.decode().strip().split("\n")

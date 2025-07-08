@@ -28,7 +28,7 @@ from checkbox_support.lxd_support import LXD, LXDVM
 
 GPU_VENDORS = {
     "nvidia": {
-        "test": "mixbench.cuda",
+        "test": "sudo mixbench.cuda",
         "lxd": {
             "launch_options": [
                 "-c",
@@ -62,6 +62,27 @@ GPU_THRESHOLD_SEC = 12.0
 
 This can be overwritten by the `--threshold` option or by setting the
 environment variable `LXD_GPU_THRESHOLD`. With priority in that order.
+"""
+
+QEMU_OPTS = ""
+"""Any custom QEMU options required for passthrough on your platform
+
+This can be overwritten by the `--qemuopts` option or by setting the
+environment variable `QEMU_OPTS`. With priority in that order.
+"""
+
+VM_RAM_MB = 0
+"""How much RAM to allocate to the guest VM
+
+This can be overwritten by the `--vmram` option or by setting the
+environment variable `VM_RAM_MB`. With priority in that order.
+"""
+
+VM_CPUS = 0
+"""How many CPUs to allocate to the guest VM
+
+This can be overwritten by the `--vmcpus` option or by setting the
+environment variable `VM_CPUS`. With priority in that order.
 """
 
 
@@ -132,6 +153,32 @@ def test_lxdvm_gpu(args):
         )
 
         logging.info("Waiting for %s to be up", instance.name)
+        instance.wait_until_running()
+
+        instance.stop(force=True)
+
+        if args.qemuopts:
+            logging.info(
+                "Setting user-provided QEMU options: %s", args.qemuopts
+            )
+            instance.set_config("raw.qemu={}".format(args.qemuopts))
+
+        if args.vmcpus:
+            logging.info(
+                "Setting a custom CPU limit for the VM: %d CPUs",
+                args.vmcpus,
+            )
+            instance.set_config("limits.cpu {}".format(args.vmcpus))
+
+        if args.vmram:
+            logging.info(
+                "Setting a custom memory limit for the VM: %d MB",
+                args.vmram,
+            )
+            instance.set_config("limits.memory {}MB".format(args.vmram))
+
+        instance.start()
+
         instance.wait_until_running()
 
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
@@ -230,6 +277,28 @@ def parse_args():
         default=os.getenv("KVM_IMAGE"),
         help="URL to image",
     )
+
+    lxdvm_subparser.add_argument(
+        "--qemuopts",
+        type=str,
+        default=str(os.getenv("QEMU_OPTS") or QEMU_OPTS),
+        help="Custom QEMU Options required for your platform",
+    )
+
+    lxdvm_subparser.add_argument(
+        "--vmram",
+        type=int,
+        default=int(os.getenv("VM_RAM_MB") or VM_RAM_MB),
+        help="Amount of RAM to allocate to VM guest in MiB",
+    )
+
+    lxdvm_subparser.add_argument(
+        "--vmcpus",
+        type=int,
+        default=int(os.getenv("VM_CPUS") or VM_CPUS),
+        help="Number of CPUs to allocate to VM guest",
+    )
+
     lxdvm_subparser.set_defaults(func=test_lxdvm_gpu)
 
     return parser.parse_args()

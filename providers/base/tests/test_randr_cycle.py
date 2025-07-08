@@ -188,7 +188,7 @@ class GenScreenshotPath(unittest.TestCase):
         mt = MonitorTest()
         with patch("builtins.open", mock_open(read_data="1")) as mock_file:
             self.assertEqual(
-                mt.gen_screenshot_path("", "", "test"),
+                mt.gen_screenshot_path(None, "", "test"),
                 "test/xrandr_screens_after_suspend",
             )
         mock_file.assert_called_with("/sys/power/suspend_stats/success", "r")
@@ -201,10 +201,14 @@ class GenScreenshotPath(unittest.TestCase):
 
         mt = MonitorTest()
         self.assertEqual(
-            mt.gen_screenshot_path("", "key", "test"),
-            "test/xrandr_screens_key",
+            mt.gen_screenshot_path("", "key", "test"), "test/xrandr_screens_key"
         )
         mock_mkdir.assert_called_with("test/xrandr_screens_key", exist_ok=True)
+
+        self.assertEqual(
+            mt.gen_screenshot_path("1", "key", "test"), "test/1_xrandr_screens_key"
+        )
+        mock_mkdir.assert_called_with("test/1_xrandr_screens_key", exist_ok=True)
 
 
 class TestScreenshotTarring(unittest.TestCase):

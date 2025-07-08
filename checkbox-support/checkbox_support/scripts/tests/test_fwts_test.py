@@ -302,13 +302,36 @@ class MainFunctionTest(unittest.TestCase):
         self.assertIn("Unavailable Tests: 1", output)
 
     @patch("sys.stdout", new_callable=StringIO)
-    @patch("checkbox_support.scripts.fwts_test.filter_available_tests")
-    def test_hwe_option_extends_requested_tests(
-        self, mock_filter, mock_stdout
-    ):
+    @patch("checkbox_support.scripts.fwts_test.Popen")
+    def test_hwe_option_extends_requested_tests(self, mock_popen, mock_stdout):
         """Test that --hwe option extends requested_tests with HWE_TESTS."""
-        # Mock filter_available_tests to return some available tests
-        mock_filter.return_value = (["acpitests", "version"], [])
+        # Mock fwts --show-tests to return some available tests
+        mock_fwts_process = MagicMock()
+        mock_fwts_process.communicate.return_value = (
+            b"acpitests\nversion\nmtrr\nvirt\napicedge\nklog\noops\n",
+            None,
+        )
+        mock_fwts_process.returncode = 0
+
+        # Mock Popen to return successful test results for each test
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = (
+            b"PASSED: Test completed successfully",
+            None,
+        )
+        mock_process.returncode = 0
+
+        # Configure Popen to return different results for different calls
+        # First call is for fwts --show-tests, then one for each test in HWE_TESTS
+        mock_popen.side_effect = [
+            mock_fwts_process,  # fwts --show-tests
+            mock_process,  # version
+            mock_process,  # mtrr
+            mock_process,  # virt
+            mock_process,  # apicedge
+            mock_process,  # klog
+            mock_process,  # oops
+        ]
 
         # Run main with --hwe option
         with patch(
@@ -322,22 +345,37 @@ class MainFunctionTest(unittest.TestCase):
         ):
             main()
 
-        # Verify that filter_available_tests was called with HWE_TESTS
-        # We can't directly check the args, but we can verify the function was called
-        mock_filter.assert_called_once()
-
         # Verify that print_log was called (log content should be in stdout)
         output = mock_stdout.getvalue()
         self.assertIn("Test log content", output)
 
     @patch("sys.stdout", new_callable=StringIO)
-    @patch("checkbox_support.scripts.fwts_test.filter_available_tests")
-    def test_qa_option_extends_requested_tests(self, mock_filter, mock_stdout):
+    @patch("checkbox_support.scripts.fwts_test.Popen")
+    def test_qa_option_extends_requested_tests(self, mock_popen, mock_stdout):
         """Test that --qa option extends requested_tests with QA_TESTS."""
-        # Mock filter_available_tests to return some available tests
-        mock_filter.return_value = (["acpitests", "version"], [])
+        # Mock fwts --show-tests to return all QA_TESTS
+        from checkbox_support.scripts.fwts_test import QA_TESTS
 
-        # Run main with --qa option
+        mock_fwts_process = MagicMock()
+        mock_fwts_process.communicate.return_value = (
+            ("\n".join(QA_TESTS)).encode(),
+            None,
+        )
+        mock_fwts_process.returncode = 0
+
+        # Mock Popen to return successful test results for each test
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = (
+            b"PASSED: Test completed successfully",
+            None,
+        )
+        mock_process.returncode = 0
+
+        # Provide enough mocks: 1 for fwts --show-tests, then one for each QA_TESTS
+        mock_popen.side_effect = [mock_fwts_process] + [mock_process] * len(
+            QA_TESTS
+        )
+
         with patch(
             "sys.argv",
             [
@@ -349,23 +387,35 @@ class MainFunctionTest(unittest.TestCase):
         ):
             main()
 
-        # Verify that filter_available_tests was called
-        mock_filter.assert_called_once()
-
-        # Verify that print_log was called (log content should be in stdout)
         output = mock_stdout.getvalue()
         self.assertIn("Test log content", output)
 
     @patch("sys.stdout", new_callable=StringIO)
-    @patch("checkbox_support.scripts.fwts_test.filter_available_tests")
+    @patch("checkbox_support.scripts.fwts_test.Popen")
     def test_server_option_extends_requested_tests(
-        self, mock_filter, mock_stdout
+        self, mock_popen, mock_stdout
     ):
         """Test that --server option extends requested_tests with SERVER_TESTS."""
-        # Mock filter_available_tests to return some available tests
-        mock_filter.return_value = (["acpitests", "version"], [])
+        from checkbox_support.scripts.fwts_test import SERVER_TESTS
 
-        # Run main with --server option
+        mock_fwts_process = MagicMock()
+        mock_fwts_process.communicate.return_value = (
+            ("\n".join(SERVER_TESTS)).encode(),
+            None,
+        )
+        mock_fwts_process.returncode = 0
+
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = (
+            b"PASSED: Test completed successfully",
+            None,
+        )
+        mock_process.returncode = 0
+
+        mock_popen.side_effect = [mock_fwts_process] + [mock_process] * len(
+            SERVER_TESTS
+        )
+
         with patch(
             "sys.argv",
             [
@@ -377,10 +427,6 @@ class MainFunctionTest(unittest.TestCase):
         ):
             main()
 
-        # Verify that filter_available_tests was called
-        mock_filter.assert_called_once()
-
-        # Verify that print_log was called (log content should be in stdout)
         output = mock_stdout.getvalue()
         self.assertIn("Test log content", output)
 

@@ -62,9 +62,7 @@ class ExtendedEnum(Enum):
 
 def get_pci_ids(device_id: str, vendor_id: str = ""):
     args: List[str] = ["lspci", "-d", f"{vendor_id}:{device_id}"]
-    devices = subprocess.check_output(
-        args, universal_newlines=True
-    ).splitlines()
+    devices = subprocess.check_output(args, universal_newlines=True).splitlines()
     return [v.split(" ")[0] for v in devices]
 
 
@@ -74,9 +72,7 @@ def get_vfio(bdf: str):
     for vfio_file in vfio_files:
         vfio_group = vfio_file.name
         if vfio_group != "vfio" and vfio_group != "devices":
-            iommu_path = pathlib.Path(
-                f"/sys/kernel/iommu_groups/{vfio_group}/devices/"
-            )
+            iommu_path = pathlib.Path(f"/sys/kernel/iommu_groups/{vfio_group}/devices/")
             devices = iommu_path.glob("*")
             for dev_path in devices:
                 if dev_path.name == bdf:
@@ -219,9 +215,7 @@ class QatDeviceDebugfs(dict):
             fname = f
             self.__setitem__(f"f.name", {})
 
-        self.__setitem__(
-            "telemetry", QatDeviceTelemetry(self.path / "telemetry")
-        )
+        self.__setitem__("telemetry", QatDeviceTelemetry(self.path / "telemetry"))
         self.get("telemetry").enable_telemetry()
 
         self.__setitem__("dev_cfg", self.read("dev_cfg"))
@@ -347,7 +341,7 @@ class Qat4xxxDevice:
             return f"{self.pci_id}\t{self.vfio}"
         else:
             # :<10 : to add space padding
-            str = f"NUMA_{self.numa_node}\t{self.pci_id}\t{self.sys_path}\t{self.cfg_services :<10}\t{self.state}"
+            str = f"NUMA_{self.numa_node}\t{self.pci_id}\t{self.sys_path}\t{self.cfg_services:<10}\t{self.state}"
             # virtual function
             if len(self.vfs) > 0:
                 str += "\n"
@@ -382,15 +376,11 @@ class QatDevManager:
                         # for example, it has been passthrough in a VM, we do not want to crash
                         pass
                     except Exception as e:
-                        print(
-                            f"Exception occured to instanciate QAT device : {e}"
-                        )
+                        print(f"Exception occured to instanciate QAT device : {e}")
             self.qat_devs.extend(_devs)
 
     def filter_counter(counter_name):
-        if QatDevManager.counters and (
-            counter_name not in QatDevManager.counters
-        ):
+        if QatDevManager.counters and (counter_name not in QatDevManager.counters):
             return False
         return True
 

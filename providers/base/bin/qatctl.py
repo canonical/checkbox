@@ -38,11 +38,12 @@ import sys
 """
 ---------------------------
 Driver Name | PFid | VFid
+/ Gen       |      |
 ---------------------------
-4xxx        | 4940 | 4941
-4xxx        | 4942 | 4943 (OOT Intel driver is 401xx)
-4xxx        | 4944 | 4945 (OOT Intel driver is 402xx)
-420xx       | 4946 | 4947
+4xxx / Gen4 | 4940 | 4941
+4xxx / Gen4 | 4942 | 4943 (OOT Intel driver is 401xx)
+4xxx / Gen4 | 4944 | 4945 (OOT Intel driver is 402xx)
+420xx/ Gen5 | 4946 | 4947
 ---------------------------
 """
 QAT_PF_PCI_DEVICE_IDS = [

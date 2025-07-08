@@ -12,7 +12,7 @@ nested_part:
 
 id: snappy-snap-full-with-refresh-control
 unit: test plan
-_name: Tests for snap command
+_name: Tests for snap command (with refresh control)
 _description:
  QA test plan that includes generic tests for the snap command for Snappy
  Ubuntu Core devices.

@@ -33,9 +33,9 @@ include:
 
 id: after-suspend-touchscreen-cert-full
 unit: test plan
-_name: Touchscreen tests
+_name: Touchscreen tests (after suspend)
 _description:
- Touchscreen tests
+ Touchscreen tests after suspend
 include:
 nested_part:
  after-suspend-touchscreen-cert-manual
@@ -43,9 +43,9 @@ nested_part:
 
 id: after-suspend-touchscreen-cert-manual
 unit: test plan
-_name: Touchscreen tests (Manual)
+_name: Touchscreen tests (Manual after suspend)
 _description:
- Touchscreen tests (Manual)
+ Touchscreen tests (Manual after suspend)
 include:
  after-suspend-touchscreen/drag-n-drop                certification-status=blocker
  after-suspend-touchscreen/multitouch-zoom            certification-status=blocker
@@ -59,9 +59,9 @@ bootstrap_include:
 
 id: after-suspend-touchscreen-cert-automated
 unit: test plan
-_name: Touchscreen tests (Automated)
+_name: Touchscreen tests (Automated after suspend)
 _description:
- Touchscreen tests (Automated)
+ Touchscreen tests (Automated after suspend)
 include:
 
 id: touchscreen-cert-blockers

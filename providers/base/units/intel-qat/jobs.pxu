@@ -102,12 +102,12 @@ _description: Check that VFIO-PCI support is enabled for the device
   each VF will have it own character file in /dev/vfio/
 command:
   rmmod vfio-pci || true
-  nb_vfio=$(qatctl.py status --devices {{ pf }} --vfio | wc -l)
-  [ "$nb_vfio" -le 0 ] || (echo "nb vfio devices should be <= 0" && exit 1)
+  nb_vfio_before=$(qatctl.py status --devices {{ pf }} --vfio | wc -l)
   # we have to pass the VF device ids
   modprobe vfio-pci ids=8086:4941,8086:4943,8086:4945,8086:4947
-  nb_vfio=$(qatctl.py status --devices {{ pf }} --vfio | wc -l)
-  [ "$nb_vfio" -gt 0 ] || (echo "nb vfio devices should be > 0" && exit 1)
+  nb_vfio_after=$(qatctl.py status --devices {{ pf }} --vfio | wc -l)
+  [ "$nb_vfio_before" -le 0 ] || (echo "nb vfio devices should be <= 0" && exit 1)
+  [ "$nb_vfio_after" -gt 0 ] || (echo "nb vfio devices should be > 0" && exit 1)
 
 unit: template
 template-resource: qat_pf

@@ -185,16 +185,18 @@ def get_available_fwts_tests():
     # Parse the output to extract test names
     output_lines = stdout.decode().strip().split("\n")
     available_tests = []
+    seen_tests = set()
 
     for line in output_lines:
         # Skip empty lines and section headers (lines ending with ':')
         if line.strip() and not line.endswith(":"):
             # Extract the first word as the test name
             test_name = line.lstrip().split()[0]
-            available_tests.append(test_name)
+            if test_name not in seen_tests:
+                available_tests.append(test_name)
+                seen_tests.add(test_name)
 
-    # Remove duplicates while preserving order
-    return list(dict.fromkeys(available_tests))
+    return available_tests
 
 
 def get_sleep_times(log, start_marker):

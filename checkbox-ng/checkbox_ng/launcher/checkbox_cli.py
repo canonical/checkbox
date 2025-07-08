@@ -139,7 +139,7 @@ def main():
         "-v",
         "--verbose",
         action="store_true",
-        help=_("print more logging from checkbox"),
+        help=_("print more logging from checkbox (default for the agent)"),
     )
     top_parser.add_argument(
         "--debug",

@@ -265,6 +265,10 @@ class TestLXD(TestCase):
         self_mock = MagicMock()
         LXD.restart(self_mock)
 
+    def test_set_config(self, logging_mock):
+        self_mock = MagicMock()
+        LXD.set_config(self_mock, " -global q35-pcihost.pci-hole64-size=8192G")
+
     def test_add_device_no_options(self, logging_mock):
         self_mock = MagicMock()
         LXD.add_device(self_mock, "gpu", "gpu")

@@ -30,10 +30,11 @@ import argparse
 from enum import Enum
 import json
 import pathlib
-from pprint import *
+from pprint import pprint
 import re
 import subprocess
 import sys
+from typing import List
 
 """
 ---------------------------
@@ -62,7 +63,8 @@ class ExtendedEnum(Enum):
 
 def get_pci_ids(device_id: str, vendor_id: str = ""):
     args: List[str] = ["lspci", "-d", f"{vendor_id}:{device_id}"]
-    devices = subprocess.check_output(args, universal_newlines=True).splitlines()
+    devices = subprocess.check_output(args, universal_newlines=True) \
+                        .splitlines()
     return [v.split(" ")[0] for v in devices]
 
 
@@ -72,7 +74,8 @@ def get_vfio(bdf: str):
     for vfio_file in vfio_files:
         vfio_group = vfio_file.name
         if vfio_group != "vfio" and vfio_group != "devices":
-            iommu_path = pathlib.Path(f"/sys/kernel/iommu_groups/{vfio_group}/devices/")
+            vfio_devs_path = f"/sys/kernel/iommu_groups/{vfio_group}/devices/"
+            iommu_path = pathlib.Path(vfio_devs_path)
             devices = iommu_path.glob("*")
             for dev_path in devices:
                 if dev_path.name == bdf:
@@ -121,25 +124,26 @@ class DeviceData(dict):
     """
 
     def __init__(self):
-        self.regex = re.compile(f"(util|exec)_([a-zA-Z]+)(\\d+)")
+        self.regex = re.compile("(util|exec)_([a-zA-Z]+)(\\d+)")
 
     def avg(self, counter_type: CounterType, engine: CounterEngine):
         try:
             values = self.__getitem__(f"{counter_type.value}_{engine.value}")
-        except:
+        except Exception as e:
+            print(f"Exception occured : {e}")
             return -1
         return sum(values) / len(values)
 
     def parse(self, data: str):
         self.clear()
         lines = data.splitlines()
-        for l in lines:
-            fields = l.split()
+        for line in lines:
+            fields = line.split()
             counter_name = fields[0]
             value = fields[1]
             # counter_name start with [util|exec] and ends with number
             # -> slice -> must create an array
-            m = self.regex.match(l)
+            m = self.regex.match(line)
             values = value
             if m:
                 counter_name = f"{m.group(1)}_{m.group(2)}"
@@ -165,9 +169,9 @@ class QatDeviceTelemetry(dict):
         self.telemetry_path = telemetry_path
         self.debugfs_control_path = self.telemetry_path / "control"
         try:
-            f = self.debugfs_control_path.open()
+            self.debugfs_control_path.open()
             self.debugfs_enabled = True
-        except Exception as e:
+        except:  # noqa: E722
             pass
 
         self.__setitem__("device_data", DeviceData())
@@ -192,7 +196,6 @@ class QatDeviceTelemetry(dict):
     @debugfs_fn
     def collect(self):
         telemetry_path = self.telemetry_path / "device_data"
-        lines = []
         with telemetry_path.open() as f:
             data = f.read()
             self.get("device_data").parse(data)
@@ -211,11 +214,11 @@ class QatDeviceDebugfs(dict):
         self.path = debugfs_path
         self.parser = {}
         files = self.path.glob("*")
-        for f in files:
-            fname = f
-            self.__setitem__(f"f.name", {})
+        for fname in files:
+            self.__setitem__(f"{fname.name}", {})
 
-        self.__setitem__("telemetry", QatDeviceTelemetry(self.path / "telemetry"))
+        self.__setitem__("telemetry",
+                         QatDeviceTelemetry(self.path / "telemetry"))
         self.get("telemetry").enable_telemetry()
 
         self.__setitem__("dev_cfg", self.read("dev_cfg"))
@@ -257,7 +260,7 @@ class Qat4xxxDevice:
             if vfio_group >= 0:
                 try:
                     self.vfio = VFIOGroup(vfio_group, self)
-                except:
+                except:  # noqa: E722
                     self.vfio = None
             return
 
@@ -279,8 +282,9 @@ class Qat4xxxDevice:
                 )
                 if self._check_vf(qat_dev):
                     self.vfs.append(qat_dev)
-            except:
-                # if the vfio is not setup properly, the creation of the virtual device might fail
+            except:  # noqa: E722
+                # if the vfio is not setup properly, the creation
+                # of the virtual device might fail
                 pass
 
     def _check_vf(self, vf):
@@ -341,7 +345,7 @@ class Qat4xxxDevice:
             return f"{self.pci_id}\t{self.vfio}"
         else:
             # :<10 : to add space padding
-            str = f"NUMA_{self.numa_node}\t{self.pci_id}\t{self.sys_path}\t{self.cfg_services:<10}\t{self.state}"
+            str = f"NUMA_{self.numa_node}\t{self.pci_id}\t{self.sys_path}\t{self.cfg_services:<10}\t{self.state}"  # noqa: E501
             # virtual function
             if len(self.vfs) > 0:
                 str += "\n"
@@ -371,16 +375,17 @@ class QatDevManager:
                 if (filter_devs is None) or (pci_id in filter_devs):
                     try:
                         _devs.append(Qat4xxxDevice(device_id, pci_id))
-                    except FileNotFoundError as e:
-                        # in some cases, the QAT device might not be available in the sysfs and debugfs
-                        # for example, it has been passthrough in a VM, we do not want to crash
-                        pass
                     except Exception as e:
-                        print(f"Exception occured to instanciate QAT device : {e}")
+                        # in some cases, the QAT device might not be
+                        # available in the sysfs and debugfs. for
+                        # example, it has been passthrough in a VM,
+                        # we do not want to crash
+                        print(f"Exception occured to instanciate QAT device : {e}")  # noqa: E501
+                        pass
             self.qat_devs.extend(_devs)
 
     def filter_counter(counter_name):
-        if QatDevManager.counters and (counter_name not in QatDevManager.counters):
+        if QatDevManager.counters and (counter_name not in QatDevManager.counters):  # noqa: E501
             return False
         return True
 
@@ -418,7 +423,7 @@ class QatDevManager:
                 telemetry = d.debugfs["telemetry"]
                 telemetry.collect()
                 print(telemetry)
-            except:
+            except:  # noqa: E722
                 sys.exit(1)
 
     def print_vfio(self):
@@ -475,7 +480,7 @@ def qatctl(opts, p):
     if opts.set_service:
         print(f"Set device service : {opts.set_service}")
         qat_manager.set_cfg_services(opts.set_service)
-        print(f"Please restart qat service to update the config")
+        print("Please restart qat service to update the config")
         return
 
     opts.func(opts, qat_manager)
@@ -512,7 +517,7 @@ cfg_services = [
 
 
 def main():
-    parser = argparse.ArgumentParser(description=f"QAT control utility")
+    parser = argparse.ArgumentParser(description="QAT control utility")
     parser.add_argument(
         "-d",
         "--devices",
@@ -525,14 +530,14 @@ def main():
         type=str,
         default=None,
         choices=["up", "down"],
-        help="set device state (for all devices if no specific device is specified)",
+        help="set device state (for all devices if no specific device is specified)",  # noqa: E501
     )
     parser.add_argument(
         "--set-service",
         type=str,
         default=None,
         choices=cfg_services,
-        help="set device service (for all devices if no specific device is specified)",
+        help="set device service (for all devices if no specific device is specified)",  # noqa: E501
     )
     parser.add_argument(
         "--get-state",
@@ -546,7 +551,7 @@ def main():
         default=False,
         help="get device telemetry data",
     )
-    list_group = parser.add_argument_group("list group")
+    parser.add_argument_group("list group")
     subparser = parser.add_subparsers()
     parser_list_dev = subparser.add_parser("list")
     parser_list_dev.add_argument(
@@ -557,7 +562,7 @@ def main():
         help="list devices (PF)",
     )
     parser_list_dev.set_defaults(func=list_dev)
-    status_group = parser.add_argument_group("status group")
+    parser.add_argument_group("status group")
     parser_status = subparser.add_parser("status")
     parser_status.add_argument(
         "-d",

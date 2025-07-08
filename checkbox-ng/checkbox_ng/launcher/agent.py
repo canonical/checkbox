@@ -24,7 +24,10 @@ import logging
 import os
 import socket
 import sys
+
 from checkbox_ng import app_context
+from checkbox_ng.utils import set_all_loggers_level
+
 from plainbox.impl.config import Configuration
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.session.assistant import ResumeCandidate
@@ -106,6 +109,13 @@ class RemoteAgent:
             raise SystemExit(
                 _("System is not configured to run sudo without a password!")
             )
+        # This sets INFO as the default logging level if debug wasn't requested
+        # the hasattr is because debug is a top level flag and may not be
+        # present if not specified
+        if not hasattr(ctx.args, "debug") or not ctx.args.debug:
+            # default log level of the agent is INFO
+            logging.basicConfig(level=logging.INFO)
+            set_all_loggers_level(logging.INFO)
         if ctx.args.resume:
             msg = (
                 "--resume is deprecated and will be removed soon. "

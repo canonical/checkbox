@@ -86,7 +86,7 @@ include:
 
 id: server-miscellaneous-regression
 unit: test plan
-_name: Miscellaneous server cert tests
+_name: Miscellaneous server tests for SRU
 _description:
  Miscellaneous server tests (log checks, dmi data, etc)
 mandatory_include:

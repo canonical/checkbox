@@ -42,7 +42,7 @@ include:
 
 id: after-suspend-touchpad-cert-full
 unit: test plan
-_name: Touchpad tests
+_name: Touchpad tests (after suspend)
 _description: Touchpad tests
 include:
     after-suspend-touchpad/basic                                 certification-status=blocker

@@ -1078,7 +1078,7 @@ class Run(MainLoopStage):
         parser.add_argument(
             "--exact",
             action="store_true",
-            help="only expand the test-plan FQID that exactly matches",
+            help="only expand the test-plan fully qualified ID that exactly matches",
         )
 
     @property
@@ -1350,7 +1350,7 @@ class Expand:
             "'list-bootstrapped' command instead."
         )
         parser.add_argument(
-            "TEST_PLAN", help=_("test-plan ID or FQID to expand")
+            "TEST_PLAN", help=_("test-plan ID or fully qualified ID to expand")
         )
         parser.add_argument(
             "-f",
@@ -1362,7 +1362,7 @@ class Expand:
         parser.add_argument(
             "--exact",
             action="store_true",
-            help="only expand the test-plan that exactly matches the FQID",
+            help="only expand the test-plan that exactly matches the fully qualified ID",
         )
 
     def _get_relevant_manifest_units(self, jobs_and_templates_list):
@@ -1484,7 +1484,7 @@ class ListBootstrapped:
         parser.add_argument(
             "--exact",
             action="store_true",
-            help="only bootstrap test-plan that exactly match FQID",
+            help="only bootstrap test-plan that exactly match fully qualified ID",
         )
         parser.add_argument("TEST_PLAN", help=_("test-plan id to bootstrap"))
         parser.add_argument(
@@ -1684,7 +1684,9 @@ class Show:
         parser.add_argument(
             "--exact",
             action="store_true",
-            help=_("Only show units that exactly match the FQID"),
+            help=_(
+                "Only show units that exactly match the fully qualified ID"
+            ),
         )
 
     def invoked(self, ctx):

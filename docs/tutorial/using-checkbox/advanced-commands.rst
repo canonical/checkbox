@@ -174,7 +174,7 @@ it contains:
     You can omit the namespace (that would be ``com.canonical.certification``
     in this case from any of the following commands). When doing so, Checkbox
     will do its best to find what you are asking for, disregarding the
-    namespace. If it the match is not unique (there is more than one unit
+    namespace. If the match is not unique (there is more than one unit
     matching), the command may either fail (if it wouldn't make sense to apply
     the same action to all matches) or run the action for all matches. If this
     is undesirable, you can use ``--exact`` to fail if nothing exactly matches

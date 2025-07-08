@@ -60,10 +60,10 @@ class MainFunctionTest(unittest.TestCase):
     @patch("sys.argv", ["fwts_test.py", "--log", "test.log"])
     @patch("sys.stdout", new_callable=StringIO)
     @patch("checkbox_support.scripts.fwts_test.Popen")
-    def test_print_log_called_when_no_unavailable_tests(
+    def test_print_log_called_when_tests_are_run(
         self, mock_popen, mock_stdout
     ):
-        """Test that print_log is called when no tests are unavailable."""
+        """Test that print_log is called when tests are actually run."""
         # Mock Popen to return successful test results
         mock_process = MagicMock()
         mock_process.communicate.return_value = (
@@ -104,10 +104,10 @@ class MainFunctionTest(unittest.TestCase):
     @patch("sys.argv", ["fwts_test.py", "--log", "test.log"])
     @patch("sys.stdout", new_callable=StringIO)
     @patch("checkbox_support.scripts.fwts_test.Popen")
-    def test_print_log_not_called_when_unavailable_tests(
+    def test_print_log_not_called_when_no_tests_run(
         self, mock_popen, mock_stdout
     ):
-        """Test that print_log is NOT called when tests are unavailable."""
+        """Test that print_log is NOT called when no tests are run."""
         # Mock fwts --show-tests to return different available tests
         mock_fwts_process = MagicMock()
         mock_fwts_process.communicate.return_value = (b"version\n", None)
@@ -131,6 +131,54 @@ class MainFunctionTest(unittest.TestCase):
         output = mock_stdout.getvalue()
         self.assertNotIn("Test log content", output)
         # But we should see the unavailable test message
+        self.assertIn("Unavailable Tests: 1", output)
+
+    @patch("sys.argv", ["fwts_test.py", "--log", "test.log"])
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_support.scripts.fwts_test.Popen")
+    def test_print_log_called_when_mixed_available_unavailable(
+        self, mock_popen, mock_stdout
+    ):
+        """Test that print_log is called when some tests run, some unavailable."""
+        # Mock Popen to return successful test results
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = (
+            b"PASSED: Test completed successfully",
+            None,
+        )
+        mock_process.returncode = 0
+        mock_popen.return_value = mock_process
+
+        # Mock fwts --show-tests to return some available tests
+        mock_fwts_process = MagicMock()
+        mock_fwts_process.communicate.return_value = (
+            b"acpitests\nversion\n",
+            None,
+        )
+        mock_fwts_process.returncode = 0
+
+        # Configure Popen to return different results for different calls
+        mock_popen.side_effect = [mock_fwts_process, mock_process]
+
+        # Run main with mixed available and unavailable tests
+        with patch(
+            "sys.argv",
+            [
+                "fwts_test.py",
+                "--test",
+                "acpitests",
+                "--test",
+                "nonexistent_test",
+                "--log",
+                self.logfile.name,
+            ],
+        ):
+            main()
+
+        # Verify that print_log was called (log content should be in stdout)
+        output = mock_stdout.getvalue()
+        self.assertIn("Test log content", output)
+        # Also verify that unavailable test message appears
         self.assertIn("Unavailable Tests: 1", output)
 
     def tearDown(self):

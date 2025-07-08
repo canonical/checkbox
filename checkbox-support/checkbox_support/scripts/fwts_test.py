@@ -679,7 +679,7 @@ def main():
     print()
     print(" Please review the following log for more information:")
     print()
-    if not unavailable:
+    if tests:  # Only print log if there were tests actually run
         print_log(args.log)
 
     if args.fail_level != "none":

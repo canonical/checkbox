@@ -305,10 +305,9 @@ def msg_is_multifilesink_save(msg: Gst.Message) -> bool:
 
 def take_photo(
     source: Gst.Element,
-    *,
-    caps: T.Optional[Gst.Caps] = None,
     file_path: Path,
     delay_seconds: int,
+    caps: T.Optional[Gst.Caps] = None,
 ):
     """Take a photo using the source element
 

@@ -454,6 +454,11 @@ class ReportsStage(CheckboxUiStage):
 
     def _prepare_stock_report(self, report):
         try:
+            # This function is called by both remote and local. Local sa
+            # doesn't have this API so it will fallback to the "normal"
+            # Configuration type. In remote we get the agent Configuration type
+            # because the object is passed and mostly used by the agent, so
+            # creating this object as a netref saves a lot of rpyc calls
             ConfigurationType = self.sa.configuration_type()
         except AttributeError:
             ConfigurationType = Configuration

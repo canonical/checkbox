@@ -780,16 +780,22 @@ class TestFITImageSecureBootChecker(unittest.TestCase):
         "._get_boot_kernel_path"
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker"
-        "._get_snap_kernel_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_get_snap_kernel_patterns"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker"
-        "._build_search_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_build_search_patterns"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker"
-        "._find_files_by_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_find_files_by_patterns"
+        )
     )
     def test_find_fit_images_core_variant(
         self,
@@ -809,26 +815,28 @@ class TestFITImageSecureBootChecker(unittest.TestCase):
         images = self.checker._find_fit_images()
 
         self.assertEqual(images, ["/snap/test/current/kernel.img"])
-        mock_get_patterns.assert_called_once()
-        mock_build_patterns.assert_called_once_with(
-            ["/snap/*/current/kernel.img"]
-        )
+        patterns = ["/snap/*/current/kernel.img"]
+        mock_build_patterns.assert_called_once_with(patterns)
 
     @patch(
         "check_secure_boot_state.FITImageSecureBootChecker"
         "._get_boot_kernel_path"
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker"
-        "._get_classic_fit_patterns"
+        "check_secure_boot_state.FITImageSecureBootChecker."
+        "_get_classic_fit_patterns"
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker"
-        "._build_search_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_build_search_patterns"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker"
-        "._find_files_by_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_find_files_by_patterns"
+        )
     )
     def test_find_fit_images_classic_variant(
         self,
@@ -848,20 +856,32 @@ class TestFITImageSecureBootChecker(unittest.TestCase):
         images = self.checker._find_fit_images()
 
         self.assertEqual(images, ["/boot/vmlinuz-5.4.0"])
-        mock_get_patterns.assert_called_once()
-        mock_build_patterns.assert_called_once_with(["/boot/*.img"])
+        patterns = ["/boot/*.img"]
+        mock_build_patterns.assert_called_once_with(patterns)
 
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._get_boot_kernel_path"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_get_boot_kernel_path"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._get_snap_kernel_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_get_snap_kernel_patterns"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._build_search_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_build_search_patterns"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._find_files_by_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_find_files_by_patterns"
+        )
     )
     def test_find_fit_images_no_images_found(
         self,
@@ -883,16 +903,28 @@ class TestFITImageSecureBootChecker(unittest.TestCase):
         self.assertEqual(images, [])
 
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._get_boot_kernel_path"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_get_boot_kernel_path"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._get_snap_kernel_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_get_snap_kernel_patterns"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._build_search_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_build_search_patterns"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._find_files_by_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_find_files_by_patterns"
+        )
     )
     def test_find_fit_images_with_hostfs_prefix(
         self,
@@ -925,16 +957,26 @@ class TestFITImageSecureBootChecker(unittest.TestCase):
         )
 
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._get_boot_kernel_path"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_get_boot_kernel_path"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._get_classic_fit_patterns"
+        "check_secure_boot_state.FITImageSecureBootChecker."
+        "_get_classic_fit_patterns"
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._build_search_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_build_search_patterns"
+        )
     )
     @patch(
-        "check_secure_boot_state.FITImageSecureBootChecker._find_files_by_patterns"
+        (
+            "check_secure_boot_state.FITImageSecureBootChecker."
+            "_find_files_by_patterns"
+        )
     )
     def test_find_fit_images_unknown_variant(
         self,
@@ -955,7 +997,7 @@ class TestFITImageSecureBootChecker(unittest.TestCase):
 
         self.assertEqual(images, ["/boot/vmlinuz-5.4.0"])
         # Should default to classic patterns for unknown variant
-        mock_get_patterns.assert_called_once()
+        self.assertEqual(mock_get_patterns.call_count, 1)
 
 
 class TestUtilityFunctions(unittest.TestCase):
@@ -977,7 +1019,7 @@ class TestUtilityFunctions(unittest.TestCase):
         error_msg = None
         checker_name = "Test Checker"
         log_secure_boot_info(state, error_msg, checker_name)
-        self.mock_logger.info.assert_called()
+        self.mock_logger.info.assert_called_with("Current state: enabled")
 
     def test_log_secure_boot_info_with_error(self):
         """Test secure boot info logging with error."""
@@ -994,7 +1036,9 @@ class TestUtilityFunctions(unittest.TestCase):
         check_mode = "enable"
         result = check_secure_boot_result(state, error_msg, check_mode)
         self.assertEqual(result, 1)
-        self.mock_logger.error.assert_called()
+        self.mock_logger.error.assert_called_with(
+            "FAIL: Cannot determine if secure boot is enable - Test error"
+        )
 
     def test_check_secure_boot_result_processing_error_no_mode(self):
         """Test secure boot result checking - processing error without mode."""
@@ -1003,7 +1047,9 @@ class TestUtilityFunctions(unittest.TestCase):
         check_mode = None
         result = check_secure_boot_result(state, error_msg, check_mode)
         self.assertEqual(result, 1)
-        self.mock_logger.error.assert_called()
+        self.mock_logger.error.assert_called_with(
+            "FAIL: Cannot determine secure boot state - Test error"
+        )
 
     def test_check_secure_boot_result_enable_success(self):
         """Test secure boot result checking - enable success."""
@@ -1012,7 +1058,9 @@ class TestUtilityFunctions(unittest.TestCase):
         check_mode = "enable"
         result = check_secure_boot_result(state, error_msg, check_mode)
         self.assertEqual(result, 0)
-        self.mock_logger.info.assert_called()
+        self.mock_logger.info.assert_called_with(
+            "PASS: Secure boot is enabled"
+        )
 
     def test_check_secure_boot_result_enable_failure(self):
         """Test secure boot result checking - enable failure."""
@@ -1021,7 +1069,9 @@ class TestUtilityFunctions(unittest.TestCase):
         check_mode = "enable"
         result = check_secure_boot_result(state, error_msg, check_mode)
         self.assertEqual(result, 1)
-        self.mock_logger.log_failure.assert_called()
+        self.mock_logger.log_failure.assert_called_with(
+            "enable", SecureBootState.DISABLED, None
+        )
 
     def test_check_secure_boot_result_disabled_success(self):
         """Test secure boot result checking - disabled success."""
@@ -1030,7 +1080,9 @@ class TestUtilityFunctions(unittest.TestCase):
         check_mode = "disabled"
         result = check_secure_boot_result(state, error_msg, check_mode)
         self.assertEqual(result, 0)
-        self.mock_logger.info.assert_called()
+        self.mock_logger.info.assert_called_with(
+            "PASS: Secure boot is disabled"
+        )
 
     def test_check_secure_boot_result_disabled_failure(self):
         """Test secure boot result checking - disabled failure."""
@@ -1039,7 +1091,9 @@ class TestUtilityFunctions(unittest.TestCase):
         check_mode = "disabled"
         result = check_secure_boot_result(state, error_msg, check_mode)
         self.assertEqual(result, 1)
-        self.mock_logger.log_failure.assert_called()
+        self.mock_logger.log_failure.assert_called_with(
+            "disabled", SecureBootState.ENABLED, None
+        )
 
     def test_check_secure_boot_result_no_mode(self):
         """Test secure boot result checking - no mode specified."""
@@ -1341,7 +1395,7 @@ class TestMainFunction(unittest.TestCase):
                 main()
 
         mock_exit.assert_called_with(1)
-        mock_traceback.assert_called_once()
+        mock_traceback.assert_called_with()
 
     @patch("sys.exit")
     @patch("check_secure_boot_state.create_checker")

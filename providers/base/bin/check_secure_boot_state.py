@@ -60,7 +60,7 @@ from typing import Tuple, List, Optional
 from enum import Enum
 
 # Global logger instance
-logger: "SecureBootLogger" = None
+logger = None
 
 
 class SecureBootLogger:

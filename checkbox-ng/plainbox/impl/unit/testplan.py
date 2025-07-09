@@ -189,6 +189,10 @@ class TestPlanUnit(UnitWithId):
         return self.get_record_value("mandatory_include")
 
     @cached_property
+    def setup_include(self):
+        return self.get_record_value("setup_include")
+
+    @cached_property
     def bootstrap_include(self):
         return self.get_record_value("bootstrap_include")
 
@@ -276,6 +280,27 @@ class TestPlanUnit(UnitWithId):
         return self.get_translated_record_value("description")
 
     @instance_method_lru_cache(maxsize=None)
+    def get_setup_job_ids(self):
+        """Compute and return a set of job ids from setup_include field."""
+        job_ids = []
+        if self.setup_include is not None:
+
+            class V(Visitor):
+
+                def visit_Text_node(visitor, node: Text):
+                    job_ids.append(self.qualify_id(node.text))
+
+                def visit_Error_node(visitor, node: Error):
+                    logger.warning(
+                        _("unable to parse setup_include: %s"), node.msg
+                    )
+
+            V().visit(WordList.parse(self.setup_include))
+        for tp_unit in self.get_nested_part():
+            job_ids.extend(tp_unit.get_setup_job_ids())
+        return job_ids
+
+    @instance_method_lru_cache(maxsize=None)
     def get_bootstrap_job_ids(self):
         """Compute and return a set of job ids from bootstrap_include field."""
         job_ids = []
@@ -361,6 +386,29 @@ class TestPlanUnit(UnitWithId):
         )
         for tp_unit in self.get_nested_part():
             qual_list.extend([tp_unit.get_mandatory_qualifier()])
+        return CompositeQualifier(qual_list)
+
+    @instance_method_lru_cache(maxsize=None)
+    def get_setup_qualifier(self, excluding=False):
+        """
+        Convert this test plan to an equivalent qualifier for job selection
+        """
+        qual_list = []
+        if self.setup_include is not None:
+            field_origin = self.origin.just_line().with_offset(
+                self.field_offset_map["setup_include"]
+            )
+            qual_list = [
+                FieldQualifier(
+                    "id",
+                    OperatorMatcher(operator.eq, target_id),
+                    field_origin,
+                    not excluding,
+                )
+                for target_id in self.get_setup_job_ids()
+            ]
+        for tp_unit in self.get_nested_part():
+            qual_list.extend([tp_unit.get_setup_qualifier(excluding)])
         return CompositeQualifier(qual_list)
 
     @instance_method_lru_cache(maxsize=None)
@@ -587,6 +635,7 @@ class TestPlanUnit(UnitWithId):
             name = "name"
             description = "description"
             include = "include"
+            setup_include = "setup_include"
             mandatory_include = "mandatory_include"
             bootstrap_include = "bootstrap_include"
             exclude = "exclude"
@@ -612,6 +661,26 @@ class TestPlanUnit(UnitWithId):
             ],
             fields.mandatory_include: [
                 NoBaseIncludeValidator(),
+            ],
+            fields.setup_include: [
+                concrete_validators.untranslatable,
+                NoBaseIncludeValidator(),
+                UnitReferenceValidator(
+                    lambda unit: unit.get_setup_job_ids(),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        ),
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.automated,
+                            message=_(
+                                "only automated jobs are allowed "
+                                "in bootstrapping_include"
+                            ),
+                        ),
+                    ],
+                ),
             ],
             fields.bootstrap_include: [
                 concrete_validators.untranslatable,

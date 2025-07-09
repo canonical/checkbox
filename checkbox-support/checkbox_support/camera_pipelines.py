@@ -321,16 +321,19 @@ def take_photo(
 
     # dict order is not guaranteed on python < 3.7
     str_elements = OrderedDict(
-        {
-            "caps": 'capsfilter name=source-caps caps="{}"',
-            "decoder": "decodebin",
-            "converter": "videoconvert name=converter",
-            "photo-valve": "valve name=photo-valve drop=True",
-            "encoder": "jpegenc",
-            "sink": "multifilesink post-messages=True location={}".format(
-                str(file_path)
+        (
+            ("caps", 'capsfilter name=source-caps caps="{}"'),
+            ("decoder", "decodebin"),
+            ("converter", "videoconvert name=converter"),
+            ("photo-valve", "valve name=photo-valve drop=True"),
+            ("encoder", "jpegenc"),
+            (
+                "sink",
+                "multifilesink post-messages=True location={}".format(
+                    str(file_path)
+                ),
             ),
-        }
+        )
     )
     head_elem_name = "source-caps"
 

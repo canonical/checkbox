@@ -487,17 +487,10 @@ def gst_msg_handler(
             # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
             timeout.destroy()
 
-        set_null_timeout_source = loop.get_context().find_source_by_id(
-            GLib.timeout_add_seconds(120, check_state_change, pipeline)
-        )
-
         # NOTE: setting NULL can be slow on certain encoders
-        # NOTE: it's also possible to block infinitely here, so setting another
-        # safety timeout to not stuck here forever. This also wont race with
-        # any previous timeouts since they are already destroyed
+        # NOTE: it's also possible to block infinitely here
         pipeline.set_state(Gst.State.NULL)
         loop.quit()
-        set_null_timeout_source.destroy()
 
 
 def run_pipeline(
@@ -568,16 +561,6 @@ def run_pipeline(
         timeout_sources,
     )
 
-    # the mainloop is unlikely to hang since there's nothing complex running,
-    # so we set a timeout on the mainloop to check if the pipeline hanged
-    # this timeout either gets run (long pipelines/stuck pipelines) or
-    # gets destroyed for short pipelines that finished normally
-    set_playing_timeout_source = loop.get_context().find_source_by_id(
-        GLib.timeout_add_seconds(
-            10, check_state_change, pipeline.get_child_by_index(0)
-        )
-    )
-    timeout_sources.append(set_playing_timeout_source)
     pipeline.set_state(Gst.State.PLAYING)
 
     try:
@@ -742,3 +725,9 @@ def take_photo(
         )
         + " has finished!"
     )
+
+if __name__ == "__main__":
+    Gst.init([])
+    e = Gst.parse_launch("pipewiresrc target-object=47")
+    assert e
+    take_photo(e, file_path=Path("/tmp/stuff.jpg"), delay_seconds=10)

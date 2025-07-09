@@ -46,14 +46,15 @@ PipelineQuitHandler = T.Callable[[Gst.Message], bool]
 
 
 def get_launch_line(device: Gst.Device) -> T.Optional[str]:
-    """Get the gst-device-monitor launch line for a device.
-    - Useful for pipelines that don't need to do anything special
-        while the pipeline is running
-    - This basically re-implements the one in the cli
+    """
+    Get the gst-device-monitor launch line for a device.
+        - Useful for pipelines that don't need to do anything special
+          while the pipeline is running
+        - This basically re-implements the one in the cli
     https://github.com/GStreamer/gst-plugins-base/blob/master/tools/gst-device-monitor.c#L46 # noqa: E501
 
-    :param device: the device given by Gst.DeviceMonitor
-    :return: the gst-launch-1.0 launch line
+    :param device: The device given by Gst.DeviceMonitor
+    :return: The gst-launch-1.0 launch line
         - Note that this starts with the element name,
           not "gst-launch-1.0" like you would see in the cli
     """
@@ -123,9 +124,10 @@ def elem_to_str(
     """Prints an element to string
 
     :param element: GStreamer element
-    :param exclude: property names to exclude
+    :param exclude: Property names to exclude
     :return: String representation. This is a best guess for debug purposes,
-        not 100% accurate since there can be arbitrary objects in properties.
+        not 100% accurate since there can be arbitrary objects in properties
+        that doesn't provide a nice serializable string
     """
     properties = element.list_properties()  # list[GObject.GParamSpec]
     element_name = element.get_factory().get_name()  # type: ignore
@@ -217,19 +219,23 @@ def run_pipeline(
 ):
     """Run a GStreamer pipeline and handle Gst messages (blocking)
 
-    :param pipeline: the pipeline to run, all elements should be already linked
-    :param run_n_seconds: num seconds to run the pipeline before sending EOS
+    :param pipeline: The pipeline to run, all elements should be already linked
+
+    :param run_n_seconds: Num seconds to run the pipeline before sending EOS
         - If None, only register the EOS handler
         - If None and the pipeline doesn't naturally emit EOS,
           then the pipeline will run forever
-    :param intermediate_calls: functions to run while the pipeline is running
+
+    :param intermediate_calls: Functions to run while the pipeline is running
         - Each element is a (delay, callback) tuple
         - Delay is the number of seconds to wait
             RELATIVE to the start of the pipeline before calling the callback
         - All delay integers must be unique and positive
-    :param custom_quit_handler: quit the pipeline if this function returns true
+
+    :param custom_quit_handler: Quit the pipeline if this function returns true
         - Has lowest precedence, EOS and ERROR always takes over
-    :raises ValueError: if any validation failed before the pipeline is running
+
+    :raises ValueError: If any validation failed before the pipeline is running
     """
     loop = GLib.MainLoop()
     timeout_sources = []  # type: list[GLib.Source]
@@ -316,11 +322,18 @@ def take_photo(
 
     :param source: The camera source element,
         - This element should ONLY have SRC pads, otherwise linking may fail
-    :param file_path: Where to save the photo. File extension should be jpeg
+          or cause unexpected runtime behaviors
+
+    :param file_path: Where to save the photo.
+        - File extension should be jpeg or jpg
+
     :param caps: Which capability to use for the source
         - If None, no caps filter will be inserted between source and decoder
+
     :param delay_seconds: Number of seconds to keep the source "open"
         before taking the photo
+        - 0 is allowed here to indicate that the pipeline to terminate as soon
+          as a photo is produced
     """
     if not basename(file_path).endswith(("jpeg", "jpg")):
         raise ValueError(
@@ -416,6 +429,7 @@ def take_photo(
         )
     else:
         valve = pipeline.get_by_name("photo-valve")
+        # this should only fail at dev time when the name is misspelled
         assert valve
 
         def open_valve():

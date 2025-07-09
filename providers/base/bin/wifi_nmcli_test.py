@@ -507,8 +507,6 @@ def main():
 
     try:
         run()
-    except:
-        raise
     finally:
         restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
 

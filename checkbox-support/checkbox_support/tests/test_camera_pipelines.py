@@ -321,6 +321,31 @@ class TestPipelineLogic(ut.TestCase):
 
 
 class TestUtilFunctions(ut.TestCase):
+    class MockElement:
+        name = "someelement0"
+        some_int_value = 1
+        unreadable = "reading this will raise an exception"
+        # above properties should be printed
+
+        def list_properties(self):
+            props = []
+            for p in dir(self):
+                if not p.startswith("__") and not callable(getattr(self, p)):
+                    mock_prop = MagicMock()
+                    mock_prop.name = p
+                    props.append(mock_prop)
+            return props
+
+        def get_factory(self):
+            mock = MagicMock()
+            mock.get_name.return_value = "someelement"
+            return mock
+
+        def get_property(self, prop_name: str):
+            if prop_name == "unreadable":
+                raise TypeError("unreadable prop")
+            return getattr(self, prop_name)
+
     @patch("checkbox_support.camera_pipelines.Gst")
     def test_get_launch_line_null_checks(self, mock_Gst: MagicMock):
         device = MagicMock()
@@ -381,12 +406,37 @@ class TestUtilFunctions(ut.TestCase):
         mock_Gst.value_serialize = str
         self.assertEqual(cam.get_launch_line(device), "someelement prop1=1")
 
+    @patch("checkbox_support.camera_pipelines.logger")
     @patch("checkbox_support.camera_pipelines.Gst")
     def test_elem_to_str(
         self,
         mock_Gst: MagicMock,
+        mock_logger: MagicMock,
     ):
-        pass
+        mock_Gst.value_serialize = lambda x: x
+        elem = self.MockElement()  # type: cam.Gst.Element # type: ignore
+        self.assertEqual(
+            cam.elem_to_str(elem),
+            "someelement name=someelement0 some_int_value=1",
+        )
+
+        elem2 = self.MockElement()  # type: cam.Gst.Element # type: ignore
+        setattr(elem2, "parent", "someparentelem")
+        self.assertEqual(  # parent should be omitted
+            cam.elem_to_str(elem2),
+            "someelement name=someelement0 some_int_value=1",
+        )
+
+        elem3 = self.MockElement()  # type: cam.Gst.Element # type: ignore
+        setattr(elem3, "parent", "someparentelem")
+        # unserializable value
+        mock_Gst.value_serialize = lambda x: (
+            x == None if x == elem3.some_int_value else x  # type: ignore
+        )
+        self.assertEqual(  # parent should be omitted
+            cam.elem_to_str(elem3),
+            "someelement name=someelement0",
+        )
 
 
 if __name__ == "__main__":

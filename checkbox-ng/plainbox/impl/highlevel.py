@@ -23,6 +23,7 @@
 """
 
 from collections import OrderedDict
+import operator
 import logging
 
 from plainbox.impl.session.storage import WellKnownDirsHelper
@@ -115,6 +116,26 @@ class PlainBoxObject:
         This mapping is mutable and is always guaranteed to exist.
         """
         return self._attrs
+
+    def find_children_by_name(self, names: list, exact=False):
+        to_explore = [self]
+        name_matches = {name: [] for name in names}
+
+        def match_f(a, b):
+            # a is namespace::id, b may not contain namespace
+            return a == b or a.split("::", 1)[-1] == b
+
+        if exact:
+            match_f = operator.eq
+
+        while to_explore:
+            node = to_explore.pop()
+            matching = [name for name in names if match_f(node.name, name)]
+            for match in matching:
+                name_matches[match].append(node)
+            to_explore += node.children
+
+        return name_matches
 
 
 class Explorer:

@@ -15,7 +15,6 @@ from smartcard_test import (
 
 @mock_timeout()
 class TestSmartcardTest(unittest.TestCase):
-
     def setUp(self):
         """
         Set up for each test case.
@@ -302,10 +301,10 @@ class TestSmartcardTest(unittest.TestCase):
             [],
         ]
 
-        MockCardRequest.side_effect=[
-                mock_card_request_instance_new,
-                mock_card_request_instance_old,
-            ]
+        MockCardRequest.side_effect = [
+            mock_card_request_instance_new,
+            mock_card_request_instance_old,
+        ]
         self.sc.detect_smartcard("Mock-Reader-1")
 
         mock_get_real_reader_instance.assert_called_once_with("Mock-Reader-1")
@@ -411,7 +410,9 @@ class TestSmartcardTest(unittest.TestCase):
             mock_logger_info.call_args_list,
         )
 
-        mock_get_connection.return_value = None # No return value from connection
+        mock_get_connection.return_value = (
+            None  # No return value from connection
+        )
         with self.assertRaises(SystemExit) as cm:
             self.sc.send_apdu_test("Test Reader Stringified")
         self.assertEqual(

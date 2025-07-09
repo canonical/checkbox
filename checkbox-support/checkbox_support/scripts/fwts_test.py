@@ -184,17 +184,15 @@ def get_available_fwts_tests():
 
     # Parse the output to extract test names
     output_lines = stdout.decode().strip().split("\n")
-    available_tests = []
-    seen_tests = set()
+    available_tests = set()
 
     for line in output_lines:
         # Skip empty lines and section headers (lines ending with ':')
         if line.strip() and not line.endswith(":"):
             # Extract the first word as the test name
             test_name = line.lstrip().split()[0]
-            if test_name not in seen_tests:
-                available_tests.append(test_name)
-                seen_tests.add(test_name)
+            if test_name not in available_tests:
+                available_tests.add(test_name)
 
     return available_tests
 
@@ -305,7 +303,7 @@ def filter_available_tests(requested_tests):
     present in the current system's available FWTS tests, and unavailable_tests
     are those not present.
     """
-    available_tests_set = set(get_available_fwts_tests())
+    available_tests_set = get_available_fwts_tests()
     available = [
         test for test in requested_tests if test in available_tests_set
     ]

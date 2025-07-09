@@ -460,7 +460,7 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
         )
 
         # Verify the result
-        self.assertEqual(result, ["acpitests", "version", "mtrr", "virt"])
+        self.assertSetEqual(result, {"acpitests", "version", "mtrr", "virt"})
 
     @patch("checkbox_support.scripts.fwts_test.Popen")
     def test_get_available_fwts_tests_with_section_headers(self, mock_popen):
@@ -476,7 +476,7 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
 
         result = get_available_fwts_tests()
 
-        self.assertEqual(result, ["acpitests", "version", "mtrr", "virt"])
+        self.assertSetEqual(result, {"acpitests", "version", "mtrr", "virt"})
 
     @patch("checkbox_support.scripts.fwts_test.Popen")
     def test_get_available_fwts_tests_with_empty_lines(self, mock_popen):
@@ -492,7 +492,7 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
 
         result = get_available_fwts_tests()
 
-        self.assertEqual(result, ["acpitests", "version", "mtrr"])
+        self.assertSetEqual(result, {"acpitests", "version", "mtrr"})
 
     @patch("checkbox_support.scripts.fwts_test.Popen")
     def test_get_available_fwts_tests_with_whitespace(self, mock_popen):
@@ -508,7 +508,7 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
 
         result = get_available_fwts_tests()
 
-        self.assertEqual(result, ["acpitests", "version", "mtrr"])
+        self.assertSetEqual(result, {"acpitests", "version", "mtrr"})
 
     @patch("checkbox_support.scripts.fwts_test.Popen")
     def test_get_available_fwts_tests_with_multiple_words(self, mock_popen):
@@ -525,7 +525,7 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
 
         result = get_available_fwts_tests()
 
-        self.assertEqual(result, ["acpitests", "version", "mtrr"])
+        self.assertSetEqual(result, {"acpitests", "version", "mtrr"})
 
     @patch("checkbox_support.scripts.fwts_test.Popen")
     def test_get_available_fwts_tests_removes_duplicates(self, mock_popen):
@@ -541,7 +541,7 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
 
         result = get_available_fwts_tests()
 
-        self.assertEqual(result, ["acpitests", "version", "mtrr"])
+        self.assertSetEqual(result, {"acpitests", "version", "mtrr"})
 
     @patch("checkbox_support.scripts.fwts_test.Popen")
     def test_get_available_fwts_tests_command_failure(self, mock_popen):
@@ -572,7 +572,7 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
 
         result = get_available_fwts_tests()
 
-        self.assertEqual(result, [])
+        self.assertEqual(result, set())
 
     @patch("checkbox_support.scripts.fwts_test.Popen")
     def test_get_available_fwts_tests_only_whitespace(self, mock_popen):
@@ -585,4 +585,4 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
 
         result = get_available_fwts_tests()
 
-        self.assertEqual(result, [])
+        self.assertEqual(result, set())

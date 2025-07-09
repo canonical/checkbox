@@ -100,11 +100,18 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
             continue
 
         # now we only have the non-default, non-null values
-        serialized = Gst.value_serialize(actual_value)
-        if not serialized:
+        try:
+            serialized_value = Gst.value_serialize(actual_value)
+        except Exception:
+            # unserializable values sometimes can throw
+            # such as non-int32 integers
+            continue
+        if not serialized_value:
             continue  # ignore non-serializable ones
 
-        launch_line_components.append("{}={}".format(prop.name, serialized))
+        launch_line_components.append(
+            "{}={}".format(prop.name, serialized_value)
+        )
 
     # example: pipewiresrc target-object=49
     return " ".join(launch_line_components)
@@ -142,7 +149,12 @@ def elem_to_str(
         if prop_value is None:
             continue
 
-        serialized_value = Gst.value_serialize(prop_value)
+        try:
+            serialized_value = Gst.value_serialize(prop_value)
+        except Exception:
+            # unserializable values sometimes can throw
+            # such as non-int32 integers
+            continue
         if not serialized_value:
             continue
 

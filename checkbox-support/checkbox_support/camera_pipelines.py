@@ -415,6 +415,37 @@ def elem_to_str(
     )  # libcamerasrc name=cam_name location=p.jpeg
 
 
+def check_state_change(gst_object: T.Union[Gst.Pipeline, Gst.Element]):
+    if not isinstance(gst_object, Gst.Element):
+        raise TypeError(
+            "State change check only works on subclasses of Gst.Element, "
+            "got: {}".format(type(gst_object))
+        )
+
+    # do not use Gst.CLOCK_TIME_NONE for get_state,
+    # it will wait forever if it hangs
+    change_result, curr_state, next_state = gst_object.get_state(
+        Gst.SECOND * 1
+    )
+    # get_state returns a 3-tuple
+    # (Gst.StateChangeReturn, curr: Gst.State, target: Gst.State)
+    if change_result != Gst.StateChangeReturn.SUCCESS:
+        # must use SystemExit here to force stop the entire process
+        # anything inheriting the Exception class (not BaseException)
+        # is caught by mainloop
+        raise SystemExit(
+            "Failed to transition to playing state. "
+            + "Still stuck in {} state, ".format(
+                # these are GObject.GEnums, not the standard library Enum
+                curr_state.value_name
+            )
+            + "was trying to transition to {}".format(next_state.value_name)
+        )
+    logger.debug(
+        "[ OK ] Successfully transitioned to {}".format(curr_state.value_name)
+    )
+
+
 def gst_msg_handler(
     _: Gst.Bus,
     msg: Gst.Message,
@@ -456,40 +487,11 @@ def gst_msg_handler(
         )
 
         # NOTE: setting NULL can be slow on certain encoders
-        # it's also possible to block infinitely here. use an external
-        # timeout to be extra safe
+        # NOTE: it's also possible to block infinitely here, so setting another
+        # safety timeout to not stuck here forever
         pipeline.set_state(Gst.State.NULL)
         loop.quit()
         set_null_timeout_source.destroy()
-
-
-def check_state_change(gst_object: T.Union[Gst.Pipeline, Gst.Element]):
-    # do not use Gst.CLOCK_TIME_NONE for get_state, it will wait forever
-    # head_element = gst_object.get_child_by_index(0)
-    # if not head_element or not isinstance(head_element, Gst.Element):
-    #     raise RuntimeError()
-
-    change_result, curr_state, next_state = gst_object.get_state(
-        Gst.SECOND * 1
-    )
-    # get_state returns a 3-tuple
-    # (Gst.StateChangeReturn, curr: Gst.State, target: Gst.State)
-    print(change_result)
-    if change_result != Gst.StateChangeReturn.SUCCESS:
-        # must use SystemExit here to force stop the entire process
-        # anything inheriting the Exception class (not BaseException)
-        # is caught by mainloop
-        raise SystemExit(
-            "Failed to transition to playing state. "
-            + "Still stuck in {} state, ".format(
-                # these are GObject.GEnums, not the standard library Enum
-                curr_state.value_name
-            )
-            + "was trying to transition to {}".format(next_state.value_name)
-        )
-    logger.debug(
-        "[ OK ] Successfully transitioned to {}".format(curr_state.value_name)
-    )
 
 
 def run_pipeline(
@@ -560,10 +562,10 @@ def run_pipeline(
         timeout_sources,
     )
 
-    # the mainloop is unlikely to get stuck
+    # the mainloop is unlikely to hang since there's nothing complex running,
     # so we set a timeout on the mainloop to check if the pipeline hanged
-    # this also avoids the problem of unable to check pipeline state with
-    # get_state() immediately after a set_state call
+    # this timeout either gets run (long pipelines/stuck pipelines) or
+    # gets destroyed for short pipelines that finished normally
     set_playing_timeout_source = loop.get_context().find_source_by_id(
         GLib.timeout_add_seconds(
             5, check_state_change, pipeline.get_child_by_index(0)
@@ -625,8 +627,7 @@ def take_photo(
         before taking the photo
     """
 
-    # this may seem unorthodox
-    # but it's way less verbose than creating individual elements
+    # dict order is not guaranteed on python < 3.7
     str_elements = OrderedDict(
         {
             "caps": 'capsfilter name=source-caps caps="{}"',

@@ -66,6 +66,7 @@ def resolution_filter(modes: List[Mode]):
         else:
             pre_m, pre_width = top_res_per_aspect[aspect]
             if pre_width < width:
+                # list of resolution is sorted and should not be here
                 top_res_per_aspect[aspect] = width
                 new_modes.append(m)
                 new_modes.remove(pre_m)

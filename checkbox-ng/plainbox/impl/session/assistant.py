@@ -794,7 +794,12 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = {
             self.bootstrap: "to run the bootstrap process",
             self.start_bootstrap: "to get bootstrapping jobs",
+            self.setup: "to run the setup process",
+            self.get_setup_todo_list: "to get setupping jobs",
         }
+
+    def setup(self):
+        raise SystemExit("Unsupported yet")
 
     @raises(UnexpectedMethodCall)
     def bootstrap(self):
@@ -875,6 +880,34 @@ class SessionAssistant:
         return self._metadata.bootstrapping
 
     @raises(UnexpectedMethodCall)
+    def get_setup_todo_list(self):
+        """
+        Get a list of ids that should be run in while setupping)
+
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        This method, together with :meth:`run_job`, can be used instead of
+        :meth:`boostrap` to have control over when setupping jobs are run.
+        E.g. to inform the user about the progress
+        """
+        UsageExpectation.of(self).enforce()
+        desired_job_list = select_units(
+            self._context.state.job_list,
+            [plan.get_setup_qualifier() for plan in (self._manager.test_plans)]
+            + self._exclude_qualifiers,
+        )
+        self._context.state.update_desired_job_list(
+            desired_job_list, include_mandatory=False
+        )
+        UsageExpectation.of(self).allowed_calls.update(
+            self._get_allowed_calls_in_normal_state()
+        )
+        return [job.id for job in self._context.state.run_list]
+
+    @raises(UnexpectedMethodCall)
     def start_bootstrap(self):
         """
         Starts the bootstrap process returning the list of all jobs to run to
@@ -911,6 +944,9 @@ class SessionAssistant:
             self.get_session_id: "used internally by get_job",
         }
         return [job.id for job in self._context.state.run_list]
+
+    def finish_setup(self):
+        pass
 
     @raises(UnexpectedMethodCall)
     def finish_bootstrap(self):

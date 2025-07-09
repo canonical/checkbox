@@ -394,6 +394,18 @@ class MainLoopStage(CheckboxUiStage):
             self.sa.use_job_result(job_id, result)
             estimated_time -= job.estimated_duration or 0
 
+    def _run_setup_jobs(self, jobs_to_run):
+        for job_no, job_id in enumerate(jobs_to_run, start=1):
+            print(
+                self.C.header(
+                    _("Setup {} ({}/{})").format(
+                        job_id, job_no, len(jobs_to_run), fill="-"
+                    )
+                )
+            )
+            result_builder = self.sa.run_job(job_id, "piano", False)
+            self.sa.use_job_result(job_id, result_builder.get_result())
+
     def _run_bootstrap_jobs(self, jobs_to_run):
         for job_no, job_id in enumerate(jobs_to_run, start=1):
             print(

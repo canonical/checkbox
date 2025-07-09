@@ -20,6 +20,9 @@ import subprocess
 import unittest
 from subprocess import CalledProcessError
 from unittest.mock import patch, call, MagicMock
+from pathlib import Path
+import shutil
+import tempfile
 
 from checkbox_support.helpers.retry import mock_retry
 
@@ -42,6 +45,8 @@ from wifi_nmcli_test import (
     perform_ping_test,
     parser_args,
     main,
+    restore_netplan_files,
+    backup_netplan_files,
 )
 
 
@@ -606,6 +611,8 @@ class TestMainFunction(unittest.TestCase):
             "TestSSID": {"Chan": "11", "Freq": "2462", "Signal": "80"},
         },
     )
+    @patch("wifi_nmcli_test.backup_netplan_files")
+    @patch("wifi_nmcli_test.restore_netplan_files")
     @patch("wifi_nmcli_test.open_connection", return_value=0)
     @patch(
         "wifi_nmcli_test.sys.argv",
@@ -616,5 +623,142 @@ class TestMainFunction(unittest.TestCase):
         list_aps_mock,
         get_nm_activate_connection_mock,
         mock_open_connection,
+        mock_rest_back,
+        mock_cr_back,
     ):
         main()
+
+
+class TestNetplanBackupFunctions(unittest.TestCase):
+    def setUp(self):
+        self.TEST_BACKUP_DIR = tempfile.TemporaryDirectory()
+        self.TEST_NETPLAN_DIR = tempfile.TemporaryDirectory()
+
+    @patch("glob.glob")
+    @patch("builtins.print")
+    def test_backup_netplan_files_no_files_found(self, mock_print, mock_glob):
+        """Test backup when no YAML files are found."""
+        mock_glob.return_value = []
+
+        backup_netplan_files(
+            str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+        )
+
+    @patch("os.chown")
+    @patch("os.stat")
+    @patch("glob.glob")
+    @patch("shutil.copy2")
+    @patch("pathlib.Path.mkdir")
+    @patch("builtins.print")
+    def test_backup_netplan_files_success(
+        self,
+        mock_print,
+        mock_mkdir,
+        mock_copy2,
+        mock_glob,
+        mock_stat,
+        mock_chown,
+    ):
+        """Test successful backup of netplan files."""
+        mock_glob.return_value = [
+            str(self.TEST_NETPLAN_DIR.name) + "/config1.yaml",
+            str(self.TEST_NETPLAN_DIR.name) + "/config2.yaml",
+        ]
+
+        backup_netplan_files(
+            str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+        )
+
+        self.assertEqual(mock_copy2.call_count, 2)
+        mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
+
+    @patch("os.chown")
+    @patch("os.stat")
+    @patch("os.path.exists")
+    @patch("glob.glob")
+    @patch("os.remove")
+    @patch("os.makedirs")
+    @patch("shutil.copy2")
+    @patch("builtins.print")
+    def test_restore_netplan_files_success(
+        self,
+        mock_print,
+        mock_copy2,
+        mock_makedirs,
+        mock_remove,
+        mock_glob,
+        mock_exists,
+        mock_stat,
+        mock_chown,
+    ):
+        """Test successful restore of netplan files."""
+        mock_exists.return_value = True
+
+        mock_glob.side_effect = [
+            [],
+            [],
+        ]
+
+        restore_netplan_files(None, str(self.TEST_NETPLAN_DIR.name))
+        restore_netplan_files(
+            str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+        )
+
+        mock_glob.side_effect = [
+            # Existing files to remove
+            [str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"],
+            [
+                "{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name)),
+                "{}/config2.yaml".format(str(self.TEST_BACKUP_DIR.name)),
+            ],  # Backup files
+        ]
+
+        restore_netplan_files(
+            str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+        )
+
+        mock_remove.assert_called_once_with(
+            str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"
+        )
+        self.assertEqual(mock_copy2.call_count, 2)
+
+    @patch("os.path.exists")
+    @patch("glob.glob")
+    @patch("os.remove")
+    @patch("builtins.print")
+    def test_restore_netplan_files_remove_error(
+        self, mock_print, mock_remove, mock_glob, mock_exists
+    ):
+        """Test restore when removing existing files fails."""
+        mock_exists.return_value = True
+        mock_glob.side_effect = [
+            # Existing files to remove
+            [str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"],
+            # Backup files
+            ["{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name))],
+        ]
+        mock_remove.side_effect = OSError("Permission denied")
+        with self.assertRaises(OSError):
+            restore_netplan_files(
+                str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+            )
+
+    @patch("os.path.exists")
+    @patch("glob.glob")
+    @patch("os.makedirs")
+    @patch("builtins.print")
+    def test_restore_netplan_files_makedirs_error(
+        self, mock_print, mock_makedirs, mock_glob, mock_exists
+    ):
+        """Test restore when makedirs operation fails."""
+        mock_exists.return_value = True
+        mock_glob.side_effect = [
+            [],
+            ["{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name))],
+        ]
+        mock_makedirs.side_effect = OSError("Permission denied")
+
+        with self.assertRaises(FileNotFoundError):
+            restore_netplan_files(
+                str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+            )

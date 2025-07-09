@@ -94,7 +94,7 @@ class TestPipelineLogic(ut.TestCase):
             cam.take_photo(
                 MagicMock(),
                 caps=mock_caps,
-                file_path=Path("some/path"),
+                file_path=Path("some/path.jpeg"),
                 delay_seconds=2,  # with delay, valve should be inserted
             )
         # -1 is taking the most recent call
@@ -108,7 +108,7 @@ class TestPipelineLogic(ut.TestCase):
                     "videoconvert name=converter",
                     "valve name=photo-valve drop=True",
                     "jpegenc",
-                    "multifilesink post-messages=True location=some/path",
+                    "multifilesink post-messages=True location=some/path.jpeg",
                 ]
             ),
         )
@@ -116,7 +116,7 @@ class TestPipelineLogic(ut.TestCase):
             cam.take_photo(
                 MagicMock(),
                 caps=mock_caps,
-                file_path=Path("some/path"),
+                file_path=Path("some/path.jpeg"),
                 delay_seconds=0,  # no delay -> no valve
             )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
@@ -128,7 +128,7 @@ class TestPipelineLogic(ut.TestCase):
                     'caps="video/x-raw,width=1280,height=720"',
                     "videoconvert name=converter",
                     "jpegenc",
-                    "multifilesink post-messages=True location=some/path",
+                    "multifilesink post-messages=True location=some/path.jpeg",
                 ]
             ),
         )
@@ -154,7 +154,7 @@ class TestPipelineLogic(ut.TestCase):
         cam.take_photo(
             MagicMock(),
             caps=mock_caps,
-            file_path=Path("some/path"),
+            file_path=Path("some/path.jpeg"),
             delay_seconds=0,  # no delay -> no valve
         )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
@@ -167,7 +167,7 @@ class TestPipelineLogic(ut.TestCase):
                     "jpegdec",
                     "videoconvert name=converter",
                     "jpegenc",
-                    "multifilesink post-messages=True location=some/path",
+                    "multifilesink post-messages=True location=some/path.jpeg",
                 ]
             ),
         )
@@ -175,7 +175,7 @@ class TestPipelineLogic(ut.TestCase):
         cam.take_photo(
             MagicMock(),
             caps=mock_caps,
-            file_path=Path("some/path"),
+            file_path=Path("some/path.jpeg"),
             delay_seconds=3,  # with delay
         )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
@@ -189,7 +189,7 @@ class TestPipelineLogic(ut.TestCase):
                     "videoconvert name=converter",
                     "valve name=photo-valve drop=True",
                     "jpegenc",
-                    "multifilesink post-messages=True location=some/path",
+                    "multifilesink post-messages=True location=some/path.jpeg",
                 ]
             ),
         )
@@ -215,7 +215,7 @@ class TestPipelineLogic(ut.TestCase):
         cam.take_photo(
             MagicMock(),
             caps=mock_caps,
-            file_path=Path("some/path"),
+            file_path=Path("some/path.jpeg"),
             delay_seconds=3,  # with delay
         )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
@@ -229,7 +229,7 @@ class TestPipelineLogic(ut.TestCase):
                     "videoconvert name=converter",
                     "valve name=photo-valve drop=True",
                     "jpegenc",
-                    "multifilesink post-messages=True location=some/path",
+                    "multifilesink post-messages=True location=some/path.jpeg",
                 ]
             ),
         )
@@ -249,7 +249,7 @@ class TestPipelineLogic(ut.TestCase):
         cam.take_photo(
             MagicMock(),
             caps=None,
-            file_path=Path("some/path"),
+            file_path=Path("some/path.jpeg"),
             delay_seconds=3,  # with delay
         )
 
@@ -261,7 +261,7 @@ class TestPipelineLogic(ut.TestCase):
                     "videoconvert name=converter",
                     "valve name=photo-valve drop=True",
                     "jpegenc",
-                    "multifilesink post-messages=True location=some/path",
+                    "multifilesink post-messages=True location=some/path.jpeg",
                 ]
             ),
         )
@@ -269,7 +269,7 @@ class TestPipelineLogic(ut.TestCase):
         cam.take_photo(
             MagicMock(),
             caps=None,
-            file_path=Path("some/path"),
+            file_path=Path("some/path.jpeg"),
             delay_seconds=0,
         )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
@@ -279,7 +279,7 @@ class TestPipelineLogic(ut.TestCase):
                 [
                     "videoconvert name=converter",
                     "jpegenc",
-                    "multifilesink post-messages=True location=some/path",
+                    "multifilesink post-messages=True location=some/path.jpeg",
                 ]
             ),
         )
@@ -304,7 +304,7 @@ class TestPipelineLogic(ut.TestCase):
         cam.take_photo(
             MagicMock(),
             caps=mock_caps,
-            file_path=Path("some/path"),
+            file_path=Path("some/path.jpeg"),
             delay_seconds=3,  # with delay
         )
 
@@ -319,7 +319,7 @@ class TestPipelineLogic(ut.TestCase):
                     "videoconvert name=converter",
                     "valve name=photo-valve drop=True",
                     "jpegenc",
-                    "multifilesink post-messages=True location=some/path",
+                    "multifilesink post-messages=True location=some/path.jpeg",
                 ]
             ),
         )
@@ -344,7 +344,7 @@ class TestPipelineLogic(ut.TestCase):
             cam.take_photo(
                 MagicMock(),
                 caps=None,
-                file_path=Path("some/path"),
+                file_path=Path("some/path.jpeg"),
                 delay_seconds=3,  # with delay
             )
         mock_pipeline.reset_mock()
@@ -355,7 +355,7 @@ class TestPipelineLogic(ut.TestCase):
             cam.take_photo(
                 mock_source,
                 caps=None,
-                file_path=Path("some/path"),
+                file_path=Path("some/path.jpeg"),
                 delay_seconds=3,  # with delay
             )
 

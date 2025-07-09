@@ -1,0 +1,10 @@
+id: ffmpeg-test-plan
+unit: test plan
+_name: Media test plan for FFmpeg hardware encode and decode
+include:
+  ffmpeg.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    graphics_card
+    mediasource

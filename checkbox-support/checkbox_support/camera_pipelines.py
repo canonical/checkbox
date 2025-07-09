@@ -444,3 +444,6 @@ def take_photo(
         )
         + " has finished!"
     )
+
+    # unparent the source, so that this function can be called again
+    source.unparent()

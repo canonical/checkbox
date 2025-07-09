@@ -139,7 +139,7 @@ plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/disk_stress_ng_sru_{name}
 template-id: disk/disk_stress_ng_sru_name
-estimated_duration: 30.0
+estimated_duration: 900.0
 user: root
 requires:
  executable.name == 'stress-ng'

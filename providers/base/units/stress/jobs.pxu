@@ -751,7 +751,7 @@ _purpose:
 plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/memory_stress_ng_sru
-estimated_duration: 60.0
+estimated_duration: 1800.0
 user: root
 requires:
  executable.name == 'stress-ng'

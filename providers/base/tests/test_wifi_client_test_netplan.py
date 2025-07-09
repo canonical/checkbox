@@ -24,6 +24,7 @@ import subprocess as sp
 import io
 import sys
 from unittest.mock import call
+
 from wifi_client_test_netplan import (
     netplan_renderer,
     check_and_get_renderer,

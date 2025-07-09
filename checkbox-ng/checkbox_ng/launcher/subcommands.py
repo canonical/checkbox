@@ -605,6 +605,17 @@ class Launcher(MainLoopStage, ReportsStage):
         result = MemoryJobResult(result_dict)
         self.sa.use_job_result(last_job, result)
 
+    def bootstrap(self):
+        self.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
+        bs_jobs = self.sa.start_bootstrap()
+        self._run_bootstrap_jobs(bs_jobs)
+        self.sa.finish_bootstrap()
+
+    def setup(self):
+        setup_jobs = self.ctx.sa.get_setup_todo_list()
+        self._run_setup_jobs(setup_jobs)
+        self.ctx.sa.finish_setup()
+
     def _start_new_session(self):
         print(_("Preparing..."))
         title = self.ctx.args.title or self.configuration.get_value(
@@ -661,9 +672,8 @@ class Launcher(MainLoopStage, ReportsStage):
             except FileNotFoundError:
                 pass
         self.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
-        bs_jobs = self.sa.start_bootstrap()
-        self._run_bootstrap_jobs(bs_jobs)
-        self.sa.finish_bootstrap()
+        self.setup()
+        self.bootstrap()
 
     def _delete_old_sessions(self, ids):
         completed_ids = [s[0] for s in self.sa.get_old_sessions()]

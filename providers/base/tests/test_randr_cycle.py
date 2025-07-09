@@ -405,9 +405,7 @@ class MainTests(unittest.TestCase):
 
     @patch("randr_cycle.MonitorTest.parse_args")
     @patch("checkbox_support.helpers.display_info.get_monitor_config")
-    def test_get_monitor_config_fail(
-        self, mock_config, mock_parse_args
-    ):
+    def test_get_monitor_config_fail(self, mock_config, mock_parse_args):
         args_mock = MagicMock()
         args_mock.cycle = "transform"
         args_mock.keyword = ""
@@ -415,7 +413,9 @@ class MainTests(unittest.TestCase):
         mock_parse_args.return_value = args_mock
 
         mock_config.side_effect = ValueError("Error")
-        with self.assertRaisesRegex(SystemExit, "Current host is not support: Error"):
+        with self.assertRaisesRegex(
+            SystemExit, "Current host is not support: Error"
+        ):
             MonitorTest().main()
 
         mock_config.assert_called_once()

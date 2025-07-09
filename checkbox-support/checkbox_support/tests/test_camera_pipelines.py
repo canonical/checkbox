@@ -133,25 +133,30 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
+    @patch("checkbox_support.camera_pipelines.type")
     @patch("checkbox_support.camera_pipelines.logger")
     @patch("checkbox_support.camera_pipelines.run_pipeline")
     @patch("checkbox_support.camera_pipelines.Gst")
     def test_pipeline_build_step_image_jpeg(
-        self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
+        self,
+        mock_Gst: MagicMock,
+        mock_run_pipeline,
+        mock_logger,
+        mock_type: MagicMock,
     ):
         mock_caps = MagicMock()
         # jpeg caps should be handled by jpegdec
         mock_caps.to_string.return_value = "image/jpeg,width=1280,height=720"
         mock_caps.get_structure(0).get_name.return_value = "image/jpeg"
 
-        print(type(mock_Gst.parse_launch()))
-        with suppress(TypeError):
-            cam.take_photo(
-                MagicMock(),
-                caps=mock_caps,
-                file_path=Path("some/path"),
-                delay_seconds=0,  # no delay -> no valve
-            )
+        mock_type.return_value = mock_Gst.Pipeline
+
+        cam.take_photo(
+            MagicMock(),
+            caps=mock_caps,
+            file_path=Path("some/path"),
+            delay_seconds=0,  # no delay -> no valve
+        )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,
@@ -166,13 +171,13 @@ class TestPipelineLogic(ut.TestCase):
                 ]
             ),
         )
-        with suppress(TypeError):
-            cam.take_photo(
-                MagicMock(),
-                caps=mock_caps,
-                file_path=Path("some/path"),
-                delay_seconds=3,  # with delay
-            )
+
+        cam.take_photo(
+            MagicMock(),
+            caps=mock_caps,
+            file_path=Path("some/path"),
+            delay_seconds=3,  # with delay
+        )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,
@@ -189,24 +194,30 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
+    @patch("checkbox_support.camera_pipelines.type")
     @patch("checkbox_support.camera_pipelines.logger")
     @patch("checkbox_support.camera_pipelines.run_pipeline")
     @patch("checkbox_support.camera_pipelines.Gst")
     def test_pipeline_build_step_x_bayer(
-        self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
+        self,
+        mock_Gst: MagicMock,
+        mock_run_pipeline,
+        mock_logger,
+        mock_type: MagicMock,
     ):
         mock_caps = MagicMock()
         mock_caps.to_string.return_value = (
             "video/x-bayer,width=1280,height=720,format=rggb"
         )
         mock_caps.get_structure(0).get_name.return_value = "video/x-bayer"
-        with suppress(TypeError):
-            cam.take_photo(
-                MagicMock(),
-                caps=mock_caps,
-                file_path=Path("some/path"),
-                delay_seconds=3,  # with delay
-            )
+        mock_type.return_value = mock_Gst.Pipeline
+
+        cam.take_photo(
+            MagicMock(),
+            caps=mock_caps,
+            file_path=Path("some/path"),
+            delay_seconds=3,  # with delay
+        )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,
@@ -223,19 +234,24 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
+    @patch("checkbox_support.camera_pipelines.type")
     @patch("checkbox_support.camera_pipelines.logger")
     @patch("checkbox_support.camera_pipelines.run_pipeline")
     @patch("checkbox_support.camera_pipelines.Gst")
     def test_pipeline_build_step_no_caps(
-        self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
+        self,
+        mock_Gst: MagicMock,
+        mock_run_pipeline,
+        mock_logger,
+        mock_type: MagicMock,
     ):
-        with suppress(TypeError):
-            cam.take_photo(
-                MagicMock(),
-                caps=None,
-                file_path=Path("some/path"),
-                delay_seconds=3,  # with delay
-            )
+        mock_type.return_value = mock_Gst.Pipeline
+        cam.take_photo(
+            MagicMock(),
+            caps=None,
+            file_path=Path("some/path"),
+            delay_seconds=3,  # with delay
+        )
 
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
@@ -250,13 +266,12 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
-        with suppress(TypeError):
-            cam.take_photo(
-                MagicMock(),
-                caps=None,
-                file_path=Path("some/path"),
-                delay_seconds=0,
-            )
+        cam.take_photo(
+            MagicMock(),
+            caps=None,
+            file_path=Path("some/path"),
+            delay_seconds=0,
+        )
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,

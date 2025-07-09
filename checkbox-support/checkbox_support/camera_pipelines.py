@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+# along with Checkbox. If not, see <http://www.gnu.org/licenses/>.
 
 
 from collections import OrderedDict
@@ -90,16 +90,20 @@ class CapsResolver:
         low_fraction = low.get_fraction(prop_name)[1:]
         high_fraction = high.get_fraction(prop_name)[1:]
 
+        # for simplicity we keep these 2 checks
+        # non standard values are possible,
+        # but I haven't found an actual machine that uses them
+
         if low_fraction[1] != 1 or high_fraction[1] != 1:
             raise ValueError(
                 "Expecting framerate denominator to be 1, "
-                "but got: {}, {}".format(low_fraction, high_fraction)
+                "but got ({}, {})".format(low_fraction, high_fraction)
             )
 
         if low_fraction[0] < 0 or high_fraction[0] < 0:
             raise ValueError(
                 "Expecting framerate numerator to be non-negative, "
-                "but got: {}, {}".format(low_fraction, high_fraction)
+                "but got: ({}, {})".format(low_fraction, high_fraction)
             )
 
         return low_fraction, high_fraction
@@ -199,7 +203,7 @@ class CapsResolver:
         resolve_method: str,  # type T.Literal["known_values", "limit"]
         limit: int = 10000,
     ) -> T.List[Gst.Caps]:
-        """Gets all the fixated(1 value per property) caps from a Gst.Caps obj
+        """Gets all the fixated (1 value per property) caps from a Gst.Caps obj
 
         :param caps: a mixed Gst.Caps
         :param resolve_method: how to resolve IntRange and FractionRange values
@@ -244,8 +248,8 @@ class CapsResolver:
                         fraction_list = self.select_known_values_from_range(
                             prop, low, high
                         )
-                        # workaround missing Gst.Fraction
-                        # we can't directly create fraction objects
+                        # workaround missing Gst.FractionRange
+                        # we can't directly create FractionRanges or get() them
                         # but we can create a struct from str, then access it
                         temp = Gst.Structure.from_string(  # type: ignore
                             "temp, {}={{{}}}".format(
@@ -307,7 +311,8 @@ class CapsResolver:
 
 def get_launch_line(device: Gst.Device) -> T.Optional[str]:
     """Get the gst-device-monitor launch line for a device.
-    - Useful for pipelines that don't need to do anything while the pipeline is running
+    - Useful for pipelines that don't need to do anything special
+        while the pipeline is running
     - This basically re-implements the one in the cli
     https://github.com/GStreamer/gst-plugins-base/blob/master/tools/gst-device-monitor.c#L46 # noqa: E501
 
@@ -359,7 +364,7 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
         if actual_value is None:
             continue
 
-        # now we only have the non-default values
+        # now we only have the non-default, non-null values
         serialized = Gst.value_serialize(actual_value)
         if not serialized:
             continue  # ignore non-serializable ones
@@ -488,7 +493,8 @@ def gst_msg_handler(
 
         # NOTE: setting NULL can be slow on certain encoders
         # NOTE: it's also possible to block infinitely here, so setting another
-        # safety timeout to not stuck here forever
+        # safety timeout to not stuck here forever. This also wont race with
+        # any previous timeouts since they are already destroyed
         pipeline.set_state(Gst.State.NULL)
         loop.quit()
         set_null_timeout_source.destroy()
@@ -568,7 +574,7 @@ def run_pipeline(
     # gets destroyed for short pipelines that finished normally
     set_playing_timeout_source = loop.get_context().find_source_by_id(
         GLib.timeout_add_seconds(
-            5, check_state_change, pipeline.get_child_by_index(0)
+            10, check_state_change, pipeline.get_child_by_index(0)
         )
     )
     timeout_sources.append(set_playing_timeout_source)

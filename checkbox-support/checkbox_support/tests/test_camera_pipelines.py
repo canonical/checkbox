@@ -284,6 +284,81 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
+    @patch("checkbox_support.camera_pipelines.type")
+    @patch("checkbox_support.camera_pipelines.logger")
+    @patch("checkbox_support.camera_pipelines.run_pipeline")
+    @patch("checkbox_support.camera_pipelines.Gst")
+    def test_pipeline_build_step_unknown_caps(
+        self,
+        mock_Gst: MagicMock,
+        mock_run_pipeline,
+        mock_logger,
+        mock_type: MagicMock,
+    ):
+        mock_caps = MagicMock()
+        mock_caps.to_string.return_value = (
+            "video/x-theora,width=1280,height=720"
+        )
+        mock_caps.get_structure(0).get_name.return_value = "video/x-theora"
+        mock_type.return_value = mock_Gst.Pipeline
+        cam.take_photo(
+            MagicMock(),
+            caps=mock_caps,
+            file_path=Path("some/path"),
+            delay_seconds=3,  # with delay
+        )
+
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(
+                [
+                    "capsfilter name=source-caps "
+                    'caps="video/x-theora,width=1280,height=720"',
+                    "decodebin",
+                    "videoconvert name=converter",
+                    "valve name=photo-valve drop=True",
+                    "jpegenc",
+                    "multifilesink post-messages=True location=some/path",
+                ]
+            ),
+        )
+
+    @patch("checkbox_support.camera_pipelines.type")
+    @patch("checkbox_support.camera_pipelines.logger")
+    @patch("checkbox_support.camera_pipelines.run_pipeline")
+    @patch("checkbox_support.camera_pipelines.Gst")
+    def test_pipeline_build_step_runtime_checks(
+        self,
+        mock_Gst: MagicMock,
+        mock_run_pipeline,
+        mock_logger,
+        mock_type: MagicMock,
+    ):
+        mock_type.return_value = mock_Gst.Pipeline
+        mock_pipeline = MagicMock()
+        mock_Gst.parse_launch.return_value = mock_pipeline
+        mock_pipeline.add.return_value = False
+
+        with self.assertRaises(RuntimeError):
+            cam.take_photo(
+                MagicMock(),
+                caps=None,
+                file_path=Path("some/path"),
+                delay_seconds=3,  # with delay
+            )
+        mock_pipeline.reset_mock()
+        mock_pipeline.add.return_value = True
+        mock_source = MagicMock()
+        mock_source.link.return_value = False
+        with self.assertRaises(RuntimeError):
+            cam.take_photo(
+                mock_source,
+                caps=None,
+                file_path=Path("some/path"),
+                delay_seconds=3,  # with delay
+            )
+
     @patch("checkbox_support.camera_pipelines.logger")
     @patch("checkbox_support.camera_pipelines.Gst")
     def test_custom_quit_has_lowest_precedence(

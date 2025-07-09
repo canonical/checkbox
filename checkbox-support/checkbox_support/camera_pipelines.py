@@ -242,7 +242,7 @@ def run_pipeline(
 
     # don't check falsy values here, 0 can bypass this
     if run_n_seconds is not None:
-        if run_n_seconds <= 0 or not run_n_seconds.is_integer():
+        if run_n_seconds <= 0 or int(run_n_seconds) != run_n_seconds:
             raise ValueError(
                 "run_n_seconds must be a positive integer if specified, "
                 + "got {}".format(run_n_seconds)
@@ -340,7 +340,8 @@ def take_photo(
             "File name should end with jpeg or jpg. Got {}".format(file_path)
         )
 
-    if delay_seconds < 0 or not delay_seconds.is_integer():
+    # the 2nd condition is a workaround for <object>.is_integer on older python
+    if delay_seconds < 0 or int(delay_seconds) != delay_seconds:
         raise ValueError(
             "delay_seconds must be a positive integer. Got {}".format(
                 delay_seconds

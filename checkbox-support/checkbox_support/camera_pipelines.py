@@ -155,37 +155,6 @@ def elem_to_str(
     )  # libcamerasrc name=cam_name location=p.jpeg
 
 
-def check_state_change(gst_object: T.Union[Gst.Pipeline, Gst.Element]):
-    if not isinstance(gst_object, Gst.Element):
-        raise TypeError(
-            "State change check only works on subclasses of Gst.Element, "
-            "got: {}".format(type(gst_object))
-        )
-
-    # do not use Gst.CLOCK_TIME_NONE for get_state,
-    # it will wait forever if it hangs
-    change_result, curr_state, next_state = gst_object.get_state(
-        Gst.SECOND * 1
-    )
-    # get_state returns a 3-tuple
-    # (Gst.StateChangeReturn, curr: Gst.State, target: Gst.State)
-    if change_result != Gst.StateChangeReturn.SUCCESS:
-        # must use SystemExit here to force stop the entire process
-        # anything inheriting the Exception class (not BaseException)
-        # is caught by mainloop
-        raise SystemExit(
-            "Failed to transition to playing state. "
-            + "Still stuck in {} state, ".format(
-                # these are GObject.GEnums, not the standard library Enum
-                curr_state.value_name
-            )
-            + "was trying to transition to {}".format(next_state.value_name)
-        )
-    logger.debug(
-        "[ OK ] Successfully transitioned to {}".format(curr_state.value_name)
-    )
-
-
 def gst_msg_handler(
     _: Gst.Bus,
     msg: Gst.Message,

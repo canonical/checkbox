@@ -32,12 +32,7 @@ class TestPipelineLogic(ut.TestCase):
     ):
         pipeline = MagicMock()
 
-        mock_timeout_sources = (
-            MagicMock(),
-            MagicMock(),
-            MagicMock(),
-            MagicMock(),
-        )
+        mock_timeout_sources = (MagicMock(), MagicMock(), MagicMock())
         mock_open_valve_fn = MagicMock(name="mock_open_valve")
         mock_eos_signal_obj = MagicMock()
         mock_eos_message = MagicMock(type=mock_Gst.MessageType.EOS)
@@ -323,6 +318,75 @@ class TestPipelineLogic(ut.TestCase):
             [],
         )
         self.assertTrue(mock_loop.quit.called)
+
+
+class TestUtilFunctions(ut.TestCase):
+    @patch("checkbox_support.camera_pipelines.Gst")
+    def test_get_launch_line_null_checks(self, mock_Gst: MagicMock):
+        device = MagicMock()
+        device.create_element.return_value = None
+        self.assertIsNone(cam.get_launch_line(device))
+
+        mock_elem = MagicMock()
+        device.create_element.return_value = mock_elem
+        mock_elem.get_factory.return_value = None
+        self.assertIsNone(cam.get_launch_line(device))
+
+        mock_factory = MagicMock()
+        mock_elem.get_factory.return_value = mock_factory
+        mock_factory.get_name.return_value = None
+        self.assertIsNone(cam.get_launch_line(device))
+
+        mock_factory.get_name.return_value = "someelement"
+        mock_Gst.ElementFactory.make.return_value = None
+        self.assertIsNone(cam.get_launch_line(device))
+
+    @patch("checkbox_support.camera_pipelines.GObject")
+    @patch("checkbox_support.camera_pipelines.Gst")
+    def test_get_launch_line_happy_path(
+        self, mock_Gst: MagicMock, mock_GObject: MagicMock
+    ):
+        device = MagicMock()
+        mock_elem = MagicMock()
+        mock_factory = MagicMock()
+        mock_pure_elem = MagicMock()
+        device.create_element.return_value = mock_elem
+        mock_elem.get_factory.return_value = mock_factory
+        mock_factory.get_name.return_value = "someelement"
+        mock_Gst.ElementFactory.make.side_effect = (
+            lambda name, _: name == "someelement" and mock_pure_elem
+        )
+
+        mock_pure_elem.get_property.return_value = 0
+        mock_elem.get_property.return_value = 1
+
+        prop1 = MagicMock()
+        prop1.name = "prop1"
+        ignored_prop = MagicMock()
+        ignored_prop.name = "parent"
+        unreadable_prop = MagicMock()
+        unreadable_prop.flags.__and.return_value = (
+            False  # can be anything != PARAM_READWRITE
+        )
+
+        mock_elem.list_properties.return_value = [
+            prop1,
+            ignored_prop,
+        ]
+        prop1.flags.__and__.return_value = mock_GObject.PARAM_READWRITE
+
+        mock_Gst.value_compare.side_effect = lambda x, y: x == y
+        mock_Gst.VALUE_EQUAL = True
+
+        mock_Gst.value_serialize = str
+        self.assertEqual(cam.get_launch_line(device), "someelement prop1=1")
+
+    @patch("checkbox_support.camera_pipelines.Gst")
+    def test_elem_to_str(
+        self,
+        mock_Gst: MagicMock,
+    ):
+        pass
 
 
 if __name__ == "__main__":

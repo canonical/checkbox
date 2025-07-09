@@ -78,16 +78,19 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
     for prop in element.list_properties():
         if prop.name in ignored_prop_names:
             continue
-        # eliminate all default properties and non-read-writable props
+        # eliminate non-read-writable props
         read_and_writable = (
             prop.flags & GObject.PARAM_READWRITE == GObject.PARAM_READWRITE
         )
         if not read_and_writable:
             continue
 
+        # eliminate default values
         default_value = pure_element.get_property(prop.name)
         actual_value = element.get_property(prop.name)
 
+        # have to explicity compare non-nulls here
+        # becuase value_compare doesn't like null values
         if (
             actual_value is not None
             and default_value is not None
@@ -96,6 +99,7 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
         ):
             continue
 
+        # eliminate nulls
         if actual_value is None:
             continue
 
@@ -128,7 +132,7 @@ def elem_to_str(
         not 100% accurate since there can be arbitrary objects in properties
         that doesn't provide a nice serializable string
     """
-    properties = element.list_properties()  # list[GObject.GParamSpec]
+    properties = element.list_properties()
     element_name = element.get_factory().get_name()  # type: ignore
 
     prop_strings = []  # type: list[str]
@@ -159,9 +163,7 @@ def elem_to_str(
         if not serialized_value:
             continue
 
-        prop_strings.append(
-            "{}={}".format(prop.name, serialized_value)
-        )  # handle native python types
+        prop_strings.append("{}={}".format(prop.name, serialized_value))
 
     return "{} {}".format(
         element_name, " ".join(prop_strings)
@@ -230,9 +232,11 @@ def run_pipeline(
         - Delay is the number of seconds to wait
             RELATIVE to the start of the pipeline before calling the callback
         - All delay integers must be unique and positive
+        - Use closures to capture data structures by reference to access them
+          while the pipeline is running
 
     :param custom_quit_handler: Quit the pipeline if this function returns true
-        - Has lowest precedence, EOS and ERROR always takes over
+        - Has the lowest precedence, EOS and ERROR always takes over
 
     :raises ValueError: If any validation failed before the pipeline is running
     """
@@ -387,7 +391,8 @@ def take_photo(
             str_elements["decoder"] = "bayer2rgb"
         # else case is using decodebin as a fallback
     else:
-        # decode bin doesn't work with video/x-raw
+        # decodebin isn't required for video/x-raw
+        # the raw format conversion is done by videoconvert
         str_elements["caps"] = str_elements["decoder"] = ""
         head_elem_name = "converter"
 
@@ -397,6 +402,9 @@ def take_photo(
     partial = " ! ".join(elem for elem in str_elements.values() if elem)
     pipeline = Gst.parse_launch(partial)
 
+    # parse_launch only guarantees that it returns a subclass of Gst.Element
+    # we don't want plain Gst.Element or Gst.Bin here
+    # therefore we explicitly check for Gst.Pipeline
     if type(pipeline) is not Gst.Pipeline:
         raise TypeError(
             "Unexpected return type from parse_launch: Got {}".format(
@@ -461,4 +469,6 @@ def take_photo(
     )
 
     # unparent the source, so that this function can be called again
+    # if unparent isn't called, run_pipline will fail if the exact same source
+    # is used again
     source.unparent()

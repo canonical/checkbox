@@ -4,15 +4,15 @@ id: smartcard/smartcard-reader-info
 user: root
 estimated_duration: 1.0
 _description:
- Check if Smartcard reader exist or not
-flags: also-after-suspend
+ Dump pcscd debug message in to log
+flags: fail-on-resource
 imports: from com.canonical.plainbox import manifest
 requires:
- manifest.has_contact_smartcard_reader == 'True'
+ (manifest.has_contact_smartcard_reader == 'True' or manifest.has_contactless_smartcard_reader == 'True')
  package.name == 'pcscd' or snap.name == 'pcscd'
 command:
  pcscd --debug
- journalctl -b 0 -t pcscd
+ journalctl --since="1 minute ago" -t pcscd
 
 plugin: shell
 category_id: smartcard

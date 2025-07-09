@@ -473,13 +473,6 @@ class TestUtilFunctions(ut.TestCase):
         mock_Gst.ElementFactory.make.return_value = None
         self.assertIsNone(cam.get_launch_line(device))
 
-        mock_factory = MagicMock()
-        mock_elem.get_factory.return_value = mock_factory
-        mock_factory.get_name.return_value = "someelement"
-        mock_Gst.value_serialize.side_effect = ValueError
-        # serialize() exceptions should be caught
-        self.assertIsNone(cam.get_launch_line(device))
-
     @patch("checkbox_support.camera_pipelines.GObject")
     @patch("checkbox_support.camera_pipelines.Gst")
     def test_get_launch_line_happy_path(
@@ -512,25 +505,43 @@ class TestUtilFunctions(ut.TestCase):
         unserializable_prop = MagicMock()
         unserializable_prop.name = "unserializable_prop"
         unserializable_value = "unserializable_value"
-        mock_Gst.value_serialize.side_effect = lambda v: (
-            None if v == unserializable_value else str(v)
-        )
         unserializable_prop.flags.__and__.return_value = True
+
+        panic_prop = MagicMock()
+        panic_prop.name = "panic_prop"
+        panic_value = "something that causes serialize to panic"
+
+        def panic(v):
+            if v == panic_value:
+                raise ValueError(panic_value)
+            if v == unserializable_value:
+                return None
+            return v
+
+        mock_Gst.value_serialize.side_effect = panic
 
         mock_elem.list_properties.return_value = [
             prop1,
             ignored_prop,
             unreadable_prop,
             unserializable_prop,
+            panic_prop,
         ]
         prop1.flags.__and__.return_value = mock_GObject.PARAM_READWRITE
+        # this check will pass even if the value causes panic
+        panic_prop.flags.__and__.return_value = mock_GObject.PARAM_READWRITE
 
         mock_pure_elem.get_property.return_value = 0
-        mock_elem.get_property.side_effect = lambda prop_name: (
-            unserializable_value
-            if prop_name == unserializable_prop.name
-            else 1
-        )
+
+        def dummy_values(prop_name):
+            if prop_name == unserializable_prop.name:
+                return unserializable_value
+            elif prop_name == panic_prop.name:
+                return panic_value
+            else:
+                return 1
+
+        mock_elem.get_property.side_effect = dummy_values
         mock_Gst.value_compare.side_effect = lambda x, y: x == y
         mock_Gst.VALUE_EQUAL = True
 
@@ -564,6 +575,22 @@ class TestUtilFunctions(ut.TestCase):
             x is None if x == elem3.some_int_value else x  # type: ignore
         )
         self.assertEqual(  # parent should be omitted
+            cam.elem_to_str(elem3),
+            "someelement name=someelement0",
+        )
+
+        elem4 = self.MockElement()
+        setattr(elem4, "parent", "someparentelem")
+
+        # panic value
+        def panic(v):
+            if v == elem4.some_int_value:
+                raise ValueError()
+            else:
+                return v
+
+        mock_Gst.value_serialize = panic
+        self.assertEqual(
             cam.elem_to_str(elem3),
             "someelement name=someelement0",
         )

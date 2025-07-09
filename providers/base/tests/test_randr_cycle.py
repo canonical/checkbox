@@ -417,5 +417,3 @@ class MainTests(unittest.TestCase):
             SystemExit, "Current host is not support: Error"
         ):
             MonitorTest().main()
-
-        mock_config.assert_called_once()

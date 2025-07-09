@@ -452,7 +452,9 @@ class TestUtilFunctions(ut.TestCase):
             return getattr(self, prop_name)
 
     @patch("checkbox_support.camera_pipelines.Gst")
-    def test_get_launch_line_null_checks(self, mock_Gst: MagicMock):
+    def test_get_launch_line_null_and_exceptionchecks(
+        self, mock_Gst: MagicMock
+    ):
         device = MagicMock()
         device.create_element.return_value = None
         self.assertIsNone(cam.get_launch_line(device))
@@ -469,6 +471,13 @@ class TestUtilFunctions(ut.TestCase):
 
         mock_factory.get_name.return_value = "someelement"
         mock_Gst.ElementFactory.make.return_value = None
+        self.assertIsNone(cam.get_launch_line(device))
+
+        mock_factory = MagicMock()
+        mock_elem.get_factory.return_value = mock_factory
+        mock_factory.get_name.return_value = "someelement"
+        mock_Gst.value_serialize.side_effect = ValueError
+        # serialize() exceptions should be caught
         self.assertIsNone(cam.get_launch_line(device))
 
     @patch("checkbox_support.camera_pipelines.GObject")

@@ -18,6 +18,7 @@
 
 
 from collections import OrderedDict
+from os.path import basename
 import gi
 import typing as T
 import logging
@@ -233,7 +234,7 @@ def run_pipeline(
     loop = GLib.MainLoop()
     timeout_sources = []  # type: list[GLib.Source]
 
-    # don't check falsy values here, 0 can bypass this 
+    # don't check falsy values here, 0 can bypass this
     if run_n_seconds is not None:
         if run_n_seconds <= 0 or not run_n_seconds.is_integer():
             raise ValueError(
@@ -321,6 +322,11 @@ def take_photo(
     :param delay_seconds: Number of seconds to keep the source "open"
         before taking the photo
     """
+    if not basename(file_path).endswith(("jpeg", "jpg")):
+        raise ValueError(
+            "File name should end with jpeg or jpg. Got {}".format(file_path)
+        )
+
     if delay_seconds < 0 or not delay_seconds.is_integer():
         raise ValueError(
             "delay_seconds must be a positive integer. Got {}".format(

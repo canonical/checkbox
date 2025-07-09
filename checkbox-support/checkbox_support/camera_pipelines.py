@@ -1,0 +1,666 @@
+# This file is part of Checkbox.
+#
+# Copyright 2025 Canonical Ltd.
+# Written by:
+#   Zhongning Li <zhongning.li@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+
+import gi
+import typing as T
+import logging
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s - %(message)s\n",
+    datefmt="%m/%d %H:%M:%S",
+)
+logger.setLevel(logging.DEBUG)
+
+from gi.repository import GObject  # type: ignore # noqa: E402
+
+Gtk = None
+
+gi.require_version("Gst", "1.0")
+from gi.repository import Gst  # type: ignore # noqa: E402
+
+gi.require_version("GLib", "2.0")
+from gi.repository import GLib  # type: ignore # noqa: E402
+
+TimeoutCallback = T.Callable[[], None]
+PipelineQuitHandler = T.Callable[[Gst.Message], bool]
+
+
+class CapsResolver:
+
+    INT32_MIN = -2147483648
+    INT32_MAX = 2147483647
+
+    # (top, bottom) or (numerator, denominator)
+    FractionTuple = T.Tuple[int, int]
+    IntOrFractionTuple = T.Union[int, FractionTuple]
+
+    KNOWN_RANGE_VALUES = {
+        "width": [640, 1280, 1920, 2560, 3840],
+        "height": [480, 720, 1080, 1440, 2160],
+        "framerate": [
+            (15, 1),
+            (30, 1),
+            (60, 1),
+            (120, 1),
+        ],  # 15fpx, 30fps, 60fps, 120fps
+    }
+
+    def extract_fraction_range(
+        self, struct: Gst.Structure, prop_name: str
+    ) -> T.Tuple[FractionTuple, FractionTuple]:
+        """Extracts (low, high) fraction range from a Gst.Structure
+
+        :param struct: structure whose prop_name is a Gst.FractionRange
+        :param prop_name: name of the property
+        :return: (low, high) fraction tuple
+            - NOTE: low is defined as having a smaller numerator
+        """
+        assert struct.has_field_typed(prop_name, Gst.FractionRange)
+        low = struct.copy()  # type: Gst.Structure
+        high = struct.copy()  # type: Gst.Structure
+        low.fixate_field_nearest_fraction(prop_name, 0, 1)
+        high.fixate_field_nearest_fraction(prop_name, self.INT32_MAX, 1)
+
+        return (
+            low.get_fraction(prop_name)[1:],
+            high.get_fraction(prop_name)[1:],
+        )
+
+    def extract_int_range(
+        self, struct: Gst.Structure, prop_name: str
+    ) -> T.Tuple[int, int]:
+        """Bit of a hack to work around the missing Gst.IntRange type
+
+        :param struct: structure whose prop_name property is a Gst.IntRange
+        :param prop_name: name of the property
+        :return: (low, high) integer tuple
+        """
+        # the introspected class exists, but we can't construct it
+        assert struct.has_field_typed(prop_name, Gst.IntRange)
+
+        low = struct.copy()  # type: Gst.Structure
+        high = struct.copy()  # type: Gst.Structure
+        low.fixate_field_nearest_int(prop_name, self.INT32_MIN)
+        high.fixate_field_nearest_int(prop_name, self.INT32_MAX)
+
+        # get_int returns a (success, value) tuple
+        return low.get_int(prop_name)[1], high.get_int(prop_name)[1]
+
+    @T.overload
+    def select_known_values_from_range(
+        self, prop: str, low: int, high: int
+    ) -> T.List[int]: ...
+
+    @T.overload
+    def select_known_values_from_range(
+        self, prop: str, low: FractionTuple, high: FractionTuple
+    ) -> T.List[FractionTuple]: ...
+
+    def select_known_values_from_range(
+        self,
+        prop: str,
+        low: IntOrFractionTuple,
+        high: IntOrFractionTuple,
+    ) -> T.Sequence[IntOrFractionTuple]:
+        """
+        Creates a list of values in (low, high) that can be used in Gst.Caps
+
+        :param low: min value, inclusive
+        :param high: max value, inclusive
+        :return: list of known values in range
+        """
+
+        if prop not in self.KNOWN_RANGE_VALUES:
+            raise ValueError(
+                'Property "{}" does not have a known value definition'.format(
+                    prop
+                )
+            )
+
+        if type(low) is not type(high):
+            raise TypeError(
+                "Range (low, high) must have the same type "
+                "got ({}, {})".format(type(low), type(high))
+            )
+
+        if type(low) not in (int, tuple):
+            raise TypeError(
+                "Only int and fraction tuples are supported got {}".format(
+                    type(low)
+                )
+            )
+
+        out = []
+        for val in self.KNOWN_RANGE_VALUES[prop]:
+            # lt gt are defined as pairwise comparison on tuples
+            if val >= low and val <= high:
+                out.append(val)
+
+        return out
+
+    def get_all_fixated_caps(
+        self,
+        caps: Gst.Caps,
+        resolve_method: str,  # type T.Literal["known_values", "limit"]
+        limit: int = 10000,
+    ) -> T.List[Gst.Caps]:
+        """Gets all the fixated(1 value per property) caps from a Gst.Caps obj
+
+        :param caps: a mixed Gst.Caps
+        :param resolve_method: how to resolve IntRange and FractionRange values
+        - Only applies to width, height, and framerate for now
+        - "known_values" => picks out known values within the original range
+        - "limit" => Use the caps.is_fixed while loop until we reaches limit
+
+        :param limit: the limit to use for the "limit" resolver
+        - if resolve method is known_values, this is still in effect
+        :return: a list of fixed caps
+        """
+        acceptable_resolve_methods = "known_values", "limit"
+        if resolve_method not in acceptable_resolve_methods:
+            raise ValueError(
+                "Resolve method must be one of {}, got {}".format(
+                    acceptable_resolve_methods, resolve_method
+                )
+            )
+
+        if caps.is_fixed():
+            return [caps]
+
+        fixed_caps = []  # type: list[Gst.Caps]
+
+        for i in range(caps.get_size()):
+            struct = caps.get_structure(i)
+
+            if resolve_method == "known_values":
+                for prop in self.KNOWN_RANGE_VALUES.keys():
+                    finite_list = None  # type: GObject.ValueArray | None
+
+                    if struct.has_field_typed(prop, Gst.IntRange):
+                        low, high = self.extract_int_range(struct, prop)
+                        finite_list = GObject.ValueArray()
+                        for elem in self.select_known_values_from_range(
+                            prop, low, high
+                        ):
+                            finite_list.append(elem)
+
+                    elif struct.has_field_typed(prop, Gst.FractionRange):
+                        low, high = self.extract_fraction_range(struct, prop)
+                        fraction_list = self.select_known_values_from_range(
+                            prop, low, high
+                        )
+                        # workaround missing Gst.Fraction
+                        # we can't directly create fraction objects
+                        # but we can create a struct from str, then access it
+                        temp = Gst.Structure.from_string(  # type: ignore
+                            "temp, {}={{{}}}".format(
+                                prop,
+                                ",".join(
+                                    "{}/{}".format(numerator, denominator)
+                                    for (
+                                        numerator,
+                                        denominator,
+                                    ) in fraction_list
+                                ),
+                            )
+                        )[0]
+                        # creates a struct of the form: temp, prop={30/1, 15/1}
+                        # now we simply get the prop by name
+                        finite_list = temp.get_list(prop)[1]
+
+                    if finite_list is not None:
+                        if finite_list.n_values == 0:
+                            logger.debug(
+                                "Resolve method is known_values, "
+                                "but original caps doesn't have any "
+                                "of the common values. "
+                                "Skipping."
+                            )
+                        struct.set_list(
+                            prop,
+                            finite_list,
+                        )
+
+            caps_i = Gst.Caps.from_string(struct.to_string())
+            if not caps_i:
+                raise RuntimeError(
+                    'Unexpected failure when converting "{}" to caps'.format(
+                        struct.to_string()
+                    )
+                )
+
+            while not caps_i.is_fixed() and not caps_i.is_empty():
+                if len(fixed_caps) >= limit:
+                    break
+                fixed_cap = caps_i.fixate()  # type: Gst.Caps
+                if len(fixed_caps) != 0 and fixed_cap.is_equal(fixed_caps[-1]):
+                    # if the caps is already seen last time,
+                    # we are probably stuck at an unresolvable value
+                    # can happen e.g when we have framerate = [1/3, 1/4]
+                    # - doesn't contain any known value
+                    # - fixate() will keep returning the same thing
+                    # - subtract() does nothing
+                    break
+                fixed_caps.append(fixed_cap)
+                caps_i = caps_i.subtract(fixed_cap)
+
+            if caps_i.is_fixed():
+                fixed_caps.append(caps_i)
+
+        return fixed_caps
+
+
+def get_launch_line(device: Gst.Device) -> T.Optional[str]:
+    """Get the gst-device-monitor launch line for a device
+    This basically re-implements the one in the cli
+    https://github.com/GStreamer/gst-plugins-base/blob/master/tools/gst-device-monitor.c#L46 # noqa: E501
+
+    :param device: the device given by Gst.DeviceMonitor
+    :return: the gst-launch-1.0 launchline. Note that this only starts with the
+    element name, not "gst-launch-1.0" like you would see in the cli
+    """
+    ignored_propnames = set(
+        ["name", "parent", "direction", "template", "caps"]
+    )  # type: set[str]
+    element = device.create_element()
+    if element is None:
+        return None
+
+    factory = element.get_factory()
+    if factory is None:
+        return None
+
+    factory_name = factory.get_name()
+    if factory_name is None:
+        return None
+
+    pure_element = Gst.ElementFactory.make(factory_name, None)
+    if pure_element is None:
+        return None
+
+    launch_line_components = [factory_name]  # type: list[str]
+    for prop in element.list_properties():
+        if prop.name in ignored_propnames:
+            continue
+        # eliminate all default properties and non-read-writable props
+        read_and_writable = (
+            prop.flags & GObject.PARAM_READWRITE == GObject.PARAM_READWRITE
+        )
+        if not read_and_writable:
+            continue
+
+        default_value = pure_element.get_property(prop.name)
+        actual_value = element.get_property(prop.name)
+
+        if (
+            actual_value is not None
+            and default_value is not None
+            and Gst.value_compare(default_value, actual_value)
+            == Gst.VALUE_EQUAL
+        ):
+            continue
+
+        if actual_value is None:
+            continue
+
+        # now we only have the non-default values
+        serialized = Gst.value_serialize(actual_value)
+        if not serialized:
+            continue  # ignore non-serializable ones
+
+        launch_line_components.append("{}={}".format(prop.name, serialized))
+
+    # example: pipewiresrc target-object=49
+    return " ".join(launch_line_components)
+
+
+def elem_to_str(
+    element: Gst.Element, exclude: T.List[str] = ["parent", "client-name"]
+) -> str:
+    """Prints an element to string
+
+    :param element: GStreamer element
+    :param exclude: property names to exclude
+    :return: String representation. This is a best guess for debug purposes,
+        not 100% accurate since there can be arbitrary objects in properties.
+    """
+    properties = element.list_properties()  # list[GObject.GParamSpec]
+    element_name = element.get_factory().get_name()  # type: ignore
+
+    prop_strings = []  # type: list[str]
+
+    for prop in properties:
+        if prop.name in exclude:
+            continue
+
+        try:
+            prop_value = element.get_property(prop.name)
+        except TypeError:
+            logger.debug(
+                "Property {} is unreadable in {}, ignored.".format(
+                    prop.name, element_name
+                )  # not every property is readable, ignore unreadable ones
+            )
+            continue
+
+        if prop_value is None:
+            continue
+
+        serialized_value = Gst.value_serialize(prop_value)
+        if not serialized_value:
+            continue
+
+        prop_strings.append(
+            "{}={}".format(prop.name, serialized_value)
+        )  # handle native python types
+
+    return "{} {}".format(
+        element_name, " ".join(prop_strings)
+    )  # libcamerasrc name=cam_name location=p.jpeg
+
+
+def gst_msg_handler(
+    _: Gst.Bus,
+    msg: Gst.Message,
+    pipeline: Gst.Pipeline,
+    custom_quit_handler: T.Optional[PipelineQuitHandler],
+    loop: GLib.MainLoop,
+    timeout_sources: T.List[GLib.Source] = [],
+):
+    should_quit = False
+
+    if custom_quit_handler:
+        # has the lowest precedence, ERROR and EOS will always take over
+        should_quit = custom_quit_handler(msg)
+
+    if msg.type == Gst.MessageType.WARNING:
+        logger.warning(Gst.Message.parse_warning(msg))
+
+    if msg.type == Gst.MessageType.EOS:
+        logger.debug("Received EOS.")
+        should_quit = True
+
+    if msg.type == Gst.MessageType.ERROR:
+        logger.error(
+            "Pipeline encountered an error, stopping. "
+            + str(Gst.Message.parse_error(msg))
+        )
+        should_quit = True
+
+    if should_quit:
+        loop.quit()
+        for timeout in timeout_sources:
+            # if the pipeline is terminated early, remove all timers asap
+            # because loop.quit() won't remove/stop those
+            # that are already scheduled => segfault (EOS on null pipeline)
+            # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
+            timeout.destroy()
+        # setting NULL can be slow on certain encoders
+        # it's also possible to block infinitely here. use an external
+        # timeout to be extra safe
+        pipeline.set_state(Gst.State.NULL)
+
+
+def run_pipeline(
+    pipeline: Gst.Pipeline,
+    run_n_seconds: T.Optional[int] = None,
+    intermediate_calls: T.List[T.Tuple[int, TimeoutCallback]] = [],
+    custom_quit_handler: T.Optional[PipelineQuitHandler] = None,
+):
+    """Runs a GStreamer pipeline and handle Gst messages
+
+    :param pipeline: the pipeline to run
+    :param run_n_seconds: Number of seconds to run the pipeline
+        before sending EOS, defaults to None
+        - If None, only wait for an EOS signal
+    :param intermediate_calls: functions to run while the pipeline is running
+        - Each element is a (delay, callback) tuple
+        - Delay is the number of seconds to wait
+            (relative to the start of the pipeline) before calling the callback
+    :param custom_quit_handler: quit the pipeline if this function returns true
+    :raises RuntimeError: if the source element did not transition to playing
+        state in 5s after set_state(PLAYING) is called
+    """
+    loop = GLib.MainLoop()
+    timeout_sources = []  # type: list[GLib.Source]
+
+    if run_n_seconds is not None and run_n_seconds < 1:
+        raise ValueError("run_n_seconds must be >= 1 if specified")
+
+    if run_n_seconds:
+
+        def send_eos():
+            logger.debug("Sending EOS.")
+            pipeline.send_event(Gst.Event.new_eos())
+
+        eos_timeout_id = GLib.timeout_add_seconds(run_n_seconds, send_eos)
+        # get the actual source object, so we can call .destroy() later.
+        # Removing a timeout by id will cause warnings if it doesn't exist,
+        # but destroying an already destroyed source is ok
+        # See: https://docs.gtk.org/glib/method.Source.destroy.html
+        # and: https://docs.gtk.org/glib/type_func.Source.remove.html
+        timeout_sources.append(
+            loop.get_context().find_source_by_id(eos_timeout_id)
+        )
+
+    for delay, intermediate_call in intermediate_calls:
+        if run_n_seconds is not None and delay > run_n_seconds:
+            raise ValueError(
+                "Delay for each call must be smaller than total run seconds, "
+                " (Got delay = {} for {}, run_n_seconds = {})".format(
+                    delay, intermediate_call.__name__, run_n_seconds
+                )
+            )
+
+        timeout_id = GLib.timeout_add_seconds(delay, intermediate_call)
+        timeout_sources.append(
+            loop.get_context().find_source_by_id(timeout_id)
+        )
+
+    bus = pipeline.get_bus()
+    bus.add_signal_watch()
+    bus.connect(
+        "message",
+        gst_msg_handler,
+        pipeline,
+        custom_quit_handler,
+        loop,
+        timeout_sources,
+    )
+
+    def check_state_change():
+        # do not use Gst.CLOCK_TIME_NONE for get_state, it will wait forever
+        state_change_result = pipeline.get_state(Gst.SECOND * 1)
+        # get_state returns a 3-tuple
+        # (Gst.StateChangeReturn, curr: Gst.State, target: Gst.State)
+        if state_change_result[0] != Gst.StateChangeReturn.SUCCESS:
+            pipeline.set_state(Gst.State.NULL)
+            # must use SystemExit here to force stop the entire process
+            # anything inheriting the Exception class (not BaseException)
+            # is caught by mainloop
+            raise SystemExit(
+                "Failed to transition to playing state. "
+                + "Source is still in {} state, ".format(
+                    # these are GObject.GEnums, not the standard library Enum
+                    state_change_result[1].value_name
+                )
+                + "was trying to transition to {}".format(
+                    state_change_result[2].value_name
+                )
+            )
+        logger.debug(
+            "[ OK ] Pipeline successfully transitioned to {}".format(
+                state_change_result[1].value_name
+            )
+        )
+
+    # the mainloop is unlikely to get stuck
+    # so we set a timeout on the mainloop to check if the pipeline hanged
+    # this also avoids the problem of unable to check pipeline state with
+    # get_state() immediately after a set_state call
+    check_state_change_id = GLib.timeout_add_seconds(5, check_state_change)
+    timeout_sources.append(
+        loop.get_context().find_source_by_id(check_state_change_id)
+    )
+    pipeline.set_state(Gst.State.PLAYING)
+
+    # this does not necessarily mean that the pipeline has the PLAYING state
+    # it just means that set_state didn't hang
+    logger.info("[ OK ] Pipeline is playing!")
+    loop.run()
+
+
+def msg_is_multifilesink_save(msg: Gst.Message) -> bool:
+    """Returns true when multifilesink saves a buffer
+
+    :param msg: the GstMessage object
+    :return: whether msg is a multifilesink save message
+    """
+    if msg.type == Gst.MessageType.ELEMENT:
+        struct = msg.get_structure()
+        return (
+            struct is not None
+            and struct.get_name() == "GstMultiFileSink"
+            and struct.has_field("filename")
+        )
+    else:
+        return False
+
+
+def take_photo(
+    source: Gst.Element,
+    *,
+    caps: T.Optional[Gst.Caps] = None,
+    file_path: Path,
+    delay_seconds: int,
+):
+    """Take a photo using the source element
+
+    :param source: The camera source element
+    :param caps: Which capability to use for the source
+        - If None, no caps filter will be inserted between source and decoder
+    :param file_path: the path to the photo
+    :param delay_seconds: number of seconds to keep the source "open"
+        before taking the photo
+    """
+
+    # this may seem unorthodox
+    # but it's way less verbose than creating individual elements
+    str_elements = [
+        'capsfilter name=source-caps caps="{}"',  # 0
+        "decodebin",  # 1
+        "videoconvert name=converter",  # 2
+        "valve name=photo-valve drop=True",  # 3
+        "jpegenc",  # 4
+        "multifilesink post-messages=True location={}".format(
+            str(file_path)
+        ),  # 5
+    ]
+    head_elem_name = "source-caps"
+
+    # using empty string as null values here
+    # they are filtered out at parse_launch
+    if caps:
+        assert caps.is_fixed(), '"{}" is not fixed.'.format(caps.to_string())
+
+        str_elements[0] = str_elements[0].format(caps.to_string())
+        mime_type = caps.get_structure(0).get_name()  # type: str
+
+        if mime_type == "image/jpeg":
+            # decodebin has a clock problem with pipewiresrc
+            # that outputs image/jpeg
+            str_elements[1] = "jpegdec"
+        elif mime_type == "video/x-raw":
+            # don't need a decoder for raw
+            str_elements[1] = ""
+        elif mime_type == "video/x-bayer":
+            # bayer2rgb is not considered a decoder
+            # so decodebin can't automatically find this
+            str_elements[1] = "bayer2rgb"
+        # else case is using decodebin as a fallback
+    else:
+        # decode bin doesn't work with video/x-raw
+        str_elements[0] = str_elements[1] = ""
+        head_elem_name = "converter"
+
+    delay_seconds = max(delay_seconds, 0)
+    if delay_seconds == 0:
+        str_elements[3] = ""
+
+    partial = " ! ".join(elem for elem in str_elements if elem)
+    pipeline = Gst.parse_launch(partial)
+
+    if type(pipeline) is not Gst.Pipeline:
+        raise TypeError(
+            "Unexpected return type from parse_launch: Got {}".format(
+                type(pipeline)
+            )
+        )
+
+    head_elem = pipeline.get_by_name(head_elem_name)
+
+    # parse the partial pipeline, then get head element by name
+    assert pipeline.add(
+        source
+    ), "Could not add source element {} to the pipeline".format(
+        elem_to_str(source)
+    )  # NOTE: this assertion only applies to the default python binding
+    # if the python3-gst-1.0 package is installed, .add() always return None
+    assert head_elem
+    assert source.link(
+        head_elem
+    ), "Could not link source element to {}".format(head_elem)
+
+    if delay_seconds == 0:
+        intermediate_calls = []
+        logger.info(
+            "Created photo pipeline with no delay. "
+            + '"{} ! {}"'.format(elem_to_str(source), partial)
+        )
+    else:
+        valve = pipeline.get_by_name("photo-valve")
+
+        def open_valve():
+            assert valve
+            logger.debug("Opening valve!")
+            valve.set_property("drop", False)
+
+        intermediate_calls = [(delay_seconds, open_valve)]
+        logger.info(
+            "Created photo pipeline with {} second delay. ".format(
+                delay_seconds
+            )
+            + '"{} ! {}"'.format(elem_to_str(source), partial)
+        )
+
+    run_pipeline(
+        pipeline,
+        intermediate_calls=intermediate_calls,
+        custom_quit_handler=msg_is_multifilesink_save,
+    )
+
+    # NOTE: reaching here just means the pipeline successfully stopped
+    # not necessarily stopped gracefully
+    logger.info(
+        "[ OK ] Photo pipeline for this capability: "
+        + "{}".format(caps.to_string() if caps else "device default")
+        + " has finished!"
+    )

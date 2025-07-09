@@ -293,12 +293,11 @@ class TestPipelineLogic(ut.TestCase):
         mock_message.type = mock_Gst.MessageType.ERROR
         mock_loop = MagicMock()
 
-        # so we should still quit
         cam.gst_msg_handler(
             MagicMock(),
             mock_message,
             MagicMock(),
-            lambda *args: False,  # shuld always quit when there's an error msg
+            lambda *args: False,  # always quit when there's an error msg
             # even if the handler says no
             mock_loop,
             [],
@@ -312,13 +311,13 @@ class TestPipelineLogic(ut.TestCase):
             MagicMock(),
             mock_message,
             MagicMock(),
-            lambda *args: False,  # no error/EOS, but handler wants to quit
+            cam.msg_is_multifilesink_save,  # no error/EOS
             mock_loop,
             [],
         )
         self.assertTrue(mock_logger.warning.called)
 
-        # Now suppose we have an element message
+        # Now suppose we have a random element message
         mock_loop.reset_mock()
         mock_message.type = mock_Gst.MessageType.ELEMENT
 
@@ -326,7 +325,25 @@ class TestPipelineLogic(ut.TestCase):
             MagicMock(),
             mock_message,
             MagicMock(),
-            lambda *args: True,
+            cam.msg_is_multifilesink_save,
+            mock_loop,
+            [],
+        )
+        self.assertFalse(mock_loop.quit.called)
+
+        # finally the multifilesink save message
+
+        mock_loop.reset_mock()
+        mock_message.type = mock_Gst.MessageType.ELEMENT
+        mock_struct = MagicMock()
+        mock_message.get_structure.return_value = mock_struct
+        mock_struct.get_name.return_value = "GstMultiFileSink"
+        mock_struct.has_field.return_value = True
+        cam.gst_msg_handler(
+            MagicMock(),
+            mock_message,
+            MagicMock(),
+            cam.msg_is_multifilesink_save,
             mock_loop,
             [],
         )

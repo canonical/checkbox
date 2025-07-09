@@ -292,15 +292,14 @@ class TestPipelineLogic(ut.TestCase):
         mock_message = MagicMock()
         mock_message.type = mock_Gst.MessageType.ERROR
         mock_loop = MagicMock()
-        mock_quit_handler = (
-            lambda *args: False
-        )  # custom handler says it shouldn't quit, but got an error msg
+
         # so we should still quit
         cam.gst_msg_handler(
             MagicMock(),
             mock_message,
             MagicMock(),
-            mock_quit_handler,
+            lambda *args: False,  # shuld always quit when there's an error msg
+            # even if the handler says no
             mock_loop,
             [],
         )
@@ -309,12 +308,11 @@ class TestPipelineLogic(ut.TestCase):
         # warnings should be produced
         mock_loop.reset_mock()
         mock_message.type = mock_Gst.MessageType.WARNING
-        mock_quit_handler = lambda *args: False
         cam.gst_msg_handler(
             MagicMock(),
             mock_message,
             MagicMock(),
-            mock_quit_handler,
+            lambda *args: False,  # no error/EOS, but handler wants to quit
             mock_loop,
             [],
         )
@@ -323,12 +321,12 @@ class TestPipelineLogic(ut.TestCase):
         # Now suppose we have an element message
         mock_loop.reset_mock()
         mock_message.type = mock_Gst.MessageType.ELEMENT
-        mock_quit_handler = lambda *args: True
+
         cam.gst_msg_handler(
             MagicMock(),
             mock_message,
             MagicMock(),
-            mock_quit_handler,
+            lambda *args: True,
             mock_loop,
             [],
         )
@@ -396,29 +394,45 @@ class TestUtilFunctions(ut.TestCase):
         mock_Gst.ElementFactory.make.side_effect = (
             lambda name, _: name == "someelement" and mock_pure_elem
         )
-
-        mock_pure_elem.get_property.return_value = 0
-        mock_elem.get_property.return_value = 1
+        mock_GObject.PARAM_READWRITE = 1
 
         prop1 = MagicMock()
         prop1.name = "prop1"
+
         ignored_prop = MagicMock()
         ignored_prop.name = "parent"
+
         unreadable_prop = MagicMock()
-        unreadable_prop.flags.__and.return_value = (
+        unreadable_prop.name = "unreadable"
+        unreadable_prop.flags.__and__.return_value = (
             False  # can be anything != PARAM_READWRITE
         )
+
+        unserializable_prop = MagicMock()
+        unserializable_prop.name = "unserializable_prop"
+        unserializable_value = "unserializable_value"
+        mock_Gst.value_serialize.side_effect = lambda v: (
+            None if v == unserializable_value else str(v)
+        )
+        unserializable_prop.flags.__and__.return_value = True
 
         mock_elem.list_properties.return_value = [
             prop1,
             ignored_prop,
+            unreadable_prop,
+            unserializable_prop,
         ]
         prop1.flags.__and__.return_value = mock_GObject.PARAM_READWRITE
 
+        mock_pure_elem.get_property.return_value = 0
+        mock_elem.get_property.side_effect = lambda prop_name: (
+            unserializable_value
+            if prop_name == unserializable_prop.name
+            else 1
+        )
         mock_Gst.value_compare.side_effect = lambda x, y: x == y
         mock_Gst.VALUE_EQUAL = True
 
-        mock_Gst.value_serialize = str
         self.assertEqual(cam.get_launch_line(device), "someelement prop1=1")
 
     @patch("checkbox_support.camera_pipelines.logger")
@@ -446,7 +460,7 @@ class TestUtilFunctions(ut.TestCase):
         setattr(elem3, "parent", "someparentelem")
         # unserializable value
         mock_Gst.value_serialize = lambda x: (
-            x == None if x == elem3.some_int_value else x  # type: ignore
+            x is None if x == elem3.some_int_value else x  # type: ignore
         )
         self.assertEqual(  # parent should be omitted
             cam.elem_to_str(elem3),

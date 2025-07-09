@@ -268,10 +268,11 @@ def run_pipeline(
     pipeline.set_state(Gst.State.PLAYING)
 
     try:
+        # just a debugging message
         src_elem = pipeline.get_child_by_index(0)
         if isinstance(src_elem, Gst.Element):
             src_elem.iterate_src_pads().foreach(
-                lambda pad: pad.get_current_caps()
+                lambda pad: pad.get_current_caps()  # can be None
                 and logger.info(
                     'The negotiated caps of the source "{}" is: "{}"'.format(
                         src_elem.name, pad.get_current_caps().to_string()

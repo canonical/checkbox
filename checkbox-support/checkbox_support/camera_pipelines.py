@@ -280,26 +280,6 @@ def run_pipeline(
 
     pipeline.set_state(Gst.State.PLAYING)
 
-    try:
-        elem_iterator = pipeline.iterate_elements()
-        if elem_iterator is not None:
-
-            def print_caps_for_src_elems(e: Gst.Element):
-                if len(e.sinkpads) != 0 or len(e.srcpads) == 0:
-                    return
-
-                e.iterate_src_pads().foreach(
-                    lambda pad: pad.get_current_caps()  # can be None
-                    and logger.info(
-                        'The negotiated caps of src elem "{}" is: "{}"'.format(
-                            e.name, pad.get_current_caps().to_string()
-                        )
-                    )
-                )
-
-            elem_iterator.foreach(print_caps_for_src_elems)
-    except Exception as e:
-        pass
     # this does not necessarily mean that the pipeline has the PLAYING state
     # it just means that set_state didn't hang
     logger.info("[ OK ] Pipeline is playing!")

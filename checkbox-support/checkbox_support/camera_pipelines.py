@@ -18,7 +18,6 @@
 
 
 from collections import OrderedDict
-import tempfile
 import gi
 import typing as T
 import logging
@@ -53,12 +52,11 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
     https://github.com/GStreamer/gst-plugins-base/blob/master/tools/gst-device-monitor.c#L46 # noqa: E501
 
     :param device: the device given by Gst.DeviceMonitor
-    :return: the gst-launch-1.0 launchline. Note that this only starts with the
-    element name, not "gst-launch-1.0" like you would see in the cli
+    :return: the gst-launch-1.0 launch line
+        - Note that this starts with the element name,
+          not "gst-launch-1.0" like you would see in the cli
     """
-    ignored_prop_names = set(
-        ["name", "parent", "direction", "template", "caps"]
-    )  # type: set[str]
+    ignored_prop_names = {"name", "parent", "direction", "template", "caps"}
     element = device.create_element()
     if element is None:
         return None
@@ -218,29 +216,33 @@ def run_pipeline(
 ):
     """Run a GStreamer pipeline and handle Gst messages (blocking)
 
-    :param pipeline: the pipeline to run
-    :param run_n_seconds: Number of seconds to run the pipeline before
-        sending EOS, defaults to None
+    :param pipeline: the pipeline to run, all elements should be already linked
+    :param run_n_seconds: num seconds to run the pipeline before sending EOS
         - If None, only register the EOS handler
+        - If None and the pipeline doesn't naturally emit EOS,
+          then the pipeline will run forever
     :param intermediate_calls: functions to run while the pipeline is running
         - Each element is a (delay, callback) tuple
         - Delay is the number of seconds to wait
-            (relative to the start of the pipeline) before calling the callback
+            RELATIVE to the start of the pipeline before calling the callback
+        - All delay integers must be unique and positive
     :param custom_quit_handler: quit the pipeline if this function returns true
-        - Has lowest precedence
-    :raises RuntimeError: if the source element did not transition to playing
-        state in 5s after set_state(PLAYING) is called
+        - Has lowest precedence, EOS and ERROR always takes over
+    :raises ValueError: if any validation failed before the pipeline is running
     """
     loop = GLib.MainLoop()
     timeout_sources = []  # type: list[GLib.Source]
 
-    if run_n_seconds is not None and run_n_seconds < 1:
-        raise ValueError("run_n_seconds must be >= 1 if specified")
-
-    if run_n_seconds:
+    # don't check falsy values here, 0 can bypass this 
+    if run_n_seconds is not None:
+        if run_n_seconds <= 0 or not run_n_seconds.is_integer():
+            raise ValueError(
+                "run_n_seconds must be a positive integer if specified, "
+                + "got {}".format(run_n_seconds)
+            )
 
         def send_eos():
-            logger.debug("Sending EOS.")
+            logger.debug("Sending EOS")
             pipeline.send_event(Gst.Event.new_eos())
 
         eos_timeout_id = GLib.timeout_add_seconds(run_n_seconds, send_eos)
@@ -287,10 +289,10 @@ def run_pipeline(
 
 
 def msg_is_multifilesink_save(msg: Gst.Message) -> bool:
-    """Returns true when multifilesink saves a buffer
+    """Checks if `msg` is a multifilesink save message
 
-    :param msg: the GstMessage object
-    :return: whether msg is a multifilesink save message
+    :param msg: the Gst.Message object
+    :return: True if msg indicates that multifilesink successfully saved a file
     """
     if msg.type == Gst.MessageType.ELEMENT:
         struct = msg.get_structure()
@@ -306,18 +308,25 @@ def msg_is_multifilesink_save(msg: Gst.Message) -> bool:
 def take_photo(
     source: Gst.Element,
     file_path: Path,
-    delay_seconds: int,
+    delay_seconds: int = 0,
     caps: T.Optional[Gst.Caps] = None,
 ):
-    """Take a photo using the source element
+    """Take a photo using the source element in a pure software pipeline
 
-    :param source: The camera source element
+    :param source: The camera source element,
+        - This element should ONLY have SRC pads, otherwise linking may fail
+    :param file_path: Where to save the photo. File extension should be jpeg
     :param caps: Which capability to use for the source
         - If None, no caps filter will be inserted between source and decoder
-    :param file_path: the path to the photo
-    :param delay_seconds: number of seconds to keep the source "open"
+    :param delay_seconds: Number of seconds to keep the source "open"
         before taking the photo
     """
+    if delay_seconds < 0 or not delay_seconds.is_integer():
+        raise ValueError(
+            "delay_seconds must be a positive integer. Got {}".format(
+                delay_seconds
+            )
+        )
 
     # dict order is not guaranteed on python < 3.7
     str_elements = OrderedDict(
@@ -363,7 +372,6 @@ def take_photo(
         str_elements["caps"] = str_elements["decoder"] = ""
         head_elem_name = "converter"
 
-    delay_seconds = max(delay_seconds, 0)
     if delay_seconds == 0:
         str_elements["photo-valve"] = ""
 

@@ -73,16 +73,35 @@ class CapsResolver:
         :return: (low, high) fraction tuple
             - NOTE: low is defined as having a smaller numerator
         """
-        assert struct.has_field_typed(prop_name, Gst.FractionRange)
+        if not struct.has_field_typed(prop_name, Gst.FractionRange):
+            raise TypeError(
+                "This function can only be called on a field "
+                "that has type Gst.FractionRange. Got {}".format(
+                    struct.get_field_type(prop_name)
+                )
+            )
+
         low = struct.copy()  # type: Gst.Structure
         high = struct.copy()  # type: Gst.Structure
         low.fixate_field_nearest_fraction(prop_name, 0, 1)
         high.fixate_field_nearest_fraction(prop_name, self.INT32_MAX, 1)
 
-        return (
-            low.get_fraction(prop_name)[1:],
-            high.get_fraction(prop_name)[1:],
-        )
+        low_fraction = low.get_fraction(prop_name)[1:]
+        high_fraction = high.get_fraction(prop_name)[1:]
+
+        if low_fraction[1] != 1 or high_fraction[1] != 1:
+            raise ValueError(
+                "Expecting framerate denominator to be 1, "
+                "but got: {}, {}".format(low_fraction, high_fraction)
+            )
+
+        if low_fraction[0] < 0 or high_fraction[0] < 0:
+            raise ValueError(
+                "Expecting framerate numerator to be non-negative, "
+                "but got: {}, {}".format(low_fraction, high_fraction)
+            )
+
+        return low_fraction, high_fraction
 
     def extract_int_range(
         self, struct: Gst.Structure, prop_name: str
@@ -94,7 +113,13 @@ class CapsResolver:
         :return: (low, high) integer tuple
         """
         # the introspected class exists, but we can't construct it
-        assert struct.has_field_typed(prop_name, Gst.IntRange)
+        if not struct.has_field_typed(prop_name, Gst.IntRange):
+            raise TypeError(
+                "This function can only be called on a field "
+                "that has type Gst.IntRange. Got {}".format(
+                    struct.get_field_type(prop_name)
+                )
+            )
 
         low = struct.copy()  # type: Gst.Structure
         high = struct.copy()  # type: Gst.Structure
@@ -102,7 +127,18 @@ class CapsResolver:
         high.fixate_field_nearest_int(prop_name, self.INT32_MAX)
 
         # get_int returns a (success, value) tuple
-        return low.get_int(prop_name)[1], high.get_int(prop_name)[1]
+        low_int = low.get_int(prop_name)[1]
+        high_int = high.get_int(prop_name)[1]
+
+        if low_int < 0 or high_int < 0:
+            raise ValueError(
+                # better way is to serialize, but that raises error on 22.04
+                "Found negative values in range: [{}, {}]".format(
+                    low_int, high_int
+                )
+            )
+
+        return low_int, high_int
 
     @T.overload
     def select_known_values_from_range(
@@ -240,7 +276,7 @@ class CapsResolver:
                         )
 
             caps_i = Gst.Caps.from_string(struct.to_string())
-            if not caps_i:
+            if caps_i is None:
                 raise RuntimeError(
                     'Unexpected failure when converting "{}" to caps'.format(
                         struct.to_string()
@@ -269,15 +305,16 @@ class CapsResolver:
 
 
 def get_launch_line(device: Gst.Device) -> T.Optional[str]:
-    """Get the gst-device-monitor launch line for a device
-    This basically re-implements the one in the cli
+    """Get the gst-device-monitor launch line for a device.
+    - Useful for pipelines that don't need to do anything while the pipeline is running
+    - This basically re-implements the one in the cli
     https://github.com/GStreamer/gst-plugins-base/blob/master/tools/gst-device-monitor.c#L46 # noqa: E501
 
     :param device: the device given by Gst.DeviceMonitor
     :return: the gst-launch-1.0 launchline. Note that this only starts with the
     element name, not "gst-launch-1.0" like you would see in the cli
     """
-    ignored_propnames = set(
+    ignored_prop_names = set(
         ["name", "parent", "direction", "template", "caps"]
     )  # type: set[str]
     element = device.create_element()
@@ -298,7 +335,7 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
 
     launch_line_components = [factory_name]  # type: list[str]
     for prop in element.list_properties():
-        if prop.name in ignored_propnames:
+        if prop.name in ignored_prop_names:
             continue
         # eliminate all default properties and non-read-writable props
         read_and_writable = (
@@ -425,17 +462,18 @@ def run_pipeline(
     intermediate_calls: T.List[T.Tuple[int, TimeoutCallback]] = [],
     custom_quit_handler: T.Optional[PipelineQuitHandler] = None,
 ):
-    """Runs a GStreamer pipeline and handle Gst messages
+    """Run a GStreamer pipeline and handle Gst messages (blocking)
 
     :param pipeline: the pipeline to run
-    :param run_n_seconds: Number of seconds to run the pipeline
-        before sending EOS, defaults to None
-        - If None, only wait for an EOS signal
+    :param run_n_seconds: Number of seconds to run the pipeline before
+        sending EOS, defaults to None
+        - If None, only register the EOS handler
     :param intermediate_calls: functions to run while the pipeline is running
         - Each element is a (delay, callback) tuple
         - Delay is the number of seconds to wait
             (relative to the start of the pipeline) before calling the callback
     :param custom_quit_handler: quit the pipeline if this function returns true
+        - Has lowest precedence
     :raises RuntimeError: if the source element did not transition to playing
         state in 5s after set_state(PLAYING) is called
     """
@@ -579,7 +617,8 @@ def take_photo(
     # using empty string as null values here
     # they are filtered out at parse_launch
     if caps:
-        assert caps.is_fixed(), '"{}" is not fixed.'.format(caps.to_string())
+        if not caps.is_fixed():
+            raise ValueError('"{}" is not fixed.'.format(caps.to_string()))
 
         str_elements[0] = str_elements[0].format(caps.to_string())
         mime_type = caps.get_structure(0).get_name()  # type: str
@@ -618,16 +657,19 @@ def take_photo(
     head_elem = pipeline.get_by_name(head_elem_name)
 
     # parse the partial pipeline, then get head element by name
-    assert pipeline.add(
-        source
-    ), "Could not add source element {} to the pipeline".format(
-        elem_to_str(source)
-    )  # NOTE: this assertion only applies to the default python binding
+    # NOTE: this assertion only applies to the default python binding
     # if the python3-gst-1.0 package is installed, .add() always return None
-    assert head_elem
-    assert source.link(
-        head_elem
-    ), "Could not link source element to {}".format(head_elem)
+    if not pipeline.add(source):
+        raise RuntimeError(
+            "Could not add source element {} to the pipeline".format(
+                elem_to_str(source)
+            )
+        )
+
+    if not head_elem or not source.link(head_elem):
+        raise RuntimeError(
+            "Could not link source element to {}".format(head_elem)
+        )
 
     if delay_seconds == 0:
         intermediate_calls = []
@@ -637,9 +679,9 @@ def take_photo(
         )
     else:
         valve = pipeline.get_by_name("photo-valve")
+        assert valve
 
         def open_valve():
-            assert valve
             logger.debug("Opening valve!")
             valve.set_property("drop", False)
 

@@ -725,9 +725,3 @@ def take_photo(
         )
         + " has finished!"
     )
-
-if __name__ == "__main__":
-    Gst.init([])
-    e = Gst.parse_launch("pipewiresrc target-object=47")
-    assert e
-    take_photo(e, file_path=Path("/tmp/stuff.jpg"), delay_seconds=10)

@@ -17,6 +17,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from collections import OrderedDict
 import gi
 import typing as T
 import logging
@@ -443,17 +444,52 @@ def gst_msg_handler(
         should_quit = True
 
     if should_quit:
-        loop.quit()
         for timeout in timeout_sources:
             # if the pipeline is terminated early, remove all timers asap
             # because loop.quit() won't remove/stop those
             # that are already scheduled => segfault (EOS on null pipeline)
             # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
             timeout.destroy()
-        # setting NULL can be slow on certain encoders
+
+        set_null_timeout_source = loop.get_context().find_source_by_id(
+            GLib.timeout_add_seconds(120, check_state_change, pipeline)
+        )
+
+        # NOTE: setting NULL can be slow on certain encoders
         # it's also possible to block infinitely here. use an external
         # timeout to be extra safe
         pipeline.set_state(Gst.State.NULL)
+        loop.quit()
+        set_null_timeout_source.destroy()
+
+
+def check_state_change(gst_object: T.Union[Gst.Pipeline, Gst.Element]):
+    # do not use Gst.CLOCK_TIME_NONE for get_state, it will wait forever
+    # head_element = gst_object.get_child_by_index(0)
+    # if not head_element or not isinstance(head_element, Gst.Element):
+    #     raise RuntimeError()
+
+    change_result, curr_state, next_state = gst_object.get_state(
+        Gst.SECOND * 1
+    )
+    # get_state returns a 3-tuple
+    # (Gst.StateChangeReturn, curr: Gst.State, target: Gst.State)
+    print(change_result)
+    if change_result != Gst.StateChangeReturn.SUCCESS:
+        # must use SystemExit here to force stop the entire process
+        # anything inheriting the Exception class (not BaseException)
+        # is caught by mainloop
+        raise SystemExit(
+            "Failed to transition to playing state. "
+            + "Still stuck in {} state, ".format(
+                # these are GObject.GEnums, not the standard library Enum
+                curr_state.value_name
+            )
+            + "was trying to transition to {}".format(next_state.value_name)
+        )
+    logger.debug(
+        "[ OK ] Successfully transitioned to {}".format(curr_state.value_name)
+    )
 
 
 def run_pipeline(
@@ -524,42 +560,31 @@ def run_pipeline(
         timeout_sources,
     )
 
-    def check_state_change():
-        # do not use Gst.CLOCK_TIME_NONE for get_state, it will wait forever
-        state_change_result = pipeline.get_state(Gst.SECOND * 1)
-        # get_state returns a 3-tuple
-        # (Gst.StateChangeReturn, curr: Gst.State, target: Gst.State)
-        if state_change_result[0] != Gst.StateChangeReturn.SUCCESS:
-            pipeline.set_state(Gst.State.NULL)
-            # must use SystemExit here to force stop the entire process
-            # anything inheriting the Exception class (not BaseException)
-            # is caught by mainloop
-            raise SystemExit(
-                "Failed to transition to playing state. "
-                + "Source is still in {} state, ".format(
-                    # these are GObject.GEnums, not the standard library Enum
-                    state_change_result[1].value_name
-                )
-                + "was trying to transition to {}".format(
-                    state_change_result[2].value_name
-                )
-            )
-        logger.debug(
-            "[ OK ] Pipeline successfully transitioned to {}".format(
-                state_change_result[1].value_name
-            )
-        )
-
     # the mainloop is unlikely to get stuck
     # so we set a timeout on the mainloop to check if the pipeline hanged
     # this also avoids the problem of unable to check pipeline state with
     # get_state() immediately after a set_state call
-    check_state_change_id = GLib.timeout_add_seconds(5, check_state_change)
-    timeout_sources.append(
-        loop.get_context().find_source_by_id(check_state_change_id)
+    set_playing_timeout_source = loop.get_context().find_source_by_id(
+        GLib.timeout_add_seconds(
+            5, check_state_change, pipeline.get_child_by_index(0)
+        )
     )
+    timeout_sources.append(set_playing_timeout_source)
     pipeline.set_state(Gst.State.PLAYING)
 
+    try:
+        src_elem = pipeline.get_child_by_index(0)
+        if isinstance(src_elem, Gst.Element):
+            src_elem.iterate_src_pads().foreach(
+                lambda pad: pad.get_current_caps()
+                and logger.info(
+                    'The negotiated caps of the source "{}" is: "{}"'.format(
+                        src_elem.name, pad.get_current_caps().to_string()
+                    )
+                )
+            )
+    except Exception:
+        pass
     # this does not necessarily mean that the pipeline has the PLAYING state
     # it just means that set_state didn't hang
     logger.info("[ OK ] Pipeline is playing!")
@@ -602,16 +627,18 @@ def take_photo(
 
     # this may seem unorthodox
     # but it's way less verbose than creating individual elements
-    str_elements = [
-        'capsfilter name=source-caps caps="{}"',  # 0
-        "decodebin",  # 1
-        "videoconvert name=converter",  # 2
-        "valve name=photo-valve drop=True",  # 3
-        "jpegenc",  # 4
-        "multifilesink post-messages=True location={}".format(
-            str(file_path)
-        ),  # 5
-    ]
+    str_elements = OrderedDict(
+        {
+            "caps": 'capsfilter name=source-caps caps="{}"',
+            "decoder": "decodebin",
+            "converter": "videoconvert name=converter",
+            "photo-valve": "valve name=photo-valve drop=True",
+            "encoder": "jpegenc",
+            "sink": "multifilesink post-messages=True location={}".format(
+                str(file_path)
+            ),
+        }
+    )
     head_elem_name = "source-caps"
 
     # using empty string as null values here
@@ -620,31 +647,31 @@ def take_photo(
         if not caps.is_fixed():
             raise ValueError('"{}" is not fixed.'.format(caps.to_string()))
 
-        str_elements[0] = str_elements[0].format(caps.to_string())
-        mime_type = caps.get_structure(0).get_name()  # type: str
+        str_elements["caps"] = str_elements["caps"].format(caps.to_string())
+        mime_type = caps.get_structure(0).get_name()
 
         if mime_type == "image/jpeg":
             # decodebin has a clock problem with pipewiresrc
             # that outputs image/jpeg
-            str_elements[1] = "jpegdec"
+            str_elements["decoder"] = "jpegdec"
         elif mime_type == "video/x-raw":
             # don't need a decoder for raw
-            str_elements[1] = ""
+            str_elements["decoder"] = ""
         elif mime_type == "video/x-bayer":
             # bayer2rgb is not considered a decoder
             # so decodebin can't automatically find this
-            str_elements[1] = "bayer2rgb"
+            str_elements["decoder"] = "bayer2rgb"
         # else case is using decodebin as a fallback
     else:
         # decode bin doesn't work with video/x-raw
-        str_elements[0] = str_elements[1] = ""
+        str_elements["caps"] = str_elements["decoder"] = ""
         head_elem_name = "converter"
 
     delay_seconds = max(delay_seconds, 0)
     if delay_seconds == 0:
-        str_elements[3] = ""
+        str_elements["photo-valve"] = ""
 
-    partial = " ! ".join(elem for elem in str_elements if elem)
+    partial = " ! ".join(elem for elem in str_elements.values() if elem)
     pipeline = Gst.parse_launch(partial)
 
     if type(pipeline) is not Gst.Pipeline:
@@ -701,8 +728,10 @@ def take_photo(
 
     # NOTE: reaching here just means the pipeline successfully stopped
     # not necessarily stopped gracefully
+
     logger.info(
-        "[ OK ] Photo pipeline for this capability: "
-        + "{}".format(caps.to_string() if caps else "device default")
+        "[ OK ] Photo pipeline for this capability: {}".format(
+            caps.to_string() if caps else "device default"
+        )
         + " has finished!"
     )

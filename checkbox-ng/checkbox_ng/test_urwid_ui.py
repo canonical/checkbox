@@ -39,7 +39,8 @@ class TestManifestBrowser(unittest.TestCase):
         q2.value = 42
         browser._question_store = [q1, q2]
 
-        # Should not raise
+        # Trying to submit without having answered all questions should
+        # not raise (close the ManifestBrowser and continue the test run)
         browser.handle_submit_key()
 
     def test_handle_submit_key_all_answered(self):
@@ -50,6 +51,7 @@ class TestManifestBrowser(unittest.TestCase):
         q2.value = 42
         browser._question_store = [q1, q2]
 
+        # Submitting after all answers were given closes the ManifesBrowser
         with self.assertRaises(urwid.ExitMainLoop):
             browser.handle_submit_key()
 

@@ -1064,7 +1064,8 @@ class ManifestBrowser:
             footer=self.default_footer,
         )
 
-    def get_manifests_by_visibility(self, question_manifests, hidden):
+    @classmethod
+    def get_manifests_by_visibility(cls, question_manifests, hidden):
         """Returns a dict of all question : [non-hidden manifests]"""
         # filter out all hidden manifests
         visible_question_manifests = {
@@ -1081,14 +1082,12 @@ class ManifestBrowser:
             if manifests
         }
 
-    @staticmethod
-    def has_visible_manifests(question_manifests):
+    @classmethod
+    def has_visible_manifests(cls, question_manifests):
         """Check if there are any visible manifest questions."""
-        for manifests in question_manifests.values():
-            for manifest in manifests:
-                if not manifest.get("hidden", False):
-                    return True
-        return False
+        return bool(
+            cls.get_manifests_by_visibility(question_manifests, hidden=False)
+        )
 
     @staticmethod
     def get_default_values(question_manifests):

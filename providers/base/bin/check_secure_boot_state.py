@@ -330,7 +330,7 @@ class SecureBootChecker(ABC):
     def is_supported(cls) -> bool:
         """
         Check if this secure boot method is supported on the system.
-    
+
         Returns:
             True if supported, False otherwise
         """

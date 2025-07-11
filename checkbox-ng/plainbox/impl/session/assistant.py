@@ -457,7 +457,7 @@ class SessionAssistant:
                         yield storage.id, metadata.flags
             except SessionResumeError as exc:
                 _logger.info(
-                    "Exception raised when trying to peek session" "data: %s",
+                    "Exception raised when trying to peek sessiondata: %s",
                     str(exc),
                 )
 
@@ -658,21 +658,26 @@ class SessionAssistant:
                 metadata = SessionPeekHelper().peek(data)
             except SessionResumeError:
                 _logger.info(
-                    "Exception raised when trying to resume " "session: %s",
+                    "Exception raised when trying to resume session: %s",
                     str(storage.id),
                 )
-            else:
-                if (
-                    metadata.app_id == self._app_id
-                    and SessionMetaData.FLAG_INCOMPLETE in metadata.flags
-                ):
-                    self._resume_candidates[storage.id] = (
-                        InternalResumeCandidate(storage, metadata)
-                    )
-                    UsageExpectation.of(self).allowed_calls[
-                        self.prepare_resume_session
-                    ] = "resume session"
-                    yield ResumeCandidate(storage.id, metadata)
+                continue
+
+            if (
+                metadata.app_id == self._app_id
+                and {
+                    SessionMetaData.FLAG_INCOMPLETE,
+                    SessionMetaData.FLAG_SETUPPING,
+                }
+                & metadata.flags
+            ):
+                self._resume_candidates[storage.id] = InternalResumeCandidate(
+                    storage, metadata
+                )
+                UsageExpectation.of(self).allowed_calls[
+                    self.resume_session
+                ] = "resume session"
+                yield ResumeCandidate(storage.id, metadata)
 
     def update_app_blob(self, app_blob: bytes) -> None:
         """
@@ -794,12 +799,92 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = {
             self.bootstrap: "to run the bootstrap process",
             self.start_bootstrap: "to get bootstrapping jobs",
-            self.setup: "to run the setup process",
-            self.get_setup_todo_list: "to get setupping jobs",
+            self.start_setup: "to get setupping jobs",
+            self.resume_setup: "to re-start setting up",
         }
 
-    def setup(self):
-        raise SystemExit("Unsupported yet")
+    def resume_setup(self):
+        UsageExpectation.of(self).enforce()
+        # no need to set the resume flag here as this is used during resume,
+        # the flag is already set
+        UsageExpectation.of(self).allowed_calls = {
+            self.get_job_state: "to decide what result should be assigned",
+            self.use_job_result: "to assign the decided result to the job",
+            self.start_setup: "to be called after setting the last job result",
+        }
+
+    @raises(UnexpectedMethodCall)
+    def start_setup(self):
+        """
+        Get a list of ids that should be run in while setupping)
+
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        This method, together with :meth:`run_job`, can be used instead of
+        :meth:`boostrap` to have control over when setupping jobs are run.
+        E.g. to inform the user about the progress
+        """
+        UsageExpectation.of(self).enforce()
+        self._metadata.flags.add(SessionMetaData.FLAG_SETUPPING)
+        desired_job_list = select_units(
+            self._context.state.job_list,
+            [plan.get_setup_qualifier() for plan in (self._manager.test_plans)]
+            + self._exclude_qualifiers,
+        )
+        self._context.state.update_desired_job_list(
+            desired_job_list, include_mandatory=False
+        )
+
+        UsageExpectation.of(self).allowed_calls = {
+            self.run_job: "to run setup job",
+            self.get_job: "to get the job definition by id",
+            self.get_job_state: "to get the current state of a job",
+            self.finish_setup: "to finish setting up after running all jobs",
+            self.get_session_id: "used internally by get_job",
+        }
+        return [job.id for job in self._context.state.run_list]
+
+    def bootstrapping(self) -> bool:
+        return self._metadata.bootstrapping()
+
+    def setupping(self) -> bool:
+        return self._metadata.setupping()
+
+    @raises(UnexpectedMethodCall)
+    def start_bootstrap(self):
+        """
+        Starts the bootstrap process, selecting the desired units.
+
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        UsageExpectation.of(self).enforce()
+        self._metadata.flags.add(SessionMetaData.FLAG_BOOTSTRAPPING)
+        desired_job_list = select_units(
+            self._context.state.job_list,
+            [
+                plan.get_bootstrap_qualifier()
+                for plan in (self._manager.test_plans)
+            ]
+            + self._exclude_qualifiers,
+        )
+        self._context.state.update_desired_job_list(
+            desired_job_list, include_mandatory=False
+        )
+
+        UsageExpectation.of(self).allowed_calls = {
+            self.run_job: "to run setup job",
+            self.get_job: "to get the job definition by id",
+            self.get_job_state: "to get the current state of a job",
+            self.finish_bootstrap: "to finish bootstrapping after running all jobs",
+            self.get_session_id: "used internally by get_job",
+        }
+        return [job.id for job in self._context.state.run_list]
 
     @raises(UnexpectedMethodCall)
     def bootstrap(self):
@@ -946,7 +1031,12 @@ class SessionAssistant:
         return [job.id for job in self._context.state.run_list]
 
     def finish_setup(self):
-        pass
+        UsageExpectation.of(self).enforce()
+        self._metadata.flags.remove(SessionMetaData.FLAG_SETUPPING)
+        UsageExpectation.of(self).allowed_calls = {
+            self.bootstrap: "to run the bootstrap process",
+            self.start_bootstrap: "to get bootstrapping jobs",
+        }
 
     @raises(UnexpectedMethodCall)
     def finish_bootstrap(self):

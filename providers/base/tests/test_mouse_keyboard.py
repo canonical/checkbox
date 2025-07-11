@@ -116,10 +116,10 @@ class TestMouseKeyboard(unittest.TestCase):
         # Assertions
         self.assertEqual(mock_randint.call_count, 2)
         mock_device.write.assert_any_call(
-            e.EV_REL, e.REL_X, 50 // (50 // MOVE_DELTA)
+            e.EV_REL, e.REL_X, 50 // (50 // MOVE_DELTA + 1)
         )
         mock_device.write.assert_any_call(
-            e.EV_REL, e.REL_Y, -30 // (50 // MOVE_DELTA)
+            e.EV_REL, e.REL_Y, -30 // (50 // MOVE_DELTA + 1)
         )
         self.assertGreaterEqual(mock_sleep.call_count, 1)
 

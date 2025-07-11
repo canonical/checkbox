@@ -124,7 +124,9 @@ def rand_mouse_moves(device):
     # Generate random X and Y movements
     x = random.randint(-MOVE_MAX // 2, MOVE_MAX // 2)
     y = random.randint(-MOVE_MAX // 2, MOVE_MAX // 2)
-    steps = max(abs(x), abs(y)) // MOVE_DELTA  # Calculate the number of steps
+    steps = (
+        max(abs(x), abs(y)) // MOVE_DELTA + 1
+    )  # Calculate the number of steps
     # Move the mouse in small steps for smooth movement
     for _ in range(steps):
         mouse_move(device, x // steps, y // steps)

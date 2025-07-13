@@ -249,9 +249,7 @@ class TestSmartcardTest(unittest.TestCase):
         mock_get_real_reader_instance.return_value = None
         with self.assertRaises(SystemExit) as cm:
             self.sc.get_connection("Test Reader Stringified")
-        self.assertEqual(
-            cm.exception.code, "no smartcard reader"
-        )
+        self.assertEqual(cm.exception.code, "no smartcard reader")
 
     @patch("smartcard_test.SmartcardTest.get_real_reader_instance")
     @patch("sys.exit")

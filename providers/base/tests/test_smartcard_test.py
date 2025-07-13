@@ -250,7 +250,7 @@ class TestSmartcardTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             self.sc.get_connection("Test Reader Stringified")
         self.assertEqual(
-            cm.exception.code, "no card inserted or card is unsupported"
+            cm.exception.code, "no smartcard reader"
         )
 
     @patch("smartcard_test.SmartcardTest.get_real_reader_instance")

@@ -158,6 +158,7 @@ class SmartcardTest:
             except (NoCardException, CardConnectionException):
                 raise SystemExit("no card inserted or card is unsupported")
             self.logger.info("[{}] connected".format(sc_reader))
+        raise SystemExit("no smartcard reader")
 
     @timeout(30)
     def detect_smartcard(self, reader: str):

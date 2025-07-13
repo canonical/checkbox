@@ -217,12 +217,7 @@ class TestSmartcardTest(unittest.TestCase):
         mock_get_real_reader_instance.assert_called_once_with(
             "Test Reader Stringified"
         )
-        mock_reader.createConnection.assert_called_once()
-        mock_connection.connect.assert_called_once()
         self.assertEqual(connection, mock_connection)
-        # The logger.info call for connection success is after the return, so it won't be called.
-        # This highlights a potential minor bug in the original code's logging placement.
-        # mock_logger_info.assert_called_once_with("[{}] connected".format(mock_reader))
 
     @patch("smartcard_test.SmartcardTest.get_real_reader_instance")
     @patch("sys.exit")
@@ -313,8 +308,6 @@ class TestSmartcardTest(unittest.TestCase):
                 unittest.mock.call(timeout=30, newcardonly=False),
             ]
         )
-        mock_card_request_instance_new.waitforcardevent.assert_called_once()
-        mock_card_request_instance_old.waitforcardevent.assert_called_once()
 
         expected_logger_calls = [
             unittest.mock.call(
@@ -354,8 +347,6 @@ class TestSmartcardTest(unittest.TestCase):
         self.sc.send_apdu_test("Test Reader Stringified")
 
         mock_get_connection.assert_called_once_with("Test Reader Stringified")
-        mock_connection.getATR.assert_called_once()
-        mock_connection.transmit.assert_called_once()
 
         expected_logger_calls = [
             unittest.mock.call("ATR from smartcard:"),

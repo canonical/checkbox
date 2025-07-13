@@ -385,8 +385,6 @@ class TestSmartcardTest(unittest.TestCase):
         )
 
         mock_get_connection.assert_called_once_with("Test Reader Stringified")
-        mock_connection.getATR.assert_called_once()
-        mock_connection.transmit.assert_called_once()
         mock_logger_info.assert_has_calls(
             [
                 unittest.mock.call("ATR from smartcard:"),

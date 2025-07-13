@@ -36,7 +36,7 @@ class TestSmartcardTest(unittest.TestCase):
         ]
 
         self.patcher_readers = patch(
-            "smartcard.System.readers", return_value=self.mock_readers_list
+            "smartcard_test.readers", return_value=self.mock_readers_list
         )
         self.mock_readers = self.patcher_readers.start()
 

@@ -325,8 +325,8 @@ class SecureBootChecker(ABC):
         """
         pass
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def is_supported(cls) -> bool:
         """
         Check if this secure boot method is supported on the system.

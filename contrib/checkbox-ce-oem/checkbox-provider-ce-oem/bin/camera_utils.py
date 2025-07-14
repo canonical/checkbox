@@ -671,8 +671,8 @@ class CameraScenarios(Enum):
     Feel free to define new scenario here
     """
 
-    # CPTURE_IMAGE scenario demonstrate the capture case
-    CPTURE_IMAGE = "capture_image"
+    # CAPTURE_IMAGE scenario demonstrate the capture case
+    CAPTURE_IMAGE = "capture_image"
     # RECORD_VIDEO scenario demonstrate the record case
     RECORD_VIDEO = "record_video"
 
@@ -859,13 +859,17 @@ class CameraResources:
         """
         Handle and generate the resource of the capture_image scenario
         """
-        self._process_scenario_items(scenarios, "capture_image")
+        self._process_scenario_items(
+            scenarios, CameraScenarios.CAPTURE_IMAGE.value
+        )
 
     def record_video(self, scenarios: list) -> None:
         """
         Handle and generate the resource of the record_video scenario
         """
-        self._process_scenario_items(scenarios, "record_video")
+        self._process_scenario_items(
+            scenarios, CameraScenarios.RECORD_VIDEO.value
+        )
 
     def _dump_resources(self) -> None:
         """

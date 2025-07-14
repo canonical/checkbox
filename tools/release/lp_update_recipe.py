@@ -100,7 +100,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--new-version",
         "-n",
-        help="New version to use in the recipe " "(for debian changelog) and bzr tags.",
+        help="New version to use in the recipe "
+        "(for debian changelog) and bzr tags.",
         required=True,
     )
     parser.add_argument("--revision", help="Revision to build", required=True)
@@ -109,7 +110,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv):
     args = parse_args(argv)
-    update_build_recipe(args.project, args.recipe, args.new_version, args.revision)
+    update_build_recipe(
+        args.project, args.recipe, args.new_version, args.revision
+    )
 
 
 if __name__ == "__main__":

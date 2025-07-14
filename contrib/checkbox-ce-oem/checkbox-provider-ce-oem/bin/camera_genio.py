@@ -123,18 +123,13 @@ def img_sensor_arch(v4l2_devices: str) -> bool:
     Helper function to check if there's User Space Middleware in System
     """
     has_middleware = "mtk-v4l2-camera (platform:mtkcam" in v4l2_devices
-    logger.info(
-        "Software Arch: {}".format(
-            SoftwareArchitectures.MediaTek_Imgsensor
-            if has_middleware
-            else SoftwareArchitectures.V4L2_Sensor
-        )
-    )
-    return (
+    architecture = (
         SoftwareArchitectures.MediaTek_Imgsensor
         if has_middleware
         else SoftwareArchitectures.V4L2_Sensor
     )
+    logger.info("Software Arch: {}".format(architecture))
+    return architecture
 
 
 class GenioVideoNodeResolver(VideoMediaNodeResolver):
@@ -494,8 +489,7 @@ class GenioBaseCamera(CameraInterface):
             msg = "No suitable method such as '{}' or '{}' be provided".format(
                 SupportedMethods.GSTREANER, SupportedMethods.V4L2_CTL
             )
-            logger.error(msg)
-            raise CameraConfigurationError(msg)
+            log_and_raise_error(msg, CameraConfigurationError)
 
         logger.info("Executing command:\n{}".format(cmd))
         output = execute_command(cmd=cmd)

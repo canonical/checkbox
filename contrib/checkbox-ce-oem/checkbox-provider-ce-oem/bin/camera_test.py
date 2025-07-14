@@ -207,7 +207,7 @@ def main() -> None:
         artifact_store_path = ""
         artifact_name = str(uuid.uuid4()).replace("-", "")[:6]
 
-        if args.scenario_name == CameraScenarios.CPTURE_IMAGE:
+        if args.scenario_name == CameraScenarios.CAPTURE_IMAGE:
             pattern = "{}_{}_{}_{}_{}_{}".format(
                 args.camera,
                 args.physical_interface,
@@ -218,7 +218,7 @@ def main() -> None:
             )
             artifact_store_path = os.path.join(
                 PLAINBOX_SESSION_SHARE,
-                CameraScenarios.CPTURE_IMAGE.value,
+                CameraScenarios.CAPTURE_IMAGE.value,
                 pattern,
             )
             generate_artificat_folder(artifact_store_path)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2023 Canonical Ltd.
+# Copyright 2023-2025 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
 #   Massimiliano Girardi <massimiliano.girardi@canonical.com>
@@ -26,9 +26,8 @@ without the need for rebuilding.
 Note: This script uses the LP_CREDENTIALS environment variable
 """
 import sys
-import datetime
+import lazr
 import argparse
-import itertools
 
 from utils import get_launchpad_client
 
@@ -48,35 +47,9 @@ def get_ppa(lp, ppa_name: str, ppa_owner: str):
     return ppa_owner.getPPAByName(name=ppa_name)
 
 
-def get_checkbox_packages(ppa):
+def copy_packages(source_owner, source_ppa, dest_owner, dest_ppa):
     """
-    Get all the most recent checkbox packages on the PPA that are still current
-
-    A source package is still current when it has not been superseeded by
-    another. The filtering here is done to avoid copying over outdated
-    packages to the target PPA
-    """
-    # Note: this is not the same as ppa.getPublishedSources(status="Published")
-    #       the reason is that if a package is Published but for a not
-    #       supported distribution, say Lunar, copying it over will trigger an
-    #       error. When a distribution support is dropped, Launchpad will
-    #       automatically stop building for it and start a grace period for
-    #       updates. This ensures there will always be a pocket of Superseeded
-    #       packages between Published packages for unsupported distro and
-    #       current ones
-    all_published_sources = ppa.getPublishedSources(
-        source_name="checkbox", order_by_date=True
-    )
-    # this filters out superseeded packages AND Published packages that are no
-    # longer current (as they are not being built anymore by Launchpad)
-    return itertools.takewhile(
-        lambda x: x.date_superseded is None, all_published_sources
-    )
-
-
-def copy_checkbox_packages(source_owner, source_ppa, dest_owner, dest_ppa):
-    """
-    Copy Checkbox packages from a source PPA to a destination PPA without
+    Copy all packages from a source PPA to a destination PPA without
     rebuilding.
     """
     lp = get_launchpad_client()
@@ -84,29 +57,40 @@ def copy_checkbox_packages(source_owner, source_ppa, dest_owner, dest_ppa):
     source_ppa = get_ppa(lp, source_ppa, source_owner)
     dest_ppa = get_ppa(lp, dest_ppa, dest_owner)
 
-    packages = get_checkbox_packages(source_ppa)
+    packages = source_ppa.getPublishedSources(order_by_date=True, status="Published")
 
     # Copy each package from the source PPA to the destination PPA,
     # without rebuilding them
     for package in packages:
-        dest_ppa.copyPackage(
-            from_archive=source_ppa,
-            include_binaries=True,
-            to_pocket=package.pocket,
-            source_name=package.source_package_name,
-            version=package.source_package_version,
-        )
-        print(
-            f"Copied {package.source_package_name} "
-            f"version {package.source_package_version} "
-            f"from {source_ppa} to {dest_ppa} "
-            "(without rebuilding)"
-        )
+        try:
+            dest_ppa.copyPackage(
+                from_archive=source_ppa,
+                include_binaries=True,
+                to_pocket=package.pocket,
+                source_name=package.source_package_name,
+                version=package.source_package_version,
+            )
+            print(
+                f"Copied {package.source_package_name} "
+                f"version {package.source_package_version} "
+                f"from {source_ppa} to {dest_ppa} "
+                "(without rebuilding)"
+            )
+        except lazr.restfulclient.errors.BadRequest as e:
+            # This is expected when trying to copy a package to a target distro
+            # that is EOL and can be safely ignored
+            if "is obsolete and will not accept new uploads" not in str(e):
+                raise
+            print(
+                f"Skipped {package.source_package_name} "
+                f"version {package.source_package_version} "
+                "(target series is obsolete)"
+            )
 
 
 def main(argv):
     args = parse_args(argv)
-    copy_checkbox_packages(
+    copy_packages(
         args.source_owner,
         args.source_ppa,
         args.dest_owner,

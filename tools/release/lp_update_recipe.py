@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2023 Canonical Ltd.
+# Copyright 2023-2025 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
 #   Massimiliano Girardi <massimiliano.girardi@canonical.com>
@@ -30,6 +30,18 @@ import textwrap
 import argparse
 
 from utils import get_source_build_recipe
+
+# this is hardcoded because supporting a new release requires a bit of manual
+# effort (copying support packages to the new series and doing the first build
+# dance of building packages in dependency order)
+active_series = [
+    "https://api.launchpad.net/devel/ubuntu/bionic",
+    "https://api.launchpad.net/devel/ubuntu/focal",
+    "https://api.launchpad.net/devel/ubuntu/jammy",
+    "https://api.launchpad.net/devel/ubuntu/noble",
+    "https://api.launchpad.net/devel/ubuntu/plucky",
+    "https://api.launchpad.net/devel/ubuntu/questing",
+]
 
 
 def get_build_path(recipe_name: str) -> str:
@@ -70,6 +82,10 @@ def update_build_recipe(
     lp_recipe = get_source_build_recipe(project_name, recipe_name)
     new_recipe = get_updated_build_recipe(recipe_name, version, revision)
     lp_recipe.recipe_text = new_recipe
+    # this is important because while debugging, one may inadvertedly leave a
+    # not-yet-working daily build enabled, this makes the daily builds fail for
+    # no reason
+    lp_recipe.distroseries = active_series
     lp_recipe.lp_save()
     print(f"Updated build recipe: {lp_recipe.web_link}")
     print(new_recipe)
@@ -84,8 +100,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--new-version",
         "-n",
-        help="New version to use in the recipe "
-        "(for debian changelog) and bzr tags.",
+        help="New version to use in the recipe " "(for debian changelog) and bzr tags.",
         required=True,
     )
     parser.add_argument("--revision", help="Revision to build", required=True)
@@ -94,9 +109,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv):
     args = parse_args(argv)
-    update_build_recipe(
-        args.project, args.recipe, args.new_version, args.revision
-    )
+    update_build_recipe(args.project, args.recipe, args.new_version, args.revision)
 
 
 if __name__ == "__main__":

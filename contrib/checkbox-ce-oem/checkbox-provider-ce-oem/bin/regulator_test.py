@@ -18,10 +18,7 @@ def init_logger():
 
     # Log DEBUG and INFO to stdout, others to stderr
     stdout_handler = logging.StreamHandler(sys.stdout)
-    #stdout_handler.setFormatter(logging.Formatter(logger_format, date_format))
-
     stderr_handler = logging.StreamHandler(sys.stderr)
-    # stderr_handler.setFormatter(logging.Formatter(logger_format, date_format))
 
     stdout_handler.setLevel(logging.DEBUG)
     stderr_handler.setLevel(logging.WARNING)
@@ -45,7 +42,7 @@ SYS_REGULATOR_PATH = "/sys/class/regulator"
 VOLTAGE_REGULATOR_ATTRIBUTES = ["name", "microvolts"]
 
 
-class RegulatorBase():
+class RegulatorBase:
 
     def __init__(self, regulator_type):
         self.regulator_type = regulator_type
@@ -156,9 +153,7 @@ def check_difference(exp_regulators, sysfs_regulators):
             if value != actual_attr:
                 details += (
                     "\n- mismatch value for {}. expected: {}, actual: {}"
-                ).format(
-                    attr, value, actual_attr
-                )
+                ).format(attr, value, actual_attr)
                 test_results["result"] = True
             test_results["logs"][regulator] = details
 
@@ -175,15 +170,11 @@ def compare_regulators(args):
     regulator.dump_sysfs_regulator()
     regulator.filter_regulators_by_type()
 
-    results = check_difference(
-        exp_regulator_devs, regulator
-    )
+    results = check_difference(exp_regulator_devs, regulator)
     summarize_test_results(results["logs"])
     if results["result"]:
         raise SystemExit(
-            "\nFailed: the expected {} regulatorss does not match".format(
-                type
-            )
+            "\nFailed: the expected {} regulators does not match".format(type)
         )
     else:
         logging.info(
@@ -208,7 +199,7 @@ def register_arguments():
         "--type",
         "-t",
         choices=[RegulatorEnum.VOLTAGE.value, RegulatorEnum.CURRENT.value],
-        help="the regulator type"
+        help="the regulator type",
     )
 
     args = parser.parse_args()

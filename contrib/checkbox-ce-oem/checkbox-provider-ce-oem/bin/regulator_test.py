@@ -14,11 +14,13 @@ def init_logger():
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
     logger_format = "%(message)s"
-    date_format = "%Y-%m-%d %H:%M:%S"
 
     # Log DEBUG and INFO to stdout, others to stderr
     stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setFormatter(logging.Formatter(logger_format))
+
     stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(logging.Formatter(logger_format))
 
     stdout_handler.setLevel(logging.DEBUG)
     stderr_handler.setLevel(logging.WARNING)
@@ -39,7 +41,7 @@ class RegulatorEnum(Enum):
 
 
 SYS_REGULATOR_PATH = "/sys/class/regulator"
-VOLTAGE_REGULATOR_ATTRIBUTES = ["name", "microvolts"]
+VOLTAGE_REGULATOR_ATTRIBUTES = ["name"]
 
 
 class RegulatorBase:
@@ -104,23 +106,6 @@ class RegulatorBase:
         return self.regulators[regulator][attr]
 
 
-def convert_regulator_devices(type, data):
-    devices = {}
-
-    for part in data.split("|"):
-        if RegulatorEnum(type) == RegulatorEnum.VOLTAGE:
-            parts = part.split(":")
-            if len(parts) != len(VOLTAGE_REGULATOR_ATTRIBUTES):
-                logging.error("Unexpected regulator data: %s", part)
-                continue
-            dev = dict(zip(VOLTAGE_REGULATOR_ATTRIBUTES, parts))
-
-        key = dev.pop("name")
-        devices[key] = dev
-
-    return devices
-
-
 def summarize_test_results(details_logs):
     logging.info("\n# Details Test Results")
     for regulator, msgs in details_logs.items():
@@ -133,36 +118,20 @@ def summarize_test_results(details_logs):
 def check_difference(exp_regulators, sysfs_regulators):
     test_results = {"result": False, "logs": {}}
 
-    for regulator, data in exp_regulators.items():
+    for regulator in exp_regulators:
         details = ""
         if not sysfs_regulators.is_regulator_available(regulator):
             details += "\n- regulator device not exists"
-            test_results["logs"][regulator] = details
             test_results["result"] = True
-            continue
-
-        for attr, value in data.items():
-            if not sysfs_regulators.is_regulator_attr_available(
-                regulator, attr
-            ):
-                details += "\n- {} attribute not exits".format(attr)
-                test_results["result"] = True
-                continue
-
-            actual_attr = sysfs_regulators.get_regulator_attr(regulator, attr)
-            if value != actual_attr:
-                details += (
-                    "\n- mismatch value for {}. expected: {}, actual: {}"
-                ).format(attr, value, actual_attr)
-                test_results["result"] = True
-            test_results["logs"][regulator] = details
+        test_results["logs"][regulator] = details
 
     return test_results
 
 
 def compare_regulators(args):
     type = args.type
-    exp_regulator_devs = convert_regulator_devices(type, args.devices)
+
+    exp_regulator_devs = args.devices.split("|")
     if not exp_regulator_devs:
         raise SystemExit("Invalid input argument for devices")
 
@@ -191,8 +160,8 @@ def register_arguments():
         type=str,
         help=(
             "provides expected regulator information with following format.\n"
-            "format: name:microvolts|..."
-            "e.g. LO1:1800000|LO2:3300000"
+            "format: name|...\n"
+            "  e.g. LO1|LO2"
         ),
     )
     parser.add_argument(

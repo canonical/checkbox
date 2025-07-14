@@ -1,12 +1,11 @@
 id: ce-oem-regulator/check-voltage-regulators
 category_id: regulator
-_summary: Verify the voltage regulators match regulators defined in VOLTAGE_REGULATORS variable
+_summary: Verify the voltage regulators match regulators defined in VOLTAGE_REGULATORS VAR
 _description:
     Check the regulator name and voltage for the platform, relies on the user specifying the information of regualtor.
-    Usage of parameter: {name:microvolts|name:microvolts|...}
-    VOLTAGE_REGULATORS="LDO5:1800000|BUCK4:3300000"
+    Usage of parameter: {name|name|...}
+    VOLTAGE_REGULATORS="LDO5|BUCK4"
 plugin: shell
-user: root
 flags: also-after-suspend
 estimated_duration: 5
 requires: manifest.has_voltage_regulator == 'True'

@@ -1,0 +1,16 @@
+id: ce-oem-regulator/check-voltage-regulators
+category_id: regulator
+_summary: Verify the voltage regulators match regulators defined in VOLTAGE_REGULATORS variable
+_description:
+    Check the regulator name and voltage for the platform, relies on the user specifying the information of regualtor.
+    Usage of parameter: {name:microvolts|name:microvolts|...}
+    VOLTAGE_REGULATORS="LDO5:1800000|BUCK4:3300000"
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 5
+requires: manifest.has_voltage_regulator == 'True'
+environ: VOLTAGE_REGULATORS
+imports: from com.canonical.plainbox import manifest
+command:
+    regulator_test.py --type voltage "$VOLTAGE_REGULATORS"

@@ -456,10 +456,11 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.select_jobs(self.jobs)
         return self.run_interactable_jobs()
 
-    def auto_start_via_launcher_and_continue(self):
+    def automatically_start_via_launcher(self):
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
+        self.setup()
         return self.bootstrap_and_continue()
 
     def resume_last_session_and_continue(self):
@@ -564,6 +565,14 @@ class RemoteController(ReportsStage, MainLoopStage):
                 return self.bootstrap_and_continue()
             if self.resume_session_via_menu_and_continue(resumable_sessions):
                 return False
+
+    def setup(self):
+        setup_jobs = self.sa.start_setup()
+        self.run_uninteractable_jobs(
+            setup_jobs, "Setup", starting_ui_index=1, suppress_output=False
+        )
+        failed_setups = self.sa.finish_setup()
+        return failed_setups
 
     def select_test_plan_via_menu(self, tps, resumable_sessions):
         """

@@ -27,6 +27,7 @@ import itertools
 from functools import wraps
 from collections import namedtuple
 from contextlib import suppress
+from enum import Enum
 from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
 from enum import Enum
@@ -77,6 +78,10 @@ class RemoteSessionStates(Enum):
     Idle = "idle"
     # session has started, test plan was selected
     Started = "started"
+    # setup phase is ongoing
+    Setupping = "setupping"
+    # setup phase is done, ready to bootstrap
+    Setupped = "setupped"
     # bootstrap phase is ongoing
     Bootstrapping = "bootstrapping"
     # done bootstrapping, ready to select tests
@@ -181,8 +186,6 @@ class BackgroundExecutor(Thread):
 
 class RemoteSessionAssistant:
     """
-    This is the main API surface for controller-agent communication
-
     Code in this class runs in the agent. Returning mutable types or receiving
     mutable types as parameter from any of these functions creates an implicit
     remote API (as any function/attribute used on the returned value will
@@ -205,7 +208,7 @@ class RemoteSessionAssistant:
         self._pipe_from_controller = open(self._input_piping[1], "w")
         self._pipe_to_subproc = open(self._input_piping[0])
         self._sa = None  # type: SessionAssistant
-        self._state = None  # type: RemoteSessionStates
+        self._state = RemoteSessionStates.Idle
         self._reset_sa()
         self._currently_running_job = None
 
@@ -449,6 +452,11 @@ class RemoteSessionAssistant:
         self.state = RemoteSessionStates.Bootstrapping
         return self._sa.start_bootstrap()
 
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupped)
+    def start_bootstrap(self):
+        self.state = RemoteSessionStates.Bootstrapping
+        return self._sa.start_bootstrap()
+
     def finish_bootstrap_json(self):
         return json.dumps(self.finish_bootstrap())
 
@@ -465,6 +473,15 @@ class RemoteSessionAssistant:
 
     def get_manifest_repr_json(self):
         return json.dumps(self.get_manifest_repr())
+
+    @allowed_when(RemoteSessionStates.Started)
+    def start_setup(self):
+        self.state = RemoteSessionStates.Setupping
+        return self._sa.start_setup()
+
+    def finish_setup(self):
+        self._sa.finish_setup()
+        self.state = RemoteSessionStates.Setupped
 
     def get_manifest_repr(self):
         return self._sa.get_manifest_repr()
@@ -517,7 +534,9 @@ class RemoteSessionAssistant:
             self._ui = RemoteSilentUI()
         return self._ui
 
-    @allowed_when(RemoteSessionStates.TestsSelected)
+    @allowed_when(
+        RemoteSessionStates.Setupping, RemoteSessionStates.TestsSelected
+    )
     def run_job(self, job_id):
         """
         Depending on the type of the job, run_job can yield different number
@@ -617,7 +636,9 @@ class RemoteSessionAssistant:
                 Interaction("verification", job.verification, self._be)
             )
 
-    @allowed_when(RemoteSessionStates.Bootstrapping)
+    @allowed_when(
+        RemoteSessionStates.Setupping, RemoteSessionStates.Bootstrapping
+    )
     def run_uninteractable_job(self, job_id):
         self._currently_running_job = job_id
         self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
@@ -627,6 +648,7 @@ class RemoteSessionAssistant:
         RemoteSessionStates.Bootstrapping,
         RemoteSessionStates.Interacting,
         RemoteSessionStates.TestsSelected,
+        RemoteSessionStates.Setupping,
     )
     def monitor_job(self):
         """
@@ -726,7 +748,10 @@ class RemoteSessionAssistant:
             else:
                 result = self._be.wait().get_result()
         self._sa.use_job_result(self._currently_running_job, result)
-        if self.state != RemoteSessionStates.Bootstrapping:
+        if self._state not in [
+            RemoteSessionStates.Bootstrapping,
+            RemoteSessionStates.Setupping,
+        ]:
             if not self._sa.get_dynamic_todo_list():
                 if self._launcher.get_value(
                     "ui", "auto_retry"

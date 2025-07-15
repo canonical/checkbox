@@ -844,6 +844,7 @@ class SessionAssistant:
             self.get_job_state: "to get the current state of a job",
             self.finish_setup: "to finish setting up after running all jobs",
             self.get_session_id: "used internally by get_job",
+            self.get_category: "used by UIs to represent a job",
         }
         return [job.id for job in self._context.state.run_list]
 

@@ -275,6 +275,10 @@ class MonitorConfigGnome(MonitorConfig):
             except StopIteration:
                 target_mode = self._get_mode_at_max(physical_monitor.modes)
 
+            if type(target_mode) is not MutterDisplayMode:
+                # if something was changed in _get_mode_at_max
+                raise TypeError("Unexpected mode:", target_mode)
+
             extended_logical_monitors.append(
                 (
                     position_x,  # x
@@ -282,6 +286,7 @@ class MonitorConfigGnome(MonitorConfig):
                     1.0,  # scale
                     Transform.NORMAL_0,
                     position_x == 0,  # first monitor is primary
+                    # .id is specific to MutterDisplayMode
                     [(physical_monitor.info.connector, target_mode.id, {})],
                 )
             )

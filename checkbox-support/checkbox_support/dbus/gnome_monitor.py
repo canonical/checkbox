@@ -34,6 +34,7 @@ from typing import (
     Optional,
     Set,
 )
+import time
 
 from checkbox_support.monitor_config import MonitorConfig
 from gi.repository import Gio, GLib  # type: ignore
@@ -252,6 +253,7 @@ class MonitorConfigGnome(MonitorConfig):
         """
         Set to extend mode so that each monitor can be displayed
         at preferred, or if missing, maximum resolution.
+        - This always arranges the displays in a line
 
         :return configuration: ordered dict of applied Configuration
         """
@@ -275,10 +277,10 @@ class MonitorConfigGnome(MonitorConfig):
                 )
             extended_logical_monitors.append(
                 (
-                    position_x,
-                    0,
-                    1.0,
-                    0,
+                    position_x,  # x
+                    0,  # y
+                    1.0,  # scale
+                    Transform.NORMAL_0,
                     position_x == 0,  # first monitor is primary
                     [(physical_monitor.info.connector, target_mode.id, {})],
                 )
@@ -296,7 +298,7 @@ class MonitorConfigGnome(MonitorConfig):
         resolution: bool = True,
         transform: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
-        action: Optional[Callable[..., Any]] = None,
+        post_cycle_action: Optional[Callable[..., Any]] = None,
         **kwargs
     ):
         """
@@ -311,8 +313,8 @@ class MonitorConfigGnome(MonitorConfig):
                     it will take List[Mode] as parameter and return
                     the same data type
 
-            action: For extra steps for each cycle,
-                    the string is constructed by
+            post_cycle_action: Call this function after each cycle
+                    for each monitor, the string is constructed by
                     [monitor name]_[resolution]_[transform]_.
                     Please note that the delay is needed inside this
                     callback to wait the monitors to response
@@ -320,53 +322,68 @@ class MonitorConfigGnome(MonitorConfig):
         connectors = []  # type: list[str]
         modes_list = []  # type: list[list[MutterDisplayMode]]
         # ["normal": 0, "left": 1, "inverted": 6, "right": 3]
-        trans_list = [0, 1, 6, 3] if transform else [0]
+        trans_list = (
+            [
+                Transform.NORMAL_0,
+                Transform.NORMAL_90,
+                Transform.NORMAL_180,
+                Transform.NORMAL_270,
+            ]
+            if transform
+            else [Transform.NORMAL_0]
+        )
 
         # for multiple monitors, we need to create resolution combination
         state = self.get_current_state()
-        for monitor in state.physical_monitors:
-            connectors.append(monitor.info.connector)
+        for connector in state.physical_monitors:
+            connectors.append(connector.info.connector)
             if resolution_filter:
-                modes_list.append(resolution_filter(monitor.modes))
+                modes_list.append(resolution_filter(connector.modes))
             else:
-                modes_list.append(monitor.modes)
-        mode_combination = list(itertools.product(*modes_list))
+                modes_list.append(connector.modes)
+        combined_modes = list(itertools.product(*modes_list))
 
-        for mode in mode_combination:
+        for combined_mode in combined_modes:
             for trans in trans_list:
                 logical_monitors = []
                 position_x = 0
                 uni_string = ""
-                for monitor, m in zip(connectors, mode):
+                for connector, mode in zip(connectors, combined_mode):
                     uni_string += "{}_{}_{}_".format(
-                        monitor,
-                        m.resolution,
+                        connector,
+                        mode.resolution,
                         {
                             0: "normal",
                             1: "left",
                             3: "right",
-                            6: "inverted",
+                            2: "inverted",
                         }.get(trans),
                     )
                     logical_monitors.append(
                         (
-                            position_x,
-                            0,
-                            1.0,
-                            trans,
-                            position_x == 0,  # first monitor is primary
-                            [(monitor, m.id, {})],
+                            position_x,  # x
+                            0,  # y
+                            1.0,  # scale
+                            trans,  # rotation
+                            position_x == 0,  # make the first monitor primary
+                            [(connector, mode.id, {})],
                         )
                     )
                     # left and right should convert x and y
-                    xy = 1 if (trans == 1 or trans == 3) else 0
-                    position_x += int(m.resolution.split("x")[xy])
+                    x_offset = (
+                        mode.height
+                        if trans in (Transform.NORMAL_90, Transform.NORMAL_270)
+                        else mode.width
+                    )
+                    position_x += x_offset
+                print(logical_monitors)
                 # Sometimes the NVIDIA driver won't update the state.
                 # Get the state before applying to avoid this issue.
                 state = self.get_current_state()
                 self._apply_monitors_config(state.serial, logical_monitors)
-                if action:
-                    action(uni_string, **kwargs)
+                time.sleep(5)  # wait before calling apply() again
+                if post_cycle_action is not None:
+                    post_cycle_action(uni_string, **kwargs)
             if not resolution:
                 break
         # change back to preferred monitor configuration

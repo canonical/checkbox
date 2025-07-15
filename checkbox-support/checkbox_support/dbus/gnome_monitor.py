@@ -386,15 +386,3 @@ class MonitorConfigGnome(MonitorConfig):
             cancellable=None,
         )
 
-
-if __name__ == "__main__":
-    s = MonitorConfigGnome().get_current_state_raw()
-    for i, m in enumerate(s.physical_monitors):
-        print("monitor", m.info.connector)
-        for mode in m.modes:
-            if mode.is_current:
-                print(mode, "is current")
-            if mode.is_preferred:
-                print(mode, "is preferred")
-    print(s.properties)
-    print("physical", s.layout_mode == 2)

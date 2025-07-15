@@ -45,7 +45,10 @@ from plainbox.impl.session.resume import (
     IncompatibleJobError,
     CorruptedSessionError,
 )
-from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
+from plainbox.impl.session.remote_assistant import (
+    RemoteSessionAssistant,
+    RemoteSessionStates,
+)
 from plainbox.vendor import rpyc
 from checkbox_ng.resume_menu import ResumeMenu
 from checkbox_ng.urwid_ui import (
@@ -138,7 +141,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         return self._C
 
     @property
-    def sa(self):
+    def sa(self) -> RemoteSessionAssistant:
         return self._sa
 
     def invoked(self, ctx):
@@ -146,7 +149,6 @@ class RemoteController(ReportsStage, MainLoopStage):
         self._override_exporting(self.local_export)
         self._launcher_text = ""
         self._has_anything_failed = False
-        self._is_bootstrapping = False
         self._target_host = ctx.args.host
         self._normal_user = ""
         self.launcher = Configuration()
@@ -307,19 +309,23 @@ class RemoteController(ReportsStage, MainLoopStage):
                         )
                     )
                     printed_reconnecting = False
+                state = RemoteSessionStates(state)
+                # this is the action the controller will take once connecting
+                # or re-connecting to a RemoteSessionAssistant
                 keep_running = {
-                    "idle": self.resume_or_start_new_session,
-                    "running": self.wait_and_continue,
-                    "finalizing": self.finish_session,
-                    "testsselected": partial(
-                        self.run_jobs, resumed_ongoing_session_info=payload
+                    RemoteSessionStates.Idle: self.resume_or_start_new_session,
+                    RemoteSessionStates.Running: self.wait_and_continue,
+                    RemoteSessionStates.Finalizing: self.finish_session,
+                    RemoteSessionStates.TestsSelected: partial(
+                        self.run_interactable_jobs,
+                        resumed_ongoing_session_info=payload,
                     ),
-                    "bootstrapping": self.restart,
-                    "bootstrapped": partial(
+                    RemoteSessionStates.Bootstrapping: self.restart,
+                    RemoteSessionStates.Bootstrapped: partial(
                         self.select_jobs, all_jobs=payload
                     ),
-                    "started": self.restart,
-                    "interacting": partial(
+                    RemoteSessionStates.Started: self.restart,
+                    RemoteSessionStates.Interacting: partial(
                         self.resume_interacting, interaction=payload
                     ),
                 }[state]()
@@ -441,7 +447,9 @@ class RemoteController(ReportsStage, MainLoopStage):
     def automatically_start_via_launcher(self):
         _ = self.start_session()
         tp_unit = self.launcher.get_value("test plan", "unit")
-        self.select_tp(tp_unit)
+        self.select_test_plan(tp_unit)
+        self.setup()
+        self.bootstrap()
         self.select_jobs(self.jobs)
 
     def automatically_resume_last_session(self):
@@ -471,7 +479,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         else:
             self.interactively_choose_tp()
 
-        self.run_jobs()
+        self.run_interactable_jobs()
 
     def _new_session_flow(self, tps, resumable_sessions):
         tp_info_list = [{"id": tp[0], "name": tp[1]} for tp in tps]
@@ -487,7 +495,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         if selected_tp is None:
             print(_("Nothing selected"))
             raise SystemExit(0)
-        self.select_tp(selected_tp)
+        self.select_test_plan(selected_tp)
         if not self.jobs:
             _logger.error(self.C.RED(_("There were no tests to select from!")))
             self.sa.finalize_session()
@@ -597,27 +605,30 @@ class RemoteController(ReportsStage, MainLoopStage):
                     resumable_sessions
                 )
 
-    def select_tp(self, tp):
-        _logger.info("controller: Selected test plan: %s", tp)
+    def setup(self):
+        setup_jobs = self.sa.start_setup()
+        self.run_uninteractable_jobs(
+            setup_jobs, "Setup", starting_ui_index=1, suppress_output=False
+        )
+        failed_setups = self.sa.finish_setup()
+        return failed_setups
+
+    def bootstrap(self):
+        """This is the bootstrap job-running UI"""
+        bs_todo = self.sa.start_bootstrap()
+        self.run_uninteractable_jobs(
+            bs_todo, "Bootstrap", starting_ui_index=1, suppress_output=True
+        )
+        self.jobs = self.sa.finish_bootstrap()
+        return self.jobs
+
+    def select_test_plan(self, testplan_id):
+        _logger.info("controller: Selected test plan: %s", testplan_id)
         try:
-            self.sa.prepare_bootstrapping(tp)
+            self.sa.select_test_plan(testplan_id)
         except KeyError as e:
-            _logger.error('The test plan "%s" is not available!', tp)
+            _logger.error('The test plan "%s" is not available!', testplan_id)
             raise SystemExit(1)
-        self._is_bootstrapping = True
-        bs_todo = json.loads(self.sa.get_bootstrapping_todo_list_json())
-        for job_no, job_id in enumerate(bs_todo, start=1):
-            print(
-                self.C.header(
-                    _("Bootstrap {} ({}/{})").format(
-                        job_id, job_no, len(bs_todo), fill="-"
-                    )
-                )
-            )
-            self.sa.run_bootstrapping_job(job_id)
-            self.wait_for_job()
-        self._is_bootstrapping = False
-        self.jobs = json.loads(self.sa.finish_bootstrap_json())
 
     def _strtobool(self, val):
         return val.lower() in ("y", "yes", "t", "true", "on", "1")
@@ -727,7 +738,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             )
         )
         self.wait_for_job()
-        self.run_jobs()
+        self.run_interactable_jobs()
 
     def _handle_last_job_after_resume(self, resumed_session_info):
         if self.launcher.get_value("ui", "type") != "silent":
@@ -746,7 +757,29 @@ class RemoteController(ReportsStage, MainLoopStage):
             + SimpleUI.C.result(self.sa.get_job_result(job["id"]))
         )
 
-    def run_jobs(self, resumed_ongoing_session_info=None):
+    def run_uninteractable_jobs(
+        self, job_ids, step_name, starting_ui_index=1, suppress_output=False
+    ):
+        """
+        Runs the jobs in order and prints a UI that tracks the progression
+        """
+        # we may start not from 0 because we are resuming
+        total_jobs = len(job_ids) + starting_ui_index - 1
+        for job_no, job_id in enumerate(job_ids, start=starting_ui_index):
+            print(
+                self.C.header(
+                    _("{} {} ({}/{})").format(
+                        step_name, job_id, job_no, total_jobs, fill="-"
+                    )
+                )
+            )
+            self.sa.run_uninteractable_job(job_id)
+            self.wait_for_job(suppress_output=suppress_output)
+
+    def run_interactable_jobs(self, resumed_ongoing_session_info=None):
+        """
+        Interactable jobs are those that run after bootstrap
+        """
         if (
             resumed_ongoing_session_info
             and resumed_ongoing_session_info["last_job"]
@@ -766,7 +799,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             )
         )
 
-        self._run_jobs(jobs_repr, total_num)
+        self._run_interactable_jobs(jobs_repr, total_num)
         rerun_candidates = self.sa.get_rerun_candidates("manual")
         if rerun_candidates:
             if self.launcher.get_value("ui", "type") == "interactive":
@@ -781,15 +814,15 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def resume_interacting(self, interaction):
         self.sa.remember_users_response("rollback")
-        self.run_jobs()
+        self.run_interactable_jobs()
 
-    def wait_for_job(self, dont_finish=False):
+    def wait_for_job(self, dont_finish=False, suppress_output=False):
         _logger.info("controller: Waiting for job to finish.")
         polling_backoff = [0, 0.1, 0.2, 0.5]
         polling_i = 0
         while True:
             state, payload = self.sa.monitor_job()
-            if payload and not self._is_bootstrapping:
+            if payload and not suppress_output:
                 polling_i = 0
                 for line in payload.splitlines():
                     if line.startswith("stderr"):
@@ -819,9 +852,8 @@ class RemoteController(ReportsStage, MainLoopStage):
     def finish_job(self, result=None):
         _logger.info("controller: Finishing job with a result: %s", result)
         job_result = self.sa.finish_job(result)
-        if not self._is_bootstrapping:
-            SimpleUI.horiz_line()
-            print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
+        SimpleUI.horiz_line()
+        print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
     def abandon(self):
         _logger.info("controller: Abandoning session.")
@@ -874,7 +906,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         # include resource jobs that jobs to retry depend on
 
         candidates = self.sa.prepare_rerun_candidates(rerun_candidates)
-        self._run_jobs(
+        self._run_interactable_jobs(
             json.loads(self.sa.get_jobs_repr(candidates)), len(candidates)
         )
         return True
@@ -894,12 +926,12 @@ class RemoteController(ReportsStage, MainLoopStage):
         candidates = self.sa.prepare_rerun_candidates(
             [job for job in rerun_candidates if job.id in wanted_set]
         )
-        self._run_jobs(
+        self._run_interactable_jobs(
             json.loads(self.sa.get_jobs_repr(candidates)), len(candidates)
         )
         return True
 
-    def _run_jobs(self, jobs_repr, total_num=0):
+    def _run_interactable_jobs(self, jobs_repr, total_num=0):
         for job in jobs_repr:
             job_state = self.sa.get_job_state(job["id"])
             # Note: job_state is a remote object, no need to json encode it

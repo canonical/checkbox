@@ -244,6 +244,7 @@ command:
  set -e
  docker pull ubuntu
  docker save ubuntu > {root_dir}/ubuntu.tar
+ docker rmi ubuntu
  docker load < {root_dir}/ubuntu.tar
  docker images -a | grep ubuntu
 _summary: Test docker save and load a docker image

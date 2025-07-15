@@ -323,18 +323,20 @@ class MonitorConfigGnome(MonitorConfig):
                     [monitor name]_[resolution]_[transform]_.
                     Please note that the delay is needed inside this
                     callback to wait the monitors to response
+
+            kwargs: args for post_cycle_action
         """
         connectors = []  # type: list[str]
         modes_list = []  # type: list[list[MutterDisplayMode]]
         trans_list = (
-            [
+            (
                 Transform.NORMAL_0,
                 Transform.NORMAL_90,
                 Transform.NORMAL_180,
                 Transform.NORMAL_270,
-            ]
+            )
             if transform
-            else [Transform.NORMAL_0]
+            else (Transform.NORMAL_0,)
         )
 
         # for multiple monitors, we need to create resolution combination
@@ -352,12 +354,12 @@ class MonitorConfigGnome(MonitorConfig):
                 position_x = 0
                 uni_string = ""
                 for connector, mode in zip(connectors, combined_mode):
-                    transformation_str = {
-                        0: "normal",
-                        1: "left",
-                        3: "right",
-                        2: "inverted",
-                    }.get(trans)
+                    transformation_str = (
+                        "normal",
+                        "left",
+                        "inverted",
+                        "right",
+                    )[trans]
                     uni_string += "{}_{}_{}_".format(
                         connector, mode.resolution, transformation_str
                     )
@@ -371,28 +373,35 @@ class MonitorConfigGnome(MonitorConfig):
                             [(connector, mode.id, {})],
                         )
                     )
+
                     print(
                         "Setting",
                         connector,
-                        "to",
+                        "to mode:",
                         mode.id,
-                        ", transform:",
+                        "transform:",
                         transformation_str,
-                    )
-                    # left and right should convert x and y
+                        flush=True,
+                    )  # checkbox might buffer this,
+                    # force a flush here so it doesn't look frozen
+
                     x_offset = (
                         mode.height
                         if trans in (Transform.NORMAL_90, Transform.NORMAL_270)
                         else mode.width
-                    )
+                    )  # left and right should convert x and y
                     position_x += x_offset
                 # Sometimes the NVIDIA driver won't update the state.
                 # Get the state before applying to avoid this issue.
                 state = self.get_current_state()
                 self._apply_monitors_config(state.serial, logical_monitors)
                 time.sleep(5)  # wait before calling apply() again
+
                 if post_cycle_action is not None:
                     post_cycle_action(uni_string, **kwargs)
+
+                print("-" * 80, flush=True)  # just a divider
+
             if not resolution:
                 break
         # change back to preferred monitor configuration

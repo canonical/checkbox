@@ -32,10 +32,9 @@ from typing import (
     Mapping,
     NamedTuple,
     Optional,
-    Set,
-    override,
+    Set
 )
-
+from typing_extensions import override
 from checkbox_support.monitor_config import MonitorConfig
 from gi.repository import Gio, GLib  # type: ignore
 

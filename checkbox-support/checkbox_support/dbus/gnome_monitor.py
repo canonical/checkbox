@@ -81,8 +81,10 @@ class MutterDisplayMode(NamedTuple):
 
 
 class MonitorInfo(NamedTuple):
+    """A plain 4-tuple with some basic info about the monitor"""
+
     connector: str  # HDMI-1, eDP-1, ...
-    vendor: str  # vendor string like BOE
+    vendor: str  # vendor string like BOE, Asus, etc.
     product: str
     serial: str
 
@@ -102,6 +104,10 @@ class PhysicalMonitor(NamedTuple):
         return cls(
             MonitorInfo(*t[0]), [MutterDisplayMode(*raw) for raw in t[1]], t[2]
         )
+
+    @property
+    def is_builtin(self) -> bool:
+        return self.properties.get("is-builtin", False)
 
 
 class LogicalMonitor(NamedTuple):
@@ -132,7 +138,7 @@ class MutterDisplayConfig(NamedTuple):
     serial: int
     physical_monitors: List[PhysicalMonitor]
     logical_monitors: List[LogicalMonitor]
-    properties: Mapping[str, Any]
+    properties: Mapping[str, Any]  # technically ValueT is GLib.Variant
 
     @classmethod
     def from_tuple(cls, t: Tuple):
@@ -190,19 +196,22 @@ class MonitorConfigGnome(MonitorConfig):
 
     def get_connected_monitors(self) -> Set[str]:
         """Get list of connected monitors, even if inactive."""
-        state = self._get_current_state()
-        return {monitor for monitor in state[1]}
+        state = self.get_current_state_complete()
+        return {monitor.info.connector for monitor in state.physical_monitors}
 
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""
 
-        state = self._get_current_state()
-        return {
-            monitor: mode.resolution
-            for monitor, modes in state[1].items()
-            for mode in modes
-            if mode.is_current
-        }
+        state = self.get_current_state_complete()
+        out = {}  # type: dict[str, str]
+
+        for monitor in state.physical_monitors:
+            for mode in monitor.modes:
+                if mode.is_current:
+                    out[monitor.info.connector] = "{}x{}".format(
+                        mode.width, mode.height
+                    )
+        return out
 
     def set_extended_mode(self) -> Dict[str, str]:
         """
@@ -319,7 +328,7 @@ class MonitorConfigGnome(MonitorConfig):
         # change back to preferred monitor configuration
         self.set_extended_mode()
 
-    def get_current_state_raw(self) -> MutterDisplayConfig:
+    def get_current_state_complete(self) -> MutterDisplayConfig:
         raw = self._proxy.call_sync(
             method_name="GetCurrentState",
             parameters=None,

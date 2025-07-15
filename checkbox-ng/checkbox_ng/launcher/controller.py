@@ -128,6 +128,29 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     name = "remote-control"
 
+    @classmethod
+    def connection_strategy(cls):
+        """
+        This is the action the controller takes when connecting to an agent.
+
+        Given that the session may be on-going, the state will not always be
+        RemoteSessionStates.Idle but may vary. All functions declared here
+        must take two parameters, self + payload. Both state and payload are
+        returned from the agent
+        """
+        return {
+            RemoteSessionStates.Idle: cls.resume_or_start_new_session,
+            RemoteSessionStates.Started: cls.restart,
+            RemoteSessionStates.Setupping: cls.wait_and_continue,
+            RemoteSessionStates.Setupped: cls.restart,
+            RemoteSessionStates.Bootstrapping: cls.restart,
+            RemoteSessionStates.Bootstrapped: cls.select_jobs,
+            RemoteSessionStates.TestsSelected: cls.run_interactable_jobs,
+            RemoteSessionStates.Running: cls.wait_and_continue,
+            RemoteSessionStates.Interacting: cls.resume_interacting,
+            RemoteSessionStates.Finalizing: cls.finish_session,
+        }
+
     @property
     def is_interactive(self):
         return (
@@ -189,7 +212,16 @@ class RemoteController(ReportsStage, MainLoopStage):
         Check that agent and controller are running on the same
         REMOTE_API_VERSION else exit checkbox with an error
         """
-        agent_api_version = self.sa.get_remote_api_version()
+        try:
+            agent_api_version = self.sa.get_remote_api_version()
+        except AttributeError:
+            raise SystemExit(
+                _(
+                    "Agent doesn't declare Remote API"
+                    " version. Update Checkbox on the"
+                    " DUT!"
+                )
+            )
         controller_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
 
         if agent_api_version == controller_api_version:
@@ -247,6 +279,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         spinner = itertools.cycle("-\\|/")
         #  this tracks the disconnection time
         disconnection_time = 0
+        connection_strategy = self.connection_strategy()
         while True:
             try:
                 if interrupted:
@@ -287,16 +320,6 @@ class RemoteController(ReportsStage, MainLoopStage):
                             " to be run as root"
                         )
                     )
-                try:
-                    agent_api_version = self.sa.get_remote_api_version()
-                except AttributeError:
-                    raise SystemExit(
-                        _(
-                            "Agent doesn't declare Remote API"
-                            " version. Update Checkbox on the"
-                            " SUT!"
-                        )
-                    )
 
                 self.check_remote_api_match()
 
@@ -310,25 +333,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                     )
                     printed_reconnecting = False
                 state = RemoteSessionStates(state)
-                # this is the action the controller will take once connecting
-                # or re-connecting to a RemoteSessionAssistant
-                keep_running = {
-                    RemoteSessionStates.Idle: self.resume_or_start_new_session,
-                    RemoteSessionStates.Running: self.wait_and_continue,
-                    RemoteSessionStates.Finalizing: self.finish_session,
-                    RemoteSessionStates.TestsSelected: partial(
-                        self.run_interactable_jobs,
-                        resumed_ongoing_session_info=payload,
-                    ),
-                    RemoteSessionStates.Bootstrapping: self.restart,
-                    RemoteSessionStates.Bootstrapped: partial(
-                        self.select_jobs, all_jobs=payload
-                    ),
-                    RemoteSessionStates.Started: self.restart,
-                    RemoteSessionStates.Interacting: partial(
-                        self.resume_interacting, interaction=payload
-                    ),
-                }[state]()
+                keep_running = connection_strategy[state](self, payload)
             except EOFError as exc:
                 if keep_running:
                     print("Connection lost!")
@@ -471,7 +476,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             raise SystemExit(exc.args[0]) from exc
         return tps
 
-    def resume_or_start_new_session(self):
+    def resume_or_start_new_session(self, *args):
         if self.should_start_via_autoresume():
             self.automatically_resume_last_session()
         elif self.should_start_via_launcher():
@@ -716,7 +721,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             self._sa.send_signal(signal.SIGKILL.value)
             return True
 
-    def finish_session(self):
+    def finish_session(self, *args):
         print(self.C.header("Results"))
         if self.launcher.get_value("launcher", "local_submission"):
             # Disable SIGINT while we save local results
@@ -729,8 +734,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.sa.finalize_session()
         return False
 
-    def wait_and_continue(self):
-        progress = self.sa.whats_up()[1]
+    def wait_and_continue(self, progress):
         print("Rejoined session.")
         print(
             "In progress: {} ({}/{})".format(
@@ -859,7 +863,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         _logger.info("controller: Abandoning session.")
         self.sa.finalize_session()
 
-    def restart(self):
+    def restart(self, *args):
         _logger.info("controller: Restarting session.")
         self.abandon()
         self.resume_or_start_new_session()

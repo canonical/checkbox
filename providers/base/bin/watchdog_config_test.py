@@ -63,8 +63,13 @@ def main():
     if (ubuntu_version >= 20) or (on_ubuntucore()):
         if not systemd_wdt_configured:
             print(
-                "systemd watchdog should be enabled but reset timeout: "
+                "systemd watchdog should be enabled but reset timeout "
+                "(RuntimeWatchdogUSec) is set to: "
                 "{}".format(runtime_watchdog_usec)
+            )
+            print(
+                "In order for the watchdog service to work, the "
+                "RuntimeWatchdogUSec configuration option must be set."
             )
             watchdog_config_ready = False
         if wdt_service_configured:
@@ -80,8 +85,13 @@ def main():
     else:
         if systemd_wdt_configured:
             print(
-                "systemd watchdog should not be enabled but reset timeout: "
+                "systemd watchdog should not be enabled but reset timeout "
+                "(RuntimeWatchdogUSec) is set to: "
                 "{}".format(runtime_watchdog_usec)
+            )
+            print(
+                "In order for the watchdog service to work, the "
+                "RuntimeWatchdogUSec configuration option must be set."
             )
             watchdog_config_ready = False
         if not wdt_service_configured:

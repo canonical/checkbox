@@ -102,13 +102,22 @@ class RemoteAgent:
 
     name = "agent"
 
-    def invoked(self, ctx):
+    def ensure_sudo(self):
+        if bool(os.getenv("ALLOW_CHECKBOX_AGENT_NONROOT")):
+            _logger.warning("Forcing the agent to allow running as non-root")
+            _logger.warning(
+                "Note: this is a debugging tool, THE AGENT "
+                "DOESN'T ACTUALLY WORK AS NON-ROOT"
+            )
+            return
         if os.geteuid():
             raise SystemExit(_("Checkbox agent must be run by root!"))
         if not is_passwordless_sudo():
             raise SystemExit(
                 _("System is not configured to run sudo without a password!")
             )
+
+    def invoked(self, ctx):
         # This sets INFO as the default logging level if debug wasn't requested
         # the hasattr is because debug is a top level flag and may not be
         # present if not specified
@@ -116,6 +125,7 @@ class RemoteAgent:
             # default log level of the agent is INFO
             logging.basicConfig(level=logging.INFO)
             set_all_loggers_level(logging.INFO)
+        self.ensure_sudo()
         if ctx.args.resume:
             msg = (
                 "--resume is deprecated and will be removed soon. "

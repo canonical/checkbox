@@ -55,7 +55,7 @@ class Transform(IntEnum):
     FLIPPED_270 = 7
 
 
-"""A plain 4-tuple with some basic info about the monitor"""
+# A plain 4-tuple with some basic info about the monitor
 MonitorInfo = NamedTuple(
     "MonitorInfo",
     [
@@ -68,7 +68,7 @@ MonitorInfo = NamedTuple(
 
 
 # py3.5 can't use inline type annotations,
-# otherwise the _*T types should be merged with their no-underscore conterparts
+# otherwise the _*T types should be merged with their non-underscore versions
 _MutterDisplayModeT = NamedTuple(
     "_MutterDisplayModeT",
     [
@@ -361,7 +361,7 @@ class MonitorConfigGnome(MonitorConfig):
         """
         connectors = []  # type: list[str]
         modes_list = []  # type: list[list[MutterDisplayMode]]
-        trans_list = (
+        transform_list = (
             (
                 Transform.NORMAL_0,
                 Transform.NORMAL_90,
@@ -380,6 +380,7 @@ class MonitorConfigGnome(MonitorConfig):
         }
 
         # for multiple monitors, we need to create resolution combination
+        # modes_list[N] is a list of modes of monitor N
         state = self.get_current_state()
         for monitor in state.physical_monitors:
             connectors.append(monitor.info.connector)
@@ -389,7 +390,7 @@ class MonitorConfigGnome(MonitorConfig):
                 modes_list.append(monitor.modes)
 
         for combined_mode in itertools.product(*modes_list):
-            for trans in trans_list:
+            for trans in transform_list:
                 logical_monitors = []  # type: list[LogicalMonitorConfig]
                 position_x = 0
                 unique_str = ""  # unique string for the current monitor state
@@ -405,6 +406,7 @@ class MonitorConfigGnome(MonitorConfig):
                             1.0,  # scale
                             trans,  # rotation
                             position_x == 0,  # make the first monitor primary
+                            # specify target connector name and mode
                             [(connector, mode.id, {})],
                         )
                     )
@@ -443,11 +445,13 @@ class MonitorConfigGnome(MonitorConfig):
 
     def get_current_state(self) -> MutterDisplayConfig:
         """
-        Using DBus signal 'GetCurrentState' to get the available monitors
+        Use the DBus signal 'GetCurrentState' to get the available monitors
         and related modes.
         The return type wraps the dbus object specified here:
         https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
         org.gnome.Mutter.DisplayConfig.xml
+
+        This is the entry point for getting any kind of monitor info
         """
 
         raw = self._proxy.call_sync(
@@ -474,8 +478,15 @@ class MonitorConfigGnome(MonitorConfig):
         """Call the DBus signal 'ApplyMonitorsConfig' to apply the config in
         logical_monitors
 
-        :param serial: The .serial integer from get_current_state's return val
+        Original specification:
+        https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L477
+
+        :param serial: The <MutterDisplayConfig>.serial integer
+            from get_current_state
         :param logical_monitors: The actual logical monitor configuration
+            - Use the LogicalMonitorConfig type to check if the config object
+              has the correct shape
         """
         self._proxy.call_sync(
             method_name="ApplyMonitorsConfig",

@@ -39,9 +39,11 @@ class RegulatorEnum(Enum):
     VOLTAGE = "voltage"
     CURRENT = "current"
 
+    def __str__(self):
+        return self.value
+
 
 SYS_REGULATOR_PATH = "/sys/class/regulator"
-VOLTAGE_REGULATOR_ATTRIBUTES = ["name"]
 
 
 class RegulatorBase:
@@ -54,13 +56,11 @@ class RegulatorBase:
     def collect_data(self, node):
         try:
             rg_type_node = node.joinpath("type")
+            if not rg_type_node.exists():
+                pass
             rg_type_text = rg_type_node.read_text().strip()
             rg_type = RegulatorEnum(rg_type_text)
-            if rg_type == RegulatorEnum.VOLTAGE:
-                possible_keys = VOLTAGE_REGULATOR_ATTRIBUTES
-                rg_type = RegulatorEnum.VOLTAGE.value
-            elif rg_type == RegulatorEnum.CURRENT:
-                possible_keys = []
+            possible_keys = ["name"]
 
             logging.info("\ntype: %s", rg_type)
             data = {"type": rg_type}
@@ -72,7 +72,11 @@ class RegulatorBase:
                     logging.info("%s: %s", key, value)
             return data
         except ValueError:
-            logging.error("Unexpected regulator type: %s", rg_type_text)
+            logging.error(
+                "Unexpected type for '%s' regulator: %s",
+                node.name,
+                rg_type_text,
+            )
         except FileNotFoundError:
             logging.error("%s regulator type does not exists", node.name)
 
@@ -147,7 +151,7 @@ def compare_regulators(args):
         )
     else:
         logging.info(
-            "\nPassed: the expected %s regulatorss are all available", type
+            "\nPassed: the expected %s regulators are all available", type
         )
 
 
@@ -165,9 +169,10 @@ def register_arguments():
         ),
     )
     parser.add_argument(
-        "--type",
         "-t",
-        choices=[RegulatorEnum.VOLTAGE.value, RegulatorEnum.CURRENT.value],
+        "--type",
+        type=RegulatorEnum,
+        choices=list(RegulatorEnum),
         help="the regulator type",
     )
 

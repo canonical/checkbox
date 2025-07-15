@@ -63,6 +63,14 @@ class Interaction(namedtuple("Interaction", ["kind", "message", "extra"])):
 
 
 class RemoteSessionStates(Enum):
+    """
+    These are the state the RemoteSessionAssistant handles.
+
+    We need a second state machine (In addition to the SessionAssistant
+    UsageExpectation) to allow the controller to gracefully know how to
+    continue or start a new session on connection.
+    """
+
     # nothing has connected yet
     Idle = "idle"
     # something has connected at least once
@@ -641,11 +649,11 @@ class RemoteSessionAssistant:
 
     def whats_up(self):
         """
-        Check what is remote-service up to
+        Returns the current agent state along with useful information to
+        allow the controller to start or recover the current session
         :returns:
             (state, payload) tuple.
         """
-        _logger.debug("whats_up() -> %r", self._state)
         payload = None
         if self.state == RemoteSessionStates.Running:
             payload = (
@@ -664,6 +672,8 @@ class RemoteSessionAssistant:
             payload = self._current_interaction
         elif self.state == RemoteSessionStates.Bootstrapped:
             payload = self._sa.get_static_todo_list()
+        elif self.state == RemoteSessionStates.Setupping:
+            breakpoint()
         return self._state.value, payload
 
     def terminate(self):

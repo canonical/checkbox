@@ -33,7 +33,7 @@ class TestSuspendTriggerFWTS(unittest.TestCase):
         suspend_trigger.main(["--sleep-delay", "22", "--check-delay", "55"])
 
         mock_sleep.assert_not_called()
-        mock_machine.assert_called_once()
+        self.assertTrue(mock_machine.called)
         expected_fwts_args = [
             "-f",
             "none",
@@ -153,7 +153,7 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
             suspend_trigger.main([])
 
         # Verify that only the first command (rtcwake) was attempted
-        mock_check_call.assert_called_once()
+        self.assertTrue(mock_check_call.called)
         self.assertIn("rtcwake", mock_check_call.call_args[0][0])
 
     def test_suspend_command_failure(

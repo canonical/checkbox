@@ -233,13 +233,19 @@ class MonitorConfigGnome(MonitorConfig):
 
     def get_connected_monitors(self) -> Set[str]:
         """
-        Get the connector name of each connected monitor, even if inactive.
+        Get the connector names of each connected monitor, even if inactive.
         """
         state = self.get_current_state()
         return {monitor.info.connector for monitor in state.physical_monitors}
 
     def get_current_resolutions(self) -> Dict[str, str]:
-        """Get current active resolutions for each monitor."""
+        """
+        Get current active resolutions for each monitor.
+        - Key is connector name like "eDP-1", value is resolution string
+        - This method is only here to implement the one from the
+          parent abstract class, new code should directly access the resolution
+          integers from get_current_state
+        """
 
         state = self.get_current_state()
         resolution_map = {}  # type: dict[str, str]
@@ -262,8 +268,11 @@ class MonitorConfigGnome(MonitorConfig):
 
         extended_logical_monitors = []
         # key is connector name, value is resolution string
-        configuration = OrderedDict()  # type: dict[str, str]
+        configuration = OrderedDict()  # type: OrderedDict[str, str]
 
+        # the x offset of the current monitor
+        # this will accumulate the width of each monitor as the iteration runs
+        # so that all monitors are arranged in a straight line
         position_x = 0
         for physical_monitor in state.physical_monitors:
             try:
@@ -276,7 +285,8 @@ class MonitorConfigGnome(MonitorConfig):
                 target_mode = self._get_mode_at_max(physical_monitor.modes)
 
             if type(target_mode) is not MutterDisplayMode:
-                # if something was changed in _get_mode_at_max
+                # _get_mode_at_max should only be a filter
+                # and not change any of the items
                 raise TypeError("Unexpected mode:", target_mode)
 
             extended_logical_monitors.append(
@@ -304,7 +314,7 @@ class MonitorConfigGnome(MonitorConfig):
         transform: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
         post_cycle_action: Optional[Callable[..., Any]] = None,
-        **kwargs
+        **post_cycle_action_kwargs
     ):
         """
         Automatically cycle through the supported monitor configurations.
@@ -359,10 +369,10 @@ class MonitorConfigGnome(MonitorConfig):
             for trans in trans_list:
                 logical_monitors = []
                 position_x = 0
-                uni_string = ""  # unique string for the current monitor state
+                unique_str = ""  # unique string for the current monitor state
                 for connector, mode in zip(connectors, combined_mode):
                     transformation_str = transformation_name_map[trans]
-                    uni_string += "{}_{}_{}_".format(
+                    unique_str += "{}_{}_{}_".format(
                         connector, mode.resolution, transformation_str
                     )
                     logical_monitors.append(
@@ -399,7 +409,7 @@ class MonitorConfigGnome(MonitorConfig):
                 self._apply_monitors_config(state.serial, logical_monitors)
 
                 if post_cycle_action is not None:
-                    post_cycle_action(uni_string, **kwargs)
+                    post_cycle_action(unique_str, **post_cycle_action_kwargs)
 
                 print("-" * 80, flush=True)  # just a divider
 
@@ -420,8 +430,8 @@ class MonitorConfigGnome(MonitorConfig):
         raw = self._proxy.call_sync(
             method_name="GetCurrentState",
             parameters=None,  # doesn't take any args
-            # don't auto start dbus "receipient"'s process if it's not running
-            # so if gnome is somhow dead, don't automatically fix it
+            # don't auto start dbus "recipient"'s process if it's not running
+            # so if gnome is somehow dead, don't automatically fix it
             flags=Gio.DBusCallFlags.NO_AUTO_START,
             timeout_msec=-1,  # don't timeout
             cancellable=None,
@@ -436,12 +446,11 @@ class MonitorConfigGnome(MonitorConfig):
         return MutterDisplayConfig.from_variant(raw)
 
     def _apply_monitors_config(self, serial: int, logical_monitors: List):
-        """
-        Using DBus signal 'ApplyMonitorsConfig' to apply the given monitor
-        configuration.
+        """Call the DBus signal 'ApplyMonitorsConfig' to apply the config in
+        logical_monitors
 
-        Check the related DBus XML definition for details over the expected
-        input data format.
+        :param serial: The .serial integer from get_current_state's return val
+        :param logical_monitors: The actual logical monitor configuration
         """
         self._proxy.call_sync(
             method_name="ApplyMonitorsConfig",

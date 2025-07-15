@@ -335,12 +335,12 @@ class MonitorConfigGnome(MonitorConfig):
 
         # for multiple monitors, we need to create resolution combination
         state = self.get_current_state()
-        for connector in state.physical_monitors:
-            connectors.append(connector.info.connector)
+        for monitor in state.physical_monitors:
+            connectors.append(monitor.info.connector)
             if resolution_filter:
-                modes_list.append(resolution_filter(connector.modes))
+                modes_list.append(resolution_filter(monitor.modes))
             else:
-                modes_list.append(connector.modes)
+                modes_list.append(monitor.modes)
 
         for combined_mode in itertools.product(*modes_list):
             for trans in trans_list:

@@ -143,6 +143,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         return {
             RemoteSessionStates.Idle: cls.resume_or_start_new_session,
             RemoteSessionStates.Started: cls.restart,
+            RemoteSessionStates.Setupping: cls.wait_and_continue,
+            RemoteSessionStates.Setupped: cls.restart,
             RemoteSessionStates.Bootstrapping: cls.restart,
             RemoteSessionStates.Bootstrapped: cls.select_jobs,
             RemoteSessionStates.TestsSelected: cls.run_interactable_jobs,

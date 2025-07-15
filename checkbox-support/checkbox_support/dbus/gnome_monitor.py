@@ -1,6 +1,7 @@
 # Copyright 2024 Canonical Ltd.
 # Written by:
 #   Paolo Gentili <paolo.gentili@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,

@@ -674,6 +674,8 @@ class RemoteSessionAssistant:
         """
         Returns the current agent state along with useful information to
         allow the controller to start or recover the current session
+        :returns:
+            (state, payload) tuple.
         """
         payload = None
         if self.state == RemoteSessionStates.Running:
@@ -693,6 +695,8 @@ class RemoteSessionAssistant:
             payload = self._current_interaction
         elif self.state == RemoteSessionStates.Bootstrapped:
             payload = self._sa.get_static_todo_list()
+        elif self.state == RemoteSessionStates.Setupping:
+            breakpoint()
         return self.state.value, payload
 
     def terminate(self):

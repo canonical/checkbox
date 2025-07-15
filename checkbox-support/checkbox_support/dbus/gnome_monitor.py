@@ -21,14 +21,65 @@ Original script that inspired this class:
 - https://gitlab.gnome.org/GNOME/mutter/-/blob/main/tools/get-state.py
 """
 
-from collections import namedtuple
-from typing import Dict, List, Tuple, Set, Callable, Any
-from gi.repository import GLib, Gio
 import itertools
+from typing import (Any, Callable, Dict, List, Mapping, NamedTuple, Optional,
+                    Set, Tuple)
 
 from checkbox_support.monitor_config import MonitorConfig
+from gi.repository import Gio, GLib  # type: ignore
 
-Mode = namedtuple("Mode", ["id", "resolution", "is_preferred", "is_current"])
+
+class Mode(NamedTuple):
+    id: str
+    resolution: str
+    is_preferred: bool
+    is_current: bool
+
+
+PhysicalMonitor = Tuple[
+    Tuple[str, str, str, str],  # (connector, vendor, product, serial)
+    List[  # list of modes
+        Tuple[
+            str,  # mode id
+            int,  # width
+            int,  # height
+            float,  # refresh rate
+            float,  # preferred scale
+            List[float],  # supported scales
+            # map of all properties
+            # usually has the 'is-current' and 'is-preferred' keys
+            Mapping[str, GLib.Variant],
+        ]
+    ],
+    # optional properties, all keys may or may not exist
+    # "width-mm": int, "height-mm": int, "is-underscanning": bool,
+    # "max-screen-size": str,
+    # "is-builtin", "display-name"
+    Mapping[str, GLib.Variant],
+]
+
+LogicalMonitor = Tuple[
+    int,  # x offset
+    int,  # y offset
+    float,  # scale multiplier
+    int,  # transform bitmask, has is_flipped state & rotation
+    bool,  # is primary
+    # list of monitors info, (connector, vendor, product, serial)
+    List[Tuple[str, str, str, str]],
+    # arbitrary properties
+    Mapping[str, GLib.Variant],
+]
+
+# The raw return type from calling DisplayConfig GetCurrentState
+DisplayConfig = Tuple[
+    int,  # serial
+    List[PhysicalMonitor],  # list of physical monitors
+    List[LogicalMonitor],  # list of logical monitors
+    # optional properties, may contain
+    # "supports-mirroring", "layout-mode", "supports-changing-layout-mode"
+    # "global-scale-required"
+    Mapping[str, GLib.Variant],
+]
 
 
 class MonitorConfigGnome(MonitorConfig):
@@ -109,8 +160,8 @@ class MonitorConfigGnome(MonitorConfig):
         self,
         resolution: bool = True,
         transform: bool = False,
-        resolution_filter: Callable[[List[Mode]], List[Mode]] = None,
-        action: Callable[..., Any] = None,
+        resolution_filter: Optional[Callable[[List[Mode]], List[Mode]]] = None,
+        action: Optional[Callable[..., Any]] = None,
         **kwargs
     ):
         """
@@ -186,6 +237,15 @@ class MonitorConfigGnome(MonitorConfig):
         # change back to preferred monitor configuration
         self.set_extended_mode()
 
+    def get_current_state_raw(self) -> DisplayConfig:
+        return self._proxy.call_sync(
+            method_name="GetCurrentState",
+            parameters=None,
+            flags=Gio.DBusCallFlags.NO_AUTO_START,
+            timeout_msec=-1,
+            cancellable=None,
+        )  # type: ignore # have to cast
+
     def _get_current_state(self) -> Tuple[str, Dict[str, List[Mode]]]:
         """
         Using DBus signal 'GetCurrentState' to get the available monitors
@@ -201,7 +261,13 @@ class MonitorConfigGnome(MonitorConfig):
             timeout_msec=-1,
             cancellable=None,
         )
-
+        # from gnome-randr, the type for state[2] is
+        # type LogicalMonitor = Vec<(i32,i32,f64,u32,bool,
+        #     Vec<(String, String, String, String)>,
+        #     dbus::arg::PropMap)>
+        # namely: [x, y, scale, transform bitmask,
+        #   list[tuple[connector, vendor, product, serial]], properties]
+        print(state[2])
         return (
             state[0],
             {

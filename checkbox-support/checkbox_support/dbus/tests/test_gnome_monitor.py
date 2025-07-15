@@ -18,18 +18,22 @@ class MonitorConfigGnomeTests(unittest.TestCase):
     class MockGetCurrentStateReturnValue:
 
         class MockGLibType:
-            def equal(self, o):
-                return True
+            def __init__(self, rv):
+                self.rv = rv
 
-        def __init__(self, t):
+            def equal(self, o):
+                return self.rv
+
+        def __init__(self, t, gtrv=True):
             self.t = t
+            self.gtrv = gtrv
             super()
 
         def __getitem__(self, k):
             return self.t[k]
 
         def get_type(self):
-            return self.MockGLibType()
+            return self.MockGLibType(self.gtrv)
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_get_connected_monitors(self, mock_dbus_proxy):
@@ -165,6 +169,17 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         self.assertEqual(
             resolutions, {"eDP-1": "1920x1200", "HDMI-1": "2560x1440"}
         )
+
+    @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
+    def test_bad_input_type(self, mock_dbus_proxy):
+        mock_proxy = Mock()
+        mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
+
+        gnome_monitor = MonitorConfigGnome()
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(tuple(), False)
+        )
+        self.assertRaises(TypeError, gnome_monitor.get_current_state)
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_set_extended_mode(self, mock_dbus_proxy):

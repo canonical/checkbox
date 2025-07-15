@@ -318,7 +318,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_skip(self, simple_ui_mock):
@@ -336,7 +336,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_enter(self, simple_ui_mock):
@@ -354,7 +354,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = ""
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_quit(self, simple_ui_mock):
@@ -373,7 +373,7 @@ class ControllerTests(TestCase):
         simple_ui_mock().wait_for_interaction_prompt.return_value = "quit"
 
         with self.assertRaises(SystemExit):
-            RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+            RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_steps_run(self, simple_ui_mock):
@@ -390,7 +390,7 @@ class ControllerTests(TestCase):
             "category_name": "category",
         }
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_steps_enter(self, simple_ui_mock):
@@ -408,7 +408,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = ""
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_steps_skip(self, simple_ui_mock):
@@ -426,7 +426,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_steps_quit(self, simple_ui_mock):
@@ -445,7 +445,7 @@ class ControllerTests(TestCase):
         simple_ui_mock().wait_for_interaction_prompt.return_value = "quit"
 
         with self.assertRaises(SystemExit):
-            RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+            RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch(
         "checkbox_ng.launcher.controller.generate_resume_candidate_description",

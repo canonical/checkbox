@@ -34,6 +34,7 @@ from typing import (
     NamedTuple,
     Optional,
     Set,
+    Tuple,
 )
 from checkbox_support.monitor_config import MonitorConfig
 from gi.repository import Gio, GLib  # type: ignore
@@ -202,6 +203,28 @@ class MutterDisplayConfig(_MutterDisplayConfigT):
 
 
 ResolutionFilter = Callable[[List[MutterDisplayMode]], List[MutterDisplayMode]]
+# this only appears in apply_monitors_config
+# it's very similar to LogicalMonitor but the last list element is different
+LogicalMonitorConfig = Tuple[
+    int,  # x offset
+    int,  # y offset
+    float,  # scale, 1.0 for 100%
+    Transform,  # transformation
+    bool,  # is primary
+    List[
+        Tuple[
+            str,  # connector id, same as <MutterDisplayMode>.connector
+            str,  # monitor mode id, same as <PhysicalMonitor>.id
+            Dict[
+                # only 2 possible keys:
+                # underscanning: bool
+                # color-mode: uint32
+                str,
+                "bool|int",
+            ],
+        ]
+    ],
+]
 
 
 class MonitorConfigGnome(MonitorConfig):
@@ -266,7 +289,7 @@ class MonitorConfigGnome(MonitorConfig):
         """
         state = self.get_current_state()
 
-        extended_logical_monitors = []
+        extended_logical_monitors = []  # type: list[LogicalMonitorConfig]
         # key is connector name, value is resolution string
         configuration = OrderedDict()  # type: OrderedDict[str, str]
 
@@ -367,7 +390,7 @@ class MonitorConfigGnome(MonitorConfig):
 
         for combined_mode in itertools.product(*modes_list):
             for trans in trans_list:
-                logical_monitors = []
+                logical_monitors = []  # type: list[LogicalMonitorConfig]
                 position_x = 0
                 unique_str = ""  # unique string for the current monitor state
                 for connector, mode in zip(connectors, combined_mode):
@@ -445,7 +468,9 @@ class MonitorConfigGnome(MonitorConfig):
 
         return MutterDisplayConfig.from_variant(raw)
 
-    def _apply_monitors_config(self, serial: int, logical_monitors: List):
+    def _apply_monitors_config(
+        self, serial: int, logical_monitors: List[LogicalMonitorConfig]
+    ):
         """Call the DBus signal 'ApplyMonitorsConfig' to apply the config in
         logical_monitors
 

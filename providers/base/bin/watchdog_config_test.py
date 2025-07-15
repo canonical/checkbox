@@ -69,7 +69,8 @@ def main():
             )
             print(
                 "In order for the watchdog service to work, the "
-                "RuntimeWatchdogUSec configuration option must be set."
+                "RuntimeWatchdogUSec configuration option must be set before "
+                "running this test."
             )
             watchdog_config_ready = False
         if wdt_service_configured:
@@ -91,7 +92,8 @@ def main():
             )
             print(
                 "In order for the watchdog service to work, the "
-                "RuntimeWatchdogUSec configuration option must be set."
+                "RuntimeWatchdogUSec configuration option must be set before "
+                "running this test."
             )
             watchdog_config_ready = False
         if not wdt_service_configured:

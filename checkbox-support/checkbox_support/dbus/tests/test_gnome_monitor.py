@@ -18,22 +18,21 @@ class MonitorConfigGnomeTests(unittest.TestCase):
     class MockGetCurrentStateReturnValue:
 
         class MockGLibType:
-            def __init__(self, rv):
-                self.rv = rv
+            def __init__(self, equal_check_return_value):
+                self.rv = equal_check_return_value
 
-            def equal(self, o):
+            def equal(self, other):
                 return self.rv
 
-        def __init__(self, t, gtrv=True):
-            self.t = t
-            self.gtrv = gtrv
-            super()
+        def __init__(self, type_val, type_check_return_value=True):
+            self.type_val = type_val
+            self.type_check_return_value = type_check_return_value
 
-        def __getitem__(self, k):
-            return self.t[k]
+        def __getitem__(self, key):
+            return self.type_val[key]
 
         def get_type(self):
-            return self.MockGLibType(self.gtrv)
+            return self.MockGLibType(self.type_check_return_value)
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_get_connected_monitors(self, mock_dbus_proxy):

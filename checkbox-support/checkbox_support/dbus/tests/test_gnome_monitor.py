@@ -434,8 +434,8 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         )  # keep the real mode values
         mock_post_cycle_action = MagicMock()
         gnome_monitor.cycle(
-            resolution=False,
-            transform=False,
+            cycle_resolutions=False,
+            cycle_transforms=False,
             resolution_filter=mock_resolution_filter,
             post_cycle_action=mock_post_cycle_action,
         )

@@ -213,7 +213,7 @@ LogicalMonitorConfig = Tuple[
     bool,  # is primary
     List[
         Tuple[
-            str,  # connector id, same as <MutterDisplayMode>.connector
+            str,  # connector name, same as <MutterDisplayMode>.connector
             str,  # monitor mode id, same as <PhysicalMonitor>.id
             Dict[
                 # only 2 possible keys:
@@ -256,7 +256,9 @@ class MonitorConfigGnome(MonitorConfig):
 
     def get_connected_monitors(self) -> Set[str]:
         """
-        Get the connector names of each connected monitor, even if inactive.
+        Get the connector names of each connected monitor, even if the monitor
+        is inactive
+        - Use the 
         """
         state = self.get_current_state()
         return {monitor.info.connector for monitor in state.physical_monitors}
@@ -264,7 +266,8 @@ class MonitorConfigGnome(MonitorConfig):
     def get_current_resolutions(self) -> Dict[str, str]:
         """
         Get current active resolutions for each monitor.
-        - Key is connector name like "eDP-1", value is resolution string
+        - Key is connector name like "eDP-1", 
+          value is resolution string like 800x600
         - This method is only here to implement the one from the
           parent abstract class, new code should directly access the resolution
           integers from get_current_state
@@ -320,6 +323,7 @@ class MonitorConfigGnome(MonitorConfig):
                     Transform.NORMAL_0,
                     position_x == 0,  # first monitor is primary
                     # .id is specific to MutterDisplayMode
+                    # doesn't exist on plain Mode
                     [(physical_monitor.info.connector, target_mode.id, {})],
                 )
             )
@@ -333,31 +337,31 @@ class MonitorConfigGnome(MonitorConfig):
 
     def cycle(
         self,
-        resolution: bool = True,
-        transform: bool = False,
+        cycle_resolutions: bool = True,
+        cycle_transforms: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
         post_cycle_action: Optional[Callable[..., Any]] = None,
         **post_cycle_action_kwargs
     ):
-        """
-        Automatically cycle through the supported monitor configurations.
+        """Automatically cycle through the supported monitor configurations.
 
-        Args:
-            resolution: Cycling the resolution or not.
+        :param cycle_resolutions: cycle through all resolutions if True
+        :param cycle_transforms: cycle through all transforms/rotations if True
+        :param resolution_filter:
+            A function that selects the resolutions to cycle
+            See the ResolutionFilter type for the input/output types
+        :param post_cycle_action:
+            A function to call after a cycle has finished. The first argument
+            to this function is always a string of the form
 
-            transform: Cycling the transform or not.
+            [monitor name]_[resolution]_[transform]_
 
-            resolution_filter: For filtering resolution then returning needed,
-                    it will take List[Mode] as parameter and return
-                    the same data type
+            A delay is needed inside this
+            callback to wait the monitors to response
 
-            post_cycle_action: Called after each cycle for each monitor,
-                    the string is constructed by
-                    [monitor name]_[resolution]_[transform]_.
-                    Please note that the delay is needed inside this
-                    callback to wait the monitors to response
+        :param post_cycle_action_kwargs:
+            The keyword args for post_cycle_action
 
-            kwargs: args for post_cycle_action
         """
         connectors = []  # type: list[str]
         modes_list = []  # type: list[list[MutterDisplayMode]]
@@ -369,7 +373,7 @@ class MonitorConfigGnome(MonitorConfig):
                 Transform.FLIPPED_180,
                 Transform.NORMAL_270,
             )
-            if transform
+            if cycle_transforms
             else (Transform.NORMAL_0,)
         )
         transformation_name_map = {
@@ -394,6 +398,7 @@ class MonitorConfigGnome(MonitorConfig):
                 logical_monitors = []  # type: list[LogicalMonitorConfig]
                 position_x = 0
                 unique_str = ""  # unique string for the current monitor state
+                
                 for connector, mode in zip(connectors, combined_mode):
                     transformation_str = transformation_name_map[trans]
                     unique_str += "{}_{}_{}_".format(
@@ -438,20 +443,25 @@ class MonitorConfigGnome(MonitorConfig):
 
                 print("-" * 80, flush=True)  # just a divider
 
-            if not resolution:
+            if not cycle_resolutions:
                 break
         # change back to preferred monitor configuration
         self.set_extended_mode()
 
     def get_current_state(self) -> MutterDisplayConfig:
         """
-        Use the DBus signal 'GetCurrentState' to get the available monitors
+        Calls the DBus signal 'GetCurrentState' to get the available monitors
         and related modes.
+
         The return type wraps the dbus object specified here:
         https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
         org.gnome.Mutter.DisplayConfig.xml
 
-        This is the entry point for getting any kind of monitor info
+        Use this method as the entry point for getting any kind of monitor info
+
+        :raises TypeError: If the return type of GetCurrentState doesn't match
+            self.CONFIG_VARIANT_TYPE. This only happens if GNOME made a change
+            to this dbus signal
         """
 
         raw = self._proxy.call_sync(
@@ -475,7 +485,8 @@ class MonitorConfigGnome(MonitorConfig):
     def _apply_monitors_config(
         self, serial: int, logical_monitors: List[LogicalMonitorConfig]
     ):
-        """Call the DBus signal 'ApplyMonitorsConfig' to apply the config in
+        """
+        Call the DBus signal 'ApplyMonitorsConfig' to apply the config in
         logical_monitors
 
         Original specification:

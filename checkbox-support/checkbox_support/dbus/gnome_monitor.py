@@ -261,7 +261,7 @@ class MonitorConfigGnome(MonitorConfig):
         state = self.get_current_state()
 
         extended_logical_monitors = []
-        # [connector] = resolution
+        # key is connector name, value is resolution string
         configuration = OrderedDict()  # type: dict[str, str]
 
         position_x = 0
@@ -350,7 +350,7 @@ class MonitorConfigGnome(MonitorConfig):
         state = self.get_current_state()
         for monitor in state.physical_monitors:
             connectors.append(monitor.info.connector)
-            if resolution_filter:
+            if resolution_filter is not None:
                 modes_list.append(resolution_filter(monitor.modes))
             else:
                 modes_list.append(monitor.modes)
@@ -409,11 +409,21 @@ class MonitorConfigGnome(MonitorConfig):
         self.set_extended_mode()
 
     def get_current_state(self) -> MutterDisplayConfig:
+        """
+        Using DBus signal 'GetCurrentState' to get the available monitors
+        and related modes.
+        The return type wraps the dbus object specified here:
+        https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml
+        """
+
         raw = self._proxy.call_sync(
             method_name="GetCurrentState",
-            parameters=None,
+            parameters=None,  # doesn't take any args
+            # don't auto start dbus "receipient"'s process if it's not running
+            # so if gnome is somhow dead, don't automatically fix it
             flags=Gio.DBusCallFlags.NO_AUTO_START,
-            timeout_msec=-1,
+            timeout_msec=-1,  # don't timeout
             cancellable=None,
         )
 

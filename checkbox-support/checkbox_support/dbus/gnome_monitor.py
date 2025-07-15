@@ -163,6 +163,7 @@ _MutterDisplayConfigT = NamedTuple(
         ("physical_monitors", List[PhysicalMonitor]),
         ("logical_monitors", List[LogicalMonitor]),
         # technically value type is GLib.Variant
+        # but it acts like a readonly map in this case
         ("properties", Mapping[str, Any]),
     ],
 )
@@ -258,7 +259,8 @@ class MonitorConfigGnome(MonitorConfig):
         """
         Get the connector names of each connected monitor, even if the monitor
         is inactive
-        - Use the
+        - To see if a monitor is active, iterate its modes and check if the 
+          <MutterDisplayMode>.is_current property is true for any of them
         """
         state = self.get_current_state()
         return {monitor.info.connector for monitor in state.physical_monitors}

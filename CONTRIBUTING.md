@@ -75,6 +75,11 @@ you have to activate the `checkbox-cli run-agent` on the Machine under test:
 
 > Note: Keep in mind that run-agent has to be run as root and needs the
 > virtual env, you may have to re-enable/activate it after a `sudo -s`
+>
+> You can circumvent this constraint if you are developing for Checkbox by
+> setting the `ALLOW_CHECKBOX_AGENT_NONROOT` environment variable to `true`.
+> This only makes sense if you are debugging Checkbox internals.
+> The agent will not work as normal user.
 
 Now you can run the control command to connect to it:
 

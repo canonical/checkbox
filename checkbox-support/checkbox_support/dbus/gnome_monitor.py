@@ -499,7 +499,8 @@ class MonitorConfigGnome(MonitorConfig):
             from get_current_state
         :param logical_monitors: The actual logical monitor configuration
             - Use the LogicalMonitorConfig type to check if the config object
-              has the correct shape
+              has the correct shape at dev time. Runtime check is done by the
+              GLib.Variant constructor
         """
         self._proxy.call_sync(
             method_name="ApplyMonitorsConfig",

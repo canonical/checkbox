@@ -333,6 +333,12 @@ class MonitorConfigGnome(MonitorConfig):
             if transform
             else (Transform.NORMAL_0,)
         )
+        transformation_name_map = {
+            Transform.NORMAL_0: "normal",
+            Transform.NORMAL_270: "left",
+            Transform.FLIPPED_180: "inverted",
+            Transform.NORMAL_90: "right",
+        }
 
         # for multiple monitors, we need to create resolution combination
         state = self.get_current_state()
@@ -347,14 +353,9 @@ class MonitorConfigGnome(MonitorConfig):
             for trans in trans_list:
                 logical_monitors = []
                 position_x = 0
-                uni_string = ""
+                uni_string = ""  # unique string for the current monitor state
                 for connector, mode in zip(connectors, combined_mode):
-                    transformation_str = {
-                        Transform.NORMAL_0: "normal",
-                        Transform.NORMAL_270: "left",
-                        Transform.FLIPPED_180: "inverted",
-                        Transform.NORMAL_90: "right",
-                    }[trans]
+                    transformation_str = transformation_name_map[trans]
                     uni_string += "{}_{}_{}_".format(
                         connector, mode.resolution, transformation_str
                     )
@@ -377,7 +378,7 @@ class MonitorConfigGnome(MonitorConfig):
                         "transform:",
                         transformation_str,
                         flush=True,
-                    )  # checkbox might buffer this,
+                    )  # checkbox runtime might buffer this,
                     # force a flush here so it doesn't look frozen
 
                     x_offset = (

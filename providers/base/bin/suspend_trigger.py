@@ -50,24 +50,12 @@ def main(args=sys.argv[1:]):
             s3_sleep_delay,
         ]
         suspend_cmd = ["systemctl", "suspend"]
-        try:
-            print("Running: {}".format(" ".join(rtcwake_cmd)))
-            output = subprocess.check_output(
-                rtcwake_cmd, stderr=subprocess.STDOUT, universal_newlines=True
-            )
-            print(output)
-            print(
-                "Running: {} to suspend the system".format(
-                    " ".join(suspend_cmd)
-                )
-            )
-            subprocess.check_output(
-                suspend_cmd, stderr=subprocess.STDOUT, universal_newlines=True
-            )
-        except subprocess.CalledProcessError as e:
-            print("Command", e.cmd, "failed with return code", e.returncode)
-            print(e.output)
-            raise
+        print("Running: {}".format(" ".join(rtcwake_cmd)))
+        subprocess.check_call(rtcwake_cmd)
+        print(
+            "Running: {} to suspend the system".format(" ".join(suspend_cmd))
+        )
+        subprocess.check_call(suspend_cmd)
 
 
 if __name__ == "__main__":

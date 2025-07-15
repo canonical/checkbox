@@ -259,7 +259,7 @@ class MonitorConfigGnome(MonitorConfig):
         """
         Get the connector names of each connected monitor, even if the monitor
         is inactive
-        - To see if a monitor is active, iterate its modes and check if the 
+        - To see if a monitor is active, iterate its modes and check if the
           <MutterDisplayMode>.is_current property is true for any of them
         """
         state = self.get_current_state()

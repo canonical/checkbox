@@ -326,7 +326,8 @@ class MonitorConfigGnome(MonitorConfig):
             (
                 Transform.NORMAL_0,
                 Transform.NORMAL_90,
-                Transform.NORMAL_180,
+                # preserving original behavior in case something depends on it
+                Transform.FLIPPED_180,
                 Transform.NORMAL_270,
             )
             if transform

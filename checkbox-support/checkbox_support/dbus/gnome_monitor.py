@@ -258,7 +258,7 @@ class MonitorConfigGnome(MonitorConfig):
         """
         Get the connector names of each connected monitor, even if the monitor
         is inactive
-        - Use the 
+        - Use the
         """
         state = self.get_current_state()
         return {monitor.info.connector for monitor in state.physical_monitors}
@@ -266,7 +266,7 @@ class MonitorConfigGnome(MonitorConfig):
     def get_current_resolutions(self) -> Dict[str, str]:
         """
         Get current active resolutions for each monitor.
-        - Key is connector name like "eDP-1", 
+        - Key is connector name like "eDP-1",
           value is resolution string like 800x600
         - This method is only here to implement the one from the
           parent abstract class, new code should directly access the resolution
@@ -398,7 +398,7 @@ class MonitorConfigGnome(MonitorConfig):
                 logical_monitors = []  # type: list[LogicalMonitorConfig]
                 position_x = 0
                 unique_str = ""  # unique string for the current monitor state
-                
+
                 for connector, mode in zip(connectors, combined_mode):
                     transformation_str = transformation_name_map[trans]
                     unique_str += "{}_{}_{}_".format(

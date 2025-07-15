@@ -19,7 +19,10 @@ def main(args=sys.argv[1:]):
     parser.add_argument(
         "--check-delay",
         type=int,
-        help="Time (in seconds) for FWTS to wait before checking the device after resuming.",
+        help=(
+            "Time (in seconds) for FWTS to wait before checking the device "
+            "after resuming."
+        ),
         default=45,
     )
     parser.add_argument(

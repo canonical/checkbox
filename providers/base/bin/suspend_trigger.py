@@ -2,7 +2,6 @@
 
 import argparse
 import platform
-import os
 import subprocess
 import sys
 import time
@@ -17,12 +16,27 @@ def main(args=sys.argv[1:]):
         type=int,
         help="Time (in seconds) to wait before triggering suspend.",
     )
+    parser.add_argument(
+        "--check-delay",
+        type=int,
+        help="Time (in seconds) for FWTS to wait before checking the device after resuming.",
+        default=45,
+    )
+    parser.add_argument(
+        "--sleep-delay",
+        type=int,
+        help="Time (in seconds) to sleep before resuming the device.",
+        default=30,
+    )
+    parser.add_argument(
+        "--rtc-device",
+        help="Real Time Clock device to use (for ARM devices only)",
+        default="/dev/rtc0",
+    )
     args = parser.parse_args(args)
     if args.wait:
         print("Waiting for {} seconds...".format(args.wait))
         time.sleep(args.wait)
-    s3_check_delay = os.getenv("STRESS_S3_WAIT_DELAY", "45")
-    s3_sleep_delay = os.getenv("STRESS_S3_SLEEP_DELAY", "30")
     if platform.machine() in ["i386", "x86_64"]:
         print("Running FWTS to trigger suspend...")
         fwts_args = [
@@ -32,22 +46,21 @@ def main(args=sys.argv[1:]):
             "s3",
             "--s3-device-check",
             "--s3-device-check-delay",
-            s3_check_delay,
+            str(args.check_delay),
             "--s3-sleep-delay",
-            s3_sleep_delay,
+            str(args.sleep_delay),
         ]
         fwts_test.main(fwts_args)
     else:
-        rtc_device_file = os.getenv("RTC_DEVICE_FILE", "/dev/rtc0")
         rtcwake_cmd = [
             "rtcwake",
             "--verbose",
             "--device",
-            rtc_device_file,
+            args.rtc_device,
             "--mode",
             "no",
             "--seconds",
-            s3_sleep_delay,
+            str(args.sleep_delay),
         ]
         suspend_cmd = ["systemctl", "suspend"]
         print("Running: {}".format(" ".join(rtcwake_cmd)))

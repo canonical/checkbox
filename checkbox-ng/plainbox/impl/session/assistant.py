@@ -200,7 +200,7 @@ class SessionAssistant:
         self._load_providers()
         UsageExpectation.of(self).allowed_calls = {
             self.start_new_session: "create a new session from scratch",
-            self.resume_session: "resume a resume candidate",
+            self.prepare_resume_session: "resume a resume candidate",
             self.get_resumable_sessions: "get resume candidates",
             self.use_alternate_configuration: (
                 "use an alternate configuration system"
@@ -542,11 +542,11 @@ class SessionAssistant:
         }
 
     @raises(KeyError, UnexpectedMethodCall, IncompatibleJobError)
-    def resume_session(
+    def prepare_resume_session(
         self, session_id: str, runner_cls=UnifiedRunner, runner_kwargs=dict()
     ) -> "SessionMetaData":
         """
-        Resume a session.
+        Prepares the session to a state where it is able to continue.
 
         :param session_id:
             The identifier of the session to resume.
@@ -671,7 +671,7 @@ class SessionAssistant:
                     storage, metadata
                 )
                 UsageExpectation.of(self).allowed_calls[
-                    self.resume_session
+                    self.prepare_resume_session
                 ] = "resume session"
                 yield ResumeCandidate(storage.id, metadata)
 
@@ -797,7 +797,8 @@ class SessionAssistant:
         # no need to set the resume flag here as this is used during resume,
         # the flag is already set
         UsageExpectation.of(self).allowed_calls = {
-            self.get_job_state: "to decide what result should be assigned",
+            self.get_job: "to decide what result should be assigned",
+            self.get_job_state: "to see if the job result was already decided",
             self.use_job_result: "to assign the decided result to the job",
             self.start_setup: "to be called after setting the last job result",
         }
@@ -1841,7 +1842,7 @@ class SessionAssistant:
             self.export_to_stream: "to export the results to a stream",
             self.get_resumable_sessions: "to get resume candidates",
             self.start_new_session: "to create a new session",
-            self.resume_session: "to resume a session",
+            self.prepare_resume_session: "to resume a session",
             self.get_old_sessions: ("get previously created sessions"),
             self.delete_sessions: ("delete previously created sessions"),
         }

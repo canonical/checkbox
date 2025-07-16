@@ -357,7 +357,7 @@ class Launcher(MainLoopStage, ReportsStage):
         """
         try:
             # reload the list of resumable_session in SA
-            yield self.sa.resume_session(session_id)
+            yield self.sa.prepare_resume_session(session_id)
         finally:
             self.ctx.reset_sa()
 
@@ -556,7 +556,7 @@ class Launcher(MainLoopStage, ReportsStage):
         function calling this function expects the session to be ready (post
         bootstrap for sessions with a testplan)
         """
-        metadata = self.sa.resume_session(session_id)
+        metadata = self.sa.prepare_resume_session(session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]

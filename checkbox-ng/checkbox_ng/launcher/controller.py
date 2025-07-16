@@ -578,7 +578,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 return False
 
     def setup(self, resume_payload=None):
-        setup_jobs = self.sa.start_setup()
+        setup_jobs = json.loads(self.sa.start_setup_json())
         starting_index = 0
         if resume_payload:
             last_running_job = resume_payload["last_job"]

@@ -500,7 +500,6 @@ class RemoteController(ReportsStage, MainLoopStage):
         state, payload = self.sa.whats_up()
         state = RemoteSessionStates(state)
         connection_strategy = self.connection_strategy()
-        print(state, "calling", connection_strategy[state])
         return connection_strategy[state](self, payload)
 
     def _new_session_flow(self, tps, resumable_sessions):
@@ -628,7 +627,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 )
 
     def setup(self, resume_payload=None):
-        setup_jobs = self.sa.start_setup()
+        setup_jobs = json.loads(self.sa.start_setup_json())
         starting_index = 0
         if resume_payload:
             last_running_job = resume_payload["last_job"]
@@ -656,11 +655,11 @@ class RemoteController(ReportsStage, MainLoopStage):
         """This is the bootstrap job-running UI"""
         if resume_payload is not None:
             raise SystemExit("not supported")
-        bs_todo = self.sa.start_bootstrap()
+        bs_todo = json.loads(self.sa.start_bootstrap_json())
         self.run_uninteractable_jobs(
             bs_todo, "Bootstrap", starting_index=0, suppress_output=True
         )
-        self.jobs = self.sa.finish_bootstrap()
+        self.jobs = json.loads(self.sa.finish_bootstrap_json())
         return self.jobs
 
     def select_test_plan(self, testplan_id):

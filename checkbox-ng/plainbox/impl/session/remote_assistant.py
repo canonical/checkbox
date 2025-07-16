@@ -422,13 +422,9 @@ class RemoteSessionAssistant:
         )
         return self._sa.select_test_plan(test_plan_id)
 
-    @allowed_when(RemoteSessionStates.Started)
-    def get_bootstrapping_todo_list_json(self):
-        return json.dumps(self.get_bootstrapping_todo_list())
-
-    @allowed_when(RemoteSessionStates.Started)
-    def get_bootstrapping_todo_list(self):
-        return self._sa.get_bootstrap_todo_list()
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupped)
+    def start_bootstrap_json(self):
+        return json.dumps(self.start_bootstrap())
 
     @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupped)
     def start_bootstrap(self):
@@ -451,6 +447,10 @@ class RemoteSessionAssistant:
 
     def get_manifest_repr_json(self):
         return json.dumps(self.get_manifest_repr())
+
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupping)
+    def start_setup_json(self):
+        return json.dumps(self.start_setup())
 
     @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupping)
     def start_setup(self):

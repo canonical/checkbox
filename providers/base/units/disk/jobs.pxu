@@ -137,8 +137,8 @@ template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
-id: disk/disk_stress_ng_sru_{name}
-template-id: disk/disk_stress_ng_sru_name
+id: disk/run_disk_stress_ng_sru_{name}
+template-id: disk/run_disk_stress_ng_sru_name
 estimated_duration: 900.0
 user: root
 requires:

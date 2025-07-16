@@ -6,11 +6,11 @@ launcher_version = 1
 stock_reports = submission_files, certification
 
 [test plan]
-unit = com.canonical.certification::stress-sru-only
+unit = com.canonical.certification::stress-sru-tests
 forced = yes
 
 [test selection]
-forced = yes
+forced = no
 
 [ui]
 output = hide-resource-and-attachment

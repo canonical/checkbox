@@ -34,6 +34,7 @@ from enum import Enum
 
 from plainbox.impl.config import Configuration
 from plainbox.impl.execution import UnifiedRunner
+from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.assistant import SessionAssistant
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
@@ -474,7 +475,7 @@ class RemoteSessionAssistant:
     def get_manifest_repr_json(self):
         return json.dumps(self.get_manifest_repr())
 
-    @allowed_when(RemoteSessionStates.Started)
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupping)
     def start_setup(self):
         self.state = RemoteSessionStates.Setupping
         return self._sa.start_setup()
@@ -696,7 +697,8 @@ class RemoteSessionAssistant:
         elif self.state == RemoteSessionStates.Bootstrapped:
             payload = self._sa.get_static_todo_list()
         elif self.state == RemoteSessionStates.Setupping:
-            breakpoint()
+            # this is set by the resume_by_id function or None
+            payload = {"last_job": self._last_job}
         return self.state.value, payload
 
     def terminate(self):
@@ -846,7 +848,70 @@ class RemoteSessionAssistant:
     def bootstrap(self):
         return self._sa.bootstrap()
 
-    def resume_by_id(self, session_id=None, overwrite_result_dict={}):
+    def update_job_result_after_resume(
+        self, last_job_id, result_interactively_decided={}
+    ):
+        if not last_job_id:
+            return
+        if result_interactively_decided:
+            result_dict = result_interactively_decided
+        else:
+            result_dict = {}
+            session_share = WellKnownDirsHelper.session_share(
+                self._sa._manager.storage.id
+            )
+            result_path = os.path.join(session_share, "__result")
+            try:
+                with open(result_path, "rt") as f:
+                    result_dict = json.load(f)
+                    # the only really important field in the result is
+                    # 'outcome' so let's make sure it doesn't contain
+                    # anything stupid
+                    if result_dict.get("outcome") not in [
+                        "pass",
+                        "fail",
+                        "skip",
+                    ]:
+                        result_dict["outcome"] = IJobResult.OUTCOME_CRASH
+                        result_dict["comments"] = (
+                            result_dict.get("comments", "")
+                            + "\n\nJob specified an invalid outcome in the result "
+                            "file, marking it as crashed"
+                        )
+            except (json.JSONDecodeError, FileNotFoundError):
+                job_definition = self._sa.get_job(self._last_job)
+                job_state = self._sa.get_job_state(job_definition.id)
+                # if the job didnt have a result, lets automatically calculate it
+                if (
+                    job_definition.plugin == "shell"
+                    and not job_state.result_history
+                ):
+                    if "noreturn" in job_definition.get_flag_set():
+                        result_dict["outcome"] = IJobResult.OUTCOME_PASS
+                        result_dict["comments"] = (
+                            "Job rebooted the machine or the Checkbox agent. "
+                            "Resuming the session and marking it as passed "
+                            "because the job has the `noreturn` flag"
+                        )
+                    else:
+                        result_dict["outcome"] = IJobResult.OUTCOME_CRASH
+                        result_dict["comments"] = (
+                            "Job rebooted the machine or the Checkbox agent. "
+                            "Resuming the session and marking it as crashed."
+                        )
+            result_dict.update(result_interactively_decided)
+        if result_dict:
+            result = MemoryJobResult(result_dict)
+            try:
+                self._sa.use_job_result(last_job_id, result, True)
+            except KeyError:
+                raise SystemExit(
+                    "Unable to find "
+                    + last_job_id
+                    + " that was running before resume"
+                )
+
+    def resume_by_id(self, session_id=None, result_interactively_decided={}):
         _logger.info("resume_by_id: %r", session_id)
         self._launcher = load_configs()
         resume_candidates = list(self._sa.get_resumable_sessions())
@@ -886,62 +951,28 @@ class RemoteSessionAssistant:
         _logger.info(
             "normal_user after loading metadata: %r", self._normal_user
         )
-        test_plan_id = app_blob["testplan_id"]
-        self._sa.select_test_plan(test_plan_id)
-        self._sa.bootstrap()
         self._last_job = meta.running_job_name
+        test_plan_id = app_blob["testplan_id"]
+        # here we are resuming the session so we don't need anything but the
+        # current test plan
+        self._available_testplans = [test_plan_id]
+        self._sa.select_test_plan(test_plan_id)
+        if {
+            SessionMetaData.FLAG_BOOTSTRAPPING,
+            SessionMetaData.FLAG_INCOMPLETE,
+        } & meta.flags:
+            # if the session we are resuming was already bootstrapped, lets
+            # re-bottstrap it silently
+            self._sa.bootstrap()
+        elif SessionMetaData.FLAG_SETUPPING in meta.flags:
+            self._sa.resume_setup()
+        else:
+            raise ValueError("da fuck is going on here?")
 
-        result_dict = {
-            "outcome": IJobResult.OUTCOME_PASS,
-            "comments": _("Automatically passed after resuming execution"),
-        }
-        session_share = WellKnownDirsHelper.session_share(
-            self._sa._manager.storage.id
+        self.update_job_result_after_resume(
+            self._last_job,
+            result_interactively_decided=result_interactively_decided,
         )
-        result_path = os.path.join(session_share, "__result")
-        try:
-            with open(result_path, "rt") as f:
-                result_dict = json.load(f)
-                # the only really important field in the result is
-                # 'outcome' so let's make sure it doesn't contain
-                # anything stupid
-                if result_dict.get("outcome") not in [
-                    "pass",
-                    "fail",
-                    "skip",
-                ]:
-                    result_dict["outcome"] = IJobResult.OUTCOME_PASS
-        except (json.JSONDecodeError, FileNotFoundError):
-            the_job = self._sa.get_job(self._last_job)
-            job_state = self._sa.get_job_state(the_job.id)
-            # the last running job already had a result
-            if job_state.result.outcome:
-                result_dict["outcome"] = job_state.result.outcome
-                result_dict["comments"] = job_state.result.comments or ""
-            # job didnt have a result, lets automatically calculate it
-            elif the_job.plugin == "shell":
-                if "noreturn" in the_job.get_flag_set():
-                    result_dict["outcome"] = IJobResult.OUTCOME_PASS
-                    result_dict["comments"] = (
-                        "Job rebooted the machine or the Checkbox agent. "
-                        "Resuming the session and marking it as passed "
-                        "because the job has the `noreturn` flag"
-                    )
-                else:
-                    result_dict["outcome"] = IJobResult.OUTCOME_CRASH
-                    result_dict["comments"] = (
-                        "Job rebooted the machine or the Checkbox agent. "
-                        "Resuming the session and marking it as crashed."
-                    )
-
-        result_dict.update(overwrite_result_dict)
-        result = MemoryJobResult(result_dict)
-        if self._last_job:
-            try:
-                self._sa.use_job_result(self._last_job, result, True)
-            except KeyError:
-                raise SystemExit(self._last_job)
-
         # some jobs have already been run, so we need to update the attempts
         # count for future auto-rerunning
         if self._launcher.get_value("ui", "auto_retry"):
@@ -952,8 +983,10 @@ class RemoteSessionAssistant:
                 job_state.attempts = self._launcher.get_value(
                     "ui", "max_attempts"
                 ) - len(job_state.result_history)
-
-        self.state = RemoteSessionStates.TestsSelected
+        if SessionMetaData.FLAG_SETUPPING in meta.flags:
+            self.state = RemoteSessionStates.Setupping
+        else:
+            self.state = RemoteSessionStates.TestsSelected
 
     def has_any_job_failed(self):
         job_state_map = (

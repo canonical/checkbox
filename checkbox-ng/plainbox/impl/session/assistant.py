@@ -675,7 +675,7 @@ class SessionAssistant:
                     storage, metadata
                 )
                 UsageExpectation.of(self).allowed_calls[
-                    self.resume_session
+                    self.prepare_resume_session
                 ] = "resume session"
                 yield ResumeCandidate(storage.id, metadata)
 
@@ -808,7 +808,8 @@ class SessionAssistant:
         # no need to set the resume flag here as this is used during resume,
         # the flag is already set
         UsageExpectation.of(self).allowed_calls = {
-            self.get_job_state: "to decide what result should be assigned",
+            self.get_job: "to decide what result should be assigned",
+            self.get_job_state: "to see if the job result was already decided",
             self.use_job_result: "to assign the decided result to the job",
             self.start_setup: "to be called after setting the last job result",
         }

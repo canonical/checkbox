@@ -442,7 +442,7 @@ class RemoteAssistantTests(TestCase):
             "job2",
         ]
 
-        job_list_str = RemoteSessionAssistant.get_bootstrapping_todo_list_json(
+        job_list_str = RemoteSessionAssistant.start_bootstrap_json(
             self_mock
         )
 

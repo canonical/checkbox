@@ -41,6 +41,7 @@ from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.color import Colorizer
 from plainbox.impl.config import Configuration
+from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.resume import (
     IncompatibleJobError,
     CorruptedSessionError,
@@ -140,8 +141,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         """
         return {
             RemoteSessionStates.Idle: cls.resume_or_start_new_session,
-            RemoteSessionStates.Started: cls.restart,
-            RemoteSessionStates.Setupping: cls.wait_and_continue,
+            RemoteSessionStates.Started: cls.setup_and_continue,
+            RemoteSessionStates.Setupping: cls.setup_and_continue,
             RemoteSessionStates.Setupped: cls.restart,
             RemoteSessionStates.Bootstrapping: cls.restart,
             RemoteSessionStates.Bootstrapped: cls.select_jobs,
@@ -395,7 +396,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         before exiting the context
         """
         try:
-            yield self.sa.resume_session(session_id)
+            yield self.sa.prepare_resume_session(session_id)
         except rpyc.core.vinegar.GenericException as e:
             # cast back the (custom) remote exception for IncompatibleJobError
             # (that is of type GenericException due to rpyc)
@@ -423,6 +424,11 @@ class RemoteController(ReportsStage, MainLoopStage):
         except StopIteration:
             # no session to resume
             return False
+        if (
+            SessionMetaData.FLAG_SETUPPING
+            in last_abandoned_session.metadata.flags
+        ):
+            return True
         # resume session in agent to be able to peek at the latest job run
         # info
         # FIXME: IncompatibleJobError is raised if the resume candidate is
@@ -449,13 +455,20 @@ class RemoteController(ReportsStage, MainLoopStage):
         # last resumable session is incompatible
         return False
 
+    def bootstrap_and_continue(self, resume_payload=None):
+        self.bootstrap(resume_payload=resume_payload)
+        self.select_jobs(self.jobs)
+        self.run_interactable_jobs()
+
+    def setup_and_continue(self, resume_payload=None):
+        self.setup(resume_payload=resume_payload)
+        self.bootstrap_and_continue()
+
     def automatically_start_via_launcher(self):
         _ = self.start_session()
         tp_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(tp_unit)
-        self.setup()
-        self.bootstrap()
-        self.select_jobs(self.jobs)
+        self.setup_and_continue()
 
     def automatically_resume_last_session(self):
         last_abandoned_session = next(self.sa.get_resumable_sessions())
@@ -483,8 +496,12 @@ class RemoteController(ReportsStage, MainLoopStage):
             self.automatically_start_via_launcher()
         else:
             self.interactively_choose_tp()
-
-        self.run_interactable_jobs()
+        # here depending on where we got, lets continue the session
+        state, payload = self.sa.whats_up()
+        state = RemoteSessionStates(state)
+        connection_strategy = self.connection_strategy()
+        print(state, "calling", connection_strategy[state])
+        return connection_strategy[state](self, payload)
 
     def _new_session_flow(self, tps, resumable_sessions):
         tp_info_list = [{"id": tp[0], "name": tp[1]} for tp in tps]
@@ -549,7 +566,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         return False
 
     def _resume_session(self, resume_params):
-        metadata = self.sa.resume_session(resume_params.session_id)
+        metadata = self.sa.prepare_resume_session(resume_params.session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
@@ -610,19 +627,38 @@ class RemoteController(ReportsStage, MainLoopStage):
                     resumable_sessions
                 )
 
-    def setup(self):
+    def setup(self, resume_payload=None):
         setup_jobs = self.sa.start_setup()
+        starting_index = 0
+        if resume_payload:
+            last_running_job = resume_payload["last_job"]
+            # this can't fail as we have adopted the result when this is set
+            # so if the job doesn't exist, it will crash before
+            starting_index = next(
+                i
+                for (i, job_id) in enumerate(setup_jobs)
+                if job_id == last_running_job
+            )
+            # if the job outcome was already decided (either interactively or
+            # by the resume process) go on
+            if self.sa.get_job_result(last_running_job).outcome is not None:
+                starting_index += 1
         self.run_uninteractable_jobs(
-            setup_jobs, "Setup", starting_ui_index=1, suppress_output=False
+            setup_jobs,
+            "Setup",
+            starting_index=starting_index,
+            suppress_output=False,
         )
         failed_setups = self.sa.finish_setup()
         return failed_setups
 
-    def bootstrap(self):
+    def bootstrap(self, resume_payload=None):
         """This is the bootstrap job-running UI"""
+        if resume_payload is not None:
+            raise SystemExit("not supported")
         bs_todo = self.sa.start_bootstrap()
         self.run_uninteractable_jobs(
-            bs_todo, "Bootstrap", starting_ui_index=1, suppress_output=True
+            bs_todo, "Bootstrap", starting_index=0, suppress_output=True
         )
         self.jobs = self.sa.finish_bootstrap()
         return self.jobs
@@ -762,18 +798,19 @@ class RemoteController(ReportsStage, MainLoopStage):
         )
 
     def run_uninteractable_jobs(
-        self, job_ids, step_name, starting_ui_index=1, suppress_output=False
+        self, job_ids, step_name, starting_index=0, suppress_output=False
     ):
         """
         Runs the jobs in order and prints a UI that tracks the progression
         """
         # we may start not from 0 because we are resuming
-        total_jobs = len(job_ids) + starting_ui_index - 1
-        for job_no, job_id in enumerate(job_ids, start=starting_ui_index):
+        total_jobs = len(job_ids)
+        job_ids = job_ids[starting_index:]
+        for job_no, job_id in enumerate(job_ids, start=starting_index):
             print(
                 self.C.header(
                     _("{} {} ({}/{})").format(
-                        step_name, job_id, job_no, total_jobs, fill="-"
+                        step_name, job_id, job_no + 1, total_jobs, fill="-"
                     )
                 )
             )

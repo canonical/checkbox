@@ -444,14 +444,9 @@ class RemoteSessionAssistant:
     def select_test_plan(self, test_plan_id):
         return self._sa.select_test_plan(test_plan_id)
 
-    @allowed_when(RemoteSessionStates.Started)
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupped)
     def start_bootstrap_json(self):
         return json.dumps(self.start_bootstrap())
-
-    @allowed_when(RemoteSessionStates.Started)
-    def start_bootstrap(self):
-        self.state = RemoteSessionStates.Bootstrapping
-        return self._sa.start_bootstrap()
 
     @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupped)
     def start_bootstrap(self):
@@ -474,6 +469,10 @@ class RemoteSessionAssistant:
 
     def get_manifest_repr_json(self):
         return json.dumps(self.get_manifest_repr())
+
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupping)
+    def start_setup_json(self):
+        return json.dumps(self.start_setup())
 
     @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupping)
     def start_setup(self):

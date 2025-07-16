@@ -142,8 +142,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         """
         return {
             RemoteSessionStates.Idle: cls.resume_or_start_new_session,
-            RemoteSessionStates.Started: cls.restart,
-            RemoteSessionStates.Setupping: cls.wait_and_continue,
+            RemoteSessionStates.Started: cls.setup_and_continue,
+            RemoteSessionStates.Setupping: cls.setup_and_continue,
             RemoteSessionStates.Setupped: cls.restart,
             RemoteSessionStates.Bootstrapping: cls.restart,
             RemoteSessionStates.Bootstrapped: cls.select_jobs,
@@ -424,6 +424,11 @@ class RemoteController(ReportsStage, MainLoopStage):
         except StopIteration:
             # no session to resume
             return False
+        if (
+            SessionMetaData.FLAG_SETUPPING
+            in last_abandoned_session.metadata.flags
+        ):
+            return True
         # resume session in agent to be able to peek at the latest job run
         # info
         # FIXME: IncompatibleJobError is raised if the resume candidate is
@@ -458,11 +463,15 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.select_jobs(self.jobs)
         return self.run_interactable_jobs()
 
+    def setup_and_continue(self, resume_payload=None):
+        self.setup(resume_payload=resume_payload)
+        self.bootstrap_and_continue()
+
     def automatically_start_via_launcher(self):
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
-        self.setup()
+        self.setup_and_continue()
         return self.bootstrap_and_continue()
 
     def resume_last_session_and_continue(self):
@@ -568,10 +577,27 @@ class RemoteController(ReportsStage, MainLoopStage):
             if self.resume_session_via_menu_and_continue(resumable_sessions):
                 return False
 
-    def setup(self):
+    def setup(self, resume_payload=None):
         setup_jobs = self.sa.start_setup()
+        starting_index = 0
+        if resume_payload:
+            last_running_job = resume_payload["last_job"]
+            # this can't fail as we have adopted the result when this is set
+            # so if the job doesn't exist, it will crash before
+            starting_index = next(
+                i
+                for (i, job_id) in enumerate(setup_jobs)
+                if job_id == last_running_job
+            )
+            # if the job outcome was already decided (either interactively or
+            # by the resume process) go on
+            if self.sa.get_job_result(last_running_job).outcome is not None:
+                starting_index += 1
         self.run_uninteractable_jobs(
-            setup_jobs, "Setup", starting_ui_index=1, suppress_output=False
+            setup_jobs,
+            "Setup",
+            starting_index=starting_index,
+            suppress_output=False,
         )
         failed_setups = self.sa.finish_setup()
         return failed_setups

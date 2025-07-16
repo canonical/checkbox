@@ -743,7 +743,7 @@ command: systemd-inhibit stress_ng_test.py cpu --base-time 1800
 _summary:
  Stress of CPUs (SRU shortened runtime)
 _description:
- ## WARNING: This modifies com.canonical.certification::sru-server
+ WARNING: This modifies com.canonical.certification::sru-server
 _purpose:
  Impose a high system load using the 'stress-ng' tool to exercise the CPU for
  1800 seconds. The test is considered passed if the system does not freeze and
@@ -760,7 +760,7 @@ requires:
 command: systemd-inhibit stress_ng_test.py memory --base-time 60 --time-per-gig 0
 _summary: Stress test of system memory (SRU shortened runtime)
 _description:
- ## WARNING: This modifies com.canonical.certification::sru-server
+ WARNING: This modifies com.canonical.certification::sru-server
 _purpose:
  Test to perform some basic stress and exercise of system memory via the
  stress-ng tool with shortened timeout for SRU testing. This test runs for

@@ -2,6 +2,7 @@
 import sys
 import logging
 import argparse
+
 from enum import Enum
 from pathlib import Path
 
@@ -35,7 +36,10 @@ def init_logger():
     return root_logger
 
 
-class RegulatorEnum(Enum):
+SYS_REGULATOR_PATH = "/sys/class/regulator"
+
+
+class RegulatorTypeEnum(Enum):
     VOLTAGE = "voltage"
     CURRENT = "current"
 
@@ -43,7 +47,26 @@ class RegulatorEnum(Enum):
         return self.value
 
 
-SYS_REGULATOR_PATH = "/sys/class/regulator"
+class RegulatorAttributeEnum:
+
+    def __init__(self):
+        self.name = "name"
+        self.type = "type"
+
+
+def read_node_text(node):
+    try:
+        value = node.read_text().strip()
+    except FileNotFoundError:
+        logging.error("'%s' does not exists", str(node))
+        return None
+    except OSError as err:
+        logging.error(
+            "Unexpected error while accessing %s. %s", str(node), err
+        )
+        return None
+
+    return value
 
 
 class RegulatorBase:
@@ -54,22 +77,21 @@ class RegulatorBase:
         self.regulators = {}
 
     def collect_data(self, node):
-        try:
-            rg_type_node = node.joinpath("type")
-            if not rg_type_node.exists():
-                pass
-            rg_type_text = rg_type_node.read_text().strip()
-            rg_type = RegulatorEnum(rg_type_text)
-            possible_keys = ["name"]
+        regulator_attr = RegulatorAttributeEnum()
+        rg_type_text = read_node_text(node.joinpath(regulator_attr.type))
+        if not rg_type_text:
+            return None
 
-            logging.info("\ntype: %s", rg_type)
-            data = {"type": rg_type}
-            for key in possible_keys:
-                child = node.joinpath(key)
-                if child.exists():
-                    value = child.read_text().strip()
+        try:
+            # Ensure the regulator type is what we want
+            RegulatorTypeEnum(rg_type_text)
+            data = {}
+            for key in regulator_attr.__dict__:
+                value = read_node_text(node.joinpath(key))
+                if value is not None:
                     data[key] = value
                     logging.info("%s: %s", key, value)
+
             return data
         except ValueError:
             logging.error(
@@ -77,17 +99,18 @@ class RegulatorBase:
                 node.name,
                 rg_type_text,
             )
-        except FileNotFoundError:
-            logging.error("%s regulator type does not exists", node.name)
 
     def dump_sysfs_regulator(self):
         for rg_dev in sorted(Path(SYS_REGULATOR_PATH).glob("regulator*")):
-            self.raw_regulators[rg_dev.name] = self.collect_data(rg_dev)
+            logging.info("- %s", rg_dev.name)
+            data = self.collect_data(rg_dev)
+            if data:
+                self.raw_regulators[rg_dev.name] = data
 
     def filter_regulators_by_type(self):
         logging.info("\n# filtering %s regulator..", self.regulator_type)
         for dev in self.raw_regulators.values():
-            if dev["type"] != self.regulator_type:
+            if RegulatorTypeEnum(dev["type"]) != self.regulator_type:
                 logging.info("skip '%s' regulator", dev["name"])
                 continue
 
@@ -171,8 +194,8 @@ def register_arguments():
     parser.add_argument(
         "-t",
         "--type",
-        type=RegulatorEnum,
-        choices=list(RegulatorEnum),
+        type=RegulatorTypeEnum,
+        choices=list(RegulatorTypeEnum),
         help="the regulator type",
     )
 

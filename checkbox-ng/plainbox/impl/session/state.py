@@ -951,6 +951,7 @@ class SessionState:
                     job_list.remove(exc.affected_job)
                 # Remember each problem, this can be presented by the UI
                 problems.append(exc)
+                raise exc
                 continue
             else:
                 # Don't iterate the loop if there was no exception

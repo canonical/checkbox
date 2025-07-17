@@ -34,6 +34,7 @@ from logging import getLogger
 import enum
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.job import JobDefinition
 
 logger = getLogger("plainbox.depmgr")
 
@@ -341,6 +342,7 @@ class DependencySolver:
         self._pull_solution = []
         # The computed solution for all dependencies
         self._order_solution = []
+        self._groups = dict()
 
     def _clear_state_map(self):
         self._job_state_map = {
@@ -375,6 +377,8 @@ class DependencySolver:
         # Solve first for pulling dependencies
         self._clear_state_map()
         for job in self._visit_list:
+            # Check if the job has a group property, if so, print it
+            print("Job group: {}".format(getattr(job, "group", "None")))
             self._visit(job, pull=True)
 
         # Create a map of pulled jobs
@@ -384,11 +388,89 @@ class DependencySolver:
             job.controller.add_before_deps(
                 job, self._pulled_map, self._job_map
             )
+        self._clear_state_map()
+
+        # Create a dict of groups referenced in the pulled jobs
+        for job in self._pull_solution:
+            if hasattr(job, "group") and job.group is not None:
+                self._groups[job.group] = self._groups.get(job.group, []) + [
+                    job
+                ]
+
+        # Print the groups
+        if self._groups:
+            print("Groups referenced in pulled jobs: {}".format(self._groups))
+
+        print(
+            "Pulled map before group replacement: {}".format(self._pulled_map)
+        )
+
+        # Create new job to use as a substitute for the group
+        for group, jobs in self._groups.items():
+            # Create a new job with the group name
+            group_job_id = "_group_substitute_{}".format(group)
+
+            group_job = JobDefinition({"id": group_job_id})
+            print("Creating group substitute job: {}".format(group_job.id))
+            # Get the internal and external dependencies of the group
+            internal_deps = set()
+            external_deps = set()
+            job_id_list = [job.id for job in jobs]
+            for job in jobs:
+                deps = job.controller.get_dependency_set(job, self._pulled_map)
+                for dep_type, job_id in deps:
+                    print(job_id)
+                    if job_id in job_id_list:
+                        internal_deps.add(job_id)
+                    else:
+                        external_deps.add(job_id)
+
+            if internal_deps:
+                print("Internal dependencies: {}".format(internal_deps))
+            if external_deps:
+                print("External dependencies: {}".format(external_deps))
+
+            print(
+                "Replacing jobs in group {} with {}".format(
+                    group, group_job_id
+                )
+            )
+            for job in jobs:
+                # Remove the job from the pulled map
+                if job.id in self._pulled_map:
+                    self._pull_solution.remove(job)
+                    del self._pulled_map[job.id]
+
+                # Add the group job instead
+                self._pulled_map[group_job_id] = group_job
+                if group_job not in self._pull_solution:
+                    self._pull_solution.append(group_job)
+                self._job_list.append(group_job)
+                # self._job_state_map[group_job_id] = State.NOT_VISITED
+
+        for job in self._job_state_map:
+            if "_group_substitute_" in job:
+                print("Setting state for {} to NOT_VISITED".format(job))
+
+        print(
+            "Pulled map after group replacement: {}".format(self._pulled_map)
+        )
+        print(self._pull_solution)
+
+        # for group, jobs in self._groups.items():
+        #     self._clear_state_map()
+        #     for job in jobs:
+        #         self._visit(job)
+
+        #     print("******Group {} solution: {}".format(group, self._order_solution))
+
+        #     self._groups[group] = self._order_solution
 
         # Solve again for order dependencies, using the pulled jobs as the
         # new visit list
         self._clear_state_map()
         for job in self._pull_solution:
+            print("Visiting job: {}".format(job.id))
             self._visit(job)
 
         # Perform a sanity check to ensure that no jobs have been added or
@@ -403,7 +485,32 @@ class DependencySolver:
                 "Order solution: {!r}".format(pull_jobs, order_jobs)
             )
 
-        logger.debug(_("Done solving"))
+        # Replace the group jobs in the order solution with the original
+        # jobs inside the group
+        for i, job in enumerate(self._order_solution):
+            if "_group_substitute_" in job.id:
+                group_name = job.id.split("_group_substitute_")[1]
+                print(
+                    "Replacing group job {} with {}".format(job.id, group_name)
+                )
+                # Replace the group job with the jobs inside the group in the
+                # same position
+                self._order_solution[i : i + 1] = self._groups.get(
+                    group_name, []
+                )
+                for group_job in self._groups.get(group_name, []):
+                    print("Adding group job: {}".format(group_job.id))
+                    if group_job not in self._order_solution:
+                        self._order_solution.append(group_job)
+
+                print("Removed group job: {}".format(job.id))
+        print(
+            "Order solution after group replacement: {}".format(
+                self._order_solution
+            )
+        )
+
+        print("********Done solving**********")
 
         # Return the final solution
         return self._order_solution
@@ -516,15 +623,26 @@ class DependencySolver:
 
         # We've visited (recursively) all dependencies of this node, so we
         # can change the state to finished and append it to the solution
-        logger.debug(_("Appending %r to pull solution"), job)
+        print(_("Appending %r to pull solution"), job)
         self._job_state_map[job.id] = State.FINISHED
         self._pull_solution.append(job)
 
     def _order_visit(self, job, trail=None):
         # We travel through dependencies recursively
+        print(" - Checking order visit for job: {}".format(job.id))
         for dep_type, job_id in job.controller.get_dependency_set(
             job, self._pull_solution
         ):
+            # If the dependency is pointing to a job inside a group, we replace
+            # it with the group job.
+            if self.group_of(job_id):
+                print(
+                    "Job {} is inside a group, replacing with group job".format(
+                        job_id
+                    )
+                )
+                job_id = "_group_substitute_{}".format(self.group_of(job_id))
+            print("Continuing with job id: {}".format(job_id))
             try:
                 # We look up the job only in the map of pulled jobs
                 next_job = self._pulled_map[job_id]
@@ -546,9 +664,16 @@ class DependencySolver:
 
         # We've visited (recursively) all dependencies of this node, so we
         # can change the state to finished and append it to the solution
-        logger.debug(_("Appending %r to order solution"), job)
+        print(("Appending %r to order solution"), job)
         self._job_state_map[job.id] = State.FINISHED
         self._order_solution.append(job)
+
+    def group_of(self, job_id: str):
+        """Return the group that contains *job_id* (or None if not found)."""
+        for g, jobs in self._groups.items():
+            if job_id in jobs:
+                return g
+        return None
 
     @staticmethod
     def _get_job_map(job_list):

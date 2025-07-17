@@ -54,6 +54,7 @@ class DefaultsTests(TestCase):
 
         self.assertTrue(parser_mock.add_argument)
 
+
 class CheckConfigTests(TestCase):
     @mock.patch("builtins.print")
     @mock.patch("checkbox_ng.launcher.config.load_configs")

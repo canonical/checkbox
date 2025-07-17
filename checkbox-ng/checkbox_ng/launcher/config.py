@@ -45,7 +45,7 @@ class Config:
 
 class Defaults:
     """
-    Prints to stdout a documented default version of the configuration
+    Prints a documented default launcher
     """
 
     @staticmethod
@@ -53,22 +53,29 @@ class Defaults:
         print(
             "# This is every possible section with the default value assigned"
         )
-        print()
         for section_name, section_spec in CONFIG_SPEC:
+            printer = print
             if isinstance(section_spec, ParametricSection):
-                print("[{}:{}_name]".format(section_name, section_name))
+                # lets comment out parametric sections because they don't make
+                # sense if not instantiated to non-default values
+                def printer(*args, **kwargs):
+                    print("#", end="")
+                    print(*args, **kwargs)
+
+                printer("# [{}:{}_name]".format(section_name, section_name))
+
             else:
-                print("[{}]".format(section_name))
+                printer("[{}]".format(section_name))
 
             for key, value in section_spec.items():
                 if not context.args.no_help:
-                    print("# {}".format(value.help))
+                    printer("# {}".format(value.help))
                 if not context.args.no_type_hints:
-                    print("# type: {}".format(value.kind.__name__))
-                print("{} = {}".format(key, value.default))
+                    printer("# type: {}".format(value.kind.__name__))
+                printer("{} = {}".format(key, value.default))
             # also provide an example for dynamic sections assignment
             if isinstance(section_spec, DynamicSection):
-                print("# {}_example = example_value".format(section_name))
+                printer("# {}_example = example_value".format(section_name))
 
     @staticmethod
     def register_arguments(parser):

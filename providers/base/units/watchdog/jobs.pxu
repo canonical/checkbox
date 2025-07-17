@@ -1,35 +1,29 @@
 id: watchdog/detect
 category_id: com.canonical.plainbox::power-management
-_summary: Detect the presence of a Hardware Watchdog
+_summary: Detect presence of a Hardware Watchdog
+_description:
+    Detect the watchdog is under the /sys/class/watchdog/ path and no other type of watchdog
+user: root
 flags: simple
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hardware_watchdog == 'True'
-command: udev_resource.py -f WATCHDOG
-
-id: watchdog/systemd-config
-_summary: Check if the hardware watchdog is properly configured
-template-engine: jinja2
-command: watchdog_config_test.py
-category_id: com.canonical.plainbox::power-management
-flags: simple
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hardware_watchdog == 'True'
+environ: WATCHDOG_TYPE WATCHDOG_IDENTITY
+command:
+    watchdog_test.py detect --module "$WATCHDOG_TYPE" --identity "$WATCHDOG_IDENTITY"
 
 id: watchdog/trigger-system-reset-auto
-depends: watchdog/systemd-config
-_summary: Test that the watchdog module can trigger a system reset
-command:
-  sync
-  sleep 5
-  echo 1 > /proc/sys/kernel/sysrq
-  echo 0 > /proc/sys/kernel/panic
-  echo c > /proc/sysrq-trigger
-flags: preserve-locale noreturn autorestart
 user: root
 plugin: shell
 category_id: com.canonical.plainbox::power-management
+_summary: Test that the watchdog module can trigger a system reset
+flags: noreturn autorestart
 estimated_duration: 60
-_purpose: Ensure that the watchdog module can successfully initiate a system reset.
+depends:
+    watchdog/check-service
+    watchdog/detect
+environ: WATCHDOG_TYPE WATCHDOG_IDENTITY WATCHDOG_TIMEOUT
+command:
+    watchdog_test.py trigger-reset --module "$WATCHDOG_TYPE" --identity "$WATCHDOG_IDENTITY" --log-dir "$PLAINBOX_SESSION_SHARE" --timeout "${WATCHDOG_TIMEOUT:-30}"
 
 id: watchdog/post-trigger-system-reset-auto
 after: watchdog/trigger-system-reset-auto
@@ -39,7 +33,33 @@ _purpose: Check there are no failed services after the watchdog triggered
 unit: job
 user: root
 plugin: shell
-command: failed_service_check.sh
 estimated_duration: 1.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hardware_watchdog == 'True'
+depends:
+    watchdog/trigger-system-reset-auto
+environ: COLD_REBOOT_DELAY
+command: watchdog_test.py post-check --log-dir "$PLAINBOX_SESSION_SHARE" && failed_service_check.sh
+
+id: watchdog/check-timeout
+category_id: com.canonical.plainbox::power-management
+_summary: Check the timeout of Hardware Watchdog
+_description:
+    Check the value of RuntimeWatchdogUSec that shouldn't be 0
+flags: simple
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hardware_watchdog == 'True'
+command: watchdog_config_test.py --check-time
+
+id: watchdog/check-service
+category_id: com.canonical.plainbox::power-management
+_summary: Check the watchdog.service is enabled or not
+_description:
+    Check the state of the watchdog.service. It must be disabled/missing
+    on both classic and core images since 20.04. Else it must be enabled.
+flags: simple
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hardware_watchdog == 'True'
+command: watchdog_config_test.py --check-service

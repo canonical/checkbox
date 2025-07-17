@@ -312,6 +312,57 @@ You can also run a whole test plan using the ``run`` command:
 This will run the Checkbox Base Tutorial test plan, executing all the jobs in
 it and providing a text summary of the test run.
 
+Getting an example launcher
+===========================
+
+It is often hard to track which section, keys and values are allowed in a
+launcher. Sometimes it is also tricky to remember what the defaults are for
+each configuration to decide if it is useful to override it in this case or
+not. Try to run the following command:
+
+.. code-block::
+
+   checkbox.checkbox-cli config defaults
+
+   [launcher]
+   # Version of launcher to use
+   # type: int
+   launcher_version = 1
+   # Identifier of the application
+   # type: str
+   app_id = checkbox-cli
+   # Version of the application
+   # type: str
+   app_version =
+   # List of stock reports to use
+   # type: list
+   stock_reports = ['text', 'certification', 'submission_files']
+   # Send/generate submission report locally when using checkbox remote
+   # type: bool
+   local_submission = True
+   # A title to be applied to the sessions created using this launcher that can be used in report generation
+   # type: str
+   session_title = session title
+   # A string that can be applied to sessions created using this launcher. Useful for storing some contextual infomation about the session
+   # type: str
+   session_desc =
+   [test plan]
+   # Constrain interactive choice to test plans matching this glob
+   # type: list
+   filter = ['*']
+   # Select this test plan by default.
+   # type: str
+   unit =
+   # Don't allow the user to change test plan.
+   # type: bool
+   forced = False
+   [...]
+
+As you can see, this command prints a default launcher you can redirect to a
+file and use out of the box, pre-populated with all the default values and
+comments to explain what each configuration means.
+
+
 Wrapping up
 ===========
 

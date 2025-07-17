@@ -1,0 +1,74 @@
+name: checkbox-gfx
+summary: Checkbox tests for testing graphics
+description: |
+  Collection of tests to be run on devices to test graphics functionality
+version: '1.0'
+confinement: classic
+grade: stable
+
+base: core24
+
+platforms:
+    amd64:
+        build-on: [amd64]
+        build-for: [amd64]
+    arm64:
+        build-on: [amd64, arm64]
+        build-for: [arm64]
+
+# Different apps that can be run by: checkbox-gfx.<app>
+# Map to a script in bin/
+
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+  configure:
+    command-chain: [bin/wrapper_local]
+    command: bin/configure
+  test-vulkan:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-vulkan
+  remote-slave:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper slave
+    daemon: simple
+    restart-condition: always
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+  install-vulkan:
+    command: bin/install-vulkan
+  remove:
+    command: bin/remove
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  checkbox-provider-gfx:
+    plugin: dump
+    source: ./checkbox-provider-gfx
+    source-type: local
+    build-snaps:
+      - checkbox-provider-tools
+      - checkbox24
+    stage-packages:
+      - python3-tinydb
+      - python3-filelock
+    override-build: |
+      for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      checkbox-provider-tools validate
+      checkbox-provider-tools build
+      checkbox-provider-tools install --layout=relocatable --prefix=/providers/checkbox-provider-gfx --root="$SNAPCRAFT_PART_INSTALL"
+  bin:
+    plugin: dump
+    source: bin/
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: config/
+

@@ -1,0 +1,43 @@
+name: "Build Vulkan CTS"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Ubuntu version of the runner'
+        required: true
+        default: 'noble'
+        type: choice
+        options:
+          - jammy
+          - noble
+
+      arch:
+        description: 'Architecture of the runner'
+        required: true
+        default: 'amd64'
+        type: choice
+        options:
+          - amd64
+          - ARM64
+
+jobs:
+  run-install-vulkan:
+    name: "Run install-vulkan to generate CTS binaries"
+    runs-on: [ self-hosted, linux, "${{ inputs.arch }}", "${{ inputs.version}}" ]
+
+    steps:
+      - name: checkout the main repo
+        uses: actions/checkout@v4
+
+      - name: Run install-vulkan
+        shell: bash
+        run: |
+          bin/install-vulkan
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: |
+            /usr/local/checkbox-gfx/*

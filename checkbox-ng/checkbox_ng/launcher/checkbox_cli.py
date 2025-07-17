@@ -41,7 +41,7 @@ from checkbox_ng.launcher.subcommands import (
     TestPlanExport,
     Show,
 )
-from checkbox_ng.launcher.check_config import CheckConfig
+from checkbox_ng.launcher.config import CheckConfig, Config
 from checkbox_ng.launcher.merge_reports import MergeReports
 from checkbox_ng.launcher.merge_submissions import MergeSubmissions
 from checkbox_ng.launcher.controller import RemoteController
@@ -95,6 +95,7 @@ def main():
     import argparse
 
     commands = {
+        "config": Config,
         "check-config": CheckConfig,
         "launcher": Launcher,
         "list": List,

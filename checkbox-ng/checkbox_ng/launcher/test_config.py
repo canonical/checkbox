@@ -19,13 +19,44 @@
 from unittest import TestCase, mock
 from unittest.mock import MagicMock
 
-from checkbox_ng.launcher.check_config import CheckConfig
+from checkbox_ng.launcher.config import CheckConfig, Defaults
 from plainbox.impl.config import Configuration
 
 
+class DefaultsTests(TestCase):
+    @mock.patch("builtins.print")
+    def test_invoked_ok(self, mock_print):
+        ctx_mock = MagicMock()
+        ctx_mock.args.no_help = False
+        ctx_mock.args.no_type_hints = False
+        Defaults.invoked(ctx_mock)
+        self.assertTrue(mock_print.called)
+
+    @mock.patch("builtins.print")
+    def test_invoked_ok_nohelp(self, mock_print):
+        ctx_mock = MagicMock()
+        ctx_mock.args.no_help = True
+        ctx_mock.args.no_type_hints = False
+        Defaults.invoked(ctx_mock)
+        self.assertTrue(mock_print.called)
+
+    @mock.patch("builtins.print")
+    def test_invoked_ok_nohints(self, mock_print):
+        ctx_mock = MagicMock()
+        ctx_mock.args.no_help = False
+        ctx_mock.args.no_type_hints = True
+        Defaults.invoked(ctx_mock)
+        self.assertTrue(mock_print.called)
+
+    def test_register_arguments(self):
+        parser_mock = MagicMock()
+        Defaults.register_arguments(parser_mock)
+
+        self.assertTrue(parser_mock.add_argument)
+
 class CheckConfigTests(TestCase):
     @mock.patch("builtins.print")
-    @mock.patch("checkbox_ng.launcher.check_config.load_configs")
+    @mock.patch("checkbox_ng.launcher.config.load_configs")
     def test_invoked_ok(self, mock_load_configs, mock_print):
         args_mock = MagicMock()
         args_mock.args.launcher = None
@@ -39,7 +70,7 @@ class CheckConfigTests(TestCase):
         self.assertEqual(ret_val, 0)
 
     @mock.patch("builtins.print")
-    @mock.patch("checkbox_ng.launcher.check_config.load_configs")
+    @mock.patch("checkbox_ng.launcher.config.load_configs")
     def test_invoked_has_problems(self, mock_load_configs, mock_print):
         args_mock = MagicMock()
         args_mock.args.launcher = None
@@ -56,8 +87,7 @@ class CheckConfigTests(TestCase):
         self.assertEqual(ret_val, 1)
 
     def test_register_arguments(self):
-        self_mock = MagicMock()
         parser_mock = MagicMock()
-        CheckConfig.register_arguments(self_mock, parser_mock)
+        CheckConfig.register_arguments(parser_mock)
 
         self.assertTrue(parser_mock.add_argument.called)

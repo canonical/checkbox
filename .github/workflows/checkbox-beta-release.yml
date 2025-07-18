@@ -57,9 +57,7 @@ jobs:
           persist-credentials: false
       - name: Copy deb packages from edge to beta ppa
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
-          CHECKBOX_REPO: ${{ github.repository }}
         run: |
           tools/release/lp_copy_packages.py checkbox-dev edge checkbox-dev beta
 

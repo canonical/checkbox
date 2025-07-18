@@ -276,13 +276,11 @@ class MonitorConfigGnome(MonitorConfig):
         """
 
         state = self.get_current_state()
-        resolution_map = {}  # type: dict[str, str]
-
-        for monitor in state.physical_monitors:
-            for mode in monitor.modes:
-                if mode.is_current:
-                    resolution_map[monitor.info.connector] = mode.resolution
-        return resolution_map
+        return {
+            monitor.info.connector: mode.resolution
+            for monitor in state.physical_monitors
+            for mode in monitor.modes
+        }
 
     def set_extended_mode(self) -> Dict[str, str]:
         """
@@ -348,18 +346,21 @@ class MonitorConfigGnome(MonitorConfig):
         """Automatically cycle through the supported monitor configurations.
 
         :param cycle_resolutions: cycle through all resolutions if True
+
         :param cycle_transforms: cycle through all transforms/rotations if True
+
         :param resolution_filter:
             A function that selects the resolutions to cycle
             See the ResolutionFilter type for the input/output types
+
         :param post_cycle_action:
             A function to call after a cycle has finished. The first argument
             to this function is always a string of the form
 
             [monitor name]_[resolution]_[transform]_
 
-            A delay is needed inside this
-            callback to wait the monitors to response
+            A delay is needed inside this callback to wait for the monitors
+            to respond
 
         :param post_cycle_action_kwargs:
             The keyword args for post_cycle_action
@@ -419,15 +420,13 @@ class MonitorConfigGnome(MonitorConfig):
                     )
 
                     print(
-                        "Setting",
-                        connector,
-                        "to mode:",
-                        mode.id,
-                        "transform:",
-                        transformation_str,
+                        "Setting {} to mode: {} transform: {}".format(
+                            connector, mode.id, transformation_str
+                        ),
+                        # checkbox runtime might buffer this,
+                        # force a flush here so it doesn't look frozen
                         flush=True,
-                    )  # checkbox runtime might buffer this,
-                    # force a flush here so it doesn't look frozen
+                    )
 
                     x_offset = (
                         mode.height

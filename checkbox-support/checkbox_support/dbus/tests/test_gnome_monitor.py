@@ -272,7 +272,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         }
         self.assertDictEqual(configuration, expected)
 
-    @patch("time.sleep")
+    @patch("checkbox_support.dbus.gnome_monitor.sleep")
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_cycle(self, mock_dbus_proxy: MagicMock, _):
         """
@@ -362,7 +362,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             cancellable=None,
         )
 
-    @patch("time.sleep")
+    @patch("checkbox_support.dbus.gnome_monitor.sleep")
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_cycle_no_cycling(self, mock_dbus_proxy: MagicMock, _):
         """

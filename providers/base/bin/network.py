@@ -210,7 +210,7 @@ class IPerfPerformanceTest(object):
         """Extract a list of CPU cores from a line of the form:
         NUMA node# CPU(s):    a-b[,c-d[,...]]"""
         colon = line.find(":")
-        cpu_list = line[colon + 1:]
+        cpu_list = line[colon + 1 :]
         core_list = []
         for core_range in cpu_list.split(","):
             # Skip it if the CPU list for the NUMA node is empty....

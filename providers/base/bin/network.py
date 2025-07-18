@@ -213,6 +213,11 @@ class IPerfPerformanceTest(object):
         cpu_list = line[colon + 1 :]
         core_list = []
         for core_range in cpu_list.split(","):
+            # Skip it if the CPU list for the NUMA node is empty....
+            core_range = core_range.strip()
+            if not core_range:
+                logging.error("Empty core range in line: %s", line)
+                continue
             # core_range should be of the form "a-b" or "a"
             range_list = core_range.split("-")
             if len(range_list) > 1:

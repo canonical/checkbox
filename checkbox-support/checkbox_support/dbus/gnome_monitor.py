@@ -448,6 +448,7 @@ class MonitorConfigGnome(MonitorConfig):
             if not cycle_resolutions:
                 break
         # change back to preferred monitor configuration
+        print("Finished cycling! Going back to extended mode")
         self.set_extended_mode()
 
     def get_current_state(self) -> MutterDisplayConfig:

@@ -25,6 +25,23 @@ import network
 
 
 class IPerfPerfomanceTestTests(unittest.TestCase):
+    def test_extract_core_list_single(self):
+        """Tests parsing a NUMA node CPUs list with a single CPU."""
+        line = "NUMA node0 CPU(s): 0"
+        core_list = network.IPerfPerformanceTest.extract_core_list(None, line)
+        self.assertListEqual(core_list, [0])
+
+    def test_extract_core_list_range(self):
+        """Tests parsing a NUMA node CPUs list."""
+        line = "NUMA node0 CPU(s): 0-2"
+        core_list = network.IPerfPerformanceTest.extract_core_list(None, line)
+        self.assertListEqual(core_list, [0, 1, 2])
+
+    def test_extract_core_list_empty(self):
+        """Tests that parsing an empty NUMA node CPUs does not crash."""
+        line = "NUMA node0 CPU(s):"
+        core_list = network.IPerfPerformanceTest.extract_core_list(None, line)
+        self.assertListEqual(core_list, [])
 
     def test_find_numa_reports_node(self):
         with patch("builtins.open", mock_open(read_data="1")) as mo:

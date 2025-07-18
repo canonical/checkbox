@@ -517,7 +517,3 @@ class MonitorConfigGnome(MonitorConfig):
             timeout_msec=-1,
             cancellable=None,
         )
-
-
-mg = MonitorConfigGnome()
-mg.cycle()

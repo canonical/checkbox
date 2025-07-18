@@ -7,7 +7,6 @@ sys.modules["dbus"] = MagicMock()
 sys.modules["dbus.mainloop.glib"] = MagicMock()
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
-sys.modules["time"] = MagicMock()
 
 from gi.repository import GLib, Gio  # type: ignore
 from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
@@ -273,9 +272,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         }
         self.assertDictEqual(configuration, expected)
 
+    @patch("time.sleep")
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_cycle(self, mock_dbus_proxy: MagicMock):
-        print("testcycle", flush=True)
+    def test_cycle(self, mock_dbus_proxy: MagicMock, _):
         """
         Test the cycle could get the right monitors configuration
         and send to ApplyMonitorsConfig.
@@ -363,9 +362,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             cancellable=None,
         )
 
+    @patch("time.sleep")
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_cycle_no_cycling(self, mock_dbus_proxy: MagicMock):
-        print("nocycling", flush=True)
+    def test_cycle_no_cycling(self, mock_dbus_proxy: MagicMock, _):
         """
         Test the cycle could get the right monitors configuration
         (without res and transform change) and send to ApplyMonitorsConfig.

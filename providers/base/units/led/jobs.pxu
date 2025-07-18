@@ -191,7 +191,8 @@ _description:
 _purpose:
     Audio Mute LED verification.
 _steps:
-    1. Press the Mute key twice and observe the Audio LED to determine if it
+    1. Change to internal speaker
+    2. Press the Mute key twice and observe the Audio LED to determine if it
     either turned off and on or changed colors.
 _verification:
     Did the Audio LED turn on and off or change color as expected?
@@ -210,7 +211,8 @@ _description:
 _purpose:
     Microphone Mute LED verification.
 _steps:
-    1. Press the Microphone Mute key twice and observe the Microphone LED to
+    1. Change to internal microphone
+    2. Press the Microphone Mute key twice and observe the Microphone LED to
     determine if it either turned off and on or changed colors.
 _verification:
     Did the Microphone Mute LED turn on and off or change color as expected?

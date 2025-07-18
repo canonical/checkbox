@@ -25,6 +25,7 @@ Original script that inspired this class:
 import itertools
 from collections import OrderedDict
 from enum import IntEnum
+from time import sleep
 from typing import (
     Any,
     Callable,
@@ -340,8 +341,8 @@ class MonitorConfigGnome(MonitorConfig):
         cycle_resolutions: bool = True,
         cycle_transforms: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
-        post_cycle_action: Optional[Callable[..., Any]] = None,
-        **post_cycle_action_kwargs
+        post_cycle_action: Callable[..., Any] = lambda *a, **k: sleep(5),
+        **post_cycle_action_kwargs: Any
     ):
         """Automatically cycle through the supported monitor configurations.
 
@@ -359,8 +360,8 @@ class MonitorConfigGnome(MonitorConfig):
 
             [monitor name]_[resolution]_[transform]_
 
-            A delay is needed inside this callback to wait for the monitors
-            to respond
+            !! If specified, a delay MUST be introduced needed inside this
+            callback to wait for the monitors to respond !!
 
         :param post_cycle_action_kwargs:
             The keyword args for post_cycle_action
@@ -516,3 +517,7 @@ class MonitorConfigGnome(MonitorConfig):
             timeout_msec=-1,
             cancellable=None,
         )
+
+
+mg = MonitorConfigGnome()
+mg.cycle()

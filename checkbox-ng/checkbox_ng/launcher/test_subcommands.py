@@ -43,6 +43,7 @@ from checkbox_ng.launcher.subcommands import (
     get_testplan_id_by_id,
     print_objs,
 )
+from checkbox_ng.urwid_ui import ManifestBrowser
 
 
 class TestSharedFunctions(TestCase):
@@ -779,6 +780,119 @@ class TestLauncher(TestCase):
         load_config_mock.return_value.get_value.return_value = "normal"
 
         Launcher.invoked(self_mock, ctx_mock)
+
+    def test__save_manifest_no_or_empty_manifest_repr(self):
+        launcher = Launcher()
+        ctx_mock = MagicMock()
+        launcher.ctx = ctx_mock
+
+        cases = [
+            ("None", None),
+            ("Empty", {}),
+        ]
+
+        for case_name, manifest_repr in cases:
+            with self.subTest(case=case_name):
+                ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+                launcher._save_manifest(interactive=True)
+                self.assertEqual(ctx_mock.sa.save_manifest.call_count, 0)
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_interactive_with_visible_manifests(
+        self, mock_browser_class
+    ):
+
+        launcher = Launcher()
+        ctx_mock = MagicMock()
+        launcher.ctx = ctx_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "visible1", "value": "default1", "hidden": False},
+                {"id": "visible2", "value": "default2", "hidden": False},
+            ]
+        }
+        ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+
+        mock_browser = MagicMock()
+        mock_browser.run.return_value = {
+            "visible1": "user_value1",
+            "visible2": "user_value2",
+        }
+        mock_browser_class.return_value = mock_browser
+        mock_browser_class.has_visible_manifests.return_value = True
+
+        launcher._save_manifest(interactive=True)
+
+        self.assertEqual(mock_browser.run.call_count, 1)
+        self.assertEqual(ctx_mock.sa.save_manifest.call_count, 1)
+        ctx_mock.sa.save_manifest.assert_called_with(
+            {"visible1": "user_value1", "visible2": "user_value2"}
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_interactive_no_visible_manifests(
+        self, mock_browser_class
+    ):
+        launcher = Launcher()
+        ctx_mock = MagicMock()
+        launcher.ctx = ctx_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "hidden1", "value": "default1", "hidden": True},
+                {"id": "hidden2", "value": "default2", "hidden": True},
+            ]
+        }
+        ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+        mock_browser_class.has_visible_manifests.return_value = False
+        mock_browser_class.get_default_values.return_value = {
+            "hidden1": "default1",
+            "hidden2": "default2",
+        }
+
+        launcher._save_manifest(interactive=True)
+
+        self.assertEqual(mock_browser_class.call_count, 0)
+        self.assertEqual(
+            mock_browser_class.has_visible_manifests.call_count, 1
+        )
+        self.assertEqual(mock_browser_class.get_default_values.call_count, 1)
+        self.assertEqual(ctx_mock.sa.save_manifest.call_count, 1)
+        ctx_mock.sa.save_manifest.assert_called_with(
+            {"hidden1": "default1", "hidden2": "default2"}
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_non_interactive(self, mock_browser_class):
+        launcher = Launcher()
+        ctx_mock = MagicMock()
+        launcher.ctx = ctx_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "manifest1", "value": "default1", "hidden": False},
+                {"id": "manifest2", "value": "default2", "hidden": True},
+            ]
+        }
+        ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+        mock_browser_class.get_default_values.return_value = {
+            "manifest1": "default1",
+            "manifest2": "default2",
+        }
+
+        launcher._save_manifest(interactive=False)
+
+        self.assertEqual(mock_browser_class.call_count, 0)
+        self.assertEqual(
+            mock_browser_class.has_visible_manifests.call_count, 0
+        )
+        self.assertEqual(mock_browser_class.get_default_values.call_count, 1)
+        mock_browser_class.get_default_values.assert_called_with(manifest_repr)
+        self.assertEqual(ctx_mock.sa.save_manifest.call_count, 1)
+        ctx_mock.sa.save_manifest.assert_called_with(
+            {"manifest1": "default1", "manifest2": "default2"}
+        )
 
 
 @patch("os.makedirs", new=MagicMock())

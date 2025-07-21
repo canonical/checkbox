@@ -89,7 +89,7 @@ def check_interface_vendor(interface):
 
         logging.info("The interface %s is a(n) %s NIC", interface, vendor_name)
 
-    except (FileNotFoundError, ValueError, NotImplementedError) as e:
+    except Exception as e:
         logging.info("An error occurred: {}".format(e))
         sys.exit(1)
 

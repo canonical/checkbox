@@ -45,7 +45,9 @@ class TestSriovFunctions(TestCase):
             "Error checking Ubuntu version: Ubuntu 24.04 or greater is required,                              but found 22.04."
         )
 
-    @patch("sriov.get_release_to_test", side_effect=Exception("Mocked exception"))
+    @patch(
+        "sriov.get_release_to_test", side_effect=Exception("Mocked exception")
+    )
     @patch("logging.error")
     def test_check_ubuntu_version_exception(
         self, mock_logging, mock_get_release
@@ -53,7 +55,9 @@ class TestSriovFunctions(TestCase):
         sriov.check_ubuntu_version()
 
         # Verify that the exception was logged
-        mock_logging.assert_any_call("Error checking Ubuntu version: Mocked exception")
+        mock_logging.assert_any_call(
+            "Error checking Ubuntu version: Mocked exception"
+        )
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data="0x8086")
@@ -62,7 +66,9 @@ class TestSriovFunctions(TestCase):
         self, mock_logging, mock_open, mock_exists
     ):
         sriov.check_interface_vendor("eth0")
-        mock_logging.assert_called_with("The interface %s is a(n) %s NIC", "eth0", "Intel")
+        mock_logging.assert_called_with(
+            "The interface %s is a(n) %s NIC", "eth0", "Intel"
+        )
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data="0x15b3")
@@ -234,11 +240,16 @@ class TestSriovFunctions(TestCase):
 
     @patch("os.path.exists", return_value=False)
     @patch("sys.exit")
-    def test_check_interface_vendor_file_not_exists(self, mock_exit, mock_exists):
+    def test_check_interface_vendor_file_not_exists(
+        self, mock_exit, mock_exists
+    ):
         with self.assertLogs(level="INFO") as log:
             sriov.check_interface_vendor("eth0")
         mock_exit.assert_called_once_with(1)
-        self.assertIn("An error occurred: Vendor ID path /sys/class/net/eth0/device/vendor not found", log.output[0])
+        self.assertIn(
+            "An error occurred: Vendor ID path /sys/class/net/eth0/device/vendor not found",
+            log.output[0],
+        )
 
     @patch("os.path.exists", return_value=False)
     @patch("sys.exit")
@@ -246,7 +257,10 @@ class TestSriovFunctions(TestCase):
         with self.assertLogs(level="INFO") as log:
             sriov.is_sriov_capable("eth0")
         mock_exit.assert_called_once_with(1)
-        self.assertIn("Failed to enable SR-IOV on eth0: SR-IOV not supported or interface eth0 does not exist.", log.output[1])
+        self.assertIn(
+            "Failed to enable SR-IOV on eth0: SR-IOV not supported or interface eth0 does not exist.",
+            log.output[1],
+        )
 
     def test_get_release_to_test_distro(self):
         with patch("distro.id", return_value="ubuntu"):
@@ -264,16 +278,19 @@ class TestSriovFunctions(TestCase):
         with patch("builtins.__import__") as mock_import:
             # Mock lsb_release module
             mock_lsb_release = MagicMock()
-            mock_lsb_release.get_distro_information.return_value = {"RELEASE": "24.04"}
-            
+            mock_lsb_release.get_distro_information.return_value = {
+                "RELEASE": "24.04"
+            }
+
             def side_effect(name, *args):
                 if name == "distro":
                     raise ImportError("No module named 'distro'")
                 elif name == "lsb_release":
                     return mock_lsb_release
                 return __import__(name, *args)
+
             mock_import.side_effect = side_effect
-            
+
             result = sriov.get_release_to_test()
             self.assertEqual(result, "24.04")
             mock_lsb_release.get_distro_information.assert_called_once()

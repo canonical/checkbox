@@ -43,7 +43,7 @@ def get_release_to_test():
         if distro.id() == "ubuntu-core":
             return "{}.04".format(distro.version())
         return distro.version()
-    except (ImportError):
+    except ImportError:
         import lsb_release
 
         return lsb_release.get_distro_information()["RELEASE"]
@@ -55,8 +55,12 @@ def check_ubuntu_version():
         version = get_release_to_test()
 
         if float(version) < 24.04:
-            raise ValueError("Ubuntu 24.04 or greater is required, \
-                             but found {}.".format(version))
+            raise ValueError(
+                "Ubuntu 24.04 or greater is required, \
+                             but found {}.".format(
+                    version
+                )
+            )
         else:
             logging.info("The system is 24.04 or greater, proceed")
 
@@ -73,19 +77,22 @@ def check_interface_vendor(interface):
     try:
         if not os.path.exists(vendor_id_path):
             raise FileNotFoundError(
-                "Vendor ID path {} not found".format(vendor_id_path))
+                "Vendor ID path {} not found".format(vendor_id_path)
+            )
 
         with open(vendor_id_path, "r", encoding="utf-8") as file:
             vendor_id = file.read().strip()
 
         if vendor_id not in VENDOR_INFO:
-            raise ValueError("{} has an unknown vendor ID {}".
-                             format(interface, vendor_id))
+            raise ValueError(
+                "{} has an unknown vendor ID {}".format(interface, vendor_id)
+            )
 
         vendor_name = VENDOR_INFO[vendor_id]
         if vendor_name == "Broadcom":
             raise NotImplementedError(
-                "Broadcom SRIOV testing is not supported at this time")
+                "Broadcom SRIOV testing is not supported at this time"
+            )
 
         logging.info("The interface %s is a(n) %s NIC", interface, vendor_name)
 
@@ -112,8 +119,11 @@ def is_sriov_capable(interface):
                 )
             )
         else:
-            logging.info("SR-IOV before change {} VFs on interface {}."
-                         .format(num_vfs, interface))
+            logging.info(
+                "SR-IOV before change {} VFs on interface {}.".format(
+                    num_vfs, interface
+                )
+            )
             # First, disable VFs before changing the number to avoid issues
             logging.info("Setting numvfs to zero")
             with open(sriov_path, "w", encoding="utf-8") as f:

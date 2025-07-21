@@ -10,9 +10,9 @@ nested_part:
 
 id: after-suspend-thunderbolt-cert-full
 unit: test plan
-_name: Thunderbolt tests
+_name: Thunderbolt tests (after suspend)
 _description:
- Thunderbolt tests
+ Thunderbolt tests after suspend
 include:
 nested_part:
  com.canonical.certification::after-suspend-thunderbolt-cert-manual

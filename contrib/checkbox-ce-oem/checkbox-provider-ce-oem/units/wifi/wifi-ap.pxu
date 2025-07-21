@@ -48,6 +48,7 @@ requires:
   net_if_management.master_mode_managed_by == 'NetworkManager'
   manifest.has_wifi_ap_host == 'True'
 estimated_duration: 120.0
+user: root
 flags: preserve-locale also-after-suspend
 command:
    wifi_test.py --interface {interface} --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
@@ -73,6 +74,7 @@ requires:
   net_if_management.master_mode_managed_by == 'NetworkManager'
   manifest.has_wifi_ap_host == 'True'
 estimated_duration: 120.0
+user: root
 flags: preserve-locale also-after-suspend
 command:
    wifi_test.py --interface {interface} --host-ip "$WIFI_AP_HOST_DEVICE_IP" \

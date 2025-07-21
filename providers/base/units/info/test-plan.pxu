@@ -32,6 +32,7 @@ include:
  dmesg_attachment
  dmi_attachment
  dmidecode_attachment
+ dpkg_attachment
  efi_attachment
  info/buildstamp
  info/disk_partitions
@@ -69,6 +70,7 @@ include:
  dmesg_attachment
  dmi_attachment
  dmidecode_attachment
+ dpkg_attachment
  efi_attachment
  info/buildstamp
  info/disk_partitions

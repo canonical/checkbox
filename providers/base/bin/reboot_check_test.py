@@ -27,9 +27,16 @@ def get_timestamp_str() -> str:
         # take the 1st one
         uptime_seconds = f.readline().split()[0]
 
-    return "Time: {}; Uptime: {} seconds ".format(
+    return "Time: {}; Uptime: {} seconds".format(
         datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), uptime_seconds
     )
+
+
+def get_current_boot_id() -> str:
+    with open("/proc/sys/kernel/random/boot_id", "r") as f:
+        # the boot_id file has a Version 4 UUID with hypens
+        # journalctl doesn't use hypens so we just remove it
+        return f.read().strip().replace("-", "")
 
 
 class DeviceInfoCollector:
@@ -330,13 +337,14 @@ class HardwareRendererTester:
                     ],
                     stdout=sp.DEVNULL,
                     stderr=sp.DEVNULL,
-                    timeout=min(5, max_wait_seconds),
+                    timeout=min(10, max_wait_seconds),
                 )
                 if out.returncode == 0:
                     return True
                 else:
                     time.sleep(1)
             except sp.TimeoutExpired:
+                print("systemd-analyze timed out!")
                 return False
 
         return False
@@ -470,7 +478,11 @@ def main() -> int:
     renderer_test_passed = True
     service_check_passed = True
 
-    print("Starting reboot checks. {}".format(get_timestamp_str()))
+    print(
+        "Starting reboot checks. {}. Boot ID: {}".format(
+            get_timestamp_str(), get_current_boot_id()
+        )
+    )
 
     if args.comparison_directory is not None:
         if args.output_directory is None:

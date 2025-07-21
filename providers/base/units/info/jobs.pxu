@@ -52,6 +52,16 @@ estimated_duration: 0.030
 _description: Attaches dmidecode output
 _summary: Attach output of dmidecode
 
+id: dpkg_attachment
+plugin: attachment
+category_id: com.canonical.plainbox::info
+requires:
+  executable.name == 'dpkg'
+command: dpkg -l
+estimated_duration: 2.0
+_summary: Attach dpkg -l output
+_purpose: Attach system debian packages status
+
 id: lshw_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
@@ -496,7 +506,6 @@ estimated_duration: 0.005
 _purpose: Checks the value of the CONFIG_INTEL_IOMMU_DEFAULT_ON flag in the kernel configuration
 _summary: Check if the kernel is compiled with IOMMU support
 
-
 plugin: shell
 category_id: com.canonical.plainbox::info
 id: info/systemd-analyze
@@ -566,8 +575,10 @@ id: info/secure-boot-check
 plugin: attachment
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.2
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'mokutil'
+ manifest.has_secure_boot == 'True'
 command:
  mokutil --sb-state || true
 _summary: Check secure boot state

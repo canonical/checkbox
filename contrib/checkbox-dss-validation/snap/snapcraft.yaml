@@ -14,20 +14,16 @@ base: core22
 # checkbox-cli:
 #   - checkbox client, can be used to talk to the checkbox daemon
 # configure:
-#   - inject environment variable into checkbox snap environnement
+#   - inject environment variable into checkbox snap environment
 #     the variable initial list can be found in config/config_vars
 #     use configure -l to get the list of the current variables
 #     For example, a useful use case is to inject environment variable
 #     to enable debugging output (LIBVA_MESSAGING_LEVEL)
 # remote-slave:
-#   - checkbox slave daemon that will the responsible for running the test sesssion
+#   - checkbox slave daemon that will the responsible for running the test session
 #     in the remote fashion (through checkbox-cli)
 # shell:
 #   - give shell access to the provider snap
-# install-full-deps:
-#   - install all depedencies needed for provider jobs
-# regression-testing:
-#   - Run the OpenCL regression test suite
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
@@ -35,9 +31,6 @@ apps:
   configure:
     command-chain: [bin/wrapper_local]
     command: bin/configure
-  validate-with-gpu:
-    command-chain: [bin/wrapper_local]
-    command: bin/validate-with-gpu
   remote-slave:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper slave
@@ -46,8 +39,6 @@ apps:
   shell:
     command-chain: [bin/wrapper_local]
     command: bin/shell-wrapper
-  install-deps:
-    command: bin/install-deps
   remove-deps:
     command: bin/remove-deps
 

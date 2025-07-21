@@ -24,7 +24,7 @@ import graphics_card_resource
 
 class GraphicsCardResourceTests(unittest.TestCase):
 
-    @patch("os_resource.get_release_info")
+    @patch("graphics_card_resource.get_release_info")
     def test_compare_ubuntu_release_version(self, mock_release_info):
         mock_release_info.return_value = {"release": "24.04"}
         result = graphics_card_resource.compare_ubuntu_release_version("22.04")
@@ -38,7 +38,7 @@ class GraphicsCardResourceTests(unittest.TestCase):
         "packaging.version.parse",
         side_effect=ImportError("Cannot import version"),
     )
-    @patch("os_resource.get_release_info")
+    @patch("graphics_card_resource.get_release_info")
     def test_compare_ubuntu_release_version_with_import_error(
         self, mock_release_info, mock_version
     ):

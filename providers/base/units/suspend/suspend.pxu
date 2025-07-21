@@ -10,6 +10,7 @@ user: root
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/resolution_before_suspend
+before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
 command: xrandr -q | grep "[*]" | awk '{print $1}' > "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt
@@ -22,6 +23,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_before_suspend_{product_slug}
 template-id: suspend/index_resolution_before_suspend_product_slug
 depends: graphics/{index}_switch_card_{product_slug}
+before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
 command: xrandr -q | grep "[*]" | awk '{{print $1}}' > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
@@ -454,7 +456,7 @@ _purpose: Verify that mixer settings after suspend are the same as before suspen
 command:
   if check_audio_daemon.sh ; then
       wpctl status > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
-      pipewire_utils.py compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+      checkbox-support-pipewire-utils compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
       audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
       diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
@@ -475,7 +477,7 @@ _purpose: Verify that mixer settings after suspend are the same as before suspen
 command:
   if check_audio_daemon.sh ; then
     wpctl status > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
-    pipewire_utils.py compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+    checkbox-support-pipewire-utils compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
     diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
@@ -1709,3 +1711,32 @@ command:
  [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log
 _purpose: Attaches the FWTS oops results log to the submission after suspend
 _summary: Attach FWTS oops results log post-suspend.
+
+id: suspend/validate_suspend_status
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+depends: suspend/suspend_advanced_auto
+estimated_duration: 5s
+user: root
+command: suspend_stats.py after_suspend
+summary:
+    Tests that the machine suspended correctly
+description:
+    Query sysfs and debugfs for the amount of times the system was suspended.
+    We expect the count in /sys/power/suspend_stats/success
+    and suscess in /sys/kernel/debugfs/suspend_stats to be non zero
+
+id: suspend/any_suspend_failure
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+depends: suspend/suspend_advanced_auto
+estimated_duration: 5s
+user: root
+command: suspend_stats.py any_failure
+summary:
+    Tests if any device in this machine reports a suspend failure
+description:
+    If the DUT suspended successfully, /sys/power/suspend_stats/fail*
+    and fail* in /sys/kernel/debug/suspend_stats will be zero.
+    If a device failed /sys/power/suspend_stats/last_failed_dev
+    and last_failed_dev in /sys/kernel/debug/suspend_stats will show the failed device

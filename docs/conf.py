@@ -81,6 +81,7 @@ source_suffix = {
 linkcheck_ignore = [
     "http://127.0.0.1:8000",
     "https://github.com/canonical/hwcert-jenkins-jobs",
+    "https://www.gnu.org/licenses",
 ]
 
 # -- Options for HTML output -------------------------------------------------

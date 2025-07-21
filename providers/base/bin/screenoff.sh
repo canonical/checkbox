@@ -36,7 +36,7 @@ do
     fi
 done </proc/bus/input/devices
 
-if [ $keyboard -eq 0 ]; then
+if [ "$keyboard" -eq 0 ]; then
     echo "Can't find keyboard to simulate lock screen"
     exit 1
 fi

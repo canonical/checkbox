@@ -85,7 +85,7 @@ INPUT_SYSFS_ID = re.compile(r"/input/input\d+$")
 OPENFIRMWARE_RE = re.compile(
     r"^of:" r"N(?P<name>.*?)" r"T(?P<type>.*?)" r"C(?P<compatible>.*?)"
 )
-CARD_READER_RE = re.compile(r"SD|MMC|CF|MS(?!ata)|SM|xD|Card", re.I)
+CARD_READER_RE = re.compile(r"SD|MMC|CF|MS(?!ata)|xD|Card", re.I)
 GENERIC_RE = re.compile(r"Generic", re.I)
 FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
@@ -447,6 +447,7 @@ class UdevadmDevice(object):
             # As it's not possible to distinguish them from simple MMC
             # removable storage, only those with a partition mounted as /
             # will be considered.
+
             if self.driver.startswith("mmc"):
                 if self._mmc_type == "MMC" and find_pkname_is_root_mountpoint(
                     self.name, self._lsblk

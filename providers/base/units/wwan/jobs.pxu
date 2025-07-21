@@ -16,7 +16,9 @@ plugin: shell
 user: root
 command:
   COUNT=$(wwan_tests.py count)
+  echo "Number of WWAN modems found: $COUNT"
   if [ "$COUNT" -eq 0 ]; then
+    echo "This device should have at least one WWAN modem, none found!"
     exit 1
   fi
 estimated_duration: 2.0

@@ -50,18 +50,15 @@ _description:
     This is to allow template jobs to then be instantiated.
     TYPE:NODE:BAUDRATE
     SERIAL_PORTS="RS485:/dev/ttyS0:9600 RS485:/dev/ttyS1:9600 RS232:/dev/ttyS2:115200"
-    For RS485 specific configuration:
-    NODE:rts_level_for_tx{True|False}:rts_level_for_rx{True|False}:delay_before_tx{float}:delay_before_rx{float}
-    RS485_CONFIG="/dev/ttySC0:True:False:0.0:0.0"
 plugin: resource
 estimated_duration: 1.0
 environ:
-    SERIAL_PORTS RS485_CONFIG
+    SERIAL_PORTS
 command:
     if [ -z "$SERIAL_PORTS" ]; then
         exit 0
     fi
-    serial_config_parser.py "$SERIAL_PORTS" --rs485-conf "$RS485_CONFIG"
+    serial_config_parser.py "$SERIAL_PORTS"
 
 unit: template
 template-resource: ce-oem-serial/serial-list
@@ -84,10 +81,11 @@ user: root
 category_id: com.canonical.certification::serial
 estimated_duration: 30
 flags: also-after-suspend
+environ: RS485_CONFIG
 command:
     # shellcheck disable=SC2050
     if [ {{ type }} == "RS485" ]; then
-        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }} --rts-level-for-tx {{ rts_level_for_tx }} --rts-level-for-rx {{ rts_level_for_rx }} --rts-delay-before-tx {{ delay_before_tx }} --rts-delay-before-rx {{ delay_before_rx }}
+        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}  --rs485-config "$RS485_CONFIG"
     else
         serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}
     fi

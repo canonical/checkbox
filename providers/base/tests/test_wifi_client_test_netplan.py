@@ -24,6 +24,7 @@ import subprocess as sp
 import io
 import sys
 from unittest.mock import call
+
 from wifi_client_test_netplan import (
     netplan_renderer,
     check_and_get_renderer,
@@ -450,28 +451,28 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch("subprocess.check_output")
     def test_networkd_routable(self, mock_check_output):
-        mock_check_output.return_value = b"State: routable"
+        mock_check_output.return_value = "State: routable"
         routable, state = _check_routable_state("wlan0", "networkd")
         self.assertTrue(routable)
         self.assertIn("routable", state)
 
     @patch("subprocess.check_output")
     def test_networkd_not_routable(self, mock_check_output):
-        mock_check_output.return_value = b"State: degraded"
+        mock_check_output.return_value = "State: degraded"
         routable, state = _check_routable_state("wlan0", "networkd")
         self.assertFalse(routable)
         self.assertIn("degraded", state)
 
     @patch("subprocess.check_output")
     def test_networkmanager_connected(self, mock_check_output):
-        mock_check_output.return_value = b"GENERAL.STATE: 100 (connected)"
+        mock_check_output.return_value = "GENERAL.STATE: 100 (connected)"
         routable, state = _check_routable_state("wlan0", "NetworkManager")
         self.assertTrue(routable)
         self.assertIn("connected", state)
 
     @patch("subprocess.check_output")
     def test_networkmanager_not_connected(self, mock_check_output):
-        mock_check_output.return_value = b"GENERAL.STATE: 30 (disconnected)"
+        mock_check_output.return_value = "GENERAL.STATE: 30 (disconnected)"
         routable, state = _check_routable_state("wlan0", "NetworkManager")
         self.assertFalse(routable)
         self.assertIn("disconnected", state)
@@ -483,7 +484,7 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nGateway: 192.168.1.1\nPath: pci-0000:02:00.0"
+            "State: routable\nGateway: 192.168.1.1\nPath: pci-0000:02:00.0"
         )
         interface = "wlan0"
         renderer = "networkd"
@@ -494,8 +495,8 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_any_name(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nGateway: 192.168.1.1 (TP-Link 123)\n"
-            b"Path: pci-0000:02:00.0"
+            "State: routable\nGateway: 192.168.1.1 (TP-Link 123)\n"
+            "Path: pci-0000:02:00.0"
         )
         interface = "wlan0"
         renderer = "networkd"
@@ -506,7 +507,7 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_no_state(self, mock_check_output):
         mock_check_output.return_value = (
-            b"Some other info: value\nsome more info"
+            "Some other info: value\nsome more info"
         )
         interface = "wlan0"
         renderer = "networkd"
@@ -516,7 +517,7 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_empty_output(self, mock_check_output):
-        mock_check_output.return_value = b""
+        mock_check_output.return_value = ""
         interface = "wlan0"
         renderer = "networkd"
         info = get_interface_info(interface, renderer)
@@ -537,9 +538,9 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkmanager(self, mock_check_output):
         mock_check_output.return_value = (
-            b"GENERAL.MTU:                            1500\n"
-            b"GENERAL.STATE:                          100 (connected)\n"
-            b"IP4.GATEWAY:                            192.168.1.1"
+            "GENERAL.MTU:                            1500\n"
+            "GENERAL.STATE:                          100 (connected)\n"
+            "IP4.GATEWAY:                            192.168.1.1"
         )
         interface = "wlan0"
         renderer = "NetworkManager"
@@ -551,7 +552,7 @@ class WifiClientTestNetplanTests(TestCase):
     def test_get_interface_info_networkmanager_unexpected_output(
         self, mock_check_output
     ):
-        mock_check_output.return_value = b"some unexpected output"
+        mock_check_output.return_value = "some unexpected output"
         interface = "wlan0"
         renderer = "NetworkManager"
         info = get_interface_info(interface, renderer)
@@ -822,7 +823,6 @@ class TestMain(TestCase):
         mock_renderer.return_value = "networkd"
         mock_wait_routable.return_value = True
         mock_ping.return_value = True
-        mock_apply.return_value = True
 
         # Execute
         main()
@@ -839,7 +839,7 @@ class TestMain(TestCase):
         mock_print_address.assert_called_once_with("wlan0")
         self.assertEqual(mock_print_route.call_count, 1)
         mock_ping.assert_called_once_with("wlan0", "networkd")
-        self.assertEqual(mock_delete.call_count, 1)
+        self.assertEqual(mock_delete.call_count, 2)
         self.assertEqual(mock_restore.call_count, 1)
         self.assertEqual(mock_print_journal.call_count, 1)
 
@@ -849,20 +849,20 @@ class TestMain(TestCase):
     @patch("wifi_client_test_netplan.netplan_config_wipe")
     @patch("wifi_client_test_netplan.generate_test_config")
     @patch("wifi_client_test_netplan.write_test_config")
-    @patch("wifi_client_test_netplan.netplan_apply_config")
     @patch("wifi_client_test_netplan.time.sleep")
     @patch("wifi_client_test_netplan.wait_for_routable")
     @patch("wifi_client_test_netplan.delete_test_config")
     @patch("wifi_client_test_netplan.netplan_config_restore")
     @patch("wifi_client_test_netplan.print_journal_entries")
+    @patch("wifi_client_test_netplan.sp.call")
     def test_main_apply_config_failure(
         self,
+        mock_sp_call,
         mock_print_journal,
         mock_restore,
         mock_delete,
         mock_wait_routable,
         mock_sleep,
-        mock_apply,
         mock_write,
         mock_generate,
         mock_wipe,
@@ -875,7 +875,7 @@ class TestMain(TestCase):
         mock_args.renderer = "networkd"
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
-        mock_apply.return_value = False
+        mock_sp_call.return_value = 1  # Simulating an error
 
         # Execute and Assert
         with self.assertRaises(SystemExit):
@@ -883,7 +883,7 @@ class TestMain(TestCase):
 
         self.assertEqual(mock_delete.call_count, 1)
         self.assertEqual(mock_restore.call_count, 1)
-        self.assertEqual(mock_print_journal.call_count, 1)
+        self.assertEqual(mock_print_journal.call_count, 2)
 
     @patch("wifi_client_test_netplan.parse_args")
     @patch("wifi_client_test_netplan.check_and_get_renderer")
@@ -921,14 +921,14 @@ class TestMain(TestCase):
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
         mock_wait_routable.return_value = True
-        mock_apply.return_value = True
         mock_ping.return_value = False
 
         # Execute and Assert
         with self.assertRaises(SystemExit):
             main()
 
-        self.assertEqual(mock_delete.call_count, 1)
+        self.assertEqual(mock_delete.call_count, 2)
         self.assertEqual(mock_restore.call_count, 1)
+        self.assertEqual(mock_apply.call_count, 2)
         self.assertEqual(mock_print_journal.call_count, 1)
         mock_ping.assert_called_once_with("wlan0", "networkd")

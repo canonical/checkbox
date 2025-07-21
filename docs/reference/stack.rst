@@ -1,12 +1,12 @@
-The "Checkbox Stack"
+Checkbox stack
 ====================
 
-The Checkbox Stack is a collection of projects that together constitute a
+The *Checkbox stack* is a collection of projects that together constitute a
 complete testing and certification solution. It is composed of the following
 parts (see table below for extra details). All of the projects are linked to
 from the `Launchpad project group <https://launchpad.net/checkbox-project>`_.
 
-Component Descriptions
+Component descriptions
 ----------------------
 
 +------------------------+---------------------------------------+-------------+

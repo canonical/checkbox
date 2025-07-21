@@ -22,9 +22,8 @@ import re
 import argparse
 import time
 import logging
-import select
+import subprocess
 from collections import OrderedDict
-from systemd import journal
 from pathlib import Path
 
 
@@ -142,42 +141,33 @@ class RpmsgLoadFirmwareTest:
         self._search_patterns.update(patterns)
 
     def _init_logger(self) -> None:
-        self.log_reader = journal.Reader()
-        self.log_reader.this_boot()
-        self.log_reader.seek_tail()
-        self.log_reader.get_previous()
+        self.log_reader = subprocess.Popen(
+            ["journalctl", "-f"], stdout=subprocess.PIPE
+        )
 
-        self._poller = select.poll()
-        self._poller.register(self.log_reader, self.log_reader.get_events())
-
-    def lookup_reload_logs(self, entry: dict) -> bool:
+    def lookup_reload_logs(self, entry: str) -> bool:
         keep_looking = True
         for key, pattern in self._search_patterns.items():
-            if re.search(pattern, entry.get("MESSAGE")):
-                self.expected_events.append((key, entry.get("MESSAGE")))
+            if re.search(pattern, entry):
+                self.expected_events.append((key, entry))
                 if key == "ready":
                     keep_looking = False
                     break
 
         return keep_looking
 
-    def _monitor_journal_logs(self, lookup_func) -> list:
+    def _monitor_journal_logs(self, lookup_func) -> None:
         start_time = time.time()
         logging.info("# start time: %s", start_time)
 
-        while self._poller.poll(1000):
-            if self.log_reader.process() != journal.APPEND:
-                continue
-            for entry in self.log_reader:
-                logging.debug(entry["MESSAGE"])
-                if entry["MESSAGE"] == "":
-                    continue
-                if lookup_func(entry) is False:
-                    return self.expected_events
-
+        while True:
+            raw = self.log_reader.stdout.readline().decode()
+            logging.info(raw)
+            if raw and lookup_func(raw) is False:
+                return
             cur_time = time.time()
             if (cur_time - start_time) > 60:
-                return self.expected_events
+                return
 
 
 def verify_load_firmware_logs(
@@ -232,6 +222,7 @@ def load_firmware_test(args) -> None:
         logging.info("Start the Remote processor")
         rpmsg_handler.rpmsg_state = "start"
         rpmsg_handler._monitor_journal_logs(rpmsg_handler.lookup_reload_logs)
+        rpmsg_handler.log_reader.kill()
 
         if verify_load_firmware_logs(
             rpmsg_handler.expected_events,

@@ -229,7 +229,7 @@ requires:
 flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
+    checkbox-support-pipewire-utils show -t audio
     alsa_record_playback.sh
     EXIT_CODE=$?
   else

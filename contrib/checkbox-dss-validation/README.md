@@ -32,37 +32,32 @@ systemctl status snap.checkbox-dss.remote-slave.service
 
 # Install dependencies
 
-Some test need dependencies, and a helper script is available to install them:
+> [!NOTE]
+> We are migrating to using `setup_include` from Checkbox.
+> While it is not available, installing dependencies is currently done in a separate test plan.
+
+Run Checkbox CLI with the setup launcher:
 
 ```shell
-checkbox-dss.install-deps
+checkbox-dss.checkbox-cli control 127.0.0.1 launchers/setup.conf
 ```
 
-By default this will install the `data-science-stack` snap from the `latest/stable`
-channel. To instead install from `latest/edge` use:
+By default it will attempt to install the following:
 
-```shell
-checkbox-dss.install-deps --dss-snap-channel latest/edge
-```
+- `microk8s` snap from channel `1.28/stable` in `--classic` mode
+- `data-science-stack` snap from channel `1.0/stable`
+- `kubectl` snap from `1.29/stable`
+- `intel-gpu-tools` package
 
-Furthermore, the default `microk8s` snap channel is `1.28/stable` in classic mode,
-but this can be customized as
-(please note that this snap must to be `--classic` to enable GPU support):
-
-```shell
-checkbox-dss.install-deps --microk8s-snap-channel 1.31/stable
-```
-
-These validations also need the `kubectl` snap installed, and the default channel
-used for that is `1.29/stable`, but can be customized as shown previously by passing
-the appropriate channel name for `--kubectl-snap-channel`.
+Please edit the environment section in the setup launcher to customize the channels.
 
 # Automated Run
 
-To run the test plans:
+Use the launcher [`launchers/checkbox-dss.conf`](./launchers/checkbox-dss.conf)
+to run the test plan:
 
 ```shell
-checkbox-dss.validate-with-gpu
+checkbox-dss.checkbox-cli control 127.0.0.1 launchers/checkbox-dss.conf
 ```
 
 # Cleanup
@@ -101,10 +96,10 @@ The jobs in the provider are implemented as Python scripts, located in `checkbox
 
 Please note that only Python 3.10 is currently tested, and will be the minimum supported version for the foreseeable future.
 
-Running the tests locally may require some additional packages.  Here's what a run from clean slate may look like:
+Running the tests locally may require some additional packages. Here's what a run from clean slate may look like:
 
 ```console
-$ sudo apt install python3-dev python3-venv shellcheck pkg-config libsystemd-dev gcc
+$ sudo apt install python3-dev python3-venv shellcheck pkg-config gcc
 $ cd checkbox/contrib/checkbox-dss-validation/checkbox-provider-dss
 $ python3 -m venv .venv
 $ . .venv/bin/activate

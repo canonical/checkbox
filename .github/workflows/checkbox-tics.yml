@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: TICS
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsystemd-dev python3-pip pylint flake8 libbluetooth3 libbluetooth-dev libasound2-dev python3-zbar python3-pil
+          sudo apt-get install -y python3-pip pylint flake8 libbluetooth3 libbluetooth-dev libasound2-dev python3-zbar python3-pil
 
       - name: Install Checkbox
         run: |
@@ -75,7 +75,7 @@ jobs:
           echo "::endgroup::"
 
       - name: TICS GitHub Action
-        uses: tiobe/tics-github-action@v3
+        uses: tiobe/tics-github-action@009979693978bfefad2ad15c1020066694968dc7
         with:
           mode: qserver
           project: checkbox

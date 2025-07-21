@@ -19,50 +19,68 @@ command:
       exit 1
     fi
 
+id: ce-oem-optee/check-tee-supplicant
+category_id: optee
+_summary: Validate OPTEE tee-supplicant is activate
+plugin: shell
+user: root
+estimated_duration: 5.0
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-optee/device-node
+command:
+    if pgrep -x "tee-supplicant" > /dev/null; then
+        echo "Passed: tee-supplicant is activated."
+    else
+        echo "Error: tee-supplicant not found!"
+        exit 1
+    fi
+
 id: ce-oem-optee/ta-install
 category_id: optee
 _summary: Install Trusted Applications for xtest
 plugin: shell
 user: root
 estimated_duration: 20.0
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
 environ: XTEST
-depends: ce-oem-optee/device-node
+depends:
+    ce-oem-optee/device-node
+    ce-oem-optee/check-tee-supplicant
 command:
-    if pgrep -x "tee-supplicant" > /dev/null; then
-        xtest_install_ta.py
-    else
-        echo "Error: tee-supplicant not found!"
-        exit 1
-    fi
+    xtest_install_ta.py
+
+id: ce-oem-optee/check-firmware-version
+estimated_duration: 1
+plugin: shell
+user: root
+category_id: optee
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
+environ: OPTEE_FW_VERSION
+command:
+    optee_helper.py check_firmware_version "${OPTEE_FW_VERSION:-NotDefined}"
+_summary: Check the OP-TEE firmware version
 
 id: ce-oem-optee-test-list
 estimated_duration: 1
 plugin: resource
 user: root
-environ: OPTEE_CASES XTEST
+category_id: optee
+environ: OPTEE_CASES
 command:
-    filepath=""
-    if [[ -n "$OPTEE_CASES" ]]; then
-        filepath="$OPTEE_CASES"
-    else
-        filepath="$PLAINBOX_PROVIDER_DATA/optee-test-319.json"
-    fi
-    parse_optee_test.py "$filepath"
+    optee_helper.py generate
 _summary: Collect the test cases support by OP-TEE test(xtest)
 
 id: ce-oem-optee-test-list-pkcs11
 estimated_duration: 1
 plugin: resource
 user: root
-environ: OPTEE_CASES XTEST
+category_id: optee
+environ: OPTEE_CASES
 command:
-    filepath=""
-    if [[ -n "$OPTEE_CASES" ]]; then
-        filepath="$OPTEE_CASES"
-    else
-        filepath="$PLAINBOX_PROVIDER_DATA/optee-test-319.json"
-    fi
-    parse_optee_test.py "$filepath" -p
+    optee_helper.py generate -p
 _summary: Collect the test cases related with PKCS11 support by OP-TEE test(xtest)
 
 unit: template
@@ -70,45 +88,33 @@ template-resource: ce-oem-optee-test-list
 template-unit: job
 template-engine: jinja2
 id: ce-oem-optee/xtest-{{ suite }}-{{ test_name }}
-_summary:
-    OP-TEE test by using xtest to test suite {{ suite }} {{ description }}
+_summary: {{ suite }} test - {{ description }}
 plugin: shell
 user: root
 category_id: optee
+environ: XTEST
 estimated_duration: 30
 flags: also-after-suspend
 requires: manifest.has_optee == 'True'
 imports: from com.canonical.plainbox import manifest
-depends: ce-oem-optee/ta-install
+depends: ce-oem-optee/device-node
 command:
-    if pgrep -x "tee-supplicant"  > /dev/null; then
-        echo "Perform {{ description }}"
-        {{ tool }} -t {{ suite }} {{ test_id }}
-    else
-        echo "Error: Not found tee-supplicant!"
-        exit 1
-    fi
+    optee_helper.py xtest {{ suite }} {{ test_id }}
 
 unit: template
 template-resource: ce-oem-optee-test-list-pkcs11
 template-unit: job
 template-engine: jinja2
 id: ce-oem-optee/xtest-pkcs11-{{ test_name }}
-_summary:
-    OP-TEE test by using xtest to test PKCS11 related {{ description }}
+_summary: {{ suite }} test - {{ description }}
 plugin: shell
 user: root
 category_id: optee
+environ: XTEST
 estimated_duration: 30
 requires: manifest.has_optee == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-optee/device-node
 flags: also-after-suspend
 command:
-    if pgrep -x "tee-supplicant"  > /dev/null; then
-        echo "Perform {{ description }}"
-        {{ tool }} -t {{ suite }} {{ test_id }}
-    else
-        echo "Error: Not found tee-supplicant!"
-        exit 1
-    fi
+    optee_helper.py xtest {{ suite }} {{ test_id }}

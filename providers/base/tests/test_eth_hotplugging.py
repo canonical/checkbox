@@ -85,7 +85,7 @@ class EthHotpluggingTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nGateway: 192.168.1.1\nPath: pci-0000:02:00.0"
+            "State: routable\nGateway: 192.168.1.1\nPath: pci-0000:02:00.0"
         )
         interface = "eth0"
         renderer = "networkd"
@@ -96,8 +96,8 @@ class EthHotpluggingTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_any_name(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nGateway: 192.168.1.1 (ABC 123)\n"
-            b"Path: pci-0000:02:00.0"
+            "State: routable\nGateway: 192.168.1.1 (ABC 123)\n"
+            "Path: pci-0000:02:00.0"
         )
         interface = "eth0"
         renderer = "networkd"
@@ -108,7 +108,7 @@ class EthHotpluggingTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_no_state(self, mock_check_output):
         mock_check_output.return_value = (
-            b"Some other info: value\nsome more info"
+            "Some other info: value\nsome more info"
         )
         interface = "eth0"
         renderer = "networkd"
@@ -118,7 +118,7 @@ class EthHotpluggingTests(TestCase):
 
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_empty_output(self, mock_check_output):
-        mock_check_output.return_value = b" "
+        mock_check_output.return_value = " "
         interface = "eth0"
         renderer = "networkd"
         info = get_interface_info(interface, renderer)
@@ -145,9 +145,9 @@ class EthHotpluggingTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkmanager(self, mock_check_output):
         mock_check_output.return_value = (
-            b"GENERAL.MTU:                            1500\n"
-            b"GENERAL.STATE:                          100 (connected)\n"
-            b"IP4.GATEWAY:                            192.168.1.1"
+            "GENERAL.MTU:                            1500\n"
+            "GENERAL.STATE:                          100 (connected)\n"
+            "IP4.GATEWAY:                            192.168.1.1"
         )
         interface = "eth0"
         renderer = "NetworkManager"
@@ -159,7 +159,7 @@ class EthHotpluggingTests(TestCase):
     def test_get_interface_info_networkmanager_unexpected_output(
         self, mock_check_output
     ):
-        mock_check_output.return_value = b"some unexpected output"
+        mock_check_output.return_value = "some unexpected output"
         interface = "eth0"
         renderer = "NetworkManager"
         info = get_interface_info(interface, renderer)

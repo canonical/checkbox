@@ -107,6 +107,23 @@ class TestSwitchPowerMode(unittest.TestCase):
             ["powerprofilesctl", "set", "performance"]
         )
 
+    @patch("subprocess.check_call")  # Mock the subprocess.check_call function
+    def test_set_power_profile_unhandled(self, mock_check_call):
+        """
+        Tests handling of a unhandled power profile setting.
+        """
+        mock_check_call.side_effect = subprocess.CalledProcessError(
+            1, "powerprofilesctl"
+        )
+
+        with self.assertRaises(SystemExit) as cm:
+            set_power_profile("unexpected-profile")
+
+        self.assertEqual(
+            str(cm.exception),
+            "Unhandled ACPI platform profile: unexpected-profile",
+        )
+
     @patch("sys.stdout", new_callable=io.StringIO)
     def test_main_success(self, mock_stdout):
         """

@@ -1,6 +1,6 @@
 id: usb-cert-full
 unit: test plan
-_name: USB tests
+_name: USB tests (Cert full)
 _description:
  USB tests
 include:
@@ -27,7 +27,7 @@ include:
 
 id: after-suspend-usb-cert-automated
 unit: test plan
-_name: USB tests (Automated)
+_name: USB tests (Automated after suspend)
 _description:
  USB tests (Automated)
 include:
@@ -35,7 +35,7 @@ include:
 
 id: usb3-cert-full
 unit: test plan
-_name: USB3 tests
+_name: USB3 tests (Cert full)
 _description:
  USB3 tests
 include:
@@ -70,7 +70,7 @@ include:
 
 id: after-suspend-usb-cert-full
 unit: test plan
-_name: USB tests (after suspend)
+_name: USB tests (cert full after suspend)
 _description: USB tests (after suspend)
 include:
  after-suspend-usb/hid                                    certification-status=blocker
@@ -78,7 +78,7 @@ include:
 
 id: after-suspend-usb3-cert-full
 unit: test plan
-_name: USB3 tests (after suspend)
+_name: USB3 tests (cert full after suspend)
 _description: USB3 tests (after suspend)
 include:
  after-suspend-usb3/storage-manual                        certification-status=blocker

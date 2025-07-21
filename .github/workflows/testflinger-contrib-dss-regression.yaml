@@ -1,23 +1,49 @@
 name: Data Science Stack (DSS) Regression Testing
+run-name: Testing DSS ${{ inputs.dss_channel }} on microk8s ${{ inputs.microk8s_channel }}
 permissions:
   contents: read
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "0 7 * * 1" # every Monday 07:00 UTC
-  # push:
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
-
-env:
-  BRANCH: ${{ github.head_ref || github.ref_name }}
+    inputs:
+      dss_channel:
+        description: "Channel of the DSS snap to test"
+        default: 1.0/stable
+        required: false
+        type: choice
+        options:
+          - 1.0/stable
+          - 1.0/edge
+      # XXX:@motjuste: enable after we can test on Canonical K8s
+      #
+      #     - 1.1/stable
+      #     - 1.1/edge
+      #     - latest/stable
+      #     - latest/edge
+      # k8s_type:
+      #   description: "The type of K8s to deploy"
+      #   default: "microk8s"
+      #   required: false
+      #   type: choice
+      #   options:
+      #     - microk8s
+      #     - canonical-k8s
+      #
+      microk8s_channel:
+        description: "Channel of the microk8s snap to deploy"
+        default: "1.28/stable"
+        type: string
+      kubectl_channel:
+        description: "Channel of kubectl snap to use"
+        default: "1.29/stable"
+        type: string
 
 jobs:
+  checkbox-dss-snap-build:
+    uses: ./.github/workflows/checkbox-dss-build.yaml
+
   regression-tests:
-    name: Regression tests
+    needs: checkbox-dss-snap-build
+    name: Tests
     runs-on: [testflinger]
     defaults:
       run:
@@ -25,36 +51,62 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dss_channel:
-          - 1/stable
-          - 1/candidate
-          - latest/edge
-        microk8s_channel:
-          - 1.28/stable
-          - 1.31/stable
         queue:
-          - name: dell-precision-3470-c30322 #ADL iGPU + NVIDIA GPU
+          - summary: "iGPU + NVIDIA GPU"
+            name: dell-precision-3470-c30322
             provision_data: "distro: jammy"
-          - name: dell-precision-5680-c31665 #RPL iGPU + Arc Pro A60M dGPU
-            provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X96_A00/dell-bto-jammy-jellyfish-muk-X96-20230419-19_A00.iso"
-          - name: nvidia-dgx-station-c25989  # NO iGPU + NVIDIA GPU
+          - summary: "iGPU + Arc Pro A60M dGPU"
+            name: dell-precision-5680-c31665
+            provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X105_A02/dell-bto-jammy-jellyfish-muk-X105-20231026-26_A02.iso"
+          - summary: "Only NVIDIA GPU"
+            name: nvidia-dgx-station-c25989
             provision_data: "distro: jammy"
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
-      - name: Build job file from template
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        name: Download artifact with the built snap
+        with:
+          name: checkbox-dss.snap
+          path: contrib/checkbox-dss-validation
+      - name: Find path to the built snap
+        id: built-snap
         run: |
-          sed -e "s|REPLACE_BRANCH|${BRANCH}|" \
-          -e "s|REPLACE_QUEUE|${{ matrix.queue.name }}|" \
-          -e "s|REPLACE_PROVISION_DATA|${{ matrix.queue.provision_data }}|" \
-          -e "s|REPLACE_DSS_CHANNEL|${{ matrix.dss_channel }}|" \
-          -e "s|REPLACE_MICROK8S_CHANNEL|${{ matrix.microk8s_channel }}|" \
-          ${GITHUB_WORKSPACE}/contrib/checkbox-dss-validation/testflinger/job-def.yaml > \
-          ${GITHUB_WORKSPACE}/job.yaml
+          echo "::group::State of current directory"
+          pwd
+          ls -lah
+          echo "::endgroup::"
+          echo "local_path="$(find . -name "checkbox-dss*.snap" -printf "%P\n" | head -1)"" >> $GITHUB_OUTPUT
+      - name: Build job and launcher files from templates
+        id: build-job-file
+        env:
+          ENV_QUEUE: "${{ matrix.queue.name }}"
+          ENV_PROVISION_DATA: "${{ matrix.queue.provision_data }}"
+          ENV_DSS_CHANNEL: "${{ inputs.dss_channel }}"
+          ENV_MICROK8S_CHANNEL: "${{ inputs.microk8s_channel }}"
+          ENV_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
+          ENV_LAUNCHER: "launchers/checkbox-dss.conf"
+          ENV_KUBECTL_CHANNEL: "${{ inputs.kubectl_channel }}"
+        run: |
+          envsubst '$ENV_DSS_CHANNEL $ENV_KUBECTL_CHANNEL $ENV_MICROK8S_CHANNEL' \
+            < testflinger/setup-def.conf > setup.conf
+          echo "::group::Built setup launcher"
+          cat setup.conf
+          echo "::endgroup::"
+
+          export ENV_SETUP_LAUNCHER=setup.conf
+
+          envsubst '$ENV_QUEUE $ENV_PROVISION_DATA $ENV_CB_DSS_SNAP $ENV_LAUNCHER $ENV_SETUP_LAUNCHER' \
+            < testflinger/job-def.yaml > job.yaml
+          echo "::group::Built job file"
+          cat job.yaml
+          echo "::endgroup::"
+
+          echo "local_path=$PWD/job.yaml" >> $GITHUB_OUTPUT
       - name: Submit testflinger job
-        uses: canonical/testflinger/.github/actions/submit@main
+        uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
         with:
           poll: true
-          job-path: ${GITHUB_WORKSPACE}/job.yaml
+          job-path: ${{ steps.build-job-file.outputs.local_path }}

@@ -24,24 +24,150 @@ plainbox.test_provider_manager
 Test definitions for plainbox.provider_manager module
 """
 
-from unittest import TestCase
 import os
 import shutil
 import tarfile
 import tempfile
 import textwrap
+import subprocess
+
+from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
 from plainbox.impl.secure.providers.v1 import Provider1Definition
-from plainbox.provider_manager import InstallCommand
-from plainbox.provider_manager import ManageCommand
-from plainbox.provider_manager import ProviderManagerTool
-from plainbox.provider_manager import manage_py_extension
+from plainbox.provider_manager import (
+    InstallCommand,
+    ManageCommand,
+    ProviderManagerTool,
+    manage_py_extension,
+    TestCommand,
+    create_subprocess_test,
+)
 from plainbox.testing_utils.io import TestIO
-from plainbox.vendor import mock
 
 
 def inline_output(text):
     return textwrap.dedent(text).lstrip("\n")
+
+
+class TestCommandTests(TestCase):
+    @patch("glob.glob")
+    @patch("plainbox.provider_manager.ShellcheckTests")
+    @patch("plainbox.provider_manager.create_subprocess_test")
+    def test_get_sh_tests(
+        self, mock_create_subprocess_test, mock_ShellcheckTests, mock_glob
+    ):
+        mock_self = MagicMock()
+        mock_glob.return_value = (str(x) for x in range(10))
+
+        TestCommand.get_sh_tests(mock_self)
+
+        self.assertEqual(mock_create_subprocess_test.call_count, 10)
+
+    @patch("glob.glob")
+    @patch("plainbox.provider_manager.Flake8Tests")
+    @patch("plainbox.provider_manager.create_subprocess_test")
+    def test_get_flake8_tests(
+        self, mock_create_subprocess_test, mock_ShellcheckTests, mock_glob
+    ):
+        mock_self = MagicMock()
+        mock_glob.return_value = (str(x) for x in range(10))
+
+        TestCommand.get_flake8_tests(mock_self)
+
+        self.assertEqual(mock_create_subprocess_test.call_count, 10)
+
+    def create_unit(self, meta_name, **kwargs):
+        to_r = MagicMock(**kwargs)
+        to_r.Meta.name = meta_name
+        return to_r
+
+    @patch("plainbox.provider_manager.create_subprocess_test")
+    @patch("plainbox.provider_manager.InlineShellcheckTests", new=MagicMock())
+    def test_get_inline_shellcheck_tests_jobs(
+        self, mock_create_subprocess_test
+    ):
+        mock_self = MagicMock()
+        mock_self.get_provider().unit_list = [
+            self.create_unit("job", command="true"),
+            self.create_unit("file"),
+        ]
+
+        TestCommand.get_inline_shellcheck_tests(mock_self)
+
+        self.assertEqual(mock_create_subprocess_test.call_count, 1)
+
+    @patch("plainbox.provider_manager.create_subprocess_test")
+    @patch("plainbox.provider_manager.InlineShellcheckTests", new=MagicMock())
+    def test_get_inline_shellcheck_tests_templates(
+        self, mock_create_subprocess_test
+    ):
+        mock_self = MagicMock()
+        mock_self.get_provider().unit_list = [
+            self.create_unit("template", command="true"),
+            self.create_unit("file"),
+        ]
+
+        TestCommand.get_inline_shellcheck_tests(mock_self)
+
+        self.assertEqual(mock_create_subprocess_test.call_count, 1)
+
+    @patch("sys.path", new=MagicMock())
+    @patch("os.path")
+    @patch("plainbox.provider_manager.TextTestRunner")
+    def test_invoked(self, mock_TextTestRunner, mock_path):
+        mock_path.exists.return_value = False
+        # run all tests with default verbosity and k matcher
+        mock_ns = MagicMock(
+            v=False,
+            k="*",
+            inline=False,
+            flake8=False,
+            unittest=False,
+            shellcheck=False,
+        )
+        # tests_dir would make this unittest discover, we don't want to do it
+        mock_self = MagicMock(tests_dir=None)
+        mock_self.get_sh_tests.return_value = (
+            mock_self.get_flake8_tests.return_value
+        ) = mock_self.get_inline_shellcheck_tests.return_value = TestCase
+
+        result = TestCommand.invoked(mock_self, mock_ns)
+
+        test_runner = mock_TextTestRunner()
+        test_runner.run.return_value.wasSuccessful.return_value = True
+        self.assertTrue(test_runner.run.called)
+        self.assertEqual(result, None)
+
+    def test_create_subprocess_test_fail(self):
+        test = create_subprocess_test()
+        with patch(
+            "subprocess.check_output",
+            side_effect=subprocess.CalledProcessError(
+                1, "some", output="some output"
+            ),
+        ):
+            self_mock = MagicMock()
+            test(self_mock)
+
+        self.assertTrue(self_mock.fail.called)
+
+    def test_create_subprocess_test_pass(self):
+        test = create_subprocess_test()
+        with patch(
+            "subprocess.check_output",
+        ):
+            self_mock = MagicMock()
+            test(self_mock)
+
+        self.assertFalse(self_mock.fail.called)
+
+    def test_starwrap(self):
+        self.assertEqual(TestCommand._starwrap("test_a"), "*test_a*")
+        self.assertEqual(TestCommand._starwrap("test_a*"), "*test_a*")
+        self.assertEqual(TestCommand._starwrap("*test_a"), "*test_a*")
+        self.assertEqual(TestCommand._starwrap("*test_a*"), "*test_a*")
+        self.assertEqual(TestCommand._starwrap("*"), "*")
 
 
 class ProviderManagerToolTests(TestCase):
@@ -272,7 +398,7 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ``sdist`` creates a proper tarball
         """
-        with mock.patch("subprocess.call"):
+        with patch("subprocess.call"):
             self.tool.main(["sdist"])
         tarball = os.path.join(
             self.tmpdir, "dist", "com.example.test-1.0.tar.gz"
@@ -294,7 +420,7 @@ class ProviderManagerToolTests(TestCase):
         even if some files are missing
         """
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
-        with mock.patch("subprocess.call"):
+        with patch("subprocess.call"):
             self.tool.main(["sdist"])
         tarball = os.path.join(
             self.tmpdir, "dist", "com.example.test-1.0.tar.gz"
@@ -304,8 +430,8 @@ class ProviderManagerToolTests(TestCase):
         )
         self.assert_common_sdist(tarball)
 
-    @mock.patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
-    @mock.patch("os.getenv")
+    @patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
+    @patch("os.getenv")
     def test_develop(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop`` creates a provider file
@@ -327,9 +453,9 @@ class ProviderManagerToolTests(TestCase):
         self.tool.main(["develop"])
         self.assertFileContent(filename, content)
 
-    @mock.patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
-    @mock.patch("os.getenv")
-    @mock.patch("os.path.samefile")
+    @patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
+    @patch("os.getenv")
+    @patch("os.path.samefile")
     def test_develop_provider_path(
         self, mock_samefile, mock_getenv, mock_path_entry
     ):
@@ -359,8 +485,8 @@ class ProviderManagerToolTests(TestCase):
         self.tool.main(["develop"])
         self.assertFileContent(filename, content)
 
-    @mock.patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
-    @mock.patch("os.getenv")
+    @patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
+    @patch("os.getenv")
     def test_develop__force(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop --force`` overwrites existing .provider
@@ -386,8 +512,8 @@ class ProviderManagerToolTests(TestCase):
         self.tool.main(["develop", "--force"])
         self.assertFileContent(filename, content)
 
-    @mock.patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
-    @mock.patch("os.getenv")
+    @patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
+    @patch("os.getenv")
     def test_develop__uninstall(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop --uninstall`` works

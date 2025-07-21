@@ -134,7 +134,7 @@ nested_part:
   snappy-snap-automated
   socketcan-auto-local
   socketcan-auto-remote
-  tpm-cert-focal-automated
+  tpm-cert-automated
   usb-automated
   thunderbolt-cert-automated
   watchdog-automated

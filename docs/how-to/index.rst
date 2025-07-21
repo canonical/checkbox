@@ -14,3 +14,4 @@ These how-to guides cover key operations and processes in Checkbox.
    freeze-checkbox-version
    launcher/*
    using-match
+   ancient-python

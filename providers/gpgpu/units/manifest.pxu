@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_nvidia_gpu
+_name: a NVIDIA GPU
+value-type: bool

@@ -1,4 +1,4 @@
-Checkbox Agent Systemd Service
+Checkbox Agent systemd service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Checkbox snaps supporting Checkbox Remote functionality usually come with a

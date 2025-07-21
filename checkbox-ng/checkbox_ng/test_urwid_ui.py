@@ -14,7 +14,9 @@ class TestManifestBrowser(unittest.TestCase):
 
     @patch("checkbox_ng.urwid_ui.urwid.MainLoop")
     def test_handle_focused_question_input(self, mock_mainloop):
+
         cases = [
+            # (question type, key pressed, expected input sequence sent to UI loop)
             ("bool", "y", ["left", " ", "down"]),
             ("bool", "n", ["right", " ", "down"]),
             ("natural", "enter", ["down"]),
@@ -97,7 +99,7 @@ class TestManifestBrowser(unittest.TestCase):
     def test_has_visible_manifests_empty_manifest(self):
         self.assertFalse(ManifestBrowser.has_visible_manifests({}))
 
-    def test_get_default_values(self):
+    def test_get_flattened_values(self):
         manifest_repr = {
             "section1": [
                 {"id": "visible1", "value": "visible_1", "hidden": False},
@@ -109,7 +111,7 @@ class TestManifestBrowser(unittest.TestCase):
             ],
         }
 
-        result = ManifestBrowser.get_default_values(manifest_repr)
+        result = ManifestBrowser.get_flattened_values(manifest_repr)
 
         expected = {
             "visible1": "visible_1",

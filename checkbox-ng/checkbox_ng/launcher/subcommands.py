@@ -702,7 +702,7 @@ class Launcher(MainLoopStage, ReportsStage):
             ).run()
         else:
             # Use the one provided in repr (either non-interactive or no visible manifests)
-            to_save_manifest = ManifestBrowser.get_default_values(
+            to_save_manifest = ManifestBrowser.get_flattened_values(
                 manifest_repr
             )
 

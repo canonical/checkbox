@@ -1090,7 +1090,7 @@ class ManifestBrowser:
         )
 
     @staticmethod
-    def get_default_values(question_manifests):
+    def get_flattened_values(question_manifests):
         """Extract default manifest values from the manifest representation."""
         return {
             conf["id"]: conf["value"]

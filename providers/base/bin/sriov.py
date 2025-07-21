@@ -111,34 +111,34 @@ def is_sriov_capable(interface):
 
     try:
         # Check if the interface supports SR-IOV
-        logging.info("checking if sriov_numvfs exits")
+        logging.info("checking if sriov_numvfs exists")
         if not os.path.exists(sriov_path):
             raise FileNotFoundError(
                 "SR-IOV not supported or interface {} does not exist.".format(
                     interface
                 )
             )
-        else:
-            logging.info(
-                "SR-IOV before change {} VFs on interface {}.".format(
-                    num_vfs, interface
-                )
+        
+        logging.info(
+            "SR-IOV before change {} VFs on interface {}.".format(
+                num_vfs, interface
             )
-            # First, disable VFs before changing the number to avoid issues
-            logging.info("Setting numvfs to zero")
-            with open(sriov_path, "w", encoding="utf-8") as f:
-                f.write("0")
+        )
+        # First, disable VFs before changing the number to avoid issues
+        logging.info("Setting numvfs to zero")
+        with open(sriov_path, "w", encoding="utf-8") as f:
+            f.write("0")
 
-            # Set the desired number of VFs
-            logging.info("Setting numvfs to %d", num_vfs)
-            with open(sriov_path, "w", encoding="utf-8") as f:
-                f.write(str(num_vfs))
+        # Set the desired number of VFs
+        logging.info("Setting numvfs to %d", num_vfs)
+        with open(sriov_path, "w", encoding="utf-8") as f:
+            f.write(str(num_vfs))
 
-            logging.info(
-                "SR-IOV enabled with {} VFs on interface {}.".format(
-                    num_vfs, interface
-                )
+        logging.info(
+            "SR-IOV enabled with {} VFs on interface {}.".format(
+                num_vfs, interface
             )
+        )
 
     except (IOError, FileNotFoundError) as e:
         logging.info("Failed to enable SR-IOV on {}: {}".format(interface, e))

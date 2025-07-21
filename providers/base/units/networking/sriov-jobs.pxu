@@ -5,6 +5,7 @@ template-id: networking/sriov_lxd_test__interface
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/sriov_lxd_test_{interface}
+environ: LXD_TEMPLATE LXD_ROOTFS
 flags: also-after-suspend
 _summary: SRIOV LXD container test for network device {interface}
 estimated_duration: 120.0
@@ -26,6 +27,7 @@ template-id: networking/sriov_lxdvm_test__interface
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/sriov_lxdvm_test_{interface}
+environ: LXD_TEMPLATE KVM_IMAGE
 flags: also-after-suspend
 _summary: SRIOV LXD VM test for network device {interface}
 estimated_duration: 180.0

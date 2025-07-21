@@ -9,10 +9,13 @@ include:
     networking/sriov_lxd_test_.*             certification-status=blocker
     networking/sriov_lxdvm_test_.*           certification-status=blocker
     miscellanea/oops                         certification-status=non-blocker
-    miscellanea/oops_results.log            certification-status=non-blocker
-    miscellanea/olog                        certification-status=blocker
+    miscellanea/oops_results.log             certification-status=non-blocker
+    miscellanea/olog                         certification-status=blocker
     miscellanea/olog_results.log
-    miscellanea/klog                        certification-status=blocker
+    miscellanea/klog                         certification-status=blocker
     miscellanea/klog_results.log
 bootstrap_include:
     device
+    executable
+    package
+    snap

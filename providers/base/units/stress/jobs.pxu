@@ -544,28 +544,6 @@ _summary: Check power-off log for issues.
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
-id: stress/graphics
-estimated_duration: 600.0
-requires:
- package.name == 'x11-apps'
-user: root
-environ: PLAINBOX_SESSION_SHARE
-command: graphics_stress_test.py --iterations 20 -b repeat -d -o "$PLAINBOX_SESSION_SHARE"/graphics-stress-results && echo "Graphics Stress Test completed successfully" || echo "Graphics Stress Test completed, but there are errors. Please see the log $PLAINBOX_SESSION_SHARE/graphics-stress-results for details" && false
-_purpose: Run the graphics stress test. This test can take a few minutes.
-_summary: Execute a graphics stress test to ensure stability under load.
-
-plugin: attachment
-category_id: com.canonical.plainbox::stress
-id: stress/graphics-tarball
-estimated_duration: 1.0
-requires:
- package.name == 'x11-apps'
-command: [ -f "$PLAINBOX_SESSION_SHARE"/graphics-stress-results ] && cat "$PLAINBOX_SESSION_SHARE"/graphics-stress-results
-_purpose: Attaches the graphics stress results to the submission.
-_summary: Attach graphics stress test results for submission.
-
-plugin: shell
-category_id: com.canonical.plainbox::stress
 id: stress/usb
 estimated_duration: 710.0
 user: root

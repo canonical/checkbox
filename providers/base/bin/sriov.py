@@ -56,7 +56,8 @@ def check_ubuntu_version():
     if float(version) < 24.04:
         raise ValueError(
             "Ubuntu 24.04 or greater is required, but found {}.".format(
-                version)
+                version
+            )
         )
     logging.info("The system is 24.04 or greater, proceed")
 

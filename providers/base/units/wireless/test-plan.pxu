@@ -1,6 +1,6 @@
 id: wireless-cert-full
 unit: test plan
-_name: Wireless tests
+_name: Wireless tests (cert full)
 _description:
  Wireless connection tests
 include:
@@ -17,7 +17,7 @@ include:
 
 id: after-suspend-wireless-cert-full
 unit: test plan
-_name: Wireless tests (after suspend)
+_name: Wireless tests (cert full after suspend)
 _description: Wireless connection tests (after suspend)
 include:
 nested_part:
@@ -25,7 +25,7 @@ nested_part:
 
 id: wireless-cert-automated
 unit: test plan
-_name: Wireless tests
+_name: Wireless tests (cert automated)
 _description: Wireless connection tests
 bootstrap_include:
     device
@@ -257,7 +257,7 @@ bootstrap_include:
 
 id: wireless-wifi-master-mode-manual
 unit: test plan
-_name: QA tests for wifi master mode
+_name: QA tests for wifi master mode (manual)
 _description:
  System as Access Point tests
 include:
@@ -304,7 +304,7 @@ bootstrap_include:
 
 id: after-suspend-wireless-wifi-master-mode-manual
 unit: test plan
-_name: QA tests for wifi master mode (after suspend)
+_name: QA tests for wifi master mode (after suspend, manual mode)
 _description:
  System as Access Point tests
 include:
@@ -320,7 +320,7 @@ bootstrap_include:
 
 id: after-suspend-wireless-wifi-master-mode-auto
 unit: test plan
-_name: QA tests for wifi master mode (after suspend)
+_name: QA tests for wifi master mode (after suspend, auto mode)
 _description:
  System as Access Point tests
 include:

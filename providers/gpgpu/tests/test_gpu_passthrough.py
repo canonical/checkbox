@@ -56,7 +56,20 @@ class TestMain(TestCase):
     @patch("gpu_passthrough.run_gpu_test")
     @patch("gpu_passthrough.LXDVM")
     def test_test_lxdvm_gpu(self, lxdvm_mock, run_mock, logging_mock):
-        args = MagicMock(vendor="nvidia")
+        args = MagicMock(vendor="nvidia", qemuopts="", vmcpus=0, vmram=0)
+        test_lxdvm_gpu(args)
+
+    @patch("gpu_passthrough.run_gpu_test")
+    @patch("gpu_passthrough.LXDVM")
+    def test_test_lxdvm_gpu_custom_specs(
+        self, lxdvm_mock, run_mock, logging_mock
+    ):
+        args = MagicMock(
+            vendor="nvidia",
+            qemuopts=" -global q35-pcihost.pci-hole64-size=8192G",
+            vmcpus=8,
+            vmram=8192,
+        )
         test_lxdvm_gpu(args)
 
     @patch("gpu_passthrough.argparse")

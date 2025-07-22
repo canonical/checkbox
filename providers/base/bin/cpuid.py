@@ -179,6 +179,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "AMD Siena SP6":    ['0xaa0f02'],
         "AMD Raphael":      ['0xa60f12'],
         "AMD Turin":        ['0xb00f21', '0xb10f10'],
+        "AMD Grado":        ['0xb40f40'],
         "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
         "Canon Lake":       ['0x6066'],
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],

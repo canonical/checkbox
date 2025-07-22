@@ -328,7 +328,7 @@ class MediacardStorage(StorageWatcher):
         return super()._parse_journal_line(line_str)
 
 
-class MediacardComboStorage(StorageWatcher):
+class MediacardComboStorage(MediacardStorage, USBStorage):
     """
     MediacardComboStorage handles the insertion and removal of sd, sdhc, mmc
     etc., for devices that combine mediacard and usb storage.

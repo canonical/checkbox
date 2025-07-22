@@ -33,7 +33,7 @@ include:
 
 id: after-suspend-genio-audio-manual
 unit: test plan
-_name: Genio Manual audio test
+_name: Genio Manual Audio Test (after suspend)
 _description: Manual after suspend audio test for G1200-evk, G700 and G350 platforms
 include:
     after-suspend-genio-audio/earphone-playback
@@ -49,6 +49,6 @@ include:
 
 id: after-suspend-genio-audio-automated
 unit: test plan
-_name: Genio Auto Audio test
+_name: Genio Auto Audio test (after suspend)
 _description: Automated after suspend audio test for G1200-evk, G700 and G350 platforms
 include:

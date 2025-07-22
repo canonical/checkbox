@@ -10,10 +10,11 @@ unit = com.canonical.certification::firmware-tests
 forced = yes
 
 [test selection]
-forced = yes
+forced = no
 
 [ui]
 output = hide-resource-and-attachment
+type=interactive
 
 [config]
 config_filename = canonical-certification.conf

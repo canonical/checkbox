@@ -128,7 +128,7 @@ include:
 
 id: after-suspend-dock-cert-full
 unit: test plan
-_name: Dock Cert tests after suspend
+_name: Dock Cert tests after suspend (cert full)
 _description:
  Cert tests for dock devices.
 include:

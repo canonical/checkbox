@@ -453,9 +453,18 @@ class ReportsStage(CheckboxUiStage):
         self._export_fn = export_fn
 
     def _prepare_stock_report(self, report):
+        try:
+            # This function is called by both remote and local. Local sa
+            # doesn't have this API so it will fallback to the "normal"
+            # Configuration type. In remote we get the agent Configuration type
+            # because the object is passed and mostly used by the agent, so
+            # creating this object as a netref saves a lot of rpyc calls
+            ConfigurationType = self.sa.configuration_type()
+        except AttributeError:
+            ConfigurationType = Configuration
         new_origin = "stock_reports"
         if report == "text":
-            additional_config = Configuration.from_text(
+            additional_config = ConfigurationType.from_text(
                 textwrap.dedent(
                     """
                     [exporter:text]
@@ -473,7 +482,7 @@ class ReportsStage(CheckboxUiStage):
             )
             self.sa.config.update_from_another(additional_config, new_origin)
         elif report == "certification":
-            additional_config = Configuration.from_text(
+            additional_config = ConfigurationType.from_text(
                 textwrap.dedent(
                     """
                     [exporter:tar]
@@ -489,7 +498,7 @@ class ReportsStage(CheckboxUiStage):
             )
             self.sa.config.update_from_another(additional_config, new_origin)
         elif report == "certification-staging":
-            additional_config = Configuration.from_text(
+            additional_config = ConfigurationType.from_text(
                 textwrap.dedent(
                     """
                     [exporter:tar]
@@ -526,7 +535,7 @@ class ReportsStage(CheckboxUiStage):
                     transport = {exporter}_file
                     """
                 )
-                additional_config = Configuration.from_text(
+                additional_config = ConfigurationType.from_text(
                     template.format(exporter=exporter, path=path), new_origin
                 )
                 self.sa.config.update_from_another(
@@ -550,7 +559,7 @@ class ReportsStage(CheckboxUiStage):
                 transport = {exporter}_file
                 """
             )
-            additional_config = Configuration.from_text(
+            additional_config = ConfigurationType.from_text(
                 template.format(exporter=exporter, path=path), new_origin
             )
             self.sa.config.update_from_another(additional_config, new_origin)

@@ -287,7 +287,7 @@ parts:
       - iw
       - jq
       - kmod
-      - libasound2
+      - libasound2t64
       - libcap2-bin
       - libfdt1
       - libsvm3

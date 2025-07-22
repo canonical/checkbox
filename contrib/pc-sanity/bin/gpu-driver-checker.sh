@@ -5,9 +5,9 @@ set -e
 result=0
 
 # Available driver check in each GPU
-for gpu in $(lspci -n -d ::0x0300| awk '{print $1}') \
-           $(lspci -n -d ::0x0302| awk '{print $1}') \
-           $(lspci -n -d ::0x0380| awk '{print $1}'); do
+for gpu in $(lspci -n -d ::0300| awk '{print $1}') \
+           $(lspci -n -d ::0302| awk '{print $1}') \
+           $(lspci -n -d ::0380| awk '{print $1}'); do
     if [[ ${gpu} != "0000"* ]]; then
         gpu="0000:${gpu}"
     fi

@@ -12,8 +12,6 @@ unit: test plan
 _name: Audio manual tests
 _description: Manual audio tests for devices
 include:
-    ce-oem-audio/alsa-utils-record-mono
-    ce-oem-audio/alsa-utils-record-stereo
 
 id: ce-oem-audio-automated
 unit: test plan
@@ -26,8 +24,6 @@ unit: test plan
 _name: After suspend Audio manual tests
 _description: Manual after suspend audio tests for devices
 include:
-    after-suspend-ce-oem-audio/alsa-utils-record-mono
-    after-suspend-ce-oem-audio/alsa-utils-record-stereo
 
 id: after-suspend-ce-oem-audio-automated
 unit: test plan

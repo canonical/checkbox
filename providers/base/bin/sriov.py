@@ -56,10 +56,9 @@ def check_ubuntu_version():
     if float(version) < 24.04:
         raise ValueError(
             "Ubuntu 24.04 or greater is required, but found {}.".format(
-            version)
+                version)
         )
-    else:
-        logging.info("The system is 24.04 or greater, proceed")
+    logging.info("The system is 24.04 or greater, proceed")
 
 
 def check_interface_vendor(interface):
@@ -112,7 +111,7 @@ def is_sriov_capable(interface):
                     interface
                 )
             )
-        
+
         logging.info(
             "SR-IOV before change {} VFs on interface {}.".format(
                 num_vfs, interface

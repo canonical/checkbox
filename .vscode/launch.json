@@ -1,0 +1,13 @@
+{
+   "version": "0.2.0",
+   "configurations": [
+       {
+           "name": "Debug checkbox-cli",
+           "type": "python",
+           "request": "launch",
+           "program": "${workspaceFolder}/checkbox-ng/checkbox_ng/launcher/checkbox_cli.py",
+           "args": ["--clear-cache", "--clear-old-sessions"],
+           "console": "integratedTerminal"
+       }
+   ]
+}

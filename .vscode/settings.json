@@ -1,5 +1,14 @@
 {
-    "[markdown]": {
-        "editor.formatOnSave": false
-    }
+   "[markdown]": {
+       "editor.formatOnSave": false
+   },
+   "python.testing.unittestArgs": [
+       "-v",
+       "-s",
+       "./checkbox-ng",
+       "-p",
+       "test_*.py"
+   ],
+   "python.testing.pytestEnabled": false,
+   "python.testing.unittestEnabled": true
 }

@@ -68,31 +68,26 @@ def check_interface_vendor(interface):
     """
     vendor_id_path = "/sys/class/net/{}/device/vendor".format(interface)
 
-    try:
-        if not os.path.exists(vendor_id_path):
-            raise FileNotFoundError(
-                "Vendor ID path {} not found".format(vendor_id_path)
-            )
+    if not os.path.exists(vendor_id_path):
+        raise FileNotFoundError(
+            "Vendor ID path {} not found".format(vendor_id_path)
+        )
 
-        with open(vendor_id_path, "r", encoding="utf-8") as file:
-            vendor_id = file.read().strip()
+    with open(vendor_id_path, "r", encoding="utf-8") as file:
+        vendor_id = file.read().strip()
 
-        if vendor_id not in VENDOR_INFO:
-            raise ValueError(
-                "{} has an unknown vendor ID {}".format(interface, vendor_id)
-            )
+    if vendor_id not in VENDOR_INFO:
+        raise ValueError(
+            "{} has an unknown vendor ID {}".format(interface, vendor_id)
+        )
 
-        vendor_name = VENDOR_INFO[vendor_id]
-        if vendor_name == "Broadcom":
-            raise NotImplementedError(
-                "Broadcom SRIOV testing is not supported at this time"
-            )
+    vendor_name = VENDOR_INFO[vendor_id]
+    if vendor_name == "Broadcom":
+        raise NotImplementedError(
+            "Broadcom SRIOV testing is not supported at this time"
+        )
 
-        logging.info("The interface %s is a(n) %s NIC", interface, vendor_name)
-
-    except Exception as e:
-        logging.info("An error occurred: {}".format(e))
-        sys.exit(1)
+    logging.info("The interface %s is a(n) %s NIC", interface, vendor_name)
 
 
 def is_sriov_capable(interface):

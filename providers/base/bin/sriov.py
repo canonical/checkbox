@@ -51,21 +51,15 @@ def get_release_to_test():
 
 def check_ubuntu_version():
     logging.info("Check for 24.04 or greater")
-    try:
-        version = get_release_to_test()
+    version = get_release_to_test()
 
-        if float(version) < 24.04:
-            raise ValueError(
-                "Ubuntu 24.04 or greater is required, \
-                             but found {}.".format(
-                    version
-                )
-            )
-        else:
-            logging.info("The system is 24.04 or greater, proceed")
-
-    except (Exception, ValueError) as e:
-        logging.error("Error checking Ubuntu version: {}".format(e))
+    if float(version) < 24.04:
+        raise ValueError(
+            "Ubuntu 24.04 or greater is required, but found {}.".format(
+            version)
+        )
+    else:
+        logging.info("The system is 24.04 or greater, proceed")
 
 
 def check_interface_vendor(interface):

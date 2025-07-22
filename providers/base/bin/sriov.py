@@ -39,7 +39,6 @@ NUM_OF_VIRTUAL_IFACES = 1
 def get_release_to_test():
     try:
         import distro
-
         if distro.id() == "ubuntu-core":
             return "{}.04".format(distro.version())
         return distro.version()

@@ -36,29 +36,23 @@ class TestSriovFunctions(TestCase):
         )
 
     @patch("sriov.get_release_to_test", return_value="22.04")
-    @patch("logging.error")
-    def test_check_ubuntu_version_invalid(
-        self, mock_logging, mock_get_release
-    ):
-        sriov.check_ubuntu_version()
-        mock_logging.assert_called_with(
-            "Error checking Ubuntu version: Ubuntu 24.04 or greater is required, "
-            "                             but found 22.04."
+    def test_check_ubuntu_version_invalid(self, mock_get_release):
+        with self.assertRaises(ValueError) as context:
+            sriov.check_ubuntu_version()
+
+        self.assertEqual(
+            str(context.exception),
+            "Ubuntu 24.04 or greater is required, but found 22.04.",
         )
 
     @patch(
         "sriov.get_release_to_test", side_effect=Exception("Mocked exception")
     )
-    @patch("logging.error")
-    def test_check_ubuntu_version_exception(
-        self, mock_logging, mock_get_release
-    ):
-        sriov.check_ubuntu_version()
+    def test_check_ubuntu_version_exception(self, mock_get_release):
+        with self.assertRaises(Exception) as context:
+            sriov.check_ubuntu_version()
 
-        # Verify that the exception was logged
-        mock_logging.assert_any_call(
-            "Error checking Ubuntu version: Mocked exception"
-        )
+        self.assertEqual(str(context.exception), "Mocked exception")
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data="0x8086")

@@ -10,7 +10,7 @@ unit = com.canonical.certification::server-regression
 forced = yes
 
 [test selection]
-forced = no
+forced = yes
 
 [ui]
 output = hide-resource-and-attachment

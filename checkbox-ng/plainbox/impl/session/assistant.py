@@ -201,7 +201,7 @@ class SessionAssistant:
         self._load_providers()
         UsageExpectation.of(self).allowed_calls = {
             self.start_new_session: "create a new session from scratch",
-            self.resume_session: "resume a resume candidate",
+            self.prepare_resume_session: "resume a resume candidate",
             self.get_resumable_sessions: "get resume candidates",
             self.use_alternate_configuration: (
                 "use an alternate configuration system"
@@ -543,11 +543,11 @@ class SessionAssistant:
         }
 
     @raises(KeyError, UnexpectedMethodCall, IncompatibleJobError)
-    def resume_session(
+    def prepare_resume_session(
         self, session_id: str, runner_cls=UnifiedRunner, runner_kwargs=dict()
     ) -> "SessionMetaData":
         """
-        Resume a session.
+        Prepares the session to a state where it is able to continue.
 
         :param session_id:
             The identifier of the session to resume.
@@ -562,10 +562,13 @@ class SessionAssistant:
             It is a bug in your program. The error message will indicate what
             is the likely cause.
 
-        This method restores internal state of the plainbox runtime as it was
-        the last time session assistant did a checkpoint, i.e. session
+        This method restores internal state of the Checkbox session close to what
+        it was the last time session assistant did a checkpoint, i.e. session
         assistant's clients commited any information (e.g. saves job result,
-        runs bootstrapping, updates app blob, etc.)
+        runs bootstrapping, updates app blob, etc.). This is called
+        prepares_resume_session and doesn't resume_session because to fully
+        resume a session with a test plan, the test plan must be selected and
+        the bootstrap process must be re-executed.
         """
         UsageExpectation.of(self).enforce()
         all_units = list(
@@ -667,7 +670,7 @@ class SessionAssistant:
                         InternalResumeCandidate(storage, metadata)
                     )
                     UsageExpectation.of(self).allowed_calls[
-                        self.resume_session
+                        self.prepare_resume_session
                     ] = "resume session"
                     yield ResumeCandidate(storage.id, metadata)
 
@@ -1783,7 +1786,7 @@ class SessionAssistant:
             self.export_to_stream: "to export the results to a stream",
             self.get_resumable_sessions: "to get resume candidates",
             self.start_new_session: "to create a new session",
-            self.resume_session: "to resume a session",
+            self.prepare_resume_session: "to resume a session",
             self.get_old_sessions: ("get previously created sessions"),
             self.delete_sessions: ("delete previously created sessions"),
         }

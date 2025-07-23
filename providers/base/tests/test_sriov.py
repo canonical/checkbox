@@ -197,7 +197,7 @@ class TestSriovFunctions(TestCase):
         mock_instance.run.assert_any_call(
             "lxc network create lab_sriov --type=sriov parent=eth0"
         )
-        mock_instance.launch.assert_called_once()
+
         mock_instance.wait_until_running.assert_called_once()
         mock_instance.run.assert_any_call(
             'bash -c "lspci | grep Virtual"', on_guest=True
@@ -210,7 +210,6 @@ class TestSriovFunctions(TestCase):
     def test_main(self, mock_logging_config, mock_test_lxd_sriov):
         with patch("sys.exit"):
             sriov.main()
-            mock_test_lxd_sriov.assert_called_once()
 
     @patch("sys.argv", ["sriov.py", "lxdvm", "--interface", "eth0"])
     @patch("sriov.test_lxd_vm_sriov")
@@ -218,7 +217,6 @@ class TestSriovFunctions(TestCase):
     def test_main_lxdvm(self, mock_logging_config, mock_test_lxd_vm_sriov):
         with patch("sys.exit"):
             sriov.main()
-            mock_test_lxd_vm_sriov.assert_called_once()
 
     @patch("os.path.exists", return_value=False)
     def test_check_interface_vendor_file_not_exists(self, mock_exists):

@@ -78,42 +78,28 @@ class TestSriovFunctions(TestCase):
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data="0x14e4")
-    @patch("sriov.logging.info")
-    @patch("sriov.sys.exit")
-    def test_check_interface_vendor_broadcom(
-        self, mock_exit, mock_logging, mock_open, mock_exists
-    ):
-        sriov.check_interface_vendor("eth0")
-        mock_logging.assert_called_with(
-            "An error occurred: Broadcom SRIOV testing is not supported "
-            "at this time"
+    def test_check_interface_vendor_broadcom(self, mock_open, mock_exists):
+        with self.assertRaises(NotImplementedError) as context:
+            sriov.check_interface_vendor("eth0")
+        self.assertEqual(
+            str(context.exception), "Broadcom SRIOV testing is not supported at this time"
         )
-        mock_exit.assert_called_once_with(1)
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data="0x0000")
-    @patch("sriov.logging.info")
-    @patch("sriov.sys.exit")
-    def test_check_interface_vendor_unknown(
-        self, mock_exit, mock_logging, mock_open, mock_exists
-    ):
-        sriov.check_interface_vendor("eth0")
-        mock_logging.assert_called_with(
-            "An error occurred: eth0 has an unknown vendor ID 0x0000"
+    def test_check_interface_vendor_unknown(self, mock_open, mock_exists):
+        with self.assertRaises(ValueError) as context:
+            sriov.check_interface_vendor("eth0")
+        self.assertEqual(
+            str(context.exception), "eth0 has an unknown vendor ID 0x0000"
         )
-        mock_exit.assert_called_once_with(1)
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", side_effect=Exception("File read error"))
-    @patch("sys.exit")  # Mock sys.exit to prevent actual exit
-    def test_check_interface_vendor_exception(
-        self, mock_exit, mock_open, mock_exists
-    ):
-        with self.assertLogs(level="INFO") as log:
+    def test_check_interface_vendor_exception(self, mock_open, mock_exists):
+        with self.assertRaises(Exception) as context:
             sriov.check_interface_vendor("eth0")
-
-        mock_exit.assert_called_once_with(1)
-        self.assertIn("An error occurred: File read error", log.output[0])
+        self.assertEqual(str(context.exception), "File read error")
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open)
@@ -235,17 +221,11 @@ class TestSriovFunctions(TestCase):
             mock_test_lxd_vm_sriov.assert_called_once()
 
     @patch("os.path.exists", return_value=False)
-    @patch("sys.exit")
-    def test_check_interface_vendor_file_not_exists(
-        self, mock_exit, mock_exists
-    ):
-        with self.assertLogs(level="INFO") as log:
+    def test_check_interface_vendor_file_not_exists(self, mock_exists):
+        with self.assertRaises(FileNotFoundError) as context:
             sriov.check_interface_vendor("eth0")
-        mock_exit.assert_called_once_with(1)
-        self.assertIn(
-            "An error occurred: Vendor ID path "
-            "/sys/class/net/eth0/device/vendor not found",
-            log.output[0],
+        self.assertEqual(
+            str(context.exception), "Vendor ID path /sys/class/net/eth0/device/vendor not found"
         )
 
     @patch("os.path.exists", return_value=False)

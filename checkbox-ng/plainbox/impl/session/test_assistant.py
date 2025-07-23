@@ -171,7 +171,7 @@ class SessionAssistantTests(morris.SignalTestCase):
         self_mock.get_resumable_sessions.return_value = []
 
         with self.assertRaises(KeyError):
-            SessionAssistant.resume_session(self_mock, "session_id")
+            SessionAssistant.prepare_resume_session(self_mock, "session_id")
 
     @mock.patch("plainbox.impl.session.assistant.SessionManager")
     @mock.patch("plainbox.impl.session.assistant.JobRunnerUIDelegate")
@@ -195,7 +195,7 @@ class SessionAssistantTests(morris.SignalTestCase):
 
         self_mock.get_resumable_sessions.return_value = [session_mock]
 
-        _ = SessionAssistant.resume_session(self_mock, "session_id")
+        _ = SessionAssistant.prepare_resume_session(self_mock, "session_id")
 
     @mock.patch("plainbox.impl.session.state.select_units")
     @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")

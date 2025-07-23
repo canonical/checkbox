@@ -223,7 +223,7 @@ class SessionAssistantTests(morris.SignalTestCase):
         self, mock_tpu, mock_su, mock_get_providers
     ):
         self_mock = mock.MagicMock()
-        SessionAssistant.get_bootstrap_todo_list(self_mock)
+        SessionAssistant.start_bootstrap(self_mock)
         self.assertEqual(
             self_mock._context.state.update_desired_job_list.call_count, 1
         )

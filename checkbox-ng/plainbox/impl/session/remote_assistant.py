@@ -167,7 +167,7 @@ class RemoteSessionAssistant:
         self.terminate_cb = None
         self._pipe_from_controller = open(self._input_piping[1], "w")
         self._pipe_to_subproc = open(self._input_piping[0])
-        self._sa = SessionAssistant()
+        self._sa: SessionAssistant = None
         self._reset_sa()
         self._currently_running_job = None
 
@@ -396,11 +396,11 @@ class RemoteSessionAssistant:
         return False
 
     @allowed_when(Started)
-    def get_bootstrapping_todo_list_json(self):
-        return json.dumps(self.get_bootstrapping_todo_list())
+    def start_bootstrap_json(self):
+        return json.dumps(self.start_bootstrap())
 
     @allowed_when(Started)
-    def get_bootstrapping_todo_list(self):
+    def start_bootstrap(self):
         return self._sa.start_bootstrap()
 
     def finish_bootstrap_json(self):

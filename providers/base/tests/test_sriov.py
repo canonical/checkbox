@@ -198,7 +198,7 @@ class TestSriovFunctions(TestCase):
             "lxc network create lab_sriov --type=sriov parent=eth0"
         )
 
-        mock_instance.wait_until_running.assert_called_once()
+        mock_instance.wait_until_running.assert_called_once_with()
         mock_instance.run.assert_any_call(
             'bash -c "lspci | grep Virtual"', on_guest=True
         )

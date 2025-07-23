@@ -1040,6 +1040,18 @@ class SessionMetadataTests(TestCase):
         )
         self.assertTrue(logger.warning.called)
 
+    def test_bootstrapping_property(self):
+        # this relies on the fact that phases are tracked in the flag set
+        metadata = SessionMetaData(flags=[])
+        self.assertFalse(metadata.bootstrapping)
+        metadata.bootstrapping = False
+        self.assertFalse(metadata.bootstrapping)
+        metadata.bootstrapping = True
+        self.assertTrue(metadata.bootstrapping)
+        # this is an implementation detail on how metadata is tracking the
+        # phase. if implementation changes, feel free to change this.
+        self.assertTrue(metadata.flags)
+
 
 class SessionDeviceContextTests(SignalTestCase):
     def setUp(self):

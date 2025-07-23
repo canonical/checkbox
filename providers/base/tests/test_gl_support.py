@@ -35,11 +35,11 @@ class RemoveColorCode(unittest.TestCase):
         SUCC_CHANGED = test_dir / "gl_support_succ_changed.txt"
         FAIL = test_dir / "gl_support_fail.txt"
         FAIL_CHANGED = test_dir / "gl_support_fail_changed.txt"
-        with open(SUCC, "r") as s, open(SUCC_CHANGED, "r") as sc:
+        with SUCC.open() as s, SUCC_CHANGED.open() as sc:
             rv = gs.remove_color_code(s.read())
             self.assertEqual(rv, sc.read())
 
-        with open(FAIL, "r") as f, open(FAIL_CHANGED, "r") as fc:
+        with FAIL.open() as f, FAIL_CHANGED.open() as fc:
             rv = gs.remove_color_code(f.read())
             self.assertEqual(rv, fc.read())
 

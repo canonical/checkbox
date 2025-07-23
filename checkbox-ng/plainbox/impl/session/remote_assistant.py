@@ -400,7 +400,7 @@ class RemoteSessionAssistant:
 
     @allowed_when(Started)
     def get_bootstrapping_todo_list(self):
-        return self._sa.get_bootstrap_todo_list()
+        return self._sa.start_bootstrap()
 
     def finish_bootstrap_json(self):
         return json.dumps(self.finish_bootstrap())

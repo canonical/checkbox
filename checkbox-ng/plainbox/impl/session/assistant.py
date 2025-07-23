@@ -74,6 +74,7 @@ from plainbox.impl.session.restart import (
 )
 from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.storage import WellKnownDirsHelper
+from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.transport import OAuthTransport, TransportError
 from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.unit.unit import Unit
@@ -190,7 +191,7 @@ class SessionAssistant:
         self._exclude_qualifiers = []
         self._match_qualifiers = []
         self._manager: SessionManager = None
-        self._context = None
+        self._context: SessionDeviceContext = None
         self._metadata: SessionMetaData = None
         self._runner = None
         self._job_start_time = None
@@ -860,10 +861,14 @@ class SessionAssistant:
             self._get_allowed_calls_in_normal_state()
         )
 
+    def bootstrapping(self):
+        return self._metadata.bootstrapping
+
     @raises(UnexpectedMethodCall)
     def start_bootstrap(self):
         """
-        Start the bootstrap process and get a list of ids that should be run.
+        Starts the bootstrap process returning the list of all jobs to run to
+        bootstrap the session.
 
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
@@ -876,7 +881,7 @@ class SessionAssistant:
         silent.
         """
         UsageExpectation.of(self).enforce()
-        self._metadata.flags.add(SessionMetaData.FLAG_BOOTSTRAPPING)
+        self._metadata.bootstrapping = True
         desired_job_list = select_units(
             self._context.state.job_list,
             [
@@ -960,7 +965,7 @@ class SessionAssistant:
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.
-        self._metadata.flags.remove(SessionMetaData.FLAG_BOOTSTRAPPING)
+        self._metadata.bootstrapping = False
         self._metadata.flags.add(SessionMetaData.FLAG_INCOMPLETE)
         self._manager.checkpoint()
         # No bootstrap is done update the cache of jobs that were run

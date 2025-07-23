@@ -2,6 +2,7 @@ import sys
 import unittest
 from unittest.mock import patch
 import check_software_raid
+import pathlib
 
 
 class TestCheckSoftwareRAID(unittest.TestCase):
@@ -9,8 +10,9 @@ class TestCheckSoftwareRAID(unittest.TestCase):
     def test_get_md_stat_intel_raid(self):
 
         expected_data = [{"device": "md126", "mode": "raid0"}]
+        test_dir = pathlib.Path(__file__).parent / "test_data"
         raid_data = check_software_raid.get_md_stat(
-            "tests/test_data/mdstat_intel_rst.txt"
+            test_dir / "mdstat_intel_rst.txt"
         )
         self.assertListEqual(raid_data, expected_data)
 
@@ -20,15 +22,16 @@ class TestCheckSoftwareRAID(unittest.TestCase):
             {"device": "md2", "mode": "raid1"},
             {"device": "md1", "mode": "raid0"},
         ]
+        test_dir = pathlib.Path(__file__).parent / "test_data"
         raid_data = check_software_raid.get_md_stat(
-            "tests/test_data/mdstat_multiple_raid.txt"
+            test_dir / "mdstat_multiple_raid.txt"
         )
         self.assertListEqual(raid_data, expected_data)
 
     def test_get_md_stat_empty(self):
-
+        test_dir = pathlib.Path(__file__).parent / "test_data"
         raid_data = check_software_raid.get_md_stat(
-            "tests/test_data/mdstat_none_raid.txt"
+            test_dir / "mdstat_none_raid.txt"
         )
         self.assertListEqual(raid_data, [])
 

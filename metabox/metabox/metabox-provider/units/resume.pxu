@@ -16,6 +16,15 @@ command:
  PID=`pgrep -f checkbox-cli`
  kill $PID
 
+id: reboot-emulator-nonroot
+unit: job
+_summary: Emulate the reboot
+flags: simple noreturn
+command:
+ PID=`pgrep -f checkbox-cli`
+ kill $PID
+
+
 id: pass-rerun
 unit: job
 _summary: Test that passes only at the second try

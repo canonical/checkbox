@@ -1,3 +1,36 @@
+id: b
+flags: simple
+command: true
+
+id: a
+flags: simple
+command: true
+
+unit: test plan
+id: test_setup_include_no_reboot
+_name: Setup include testing testplan without reboot
+setup_include:
+  basic-shell-passing
+  basic-environ-printing
+bootstrap_include:
+  ordering_4_R
+include:
+  basic-shell-passing
+  b
+
+unit: test plan
+id: test_setup_include
+_name: Setup include testing testplan with reboot
+setup_include:
+  basic-shell-passing
+  reboot-emulator-nonroot
+  basic-environ-printing
+bootstrap_include:
+  ordering_4_R
+include:
+  basic-shell-passing
+  b
+
 unit: test plan
 id: basic-automated
 _name: Basic Automated

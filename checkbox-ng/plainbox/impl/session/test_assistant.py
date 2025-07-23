@@ -201,6 +201,12 @@ class SessionAssistantTests(morris.SignalTestCase):
     @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
     def test_bootstrap(self, mock_tpu, mock_su, mock_get_providers):
         self_mock = mock.MagicMock()
+        self_mock.start_bootstrap = partial(
+            SessionAssistant.start_bootstrap, self_mock
+        )
+        self_mock.finish_bootstrap = partial(
+            SessionAssistant.finish_bootstrap, self_mock
+        )
         SessionAssistant.bootstrap(self_mock)
         # Bootstrapping involves updating the list of desired jobs twice:
         # - one time to get the resource jobs

@@ -18,6 +18,7 @@
 from gl_support import *
 from unittest.mock import patch, MagicMock
 import unittest
+import pathlib
 
 
 class RemoveColorCode(unittest.TestCase):
@@ -28,11 +29,12 @@ class RemoveColorCode(unittest.TestCase):
     @patch("subprocess.run")
     def test_succ(self, mock_run):
         gs = GLSupport()
+        test_dir = pathlib.Path(__file__).parent / "test_data"
 
-        SUCC = "tests/test_data/gl_support_succ.txt"
-        SUCC_CHANGED = "tests/test_data/gl_support_succ_changed.txt"
-        FAIL = "tests/test_data/gl_support_fail.txt"
-        FAIL_CHANGED = "tests/test_data/gl_support_fail_changed.txt"
+        SUCC = test_dir / "gl_support_succ.txt"
+        SUCC_CHANGED = test_dir / "gl_support_succ_changed.txt"
+        FAIL = test_dir / "gl_support_fail.txt"
+        FAIL_CHANGED = test_dir / "gl_support_fail_changed.txt"
         with open(SUCC, "r") as s, open(SUCC_CHANGED, "r") as sc:
             rv = gs.remove_color_code(s.read())
             self.assertEqual(rv, sc.read())

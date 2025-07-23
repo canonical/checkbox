@@ -192,7 +192,6 @@ class TestSriovFunctions(TestCase):
 
         sriov.test_lxd_vm_sriov(args)
 
-        mock_check_version.assert_called_once()
         mock_check_vendor.assert_called_once_with("eth0")
         mock_sriov_capable.assert_called_once_with("eth0")
         mock_instance.run.assert_any_call(

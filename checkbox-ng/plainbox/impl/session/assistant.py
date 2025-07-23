@@ -190,9 +190,9 @@ class SessionAssistant:
         # available on the manager.
         self._exclude_qualifiers = []
         self._match_qualifiers = []
-        self._manager: SessionManager = None
-        self._context: SessionDeviceContext = None
-        self._metadata: SessionMetaData = None
+        self._manager = None  # type: SessionManager
+        self._context = None  # type: SessionDeviceContext
+        self._metadata = None  # type: SessionMetaData
         self._runner = None
         self._job_start_time = None
         # Keep a record of jobs run during bootstrap phase

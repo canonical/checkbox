@@ -167,7 +167,7 @@ class RemoteSessionAssistant:
         self.terminate_cb = None
         self._pipe_from_controller = open(self._input_piping[1], "w")
         self._pipe_to_subproc = open(self._input_piping[0])
-        self._sa: SessionAssistant = None
+        self._sa = None  # type: SessionAssistant
         self._reset_sa()
         self._currently_running_job = None
 

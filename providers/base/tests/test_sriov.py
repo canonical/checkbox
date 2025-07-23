@@ -82,7 +82,8 @@ class TestSriovFunctions(TestCase):
         with self.assertRaises(NotImplementedError) as context:
             sriov.check_interface_vendor("eth0")
         self.assertEqual(
-            str(context.exception), "Broadcom SRIOV testing is not supported at this time"
+            str(context.exception),
+            "Broadcom SRIOV testing is not supported at this time",
         )
 
     @patch("os.path.exists", return_value=True)
@@ -225,7 +226,8 @@ class TestSriovFunctions(TestCase):
         with self.assertRaises(FileNotFoundError) as context:
             sriov.check_interface_vendor("eth0")
         self.assertEqual(
-            str(context.exception), "Vendor ID path /sys/class/net/eth0/device/vendor not found"
+            str(context.exception),
+            "Vendor ID path /sys/class/net/eth0/device/vendor not found",
         )
 
     @patch("os.path.exists", return_value=False)

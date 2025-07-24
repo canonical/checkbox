@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_voltage_regulator
+_name: Does platfrom supported Voltage Regulator Device?
+value-type: bool

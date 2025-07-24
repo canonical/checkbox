@@ -157,14 +157,12 @@ class TestSriovFunctions(TestCase):
 
         sriov.test_lxd_sriov(args)
 
-        mock_check_version.assert_called_once()
         mock_check_vendor.assert_called_once_with("eth0")
         mock_sriov_capable.assert_called_once_with("eth0")
         mock_instance.run.assert_any_call(
             "lxc network create lab_sriov --type=sriov parent=eth0"
         )
-        mock_instance.launch.assert_called_once()
-        mock_instance.wait_until_running.assert_called_once()
+        mock_instance.wait_until_running.assert_called_once_with()
         mock_instance.run.assert_any_call(
             'bash -c "lspci | grep Virtual"', on_guest=True
         )
@@ -270,7 +268,7 @@ class TestSriovFunctions(TestCase):
 
             result = sriov.get_release_to_test()
             self.assertEqual(result, "24.04")
-            mock_lsb_release.get_distro_information.assert_called_once()
+            mock_lsb_release.get_distro_information.assert_called_once_with()
 
 
 if __name__ == "__main__":

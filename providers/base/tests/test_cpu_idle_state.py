@@ -221,7 +221,7 @@ class TestCpuBenchmark(unittest.TestCase):
         # Mock the burn_cpu_cycles method to avoid actually burning CPU
         mock_burn.return_value = None
         self.benchmark.burn_cpu_cycles()
-        mock_burn.assert_called_once()
+        assert mock_burn.called is True
 
     def test_burn_cpu_cycles_actual_execution(self):
         """Test burn_cpu_cycles method with actual execution"""
@@ -430,7 +430,7 @@ class TestCpuIdleTest(unittest.TestCase):
             states = self.test.get_cpuidle_states("/fake/path")
 
         self.assertEqual(len(states), 0)
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch("glob.glob")
     def test_get_cpuidle_states_glob_error_direct(self, mock_glob):
@@ -441,7 +441,7 @@ class TestCpuIdleTest(unittest.TestCase):
             states = self.test.get_cpuidle_states("/fake/path")
 
         self.assertEqual(len(states), 0)
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch("psutil.cpu_count")
     @patch("os.path.exists")
@@ -535,7 +535,7 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -562,9 +562,9 @@ class TestCpuIdleTest(unittest.TestCase):
                     result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # The error should be logged when benchmark fails
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "discover_cpus")
     def test_run_test_no_cpus(self, mock_discover):
@@ -576,8 +576,8 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.run_test()
 
         self.assertFalse(result)
-        mock_info.assert_called()
-        mock_error.assert_called()
+        assert mock_info.called is True
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -606,9 +606,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Progress reporting should be called when verbose=True
-        mock_debug.assert_called()
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -637,9 +637,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Benchmark debug output should be called when verbose=True
-        mock_debug.assert_called()
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -669,9 +669,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log error for state count mismatch
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -701,9 +701,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log error for state count mismatch
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -735,9 +735,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log error for state count mismatch
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch("psutil.Process")
     def test_restore_cpu_affinity_oserror(self, mock_process):
@@ -756,7 +756,7 @@ class TestCpuIdleTest(unittest.TestCase):
         with patch.object(self.test.logger, "error") as mock_error:
             states = self.test.get_cpuidle_states("/fake/path")
         self.assertEqual(states, {})
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "discover_cpus")
     @patch.object(CpuIdleTest, "test_cpu_idle_states")
@@ -830,8 +830,8 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.run_test()
 
         self.assertFalse(result)
-        mock_info.assert_called()
-        mock_error.assert_called()
+        assert mock_info.called is True
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "discover_cpus")
     @patch.object(CpuIdleTest, "test_cpu_idle_states")
@@ -849,8 +849,8 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.run_test()
 
         self.assertFalse(result)
-        mock_info.assert_called()
-        mock_error.assert_called()
+        assert mock_info.called is True
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "discover_cpus")
     @patch.object(CpuIdleTest, "test_cpu_idle_states")
@@ -870,8 +870,8 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.run_test()
 
         self.assertFalse(result)
-        mock_info.assert_called()
-        mock_error.assert_called()
+        assert mock_info.called is True
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -893,7 +893,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log info for states with existing usage (not tested)
         self.assertTrue(
             any(
@@ -921,7 +921,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -942,7 +942,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log info for states with existing usage (not tested)
         self.assertTrue(
             any(
@@ -974,9 +974,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Debug output should be called when verbose=True
-        mock_debug.assert_called()
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1001,9 +1001,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Info output should be called when verbose=True
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1029,7 +1029,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log info for states with existing usage (not tested)
         self.assertTrue(
             any(
@@ -1061,9 +1061,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Error output should be called when verbose=True and benchmark fails
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1088,7 +1088,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1109,7 +1109,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1130,7 +1130,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1152,8 +1152,8 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
-        mock_error.assert_called()
+        assert mock_info.called is True
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1177,8 +1177,8 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
-        mock_debug.assert_called()
+        assert mock_info.called is True
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1202,8 +1202,8 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
-        mock_debug.assert_called()
+        assert mock_info.called is True
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1226,7 +1226,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1251,7 +1251,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1276,7 +1276,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log info for states with existing usage (not tested)
         self.assertTrue(
             any(
@@ -1308,7 +1308,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log info for states with existing usage (not tested)
         self.assertTrue(
             any(
@@ -1336,7 +1336,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1363,9 +1363,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Progress reporting should be called when verbose=True
-        mock_debug.assert_called()
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1396,7 +1396,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1417,7 +1417,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log info for states with existing usage (not tested)
         self.assertTrue(
             any(
@@ -1458,7 +1458,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1485,9 +1485,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log error for state count mismatch
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "discover_cpus")
     def test_run_test_no_cpus_error_message(self, mock_discover):
@@ -1500,9 +1500,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.run_test()
 
         self.assertFalse(result)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log error for no CPUs found
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "discover_cpus")
     @patch.object(CpuIdleTest, "test_cpu_idle_states")
@@ -1522,9 +1522,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.run_test()
 
         self.assertFalse(result)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log error for exception during CPU testing
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "discover_cpus")
     @patch.object(CpuIdleTest, "test_cpu_idle_states")
@@ -1545,9 +1545,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = self.test.run_test()
 
         self.assertFalse(result)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log error for partial failure
-        mock_error.assert_called()
+        assert mock_error.called is True
 
     @patch.object(CpuIdleTest, "discover_cpus")
     @patch.object(CpuIdleTest, "test_cpu_idle_states")
@@ -1566,7 +1566,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.run_test()
 
         self.assertTrue(result)
-        mock_info.assert_called()
+        assert mock_info.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1588,9 +1588,9 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Verify benchmark was called
-        mock_benchmark.assert_called()
+        assert mock_benchmark.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1612,9 +1612,9 @@ class TestCpuIdleTest(unittest.TestCase):
             result = self.test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Verify sleep was called
-        mock_sleep.assert_called()
+        assert mock_sleep.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1641,9 +1641,9 @@ class TestCpuIdleTest(unittest.TestCase):
                 result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should log debug for state count consistency success
-        mock_debug.assert_called()
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1669,7 +1669,7 @@ class TestCpuIdleTest(unittest.TestCase):
             result = test.test_cpu_idle_states(cpu_info, 0, 1)
 
         self.assertIsInstance(result, bool)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Verify first_cpu was set
         self.assertEqual(test.first_cpu, 0)
 
@@ -1710,9 +1710,9 @@ class TestCpuIdleTest(unittest.TestCase):
 
         self.assertIsInstance(result, bool)
         # Should have info log for first state usage
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Should have debug log for subsequent state usage
-        mock_debug.assert_called()
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1750,9 +1750,9 @@ class TestCpuIdleTest(unittest.TestCase):
         self.assertIsInstance(result, bool)
         # Verify that info was called for first usage (indicating logged
         # field was used)
-        mock_info.assert_called()
+        assert mock_info.called is True
         # Verify that debug was called for subsequent usage
-        mock_debug.assert_called()
+        assert mock_debug.called is True
 
     @patch.object(CpuIdleTest, "get_cpuidle_states")
     @patch("time.sleep")
@@ -1784,7 +1784,7 @@ class TestCpuIdleTest(unittest.TestCase):
         # Should fail because state had zero original usage and didn't increase
         self.assertFalse(result)
         # Should log warning for failed states
-        mock_warning.assert_called()
+        assert mock_warning.called is True
         # Should not log info for states with existing usage
         self.assertFalse(
             any(

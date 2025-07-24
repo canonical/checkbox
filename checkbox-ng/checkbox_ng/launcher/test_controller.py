@@ -28,7 +28,7 @@ from checkbox_ng.launcher.controller import RemoteController
 from checkbox_ng.launcher.controller import is_hostname_a_loopback
 
 
-class ControllerTests(TestCase):
+class TestRemoteController(TestCase):
     @mock.patch("checkbox_ng.launcher.controller.is_hostname_a_loopback")
     @mock.patch("time.time")
     @mock.patch("builtins.print")
@@ -1063,53 +1063,97 @@ class ControllerTests(TestCase):
         with self.assertRaises(SystemExit) as _:
             RemoteController.start_session(self_mock)
 
+    @mock.patch("checkbox_ng.launcher.controller.ManifestBrowser")
+    def test__save_manifest_interactive_with_visible_manifests(
+        self, mock_browser_class
+    ):
+        controller = RemoteController()
+        sa_mock = mock.MagicMock()
+        controller._sa = sa_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "visible1", "value": 0, "hidden": False},
+                {"id": "visible2", "value": False, "hidden": False},
+            ]
+        }
+        sa_mock.get_manifest_repr_json.return_value = json.dumps(manifest_repr)
+
+        mock_browser = mock.MagicMock()
+        mock_browser.run.return_value = {
+            "visible1": 5,
+            "visible2": True,
+        }
+        mock_browser_class.return_value = mock_browser
+        mock_browser_class.has_visible_manifests.return_value = True
+
+        controller._save_manifest(interactive=True)
+
+        sa_mock.save_manifest_json.assert_called_with(
+            json.dumps({"visible1": 5, "visible2": True})
+        )
+
+    @mock.patch("checkbox_ng.launcher.controller.ManifestBrowser")
+    def test__save_manifest_interactive_no_visible_manifests(
+        self, mock_browser_class
+    ):
+        controller = RemoteController()
+        sa_mock = mock.MagicMock()
+        controller._sa = sa_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "hidden1", "value": True, "hidden": True},
+                {"id": "hidden2", "value": 2, "hidden": True},
+            ]
+        }
+        sa_mock.get_manifest_repr_json.return_value = json.dumps(manifest_repr)
+        mock_browser_class.has_visible_manifests.return_value = False
+        mock_browser_class.get_flattened_values.return_value = {
+            "hidden1": True,
+            "hidden2": 2,
+        }
+
+        controller._save_manifest(interactive=True)
+
+        self.assertEqual(mock_browser_class.call_count, 0)
+        self.assertEqual(
+            mock_browser_class.has_visible_manifests.call_count, 1
+        )
+        self.assertEqual(mock_browser_class.get_flattened_values.call_count, 1)
+        self.assertEqual(sa_mock.save_manifest_json.call_count, 1)
+        sa_mock.save_manifest_json.assert_called_with(
+            json.dumps({"hidden1": True, "hidden2": 2})
+        )
+
+    @mock.patch("checkbox_ng.launcher.controller.ManifestBrowser")
+    def test__save_manifest_non_interactive(self, mock_browser_class):
+        controller = RemoteController()
+        sa_mock = mock.MagicMock()
+        controller._sa = sa_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "manifest1", "value": False, "hidden": False},
+                {"id": "manifest2", "value": 7, "hidden": True},
+            ]
+        }
+        sa_mock.get_manifest_repr_json.return_value = json.dumps(manifest_repr)
+        mock_browser_class.get_flattened_values.return_value = {
+            "manifest1": False,
+            "manifest2": 7,
+        }
+
+        controller._save_manifest(interactive=False)
+
+        sa_mock.save_manifest_json.assert_called_with(
+            json.dumps({"manifest1": False, "manifest2": 7})
+        )
+
     def test__save_manifest_no_repr(self):
         self_mock = mock.MagicMock()
         self_mock.sa.get_manifest_repr_json.return_value = "{}"
         RemoteController._save_manifest(self_mock, False)
-
-    @mock.patch("checkbox_ng.launcher.controller.ManifestBrowser")
-    def test__save_manifest_interactive(self, manifest_browser_mock):
-        self_mock = mock.MagicMock()
-        manifest_repr = {"Question 1": [{"id": "conf1", "value": "val1"}]}
-        self_mock.sa.get_manifest_repr_json.return_value = json.dumps(
-            manifest_repr
-        )
-        to_save_manifest = {"conf1": "new_val"}
-        manifest_browser_mock.return_value.run.return_value = to_save_manifest
-
-        RemoteController._save_manifest(self_mock, True)
-
-        manifest_browser_mock.assert_called_once_with(
-            "System Manifest:", manifest_repr
-        )
-        self_mock.sa.save_manifest_json.assert_called_once_with(
-            json.dumps(to_save_manifest)
-        )
-
-    def test__save_manifest_non_interactive(self):
-        self_mock = mock.MagicMock()
-        manifest_repr = {
-            "Question 1": [
-                {"id": "conf1", "value": "val1"},
-                {"id": "conf2", "value": "val2"},
-            ],
-            "Question 2": [{"id": "conf3", "value": "val3"}],
-        }
-        self_mock.sa.get_manifest_repr_json.return_value = json.dumps(
-            manifest_repr
-        )
-
-        RemoteController._save_manifest(self_mock, False)
-
-        expected_to_save = {
-            "conf1": "val1",
-            "conf2": "val2",
-            "conf3": "val3",
-        }
-        self_mock.sa.save_manifest_json.assert_called_once_with(
-            json.dumps(expected_to_save)
-        )
 
     def test_select_jobs_forced_with_manifest(self):
         self_mock = mock.MagicMock()

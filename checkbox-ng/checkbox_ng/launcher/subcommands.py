@@ -692,21 +692,20 @@ class Launcher(MainLoopStage, ReportsStage):
         if not manifest_repr:
             _logger.info("Skipping saving of the manifest")
             return
-        if interactive:
+
+        if interactive and ManifestBrowser.has_visible_manifests(
+            manifest_repr
+        ):
             # Ask the user the values
             to_save_manifest = ManifestBrowser(
                 "System Manifest:", manifest_repr
             ).run()
         else:
-            # Use the one provided in repr
-            # repr is question : [manifests]
-            #   manifest ex m1 is [conf_m1_1, conf_m1_2, ...]
-            # here we recover [conf_m1_1, conf_m1_2, ..., conf_m2_1, ...]
-            to_save_manifest = {
-                conf["id"]: conf["value"]
-                for conf_list in manifest_repr.values()
-                for conf in conf_list
-            }
+            # Use the one provided in repr (either non-interactive or no visible manifests)
+            to_save_manifest = ManifestBrowser.get_flattened_values(
+                manifest_repr
+            )
+
         self.ctx.sa.save_manifest(to_save_manifest)
 
     def _pick_jobs_to_run(self):

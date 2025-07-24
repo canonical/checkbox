@@ -628,24 +628,20 @@ class RemoteController(ReportsStage, MainLoopStage):
         if not manifest_repr:
             _logger.info("Skipping saving of the manifest")
             return
-        if interactive:
+
+        if interactive and ManifestBrowser.has_visible_manifests(
+            manifest_repr
+        ):
             # Ask the user the values
             to_save_manifest = ManifestBrowser(
                 "System Manifest:", manifest_repr
             ).run()
         else:
-            # Use the one provided in repr
-            # repr is question : [manifests]
-            #   manifest ex m1 is [conf_m1_1, conf_m1_2, ...]
-            # here we recover [conf_m1_1, conf_m1_2, ..., conf_m2_1, ...]
-            all_preconf = (
-                conf
-                for conf_list in manifest_repr.values()
-                for conf in conf_list
+            # Use the one provided in repr (either non-interactive or no visible manifests)
+            to_save_manifest = ManifestBrowser.get_flattened_values(
+                manifest_repr
             )
-            to_save_manifest = {
-                conf["id"]: conf["value"] for conf in all_preconf
-            }
+
         self.sa.save_manifest_json(json.dumps(to_save_manifest))
 
     def select_jobs(self, all_jobs):

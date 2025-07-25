@@ -347,7 +347,7 @@ def print_journal_entries(start):
 
 def parser_args():
     parser = argparse.ArgumentParser(
-        description="WiFi connection test using mmcli"
+        description="WiFi connection test using nmcli"
     )
 
     subparsers = parser.add_subparsers(dest="test_type")

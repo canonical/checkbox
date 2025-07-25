@@ -61,7 +61,7 @@ Examples:
   watchdog.py detect --module iTCO_wdt
   watchdog.py trigger-reset --module iTCO_wdt --identity "Intel WDT" --timeout 30 --log-dir /tmp/wdt
   watchdog.py post-check --log-dir /tmp/wdt
-"""
+"""  # noqa: E501
 
 
 def watchdog_argparse() -> argparse.Namespace:

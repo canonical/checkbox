@@ -24,6 +24,27 @@ from checkbox_support.snap_utils.system import on_ubuntucore
 from checkbox_support.snap_utils.system import get_series
 
 
+USAGE = """
+Watchdog Config Test Scripts
+
+Usage:
+  watchdo_config_test.py check-time
+  watchdo_config_test.py check-service
+
+Commands:
+  check-time     Check if systemd watchdog timeout is configured correctly
+  check-service  Check if watchdog.service is configured correctly
+
+Note:
+  On Ubuntu Core and Ubuntu 20.04 or later, the system no longer requires
+  the separate watchdog service. Instead, watchdog support is now integrated
+  and managed directly through the systemd watchdog mechanism.
+
+  On Ubuntu 18.04 and earlier, watchdog support rely on the separate
+  watchdog service.
+"""
+
+
 def get_systemd_wdt_usec():
     """
     Return value of systemd-watchdog RuntimeWatchdogUSec
@@ -110,26 +131,6 @@ def check_service() -> bool:
             raise SystemExit("watchdog.service unit does not report as active")
         print("watchdog.service is active")
 
-
-USAGE = """
-Watchdog Config Test Scripts
-
-Usage:
-  watchdo_config_test.py check-time
-  watchdo_config_test.py check-service
-
-Commands:
-  check-time     Check if systemd watchdog timeout is configured correctly
-  check-service  Check if watchdog.service is configured correctly
-
-Note:
-  On Ubuntu Core and Ubuntu 20.04 or later, the system no longer requires
-  the separate watchdog service. Instead, watchdog support is now integrated
-  and managed directly through the systemd watchdog mechanism.
-
-  On Ubuntu 18.04 and earlier, watchdog support rely on the separate
-  watchdog service.
-"""
 
 def watchdog_argparse() -> argparse.Namespace:
     parser = argparse.ArgumentParser(

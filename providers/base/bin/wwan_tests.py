@@ -334,7 +334,7 @@ def _ping_test(if_name):
 
 class ThreeGppConnection:
 
-    def invoked(self):
+    def register_argument(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "hw_id", type=str, help="The hardware ID of the modem"
@@ -353,22 +353,25 @@ class ThreeGppConnection:
             default=30,
             help="delay before ping test",
         )
-        args = parser.parse_args(sys.argv[2:])
+        return parser.parse_args(sys.argv[2:])
 
-        mm = MMCLI()
-        mm_id = mm.equipment_id_to_mm_id(args.hw_id)
-        wwan_control_if = mm.get_primary_port(mm_id)
+    def invoked(self):
+
+        args = self.register_argument()
 
         ret_code = 1
         try:
-            _create_3gpp_connection(wwan_control_if, args.apn)
-            _wwan_radio_on()
-            time.sleep(args.wwan_setup_time)
-            ret_code = _ping_test(args.wwan_net_if)
+            with WWANTestCtx(args.hw_id, True, True) as ctx:
+                wwan_control_if = ctx.mm_obj.get_primary_port(
+                    str(ctx.modem_idx)
+                )
+                _create_3gpp_connection(wwan_control_if, args.apn)
+                time.sleep(args.wwan_setup_time)
+                ret_code = _ping_test(args.wwan_net_if)
         except subprocess.SubprocessError:
             pass
         _destroy_3gpp_connection()
-        _wwan_radio_off()
+
         sys.exit(ret_code)
 
 

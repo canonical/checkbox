@@ -306,7 +306,7 @@ id: graphics/{index}_auto_glxgears_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible', 'Tablet', 'Detachable']
 user: root
 command:
  # shellcheck disable=SC1091
@@ -327,7 +327,7 @@ id: graphics/{index}_valid_glxgears_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible', 'Tablet', 'Detachable']
 user: root
 command:
  # shellcheck disable=SC1091
@@ -356,7 +356,7 @@ id: graphics/{index}_auto_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible','Tablet', 'Detachable']
 user: root
 command:
  # shellcheck disable=SC1091
@@ -377,7 +377,7 @@ id: graphics/{index}_valid_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible','Tablet', 'Detachable']
 user: root
 command:
  # shellcheck disable=SC1091

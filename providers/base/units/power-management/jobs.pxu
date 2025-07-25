@@ -106,7 +106,7 @@ plugin: manual
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid
 estimated_duration: 120.0
-requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Detachable']
 _description:
 _purpose:
     This test will check your lid sensors.
@@ -180,7 +180,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid_close_suspend_open
 estimated_duration: 20.0
-requires: device.product == 'Lid Switch'
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Detachable']
 _purpose:
     This test will check your lid sensor can detect lid close/open, and the DUT (Device Under Test) will suspend when the lid is closed
 _steps:
@@ -545,7 +545,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/light_sensor
 estimated_duration: 10.0
 requires:
-  dmi.product in ['Notebook','Laptop','Portable','Convertible']
+  dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Tablet', 'Detachable']
   executable.name == 'monitor-sensor'
 flags: also-after-suspend
 command: light_sensor_test.sh

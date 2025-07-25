@@ -20,6 +20,7 @@ from .const import (CJ_MANUFACTURER_ID, EDDYSTONE_UUID,
                     OCF_LE_SET_EXT_SCAN_PARAMETERS, OCF_LE_SET_EXT_SCAN_ENABLE,
                     EVT_LE_EXT_ADVERTISING_REPORT, OGF_INFO_PARAM,
                     OCF_READ_LOCAL_VERSION, EVT_CMD_COMPLETE)
+from .const import MetaEventReportTypeEnum as MERTE
 from .device_filters import BtAddrFilter, DeviceFilter
 from .packet_types import (EddystoneEIDFrame, EddystoneEncryptedTLMFrame,
                            EddystoneTLMFrame, EddystoneUIDFrame,
@@ -156,7 +157,6 @@ class Monitor(threading.Thread):
         while self.keep_going:
             pkt = self.socket.recv(255)
             event = to_int(pkt[1])
-            subevent = to_int(pkt[3])
 
             # Print opcode and error code when HCI command failed
             # This may helps to identify issue
@@ -182,9 +182,13 @@ class Monitor(threading.Thread):
                             hex(error_code), pkt
                         )
                     )
-            elif event == LE_META_EVENT and subevent in [EVT_LE_ADVERTISING_REPORT, EVT_LE_EXT_ADVERTISING_REPORT]:
-                # we have an BLE advertisement
-                self.process_packet(pkt)
+            elif event == LE_META_EVENT:
+                subevent = to_int(pkt[3])
+                if subevent in [
+                    EVT_LE_ADVERTISING_REPORT, EVT_LE_EXT_ADVERTISING_REPORT
+                ]:
+                    # we have an BLE advertisement
+                    self.process_packet(pkt)
         self.socket.close()
 
     def get_hci_version(self):
@@ -296,17 +300,24 @@ class Monitor(threading.Thread):
 
     def analyze_le_adv_event(self, pkt):
         subevent = to_int(pkt[3])
-        if subevent == EVT_LE_ADVERTISING_REPORT:
+        ev_type = None
+        try:
+            ev_type = MERTE(subevent)
+        except ValueError:
+            print("Unexpected pkt: ", pkt)
+            return None, None, None, None
+
+        if ev_type == MERTE.LE_ADVERTISING_REPORT:
             rssi = bin_to_int(pkt[-1])
             payload = pkt[14:-1]
-        elif subevent == EVT_LE_EXT_ADVERTISING_REPORT:
+        elif ev_type == MERTE.LE_EXT_ADVERTISING_REPORT:
             rssi = bin_to_int(pkt[18])
             payload = pkt[29:]
         else:
             print("Error pkt: ", pkt)
             return None, None, None, None
         rssi = bin_to_int(
-            pkt[-1] if subevent == EVT_LE_ADVERTISING_REPORT else pkt[18]
+            pkt[-1] if ev_type == MERTE.LE_ADVERTISING_REPORT else pkt[18]
         )
         bt_addr = bt_addr_to_string(pkt[7:13])
         # Print pkt for debugging purpose
@@ -315,16 +326,17 @@ class Monitor(threading.Thread):
                 "Raw packet: {}".format(" ".join([hex(pk) for pk in pkt]))
             )
             print(
-                "LE Meta Event: subevent: {}, payload: {}, "
+                "LE Meta Event: subevent: {}({}), payload: {}, "
                 "rssi: {}, bt_addr: {}".format(
-                    hex(subevent),
+                    ev_type.name,
+                    ev_type.value,
                     " ".join([hex(p) for p in payload]),
                     rssi,
-                    bt_addr
+                    bt_addr,
                 )
             )
 
-        return subevent, payload, rssi, bt_addr
+        return ev_type, payload, rssi, bt_addr
 
     def process_packet(self, pkt):
         """Parse the packet and call callback if one of the filters matches."""
@@ -345,16 +357,21 @@ class Monitor(threading.Thread):
         # EVT_LE_ADVERTISING_REPORT with eddystone URL frame
         #       is expected to received
         expect_evt = (
-            EVT_LE_EXT_ADVERTISING_REPORT
+            MERTE.LE_EXT_ADVERTISING_REPORT
             if self.hci_version >= HCIVersion.BT_CORE_SPEC_5_0
-            else EVT_LE_ADVERTISING_REPORT
+            else MERTE.LE_ADVERTISING_REPORT
         )
 
         if subevent != expect_evt:
+            if isinstance(subevent, MERTE):
+                subevent_str = "{}({})".format(subevent.name, subevent.value)
+            else:
+                subevent_str = subevent
+
             print(
-                "Unexpected Eddystone beacon detected: Type: {} "
+                "Unexpected Eddystone beacon detected: Type: {}"
                 "URL: {} <mac: {}> <rssi: {}>".format(
-                    subevent, packet.url, bt_addr, rssi
+                    subevent_str, packet.url, bt_addr, rssi
                 ),
                 file=sys.stderr,
             )

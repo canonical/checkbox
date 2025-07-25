@@ -1,0 +1,60 @@
+name: checkbox-media
+summary: Checkbox tests for testing media
+description: |
+  Collection of tests to be run on devices to test media functionality
+version: '1.0'
+confinement: classic
+grade: stable
+
+base: core24
+
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+  configure:
+    command-chain: [bin/wrapper_local]
+    command: bin/configure
+  test-ffmpeg:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-ffmpeg
+  remote-slave:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper slave
+    daemon: simple
+    restart-condition: always
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+  install-ffmpeg:
+    command: bin/install-ffmpeg
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  checkbox-provider-media:
+    plugin: dump
+    source: ./checkbox-provider-media
+    source-type: local
+    build-snaps:
+      - checkbox-provider-tools
+      - checkbox24
+    stage-packages:
+      - intel-gpu-tools
+    override-build: |
+      for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      checkbox-provider-tools validate
+      checkbox-provider-tools build
+      checkbox-provider-tools install --layout=relocatable --prefix=/providers/checkbox-provider-media --root="$SNAPCRAFT_PART_INSTALL"
+  bin:
+    plugin: dump
+    source: bin/
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: config/
+

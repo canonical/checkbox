@@ -44,8 +44,8 @@ def init_bluetooth():
 
 def beacon_scan(hci_device, debug=False):
     TIMEOUT = 10
-
-    beacon_mac = beacon_rssi = beacon_packet = report_type = ""
+    report_type = None
+    beacon_mac = beacon_rssi = beacon_packet = ""
 
     def callback(sub_event, bt_addr, rssi, packet, additional_info):
         nonlocal beacon_mac, beacon_rssi, beacon_packet, report_type
@@ -70,9 +70,13 @@ def beacon_scan(hci_device, debug=False):
     scanner.stop()
     if beacon_packet:
         print(
-            "Eddystone beacon detected: [Adv Report Type: {}] URL: {} "
-            "<mac: {}> <rssi: {}>".format(
-                report_type, beacon_packet.url, beacon_mac, beacon_rssi
+            "Eddystone beacon detected: [Adv Report Type: {}({})] "
+            "URL: {} <mac: {}> <rssi: {}>".format(
+                report_type.name,
+                report_type.value,
+                beacon_packet.url,
+                beacon_mac,
+                beacon_rssi,
             )
         )
         return 0

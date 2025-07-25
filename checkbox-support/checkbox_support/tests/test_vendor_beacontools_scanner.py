@@ -32,6 +32,7 @@ from checkbox_support.vendor.beacontools.device_filters import (
     BtAddrFilter,
     DeviceFilter,
 )
+from checkbox_support.vendor.beacontools.const import MetaEventReportTypeEnum
 
 
 class HCIVersionTests(unittest.TestCase):
@@ -117,13 +118,19 @@ class MonitorTests(unittest.TestCase):
         mon = Monitor()
         mon.debug = True
         event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
-        self.assertEqual(event, int(pkts[3], 16))
+        self.assertEqual(event, MetaEventReportTypeEnum.LE_ADVERTISING_REPORT)
         self.assertEqual(payload, packet[14:-1])
         self.assertEqual(rssi, int(pkts[-1], 16))
         self.assertEqual(addr, "99:88:77:66:55:44")
         mock_print.assert_called_with(
-            "LE Meta Event: subevent: 0x2, payload: 0x11 0x22 0x33 0x44 0x55, "
-            "rssi: 102, bt_addr: 99:88:77:66:55:44"
+            (
+                "LE Meta Event: subevent: {}({}), "
+                "payload: 0x11 0x22 0x33 0x44 0x55, "
+                "rssi: 102, bt_addr: 99:88:77:66:55:44"
+            ).format(
+                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.name,
+                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.value,
+            )
         )
 
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
@@ -140,7 +147,9 @@ class MonitorTests(unittest.TestCase):
         mon = Monitor()
         mon.debug = False
         event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
-        self.assertEqual(event, int(pkts[3], 16))
+        self.assertEqual(
+            event, MetaEventReportTypeEnum.LE_EXT_ADVERTISING_REPORT
+        )
         self.assertEqual(payload, packet[29:])
         self.assertEqual(rssi, int(pkts[18], 16))
         self.assertEqual(addr, "99:88:77:66:55:44")
@@ -164,7 +173,7 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(payload, None)
         self.assertEqual(rssi, None)
         self.assertEqual(addr, None)
-        mock_print.assert_called_with("Error pkt: ", packet)
+        mock_print.assert_called_with("Unexpected pkt: ", packet)
 
     @patch(
         "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
@@ -180,7 +189,12 @@ class MonitorTests(unittest.TestCase):
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (2, "payload", "rssi", "addr")
+        mock_ana.return_value = (
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "payload",
+            "rssi",
+            "addr",
+        )
         mock_packet = Mock()
         mock_packet.url = "url"
         mock_parse.return_value = mock_packet
@@ -198,7 +212,11 @@ class MonitorTests(unittest.TestCase):
         mock_addr.assert_called_with(mock_packet, "addr")
         mock_properties.assert_called_with(mock_packet, "addr")
         mock_callback.assert_called_with(
-            2, "addr", "rssi", mock_packet, "properties"
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "addr",
+            "rssi",
+            mock_packet,
+            "properties",
         )
 
     @patch("checkbox_support.vendor.beacontools.scanner.is_one_of")
@@ -222,7 +240,12 @@ class MonitorTests(unittest.TestCase):
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (2, "payload", "rssi", "addr")
+        mock_ana.return_value = (
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "payload",
+            "rssi",
+            "addr",
+        )
         mock_packet = Mock()
         mock_packet.url = "url"
         mock_parse.return_value = mock_packet
@@ -242,7 +265,11 @@ class MonitorTests(unittest.TestCase):
         mock_properties.assert_called_with(mock_packet, "addr")
         mock_func.assert_called_with(mock_packet, "pkt_filter")
         mock_callback.assert_called_with(
-            2, "addr", "rssi", mock_packet, "properties"
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "addr",
+            "rssi",
+            mock_packet,
+            "properties",
         )
 
     @patch("checkbox_support.vendor.beacontools.scanner.is_one_of")
@@ -266,7 +293,12 @@ class MonitorTests(unittest.TestCase):
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (2, "payload", "rssi", "addr")
+        mock_ana.return_value = (
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "payload",
+            "rssi",
+            "addr",
+        )
         mock_packet = Mock()
         mock_packet.url = "url"
         mock_parse.return_value = mock_packet
@@ -310,7 +342,12 @@ class MonitorTests(unittest.TestCase):
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (2, "payload", "rssi", "addr")
+        mock_ana.return_value = (
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "payload",
+            "rssi",
+            "addr",
+        )
         mock_packet = Mock()
         mock_packet.url = "url"
         mock_parse.return_value = mock_packet
@@ -331,7 +368,11 @@ class MonitorTests(unittest.TestCase):
         mock_properties.assert_called_with(mock_packet, "addr")
         mock_is_one_of.assert_called_with(mock_packet, "pkt_filter")
         mock_callback.assert_called_with(
-            2, "addr", "rssi", mock_packet, "properties"
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "addr",
+            "rssi",
+            mock_packet,
+            "properties",
         )
 
     @patch.object(DeviceFilter, "matches")
@@ -357,7 +398,12 @@ class MonitorTests(unittest.TestCase):
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (2, "payload", "rssi", "addr")
+        mock_ana.return_value = (
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "payload",
+            "rssi",
+            "addr",
+        )
         mock_packet = Mock()
         mock_packet.url = "url"
         mock_parse.return_value = mock_packet
@@ -378,5 +424,9 @@ class MonitorTests(unittest.TestCase):
         mock_properties.assert_called_with(mock_packet, "addr")
         mock_is_one_of.assert_called_with(mock_packet, "pkt_filter")
         mock_callback.assert_called_with(
-            2, "addr", "rssi", mock_packet, "properties"
+            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "addr",
+            "rssi",
+            mock_packet,
+            "properties",
         )

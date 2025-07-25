@@ -23,6 +23,7 @@ from unittest.mock import patch, MagicMock
 
 from checkbox_support.helpers.timeout import mock_timeout
 from checkbox_support.scripts import eddystone_scanner
+from checkbox_support.vendor.beacontools.const import MetaEventReportTypeEnum
 
 
 class TestEddystoneScanner(unittest.TestCase):
@@ -35,7 +36,13 @@ class TestEddystoneScanner(unittest.TestCase):
 
             def start(self):
                 packet = MagicMock(url="packet_url")
-                self.callback("type", "address", "rssi", packet, None)
+                self.callback(
+                    MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+                    "address",
+                    "rssi",
+                    packet,
+                    None,
+                )
 
             def stop(self):
                 pass
@@ -48,8 +55,13 @@ class TestEddystoneScanner(unittest.TestCase):
         self.assertEqual(kwargs["bt_device_id"], "1")
         self.assertEqual(kwargs["debug"], True)
         mock_print.assert_called_with(
-            "Eddystone beacon detected: [Adv Report Type: type] "
-            "URL: packet_url <mac: address> <rssi: rssi>"
+            (
+                "Eddystone beacon detected: [Adv Report Type: {}({})] "
+                "URL: packet_url <mac: address> <rssi: rssi>"
+            ).format(
+                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.name,
+                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.value,
+            )
         )
 
     @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")

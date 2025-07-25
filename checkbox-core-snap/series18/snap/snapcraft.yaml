@@ -132,6 +132,7 @@ parts:
     source-type: local
     stage-packages:
       - python3-requests-unixsocket
+      - python3-tk
       - libbluetooth3
       - libsystemd0
       - v4l-utils

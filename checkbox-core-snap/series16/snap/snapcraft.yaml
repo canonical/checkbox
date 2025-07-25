@@ -137,6 +137,7 @@ parts:
       - python3-requests-unixsocket
       - python3-serial
       - python3-setuptools
+      - python3-tk
       - python3-yaml
       - pyotherside
       - libbluetooth3

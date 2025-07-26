@@ -154,7 +154,7 @@ class RemoteSessionAssistant:
     object but JSON encoded.
     """
 
-    REMOTE_API_VERSION = 14
+    REMOTE_API_VERSION = 15
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -167,6 +167,7 @@ class RemoteSessionAssistant:
         self.terminate_cb = None
         self._pipe_from_controller = open(self._input_piping[1], "w")
         self._pipe_to_subproc = open(self._input_piping[0])
+        self._sa = None  # type: SessionAssistant
         self._reset_sa()
         self._currently_running_job = None
 
@@ -395,12 +396,12 @@ class RemoteSessionAssistant:
         return False
 
     @allowed_when(Started)
-    def get_bootstrapping_todo_list_json(self):
-        return json.dumps(self.get_bootstrapping_todo_list())
+    def start_bootstrap_json(self):
+        return json.dumps(self.start_bootstrap())
 
     @allowed_when(Started)
-    def get_bootstrapping_todo_list(self):
-        return self._sa.get_bootstrap_todo_list()
+    def start_bootstrap(self):
+        return self._sa.start_bootstrap()
 
     def finish_bootstrap_json(self):
         return json.dumps(self.finish_bootstrap())
@@ -756,7 +757,9 @@ class RemoteSessionAssistant:
         return self._sa.get_resumable_sessions()
 
     def resume_session(self, session_id, runner_kwargs={}):
-        return self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
+        return self._sa.prepare_resume_session(
+            session_id, runner_kwargs=runner_kwargs
+        )
 
     def bootstrap(self):
         return self._sa.bootstrap()

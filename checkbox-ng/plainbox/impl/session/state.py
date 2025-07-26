@@ -26,6 +26,8 @@ import json
 import logging
 import re
 
+from contextlib import suppress
+
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
@@ -107,6 +109,18 @@ class SessionMetaData:
             self.flags,
             self.running_job_name,
         )
+
+    @property
+    def bootstrapping(self) -> bool:
+        return self.FLAG_BOOTSTRAPPING in self.flags
+
+    @bootstrapping.setter
+    def bootstrapping(self, value: bool):
+        if value:
+            self.flags.add(self.FLAG_BOOTSTRAPPING)
+        else:
+            with suppress(KeyError):
+                self.flags.remove(self.FLAG_BOOTSTRAPPING)
 
     @property
     def title(self):

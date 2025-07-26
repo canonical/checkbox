@@ -62,36 +62,69 @@ class ExtendedEnum(Enum):
 
 
 def get_pci_ids(device_id: str, vendor_id: str = ""):
+    """
+    Retrieve PCI BDFs for devices matching a given vendor and device ID.
+
+    Args:
+        device_id (str): The PCI device ID (e.g., '4940').
+        vendor_id (str, optional): The PCI vendor ID
+                                   (e.g., '8086' for Intel).
+                                   Defaults to an empty string,
+                                   which matches any vendor.
+
+    Returns:
+        List[str]: A list of PCI BDF addresses
+                   (e.g., ['0000:00:01.0', '0000:00:02.0']).
+    """
     args: List[str] = ["lspci", "-d", f"{vendor_id}:{device_id}"]
     devices = subprocess.check_output(args, universal_newlines=True) \
                         .splitlines()
     return [v.split(" ")[0] for v in devices]
 
 
-def get_vfio(bdf: str):
+def get_vfio_device(bdf: str):
+    """
+    Determine the VFIO device ID for a given PCI device BDF.
+
+    Args:
+        bdf (str): The PCI device's bus:device.function address
+                   (e.g., '0000:00:01.0').
+
+    Returns:
+        int: The VFIO device ID associated with the PCI device.
+             Returns 0 if the BDF is notassociated to any VFIO device.
+    """
     vfio_path = pathlib.Path("/dev/vfio/")
     vfio_files = vfio_path.glob("*")
     for vfio_file in vfio_files:
-        vfio_group = vfio_file.name
-        if vfio_group != "vfio" and vfio_group != "devices":
-            vfio_devs_path = f"/sys/kernel/iommu_groups/{vfio_group}/devices/"
+        vfio_device = vfio_file.name
+        if vfio_device != "vfio" and vfio_device != "devices":
+            vfio_devs_path = f"/sys/kernel/iommu_groups/{vfio_device}/devices/"
             iommu_path = pathlib.Path(vfio_devs_path)
             devices = iommu_path.glob("*")
             for dev_path in devices:
                 if dev_path.name == bdf:
-                    return int(vfio_group)
+                    return int(vfio_device)
     return 0
 
 
 class VFIOGroup(dict):
-    def __init__(self, vfio_group, qat_dev):
-        self.__setitem__("vfio_dev", f"/dev/vfio/{vfio_group}")
+    def __init__(self, vfio_dev, qat_dev):
+        self.__setitem__("vfio_dev", f"/dev/vfio/{vfio_dev}")
         self.sys_path = pathlib.Path(
-            f"/sys/kernel/iommu_groups/{vfio_group}/devices/{qat_dev.bdf}"
+            f"/sys/kernel/iommu_groups/{vfio_dev}/devices/{qat_dev.bdf}"
         )
         self.__setitem__("numa_node", self.numa())
 
     def numa(self):
+        """
+        Return the numa node
+
+        Args:
+
+        Returns:
+            str: numa node number of the VFIO device
+        """
         path = self.sys_path / "numa_node"
         with path.open() as f:
             data = f.read()
@@ -119,7 +152,7 @@ class CounterEngine(ExtendedEnum):
 class DeviceData(dict):
     """
     Parse data from
-      /sys/kernel/debug/qat_<device>_<BDF>/telemetry/device_data
+      /sys/kernel/debug/qat_<qat-driver>_<BDF>/telemetry/device_data
     and put it as a dictionary.
     """
 
@@ -139,6 +172,8 @@ class DeviceData(dict):
         lines = data.splitlines()
         for line in lines:
             fields = line.split()
+            if len(fields) < 2:
+                continue
             counter_name = fields[0]
             value = fields[1]
             # counter_name start with [util|exec] and ends with number
@@ -182,7 +217,7 @@ class QatDeviceTelemetry(dict):
     def debugfs_fn(func):
         def debugfs_wrapper(self):
             if self.is_debugfs_enabled():
-                func(self)
+                return func(self)
 
         return debugfs_wrapper
 
@@ -256,10 +291,10 @@ class Qat4xxxDevice:
         if self.is_virtual_function:
             # vfio
             self.vfio = None
-            vfio_group = get_vfio(self.bdf)
-            if vfio_group >= 0:
+            vfio_dev = get_vfio_device(self.bdf)
+            if vfio_dev >= 0:
                 try:
-                    self.vfio = VFIOGroup(vfio_group, self)
+                    self.vfio = VFIOGroup(vfio_dev, self)
                 except:  # noqa: E722
                     self.vfio = None
             return
@@ -322,6 +357,7 @@ class Qat4xxxDevice:
     @property
     def state(self):
         path = self.sys_path / "qat" / "state"
+        print(path)
         with path.open() as f:
             data = f.read()
         return data.replace("\n", "")
@@ -414,6 +450,7 @@ class QatDevManager:
             d.set_cfg_services(service)
 
     def get_state(self):
+        print('coucou')
         for d in self.qat_devs:
             print(d.state)
 

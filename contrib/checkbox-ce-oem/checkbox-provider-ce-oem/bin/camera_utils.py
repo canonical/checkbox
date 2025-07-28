@@ -84,7 +84,7 @@ class SupportedMethods(Enum):
     V4L2_CTL = "v4l2-ctl"
     # gstreamer can be used to generate the mp4, jpeg and other common files.
     # It's more like the real user scenario.
-    GSTREANER = "gstreamer"
+    GSTREAMER = "gstreamer"
 
     def __str__(self):
         return self.value
@@ -179,7 +179,7 @@ def generate_artificat_folder(artifact_full_path: str) -> None:
     os.makedirs(artifact_full_path, exist_ok=True)
 
 
-def camera_factory(platform: str, camera_module: str) -> object:
+def camera_factory(platform: str, camera_module: str) -> CameraInterface:
     """ """
     if "genio" in platform:
         from camera_genio import genio_camera_factory

@@ -477,7 +477,7 @@ class GenioBaseCamera(CameraInterface):
 
         logger.info("Capture image with {}".format(method))
 
-        if method == SupportedMethods.GSTREANER:
+        if method == SupportedMethods.GSTREAMER:
             cmd = self._build_gstreamer_cmd(
                 dev_video_node, width, height, format, full_artifact_path
             )
@@ -487,7 +487,7 @@ class GenioBaseCamera(CameraInterface):
             )
         else:
             msg = "No suitable method such as '{}' or '{}' be provided".format(
-                SupportedMethods.GSTREANER, SupportedMethods.V4L2_CTL
+                SupportedMethods.GSTREAMER, SupportedMethods.V4L2_CTL
             )
             log_and_raise_error(msg, CameraConfigurationError)
 
@@ -525,7 +525,7 @@ class GenioBaseCamera(CameraInterface):
 
         logger.info("Record video with {}".format(method))
 
-        if method == SupportedMethods.GSTREANER:
+        if method == SupportedMethods.GSTREAMER:
             cmd = self._build_gstreamer_cmd(
                 dev_video_node,
                 width,
@@ -546,7 +546,7 @@ class GenioBaseCamera(CameraInterface):
             )
         else:
             msg = "No suitable method such as '{}' or '{}' be provided".format(
-                SupportedMethods.GSTREANER, SupportedMethods.V4L2_CTL
+                SupportedMethods.GSTREAMER, SupportedMethods.V4L2_CTL
             )
             log_and_raise_error(msg, CameraConfigurationError)
 

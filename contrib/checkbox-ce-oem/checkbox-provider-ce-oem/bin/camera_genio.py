@@ -342,23 +342,6 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
         logger.info(msg)
 
 
-# Update the existing function to use the new class
-def get_genio_camera_dev_video_node(
-    v4l2_devices: str,
-    camera: Union[str, SupportedCamera],
-    v4l2_device_name: str,
-    arch: SoftwareArchitectures,
-) -> Dict[str, str]:
-    """
-    Get video device nodes classified by camera type.
-
-    This function maintains backward compatibility while using the new
-    GenioVideoNodeResolver class internally.
-    """
-    resolver = GenioVideoNodeResolver(v4l2_devices)
-    return resolver.get_camera_video_nodes(camera, v4l2_device_name, arch)
-
-
 class GenioBaseCamera(CameraInterface):
     """
     Base class for Genio camera implementations.
@@ -442,11 +425,9 @@ class GenioBaseCamera(CameraInterface):
 
     def _get_camera_dev_video_node(self, v4l2_device_name: str) -> dict:
         """Get the video device node for the given v4l2 device name."""
-        return get_genio_camera_dev_video_node(
-            v4l2_devices=self._v4l2_devices,
-            camera=self._camera,
-            v4l2_device_name=v4l2_device_name,
-            arch=self._img_sensor_arch,
+        resolver = GenioVideoNodeResolver(self._v4l2_devices)
+        return resolver.get_camera_video_nodes(
+            self._camera, v4l2_device_name, self._img_sensor_arch
         )
 
     def capture_image(
@@ -458,7 +439,7 @@ class GenioBaseCamera(CameraInterface):
         artifact_name: str,
         method: str,
         v4l2_device_name: str,
-    ) -> str:
+    ) -> None:
         """Capture an image using the specified method."""
         full_artifact_path = self._get_artifact_path(
             store_path, artifact_name, format
@@ -506,7 +487,7 @@ class GenioBaseCamera(CameraInterface):
         artifact_name: str,
         method: str,
         v4l2_device_name: str,
-    ) -> str:
+    ) -> None:
         """Record a video using the specified method."""
         full_artifact_path = self._get_artifact_path(
             store_path, artifact_name, "YUV"

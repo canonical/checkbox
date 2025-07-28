@@ -110,13 +110,11 @@ class CameraInterface(ABC):
         format: str,
         store_path: str,
         artifact_name: str,
+        method: str,
         v4l2_device_name: str,
-    ) -> str:
+    ) -> None:
         """
         Execute the Capture image scenario.
-
-        Return {str}:
-            The path of captured image
         """
         pass
 
@@ -132,12 +130,9 @@ class CameraInterface(ABC):
         artifact_name: str,
         method: str,
         v4l2_device_name: str,
-    ) -> str:
+    ) -> None:
         """
         Execute the Video record scenario.
-
-        Return {str}:
-            The path of recored video
         """
         pass
 

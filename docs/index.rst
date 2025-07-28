@@ -19,29 +19,34 @@ Server, Core).
 Checkbox is useful for anyone who wants to make sure their devices are running
 as expected on Ubuntu.
 
----------
+----
 
-In this documentation
----------------------
+.. grid:: 1 1 2 2
 
-..  grid:: 1 1 2 2
+   .. grid-item-card:: Tutorial
+      :link: /tutorial/index
+      :link-type: doc
 
-   ..  grid-item:: :doc:`Tutorial <tutorial/index>`
+      **Start here** - a hands-on introduction to Checkbox for new users
 
-       **Start here**: a hands-on introduction to Checkbox for new users
-
-   ..  grid-item:: :doc:`How-to guides <how-to/index>`
+   .. grid-item-card:: How-to guides
+      :link: /how-to/index
+      :link-type: doc
 
       **Step-by-step guides** covering key operations and common tasks
 
 .. grid:: 1 1 2 2
    :reverse:
 
-   .. grid-item:: :doc:`Reference <reference/index>`
+   .. grid-item-card:: Reference
+      :link: /reference/index
+      :link-type: doc
 
       **Technical information** - specifications, APIs, architecture
 
-   .. grid-item:: :doc:`Explanation <explanation/index>`
+   .. grid-item-card:: Explanation
+      :link: /explanation/index
+      :link-type: doc
 
       **Discussion and clarification** of key topics
 

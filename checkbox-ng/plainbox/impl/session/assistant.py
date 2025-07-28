@@ -566,7 +566,7 @@ class SessionAssistant:
         it was the last time session assistant did a checkpoint, i.e. session
         assistant's clients commited any information (e.g. saves job result,
         runs bootstrapping, updates app blob, etc.). This is called
-        prepares_resume_session and doesn't resume_session because to fully
+        prepares_resume_session and not resume_session because to fully
         resume a session with a test plan, the test plan must be selected and
         the bootstrap process must be re-executed.
         """
@@ -897,7 +897,7 @@ class SessionAssistant:
             desired_job_list, include_mandatory=False
         )
         UsageExpectation.of(self).allowed_calls = {
-            self.run_job: "to run setup job",
+            self.run_job: "to run bootstrap job",
             self.get_job: "to get the job definition by id",
             self.get_job_state: "to get the current state of a job",
             self.finish_bootstrap: "to finish bootstrapping after running all jobs",

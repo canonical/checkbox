@@ -72,9 +72,7 @@ class InterruptsTest:
             return False
 
         formatted_keys = ", ".join(str(k) for k in self.irq_numbers.keys())
-        logging.info(
-            "Successfully found IRQ numbers: %s", formatted_keys
-        )
+        logging.info("Successfully found IRQ numbers: %s", formatted_keys)
         return True
 
     def _get_smp_affinities(self) -> bool:
@@ -131,9 +129,7 @@ class InterruptsTest:
                 return False
         return True
 
-    def _get_interrupt_counts(
-        self, irq_number: int
-    ) -> Optional[List[int]]:
+    def _get_interrupt_counts(self, irq_number: int) -> Optional[List[int]]:
         """
         Gets current interrupt counts for a specific IRQ across all CPUs.
 
@@ -152,9 +148,7 @@ class InterruptsTest:
                         # Get counts only for the number of available CPUs
                         max_idx = self.num_cpus + 1
                         counts = [
-                            int(p)
-                            for p in parts[1:max_idx]
-                            if p.isdigit()
+                            int(p) for p in parts[1:max_idx] if p.isdigit()
                         ]
                         return counts
         except Exception as e:
@@ -174,8 +168,9 @@ class InterruptsTest:
             True if an interrupt was detected, False otherwise.
         """
         if not self._get_irq_numbers():
-            raise RuntimeError("Could not find IRQs for '{}'.".
-                               format(self.irq_name))
+            raise RuntimeError(
+                "Could not find IRQs for '{}'.".format(self.irq_name)
+            )
 
         if not self._get_smp_affinities():
             raise RuntimeError("Could not get CPU affinities for all IRQs.")

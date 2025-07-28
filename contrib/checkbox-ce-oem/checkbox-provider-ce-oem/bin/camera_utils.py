@@ -24,7 +24,7 @@ import re
 import shlex
 import shutil
 import subprocess
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Type
 
 
 from abc import ABC, abstractmethod
@@ -174,7 +174,7 @@ def generate_artificat_folder(artifact_full_path: str) -> None:
     os.makedirs(artifact_full_path, exist_ok=True)
 
 
-def camera_factory(platform: str, camera_module: str) -> CameraInterface:
+def camera_factory(platform: str, camera_module: str) -> Type[CameraInterface]:
     """ """
     if "genio" in platform:
         from camera_genio import genio_camera_factory

@@ -10,7 +10,7 @@ import os
 import sys
 import logging
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Optional
 
 # Define paths and constants
 PROC_INTERRUPTS = "/proc/interrupts"
@@ -33,7 +33,7 @@ class InterruptsTest:
         self.irq_name = irq_name
         # It maps each IRQ number to its list of target CPUs.
         # Example: {35: [0, 1], 36: [2, 3]}
-        self.irq_numbers: Dict[int, List[int]] = {}
+        self.irq_numbers = {}
         self.num_cpus = os.cpu_count()
 
     def _get_irq_numbers(self) -> bool:
@@ -176,7 +176,7 @@ class InterruptsTest:
             raise RuntimeError("Could not get CPU affinities for all IRQs.")
 
         # Store initial counts for all monitored IRQs
-        initial_counts_map: Dict[int, List[int]] = {}
+        initial_counts_map = {}
         for irq in self.irq_numbers:
             counts = self._get_interrupt_counts(irq)
             if counts is None:

@@ -387,7 +387,7 @@ unit: template
 template-resource: graphics_card
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-id: graphics/{index}_vkcube_blabla_{product_slug}
+id: graphics/{index}_vkcube_{product_slug}
 user: root
 command:
  # shellcheck disable=SC1091

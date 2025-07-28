@@ -545,7 +545,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/light_sensor
 estimated_duration: 10.0
 requires:
-  dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Tablet', 'Detachable']
+  dmi.sane_product == "portable"
   executable.name == 'monitor-sensor'
 flags: also-after-suspend
 command: light_sensor_test.sh

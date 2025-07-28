@@ -1531,7 +1531,7 @@ category_id: com.canonical.plainbox::suspend
 id: touchpad/touchpad_after_suspend
 depends: suspend/suspend_advanced_auto
 requires:
-  dmi.product in ['Notebook','Laptop','Portable']
+  dmi.sane_product == "portable"
   xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
 command: true
 estimated_duration: 1.2

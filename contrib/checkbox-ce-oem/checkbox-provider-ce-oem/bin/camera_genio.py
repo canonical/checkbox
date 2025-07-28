@@ -21,7 +21,7 @@ import logging
 import os
 
 from enum import Enum
-from typing import Union, Dict, List, Optional
+from typing import Union, Dict, List, Optional, Type
 from camera_utils import (
     CameraInterface,
     execute_command,
@@ -83,7 +83,7 @@ class SupportedCamera(Enum):
         return self.value
 
 
-def genio_camera_factory(camera_module: str) -> CameraInterface:
+def genio_camera_factory(camera_module: str) -> Type[CameraInterface]:
     """
     Factory function to create camera handler instances.
 
@@ -118,7 +118,7 @@ def genio_camera_factory(camera_module: str) -> CameraInterface:
     return handler_class
 
 
-def img_sensor_arch(v4l2_devices: str) -> bool:
+def img_sensor_arch(v4l2_devices: str) -> SoftwareArchitectures:
     """
     Helper function to check if there's User Space Middleware in System
     """

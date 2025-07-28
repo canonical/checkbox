@@ -28,7 +28,7 @@ user: root
 category_id: button
 estimated_duration: 25s
 flags: also-after-suspend
-command: button_test.sh -t gpio -n {name} -p {port}
+command: python3 button_test.py gpio --name "{name}" --gpio-pin {port}
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_button == 'True'
 
@@ -36,15 +36,21 @@ id: ce-oem-interrupts-button-mapping
 _summary: Generates a interrupts and button mappings for further button test
 _description:
     A button-interrupts mapping resource that relies on the user specifying in config varirable.
-    Usage of parameter: INTERRUPTS_BUTTONS={name1} {name2} ...
+    Usage of parameter: INTERRUPTS_BUTTONS={name1} {name2} or {name 1}|{name 2}...
     e.g. INTERRUPTS_BUTTONS=s1 s2
+         or
+         INTERRUPTS_BUTTONS=s1 button|s2 button for the button name that with space in between
 estimated_duration: 0.02
 plugin: resource
 command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            printf "name: %s\n\n", record[i]
+    if [[ "$INTERRUPTS_BUTTONS" == *"|"* ]]; then
+        patten="-F|"
+    else
+        patten="-F "
+    fi
+    awk "$patten" '{
+        for (i=1; i<=NF; i++) {
+        printf "name: %s\n\n", $i
         }
     }' <<< "$INTERRUPTS_BUTTONS"
 
@@ -60,6 +66,6 @@ user: root
 category_id: button
 estimated_duration: 25s
 flags: also-after-suspend
-command: button_test.sh -t interrupts -n {name}
+command: python3 button_test.py interrupts --name "{name}"
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_button == 'True'

@@ -29,7 +29,7 @@ class MetricsParser(HTMLParser):
         # there's an erroneous dangling <object>)
         self.reset()
         self.in_object = 0
-        buf = ''
+        buf = ""
         while True:
             # Parse 1MB chunks at a time
             buf = file.read(1024**2)
@@ -43,28 +43,28 @@ class MetricsParser(HTMLParser):
         and external links, and the number of images.
         """
         attrs = dict(attrs)
-        if tag == 'a' and 'href' in attrs:
+        if tag == "a" and "href" in attrs:
             # If there's no href, it's an anchor; if there's no hostname
             # (netloc) or path, it's just a fragment link within the page
-            url = urlsplit(attrs['href'])
+            url = urlsplit(attrs["href"])
             if url.netloc:
                 self.ext_link_count += 1
             elif url.path:
                 self.int_link_count += 1
             else:
                 self.fragment_count += 1
-        elif tag == 'object':
+        elif tag == "object":
             # <object> tags are a bit complex as they nest to offer fallbacks
             # and may contain an <img> fallback. We only want to count the
             # outer-most <object> in this case
             if self.in_object == 0:
                 self.image_count += 1
             self.in_object += 1
-        elif tag == 'img' and self.in_object == 0:
+        elif tag == "img" and self.in_object == 0:
             self.image_count += 1
 
     def handle_endtag(self, tag):
-        if tag == 'object':
+        if tag == "object":
             # Never let in_object be negative
             self.in_object = max(0, self.in_object - 1)
 
@@ -72,23 +72,29 @@ class MetricsParser(HTMLParser):
 def main(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'build_dir', metavar='build-dir', nargs='?', default='.',
-        help="The directory to scan for HTML files")
+        "build_dir",
+        metavar="build-dir",
+        nargs="?",
+        default=".",
+        help="The directory to scan for HTML files",
+    )
     config = parser.parse_args(args)
 
     parser = MetricsParser()
-    for path in Path(config.build_dir).rglob('*.html'):
-        with path.open('r', encoding='utf-8', errors='replace') as f:
+    for path in Path(config.build_dir).rglob("*.html"):
+        with path.open("r", encoding="utf-8", errors="replace") as f:
             parser.read(f)
 
-    print('Summarising metrics for build files (.html)...')
-    print(f'\tlinks: {parser.link_count} ('
-          f'{parser.fragment_count} #frag…, '
-          f'{parser.int_link_count} /int…, '
-          f'{parser.ext_link_count} https://ext…'
-          ')')
-    print(f'\timages: {parser.image_count}')
+    print("Summarising metrics for build files (.html)...")
+    print(
+        f"\tlinks: {parser.link_count} ("
+        f"{parser.fragment_count} #frag…, "
+        f"{parser.int_link_count} /int…, "
+        f"{parser.ext_link_count} https://ext…"
+        ")"
+    )
+    print(f"\timages: {parser.image_count}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

@@ -1,6 +1,6 @@
 debhelper
 ethernet
-gencontrol
+gen_control
 json
 Makefile
 mylauncher

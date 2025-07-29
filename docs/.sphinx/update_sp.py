@@ -52,7 +52,9 @@ def main():
     logging.debug(f"Local version = {local_version}")
 
     # Check release version
-    latest_release = query_api(GITHUB_API_BASE + "/releases/latest").json()["tag_name"]
+    latest_release = query_api(GITHUB_API_BASE + "/releases/latest").json()[
+        "tag_name"
+    ]
     logging.debug(f"Latest release = {latest_release}")
 
     # Perform actions only if local version is older than release version
@@ -74,7 +76,9 @@ def main():
         # Provide changelog to identify other significant changes
         changelog = query_api(GITHUB_RAW_BASE + "/CHANGELOG.md")
         logging.debug("Changelog obtained")
-        version_regex = re.compile(r"#+ +" + re.escape(local_version) + r" *\n")
+        version_regex = re.compile(
+            r"#+ +" + re.escape(local_version) + r" *\n"
+        )
         print("SEE CURRENT CHANGELOG:")
         print(re.split(version_regex, changelog.text)[0])
 
@@ -83,7 +87,9 @@ def main():
             logging.debug("Updated files found and downloaded")
             print("Differences have been identified in static files.")
             print("Updated files have been downloaded to '.sphinx/update'.")
-            print("Validate and move these files into your '.sphinx/' directory.")
+            print(
+                "Validate and move these files into your '.sphinx/' directory."
+            )
         else:
             logging.debug("No files found to update")
         # Provide information on NEW files
@@ -108,7 +114,9 @@ def main():
 
             local_reqs = set(file.read().splitlines()) - {""}
             requirements = set(
-                query_api(GITHUB_RAW_BASE + "/docs/requirements.txt").text.splitlines()
+                query_api(
+                    GITHUB_RAW_BASE + "/docs/requirements.txt"
+                ).text.splitlines()
             )
 
             new_requirements = requirements - local_reqs
@@ -117,7 +125,9 @@ def main():
                 logging.debug(f"{req} not found in local requirements.txt")
 
             for req in requirements & local_reqs:
-                logging.debug(f"{req} already exists in local requirements.txt")
+                logging.debug(
+                    f"{req} already exists in local requirements.txt"
+                )
 
             if new_requirements != set():
                 print(
@@ -130,7 +140,9 @@ def main():
         print(
             "The updated starter pack has moved requirements.txt out of the '.sphinx' dir"
         )
-        print("requirements.txt not checked, please update your requirements manually")
+        print(
+            "requirements.txt not checked, please update your requirements manually"
+        )
 
 
 def update_static_files():
@@ -146,7 +158,8 @@ def update_static_files():
             if item["sha"] != get_git_revision_hash(paths[index]):
                 logging.debug(f"Local {item['name']} is different to remote")
                 download_file(
-                    item["download_url"], os.path.join(SPHINX_UPDATE_DIR, item["name"])
+                    item["download_url"],
+                    os.path.join(SPHINX_UPDATE_DIR, item["name"]),
                 )
                 if item["name"] == "update_sp.py":
                     # Indicate update script needs to be updated and re-run
@@ -166,25 +179,33 @@ def update_static_files():
                 logging.debug(f"Checking {nested_item['name']}")
                 if nested_item["name"] in files:
                     index = files.index(nested_item["name"])
-                    if nested_item["sha"] != get_git_revision_hash(paths[index]):
+                    if nested_item["sha"] != get_git_revision_hash(
+                        paths[index]
+                    ):
                         logging.debug(
                             f"Local {nested_item['name']} is different to remote"
                         )
                         download_file(
                             nested_item["download_url"],
                             os.path.join(
-                                SPHINX_UPDATE_DIR, item["name"], nested_item["name"]
+                                SPHINX_UPDATE_DIR,
+                                item["name"],
+                                nested_item["name"],
                             ),
                         )
                 # Downloads NEW nested files
                 else:
-                    logging.debug(f"No local version found of {nested_item['name']}")
+                    logging.debug(
+                        f"No local version found of {nested_item['name']}"
+                    )
                     if nested_item["type"] == "file":
                         new_file_list.append(nested_item["name"])
                         download_file(
                             nested_item["download_url"],
                             os.path.join(
-                                SPHINX_UPDATE_DIR, item["name"], nested_item["name"]
+                                SPHINX_UPDATE_DIR,
+                                item["name"],
+                                nested_item["name"],
                             ),
                         )
         # Downloads NEW files in '.sphinx' starter pack static root
@@ -192,7 +213,8 @@ def update_static_files():
             if item["type"] == "file":
                 logging.debug(f"No local version found of {item['name']}")
                 download_file(
-                    item["download_url"], os.path.join(SPHINX_UPDATE_DIR, item["name"])
+                    item["download_url"],
+                    os.path.join(SPHINX_UPDATE_DIR, item["name"]),
                 )
                 if item["name"] != "version":
                     new_file_list.append(item["name"])
@@ -218,7 +240,11 @@ def update_static_files():
 def get_git_revision_hash(file) -> str:
     """Get SHA of local files"""
     logging.debug(f"Getting hash of {os.path.basename(file)}")
-    return subprocess.check_output(["git", "hash-object", file]).decode("ascii").strip()
+    return (
+        subprocess.check_output(["git", "hash-object", file])
+        .decode("ascii")
+        .strip()
+    )
 
 
 # Examines local files
@@ -232,7 +258,9 @@ def get_local_files_and_paths():
         files, paths = [], []
 
         for pattern in patterns:
-            for file in glob.iglob(os.path.join(SPHINX_DIR, pattern), recursive=True):
+            for file in glob.iglob(
+                os.path.join(SPHINX_DIR, pattern), recursive=True
+            ):
                 files.append(os.path.basename(file))
                 paths.append(file)
         return files, paths

@@ -378,10 +378,13 @@ class HardwareRendererTester:
             )
         )
 
+        # this is carried over from unity_support_test
+        # never seen this before on devices after ubuntu 16
         if gl_renderer in ("Software Rasterizer", "Mesa X11"):
             is_hardware_rendered = False
+        # https://docs.mesa3d.org/envvars.html#envvar-GALLIUM_DRIVER
         # it's almost always the 'llvmpipe' case if we find software rendering
-        if "llvmpipe" in gl_renderer or "on softpipe" in gl_renderer:
+        if "llvmpipe" in gl_renderer or "softpipe" in gl_renderer:
             is_hardware_rendered = False
 
         if is_hardware_rendered:
@@ -497,16 +500,6 @@ def create_parser():
     )
 
     return parser
-
-
-def remove_color_code(string: str) -> str:
-    """
-    Removes ANSI color escape sequences from string
-
-    :param string: the string that you would like to remove color code
-    credit: Hanhsuan Lee <hanhsuan.lee@canonical.com>
-    """
-    return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", string)
 
 
 def main() -> int:

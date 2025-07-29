@@ -17,6 +17,8 @@ RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
 SNAP = os.getenv("SNAP", default="")
+# global const for subprocess calls that should timeout
+COMMAND_TIMEOUT_SECONDS = 30
 
 
 def get_timestamp_str() -> str:
@@ -57,15 +59,13 @@ class DeviceInfoCollector:
     # to modify, add more values in the enum
     # and reference them in required/optional respectively
 
-    COMMAND_TIMEOUT_SECONDS = 30
-
     def get_drm_info(self) -> str:
         return str(sorted(os.listdir("/sys/class/drm")))
 
     def get_wireless_info(self) -> str:
         iw_out = sp.check_output(
             ["iw", "dev"],
-            timeout=self.COMMAND_TIMEOUT_SECONDS,
+            timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
         lines = iw_out.splitlines()
@@ -88,7 +88,7 @@ class DeviceInfoCollector:
                 "-s",
             ],
             universal_newlines=True,
-            timeout=self.COMMAND_TIMEOUT_SECONDS,
+            timeout=COMMAND_TIMEOUT_SECONDS,
         ).splitlines()
         out.sort()
         return "\n".join(out)
@@ -96,7 +96,7 @@ class DeviceInfoCollector:
     def get_pci_info(self) -> str:
         return sp.check_output(
             ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
-            timeout=self.COMMAND_TIMEOUT_SECONDS,
+            timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
 
@@ -418,11 +418,6 @@ class HardwareRendererTester:
                     )
                 )
                 os.symlink(src, dst, target_is_directory=True)
-                os.symlink(
-                    "{}/usr/share/glmark2".format(RUNTIME_ROOT),
-                    glmark2_data_path,
-                    target_is_directory=True,
-                )
             # override is needed for snaps on classic ubuntu
             # to allow the glmark2 command itself to be discovered
             desktop_env_vars["PATH"] = os.environ["PATH"]
@@ -432,15 +427,16 @@ class HardwareRendererTester:
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
                 universal_newlines=True,
-                timeout=60,
+                # be more relaxed on this timeout in case
+                # the device needs a lot of time to wake up the GPU
+                timeout=120,
                 # literally dump all envs from gnome/unity to glmark2
                 env=desktop_env_vars,
             )
         except sp.TimeoutExpired:
             print(
-                "[ ERR ] {} timed out. Marking this test as failed.".format(
-                    glmark2_executable
-                ),
+                "[ ERR ] {} timed out after 120s.".format(glmark2_executable),
+                "Marking this test as failed.",
                 file=sys.stderr,
             )
             return False
@@ -495,7 +491,7 @@ class HardwareRendererTester:
     def wait_for_graphical_target(
         self, max_wait_seconds: int
     ) -> T.Tuple[bool, float]:
-        """Wait for the DUT to reach graphical.target in systemd critical chain
+        """Wait for DUT to reach graphical.target in systemd's critical chain
 
         :param max_wait_seconds: num seconds to wait at most
         :return: (bool, float) pair where
@@ -505,6 +501,8 @@ class HardwareRendererTester:
 
         start = time.time()
         while time.time() - start < max_wait_seconds:
+            # keep polling systemd-analyze until it says it's done booting
+            # calling this command during boot will return non-zero
             try:
                 out = sp.run(
                     [
@@ -515,7 +513,7 @@ class HardwareRendererTester:
                     ],
                     stdout=sp.DEVNULL,
                     stderr=sp.DEVNULL,
-                    timeout=min(10, max_wait_seconds),
+                    timeout=min(COMMAND_TIMEOUT_SECONDS, max_wait_seconds),
                 )
                 if out.returncode == 0:
                     return True, time.time() - start
@@ -689,9 +687,7 @@ def main() -> int:
             )
             renderer_test_passed = False
         else:
-            print(
-                f"Graphical target was reached after {num_seconds_waited}s!"
-            )
+            print(f"Graphical target was reached after {num_seconds_waited}s!")
             if has_desktop_environment() and tester.has_display_connection():
                 # skip renderer test if there's no display
                 renderer_test_passed = tester.is_hardware_renderer_available()

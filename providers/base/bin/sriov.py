@@ -138,6 +138,30 @@ def is_sriov_capable(interface):
         sys.exit(1)
 
 
+def cleanup_sriov(interface):
+    sriov_path = "/sys/class/net/{}/device/sriov_numvfs".format(interface)
+    try:
+        # Check if the interface SR-IOV exists
+        logging.info("checking if sriov_numvfs exists")
+        if not os.path.exists(sriov_path):
+            raise FileNotFoundError(
+                "SR-IOV interface {} does not exist.".format(interface)
+            )
+
+        # First, disable VFs after testing
+        logging.info("Setting numvfs to zero")
+        with open(sriov_path, "w", encoding="utf-8") as f:
+            f.write("0")
+
+    except (FileNotFoundError) as e:
+        logging.info("Failed to disable SR-IOV on {}: {}".format(interface, e))
+        sys.exit(1)
+
+    except Exception as e:
+        logging.info("An error occurred: {}".format(e))
+        sys.exit(1)
+
+
 def test_lxd_sriov(args):
     logging.info("Starting lxd SRIOV Test")
     verify_cmds = 'bash -c "lspci | grep Virtual"'
@@ -164,6 +188,7 @@ def test_lxd_sriov(args):
         instance.run(verify_cmds, on_guest=True)
 
     instance.run("lxc network delete lab_sriov")
+    cleanup_sriov(args.interface)
 
 
 def test_lxd_vm_sriov(args):
@@ -193,7 +218,7 @@ def test_lxd_vm_sriov(args):
         instance.run(verify_cmds, on_guest=True)
 
     instance.run("lxc network delete lab_sriov")
-
+    cleanup_sriov(args.interface)
 
 def main():
 

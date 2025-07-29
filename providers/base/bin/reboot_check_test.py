@@ -705,7 +705,7 @@ def main() -> int:
             renderer_test_passed = False
         else:
             print(
-                "Graphical target was reached after waiting for {:.2f}s!".format(
+                "Reached graphical.target after waiting for {:.2f}s!".format(
                     num_seconds_waited
                 )
             )

@@ -13,10 +13,10 @@ import time
 import platform
 
 # Checkbox could run in a snap container, so we need to prepend this root path
-RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
+RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
-SNAP = os.getenv("SNAP", default="")
+SNAP = os.getenv("SNAP", default="").rstrip("/")
 # global const for subprocess calls that should timeout
 COMMAND_TIMEOUT_SECONDS = 30
 
@@ -324,7 +324,7 @@ class HardwareRendererTester:
         return connected_to_display
 
     def pick_glmark2_executable(
-        self, xdg_session_type: T.Optional[str], cpu_arch: str
+        self, xdg_session_type: str, cpu_arch: str
     ) -> str:
         """
         Pure function that picks a glmark2 executable based on xdg_session_type
@@ -369,10 +369,30 @@ class HardwareRendererTester:
 
         return True
 
+    def extract_gl_renderer_str(
+        self,
+        glmark2_validate_output: str,
+    ) -> T.Optional[str]:
+        """Attempts to extract GL_RENDERER from `glmark2 --validate`'s output
+
+        :param glmark2_validate_output: the .stdout from `glmark2 --validate`
+        :return: GL_RENDERER itself or None if couldn't be determined
+        """
+        gl_renderer_line = None  # type: str | None
+        for line in glmark2_validate_output.splitlines():
+            if "GL_RENDERER" in line:
+                gl_renderer_line = line
+                break
+
+        if gl_renderer_line is None:
+            return None
+
+        return gl_renderer_line.split(":")[-1].strip()
+
     def is_hardware_renderer_available(self) -> bool:
         """
         Checks if hardware rendering is being used by calling glmark2
-        - THIS ASSUMES A DRM CONNECTION EXISTS AND ALL ENVS HAVE BEEN SET
+        - THIS ASSUMES A DRM CONNECTION EXISTS
         - self.has_display_connection() should be called first if unsure
 
         :return: True if a hardware renderer is active, otherwise return False
@@ -391,12 +411,14 @@ class HardwareRendererTester:
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
             print(
-                "[ WARN ] Unsupported session type: {}. ".format(
+                "[ ERR ] Unsupported session type: '{}'.".format(
                     XDG_SESSION_TYPE
-                )
-                + "Passing all envs to glmark2 as is",
+                ),
+                "Expected either 'x11' or 'wayland'",
                 file=sys.stderr,
             )
+            return False
+        print("XDG_SESSION type used by the desktop is:", XDG_SESSION_TYPE)
 
         glmark2_executable = self.pick_glmark2_executable(
             XDG_SESSION_TYPE, platform.uname().machine
@@ -457,13 +479,9 @@ class HardwareRendererTester:
             )
             return False
 
-        gl_renderer_line = None  # type: str | None
-        for line in glmark2_output.stdout.splitlines():
-            if "GL_RENDERER" in line:
-                gl_renderer_line = line
-                break
+        gl_renderer = self.extract_gl_renderer_str(glmark2_output.stdout)
 
-        if gl_renderer_line is None:
+        if gl_renderer is None:
             print(
                 "[ ERR ] {} did not return a renderer string".format(
                     glmark2_executable
@@ -472,7 +490,6 @@ class HardwareRendererTester:
             )
             return False
 
-        gl_renderer = gl_renderer_line.split(":")[-1].strip()
         print(
             "GL_RENDERER found by {} is: {}".format(
                 glmark2_executable, gl_renderer
@@ -688,7 +705,7 @@ def main() -> int:
             renderer_test_passed = False
         else:
             print(
-                "Graphical target was reached after {}s!".format(
+                "Graphical target was reached after waiting for {:.2f}s!".format(
                     num_seconds_waited
                 )
             )

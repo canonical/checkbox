@@ -399,7 +399,7 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_time.side_effect = fake_time(3)
             tester = RCT.HardwareRendererTester()
 
-            self.assertFalse(tester.wait_for_graphical_target(2)[0])
+            self.assertFalse(tester.wait_for_graphical_target(2))
 
             mock_sleep.reset_mock()
             mock_time.side_effect = fake_time(3)
@@ -411,7 +411,7 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_time.side_effect = fake_time(3)
             mock_run.side_effect = sp.TimeoutExpired([], 1)
             tester = RCT.HardwareRendererTester()
-            self.assertFalse(tester.wait_for_graphical_target(2)[0])
+            self.assertFalse(tester.wait_for_graphical_target(2))
 
 
 class InfoDumpTests(unittest.TestCase):

@@ -505,9 +505,7 @@ class HardwareRendererTester:
         print("[ ERR ] Software rendering detected", file=sys.stderr)
         return False
 
-    def wait_for_graphical_target(
-        self, max_wait_seconds: int
-    ) -> T.Tuple[bool, float]:
+    def wait_for_graphical_target(self, max_wait_seconds: int) -> bool:
         """Wait for DUT to reach graphical.target in systemd's critical chain
 
         :param max_wait_seconds: num seconds to wait at most
@@ -533,14 +531,14 @@ class HardwareRendererTester:
                     timeout=min(COMMAND_TIMEOUT_SECONDS, max_wait_seconds),
                 )
                 if out.returncode == 0:
-                    return True, time.time() - start
+                    return True
                 else:
                     time.sleep(1)
             except sp.TimeoutExpired:
                 print("systemd-analyze timed out!")
-                return False, time.time() - start
+                return False
 
-        return False, time.time() - start
+        return False
 
 
 def get_failed_services() -> T.List[str]:

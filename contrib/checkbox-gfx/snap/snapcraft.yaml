@@ -29,9 +29,9 @@ apps:
   test-vulkan:
     command-chain: [bin/wrapper_local]
     command: bin/test-vulkan
-  remote-slave:
+  run-agent:
     command-chain: [bin/wrapper_local]
-    command: bin/checkbox-cli-wrapper slave
+    command: bin/checkbox-cli-wrapper run-agent
     daemon: simple
     restart-condition: always
   shell:

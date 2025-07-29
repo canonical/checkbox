@@ -31,7 +31,7 @@ sudo snap install --dangerous --classic ./checkbox-gfx_1.0_<arch>.snap
 Make sure that the provider service is running and active:
 
 ```shell
-systemctl status snap.checkbox-gfx.remote-slave.service
+systemctl status snap.checkbox-gfx.run-agent.service
 ```
 
 # Install dependencies

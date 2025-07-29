@@ -31,7 +31,12 @@ from checkbox_ng.launcher.controller import (
 from checkbox_ng.launcher.controller import is_hostname_a_loopback
 
 
-class TestRemoteController(TestCase):
+class ControllerTests(TestCase):
+    def test_connection_strategy_comprehensive(self):
+        connection_strategy = RemoteController.connection_strategy()
+        for state in RemoteSessionStates:
+            connection_strategy[state]
+
     @mock.patch("checkbox_ng.launcher.controller.is_hostname_a_loopback")
     @mock.patch("time.time")
     @mock.patch("builtins.print")
@@ -1042,7 +1047,7 @@ class TestRemoteController(TestCase):
         RemoteController.automatically_start_via_launcher(self_mock)
 
         self.assertTrue(self_mock.select_test_plan.called)
-        self.assertTrue(self_mock.select_jobs.called)
+        self.assertTrue(self_mock.bootstrap_and_continue.called)
 
     def test_automatically_resume_last_session(self):
         self_mock = mock.MagicMock()

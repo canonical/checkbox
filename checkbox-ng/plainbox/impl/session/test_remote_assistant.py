@@ -120,9 +120,9 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         RemoteSessionAssistant.resume_by_id(rsa, "session_id")
-        self.assertEqual(rsa.state, "testsselected")
+        self.assertEqual(rsa.state, RemoteSessionStates.TestsSelected)
 
     def test_resume_by_id_bad_session_id(self):
         rsa = mock.Mock()
@@ -133,7 +133,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         RemoteSessionAssistant.resume_by_id(rsa, "bad_id")
         self.assertEqual(rsa.state, RemoteSessionStates.Idle)
 
@@ -146,9 +146,9 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         RemoteSessionAssistant.resume_by_id(rsa)
-        self.assertEqual(rsa.state, "testsselected")
+        self.assertEqual(rsa.state, RemoteSessionStates.TestsSelected)
 
     @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
     def test_resume_by_id_with_result_file_ok(self, mock_load_configs):
@@ -162,7 +162,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
         with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
@@ -202,7 +202,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
         with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
@@ -244,7 +244,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
         rsa._sa.get_job.return_value.plugin = "shell"
@@ -284,7 +284,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
         rsa._sa.get_job.return_value.plugin = "shell"
@@ -324,7 +324,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
         rsa._sa.get_job.return_value.plugin = "shell"
@@ -358,7 +358,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa.resume_session.return_value = mock_meta
+        rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
         with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
             mock__.side_effect = lambda x: x

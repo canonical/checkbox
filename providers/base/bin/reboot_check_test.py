@@ -276,7 +276,7 @@ class HardwareRendererTester:
     def is_hardware_renderer_available(self) -> bool:
         """
         Checks if hardware rendering is being used by calling glmark2-es2
-        THIS ASSUMES A DRM CONNECTION EXISTS
+        - THIS ASSUMES A DRM CONNECTION EXISTS
         - self.has_display_connection() should be called first if unsure
 
         :return: True if a hardware renderer is active, otherwise return False
@@ -294,30 +294,39 @@ class HardwareRendererTester:
             print("$XDG_SESSION_TYPE is not set, marking the test as failed")
             return False
 
-        print(
-            "Checking hardware renderer with these env variables:",
-            "DISPLAY={}".format(DISPLAY),
-            "XDG_SESSION_TYPE={}".format(XDG_SESSION_TYPE),
-        )
-
-        # here we don't really care whether if it's es2 or full opengl
-        # if the DUT supports full opengl, then it also supports es2
-        # => glmark2 & glmark2-es2 should produce the same renderer string
-        # so es2 provides best compatibility since it works on arm too
-
-        if XDG_SESSION_TYPE == "wayland":
-            glmark2_executable = "glmark2-es2-wayland"
-        elif XDG_SESSION_TYPE == "x11":
-            glmark2_executable = "glmark2-es2"
-        else:
+        if XDG_SESSION_TYPE not in ("x11", "wayland"):
+            # usually it's tty if we get here,
+            # happens when gnome failed to start or not using graphical session
             print(
                 "Unsupported session type: {}".format(XDG_SESSION_TYPE),
                 file=sys.stderr,
             )
             return False
 
+        print(
+            "Checking hardware renderer with these env variables:",
+            "DISPLAY={}".format(DISPLAY),
+            "XDG_SESSION_TYPE={}".format(XDG_SESSION_TYPE),
+        )
+
+        cpu_arch = sp.check_output(
+            ["uname", "-m"], universal_newlines=True
+        ).strip()
+
+        if cpu_arch in ("x86_64", "amd64"):
+            # x86 duts should run the version that uses the full opengl api
+            glmark2_executable = "glmark2"
+        else:
+            # TODO: explicity check for aarch64?
+            glmark2_executable = "glmark2-es2"
+
+        if XDG_SESSION_TYPE == "wayland":
+            glmark2_executable += "-wayland"
+        # if x11, don't add anything
+
         try:
             glmark2_output = sp.run(
+                # all glmark2 programs share the same args
                 [glmark2_executable, "--off-screen", "--validate"],
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
@@ -363,10 +372,15 @@ class HardwareRendererTester:
         # this is the same logic as unity_support_test
         is_hardware_rendered = True
         gl_renderer = gl_renderer_line.split(":")[-1].strip()
-        print("Found GL_RENDERER: {}".format(gl_renderer))
+        print(
+            "GL_RENDERER found by {} is: {}".format(
+                glmark2_executable, gl_renderer
+            )
+        )
 
         if gl_renderer in ("Software Rasterizer", "Mesa X11"):
             is_hardware_rendered = False
+        # it's almost always the 'llvmpipe' case if we find software rendering
         if "llvmpipe" in gl_renderer or "on softpipe" in gl_renderer:
             is_hardware_rendered = False
 

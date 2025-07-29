@@ -153,7 +153,7 @@ def cleanup_sriov(interface):
         with open(sriov_path, "w", encoding="utf-8") as f:
             f.write("0")
 
-    except (FileNotFoundError) as e:
+    except FileNotFoundError as e:
         logging.info("Failed to disable SR-IOV on {}: {}".format(interface, e))
         sys.exit(1)
 
@@ -219,6 +219,7 @@ def test_lxd_vm_sriov(args):
 
     instance.run("lxc network delete lab_sriov")
     cleanup_sriov(args.interface)
+
 
 def main():
 

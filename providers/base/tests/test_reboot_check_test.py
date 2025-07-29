@@ -580,6 +580,3 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
-
-if __name__ == "__main__":
-    unittest.main()

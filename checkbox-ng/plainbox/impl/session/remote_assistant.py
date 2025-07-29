@@ -410,24 +410,6 @@ class RemoteSessionAssistant:
         return self._sa.select_test_plan(test_plan_id)
 
     @allowed_when(RemoteSessionStates.Started)
-    def prepare_bootstrapping(self, test_plan_id):
-        """Save picked test plan to the app blob."""
-        _logger.debug("prepare_bootstrapping: %r", test_plan_id)
-        self._sa.update_app_blob(
-            json.dumps(
-                {
-                    "testplan_id": test_plan_id,
-                }
-            ).encode("UTF-8")
-        )
-        self._sa.select_test_plan(test_plan_id)
-        # TODO: REMOTE API RAPI: Change this API on the next RAPI bump
-        # previously the function returned bool signifying the need for sudo
-        # password. With agent being guaranteed to never need it anymor
-        # we can make this funciton return nothing
-        return False
-
-    @allowed_when(RemoteSessionStates.Started)
     def start_bootstrap_json(self):
         return json.dumps(self.start_bootstrap())
 
@@ -604,12 +586,9 @@ class RemoteSessionAssistant:
                 Interaction("verification", job.verification, self._be)
             )
 
-    @allowed_when(
-        RemoteSessionStates.Started, RemoteSessionStates.Bootstrapping
-    )
-    def run_bootstrapping_job(self, job_id):
+    @allowed_when(RemoteSessionStates.Bootstrapping)
+    def run_uninteractable_job(self, job_id):
         self._currently_running_job = job_id
-        self.state = RemoteSessionStates.Bootstrapping
         self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
 
     @allowed_when(

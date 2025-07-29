@@ -294,6 +294,7 @@ class HardwareRendererTester:
             glmark2_output = sp.run(
                 ["glmark2-es2", "--off-screen", "--validate"],
                 stdout=sp.PIPE,
+                stderr=sp.STDOUT,
                 universal_newlines=True,
                 timeout=60,
             )
@@ -303,7 +304,7 @@ class HardwareRendererTester:
 
         if glmark2_output.returncode != 0:
             print(
-                "[ ERR ] unity support test returned {}. Error is: {}".format(
+                "[ ERR ] glmark2 returned {}. Error is: {}".format(
                     glmark2_output.returncode,
                     glmark2_output.stdout,
                 ),
@@ -318,6 +319,7 @@ class HardwareRendererTester:
                 break
 
         # See the discussion on checkbox issue 1630
+        # the same logic as unity_support_test
         is_hardware_rendered = True
         if gl_renderer_line is not None:
             gl_renderer = gl_renderer_line.split(":")[-1].strip()

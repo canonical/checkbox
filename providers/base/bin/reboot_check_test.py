@@ -310,7 +310,10 @@ class HardwareRendererTester:
         elif XDG_SESSION_TYPE == "x11":
             glmark2_executable = "glmark2-es2"
         else:
-            print("Unsupported session type: {}".format(XDG_SESSION_TYPE))
+            print(
+                "Unsupported session type: {}".format(XDG_SESSION_TYPE),
+                file=sys.stderr,
+            )
             return False
 
         try:
@@ -325,7 +328,8 @@ class HardwareRendererTester:
             print(
                 "[ ERR ] {} timed out. Marking this test as failed.".format(
                     glmark2_executable
-                )
+                ),
+                file=sys.stderr
             )
             return False
 
@@ -350,7 +354,8 @@ class HardwareRendererTester:
             print(
                 "[ ERR ] {} did not return a renderer string".format(
                     glmark2_executable
-                )
+                ),
+                file=sys.stderr
             )
             return False
 

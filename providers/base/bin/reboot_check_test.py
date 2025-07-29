@@ -382,6 +382,7 @@ class HardwareRendererTester:
                 stderr=sp.STDOUT,
                 universal_newlines=True,
                 timeout=60,
+                env=desktop_env_vars,
             )
         except sp.TimeoutExpired:
             print(

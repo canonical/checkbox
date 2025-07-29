@@ -89,9 +89,9 @@ def allowed_when(*states: RemoteSessionStates):
         def fun(self, *args):
             if self.state not in states:
                 raise RuntimeError(
-                    "Uh, Oh... Function '{}' can only be called in {} "
-                    "but was called an current state is: {}".format(
-                        f.__name__, states, self._state
+                    "Uh, Oh... Function '{}' can only be called in states: {} \n"
+                    "but was called now and current state is: {}".format(
+                        f.__name__, states, self.state
                     )
                 )
             return f(self, *args)

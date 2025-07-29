@@ -1,294 +1,283 @@
-id: vkconformancetests
-plugin: resource
-command:
-    echo 'testgroup: api'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/api.txt'
-    echo
-    echo 'testgroup: binding-model'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/binding-model.txt'
-    echo
-    echo 'testgroup: clipping'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/clipping.txt'
-    echo
-    echo 'testgroup: compute'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/compute.txt'
-    echo
-    echo 'testgroup: conditional-rendering'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/conditional-rendering.txt'
-    echo
-    echo 'testgroup: depth'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/depth.txt'
-    echo
-    echo 'testgroup: descriptor-indexing'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/descriptor-indexing.txt'
-    echo
-    echo 'testgroup: device-group'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/device-group.txt'
-    echo
-    echo 'testgroup: dgc'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/dgc.txt'
-    echo
-    echo 'testgroup: draw'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/draw.txt'
-    echo
-    echo 'testgroup: drm-format-modifiers'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/drm-format-modifiers.txt'
-    echo
-    echo 'testgroup: dynamic-rendering'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/dynamic-rendering.txt'
-    echo
-    echo 'testgroup: dynamic-state'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/dynamic-state.txt'
-    echo
-    echo 'testgroup: fragment-operations'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/fragment-operations.txt'
-    echo
-    echo 'testgroup: fragment-shader-interlock'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/fragment-shader-interlock.txt'
-    echo
-    echo 'testgroup: fragment-shading-barycentric'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/fragment-shading-barycentric.txt'
-    echo
-    echo 'testgroup: fragment-shading-rate'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/fragment-shading-rate.txt'
-    echo
-    echo 'testgroup: geometry'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/geometry.txt'
-    echo
-    echo 'testgroup: glsl'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/glsl.txt'
-    echo
-    echo 'testgroup: graphicsfuzz'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/graphicsfuzz.txt'
-    echo
-    echo 'testgroup: image/astc-decode-mode'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/astc-decode-mode.txt'
-    echo
-    echo 'testgroup: image/atomic-operations'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/atomic-operations.txt'
-    echo
-    echo 'testgroup: image/concurrent-copy'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/concurrent-copy.txt'
-    echo
-    echo 'testgroup: image/depth-stencil-descriptor'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/depth-stencil-descriptor.txt'
-    echo
-    echo 'testgroup: image/depth-stencil-separate-access'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/depth-stencil-separate-access.txt'
-    echo
-    echo 'testgroup: image/device-scope-access'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/device-scope-access.txt'
-    echo
-    echo 'testgroup: image/extend-operands-spirv1p4'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/extend-operands-spirv1p4.txt'
-    echo
-    echo 'testgroup: image/extended-usage-bit'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/extended-usage-bit.txt'
-    echo
-    echo 'testgroup: image/extended-usage-bit-compatibility'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/extended-usage-bit-compatibility.txt'
-    echo
-    echo 'testgroup: image/format-reinterpret'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/format-reinterpret.txt'
-    echo
-    echo 'testgroup: image/host-image-copy'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/host-image-copy.txt'
-    echo
-    echo 'testgroup: image/image-size'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/image-size.txt'
-    echo
-    echo 'testgroup: image/load-store'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/load-store.txt'
-    echo
-    echo 'testgroup: image/load-store-lod'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/load-store-lod.txt'
-    echo
-    echo 'testgroup: image/load-store-multisample'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/load-store-multisample.txt'
-    echo
-    echo 'testgroup: image/misaligned-cube'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/misaligned-cube.txt'
-    echo
-    echo 'testgroup: image/mismatched-formats'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/mismatched-formats.txt'
-    echo
-    echo 'testgroup: image/mismatched-write-op'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/mismatched-write-op.txt'
-    echo
-    echo 'testgroup: image/mutable'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/mutable.txt'
-    echo
-    echo 'testgroup: image/nontemporal-operand'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/nontemporal-operand.txt'
-    echo
-    echo 'testgroup: image/qualifiers'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/qualifiers.txt'
-    echo
-    echo 'testgroup: image/queue-transfer'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/queue-transfer.txt'
-    echo
-    echo 'testgroup: image/sample-cubemap'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/sample-cubemap.txt'
-    echo
-    echo 'testgroup: image/sample-texture'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/sample-texture.txt'
-    echo
-    echo 'testgroup: image/store'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/store.txt'
-    echo
-    echo 'testgroup: image/subresource-layout'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/subresource-layout.txt'
-    echo
-    echo 'testgroup: image/swapchain-mutable'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/swapchain-mutable.txt'
-    echo
-    echo 'testgroup: image/texel-view-compatible'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/texel-view-compatible.txt'
-    echo
-    echo 'testgroup: imageless-framebuffer'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/imageless-framebuffer.txt'
-    echo
-    echo 'testgroup: info'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/info.txt'
-    echo
-    echo 'testgroup: memory'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/memory.txt'
-    echo
-    echo 'testgroup: memory-model'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/memory-model.txt'
-    echo
-    echo 'testgroup: mesh-shader'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/mesh-shader.txt'
-    echo
-    echo 'testgroup: multiview'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/multiview.txt'
-    echo
-    echo 'testgroup: pipeline/fast-linked-library'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/fast-linked-library.txt'
-    echo
-    echo 'testgroup: pipeline/monolithic'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/monolithic.txt'
-    echo
-    echo 'testgroup: pipeline/pipeline-library'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/pipeline-library.txt'
-    echo
-    echo 'testgroup: pipeline/shader-object-linked-binary'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-linked-binary.txt'
-    echo
-    echo 'testgroup: pipeline/shader-object-linked-spirv'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-linked-spirv.txt'
-    echo
-    echo 'testgroup: pipeline/shader-object-unlinked-binary'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-binary.txt'
-    echo
-    echo 'testgroup: pipeline/shader-object-unlinked-spirv'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv.txt'
-    echo
-    echo 'testgroup: protected-memory'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/protected-memory.txt'
-    echo
-    echo 'testgroup: query-pool'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/query-pool.txt'
-    echo
-    echo 'testgroup: rasterization'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/rasterization.txt'
-    echo
-    echo 'testgroup: ray-query'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ray-query.txt'
-    echo
-    echo 'testgroup: ray-tracing-pipeline'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ray-tracing-pipeline.txt'
-    echo
-    echo 'testgroup: reconvergence'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/reconvergence.txt'
-    echo
-    echo 'testgroup: renderpass'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/renderpass.txt'
-    echo
-    echo 'testgroup: renderpass2'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/renderpass2.txt'
-    echo
-    echo 'testgroup: robustness'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/robustness.txt'
-    echo
-    echo 'testgroup: shader-object/api'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/api.txt'
-    echo
-    echo 'testgroup: shader-object/binary'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/binary.txt'
-    echo
-    echo 'testgroup: shader-object/binding'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/binding.txt'
-    echo
-    echo 'testgroup: shader-object/create'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/create.txt'
-    echo
-    echo 'testgroup: shader-object/link'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/link.txt'
-    echo
-    echo 'testgroup: shader-object/misc'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/misc.txt'
-    echo
-    echo 'testgroup: shader-object/pipeline-interaction'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/pipeline-interaction.txt'
-    echo
-    echo 'testgroup: shader-object/rendering'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/rendering.txt'
-    echo
-    echo 'testgroup: sparse-resources'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/sparse-resources.txt'
-    echo
-    echo 'testgroup: spirv-assembly'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/spirv-assembly.txt'
-    echo
-    echo 'testgroup: ssbo'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ssbo.txt'
-    echo
-    echo 'testgroup: subgroups'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/subgroups.txt'
-    echo
-    echo 'testgroup: synchronization'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/synchronization.txt'
-    echo
-    echo 'testgroup: synchronization2'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/synchronization2.txt'
-    echo
-    echo 'testgroup: tessellation'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/tessellation.txt'
-    echo
-    echo 'testgroup: texture'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/texture.txt'
-    echo
-    echo 'testgroup: transform-feedback'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/transform-feedback.txt'
-    echo
-    echo 'testgroup: ubo'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ubo.txt'
-    echo
-    echo 'testgroup: video'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/video.txt'
-    echo
-    echo 'testgroup: wsi'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/wsi.txt'
-    echo
-    echo 'testgroup: ycbcr'
-    echo 'testfile: /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ycbcr.txt'
-    echo
-
-unit: template
-template-resource: vkconformancetests
-template-filter: vkconformancetests.testgroup != ''
-template-engine: jinja2
-template-unit: job
-id: gfx_mesa_vk_{{ testgroup }}
+id: gfx_mesa_vk_api
 category_id: mesa
 flags: simple
 user: root
-_summary: Run the {{ testgroup }} tests from VK-GL-CTS
+_summary: Run the api tests from VK-GL-CTS
 environ:
   # necessary for local mode
   XDG_SESSION_TYPE
   XDG_RUNTIME_DIR
-estimated_duration: 1m
-command:
-  cd /usr/local/checkbox-gfx/VK-GL-CTS/build; ./external/vulkancts/modules/vulkan/deqp-vk --deqp-caselist-file={{ testfile }}
+estimated_duration: 8h
+command: run-vulkan-test.py --test_file /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/api.txt
+_siblings: [
+  { "id": "gfx_mesa_vk_binding-model",
+    "_summary": "Run the binding-model tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/binding-model.txt" },
+  { "id": "gfx_mesa_vk_clipping",
+    "_summary": "Run the clipping tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/clipping.txt" },
+  { "id": "gfx_mesa_vk_compute",
+    "_summary": "Run the compute tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/compute.txt" },
+  { "id": "gfx_mesa_vk_conditional-rendering",
+    "_summary": "Run the conditional-rendering tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/conditional-rendering.txt" },
+  { "id": "gfx_mesa_vk_depth",
+    "_summary": "Run the depth tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/depth.txt" },
+  { "id": "gfx_mesa_vk_descriptor-indexing",
+    "_summary": "Run the descriptor-indexing tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/descriptor-indexing.txt" },
+  { "id": "gfx_mesa_vk_device-group",
+    "_summary": "Run the device-group tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/device-group.txt" },
+  { "id": "gfx_mesa_vk_dgc",
+    "_summary": "Run the dgc tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/dgc.txt" },
+  { "id": "gfx_mesa_vk_draw",
+    "_summary": "Run the draw tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/draw.txt" },
+  { "id": "gfx_mesa_vk_drm-format-modifiers",
+    "_summary": "Run the drm-format-modifiers tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/drm-format-modifiers.txt" },
+  { "id": "gfx_mesa_vk_dynamic-rendering",
+    "_summary": "Run the dynamic-rendering tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/dynamic-rendering.txt" },
+  { "id": "gfx_mesa_vk_dynamic-state",
+    "_summary": "Run the dynamic-state tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/dynamic-state.txt" },
+  { "id": "gfx_mesa_vk_fragment-operations",
+    "_summary": "Run the fragment-operations tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/fragment-operations.txt" },
+  { "id": "gfx_mesa_vk_fragment-shader-interlock",
+    "_summary": "Run the fragment-shader-interlock tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/fragment-shader-interlock.txt" },
+  { "id": "gfx_mesa_vk_fragment-shading-barycentric",
+    "_summary": "Run the fragment-shading-barycentric tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/fragment-shading-barycentric.txt" },
+  { "id": "gfx_mesa_vk_fragment-shading-rate",
+    "_summary": "Run the fragment-shading-rate tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/fragment-shading-rate.txt" },
+  { "id": "gfx_mesa_vk_geometry",
+    "_summary": "Run the geometry tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/geometry.txt" },
+  { "id": "gfx_mesa_vk_glsl",
+    "_summary": "Run the glsl tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/glsl.txt" },
+  { "id": "gfx_mesa_vk_graphicsfuzz",
+    "_summary": "Run the graphicsfuzz tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/graphicsfuzz.txt" },
+  { "id": "gfx_mesa_vk_image/astc-decode-mode",
+    "_summary": "Run the image/astc-decode-mode tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/astc-decode-mode.txt" },
+  { "id": "gfx_mesa_vk_image/atomic-operations",
+    "_summary": "Run the image/atomic-operations tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/atomic-operations.txt" },
+  { "id": "gfx_mesa_vk_image/concurrent-copy",
+    "_summary": "Run the image/concurrent-copy tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/concurrent-copy.txt" },
+  { "id": "gfx_mesa_vk_image/depth-stencil-descriptor",
+    "_summary": "Run the image/depth-stencil-descriptor tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/depth-stencil-descriptor.txt" },
+  { "id": "gfx_mesa_vk_image/depth-stencil-separate-access",
+    "_summary": "Run the image/depth-stencil-separate-access tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/depth-stencil-separate-access.txt" },
+  { "id": "gfx_mesa_vk_image/device-scope-access",
+    "_summary": "Run the image/device-scope-access tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/device-scope-access.txt" },
+  { "id": "gfx_mesa_vk_image/extend-operands-spirv1p4",
+    "_summary": "Run the image/extend-operands-spirv1p4 tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/extend-operands-spirv1p4.txt" },
+  { "id": "gfx_mesa_vk_image/extended-usage-bit",
+    "_summary": "Run the image/extended-usage-bit tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/extended-usage-bit.txt" },
+  { "id": "gfx_mesa_vk_image/extended-usage-bit-compatibility",
+    "_summary": "Run the image/extended-usage-bit-compatibility tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/extended-usage-bit-compatibility.txt" },
+  { "id": "gfx_mesa_vk_image/format-reinterpret",
+    "_summary": "Run the image/format-reinterpret tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/format-reinterpret.txt" },
+  { "id": "gfx_mesa_vk_image/host-image-copy",
+    "_summary": "Run the image/host-image-copy tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/host-image-copy.txt" },
+  { "id": "gfx_mesa_vk_image/image-size",
+    "_summary": "Run the image/image-size tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/image-size.txt" },
+  { "id": "gfx_mesa_vk_image/load-store",
+    "_summary": "Run the image/load-store tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/load-store.txt" },
+  { "id": "gfx_mesa_vk_image/load-store-lod",
+    "_summary": "Run the image/load-store-lod tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/load-store-lod.txt" },
+  { "id": "gfx_mesa_vk_image/load-store-multisample",
+    "_summary": "Run the image/load-store-multisample tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/load-store-multisample.txt" },
+  { "id": "gfx_mesa_vk_image/misaligned-cube",
+    "_summary": "Run the image/misaligned-cube tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/misaligned-cube.txt" },
+  { "id": "gfx_mesa_vk_image/mismatched-formats",
+    "_summary": "Run the image/mismatched-formats tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/mismatched-formats.txt" },
+  { "id": "gfx_mesa_vk_image/mismatched-write-op",
+    "_summary": "Run the image/mismatched-write-op tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/mismatched-write-op.txt" },
+  { "id": "gfx_mesa_vk_image/mutable",
+    "_summary": "Run the image/mutable tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/mutable.txt" },
+  { "id": "gfx_mesa_vk_image/nontemporal-operand",
+    "_summary": "Run the image/nontemporal-operand tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/nontemporal-operand.txt" },
+  { "id": "gfx_mesa_vk_image/qualifiers",
+    "_summary": "Run the image/qualifiers tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/qualifiers.txt" },
+  { "id": "gfx_mesa_vk_image/queue-transfer",
+    "_summary": "Run the image/queue-transfer tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/queue-transfer.txt" },
+  { "id": "gfx_mesa_vk_image/sample-cubemap",
+    "_summary": "Run the image/sample-cubemap tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/sample-cubemap.txt" },
+  { "id": "gfx_mesa_vk_image/sample-texture",
+    "_summary": "Run the image/sample-texture tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/sample-texture.txt" },
+  { "id": "gfx_mesa_vk_image/store",
+    "_summary": "Run the image/store tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/store.txt" },
+  { "id": "gfx_mesa_vk_image/subresource-layout",
+    "_summary": "Run the image/subresource-layout tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/subresource-layout.txt" },
+  { "id": "gfx_mesa_vk_image/swapchain-mutable",
+    "_summary": "Run the image/swapchain-mutable tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/swapchain-mutable.txt" },
+  { "id": "gfx_mesa_vk_image/texel-view-compatible",
+    "_summary": "Run the image/texel-view-compatible tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/image/texel-view-compatible.txt" },
+  { "id": "gfx_mesa_vk_imageless-framebuffer",
+    "_summary": "Run the imageless-framebuffer tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/imageless-framebuffer.txt" },
+  { "id": "gfx_mesa_vk_info",
+    "_summary": "Run the info tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/info.txt" },
+  { "id": "gfx_mesa_vk_memory",
+    "_summary": "Run the memory tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/memory.txt" },
+  { "id": "gfx_mesa_vk_memory-model",
+    "_summary": "Run the memory-model tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/memory-model.txt" },
+  { "id": "gfx_mesa_vk_mesh-shader",
+    "_summary": "Run the mesh-shader tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/mesh-shader.txt" },
+  { "id": "gfx_mesa_vk_multiview",
+    "_summary": "Run the multiview tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/multiview.txt" },
+  { "id": "gfx_mesa_vk_pipeline/fast-linked-library",
+    "_summary": "Run the pipeline/fast-linked-library tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/fast-linked-library.txt" },
+  { "id": "gfx_mesa_vk_pipeline/monolithic",
+    "_summary": "Run the pipeline/monolithic tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/monolithic.txt" },
+  { "id": "gfx_mesa_vk_pipeline/pipeline-library",
+    "_summary": "Run the pipeline/pipeline-library tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/pipeline-library.txt" },
+  { "id": "gfx_mesa_vk_pipeline/shader-object-linked-binary",
+    "_summary": "Run the pipeline/shader-object-linked-binary tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-linked-binary.txt" },
+  { "id": "gfx_mesa_vk_pipeline/shader-object-linked-spirv",
+    "_summary": "Run the pipeline/shader-object-linked-spirv tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-linked-spirv.txt" },
+  { "id": "gfx_mesa_vk_pipeline/shader-object-unlinked-binary",
+    "_summary": "Run the pipeline/shader-object-unlinked-binary tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-binary.txt" },
+  { "id": "gfx_mesa_vk_pipeline/shader-object-unlinked-spirv",
+    "_summary": "Run the pipeline/shader-object-unlinked-spirv tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv.txt" },
+  { "id": "gfx_mesa_vk_protected-memory",
+    "_summary": "Run the protected-memory tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/protected-memory.txt" },
+  { "id": "gfx_mesa_vk_query-pool",
+    "_summary": "Run the query-pool tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/query-pool.txt" },
+  { "id": "gfx_mesa_vk_rasterization",
+    "_summary": "Run the rasterization tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/rasterization.txt" },
+  { "id": "gfx_mesa_vk_ray-query",
+    "_summary": "Run the ray-query tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ray-query.txt" },
+  { "id": "gfx_mesa_vk_ray-tracing-pipeline",
+    "_summary": "Run the ray-tracing-pipeline tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ray-tracing-pipeline.txt" },
+  { "id": "gfx_mesa_vk_reconvergence",
+    "_summary": "Run the reconvergence tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/reconvergence.txt" },
+  { "id": "gfx_mesa_vk_renderpass",
+    "_summary": "Run the renderpass tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/renderpass.txt" },
+  { "id": "gfx_mesa_vk_renderpass2",
+    "_summary": "Run the renderpass2 tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/renderpass2.txt" },
+  { "id": "gfx_mesa_vk_robustness",
+    "_summary": "Run the robustness tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/robustness.txt" },
+  { "id": "gfx_mesa_vk_shader-object/api",
+    "_summary": "Run the shader-object/api tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/api.txt" },
+  { "id": "gfx_mesa_vk_shader-object/binary",
+    "_summary": "Run the shader-object/binary tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/binary.txt" },
+  { "id": "gfx_mesa_vk_shader-object/binding",
+    "_summary": "Run the shader-object/binding tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/binding.txt" },
+  { "id": "gfx_mesa_vk_shader-object/create",
+    "_summary": "Run the shader-object/create tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/create.txt" },
+  { "id": "gfx_mesa_vk_shader-object/link",
+    "_summary": "Run the shader-object/link tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/link.txt" },
+  { "id": "gfx_mesa_vk_shader-object/misc",
+    "_summary": "Run the shader-object/misc tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/misc.txt" },
+  { "id": "gfx_mesa_vk_shader-object/pipeline-interaction",
+    "_summary": "Run the shader-object/pipeline-interaction tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/pipeline-interaction.txt" },
+  { "id": "gfx_mesa_vk_shader-object/rendering",
+    "_summary": "Run the shader-object/rendering tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/shader-object/rendering.txt" },
+  { "id": "gfx_mesa_vk_sparse-resources",
+    "_summary": "Run the sparse-resources tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/sparse-resources.txt" },
+  { "id": "gfx_mesa_vk_spirv-assembly",
+    "_summary": "Run the spirv-assembly tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/spirv-assembly.txt" },
+  { "id": "gfx_mesa_vk_ssbo",
+    "_summary": "Run the ssbo tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ssbo.txt" },
+  { "id": "gfx_mesa_vk_subgroups",
+    "_summary": "Run the subgroups tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/subgroups.txt" },
+  { "id": "gfx_mesa_vk_synchronization",
+    "_summary": "Run the synchronization tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/synchronization.txt" },
+  { "id": "gfx_mesa_vk_synchronization2",
+    "_summary": "Run the synchronization2 tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/synchronization2.txt" },
+  { "id": "gfx_mesa_vk_tessellation",
+    "_summary": "Run the tessellation tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/tessellation.txt" },
+  { "id": "gfx_mesa_vk_texture",
+    "_summary": "Run the texture tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/texture.txt" },
+  { "id": "gfx_mesa_vk_transform-feedback",
+    "_summary": "Run the transform-feedback tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/transform-feedback.txt" },
+  { "id": "gfx_mesa_vk_ubo",
+    "_summary": "Run the ubo tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ubo.txt" },
+  { "id": "gfx_mesa_vk_video",
+    "_summary": "Run the video tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/video.txt" },
+  { "id": "gfx_mesa_vk_wsi",
+    "_summary": "Run the wsi tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/wsi.txt" },
+  { "id": "gfx_mesa_vk_ycbcr",
+    "_summary": "Run the ycbcr tests from VK-GL-CTS",
+    "command": "run-vulkan-test.py --test_file  /usr/local/checkbox-gfx/VK-GL-CTS/external/vulkancts/mustpass/main/vk-default/ycbcr.txt" }
+  ]

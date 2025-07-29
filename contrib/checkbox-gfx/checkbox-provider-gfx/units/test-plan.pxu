@@ -5,6 +5,3 @@ include:
   gfx_mesa_vk.*
 bootstrap_include:
     com.canonical.certification::executable
-    com.canonical.certification::snap
-    graphics_card
-    vkconformancetests

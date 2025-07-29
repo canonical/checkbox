@@ -318,7 +318,7 @@ class DisplayConnectionTests(unittest.TestCase):
     def test_cleanup_glmark2_data_symlink(
         self,
         mock_getenv: MagicMock,
-        _mock_run: MagicMock,
+        mock_run: MagicMock,
         mock_symlink: MagicMock,
         mock_unlink: MagicMock,
         mock_islink: MagicMock,
@@ -340,31 +340,33 @@ class DisplayConnectionTests(unittest.TestCase):
         }
         mock_pick_glmark2_executable.return_value = "glmark2"
 
-        for is_snap in (True, False):
+        for glmark2_should_timeout in (True, False):
+            if glmark2_should_timeout:
+                mock_run.side_effect = sp.TimeoutExpired("glmark2", 120)
+            for is_snap in (True, False):
+                mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
+                RCT.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
+                RCT.SNAP = custom_env("SNAP", is_snap)
+                mock_islink.return_value = is_snap
+                # deb case, the file actually exists
+                mock_path_exists.return_value = not is_snap
+                # reapply the env variables
+                tester = RCT.HardwareRendererTester()
+                tester.is_hardware_renderer_available()
 
-            mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
-            RCT.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
-            RCT.SNAP = custom_env("SNAP", is_snap)
-            mock_islink.return_value = is_snap
-            # deb case, the file actually exists
-            mock_path_exists.return_value = not is_snap
-            # reapply the env variables
-            tester = RCT.HardwareRendererTester()
-            tester.is_hardware_renderer_available()
+                if is_snap:
+                    mock_symlink.assert_called_once_with(
+                        "{}/usr/share/glmark2".format(RCT.RUNTIME_ROOT),
+                        "/usr/share/glmark2",
+                        target_is_directory=True,
+                    )
+                    mock_unlink.assert_called_once_with("/usr/share/glmark2")
+                else:
+                    mock_symlink.assert_not_called()
+                    mock_unlink.assert_not_called()
 
-            if is_snap:
-                mock_symlink.assert_called_once_with(
-                    "{}/usr/share/glmark2".format(RCT.RUNTIME_ROOT),
-                    "/usr/share/glmark2",
-                    target_is_directory=True,
-                )
-                mock_unlink.assert_called_once_with("/usr/share/glmark2")
-            else:
-                mock_symlink.assert_not_called()
-                mock_unlink.assert_not_called()
-
-            mock_symlink.reset_mock()
-            mock_unlink.reset_mock()
+                mock_symlink.reset_mock()
+                mock_unlink.reset_mock()
 
     def test_slow_boot_scenario(self):
 

@@ -375,6 +375,8 @@ class HardwareRendererTester:
                     glmark2_data_path,
                     target_is_directory=True,
                 )
+            # override is needed for snaps on classic ubuntu
+            desktop_env_vars["PATH"] = os.environ["PATH"]
             glmark2_output = sp.run(
                 # all glmark2 programs share the same args
                 [glmark2_executable, "--off-screen", "--validate"],

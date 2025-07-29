@@ -250,6 +250,61 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
         )
 
+    @patch("os.path.islink")
+    @patch("os.unlink")
+    @patch("os.symlink")
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_cleanup_glmark2_data_symlink(
+        self,
+        mock_getenv: MagicMock,
+        mock_run: MagicMock,
+        mock_symlink: MagicMock,
+        mock_unlink: MagicMock,
+        mock_islink: MagicMock,
+    ):
+        before_test_envs = [RCT.RUNTIME_ROOT, RCT.SNAP]
+
+        def custom_env(key: str, is_snap: bool) -> str:
+            if key == "XDG_SESSION_TYPE":
+                return "wayland"
+            if key == "DISPLAY":
+                return ":0"
+            if key == "CHECKBOX_RUNTIME":
+                return "/snap/runtime/path/" if is_snap else ""
+            if key == "SNAP":
+                return "/snap/checkbox/path/" if is_snap else ""
+
+            raise Exception("unexpected use of this mock")
+
+        mock_run.side_effect = lambda *args, **kwargs: (
+            sp.CompletedProcess(args, 0, "x86_64")
+            if args[0][0] == "uname"
+            else DEFAULT
+        )
+
+        for is_snap in (True, False):
+
+            mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
+            RCT.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
+            RCT.SNAP = custom_env("SNAP", is_snap)
+            mock_islink.return_value = is_snap
+            # reapply the env variables
+            tester = RCT.HardwareRendererTester()
+            tester.is_hardware_renderer_available()
+
+            if is_snap:
+                mock_symlink.assert_called_once()
+                mock_unlink.assert_called_once()
+            else:
+                mock_symlink.assert_not_called()
+                mock_unlink.assert_not_called()
+
+            mock_symlink.reset_mock()
+            mock_unlink.reset_mock()
+
+        RCT.RUNTIME_ROOT, RCT.SNAP = before_test_envs
+
     def test_slow_boot_scenario(self):
 
         def fake_time(delta: int, ticks=2):

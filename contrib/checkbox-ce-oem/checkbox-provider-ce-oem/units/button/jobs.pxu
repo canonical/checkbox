@@ -28,7 +28,7 @@ user: root
 category_id: button
 estimated_duration: 25s
 flags: also-after-suspend
-command: python3 button_test.py gpio --name "{name}" --gpio-pin {port}
+command: button_test.sh -t gpio -n {name} -p {port}
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_button == 'True'
 
@@ -66,6 +66,6 @@ user: root
 category_id: button
 estimated_duration: 25s
 flags: also-after-suspend
-command: python3 button_test.py interrupts --name "{name}"
+command: interrupts_button_test.py --name "{name}"
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_button == 'True'

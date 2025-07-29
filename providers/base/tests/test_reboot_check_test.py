@@ -131,6 +131,48 @@ class DisplayConnectionTests(unittest.TestCase):
         )
         self.assertFalse(tester.is_hardware_renderer_available())
 
+        # Real life example:
+        # https://community.khronos.org/t/finding-opengl-es-2-0-mesa-
+        # 18-3-4-on-rhel-7-for-mfix/108359
+        mock_run.reset_mock()
+        mock_run.return_value = sp.CompletedProcess(
+            [],
+            0,
+            """
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Mesa
+    GL_RENDERER:    Software Rasterizer
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================
+            """,
+        )
+        self.assertFalse(tester.is_hardware_renderer_available())
+
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_glmark2_timeout(
+        self, mock_getenv: MagicMock, mock_run: MagicMock
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+
+        def mock_run_side_effect(*args, **kwargs):
+            if "glmark2" in args[0][0]:
+                raise sp.TimeoutExpired(
+                    ["glmark2"], 60, "glmark2 didn't return in 60 seconds"
+                )
+            else:
+                return DEFAULT
+
+        mock_run.side_effect = mock_run_side_effect
+        tester = RCT.HardwareRendererTester()
+        self.assertFalse(tester.is_hardware_renderer_available())
+
     @patch("subprocess.run")
     @patch("os.getenv")
     def test_is_hardware_renderer_available_happy_path(

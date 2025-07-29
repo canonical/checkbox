@@ -44,6 +44,54 @@ class DisplayConnectionTests(unittest.TestCase):
         ):
             self.assertFalse(self.tester.has_display_connection())
 
+    @patch("subprocess.run")
+    def test_get_desktop_env_vars_no_desktop_session(
+        self, mock_run: MagicMock
+    ):
+        def run_result(cmd_array: T.List[str], **_):
+            if "pidof" in cmd_array:
+                return sp.CompletedProcess(cmd_array, 1, "", "")
+
+        mock_run.side_effect = run_result
+        self.assertIsNone(
+            RCT.HardwareRendererTester().get_desktop_environment_variables()
+        )
+
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_get_desktop_env_vars_happy_path(
+        self, mock_run: MagicMock, mock_check_output: MagicMock
+    ):
+        def run_result(cmd_array: T.List[str], **_):
+            if cmd_array == ["pidof", "-s", "gnome-shell"]:
+                return sp.CompletedProcess(cmd_array, 0, "12345", "")
+
+        mock_run.side_effect = run_result
+        mock_check_output.return_value = "\0".join(
+            [
+                "XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg",
+                "XDG_CURRENT_DESKTOP=ubuntu:GNOME",
+                "XDG_SESSION_CLASS=user",
+                "XDG_SESSION_DESKTOP=ubuntu-wayland",
+                "XDG_SESSION_TYPE=wayland",
+            ]
+        )
+
+        out = RCT.HardwareRendererTester().get_desktop_environment_variables()
+
+        self.assertIsNotNone(out)
+
+        self.assertDictEqual(
+            out, # type: ignore
+            {
+                "XDG_CONFIG_DIRS": "/etc/xdg/xdg-ubuntu:/etc/xdg",
+                "XDG_CURRENT_DESKTOP": "ubuntu:GNOME",
+                "XDG_SESSION_CLASS": "user",
+                "XDG_SESSION_DESKTOP": "ubuntu-wayland",
+                "XDG_SESSION_TYPE": "wayland",
+            },
+        )
+
     @patch(
         "reboot_check_test."
         + "HardwareRendererTester.get_desktop_environment_variables"
@@ -198,13 +246,19 @@ class DisplayConnectionTests(unittest.TestCase):
         self.assertTrue(tester.is_hardware_renderer_available())
 
     @patch("subprocess.run")
-    @patch("os.getenv")
+    @patch(
+        "reboot_check_test."
+        + "HardwareRendererTester.get_desktop_environment_variables"
+    )
     def test_is_hardware_renderer_available_bad_session_type(
-        self, mock_getenv: MagicMock, mock_run: MagicMock
+        self,
+        mock_get_desktop_envs: MagicMock,
+        mock_run: MagicMock,
     ):
-        mock_getenv.side_effect = lambda key: (
-            ":0" if key == "DISPLAY" else "tty"
-        )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": "",
+            "XDG_SESSION_TYPE": "tty",
+        }  # found in `chvt` sessions
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
@@ -592,3 +646,6 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
+
+
+unittest.main()

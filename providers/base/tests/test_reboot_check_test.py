@@ -303,6 +303,9 @@ class DisplayConnectionTests(unittest.TestCase):
         )
 
     @patch(
+        "reboot_check_test." + "HardwareRendererTester.pick_glmark2_executable"
+    )
+    @patch(
         "reboot_check_test."
         + "HardwareRendererTester.get_desktop_environment_variables"
     )
@@ -315,12 +318,13 @@ class DisplayConnectionTests(unittest.TestCase):
     def test_cleanup_glmark2_data_symlink(
         self,
         mock_getenv: MagicMock,
-        mock_run: MagicMock,
+        _mock_run: MagicMock,
         mock_symlink: MagicMock,
         mock_unlink: MagicMock,
         mock_islink: MagicMock,
         mock_path_exists: MagicMock,
         mock_get_desktop_envs: MagicMock,
+        mock_pick_glmark2_executable: MagicMock,
     ):
         def custom_env(key: str, is_snap: bool) -> str:
             if key == "CHECKBOX_RUNTIME":
@@ -334,12 +338,7 @@ class DisplayConnectionTests(unittest.TestCase):
             "DISPLAY": ":0",
             "XDG_SESSION_TYPE": "x11",
         }
-
-        mock_run.side_effect = lambda *args, **kwargs: (
-            sp.CompletedProcess(args, 0, "x86_64")
-            if args[0][0] == "uname"
-            else DEFAULT
-        )
+        mock_pick_glmark2_executable.return_value = "glmark2"
 
         for is_snap in (True, False):
 
@@ -398,7 +397,7 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_time.side_effect = fake_time(3)
             tester = RCT.HardwareRendererTester()
 
-            self.assertFalse(tester.wait_for_graphical_target(2))
+            self.assertFalse(tester.wait_for_graphical_target(2)[0])
 
             mock_sleep.reset_mock()
             mock_time.side_effect = fake_time(3)
@@ -410,7 +409,7 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_time.side_effect = fake_time(3)
             mock_run.side_effect = sp.TimeoutExpired([], 1)
             tester = RCT.HardwareRendererTester()
-            self.assertFalse(tester.wait_for_graphical_target(2))
+            self.assertFalse(tester.wait_for_graphical_target(2)[0])
 
 
 class InfoDumpTests(unittest.TestCase):
@@ -646,3 +645,7 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
+
+
+if __name__ == "__main__":
+    DisplayConnectionTests().test_cleanup_glmark2_data_symlink()

@@ -366,8 +366,8 @@ for disk in $(lsblk -r | grep disk | cut -f 1 -d " "); do
         fi
     fi
 done
-if [ -z "$usb2_disks" ]; then
-    echo " No USB2 disks detected."
+if [ -z "$usb2_disks" ] && [ -z "$usb3_disks" ]; then
+    echo " No USB disks detected."
     all_ok="N"
 else
     echo " Detected USB2 disk(s): ${usb2_disks[*]}"
@@ -908,16 +908,15 @@ fi
 GPGPU_Check() {
 echoname "GPGPU Identification"
 if lspci | grep "3D controller [0302]"; then
-    gpu="GPGPU Detected"
+    gpu="GPGPU detected"
     echo " $gpu"
     echo " In order to test the discovered GPGPU device(s)"
     echo " You will need to install the checkbox-provider-gpgpu"
-    echo " package and run the gpu-setup script to install"
-    echo " the necessary drivers and toolkit."
+    echo " package"
     eval info${i}=\"$gpu\"
     info
 else
-    gpu="No GPGPU Detected"
+    gpu="No GPGPU detected"
     echo " $gpu"
     eval info${i}=\"$gpu\"
     info

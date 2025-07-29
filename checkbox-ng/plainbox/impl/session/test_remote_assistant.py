@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 from os.path import exists
+from functools import partial
 
 from unittest import TestCase, mock
 
@@ -31,13 +33,14 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 
 from plainbox.impl.session import remote_assistant
+from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.impl.session.assistant import SessionAssistant
 
 
 class RemoteAssistantTests(TestCase):
     def test_allowed_when_ok(self):
         self_mock = mock.MagicMock()
-        allowed_when = remote_assistant.RemoteSessionAssistant.allowed_when
+        allowed_when = RemoteSessionAssistant.allowed_when
 
         @allowed_when(remote_assistant.Idle)
         def allowed(self, *args): ...
@@ -47,7 +50,7 @@ class RemoteAssistantTests(TestCase):
 
     def test_allowed_when_fail(self):
         self_mock = mock.MagicMock()
-        allowed_when = remote_assistant.RemoteSessionAssistant.allowed_when
+        allowed_when = RemoteSessionAssistant.allowed_when
 
         @allowed_when(remote_assistant.Idle)
         def not_allowed(self, *args): ...
@@ -61,7 +64,7 @@ class RemoteAssistantTests(TestCase):
     def test__reset_sa(self, is_passwordless_sudo_mock, init_mock):
         init_mock.return_value = None
         # RSA constructor calls _reset_sa, which in turns creates a new SA
-        rsa = remote_assistant.RemoteSessionAssistant(lambda: None)
+        rsa = RemoteSessionAssistant(lambda: None)
         self.assertEqual(init_mock.call_count, 1)
 
     @mock.patch("plainbox.impl.session.remote_assistant.guess_normal_user")
@@ -75,11 +78,20 @@ class RemoteAssistantTests(TestCase):
         rsa = mock.Mock()
         rsa.get_test_plans.return_value = [mock.Mock()]
         rsa._state = remote_assistant.Idle
+
+        def get_test_plan_mock(name):
+            to_r = mock.Mock()
+            to_r.name = name
+            return to_r
+
+        rsa._sa.get_test_plan.side_effect = get_test_plan_mock
+        rsa.start_session = partial(RemoteSessionAssistant.start_session, rsa)
         with mock.patch("plainbox.impl.config.Configuration.from_text") as cm:
             cm.return_value = Configuration()
-            tps = remote_assistant.RemoteSessionAssistant.start_session(
-                rsa, extra_cfg
+            tps = RemoteSessionAssistant.start_session_json(
+                rsa, json.dumps(extra_cfg)
             )
+            tps = json.loads(tps)
             self.assertEqual(tps[0][0][1], "tp")
 
     @mock.patch("plainbox.impl.session.remote_assistant.guess_normal_user")
@@ -95,9 +107,7 @@ class RemoteAssistantTests(TestCase):
         rsa._state = remote_assistant.Idle
         with mock.patch("plainbox.impl.config.Configuration.from_text") as cm:
             cm.return_value = Configuration()
-            tps = remote_assistant.RemoteSessionAssistant.start_session(
-                rsa, extra_cfg
-            )
+            tps = RemoteSessionAssistant.start_session(rsa, extra_cfg)
             self.assertEqual(tps[0][0][1], "tp")
 
     def test_resume_by_id_with_session_id(self):
@@ -110,7 +120,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
         rsa.resume_session.return_value = mock_meta
-        remote_assistant.RemoteSessionAssistant.resume_by_id(rsa, "session_id")
+        RemoteSessionAssistant.resume_by_id(rsa, "session_id")
         self.assertEqual(rsa._state, "testsselected")
 
     def test_resume_by_id_bad_session_id(self):
@@ -123,7 +133,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
         rsa.resume_session.return_value = mock_meta
-        remote_assistant.RemoteSessionAssistant.resume_by_id(rsa, "bad_id")
+        RemoteSessionAssistant.resume_by_id(rsa, "bad_id")
         self.assertEqual(rsa._state, "idle")
 
     def test_resume_by_id_without_session_id(self):
@@ -136,7 +146,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
         rsa.resume_session.return_value = mock_meta
-        remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+        RemoteSessionAssistant.resume_by_id(rsa)
         self.assertEqual(rsa._state, "testsselected")
 
     @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
@@ -167,7 +177,7 @@ class RemoteAssistantTests(TestCase):
                     ),
                 ):
                     os_path_exists_mock.return_value = True
-                    remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+                    RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {
@@ -207,7 +217,7 @@ class RemoteAssistantTests(TestCase):
                     ),
                 ):
                     os_path_exists_mock.return_value = True
-                    remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+                    RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {
@@ -244,7 +254,7 @@ class RemoteAssistantTests(TestCase):
                 "noreturn"
             }
 
-            remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+            RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {
@@ -282,7 +292,7 @@ class RemoteAssistantTests(TestCase):
             os_path_exists_mock.return_value = False
             rsa._sa.get_job.return_value.get_flag_set.return_value = {}
 
-            remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+            RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {
@@ -322,7 +332,7 @@ class RemoteAssistantTests(TestCase):
             os_path_exists_mock.return_value = False
             rsa._sa.get_job.return_value.get_flag_set.return_value = {}
 
-            remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+            RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {
@@ -354,7 +364,7 @@ class RemoteAssistantTests(TestCase):
             with mock.patch("builtins.open", mock.mock_open(read_data="!@!")):
                 with mock.patch("os.path.exists", os_path_exists_mock):
                     os_path_exists_mock.return_value = True
-                    remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+                    RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {
@@ -369,9 +379,7 @@ class RemoteAssistantTests(TestCase):
         self_mock = mock.MagicMock()
         self_mock._state = remote_assistant.Interacting
 
-        remote_assistant.RemoteSessionAssistant.remember_users_response(
-            self_mock, "quit"
-        )
+        RemoteSessionAssistant.remember_users_response(self_mock, "quit")
 
         self.assertTrue(self_mock.abandon_session.called)
 
@@ -379,9 +387,7 @@ class RemoteAssistantTests(TestCase):
         self_mock = mock.MagicMock()
         self_mock._state = remote_assistant.Interacting
 
-        remote_assistant.RemoteSessionAssistant.remember_users_response(
-            self_mock, "rollback"
-        )
+        RemoteSessionAssistant.remember_users_response(self_mock, "rollback")
 
         self.assertEqual(self_mock._state, remote_assistant.TestsSelected)
 
@@ -389,35 +395,224 @@ class RemoteAssistantTests(TestCase):
         self_mock = mock.MagicMock()
         self_mock._state = remote_assistant.Interacting
 
-        remote_assistant.RemoteSessionAssistant.remember_users_response(
-            self_mock, "run"
-        )
+        RemoteSessionAssistant.remember_users_response(self_mock, "run")
 
         self.assertEqual(self_mock._state, remote_assistant.Running)
 
     def test_note_metadata_starting_job(self):
         self_mock = mock.MagicMock()
-        remote_assistant.RemoteSessionAssistant.note_metadata_starting_job(
-            self_mock, mock.MagicMock(), mock.MagicMock()
+        note_metadata_starting_job = partial(
+            RemoteSessionAssistant.note_metadata_starting_job,
+            self_mock,
+        )
+        self_mock.note_metadata_starting_job = note_metadata_starting_job
+        RemoteSessionAssistant.note_metadata_starting_job_json(
+            self_mock, "{}", mock.MagicMock()
         )
         self.assertTrue(self_mock._sa.note_metadata_starting_job.called)
 
     def test_abandon_session(self):
         self_mock = mock.MagicMock()
-        remote_assistant.RemoteSessionAssistant.abandon_session(self_mock)
+        RemoteSessionAssistant.abandon_session(self_mock)
         self.assertTrue(self_mock._reset_sa.called)
 
     def test_delete_sessions(self):
         self_mock = mock.MagicMock()
-        remote_assistant.RemoteSessionAssistant.delete_sessions(self_mock, [])
+        RemoteSessionAssistant.delete_sessions(self_mock, [])
         self.assertTrue(self_mock._sa.delete_sessions.called)
 
     def test_get_resumable_sessions(self):
         self_mock = mock.MagicMock()
-        remote_assistant.RemoteSessionAssistant.get_resumable_sessions(
+        RemoteSessionAssistant.get_resumable_sessions(self_mock)
+        self.assertTrue(self_mock._sa.get_resumable_sessions.called)
+
+    def test_configuration_type(self):
+        # This is used to allow the controller to create netref configurations.
+        conf_type = RemoteSessionAssistant.configuration_type(mock.MagicMock())
+        self.assertEqual(conf_type, remote_assistant.Configuration)
+
+    def test_bootstrapping_todo_list(self):
+        self_mock = mock.MagicMock()
+        self_mock._state = remote_assistant.Started
+        self_mock.get_bootstrapping_todo_list = partial(
+            RemoteSessionAssistant.get_bootstrapping_todo_list, self_mock
+        )
+        self_mock._sa.get_bootstrap_todo_list.return_value = [
+            "job1",
+            "job2",
+        ]
+
+        job_list_str = RemoteSessionAssistant.get_bootstrapping_todo_list_json(
             self_mock
         )
-        self.assertTrue(self_mock._sa.get_resumable_sessions.called)
+
+        self.assertTrue(self_mock._sa.get_bootstrap_todo_list.called)
+        self.assertEqual(["job1", "job2"], json.loads(job_list_str))
+
+    def test_finish_bootstrap_json(self):
+        self_mock = mock.MagicMock()
+        self_mock.finish_bootstrap = partial(
+            RemoteSessionAssistant.finish_bootstrap, self_mock
+        )
+        self_mock._sa.get_static_todo_list.return_value = static_todo_list = [
+            "test_{}".format(x) for x in range(10)
+        ]
+        to_r = {x: mock.MagicMock() for x in static_todo_list}
+
+        def get_job_state(id):
+            return to_r[id]
+
+        self_mock._sa.get_job_state = get_job_state
+
+        def get_value(top, key):
+            assert top == "ui"
+            if key == "auto_retry":
+                return True
+            elif key == "max_attempts":
+                return 10
+            assert False, "Undefined key"
+
+        self_mock._launcher.get_value = get_value
+
+        bootstrapped_todo = json.loads(
+            RemoteSessionAssistant.finish_bootstrap_json(self_mock)
+        )
+
+        self.assertEqual(self_mock._state, remote_assistant.Bootstrapped)
+        self.assertEqual(bootstrapped_todo, static_todo_list)
+        self.assertTrue(
+            all(
+                to_r[x].attempts == get_value("ui", "max_attempts")
+                for x in bootstrapped_todo
+            )
+        )
+
+    def test_get_manifest_repr_json(self):
+        self_mock = mock.MagicMock()
+        self_mock.get_manifest_repr = partial(
+            RemoteSessionAssistant.get_manifest_repr, self_mock
+        )
+        self_mock._sa.get_manifest_repr.return_value = {"manifest1": True}
+
+        manifest = RemoteSessionAssistant.get_manifest_repr_json(self_mock)
+
+        self.assertEqual(json.loads(manifest), {"manifest1": True})
+
+    def test_modify_todo_list_json(self):
+        self_mock = mock.MagicMock()
+        self_mock.modify_todo_list = partial(
+            RemoteSessionAssistant.modify_todo_list, self_mock
+        )
+        chosen_jobs_list = ["job1", "job2", "job3"]
+        chosen_jobs_json = json.dumps(chosen_jobs_list)
+
+        RemoteSessionAssistant.modify_todo_list_json(
+            self_mock, chosen_jobs_json
+        )
+
+        self.assertTrue(self_mock._sa.use_alternate_selection.called)
+
+    def test_finish_job_json_with_result(self):
+        self_mock = mock.MagicMock()
+        mock_result_obj = mock.MagicMock()
+        mock_result_obj.tr_outcome.return_value = "PASS"
+        mock_result_obj.outcome_color_ansi.return_value = "[green]PASS[/green]"
+        self_mock.finish_job.return_value = mock_result_obj
+
+        input_result_data = {
+            "outcome": "PASS",
+            "comments": "Completed successfully",
+        }
+        input_result_json = json.dumps(input_result_data)
+
+        response_json = RemoteSessionAssistant.finish_job_json(
+            self_mock, input_result_json
+        )
+
+        self_mock.finish_job.assert_called_once_with(input_result_data)
+        expected_response = {
+            "tr_outcome": "PASS",
+            "outcome_color": "[green]PASS[/green]",
+        }
+        self.assertEqual(json.loads(response_json), expected_response)
+
+    def test_finish_job_json_without_result(self):
+        self_mock = mock.MagicMock()
+        mock_result_obj = mock.MagicMock()
+        mock_result_obj.tr_outcome.return_value = "FAIL"
+        mock_result_obj.outcome_color_ansi.return_value = "[red]FAIL[/red]"
+        self_mock.finish_job.return_value = mock_result_obj
+
+        response_json = RemoteSessionAssistant.finish_job_json(self_mock)
+
+        self_mock.finish_job.assert_called_once_with(None)
+        expected_response = {
+            "tr_outcome": "FAIL",
+            "outcome_color": "[red]FAIL[/red]",
+        }
+        self.assertEqual(json.loads(response_json), expected_response)
+
+    def test_finish_job_json_handles_none_result_from_finish_job(self):
+        self_mock = mock.MagicMock()
+        self_mock.finish_job.return_value = None
+
+        response = RemoteSessionAssistant.finish_job_json(self_mock)
+
+        self_mock.finish_job.assert_called_once_with(None)
+        self.assertIsNone(response)
+
+    def test_has_any_job_failed_is_true_if_a_job_failed(self):
+        self_mock = mock.MagicMock()
+
+        passing_job = mock.MagicMock()
+        passing_job.result.outcome = IJobResult.OUTCOME_PASS
+
+        failing_job = mock.MagicMock()
+        failing_job.result.outcome = IJobResult.OUTCOME_FAIL
+
+        self_mock.manager.default_device_context._state._job_state_map = {
+            "job1": passing_job,
+            "job2": failing_job,
+        }
+
+        self.assertTrue(RemoteSessionAssistant.has_any_job_failed(self_mock))
+
+    def test_has_any_job_failed_is_true_if_a_job_crashed(self):
+        self_mock = mock.MagicMock()
+
+        passing_job = mock.MagicMock()
+        passing_job.result.outcome = IJobResult.OUTCOME_PASS
+
+        crashing_job = mock.MagicMock()
+        crashing_job.result.outcome = IJobResult.OUTCOME_CRASH
+
+        self_mock.manager.default_device_context._state._job_state_map = {
+            "job1": passing_job,
+            "job2": crashing_job,
+        }
+
+        self.assertTrue(RemoteSessionAssistant.has_any_job_failed(self_mock))
+
+    def test_has_any_job_failed_is_false_if_no_jobs_failed(self):
+        self_mock = mock.MagicMock()
+
+        passing_job_1 = mock.MagicMock()
+        passing_job_1.result.outcome = IJobResult.OUTCOME_PASS
+
+        passing_job_2 = mock.MagicMock()
+        passing_job_2.result.outcome = IJobResult.OUTCOME_PASS
+
+        self_mock.manager.default_device_context._state._job_state_map = {
+            "job1": passing_job_1,
+            "job2": passing_job_2,
+        }
+
+        self.assertFalse(RemoteSessionAssistant.has_any_job_failed(self_mock))
+
+    def test_has_any_job_failed_is_false_for_empty_job_map(self):
+        self_mock = mock.MagicMock()
+        self_mock.manager.default_device_context._state._job_state_map = {}
+        self.assertFalse(RemoteSessionAssistant.has_any_job_failed(self_mock))
 
 
 class RemoteAssistantFinishJobTests(TestCase):
@@ -433,7 +628,7 @@ class RemoteAssistantFinishJobTests(TestCase):
         mock_builder = MockJobResultBuilder.return_value
         mock_builder.get_result.return_value = IJobResult.OUTCOME_PASS
 
-        result = remote_assistant.RemoteSessionAssistant.finish_job(self.rsa)
+        result = RemoteSessionAssistant.finish_job(self.rsa)
 
         self.rsa._sa.use_job_result.assert_called_with("job_id", "pass")
         self.assertEqual(result, IJobResult.OUTCOME_PASS)
@@ -451,7 +646,7 @@ class RemoteAssistantFinishJobTests(TestCase):
         self.rsa._be.wait().get_result = wait_get_result_res
         wait_get_result_res.return_value = IJobResult.OUTCOME_PASS
 
-        result = remote_assistant.RemoteSessionAssistant.finish_job(self.rsa)
+        result = RemoteSessionAssistant.finish_job(self.rsa)
 
         self.assertTrue(self.rsa._be.wait.called)
         self.assertTrue(self.rsa._be.wait().get_result)
@@ -467,7 +662,7 @@ class RemoteAssistantFinishJobTests(TestCase):
         mock_builder = MockJobResultBuilder.return_value
         mock_builder.get_result.return_value = IJobResult.OUTCOME_PASS
 
-        result = remote_assistant.RemoteSessionAssistant.finish_job(self.rsa)
+        result = RemoteSessionAssistant.finish_job(self.rsa)
 
         self.rsa._sa.use_job_result.assert_called_with("job_id", "pass")
         self.assertEqual(result, IJobResult.OUTCOME_PASS)

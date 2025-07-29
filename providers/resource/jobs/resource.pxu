@@ -19,11 +19,6 @@ unit: packaging meta-data
 os-id: debian
 Depends: dpkg (>= 1.13)
 
-# This is for bin/lsb_resource.py
-unit: packaging meta-data
-os-id: debian
-Depends: lsb-release
-
 # This is for bin/optical_resource.py and bin/udev_resource.py
 unit: packaging meta-data
 os-id: debian
@@ -82,9 +77,17 @@ id: lsb
 estimated_duration: 1.63
 plugin: resource
 category_id: information_gathering
-command: lsb_resource.py
-_description: Generates release info based on /etc/lsb-release
-_summary: Collect information about installed system (lsb-release)
+command: os_resource.py
+_description: Generates release info based on /etc/os-release
+_summary: [DEPRECATED, use 'os' instead] Collect information about installed operating system (os-release)
+
+id: os
+estimated_duration: 1.63
+plugin: resource
+category_id: information_gathering
+command: os_resource.py
+_description: Generates release info based on /etc/os-release
+_summary: Collect information about installed operating system (os-release)
 
 id: meminfo
 estimated_duration: 0.1
@@ -112,6 +115,15 @@ command:
   dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n' || true
 _description: Generates a list of packages
 _summary: Collect information about installed software packages
+
+id: kernel_package
+plugin: resource
+category_id: information_gathering
+command: kernel_package_resource.py
+_description: 
+ Gets kernel package from the source of the linux-modules package or from
+ snapd if we are on Ubuntu Core.
+_summary: Collect information about the kernel package
 
 id: executable
 estimated_duration: 0.78

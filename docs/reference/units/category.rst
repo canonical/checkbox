@@ -1,5 +1,7 @@
+.. _category_unit:
+
 =============
-Category Unit
+Category unit
 =============
 
 The category unit is a normalized implementation of a "test category" concept.
@@ -7,23 +9,23 @@ Using category units one can define logical groups of tests that deal with some
 specific testing area (for example, suspend-resume or USB support).
 
 Job definitions can be associated with at most one category using the
-``category_id`` field (see :ref:`job unit reference <Category id field>`).
+``category_id`` field (see :option:`job unit reference <job category_id>`).
 Categories can be used by particular applications to facilitate test selection.
 
-Category Fields
----------------
+Fields
+-------
 
 There are two fields that are used by the category unit:
 
-.. _Category id field:
+.. program:: category
 
-``id``:
+.. option:: id
+
     (mandatory) - This field defines the partial identifier of the category. It
     is similar to the ``id`` field on the job definition units.
 
-.. _Category name field:
+.. option:: name
 
-``name``:
     (mandatory) - This field defines a human readable name of the category. It
     may be used in application user interfaces for displaying a group of tests.
 

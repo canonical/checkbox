@@ -26,3 +26,5 @@ matrix:
       - pre
       - spellexception
       - title
+      - span.sig-name     # ignore option directive
+      - li:has(a[href*="#cmdoption"])   # ignore option directive in genindex page

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-    This script base on network-manager. And network-manager has it own
-    limitation about wifi ap mode and wifi-p2p.
-    For wifi ap mode:
-        Only band a and bg are supported
+This script base on network-manager. And network-manager has it own
+limitation about wifi ap mode and wifi-p2p.
+For wifi ap mode:
+    Only band a and bg are supported
 
-    For wifi-p2p:
-        We are not able to validate the result even following the user
-        manual of network-manager.
+For wifi-p2p:
+    We are not able to validate the result even following the user
+    manual of network-manager.
 
-    Please refer to following for more details:
-    [1] https://networkmanager.dev/docs/api/latest/nm-settings-nmcli.html
-    [2] https://netplan.readthedocs.io/en/stable/netplan-yaml
-    [3] https://bugs.launchpad.net/carmel/+bug/2080353/comments/2
+Please refer to following for more details:
+[1] https://networkmanager.dev/docs/api/latest/nm-settings-nmcli.html
+[2] https://netplan.readthedocs.io/en/stable/netplan-yaml
+[3] https://bugs.launchpad.net/carmel/+bug/2080353/comments/2
 
 """
 import argparse
@@ -54,7 +54,7 @@ class WiFiManager:
         logging.info("Initializing connection")
         if self.type == "wifi":
             run_command(
-                "{} c add type {} ifname {} con-name {} "
+                "sudo {} c add type {} ifname {} con-name {} "
                 "autoconnect no wifi.ssid {} "
                 "wifi.mode {} ipv4.method shared".format(
                     self._command,
@@ -70,7 +70,7 @@ class WiFiManager:
                 self.set_secured()
         elif self.type == "wifi-p2p":
             run_command(
-                "{} c add type {} ifname {} con-name {} "
+                "sudo {} c add type {} ifname {} con-name {} "
                 "wifi-p2p.peer {}".format(
                     self._command,
                     self.type,
@@ -87,7 +87,7 @@ class WiFiManager:
         Set band, channel and channel-width.
         If channel and channel-width in 0, run command with setting band only.
         """
-        cmd = "{} c modify {} wifi.band {} ".format(
+        cmd = "sudo {} c modify {} wifi.band {} ".format(
             self._command, self.conname, self.band
         )
         if self.channel:
@@ -96,7 +96,7 @@ class WiFiManager:
 
     def set_secured(self):
         run_command(
-            "{} c modify {} wifi-sec.key-mgmt {} wifi-sec.psk {} "
+            "sudo {} c modify {} wifi-sec.key-mgmt {} wifi-sec.psk {} "
             "wifi-sec.group {}".format(
                 self._command,
                 self.conname,
@@ -122,7 +122,7 @@ class WiFiManager:
         return ip_addr
 
     def up_cmd(self):
-        return "{} c up {}".format(self._command, self.conname)
+        return "sudo {} c up {}".format(self._command, self.conname)
 
     def up_conn(self):
         try:
@@ -142,11 +142,11 @@ class WiFiManager:
         return False
 
     def del_cmd(self):
-        return "{} c delete {}".format(self._command, self.conname)
+        return "sudo {} c delete {}".format(self._command, self.conname)
 
     def connect_dut_cmd(self, host_if):
         connect_cmd = (
-            "{} con add type wifi ifname {} con-name {} ssid {}".format(
+            "sudo {} con add type wifi ifname {} con-name {} ssid {}".format(
                 self._command, host_if, self.conname, self.ssid
             )
         )

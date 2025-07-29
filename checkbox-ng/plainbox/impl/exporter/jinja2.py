@@ -27,9 +27,10 @@
 
 import json
 import re
-from collections import OrderedDict
-from datetime import datetime
+import datetime
 from packaging import version
+from contextlib import suppress
+from collections import OrderedDict
 
 import jinja2
 from jinja2 import Environment
@@ -46,10 +47,10 @@ except ImportError:  # renamed in jinja2 3.1
 
 from plainbox import get_version_string
 from plainbox import get_origin
-from plainbox.abc import ISessionStateExporter
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.result import OUTCOME_METADATA_MAP
 from plainbox.impl.unit.exporter import ExporterError
+from plainbox.impl.config import CheckboxINIParser
 
 
 #: Name-space prefix for Canonical Certification
@@ -104,9 +105,9 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         self._unit = exporter_unit
         self._system_id = system_id
         # Generate a time-stamp if needed
-        self._timestamp = timestamp or datetime.utcnow().strftime(
-            "%Y-%m-%dT%H:%M:%S"
-        )
+        self._timestamp = timestamp or datetime.datetime.now(
+            datetime.timezone.utc
+        ).strftime("%Y-%m-%dT%H:%M:%S")
         # Use current version unless told otherwise
         self._client_version = client_version or get_version_string()
         # Remember client name
@@ -194,6 +195,14 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             app_blob_data = json.loads(app_blob.decode("UTF-8"))
         except ValueError:
             app_blob_data = {}
+
+        conf_parser = CheckboxINIParser()
+        conf_parser.read_string(app_blob_data.get("launcher", ""))
+        conf_dict = conf_parser.to_dict()
+        # DEFAULT is not used but it is always injected by ConfigParser
+        with suppress(KeyError):
+            del conf_dict["DEFAULT"]
+
         data = {
             "OUTCOME_METADATA_MAP": OUTCOME_METADATA_MAP,
             "client_name": self._client_name,
@@ -201,10 +210,12 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             "origin": self._origin,
             "manager": session_manager,
             "app_blob": app_blob_data,
+            "launcher": conf_dict,
             "options": self.option_list,
             "system_id": self._system_id,
             "timestamp": self._timestamp,
         }
+
         data.update(self.data)
         self.dump(data, stream)
         self.validate(stream)
@@ -227,6 +238,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             "origin": self._origin,
             "manager_list": session_manager_list,
             "app_blob": {},
+            "launcher": {},
             "options": self.option_list,
             "system_id": self._system_id,
             "timestamp": self._timestamp,

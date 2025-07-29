@@ -1,7 +1,7 @@
 .. _templates:
 
 =============
-Template Unit
+Template unit
 =============
 
 The template unit is a variant of Checkbox unit types. A template is a skeleton
@@ -28,12 +28,15 @@ instead of::
   template-unit: job
   id: chromium_webcam_encoding
 
-Template-Specific Fields
+Template-specific fields
 ========================
 
-.. _Template template-id field:
+The following fields are specific to the template unit:
 
-``template-id``
+.. program:: template
+
+.. option:: template-id
+
     Unique identifier for this template. Should contain characters in
     ``[a-z0-9/-]``.
 
@@ -42,9 +45,8 @@ Template-Specific Fields
     ``stress/reboot_{iterations}_times``, the computed ``template-id`` field
     will be ``stress/reboot_iterations_times``.
 
-.. _Template template-summary field:
+.. option:: template-summary
 
-``template-summary``
     A human readable name for the template. This value is available for
     translation into other languages. It must be one line long, ideally it
     should be short (50-70 characters max).
@@ -60,26 +62,23 @@ Template-Specific Fields
     This field is optional (Checkbox will only advise you to provide one when
     running provider validation).
 
-.. _Template template-description field:
+.. option:: template-description
 
-``template-description``
     A long form description of what the template does or the kind of jobs it
     instantiates. This value is available for translation into other languages.
 
     This field is optional.
 
-.. _Template template-unit field:
+.. option:: template-unit
 
-``template-unit``
     Name of the unit type this template will generate. By default job
     definition units are generated (as if the field was specified with the
     value of ``job``) eventually but other values may be used as well.
 
     This field is optional.
 
-.. _Template template-resource field:
+.. option:: template-resource
 
-``template-resource``
     Name of the resource job (if it is a compatible resource identifier) to use
     to parametrize the template. This must either be a name of a resource job
     available in the namespace the template unit belongs to *or* a valid
@@ -88,9 +87,8 @@ Template-Specific Fields
 
     This field is mandatory.
 
-.. _Template template-imports field:
+.. option:: template-imports
 
-``template-imports``
     A resource import statement. It can be used to refer to arbitrary resource
     job by its full identifier and (optionally) give it a short variable name.
 
@@ -108,9 +106,8 @@ Template-Specific Fields
     job definition is from another provider namespace or when it is not a valid
     resource identifier and needs to be aliased.
 
-.. _Template template-filter field:
+.. option:: template-filter
 
-``template-filter``
     A resource program that limits the set of records from which template
     instances will be made. The syntax of this field is the same as the syntax
     of typical job definition unit's ``requires`` field, that is, it is a
@@ -122,9 +119,8 @@ Template-Specific Fields
 
     This field is optional.
 
-.. _Template template-engine field:
+.. option:: template-engine
 
-``template-engine``
     Name of the template engine to use, default is python string formatting
     (See PEP 3101). The only other supported engine is ``jinja2``.
 
@@ -250,7 +246,7 @@ to aid the author.
     to how many jobs have been created so far.
 
 Following parameters are only available for templates based on the Jinja2
-engine (see :ref:`Template template-engine field`):
+engine (see :option:`template template-engine`):
 
 ``__system_env__``:
     When checkbox encounters a template to render it will populate this

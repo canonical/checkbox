@@ -1,0 +1,64 @@
+name: Test provider-tutorial with tox
+permissions:
+  contents: read
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - providers/tutorial/**
+      - .github/workflows/tox-provider-tutorial.yaml
+  pull_request:
+    branches: [ main ]
+    paths:
+      - providers/tutorial/**
+      - .github/workflows/tox-provider-tutorial.yaml
+  workflow_dispatch:
+
+jobs:
+  tox_test_provider_tutorial:
+    name: Test provider-tutorial with tox
+    defaults:
+      run:
+        working-directory: providers/tutorial
+    strategy:
+      matrix:
+        python: ["3.5", "3.6", "3.8", "3.10"]
+        include:
+          - python: "3.5"
+            tox_env_name: "py35"
+          - python: "3.6"
+            tox_env_name: "py36"
+          - python: "3.8"
+            tox_env_name: "py38"
+          - python: "3.10"
+            tox_env_name: "py310"
+    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED
+      # error. To fix this, we have set up manually PIP_TRUSTED_HOST, checking
+      # first that we can "curl" the hosts, since they will fail in case of
+      # expired/invalid/self-signed certificate.
+      - name: Workaround SSL Certificates manual verification for Python
+        run: |
+          curl --fail --silent --show-error https://pypi.python.org
+          curl --fail --silent --show-error https://pypi.org
+          curl --fail --silent --show-error https://files.pythonhosted.org
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ matrix.python }}
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get update
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
+          pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}

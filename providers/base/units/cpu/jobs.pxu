@@ -5,7 +5,7 @@ estimated_duration: 150.0
 requires:
  executable.name == 'fwts'
  'userspace' in cpuinfo.governors
- cpuinfo.platform not in ("ppc64el", "s390x")
+ cpuinfo.platform not in ("ppc64el", "ppc64le", "s390x")
 user: root
 environ: PLAINBOX_SESSION_SHARE LD_LIBRARY_PATH SNAP
 command:
@@ -27,7 +27,7 @@ estimated_duration: 150.0
 requires:
  executable.name == 'fwts'
  'userspace' in cpuinfo.governors
- cpuinfo.platform not in ("ppc64el", "s390x")
+ cpuinfo.platform not in ("ppc64el", "ppc64le", "s390x")
 user: root
 environ: PLAINBOX_SESSION_SHARE LD_LIBRARY_PATH SNAP
 command:
@@ -126,6 +126,8 @@ _purpose:
 plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/clocktest
+requires:
+ cpuinfo.platform not in ("s390x")
 flags: also-after-suspend
 estimated_duration: 300.0
 command: clocktest
@@ -210,7 +212,7 @@ id: cpu/cstates
 estimated_duration: 10.0
 requires:
  executable.name == 'fwts'
- cpuinfo.platform not in ("aarch64", "armv7l", "s390x")
+ cpuinfo.platform not in ("aarch64", "armv7l", "ppc64el", "ppc64le", "s390x")
 user: root
 category_id: com.canonical.plainbox::cpu
 _summary:

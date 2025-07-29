@@ -1,5 +1,5 @@
 ========================
-Packaging Meta Data Unit
+Packaging meta-data unit
 ========================
 
 The packaging meta-data unit describes system-level dependencies of a provider
@@ -22,16 +22,16 @@ Fields
 
 Following fields may be used by a manifest entry unit.
 
-.. _Packaging Meta Data os-id field:
+.. program:: packaging-meta-data
 
-``os-id``:
+.. option:: os-id
+
     (mandatory) - the identifier of the operating system this rule applies to.
     This is the same value as the ``ID`` field in the file ``/etc/os-release``.
     Typical values include ``debian``, ``ubuntu`` or ``fedora``.
 
-.. _Packaging Meta Data os-version-id field:
+.. option:: os-version-id
 
-``os-version-id``:
     (optional) - the identifier of the specific version of the operating system
     this rule applies to. This is the same as the ``VERSION_ID`` field in the
     file ``/etc/os-release``. If this field is not present then the rule
@@ -45,9 +45,8 @@ Following fields may be used by a manifest entry unit.
 The remaining fields are custom and depend on the packaging driver. The values
 for **Debian** are:
 
-.. _Packaging Meta Data Depends field:
+.. option:: Depends
 
-``Depends``:
     (optional) - a comma separated list of dependencies for the binary package.
     The syntax is the same as in normal Debian control files (including package
     version dependencies). This field can be split into multiple lines, for
@@ -56,17 +55,15 @@ for **Debian** are:
     an unique value for validation.
 
 
-.. _Packaging Meta Data Suggests field:
+.. option:: Suggests
 
-``Suggests``:
     (optional) - same as ``Depends``.
 
-.. _Packaging Meta Data Recommends field:
+.. option:: Recommends
 
-``Recommends``:
     (optional) - same as ``Depends``.
 
-Matching Packaging Meta-Data Units
+Matching packaging meta-data units
 ----------------------------------
 
 The base Linux distribution driver parses the ``/etc/os-release`` file, looks
@@ -124,7 +121,7 @@ we can use the following packaging meta-data unit::
     Depends: libsvm3
 
 
-Using Packaging Meta-Data in Debian
+Using packaging meta-data in debian
 -----------------------------------
 
 To make use of the packaging meta-data, follow those steps:

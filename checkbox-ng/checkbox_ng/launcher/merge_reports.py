@@ -25,14 +25,18 @@ import os
 import tarfile
 from tempfile import TemporaryDirectory
 
-from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
-from plainbox.impl.providers.special import get_exporters
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import IOLogRecord
+from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import SessionManager
 from plainbox.impl.unit.category import CategoryUnit
-from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.providers.special import get_exporters
+from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
+from plainbox.impl.session.system_information import (
+    CollectionOutput,
+    CollectorOutputs,
+)
 
 
 #: Name-space prefix for Canonical Certification
@@ -103,6 +107,14 @@ class MergeReports:
                     self.category_dict[cat_id] = CategoryUnit(
                         {"id": cat_id, "name": cat_name}
                     )
+            if mode == "list":
+                self.system_information.append(
+                    CollectorOutputs.from_dict(data["system_information"])
+                )
+            elif mode == "dict":
+                self.system_information = CollectorOutputs.from_dict(
+                    data["system_information"]
+                )
         except OSError as e:
             raise SystemExit(e)
         except KeyError as e:
@@ -143,6 +155,7 @@ class MergeReports:
         job_state.effective_certification_status = job.get_record_value(
             "certification_status", "non-blocker"
         )
+        state.system_information = self.system_information
 
     def _create_exporter(self, exporter_id):
         exporter_map = {}
@@ -177,6 +190,7 @@ class MergeReports:
             tmpdir = TemporaryDirectory()
             self.job_list = []
             self.category_list = []
+            self.system_information = []
             session_title = self._parse_submission(submission, tmpdir)
             manager = SessionManager.create_with_unit_list(
                 self.job_list + self.category_list

@@ -41,7 +41,10 @@ from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.color import Colorizer
 from plainbox.impl.config import Configuration
-from plainbox.impl.session.resume import IncompatibleJobError
+from plainbox.impl.session.resume import (
+    IncompatibleJobError,
+    CorruptedSessionError,
+)
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
 from checkbox_ng.resume_menu import ResumeMenu
@@ -224,7 +227,11 @@ class RemoteController(ReportsStage, MainLoopStage):
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config["allow_all_attrs"] = True
-        config["sync_request_timeout"] = 120
+        # this is the max client to server attr accessing speed, unbounded (-1)
+        # to avoid timing out on any attr request on an enstablished call. This
+        # way even particularly slow @properties won't fail
+        config["sync_request_timeout"] = -1
+
         keep_running = False
         server_msg = None
         self._prepare_transports()
@@ -384,6 +391,8 @@ class RemoteController(ReportsStage, MainLoopStage):
             # so that it can be treated as a normal "local" exception"
             if "plainbox.impl.session.resume.IncompatibleJobError" in str(e):
                 raise IncompatibleJobError(*e.args)
+            if "plainbox.impl.session.resume.CorruptedSessionError" in str(e):
+                raise CorruptedSessionError(*e.args)
             raise
         finally:
             self.sa.abandon_session()
@@ -408,9 +417,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         # FIXME: IncompatibleJobError is raised if the resume candidate is
         #        invalid, this is a workaround till get_resumable_sessions is
         #        fixed
-        with contextlib.suppress(IncompatibleJobError), self._resumed_session(
-            last_abandoned_session.id
-        ) as metadata:
+        with contextlib.suppress(IncompatibleJobError), contextlib.suppress(
+            CorruptedSessionError
+        ), self._resumed_session(last_abandoned_session.id) as metadata:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
 
             if not app_blob.get("testplan_id"):
@@ -446,7 +455,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         configuration["normal_user"] = self._normal_user
         try:
             _logger.info("remote: Starting new session.")
-            tps = self.sa.start_session(configuration)
+            tps = self.sa.start_session_json(json.dumps(configuration))
+            tps = json.loads(tps)
             if self.sa.sideloaded_providers:
                 _logger.warning("Agent is using sideloaded providers")
         except RuntimeError as exc:
@@ -595,7 +605,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             _logger.error('The test plan "%s" is not available!', tp)
             raise SystemExit(1)
         self._is_bootstrapping = True
-        bs_todo = self.sa.get_bootstrapping_todo_list()
+        bs_todo = json.loads(self.sa.get_bootstrapping_todo_list_json())
         for job_no, job_id in enumerate(bs_todo, start=1):
             print(
                 self.C.header(
@@ -607,35 +617,32 @@ class RemoteController(ReportsStage, MainLoopStage):
             self.sa.run_bootstrapping_job(job_id)
             self.wait_for_job()
         self._is_bootstrapping = False
-        self.jobs = self.sa.finish_bootstrap()
+        self.jobs = json.loads(self.sa.finish_bootstrap_json())
 
     def _strtobool(self, val):
         return val.lower() in ("y", "yes", "t", "true", "on", "1")
 
     def _save_manifest(self, interactive):
-        manifest_repr = self.sa.get_manifest_repr()
+        manifest_repr = self.sa.get_manifest_repr_json()
+        manifest_repr = json.loads(manifest_repr)
         if not manifest_repr:
             _logger.info("Skipping saving of the manifest")
             return
-        if interactive:
+
+        if interactive and ManifestBrowser.has_visible_manifests(
+            manifest_repr
+        ):
             # Ask the user the values
             to_save_manifest = ManifestBrowser(
                 "System Manifest:", manifest_repr
             ).run()
         else:
-            # Use the one provided in repr
-            # repr is question : [manifests]
-            #   manifest ex m1 is [conf_m1_1, conf_m1_2, ...]
-            # here we recover [conf_m1_1, conf_m1_2, ..., conf_m2_1, ...]
-            all_preconf = (
-                conf
-                for conf_list in manifest_repr.values()
-                for conf in conf_list
+            # Use the one provided in repr (either non-interactive or no visible manifests)
+            to_save_manifest = ManifestBrowser.get_flattened_values(
+                manifest_repr
             )
-            to_save_manifest = {
-                conf["id"]: conf["value"] for conf in all_preconf
-            }
-        self.sa.save_manifest(to_save_manifest)
+
+        self.sa.save_manifest_json(json.dumps(to_save_manifest))
 
     def select_jobs(self, all_jobs):
         if self.launcher.get_value("test selection", "forced"):
@@ -643,7 +650,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self._save_manifest(interactive=False)
         else:
             _logger.info("controller: Selecting jobs.")
-            reprs = json.loads(self.sa.get_jobs_repr(all_jobs))
+            reprs = json.loads(
+                self.sa.get_jobs_repr_json(json.dumps(all_jobs))
+            )
             wanted_set = CategoryBrowser(
                 "Choose tests to run on your system:", reprs
             ).run()
@@ -653,7 +662,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 # the original list
                 chosen_jobs = [job for job in all_jobs if job in wanted_set]
                 _logger.debug("controller: Selected jobs: %s", chosen_jobs)
-                self.sa.modify_todo_list(chosen_jobs)
+                self.sa.modify_todo_list_json(json.dumps(chosen_jobs))
             self._save_manifest(interactive=True)
         self.sa.finish_job_selection()
 
@@ -701,18 +710,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 stack.callback(signal.signal, signal.SIGINT, tmp_sig)
                 self._export_results()
         # let's see if any of the jobs failed, if so, let's return an error code of 1
-        job_state_map = (
-            self._sa.manager.default_device_context._state._job_state_map
-        )
-        failing_outcomes = (
-            IJobResult.OUTCOME_FAIL,
-            IJobResult.OUTCOME_CRASH,
-        )
-        self._has_anything_failed = any(
-            job.result.outcome in failing_outcomes
-            for job in job_state_map.values()
-        )
-
+        self._has_anything_failed = self.sa.has_any_job_failed()
         self.sa.finalize_session()
         return False
 
@@ -751,7 +749,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         ):
             self._handle_last_job_after_resume(resumed_ongoing_session_info)
         _logger.info("controller: Running jobs.")
-        jobs = self.sa.get_session_progress()
+        jobs = json.loads(self.sa.get_session_progress_json())
         _logger.debug(
             "controller: Jobs to be run:\n%s",
             "\n".join(["  " + job for job in jobs]),
@@ -759,7 +757,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         total_num = len(jobs["done"]) + len(jobs["todo"])
 
         jobs_repr = json.loads(
-            self.sa.get_jobs_repr(jobs["todo"], len(jobs["done"]))
+            self.sa.get_jobs_repr_json(
+                json.dumps(jobs["todo"]), len(jobs["done"])
+            )
         )
 
         self._run_jobs(jobs_repr, total_num)
@@ -781,9 +781,12 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def wait_for_job(self, dont_finish=False):
         _logger.info("controller: Waiting for job to finish.")
+        polling_backoff = [0, 0.1, 0.2, 0.5]
+        polling_i = 0
         while True:
             state, payload = self.sa.monitor_job()
             if payload and not self._is_bootstrapping:
+                polling_i = 0
                 for line in payload.splitlines():
                     if line.startswith("stderr"):
                         SimpleUI.red_text(line[6:])
@@ -792,7 +795,8 @@ class RemoteController(ReportsStage, MainLoopStage):
                     else:
                         SimpleUI.black_text(line[6:])
             if state == "running":
-                time.sleep(0.5)
+                time.sleep(polling_backoff[polling_i])
+                polling_i = min(polling_i + 1, len(polling_backoff) - 1)
                 while True:
                     res = select.select([sys.stdin], [], [], 0)
                     if not res[0]:
@@ -828,7 +832,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         _logger.info("controller: Exporting locally'")
         rf = self.sa.cache_report(exporter_id, options)
         exported_stream = SpooledTemporaryFile(max_size=102400, mode="w+b")
-        chunk_size = 16384
+        chunk_size = 160 * 1024
         with tqdm(
             total=rf.tell(),
             unit="B",
@@ -894,7 +898,8 @@ class RemoteController(ReportsStage, MainLoopStage):
     def _run_jobs(self, jobs_repr, total_num=0):
         for job in jobs_repr:
             job_state = self.sa.get_job_state(job["id"])
-            self.sa.note_metadata_starting_job(job, job_state)
+            # Note: job_state is a remote object, no need to json encode it
+            self.sa.note_metadata_starting_job_json(json.dumps(job), job_state)
             SimpleUI.header(
                 _("Running job {} / {}").format(
                     job["num"], total_num, fill="-"
@@ -907,14 +912,13 @@ class RemoteController(ReportsStage, MainLoopStage):
             next_job = False
             while next_job is False:
                 for interaction in self.sa.run_job(job["id"]):
-                    if interaction.kind == "purpose":
-                        SimpleUI.description(
-                            _("Purpose:"), interaction.message
-                        )
-                    elif interaction.kind == "description":
-                        SimpleUI.description(
-                            _("Description:"), interaction.message
-                        )
+                    # interaction is a netref, cache attributes here
+                    kind = interaction.kind
+                    message = interaction.message
+                    if kind == "purpose":
+                        SimpleUI.description(_("Purpose:"), message)
+                    elif kind == "description":
+                        SimpleUI.description(_("Description:"), message)
                         if job["command"] is None:
                             cmd = "run"
                         else:
@@ -928,8 +932,8 @@ class RemoteController(ReportsStage, MainLoopStage):
                             raise SystemExit("Session paused by the user")
                         self.sa.remember_users_response(cmd)
                         self.wait_for_job(dont_finish=True)
-                    elif interaction.kind in "steps":
-                        SimpleUI.description(_("Steps:"), interaction.message)
+                    elif kind in "steps":
+                        SimpleUI.description(_("Steps:"), message)
                         if job["command"] is None:
                             cmd = "run"
                         else:
@@ -942,12 +946,10 @@ class RemoteController(ReportsStage, MainLoopStage):
                             self.sa.remember_users_response(cmd)
                             raise SystemExit("Session paused by the user")
                         self.sa.remember_users_response(cmd)
-                    elif interaction.kind == "verification":
+                    elif kind == "verification":
                         self.wait_for_job(dont_finish=True)
-                        if interaction.message:
-                            SimpleUI.description(
-                                _("Verification:"), interaction.message
-                            )
+                        if message:
+                            SimpleUI.description(_("Verification:"), message)
                         JobAdapter = namedtuple("job_adapter", ["command"])
                         job_lite = JobAdapter(job["command"])
                         try:
@@ -967,14 +969,14 @@ class RemoteController(ReportsStage, MainLoopStage):
                                 interaction.extra._builder.get_result(),
                             )
                             break
-                    elif interaction.kind == "comment":
+                    elif kind == "comment":
                         new_comment = input(
                             SimpleUI.C.BLUE(
                                 _("Please enter your comments:") + "\n"
                             )
                         )
                         self.sa.remember_users_response(new_comment + "\n")
-                    elif interaction.kind == "skip":
+                    elif kind == "skip":
                         if (
                             job_state.effective_certification_status
                             == "blocker"

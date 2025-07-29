@@ -45,7 +45,7 @@ class SlugifyTests(TestCase):
         self.assertEqual(slugify("A-"), "A-")
         self.assertEqual(slugify("A_"), "A_")
         self.assertEqual(slugify(".b"), ".b")
-        self.assertEqual(slugify("\z"), "_z")
+        self.assertEqual(slugify(r"\z"), "_z")
         self.assertEqual(slugify("/z"), "_z")
         self.assertEqual(slugify("1k"), "1k")
 

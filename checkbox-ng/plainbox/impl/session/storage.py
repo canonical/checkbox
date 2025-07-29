@@ -233,7 +233,9 @@ class SessionStorage:
         WellKnownDirsHelper.populate_base()
 
         isoformat = "%Y-%m-%dT%H.%M.%S"
-        timestamp = datetime.datetime.utcnow().strftime(isoformat)
+        timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+            isoformat
+        )
         session_id = "{prefix}{timestamp}".format(
             prefix=slugify(prefix), timestamp=timestamp
         )

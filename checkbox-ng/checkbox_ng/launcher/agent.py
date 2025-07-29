@@ -24,7 +24,10 @@ import logging
 import os
 import socket
 import sys
+
 from checkbox_ng import app_context
+from checkbox_ng.utils import set_all_loggers_level
+
 from plainbox.impl.config import Configuration
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.session.assistant import ResumeCandidate
@@ -99,13 +102,30 @@ class RemoteAgent:
 
     name = "agent"
 
-    def invoked(self, ctx):
+    def ensure_sudo(self):
+        if bool(os.getenv("ALLOW_CHECKBOX_AGENT_NONROOT")):
+            _logger.warning("Forcing the agent to allow running as non-root")
+            _logger.warning(
+                "Note: this is a debugging tool, THE AGENT "
+                "DOESN'T ACTUALLY WORK AS NON-ROOT"
+            )
+            return
         if os.geteuid():
             raise SystemExit(_("Checkbox agent must be run by root!"))
         if not is_passwordless_sudo():
             raise SystemExit(
                 _("System is not configured to run sudo without a password!")
             )
+
+    def invoked(self, ctx):
+        # This sets INFO as the default logging level if debug wasn't requested
+        # the hasattr is because debug is a top level flag and may not be
+        # present if not specified
+        if not hasattr(ctx.args, "debug") or not ctx.args.debug:
+            # default log level of the agent is INFO
+            logging.basicConfig(level=logging.INFO)
+            set_all_loggers_level(logging.INFO)
+        self.ensure_sudo()
         if ctx.args.resume:
             msg = (
                 "--resume is deprecated and will be removed soon. "
@@ -145,7 +165,8 @@ class RemoteAgent:
             protocol_config={
                 "allow_all_attrs": True,
                 "allow_setattr": True,
-                "sync_request_timeout": 1,
+                # this is the max server to client attr accessing speed,
+                "sync_request_timeout": 30,
                 "propagate_SystemExit_locally": True,
             },
         )

@@ -1,5 +1,8 @@
 name: Verify debian packages
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ main ]
@@ -29,7 +32,42 @@ on:
   workflow_dispatch:
 
 jobs:
+  get_path_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      paths: ${{ steps.paths.outputs.paths }}
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: paths
+        run: |
+          DIFF=$(git diff --name-only origin/main)
+          changed(){ echo "$DIFF" | grep -o $1; }
+
+          paths=()
+          for path in \
+              checkbox-ng \
+              checkbox-support \
+              providers/base \
+              providers/certification-client \
+              providers/certification-server \
+              providers/gpgpu \
+              providers/resource \
+              providers/sru \
+              providers/tpm2; do
+            if changed $path; then
+              paths+=("\"$path\"");
+            fi;
+          done
+          path_array=`echo "["${paths[*]}"]" | sed 's/" "/","/g'`
+          echo "paths=$path_array" >> $GITHUB_OUTPUT
+
+
   deb_validation:
+    needs: get_path_matrix
     strategy:
       fail-fast: false
       matrix:
@@ -37,23 +75,14 @@ jobs:
         # note: no 16, we don't support debs for 16 anymore
         #       no 18, not supported by github
         os:
-          - ubuntu-20.04
+          - [self-hosted, focal]
           - ubuntu-22.04
           - ubuntu-24.04
-        path:
-          - checkbox-ng
-          - checkbox-support
-          - providers/base
-          - providers/certification-client
-          - providers/certification-server
-          - providers/gpgpu
-          - providers/resource
-          - providers/sru
-          - providers/tpm2
+        path: ${{ fromJson(needs.get_path_matrix.outputs.paths) }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       # needed by providers that pull checkbox-support
@@ -61,10 +90,12 @@ jobs:
         run: |
           sudo add-apt-repository ppa:checkbox-dev/edge
           sudo apt-get update
-          sudo apt-get install -qq -y dpkg-dev
+          sudo apt-get install -qq -y dpkg-dev fakeroot
       - name: Prepare installation
-        run: mv ${{ matrix.path }}/debian .
+        env:
+          MATRIX_PATH: ${{ matrix.path }}
+        run: mv "$MATRIX_PATH/debian" .
       - name: Install dependencies
-        run: sudo apt-get build-dep .
+        run: sudo apt-get -qq -y build-dep .
       - name: Build source, test and build binary
         run: dpkg-buildpackage

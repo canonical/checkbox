@@ -40,7 +40,10 @@ import time
 
 from plainbox.abc import IJobResult
 from plainbox.impl.color import Colorizer
-from plainbox.impl.session.resume import IncompatibleJobError
+from plainbox.impl.session.resume import (
+    IncompatibleJobError,
+    CorruptedSessionError,
+)
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
@@ -378,7 +381,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 if job_state.job.plugin != "shell":
                     return False
                 return True
-        except IncompatibleJobError as ije:
+        except (CorruptedSessionError, IncompatibleJobError) as ije:
             # last resumable session is incompatible, produce a helpful log
             _logger.error(
                 "Checkbox tried to resume last session (%s), but the "
@@ -420,6 +423,8 @@ class Launcher(MainLoopStage, ReportsStage):
                 return True
             else:
                 raise RuntimeError("Requested session is not resumable!")
+        elif self.ctx.args.clear_old_sessions:
+            return False
         elif self._should_autoresume_last_run(resume_candidates):
             last_session = resume_candidates[0]
             self._resume_session(last_session.id, None)
@@ -687,24 +692,20 @@ class Launcher(MainLoopStage, ReportsStage):
         if not manifest_repr:
             _logger.info("Skipping saving of the manifest")
             return
-        if interactive:
+
+        if interactive and ManifestBrowser.has_visible_manifests(
+            manifest_repr
+        ):
             # Ask the user the values
             to_save_manifest = ManifestBrowser(
                 "System Manifest:", manifest_repr
             ).run()
         else:
-            # Use the one provided in repr
-            # repr is question : [manifests]
-            #   manifest ex m1 is [conf_m1_1, conf_m1_2, ...]
-            # here we recover [conf_m1_1, conf_m1_2, ..., conf_m2_1, ...]
-            all_preconf = (
-                conf
-                for conf_list in manifest_repr.values()
-                for conf in conf_list
+            # Use the one provided in repr (either non-interactive or no visible manifests)
+            to_save_manifest = ManifestBrowser.get_flattened_values(
+                manifest_repr
             )
-            to_save_manifest = {
-                conf["id"]: conf["value"] for conf in all_preconf
-            }
+
         self.ctx.sa.save_manifest(to_save_manifest)
 
     def _pick_jobs_to_run(self):
@@ -1073,6 +1074,11 @@ class Run(MainLoopStage):
         parser.add_argument(
             "-m", "--message", help=_("submission description")
         )
+        parser.add_argument(
+            "--exact",
+            action="store_true",
+            help="only expand the test-plan fully qualified ID that exactly matches",
+        )
 
     @property
     def C(self):
@@ -1095,6 +1101,23 @@ class Run(MainLoopStage):
             and not self.ctx.args.non_interactive
         )
 
+    def _get_relevant_units(self, patterns, exact=False):
+        if exact:
+            return patterns
+        providers = self.sa.get_selected_providers()
+        root = Explorer(providers).get_object_tree()
+        # here handle the patterns one by one to not change the order
+        matching_units = [
+            root.find_children_by_name([pattern]) for pattern in patterns
+        ]
+        all_ids = [
+            [pattern] if not matches else [match.name for match in matches]
+            for matching_unit in matching_units
+            for (pattern, matches) in matching_unit.items()
+        ]
+        all_ids = [id for all_id in all_ids for id in all_id]
+        return all_ids
+
     def invoked(self, ctx):
         try:
             self._C = Colorizer()
@@ -1108,7 +1131,9 @@ class Run(MainLoopStage):
             )
             tps = self.sa.get_test_plans()
             self._configure_report()
-            selection = ctx.args.PATTERN
+            selection = self._get_relevant_units(
+                ctx.args.PATTERN, ctx.args.exact
+            )
             submission_message = self.ctx.args.message
             if len(selection) == 1 and selection[0] in tps:
                 self.ctx.sa.update_app_blob(
@@ -1131,7 +1156,7 @@ class Run(MainLoopStage):
                 self._run_jobs(self.sa.get_dynamic_todo_list())
                 # there might have been new jobs instantiated
                 while True:
-                    self.sa.hand_pick_jobs(ctx.args.PATTERN)
+                    self.sa.hand_pick_jobs(selection)
                     todos = self.sa.get_dynamic_todo_list()
                     if not todos:
                         break
@@ -1240,13 +1265,16 @@ class List:
             help=_(
                 (
                     "output format, as passed to print function. "
-                    "Use '?' to list possible values"
+                    "Use '?' to list possible values. "
+                    "Use 'json' to print all objects as a json"
                 )
             ),
         )
 
     def invoked(self, ctx):
-        if ctx.args.GROUP == "all-jobs":
+        # print_objs supports json-printing all-jobs, so we can forward the
+        # query if json is requested
+        if ctx.args.GROUP == "all-jobs" and ctx.args.format != "json":
             if ctx.args.attrs:
                 print_objs("job", ctx.sa, True)
 
@@ -1290,9 +1318,14 @@ class List:
                     end="",
                 )
             return
-        elif ctx.args.format:
+        elif ctx.args.format and ctx.args.format != "json":
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
-        print_objs(ctx.args.GROUP, ctx.sa, ctx.args.attrs)
+        print_objs(
+            ctx.args.GROUP,
+            ctx.sa,
+            ctx.args.attrs,
+            json_repr=ctx.args.format == "json",
+        )
 
 
 class Expand:
@@ -1315,13 +1348,20 @@ class Expand:
             "order. To see the execution order, please use the "
             "'list-bootstrapped' command instead."
         )
-        parser.add_argument("TEST_PLAN", help=_("test-plan id to expand"))
+        parser.add_argument(
+            "TEST_PLAN", help=_("test-plan ID or fully qualified ID to expand")
+        )
         parser.add_argument(
             "-f",
             "--format",
             type=str,
             default="text",
             help=_("output format: 'text' or 'json' (default: %(default)s)"),
+        )
+        parser.add_argument(
+            "--exact",
+            action="store_true",
+            help="only expand the test-plan that exactly matches the fully qualified ID",
         )
 
     def _get_relevant_manifest_units(self, jobs_and_templates_list):
@@ -1347,6 +1387,8 @@ class Expand:
 
         # only return manifest entries that are actually required by any job in
         # the list
+        # Note: This doesn't take into consideration the manifest namespace so
+        #       it may be inaccurate (overinclusive) when manifests are aliased
         return filter(
             lambda manifest_unit: any(
                 "manifest.{}".format(manifest_unit.partial_id) in require
@@ -1360,9 +1402,12 @@ class Expand:
         session_title = "checkbox-expand-{}".format(ctx.args.TEST_PLAN)
         self.sa.start_new_session(session_title)
         tps = self.sa.get_test_plans()
-        if ctx.args.TEST_PLAN not in tps:
+        testplan_id = get_testplan_id_by_id(
+            tps, ctx.args.TEST_PLAN, self.sa, ctx.args.exact
+        )
+        if testplan_id not in tps:
             raise SystemExit("Test plan not found")
-        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        self.sa.select_test_plan(testplan_id)
         all_jobs_and_templates = [
             unit
             for unit in self.sa._context.state.unit_list
@@ -1435,6 +1480,11 @@ class ListBootstrapped:
         return self.ctx.sa
 
     def register_arguments(self, parser):
+        parser.add_argument(
+            "--exact",
+            action="store_true",
+            help="only bootstrap test-plan that exactly match fully qualified ID",
+        )
         parser.add_argument("TEST_PLAN", help=_("test-plan id to bootstrap"))
         parser.add_argument(
             "-f",
@@ -1452,10 +1502,14 @@ class ListBootstrapped:
     def invoked(self, ctx):
         self.ctx = ctx
         self.sa.start_new_session("checkbox-listing-ephemeral")
+
         tps = self.sa.get_test_plans()
-        if ctx.args.TEST_PLAN not in tps:
+        testplan_id = get_testplan_id_by_id(
+            tps, ctx.args.TEST_PLAN, self.sa, ctx.args.exact
+        )
+        if testplan_id not in tps:
             raise SystemExit("Test plan not found")
-        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        self.sa.select_test_plan(testplan_id)
         self.sa.bootstrap()
         jobs = []
         for job in self.sa.get_static_todo_list():
@@ -1527,6 +1581,35 @@ class TestPlanExport:
         print(path)
 
 
+def get_testplan_id_by_id(tps, testplan_id, sa, exact=False):
+    """
+    Searches for a testplan that matches the given testplan_id
+
+    The input id may not match the testplan id because it is missing the
+    namespace. When the search is not exact, this searches any test plan that
+    has the same id ignoring the namespace.
+    """
+    if exact:
+        return testplan_id
+    if testplan_id in tps:
+        # no need to search for the testplan id
+        return testplan_id
+    providers = sa.get_selected_providers()
+    root = Explorer(providers).get_object_tree()
+
+    relevant = root.find_children_by_name([testplan_id], exact).values()
+    relevant = [unit for units in relevant for unit in units]
+    if len(relevant) > 1:
+        raise SystemExit(
+            "More than one testplan match the id {}. Use either:\n- {}".format(
+                testplan_id, "\n- ".join(unit.name for unit in relevant)
+            )
+        )
+    if relevant:
+        return relevant[0].name
+    return testplan_id  # parent will fail
+
+
 def get_all_jobs(sa):
     providers = sa.get_selected_providers()
     root = Explorer(providers).get_object_tree()
@@ -1546,7 +1629,8 @@ def get_all_jobs(sa):
     return sorted(get_jobs(root), key=operator.itemgetter("full_id"))
 
 
-def print_objs(group, sa, show_attrs=False, filter_fun=None):
+def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
+    # note: group is unit type (including internal units like File)
     providers = sa.get_selected_providers()
     obj = Explorer(providers).get_object_tree()
 
@@ -1568,7 +1652,27 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None):
             for child in obj.children:
                 _show(child, indent)
 
-    _show(obj, "")
+    if not json_repr:
+        return _show(obj, "")
+
+    assert not filter_fun, "The json exporter doesn't support filtering"
+
+    # all-jobs is a meta-group that include all jobs + all templates
+    # note: if group is none, everything should be printed
+    groups = {group} if group != "all-jobs" else {"job", "template"}
+
+    to_print = []
+    childrens = obj.children
+    while childrens:
+        obj = childrens.pop()
+        childrens += obj.children or []
+        if group and obj.group not in groups:
+            continue
+        obj_repr = {"unit": obj.group, "name": obj.name}
+        if show_attrs:
+            obj_repr.update(obj.attrs)
+        to_print.append(obj_repr)
+    json.dump(to_print, sys.stdout)
 
 
 class Show:
@@ -1576,18 +1680,28 @@ class Show:
         parser.add_argument(
             "IDs", nargs="+", help=_("Show the definitions of objects")
         )
+        parser.add_argument(
+            "--exact",
+            action="store_true",
+            help=_(
+                "Only show units that exactly match the fully qualified ID"
+            ),
+        )
 
     def invoked(self, ctx):
         providers = ctx.sa.get_selected_providers()
         self._searched_names = ctx.args.IDs
         root = Explorer(providers).get_object_tree()
-        self._traverse_obj_tree(root)
+        relevant = root.find_children_by_name(ctx.args.IDs, ctx.args.exact)
 
-    def _traverse_obj_tree(self, obj):
-        if obj.name in self._searched_names:
-            self._print_obj(obj)
-        for child in obj.children:
-            self._traverse_obj_tree(child)
+        failed = [id for id, founds in relevant.items() if not founds]
+        to_prints = [unit for units in relevant.values() for unit in units]
+
+        for to_print in to_prints:
+            self._print_obj(to_print)
+
+        if failed:
+            raise SystemExit("Failed to find: {}".format(", ".join(failed)))
 
     def _print_obj(self, obj):
         if "origin" in obj.attrs:

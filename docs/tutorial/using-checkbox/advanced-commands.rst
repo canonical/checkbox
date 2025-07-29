@@ -90,7 +90,7 @@ Or let's list all the available jobs (test cases):
 .. code-block:: none
 
     checkbox.checkbox-cli list all-jobs
-    
+
     id: com.canonical.certification::6lowpan/kconfig
     kernel config options for 6LoWPAN
     id: com.canonical.certification::IEEE_80211
@@ -107,12 +107,14 @@ fields available from the jobs. To see what fields are available, run:
 .. code-block:: none
 
     checkbox.checkbox-cli list all-jobs --format ?
-    
+
     Available fields are:
-    _description, _purpose, _siblings, _steps, _summary, _verification, after,
-    category_id, command, depends, environ, estimated_duration, flags, full_id,
-    id, imports, plugin, require, requires, template-engine, template-filter,
-    template-resource, template-unit, unit, user
+    _description, _purpose, _siblings, _steps, _summary, _template-summary,
+    _verification, after, before, category_id, command, depends, description,
+    environ, estimate_duration, estimated_duration, flags, full_id, id,
+    imports, plugin, purpose, require, requires, steps, summary,
+    template-engine, template-filter, template-id, template-resource,
+    template-unit, unit, user, verification
 
 .. note::
 
@@ -122,6 +124,13 @@ fields available from the jobs. To see what fields are available, run:
 
     The underscore before some of the fields names simply means the content
     of this field can be translated into another language.
+
+.. note::
+
+    There is currently a bug with this command. It does not actually list all
+    the available fields. It shows only the fields that are used throughout the
+    jobs that are in scope. In most cases, this will be all the fields
+    available, but a new field that is not used in any job will not be listed.
 
 To create a table listing each job id and their summary, run:
 
@@ -156,7 +165,7 @@ it contains:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli list-bootstrapped com.canonical.certification::audio-cert-automated
+    checkbox.checkbox-cli list-bootstrapped audio-cert-automated
 
     com.canonical.plainbox::manifest
     com.canonical.certification::package
@@ -168,6 +177,17 @@ it contains:
     com.canonical.certification::audio/alsa_info_attachment
     com.canonical.certification::audio/list_devices
     com.canonical.certification::audio/valid-sof-firmware-sig
+
+.. note::
+
+    You can omit the namespace (that would be ``com.canonical.certification``
+    in this case from any of the following commands). When doing so, Checkbox
+    will do its best to find what you are asking for, disregarding the
+    namespace. If the match is not unique (there is more than one unit
+    matching), the command may either fail (if it wouldn't make sense to apply
+    the same action to all matches) or run the action for all matches. If this
+    is undesirable, you can use ``--exact`` to fail if nothing exactly matches
+    your query.
 
 If you were to run this test plan with Checkbox, it would run these jobs in
 the order shown above.
@@ -292,6 +312,57 @@ You can also run a whole test plan using the ``run`` command:
 This will run the Checkbox Base Tutorial test plan, executing all the jobs in
 it and providing a text summary of the test run.
 
+Getting an example launcher
+===========================
+
+It is often hard to track which section, keys and values are allowed in a
+launcher. Sometimes it is also tricky to remember what the defaults are for
+each configuration to decide if it is useful to override it in this case or
+not. Try to run the following command:
+
+.. code-block::
+
+   checkbox.checkbox-cli config defaults
+
+   [launcher]
+   # Version of launcher to use
+   # type: int
+   launcher_version = 1
+   # Identifier of the application
+   # type: str
+   app_id = checkbox-cli
+   # Version of the application
+   # type: str
+   app_version =
+   # List of stock reports to use
+   # type: list
+   stock_reports = ['text', 'certification', 'submission_files']
+   # Send/generate submission report locally when using checkbox remote
+   # type: bool
+   local_submission = True
+   # A title to be applied to the sessions created using this launcher that can be used in report generation
+   # type: str
+   session_title = session title
+   # A string that can be applied to sessions created using this launcher. Useful for storing some contextual infomation about the session
+   # type: str
+   session_desc =
+   [test plan]
+   # Constrain interactive choice to test plans matching this glob
+   # type: list
+   filter = ['*']
+   # Select this test plan by default.
+   # type: str
+   unit =
+   # Don't allow the user to change test plan.
+   # type: bool
+   forced = False
+   [...]
+
+As you can see, this command prints a default launcher you can redirect to a
+file and use out of the box, pre-populated with all the default values and
+comments to explain what each configuration means.
+
+
 Wrapping up
 ===========
 
@@ -303,5 +374,5 @@ one device to control another device, and used Checkbox commands to navigate
 the available objects in Checkbox. You are now ready to use Checkbox to test
 any kind of devices!
 
-In the :ref:`advanced tutorial<TODO>`, you will learn how to write new tests
-for Checkbox and how to create your own Checkbox-based snaps.
+In the :ref:`Writing test jobs tutorial <adv_test_case>`, you will learn how to
+write new tests for Checkbox and how to create your own Checkbox-based snaps.

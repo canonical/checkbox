@@ -54,6 +54,16 @@ include:
 bootstrap_include:
  device
 
+id: camera-v4l2-compliance
+unit: test plan
+_name: V4L2 Compliance Tests
+_description: Tests whether all the cameras on this device are V4L2 compliant
+include:
+ camera/v4l2-compliance-blockers_.*                certification-status=blocker
+ camera/v4l2-compliance-non-blockers_.*            certification-status=non-blocker
+bootstrap_include:
+ device
+
 id: after-suspend-camera-cert-blockers
 unit: test plan
 _name: Camera tests (after suspend, certification blockers only)
@@ -79,7 +89,7 @@ bootstrap_include:
 
 id: camera-full
 unit: test plan
-_name: Camera tests
+_name: Camera tests (Full test plan for Core devices)
 _description: Camera tests for Ubuntu Core devices
 include:
 nested_part:

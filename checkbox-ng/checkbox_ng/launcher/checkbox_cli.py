@@ -22,14 +22,14 @@ Checkbox Launcher Interpreter Application
 
 import gettext
 import logging
-import os
-import subprocess
 import sys
+
+import checkbox_ng
 
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.session.assistant import SessionAssistant
 
-from checkbox_ng.config import load_configs
+from checkbox_ng.utils import set_all_loggers_level
 from checkbox_ng.launcher.subcommands import (
     Launcher,
     List,
@@ -41,7 +41,7 @@ from checkbox_ng.launcher.subcommands import (
     TestPlanExport,
     Show,
 )
-from checkbox_ng.launcher.check_config import CheckConfig
+from checkbox_ng.launcher.config import CheckConfig, Config
 from checkbox_ng.launcher.merge_reports import MergeReports
 from checkbox_ng.launcher.merge_submissions import MergeSubmissions
 from checkbox_ng.launcher.controller import RemoteController
@@ -62,10 +62,40 @@ class Context:
         self.sa = SessionAssistant()
 
 
+def handle_top_parser(args, ctx):
+    """
+    The top level parser may not contain all args as "launcher" is inserted
+    to get a default command. Lets handle the args as stings here and unify the
+    args (from the top level parser) and ctx.args (from the sub parser)
+    """
+    if "--debug" in sys.argv:
+        logging_level = logging.DEBUG
+        logging.basicConfig(level=logging_level)
+        set_all_loggers_level(logging.DEBUG)
+        ctx.args.debug = True
+    elif "--verbose" in sys.argv or "-v" in sys.argv:
+        logging_level = logging.INFO
+        logging.basicConfig(level=logging_level)
+        set_all_loggers_level(logging.INFO)
+        ctx.args.verbose = True
+    if "--clear-cache" in sys.argv:
+        ResourceJobCache().clear()
+        ctx.args.clear_cache = True
+    if "--clear-old-sessions" in sys.argv:
+        old_sessions = [s[0] for s in ctx.sa.get_old_sessions()]
+        ctx.sa.delete_sessions(old_sessions)
+        ctx.args.clear_old_sessions = True
+    if "--version" in sys.argv:
+        print(checkbox_ng.__version__)
+        raise SystemExit(0)
+    return ctx
+
+
 def main():
     import argparse
 
     commands = {
+        "config": Config,
         "check-config": CheckConfig,
         "launcher": Launcher,
         "list": List,
@@ -105,11 +135,12 @@ def main():
             )
 
     top_parser = argparse.ArgumentParser()
+    # You must handle these args in the function above, see docstring
     top_parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help=_("print more logging from checkbox"),
+        help=_("print more logging from checkbox (default for the agent)"),
     )
     top_parser.add_argument(
         "--debug",
@@ -148,21 +179,7 @@ def main():
     sub_args = subcmd_parser.parse_args(sys.argv[subcmd_index + 1 :])
     sa = SessionAssistant()
     ctx = Context(sub_args, sa)
-    try:
-        socket.getaddrinfo("localhost", 443)  # 443 for HTTPS
-    except Exception:
-        pass
-    if "--clear-cache" in sys.argv:
-        ResourceJobCache().clear()
-    if "--clear-old-sessions" in sys.argv:
-        old_sessions = [s[0] for s in sa.get_old_sessions()]
-        sa.delete_sessions(old_sessions)
-    if args.verbose:
-        logging_level = logging.INFO
-        logging.basicConfig(level=logging_level)
-    if args.debug:
-        logging_level = logging.DEBUG
-        logging.basicConfig(level=logging_level)
+    ctx = handle_top_parser(args, ctx)
     return subcmd.invoked(ctx)
 
 

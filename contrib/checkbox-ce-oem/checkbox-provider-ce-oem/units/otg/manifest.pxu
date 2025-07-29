@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_otg
 _name: Does platfrom supported USB OTG?
 value-type: bool
+
+unit: manifest entry
+id: has_rpyc_otg_server
+_name: Does RPYC server with OTG test services been setup?
+value-type: bool

@@ -29,27 +29,13 @@ Definition of JobRunner class.
 """
 
 import collections
-import contextlib
 import datetime
-import getpass
-import gzip
-import io
 import logging
-import os
-import select
 import string
-import subprocess
-import sys
-import tempfile
-import threading
-import time
 
 
-from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import IOLogRecord
-from plainbox.impl.result import IOLogRecordWriter
-from plainbox.impl.result import JobResultBuilder
 from plainbox.vendor import extcmd
 from plainbox.vendor import morris
 
@@ -76,7 +62,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
 
         Begins tracking time (relative time entries)
         """
-        self.last_msg = datetime.datetime.utcnow()
+        self.last_msg = datetime.datetime.now(datetime.timezone.utc)
 
     def on_line(self, stream_name, line):
         """
@@ -86,7 +72,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
         Maintains a timestamp of the last message so that approximate delay
         between each piece of output can be recorded as well.
         """
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         delay = now - self.last_msg
         self.last_msg = now
         record = IOLogRecord(delay.total_seconds(), stream_name, line)

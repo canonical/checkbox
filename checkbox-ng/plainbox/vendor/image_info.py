@@ -3,9 +3,21 @@ import sys
 import json
 import argparse
 import subprocess
+import re
+from pathlib import Path
 
 BASE_URL = "https://oem-share.canonical.com/partners"
+DCD_FILE_IOT = Path("/run/mnt/ubuntu-seed/.disk/info")
 VERSION = 1
+
+try:
+    remove_prefix = str.removeprefix
+except AttributeError:
+
+    def remove_prefix(x: str, prefix: str):
+        if x.startswith(prefix):
+            return x[len(prefix) :]
+        return x
 
 
 def parse_args(argv):
@@ -38,7 +50,7 @@ def parse_ubuntu_report():
 def dcd_string_to_info(dcd_string):
     """
     Creates a dict with all available information that can be extracted from
-    the dcd string, at the very least:
+    the PC's dcd string, at the very least:
     - project
     - series
     - kernel type
@@ -47,8 +59,8 @@ def dcd_string_to_info(dcd_string):
     - url
     """
     # prefix, should always be present
-    dcd_string = dcd_string.replace("canonical-", "")
-    dcd_string = dcd_string.replace("oem-", "")
+    dcd_string = remove_prefix(dcd_string, "canonical-").strip()
+    dcd_string = remove_prefix(dcd_string, "oem-")
     dcd_string_arr = dcd_string.split("-")
     if len(dcd_string_arr) == 5:
         project, series, kernel_type, build_date, build_number = dcd_string_arr
@@ -117,7 +129,59 @@ def dcd_string_to_info(dcd_string):
     return info
 
 
+def dcd_string_to_info_iot(dcd_string):
+    """
+    Convert IoT's dcd string to a URL based on specified rules.
+
+    # Regex pattern:
+    ^canonical-oem- : Must start with "canonical-oem-"
+    ([a-zA-Z0-9]+) : Project name (alphanumeric, mandatory)
+    :([a-zA-Z0-9-]+) : Series (alphanumeric and dash, mandatory)
+    :([0-9.-]+) : Build ID (numbers, dot, dash, mandatory)
+    (:(.*))? : Additional info (anything, optional) - currently unused
+    """
+    pattern = (
+        r"^canonical-oem-([a-zA-Z0-9]+):([a-zA-Z0-9-]+):([0-9.-]+)(:(.*))?$"
+    )
+
+    match = re.match(pattern, dcd_string)
+    if not match:
+        raise ValueError("Invalid DCD format: {}".format(dcd_string))
+
+    project_name, series, build_id, _, additional_info = match.groups()
+
+    info = {
+        "base_url": BASE_URL,
+        "project": project_name,
+        "series": series,
+        "build_id": build_id,
+    }
+    image_name = "{}-{}-{}.tar.xz".format(project_name, series, build_id)
+    info["url"] = (
+        "{base_url}/{project}/share/{series}/{build_id}/{image_name}"
+    ).format(
+        base_url=BASE_URL,
+        project=project_name,
+        series=series,
+        build_id=build_id,
+        image_name=image_name,
+    )
+
+    return info
+
+
 def dcd_info():
+    try:
+        if DCD_FILE_IOT.is_file():
+            with open(str(DCD_FILE_IOT), "r", encoding="utf-8") as f:
+                dcd_string = f.read().strip()
+            print(
+                "Found IoT dcd string: {}".format(dcd_string), file=sys.stderr
+            )
+            return dcd_string_to_info_iot(dcd_string)
+    except (IOError, OSError):
+        print("IoT dcd file not found. Assuming PC platform", file=sys.stderr)
+
     ubuntu_report = parse_ubuntu_report()
     print(
         "Parsed report: {}".format(json.dumps(ubuntu_report)), file=sys.stderr

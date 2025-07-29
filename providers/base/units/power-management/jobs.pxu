@@ -106,7 +106,7 @@ plugin: manual
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid
 estimated_duration: 120.0
-requires: dmi.product in ['Notebook','Laptop','Portable','Convertible']
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Detachable']
 _description:
 _purpose:
     This test will check your lid sensors.
@@ -124,6 +124,7 @@ requires:
   module.name == 'platform_profile'
   package.name == 'power-profiles-daemon'
   platform_profile.supported == 'True'
+user: root
 command: switch_power_mode.py
 _description:
   This test will check if the power mode could be switched.
@@ -179,7 +180,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid_close_suspend_open
 estimated_duration: 20.0
-requires: device.product == 'Lid Switch'
+requires: dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Detachable']
 _purpose:
     This test will check your lid sensor can detect lid close/open, and the DUT (Device Under Test) will suspend when the lid is closed
 _steps:
@@ -203,7 +204,7 @@ requires:
   cpuinfo.other != 'emulated by qemu'
 user: root
 environ: RTC_DEVICE_FILE
-command: 
+command:
   if [[ -n "$RTC_DEVICE_FILE" ]]; then
     rtc_path="/sys/class/rtc/${RTC_DEVICE_FILE/#\/dev\/}"
   else
@@ -226,7 +227,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/tickless_idle
 flags: also-after-suspend
 estimated_duration: 1.0
-requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
+requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'ppc64le', 'pSeries')
 _purpose: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)
 command:
  zgrep 'CONFIG_NO_HZ=y' /boot/config-"$(uname -r)" >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )
@@ -380,6 +381,7 @@ category_id: com.canonical.plainbox::power-management
 _summary: Post warm reboot service check
 _purpose: Check there are no failed services after the warm reboot
 unit: job
+user: root
 plugin: shell
 command: failed_service_check.sh
 estimated_duration: 1.0
@@ -410,6 +412,7 @@ category_id: com.canonical.plainbox::power-management
 _summary: Post cold reboot service check
 _purpose: Check there are no failed services after the cold reboot
 unit: job
+user: root
 plugin: shell
 command: failed_service_check.sh
 estimated_duration: 1.0
@@ -531,7 +534,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/tickless_idle_{kernel}
 template-id: power-management/tickless_idle_kernel
 estimated_duration: 1.0
-requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
+requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'ppc64le', 'pSeries')
 _purpose: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)
 command:
  zgrep 'CONFIG_NO_HZ=y' /snap/{kernel}/current/config-"$(uname -r)" >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )
@@ -542,19 +545,35 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/light_sensor
 estimated_duration: 10.0
 requires:
-  dmi.product in ['Notebook','Laptop','Portable','Convertible']
+  dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Tablet', 'Detachable']
   executable.name == 'monitor-sensor'
 flags: also-after-suspend
 command: light_sensor_test.sh
 _purpose:
     This test will check your Ambient Light Sensor work, if you don't have it, please skip this test.
 _steps:
-    1. Make sure "Automatic brightness" is ON in Power settings. 
+    1. Make sure "Automatic brightness" is ON in Power settings.
     2. Locate the Ambient Light Sensor, which should be around the Camera.
     3. Cover your hand over the Ambient Light Sensor.
     4. When the backlight dims, press Enter to start testing.
     5. Wait until the message "Has ambient light sensor" is printed on the screen and wave your hand slowly during testing.
 _verification:
-    Did the Ambient Light Sensor values change when you _shook_ your hands over the sensor? 
+    Did the Ambient Light Sensor values change when you _shook_ your hands over the sensor?
     Did the Screen backlight also change?
 _summary: Test the functionality of the Ambient Light Sensor by checking if sensor values and screen backlight change when covered.
+
+unit: job
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/amd_pmf_detect
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_amd_pmf == 'True'
+command:
+ amd_pmf.py
+estimated_duration: 5s
+summary:
+    Test this machine have the AMD Platform Management Framework support or not
+description:
+    The AMD PMF driver should be loaded while the BIOS enabling this function and could be validated by
+    the outcome of lsmod automatically.

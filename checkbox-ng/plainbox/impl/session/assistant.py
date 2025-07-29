@@ -33,42 +33,47 @@ import logging
 import os
 import shlex
 import time
+from collections import defaultdict
 from tempfile import SpooledTemporaryFile
 
 
 from checkbox_ng.app_context import application_name
 
-from plainbox.abc import IJobResult
-from plainbox.abc import IJobRunnerUI
-from plainbox.abc import ISessionStateTransport
+from plainbox.abc import IJobResult, IJobRunnerUI, ISessionStateTransport
 from plainbox.i18n import gettext as _
 from plainbox.impl.config import Configuration
 from plainbox.impl.decorators import raises
-from plainbox.impl.developer import UnexpectedMethodCall
-from plainbox.impl.developer import UsageExpectation
 from plainbox.impl.execution import UnifiedRunner
+from plainbox.impl.developer import (
+    UnexpectedMethodCall,
+    UsageExpectation,
+)
 from plainbox.impl.providers import get_providers
-from plainbox.impl.result import JobResultBuilder
-from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result import JobResultBuilder, MemoryJobResult
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.qualifiers import select_units
-from plainbox.impl.secure.qualifiers import FieldQualifier
-from plainbox.impl.secure.qualifiers import JobIdQualifier
-from plainbox.impl.secure.qualifiers import PatternMatcher
-from plainbox.impl.secure.qualifiers import RegExpJobQualifier
-from plainbox.impl.session import SessionMetaData
-from plainbox.impl.session import SessionPeekHelper
-from plainbox.impl.session import SessionResumeError
+from plainbox.impl.secure.qualifiers import (
+    select_units,
+    FieldQualifier,
+    JobIdQualifier,
+    PatternMatcher,
+    RegExpJobQualifier,
+)
+from plainbox.impl.session import (
+    SessionMetaData,
+    SessionPeekHelper,
+    SessionResumeError,
+)
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.manager import SessionManager
-from plainbox.impl.session.restart import IRestartStrategy
-from plainbox.impl.session.restart import detect_restart_strategy
-from plainbox.impl.session.restart import RemoteDebRestartStrategy
+from plainbox.impl.session.restart import (
+    IRestartStrategy,
+    detect_restart_strategy,
+    RemoteDebRestartStrategy,
+)
 from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.storage import WellKnownDirsHelper
-from plainbox.impl.transport import OAuthTransport
-from plainbox.impl.transport import TransportError
+from plainbox.impl.transport import OAuthTransport, TransportError
 from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.unit.unit import Unit
 from plainbox.vendor import morris
@@ -1305,7 +1310,24 @@ class SessionAssistant:
         ]
 
     def _strtobool(self, val):
-        return val.lower() in ("y", "yes", "t", "true", "on", "1")
+        if str(val).lower() in ("y", "yes", "t", "true", "on", "1"):
+            return True
+        elif str(val).lower() in ("n", "no", "f", "false", "off", "0"):
+            return False
+        raise ValueError(val)
+
+    def _parse_value(self, m, value):
+        try:
+            return {"bool": self._strtobool, "natural": int}[m.value_type](
+                value
+            )
+        except ValueError:
+            raise SystemExit(
+                ("Invalid manifest {} value '{}'").format(
+                    m.id,
+                    value,
+                )
+            )
 
     @raises(SystemExit, UnexpectedMethodCall)
     def get_manifest_repr(self) -> "Dict[List[Dict]]":
@@ -1323,74 +1345,60 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         # XXX: job_state_map is a bit low level, can we avoid that?
-        jsm = self._context.state.job_state_map
-        todo_list = [
-            job
-            for job in self._context.state.run_list
-            if jsm[job.id].result.outcome is None
-        ]
-        expression_list = []
-        manifest_id_set = set()
-        for job in todo_list:
-            if job.get_resource_program():
-                expression_list.extend(
-                    job.get_resource_program().expression_list
-                )
-        for e in expression_list:
-            manifest_id_set.update(e.manifest_id_list)
-        manifest_list = [
+        job_state_map = self._context.state.job_state_map
+        run_list = self._context.state.run_list
+
+        def didnt_run_yet(job):
+            return job_state_map[job.id].result.outcome is None
+
+        todo_list = filter(didnt_run_yet, run_list)
+        resource_programs = (job.get_resource_program() for job in todo_list)
+        resource_programs = filter(bool, resource_programs)
+        manifest_id_set = {
+            manifest_id
+            for resource_program in resource_programs
+            for expression in resource_program.expression_list
+            for manifest_id in expression.manifest_id_list
+        }
+
+        manifest_list = (
             unit
             for unit in self._context.unit_list
             if unit.Meta.name == "manifest entry"
             and unit.id in manifest_id_set
-        ]
-        manifest_cache = {}
-        manifest = WellKnownDirsHelper.manifest_file()
-        if os.path.isfile(manifest):
-            with open(manifest, "rt", encoding="UTF-8") as stream:
-                manifest_cache = json.load(stream)
-        if self._config is not None and self._config.manifest:
-            for manifest_id in self._config.manifest:
-                manifest_cache.update(
-                    {manifest_id: self._config.manifest[manifest_id]}
-                )
-        manifest_info_dict = dict()
+        )
+        disk_manifest = {}
+        manifest_path = WellKnownDirsHelper.manifest_file()
+        if os.path.isfile(manifest_path):
+            with open(manifest_path, "rt", encoding="UTF-8") as stream:
+                disk_manifest = json.load(stream)
+        try:
+            config_manifest = self._config.manifest or {}
+        except AttributeError:
+            config_manifest = {}
+        manifest_info_dict = defaultdict(list)
         for m in manifest_list:
-            prompt = m.prompt()
-            if prompt is None:
-                if m.value_type == "bool":
-                    prompt = "Does this machine have this piece of hardware?"
-                elif m.value_type == "natural":
-                    prompt = "Please enter the requested data:"
+            prompt = m.prompt() or m.default_prompt()
+            value = config_manifest.get(m.id)
+            if value is None:
+                if m.is_hidden:
+                    # set all hidden manifests not set in the launcher to default
+                    value = m.default_value()
                 else:
-                    _logger.error("Unsupported value-type: '%s'", m.value_type)
-                    continue
-            if prompt not in manifest_info_dict:
-                manifest_info_dict[prompt] = []
-            manifest_info = {
-                "id": m.id,
-                "partial_id": m.partial_id,
-                "name": m.name,
-                "value_type": m.value_type,
-            }
-            try:
-                value = manifest_cache[m.id]
-                if m.value_type == "bool":
-                    if isinstance(manifest_cache[m.id], str):
-                        value = self._strtobool(manifest_cache[m.id])
-                elif m.value_type == "natural":
-                    value = int(manifest_cache[m.id])
-            except ValueError:
-                _logger.error(
-                    ("Invalid manifest %s value '%s'"),
-                    m.id,
-                    manifest_cache[m.id],
-                )
-                raise SystemExit(1)
-            except KeyError:
-                value = None
-            manifest_info.update({"value": value})
-            manifest_info_dict[prompt].append(manifest_info)
+                    # only load from the disk_manifest values of non-hidden manifests
+                    value = disk_manifest.get(m.id)
+            if value is not None:
+                value = self._parse_value(m, value)
+            manifest_info_dict[prompt].append(
+                {
+                    "id": m.id,
+                    "partial_id": m.partial_id,
+                    "name": m.name,
+                    "value_type": m.value_type,
+                    "hidden": m.is_hidden,
+                    "value": value,
+                }
+            )
         return manifest_info_dict
 
     def save_manifest(self, manifest_answers):

@@ -25,18 +25,18 @@ class UnitySupportParserTests(unittest.TestCase):
         OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
         OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1
 
-        Not software rendered:    \x1B[033myes\x1B[0m
-        Not blacklisted:          \x1B[033myes\x1B[0m
-        GLX fbconfig:             \x1B[033myes\x1B[0m
-        GLX texture from pixmap:  \x1B[033myes\x1B[0m
-        GL npot or rect textures: \x1B[033myes\x1B[0m
-        GL vertex program:        \x1B[033myes\x1B[0m
-        GL fragment program:      \x1B[033myes\x1B[0m
-        GL vertex buffer object:  \x1B[033mno\x1B[0m
-        GL framebuffer object:    \x1B[033myes\x1B[0m
-        GL version is 1.4+:       \x1B[033myes\x1B[0m
+        Not software rendered:    \x1b[033myes\x1b[0m
+        Not blacklisted:          \x1b[033myes\x1b[0m
+        GLX fbconfig:             \x1b[033myes\x1b[0m
+        GLX texture from pixmap:  \x1b[033myes\x1b[0m
+        GL npot or rect textures: \x1b[033myes\x1b[0m
+        GL vertex program:        \x1b[033myes\x1b[0m
+        GL fragment program:      \x1b[033myes\x1b[0m
+        GL vertex buffer object:  \x1b[033mno\x1b[0m
+        GL framebuffer object:    \x1b[033myes\x1b[0m
+        GL version is 1.4+:       \x1b[033myes\x1b[0m
 
-        Unity 3D supported:       \x1B[033myes\x1B[0m
+        Unity 3D supported:       \x1b[033myes\x1b[0m
         """
 
         expected = {
@@ -64,7 +64,7 @@ class UnitySupportParserTests(unittest.TestCase):
         OpenGL vendor string   Intel
         OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
         OpenGL version string  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu
-        GL version is 1.4+%       \x1B[033myes\x1B[0m
+        GL version is 1.4+%       \x1b[033myes\x1b[0m
         """
         actual = self.tester.parse_unity_support_output(BAD_UNITY_STRING)
 
@@ -147,6 +147,51 @@ class DisplayConnectionTests(unittest.TestCase):
         }
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
+
+    def test_slow_boot_scenario(self):
+
+        def fake_time(delta: int, ticks=2):
+            # fake a time.time() delta using closure
+            call_idx = [0]
+
+            def wrapped():
+                if call_idx[0] != ticks:
+                    call_idx[0] += 1
+                    return 0  # when time.time is initially called
+                else:
+                    return delta  # the "last" time when time.time is called
+
+            return wrapped
+
+        with patch("subprocess.run") as mock_run, patch(
+            "time.sleep"
+        ) as mock_sleep, patch("time.time") as mock_time, patch(
+            "sys.argv",
+            sh_split("reboot_check_test.py -g --graphical-target-timeout 2"),
+        ):
+            mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
+                [],
+                1,
+                "systemd says it's not ready",
+                "graphical target not reached blah",
+            )
+            mock_sleep.side_effect = do_nothing
+            mock_time.side_effect = fake_time(3)
+            tester = RCT.HardwareRendererTester()
+
+            self.assertFalse(tester.wait_for_graphical_target(2))
+
+            mock_sleep.reset_mock()
+            mock_time.side_effect = fake_time(3)
+            tester = RCT.HardwareRendererTester()
+            self.assertEqual(RCT.main(), 1)
+            self.assertTrue(mock_time.called)
+            self.assertTrue(mock_sleep.called)
+
+            mock_time.side_effect = fake_time(3)
+            mock_run.side_effect = sp.TimeoutExpired([], 1)
+            tester = RCT.HardwareRendererTester()
+            self.assertFalse(tester.wait_for_graphical_target(2))
 
 
 class InfoDumpTests(unittest.TestCase):

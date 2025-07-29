@@ -72,6 +72,7 @@ _description: Automated networking tests for devices
 include:
   ipv6_detect
   ipv6_link_local_address_.*
+  ipv6_link_local_address_any_if
   networking/predictable_names
 bootstrap_include:
   device
@@ -102,6 +103,7 @@ _description: Automated networking tests for devices (after suspend)
 include:
   after-suspend-ipv6_detect
   after-suspend-ipv6_link_local_address_.*
+  after-suspend-ipv6_link_local_address_any_if
 bootstrap_include:
   device
 
@@ -112,4 +114,3 @@ _description: Networking tests for Server Cert
 include:
     networking/predictable_names    certification-status=blocker
     networking/ntp                  certification-status=non-blocker
-

@@ -23,7 +23,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    The graphic_memory_info.py got information from lspci
+The graphic_memory_info.py got information from lspci
 """
 
 import re

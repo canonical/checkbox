@@ -28,11 +28,13 @@ from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
-from plainbox.impl.unit.validators import TemplateVariantFieldValidator
-from plainbox.impl.unit.validators import TranslatableFieldValidator
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
+from plainbox.impl.unit.validators import (
+    PresentFieldValidator,
+    TemplateInvariantFieldValidator,
+    TemplateVariantFieldValidator,
+    TranslatableFieldValidator,
+    UntranslatableFieldValidator,
+)
 
 
 translatable = TranslatableFieldValidator()

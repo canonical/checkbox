@@ -27,6 +27,8 @@ from collections import namedtuple
 from contextlib import suppress
 from tempfile import SpooledTemporaryFile
 from threading import Thread, Lock
+from enum import Enum
+
 from plainbox.impl.config import Configuration
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.session.assistant import SessionAssistant
@@ -141,9 +143,18 @@ class BackgroundExecutor(Thread):
 
 
 class RemoteSessionAssistant:
-    """Remote execution enabling wrapper for the SessionAssistant"""
+    """
+    This is the main API surface for controller-agent communication
 
-    REMOTE_API_VERSION = 13
+    Code in this class runs in the agent. Returning mutable types or receiving
+    mutable types as parameter from any of these functions creates an implicit
+    remote API (as any function/attribute used on the returned value will
+    result in a remote API call) and should therefore be avoided.
+    Favour creating a JSON API version of the function that returns the same
+    object but JSON encoded.
+    """
+
+    REMOTE_API_VERSION = 14
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -175,6 +186,11 @@ class RemoteSessionAssistant:
         self.session_change_lock.acquire(blocking=False)
         self.session_change_lock.release()
 
+    def note_metadata_starting_job_json(self, job, job_state):
+        # job_state is a netref, it lives on this (agent) side!
+        job = json.loads(job)
+        return self.note_metadata_starting_job(job, job_state)
+
     def note_metadata_starting_job(self, job, job_state):
         self._sa.note_metadata_starting_job(job, job_state)
 
@@ -185,6 +201,9 @@ class RemoteSessionAssistant:
     @property
     def config(self):
         return self._sa.config
+
+    def configuration_type(self):
+        return Configuration
 
     def update_app_blob(self, app_blob):
         self._sa.update_app_blob(app_blob)
@@ -285,6 +304,10 @@ class RemoteSessionAssistant:
         return extra_env
 
     @allowed_when(Idle)
+    def start_session_json(self, configuration):
+        return json.dumps(self.start_session(json.loads(configuration)))
+
+    @allowed_when(Idle)
     def start_session(self, configuration):
         self._reset_sa()
         _logger.info("start_session: %r", configuration)
@@ -347,6 +370,7 @@ class RemoteSessionAssistant:
         self._available_testplans = sorted(
             response, key=lambda x: x[1]
         )  # sorted by name
+        self._available_testplans = list(self._available_testplans)
         return self._available_testplans
 
     def select_test_plan(self, test_plan_id):
@@ -371,8 +395,15 @@ class RemoteSessionAssistant:
         return False
 
     @allowed_when(Started)
+    def get_bootstrapping_todo_list_json(self):
+        return json.dumps(self.get_bootstrapping_todo_list())
+
+    @allowed_when(Started)
     def get_bootstrapping_todo_list(self):
         return self._sa.get_bootstrap_todo_list()
+
+    def finish_bootstrap_json(self):
+        return json.dumps(self.finish_bootstrap())
 
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
@@ -385,11 +416,21 @@ class RemoteSessionAssistant:
                 )
         return self._sa.get_static_todo_list()
 
+    def get_manifest_repr_json(self):
+        return json.dumps(self.get_manifest_repr())
+
     def get_manifest_repr(self):
         return self._sa.get_manifest_repr()
 
+    def save_manifest_json(self, manifest_answers):
+        manifest_answers = json.loads(manifest_answers)
+        return json.dumps(self.save_manifest(manifest_answers))
+
     def save_manifest(self, manifest_answers):
         return self._sa.save_manifest(manifest_answers)
+
+    def modify_todo_list_json(self, chosen_jobs):
+        self.modify_todo_list(json.loads(chosen_jobs))
 
     def modify_todo_list(self, chosen_jobs):
         self._sa.use_alternate_selection(chosen_jobs)
@@ -582,6 +623,9 @@ class RemoteSessionAssistant:
         if self.terminate_cb:
             self.terminate_cb()
 
+    def get_session_progress_json(self):
+        return json.dumps(self.get_session_progress())
+
     def get_session_progress(self):
         """Return list of completed and not completed jobs in a dict."""
 
@@ -590,6 +634,19 @@ class RemoteSessionAssistant:
             "done": self._sa.get_dynamic_done_list(),
             "todo": self._sa.get_dynamic_todo_list(),
         }
+
+    def finish_job_json(self, result=None):
+        if result:
+            result = json.loads(result)
+        result = self.finish_job(result)
+        if result is not None:
+            return json.dumps(
+                {
+                    "tr_outcome": result.tr_outcome(),
+                    "outcome_color": result.outcome_color_ansi(),
+                }
+            )
+        return
 
     def finish_job(self, result=None):
         # assert the thread completed
@@ -640,6 +697,10 @@ class RemoteSessionAssistant:
 
     def get_job_state(self, job_id):
         return self._sa.get_job_state(job_id)
+
+    def get_jobs_repr_json(self, job_ids, offset=0):
+        job_ids = json.loads(job_ids)
+        return self.get_jobs_repr(job_ids, offset)
 
     def get_jobs_repr(self, job_ids, offset=0):
         """
@@ -806,6 +867,19 @@ class RemoteSessionAssistant:
                 ) - len(job_state.result_history)
 
         self._state = TestsSelected
+
+    def has_any_job_failed(self):
+        job_state_map = (
+            self.manager.default_device_context._state._job_state_map
+        )
+        failing_outcomes = (
+            IJobResult.OUTCOME_FAIL,
+            IJobResult.OUTCOME_CRASH,
+        )
+        return any(
+            job.result.outcome in failing_outcomes
+            for job in job_state_map.values()
+        )
 
     def finalize_session(self):
         self._sa.finalize_session()

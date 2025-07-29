@@ -27,6 +27,7 @@ depends:
  lspci_standard_config_json
  system_info_json
  kernel_cmdline_attachment
+ kernel_config_attachment
 estimated_duration: 1.0
 command: true
 _summary:
@@ -124,15 +125,17 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: Test that system booted in EFI mode
 _purpose:
- Test to verify that the system booted in EFI mode with Secure Boot active.
+ Test to verify that the system booted in EFI mode.
 command: boot_mode_test.py efi
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/secure_boot_mode
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
+ manifest.has_secure_boot == 'True'
 depends: miscellanea/efi_boot_mode
 _summary: Test that system booted with Secure Boot active
 _purpose:
@@ -157,8 +160,10 @@ estimated_duration: 0.5
 unit: template
 template-resource: model_assertion
 template-unit: job
+imports: from com.canonical.plainbox import manifest
 requires:
- executable.name == 'dumpimage' or executable.name == 'mokutil'
+ (executable.name == 'dumpimage' or executable.name == 'mokutil')
+ manifest.has_secure_boot == 'True'
 id: miscellanea/secure_boot_mode_{gadget}
 template-id: miscellanea/secure_boot_mode_gadget
 _summary: Test that {gadget} Ubuntu Core system booted with Secure Boot active
@@ -364,12 +369,12 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 10.0
 requires:
  executable.name == 'fwts'
- cpuinfo.platform in ("ppc64el")
+ cpuinfo.platform in ("ppc64el", "ppc64le")
 user: root
 _description:
- Run Firmware Test Suite (fwts) olog tests (ppc64el only).
+ Run Firmware Test Suite (fwts) olog tests (IBM Power only).
 _summary:
- Run FWTS OLOG check on ppc64el
+ Run FWTS OLOG check on Power systems
 environ: PLAINBOX_SESSION_SHARE
 command:
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_olog_results.log -t olog

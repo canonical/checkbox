@@ -1,3 +1,12 @@
+id: setup-dss-validation
+unit: test plan
+_name: Setup to run DSS validations
+include:
+    setup_dss/install_snap_.*
+    setup_dss/install_package_.*
+    setup_dss/enable_microk8s_addons
+    setup_dss/write_microk8s_kube_config
+
 id: dss-validation
 unit: test plan
 _name: DSS validations with Intel and NVIDIA GPUs if available
@@ -12,13 +21,7 @@ include:
     cpu/tensorflow_can_use_cpu
     dss/remove_tensorflow_cpu_notebook
     intel_gpu_plugin/install
-    intel_gpu_plugin/daemonset_name
-    intel_gpu_plugin/daemonset_number_available
-    intel_gpu_plugin/daemonset_number_ready
     intel_gpu_plugin/labels
-    intel_gpu_plugin/gpu_count
-    intel_gpu_plugin/node_gpu_capacity
-    intel_gpu_plugin/node_gpu_allocatable
     dss/status_intel_gpu
     dss/create_tensorflow_intel_notebook
     xpu/tensorflow_can_use_xpu
@@ -26,7 +29,7 @@ include:
     dss/create_pytorch_intel_notebook
     xpu/pytorch_can_use_xpu
     dss/remove_pytorch_intel_notebook
-    nvidia_gpu_addon/enable
+    microk8s_nvidia_gpu_addon/enable
     nvidia_gpu_addon/validations_succeed
     dss/status_nvidia_gpu
     dss/create_pytorch_cuda_notebook
@@ -35,6 +38,7 @@ include:
     dss/create_tensorflow_cuda_notebook
     cuda/tensorflow_can_use_cuda
     dss/remove_tensorflow_cuda_notebook
+    dss/purge
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap

@@ -7,7 +7,6 @@ These how-to guides cover key operations and processes in Checkbox.
    :maxdepth: 1
    :glob:
 
-   testing-ubuntu-core
    custom-app
    nested-test-plan
    side-loading
@@ -15,3 +14,4 @@ These how-to guides cover key operations and processes in Checkbox.
    freeze-checkbox-version
    launcher/*
    using-match
+   ancient-python

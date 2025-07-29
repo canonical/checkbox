@@ -29,6 +29,7 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 from plainbox.abc import IJobResult
+from plainbox.impl.depmgr import DependencyType
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.depmgr import DependencyUnknownError
@@ -143,8 +144,8 @@ class RegressionTests(TestCase):
         self.assertEqual(
             problems,
             [
-                DependencyMissingError(B, "C", "direct"),
-                DependencyMissingError(A, "B", "direct"),
+                DependencyMissingError(B, "C", DependencyType.DEPENDS),
+                DependencyMissingError(A, "B", DependencyType.DEPENDS),
             ],
         )
         self.assertEqual(state.desired_job_list, [])

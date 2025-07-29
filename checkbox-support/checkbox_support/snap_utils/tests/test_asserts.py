@@ -8,7 +8,14 @@ from requests.models import Response
 import unittest
 from unittest.mock import Mock
 
-from pkg_resources import resource_filename
+try:
+    from importlib.resources import files
+
+    def resource_filename(name, path):
+        return files(name) / path
+
+except ImportError:
+    from pkg_resources import resource_filename
 
 from checkbox_support.snap_utils.asserts import decode
 from checkbox_support.snap_utils.asserts import model_to_resource

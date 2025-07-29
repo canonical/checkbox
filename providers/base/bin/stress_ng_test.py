@@ -78,9 +78,11 @@ class StressNg:
         # LP:1983122 ensure the final stressor in the list is properly defined
         stressor_list = stressor_list + " {}".format(self.thread_count)
 
-        command = "stress-ng --aggressive --verify --timeout {} {} {}".format(
-            self.sng_timeout, self.extra_options, stressor_list
-        )
+        command = (
+            "stress-ng --aggressive --verify --oom-avoid-bytes 10% "
+            "--timeout {} {} {}"
+        ).format(self.sng_timeout, self.extra_options, stressor_list)
+        print("Running command: {}".format(command))
         time_str = time.strftime("%d %b %H:%M", time.gmtime())
         if len(self.stressors) == 1:
             print(

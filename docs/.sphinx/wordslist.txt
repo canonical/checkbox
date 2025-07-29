@@ -25,6 +25,7 @@ debian
 defs
 desc
 dev
+deterministically
 discoverable
 DMI
 DNS
@@ -37,6 +38,7 @@ ethernet
 Fi
 FooBar
 formatter
+frictionless
 frontend
 frontends
 github
@@ -63,6 +65,7 @@ keypresses
 libre
 loopback
 LTS
+LXD
 lv
 Makefile
 mis
@@ -88,6 +91,7 @@ pxu
 pypi
 PyPI
 QML
+regexes
 repo
 rfc
 rtc
@@ -125,6 +129,7 @@ unselect
 URI
 validator
 vendorize
+venv
 vfork
 whitespace
 Wi

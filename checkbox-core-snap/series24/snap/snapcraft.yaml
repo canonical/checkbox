@@ -63,6 +63,8 @@ slots:
 package-repositories:
   - type: apt
     ppa: colin-king/stress-ng
+  - type: apt
+    ppa: colin-king/ppa
 
 parts:
   version-calculator:
@@ -78,9 +80,30 @@ parts:
       - version.txt
 ################################################################################
   fwts:
-    plugin: nil
+    source-tag: "V25.03.00"
+    source-depth: 1
+    plugin: autotools
+    source: https://github.com/fwts/fwts.git
+    # needed because default is /usr/local
+    # if you change this update LD_LIBRARY_PATH
+    autotools-configure-parameters:
+      - --prefix=/
     stage-packages:
-      - fwts
+      - libfdt1
+      - libbsd0
+      - libpci3
+    build-packages:
+      - gcc
+      - make
+      - autoconf
+      - automake
+      - libtool
+      - flex
+      - bison
+      - dh-autoreconf
+      - libglib2.0-dev
+      - libfdt-dev
+      - libbsd-dev
     after: [version-calculator]
 ################################################################################
   stress-ng:
@@ -118,7 +141,6 @@ parts:
       - python3.12-minimal
     build-packages:
       - libbluetooth-dev
-      - libsystemd-dev
       - python3-dev
     python-packages:
       - pynmea2
@@ -148,7 +170,6 @@ parts:
       - python3-markupsafe
       - python3-jinja2
       - python3-packaging
-      - python3-padme
       - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter
@@ -250,7 +271,10 @@ parts:
       - gir1.2-clutter-1.0
       - gir1.2-gst-plugins-base-1.0
       - gir1.2-gudev-1.0
+      - glmark2
       - glmark2-es2
+      - glmark2-wayland
+      - glmark2-es2-wayland
       - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-plugins-bad
@@ -263,7 +287,7 @@ parts:
       - iw
       - jq
       - kmod
-      - libasound2
+      - libasound2t64
       - libcap2-bin
       - libfdt1
       - libsvm3

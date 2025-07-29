@@ -968,11 +968,10 @@ class ManifestQuestion(urwid.WidgetWrap):
                 state=False,
                 on_state_change=self._set_bool_value,
             )
-            if question["value"] is not None:
-                if question["value"] is True:
-                    yes.set_state(True)
-                else:
-                    no.set_state(True)
+            if question["value"] is True:
+                yes.set_state(True)
+            elif question["value"] is False:
+                no.set_state(True)
             self.display_widget = urwid.Columns(
                 [
                     urwid.Padding(urwid.Text(question["name"]), left=2),
@@ -1023,21 +1022,26 @@ class ManifestBrowser:
     footer_shortcuts = [("Shortcuts: "), ("bold", "y"), ("/"), ("bold", "n ")]
 
     def __init__(self, title, manifest):
-        self.manifest = manifest
+        self._hidden_manifests = self.get_manifests_by_visibility(
+            manifest, hidden=True
+        )
+        self._visible_manifests = self.get_manifests_by_visibility(
+            manifest, hidden=False
+        )
         self._manifest_out = {}
-        self._widget_cache = []
+        self._question_store = []
         # Header
         self.header = urwid.Padding(urwid.Text(title), left=1)
         # Body
         content = []
-        for prompt, questions in sorted(self.manifest.items()):
+        for prompt, questions in sorted(self._visible_manifests.items()):
             content.append(urwid.Text(prompt))
             for q in sorted(questions, key=lambda i: i["name"]):
                 question_widget = ManifestQuestion(q)
                 content.append(
                     urwid.AttrWrap(question_widget, "buttn", "buttnf")
                 )
-                self._widget_cache.append(question_widget)
+                self._question_store.append(question_widget)
         self._pile = urwid.Pile(content)
         listbox_content = [
             urwid.Padding(self._pile, left=1, right=1, min_width=13),
@@ -1060,6 +1064,40 @@ class ManifestBrowser:
             footer=self.default_footer,
         )
 
+    @classmethod
+    def get_manifests_by_visibility(cls, question_manifests, hidden):
+        """Returns a dict of all question : [non-hidden manifests]"""
+        # filter out all hidden manifests
+        visible_question_manifests = {
+            q: [
+                manifest
+                for manifest in manifests
+                if manifest.get("hidden", False) == hidden
+            ]
+            for q, manifests in question_manifests.items()
+        }
+        return {
+            q: manifests
+            for q, manifests in visible_question_manifests.items()
+            if manifests
+        }
+
+    @classmethod
+    def has_visible_manifests(cls, question_manifests):
+        """Check if there are any visible manifest questions."""
+        return bool(
+            cls.get_manifests_by_visibility(question_manifests, hidden=False)
+        )
+
+    @staticmethod
+    def get_flattened_values(question_manifests):
+        """Extract default manifest values from the manifest representation."""
+        return {
+            conf["id"]: conf["value"]
+            for conf_list in question_manifests.values()
+            for conf in conf_list
+        }
+
     def run(self):
         """Run the urwid MainLoop."""
         self.loop = urwid.MainLoop(
@@ -1070,17 +1108,38 @@ class ManifestBrowser:
             screen=Screen(),
         )
         self.loop.run()
-        for w in self._widget_cache:
-            self._manifest_out.update({w.id: w.value})
+        self._manifest_out.update(
+            {q.id: q.value for q in self._question_store}
+        )
+        # hidden manifests aren't in the question_store
+        # value will be:
+        # - value set in the launcher
+        # - default value (False for booleans)
+        self._manifest_out.update(
+            {
+                manifest["id"]: manifest["value"]
+                for manifest_list in self._hidden_manifests.values()
+                for manifest in manifest_list
+            }
+        )
         return self._manifest_out
 
     def unhandled_input(self, key):
         if key in ("t", "T"):
-            for w in self._widget_cache:
-                if w.value is None:
-                    break
-            else:
-                raise urwid.ExitMainLoop()
+            self.handle_submit_key()
+        else:
+            self.handle_focused_question_input(key)
+
+    def handle_submit_key(self):
+        for w in self._question_store:
+            if w.value is None:
+                break
+        else:
+            raise urwid.ExitMainLoop()
+
+    def handle_focused_question_input(self, key):
+        if self._pile.focus is None:
+            return
         if self._pile.focus._value_type == "bool":
             if key in ("y", "Y"):
                 self.loop.process_input(["left", " ", "down"])

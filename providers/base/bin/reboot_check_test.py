@@ -10,6 +10,7 @@ import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from datetime import datetime
+import time
 
 
 # Checkbox could run in a snap container, so we need to prepend this root path
@@ -26,9 +27,16 @@ def get_timestamp_str() -> str:
         # take the 1st one
         uptime_seconds = f.readline().split()[0]
 
-    return "Time: {}; Uptime: {} seconds ".format(
+    return "Time: {}; Uptime: {} seconds".format(
         datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), uptime_seconds
     )
+
+
+def get_current_boot_id() -> str:
+    with open("/proc/sys/kernel/random/boot_id", "r") as f:
+        # the boot_id file has a Version 4 UUID with hypens
+        # journalctl doesn't use hypens so we just remove it
+        return f.read().strip().replace("-", "")
 
 
 class DeviceInfoCollector:
@@ -50,11 +58,17 @@ class DeviceInfoCollector:
     # to modify, add more values in the enum
     # and reference them in required/optional respectively
 
+    COMMAND_TIMEOUT_SECONDS = 30
+
     def get_drm_info(self) -> str:
-        return str(os.listdir("/sys/class/drm"))
+        return str(sorted(os.listdir("/sys/class/drm")))
 
     def get_wireless_info(self) -> str:
-        iw_out = sp.check_output(["iw", "dev"], universal_newlines=True)
+        iw_out = sp.check_output(
+            ["iw", "dev"],
+            timeout=self.COMMAND_TIMEOUT_SECONDS,
+            universal_newlines=True,
+        )
         lines = iw_out.splitlines()
         lines_to_write = list(
             filter(
@@ -75,6 +89,7 @@ class DeviceInfoCollector:
                 "-s",
             ],
             universal_newlines=True,
+            timeout=self.COMMAND_TIMEOUT_SECONDS,
         ).splitlines()
         out.sort()
         return "\n".join(out)
@@ -82,6 +97,7 @@ class DeviceInfoCollector:
     def get_pci_info(self) -> str:
         return sp.check_output(
             ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
+            timeout=self.COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
 
@@ -302,6 +318,37 @@ class HardwareRendererTester:
         print("[ ERR ] Software rendering detected", file=sys.stderr)
         return False
 
+    def wait_for_graphical_target(self, max_wait_seconds: int) -> bool:
+        """Wait for the DUT to reach graphical.target in systemd critical chain
+
+        :param max_wait_seconds: num seconds to wait at most
+        :return: whether graphical.target was reached within max_wait_seconds
+        """
+
+        start = time.time()
+        while time.time() - start < max_wait_seconds:
+            try:
+                out = sp.run(
+                    [
+                        "systemd-analyze",
+                        "critical-chain",
+                        "graphical.target",
+                        "--no-pager",
+                    ],
+                    stdout=sp.DEVNULL,
+                    stderr=sp.DEVNULL,
+                    timeout=min(10, max_wait_seconds),
+                )
+                if out.returncode == 0:
+                    return True
+                else:
+                    time.sleep(1)
+            except sp.TimeoutExpired:
+                print("systemd-analyze timed out!")
+                return False
+
+        return False
+
     def parse_unity_support_output(
         self, unity_output_string: str
     ) -> T.Dict[str, str]:
@@ -390,6 +437,16 @@ def create_parser():
         action="store_true",
         help="If specified, check if hardware rendering is being used",
     )
+    parser.add_argument(
+        "--graphical-target-timeout",
+        default=120,
+        type=int,
+        dest="graphical_target_timeout",
+        help="How many seconds should we wait for systemd to report "
+        "that it has reached graphical.target in its critical chain "
+        "before the renderer check starts. "
+        "Default is 120 seconds. Ignored if -g/--graphics is not specified.",
+    )
 
     return parser
 
@@ -421,7 +478,11 @@ def main() -> int:
     renderer_test_passed = True
     service_check_passed = True
 
-    print("Starting reboot checks. {}".format(get_timestamp_str()))
+    print(
+        "Starting reboot checks. {}. Boot ID: {}".format(
+            get_timestamp_str(), get_current_boot_id()
+        )
+    )
 
     if args.comparison_directory is not None:
         if args.output_directory is None:
@@ -469,9 +530,24 @@ def main() -> int:
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()
-        if has_desktop_environment() and tester.has_display_connection():
-            # skip renderer test if there's no display
-            renderer_test_passed = tester.is_hardware_renderer_available()
+
+        print("Checking if DUT has reached graphical.target...")
+        graphical_target_reached = tester.wait_for_graphical_target(
+            args.graphical_target_timeout
+        )
+
+        if not graphical_target_reached:
+            print(
+                "[ ERR ] systemd's graphical.target was not reached",
+                "in {} seconds.".format(args.graphical_target_timeout),
+                "Marking the renderer test as failed.",
+            )
+            renderer_test_passed = False
+        else:
+            print("Graphical target was reached!")
+            if has_desktop_environment() and tester.has_display_connection():
+                # skip renderer test if there's no display
+                renderer_test_passed = tester.is_hardware_renderer_available()
 
     print("Finished reboot checks. {}".format(get_timestamp_str()))
 

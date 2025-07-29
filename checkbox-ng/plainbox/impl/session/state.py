@@ -44,7 +44,6 @@ from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 
-
 logger = logging.getLogger("plainbox.session.state")
 
 
@@ -915,6 +914,9 @@ class SessionState:
             # XXX: it might be more efficient to incorporate this 'recovery
             # mode' right into the solver, this way we'd probably save some
             # resources or runtime complexity.
+            # TODO: This may hide unwanted errors, since we are just removing
+            # tests from our testplan arbitrarily. We should probably raise
+            # DependencyError immediately.
             try:
                 self._run_list = DependencySolver.resolve_dependencies(
                     job_list, self._desired_job_list
@@ -942,6 +944,8 @@ class SessionState:
         # Update all job readiness state
         self._recompute_job_readiness()
         # Return all dependency problems to the caller
+        for problem in problems:
+            logger.error("Dependency problem: %s", str(problem))
         return problems
 
     def get_estimated_duration(self, manual_overhead=30.0):

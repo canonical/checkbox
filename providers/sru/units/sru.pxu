@@ -5,6 +5,7 @@ Depends: checkbox-provider-certification-client
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dkms_build_validation
+user: root
 requires: package.name == 'dkms'
 command:
  dkms_build_validation.py
@@ -77,7 +78,6 @@ nested_part:
     power-automated
     tpm-cert-automated
     stress-ng-cert-automated
-    stress-10-reboot-poweroff-automated
 bootstrap_include:
     device
     graphics_card

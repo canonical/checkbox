@@ -1,9 +1,12 @@
 name: Debian packages daily build
-
+permissions:
+  contents: read
 on:
   workflow_dispatch:
   workflow_call:
-
+    secrets:
+      LP_CREDS:
+        required: true
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo
@@ -22,11 +25,11 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
+      - uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
         name: Make LP pull the monorepo
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
@@ -67,11 +70,11 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
+      - uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
         name: Update the recipe in the checkbox PPA
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
@@ -81,14 +84,9 @@ jobs:
           attempt_limit: 60   # max 1 hour of retries
           command: |
             tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
-      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
-        name: Build and wait result
+      - name: Build and wait result
         timeout-minutes: 780 # 13hours
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
-        with:
-          attempt_delay: 60000 # 10min
-          attempt_limit: 3
-          command: |
-            tools/release/lp_build_monitor_recipe.py checkbox ${{ matrix.recipe }}
+        run: tools/release/lp_build_monitor_recipe.py checkbox ${{ matrix.recipe }}

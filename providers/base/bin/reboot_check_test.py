@@ -492,11 +492,15 @@ class HardwareRendererTester:
         print("[ ERR ] Software rendering detected", file=sys.stderr)
         return False
 
-    def wait_for_graphical_target(self, max_wait_seconds: int) -> bool:
+    def wait_for_graphical_target(
+        self, max_wait_seconds: int
+    ) -> T.Tuple[bool, float]:
         """Wait for the DUT to reach graphical.target in systemd critical chain
 
         :param max_wait_seconds: num seconds to wait at most
-        :return: whether graphical.target was reached within max_wait_seconds
+        :return: (bool, float) pair where
+        - bool: whether graphical.target was reached within max_wait_seconds
+        - float: how many seconds have elapsed since the start of this check
         """
 
         start = time.time()
@@ -514,14 +518,14 @@ class HardwareRendererTester:
                     timeout=min(10, max_wait_seconds),
                 )
                 if out.returncode == 0:
-                    return True
+                    return True, time.time() - start
                 else:
                     time.sleep(1)
             except sp.TimeoutExpired:
                 print("systemd-analyze timed out!")
-                return False
+                return False, time.time() - start
 
-        return False
+        return False, time.time() - start
 
 
 def get_failed_services() -> T.List[str]:
@@ -673,8 +677,8 @@ def main() -> int:
         tester = HardwareRendererTester()
 
         print("Checking if DUT has reached graphical.target...")
-        graphical_target_reached = tester.wait_for_graphical_target(
-            args.graphical_target_timeout
+        graphical_target_reached, num_seconds_waited = (
+            tester.wait_for_graphical_target(args.graphical_target_timeout)
         )
 
         if not graphical_target_reached:
@@ -685,7 +689,9 @@ def main() -> int:
             )
             renderer_test_passed = False
         else:
-            print("Graphical target was reached!")
+            print(
+                f"Graphical target was reached after {num_seconds_waited}s!"
+            )
             if has_desktop_environment() and tester.has_display_connection():
                 # skip renderer test if there's no display
                 renderer_test_passed = tester.is_hardware_renderer_available()

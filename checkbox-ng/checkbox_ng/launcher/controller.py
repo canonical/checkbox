@@ -41,11 +41,15 @@ from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.color import Colorizer
 from plainbox.impl.config import Configuration
+from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.resume import (
     IncompatibleJobError,
     CorruptedSessionError,
 )
-from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
+from plainbox.impl.session.remote_assistant import (
+    RemoteSessionAssistant,
+    RemoteSessionStates,
+)
 from plainbox.vendor import rpyc
 from checkbox_ng.resume_menu import ResumeMenu
 from checkbox_ng.urwid_ui import (
@@ -125,6 +129,27 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     name = "remote-control"
 
+    @classmethod
+    def connection_strategy(cls):
+        """
+        This is the action the controller takes when connecting to an agent.
+
+        Given that the session may be on-going, the state will not always be
+        RemoteSessionStates.Idle but may vary. All functions declared here
+        must take two parameters, self + payload. Both state and payload are
+        returned from the agent
+        """
+        return {
+            RemoteSessionStates.Idle: cls.resume_or_start_new_session,
+            RemoteSessionStates.Started: cls.restart,
+            RemoteSessionStates.Bootstrapping: cls.restart,
+            RemoteSessionStates.Bootstrapped: cls.select_jobs,
+            RemoteSessionStates.TestsSelected: cls.run_interactable_jobs,
+            RemoteSessionStates.Running: cls.wait_and_continue,
+            RemoteSessionStates.Interacting: cls.resume_interacting,
+            RemoteSessionStates.Finalizing: cls.finish_session,
+        }
+
     @property
     def is_interactive(self):
         return (
@@ -138,7 +163,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         return self._C
 
     @property
-    def sa(self):
+    def sa(self) -> RemoteSessionAssistant:
         return self._sa
 
     def invoked(self, ctx):
@@ -146,7 +171,6 @@ class RemoteController(ReportsStage, MainLoopStage):
         self._override_exporting(self.local_export)
         self._launcher_text = ""
         self._has_anything_failed = False
-        self._is_bootstrapping = False
         self._target_host = ctx.args.host
         self._normal_user = ""
         self.launcher = Configuration()
@@ -187,7 +211,16 @@ class RemoteController(ReportsStage, MainLoopStage):
         Check that agent and controller are running on the same
         REMOTE_API_VERSION else exit checkbox with an error
         """
-        agent_api_version = self.sa.get_remote_api_version()
+        try:
+            agent_api_version = self.sa.get_remote_api_version()
+        except AttributeError:
+            raise SystemExit(
+                _(
+                    "Agent doesn't declare Remote API"
+                    " version. Update Checkbox on the"
+                    " DUT!"
+                )
+            )
         controller_api_version = RemoteSessionAssistant.REMOTE_API_VERSION
 
         if agent_api_version == controller_api_version:
@@ -245,6 +278,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         spinner = itertools.cycle("-\\|/")
         #  this tracks the disconnection time
         disconnection_time = 0
+        connection_strategy = self.connection_strategy()
         while True:
             try:
                 if interrupted:
@@ -285,16 +319,6 @@ class RemoteController(ReportsStage, MainLoopStage):
                             " to be run as root"
                         )
                     )
-                try:
-                    agent_api_version = self.sa.get_remote_api_version()
-                except AttributeError:
-                    raise SystemExit(
-                        _(
-                            "Agent doesn't declare Remote API"
-                            " version. Update Checkbox on the"
-                            " SUT!"
-                        )
-                    )
 
                 self.check_remote_api_match()
 
@@ -307,22 +331,8 @@ class RemoteController(ReportsStage, MainLoopStage):
                         )
                     )
                     printed_reconnecting = False
-                keep_running = {
-                    "idle": self.resume_or_start_new_session,
-                    "running": self.wait_and_continue,
-                    "finalizing": self.finish_session,
-                    "testsselected": partial(
-                        self.run_jobs, resumed_ongoing_session_info=payload
-                    ),
-                    "bootstrapping": self.restart,
-                    "bootstrapped": partial(
-                        self.select_jobs, all_jobs=payload
-                    ),
-                    "started": self.restart,
-                    "interacting": partial(
-                        self.resume_interacting, interaction=payload
-                    ),
-                }[state]()
+                state = RemoteSessionStates(state)
+                keep_running = connection_strategy[state](self, payload)
             except EOFError as exc:
                 if keep_running:
                     print("Connection lost!")
@@ -384,7 +394,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         before exiting the context
         """
         try:
-            yield self.sa.resume_session(session_id)
+            yield self.sa.prepare_resume_session(session_id)
         except rpyc.core.vinegar.GenericException as e:
             # cast back the (custom) remote exception for IncompatibleJobError
             # (that is of type GenericException due to rpyc)
@@ -438,10 +448,15 @@ class RemoteController(ReportsStage, MainLoopStage):
         # last resumable session is incompatible
         return False
 
+    def bootstrap_and_continue(self, resume_payload=None):
+        self.bootstrap(resume_payload=resume_payload)
+        self.select_jobs(self.jobs)
+        self.run_interactable_jobs()
+
     def automatically_start_via_launcher(self):
         _ = self.start_session()
-        tp_unit = self.launcher.get_value("test plan", "unit")
-        self.select_tp(tp_unit)
+        test_plan_unit = self.launcher.get_value("test plan", "unit")
+        self.select_test_plan(test_plan_unit)
         self.select_jobs(self.jobs)
 
     def automatically_resume_last_session(self):
@@ -463,7 +478,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             raise SystemExit(exc.args[0]) from exc
         return tps
 
-    def resume_or_start_new_session(self):
+    def resume_or_start_new_session(self, *args):
         if self.should_start_via_autoresume():
             self.automatically_resume_last_session()
         elif self.should_start_via_launcher():
@@ -471,7 +486,11 @@ class RemoteController(ReportsStage, MainLoopStage):
         else:
             self.interactively_choose_tp()
 
-        self.run_jobs()
+        # here depending on where we got, lets continue the session
+        state, payload = self.sa.whats_up()
+        state = RemoteSessionStates(state)
+        connection_strategy = self.connection_strategy()
+        return connection_strategy[state](self, payload)
 
     def _new_session_flow(self, tps, resumable_sessions):
         tp_info_list = [{"id": tp[0], "name": tp[1]} for tp in tps]
@@ -487,7 +506,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         if selected_tp is None:
             print(_("Nothing selected"))
             raise SystemExit(0)
-        self.select_tp(selected_tp)
+        self.select_test_plan(selected_tp)
         if not self.jobs:
             _logger.error(self.C.RED(_("There were no tests to select from!")))
             self.sa.finalize_session()
@@ -536,7 +555,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         return False
 
     def _resume_session(self, resume_params):
-        metadata = self.sa.resume_session(resume_params.session_id)
+        metadata = self.sa.prepare_resume_session(resume_params.session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
@@ -597,27 +616,29 @@ class RemoteController(ReportsStage, MainLoopStage):
                     resumable_sessions
                 )
 
-    def select_tp(self, tp):
-        _logger.info("controller: Selected test plan: %s", tp)
-        try:
-            self.sa.prepare_bootstrapping(tp)
-        except KeyError as e:
-            _logger.error('The test plan "%s" is not available!', tp)
-            raise SystemExit(1)
-        self._is_bootstrapping = True
-        bs_todo = json.loads(self.sa.get_bootstrapping_todo_list_json())
-        for job_no, job_id in enumerate(bs_todo, start=1):
-            print(
-                self.C.header(
-                    _("Bootstrap {} ({}/{})").format(
-                        job_id, job_no, len(bs_todo), fill="-"
-                    )
-                )
-            )
-            self.sa.run_bootstrapping_job(job_id)
-            self.wait_for_job()
-        self._is_bootstrapping = False
+    def bootstrap(self, resume_payload=None):
+        """
+        This is the bootstrap job-running UI
+
+        This is different from calling self.sa.bootstrap because this shows
+        progress (currently running job and result) while that is silent
+        """
+        if resume_payload is not None:
+            raise SystemExit("not supported")
+        bs_todo = json.loads(self.sa.start_bootstrap_json())
+        self.run_uninteractable_jobs(
+            bs_todo, "Bootstrap", starting_index=0, suppress_output=True
+        )
         self.jobs = json.loads(self.sa.finish_bootstrap_json())
+        return self.jobs
+
+    def select_test_plan(self, testplan_id):
+        _logger.info("controller: Selected test plan: %s", testplan_id)
+        try:
+            self.sa.select_test_plan(testplan_id)
+        except KeyError as e:
+            _logger.error('The test plan "%s" is not available!', testplan_id)
+            raise SystemExit(1)
 
     def _strtobool(self, val):
         return val.lower() in ("y", "yes", "t", "true", "on", "1")
@@ -701,7 +722,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             self._sa.send_signal(signal.SIGKILL.value)
             return True
 
-    def finish_session(self):
+    def finish_session(self, *args):
         print(self.C.header("Results"))
         if self.launcher.get_value("launcher", "local_submission"):
             # Disable SIGINT while we save local results
@@ -714,8 +735,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.sa.finalize_session()
         return False
 
-    def wait_and_continue(self):
-        progress = self.sa.whats_up()[1]
+    def wait_and_continue(self, progress):
         print("Rejoined session.")
         print(
             "In progress: {} ({}/{})".format(
@@ -723,7 +743,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             )
         )
         self.wait_for_job()
-        self.run_jobs()
+        self.run_interactable_jobs()
 
     def _handle_last_job_after_resume(self, resumed_session_info):
         if self.launcher.get_value("ui", "type") != "silent":
@@ -742,7 +762,33 @@ class RemoteController(ReportsStage, MainLoopStage):
             + SimpleUI.C.result(self.sa.get_job_result(job["id"]))
         )
 
-    def run_jobs(self, resumed_ongoing_session_info=None):
+    def run_uninteractable_jobs(
+        self, job_ids, step_name, starting_index=0, suppress_output=False
+    ):
+        """
+        Runs the jobs in order and prints a UI that tracks the progression.
+
+        This assumes all jobs are non-interactive jobs like during
+        bootstrap
+        """
+        # we may start not from 0 because we are resuming
+        total_jobs = len(job_ids)
+        job_ids = job_ids[starting_index:]
+        for job_no, job_id in enumerate(job_ids, start=starting_index):
+            print(
+                self.C.header(
+                    _("{} {} ({}/{})").format(
+                        step_name, job_id, job_no + 1, total_jobs, fill="-"
+                    )
+                )
+            )
+            self.sa.run_uninteractable_job(job_id)
+            self.wait_for_job(suppress_output=suppress_output)
+
+    def run_interactable_jobs(self, resumed_ongoing_session_info=None):
+        """
+        Runs the desired job list in normal mode (post bootstrap).
+        """
         if (
             resumed_ongoing_session_info
             and resumed_ongoing_session_info["last_job"]
@@ -762,7 +808,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             )
         )
 
-        self._run_jobs(jobs_repr, total_num)
+        self._run_interactable_jobs(jobs_repr, total_num)
         rerun_candidates = self.sa.get_rerun_candidates("manual")
         if rerun_candidates:
             if self.launcher.get_value("ui", "type") == "interactive":
@@ -777,15 +823,15 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def resume_interacting(self, interaction):
         self.sa.remember_users_response("rollback")
-        self.run_jobs()
+        self.run_interactable_jobs()
 
-    def wait_for_job(self, dont_finish=False):
+    def wait_for_job(self, dont_finish=False, suppress_output=False):
         _logger.info("controller: Waiting for job to finish.")
         polling_backoff = [0, 0.1, 0.2, 0.5]
         polling_i = 0
         while True:
             state, payload = self.sa.monitor_job()
-            if payload and not self._is_bootstrapping:
+            if payload and not suppress_output:
                 polling_i = 0
                 for line in payload.splitlines():
                     if line.startswith("stderr"):
@@ -815,15 +861,14 @@ class RemoteController(ReportsStage, MainLoopStage):
     def finish_job(self, result=None):
         _logger.info("controller: Finishing job with a result: %s", result)
         job_result = self.sa.finish_job(result)
-        if not self._is_bootstrapping:
-            SimpleUI.horiz_line()
-            print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
+        SimpleUI.horiz_line()
+        print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
     def abandon(self):
         _logger.info("controller: Abandoning session.")
         self.sa.finalize_session()
 
-    def restart(self):
+    def restart(self, *args):
         _logger.info("controller: Restarting session.")
         self.abandon()
         self.resume_or_start_new_session()
@@ -870,7 +915,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         # include resource jobs that jobs to retry depend on
 
         candidates = self.sa.prepare_rerun_candidates(rerun_candidates)
-        self._run_jobs(
+        self._run_interactable_jobs(
             json.loads(self.sa.get_jobs_repr(candidates)), len(candidates)
         )
         return True
@@ -890,12 +935,12 @@ class RemoteController(ReportsStage, MainLoopStage):
         candidates = self.sa.prepare_rerun_candidates(
             [job for job in rerun_candidates if job.id in wanted_set]
         )
-        self._run_jobs(
+        self._run_interactable_jobs(
             json.loads(self.sa.get_jobs_repr(candidates)), len(candidates)
         )
         return True
 
-    def _run_jobs(self, jobs_repr, total_num=0):
+    def _run_interactable_jobs(self, jobs_repr, total_num=0):
         for job in jobs_repr:
             job_state = self.sa.get_job_state(job["id"])
             # Note: job_state is a remote object, no need to json encode it

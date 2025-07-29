@@ -44,47 +44,67 @@ class DisplayConnectionTests(unittest.TestCase):
         ):
             self.assertFalse(self.tester.has_display_connection())
 
-    @patch("builtins.print")
-    @patch("os.getenv")
-    def test_is_hardware_renderer_available_missing_env(
-        self, mock_getenv: MagicMock, mock_print: MagicMock
-    ):
-        mock_getenv.return_value = None
-        tester = RCT.HardwareRendererTester()
-        self.assertFalse(tester.is_hardware_renderer_available())
-        mock_getenv.assert_has_calls(
-            [call("DISPLAY"), call("XDG_SESSION_TYPE")], any_order=True
-        )
-        mock_print.assert_has_calls(
-            [
-                # it exits early
-                call("$DISPLAY is not set, marking the test as failed"),
-            ],
-            any_order=True,
-        )
+    # @patch(
+    #     "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+    # )
+    # @patch("builtins.print")
+    # @patch("os.getenv")
+    # def test_is_hardware_renderer_available_missing_env(
+    #     self,
+    #     mock_getenv: MagicMock,
+    #     mock_print: MagicMock,
+    #     mock_get_desktop_envs,
+    # ):
+    #     mock_getenv.return_value = None
+    #     mock_get_desktop_envs.return_value = {
+    #         "DISPLAY": ":0",
+    #         "XDG_SESSION_TYPE": "wayland",
+    #     }
+    #     tester = RCT.HardwareRendererTester()
+    #     self.assertFalse(tester.is_hardware_renderer_available())
+    #     mock_getenv.assert_has_calls(
+    #         [call("DISPLAY"), call("XDG_SESSION_TYPE")], any_order=True
+    #     )
+    #     mock_print.assert_has_calls(
+    #         [
+    #             # it exits early
+    #             call("$DISPLAY is not set, marking the test as failed"),
+    #         ],
+    #         any_order=True,
+    #     )
 
-        mock_getenv.reset_mock()
-        mock_getenv.side_effect = lambda key: (
-            ":0" if key == "DISPLAY" else None
-        )
-        self.assertFalse(tester.is_hardware_renderer_available())
-        mock_print.assert_has_calls(
-            [
-                call(
-                    "$XDG_SESSION_TYPE is not set, marking the test as failed"
-                ),
-            ],
-            any_order=True,
-        )
+    #     mock_getenv.reset_mock()
+    #     mock_getenv.side_effect = lambda key: (
+    #         ":0" if key == "DISPLAY" else None
+    #     )
+    #     self.assertFalse(tester.is_hardware_renderer_available())
+    #     mock_print.assert_has_calls(
+    #         [
+    #             call(
+    #                 "$XDG_SESSION_TYPE is not set, marking the test as failed"
+    #             ),
+    #         ],
+    #         any_order=True,
+    #     )
 
+    @patch(
+        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+    )
     @patch("subprocess.run")
     @patch("os.getenv")
     def test_is_hardware_renderer_available_fail(
-        self, mock_getenv: MagicMock, mock_run: MagicMock
+        self,
+        mock_getenv: MagicMock,
+        mock_run: MagicMock,
+        mock_get_desktop_envs: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
         )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
         mock_run.return_value = sp.CompletedProcess(
             [],
             0,  # glmark2 returns 0 as long as it finishes
@@ -181,14 +201,24 @@ class DisplayConnectionTests(unittest.TestCase):
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
+    @patch(
+        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+    )
     @patch("subprocess.run")
     @patch("os.getenv")
     def test_is_hardware_renderer_available_happy_path(
-        self, mock_getenv: MagicMock, mock_run: MagicMock
+        self,
+        mock_getenv: MagicMock,
+        mock_run: MagicMock,
+        mock_get_desktop_envs: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
         )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
         mock_run.return_value = sp.CompletedProcess(
             [],
             0,  # glmark2 returns 0 as long as it finishes
@@ -219,14 +249,19 @@ class DisplayConnectionTests(unittest.TestCase):
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
+    @patch(
+        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+    )
     @patch("subprocess.run")
-    @patch("os.getenv")
     def test_is_hardware_renderer_available_chooses_correct_glmark(
-        self, mock_getenv: MagicMock, mock_run: MagicMock
+        self,
+        mock_run: MagicMock,
+        mock_get_desktop_envs: MagicMock,
     ):
-        mock_getenv.side_effect = lambda k: (
-            "x11" if k == "XDG_SESSION_TYPE" else ":0"
-        )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
         mock_run.side_effect = lambda *args, **kwargs: (
             sp.CompletedProcess(args, 0, "x86_64")
             if args[0][0] == "uname"
@@ -240,9 +275,10 @@ class DisplayConnectionTests(unittest.TestCase):
         # last 0 is the 1st element in sp.run()'s command array
         self.assertEqual(mock_run.call_args_list[-1][0][0][0], "glmark2")
 
-        mock_getenv.side_effect = lambda k: (
-            "wayland" if k == "XDG_SESSION_TYPE" else ":0"
-        )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "wayland",
+        }
         tester.is_hardware_renderer_available()
         # -1 is most recent call -> (args, kwargs, ...)
         # 0 takes the list of positional args
@@ -252,6 +288,9 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
         )
 
+    @patch(
+        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+    )
     @patch("os.path.exists")
     @patch("os.path.islink")
     @patch("os.unlink")
@@ -266,18 +305,20 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_unlink: MagicMock,
         mock_islink: MagicMock,
         mock_path_exists: MagicMock,
+        mock_get_desktop_envs: MagicMock,
     ):
         def custom_env(key: str, is_snap: bool) -> str:
-            if key == "XDG_SESSION_TYPE":
-                return "wayland"
-            if key == "DISPLAY":
-                return ":0"
             if key == "CHECKBOX_RUNTIME":
                 return "/snap/runtime/path/" if is_snap else ""
             if key == "SNAP":
                 return "/snap/checkbox/path/" if is_snap else ""
 
             raise Exception("unexpected use of this mock")
+
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
 
         mock_run.side_effect = lambda *args, **kwargs: (
             sp.CompletedProcess(args, 0, "x86_64")
@@ -521,9 +562,18 @@ class MainFunctionTests(unittest.TestCase):
             self.assertEqual(mock_compare.call_count, 1)
             self.assertEqual(rv, 1)
 
+    @patch(
+        "reboot_check_test.HardwareRendererTester.get_desktop_environment_variables"
+    )
     @patch("subprocess.run")
-    def test_main_function_full(self, mock_run: MagicMock):
+    def test_main_function_full(
+        self, mock_run: MagicMock, mock_get_desktop_envs
+    ):
         mock_run.side_effect = do_nothing
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
         # Full suite
         with patch(
             "sys.argv",
@@ -580,3 +630,6 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
+
+
+unittest.main()

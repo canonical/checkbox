@@ -659,7 +659,7 @@ class Launcher(MainLoopStage, ReportsStage):
             except FileNotFoundError:
                 pass
         self.ctx.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
-        bs_jobs = self.ctx.sa.get_bootstrap_todo_list()
+        bs_jobs = self.sa.start_bootstrap()
         self._run_bootstrap_jobs(bs_jobs)
         self.ctx.sa.finish_bootstrap()
 

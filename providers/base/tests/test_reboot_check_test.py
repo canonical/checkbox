@@ -69,7 +69,6 @@ class DisplayConnectionTests(unittest.TestCase):
         self.assertFalse(tester.is_hardware_renderer_available())
         mock_print.assert_has_calls(
             [
-                # exit early
                 call(
                     "$XDG_SESSION_TYPE is not set, marking the test as failed"
                 ),
@@ -100,9 +99,13 @@ class DisplayConnectionTests(unittest.TestCase):
         self.assertFalse(tester.is_hardware_renderer_available())
 
     @patch("subprocess.run")
+    @patch("os.getenv")
     def test_is_hardware_renderer_available_happy_path(
-        self, mock_run: MagicMock
+        self, mock_getenv: MagicMock, mock_run: MagicMock
     ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
         mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
             [],
             0,  # glmark2 returns 0 as long as it finishes

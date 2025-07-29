@@ -94,6 +94,7 @@ class DisplayConnectionTests(unittest.TestCase):
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
+        mock_run.reset_mock()
         mock_run.return_value = sp.CompletedProcess(
             [],
             0,
@@ -105,6 +106,24 @@ class DisplayConnectionTests(unittest.TestCase):
     GL_VENDOR:      Mesa
     GL_RENDERER:    softpipe
     GL_VERSION:     3.3 (Compatibility Profile) Mesa 24.2.8-1ubuntu1~24.04.1
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================
+            """,
+        )
+        self.assertFalse(tester.is_hardware_renderer_available())
+
+        # somehow got no renderer string
+        mock_run.reset_mock()
+        mock_run.return_value = sp.CompletedProcess(
+            [],
+            0,
+            """
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Mesa
     Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
     Surface Size:   800x600 windowed
 =======================================================

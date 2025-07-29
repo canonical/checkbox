@@ -457,7 +457,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
-        self.select_jobs(self.jobs)
+        self.bootstrap_and_continue()
 
     def automatically_resume_last_session(self):
         last_abandoned_session = next(self.sa.get_resumable_sessions())
@@ -507,6 +507,8 @@ class RemoteController(ReportsStage, MainLoopStage):
             print(_("Nothing selected"))
             raise SystemExit(0)
         self.select_test_plan(selected_tp)
+        # TODO: This isn't using bootstrap_and_continue but it should
+        self.bootstrap()
         if not self.jobs:
             _logger.error(self.C.RED(_("There were no tests to select from!")))
             self.sa.finalize_session()

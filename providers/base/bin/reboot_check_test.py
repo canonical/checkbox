@@ -687,7 +687,11 @@ def main() -> int:
             )
             renderer_test_passed = False
         else:
-            print(f"Graphical target was reached after {num_seconds_waited}s!")
+            print(
+                "Graphical target was reached after {}s!".format(
+                    num_seconds_waited
+                )
+            )
             if has_desktop_environment() and tester.has_display_connection():
                 # skip renderer test if there's no display
                 renderer_test_passed = tester.is_hardware_renderer_available()

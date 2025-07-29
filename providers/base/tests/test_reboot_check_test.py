@@ -76,6 +76,35 @@ class DisplayConnectionTests(unittest.TestCase):
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
+    @patch("subprocess.run")
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_chooses_correct_glmark(
+        self, mock_getenv: MagicMock, mock_run: MagicMock
+    ):
+        mock_getenv.side_effect = lambda k: (
+            "x11" if k == "XDG_SESSION_TYPE" else ":0"
+        )
+        tester = RCT.HardwareRendererTester()
+        tester.is_hardware_renderer_available()
+        # -1 is most recent call -> (args, kwargs, ...)
+        # 0 takes the list of positional args
+        # 0 again takes the 1st positional arg
+        # last 0 is the 1st element in sp.run()'s command array
+        self.assertEqual(mock_run.call_args_list[-1][0][0][0], "glmark2-es2")
+
+        mock_run.reset_mock()
+        mock_getenv.side_effect = lambda k: (
+            "wayland" if k == "XDG_SESSION_TYPE" else ":0"
+        )
+        tester.is_hardware_renderer_available()
+        # -1 is most recent call -> (args, kwargs, ...)
+        # 0 takes the list of positional args
+        # 0 again takes the 1st positional arg
+        # last 0 is the 1st element in sp.run()'s command array
+        self.assertEqual(
+            mock_run.call_args_list[-1][0][0][0], "glmark2-es2-wayland"
+        )
+
     def test_slow_boot_scenario(self):
 
         def fake_time(delta: int, ticks=2):

@@ -294,8 +294,12 @@ class DisplayConnectionTests(unittest.TestCase):
             tester.is_hardware_renderer_available()
 
             if is_snap:
-                mock_symlink.assert_any_call()
-                mock_unlink.assert_any_call()
+                mock_symlink.assert_called_once_with(
+                    "{}/usr/share/glmark2".format(RCT.RUNTIME_ROOT),
+                    "/usr/share/glmark2",
+                    target_is_directory=True,
+                )
+                mock_unlink.assert_called_once_with("/usr/share/glmark2")
             else:
                 mock_symlink.assert_not_called()
                 mock_unlink.assert_not_called()
@@ -572,3 +576,6 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
+
+
+unittest.main()

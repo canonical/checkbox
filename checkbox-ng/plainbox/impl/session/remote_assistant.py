@@ -53,7 +53,14 @@ _ = gettext.gettext
 
 _logger = logging.getLogger("plainbox.session.remote_assistant")
 
-Interaction = namedtuple("Interaction", ["kind", "message", "extra"])
+
+class Interaction(namedtuple("Interaction", ["kind", "message", "extra"])):
+    """
+    This is a named tuple with optional parameters
+    """
+
+    def __new__(cls, kind, message="", extra=None):
+        return super().__new__(cls, kind, message, extra)
 
 
 class RemoteSessionStates(Enum):

@@ -18,9 +18,9 @@ apps:
   test-ffmpeg:
     command-chain: [bin/wrapper_local]
     command: bin/test-ffmpeg
-  remote-slave:
+  remote-run-agent:
     command-chain: [bin/wrapper_local]
-    command: bin/checkbox-cli-wrapper slave
+    command: bin/checkbox-cli-wrapper run-agent
     daemon: simple
     restart-condition: always
   shell:
@@ -44,6 +44,7 @@ parts:
       - checkbox24
     stage-packages:
       - intel-gpu-tools
+      - python3-wget
     override-build: |
       for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       checkbox-provider-tools validate

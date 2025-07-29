@@ -5,6 +5,4 @@ include:
   ffmpeg.*
 bootstrap_include:
     com.canonical.certification::executable
-    com.canonical.certification::snap
-    graphics_card
     mediasource

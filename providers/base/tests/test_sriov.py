@@ -282,48 +282,71 @@ class TestSriovFunctions(TestCase):
     def test_cleanup_sriov_success(self, mock_logging, mock_open, mock_exists):
         """Test successful cleanup of SRIOV interface."""
         sriov.cleanup_sriov("eth0")
-        
-        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
+
+        mock_exists.assert_called_once_with(
+            "/sys/class/net/eth0/device/sriov_numvfs"
+        )
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
-        mock_open.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs", "w", encoding="utf-8")
+        mock_open.assert_called_once_with(
+            "/sys/class/net/eth0/device/sriov_numvfs", "w", encoding="utf-8"
+        )
         mock_open().write.assert_called_once_with("0")
 
     @patch("os.path.exists", return_value=False)
     @patch("sriov.logging.info")
     @patch("sys.exit")
-    def test_cleanup_sriov_file_not_exists(self, mock_exit, mock_logging, mock_exists):
+    def test_cleanup_sriov_file_not_exists(
+        self, mock_exit, mock_logging, mock_exists
+    ):
         """Test cleanup when SRIOV file does not exist."""
         sriov.cleanup_sriov("eth0")
-        
-        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
+
+        mock_exists.assert_called_once_with(
+            "/sys/class/net/eth0/device/sriov_numvfs"
+        )
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
-        mock_logging.assert_any_call("Failed to disable SR-IOV on eth0: SR-IOV interface eth0 does not exist.")
+        mock_logging.assert_any_call(
+            "Failed to disable SR-IOV on eth0: SR-IOV interface eth0 does not exist."
+        )
         mock_exit.assert_called_once_with(1)
 
     @patch("os.path.exists", return_value=True)
-    @patch("builtins.open", side_effect=FileNotFoundError("File not found during write"))
+    @patch(
+        "builtins.open",
+        side_effect=FileNotFoundError("File not found during write"),
+    )
     @patch("sriov.logging.info")
     @patch("sys.exit")
-    def test_cleanup_sriov_file_write_filenotfound(self, mock_exit, mock_logging, mock_open, mock_exists):
+    def test_cleanup_sriov_file_write_filenotfound(
+        self, mock_exit, mock_logging, mock_open, mock_exists
+    ):
         """Test cleanup when file write raises FileNotFoundError."""
         sriov.cleanup_sriov("eth0")
-        
-        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
+
+        mock_exists.assert_called_once_with(
+            "/sys/class/net/eth0/device/sriov_numvfs"
+        )
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
-        mock_logging.assert_any_call("Failed to disable SR-IOV on eth0: File not found during write")
+        mock_logging.assert_any_call(
+            "Failed to disable SR-IOV on eth0: File not found during write"
+        )
         mock_exit.assert_called_once_with(1)
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", side_effect=IOError("Permission denied"))
     @patch("sriov.logging.info")
     @patch("sys.exit")
-    def test_cleanup_sriov_ioerror(self, mock_exit, mock_logging, mock_open, mock_exists):
+    def test_cleanup_sriov_ioerror(
+        self, mock_exit, mock_logging, mock_open, mock_exists
+    ):
         """Test cleanup when file write raises IOError."""
         sriov.cleanup_sriov("eth0")
-        
-        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
+
+        mock_exists.assert_called_once_with(
+            "/sys/class/net/eth0/device/sriov_numvfs"
+        )
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
         mock_logging.assert_any_call("An error occurred: Permission denied")
@@ -333,11 +356,15 @@ class TestSriovFunctions(TestCase):
     @patch("builtins.open", side_effect=Exception("Unexpected error"))
     @patch("sriov.logging.info")
     @patch("sys.exit")
-    def test_cleanup_sriov_general_exception(self, mock_exit, mock_logging, mock_open, mock_exists):
+    def test_cleanup_sriov_general_exception(
+        self, mock_exit, mock_logging, mock_open, mock_exists
+    ):
         """Test cleanup when file operations raise general Exception."""
         sriov.cleanup_sriov("eth0")
-        
-        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
+
+        mock_exists.assert_called_once_with(
+            "/sys/class/net/eth0/device/sriov_numvfs"
+        )
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
         mock_logging.assert_any_call("An error occurred: Unexpected error")
@@ -346,14 +373,20 @@ class TestSriovFunctions(TestCase):
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open)
     @patch("sriov.logging.info")
-    def test_cleanup_sriov_different_interface(self, mock_logging, mock_open, mock_exists):
+    def test_cleanup_sriov_different_interface(
+        self, mock_logging, mock_open, mock_exists
+    ):
         """Test cleanup with different interface name."""
         sriov.cleanup_sriov("enp0s3")
-        
-        mock_exists.assert_called_once_with("/sys/class/net/enp0s3/device/sriov_numvfs")
+
+        mock_exists.assert_called_once_with(
+            "/sys/class/net/enp0s3/device/sriov_numvfs"
+        )
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
-        mock_open.assert_called_once_with("/sys/class/net/enp0s3/device/sriov_numvfs", "w", encoding="utf-8")
+        mock_open.assert_called_once_with(
+            "/sys/class/net/enp0s3/device/sriov_numvfs", "w", encoding="utf-8"
+        )
         mock_open().write.assert_called_once_with("0")
 
 

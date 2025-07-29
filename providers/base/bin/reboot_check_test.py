@@ -290,36 +290,25 @@ class HardwareRendererTester:
         else:
             print("Checking $DISPLAY={}".format(DISPLAY))
 
-        cpu_arch = sp.check_output(["uname", "-p"], universal_newlines=True)
-        glmark2_executable = (
-            "glmark2-es2" if cpu_arch == "aarch64" else "glmark2"
-        )
-
         try:
             glmark2_output = sp.run(
-                [glmark2_executable, "--off-screen", "--validate"],
+                ["glmark2-es2", "--off-screen", "--validate"],
                 stdout=sp.PIPE,
-                stderr=sp.STDOUT,
                 universal_newlines=True,
                 timeout=60,
             )
         except sp.TimeoutExpired:
-            print(
-                "[ ERR ] {} timed out. Marking this test as failed.".format(
-                    glmark2_executable
-                )
-            )
+            print("[ ERR ] glmark2 timed out. Marking this test as failed.")
             return False
 
         if glmark2_output.returncode != 0:
             print(
-                "[ ERR ] {} returned {}. Error is:".format(
-                    glmark2_executable,
+                "[ ERR ] unity support test returned {}. Error is: {}".format(
                     glmark2_output.returncode,
+                    glmark2_output.stdout,
                 ),
                 file=sys.stderr,
             )
-            print(glmark2_output.stdout, file=sys.stderr)
             return False
 
         gl_renderer_line = None  # type: str | None
@@ -328,24 +317,18 @@ class HardwareRendererTester:
                 gl_renderer_line = line
                 break
 
-        if gl_renderer_line is None:
-            print(
-                "[ ERR ] {} did not return a renderer string".format(
-                    glmark2_executable
-                )
-            )
-            return False
-
         # See the discussion on checkbox issue 1630
-        # the same logic as unity_support_test
         is_hardware_rendered = True
-        gl_renderer = gl_renderer_line.split(":")[-1].strip()
-        print("Found GL_RENDERER: {}".format(gl_renderer))
-
-        if gl_renderer in ("Software Rasterizer", "Mesa X11"):
-            is_hardware_rendered = False
-        if "llvmpipe" in gl_renderer or "on softpipe" in gl_renderer:
-            is_hardware_rendered = False
+        if gl_renderer_line is not None:
+            gl_renderer = gl_renderer_line.split(":")[-1].strip()
+            print("Found GL_RENDERER: {}".format(gl_renderer))
+            if gl_renderer in ("Software Rasterizer", "Mesa X11"):
+                is_hardware_rendered = False
+            if "llvmpipe" in gl_renderer or "on softpipe" in gl_renderer:
+                is_hardware_rendered = False
+        else:
+            print("[ ERR ] glmark2 did not return a renderer string")
+            return False
 
         if is_hardware_rendered:
             print("[ OK ] This machine is using a hardware renderer!")

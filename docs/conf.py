@@ -27,9 +27,16 @@ import checkbox_ng
 project = "Checkbox"
 author = "Canonical Ltd."
 
-# Sidebar documentation title; best kept reasonably short
 
-html_title = project + " documentation"
+# Here we just keep the version number and not any .devhash because that would
+#  make the CI/CD spellcheck fail mistaking any .devhash occurence for an
+#  unknown word
+release = (
+    re.match(r"(\d+\.{0,1})+", checkbox_ng.__version__).group(0).rstrip(".")
+)
+
+# Sidebar documentation title; best kept reasonably short
+html_title = project + " " + release + " documentation"
 
 
 # Copyright string; shown at the bottom of the page
@@ -57,18 +64,11 @@ html_title = project + " documentation"
 
 copyright = "%s GPL-3.0, %s" % (datetime.date.today().year, author)
 
-# Here we just keep the version number and not any .devhash because that would
-#  make the CI/CD spellcheck fail mistaking any .devhash occurence for an
-#  unknown word
-release = (
-    re.match(r"(\d+\.{0,1})+", checkbox_ng.__version__).group(0).rstrip(".")
-)
-
 # Documentation website URL
 # NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
 #       and is used by social media platforms; see https://ogp.me/
 
-ogp_site_url = "https://checkbox.readthedocs-hosted.com/"
+ogp_site_url = "https://canonical-checkbox.readthedocs-hosted.com/latest/"
 
 # Preview name of the documentation website
 ogp_site_name = project

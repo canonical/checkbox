@@ -27,6 +27,8 @@ from argparse import Namespace
 import json
 
 from qatctl import (
+    status_dev,
+    list_dev,
     get_pci_ids,
     get_vfio_device,
     VFIOGroup,
@@ -44,7 +46,7 @@ from qatctl import (
 class TestVFIOGroup(unittest.TestCase):
 
     @patch("pathlib.Path.open", new_callable=mock_open, read_data="1\n")
-    def test_numa(self, mock_file):
+    def test_numa_and_str(self, mock_file):
         mock_dev = MagicMock()
         mock_dev.bdf = "0000:00:01.0"
 
@@ -52,6 +54,8 @@ class TestVFIOGroup(unittest.TestCase):
 
         self.assertEqual(vfio_group["numa_node"], "1")
         self.assertEqual(vfio_group["vfio_dev"], "/dev/vfio/10")
+        json_str = str(vfio_group)
+        self.assertEqual(isinstance(json.loads(json_str), dict), True)
 
 class TestDeviceData(unittest.TestCase):
 
@@ -74,24 +78,152 @@ class TestDeviceData(unittest.TestCase):
 
 class TestQatDeviceTelemetry(unittest.TestCase):
 
+    DEBUGFS_TELEMETRY_PATH="/sys/kernel/debug/qat_4xxx_0000:00:01.0/telemetry"
+
     @patch("pathlib.Path.open", new_callable=mock_open, read_data="util_cph0 5\nutil_cph1 15\n")
     def test_collect(self, mock_file):
-        telemetry_path = pathlib.Path("/sys/kernel/debug/qat_4xxx_0000:00:01.0/telemetry")
+        telemetry_path = pathlib.Path(TestQatDeviceTelemetry.DEBUGFS_TELEMETRY_PATH)
         telemetry = QatDeviceTelemetry(telemetry_path)
-        telemetry.debugfs_enabled = True
         telemetry.collect()
+        self.assertEqual(telemetry.debugfs_enabled, True)
         self.assertIn("device_data", telemetry)
         self.assertIn("util_cph", telemetry["device_data"])
         self.assertEqual(telemetry["device_data"]["util_cph"], [5, 15])
 
-    @patch("pathlib.Path.open", new_callable=mock_open, read_data="junk_data")
-    def test_collect_ko(self, mock_file):
-        telemetry_path = pathlib.Path("/sys/kernel/debug/qat_4xxx_0000:00:01.0/telemetry")
+    @patch("pathlib.Path.open", side_effect=OSError("Failed to open file"))
+    def test_collect_ko_open(self, mock_file):
+        telemetry_path = pathlib.Path(TestQatDeviceTelemetry.DEBUGFS_TELEMETRY_PATH)
         telemetry = QatDeviceTelemetry(telemetry_path)
-        telemetry.debugfs_enabled = True
         telemetry.collect()
         self.assertEqual(telemetry["device_data"], {})
 
+    @patch("pathlib.Path.open", new_callable=mock_open, read_data="junk_data")
+    def test_collect_ko_data(self, mock_file):
+        telemetry_path = pathlib.Path(TestQatDeviceTelemetry.DEBUGFS_TELEMETRY_PATH)
+        telemetry = QatDeviceTelemetry(telemetry_path)
+        telemetry.collect()
+        self.assertEqual(telemetry["device_data"], {})
+
+    def test_enable_telemetry_opens_correct_path_and_writes_1(self):
+        telemetry_path = pathlib.Path(TestQatDeviceTelemetry.DEBUGFS_TELEMETRY_PATH)
+        control_path = telemetry_path / "control"
+
+        m = mock_open()
+
+        # create an side effect for the open() operation and
+        # record the filepath and open mode
+        opened_paths = []
+        def open_side_effect(self, *args, **kwargs):
+            filepath=self
+            mode=args[0]
+            opened_paths.append((filepath,mode))
+            return m()
+
+        with patch("pathlib.Path.open", open_side_effect):
+            telemetry = QatDeviceTelemetry(telemetry_path)
+            telemetry.debugfs_enabled = True
+
+            m.reset_mock()
+            opened_paths.clear()
+            telemetry.enable_telemetry()
+
+        # Check that the correct path was used
+        self.assertEqual(len(opened_paths), 1)
+
+        filepath=opened_paths[0][0]
+        mode=opened_paths[0][1]
+        self.assertEqual(control_path, filepath)
+        self.assertEqual('w+', mode)
+
+        # Check that "1\n" was written to the file
+        m().write.assert_called_once_with("1\n")
+
+
+class TestQat4xxxDevice(unittest.TestCase):
+
+    @patch("pathlib.Path.open", new_callable=mock_open)
+    @patch("qatctl.get_pci_ids", return_value=[])
+    @patch("qatctl.QatDeviceDebugfs")
+    @patch("qatctl.get_vfio_device", return_value=11)
+    def test_ctor_vf(self, mock_file, mock_pci_ids, mock_debugfs, mock_get_vfio):
+        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
+        dev = Qat4xxxDevice(device_id, "00:00.0", is_virtual_function=True)
+        self.assertEqual(dev.vfio['vfio_dev'], '/dev/vfio/11')
+        self.assertEqual(hasattr(dev, "vfs"), False)
+        # test repr
+        self.assertEqual(str(dev), '00:00.0\t{\n  "vfio_dev": "/dev/vfio/11",\n  "numa_node": ""\n}')
+
+    @patch("pathlib.Path.open", new_callable=mock_open)
+    @patch("qatctl.get_pci_ids", return_value=['00:00.9'])
+    @patch("qatctl.QatDeviceDebugfs")
+    @patch("qatctl.get_vfio_device", return_value=11)
+    def test_ctor_pf(self, mock_file, mock_pci_ids, mock_debugfs, mock_get_vfio):
+        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
+        dev = Qat4xxxDevice(device_id, "00:00.0", is_virtual_function=False)
+        self.assertEqual(hasattr(dev, "vfio"), False)
+        self.assertEqual(dev.vfs[0].pci_id, "00:00.9")
+        # test repr
+        self.assertIn('00:00.0	/sys/bus/pci/devices/0000:00:00.0', str(dev))
+        self.assertIn('VF: 00:00.9 - /dev/vfio/11', str(dev))
+
+    @patch("pathlib.Path.open", new_callable=mock_open, read_data="up")
+    @patch("qatctl.get_pci_ids", return_value=[])
+    def test_state_properties(self, mock_file, mock_pci_ids):
+        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
+        with patch("pathlib.Path.__truediv__", return_value=pathlib.Path("/mock/path")), \
+             patch("qatctl.QatDeviceDebugfs"):
+            dev = Qat4xxxDevice(device_id, "00:00.0")
+            self.assertEqual(dev.state, "up")
+        
+    @patch("pathlib.Path.open", new_callable=mock_open, read_data="up")
+    def test_set_state_and_cfg_services(self, mock_file):
+        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
+        with patch("qatctl.get_pci_ids", return_value=[]), \
+             patch("pathlib.Path.open", mock_open(read_data="up")), \
+             patch("qatctl.QatDeviceDebugfs"):
+            dev = Qat4xxxDevice(device_id, "00:00.0")
+            dev.set_state("down")
+            dev.set_cfg_services("sym")
+            self.assertTrue(True)
+
+    @patch("builtins.open", new_callable=mock_open, read_data="on")
+    def test_auto_reset(self, mock_file):
+        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
+        with patch("qatctl.get_pci_ids", return_value=[]),              patch("qatctl.QatDeviceDebugfs"):
+            dev = Qat4xxxDevice(device_id, "00:00.0")
+            # force patching open inside Path context
+            with patch("pathlib.Path.open", mock_open(read_data="on")):
+                self.assertEqual(dev.auto_reset, "on")
+
+class TestQatDeviceDebugfs(unittest.TestCase):
+
+    def test_qat_device_debugfs_init(self):
+        mock_path = MagicMock()
+        mock_path.glob.return_value = [MagicMock(name="dev_cfg")]
+        with patch("qatctl.QatDeviceTelemetry"), \
+             patch("qatctl.QatDeviceDebugfs.read", return_value="cfg") as mock_read:
+            dbgfs = QatDeviceDebugfs(mock_path)
+            self.assertIn("telemetry", dbgfs)
+            self.assertEqual(dbgfs["dev_cfg"], "cfg")
+
+    @patch("qatctl.QatDeviceDebugfs.read", return_value="cfg")
+    def test_qat_device_debugfs_repr(self, mock_read):
+        mock_path = MagicMock()
+        mock_path.glob.return_value = [MagicMock(name="dev_cfg")]
+
+        class DummyTelemetry(dict):
+            def enable_telemetry(self):
+                pass
+
+            def __str__(self):
+                return json.dumps({"device_data": {"util_cph": [1, 2]}})
+
+        with patch("qatctl.QatDeviceTelemetry", return_value=DummyTelemetry()):
+            dbgfs = QatDeviceDebugfs(mock_path)
+            result = str(dbgfs)
+
+            self.assertIn("telemetry", result)
+            self.assertIn("dev_cfg", result)
 
 class TestQatCtl(unittest.TestCase):
 
@@ -129,21 +261,22 @@ class TestQatCtl(unittest.TestCase):
             self.assertEqual(result, 0)
 
 
-    @patch("builtins.open", new_callable=mock_open, read_data="up")
-    def test_qat4xxx_device_state_properties(self, mock_open_fn):
-        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
-        with patch("qatctl.get_pci_ids", return_value=[]),              patch("pathlib.Path.open", mock_open(read_data="up")),              patch("pathlib.Path.__truediv__", return_value=pathlib.Path("/mock/path")),              patch("qatctl.QatDeviceDebugfs") as mock_debugfs:
-            dev = Qat4xxxDevice(device_id, "00:00.0")
-            self.assertEqual(dev.state, "up")
+class TestQatDevManager(unittest.TestCase):
 
-    @patch("pathlib.Path.open", new_callable=mock_open, read_data="up")
-    def test_set_state_and_cfg_services(self, mock_file):
-        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
-        with patch("qatctl.get_pci_ids", return_value=[]),              patch("pathlib.Path.open", mock_open(read_data="up")),              patch("qatctl.QatDeviceDebugfs"):
-            dev = Qat4xxxDevice(device_id, "00:00.0")
-            dev.set_state("down")
-            dev.set_cfg_services("sym")
-            self.assertTrue(True)  # No exceptions
+    @patch("qatctl.get_pci_ids")
+    @patch("qatctl.Qat4xxxDevice")
+    @patch("builtins.print")
+    def test_status_dev(self, mock_print, mock_dev, mock_get_ids):
+        mock_dev_instance = MagicMock()
+        mock_dev_instance.pci_id = "00:00.0"
+        mock_dev_instance.pci_device_id = {"driver": "4xxx"}
+
+        mock_get_ids.return_value = ["00:00.0"]
+        mock_dev.return_value = mock_dev_instance
+
+        manager = QatDevManager(filter_devs=["00:00.0"])
+        args = Namespace(vfio = True)
+        status_dev(args, manager)
 
     @patch("qatctl.get_pci_ids")
     @patch("qatctl.Qat4xxxDevice")
@@ -157,7 +290,9 @@ class TestQatCtl(unittest.TestCase):
         mock_dev.return_value = mock_dev_instance
 
         manager = QatDevManager(filter_devs=["00:00.0"])
-        manager.list_devices(short=True)
+        args = Namespace(short = True)
+        # calling list_dev is equivalent to call manager.list_devices(short=True)
+        list_dev(args, manager)
 
         # Gather printed calls and assert expected content
         printed_lines = [call.args[0] for call in mock_print.call_args_list]
@@ -170,25 +305,6 @@ class TestQatCtl(unittest.TestCase):
         telemetry.debugfs_enabled = True
         control_data = telemetry.control()
         self.assertEqual(control_data, "control")
-
-    def test_qat_device_debugfs_init(self):
-        mock_path = MagicMock()
-        mock_path.glob.return_value = [MagicMock(name="dev_cfg")]
-        with patch("qatctl.QatDeviceTelemetry"),              patch("qatctl.QatDeviceDebugfs.read", return_value="cfg") as mock_read:
-            dbgfs = QatDeviceDebugfs(mock_path)
-            self.assertIn("telemetry", dbgfs)
-            self.assertEqual(dbgfs["dev_cfg"], "cfg")
-
-class TestQatCtlMoreCoverage(unittest.TestCase):
-
-    @patch("builtins.open", new_callable=mock_open, read_data="on")
-    def test_qat4xxx_device_auto_reset(self, mock_file):
-        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
-        with patch("qatctl.get_pci_ids", return_value=[]),              patch("qatctl.QatDeviceDebugfs"):
-            dev = Qat4xxxDevice(device_id, "00:00.0")
-            # force patching open inside Path context
-            with patch("pathlib.Path.open", mock_open(read_data="on")):
-                self.assertEqual(dev.auto_reset, "on")
 
     @patch("qatctl.get_pci_ids", return_value=["00:00.0"])
     @patch("qatctl.Qat4xxxDevice")
@@ -208,7 +324,6 @@ class TestQatCtlMoreCoverage(unittest.TestCase):
         manager = QatDevManager(filter_devs=["00:00.0"])
         with patch("builtins.print") as mock_print:
             manager.get_state()
-            mock_print.assert_any_call("coucou")
             mock_print.assert_any_call("up")
 
     @patch("qatctl.get_pci_ids", return_value=["00:00.0"])
@@ -236,6 +351,8 @@ class TestQatCtlMoreCoverage(unittest.TestCase):
         with patch("builtins.print") as mock_print:
             manager.print_vfio()
             mock_print.assert_any_call("/dev/vfio/10")
+
+class TestQatCli(unittest.TestCase):
 
     @patch("qatctl.QatDevManager")
     def test_qatctl_cli_set_state(self, MockManager):
@@ -287,25 +404,6 @@ class TestQatCtlFinalCoverage(unittest.TestCase):
         telemetry = QatDeviceTelemetry(path)
         self.assertFalse(telemetry.is_debugfs_enabled())
 
-    @patch("qatctl.QatDeviceDebugfs.read", return_value="cfg")
-    def test_qat_device_debugfs_repr(self, mock_read):
-        mock_path = MagicMock()
-        mock_path.glob.return_value = [MagicMock(name="dev_cfg")]
-
-        class DummyTelemetry(dict):
-            def enable_telemetry(self):
-                pass
-
-            def __str__(self):
-                return json.dumps({"device_data": {"util_cph": [1, 2]}})
-
-        with patch("qatctl.QatDeviceTelemetry", return_value=DummyTelemetry()):
-            dbgfs = QatDeviceDebugfs(mock_path)
-            result = str(dbgfs)
-
-            self.assertIn("telemetry", result)
-            self.assertIn("dev_cfg", result)
-
     @patch("qatctl.get_pci_ids", return_value=["00:00.0"])
     @patch("qatctl.Qat4xxxDevice")
     def test_qatctl_cli_get_state(self, mock_dev_class, mock_ids):
@@ -318,7 +416,6 @@ class TestQatCtlFinalCoverage(unittest.TestCase):
         )
         with patch("builtins.print") as mock_print:
             qatctl(args, None)
-            mock_print.assert_any_call("coucou")
             mock_print.assert_any_call("up")
 
     @patch("qatctl.get_pci_ids", return_value=["00:00.0"])

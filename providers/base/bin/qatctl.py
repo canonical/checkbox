@@ -275,6 +275,21 @@ class Qat4xxxDevice:
         is_virtual_function=False,
         parent_pf=None,
     ):
+        """
+        Constructor
+
+        Args:
+            pci_device_id (dict): dictionary that contains the
+                - PCI device ID for PF
+                - PCI device ID for VF
+                - kernel driver name (4xxx)
+            pci_id (str): the PCI BDF of the device
+            is_virtual_function (bool):
+            parent_pf (Qat4xxxDevice) :
+
+        Returns:
+            Qat4xxxDevice object
+        """
         self.pci_device_id = pci_device_id
         self.pci_id = pci_id
         self.bdf = f"0000:{self.pci_id}"
@@ -357,7 +372,6 @@ class Qat4xxxDevice:
     @property
     def state(self):
         path = self.sys_path / "qat" / "state"
-        print(path)
         with path.open() as f:
             data = f.read()
         return data.replace("\n", "")
@@ -450,7 +464,6 @@ class QatDevManager:
             d.set_cfg_services(service)
 
     def get_state(self):
-        print('coucou')
         for d in self.qat_devs:
             print(d.state)
 

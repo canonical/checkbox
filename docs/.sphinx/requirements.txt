@@ -5,8 +5,3 @@ sphinx-last-updated-by-git
 sphinx-sitemap
 sphinx-jsonschema
 sphinxcontrib-mermaid
-# psutil
-# setuptools-scm
-# sphinx-autobuild
-# tqdm
-# urwid

@@ -10,7 +10,7 @@ import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from datetime import datetime
 import time
-
+import platform
 
 # Checkbox could run in a snap container, so we need to prepend this root path
 RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
@@ -187,7 +187,9 @@ class FwtsTester:
         return shutil.which("fwts") is not None
 
     def fwts_log_check_passed(
-        self, output_directory: str, fwts_arguments=["klog", "oops"]
+        self,
+        output_directory: str,
+        fwts_arguments: T.Sequence[str] = ["klog", "oops"],
     ) -> bool:
         """
         Check if fwts logs passes the checks specified in sleep_test_log_check
@@ -229,10 +231,14 @@ class HardwareRendererTester:
         # "-s" guarantees at most 1 result
         # do not use check_output here,
         # pidof will return 1 when process is not found
-        gnome_pid = sp.run(["pidof", "-s", "gnome-shell"], stdout=sp.PIPE)
+        gnome_pid = sp.run(
+            ["pidof", "-s", "gnome-shell"],
+            stdout=sp.PIPE,
+            universal_newlines=True,
+        )
         # TODO: remove unity related checks after 16.04 reaches EOL
         compiz_pid = sp.run(  # 16.04 only
-            ["pidof", "-s", "compiz"], stdout=sp.PIPE
+            ["pidof", "-s", "compiz"], stdout=sp.PIPE, universal_newlines=True
         )
 
         desktop_pid = None  # type: int | None
@@ -317,6 +323,52 @@ class HardwareRendererTester:
 
         return connected_to_display
 
+    def pick_glmark2_executable(
+        self, xdg_session_type: T.Optional[str], cpu_arch: str
+    ) -> str:
+        """
+        Pure function that picks a glmark2 executable based on xdg_session_type
+        and cpu arch
+
+        :param xdg_session_type: the $XDG_SESSION_TYPE variable
+        :param cpu_arch: the `uname -m` value like x86_64
+        :return: glmark2 command to use. Caller is responsible for checking if
+                 the command exists
+        """
+        if cpu_arch in ("x86_64", "amd64"):
+            # x86 DUTs should run the version that uses the full opengl api
+            glmark2_executable = "glmark2"
+        else:
+            # default to es2 as the common denominator
+            # TODO: explicitly check for aarch64?
+            glmark2_executable = "glmark2-es2"
+
+        if xdg_session_type == "wayland":
+            glmark2_executable += "-wayland"
+        # if x11, don't add anything
+        return glmark2_executable
+
+    def gl_renderer_str_is_hardware_renderer(self, gl_renderer: str) -> bool:
+        """Checks if gl_renderer is produced by a hardware renderer.
+
+        This uses the same logic as unity_support_test. Details:
+        https://github.com/canonical/checkbox/issues/1630#issuecomment-2540843110
+
+        :param gl_renderer: the GL_RENDERER string.
+        https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetString.xhtml
+        :return: whether GL_RENDERER is produced by a hardware renderer
+        """
+        # These 2 values are carried over from unity_support_test
+        # never seen this before on devices after ubuntu 16
+        if gl_renderer in ("Software Rasterizer", "Mesa X11"):
+            return False
+        # https://docs.mesa3d.org/envvars.html#envvar-GALLIUM_DRIVER
+        # it's almost always the 'llvmpipe' case if we find software rendering
+        if "llvmpipe" in gl_renderer or "softpipe" in gl_renderer:
+            return False
+
+        return True
+
     def is_hardware_renderer_available(self) -> bool:
         """
         Checks if hardware rendering is being used by calling glmark2
@@ -324,7 +376,6 @@ class HardwareRendererTester:
         - self.has_display_connection() should be called first if unsure
 
         :return: True if a hardware renderer is active, otherwise return False
-        :rtype: bool
         """
 
         desktop_env_vars = self.get_desktop_environment_variables()
@@ -347,35 +398,33 @@ class HardwareRendererTester:
                 file=sys.stderr,
             )
 
-        cpu_arch = sp.check_output(
-            ["uname", "-m"], universal_newlines=True
-        ).strip()
-
-        if cpu_arch in ("x86_64", "amd64"):
-            # x86 DUTs should run the version that uses the full opengl api
-            glmark2_executable = "glmark2"
-        else:
-            # TODO: explicitly check for aarch64?
-            glmark2_executable = "glmark2-es2"
-
-        if XDG_SESSION_TYPE == "wayland":
-            glmark2_executable += "-wayland"
-        # if x11, don't add anything
-
+        glmark2_executable = self.pick_glmark2_executable(
+            XDG_SESSION_TYPE, platform.uname().machine
+        )
         glmark2_data_path = "/usr/share/glmark2"
+
         try:
             if RUNTIME_ROOT and not os.path.exists(glmark2_data_path):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 is hard-coded inside glmark2
-                print("[ DEBUG ] Symlinking glmark2 data")
+                # by the GLMARK_DATA_PATH build macro
+                src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
+                dst = glmark2_data_path
+                print(
+                    "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
+                        src, dst
+                    )
+                )
+                os.symlink(src, dst, target_is_directory=True)
                 os.symlink(
                     "{}/usr/share/glmark2".format(RUNTIME_ROOT),
                     glmark2_data_path,
                     target_is_directory=True,
                 )
             # override is needed for snaps on classic ubuntu
+            # to allow the glmark2 command itself to be discovered
             desktop_env_vars["PATH"] = os.environ["PATH"]
             glmark2_output = sp.run(
                 # all glmark2 programs share the same args
@@ -427,25 +476,15 @@ class HardwareRendererTester:
             )
             return False
 
-        # See the discussion on checkbox issue 1630
-        # this is the same logic as unity_support_test
-        is_hardware_rendered = True
         gl_renderer = gl_renderer_line.split(":")[-1].strip()
         print(
             "GL_RENDERER found by {} is: {}".format(
                 glmark2_executable, gl_renderer
             )
         )
-
-        # this is carried over from unity_support_test
-        # never seen this before on devices after ubuntu 16
-        if gl_renderer in ("Software Rasterizer", "Mesa X11"):
-            is_hardware_rendered = False
-        # https://docs.mesa3d.org/envvars.html#envvar-GALLIUM_DRIVER
-        # it's almost always the 'llvmpipe' case if we find software rendering
-        if "llvmpipe" in gl_renderer or "softpipe" in gl_renderer:
-            is_hardware_rendered = False
-
+        is_hardware_rendered = self.gl_renderer_str_is_hardware_renderer(
+            gl_renderer
+        )
         if is_hardware_rendered:
             print("[ OK ] This machine is using a hardware renderer!")
             return True

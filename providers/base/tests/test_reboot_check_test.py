@@ -76,7 +76,13 @@ class DisplayConnectionTests(unittest.TestCase):
         )
 
     @patch("subprocess.run")
-    def test_is_hardware_renderer_available_fail(self, mock_run: MagicMock):
+    @patch("os.getenv")
+    def test_is_hardware_renderer_available_fail(
+        self, mock_getenv: MagicMock, mock_run: MagicMock
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
         mock_run.return_value = sp.CompletedProcess(
             [],
             0,  # glmark2 returns 0 as long as it finishes
@@ -513,3 +519,7 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), self.assertRaises(ValueError):
             RCT.main()
+
+
+if __name__ == "__main__":
+    unittest.main()

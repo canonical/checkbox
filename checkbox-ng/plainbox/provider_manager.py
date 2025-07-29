@@ -385,20 +385,6 @@ class InstallCommand(ManageCommand):
                     pass
                 _logger.info(_("copying: %s => %s"), src_name, dst_name)
                 shutil.copytree(src_name, dst_name)
-                self._set_executable_permissions(dst_name, 0o775)
-
-    def _set_executable_permissions(self, file_path, permissions=0o775):
-        """
-        Sets the permissions of a given executable file.
-
-        :param file_path: The full path to the executable file.
-        :param permissions: The octal permission mode (default is 0o775).
-        """
-        try:
-            os.chmod(file_path, permissions)
-            _logger.info("Changed permissions of %s to %o", file_path, permissions)
-        except OSError as e:
-            _logger.warning("Failed to change permissions of %s: %s", file_path, e)
 
     def _get_dest_map(self, layout, prefix):
         # Compute directory layout

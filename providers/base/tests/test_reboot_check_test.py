@@ -19,6 +19,8 @@ class DisplayConnectionTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.tester = RCT.HardwareRendererTester()
+        RCT.RUNTIME_ROOT = ""
+        RCT.SNAP = ""
 
     def test_display_check_happy_path(self):
         with patch(
@@ -263,8 +265,6 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_unlink: MagicMock,
         mock_islink: MagicMock,
     ):
-        before_test_envs = [RCT.RUNTIME_ROOT, RCT.SNAP]
-
         def custom_env(key: str, is_snap: bool) -> str:
             if key == "XDG_SESSION_TYPE":
                 return "wayland"
@@ -302,8 +302,6 @@ class DisplayConnectionTests(unittest.TestCase):
 
             mock_symlink.reset_mock()
             mock_unlink.reset_mock()
-
-        RCT.RUNTIME_ROOT, RCT.SNAP = before_test_envs
 
     def test_slow_boot_scenario(self):
 

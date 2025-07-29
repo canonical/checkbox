@@ -19,7 +19,6 @@
 import json
 from unittest import TestCase, mock
 
-from checkbox_ng.launcher.agent import is_the_session_noninteractive
 from checkbox_ng.launcher.agent import exit_if_port_unavailable
 from checkbox_ng.launcher.agent import RemoteAgent
 from plainbox.impl.session.assistant import ResumeCandidate
@@ -118,61 +117,11 @@ class AgentTests(TestCase):
 
         geteuid_mock.return_value = 0
 
-        ctx_mock.sa.get_resumable_sessions.return_value = [
-            ResumeCandidate("an_id", SessionMetaData())
-        ]
-        with mock.patch(
-            "checkbox_ng.launcher.agent.is_the_session_noninteractive"
-        ) as itni:
-            itni.return_value = True
 
-            RemoteAgent.invoked(self_mock, ctx_mock)
-            self.assertTrue(
-                remote_assistant_mock.return_value.resume_by_id.called
-            )
-
-        remote_assistant_mock.reset_mock()
-
-        with mock.patch(
-            "checkbox_ng.launcher.agent.is_the_session_noninteractive"
-        ) as itni:
-            itni.return_value = False
-
-            RemoteAgent.invoked(self_mock, ctx_mock)
-            self.assertFalse(
-                remote_assistant_mock.return_value.resume_by_id.called
-            )
-
-
-class IsTheSessionNonInteractiveTests(TestCase):
-    def test_a_non_interactive_one(self):
-        a_non_interactive_launcher = """
-            [ui]
-            type = silent
-        """
-        app_blob = json.dumps({"launcher": a_non_interactive_launcher})
-        metadata = SessionMetaData(app_blob=app_blob.encode("utf-8"))
-
-        candidate = ResumeCandidate("an_id", metadata)
-        self.assertTrue(is_the_session_noninteractive(candidate))
-
-    def test_an_interactive(self):
-        an_interactive_launcher = """
-            [ui]
-            type = interactive
-        """
-        app_blob = json.dumps({"launcher": an_interactive_launcher})
-        metadata = SessionMetaData(app_blob=app_blob.encode("utf-8"))
-
-        candidate = ResumeCandidate("an_id", metadata)
-        self.assertFalse(is_the_session_noninteractive(candidate))
-
-    def test_no_launcher_in_app_blob(self):
-        app_blob = json.dumps({})
-        metadata = SessionMetaData(app_blob=app_blob.encode("utf-8"))
-
-        candidate = ResumeCandidate("an_id", metadata)
-        self.assertFalse(is_the_session_noninteractive(candidate))
+        RemoteAgent.invoked(self_mock, ctx_mock)
+        self.assertFalse(
+            remote_assistant_mock.return_value.resume_by_id.called
+        )
 
 
 class ExitIfPortUnavilableTests(TestCase):

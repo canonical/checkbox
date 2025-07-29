@@ -275,7 +275,7 @@ class HardwareRendererTester:
 
     def is_hardware_renderer_available(self) -> bool:
         """
-        Checks if hardware rendering is being used by calling glmark2
+        Checks if hardware rendering is being used by calling glmark2-es2
         THIS ASSUMES A DRM CONNECTION EXISTS
         - self.has_display_connection() should be called first if unsure
 
@@ -355,7 +355,7 @@ class HardwareRendererTester:
             return False
 
         # See the discussion on checkbox issue 1630
-        # the same logic as unity_support_test
+        # this is the same logic as unity_support_test
         is_hardware_rendered = True
         gl_renderer = gl_renderer_line.split(":")[-1].strip()
         print("Found GL_RENDERER: {}".format(gl_renderer))

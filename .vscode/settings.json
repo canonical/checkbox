@@ -1,5 +1,16 @@
 {
-    "[markdown]": {
-        "editor.formatOnSave": false
-    }
+   "[markdown]": {
+       "editor.formatOnSave": false
+   },
+   "python.analysis.extraPaths": [
+        "./checkbox-ng",
+        "./checkbox-support",
+        "./providers/base/bin",
+        "./providers/resource/bin"
+    ],
+    "python.testing.pytestArgs": [
+         "./checkbox-ng"
+    ],
+   "python.testing.pytestEnabled": true,
+   "python.testing.unittestEnabled": false
 }

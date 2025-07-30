@@ -7,8 +7,9 @@ import argparse
 def run_vk_test(test_file):
     result = subprocess.run(
         [
-            "/usr/local/checkbox-gfx/VK-GL-CTS/build/external/vulkancts/modules/vulkan/deqp-vk",
-            "--deqp-caselist-file=%s" % test_file,
+            "/usr/local/checkbox-gfx/VK-GL-CTS/build/external/vulkancts/"
+            "modules/vulkan/deqp-vk",
+            f"--deqp-caselist-file={test_file}",
         ],
         capture_output=True,
         text=True,

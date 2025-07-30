@@ -56,8 +56,7 @@ parts:
       - checkbox-provider-tools
       - checkbox24
     stage-packages:
-      - python3-tinydb
-      - python3-filelock
+      - flake8
     override-build: |
       for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       checkbox-provider-tools validate

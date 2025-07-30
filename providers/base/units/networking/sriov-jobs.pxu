@@ -9,9 +9,12 @@ environ: LXD_TEMPLATE LXD_ROOTFS
 flags: also-after-suspend
 _summary: SRIOV LXD container test for network device {interface}
 estimated_duration: 120.0
+imports: from com.canonical.plainbox import manifest
 requires: 
     executable.name == 'lxc'
     package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
+    manifest.has_sriov == 'True'
+depends: info/sriov-check_{interface}
 command:
     sriov.py --debug --interface {interface} lxd
 user: root
@@ -31,9 +34,12 @@ environ: LXD_TEMPLATE KVM_IMAGE
 flags: also-after-suspend
 _summary: SRIOV LXD VM test for network device {interface}
 estimated_duration: 180.0
+imports: from com.canonical.plainbox import manifest
 requires: 
     executable.name == 'lxc'
     package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
+    manifest.has_sriov == 'True'
+depends: info/sriov-check_{interface}
 command:
     sriov.py --debug --interface {interface} lxdvm
 user: root

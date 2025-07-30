@@ -116,7 +116,7 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
         self.assertEqual(mock_check_node.call_count, len(pressure_nodes))
         self.assertEqual(mock_read_text.call_count, len(pressure_nodes))
         # One call with all the collected readings
-        mock_check_reading.assert_called_once()
+        self.assertEqual(mock_check_reading.call_count, 1)
 
     @patch("pathlib.Path.read_text")
     @patch("iio_sensor_test._check_node")

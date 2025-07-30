@@ -134,7 +134,8 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 iio_sensor_test.check_sensor(
                     "test_sensor_name",
-                    "pressure", iio_sensor_test.NODE_MAPPING
+                    "pressure",
+                    iio_sensor_test.NODE_MAPPING,
                 )
 
     @patch("iio_sensor_test.check_sensor")

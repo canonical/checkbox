@@ -20,6 +20,7 @@ import unittest
 from unittest.mock import (
     patch,
     mock_open,
+    Mock,
     MagicMock
 )
 import pathlib
@@ -27,6 +28,8 @@ from argparse import Namespace
 import json
 
 from qatctl import (
+    QAT_PF_PCI_DEVICE_IDS,
+    build_parser,
     status_dev,
     list_dev,
     get_pci_ids,
@@ -174,7 +177,7 @@ class TestQat4xxxDevice(unittest.TestCase):
              patch("qatctl.QatDeviceDebugfs"):
             dev = Qat4xxxDevice(device_id, "00:00.0")
             self.assertEqual(dev.state, "up")
-        
+
     @patch("pathlib.Path.open", new_callable=mock_open, read_data="up")
     def test_set_state_and_cfg_services(self, mock_file):
         device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
@@ -189,15 +192,32 @@ class TestQat4xxxDevice(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="on")
     def test_auto_reset(self, mock_file):
         device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
-        with patch("qatctl.get_pci_ids", return_value=[]),              patch("qatctl.QatDeviceDebugfs"):
+        with patch("qatctl.get_pci_ids", return_value=[]), \
+             patch("qatctl.QatDeviceDebugfs"):
             dev = Qat4xxxDevice(device_id, "00:00.0")
-            # force patching open inside Path context
-            with patch("pathlib.Path.open", mock_open(read_data="on")):
-                self.assertEqual(dev.auto_reset, "on")
+            with patch("pathlib.Path.open", mock_open(read_data="off")):
+                self.assertEqual(dev.auto_reset, "off")
+
+    @patch("pathlib.Path.open", new_callable=mock_open)
+    def test_set_auto_reset(self, mock_file):
+        device_id = {"pf_id": "4940", "vf_id": "4941", "driver": "4xxx"}
+        with patch("qatctl.QatDeviceDebugfs"):
+            device = Qat4xxxDevice(device_id, "00:00.0")
+            device.set_auto_reset(True)
+
+            mock_file.assert_called_once_with("w+")
+            mock_file().write.assert_called_once_with("on")
+
+            mock_file.reset_mock()
+            device.set_auto_reset(False)
+
+            mock_file.assert_called_once_with("w+")
+            mock_file().write.assert_called_once_with("off")
+
 
 class TestQatDeviceDebugfs(unittest.TestCase):
 
-    def test_qat_device_debugfs_init(self):
+    def test_ctor(self):
         mock_path = MagicMock()
         mock_path.glob.return_value = [MagicMock(name="dev_cfg")]
         with patch("qatctl.QatDeviceTelemetry"), \
@@ -206,8 +226,32 @@ class TestQatDeviceDebugfs(unittest.TestCase):
             self.assertIn("telemetry", dbgfs)
             self.assertEqual(dbgfs["dev_cfg"], "cfg")
 
+    @patch("qatctl.QatDeviceTelemetry")
+    @patch("pathlib.Path.glob")
+    def test_read(self, mock_glob, mock_telemetry):
+        fake_path = pathlib.Path("/fake/debugfs")
+        fake_file = fake_path / "dev_cfg"
+
+        # Mock the glob to simulate existing files
+        mock_glob.return_value = [fake_path / "dev_cfg"]
+
+        # Use mock_open to simulate file reading
+        m_open = mock_open(read_data="fake content of dev_cfg")
+
+        with patch("pathlib.Path.open", m_open):
+            device = QatDeviceDebugfs(fake_path)
+
+        # Assert the content was correctly read into the dict
+        self.assertEqual(device["dev_cfg"], "fake content of dev_cfg")
+
+        # Confirm that the file was opened exactly once
+        m_open.assert_called_once()
+
+        # Optional: check that telemetry was enabled
+        mock_telemetry.return_value.enable_telemetry.assert_called_once()
+
     @patch("qatctl.QatDeviceDebugfs.read", return_value="cfg")
-    def test_qat_device_debugfs_repr(self, mock_read):
+    def test_repr(self, mock_read):
         mock_path = MagicMock()
         mock_path.glob.return_value = [MagicMock(name="dev_cfg")]
 
@@ -260,23 +304,27 @@ class TestQatCtl(unittest.TestCase):
             result = get_vfio_device("0000:00:01.0")
             self.assertEqual(result, 0)
 
+    def test_status_dev(self):
+        qat_manager = Mock()
+        qat_manager.print_vfio = Mock()
+        qat_manager.print_vf = Mock()
+        qat_manager.print_cfg = Mock()
+
+        args = Namespace(cfg = False, vf = False, vfio = True)
+        status_dev(args, qat_manager)
+        qat_manager.print_vfio.assert_called_once()
+        qat_manager.print_vf.assert_not_called()
+        qat_manager.print_cfg.assert_not_called()
+
+        args = Namespace(cfg = False, vf = True, vfio = False)
+        status_dev(args, qat_manager)
+        qat_manager.print_vf.assert_called_once()
+
+        args = Namespace(cfg = True, vf = False, vfio = False)
+        status_dev(args, qat_manager)
+        qat_manager.print_cfg.assert_called_once()
 
 class TestQatDevManager(unittest.TestCase):
-
-    @patch("qatctl.get_pci_ids")
-    @patch("qatctl.Qat4xxxDevice")
-    @patch("builtins.print")
-    def test_status_dev(self, mock_print, mock_dev, mock_get_ids):
-        mock_dev_instance = MagicMock()
-        mock_dev_instance.pci_id = "00:00.0"
-        mock_dev_instance.pci_device_id = {"driver": "4xxx"}
-
-        mock_get_ids.return_value = ["00:00.0"]
-        mock_dev.return_value = mock_dev_instance
-
-        manager = QatDevManager(filter_devs=["00:00.0"])
-        args = Namespace(vfio = True)
-        status_dev(args, manager)
 
     @patch("qatctl.get_pci_ids")
     @patch("qatctl.Qat4xxxDevice")
@@ -352,6 +400,40 @@ class TestQatDevManager(unittest.TestCase):
             manager.print_vfio()
             mock_print.assert_any_call("/dev/vfio/10")
 
+    def test_collect_telemetry(self):
+        # Create fake telemetry objects with a mocked collect method
+        mock_telemetry1 = MagicMock()
+        mock_telemetry2 = MagicMock()
+
+        # Create mock debugfs that returns mock telemetry
+        mock_debugfs1 = MagicMock()
+        mock_debugfs1.get.return_value = mock_telemetry1
+
+        mock_debugfs2 = MagicMock()
+        mock_debugfs2.get.return_value = mock_telemetry2
+
+        # Create mock qat_devs list
+        mock_dev1 = MagicMock()
+        mock_dev1.debugfs = mock_debugfs1
+
+        mock_dev2 = MagicMock()
+        mock_dev2.debugfs = mock_debugfs2
+
+        obj = QatDevManager()
+        obj.qat_devs = [mock_dev1, mock_dev2]
+
+        obj.collect_telemetry()
+
+        self.assertEqual(mock_telemetry1.collect.call_count, 1)
+        self.assertEqual(mock_telemetry2.collect.call_count, 1)
+
+        total_calls = (
+            mock_telemetry1.collect.call_count +
+            mock_telemetry2.collect.call_count
+        )
+        self.assertEqual(total_calls, 2)
+
+
 class TestQatCli(unittest.TestCase):
 
     @patch("qatctl.QatDevManager")
@@ -378,6 +460,16 @@ class TestQatCli(unittest.TestCase):
             mock_mgr.set_cfg_services.assert_called_once_with("sym")
             mock_print.assert_any_call("Set device service : sym")
             mock_print.assert_any_call("Please restart qat service to update the config")
+
+    @patch("qatctl.QatDevManager")
+    def test_qatctl_get_telemetry_data(self, MockManager):
+        mock_mgr = MockManager.return_value
+        args = Namespace(
+            set_state=None, get_state=False, get_telemetry_data=True,
+            set_service=None, func=None, devices=None
+        )
+        qatctl(args, None)
+        mock_mgr.get_telemetry_data.assert_called_once()
 
 class TestQatCtlFinalCoverage(unittest.TestCase):
 
@@ -435,6 +527,56 @@ class TestQatCtlFinalCoverage(unittest.TestCase):
 
         with self.assertRaises(SystemExit):
             qatctl(args, None)
+
+class TestMain(unittest.TestCase):
+
+    def test_set_state_up_with_devices(self):
+        parser = build_parser()
+        args = parser.parse_args(["--set-state", "up", "-d", "0000:00:01.0", "0000:00:02.0"])
+        self.assertEqual(args.set_state, "up")
+        self.assertEqual(args.devices, ["0000:00:01.0", "0000:00:02.0"])
+        self.assertFalse(args.get_state)
+        self.assertFalse(args.get_telemetry_data)
+
+    def test_get_state(self):
+        parser = build_parser()
+        args = parser.parse_args(["--get-state"])
+        self.assertTrue(args.get_state)
+        self.assertIsNone(args.set_state)
+        self.assertIsNone(args.devices)
+
+    def test_set_service_crypto(self):
+        parser = build_parser()
+        args = parser.parse_args(["--set-service", "asym"])
+        self.assertEqual(args.set_service, "asym")
+
+    def test_invalid_service(self):
+        parser = build_parser()
+        with self.assertRaises(SystemExit):  # argparse raises SystemExit on invalid input
+            parser.parse_args(["--set-service", "invalid_service"])
+
+    def test_get_telemetry_data_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--get-telemetry-data"])
+        self.assertTrue(args.get_telemetry_data)
+
+    def test_list_subcommand_default(self):
+        parser = build_parser()
+        args = parser.parse_args(["list"])
+        self.assertEqual(args.command, "list")
+        self.assertFalse(args.short)  # `--short` not provided
+
+    def test_list_subcommand_short_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["list", "--short"])
+        self.assertEqual(args.command, "list")
+        self.assertTrue(args.short)
+
+    def test_list_subcommand_short_flag_alias(self):
+        parser = build_parser()
+        args = parser.parse_args(["list", "-s"])
+        self.assertEqual(args.command, "list")
+        self.assertTrue(args.short)
 
 if __name__ == '__main__':
     unittest.main()

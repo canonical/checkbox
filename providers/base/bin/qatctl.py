@@ -565,8 +565,7 @@ cfg_services = [
     "dc;sym",
 ]
 
-
-def main():
+def build_parser():
     parser = argparse.ArgumentParser(description="QAT control utility")
     parser.add_argument(
         "-d",
@@ -602,7 +601,7 @@ def main():
         help="get device telemetry data",
     )
     parser.add_argument_group("list group")
-    subparser = parser.add_subparsers()
+    subparser = parser.add_subparsers(dest='command')
     parser_list_dev = subparser.add_parser("list")
     parser_list_dev.add_argument(
         "--short",
@@ -631,8 +630,13 @@ def main():
         help="list VFIO devices for all VFs",
     )
     parser_status.set_defaults(func=status_dev)
-    results = parser.parse_args()
-    qatctl(results, parser)
+    return parser
+
+
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
+    qatctl(args, parser)
 
 
 if __name__ == "__main__":

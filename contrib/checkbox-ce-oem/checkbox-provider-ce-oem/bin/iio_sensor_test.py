@@ -220,7 +220,7 @@ def dump_sensor_resource(args):
         else:
             name, sensor_type, input_num = parts
             output += resource_text.format(name, sensor_type, input_num)
-    print(output)
+    print(output, end="")
 
 
 def register_arguments():

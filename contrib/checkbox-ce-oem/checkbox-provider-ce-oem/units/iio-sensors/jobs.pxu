@@ -27,6 +27,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_iio_sensors == 'True'
 flags: also-after-suspend
 command:
+    # shellcheck disable=SC2050
     echo "## Perform the industrial I/O {{ type }}-{{ name }} sensor test"
     if [[ {{ input_num }} == "None" ]] ; then
         iio_sensor_test.py test -t {{ type }} -n {{ name }}

@@ -6,21 +6,24 @@
             "pads": [
                 {
                     "action": "set_format",
-                    "node": "ap1302.5-003c",
+                    "node": "ap1302.0-003c",
                     "source": 2,
-                    "fmt": "UYVY8_1X16"
+                    "fmt": "UYVY8_1X16",
+                    "field": "none"
                 },
                 {
                     "action": "set_format",
                     "node": "seninf-0",
                     "source": 1,
-                    "fmt": "UYVY8_1X16"
+                    "fmt": "UYVY8_1X16",
+                    "field": "none"
                 },
                 {
                     "action": "set_format",
                     "node": "mtk-cam camsv-0",
                     "source": 1,
-                    "fmt": "UYVY8_1X16"
+                    "fmt": "UYVY8_1X16",
+                    "field": "none"
                 }
             ],
             "links": [
@@ -32,7 +35,7 @@
                     "flags": 5
                 },
                 {
-                    "source_entity": "ap1302.5-003c",
+                    "source_entity": "ap1302.0-003c",
                     "source_pad_number": 2,
                     "sink_entity": "seninf-0",
                     "sink_pad_number": 0,

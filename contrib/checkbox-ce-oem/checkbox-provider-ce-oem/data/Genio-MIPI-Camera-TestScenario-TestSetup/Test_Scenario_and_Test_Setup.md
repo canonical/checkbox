@@ -24,7 +24,11 @@ V4L2 Sensor configurations require both test scenario and test setup files to be
 
 - Documentation: [G1200 EVK V4L2 YUV](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g1200-evk-v4l2-yuv.html)
 - Documentation: [G700 EVK V4L2 YUV](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g700-evk-v4l2-yuv.html)
-- Configuration: [`genio_mipi_camera_test_setup_AP1302_AR0830.json`](genio_mipi_camera_test_setup_AP1302_AR0830.json)
+- Configuration:
+  - [`genio_mipi_camera_test_setup_AP1302_AR0830_G1200.json`](genio_mipi_camera_test_setup_AP1302_AR0830_G1200.json)
+  - [`genio_mipi_camera_test_setup_AP1302_AR0830_G700.json`](genio_mipi_camera_test_setup_AP1302_AR0830_G700.json)
+
+> **Note:** The `genio_mipi_camera_test_setup_AP1302_AR0830_G1200.json` is for G1200 EVK, and the `genio_mipi_camera_test_setup_AP1302_AR0830_G700.json` is for G700/G501 EVK. There is a difference in the sensor node name between G1200 EVK and G700 EVK.
 
 **Formats and Resolutions:**
 

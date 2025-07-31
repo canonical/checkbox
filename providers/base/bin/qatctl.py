@@ -77,8 +77,9 @@ def get_pci_ids(device_id: str, vendor_id: str = ""):
                    (e.g., ['0000:00:01.0', '0000:00:02.0']).
     """
     args: List[str] = ["lspci", "-d", f"{vendor_id}:{device_id}"]
-    devices = subprocess.check_output(args, universal_newlines=True) \
-                        .splitlines()
+    devices = subprocess.check_output(
+        args, universal_newlines=True
+    ).splitlines()
     return [v.split(" ")[0] for v in devices]
 
 
@@ -252,8 +253,9 @@ class QatDeviceDebugfs(dict):
         for fname in files:
             self.__setitem__(f"{fname.name}", {})
 
-        self.__setitem__("telemetry",
-                         QatDeviceTelemetry(self.path / "telemetry"))
+        self.__setitem__(
+            "telemetry", QatDeviceTelemetry(self.path / "telemetry")
+        )
         self.get("telemetry").enable_telemetry()
 
         self.__setitem__("dev_cfg", self.read("dev_cfg"))
@@ -430,12 +432,16 @@ class QatDevManager:
                         # available in the sysfs and debugfs. for
                         # example, it has been passthrough in a VM,
                         # we do not want to crash
-                        print(f"Exception occured to instanciate QAT device : {e}")  # noqa: E501
+                        print(
+                            f"Exception occured to instanciate QAT dev : {e}"
+                        )
                         pass
             self.qat_devs.extend(_devs)
 
     def filter_counter(counter_name):
-        if QatDevManager.counters and (counter_name not in QatDevManager.counters):  # noqa: E501
+        if QatDevManager.counters and (
+            counter_name not in QatDevManager.counters
+        ):  # noqa: E501
             return False
         return True
 
@@ -565,6 +571,7 @@ cfg_services = [
     "dc;sym",
 ]
 
+
 def build_parser():
     parser = argparse.ArgumentParser(description="QAT control utility")
     parser.add_argument(
@@ -601,7 +608,7 @@ def build_parser():
         help="get device telemetry data",
     )
     parser.add_argument_group("list group")
-    subparser = parser.add_subparsers(dest='command')
+    subparser = parser.add_subparsers(dest="command")
     parser_list_dev = subparser.add_parser("list")
     parser_list_dev.add_argument(
         "--short",

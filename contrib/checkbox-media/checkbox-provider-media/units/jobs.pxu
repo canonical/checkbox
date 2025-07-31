@@ -19,5 +19,5 @@ command:
   if [[ "{{ operation }}" == "decode" ]]; then
     run_ffmpeg.py --decode --video_url {{ video_url }} --libva_profile {{ libva_profile }} --libva_entrypoint {{ libva_entrypoint }}
   elif [[ "{{ operation }}" == "encode" ]]; then
-    run_ffmpeg.py --encode --video_url {{ video_url }} --libva_profile ' {{ libva_profile }} ' --libva_entrypoint ' {{ libva_entrypoint }} ' --ffmpeg_output_codec {{ ffmpeg_output_codec }} --output_container {{ output_container }}
+    run_ffmpeg.py --encode --video_url {{ video_url }} --libva_profile {{ libva_profile }} --libva_entrypoint {{ libva_entrypoint }} --ffmpeg_output_codec {{ ffmpeg_output_codec }} --output_container {{ output_container }}
   fi

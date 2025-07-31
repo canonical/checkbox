@@ -37,6 +37,25 @@ def get_all_trace_contents(trace_dir):
 
 
 def has_profile_and_entrypoint(text, profile_val, entrypoint_val):
+    profile_vals = profile_val.split(",")
+    entrypoint_vals = entrypoint_val.split(",")
+
+    found_profile = False
+    found_entrypoint = False
+    for profile in profile_vals:
+        if f"profile = {profile}" in text:
+            found_profile = True
+            break
+
+    for entrypoint in entrypoint_vals:
+        if f"entrypoint = {entrypoint}" in text:
+            found_entrypoint = True
+            break
+
+    return found_entrypoint and found_profile
+
+
+def has_profile_and_entrypoint_old(text, profile_val, entrypoint_val):
     # These additions exist because Checkbox templating removes quotes
     # but parentheses can't be passed as an argument in bash without quotes.
     # So we add the quotes at the start and strip them here
@@ -134,7 +153,6 @@ def run_ffmpeg(
     if operation == "decode":
         command = ffmpeg_decode_command(video_filepath)
     elif operation == "encode":
-        output_file = RESOURCES_DIR + "output.{output_container}"
         command = ffmpeg_encode_command(
             video_filepath, ffmpeg_output_codec, output_container
         )
@@ -184,7 +202,8 @@ if __name__ == "__main__":
     # Just download resources to /tmp
 
     parser = argparse.ArgumentParser(
-        description="Runs a media decode operation and checks for HW acceleration"
+        description="Runs a media decode operation and checks for HW"
+        " acceleration"
     )
     parser.add_argument(
         "--video_url", required=True, help="URL to the video to decode"
@@ -202,12 +221,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ffmpeg_output_codec",
         required=False,
-        help="(Encode only) The ffmpeg name for the codec you want to encode for (i.e. vp9_vaapi)",
+        help="(Encode only) The ffmpeg name for the codec you want to encode"
+        " for (i.e. vp9_vaapi)",
     )
     parser.add_argument(
         "--output_container",
         required=False,
-        help="(Encode only) The video container you want to use for encode output (i.e. mp4, mkv)",
+        help="(Encode only) The video container you want to use for encode"
+        " output (i.e. mp4, mkv)",
     )
     parser.add_argument(
         "--decode", action="store_true", help="Run a decode operation"
@@ -219,7 +240,8 @@ if __name__ == "__main__":
 
     if args.decode and args.encode:
         print(
-            "Failed: Cannot have encode and decode mode enabled at the same time",
+            "Failed: Cannot have encode and decode mode enabled at the same"
+            " time",
             file=sys.stderr,
         )
         exit(1)
@@ -252,9 +274,10 @@ if __name__ == "__main__":
             filepath, args.libva_profile, args.libva_entrypoint, operation
         )
     else:
-        if args.ffmpeg_output_codec == None or args.output_container == None:
+        if args.ffmpeg_output_codec is None or args.output_container is None:
             print(
-                "Failed: The --encode flag requires --ffmpeg_output_codec and --output_container",
+                "Failed: The --encode flag requires --ffmpeg_output_codec and"
+                " --output_container",
                 file=sys.stderr,
             )
             exit(1)

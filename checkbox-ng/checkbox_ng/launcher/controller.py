@@ -34,6 +34,7 @@ import sys
 import itertools
 
 from collections import namedtuple
+from contextlib import suppress
 from functools import partial
 from tempfile import SpooledTemporaryFile
 
@@ -450,18 +451,21 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def bootstrap_and_continue(self, resume_payload=None):
         self.bootstrap(resume_payload=resume_payload)
+        if not self.jobs:
+            self.sa.finalize_session()
+            raise SystemExit("There were no tests to select from!")
         self.select_jobs(self.jobs)
-        self.run_interactable_jobs()
+        return self.run_interactable_jobs()
 
-    def automatically_start_via_launcher(self):
+    def auto_start_via_launcher_and_continue(self):
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
-        self.bootstrap_and_continue()
+        return self.bootstrap_and_continue()
 
-    def automatically_resume_last_session(self):
+    def resume_last_session_and_continue(self):
         last_abandoned_session = next(self.sa.get_resumable_sessions())
-        self.sa.resume_by_id(last_abandoned_session.id)
+        return self.resume_by_id(last_abandoned_session.id)
 
     def start_session(self):
         _logger.info("controller: Starting new session.")
@@ -480,81 +484,28 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def resume_or_start_new_session(self, *args):
         if self.should_start_via_autoresume():
-            self.automatically_resume_last_session()
+            return self.resume_last_session_and_continue()
         elif self.should_start_via_launcher():
-            self.automatically_start_via_launcher()
+            return self.auto_start_via_launcher_and_continue()
         else:
-            self.interactively_choose_tp()
+            return self.interactively_choose_test_plan_and_continue()
 
-        # here depending on where we got, lets continue the session
+        # this should be unreachable, innter functions must exit!
+        raise SystemExit("Invalid session flow, failed to terminate")
+
+    def resume_by_id(self, session_id, result_dict=None):
+        self.sa.resume_by_id(session_id, result_dict)
+        # resume_by_id will get us to a resumable state, lets see how to
+        # continue
+        self.continue_session()
+
+    def continue_session(self):
+        """
+        Continue the session as instructed from the remote assistant.
+        """
         state, payload = self.sa.whats_up()
         state = RemoteSessionStates(state)
-        connection_strategy = self.connection_strategy()
-        return connection_strategy[state](self, payload)
-
-    def _new_session_flow(self, tps, resumable_sessions):
-        tp_info_list = [{"id": tp[0], "name": tp[1]} for tp in tps]
-        if not tp_info_list:
-            _logger.error(_("There were no test plans to select from!"))
-            raise SystemExit(0)
-        selected_tp = TestPlanBrowser(
-            _("Select test plan"),
-            tp_info_list,
-            self.launcher.get_value("test plan", "unit"),
-            len(resumable_sessions),
-        ).run()
-        if selected_tp is None:
-            print(_("Nothing selected"))
-            raise SystemExit(0)
-        self.select_test_plan(selected_tp)
-        # TODO: This isn't using bootstrap_and_continue but it should
-        self.bootstrap()
-        if not self.jobs:
-            _logger.error(self.C.RED(_("There were no tests to select from!")))
-            self.sa.finalize_session()
-            return
-        self.select_jobs(self.jobs)
-
-    def _resume_session_menu(self, resumable_sessions):
-        """
-        Run the interactive resume menu.
-        Returns True if a session was resumed, False otherwise.
-        """
-        entries = [
-            (
-                candidate.id,
-                generate_resume_candidate_description(candidate),
-            )
-            for candidate in resumable_sessions
-        ]
-        while True:
-            # let's loop until someone selects something else than "delete"
-            # in other words, after each delete action let's go back to the
-            # resume menu
-
-            resume_params = ResumeMenu(entries).run()
-            if resume_params.action == "delete":
-                self.sa.delete_sessions([resume_params.session_id])
-                self.resume_candidates = list(self.sa.get_resumable_sessions())
-
-                # the entries list is just a copy of the resume_candidates,
-                # and it's not updated when we delete a session, so we need
-                # to update it manually
-                entries = [
-                    en for en in entries if en[0] != resume_params.session_id
-                ]
-
-                if not entries:
-                    # if everything got deleted let's go back to the test plan
-                    # selection menu
-                    return False
-            else:
-                break
-
-        if resume_params.session_id:
-            self._resume_session(resume_params)
-            return True
-        return False
+        return self.connection_strategy()[state](self, payload)
 
     def _resume_session(self, resume_params):
         metadata = self.sa.prepare_resume_session(resume_params.session_id)
@@ -602,21 +553,80 @@ class RemoteController(ReportsStage, MainLoopStage):
         elif resume_params.action == "rerun":
             # if the job outcome is set to none it will be rerun
             result_dict["outcome"] = None
-        self.sa.resume_by_id(resume_params.session_id, result_dict)
+        return self.resume_by_id(resume_params.session_id, result_dict)
 
-    def interactively_choose_tp(self):
+    def interactively_choose_test_plan_and_continue(self):
         tps = self.start_session()
         _logger.info("controller: Interactively choosing TP.")
-        something_got_chosen = False
-        while not something_got_chosen:
+        while True:
             resumable_sessions = list(self.sa.get_resumable_sessions())
-            try:
-                self._new_session_flow(tps, resumable_sessions)
-                something_got_chosen = True
-            except ResumeInstead:
-                something_got_chosen = self._resume_session_menu(
-                    resumable_sessions
-                )
+            with suppress(ResumeInstead):
+                self.select_test_plan_via_menu(tps, resumable_sessions)
+                return self.bootstrap_and_continue()
+            if self.resume_session_via_menu_and_continue(resumable_sessions):
+                return False
+
+    def select_test_plan_via_menu(self, tps, resumable_sessions):
+        """
+        Displays the test plan selection menu and selects the test plan.
+
+        Raises ResumeInstead if the resume menu is requested.
+        """
+        tp_info_list = [{"id": tp[0], "name": tp[1]} for tp in tps]
+        if not tp_info_list:
+            _logger.error(_("There were no test plans to select from!"))
+            raise SystemExit(0)
+        selected_tp = TestPlanBrowser(
+            _("Select test plan"),
+            tp_info_list,
+            self.launcher.get_value("test plan", "unit"),
+            len(resumable_sessions),
+        ).run()
+        if selected_tp is None:
+            print(_("Nothing selected"))
+            raise SystemExit(0)
+        self.select_test_plan(selected_tp)
+
+    def resume_session_via_menu_and_continue(self, resumable_sessions):
+        """
+        Run the interactive resume menu.
+        Returns True if a session was resumed, False otherwise.
+        """
+        entries = [
+            (
+                candidate.id,
+                generate_resume_candidate_description(candidate),
+            )
+            for candidate in resumable_sessions
+        ]
+        while True:
+            # let's loop until someone selects something else than "delete"
+            # in other words, after each delete action let's go back to the
+            # resume menu
+
+            resume_params = ResumeMenu(entries).run()
+            if resume_params.action == "delete":
+                self.sa.delete_sessions([resume_params.session_id])
+                self.resume_candidates = list(self.sa.get_resumable_sessions())
+
+                # the entries list is just a copy of the resume_candidates,
+                # and it's not updated when we delete a session, so we need
+                # to update it manually
+                entries = [
+                    en for en in entries if en[0] != resume_params.session_id
+                ]
+
+                if not entries:
+                    # if everything got deleted let's go back to the test plan
+                    # selection menu
+                    return False
+            else:
+                break
+
+        if resume_params.session_id:
+            self._resume_session(resume_params)
+            return True
+        return False
 
     def bootstrap(self, resume_payload=None):
         """

@@ -782,6 +782,13 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         test_plan = self._context.get_unit(test_plan_id, "test plan")
+        self.update_app_blob(
+            json.dumps(
+                {
+                    "testplan_id": test_plan_id,
+                }
+            ).encode("UTF-8")
+        )
         self._manager.test_plans = (test_plan,)
         self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {

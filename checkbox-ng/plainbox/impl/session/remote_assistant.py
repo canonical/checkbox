@@ -412,7 +412,7 @@ class RemoteSessionAssistant:
         self._available_testplans = list(self._available_testplans)
         return self._available_testplans
 
-    @allowed_when(RemoteSessionStates.Started)
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Idle)
     def select_test_plan(self, test_plan_id):
         return self._sa.select_test_plan(test_plan_id)
 

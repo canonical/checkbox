@@ -204,7 +204,7 @@ def get_video_node(v4l2_devices: str, v4l2_device_name: str) -> str:
     match = re.search(pattern, v4l2_devices)
 
     if match:
-        logger.debug("video device node: {}".format(match.group(1)))
+        logger.info("video device node: {}".format(match.group(1)))
         return match.group(1)
     else:
         logger.error("==== V4L2 Devices ====\n{}".format(v4l2_devices))
@@ -472,7 +472,7 @@ class MediaController:
         self._resolver = (
             VideoMediaNodeResolver(v4l2_devices) if v4l2_devices else None
         )
-        logger.debug("Setup Configuration:\n{}".format(self._setup_conf))
+        logger.info("Setup Configuration:\n{}".format(self._setup_conf))
 
     def _get_the_media_dev_node(self):
         """
@@ -505,7 +505,7 @@ class MediaController:
 
         if media_node:
             self._dev_media_node = media_node
-            logger.debug(
+            logger.info(
                 "Found media device node: {}".format(self._dev_media_node)
             )
         else:
@@ -523,20 +523,23 @@ class MediaController:
     def _set_pad_format_and_resolution(
         self, pads: list, width: int, height: int
     ) -> None:
-        logger.debug("Configuring pads...{}:{}".format(width, height))
+        logger.info("Configuring pads...{}:{}".format(width, height))
         base_cmd = "{} -d {} -V".format(MEDIA_CTL_CMD, self._dev_media_node)
         for p in pads:
             action = p["action"]
             if action == "set_format":
-                cmd = "{} \"'{}':{} [fmt:{}/{}x{}]\"".format(
+                # Build the format string with optional field parameter
+                fmt_part = "fmt:{}/{}x{}".format(p["fmt"], width, height)
+                if "field" in p:
+                    fmt_part += " field:{}".format(p["field"])
+
+                cmd = "{} \"'{}':{} [{}]\"".format(
                     base_cmd,
                     p["node"],
                     p["source"],
-                    p["fmt"],
-                    width,
-                    height,
+                    fmt_part,
                 )
-                logger.debug(cmd)
+                logger.info(cmd)
                 execute_command(cmd=cmd)
             else:
                 log_and_raise_error(
@@ -545,7 +548,7 @@ class MediaController:
                 )
 
     def _create_links(self, links: list) -> None:
-        logger.debug("Configuring links...")
+        logger.info("Configuring links...")
         base_cmd = "{} -d {} -l".format(MEDIA_CTL_CMD, self._dev_media_node)
         for link in links:
             cmd = "{} \"'{}':{} -> '{}':{} [{}]\"".format(
@@ -556,7 +559,7 @@ class MediaController:
                 link["sink_pad_number"],
                 link["flags"],
             )
-            logger.debug(cmd)
+            logger.info(cmd)
             execute_command(cmd=cmd)
 
     def _validate_setup_config(self) -> None:
@@ -633,7 +636,7 @@ class MediaController:
                 if links:
                     self._create_links(links)
                 else:
-                    logger.debug("No links to configure")
+                    logger.info("No links to configure")
 
                 # Setup fmt and resolution
                 pads = c["pads"]
@@ -653,7 +656,7 @@ class MediaController:
                 raise
 
     def dump_the_full_topology(self, media_node: str = "") -> str:
-        logger.debug("Dump the topology of '{}'".format(media_node))
+        logger.info("Dump the topology of '{}'".format(media_node))
         return execute_command(
             cmd="{} -d {} -p".format(MEDIA_CTL_CMD, media_node)
         )

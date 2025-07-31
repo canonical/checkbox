@@ -493,7 +493,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         # this should be unreachable, innter functions must exit!
         raise SystemExit("Invalid session flow, failed to terminate")
 
-    def resume_by_id(self, session_id, result_dict=None):
+    def resume_by_id(self, session_id, result_dict={}):
         self.sa.resume_by_id(session_id, result_dict)
         # resume_by_id will get us to a resumable state, lets see how to
         # continue

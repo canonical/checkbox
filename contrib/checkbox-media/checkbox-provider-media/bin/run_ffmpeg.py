@@ -7,7 +7,6 @@ import subprocess
 import glob
 from pathlib import Path
 import sys
-import re
 
 RESOURCES_DIR = "/tmp/"
 
@@ -17,8 +16,8 @@ def basename(url):
     return url.split("/")[-1]
 
 
-def get_all_trace_contents(trace_dir):
-    pattern = str(Path(trace_dir) / "libva.trace*")
+def get_all_trace_contents(trace_dir, trace_filename="libva.trace"):
+    pattern = str(Path(trace_dir) / f"{trace_filename}*")
 
     # Find all matching files
     matching_files = glob.glob(pattern)
@@ -29,7 +28,8 @@ def get_all_trace_contents(trace_dir):
     for file_path in matching_files:
         try:
             with open(file_path, "r") as f:
-                all_traces += "".join(f.readlines())
+                lines = f.readlines()
+                all_traces += "".join(lines) + "\n"
         except Exception as e:
             print(f"Could not read {file_path}: {e}")
 
@@ -53,27 +53,6 @@ def has_profile_and_entrypoint(text, profile_val, entrypoint_val):
             break
 
     return found_entrypoint and found_profile
-
-
-def has_profile_and_entrypoint_old(text, profile_val, entrypoint_val):
-    # These additions exist because Checkbox templating removes quotes
-    # but parentheses can't be passed as an argument in bash without quotes.
-    # So we add the quotes at the start and strip them here
-    entrypoint_val = entrypoint_val.strip().strip('"').strip("'")
-    profile_val = profile_val.strip().strip('"').strip("'")
-
-    # Wrap values in () if they are just plain digits
-    if not re.match(r"^\(.*\)$", profile_val):
-        profile_val = f"({profile_val})"
-    if not re.match(r"^\(.*\)$", entrypoint_val):
-        entrypoint_val = f"({entrypoint_val})"
-
-    profile_pattern = re.compile(rf"profile\s*=\s*{profile_val}")
-    entrypoint_pattern = re.compile(rf"entrypoint\s*=\s*{entrypoint_val}")
-
-    return bool(
-        profile_pattern.search(text) and entrypoint_pattern.search(text)
-    )
 
 
 def download(url, download_dir):
@@ -159,6 +138,7 @@ def run_ffmpeg(
     else:
         print("Failed: Operation not specified")
 
+    # Makes it easier for a user to re-run a command on failure
     print(" ".join(command))
     process = subprocess.run(command, capture_output=True, text=True, env=env)
 

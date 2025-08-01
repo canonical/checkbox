@@ -33,7 +33,7 @@ from checkbox_support.vendor.brisque.brisque import BRISQUE
 from checkbox_support.helpers.timeout import timeout
 
 
-THRESHOLD = 60
+THRESHOLD = 70
 TIMEOUT = 10
 MIN_INTERVAL = 0.5
 

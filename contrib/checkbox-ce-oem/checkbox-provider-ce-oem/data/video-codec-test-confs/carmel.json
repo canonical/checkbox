@@ -50,5 +50,18 @@
         }
       ]
     }
+  ],
+  "gst_transform_rotate_and_flip": [
+    {
+      "encoder_plugin": "v4l2h264enc",
+      "actions": [
+        "rotate_90",
+        "rotate_180",
+        "rotate_270",
+        "vertical_flip",
+        "horizontal_flip"
+      ],
+      "resolutions": [{ "width": 1920, "height": 1080, "fps": 30 }]
+    }
   ]
 }

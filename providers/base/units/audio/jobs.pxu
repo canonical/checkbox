@@ -839,7 +839,6 @@ _verification:
  Did you hear the sound?
 plugin: user-interact-verify
 depends: audio/detect-playback-devices
-user: root
 environ: ALSA_CONFIG_PATH ALSADEVICE
 flags: also-after-suspend
 command: alsa_test playback -d 5
@@ -855,7 +854,6 @@ _purpose:
  connected.
 plugin: shell
 depends: audio/detect-playback-devices audio/detect-capture-devices
-user: root
 environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
 flags: also-after-suspend
 command: alsa_test loopback -d 5

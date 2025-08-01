@@ -2652,6 +2652,73 @@ _siblings:
      {"id": "dock/all-poweroff-thunderbolt3-storage-manual"}]
 
 
+id: dock/all-init-usb3-storage-manual
+category_id: dock
+estimated_duration: 120
+plugin: user-interact
+imports: from com.canonical.plainbox import manifest
+requires:
+    usb.usb3 == 'supported'
+user: root
+flags: also-after-suspend
+command: checkbox-support-run_watcher storage usb3
+_summary: USB3 storage insertion + read/write + removal
+_purpose:
+    This test will check if the connection of a USB3 storage to the dock could be detected,
+    then performs read/write operations on the attached USB3 storage and
+    checks if the removal of the USB3 storage can be detected.
+_steps:
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 30 seconds.
+    2. Plug a USB3 storage into an available USB3 port on the dock.
+       If it's not mounted automatically, please click the storage icon to mount it.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the previously attached USB3 storage from the USB3 port.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result.
+_siblings:
+    [{"id": "dock/all-reboot-usb3-storage-manual"},
+     {"id": "dock/all-hotplug-usb3-storage-manual"},
+     {"id": "dock/all-suspend-usb3-storage-manual"},
+     {"id": "dock/all-poweroff-usb3-storage-manual"}]
+
+
+id: dock/all-init-usb-c-storage-manual
+category_id: dock
+estimated_duration: 120
+plugin: user-interact
+imports: from com.canonical.plainbox import manifest
+requires:
+    usb.usb3 == 'supported'
+    manifest.has_usbc_data == 'True'
+user: root
+flags: also-after-suspend
+command: checkbox-support-run_watcher storage usb3
+_summary: USB3 storage insertion + read/write + removal
+_purpose:
+    This test will check if the connection of a usb-c storage to the dock could be detected,
+    then performs read/write operations on the attached usb-c storage and
+    checks if the removal of the usb-c storage can be detected.
+_steps:
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 30 seconds.
+    2. Plug a USB3 storage into an available usb-c port on the dock.
+       If it's not mounted automatically, please click the storage icon to mount it.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the previously attached usb-c storage from the usb-c port.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result.
+_siblings:
+    [{"id": "dock/all-reboot-usb-c-storage-manual"},
+     {"id": "dock/all-hotplug-usb-c-storage-manual"},
+     {"id": "dock/all-suspend-usb-c-storage-manual"},
+     {"id": "dock/all-poweroff-usb-c-storage-manual"}]
+
+
 id: dock/all-init-usb-c/insert
 plugin: user-interact
 category_id: dock-usb

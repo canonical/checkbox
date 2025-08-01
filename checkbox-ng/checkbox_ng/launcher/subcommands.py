@@ -260,13 +260,15 @@ class Launcher(MainLoopStage, ReportsStage):
             if not self._auto_resume_session(self.resume_candidates):
                 something_got_chosen = False
                 ctx.sa.use_alternate_configuration(self.configuration)
+                self._start_new_session()
                 while not something_got_chosen:
                     try:
-                        self._start_new_session()
+                        self._select_test_plan_and_continue()
                         self._pick_jobs_to_run()
                         something_got_chosen = True
                     except ResumeInstead:
-                        self.sa.finalize_session()
+                        # if resume is done, the old session will be finalized
+                        # and the resumed session will now be the current
                         something_got_chosen = self._manually_resume_session(
                             self.resume_candidates
                         )
@@ -450,7 +452,6 @@ class Launcher(MainLoopStage, ReportsStage):
 
             resume_params = ResumeMenu(entries).run()
             if resume_params.action == "delete":
-                self.sa.finalize_session()
                 self.sa.delete_sessions([resume_params.session_id])
                 self.resume_candidates = list(self.sa.get_resumable_sessions())
 
@@ -469,6 +470,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 break
 
         if resume_params.session_id:
+            self.sa.finalize_session()
             self._resume_session_via_resume_params(resume_params)
             return True
         return False
@@ -620,6 +622,8 @@ class Launcher(MainLoopStage, ReportsStage):
             "stdin": None,
         }
         self.sa.start_new_session(title, UnifiedRunner, runner_kwargs)
+
+    def _select_test_plan_and_continue(self):
         if self.configuration.get_value("test plan", "forced"):
             tp_id = self.configuration.get_value("test plan", "unit")
             if not tp_id:

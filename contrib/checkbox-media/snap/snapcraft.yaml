@@ -45,6 +45,7 @@ parts:
     stage-packages:
       - intel-gpu-tools
       - python3-wget
+      - flake8
     override-build: |
       for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       checkbox-provider-tools validate

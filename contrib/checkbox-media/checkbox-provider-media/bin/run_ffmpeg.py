@@ -7,7 +7,6 @@ import subprocess
 import glob
 from pathlib import Path
 import sys
-import re
 
 RESOURCES_DIR = "/tmp/"
 
@@ -17,8 +16,8 @@ def basename(url):
     return url.split("/")[-1]
 
 
-def get_all_trace_contents(trace_dir):
-    pattern = str(Path(trace_dir) / "libva.trace*")
+def get_all_trace_contents(trace_dir, trace_filename="libva.trace"):
+    pattern = str(Path(trace_dir) / f"{trace_filename}*")
 
     # Find all matching files
     matching_files = glob.glob(pattern)
@@ -29,7 +28,8 @@ def get_all_trace_contents(trace_dir):
     for file_path in matching_files:
         try:
             with open(file_path, "r") as f:
-                all_traces += "".join(f.readlines())
+                lines = f.readlines()
+                all_traces += "".join(lines) + "\n"
         except Exception as e:
             print(f"Could not read {file_path}: {e}")
 
@@ -53,27 +53,6 @@ def has_profile_and_entrypoint(text, profile_val, entrypoint_val):
             break
 
     return found_entrypoint and found_profile
-
-
-def has_profile_and_entrypoint_old(text, profile_val, entrypoint_val):
-    # These additions exist because Checkbox templating removes quotes
-    # but parentheses can't be passed as an argument in bash without quotes.
-    # So we add the quotes at the start and strip them here
-    entrypoint_val = entrypoint_val.strip().strip('"').strip("'")
-    profile_val = profile_val.strip().strip('"').strip("'")
-
-    # Wrap values in () if they are just plain digits
-    if not re.match(r"^\(.*\)$", profile_val):
-        profile_val = f"({profile_val})"
-    if not re.match(r"^\(.*\)$", entrypoint_val):
-        entrypoint_val = f"({entrypoint_val})"
-
-    profile_pattern = re.compile(rf"profile\s*=\s*{profile_val}")
-    entrypoint_pattern = re.compile(rf"entrypoint\s*=\s*{entrypoint_val}")
-
-    return bool(
-        profile_pattern.search(text) and entrypoint_pattern.search(text)
-    )
 
 
 def download(url, download_dir):
@@ -136,6 +115,38 @@ def ffmpeg_encode_command(
     ]
 
 
+def check_success(process, libva_profile, libva_entrypoint, operation):
+    if process.returncode == 0:
+        print("---- [PASS] FFMPEG command completed successfully")
+    else:
+        print("---- [FAIL] FFMPEG returned an error")
+
+    hw_used = False
+    trace = get_all_trace_contents(RESOURCES_DIR)
+    if has_profile_and_entrypoint(trace, libva_profile, libva_entrypoint):
+        hw_used = True
+        print("---- [PASS] using HW %s" % operation)
+    else:
+        print("---- [FAIL] not using HW %s" % operation)
+        print(process.stdout)
+        print(process.stderr)
+
+    if not hw_used or not process.returncode == 0:
+        return False
+
+    return True
+
+
+def cleanup():
+    # Clean up extra trace files and media output
+    remove_wildcard_filename(RESOURCES_DIR, "libva.trace*")
+    for extension in ["mp4", "mkv", "mpg", "yuv"]:
+        if os.path.exists(f"output.{extension}"):
+            os.remove(f"output.{extension}")
+
+
+# ffmpeg_output_codec and output_container are both confirmed != None in the
+# arg processing phase
 def run_ffmpeg(
     video_filepath,
     libva_profile,
@@ -158,34 +169,19 @@ def run_ffmpeg(
         )
     else:
         print("Failed: Operation not specified")
+        exit(1)
 
+    # Print full command for debugging outside checkbox
     print(" ".join(command))
     process = subprocess.run(command, capture_output=True, text=True, env=env)
 
-    # Check if ffmpeg succeeded
-    if process.returncode == 0:
-        print("---- [PASS] FFMPEG command completed successfully")
-    else:
-        print("---- [FAIL] FFMPEG returned an error")
+    success = check_success(
+        process, libva_profile, libva_entrypoint, operation
+    )
+    cleanup()
 
-    hw_used = False
-    trace = get_all_trace_contents(RESOURCES_DIR)
-    if has_profile_and_entrypoint(trace, libva_profile, libva_entrypoint):
-        hw_used = True
-        print("---- [PASS] using HW %s" % operation)
-    else:
-        print("---- [FAIL] not using HW %s" % operation)
-        print(process.stdout)
-        print(process.stderr)
-
-    if not hw_used or not process.returncode == 0:
-        exit(1)
-
-    # Clean up extra trace files and media output
-    remove_wildcard_filename(RESOURCES_DIR, "libva.trace*")
-    for extension in ["mp4", "mkv", "mpg", "yuv"]:
-        if os.path.exists(f"output.{extension}"):
-            os.remove(f"output.{extension}")
+    # Python has decided that True == 1, False == 0
+    exit(int(not success))
 
 
 def remove_wildcard_filename(directory, file_string_wildcard):

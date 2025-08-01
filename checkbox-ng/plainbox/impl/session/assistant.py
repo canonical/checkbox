@@ -1770,22 +1770,21 @@ class SessionAssistant:
                 "finalize_session called for already finalized session: %s",
                 self._manager.storage.id,
             )
-            # leave the same usage expectations
-            return
-        ignored_flags = {
-            SessionMetaData.FLAG_SUBMITTED,
-            SessionMetaData.FLAG_BOOTSTRAPPING,
-        }
-        if not (ignored_flags & set(self._metadata.flags)):
-            _logger.warning(
-                "Finalizing session that hasn't been submitted "
-                "anywhere: %s",
-                self._manager.storage.id,
-            )
-        for flag in finalizable_flags:
-            if flag in self._metadata.flags:
-                self._metadata.flags.remove(flag)
-        self._manager.checkpoint()
+        else:
+            ignored_flags = {
+                SessionMetaData.FLAG_SUBMITTED,
+                SessionMetaData.FLAG_BOOTSTRAPPING,
+            }
+            if not (ignored_flags & set(self._metadata.flags)):
+                _logger.warning(
+                    "Finalizing session that hasn't been submitted "
+                    "anywhere: %s",
+                    self._manager.storage.id,
+                )
+            for flag in finalizable_flags:
+                if flag in self._metadata.flags:
+                    self._metadata.flags.remove(flag)
+            self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {
             self.finalize_session: "to finalize session",
             self.export_to_transport: "to export the results and send them",

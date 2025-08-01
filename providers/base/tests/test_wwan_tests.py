@@ -80,7 +80,7 @@ class TestResources(unittest.TestCase):
 
     @patch("wwan_tests.MMCLI")
     def test_invoked_with_mmcli(self, mock_mmcli):
-        mmcli_instance = Mock()
+        mmcli_instance = MagicMock()
         mmcli_instance.get_modem_ids.return_value = ["test"]
         mock_mmcli.return_value = mmcli_instance
 
@@ -97,7 +97,7 @@ class TestResources(unittest.TestCase):
 
     @patch("wwan_tests.MMDbus")
     def test_invoked_with_mmdbus(self, mock_mmdbus):
-        mmdbus_instance = Mock()
+        mmdbus_instance = MagicMock()
         mmdbus_instance.get_modem_ids.return_value = ["test"]
         mock_mmdbus.return_value = mmdbus_instance
 

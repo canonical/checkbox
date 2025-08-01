@@ -32,7 +32,7 @@ PERL_VERSION=$(perl -e '$^V=~/^v(\d+\.\d+)/;print $1')
 export PERL5LIB="$PERL5LIB:$SNAP/usr/lib/$ARCH/perl/$PERL_VERSION:$SNAP/usr/lib/$ARCH/perl5/$PERL_VERSION:$SNAP/usr/share/perl/$PERL_VERSION:$SNAP/usr/share/perl5"
 export GI_TYPELIB_PATH=$SNAP/usr/lib/girepository-1.0:$SNAP/usr/lib/$ARCH/girepository-1.0
 export PATH="$SNAP/usr/sbin:$SNAP/sbin:$SNAP/usr/bin:$SNAP/bin:/snap/bin:$PATH"
-export ALSA_CONFIG_PATH=$SNAP/usr/share/alsa/alsa.conf:$SNAP/usr/share/alsa/pcm/default.conf
+export ALSA_CONFIG_PATH=$SNAP/usr/share/alsa/alsa.conf
 export PYTHONPATH="$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH"
 
 if [ -e $RUNTIME/wrapper_common_classic ]; then

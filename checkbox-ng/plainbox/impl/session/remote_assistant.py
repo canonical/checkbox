@@ -300,7 +300,8 @@ class RemoteSessionAssistant:
                 )
             if "WAYLAND_DISPLAY" in p_environ:
                 extra_env["WAYLAND_DISPLAY"] = p_environ["WAYLAND_DISPLAY"]
-
+        # $XDG_RUNTIME_DIR is required for alsa related tests if there is a sound server
+        extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
         return extra_env
 
     @allowed_when(Idle)

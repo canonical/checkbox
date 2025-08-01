@@ -27,6 +27,9 @@ include:
  graphics/auto_glxgears                         certification-status=blocker
  graphics/auto_glxgears_fullscreen              certification-status=blocker
  suspend/resolution_before_suspend              certification-status=blocker
+ graphics/1_vkcube_.*                           certification-status=non-blocker
+ graphics/2_vkcube_.*                           certification-status=non-blocker
+ graphics/vulkaninfo.*                          certification-status=non-blocker
 bootstrap_include:
     graphics_card
 

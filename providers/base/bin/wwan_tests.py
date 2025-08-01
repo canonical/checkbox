@@ -6,14 +6,14 @@
 #   Jonathan Cave <jonathan.cave@canonical.com>
 #   Po-Hsu Lin <po-hsu.lin@canonical.com>
 
+from checkbox_support.helpers.slugify import slugify
+import subprocess
 import argparse
 import logging
-import os
-import subprocess
-import sys
 import time
-
 import dbus
+import sys
+import os
 
 
 TEST_IP = "8.8.8.8"
@@ -471,10 +471,18 @@ class Resources:
         for m in mm.get_modem_ids():
             print("mm_id: {}".format(m))
             print("hw_id: {}".format(mm.get_equipment_id(m)))
-            print("manufacturer: {}".format(mm.get_manufacturer(m)))
-            print("model: {}".format(mm.get_model_name(m)))
-            print("firmware_revision: {}".format(mm.get_firmware_revision(m)))
-            print("hardware_revision: {}".format(mm.get_hardware_revision(m)))
+            print("manufacturer: {}".format(slugify(mm.get_manufacturer(m))))
+            print("model: {}".format(slugify(mm.get_model_name(m))))
+            print(
+                "firmware_revision: {}".format(
+                    slugify(mm.get_firmware_revision(m))
+                )
+            )
+            print(
+                "hardware_revision: {}".format(
+                    slugify(mm.get_hardware_revision(m))
+                )
+            )
             print()
 
 

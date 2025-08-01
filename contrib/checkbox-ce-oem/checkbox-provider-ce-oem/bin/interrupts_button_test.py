@@ -9,12 +9,10 @@ import time
 import os
 import sys
 import logging
-from pathlib import Path
 from typing import List, Optional
 
 # Define paths and constants
 PROC_INTERRUPTS = "/proc/interrupts"
-GPIO_SYSFS_PATH = Path("/sys/class/gpio")
 TEST_TIMEOUT = 30
 
 
@@ -48,6 +46,12 @@ class InterruptsTest:
             self.irq_name,
             PROC_INTERRUPTS,
         )
+        """
+        The self.irq_numbers will be store the mapping of IRQs for target
+        interrupt name as a dict and assigned IRQ number as key only.
+        self.irq_numbers = { IRQ_number1: None,
+                             IRQ_number2: None }
+        """
         try:
             with open(PROC_INTERRUPTS, "r") as f:
                 for line in f:
@@ -105,7 +109,12 @@ class InterruptsTest:
                     for cpu in range(self.num_cpus)
                     if (affinity_mask >> cpu) & 1
                 ]
-
+                """
+                self.irq_numbers will be updated by assigning a list of
+                affinity CPUs as the value for each IRQ accordingly.
+                self.irq_numbers = { IRQ_number1: [0, 1],
+                                     IRQ_number2: [3, 4] }
+                """
                 if not affected_cpus:
                     logging.warning(
                         "IRQ %d affinity mask '%s' targets no CPUs. "
@@ -140,6 +149,18 @@ class InterruptsTest:
             A list of integer counts, or None on error.
         """
         try:
+            """
+            counts will be a list of the numbers that from the output
+            of /proc/interrupts. It will parse the line start with
+            specific IRQ number and get the mulitple columes value
+            which is depend on how many CPU cores for system.
+            e.g. The output for /proc/interrupts as follows.
+            count for IRQ number 1 will be count = [0, 0]
+
+                    CPU0       CPU1
+            1:          0          0     GICv3  25 Level     vgic
+            3:    4341111    1892740     GICv3  30 Level     arch_timer
+            """
             with open(PROC_INTERRUPTS, "r") as f:
                 for line in f:
                     # Match the line starting with the exact IRQ number
@@ -175,7 +196,11 @@ class InterruptsTest:
         if not self._get_smp_affinities():
             raise RuntimeError("Could not get CPU affinities for all IRQs.")
 
-        # Store initial counts for all monitored IRQs
+        """
+        Store initial counts for all monitored IRQs
+        initial_counts_map = { IRQ_number1: [cpu0_count, cpu1_count, ...],
+                               IRQ_number1: [cpu0_count, cpu1_count, ...] }
+        """
         initial_counts_map = {}
         for irq in self.irq_numbers:
             counts = self._get_interrupt_counts(irq)
@@ -185,6 +210,16 @@ class InterruptsTest:
             initial_counts_map[irq] = counts
 
         logging.info("Initial interrupt counts on target CPUs:")
+        """
+        Following logic will mapping self.irq_numbers with initial_counts_map
+        self.irq_numbers is a mapping of IRQ and affinity of CPUs.
+        self.irq_numbers = { 132: [2,3],
+                             144: [0,1] }
+        initial_counts_map is a mapping of IRQ and the interrupt count of
+        all CPUs
+        initial_counts_map = { 132: [0, 0, 0, 0],
+                               144: [2, 0, 4, 0] }
+        """
         for irq, cpus in self.irq_numbers.items():
             for cpu in cpus:
                 logging.info(
@@ -229,173 +264,13 @@ class InterruptsTest:
         return False
 
 
-class GpioTest:
-    """
-    A class to test a GPIO button press using a context manager.
-
-    This class checks if the GPIO pin is already exported. It will only
-    unexport the pin on exit if it was the one to export it initially,
-    preventing interference with other processes.
-    """
-
-    def __init__(self, name: str, gpio_pin: str):
-        """
-        Initializes the GPIOTest.
-
-        Args:
-            name: The name of the button.
-            gpio_pin: The GPIO pin number to test.
-        """
-        self.name = name
-        self.gpio_pin = gpio_pin
-        self.gpio_node = GPIO_SYSFS_PATH / "gpio{}".format(self.gpio_pin)
-        self._was_exported_before = False
-        logging.info("Initialized test for '%s' on GPIO %s", name, gpio_pin)
-
-    def __enter__(self):
-        """
-        Enter the runtime context and set up the GPIO pin.
-
-        This method checks the initial export state, then exports and
-        configures the GPIO pin for input if necessary.
-
-        Returns:
-            The instance of the class (self).
-
-        Raises:
-            IOError: If the GPIO setup fails.
-        """
-        logging.info("--- Entering context: Setting up GPIO ---")
-        # Monitor the initial state BEFORE any setup actions.
-        self._was_exported_before = self.gpio_node.exists()
-        if self._was_exported_before:
-            logging.info(
-                "GPIO %s was already exported. Will not unexport on exit.",
-                self.gpio_pin,
-            )
-
-        if not self._setup_gpio():
-            # Raise an error to prevent the 'with' block from executing
-            raise IOError("Failed to set up GPIO {}".format(self.gpio_pin))
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        """
-        Exit the runtime context and clean up the GPIO pin.
-
-        This method unexports the GPIO pin only if it wasn't
-        exported before this context was entered.
-        """
-        logging.info("--- Exiting context: Cleaning up GPIO ---")
-        # Only unexport if the pin was not already exported.
-        if not self._was_exported_before and self.gpio_node.exists():
-            try:
-                logging.info(
-                    "Unexporting GPIO %s (we exported it)...", self.gpio_pin
-                )
-                (GPIO_SYSFS_PATH / "unexport").write_text(str(self.gpio_pin))
-            except Exception as e:
-                logging.error(
-                    "Failed to unexport GPIO %s: %s", self.gpio_pin, e
-                )
-        else:
-            logging.info(
-                "Leaving GPIO %s exported as it was found.", self.gpio_pin
-            )
-
-    def _setup_gpio(self) -> bool:
-        """
-        Exports (if needed) and configures the GPIO pin.
-
-        Returns:
-            True on success, False on failure.
-        """
-        # The export logic is now conditional on the node's existence.
-        if not self.gpio_node.exists():
-            logging.info("Exporting GPIO %s to system...", self.gpio_pin)
-            try:
-                (GPIO_SYSFS_PATH / "export").write_text(str(self.gpio_pin))
-                time.sleep(1)  # Give sysfs time to create the node
-            except Exception as e:
-                logging.error("Error exporting GPIO %s: %s", self.gpio_pin, e)
-                return False
-
-        if not self.gpio_node.is_dir():
-            logging.error("Unable to access GPIO %s.", self.gpio_pin)
-            return False
-
-        try:
-            direction_file = self.gpio_node / "direction"
-            if direction_file.read_text(encoding="utf-8").strip() != "in":
-                direction_file.write_text("in")
-            logging.info("Set GPIO %s direction to 'in'", self.gpio_pin)
-        except Exception as e:
-            logging.error(
-                "Error setting direction for GPIO %s: %s", self.gpio_pin, e
-            )
-            return False
-
-        return True
-
-    def run_test(self) -> bool:
-        """
-        Prompts user to press/release button and checks GPIO state.
-
-        This should be called inside the 'with' block after the
-        GPIO has been successfully set up.
-
-        Returns:
-            True if press and release are detected, False otherwise.
-        """
-        try:
-            initial_value = (self.gpio_node / "value").read_text().strip()
-            logging.info(
-                "Initial value of %s is: %s",
-                self.gpio_node.name,
-                "High" if initial_value == "1" else "Low",
-            )
-
-            # Test Press
-            logging.info("Please PRESS and HOLD the '%s' button...", self.name)
-            for _ in range(TEST_TIMEOUT):
-                val = (self.gpio_node / "value").read_text().strip()
-                if val != initial_value:
-                    logging.info("PASS: Button press detected!")
-                    break
-                time.sleep(1)
-            else:
-                logging.error("FAIL: No button press detected.")
-                return False
-
-            # Test Release
-            logging.info("Please RELEASE the '%s' button...", self.name)
-            for _ in range(TEST_TIMEOUT):
-                val = (self.gpio_node / "value").read_text().strip()
-                if val == initial_value:
-                    logging.info("PASS: Button release detected!")
-                    return True
-                time.sleep(1)
-            else:
-                logging.error("FAIL: No button release detected.")
-                return False
-
-        except Exception as e:
-            logging.error("An error occurred during GPIO test: %s", e)
-            return False
-
-
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Monitor interrupts, verify IRQ CPU affinity, and "
-            "optionally test a GPIO button."
+            "Monitor interrupts, verify IRQ CPU affinity "
+            "for testing a interrupts button."
         ),
         formatter_class=argparse.RawTextHelpFormatter,
-    )
-    parser.add_argument(
-        "type",
-        choices=["interrupts", "gpio"],
-        help="The testing types in 'interrupts' and 'gpio' button.",
     )
     parser.add_argument(
         "--name",
@@ -404,19 +279,10 @@ def parse_arguments() -> argparse.Namespace:
         help=(
             "The name of the interrupt source (e.g., 'gpio-keys') "
             "to find in /proc/interrupts. "
-            "Or a GPIO button name"
         ),
-    )
-    parser.add_argument(
-        "--gpio-pin",
-        type=str,
-        help="The GPIO pin number (required for 'gpio' type test).",
     )
 
     args = parser.parse_args()
-    if args.type == "gpio" and args.gpio_pin is None:
-        parser.error("--gpio-pin is required when type is 'gpio'")
-
     return args
 
 
@@ -434,14 +300,8 @@ def main():
 
     args = parse_arguments()
     test_result = None
-
-    if args.type == "gpio":
-        button_test = GpioTest(name=args.name, gpio_pin=args.gpio_pin)
-        with button_test as test:
-            test_result = test.run_test()
-    elif args.type == "interrupts":
-        button_test = InterruptsTest(irq_name=args.name)
-        test_result = button_test.run_test()
+    button_test = InterruptsTest(irq_name=args.name)
+    test_result = button_test.run_test()
 
     if test_result:
         logging.info("Button Test for '%s' PASSED!", args.name)

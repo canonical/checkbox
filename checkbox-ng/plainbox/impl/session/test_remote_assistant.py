@@ -431,22 +431,20 @@ class RemoteAssistantTests(TestCase):
         conf_type = RemoteSessionAssistant.configuration_type(mock.MagicMock())
         self.assertEqual(conf_type, remote_assistant.Configuration)
 
-    def test_bootstrapping_todo_list(self):
+    def test_start_bootstrap_json(self):
         self_mock = mock.MagicMock()
         self_mock._state = remote_assistant.Started
-        self_mock.get_bootstrapping_todo_list = partial(
-            RemoteSessionAssistant.get_bootstrapping_todo_list, self_mock
+        self_mock.start_bootstrap = partial(
+            RemoteSessionAssistant.start_bootstrap, self_mock
         )
-        self_mock._sa.get_bootstrap_todo_list.return_value = [
+        self_mock._sa.start_bootstrap.return_value = [
             "job1",
             "job2",
         ]
 
-        job_list_str = RemoteSessionAssistant.get_bootstrapping_todo_list_json(
-            self_mock
-        )
+        job_list_str = RemoteSessionAssistant.start_bootstrap_json(self_mock)
 
-        self.assertTrue(self_mock._sa.get_bootstrap_todo_list.called)
+        self.assertTrue(self_mock._sa.start_bootstrap.called)
         self.assertEqual(["job1", "job2"], json.loads(job_list_str))
 
     def test_finish_bootstrap_json(self):

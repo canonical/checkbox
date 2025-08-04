@@ -308,6 +308,13 @@ def _wwan_radio_status():
 
 
 def _allow_roaming(mm_id: str, apn: str):
+    """
+    Sets the bearer to enable roaming using the mmcli command-line tool.
+
+    Args:
+        mm_id (str): The modem manager ID.
+        apn (str): The APN (Access Point Name) to use.
+    """
     print_head("Set bearer to enable roaming")
     bearer = "apn={},allow-roaming=yes".format(apn)
     cmd = ["mmcli", "-m", mm_id, "--create-bearer={}".format(bearer)]

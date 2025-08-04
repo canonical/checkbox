@@ -12,9 +12,7 @@ import sys
 sys.modules["dbus"] = MagicMock()
 
 
-
 class TestMMDbus(unittest.TestCase):
-
     @patch("wwan_tests.MMDbus.__init__", Mock(return_value=None))
     def test_get_firmware_revision(self):
         fw_revision_pattern = "81600.0000.00.29.21.24_GC\r\nD24"
@@ -47,7 +45,6 @@ class TestMMDbus(unittest.TestCase):
 
 
 class TestMMCli(unittest.TestCase):
-
     @patch("wwan_tests.MMCLI.__init__", Mock(return_value=None))
     @patch("wwan_tests._value_from_table")
     def test_get_firmware_revision(self, mock_value_from_table):
@@ -78,7 +75,6 @@ class TestMMCli(unittest.TestCase):
 
 
 class TestResources(unittest.TestCase):
-
     @patch("wwan_tests.MMCLI")
     def test_invoked_with_mmcli(self, mock_mmcli):
         mmcli_instance = MagicMock()
@@ -115,7 +111,6 @@ class TestResources(unittest.TestCase):
 
 
 class TestCommonFunctions(unittest.TestCase):
-
     @patch("subprocess.run")
     def test_wwan_radio_status(self, mock_run):
         mock_run.return_value = subprocess.CompletedProcess(
@@ -134,7 +129,6 @@ class TestCommonFunctions(unittest.TestCase):
 
 
 class TestWWANTestCtx(unittest.TestCase):
-
     @patch("wwan_tests._wwan_radio_off")
     @patch("wwan_tests._wwan_radio_on")
     @patch("wwan_tests._wwan_radio_status")
@@ -179,7 +173,6 @@ class TestWWANTestCtx(unittest.TestCase):
 
 
 class TestThreeGppScanTest(unittest.TestCase):
-
     def test_register_argument(self):
 
         sys.argv = ["wwan_tests.py", "3gpp-scan", "2", "--timeout", "600"]
@@ -268,7 +261,6 @@ class TestThreeGppScanTest(unittest.TestCase):
 
 
 class TestThreeGppConnectionTest(unittest.TestCase):
-
     def test_register_argument(self):
 
         sys.argv = [

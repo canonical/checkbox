@@ -349,7 +349,6 @@ def _ping_test(if_name):
 
 
 class ThreeGppConnection:
-
     def register_argument(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -399,7 +398,6 @@ class ThreeGppConnection:
 
 
 class WWANTestCtx:
-
     def __init__(self, hardware_id, use_mmcli=True, need_enable=False):
         self.mm_obj = MMCLI() if use_mmcli else MMDbus()
         self.need_enable = need_enable
@@ -418,7 +416,6 @@ class WWANTestCtx:
 
 
 class ThreeGppScanTest:
-
     def register_argument(self):
 
         parser = argparse.ArgumentParser()
@@ -461,7 +458,6 @@ class ThreeGppScanTest:
 
 
 class CountModems:
-
     def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -478,7 +474,6 @@ class CountModems:
 
 
 class Resources:
-
     def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -510,7 +505,6 @@ class Resources:
 
 
 class SimPresent:
-
     def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -535,7 +529,6 @@ class SimPresent:
 
 
 class SimInfo:
-
     def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -562,7 +555,6 @@ class SimInfo:
 
 
 class WWANTests:
-
     def main(self):
         sub_commands = {
             "count": CountModems,

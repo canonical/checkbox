@@ -284,52 +284,30 @@ class ControllerTests(TestCase):
         self_mock = mock.MagicMock()
         self_mock.should_start_via_autoresume.return_value = False
         self_mock.should_start_via_launcher.return_value = False
-        self_mock.connection_strategy.return_value = {
-            RemoteSessionStates.TestsSelected: self_mock.run_interactable_jobs
-        }
-        self_mock.sa.whats_up.return_value = (
-            RemoteSessionStates.TestsSelected.value,
-            ["some job id"],
-        )
 
         RemoteController.resume_or_start_new_session(self_mock)
 
-        self.assertTrue(self_mock.interactively_choose_tp.called)
-        self.assertTrue(self_mock.run_interactable_jobs.called)
+        self.assertTrue(
+            self_mock.interactively_choose_test_plan_and_continue.called
+        )
 
     def test_resume_or_start_new_session_auto_last_session(self):
         self_mock = mock.MagicMock()
         self_mock.should_start_via_autoresume.return_value = True
         self_mock.should_start_via_launcher.return_value = False
-        self_mock.connection_strategy.return_value = {
-            RemoteSessionStates.TestsSelected: self_mock.run_interactable_jobs
-        }
-        self_mock.sa.whats_up.return_value = (
-            RemoteSessionStates.TestsSelected.value,
-            ["some job id"],
-        )
 
         RemoteController.resume_or_start_new_session(self_mock)
 
-        self.assertTrue(self_mock.automatically_resume_last_session.called)
-        self.assertTrue(self_mock.run_interactable_jobs.called)
+        self.assertTrue(self_mock.resume_last_session_and_continue.called)
 
     def test_resume_or_start_new_session_auto_launcher(self):
         self_mock = mock.MagicMock()
         self_mock.should_start_via_autoresume.return_value = False
         self_mock.should_start_via_launcher.return_value = True
-        self_mock.connection_strategy.return_value = {
-            RemoteSessionStates.TestsSelected: self_mock.run_interactable_jobs
-        }
-        self_mock.sa.whats_up.return_value = (
-            RemoteSessionStates.TestsSelected.value,
-            ["some job id"],
-        )
 
         RemoteController.resume_or_start_new_session(self_mock)
 
-        self.assertTrue(self_mock.automatically_start_via_launcher.called)
-        self.assertTrue(self_mock.run_interactable_jobs.called)
+        self.assertTrue(self_mock.auto_start_via_launcher_and_continue.called)
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_command_none(self, simple_ui_mock):
@@ -633,7 +611,7 @@ class ControllerTests(TestCase):
         sa_mock.prepare_resume_session.assert_called_once_with("123")
         sa_mock.select_test_plan.assert_called_once_with("abc")
         self.assertTrue(sa_mock.bootstrap.called)
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "Initial comment\nPassed after resuming execution",
@@ -678,7 +656,7 @@ class ControllerTests(TestCase):
         sa_mock.prepare_resume_session.assert_called_once_with("123")
         sa_mock.select_test_plan.assert_called_once_with("abc")
         self.assertTrue(sa_mock.bootstrap.called)
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "Initial comment\nFailed after resuming execution",
@@ -721,7 +699,7 @@ class ControllerTests(TestCase):
 
         # Assertions
         sa_mock.prepare_resume_session.assert_called_once_with("123")
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "comment requested from user",
@@ -766,7 +744,7 @@ class ControllerTests(TestCase):
         sa_mock.prepare_resume_session.assert_called_once_with("123")
         sa_mock.select_test_plan.assert_called_once_with("abc")
         self.assertTrue(sa_mock.bootstrap.called)
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "Initial comment\nSkipped after resuming execution",
@@ -809,7 +787,7 @@ class ControllerTests(TestCase):
 
         # Assertions
         sa_mock.prepare_resume_session.assert_called_once_with("123")
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "comment requested from user",
@@ -852,7 +830,7 @@ class ControllerTests(TestCase):
 
         # Assertions
         sa_mock.prepare_resume_session.assert_called_once_with("123")
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": None,
@@ -905,34 +883,36 @@ class ControllerTests(TestCase):
         with self.assertRaises(SystemExit):
             RemoteController.should_start_via_launcher(self_mock)
 
-    def test_interactively_choose_tp(self):
+    def test_interactively_choose_test_plan_and_continue(self):
         self_mock = mock.MagicMock()
 
         # by default always try to start a new session and not resuming
         RemoteController.interactively_choose_test_plan_and_continue(self_mock)
 
-        self.assertTrue(self_mock._new_session_flow.called)
-        self.assertFalse(self_mock._resume_session_menu.called)
+        self.assertTrue(self_mock.start_session.called)
+        self.assertFalse(self_mock.resume_session_via_menu_and_continue.called)
 
-    def test_interactively_choose_tp_resume(self):
+    def test_interactively_choose_test_plan_and_continue_resume(self):
         self_mock = mock.MagicMock()
-        self_mock._new_session_flow.side_effect = ResumeInstead
-        self_mock._resume_session_menu.return_value = True
+        self_mock.select_test_plan_via_menu.side_effect = [ResumeInstead, True]
+        self_mock.resume_session_via_menu_and_continue.return_value = True
 
         RemoteController.interactively_choose_test_plan_and_continue(self_mock)
 
-        self.assertTrue(self_mock._new_session_flow.called)
-        self.assertTrue(self_mock._resume_session_menu.called)
+        self.assertTrue(self_mock.start_session.called)
+        self.assertTrue(self_mock.select_test_plan_via_menu.called)
+        self.assertTrue(self_mock.resume_session_via_menu_and_continue.called)
 
-    def test_interactively_choose_tp_resume_retry_tp(self):
+    def test_interactively_choose_test_plan_and_continue_resume_retry_tp(self):
         self_mock = mock.MagicMock()
-        self_mock._new_session_flow.side_effect = [ResumeInstead, True]
-        self_mock._resume_session_menu.return_value = True
+        self_mock.select_test_plan_via_menu.side_effect = [ResumeInstead, True]
+        self_mock.resume_session_via_menu_and_continue.return_value = True
 
         RemoteController.interactively_choose_test_plan_and_continue(self_mock)
 
-        self.assertTrue(self_mock._new_session_flow.called)
-        self.assertTrue(self_mock._resume_session_menu.called)
+        self.assertTrue(self_mock.start_session.called)
+        self.assertTrue(self_mock.select_test_plan_via_menu.called)
+        self.assertTrue(self_mock.resume_session_via_menu_and_continue.called)
 
     def test__resumed_session(self):
         self_mock = mock.MagicMock()
@@ -1049,13 +1029,13 @@ class ControllerTests(TestCase):
         self.assertTrue(self_mock.select_test_plan.called)
         self.assertTrue(self_mock.bootstrap_and_continue.called)
 
-    def test_automatically_resume_last_session(self):
+    def test_resume_last_session_and_continue(self):
         self_mock = mock.MagicMock()
 
         RemoteController.resume_last_session_and_continue(self_mock)
 
         self.assertTrue(self_mock.sa.get_resumable_sessions.called)
-        self.assertTrue(self_mock.sa.resume_by_id.called)
+        self.assertTrue(self_mock.resume_by_id.called)
 
     def test_start_session_success(self):
         self_mock = mock.MagicMock()

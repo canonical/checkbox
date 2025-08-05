@@ -50,7 +50,7 @@ flags: simple
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_hardware_watchdog == 'True'
-command: watchdog_config_test.py --check-time
+command: watchdog_config_test.py check-timeout
 
 id: watchdog/check-service
 category_id: com.canonical.plainbox::power-management
@@ -62,4 +62,4 @@ flags: simple
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_hardware_watchdog == 'True'
-command: watchdog_config_test.py --check-service
+command: watchdog_config_test.py check-service

@@ -83,6 +83,6 @@ _summary: Setup K8s cluster to use any detected NVIDIA or Intel GPUs
 estimated_duration: 45m
 command:
   timeout 45m k8s_gpu_setup.py \
-    --nvidia ${SETUP_NVIDIA_GPU_OPERATOR_VERSION} \
-    --intel  ${SETUP_INTEL_GPU_PLUGIN_VERSION} \
+    --nvidia "${SETUP_NVIDIA_GPU_OPERATOR_VERSION}" \
+    --intel  "${SETUP_INTEL_GPU_PLUGIN_VERSION}" \
     --microk8s

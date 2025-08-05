@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import re
 import subprocess
 
 from checkbox_support.snap_utils.system import on_ubuntucore
@@ -45,6 +46,9 @@ Note:
 """
 
 
+WATCHDOG_SERVICE_TIMEOUT_PATTERN = "watchdog-timeout"
+
+
 def get_systemd_wdt_usec():
     """
     Return value of systemd-watchdog RuntimeWatchdogUSec
@@ -62,6 +66,21 @@ def get_systemd_wdt_usec():
         raise SystemExit(
             "Unexpected failure occurred when executing: {}".format(cmd)
         )
+
+
+def get_watchdog_service_timeout():
+    watchdog_timeout = 0
+    with open("/etc/watchdog.conf", "r") as fp:
+        config_data = fp.read()
+        match = re.search(
+            r"^{}[ ]*=[ ]*([0-9]*)".format(WATCHDOG_SERVICE_TIMEOUT_PATTERN),
+            config_data,
+            re.MULTILINE,
+        )
+        if match:
+            watchdog_timeout = int(match.group(1))
+
+    return watchdog_timeout
 
 
 def watchdog_service_check():
@@ -111,9 +130,26 @@ def check_timeout() -> bool:
                 "before running this test."
             )
             raise SystemExit(1)
+
+        watchdog_service_sec = get_watchdog_service_timeout()
+        if not watchdog_service_sec:
+            print(
+                "watchdog service should be enabled but reset timeout "
+                "({}) is set to: {}".format(
+                    WATCHDOG_SERVICE_TIMEOUT_PATTERN,
+                    watchdog_service_sec,
+                )
+            )
+            print(
+                "In order for the watchdog.service to work, the "
+                "{} configuration option must be set before "
+                "running this test.".format(WATCHDOG_SERVICE_TIMEOUT_PATTERN)
+            )
+            raise SystemExit(1)
+
         print(
-            "systemd watchdog disabled, reset timeout: {}".format(
-                runtime_watchdog_usec
+            "watchdog service enabled, reset timeout: {}".format(
+                watchdog_service_sec
             )
         )
 

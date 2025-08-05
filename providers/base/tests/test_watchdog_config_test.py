@@ -1,9 +1,10 @@
 import unittest
 import argparse
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock, mock_open
 from watchdog_config_test import (
     watchdog_argparse,
     get_systemd_wdt_usec,
+    get_watchdog_service_timeout,
     watchdog_service_check,
     check_timeout,
     check_service,
@@ -56,6 +57,27 @@ class TestWatchdogConfigTest(unittest.TestCase):
 
         with self.assertRaises(SystemExit):
             get_systemd_wdt_usec()
+
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="\nwatchdog-timeout       = 30\n",
+    )
+    def test_get_watchdog_service_timeout(self, mock_open):
+        wdt_timeout = get_watchdog_service_timeout()
+        print(wdt_timeout)
+        mock_open.assert_called_with("/etc/watchdog.conf", "r")
+        self.assertEqual(wdt_timeout, 30)
+
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="\n#watchdog-timeout       = 30\n",
+    )
+    def test_get_watchdog_service_timeout_failed(self, mock_open):
+        wdt_timeout = get_watchdog_service_timeout()
+        mock_open.assert_called_with("/etc/watchdog.conf", "r")
+        self.assertEqual(wdt_timeout, 0)
 
     @patch("watchdog_config_test.subprocess.run")
     def test_watchdog_service_check_active(self, mock_subprocess_run):
@@ -119,15 +141,22 @@ class TestWatchdogConfigTest(unittest.TestCase):
         mock_on_uc.assert_called_with()
 
     @patch("builtins.print")
+    @patch("watchdog_config_test.get_watchdog_service_timeout")
     @patch("watchdog_config_test.get_systemd_wdt_usec")
     @patch("watchdog_config_test.on_ubuntucore")
     @patch("watchdog_config_test.get_series")
     def test_check_timeout_classic_bionic_passed(
-        self, mock_series, mock_on_uc, mock_get_wdt_sec, mock_print
+        self,
+        mock_series,
+        mock_on_uc,
+        mock_get_wdt_sec,
+        mock_get_wdt_ser_sec,
+        mock_print,
     ):
         mock_series.return_value = "18.04"
         mock_get_wdt_sec.return_value = "0"
         mock_on_uc.return_value = False
+        mock_get_wdt_ser_sec.return_value = 30
 
         check_timeout()
         mock_series.assert_called_with()
@@ -137,12 +166,29 @@ class TestWatchdogConfigTest(unittest.TestCase):
     @patch("watchdog_config_test.get_systemd_wdt_usec")
     @patch("watchdog_config_test.on_ubuntucore")
     @patch("watchdog_config_test.get_series")
-    def test_check_timeout_classic_bionic_failed(
+    def test_check_timeout_classic_bionic_failed_on_systemd_conf(
         self, mock_series, mock_on_uc, mock_get_wdt_sec
     ):
         mock_series.return_value = "18.04"
         mock_get_wdt_sec.return_value = "30"
         mock_on_uc.return_value = False
+
+        with self.assertRaises(SystemExit):
+            check_timeout()
+        mock_series.assert_called_with()
+        mock_on_uc.assert_called_with()
+
+    @patch("watchdog_config_test.get_watchdog_service_timeout")
+    @patch("watchdog_config_test.get_systemd_wdt_usec")
+    @patch("watchdog_config_test.on_ubuntucore")
+    @patch("watchdog_config_test.get_series")
+    def test_check_timeout_classic_bionic_failed_service_conf(
+        self, mock_series, mock_on_uc, mock_get_wdt_sec, mock_get_wdt_ser_sec
+    ):
+        mock_series.return_value = "18.04"
+        mock_get_wdt_sec.return_value = "30"
+        mock_on_uc.return_value = False
+        mock_get_wdt_ser_sec.return_value = 0
 
         with self.assertRaises(SystemExit):
             check_timeout()

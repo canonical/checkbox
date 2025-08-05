@@ -20,23 +20,23 @@
 import argparse
 import glob
 import os
+import re
 import shutil
 import subprocess
 import sys
 import time
 
+from abc import ABC, abstractmethod
 from configparser import ConfigParser
 from contextlib import contextmanager
 from pathlib import Path
 
+from checkbox_support.snap_utils.system import on_ubuntucore
+from checkbox_support.snap_utils.system import get_series
 
-WATCHDOG_CONFIG_FILE = "/etc/systemd/system.conf"
-WATCHDOG_DEV_PATTERN = "WatchdogDevice"
-WATCHDOG_TIMEOUT_PATTERN = "RuntimeWatchdogSec"
+
 WATCHDOG_LOG_FILE = "watchdog_test.log"
 MAX_WATCHDOG_TIMEOUT = 30
-
-
 USAGE = """
 Watchdog Testing Tool - A tool to help you perform the watchdog testing
 
@@ -62,6 +62,135 @@ Examples:
   watchdog.py trigger-reset --module iTCO_wdt --identity "Intel WDT" --timeout 30 --log-dir /tmp/wdt
   watchdog.py post-check --log-dir /tmp/wdt
 """  # noqa: E501
+
+
+class WatchdogConfigHandler(ABC):
+
+    config_filename = ""
+    config_path = ""
+    timeout_pattern = ""
+
+    @classmethod
+    def backup_config(cls, backup_dir) -> None:
+        shutil.copy(
+            os.path.join(cls.config_path, cls.config_filename), backup_dir
+        )
+
+    @classmethod
+    @abstractmethod
+    def update_config(cls):
+        "update watchdog device and timeout"
+        return NotImplemented
+
+    @classmethod
+    def restore_config(cls, backup_dir) -> None:
+        backup_file = os.path.join(backup_dir, cls.config_filename)
+        shutil.copy(backup_file, cls.config_path)
+
+    @classmethod
+    def dump_watchdog_config(self) -> None:
+        print("# Dump configuration")
+        print(
+            Path(self.config_path).joinpath(self.config_filename).read_text()
+        )
+
+
+class WatchdogServiceHandler(WatchdogConfigHandler):
+    config_filename = "watchdog.conf"
+    config_path = "/etc"
+    timeout_pattern = "watchdog-timeout"
+
+    @classmethod
+    def update_config(cls, dev, timeout):
+        """
+        update the watchdog.conf under /etc/ and reload watchdog service.
+        only watchdog-timeout would be modified.
+
+        Args:
+            dev (str): the watchdog dev node (not use for now)
+            timeout (str): the timeout value for watchdog-timeout
+
+        Returns:
+            timeout (str): the timeout value for watchdog
+        """
+        conf_file = Path(cls.config_path).joinpath(cls.config_filename)
+        conf_data = conf_file.read_text()
+        match = re.search(
+            r"^{}[ ]*=[ ]*([0-9]*)".format(cls.timeout_pattern),
+            conf_data,
+            re.MULTILINE,
+        )
+        if match is None:
+            conf_data += "\n{}  = {}".format(cls.timeout_pattern, timeout)
+            conf_file.write_text(conf_data)
+        else:
+            timeout = match.group(1)
+            print(
+                "the watchdog timeout been set to {} before testing".format(
+                    timeout
+                )
+            )
+
+        cls.dump_watchdog_config()
+        subprocess.run(["systemctl", "daemon-reload"], check=True)
+        return timeout
+
+
+class SystemdWatchdogHandler(WatchdogConfigHandler):
+    config_filename = "system.conf"
+    config_path = "/etc/systemd"
+    timeout_pattern = "RuntimeWatchdogSec"
+    dev_pattern = "WatchdogDevice"
+
+    @classmethod
+    def update_config(cls, dev, timeout):
+        """
+        update the system.conf under /etc/systemd and reload daemon.
+        both RuntimeWatchdogSec and WatchdogDevice would be modified.
+
+        Args:
+            dev (str):     the watchdog device name
+            timeout (str): the timeout value for RuntimeWatchdogSec
+
+        Returns:
+            timeout (str): the timeout value for watchdog
+        """
+        filename = Path(cls.config_path).joinpath(cls.config_filename)
+
+        parser = ConfigParser()
+        parser.optionxform = lambda option: option
+        parser.read(filename)
+
+        watchdog_devstr = "/dev/{}".format(dev)
+
+        cur_watchdog = parser.get("Manager", cls.dev_pattern, fallback=None)
+        if cur_watchdog != watchdog_devstr:
+            parser.set("Manager", cls.dev_pattern, watchdog_devstr)
+
+        cur_timeout = parser.get("Manager", cls.timeout_pattern, fallback=None)
+        if not cur_timeout:
+            parser.set("Manager", cls.timeout_pattern, timeout)
+        else:
+            timeout = cur_timeout
+            print(
+                "the watchdog timeout been set to {} before testing".format(
+                    timeout
+                )
+            )
+
+        with open(filename, "w") as fp:
+            parser.write(fp)
+        cls.dump_watchdog_config()
+        subprocess.run(["systemctl", "daemon-reload"], check=True)
+        return timeout
+
+
+def _get_watchdog_handler():
+    ubuntu_version = int(get_series().split(".")[0])
+    if ubuntu_version >= 20 or on_ubuntucore():
+        return SystemdWatchdogHandler
+    else:
+        return WatchdogServiceHandler
 
 
 def watchdog_argparse() -> argparse.Namespace:
@@ -128,7 +257,7 @@ def watchdog_argparse() -> argparse.Namespace:
 @contextmanager
 def probe_watchdog_module(kernel_module):
     """
-    a context manager function to load and unload watchdog kernel module
+    a context manager function to load/unload watchdog kernel module
 
     Args:
         kernel_module (str): watchdog kernel module
@@ -170,7 +299,7 @@ def collect_hardware_watchdogs(watchdog_identity: str = "") -> dict:
     for node in fs_wtdgs:
         try:
             p_node = Path(node)
-            link = str(p_node.readlink())
+            link = str(p_node.resolve())
             identity = p_node.joinpath("identity").read_text().strip()
             print("- {}: {}".format(p_node.name, identity))
             if watchdog_identity and identity == watchdog_identity:
@@ -194,56 +323,12 @@ def collect_hardware_watchdogs(watchdog_identity: str = "") -> dict:
     return hardware_watchdogs
 
 
-def backup_systemd_config(backup_dir) -> None:
-    shutil.copy(WATCHDOG_CONFIG_FILE, backup_dir)
-
-
-def restore_systemd_config(backup_dir) -> None:
-    backup_file = Path(backup_dir).joinpath("system.conf")
-    shutil.copy(backup_file, WATCHDOG_CONFIG_FILE)
-
-
-def dump_watchdog_config() -> None:
-    print("# Dump systemd.conf")
-    print(Path(WATCHDOG_CONFIG_FILE).read_text())
-
-
-def configure_watchdog_config(dev, timeout) -> None:
-    """
-    update the system.conf under /etc/systemd and reload daemon.
-    this function update RuntimeWatchdogSec and WatchdogDevice in system.conf
-
-    Args:
-        dev (str):     the watchdog device name
-        timeout (str): the timeout value for RuntimeWatchdogSec
-
-    Raises:
-        SystemExit: when no watchdog device available
-    """
-    parser = ConfigParser()
-    parser.optionxform = lambda option: option
-    parser.read(WATCHDOG_CONFIG_FILE)
-
-    watchdog_devstr = "/dev/{}".format(dev)
-
-    cur_watchdog = parser.get("Manager", WATCHDOG_DEV_PATTERN, fallback=None)
-    if cur_watchdog != watchdog_devstr:
-        parser.set("Manager", WATCHDOG_DEV_PATTERN, watchdog_devstr)
-
-    parser.set("Manager", WATCHDOG_TIMEOUT_PATTERN, timeout)
-
-    with open(WATCHDOG_CONFIG_FILE, "w") as fp:
-        parser.write(fp)
-    dump_watchdog_config()
-    subprocess.run(["systemctl", "daemon-reload"], check=True)
-
-
 def watchdog_test_timestamp(log_dir):
     """
     Log the timestamp before perform watchdog reset test
 
     Args:
-        log_dir (str): the directory to store WATCHDOG_LOG_FILE
+        log_dir (str): the directory where log file will be saved
     """
     log_file = Path(log_dir).joinpath(WATCHDOG_LOG_FILE)
     log_file.write_text(str(time.time()))
@@ -251,28 +336,24 @@ def watchdog_test_timestamp(log_dir):
 
 def trigger_system_reset(backup_dir, watchdog_dev, watchdog_timeout) -> None:
     """
-    Trigger kernel panic and system shall recover by watchdog device
-
     This function will backup/modify the watchdog config in system.conf,
     then trigger kernel panic
 
     Args:
-        backup_dir: directory to store system.conf and log file
+        log_dir: the directory where watchdog configuration and log file will be saved
         watchdog_dev: watchdog device
-        watchdog_timeout: watchdog timeout
-
-    Raises:
-        SystemExit: when no watchdog device available
-    """
-    print(
-        "Trigger kernel panic and system shall recover by {} device".format(
-            watchdog_dev
-        )
-    )
+        watchdog_timeout: the timeout value for the watchdog
+    """  # noqa: E501
+    print("Update the watchdog configuration if needed")
     watchdog_test_timestamp(backup_dir)
-    backup_systemd_config(backup_dir)
-    configure_watchdog_config(watchdog_dev, str(watchdog_timeout))
 
+    watchdog_handler = _get_watchdog_handler()
+    watchdog_handler.backup_config(backup_dir)
+    real_timeout = watchdog_handler.update_config(
+        watchdog_dev, str(watchdog_timeout)
+    )
+
+    print("Triggering kernel panic {} seconds later".format(real_timeout))
     subprocess.run(["sync"])
     time.sleep(10)
     Path("/proc/sys/kernel/sysrq").write_text("1")
@@ -288,19 +369,17 @@ def watchdog_detection_test(watchdog_module, watchdog_identity) -> None:
     verifies their identities to ensure it's not a software watchdog.
 
     Notes:
-    - load the kernel module if watchdog_module is provided.
-    - some watchdog provided by EC might be recognized as soft watchdog
+        - This script will load the kernel module only if watchdog_module is specified.
+        - Some watchdogs provided by the EC may be recognized as software watchdogs; in such cases, specify the expected watchdog identity.
+        - Do not provide a kernel module if the watchdog is expected to be enabled by default.
 
     Args:
-        watchdog_module:
-            probe module when watchdog kernel module is not probe by default
-            DO NOT provide kernel module
-                if a watchdog expected to be enable by default
-        watchdog_identity: expected identity string of watchdog device
+        kernel_module: watchdog kernel module to be probe
+        watchdog_identity: expected identity string of the watchdog device
 
     Raises:
-        SystemExit: when no watchdog device available
-    """
+        SystemExit: Raised if no watchdog device is detected
+    """  # noqa: E501
     print("# Perform watchdog detection test")
     if watchdog_identity and watchdog_module:
         try:
@@ -326,18 +405,15 @@ def watchdog_reset_test(
     kernel_module, watchdog_identity, log_dir, watchdog_timeout
 ) -> None:
     """
-    perform watchdog reset test
-    this scripts would reset system by systemctl command when no kernel panic
+    perform a watchdog reset test
+    Note: if no kernel panic, this scripts would trigger a system reset using systemctl command
 
     Args:
-        kernel_module: watchdog kernel module
-        watchdog_identity: expected identity string of watchdog device
-        log_dir: directory to store system.conf and log file
-        watchdog_timeout: watchdog timeout
-
-    Raises:
-        SystemExit: when no watchdog device available
-    """
+        kernel_module: watchdog kernel module to be probe
+        watchdog_identity: expected identity string of the watchdog device
+        log_dir: the directory where watchdog configuration and log file will be saved
+        watchdog_timeout: the timeout value for the watchdog
+    """  # noqa: E501
     print("# Perform watchdog reset test")
     try:
         watchdog_dev = collect_hardware_watchdogs(watchdog_identity)
@@ -369,16 +445,18 @@ def watchdog_reset_test(
 
 def post_check_test(log_dir):
     """
-    post watchdog check test
+    Restore the watchdog settings and
+    verify from logs that no reset occurred due to scripts or user activity.
 
     Args:
-        log_dir: directory to store system.conf and log file
+        log_dir: directory to store watchdog config and log file
 
     Raises:
-        SystemExit: when no watchdog device available
+        SystemExit: system been reset due to scripts or user activity.
     """
     print("# Post check test")
-    restore_systemd_config(log_dir)
+    _get_watchdog_handler().restore_config(log_dir)
+
     if Path(log_dir).joinpath("watchdog_manual_reset.log").exists():
         raise SystemExit("Error: System reset by scripts, not watchdog")
 
@@ -387,8 +465,8 @@ def post_check_test(log_dir):
     time_diff = time.time() - system_uptime - float(start_time)
     if time_diff > 300:
         raise SystemExit(
-            "Error: system reset take more than 300 seconds, "
-            "this may be caused by reseting by user interaction"
+            "Error: Reset duration exceeded 300 seconds, "
+            "potentially caused by user interaction."
         )
 
     print("Passed: system been reset by watchdog")

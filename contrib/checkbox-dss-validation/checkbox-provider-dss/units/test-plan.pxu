@@ -6,6 +6,7 @@ include:
     setup_dss/install_package_.*
     setup_dss/enable_microk8s_addons
     setup_dss/write_microk8s_kube_config
+    setup_dss/k8s_gpu_setup
 
 id: dss-validation
 unit: test plan

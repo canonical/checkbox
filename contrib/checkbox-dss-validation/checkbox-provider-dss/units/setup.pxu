@@ -71,3 +71,18 @@ command:
   # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
   # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
   sudo microk8s.kubectl config view --raw | tee "$destination" >/dev/null
+
+id: setup_dss/k8s_gpu_setup
+category_id: setup-dss-regress
+depends:
+  setup_dss/install_snap_kubectl
+  setup_dss/install_snap_helm
+  setup_dss/write_microk8s_kube_config
+flags: simple
+_summary: Setup K8s cluster to use any detected NVIDIA or Intel GPUs
+estimated_duration: 45m
+command:
+  timeout 45m k8s_gpu_setup.py \
+    --nvidia ${SETUP_NVIDIA_GPU_OPERATOR_VERSION} \
+    --intel  ${SETUP_INTEL_GPU_PLUGIN_VERSION} \
+    --microk8s

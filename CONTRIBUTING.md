@@ -66,6 +66,9 @@ You should now be able to run checkbox, select a test plan and run it:
 
     (venv) $ checkbox-cli
 
+#### <img src=https://code.visualstudio.com/assets/images/code-stable.png alt="Visual Studio Code" height="16" align="absmiddle">&nbsp;&nbsp;VS Code
+If you are using VS Code for development, you can refer to the VS Code-specific setup instructions in [.vscode/README.md](.vscode/README.md) after setting up your virtual environment.
+
 ### Running/Testing Checkbox Remote
 
 By default `checkbox-cli` runs locally. If you want to run the [remote version]

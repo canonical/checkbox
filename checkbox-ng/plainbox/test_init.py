@@ -25,7 +25,7 @@ import plainbox
 
 
 class PlainboxInitTests(TestCase):
-    @mock.patch.dict(os.environ, {"VIRTUAL_ENV": "test"})
+    @mock.patch.dict(os.environ, {"VIRTUAL_ENV": "test"}, clear=True)
     def test_get_origin_venv(self):
         origin = plainbox.get_origin()
         self.assertEqual(origin["packaging"]["type"], "source")

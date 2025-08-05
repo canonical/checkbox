@@ -167,19 +167,6 @@ pdf: pdf-prep
 	@echo "Output can be found in ./$(BUILDDIR)"
 	@echo
 
-allmetrics: html
-	@echo "Recording documentation metrics..."
-	@echo "Checking for existence of vale..."
-	. $(VENV)
-	@. $(VENV); test -d $(SPHINXDIR)/venv/lib/python*/site-packages/vale || pip install vale
-	@. $(VENV); test -f $(VALE_CONFIG) || python3 $(SPHINXDIR)/get_vale_conf.py
-	@. $(VENV); find $(SPHINXDIR)/venv/lib/python*/site-packages/vale/vale_bin -size 195c -exec vale --config "$(VALE_CONFIG)" $(TARGET) > /dev/null \;
-	@eval '$(METRICSDIR)/source_metrics.sh $(PWD)'
-	@$(METRICSDIR)/build_metrics.py $(BUILDDIR)
-
-update: install
-	@. $(VENV); .sphinx/update_sp.py
-
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %:

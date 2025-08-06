@@ -2530,8 +2530,8 @@ depends: dock/init-connection
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-    This test is to check if the device is still functional after hotplug
-    during suspend.
+    This test is to check if the device can resume automatically
+    and remain functional after a hotplug event during suspend.
 _steps:
     1. Ensure the dock is connected.
     2. Suspend the system.
@@ -2539,7 +2539,8 @@ _steps:
     4. Hotplug dock.
     5. Resume the system.
 _verification:
-    Mark it as Pass if you have successfully suspended and resumed the system.
+    Mark it as Pass if the system can resume automatically when the dock
+    is hotplugged during suspend.
     The functionality will be verified through the following test cases.
 _summary:
     Test the system's functionality after suspend and resume.

@@ -37,6 +37,7 @@ DEFAULT_INTEL_PLUGIN_VERSION = "v0.30.0"
 
 @mock_retry()
 @mock_timeout()
+@mock.patch("time.sleep", new=lambda x: None)
 class TestInstallIntelGpuPlugin(unittest.TestCase):
     version = DEFAULT_INTEL_PLUGIN_VERSION
     repo = (
@@ -45,9 +46,9 @@ class TestInstallIntelGpuPlugin(unittest.TestCase):
     )
     apply = "kubectl apply -k "
 
-    @mock.patch("subprocess.check_call")
-    def test_kustomizes_and_checks_rollout(self, mock_call):
-        mock_call.__name__ = "subprocess.check_call"
+    @mock.patch("subprocess.run")
+    def test_kustomizes_and_checks_rollout(self, mock_run):
+        mock_run.__name__ = "subprocess.run"
         k8s_gpu_setup.setup_intel_gpu_plugin(self.version, False)
 
         urls = [
@@ -58,15 +59,18 @@ class TestInstallIntelGpuPlugin(unittest.TestCase):
                 f"nfd_labeled_nodes?ref={self.version}"
             ),
         ]
-        calls = [mock.call(f"{self.apply} {url}".split()) for url in urls]
+        calls = [mock.call(f"{self.apply} {url}".split(), check=True) for url in urls]
 
-        rollout = "kubectl -n default rollout status ds/intel-gpu-plugin"
-        calls.append(mock.call(rollout.split()))
+        for rollout in [
+            "kubectl -n node-feature-discovery rollout status ds/nfd-worker",
+            "kubectl -n default rollout status ds/intel-gpu-plugin",
+        ]:
+            calls.append(mock.call(rollout.split(), check=True))
 
         with self.subTest("number of calls"):
-            self.assertEqual(len(mock_call.mock_calls), len(calls))
+            self.assertEqual(len(mock_run.mock_calls), len(calls))
         with self.subTest("order of calls"):
-            mock_call.assert_has_calls(calls)
+            mock_run.assert_has_calls(calls)
 
 
 @mock_retry()
@@ -103,8 +107,8 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         ]
 
     @mock.patch("subprocess.run")
-    def test_without_microk8s(self, mock_call):
-        mock_call.__name__ = "subprocess.check_call"
+    def test_without_microk8s(self, mock_run):
+        mock_run.__name__ = "subprocess.check_call"
         k8s_gpu_setup.setup_nvidia_gpu_operator(self.version, False)
 
         helm_install = (
@@ -119,13 +123,13 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         ]
 
         with self.subTest("number of calls"):
-            self.assertEqual(len(mock_call.mock_calls), len(calls))
+            self.assertEqual(len(mock_run.mock_calls), len(calls))
         with self.subTest("order of calls"):
-            mock_call.assert_has_calls(calls)
+            mock_run.assert_has_calls(calls)
 
     @mock.patch("subprocess.run")
-    def test_for_microk8s(self, mock_call):
-        mock_call.__name__ = "subprocess.check_call"
+    def test_for_microk8s(self, mock_run):
+        mock_run.__name__ = "subprocess.check_call"
         k8s_gpu_setup.setup_nvidia_gpu_operator(self.version, True)
 
         helm_install = (
@@ -165,6 +169,6 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         ]
 
         with self.subTest("number of calls"):
-            self.assertEqual(len(mock_call.mock_calls), len(calls))
+            self.assertEqual(len(mock_run.mock_calls), len(calls))
         with self.subTest("order of calls"):
-            mock_call.assert_has_calls(calls)
+            mock_run.assert_has_calls(calls)

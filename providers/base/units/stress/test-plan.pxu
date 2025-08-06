@@ -30,7 +30,7 @@ include:
     power-management/suspend-30-cycles-time-check  certification-status=non-blocker
     power-management/hibernate_30_cycles           certification-status=non-blocker
     power-management/hibernate-30-cycle-log-attach
-    stress/cpu_stress_ng_test_sru                   certification-status=blocker
+    stress/cpu_stress_ng_test                      certification-status=blocker
 
 id: stress-cert-blockers
 unit: test plan
@@ -100,8 +100,8 @@ _name: Stress NG tests (automated)
 _description: Stress NG tests (automated)
 include:
     stress/store_and_change_oomd_config
-    stress/cpu_stress_ng_test_sru                   certification-status=blocker
-    stress/memory_stress_ng_sru                     certification-status=blocker
+    stress/cpu_stress_ng_test                       certification-status=blocker
+    stress/memory_stress_ng                         certification-status=blocker
     stress/restore_oomd_config
 
 id: stress-warmboot-coldboot-automated

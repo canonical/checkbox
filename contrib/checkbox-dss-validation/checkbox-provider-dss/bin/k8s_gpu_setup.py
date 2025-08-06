@@ -101,8 +101,10 @@ def detect_available_gpu_vendors() -> t.Tuple[bool, bool]:
     for device in udev.run():
         if getattr(device, "category") in GPU_CATEGORIES:
             vendor = getattr(device, "vendor")
-            found_nvidia = vendor in VENDOR_NVIDIA
-            found_intel = vendor in VENDOR_INTEL
+            if not found_nvidia:
+                found_nvidia = vendor in VENDOR_NVIDIA
+            if not found_intel:
+                found_intel = vendor in VENDOR_INTEL
     print(f"Detected NVIDIA GPU: {found_nvidia}")
     print(f"Detected Intel GPU:  {found_intel}")
     return found_nvidia, found_intel

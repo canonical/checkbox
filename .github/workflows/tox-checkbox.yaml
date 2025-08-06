@@ -3,7 +3,6 @@ permissions:
   contents: read
 on:
   push:
-    branches: [ main ]
     paths:
       - checkbox-ng/**
       - checkbox-support/**
@@ -18,7 +17,6 @@ on:
       - providers/iiotg/**
       - .github/workflows/tox-checkbox.yaml
   pull_request:
-    branches: [ main ]
     paths:
       - checkbox-ng/**
       - checkbox-support/**

@@ -899,6 +899,27 @@ class TestLauncher(TestCase):
             {"manifest1": False, "manifest2": 7}
         )
 
+    def test__select_test_plan_and_continue_automated_ok(self):
+        self_mock = MagicMock()
+
+        def get_value(*args):
+            if args == ("test plan", "forced"):
+                return True
+            elif args == ("test plan", "unit"):
+                return "test_plan_id"
+            elif args == ("launcher", "session_desc"):
+                return "description"
+            raise AssertionError("Unknown config")
+
+        self_mock.configuration.get_value = get_value
+        self_mock.ctx.args.launcher = None
+        self_mock.ctx.args.message = None
+        self_mock.sa.get_test_plans.return_value = ["test_plan_id"]
+
+        Launcher._select_test_plan_and_continue(self_mock)
+
+        self.assertTrue(self_mock.sa.select_test_plan.called)
+
 
 @patch("os.makedirs", new=MagicMock())
 class TestLauncherReturnCodes(TestCase):

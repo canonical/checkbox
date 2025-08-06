@@ -332,8 +332,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                         )
                     )
                     printed_reconnecting = False
-                state = RemoteSessionStates(state)
-                keep_running = connection_strategy[state](self, payload)
+                keep_running = self.continue_session()
             except EOFError as exc:
                 if keep_running:
                     print("Connection lost!")

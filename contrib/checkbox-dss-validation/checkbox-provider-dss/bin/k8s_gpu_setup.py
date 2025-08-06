@@ -193,7 +193,7 @@ def setup_intel_gpu_plugin(version: str, is_microk8s: bool) -> None:
 def _version_or_skip(value: str) -> str | None:
     if value == "":
         raise argparse.ArgumentTypeError("Empty value is not allowed")
-    return None if value == SKIP else None
+    return None if value == SKIP else value
 
 
 if __name__ == "__main__":  # pragma: no cover

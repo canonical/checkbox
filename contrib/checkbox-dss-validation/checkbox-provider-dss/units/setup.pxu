@@ -85,4 +85,4 @@ command:
   timeout 45m k8s_gpu_setup.py \
     --microk8s \
     "${SETUP_NVIDIA_GPU_OPERATOR_VERSION}" \
-    "${SETUP_INTEL_GPU_PLUGIN_VERSION}" \
+    "${SETUP_INTEL_GPU_PLUGIN_VERSION}"

@@ -76,6 +76,38 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])
 
+    def test_mi300x_video(self):
+        """Tests that AMD's MI300X accelerator is marked as a video device."""
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/pci0000:00/0000:00:01.1/0000:01:00.0/0000:02:00.0/0000:03:00.0/0000:04:00.0/0000:05:00.0
+                M: 0000:05:00.0
+                R: 0
+                U: pci
+                V: amdgpu
+                E: DEVPATH=/devices/pci0000:00/0000:00:01.1/0000:01:00.0/0000:02:00.0/0000:03:00.0/0000:04:00.0/0000:05:00.0
+                E: SUBSYSTEM=pci
+                E: DRIVER=amdgpu
+                E: PCI_CLASS=120000
+                E: PCI_ID=1002:74A1
+                E: PCI_SUBSYS_ID=1002:74A1
+                E: PCI_SLOT_NAME=0000:05:00.0
+                E: MODALIAS=pci:v00001002d000074A1sv00001002sd000074A1bc12sc00i00
+                E: USEC_INITIALIZED=11569986
+                E: ID_PCI_CLASS_FROM_DATABASE=Processing accelerators
+                E: ID_PCI_SUBCLASS_FROM_DATABASE=Processing accelerators
+                E: ID_VENDOR_FROM_DATABASE=Advanced Micro Devices, Inc. [AMD/ATI]
+                E: ID_PATH=pci-0000:05:00.0
+                E: ID_PATH_TAG=pci-0000_05_00_0
+                E: NVME_HOST_IFACE=none
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(devices[0].category, "VIDEO")
+
     def test_openfirmware_network(self):
         stream = StringIO(
             dedent(

@@ -309,6 +309,18 @@ environ: SYS_LEDS
 command:
     led_sysfs_resource.py "$SYS_LEDS"
 
+id: led_indicator/validate-sysfs-leds-variable
+category_id: led
+plugin: shell
+_summary: Validate the environment variable SYS_LEDS
+_description: validate the format of SYS_LEDS environment variable is correct.
+estimated_duration: 3
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_sysfs_led == 'True'
+environ: SYS_LEDS
+command:
+    led_sysfs_resource.py "$SYS_LEDS" --validate
+
 unit: template
 template-resource: led-indicator/sysfs-leds
 template-unit: job
@@ -327,7 +339,7 @@ user: root
 flags: also-after-suspend
 estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_gpio_sysfs == 'True'
+requires: manifest.has_sysfs_led == 'True'
 command:
     led_control_test.py -n {path} -d 10 --color-type {color_type}
 
@@ -345,7 +357,7 @@ user: root
 flags: also-after-suspend
 estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_gpio_sysfs == 'True'
+requires: manifest.has_sysfs_led == 'True'
 command:
     led_control_test.py -n {path} -d 10
 

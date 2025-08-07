@@ -47,6 +47,7 @@ def parse_sysfs_led_resource(resource):
         print("color_type: {}".format(color_type))
         print()
 
+
 def main():
     args = register_arguments()
 
@@ -65,7 +66,7 @@ def register_arguments():
         "--validate",
         action="store_true",
         default=False,
-        help="check if the format of led_patterns correctly"
+        help="check if the format of led_patterns correctly",
     )
 
     args = parser.parse_args()

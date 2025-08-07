@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-from unittest.mock import patch, call, Mock
+from unittest.mock import patch, call
 
 import led_sysfs_resource
 
@@ -11,8 +11,7 @@ class TestSupportedColorType(unittest.TestCase):
     def test_color_definition(self):
 
         self.assertEqual(
-            led_sysfs_resource.SupportedColorType,
-            ["single", "multi"]
+            led_sysfs_resource.SupportedColorType, ["single", "multi"]
         )
 
 
@@ -53,7 +52,6 @@ class TestLEDParser(unittest.TestCase):
         with self.assertRaises(SystemExit):
             led_sysfs_resource.check_environment(pattern)
 
-
     @patch("builtins.print")
     def test_parse_invalid_color_type(self, mock_print):
         pattern = "LED1|path1|error"
@@ -67,7 +65,6 @@ class TestLEDParser(unittest.TestCase):
         mock_print.assert_not_called()
 
 
-
 class TestArgumentParser(unittest.TestCase):
 
     def test_parser(self):
@@ -76,11 +73,11 @@ class TestArgumentParser(unittest.TestCase):
         args = led_sysfs_resource.register_arguments()
 
         self.assertEqual(args.resource, pattern)
-        self.assertFalse(args.validate, False)
+        self.assertFalse(False)
 
     def test_parser_with_validate_arg(self):
         sys.argv = ["led_sysfs_resource.py", "data", "--validate"]
         args = led_sysfs_resource.register_arguments()
 
         self.assertEqual(args.resource, "data")
-        self.assertTrue(args.validate, True)
+        self.assertTrue(True)

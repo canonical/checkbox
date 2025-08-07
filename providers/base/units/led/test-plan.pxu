@@ -135,6 +135,7 @@ _name: Automated LED indicator tests for IoT
 _description:
     Automated LED indicator tests for IoT devices
 include:
+    led_indicator/validate-sysfs-leds-variable
     led-indicator/sysfs-leds-auto
 bootstrap_include:
     led-indicator/sysfs-leds

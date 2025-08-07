@@ -83,7 +83,12 @@ class StressNg:
         command = (
             "stress-ng --aggressive --verify --oom-avoid-bytes {} "
             "--timeout {} {} {}"
-        ).format(self.oom_avoid_bytes, self.sng_timeout, self.extra_options, stressor_list)
+        ).format(
+            self.oom_avoid_bytes,
+            self.sng_timeout,
+            self.extra_options,
+            stressor_list,
+        )
         print("Running command: {}".format(command))
         time_str = time.strftime("%d %b %H:%M", time.gmtime())
         if len(self.stressors) == 1:
@@ -247,7 +252,7 @@ def stress_memory(args):
 
     ram = psutil.virtual_memory()
     total_mem_in_gb = ram.total / (1024**3)
-    
+
     if args.oom_avoid_bytes is not None:
         oom_avoid_bytes = args.oom_avoid_bytes
     elif total_mem_in_gb > 255:

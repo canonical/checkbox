@@ -59,7 +59,10 @@ class TestInstallIntelGpuPlugin(unittest.TestCase):
                 f"nfd_labeled_nodes?ref={self.version}"
             ),
         ]
-        calls = [mock.call(f"{self.apply} {url}".split(), check=True) for url in urls]
+        calls = [
+            mock.call(f"{self.apply} {url}".split(), check=True)
+            for url in urls
+        ]
 
         for rollout in [
             "kubectl -n node-feature-discovery rollout status ds/nfd-worker",

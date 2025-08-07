@@ -5,11 +5,13 @@ import argparse
 
 
 def run_vk_test(test_file):
+    install_dir = "/usr/local/checkbox-gfx/VK-GL-CTS/"
+    binary = install_dir + "build/external/vulkancts/modules/vulkan/deqp-vk"
+    testfile_dir = install_dir + "external/vulkancts/mustpass/main/vk-default/"
     result = subprocess.run(
         [
-            "/usr/local/checkbox-gfx/VK-GL-CTS/build/external/vulkancts/"
-            "modules/vulkan/deqp-vk",
-            f"--deqp-caselist-file={test_file}",
+            binary,
+            f"--deqp-caselist-file={testfile_dir + test_file}",
         ],
         capture_output=True,
         text=True,
@@ -26,7 +28,7 @@ if __name__ == "__main__":
         "--test_file",
         type=str,
         required=True,
-        help="Path to VK-GL-CTS test file",
+        help="deqp caselist file (e.g. api.txt)",
     )
     args = parser.parse_args()
 

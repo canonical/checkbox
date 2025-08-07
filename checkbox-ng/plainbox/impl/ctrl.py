@@ -615,3 +615,8 @@ class SymLinkNest:
                 dest,
                 exc,
             )
+
+        raise SystemExit(
+            "Failed: Cannot have encode and decode mode enabled at the same "
+            "time"
+        )

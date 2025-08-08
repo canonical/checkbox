@@ -59,6 +59,7 @@ class StressNg:
         sng_timeout,
         thread_count=0,
         extra_options="",
+        oom_avoid_bytes="10%",
     ):
 
         self.stressors = stressors
@@ -66,6 +67,7 @@ class StressNg:
         self.sng_timeout = sng_timeout
         self.extra_options = extra_options
         self.thread_count = thread_count
+        self.oom_avoid_bytes = oom_avoid_bytes
         self.results = ""
         self.returncode = 0
 
@@ -79,9 +81,14 @@ class StressNg:
         stressor_list = stressor_list + " {}".format(self.thread_count)
 
         command = (
-            "stress-ng --aggressive --verify --oom-avoid-bytes 10% "
+            "stress-ng --aggressive --verify --oom-avoid-bytes {} "
             "--timeout {} {} {}"
-        ).format(self.sng_timeout, self.extra_options, stressor_list)
+        ).format(
+            self.oom_avoid_bytes,
+            self.sng_timeout,
+            self.extra_options,
+            stressor_list,
+        )
         print("Running command: {}".format(command))
         time_str = time.strftime("%d %b %H:%M", time.gmtime())
         if len(self.stressors) == 1:
@@ -245,6 +252,13 @@ def stress_memory(args):
 
     ram = psutil.virtual_memory()
     total_mem_in_gb = ram.total / (1024**3)
+
+    if args.oom_avoid_bytes is not None:
+        oom_avoid_bytes = args.oom_avoid_bytes
+    elif total_mem_in_gb > 255:
+        oom_avoid_bytes = "5%"
+    else:
+        oom_avoid_bytes = "10%"
     vrt = args.base_time + total_mem_in_gb * args.time_per_gig
     print("Total memory is {:.1f} GiB".format(total_mem_in_gb))
     print(
@@ -299,6 +313,7 @@ def stress_memory(args):
             sng_timeout=args.base_time,
             wrapper_timeout=args.base_time * 2,
             thread_count=0,
+            oom_avoid_bytes=oom_avoid_bytes,
         )
         retval = retval | test_object.run()
         print(test_object.results)
@@ -308,6 +323,7 @@ def stress_memory(args):
             sng_timeout=vrt,
             wrapper_timeout=vrt * 2,
             thread_count=0,
+            oom_avoid_bytes=oom_avoid_bytes,
         )
         retval = retval | test_object.run()
         print(test_object.results)
@@ -317,6 +333,7 @@ def stress_memory(args):
             sng_timeout=vrt,
             wrapper_timeout=vrt * 2,
             thread_count=8,
+            oom_avoid_bytes=oom_avoid_bytes,
         )  # throttle to 8 threads
         retval = retval | test_object.run()
         print(test_object.results)
@@ -450,6 +467,12 @@ def main():
         "--keep-swap",
         action="store_true",
         help="Keep swap file, if added by test",
+    )
+    memory_parser.add_argument(
+        "--oom-avoid-bytes",
+        type=str,
+        help="OOM avoidance memory (default=10%%, 5%% for >255GB)",
+        default=None,
     )
 
     # Disk parameters

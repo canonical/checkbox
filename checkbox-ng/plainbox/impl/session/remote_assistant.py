@@ -24,6 +24,7 @@ import os
 import pwd
 import time
 import itertools
+from functools import wraps
 from collections import namedtuple
 from contextlib import suppress
 from tempfile import SpooledTemporaryFile
@@ -53,24 +54,59 @@ _ = gettext.gettext
 
 _logger = logging.getLogger("plainbox.session.remote_assistant")
 
-Interaction = namedtuple("Interaction", ["kind", "message", "extra"])
-
 
 class Interaction(namedtuple("Interaction", ["kind", "message", "extra"])):
-    __slots__ = ()
+    """
+    This is a named tuple with optional parameters
+    """
 
     def __new__(cls, kind, message="", extra=None):
-        return super(Interaction, cls).__new__(cls, kind, message, extra)
+        return super().__new__(cls, kind, message, extra)
 
 
-Idle = "idle"
-Started = "started"
-Bootstrapping = "bootstrapping"
-Bootstrapped = "bootstrapped"
-TestsSelected = "testsselected"
-Running = "running"
-Interacting = "interacting"
-Finalizing = "finalizing"
+class RemoteSessionStates(Enum):
+    """
+    These are the state the RemoteSessionAssistant handles.
+
+    We need a second state machine (In addition to the SessionAssistant
+    UsageExpectation) to allow the controller to gracefully know how to
+    continue or start a new session on connection.
+    """
+
+    # nothing has connected yet
+    Idle = "idle"
+    # session has started, test plan was selected
+    Started = "started"
+    # bootstrap phase is ongoing
+    Bootstrapping = "bootstrapping"
+    # done bootstrapping, ready to select tests
+    Bootstrapped = "bootstrapped"
+    # tests were selected, ready to run them
+    TestsSelected = "testsselected"
+    # running a non-interactive test
+    Running = "running"
+    # waiting for an user interaction (like a comment)
+    Interacting = "interacting"
+    # finalizing the session (generating reports)
+    Finalizing = "finalizing"
+
+
+def allowed_when(*states: RemoteSessionStates):
+    def wrap(f):
+        @wraps(f)
+        def fun(self, *args):
+            if self.state not in states:
+                raise RuntimeError(
+                    "Uh, Oh... Function '{}' can only be called in states: {} \n"
+                    "but was called now and current state is: {}".format(
+                        f.__name__, states, self.state
+                    )
+                )
+            return f(self, *args)
+
+        return fun
+
+    return wrap
 
 
 class BufferedUI(SilentUI):
@@ -155,7 +191,7 @@ class RemoteSessionAssistant:
     object but JSON encoded.
     """
 
-    REMOTE_API_VERSION = 14
+    REMOTE_API_VERSION = 15
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -168,12 +204,14 @@ class RemoteSessionAssistant:
         self.terminate_cb = None
         self._pipe_from_controller = open(self._input_piping[1], "w")
         self._pipe_to_subproc = open(self._input_piping[0])
+        self._sa = None  # type: SessionAssistant
+        self._state = None  # type: RemoteSessionStates
         self._reset_sa()
         self._currently_running_job = None
 
     def _reset_sa(self):
         _logger.info("Resetting RSA")
-        self._state = Idle
+        self._state = RemoteSessionStates.Idle
         self._sa = SessionAssistant()
         self._be = None
         self._session_id = ""
@@ -192,6 +230,20 @@ class RemoteSessionAssistant:
         job = json.loads(job)
         return self.note_metadata_starting_job(job, job_state)
 
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, new_state):
+        if self._state != new_state:
+            _logger.info(
+                "Transitioning from {} to {}".format(
+                    self._state.value, new_state.value
+                )
+            )
+        self._state = new_state
+
     def note_metadata_starting_job(self, job, job_state):
         self._sa.note_metadata_starting_job(job, job_state)
 
@@ -209,38 +261,25 @@ class RemoteSessionAssistant:
     def update_app_blob(self, app_blob):
         self._sa.update_app_blob(app_blob)
 
-    def allowed_when(*states):
-        def wrap(f):
-            def fun(self, *args):
-                if self._state not in states:
-                    raise AssertionError(
-                        "expected %s, is %s" % (states, self._state)
-                    )
-                return f(self, *args)
-
-            return fun
-
-        return wrap
-
     def interact(self, interaction):
-        self._state = Interacting
+        self.state = RemoteSessionStates.Interacting
         self._current_interaction = interaction
         yield self._current_interaction
 
-    @allowed_when(Interacting)
+    @allowed_when(RemoteSessionStates.Interacting)
     def remember_users_response(self, response):
         if response == "rollback":
             self._currently_running_job = None
             self.session_change_lock.acquire(blocking=False)
             self.session_change_lock.release()
             self._current_comments = ""
-            self._state = TestsSelected
+            self.state = RemoteSessionStates.TestsSelected
             return
         elif response == "quit":
             self.abandon_session()
             return
         self._last_response = response
-        self._state = Running
+        self.state = RemoteSessionStates.Running
 
     def _set_envvar_from_proc(self, name):
         for path in os.listdir("/proc/"):
@@ -327,11 +366,11 @@ class RemoteSessionAssistant:
             )
         return extra_env
 
-    @allowed_when(Idle)
+    @allowed_when(RemoteSessionStates.Idle)
     def start_session_json(self, configuration):
         return json.dumps(self.start_session(json.loads(configuration)))
 
-    @allowed_when(Idle)
+    @allowed_when(RemoteSessionStates.Idle)
     def start_session(self, configuration):
         self._reset_sa()
         _logger.info("start_session: %r", configuration)
@@ -390,48 +429,32 @@ class RemoteSessionAssistant:
             filtered_tps,
             [self._sa.get_test_plan(tp).name for tp in filtered_tps],
         )
-        self._state = Started
+        self.state = RemoteSessionStates.Started
         self._available_testplans = sorted(
             response, key=lambda x: x[1]
         )  # sorted by name
         self._available_testplans = list(self._available_testplans)
         return self._available_testplans
 
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Idle)
     def select_test_plan(self, test_plan_id):
         return self._sa.select_test_plan(test_plan_id)
 
-    @allowed_when(Started)
-    def prepare_bootstrapping(self, test_plan_id):
-        """Save picked test plan to the app blob."""
-        _logger.debug("prepare_bootstrapping: %r", test_plan_id)
-        self._sa.update_app_blob(
-            json.dumps(
-                {
-                    "testplan_id": test_plan_id,
-                }
-            ).encode("UTF-8")
-        )
-        self._sa.select_test_plan(test_plan_id)
-        # TODO: REMOTE API RAPI: Change this API on the next RAPI bump
-        # previously the function returned bool signifying the need for sudo
-        # password. With agent being guaranteed to never need it anymor
-        # we can make this funciton return nothing
-        return False
+    @allowed_when(RemoteSessionStates.Started)
+    def start_bootstrap_json(self):
+        return json.dumps(self.start_bootstrap())
 
-    @allowed_when(Started)
-    def get_bootstrapping_todo_list_json(self):
-        return json.dumps(self.get_bootstrapping_todo_list())
-
-    @allowed_when(Started)
-    def get_bootstrapping_todo_list(self):
-        return self._sa.get_bootstrap_todo_list()
+    @allowed_when(RemoteSessionStates.Started)
+    def start_bootstrap(self):
+        self.state = RemoteSessionStates.Bootstrapping
+        return self._sa.start_bootstrap()
 
     def finish_bootstrap_json(self):
         return json.dumps(self.finish_bootstrap())
 
     def finish_bootstrap(self):
         self._sa.finish_bootstrap()
-        self._state = Bootstrapped
+        self.state = RemoteSessionStates.Bootstrapped
         if self._launcher.get_value("ui", "auto_retry"):
             for job_id in self._sa.get_static_todo_list():
                 job_state = self._sa.get_job_state(job_id)
@@ -461,14 +484,16 @@ class RemoteSessionAssistant:
 
     def finish_job_selection(self):
         self._jobs_count = len(self._sa.get_dynamic_todo_list())
-        self._state = TestsSelected
+        self.state = RemoteSessionStates.TestsSelected
 
-    @allowed_when(Interacting, TestsSelected)
+    @allowed_when(
+        RemoteSessionStates.Interacting, RemoteSessionStates.TestsSelected
+    )
     def rerun_job(self, job_id, result):
         self._sa.use_job_result(job_id, result)
         self.session_change_lock.acquire(blocking=False)
         self.session_change_lock.release()
-        self._state = TestsSelected
+        self.state = RemoteSessionStates.TestsSelected
 
     def _get_ui_for_job(self, job):
         show_out = True
@@ -492,7 +517,7 @@ class RemoteSessionAssistant:
             self._ui = RemoteSilentUI()
         return self._ui
 
-    @allowed_when(TestsSelected)
+    @allowed_when(RemoteSessionStates.TestsSelected)
     def run_job(self, job_id):
         """
         Depending on the type of the job, run_job can yield different number
@@ -575,7 +600,7 @@ class RemoteSessionAssistant:
                     Interaction("skip", job.verification, self._be)
                 )
         if job.command:
-            self._state = Running
+            self.state = RemoteSessionStates.Running
             ui = self._get_ui_for_job(job)
             self._be = BackgroundExecutor(self, job_id, self._sa.run_job, ui)
         else:
@@ -592,13 +617,17 @@ class RemoteSessionAssistant:
                 Interaction("verification", job.verification, self._be)
             )
 
-    @allowed_when(Started, Bootstrapping)
-    def run_bootstrapping_job(self, job_id):
+    @allowed_when(RemoteSessionStates.Bootstrapping)
+    def run_uninteractable_job(self, job_id):
         self._currently_running_job = job_id
-        self._state = Bootstrapping
         self._be = BackgroundExecutor(self, job_id, self._sa.run_job)
 
-    @allowed_when(Running, Bootstrapping, Interacting, TestsSelected)
+    @allowed_when(
+        RemoteSessionStates.Running,
+        RemoteSessionStates.Bootstrapping,
+        RemoteSessionStates.Interacting,
+        RemoteSessionStates.TestsSelected,
+    )
     def monitor_job(self):
         """
         Check the state of the currently running job.
@@ -621,27 +650,28 @@ class RemoteSessionAssistant:
 
     def whats_up(self):
         """
-        Check what is remote-service up to
-        :returns:
-            (state, payload) tuple.
+        Returns the current agent state along with useful information to
+        allow the controller to start or recover the current session
         """
-        _logger.debug("whats_up() -> %r", self._state)
         payload = None
-        if self._state == Running:
+        if self.state == RemoteSessionStates.Running:
             payload = (
                 self._job_index,
                 self._jobs_count,
                 self._currently_running_job,
             )
-        if self._state == TestsSelected and not self._currently_running_job:
+        if (
+            self.state == RemoteSessionStates.TestsSelected
+            and not self._currently_running_job
+        ):
             payload = {"last_job": self._last_job}
-        elif self._state == Started:
+        elif self.state == RemoteSessionStates.Started:
             payload = self._available_testplans
-        elif self._state == Interacting:
+        elif self.state == RemoteSessionStates.Interacting:
             payload = self._current_interaction
-        elif self._state == Bootstrapped:
+        elif self.state == RemoteSessionStates.Bootstrapped:
             payload = self._sa.get_static_todo_list()
-        return self._state, payload
+        return self.state.value, payload
 
     def terminate(self):
         if self.terminate_cb:
@@ -696,16 +726,16 @@ class RemoteSessionAssistant:
             else:
                 result = self._be.wait().get_result()
         self._sa.use_job_result(self._currently_running_job, result)
-        if self._state != Bootstrapping:
+        if self.state != RemoteSessionStates.Bootstrapping:
             if not self._sa.get_dynamic_todo_list():
                 if self._launcher.get_value(
                     "ui", "auto_retry"
                 ) and self.get_rerun_candidates("auto"):
-                    self._state = TestsSelected
+                    self.state = RemoteSessionStates.TestsSelected
                 else:
-                    self._state = Idle
+                    self.state = RemoteSessionStates.Idle
             else:
-                self._state = TestsSelected
+                self.state = RemoteSessionStates.TestsSelected
         return result
 
     def get_rerun_candidates(self, session_type="manual"):
@@ -713,7 +743,7 @@ class RemoteSessionAssistant:
 
     def prepare_rerun_candidates(self, rerun_candidates):
         candidates = self._sa.prepare_rerun_candidates(rerun_candidates)
-        self._state = TestsSelected
+        self.state = RemoteSessionStates.TestsSelected
         return candidates
 
     def get_job_result(self, job_id):
@@ -779,8 +809,10 @@ class RemoteSessionAssistant:
     def get_resumable_sessions(self):
         return self._sa.get_resumable_sessions()
 
-    def resume_session(self, session_id, runner_kwargs={}):
-        return self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
+    def prepare_resume_session(self, session_id, runner_kwargs={}):
+        return self._sa.prepare_resume_session(
+            session_id, runner_kwargs=runner_kwargs
+        )
 
     def bootstrap(self):
         return self._sa.bootstrap()
@@ -803,7 +835,9 @@ class RemoteSessionAssistant:
             "stdin": self._pipe_to_subproc,
             "extra_env": self.prepare_extra_env,
         }
-        meta = self.resume_session(session_id, runner_kwargs=runner_kwargs)
+        meta = self.prepare_resume_session(
+            session_id, runner_kwargs=runner_kwargs
+        )
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
         if "launcher" in app_blob:
             launcher_from_controller = Configuration.from_text(
@@ -890,7 +924,7 @@ class RemoteSessionAssistant:
                     "ui", "max_attempts"
                 ) - len(job_state.result_history)
 
-        self._state = TestsSelected
+        self.state = RemoteSessionStates.TestsSelected
 
     def has_any_job_failed(self):
         job_state_map = (

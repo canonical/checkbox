@@ -33,6 +33,7 @@ import logging
 import os
 import shlex
 import time
+from contextlib import suppress
 from collections import defaultdict
 from tempfile import SpooledTemporaryFile
 
@@ -73,6 +74,7 @@ from plainbox.impl.session.restart import (
 )
 from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.storage import WellKnownDirsHelper
+from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.transport import OAuthTransport, TransportError
 from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.unit.unit import Unit
@@ -188,9 +190,9 @@ class SessionAssistant:
         # available on the manager.
         self._exclude_qualifiers = []
         self._match_qualifiers = []
-        self._manager = None
-        self._context = None
-        self._metadata = None
+        self._manager = None  # type: SessionManager
+        self._context = None  # type: SessionDeviceContext
+        self._metadata = None  # type: SessionMetaData
         self._runner = None
         self._job_start_time = None
         # Keep a record of jobs run during bootstrap phase
@@ -199,7 +201,7 @@ class SessionAssistant:
         self._load_providers()
         UsageExpectation.of(self).allowed_calls = {
             self.start_new_session: "create a new session from scratch",
-            self.resume_session: "resume a resume candidate",
+            self.prepare_resume_session: "resume a resume candidate",
             self.get_resumable_sessions: "get resume candidates",
             self.use_alternate_configuration: (
                 "use an alternate configuration system"
@@ -517,7 +519,7 @@ class SessionAssistant:
         self._metadata = self._context.state.metadata
         self._metadata.app_id = self._app_id
         self._metadata.title = title
-        self._metadata.flags = {SessionMetaData.FLAG_BOOTSTRAPPING}
+        self._metadata.flags = set()
         self._metadata.update_feature_flags(self._config)
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
@@ -541,11 +543,11 @@ class SessionAssistant:
         }
 
     @raises(KeyError, UnexpectedMethodCall, IncompatibleJobError)
-    def resume_session(
+    def prepare_resume_session(
         self, session_id: str, runner_cls=UnifiedRunner, runner_kwargs=dict()
     ) -> "SessionMetaData":
         """
-        Resume a session.
+        Prepares the session to a state where it is able to continue.
 
         :param session_id:
             The identifier of the session to resume.
@@ -560,10 +562,13 @@ class SessionAssistant:
             It is a bug in your program. The error message will indicate what
             is the likely cause.
 
-        This method restores internal state of the plainbox runtime as it was
-        the last time session assistant did a checkpoint, i.e. session
+        This method restores internal state of the Checkbox session close to what
+        it was the last time session assistant did a checkpoint, i.e. session
         assistant's clients commited any information (e.g. saves job result,
-        runs bootstrapping, updates app blob, etc.)
+        runs bootstrapping, updates app blob, etc.). This is called
+        prepares_resume_session and not resume_session because to fully
+        resume a session with a test plan, the test plan must be selected and
+        the bootstrap process must be re-executed.
         """
         UsageExpectation.of(self).enforce()
         all_units = list(
@@ -665,7 +670,7 @@ class SessionAssistant:
                         InternalResumeCandidate(storage, metadata)
                     )
                     UsageExpectation.of(self).allowed_calls[
-                        self.resume_session
+                        self.prepare_resume_session
                     ] = "resume session"
                     yield ResumeCandidate(storage.id, metadata)
 
@@ -777,11 +782,18 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         test_plan = self._context.get_unit(test_plan_id, "test plan")
+        self.update_app_blob(
+            json.dumps(
+                {
+                    "testplan_id": test_plan_id,
+                }
+            ).encode("UTF-8")
+        )
         self._manager.test_plans = (test_plan,)
         self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {
             self.bootstrap: "to run the bootstrap process",
-            self.get_bootstrap_todo_list: "to get bootstrapping jobs",
+            self.start_bootstrap: "to get bootstrapping jobs",
         }
 
     @raises(UnexpectedMethodCall)
@@ -812,50 +824,13 @@ class SessionAssistant:
             finished. This can take any amount of time (easily over one minute)
         """
         UsageExpectation.of(self).enforce()
-        # NOTE: there is next-to-none UI here as bootstrap jobs are limited to
-        # just resource jobs (including their dependencies) so there should be
-        # very little UI required.
-        desired_job_list = select_units(
-            self._context.state.job_list,
-            [
-                plan.get_bootstrap_qualifier()
-                for plan in (self._manager.test_plans)
-            ]
-            + self._exclude_qualifiers,
-        )
-        self._context.state.update_desired_job_list(
-            desired_job_list, include_mandatory=False
-        )
+        self.start_bootstrap()
         for job in self._context.state.run_list:
             if self._context.state.job_state_map[job.id].result_history:
                 continue
-            UsageExpectation.of(self).allowed_calls[
-                self.run_job
-            ] = "to run bootstrapping job"
             rb = self.run_job(job.id, "silent", False)
             self.use_job_result(job.id, rb.get_result())
-        # we may have a list of rejected jobs if this session is a resumed
-        # session
-        already_rejected = [
-            JobIdQualifier(job_id, None, inclusive=False)
-            for job_id in self._context.state.metadata.rejected_jobs
-        ]
-        # Perform initial selection -- we want to run everything that is
-        # described by the test plan that was selected earlier.
-        desired_job_list = select_units(
-            self._context.state.job_list,
-            [plan.get_qualifier() for plan in self._manager.test_plans]
-            + self._exclude_qualifiers
-            + already_rejected,
-        )
-        self._context.state.update_desired_job_list(desired_job_list)
-        # Set subsequent usage expectations i.e. all of the runtime parts are
-        # available now.
-        UsageExpectation.of(self).allowed_calls = (
-            self._get_allowed_calls_in_normal_state()
-        )
-        self._metadata.flags.add(SessionMetaData.FLAG_INCOMPLETE)
-        self._manager.checkpoint()
+        self.finish_bootstrap()
 
     @raises(UnexpectedMethodCall)
     def hand_pick_jobs(self, id_patterns: "Iterable[str]"):
@@ -896,10 +871,14 @@ class SessionAssistant:
             self._get_allowed_calls_in_normal_state()
         )
 
+    def bootstrapping(self):
+        return self._metadata.bootstrapping
+
     @raises(UnexpectedMethodCall)
-    def get_bootstrap_todo_list(self):
+    def start_bootstrap(self):
         """
-        Get a list of ids that should be run in while bootstrapping)
+        Starts the bootstrap process returning the list of all jobs to run to
+        bootstrap the session.
 
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
@@ -908,9 +887,11 @@ class SessionAssistant:
 
         This method, together with :meth:`run_job`, can be used instead of
         :meth:`boostrap` to have control over when bootstrapping jobs are run.
-        E.g. to inform the user about the progress
+        This is done to provide a UI to the process as :meth:`bootstrap` is
+        silent.
         """
         UsageExpectation.of(self).enforce()
+        self._metadata.bootstrapping = True
         desired_job_list = select_units(
             self._context.state.job_list,
             [
@@ -922,9 +903,13 @@ class SessionAssistant:
         self._context.state.update_desired_job_list(
             desired_job_list, include_mandatory=False
         )
-        UsageExpectation.of(self).allowed_calls.update(
-            self._get_allowed_calls_in_normal_state()
-        )
+        UsageExpectation.of(self).allowed_calls = {
+            self.run_job: "to run bootstrap job",
+            self.get_job: "to get the job definition by id",
+            self.get_job_state: "to get the current state of a job",
+            self.finish_bootstrap: "to finish bootstrapping after running all jobs",
+            self.get_session_id: "used internally by get_job",
+        }
         return [job.id for job in self._context.state.run_list]
 
     @raises(UnexpectedMethodCall)
@@ -944,6 +929,12 @@ class SessionAssistant:
         it have it.
         """
         UsageExpectation.of(self).enforce()
+        # we may have a list of rejected jobs if this session is a resumed
+        # session
+        already_rejected = [
+            JobIdQualifier(job_id, None, inclusive=False)
+            for job_id in self._context.state.metadata.rejected_jobs
+        ]
         # Perform initial selection -- we want to run everything that is
         # described by the test plan that was selected earlier.
         desired_job_list = select_units(
@@ -954,7 +945,8 @@ class SessionAssistant:
                 JobIdQualifier(
                     "com.canonical.plainbox::collect-manifest", None, False
                 )
-            ],
+            ]
+            + already_rejected,
         )
         if self._match_qualifiers:
             # when `match` is provided, use the test plan but prune it to
@@ -983,15 +975,15 @@ class SessionAssistant:
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.
-        UsageExpectation.of(self).allowed_calls = (
-            self._get_allowed_calls_in_normal_state()
-        )
-        self._metadata.flags.remove(SessionMetaData.FLAG_BOOTSTRAPPING)
+        self._metadata.bootstrapping = False
         self._metadata.flags.add(SessionMetaData.FLAG_INCOMPLETE)
         self._manager.checkpoint()
         # No bootstrap is done update the cache of jobs that were run
         # during bootstrap phase
         self._bootstrap_done_list = self.get_dynamic_done_list()
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state()
+        )
 
     @raises(KeyError, UnexpectedMethodCall)
     def use_alternate_selection(self, selection: "Iterable[str]"):
@@ -1778,22 +1770,21 @@ class SessionAssistant:
                 "finalize_session called for already finalized session: %s",
                 self._manager.storage.id,
             )
-            # leave the same usage expectations
-            return
-        ignored_flags = {
-            SessionMetaData.FLAG_SUBMITTED,
-            SessionMetaData.FLAG_BOOTSTRAPPING,
-        }
-        if not (ignored_flags & set(self._metadata.flags)):
-            _logger.warning(
-                "Finalizing session that hasn't been submitted "
-                "anywhere: %s",
-                self._manager.storage.id,
-            )
-        for flag in finalizable_flags:
-            if flag in self._metadata.flags:
-                self._metadata.flags.remove(flag)
-        self._manager.checkpoint()
+        else:
+            ignored_flags = {
+                SessionMetaData.FLAG_SUBMITTED,
+                SessionMetaData.FLAG_BOOTSTRAPPING,
+            }
+            if not (ignored_flags & set(self._metadata.flags)):
+                _logger.warning(
+                    "Finalizing session that hasn't been submitted "
+                    "anywhere: %s",
+                    self._manager.storage.id,
+                )
+            for flag in finalizable_flags:
+                if flag in self._metadata.flags:
+                    self._metadata.flags.remove(flag)
+            self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {
             self.finalize_session: "to finalize session",
             self.export_to_transport: "to export the results and send them",
@@ -1801,7 +1792,7 @@ class SessionAssistant:
             self.export_to_stream: "to export the results to a stream",
             self.get_resumable_sessions: "to get resume candidates",
             self.start_new_session: "to create a new session",
-            self.resume_session: "to resume a session",
+            self.prepare_resume_session: "to resume a session",
             self.get_old_sessions: ("get previously created sessions"),
             self.delete_sessions: ("delete previously created sessions"),
         }

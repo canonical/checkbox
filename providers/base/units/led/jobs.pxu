@@ -133,7 +133,7 @@ _description:
 _purpose:
  Block Caps Lock key LED verification
 _steps:
- 1. Press "Caps Lock Key" to activate/deactivate caps lock 
+ 1. Press "Caps Lock Key" to activate/deactivate caps lock
  2. Caps Lock LED should be switched on/off every time the key is pressed
 _verification:
  Did the Caps Lock LED light as expected?
@@ -191,8 +191,7 @@ _description:
 _purpose:
     Audio Mute LED verification.
 _steps:
-    1. Change to internal speaker
-    2. Press the Mute key twice and observe the Audio LED to determine if it
+    1. Press the Mute key twice and observe the Audio LED to determine if it
     either turned off and on or changed colors.
 _verification:
     Did the Audio LED turn on and off or change color as expected?
@@ -211,8 +210,7 @@ _description:
 _purpose:
     Microphone Mute LED verification.
 _steps:
-    1. Change to internal microphone
-    2. Press the Microphone Mute key twice and observe the Microphone LED to
+    1. Press the Microphone Mute key twice and observe the Microphone LED to
     determine if it either turned off and on or changed colors.
 _verification:
     Did the Microphone Mute LED turn on and off or change color as expected?
@@ -300,23 +298,28 @@ plugin: resource
 _summary: Gather a list of LED indicators for the device that control via sysfs path.
 _description:
     A LED path mapping resource that relies on the user specifying in config variable.
-    Usage of parameter: SYS_LEDS={name1}:{path1} {name2}:{path2} ...
+    Usage of parameter:
+        SYS_LEDS={name1}|{path1}|{color_type} {name2}|{path2}|{color_type} ...
     path under "/sys/class/leds/{path}"
-    e.g., SYS_LEDS=DL1:beat-yel-led DL2:shutdown-grn-led.
+    e.g., SYS_LEDS=SYS_LEDS=DL1|beat-yel-led|single DL2|rgb:status|multi
     Note: make sure name of LED does not include symbol ":".
+    Note: DONT include any space character in the name field
 estimated_duration: 3
 environ: SYS_LEDS
 command:
-    awk '{
-    split($0, record, " ")
-    for (i in record) {
-        # To handle the situation where the LED path includes symbol ":"
-        # Get the index of the first match ":" in record[i]
-        pos = index(record[i],":");
-        # Split string by matching ":" to get the string before the first ":"
-        printf "name: %s\npath: %s\n\n", substr(record[i],1,pos-1),substr(record[i],pos+1)
-        }
-    }' <<< "$SYS_LEDS"
+    led_sysfs_resource.py "$SYS_LEDS"
+
+id: led_indicator/validate-sysfs-leds-variable
+category_id: led
+plugin: shell
+_summary: Validate the environment variable SYS_LEDS
+_description: validate the format of SYS_LEDS environment variable is correct.
+estimated_duration: 3
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_sysfs_led == 'True'
+environ: SYS_LEDS
+command:
+    led_sysfs_resource.py "$SYS_LEDS" --validate
 
 unit: template
 template-resource: led-indicator/sysfs-leds
@@ -336,9 +339,9 @@ user: root
 flags: also-after-suspend
 estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_gpio_sysfs == 'True'
+requires: manifest.has_sysfs_led == 'True'
 command:
-    led_control_test.py -n {path} -d 10
+    led_control_test.py -n {path} -d 10 --color-type {color_type}
 
 unit: template
 template-resource: led-indicator/sysfs-leds
@@ -354,7 +357,7 @@ user: root
 flags: also-after-suspend
 estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_gpio_sysfs == 'True'
+requires: manifest.has_sysfs_led == 'True'
 command:
     led_control_test.py -n {path} -d 10
 

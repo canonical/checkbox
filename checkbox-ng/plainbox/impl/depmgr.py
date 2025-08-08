@@ -401,15 +401,6 @@ class DependencySolver:
             )
         self._clear_state_map()
 
-        # # Create a dict of groups referenced in the pulled jobs
-        # for job in self._pull_solution:
-        #     if hasattr(job, "group") and job.group is not None:
-        #         # Check if the group is already in the map
-        #         if job.group in self._groups:
-        #         self._groups[job.group] = self._groups.get(job.group, []) + [
-        #             job
-        #         ]
-        #         self._jobs_in_groups[job.id] = job.group
         self.create_groups()
         # Print the groups
         if self._groups:
@@ -419,9 +410,7 @@ class DependencySolver:
 
         # Replace the jobs in the pulled map with the group job
         group_solution = self.replace_jobs_by_groups(self._pull_solution)
-        print(
-            "Pulled map after group replacement: {}".format(group_solution)
-        )
+        print("Pulled map after group replacement: {}".format(group_solution))
 
         # Solve again for order dependencies, using the pulled jobs as the
         # new visit list
@@ -594,16 +583,10 @@ class DependencySolver:
         ):
 
             if self._current_group is None:
-                # If the dependency is pointing to a job inside a group, we replace
-                # it with the group job.
+                # If the dependency is pointing to a job inside a group, we
+                # replace it with the group job.
                 if job_id in self._jobs_in_groups:
                     group_name = self._jobs_in_groups[job_id]
-                    # We are in the general phase
-                    # print(
-                    #     "Job {} is inside a group, rpl w group {}".format(
-                    #         job_id, group_name
-                    #     )
-                    # )
                     job_id = "{}{}".format(self.GROUP_PREFIX, group_name)
                     print("---> Analyzing job group {}".format(job_id))
                     deps = job.controller.get_dependency_set(
@@ -615,15 +598,8 @@ class DependencySolver:
                 # If we are in a group, we only care about the dependencies
                 # inside the group
                 if job_id not in self._groups[self._current_group]:
-                    # If the job is not in the current group, we skip it
-                    # print(
-                    #     "Job {} is not in the current group {}".format(
-                    #         job_id, self._current_group
-                    #     )
-                    # )
                     continue
 
-            # print("Continuing with job id: {}".format(job_id))
             try:
                 # We look up the job only in the map of pulled jobs
                 print("**> next job will be {}".format(job_id))
@@ -719,7 +695,11 @@ class DependencySolver:
                     )
                     self._pulled_map[group_job_id] = group_job
                     self._job_state_map[group_job_id] = State.NOT_VISITED
-                    print("*-*adding the job to the state map: {}".format(group_job_id))
+                    print(
+                        "*-*adding the job to the state map: {}".format(
+                            group_job_id
+                        )
+                    )
                     print(self._job_state_map[group_job_id])
                     replaced_solution.append(group_job)
                     added_groups.append(group_name)

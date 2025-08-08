@@ -243,9 +243,10 @@ requires: executable.name == 'docker'
 command:
  set -e
  docker pull ubuntu
- docker save ubuntu > {root_dir}/ubuntu.tar
+ docker save -o {root_dir}/ubuntu.tar ubuntu
  docker rmi ubuntu
- docker load < {root_dir}/ubuntu.tar
+ docker image prune -f
+ docker load -i {root_dir}/ubuntu.tar
  docker images -a | grep ubuntu
 _summary: Test docker save and load a docker image
 flags: simple preserve-cwd

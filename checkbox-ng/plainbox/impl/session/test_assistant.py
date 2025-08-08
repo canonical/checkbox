@@ -171,7 +171,7 @@ class SessionAssistantTests(morris.SignalTestCase):
         self_mock.get_resumable_sessions.return_value = []
 
         with self.assertRaises(KeyError):
-            SessionAssistant.resume_session(self_mock, "session_id")
+            SessionAssistant.prepare_resume_session(self_mock, "session_id")
 
     @mock.patch("plainbox.impl.session.assistant.SessionManager")
     @mock.patch("plainbox.impl.session.assistant.JobRunnerUIDelegate")
@@ -195,12 +195,18 @@ class SessionAssistantTests(morris.SignalTestCase):
 
         self_mock.get_resumable_sessions.return_value = [session_mock]
 
-        _ = SessionAssistant.resume_session(self_mock, "session_id")
+        _ = SessionAssistant.prepare_resume_session(self_mock, "session_id")
 
     @mock.patch("plainbox.impl.session.state.select_units")
     @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
     def test_bootstrap(self, mock_tpu, mock_su, mock_get_providers):
         self_mock = mock.MagicMock()
+        self_mock.start_bootstrap = partial(
+            SessionAssistant.start_bootstrap, self_mock
+        )
+        self_mock.finish_bootstrap = partial(
+            SessionAssistant.finish_bootstrap, self_mock
+        )
         SessionAssistant.bootstrap(self_mock)
         # Bootstrapping involves updating the list of desired jobs twice:
         # - one time to get the resource jobs
@@ -223,7 +229,7 @@ class SessionAssistantTests(morris.SignalTestCase):
         self, mock_tpu, mock_su, mock_get_providers
     ):
         self_mock = mock.MagicMock()
-        SessionAssistant.get_bootstrap_todo_list(self_mock)
+        SessionAssistant.start_bootstrap(self_mock)
         self.assertEqual(
             self_mock._context.state.update_desired_job_list.call_count, 1
         )

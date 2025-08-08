@@ -38,6 +38,53 @@ from plainbox.impl.session.assistant import SessionAssistant
 
 
 class RemoteAssistantTests(TestCase):
+    @mock.patch("pwd.getpwnam")
+    @mock.patch("psutil.process_iter")
+    def test_prepare_extra_env_priority(
+        self, process_iter_mock, getpwnam_mock
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._normal_user = "ubuntu"
+
+        info_mocks = [
+            # this should not be used as root processes are our last resort
+            {
+                "username": "root",
+                "pid": 1,
+                "environ": {"DISPLAY": "root_display"},
+            },
+            {
+                "username": "ubuntu",
+                "pid": 999,
+                "environ": {"WAYLAND_DISPLAY": "wrong_display"},
+            },
+            {
+                "username": "ubuntu",
+                "pid": 1000,
+                "environ": {"DISPLAY": ":0", "WAYLAND_DISPLAY": "wayland-1"},
+            },
+        ]
+        process_iter_mock.return_value = [
+            mock.MagicMock(info=info) for info in info_mocks
+        ]
+
+        extra_env = RemoteSessionAssistant.prepare_extra_env(self_mock)
+
+        self.assertEqual(extra_env["DISPLAY"], ":0")
+        self.assertEqual(extra_env["WAYLAND_DISPLAY"], "wayland-1")
+        self.assertIn("XDG_RUNTIME_DIR", extra_env)
+        self.assertIn("DBUS_SESSION_BUS_ADDRESS", extra_env)
+
+    @mock.patch("psutil.process_iter")
+    def test_prepare_extra_env_fallback(self, process_iter_mock):
+        process_iter_mock.side_effect = TypeError
+
+        self_mock = mock.MagicMock()
+
+        _ = RemoteSessionAssistant.prepare_extra_env(self_mock)
+
+        self.assertTrue(self_mock._prepare_display_without_psutil.called)
+
     def test_allowed_when_ok(self):
         self_mock = mock.MagicMock()
         allowed_when = RemoteSessionAssistant.allowed_when

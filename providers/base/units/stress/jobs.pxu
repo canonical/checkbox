@@ -592,7 +592,7 @@ plugin: manual
 category_id: com.canonical.plainbox::stress
 id: stress/wireless_hotkey
 estimated_duration: 60.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.sane_product == "portable"
 _purpose:
     To make sure that stressing the wifi hotkey does not cause applets to disappear from the panel or the system to lock up
 _steps:

@@ -48,6 +48,7 @@ nested_part:
     ce-oem-iio-sensors-manual
     ce-oem-digital-io-manual
     ce-oem-secure-boot-manual
+    ce-oem-mipi-camera-manual
     ce-oem-regulator-manual
 certification_status_overrides:
     apply blocker to .*
@@ -93,6 +94,7 @@ nested_part:
     ce-oem-wifi-ap-automated
     ce-oem-regulator-automated
     ce-oem-power-automated-by-pdu
+    ce-oem-mipi-camera-automated
 certification_status_overrides:
     apply blocker to .*
 

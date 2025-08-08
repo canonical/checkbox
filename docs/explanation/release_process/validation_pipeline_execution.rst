@@ -79,7 +79,7 @@ There are multiple entities participating in the chain of validating a Checkbox 
         end
         activate TAgent
         TAgent->>Device: Provision device & start Checkbox agent
-        activate device
+        activate Device
         activate CAgent
         TAgent->>Docker: Run Checkbox controller
         activate Docker
@@ -93,7 +93,7 @@ There are multiple entities participating in the chain of validating a Checkbox 
         TServer-->>Jenkins: Inform Jenkins of outcome
         deactivate TServer
         Jenkins-->>Pipeline: Update pipeline with job outcome
-        deactivate pipeline
+        deactivate Pipeline
 
 .. add code format to link text
 .. |hwcert-jenkins-jobs| replace:: ``hwcert-jenkins-jobs``

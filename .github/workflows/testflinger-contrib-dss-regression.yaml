@@ -36,6 +36,14 @@ on:
         description: "Channel of kubectl snap to use"
         default: "1.29/stable"
         type: string
+      nvidia_gpu_operator_version:
+        description: "Version of the NVIDIA GPU Operator to install; use SKIP to not"
+        default: "v24.6.2"
+        type: string
+      intel_gpu_plugin_version:
+        description: "Version of the Intel GPU Plugin to install; use SKIP to not"
+        default: "v0.30.0"
+        type: string
 
 jobs:
   checkbox-dss-snap-build:
@@ -89,8 +97,10 @@ jobs:
           ENV_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
           ENV_LAUNCHER: "launchers/checkbox-dss.conf"
           ENV_KUBECTL_CHANNEL: "${{ inputs.kubectl_channel }}"
+          ENV_NVIDIA_OPERATOR_VERSION: "${{ inputs.nvidia_gpu_operator_version }}"
+          ENV_INTEL_PLUGIN_VERSION: "${{ inputs.intel_gpu_plugin_version }}"
         run: |
-          envsubst '$ENV_DSS_CHANNEL $ENV_KUBECTL_CHANNEL $ENV_MICROK8S_CHANNEL' \
+          envsubst '$ENV_DSS_CHANNEL $ENV_KUBECTL_CHANNEL $ENV_MICROK8S_CHANNEL $ENV_NVIDIA_OPERATOR_VERSION $ENV_INTEL_PLUGIN_VERSION' \
             < testflinger/setup-def.conf > setup.conf
           echo "::group::Built setup launcher"
           cat setup.conf

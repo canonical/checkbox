@@ -304,7 +304,7 @@ class RemoteSessionAssistant:
                 # "normal" user processes)
                 return -info["pid"]
             # de-prioritize root users still in reverse order as above
-            return 10_000_000 - info["pid"]
+            return 10000000 - info["pid"]
 
         infos = sorted(infos, key=envvar_priority)
 

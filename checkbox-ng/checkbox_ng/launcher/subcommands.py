@@ -50,7 +50,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.secure.qualifiers import select_units
-from plainbox.impl.session.assistant import SA_RESTARTABLE
+from plainbox.impl.session.assistant import SA_RESTARTABLE, SessionAssistant
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import TransportError
@@ -210,7 +210,7 @@ class StartProvider:
 
 class Launcher(MainLoopStage, ReportsStage):
     @property
-    def sa(self):
+    def sa(self) -> SessionAssistant:
         return self.ctx.sa
 
     @property
@@ -260,31 +260,33 @@ class Launcher(MainLoopStage, ReportsStage):
             if not self._auto_resume_session(self.resume_candidates):
                 something_got_chosen = False
                 ctx.sa.use_alternate_configuration(self.configuration)
+                self._start_new_session()
                 while not something_got_chosen:
                     try:
-                        self._start_new_session()
+                        self._select_test_plan_and_continue()
                         self._pick_jobs_to_run()
                         something_got_chosen = True
                     except ResumeInstead:
-                        self.sa.finalize_session()
+                        # if resume is done, the old session will be finalized
+                        # and the resumed session will now be the current
                         something_got_chosen = self._manually_resume_session(
                             self.resume_candidates
                         )
 
-            if not self.ctx.sa.get_static_todo_list():
+            if not self.sa.get_static_todo_list():
                 return 0
             if "submission_files" in self.configuration.get_value(
                 "launcher", "stock_reports"
             ):
                 print("Reports will be saved to: {}".format(self.base_dir))
             # we initialize the nb of attempts for all the selected jobs...
-            for job_id in self.ctx.sa.get_dynamic_todo_list():
-                job_state = self.ctx.sa.get_job_state(job_id)
+            for job_id in self.sa.get_dynamic_todo_list():
+                job_state = self.sa.get_job_state(job_id)
                 job_state.attempts = self.configuration.get_value(
                     "ui", "max_attempts"
                 )
             # ... before running them
-            self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
+            self._run_jobs(self.sa.get_dynamic_todo_list())
             if self.is_interactive and not self.configuration.get_value(
                 "ui", "auto_retry"
             ):
@@ -355,7 +357,7 @@ class Launcher(MainLoopStage, ReportsStage):
         """
         try:
             # reload the list of resumable_session in SA
-            yield self.sa.resume_session(session_id)
+            yield self.sa.prepare_resume_session(session_id)
         finally:
             self.ctx.reset_sa()
 
@@ -450,11 +452,8 @@ class Launcher(MainLoopStage, ReportsStage):
 
             resume_params = ResumeMenu(entries).run()
             if resume_params.action == "delete":
-                self.ctx.sa.finalize_session()
-                self.ctx.sa.delete_sessions([resume_params.session_id])
-                self.resume_candidates = list(
-                    self.ctx.sa.get_resumable_sessions()
-                )
+                self.sa.delete_sessions([resume_params.session_id])
+                self.resume_candidates = list(self.sa.get_resumable_sessions())
 
                 # the entries list is just a copy of the resume_candidates,
                 # and it's not updated when we delete a session, so we need
@@ -471,6 +470,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 break
 
         if resume_params.session_id:
+            self.sa.finalize_session()
             self._resume_session_via_resume_params(resume_params)
             return True
         return False
@@ -540,7 +540,7 @@ class Launcher(MainLoopStage, ReportsStage):
         else:
             resumed_launcher = Configuration()
         config = load_configs(cfg=resumed_launcher)
-        self.ctx.sa.use_alternate_configuration(config)
+        self.sa.use_alternate_configuration(config)
 
     def _resume_session(
         self, session_id: str, outcome: "IJobResult|None", comments=[]
@@ -550,19 +550,19 @@ class Launcher(MainLoopStage, ReportsStage):
         running job the given outcome. If outcome is not provided it will be
         calculated from the function _get_autoresume_outcome_last_job
         """
-        metadata = self.ctx.sa.resume_session(session_id)
+        metadata = self.sa.prepare_resume_session(session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
             self.load_configs_from_app_blob(app_blob)
-            self.ctx.sa.select_test_plan(test_plan_id)
-            self.ctx.sa.bootstrap()
+            self.sa.select_test_plan(test_plan_id)
+            self.sa.bootstrap()
             if outcome is None:
                 outcome = self._get_autoresume_outcome_last_job(metadata)
 
         last_job = metadata.running_job_name
         is_cert_blocker = (
-            self.ctx.sa.get_job_state(last_job).effective_certification_status
+            self.sa.get_job_state(last_job).effective_certification_status
             == "blocker"
         )
         # If we resumed maybe not rerun the same, probably broken job
@@ -603,7 +603,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 "Unsupported outcome for resume {}".format(outcome)
             )
         result = MemoryJobResult(result_dict)
-        self.ctx.sa.use_job_result(last_job, result)
+        self.sa.use_job_result(last_job, result)
 
     def _start_new_session(self):
         print(_("Preparing..."))
@@ -621,7 +621,9 @@ class Launcher(MainLoopStage, ReportsStage):
             "password_provider": sudo_password_provider.get_sudo_password,
             "stdin": None,
         }
-        self.ctx.sa.start_new_session(title, UnifiedRunner, runner_kwargs)
+        self.sa.start_new_session(title, UnifiedRunner, runner_kwargs)
+
+    def _select_test_plan_and_continue(self):
         if self.configuration.get_value("test plan", "forced"):
             tp_id = self.configuration.get_value("test plan", "unit")
             if not tp_id:
@@ -631,7 +633,7 @@ class Launcher(MainLoopStage, ReportsStage):
                     )
                 )
                 raise SystemExit(1)
-            if tp_id not in self.ctx.sa.get_test_plans():
+            if tp_id not in self.sa.get_test_plans():
                 _logger.error(_('The test plan "%s" is not available!'), tp_id)
                 raise SystemExit(1)
         elif not self.is_interactive:
@@ -647,7 +649,7 @@ class Launcher(MainLoopStage, ReportsStage):
             tp_id = self._interactively_pick_test_plan()
             if tp_id is None:
                 raise SystemExit(_("No test plan selected."))
-        self.ctx.sa.select_test_plan(tp_id)
+        self.sa.select_test_plan(tp_id)
         description = self.ctx.args.message or self.configuration.get_value(
             "launcher", "session_desc"
         )
@@ -658,17 +660,17 @@ class Launcher(MainLoopStage, ReportsStage):
                     app_blob["launcher"] = f.read()
             except FileNotFoundError:
                 pass
-        self.ctx.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
+        self.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
         bs_jobs = self.sa.start_bootstrap()
         self._run_bootstrap_jobs(bs_jobs)
-        self.ctx.sa.finish_bootstrap()
+        self.sa.finish_bootstrap()
 
     def _delete_old_sessions(self, ids):
-        completed_ids = [s[0] for s in self.ctx.sa.get_old_sessions()]
-        self.ctx.sa.delete_sessions(completed_ids + ids)
+        completed_ids = [s[0] for s in self.sa.get_old_sessions()]
+        self.sa.delete_sessions(completed_ids + ids)
 
     def _interactively_pick_test_plan(self):
-        test_plan_ids = self.ctx.sa.get_test_plans()
+        test_plan_ids = self.sa.get_test_plans()
         filtered_tp_ids = set()
         for filter in self.configuration.get_value("test plan", "filter"):
             filtered_tp_ids.update(fnmatch.filter(test_plan_ids, filter))
@@ -688,7 +690,7 @@ class Launcher(MainLoopStage, ReportsStage):
         return val.lower() in ("y", "yes", "t", "true", "on", "1")
 
     def _save_manifest(self, interactive):
-        manifest_repr = self.ctx.sa.get_manifest_repr()
+        manifest_repr = self.sa.get_manifest_repr()
         if not manifest_repr:
             _logger.info("Skipping saving of the manifest")
             return
@@ -706,7 +708,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 manifest_repr
             )
 
-        self.ctx.sa.save_manifest(to_save_manifest)
+        self.sa.save_manifest(to_save_manifest)
 
     def _pick_jobs_to_run(self):
         if self.configuration.get_value("test selection", "forced"):
@@ -715,8 +717,8 @@ class Launcher(MainLoopStage, ReportsStage):
             # by default all tests are selected; so we're done here
             return
         job_list = [
-            self.ctx.sa.get_job(job_id)
-            for job_id in self.ctx.sa.get_static_todo_list()
+            self.sa.get_job(job_id)
+            for job_id in self.sa.get_static_todo_list()
         ]
         if not job_list:
             print(self.C.RED(_("There were no tests to select from!")))
@@ -734,10 +736,10 @@ class Launcher(MainLoopStage, ReportsStage):
         # use it to filter jobs from get_static_todo_list.
         job_id_list = [
             job_id
-            for job_id in self.ctx.sa.get_static_todo_list()
+            for job_id in self.sa.get_static_todo_list()
             if job_id in wanted_set
         ]
-        self.ctx.sa.use_alternate_selection(job_id_list)
+        self.sa.use_alternate_selection(job_id_list)
 
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:
@@ -749,7 +751,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 "comments": _("Automatically passed after resuming execution"),
             }
             session_share = WellKnownDirsHelper.session_share(
-                self.ctx.sa.get_session_id()
+                self.sa.get_session_id()
             )
             result_path = os.path.join(session_share, "__result")
             if os.path.exists(result_path):
@@ -776,13 +778,13 @@ class Launcher(MainLoopStage, ReportsStage):
                 )
             )
             result = MemoryJobResult(result_dict)
-            self.ctx.sa.use_job_result(last_job, result)
+            self.sa.use_job_result(last_job, result)
             return
 
         print(
             _("Previous session run tried to execute job: {}").format(last_job)
         )
-        last_job_cert_status = self.ctx.sa.get_job_state(
+        last_job_cert_status = self.sa.get_job_state(
             last_job
         ).effective_certification_status
         result_dict = {"outcome": IJobResult.OUTCOME_NONE, "comments": ""}
@@ -870,10 +872,10 @@ class Launcher(MainLoopStage, ReportsStage):
                 result = None
                 break
         if result:
-            self.ctx.sa.use_job_result(last_job, result)
+            self.sa.use_job_result(last_job, result)
 
     def _maybe_auto_rerun_jobs(self):
-        rerun_candidates = self.ctx.sa.get_rerun_candidates("auto")
+        rerun_candidates = self.sa.get_rerun_candidates("auto")
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
@@ -886,13 +888,13 @@ class Launcher(MainLoopStage, ReportsStage):
             )
         )
         time.sleep(delay)
-        candidates = self.ctx.sa.prepare_rerun_candidates(rerun_candidates)
+        candidates = self.sa.prepare_rerun_candidates(rerun_candidates)
         self._run_jobs(candidates)
         return True
 
     def _maybe_rerun_jobs(self):
         # create a list of jobs that qualify for rerunning
-        rerun_candidates = self.ctx.sa.get_rerun_candidates("manual")
+        rerun_candidates = self.sa.get_rerun_candidates("manual")
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
@@ -903,12 +905,8 @@ class Launcher(MainLoopStage, ReportsStage):
         if not wanted_set:
             # nothing selected - nothing to run
             return False
-        rerun_candidates = [
-            self.ctx.sa.get_job(job_id) for job_id in wanted_set
-        ]
-        rerun_candidates = self.ctx.sa.prepare_rerun_candidates(
-            rerun_candidates
-        )
+        rerun_candidates = [self.sa.get_job(job_id) for job_id in wanted_set]
+        rerun_candidates = self.sa.prepare_rerun_candidates(rerun_candidates)
         # include resource jobs that selected jobs depend on
         self._run_jobs(rerun_candidates)
         return True

@@ -489,7 +489,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         else:
             return self.interactively_choose_test_plan_and_continue()
 
-        # this should be unreachable, innter functions must exit!
+        # this should be unreachable, inner functions must exit!
         raise SystemExit("Invalid session flow, failed to terminate")
 
     def resume_by_id(self, session_id, result_dict={}):

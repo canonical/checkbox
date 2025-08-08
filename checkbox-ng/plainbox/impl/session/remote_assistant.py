@@ -23,6 +23,7 @@ import logging
 import os
 import pwd
 import time
+import itertools
 from collections import namedtuple
 from contextlib import suppress
 from tempfile import SpooledTemporaryFile
@@ -268,39 +269,62 @@ class RemoteSessionAssistant:
         }
 
     def prepare_extra_env(self):
+        """
+        Try to inherit user environment variables from other processes
+        """
+        # target envvars are the one we are looking for in this function.
+        # If we find them we can stop iterating
+        target_envvars = {
+            "DISPLAY",
+            "XAUTHORITY",
+            "XDG_SESSION_TYPE",
+            "XDG_RUNTIME_DIR",
+            "DBUS_SESSION_BUS_ADDRESS",
+            "WAYLAND_DISPLAY",
+        }
         extra_env = {}
-        # If possible also set the DISPLAY env var
-        # i.e when a user desktop session is running
-        for p in psutil.pids():
-            try:
-                p_environ = psutil.Process(p).environ()
-                p_user = psutil.Process(p).username()
-            except psutil.AccessDenied:
-                continue
-            except AttributeError:
-                # psutil < 4.0.0 doesn't provide Process.environ()
-                return self._prepare_display_without_psutil()
-            except psutil.NoSuchProcess:
-                # quietly ignore the process that died before we had a chance
-                # to read the environment from them
-                continue
-            if (
-                "DISPLAY" in p_environ
-                and "XAUTHORITY" in p_environ
-                and "XDG_SESSION_TYPE" in p_environ
-                and p_user != "gdm"
-            ):  # gdm uses :1024
-                uid = pwd.getpwnam(self._normal_user).pw_uid
-                extra_env["DISPLAY"] = p_environ["DISPLAY"]
-                extra_env["XAUTHORITY"] = p_environ["XAUTHORITY"]
-                extra_env["XDG_SESSION_TYPE"] = p_environ["XDG_SESSION_TYPE"]
-                extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
-                extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
-                    "unix:path=/run/user/{}/bus".format(uid)
-                )
-            if "WAYLAND_DISPLAY" in p_environ:
-                extra_env["WAYLAND_DISPLAY"] = p_environ["WAYLAND_DISPLAY"]
+        try:
+            processes = psutil.process_iter(
+                attrs=["pid", "environ", "username"]
+            )
+            infos = [
+                p.info
+                for p in processes
+                if p.info["username"] != "gdm" and p.info["environ"]
+            ]
+        except (TypeError, ValueError):
+            # TypeError is raised on very old psutil versions (missing attrs)
+            # ValueError is raised on old psutil (missing environ support)
+            return self._prepare_display_without_psutil()
 
+        def envvar_priority(info):
+            if info["username"] == self._normal_user:
+                # prioritize normal users in reversed order (heuristic,
+                # lower pids -> late spawned processes, most likely to be
+                # "normal" user processes)
+                return -info["pid"]
+            # de-prioritize root users still in reverse order as above
+            return 10000000 - info["pid"]
+
+        infos = sorted(infos, key=envvar_priority)
+
+        for info in infos:
+            missing_keys = target_envvars - extra_env.keys()
+            if not missing_keys:
+                break
+            i_env = info["environ"]
+            present_keys = i_env.keys() & missing_keys
+            extra_env.update({k: i_env[k] for k in present_keys})
+
+        uid = pwd.getpwnam(self._normal_user).pw_uid
+        # we may be starting before a user session, lets try to assign a
+        # default value to the runtime dir and dbus session
+        if "XDG_RUNTIME_DIR" not in extra_env:
+            extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
+        if "DBUS_SESSION_BUS_ADDRESS" not in extra_env:
+            extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
+                "unix:path=/run/user/{}/bus".format(uid)
+            )
         return extra_env
 
     @allowed_when(Idle)

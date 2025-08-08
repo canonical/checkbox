@@ -3,7 +3,6 @@ permissions:
   contents: read
 on:
   push:
-    branches: [ main ]
     paths:
       - checkbox-ng/**
       - checkbox-support/**
@@ -18,7 +17,6 @@ on:
       - providers/iiotg/**
       - .github/workflows/tox-checkbox.yaml
   pull_request:
-    branches: [ main ]
     paths:
       - checkbox-ng/**
       - checkbox-support/**
@@ -95,6 +93,7 @@ jobs:
   tox_test_checkbox_component:
     needs: get_path_matrix
     strategy:
+      fail-fast: false
       matrix:
         path_flag: ${{ fromJson(needs.get_path_matrix.outputs.path_flag) }}
         python: ["3.5", "3.6", "3.8", "3.10", "3.12"]

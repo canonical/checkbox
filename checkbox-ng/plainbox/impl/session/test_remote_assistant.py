@@ -75,6 +75,16 @@ class RemoteAssistantTests(TestCase):
         self.assertIn("XDG_RUNTIME_DIR", extra_env)
         self.assertIn("DBUS_SESSION_BUS_ADDRESS", extra_env)
 
+    @mock.patch("psutil.process_iter")
+    def test_prepare_extra_env_fallback(self, process_iter_mock):
+        process_iter_mock.side_effect = TypeError
+
+        self_mock = mock.MagicMock()
+
+        _ = RemoteSessionAssistant.prepare_extra_env(self_mock)
+
+        self.assertTrue(self_mock._prepare_display_without_psutil.called)
+
     def test_allowed_when_ok(self):
         self_mock = mock.MagicMock()
         allowed_when = RemoteSessionAssistant.allowed_when

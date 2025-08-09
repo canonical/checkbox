@@ -1,19 +1,18 @@
-import unittest
-import sys
 from unittest.mock import patch, Mock, MagicMock
-from io import StringIO
+from wwan_tests import _allow_roaming
 from contextlib import redirect_stdout
+from io import StringIO
 import argparse
 import subprocess
+import wwan_tests
+import unittest
+import sys
 
 # Mock the dbus module due to is is not available on CI testing environment
 sys.modules["dbus"] = MagicMock()
 
-import wwan_tests
-
 
 class TestMMDbus(unittest.TestCase):
-
     @patch("wwan_tests.MMDbus.__init__", Mock(return_value=None))
     def test_get_firmware_revision(self):
         fw_revision_pattern = "81600.0000.00.29.21.24_GC\r\nD24"
@@ -46,7 +45,6 @@ class TestMMDbus(unittest.TestCase):
 
 
 class TestMMCli(unittest.TestCase):
-
     @patch("wwan_tests.MMCLI.__init__", Mock(return_value=None))
     @patch("wwan_tests._value_from_table")
     def test_get_firmware_revision(self, mock_value_from_table):
@@ -77,7 +75,6 @@ class TestMMCli(unittest.TestCase):
 
 
 class TestResources(unittest.TestCase):
-
     @patch("wwan_tests.MMCLI")
     def test_invoked_with_mmcli(self, mock_mmcli):
         mmcli_instance = MagicMock()
@@ -114,7 +111,6 @@ class TestResources(unittest.TestCase):
 
 
 class TestCommonFunctions(unittest.TestCase):
-
     @patch("subprocess.run")
     def test_wwan_radio_status(self, mock_run):
         mock_run.return_value = subprocess.CompletedProcess(
@@ -133,7 +129,6 @@ class TestCommonFunctions(unittest.TestCase):
 
 
 class TestWWANTestCtx(unittest.TestCase):
-
     @patch("wwan_tests._wwan_radio_off")
     @patch("wwan_tests._wwan_radio_on")
     @patch("wwan_tests._wwan_radio_status")
@@ -178,7 +173,6 @@ class TestWWANTestCtx(unittest.TestCase):
 
 
 class TestThreeGppScanTest(unittest.TestCase):
-
     def test_register_argument(self):
 
         sys.argv = ["wwan_tests.py", "3gpp-scan", "2", "--timeout", "600"]
@@ -267,7 +261,6 @@ class TestThreeGppScanTest(unittest.TestCase):
 
 
 class TestThreeGppConnectionTest(unittest.TestCase):
-
     def test_register_argument(self):
 
         sys.argv = [
@@ -285,16 +278,27 @@ class TestThreeGppConnectionTest(unittest.TestCase):
         self.assertEqual(ret_args.apn, "apn")
         self.assertEqual(ret_args.wwan_setup_time, 30)
 
+    @patch("wwan_tests._allow_roaming")
     @patch("wwan_tests._ping_test")
     @patch("wwan_tests._destroy_3gpp_connection")
     @patch("wwan_tests._create_3gpp_connection")
     @patch("wwan_tests.WWANTestCtx")
     @patch("wwan_tests.ThreeGppConnection.register_argument")
     def test_invoked_successfully(
-        self, mock_arg, mock_mmctx, mock_create_conn, mock_rm_conn, mock_ping
+        self,
+        mock_arg,
+        mock_mmctx,
+        mock_create_conn,
+        mock_rm_conn,
+        mock_ping,
+        mock_roam,
     ):
         mock_arg.return_value = argparse.Namespace(
-            hw_id="2", wwan_net_if="wwan0", apn="internet", wwan_setup_time=0.1
+            hw_id="2",
+            wwan_net_if="wwan0",
+            apn="internet",
+            wwan_setup_time=0.1,
+            roaming=True,
         )
         mock_get_primary_port = Mock()
         mmcli_instance = Mock()
@@ -316,16 +320,27 @@ class TestThreeGppConnectionTest(unittest.TestCase):
         self.assertEqual(mock_rm_conn.call_count, 1)
         self.assertEqual(context.exception.code, 0)
 
+    @patch("wwan_tests._allow_roaming")
     @patch("wwan_tests._ping_test")
     @patch("wwan_tests._destroy_3gpp_connection")
     @patch("wwan_tests._create_3gpp_connection")
     @patch("wwan_tests.WWANTestCtx")
     @patch("wwan_tests.ThreeGppConnection.register_argument")
     def test_invoked_failed_exit_code(
-        self, mock_arg, mock_mmctx, mock_create_conn, mock_rm_conn, mock_ping
+        self,
+        mock_arg,
+        mock_mmctx,
+        mock_create_conn,
+        mock_rm_conn,
+        mock_ping,
+        mock_roam,
     ):
         mock_arg.return_value = argparse.Namespace(
-            hw_id="2", wwan_net_if="wwan0", apn="internet", wwan_setup_time=0.1
+            hw_id="2",
+            wwan_net_if="wwan0",
+            apn="internet",
+            wwan_setup_time=0.1,
+            roaming=True,
         )
         mock_get_primary_port = Mock()
         mmcli_instance = Mock()
@@ -345,3 +360,31 @@ class TestThreeGppConnectionTest(unittest.TestCase):
         self.assertEqual(mock_create_conn.call_count, 1)
         self.assertEqual(mock_rm_conn.call_count, 1)
         self.assertEqual(context.exception.code, 1)
+
+
+class TestAllowRoaming(unittest.TestCase):
+    """
+    Test suite for the _allow_roaming function.
+    """
+
+    @patch("subprocess.check_call")
+    @patch("builtins.print")
+    def test_allow_roaming_call(self, mock_print, mock_check_call):
+        """
+        Tests that _allow_roaming calls subprocess.check_call
+        with the correct arguments.
+        """
+        test_mm_id = "0"
+        test_apn = "internet.com"
+
+        _allow_roaming(test_mm_id, test_apn)
+
+        expected_bearer = "apn={},allow-roaming=yes".format(test_apn)
+        expected_cmd = [
+            "mmcli",
+            "-m",
+            test_mm_id,
+            "--create-bearer={}".format(expected_bearer),
+        ]
+
+        mock_check_call.assert_called_with(expected_cmd)

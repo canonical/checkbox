@@ -438,7 +438,7 @@ def watchdog_reset_test(
         # When this file exists, it means test failed
         time.sleep(60)
         log_file = Path(log_dir).joinpath("watchdog_manual_reset.log")
-        log_file.write_text("system reset by watchdog")
+        log_file.write_text("Watchdog did not trigger a reset. System reset using systemctl.")
         subprocess.run(["sync"])
         subprocess.run(["systemctl", "reboot"])
 

@@ -308,7 +308,7 @@ def collect_hardware_watchdogs(watchdog_identity: str = "") -> dict:
 
             if "devices/virtual" in link:
                 print(
-                    "# Ignore {} due to it's a software watchdog".format(
+                    "# Ignore {} because it's a software watchdog".format(
                         p_node.name
                     ),
                     file=sys.stderr,

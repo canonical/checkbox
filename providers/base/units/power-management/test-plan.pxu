@@ -21,6 +21,9 @@ unit: test plan
 _name: Power Management precheck tests (Manual)
 _description: Power Management precheck tests (Manual)
 include:
+    power-management/suspend-power-button          certification-status=blocker
+    power-management/suspend-on-battery-power      certification-status=blocker
+    power-management/suspend-on-AC-power           certification-status=blocker
 
 id: power-management-precheck-cert-automated
 unit: test plan
@@ -44,7 +47,7 @@ include:
 
 id: power-management-reboot-poweroff-cert-manual
 unit: test plan
-_name: Power Management reboot and power off tests (Manual
+_name: Power Management reboot and power off tests (Manual)
 _description: Power Management reboot and power off tests (Manual)
 include:
 

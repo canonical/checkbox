@@ -567,3 +567,52 @@ requires:
   cpuinfo.platform in ("x86_64", "aarch64", "armhf")
   bootloader.name == "grub"
 command: grub_file_check.sh
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/wallpaper
+estimated_duration: 5.0
+_purpose:
+    Verify that the system has a wallpaper displayed.
+_steps:
+    1. Check the wallpaper in the desktop session
+_verification:
+    1. The expected wallpaper is visible on the desktop background.
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/document
+estimated_duration: 15.0
+_purpose:
+    Verify that the system includes the manufacturer-provided user guide.
+_steps:
+    1. Locate and open the manufacturer’s user guide in the operating system
+    2. Check that the user guide contains tabs, links, and relevant information
+_verification:
+    1. The user guide opens correctly with accessible tabs and links.
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/operation-system-installation
+estimated_duration: 30.0
+_purpose:
+    Verify that the operating system can be installed successfully.
+_steps:
+    1. Prepare a USB key with the installation image
+    2. Follow the installation steps
+    3. Boot into the installed operating system without errors
+_verification:
+    1. The system boots into the operating system successfully after installation.
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/factory-recovery
+estimated_duration: 30.0
+_purpose:
+    Verify that the factory recovery can be restored successfully.
+_steps:
+    1. Perform the factory recovery process
+    2. Follow the on-screen recovery steps
+    3. Boot into the recovered system without errors
+_verification:
+    1. The system boots into the factory recovery system successfully.

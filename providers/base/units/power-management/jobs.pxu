@@ -577,3 +577,51 @@ summary:
 description:
     The AMD PMF driver should be loaded while the BIOS enabling this function and could be validated by
     the outcome of lsmod automatically.
+
+plugin: manual
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-power-button
+estimated_duration: 5.0
+_purpose:
+    Verify the system can enter suspend and resume via the power button.
+_steps:
+    1. Set the Power Button Behavior to Suspend in power settings
+    2. Press the power button
+    3. Wait a few seconds
+    4. Resume the system by pressing the power button again
+_verification:
+    The system enters and resumes from suspend when the power button is pressed.
+
+plugin: manual
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-on-battery-power
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_dc_mode == 'True'
+estimated_duration: 20.0
+_purpose:
+    Verify the system can enter suspend being idle for 15 minutes on battery power.
+_steps:
+    1. Boot into system
+    2. Remove AC power
+    3. Make sure system running on battery power
+    4. Set Screen Blank for 1 minute in power settings
+    5. Enable "On Battery Power" under Automatic Suspend with a delay of 15 minutes
+_verification:
+    The system turns the screen off after 1 minute of idle.
+    The system enters suspend mode after 15 minutes of idle.
+
+plugin: manual
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-on-AC-power
+estimated_duration: 20.0
+_purpose:
+    Verify the system can enter suspend being idle for 15 minutes on AC power.
+_steps:
+    1. Boot into system
+    2. Make sure system running on AC power
+    3. Set Screen Blank for 1 minute in power settings
+    4. Enable "Plugged In" under Automatic Suspend with a delay of 15 minutes
+_verification:
+    The system turns the screen off after 1 minute of idle.
+    The system enters suspend mode after 15 minutes of idle.

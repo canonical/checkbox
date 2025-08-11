@@ -471,8 +471,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
-        self.setup_and_continue()
-        return self.bootstrap_and_continue()
+        return self.setup_and_continue()
 
     def resume_last_session_and_continue(self):
         last_abandoned_session = next(self.sa.get_resumable_sessions())
@@ -497,7 +496,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         if self.should_start_via_autoresume():
             return self.resume_last_session_and_continue()
         elif self.should_start_via_launcher():
-            return self.auto_start_via_launcher_and_continue()
+            return self.automatically_start_via_launcher()
         else:
             return self.interactively_choose_test_plan_and_continue()
 
@@ -573,7 +572,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             resumable_sessions = list(self.sa.get_resumable_sessions())
             with suppress(ResumeInstead):
                 self.select_test_plan_via_menu(tps, resumable_sessions)
-                return self.bootstrap_and_continue()
+                return self.setup_and_continue()
             if self.resume_session_via_menu_and_continue(resumable_sessions):
                 return False
 

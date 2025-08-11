@@ -416,9 +416,10 @@ class DependencySolver:
         # new visit list
         self._clear_state_map()
         self._order_solution = []
-        for job in self._pull_solution:
+        for job in group_solution:
             self._visit(job)
         group_solution = self._order_solution
+        print("*!*!*!Order solution before group replacement: {}".format(group_solution))
 
         # Solve internally for each group
         for group, jobs in self._groups.items():
@@ -459,6 +460,7 @@ class DependencySolver:
         print("********Done solving**********")
 
         # Return the final solution
+        # print("Final solution: {}".format(self._final_solution))
         return self._final_solution
 
     def _visit(self, job, trail=None, pull=False):
@@ -588,11 +590,11 @@ class DependencySolver:
                 if job_id in self._jobs_in_groups:
                     group_name = self._jobs_in_groups[job_id]
                     job_id = "{}{}".format(self.GROUP_PREFIX, group_name)
-                    print("---> Analyzing job group {}".format(job_id))
+                    # print("---> Analyzing job group {}".format(job_id))
                     deps = job.controller.get_dependency_set(
                         job, self._pull_solution
                     )
-                    print("the deps of the group: {}".format(deps))
+                    # print("the deps of the group: {}".format(deps))
                     # We are ordering a group
             else:
                 # If we are in a group, we only care about the dependencies
@@ -602,7 +604,7 @@ class DependencySolver:
 
             try:
                 # We look up the job only in the map of pulled jobs
-                print("**> next job will be {}".format(job_id))
+                # print("**> next job will be {}".format(job_id))
                 next_job = self._pulled_map[job_id]
             except KeyError:
                 # Since this is an order operation, we don't care if the dep
@@ -722,16 +724,16 @@ class DependencySolver:
                 # Replace the group job with the jobs inside the group in the
                 # same position
                 replaced_solution.extend(self._group_solutions[group_name])
-                print(
-                    "---->>> REPLACING group job {} with jobs: {}".format(
-                        job.id, self._group_solutions[group_name]
-                    )
-                )
+                # print(
+                #     "---->>> REPLACING group job {} with jobs: {}".format(
+                #         job.id, self._group_solutions[group_name]
+                #     )
+                # )
             else:
                 # If the job is not a group job, just add it to the solution
                 replaced_solution.append(job)
 
-        print("---->>>Replaced solution: {}".format(replaced_solution))
+        # print("---->>>Replaced solution: {}".format(replaced_solution))
 
         return replaced_solution
 

@@ -469,7 +469,7 @@ def post_check_test(log_dir):
             "potentially caused by user interaction."
         )
 
-    print("Passed: system been reset by watchdog")
+    print("Passed: system reset by watchdog")
 
 
 def main():

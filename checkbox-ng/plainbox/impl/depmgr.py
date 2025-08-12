@@ -401,6 +401,7 @@ class DependencySolver:
             )
         self._clear_state_map()
 
+
         self.create_groups()
         # Print the groups
         if self._groups:
@@ -419,7 +420,11 @@ class DependencySolver:
         for job in group_solution:
             self._visit(job)
         group_solution = self._order_solution
-        print("*!*!*!Order solution before group replacement: {}".format(group_solution))
+        print(
+            "*!*!*!Order solution before group replacement: {}".format(
+                group_solution
+            )
+        )
 
         # Solve internally for each group
         for group, jobs in self._groups.items():
@@ -661,9 +666,8 @@ class DependencySolver:
 
     def get_external_dependencies(self, group):
         """
-        Get the external dependencies for the groups as an after string.
+        Get the external dependencies for the groups.
         """
-
         external_deps = set()
         for job_id in self._groups[group]:
             # Get the dependencies for the job
@@ -714,28 +718,23 @@ class DependencySolver:
 
     def replace_groups_by_jobs(self, solution):
         """
-        Replace the group jobs with the original jobs inside the group.
+        Replace the temporary group jobs with the original jobs inside the
+        group.
         """
+        groups = self._group_solutions
 
-        replaced_solution = []
-        for job in solution:
-            if job.id.startswith(self.GROUP_PREFIX):
-                group_name = job.id.split(self.GROUP_PREFIX)[1]
-                # Replace the group job with the jobs inside the group in the
-                # same position
-                replaced_solution.extend(self._group_solutions[group_name])
-                # print(
-                #     "---->>> REPLACING group job {} with jobs: {}".format(
-                #         job.id, self._group_solutions[group_name]
-                #     )
-                # )
-            else:
-                # If the job is not a group job, just add it to the solution
-                replaced_solution.append(job)
+        def replace_iter():
+            for job in solution:
+                if job.id.startswith(self.GROUP_PREFIX):
+                    # Remove the prefix and get the group name
+                    name = job.id.split(self.GROUP_PREFIX)[1]
+                    # Add the jobs from the group
+                    yield from groups.get(name, [job])
+                else:
+                    yield job
 
-        # print("---->>>Replaced solution: {}".format(replaced_solution))
+        return list(replace_iter())
 
-        return replaced_solution
 
     @staticmethod
     def _get_job_map(job_list):

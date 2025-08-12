@@ -1161,21 +1161,19 @@ class SessionState:
             data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
             data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
             data["id"] = "after-suspend-{}".format(new_job.partial_id)
-            if new_job.after:
-                print(new_job.get_after_dependencies())
-                after_job_list = ["after-suspend-{}".format(x.split("::")[1] ) for x in new_job.get_after_dependencies()]
-                data["after"] = " ".join(after_job_list)
-            if new_job.before:
-                before_job_list = ["after-suspend-{}".format(x.split("::")[1] ) for x in new_job.get_before_dependencies()]
-                data["before"] = " ".join(before_job_list)
-            if new_job.group:
-                data["group"] = "after-suspend-{}".format(new_job.group)
+
             data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
             if new_job.depends:
                 data["depends"] += " {}".format(new_job.id)
             else:
                 data["depends"] = "{}".format(new_job.id)
             data["depends"] += " {}".format(Suspend.AUTO_JOB_ID)
+            if new_job.after:
+                data["after"] += " {}".format(new_job.id)
+            else:
+                data["after"] = "{}".format(new_job.id)
+            if new_job.group:
+                data["group"] = "after-suspend-{}".format(new_job.group)
             self._add_job_unit(
                 JobDefinition(
                     data,
@@ -1203,6 +1201,12 @@ class SessionState:
             else:
                 data["depends"] = "{}".format(new_job.id)
             data["depends"] += " {}".format(Suspend.MANUAL_JOB_ID)
+            if new_job.after:
+                data["after"] += " {}".format(new_job.id)
+            else:
+                data["after"] = "{}".format(new_job.id)
+            if new_job.group:
+                data["group"] = "after-suspend-{}".format(new_job.group)
             self._add_job_unit(
                 JobDefinition(
                     data,

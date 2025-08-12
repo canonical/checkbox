@@ -995,9 +995,8 @@ class CameraResources:
         if scenario_type == "record_video":
             if "fps" not in resolution:
                 log_and_raise_error(
-                    "Missing fps for video resolution {} of camera '{}'".format(
-                        index, camera_name
-                    ),
+                    "Missing fps for video resolution "
+                    "{} of camera '{}'".format(index, camera_name),
                     CameraConfigurationError,
                 )
             self._validate_dimension(

@@ -291,7 +291,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                     keep_running = self._handle_interrupt()
                     if not keep_running:
                         break
-                conn = rpyc.connect(host, port, config=config)
+                conn = rpyc.connect(host, port, config=config, keepalive=True)
                 keep_running = True
 
                 def quitter(msg):

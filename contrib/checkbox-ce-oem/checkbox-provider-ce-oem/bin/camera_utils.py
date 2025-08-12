@@ -677,17 +677,61 @@ class CameraScenarios(Enum):
     def __str__(self):
         return self.value
 
+    @classmethod
+    def get_description(cls, scenario_type: str) -> str:
+        """
+        Get description for a scenario type.
+
+        Args:
+            scenario_type: The scenario type string
+
+        Returns:
+            Description of the scenario type
+        """
+        descriptions = {
+            "capture_image": "Image capture scenarios",
+            "record_video": "Video recording scenarios",
+        }
+        return descriptions.get(scenario_type, "Unknown scenario type")
+
+    @classmethod
+    def get_all_types(cls) -> list:
+        """
+        Get all supported scenario types.
+
+        Returns:
+            List of all supported scenario type strings
+        """
+        return [scenario.value for scenario in cls]
+
+    @classmethod
+    def is_supported(cls, scenario_type: str) -> bool:
+        """
+        Check if a scenario type is supported.
+
+        Args:
+            scenario_type: The scenario type string to check
+
+        Returns:
+            True if supported, False otherwise
+        """
+        return scenario_type in cls.get_all_types()
+
 
 class CameraResources:
     """
-    Generate the camera resource for Checkbox based on scenario file
+    Generate camera resources for Checkbox based on scenario files.
 
     Args:
         scenario_file_path: JSON file path of scenario file
     """
 
+    PLAINBOX_PROVIDER_DATA = os.getenv("PLAINBOX_PROVIDER_DATA", "")
+
     def __init__(self, scenario_file_path: str = None) -> None:
         """
+        Initialize CameraResources with scenario file.
+
         Args:
             scenario_file_path: JSON file path of scenario file
         """
@@ -705,70 +749,126 @@ class CameraResources:
         Returns:
             Dictionary containing scenarios or empty dict if loading fails
         """
+        # First try to find the scenario file relative to
+        # PLAINBOX_PROVIDER_DATA
+        # then fall back to the scenario_file_path (absolute path)
         if not scenario_file_path:
             logger.debug("No scenario file path provided")
             return {}
 
+        # Try to load from PLAINBOX_PROVIDER_DATA first if it's set
+        if self.PLAINBOX_PROVIDER_DATA:
+            provider_scenario_path = os.path.join(
+                self.PLAINBOX_PROVIDER_DATA, scenario_file_path
+            )
+            if os.path.exists(provider_scenario_path):
+                logger.debug(
+                    "Loading scenario from provider data dir: {}".format(
+                        provider_scenario_path
+                    )
+                )
+                return self._load_scenario_file(provider_scenario_path)
+
+        # Fall back to the original scenario_file_path
         if not os.path.exists(scenario_file_path):
             logger.warning(
                 "Scenario file does not exist: {}".format(scenario_file_path)
             )
             return {}
 
+        return self._load_scenario_file(scenario_file_path)
+
+    def _load_scenario_file(self, file_path: str) -> dict:
+        """
+        Load and parse a scenario file.
+
+        Args:
+            file_path: Path to the scenario file
+
+        Returns:
+            Dictionary containing scenarios or empty dict if loading fails
+        """
         try:
-            with open(scenario_file_path, "r") as file:
+            with open(file_path, "r") as file:
                 scenarios = json.load(file)
                 logger.debug(
                     "Successfully loaded {} scenarios from {}".format(
-                        len(scenarios), scenario_file_path
+                        len(scenarios), file_path
                     )
                 )
                 return scenarios
         except json.JSONDecodeError as e:
             logger.error(
-                "Invalid JSON in scenario file {}: {}".format(
-                    scenario_file_path, e
+                "Invalid JSON in scenario file '{}': {} "
+                "(line {}, column {})".format(
+                    file_path, e.msg, e.lineno, e.colno
+                )
+            )
+            return {}
+        except FileNotFoundError:
+            logger.error("Scenario file not found: '{}'".format(file_path))
+            return {}
+        except PermissionError:
+            logger.error(
+                "Permission denied accessing scenario file: '{}'".format(
+                    file_path
                 )
             )
             return {}
         except Exception as e:
             logger.error(
-                "Failed to load scenario file {}: {}".format(
-                    scenario_file_path, e
-                )
+                "Failed to load scenario file {}: {}".format(file_path, e)
             )
             return {}
 
-    def main(self) -> None:
+    def main(self) -> bool:
         """
         Process all scenarios and generate resources.
+
+        Returns:
+            bool: True if all scenarios processed successfully, False otherwise
         """
         if not self._scenarios:
-            logger.warning("No scenarios to process")
-            return
+            return False
 
         for scenario_name, scenario_data in self._scenarios.items():
             try:
                 self._current_scenario_name = scenario_name
                 self._process_scenario(scenario_name, scenario_data)
                 self._dump_resources()
-            except AttributeError as e:
-                logger.warning(
-                    "Unknown scenario type '{}': {}".format(scenario_name, e)
-                )
             except Exception as e:
                 logger.error(
                     "Error processing scenario '{}': {}".format(
                         scenario_name, e
                     )
                 )
+                return False
+
+        return True
 
     def _process_scenario(
         self, scenario_name: str, scenario_data: list
     ) -> None:
         """
         Process a single scenario by calling the appropriate handler method.
+
+        Args:
+            scenario_name: Name of the scenario to process
+            scenario_data: List of scenario configuration items
+
+        Raises:
+            AttributeError: If no handler method found for scenario
+            ValueError: If scenario data is not a list
         """
+        # Validate scenario type
+        if not CameraScenarios.is_supported(scenario_name):
+            raise AttributeError(
+                "Unsupported scenario type '{}'. "
+                "Supported types: {}".format(
+                    scenario_name, CameraScenarios.get_all_types()
+                )
+            )
+
         handler_method = getattr(self, scenario_name, None)
         if handler_method is None:
             raise AttributeError(
@@ -779,7 +879,9 @@ class CameraResources:
 
         if not isinstance(scenario_data, list):
             raise ValueError(
-                "Scenario data for '{}' must be a list".format(scenario_name)
+                "Scenario data for '{}' must be a list, got {}".format(
+                    scenario_name, type(scenario_data).__name__
+                )
             )
 
         handler_method(scenario_data)
@@ -801,20 +903,162 @@ class CameraResources:
                 CameraConfigurationError,
             )
 
+    def _validate_resolution_formats(
+        self, item: dict, scenario_type: str
+    ) -> None:
+        """
+        Validate resolution and format configurations for a scenario item.
+
+        Args:
+            item: Scenario item configuration
+            scenario_type: Type of scenario being validated
+
+        Raises:
+            CameraConfigurationError: If validation fails
+        """
+        camera_name = item["camera"]
+
+        # Validate resolutions list
+        if not item["resolutions"]:
+            log_and_raise_error(
+                "Empty resolutions list for camera '{}'".format(camera_name),
+                CameraConfigurationError,
+            )
+
+        # Validate formats list
+        if not item["formats"]:
+            log_and_raise_error(
+                "Empty formats list for camera '{}'".format(camera_name),
+                CameraConfigurationError,
+            )
+
+        # Validate each resolution
+        for i, res in enumerate(item["resolutions"]):
+            self._validate_single_resolution(
+                res, i, camera_name, scenario_type
+            )
+
+        # Validate each format
+        for i, fmt in enumerate(item["formats"]):
+            self._validate_single_format(fmt, i, camera_name)
+
+    def _validate_single_resolution(
+        self,
+        resolution: dict,
+        index: int,
+        camera_name: str,
+        scenario_type: str,
+    ) -> None:
+        """
+        Validate a single resolution configuration.
+
+        Args:
+            resolution: Resolution configuration dict
+            index: Index of the resolution
+            camera_name: Name of the camera
+            scenario_type: Type of scenario
+
+        Raises:
+            CameraConfigurationError: If validation fails
+        """
+        # Check if resolution is a dict
+        if not isinstance(resolution, dict):
+            log_and_raise_error(
+                "Resolution {} for camera '{}' must be a dict".format(
+                    index, camera_name
+                ),
+                CameraConfigurationError,
+            )
+
+        # Check required fields
+        required_fields = ["width", "height"]
+        missing_fields = [
+            field for field in required_fields if field not in resolution
+        ]
+        if missing_fields:
+            log_and_raise_error(
+                "Resolution {} for camera '{}' missing fields: {}".format(
+                    index, camera_name, missing_fields
+                ),
+                CameraConfigurationError,
+            )
+
+        # Validate width and height
+        self._validate_dimension(
+            resolution["width"], "width", index, camera_name
+        )
+        self._validate_dimension(
+            resolution["height"], "height", index, camera_name
+        )
+
+        # Validate fps for video scenarios
+        if scenario_type == "record_video":
+            if "fps" not in resolution:
+                log_and_raise_error(
+                    "Missing fps for video resolution {} of camera '{}'".format(
+                        index, camera_name
+                    ),
+                    CameraConfigurationError,
+                )
+            self._validate_dimension(
+                resolution["fps"], "fps", index, camera_name
+            )
+
+    def _validate_single_format(
+        self, format_str: str, index: int, camera_name: str
+    ) -> None:
+        """
+        Validate a single format string.
+
+        Args:
+            format_str: Format string to validate
+            index: Index of the format
+            camera_name: Name of the camera
+
+        Raises:
+            CameraConfigurationError: If validation fails
+        """
+        if not isinstance(format_str, str) or not format_str.strip():
+            log_and_raise_error(
+                "Invalid format '{}' at index {} for camera '{}'".format(
+                    format_str, index, camera_name
+                ),
+                CameraConfigurationError,
+            )
+
+    def _validate_dimension(
+        self, value: int, field_name: str, index: int, camera_name: str
+    ) -> None:
+        """
+        Validate a dimension value (width, height, fps).
+
+        Args:
+            value: Value to validate
+            field_name: Name of the field being validated
+            index: Index of the resolution
+            camera_name: Name of the camera
+
+        Raises:
+            CameraConfigurationError: If validation fails
+        """
+        if not isinstance(value, int) or value <= 0:
+            log_and_raise_error(
+                "Invalid {} '{}' for camera '{}' resolution {}".format(
+                    field_name, value, camera_name, index
+                ),
+                CameraConfigurationError,
+            )
+
     def _process_scenario_items(
         self, scenarios: list, scenario_type: str
     ) -> None:
         """
-        Base function to process scenario items and generate resources.
+        Process scenario items and generate resources.
 
         Args:
             scenarios: List of scenario items to process
             scenario_type: Type of scenario
-                (e.g., 'capture_image', 'record_video')
-
-        Raises:
-            CameraConfigurationError: If scenario item is invalid
-            Exception: If error occurs during processing
+            (e.g., 'capture_image', 'record_video')
         """
         required_fields = [
             "camera",
@@ -828,22 +1072,26 @@ class CameraResources:
         for item in scenarios:
             try:
                 self._validate_scenario_item(item, required_fields)
+                self._validate_resolution_formats(item, scenario_type)
 
-                for r, f in product(item["resolutions"], item["formats"]):
+                # Generate resources for each resolution/format combination
+                for resolution, format_str in product(
+                    item["resolutions"], item["formats"]
+                ):
                     resource_item = {
                         "scenario": self._current_scenario_name,
                         "camera": item["camera"],
                         "method": item["method"],
                         "physical_interface": item["physical_interface"],
                         "v4l2_device_name": item["v4l2_device_name"],
-                        "format": f,
-                        "width": r["width"],
-                        "height": r["height"],
+                        "format": format_str,
+                        "width": resolution["width"],
+                        "height": resolution["height"],
                     }
 
-                    # Add scenario-specific fields
+                    # Add fps for video scenarios
                     if scenario_type == "record_video":
-                        resource_item["fps"] = r["fps"]
+                        resource_item["fps"] = resolution["fps"]
 
                     self._resource_items.append(resource_item)
 
@@ -889,7 +1137,8 @@ class CameraResources:
                 print("{}: {}".format(key, value))
             print()
         print()
-        # Renew for next scenario
+
+        # Clear for next scenario
         self._resource_items = []
 
 

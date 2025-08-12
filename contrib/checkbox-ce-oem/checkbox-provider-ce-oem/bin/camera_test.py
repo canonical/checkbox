@@ -341,6 +341,8 @@ def _setup_camera_config(args: argparse.Namespace, v4l2_devices: str) -> None:
         SystemExit:
             If camera setup configuration is invalid or cannot be loaded
     """
+    plainbox_provider_data = os.getenv("PLAINBOX_PROVIDER_DATA", "")
+
     # Check if camera setup config is provided when it might be needed
     if args.camera_setup_conf_path is None:
         logger.info(
@@ -358,6 +360,18 @@ def _setup_camera_config(args: argparse.Namespace, v4l2_devices: str) -> None:
         return
 
     logger.info("Setting up camera configuration from: {}".format(config_path))
+
+    # TODO: First try to find the scenario file relative to
+    # PLAINBOX_PROVIDER_DATA then fall back to the abs path
+
+    if plainbox_provider_data:
+        config_path = os.path.join(plainbox_provider_data, config_path)
+        if os.path.exists(config_path):
+            logger.debug(
+                "Loading camera setup config from provider data: {}".format(
+                    config_path
+                )
+            )
 
     if not os.path.exists(config_path):
         raise SystemExit(

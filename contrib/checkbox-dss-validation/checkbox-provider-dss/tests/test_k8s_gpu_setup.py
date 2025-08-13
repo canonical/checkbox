@@ -196,7 +196,7 @@ class TestMainCli(unittest.TestCase):
                     nvidia_setup.assert_called_with(version, microk8s)
                 elif vendor == "intel":
                     intel_setup.assert_called_with(version, microk8s)
-                else:
+                else:  # pragma: no cover
                     self.fail(f"unhandled vendor {vendor}")
 
         unsupported_vendor = "amd"  # for example

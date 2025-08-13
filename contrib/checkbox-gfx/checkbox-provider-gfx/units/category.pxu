@@ -1,3 +1,7 @@
 unit: category
 id: mesa
 _name: Category for Mesa tests
+
+unit: category
+id: opencl
+_name: A shorter test suit for opencl

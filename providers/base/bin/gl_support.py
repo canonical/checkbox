@@ -250,6 +250,13 @@ def parse_args():
             "Override the glmark2 executable to use, "
             "even if it might be unsupported on this platform"
         ),
+        choices=(
+            "glmark2",
+            "glmark2-wayland",
+            "glmark2-es2",
+            "glmark2-es2-wayland",
+        ),
+        required=False,
     )
     return parser.parse_args()
 

@@ -405,7 +405,7 @@ class DependencySolver:
             )
 
         # Look for groups in the pulled map
-        self.create_groups()
+        self.create_groups(pull_solution)
 
         # If there are no groups declared in the pulled jobs, solve the
         # ordering normally
@@ -415,9 +415,7 @@ class DependencySolver:
         # If there are any groups, solve for ordering considering them
         else:
             # Replace the jobs in the pulled map with the group job
-            replaced_solution = self.replace_jobs_by_groups(
-                self._pull_solution
-            )
+            replaced_solution = self.replace_jobs_by_groups(pull_solution)
 
             # Solve again for order dependencies
             general_solution = self._solve_order_deps(
@@ -436,6 +434,7 @@ class DependencySolver:
                     group_jobs, group=name
                 )
 
+            # Replace the group jobs with the original jobs inside the group
             final_solution = self.replace_groups_by_jobs(
                 general_solution, group_solutions
             )
@@ -621,14 +620,14 @@ class DependencySolver:
         self._job_state_map[job.id] = State.FINISHED
         self._order_solution.append(job)
 
-    def create_groups(self):
+    def create_groups(self, solution):
         """
         Create the groups that are used in the list of pulled jobs.
         """
         self._groups = {}
         self._jobs_in_groups = {}
 
-        for job in self._pull_solution:
+        for job in solution:
             if getattr(job, "group", None):
                 # Check if the group is already in the map
                 name = job.group

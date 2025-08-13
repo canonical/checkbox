@@ -276,11 +276,16 @@ class DependencyDuplicateError(DependencyError):
             self.__class__.__name__, self.job, self.duplicate_job
         )
 
+
 class Group(object):
     def __init__(self, name, jobs=None, external_deps=None):
         self.name = name
         self.jobs = [] if jobs is None else list(jobs)
-        self.external_deps = [] if external_deps is None else list(external_deps)
+        self.external_deps = (
+            [] if external_deps is None else set(external_deps)
+        )
+
+
 class State(enum.Enum):
     """
     States for recursive DFS graph visitor.
@@ -353,8 +358,6 @@ class DependencySolver:
         # Create some variables to handle grouping
         self._groups = dict()
         self._jobs_in_groups = dict()
-        self._current_group = None
-        self._group_solutions = dict()
 
         self._job_state_map = {
             job.id: State.NOT_VISITED for job in self._job_list
@@ -412,36 +415,42 @@ class DependencySolver:
         # If there are any groups, solve for ordering considering them
         else:
             # Replace the jobs in the pulled map with the group job
-            group_solution = self.replace_jobs_by_groups(self._pull_solution)
+            replaced_solution = self.replace_jobs_by_groups(
+                self._pull_solution
+            )
 
             # Solve again for order dependencies
-            group_solution = self._solve_order_deps(group_solution, group=None)
+            general_solution = self._solve_order_deps(
+                replaced_solution, group=None
+            )
 
             # Solve internally for each group
-            for group, job_ids in self._groups.items():
+            group_solutions = {}
+            for group in self._groups.values():
                 # Get the jobs in the group from the map of pulled jobs
-                group_jobs = [self._pulled_map[job_id] for job_id in job_ids]
-                self._group_solutions[group] = self._solve_order_deps(
-                    group_jobs, group=group
+                name = group.name
+                group_jobs = [
+                    self._pulled_map[job_id] for job_id in group.jobs
+                ]
+                group_solutions[name] = self._solve_order_deps(
+                    group_jobs, group=name
                 )
 
-            final_solution = self.replace_groups_by_jobs(group_solution)
+            final_solution = self.replace_groups_by_jobs(
+                general_solution, group_solutions
+            )
 
         # Perform a sanity check to ensure that no jobs have been added or
         # removed from the solution.
         pull_jobs = set(pull_solution)
         order_jobs = set(final_solution)
         if pull_jobs != order_jobs:
-            for p_job, o_job in zip(pull_jobs, order_jobs):
-                print(p_job, " vs ", o_job)
             raise ValueError(
                 "The dependency manager failed ordering the jobs, some jobs "
                 "have changed during the ordering process:\n"
                 "Pull solution: {!r}\n"
                 "Order solution: {!r}".format(pull_jobs, order_jobs)
             )
-
-        print("********Done solving**********")
 
         return final_solution
 
@@ -490,10 +499,7 @@ class DependencySolver:
         try:
             state = self._job_state_map[job.id]
         except KeyError:
-            # logger.debug(_("Visiting job that's not on the job_list: %r"), job)
-            for job in self._job_state_map:
-                print(job)
-            print(_("Visiting job that's not on the job_list: %r"), job)
+            logger.debug(_("Visiting job that's not on the job_list: %r"), job)
             raise DependencyUnknownError(job)
 
         if state == State.NOT_VISITED:
@@ -575,11 +581,9 @@ class DependencySolver:
 
     def _order_visit(self, job, trail=None, group=None):
         # We travel through dependencies recursively
-        # print(" - Checking order visit for job: {}".format(job.id))
         for dep_type, job_id in job.controller.get_dependency_set(
             job, self._pull_solution
         ):
-
             # Check if we are ordering a group
             if group is None:
                 # If the dependency is pointing to a job inside a group, we
@@ -590,7 +594,7 @@ class DependencySolver:
             else:
                 # If we are in a group, we only care about the dependencies
                 # inside the group
-                if job_id not in self._groups[group]:
+                if self._jobs_in_groups.get(job_id) != group:
                     continue
 
             try:
@@ -614,40 +618,27 @@ class DependencySolver:
 
         # We've visited (recursively) all dependencies of this node, so we
         # can change the state to finished and append it to the solution
-        # print(("Appending %r to order solution"), job)
         self._job_state_map[job.id] = State.FINISHED
         self._order_solution.append(job)
 
-    def group_of(self, job_id: str):
-        """Return the group that contains *job_id* (or None if not found)."""
-        for g, jobs in self._groups.items():
-            if job_id in jobs:
-                return g
-        return None
-
     def create_groups(self):
         """
-        Create groups based on the jobs in the pulled solution.
-
-        This method will create groups based on the jobs in the pulled
-        solution and replace the jobs in the order solution with the group
-        jobs.
+        Create the groups that are used in the list of pulled jobs.
         """
-        # Create a map of groups
         self._groups = {}
         self._jobs_in_groups = {}
-        self._external_deps = {}
 
         for job in self._pull_solution:
-            if hasattr(job, "group") and job.group is not None:
+            if getattr(job, "group", None):
                 # Check if the group is already in the map
-                if job.group not in self._groups:
-                    self._groups[job.group] = []
-                self._groups[job.group].append(job.id)
-                self._jobs_in_groups[job.id] = job.group
+                name = job.group
+                if name not in self._groups:
+                    self._groups[name] = Group(name)
+                self._groups[name].jobs.append(job.id)
+                self._jobs_in_groups[job.id] = name
 
-        for group in self._groups:
-            self._external_deps[group] = self.get_external_dependencies(group)
+        for group in self._groups.values():
+            group.external_deps = self.get_external_dependencies(group)
 
     def get_external_dependencies(self, group):
         """
@@ -656,13 +647,13 @@ class DependencySolver:
         group that don't point to the jobs inside the group
         """
         external_deps = set()
-        for job_id in self._groups[group]:
+        for job_id in group.jobs:
             # Get the dependencies for the job
             job = self._pulled_map[job_id]
             deps = job.controller.get_dependency_set(job, self._pulled_map)
             # Filter out the dependencies that are not external
             for dep_type, job_id in deps:
-                if self._jobs_in_groups.get(job_id) != group:
+                if self._jobs_in_groups.get(job_id) != group.name:
                     external_deps.add(job_id)
         return external_deps
 
@@ -670,7 +661,6 @@ class DependencySolver:
         """
         Replace the jobs in the pulled map with the group jobs.
         """
-
         added_groups = set()
 
         def replace_iter():
@@ -689,7 +679,7 @@ class DependencySolver:
                 # Create the group job
                 group_job_id = f"{self.GROUP_PREFIX}{group_name}"
                 # Add external dependencies as dependencies of the group job
-                deps = self._external_deps.get(group_name, [])
+                deps = self._groups[group_name].external_deps
                 group_job = JobDefinition(
                     {"id": group_job_id, "after": " ".join(deps)}
                 )
@@ -703,16 +693,11 @@ class DependencySolver:
 
         return list(replace_iter())
 
-    def replace_groups_by_jobs(self, solution):
+    def replace_groups_by_jobs(self, solution, group_solutions):
         """
         Replace the temporary group jobs with the original jobs inside the
         group.
         """
-        groups = self._group_solutions
-
-        for group in self._group_solutions:
-            print("The group solution is:")
-            print(group)
 
         def replace_iter():
             for job in solution:
@@ -720,7 +705,7 @@ class DependencySolver:
                     # Remove the prefix and get the group name
                     name = job.id.split(self.GROUP_PREFIX)[1]
                     # Add the jobs from the group
-                    yield from groups.get(name, [job])
+                    yield from group_solutions.get(name, [job])
                 else:
                     yield job
 

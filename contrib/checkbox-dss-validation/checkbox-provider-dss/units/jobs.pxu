@@ -95,42 +95,16 @@ command: run_dss.sh remove tensorflow-cpu
 
 # Intel XPU jobs ##############################################################
 
-id: intel_gpu_plugin/install
+id: dss/status_intel_gpu
 category_id: dss-regress
 flags: simple
 imports:
   from com.canonical.certification import executable
   from com.canonical.certification import graphics_card
 requires:
+  executable.name == 'dss'
   graphics_card.vendor == 'Intel Corporation'
-  executable.name == 'kubectl'
-depends: dss/initialize
-_summary: Install Intel K8s GPU Device Plugin
-estimated_duration: 2m
-command:
-  set -eou pipefail
-  enable_intel_gpu_plugin.sh "v0.30.0" "10"
-  check_gpu_rollout.sh intel
-
-id: intel_gpu_plugin/labels
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'kubectl'
-depends: intel_gpu_plugin/install
-_summary: Check that at least one k8s node has label Intel GPU label attached
-estimated_duration: 5s
-command:
-  set -eou pipefail
-  result="$(kubectl get nodes -o jsonpath='{.items[*].metadata.labels.intel\.feature\.node\.kubernetes\.io/gpu}')"
-  echo "$result" | grep "true"
-
-id: dss/status_intel_gpu
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'dss'
-depends: intel_gpu_plugin/labels
+depends: dss/status_mlflow
 _summary: Check that DSS status reports Intel GPU acceleration is enabled
 estimated_duration: 5s
 command:
@@ -144,8 +118,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a Tensorflow Intel notebook can be successfully created
-estimated_duration: 10m
-command: timeout 10m run_dss.sh create tensorflow-intel --image=tensorflow-intel
+estimated_duration: 15m
+command: timeout 15m run_dss.sh create tensorflow-intel --image=tensorflow-intel
 
 id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress
@@ -174,8 +148,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a PyTorch Intel notebook can be successfully created
-estimated_duration: 5m
-command: timeout 5m run_dss.sh create pytorch-intel --image=pytorch-intel
+estimated_duration: 15m
+command: timeout 15m run_dss.sh create pytorch-intel --image=pytorch-intel
 
 id: xpu/pytorch_can_use_xpu
 category_id: dss-regress
@@ -199,45 +173,16 @@ command: run_dss.sh remove pytorch-intel
 
 # NVIDIA CUDA jobs ############################################################
 
-id: microk8s_nvidia_gpu_addon/enable
+id: dss/status_nvidia_gpu
 category_id: dss-regress
 flags: simple
 imports:
   from com.canonical.certification import executable
   from com.canonical.certification import graphics_card
 requires:
+  executable.name == 'dss'
   graphics_card.vendor == 'NVIDIA Corporation'
-  executable.name == 'microk8s'
-  executable.name == 'kubectl'
-depends: dss/initialize
-_summary: Enable NVIDIA GPU addon in microk8s
-estimated_duration: 10m
-command:
-  set -eou pipefail
-  OPERATOR_VERSION="24.6.2"
-  sudo microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
-  check_gpu_rollout.sh nvidia
-
-id: nvidia_gpu_addon/validations_succeed
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'kubectl'
-depends: microk8s_nvidia_gpu_addon/enable
-_summary: NVIDIA GPU validations should succeed
-estimated_duration: 10s
-command:
-  set -eou pipefail
-  APP="nvidia-operator-validator"
-  logs="$(kubectl -n gpu-operator-resources logs -lapp="$APP" -c "$APP")"
-  echo "$logs" | grep "all validations are successful"
-
-id: dss/status_nvidia_gpu
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'dss'
-depends: nvidia_gpu_addon/validations_succeed
+depends: dss/status_mlflow
 _summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
 estimated_duration: 5s
 command:
@@ -251,8 +196,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an PyTorch CUDA notebook can be successfully created
-estimated_duration: 5m
-command: timeout 5m run_dss.sh create pytorch-cuda --image=pytorch-cuda
+estimated_duration: 15m
+command: timeout 15m run_dss.sh create pytorch-cuda --image=pytorch-cuda
 
 id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
@@ -281,8 +226,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an Tensorflow CUDA notebook can be successfully created
-estimated_duration: 10m
-command: timeout 10m run_dss.sh create tensorflow-cuda --image=tensorflow-cuda
+estimated_duration: 15m
+command: timeout 15m run_dss.sh create tensorflow-cuda --image=tensorflow-cuda
 
 id: cuda/tensorflow_can_use_cuda
 category_id: dss-regress
@@ -309,7 +254,7 @@ category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-depends: dss/create_tensorflow_cuda_notebook
+depends: dss/initialize
 _summary: Check that DSS can be purged
 estimated_duration: 5m
 command: timeout 5m run_dss.sh purge

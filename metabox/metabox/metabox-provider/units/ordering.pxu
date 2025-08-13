@@ -206,7 +206,6 @@ include:
 # Expected cycle error
 
 id: group_template_resource
-category_id: information_gathering
 plugin: resource
 command:
     echo 'id: 1'

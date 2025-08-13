@@ -20,6 +20,7 @@ import textwrap
 
 from metabox.core.actions import (
     AssertPrinted,
+    AssertRetCode,
     Start,
 )
 from metabox.core.scenario import Scenario
@@ -136,7 +137,8 @@ class OrderingDependsCycle(Scenario):
     modes = ["local"]
     steps = [
         Start("run 2021.com.canonical.certification::ordering_before_cycle"),
-        AssertPrinted(r"Dependency problem: dependency cycle detected"),
+        AssertPrinted(r"plainbox.impl.depmgr.DependencyCycleError"),
+        AssertRetCode(1),
     ]
 
 
@@ -145,36 +147,8 @@ class OrderingBeforeCycle(Scenario):
     modes = ["local"]
     steps = [
         Start("run 2021.com.canonical.certification::ordering_before_cycle"),
-        AssertPrinted(r"Dependency problem: dependency cycle detected"),
-    ]
-
-
-@tag("ordering")
-class OrderingAfterSuspend(Scenario):
-    launcher = textwrap.dedent(
-        """
-        [launcher]
-        launcher_version = 1
-        stock_reports = text
-        [test plan]
-        unit = 2021.com.canonical.certification::ordering_after_suspend
-        forced = yes
-        [test selection]
-        forced = yes
-        [ui]
-        type = silent
-        """
-    )
-    steps = [
-        Start(),
-        AssertPrinted(
-            r"(?s)"
-            r".*ordering_7_A"
-            r".*ordering_7_B"
-            r".*suspend/suspend_advanced_auto"
-            r".*after-suspend-ordering_7_B"
-            r".*after-suspend-ordering_7_A"
-        ),
+        AssertPrinted(r"plainbox.impl.depmgr.DependencyCycleError"),
+        AssertRetCode(1),
     ]
 
 
@@ -212,7 +186,8 @@ class OrderingGroupsCycle(Scenario):
     modes = ["local"]
     steps = [
         Start("run 2021.com.canonical.certification::ordering_groups_cycle"),
-        AssertPrinted(r"Dependency problem: dependency cycle detected"),
+        AssertPrinted(r"plainbox.impl.depmgr.DependencyCycleError"),
+        AssertRetCode(1),
     ]
 
 

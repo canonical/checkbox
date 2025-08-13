@@ -42,6 +42,11 @@ import uuid
 import psutil
 from checkbox_support.disk_support import Disk
 
+# Constants
+DEFAULT_OOM_AVOID = "10%"
+LOW_MEM_OOM_AVOID = "5%"
+HIGH_MEM_THRESHOLD = 255
+
 # Swap filename
 my_swap = None
 
@@ -59,7 +64,7 @@ class StressNg:
         sng_timeout,
         thread_count=0,
         extra_options="",
-        oom_avoid_bytes="10%",
+        oom_avoid_bytes=DEFAULT_OOM_AVOID,
     ):
 
         self.stressors = stressors
@@ -255,10 +260,10 @@ def stress_memory(args):
 
     if args.oom_avoid_bytes is not None:
         oom_avoid_bytes = args.oom_avoid_bytes
-    elif total_mem_in_gb > 255:
-        oom_avoid_bytes = "5%"
+    elif total_mem_in_gb > HIGH_MEM_THRESHOLD:
+        oom_avoid_bytes = LOW_MEM_OOM_AVOID
     else:
-        oom_avoid_bytes = "10%"
+        oom_avoid_bytes = DEFAULT_OOM_AVOID
     vrt = args.base_time + total_mem_in_gb * args.time_per_gig
     print("Total memory is {:.1f} GiB".format(total_mem_in_gb))
     print(

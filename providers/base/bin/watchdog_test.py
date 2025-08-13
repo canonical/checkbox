@@ -374,7 +374,7 @@ def watchdog_detection_test(watchdog_module, watchdog_identity) -> None:
         - Do not provide a kernel module if the watchdog is expected to be enabled by default.
 
     Args:
-        kernel_module: watchdog kernel module to be probe
+        kernel_module: watchdog kernel module to be probed
         watchdog_identity: expected identity string of the watchdog device
 
     Raises:

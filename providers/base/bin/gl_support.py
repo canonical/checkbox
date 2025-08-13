@@ -222,14 +222,24 @@ class GLSupportTester:
                 os.unlink(glmark2_data_path)
 
 
+def remove_prefix(s: str, prefix: str):
+    """3.5 doesn't have <str>.removeprefix()"""
+    if not s.startswith(prefix):
+        return s
+    return s[len(prefix) :]
+
+
 def main():
     tester = GLSupportTester()
     glmark2_output = tester.call_glmark2_validate()
 
     gl_version_number = (
-        tester.extract_gl_renderer_str(
-            glmark2_output, "GL_VERSION"
-        )  # 4.6 (Compatibility Profile) Mesa 25.0.7-0ubuntu0.25.04.1
+        remove_prefix(
+            tester.extract_gl_renderer_str(
+                glmark2_output, "GL_VERSION"
+            ),  # 4.6 (Compatibility Profile) Mesa 25.0.7-0ubuntu0.25.04.1
+            "OpenGL ES",
+        )
         .split()[0]  # 4.6
         .strip()
     )

@@ -137,10 +137,14 @@ class GLSupportTester:
         glmark2_validate_output: str,
         gl_variable_name: "T.Literal['GL_VERSION', 'GL_RENDERER']",
     ) -> str:
-        """Attempts to extract GL_RENDERER from `glmark2 --validate`'s output
+        """Attempts to extract the specified gl variable from
+        `glmark2 --validate`'s output
 
-        :param glmark2_validate_output: the .stdout from `glmark2 --validate`
-        :return: GL_RENDERER itself or None if couldn't be determined
+        :param glmark2_validate_output: stdout of `glmark2 --validate`
+        :param gl_variable_name: the variable to get
+        :raises ValueError: when the value of this variable doesn't appear in
+                            glmark2_validate_output
+        :return: value of gl_variable_name, trimmed
         """
         gl_renderer_line = None  # type: str | None
         for line in glmark2_validate_output.splitlines():
@@ -159,8 +163,10 @@ class GLSupportTester:
         """
         Calls 'glmark2 --validate' with the symlink hack,
         but allow error to be thrown unlike reboot_check_test.py
-        """
 
+        :raises ValueError: when XDG_SESSION_TYPE is not x11/wayland
+        :return: stdout of `glmark2 --validate`
+        """
         desktop_env_vars = self.get_desktop_environment_variables()
 
         XDG_SESSION_TYPE = desktop_env_vars.get("XDG_SESSION_TYPE")
@@ -184,7 +190,7 @@ class GLSupportTester:
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
-                # and the /usr/share/glmark2 is hard-coded inside glmark2
+                # and the /usr/share/glmark2 path is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
                 src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
                 dst = glmark2_data_path

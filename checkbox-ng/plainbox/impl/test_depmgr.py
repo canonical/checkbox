@@ -391,3 +391,95 @@ class TestDependencySolver(TestCase):
         with self.assertRaises(DependencyCycleError) as call:
             DependencySolver.resolve_dependencies(job_list)
         self.assertEqual(call.exception.job_list, [A, R, A])
+
+    def test_groups(self):
+        # This tests grouped jobs
+        # [G1_1  G1_2] [G2_1  G2_2]
+        G1_1 = make_job(id="G1_1", group="group1")
+        G1_2 = make_job(id="G1_2", group="group1")
+        G2_1 = make_job(id="G2_1", group="group2")
+        G2_2 = make_job(id="G2_2", group="group2")
+        job_list = [G1_1, G2_1, G1_2, G2_2]
+        expected = [G1_1, G1_2, G2_1, G2_2]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_groups_with_internal_deps(self):
+        # This tests grouped jobs with dependencies
+        # [G1_1 <- G1_2] [G2_1 <- G2_2]
+        G1_1 = make_job(id="G1_1", group="group1")
+        G1_2 = make_job(id="G1_2", group="group1", depends="G1_1")
+        G2_1 = make_job(id="G2_1", group="group2")
+        G2_2 = make_job(id="G2_2", group="group2", depends="G2_1")
+        job_list = [G1_2, G1_1, G2_2, G2_1]
+        expected = [G1_1, G1_2, G2_1, G2_2]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_groups_with_external_deps(self):
+        # This tests grouped jobs with dependencies
+        # [G1_1 <- G1_2   G1_3] [G2_1 <- G2_2   G2_3]
+        # G2 <- G1
+        G1_1 = make_job(id="G1_1", group="group1")
+        G1_2 = make_job(id="G1_2", group="group1", depends="G1_1")
+        G1_3 = make_job(id="G1_3", group="group1")
+        G2_1 = make_job(id="G2_1", group="group2", depends="G1_2")
+        G2_2 = make_job(id="G2_2", group="group2", depends="G2_1")
+        G2_3 = make_job(id="G2_3", group="group2")
+        job_list = [G2_2, G2_1, G2_3, G1_2, G1_1, G1_3]
+        expected = [G1_1, G1_2, G1_3, G2_1, G2_2, G2_3]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_groups_with_after(self):
+        # This tests grouped jobs with dependencies
+        # [G1_1 <- G1_2   G1_3] [G2_1 <- G2_2   G2_3]
+        # G2 <- G1
+        G1_1 = make_job(id="G1_1", group="group1")
+        G1_2 = make_job(id="G1_2", group="group1", after="G1_1")
+        G1_3 = make_job(id="G1_3", group="group1")
+        G2_1 = make_job(id="G2_1", group="group2", after="G1_2")
+        G2_2 = make_job(id="G2_2", group="group2", after="G2_1")
+        G2_3 = make_job(id="G2_3", group="group2")
+        job_list = [G2_2, G2_1, G2_3, G1_2, G1_1, G1_3]
+        expected = [G1_1, G1_2, G1_3, G2_1, G2_2, G2_3]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_groups_with_before(self):
+        # This tests grouped jobs with dependencies
+        # [G1_1 -> G1_2   G1_3] [G2_1 -> G2_2   G2_3]
+        # G2 -> G1
+        G1_1 = make_job(id="G1_1", group="group1", before="G1_2")
+        G1_2 = make_job(id="G1_2", group="group1", before="G2_1")
+        G1_3 = make_job(id="G1_3", group="group1")
+        G2_1 = make_job(id="G2_1", group="group2", before="G2_2")
+        G2_2 = make_job(id="G2_2", group="group2")
+        G2_3 = make_job(id="G2_3", group="group2")
+        job_list = [G2_2, G2_1, G2_3, G1_2, G1_1, G1_3]
+        expected = [G1_1, G1_2, G1_3, G2_1, G2_2, G2_3]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_groups_cycle(self):
+        # This tests grouped jobs with dependencies
+        # [G1_1 <- G2_2] [G1_2 <- G2_1]
+        # G2 <- G1 & G2 <- G1
+        G1_1 = make_job(id="G1_1", group="group1", depends="G2_2")
+        G1_2 = make_job(id="G1_2", group="group1")
+        G2_1 = make_job(id="G2_1", group="group2", depends="G1_2")
+        G2_2 = make_job(id="G2_2", group="group2")
+        job_list = [G1_1, G1_2, G2_1, G2_2]
+        with self.assertRaises(DependencyCycleError):
+            DependencySolver.resolve_dependencies(job_list)
+
+    def test_no_groups_no_cycle(self):
+        # The same test witout groups should not raise an error
+        T1_1 = make_job(id="T1_1", depends="T2_2")
+        T1_2 = make_job(id="T1_2")
+        T2_1 = make_job(id="T2_1", depends="T1_2")
+        T2_2 = make_job(id="T2_2")
+        job_list = [T1_1, T1_2, T2_1, T2_2]
+        expected = [T2_2, T1_1, T1_2, T2_1]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)

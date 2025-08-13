@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gl_support import *
+from gl_support import GLSupportTester
 from unittest.mock import patch, MagicMock
 import unittest
 import pathlib
@@ -27,8 +27,8 @@ class RemoveColorCode(unittest.TestCase):
     """
 
     @patch("subprocess.run")
-    def test_succ(self, mock_run):
-        gs = GLSupport()
+    def test_succ(self, mock_run: MagicMock):
+        gs = GLSupportTester()
         test_dir = pathlib.Path(__file__).parent / "test_data"
 
         SUCC = test_dir / "gl_support_succ.txt"
@@ -52,7 +52,7 @@ class IsSupportOpenGLTests(unittest.TestCase):
 
     @patch("subprocess.run")
     def test_succ(self, mock_run):
-        gs = GLSupport()
+        gs = GLSupportTester()
         mock_rv = MagicMock()
         mock_run.return_value = mock_rv
         mock_rv.stdout = ""
@@ -61,7 +61,7 @@ class IsSupportOpenGLTests(unittest.TestCase):
 
     @patch("subprocess.run")
     def test_fail(self, mock_run):
-        gs = GLSupport()
+        gs = GLSupportTester()
         mock_rv = MagicMock()
         mock_run.return_value = mock_rv
         mock_rv.stdout = ""
@@ -71,7 +71,7 @@ class IsSupportOpenGLTests(unittest.TestCase):
 
     @patch("subprocess.run")
     def test_command_fail(self, mock_run):
-        gs = GLSupport()
+        gs = GLSupportTester()
         mock_rv = MagicMock()
         mock_run.side_effect = FileNotFoundError
         mock_rv.stdout = ""

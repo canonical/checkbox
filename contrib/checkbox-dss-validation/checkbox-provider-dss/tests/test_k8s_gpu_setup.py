@@ -21,6 +21,7 @@
 #
 """Tests for `k8s_gpu_setup.py`"""
 
+import itertools
 import json
 import unittest
 from unittest import mock
@@ -175,3 +176,36 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
             self.assertEqual(len(mock_run.mock_calls), len(calls))
         with self.subTest("order of calls"):
             mock_run.assert_has_calls(calls)
+
+
+@mock.patch("k8s_gpu_setup.setup_intel_gpu_plugin")
+@mock.patch("k8s_gpu_setup.setup_nvidia_gpu_operator")
+class TestMainCli(unittest.TestCase):
+    def test_vendor_must_be_intel_or_nvidia(self, nvidia_setup, intel_setup):
+        version = "version"
+        for vendor, microk8s in itertools.product(
+            ["intel", "nvidia"], [True, False]
+        ):
+            args = [vendor, version]
+            if microk8s:
+                args.append("--microk8s")
+
+            with self.subTest(f"{vendor}-{microk8s} must pass"):
+                k8s_gpu_setup.main(args)
+                if vendor == "nvidia":
+                    nvidia_setup.assert_called_with(version, microk8s)
+                elif vendor == "intel":
+                    intel_setup.assert_called_with(version, microk8s)
+                else:
+                    self.fail(f"unhandled vendor {vendor}")
+
+        unsupported_vendor = "amd"  # for example
+        for microk8s in [True, False]:
+            args = [unsupported_vendor, version]
+            if microk8s:
+                args.append("--microk8s")
+
+            with self.subTest(f"{unsupported_vendor}-{microk8s} must fail"):
+                with self.assertRaises(SystemExit) as caught:
+                    k8s_gpu_setup.main(args)
+                self.assertEquals(caught.exception.code, 2)

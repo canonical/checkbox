@@ -79,6 +79,8 @@ def main(args: t.List[str] | None = None) -> None:
         setup_nvidia_gpu_operator(given.version, given.microk8s)
     elif given.vendor == "intel":
         setup_intel_gpu_plugin(given.version, given.microk8s)
+    else:  # pragma: no cover
+        raise ValueError(f"Given vendor {repr(given.vendor)} is not supported")
 
 
 @timeout(60 * 15)  # 15 minutes

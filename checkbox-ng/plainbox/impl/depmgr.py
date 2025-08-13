@@ -676,7 +676,7 @@ class DependencySolver:
                     continue
 
                 # Create the group job
-                group_job_id = f"{self.GROUP_PREFIX}{group_name}"
+                group_job_id = "{}{}".format(self.GROUP_PREFIX, group_name)
                 # Add external dependencies as dependencies of the group job
                 deps = self._groups[group_name].external_deps
                 group_job = JobDefinition(

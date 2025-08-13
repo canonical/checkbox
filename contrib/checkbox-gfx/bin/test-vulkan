@@ -1,4 +1,4 @@
-#!/usr/bin/env -S checkbox-cli-wrapper control 127.0.0.1
+#!/usr/bin/env checkbox-cli-wrapper
 [launcher]
 app_id = com.canonical.qa.gfx:checkbox
 launcher_version = 1

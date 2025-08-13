@@ -30,7 +30,6 @@ import typing as t
 
 from checkbox_support.helpers.retry import run_with_retry
 from checkbox_support.helpers.timeout import timeout
-from checkbox_support.parsers.udevadm import UdevadmParser
 
 
 GPU_CATEGORIES = set(["VIDEO"])
@@ -51,8 +50,7 @@ SKIP = "SKIP"
 def main(args: t.List[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Setup K8s cluster to use any detected GPUs from NVIDIA or Intel."
-            " The availability of any GPUs is parsed from udevadm database."
+            "Setup K8s cluster to use GPUs from NVIDIA or Intel."
             " Microk8s requires some special handling, so please use the"
             " appropriate flag if the target cluster is based on Microk8s."
             " Please ENSURE that kube-config is setup for kubectl and helm."
@@ -65,49 +63,22 @@ def main(args: t.List[str] | None = None) -> None:
         action="store_true",
     )
     parser.add_argument(
-        "nvidia_version",
-        help=(
-            "Operator version for NVIDIA GPU if found;"
-            f" pass '{SKIP}' to not install it."
-        ),
-        type=_version_or_skip,
+        "vendor",
+        choices=["nvidia", "intel"],
+        help="NVIDIA or Intel GPUs to be setup",
+        type=str,
     )
     parser.add_argument(
-        "intel_version",
-        help=(
-            "Plugin version for Intel GPU is found;"
-            f" pass {SKIP} to not install it."
-        ),
-        type=_version_or_skip,
+        "version",
+        help="NVIDIA Operator or Intel Plugin version to install",
+        type=str,
     )
     given = parser.parse_args(args)
 
-    if given.nvidia_version is None and given.intel_version is None:
-        print("SKIPped detecting and setting up all GPUs")
-        return
-
-    nvidia_detected, intel_detected = detect_available_gpu_vendors()
-    if nvidia_detected and given.nvidia_version is not None:
-        setup_nvidia_gpu_operator(given.nvidia_version, given.microk8s)
-    if intel_detected and given.intel_version is not None:
-        setup_intel_gpu_plugin(given.intel_version, given.microk8s)
-
-
-def detect_available_gpu_vendors() -> t.Tuple[bool, bool]:
-    cmd = "udevadm info --export-db"
-    output = subprocess.check_output(shlex.split(cmd), text=True)
-    udev = UdevadmParser(output)
-    found_nvidia, found_intel = False, False
-    for device in udev.run():
-        if getattr(device, "category") in GPU_CATEGORIES:
-            vendor = getattr(device, "vendor")
-            if not found_nvidia:
-                found_nvidia = vendor in VENDOR_NVIDIA
-            if not found_intel:
-                found_intel = vendor in VENDOR_INTEL
-    print(f"Detected NVIDIA GPU: {found_nvidia}")
-    print(f"Detected Intel GPU:  {found_intel}")
-    return found_nvidia, found_intel
+    if given.vendor == "nvidia":
+        setup_nvidia_gpu_operator(given.version, given.microk8s)
+    elif given.vendor == "intel":
+        setup_intel_gpu_plugin(given.version, given.microk8s)
 
 
 @timeout(60 * 15)  # 15 minutes
@@ -188,12 +159,6 @@ def setup_intel_gpu_plugin(version: str, is_microk8s: bool) -> None:
     ]:
         run_with_retry(subprocess.run, 100, 3, shlex.split(cmd), check=True)
     print("Finished Intel GPU plugin setup successfully", flush=True)
-
-
-def _version_or_skip(value: str) -> str | None:
-    if value == "":
-        raise argparse.ArgumentTypeError("Empty value is not allowed")
-    return None if value == SKIP else value
 
 
 if __name__ == "__main__":  # pragma: no cover

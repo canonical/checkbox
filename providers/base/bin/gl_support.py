@@ -35,7 +35,7 @@ class GLSupportTester:
 
     def get_desktop_environment_variables(
         self,
-    ) -> 'dict[str, str] | None':
+    ) -> "dict[str, str]":
         """Gets all the environment variables used by the desktop process
 
         :return: dict[str, str] similar to os.environ
@@ -63,7 +63,11 @@ class GLSupportTester:
         if desktop_pid is None:
             # this means the desktop failed to load
             # or we are not in a graphical session
-            return None
+            raise RuntimeError(
+                "Unable to get the environment variables "
+                + "used by either gnome or unity. "
+                + "Is the desktop process running?",
+            )
 
         # /proc/pid/environ is a null-char separated string
         proc_env_strings = sp.check_output(
@@ -158,11 +162,6 @@ class GLSupportTester:
         """
 
         desktop_env_vars = self.get_desktop_environment_variables()
-        if desktop_env_vars is None:
-            raise RuntimeError(
-                "Unable to get the environment variables",
-                "used by the current desktop. Is the desktop process running?",
-            )
 
         XDG_SESSION_TYPE = desktop_env_vars.get("XDG_SESSION_TYPE")
         if XDG_SESSION_TYPE not in ("x11", "wayland"):

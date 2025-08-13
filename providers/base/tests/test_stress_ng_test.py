@@ -257,3 +257,57 @@ class TestMainFunction(unittest.TestCase):
         self, shutil_which_mock, os_geteuid_mock, disk_mock
     ):
         self.assertEqual(main(), 1)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch("psutil.virtual_memory", return_value=MagicMock(total=8 * 1024**3))
+    @patch("sys.argv", ["stress_ng_test.py", "memory", "--oom-avoid-bytes", "20%"])
+    def test_main_memory_with_custom_oom_avoid_bytes(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        psutil_virtual_memory_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch("psutil.virtual_memory", return_value=MagicMock(total=300 * 1024**3))
+    @patch("sys.argv", ["stress_ng_test.py", "memory"])
+    def test_main_memory_high_mem_threshold(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        psutil_virtual_memory_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch("psutil.virtual_memory", return_value=MagicMock(total=8 * 1024**3))
+    @patch("sys.argv", ["stress_ng_test.py", "memory"])
+    def test_main_memory_low_mem_default_oom_avoid(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        psutil_virtual_memory_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        self.assertEqual(main(), 0)

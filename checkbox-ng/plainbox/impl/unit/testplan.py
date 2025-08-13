@@ -669,14 +669,16 @@ class TestPlanUnit(UnitWithId):
                     lambda unit: unit.get_setup_job_ids(),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == "job",
-                            message=_("the referenced unit is not a job"),
+                            lambda _, referee: referee.unit == "setup_job",
+                            message=_(
+                                "the referenced unit is not a setup job"
+                            ),
                         ),
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.automated,
+                            lambda _, referee: referee.automated,
                             message=_(
                                 "only automated jobs are allowed "
-                                "in bootstrapping_include"
+                                "in setup_include"
                             ),
                         ),
                     ],
@@ -689,11 +691,11 @@ class TestPlanUnit(UnitWithId):
                     lambda unit: unit.get_bootstrap_job_ids(),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == "job",
+                            lambda _, referee: referee.unit == "job",
                             message=_("the referenced unit is not a job"),
                         ),
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.automated,
+                            lambda _, referee: referee.automated,
                             message=_(
                                 "only automated jobs are allowed "
                                 "in bootstrapping_include"

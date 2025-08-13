@@ -325,7 +325,7 @@ def collect_hardware_watchdogs(watchdog_identity: str = "") -> dict:
 
 def watchdog_test_timestamp(log_dir):
     """
-    Log the timestamp before perform watchdog reset test
+    Log the timestamp before performing watchdog reset test
 
     Args:
         log_dir (str): the directory where log file will be saved

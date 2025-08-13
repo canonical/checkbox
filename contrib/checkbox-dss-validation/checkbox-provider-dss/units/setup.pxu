@@ -32,6 +32,8 @@ command:
 
 id: setup_dss/install_package_intel-gpu-tools
 category_id: setup-dss-regress
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_nvidia_gpus == 'True'
 flags: simple
 _summary: Install Package intel-gpu-tools
 estimated_duration: 2m
@@ -72,17 +74,36 @@ command:
   # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
   sudo microk8s.kubectl config view --raw | tee "$destination" >/dev/null
 
-id: setup_dss/k8s_gpu_setup
+id: setup_dss/k8s_nvidia_gpu_setup
 category_id: setup-dss-regress
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_nvidia_gpus == 'True'
 depends:
   setup_dss/install_snap_kubectl
   setup_dss/install_snap_helm
   setup_dss/write_microk8s_kube_config
 flags: simple
-_summary: Setup K8s cluster to use any detected NVIDIA or Intel GPUs
+_summary: Setup K8s cluster to use any NVIDIA GPUs
 estimated_duration: 45m
 command:
   timeout 45m k8s_gpu_setup.py \
     --microk8s \
-    "${SETUP_NVIDIA_GPU_OPERATOR_VERSION}" \
+    nvidia \
+    "${SETUP_NVIDIA_GPU_OPERATOR_VERSION}"
+
+id: setup_dss/k8s_intel_gpu_setup
+category_id: setup-dss-regress
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_intel_gpus == 'True'
+depends:
+  setup_dss/install_snap_kubectl
+  setup_dss/install_snap_helm
+  setup_dss/write_microk8s_kube_config
+flags: simple
+_summary: Setup K8s cluster to use any Intel GPUs
+estimated_duration: 45m
+command:
+  timeout 45m k8s_gpu_setup.py \
+    --microk8s \
+    intel \
     "${SETUP_INTEL_GPU_PLUGIN_VERSION}"

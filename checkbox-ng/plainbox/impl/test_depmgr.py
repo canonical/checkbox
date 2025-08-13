@@ -461,7 +461,17 @@ class TestDependencySolver(TestCase):
         observed = DependencySolver.resolve_dependencies(job_list)
         self.assertEqual(expected, observed)
 
-    def test_groups_cycle(self):
+    def test_groups_internal_cycle(self):
+        # This tests grouped jobs with dependencies
+        # [G1_1 <- G2_2] [G1_2 <- G2_1]
+        # G2 <- G1 & G2 <- G1
+        G1_1 = make_job(id="G1_1", group="group1", depends="G1_2")
+        G1_2 = make_job(id="G1_2", group="group1", depends="G1_1")
+        job_list = [G1_1, G1_2]
+        with self.assertRaises(DependencyCycleError):
+            DependencySolver.resolve_dependencies(job_list)
+
+    def test_groups_external_cycle(self):
         # This tests grouped jobs with dependencies
         # [G1_1 <- G2_2] [G1_2 <- G2_1]
         # G2 <- G1 & G2 <- G1

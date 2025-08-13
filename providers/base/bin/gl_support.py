@@ -237,9 +237,9 @@ class GLSupportTester:
 
 def remove_prefix(s: str, prefix: str):
     """3.5 doesn't have <str>.removeprefix()"""
-    if not s.startswith(prefix):
-        return s
-    return s[len(prefix) :]
+    if s.startswith(prefix):
+        return s[len(prefix) :]
+    return s
 
 
 def parse_args():

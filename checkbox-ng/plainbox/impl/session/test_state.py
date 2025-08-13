@@ -98,12 +98,9 @@ class RegressionTests(TestCase):
         """http://pad.lv/1334296"""
         A = make_job("A")
         state = SessionState([])
-        with self.assertRaises(DependencyUnknownError) as e:
-            state.update_desired_job_list([A])
-        self.assertIn(
-            "unknown job referenced: 'A'",
-            str(e.exception),
-        )
+        problems = state.update_desired_job_list([A])
+        self.assertEqual(problems, [DependencyUnknownError(A)])
+        self.assertEqual(state.desired_job_list, [])
 
     def test_crash_in_update_desired_job_list(self):
         # This checks if a DependencyError can cause crash
@@ -111,14 +108,12 @@ class RegressionTests(TestCase):
         A = make_job("A", depends="X")
         L = make_job("L", plugin="shell")
         session = SessionState([A, L])
-
-        with self.assertRaises(DependencyMissingError) as e:
-            session.update_desired_job_list([A, L])
-
-        self.assertIn(
-            "missing dependency: 'X'",
-            str(e.exception),
-        )
+        problems = session.update_desired_job_list([A, L])
+        # We should get exactly one DependencyMissingError related to job A and
+        # the undefined job X
+        self.assertEqual(len(problems), 1)
+        self.assertIsInstance(problems[0], DependencyMissingError)
+        self.assertIs(problems[0].affected_job, A)
 
     def test_init_with_identical_jobs(self):
         A = make_job("A")
@@ -139,6 +134,22 @@ class RegressionTests(TestCase):
             self.assertIs(call.exception.job, A)
             self.assertIs(call.exception.duplicate_job, different_A)
             self.assertIs(call.exception.affected_job, different_A)
+
+    def test_dont_remove_missing_jobs(self):
+        """http://pad.lv/1444126"""
+        A = make_job("A", depends="B")
+        B = make_job("B", depends="C")
+        state = SessionState([A, B])
+        problems = state.update_desired_job_list([A, B])
+        self.assertEqual(
+            problems,
+            [
+                DependencyMissingError(B, "C", DependencyType.DEPENDS),
+                DependencyMissingError(A, "B", DependencyType.DEPENDS),
+            ],
+        )
+        self.assertEqual(state.desired_job_list, [])
+        self.assertEqual(state.run_list, [])
 
     def test_category_outcome_map(self):
         cat_a = CategoryUnit({"id": "a", "name": "The a category"})

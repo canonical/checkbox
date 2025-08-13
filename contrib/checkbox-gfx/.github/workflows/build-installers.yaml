@@ -1,0 +1,78 @@
+name: "Build Installers"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Ubuntu version of the runner'
+        required: true
+        default: 'noble'
+        type: choice
+        options:
+          - jammy
+          - noble
+
+      arch:
+        description: 'Architecture of the runner'
+        required: true
+        default: 'amd64'
+        type: choice
+        options:
+          - amd64
+          - arm64
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - bin/install-vulkan
+
+jobs:
+  manual-build:
+    if: github.event_name == 'workflow_dispatch'
+    strategy:
+      matrix:
+        test_name: [vulkan]
+    name: "Manual Build - ${{ matrix.test_name }}"
+    runs-on: [self-hosted, linux, "${{ inputs.arch }}", "${{ inputs.version }}"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run install-${{ matrix.test_name }}
+        shell: bash
+        run: bin/install-${{ matrix.test_name }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "output-${{ matrix.test_name }}-\
+          ${{ inputs.arch }}-${{ inputs.version }}"
+          path: /usr/local/checkbox-gfx/*
+
+  pr-build:
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+        test_name: [vulkan]
+    name: "Installer testing"
+    runs-on: [self-hosted, linux, "${{ matrix.arch }}", noble]
+
+    steps:
+      - name: "Installers - ${{ matrix.test_name }} - ${{ matrix.arch }}"
+        run: echo "Running ${{ matrix.test_name }} ${{ matrix.arch }} install"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run install-${{ matrix.test_name }}
+        shell: bash
+        run: bin/install-${{ matrix.test_name }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-${{ matrix.test_name }}-${{ matrix.arch }}
+          path: /usr/local/checkbox-gfx/*

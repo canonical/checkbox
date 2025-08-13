@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_voltage_regulator
+_name: Do Voltage Regulator Devices exist and require verification?
+value-type: bool

@@ -235,7 +235,7 @@ class GLSupportTester:
                 os.unlink(glmark2_data_path)
 
 
-def remove_prefix(s: str, prefix: str):
+def remove_prefix(s: str, prefix: str) -> str:
     """3.5 doesn't have <str>.removeprefix()"""
     if s.startswith(prefix):
         return s[len(prefix) :]
@@ -261,7 +261,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     args = parse_args()
     tester = GLSupportTester()
     glmark2_output = tester.call_glmark2_validate(args.glmark2_override)

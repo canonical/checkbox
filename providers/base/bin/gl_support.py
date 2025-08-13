@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import shutil
 import subprocess as sp
 import typing as T
 import os
 import platform
+import argparse
 
 # Checkbox could run in a snap container, so we need to prepend this root path
 RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
@@ -159,7 +161,9 @@ class GLSupportTester:
 
         return gl_renderer_line.split(":")[-1].strip()
 
-    def call_glmark2_validate(self) -> str:
+    def call_glmark2_validate(
+        self, glmark2_executable_override: "str|None" = None
+    ) -> str:
         """
         Calls 'glmark2 --validate' with the symlink hack,
         but allow error to be thrown unlike reboot_check_test.py
@@ -180,9 +184,18 @@ class GLSupportTester:
 
         print("XDG_SESSION type used by the desktop is:", XDG_SESSION_TYPE)
 
-        glmark2_executable = self.pick_glmark2_executable(
-            XDG_SESSION_TYPE, platform.uname().machine
-        )
+        if glmark2_executable_override is not None:
+            if shutil.which(glmark2_executable_override) is None:
+                raise FileNotFoundError(
+                    "Override '{}' doesn't exist".format(
+                        glmark2_executable_override
+                    )
+                )
+            glmark2_executable = glmark2_executable_override
+        else:
+            glmark2_executable = self.pick_glmark2_executable(
+                XDG_SESSION_TYPE, platform.uname().machine
+            )
         glmark2_data_path = "/usr/share/glmark2"
 
         try:
@@ -229,9 +242,22 @@ def remove_prefix(s: str, prefix: str):
     return s[len(prefix) :]
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--glmark2-override",
+        help=(
+            "Override the glmark2 executable to use, "
+            "even if it might be unsupported on this platform"
+        ),
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
     tester = GLSupportTester()
-    glmark2_output = tester.call_glmark2_validate()
+    glmark2_output = tester.call_glmark2_validate(args.glmark2_override)
 
     gl_version_number = (
         remove_prefix(

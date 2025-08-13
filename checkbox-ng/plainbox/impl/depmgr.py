@@ -39,6 +39,8 @@ from plainbox.impl.job import JobDefinition
 
 logger = getLogger("plainbox.depmgr")
 
+GROUP_PREFIX = "_group_job_"
+
 
 class DependencyType(enum.Enum):
     """
@@ -132,7 +134,7 @@ class DependencyUnknownError(DependencyError):
 class DependencyCycleError(DependencyError):
     """Exception raised when a cyclic dependency is detected."""
 
-    def __init__(self, job_list):
+    def __init__(self, job_list, groups=None):
         """
         Initialize with a list of jobs that form a dependency loop.
 
@@ -146,6 +148,7 @@ class DependencyCycleError(DependencyError):
         assert len(job_list) > 1
         assert job_list[0] is job_list[-1]
         self.job_list = job_list
+        self.groups = groups
 
     @property
     def affected_job(self):
@@ -154,7 +157,14 @@ class DependencyCycleError(DependencyError):
 
         Here it is the job that has a cyclic dependency on itself.
         """
-        return self.job_list[0]
+        job = self.job_list[0]
+        # If we are in a group, we don't know which job is the one that
+        # is affected by the cycle, so we return the first job in the list.
+        # This is not ideal but it is the best we can do.
+        if job.id.startswith(GROUP_PREFIX):
+            name = job.id.split(GROUP_PREFIX)[1]
+            job = self.groups[name].jobs[0]
+        return job
 
     @property
     def affecting_job(self):
@@ -315,8 +325,6 @@ class DependencySolver:
     Use the resolve_dependencies() class method to get the solution.
     """
 
-    GROUP_PREFIX = "_group_job_"
-
     @classmethod
     def resolve_dependencies(cls, job_list, visit_list=None):
         """
@@ -427,11 +435,9 @@ class DependencySolver:
             for group in self._groups.values():
                 # Get the jobs in the group from the map of pulled jobs
                 name = group.name
-                group_jobs = [
-                    self._pulled_map[job_id] for job_id in group.jobs
-                ]
+
                 group_solutions[name] = self._solve_order_deps(
-                    group_jobs, group=name
+                    group.jobs, group=name
                 )
 
             # Replace the group jobs with the original jobs inside the group
@@ -525,7 +531,7 @@ class DependencySolver:
             # forms a loop
             trail = trail[trail.index(job) :]
             logger.debug(_("Found dependency cycle: %r"), trail)
-            raise DependencyCycleError(trail)
+            raise DependencyCycleError(trail, self._groups)
 
         elif state == State.FINISHED:
             # This node has been visited and is fully traced.
@@ -589,7 +595,7 @@ class DependencySolver:
                 # replace it with the group job.
                 if job_id in self._jobs_in_groups:
                     group_name = self._jobs_in_groups[job_id]
-                    job_id = "{}{}".format(self.GROUP_PREFIX, group_name)
+                    job_id = "{}{}".format(GROUP_PREFIX, group_name)
             else:
                 # If we are in a group, we only care about the dependencies
                 # inside the group
@@ -633,7 +639,7 @@ class DependencySolver:
                 name = job.group
                 if name not in self._groups:
                     self._groups[name] = Group(name)
-                self._groups[name].jobs.append(job.id)
+                self._groups[name].jobs.append(job)
                 self._jobs_in_groups[job.id] = name
 
         for group in self._groups.values():
@@ -646,9 +652,9 @@ class DependencySolver:
         group that don't point to the jobs inside the group
         """
         external_deps = set()
-        for job_id in group.jobs:
+        for job in group.jobs:
             # Get the dependencies for the job
-            job = self._pulled_map[job_id]
+            job_id = job.id
             deps = job.controller.get_dependency_set(job, self._pulled_map)
             # Filter out the dependencies that are not external
             for dep_type, job_id in deps:
@@ -676,7 +682,7 @@ class DependencySolver:
                     continue
 
                 # Create the group job
-                group_job_id = "{}{}".format(self.GROUP_PREFIX, group_name)
+                group_job_id = "{}{}".format(GROUP_PREFIX, group_name)
                 # Add external dependencies as dependencies of the group job
                 deps = self._groups[group_name].external_deps
                 group_job = JobDefinition(
@@ -700,9 +706,9 @@ class DependencySolver:
 
         def replace_iter():
             for job in solution:
-                if job.id.startswith(self.GROUP_PREFIX):
+                if job.id.startswith(GROUP_PREFIX):
                     # Remove the prefix and get the group name
-                    name = job.id.split(self.GROUP_PREFIX)[1]
+                    name = job.id.split(GROUP_PREFIX)[1]
                     # Add the jobs from the group
                     yield from group_solutions.get(name, [job])
                 else:

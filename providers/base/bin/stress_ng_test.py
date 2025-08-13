@@ -264,6 +264,7 @@ def stress_memory(args):
         oom_avoid_bytes = LOW_MEM_OOM_AVOID
     else:
         oom_avoid_bytes = DEFAULT_OOM_AVOID
+
     vrt = args.base_time + total_mem_in_gb * args.time_per_gig
     print("Total memory is {:.1f} GiB".format(total_mem_in_gb))
     print(

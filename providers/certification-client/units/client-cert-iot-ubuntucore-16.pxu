@@ -106,6 +106,7 @@ bootstrap_include:
   net_if_management
 nested_part:
   submission-cert-automated
+  info-attachment-cert-automated
   self-automated
   iot-fwts-automated
   acpi-automated

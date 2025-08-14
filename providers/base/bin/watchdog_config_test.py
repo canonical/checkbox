@@ -17,10 +17,36 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
+import re
 import subprocess
 
 from checkbox_support.snap_utils.system import on_ubuntucore
 from checkbox_support.snap_utils.system import get_series
+
+
+USAGE = """
+Watchdog Config Test Scripts
+
+Usage:
+  watchdo_config_test.py check-time
+  watchdo_config_test.py check-service
+
+Commands:
+  check-time     Check if systemd watchdog timeout is configured correctly
+  check-service  Check if watchdog.service is configured correctly
+
+Note:
+  On Ubuntu Core and Ubuntu 20.04 or later, the system no longer requires
+  the separate watchdog service. Instead, watchdog support is now integrated
+  and managed directly through the systemd watchdog mechanism.
+
+  On Ubuntu 18.04 and earlier, watchdog support rely on the separate
+  watchdog service.
+"""
+
+
+WATCHDOG_SERVICE_TIMEOUT_PATTERN = "watchdog-timeout"
 
 
 def get_systemd_wdt_usec():
@@ -42,6 +68,21 @@ def get_systemd_wdt_usec():
         )
 
 
+def get_watchdog_service_timeout():
+    watchdog_timeout = 0
+    with open("/etc/watchdog.conf", "r") as fp:
+        config_data = fp.read()
+        match = re.search(
+            r"^{}[ ]*=[ ]*([0-9]*)".format(WATCHDOG_SERVICE_TIMEOUT_PATTERN),
+            config_data,
+            re.MULTILINE,
+        )
+        if match:
+            watchdog_timeout = int(match.group(1))
+
+    return watchdog_timeout
+
+
 def watchdog_service_check():
     """
     Check if the watchdog service is configured correctly
@@ -53,57 +94,104 @@ def watchdog_service_check():
         raise SystemExit("Error: {}".format(err))
 
 
-def main():
-    runtime_watchdog_usec = get_systemd_wdt_usec()
-    systemd_wdt_configured = runtime_watchdog_usec != "0"
-    wdt_service_configured = watchdog_service_check()
+def check_timeout() -> None:
     ubuntu_version = int(get_series().split(".")[0])
-    watchdog_config_ready = True
+    runtime_watchdog_usec = get_systemd_wdt_usec()
+    is_systemd_wdt_configured = runtime_watchdog_usec != "0"
 
-    if (ubuntu_version >= 20) or (on_ubuntucore()):
-        if not systemd_wdt_configured:
-            print(
+    if ubuntu_version >= 20 or on_ubuntucore():
+        if not is_systemd_wdt_configured:
+            msgs = (
                 "systemd watchdog should be enabled but reset timeout "
-                "(RuntimeWatchdogUSec) is set to: "
-                "{}".format(runtime_watchdog_usec)
+                "(RuntimeWatchdogUSec) is set to: {}\n"
+                "In order for the systemd watchdog to work, "
+                "the RuntimeWatchdogUSec configuration option must be set "
+                "before running this test.".format(runtime_watchdog_usec)
             )
-            print(
-                "In order for the watchdog service to work, the "
-                "RuntimeWatchdogUSec configuration option must be set before "
-                "running this test."
+            raise SystemExit(msgs)
+        print(
+            "systemd watchdog enabled, reset timeout: {}".format(
+                runtime_watchdog_usec
             )
-            watchdog_config_ready = False
-        if wdt_service_configured:
-            print("found unexpected active watchdog.service unit")
-            watchdog_config_ready = False
-        if watchdog_config_ready:
+        )
+    else:
+        if is_systemd_wdt_configured:
+            msgs = (
+                "systemd watchdog should not be enabled but reset timeout "
+                "(RuntimeWatchdogUSec) is set to: {}\n"
+                "In order for the watchdog.service to work, "
+                "the RuntimeWatchdogUSec configuration option must be 0 "
+                "before running this test.".format(runtime_watchdog_usec)
+            )
+            raise SystemExit(msgs)
+
+        watchdog_service_sec = get_watchdog_service_timeout()
+        if not watchdog_service_sec:
             print(
-                "systemd watchdog enabled, reset timeout: {}".format(
-                    runtime_watchdog_usec
+                "watchdog service should be enabled but reset timeout "
+                "({}) is set to: {}".format(
+                    WATCHDOG_SERVICE_TIMEOUT_PATTERN,
+                    watchdog_service_sec,
                 )
             )
-            print("watchdog.service is not active")
-    else:
-        if systemd_wdt_configured:
             print(
-                "systemd watchdog should not be enabled but reset timeout "
-                "(RuntimeWatchdogUSec) is set to: "
-                "{}".format(runtime_watchdog_usec)
+                "In order for the watchdog.service to work, the "
+                "{} configuration option must be set before "
+                "running this test.".format(WATCHDOG_SERVICE_TIMEOUT_PATTERN)
             )
-            print(
-                "In order for the watchdog service to work, the "
-                "RuntimeWatchdogUSec configuration option must be set before "
-                "running this test."
-            )
-            watchdog_config_ready = False
-        if not wdt_service_configured:
-            print("watchdog.service unit does not report as active")
-            watchdog_config_ready = False
-        if watchdog_config_ready:
-            print("systemd watchdog disabled")
-            print("watchdog.service active")
+            raise SystemExit(1)
 
-    raise SystemExit(not watchdog_config_ready)
+        print(
+            "watchdog service enabled, reset timeout: {}".format(
+                watchdog_service_sec
+            )
+        )
+
+
+def check_service() -> None:
+    ubuntu_version = int(get_series().split(".")[0])
+    is_wdt_service_configured = watchdog_service_check()
+
+    if ubuntu_version >= 20 or on_ubuntucore():
+        if is_wdt_service_configured:
+            raise SystemExit("Found unexpected active watchdog.service unit")
+        print("watchdog.service is not active")
+    else:
+        if not is_wdt_service_configured:
+            raise SystemExit("watchdog.service unit does not report as active")
+        print("watchdog.service is active")
+
+
+def watchdog_argparse() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="Watchdog Testing Tool",
+        description="This is a tool to help you perform the watchdog testing",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        usage=USAGE,
+    )
+    parser.add_argument(
+        "test",
+        type=str,
+        choices=["check-timeout", "check-service"],
+        help=(
+            "Specifies the type of watchdog check to perform:\n"
+            "\tcheck-timeout - Verify the watchdog timeout setting.\n"
+            "\tcheck-service - Ensure the watchdog is managed by the correct daemon, "
+            "such as the watchdog service or systemd watchdog."
+        ),
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = watchdog_argparse()
+    if args.test == "check-timeout":
+        check_timeout()
+    elif args.test == "check-service":
+        check_service()
+    else:
+        raise SystemExit("Unexpected arguments")
 
 
 if __name__ == "__main__":

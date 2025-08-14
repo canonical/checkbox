@@ -457,7 +457,7 @@ def post_check_test(log_dir):
     print("# Post check test")
     _get_watchdog_handler().restore_config(log_dir)
 
-    if Path(log_dir).joinpath("watchdog_manual_reset.log").exists():
+    if Path(log_dir).joinpath("watchdog_systemctl_initiated_reset.log").exists():
         raise SystemExit("Error: System reset by scripts, not watchdog")
 
     start_time = Path(log_dir).joinpath(WATCHDOG_LOG_FILE).read_text()

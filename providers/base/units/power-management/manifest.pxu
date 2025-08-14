@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_amd_pmf
 _name: AMD PMF (Platform Management Framework) support
 value-type: bool
+
+unit: manifest entry
+id: has_dc_mode
+_name: Battery Power Support
+value-type: bool

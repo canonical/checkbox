@@ -13,6 +13,7 @@ _name: Networking tests (manual)
 _description: Networking tests (manual)
 include:
     networking/info_device.*                       certification-status=blocker
+    networking/airplane-mode                       certification-status=blocker
 bootstrap_include:
     device
     executable
@@ -92,6 +93,7 @@ _name: Manual networking tests for devices (after suspend)
 _description: Manual networking tests for devices (after suspend)
 include:
     after-suspend-networking/info_device.*                       certification-status=blocker
+    after-suspend-networking/airplane-mode                       certification-status=blocker
 bootstrap_include:
     device
     executable

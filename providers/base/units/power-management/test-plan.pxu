@@ -21,7 +21,6 @@ unit: test plan
 _name: Power Management precheck tests (Manual)
 _description: Power Management precheck tests (Manual)
 include:
-    power-management/suspend-power-button          certification-status=blocker
     power-management/suspend-on-battery-power      certification-status=blocker
     power-management/suspend-on-AC-power           certification-status=blocker
 

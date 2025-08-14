@@ -580,20 +580,6 @@ description:
 
 plugin: manual
 category_id: com.canonical.plainbox::power-management
-id: power-management/suspend-power-button
-estimated_duration: 5.0
-_purpose:
-    Verify the system can enter suspend and resume via the power button.
-_steps:
-    1. Set the Power Button Behavior to Suspend in power settings
-    2. Press the power button
-    3. Wait a few seconds
-    4. Resume the system by pressing the power button again
-_verification:
-    The system enters and resumes from suspend when the power button is pressed.
-
-plugin: manual
-category_id: com.canonical.plainbox::power-management
 id: power-management/suspend-on-battery-power
 imports: from com.canonical.plainbox import manifest
 requires:

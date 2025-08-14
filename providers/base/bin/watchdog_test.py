@@ -123,10 +123,15 @@ class WatchdogServiceHandler(WatchdogConfigHandler):
         if match is None:
             conf_data += "\n{}  = {}".format(cls.timeout_pattern, timeout)
             conf_file.write_text(conf_data)
+            print(
+                "the watchdog timeout has been set to {} before testing".format(
+                    timeout
+                )
+            )
         else:
             timeout = match.group(1)
             print(
-                "the watchdog timeout been set to {} before testing".format(
+                "the watchdog timeout is already set to {} before testing".format(
                     timeout
                 )
             )

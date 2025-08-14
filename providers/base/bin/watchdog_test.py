@@ -88,10 +88,10 @@ class WatchdogConfigHandler(ABC):
         shutil.copy(backup_file, cls.config_path)
 
     @classmethod
-    def dump_watchdog_config(self) -> None:
+    def dump_watchdog_config(cls) -> None:
         print("# Dump configuration")
         print(
-            Path(self.config_path).joinpath(self.config_filename).read_text()
+            Path(self.config_path).joinpath(cls.config_filename).read_text()
         )
 
 

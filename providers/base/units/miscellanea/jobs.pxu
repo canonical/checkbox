@@ -593,6 +593,22 @@ _verification:
 
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/parental-controls
+estimated_duration: 10.0
+_purpose:
+    Validate that Parental Controls restrict applications for a non-admin user.
+_steps:
+    1. Create a non-admin account.
+    2. Open Parental Controls in application tab
+    3. Enable "Restrict Web Browsers"
+    4. Select and enable restrictions for at least one additional application under "Restrict Applications"
+    5. Log out from the Admin account and log in as the Standard user
+    6. Attempt to launch each restricted application
+_verification:
+    1. Confirm that the standard user cannot launch any of the restricted applications.
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/operation-system-installation
 estimated_duration: 30.0
 _purpose:

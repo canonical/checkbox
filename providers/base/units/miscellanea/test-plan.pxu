@@ -16,6 +16,7 @@ _description:
 include:
     miscellanea/wallpaper
     miscellanea/document
+    miscellanea/parental-controls
     miscellanea/operation-system-installation      certification-status=blocker
     miscellanea/factory-recovery                   certification-status=blocker
 nested_part:

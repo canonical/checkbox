@@ -137,8 +137,7 @@ class OrderingDependsCycle(Scenario):
     modes = ["local"]
     steps = [
         Start("run 2021.com.canonical.certification::ordering_before_cycle"),
-        AssertPrinted(r"plainbox.impl.depmgr.DependencyCycleError"),
-        AssertRetCode(1),
+        AssertPrinted(r"Dependency problem: dependency cycle detected"),
     ]
 
 
@@ -147,8 +146,7 @@ class OrderingBeforeCycle(Scenario):
     modes = ["local"]
     steps = [
         Start("run 2021.com.canonical.certification::ordering_before_cycle"),
-        AssertPrinted(r"plainbox.impl.depmgr.DependencyCycleError"),
-        AssertRetCode(1),
+        AssertPrinted(r"Dependency problem: dependency cycle detected"),
     ]
 
 
@@ -186,8 +184,7 @@ class OrderingGroupsCycle(Scenario):
     modes = ["local"]
     steps = [
         Start("run 2021.com.canonical.certification::ordering_groups_cycle"),
-        AssertPrinted(r"plainbox.impl.depmgr.DependencyCycleError"),
-        AssertRetCode(1),
+        AssertPrinted(r"Dependency problem: dependency cycle detected"),
     ]
 
 

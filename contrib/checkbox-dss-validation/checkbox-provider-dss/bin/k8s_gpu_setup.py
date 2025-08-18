@@ -32,10 +32,6 @@ from checkbox_support.helpers.retry import run_with_retry
 from checkbox_support.helpers.timeout import timeout
 
 
-GPU_CATEGORIES = set(["VIDEO"])
-VENDOR_NVIDIA = set(["NVIDIA Corporation"])
-VENDOR_INTEL = set(["Intel Corporation"])
-
 SLEEP_BEFORE_ROLLOUT = 60  # seconds
 
 SNAP_MK8S = "/var/snap/microk8s"
@@ -43,8 +39,6 @@ MK8S_CONTAINERD_INFO = {
     "CONTAINERD_CONFIG": f"{SNAP_MK8S}/current/args/containerd-template.toml",
     "CONTAINERD_SOCKET": f"{SNAP_MK8S}/common/run/containerd.sock",
 }
-
-SKIP = "SKIP"
 
 
 def main(args: t.List[str] | None = None) -> None:

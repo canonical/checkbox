@@ -48,8 +48,13 @@ By default it will attempt to install the following:
 - `data-science-stack` snap from channel `1.0/stable`
 - `kubectl` snap from `1.29/stable`
 - `intel-gpu-tools` package
+- Setup the NVIDIA GPU Operator `v24.6.2` in `microk8s`
+  - Only if there's a manifest entry with `com.canonical.contrib::has_nvidia_gpus = true`
+- Setup the Intel GPU Plugin `v0.30.0` in `microk8s`
+  - Only if there's a manifest entry with `com.canonical.contrib::has_intel_gpus = true`
 
-Please edit the environment section in the setup launcher to customize the channels.
+Please edit the environment section in the setup launcher to customize the versions.
+You can add a `[manifest]` section too with the appropriate entries to setup appropriate GPUs.
 
 # Automated Run
 

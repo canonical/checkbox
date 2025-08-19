@@ -6,6 +6,8 @@ include:
     setup_dss/install_package_.*
     setup_dss/enable_microk8s_addons
     setup_dss/write_microk8s_kube_config
+    setup_dss/k8s_nvidia_gpu_setup
+    setup_dss/k8s_intel_gpu_setup
 
 id: dss-validation
 unit: test plan
@@ -20,8 +22,6 @@ include:
     dss/create_tensorflow_cpu_notebook
     cpu/tensorflow_can_use_cpu
     dss/remove_tensorflow_cpu_notebook
-    intel_gpu_plugin/install
-    intel_gpu_plugin/labels
     dss/status_intel_gpu
     dss/create_tensorflow_intel_notebook
     xpu/tensorflow_can_use_xpu
@@ -29,8 +29,6 @@ include:
     dss/create_pytorch_intel_notebook
     xpu/pytorch_can_use_xpu
     dss/remove_pytorch_intel_notebook
-    microk8s_nvidia_gpu_addon/enable
-    nvidia_gpu_addon/validations_succeed
     dss/status_nvidia_gpu
     dss/create_pytorch_cuda_notebook
     cuda/pytorch_can_use_cuda

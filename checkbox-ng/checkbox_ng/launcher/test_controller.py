@@ -37,6 +37,51 @@ class ControllerTests(TestCase):
         for state in RemoteSessionStates:
             connection_strategy[state]
 
+    def test_setup_noresume(self):
+        self_mock = mock.MagicMock()
+
+        self_mock.sa.start_setup_json.return_value = json.dumps(
+            ["job1", "job2", "job3"]
+        )
+        self_mock.sa.finish_setup.return_value = []
+
+        def get_job_result(id):
+            if id == "job1":
+                return mock.MagicMock(outcome=True)
+            return mock.MagicMock(outcome=None)
+
+        self_mock.sa.get_job_result = get_job_result
+
+        RemoteController.setup(self_mock, {"last_job": "job1"})
+
+        self.assertTrue(self_mock.run_uninteractable_jobs.called)
+        self.assertTrue(self_mock.sa.finish_setup.called)
+
+    def test_setup_and_continue(self):
+        self_mock = mock.MagicMock()
+
+        RemoteController.setup_and_continue(self_mock)
+
+        self.assertTrue(self_mock.setup.called)
+        self.assertTrue(self_mock.bootstrap_and_continue.called)
+
+    def test_bootstrap_and_continue_no_jobs(self):
+        self_mock = mock.MagicMock()
+        self_mock.jobs = []
+
+        with self.assertRaises(SystemExit):
+            RemoteController.bootstrap_and_continue(self_mock)
+
+    def test_bootstrap_and_continue(self):
+        self_mock = mock.MagicMock()
+        self_mock.jobs = ["job1"]
+
+        RemoteController.bootstrap_and_continue(self_mock)
+
+        self.assertTrue(self_mock.bootstrap.called)
+        self.assertTrue(self_mock.select_jobs.called)
+        self.assertTrue(self_mock.run_interactable_jobs)
+
     @mock.patch("checkbox_ng.launcher.controller.is_hostname_a_loopback")
     @mock.patch("time.time")
     @mock.patch("builtins.print")

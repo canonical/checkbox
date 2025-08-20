@@ -467,7 +467,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.setup(resume_payload=resume_payload)
         self.bootstrap_and_continue()
 
-    def automatically_start_via_launcher(self):
+    def automatically_start_via_launcher_and_continue(self):
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
@@ -496,7 +496,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         if self.should_start_via_autoresume():
             return self.resume_last_session_and_continue()
         elif self.should_start_via_launcher():
-            return self.automatically_start_via_launcher()
+            return self.automatically_start_via_launcher_and_continue()
         else:
             return self.interactively_choose_test_plan_and_continue()
 

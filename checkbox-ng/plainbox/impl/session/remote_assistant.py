@@ -863,20 +863,20 @@ class RemoteSessionAssistant:
             try:
                 with open(result_path, "rt") as f:
                     result_dict = json.load(f)
-                    # the only really important field in the result is
-                    # 'outcome' so let's make sure it doesn't contain
-                    # anything stupid
-                    if result_dict.get("outcome") not in [
-                        "pass",
-                        "fail",
-                        "skip",
-                    ]:
-                        result_dict["outcome"] = IJobResult.OUTCOME_CRASH
-                        result_dict["comments"] = (
-                            result_dict.get("comments", "")
-                            + "\n\nJob specified an invalid outcome in the result "
-                            "file, marking it as crashed"
-                        )
+                # the only really important field in the result is
+                # 'outcome' so let's make sure it doesn't contain
+                # anything stupid
+                if result_dict.get("outcome") not in [
+                    "pass",
+                    "fail",
+                    "skip",
+                ]:
+                    result_dict["outcome"] = IJobResult.OUTCOME_CRASH
+                    result_dict["comments"] = (
+                        result_dict.get("comments", "")
+                        + "\n\nJob specified an invalid outcome in the result "
+                        "file, marking it as crashed"
+                    )
             except (json.JSONDecodeError, FileNotFoundError):
                 job_definition = self._sa.get_job(self._last_job)
                 job_state = self._sa.get_job_state(job_definition.id)
@@ -966,7 +966,7 @@ class RemoteSessionAssistant:
         elif SessionMetaData.FLAG_SETUPPING in meta.flags:
             self._sa.resume_setup()
         else:
-            raise ValueError("da fuck is going on here?")
+            raise ValueError("Unable to resume session, unknown state")
 
         self.update_job_result_after_resume(
             self._last_job,

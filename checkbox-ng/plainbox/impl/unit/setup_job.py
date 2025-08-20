@@ -76,7 +76,9 @@ class SetupJobUnit(JobDefinition):
 
     class Meta:
 
-        name = N_("setup_job")
+        # this Meta name is job because we are restricting a job but not
+        # modifying how Checkbox has to interpret it
+        name = N_("job")
 
         class fields(SymbolDef):
             """

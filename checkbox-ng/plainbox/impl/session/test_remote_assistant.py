@@ -75,6 +75,36 @@ class RemoteAssistantTests(TestCase):
         self.assertIn("XDG_RUNTIME_DIR", extra_env)
         self.assertIn("DBUS_SESSION_BUS_ADDRESS", extra_env)
 
+    def test_start_setup(self):
+        self_mock = mock.MagicMock()
+
+        self_mock.state = RemoteSessionStates.Started
+
+        RemoteSessionAssistant.start_setup(self_mock)
+
+        self.assertEqual(self_mock.state, RemoteSessionStates.Setupping)
+        self.assertTrue(self_mock._sa.start_setup.called)
+
+    def test_finish_setup(self):
+        self_mock = mock.MagicMock()
+
+        self_mock.state = RemoteSessionStates.Setupping
+
+        RemoteSessionAssistant.finish_setup(self_mock)
+
+        self.assertEqual(self_mock.state, RemoteSessionStates.Setupped)
+        self.assertTrue(self_mock._sa.finish_setup.called)
+
+    def test_whats_up_setupping(self):
+        self_mock = mock.MagicMock()
+        self_mock.state = RemoteSessionStates.Setupping
+        self_mock._last_job = "namespace::id"
+
+        state_value, payload = RemoteSessionAssistant.whats_up(self_mock)
+
+        self.assertEqual(state_value, RemoteSessionStates.Setupping.value)
+        self.assertEqual(payload, {"last_job": self_mock._last_job})
+
     @mock.patch("psutil.process_iter")
     def test_prepare_extra_env_fallback(self, process_iter_mock):
         process_iter_mock.side_effect = TypeError

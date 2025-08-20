@@ -631,7 +631,7 @@ class Launcher(MainLoopStage, ReportsStage):
     def setup(self):
         setup_jobs = self.sa.start_setup()
         failed_setups = self._run_setup_jobs(setup_jobs)
-        self.ctx.sa.finish_setup()
+        self.sa.finish_setup()
         return failed_setups
 
     def _start_new_session(self):

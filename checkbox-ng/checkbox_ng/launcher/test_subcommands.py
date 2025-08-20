@@ -403,6 +403,7 @@ class TestLauncher(TestCase):
         self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
         )
+        self_mock.sa.setupping.return_value = False
 
         session_metadata_mock = (
             self_mock.sa.prepare_resume_session.return_value
@@ -418,6 +419,26 @@ class TestLauncher(TestCase):
         self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_CRASH)
         # given that no comment was in resume_params, the resume procedure asks for it
         self.assertTrue(request_comment_mock.called)
+
+    def test_bootstrap(self):
+        self_mock = MagicMock()
+
+        Launcher.bootstrap(self_mock)
+
+        self.assertTrue(self_mock.sa.start_bootstrap.called)
+        self.assertTrue(self_mock._run_bootstrap_jobs.called)
+        self.assertTrue(self_mock.sa.finish_bootstrap.called)
+
+    def test_setup(self):
+        self_mock = MagicMock()
+        self_mock._run_setup_jobs.return_value = ["failed1"]
+
+        failed = Launcher.setup(self_mock)
+
+        self.assertTrue(self_mock.sa.start_setup.called)
+        self.assertTrue(self_mock._run_setup_jobs.called)
+        self.assertTrue(self_mock.sa.finish_setup.called)
+        self.assertEqual(failed, ["failed1"])
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())

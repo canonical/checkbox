@@ -1,0 +1,74 @@
+unit: setup job
+id: simple_setup_guard
+flags: simple
+name: Creates a file in session share that can then be verified by normal jobs
+command:
+  echo "setup_include" > $PLAINBOX_SESSION_SHARE/setup_include_guard
+
+id: simple_bootstrap_guard
+name: Creates a file in session share that can then be verified by normal jobs
+plugin: resource
+flags: simple
+command:
+  echo "bootstrap_include" > $PLAINBOX_SESSION_SHARE/bootstrap_include_guard
+  echo done: true
+
+id: verify_simple_guards
+flags: simple
+name: Verify that the simple guards were created
+command:
+  if ! test -f $PLAINBOX_SESSION_SHARE/setup_include_guard; then
+    echo "setup_guard didn't run"
+    exit 1
+  fi
+  if ! test -f $PLAINBOX_SESSION_SHARE/bootstrap_include_guard; then
+    echo "bootstrap_guard didn't run"
+    exit 1
+  fi
+
+unit: test plan
+id: basic_setup_include_works
+_name: Test that the basic functionality of setup_include works
+setup_include:
+  simple_setup_guard
+bootstrap_include:
+  simple_bootstrap_guard
+include:
+  verify_simple_guards
+
+unit: setup job
+id: setup_restart
+_name: Restarts Checkbox during setup (simulates machine reboot)
+plugin: shell
+user: root
+flags: noreturn
+command:
+ PID=`pgrep -f checkbox-cli`
+ kill $PID
+
+unit: setup job
+id: setup_restart_guard
+_name: Creates a file in session share that can then be verified by normal jobs
+plugin: shell
+command:
+  echo "setup_restart" > $PLAINBOX_SESSION_SHARE/setup_restart_guard
+
+id: verify_resume_guards
+flags: simple
+command:
+  if ! test -f $PLAINBOX_SESSION_SHARE/setup_restart_guard; then
+    echo "setup_restart_guard didn't run"
+  fi
+
+unit: test plan
+id: resume_setup_include_works
+_name: Test that setup include can resume a test run
+setup_include:
+  simple_setup_guard
+  setup_restart
+  setup_restart_guard
+bootstrap_include:
+  simple_bootstrap_guard
+include:
+  verify_simple_guards
+  verify_resume_guards

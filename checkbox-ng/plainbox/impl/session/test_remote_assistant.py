@@ -18,24 +18,21 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-from os.path import exists
 from functools import partial
 
 from unittest import TestCase, mock
 
-from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.agent import SessionAssistantAgent
 
 from plainbox.abc import IJobResult
 from plainbox.impl.config import Configuration
 from plainbox.impl.result import MemoryJobResult
 
-from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
-
 from plainbox.impl.session.remote_assistant import (
     RemoteSessionAssistant,
     RemoteSessionStates,
     allowed_when,
+    SessionMetaData,
 )
 from plainbox.impl.session.assistant import SessionAssistant
 
@@ -166,6 +163,7 @@ class RemoteAssistantTests(TestCase):
         rsa.state = RemoteSessionStates.Idle
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
 
         rsa.prepare_resume_session.return_value = mock_meta
         RemoteSessionAssistant.resume_by_id(rsa, "session_id")
@@ -179,6 +177,7 @@ class RemoteAssistantTests(TestCase):
         rsa.state = RemoteSessionStates.Idle
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
 
         rsa.prepare_resume_session.return_value = mock_meta
         RemoteSessionAssistant.resume_by_id(rsa, "bad_id")
@@ -192,6 +191,7 @@ class RemoteAssistantTests(TestCase):
         rsa.state = RemoteSessionStates.Idle
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
 
         rsa.prepare_resume_session.return_value = mock_meta
         RemoteSessionAssistant.resume_by_id(rsa)
@@ -205,9 +205,13 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.get_resumable_sessions.return_value = [resumable_session]
         rsa.get_rerun_candidates.return_value = []
         rsa.state = RemoteSessionStates.Idle
+        rsa.update_job_result_after_resume = partial(
+            RemoteSessionAssistant.update_job_result_after_resume, rsa
+        )
 
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
 
         rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
@@ -245,9 +249,13 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.get_resumable_sessions.return_value = [resumable_session]
         rsa.get_rerun_candidates.return_value = []
         rsa.state = RemoteSessionStates.Idle
+        rsa.update_job_result_after_resume = partial(
+            RemoteSessionAssistant.update_job_result_after_resume, rsa
+        )
 
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
 
         rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
@@ -269,15 +277,18 @@ class RemoteAssistantTests(TestCase):
 
         mjr = MemoryJobResult(
             {
-                "outcome": IJobResult.OUTCOME_PASS,
-                "comments": "Outcome loaded from file",
+                "outcome": IJobResult.OUTCOME_CRASH,
+                "comments": "Outcome loaded from file\n\nJob specified an "
+                "invalid outcome in the result "
+                "file, marking it as crashed",
             }
         )
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
+    @mock.patch("plainbox.impl.session.remote_assistant.open")
     @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
     def test_resume_by_id_with_result_no_file_noreturn(
-        self, mock_load_configs
+        self, mock_load_configs, mock_open
     ):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
@@ -285,62 +296,24 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.get_resumable_sessions.return_value = [resumable_session]
         rsa.get_rerun_candidates.return_value = []
         rsa.state = RemoteSessionStates.Idle
-        job_state = rsa._sa.get_job_state.return_value
-        job_state.result.outcome = None
+        job_state = rsa._sa.get_job_state()
+        job_state.result_history = []
+        rsa.update_job_result_after_resume = partial(
+            RemoteSessionAssistant.update_job_result_after_resume, rsa
+        )
 
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"testplan_id": "tp_id"}'
-
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
         rsa.prepare_resume_session.return_value = mock_meta
-        os_path_exists_mock = mock.Mock()
 
-        rsa._sa.get_job.return_value.plugin = "shell"
+        mock_open.side_effect = FileNotFoundError
 
-        with mock.patch("os.path.exists", os_path_exists_mock):
-            os_path_exists_mock.return_value = False
-            rsa._sa.get_job.return_value.get_flag_set.return_value = {
-                "noreturn"
-            }
+        job_definition = rsa._sa.get_job()
+        job_definition.plugin = "shell"
+        job_definition.get_flag_set.return_value = {}
 
-            RemoteSessionAssistant.resume_by_id(rsa)
-
-        mjr = MemoryJobResult(
-            {
-                "outcome": IJobResult.OUTCOME_PASS,
-                "comments": (
-                    "Job rebooted the machine or the Checkbox agent. "
-                    "Resuming the session and marking it as passed "
-                    "because the job has the `noreturn` flag"
-                ),
-            }
-        )
-
-        rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
-
-    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
-    def test_resume_by_id_with_result_no_file_normal(self, mock_load_configs):
-        rsa = mock.Mock()
-        resumable_session = mock.Mock()
-        resumable_session.id = "session_id"
-        rsa._sa.get_resumable_sessions.return_value = [resumable_session]
-        rsa.get_rerun_candidates.return_value = []
-        rsa.state = RemoteSessionStates.Idle
-        job_state = rsa._sa.get_job_state.return_value
-        job_state.result.outcome = None
-
-        mock_meta = mock.Mock()
-        mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
-
-        rsa.prepare_resume_session.return_value = mock_meta
-        os_path_exists_mock = mock.Mock()
-
-        rsa._sa.get_job.return_value.plugin = "shell"
-
-        with mock.patch("os.path.exists", os_path_exists_mock):
-            os_path_exists_mock.return_value = False
-            rsa._sa.get_job.return_value.get_flag_set.return_value = {}
-
-            RemoteSessionAssistant.resume_by_id(rsa)
+        RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {
@@ -354,9 +327,55 @@ class RemoteAssistantTests(TestCase):
 
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
+    @mock.patch("plainbox.impl.session.remote_assistant.open")
+    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
+    def test_resume_by_id_with_result_no_file_normal(
+        self, mock_load_configs, mock_open
+    ):
+        rsa = mock.Mock()
+        resumable_session = mock.Mock()
+        resumable_session.id = "session_id"
+        rsa._sa.get_resumable_sessions.return_value = [resumable_session]
+        rsa.get_rerun_candidates.return_value = []
+        rsa.state = RemoteSessionStates.Idle
+
+        job_state = rsa._sa.get_job_state()
+        job_state.result_history = []
+
+        rsa.update_job_result_after_resume = partial(
+            RemoteSessionAssistant.update_job_result_after_resume, rsa
+        )
+
+        mock_meta = mock.Mock()
+        mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
+
+        rsa.prepare_resume_session.return_value = mock_meta
+
+        mock_open.side_effect = FileNotFoundError
+
+        rsa._sa.get_job.return_value.plugin = "shell"
+
+        rsa._sa.get_job.return_value.get_flag_set.return_value = {}
+
+        RemoteSessionAssistant.resume_by_id(rsa)
+
+        mjr = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_CRASH,
+                "comments": (
+                    "Job rebooted the machine or the Checkbox agent. "
+                    "Resuming the session and marking it as crashed."
+                ),
+            }
+        )
+
+        rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
+
+    @mock.patch("plainbox.impl.session.remote_assistant.open")
     @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
     def test_resume_by_id_with_result_no_file_already_set(
-        self, mock_load_configs
+        self, mock_load_configs, mock_open
     ):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
@@ -367,29 +386,26 @@ class RemoteAssistantTests(TestCase):
         job_state = rsa._sa.get_job_state.return_value
         job_state.result.outcome = IJobResult.OUTCOME_PASS
         job_state.result.comments = None
+        rsa.update_job_result_after_resume = partial(
+            RemoteSessionAssistant.update_job_result_after_resume, rsa
+        )
+
+        mock_open.side_effect = FileNotFoundError
 
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
 
         rsa.prepare_resume_session.return_value = mock_meta
-        os_path_exists_mock = mock.Mock()
 
-        rsa._sa.get_job.return_value.plugin = "shell"
+        job_definition = rsa._sa.get_job()
+        job_definition.plugin = "shell"
+        job_definition.get_flag_set.return_value = {}
 
-        with mock.patch("os.path.exists", os_path_exists_mock):
-            os_path_exists_mock.return_value = False
-            rsa._sa.get_job.return_value.get_flag_set.return_value = {}
+        RemoteSessionAssistant.resume_by_id(rsa)
 
-            RemoteSessionAssistant.resume_by_id(rsa)
-
-        mjr = MemoryJobResult(
-            {
-                "outcome": IJobResult.OUTCOME_PASS,
-                "comments": "",
-            }
-        )
-
-        rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
+        # the job already has an outcome, don't re-adopt it
+        self.assertFalse(rsa._sa.use_job_result.called)
 
     @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
     def test_resume_by_id_with_result_file_not_json(self, mock_load_configs):
@@ -399,11 +415,22 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.get_resumable_sessions.return_value = [resumable_session]
         rsa.get_rerun_candidates.return_value = []
         rsa.state = RemoteSessionStates.Idle
+
+        job_definition = rsa._sa.get_job()
+        job_definition.plugin = "shell"
+        job_definition.get_flag_set.return_value = {"noreturn"}
+
         job_state = rsa._sa.get_job_state.return_value
+        job_state.result_history = []
         job_state.result.outcome = None
+
+        rsa.update_job_result_after_resume = partial(
+            RemoteSessionAssistant.update_job_result_after_resume, rsa
+        )
 
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.flags = {SessionMetaData.FLAG_INCOMPLETE}
 
         rsa.prepare_resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
@@ -417,7 +444,9 @@ class RemoteAssistantTests(TestCase):
         mjr = MemoryJobResult(
             {
                 "outcome": IJobResult.OUTCOME_PASS,
-                "comments": "Automatically passed after resuming execution",
+                "comments": "Job rebooted the machine or the Checkbox agent. "
+                "Resuming the session and marking it as passed "
+                "because the job has the `noreturn` flag",
             }
         )
 
@@ -665,6 +694,9 @@ class RemoteAssistantFinishJobTests(TestCase):
     def setUp(self):
         self.rsa = mock.MagicMock()
         self.rsa._be = None
+        self.rsa.update_job_result_after_resume = partial(
+            RemoteSessionAssistant.update_job_result_after_resume, self.rsa
+        )
 
     @mock.patch("plainbox.impl.session.remote_assistant.JobResultBuilder")
     def test_no_result_after_auto_resume(self, MockJobResultBuilder):

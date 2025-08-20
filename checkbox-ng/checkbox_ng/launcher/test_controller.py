@@ -307,7 +307,9 @@ class ControllerTests(TestCase):
 
         RemoteController.resume_or_start_new_session(self_mock)
 
-        self.assertTrue(self_mock.auto_start_via_launcher_and_continue.called)
+        self.assertTrue(
+            self_mock.automatically_start_via_launcher_and_continue.called
+        )
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_command_none(self, simple_ui_mock):
@@ -1024,10 +1026,12 @@ class ControllerTests(TestCase):
     def test_automatically_start_via_launcher(self):
         self_mock = mock.MagicMock()
 
-        RemoteController.auto_start_via_launcher_and_continue(self_mock)
+        RemoteController.automatically_start_via_launcher_and_continue(
+            self_mock
+        )
 
         self.assertTrue(self_mock.select_test_plan.called)
-        self.assertTrue(self_mock.bootstrap_and_continue.called)
+        self.assertTrue(self_mock.setup_and_continue.called)
 
     def test_resume_last_session_and_continue(self):
         self_mock = mock.MagicMock()

@@ -915,6 +915,7 @@ class TestLauncher(TestCase):
         self_mock.ctx.args.launcher = None
         self_mock.ctx.args.message = None
         self_mock.sa.get_test_plans.return_value = ["test_plan_id"]
+        self_mock.setup.return_value = []  # no job failed during setup
 
         Launcher._select_test_plan_and_continue(self_mock)
 

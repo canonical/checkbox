@@ -86,12 +86,6 @@ class SessionMetaData:
 
     FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = "strict_template_expansion"
 
-    def bootstrapping(self) -> bool:
-        return self.FLAG_BOOTSTRAPPING in self.flags
-
-    def setupping(self) -> bool:
-        return self.FLAG_SETUPPING in self.flags
-
     def __init__(
         self,
         title=None,
@@ -133,6 +127,18 @@ class SessionMetaData:
         else:
             with suppress(KeyError):
                 self.flags.remove(self.FLAG_BOOTSTRAPPING)
+
+    @property
+    def setupping(self) -> bool:
+        return self.FLAG_SETUPPING in self.flags
+
+    @setupping.setter
+    def setupping(self, value):
+        if value:
+            self.flags.add(self.FLAG_SETUPPING)
+        else:
+            with suppress(KeyError):
+                self.flags.remove(self.FLAG_SETUPPING)
 
     @property
     def title(self):

@@ -817,19 +817,15 @@ class SessionAssistant:
     @raises(UnexpectedMethodCall)
     def start_setup(self):
         """
-        Get a list of ids that should be run in while setupping)
+        Get a list of ids that should be run in while setupping
 
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
             is the likely cause.
-
-        This method, together with :meth:`run_job`, can be used instead of
-        :meth:`boostrap` to have control over when setupping jobs are run.
-        E.g. to inform the user about the progress
         """
         UsageExpectation.of(self).enforce()
-        self._metadata.flags.add(SessionMetaData.FLAG_SETUPPING)
+        self._metadata.setupping = True
         desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_setup_qualifier() for plan in (self._manager.test_plans)]
@@ -850,10 +846,10 @@ class SessionAssistant:
         return [job.id for job in self._context.state.run_list]
 
     def bootstrapping(self) -> bool:
-        return self._metadata.bootstrapping()
+        return self._metadata.bootstrapping
 
     def setupping(self) -> bool:
-        return self._metadata.setupping()
+        return self._metadata.setupping
 
     @raises(UnexpectedMethodCall)
     def start_bootstrap(self):
@@ -866,7 +862,7 @@ class SessionAssistant:
             is the likely cause.
         """
         UsageExpectation.of(self).enforce()
-        self._metadata.flags.add(SessionMetaData.FLAG_BOOTSTRAPPING)
+        self._metadata.bootstrapping = True
         desired_job_list = select_units(
             self._context.state.job_list,
             [
@@ -967,34 +963,6 @@ class SessionAssistant:
         return self._metadata.bootstrapping
 
     @raises(UnexpectedMethodCall)
-    def get_setup_todo_list(self):
-        """
-        Get a list of ids that should be run in while setupping)
-
-        :raises UnexpectedMethodCall:
-            If the call is made at an unexpected time. Do not catch this error.
-            It is a bug in your program. The error message will indicate what
-            is the likely cause.
-
-        This method, together with :meth:`run_job`, can be used instead of
-        :meth:`boostrap` to have control over when setupping jobs are run.
-        E.g. to inform the user about the progress
-        """
-        UsageExpectation.of(self).enforce()
-        desired_job_list = select_units(
-            self._context.state.job_list,
-            [plan.get_setup_qualifier() for plan in (self._manager.test_plans)]
-            + self._exclude_qualifiers,
-        )
-        self._context.state.update_desired_job_list(
-            desired_job_list, include_mandatory=False
-        )
-        UsageExpectation.of(self).allowed_calls.update(
-            self._get_allowed_calls_in_normal_state()
-        )
-        return [job.id for job in self._context.state.run_list]
-
-    @raises(UnexpectedMethodCall)
     def start_bootstrap(self):
         """
         Starts the bootstrap process returning the list of all jobs to run to
@@ -1034,7 +1002,7 @@ class SessionAssistant:
 
     def finish_setup(self):
         UsageExpectation.of(self).enforce()
-        self._metadata.flags.remove(SessionMetaData.FLAG_SETUPPING)
+        self._metadata.setupping = False
         UsageExpectation.of(self).allowed_calls = {
             self.bootstrap: "to run the bootstrap process",
             self.start_bootstrap: "to get bootstrapping jobs",

@@ -76,9 +76,12 @@ class TestSuspendTriggerFWTS(unittest.TestCase):
 @patch("suspend_trigger.fwts_test")
 @patch("suspend_trigger.subprocess.check_call")
 @patch("suspend_trigger.platform.machine")
+@patch("os.remove")
+@patch("os.path.exists")
 class TestSuspendTriggerRTCWake(unittest.TestCase):
     def test_rtcwake_path_success_with_args(
-        self, mock_machine, mock_check_call, mock_fwts_test
+        self, mock_exists, mock_remove, mock_machine, mock_check_call,
+        mock_fwts_test
     ):
         """
         Tests the rtcwake/systemctl path on aarch64 with custom arguments.
@@ -109,7 +112,8 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         self.assertEqual(mock_check_call.call_count, 2)
 
     def test_rtcwake_path_with_defaults(
-        self, mock_machine, mock_check_call, mock_fwts_test
+        self, mock_exists, mock_remove, mock_machine, mock_check_call,
+        mock_fwts_test
     ):
         """
         Tests the rtcwake/systemctl path without any argument.
@@ -136,7 +140,8 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_check_call.assert_has_calls(subprocess_calls)
 
     def test_rtcwake_command_failure(
-        self, mock_machine, mock_check_call, mock_fwts_test
+        self, mock_exists, mock_remove, mock_machine, mock_check_call,
+        mock_fwts_test
     ):
         """
         Tests the case where the rtcwake command fails.
@@ -157,7 +162,8 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         self.assertIn("rtcwake", mock_check_call.call_args[0][0])
 
     def test_suspend_command_failure(
-        self, mock_machine, mock_check_call, mock_fwts_test
+        self, mock_exists, mock_remove, mock_machine, mock_check_call,
+        mock_fwts_test
     ):
         """
         Tests the case where the systemctl suspend command fails.
@@ -176,3 +182,53 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         self.assertEqual(mock_check_call.call_count, 2)
         self.assertIn("rtcwake", mock_check_call.call_args_list[0][0][0])
         self.assertIn("systemctl", mock_check_call.call_args_list[1][0][0])
+
+    def test_log_file_removed_if_exists(
+        self, mock_exists, mock_remove, mock_machine, mock_check_call,
+        mock_fwts_test
+    ):
+        """
+        Tests that /tmp/fwts_results.log is removed if it exists
+        after suspend command runs.
+        """
+        mock_machine.return_value = "aarch64"
+        mock_exists.return_value = True # Simulate file exists
+        mock_check_call.side_effect = [None, None]
+
+        suspend_trigger.main([])
+
+        # Verify commands were called
+        expected_rtcwake_cmd = [
+            "rtcwake",
+            "--verbose",
+            "--device",
+            "/dev/rtc0",
+            "--mode",
+            "no",
+            "--seconds",
+            "30",
+        ]
+        expected_suspend_cmd = ["systemctl", "suspend"]
+        mock_check_call.assert_has_calls([
+            call(expected_rtcwake_cmd),
+            call(expected_suspend_cmd),
+        ])
+
+        # Verify log file existence check and removal
+        mock_exists.assert_any_call("/tmp/fwts_results.log")
+        mock_remove.assert_called_once_with("/tmp/fwts_results.log")
+
+    def test_log_file_not_removed_if_missing(
+        self, mock_exists, mock_remove, mock_machine, mock_check_call,
+        mock_fwts_test
+    ):
+        """
+        Tests that /tmp/fwts_results.log is not removed if it does not exist.
+        """
+        mock_machine.return_value = "aarch64"
+        mock_exists.return_value = False # Simulate file missing
+        mock_check_call.side_effect = [None, None]
+
+        suspend_trigger.main([])
+        # Verify remove was never called
+        mock_remove.assert_not_called()

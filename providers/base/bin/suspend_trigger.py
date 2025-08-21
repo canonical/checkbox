@@ -5,6 +5,7 @@ import platform
 import subprocess
 import sys
 import time
+import os
 
 from checkbox_support.scripts import fwts_test
 
@@ -72,6 +73,11 @@ def main(args=sys.argv[1:]):
             "Running: {} to suspend the system".format(" ".join(suspend_cmd))
         )
         subprocess.check_call(suspend_cmd)
+
+    log_path = "/tmp/fwts_results.log"
+    if os.path.exists(log_path):
+        print(f"Removing {log_path}...")
+        os.remove(log_path)
 
 
 if __name__ == "__main__":

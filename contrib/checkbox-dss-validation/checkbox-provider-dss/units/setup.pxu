@@ -113,6 +113,7 @@ depends:
   setup_dss/install_snap_kubectl
   setup_dss/install_snap_helm
   setup_dss/write_microk8s_kube_config
+  setup_dss/install_package_intel-gpu-tools
 flags: simple
 _summary: Setup microk8s cluster to use any Intel GPUs
 estimated_duration: 45m
@@ -171,6 +172,7 @@ depends:
   setup_dss/install_snap_kubectl
   setup_dss/install_snap_helm
   setup_dss/write_canonical_k8s_kube_config
+  setup_dss/install_package_intel-gpu-tools
 flags: simple
 _summary: Setup Canonical K8s cluster to use any Intel GPUs
 estimated_duration: 45m

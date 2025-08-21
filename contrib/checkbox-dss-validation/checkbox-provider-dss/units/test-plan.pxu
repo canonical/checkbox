@@ -6,6 +6,14 @@ include:
     setup_dss/microk8s_nvidia_gpu_setup
     setup_dss/microk8s_intel_gpu_setup
 
+id: setup-dss-validation-on-canonical-k8s
+unit: test plan
+_name: Setup to run DSS validations on Canonical K8s
+include:
+    setup_dss/write_canonical_k8s_kube_config
+    setup_dss/canonical_k8s_nvidia_gpu_setup
+    setup_dss/canonical_k8s_intel_gpu_setup
+
 id: dss-validation
 unit: test plan
 _name: DSS validations with Intel and NVIDIA GPUs if available

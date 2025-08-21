@@ -76,7 +76,7 @@ def main(args=sys.argv[1:]):
 
     log_path = "/tmp/fwts_results.log"
     if os.path.exists(log_path):
-        print(f"Removing {log_path}...")
+        print("Removing {}...".format(log_path))
         os.remove(log_path)
 
 

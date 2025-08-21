@@ -59,22 +59,29 @@ command:
   timeout 2m sudo microk8s.kubectl -n kube-system rollout status ds/calico-node
   timeout 5m sudo microk8s status --wait-ready
 
-id: setup_dss/write_microk8s_kube_config
+id: setup_dss/create_kube_config_directory
 category_id: setup-dss-regress
 depends: setup_dss/enable_microk8s_addons
 flags: simple
 _summary: Write out the kubeconfig for the microk8s cluster
 estimated_duration: 2s
+command: mkdir -p "${HOME}/.kube"
+
+id: setup_dss/write_microk8s_kube_config
+category_id: setup-dss-regress
+depends:
+  setup_dss/enable_microk8s_addons
+  setup_dss/create_kube_config_directory
+flags: simple
+_summary: Write out the kubeconfig for the microk8s cluster
+estimated_duration: 2s
 command:
   set -e
-  destination_dir="${HOME}/.kube"
-  mkdir -p "${destination_dir}"
-  destination="${destination_dir}/config"
   # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
   # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
-  sudo microk8s.kubectl config view --raw | tee "$destination" >/dev/null
+  sudo microk8s.kubectl config view --raw | tee "${HOME}/.kube/config" >/dev/null
 
-id: setup_dss/k8s_nvidia_gpu_setup
+id: setup_dss/microk8s_nvidia_gpu_setup
 category_id: setup-dss-regress
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_nvidia_gpus == 'True'
@@ -83,7 +90,7 @@ depends:
   setup_dss/install_snap_helm
   setup_dss/write_microk8s_kube_config
 flags: simple
-_summary: Setup K8s cluster to use any NVIDIA GPUs
+_summary: Setup microk8s cluster to use any NVIDIA GPUs
 estimated_duration: 45m
 command:
   timeout 45m k8s_gpu_setup.py \
@@ -91,7 +98,7 @@ command:
     nvidia \
     "${SETUP_NVIDIA_GPU_OPERATOR_VERSION}"
 
-id: setup_dss/k8s_intel_gpu_setup
+id: setup_dss/microk8s_intel_gpu_setup
 category_id: setup-dss-regress
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_intel_gpus == 'True'
@@ -100,7 +107,7 @@ depends:
   setup_dss/install_snap_helm
   setup_dss/write_microk8s_kube_config
 flags: simple
-_summary: Setup K8s cluster to use any Intel GPUs
+_summary: Setup microk8s cluster to use any Intel GPUs
 estimated_duration: 45m
 command:
   timeout 45m k8s_gpu_setup.py \

@@ -74,6 +74,7 @@ def main(args=sys.argv[1:]):
         )
         subprocess.check_call(suspend_cmd)
 
+    # Clean up the FWTS log file from its default path.
     log_path = "/tmp/fwts_results.log"
     if os.path.exists(log_path):
         print("Removing {}...".format(log_path))

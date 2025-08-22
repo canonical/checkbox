@@ -17,9 +17,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from unittest.mock import patch, MagicMock
-import unittest as ut
 import pathlib
+import subprocess as sp
+import unittest as ut
+from unittest.mock import MagicMock, patch
 
 import gl_support
 
@@ -117,6 +118,46 @@ class TestGLSupportTests(ut.TestCase):
         with (TEST_DATA_DIR / "glmark2_es2_llvmpipe.txt").open() as f:
             mock_check_output.return_value = f.read()
             self.assertRaises(ValueError, gl_support.main)
+
+    @patch("subprocess.check_output")
+    def test_get_desktop_env_vars_no_desktop_session(
+        self, mock_run: MagicMock
+    ):
+        mock_run.side_effect = sp.CalledProcessError(1, "")
+        self.assertRaises(
+            sp.CalledProcessError,
+            gl_support.GLSupportTester().get_desktop_environment_variables,
+        )
+
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_get_desktop_env_vars_happy_path(
+        self, mock_run: MagicMock, mock_check_output: MagicMock
+    ):
+        mock_run.return_value = sp.CompletedProcess([], 0, "12345")
+        mock_check_output.return_value = "\0".join(
+            [
+                "XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg",
+                "XDG_CURRENT_DESKTOP=ubuntu:GNOME",
+                "XDG_SESSION_CLASS=user",
+                "XDG_SESSION_DESKTOP=ubuntu-wayland",
+                "XDG_SESSION_TYPE=wayland",
+            ]
+        )
+
+        out = gl_support.GLSupportTester().get_desktop_environment_variables()
+
+        self.assertIsNotNone(out)
+        self.assertDictEqual(
+            out,  # type: ignore
+            {
+                "XDG_CONFIG_DIRS": "/etc/xdg/xdg-ubuntu:/etc/xdg",
+                "XDG_CURRENT_DESKTOP": "ubuntu:GNOME",
+                "XDG_SESSION_CLASS": "user",
+                "XDG_SESSION_DESKTOP": "ubuntu-wayland",
+                "XDG_SESSION_TYPE": "wayland",
+            },
+        )
 
 
 if __name__ == "__main__":

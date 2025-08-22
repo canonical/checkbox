@@ -161,8 +161,8 @@ class GLSupportTester:
         self, glmark2_executable_override: "str | None" = None
     ) -> str:
         """
-        Calls 'glmark2 --validate' with the symlink hack,
-        but allow error to be thrown unlike reboot_check_test.py
+        Calls 'glmark2 --validate --offscreen' with the symlink hack,
+        but allow errors to be thrown unlike reboot_check_test.py
 
         :raises ValueError: when XDG_SESSION_TYPE is not x11/wayland
         :return: stdout of `glmark2 --validate`
@@ -183,7 +183,7 @@ class GLSupportTester:
         if glmark2_executable_override is not None:
             if shutil.which(glmark2_executable_override) is None:
                 raise FileNotFoundError(
-                    "Override '{}' doesn't exist".format(
+                    "Override command '{}' doesn't exist".format(
                         glmark2_executable_override
                     )
                 )
@@ -266,7 +266,7 @@ def main() -> None:
             tester.extract_gl_renderer_str(
                 glmark2_output, "GL_VERSION"
             ),  # 4.6 (Compatibility Profile) Mesa 25.0.7-0ubuntu0.25.04.1
-            "OpenGL ES",
+            "OpenGL ES",  # OpenGL ES 3.0 Mesa 18.0.5
         )
         .split()[0]  # 4.6
         .strip()
@@ -279,7 +279,7 @@ def main() -> None:
 
     # check if it's newer than 3.0
     # we don't have to check the minor version
-    # since it would be just comparing to 0
+    # since it would be just comparing a positive int to 0
     if int(gl_version_number.split(".")[0]) < 3:
         raise ValueError(
             "The minimum required OpenGL version is 3.0, but got {}".format(

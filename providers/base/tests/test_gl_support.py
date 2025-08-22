@@ -2,6 +2,7 @@
 # Copyright 2024 Canonical Ltd.
 # Written by:
 #   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -15,66 +16,109 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gl_support import GLSupportTester
+
 from unittest.mock import patch, MagicMock
-import unittest
+import unittest as ut
 import pathlib
 
+import gl_support
 
-class RemoveColorCode(unittest.TestCase):
-    """
-    This function should remove color code
-    """
-
-    @patch("subprocess.run")
-    def test_succ(self, mock_run: MagicMock):
-        gs = GLSupportTester()
-        test_dir = pathlib.Path(__file__).parent / "test_data"
-
-        SUCC = test_dir / "gl_support_succ.txt"
-        SUCC_CHANGED = test_dir / "gl_support_succ_changed.txt"
-        FAIL = test_dir / "gl_support_fail.txt"
-        FAIL_CHANGED = test_dir / "gl_support_fail_changed.txt"
-        with SUCC.open() as s, SUCC_CHANGED.open() as sc:
-            rv = gs.remove_color_code(s.read())
-            self.assertEqual(rv, sc.read())
-
-        with FAIL.open() as f, FAIL_CHANGED.open() as fc:
-            rv = gs.remove_color_code(f.read())
-            self.assertEqual(rv, fc.read())
+TEST_DATA_DIR = pathlib.Path(__file__).parent / "test_data"
 
 
-class IsSupportOpenGLTests(unittest.TestCase):
-    """
-    This function should execute unity_support_test and remove color code
-    from the output
-    """
+class TestGLSupportTests(ut.TestCase):
+    @patch("sys.argv", ["gl_support_test.py"])
+    @patch("platform.uname")
+    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    @patch("subprocess.check_output")
+    @patch("os.getenv")
+    def test_happy_path_x86(
+        self,
+        mock_getenv: MagicMock,
+        mock_check_output: MagicMock,
+        mock_get_desktop_envs: MagicMock,
+        mock_uname: MagicMock,
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "wayland"
+        )
+        mock_uname().machine = "x86_64"
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "wayland",
+        }
 
-    @patch("subprocess.run")
-    def test_succ(self, mock_run):
-        gs = GLSupportTester()
-        mock_rv = MagicMock()
-        mock_run.return_value = mock_rv
-        mock_rv.stdout = ""
-        mock_rv.returncode = 0
-        gs.is_support_opengl()
+        with (TEST_DATA_DIR / "glmark2_ok.txt").open() as f:
+            mock_check_output.return_value = f.read()
+            gl_support.main()
 
-    @patch("subprocess.run")
-    def test_fail(self, mock_run):
-        gs = GLSupportTester()
-        mock_rv = MagicMock()
-        mock_run.return_value = mock_rv
-        mock_rv.stdout = ""
-        mock_rv.returncode = 1
-        with self.assertRaises(SystemExit):
-            gs.is_support_opengl()
+    @patch("sys.argv", ["gl_support_test.py"])
+    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    @patch("subprocess.check_output")
+    @patch("os.getenv")
+    def test_happy_path_es2(
+        self,
+        mock_getenv: MagicMock,
+        mock_check_output: MagicMock,
+        mock_get_desktop_envs: MagicMock,
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
 
-    @patch("subprocess.run")
-    def test_command_fail(self, mock_run):
-        gs = GLSupportTester()
-        mock_rv = MagicMock()
-        mock_run.side_effect = FileNotFoundError
-        mock_rv.stdout = ""
-        mock_rv.returncode = 1
-        with self.assertRaises(SystemExit):
-            gs.is_support_opengl()
+        with (TEST_DATA_DIR / "glmark2_es2_ok.txt").open() as f:
+            mock_check_output.return_value = f.read()
+            gl_support.main()
+
+    @patch("sys.argv", ["gl_support_test.py"])
+    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    @patch("subprocess.check_output")
+    @patch("os.getenv")
+    def test_llvmpipe_path(
+        self,
+        mock_getenv: MagicMock,
+        mock_check_output: MagicMock,
+        mock_get_desktop_envs: MagicMock,
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
+
+        with (TEST_DATA_DIR / "glmark2_llvmpipe.txt").open() as f:
+            mock_check_output.return_value = f.read()
+            self.assertRaises(ValueError, gl_support.main)
+
+    @patch("sys.argv", ["gl_support_test.py"])
+    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    @patch("subprocess.check_output")
+    @patch("os.getenv")
+    def test_llvmpipe_path_es2(
+        self,
+        mock_getenv: MagicMock,
+        mock_check_output: MagicMock,
+        mock_get_desktop_envs: MagicMock,
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
+
+        with (TEST_DATA_DIR / "glmark2_es2_llvmpipe.txt").open() as f:
+            mock_check_output.return_value = f.read()
+            self.assertRaises(ValueError, gl_support.main)
+
+
+
+if __name__ == "__main__":
+    ut.main()

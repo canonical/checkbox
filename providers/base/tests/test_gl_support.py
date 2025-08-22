@@ -119,6 +119,5 @@ class TestGLSupportTests(ut.TestCase):
             self.assertRaises(ValueError, gl_support.main)
 
 
-
 if __name__ == "__main__":
     ut.main()

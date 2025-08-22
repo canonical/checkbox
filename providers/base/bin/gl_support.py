@@ -26,6 +26,7 @@ import argparse
 
 # Checkbox could run in a snap container, so we need to prepend this root path
 RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
+GLMARK2_DATA_PATH = "/usr/share/glmark2"
 
 
 class GLSupportTester:
@@ -157,7 +158,7 @@ class GLSupportTester:
         return gl_renderer_line.split(":")[-1].strip()
 
     def call_glmark2_validate(
-        self, glmark2_executable_override: "str|None" = None
+        self, glmark2_executable_override: "str | None" = None
     ) -> str:
         """
         Calls 'glmark2 --validate' with the symlink hack,
@@ -191,17 +192,16 @@ class GLSupportTester:
             glmark2_executable = self.pick_glmark2_executable(
                 XDG_SESSION_TYPE, platform.uname().machine
             )
-        glmark2_data_path = "/usr/share/glmark2"
 
         try:
-            if RUNTIME_ROOT and not os.path.exists(glmark2_data_path):
+            if RUNTIME_ROOT and not os.path.exists(GLMARK2_DATA_PATH):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 path is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
                 src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
-                dst = glmark2_data_path
+                dst = GLMARK2_DATA_PATH
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
                         src, dst
@@ -225,9 +225,9 @@ class GLSupportTester:
             return glmark2_output
         finally:
             # immediately cleanup
-            if RUNTIME_ROOT and os.path.islink(glmark2_data_path):
+            if RUNTIME_ROOT and os.path.islink(GLMARK2_DATA_PATH):
                 print("[ DEBUG ] Un-symlinking glmark2 data")
-                os.unlink(glmark2_data_path)
+                os.unlink(GLMARK2_DATA_PATH)
 
 
 def remove_prefix(s: str, prefix: str) -> str:

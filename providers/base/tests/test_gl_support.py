@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from contextlib import suppress
 import pathlib
 import subprocess as sp
 import unittest as ut
@@ -28,6 +29,9 @@ TEST_DATA_DIR = pathlib.Path(__file__).parent / "test_data"
 
 
 class TestGLSupportTests(ut.TestCase):
+    def setUp(self) -> None:
+        gl_support.RUNTIME_ROOT = ""
+
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("platform.uname")
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
@@ -150,9 +154,9 @@ class TestGLSupportTests(ut.TestCase):
     def test_get_desktop_env_vars_no_desktop_session(
         self, mock_run: MagicMock
     ):
-        mock_run.side_effect = sp.CalledProcessError(1, "")
+        mock_run.return_value = sp.CompletedProcess([], 1, "", "")
         self.assertRaises(
-            sp.CalledProcessError,
+            RuntimeError,
             gl_support.GLSupportTester().get_desktop_environment_variables,
         )
 
@@ -184,6 +188,110 @@ class TestGLSupportTests(ut.TestCase):
                 "XDG_SESSION_DESKTOP": "ubuntu-wayland",
                 "XDG_SESSION_TYPE": "wayland",
             },
+        )
+
+    @patch("gl_support.GLSupportTester.pick_glmark2_executable")
+    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    @patch("os.path.exists")
+    @patch("os.path.islink")
+    @patch("os.unlink")
+    @patch("os.symlink")
+    @patch("subprocess.check_output")
+    @patch("os.getenv")
+    def test_cleanup_glmark2_data_symlink(
+        self,
+        mock_getenv: MagicMock,
+        mock_check_output: MagicMock,
+        mock_symlink: MagicMock,
+        mock_unlink: MagicMock,
+        mock_islink: MagicMock,
+        mock_path_exists: MagicMock,
+        mock_get_desktop_envs: MagicMock,
+        mock_pick_glmark2_executable: MagicMock,
+    ):
+        def custom_env(key: str, is_snap: bool) -> str:
+            if key == "CHECKBOX_RUNTIME":
+                return "/snap/runtime/path/" if is_snap else ""
+
+            raise Exception("unexpected use of this mock")
+
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
+        mock_pick_glmark2_executable.return_value = "glmark2"
+
+        tester = gl_support.GLSupportTester()
+
+        for is_snap in (True, False):
+            mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
+            gl_support.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
+            # RCT.SNAP = custom_env("SNAP", is_snap)
+            mock_islink.return_value = is_snap
+            # deb case, the file actually exists
+            mock_path_exists.return_value = not is_snap
+
+            tester.call_glmark2_validate()
+
+            if is_snap:
+                print("\n\n\n")
+                print(gl_support.RUNTIME_ROOT, mock_path_exists.return_value)
+                print(mock_symlink.call_args)
+                print("\n\n\n")
+                mock_symlink.assert_called_once_with(
+                    "{}/usr/share/glmark2".format(gl_support.RUNTIME_ROOT),
+                    "/usr/share/glmark2",
+                    target_is_directory=True,
+                )
+
+                mock_unlink.assert_called_once_with("/usr/share/glmark2")
+            else:
+                mock_symlink.assert_not_called()
+                mock_unlink.assert_not_called()
+
+            mock_symlink.reset_mock()
+            mock_unlink.reset_mock()
+        gl_support.RUNTIME_ROOT = ""
+
+    @patch("subprocess.run")
+    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    def test_is_hardware_renderer_available_bad_session_type(
+        self,
+        mock_get_desktop_envs: MagicMock,
+        _: MagicMock,
+    ):
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": "",
+            "XDG_SESSION_TYPE": "tty",
+        }
+        self.assertRaises(
+            ValueError, gl_support.GLSupportTester().call_glmark2_validate
+        )
+
+    @patch("shutil.which")
+    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    @patch("subprocess.check_output")
+    @patch("os.getenv")
+    def test_bad_glmark2_cmd_override(
+        self,
+        mock_getenv: MagicMock,
+        _: MagicMock,
+        mock_get_desktop_envs: MagicMock,
+        mock_which: MagicMock,
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
+        mock_which.return_value = None
+        self.assertRaises(
+            FileNotFoundError,
+            lambda: gl_support.GLSupportTester().call_glmark2_validate(
+                "this-doesnt-exist"
+            ),
         )
 
 

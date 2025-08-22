@@ -119,6 +119,33 @@ class TestGLSupportTests(ut.TestCase):
             mock_check_output.return_value = f.read()
             self.assertRaises(ValueError, gl_support.main)
 
+    @patch("sys.argv", ["gl_support_test.py"])
+    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    @patch("subprocess.check_output")
+    @patch("os.getenv")
+    def test_version_too_old_path_x86(
+        self,
+        mock_getenv: MagicMock,
+        mock_check_output: MagicMock,
+        mock_get_desktop_envs: MagicMock,
+    ):
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
+        mock_get_desktop_envs.return_value = {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "x11",
+        }
+
+        with (TEST_DATA_DIR / "glmark2_version_too_old.txt").open() as f:
+            mock_check_output.return_value = f.read()
+            with self.assertRaises(ValueError) as ar:
+                gl_support.main()
+                self.assertEqual(
+                    ar.msg,
+                    "The minimum required OpenGL version is 3.0, but got 2.1",
+                )
+
     @patch("subprocess.run")
     def test_get_desktop_env_vars_no_desktop_session(
         self, mock_run: MagicMock

@@ -95,7 +95,6 @@ nested_part:
     monitor-gpu-cert-automated
     graphics-gpu-cert-automated
     cpu-cert-automated
-    gpgpu-nvidia-cert-automated
     input-cert-automated
     disk-cert-automated
     misc-client-cert-automated

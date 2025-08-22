@@ -131,8 +131,9 @@ _summary: Bootstrap Canonical K8s and enable features
 estimated_duration: 10m
 command:
   set -e
-  timeout 5m sudo k8s bootstrap
-  timeout 5m sudo k8s enable local-storage
+  sudo k8s bootstrap --timeout 5m
+  sudo k8s enable local-storage --timeout 5m
+  timeout 10m sudo k8s status --wait-ready
 
 id: setup_dss/write_canonical_k8s_kube_config
 category_id: setup-dss-regress

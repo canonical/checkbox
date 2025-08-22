@@ -119,7 +119,7 @@ class TestGLSupportTests(ut.TestCase):
             mock_check_output.return_value = f.read()
             self.assertRaises(ValueError, gl_support.main)
 
-    @patch("subprocess.check_output")
+    @patch("subprocess.run")
     def test_get_desktop_env_vars_no_desktop_session(
         self, mock_run: MagicMock
     ):

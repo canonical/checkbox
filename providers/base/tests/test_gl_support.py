@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from contextlib import suppress
 import pathlib
 import subprocess as sp
 import unittest as ut
@@ -302,6 +301,20 @@ class TestGLSupportTests(ut.TestCase):
         gl_support.GLSupportTester().call_glmark2_validate("this-exists")
         # [0] first call -> [0] first argument -> [0] first list element
         self.assertEqual(mock_check_output.call_args[0][0][0], "this-exists")
+
+    def test_pick_es2_for_all_non_x86(self):
+        self.assertEqual(
+            gl_support.GLSupportTester().pick_glmark2_executable(
+                "wayland", "mips"
+            ),
+            "glmark2-es2-wayland",
+        )
+        self.assertEqual(
+            gl_support.GLSupportTester().pick_glmark2_executable(
+                "x11", "aarch64"
+            ),
+            "glmark2-es2",
+        )
 
 
 if __name__ == "__main__":

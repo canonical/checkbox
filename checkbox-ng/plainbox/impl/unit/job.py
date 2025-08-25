@@ -344,6 +344,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.get_record_value("before")
 
     @cached_property
+    def group(self):
+        return self.get_record_value("group")
+
+    @cached_property
     def salvages(self):
         return self.get_record_value("salvages")
 
@@ -800,6 +804,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             depends = "depends"
             after = "after"
             before = "before"
+            group = "group"
             salvages = "salvages"
             requires = "requires"
             shell = "shell"
@@ -990,6 +995,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         )
                     ],
                 ),
+            ],
+            fields.group: [
+                concrete_validators.untranslatable,
             ],
             fields.requires: [
                 concrete_validators.untranslatable,

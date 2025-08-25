@@ -133,7 +133,7 @@ command:
   set -e
   sudo k8s bootstrap --timeout 5m
   sudo k8s enable local-storage --timeout 5m
-  timeout 10m sudo k8s status --wait-ready
+  sudo k8s status --wait-ready --timeout 10m
 
 id: setup_dss/write_canonical_k8s_kube_config
 category_id: setup-dss-regress

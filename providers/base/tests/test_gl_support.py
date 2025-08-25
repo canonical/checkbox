@@ -37,7 +37,7 @@ class TestGLSupportTests(ut.TestCase):
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("subprocess.check_output")
     @patch("os.getenv")
-    def test_happy_path_x86(
+    def test_happy_path(
         self,
         mock_getenv: MagicMock,
         mock_check_output: MagicMock,
@@ -47,15 +47,16 @@ class TestGLSupportTests(ut.TestCase):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "wayland"
         )
-        mock_uname().machine = "x86_64"
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": ":0",
-            "XDG_SESSION_TYPE": "wayland",
-        }
+        for arch in "x86_64", "aarch64":
+            mock_uname().machine = "x86_64"
+            mock_get_desktop_envs.return_value = {
+                "DISPLAY": ":0",
+                "XDG_SESSION_TYPE": "wayland",
+            }
 
-        with (TEST_DATA_DIR / "glmark2_ok.txt").open() as f:
-            mock_check_output.return_value = f.read()
-            gl_support.main()
+            with (TEST_DATA_DIR / "glmark2_ok.txt").open() as f:
+                mock_check_output.return_value = f.read()
+                gl_support.main()
 
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
@@ -269,14 +270,16 @@ class TestGLSupportTests(ut.TestCase):
         )
 
     @patch("shutil.which")
+    @patch("gl_support.GLSupportTester.pick_glmark2_executable")
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("subprocess.check_output")
     @patch("os.getenv")
-    def test_bad_glmark2_cmd_override(
+    def test_glmark2_cmd_override(
         self,
         mock_getenv: MagicMock,
-        _: MagicMock,
+        mock_check_output: MagicMock,
         mock_get_desktop_envs: MagicMock,
+        mock_pick_exec: MagicMock,
         mock_which: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
@@ -293,6 +296,12 @@ class TestGLSupportTests(ut.TestCase):
                 "this-doesnt-exist"
             ),
         )
+
+        mock_which.return_value = "/usr/bin/this-exists"
+        mock_pick_exec.reset_mock()
+        gl_support.GLSupportTester().call_glmark2_validate("this-exists")
+        # [0] first call -> [0] first argument -> [0] first list element
+        self.assertEqual(mock_check_output.call_args[0][0][0], "this-exists")
 
 
 if __name__ == "__main__":

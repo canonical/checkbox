@@ -118,13 +118,15 @@ def main():
 
     if args.mlo_ssid not in iw_output:
         print(
-            "Interface '{}' is not connected to SSID '{}'".format(
+            "Interface '{}' was not connected to SSID '{}'".format(
                 wifi_interface, args.mlo_ssid
             )
         )
         exit(1)
 
-    # https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/interface.c#n480
+    # ideally we don't parse this but reimplementing the whole connect -> bind
+    # -> link stuff is even more complicated
+    # https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/interface.c#n480 # noqa: E501
     for line in iw_output.splitlines():
         clean_line = line.strip()
         if clean_line.startswith("- link ID"):
@@ -136,8 +138,8 @@ def main():
                 wifi_interface, args.mlo_ssid
             ),
             "is not an MLO connection.",
-            "Expected at least 2 links, got {}".format(num_links),
-            file=stderr,
+            "Expected at least 2 MLO links, got {}".format(num_links),
+            file=stderr,  # mlo link != plain wifi link
         )
         exit(1)
 

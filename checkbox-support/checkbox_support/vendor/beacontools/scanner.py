@@ -54,6 +54,10 @@ class HCIVersion(IntEnum):
 
 
 _LOGGER = logging.getLogger(__name__)
+_LOGGER.setLevel(logging.INFO)
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.DEBUG)
+_LOGGER.addHandler(stdout_handler)
 _LOGGER.setLevel(logging.DEBUG)
 
 # pylint: disable=no-member

@@ -295,7 +295,7 @@ class Monitor(threading.Thread):
             command_field = OCF_LE_SET_SCAN_ENABLE
             command = struct.pack("BB", enable, filter_duplicates)
         else:
-            print("Issue LE Set Extended Scan Enable by hci command")
+            _LOGGER.info("Issue LE Set Extended Scan Enable by hci command")
             command_field = OCF_LE_SET_EXT_SCAN_ENABLE
             command = struct.pack("<BBHH", enable, filter_duplicates,
                                   0,  # duration

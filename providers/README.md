@@ -34,6 +34,8 @@ must be compatible.
 # Python tests
 
 In the interest of uniformity, we try to limit the APIs that we use.
+Additionally, there are several recurrent issues that we would like to start
+catching before landing tests.
 
 - Don't use `os.path`, use `pathlib` instead.
 - Don't use `%` formatting, use `.format` instead.
@@ -43,37 +45,40 @@ In the interest of uniformity, we try to limit the APIs that we use.
 - Don't wrap `subprocess` calls in your `run_command` function.
 - Don't customize `argparse.ArgumentParser` needlessly.
 - Don't use regexes.
-
 - Always use `argparse` to parse arguments.
 - Always print a command output that doesn't match the form you expect.
 - Always favour `subprocess.check_...` functions when launching a command.
+- Always favour parsing `json` output rather than free text.
 - Always `slugify` free form text in resources (or at least, always remove
 newlines)
 - Always use context managers when doing an action to be undone before exit.
+- Always print parameters if they aren't hardcoded or default (i.e. provided
+via Environment variables)
 
 # PlainboXUnits (PXUs)
 
-Checkbox Jobs:
+Similarly to Python tests, PXUs often expose recurrent issues that we have to
+catch at review time. Here are the most common ones
+
+## Checkbox Jobs:
+
 - Don't destructively redirect command output.
 - Don't write nested `for` and `if` in the command section.
 - Don't write bash scripts, use python instead.
-- Don't use `in` in resource expression, prefer adding a new fields.
+- Don't use `in` in resource expression, prefer adding a new resource fields.
 - Don't use `awk`, limit the use of `sed`. Use python instead.
-
 - Always declare the environment variables your test needs.
 
-Checkbox Templates:
+## Checkbox Templates:
 - Don't use jinja.
 - Don't template non-`slugify`d fields in IDs.
-
 - Always assume there are spaces in resource fields if they weren't explicitly
 removed.
 - Always add template fields at the end of the IDs.
 
-Checkbox Test Plans:
+## Checkbox Test Plans:
 - Don't rely on Checkbox fixing your dependencies. If your test needs a
 dependency, always add it to the test plan.
 - Don't use regex inclusion, use template ids instead.
 - Don't assume tests are going to be executed in the order you include them.
-
 - Always verify your modification via `list-bootstrapped` and `expand`

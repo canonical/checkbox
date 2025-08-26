@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument(
         "-m",
         "--mlo-ssid",
-        help="Name of the MLO wifi access point",
+        help="Name of the open (password-less) MLO wifi access point",
         dest="mlo_ssid",
         required=True,
         type=str,

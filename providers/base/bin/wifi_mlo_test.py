@@ -7,12 +7,12 @@
 
 """
 This is a simple test to see if Wi-Fi MLO (Multi-Link Operation) is supported
-on the DUT. 
+on the DUT.
 
 Prerequisites for running this test:
 - The environment variable MLO_SSID should be set in the launcher
   and passed in through argv
-- The manifest entry "has_wifi_mlo" should be true 
+- The manifest entry "has_wifi_mlo" should be true
 """
 
 import argparse
@@ -115,6 +115,7 @@ def main():
         )
         exit(1)
 
+    # https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/interface.c#n480
     for line in iw_output.splitlines():
         clean_line = line.strip()
         if clean_line.startswith("- link ID"):

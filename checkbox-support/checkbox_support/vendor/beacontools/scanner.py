@@ -327,20 +327,19 @@ class Monitor(threading.Thread):
         )
         bt_addr = bt_addr_to_string(pkt[7:13])
         # Print pkt for debugging purpose
-        if self.debug:
-            print(
-                "Raw packet: {}".format(" ".join([hex(pk) for pk in pkt]))
+        _LOGGER.debug(
+            "Raw packet: {}".format(" ".join([hex(pk) for pk in pkt]))
+        )
+        _LOGGER.debug(
+            "LE Meta Event: subevent: {}({}), payload: {}, "
+            "rssi: {}, bt_addr: {}".format(
+                ev_type.name,
+                ev_type.value,
+                " ".join([hex(p) for p in payload]),
+                rssi,
+                bt_addr,
             )
-            print(
-                "LE Meta Event: subevent: {}({}), payload: {}, "
-                "rssi: {}, bt_addr: {}".format(
-                    ev_type.name,
-                    ev_type.value,
-                    " ".join([hex(p) for p in payload]),
-                    rssi,
-                    bt_addr,
-                )
-            )
+        )
 
         return ev_type, payload, rssi, bt_addr
 

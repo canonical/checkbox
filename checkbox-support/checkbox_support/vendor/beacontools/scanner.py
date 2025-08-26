@@ -291,7 +291,7 @@ class Monitor(threading.Thread):
             filter_duplicates: boolean value to enable/disable filter, that
                 omits duplicated packets"""
         if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0:
-            print("Issue LE Set Scan Enable by hci command")
+            _LOGGER.info("Issue LE Set Scan Enable by hci command")
             command_field = OCF_LE_SET_SCAN_ENABLE
             command = struct.pack("BB", enable, filter_duplicates)
         else:

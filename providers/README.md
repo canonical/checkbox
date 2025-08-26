@@ -45,6 +45,10 @@ catching before landing tests.
 - Don't wrap `subprocess` calls in your `run_command` function.
 - Don't customize `argparse.ArgumentParser` needlessly.
 - Don't use regexes.
+- Don't disable/ignore linting rules.
+- Don't write anything other than `main()` under `if __name__ == "__main__":`
+- Don't import other `bin/` scripts. Move code to `checkbox-support` instead.
+- Always look if a common utility function is provided by `checkbox-support`
 - Always use `argparse` to parse arguments.
 - Always print a command output that doesn't match the form you expect.
 - Always favour `subprocess.check_...` functions when launching a command.

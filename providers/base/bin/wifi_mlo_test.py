@@ -30,6 +30,8 @@ def parse_args():
         "--mlo-ssid",
         help="Name of the MLO wifi access point",
         dest="mlo_ssid",
+        required=True,
+        type=str,
     )
     return parser.parse_args()
 

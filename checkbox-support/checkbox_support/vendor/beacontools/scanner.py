@@ -69,6 +69,8 @@ class BeaconScanner(object):
     def __init__(self, callback, bt_device_id=0, device_filter=None, packet_filter=None, scan_parameters=None, debug=False):
         """Initialize scanner."""
         # check if device filters are valid
+        if debug:
+            _LOGGER.setLevel(logging.DEBUG)
         if device_filter is not None:
             if not isinstance(device_filter, list):
                 device_filter = [device_filter]

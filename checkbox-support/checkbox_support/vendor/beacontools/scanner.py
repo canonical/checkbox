@@ -95,7 +95,7 @@ class BeaconScanner(object):
         if scan_parameters is None:
             scan_parameters = {}
 
-        self._mon = Monitor(callback, bt_device_id, device_filter, packet_filter, scan_parameters, debug=debug)
+        self._mon = Monitor(callback, bt_device_id, device_filter, packet_filter, scan_parameters)
 
     def start(self):
         """Start beacon scanning."""

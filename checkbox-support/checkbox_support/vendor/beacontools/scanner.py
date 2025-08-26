@@ -265,7 +265,7 @@ class Monitor(threading.Thread):
                 address_type,
                 filter_type)
         else:
-            print("Issue LE Set Extended Scan Parameters by hci command")
+            _LOGGER.info("Issue LE Set Extended Scan Parameters by hci command")
             command_field = OCF_LE_SET_EXT_SCAN_PARAMETERS
             scan_parameter_pkg = struct.pack(
                 "<BBBBHH",

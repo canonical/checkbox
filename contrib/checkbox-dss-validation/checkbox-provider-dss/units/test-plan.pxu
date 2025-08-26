@@ -12,6 +12,8 @@ unit: test plan
 _name: Setup to run DSS validations on Canonical K8s
 include:
     setup_dss/install_snap_data-science-stack
+    setup_dss/bootstrap_and_enable_canonical_k8s
+    setup_dss/restart_k8s_snap_as_workaround
     setup_dss/write_canonical_k8s_kube_config
     setup_dss/canonical_k8s_nvidia_gpu_setup
     setup_dss/canonical_k8s_intel_gpu_setup

@@ -109,7 +109,7 @@ class BeaconScanner(object):
 class Monitor(threading.Thread):
     """Continously scan for BLE advertisements."""
 
-    def __init__(self, callback, bt_device_id, device_filter, packet_filter, scan_parameters, debug=False):
+    def __init__(self, callback, bt_device_id, device_filter, packet_filter, scan_parameters):
         """Construct interface object."""
         # do import here so that the package can be used in parsing-only mode (no bluez required)
         self.backend = import_module('checkbox_support.vendor.beacontools.backend')

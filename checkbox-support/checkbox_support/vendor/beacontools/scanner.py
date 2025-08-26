@@ -182,7 +182,7 @@ class Monitor(threading.Thread):
                 # Others means command failed.
                 error_code = to_int(pkt[6])
                 if error_code != 0:
-                    print(
+                    _LOGGER.warning(
                         "Warning: HCI Command failed. "
                         "Error code: {}, Payload: {}".format(
                             hex(error_code), pkt

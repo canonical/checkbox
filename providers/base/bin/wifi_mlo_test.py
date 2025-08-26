@@ -15,21 +15,12 @@ Prerequisites for running this test:
 - The manifest entry "has_wifi_mlo" should be true 
 """
 
-import subprocess as sp
 import argparse
-from sys import stderr
 import itertools
-import ctypes
-
+import subprocess as sp
+from sys import stderr
 
 COMMAND_TIMEOUT = 120
-
-
-class nlattr(ctypes.Structure):
-    _fields_ = [
-        ("nla_len", ctypes.c_uint16),
-        ("nla_type", ctypes.c_uint16),
-    ]
 
 
 def parse_args():
@@ -48,6 +39,7 @@ def get_wifi_ssids() -> "list[str]":
     nmcli_output = sp.check_output(
         ["nmcli", "-f", "SSID", "device", "wifi", "list", "--rescan", "yes"],
         universal_newlines=True,
+        timeout=COMMAND_TIMEOUT,
     )
     for line in nmcli_output.splitlines():
         clean_line = line.strip()
@@ -71,6 +63,7 @@ def get_wifi_interface() -> str:
             "show",
         ],
         universal_newlines=True,
+        timeout=COMMAND_TIMEOUT,
     )
     # https://stackoverflow.com/a/15358422
     name_type_pairs = [
@@ -93,22 +86,6 @@ def get_wifi_interface() -> str:
     return wifi_interface
 
 
-# def get_links_by_interface(wifi_interface: str) -> "list[str]":
-#     """Returns a list of active link addresses associated with this interface
-
-#     MLD with links:
-#     - link ID  0 link addr 06:fe:8e:8a:8f:14
-#     - link ID  2 link addr 4e:23:75:ef:d4:5a
-
-#     This is a re-implementation of this small section in the kernel
-#     https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/interface.c#n470
-#     (...to avoid parsing the iw command)
-
-#     :param wifi_interface: an interface name like wlp0s20f3 or wlan0
-#     :return: number of links
-#     """
-
-
 def main():
     args = parse_args()
     print("Re-scanning available wifi APs...")
@@ -125,7 +102,9 @@ def main():
     num_links = 0
     wifi_interface = get_wifi_interface()
     iw_output = sp.check_output(
-        ["iw", "dev", wifi_interface, "info"], universal_newlines=True
+        ["iw", "dev", wifi_interface, "info"],
+        universal_newlines=True,
+        timeout=COMMAND_TIMEOUT,
     )
 
     if args.mlo_ssid not in iw_output:

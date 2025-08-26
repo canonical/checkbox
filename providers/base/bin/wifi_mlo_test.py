@@ -20,6 +20,8 @@ import itertools
 import subprocess as sp
 from sys import stderr
 
+from checkbox_support.helpers.retry import retry
+
 COMMAND_TIMEOUT = 120
 
 
@@ -36,22 +38,31 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_wifi_ssids() -> "list[str]":
-    ssids = []  # type: list[str]
+@retry(5, 30)
+def connect(ssid: str):
     nmcli_output = sp.check_output(
         ["nmcli", "-f", "SSID", "device", "wifi", "list", "--rescan", "yes"],
         universal_newlines=True,
         timeout=COMMAND_TIMEOUT,
     )
+
     for line in nmcli_output.splitlines():
         clean_line = line.strip()
-        if not clean_line:
-            continue
-        if clean_line in ("--", "SSID"):
-            continue
-        ssids.append(clean_line)
+        if ssid == clean_line:
+            # should match exactly, otherwise the nmcli connect is
+            # guaranteed to fail
+            sp.check_call(["nmcli", "device", "wifi", "connect", ssid])
+            print("OK! Connected to {}".format(ssid))
+            break
 
-    return ssids
+
+@retry(5, 30)
+def disconnect(ssid: str):
+    sp.check_call(
+        ["nmcli", "connection", "delete", ssid],
+        universal_newlines=True,
+        timeout=COMMAND_TIMEOUT,
+    )
 
 
 def get_wifi_interface() -> str:
@@ -90,24 +101,20 @@ def get_wifi_interface() -> str:
 
 def main():
     args = parse_args()
-    print("Re-scanning available wifi APs...")
-    all_wifi_ssids = get_wifi_ssids()
+    ssid = args.mlo_ssid
+    wifi_interface = get_wifi_interface()
 
-    if args.mlo_ssid not in all_wifi_ssids:
-        print(
-            'There\'s no WiFi AP named "{}".'.format(args.mlo_ssid),
-            "Maybe it's too far from the DUT?",
-            file=stderr,
-        )
-        exit(1)
+    print("Attempting to connect to {}...".format(ssid))
+    connect(ssid)
 
     num_links = 0
-    wifi_interface = get_wifi_interface()
     iw_output = sp.check_output(
         ["iw", "dev", wifi_interface, "info"],
         universal_newlines=True,
         timeout=COMMAND_TIMEOUT,
     )
+    # already have all the outputs we need, disconnect first
+    disconnect(ssid)
 
     if args.mlo_ssid not in iw_output:
         print(

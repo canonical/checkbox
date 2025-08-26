@@ -255,7 +255,7 @@ class Monitor(threading.Thread):
         interval_fractions, window_fractions = int(interval_fractions), int(window_fractions)
 
         if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0:
-            print("Issue LE Set Scan Parameters by hci command")
+            _LOGGER.info("Issue LE Set Scan Parameters by hci command")
             command_field = OCF_LE_SET_SCAN_PARAMETERS
             scan_parameter_pkg = struct.pack(
                 "<BHHBB",

@@ -22,9 +22,10 @@ checkbox_support.tests.test_vendor_beacontools_scanner
 
 Tests for checkbox_support.vendor.beacontools.scanner module
 """
-
+import logging
+import time
 import unittest
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 
 from checkbox_support.vendor.beacontools.scanner import HCIVersion
 from checkbox_support.vendor.beacontools.scanner import Monitor
@@ -76,13 +77,11 @@ class MonitorTests(unittest.TestCase):
             "dev_filter",
             "pkt_filter",
             "scan_params",
-            debug=True,
         )
         self.assertEqual(mon.backend, "import")
         self.assertEqual(mon.daemon, False)
         self.assertEqual(mon.keep_going, True)
         self.assertEqual(mon.callback, "callback")
-        self.assertEqual(mon.debug, True)
         self.assertEqual(mon.bt_device_id, "1")
         self.assertEqual(mon.device_filter, "dev_filter")
         self.assertEqual(mon.mode, 1000)
@@ -95,19 +94,12 @@ class MonitorTests(unittest.TestCase):
         mock_instance.add.assert_called_with(b"bytesr\x04")
         mock_instance.finalize.assert_called_once_with()
 
-    def test_run_ok(self):
-        pass
-
-    def test_set_scan_parameters(self):
-        pass
-
-    def test_toggle_scan(self):
-        pass
-
-    @patch("builtins.print")
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_analyze_le_adv_event_report(self, mock_mon_init, mock_print):
+    def test_analyze_le_adv_event_report(self, mock_mon_init):
         mock_mon_init.return_value = None
+        logger = logging.getLogger(
+            "checkbox_support.vendor.beacontools.scanner"
+        )
 
         pkts = (
             "03 6e 02 02 11 22 33 44 55 66 77 88 99 00 11 22 33 44 55 66"
@@ -116,22 +108,30 @@ class MonitorTests(unittest.TestCase):
             [int(p, 16).to_bytes(1, byteorder="big") for p in pkts]
         )
         mon = Monitor()
-        mon.debug = True
-        event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
+
+        with patch.object(logger, "debug") as mock_debug:
+            event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
+            call1 = call(
+                "Raw packet: %s", " ".join([hex(int(pk, 16)) for pk in pkts])
+            )
+            call2 = call(
+                (
+                    "LE Meta Event: subevent: %s(%s), payload: %s, "
+                    "rssi: %s, bt_addr: %s"
+                ),
+                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.name,
+                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.value,
+                "0x11 0x22 0x33 0x44 0x55",
+                102,
+                "99:88:77:66:55:44",
+            )
+
+            mock_debug.assert_has_calls([call1, call2])
+
         self.assertEqual(event, MetaEventReportTypeEnum.LE_ADVERTISING_REPORT)
         self.assertEqual(payload, packet[14:-1])
         self.assertEqual(rssi, int(pkts[-1], 16))
         self.assertEqual(addr, "99:88:77:66:55:44")
-        mock_print.assert_called_with(
-            (
-                "LE Meta Event: subevent: {}({}), "
-                "payload: 0x11 0x22 0x33 0x44 0x55, "
-                "rssi: 102, bt_addr: 99:88:77:66:55:44"
-            ).format(
-                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.name,
-                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.value,
-            )
-        )
 
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
     def test_analyze_le_adv_ext_event_report(self, mock_mon_init):

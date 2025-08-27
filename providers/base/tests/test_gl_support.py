@@ -47,7 +47,7 @@ class TestGLSupportTests(ut.TestCase):
             ":0" if key == "DISPLAY" else "wayland"
         )
         for arch in "x86_64", "aarch64":
-            mock_uname().machine = "x86_64"
+            mock_uname().machine = arch
             mock_get_desktop_envs.return_value = {
                 "DISPLAY": ":0",
                 "XDG_SESSION_TYPE": "wayland",

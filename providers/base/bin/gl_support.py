@@ -37,7 +37,6 @@ class GLSupportTester:
         """Gets all the environment variables used by the desktop process
 
         :return: dict[str, str] similar to os.environ
-            None if the desktop process is not found
         """
         # "-s" guarantees at most 1 result
         # do not use check_output here,
@@ -47,7 +46,7 @@ class GLSupportTester:
             stdout=sp.PIPE,
             universal_newlines=True,
         )
-        # TODO: remove unity related checks after 16.04 reaches EOL
+        # TODO: remove unity related checks after 16.04 reaches end of life
         compiz_pid = sp.run(  # 16.04 only
             ["pidof", "-s", "compiz"], stdout=sp.PIPE, universal_newlines=True
         )
@@ -130,7 +129,7 @@ class GLSupportTester:
 
         return True
 
-    def extract_gl_renderer_str(
+    def extract_gl_variable(
         self,
         glmark2_validate_output: str,
         gl_variable_name: "T.Literal['GL_VERSION', 'GL_RENDERER']",
@@ -147,7 +146,7 @@ class GLSupportTester:
         gl_renderer_line = None  # type: str | None
         for line in glmark2_validate_output.splitlines():
             if gl_variable_name in line:
-                gl_renderer_line = line
+                gl_renderer_line = line.strip()
                 break
 
         if gl_renderer_line is None:
@@ -231,7 +230,7 @@ class GLSupportTester:
 
 
 def remove_prefix(s: str, prefix: str) -> str:
-    """3.5 doesn't have <str>.removeprefix()"""
+    """3.8 and older doesn't have <str>.removeprefix()"""
     if s.startswith(prefix):
         return s[len(prefix) :]
     return s
@@ -263,16 +262,17 @@ def main() -> None:
 
     gl_version_number = (
         remove_prefix(
-            tester.extract_gl_renderer_str(
+            tester.extract_gl_variable(
                 glmark2_output, "GL_VERSION"
             ),  # 4.6 (Compatibility Profile) Mesa 25.0.7-0ubuntu0.25.04.1
             "OpenGL ES",  # OpenGL ES 3.0 Mesa 18.0.5
         )
+        .strip()  # technically not needed but might as well be careful
         .split()[0]  # 4.6
-        .strip()
+        .strip() # final cleanup
     )
     # Mesa Intel(R) Graphics (LNL)
-    gl_renderer = tester.extract_gl_renderer_str(glmark2_output, "GL_RENDERER")
+    gl_renderer = tester.extract_gl_variable(glmark2_output, "GL_RENDERER")
 
     print("GL_VERSION:", gl_version_number)
     print("GL_RENDERER:", gl_renderer)

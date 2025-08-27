@@ -269,7 +269,7 @@ def main() -> None:
         )
         .strip()  # technically not needed but might as well be careful
         .split()[0]  # 4.6
-        .strip() # final cleanup
+        .strip()  # final cleanup
     )
     # Mesa Intel(R) Graphics (LNL)
     gl_renderer = tester.extract_gl_variable(glmark2_output, "GL_RENDERER")

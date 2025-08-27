@@ -40,8 +40,19 @@ def parse_args():
 
 @retry(5, 30)
 def connect(ssid: str):
+    # color is removed when nmcli detects its output is being piped
+    # so we don't need to manually remove colors
     nmcli_output = sp.check_output(
-        ["nmcli", "-f", "SSID", "device", "wifi", "list", "--rescan", "yes"],
+        [
+            "nmcli",
+            "-get-values",
+            "SSID",
+            "device",
+            "wifi",
+            "list",
+            "--rescan",
+            "yes",
+        ],
         universal_newlines=True,
         timeout=COMMAND_TIMEOUT,
     )
@@ -54,6 +65,8 @@ def connect(ssid: str):
             sp.check_call(["nmcli", "device", "wifi", "connect", ssid])
             print("OK! Connected to {}".format(ssid))
             break
+
+    raise RuntimeError("Did not see {} in nmcli's scan output".format(ssid))
 
 
 @retry(5, 30)
@@ -70,7 +83,7 @@ def get_wifi_interface() -> str:
     nmcli_output = sp.check_output(
         [
             "nmcli",
-            "--get-values",
+            "-get-values",
             "GENERAL.DEVICE,GENERAL.TYPE",
             "device",
             "show",

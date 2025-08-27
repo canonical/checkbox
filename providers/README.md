@@ -14,8 +14,9 @@ code itself.
 
 # Dependencies
 
-Dependencies are very painful to manage in Checkbox because we support every
-Ubuntu version still under ESM. Avoid using dependencies at all costs.
+Dependencies are very painful to manage in Checkbox because every Ubuntu
+version still under ESM must be supported. Avoid using dependencies at
+all costs.
 
 If a dependency can't be avoided:
 - Pick a library that is already packaged, it must be available for

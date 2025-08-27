@@ -61,7 +61,7 @@ class GLSupportTester:
         if desktop_pid is None:
             # this means the desktop failed to load
             # or we are not in a graphical session
-            raise RuntimeError(
+            raise SystemExit(
                 "Unable to get the environment variables "
                 + "used by either gnome or unity. "
                 + "Is the desktop process running?",
@@ -151,7 +151,7 @@ class GLSupportTester:
                 break
 
         if gl_renderer_line is None:
-            raise ValueError(
+            raise SystemExit(
                 "{} was not in glmark2's output".format(gl_variable_name)
             )
 
@@ -173,7 +173,7 @@ class GLSupportTester:
         if XDG_SESSION_TYPE not in ("x11", "wayland"):
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
-            raise ValueError(
+            raise SystemExit(
                 "Unsupported session type: '{}'. ".format(XDG_SESSION_TYPE)
                 + "Expected either 'x11' or 'wayland'"
             )
@@ -182,7 +182,7 @@ class GLSupportTester:
 
         if glmark2_executable_override is not None:
             if shutil.which(glmark2_executable_override) is None:
-                raise FileNotFoundError(
+                raise SystemExit(
                     "Override command '{}' doesn't exist".format(
                         glmark2_executable_override
                     )
@@ -281,14 +281,14 @@ def main() -> None:
     # we don't have to check the minor version
     # since it would be just comparing a positive int to 0
     if int(gl_version_number.split(".")[0]) < 3:
-        raise ValueError(
+        raise SystemExit(
             "The minimum required OpenGL version is 3.0, but got {}".format(
                 gl_version_number
             )
         )
 
     if not tester.gl_renderer_str_is_hardware_renderer(gl_renderer):
-        raise ValueError(
+        raise SystemExit(
             "This machine is not using a hardware renderer. "
             + "Got GL_RENDERER={}".format(gl_renderer)
         )

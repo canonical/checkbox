@@ -41,7 +41,6 @@ Recommends: bonnie++,
             python3-gi,
             smartmontools,
             sysstat,
-            vulkan-tools,
             ${plainbox:Recommends}
 Suggests: fswebcam,
           fwts,

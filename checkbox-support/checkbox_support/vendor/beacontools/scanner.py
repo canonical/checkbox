@@ -287,7 +287,11 @@ class Monitor(threading.Thread):
         if status != 0:
             _LOGGER.error("HCI command failed with status 0x%02x.", status)
             return False
-        _LOGGER.info("Raw 8-byte LE feature mask: %s", data.hex(' '))
+
+        _LOGGER.info(
+            "Raw 8-byte LE feature mask: %s",
+            " ".join(["%x" % pk for pk in data]),
+        )
 
         # According to the Bluetooth Core Specification (v5.0+), support for
         # "LE Extended Advertising" is indicated by bit 12 of the 64-bit feature mask.

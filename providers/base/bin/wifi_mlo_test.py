@@ -18,7 +18,6 @@ Prerequisites for running this test:
 import argparse
 import itertools
 import subprocess as sp
-from sys import stderr
 
 from checkbox_support.helpers.retry import retry
 
@@ -106,8 +105,7 @@ def get_wifi_interface() -> str:
             break  # just pick the first one
 
     if wifi_interface is None:
-        print("There are no wifi interfaces on this DUT", file=stderr)
-        exit(1)
+        raise SystemExit("There are no wifi interfaces on this DUT")
 
     return wifi_interface
 
@@ -130,13 +128,11 @@ def main():
     disconnect(ssid)
 
     if args.mlo_ssid not in iw_output:
-        print(
+        raise SystemExit(
             "Interface '{}' was not connected to SSID '{}'".format(
                 wifi_interface, args.mlo_ssid
             ),
-            file=stderr,
         )
-        exit(1)
 
     # ideally we don't parse this tool but reimplementing the
     # whole connect -> bind -> link sequence is even more complicated
@@ -146,15 +142,14 @@ def main():
             num_links += 1
 
     if num_links < 2:
-        print(
+        raise SystemExit(
             "This wifi connection (interface: {}, ssid: {})".format(
                 wifi_interface, args.mlo_ssid
             ),
             "is not an MLO connection.",
             "Expected at least 2 MLO links, got {}".format(num_links),
-            file=stderr,  # mlo link != plain wifi link
+            # mlo link != plain wifi link
         )
-        exit(1)
 
     print(
         "OK! Found {} links in this connection".format(num_links),

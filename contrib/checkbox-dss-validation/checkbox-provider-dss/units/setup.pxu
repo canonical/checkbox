@@ -28,7 +28,15 @@ flags: simple
 _summary: Install Snap microk8s with classic confinement (classic for GPU support)
 estimated_duration: 2m
 command:
-  sudo snap install microk8s --classic --channel="${SETUP_MICROK8S_CHANNEL}"
+  sudo snap install microk8s --classic --channel="${SETUP_K8S_CHANNEL}"
+
+id: setup_dss/install_snap_k8s
+category_id: setup-dss-regress
+flags: simple
+_summary: Install Snap k8s with classic confinement (classic for GPU support)
+estimated_duration: 2m
+command:
+  sudo snap install k8s --classic --channel="${SETUP_K8S_CHANNEL}"
 
 id: setup_dss/install_package_intel-gpu-tools
 category_id: setup-dss-regress
@@ -59,22 +67,28 @@ command:
   timeout 2m sudo microk8s.kubectl -n kube-system rollout status ds/calico-node
   timeout 5m sudo microk8s status --wait-ready
 
+id: setup_dss/create_kube_config_directory
+category_id: setup-dss-regress
+flags: simple
+_summary: Create directory to store the kubeconfig of cluster
+estimated_duration: 2s
+command: mkdir -p "${HOME}/.kube"
+
 id: setup_dss/write_microk8s_kube_config
 category_id: setup-dss-regress
-depends: setup_dss/enable_microk8s_addons
+depends:
+  setup_dss/enable_microk8s_addons
+  setup_dss/create_kube_config_directory
 flags: simple
 _summary: Write out the kubeconfig for the microk8s cluster
 estimated_duration: 2s
 command:
   set -e
-  destination_dir="${HOME}/.kube"
-  mkdir -p "${destination_dir}"
-  destination="${destination_dir}/config"
   # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
   # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
-  sudo microk8s.kubectl config view --raw | tee "$destination" >/dev/null
+  sudo microk8s.kubectl config view --raw | tee "${HOME}/.kube/config" >/dev/null
 
-id: setup_dss/k8s_nvidia_gpu_setup
+id: setup_dss/microk8s_nvidia_gpu_setup
 category_id: setup-dss-regress
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_nvidia_gpus == 'True'
@@ -83,7 +97,7 @@ depends:
   setup_dss/install_snap_helm
   setup_dss/write_microk8s_kube_config
 flags: simple
-_summary: Setup K8s cluster to use any NVIDIA GPUs
+_summary: Setup microk8s cluster to use any NVIDIA GPUs
 estimated_duration: 45m
 command:
   timeout 45m k8s_gpu_setup.py \
@@ -91,7 +105,7 @@ command:
     nvidia \
     "${SETUP_NVIDIA_GPU_OPERATOR_VERSION}"
 
-id: setup_dss/k8s_intel_gpu_setup
+id: setup_dss/microk8s_intel_gpu_setup
 category_id: setup-dss-regress
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_intel_gpus == 'True'
@@ -99,11 +113,84 @@ depends:
   setup_dss/install_snap_kubectl
   setup_dss/install_snap_helm
   setup_dss/write_microk8s_kube_config
+  setup_dss/install_package_intel-gpu-tools
 flags: simple
-_summary: Setup K8s cluster to use any Intel GPUs
+_summary: Setup microk8s cluster to use any Intel GPUs
 estimated_duration: 45m
 command:
   timeout 45m k8s_gpu_setup.py \
     --microk8s \
+    intel \
+    "${SETUP_INTEL_GPU_PLUGIN_VERSION}"
+
+id: setup_dss/bootstrap_and_enable_canonical_k8s
+category_id: setup-dss-regress
+depends: setup_dss/install_snap_k8s
+flags: simple
+_summary: Bootstrap Canonical K8s and enable features
+estimated_duration: 10m
+command:
+  set -e
+  sudo k8s bootstrap --timeout 5m
+  sudo k8s enable local-storage --timeout 5m
+  sudo k8s status --wait-ready --timeout 10m
+
+id: setup_dss/restart_k8s_snap_as_workaround
+category_id: setup-dss-regress
+after: setup_dss/bootstrap_and_enable_canonical_k8s
+flags: simple
+_summary: Work around <https://github.com/canonical/k8s-snap/issues/1789>
+estimated_duration: 10m
+command:
+  set -e
+  echo "[WARNING] restarting k8s snap; see <https://github.com/canonical/k8s-snap/issues/1789>"
+  sudo snap restart k8s
+  sudo k8s status --wait-ready --timeout 10m
+
+
+id: setup_dss/write_canonical_k8s_kube_config
+category_id: setup-dss-regress
+depends:
+  setup_dss/bootstrap_and_enable_canonical_k8s
+  setup_dss/create_kube_config_directory
+flags: simple
+_summary: Write out the kubeconfig for the Canonical K8s cluster
+estimated_duration: 2s
+command:
+  set -e
+  # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
+  # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
+  sudo k8s config | tee "${HOME}/.kube/config" >/dev/null
+
+id: setup_dss/canonical_k8s_nvidia_gpu_setup
+category_id: setup-dss-regress
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_nvidia_gpus == 'True'
+depends:
+  setup_dss/install_snap_kubectl
+  setup_dss/install_snap_helm
+  setup_dss/write_canonical_k8s_kube_config
+flags: simple
+_summary: Setup Canonical K8s cluster to use any NVIDIA GPUs
+estimated_duration: 45m
+command:
+  timeout 45m k8s_gpu_setup.py \
+    nvidia \
+    "${SETUP_NVIDIA_GPU_OPERATOR_VERSION}"
+
+id: setup_dss/canonical_k8s_intel_gpu_setup
+category_id: setup-dss-regress
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_intel_gpus == 'True'
+depends:
+  setup_dss/install_snap_kubectl
+  setup_dss/install_snap_helm
+  setup_dss/write_canonical_k8s_kube_config
+  setup_dss/install_package_intel-gpu-tools
+flags: simple
+_summary: Setup Canonical K8s cluster to use any Intel GPUs
+estimated_duration: 45m
+command:
+  timeout 45m k8s_gpu_setup.py \
     intel \
     "${SETUP_INTEL_GPU_PLUGIN_VERSION}"

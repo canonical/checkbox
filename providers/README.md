@@ -37,29 +37,29 @@ In the interest of uniformity, we try to limit the APIs that we use.
 Additionally, there are several recurrent issues that we would like to start
 catching before landing tests.
 
-- Don't use `os.path`, use `pathlib` instead.
-- Don't use `%` formatting, use `.format` instead.
-- Don't use `os` process management (`system`, `popen` etc.), use `subprocess`.
-- Don't use fixed `time.sleep` beside for polling.
-- Don't destroy command output if possible.
-- Don't wrap `subprocess` calls in your `run_command` function.
-- Don't customize `argparse.ArgumentParser` needlessly.
-- Don't use regexes.
-- Don't disable/ignore linting rules.
-- Don't write anything other than `main()` under `if __name__ == "__main__":`
-- Don't import other `bin/` scripts. Move code to `checkbox-support` instead.
-- Don't `print('error message')` and `exit(1)`.
+- Don't use `os.path`, use `pathlib` instead. [^1]
+- Don't use `%` formatting, use `.format` instead. [^1]
+- Don't use `os` process management (`system`, `popen` etc.), use `subprocess`. [^1][^2]
+- Don't use fixed `time.sleep` beside for polling. Poll instead. [^2]
+- Don't destroy command output if possible. [^3]
+- Don't wrap `subprocess` calls in your `run_command` function. [^1][^2]
+- Don't customize `argparse.ArgumentParser` needlessly. [^1]
+- Don't use regexes. [^2]
+- Don't disable/ignore linting rules. [^1]
+- Don't write anything other than `main()` under `if __name__ == "__main__":` [^1][^4]
+- Don't import other `bin/` scripts. Move code to `checkbox-support` instead. [^1]
+- Don't `print('error message')` and `exit(1)`. [^1][^2]
 `raise SystemExit('error message')` instead.
-- Always look if a common utility function is provided by `checkbox-support`
-- Always use `argparse` to parse arguments.
-- Always print a command output that doesn't match the form you expect.
-- Always favour `subprocess.check_...` functions when launching a command.
-- Always favour parsing `json` output rather than free text.
+- Always look if a common utility function is provided by `checkbox-support` [^1]
+- Always use `argparse` to parse arguments. [^1]
+- Always print a command output that doesn't match the form you expect. [^3]
+- Always favour `subprocess.check_...` functions when launching a command. [^2][^3]
+- Always favour parsing `json` output rather than free text. [^2][^3]
 - Always `slugify` free form text in resources (or at least, always remove
-newlines)
-- Always use context managers when doing an action to be undone before exit.
+newlines) [^2]
+- Always use context managers when doing an action to be undone before exit. [^2][^3]
 - Always print parameters if they aren't hardcoded or default (i.e. provided
-via Environment variables)
+via Environment variables) [^3]
 
 # PlainboXUnits (PXUs)
 
@@ -68,23 +68,31 @@ catch at review time. Here are the most common ones
 
 ## Checkbox Jobs:
 
-- Don't destructively redirect command output.
-- Don't write nested `for` and `if` in the command section.
-- Don't write bash scripts, use python instead.
-- Don't use `in` in resource expression, prefer adding a new resource fields.
-- Don't use `awk`, limit the use of `sed`. Use python instead.
-- Always declare the environment variables your test needs.
+- Don't destructively redirect command output. [^3]
+- Don't write nested `for` and `if` in the command section. [^1][^2]
+- Don't write bash scripts, use python instead. [^2][^4]
+- Don't use `in` in resource expression, prefer adding a new resource fields. [^1][^2]
+- Don't use `awk`, limit the use of `sed`. Use python instead. [^1][^2]
+- Always declare the environment variables your test needs. [^2][^5]
 
 ## Checkbox Templates:
-- Don't use jinja.
-- Don't template non-`slugify`d fields in IDs.
+- Don't use jinja. [^1][^2][^3][^5]
+- Don't template non-`slugify`d fields in IDs. [^2]
 - Always assume there are spaces in resource fields if they weren't explicitly
-removed.
-- Always add template fields at the end of the IDs.
+removed. [^2]
+- Always add template fields at the end of the IDs. [^3]
 
 ## Checkbox Test Plans:
 - Don't rely on Checkbox fixing your dependencies. If your test needs a
-dependency, always add it to the test plan.
-- Don't use regex inclusion, use template ids instead.
-- Don't assume tests are going to be executed in the order you include them.
-- Always verify your modification via `list-bootstrapped` and `expand`
+dependency, always add it to the test plan. [^5]
+- Don't use regex inclusion, use template ids instead. [^5]
+- Don't assume tests are going to be executed in the order you include them. [^2]
+- Always verify your modification via `list-bootstrapped` and `expand` [^3]
+
+
+
+[^1] Uniformity and maintainability.
+[^2] Recurrent source of bugs.
+[^3] Simplifies debugging/reproducing issues.
+[^4] Bypasses most quality pipelines.
+[^5] Legacy compatibility behaviour now deprecated.

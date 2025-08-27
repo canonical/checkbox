@@ -90,7 +90,7 @@ def get_wifi_interface() -> str:
     for interface_name, interface_type in name_type_pairs:
         if interface_type == "wifi":
             wifi_interface = interface_name
-            break
+            break  # just pick the first one
 
     if wifi_interface is None:
         print("There are no wifi interfaces on this DUT", file=stderr)
@@ -120,16 +120,16 @@ def main():
         print(
             "Interface '{}' was not connected to SSID '{}'".format(
                 wifi_interface, args.mlo_ssid
-            )
+            ),
+            file=stderr,
         )
         exit(1)
 
-    # ideally we don't parse this but reimplementing the whole connect -> bind
-    # -> link stuff is even more complicated
+    # ideally we don't parse this tool but reimplementing the
+    # whole connect -> bind -> link sequence is even more complicated
     # https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/interface.c#n480 # noqa: E501
     for line in iw_output.splitlines():
-        clean_line = line.strip()
-        if clean_line.startswith("- link ID"):
+        if line.strip().startswith("- link ID"):
             num_links += 1
 
     if num_links < 2:

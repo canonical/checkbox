@@ -8,8 +8,9 @@ motivation or are candidates for refactoring.
 
 This document is not a replacement for automated linting, it is a supplement.
 
-You can violate the following rules but when you do so we expect a strong
-motivation to be expressed either in the PR or in comments in the code itself.
+The following rules are not set in stone, but if you want to bypass them,
+you need to provide a clear rationale in the PR or in the comments of the
+code itself.
 
 # Dependencies
 

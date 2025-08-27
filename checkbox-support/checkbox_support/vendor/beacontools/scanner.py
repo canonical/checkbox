@@ -56,9 +56,7 @@ class HCIVersion(IntEnum):
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.INFO)
 stdout_handler = logging.StreamHandler(sys.stdout)
-stdout_handler.setLevel(logging.DEBUG)
 _LOGGER.addHandler(stdout_handler)
-_LOGGER.setLevel(logging.DEBUG)
 
 # pylint: disable=no-member
 
@@ -118,7 +116,6 @@ class Monitor(threading.Thread):
         self.daemon = False
         self.keep_going = True
         self.callback = callback
-        self.debug = debug
 
         # number of the bt device (hciX)
         self.bt_device_id = bt_device_id
@@ -327,18 +324,17 @@ class Monitor(threading.Thread):
         )
         bt_addr = bt_addr_to_string(pkt[7:13])
         # Print pkt for debugging purpose
+        _LOGGER.debug("Raw packet: %s", " ".join([hex(pk) for pk in pkt]))
         _LOGGER.debug(
-            "Raw packet: {}".format(" ".join([hex(pk) for pk in pkt]))
-        )
-        _LOGGER.debug(
-            "LE Meta Event: subevent: {}({}), payload: {}, "
-            "rssi: {}, bt_addr: {}".format(
-                ev_type.name,
-                ev_type.value,
-                " ".join([hex(p) for p in payload]),
-                rssi,
-                bt_addr,
-            )
+            (
+                "LE Meta Event: subevent: %s(%s), payload: %s, "
+                "rssi: %s, bt_addr: %s"
+            ),
+            ev_type.name,
+            ev_type.value,
+            " ".join([hex(p) for p in payload]),
+            rssi,
+            bt_addr,
         )
 
         return ev_type, payload, rssi, bt_addr

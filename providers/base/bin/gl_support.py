@@ -260,7 +260,7 @@ def main() -> None:
     tester = GLSupportTester()
     glmark2_output = tester.call_glmark2_validate(args.glmark2_override)
 
-    gl_version_number = (
+    gl_version_str = (
         remove_prefix(
             tester.extract_gl_variable(
                 glmark2_output, "GL_VERSION"
@@ -274,16 +274,16 @@ def main() -> None:
     # Mesa Intel(R) Graphics (LNL)
     gl_renderer = tester.extract_gl_variable(glmark2_output, "GL_RENDERER")
 
-    print("GL_VERSION:", gl_version_number)
+    print("GL_VERSION:", gl_version_str)
     print("GL_RENDERER:", gl_renderer)
 
     # check if it's newer than 3.0
     # we don't have to check the minor version
     # since it would be just comparing a positive int to 0
-    if int(gl_version_number.split(".")[0]) < 3:
+    if int(gl_version_str.split(".")[0]) < 3:
         raise SystemExit(
             "The minimum required OpenGL version is 3.0, but got {}".format(
-                gl_version_number
+                gl_version_str
             )
         )
 
@@ -295,7 +295,7 @@ def main() -> None:
 
     print(
         "OK! This machine meets the minimum OpenGL version requirement",
-        "({} >= 3.0)".format(gl_version_number),
+        "({} >= 3.0)".format(gl_version_str),
         "and is using a hardware renderer",
     )
 

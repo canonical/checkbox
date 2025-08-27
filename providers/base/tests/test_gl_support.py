@@ -99,7 +99,7 @@ class TestGLSupportTests(ut.TestCase):
 
         with (TEST_DATA_DIR / "glmark2_llvmpipe.txt").open() as f:
             mock_check_output.return_value = f.read()
-            self.assertRaises(ValueError, gl_support.main)
+            self.assertRaises(SystemExit, gl_support.main)
 
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
@@ -121,7 +121,7 @@ class TestGLSupportTests(ut.TestCase):
 
         with (TEST_DATA_DIR / "glmark2_es2_llvmpipe.txt").open() as f:
             mock_check_output.return_value = f.read()
-            self.assertRaises(ValueError, gl_support.main)
+            self.assertRaises(SystemExit, gl_support.main)
 
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
@@ -143,7 +143,7 @@ class TestGLSupportTests(ut.TestCase):
 
         with (TEST_DATA_DIR / "glmark2_version_too_old.txt").open() as f:
             mock_check_output.return_value = f.read()
-            with self.assertRaises(ValueError) as ar:
+            with self.assertRaises(SystemExit) as ar:
                 gl_support.main()
                 self.assertEqual(
                     ar.msg,
@@ -156,7 +156,7 @@ class TestGLSupportTests(ut.TestCase):
     ):
         mock_run.return_value = sp.CompletedProcess([], 1, "", "")
         self.assertRaises(
-            RuntimeError,
+            SystemExit,
             gl_support.GLSupportTester().get_desktop_environment_variables,
         )
 
@@ -265,7 +265,7 @@ class TestGLSupportTests(ut.TestCase):
             "XDG_SESSION_TYPE": "tty",
         }
         self.assertRaises(
-            ValueError, gl_support.GLSupportTester().call_glmark2_validate
+            SystemExit, gl_support.GLSupportTester().call_glmark2_validate
         )
 
     @patch("shutil.which")
@@ -290,7 +290,7 @@ class TestGLSupportTests(ut.TestCase):
         }
         mock_which.return_value = None
         self.assertRaises(
-            FileNotFoundError,
+            SystemExit,
             lambda: gl_support.GLSupportTester().call_glmark2_validate(
                 "this-doesnt-exist"
             ),

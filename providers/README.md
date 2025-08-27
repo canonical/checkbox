@@ -93,8 +93,8 @@ dependency, always add it to the test plan. [^5]
 
 
 
-[^1] Uniformity and maintainability.
-[^2] Recurrent source of bugs.
-[^3] Simplifies debugging/reproducing issues.
-[^4] Bypasses most quality pipelines.
-[^5] Legacy compatibility behaviour now deprecated.
+[^1]: Uniformity and maintainability.
+[^2]: Recurrent source of bugs.
+[^3]: Simplifies debugging/reproducing issues.
+[^4]: Bypasses most quality pipelines.
+[^5]: Legacy compatibility behaviour now deprecated.

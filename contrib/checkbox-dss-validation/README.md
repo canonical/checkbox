@@ -36,13 +36,21 @@ systemctl status snap.checkbox-dss.remote-slave.service
 > We are migrating to using `setup_include` from Checkbox.
 > While it is not available, installing dependencies is currently done in a separate test plan.
 
-Run Checkbox CLI with the setup launcher:
+DSS 1.0/stable works on Microk8s, whereas DSS 1.1/stable onwards
+DSS will work on Canonical K8s.
+There are accordingly the following launchers available:
+
+- `launchers/setup-microk8s.conf`
+- `launchers/setup-canonical-k8s.conf`
+
+Run Checkbox CLI with the Microk8s setup launcher as below
+substituting the appropriate launcher to setup Canonical K8s:
 
 ```shell
-checkbox-dss.checkbox-cli control 127.0.0.1 launchers/setup.conf
+checkbox-dss.checkbox-cli control 127.0.0.1 launchers/setup-microk8s.conf
 ```
 
-By default it will attempt to install the following:
+By default, the Microk8s setup will attempt to install the following:
 
 - `microk8s` snap from channel `1.28/stable` in `--classic` mode
 - `data-science-stack` snap from channel `1.0/stable`
@@ -53,7 +61,12 @@ By default it will attempt to install the following:
 - Setup the Intel GPU Plugin `v0.30.0` in `microk8s`
   - Only if there's a manifest entry with `com.canonical.contrib::has_intel_gpus = true`
 
-Please edit the environment section in the setup launcher to customize the versions.
+The difference in the Canonical K8s launcher will be:
+
+- Instead of `microk8s`, `k8s` snap from channel `1.32-classic/stable` in `--classic` mode.
+- `data-science-stack` snap from channel `1.1/stable`
+
+Please edit the environment section in the appropriate setup launcher to customize the versions.
 You can add a `[manifest]` section too with the appropriate entries to setup appropriate GPUs.
 
 # Automated Run

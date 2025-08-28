@@ -146,19 +146,6 @@ class RemoteAgent:
             lambda x: None
         )
 
-        # the agent is meant to be run only as a service,
-        # and we always resume if the session was automated,
-        # so we don't need to encode check whether we should resume
-
-        sessions = list(ctx.sa.get_resumable_sessions())
-        if sessions:
-            # the sessions are ordered by time, so the first one is the most
-            # recent one
-            if is_the_session_noninteractive(sessions[0]):
-                SessionAssistantAgent.session_assistant.resume_by_id(
-                    sessions[0].id
-                )
-
         self._server = ThreadedServer(
             SessionAssistantAgent,
             port=agent_port,
@@ -182,25 +169,6 @@ class RemoteAgent:
         parser.add_argument(
             "--port", type=int, default=18871, help=_("port to listen on")
         )
-
-
-def is_the_session_noninteractive(
-    resumable_session: "ResumeCandidate",
-) -> bool:
-    """
-    Check if given session is non-interactive.
-
-    To determine that we need to take the original launcher that had been used
-    when the session was started, recreate it as a proper Launcher object, and
-    check if it's in fact non-interactive.
-    """
-    # app blob is a bytes string with a utf-8 encoded json
-    # let's decode it and parse it as json
-    app_blob = json.loads(resumable_session.metadata.app_blob.decode("utf-8"))
-    launcher = Configuration.from_text(
-        app_blob.get("launcher", ""), "resumed session"
-    )
-    return launcher.sections["ui"].get("type") == "silent"
 
 
 def exit_if_port_unavailable(port: int) -> None:

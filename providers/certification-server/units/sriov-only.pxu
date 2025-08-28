@@ -1,0 +1,21 @@
+id: sriov-only
+_name: SRIOV Only Test Plan (Only tests SRIOV network devices)
+unit: test plan
+_description:
+    This test plan is intended to be used for testing of SRIOV capable network devices
+    only. It provides SRIOV functionality testing for both LXD containers and VMs.
+    This should only be run on systems with SRIOV capable network hardware.
+include:
+    networking/sriov_lxd_test_.*             certification-status=blocker
+    networking/sriov_lxdvm_test_.*           certification-status=blocker
+    miscellanea/oops                         certification-status=non-blocker
+    miscellanea/oops_results.log             certification-status=non-blocker
+    miscellanea/olog                         certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                         certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    device
+    executable
+    package
+    snap

@@ -36,6 +36,14 @@ on:
         description: "Channel of kubectl snap to use"
         default: "1.29/stable"
         type: string
+      nvidia_gpu_operator_version:
+        description: "Version of the NVIDIA GPU Operator to install"
+        default: "v24.6.2"
+        type: string
+      intel_gpu_plugin_version:
+        description: "Version of the Intel GPU Plugin to install"
+        default: "v0.30.0"
+        type: string
 
 jobs:
   checkbox-dss-snap-build:
@@ -55,18 +63,30 @@ jobs:
           - summary: "iGPU + NVIDIA GPU"
             name: dell-precision-3470-c30322
             provision_data: "distro: jammy"
+            default_manifest: |
+              [manifest]
+              com.canonical.contrib::has_nvidia_gpus = true
+              com.canonical.contrib::has_intel_gpus = true
           - summary: "iGPU + Arc Pro A60M dGPU"
             name: dell-precision-5680-c31665
             provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X105_A02/dell-bto-jammy-jellyfish-muk-X105-20231026-26_A02.iso"
+            default_manifest: |
+              [manifest]
+              com.canonical.contrib::has_nvidia_gpus = false
+              com.canonical.contrib::has_intel_gpus = true
           - summary: "Only NVIDIA GPU"
             name: nvidia-dgx-station-c25989
             provision_data: "distro: jammy"
+            default_manifest: |
+              [manifest]
+              com.canonical.contrib::has_nvidia_gpus = true
+              com.canonical.contrib::has_intel_gpus = false
     steps:
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
         name: Download artifact with the built snap
         with:
           name: checkbox-dss.snap
@@ -89,16 +109,25 @@ jobs:
           ENV_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
           ENV_LAUNCHER: "launchers/checkbox-dss.conf"
           ENV_KUBECTL_CHANNEL: "${{ inputs.kubectl_channel }}"
+          ENV_NVIDIA_OPERATOR_VERSION: "${{ inputs.nvidia_gpu_operator_version }}"
+          ENV_INTEL_PLUGIN_VERSION: "${{ inputs.intel_gpu_plugin_version }}"
+          DEFAULT_MANIFEST: "${{ matrix.queue.default_manifest }}"
         run: |
-          envsubst '$ENV_DSS_CHANNEL $ENV_KUBECTL_CHANNEL $ENV_MICROK8S_CHANNEL' \
+          echo "$DEFAULT_MANIFEST" > default_manifest.conf
+          echo "::group::Created default manifest"
+          cat default_manifest.conf
+          echo "::endgroup::"
+
+          envsubst '$ENV_DSS_CHANNEL $ENV_KUBECTL_CHANNEL $ENV_MICROK8S_CHANNEL $ENV_NVIDIA_OPERATOR_VERSION $ENV_INTEL_PLUGIN_VERSION' \
             < testflinger/setup-def.conf > setup.conf
           echo "::group::Built setup launcher"
           cat setup.conf
           echo "::endgroup::"
 
           export ENV_SETUP_LAUNCHER=setup.conf
+          export ENV_DEFAULT_MANIFEST=default_manifest.conf
 
-          envsubst '$ENV_QUEUE $ENV_PROVISION_DATA $ENV_CB_DSS_SNAP $ENV_LAUNCHER $ENV_SETUP_LAUNCHER' \
+          envsubst '$ENV_QUEUE $ENV_PROVISION_DATA $ENV_CB_DSS_SNAP $ENV_LAUNCHER $ENV_SETUP_LAUNCHER $ENV_DEFAULT_MANIFEST' \
             < testflinger/job-def.yaml > job.yaml
           echo "::group::Built job file"
           cat job.yaml

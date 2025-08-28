@@ -78,9 +78,9 @@ parts:
       craftctl set version=$version
     stage:
       - version.txt
-################################################################################
+  ################################################################################
   fwts:
-    source-tag: "V25.03.00"
+    source-tag: "V25.07.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
@@ -105,19 +105,19 @@ parts:
       - libfdt-dev
       - libbsd-dev
     after: [version-calculator]
-################################################################################
+  ################################################################################
   stress-ng:
     plugin: nil
     stage-packages:
       - stress-ng
     after: [fwts]
-################################################################################
+  ################################################################################
   acpi-tools:
     plugin: nil
     stage-packages:
       - acpica-tools
     after: [stress-ng]
-################################################################################
+  ################################################################################
   checkbox-support:
     plugin: python
     source: checkbox-support
@@ -157,7 +157,7 @@ parts:
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $CRAFT_STAGE/version.txt)"
     override-build: |
       craftctl default
-################################################################################
+  ################################################################################
   checkbox-ng:
     plugin: python
     source: checkbox-ng
@@ -197,11 +197,11 @@ parts:
       - -debian
     build-environment:
       - PYTHONPATH: $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
-      - READTHEDOCS: 'True' # simplifies picamera install
+      - READTHEDOCS: "True" # simplifies picamera install
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $CRAFT_STAGE/version.txt)"
     override-build: |
       craftctl default
-################################################################################
+  ################################################################################
   checkbox-provider-resource:
     plugin: dump
     source: providers/resource
@@ -229,7 +229,7 @@ parts:
       - libnl-genl-3-dev
       - pkg-config
     after: [checkbox-ng]
-################################################################################
+  ################################################################################
   checkbox-provider-base:
     plugin: dump
     source: providers/base
@@ -302,7 +302,6 @@ parts:
       - obexftp
       - parted
       - pciutils
-      - pulseaudio-utils
       - pyotherside-doc
       - pyotherside-tests
       - qml-module-io-thp-pyotherside
@@ -330,9 +329,9 @@ parts:
       - rt-tests # For realtime performance test
       - mdadm
       - on armhf:
-        - python3-rpi.gpio # only in focal
+          - python3-rpi.gpio # only in focal
       - on arm64:
-        - python3-rpi.gpio # only in focal
+          - python3-rpi.gpio # only in focal
     build-packages:
       - execstack # needed to clear the execstack
       - libasound2-dev
@@ -340,7 +339,7 @@ parts:
     organize:
       usr/lib/lib*.so*: usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/
     after: [checkbox-provider-resource]
-################################################################################
+  ################################################################################
   checkbox-provider-docker:
     plugin: dump
     source: providers/docker
@@ -356,7 +355,7 @@ parts:
     stage-packages:
       - apache2-utils
     after: [checkbox-provider-base]
-################################################################################
+  ################################################################################
   checkbox-provider-tpm2:
     plugin: dump
     source: providers/tpm2
@@ -372,7 +371,7 @@ parts:
     stage-packages:
       - clevis-tpm2
     after: [checkbox-provider-docker]
-################################################################################
+  ################################################################################
   checkbox-provider-iiotg:
     plugin: dump
     source: providers/iiotg
@@ -386,7 +385,7 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-iiotg --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-tpm2]
-################################################################################
+  ################################################################################
   checkbox-provider-sru:
     plugin: dump
     source: providers/sru
@@ -400,7 +399,7 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-sru --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-iiotg]
-################################################################################
+  ################################################################################
   checkbox-provider-gpgpu:
     plugin: dump
     source: providers/gpgpu
@@ -414,7 +413,7 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-gpgpu --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-sru]
-################################################################################
+  ################################################################################
   checkbox-provider-certification-client:
     plugin: dump
     source: providers/certification-client
@@ -428,7 +427,7 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-client --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-gpgpu]
-################################################################################
+  ################################################################################
   checkbox-provider-certification-server:
     plugin: dump
     source: providers/certification-server
@@ -442,7 +441,7 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-server --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-certification-client]
-################################################################################
+  ################################################################################
   checkbox-provider-tutorial:
     plugin: dump
     source: providers/tutorial
@@ -456,24 +455,24 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tutorial --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-base]
-################################################################################
+  ################################################################################
   gnome-randr:
     source: https://github.com/maxwellainatchi/gnome-randr-rust.git
     plugin: rust
     rust-channel: nightly
     build-packages:
       - libdbus-1-dev
-################################################################################
+  ################################################################################
   rpi-support-binaries:
     plugin: nil
     stage-packages:
       - on armhf:
-        - libraspberrypi0
+          - libraspberrypi0
       - on arm64:
-        - libraspberrypi0
+          - libraspberrypi0
     organize:
       usr/lib/lib*.so: usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/
-################################################################################
+  ################################################################################
   lk-boot-env:
     plugin: nil
     source: .
@@ -485,9 +484,9 @@ parts:
     build-packages:
       - wget
       - on amd64 to armhf:
-        - gcc-arm-linux-gnueabihf:amd64
+          - gcc-arm-linux-gnueabihf:amd64
       - on amd64 to arm64:
-        - gcc-aarch64-linux-gnu:amd64
+          - gcc-aarch64-linux-gnu:amd64
     override-build: |
       mkdir -p ${CRAFT_PART_INSTALL}/bin
       if [ "${CRAFT_ARCH_TRIPLET_BUILD_FOR}" = "arm-linux-gnueabihf" ]; then
@@ -498,7 +497,7 @@ parts:
           # native build
           gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${CRAFT_PART_INSTALL}/bin/lk-boot-env
       fi
-################################################################################
+  ################################################################################
   parts-meta-info:
     plugin: nil
     build-environment:
@@ -508,7 +507,7 @@ parts:
       echo "checkbox-runtime:" >> $CRAFT_PART_INSTALL/parts_meta_info
       echo "$RUNTIME_VERSION" >> $CRAFT_PART_INSTALL/parts_meta_info
     after: [checkbox-provider-certification-server]
-################################################################################
+  ################################################################################
   common-config:
     plugin: dump
     source: config/

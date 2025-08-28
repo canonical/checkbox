@@ -2435,8 +2435,25 @@ _purpose: Check dock MAC address pass-through function, please make sure the fol
     3. Dock is connected.
 _summary: Verify the functionality of dock MAC address pass-through.
 
+id: dock/init-connection
+category_id: dock
+plugin: manual
+estimated_duration: 300.00
+_purpose:
+    This test is to ensure the system can detect and set up the dock correctly the first time.
+    Please reset the OS before testing this test case again.
+_steps:
+    1. Boot into OS.
+    2. Connect the dock to the system.
+_verification:
+    Mark it as Pass if the system can detect and set up the dock correctly.
+    The functionality will be verified through the following test cases.
+_summary:
+    Ensure the dock can be detected and set up correctly the first time.
+
 id: dock/all-init
 category_id: dock
+depends: dock/init-connection
 plugin: manual
 estimated_duration: 300.00
 _purpose:
@@ -2445,22 +2462,24 @@ _purpose:
         Try to meet the limitations in the spec of the dock.
         If there's no port as described below, you can just skip it.
 _steps:
-    1. If the laptop is currently undocked, dock it now.
-    2. Connect an Ethernet cable to the docking station.
-    3. Connect a DP monitor to the docking station.
-    4. Connect an HDMI monitor to the docking station.
-    5. Connect a Thunderbolt monitor to the docking station.
-    6. Connect a Thunderbolt3 storage to the docking station.
-    7. Connect a USB Type-C storage to the docking station.
-    8. Connect a USB3.0 storage to the docking station.
-    9. Connect a headset to the docking station.
+    1. Connect an Ethernet cable to the docking station.
+    2. Connect a DP monitor to the docking station.
+    3. Connect an HDMI monitor to the docking station.
+    4. Connect a Thunderbolt monitor to the docking station.
+    5. Connect a Thunderbolt3 storage to the docking station.
+    6. Connect a USB Type-C storage to the docking station.
+    7. Connect a USB3.0 storage to the docking station.
+    8. Connect a headset to the docking station.
+    9. If the laptop is currently undocked, dock it now.
 _verification:
     Mark it Pass if you have connected all I/O ports as mentioned above.
+    The functionality will be verified through the following test cases.
 _summary:
     Prepare all I/O ports on the dock by connecting all devices it supports.
 
 id: dock/all-reboot
 category_id: dock
+depends: dock/init-connection
 plugin: manual
 estimated_duration: 300.00
 _purpose:
@@ -2469,9 +2488,11 @@ _steps:
     Reboot the system.
 _verification:
     Mark it Pass if you have rebooted the system.
+    The functionality will be verified through the following test cases.
 
 id: dock/all-hotplug
 category_id: dock
+depends: dock/init-connection
 plugin: manual
 estimated_duration: 300.00
 _purpose:
@@ -2482,11 +2503,13 @@ _steps:
     3. Plug in the docking station.
 _verification:
     Mark it Pass if you have hotplugged the docking station.
+    The functionality will be verified through the following test cases.
 _summary:
     Verify the device functionality after hotplug actions with the docking station.
 
 id: dock/all-suspend
 category_id: dock
+depends: dock/init-connection
 plugin: manual
 estimated_duration: 300.00
 _purpose:
@@ -2497,11 +2520,34 @@ _steps:
     3. Resume the system.
 _verification:
     Mark it as Pass if you have successfully suspended and resumed the system.
+    The functionality will be verified through the following test cases.
+_summary:
+    Test the system's functionality after suspend and resume.
+
+id: dock/all-suspend-hotplug
+category_id: dock
+depends: dock/init-connection
+plugin: manual
+estimated_duration: 300.00
+_purpose:
+    This test is to check if the device can resume automatically
+    and remain functional after a hotplug event during suspend.
+_steps:
+    1. Ensure the dock is connected.
+    2. Suspend the system.
+    3. Wait for 30 seconds.
+    4. Hotplug dock.
+    5. Resume the system.
+_verification:
+    Mark it as Pass if the system can resume automatically when the dock
+    is hotplugged during suspend.
+    The functionality will be verified through the following test cases.
 _summary:
     Test the system's functionality after suspend and resume.
 
 id: dock/all-poweroff
 category_id: dock
+depends: dock/init-connection
 plugin: manual
 estimated_duration: 300.00
 _purpose:
@@ -2512,11 +2558,13 @@ _steps:
     3. Power on the system.
 _verification:
     Mark it Pass if you have powered off and powered on the system.
+    The functionality will be verified through the following test cases.
 _summary:
     Test device functionality after powering off and on.
 
 id: dock/all-init-monitor-multi-head
 category_id: dock-display
+depends: dock/all-init
 estimated_duration: 120.0
 _summary: Dual monitors test while docked
 plugin: manual
@@ -2531,13 +2579,15 @@ _steps:
 _verification:
     Was the stretched desktop displayed correctly across all the screens?
 _siblings:
-    [{"id": "dock/all-reboot-monitor-multi-head"},
-     {"id": "dock/all-hotplug-monitor-multi-head"},
-     {"id": "dock/all-suspend-monitor-multi-head"},
-     {"id": "dock/all-poweroff-monitor-multi-head"}]
+    [{"id": "dock/all-reboot-monitor-multi-head", "depends": "dock/all-reboot"},
+     {"id": "dock/all-hotplug-monitor-multi-head", "depends": "dock/all-hotplug"},
+     {"id": "dock/all-suspend-monitor-multi-head", "depends": "dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-monitor-multi-head", "depends": "dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-monitor-multi-head", "depends": "dock/all-poweroff"}]
 
 id: dock/all-init-monitor-multi-head-audio-playback
 category_id: dock-audio
+depends: dock/all-init
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_audio_playback == 'True'
@@ -2569,17 +2619,40 @@ _verification:
         1. Go to Settings > Sound > Output > Test > Try Front Left and Front Right.
         2. Repeat Step 1 for each monitor.
 _siblings:
-    [{"id": "dock/all-reboot-monitor-multi-head-audio-playback"},
-     {"id": "dock/all-hotplug-monitor-multi-head-audio-playback"},
-     {"id": "dock/all-suspend-monitor-multi-head-audio-playback"},
-     {"id": "dock/all-poweroff-monitor-multi-head-audio-playback"}]
+    [{"id": "dock/all-reboot-monitor-multi-head-audio-playback", "depends": "dock/all-reboot"},
+     {"id": "dock/all-hotplug-monitor-multi-head-audio-playback", "depends": "dock/all-hotplug"},
+     {"id": "dock/all-suspend-monitor-multi-head-audio-playback", "depends": "dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-monitor-multi-head-audio-playback", "depends": "dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-monitor-multi-head-audio-playback", "depends": "dock/all-poweroff"}]
+
+plugin: shell
+category_id: dock-network
+id: dock/all-init-ethernet-detect
+command: network_device_info.py detect NETWORK
+estimated_duration: 2.0
+_summary:
+ Detect if at least one ethernet device is detected
+_purpose:
+ Test to detect and return information about available network controllers on
+ the system under test.
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_dock_ethernet_adapter == 'True'
+_siblings:
+    [{"id": "dock/all-reboot-ethernet-detect", "depends": "dock/all-reboot"},
+     {"id": "dock/all-hotplug-ethernet-detect", "depends": "dock/all-hotplug"},
+     {"id": "dock/all-suspend-ethernet-detect", "depends": "dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-ethernet-detect", "depends": "dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-ethernet-detect", "depends": "dock/all-poweroff"}]
+
 
 id: dock/all-init-networking-gateway-ping
 plugin: user-interact-verify
 category_id: dock-network
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_ethernet_adapter == 'True'
-depends: ethernet/detect
+requires: manifest.has_dock_ethernet_adapter == 'True'
+depends:
+    dock/all-init
+    dock/all-init-ethernet-detect
 command: gateway_ping_test.py
 estimated_duration: 10.00
 _summary: Ping test using dock's Ethernet connectivity
@@ -2587,20 +2660,27 @@ _purpose:
     Tests whether the system has a working Internet connection.
 _steps:
     1. Make sure the dock is connected to network using an Ethernet cable.
-    2. Make sure the laptop itself is not connected to any Ethernet cable.
+    2. Make sure the laptop itself is not connected to any network.
     3. Launch the test.
 _verification:
     Was the test able to ping the network using the Ethernet connection?
 _siblings:
-    [{"id": "dock/all-reboot-networking-gateway-ping"},
-     {"id": "dock/all-hotplug-networking-gateway-ping"},
-     {"id": "dock/all-suspend-networking-gateway-ping"},
-     {"id": "dock/all-poweroff-networking-gateway-ping"}]
+    [{"id": "dock/all-reboot-networking-gateway-ping", "depends": "dock/all-reboot-ethernet-detect dock/all-reboot"},
+     {"id": "dock/all-hotplug-networking-gateway-ping", "depends": "dock/all-hotplug-ethernet-detect dock/all-hotplug"},
+     {"id": "dock/all-suspend-networking-gateway-ping", "depends": "dock/all-suspend-ethernet-detect dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-networking-gateway-ping", "depends": "dock/all-suspend-hotplug-ethernet-detect dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-networking-gateway-ping", "depends": "dock/all-poweroff-ethernet-detect dock/all-poweroff"}]
 
 id: dock/all-init-networking-ntp
 category_id: dock-network
+depends:
+    dock/all-init
+    dock/all-init-ethernet-detect
 plugin: user-interact-verify
-requires: package.name == 'ntpdate'
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_dock_ethernet_adapter == 'True'
+    package.name == 'ntpdate'
 user: root
 command: network_ntp_test.py
 estimated_duration: 10.00
@@ -2609,23 +2689,25 @@ _purpose:
     Test to see if we can sync local clock to an NTP server
 _steps:
     1. Make sure the dock is connected to network using an Ethernet cable.
-    2. Make sure the laptop itself is not connected to any Ethernet cable.
+    2. Make sure the laptop itself is not connected to any network.
     3. Launch the test.
 _verification:
     Was the test able to synchronize system time using the Ethernet connection?
 _siblings:
-    [{"id": "dock/all-reboot-networking-ntp"},
-     {"id": "dock/all-hotplug-networking-ntp"},
-     {"id": "dock/all-suspend-networking-ntp"},
-     {"id": "dock/all-poweroff-networking-ntp"}]
+    [{"id": "dock/all-reboot-networking-ntp", "depends": "dock/all-reboot-ethernet-detect dock/all-reboot"},
+     {"id": "dock/all-hotplug-networking-ntp", "depends": "dock/all-hotplug-ethernet-detect dock/all-hotplug"},
+     {"id": "dock/all-suspend-networking-ntp", "depends": "dock/all-suspend-ethernet-detect dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-networking-ntp", "depends": "dock/all-suspend-hotplug-ethernet-detect dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-networking-ntp", "depends": "dock/all-poweroff-ethernet-detect dock/all-poweroff"}]
 
 
 id: dock/all-init-thunderbolt3-storage-manual
 category_id: dock
+depends: dock/all-init
 estimated_duration: 120
 plugin: user-interact
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt3 == 'True'
+requires: manifest.has_dock_thunderbolt3 == 'True'
 user: root
 flags: also-after-suspend
 command: checkbox-support-run_watcher storage thunderbolt
@@ -2646,10 +2728,82 @@ _verification:
     The verification of this test is automated. Do not change the automatically
     selected result.
 _siblings:
-    [{"id": "dock/all-reboot-thunderbolt3-storage-manual"},
-     {"id": "dock/all-hotplug-thunderbolt3-storage-manual"},
-     {"id": "dock/all-suspend-thunderbolt3-storage-manual"},
-     {"id": "dock/all-poweroff-thunderbolt3-storage-manual"}]
+    [{"id": "dock/all-reboot-thunderbolt3-storage-manual", "depends": "dock/all-reboot"},
+     {"id": "dock/all-hotplug-thunderbolt3-storage-manual", "depends": "dock/all-hotplug"},
+     {"id": "dock/all-suspend-thunderbolt3-storage-manual", "depends": "dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-thunderbolt3-storage-manual", "depends": "dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-thunderbolt3-storage-manual", "depends": "dock/all-poweroff"}]
+
+
+id: dock/all-init-usb3-storage-manual
+category_id: dock
+depends: dock/all-init
+estimated_duration: 120
+plugin: user-interact
+imports: from com.canonical.plainbox import manifest
+requires:
+    usb.usb3 == 'supported'
+user: root
+flags: also-after-suspend
+command: checkbox-support-run_watcher storage usb3
+_summary: USB3 storage insertion + read/write + removal
+_purpose:
+    This test will check if the connection of a USB3 storage to the dock could be detected,
+    then performs read/write operations on the attached USB3 storage and
+    checks if the removal of the USB3 storage can be detected.
+_steps:
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 30 seconds.
+    2. Plug a USB3 storage into an available USB3 port on the dock.
+       If it's not mounted automatically, please click the storage icon to mount it.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the previously attached USB3 storage from the USB3 port.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result.
+_siblings:
+    [{"id": "dock/all-reboot-usb3-storage-manual", "depends": "dock/all-reboot"},
+     {"id": "dock/all-hotplug-usb3-storage-manual", "depends": "dock/all-hotplug"},
+     {"id": "dock/all-suspend-usb3-storage-manual", "depends": "dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-usb3-storage-manual", "depends": "dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-usb3-storage-manual", "depends": "dock/all-poweroff"}]
+
+
+id: dock/all-init-usb-c-storage-manual
+category_id: dock
+depends: dock/all-init
+estimated_duration: 120
+plugin: user-interact
+imports: from com.canonical.plainbox import manifest
+requires:
+    usb.usb3 == 'supported'
+    manifest.has_dock_usbc_data == 'True'
+user: root
+flags: also-after-suspend
+command: checkbox-support-run_watcher storage usb3
+_summary: USB3 storage insertion + read/write + removal
+_purpose:
+    This test will check if the connection of a usb-c storage to the dock could be detected,
+    then performs read/write operations on the attached usb-c storage and
+    checks if the removal of the usb-c storage can be detected.
+_steps:
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 30 seconds.
+    2. Plug a USB3 storage into an available usb-c port on the dock.
+       If it's not mounted automatically, please click the storage icon to mount it.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the previously attached usb-c storage from the usb-c port.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result.
+_siblings:
+    [{"id": "dock/all-reboot-usb-c-storage-manual", "depends": "dock/all-reboot"},
+     {"id": "dock/all-hotplug-usb-c-storage-manual", "depends": "dock/all-hotplug"},
+     {"id": "dock/all-suspend-usb-c-storage-manual", "depends": "dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-usb-c-storage-manual", "depends": "dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-usb-c-storage-manual", "depends": "dock/all-poweroff"}]
 
 
 id: dock/all-init-usb-c/insert
@@ -2810,12 +2964,14 @@ _siblings:
 
 id: dock/all-init-audio-speaker-headphone-plug-detection
 category_id: dock-audio
+depends: dock/all-init
 plugin: user-interact
 estimated_duration: 60.0
 _summary: Headphones recognized when plugged to the dock test
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_audio_playback == 'True'
+ manifest.has_dock_headset == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
@@ -2836,10 +2992,11 @@ _verification:
     Verification is automatic, no action is required.
     The test times out after 30 seconds (and fails in that case).
 _siblings:
-    [{"id": "dock/all-reboot-audio-speaker-headphone-plug-detection"},
-     {"id": "dock/all-hotplug-audio-speaker-headphone-plug-detection"},
-     {"id": "dock/all-suspend-audio-speaker-headphone-plug-detection"},
-     {"id": "dock/all-poweroff-audio-speaker-headphone-plug-detection"}]
+    [{"id": "dock/all-reboot-audio-speaker-headphone-plug-detection", "depends": "dock/all-reboot"},
+     {"id": "dock/all-hotplug-audio-speaker-headphone-plug-detection", "depends": "dock/all-hotplug"},
+     {"id": "dock/all-suspend-audio-speaker-headphone-plug-detection", "depends": "dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-audio-speaker-headphone-plug-detection", "depends": "dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-audio-speaker-headphone-plug-detection", "depends": "dock/all-poweroff"}]
 
 id: dock/all-init-audio-playback-headphones
 category_id: dock-audio
@@ -2883,17 +3040,21 @@ _siblings:
       "depends": "dock/all-hotplug-audio-speaker-headphone-plug-detection"},
      {"id": "dock/all-suspend-audio-playback-headphones",
       "depends": "dock/all-suspend-audio-speaker-headphone-plug-detection"},
+     {"id": "dock/all-suspend-hotplug-audio-playback-headphones",
+      "depends": "dock/all-suspend-hotplug-audio-speaker-headphone-plug-detection"},
      {"id": "dock/all-poweroff-audio-playback-headphones",
       "depends": "dock/all-poweroff-audio-speaker-headphone-plug-detection"}]
 
 id: dock/all-init-audio-microphone-plug-detection
 category_id: dock-audio
+depends: dock/all-init
 plugin: user-interact
 estimated_duration: 60.0
 _summary: Microphone recognized when plugged to the dock test
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_audio_playback == 'True'
+ manifest.has_dock_headset == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
@@ -2915,10 +3076,11 @@ _verification:
     Verification is automatic, no action is required.
     The test times out after 30 seconds (and fails in that case).
 _siblings:
-    [{"id": "dock/all-reboot-audio-microphone-plug-detection"},
-     {"id": "dock/all-hotplug-audio-microphone-plug-detection"},
-     {"id": "dock/all-suspend-audio-microphone-plug-detection"},
-     {"id": "dock/all-poweroff-audio-microphone-plug-detection"}]
+    [{"id": "dock/all-reboot-audio-microphone-plug-detection", "depends": "dock/all-reboot"},
+     {"id": "dock/all-hotplug-audio-microphone-plug-detection", "depends": "dock/all-hotplug"},
+     {"id": "dock/all-suspend-audio-microphone-plug-detection", "depends": "dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-audio-microphone-plug-detection", "depends": "dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-audio-microphone-plug-detection", "depends": "dock/all-poweroff"}]
 
 plugin: user-interact-verify
 category_id: dock-audio
@@ -2964,5 +3126,7 @@ _siblings:
       "depends": "dock/all-hotplug-audio-microphone-plug-detection"},
      {"id": "dock/all-suspend-audio-alsa-record-playback-external",
       "depends": "dock/all-suspend-audio-microphone-plug-detection"},
+     {"id": "dock/all-suspend-hotplug-audio-alsa-record-playback-external",
+      "depends": "dock/all-suspend-hotplug-audio-microphone-plug-detection"},
      {"id": "dock/all-poweroff-audio-alsa-record-playback-external",
       "depends": "dock/all-poweroff-audio-microphone-plug-detection"}]

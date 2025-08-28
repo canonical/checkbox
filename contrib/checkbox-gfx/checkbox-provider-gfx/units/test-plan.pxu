@@ -1,0 +1,7 @@
+id: vulkan-test-plan
+unit: test plan
+_name: GFX test plan for verifying Vulkan
+include:
+  gfx_mesa_vk.*
+bootstrap_include:
+    com.canonical.certification::executable

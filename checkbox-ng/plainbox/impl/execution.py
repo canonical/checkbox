@@ -441,7 +441,7 @@ class UnifiedRunner(IJobRunner):
             logger.warning(
                 _(
                     "Please store desired files in $PLAINBOX_SESSION_SHARE"
-                    "and use regular temporary files for everything else"
+                    " and use regular temporary files for everything else"
                 )
             )
 

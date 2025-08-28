@@ -1,5 +1,5 @@
 id: ce-oem-rpmsg/detect-device
-_summary: Check if the RPMSG devices is initialed.
+_summary: Check if the RPMSG device node is initialed.
 category_id: rpmsg
 estimated_duration: 5
 requires: manifest.has_rpmsg == 'True'
@@ -7,31 +7,35 @@ imports: from com.canonical.plainbox import manifest
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --type detect
+    rpmsg_tests.py node-detection
 
 id: ce-oem-rpmsg/pingpong
-_summary: Check if M series core RPMSG is loaded and pingpong demo is completed.
+_summary: Check if RPMSG pingpong test firmware is loaded and pingpong demo is completed.
 category_id: rpmsg
 estimated_duration: 60
-requires: manifest.has_rpmsg == 'True'
+requires:
+    manifest.has_rpmsg == 'True'
+    manifest.has_preload_rpmsg_pingpong_firmware == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-device
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --type pingpong
+    rpmsg_tests.py --rpmsg-node remoteproc0 pingpong
 
 id: ce-oem-rpmsg/serial-tty
-_summary: Check if M series core RPMSG is loaded and RPMSG TTY works.
+_summary: Check if RPMSG string-echo test firmware is loaded and RPMSG TTY works.
 category_id: rpmsg
 estimated_duration: 60
-requires: manifest.has_rpmsg == 'True'
+requires:
+    manifest.has_rpmsg == 'True'
+    manifest.has_preload_rpmsg_string_echo_firmware == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-device
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --type serial-tty
+    rpmsg_tests.py --rpmsg-node remoteproc0 string-echo
 
 unit: job
 category_id: rpmsg
@@ -40,13 +44,13 @@ plugin: resource
 _summary: List Remote Processor firmwares and RPMSG node mapping
 _description:
     List firmware and RPMSG node mapping for reload Remote Processor firmware test
-    RPMSG_RP_FIRMWARE_MAPPING="remoteproc0:test-1.elf remoteproc0:test-2.elf"
+    RPMSG_RP_FIRMWARE_MAPPING="remoteproc0:test-1.elf:string-echo remoteproc0:test-2.elf:pingpong"
     RPMSG_RP_FIRMWARE_PATH="/home/user1"
 estimated_duration: 2s
 flags: preserve-locale
 environ: RPMSG_RP_FIRMWARE_MAPPING RPMSG_RP_FIRMWARE_PATH
 command:
-    rpmsg_load_firmware.py resource-reload --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
+    rpmsg_reload_firmware_resource.py resource-reload --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
 
 unit: template
 template-resource: ce-oem-rpmsg/rp-firmware-mapping
@@ -65,4 +69,4 @@ flags: also-after-suspend
 user: root
 plugin: shell
 command:
-    rpmsg_load_firmware.py test-reload --device {device} --file {firmware} --path {path}
+    rpmsg_tests.py --rpmsg-node "{device}" "{test_method}" --load-firmware --firmware-path "{path}" --firmware-file "{firmware}"

@@ -1,222 +1,157 @@
+import os
 import unittest
-import sys
-import argparse
-from unittest.mock import patch, Mock
+from tempfile import TemporaryDirectory
+from pathlib import Path
 
-# flake8: noqa: E402
+from unittest.mock import patch, mock_open, call
+
 import rpmsg_tests
 
 
-class RpmsgTests(unittest.TestCase):
-    """
-    Unit tests for RPMSG test scripts
-    """
-
-    def test_rpmsg_device_exist(self):
-        """
-        Checking RPMSG device is available
-        """
-        rpmsg_devices = None
-        expected_node = "virtio0.rpmsg-openamp-demo-channel.-1.30"
-        with patch("os.listdir") as mock_listdir:
-            mock_listdir.return_value = [expected_node]
-            rpmsg_devices = rpmsg_tests.check_rpmsg_device()
-
-        self.assertEqual([expected_node], rpmsg_devices)
-
-    def test_rpmsg_device_not_exist(self):
-        """
-        Checking RPMSG device is not available
-        """
-        with patch("os.listdir") as mock_listdir:
-            mock_listdir.return_value = []
-
-            with self.assertRaises(SystemExit):
-                rpmsg_tests.check_rpmsg_device()
-
-    def test_arm_processor_am62(self):
-        """
-        Checking if the CPU processor manufacture is TI
-        """
-        cpu_family = ""
-        with patch("rpmsg_tests.get_soc_machine") as mock_machine:
-            mock_machine.return_value = "Texas Instruments AM625 SK"
-            with patch("rpmsg_tests.get_soc_family") as mock_family:
-                mock_family.return_value = "AM62X"
-                cpu_family = rpmsg_tests.detect_arm_processor_type()
-
-        self.assertEqual("ti", cpu_family)
-
-    def test_arm_processor_imx(self):
-        """
-        Checking if the CPU processor manufacture is i.MX
-        """
-        cpu_family = ""
-        with patch("rpmsg_tests.get_soc_machine") as mock_machine:
-            mock_machine.return_value = "Honeywell i.MX8MM X8Med35 PDK"
-            with patch("rpmsg_tests.get_soc_family") as mock_family:
-                mock_family.return_value = "Freescale i.MX"
-                cpu_family = rpmsg_tests.detect_arm_processor_type()
-
-        self.assertEqual("imx", cpu_family)
-
-    def test_arm_processor_unexpected(self):
-        """
-        /sys/devices/soc0/family and machine files not exists
-        """
-        cpu_family = ""
-        with patch("rpmsg_tests.get_soc_machine") as mock_machine:
-            mock_machine.return_value = ""
-            with patch("rpmsg_tests.get_soc_family") as mock_family:
-                mock_family.return_value = ""
-                cpu_family = rpmsg_tests.detect_arm_processor_type()
-
-        self.assertEqual("unknown", cpu_family)
-
-    def test_rpmsg_test_supported_with_imx(self):
-        """
-        RPMSG TTY test is supported for i.MX
-        """
-        pattern, cmd = rpmsg_tests.rpmsg_tty_test_supported("imx")
-        self.assertEqual(pattern, r"ttyRPMSG[0-9]*")
-        self.assertEqual(cmd, "modprobe imx_rpmsg_tty")
-
-    def test_rpmsg_test_supported_with_ti(self):
-        """
-        RPMSG TTY test is not supported for TI
-        """
-        with self.assertRaisesRegex(SystemExit, "Unsupported method for TI."):
-            rpmsg_tests.rpmsg_tty_test_supported("ti")
-
-    def test_rpmsg_test_supported_with_other(self):
-        """
-        RPMSG TTY test is not supported for Other SoC
-        """
-        with self.assertRaisesRegex(SystemExit, "Unexpected CPU type."):
-            rpmsg_tests.rpmsg_tty_test_supported("mtk")
+tmpdir = TemporaryDirectory()
 
 
-class TestRpmsgPingPong(unittest.TestCase):
+class RpmsgSysFsHandlerTests(unittest.TestCase):
 
-    @patch("rpmsg_tests.RpmsgPingPongTest.__init__")
-    @patch("rpmsg_tests.RpmsgPingPongTest.pingpong_test")
-    def test_pingpong_entry_imx(self, mock_pingpong, mock_init):
+    @patch("rpmsg_tests.RPMSG_PATH", tmpdir.name)
+    def setUp(self):
+        self.rpmsg_node = "remoteproc0"
 
-        mock_init.return_value = None
-        rpmsg_tests.pingpong_test("imx")
-        mock_init.assert_called_with(
-            "imx_rpmsg_pingpong",
-            "modprobe imx_rpmsg_pingpong",
-            r"get .* \(src: (\w*)\)",
-            r"rpmsg.*: goodbye!",
-            51,
+        dir_path = Path(tmpdir.name)
+        remoteproc_dir = dir_path.joinpath(self.rpmsg_node)
+        remoteproc_dir.mkdir(exist_ok=True)
+        self.firmware_file = remoteproc_dir.joinpath("firmware")
+        self.firmware_file.write_text("test_firmware")
+        self.state_file = remoteproc_dir.joinpath("state")
+        self.state_file.write_text("running")
+        self.firmware_path_file = remoteproc_dir.joinpath("path")
+        self.firmware_path_file.write_text("test_path")
+
+        self.handler = rpmsg_tests.RpmsgSysFsHandler(self.rpmsg_node)
+        self.handler.sysfs_fw_path = self.firmware_path_file
+
+    def test_rpmsg_sysfs_handler_initialization(self):
+        self.assertEqual(
+            self.handler.sysfs_fw_path,
+            self.firmware_path_file,
         )
-        mock_pingpong.assert_called_with()
-
-    @patch("rpmsg_tests.RpmsgPingPongTest.__init__")
-    @patch("rpmsg_tests.RpmsgPingPongTest.pingpong_test")
-    def test_pingpong_entry_ti(self, mock_pingpong, mock_init):
-
-        mock_init.return_value = None
-        rpmsg_tests.pingpong_test("ti")
-        mock_init.assert_called_with(
-            "rpmsg_client_sample",
-            "modprobe rpmsg_client_sample count=100",
-            r".*ti.ipc4.ping-pong.*\(src: (\w*)\)",
-            r"rpmsg.*: goodbye!",
-            100,
+        self.assertEqual(
+            self.handler.sysfs_firmware_file,
+            os.path.join(tmpdir.name, self.rpmsg_node, "firmware"),
         )
-        mock_pingpong.assert_called_with()
-
-    @patch("rpmsg_tests.RpmsgPingPongTest.__init__")
-    @patch("rpmsg_tests.RpmsgPingPongTest.pingpong_test")
-    def test_pingpong_entry_failed(self, mock_pingpong, mock_init):
-
-        mock_init.return_value = None
-        with self.assertRaises(SystemExit):
-            rpmsg_tests.pingpong_test("unknown")
-        mock_init.assert_not_called()
-        mock_pingpong.assert_not_called()
-
-
-class TestRpmsgSerialTty(unittest.TestCase):
-
-    @patch("serial_test.client_mode")
-    @patch("rpmsg_tests.check_rpmsg_tty_devices")
-    def test_no_rpmsg_devices(
-        self, mock_check_rpmsg_tty_devices, mock_client_mode
-    ):
-        """
-        No RPMSG TTY devices found and raise SystemExit
-        """
-        mock_check_rpmsg_tty_devices.return_value = []
-        with self.assertRaisesRegex(SystemExit, "No RPMSG TTY devices found."):
-            rpmsg_tests.serial_tty_test("imx", 64)
-            mock_client_mode.assert_not_called()
-
-    @patch("serial_test.client_mode")
-    @patch("rpmsg_tests.check_rpmsg_tty_devices")
-    def test_rpmsg_tty_test_passed(
-        self, mock_check_rpmsg_tty_devices, mock_client_mode
-    ):
-        """
-        String-ECHO test passed through RPMSG TTY device
-        """
-        tty_device = "/dev/ttyRPMSG30"
-        mock_check_rpmsg_tty_devices.return_value = [tty_device]
-
-        rpmsg_tests.serial_tty_test("imx", 64)
-        mock_client_mode.assert_called_with(
-            tty_device, "rpmsg-tty", [], 115200, 8, "N", 1, 3, 1024
+        self.assertEqual(
+            self.handler.sysfs_state_path,
+            os.path.join(tmpdir.name, self.rpmsg_node, "state"),
         )
+        self.assertIsNone(self.handler.original_firmware_path)
+        self.assertIsNone(self.handler.original_firmware)
+        self.assertIsNone(self.handler.original_state)
+        self.assertFalse(self.handler.started_by_script)
 
-    @patch("rpmsg_tests.serial_tty_test")
-    @patch("rpmsg_tests.pingpong_test")
-    @patch("rpmsg_tests.check_rpmsg_device")
-    def test_launch_check_rpmsg_device(
-        self, mock_check_rpmsg, mock_pingpong, mock_stty
-    ):
+    def test_rpmsg_sysfs_handler_initialization_no_dir(self):
 
-        mock_args = Mock(return_value=argparse.Namespace(type="detect"))
-        rpmsg_tests.main(mock_args())
-        mock_check_rpmsg.assert_called_with()
-        mock_pingpong.assert_not_called()
-        mock_stty.assert_not_called()
+        with patch("rpmsg_tests.RPMSG_PATH", tmpdir.name):
+            with self.assertRaises(SystemExit) as cm:
+                rpmsg_tests.RpmsgSysFsHandler("nonexistent")
+                self.assertEqual(cm.exception.code, 1)
 
-    @patch("rpmsg_tests.serial_tty_test")
-    @patch("rpmsg_tests.check_rpmsg_device")
-    @patch("rpmsg_tests.detect_arm_processor_type")
-    @patch("rpmsg_tests.pingpong_test")
-    def test_launch_pingpong_test(
-        self, mock_pingpong, mock_detect_arch, mock_check_rpmsg, mock_stty
-    ):
+    def test_read_node(self):
 
-        mock_args = Mock(return_value=argparse.Namespace(type="pingpong"))
-        mock_detect_arch.return_value = "imx"
-        rpmsg_tests.main(mock_args())
-        mock_pingpong.assert_called_with("imx")
-        mock_detect_arch.assert_called_with()
-        mock_check_rpmsg.assert_not_called()
-        mock_stty.assert_not_called()
+        value = self.handler._read_node(self.handler.sysfs_firmware_file)
+        self.assertEqual(value, "test_firmware")
 
-    @patch("rpmsg_tests.check_rpmsg_device")
-    @patch("rpmsg_tests.pingpong_test")
-    @patch("rpmsg_tests.detect_arm_processor_type")
-    @patch("rpmsg_tests.serial_tty_test")
-    def test_launch_serial_tty_test(
-        self, mock_stty, mock_detect_arch, mock_pingpong, mock_check_rpmsg
-    ):
+    def test_read_node_ioerror(self):
+        with patch(
+            "builtins.open", side_effect=IOError("No such file or directory")
+        ):
+            value = self.handler._read_node("fake_path")
+            self.assertIsNone(value)
 
-        mock_args = Mock(return_value=argparse.Namespace(type="serial-tty"))
-        mock_detect_arch.return_value = "imx"
-        rpmsg_tests.main(mock_args())
-        mock_stty.assert_called_with("imx", 1024)
-        mock_detect_arch.assert_called_with()
-        mock_pingpong.assert_not_called()
-        mock_check_rpmsg.assert_not_called()
+    def test_write_node(self):
 
-    def test_argument_parser(self):
-        sys.argv = ["rpmsg_tests.py", "--type", "detect"]
-        args = rpmsg_tests.register_arguments()
+        value = self.handler._write_node(
+            self.handler.sysfs_firmware_file, "fake_path"
+        )
+        self.assertTrue(value)
 
-        self.assertEqual(args.type, "detect")
+    def test_write_node_ioerror(self):
+        with patch("builtins.open", side_effect=IOError("Permission denied")):
+            with self.assertRaises(IOError):
+                self.handler._write_node(
+                    self.handler.sysfs_firmware_file, "fake_path"
+                )
+
+    def test_firmware_path_property(self):
+        self.assertEqual(self.handler.firmware_path, "test_path")
+
+    def test_firmware_file_property(self):
+        self.assertEqual(self.handler.firmware_file, "test_firmware")
+
+    def test_rpmsg_state_property(self):
+        self.assertEqual(self.handler.rpmsg_state, "running")
+
+    def test_rpmsg_state_setter_validation(self):
+        with self.assertRaises(ValueError):
+            self.handler.rpmsg_state = "invalid"
+            self.assertEqual(self.handler.rpmsg_state, "running")
+
+    def test_setup_teardown(self):
+
+        self.state_file.write_text("offline")
+
+        self.handler.setup()
+        self.assertEqual(self.handler.original_firmware_path, "test_path")
+        self.assertEqual(self.handler.original_firmware, "test_firmware")
+        self.assertEqual(self.handler.original_state, "offline")
+
+        self.handler.teardown()
+        self.assertEqual(self.handler.firmware_path, "test_path")
+        self.assertEqual(self.handler.firmware_file, "test_firmware")
+        self.assertEqual(self.handler.rpmsg_state, "offline")
+
+    def test_setup_teardown_no_original_values(self):
+        with (
+            patch(
+                "builtins.open",
+                side_effect=IOError("No such file or directory"),
+            ),
+        ):
+            self.handler.setup()
+
+            self.assertIsNone(self.handler.original_firmware_path)
+            self.assertIsNone(self.handler.original_firmware)
+            self.assertIsNone(self.handler.original_state)
+
+            self.handler.teardown()
+
+    def test_start_stop(self):
+        self.state_file.write_text("offline")
+        self.handler.start()
+        self.assertEqual(self.handler.rpmsg_state, "start")
+        self.assertTrue(self.handler.started_by_script)
+
+        self.handler.stop()
+        self.assertEqual(self.handler.rpmsg_state, "stop")
+
+    def test_start_already_running(self):
+        self.state_file.write_text("running")
+        value = self.handler.start()
+        self.assertTrue(value)
+
+    def test_stop_already_offline(self):
+        self.state_file.write_text("offline")
+        value = self.handler.stop()
+        self.assertTrue(value)
+
+    def test_teardown_state_not_started_by_script(self):
+        self.firmware_file.write_text("new_firmware")
+        self.firmware_path_file.write_text("new_path")
+        self.state_file.write_text("running")
+
+        self.handler.setup()
+        self.assertFalse(self.handler.started_by_script)
+
+        self.handler.teardown()
+        self.handler.firmware_file = "original_firmware"
+        self.handler.firmware_path = "test_path"
+        self.handler.rpmsg_state = "start"

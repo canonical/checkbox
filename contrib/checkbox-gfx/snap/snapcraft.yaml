@@ -29,6 +29,9 @@ apps:
   test-vulkan:
     command-chain: [bin/wrapper_local]
     command: bin/test-vulkan
+  test-opencl:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-opencl
   run-agent:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper run-agent
@@ -39,6 +42,8 @@ apps:
     command: bin/shell-wrapper
   install-vulkan:
     command: bin/install-vulkan
+  install-opencl:
+    command: bin/install-opencl
   remove:
     command: bin/remove
 

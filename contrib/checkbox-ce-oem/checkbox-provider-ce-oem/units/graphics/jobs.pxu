@@ -1,0 +1,13 @@
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: ce-oem-graphics/nvlink-drm-modeset-check
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_nvidia_drm_modeset_enable == 'True'
+user: root
+command: nvidia_drm_modeset_check.py
+_summary: Verify Nvidia proprietary driver with DRM modeset for full rendering support
+_purpose:
+    Verify that the Nvidia card is using the proprietary driver with nvidia-drm modeset enabled,
+    ensuring the system can render properly on all Nvidia graphics cards with proprietary drivers.

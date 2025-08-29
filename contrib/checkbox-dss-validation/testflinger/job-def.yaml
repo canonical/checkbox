@@ -7,10 +7,10 @@ test_data:
     - local: $ENV_CB_DSS_SNAP
     - local: $ENV_LAUNCHER
     - local: $ENV_SETUP_LAUNCHER
+    - local: $ENV_DEFAULT_MANIFEST
   test_cmds: |
 
-    # Exit immediately if a test fails
-    set -e
+    set -x
 
     # Constants
     CHECKBOX_RUNTIME="checkbox22"
@@ -54,9 +54,19 @@ test_data:
     echo "Installing checkbox $CHECKBOX_VERSION on agent container from source"
     install_checkbox_agent_source $CHECKBOX_VERSION $TOOLS_PATH
 
+    # retrieve manifest
+    MANIFEST_FILE=manifest.conf
+    fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID
+    if [ $? -ne 0 ]; then
+        echo "Using default manifest"
+        MANIFEST_FILE=$RESOURCES_PATH/$ENV_DEFAULT_MANIFEST
+    fi
+    # create setup launcher
+    stacker --output setup.conf $RESOURCES_PATH/$ENV_SETUP_LAUNCHER $MANIFEST_FILE
+
     # run the setup test plan
     # XXX:@motjuste: will be part of main test plan when setup_include is available
-    PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP $RESOURCES_PATH/$ENV_SETUP_LAUNCHER
+    PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP setup.conf
     EXITCODE=$?
     if [ $EXITCODE -ne 0 ]; then exit $EXITCODE
     fi

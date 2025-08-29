@@ -27,6 +27,7 @@ include:
  keys/power-button                              certification-status=blocker
  keys/power-button-event                        certification-status=blocker
  keys/fn-lock                                   certification-status=non-blocker
+ keys/power-button-suspend                      certification-status=blocker
 
 id: keys-cert-automated
 unit: test plan

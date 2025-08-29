@@ -1,5 +1,5 @@
 """Constants."""
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 
 # for scanner
@@ -47,6 +47,12 @@ EVT_LE_EXT_ADVERTISING_REPORT = 0x0D
 OGF_INFO_PARAM = 0x04
 OCF_READ_LOCAL_VERSION = 0x01
 EVT_CMD_COMPLETE = 0x0E
+
+
+class MetaEventReportTypeEnum(Enum):
+    LE_ADVERTISING_REPORT = 0x02
+    LE_EXT_ADVERTISING_REPORT = 0x0d
+
 
 # for Generic Access Profile parsing
 FLAGS_DATA_TYPE = 0x01

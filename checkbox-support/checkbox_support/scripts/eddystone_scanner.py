@@ -42,28 +42,42 @@ def init_bluetooth():
         btctl.kill()
 
 
-def beacon_scan(hci_device):
+def beacon_scan(hci_device, debug=False):
     TIMEOUT = 10
-
+    report_type = None
     beacon_mac = beacon_rssi = beacon_packet = ""
 
-    def callback(bt_addr, rssi, packet, additional_info):
-        nonlocal beacon_mac, beacon_rssi, beacon_packet
-        beacon_mac, beacon_rssi, beacon_packet = bt_addr, rssi, packet
+    def callback(sub_event, bt_addr, rssi, packet, additional_info):
+        nonlocal beacon_mac, beacon_rssi, beacon_packet, report_type
+        report_type, beacon_mac, beacon_rssi, beacon_packet = (
+            sub_event,
+            bt_addr,
+            rssi,
+            packet,
+        )
 
     scanner = BeaconScanner(
-        callback, bt_device_id=hci_device, packet_filter=EddystoneURLFrame
+        callback,
+        bt_device_id=hci_device,
+        packet_filter=EddystoneURLFrame,
+        debug=debug,
     )
 
     scanner.start()
     start = time.time()
     while not beacon_packet and time.time() - start < TIMEOUT:
-        time.sleep(1)
+        time.sleep(0.5)
     scanner.stop()
     if beacon_packet:
         print(
-            "Eddystone beacon detected: URL: {} <mac: {}> "
-            "<rssi: {}>".format(beacon_packet.url, beacon_mac, beacon_rssi)
+            "Eddystone beacon detected: [Adv Report Type: {}({})] "
+            "URL: {} <mac: {}> <rssi: {}>".format(
+                report_type.name,
+                report_type.value,
+                beacon_packet.url,
+                beacon_mac,
+                beacon_rssi,
+            )
         )
         return 0
     print("No EddyStone URL advertisement detected!")
@@ -85,6 +99,11 @@ def main(argv=None):
         default="hci0",
         help="Select the hciX device to use " "(default hci0).",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -93,23 +112,7 @@ def main(argv=None):
         print("Bad device argument, defaulting to hci0")
         hci_device = 0
 
-    # Newer bluetooth controllers and bluez versions allow extended commands
-    # supported by newer versions of beacontools. But with older controllers,
-    # especially when running on bionic, core18, bluez < 5.51, etc. they
-    # only work correctly with legacy commands, and need an older version
-    # of beacontools to work properly.
-    # Try the newest one first, then the older one if that doesn't work
-    rc = beacon_scan(hci_device)
-    if rc:
-        print("Trying again with older beacontools version...")
-        global BeaconScanner, EddystoneURLFrame
-        from checkbox_support.vendor.beacontools_2_0_2 import (
-            BeaconScanner,
-            EddystoneURLFrame,
-        )
-
-        rc = beacon_scan(hci_device)
-    return rc
+    return beacon_scan(hci_device, args.debug)
 
 
 if __name__ == "__main__":

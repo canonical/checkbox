@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_airplane_mode
+_name: Airplane Mode Support
+value-type: bool

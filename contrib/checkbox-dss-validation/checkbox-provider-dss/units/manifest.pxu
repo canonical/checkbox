@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_nvidia_gpus
+_name: integrated or discrete GPUs from NVIDIA
+value-type: bool
+
+unit: manifest entry
+id: has_intel_gpus
+_name: integrated or discrete GPUs from Intel
+value-type: bool

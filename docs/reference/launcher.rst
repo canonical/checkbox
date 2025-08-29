@@ -127,7 +127,7 @@ Launcher section example:
     session_title = MegaCorp Thingy Alpha-1
     session_desc = Testing the alpha-1 release of MegaCorp Thingy including feature X
 
-Launcher using all defaults with overridden secure_id:
+Launcher using all defaults with overridden ``secure_id``:
 
 .. code-block:: ini
 

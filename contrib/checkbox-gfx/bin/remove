@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source $(dirname "$0")/setup-env.sh
+sudo rm -rf $INSTALL_DIR
+rm -rf $WORKING_DIR

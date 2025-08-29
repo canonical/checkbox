@@ -480,7 +480,7 @@ _summary: Attach a copy of /proc/cmdline
 id: info/kernel_config
 plugin: shell
 category_id: com.canonical.plainbox::info
-command: 
+command:
  kernel_config.py --output "$PLAINBOX_SESSION_SHARE"/kernel_config
 estimated_duration: 0.005
 _purpose: Gathers the kernel configuration and saves it to a file
@@ -490,7 +490,7 @@ id: kernel_config_attachment
 plugin: attachment
 depends: info/kernel_config
 category_id: com.canonical.plainbox::info
-command: 
+command:
  [ -f "$PLAINBOX_SESSION_SHARE"/kernel_config ] && cat "$PLAINBOX_SESSION_SHARE"/kernel_config
 estimated_duration: 0.005
 _purpose: Attaches the kernel configuration
@@ -500,7 +500,7 @@ id: info/kernel-config-iommu-flag
 plugin: shell
 requires: cpuinfo.platform in ("i386", "x86_64")
 category_id: com.canonical.plainbox::info
-command: 
+command:
  kernel_config.py --config-flag CONFIG_INTEL_IOMMU_DEFAULT_ON --min-version 6.8.0-20
 estimated_duration: 0.005
 _purpose: Checks the value of the CONFIG_INTEL_IOMMU_DEFAULT_ON flag in the kernel configuration
@@ -586,7 +586,7 @@ _purpose: Output whether secure boot is enabled or disabled
 
 unit: template
 template-resource: device
-template-filter: device.category == 'NETWORK' and device.interface != ''
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-id: info/sriov-check__interface
 plugin: attachment
 category_id: com.canonical.plainbox::info

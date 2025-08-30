@@ -1,0 +1,24 @@
+id: ce-oem-graphics-full
+unit: test plan
+_name: Graphics tests (GPU)
+_description:
+ Graphics tests (GPU)
+include:
+nested_part:
+    ce-oem-graphics-automated
+    ce-oem-graphics-manual
+
+id: ce-oem-graphics-automated
+unit: test plan
+_name: CE-OEM Graphics tests (Automated)
+_description:
+    Graphics tests (Automated)
+include:
+    ce-oem-graphics/nvlink-drm-modeset-check
+
+id: ce-oem-graphics-manual
+unit: test plan
+_name: CE-OEM Graphics tests (Manual)
+_description:
+    Graphics tests (Manual)
+include:

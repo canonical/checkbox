@@ -717,7 +717,7 @@ def rpmsg_node_detection_test(rpmsg_node):
     if not rpmsg_devices:
         raise SystemExit("RPMSG node is not available")
     elif rpmsg_node and rpmsg_node not in rpmsg_devices:
-        raise SystemExit("%s is not available".format(rpmsg_node))
+        raise SystemExit("{} is not available".format(rpmsg_node))
 
     logging.info("PASSED: remoteproc node is available")
 

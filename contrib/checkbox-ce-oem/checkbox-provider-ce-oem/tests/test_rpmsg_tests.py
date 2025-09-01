@@ -20,20 +20,20 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
         dir_path = Path(tmpdir.name)
         remoteproc_dir = dir_path.joinpath(self.rpmsg_node)
         remoteproc_dir.mkdir(exist_ok=True)
-        self.firmware_file = remoteproc_dir.joinpath("firmware")
-        self.firmware_file.write_text("test_firmware")
-        self.state_file = remoteproc_dir.joinpath("state")
-        self.state_file.write_text("running")
-        self.firmware_path_file = remoteproc_dir.joinpath("path")
-        self.firmware_path_file.write_text("test_path")
 
         self.handler = rpmsg_tests.RpmsgSysFsHandler(self.rpmsg_node)
-        self.handler.sysfs_fw_path = self.firmware_path_file
+        self.handler.sysfs_fw_path = os.path.join(tmpdir.name, "fw_path")
+        self.firmware_path_file = Path(self.handler.sysfs_fw_path)
+        self.firmware_path_file.write_text("test_path")
+        self.firmware_file = Path(self.handler.sysfs_firmware_file)
+        self.firmware_file.write_text("test_firmware")
+        self.state_file = Path(self.handler.sysfs_state_path)
+        self.state_file.write_text("running")
 
     def test_rpmsg_sysfs_handler_initialization(self):
         self.assertEqual(
             self.handler.sysfs_fw_path,
-            self.firmware_path_file,
+            os.path.join(tmpdir.name, "fw_path"),
         )
         self.assertEqual(
             self.handler.sysfs_firmware_file,
@@ -110,11 +110,8 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
         self.assertEqual(self.handler.rpmsg_state, "offline")
 
     def test_setup_teardown_no_original_values(self):
-        with (
-            patch(
-                "builtins.open",
-                side_effect=IOError("No such file or directory"),
-            ),
+        with patch(
+            "builtins.open", side_effect=IOError("No such file or directory")
         ):
             self.handler.setup()
 

@@ -50,7 +50,7 @@ estimated_duration: 2s
 flags: preserve-locale
 environ: RPMSG_RP_FIRMWARE_MAPPING RPMSG_RP_FIRMWARE_PATH
 command:
-    rpmsg_reload_firmware_resource.py resource-reload --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
+    rpmsg_reload_firmware_resource.py --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
 
 unit: template
 template-resource: ce-oem-rpmsg/rp-firmware-mapping

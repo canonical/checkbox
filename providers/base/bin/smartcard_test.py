@@ -9,6 +9,8 @@ from smartcard.Exceptions import (
     NoCardException,
     CardConnectionException,
 )
+from smartcard.pcsc.PCSCReader import PCSCReader as SCReader
+from checkbox_support.helpers.slugify import slugify
 from checkbox_support.helpers.timeout import timeout
 from smartcard.CardRequest import CardRequest
 from smartcard.util import toHexString
@@ -16,7 +18,6 @@ from smartcard.System import readers
 import argparse
 import logging
 import sys
-import re
 
 
 class SmartcardTest:
@@ -74,29 +75,27 @@ class SmartcardTest:
         """
         self.readers = readers()
 
-    def stringify_reader_name(self, name: str) -> str:
+    def slugify_reader_name(self, name: str) -> str:
         """
         Replacing the illegal character with "-"
 
         :param name: real name of smartcard reader
         """
-        pattern = r"[^a-zA-Z0-9]+"
-        return re.sub(pattern, "-", name[:40])
+        return slugify(name[:40])
 
-    def reader_filter(self, list_type: str, name: str) -> str:
+    def reader_filter(self, list_type: str, name: SCReader) -> SCReader:
         """
         Filter the smart card reader as contact, contactless, or unfiltered
 
-        :param list_type: contact/contactless/ALL
+        :param list_type: contact/contactless/all
 
         :param name: real name of smartcard reader
         """
-        lt = list_type.lower()
         ln = name.name.lower()
-        if lt == "contact":
+        if list_type == "contact":
             if "contactless" not in ln and "-cl" not in ln:
                 return name
-        elif lt == "contactless":
+        elif list_type == "contactless":
             if "contactless" in ln or "-cl" in ln:
                 return name
         else:
@@ -106,14 +105,14 @@ class SmartcardTest:
         """
         List smart card readers in stringified format for the resource job
 
-        :param list_type: contact/contactless/ALL
+        :param list_type: contact/contactless/all
 
         """
         for r in self.readers:
             if self.reader_filter(list_type, r):
                 print(
                     "smartcard_reader: {}".format(
-                        self.stringify_reader_name(r.name)
+                        self.slugify_reader_name(r.name)
                     )
                 )
 
@@ -121,7 +120,7 @@ class SmartcardTest:
         """
         Detect smart card readers
 
-        :param list_type: contact/contactless/ALL
+        :param list_type: contact/contactless/all
 
         """
         count = 0
@@ -140,7 +139,7 @@ class SmartcardTest:
         :param reader: Stringified smart card reader name
         """
         for r in self.readers:
-            if self.stringify_reader_name(r.name) == reader:
+            if self.slugify_reader_name(r.name) == reader:
                 return r
 
     def get_connection(self, reader: str):
@@ -168,6 +167,12 @@ class SmartcardTest:
         :param reader: Stringified smart card reader name
         """
         real_reader = self.get_real_reader_instance(reader)
+        if real_reader is None:
+            raise SystemExit(
+                "No real reader was found matching this name: {}".format(
+                    reader
+                )
+            )
 
         self.logger.info(
             "Smartcard insertion and removal detection test is starting"
@@ -177,12 +182,13 @@ class SmartcardTest:
         )
 
         cardrequest = CardRequest(timeout=30, newcardonly=True)
-        cards = []
+        cards = []  # type: list[smartcard.Card]
         while len(cards) == 0:
             currentcards = cardrequest.waitforcardevent()
             for card in currentcards:
                 if (
-                    not cards.__contains__(card)
+                    card not in cards
+                    and isinstance(card.reader, str)
                     and real_reader.name == card.reader
                 ):
                     cards.append(card)
@@ -197,7 +203,7 @@ class SmartcardTest:
         while True:
             currentcards = cardrequest.waitforcardevent()
             for card in cards:
-                if not currentcards.__contains__(card):
+                if card not in currentcards:
                     cards.remove(card)
                     self.logger.info("Smart card removal detected:")
                     self.logger.info(card)
@@ -245,12 +251,8 @@ class SmartcardTest:
         parser_resources.add_argument(
             "-t",
             "--type",
-            type=str,
-            default="All",
-            help="""
-                  List All/contact/contactless smartcard reader for testing
-                  (default: %(default)s)
-                 """,
+            default="all",
+            choices=["contact", "contactless", "all"],
         )
 
         # Add parser for listing smartcard readers for resource job
@@ -261,12 +263,8 @@ class SmartcardTest:
         parser_detect_reader.add_argument(
             "-t",
             "--type",
-            type=str,
-            default="All",
-            help="""
-                  List All/contact/contactless smartcard reader for testing
-                  (default: %(default)s)
-                 """,
+            default="all",
+            choices=["contact", "contactless", "all"],
         )
 
         # Add parser for detecting smartcard insert/remove
@@ -294,10 +292,10 @@ class SmartcardTest:
 
     def function_select(self, args):
         if args.test_type == "resources":
-            # list_readers("All")
+            # list_readers("all")
             return self.list_readers(args.type)
         elif args.test_type == "detect_reader":
-            # detect_reader("Broadcom 58200")
+            # detect_reader("all")
             return self.detect_reader(args.type)
         elif args.test_type == "detect_card":
             # detect_smartcard("Broadcom 58200")

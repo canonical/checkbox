@@ -4,8 +4,6 @@ import logging
 
 from checkbox_support.helpers.timeout import mock_timeout
 
-# Import the class to be tested
-# Assuming smartcard_test.py is in the same directory or accessible via PYTHONPATH
 from smartcard_test import (
     SmartcardTest,
     NoCardException,
@@ -55,33 +53,33 @@ class TestSmartcardTest(unittest.TestCase):
         """
         self.patcher_readers.stop()
 
-    def test_stringify_reader_name(self):
+    def test_slugify_reader_name(self):
         """
-        Test stringify_reader_name method.
+        Test slugify_reader_name method.
         """
         self.assertEqual(
-            self.sc.stringify_reader_name("My Reader Name 123!@#"),
-            "My-Reader-Name-123-",
+            self.sc.slugify_reader_name("My Reader Name 123!@#"),
+            "My_Reader_Name_123___",
         )
         self.assertEqual(
-            self.sc.stringify_reader_name("Another_Reader-Name.V2"),
-            "Another-Reader-Name-V2",
+            self.sc.slugify_reader_name("Another_Reader-Name.V2"),
+            "Another_Reader_Name_V2",
         )
-        self.assertEqual(self.sc.stringify_reader_name("Short"), "Short")
+        self.assertEqual(self.sc.slugify_reader_name("Short"), "Short")
         self.assertEqual(
-            self.sc.stringify_reader_name("A" * 50), "A" * 40
+            self.sc.slugify_reader_name("A" * 50), "A" * 40
         )  # Test truncation
 
     def test_reader_filter_all(self):
         """
-        Test reader_filter with 'All' type.
+        Test reader_filter with 'all' type.
         """
         self.assertEqual(
-            self.sc.reader_filter("All", self.mock_reader_class),
+            self.sc.reader_filter("all", self.mock_reader_class),
             self.mock_reader_class,
         )
         self.assertEqual(
-            self.sc.reader_filter("ALL", self.mock_reader_class_contactless),
+            self.sc.reader_filter("all", self.mock_reader_class_contactless),
             self.mock_reader_class_contactless,
         )
 
@@ -125,26 +123,30 @@ class TestSmartcardTest(unittest.TestCase):
         """
         Test list_readers method.
         """
-        # Test with 'All'
-        self.sc.list_readers("All")
+        # Test with 'all'
+        self.sc.list_readers("all")
         expected_calls = [
-            unittest.mock.call("smartcard_reader: Mock-Reader-1"),
-            unittest.mock.call("smartcard_reader: Mock-Reader-2-Contactless"),
-            unittest.mock.call("smartcard_reader: Mock-Reader-3-CL"),
+            unittest.mock.call("smartcard_reader: Mock_Reader_1"),
+            unittest.mock.call(
+                "smartcard_reader: Mock_Reader_2___Contactless"
+            ),
+            unittest.mock.call("smartcard_reader: Mock_Reader_3__CL"),
         ]
         mock_print.assert_has_calls(expected_calls, any_order=True)
         mock_print.reset_mock()
 
         # Test with 'contact'
         self.sc.list_readers("contact")
-        mock_print.assert_called_once_with("smartcard_reader: Mock-Reader-1")
+        mock_print.assert_called_once_with("smartcard_reader: Mock_Reader_1")
         mock_print.reset_mock()
 
         # Test with 'contactless'
         self.sc.list_readers("contactless")
         expected_calls = [
-            unittest.mock.call("smartcard_reader: Mock-Reader-2-Contactless"),
-            unittest.mock.call("smartcard_reader: Mock-Reader-3-CL"),
+            unittest.mock.call(
+                "smartcard_reader: Mock_Reader_2___Contactless"
+            ),
+            unittest.mock.call("smartcard_reader: Mock_Reader_3__CL"),
         ]
         mock_print.assert_has_calls(expected_calls, any_order=True)
         self.assertEqual(mock_print.call_count, 2)
@@ -155,8 +157,8 @@ class TestSmartcardTest(unittest.TestCase):
         """
         Test detect_reader method when readers are found.
         """
-        # Test with 'All'
-        self.sc.detect_reader("All")
+        # Test with 'all'
+        self.sc.detect_reader("all")
         expected_calls = [
             unittest.mock.call("Mock Reader 1"),
             unittest.mock.call("Mock Reader 2 - Contactless"),
@@ -174,7 +176,7 @@ class TestSmartcardTest(unittest.TestCase):
         sc_no_readers = SmartcardTest()
         sc_no_readers.readers = []
         with self.assertRaises(SystemExit) as cm:
-            sc_no_readers.detect_reader("All")
+            sc_no_readers.detect_reader("all")
         self.assertEqual(
             cm.exception.code,
             "There is no smartcard reader in this system",
@@ -185,10 +187,8 @@ class TestSmartcardTest(unittest.TestCase):
         """
         Test get_real_reader_instance method.
         """
-        # Assuming stringify_reader_name works correctly
-        reader_name = self.sc.stringify_reader_name(
-            self.mock_reader_class.name
-        )
+        # Assuming slugify_reader_name works correctly
+        reader_name = self.sc.slugify_reader_name(self.mock_reader_class.name)
         found_reader = self.sc.get_real_reader_instance(reader_name)
         self.assertEqual(found_reader, self.mock_reader_class)
 
@@ -239,7 +239,7 @@ class TestSmartcardTest(unittest.TestCase):
         self.assertEqual(
             cm.exception.code, "no card inserted or card is unsupported"
         )
-        mock_logger_info.assert_not_called()  # Should not log success if exception occurs
+        mock_logger_info.assert_not_called()
 
         mock_get_real_reader_instance.return_value = None
         with self.assertRaises(SystemExit) as cm:
@@ -266,7 +266,7 @@ class TestSmartcardTest(unittest.TestCase):
         self.assertEqual(
             cm.exception.code, "no card inserted or card is unsupported"
         )
-        mock_logger_info.assert_not_called()  # Should not log success if exception occurs
+        mock_logger_info.assert_not_called()
 
     @patch("smartcard_test.SmartcardTest.get_real_reader_instance")
     @patch("smartcard_test.SmartcardTest.logger.info")
@@ -367,7 +367,8 @@ class TestSmartcardTest(unittest.TestCase):
         mock_get_connection,
     ):
         """
-        Test send_apdu_test method when APDU transmission fails (SW1 not in list).
+        Test send_apdu_test method when APDU transmission fails
+        (SW1 not in list).
         """
         mock_connection = MagicMock()
         mock_connection.getATR.return_value = [0x3B, 0x00]
@@ -416,7 +417,7 @@ class TestSmartcardTest(unittest.TestCase):
 
         args = self.sc._args_parsing(["resources"])  # Default type
         self.assertEqual(args.test_type, "resources")
-        self.assertEqual(args.type, "All")
+        self.assertEqual(args.type, "all")
 
     def test_args_parsing_detect_reader(self):
         """
@@ -430,7 +431,7 @@ class TestSmartcardTest(unittest.TestCase):
 
         args = self.sc._args_parsing(["detect_reader"])  # Default type
         self.assertEqual(args.test_type, "detect_reader")
-        self.assertEqual(args.type, "All")
+        self.assertEqual(args.type, "all")
 
     def test_args_parsing_detect_card(self):
         """
@@ -464,9 +465,9 @@ class TestSmartcardTest(unittest.TestCase):
         """
         mock_args = MagicMock()
         mock_args.test_type = "resources"
-        mock_args.type = "All"
+        mock_args.type = "all"
         self.sc.function_select(mock_args)
-        mock_list_readers.assert_called_once_with("All")
+        mock_list_readers.assert_called_once_with("all")
 
     @patch("smartcard_test.SmartcardTest.detect_reader")
     def test_function_select_detect_reader(self, mock_detect_reader):

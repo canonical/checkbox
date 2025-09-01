@@ -308,6 +308,19 @@ class JournalctlCollector(Collector):
         )
 
 
+class ManifestCollector(Collector):
+    COLLECTOR_NAME = "machine_manifest"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=[
+                "cat",
+                "/var/tmp/checkbox-ng/machine-manifest.json",
+            ],
+            version_cmd=["checkbox-cli", "--version"],
+        )
+
+
 if __name__ == "__main__":
     collection = collect()
     print(collection.to_json())

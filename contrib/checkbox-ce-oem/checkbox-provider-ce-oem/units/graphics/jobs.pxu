@@ -1,6 +1,6 @@
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-id: ce-oem-graphics/nvlink-drm-modeset-check
+id: ce-oem-graphics/nvidia-drm-modeset-check
 imports:
     from com.canonical.plainbox import manifest
 requires:

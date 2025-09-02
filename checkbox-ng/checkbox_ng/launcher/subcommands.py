@@ -689,6 +689,7 @@ class Launcher(MainLoopStage, ReportsStage):
                     app_blob["launcher"] = f.read()
             except FileNotFoundError:
                 pass
+        self.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
         failed_setups = self.setup()
         if failed_setups:
             raise SystemExit("Failed to prepare the machine")

@@ -35,7 +35,7 @@ from plainbox.vendor import mock
 from plainbox.vendor.mock import MagicMock
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
-from checkbox_ng.certification import SubmissionServiceTransport
+from checkbox_ng.certification import SubmissionServiceTransport, GatewayTimeoutError
 
 try:
     from importlib.resources import files
@@ -136,3 +136,158 @@ class SubmissionServiceTransportTests(TestCase):
         )
         with self.assertRaises(TransportError):
             transport.send(self.sample_archive)
+
+    def test_504_timeout_with_success_indicators_json(self):
+        """Test that 504 timeout with JSON success indicators returns success."""
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
+
+        # Mock a 504 response with JSON success indicators
+        mock_response = MagicMock()
+        mock_response.status_code = 504
+        mock_response.content = b'{"id": "12345", "url": "https://certification.canonical.com/hardware/12345/"}'
+        mock_response.json.return_value = {"id": "12345", "url": "https://certification.canonical.com/hardware/12345/"}
+        mock_response.text = '{"id": "12345", "url": "https://certification.canonical.com/hardware/12345/"}'
+
+        # Mock HTTPError for 504 status
+        http_error = HTTPError(response=mock_response)
+        mock_response.raise_for_status.side_effect = http_error
+
+        requests.post.return_value = mock_response
+
+        # Should return success data instead of raising exception
+        result = transport.send(self.sample_archive)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["id"], "12345")
+
+    def test_504_timeout_with_success_indicators_text(self):
+        """Test that 504 timeout with text success indicators returns success."""
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
+
+        # Mock a 504 response with text success indicators
+        mock_response = MagicMock()
+        mock_response.status_code = 504
+        mock_response.content = b'<html><body>Submission successful! Your submission ID is 67890</body></html>'
+        mock_response.json.side_effect = ValueError("Not JSON")
+        mock_response.text = '<html><body>Submission successful! Your submission ID is 67890</body></html>'
+
+        # Mock HTTPError for 504 status
+        http_error = HTTPError(response=mock_response)
+        mock_response.raise_for_status.side_effect = http_error
+
+        requests.post.return_value = mock_response
+
+        # Should return success data instead of raising exception
+        result = transport.send(self.sample_archive)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["message"], "Submission appears successful despite timeout")
+
+    def test_504_timeout_without_success_indicators(self):
+        """Test that 504 timeout without success indicators raises GatewayTimeoutError."""
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
+
+        # Mock a 504 response without success indicators
+        mock_response = MagicMock()
+        mock_response.status_code = 504
+        mock_response.content = b'<html><body><h1>504 Gateway Time-out</h1></body></html>'
+        mock_response.json.side_effect = ValueError("Not JSON")
+        mock_response.text = '<html><body><h1>504 Gateway Time-out</h1></body></html>'
+
+        # Mock HTTPError for 504 status
+        http_error = HTTPError(response=mock_response)
+        mock_response.raise_for_status.side_effect = http_error
+
+        requests.post.return_value = mock_response
+
+        # Should raise GatewayTimeoutError
+        with self.assertRaises(GatewayTimeoutError) as cm:
+            transport.send(self.sample_archive)
+
+        self.assertIn("504 Gateway Timeout", str(cm.exception))
+        self.assertEqual(cm.exception.response, mock_response)
+
+    def test_504_timeout_with_empty_response(self):
+        """Test that 504 timeout with empty response raises GatewayTimeoutError."""
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
+
+        # Mock a 504 response with empty content
+        mock_response = MagicMock()
+        mock_response.status_code = 504
+        mock_response.content = b''
+        mock_response.text = ''
+
+        # Mock HTTPError for 504 status
+        http_error = HTTPError(response=mock_response)
+        mock_response.raise_for_status.side_effect = http_error
+
+        requests.post.return_value = mock_response
+
+        # Should raise GatewayTimeoutError
+        with self.assertRaises(GatewayTimeoutError):
+            transport.send(self.sample_archive)
+
+    def test_check_submission_success_with_various_json_keys(self):
+        """Test submission success detection with various JSON key patterns."""
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
+
+        test_cases = [
+            {"id": "123"},
+            {"url": "https://example.com/submission/123"},
+            {"status_url": "https://example.com/status/123"},
+            {"submission_id": "456"},
+        ]
+
+        for test_data in test_cases:
+            mock_response = MagicMock()
+            mock_response.content = True
+            mock_response.json.return_value = test_data
+
+            result = transport._check_submission_success_in_response(mock_response)
+            self.assertEqual(result, test_data)
+
+    def test_check_submission_success_with_text_indicators(self):
+        """Test submission success detection with various text indicators."""
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
+
+        text_indicators = [
+            "Submission successful - your data has been received",
+            "Upload successful! Thank you for your submission",
+            "Submission received and is being processed",
+            "Your submission ID is: 12345",
+            "Visit your submission URL: https://example.com/12345"
+        ]
+
+        for text in text_indicators:
+            mock_response = MagicMock()
+            mock_response.content = True
+            mock_response.json.side_effect = ValueError("Not JSON")
+            mock_response.text = text
+
+            result = transport._check_submission_success_in_response(mock_response)
+            self.assertIsNotNone(result)
+            self.assertEqual(result["message"], "Submission appears successful despite timeout")
+
+    def test_check_submission_success_with_no_indicators(self):
+        """Test submission success detection with no success indicators."""
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
+
+        mock_response = MagicMock()
+        mock_response.content = True
+        mock_response.json.side_effect = ValueError("Not JSON")
+        mock_response.text = "Generic error message with no success indicators"
+
+        result = transport._check_submission_success_in_response(mock_response)
+        self.assertIsNone(result)

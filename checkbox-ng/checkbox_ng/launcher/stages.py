@@ -37,6 +37,7 @@ from plainbox.impl.result import tr_outcome
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
+from checkbox_ng.certification import GatewayTimeoutError
 from plainbox.impl.unit.exporter import ExporterError
 
 from checkbox_ng.launcher.run import (
@@ -742,6 +743,37 @@ class ReportsStage(CheckboxUiStage):
                                 )
                             )
                             f.write(url + "\n")
+                except GatewayTimeoutError as exc:
+                    _logger.warning(
+                        _("504 Gateway Timeout when submitting '%s' report: %s"),
+                        name,
+                        exc,
+                    )
+                    # For 504 Gateway Timeout, we don't retry automatically
+                    # because the submission may have been successful
+                    if self.is_interactive:
+                        message = _(
+                            "A 504 Gateway Timeout occurred during submission. "
+                            "This often means the submission was successful on the server "
+                            "but the response was delayed. Please check the certification "
+                            "website to verify if your submission was received before retrying."
+                        )
+                        print(message)
+                        if self._retry_dialog():
+                            # let's remove current transport, so in next
+                            # iteration it will be "rebuilt", so if some parts
+                            # were user-provided, checkbox will ask for them
+                            # again
+                            self.transports.pop(params["transport"])
+                            continue
+                    else:
+                        # In non-interactive mode, don't retry 504 errors
+                        # to avoid duplicate submissions
+                        _logger.info(
+                            _("Skipping automatic retry for 504 Gateway Timeout "
+                              "to prevent duplicate submissions. Please check the "
+                              "certification website to verify submission status.")
+                        )
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting '%s' report: %s"),

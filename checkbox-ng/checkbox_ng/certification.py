@@ -40,6 +40,20 @@ import requests
 logger = getLogger("checkbox.ng.certification")
 
 
+class GatewayTimeoutError(TransportError):
+    """
+    Exception raised when a 504 Gateway Timeout occurs during submission.
+
+    This error indicates that the submission may have been successful on the
+    server side despite the timeout response, and should be handled differently
+    from other transport errors to avoid unnecessary retries.
+    """
+
+    def __init__(self, message, response=None):
+        super().__init__(message)
+        self.response = response
+
+
 class SubmissionServiceTransport(TransportBase):
     """
     Transport for sending data to certification database.
@@ -60,6 +74,52 @@ class SubmissionServiceTransport(TransportBase):
         self._secure_id = self.options.get("secure_id")
         if self._secure_id is not None:
             self._validate_secure_id(self._secure_id)
+
+    def _check_submission_success_in_response(self, response):
+        """
+        Check if the response indicates a successful submission despite timeout.
+
+        This method attempts to parse the response content to determine if
+        the submission was actually processed successfully on the server side,
+        even though a 504 Gateway Timeout was returned.
+
+        :param response: The HTTP response object
+        :returns: dict with submission info if successful, None otherwise
+        """
+        try:
+            # Try to parse JSON response first
+            if response.content:
+                try:
+                    json_data = response.json()
+                    # Check for common success indicators in the response
+                    if isinstance(json_data, dict):
+                        # Look for submission ID or URL which indicates success
+                        if any(key in json_data for key in ['id', 'url', 'status_url', 'submission_id']):
+                            logger.info(
+                                _("Found submission success indicators in 504 response: %s"),
+                                json_data
+                            )
+                            return json_data
+                except (ValueError, TypeError):
+                    # Not valid JSON, continue to text parsing
+                    pass
+
+                # Try to parse HTML/text response for success indicators
+                response_text = response.text.lower()
+                if any(indicator in response_text for indicator in [
+                    'submission successful', 'upload successful', 'submission received',
+                    'submission id', 'submission url'
+                ]):
+                    logger.info(
+                        _("Found submission success indicators in 504 response text")
+                    )
+                    # Return a basic success response
+                    return {"message": "Submission appears successful despite timeout"}
+
+        except Exception as exc:
+            logger.debug(_("Error checking response for success indicators: %s"), exc)
+
+        return None
 
     def send(self, data, config=None, session_state=None):
         """
@@ -109,6 +169,30 @@ class SubmissionServiceTransport(TransportBase):
                 # This will raise HTTPError for status != 20x
                 response.raise_for_status()
             except requests.exceptions.RequestException as exc:
+                # Handle 504 Gateway Timeout specifically
+                if response.status_code == 504:
+                    logger.warning(
+                        _("Received 504 Gateway Timeout from %s. "
+                          "Checking if submission was successful despite timeout."),
+                        self.url
+                    )
+
+                    # Check if the response contains success indicators
+                    success_data = self._check_submission_success_in_response(response)
+                    if success_data:
+                        logger.info(
+                            _("Submission appears to have succeeded despite 504 timeout")
+                        )
+                        return success_data
+
+                    # No success indicators found, raise the timeout error
+                    raise GatewayTimeoutError(
+                        _("504 Gateway Timeout: {0}. The submission may have been "
+                          "processed successfully on the server despite this timeout. "
+                          "Please check the certification website to verify if your "
+                          "submission was received before retrying.").format(str(exc)),
+                        response=response
+                    )
                 raise TransportError(" ".join([str(exc), exc.response.text]))
             logger.debug("Success! Server said %s", response.text)
             try:

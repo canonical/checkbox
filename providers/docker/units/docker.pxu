@@ -204,7 +204,7 @@ command:
  set -e
  ID=$(docker run -dit ubuntu bash)
  tarball_file={root_dir}/ubuntu.tar
- docker export $ID > $tarball_file
+ docker export -o $tarball_file $ID
  cat $tarball_file | sudo docker import - plainbox/ubuntu:v1.0
  docker images -a | grep 'plainbox/ubuntu'
  docker rm -f $ID

@@ -5,6 +5,7 @@ import json
 from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 
 from plainbox import vendor
+from plainbox.impl.session.storage import WellKnownDirsHelper
 from checkbox_ng import __version__ as checkbox_version
 
 
@@ -316,7 +317,7 @@ class ManifestCollector(Collector):
         super().__init__(
             collection_cmd=[
                 "cat",
-                "/var/tmp/checkbox-ng/machine-manifest.json",
+                WellKnownDirsHelper.manifest_file(),
             ],
             version_cmd=["echo", "-n", checkbox_version],
         )

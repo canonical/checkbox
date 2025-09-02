@@ -18,7 +18,7 @@
 
 import textwrap
 
-from metabox.core.actions import Expect, Start, Send
+from metabox.core.actions import Expect, ExpectNot, Start, Send
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag, _re
 from metabox.core import keys
@@ -92,6 +92,7 @@ class SetupIncludeResumeAutomated(Scenario):
         Start(),
         Expect("simple_setup_guard"),
         Expect("job passed"),
+        ExpectNot("setup_restart_guard"),
         # simple_restart is noreturn, trying to catch its output will fail
         # most times because it is a race between it killing checkbox and the
         # expect

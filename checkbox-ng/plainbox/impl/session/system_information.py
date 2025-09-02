@@ -5,6 +5,8 @@ import json
 from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 
 from plainbox import vendor
+from plainbox.impl.session.storage import WellKnownDirsHelper
+from checkbox_ng import __version__ as checkbox_version
 
 
 class CollectorOutputs(dict):
@@ -305,6 +307,19 @@ class JournalctlCollector(Collector):
                 "80000",  # limit the lines to 80k, ~80Mb of memory
             ],
             version_cmd=["journalctl", "--version"],
+        )
+
+
+class ManifestCollector(Collector):
+    COLLECTOR_NAME = "machine_manifest"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=[
+                "cat",
+                WellKnownDirsHelper.manifest_file(),
+            ],
+            version_cmd=["echo", "-n", checkbox_version],
         )
 
 

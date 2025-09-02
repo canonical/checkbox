@@ -5,6 +5,7 @@ import json
 from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 
 from plainbox import vendor
+from checkbox_ng import __version__ as checkbox_version
 
 
 class CollectorOutputs(dict):
@@ -317,7 +318,7 @@ class ManifestCollector(Collector):
                 "cat",
                 "/var/tmp/checkbox-ng/machine-manifest.json",
             ],
-            version_cmd=["checkbox-cli", "--version"],
+            version_cmd=["echo", "-n", checkbox_version],
         )
 
 

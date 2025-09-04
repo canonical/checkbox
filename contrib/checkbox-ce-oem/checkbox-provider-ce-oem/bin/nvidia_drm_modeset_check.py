@@ -105,6 +105,7 @@ def get_graphics_info():
 
 def verify_nvidia_modeset_enable():
     enable = None
+    modeset = "Unknown"
     nvidia_modeset_path = "/sys/module/nvidia_drm/parameters/modeset"
     if os.path.exists(nvidia_modeset_path):
         try:

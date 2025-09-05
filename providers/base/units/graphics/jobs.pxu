@@ -758,3 +758,25 @@ _steps:
     1. Commence the test to start rendering
 _verification:
     Did all the videos and images rendered correctly?
+
+unit: template
+template-resource: browser_resource
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/webgl-conformance-test-{browser}
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+    executable.name == '{browser}'
+    manifest.has_webgl_support == 'True'
+environ:
+    WEBGL_CONFORMANCE_TEST_URL
+command:
+    # shellcheck disable=SC1091
+    webgl_conformance_test.py {browser}
+estimated_duration: 3600s
+_summary:
+    Test whether the WebGL conformance test works for {browser}
+_description:
+    Execute the WebGL conformance test for {browser} and automatically validate the outcome.

@@ -195,6 +195,7 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
             7: SessionPeekHelper7,
             8: SessionPeekHelper8,
             9: SessionPeekHelper9,
+            10: SessionPeekHelper10,
         }
         try:
             return version_peek_helper_map[version]().peek_json(json_repr)
@@ -320,6 +321,7 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
             7: SessionResumeHelper7,
             8: SessionResumeHelper8,
             9: SessionResumeHelper9,
+            10: SessionResumeHelper10,
         }
         try:
             helper_class = version_session_resume_map[version]
@@ -611,6 +613,19 @@ class SessionPeekHelper9(MetaDataHelper7MixIn, SessionPeekHelper6):
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper9` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
+class SessionPeekHelper10(SessionPeekHelper9):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper10` which has
     been pre-processed by :class:`SessionPeekHelper` (to strip the initial
     envelope).
 
@@ -1285,6 +1300,10 @@ class SessionResumeHelper8(SessionResumeHelper7):
 
 
 class SessionResumeHelper9(SessionResumeHelper8):
+    pass
+
+
+class SessionResumeHelper10(SessionResumeHelper9):
     pass
 
 

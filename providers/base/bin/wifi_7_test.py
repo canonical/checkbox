@@ -152,7 +152,7 @@ def parse_args():
 @retry(5, 30)
 def connect(ssid: str, password: "str | None"):
     # delete the connection if we have it
-    print("Deleting existing connections related to {}".format(ssid))
+    print("Deleting existing connections of '{}'".format(ssid))
     sp.run(["nmcli", "connection", "delete", ssid])
 
     # color is removed when nmcli detects its output is being piped
@@ -174,28 +174,30 @@ def connect(ssid: str, password: "str | None"):
 
     for line in nmcli_output.splitlines():
         clean_line = line.strip()
-        if ssid == clean_line:
-            # should match exactly, otherwise the nmcli connect is
-            # guaranteed to fail
-            print("Connecting to", ssid)
-            if password:
-                sp.check_call(
-                    [
-                        "nmcli",
-                        "device",
-                        "wifi",
-                        "connect",
-                        ssid,
-                        "password",
-                        password,
-                    ]
-                )
-            else:
-                sp.check_call(["nmcli", "device", "wifi", "connect", ssid])
-            print("OK! Connected to {}".format(ssid))
-            break
+        if ssid != clean_line:
+            continue
 
-    raise RuntimeError("Did not see {} in nmcli's scan output".format(ssid))
+        # should match exactly, otherwise the nmcli connect is
+        # guaranteed to fail
+        print("Connecting to", ssid)
+        if password:
+            sp.check_call(
+                [
+                    "nmcli",
+                    "device",
+                    "wifi",
+                    "connect",
+                    ssid,
+                    "password",
+                    password,
+                ]
+            )
+        else:
+            sp.check_call(["nmcli", "device", "wifi", "connect", ssid])
+        print("OK! Connected to {}".format(ssid))
+        break
+
+    raise RuntimeError("Did not see '{}' in nmcli's scan output".format(ssid))
 
 
 @retry(5, 30)
@@ -272,43 +274,19 @@ def main():
     num_links = get_num_mlo_links(iw_info_output)
     (tx, rx) = ConnectionInfo.parse(iw_link_output)
 
-    if (tx and tx.bandwidth == 320) or (rx and rx.bandwidth == 320):
-        print("OK! This connection is using 320mHz bandwidth")
-    else:
-        raise SystemExit(
-            "This wifi connection (interface: {}, ssid: {}) ".format(
-                wifi_interface, args.mlo_ssid
-            )
-            + "is not using 320mHz bandwidth. "
-            + "It's possible that the AP of {} isn't configured correctly".format(
-                args.mlo_ssid
-            )
-        )
+    # required
 
     if (tx and tx.conn_type == "EHT") or (rx and rx.conn_type == "EHT"):
-        print("OK! This is a wifi 7 connection (EHT)")
+        print("OK! This is a 802.11be connection (EHT)")
     else:
         raise SystemExit(
             "This wifi connection (interface: {}, ssid: {}) ".format(
                 wifi_interface, args.mlo_ssid
             )
-            + "is not a wifi 7 connection. "
+            + "is not a 802.11be connection. "
             + "Expected EHT, but got tx: {} rx: {}".format(
                 tx and tx.conn_type, rx and rx.conn_type
             )
-        )
-
-    if (tx and tx.mcs in (12, 13)) or (rx and rx.mcs in (12, 13)):
-        print("OK! This connection is using 4096 QAM (MCS 12 and 13)!")
-    else:
-        # DUT pretty much has to be next to the AP for this
-        print(
-            "Expected 4096QAM (MCS12 13), but got tx MCS: {} rx MCS:{}".format(
-                tx and tx.mcs, rx and rx.mcs
-            ),
-            "Which MCS is chosen by the AP is highly dependent on the environment,",
-            "Try moving the DUT next to the AP and run the test again.",
-            file=stderr,
         )
 
     if num_links >= 2:
@@ -324,6 +302,36 @@ def main():
             + "is not an MLO connection. "
             + "Expected at least 2 MLO links, got {}".format(num_links),
             # mlo link != plain wifi link, it;s possible to get 0 here
+        )
+
+    # optional
+
+    if (tx and tx.bandwidth == 320) or (rx and rx.bandwidth == 320):
+        print("OK! This connection is using 320mHz bandwidth")
+    else:
+        print(
+            "This wifi connection (interface: {}, ssid: {}) ".format(
+                wifi_interface, args.mlo_ssid
+            )
+            + "is not using 320mHz bandwidth. "
+            + "It's possible that the AP of {} isn't configured correctly ".format(
+                args.mlo_ssid
+            )
+            + "or the SoC on this wifi card doesn't support 320mHz",
+            file=stderr,
+        )
+
+    if (tx and tx.mcs in (12, 13)) or (rx and rx.mcs in (12, 13)):
+        print("OK! This connection is using 4096 QAM (MCS 12 and 13)!")
+    else:
+        # DUT pretty much has to be next to the AP for this
+        print(
+            "Expected 4096QAM (MCS12/13), but got tx MCS: {} rx MCS:{}".format(
+                tx and tx.mcs, rx and rx.mcs
+            ),
+            "Which MCS is chosen by the AP is highly dependent on the environment,",
+            "Try moving the DUT next to the AP and run the test again.",
+            file=stderr,
         )
 
 

@@ -1,0 +1,14 @@
+Interface wlp0s20f3
+	ifindex 2
+	wdev 0x1
+	addr c8:6e:08:17:85:4a
+	ssid cert-be-wpa3-tel-l10
+	type managed
+	wiphy 0
+	multicast TXQ:
+		qsz-byt	qsz-pkt	flows	drops	marks	overlmt	hashcol	tx-bytes	tx-packets
+		0	0	0	0	0	0	0	0		0
+	MLD with links:
+	 - link ID  1 link addr ea:ab:77:e3:d8:e7
+	 - link ID  2 link addr 92:4f:25:02:8a:eb
+	   channel 85 (6375 MHz), width: 320 MHz, center1: 6265 MHz

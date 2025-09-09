@@ -82,13 +82,14 @@ class ConnectionInfo:
 
         for line in iw_link_output.splitlines():
             clean_line = line.strip()
-            if not clean_line.startswith(("tx bitrate", "rx bitrate")):
+            if not clean_line.startswith(("tx bitrate:", "rx bitrate:")):
                 continue
 
             is_tx = clean_line.startswith("tx")
             words = remove_prefix(
-                remove_prefix(clean_line, "tx bitrate"), "rx bitrate"
+                remove_prefix(clean_line, "tx bitrate:"), "rx bitrate:"
             ).split()
+            print(words)
             # words = [48, MBit/s, 320MHz, EHT-MCS, 11, EHT-NSS, 2, EHT-GI, 0]
 
             conn_type = remove_suffix(words[3], "-MCS")

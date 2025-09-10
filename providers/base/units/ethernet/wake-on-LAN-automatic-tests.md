@@ -14,13 +14,13 @@ WOL server:
   - apt install wakeonlan
   - apt install python3-fastapi
   - apt install uvicorn
-  - running wol_server.py
+  - running wol_server.py (For more detailes on wol_server.py, see the following chapter [3.wol_server.py](#3-wol_serverpy))
 
 DUT:
   - manifest:
     - has_ethernet_adapter
     - has_ethernet_wake_on_lan_support
-    - has_wake_on_lan_server
+    - wake_on_lan_server_running
 
   - enviroment variable:
     - SERVER_WAKE_ON_LAN

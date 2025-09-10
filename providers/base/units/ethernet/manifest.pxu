@@ -9,8 +9,9 @@ _name: Wake-on-LAN support through Ethernet port
 value-type: bool
 
 unit: manifest entry
-id: has_wake_on_lan_server
-_name: Has wake-on-Lan server for automation setup and running
+id: wake_on_lan_server_running
+_prompt: Is the following server setup and running?:
+_name: A Wake-on-LAN server for automation
 value-type: bool
 
 unit: manifest entry

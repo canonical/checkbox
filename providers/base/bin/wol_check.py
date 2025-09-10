@@ -65,22 +65,16 @@ def get_system_boot_time():
     Read btime from /proc/stat and
     return the system boot timestamp (Unix timestamp, in seconds).
     """
-    try:
-        with open("/proc/stat", "r") as f:
-            for line in f:
-                if line.startswith("btime"):
-                    btime = float(line.split()[1])
-                    back_time = datetime.datetime.fromtimestamp(btime)
-                    logging.debug("System back time: {}".format(back_time))
-                    return btime
-        logging.error("cannot find btime")
-        return None
-    except FileNotFoundError:
-        logging.error("cannot open /proc/stat.")
-        return None
-    except Exception as e:
-        logging.error("error while read btime: {}".format(e))
-        return None
+
+    with open("/proc/stat", "r") as f:
+        for line in f:
+            if line.startswith("btime"):
+                btime = int(line.split()[1])
+                back_time = datetime.datetime.fromtimestamp(btime)
+                logging.debug("System back time: {}".format(back_time))
+                return btime
+    logging.error("cannot find btime")
+    return None
 
 
 def parse_args(args=sys.argv[1:]):

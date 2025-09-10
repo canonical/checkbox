@@ -78,20 +78,6 @@ class TestGetSystemBootTime(unittest.TestCase):
             self.assertIsNone(boot_time)
             self.assertIn("cannot find btime", log.output[0])
 
-    @patch("builtins.open", side_effect=FileNotFoundError)
-    def test_get_system_boot_time_file_not_found(self, mock_file):
-        with self.assertLogs(level="ERROR") as log:
-            boot_time = get_system_boot_time()
-            self.assertIsNone(boot_time)
-            self.assertIn("cannot open /proc/stat.", log.output[0])
-
-    @patch("builtins.open", side_effect=Exception("some error"))
-    def test_get_system_boot_time_exception(self, mock_file):
-        with self.assertLogs(level="ERROR") as log:
-            boot_time = get_system_boot_time()
-            self.assertIsNone(boot_time)
-            self.assertIn("error while read btime: some error", log.output[0])
-
 
 class TestGetWakeupTimestamp(unittest.TestCase):
 

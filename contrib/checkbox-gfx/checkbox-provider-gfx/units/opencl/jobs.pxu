@@ -11,13 +11,12 @@ environ:
   XDG_RUNTIME_DIR
 estimated_duration: 1
 command:
-  GPU_STR=$(clinfo | grep -oE "Device Type.*GPU")
-  if [ -z "$GPU_STR" ]; then
-    echo "FAIL: No GPU available in clinfo"
-    exit 1
-  fi
+if clinfo --prop CL_DEVICE_TYPE | grep -q CL_DEVICE_TYPE_GPU; then
   echo "PASS: Found a GPU for OpenCL"
-  exit 0
+else
+  echo "FAIL: No GPU available in clinfo"
+  exit 1
+fi
 
 id: gfx_cl_basic
 depends: gfx_cl_gpu_avail

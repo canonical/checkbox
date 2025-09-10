@@ -26,7 +26,8 @@ import struct
 from wol_client import (
     send_request_to_wol_server,
     check_wakeup,
-    get_ip_mac,
+    get_ip_address,
+    get_mac_address,
     set_rtc_wake,
     s3_or_s5_system,
     bring_up_system,
@@ -37,7 +38,6 @@ from wol_client import (
 
 
 class TestSendRequestToWolServerFunction(unittest.TestCase):
-
     @patch("urllib.request.urlopen")
     def test_send_request_success(self, mock_urlopen):
         mock_response = MagicMock()
@@ -137,14 +137,13 @@ class TestCheckWakeup(unittest.TestCase):
         self.assertEqual(str(context.exception), "Unexpected error")
 
 
-class TestGetIPMac(unittest.TestCase):
+class TestGetIPAddress(unittest.TestCase):
     @patch("socket.socket")
     @patch("fcntl.ioctl")
-    def test_get_ip_mac_success(self, mock_ioctl, mock_socket):
+    def test_get_ip_success(self, mock_ioctl, mock_socket):
         # Mock data
         interface = "eth0"
         mock_ip = b"\xc0\xa8\x00\x01"  # 192.168.0.1
-        mock_mac = b"\x00\x0c)\x85\xac\x0e"  # 00:0c:29:85:ac:0e
 
         # Configure the mock objects
         mock_socket_instance = MagicMock()
@@ -153,23 +152,19 @@ class TestGetIPMac(unittest.TestCase):
         def ioctl_side_effect(fd, request, arg):
             if request == 0x8915:
                 return b"\x00" * 20 + mock_ip + b"\x00" * (256 - 24)
-            elif request == 0x8927:
-                return b"\x00" * 18 + mock_mac + b"\x00" * (256 - 24)
-            # raise IOError("Invalid request")
+            raise IOError("Invalid request")
 
         mock_ioctl.side_effect = ioctl_side_effect
 
-        ip_address, mac_address = get_ip_mac(interface)
+        ip_address = get_ip_address(interface)
 
         self.assertEqual(ip_address, "192.168.0.1")
-        self.assertEqual(mac_address, "00:0c:29:85:ac:0e")
 
     @patch("socket.socket")
     @patch("fcntl.ioctl")
     def test_get_ip_address_failure(self, mock_ioctl, mock_socket):
         # Mock data
         interface = "eth0"
-        mock_mac = b"\x00\x0c)\x85\xac\x0e"  # 00:0c:29:85:ac:0e
 
         mock_socket_instance = MagicMock()
         mock_socket.return_value = mock_socket_instance
@@ -177,36 +172,58 @@ class TestGetIPMac(unittest.TestCase):
         def ioctl_side_effect(fd, request, arg):
             if request == 0x8915:
                 raise IOError("IP address retrieval failed")
-            elif request == 0x8927:
-                # return struct.pack('256s', b'\x00' * 18) + mock_mac
-                return b"\x00" * 18 + mock_mac + b"\x00" * (256 - 24)
 
         mock_ioctl.side_effect = ioctl_side_effect
 
-        ip_address, mac_address = get_ip_mac(interface)
-
+        ip_address = get_ip_address(interface)
         self.assertIsNone(ip_address)
+
+
+class TestGetMACAddress(unittest.TestCase):
+    @patch("socket.socket")
+    @patch("fcntl.ioctl")
+    def test_get_mac_success(self, mock_ioctl, mock_socket):
+        # Mock data
+        interface = "eth0"
+        mock_mac = b"\x00\x0c\x29\x85\xac\x0e"  # 00:0c:29:85:ac:0e
+
+        # Configure the mock objects
+        mock_socket_instance = MagicMock()
+        mock_socket.return_value = mock_socket_instance
+
+        def ioctl_side_effect(fd, request, arg):
+            if request == 0x8927:
+                return b"\x00" * 18 + mock_mac + b"\x00" * (256 - 24)
+
+            raise IOError("Invalid request")
+
+        mock_ioctl.side_effect = ioctl_side_effect
+
+        mac_address = get_mac_address(interface)
+
         self.assertEqual(mac_address, "00:0c:29:85:ac:0e")
 
     @patch("socket.socket")
     @patch("fcntl.ioctl")
     def test_get_mac_address_failure(self, mock_ioctl, mock_socket):
+        # Mock data
         interface = "eth0"
-        mock_ip = b"\xc0\xa8\x00\x01"  # 192.168.0.1
 
         mock_socket_instance = MagicMock()
         mock_socket.return_value = mock_socket_instance
 
         def ioctl_side_effect(fd, request, arg):
-            if request == 0x8915:
-                return struct.pack("256s", b"\x00" * 16) + mock_ip
-            elif request == 0x8927:
+            if request == 0x8927:
                 raise IOError("MAC address retrieval failed")
 
         mock_ioctl.side_effect = ioctl_side_effect
 
-        with self.assertRaises(SystemExit):
-            get_ip_mac(interface)
+        with self.assertRaises(SystemExit) as cm:
+            get_mac_address(interface)
+
+        self.assertEqual(
+            cm.exception.code, "Error: Unable to retrieve MAC address"
+        )
 
 
 class TestSetRTCWake(unittest.TestCase):
@@ -371,12 +388,14 @@ class TestMainFunction(unittest.TestCase):
     @patch("wol_client.bring_up_system")
     @patch("wol_client.send_request_to_wol_server")
     @patch("wol_client.check_wakeup")
-    @patch("wol_client.get_ip_mac")
+    @patch("wol_client.get_ip_address")
+    @patch("wol_client.get_mac_address")
     @patch("wol_client.parse_args")
     def test_main_success(
         self,
         mock_parse_args,
-        mock_get_ip_mac,
+        mock_get_mac_address,
+        mock_get_ip_address,
         mock_check_wakeup,
         mock_send_request_to_wol_server,
         mock_bring_up_system,
@@ -384,13 +403,17 @@ class TestMainFunction(unittest.TestCase):
         mock_s3_or_s5_system,
     ):
         mock_parse_args.return_value = create_mock_args()
-        mock_get_ip_mac.return_value = ("192.168.1.100", "00:11:22:33:44:55")
+        mock_get_ip_address.return_value = "192.168.1.100"
+        mock_get_mac_address.return_value = "00:11:22:33:44:55"
+        mock_bring_up_system.return_value = None
+
         mock_check_wakeup.return_value = True
         mock_send_request_to_wol_server.return_value = create_mock_response()
 
         main()
 
-        mock_get_ip_mac.assert_called_once_with("eth0")
+        mock_get_ip_address.assert_called_once_with("eth0")
+        mock_get_mac_address.assert_called_once_with("eth0")
         mock_send_request_to_wol_server.assert_called_once_with(
             "http://192.168.1.1",
             data={
@@ -407,18 +430,25 @@ class TestMainFunction(unittest.TestCase):
         mock_s3_or_s5_system.assert_called_once_with("s3")
 
     @patch("wol_client.send_request_to_wol_server")
-    @patch("wol_client.get_ip_mac")
+    @patch("wol_client.bring_up_system")
+    @patch("wol_client.get_ip_address")
+    @patch("wol_client.get_mac_address")
     @patch("wol_client.check_wakeup")
     @patch("wol_client.parse_args")
     def test_main_ip_none(
         self,
         mock_parse_args,
         mock_check_wakeup,
-        mock_get_ip_mac,
+        mock_bring_up_system,
+        mock_get_ip_address,
+        mock_get_mac_address,
         mock_send_request_to_wol_server,
     ):
         mock_parse_args.return_value = create_mock_args()
-        mock_get_ip_mac.return_value = (None, "00:11:22:33:44:55")
+
+        mock_get_ip_address.return_value = None
+        mock_get_mac_address.return_value = "00:11:22:33:44:55"
+        mock_bring_up_system.return_value = None
         mock_check_wakeup.return_value = True
 
         with self.assertRaises(SystemExit) as cm:
@@ -428,19 +458,22 @@ class TestMainFunction(unittest.TestCase):
         )
 
     @patch("wol_client.send_request_to_wol_server")
-    @patch("wol_client.get_ip_mac")
+    @patch("wol_client.get_ip_address")
+    @patch("wol_client.get_mac_address")
     @patch("wol_client.check_wakeup")
     @patch("wol_client.parse_args")
     def test_main_checkwakeup_disable(
         self,
         mock_parse_args,
         mock_check_wakeup,
-        mock_get_ip_mac,
+        mock_get_ip_address,
+        mock_get_mac_address,
         mock_send_request_to_wol_server,
     ):
         mock_parse_args.return_value = create_mock_args()
         mock_check_wakeup.return_value = False
-        mock_get_ip_mac.return_value = ("192.168.1.100", "00:11:22:33:44:55")
+        mock_get_ip_address.return_value = "192.168.1.100"
+        mock_get_mac_address.return_value = "00:11:22:33:44:55"
         mock_send_request_to_wol_server.return_value = create_mock_response()
 
         with self.assertRaises(SystemExit) as cm:

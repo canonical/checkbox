@@ -51,12 +51,12 @@ def send_request_to_wol_server(url, data=None, retry=3):
                 logging.debug("Status code: {}".format(status_code))
                 if status_code == 200:
                     logging.info(
-                        "Send request to Wake-on-lan server successful."
+                        "Request to Wake-on-LAN server sent successfully."
                     )
                     return
                 else:
                     logging.error(
-                        "Failded to send request to Wkae-on-lan server."
+                        "Failed to send request to Wake-on-LAN server."
                     )
         except Exception as e:
             logging.error("An unexpected error occurred: {}".format(e))
@@ -96,7 +96,7 @@ def check_wakeup(interface):
         )
 
 
-def __get_ip_address(interface):
+def get_ip_address(interface):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         ip_addr = fcntl.ioctl(
@@ -109,7 +109,7 @@ def __get_ip_address(interface):
         return None
 
 
-def __get_mac_address(interface):
+def get_mac_address(interface):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         mac_addr = fcntl.ioctl(
@@ -120,13 +120,6 @@ def __get_mac_address(interface):
         return ":".join("%02x" % b for b in mac_addr[18:24])
     except IOError:
         raise SystemExit("Error: Unable to retrieve MAC address")
-
-
-def get_ip_mac(interface):
-    ip_a = __get_ip_address(interface)
-    mac_a = __get_mac_address(interface)
-
-    return ip_a, mac_a
 
 
 # set the rtc wake time to bring up system in case the wake-on-lan failed
@@ -250,7 +243,8 @@ def main():
     delay = args.delay
     retry = args.retry
 
-    ip, mac = get_ip_mac(args.interface)
+    ip = get_ip_address(args.interface)
+    mac = get_mac_address(args.interface)
 
     logging.info("IP: {}, MAC: {}".format(ip, mac))
 
@@ -266,7 +260,7 @@ def main():
         "wake_type": args.waketype,
     }
 
-    send_request_to_wol_server(url, data=req, retry=3)
+    send_request_to_wol_server(url, data=req, retry=retry)
 
     bring_up_system("rtc", delay * retry * 2)
 

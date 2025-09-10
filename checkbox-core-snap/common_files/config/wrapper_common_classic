@@ -38,6 +38,7 @@ else
   prepend_dir PATH $RUNTIME/usr/sbin
   prepend_dir PATH $RUNTIME/usr/lib/qt5/bin
   append_path ALSA_CONFIG_PATH $RUNTIME/usr/share/alsa/alsa.conf
+  append_path ALSA_CONFIG_PATH $RUNTIME/usr/share/alsa/pcm/default.conf
   append_path PYTHONUSERBASE $RUNTIME
   append_path PYTHONHOME $RUNTIME/usr
   append_path PYTHONPATH $RUNTIME/usr/lib/python3/dist-packages

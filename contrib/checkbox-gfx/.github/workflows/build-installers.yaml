@@ -77,25 +77,24 @@ jobs:
     strategy:
       matrix:
         arch: [amd64, arm64]
-        test_name: [vulkan]
     name: "Installer testing - Vulkan CTS"
     runs-on: [self-hosted, linux, "${{ matrix.arch }}", noble]
 
     steps:
-      - name: "Installers - ${{ matrix.test_name }} - ${{ matrix.arch }}"
-        run: echo "Running ${{ matrix.test_name }} ${{ matrix.arch }} install"
+      - name: "Installers - Vulkan - ${{ matrix.arch }}"
+        run: echo "Running Vulkan ${{ matrix.arch }} install"
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run install-${{ matrix.test_name }}
+      - name: Run install-vulkan
         shell: bash
-        run: bin/install-${{ matrix.test_name }}
+        run: bin/install-vulkan
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: output-${{ matrix.test_name }}-${{ matrix.arch }}
+          name: output-vulkan-${{ matrix.arch }}
           path: /usr/local/checkbox-gfx/*
 
   pr-build-opencl:
@@ -105,23 +104,22 @@ jobs:
     strategy:
       matrix:
         arch: [amd64, arm64]
-        test_name: [opencl]
     name: "Installer testing - OpenCL CTS"
     runs-on: [self-hosted, linux, "${{ matrix.arch }}", noble]
 
     steps:
-      - name: "Installers - ${{ matrix.test_name }} - ${{ matrix.arch }}"
-        run: echo "Running ${{ matrix.test_name }} ${{ matrix.arch }} install"
+      - name: "Installers - OpenCL - ${{ matrix.arch }}"
+        run: echo "Running OpenCL ${{ matrix.arch }} install"
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run install-${{ matrix.test_name }}
+      - name: Run install-opencl
         shell: bash
-        run: bin/install-${{ matrix.test_name }}
+        run: bin/install-opencl
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: output-${{ matrix.test_name }}-${{ matrix.arch }}
+          name: output-opencl-${{ matrix.arch }}
           path: /usr/local/checkbox-gfx/*

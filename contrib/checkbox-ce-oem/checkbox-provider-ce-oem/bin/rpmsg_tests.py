@@ -5,7 +5,6 @@ import sys
 import time
 import re
 import subprocess
-import shlex
 import logging
 import threading
 from pathlib import Path
@@ -202,6 +201,7 @@ class RpmsgTest:
         self.firmware_name = firmware_file
         self.firmware_path = firmware_path
         self.should_load_firmware = load_firmware
+        self.log_reader = None
 
         self.expected_events = []
 
@@ -281,6 +281,7 @@ class RpmsgTest:
         }
         self._monitor_journal_logs()
         self.log_reader.kill()
+        self.log_reader = None
 
         if self.verify_load_firmware_logs(
             self.expected_events, self._search_patterns.keys()
@@ -301,14 +302,18 @@ class RpmsgTest:
                     self.handler.firmware_path = self.firmware_path
                 self.handler.firmware_file = self.firmware_name
                 self._init_logger()
+                thread = threading.Thread(target=self.monitor_reload_process)
+                thread.start()
                 self.handler.start()
-                self.monitor_reload_process()
+                thread.join()
+                self.handler.start()
 
             self._test_func()
 
         except Exception as e:
             logging.error("An error occurred during the test: %s", e)
         finally:
+            self.unload_module()
             # Teardown is crucial to restore the system state
             self.handler.teardown()
             logging.info("========== RPMSG Test Finished ==========")
@@ -336,12 +341,6 @@ class RpmsgPingPongTest(RpmsgTest):
         self.pingpong_event_pattern = pingpong_event_pattern
         self.pingpong_end_pattern = pingpong_end_pattern
         self.expected_count = expected_count
-        self._init_logger()
-
-    def _init_logger(self):
-        self.log_reader = subprocess.Popen(
-            ["journalctl", "-f"], stdout=subprocess.PIPE
-        )
 
     def lookup_pingpong_logs(self, entry):
         keep_looking = True
@@ -369,19 +368,6 @@ class RpmsgPingPongTest(RpmsgTest):
             cur_time = time.time()
             if (cur_time - start_time) > 60:
                 return
-
-    def unload_module(self):
-        # Unload module is needed
-        try:
-            logging.info("# Unload kernel module if needed")
-            subprocess.run(
-                "lsmod | grep {} && modprobe -r {}".format(
-                    self.kernel_module, self.kernel_module
-                ),
-                shell=True,
-            )
-        except subprocess.CalledProcessError:
-            pass
 
     def get_rpmsg_channel(self):
         """
@@ -425,17 +411,18 @@ class RpmsgPingPongTest(RpmsgTest):
 
         logging.info("# Start ping pong test")
         self.unload_module()
-        self.probe_module()
+        # sleep few seconds for rpmsg device initialization
+        time.sleep(3)
         self.rpmsg_channels = self.get_rpmsg_channel()
-
         try:
+            if self.log_reader is None:
+                self._init_logger()
+
             thread = threading.Thread(
                 target=self.monitor_journal_pingpong_logs
             )
             thread.start()
-            logging.info("# probe pingpong module with '%s'", self.probe_cmd)
-
-            subprocess.Popen(shlex.split(self.probe_cmd))
+            self.probe_module()
             thread.join()
 
             self.log_reader.kill()

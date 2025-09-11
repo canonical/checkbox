@@ -27,26 +27,12 @@ include:
     dss/status_mlflow
     dss/status_intel_gpu
     dss/status_nvidia_gpu
-    dss/create_pytorch_cpu_notebook
-    cpu/pytorch_can_use_cpu
-    dss/remove_pytorch_cpu_notebook
-    dss/create_tensorflow_cpu_notebook
-    cpu/tensorflow_can_use_cpu
-    dss/remove_tensorflow_cpu_notebook
-    dss/create_tensorflow_intel_notebook
-    xpu/tensorflow_can_use_xpu
-    dss/remove_tensorflow_intel_notebook
-    dss/create_pytorch_intel_notebook
-    xpu/pytorch_can_use_xpu
-    dss/remove_pytorch_intel_notebook
-    dss/create_pytorch_cuda_notebook
-    cuda/pytorch_can_use_cuda
-    dss/remove_pytorch_cuda_notebook
-    dss/create_tensorflow_cuda_notebook
-    cuda/tensorflow_can_use_cuda
-    dss/remove_tensorflow_cuda_notebook
+    #dss/create_new_notebook_using_.*
+    dss/verify_new_notebook_of_.*
+    dss/remove_new_notebook_of_.*
     dss/purge
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+    dss/notebook_tests_list

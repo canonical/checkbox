@@ -32,8 +32,9 @@ include:
     miscellanea/klog                           certification-status=blocker
     miscellanea/klog_results.log
 exclude:
-    disk/disk_stress_ng_(?!sru).*
     stress/memory_stress_ng
+    disk/disk_stress_ng_(?!sru).*
+    disk/disk_cpu_load_.*
 bootstrap_include:
     device
     fwts

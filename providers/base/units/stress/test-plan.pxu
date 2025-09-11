@@ -323,4 +323,5 @@ include:
     stress/cpu_stress_ng_test_sru
     stress/memory_stress_ng_sru
 bootstrap_include:
-    device    
+    device
+    executable

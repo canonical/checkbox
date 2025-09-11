@@ -1641,7 +1641,11 @@ class SessionAssistant:
                             )
             if not native:
                 result = self._runner.run_job(
-                    job, job_state, self._config.environment, ui
+                    job,
+                    job_state,
+                    self._config.environment,
+                    ui,
+                    systemd_unit=True,
                 )
                 builder = result.get_builder()
             else:

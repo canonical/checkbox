@@ -27,11 +27,44 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/namespace
-_summary: Check that the dss mlflow is deployed
+_summary: Check that the DSS mlflow is deployed and ready
 estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "MLflow deployment: Ready"
+
+id: dss/status_nvidia_gpu
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  executable.name == 'dss'
+  graphics_card.vendor == 'NVIDIA Corporation'
+depends: dss/status_mlflow
+_summary: Check that dss status reports NVIDIA GPU acceleration is enabled
+estimated_duration: 5s
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "NVIDIA GPU acceleration: Enabled.*"
+
+id: dss/status_intel_gpu
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  executable.name == 'dss'
+  graphics_card.vendor == 'Intel Corporation'
+depends: dss/status_mlflow
+_summary: Check that DSS status reports Intel GPU acceleration is enabled
+estimated_duration: 5s
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "Intel GPU acceleration: Enabled.*"
+
 
 id: dss/create_pytorch_cpu_notebook
 category_id: dss-regress
@@ -95,22 +128,6 @@ command: run_dss.sh remove tensorflow-cpu
 
 # Intel XPU jobs ##############################################################
 
-id: dss/status_intel_gpu
-category_id: dss-regress
-flags: simple
-imports:
-  from com.canonical.certification import executable
-  from com.canonical.certification import graphics_card
-requires:
-  executable.name == 'dss'
-  graphics_card.vendor == 'Intel Corporation'
-depends: dss/status_mlflow
-_summary: Check that DSS status reports Intel GPU acceleration is enabled
-estimated_duration: 5s
-command:
-  set -eo pipefail
-  run_dss.sh status | grep "Intel GPU acceleration: Enabled.*"
-
 id: dss/create_tensorflow_intel_notebook
 category_id: dss-regress
 flags: simple
@@ -172,22 +189,6 @@ estimated_duration: 1m
 command: run_dss.sh remove pytorch-intel
 
 # NVIDIA CUDA jobs ############################################################
-
-id: dss/status_nvidia_gpu
-category_id: dss-regress
-flags: simple
-imports:
-  from com.canonical.certification import executable
-  from com.canonical.certification import graphics_card
-requires:
-  executable.name == 'dss'
-  graphics_card.vendor == 'NVIDIA Corporation'
-depends: dss/status_mlflow
-_summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
-estimated_duration: 5s
-command:
-  set -eo pipefail
-  run_dss.sh status | grep "NVIDIA GPU acceleration: Enabled.*"
 
 id: dss/create_pytorch_cuda_notebook
 category_id: dss-regress

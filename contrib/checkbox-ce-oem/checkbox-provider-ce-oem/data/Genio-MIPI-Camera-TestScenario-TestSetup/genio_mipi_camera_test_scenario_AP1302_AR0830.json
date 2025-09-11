@@ -1,0 +1,54 @@
+{
+    "capture_image": [
+        {
+            "camera": "onsemi_ap1302_ar0830",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-cam (platform:16000000.camisp)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1920, "height": 1080},
+                {"width": 2560, "height": 1440},
+                {"width": 3840, "height": 2160}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0830",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-cam (platform:16000000.camisp)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1920, "height": 1080},
+                {"width": 2560, "height": 1440},
+                {"width": 3840, "height": 2160}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "onsemi_ap1302_ar0830",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-cam (platform:16000000.camisp)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 2560, "height": 1440, "fps": 30},
+                {"width": 3840, "height": 2160, "fps": 24}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0830",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-cam (platform:16000000.camisp)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 2560, "height": 1440, "fps": 30},
+                {"width": 3840, "height": 2160, "fps": 24}
+            ]
+        }
+    ]
+}

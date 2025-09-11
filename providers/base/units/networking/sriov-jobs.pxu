@@ -1,6 +1,6 @@
 unit: template
 template-resource: device
-template-filter: device.category == 'NETWORK' and device.interface != ''
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-id: networking/sriov_lxd_test__interface
 plugin: shell
 category_id: com.canonical.plainbox::networking
@@ -10,7 +10,7 @@ flags: also-after-suspend
 _summary: SRIOV LXD container test for network device {interface}
 estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
-requires: 
+requires:
     executable.name == 'lxc'
     package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
     manifest.has_sriov == 'True'
@@ -18,14 +18,14 @@ depends: info/sriov-check_{interface}
 command:
     sriov.py --debug --interface {interface} lxd
 user: root
-_purpose: 
+_purpose:
     This test verifies SRIOV functionality using LXD containers on network interface {interface}.
     It creates virtual functions, configures SRIOV network, launches a container and verifies
     SRIOV virtual function visibility inside the container.
 
 unit: template
 template-resource: device
-template-filter: device.category == 'NETWORK' and device.interface != ''
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-id: networking/sriov_lxdvm_test__interface
 plugin: shell
 category_id: com.canonical.plainbox::networking
@@ -35,7 +35,7 @@ flags: also-after-suspend
 _summary: SRIOV LXD VM test for network device {interface}
 estimated_duration: 180.0
 imports: from com.canonical.plainbox import manifest
-requires: 
+requires:
     executable.name == 'lxc'
     package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
     manifest.has_sriov == 'True'
@@ -43,7 +43,7 @@ depends: info/sriov-check_{interface}
 command:
     sriov.py --debug --interface {interface} lxdvm
 user: root
-_purpose: 
+_purpose:
     This test verifies SRIOV functionality using LXD virtual machines on network interface {interface}.
     It creates virtual functions, configures SRIOV network, launches a VM and verifies
     SRIOV virtual function visibility inside the virtual machine.

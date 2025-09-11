@@ -1,13 +1,22 @@
-id: setup-dss-validation
+id: setup-dss-validation-on-microk8s
 unit: test plan
-_name: Setup to run DSS validations
+_name: Setup to run DSS validations on microk8s
 include:
-    setup_dss/install_snap_.*
-    setup_dss/install_package_.*
-    setup_dss/enable_microk8s_addons
+    setup_dss/install_snap_data-science-stack
     setup_dss/write_microk8s_kube_config
-    setup_dss/k8s_nvidia_gpu_setup
-    setup_dss/k8s_intel_gpu_setup
+    setup_dss/microk8s_nvidia_gpu_setup
+    setup_dss/microk8s_intel_gpu_setup
+
+id: setup-dss-validation-on-canonical-k8s
+unit: test plan
+_name: Setup to run DSS validations on Canonical K8s
+include:
+    setup_dss/install_snap_data-science-stack
+    setup_dss/bootstrap_and_enable_canonical_k8s
+    setup_dss/restart_k8s_snap_as_workaround
+    setup_dss/write_canonical_k8s_kube_config
+    setup_dss/canonical_k8s_nvidia_gpu_setup
+    setup_dss/canonical_k8s_intel_gpu_setup
 
 id: dss-validation
 unit: test plan

@@ -307,6 +307,22 @@ def _wwan_radio_status():
     return ret_sp.stdout.decode("utf-8").strip()
 
 
+def _allow_roaming(mm_id: str, apn: str):
+    """
+    Sets the bearer to enable roaming using the mmcli command-line tool.
+
+    Args:
+        mm_id (str): The modem manager ID.
+        apn (str): The APN (Access Point Name) to use.
+    """
+    print_head("Set bearer to enable roaming")
+    bearer = "apn={},allow-roaming=yes".format(apn)
+    cmd = ["mmcli", "-m", mm_id, "--create-bearer={}".format(bearer)]
+    print_cmd(cmd)
+    subprocess.check_call(cmd)
+    print()
+
+
 def _destroy_3gpp_connection():
     print_head("Destroy 3GPP Connection")
     cmd = ["nmcli", "c", "delete", GSM_CON_ID]
@@ -333,7 +349,6 @@ def _ping_test(if_name):
 
 
 class ThreeGppConnection:
-
     def register_argument(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -353,6 +368,11 @@ class ThreeGppConnection:
             default=30,
             help="delay before ping test",
         )
+        parser.add_argument(
+            "--roaming",
+            action="store_true",
+            help="Enable roaming or not",
+        )
         return parser.parse_args(sys.argv[2:])
 
     def invoked(self):
@@ -365,6 +385,8 @@ class ThreeGppConnection:
                 wwan_control_if = ctx.mm_obj.get_primary_port(
                     str(ctx.modem_idx)
                 )
+                if args.roaming:
+                    _allow_roaming(str(ctx.modem_idx), args.apn)
                 _create_3gpp_connection(wwan_control_if, args.apn)
                 time.sleep(args.wwan_setup_time)
                 ret_code = _ping_test(args.wwan_net_if)
@@ -376,7 +398,6 @@ class ThreeGppConnection:
 
 
 class WWANTestCtx:
-
     def __init__(self, hardware_id, use_mmcli=True, need_enable=False):
         self.mm_obj = MMCLI() if use_mmcli else MMDbus()
         self.need_enable = need_enable
@@ -395,7 +416,6 @@ class WWANTestCtx:
 
 
 class ThreeGppScanTest:
-
     def register_argument(self):
 
         parser = argparse.ArgumentParser()
@@ -438,7 +458,6 @@ class ThreeGppScanTest:
 
 
 class CountModems:
-
     def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -455,7 +474,6 @@ class CountModems:
 
 
 class Resources:
-
     def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -487,7 +505,6 @@ class Resources:
 
 
 class SimPresent:
-
     def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -512,7 +529,6 @@ class SimPresent:
 
 
 class SimInfo:
-
     def invoked(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -539,7 +555,6 @@ class SimInfo:
 
 
 class WWANTests:
-
     def main(self):
         sub_commands = {
             "count": CountModems,

@@ -1,0 +1,25 @@
+id: ce-oem-mipi-camera-full
+unit: test plan
+_name: MIPI Camera tests
+_description: Full tests for MIPI Camera
+include:
+nested_part:
+    mipi-camera-manual
+    mipi-camera-automated
+
+id: ce-oem-mipi-camera-manual
+unit: test plan
+_name: MIPI Camera manual tests
+_description: Manual tests for MIPI Camera in before suspend and post suspend stage
+bootstrap_include:
+include:
+
+id: ce-oem-mipi-camera-automated
+unit: test plan
+_name: MIPI Camera auto tests
+_description: Automated tests for MIPI Camera in before suspend and post suspend stage
+bootstrap_include:
+    mipi_camera_resource
+include:
+    ce-oem-mipi-camera/capture-image-scenario
+    ce-oem-mipi-camera/record-video-scenario

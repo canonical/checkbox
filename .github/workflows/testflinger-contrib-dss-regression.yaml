@@ -1,5 +1,5 @@
 name: Data Science Stack (DSS) Regression Testing
-run-name: Testing DSS ${{ inputs.dss_channel }} on microk8s ${{ inputs.microk8s_channel }}
+run-name: Testing DSS ${{ inputs.dss_channel }} on ${{ inputs.k8s_type }} ${{ inputs.k8s_channel }}
 permissions:
   contents: read
 on:
@@ -7,34 +7,31 @@ on:
     inputs:
       dss_channel:
         description: "Channel of the DSS snap to test"
-        default: 1.0/stable
+        default: 1.1/stable
         required: false
         type: choice
         options:
           - 1.0/stable
           - 1.0/edge
-      # XXX:@motjuste: enable after we can test on Canonical K8s
-      #
-      #     - 1.1/stable
-      #     - 1.1/edge
-      #     - latest/stable
-      #     - latest/edge
-      # k8s_type:
-      #   description: "The type of K8s to deploy"
-      #   default: "microk8s"
-      #   required: false
-      #   type: choice
-      #   options:
-      #     - microk8s
-      #     - canonical-k8s
-      #
-      microk8s_channel:
-        description: "Channel of the microk8s snap to deploy"
-        default: "1.28/stable"
+          - 1.1/stable
+          - 1.1/edge
+          - latest/stable
+          - latest/edge
+      k8s_type:
+        description: "The type of K8s to deploy"
+        default: "canonical-k8s"
+        required: false
+        type: choice
+        options:
+          - microk8s
+          - canonical-k8s
+      k8s_channel:
+        description: "Channel of the appropriate k8s snap to deploy"
+        default: "1.32-classic/stable"
         type: string
       kubectl_channel:
         description: "Channel of kubectl snap to use"
-        default: "1.29/stable"
+        default: "1.31/stable"
         type: string
       nvidia_gpu_operator_version:
         description: "Version of the NVIDIA GPU Operator to install"
@@ -105,7 +102,8 @@ jobs:
           ENV_QUEUE: "${{ matrix.queue.name }}"
           ENV_PROVISION_DATA: "${{ matrix.queue.provision_data }}"
           ENV_DSS_CHANNEL: "${{ inputs.dss_channel }}"
-          ENV_MICROK8S_CHANNEL: "${{ inputs.microk8s_channel }}"
+          ENV_K8S_TYPE: "${{ inputs.k8s_type }}"
+          ENV_K8S_CHANNEL: "${{ inputs.k8s_channel }}"
           ENV_CB_DSS_SNAP: "${{ steps.built-snap.outputs.local_path }}"
           ENV_LAUNCHER: "launchers/checkbox-dss.conf"
           ENV_KUBECTL_CHANNEL: "${{ inputs.kubectl_channel }}"
@@ -118,7 +116,7 @@ jobs:
           cat default_manifest.conf
           echo "::endgroup::"
 
-          envsubst '$ENV_DSS_CHANNEL $ENV_KUBECTL_CHANNEL $ENV_MICROK8S_CHANNEL $ENV_NVIDIA_OPERATOR_VERSION $ENV_INTEL_PLUGIN_VERSION' \
+          envsubst '$ENV_DSS_CHANNEL $ENV_KUBECTL_CHANNEL $ENV_K8S_CHANNEL $ENV_K8S_TYPE $ENV_NVIDIA_OPERATOR_VERSION $ENV_INTEL_PLUGIN_VERSION' \
             < testflinger/setup-def.conf > setup.conf
           echo "::group::Built setup launcher"
           cat setup.conf

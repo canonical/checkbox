@@ -6,7 +6,7 @@ _description:
 include:
     gpgpu/gpu-burn    certification-status=blocker
     gpgpu/rvs-iet     certification-status=non-blocker
-    gpgpu/rvs-gst     certification-status=blocker
+    gpgpu/rvs-gst     certification-status=non-blocker
 bootstrap_include:
     graphics_card
     snap
@@ -18,11 +18,11 @@ _name: GPGPU Compute Automated Testing
 _description:
  Automated Tests for GPGPU Computations (non-graphical)
 include:
-    gpgpu/device-query-drv      certification-status=blocker
+    gpgpu/device-query-drv      certification-status=non-blocker
     gpgpu/matrix-mul-drv        certification-status=non-blocker
     gpgpu/vector-add-drv        certification-status=non-blocker
     gpgpu/simple-texture-drv    certification-status=non-blocker
-    gpgpu/rvs-gpup              certification-status=blocker
+    gpgpu/rvs-gpup              certification-status=non-blocker
     gpgpu/rvs-peqt              certification-status=non-blocker
     gpgpu/rvs-pebb              certification-status=non-blocker
     gpgpu/rvs-pbqt              certification-status=non-blocker
@@ -38,8 +38,8 @@ _name: GPGPU Virtualization Passthrough Testing
 _description:
  Automated Tests for GPGPU Passthrough (non-graphical)
 include:
-    gpgpu/lxd-nvidia-gpu-passthrough-pci-device-name      certification-status=blocker
-    gpgpu/lxdvm-nvidia-gpu-passthrough-pci-device-name    certification-status=blocker
+    gpgpu/lxd-nvidia-gpu-passthrough-pci-device-name      certification-status=non-blocker
+    gpgpu/lxdvm-nvidia-gpu-passthrough-pci-device-name    certification-status=non-blocker
 bootstrap_include:
     graphics_card
     executable

@@ -150,6 +150,7 @@ category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 id: dss/remove_new_notebook_of_{image}
+depends: {depends}
 after: dss/create_new_notebook_using_{image}
 _summary: Check that the new notebook from '{image}' can be removed
 estimated_duration: 1m

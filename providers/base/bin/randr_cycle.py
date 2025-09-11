@@ -198,25 +198,25 @@ class MonitorTest:
         )
         if args.cycle == "resolution":
             monitor_config.cycle(
-                cycle_resolution=True,
+                cycle_resolutions=True,
                 resolution_filter=resolution_filter,
-                cycle_transform=False,
+                cycle_transforms=False,
                 post_cycle_action=action,
                 path=screenshot_path,
             )
         elif args.cycle == "transform":
             monitor_config.cycle(
-                cycle_resolution=False,
+                cycle_resolutions=False,
                 resolution_filter=resolution_filter,
-                cycle_transform=True,
+                cycle_transforms=True,
                 post_cycle_action=action,
                 path=screenshot_path,
             )
         else:
             monitor_config.cycle(
-                cycle_resolution=True,
+                cycle_resolutions=True,
                 resolution_filter=resolution_filter,
-                cycle_transform=True,
+                cycle_transforms=True,
                 post_cycle_action=action,
                 path=screenshot_path,
             )

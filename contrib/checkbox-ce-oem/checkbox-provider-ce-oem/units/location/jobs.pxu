@@ -1,6 +1,6 @@
-id: ce-oem-location/gps_coordinate 
+id: ce-oem-location/gps_coordinate
 _summary: To check GPS can get the coordinate
-category_id: com.canonical.certification::location 
+category_id: com.canonical.certification::location
 plugin: user-interact
 user: root
 estimated_duration: 1.0
@@ -8,3 +8,34 @@ flags: also-after-suspend
 command: location.sh
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_gps == 'True'
+
+id: gps_resource
+_summary: Generates a GPS tty node and message protocol mapping for GPS test
+_description:
+    A GPS tty node and message protocol mapping. By giving a pair of GPS devices on machnie to generates test jobs.
+    Usage of parameter:
+    GPS_DEVICES=tty_node:message_protocol tty_node:message_protocol ...
+    e.g. GPS_DEVICES=/dev/ttyS0:NMEA0183 /dev/ttyS1
+category_id: com.canonical.certification::location
+estimated_duration: 0.02
+plugin: resource
+environ: GPS_DEVICES
+command:
+    location_test.py resource "$GPS_DEVICES"
+
+unit: template
+template-resource: gps_resource
+template-unit: job
+_template-summary: detect GPS module by gpsctl
+id: ce-oem-location/gps_detection_{tty_node}
+_summary: detect GPS module by gpsctl on {tty_node} and communicate with specific protocol
+category_id: com.canonical.certification::location
+plugin: shell
+user: root
+estimated_duration: 40s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gps == 'True'
+flags: also-after-suspend
+command:
+    echo "detect GPS module by gpsctl on {tty_node}"
+    location_test.py detection --tty-serial "{tty_node}" --message-protocol "{message_protocol}"

@@ -12,23 +12,23 @@ plugs:
   checkbox-runtime:
     interface: content
     target: $SNAP/checkbox-runtime
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
   provider-resource:
     interface: content
     target: $SNAP/providers/plainbox-provider-resource
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
   provider-checkbox:
     interface: content
     target: $SNAP/providers/plainbox-provider-checkbox
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
   provider-tpm2:
     interface: content
     target: $SNAP/providers/plainbox-provider-tpm2
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
   provider-certification-client:
     interface: content
     target: $SNAP/providers/plainbox-provider-certification-client
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
@@ -78,6 +78,7 @@ parts:
       - device-tree-compiler
       - linuxptp
       - snmp
+      - gpsd
     override-prime: |
       craftctl default
       rm lib/systemd/system/alsa-utils.service

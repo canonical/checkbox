@@ -36,8 +36,7 @@ def identify_gps_module(serial_device, msg_protocol="NMEA0183"):
     )
 
     pattern = (
-        r"([a-zA-Z0-9\/-]*) identified as a "
-        r"([a-zA-Z0-9]*) at [0-9]* baud."
+        r"([a-zA-Z0-9\/-]*) identified as a ([a-zA-Z0-9]*) at [0-9]* baud."
     )
     match = re.search(pattern, output)
     if match:
@@ -47,7 +46,7 @@ def identify_gps_module(serial_device, msg_protocol="NMEA0183"):
                 (
                     "Failed: GPS module been detected, "
                     "but the message protocol is not expected. "
-                    "Protocol: ".format(cur_msg_protocol)
+                    "Protocol: {}".format(cur_msg_protocol)
                 )
             )
         print(

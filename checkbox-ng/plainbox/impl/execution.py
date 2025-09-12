@@ -199,9 +199,10 @@ class UnifiedRunner(IJobRunner):
         )
         io_log_gen = IOLogRecordGenerator()
         log = os.path.join(self._jobs_io_log_dir, "{}.record.gz".format(slug))
-        with gzip.open(log, mode="wb") as gzip_stream, io.TextIOWrapper(
-            gzip_stream, encoding="UTF-8"
-        ) as record_stream:
+        with (
+            gzip.open(log, mode="wb") as gzip_stream,
+            io.TextIOWrapper(gzip_stream, encoding="UTF-8") as record_stream,
+        ):
             writer = IOLogRecordWriter(record_stream)
             io_log_gen.on_new_record.connect(writer.write_record)
             delegate = extcmd.Chain(
@@ -329,9 +330,9 @@ class UnifiedRunner(IJobRunner):
             extcmd_popen._delegate.on_end(proc.returncode)
             return proc.returncode
 
-        get_execution_command = get_execution_command_v1
+        get_execution_command = get_execution_command_subshell
         if systemd_unit:
-            get_execution_command = get_execution_command_v2
+            get_execution_command = get_execution_command_systemd_unit
         # Setup the executable nest directory
         with self.configured_filesystem(job) as nest_dir:
             # Get the command and the environment.
@@ -417,6 +418,7 @@ class UnifiedRunner(IJobRunner):
         suffix = ".{}".format(job.checksum)
         try:
             with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
+                os.chmod(cwd_dir, 0o777)
                 logger.debug(
                     _("Job temporary current working directory: %s"), cwd_dir
                 )
@@ -688,7 +690,7 @@ def get_differential_execution_environment(
     return delta_env
 
 
-def get_execution_command_v1(
+def get_execution_command_subshell(
     job, environ, session_id, nest_dir, target_user=None, extra_env=None
 ):
     """Generate a command that if executed runs a Checkbox command section"""
@@ -730,7 +732,7 @@ def get_execution_command_v1(
     return cmd
 
 
-def get_execution_command_v2(
+def get_execution_command_systemd_unit(
     job, environ, session_id, nest_dir, target_user, extra_env=None
 ):
     """
@@ -740,8 +742,6 @@ def get_execution_command_v2(
     executed not as a child process of Checkbox in the current slice, but as a
     child process of systemd in the appropriate slice for the user
     """
-    assert target_user, "damn"
-
     cmd = [
         "sudo",
         "--prompt",

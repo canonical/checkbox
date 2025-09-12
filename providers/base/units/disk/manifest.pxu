@@ -7,3 +7,8 @@ unit: manifest entry
 id: has_fde
 _name: Full Disk Encryption (FDE)
 value-type: bool
+
+unit: manifest entry
+id: has_apste_support
+_name: Disk/Autonomous_Power_State_Transition
+value-type: bool

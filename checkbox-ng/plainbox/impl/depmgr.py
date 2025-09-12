@@ -35,8 +35,26 @@ import enum
 
 from plainbox.i18n import gettext as _
 
-
 logger = getLogger("plainbox.depmgr")
+
+
+class DependencyType(enum.Enum):
+    """
+    The types of dependencies that can be expressed in the system.
+    - resource:
+       ...
+    - depends:
+        ...
+    - after:
+        ...
+    - before:
+        ...
+    """
+
+    RESOURCE = "resource"
+    DEPENDS = "depends"
+    AFTER = "after"
+    BEFORE = "before"
 
 
 class DependencyError(Exception, metaclass=ABCMeta):
@@ -161,15 +179,14 @@ class DependencyCycleError(DependencyError):
 class DependencyMissingError(DependencyError):
     """Exception raised when a job has an unsatisfied dependency."""
 
-    DEP_TYPE_RESOURCE = "resource"
-    DEP_TYPE_DIRECT = "direct"
-    DEP_TYPE_ORDERING = "ordering"
-
     def __init__(self, job, missing_job_id, dep_type):
         """Initialize a new error with given data."""
         self.job = job
         self.missing_job_id = missing_job_id
-        self.dep_type = dep_type
+
+        if not isinstance(dep_type, DependencyType):
+            raise TypeError("Invalid dependency type: {!r}".format(dep_type))
+        self.dep_type = dep_type.value
 
     @property
     def affected_job(self):
@@ -258,35 +275,34 @@ class DependencyDuplicateError(DependencyError):
         )
 
 
-class Color(enum.Enum):
+class State(enum.Enum):
     """
-    Three classic colors for recursive graph visitor.
+    States for recursive DFS graph visitor.
 
-    WHITE:
+    NOT_VISITED:
         For nodes have not been visited yet.
-    GRAY:
+    VISITED:
         For nodes that are currently being visited but the visit is not
-        complete.
-    BLACK:
-        For nodes that have been visited and are complete.
+        finished.
+    FINISHED:
+        For nodes that have been visited and are finished.
     """
 
-    WHITE = "white"
-    GRAY = "gray"
-    BLACK = "black"
+    NOT_VISITED = "not_visited"
+    VISITED = "visited"
+    FINISHED = "finished"
 
 
 class DependencySolver:
     """
     Dependency solver for Jobs.
 
-    Uses a simple depth-first search to discover the sequence of jobs that can
-    run. Use the resolve_dependencies() class method to get the solution.
+    Uses a simple depth-first search to discover the sequence of jobs should
+    be run. The algorithm will detect cycles and will also order all the jobs
+    according to their dependencies.
+    https://en.wikipedia.org/wiki/Cycle_%28graph_theory%29?#Algorithm
+    Use the resolve_dependencies() class method to get the solution.
     """
-
-    COLOR_WHITE = Color.WHITE
-    COLOR_GRAY = Color.GRAY
-    COLOR_BLACK = Color.BLACK
 
     @classmethod
     def resolve_dependencies(cls, job_list, visit_list=None):
@@ -320,18 +336,28 @@ class DependencySolver:
         self._job_list = job_list
         # Build a map of jobs (by id)
         self._job_map = self._get_job_map(job_list)
-        # Job colors, maps from job.id to COLOR_xxx
-        self._job_color_map = {job.id: self.COLOR_WHITE for job in job_list}
-        # The computed solution, made out of job instances. This is not
-        # necessarily the only solution but the algorithm computes the same
-        # value each time, given the same input.
-        self._solution = []
+
+        # Solution for all the dependencies that may pull in new jobs
+        self._pull_solution = []
+        # The computed solution for all dependencies
+        self._order_solution = []
+
+    def _clear_state_map(self):
+        self._job_state_map = {
+            job.id: State.NOT_VISITED for job in self._job_list
+        }
 
     def _solve(self, visit_list=None):
         """
         Internal method of DependencySolver.
 
         Solves the dependency graph and returns the solution.
+        The algorithm runs in two passes:
+        1. Pulls all the dependencies of the initial jobs and builds a solution
+        2. Orders the jobs in the solution according to their dependencies
+
+        The two passes are required to treat the dependencies that pull in
+        new jobs differently from the dependencies that only change the order
 
         Calls _visit() on each of the initial nodes/jobs
         """
@@ -339,15 +365,50 @@ class DependencySolver:
         logger.debug(_("Starting solve"))
         logger.debug(_("Solver job list: %r"), self._job_list)
         logger.debug(_("Solver visit list: %r"), visit_list)
-        if visit_list is None:
-            visit_list = self._job_list
-        for job in visit_list:
-            self._visit(job=job, visit_list=visit_list)
-        logger.debug(_("Done solving"))
-        # Return the solution
-        return self._solution
 
-    def _visit(self, job, visit_list, trail=None):
+        # If no visit list is specified, use the full job list
+        if visit_list is None:
+            self._visit_list = self._job_list
+        else:
+            self._visit_list = visit_list
+
+        # Solve first for pulling dependencies
+        self._clear_state_map()
+        for job in self._visit_list:
+            self._visit(job, pull=True)
+
+        # Create a map of pulled jobs
+        self._pulled_map = self._get_job_map(self._pull_solution)
+        # Add the before dependencies for the jobs in the map
+        for job in self._pull_solution:
+            job.controller.add_before_deps(
+                job, self._pulled_map, self._job_map
+            )
+
+        # Solve again for order dependencies, using the pulled jobs as the
+        # new visit list
+        self._clear_state_map()
+        for job in self._pull_solution:
+            self._visit(job)
+
+        # Perform a sanity check to ensure that no jobs have been added or
+        # removed from the solution.
+        pull_jobs = set(self._pull_solution)
+        order_jobs = set(self._order_solution)
+        if pull_jobs != order_jobs:
+            raise ValueError(
+                "The dependency manager failed ordering the jobs, some jobs "
+                "have changed during the ordering process:\n"
+                "Pull solution: {!r}\n"
+                "Order solution: {!r}".format(pull_jobs, order_jobs)
+            )
+
+        logger.debug(_("Done solving"))
+
+        # Return the final solution
+        return self._order_solution
+
+    def _visit(self, job, trail=None, pull=False):
         """
         Internal method of DependencySolver.
 
@@ -355,47 +416,50 @@ class DependencySolver:
         skipped. Attempts to enumerate all dependencies (both direct and
         resource) and resolve them. Missing jobs cause DependencyMissingError
         to be raised. Calls _visit recursively on all dependencies.
+        Dependencies are pulled form the search_map only if the pull flag is
+        set to True.
+
+        Pseudocode of the algorithm:
+        visit(job)
+            if state == State.FINISHED
+                return
+            if state == State.VISITED
+                raise DependencyCycleError
+            if state == State.NOT_VISITED
+                state = State.VISITED
+                for dep in job.dependencies
+                    visit(dep)
+                state = State.FINISHED
+                solution.append(job)
         """
+        # Perform a sanity check to ensure that we have defined the state of
+        # this job.
         try:
-            color = self._job_color_map[job.id]
+            state = self._job_state_map[job.id]
         except KeyError:
             logger.debug(_("Visiting job that's not on the job_list: %r"), job)
             raise DependencyUnknownError(job)
-        logger.debug(_("Visiting job %s (color %s)"), job.id, color)
-        if color == self.COLOR_WHITE:
-            # This node has not been visited yet. Let's mark it as GRAY (being
-            # visited) and iterate through the list of dependencies
-            self._job_color_map[job.id] = self.COLOR_GRAY
+
+        if state == State.NOT_VISITED:
+            # This node has not been visited yet. Let's mark it as visited
+            # and iterate through the list of dependencies
+            self._job_state_map[job.id] = State.VISITED
+
             # If the trail was not specified start a trail for this node
+            # the trail is only used to report dependency cycles
             if trail is None:
                 trail = [job]
-            for dep_type, job_id in job.controller.get_dependency_set(
-                job, visit_list
-            ):
-                # Dependency is just an id, we need to resolve it
-                # to a job instance. This can fail (missing dependencies)
-                # so let's guard against that.
-                try:
-                    next_job = self._job_map[job_id]
-                except KeyError:
-                    logger.debug(
-                        _("Found missing dependency: %r from %r"), job_id, job
-                    )
-                    raise DependencyMissingError(job, job_id, dep_type)
-                else:
-                    # For each dependency that we visit let's reuse the trail
-                    # to give proper error messages if a dependency loop exists
-                    logger.debug(_("Visiting dependency: %r"), next_job)
-                    # Update the trail as we visit that node
-                    trail.append(next_job)
-                    self._visit(next_job, visit_list, trail)
-                    trail.pop()
-            # We've visited (recursively) all dependencies of this node,
-            # let's color it black and append it to the solution list.
-            logger.debug(_("Appending %r to solution"), job)
-            self._job_color_map[job.id] = self.COLOR_BLACK
-            self._solution.append(job)
-        elif color == self.COLOR_GRAY:
+
+            if pull:
+                # If this is a pull operation we only care about the
+                # dependencies that are resource, depends or after.
+                self._pull_visit(job, trail)
+            else:
+                # If this is an order operation we only care about the
+                # dependencies that are depends or before.
+                self._order_visit(job, trail)
+
+        elif state == State.VISITED:
             # This node is not fully traced yet but has been visited already
             # so we've found a dependency loop. We need to cut the initial
             # part of the trail so that we only report the part that actually
@@ -403,10 +467,88 @@ class DependencySolver:
             trail = trail[trail.index(job) :]
             logger.debug(_("Found dependency cycle: %r"), trail)
             raise DependencyCycleError(trail)
-        else:
-            assert color == self.COLOR_BLACK
+
+        elif state == State.FINISHED:
             # This node has been visited and is fully traced.
             # We can just skip it and go back
+            return
+        else:
+            raise ValueError(
+                "Invalid state for job {!r}: {!r}".format(job.id, state)
+            )
+
+    def _pull_visit(self, job, trail=None):
+        # We travel through dependencies recursively
+        for dep_type, job_id in job.controller.get_dependency_set(
+            job, self._visit_list
+        ):
+            # If this is a pull operation we only care about the dependencies
+            # that are resource, depends or after, since only those can pull
+            # new jobs into the solution.
+            if dep_type not in (
+                DependencyType.RESOURCE,
+                DependencyType.DEPENDS,
+                # If we get rid of the "pulling" behavior of after deps,
+                # we can remove this type.
+                DependencyType.AFTER,
+            ):
+                continue
+
+            # We look up the job in the whole job map
+            try:
+                next_job = self._job_map[job_id]
+            except KeyError:
+                logger.info(
+                    _("Found missing dependency: %r from %r (%r)"),
+                    job_id,
+                    job,
+                    dep_type.value,
+                )
+                raise DependencyMissingError(job, job_id, dep_type)
+
+            else:
+                # Visit the dependency and update the trail
+                logger.debug(_("Visiting dependency: %r"), next_job)
+                # Update the trail as we visit that node
+                trail.append(next_job)
+                self._visit(next_job, trail, pull=True)
+                trail.pop()
+
+        # We've visited (recursively) all dependencies of this node, so we
+        # can change the state to finished and append it to the solution
+        logger.debug(_("Appending %r to pull solution"), job)
+        self._job_state_map[job.id] = State.FINISHED
+        self._pull_solution.append(job)
+
+    def _order_visit(self, job, trail=None):
+        # We travel through dependencies recursively
+        for dep_type, job_id in job.controller.get_dependency_set(
+            job, self._pull_solution
+        ):
+            try:
+                # We look up the job only in the map of pulled jobs
+                next_job = self._pulled_map[job_id]
+            except KeyError:
+                # Since this is an order operation, we don't care if the dep
+                # is not in the list of pulled jobs
+                logger.info(
+                    _("Found missing dependency: %r from %r (%r)"),
+                    job_id,
+                    job,
+                    dep_type.value,
+                )
+            else:
+                # Visit the dependency and update the trail
+                logger.debug(_("Visiting dependency: %r"), next_job)
+                trail.append(next_job)
+                self._visit(next_job, trail, pull=False)
+                trail.pop()
+
+        # We've visited (recursively) all dependencies of this node, so we
+        # can change the state to finished and append it to the solution
+        logger.debug(_("Appending %r to order solution"), job)
+        self._job_state_map[job.id] = State.FINISHED
+        self._order_solution.append(job)
 
     @staticmethod
     def _get_job_map(job_list):

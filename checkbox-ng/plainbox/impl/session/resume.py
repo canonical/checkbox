@@ -185,23 +185,20 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
         logger.debug(json.dumps(json_repr, indent=4))
         _validate(json_repr, value_type=dict)
         version = _validate(json_repr, key="version", choice=[1])
-        if version == 1:
-            return SessionPeekHelper1().peek_json(json_repr)
-        elif version == 2:
-            return SessionPeekHelper2().peek_json(json_repr)
-        elif version == 3:
-            return SessionPeekHelper3().peek_json(json_repr)
-        elif version == 4:
-            return SessionPeekHelper4().peek_json(json_repr)
-        elif version == 5:
-            return SessionPeekHelper5().peek_json(json_repr)
-        elif version == 6:
-            return SessionPeekHelper6().peek_json(json_repr)
-        elif version == 7:
-            return SessionPeekHelper7().peek_json(json_repr)
-        elif version == 8:
-            return SessionPeekHelper8().peek_json(json_repr)
-        else:
+        version_peek_helper_map = {
+            1: SessionPeekHelper1,
+            2: SessionPeekHelper2,
+            3: SessionPeekHelper3,
+            4: SessionPeekHelper4,
+            5: SessionPeekHelper5,
+            6: SessionPeekHelper6,
+            7: SessionPeekHelper7,
+            8: SessionPeekHelper8,
+            9: SessionPeekHelper9,
+        }
+        try:
+            return version_peek_helper_map[version]().peek_json(json_repr)
+        except KeyError:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version)
             )
@@ -313,42 +310,25 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         logger.debug(json.dumps(json_repr, indent=4))
         _validate(json_repr, value_type=dict)
         version = _validate(json_repr, key="version", choice=[1])
-        if version == 1:
-            helper = SessionResumeHelper1(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 2:
-            helper = SessionResumeHelper2(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 3:
-            helper = SessionResumeHelper3(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 4:
-            helper = SessionResumeHelper4(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 5:
-            helper = SessionResumeHelper5(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 6:
-            helper = SessionResumeHelper6(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 7:
-            helper = SessionResumeHelper7(
-                self.job_list, self.flags, self.location
-            )
-        elif version == 8:
-            helper = SessionResumeHelper8(
-                self.job_list, self.flags, self.location
-            )
-        else:
+        version_session_resume_map = {
+            1: SessionResumeHelper1,
+            2: SessionResumeHelper2,
+            3: SessionResumeHelper3,
+            4: SessionResumeHelper4,
+            5: SessionResumeHelper5,
+            6: SessionResumeHelper6,
+            7: SessionResumeHelper7,
+            8: SessionResumeHelper8,
+            9: SessionResumeHelper9,
+        }
+        try:
+            helper_class = version_session_resume_map[version]
+        except KeyError:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version)
             )
+
+        helper = helper_class(self.job_list, self.flags, self.location)
         return helper.resume_json(json_repr, early_cb)
 
 
@@ -491,6 +471,7 @@ class MetaDataHelper7MixIn(MetaDataHelper6MixIn):
             session_repr["metadata"],
             key="last_job_start_time",
             value_type=float,
+            value_none=True,
         )
 
 
@@ -598,7 +579,7 @@ class SessionPeekHelper6(MetaDataHelper6MixIn, SessionPeekHelper5):
     """
 
 
-class SessionPeekHelper7(MetaDataHelper7MixIn, SessionPeekHelper6):
+class SessionPeekHelper7(SessionPeekHelper6):
     """
     Helper class for implementing session peek feature
 
@@ -611,12 +592,25 @@ class SessionPeekHelper7(MetaDataHelper7MixIn, SessionPeekHelper6):
     """
 
 
-class SessionPeekHelper8(MetaDataHelper7MixIn, SessionPeekHelper6):
+class SessionPeekHelper8(SessionPeekHelper7):
     """
     Helper class for implementing session peek feature
 
     This class works with data constructed by
-    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper7` which has
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper8` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
+class SessionPeekHelper9(MetaDataHelper7MixIn, SessionPeekHelper6):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper9` which has
     been pre-processed by :class:`SessionPeekHelper` (to strip the initial
     envelope).
 
@@ -779,6 +773,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 self._process_job(session, jobs_repr, results_repr, job_id)
             except KeyError:
                 leftover_jobs.append(job_id)
+
+        leftover_jobs += session_repr.get("metadata", {}).get(
+            "rejected_jobs", []
+        )
         # Process leftovers. For each iteration the leftover_jobs list should
         # shrink or we're not making any progress. If that happens we've got
         # undefined jobs (in general the session is corrupted)
@@ -1078,7 +1076,13 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     def _build_IOLogRecord(cls, record_repr):
         """Convert the representation of IOLogRecord back the object."""
         _validate(record_repr, value_type=list)
-        delay = _validate(record_repr, key=0, value_type=float)
+        delay = _validate(record_repr, key=0)
+        try:
+            delay = float(delay)
+        except ValueError:
+            raise CorruptedSessionError(
+                "IOLogRecord has invalid delay {}".format(delay)
+            )
         if delay < 0:
             # TRANSLATORS: please keep delay untranslated
             raise CorruptedSessionError(_("delay cannot be negative"))
@@ -1235,13 +1239,13 @@ class SessionResumeHelper6(MetaDataHelper6MixIn, SessionResumeHelper5):
                 )
                 session = new_session
         # Restore bits and pieces of state
+        logger.debug(_("Starting to restore metadata..."))
+        self._restore_SessionState_metadata(session.metadata, session_repr)
+        logger.debug(_("restored metadata %r"), session.metadata)
         logger.debug(
             _("Starting to restore jobs and results to %r..."), session
         )
         self._restore_SessionState_jobs_and_results(session, session_repr)
-        logger.debug(_("Starting to restore metadata..."))
-        self._restore_SessionState_metadata(session.metadata, session_repr)
-        logger.debug(_("restored metadata %r"), session.metadata)
         logger.debug(_("Starting to restore mandatory job list..."))
         self._restore_SessionState_mandatory_job_list(session, session_repr)
         logger.debug(_("Starting to restore desired job list..."))
@@ -1278,6 +1282,10 @@ class SessionResumeHelper8(SessionResumeHelper7):
             session_state, session_repr
         )
         return session_state
+
+
+class SessionResumeHelper9(SessionResumeHelper8):
+    pass
 
 
 def _validate(obj, **flags):

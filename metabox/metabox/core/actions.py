@@ -20,6 +20,7 @@
 This module defines the Actions classes.
 
 """
+import pprint
 
 __all__ = [
     "Start",
@@ -52,7 +53,17 @@ class ActionBase:
 
     def __call__(self, scn):
         assert self.handler is not None
-        getattr(scn, self.handler)(*self.args, **self.kwargs)
+        return getattr(scn, self.handler)(*self.args, **self.kwargs)
+
+    def __str__(self):
+        kwargs_str = ", ".join(
+            f"{key}={pprint.pformat(value)}"
+            for key, value in self.kwargs.items()
+        )
+        args_str = ", ".join(pprint.pformat(arg) for arg in self.args)
+        # if both are defined, separate them with a comma, else nothing
+        arg_repr_str = ", ".join(arg for arg in (args_str, kwargs_str) if arg)
+        return "{}({})".format(type(self).__name__, arg_repr_str)
 
 
 class Start(ActionBase):

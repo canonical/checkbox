@@ -1,32 +1,39 @@
 #!/usr/bin/env python3
-# Copyright 2015-2018 Canonical Ltd.
+# Copyright 2015-2025 Canonical Ltd.
 # All rights reserved.
 #
-# Written by:
+# Authors:
 #   Taihsiang Ho <taihsiang.ho@canonical.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
 this script monitors the systemd journal to catch insert/removal USB events
 """
 import argparse
 import logging
-import os
 import re
-import select
 import sys
-import time
-from systemd import journal
+import subprocess
 from abc import ABC, abstractmethod
-
 from checkbox_support.helpers.timeout import timeout
-from checkbox_support.scripts.zapper_proxy import zapper_run
 from checkbox_support.scripts.usb_read_write import (
     mount_usb_storage,
     gen_random_file,
     write_test,
     read_test,
 )
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -35,13 +42,39 @@ logger.setLevel(logging.INFO)
 ACTION_TIMEOUT = 30
 
 
+class ControllerInterface(ABC):
+    """
+    Perform actions on the device user test.
+    """
+
+    @abstractmethod
+    def action(self, action_type):
+        """Perform action of type `action_type` on the DUT."""
+
+
+class ManualController(ControllerInterface):
+    """
+    Interact with the device under test manually.
+    """
+
+    def action(self, action_type):
+        """Perform action of type `action_type` on the DUT."""
+
+        if action_type == "insertion":
+            print("\n\nINSERT NOW\n\n", flush=True)
+        elif action_type == "removal":
+            print("\n\nREMOVE NOW\n\n", flush=True)
+        else:
+            raise SystemExit("Invalid test case")
+        print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
+
+
 class StorageInterface(ABC):
     """
     StorageInterface makes sure each type of storage class should implement
     these methods
     """
 
-    @abstractmethod
     def _parse_journal_line(self, line_str):
         """
         Parse the journal line and update the attributes based on the line
@@ -49,7 +82,8 @@ class StorageInterface(ABC):
 
         :param line_str: str of the scanned log lines.
         """
-        pass
+
+        print(line_str)
 
     @abstractmethod
     def _validate_insertion(self):
@@ -72,66 +106,44 @@ class StorageWatcher(StorageInterface):
     function to detect the insertion and removal of storage.
     """
 
-    def __init__(self, storage_type, zapper_usb_address):
+    def __init__(self, storage_type, controller=ManualController()):
         self.storage_type = storage_type
-        self.zapper_usb_address = zapper_usb_address
         self.testcase = None
         self.test_passed = False
         self.mounted_partition = None
+        self._controller = controller
 
     def run(self):
-        j = journal.Reader()
-        j.seek_realtime(time.time())
-        p = select.poll()
-        p.register(j, j.get_events())
-        if self.zapper_usb_address:
-            zapper_host = os.environ.get("ZAPPER_HOST")
-            if not zapper_host:
-                raise SystemExit("ZAPPER_HOST environment variable not found!")
-            usb_address = self.zapper_usb_address
-            if self.testcase == "insertion":
-                print("Calling zapper to connect the USB device")
-                zapper_run(
-                    zapper_host, "typecmux_set_state", usb_address, "DUT"
-                )
-            elif self.testcase == "removal":
-                print("Calling zapper to disconnect the USB device")
-                zapper_run(
-                    zapper_host, "typecmux_set_state", usb_address, "OFF"
-                )
-        else:
-            if self.testcase == "insertion":
-                print("\n\nINSERT NOW\n\n", flush=True)
-            elif self.testcase == "removal":
-                print("\n\nREMOVE NOW\n\n", flush=True)
-            else:
-                raise SystemExit("Invalid test case")
-            print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
-        while p.poll():
-            if j.process() != journal.APPEND:
-                continue
-            self._process_lines(
-                [e["MESSAGE"] for e in j if e and "MESSAGE" in e]
-            )
-            if self.test_passed:
-                return
+        self.test_passed = False
 
-    def _process_lines(self, lines):
+        # Spawn journal subprocess
+        cmd = ["journalctl", "-f", "-o", "cat"]
+
+        with subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, universal_newlines=True, bufsize=1
+        ) as process:
+            # Call the corresponding action method
+            self._controller.action(self.testcase)
+
+            for line in process.stdout:
+                self._process_line(line)
+                if self.test_passed:
+                    process.terminate()
+                    break
+
+    def _process_line(self, line):
         """
-        Process the lines from the journal and call the callback function to
+        Process one line from the journal and call the callback function to
         validate the insertion or removal of the storage.
         """
-        for line in lines:
-            line_str = str(line)
-            logger.debug(line_str)
-            if self.testcase == "insertion":
-                self._parse_journal_line(line_str)
-                self._validate_insertion()
-            elif self.testcase == "removal":
-                self._parse_journal_line(line_str)
-                self._validate_removal()
-            if self.test_passed:
-                return
+        line = line.rstrip("\n")
+        logger.debug(line)
+        if self.testcase == "insertion":
+            self._parse_journal_line(line)
+            self._validate_insertion()
+        elif self.testcase == "removal":
+            self._parse_journal_line(line)
+            self._validate_removal()
 
     @timeout(ACTION_TIMEOUT)  # 30 seconds timeout
     def run_insertion(self):
@@ -168,8 +180,8 @@ class USBStorage(StorageWatcher):
     USBStorage handles the insertion and removal of usb2 and usb3.
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mounted_partition = None
         self.device = None
         self.number = None
@@ -216,7 +228,9 @@ class USBStorage(StorageWatcher):
             "high_speed_usb": "new high-speed USB device",
             "super_speed_usb": "new SuperSpeed USB device",
             "super_speed_gen1_usb": "new SuperSpeed Gen 1 USB device",
-            "super_speed_plus_gen2x1_usb": "new SuperSpeed Plus Gen 2x1 USB device",
+            "super_speed_plus_gen2x1_usb": (
+                "new SuperSpeed Plus Gen 2x1 USB device"
+            ),
         }
 
         driver_log_dict = {
@@ -251,14 +265,16 @@ class USBStorage(StorageWatcher):
         if match:
             self.mounted_partition = match.group("part_name")
 
+        return super()._parse_journal_line(line_str)
+
 
 class MediacardStorage(StorageWatcher):
     """
     MediacardStorage handles the insertion and removal of sd, sdhc, mmc etc...
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mounted_partition = None
         self.action = None
         self.device = None
@@ -309,15 +325,17 @@ class MediacardStorage(StorageWatcher):
         if re.search(removal_re, line_str):
             self.action = "removal"
 
+        return super()._parse_journal_line(line_str)
 
-class MediacardComboStorage(StorageWatcher):
+
+class MediacardComboStorage(MediacardStorage, USBStorage):
     """
     MediacardComboStorage handles the insertion and removal of sd, sdhc, mmc
     etc., for devices that combine mediacard and usb storage.
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mounted_partition = None
         self.action = None
         self.device = None
@@ -358,8 +376,8 @@ class ThunderboltStorage(StorageWatcher):
     storage.
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mounted_partition = None
         self.action = None
 
@@ -397,6 +415,8 @@ class ThunderboltStorage(StorageWatcher):
         if re.search(removal_re, line_str):
             self.action = "removal"
 
+        return super()._parse_journal_line(line_str)
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -419,11 +439,6 @@ def parse_args():
         ],
         help=("usb2, usb3, mediacard, mediacard_combo or thunderbolt"),
     )
-    parser.add_argument(
-        "--zapper-usb-address",
-        type=str,
-        help="Zapper's USB switch address to use",
-    )
     return parser.parse_args()
 
 
@@ -432,17 +447,13 @@ def main():
 
     watcher = None
     if args.storage_type == "thunderbolt":
-        watcher = ThunderboltStorage(
-            args.storage_type, args.zapper_usb_address
-        )
+        watcher = ThunderboltStorage(args.storage_type)
     elif args.storage_type == "mediacard":
-        watcher = MediacardStorage(args.storage_type, args.zapper_usb_address)
+        watcher = MediacardStorage(args.storage_type)
     elif args.storage_type == "mediacard_combo":
-        watcher = MediacardComboStorage(
-            args.storage_type, args.zapper_usb_address
-        )
+        watcher = MediacardComboStorage(args.storage_type)
     else:
-        watcher = USBStorage(args.storage_type, args.zapper_usb_address)
+        watcher = USBStorage(args.storage_type)
 
     if args.testcase == "insertion":
         mounted_partition = watcher.run_insertion()

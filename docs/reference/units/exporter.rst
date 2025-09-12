@@ -1,5 +1,5 @@
 =============
-Exporter Unit
+Exporter unit
 =============
 
 The purpose of exporter units is to provide an easy way to customize the
@@ -21,37 +21,34 @@ Fields
 
 Following fields may be used by an exporter unit.
 
-.. _Exporter id field:
+.. program:: exporter
 
-``id``:
+.. option:: id
+
     (mandatory) - Unique identifier of the exporter. This field is used to look
     up and store data so please keep it stable across the lifetime of your
     provider.
 
-.. _Exporter summary field:
+.. option:: summary
 
-``summary``:
     (optional) - A human readable name for the exporter. This value is
     available for translation into other languages. It is used when listing
     exporters. It must be one line long, ideally it should be short (50-70
     characters max).
 
-.. _Exporter entry_point field:
+.. option:: entry_point
 
-``entry_point``:
     (mandatory) - This is a key for a pkg_resources entry point from the
     plainbox.exporters namespace.
     Allowed values are: jinja2, text, xlsx, json and rfc822.
 
-.. _Exporter file_extension field:
+.. option:: file_extension
 
-``file_extension``:
     (mandatory) - Filename extension to use when the exporter stream is saved
     to a file.
 
-.. _Exporter options field:
+.. option:: options
 
-``options``:
     (optional) - comma/space/semicolon separated list of options for this
     exporter entry point. Only the following options are currently supported.
 
@@ -85,9 +82,8 @@ Following fields may be used by an exporter unit.
     jinja2:
         - without-session-desc
 
-.. _Exporter data field:
+.. option:: data
 
-``data``:
     (optional) - Extra data sent to the exporter code, to allow all kind of
     data types, the data field only accept valid JSON. For exporters using the
     jinja2 entry point, the template name and any additional paths to load

@@ -18,20 +18,25 @@ import os
 import subprocess as sp
 import sys
 import shlex
+from pathlib import Path
+import shutil
+import glob
+import tempfile
 
 from packaging import version as version_parser
 
 from checkbox_support.helpers.retry import retry
 from gateway_ping_test import ping
 
+NETPLAN_DIR = "/lib/netplan"
 
 print = functools.partial(print, flush=True)
 
 
 def legacy_nmcli():
     cmd = "nmcli -v"
-    output = sp.check_output(shlex.split(cmd))
-    version = version_parser.parse(output.strip().split()[-1].decode())
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
+    version = version_parser.parse(output.strip().split()[-1])
     # check if using the 16.04 nmcli because of this bug
     # https://bugs.launchpad.net/plano/+bug/1896806
     return version < version_parser.parse("1.9.9")
@@ -48,9 +53,9 @@ def print_cmd(cmd):
 def _get_nm_wireless_connections():
     cmd = "nmcli -t -f TYPE,UUID,NAME,STATE connection"
     print_cmd(cmd)
-    output = sp.check_output(shlex.split(cmd))
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
     connections = {}
-    for line in output.decode(sys.stdout.encoding).splitlines():
+    for line in output.splitlines():
         type, uuid, name, state = line.strip().split(":", 3)
         if type == "802-11-wireless":
             connections[name] = {"uuid": uuid, "state": state}
@@ -113,9 +118,26 @@ def delete_test_ap_ssid_connection():
 @retry(max_attempts=5, delay=60)
 def device_rescan():
     print_head("Calling a rescan")
+    # Note: once we don't need xenial support anymore, we can use --rescan on
+    #       list_aps and completely remove this function!
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
-    sp.check_call(shlex.split(cmd))
+    try:
+        sp.check_output(
+            shlex.split(cmd), stderr=sp.STDOUT, universal_newlines=True
+        )
+    except sp.CalledProcessError as e:
+        error = e.output
+        # the objective here is to trigger a rescan, so if one is already
+        # started or was just triggered, we can continue
+        print(error)
+        if "Scanning not allowed immediately following previous scan" in error:
+            pass
+        elif "Scanning not allowed while already scanning" in error:
+            pass
+        else:
+            raise
+
     print()
 
 
@@ -127,8 +149,8 @@ def list_aps(ifname, essid=None):
     aps_dict = {}
     fields = "SSID,CHAN,FREQ,SIGNAL"
     cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, ifname)
-    output = sp.check_output(shlex.split(cmd))
-    for line in output.decode(sys.stdout.encoding).splitlines():
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
+    for line in output.splitlines():
         # lp bug #1723372 - extra line in output on zesty
         if line.strip() == ifname:  # Skip device name line
             continue
@@ -167,8 +189,8 @@ def perform_ping_test(interface):
     target = None
     cmd = "nmcli --mode tabular --terse --fields IP4.GATEWAY c show TEST_CON"
     print_cmd(cmd)
-    output = sp.check_output(shlex.split(cmd))
-    target = output.decode(sys.stdout.encoding).strip()
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
+    target = output.strip()
     print("Got gateway address: {}".format(target))
 
     if target:
@@ -191,19 +213,22 @@ def wait_for_connected(interface, essid):
     print_cmd(cmd)
     output = sp.check_output(shlex.split(cmd), universal_newlines=True)
     print(output)
-    state, ssid = output.strip().splitlines()
+    # if state is not connected, no ssid will be provided
+    state, *ssid = output.strip().splitlines()
+    ssid = next(iter(ssid), None)
 
     if state.startswith("100") and ssid == essid:
         print("Reached connected state with ESSID: {}".format(essid))
+    elif not state.startswith("100"):
+        error_msg = "State is not connected: {}".format(state)
+        raise SystemExit(error_msg)
     elif ssid != essid:
         error_msg = (
             "ERROR: did not reach connected state with ESSID: {}\n"
             "ESSID mismatch:\n  Excepted:{}\n  Actually:{}"
         ).format(essid, ssid, essid)
         raise SystemExit(error_msg)
-    elif not state.startswith("100"):
-        error_msg = "State is not connected: {}".format(state)
-        raise SystemExit(error_msg)
+
     print()
 
 
@@ -322,7 +347,7 @@ def print_journal_entries(start):
 
 def parser_args():
     parser = argparse.ArgumentParser(
-        description="WiFi connection test using mmcli"
+        description="WiFi connection test using nmcli"
     )
 
     subparsers = parser.add_subparsers(dest="test_type")
@@ -366,8 +391,75 @@ def parser_args():
     return args
 
 
+def backup_netplan_files(backup_dir: str, netplan_dir: str):
+    """
+    Backup netplan YAML files from /etc/netplan/ to a
+    temporary directory, if there are.
+    """
+
+    # Find all netplan YAML files
+    yaml_files = glob.glob(os.path.join(netplan_dir, "*.yaml"))
+
+    if not yaml_files:
+        print("No netplan YAML files found")
+        return
+
+    # Create temporary directory
+    Path(backup_dir).mkdir(parents=True, exist_ok=True)
+
+    # Copy each file to temp directory
+    for yaml_file in yaml_files:
+        filename = os.path.basename(yaml_file)
+        temp_path = os.path.join(backup_dir, filename)
+        shutil.copy2(yaml_file, temp_path)
+        # Then copy ownership
+        st = os.stat(yaml_file)
+        os.chown(temp_path, st.st_uid, st.st_gid)
+        print("Backed up: {} -> {}".format(yaml_file, temp_path))
+
+    print("Netplan files backed up to: {}", backup_dir)
+
+
+def restore_netplan_files(backup_dir: str, netplan_dir: str):
+    """
+    Restore netplan YAML files from backup directory to /etc/netplan/.
+
+    Returns:
+        bool: True if restoration successful, False otherwise
+    """
+    if not backup_dir or not os.path.exists(backup_dir):
+        print("Backup directory does not exist: {}".format(netplan_dir))
+        return
+
+    # Clean up existing netplan files first
+    existing_files = glob.glob(os.path.join(netplan_dir, "*.yaml"))
+    for existing_file in existing_files:
+        os.remove(existing_file)
+        print("Removed: {}".format(existing_file))
+
+    # Find all YAML files in backup directory
+    backup_files = glob.glob(os.path.join(backup_dir, "*.yaml"))
+
+    if not backup_files:
+        print("No netplan files found in backup directory")
+        return
+
+    # Restore each file
+    for backup_file in backup_files:
+        filename = os.path.basename(backup_file)
+        target_path = os.path.join(netplan_dir, filename)
+        shutil.copy2(backup_file, target_path)
+        # Then copy ownership
+        st = os.stat(backup_file)
+        os.chown(target_path, st.st_uid, st.st_gid)
+        print("Restored: {} -> {}".format(backup_file, target_path))
+
+    print("Netplan files restored successfully")
+    return
+
+
 @retry(max_attempts=5, delay=60)
-def main():
+def run():
     args = parser_args()
     start_time = datetime.datetime.now()
     device_rescan()
@@ -403,6 +495,20 @@ def main():
         finally:
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()
+
+
+def main():
+
+    # backup the netplans, because nmcli corrupts them
+    # and debsums will complain afterwards
+    # This is ugly. Ideally, nmcli should be patched instead
+    temp_dir = tempfile.TemporaryDirectory()
+    backup_netplan_files(str(temp_dir.name), NETPLAN_DIR)
+
+    try:
+        run()
+    finally:
+        restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,65 @@
+# Copyright 2023 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the IoT devices running Ubuntu Desktop.
+#
+
+id: ce-oem-iot-desktop-24-04
+unit: test plan
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for Ubuntu Desktop 24.04
+_description:
+    Combined manual and automated test plans for IoT devices running Ubuntu Desktop.
+include:
+nested_part:
+    ce-oem-iot-desktop-24-04-manual
+    ce-oem-iot-desktop-24-04-automated
+    ce-oem-iot-desktop-24-04-stress
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-desktop-24-04-manual
+unit: test plan
+_name: CE-OEM-IOT - Manual only OEMQA tests for Ubuntu Desktop 24.04
+_description:
+    Ubuntu Desktop OEMQA test plan for the IoT devices. This test plan contains
+    all of the tests that require manual control of device hardware
+    or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-manual
+    com.canonical.certification::client-cert-iot-desktop-24-04-manual
+    after-suspend-ce-oem-manual
+exclude:
+    com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-desktop-24-04-automated
+unit: test plan
+_name: CE-OEM-IOT - Automated only OEMQA tests for Ubuntu Desktop 24.04
+_description:
+    Ubuntu Desktop OEMQA test plan for the IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
+include:
+nested_part:
+    ce-oem-automated
+    com.canonical.certification::client-cert-iot-desktop-24-04-automated
+    after-suspend-ce-oem-automated
+exclude:
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-desktop-24-04-stress
+unit: test plan
+_name: CE-OEM-IOT - Stress only OEMQA tests for Ubuntu Desktop 24.04
+_description:
+    Ubuntu Desktop OEMQA test plan that includes all stress tests required for IoT devices
+include:
+nested_part:
+    com.canonical.certification::client-cert-iot-desktop-24-04-stress
+    ce-oem-stress
+exclude:
+    com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*

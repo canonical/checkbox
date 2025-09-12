@@ -24,6 +24,11 @@ class CpuidTests(unittest.TestCase):
             cpuid_to_human_friendly("0x900f22"), "Hygon Dhyana Plus"
         )
 
+    def test_hygon_C86_4G_7490(self):
+        self.assertEqual(
+            cpuid_to_human_friendly("0x900f41"), "Hygon C86-4G 7490"
+        )
+
     def test_unknown_throws(self):
         with self.assertRaises(ValueError):
             cpuid_to_human_friendly("0xdeadbeef")
@@ -41,6 +46,20 @@ class CpuidMainTests(unittest.TestCase):
         main()
         expected_msg = "CPUID: {} which appears to be a {} processor".format(
             "0x900f22", "Hygon Dhyana Plus"
+        )
+        print_mock.assert_called_with(expected_msg)
+
+    @patch("builtins.print")
+    @patch("subprocess.check_output")
+    @patch("cpuid.CPUID")
+    def test_hygon_hygon_C86_4G_7490(self, cpuid_mock, co_mock, print_mock):
+        call_mock = MagicMock()
+        call_mock.return_value = [0x900F41, 0x0, 0x0, 0x0]
+        cpuid_mock.return_value = call_mock
+        co_mock.return_value = ""
+        main()
+        expected_msg = "CPUID: {} which appears to be a {} processor".format(
+            "0x900f41", "Hygon C86-4G 7490"
         )
         print_mock.assert_called_with(expected_msg)
 

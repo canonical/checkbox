@@ -19,6 +19,7 @@ template-id: networking/info_device__index___interface
 flags: also-after-suspend
 _summary: Network Information of device {__index__} ({interface})
 estimated_duration: 1.0
+depends: ethernet/detect
 requires: executable.name == 'ethtool'
 command:
   network_device_info.py info NETWORK --interface {interface}
@@ -105,3 +106,20 @@ requires:
   {%- else %}
   lsb.release >= '18'
   {% endif -%}
+
+plugin: manual
+category_id: com.canonical.plainbox::networking
+id: networking/airplane-mode
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_airplane_mode == 'True'
+flags: also-after-suspend
+_purpose:
+    Verify that the airplane mode function works correctly.
+_steps:
+    1. Enable the Airplane Mode in Wi-Fi settings
+    2. Confirm that Wi-Fi, Bluetooth, and WWAN radio devices are disabled
+    3. Disable the Airplane Mode in Wi-Fi settings
+_verification:
+    1. All connections are correctly disabled after enabling Airplane Mode.
+    2. All connections are correctly re-established after disabling Airplane Mode.

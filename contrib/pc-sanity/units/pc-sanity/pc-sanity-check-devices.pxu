@@ -1,16 +1,14 @@
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/check_i2c_hid
+id: miscellanea/check-i2c-hid-existence
+estimated_duration: 2.0
+requires:
+ dmi.product in ['Notebook','Laptop']
 command:
- set -x
- if sudo dmidecode -t 3 | grep -i "Notebook\|Laptop"; then
-    journalctl -b -k | grep i2c | grep input || exit 1
- else
-    echo "this machine is not laptop, no need to check i2c touchpad"
- fi
-_summary: check if i2c device exists
+ cat /sys/class/input/input*/phys | grep -q i2c || exit 1
+_summary: Check if there is input device on i2c bus
 _description:
- check if i2c device exists
+ Touchpad is mandatory on notebook and laptop, which works as input device on i2c bus generally.
 
 unit: template
 template-resource: cpuinfo

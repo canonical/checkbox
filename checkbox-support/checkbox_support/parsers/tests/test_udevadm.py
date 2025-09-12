@@ -19,7 +19,14 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 from textwrap import dedent
 
-from pkg_resources import resource_filename
+try:
+    from importlib.resources import files
+
+    def resource_filename(name, path):
+        return files(name) / path
+
+except ImportError:
+    from pkg_resources import resource_filename
 
 from checkbox_support.parsers.udevadm import UdevadmParser, decode_id
 from checkbox_support.parsers.udevadm import parse_udevadm_output
@@ -96,6 +103,16 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(devices[0].category, "NETWORK")
+
+    def test_KIOXIA_TransMemory(self):
+        # this is a non-regression test to check that the KIOXIA TransMemory
+        # USB stick is detected as a usb stick and not a mediacard
+        devices = self.parse(
+            "KIOXIA_TransMemory", with_lsblk=True, with_partitions=True
+        )
+        busses = [d.bus for d in devices]
+        self.assertEqual(["usb", "usb"], busses)
+        self.assertEqual(self.count(devices, "PARTITION"), 1)
 
     def test_DELL_INSPIRON3521_TOUCHSCREEN(self):
         """
@@ -904,6 +921,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         # Ignore intel-ipu6-isys camera driver on a Dell Latitude 7350
         # See https://bugs.launchpad.net/somerville/+bug/2042424
         devices = self.parse("DELL_LATITUDE_7350_WITH_IPU6_DRIVER")
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
+
+    def test_IPU7_DRIVER(self):
+        # Ignore intel_ipu7_isys.isys camera driver
+        devices = self.parse("IPU7_DRIVER")
         self.assertEqual(self.count(devices, "CAPTURE"), 1)
 
     def test_CARA_T(self):

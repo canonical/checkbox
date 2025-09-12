@@ -23,6 +23,34 @@ command:
 _summary: Detect presence of a MMAL camera.
 
 unit: template
+category_id: com.canonical.plainbox::camera
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+template-id: camera/v4l2-compliance-blockers_name
+flags: also-after-suspend
+_template-summary: To check if the ioctl request works on a v4l2 device
+id: camera/v4l2-compliance-blockers_{name}
+_summary: v4l2 compliance for {product_slug} at /dev/{name}, blockers
+plugin: shell
+command:
+  v4l2_compliance_test.py --device /dev/{name} --ioctl-selection blockers
+
+unit: template
+category_id: com.canonical.plainbox::camera
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+template-id: camera/v4l2-compliance-non-blockers_name
+flags: also-after-suspend
+_template-summary: To check if the ioctl request works on a v4l2 device
+id: camera/v4l2-compliance-non-blockers_{name}
+_summary: v4l2 compliance for {product_slug} at /dev/{name}, non-blockers
+plugin: shell
+command:
+  v4l2_compliance_test.py --device /dev/{name} --ioctl-selection non-blockers
+
+unit: template
 template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
@@ -137,7 +165,7 @@ flags: also-after-suspend
 _summary: Webcam BRISQUE score for {product_slug}
 estimated_duration: 20s
 depends: camera/detect
-requires: lsb.release >= '22.04'
+requires: os.release >= '22.04'
 command:
   camera_quality_test.py -d {name} -o "$PLAINBOX_SESSION_SHARE"
 _purpose:
@@ -156,7 +184,7 @@ flags: also-after-suspend
 _summary: Attach the image used for the BRISQUE score for {product_slug}
 estimated_duration: 1s
 after: camera/camera-quality_{name}
-requires: lsb.release >= '22.04'
+requires: os.release >= '22.04'
 command:
   [ -f "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg ] &&
   cat "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg
@@ -219,10 +247,16 @@ depends:
   camera/detect
   {% endif -%}
 requires:
+  {#
+    If the device that generated this test is MMAL, check that we are on armhf
+    (libmmal doesn't exist for amd64 or arm64).
+    See: https://github.com/waveform80/picamera/issues/716#issuecomment-1063878114
+  #}
+  (device.name == '{{name}}' and device.category == 'MMAL' and dpkg.architecture == 'armhf') or (device.name == '{{ name}}' and device.category == 'CAPTURE')
   {%- if __on_ubuntucore__ %}
-  lsb.release >= '19.1'
+  os.release >= '19.1'
   {%- else %}
-  lsb.release >= '19.1'
+  os.release >= '19.1'
   package.name == 'python3-zbar'
   package.name == 'python3-pyqrcode'
   package.name == 'python3-pil'

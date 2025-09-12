@@ -39,6 +39,8 @@ class MergeSubmissionsTests(TestCase):
         session_manager_mock,
         temporary_directory_mock,
     ):
+        temporary_directory_mock().name = "not_existing"
+
         ctx_mock = mock.MagicMock()
         ctx_mock.args.submission = ["submission"]
         ctx_mock.args.output_file = "file_location"
@@ -50,3 +52,14 @@ class MergeSubmissionsTests(TestCase):
 
         # output path was printed
         print_mock.assert_any_call(ctx_mock.args.output_file)
+
+    def test_export(self):
+        self_mock = mock.MagicMock()
+        temp_location = mock.MagicMock()
+
+        MergeSubmissions.export(
+            self_mock, mock.MagicMock(), temp_location, "json"
+        )
+
+        expected_creates = temp_location / "submission.json"
+        self.assertTrue(expected_creates.open.called)

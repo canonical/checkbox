@@ -1,0 +1,31 @@
+name: Do a snap build
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**.md' # Don't trigger if doc updated
+
+jobs:
+  build:
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch all of history so DM can determine its own version from git.
+          fetch-depth: 0
+
+      - uses: snapcore/action-build@v1
+        name: Build checkbox-gfx snap
+        id: build
+        with:
+          snapcraft-channel: latest/stable
+
+      - name: Verify checkbox-gfx snap
+        run: |
+          # Make sure it is installable.
+          sudo snap install checkbox24
+          sudo snap install --dangerous --classic ${{ steps.build.outputs.snap }}
+

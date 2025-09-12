@@ -27,7 +27,7 @@ estimated_duration: 30.0
 environ: STRESS_NG_STRESSORS_TIMEOUT
 command:
  cd /var/tmp || exit $?
- stress-ng --{stressor} 0 --timeout "${{STRESS_NG_STRESSORS_TIMEOUT:-30}}" --skip-silent --verbose
+ stress-ng --{stressor} 0 --timeout "${{STRESS_NG_STRESSORS_TIMEOUT:-30}}" --oom-avoid-bytes 10% --skip-silent --verbose
  # Error code definition - 3(no resource), 4(not implemented)
  EXIT_CODE=$?
  echo "EXIT_CODE="$EXIT_CODE

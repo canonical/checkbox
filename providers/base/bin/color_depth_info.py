@@ -23,7 +23,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    The get_color_depth got information from Xorg.*.log
+The get_color_depth got information from Xorg.*.log
 """
 
 import os

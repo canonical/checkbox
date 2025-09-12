@@ -1,35 +1,16 @@
 id: gpgpu/gpu-burn
 category_id: gpgpu
 plugin: shell
-estimated_duration: 300
+estimated_duration: 14400
 requires:
     graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
-    uname.machine == 'x86_64'
+    snap.name == 'gpu-burn'
+    uname.machine in ['x86_64', 'aarch64']
 _summary: NVIDIA GPGPU stress testing
-command: gpu_burn.sh
-
-id: gpgpu/matrix-mul-drv
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
-    uname.machine == 'x86_64'
-_summary: NVIDIA GPGPU matrix multiplication
-command: matrixMulDrv.sh
-
-id: gpgpu/vector-add-drv
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
-    uname.machine == 'x86_64'
-_summary: NVIDIA GPGPU vector addition
-command: vectorAddDrv.sh
+command:
+    set -eo pipefail
+    gpu-burn 14400 | tee "$PLAINBOX_SESSION_SHARE/gpu_burn.log"
+    grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at" "$PLAINBOX_SESSION_SHARE/gpu_burn.log"
 
 id: gpgpu/device-query-drv
 category_id: gpgpu
@@ -37,21 +18,21 @@ plugin: shell
 estimated_duration: 4
 requires:
     graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
-    uname.machine == 'x86_64'
-_summary: NVIDIA GPGPU query device
-command: deviceQueryDrv
-
-id: gpgpu/simple-texture-drv
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
-    uname.machine == 'x86_64'
-_summary: NVIDIA GPGPU simple textures
-command: simpleTextureDrv.sh
+    snap.name == 'cuda-samples'
+    uname.machine in ['x86_64', 'aarch64']
+_summary: NVIDIA GPGPU query device test
+command: cuda-samples 1_Utilities deviceQueryDrv deviceQueryDrv
+_siblings: [
+  { "id": "gpgpu/vector-add-drv",
+    "_summary": "NVIDIA GPGPU vector addition test",
+    "command": "cuda-samples 0_Introduction vectorAddDrv vectorAddDrv"},
+  { "id": "gpgpu/matrix-mul-drv",
+    "_summary": "NVIDIA GPGPU matrix multiplication test",
+    "command": "cuda-samples 0_Introduction matrixMulDrv matrixMulDrv"},
+  { "id": "gpgpu/simple-texture-drv",
+    "_summary": "NVIDIA GPGPU simple textures test",
+    "command": "cuda-samples 0_Introduction simpleTextureDrv simpleTextureDrv"}
+  ]
 
 id: gpgpu/rvs-gpup
 category_id: gpgpu
@@ -59,73 +40,72 @@ plugin: shell
 estimated_duration: 4
 requires:
     graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
+    snap.name == 'rocm-validation-suite'
     uname.machine == 'x86_64'
 _summary: AMD GPGPU properties query
 command: rvs.py gpup
+_siblings: [
+  { "id": "gpgpu/rvs-peqt",
+    "_summary": "AMD GPGPU PCIe configuration test",
+    "command": "rvs.py peqt" },
+  { "id": "gpgpu/rvs-pebb",
+    "_summary": "AMD GPGPU PCIe bandwidth test",
+    "command": "rvs.py pebb" },
+  { "id": "gpgpu/rvs-pebb",
+    "_summary": "AMD GPGPU PCIe bandwidth test",
+    "command": "rvs.py pebb" },
+  { "id": "gpgpu/rvs-pbqt",
+    "_summary": "AMD GPGPU PCIe P2P tests",
+    "command": "rvs.py pbqt" },
+  { "id": "gpgpu/rvs-iet",
+    "_summary": "AMD GPGPU power tests",
+    "command": "rvs.py iet",
+    "estimated_duration": 50 },
+  { "id": "gpgpu/rvs-babel",
+    "_summary": "AMD GPGPU BabelStream benchmarks",
+    "command": "rvs.py babel",
+    "estimated_duration": 50 },
+  { "id": "gpgpu/rvs-gst",
+    "_summary": "AMD GPGPU stress test",
+    "command": "rvs.py gst",
+    "estimated_duration": 14400 }
+  ]
 
-id: gpgpu/rvs-peqt
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.vendor == 'NVIDIA Corporation'
+template-id: gpgpu/lxd-nvidia-gpu-passthrough-pci-device-name
+id: gpgpu/lxd-nvidia-gpu-passthrough-{pci_device_name}
+requires:
+    graphics_card.driver == 'nvidia'
+    executable.name == 'lxc'
+    package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
 category_id: gpgpu
 plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU PCIe configuration test
-command: rvs.py peqt
+estimated_duration: 1m 45s
+environ:
+    LXD_GPU_THRESHOLD
+    LXD_GPU_RUNS
+    QEMU_OPTS
+    VM_RAM_MB
+    VM_CPUS
+command: gpu_passthrough.py -v --vendor=nvidia --pci={pci_device_name} lxd
+_purpose: Creates a LXD container and passes {pci_device_name} GPU through
+_summary: Test LXD GPU passthrough on NVIDIA GPU {pci_device_name}
+_template-summary: Test LXD GPU passthrough on NVIDIA GPU
 
-id: gpgpu/rvs-pebb
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.vendor == 'NVIDIA Corporation'
+template-id: gpgpu/lxdvm-nvidia-gpu-passthrough-pci-device-name
+id: gpgpu/lxdvm-nvidia-gpu-passthrough-{pci_device_name}
+requires:
+    executable.name == 'lxc'
+    package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
 category_id: gpgpu
 plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU PCIe bandwidth test
-command: rvs.py pebb
-
-id: gpgpu/rvs-pbqt
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU P2P tests
-command: rvs.py pbqt
-
-id: gpgpu/rvs-iet
-category_id: gpgpu
-plugin: shell
-estimated_duration: 50
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU power tests
-command: rvs.py iet
-
-id: gpgpu/rvs-babel
-category_id: gpgpu
-plugin: shell
-estimated_duration: 50
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU BabelStream benchmarks
-command: rvs.py babel
-
-id: gpgpu/rvs-gst
-category_id: gpgpu
-plugin: shell
-estimated_duration: 14400
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU stress test
-command: rvs.py gst
+estimated_duration: 12m
+command: gpu_passthrough.py -v --vendor=nvidia --pci={pci_device_name} lxdvm
+_purpose: Creates a LXD virtual machine and passes {pci_device_name} GPU through
+_summary: Test LXD VM GPU passthrough on NVIDIA GPU {pci_device_name}
+_template-summary: Test LXD VM GPU passthrough on NVIDIA GPU

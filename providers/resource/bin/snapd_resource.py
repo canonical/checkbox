@@ -7,9 +7,9 @@
 
 import argparse
 import os
-import string
 import sys
 
+from checkbox_support.helpers.slugify import slugify
 from checkbox_support.snap_utils.asserts import decode
 from checkbox_support.snap_utils.asserts import model_to_resource
 from checkbox_support.snap_utils.asserts import serial_to_resource
@@ -19,14 +19,6 @@ from checkbox_support.snap_utils.system import get_series
 from checkbox_support.snap_utils.system import on_ubuntucore
 
 from collections import namedtuple
-
-
-def slugify(_string):
-    """Transform string to one that can be used as the key in a resource job"""
-    valid_chars = frozenset(
-        "_{}{}".format(string.ascii_letters, string.digits)
-    )
-    return "".join(c if c in valid_chars else "_" for c in _string)
 
 
 class ModelAssertion:

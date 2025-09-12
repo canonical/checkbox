@@ -53,8 +53,21 @@ plain string comparison there is a special class to highlight that fact
 import abc
 import itertools
 import re
-import sre_constants
-import sre_parse
+
+try:
+    # XXX: We may want to stop doing this as the modules are not documented
+    #      and the performance gain is negligible (to the scale we use these)
+    # avoid deprecation warning
+    # See: https://github.com/python/cpython/pull/32177/files
+    sre_constants = re._constants
+except AttributeError:
+    import sre_constants
+
+try:
+    # avoid deprecation warning
+    sre_parse = re._parser
+except AttributeError:
+    import sre_parse
 import sys
 
 from plainbox.i18n import gettext as _
@@ -95,7 +108,7 @@ def not_negative(
 ) -> "Any":
     if new < 0:
         raise ValueError(
-            "{}.{} cannot be negative".format(
+            "({}) {}.{} cannot be negative".format(
                 instance.__class__.__name__, field.name, field.type.__name__
             )
         )

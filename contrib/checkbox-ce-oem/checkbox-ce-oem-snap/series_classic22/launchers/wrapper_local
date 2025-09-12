@@ -33,6 +33,7 @@ export PERL5LIB="$PERL5LIB:$SNAP/usr/lib/$ARCH/perl/$PERL_VERSION:$SNAP/usr/lib/
 export GI_TYPELIB_PATH=$SNAP/usr/lib/girepository-1.0:$SNAP/usr/lib/$ARCH/girepository-1.0
 export PATH="$PATH:$SNAP/usr/bin:$SNAP/usr/sbin:$SNAP/sbin:/snap/bin"
 export PYTHONPATH="$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH"
+export ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf
 
 if [ -e $RUNTIME/wrapper_common_classic ]; then
   . $RUNTIME/wrapper_common_classic

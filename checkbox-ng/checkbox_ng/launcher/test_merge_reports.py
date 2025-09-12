@@ -63,6 +63,7 @@ class MergeReportsTests(TestCase):
             "resource-results": [basic_job_info],
             "attachment-results": [basic_job_info],
             "category_map": {"test_category": "test_name"},
+            "system_information": {"version": 0},
         }
         json_mock.return_value = sub_to_read
 

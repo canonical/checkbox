@@ -412,17 +412,22 @@ to review by manager:"""
 
 def pkg_is_public(pkg: Package) -> bool:
     ver = pkg.installed
+    public_sites = [
+        "security.ubuntu.com",
+        "archive.ubuntu.com",
+        "ports.ubuntu.com",
+    ]
+
     if ver and ver.origins[0].component == "now" and pkg.is_upgradable:
         # this package is upgradable to a package in the archive
         ver = pkg.candidate
     if ver is None:
         raise Exception("package is not installed")
+
     for origin in ver.origins:
-        if (
-            "security.ubuntu.com" in origin.site
-            or "archive.ubuntu.com" in origin.site  # noqa: W503
-        ) and origin.trusted:
+        if origin.trusted and origin.site in public_sites:
             return True
+
     return False
 
 

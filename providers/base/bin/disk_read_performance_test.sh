@@ -12,6 +12,12 @@ DEFAULT_SSD_READ=${DISK_SSD_READ_PERF:-200}
 # Minimum size threshold in bytes (2MB)
 MIN_SIZE_THRESHOLD=$((2 * 1024 * 1024))
 
+# Check if there is at least one disk to test
+if [ "$#" -lt 1 ]; then
+  echo "ERROR: No disks to test!"
+  exit 1
+fi
+
 for disk in "$@"; do
 
   echo "Beginning $0 test for $disk"
@@ -59,10 +65,10 @@ for disk in "$@"; do
   echo "INFO: $disk type is $disk_type"
 
   case $disk_type in
-    "usb" ) 
+    "usb" )
             #Custom metrics are guesstimates for now...
             MIN_BUF_READ=7
-            
+
             # Increase MIN_BUF_READ if a USB3 device is plugged in a USB3 hub port
             if  [[ $dev_path =~ ((.*usb[0-9]+).*\/)[0-9]-[0-9\.:-]+/.* ]]; then
                 device_version=$(cat '/sys/'"${BASH_REMATCH[1]}"'/version')
@@ -86,6 +92,9 @@ for disk in "$@"; do
   esac
   echo "INFO: $disk_type: Using $MIN_BUF_READ MB/sec as the minimum throughput speed"
 
+  # Perform a test run of hdparm without hiding the output and exit if it fails
+  hdparm -t /dev/"$disk" || exit 1
+
   max_speed=0
   echo ""
   echo "Beginning hdparm timing runs"
@@ -101,7 +110,7 @@ for disk in "$@"; do
     fi
 
     speed=${speed/.*}
-    if [ "$speed" -gt $max_speed ]; then
+    if [ "$speed" -gt "$max_speed" ]; then
       max_speed=$speed
     fi
   done
@@ -117,7 +126,7 @@ for disk in "$@"; do
   fi
 done
 
-if [ $result -gt 0 ]; then
+if [ "$result" -gt 0 ]; then
   echo "WARNING: One or more disks failed testing!"
   exit 1
 else

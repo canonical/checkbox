@@ -22,9 +22,8 @@ import re
 import argparse
 import time
 import logging
-import select
+import subprocess
 from collections import OrderedDict
-from systemd import journal
 from pathlib import Path
 
 
@@ -59,13 +58,18 @@ class RpmsgLoadFirmwareTest:
 
     def _teardown(self):
         self.rpmsg_state = "stop"
-        for key in self.properties:
-            if getattr(self, key) != self._previous_config[key]:
-                setattr(self, key, self._previous_config[key])
+        self.firmware_path = self._previous_config["firmware_path"]
+        self.firmware_file = self._previous_config["firmware_file"]
+        if (
+            self.firmware_file.strip() != "(null)"
+            and self._previous_config["rpmsg_state"].strip() == "running"
+        ):
+            # start RPMSG again when firmware file been configured
+            self.rpmsg_state = "start"
 
     @property
     def firmware_path(self) -> str:
-        return self._firmware_path.read_text()
+        return self._firmware_path.read_text().strip()
 
     @firmware_path.setter
     def firmware_path(self, value: str) -> None:
@@ -81,10 +85,51 @@ class RpmsgLoadFirmwareTest:
 
     @property
     def rpmsg_state(self) -> str:
+        """
+        Reports the state of the remote processor, which will be one of:
+
+        - "offline"
+        - "suspended"
+        - "running"
+        - "crashed"
+        - "invalid"
+
+        "offline" means the remote processor is powered off.
+        "suspended" means that the remote processor is suspended and
+        must be woken to receive messages.
+        "running" is the normal state of an available remote processor
+        "crashed" indicates that a problem/crash has been detected on
+        the remote processor.
+        "invalid" is returned if the remote processor is in an
+        unknown state.
+
+        Returns:
+            str: remote processor state
+        """
         return self._rpmsg_state.read_text()
 
     @rpmsg_state.setter
     def rpmsg_state(self, value: str) -> None:
+        """
+        Writing this file controls the state of the remote processor.
+
+        The following states can be written:
+        - "start"
+        - "stop"
+
+        Writing "start" will attempt to start the processor running the
+        firmware indicated by, or written to,
+        /sys/class/remoteproc/.../firmware. The remote processor should
+        transition to "running" state.
+
+        Writing "stop" will attempt to halt the remote processor and
+        return it to the "offline" state.
+
+        Returns:
+            None
+        """
+        if value not in ["start", "stop"]:
+            raise ValueError("Unsupported value for remote processor state")
         self._rpmsg_state.write_text(value)
 
     @property
@@ -96,42 +141,33 @@ class RpmsgLoadFirmwareTest:
         self._search_patterns.update(patterns)
 
     def _init_logger(self) -> None:
-        self.log_reader = journal.Reader()
-        self.log_reader.this_boot()
-        self.log_reader.seek_tail()
-        self.log_reader.get_previous()
+        self.log_reader = subprocess.Popen(
+            ["journalctl", "-f"], stdout=subprocess.PIPE
+        )
 
-        self._poller = select.poll()
-        self._poller.register(self.log_reader, self.log_reader.get_events())
-
-    def lookup_reload_logs(self, entry: dict) -> bool:
+    def lookup_reload_logs(self, entry: str) -> bool:
         keep_looking = True
         for key, pattern in self._search_patterns.items():
-            if re.search(pattern, entry.get("MESSAGE")):
-                self.expected_events.append((key, entry.get("MESSAGE")))
+            if re.search(pattern, entry):
+                self.expected_events.append((key, entry))
                 if key == "ready":
                     keep_looking = False
                     break
 
         return keep_looking
 
-    def _monitor_journal_logs(self, lookup_func) -> list:
+    def _monitor_journal_logs(self, lookup_func) -> None:
         start_time = time.time()
         logging.info("# start time: %s", start_time)
 
-        while self._poller.poll(1000):
-            if self.log_reader.process() != journal.APPEND:
-                continue
-            for entry in self.log_reader:
-                logging.debug(entry["MESSAGE"])
-                if entry["MESSAGE"] == "":
-                    continue
-                if lookup_func(entry) is False:
-                    return self.expected_events
-
+        while True:
+            raw = self.log_reader.stdout.readline().decode()
+            logging.info(raw)
+            if raw and lookup_func(raw) is False:
+                return
             cur_time = time.time()
             if (cur_time - start_time) > 60:
-                return self.expected_events
+                return
 
 
 def verify_load_firmware_logs(
@@ -169,7 +205,11 @@ def load_firmware_test(args) -> None:
     with RpmsgLoadFirmwareTest(remote_proc_dev) as rpmsg_handler:
         rpmsg_handler.search_pattern = search_patterns
         rpmsg_handler._init_logger()
-        if rpmsg_handler.rpmsg_state == "online":
+        if rpmsg_handler.rpmsg_state.strip() in [
+            "running",
+            "suspended",
+            "invalid",
+        ]:
             logging.info("Stop the Remote processor")
             rpmsg_handler.rpmsg_state = "stop"
         logging.info(
@@ -182,6 +222,7 @@ def load_firmware_test(args) -> None:
         logging.info("Start the Remote processor")
         rpmsg_handler.rpmsg_state = "start"
         rpmsg_handler._monitor_journal_logs(rpmsg_handler.lookup_reload_logs)
+        rpmsg_handler.log_reader.kill()
 
         if verify_load_firmware_logs(
             rpmsg_handler.expected_events,

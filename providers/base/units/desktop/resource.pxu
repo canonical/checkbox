@@ -1,6 +1,0 @@
-id: desktop_session
-plugin: resource
-category_id: com.canonical.plainbox::info
-_summary: Check whether a desktop session is available and of which type.
-environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
-command: desktop_session.py resources

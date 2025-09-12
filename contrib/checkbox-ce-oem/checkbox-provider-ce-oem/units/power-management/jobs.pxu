@@ -16,6 +16,8 @@ _description:
         STRESS_BOOT_WAIT_DELAY=60
 unit: job
 plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_pdu == 'True'
 command:
     sleep 5
     [[ -z "$STRESS_BOOT_WAKEUP_DELAY" ]] && STRESS_BOOT_WAKEUP_DELAY=60
@@ -32,5 +34,7 @@ _summary: Post cold reboot service check
 _description: Check there are no failed services after the cold reboot
 unit: job
 plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_pdu == 'True'
 command: reboot_check_test.sh -s
 estimated_duration: 1.0

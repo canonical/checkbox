@@ -480,7 +480,11 @@ def is_cable_interface(interface: str) -> bool:
     """
     if not isinstance(interface, str) or not interface:
         return False
-    return interface.startswith("en") or interface.startswith("eth")
+    return (
+        interface.startswith("en")
+        or interface.startswith("eth")
+        or interface.startswith("oob")
+    )
 
 
 if __name__ == "__main__":

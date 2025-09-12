@@ -102,6 +102,8 @@ future.
     * ``certification``: Send results to certification site
     * ``certification-staging``: Send results to staging version of
       certification site
+    * ``submission_json``: Writes the ``submission.json`` to ``$XDG_DATA_HOME``
+      (or ``~/.local/share`` if it is not defined)
 
     If you don't want to have any stock report automatically generated use
     ``none`` as the value.
@@ -125,7 +127,7 @@ Launcher section example:
     session_title = MegaCorp Thingy Alpha-1
     session_desc = Testing the alpha-1 release of MegaCorp Thingy including feature X
 
-Launcher using all defaults with overridden secure_id:
+Launcher using all defaults with overridden ``secure_id``:
 
 .. code-block:: ini
 

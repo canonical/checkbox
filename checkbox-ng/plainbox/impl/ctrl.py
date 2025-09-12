@@ -32,10 +32,6 @@ root, as the method that is used to effectively gain root differs depending on
 circumstances.
 """
 
-import abc
-import contextlib
-import errno
-
 try:
     import grp
 except ImportError:
@@ -44,36 +40,25 @@ import itertools
 import json
 import logging
 import os
-import tempfile
-import subprocess
-import sys
-import threading
 from functools import partial
-from subprocess import check_output, CalledProcessError, STDOUT
 
-from plainbox.abc import IJobResult
-from plainbox.abc import ISessionStateController
+from plainbox.abc import IJobResult, ISessionStateController
 from plainbox.i18n import gettext as _
-from plainbox.impl import get_plainbox_dir
-from plainbox.impl.depmgr import DependencyDuplicateError
-from plainbox.impl.depmgr import DependencyMissingError
-from plainbox.impl.resource import ExpressionCannotEvaluateError
-from plainbox.impl.resource import ExpressionFailedError
-from plainbox.impl.resource import ResourceProgramError
-from plainbox.impl.resource import Resource
+from plainbox.impl.depmgr import DependencyType
+from plainbox.impl.resource import (
+    ExpressionCannotEvaluateError,
+    ExpressionFailedError,
+    ResourceProgramError,
+    Resource,
+)
 from plainbox.impl.secure.origin import JobOutputTextSource
-from plainbox.impl.secure.providers.v1 import Provider1
-from plainbox.impl.secure.rfc822 import RFC822SyntaxError
-from plainbox.impl.secure.rfc822 import gen_rfc822_records
-from plainbox.impl.session.jobs import InhibitionCause
-from plainbox.impl.session.jobs import JobReadinessInhibitor
-from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.secure.rfc822 import RFC822SyntaxError, gen_rfc822_records
+from plainbox.impl.session.jobs import InhibitionCause, JobReadinessInhibitor
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.validation import Severity
 from plainbox.suspend_consts import Suspend
-from plainbox.vendor import morris
-from plainbox.vendor import extcmd
+from plainbox.impl.unit.job import InvalidJob
 
 __all__ = [
     "CheckBoxSessionStateController",
@@ -116,18 +101,23 @@ class CheckBoxSessionStateController(ISessionStateController):
 
         Returns a set of pairs (dep_type, job_id) that describe all
         dependencies of the specified job. The first element in the pair,
-        dep_type, is either DEP_TYPE_DIRECT, DEP_TYPE_ORDERING or
-        DEP_TYPE_RESOURCE. The second element is the id of the job.
+        dep_type, is a DependencyType. The second element is the id of the job.
         """
-        direct = DependencyMissingError.DEP_TYPE_DIRECT
-        ordering = DependencyMissingError.DEP_TYPE_ORDERING
-        resource = DependencyMissingError.DEP_TYPE_RESOURCE
+        depends = DependencyType.DEPENDS
+        after = DependencyType.AFTER
+        resource = DependencyType.RESOURCE
+        before = DependencyType.BEFORE
         direct_deps = job.get_direct_dependencies()
         after_deps = job.get_after_dependencies()
+        # Add the jobs that have this job referenced in their "before" field.
+        before_refs = job.before_references
+
         try:
             resource_deps = job.get_resource_dependencies()
         except ResourceProgramError:
             resource_deps = ()
+
+        # This step is here to add the dependencies to the suspend jobs.
         suspend_job_id_list = [
             Suspend.AUTO_JOB_ID,
             Suspend.MANUAL_JOB_ID,
@@ -138,22 +128,53 @@ class CheckBoxSessionStateController(ISessionStateController):
             )
         else:
             suspend_deps = set()
+
         result = set(
             itertools.chain(
-                zip(itertools.repeat(direct), direct_deps),
+                zip(itertools.repeat(depends), direct_deps),
                 zip(itertools.repeat(resource), resource_deps),
-                zip(itertools.repeat(ordering), after_deps),
-                zip(itertools.repeat(ordering), suspend_deps),
+                zip(itertools.repeat(after), after_deps),
+                zip(itertools.repeat(after), suspend_deps),
+                zip(itertools.repeat(before), before_refs),
             )
         )
         return result
+
+    def add_before_deps(self, job, job_map, global_job_map):
+        """
+        Add all "before" references declared in a job to the corresponding
+        jobs as an "after" dependency in the before_references set.
+
+        If a job (B) has a "before" field, we add this job as an "after"
+        dependency to the job (A).
+
+        id: A          id: A
+                   ->  after: B
+        id: B      ->
+        before: A      id: B
+        """
+        before_deps = job.get_before_dependencies()
+        for dep_id in before_deps:
+            # Check if the dep_id is a valid job
+            if dep_id not in global_job_map:
+                logger.error(
+                    "Job {} has a before dependency on {} which does not "
+                    "exist".format(job.id, dep_id)
+                )
+            elif dep_id not in job_map:
+                logger.debug(
+                    "Job {} has a before dependency on {} which is not "
+                    "in the current test plan".format(job.id, dep_id)
+                )
+            else:
+                job_map[dep_id].before_references.add(job.id)
 
     def _get_before_suspend_dependency_set(self, suspend_job_id, job_list):
         """
         Get the set of after dependencies of a suspend job.
 
         Jobs that have a ``also-after-suspend[-manual]`` flag should be run
-        before their associated suspend job. Similary, jobs that declare a
+        before their associated suspend job. Similarly, jobs that declare a
         sibling with a dependency on a suspend job should be run before said
         suspend job. This function finds these jobs and add them as a
         dependency for their associated suspend job.
@@ -276,6 +297,8 @@ class CheckBoxSessionStateController(ISessionStateController):
                 )
                 inhibitors.append(inhibitor)
         # Check if all "after" dependencies ran yet
+        # TODO: If we get rid of the "pulling" behavior of after dependencies,
+        # we could remove this loop.
         for dep_id in sorted(job.get_after_dependencies()):
             dep_job_state = session_state.job_state_map[dep_id]
             # If the dependency did not have a chance to run yet add the
@@ -421,6 +444,55 @@ class CheckBoxSessionStateController(ISessionStateController):
         # Replace any old resources with the new resource list
         session_state.set_resource_list(job.id, new_resource_list)
 
+    @staticmethod
+    def _filter_invalid_log(unit):
+        """
+        Used to filter units that are generated but are invalid, will return
+        True if the unit has to be kept, False if it has to be discarded
+        """
+        try:
+            check_result = unit.check()
+        except MissingParam as m:
+            logger.critical(
+                _("Ignoring %s with missing template parameter %s"),
+                unit._raw_data.get("id"),
+                m.parameter,
+            )
+            return False
+
+        errors = [c for c in check_result if c.severity == Severity.error]
+        warnings = (c for c in check_result if c.severity == Severity.warning)
+        for warning in warnings:
+            logger.warning(str(warning))
+
+        if not errors:
+            return True
+
+        for error in errors:
+            logger.error(str(error))
+        logger.critical("Ignoring invalid generated job %s", unit.id)
+        return False
+
+    @staticmethod
+    def _wrap_invalid_units(unit):
+        """
+        Used to wrap invalid units generated by the template
+        """
+
+        try:
+            check_result = unit.check()
+            errors = [c for c in check_result if c.severity == Severity.error]
+            warnings = (
+                c for c in check_result if c.severity == Severity.warning
+            )
+            for warning in warnings:
+                logger.warning(str(warning))
+        except MissingParam as m:
+            errors = [m]
+        if not errors:
+            return unit
+        return InvalidJob.from_unit(unit, errors=errors)
+
     def _instantiate_templates(
         self, session_state, job, result, fake_resources=False
     ):
@@ -432,35 +504,43 @@ class CheckBoxSessionStateController(ISessionStateController):
         # before it was suspended, so don't
         if result.outcome is IJobResult.OUTCOME_NONE:
             return
-        for unit in session_state.unit_list:
-            if isinstance(unit, TemplateUnit) and unit.resource_id == job.id:
-                logger.info(_("Instantiating unit: %s"), unit)
-                for new_unit in unit.instantiate_all(
-                    session_state.resource_map[job.id], fake_resources
-                ):
-                    try:
-                        check_result = new_unit.check()
-                    except MissingParam as m:
-                        logger.debug(
-                            _(
-                                "Ignoring %s with missing "
-                                "template parameter %s"
-                            ),
-                            new_unit._raw_data.get("id"),
-                            m.parameter,
-                        )
-                        continue
-                    # Only ignore jobs for which check() returns an error
-                    if [
-                        c for c in check_result if c.severity == Severity.error
-                    ]:
-                        logger.error(
-                            _("Ignoring invalid generated job %s"), new_unit.id
-                        )
-                    else:
-                        session_state.add_unit(
-                            new_unit, via=job, recompute=False
-                        )
+        # get all templates that use this (resource) job as template_resource
+        template_units = filter(
+            lambda unit: isinstance(unit, TemplateUnit)
+            and unit.resource_id == job.id,
+            session_state.unit_list,
+        )
+        # get the parsed resource (list of dict created from the resource
+        # stdout)
+        parsed_resource = session_state.resource_map[job.id]
+        # get a list of all new units generated from each template
+        # this is an array of arrays units as follows:
+        # [[unit_from_template1, ...], [unit_from_template2, ...]]
+        new_units_lists = (
+            template_unit.instantiate_all(parsed_resource, fake_resources)
+            for template_unit in template_units
+        )
+        # flattening list to make it easier to work with
+        new_units = (
+            new_unit
+            for new_unit_list in new_units_lists
+            for new_unit in new_unit_list
+        )
+
+        if (
+            session_state.metadata.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION
+            in session_state.metadata.flags
+        ):
+
+            new_units = map(self._wrap_invalid_units, new_units)
+        else:
+            new_units = filter(self._filter_invalid_log, new_units)
+
+        for new_unit in new_units:
+            # here they are added unconditionally as they will be checked
+            # before running to make error reporting possible or were already
+            # filtered by non-strict template expansion
+            session_state.add_unit(new_unit, via=job, recompute=False)
         session_state._recompute_job_readiness()
 
 

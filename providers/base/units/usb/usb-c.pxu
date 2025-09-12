@@ -51,24 +51,6 @@ requires:
     manifest.has_usbc_data == 'True'
 estimated_duration: 120
 
-id: usb-c/hid
-_summary: USB HID work on USB Type-C port
-_purpose:
-     This test will check that you can use a USB HID device plugged in a USB
-     Type-C port
-_steps:
-     1. Enable either a USB mouse or keyboard by plugging it in the USB Type-C port
-     2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
-     3. For keyboards, switch to another tty and type some text
-_verification:
-     Did the device work as expected?
-plugin: manual
-flags: also-after-suspend
-category_id: com.canonical.plainbox::usb
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_usbc_data == 'True'
-estimated_duration: 60
-
 id: usb-c/storage-manual
 _summary: USB 3.0 storage device insertion + read/write + removal on USB Type-C port
 _purpose:

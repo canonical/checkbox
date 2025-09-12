@@ -45,6 +45,7 @@ nested_part:
     usb-cert-manual
     usb3-cert-manual
     usb-c-cert-full # no manual only
+    usb-dwc3-manual
     wireless-cert-manual
     # start of suspend related tests
     # suspend point
@@ -114,7 +115,9 @@ nested_part:
     touchscreen-cert-automated
     usb-cert-automated
     usb-automated
+    usb-dwc3-automated
     wireless-cert-automated
+    wireless-netplan-cert-automated
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point
@@ -135,6 +138,7 @@ nested_part:
     after-suspend-usb-cert-automated
     after-suspend-usb-automated
     after-suspend-wireless-cert-automated
+    after-suspend-wireless-netplan-cert-automated
     after-suspend-bluetooth-cert-automated
     after-suspend-camera-cert-automated
     # The following tests should run BEFORE the automated tests. The reboot and

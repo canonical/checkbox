@@ -35,6 +35,7 @@ from plainbox.impl.secure.providers.v1 import IQNValidator
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
+from plainbox.impl.secure.providers.v1 import ProviderContentLoader
 from plainbox.impl.secure.providers.v1 import UnitPlugIn
 from plainbox.impl.secure.providers.v1 import VersionValidator
 from plainbox.impl.secure.rfc822 import FileTextSource
@@ -911,3 +912,22 @@ class Provider1Tests(TestCase):
             base_dir=self.BASE_DIR,
         )
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])
+
+
+@mock.patch("plainbox.impl.secure.providers.v1.logger")
+class ProviderContentLoaderTests(TestCase):
+    def test__warn_ignored_file_warned(self, logger_mock):
+        self_mock = mock.MagicMock()
+        self_mock.provider.units_dir = "/some/path"
+        ProviderContentLoader._warn_ignored_file(
+            self_mock, "/some/path/script.py"
+        )
+        self.assertTrue(logger_mock.warning.called)
+
+    def test__warn_ignored_file_ignored(self, logger_mock):
+        self_mock = mock.MagicMock()
+        self_mock.provider.units_dir = "/some/path"
+        ProviderContentLoader._warn_ignored_file(
+            self_mock, "/some/path/__pycache__/script.pyc"
+        )
+        self.assertFalse(logger_mock.warning.called)

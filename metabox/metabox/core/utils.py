@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import re
 from typing import NamedTuple
+from subprocess import CalledProcessError
 
 __all__ = ("tag", "ExecuteResult")
 
@@ -37,6 +38,13 @@ class ExecuteResult(NamedTuple):
     stdout: str
     stderr: str
     outstr_full: str
+
+    def check(self, timeout=0):
+        if self.exit_code == 0:
+            return True
+        raise CalledProcessError(
+            self.exit_code, "", output=self.stdout, stderr=self.stderr
+        )
 
 
 class _re:

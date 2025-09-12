@@ -182,7 +182,7 @@ requires:
  manifest.has_usb_storage == 'True'
 estimated_duration: 45.0
 command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_summary: 
+_summary:
  Test USB 3.0 or 3.1 ports
 _purpose:
  Tests USB 3.0 ports on a system by doing write/read/compare tests on
@@ -228,6 +228,7 @@ category_id: com.canonical.plainbox::usb
 plugin: shell
 _summary: Detect storage partitions on a device on the USB bus
 command:
+  echo "Searching udev for a partitioned device connected via USB..."
   udev_resource.py -f PARTITION | grep "bus: usb"
 estimated_duration: 1.0
 flags: also-after-suspend

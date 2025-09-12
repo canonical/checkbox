@@ -14,6 +14,11 @@ _name: Miscellaneous client tests (Manual)
 _description:
  Miscellaneous client tests (fwts, dmi, oops) (Manual)
 include:
+    miscellanea/wallpaper
+    miscellanea/document
+    miscellanea/parental-controls
+    miscellanea/operation-system-installation      certification-status=blocker
+    miscellanea/factory-recovery                   certification-status=blocker
 nested_part:
 
 
@@ -86,7 +91,7 @@ include:
 
 id: server-miscellaneous-regression
 unit: test plan
-_name: Miscellaneous server cert tests
+_name: Miscellaneous server tests for SRU
 _description:
  Miscellaneous server tests (log checks, dmi data, etc)
 mandatory_include:

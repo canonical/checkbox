@@ -179,6 +179,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "AMD Siena SP6":    ['0xaa0f02'],
         "AMD Raphael":      ['0xa60f12'],
         "AMD Turin":        ['0xb00f21', '0xb10f10'],
+        "AMD Grado":        ['0xb40f40'],
         "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
         "Canon Lake":       ['0x6066'],
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
@@ -189,6 +190,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Emerald Rapids":   ['0xc06f2'],
         "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
         "Hygon Dhyana Plus": ["0x900f22"],
+        "Hygon C86-4G 7490": ['0x900f41'],
         "Ice Lake":         ['0x606e6', '0x606a6', '0x706e6', '0x606c1'],
         "Ivy Bridge":       ['0x306a', '0x306e'],
         "Kaby Lake":        ['0x806e9', '0x906e9'],
@@ -207,9 +209,9 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Westmere":         ['0x2065', '0x206c', '0x206f'],
         "Whisky Lake":      ['0x806eb', '0x806ec'],
         "Sierra Forest":    ['0xa06f3'],
-        "Granite Rapids":   ['0xa06e0', '0xa06d0'],
+        "Granite Rapids":   ['0xa06e0', '0xa06d0', '0xa06d1'],
         "Meteor Lake":      ['0xa06a4'],
-        "Arrow Lake":       ['0xc0660'],
+        "Arrow Lake":       ['0xc0660', '0xc0652'],
         "Lunar Lake":       ["0xb06d1"]
     }
     for key in CPUIDS.keys():

@@ -1,6 +1,6 @@
 id: cpu-cert-full
 unit: test plan
-_name: CPU tests
+_name: CPU tests (Cert full)
 _description:
  CPU tests
 include:

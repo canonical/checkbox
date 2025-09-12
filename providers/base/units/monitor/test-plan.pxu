@@ -214,8 +214,8 @@ bootstrap_include:
 
 id: after-suspend-monitor-discrete-gpu-cert-full
 unit: test plan
-_name: Monitor tests (after suspend, integrated GPU)
-_description: Monitor tests (after suspend, integrated GPU)
+_name: Monitor tests (after suspend, discrete GPU)
+_description: Monitor tests (after suspend, discrete GPU)
 include:
 nested_part:
     after-suspend-monitor-discrete-gpu-cert-manual
@@ -348,7 +348,7 @@ bootstrap_include:
 
 id: monitor-full
 unit: test plan
-_name: Monitor tests
+_name: Monitor tests (QA manual)
 _description: QA monitor tests for Snappy Ubuntu Core devices
 include:
 nested_part:
@@ -364,6 +364,7 @@ include:
     monitor/dvi-to-vga
     monitor/hdmi-to-vga
     monitor/displayport_hotplug  certification-status=blocker
+    monitor/hdmi_hotplug         certification-status=blocker
     monitor/vga
 
 id: after-suspend-monitor-full

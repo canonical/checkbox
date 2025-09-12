@@ -25,10 +25,17 @@ plainbox.impl.exporter.test_html
 
 Test definitions for plainbox.impl.exporter.html module
 """
-from unittest import TestCase
 import io
+from unittest import TestCase
 
-from pkg_resources import resource_string
+try:
+    from importlib.resources import files
+
+    def resource_string(module, path):
+        return files(module).joinpath(path).read_bytes()
+
+except ImportError:
+    from pkg_resources import resource_string
 
 from plainbox.abc import IJobResult
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
@@ -179,6 +186,11 @@ class HTMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="Checkbox 1.0",
+            origin={
+                "name": "Checkbox",
+                "version": "1.0",
+                "packaging": {"type": "source"},
+            },
             exporter_unit=self.exporter_unit,
         )
         stream = io.BytesIO()
@@ -202,6 +214,11 @@ class HTMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="Checkbox 1.0",
+            origin={
+                "name": "Checkbox",
+                "version": "1.0",
+                "packaging": {"type": "source"},
+            },
             exporter_unit=self.exporter_unit,
         )
         stream = io.BytesIO()

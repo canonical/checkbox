@@ -110,6 +110,7 @@ bootstrap_include:
   net_if_management
 nested_part:
   submission-cert-automated
+  info-attachment-cert-automated
   self-automated
   ubuntucore-automated
   iot-fwts-automated
@@ -142,7 +143,6 @@ nested_part:
   wireless-automated
   wireless-wifi-master-mode-auto
   wwan-automated
-  zapper-enabled-automated
   after-suspend-audio-automated
   after-suspend-bluez-automated
   after-suspend-ethernet-automated

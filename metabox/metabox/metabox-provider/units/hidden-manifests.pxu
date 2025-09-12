@@ -1,0 +1,43 @@
+unit: manifest entry
+id: _hidden_manifest
+_name: Hidden manifest entry for testing - Failure if shown
+hidden-reason: This is a test manifest to validate the feature
+value-type: bool
+
+unit: manifest entry
+id: shown_manifest
+_name: Shown manifest to check that non-hidden are shown
+value-type: bool
+
+unit: job
+id: job_requires_hidden
+_summary: Test that requires the hidden manifest to be set
+_purpose: This job will only run when the hidden manifest is set
+plugin: shell
+command: true
+estimated_duration: 1s
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest._hidden_manifest == 'True'
+  manifest.shown_manifest == 'True'
+
+unit: job
+id: job_requires_not_hidden
+_summary: Test that requires the hidden manifest to be unset
+_purpose: This job will only run when the hidden manifest is False (unset)
+plugin: shell
+command: true
+estimated_duration: 1s
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest._hidden_manifest == 'False'
+  manifest.shown_manifest == 'True'
+
+id: hidden_manifest_testplan
+unit: test plan
+_name: Hidden Manifests test plan
+_description:
+  Test plan used to test that hidden manifests work as intended
+include:
+  job_requires_hidden
+  job_requires_not_hidden

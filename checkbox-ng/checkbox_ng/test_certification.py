@@ -25,18 +25,26 @@ plainbox.impl.transport.test_certification
 Test definitions for plainbox.impl.certification module
 """
 
+import requests
 from io import BytesIO
 from unittest import TestCase
 
-from pkg_resources import resource_string
 from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.vendor import mock
 from plainbox.vendor.mock import MagicMock
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
-import requests
 
 from checkbox_ng.certification import SubmissionServiceTransport
+
+try:
+    from importlib.resources import files
+
+    def resource_string(module, path):
+        return files(module).joinpath(path).read_bytes()
+
+except ImportError:
+    from pkg_resources import resource_string
 
 
 class SubmissionServiceTransportTests(TestCase):

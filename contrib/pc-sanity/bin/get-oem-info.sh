@@ -19,19 +19,21 @@ exit 1
 }
 
 prepare() {
-    # For sutton we could get oem info from buildstamp, it's quicker and use less resource. 
-    # Examples:
-    # pc-sutton-bachman-focal-amd64-X00-20201022-403
-    # sutton-focal-amd64-X02-20211221-33
-    # It will return sutton for $oem
-    if [ -f /etc/buildstamp ]; then
-        oem=$(tail -n1 /etc/buildstamp | grep -o 'sutton' || true)
-    fi
+    local dcd
+
+    dcd=$(ubuntu-report show | jq -r '.OEM.DCD')
+    for project in sutton stella somerville; do
+        if [[ "$dcd" == *"$project"* ]]; then
+            oem="$project"
+            break
+        fi
+    done
+
     if [ -z "${oem}" ]; then
-        oem="$(grep -q stella <(ubuntu-report show | grep DCD) && echo stella)" ||\
-        oem="$(grep -q somerville <(ubuntu-report show | grep DCD) && echo somerville)" ||\
-        { >&2 echo "[ERROR][CODE]got an empty OEM codename in ${FUNCNAME[0]}"; }
+        >&2 echo "[ERROR][CODE]got an empty OEM codename in ${FUNCNAME[0]}";
+        return 1
     fi
+
     # Since Ubuntu 22.04, there is no group layer anymore
     # Use 20.04 & 22.04 instead of focal & jammy since we may need to support N+1 in the future.
     release=$(lsb_release -a 2>/dev/null| grep ^Release| awk '{print $2}')

@@ -26,35 +26,30 @@
 import json
 import logging
 import re
-import os
+
+from collections import defaultdict
 
 from plainbox.abc import IJobDefinition
-from plainbox.i18n import gettext as _
-from plainbox.i18n import gettext_noop as N_
-from plainbox.impl.decorators import cached_property
-from plainbox.impl.decorators import instance_method_lru_cache
-from plainbox.impl.resource import ResourceProgram
-from plainbox.impl.resource import parse_imports_stmt
-from plainbox.impl.secure.origin import JobOutputTextSource
+from plainbox.i18n import gettext as _, gettext_noop as N_
+from plainbox.impl.decorators import cached_property, instance_method_lru_cache
+from plainbox.impl.resource import ResourceProgram, parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import DeprecatedFieldValidator
-from plainbox.impl.unit.validators import MemberOfFieldValidator
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import ReferenceConstraint
-from plainbox.impl.unit.validators import ShellProgramValidator
-from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import UselessFieldValidator
+from plainbox.impl.unit.validators import (
+    CorrectFieldValueValidator,
+    DeprecatedFieldValidator,
+    MemberOfFieldValidator,
+    PresentFieldValidator,
+    ReferenceConstraint,
+    ShellProgramValidator,
+    UnitReferenceValidator,
+    UselessFieldValidator,
+)
 
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
-from plainbox.impl.xparsers import Error
-from plainbox.impl.xparsers import Text
-from plainbox.impl.xparsers import Visitor
-from plainbox.impl.xparsers import WordList
+from plainbox.impl.validation import Problem, Severity
+from plainbox.impl.xparsers import Error, Text, Visitor, WordList
 
 __all__ = ["JobDefinition", "propertywithsymbols"]
 
@@ -228,6 +223,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             controller = checkbox_session_state_ctrl
         self._resource_program = None
         self._controller = controller
+        self.before_references = set()
 
     @classmethod
     def instantiate_template(
@@ -342,6 +338,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
     @cached_property
     def after(self):
         return self.get_record_value("after")
+
+    @cached_property
+    def before(self):
+        return self.get_record_value("before")
 
     @cached_property
     def salvages(self):
@@ -687,9 +687,38 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 deps.add(self.qualify_id(node.text))
 
             def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse depends: %s"), node.msg)
+                logger.warning(_("unable to parse after: %s"), node.msg)
 
         V().visit(WordList.parse(self.after))
+        return deps
+
+    def get_before_dependencies(self):
+        """
+        Compute and return a set of after dependencies.
+
+        If this job (A) is referenced in the "before" field of another job (B),
+        then the job B will be added to the set of dependencies of A. This way
+        the dependency graph only works with "after" dependencies:
+
+            id: A          id: A
+                       ->  after: B
+            id: B      ->
+            before: A      id: B
+        """
+
+        deps = set()
+        if self.before is None:
+            return deps
+
+        class V(Visitor):
+
+            def visit_Text_node(visitor, node: Text):
+                deps.add(self.qualify_id(node.text))
+
+            def visit_Error_node(visitor, node: Error):
+                logger.warning(_("unable to parse before: %s"), node.msg)
+
+        V().visit(WordList.parse(self.before))
         return deps
 
     def get_salvage_dependencies(self):
@@ -770,6 +799,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             estimated_duration = "estimated_duration"
             depends = "depends"
             after = "after"
+            before = "before"
             salvages = "salvages"
             requires = "requires"
             shell = "shell"
@@ -944,6 +974,23 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     ],
                 ),
             ],
+            fields.before: [
+                concrete_validators.untranslatable,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        unit.get_before_dependencies() is not None
+                    )
+                ),
+                UnitReferenceValidator(
+                    lambda unit: unit.get_before_dependencies(),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        )
+                    ],
+                ),
+            ],
             fields.requires: [
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
@@ -1081,3 +1128,75 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 MemberOfFieldValidator(_AutoRetryValues.get_all_symbols()),
             ],
         }
+
+
+class InvalidJob(JobDefinition):
+
+    def __init__(self, *args, errors=[], **kwargs):
+        assert errors, "Unit is not invalid"
+        self.errors = errors
+        super().__init__(*args, **kwargs)
+
+    @property
+    def error_lines(self) -> str:
+        return [str(x) for x in self.errors]
+
+    @classmethod
+    def wrap_default_missing(cls, dct):
+        def missing_param():
+            # if the __index__ wasn't generated, something is extra wrong here
+            # lets crash
+            return "MISSING_PARAM_{}".format(dct["__index__"])
+
+        return defaultdict(missing_param, dct)
+
+    @classmethod
+    def from_unit(cls, unit, errors):
+        # values for the parameters. Given that this may be invalid due to
+        # missing parameters, lets give a default so that we can always expand
+        # the unit
+        parameters = cls.wrap_default_missing(unit.parameters)
+        return cls(
+            unit._data,
+            parameters=parameters,
+            provider=unit.provider,
+            errors=errors,
+        )
+
+    class Meta:
+
+        name = N_("job")
+
+        class fields(SymbolDef):
+            """
+            Symbols for each field that a InvalidJob can have
+            """
+
+            name = "name"
+            summary = "summary"
+            plugin = "plugin"
+            command = "command"
+            description = "description"
+            user = "user"
+            environ = "environ"
+            estimated_duration = "estimated_duration"
+            depends = "depends"
+            after = "after"
+            salvages = "salvages"
+            requires = "requires"
+            shell = "shell"
+            imports = "imports"
+            flags = "flags"
+            category_id = "category_id"
+            purpose = "purpose"
+            steps = "steps"
+            verification = "verification"
+            certification_status = "certification_status"
+            siblings = "siblings"
+            auto_retry = "auto_retry"
+
+    def __str__(self):
+        return self.summary
+
+    def __repr__(self):
+        return "<InvalidJob id:{!r} plugin:{!r}>".format(self.id, self.plugin)

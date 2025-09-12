@@ -57,7 +57,8 @@ otg_info() {
                     # UDC name is not the same as USB node, but can find UDC folder is under the USB node.
                     if [[ "$udc" == *"$usb_node"* ]] ||
                        [[ $(find "$device_path" -wholename "*/$udc/$usb_node*") ]] ||
-                       [[ $(find "$device_path" -wholename "*$usb_node*/udc/$udc") ]]; then
+                       [[ $(find "$device_path" -wholename "*$usb_node*/udc/$udc") ]] ||
+                       [[ "$(find "$device_path" -wholename "*/$udc/of_node" -exec readlink -f {} \;)" == *"usb@$usb_node" ]]; then
                         found_udc="$udc"
                         break
                     fi

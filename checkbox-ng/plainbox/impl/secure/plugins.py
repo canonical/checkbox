@@ -20,7 +20,7 @@
 ===============================================================================
 
 This module contains plugin interface for plainbox. Plugins are based on
-pkg_resources entry points feature. Any python package can advertise the
+importlib metadata entry points feature. Any python package can advertise the
 existence of entry points associated with a given namespace. Any other
 package can query a given namespace and enumerate a sequence of entry points.
 
@@ -40,16 +40,28 @@ The set of loaded plugins can be overridden by mock/patching
 testing in isolation from whatever entry points may exist in the system.
 """
 
+import os
 import abc
+import time
+import logging
 import collections
 import contextlib
-import logging
-import os
-import time
-
-import pkg_resources
+from contextlib import suppress
 
 from plainbox.i18n import gettext as _
+
+try:
+    from importlib.metadata import entry_points
+except ImportError:
+    from importlib_metadata import entry_points
+
+
+def get_entry_points(**kwargs):
+    with suppress(TypeError):
+        return entry_points(**kwargs)
+    import pkg_resources
+
+    return pkg_resources.iter_entry_points(**kwargs)
 
 
 logger = logging.getLogger("plainbox.secure.plugins")
@@ -467,7 +479,7 @@ class PlugInCollectionBase(IPlugInCollection):
 
 class PkgResourcesPlugInCollection(PlugInCollectionBase):
     """
-    Collection of plug-ins based on pkg_resources
+    Collection of plug-ins based on importlib metadata
 
     Instantiate with :attr:`namespace`, call :meth:`load()` and then access any
     of the loaded plug-ins using the API offered. All loaded objects are
@@ -487,7 +499,7 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         Initialize a collection of plug-ins from the specified name-space.
 
         :param namespace:
-            pkg_resources entry-point name-space of the plug-in collection
+            importlib metadata entry-point name-space of the plug-in collection
         :param load:
             if true, load all of the plug-ins now
         :param wrapper:
@@ -532,11 +544,12 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
 
     def _get_entry_points(self):
         """
-        Get entry points from pkg_resources.
+        Get entry points from importlib metadata.
 
         This is the method you want to mock if you are writing unit tests
         """
-        return pkg_resources.iter_entry_points(self._namespace)
+
+        return get_entry_points(group=self._namespace)
 
 
 class FsPlugInCollection(PlugInCollectionBase):

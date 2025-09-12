@@ -15,15 +15,21 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import textwrap
 
+from importlib.resources import read_text
+
+from metabox import tools
 from metabox.core import keys
 from metabox.core.actions import (
     AssertPrinted,
     AssertRetCode,
     SelectTestPlan,
     Send,
+    Put,
+    RunCmd,
     Expect,
     Start,
     Signal,
+    ExpectNot,
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
@@ -160,4 +166,121 @@ class ResumeAfterFinishPreserveOutputRemote(Scenario):
         Send("f"),
         Expect("job passed"),
         Expect("job failed"),
+    ]
+
+
+@tag("resume", "manual", "regression")
+class LocalResumePreservesRejectedJobsStateMap(Scenario):
+    """
+    Check that the job_state_map survives both manual closure and restarts
+    """
+
+    modes = ["local"]
+    launcher = "# no launcher"
+    steps = [
+        Start(),
+        Expect("Select test plan"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::checkbox-crash-then-reboot"
+        ),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send(keys.KEY_ENTER),
+        Expect("Crash Checkbox"),
+        Send(keys.KEY_DOWN + keys.KEY_SPACE),
+        Expect("[ ]"),
+        Send("T"),
+        Expect("Waiting for the system to shut down or reboot"),
+        Start(),
+        Expect("Do you want to submit 'upload to certification' report?"),
+        Signal(keys.SIGINT),
+        Start(),
+        Expect("Reports will be saved to"),
+        # Part of the regression, fixing the job state map would make the
+        # re-bootstrapping of the session include the excluded job
+        ExpectNot("basic-shell-crashing", timeout=0.1),
+        # Here the session will try to re-generate the submission.json but it
+        # will fail if the info about the session is not complete in the job
+        # state map (as it was prior to this regression)
+        Expect("Do you want to submit 'upload to certification' report?"),
+    ]
+
+
+@tag("resume", "manual", "regression")
+class RemoteResumePreservesRejectedJobsStateMap(Scenario):
+    """
+    Check that the job_state_map survives both manual closure and restarts
+
+    This differs from Local because in remote the controller waits for the
+    agent to come back, we lose the output of the rebooting job and we don't
+    need to re-start the controller on reboot
+    """
+
+    modes = ["remote"]
+    launcher = "# no launcher"
+    steps = [
+        Start(),
+        Expect("Select test plan"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::checkbox-crash-then-reboot"
+        ),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send(keys.KEY_ENTER),
+        Expect("Crash Checkbox"),
+        Send(keys.KEY_DOWN + keys.KEY_SPACE),
+        Expect("[ ]"),
+        Send("T"),
+        Expect("Connection lost!"),
+        Expect("Do you want to submit 'upload to certification' report?"),
+        Signal(keys.SIGINT),
+        Start(),
+        # Part of the regression, fixing the job state map would make the
+        # re-bootstrapping of the session include the excluded job
+        ExpectNot("Crash Checkbox", timeout=0.1),
+        Expect("tar_file"),
+        # Here the session will try to re-generate the submission.json but it
+        # will fail if the info about the session is not complete in the job
+        # state map (as it was prior to this regression)
+        Expect("Do you want to submit 'upload to certification' report?"),
+    ]
+
+
+@tag("resume", "manual")
+class ResumeDontCrashIncompatibleSession(Scenario):
+    session_corruptor = read_text(tools, "session_corruptor.py")
+    modes = ["local"]
+    launcher = "# no launcher"
+    steps = [
+        Start(),
+        Expect("Select test plan"),
+        SelectTestPlan("2021.com.canonical.certification::pass-only-rerun"),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send("T"),
+        Expect("Select jobs to re-run"),
+        Send(keys.KEY_SPACE),
+        Expect("[X]"),
+        Send("r"),
+        Expect("Select jobs to re-run"),
+        Signal(keys.SIGINT),
+        Put("/home/session_corruptor.py", session_corruptor),
+        RunCmd("python3 /home/session_corruptor.py"),
+        Start(),
+        Expect("Checkbox tried to resume"),
+        # the error message has to contain the job id
+        Expect("intentionally corrupted session"),
+        Send(keys.KEY_ENTER),
+        Expect("Select test plan"),
+        Signal(keys.SIGINT),
+        # The error doesn't go away on its own
+        Start(),
+        Expect("Checkbox tried to resume"),
+        # the error message has to contain the job id
+        Expect("intentionally corrupted session"),
+        Send(keys.KEY_ENTER),
+        Expect("Select test plan"),
+        Signal(keys.SIGINT),
+        Start("--clear-old-sessions"),
+        Expect("Select test plan"),
     ]

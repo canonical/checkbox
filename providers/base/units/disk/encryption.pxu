@@ -3,10 +3,12 @@ category_id: com.canonical.plainbox::disk
 plugin: shell
 template-engine: jinja2
 user: root
+imports: from com.canonical.plainbox import manifest
 requires:
   executable.name == 'lsblk'
   executable.name == 'dmsetup'
   executable.name == 'cryptsetup'
+  manifest.has_fde == 'True'
 _summary: Test that Full Disk Encryption is in use
 _purpose:
   Examine the system to detect if one of the standard full disk encryption
@@ -45,3 +47,5 @@ _verification:
 category_id: com.canonical.plainbox::disk
 estimated_duration: 45m
 plugin: manual
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_fde == 'True'

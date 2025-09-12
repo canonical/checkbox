@@ -171,7 +171,7 @@ nested_part:
     cold-boot-stress-test
     suspend-stress-test
     stress-ng-cert-automated
-    tpm-cert-focal-automated
+    tpm-cert-automated
     info-attachment-cert-full
 exclude:
     com.canonical.certification::keys/hibernate

@@ -3,7 +3,7 @@ _summary:
     Generates a serial console resource based on user supplied configuration
 _description:
     A serial console resource that relies on the user
-    specifying the number of serial console port. 
+    specifying the number of serial console port.
     This is to allow template jobs to then be instantiated.
     TYPE:NODE:BAUDRATE
     SERIAL_CONSOLE_PORTS=USB:/dev/ttyUSB1:115200
@@ -24,11 +24,11 @@ template-engine: jinja2
 template-id: ce-oem-serial/serial-console-tests
 id: ce-oem-serial/serial-console-{{ type }}-{{ node }}-{{ baudrate }}
 imports: from com.canonical.plainbox import manifest
-requires: 
+requires:
     manifest.has_serial_console_loopback == 'True'
 _template-summary: To check if the serial ports can work as a console
 _summary: To check if the serial port {{ type }} ({{ node }}) can work as a console
-_purpose: 
+_purpose:
     To check the serial port {{ type }} ({{ node }}) can work as a console.
 _description:
     Have to connect the serial port back to itself
@@ -46,7 +46,7 @@ _summary:
     Generates a serial resource based on user supplied configuration
 _description:
     A serial resource that relies on the user
-    specifying the number of serial port. 
+    specifying the number of serial port.
     This is to allow template jobs to then be instantiated.
     TYPE:NODE:BAUDRATE
     SERIAL_PORTS="RS485:/dev/ttyS0:9600 RS485:/dev/ttyS1:9600 RS232:/dev/ttyS2:115200"
@@ -67,11 +67,11 @@ template-engine: jinja2
 template-id: ce-oem-serial/serial-transmit-data-tests
 id: ce-oem-serial/serial-transmit-data-{{ type }}-{{ node }}-{{ baudrate }}
 imports: from com.canonical.plainbox import manifest
-requires: 
+requires:
     manifest.has_serial_ehco_server == 'True'
 _template-summary:
     Transmit data via serial ports
-_purpose: 
+_purpose:
     To check the serial port {{ type }} ({{ node }}) can transmit
     data with baudate {{ baudrate }}
 _description:
@@ -81,5 +81,11 @@ user: root
 category_id: com.canonical.certification::serial
 estimated_duration: 30
 flags: also-after-suspend
+environ: RS485_CONFIG
 command:
-    serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}
+    # shellcheck disable=SC2050
+    if [ {{ type }} == "RS485" ]; then
+        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}  --rs485-config "$RS485_CONFIG"
+    else
+        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}
+    fi

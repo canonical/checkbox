@@ -18,7 +18,7 @@ plugin: shell
 flags: also-after-suspend
 user: root
 depends: mir/check-ubuntu-frame-launching-auto
-imports: 
+imports:
     from com.canonical.certification import snap
     from com.canonical.plainbox import manifest
 requires:

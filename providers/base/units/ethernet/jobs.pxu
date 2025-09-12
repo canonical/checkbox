@@ -209,6 +209,9 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 id: ethernet/ping_{interface}
 template-id: ethernet/ping_interface
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest._ignore_disconnected_ethernet_interfaces == 'False'
 _summary: Can ping another machine over Ethernet port {interface}
 _purpose: Check Ethernet works by pinging another machine
 plugin: shell
@@ -331,7 +334,7 @@ _steps:
  2. Follow the instructions on the screen.
 plugin: user-interact
 command:
- eth_hotplugging.py {{ interface }} && gateway_ping_test.py --interface {{ interface }}
+ eth_hotplugging.py {{ interface }}
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 60.0
 user: root

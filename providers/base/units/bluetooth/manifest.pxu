@@ -7,3 +7,8 @@ unit: manifest entry
 id: has_bt_smart
 _name: A Bluetooth Module with Smart (4.0 or later) Support
 value-type: bool
+
+unit: manifest entry
+id: has_bt_obex_support
+_name: A Bluetooth Module with OBject EXchange (OBEX) Support
+value-type: bool

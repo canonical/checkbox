@@ -18,7 +18,11 @@
 
 import subprocess
 import unittest
+from subprocess import CalledProcessError
 from unittest.mock import patch, call, MagicMock
+from pathlib import Path
+import shutil
+import tempfile
 
 from checkbox_support.helpers.retry import mock_retry
 
@@ -39,9 +43,10 @@ from wifi_nmcli_test import (
     print_address_info,
     print_route_info,
     perform_ping_test,
-    hotspot,
     parser_args,
     main,
+    restore_netplan_files,
+    backup_netplan_files,
 )
 
 
@@ -49,20 +54,20 @@ class WifiNmcliBackupTests(unittest.TestCase):
     @patch("wifi_nmcli_test.sp")
     def test_legacy_nmcli_true(self, subprocess_mock):
         subprocess_mock.check_output.return_value = (
-            b"nmcli tool, version 1.9.8-5"
+            "nmcli tool, version 1.9.8-5"
         )
         self.assertTrue(legacy_nmcli())
 
     @patch("wifi_nmcli_test.sp")
     def test_legacy_nmcli_false(self, subprocess_mock):
         subprocess_mock.check_output.return_value = (
-            b"nmcli tool, version 1.46.0-2"
+            "nmcli tool, version 1.46.0-2"
         )
         self.assertFalse(legacy_nmcli())
 
 
 class TestGetNmWirelessConnections(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.check_output", return_value=b"")
+    @patch("wifi_nmcli_test.sp.check_output", return_value="")
     def test_no_wireless_connections(self, check_output_mock):
         expected = {}
         self.assertEqual(_get_nm_wireless_connections(), expected)
@@ -70,9 +75,9 @@ class TestGetNmWirelessConnections(unittest.TestCase):
     @patch(
         "wifi_nmcli_test.sp.check_output",
         return_value=(
-            b"802-11-wireless:uuid1:Wireless1:activated\n"
-            b"802-3-ethernet:uuid2:Ethernet1:activated\n"
-            b"802-11-wireless:uuid3:Wireless2:deactivated\n"
+            "802-11-wireless:uuid1:Wireless1:activated\n"
+            "802-3-ethernet:uuid2:Ethernet1:activated\n"
+            "802-11-wireless:uuid3:Wireless2:deactivated\n"
         ),
     )
     def test_multiple_wireless_connections(self, check_output_mock):
@@ -224,7 +229,7 @@ class TestListAps(unittest.TestCase):
     @patch("wifi_nmcli_test.sp.check_output")
     def test_list_aps_no_essid(self, check_output_mock):
         check_output_mock.return_value = (
-            b"wlan0 \nSSID1:1:2412:60\nSSID2:6:2437:70\nSSID3:11:2462:80"
+            "wlan0 \nSSID1:1:2412:60\nSSID2:6:2437:70\nSSID3:11:2462:80"
         )
         expected = {
             "SSID1": {"Chan": "1", "Freq": "2412", "Signal": "60"},
@@ -236,7 +241,7 @@ class TestListAps(unittest.TestCase):
     @patch("wifi_nmcli_test.sp.check_output")
     def test_list_aps_with_essid(self, check_output_mock):
         check_output_mock.return_value = (
-            b"SSID1:1:2412:60\nSSID2:6:2437:70\nSSID3:11:2462:80"
+            "SSID1:1:2412:60\nSSID2:6:2437:70\nSSID3:11:2462:80"
         )
         expected = {
             "SSID2": {"Chan": "6", "Freq": "2437", "Signal": "70"},
@@ -245,7 +250,7 @@ class TestListAps(unittest.TestCase):
 
     @patch("wifi_nmcli_test.sp.check_output")
     def test_list_aps_empty_output(self, check_output_mock):
-        check_output_mock.return_value = b""
+        check_output_mock.return_value = ""
         expected = {}
         self.assertEqual(list_aps("wlan0"), expected)
 
@@ -404,9 +409,42 @@ class TestSecuredConnection(unittest.TestCase):
 
 
 class TestDeviceRescan(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.check_call")
+    @patch("wifi_nmcli_test.sp.check_output")
     def test_device_rescan_success(self, mock_sp_check_call):
         device_rescan()
+
+    @patch("wifi_nmcli_test.sp.check_output")
+    def test_device_rescan_success_ok_failure_immediate(
+        self, mock_sp_check_call
+    ):
+        mock_sp_check_call.side_effect = CalledProcessError(
+            1,
+            cmd="",
+            output="Error: Scanning not allowed immediately following previous scan",
+        )
+        device_rescan()
+
+    @patch("wifi_nmcli_test.sp.check_output")
+    def test_device_rescan_success_ok_failure_already(
+        self, mock_sp_check_call
+    ):
+        mock_sp_check_call.side_effect = CalledProcessError(
+            1,
+            cmd="",
+            output="Error: Scanning not allowed while already scanning",
+        )
+        device_rescan()
+
+    @patch("wifi_nmcli_test.sp.check_output")
+    @mock_retry()
+    def test_device_rescan_failure(self, mock_sp_check_call):
+        mock_sp_check_call.side_effect = CalledProcessError(
+            1,
+            cmd="",
+            output="Error: Very serious error we can't ignore",
+        )
+        with self.assertRaises(CalledProcessError):
+            device_rescan()
 
 
 class TestPrintAddressInfo(unittest.TestCase):
@@ -573,6 +611,8 @@ class TestMainFunction(unittest.TestCase):
             "TestSSID": {"Chan": "11", "Freq": "2462", "Signal": "80"},
         },
     )
+    @patch("wifi_nmcli_test.backup_netplan_files")
+    @patch("wifi_nmcli_test.restore_netplan_files")
     @patch("wifi_nmcli_test.open_connection", return_value=0)
     @patch(
         "wifi_nmcli_test.sys.argv",
@@ -583,5 +623,142 @@ class TestMainFunction(unittest.TestCase):
         list_aps_mock,
         get_nm_activate_connection_mock,
         mock_open_connection,
+        mock_rest_back,
+        mock_cr_back,
     ):
         main()
+
+
+class TestNetplanBackupFunctions(unittest.TestCase):
+    def setUp(self):
+        self.TEST_BACKUP_DIR = tempfile.TemporaryDirectory()
+        self.TEST_NETPLAN_DIR = tempfile.TemporaryDirectory()
+
+    @patch("glob.glob")
+    @patch("builtins.print")
+    def test_backup_netplan_files_no_files_found(self, mock_print, mock_glob):
+        """Test backup when no YAML files are found."""
+        mock_glob.return_value = []
+
+        backup_netplan_files(
+            str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+        )
+
+    @patch("os.chown")
+    @patch("os.stat")
+    @patch("glob.glob")
+    @patch("shutil.copy2")
+    @patch("pathlib.Path.mkdir")
+    @patch("builtins.print")
+    def test_backup_netplan_files_success(
+        self,
+        mock_print,
+        mock_mkdir,
+        mock_copy2,
+        mock_glob,
+        mock_stat,
+        mock_chown,
+    ):
+        """Test successful backup of netplan files."""
+        mock_glob.return_value = [
+            str(self.TEST_NETPLAN_DIR.name) + "/config1.yaml",
+            str(self.TEST_NETPLAN_DIR.name) + "/config2.yaml",
+        ]
+
+        backup_netplan_files(
+            str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+        )
+
+        self.assertEqual(mock_copy2.call_count, 2)
+        mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
+
+    @patch("os.chown")
+    @patch("os.stat")
+    @patch("os.path.exists")
+    @patch("glob.glob")
+    @patch("os.remove")
+    @patch("os.makedirs")
+    @patch("shutil.copy2")
+    @patch("builtins.print")
+    def test_restore_netplan_files_success(
+        self,
+        mock_print,
+        mock_copy2,
+        mock_makedirs,
+        mock_remove,
+        mock_glob,
+        mock_exists,
+        mock_stat,
+        mock_chown,
+    ):
+        """Test successful restore of netplan files."""
+        mock_exists.return_value = True
+
+        mock_glob.side_effect = [
+            [],
+            [],
+        ]
+
+        restore_netplan_files(None, str(self.TEST_NETPLAN_DIR.name))
+        restore_netplan_files(
+            str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+        )
+
+        mock_glob.side_effect = [
+            # Existing files to remove
+            [str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"],
+            [
+                "{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name)),
+                "{}/config2.yaml".format(str(self.TEST_BACKUP_DIR.name)),
+            ],  # Backup files
+        ]
+
+        restore_netplan_files(
+            str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+        )
+
+        mock_remove.assert_called_once_with(
+            str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"
+        )
+        self.assertEqual(mock_copy2.call_count, 2)
+
+    @patch("os.path.exists")
+    @patch("glob.glob")
+    @patch("os.remove")
+    @patch("builtins.print")
+    def test_restore_netplan_files_remove_error(
+        self, mock_print, mock_remove, mock_glob, mock_exists
+    ):
+        """Test restore when removing existing files fails."""
+        mock_exists.return_value = True
+        mock_glob.side_effect = [
+            # Existing files to remove
+            [str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"],
+            # Backup files
+            ["{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name))],
+        ]
+        mock_remove.side_effect = OSError("Permission denied")
+        with self.assertRaises(OSError):
+            restore_netplan_files(
+                str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+            )
+
+    @patch("os.path.exists")
+    @patch("glob.glob")
+    @patch("os.makedirs")
+    @patch("builtins.print")
+    def test_restore_netplan_files_makedirs_error(
+        self, mock_print, mock_makedirs, mock_glob, mock_exists
+    ):
+        """Test restore when makedirs operation fails."""
+        mock_exists.return_value = True
+        mock_glob.side_effect = [
+            [],
+            ["{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name))],
+        ]
+        mock_makedirs.side_effect = OSError("Permission denied")
+
+        with self.assertRaises(FileNotFoundError):
+            restore_netplan_files(
+                str(self.TEST_BACKUP_DIR.name), str(self.TEST_NETPLAN_DIR.name)
+            )

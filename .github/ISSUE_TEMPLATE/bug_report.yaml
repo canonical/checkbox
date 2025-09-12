@@ -16,6 +16,12 @@ body:
         If applicable, add screenshots to help explain the problem you are facing.      
     validations:
       required: true
+  - type: checkboxes
+    attributes:
+      label: Cert-blocker Test Case
+      description: Tick this box if your issue is about a test case that has the "blocker" certification status
+      options:
+        - label: cert-blocker
   - type: textarea
     id: reproduction
     attributes:
@@ -26,6 +32,26 @@ body:
         1. Launch Checkbox with command '...'
         2. Run job '...'
         3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected_result
+    attributes:
+      label: Expected Result
+      description: >
+        What should happen?
+      placeholder: |
+        The job passes because ... and all is green.
+    validations:
+      required: true
+  - type: textarea
+    id: actual_result
+    attributes:
+      label: Actual Result
+      description: >
+        What actually happens?
+      placeholder: |
+        The job fails because ... and everything is red!
     validations:
       required: true
   - type: textarea

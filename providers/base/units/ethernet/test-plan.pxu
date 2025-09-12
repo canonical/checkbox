@@ -53,7 +53,7 @@ bootstrap_include:
 
 id: ethernet-full
 unit: test plan
-_name: QA tests for ethernet
+_name: QA tests for ethernet (Core devices)
 _description: Ethernet tests for Ubuntu Core devices
 estimated_duration: 1m
 include:
@@ -81,6 +81,7 @@ estimated_duration: 1m
 include:
     ethernet/detect    certification-status=blocker
     ethernet/ping_.*   certification-status=blocker
+    ethernet/ping-with-any-cable-interface  certification-status=blocker
 bootstrap_include:
     device
 
@@ -112,6 +113,7 @@ estimated_duration: 1m
 include:
     after-suspend-ethernet/detect
     after-suspend-ethernet/ping_.*
+    after-suspend-ethernet/ping-with-any-cable-interface
 bootstrap_include:
     device
 
@@ -138,7 +140,6 @@ include:
     ethernet/info_automated_server          certification-status=non-blocker
     ethernet/ethtool_info                   certification-status=non-blocker
     ethernet/ethertool_check_.*             certification-status=non-blocker
-    ethernet/sru_iperf3_stress_device-.*    certification-status=blocker
 bootstrap_include:
     device
     executable

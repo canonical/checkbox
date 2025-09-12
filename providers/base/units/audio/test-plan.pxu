@@ -1,6 +1,6 @@
 id: audio-cert-full
 unit: test plan
-_name: Audio tests
+_name: Audio test (Full)
 _description:
  Audio tests
  See Monitor / Graphic test plans for hybrid-graphic monitor audio tests
@@ -94,7 +94,7 @@ include:
 
 id: audio-full
 unit: test plan
-_name: Audio tests
+_name: Audio tests (QA test for Core devices)
 _description: QA audio tests for Snappy Ubuntu Core devices
 include:
 nested_part:
@@ -130,7 +130,7 @@ include:
 
 id: after-suspend-audio-full
 unit: test plan
-_name: Audio tests (after suspend)
+_name: Audio tests (after suspend, automated and manual)
 _description: QA audio tests for Snappy Ubuntu Core devices
 include:
 nested_part:
@@ -139,7 +139,7 @@ nested_part:
 
 id: after-suspend-audio-manual
 unit: test plan
-_name: Manual audio tests (after suspend)
+_name: Manual audio tests (after suspend, manual)
 _description: Manual audio tests for Snappy Ubuntu Core devices
 include:
     after-suspend-audio/alsa-playback
@@ -157,7 +157,7 @@ include:
 
 id: after-suspend-audio-automated
 unit: test plan
-_name: Automated audio tests
+_name: Automated audio tests (after suspend)
 _description: Automated audio tests for Snappy Ubuntu Core devices
 include:
     after-suspend-audio/detect-playback-devices

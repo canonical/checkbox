@@ -27,6 +27,7 @@ import os
 import re
 import string
 
+from checkbox_support.helpers.slugify import slugify
 from checkbox_support.lib.bit import get_bitmask
 from checkbox_support.lib.bit import test_bit
 from checkbox_support.lib.input import Input
@@ -84,7 +85,7 @@ INPUT_SYSFS_ID = re.compile(r"/input/input\d+$")
 OPENFIRMWARE_RE = re.compile(
     r"^of:" r"N(?P<name>.*?)" r"T(?P<type>.*?)" r"C(?P<compatible>.*?)"
 )
-CARD_READER_RE = re.compile(r"SD|MMC|CF|MS(?!ata)|SM|xD|Card", re.I)
+CARD_READER_RE = re.compile(r"SD|MMC|CF|MS(?!ata)|xD|Card", re.I)
 GENERIC_RE = re.compile(r"Generic", re.I)
 FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
@@ -94,14 +95,6 @@ ROOT_MOUNTPOINT = re.compile(
     r"ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)"
 )
 CAMERA_RE = re.compile(r"Camera", re.I)
-
-
-def slugify(_string):
-    """Transform any string to one that can be used in job IDs."""
-    valid_chars = frozenset(
-        "-_.{}{}".format(string.ascii_letters, string.digits)
-    )
-    return "".join(c if c in valid_chars else "_" for c in _string)
 
 
 def find_pkname_is_root_mountpoint(devname, lsblk=None):
@@ -454,6 +447,7 @@ class UdevadmDevice(object):
             # As it's not possible to distinguish them from simple MMC
             # removable storage, only those with a partition mounted as /
             # will be considered.
+
             if self.driver.startswith("mmc"):
                 if self._mmc_type == "MMC" and find_pkname_is_root_mountpoint(
                     self.name, self._lsblk
@@ -635,7 +629,7 @@ class UdevadmDevice(object):
                 # for the video decoder, encoder, and ISP resize.
                 # Ignore Mediatek v4l2 encoder, decoder, jpeg codec and
                 # image processor 3
-                # Ignore Intel image process uint 6th generation (IPU6)
+                # Ignore Intel image process uint (IPU)
                 drivers_blocklist = (
                     "bcm2835-codec",
                     "bcm2835-isp",
@@ -643,10 +637,13 @@ class UdevadmDevice(object):
                     "mtk-vcodec-dec",
                     "mtk-jpeg",
                     "mtk-mdp3",
-                    "intel-ipu6-isys",
+                    "intel[-_]ipu[0-9][-_].*",
                 )
-                if self.driver not in drivers_blocklist:
-                    return "CAPTURE"
+                for b in drivers_blocklist:
+                    match = re.search(b, str(self.driver))
+                    if match:
+                        return None
+                return "CAPTURE"
             # special device for PiCamera
             if self._environment["SUBSYSTEM"] == "vchiq":
                 return "MMAL"

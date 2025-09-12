@@ -29,6 +29,7 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 from plainbox.abc import IJobResult
+from plainbox.impl.depmgr import DependencyType
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.depmgr import DependencyUnknownError
@@ -143,8 +144,8 @@ class RegressionTests(TestCase):
         self.assertEqual(
             problems,
             [
-                DependencyMissingError(B, "C", "direct"),
-                DependencyMissingError(A, "B", "direct"),
+                DependencyMissingError(B, "C", DependencyType.DEPENDS),
+                DependencyMissingError(A, "B", DependencyType.DEPENDS),
             ],
         )
         self.assertEqual(state.desired_job_list, [])
@@ -1004,6 +1005,52 @@ class SessionMetadataTests(TestCase):
             metadata.app_id,
             "com.canonical.certification.plainbox",
         )
+
+    def test_update_feature_flags_strict_template_expansion(self):
+        self_mock = MagicMock()
+        self_mock._flags = set()
+        self_mock.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = (
+            SessionMetaData.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION
+        )
+
+        config_mock = MagicMock()
+        config_mock.get_value.return_value = True
+        SessionMetaData.update_feature_flags(self_mock, config_mock)
+
+        self.assertIn(
+            SessionMetaData.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION,
+            self_mock._flags,
+        )
+
+    @patch("plainbox.impl.session.state.logger")
+    def test_update_feature_flags_strict_template_expansion_warn(self, logger):
+        self_mock = MagicMock()
+        self_mock._flags = set()
+        self_mock.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = (
+            SessionMetaData.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION
+        )
+
+        config_mock = MagicMock()
+        config_mock.get_value.return_value = False
+        SessionMetaData.update_feature_flags(self_mock, config_mock)
+
+        self.assertNotIn(
+            SessionMetaData.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION,
+            self_mock._flags,
+        )
+        self.assertTrue(logger.warning.called)
+
+    def test_bootstrapping_property(self):
+        # this relies on the fact that phases are tracked in the flag set
+        metadata = SessionMetaData(flags=[])
+        self.assertFalse(metadata.bootstrapping)
+        metadata.bootstrapping = False
+        self.assertFalse(metadata.bootstrapping)
+        metadata.bootstrapping = True
+        self.assertTrue(metadata.bootstrapping)
+        # this is an implementation detail on how metadata is tracking the
+        # phase. if implementation changes, feel free to change this.
+        self.assertTrue(metadata.flags)
 
 
 class SessionDeviceContextTests(SignalTestCase):

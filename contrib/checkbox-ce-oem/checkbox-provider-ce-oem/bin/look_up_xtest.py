@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from checkbox_support.snap_utils.snapd import Snapd
-import os
 
 
 class ExtendSanpd(Snapd):
@@ -14,27 +13,12 @@ class ExtendSanpd(Snapd):
         return self._get(self._apps, params={"names": snaps})
 
 
-def look_up_xtest():
-    """Lookup xtest and tee-supplicant apps."""
-    snap = os.environ.get("XTEST")
-    apps = ExtendSanpd().list_apps(snap)
-    results = {"xtest": None, "tee-supplicant": None}
-    xtest_apps = list(
-        {
-            (app["snap"], app["name"])
-            for app in apps["result"]
-            if app["name"] in ["tee-supplicant", "xtest"]
-        }
-    )
-    if xtest_apps:
-        if (
-            len(xtest_apps) > 2
-            or xtest_apps[0][0] != xtest_apps[1][0]
-            or xtest_apps[0][1] == xtest_apps[1][1]
-        ):
-            raise SystemError("Found multiple xtest snap in the system!")
-    else:
-        raise SystemError("Not found xtest snap in the system!")
-    for key in results.keys():
-        results[key] = ".".join([xtest_apps[0][0], key])
-    return results
+def look_up_app(target_app, snap_name=None):
+    """Lookup target app and the snap."""
+    apps = ExtendSanpd().list_apps(snap_name)
+    try:
+        for app in apps["result"]:
+            if app["name"] == target_app:
+                return ".".join([app["snap"], app["name"]])
+    except Exception:
+        raise SystemError("Not found {} in the system!".format(target_app))

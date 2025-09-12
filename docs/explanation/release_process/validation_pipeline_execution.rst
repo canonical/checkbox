@@ -1,9 +1,9 @@
 Validation pipeline execution
 =============================
 
-When validating various versions of Checkbox multiple workflows are in play. Everything starts with automated creation of an Edge version.
+When validating various versions of Checkbox multiple workflows are in play. Everything starts with automated creation of an edge version.
 
-Creating new Edge version
+Creating new edge version
 -------------------------
 Every day GitHub checks for new commits that landed in the Checkbox repository,
 and if anything new landed a new version is created.
@@ -13,11 +13,11 @@ and if anything new landed a new version is created.
     
     graph TB
 
-        A[GitHub Workflow: Detect New Commits]
-        C[Mark Version as Edge and Build Snaps]
-        E{Did Snap Builds Succeed?}
-        F[Upload New Edge Version to Store]
-        G[End: Build Failed - No New Edge Version]
+        A[GitHub workflow: detect new commits]
+        C[Mark version as edge and build snaps]
+        E{Did snap builds succeed?}
+        F[Upload new edge version to store]
+        G[End: build failed - no new edge version]
 
         A --> C
         C --> E
@@ -25,24 +25,24 @@ and if anything new landed a new version is created.
         E -->|No| G
 
 
-With new Edge version of Checkbox in the store we can start validating it.
+With new edge version of Checkbox in the store we can start validating it.
 
-Validating the Edge version
+Validating the edge version
 ---------------------------
 
-On the Certification Jenkins instance, the ``checkbox-edge-validation-detect-new-build`` job checks the store API for new Edge versions of Checkbox.
+On the Certification Jenkins instance, the ``checkbox-edge-validation-detect-new-build`` job checks the store API for new edge versions of Checkbox.
 The job is defined in the |hwcert-jenkins-jobs|_ repository.
 
 This job is also responsible for checking if all of the necessary snaps were published (for other series and architectures).
-Once confirmed, the "Canary Test Plan" is executed. It is defined in the |hwcert-jenkins-jobs|_ repository as too.
+Once confirmed, the "canary test Plan" is executed. It is defined in the |hwcert-jenkins-jobs|_ repository as too.
 
 .. mermaid::
 
     graph TB
 
-        A[Detect New Edge Version in Store]
-        B{Check if All Necessary Snaps are Published}
-        C{Run Canary Test Plan on Devices}
+        A[Detect new edge version in store]
+        B{Check if all necessary snaps are published}
+        C{Run canary test plan on devices}
         D[No changes in the repository]
         E[Move `beta` HEAD to the point at the validated revision]
 
@@ -61,38 +61,38 @@ There are multiple entities participating in the chain of validating a Checkbox 
 
     sequenceDiagram
 
-        participant Pipeline as Checkbox Validation Pipeline
-        participant Jenkins as Jenkins Job
-        participant TServer as Testflinger Server
-        participant TAgent as Testflinger Agent
+        participant Pipeline as Checkbox validation pipeline
+        participant Jenkins as Jenkins job
+        participant TServer as Testflinger server
+        participant TAgent as Testflinger agent
         participant Docker as Docker container (Checkbox Controller)
         participant Device as Device Under Test
-        participant CAgent as Checkbox Agent
-        note over Device,CAgent: Same device
+        participant CAgent as Checkbox agent
+        note over Device,CAgent: same device
 
-        Pipeline->>Jenkins: Trigger Jenkins Job
+        Pipeline->>Jenkins: Trigger Jenkins job
         activate Pipeline
-        Jenkins->>TServer: Submit Testing Job
+        Jenkins->>TServer: Submit testing job
         activate TServer
-        loop Poll for Job
-            TAgent-->>TServer: Check for Available Jobs
+        loop Poll for job
+            TAgent-->>TServer: Check for available jobs
         end
         activate TAgent
-        TAgent->>Device: Provision Device & Start Checkbox Agent
+        TAgent->>Device: Provision device & start Checkbox agent
         activate Device
         activate CAgent
-        TAgent->>Docker: Run Checkbox Controller
+        TAgent->>Docker: Run Checkbox controller
         activate Docker
-        Docker->>CAgent: Start Canary Test Plan
-        CAgent-->>Docker: Return Test Results
+        Docker->>CAgent: Start canary test plan
+        CAgent-->>Docker: Return test results
         deactivate CAgent
-        Docker-->>TAgent: Report Results
+        Docker-->>TAgent: Report results
         deactivate Docker
-        TAgent-->>TServer: Job Completion Status
+        TAgent-->>TServer: Job completion status
         deactivate TAgent
-        TServer-->>Jenkins: Inform Jenkins of Outcome
+        TServer-->>Jenkins: Inform Jenkins of outcome
         deactivate TServer
-        Jenkins-->>Pipeline: Update Pipeline with Job Outcome
+        Jenkins-->>Pipeline: Update pipeline with job outcome
         deactivate Pipeline
 
 .. add code format to link text

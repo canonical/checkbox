@@ -10,8 +10,6 @@ For more information, check the [documentation](https://checkbox.readthedocs.io)
 
 ![Test report exported in HTML](docs/_images/checkbox-test-report.png)
 
-![Test selection screen in Checkbox](docs/_images/checkbox-snappy-3-select-jobs.png)
-
 # Getting started
 
 To get started with Checkbox, follow the [Checkbox tutorial](https://checkbox.readthedocs.io/en/latest/tutorial/index.html) ([installation instructions]).

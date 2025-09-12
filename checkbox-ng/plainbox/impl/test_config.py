@@ -23,7 +23,7 @@ import logging
 from unittest import TestCase
 from unittest.mock import mock_open, patch, MagicMock
 
-from plainbox.impl.config import Configuration
+from plainbox.impl.config import Configuration, CheckboxINIParser
 
 
 @contextmanager
@@ -166,3 +166,36 @@ class ConfigurationTests(TestCase):
                 "test_body",
             )
         self.assertEqual(self_mock.notice_problem.call_count, 2)
+
+    @patch("os.path.isfile", return_value=True)
+    def test_ini_parser(self, _):
+
+        ini_data = """
+        [launcher]
+        launcher_version = 1
+        stock_reports = submission_files, text
+        [test plan]
+        unit = 2021.com.canonical.certification::pass-and-fail
+        forced = yes
+        [environment]
+        A = 1
+        a = 1
+        """
+        parser = CheckboxINIParser()
+        parser.read_string(ini_data)
+        dict_data = parser.to_dict()
+
+        expected_dict = {
+            "launcher": {
+                "launcher_version": "1",
+                "stock_reports": "submission_files, text",
+            },
+            "test plan": {
+                "unit": "2021.com.canonical.certification::pass-and-fail",
+                "forced": "yes",
+            },
+            "environment": {"A": "1", "a": "1"},
+            "DEFAULT": {},  # Ini parser always emits a default, even if its empty
+        }
+
+        self.assertEqual(dict_data, expected_dict)

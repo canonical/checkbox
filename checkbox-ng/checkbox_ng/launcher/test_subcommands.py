@@ -30,7 +30,9 @@ from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
 
 from checkbox_ng.launcher.subcommands import (
+    Run,
     Expand,
+    List,
     Launcher,
     ListBootstrapped,
     IncompatibleJobError,
@@ -38,7 +40,100 @@ from checkbox_ng.launcher.subcommands import (
     IJobResult,
     request_comment,
     generate_resume_candidate_description,
+    get_testplan_id_by_id,
+    print_objs,
 )
+from checkbox_ng.urwid_ui import ManifestBrowser
+
+
+class TestSharedFunctions(TestCase):
+    def make_unit_mock(self, **kwargs):
+        to_r = MagicMock(**kwargs)
+        try:
+            # name is a kwarg of mock, so we need to set it manually
+            to_r.name = kwargs["name"]
+        except KeyError:
+            pass
+        return to_r
+
+    def get_test_tree(self):
+        # made this uniform as the function should be able to handle any valid
+        # unit tree
+        return self.make_unit_mock(
+            group="service",
+            children=[
+                self.make_unit_mock(
+                    group="exporter",
+                    children=None,
+                    name="exporter name",
+                    attrs={"id": "exporter id"},
+                ),
+                self.make_unit_mock(
+                    group="job",
+                    name="job name",
+                    children=None,
+                    attrs={"id": "job id"},
+                ),
+                self.make_unit_mock(
+                    group="template",
+                    name="template name",
+                    children=None,
+                    attrs={"id": "template id"},
+                ),
+            ],
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_nojson(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+
+        print_objs(group="job", sa=MagicMock(), show_attrs=True)
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertIn("job id", printed)
+        self.assertNotIn("exporter id", printed)
+        self.assertNotIn("exporter id", printed)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_json(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+        print_objs(
+            group="job", sa=MagicMock(), show_attrs=True, json_repr=True
+        )
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertIn("job id", printed)
+        self.assertNotIn("exporter id", printed)
+        self.assertNotIn("exporter id", printed)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_json_print_all(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+        print_objs(
+            group=None, sa=MagicMock(), show_attrs=False, json_repr=True
+        )
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertNotIn(
+            "job id", printed
+        )  # job id is an attr, so shouldnt be here
+        self.assertIn("exporter name", printed)
+        self.assertNotIn("exporter id", printed)  # same for exporter id
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_json_print_all_jobs(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+        print_objs(
+            group="all-jobs", sa=MagicMock(), show_attrs=False, json_repr=True
+        )
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertIn("template name", printed)
+        self.assertNotIn("exporter name", printed)
 
 
 class TestLauncher(TestCase):
@@ -199,7 +294,7 @@ class TestLauncher(TestCase):
 
         self.assertTrue(configuration_mock.from_text.called)
         self.assertTrue(load_config_mock.called)
-        self.assertTrue(self_mock.ctx.sa.use_alternate_configuration.called)
+        self.assertTrue(self_mock.sa.use_alternate_configuration.called)
 
     @patch("checkbox_ng.launcher.subcommands.Configuration")
     @patch("checkbox_ng.launcher.subcommands.load_configs")
@@ -213,7 +308,7 @@ class TestLauncher(TestCase):
 
         self.assertFalse(configuration_mock.from_text.called)
         self.assertTrue(load_config_mock.called)
-        self.assertTrue(self_mock.ctx.sa.use_alternate_configuration.called)
+        self.assertTrue(self_mock.sa.use_alternate_configuration.called)
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
@@ -222,7 +317,9 @@ class TestLauncher(TestCase):
         self_mock._resume_session = partial(
             Launcher._resume_session, self_mock
         )
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = ["testplanless"]
 
         resume_params_mock = MagicMock()
@@ -246,11 +343,13 @@ class TestLauncher(TestCase):
         self_mock._resume_session = partial(
             Launcher._resume_session, self_mock
         )
-        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+        self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
         )
 
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = ["testplanless"]
 
         resume_params_mock = MagicMock()
@@ -274,11 +373,13 @@ class TestLauncher(TestCase):
         self_mock._resume_session = partial(
             Launcher._resume_session, self_mock
         )
-        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+        self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "non-blocker"
         )
 
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = ["testplanless"]
 
         resume_params_mock = MagicMock()
@@ -299,11 +400,13 @@ class TestLauncher(TestCase):
         self, request_comment_mock, memory_job_result_mock
     ):
         self_mock = MagicMock()
-        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+        self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
         )
 
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = ["testplanless"]
 
         Launcher._resume_session(
@@ -320,11 +423,13 @@ class TestLauncher(TestCase):
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
     def test__resume_session_crash_non_blocker(self, memory_job_result_mock):
         self_mock = MagicMock()
-        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+        self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "non-blocker"
         )
 
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = ["testplanless"]
 
         Launcher._resume_session(
@@ -345,11 +450,13 @@ class TestLauncher(TestCase):
         self_mock._resume_session = partial(
             Launcher._resume_session, self_mock
         )
-        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+        self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
         )
 
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = ["testplanless"]
 
         resume_params_mock = MagicMock()
@@ -373,11 +480,13 @@ class TestLauncher(TestCase):
         self_mock._resume_session = partial(
             Launcher._resume_session, self_mock
         )
-        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+        self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "non-blocker"
         )
 
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = ["testplanless"]
 
         resume_params_mock = MagicMock()
@@ -398,11 +507,13 @@ class TestLauncher(TestCase):
         self_mock._resume_session = partial(
             Launcher._resume_session, self_mock
         )
-        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+        self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "non-blocker"
         )
 
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = ["testplanless"]
 
         resume_params_mock = MagicMock()
@@ -413,7 +524,7 @@ class TestLauncher(TestCase):
         )
 
         # we don't use job result of rerun jobs
-        self.assertFalse(self_mock.ctx.sa.use_job_result.called)
+        self.assertFalse(self_mock.sa.use_job_result.called)
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
@@ -421,14 +532,16 @@ class TestLauncher(TestCase):
         self, memory_job_result_mock
     ):
         self_mock = MagicMock()
-        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+        self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "non-blocker"
         )
         self_mock._get_autoresume_outcome_last_job.return_value = (
             IJobResult.OUTCOME_CRASH
         )
 
-        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock = (
+            self_mock.sa.prepare_resume_session.return_value
+        )
         session_metadata_mock.flags = []
         session_metadata_mock.app_blob = b'{"testplan_id" : "testplan_id"}'
 
@@ -490,7 +603,7 @@ class TestLauncher(TestCase):
         self_mock = MagicMock()
 
         with Launcher._resumed_session(self_mock, "session_id"):
-            self.assertTrue(self_mock.sa.resume_session.called)
+            self.assertTrue(self_mock.sa.prepare_resume_session.called)
             self.assertFalse(self_mock.ctx.reset_sa.called)
         self.assertTrue(self_mock.ctx.reset_sa.called)
 
@@ -511,7 +624,7 @@ class TestLauncher(TestCase):
         )
         session_mock = MagicMock(id="session_id")
 
-        self_mock.sa.resume_session.side_effect = IncompatibleJobError
+        self_mock.sa.prepare_resume_session.side_effect = IncompatibleJobError
 
         self.assertFalse(
             Launcher._should_autoresume_last_run(self_mock, [session_mock])
@@ -533,7 +646,7 @@ class TestLauncher(TestCase):
         )
         session_mock = MagicMock(id="session_id")
 
-        self_mock.sa.resume_session.side_effect = IncompatibleJobError
+        self_mock.sa.prepare_resume_session.side_effect = IncompatibleJobError
 
         self.assertFalse(
             Launcher._should_autoresume_last_run(self_mock, [session_mock])
@@ -550,7 +663,7 @@ class TestLauncher(TestCase):
         )
         session_mock = MagicMock(id="session_id")
         metadata_mock = MagicMock(app_blob=b"{}")
-        self_mock.sa.resume_session.return_value = metadata_mock
+        self_mock.sa.prepare_resume_session.return_value = metadata_mock
 
         self.assertFalse(
             Launcher._should_autoresume_last_run(self_mock, [session_mock])
@@ -565,7 +678,7 @@ class TestLauncher(TestCase):
         metadata_mock = MagicMock(
             app_blob=b'{"testplan_id" : "testplan_id"}', running_job_name=None
         )
-        self_mock.sa.resume_session.return_value = metadata_mock
+        self_mock.sa.prepare_resume_session.return_value = metadata_mock
 
         self.assertFalse(
             Launcher._should_autoresume_last_run(self_mock, [session_mock])
@@ -581,7 +694,7 @@ class TestLauncher(TestCase):
             app_blob=b'{"testplan_id" : "testplan_id"}',
             running_job_name="running_job_name",
         )
-        self_mock.sa.resume_session.return_value = metadata_mock
+        self_mock.sa.prepare_resume_session.return_value = metadata_mock
         job_state_mock = self_mock.sa.get_job_state()
         job_state_mock.job.plugin = "user-interact"
 
@@ -599,7 +712,7 @@ class TestLauncher(TestCase):
             app_blob=b'{"testplan_id" : "testplan_id"}',
             running_job_name="running_job_name",
         )
-        self_mock.sa.resume_session.return_value = metadata_mock
+        self_mock.sa.prepare_resume_session.return_value = metadata_mock
         job_state_mock = self_mock.sa.get_job_state()
         job_state_mock.job.plugin = "shell"
 
@@ -632,13 +745,29 @@ class TestLauncher(TestCase):
     def test__auto_resume_session_autoresume(self):
         self_mock = MagicMock()
         resume_candidate_mock = MagicMock(id="session_to_resume")
+        # session id wasn't provided directly via the cli
         self_mock.ctx.args.session_id = None
+        # --clear-old-sessions wasn't used
+        self_mock.ctx.args.clear_old_sessions = False
         self_mock._should_autoresume_last_run.return_value = True
 
         self.assertTrue(
             Launcher._auto_resume_session(self_mock, [resume_candidate_mock])
         )
         self.assertTrue(self_mock._resume_session.called)
+
+    def test__auto_resume_session_no_autoresume_on_clear(self):
+        self_mock = MagicMock()
+        resume_candidate_mock = MagicMock(id="session_to_resume")
+        # session id wasn't provided directly via the cli
+        self_mock.ctx.args.session_id = None
+        # --clear-old-sessions was used, so we don't autoresume
+        self_mock.ctx.args.clear_old_sessions = True
+
+        self.assertFalse(
+            Launcher._auto_resume_session(self_mock, [resume_candidate_mock])
+        )
+        self.assertFalse(self_mock._resume_session.called)
 
     def test__auto_resume_session_no_autoresume(self):
         self_mock = MagicMock()
@@ -655,8 +784,10 @@ class TestLauncher(TestCase):
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
     def test_invoked_resume(self, load_config_mock):
         self_mock = MagicMock()
-        self_mock._maybe_auto_resume_session.side_effect = [False, True]
+        self_mock._auto_resume_session.return_value = False
+        self_mock._manually_resume_session.side_effect = [False, True]
         self_mock._pick_jobs_to_run.side_effect = ResumeInstead()
+        self_mock._maybe_auto_rerun_jobs.return_value = False
 
         ctx_mock = MagicMock()
         ctx_mock.args.verify = False
@@ -670,6 +801,125 @@ class TestLauncher(TestCase):
 
         Launcher.invoked(self_mock, ctx_mock)
 
+    def test__save_manifest_no_or_empty_manifest_repr(self):
+        launcher = Launcher()
+        ctx_mock = MagicMock()
+        launcher.ctx = ctx_mock
+
+        cases = [
+            ("None", None),
+            ("Empty", {}),
+        ]
+
+        for case_name, manifest_repr in cases:
+            with self.subTest(case=case_name):
+                ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+                launcher._save_manifest(interactive=True)
+                self.assertEqual(ctx_mock.sa.save_manifest.call_count, 0)
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_interactive_with_visible_manifests(
+        self, mock_browser_class
+    ):
+
+        launcher = Launcher()
+        ctx_mock = MagicMock()
+        launcher.ctx = ctx_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "visible1", "value": 0, "hidden": False},
+                {"id": "visible2", "value": False, "hidden": False},
+            ]
+        }
+        ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+
+        mock_browser = MagicMock()
+        mock_browser.run.return_value = {
+            "visible1": 5,
+            "visible2": True,
+        }
+        mock_browser_class.return_value = mock_browser
+        mock_browser_class.has_visible_manifests.return_value = True
+
+        launcher._save_manifest(interactive=True)
+
+        ctx_mock.sa.save_manifest.assert_called_with(
+            {"visible1": 5, "visible2": True}
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_interactive_no_visible_manifests(
+        self, mock_browser_class
+    ):
+        launcher = Launcher()
+        ctx_mock = MagicMock()
+        launcher.ctx = ctx_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "hidden1", "value": True, "hidden": True},
+                {"id": "hidden2", "value": 2, "hidden": True},
+            ]
+        }
+        ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+        mock_browser_class.has_visible_manifests.return_value = False
+        mock_browser_class.get_flattened_values.return_value = {
+            "hidden1": True,
+            "hidden2": 2,
+        }
+
+        launcher._save_manifest(interactive=True)
+
+        ctx_mock.sa.save_manifest.assert_called_with(
+            {"hidden1": True, "hidden2": 2}
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.ManifestBrowser")
+    def test__save_manifest_non_interactive(self, mock_browser_class):
+        launcher = Launcher()
+        ctx_mock = MagicMock()
+        launcher.ctx = ctx_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "manifest1", "value": False, "hidden": False},
+                {"id": "manifest2", "value": 7, "hidden": True},
+            ]
+        }
+        ctx_mock.sa.get_manifest_repr.return_value = manifest_repr
+        mock_browser_class.get_flattened_values.return_value = {
+            "manifest1": False,
+            "manifest2": 7,
+        }
+
+        launcher._save_manifest(interactive=False)
+
+        ctx_mock.sa.save_manifest.assert_called_with(
+            {"manifest1": False, "manifest2": 7}
+        )
+
+    def test__select_test_plan_and_continue_automated_ok(self):
+        self_mock = MagicMock()
+
+        def get_value(*args):
+            if args == ("test plan", "forced"):
+                return True
+            elif args == ("test plan", "unit"):
+                return "test_plan_id"
+            elif args == ("launcher", "session_desc"):
+                return "description"
+            raise AssertionError("Unknown config")
+
+        self_mock.configuration.get_value = get_value
+        self_mock.ctx.args.launcher = None
+        self_mock.ctx.args.message = None
+        self_mock.sa.get_test_plans.return_value = ["test_plan_id"]
+
+        Launcher._select_test_plan_and_continue(self_mock)
+
+        self.assertTrue(self_mock.sa.select_test_plan.called)
+
 
 @patch("os.makedirs", new=MagicMock())
 class TestLauncherReturnCodes(TestCase):
@@ -681,6 +931,7 @@ class TestLauncherReturnCodes(TestCase):
             return_value=False
         )
         self.launcher._start_new_session = Mock()
+        self.launcher._select_test_plan_and_continue = Mock()
         self.launcher._pick_jobs_to_run = Mock()
         self.launcher._export_results = Mock()
         self.ctx = Mock()
@@ -689,6 +940,7 @@ class TestLauncherReturnCodes(TestCase):
             get_resumable_sessions=Mock(return_value=[]),
             get_dynamic_todo_list=Mock(return_value=[]),
         )
+        self.sa = self.ctx.sa
 
     def test_invoke_returns_0_on_no_fails(self):
         mock_results = {"fail": 0, "crash": 0, "pass": 1}
@@ -810,19 +1062,31 @@ class TestLListBootstrapped(TestCase):
 
 
 class TestExpand(TestCase):
+    def make_unit(self, **kwargs):
+        unit = Mock(partial_id=kwargs["id"], **kwargs)
+        unit._raw_data.copy.return_value = kwargs
+        return unit
+
     def setUp(self):
         self.launcher = Expand()
         self.ctx = Mock()
         self.ctx.args = Mock(TEST_PLAN="", format="")
 
-        selected_1 = Mock(unit="manifest entry", id="some", partial_id="some")
-        selected_1._raw_data.copy.return_value = {}
-        selected_2 = Mock(
-            unit="manifest entry", id="other", partial_id="other"
+        selected_1 = self.make_unit(
+            unit="manifest entry",
+            id="some",
+            is_hidden=False,
         )
-        selected_2._raw_data.copy.return_value = {}
-        not_selected = Mock(unit="manifest entry", partial_id="not_selected")
-        not_selected._raw_data.copy.return_value = {}
+        selected_2 = self.make_unit(
+            unit="manifest entry",
+            id="other",
+            is_hidden=False,
+        )
+        not_selected = self.make_unit(unit="manifest entry", id="not_selected")
+        # hidden manifests are not hidden in the expose output
+        hidden = self.make_unit(
+            unit="manifest entry", id="_hidden", is_hidden=True
+        )
 
         self.ctx.sa = Mock(
             start_new_session=Mock(),
@@ -832,7 +1096,12 @@ class TestExpand(TestCase):
             _context=Mock(
                 state=Mock(unit_list=[]),
                 _test_plan_list=[Mock()],
-                unit_list=[selected_1, selected_2, not_selected],
+                unit_list=[
+                    selected_1,
+                    selected_2,
+                    not_selected,
+                    hidden,
+                ],
             ),
         )
 
@@ -856,7 +1125,7 @@ class TestExpand(TestCase):
                 "template-id": "test-template",
                 "id": "test-{res}",
                 "template-summary": "Test Template Summary",
-                "requires": "manifest.some == 'True'",
+                "requires": "manifest.some == 'True'\nmanifest._hidden == 'False'",
             }
         )
         job1 = JobDefinition(
@@ -871,6 +1140,7 @@ class TestExpand(TestCase):
         self.assertIn("Template 'test-template'", stdout.getvalue())
         self.assertIn("Manifest 'some'", stdout.getvalue())
         self.assertIn("Manifest 'other'", stdout.getvalue())
+        self.assertIn("Manifest '_hidden'", stdout.getvalue())
         self.assertNotIn("Manifest 'not_selected'", stdout.getvalue())
 
     @patch("sys.stdout", new_callable=StringIO)
@@ -882,7 +1152,7 @@ class TestExpand(TestCase):
                 "template-id": "test-template",
                 "id": "test-{res}",
                 "template-summary": "Test Template Summary",
-                "requires": "manifest.some == 'True'",
+                "requires": "manifest.some == 'True'\nmanifest._hidden == 'False'",
             }
         )
         job1 = JobDefinition(
@@ -899,6 +1169,7 @@ class TestExpand(TestCase):
         self.assertIn('"template-id": "test-template"', stdout.getvalue())
         self.assertIn('"id": "some"', stdout.getvalue())
         self.assertIn('"id": "other"', stdout.getvalue())
+        self.assertIn('"id": "_hidden"', stdout.getvalue())
         self.assertNotIn('"id": "not_selected"', stdout.getvalue())
 
     def test_get_effective_certificate_status(self):
@@ -971,3 +1242,80 @@ class TestUtilsFunctions(TestCase):
         self.assertIn("123", description)
         self.assertIn("Title", description)
         self.assertIn("Test", description)
+
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_multiple_relevant_found_raises_system_exit(
+        self, mock_explorer_class
+    ):
+        mock_unit1 = MagicMock()
+        mock_unit1.name = "namespace1::some"
+        mock_unit2 = MagicMock()
+        mock_unit2.name = "namespace2::some"
+
+        mock_root = MagicMock()
+        mock_root.find_children_by_name.return_value = {
+            "key": [mock_unit1, mock_unit2]
+        }
+        mock_explorer_instance = mock_explorer_class()
+        mock_explorer_instance.get_object_tree.return_value = mock_root
+
+        with self.assertRaises(SystemExit):
+            get_testplan_id_by_id(
+                ["namespace1::some", "namespace2::some"],
+                "some",
+                MagicMock(),
+                exact=False,
+            )
+
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_single_relevant_found_returns_name(self, mock_explorer_class):
+        mock_unit = MagicMock()
+        mock_unit.name = "namespace1::some"
+
+        mock_root = MagicMock()
+        mock_root.find_children_by_name.return_value = {"some": [mock_unit]}
+        mock_explorer_instance = mock_explorer_class()
+        mock_explorer_instance.get_object_tree.return_value = mock_root
+
+        result = get_testplan_id_by_id(
+            ["namespace1::some"], "some", MagicMock(), exact=False
+        )
+        self.assertEqual(result, "namespace1::some")
+
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_no_relevant_found_returns_original_id(self, mock_explorer_class):
+        mock_root = MagicMock()
+        mock_root.find_children_by_name.return_value = {}
+        mock_explorer_instance = mock_explorer_class()
+        mock_explorer_instance.get_object_tree.return_value = mock_root
+
+        result = get_testplan_id_by_id([], "some", MagicMock(), exact=False)
+        self.assertEqual(result, "some")
+
+
+class TestRun(TestCase):
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test__get_relevant_units(self, explorer_mock):
+        self_mock = MagicMock()
+        root = explorer_mock().get_object_tree()
+        should_find = [
+            "com.canonical.certification::some",
+            "2021.com.canonica.certification::some",
+        ]
+
+        def find_children_by_name(pattern):
+            if pattern == ["some"]:
+                to_r = [MagicMock(), MagicMock()]
+                to_r[0].name = should_find[0]
+                to_r[1].name = should_find[1]
+                return {"some": to_r}
+            return {x: [] for x in pattern}
+
+        root.find_children_by_name = find_children_by_name
+        found_ids = Run._get_relevant_units(
+            self_mock, ["other2.*", "some", "other1.*"], exact=False
+        )
+
+        # we expect the relevant unit function to leave unfound values the same
+        # and all in the same order
+        self.assertEqual(found_ids, ["other2.*", *should_find, "other1.*"])

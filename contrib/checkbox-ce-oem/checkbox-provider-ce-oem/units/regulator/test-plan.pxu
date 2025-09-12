@@ -1,0 +1,40 @@
+id: ce-oem-regulaotr-full
+unit: test plan
+_name: Regulator tests
+_description: Full Regulator tests for devices
+include:
+nested_part:
+    ce-oem-regulator-manual
+    ce-oem-regulator-automated
+    after-suspend-ce-oem-regulator-manual
+    after-suspend-ce-oem-regulator-automated
+
+
+id: ce-oem-regulator-manual
+unit: test plan
+_name: Regulator manual tests
+_description: Manual regulator tests for devices
+include:
+
+
+id: ce-oem-regulator-automated
+unit: test plan
+_name: Regulator auto tests
+_description: Automated led tests for devices
+include:
+    ce-oem-regulator/check-voltage-regulators
+
+
+id: after-suspend-ce-oem-regulator-manual
+unit: test plan
+_name: Post suspend Regulator manual tests
+_description: Manual Regulator tests for devices
+include:
+
+
+id: after-suspend-ce-oem-regulator-automated
+unit: test plan
+_name: Post suspend regulator auto tests
+_description: Automated Regulator tests for devices
+include:
+    after-suspend-ce-oem-regulator/check-voltage-regulators

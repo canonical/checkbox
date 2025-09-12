@@ -1,5 +1,6 @@
 name: Workflow validation
-
+permissions:
+  contents: read
 on:
   push:
     paths:
@@ -10,10 +11,12 @@ jobs:
     name: Workflow validation
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout checkbox monorepo
-        uses: actions/checkout@v4
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
       - name: Install action-validator with asdf
-        uses: asdf-vm/actions/install@v3
+        uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
         with:
           tool_versions: |
             action-validator 0.6.0
@@ -21,3 +24,21 @@ jobs:
         run: |
           find .github/workflows -type f \( -iname \*.yaml -o -iname \*.yml \) \
             | xargs -I {} action-validator --verbose {}
+  workflow_vulnerability_scan:
+    name: Workflow vulnerability scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
+      - name: Install zizmor from crates.io
+        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305
+        with:
+          crate: zizmor
+          version: '1.4.1'
+      - name: Scan all workflows
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          zizmor --pedantic $(ls .github/workflows/*.{yaml,yml})

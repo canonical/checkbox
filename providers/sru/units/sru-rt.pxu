@@ -35,5 +35,4 @@ exclude:
     stress/memory_stress_ng
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
-    suspend/bluetooth_obex_.*
     miscellanea/debsums

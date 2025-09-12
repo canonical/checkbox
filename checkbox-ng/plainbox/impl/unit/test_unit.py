@@ -203,8 +203,14 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(unit1.get_record_value("key"), "value")
         self.assertEqual(unit2.get_record_value("key"), "value")
         self.assertEqual(unit3.get_record_value("key"), "value")
-        with self.assertRaises(MissingParam):
+        with self.assertRaises(MissingParam) as mp:
+            # TODO: this is structured badly, if a unit has a template-engine
+            #       it is a template, but the definition is in Unit, not
+            #       TemplateUnit. Once you fix it, remove the following line
+            unit4.template_id = "template_id"
             unit4.get_record_value("key")
+        self.assertIn("template_id", str(mp.exception))
+        self.assertIn("missing_param", repr(mp.exception))
         self.assertEqual(unit5.get_record_value("key"), None)
         self.assertEqual(unit5.get_record_value("key", "default"), "default")
         self.assertEqual(unit6.get_record_value("key"), None)

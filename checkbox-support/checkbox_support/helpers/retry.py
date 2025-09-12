@@ -53,16 +53,16 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
         print()
         print("=" * len(attempt_string))
         print(attempt_string)
-        print("=" * len(attempt_string))
+        print("=" * len(attempt_string), flush=True)
         try:
             result = f(*args, **kwargs)
             return result
         except BaseException as e:
             print("Attempt {} failed:".format(attempt))
             print(e)
-            print()
+            print(flush=True)
             if attempt >= max_attempts:
-                print("All the attempts have failed!")
+                print("All the attempts have failed!", flush=True)
                 raise
             min_delay = min(
                 initial_delay * (backoff_factor**attempt),
@@ -73,7 +73,10 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             )  # Jitter: up to 50% of the delay
             total_delay = min_delay + jitter
             print(
-                "Waiting {:.2f} seconds before retrying...".format(total_delay)
+                "Waiting {:.2f} seconds before retrying...".format(
+                    total_delay
+                ),
+                flush=True,
             )
             time.sleep(total_delay)
 

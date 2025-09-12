@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_nvidia_drm_modeset_enable
+_name: Has the Nvidia proprietary driver and DRM modeset are enabled?
+value-type: bool

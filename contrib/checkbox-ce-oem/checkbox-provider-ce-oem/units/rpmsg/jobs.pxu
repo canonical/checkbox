@@ -57,7 +57,9 @@ _summary: Reload Remote Processor firmware to {firmware} via RPMSG {device}
 id: ce-oem-rpmsg/reload-rp-firmware-test-{firmware}-{device}
 category_id: rpmsg
 estimated_duration: 60
-requires: manifest.has_rpmsg == 'True'
+requires:
+    manifest.has_rpmsg == 'True'
+    manifest.has_rpmsg_firmware_load == 'True'
 imports: from com.canonical.plainbox import manifest
 flags: also-after-suspend
 user: root

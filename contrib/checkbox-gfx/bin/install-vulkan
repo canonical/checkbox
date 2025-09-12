@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+source $(dirname "$0")/setup-env.sh
+
+sudo apt update -y
+sudo apt install -y build-essential cmake python3-pip meson pkg-config cmake libpng-dev libvulkan-dev mesa-common-dev 
+pip3 install lxml --break-system-packages
+
+echo "Installing VK-GL-CTS for Vulkan"
+cd $WORKING_DIR
+git clone https://github.com/KhronosGroup/VK-GL-CTS
+cd VK-GL-CTS
+git checkout vulkan-cts-1.4.1.3
+python3 external/fetch_sources.py
+mkdir build && cd build
+
+# Different archs need different buildflags
+if [ "$ARCH" == "x86_64" ]; then
+    CMAKE_CLANG_FLAGS=-m64
+elif [ "$ARCH" == "aarch64" ]; then
+    CMAKE_CLANG_FLAGS=-march=armv8-a
+fi
+
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=$CMAKE_CLANG_FLAGS -DCMAKE_CXX_FLAGS=$CMAKE_CLANG_FLAGS
+# 64GB RAM wasn't enough for -j. Add nproc
+make -j`nproc`
+sudo mv $WORKING_DIR/VK-GL-CTS $INSTALL_DIR

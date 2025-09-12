@@ -1,8 +1,9 @@
-# Copyright 2017 Canonical Ltd.
+# Copyright 2017-2024 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
-#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#  Sylvain Pineau <sylvain.pineau@canonical.com>
+#  Pierre Equoy <pierre.equoy@canonical.com>
 
 unit: manifest entry
 id: has_audio_playback
@@ -43,5 +44,11 @@ value-type: bool
 unit: manifest entry
 id: has_internal_speakers
 _name: Internal speakers
+_prompt: Does this machine have the following audio features?
+value-type: bool
+
+unit: manifest entry
+id: has_internal_microphone
+_name: Internal microphone
 _prompt: Does this machine have the following audio features?
 value-type: bool

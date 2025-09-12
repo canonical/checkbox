@@ -31,3 +31,4 @@ redistribution avenue that we currently use.
 from pathlib import Path
 
 INXI_PATH = (Path(__file__).parent / "inxi").resolve()
+IMAGE_INFO = (Path(__file__).parent / "image_info.py").resolve()

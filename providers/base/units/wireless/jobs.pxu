@@ -1,4 +1,3 @@
-
 id: wireless/detect
 category_id: com.canonical.plainbox::wireless
 plugin: shell
@@ -24,6 +23,7 @@ command:
   wifi_nmcli_test.py scan {{ interface }}
 plugin: shell
 category_id: com.canonical.plainbox::wireless
+imports: from com.canonical.plainbox import manifest
 estimated_duration: 6
 _purpose:
  Check system can find a wireless network AP nearby
@@ -33,6 +33,7 @@ requires:
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {% endif -%}
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+ manifest.has_wlan_adapter == 'True'
 
 unit: template
 template-resource: device
@@ -689,7 +690,7 @@ id: wireless/check_iwlwifi_microcode_crash_{interface}
 template-id: wireless/check_iwlwifi_microcode_crash_interface
 _summary: Check there have been no iwlwifi crashes
 plugin: shell
-command: check-iwlwifi-microcode-sw-error.sh
+command: check_iwlwifi_microcode_errors.py
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend

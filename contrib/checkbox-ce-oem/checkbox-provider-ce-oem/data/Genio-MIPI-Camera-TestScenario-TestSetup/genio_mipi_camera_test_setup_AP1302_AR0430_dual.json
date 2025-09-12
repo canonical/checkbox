@@ -1,0 +1,54 @@
+{
+    "media_node_v4l2_name": "mtk-camsys-3.0 (platform:15040000.seninf)",
+    "cameras": [
+        {
+            "physical_interface": "csi0",
+            "pads": [
+                {
+                    "action": "set_format",
+                    "node": "ap1302.2-003d",
+                    "source": 2,
+                    "fmt": "UYVY8_1X16"
+                },
+                {
+                    "action": "set_format",
+                    "node": "15040000.seninf",
+                    "source": 4,
+                    "fmt": "UYVY8_1X16"
+                },
+                {
+                    "action": "set_format",
+                    "node": "15050000.camsv",
+                    "source": 1,
+                    "fmt": "UYVY8_1X16"
+                }
+            ],
+            "links": []
+        },
+        {
+            "physical_interface": "csi1",
+            "pads": [
+                {
+                    "action": "set_format",
+                    "node": "ap1302.3-003d",
+                    "source": 2,
+                    "fmt": "UYVY8_1X16"
+                },
+                {
+                    "action": "set_format",
+                    "node": "15040000.seninf",
+                    "source": 5,
+                    "fmt": "UYVY8_1X16"
+                },
+                {
+                    "action": "set_format",
+                    "node": "15050800.camsv",
+                    "source": 1,
+                    "fmt": "UYVY8_1X16"
+                }
+            ],
+            "links": []
+        }
+    ]
+
+}

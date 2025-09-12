@@ -18,14 +18,14 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest.mock import patch, call, MagicMock, mock_open
+from unittest.mock import patch, call, MagicMock
 
 import argparse
-from systemd import journal
 
 from checkbox_support.scripts.run_watcher import (
     StorageWatcher,
     USBStorage,
+    ManualController,
     MediacardStorage,
     MediacardComboStorage,
     ThunderboltStorage,
@@ -37,17 +37,16 @@ from checkbox_support.helpers.timeout import mock_timeout
 
 class TestRunWatcher(unittest.TestCase):
 
-    @patch("systemd.journal.Reader")
-    @patch("select.poll")
-    def test_storage_watcher_run_with_insertion(self, mock_poll, mock_journal):
-        mock_journal.return_value.process.side_effect = [journal.APPEND, None]
-        mock_journal.return_value.__iter__.return_value = [
-            {"MESSAGE": "line1"}
-        ]
-        mock_poll.return_value.poll.side_effect = [True, True, False]
+    @patch("subprocess.Popen")
+    def test_storage_watcher_run_with_insertion(self, mock_popen):
+        mock_popen.return_value.__enter__.return_value.stdout = ["inserted"]
 
         mock_storage_watcher = MagicMock()
-        mock_storage_watcher.zapper_usb_address = ""
+        mock_storage_watcher._controller = ManualController()
+
+        mock_storage_watcher._process_line.side_effect = lambda x: setattr(
+            mock_storage_watcher, "test_passed", True
+        )
 
         # Test insertion
         mock_storage_watcher.testcase = "insertion"
@@ -60,19 +59,18 @@ class TestRunWatcher(unittest.TestCase):
                 ]
             )
         StorageWatcher.run(mock_storage_watcher)
-        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+        mock_storage_watcher._process_line.assert_called_with("inserted")
 
-    @patch("systemd.journal.Reader")
-    @patch("select.poll")
-    def test_storage_watcher_run_with_removal(self, mock_poll, mock_journal):
-        mock_journal.return_value.process.return_value = journal.APPEND
-        mock_journal.return_value.__iter__.return_value = [
-            {"MESSAGE": "line1"}
-        ]
-        mock_poll.return_value.poll.side_effect = [True, False]
+    @patch("subprocess.Popen")
+    def test_storage_watcher_run_with_removal(self, mock_popen):
+        mock_popen.return_value.__enter__.return_value.stdout = ["removed"]
 
         mock_storage_watcher = MagicMock()
-        mock_storage_watcher.zapper_usb_address = ""
+        mock_storage_watcher._controller = ManualController()
+
+        mock_storage_watcher._process_line.side_effect = lambda x: setattr(
+            mock_storage_watcher, "test_passed", True
+        )
 
         # Test removal
         mock_storage_watcher.testcase = "removal"
@@ -84,128 +82,44 @@ class TestRunWatcher(unittest.TestCase):
                     call("Timeout: 30 seconds", flush=True),
                 ]
             )
-        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+        mock_storage_watcher._process_line.assert_called_with("removed")
 
+    @patch("subprocess.Popen", MagicMock())
     def test_storage_watcher_run_invalid_testcase(self):
         mock_storage_watcher = MagicMock()
         mock_storage_watcher.testcase = "invalid"
-        mock_storage_watcher.zapper_usb_address = ""
+        mock_storage_watcher._controller = ManualController()
 
         with self.assertRaises(SystemExit) as cm:
             StorageWatcher.run(mock_storage_watcher)
         self.assertEqual(cm.exception.args[0], "Invalid test case")
 
-    @patch("systemd.journal.Reader")
-    @patch("select.poll")
-    @patch("os.environ.get")
-    @patch("checkbox_support.scripts.run_watcher.zapper_run")
-    def test_storage_watcher_run_with_insertion_with_zapper(
-        self, mock_zapper_run, mock_get, mock_poll, mock_journal
-    ):
-        mock_journal.return_value.process.return_value = journal.APPEND
-        mock_journal.return_value.__iter__.return_value = [
-            {"MESSAGE": "line1"}
-        ]
-        mock_poll.return_value.poll.side_effect = [True, False]
-        mock_get.return_value = "zapper_addr"
-
-        mock_storage_watcher = MagicMock()
-        mock_storage_watcher.zapper_usb_address = "usb_address"
-
-        # Test insertion with zapper
-        mock_storage_watcher.testcase = "insertion"
-        StorageWatcher.run(mock_storage_watcher)
-        mock_zapper_run.assert_called_with(
-            "zapper_addr", "typecmux_set_state", "usb_address", "DUT"
-        )
-        mock_storage_watcher._process_lines.assert_called_with(["line1"])
-
-    @patch("systemd.journal.Reader")
-    @patch("select.poll")
-    @patch("os.environ.get")
-    @patch("checkbox_support.scripts.run_watcher.zapper_run")
-    def test_storage_watcher_run_with_removal_with_zapper(
-        self, mock_zapper_run, mock_get, mock_poll, mock_journal
-    ):
-        mock_journal.return_value.process.return_value = journal.APPEND
-        mock_journal.return_value.__iter__.return_value = [
-            {"MESSAGE": "line1"}
-        ]
-        mock_poll.return_value.poll.side_effect = [True, False]
-        mock_get.return_value = "zapper_addr"
-
-        mock_storage_watcher = MagicMock()
-        mock_storage_watcher.zapper_usb_address = "usb_address"
-
-        # Test removal with zapper
-        mock_storage_watcher.testcase = "removal"
-        StorageWatcher.run(mock_storage_watcher)
-        mock_zapper_run.assert_called_with(
-            "zapper_addr", "typecmux_set_state", "usb_address", "OFF"
-        )
-        mock_storage_watcher._process_lines.assert_called_with(["line1"])
-
-    @patch("systemd.journal.Reader")
-    @patch("select.poll")
-    def test_storage_watcher_run_not_passed(self, mock_poll, mock_journal):
-        mock_journal.return_value.process.return_value = journal.APPEND
-        mock_journal.return_value.__iter__.return_value = [
-            {"MESSAGE": "line1"}
-        ]
-        mock_poll.return_value.poll.side_effect = [True, False]
-
-        mock_storage_watcher = MagicMock()
-        mock_storage_watcher.zapper_usb_address = ""
-        mock_storage_watcher.test_passed = False
-
-        # Test not passed
-        mock_storage_watcher.testcase = "insertion"
-        mock_storage_watcher.test_passed = False
-        StorageWatcher.run(mock_storage_watcher)
-        mock_storage_watcher._process_lines.assert_called_with(["line1"])
-
-    def test_storage_watcher_process_lines_insertion(self):
-        lines = ["line1", "line2", "line3"]
-
+    def test_storage_watcher_process_line_insertion(self):
+        lines = "line1"
         mock_insertion_watcher = MagicMock()
         mock_insertion_watcher._parse_journal_line = MagicMock()
         mock_insertion_watcher.testcase = "insertion"
         mock_insertion_watcher.test_passed = False
-        StorageWatcher._process_lines(mock_insertion_watcher, lines)
-        mock_insertion_watcher._parse_journal_line.assert_has_calls(
-            [call("line1"), call("line2"), call("line3")]
-        )
+        StorageWatcher._process_line(mock_insertion_watcher, lines)
+        mock_insertion_watcher._parse_journal_line.assert_called_with("line1")
 
-    def test_storage_watcher_process_lines_removal(self):
-        lines = ["line1", "line2", "line3"]
-
+    def test_storage_watcher_process_line_removal(self):
+        lines = "line1"
         mock_removal_watcher = MagicMock()
         mock_removal_watcher._parse_journal_line = MagicMock()
         mock_removal_watcher.testcase = "removal"
         mock_removal_watcher.test_passed = False
-        StorageWatcher._process_lines(mock_removal_watcher, lines)
-        mock_removal_watcher._parse_journal_line.assert_has_calls(
-            [call("line1"), call("line2"), call("line3")]
-        )
+        StorageWatcher._process_line(mock_removal_watcher, lines)
+        mock_removal_watcher._parse_journal_line.assert_called_with("line1")
 
-    def test_storage_watcher_process_lines_passed(self):
-        lines = ["line1", "line2", "line3"]
-
-        mock_watcher = MagicMock()
-        mock_watcher._parse_journal_line = MagicMock()
-        mock_watcher.testcase = "insertion"
-        mock_watcher.test_passed = True
-        StorageWatcher._process_lines(mock_watcher, lines)
-        mock_watcher._parse_journal_line.assert_has_calls([call("line1")])
-
-    def test_storage_watcher_process_lines_no_testcase(self):
-        lines = ["line1", "line2", "line3"]
-
-        mock_watcher = MagicMock()
-        mock_watcher._parse_journal_line = MagicMock()
-        mock_watcher.testcase = None
-        StorageWatcher._process_lines(mock_watcher, lines)
-        self.assertEqual(mock_watcher._parse_journal_line.call_count, 0)
+    def test_storage_watcher_process_line_no_testcase(self):
+        lines = "line1"
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher._parse_journal_line = MagicMock()
+        mock_storage_watcher.testcase = ""
+        mock_storage_watcher.test_passed = False
+        StorageWatcher._process_line(mock_storage_watcher, lines)
+        mock_storage_watcher._parse_journal_line.assert_not_called()
 
     @mock_timeout()
     def test_storage_watcher_run_insertion(self):
@@ -241,9 +155,8 @@ class TestRunWatcher(unittest.TestCase):
         mock_read_test.assert_called_with("file")
 
     def test_usb_storage_init(self):
-        usb_storage = USBStorage("usb2", "zapper_addr")
+        usb_storage = USBStorage("usb2")
         self.assertEqual(usb_storage.storage_type, "usb2")
-        self.assertEqual(usb_storage.zapper_usb_address, "zapper_addr")
         self.assertIsNone(usb_storage.mounted_partition)
         self.assertIsNone(usb_storage.device)
         self.assertIsNone(usb_storage.number)
@@ -312,11 +225,20 @@ class TestRunWatcher(unittest.TestCase):
         mock_usb_storage.action = ""
         USBStorage._validate_removal(mock_usb_storage)
 
-    def test_usb_storage_parse_journal_line(self):
+    @patch("builtins.print")
+    def test_parse_journal_line(self, mock_print):
+        mock_storage = MagicMock()
+        StorageWatcher._parse_journal_line(mock_storage, "hello")
+        mock_print.assert_called_once_with("hello")
+
+    @patch("checkbox_support.scripts.run_watcher.super")
+    def test_usb_storage_parse_journal_line(self, mock_super):
         line_str = "new high-speed USB device"
         mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.device, "high_speed_usb")
+        super_method = mock_super.return_value._parse_journal_line
+        super_method.assert_called_once_with(line_str)
 
         line_str = "new SuperSpeed USB device"
         mock_usb_storage = MagicMock()
@@ -367,9 +289,8 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(mock_usb_storage.action, None)
 
     def test_mediacard_storage_init(self):
-        mediacard_storage = MediacardStorage("mediacard", "zapper_addr")
+        mediacard_storage = MediacardStorage("mediacard")
         self.assertEqual(mediacard_storage.storage_type, "mediacard")
-        self.assertEqual(mediacard_storage.zapper_usb_address, "zapper_addr")
         self.assertIsNone(mediacard_storage.mounted_partition)
 
     def test_mediacard_storage_validate_insertion(self):
@@ -400,11 +321,14 @@ class TestRunWatcher(unittest.TestCase):
         mock_mediacard_storage.action = ""
         MediacardStorage._validate_removal(mock_mediacard_storage)
 
-    def test_mediacard_storage_parse_journal_line(self):
+    @patch("checkbox_support.scripts.run_watcher.super")
+    def test_mediacard_storage_parse_journal_line(self, mock_super):
         line_str = "mmcblk0: p1"
         mock_mediacard_storage = MagicMock()
         MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
         self.assertEqual(mock_mediacard_storage.mounted_partition, "mmcblk0p1")
+        super_method = mock_super.return_value._parse_journal_line
+        super_method.assert_called_once_with(line_str)
 
         line_str = "new SD card at address 123456"
         mock_mediacard_storage = MagicMock()
@@ -425,13 +349,8 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(mock_mediacard_storage.action, None)
 
     def test_mediacard_combo_storage_init(self):
-        mediacard_combo_storage = MediacardComboStorage(
-            "mediacard", "zapper_addr"
-        )
+        mediacard_combo_storage = MediacardComboStorage("mediacard")
         self.assertEqual(mediacard_combo_storage.storage_type, "mediacard")
-        self.assertEqual(
-            mediacard_combo_storage.zapper_usb_address, "zapper_addr"
-        )
         self.assertIsNone(mediacard_combo_storage.mounted_partition)
 
     def test_mediacard_combo_storage_validate_insertion(self):
@@ -477,42 +396,33 @@ class TestRunWatcher(unittest.TestCase):
 
     def test_mediacard_combo_storage_parse_journal_line(self):
         line_str = "mmcblk0: p1"
-        mock_mediacard_combo_storage = MagicMock()
-        MediacardComboStorage._parse_journal_line(
-            mock_mediacard_combo_storage, line_str
-        )
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
         self.assertEqual(
-            mock_mediacard_combo_storage.mounted_partition, "mmcblk0p1"
+            mediacard_combo_storage.mounted_partition, "mmcblk0p1"
         )
 
         line_str = "new SD card at address 123456"
-        mock_mediacard_combo_storage = MagicMock()
-        MediacardComboStorage._parse_journal_line(
-            mock_mediacard_combo_storage, line_str
-        )
-        self.assertEqual(mock_mediacard_combo_storage.action, "insertion")
-        self.assertEqual(mock_mediacard_combo_storage.device, "SD")
-        self.assertEqual(mock_mediacard_combo_storage.address, "123456")
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, "insertion")
+        self.assertEqual(mediacard_combo_storage.device, "SD")
+        self.assertEqual(mediacard_combo_storage.address, "123456")
 
         line_str = "card 123456 removed"
-        mock_mediacard_combo_storage = MagicMock()
-        MediacardComboStorage._parse_journal_line(
-            mock_mediacard_combo_storage, line_str
-        )
-        self.assertEqual(mock_mediacard_combo_storage.action, "removal")
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, "removal")
 
         line_str = "Invalid line"
-        mock_mediacard_combo_storage = MagicMock()
-        mock_mediacard_combo_storage.action = None
-        MediacardComboStorage._parse_journal_line(
-            mock_mediacard_combo_storage, line_str
-        )
-        self.assertEqual(mock_mediacard_combo_storage.action, None)
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage.action = None
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, None)
 
     def test_thunderbolt_storage_init(self):
-        thunderbolt_storage = ThunderboltStorage("thunderbolt", "zapper_addr")
+        thunderbolt_storage = ThunderboltStorage("thunderbolt")
         self.assertEqual(thunderbolt_storage.storage_type, "thunderbolt")
-        self.assertEqual(thunderbolt_storage.zapper_usb_address, "zapper_addr")
         self.assertIsNone(thunderbolt_storage.mounted_partition)
         self.assertIsNone(thunderbolt_storage.action)
 
@@ -542,7 +452,8 @@ class TestRunWatcher(unittest.TestCase):
         mock_thunderbolt_storage.action = ""
         ThunderboltStorage._validate_removal(mock_thunderbolt_storage)
 
-    def test_thunderbolt_storage_parse_journal_line(self):
+    @patch("checkbox_support.scripts.run_watcher.super")
+    def test_thunderbolt_storage_parse_journal_line(self, mock_super):
         line_str = "nvme0n1: p1"
         mock_thunderbolt_storage = MagicMock()
         ThunderboltStorage._parse_journal_line(
@@ -551,6 +462,8 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(
             mock_thunderbolt_storage.mounted_partition, "nvme0n1p1"
         )
+        super_method = mock_super.return_value._parse_journal_line
+        super_method.assert_called_once_with(line_str)
 
         line_str = "thunderbolt 1-1: new device found"
         mock_thunderbolt_storage = MagicMock()
@@ -577,21 +490,20 @@ class TestRunWatcher(unittest.TestCase):
     def test_parse_args(self):
         with patch(
             "sys.argv",
-            ["script.py", "insertion", "usb2", "--zapper-usb-address", "addr"],
+            ["script.py", "insertion", "usb2"],
         ):
             args = parse_args()
             self.assertEqual(args.testcase, "insertion")
             self.assertEqual(args.storage_type, "usb2")
-            self.assertEqual(args.zapper_usb_address, "addr")
 
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
     @patch("checkbox_support.scripts.run_watcher.parse_args")
     def test_main_usb_insertion(self, mock_parse_args, mock_usb):
         mock_parse_args.return_value = argparse.Namespace(
-            testcase="insertion", storage_type="usb2", zapper_usb_address=None
+            testcase="insertion", storage_type="usb2"
         )
         main()
-        mock_usb.assert_called_with("usb2", None)
+        mock_usb.assert_called_with("usb2")
         self.assertEqual(mock_usb.return_value.run_insertion.call_count, 1)
         self.assertEqual(mock_usb.return_value.run_removal.call_count, 1)
         # get the watcher object from main
@@ -604,10 +516,10 @@ class TestRunWatcher(unittest.TestCase):
     @patch("checkbox_support.scripts.run_watcher.parse_args")
     def test_main_usb_storage(self, mock_parse_args, mock_usb):
         mock_parse_args.return_value = argparse.Namespace(
-            testcase="storage", storage_type="usb2", zapper_usb_address=None
+            testcase="storage", storage_type="usb2"
         )
         main()
-        mock_usb.assert_called_with("usb2", None)
+        mock_usb.assert_called_with("usb2")
         self.assertEqual(mock_usb.return_value.run_insertion.call_count, 1)
         self.assertEqual(mock_usb.return_value.run_storage.call_count, 1)
         self.assertEqual(mock_usb.return_value.run_removal.call_count, 1)
@@ -616,7 +528,7 @@ class TestRunWatcher(unittest.TestCase):
     @patch("checkbox_support.scripts.run_watcher.parse_args")
     def test_main_usb_invalid(self, mock_parse_args, mock_usb):
         mock_parse_args.return_value = argparse.Namespace(
-            testcase="invalid", storage_type="usb2", zapper_usb_address=None
+            testcase="invalid", storage_type="usb2"
         )
         with self.assertRaises(SystemExit) as cm:
             main()
@@ -631,7 +543,6 @@ class TestRunWatcher(unittest.TestCase):
         mock_parse_args.return_value = argparse.Namespace(
             testcase="insertion",
             storage_type="mediacard",
-            zapper_usb_address=None,
         )
         main()
         self.assertEqual(mock_mediacard.call_count, 1)
@@ -649,7 +560,6 @@ class TestRunWatcher(unittest.TestCase):
         mock_parse_args.return_value = argparse.Namespace(
             testcase="insertion",
             storage_type="mediacard_combo",
-            zapper_usb_address=None,
         )
         main()
         self.assertEqual(mock_mediacard.call_count, 1)
@@ -667,7 +577,6 @@ class TestRunWatcher(unittest.TestCase):
         mock_parse_args.return_value = argparse.Namespace(
             testcase="insertion",
             storage_type="thunderbolt",
-            zapper_usb_address=None,
         )
         main()
         self.assertEqual(mock_thunderbolt.call_count, 1)

@@ -22,17 +22,34 @@ on:
           - arm64
 
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - main
-    paths:
-      - bin/install-vulkan
 
 jobs:
+  # Job to detect which files have changed
+  changes:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      vulkan: ${{ steps.changes.outputs.vulkan }}
+      opencl: ${{ steps.changes.outputs.opencl }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            vulkan:
+              - 'bin/install-vulkan'
+            opencl:
+              - 'bin/install-opencl'
+
   manual-build:
     if: github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
-        test_name: [vulkan]
+        test_name: [vulkan, opencl]
     name: "Manual Build - ${{ matrix.test_name }}"
     runs-on: [self-hosted, linux, "${{ inputs.arch }}", "${{ inputs.version }}"]
 
@@ -51,28 +68,58 @@ jobs:
           ${{ inputs.arch }}-${{ inputs.version }}"
           path: /usr/local/checkbox-gfx/*
 
-  pr-build:
-    if: github.event_name == 'pull_request'
+  # The logic to combine these jobs got complicated
+  # Using one per installer will be more maintainable
+  pr-build-vulkan:
+    needs: changes
+    # needs.changes only runs if the event is a PR
+    if: needs.changes.outputs.vulkan == 'true'
     strategy:
       matrix:
         arch: [amd64, arm64]
-        test_name: [vulkan]
-    name: "Installer testing"
+    name: "Installer testing - Vulkan CTS"
     runs-on: [self-hosted, linux, "${{ matrix.arch }}", noble]
 
     steps:
-      - name: "Installers - ${{ matrix.test_name }} - ${{ matrix.arch }}"
-        run: echo "Running ${{ matrix.test_name }} ${{ matrix.arch }} install"
+      - name: "Installers - Vulkan - ${{ matrix.arch }}"
+        run: echo "Running Vulkan ${{ matrix.arch }} install"
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run install-${{ matrix.test_name }}
+      - name: Run install-vulkan
         shell: bash
-        run: bin/install-${{ matrix.test_name }}
+        run: bin/install-vulkan
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: output-${{ matrix.test_name }}-${{ matrix.arch }}
+          name: output-vulkan-${{ matrix.arch }}
+          path: /usr/local/checkbox-gfx/*
+
+  pr-build-opencl:
+    needs: changes
+    # needs.changes only runs if the event is a PR
+    if: needs.changes.outputs.opencl == 'true'
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    name: "Installer testing - OpenCL CTS"
+    runs-on: [self-hosted, linux, "${{ matrix.arch }}", noble]
+
+    steps:
+      - name: "Installers - OpenCL - ${{ matrix.arch }}"
+        run: echo "Running OpenCL ${{ matrix.arch }} install"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run install-opencl
+        shell: bash
+        run: bin/install-opencl
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-opencl-${{ matrix.arch }}
           path: /usr/local/checkbox-gfx/*

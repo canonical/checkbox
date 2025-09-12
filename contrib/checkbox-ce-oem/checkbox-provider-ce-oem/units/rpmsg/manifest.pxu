@@ -4,6 +4,16 @@ _name: Remote Processor Messaging (rpmsg) framework supported?
 value-type: bool
 
 unit: manifest entry
+id: has_preload_rpmsg_string_echo_firmware
+_name: Change the RPMSG String Echo firmware running at boot time?
+value-type: bool
+
+unit: manifest entry
+id: has_preload_rpmsg_pingpong_firmware
+_name: Change the RPMSG pingpong firmware running at boot time?
+value-type: bool
+
+unit: manifest entry
 id: has_rpmsg_firmware_load
 _name: Change the RPMSG running firmware is supported?
 value-type: bool

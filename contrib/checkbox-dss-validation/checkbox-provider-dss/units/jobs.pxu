@@ -136,7 +136,7 @@ template-resource: dss/notebook_tests_list
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
-requires: executable.name == 'dss'
+requires: executable.name == 'kubectl'
 id: dss/verify_new_notebook_of_{image}
 depends: dss/create_new_notebook_using_{image}
 _summary: Check that the new notebook from '{image}' can use acceleration

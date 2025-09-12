@@ -1,6 +1,6 @@
 id: mediacard-cert-full
 unit: test plan
-_name: Mediacard tests
+_name: Mediacard tests (Cert Full)
 _description:
  Mediacard tests
 include:

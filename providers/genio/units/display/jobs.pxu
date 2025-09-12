@@ -29,7 +29,7 @@ _summary:
 _purpose:
     This test tests if the brightness of DSI display can be channged to different value
 command:
-    brightness_test.py -p "$GENIO_DEVICE" -d dsi
+    genio_brightness_test.py -p "$GENIO_DEVICE" -d dsi
 _verification:
     1. Did the screen brightness be changed to different level?
 
@@ -47,7 +47,7 @@ _summary:
 _purpose:
     This test tests if the brightness of eDP display can be channged to different value
 command:
-    brightness_test.py -p "$GENIO_DEVICE" -d edp
+    genio_brightness_test.py -p "$GENIO_DEVICE" -d edp
 _verification:
     1. Did the screen brightness be changed to different level?
 
@@ -65,6 +65,6 @@ _summary:
 _purpose:
     This test tests if the brightness of LVDS display can be channged to different value
 command:
-    brightness_test.py -p "$GENIO_DEVICE" -d lvds
+    genio_brightness_test.py -p "$GENIO_DEVICE" -d lvds
 _verification:
     1. Did the screen brightness be changed to different level?

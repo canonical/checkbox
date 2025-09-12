@@ -24,7 +24,7 @@ import subprocess
 import shlex
 
 from checkbox_support.helpers.slugify import slugify
-import os_resource
+from checkbox_support.helpers.release_info import get_release_info
 
 
 def compare_ubuntu_release_version(_version):
@@ -32,8 +32,7 @@ def compare_ubuntu_release_version(_version):
     Compare ubuntu release version.
     If host version is higher or equal provided, it will return True.
     """
-    release_file_content = os_resource.get_release_file_content()
-    os_version = os_resource.get_release_info(release_file_content)["release"]
+    os_version = get_release_info()["release"]
     try:
         from packaging import version
 

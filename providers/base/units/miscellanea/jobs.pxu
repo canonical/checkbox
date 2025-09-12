@@ -125,15 +125,17 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: Test that system booted in EFI mode
 _purpose:
- Test to verify that the system booted in EFI mode with Secure Boot active.
+ Test to verify that the system booted in EFI mode.
 command: boot_mode_test.py efi
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/secure_boot_mode
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
+ manifest.has_secure_boot == 'True'
 depends: miscellanea/efi_boot_mode
 _summary: Test that system booted with Secure Boot active
 _purpose:
@@ -158,8 +160,10 @@ estimated_duration: 0.5
 unit: template
 template-resource: model_assertion
 template-unit: job
+imports: from com.canonical.plainbox import manifest
 requires:
- executable.name == 'dumpimage' or executable.name == 'mokutil'
+ (executable.name == 'dumpimage' or executable.name == 'mokutil')
+ manifest.has_secure_boot == 'True'
 id: miscellanea/secure_boot_mode_{gadget}
 template-id: miscellanea/secure_boot_mode_gadget
 _summary: Test that {gadget} Ubuntu Core system booted with Secure Boot active
@@ -365,12 +369,12 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 10.0
 requires:
  executable.name == 'fwts'
- cpuinfo.platform in ("ppc64el")
+ cpuinfo.platform in ("ppc64el", "ppc64le")
 user: root
 _description:
- Run Firmware Test Suite (fwts) olog tests (ppc64el only).
+ Run Firmware Test Suite (fwts) olog tests (IBM Power only).
 _summary:
- Run FWTS OLOG check on ppc64el
+ Run FWTS OLOG check on Power systems
 environ: PLAINBOX_SESSION_SHARE
 command:
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_olog_results.log -t olog
@@ -563,3 +567,68 @@ requires:
   cpuinfo.platform in ("x86_64", "aarch64", "armhf")
   bootloader.name == "grub"
 command: grub_file_check.sh
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/wallpaper
+estimated_duration: 5.0
+_purpose:
+    Verify that the system has a wallpaper displayed.
+_steps:
+    1. Check the wallpaper in the desktop session
+_verification:
+    1. The expected wallpaper is visible on the desktop background.
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/document
+estimated_duration: 15.0
+_purpose:
+    Verify that the system includes the manufacturer-provided user guide.
+_steps:
+    1. Locate and open the manufacturer’s user guide in the operating system
+    2. Check that the user guide contains tabs, links, and relevant information
+_verification:
+    1. The user guide opens correctly with accessible tabs and links.
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/parental-controls
+estimated_duration: 10.0
+_purpose:
+    Validate that Parental Controls restrict applications for a non-admin user.
+_steps:
+    1. Create a non-admin account.
+    2. Open Parental Controls in application tab
+    3. Enable "Restrict Web Browsers"
+    4. Select and enable restrictions for at least one additional application under "Restrict Applications"
+    5. Log out from the Admin account and log in as the Standard user
+    6. Attempt to launch each restricted application
+_verification:
+    1. Confirm that the standard user cannot launch any of the restricted applications.
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/operation-system-installation
+estimated_duration: 30.0
+_purpose:
+    Verify that the operating system can be installed successfully.
+_steps:
+    1. Prepare a USB key with the installation image
+    2. Follow the installation steps
+    3. Boot into the installed operating system without errors
+_verification:
+    1. The system boots into the operating system successfully after installation.
+
+plugin: manual
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/factory-recovery
+estimated_duration: 30.0
+_purpose:
+    Verify that the factory recovery can be restored successfully.
+_steps:
+    1. Perform the factory recovery process
+    2. Follow the on-screen recovery steps
+    3. Boot into the recovered system without errors
+_verification:
+    1. The system boots into the factory recovery system successfully.

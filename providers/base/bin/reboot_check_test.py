@@ -3,7 +3,6 @@
 import argparse
 import os
 import subprocess as sp
-import re
 import shutil
 import filecmp
 import sys
@@ -11,13 +10,15 @@ import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from datetime import datetime
 import time
-
+import platform
 
 # Checkbox could run in a snap container, so we need to prepend this root path
-RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
+RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
-SNAP = os.getenv("SNAP", default="")
+SNAP = os.getenv("SNAP", default="").rstrip("/")
+# global const for subprocess calls that should timeout
+COMMAND_TIMEOUT_SECONDS = 30
 
 
 def get_timestamp_str() -> str:
@@ -27,9 +28,16 @@ def get_timestamp_str() -> str:
         # take the 1st one
         uptime_seconds = f.readline().split()[0]
 
-    return "Time: {}; Uptime: {} seconds ".format(
+    return "Time: {}. Uptime: {} seconds".format(
         datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), uptime_seconds
     )
+
+
+def get_current_boot_id() -> str:
+    with open("/proc/sys/kernel/random/boot_id", "r") as f:
+        # the boot_id file has a Version 4 UUID with hyphens
+        # journalctl doesn't use hyphens so we just remove it
+        return f.read().strip().replace("-", "")
 
 
 class DeviceInfoCollector:
@@ -51,15 +59,13 @@ class DeviceInfoCollector:
     # to modify, add more values in the enum
     # and reference them in required/optional respectively
 
-    COMMAND_TIMEOUT_SECONDS = 30
-
     def get_drm_info(self) -> str:
         return str(sorted(os.listdir("/sys/class/drm")))
 
     def get_wireless_info(self) -> str:
         iw_out = sp.check_output(
             ["iw", "dev"],
-            timeout=self.COMMAND_TIMEOUT_SECONDS,
+            timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
         lines = iw_out.splitlines()
@@ -82,7 +88,7 @@ class DeviceInfoCollector:
                 "-s",
             ],
             universal_newlines=True,
-            timeout=self.COMMAND_TIMEOUT_SECONDS,
+            timeout=COMMAND_TIMEOUT_SECONDS,
         ).splitlines()
         out.sort()
         return "\n".join(out)
@@ -90,7 +96,7 @@ class DeviceInfoCollector:
     def get_pci_info(self) -> str:
         return sp.check_output(
             ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
-            timeout=self.COMMAND_TIMEOUT_SECONDS,
+            timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
 
@@ -181,7 +187,9 @@ class FwtsTester:
         return shutil.which("fwts") is not None
 
     def fwts_log_check_passed(
-        self, output_directory: str, fwts_arguments=["klog", "oops"]
+        self,
+        output_directory: str,
+        fwts_arguments: T.Sequence[str] = ["klog", "oops"],
     ) -> bool:
         """
         Check if fwts logs passes the checks specified in sleep_test_log_check
@@ -211,6 +219,55 @@ class FwtsTester:
 
 
 class HardwareRendererTester:
+
+    def get_desktop_environment_variables(
+        self,
+    ) -> T.Optional[T.Dict[str, str]]:
+        """Gets all the environment variables used by the desktop process
+
+        :return: dict[str, str] similar to os.environ
+            None if the desktop process is not found
+        """
+        # "-s" guarantees at most 1 result
+        # do not use check_output here,
+        # pidof will return 1 when process is not found
+        gnome_pid = sp.run(
+            ["pidof", "-s", "gnome-shell"],
+            stdout=sp.PIPE,
+            universal_newlines=True,
+        )
+        # TODO: remove unity related checks after 16.04 reaches EOL
+        compiz_pid = sp.run(  # 16.04 only
+            ["pidof", "-s", "compiz"], stdout=sp.PIPE, universal_newlines=True
+        )
+
+        desktop_pid = None  # type: int | None
+        if gnome_pid.returncode == 0:
+            desktop_pid = int(gnome_pid.stdout)
+        elif compiz_pid.returncode == 0:
+            desktop_pid = int(compiz_pid.stdout)
+
+        if desktop_pid is None:
+            # this means the desktop failed to load
+            # or we are not in a graphical session
+            return None
+
+        # /proc/pid/environ is a null-char separated string
+        proc_env_strings = sp.check_output(
+            ["cat", "/proc/{}/environ".format(desktop_pid)],
+            universal_newlines=True,
+        ).split("\0")
+
+        # ideally we don't manually parse this and just use the env file
+        # but py3.5 only takes a mapping for the env param
+        desktop_env_vars = {}  # type: dict[str, str]
+        for env_str in proc_env_strings:
+            kv = env_str.split("=", maxsplit=1)  # DISPLAY=:0
+            if len(kv) == 2:
+                key, value = kv
+                desktop_env_vars[key] = value
+
+        return desktop_env_vars
 
     def has_display_connection(self) -> bool:
         """
@@ -266,43 +323,180 @@ class HardwareRendererTester:
 
         return connected_to_display
 
+    def pick_glmark2_executable(
+        self, xdg_session_type: str, cpu_arch: str
+    ) -> str:
+        """
+        Pure function that picks a glmark2 executable based on xdg_session_type
+        and cpu arch
+
+        :param xdg_session_type: the $XDG_SESSION_TYPE variable
+        :param cpu_arch: the `uname -m` value like x86_64
+        :return: glmark2 command to use. Caller is responsible for checking if
+                 the command exists
+        """
+        if cpu_arch in ("x86_64", "amd64"):
+            # x86 DUTs should run the version that uses the full opengl api
+            glmark2_executable = "glmark2"
+        else:
+            # default to es2 as the common denominator
+            # TODO: explicitly check for aarch64?
+            glmark2_executable = "glmark2-es2"
+
+        if xdg_session_type == "wayland":
+            glmark2_executable += "-wayland"
+        # if x11, don't add anything
+        return glmark2_executable
+
+    def gl_renderer_str_is_hardware_renderer(self, gl_renderer: str) -> bool:
+        """Checks if gl_renderer is produced by a hardware renderer.
+
+        This uses the same logic as unity_support_test. Details:
+        https://github.com/canonical/checkbox/issues/1630#issuecomment-2540843110
+
+        :param gl_renderer: the GL_RENDERER string.
+        https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetString.xhtml
+        :return: whether GL_RENDERER is produced by a hardware renderer
+        """
+        # These 2 values are carried over from unity_support_test
+        # never seen this before on devices after ubuntu 16
+        if gl_renderer in ("Software Rasterizer", "Mesa X11"):
+            return False
+        # https://docs.mesa3d.org/envvars.html#envvar-GALLIUM_DRIVER
+        # it's almost always the 'llvmpipe' case if we find software rendering
+        if "llvmpipe" in gl_renderer or "softpipe" in gl_renderer:
+            return False
+
+        return True
+
+    def extract_gl_renderer_str(
+        self,
+        glmark2_validate_output: str,
+    ) -> T.Optional[str]:
+        """Attempts to extract GL_RENDERER from `glmark2 --validate`'s output
+
+        :param glmark2_validate_output: the .stdout from `glmark2 --validate`
+        :return: GL_RENDERER itself or None if couldn't be determined
+        """
+        gl_renderer_line = None  # type: str | None
+        for line in glmark2_validate_output.splitlines():
+            if "GL_RENDERER" in line:
+                gl_renderer_line = line
+                break
+
+        if gl_renderer_line is None:
+            return None
+
+        return gl_renderer_line.split(":")[-1].strip()
+
     def is_hardware_renderer_available(self) -> bool:
         """
-        Checks if hardware rendering is being used.
-        THIS ASSUMES A DRM CONNECTION EXISTS
+        Checks if hardware rendering is being used by calling glmark2
+        - THIS ASSUMES A DRM CONNECTION EXISTS
         - self.has_display_connection() should be called first if unsure
 
         :return: True if a hardware renderer is active, otherwise return False
-        :rtype: bool
         """
 
-        DISPLAY = os.getenv("DISPLAY", "")
-
-        if DISPLAY == "":
-            print("$DISPLAY is not set, we will let unity_support infer this")
-        else:
-            print("Checking $DISPLAY={}".format(DISPLAY))
-
-        unity_support_output = sp.run(
-            ["{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT), "-p"],
-            stdout=sp.PIPE,
-            universal_newlines=True,
-        )
-        if unity_support_output.returncode != 0:
+        desktop_env_vars = self.get_desktop_environment_variables()
+        if desktop_env_vars is None:
             print(
-                "[ ERR ] unity support test returned {}. Error is: {}".format(
-                    unity_support_output.returncode,
-                    unity_support_output.stdout,
+                "[ ERR ] Unable to get the environment variables "
+                "used by the current desktop. Is the desktop process running?"
+            )
+            return False
+
+        XDG_SESSION_TYPE = desktop_env_vars.get("XDG_SESSION_TYPE")
+        if XDG_SESSION_TYPE not in ("x11", "wayland"):
+            # usually it's tty if we get here,
+            # happens when gnome failed to start or not using graphical session
+            print(
+                "[ ERR ] Unsupported session type: '{}'.".format(
+                    XDG_SESSION_TYPE
+                ),
+                "Expected either 'x11' or 'wayland'",
+                file=sys.stderr,
+            )
+            return False
+        print("XDG_SESSION type used by the desktop is:", XDG_SESSION_TYPE)
+
+        glmark2_executable = self.pick_glmark2_executable(
+            XDG_SESSION_TYPE, platform.uname().machine
+        )
+        glmark2_data_path = "/usr/share/glmark2"
+
+        try:
+            if RUNTIME_ROOT and not os.path.exists(glmark2_data_path):
+                # the official way to specify the location of the data files
+                # is "--data-path path/to/data/files"
+                # but 16, 18, 20 doesn't have this option
+                # and the /usr/share/glmark2 is hard-coded inside glmark2
+                # by the GLMARK_DATA_PATH build macro
+                src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
+                dst = glmark2_data_path
+                print(
+                    "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
+                        src, dst
+                    )
+                )
+                os.symlink(src, dst, target_is_directory=True)
+            # override is needed for snaps on classic ubuntu
+            # to allow the glmark2 command itself to be discovered
+            desktop_env_vars["PATH"] = os.environ["PATH"]
+            glmark2_output = sp.run(
+                # all glmark2 programs share the same args
+                [glmark2_executable, "--off-screen", "--validate"],
+                stdout=sp.PIPE,
+                stderr=sp.STDOUT,
+                universal_newlines=True,
+                # be more relaxed on this timeout in case
+                # the device needs a lot of time to wake up the GPU
+                timeout=120,
+                # literally dump all envs from gnome/unity to glmark2
+                env=desktop_env_vars,
+            )
+        except sp.TimeoutExpired:
+            print(
+                "[ ERR ] {} timed out after 120s.".format(glmark2_executable),
+                "Marking this test as failed.",
+                file=sys.stderr,
+            )
+            return False
+        finally:
+            # immediately cleanup
+            if RUNTIME_ROOT and os.path.islink(glmark2_data_path):
+                print("[ DEBUG ] Un-symlinking glmark2 data")
+                os.unlink(glmark2_data_path)
+
+        if glmark2_output.returncode != 0:
+            print(
+                "[ ERR ] {} returned {}. Error is: {}".format(
+                    glmark2_executable,
+                    glmark2_output.returncode,
+                    glmark2_output.stdout,
                 ),
                 file=sys.stderr,
             )
             return False
 
-        is_hardware_rendered = (
-            self.parse_unity_support_output(unity_support_output.stdout).get(
-                "Not software rendered"
+        gl_renderer = self.extract_gl_renderer_str(glmark2_output.stdout)
+
+        if gl_renderer is None:
+            print(
+                "[ ERR ] {} did not return a renderer string".format(
+                    glmark2_executable
+                ),
+                file=sys.stderr,
             )
-            == "yes"
+            return False
+
+        print(
+            "GL_RENDERER found by {} is: {}".format(
+                glmark2_executable, gl_renderer
+            )
+        )
+        is_hardware_rendered = self.gl_renderer_str_is_hardware_renderer(
+            gl_renderer
         )
         if is_hardware_rendered:
             print("[ OK ] This machine is using a hardware renderer!")
@@ -312,14 +506,18 @@ class HardwareRendererTester:
         return False
 
     def wait_for_graphical_target(self, max_wait_seconds: int) -> bool:
-        """Wait for the DUT to reach graphical.target in systemd critical chain
+        """Wait for DUT to reach graphical.target in systemd's critical chain
 
         :param max_wait_seconds: num seconds to wait at most
-        :return: whether graphical.target was reached within max_wait_seconds
+        :return: (bool, float) pair where
+        - bool: whether graphical.target was reached within max_wait_seconds
+        - float: how many seconds have elapsed since the start of this check
         """
 
         start = time.time()
         while time.time() - start < max_wait_seconds:
+            # keep polling systemd-analyze until it says it's done booting
+            # calling this command during boot will return non-zero
             try:
                 out = sp.run(
                     [
@@ -330,41 +528,17 @@ class HardwareRendererTester:
                     ],
                     stdout=sp.DEVNULL,
                     stderr=sp.DEVNULL,
-                    timeout=min(5, max_wait_seconds),
+                    timeout=min(COMMAND_TIMEOUT_SECONDS, max_wait_seconds),
                 )
                 if out.returncode == 0:
                     return True
                 else:
                     time.sleep(1)
             except sp.TimeoutExpired:
+                print("systemd-analyze timed out!")
                 return False
 
         return False
-
-    def parse_unity_support_output(
-        self, unity_output_string: str
-    ) -> T.Dict[str, str]:
-        """
-        Parses the output of `unity_support_test` into a dictionary
-
-        :param output_string: the raw output from running unity_support_test -p
-        :type output_string: str
-        :return: string key-value pairs that mirror the output of unity_support
-        Left hand side of the first colon are the keys;
-        right hand side are the values.
-        :rtype: dict[str, str]
-        """
-
-        output = {}  # type: dict[str, str]
-        for line in unity_output_string.split("\n"):
-            # max_split=1 to prevent splitting the string after the 1st colon
-            words = line.split(":", maxsplit=1)
-            if len(words) == 2:
-                key = words[0].strip()
-                value = remove_color_code(words[1].strip())
-                output[key] = value
-
-        return output
 
 
 def get_failed_services() -> T.List[str]:
@@ -443,16 +617,6 @@ def create_parser():
     return parser
 
 
-def remove_color_code(string: str) -> str:
-    """
-    Removes ANSI color escape sequences from string
-
-    :param string: the string that you would like to remove color code
-    credit: Hanhsuan Lee <hanhsuan.lee@canonical.com>
-    """
-    return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", string)
-
-
 def main() -> int:
     """Main routine
 
@@ -470,7 +634,11 @@ def main() -> int:
     renderer_test_passed = True
     service_check_passed = True
 
-    print("Starting reboot checks. {}".format(get_timestamp_str()))
+    print(
+        "Starting reboot checks. {}. Boot ID: {}".format(
+            get_timestamp_str(), get_current_boot_id()
+        )
+    )
 
     if args.comparison_directory is not None:
         if args.output_directory is None:
@@ -509,7 +677,9 @@ def main() -> int:
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
-                "These services failed: {}".format("\n".join(failed_services)),
+                "These services failed:\n{}".format(
+                    "\n".join(failed_services)
+                ),
                 file=sys.stderr,
             )
             service_check_passed = False
@@ -551,5 +721,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    return_code = main()
-    exit(return_code)
+    exit(main())

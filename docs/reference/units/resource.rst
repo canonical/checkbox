@@ -1,7 +1,7 @@
 .. _resource:
 
 =================
-Resource Job Unit
+Resource job unit
 =================
 
 Resources
@@ -15,10 +15,10 @@ a job can be started.
 
 Resources also serve as a "generator" for :ref:`template units<templates>`.
 
-Resource Jobs
+Resource jobs
 -------------
 
-Resource Jobs are jobs with a plugin set to resource::
+Resource jobs are jobs with a plugin set to resource::
 
     plugin: resource
 
@@ -70,7 +70,7 @@ Resource expressions cannot execute arbitrary python code. In general almost
 everything is disallowed, except as noted below:
 
 * Expressions can use any literals (strings, numbers, True, False, lists and tuples)
-* Expressions can use boolean operators (``and``, ``or``, ``not``)
+* Expressions can use Boolean operators (``and``, ``or``, ``not``)
 * Expressions can use all comparison operators
 * Expressions can use all binary and unary operators
 * Expressions can use the set membership operator (``in``)
@@ -260,4 +260,4 @@ requirement programs. Those are:
 
 * :py:class:`int`, to convert to integer numbers
 * :py:class:`float`, to convert to floating point numbers
-* :py:class:`bool`, to convert to a boolean context
+* :py:class:`bool`, to convert to a Boolean context

@@ -1,7 +1,7 @@
 .. _job:
 
 ========
-Job Unit
+Job unit
 ========
 
 A job unit is a smallest unit of testing that can be performed by Checkbox.
@@ -16,7 +16,7 @@ Jobs are expressed as sections in text files that conform somewhat to the
 ``rfc822`` specification format. Our variant of the format is described in
 :ref:`rfc822`. Each record defines a single job.
 
-Job Fields
+Fields
 ==========
 
 Following fields may be used by the job unit:
@@ -138,6 +138,21 @@ Following fields may be used by the job unit:
     (optional). If specified, the job will only run if all the listed jobs have
     run (regardless of the outcome). Multiple job names, separated by spaces,
     can be specified.
+
+.. option:: before
+
+    (optional). If specified, the job will only run before all the listed jobs
+    have run. Even if the referenced job fails, the current job will be run.
+
+    Multiple job names, separated by spaces, can be specified.
+    In the case of the before field, if the job was not previously included in
+    the test plan, it won't be added and the dependency will be ignored.
+
+    When a job lists another job in its ``before`` field and has the
+    ``also-after-suspend`` flag, both the original job and its generated sibling
+    share that identical ``before`` dependency. As a result, the referenced job
+    is pushed to the end of the test plan, positioned after the
+    ``also-after-suspend`` sibling.
 
 .. option:: salvages
 

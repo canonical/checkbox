@@ -109,6 +109,7 @@ bootstrap_include:
   net_if_management
 nested_part:
   submission-cert-automated
+  info-attachment-cert-automated
   self-automated
   ubuntucore-automated
   iot-fwts-automated
@@ -134,7 +135,7 @@ nested_part:
   snappy-snap-automated
   socketcan-auto-local
   socketcan-auto-remote
-  tpm-cert-focal-automated
+  tpm-cert-automated
   usb-automated
   thunderbolt-cert-automated
   watchdog-automated

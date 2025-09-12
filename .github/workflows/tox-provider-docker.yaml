@@ -6,10 +6,12 @@ on:
     branches: [ main ]
     paths:
       - providers/docker/**
+      - .github/workflows/tox-provider-docker.yaml
   pull_request:
     branches: [ main ]
     paths:
       - providers/docker/**
+      - .github/workflows/tox-provider-docker.yaml
   workflow_dispatch:
 
 jobs:
@@ -18,7 +20,6 @@ jobs:
     defaults:
       run:
         working-directory: providers/docker
-    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python: ["3.5", "3.6", "3.8", "3.10"]
@@ -31,8 +32,9 @@ jobs:
             tox_env_name: "py38"
           - python: "3.10"
             tox_env_name: "py310"
+    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
       # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED
@@ -45,12 +47,18 @@ jobs:
           curl --fail --silent --show-error https://pypi.org
           curl --fail --silent --show-error https://files.pythonhosted.org
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
         with:
           python-version: ${{ matrix.python }}
         env:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
-      - name: Install tox
-        run: pip install tox
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get update
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
+          pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}

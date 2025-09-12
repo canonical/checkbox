@@ -306,7 +306,7 @@ id: graphics/{index}_auto_glxgears_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.sane_product == "portable"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -327,7 +327,7 @@ id: graphics/{index}_valid_glxgears_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.sane_product == "portable"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -356,7 +356,7 @@ id: graphics/{index}_auto_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.sane_product == "portable"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -377,7 +377,7 @@ id: graphics/{index}_valid_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.sane_product == "portable"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -405,7 +405,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
+    dmi.sane_product == "non-portable"
 command:
     prime_offload_tester.py -c glxgears -t 30
 summary:
@@ -420,7 +420,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
+    dmi.sane_product == "non-portable"
 command:
      prime_offload_tester.py -c "glxgears -fullscreen" -t 30
 summary:
@@ -435,7 +435,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
+    dmi.sane_product == "non-portable"
 command:
     prime_offload_tester.py -c glxgears -t 30
 summary:
@@ -456,7 +456,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
+    dmi.sane_product == "non-portable"
 command:
     prime_offload_tester.py -c "glxgears -fullscreen" -t 30
 summary:
@@ -673,7 +673,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/nvlink-status-check
 requires:
- dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving']
+ dmi.sane_product == "non-portable"
  graphics_card.driver == 'nvidia'
 command: nvidia_nvlink_check.sh
 _summary: Check NVIDIA NVLINK status

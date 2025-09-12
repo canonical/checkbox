@@ -33,6 +33,8 @@ from plainbox.impl.ctrl import (
     SymLinkNest,
     gen_rfc822_records_from_io_log,
 )
+
+from plainbox.impl.depmgr import DependencyType
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.unit.job import InvalidJob
 from plainbox.impl.resource import Resource, ResourceExpression
@@ -62,35 +64,36 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Job with no dependencies
         job_a = JobDefinition({})
         self.assertEqual(self.ctrl.get_dependency_set(job_a), set())
-        # Job with direct dependencies
+        # Job with "depends" dependencies
         job_b = JobDefinition({"depends": "j1, j2"})
         self.assertEqual(
             self.ctrl.get_dependency_set(job_b),
-            {("direct", "j1"), ("direct", "j2")},
+            {(DependencyType.DEPENDS, "j1"), (DependencyType.DEPENDS, "j2")},
         )
         # Job with resouce dependencies
         job_c = JobDefinition({"requires": "j3.attr == 1"})
         self.assertEqual(
-            self.ctrl.get_dependency_set(job_c), {("resource", "j3")}
+            self.ctrl.get_dependency_set(job_c),
+            {(DependencyType.RESOURCE, "j3")},
         )
-        # Job with ordering dependencies
+        # Job with after dependencies
         job_d = JobDefinition({"after": "j1, j2"})
         self.assertEqual(
             self.ctrl.get_dependency_set(job_d),
-            {("ordering", "j1"), ("ordering", "j2")},
+            {(DependencyType.AFTER, "j1"), (DependencyType.AFTER, "j2")},
         )
-        # Job with both direct and resource dependencies
+        # Job with both depends and resource dependencies
         job_e = JobDefinition({"depends": "j4", "requires": "j5.attr == 1"})
         self.assertEqual(
             self.ctrl.get_dependency_set(job_e),
-            {("direct", "j4"), ("resource", "j5")},
+            {(DependencyType.DEPENDS, "j4"), (DependencyType.RESOURCE, "j5")},
         )
-        # Job with both direct and resource dependencies
+        # Job with both depends and resource dependencies
         # on the same job (j6)
         job_f = JobDefinition({"depends": "j6", "requires": "j6.attr == 1"})
         self.assertEqual(
             self.ctrl.get_dependency_set(job_f),
-            {("direct", "j6"), ("resource", "j6")},
+            {(DependencyType.DEPENDS, "j6"), (DependencyType.RESOURCE, "j6")},
         )
         # Job with an "also-after-suspend" flag, meaning this job should be
         # set to run before the suspend job
@@ -98,7 +101,46 @@ class CheckBoxSessionStateControllerTests(TestCase):
         suspend_job = JobDefinition({"id": Suspend.AUTO_JOB_ID})
         self.assertEqual(
             self.ctrl.get_dependency_set(suspend_job, [job_g]),
-            {("ordering", "j7")},
+            {(DependencyType.AFTER, "j7")},
+        )
+
+    def test_add_before_deps(self):
+        """
+        Verify that add_before_deps() adds all "before" references declared
+        in a job to the corresponding jobs as an "after" dependency.
+        """
+        job_a = JobDefinition({"id": "a", "before": "c"})
+        job_b = JobDefinition({"id": "b", "before": "c"})
+        job_c = JobDefinition({"id": "c"})
+        job_map = {"a": job_a, "b": job_b, "c": job_c}
+        global_job_map = job_map
+        # Add before dependencies
+        self.ctrl.add_before_deps(job_a, job_map, global_job_map)
+        self.ctrl.add_before_deps(job_b, job_map, global_job_map)
+        self.assertIn("a", job_c.before_references)
+        self.assertIn("b", job_c.before_references)
+        self.assertEqual(len(job_c.before_references), 2)
+
+    @mock.patch("plainbox.impl.ctrl.logger")
+    def test_add_before_deps_missing_dep(self, mock_logger):
+        """
+        Verify that add_before_deps() raises DependencyMissingError
+        if a job has a "before" dependency on a job that does not exist.
+        """
+        job_a = JobDefinition({"id": "a", "before": "b c"})
+        job_map = {"a": job_a}
+        global_job_map = {
+            "a": JobDefinition({"id": "a", "before": "b c"}),
+            "b": JobDefinition({"id": "b"}),
+        }
+
+        self.ctrl.add_before_deps(job_a, job_map, global_job_map)
+        mock_logger.debug.assert_called_once_with(
+            "Job a has a before dependency on b which is not in the current "
+            "test plan"
+        )
+        mock_logger.error.assert_called_once_with(
+            "Job a has a before dependency on c which does not exist"
         )
 
     def test_get_inhibitor_list_PENDING_RESOURCE(self):

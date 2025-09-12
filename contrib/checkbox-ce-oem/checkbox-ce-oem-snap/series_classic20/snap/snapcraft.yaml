@@ -35,10 +35,9 @@ passthrough:
 parts:
   checkbox-provider-ce-oem:
     plugin: dump
-    source: ../../checkbox-provider-ce-oem
+    source: checkbox-provider-ce-oem
     source-type: local
     stage-packages:
-      - alsa-utils
       - mtd-utils
       - u-boot-tools
       - v4l-utils
@@ -47,7 +46,6 @@ parts:
       - snmp
     override-prime: |
       snapcraftctl prime
-      rm lib/systemd/system/alsa-utils.service
     override-build: |
       export PYTHONPATH=/snap/checkbox20/current/lib/python3.8/site-packages/
       for path in $(find "/snap/checkbox20/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
@@ -70,10 +68,35 @@ parts:
       - gcc
       - libc6-dev
     override-build: |
-      mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/bin
-      PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
-      gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
-      cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
+      mkdir -p "${SNAPCRAFT_PART_INSTALL}/usr/bin"
+      gcc "${SNAPCRAFT_PROJECT_DIR}/checkbox-provider-ce-oem/src/input-pcspkr.c" -o "${SNAPCRAFT_PART_INSTALL}/usr/bin/beep"
+  xtest:
+    plugin: dump
+    after: [checkbox-provider-ce-oem]
+    source: https://github.com/OP-TEE/optee_test.git
+    source-type: git
+    build-snaps:
+      - checkbox20
+    build-packages:
+      - jq
+      - python3-requests-unixsocket
+    build-environment:
+      - PART_DEST: ${SNAPCRAFT_PART_INSTALL}/providers/checkbox-provider-ce-oem/data/
+      - PROVIDER_SRC: ${SNAPCRAFT_PROJECT_DIR}/checkbox-provider-ce-oem
+      - PYTHONPATH: /snap/checkbox20/current/lib/python3.8/site-packages/
+    override-pull: |
+      snapcraftctl pull
+      cp ${PROVIDER_SRC}/data/xtest_supported_version.json .
+      cp ${PROVIDER_SRC}/bin/optee_helper.py .
+      cp ${PROVIDER_SRC}/bin/look_up_xtest.py .
+      cp ${PROVIDER_SRC}/bin/xtest_install_ta.py .
+    override-build: |
+      for ver in `cat xtest_supported_version.json | jq -r .xtest_suite_tag[]`; do
+          git checkout $ver
+          python3 optee_helper.py parse_xtest_src $ver
+      done
+      mkdir -p ${PART_DEST}
+      cp -v optee-test-*.json ${PART_DEST}
   spidev-test:
     plugin: make
     source: https://github.com/torvalds/linux.git

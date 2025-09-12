@@ -265,6 +265,10 @@ class TestLXD(TestCase):
         self_mock = MagicMock()
         LXD.restart(self_mock)
 
+    def test_set_config(self, logging_mock):
+        self_mock = MagicMock()
+        LXD.set_config(self_mock, " -global q35-pcihost.pci-hole64-size=8192G")
+
     def test_add_device_no_options(self, logging_mock):
         self_mock = MagicMock()
         LXD.add_device(self_mock, "gpu", "gpu")
@@ -301,10 +305,11 @@ class TestLXDVM(TestCase):
         self_mock.image = "/tmp/image"
         LXDVM.insert_images(self_mock)
 
-    def test_insert_images_no_images(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.template = None
-        self_mock.image = None
+    @patch("checkbox_support.lxd_support.run_with_retry")
+    def test_insert_images_remote_success(
+        self, logging_mock, run_with_retry_mock
+    ):
+        self_mock = MagicMock(template=None, image=None, remote="ubuntu:")
         LXDVM.insert_images(self_mock)
 
     def test_launch_images(self, logging_mock):

@@ -40,7 +40,7 @@ bootstrap_include:
   interface
   net_if_management
 nested_part:
-  audio-manual
+  audio-cert-manual
   bluetooth-cert-manual
   camera-manual
   cpu-manual
@@ -71,12 +71,13 @@ nested_part:
   usb-manual
   usb-c-manual
   usb3-manual
+  usb-dwc3-manual
   watchdog-manual
   wireless-manual
   wireless-wifi-master-mode-manual
   wwan-manual
   va-api-manual
-  after-suspend-audio-manual
+  after-suspend-audio-cert-full
   after-suspend-bluetooth-cert-manual
   after-suspend-ethernet-manual
   after-suspend-led-indicator-manual
@@ -129,7 +130,7 @@ bootstrap_include:
   net_if_management
 nested_part:
   acpi-automated
-  audio-automated
+  audio-cert-automated
   bluetooth-cert-automated
   bluez-automated
   camera-automated
@@ -161,15 +162,17 @@ nested_part:
   socketcan-auto-local
   socketcan-auto-remote
   submission-cert-automated
+  info-attachment-cert-automated
   thunderbolt-cert-automated
   tpm-cert-automated
   usb-automated
+  usb-dwc3-automated
   watchdog-automated
   wireless-automated
   wireless-wifi-master-mode-auto
   wwan-automated
   va-api-automated
-  after-suspend-audio-automated
+  after-suspend-audio-cert-automated
   after-suspend-bluez-automated
   after-suspend-eeprom-automated
   after-suspend-ethernet-automated

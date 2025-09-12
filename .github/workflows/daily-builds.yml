@@ -21,7 +21,7 @@ jobs:
     outputs:
       new_commit_count: ${{ steps.commit_check.outputs.new_commit_count }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           fetch-depth: 0
           persist-credentials: false

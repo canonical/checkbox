@@ -1,5 +1,5 @@
 =============
-Exporter Unit
+Exporter unit
 =============
 
 The purpose of exporter units is to provide an easy way to customize the

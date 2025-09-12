@@ -1,0 +1,154 @@
+name: Tox and push to codecov core components
+permissions:
+  contents: read
+on:
+  push:
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - providers/base/**
+      - providers/certification-client/**
+      - providers/certification-server/**
+      - providers/genio/**
+      - providers/gpgpu/**
+      - providers/resource/**
+      - providers/sru/**
+      - providers/genio/**
+      - providers/iiotg/**
+      - .github/workflows/tox-checkbox.yaml
+  pull_request:
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - providers/base/**
+      - providers/certification-client/**
+      - providers/certification-server/**
+      - providers/gpgpu/**
+      - providers/resource/**
+      - providers/sru/**
+      - providers/genio/**
+      - providers/iiotg/**
+      - .github/workflows/tox-checkbox.yaml
+  workflow_dispatch:
+
+jobs:
+  get_path_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      path_flag: ${{ steps.paths.outputs.paths }}
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Fetch all modified paths
+        id: paths
+        run: |
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [ "$CURRENT_BRANCH" == "main" ]; then
+            echo "Workflow triggered on main, diffing with HEAD~1"
+            DIFF=$(git diff --name-only HEAD~1)
+          else
+            echo "Workflow triggered on a branch, diffing with origin/main"
+            DIFF=$(git diff --name-only origin/main)
+          fi
+          # Checks if a specific path has changed
+          changed(){ echo "$DIFF" | grep -o $1; }
+          if changed ".github/workflows/tox-checkbox.yaml"; then
+            # when changing the workflow, re-test all tox to check they still work
+            echo "The workflow has been changed, all tox will be retriggered"
+            changed(){ true; }
+          fi;
+
+          # providers have the flag provider-provider-name
+          get_codecov_flag(){ echo "$1" | sed 's|providers/|provider-|g'; }
+
+          echo -n "paths=[" >> to_output
+          for path in \
+              checkbox-ng \
+              checkbox-support \
+              providers/base \
+              providers/certification-client \
+              providers/certification-server \
+              providers/gpgpu \
+              providers/resource \
+              providers/genio \
+              providers/iiotg \
+              providers/sru; do
+            if changed $path; then
+              echo -n '{ "path":' >> to_output
+              echo -n "\"$path\"" >> to_output
+              codecov_flag=`get_codecov_flag $path`
+              echo -n ', "codecov_flag": ' >> to_output
+              echo -n "\"$codecov_flag\" }," >> to_output
+            fi;
+          done
+          sed -i '$ s/.$//' to_output
+          echo -n "]" >> to_output
+
+          cat to_output >> $GITHUB_STEP_SUMMARY
+          cat to_output >> $GITHUB_OUTPUT
+
+  tox_test_checkbox_component:
+    needs: get_path_matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        path_flag: ${{ fromJson(needs.get_path_matrix.outputs.path_flag) }}
+        python: ["3.5", "3.6", "3.8", "3.10", "3.12"]
+        include:
+          - python: "3.5"
+            tox_env_name: "py35"
+          - python: "3.6"
+            tox_env_name: "py36"
+          - python: "3.8"
+            tox_env_name: "py38"
+          - python: "3.10"
+            tox_env_name: "py310"
+          - python: "3.12"
+            tox_env_name: "py312"
+    name: Tox ${{ matrix.path_flag.path }} (${{matrix.python}}) and upload coverage
+    defaults:
+      run:
+        working-directory: ${{ matrix.path_flag.path }}
+    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
+      # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED
+      # error. To fix this, we have set up manually PIP_TRUSTED_HOST, checking
+      # first that we can "curl" the hosts, since they will fail in case of
+      # expired/invalid/self-signed certificate.
+      - name: Workaround SSL Certificates manual verification for Python
+        run: |
+          curl --fail --silent --show-error https://pypi.python.org
+          curl --fail --silent --show-error https://pypi.org
+          curl --fail --silent --show-error https://files.pythonhosted.org
+      - name: Setup Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: ${{ matrix.python }}
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get update
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev shellcheck
+          pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}
+      - name: Print out the codecov flag
+        env:
+          CODECOV_TAG: ${{ matrix.path_flag.codecov_flag }}
+        run: |
+          echo "$CODECOV_TAG"
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{ matrix.path_flag.codecov_flag }}

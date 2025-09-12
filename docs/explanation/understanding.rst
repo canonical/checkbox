@@ -13,7 +13,7 @@ between the following entities:
 - provider
 - launcher
 
-Test Command
+Test command
 ------------
 
 Automated and some interactive tests use external commands to help determine the
@@ -27,7 +27,7 @@ The command returns 0 on success (ping came back), and 1 if the ping timed out.
 Let's turn this simple command into a Checkbox test.
 
 
-Job Unit
+Job unit
 --------
 
 The command from the above paragraph can now be used in a Job Unit::
@@ -47,7 +47,7 @@ Notice how the command field is a straight copy-paste of the Test Command
 
 See :ref:`units` for :ref:`more info on job units <job>`
 
-Test Plan
+Test plan
 ---------
 
 When Checkbox is run from the command line without any parameters, i.e.::

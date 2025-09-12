@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_secure_boot
+_name: Secure Boot support
+value-type: bool
+
+unit: manifest entry
+id: has_sriov
+_name: SR-IOV support
+value-type: bool

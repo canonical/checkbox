@@ -151,7 +151,7 @@ depends: power-management/suspend_30_cycles_with_reboots
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
 _summary: 30 suspend/resume cycles and 1 reboot, 3 times (check logs for errors)
-_purpose: 
+_purpose:
  Automated check of the '30 cycle suspend and 1 reboot times 3' logs for errors detected by fwts.
 _siblings: [
     { "id": "power-management/suspend-30-cycles-log-check-with-coldboots",
@@ -544,28 +544,6 @@ _summary: Check power-off log for issues.
 
 plugin: shell
 category_id: com.canonical.plainbox::stress
-id: stress/graphics
-estimated_duration: 600.0
-requires:
- package.name == 'x11-apps'
-user: root
-environ: PLAINBOX_SESSION_SHARE
-command: graphics_stress_test.py --iterations 20 -b repeat -d -o "$PLAINBOX_SESSION_SHARE"/graphics-stress-results && echo "Graphics Stress Test completed successfully" || echo "Graphics Stress Test completed, but there are errors. Please see the log $PLAINBOX_SESSION_SHARE/graphics-stress-results for details" && false
-_purpose: Run the graphics stress test. This test can take a few minutes.
-_summary: Execute a graphics stress test to ensure stability under load.
-
-plugin: attachment
-category_id: com.canonical.plainbox::stress
-id: stress/graphics-tarball
-estimated_duration: 1.0
-requires:
- package.name == 'x11-apps'
-command: [ -f "$PLAINBOX_SESSION_SHARE"/graphics-stress-results ] && cat "$PLAINBOX_SESSION_SHARE"/graphics-stress-results
-_purpose: Attaches the graphics stress results to the submission.
-_summary: Attach graphics stress test results for submission.
-
-plugin: shell
-category_id: com.canonical.plainbox::stress
 id: stress/usb
 estimated_duration: 710.0
 user: root
@@ -614,7 +592,7 @@ plugin: manual
 category_id: com.canonical.plainbox::stress
 id: stress/wireless_hotkey
 estimated_duration: 60.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.sane_product == "portable"
 _purpose:
     To make sure that stressing the wifi hotkey does not cause applets to disappear from the panel or the system to lock up
 _steps:
@@ -716,7 +694,7 @@ command:
  nmcli d wifi connect "${SSID}" password "${PSK}"
  UUID=$(nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*")
  i=1
- while [ ! $i -gt $NUM ]
+ while [ ! $i -gt "$NUM" ]
  do
      echo "Connect/Disconnect Round ${i}"
      nmcli c up uuid "${UUID}"
@@ -731,3 +709,33 @@ command:
 environ: WPA_N_SSID WPA_N_PSK
 category_id: com.canonical.plainbox::stress
 flags: preserve-locale also-after-suspend
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/cpu_stress_ng_test_sru
+estimated_duration: 1800.0
+requires:
+ executable.name == 'stress-ng'
+user: root
+command: systemd-inhibit stress_ng_test.py cpu --base-time 1800
+_summary:
+ Stress of CPUs (SRU shortened runtime)
+_purpose:
+ Impose a high system load using the 'stress-ng' tool to exercise the CPU for
+ 1800 seconds. The test is considered passed if the system does not freeze and
+ if the stress-ng tool does not report errors. This is a shortened version
+ for SRU testing.
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/memory_stress_ng_sru
+estimated_duration: 1800.0
+user: root
+requires:
+ executable.name == 'stress-ng'
+command: systemd-inhibit stress_ng_test.py memory --base-time 60 --time-per-gig 0
+_summary: Stress test of system memory (SRU shortened runtime)
+_purpose:
+ Test to perform some basic stress and exercise of system memory via the
+ stress-ng tool with shortened timeout for SRU testing. This test runs for
+ 60 seconds with no additional time per gigabyte of memory.

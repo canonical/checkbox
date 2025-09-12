@@ -6,7 +6,6 @@ _description:
     devices check, GPU check and thermal check. It will be used to qualify OEM image before
     release the image to QA team.
 include:
-    com.canonical.certification::miscellanea/dpkg-l
     com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
     com.canonical.certification::miscellanea/side-load-changes
     com.canonical.certification::somerville-installation
@@ -38,7 +37,7 @@ include:
     com.canonical.certification::miscellanea/check-thermald-unknown-cond
     com.canonical.certification::miscellanea/dump_libsmbios_tokens
     com.canonical.certification::miscellanea/dump_libsmbios_tokens_attachment
-    com.canonical.certification::miscellanea/check_i2c_hid
+    com.canonical.certification::miscellanea/check-i2c-hid-existence
     com.canonical.certification::miscellanea/tgp-rid-check_.*
     com.canonical.certification::miscellanea/touchpad-firmware-version_.*
     com.canonical.certification::miscellanea/check_oem_recovery_version

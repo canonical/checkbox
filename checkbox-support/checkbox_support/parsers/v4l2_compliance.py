@@ -24,6 +24,7 @@ TEST_NAME_TO_IOCTL_MAP = {
     "VIDIOC_ENUMAUDIO": ["VIDIOC_ENUMAUDIO"],
     "VIDIOC_G/S/ENUMINPUT": [
         "VIDIOC_G_SELECTION",
+        "VIDIOC_G_INPUT",
         "VIDIOC_ENUMINPUT",
         "VIDIOC_S_INPUT",
     ],
@@ -94,6 +95,19 @@ TEST_NAME_TO_IOCTL_MAP = {
     "VIDIOC_EXPBUF": ["VIDIOC_EXPBUF"],
 }
 
+# These are ioctls used by gstreamer's v4l2src element that are
+# tested by v4l2-compliance
+# Found by 'strace gst-launch-1.0 v4l2src ! videoconvert ! fakesink'
+# and take those that returned 0
+IOCTL_USED_BY_V4L2SRC = {
+    "VIDIOC_ENUMINPUT",
+    "VIDIOC_G_INPUT",
+    "VIDIOC_QUERYCAP",
+    "VIDIOC_QUERYCTRL",
+    # needs special handling, REQBUFS is tested together with CREATE_BUFS,
+    # but CREATE_BUFS failing won't break the camera by default
+    "VIDIOC_REQBUFS",
+}
 
 # see the summary dict literal for actual keys
 Summary = T.Dict[str, T.Union[int, T.Optional[str]]]

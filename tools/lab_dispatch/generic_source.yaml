@@ -32,7 +32,6 @@ test_data:
     wait_for_ssh --allow-degraded
 
     _run install_packages git python3 python3-pip dpkg-dev
-    refresh_zapper_if_needed --channel "$INPUT_ZAPPER_CHANNEL"
 
     wait_for_ssh --allow-degraded
 
@@ -51,7 +50,7 @@ test_data:
     _run wait_for_packages_complete
 
     git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
-    pipx install --spec checkbox/checkbox-ng checkbox-ng
+    pipx install checkbox/checkbox-ng
 
     # retrieve manifest
     MANIFEST_FILE=manifest.conf

@@ -24,16 +24,23 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y gh
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Verify Promotion Conditions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           # check if can_promote but ignore (only print an error) if the workflow was manually triggered
-          tools/release/can_promote_edge.py || ${{ github.event_name == 'workflow_dispatch' }}
+          BUMPED_TO_VERSION=`python3 tools/release/get_version.py --dev --output-format=snap`
+          echo "Promoting version $BUMPED_TO_VERSION"
+
+          git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
+          cd hwcert-jenkins-tools
+          # check that all the snaps/debs were published and are still all at the same version
+          python3 version-published/checkbox_version_published.py $BUMPED_TO_VERSION version-published/checkbox-canary.yaml --timeout 0 || [ "$WORKFLOW_DISPATCH" == "true" ]
 
   checkbox_deb_packages:
     needs: should-run
@@ -45,14 +52,12 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
       - name: Copy deb packages from edge to beta ppa
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
-          CHECKBOX_REPO: ${{ github.repository }}
         run: |
           tools/release/lp_copy_packages.py checkbox-dev edge checkbox-dev beta
 

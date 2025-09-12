@@ -1,7 +1,7 @@
 import sys
 import unittest
 from datetime import datetime
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 from pathlib import PosixPath, Path
 from led_control_test import SysFsLEDController
 from led_control_test import register_arguments
@@ -150,6 +150,136 @@ class TestSysFsLEDController(unittest.TestCase):
         mock_off.assert_called_with()
 
 
+class TestMultiColorSysFsLEDController(unittest.TestCase):
+
+    def setUp(self):
+
+        self.led_controller = SysFsLEDController("name", "0", "0", True)
+
+    @patch(
+        "led_control_test.SysFsLEDController.multi_index",
+        new_callable=PropertyMock,
+    )
+    @patch("led_control_test.SysFsLEDController.off")
+    @patch(
+        "led_control_test.SysFsLEDController.trigger",
+        new_callable=PropertyMock,
+    )
+    @patch("led_control_test.SysFsLEDController._get_initial_state")
+    @patch(
+        "led_control_test.SysFsLEDController.max_brightness",
+        new_callable=PropertyMock,
+    )
+    def test_setup_passed(
+        self, mock_max, mock_get_ini, mock_trigger, mock_off, mock_index
+    ):
+        mock_max.return_value = "200"
+        mock_index.return_value = "red green blue"
+
+        self.led_controller.setup()
+        self.assertEqual(self.led_controller._on_value, "200")
+        mock_get_ini.assert_called_with()
+        mock_trigger.assert_called_with("none")
+        mock_off.assert_called_with()
+        self.assertEqual(
+            self.led_controller.color_mapping, ["red", "green", "blue"]
+        )
+
+    @patch(
+        "led_control_test.SysFsLEDController.multi_intensity",
+        new_callable=PropertyMock,
+    )
+    @patch(
+        "led_control_test.SysFsLEDController.trigger",
+        new_callable=PropertyMock,
+    )
+    @patch(
+        "led_control_test.SysFsLEDController.brightness",
+        new_callable=PropertyMock,
+    )
+    def test_teardown_passed(self, mock_br, mock_trigger, mock_intensity):
+        self.led_controller.initial_state = {
+            "brightness": "br",
+            "trigger": "default",
+            "multi_intensity": "30 2 1",
+        }
+        self.led_controller.teardown()
+        mock_br.assert_called_with("br")
+        mock_trigger.assert_called_with("default")
+        mock_intensity.assert_called_with("30 2 1")
+
+    def test_initial_attributes(self):
+        self.assertTrue(self.led_controller.is_multi_color_led)
+        self.assertEqual(
+            self.led_controller.blinking_test_func,
+            self.led_controller.multi_color_blinking,
+        )
+        self.assertEqual(
+            self.led_controller.multi_index_node,
+            PosixPath("/sys/class/leds/name/multi_index"),
+        )
+        self.assertEqual(
+            self.led_controller.multi_intensity_node,
+            PosixPath("/sys/class/leds/name/multi_intensity"),
+        )
+        self.assertEqual(
+            self.led_controller.initial_state["multi_intensity"],
+            None,
+        )
+
+    @patch("led_control_test.SysFsLEDController._read_node")
+    def test_get_multi_intensity(self, mock_read):
+        mock_read.return_value = "33"
+        self.assertEqual(self.led_controller.multi_intensity, "33")
+
+    @patch("led_control_test.SysFsLEDController._write_node")
+    def test_set_multi_intensity(self, mock_write):
+        self.led_controller.multi_intensity = "33"
+        mock_write.assert_called_once_with(
+            self.led_controller.multi_intensity_node, "33"
+        )
+
+    @patch("led_control_test.SysFsLEDController._read_node")
+    def test_get_multi_index(self, mock_read):
+        mock_read.return_value = "33"
+        self.assertEqual(self.led_controller.multi_index, "33")
+
+    @patch(
+        "led_control_test.SysFsLEDController.max_brightness",
+        new_callable=PropertyMock,
+    )
+    def test_form_multi_intensity_value(self, mock_max):
+        mock_max.side_effect = ["20", "0"]
+
+        self.led_controller.color_mapping = ["red", "green"]
+        ret = self.led_controller.form_multi_intensity_value("red")
+        self.assertEqual(ret, "20 0")
+
+    @patch(
+        "led_control_test.SysFsLEDController.multi_intensity",
+        new_callable=PropertyMock,
+    )
+    @patch("led_control_test.SysFsLEDController.blinking")
+    @patch("led_control_test.SysFsLEDController.form_multi_intensity_value")
+    def test_multi_color_blinking(
+        self, mock_form_func, mock_blink, mock_intensity
+    ):
+        mock_form_func.return_value = "color value"
+
+        self.led_controller.color_mapping = ["red"]
+        self.led_controller.multi_color_blinking(10, 1)
+
+        mock_form_func.assert_called_with("red")
+        mock_intensity.assert_called_with("color value")
+        mock_blink.assert_called_with(10, 1)
+
+    @patch("led_control_test.SysFsLEDController.multi_color_blinking")
+    def test_blinkgin_test_func_been_called(self, mock_func):
+        self.led_controller.blinking_test_func = mock_func
+        self.led_controller.blinking_test(10, 1)
+        mock_func.assert_called_with(10, 1)
+
+
 class TestArgumentParser(unittest.TestCase):
 
     def test_parser(self):
@@ -166,6 +296,8 @@ class TestArgumentParser(unittest.TestCase):
             "30",
             "-i",
             "2",
+            "--color-type",
+            "single",
         ]
         args = register_arguments()
 
@@ -175,3 +307,4 @@ class TestArgumentParser(unittest.TestCase):
         self.assertEqual(args.interval, 2)
         self.assertEqual(args.on_value, 33)
         self.assertEqual(args.off_value, 1)
+        self.assertEqual(args.color_type, "single")

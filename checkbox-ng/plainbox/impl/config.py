@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2021-2022 Canonical Ltd.
+# Copyright 2021-2025 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -30,6 +31,20 @@ from configparser import ConfigParser
 from collections import namedtuple, OrderedDict
 
 logger = logging.getLogger(__name__)
+
+
+class CheckboxINIParser(ConfigParser):
+    """
+    Checkbox ini-s are case sensitive and use `=` as a delimiter
+    """
+
+    def __init__(self):
+        super().__init__(delimiters="=")
+
+    def to_dict(self):
+        return {x: dict(v) for (x, v) in self.items()}
+
+    optionxform = str
 
 
 class Configuration:
@@ -242,10 +257,7 @@ class Configuration:
         should be kept. Each such problem is kept in the self._problems list.
         """
         cfg = Configuration(origin)
-        parser = ConfigParser(delimiters="=")
-        # make the option names case sensitive
-        # else envvars are broken
-        parser.optionxform = str
+        parser = CheckboxINIParser()
         parser.read_string(ini_file.read())
         for sect_name, section in parser.items():
             if sect_name == "DEFAULT":

@@ -22,7 +22,7 @@ include:
     keys/sleep                                     certification-status=blocker
     suspend/oops_after_suspend                     certification-status=blocker
     suspend/oops_results_after_suspend.log
-    led/power-blink-suspend                        certification-status=blocker
+    led/power-blink-suspend
     led/suspend                                    certification-status=blocker
 
 id: before-suspend-reference-cert-automated
@@ -46,6 +46,8 @@ include:
     suspend/audio_after_suspend_auto                    certification-status=blocker
     suspend/cpu_after_suspend_auto                      certification-status=blocker
     suspend/memory_after_suspend_auto                   certification-status=blocker
+    suspend/validate_suspend_status
+    suspend/any_suspend_failure
 bootstrap_include:
     device
 

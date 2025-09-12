@@ -75,12 +75,16 @@ parts:
     stage:
       - version.txt
 ################################################################################
-# Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
+# Upstream: https://github.com/fwts/fwts/blob/master/snapcraft.yaml
   fwts:
-    source-tag: "V23.09.00"
+    source-tag: "V25.07.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
+    # needed because default is /usr/local
+    # if you change this update LD_LIBRARY_PATH
+    configflags:
+      - --prefix=/
     stage-packages:
       - libfdt1
       - libbsd0
@@ -91,7 +95,6 @@ parts:
       - autoconf
       - automake
       - libtool
-      - libjson-c-dev
       - flex
       - bison
       - dh-autoreconf
@@ -137,7 +140,6 @@ parts:
       - pybluez
     build-packages:
       - libbluetooth-dev
-      - libsystemd-dev
       - python3-dev
     after: [acpi-tools]
     build-environment:
@@ -240,6 +242,10 @@ parts:
       - gir1.2-clutter-1.0
       - gir1.2-gst-plugins-base-1.0
       - gir1.2-gudev-1.0
+      - glmark2
+      - glmark2-es2
+      - glmark2-wayland
+      - glmark2-es2-wayland
       - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-plugins-bad

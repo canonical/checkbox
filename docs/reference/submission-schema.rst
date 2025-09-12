@@ -1,6 +1,6 @@
 .. _submission_schema:
 
-Submission JSON Schema
+Submission JSON schema
 =======================
 
 Checkbox :ref:`submissions <submission-files>` contain reports of the tests and in-depth information that helps analysing the test results. 

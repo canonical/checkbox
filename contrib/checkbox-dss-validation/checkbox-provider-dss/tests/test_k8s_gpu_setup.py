@@ -21,10 +21,16 @@
 #
 """Tests for `k8s_gpu_setup.py`"""
 
+import contextlib
 import itertools
+import os
 import json
+import tempfile
+import shutil
 import unittest
 from unittest import mock
+
+import yaml
 
 from checkbox_support.helpers.timeout import mock_timeout
 from checkbox_support.helpers.retry import mock_retry
@@ -47,23 +53,58 @@ class TestInstallIntelGpuPlugin(unittest.TestCase):
     )
     apply = "kubectl apply -k "
 
+    def setUp(self):
+        self.temp_dir_path = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir_path)
+
+    @contextlib.contextmanager
+    def temp_dir_for_testing(self):
+        yield self.temp_dir_path
+
+    @mock.patch("tempfile.TemporaryDirectory")
     @mock.patch("subprocess.run")
-    def test_kustomizes_and_checks_rollout(self, mock_run):
+    def test_kustomizes_and_checks_rollout(self, mock_run, mock_tempdir):
         mock_run.__name__ = "subprocess.run"
+        mock_tempdir.return_value = self.temp_dir_for_testing()
+
         k8s_gpu_setup.setup_intel_gpu_plugin(self.version, False)
 
         urls = [
             f"{self.repo}/nfd?ref={self.version}",
             f"{self.repo}/nfd/overlays/node-feature-rules?ref={self.version}",
-            (
-                f"{self.repo}/gpu_plugin/overlays/"
-                f"nfd_labeled_nodes?ref={self.version}"
-            ),
+            self.temp_dir_path,
         ]
         calls = [
             mock.call(f"{self.apply} {url}".split(), check=True)
             for url in urls
         ]
+
+        gpu_plugin_url = (
+            f"{self.repo}/gpu_plugin/overlays/"
+            f"nfd_labeled_nodes?ref={self.version}"
+        )
+        with (
+            open(os.path.join(self.temp_dir_path, "kustomization.yaml")) as f,
+            self.subTest("gpu plugin patch"),
+        ):
+            kustomization = yaml.safe_load(f)
+            with self.subTest("resources url"):
+                self.assertListEqual(
+                    kustomization["resources"], [gpu_plugin_url]
+                )
+
+            with self.subTest("num patches"):
+                patches = kustomization["patches"]
+                self.assertEqual(len(patches), 1)
+
+            with self.subTest("patch content"):
+                patch_value = yaml.safe_load(patches[0]["patch"])
+                self.assertEqual(
+                    patch_value,
+                    k8s_gpu_setup.INTEL_GPU_PLUGIN_KUSTOMIZATION_PATCH,
+                )
 
         for rollout in [
             "kubectl -n node-feature-discovery rollout status ds/nfd-worker",

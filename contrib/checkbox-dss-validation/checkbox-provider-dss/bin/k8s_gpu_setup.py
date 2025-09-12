@@ -157,30 +157,11 @@ def setup_intel_gpu_plugin(version: str, is_microk8s: bool) -> None:
         gpu_plugin_url = (
             f"{repo}/gpu_plugin/overlays/nfd_labeled_nodes?ref={version}"
         )
-        patch = {
-            "apiVersion": "apps/v1",
-            "kind": "DaemonSet",
-            "metadata": {"name": "intel-gpu-plugin"},
-            "spec": {
-                "template": {
-                    "spec": {
-                        "containers": [
-                            {
-                                "name": "intel-gpu-plugin",
-                                "args": [
-                                    "-enable-monitoring",
-                                    "-v=2",
-                                    f"-shared-dev-num={INTEL_SHARED_DEV_NUM}",
-                                ],
-                            }
-                        ]
-                    }
-                }
-            },
-        }
 
+        # The patch needs to be a stringified yaml value inside the final yaml
         yaml_patch = io.StringIO()
-        yaml.dump(patch, yaml_patch)
+        yaml.dump(INTEL_GPU_PLUGIN_KUSTOMIZATION_PATCH, yaml_patch)
+
         kustomization = {
             "resources": [gpu_plugin_url],
             "patches": [{"patch": yaml_patch.getvalue()}],
@@ -204,6 +185,29 @@ def setup_intel_gpu_plugin(version: str, is_microk8s: bool) -> None:
     ]:
         run_with_retry(subprocess.run, 100, 3, shlex.split(cmd), check=True)
     print("Finished Intel GPU plugin setup successfully", flush=True)
+
+
+INTEL_GPU_PLUGIN_KUSTOMIZATION_PATCH = {
+    "apiVersion": "apps/v1",
+    "kind": "DaemonSet",
+    "metadata": {"name": "intel-gpu-plugin"},
+    "spec": {
+        "template": {
+            "spec": {
+                "containers": [
+                    {
+                        "name": "intel-gpu-plugin",
+                        "args": [
+                            "-enable-monitoring",
+                            "-v=2",
+                            f"-shared-dev-num={INTEL_SHARED_DEV_NUM}",
+                        ],
+                    }
+                ]
+            }
+        }
+    },
+}
 
 
 if __name__ == "__main__":  # pragma: no cover

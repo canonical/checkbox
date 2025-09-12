@@ -141,17 +141,22 @@ def setup_intel_gpu_plugin(version: str, is_microk8s: bool) -> None:
     _ = is_microk8s  # irrelevant at the moment
     print(f"Installing Intel GPU plugin {version}", flush=True)
 
-    with tempfile.TemporaryDirectory() as kustomization_dir:
-        repo = (
-            "https://github.com/intel/"
-            "intel-device-plugins-for-kubernetes/deployments"
-        )
-        urls = [
-            f"{repo}/nfd?ref={version}",
-            f"{repo}/nfd/overlays/node-feature-rules?ref={version}",
-            f"{repo}/gpu_plugin/overlays/nfd_labeled_nodes?ref={version}",
-        ]
+    repo = (
+        "https://github.com/intel/"
+        "intel-device-plugins-for-kubernetes/deployments"
+    )
+    for url in [
+        f"{repo}/nfd?ref={version}",
+        f"{repo}/nfd/overlays/node-feature-rules?ref={version}",
+    ]:
+        cmd = f"kubectl apply -k {url}"
+        subprocess.run(shlex.split(cmd), check=True)
 
+    # patch gpu_plugin to allow sharing the GPU across multiple pods
+    with tempfile.TemporaryDirectory() as kustomization_dir:
+        gpu_plugin_url = (
+            f"{repo}/gpu_plugin/overlays/nfd_labeled_nodes?ref={version}"
+        )
         patch = {
             "apiVersion": "apps/v1",
             "kind": "DaemonSet",
@@ -177,7 +182,7 @@ def setup_intel_gpu_plugin(version: str, is_microk8s: bool) -> None:
         yaml_patch = io.StringIO()
         yaml.dump(patch, yaml_patch)
         kustomization = {
-            "resources": urls,
+            "resources": [gpu_plugin_url],
             "patches": [{"patch": yaml_patch.getvalue()}],
         }
 

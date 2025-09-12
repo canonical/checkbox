@@ -100,8 +100,8 @@ _name: Stress NG tests (automated)
 _description: Stress NG tests (automated)
 include:
     stress/store_and_change_oomd_config
-    stress/cpu_stress_ng_test                      certification-status=blocker
-    stress/memory_stress_ng                        certification-status=blocker
+    stress/cpu_stress_ng_test                       certification-status=blocker
+    stress/memory_stress_ng                         certification-status=blocker
     stress/restore_oomd_config
 
 id: stress-warmboot-coldboot-automated
@@ -313,3 +313,15 @@ include:
     stress/s2idle_pm-graph_30.tar.xz
     stress/s3_pm-graph_30
     stress/s3_pm-graph_30.tar.xz
+
+id: stress-sru-tests
+unit: test plan
+_name: SRU stress tests
+_description: SRU stress tests for disk, CPU, and memory
+include:
+    disk/disk_stress_ng_sru_.*    
+    stress/cpu_stress_ng_test_sru
+    stress/memory_stress_ng_sru
+bootstrap_include:
+    device
+    executable

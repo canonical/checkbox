@@ -15,23 +15,19 @@ plugs:
     default-provider: checkbox24
   provider-resource:
     interface: content
-    target: $SNAP/providers/checkbox-provider-resource
+    target: $SNAP/providers/plainbox-provider-resource
     default-provider: checkbox24
   provider-checkbox:
     interface: content
-    target: $SNAP/providers/checkbox-provider-checkbox
+    target: $SNAP/providers/plainbox-provider-checkbox
     default-provider: checkbox24
   provider-tpm2:
     interface: content
-    target: $SNAP/providers/checkbox-provider-tpm2
-    default-provider: checkbox24
-  provider-docker:
-    interface: content
-    target: $SNAP/providers/checkbox-provider-docker
+    target: $SNAP/providers/plainbox-provider-tpm2
     default-provider: checkbox24
   provider-certification-client:
     interface: content
-    target: $SNAP/providers/checkbox-provider-certification-client
+    target: $SNAP/providers/plainbox-provider-certification-client
     default-provider: checkbox24
 apps:
   checkbox-cli:
@@ -82,6 +78,7 @@ parts:
       - device-tree-compiler
       - linuxptp
       - snmp
+      - gpsd
       - python3-rpyc
     override-prime: |
       craftctl default

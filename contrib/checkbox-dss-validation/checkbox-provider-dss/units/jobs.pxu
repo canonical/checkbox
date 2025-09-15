@@ -20,6 +20,11 @@ depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
 command: kubectl get ns dss
+_siblings: [
+  { "id": "dss/namespace_after_reboot",
+    "_summary": "Check that the dss namespace is still deployed after reboot",
+    "depends": "dss/wait_after_reboot" }
+  ]
 
 id: dss/status_mlflow
 category_id: dss-regress
@@ -32,6 +37,11 @@ estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "MLflow deployment: Ready"
+_siblings: [
+  { "id": "dss/status_mlflow_after_reboot",
+    "_summary": "Check that the DSS mlflow is still deployed after reboot",
+    "depends": "dss/namespace_after_reboot" }
+  ]
 
 id: dss/status_nvidia_gpu
 category_id: dss-regress
@@ -48,6 +58,11 @@ estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "NVIDIA GPU acceleration: Enabled.*"
+_siblings: [
+  { "id": "dss/status_nvidia_gpu_after_reboot",
+    "_summary": "Check that DSS status still reports NVIDIA GPU is enabled after reboot",
+    "depends": "dss/status_mlflow_after_reboot" }
+  ]
 
 id: dss/status_intel_gpu
 category_id: dss-regress
@@ -64,6 +79,11 @@ estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "Intel GPU acceleration: Enabled.*"
+_siblings: [
+  { "id": "dss/status_intel_gpu_after_reboot",
+    "_summary": "Check that DSS status still reports Intel GPU is enabled after reboot",
+    "depends": "dss/status_mlflow_after_reboot" }
+  ]
 
 id: dss/purge
 category_id: dss-regress

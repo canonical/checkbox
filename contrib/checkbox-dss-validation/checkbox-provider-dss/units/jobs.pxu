@@ -158,37 +158,40 @@ command:
 
 unit: template
 template-resource: dss/notebook_tests_list
+template-engine: jinja2
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-id: dss/create_new_notebook_using_{image}
-depends: {depends}
-_summary: Check that a new notebook can be created from '{image}'
+id: dss/create_new_notebook_using_{{ image }}
+depends: {{ depends }}
+_summary: Check that a new notebook can be created from '{{ image }}'
 estimated_duration: 15m
-command: timeout 15m run_dss.sh create new-{framework}-{accel} --image {image}
+command: timeout 15m run_dss.sh create new-{{ framework }}-{{ accel }} --image {{ image }}
 
 unit: template
 template-resource: dss/notebook_tests_list
+template-engine: jinja2
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'kubectl'
-id: dss/verify_new_notebook_of_{image}
-depends: dss/create_new_notebook_using_{image}
-_summary: Check that the new notebook from '{image}' can use acceleration
+id: dss/verify_new_notebook_of_{{ image }}
+depends: dss/create_new_notebook_using_{{ image }}
+_summary: Check that the new notebook from '{{ image }}' can use acceleration
 estimated_duration: 1m
-command: timeout 1m check_notebook.py new-{framework}-{accel} {check}
+command: timeout 1m check_notebook.py new-{{ framework }}-{{ accel }} {{ check }}
 
 unit: template
 template-resource: dss/notebook_tests_list
+template-engine: jinja2
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-id: dss/remove_new_notebook_of_{image}
-depends: {depends}
-after: dss/create_new_notebook_using_{image}
-_summary: Check that the new notebook from '{image}' can be removed
+id: dss/remove_new_notebook_of_{{ image }}
+depends: {{ depends }}
+after: dss/create_new_notebook_using_{{ image }}
+_summary: Check that the new notebook from '{{ image }}' can be removed
 estimated_duration: 1m
-command: timeout 1m run_dss.sh remove new-{framework}-{accel}
+command: timeout 1m run_dss.sh remove new-{{ framework }}-{{ accel }}

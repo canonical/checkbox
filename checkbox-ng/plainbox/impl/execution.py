@@ -402,6 +402,9 @@ class UnifiedRunner(IJobRunner):
         suffix = ".{}".format(job.checksum)
         try:
             with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
+                # most of the times, Checkbox is running as root and the job
+                # is running as user, it needs permission to cwd
+                os.chmod(cwd_dir, 0o777)
                 logger.debug(
                     _("Job temporary current working directory: %s"), cwd_dir
                 )

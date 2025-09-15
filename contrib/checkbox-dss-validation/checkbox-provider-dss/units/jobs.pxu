@@ -172,7 +172,7 @@ _siblings: [
   { "id": "dss/create_new_notebook_after_reboot_using_{{ image }}",
     "_summary": "Check that a new notebook can be created from '{{ image }}' after reboot",
     "depends": "{{ depends }}_after_reboot",
-    "command": "timeout 15m run_dss.sh create new-{{ framework }}-{{ accel }}-after-reboot --image {{ image }}" }
+    "command": "timeout 15m run_dss.sh create new-after-reboot-{{ framework }}-{{ accel }} --image {{ image }}" }
   ]
 
 unit: template
@@ -191,7 +191,7 @@ _siblings: [
   { "id": "dss/verify_new_notebook_after_reboot_of_{{ image }}",
     "_summary": "Check that the new notebook from '{{ image }}' can use accel. after reboot",
     "depends": "dss/create_new_notebook_after_reboot_using_{{ image }}",
-    "command": "timeout 1m check_notebook.py new-{{ framework }}-{{ accel }}-after-reboot {{ check }}" }
+    "command": "timeout 1m check_notebook.py new-after-reboot-{{ framework }}-{{ accel }} {{ check }}" }
   ]
 
 unit: template
@@ -212,5 +212,5 @@ _siblings: [
     "_summary": "Check that the new notebook from '{{ image }}' can be removed after reboot",
     "depends": "{{ depends }}_after_reboot",
     "after": "dss/create_new_notebook_after_reboot_using_{{ image }}",
-    "command": "timeout 1m run_dss.sh remove new-{{ framework }}-{{ accel }}-after-reboot" }
+    "command": "timeout 1m run_dss.sh remove new-after-reboot-{{ framework }}-{{ accel }}" }
   ]

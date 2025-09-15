@@ -73,3 +73,22 @@ requires:
 category_id: com.canonical.certification::gadget
 estimated_duration: 5s
 command: check_gadget_interface.py --type {type} --name {name} --interface {interface}
+
+unit: job
+id: ce-oem-gadget/splash-screen
+category_id: com.canonical.certification::gadget
+_summary: Check if the splash screen appears
+_purpose: Reboot the tested machine and check if splash screen appears
+_steps:
+    - "The machine will reboot."
+    - "Check if the splash screen appears."
+    - "If running locally, start Checkbox again after reboot."
+    - "Press R to resume the test and select pass (P) if splash screen appeared or fail (F) if splash screen did not appear."
+plugin: user-interact
+user: root
+flags: preserve-locale noreturn autorestart
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_gadget_splashscreen == 'True'
+command:
+  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Reboot" boolean:true

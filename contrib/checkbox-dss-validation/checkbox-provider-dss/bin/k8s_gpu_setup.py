@@ -40,9 +40,9 @@ from checkbox_support.helpers.timeout import timeout
 SLEEP_BEFORE_ROLLOUT = 60  # seconds
 
 INTEL_SHARED_DEV_NUM = 10
-# This enables sharing the GPU device with upto the above `shared-dev-num` number of pods.
+# This enables sharing the GPU with upto `shared-dev-num` number of pods.
 # See:
-#   <https://documentation.ubuntu.com/data-science-stack/latest/how-to/enable-gpus/enable-intel-gpu/#enable-the-intel-gpu-plugin>
+# <https://documentation.ubuntu.com/data-science-stack/latest/how-to/enable-gpus/enable-intel-gpu/#enable-the-intel-gpu-plugin>
 INTEL_GPU_PLUGIN_KUSTOMIZATION_PATCH = {
     "apiVersion": "apps/v1",
     "kind": "DaemonSet",

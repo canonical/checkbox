@@ -27,7 +27,7 @@ include:
     dss/status_mlflow
     dss/status_intel_gpu
     dss/status_nvidia_gpu
-    #dss/create_new_notebook_using_.*
+    dss/create_new_notebook_using_.*
     dss/verify_new_notebook_of_.*
     dss/remove_new_notebook_of_.*
     dss/purge

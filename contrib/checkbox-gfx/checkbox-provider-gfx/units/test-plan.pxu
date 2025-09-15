@@ -5,3 +5,11 @@ include:
   gfx_mesa_vk.*
 bootstrap_include:
     com.canonical.certification::executable
+
+id: opencl-test-plan
+unit: test plan
+_name: GFX test plan for verifying OpenCL
+include:
+    gfx_cl_.*
+bootstrap_include:
+    com.canonical.certification::executable

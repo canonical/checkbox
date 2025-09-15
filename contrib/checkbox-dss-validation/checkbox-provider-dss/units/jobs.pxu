@@ -168,6 +168,12 @@ depends: {{ depends }}
 _summary: Check that a new notebook can be created from '{{ image }}'
 estimated_duration: 15m
 command: timeout 15m run_dss.sh create new-{{ framework }}-{{ accel }} --image {{ image }}
+_siblings: [
+  { "id": "dss/create_new_notebook_using_{{ image }}_after_reboot",
+    "_summary": "Check that a new notebook can be created from '{{ image }}' after reboot",
+    "depends": "{{ depends }}_after_reboot",
+    "command": "timeout 15m run_dss.sh create new-{{ framework }}-{{ accel }}-after-reboot --image {{ image }}" }
+  ]
 
 unit: template
 template-resource: dss/notebook_tests_list
@@ -181,6 +187,12 @@ depends: dss/create_new_notebook_using_{{ image }}
 _summary: Check that the new notebook from '{{ image }}' can use acceleration
 estimated_duration: 1m
 command: timeout 1m check_notebook.py new-{{ framework }}-{{ accel }} {{ check }}
+_siblings: [
+  { "id": "dss/verify_new_notebook_of_{{ image }}_after_reboot",
+    "_summary": "Check that the new notebook from '{{ image }}' can use accel. after reboot",
+    "depends": "dss/create_new_notebook_using_{{ image }}_after_reboot",
+    "command": "timeout 1m check_notebook.py new-{{ framework }}-{{ accel }}-after-reboot {{ check }}" }
+  ]
 
 unit: template
 template-resource: dss/notebook_tests_list
@@ -195,3 +207,10 @@ after: dss/create_new_notebook_using_{{ image }}
 _summary: Check that the new notebook from '{{ image }}' can be removed
 estimated_duration: 1m
 command: timeout 1m run_dss.sh remove new-{{ framework }}-{{ accel }}
+_siblings: [
+  { "id": "dss/remove_new_notebook_of_{{ image }}_after_reboot",
+    "_summary": "Check that the new notebook from '{{ image }}' can be removed after reboot",
+    "depends": "{{ depends }}_after_reboot",
+    "after": "dss/create_new_notebook_using_{{ image }}_after_reboot",
+    "command": "timeout 1m run_dss.sh remove new-{{ framework }}-{{ accel }}-after-reboot" }
+  ]

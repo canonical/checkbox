@@ -75,6 +75,23 @@ _summary: Check that DSS can be purged
 estimated_duration: 5m
 command: timeout 5m run_dss.sh purge
 
+id: dss/reboot
+category_id: dss-regress
+flags: simple
+depends: dss/initialize
+_summary: Reboot the machine
+estimated_duration: 10s
+command: echo "rebooting"
+
+id: dss/wait_after_reboot
+category_id: dss-regress
+flags: simple
+depends: dss/reboot
+_summary: Wait for cluster to settle down after reboot
+estimated_duration: 10s
+command: echo "waiting"
+
+
 # New-Notebook test jobs ######################################################
 
 id: dss/notebook_tests_list

@@ -30,6 +30,8 @@ include:
     dss/create_new_notebook_using_.*
     dss/verify_new_notebook_of_.*
     dss/remove_new_notebook_of_.*
+    dss/reboot
+    dss/wait_after_reboot
     dss/purge
 bootstrap_include:
     com.canonical.certification::executable

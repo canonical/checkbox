@@ -31,13 +31,13 @@ import os
 
 def watch_test_result(directory: str, filename: str) -> bool:
     """
-    Monitoring that the file is created and is not empty.
+    Monitors a directory for the creation of a specific file.
 
-    :param directory: The directory being monitored
-
-    :param filename: The filename being monitored
-
-    :returns: True when an event is detected
+    :param directory: The directory being monitored.
+    :param filename: The filename being monitored.
+    :returns: True when the file is created, False otherwise.
+    :raises SystemExit: If the directory does not exist or the
+                            inotify watch fails.
     """
     if not os.path.isdir(directory):
         raise SystemExit("Directory [{}] does not exist".format(directory))
@@ -53,19 +53,20 @@ def watch_test_result(directory: str, filename: str) -> bool:
             for event in events:
                 if event.event_type == "create" and event.name == filename:
                     logging.info("event detected: {}".format(event))
-                    fw.stop_watch(watch_fd)
                     return True
-    except Exception:
+    except Exception as e:
+        logging.error("An error occurred during file watching: {}".format(e))
+        return False
+    finally:
         fw.stop_watch(watch_fd)
 
 
 def is_webgl_conformance_url_reachable(url: str) -> bool:
     """
-    Ensure that the WebGL conformance website is reachable.
+    Ensures that the WebGL conformance website is reachable.
 
-    :param url: The WebGL conformance test website URL
-
-    :returns: True when reachable
+    :param url: The WebGL conformance test website URL.
+    :returns: True when reachable, False otherwise.
     """
     try:
         response = requests.get(url, timeout=5)
@@ -76,42 +77,56 @@ def is_webgl_conformance_url_reachable(url: str) -> bool:
 
 def remove_duplicate_file(file_path: str):
     """
-    Remove the duplicate WebGL conformance test result file.
+    Removes a file if it exists.
 
-    :param file_path: The full file path that should be validated.
+    :param file_path: The full path to the file to be removed.
     """
     if os.path.exists(file_path):
         os.remove(file_path)
-        logging.info("{} is removed".format(file_path))
+        logging.info("File removed: {}".format(file_path))
 
 
 def validate_result(file_path: str):
     """
-    Validate the WebGL conformance test result.
-    If any failures are reported, raise SystemExit.
+    Validates the WebGL conformance test result.
 
-    :param file_path: The full file path that should be validated.
+    :param file_path: The full path to the test result file.
+    :raises SystemExit: If the test results are invalid or indicate
+                            failures or software rendering.
     """
     failures = 0
     timeouts = 0
-    if os.path.getsize(file_path) > 0:
-        with open(file_path, "r") as file:
-            result = json.load(file)
+    is_software_renderer = False
+
+    if not os.path.getsize(file_path) > 0:
+        raise SystemExit("WebGL conformance tests result is empty")
+
+    with open(file_path, "r") as f:
+        try:
+            result = json.load(f)
             pretty_result = json.dumps(result, indent=2)
             logging.info(pretty_result)
-            failures = len(result["failures"])
-            timeouts = len(result["timeouts"])
+            failures = len(result.get("failures", []))
+            timeouts = len(result.get("timeouts", []))
             # firefox will show llvm in the WebGL RENDERER field
             # chromium and chrome will show swiftShader in
             # the Unmasked RENDERER field
-            is_software_renderer = (
-                "llvm" in result["testinfo"]["WebGL RENDERER"]
-            ) or ("SwiftShader" in result["testinfo"]["Unmasked RENDERER"])
-    else:
-        raise SystemExit("WebGL conformance tests result is empty")
+            webgl_renderer = result.get("testinfo", {}).get(
+                "WebGL RENDERER", ""
+            )
+            unmasked_renderer = result.get("testinfo", {}).get(
+                "Unmasked RENDERER", ""
+            )
 
-    # remove the file to avoid the second test be renamed
+            is_software_renderer = (
+                "llvm" in webgl_renderer or "SwiftShader" in unmasked_renderer
+            )
+        except (json.JSONDecodeError, KeyError) as e:
+            raise SystemExit("Failed to parse test result file: {}".format(e))
+
+    # remove the file to avoid conflicts with the next test run
     os.remove(file_path)
+
     if is_software_renderer:
         raise SystemExit("Test is not running on hardware renderer")
     if failures > 0 or timeouts > 0:
@@ -120,35 +135,30 @@ def validate_result(file_path: str):
 
 def execute_webgl_test(browser: str, skip: str, filename: str, native: bool):
     """
-    Start the WebGL conformance test.
+    Starts the WebGL conformance test.
 
-    :param browser: The target browser
-
-    :param skip: Which tests should be skipped.
-                 https://registry.khronos.org/webgl/sdk/tests/README.md
-
-    :param filename: The filename of the WebGL conformance test result.
+    :param browser: The target browser.
+    :param skip: A string of tests to be skipped.
+    :param filename: The filename for the test result.
+    :param native: Use native OpenGL backend for Chromium/Chrome.
     """
     test_url = os.getenv(
         "WEBGL_CONFORMANCE_TEST_URL",
         default="http://localhost:8000/local-tests.html",
     )
     if not is_webgl_conformance_url_reachable(test_url):
-        raise SystemExit("{} is not reachable".format(test_url))
+        raise SystemExit("Test URL is not reachable: {}".format(test_url))
 
     # browser default download directory
-    download = os.path.join(Path.home(), "Downloads")
-
+    download = os.path.join(str(Path.home()), "Downloads")
     download_file_path = os.path.join(download, filename)
 
     remove_duplicate_file(download_file_path)
 
-    cmd = []
-    cmd.append(browser)
+    cmd = [browser]
     if "firefox" == browser:
-        cmd.append("--new-instance")
-        # Don't keep old tab
-        cmd.append("--private-window")
+        # Don't keep old tab (--private-window)
+        cmd.extend(["--new-instance", "--private-window"])
     elif browser in ["chromium", "google-chrome"]:
         cmd.append("--new-window")
         if native:
@@ -156,14 +166,15 @@ def execute_webgl_test(browser: str, skip: str, filename: str, native: bool):
             cmd.append("--use-gl=desktop")
         if browser == "google-chrome":
             # Don't pop up welcome and register windows
-            cmd.append("--no-first-run")
-            cmd.append("--disable-fre")
+            cmd.extend(["--no-first-run", "--disable-fre"])
             # Don't pop up keyring authentication
             cmd.append("--password-store=basic")
     if skip != "":
         cmd.append("{}?run=1&skip={}".format(test_url, skip))
     else:
         cmd.append("{}?run=1".format(test_url))
+
+    logging.info("Executing command: {}".format(" ".join(cmd)))
     process = subprocess.Popen(cmd)
 
     watch_test_result(download, filename)
@@ -178,9 +189,10 @@ def execute_webgl_test(browser: str, skip: str, filename: str, native: bool):
 
 
 def parse_args(args=sys.argv[1:]):
+    """Parses command line arguments."""
     parser = argparse.ArgumentParser(
         prog="WebGL conformance test",
-        description="Start the WebGL conformane test",
+        description="Start the WebGL conformance test",
     )
     parser.add_argument(
         "browser",
@@ -189,20 +201,19 @@ def parse_args(args=sys.argv[1:]):
     parser.add_argument(
         "--skip",
         default="",
-        help="The tests should be skipped (default: %(default)s).",
+        help="Tests to be skipped (default: %(default)s).",
     )
     # filename defined in self host server
     parser.add_argument(
         "--filename",
         default="webgl-test-results.json",
-        help="The filename of tests result (default: %(default)s).",
+        help="The filename of the test results (default: %(default)s).",
     )
     parser.add_argument(
         "--native",
         action="store_true",
-        help=" native OpenGL backend rather than ANGLE for chromium/chrome",
+        help="Use native OpenGL backend for chromium/chrome.",
     )
-
     return parser.parse_args(args)
 
 

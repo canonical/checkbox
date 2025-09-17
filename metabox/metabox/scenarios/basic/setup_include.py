@@ -76,7 +76,8 @@ class SetupIncludeBasicAutomated(Scenario):
 
 
 @tag("setup_include")
-class SetupIncludeResumeAutomated(Scenario):
+class SetupIncludeResumeAutomatedLocal(Scenario):
+    modes = ["local"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -97,6 +98,36 @@ class SetupIncludeResumeAutomated(Scenario):
         # most times because it is a race between it killing checkbox and the
         # expect
         Start(),
+        Expect("setup_restart_guard"),
+        Expect("job passed"),
+        Expect("verify_simple_guards"),
+        Expect("job passed"),
+        Expect("verify_resume_guards"),
+        Expect("job passed"),
+        # Note: the "guards" will catch if setup jobs or bootstrap jobs didn't
+        #       run
+    ]
+
+
+@tag("setup_include")
+class SetupIncludeResumeAutomatedRemote(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::resume_setup_include_works
+        forced = yes
+        [test selection]
+        forced = yes
+        """
+    )
+    steps = [
+        Start(),
+        Expect("simple_setup_guard"),
+        Expect("job passed"),
+        # Remote will reconnect and run the restart guard
         Expect("setup_restart_guard"),
         Expect("job passed"),
         Expect("verify_simple_guards"),

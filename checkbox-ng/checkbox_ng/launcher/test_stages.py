@@ -71,7 +71,9 @@ class TestMainLoopStage(TestCase):
         job_done_mock = mock.MagicMock(id="done_job", estimated_duration=100)
         job_todo_mock = mock.MagicMock(id="todo_job", estimated_duration=200)
         job_done_state_mock = mock.MagicMock(result_history=["some_result"])
-        job_todo_state_mock = mock.MagicMock(result_history=[])
+        job_todo_state_mock = mock.MagicMock(
+            result=mock.MagicMock(outcome=None)
+        )
         self_mock.sa.get_job.side_effect = [job_done_mock, job_todo_mock]
         self_mock.sa.get_job_state.side_effect = [
             job_done_state_mock,

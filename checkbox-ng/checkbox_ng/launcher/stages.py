@@ -371,7 +371,7 @@ class MainLoopStage(CheckboxUiStage):
         ]
 
         def job_done(job_state) -> bool:
-            return bool(job_state.result_history)
+            return job_state.result.outcome != IJobResult.OUTCOME_NONE
 
         already_done = list(
             filter(lambda x: job_done(x[2]), job_id_def_states)
@@ -413,6 +413,10 @@ class MainLoopStage(CheckboxUiStage):
             estimated_time -= job_def.estimated_duration or 0
 
     def _run_setup_jobs(self, jobs_to_run):
+        """
+        Runs a list of setup jobs and returns a list with those that failed
+        or crashed.
+        """
         self._run_jobs(jobs_to_run)
         job_id_outcome = (
             (job_id, self.sa.get_job_state(job_id).result.outcome)

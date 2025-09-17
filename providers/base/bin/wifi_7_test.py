@@ -89,7 +89,6 @@ class ConnectionInfo:
             words = remove_prefix(
                 remove_prefix(clean_line, "tx bitrate:"), "rx bitrate:"
             ).split()
-            print(words)
             # words = [48, MBit/s, 320MHz, EHT-MCS, 11, EHT-NSS, 2, EHT-GI, 0]
 
             conn_type = remove_suffix(words[3], "-MCS")
@@ -195,8 +194,9 @@ def connect(ssid: str, password: "str | None"):
             )
         else:
             sp.check_call(["nmcli", "device", "wifi", "connect", ssid])
-        print("OK! Connected to {}".format(ssid))
-        break
+
+        print("[ OK ] Connected to {}".format(ssid))
+        return
 
     raise RuntimeError("Did not see '{}' in nmcli's scan output".format(ssid))
 
@@ -224,7 +224,7 @@ def get_wifi_interface() -> str:
         timeout=COMMAND_TIMEOUT,
     )
     # https://stackoverflow.com/a/15358422
-    name_type_pairs = [
+    name_type_pairs = [  # list of [str, str] pairs
         list(words_iterator)
         for is_separator, words_iterator in itertools.groupby(
             nmcli_output.splitlines(), lambda s: s == ""
@@ -275,24 +275,24 @@ def main():
     num_links = get_num_mlo_links(iw_info_output)
     (tx, rx) = ConnectionInfo.parse(iw_link_output)
 
-    # required
+    # required, must be a 802.11be conn and have 2 links
 
     if (tx and tx.conn_type == "EHT") or (rx and rx.conn_type == "EHT"):
-        print("OK! This is a 802.11be connection (EHT)")
+        print("[ OK ] This is a 802.11be connection (EHT)")
     else:
         raise SystemExit(
             "This wifi connection (interface: {}, ssid: {}) ".format(
                 wifi_interface, args.mlo_ssid
             )
             + "is not a 802.11be connection. "
-            + "Expected EHT, but got tx: {} rx: {}".format(
+            + "Expected EHT, but got 'tx: {}', 'rx: {}'".format(
                 tx and tx.conn_type, rx and rx.conn_type
             )
         )
 
     if num_links >= 2:
         print(
-            "OK! Found {} links in this connection".format(num_links),
+            "[ OK ] Found {} links in this connection".format(num_links),
             "(interface: {}, ssid: {})".format(wifi_interface, args.mlo_ssid),
         )
     else:
@@ -308,7 +308,7 @@ def main():
     # optional
 
     if (tx and tx.bandwidth == 320) or (rx and rx.bandwidth == 320):
-        print("OK! This connection is using 320mHz bandwidth")
+        print("[ OK ] This connection is using 320mHz bandwidth")
     else:
         print(
             "This wifi connection (interface: {}, ssid: {}) ".format(
@@ -323,11 +323,12 @@ def main():
         )
 
     if (tx and tx.mcs in (12, 13)) or (rx and rx.mcs in (12, 13)):
-        print("OK! This connection is using 4096 QAM (MCS 12 and 13)!")
+        print("[ OK ] This connection is using 4096 QAM (MCS 12 and 13)!")
     else:
         # DUT pretty much has to be next to the AP for this
         print(
-            "Expected 4096QAM (MCS12/13), but got tx MCS: {} rx MCS:{}".format(
+            "[ WARN ] Expected 4096QAM (MCS12/13),",
+            "but got 'tx MCS: {}', 'rx MCS: {}'.".format(
                 tx and tx.mcs, rx and rx.mcs
             ),
             "Which MCS is chosen by the AP is highly dependent on the environment,",

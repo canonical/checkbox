@@ -2,7 +2,7 @@ Interface wlp0s20f3
 	ifindex 2
 	wdev 0x1
 	addr c8:6e:08:17:85:4a
-	ssid cert-be-wpa3-tel-l10
+	ssid wifi7-ap
 	type managed
 	wiphy 0
 	multicast TXQ:

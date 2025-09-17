@@ -1,5 +1,5 @@
 Connected to f0:a7:31:16:77:a1 (on wlp0s20f3)
-	SSID: cert-be-wpa3-tel-l10
+	SSID: wifi7-ap
 	Link 1 BSSID fe:a7:31:16:77:9f
 		freq: 5240.0
 	Link 2 BSSID f2:a7:31:16:77:a3

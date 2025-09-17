@@ -80,9 +80,9 @@ class RemoteSessionStates(Enum):
     # session has started, test plan was selected
     Started = "started"
     # setup phase is ongoing
-    Setupping = "setupping"
+    SettingUp = "setupping"
     # setup phase is done, ready to bootstrap
-    Setupped = "setupped"
+    SetupCompleted = "setupped"
     # bootstrap phase is ongoing
     Bootstrapping = "bootstrapping"
     # done bootstrapping, ready to select tests
@@ -444,11 +444,15 @@ class RemoteSessionAssistant:
     def select_test_plan(self, test_plan_id):
         return self._sa.select_test_plan(test_plan_id)
 
-    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupped)
+    @allowed_when(
+        RemoteSessionStates.Started, RemoteSessionStates.SetupCompleted
+    )
     def start_bootstrap_json(self):
         return json.dumps(self.start_bootstrap())
 
-    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupped)
+    @allowed_when(
+        RemoteSessionStates.Started, RemoteSessionStates.SetupCompleted
+    )
     def start_bootstrap(self):
         self.state = RemoteSessionStates.Bootstrapping
         return self._sa.start_bootstrap()
@@ -470,18 +474,18 @@ class RemoteSessionAssistant:
     def get_manifest_repr_json(self):
         return json.dumps(self.get_manifest_repr())
 
-    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupping)
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.SettingUp)
     def start_setup_json(self):
         return json.dumps(self.start_setup())
 
-    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.Setupping)
+    @allowed_when(RemoteSessionStates.Started, RemoteSessionStates.SettingUp)
     def start_setup(self):
-        self.state = RemoteSessionStates.Setupping
+        self.state = RemoteSessionStates.SettingUp
         return self._sa.start_setup()
 
     def finish_setup(self):
         self._sa.finish_setup()
-        self.state = RemoteSessionStates.Setupped
+        self.state = RemoteSessionStates.SetupCompleted
 
     def get_manifest_repr(self):
         return self._sa.get_manifest_repr()
@@ -535,7 +539,7 @@ class RemoteSessionAssistant:
         return self._ui
 
     @allowed_when(
-        RemoteSessionStates.Setupping, RemoteSessionStates.TestsSelected
+        RemoteSessionStates.SettingUp, RemoteSessionStates.TestsSelected
     )
     def run_job(self, job_id):
         """
@@ -637,7 +641,7 @@ class RemoteSessionAssistant:
             )
 
     @allowed_when(
-        RemoteSessionStates.Setupping, RemoteSessionStates.Bootstrapping
+        RemoteSessionStates.SettingUp, RemoteSessionStates.Bootstrapping
     )
     def run_uninteractable_job(self, job_id):
         self._currently_running_job = job_id
@@ -648,7 +652,7 @@ class RemoteSessionAssistant:
         RemoteSessionStates.Bootstrapping,
         RemoteSessionStates.Interacting,
         RemoteSessionStates.TestsSelected,
-        RemoteSessionStates.Setupping,
+        RemoteSessionStates.SettingUp,
     )
     def monitor_job(self):
         """
@@ -695,7 +699,7 @@ class RemoteSessionAssistant:
             payload = self._current_interaction
         elif self.state == RemoteSessionStates.Bootstrapped:
             payload = self._sa.get_static_todo_list()
-        elif self.state == RemoteSessionStates.Setupping:
+        elif self.state == RemoteSessionStates.SettingUp:
             # this is set by the resume_by_id function or None
             payload = {"last_job": self._last_job}
         return self.state.value, payload
@@ -755,7 +759,7 @@ class RemoteSessionAssistant:
         self._sa.use_job_result(self._currently_running_job, result)
         if self._state not in [
             RemoteSessionStates.Bootstrapping,
-            RemoteSessionStates.Setupping,
+            RemoteSessionStates.SettingUp,
         ]:
             if not self._sa.get_dynamic_todo_list():
                 if self._launcher.get_value(
@@ -983,7 +987,7 @@ class RemoteSessionAssistant:
                     "ui", "max_attempts"
                 ) - len(job_state.result_history)
         if SessionMetaData.FLAG_SETUPPING in meta.flags:
-            self.state = RemoteSessionStates.Setupping
+            self.state = RemoteSessionStates.SettingUp
         else:
             self.state = RemoteSessionStates.TestsSelected
 

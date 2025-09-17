@@ -143,8 +143,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         return {
             RemoteSessionStates.Idle: cls.resume_or_start_new_session,
             RemoteSessionStates.Started: cls.setup_and_continue,
-            RemoteSessionStates.Setupping: cls.setup_and_continue,
-            RemoteSessionStates.Setupped: cls.restart,
+            RemoteSessionStates.SettingUp: cls.setup_and_continue,
+            RemoteSessionStates.SetupCompleted: cls.restart,
             RemoteSessionStates.Bootstrapping: cls.restart,
             RemoteSessionStates.Bootstrapped: cls.select_jobs,
             RemoteSessionStates.TestsSelected: cls.run_interactable_jobs,
@@ -424,6 +424,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         except StopIteration:
             # no session to resume
             return False
+        # Resume the session if the last session was abandoned during the setup
         if (
             SessionMetaData.FLAG_SETUPPING
             in last_abandoned_session.metadata.flags

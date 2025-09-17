@@ -82,27 +82,27 @@ class RemoteAssistantTests(TestCase):
 
         RemoteSessionAssistant.start_setup(self_mock)
 
-        self.assertEqual(self_mock.state, RemoteSessionStates.Setupping)
+        self.assertEqual(self_mock.state, RemoteSessionStates.SettingUp)
         self.assertTrue(self_mock._sa.start_setup.called)
 
     def test_finish_setup(self):
         self_mock = mock.MagicMock()
 
-        self_mock.state = RemoteSessionStates.Setupping
+        self_mock.state = RemoteSessionStates.SettingUp
 
         RemoteSessionAssistant.finish_setup(self_mock)
 
-        self.assertEqual(self_mock.state, RemoteSessionStates.Setupped)
+        self.assertEqual(self_mock.state, RemoteSessionStates.SetupCompleted)
         self.assertTrue(self_mock._sa.finish_setup.called)
 
     def test_whats_up_setupping(self):
         self_mock = mock.MagicMock()
-        self_mock.state = RemoteSessionStates.Setupping
+        self_mock.state = RemoteSessionStates.SettingUp
         self_mock._last_job = "namespace::id"
 
         state_value, payload = RemoteSessionAssistant.whats_up(self_mock)
 
-        self.assertEqual(state_value, RemoteSessionStates.Setupping.value)
+        self.assertEqual(state_value, RemoteSessionStates.SettingUp.value)
         self.assertEqual(payload, {"last_job": self_mock._last_job})
 
     @mock.patch("psutil.process_iter")

@@ -41,6 +41,13 @@ logger = getLogger("plainbox.depmgr")
 
 GROUP_PREFIX = "_group_job_"
 
+try:
+    removeprefix = str.removeprefix
+except AttributeError:
+
+    def removeprefix(s, prefix):
+        return s.split(prefix, maxsplit=1)[1]
+
 
 class DependencyType(enum.Enum):
     """
@@ -162,7 +169,7 @@ class DependencyCycleError(DependencyError):
         # is affected by the cycle, so we return the first job in the list.
         # This is not ideal but it is the best we can do.
         if job.id.startswith(GROUP_PREFIX):
-            name = job.id.split(GROUP_PREFIX)[1]
+            name = removeprefix(job.id, GROUP_PREFIX)
             job = self.groups[name].jobs[0]
         return job
 
@@ -634,13 +641,14 @@ class DependencySolver:
         self._jobs_in_groups = {}
 
         for job in solution:
-            if getattr(job, "group", None):
-                # Check if the group is already in the map
-                name = job.group
-                if name not in self._groups:
-                    self._groups[name] = Group(name)
-                self._groups[name].jobs.append(job)
-                self._jobs_in_groups[job.id] = name
+            # If the job is not in a group, skip it
+            if not job.group:
+                continue
+            # Else, add it to the group dicts
+            if job.group not in self._groups:
+                self._groups[job.group] = Group(job.group)
+            self._groups[job.group].jobs.append(job)
+            self._jobs_in_groups[job.id] = job.group
 
         for group in self._groups.values():
             group.external_deps = self.get_external_dependencies(group)
@@ -708,7 +716,7 @@ class DependencySolver:
             for job in solution:
                 if job.id.startswith(GROUP_PREFIX):
                     # Remove the prefix and get the group name
-                    name = job.id.split(GROUP_PREFIX)[1]
+                    name = removeprefix(job.id, GROUP_PREFIX)
                     # Add the jobs from the group
                     yield from group_solutions.get(name, [job])
                 else:

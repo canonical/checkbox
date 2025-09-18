@@ -25,11 +25,26 @@ include:
     dss/initialize
     dss/namespace
     dss/status_mlflow
+    dss/wait_for_intel_gpu_rollout
+    dss/wait_for_nvidia_gpu_rollout
     dss/status_intel_gpu
     dss/status_nvidia_gpu
     dss/create_new_notebook_using_.*
     dss/verify_new_notebook_of_.*
     dss/remove_new_notebook_of_.*
+    dss/create_long_living_notebook_before_reboot_using_.*
+    dss/verify_long_living_notebook_before_reboot_of_.*
+    dss/reboot
+    dss/wait_after_reboot.*
+    dss/status_mlflow_after_reboot
+    dss/status_intel_gpu_after_reboot
+    dss/status_nvidia_gpu_after_reboot
+    dss/restart_long_living_notebook_after_reboot_using_.*
+    dss/verify_long_living_notebook_after_reboot_of_.*
+    dss/remove_long_living_notebook_after_reboot_of_.*
+    dss/create_new_notebook_after_reboot_using_.*
+    dss/verify_new_notebook_after_reboot_of_.*
+    dss/remove_new_notebook_after_reboot_of_.*
     dss/purge
 bootstrap_include:
     com.canonical.certification::executable

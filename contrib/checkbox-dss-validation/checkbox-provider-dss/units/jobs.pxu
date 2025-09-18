@@ -20,6 +20,11 @@ depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
 command: kubectl get ns dss
+_siblings: [
+  { "id": "dss/namespace_after_reboot",
+    "_summary": "Check that the dss namespace is still deployed after reboot",
+    "depends": "dss/wait_after_reboot" }
+  ]
 
 id: dss/status_mlflow
 category_id: dss-regress
@@ -32,6 +37,11 @@ estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "MLflow deployment: Ready"
+_siblings: [
+  { "id": "dss/status_mlflow_after_reboot",
+    "_summary": "Check that the DSS mlflow is still deployed after reboot",
+    "depends": "dss/namespace_after_reboot" }
+  ]
 
 id: dss/status_nvidia_gpu
 category_id: dss-regress
@@ -48,6 +58,11 @@ estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "NVIDIA GPU acceleration: Enabled.*"
+_siblings: [
+  { "id": "dss/status_nvidia_gpu_after_reboot",
+    "_summary": "Check that DSS status still reports NVIDIA GPU is enabled after reboot",
+    "depends": "dss/status_mlflow_after_reboot" }
+  ]
 
 id: dss/status_intel_gpu
 category_id: dss-regress
@@ -64,6 +79,11 @@ estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "Intel GPU acceleration: Enabled.*"
+_siblings: [
+  { "id": "dss/status_intel_gpu_after_reboot",
+    "_summary": "Check that DSS status still reports Intel GPU is enabled after reboot",
+    "depends": "dss/status_mlflow_after_reboot" }
+  ]
 
 id: dss/purge
 category_id: dss-regress
@@ -74,6 +94,81 @@ depends: dss/initialize
 _summary: Check that DSS can be purged
 estimated_duration: 5m
 command: timeout 5m run_dss.sh purge
+
+id: dss/reboot
+category_id: dss-regress
+flags: noreturn
+plugin: shell
+depends: dss/initialize
+_summary: Reboot the machine
+estimated_duration: 2m
+command:
+  set -ex
+  echo "starting rebooting"
+  sudo reboot
+  echo "finished rebooting"
+
+id: dss/wait_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'kubectl'
+depends: dss/reboot
+_summary: Wait for cluster to settle down after reboot
+estimated_duration: 15m
+command:
+  set -ex
+  sleep 120
+  timeout 15m bash -c 'while ! kubectl get pods -A &> /dev/null; do
+      echo "Waiting for Kubernetes cluster to get ready"
+      sleep 5
+    done'
+  kubectl get pods -A
+  echo "Waiting a bit more for the daemonsets to restart"
+  sleep 120
+
+id: dss/wait_for_intel_gpu_rollout
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  executable.name == 'kubectl'
+  graphics_card.vendor == 'Intel Corporation'
+_summary: Check that Intel GPU plugin has rolled out in the cluster
+estimated_duration: 15m
+command:
+  set -ex
+  timeout 15m kubectl -n node-feature-discovery rollout status ds/nfd-worker
+  timeout 15m kubectl -n default rollout status ds/intel-gpu-plugin
+_siblings: [
+  { "id": "dss/wait_after_reboot_for_intel_gpu_rollout",
+    "_summary": "Check that Intel GPU plugin has rolled out in the cluster after reboot",
+    "after": "dss/wait_after_reboot" }
+  ]
+
+id: dss/wait_for_nvidia_gpu_rollout
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  executable.name == 'kubectl'
+  graphics_card.vendor == 'NVIDIA Corporation'
+_summary: Check that NVIDIA GPU plugin has rolled out in the cluster
+estimated_duration: 15m
+command:
+  set -ex
+  timeout 15m kubectl -n gpu-operator-resources rollout status ds/nvidia-device-plugin-daemonset
+  timeout 15m kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
+_siblings: [
+  { "id": "dss/wait_after_reboot_for_nvidia_gpu_rollout",
+    "_summary": "Check that NVIDIA GPU plugin has rolled out in the cluster after reboot",
+    "after": "dss/wait_after_reboot" }
+  ]
+
 
 # New-Notebook test jobs ######################################################
 
@@ -121,37 +216,96 @@ command:
 
 unit: template
 template-resource: dss/notebook_tests_list
+template-engine: jinja2
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-id: dss/create_new_notebook_using_{image}
-depends: {depends}
-_summary: Check that a new notebook can be created from '{image}'
+id: dss/create_new_notebook_using_{{ image }}
+depends: {{ depends }}
+_summary: Check that a new notebook can be created from '{{ image }}'
 estimated_duration: 15m
-command: timeout 15m run_dss.sh create new-{framework}-{accel} --image {image}
+command: timeout 15m run_dss.sh create new-{{ framework }}-{{ accel }} --image {{ image }}
+_siblings: [
+  { "id": "dss/create_new_notebook_after_reboot_using_{{ image }}",
+    "_summary": "Check that a new notebook can be created from '{{ image }}' after reboot",
+    "depends": "{{ depends }}_after_reboot",
+    "command": "timeout 15m run_dss.sh create new-after-reboot-{{ framework }}-{{ accel }} --image {{ image }}" },
+  { "id": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
+    "_summary": "Check that a long living notebook can be created from '{{ image }}' before reboot",
+    "depends": "{{ depends }}",
+    "command": "timeout 15m run_dss.sh create long-living-{{ framework }}-{{ accel }} --image {{ image }}" }
+  ]
 
 unit: template
 template-resource: dss/notebook_tests_list
+template-engine: jinja2
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'kubectl'
-id: dss/verify_new_notebook_of_{image}
-depends: dss/create_new_notebook_using_{image}
-_summary: Check that the new notebook from '{image}' can use acceleration
+id: dss/verify_new_notebook_of_{{ image }}
+depends: dss/create_new_notebook_using_{{ image }}
+_summary: Check that the new notebook from '{{ image }}' can use acceleration
 estimated_duration: 1m
-command: timeout 1m check_notebook.py new-{framework}-{accel} {check}
+command: timeout 1m check_notebook.py new-{{ framework }}-{{ accel }} {{ check }}
+_siblings: [
+  { "id": "dss/verify_new_notebook_after_reboot_of_{{ image }}",
+    "_summary": "Check that the new notebook from '{{ image }}' can use accel. after reboot",
+    "depends": "dss/create_new_notebook_after_reboot_using_{{ image }}",
+    "command": "timeout 1m check_notebook.py new-after-reboot-{{ framework }}-{{ accel }} {{ check }}" },
+  { "id": "dss/verify_long_living_notebook_before_reboot_of_{{ image }}",
+    "_summary": "Check that the long living notebook from '{{ image }}' can use accel. before reboot",
+    "depends": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
+    "command": "timeout 1m check_notebook.py long-living-{{ framework }}-{{ accel }} {{ check }}" },
+  { "id": "dss/verify_long_living_notebook_after_reboot_of_{{ image }}",
+    "_summary": "Check that the long living notebook from '{{ image }}' can use accel. after reboot",
+    "depends": "dss/restart_long_living_notebook_after_reboot_using_{{ image }}",
+    "command": "timeout 1m check_notebook.py long-living-{{ framework }}-{{ accel }} {{ check }}" }
+  ]
 
 unit: template
 template-resource: dss/notebook_tests_list
+template-engine: jinja2
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-id: dss/remove_new_notebook_of_{image}
-depends: {depends}
-after: dss/create_new_notebook_using_{image}
-_summary: Check that the new notebook from '{image}' can be removed
+id: dss/remove_new_notebook_of_{{ image }}
+depends: {{ depends }}
+after: dss/create_new_notebook_using_{{ image }}
+_summary: Check that the new notebook from '{{ image }}' can be removed
 estimated_duration: 1m
-command: timeout 1m run_dss.sh remove new-{framework}-{accel}
+command: timeout 1m run_dss.sh remove new-{{ framework }}-{{ accel }}
+_siblings: [
+  { "id": "dss/remove_new_notebook_after_reboot_of_{{ image }}",
+    "_summary": "Check that the new notebook from '{{ image }}' can be removed after reboot",
+    "depends": "{{ depends }}_after_reboot",
+    "after": "dss/create_new_notebook_after_reboot_using_{{ image }}",
+    "command": "timeout 1m run_dss.sh remove new-after-reboot-{{ framework }}-{{ accel }}" },
+  { "id": "dss/remove_long_living_notebook_after_reboot_of_{{ image }}",
+    "_summary": "Check that the long living notebook from '{{ image }}' can be removed after reboot",
+    "depends": "{{ depends }}_after_reboot",
+    "after": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
+    "command": "timeout 1m run_dss.sh remove long-living-{{ framework }}-{{ accel }}" }
+  ]
+
+unit: template
+template-resource: dss/notebook_tests_list
+template-engine: jinja2
+plugin: shell
+category_id: dss-regress
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+id: dss/restart_long_living_notebook_after_reboot_using_{{ image }}
+depends:
+  {{ depends }}_after_reboot
+  dss/create_long_living_notebook_before_reboot_using_{{ image }}
+_summary: Check that the long living notebook from '{{ image }}' can be restarted
+estimated_duration: 5m
+command:
+  set -e
+  timeout 10s run_dss.sh stop long-living-{{ framework }}-{{ accel }}
+  sleep 10
+  timeout 5m run_dss.sh start long-living-{{ framework }}-{{ accel }}
+  sleep 10

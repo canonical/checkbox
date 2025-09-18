@@ -84,7 +84,12 @@ class SessionMetaData:
     # and is not following any test plan
     FLAG_TESTPLANLESS = "testplanless"
 
+    # After expanding templates validate them and add invalid jobs as
+    # InvalidJob. These jobs will be noted as "crashed"
     FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = "strict_template_expansion"
+    # Jobs are executed as systemd units. This is used to make jobs escape
+    # the snapd/apparmor sandbox.
+    FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER = "systemd_based_job_runner"
 
     def __init__(
         self,
@@ -162,6 +167,8 @@ class SessionMetaData:
             self._flags.add(self.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION)
         else:
             logger.warning("Using legacy non-strict template expansion")
+        if config.get_value("features", "systemd_based_job_runner"):
+            self._flags.add(self.FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER)
 
     @property
     def flags(self):

@@ -300,5 +300,6 @@ estimated_duration: 5m
 command:
   set -e
   timeout 10s run_dss.sh stop long-living-{{ framework }}-{{ accel }}
-  sleep 30
+  sleep 10
   timeout 5m run_dss.sh start long-living-{{ framework }}-{{ accel }}
+  sleep 10

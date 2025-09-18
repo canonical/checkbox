@@ -1,0 +1,17 @@
+#!/usr/bin/env -S checkbox-cli-wrapper
+[launcher]
+app_id = com.canonical.qa.gfx:checkbox
+launcher_version = 1
+stock_reports = text
+
+[test plan]
+unit = com.canonical.certification::opengl-test-plan-sru
+forced = yes
+
+[test selection]
+forced = yes
+
+[ui]
+type = silent
+auto_retry = no
+max_attempts = 3

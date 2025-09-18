@@ -4,4 +4,8 @@ _name: Category for Mesa tests
 
 unit: category
 id: opencl
-_name: A shorter test suit for opencl
+_name: A test suite for opencl
+
+unit: category
+id: opengl
+_name: A test suite for opengl

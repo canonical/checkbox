@@ -172,7 +172,11 @@ _siblings: [
   { "id": "dss/create_new_notebook_after_reboot_using_{{ image }}",
     "_summary": "Check that a new notebook can be created from '{{ image }}' after reboot",
     "depends": "{{ depends }}_after_reboot",
-    "command": "timeout 15m run_dss.sh create new-after-reboot-{{ framework }}-{{ accel }} --image {{ image }}" }
+    "command": "timeout 15m run_dss.sh create new-after-reboot-{{ framework }}-{{ accel }} --image {{ image }}" },
+  { "id": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
+    "_summary": "Check that a long living notebook can be created from '{{ image }}' before reboot",
+    "depends": "{{ depends }}",
+    "command": "timeout 15m run_dss.sh create long-living-{{ framework }}-{{ accel }} --image {{ image }}" }
   ]
 
 unit: template
@@ -191,7 +195,15 @@ _siblings: [
   { "id": "dss/verify_new_notebook_after_reboot_of_{{ image }}",
     "_summary": "Check that the new notebook from '{{ image }}' can use accel. after reboot",
     "depends": "dss/create_new_notebook_after_reboot_using_{{ image }}",
-    "command": "timeout 1m check_notebook.py new-after-reboot-{{ framework }}-{{ accel }} {{ check }}" }
+    "command": "timeout 1m check_notebook.py new-after-reboot-{{ framework }}-{{ accel }} {{ check }}" },
+  { "id": "dss/verify_long_living_notebook_before_reboot_of_{{ image }}",
+    "_summary": "Check that the long living notebook from '{{ image }}' can use accel. before reboot",
+    "depends": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
+    "command": "timeout 1m check_notebook.py long-living-{{ framework }}-{{ accel }} {{ check }}" },
+  { "id": "dss/verify_long_living_notebook_after_reboot_of_{{ image }}",
+    "_summary": "Check that the long living notebook from '{{ image }}' can use accel. after reboot",
+    "depends": "dss/restart_long_living_notebook_after_reboot_using_{{ image }}",
+    "command": "timeout 1m check_notebook.py long-living-{{ framework }}-{{ accel }} {{ check }}" }
   ]
 
 unit: template
@@ -212,5 +224,29 @@ _siblings: [
     "_summary": "Check that the new notebook from '{{ image }}' can be removed after reboot",
     "depends": "{{ depends }}_after_reboot",
     "after": "dss/create_new_notebook_after_reboot_using_{{ image }}",
-    "command": "timeout 1m run_dss.sh remove new-after-reboot-{{ framework }}-{{ accel }}" }
+    "command": "timeout 1m run_dss.sh remove new-after-reboot-{{ framework }}-{{ accel }}" },
+  { "id": "dss/remove_long_living_notebook_after_reboot_of_{{ image }}",
+    "_summary": "Check that the long living notebook from '{{ image }}' can be removed after reboot",
+    "depends": "{{ depends }}_after_reboot",
+    "after": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
+    "command": "timeout 1m run_dss.sh remove long-living-{{ framework }}-{{ accel }}" }
   ]
+
+unit: template
+template-resource: dss/notebook_tests_list
+template-engine: jinja2
+plugin: shell
+category_id: dss-regress
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+id: dss/restart_long_living_notebook_after_reboot_using_{{ image }}
+depends:
+  {{ depends }}_after_reboot
+  dss/create_long_living_notebook_before_reboot_using_{{ image }}
+_summary: Check that the long living notebook from '{{ image }}' can be restarted
+estimated_duration: 5m
+command:
+  set -e
+  timeout 10s run_dss.sh stop long-living-{{ framework }}-{{ accel }}
+  sleep 30
+  timeout 5m run_dss.sh start long-living-{{ framework }}-{{ accel }}

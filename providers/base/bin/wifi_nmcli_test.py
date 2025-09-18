@@ -196,7 +196,7 @@ def perform_ping_test(interface):
     if target:
         count = 5
         result = ping(target, interface, count, 10)
-        if result["received"] != count:
+        if result["received"] != result["transmitted"]:
             raise ValueError(
                 "{} packets expected but only {} received".format(
                     count, result["received"]

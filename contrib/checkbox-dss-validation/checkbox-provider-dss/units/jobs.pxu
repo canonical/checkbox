@@ -119,7 +119,13 @@ estimated_duration: 15m
 command:
   set -ex
   sleep 120
+  timeout 15m bash -c 'while ! kubectl get pods -A &> /dev/null; do
+      echo "Waiting for Kubernetes cluster to get ready"
+      sleep 5
+    done'
   kubectl get pods -A
+  echo "Waiting a bit more for the daemonsets to restart"
+  sleep 120
 
 id: dss/wait_for_intel_gpu_rollout
 category_id: dss-regress

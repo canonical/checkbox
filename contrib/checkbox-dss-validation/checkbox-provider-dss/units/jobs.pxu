@@ -97,19 +97,71 @@ command: timeout 5m run_dss.sh purge
 
 id: dss/reboot
 category_id: dss-regress
-flags: simple
+flags: noreturn
+plugin: shell
 depends: dss/initialize
 _summary: Reboot the machine
-estimated_duration: 10s
-command: echo "rebooting"
+estimated_duration: 2m
+command:
+  set -ex
+  echo "starting rebooting"
+  sudo reboot
+  echo "finished rebooting"
 
 id: dss/wait_after_reboot
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'kubectl'
 depends: dss/reboot
 _summary: Wait for cluster to settle down after reboot
-estimated_duration: 10s
-command: echo "waiting"
+estimated_duration: 15m
+command:
+  set -ex
+  sleep 120
+  kubectl get pods -A
+
+id: dss/wait_for_intel_gpu_rollout
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  executable.name == 'kubectl'
+  graphics_card.vendor == 'Intel Corporation'
+_summary: Check that Intel GPU plugin has rolled out in the cluster
+estimated_duration: 15m
+command:
+  set -ex
+  timeout 15m kubectl -n node-feature-discovery rollout status ds/nfd-worker
+  timeout 15m kubectl -n default rollout status ds/intel-gpu-plugin
+_siblings: [
+  { "id": "dss/wait_after_reboot_for_intel_gpu_rollout",
+    "_summary": "Check that Intel GPU plugin has rolled out in the cluster after reboot",
+    "after": "dss/wait_after_reboot" }
+  ]
+
+id: dss/wait_for_nvidia_gpu_rollout
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  executable.name == 'kubectl'
+  graphics_card.vendor == 'NVIDIA Corporation'
+_summary: Check that NVIDIA GPU plugin has rolled out in the cluster
+estimated_duration: 15m
+command:
+  set -ex
+  timeout 15m kubectl -n gpu-operator-resources rollout status ds/nvidia-device-plugin-daemonset
+  timeout 15m kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
+_siblings: [
+  { "id": "dss/wait_after_reboot_for_nvidia_gpu_rollout",
+    "_summary": "Check that NVIDIA GPU plugin has rolled out in the cluster after reboot",
+    "after": "dss/wait_after_reboot" }
+  ]
 
 
 # New-Notebook test jobs ######################################################

@@ -8,7 +8,7 @@ MLD f0:a7:31:16:77:a1 stats:
 	RX: 585329392 bytes (8827749 packets)
 	TX: 2395896496 bytes (572452 packets)
 	signal: -40 dBm
-	tx bitrate: 4803.8 MBit/s 320MHz EHT-MCS 11 EHT-NSS 2 EHT-GI 0
+	tx bitrate: 4803.8 MBit/s 320MHz EHT-MCS 12 EHT-NSS 2 EHT-GI 0
 	bss flags: 
 	dtim period: 0
 	beacon int: 100

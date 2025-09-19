@@ -67,7 +67,7 @@ class TestWifi7Tests(ut.TestCase):
         with (TEST_DATA_DIR / "iw_dev_link_succ.txt").open() as f:
             # tx bitrate: 4803.8 MBit/s 320MHz EHT-MCS 11 EHT-NSS 2 EHT-GI 0
             expected = w7.ConnectionInfo(
-                mcs=11, conn_type="EHT", direction="tx", bandwidth=320
+                mcs=12, conn_type="EHT", direction="tx", bandwidth=320
             )
             actual, _ = w7.ConnectionInfo.parse(f.read())
             for prop in dir(expected):
@@ -134,6 +134,64 @@ class TestWifi7Tests(ut.TestCase):
 
         mock_check_output.side_effect = fake_check_output
         self.assertRaises(SystemExit, w7.main)
+
+    @mock_retry()
+    @patch(
+        "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
+    )
+    @patch("subprocess.run")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    def test_connection_assertions(
+        self,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_run: MagicMock,
+    ):
+        # device doesn't have wifi
+        mock_check_output.return_value = "\n".join(
+            ["lo", "loopback", "", "enp133s0", "ethernet"]
+        )
+        with self.assertRaises(SystemExit):
+            w7.main()
+
+        mock_check_output.reset_mock()
+
+        def fake_check_output(args: "list[str]", *other_args, **kwargs):
+            iface = "wlp0s20f3"
+            if args == [
+                "nmcli",
+                "-get-values",
+                "GENERAL.DEVICE,GENERAL.TYPE",
+                "device",
+                "show",
+            ]:
+                return "\n".join([iface, "wifi", "", "lo", "loopback"])
+
+            if args == [
+                "nmcli",
+                "-get-values",
+                "SSID",
+                "device",
+                "wifi",
+                "list",
+                "--rescan",
+                "yes",
+            ]:
+                return "\n".join(
+                    [
+                        "some-other-random-wifi",
+                        "wifi6-ap",
+                        "",
+                        "",
+                        "some-random-wifi",
+                    ]
+                )
+
+        mock_check_output.side_effect = fake_check_output
+        # didn't find the given AP, exit
+        with self.assertRaises(SystemExit):
+            w7.main()
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@
 #  Zhongning Li <zhongning.li@canonical.com>
 
 """
-This is a simple test to see if Wi-Fi 7 features like MLO 
+This is a simple test to see if Wi-Fi 7 features like MLO
 (Multi-Link Operation) is supported on the DUT.
 
 The checks come from this guide:

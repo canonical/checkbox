@@ -327,8 +327,8 @@ def main():
     else:
         # DUT pretty much has to be next to the AP for this
         print(
-            "[ WARN ] Expected 4096QAM (MCS12/13),",
-            "but got 'tx MCS: {}', 'rx MCS: {}'.".format(
+            "[ WARN ] Expected 4096QAM (MCS12 or 13),",
+            "but got tx MCS={}, rx MCS={}.".format(
                 tx and tx.mcs, rx and rx.mcs
             ),
             "Which MCS is chosen by the AP is highly dependent on the environment,",

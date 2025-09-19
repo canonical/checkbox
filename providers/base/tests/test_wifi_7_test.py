@@ -1,5 +1,6 @@
 from contextlib import suppress
 from pathlib import Path
+import subprocess
 import unittest as ut
 import wifi_7_test as w7
 from unittest.mock import MagicMock, patch
@@ -12,6 +13,7 @@ MOCK_AP_NAME = "wifi7-ap"
 class TestWifi7Tests(ut.TestCase):
 
     @mock_retry()
+    @patch("time.sleep")
     @patch(
         "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
     )
@@ -23,10 +25,13 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_run: MagicMock,
+        _,
     ):
         def fake_check_output(args: "list[str]", *other_args, **kwargs):
             iface = "wlp0s20f3"
-            if args == [
+            if args[0:3] == ["nmcli", "connection", "delete"]:
+                return "Deleted {}".format(args[3])
+            if args[0:5] == [
                 "nmcli",
                 "-get-values",
                 "GENERAL.DEVICE,GENERAL.TYPE",
@@ -34,13 +39,13 @@ class TestWifi7Tests(ut.TestCase):
                 "show",
             ]:
                 return "\n".join([iface, "wifi", "", "lo", "loopback"])
-            if args == ["iw", "dev", iface, "info"]:
+            if args[0:4] == ["iw", "dev", iface, "info"]:
                 with (TEST_DATA_DIR / "iw_dev_info_succ.txt").open() as f:
                     return f.read()
-            if args == ["iw", "dev", iface, "link"]:
+            if args[0:4] == ["iw", "dev", iface, "link"]:
                 with (TEST_DATA_DIR / "iw_dev_link_succ.txt").open() as f:
                     return f.read()
-            if args == [
+            if args[0:8] == [
                 "nmcli",
                 "-get-values",
                 "SSID",
@@ -62,6 +67,10 @@ class TestWifi7Tests(ut.TestCase):
                 )
 
         mock_check_output.side_effect = fake_check_output
+        mock_run.return_value = subprocess.CompletedProcess([], 10, "", "")
+        w7.main()
+
+        mock_run.return_value = subprocess.CompletedProcess([], 0, "", "")
         w7.main()
 
     def test_parser_happy_path(self):
@@ -80,6 +89,7 @@ class TestWifi7Tests(ut.TestCase):
                 )
 
     @mock_retry()
+    @patch("time.sleep")
     @patch(
         "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
     )
@@ -91,10 +101,11 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_run: MagicMock,
+        _,
     ):
         def fake_check_output(args: "list[str]", *other_args, **kwargs):
             iface = "wlp0s20f3"
-            if args == [
+            if args[0:5] == [
                 "nmcli",
                 "-get-values",
                 "GENERAL.DEVICE,GENERAL.TYPE",
@@ -102,17 +113,17 @@ class TestWifi7Tests(ut.TestCase):
                 "show",
             ]:
                 return "\n".join([iface, "wifi", "", "lo", "loopback"])
-            if args == ["iw", "dev", iface, "info"]:
+            if args[0:4] == ["iw", "dev", iface, "info"]:
                 with (
                     TEST_DATA_DIR / "iw_dev_info_not_wifi_7.txt"
                 ).open() as f:
                     return f.read()
-            if args == ["iw", "dev", iface, "link"]:
+            if args[0:4] == ["iw", "dev", iface, "link"]:
                 with (
                     TEST_DATA_DIR / "iw_dev_link_not_wifi_7.txt"
                 ).open() as f:
                     return f.read()
-            if args == [
+            if args[0:8] == [
                 "nmcli",
                 "-get-values",
                 "SSID",
@@ -137,6 +148,7 @@ class TestWifi7Tests(ut.TestCase):
         self.assertRaises(SystemExit, w7.main)
 
     @mock_retry()
+    @patch("time.sleep")
     @patch(
         "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
     )
@@ -148,6 +160,7 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_run: MagicMock,
+        _,
     ):
         # device doesn't have wifi
         mock_check_output.return_value = "\n".join(
@@ -160,7 +173,7 @@ class TestWifi7Tests(ut.TestCase):
 
         def fake_check_output(args: "list[str]", *other_args, **kwargs):
             iface = "wlp0s20f3"
-            if args == [
+            if args[0:5] == [
                 "nmcli",
                 "-get-values",
                 "GENERAL.DEVICE,GENERAL.TYPE",
@@ -169,7 +182,7 @@ class TestWifi7Tests(ut.TestCase):
             ]:
                 return "\n".join([iface, "wifi", "", "lo", "loopback"])
 
-            if args == [
+            if args[0:8] == [
                 "nmcli",
                 "-get-values",
                 "SSID",
@@ -195,6 +208,7 @@ class TestWifi7Tests(ut.TestCase):
             w7.main()
 
     @mock_retry()
+    @patch("time.sleep")
     @patch("sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME])
     @patch("subprocess.run")
     @patch("subprocess.check_call")
@@ -204,6 +218,7 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_run: MagicMock,
+        _,
     ):
 
         mock_check_output.return_value = "\n".join(

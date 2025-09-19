@@ -198,7 +198,7 @@ def connect(ssid: str, password: "str | None"):
         print("[ OK ] Connected to {}".format(ssid))
         return
 
-    raise RuntimeError("Did not see '{}' in nmcli's scan output".format(ssid))
+    raise SystemExit("Did not see '{}' in nmcli's scan output".format(ssid))
 
 
 @retry(5, 30)

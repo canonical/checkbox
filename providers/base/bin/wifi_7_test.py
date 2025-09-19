@@ -15,10 +15,8 @@ https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wi-Fi_7_(802
 Prerequisites for running this test:
 - 6.14+ kernel (24.04.3+ is ok!)
 - wpasupplicant >= 2.11 (it's coming to 24.04 soon)
-- The environment variable MLO_SSID should be set in the launcher
-  and passed in through the '-m'/'--mlo-ssid' argument. This AP is assumed to
-  support wifi 7 and MLO.
-- The manifest entry "has_wifi_7_support" should be true
+- The AP specified in -m/--mlo-ssid is assumed to support wifi 7
+  and have MLO enabled
 """
 
 import argparse

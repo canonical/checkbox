@@ -1,10 +1,10 @@
-import pathlib
+from pathlib import Path
 import unittest as ut
 import wifi_7_test as w7
 from unittest.mock import MagicMock, patch
 from checkbox_support.helpers.retry import mock_retry
 
-TEST_DATA_DIR = pathlib.Path(__file__).parent / "test_data"
+TEST_DATA_DIR = Path(__file__).parent / "test_data"
 MOCK_AP_NAME = "wifi7-ap"
 
 
@@ -78,11 +78,62 @@ class TestWifi7Tests(ut.TestCase):
                     getattr(expected, prop), getattr(actual, prop)
                 )
 
-    @patch("sys.argv", ["wifi_7_test.py", ""])
+    @mock_retry()
+    @patch(
+        "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
+    )
+    @patch("subprocess.run")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
     def test_not_wifi_7(
         self,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_run: MagicMock,
     ):
-        pass
+        def fake_check_output(args: "list[str]", *other_args, **kwargs):
+            iface = "wlp0s20f3"
+            if args == [
+                "nmcli",
+                "-get-values",
+                "GENERAL.DEVICE,GENERAL.TYPE",
+                "device",
+                "show",
+            ]:
+                return "\n".join([iface, "wifi", "", "lo", "loopback"])
+            if args == ["iw", "dev", iface, "info"]:
+                with (
+                    TEST_DATA_DIR / "iw_dev_info_not_wifi_7.txt"
+                ).open() as f:
+                    return f.read()
+            if args == ["iw", "dev", iface, "link"]:
+                with (
+                    TEST_DATA_DIR / "iw_dev_link_not_wifi_7.txt"
+                ).open() as f:
+                    return f.read()
+            if args == [
+                "nmcli",
+                "-get-values",
+                "SSID",
+                "device",
+                "wifi",
+                "list",
+                "--rescan",
+                "yes",
+            ]:
+                return "\n".join(
+                    [
+                        "some-other-random-wifi",
+                        "wifi7-ap",
+                        "",  # nmcli output can have random new lines
+                        "",
+                        "some-random-wifi",
+                        MOCK_AP_NAME,
+                    ]
+                )
+
+        mock_check_output.side_effect = fake_check_output
+        self.assertRaises(SystemExit, w7.main)
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ This is a simple test to see if Wi-Fi MLO (Multi-Link Operation) is supported
 on the DUT.
 
 The checks come from this guide:
-https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wi-Fi_7_(802.11be)_Technical_Guide
+https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wi-Fi_7_(802.11be)_Technical_Guide  # noqa: E501
 
 Prerequisites for running this test:
 - 6.14+ kernel (24.04.3 is ok!)
@@ -313,12 +313,11 @@ def main():
         print(
             "This wifi connection (interface: {}, ssid: {}) ".format(
                 wifi_interface, args.mlo_ssid
-            )
-            + "is not using 320mHz bandwidth. "
-            + "It's possible that the AP of {} isn't configured correctly ".format(
-                args.mlo_ssid
-            )
-            + "or the SoC on this wifi card doesn't support 320mHz",
+            ),
+            "is not using 320mHz bandwidth.",
+            "It's possible that the AP of {}".format(args.mlo_ssid),
+            "isn't configured correctly"
+            "or the SoC on this wifi card doesn't support 320mHz",
             file=stderr,
         )
 
@@ -331,7 +330,8 @@ def main():
             "but got tx MCS={}, rx MCS={}.".format(
                 tx and tx.mcs, rx and rx.mcs
             ),
-            "Which MCS is chosen by the AP is highly dependent on the environment,",
+            "Which MCS is chosen by the AP is",
+            "highly dependent on the environment,",
             "Try moving the DUT next to the AP and run the test again.",
             file=stderr,
         )

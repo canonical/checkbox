@@ -7,7 +7,7 @@
 
 """
 This is a simple test to see if Wi-Fi 7 features like MLO
-(Multi-Link Operation) is supported on the DUT.
+(Multi-Link Operation) are supported on the DUT.
 
 The checks come from this guide:
 https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wi-Fi_7_(802.11be)_Technical_Guide  # noqa: E501

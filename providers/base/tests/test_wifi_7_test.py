@@ -25,9 +25,6 @@ class TestWifi7Tests(ut.TestCase):
 
     @mock_retry()
     @patch("time.sleep")
-    @patch(
-        "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
-    )
     @patch("subprocess.run")
     @patch("subprocess.check_call")
     @patch("subprocess.check_output")
@@ -79,10 +76,27 @@ class TestWifi7Tests(ut.TestCase):
 
         mock_check_output.side_effect = fake_check_output
         mock_run.return_value = subprocess.CompletedProcess([], 10, "", "")
-        w7.main()
+        with patch(
+            "sys.argv",
+            ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"],
+        ):
+            w7.main()
 
         mock_run.return_value = subprocess.CompletedProcess([], 0, "", "")
-        w7.main()
+        with patch(
+            "sys.argv",
+            [
+                "wifi_7_test.py",
+                "-m",
+                MOCK_AP_NAME,
+                "-p",
+                "password123",
+                "-i",
+                "wlp0s20f3",
+            ],
+        ), patch("wifi_7_test.get_wifi_interface") as mock_get_iface:
+            w7.main()
+            mock_get_iface.assert_not_called()
 
     def test_parser_happy_path(self):
         with (TEST_DATA_DIR / "iw_dev_link_succ.txt").open() as f:

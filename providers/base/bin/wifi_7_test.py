@@ -26,6 +26,7 @@ import itertools
 import subprocess as sp
 import typing as T
 from sys import stderr
+import time
 
 from checkbox_support.helpers.retry import retry
 
@@ -147,17 +148,32 @@ def parse_args():
     parser.add_argument(
         "-p", "--password", help="the password to use when connecting to wifi"
     )
+    parser.add_argument(
+        "-i",
+        "--interface",
+        help="Specify which wifi interface nmcli should use",
+        required=False,
+    )
     return parser.parse_args()
 
 
 @retry(5, 30)
-def connect(ssid: str, password: "str | None"):
+def connect(ssid: str, password: "str | None", interface: "str | None" = None):
     # delete the connection if we have it
-    print("Deleting existing connections of '{}'".format(ssid))
-    sp.run(["nmcli", "connection", "delete", ssid])
+    if (
+        sp.run(
+            ["nmcli", "connection", "show", ssid],
+            stderr=sp.DEVNULL,
+            stdout=sp.DEVNULL,
+        ).returncode
+        == 0  # returns 10 if connection doesn't exist
+    ):
+        print("Deleting existing connections of '{}'".format(ssid))
+        sp.check_call(["nmcli", "connection", "delete", ssid])
 
     # color is removed when nmcli detects its output is being piped
     # so we don't need to manually remove colors
+
     nmcli_output = sp.check_output(
         [
             "nmcli",
@@ -168,6 +184,7 @@ def connect(ssid: str, password: "str | None"):
             "list",
             "--rescan",
             "yes",
+            *(["ifname", interface] if interface else []),
         ],
         universal_newlines=True,
         timeout=COMMAND_TIMEOUT,
@@ -175,12 +192,11 @@ def connect(ssid: str, password: "str | None"):
 
     for line in nmcli_output.splitlines():
         clean_line = line.strip()
+        # should match exactly, otherwise the nmcli connect is
+        # guaranteed to fail
         if ssid != clean_line:
             continue
 
-        # should match exactly, otherwise the nmcli connect is
-        # guaranteed to fail
-        print("Connecting to", ssid)
         if password:
             sp.check_call(
                 [
@@ -191,10 +207,20 @@ def connect(ssid: str, password: "str | None"):
                     ssid,
                     "password",
                     password,
+                    *(["ifname", interface] if interface else []),
                 ]
             )
         else:
-            sp.check_call(["nmcli", "device", "wifi", "connect", ssid])
+            sp.check_call(
+                [
+                    "nmcli",
+                    "device",
+                    "wifi",
+                    "connect",
+                    ssid,
+                    *(["ifname", interface] if interface else []),
+                ]
+            )
 
         print("[ OK ] Connected to {}".format(ssid))
         return
@@ -247,10 +273,26 @@ def get_wifi_interface() -> str:
 def main():
     args = parse_args()
     ssid = args.mlo_ssid
-    wifi_interface = get_wifi_interface()
+    if not args.interface:
+        wifi_interface = get_wifi_interface()
+        print(
+            "Interface not specified,",
+            "using the default wifi interface:",
+            wifi_interface,
+        )
+    else:
+        wifi_interface = args.interface
 
-    print("Attempting to connect to {}...".format(ssid))
-    connect(ssid, args.password)
+    print("Attempting to connect to {} on {}...".format(ssid, wifi_interface))
+    connect(ssid, args.password, wifi_interface)
+    # let the negotiation process finish
+    # MLO isn't immediately established on connection
+    n = 5
+    print(
+        "Connected! Waiting {} seconds".format(n),
+        "for the negotiation process to finish",
+    )
+    time.sleep(n)
 
     iw_info_output = sp.check_output(
         ["iw", "dev", wifi_interface, "info"],
@@ -332,7 +374,7 @@ def main():
                 tx and tx.mcs, rx and rx.mcs
             ),
             "Which MCS is chosen by the AP is",
-            "highly dependent on the environment,",
+            "highly dependent on the environment.",
             "Try moving the DUT next to the AP and run the test again.",
             file=stderr,
         )

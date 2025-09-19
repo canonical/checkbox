@@ -10,6 +10,17 @@ TEST_DATA_DIR = Path(__file__).parent / "test_data"
 MOCK_AP_NAME = "wifi7-ap"
 
 
+class TestStrUtils(ut.TestCase):
+    def test_remove_prefix_and_suffix(self):
+        self.assertEqual(w7.remove_prefix("pref123", "pref"), "123")
+        self.assertEqual(w7.remove_prefix("pref123", "pref123"), "")
+        self.assertEqual(w7.remove_prefix("pre", "pref123"), "pre")
+
+        self.assertEqual(w7.remove_suffix("pref123", "123"), "pref")
+        self.assertEqual(w7.remove_suffix("pref123", "pref123"), "")
+        self.assertEqual(w7.remove_suffix("pre", "pref123"), "pre")
+
+
 class TestWifi7Tests(ut.TestCase):
 
     @mock_retry()

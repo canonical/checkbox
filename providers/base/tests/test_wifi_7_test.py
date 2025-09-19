@@ -1,3 +1,4 @@
+from contextlib import suppress
 from pathlib import Path
 import unittest as ut
 import wifi_7_test as w7
@@ -192,6 +193,37 @@ class TestWifi7Tests(ut.TestCase):
         # didn't find the given AP, exit
         with self.assertRaises(SystemExit):
             w7.main()
+
+    @mock_retry()
+    @patch("sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME])
+    @patch("subprocess.run")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    def test_dont_specify_password_if_not_given(
+        self,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_run: MagicMock,
+    ):
+
+        mock_check_output.return_value = "\n".join(
+            [
+                "some-other-random-wifi",
+                "wifi6-ap",
+                "",
+                "",
+                "some-random-wifi",
+                "",
+                MOCK_AP_NAME,
+            ]
+        )
+        with suppress(SystemExit):
+            w7.connect(MOCK_AP_NAME, None)
+
+        self.assertListEqual(
+            mock_check_call.call_args[0][0],
+            ["nmcli", "device", "wifi", "connect", MOCK_AP_NAME],
+        )
 
 
 if __name__ == "__main__":

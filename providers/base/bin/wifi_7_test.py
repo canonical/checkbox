@@ -6,18 +6,19 @@
 #  Zhongning Li <zhongning.li@canonical.com>
 
 """
-This is a simple test to see if Wi-Fi MLO (Multi-Link Operation) is supported
-on the DUT.
+This is a simple test to see if Wi-Fi 7 features like MLO 
+(Multi-Link Operation) is supported on the DUT.
 
 The checks come from this guide:
 https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wi-Fi_7_(802.11be)_Technical_Guide  # noqa: E501
 
 Prerequisites for running this test:
-- 6.14+ kernel (24.04.3 is ok!)
-- wpasupplicant >= 2.11
+- 6.14+ kernel (24.04.3+ is ok!)
+- wpasupplicant >= 2.11 (it's coming to 24.04 soon)
 - The environment variable MLO_SSID should be set in the launcher
-  and passed in through argv
-- The manifest entry "has_wifi_mlo" should be true
+  and passed in through the '-m'/'--mlo-ssid' argument. This AP is assumed to
+  support wifi 7 and MLO.
+- The manifest entry "has_wifi_7_support" should be true
 """
 
 import argparse

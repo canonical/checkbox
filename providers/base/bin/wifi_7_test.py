@@ -349,16 +349,16 @@ def main():
     # optional
 
     if (tx and tx.bandwidth == 320) or (rx and rx.bandwidth == 320):
-        print("[ OK ] This connection is using 320mHz bandwidth")
+        print("[ OK ] This connection is using 320MHz bandwidth")
     else:
         print(
             "This wifi connection (interface: {}, ssid: {}) ".format(
                 wifi_interface, args.mlo_ssid
             ),
-            "is not using 320mHz bandwidth.",
+            "is not using 320MHz bandwidth.",
             "It's possible that the AP of {}".format(args.mlo_ssid),
             "isn't configured correctly"
-            "or the SoC on this wifi card doesn't support 320mHz",
+            "or the SoC on this wifi card doesn't support 320MHz",
             file=stderr,
         )
 

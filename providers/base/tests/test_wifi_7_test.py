@@ -41,7 +41,7 @@ class TestWifi7Tests(ut.TestCase):
                 return "Deleted {}".format(args[3])
             if args[0:5] == [
                 "nmcli",
-                "-get-values",
+                "--get-values",
                 "GENERAL.DEVICE,GENERAL.TYPE",
                 "device",
                 "show",
@@ -55,7 +55,7 @@ class TestWifi7Tests(ut.TestCase):
                     return f.read()
             if args[0:8] == [
                 "nmcli",
-                "-get-values",
+                "--get-values",
                 "SSID",
                 "device",
                 "wifi",
@@ -132,7 +132,7 @@ class TestWifi7Tests(ut.TestCase):
             iface = "wlp0s20f3"
             if args[0:5] == [
                 "nmcli",
-                "-get-values",
+                "--get-values",
                 "GENERAL.DEVICE,GENERAL.TYPE",
                 "device",
                 "show",
@@ -150,7 +150,7 @@ class TestWifi7Tests(ut.TestCase):
                     return f.read()
             if args[0:8] == [
                 "nmcli",
-                "-get-values",
+                "--get-values",
                 "SSID",
                 "device",
                 "wifi",
@@ -200,7 +200,7 @@ class TestWifi7Tests(ut.TestCase):
             iface = "wlp0s20f3"
             if args[0:5] == [
                 "nmcli",
-                "-get-values",
+                "--get-values",
                 "GENERAL.DEVICE,GENERAL.TYPE",
                 "device",
                 "show",
@@ -209,7 +209,7 @@ class TestWifi7Tests(ut.TestCase):
 
             if args[0:8] == [
                 "nmcli",
-                "-get-values",
+                "--get-values",
                 "SSID",
                 "device",
                 "wifi",

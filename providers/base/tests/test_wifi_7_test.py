@@ -1,9 +1,10 @@
-from contextlib import suppress
-from pathlib import Path
 import subprocess
 import unittest as ut
-import wifi_7_test as w7
+from contextlib import suppress
+from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+import wifi_7_test as w7
 from checkbox_support.helpers.retry import mock_retry
 
 TEST_DATA_DIR = Path(__file__).parent / "test_data"

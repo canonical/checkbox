@@ -376,7 +376,9 @@ def main():
     else:
         wifi_interface = args.interface
 
-    print("Attempting to connect to '{}' on '{}'...".format(ssid, wifi_interface))
+    print(
+        "Attempting to connect to '{}' on '{}'...".format(ssid, wifi_interface)
+    )
 
     connect(ssid, args.password, wifi_interface)
     run_iw_checks(wifi_interface, args.mlo_ssid)

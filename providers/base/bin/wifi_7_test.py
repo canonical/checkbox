@@ -175,7 +175,7 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
     nmcli_output = sp.check_output(
         [
             "nmcli",
-            "--get-values", # -g, -get-values, --get-values are all accepted
+            "--get-values",  # -g, -get-values, --get-values are all accepted
             "SSID",
             "device",
             "wifi",

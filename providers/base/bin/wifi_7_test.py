@@ -24,7 +24,6 @@ import itertools
 import subprocess as sp
 import typing as T
 from sys import stderr
-import time
 
 from checkbox_support.helpers.retry import retry
 
@@ -268,30 +267,19 @@ def get_wifi_interface() -> str:
     return wifi_interface
 
 
-def main():
-    args = parse_args()
-    ssid = args.mlo_ssid
-    if not args.interface:
-        wifi_interface = get_wifi_interface()
-        print(
-            "Interface not specified,",
-            "using the default wifi interface:",
-            wifi_interface,
-        )
-    else:
-        wifi_interface = args.interface
+@retry(30, 2)
+def run_iw_checks(wifi_interface: str, mlo_ssid: str):
+    """Runs the iw checks after connection
+    - This assumes a connection to mlo_ssid is already established with nmcli
+    - Retry 30 times, once every 2 seconds. We want to retry faster here
+      because wifi7 links are sensitive to the environment.
 
-    print("Attempting to connect to {} on {}...".format(ssid, wifi_interface))
-    connect(ssid, args.password, wifi_interface)
-    # let the negotiation process finish
-    # MLO isn't immediately established on connection
-    n = 5
-    print(
-        "Connected! Waiting {} seconds".format(n),
-        "for the negotiation process to finish",
-    )
-    time.sleep(n)
-
+    :param wifi_interface: name of the interface like wlan0
+    :param mlo_ssid: ssid of the wifi7 access point
+    :raises SystemExit: if ssid is not listed in iw dev
+    :raises SystemExit: if iw shows that the connection is not a wifi 7 conn
+    :raises SystemExit: if iw shows no MLO links or less than 2 links
+    """
     iw_info_output = sp.check_output(
         ["iw", "dev", wifi_interface, "info"],
         universal_newlines=True,
@@ -303,13 +291,10 @@ def main():
         timeout=COMMAND_TIMEOUT,
     )
 
-    # already have all the outputs we need, disconnect first
-    disconnect(ssid)
-
-    if args.mlo_ssid not in iw_info_output:
+    if mlo_ssid not in iw_info_output:
         raise SystemExit(
             "Interface '{}' was not connected to SSID '{}'".format(
-                wifi_interface, args.mlo_ssid
+                wifi_interface, mlo_ssid
             )
         )
 
@@ -323,7 +308,7 @@ def main():
     else:
         raise SystemExit(
             "This wifi connection (interface: {}, ssid: {}) ".format(
-                wifi_interface, args.mlo_ssid
+                wifi_interface, mlo_ssid
             )
             + "is not a 802.11be connection. "
             + "Expected EHT, but got 'tx: {}', 'rx: {}'".format(
@@ -334,29 +319,29 @@ def main():
     if num_links >= 2:
         print(
             "[ OK ] Found {} links in this connection".format(num_links),
-            "(interface: {}, ssid: {})".format(wifi_interface, args.mlo_ssid),
+            "(interface: {}, ssid: {})".format(wifi_interface, mlo_ssid),
         )
     else:
         raise SystemExit(
             "This wifi connection (interface: {}, ssid: {}) ".format(
-                wifi_interface, args.mlo_ssid
+                wifi_interface, mlo_ssid
             )
             + "is not an MLO connection. "
             + "Expected at least 2 MLO links, got {}".format(num_links),
             # mlo link != plain wifi link, it;s possible to get 0 here
         )
 
-    # optional
+    # optional checks, they just print warnings
 
     if (tx and tx.bandwidth == 320) or (rx and rx.bandwidth == 320):
         print("[ OK ] This connection is using 320MHz bandwidth")
     else:
         print(
             "This wifi connection (interface: {}, ssid: {}) ".format(
-                wifi_interface, args.mlo_ssid
+                wifi_interface, mlo_ssid
             ),
             "is not using 320MHz bandwidth.",
-            "It's possible that the AP of {}".format(args.mlo_ssid),
+            "It's possible that the AP of {}".format(mlo_ssid),
             "isn't configured correctly"
             "or the SoC on this wifi card doesn't support 320MHz",
             file=stderr,
@@ -376,6 +361,26 @@ def main():
             "Try moving the DUT next to the AP and run the test again.",
             file=stderr,
         )
+
+
+def main():
+    args = parse_args()
+    ssid = args.mlo_ssid
+    if not args.interface:
+        wifi_interface = get_wifi_interface()
+        print(
+            "Interface not specified,",
+            "using the default wifi interface:",
+            wifi_interface,
+        )
+    else:
+        wifi_interface = args.interface
+
+    print("Attempting to connect to '{}' on '{}'...".format(ssid, wifi_interface))
+
+    connect(ssid, args.password, wifi_interface)
+    run_iw_checks(wifi_interface, args.mlo_ssid)
+    disconnect(ssid)
 
 
 if __name__ == "__main__":

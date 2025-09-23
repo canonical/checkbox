@@ -195,8 +195,8 @@ class SessionAssistantTests(morris.SignalTestCase):
             _session("app_id", {SessionMetaData.FLAG_INCOMPLETE}),
             # discarded, mismatching app id
             _session("discarded_app_id", {SessionMetaData.FLAG_INCOMPLETE}),
-            # included, app id matches and setupping
-            _session("app_id", {SessionMetaData.FLAG_SETUPPING}),
+            # included, app id matches and setting up
+            _session("app_id", {SessionMetaData.FLAG_SETTING_UP}),
             # discarded, app_id matches but no matching flag
             _session("app_id", set()),
         ]
@@ -217,11 +217,11 @@ class SessionAssistantTests(morris.SignalTestCase):
         self, select_units_mock, usage_expectation_mock, select_providers_mock
     ):
         self_mock = mock.MagicMock()
-        self_mock._metadata.setupping = False
+        self_mock._metadata.setting_up = False
 
         SessionAssistant.start_setup(self_mock)
 
-        self.assertTrue(self_mock._metadata.setupping)
+        self.assertTrue(self_mock._metadata.setting_up)
         self.assertTrue(select_units_mock.called)
 
     @mock.patch(
@@ -232,11 +232,11 @@ class SessionAssistantTests(morris.SignalTestCase):
         self, select_units_mock, usage_expectation_mock, select_providers_mock
     ):
         self_mock = mock.MagicMock()
-        self_mock._metadata.setupping = True
+        self_mock._metadata.setting_up = True
 
         SessionAssistant.finish_setup(self_mock)
 
-        self.assertFalse(self_mock._metadata.setupping)
+        self.assertFalse(self_mock._metadata.setting_up)
 
     @mock.patch(
         "plainbox.impl.session.assistant.UsageExpectation",

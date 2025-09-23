@@ -667,7 +667,7 @@ class SessionAssistant:
                 metadata.app_id == self._app_id
                 and {
                     SessionMetaData.FLAG_INCOMPLETE,
-                    SessionMetaData.FLAG_SETUPPING,
+                    SessionMetaData.FLAG_SETTING_UP,
                 }
                 & metadata.flags
             ):
@@ -799,7 +799,7 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = {
             self.bootstrap: "to run the bootstrap process",
             self.start_bootstrap: "to get bootstrapping jobs",
-            self.start_setup: "to get setupping jobs",
+            self.start_setup: "to get setup jobs",
             self.resume_setup: "to re-start setting up",
         }
 
@@ -817,7 +817,7 @@ class SessionAssistant:
     @raises(UnexpectedMethodCall)
     def start_setup(self):
         """
-        Get a list of ids that should be run in while setupping
+        Get a list of ids that should be run in while setting up
 
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
@@ -825,7 +825,7 @@ class SessionAssistant:
             is the likely cause.
         """
         UsageExpectation.of(self).enforce()
-        self._metadata.setupping = True
+        self._metadata.setting_up = True
         desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_setup_qualifier() for plan in (self._manager.test_plans)]
@@ -848,8 +848,8 @@ class SessionAssistant:
     def bootstrapping(self) -> bool:
         return self._metadata.bootstrapping
 
-    def setupping(self) -> bool:
-        return self._metadata.setupping
+    def setting_up(self) -> bool:
+        return self._metadata.setting_up
 
     @raises(UnexpectedMethodCall)
     def start_bootstrap(self):
@@ -1002,7 +1002,7 @@ class SessionAssistant:
 
     def finish_setup(self):
         UsageExpectation.of(self).enforce()
-        self._metadata.setupping = False
+        self._metadata.setting_up = False
         UsageExpectation.of(self).allowed_calls = {
             self.bootstrap: "to run the bootstrap process",
             self.start_bootstrap: "to get bootstrapping jobs",

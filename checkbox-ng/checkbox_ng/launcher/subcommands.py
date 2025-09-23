@@ -376,7 +376,7 @@ class Launcher(MainLoopStage, ReportsStage):
                     return False
 
                 self.sa.select_test_plan(app_blob["testplan_id"])
-                if SessionMetaData.FLAG_SETUPPING in self.sa._metadata.flags:
+                if SessionMetaData.FLAG_SETTING_UP in self.sa._metadata.flags:
                     return True
                 self.sa.bootstrap()
 
@@ -562,9 +562,9 @@ class Launcher(MainLoopStage, ReportsStage):
             test_plan_id = app_blob["testplan_id"]
             self.load_configs_from_app_blob(app_blob)
             self.sa.select_test_plan(test_plan_id)
-            # when setupping, the testplan is not yet bootstrapped, we have to
-            # resume setupping after use_job_result
-            if self.sa.setupping():
+            # when setting up, the testplan is not yet bootstrapped, we have to
+            # resume setting up after use_job_result
+            if self.sa.setting_up():
                 # prepare the session to re-start bootstrapping
                 self.sa.resume_setup()
             else:
@@ -617,7 +617,7 @@ class Launcher(MainLoopStage, ReportsStage):
             )
         result = MemoryJobResult(result_dict)
         self.sa.use_job_result(last_job, result)
-        if self.sa.setupping():
+        if self.sa.setting_up():
             self.setup()
             self.bootstrap()
         if "testplanless" not in metadata.flags:

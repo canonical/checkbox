@@ -80,7 +80,7 @@ class RemoteSessionStates(Enum):
     # session has started, test plan was selected
     Started = "started"
     # setup phase is ongoing
-    SettingUp = "setupping"
+    SettingUp = "setting_up"
     # setup phase is done, ready to bootstrap
     SetupCompleted = "setupped"
     # bootstrap phase is ongoing
@@ -967,7 +967,7 @@ class RemoteSessionAssistant:
             # if the session we are resuming was already bootstrapped, lets
             # re-bottstrap it silently
             self._sa.bootstrap()
-        elif SessionMetaData.FLAG_SETUPPING in meta.flags:
+        elif SessionMetaData.FLAG_SETTING_UP in meta.flags:
             self._sa.resume_setup()
         else:
             raise ValueError("Unable to resume session, unknown state")
@@ -986,7 +986,7 @@ class RemoteSessionAssistant:
                 job_state.attempts = self._launcher.get_value(
                     "ui", "max_attempts"
                 ) - len(job_state.result_history)
-        if SessionMetaData.FLAG_SETUPPING in meta.flags:
+        if SessionMetaData.FLAG_SETTING_UP in meta.flags:
             self.state = RemoteSessionStates.SettingUp
         else:
             self.state = RemoteSessionStates.TestsSelected

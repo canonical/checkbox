@@ -426,7 +426,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             return False
         # Resume the session if the last session was abandoned during the setup
         if (
-            SessionMetaData.FLAG_SETUPPING
+            SessionMetaData.FLAG_SETTING_UP
             in last_abandoned_session.metadata.flags
         ):
             return True

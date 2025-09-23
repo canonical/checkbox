@@ -403,7 +403,7 @@ class TestLauncher(TestCase):
         self_mock.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
         )
-        self_mock.sa.setupping.return_value = False
+        self_mock.sa.setting_up.return_value = False
 
         session_metadata_mock = (
             self_mock.sa.prepare_resume_session.return_value

@@ -701,9 +701,9 @@ class SessionSuspendHelper10(SessionSuspendHelper9):
 
     def _repr_SessionState(self, obj, session_dir):
         data = super()._repr_SessionState(obj, session_dir)
-        # In version 10 we dump all the jobs when setupping because during the
+        # In version 10 we dump all the jobs when setting up because during the
         # setup phase we don't know which jobs will eventually be "desired".
-        if obj.metadata.setupping:
+        if obj.metadata.setting_up:
             data["jobs"] = {
                 state.job.id: state.job.checksum
                 for state in obj.job_state_map.values()

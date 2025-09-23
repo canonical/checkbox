@@ -78,7 +78,7 @@ class SessionMetaData:
     # prepare the machine to be tested. Applications shou;d set this flag
     # after a session is created but before bootstrapping. Once the phase is
     # over, the application shoul procede with bootstrap as usual
-    FLAG_SETUPPING = "setupping"
+    FLAG_SETTING_UP = "setting_up"
 
     # Flag indicating that session is using hand-picked list of jobs
     # and is not following any test plan
@@ -129,16 +129,16 @@ class SessionMetaData:
                 self.flags.remove(self.FLAG_BOOTSTRAPPING)
 
     @property
-    def setupping(self) -> bool:
-        return self.FLAG_SETUPPING in self.flags
+    def setting_up(self) -> bool:
+        return self.FLAG_SETTING_UP in self.flags
 
-    @setupping.setter
-    def setupping(self, value):
+    @setting_up.setter
+    def setting_up(self, value):
         if value:
-            self.flags.add(self.FLAG_SETUPPING)
+            self.flags.add(self.FLAG_SETTING_UP)
         else:
             with suppress(KeyError):
-                self.flags.remove(self.FLAG_SETUPPING)
+                self.flags.remove(self.FLAG_SETTING_UP)
 
     @property
     def title(self):

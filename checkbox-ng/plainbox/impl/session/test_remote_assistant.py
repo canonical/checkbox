@@ -95,7 +95,7 @@ class RemoteAssistantTests(TestCase):
         self.assertEqual(self_mock.state, RemoteSessionStates.SetupCompleted)
         self.assertTrue(self_mock._sa.finish_setup.called)
 
-    def test_whats_up_seting_up(self):
+    def test_whats_up_setting_up(self):
         self_mock = mock.MagicMock()
         self_mock.state = RemoteSessionStates.SettingUp
         self_mock._last_job = "namespace::id"

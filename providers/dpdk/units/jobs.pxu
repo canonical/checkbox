@@ -1,0 +1,22 @@
+unit: template
+template-resource: dpdk_drivers
+template-id: dpdk/dpdk_hello_world_test_driver__name
+_template-summary: DPDK Hello World Tests
+plugin: shell
+category_id: dpdk
+id: networking/dpdk_hello_world_test_driver_{name}
+environ: TEST_TARGET_DTS DTS_TEST_SUITE DTS_CONFIG_FILE
+_summary: DPDK Hello World Tests for network device with driver {name}
+estimated_duration: 600.0
+imports: from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'meson'
+    executable.name == 'ninja'
+    manifest.has_dpdk == 'True'
+command:
+    dpdk.py --debug --driver {name} --config $DTS_CONFIG_FILE --test-suite $DTS_TEST_SUITE
+user: root
+_purpose:
+    This test verifies DPDK basic functionality by running Hello World Test on network interface with driver {name}.
+    It creates a configuration file that maps SUT and TG and interact with DPDK Test Suite (DTS) via SSH. 
+    DTS then automatically builds DPDK software on SUT and execute specified Test Suite. 

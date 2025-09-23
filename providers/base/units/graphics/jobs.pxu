@@ -324,7 +324,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/vulkaninfo-debug
 requires:
     executable.name == 'vulkaninfo'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible', 'Tablet', 'Detachable']
+    dmi.sane_product in ['portable', 'not-portable']
 user: root
 command:
   export VK_LOADER_DEBUG=all

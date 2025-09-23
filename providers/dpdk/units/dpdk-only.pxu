@@ -1,0 +1,21 @@
+id: dpdk-only
+_name: DPDK Only Test Plan (Only tests dpdk network devices)
+unit: test plan
+_description:
+    This test plan is intended to be used for testing of DPDK capable network devices
+    only. It provides DPDK functionality testing for supported NICs.
+    This should only be run on systems with dpdk capable network hardware.
+include:
+    networking/dpdk_setup                         certification-status=blocker
+    networking/dpdk_hello_world_test_driver_.*    certification-status=blocker
+    miscellanea/oops                              certification-status=non-blocker
+    miscellanea/oops_results.log                  certification-status=non-blocker
+    miscellanea/olog                              certification-status=blocker
+    miscellanea/olog_results.log
+    miscellanea/klog                              certification-status=blocker
+    miscellanea/klog_results.log
+bootstrap_include:
+    dpdk_drivers
+    executable
+    package
+    snap

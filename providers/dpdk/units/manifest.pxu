@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_dpdk
+_name: DPDK Network Adapter
+_prompt: Does this machine have a DPDK supported NIC?
+value-type: bool

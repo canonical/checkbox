@@ -551,3 +551,11 @@ category_id: information_gathering
 _summary: Check whether a desktop session is available and of which type.
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command: desktop_session_resource.py resources
+
+id: dpdk_drivers
+plugin: resource
+category_id: information_gathering
+estimated_duration: 0.05
+_summary: Generate a list with DPDK compatible drivers
+_description: Return only supported DPDK drivers from all available NICs
+command: dpdk_resource.py 

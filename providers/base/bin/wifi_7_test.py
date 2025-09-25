@@ -157,7 +157,6 @@ def parse_args():
     return parser.parse_args()
 
 
-@retry(5, 30)
 def connect(ssid: str, password: "str | None", interface: "str | None" = None):
     # delete the connection if we have it
     if (
@@ -228,7 +227,6 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
     raise SystemExit("Did not see '{}' in nmcli's scan output".format(ssid))
 
 
-@retry(5, 30)
 def disconnect(ssid: str):
     sp.check_call(
         ["nmcli", "connection", "delete", ssid],
@@ -271,7 +269,7 @@ def get_wifi_interface() -> str:
 
 
 @retry(30, 2)
-def run_iw_checks(wifi_interface: str, mlo_ssid: str):
+def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     """Runs the iw checks after connection
     - This assumes a connection to mlo_ssid is already established with nmcli
     - Retry 30 times, once every 2 seconds. We want to retry faster here
@@ -279,11 +277,14 @@ def run_iw_checks(wifi_interface: str, mlo_ssid: str):
 
     :param wifi_interface: name of the interface like wlan0
     :param mlo_ssid: ssid of the wifi7 access point
+    :param password: connection password
     :raises SystemExit: if ssid is not listed in iw dev
     :raises SystemExit: if iw shows that the connection is not a wifi 7 conn
     :raises SystemExit: if iw shows no MLO links or less than 2 links
     """
     PLAINBOX_SESSION_SHARE = Path(os.environ["PLAINBOX_SESSION_SHARE"])
+
+    connect(mlo_ssid, password, wifi_interface)
     iw_info_output = sp.check_output(
         ["iw", "dev", wifi_interface, "info"],
         universal_newlines=True,
@@ -294,6 +295,7 @@ def run_iw_checks(wifi_interface: str, mlo_ssid: str):
         universal_newlines=True,
         timeout=COMMAND_TIMEOUT,
     )
+    disconnect(mlo_ssid)
 
     # only dump the last check
     # TODO: is there a way to get the retry index?
@@ -402,9 +404,7 @@ def main():
         "Attempting to connect to '{}' on '{}'...".format(ssid, wifi_interface)
     )
 
-    connect(ssid, args.password, wifi_interface)
-    run_iw_checks(wifi_interface, args.mlo_ssid)
-    disconnect(ssid)
+    run_iw_checks(args.mlo_ssid, args.password, wifi_interface)
 
 
 if __name__ == "__main__":

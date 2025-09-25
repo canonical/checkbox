@@ -331,7 +331,7 @@ _purpose:
 plugin: shell
 user: root
 command:
-  wifi_7_test.py -m "$MLO_BE_SSID" -p "$MLO_BE_PSK" -i {{ interface }}
+  wifi_7_test.py -m "$MLO_SSID" -p "$MLO_PSK" -i {{ interface }}
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend

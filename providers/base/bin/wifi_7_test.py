@@ -174,7 +174,7 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
         print("Deleting existing connections of '{}'".format(ssid))
         sp.check_call(["nmcli", "connection", "delete", ssid])
 
-    # color is removed when nmcli detects its output is being piped
+    # color is removed when nmcli detects that its output is being piped
     # so we don't need to manually remove colors
 
     nmcli_output = sp.check_output(
@@ -195,7 +195,7 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
 
     for line in nmcli_output.splitlines():
         clean_line = line.strip()
-        # should match exactly, otherwise the nmcli connect is
+        # should match exactly, otherwise the nmcli connect call is
         # guaranteed to fail
         if ssid != clean_line:
             continue
@@ -282,10 +282,9 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     """
     The main "Connect -> Do iw checks -> Dump logs -> Disconnect" sequence
 
-    - This assumes a connection to mlo_ssid is already established with nmcli
-    - Retry 30 times, delay only 2 seconds between retries.
-      We want to retry faster here because wifi7 links are very sensitive
-      to the environment.
+    Retry 30 times, delay only 2 seconds between retries.
+    We want to retry faster here because wifi7 links are very sensitive
+    to the environment.
 
     :param wifi_interface: name of the interface like wlan0
     :param mlo_ssid: ssid of the wifi7 access point

@@ -158,6 +158,10 @@ def parse_args():
 
 
 def connect(ssid: str, password: "str | None", interface: "str | None" = None):
+    """Connect to wifi through nmcli
+
+    :raises SystemExit: if ssid cannot be found
+    """
     # delete the connection if we have it
     if (
         sp.run(
@@ -236,6 +240,11 @@ def disconnect(ssid: str):
 
 
 def get_wifi_interface() -> str:
+    """Get the default wifi interface's name by asking nmcli
+
+    :raises SystemExit: If there's no default interface
+    :return: name of the interface like wlan0
+    """
     wifi_interface = None  # type: str | None
     nmcli_output = sp.check_output(
         [
@@ -270,10 +279,12 @@ def get_wifi_interface() -> str:
 
 @retry(30, 2)
 def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
-    """Runs the iw checks after connection
+    """
+    The main "Connect -> Do iw checks -> Dump logs -> Disconnect" sequence
+
     - This assumes a connection to mlo_ssid is already established with nmcli
-    - Retry 30 times, delay only 2 seconds between retries. 
-      We want to retry faster here because wifi7 links are very sensitive 
+    - Retry 30 times, delay only 2 seconds between retries.
+      We want to retry faster here because wifi7 links are very sensitive
       to the environment.
 
     :param wifi_interface: name of the interface like wlan0

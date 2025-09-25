@@ -284,6 +284,12 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     """
     PLAINBOX_SESSION_SHARE = Path(os.environ["PLAINBOX_SESSION_SHARE"])
 
+    print(
+        "Attempting to connect to '{}' on '{}'...".format(
+            mlo_ssid, wifi_interface
+        )
+    )
+
     connect(mlo_ssid, password, wifi_interface)
     iw_info_output = sp.check_output(
         ["iw", "dev", wifi_interface, "info"],
@@ -389,7 +395,6 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
 
 def main():
     args = parse_args()
-    ssid = args.mlo_ssid
     if not args.interface:
         wifi_interface = get_wifi_interface()
         print(
@@ -399,10 +404,6 @@ def main():
         )
     else:
         wifi_interface = args.interface
-
-    print(
-        "Attempting to connect to '{}' on '{}'...".format(ssid, wifi_interface)
-    )
 
     run_iw_checks(args.mlo_ssid, args.password, wifi_interface)
 

@@ -21,6 +21,7 @@
 
 from checkbox_support.dbus.gnome_monitor import MutterDisplayMode as Mode
 from checkbox_support.helpers import display_info
+from collections import namedtuple
 from fractions import Fraction
 from typing import List
 import subprocess
@@ -30,8 +31,55 @@ import time
 import sys
 import os
 
+MIN_RESOLUTION = namedtuple("Resolution", "w h")(675, 530)
 
-def resolution_filter(modes: List[Mode]):
+
+def _is_too_small(mode: Mode) -> bool:
+    """
+    Checks if the resolution is too small.
+
+    :param mode:  The Mode that defined in checkbox_support.dbus.gnome_monitor
+    """
+    aspect = Fraction(mode.width, mode.height)
+    return (
+        mode.width < MIN_RESOLUTION.w or mode.width / aspect < MIN_RESOLUTION.h
+    )
+
+
+def _is_duplicate_resolution(mode: Mode, processed_resolutions: list):
+    """
+    Checks if the resolution is a duplicate.
+
+    :param mode:  The Mode that defined in checkbox_support.dbus.gnome_monitor
+
+    :param processed_resolutions: A list stores processed resolutions
+    """
+    return mode.resolution in processed_resolutions
+
+
+def _is_widest_per_aspect(mode: Mode, top_resolutions_per_aspect: dict):
+    """
+    Checks if the mode is the widest for its aspect ratio.
+
+    :param mode:  The Mode that defined in checkbox_support.dbus.gnome_monitor
+
+    :param top_resolutions_per_aspect: A Dict stores the top resolution
+                                       per aspect
+    """
+    aspect = Fraction(mode.width, mode.height)
+    if aspect not in top_resolutions_per_aspect:
+        top_resolutions_per_aspect[aspect] = (mode, mode.width)
+        return True
+
+    pre_mode, pre_width = top_resolutions_per_aspect[aspect]
+    if pre_width < mode.width:
+        top_resolutions_per_aspect[aspect] = (mode, mode.width)
+        return True
+
+    return False
+
+
+def resolution_filter(modes: List):
     """
     For filtering resolution then returning needed,
     Following will be ignored:
@@ -45,32 +93,28 @@ def resolution_filter(modes: List[Mode]):
                    in checkbox_support.dbus.gnome_monitor
     """
     new_modes = []
-    tmp_resolution = []
+    processed_resolutions = []
+    top_resolutions_per_aspect = {}
+
     sort_modes = sorted(
         modes, key=lambda m: int(m.resolution.split("x")[0]), reverse=True
     )
-    top_res_per_aspect = {}
+
     for m in sort_modes:
-        width, height = [int(x) for x in m.resolution.split("x")]
-        aspect = Fraction(width, height)
-        # Igonre the too small one
-        if width < 675 or width / aspect < 530:
+        # Ignore modes that are too small
+        if _is_too_small(m):
             continue
-        # Igonre the same one
-        if m.resolution in tmp_resolution:
+
+        # Ignore duplicate resolutions
+        if _is_duplicate_resolution(m, processed_resolutions):
             continue
-        # Only take the widthest one with the same aspect
-        if aspect not in top_res_per_aspect:
-            top_res_per_aspect[aspect] = (m, width)
+
+        # Keep the widest resolution for each aspect ratio
+        if _is_widest_per_aspect(m, top_resolutions_per_aspect):
             new_modes.append(m)
-        else:
-            pre_m, pre_width = top_res_per_aspect[aspect]
-            if pre_width < width:
-                # list of resolution is sorted and should not be here
-                top_res_per_aspect[aspect] = width
-                new_modes.append(m)
-                new_modes.remove(pre_m)
-        tmp_resolution.append(m.resolution)
+
+        # Add the resolution to the list of processed resolutions
+        processed_resolutions.append(m.resolution)
 
     return new_modes
 

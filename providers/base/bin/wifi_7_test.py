@@ -13,7 +13,7 @@ The checks come from this guide:
 https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wi-Fi_7_(802.11be)_Technical_Guide  # noqa: E501
 
 Prerequisites for running this test:
-- 6.14+ kernel (24.04.3+ is ok!)
+- 6.14+ kernel (the kernels in 24.04.3 and newer versions are ok!)
 - wpasupplicant >= 2.11 (it's coming to 24.04 soon)
 - The AP specified in -m/--mlo-ssid is assumed to support wifi 7
   and have MLO enabled
@@ -21,13 +21,17 @@ Prerequisites for running this test:
 
 import argparse
 import itertools
+import os
 import subprocess as sp
 import typing as T
+from pathlib import Path
 from sys import stderr
 
 from checkbox_support.helpers.retry import retry
+from checkbox_support.helpers.slugify import slugify
 
 COMMAND_TIMEOUT = 120
+PLAINBOX_SESSION_SHARE = Path(os.environ["PLAINBOX_SESSION_SHARE"])
 
 
 def remove_prefix(s: str, prefix: str) -> str:
@@ -290,6 +294,22 @@ def run_iw_checks(wifi_interface: str, mlo_ssid: str):
         universal_newlines=True,
         timeout=COMMAND_TIMEOUT,
     )
+
+    # only dump the last check
+    # TODO: is there a way to get the retry index?
+    with open(
+        PLAINBOX_SESSION_SHARE
+        / slugify("iw_info_{}_{}".format(wifi_interface, mlo_ssid)),
+        "w",
+    ) as f:
+        f.write(iw_info_output)
+
+    with open(
+        PLAINBOX_SESSION_SHARE
+        / slugify("iw_link_{}_{}".format(wifi_interface, mlo_ssid)),
+        "w",
+    ) as f:
+        f.write(iw_link_output)
 
     if mlo_ssid not in iw_info_output:
         raise SystemExit(

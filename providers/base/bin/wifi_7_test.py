@@ -311,6 +311,8 @@ def run_iw_checks(wifi_interface: str, mlo_ssid: str):
     ) as f:
         f.write(iw_link_output)
 
+    print("iw outputs have been saved to {}".format(PLAINBOX_SESSION_SHARE))
+
     if mlo_ssid not in iw_info_output:
         raise SystemExit(
             "Interface '{}' was not connected to SSID '{}'".format(

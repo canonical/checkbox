@@ -1,3 +1,4 @@
+import os
 import subprocess
 import unittest as ut
 from contextlib import suppress
@@ -22,9 +23,11 @@ class TestStrUtils(ut.TestCase):
         self.assertEqual(w7.remove_suffix("pre", "pref123"), "pre")
 
 
+@patch.dict(os.environ, {"PLAINBOX_SESSION_SHARE": "session-share"}, clear=True)
 class TestWifi7Tests(ut.TestCase):
 
     @mock_retry()
+    @patch("builtins.open")
     @patch("time.sleep")
     @patch("subprocess.run")
     @patch("subprocess.check_call")
@@ -34,7 +37,8 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_run: MagicMock,
-        _,
+        mock_sleep,
+        mock_open,
     ):
         def fake_check_output(args: "list[str]", *other_args, **kwargs):
             iface = "wlp0s20f3"
@@ -115,6 +119,7 @@ class TestWifi7Tests(ut.TestCase):
                 )
 
     @mock_retry()
+    @patch("builtins.open")
     @patch("time.sleep")
     @patch(
         "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
@@ -127,7 +132,8 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_run: MagicMock,
-        _,
+        mock_sleep,
+        mock_open,
     ):
         def fake_check_output(args: "list[str]", *other_args, **kwargs):
             iface = "wlp0s20f3"
@@ -174,6 +180,7 @@ class TestWifi7Tests(ut.TestCase):
         self.assertRaises(SystemExit, w7.main)
 
     @mock_retry()
+    @patch("builtins.open")
     @patch("time.sleep")
     @patch(
         "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
@@ -186,7 +193,8 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_run: MagicMock,
-        _,
+        mock_sleep,
+        mock_open,
     ):
         # device doesn't have wifi
         mock_check_output.return_value = "\n".join(
@@ -234,6 +242,7 @@ class TestWifi7Tests(ut.TestCase):
             w7.main()
 
     @mock_retry()
+    @patch("builtins.open")
     @patch("time.sleep")
     @patch("sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME])
     @patch("subprocess.run")
@@ -244,7 +253,8 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_run: MagicMock,
-        _,
+        mock_sleep,
+        mock_open,
     ):
 
         mock_check_output.return_value = "\n".join(

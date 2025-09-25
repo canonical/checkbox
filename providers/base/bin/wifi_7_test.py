@@ -31,7 +31,6 @@ from checkbox_support.helpers.retry import retry
 from checkbox_support.helpers.slugify import slugify
 
 COMMAND_TIMEOUT = 120
-PLAINBOX_SESSION_SHARE = Path(os.environ["PLAINBOX_SESSION_SHARE"])
 
 
 def remove_prefix(s: str, prefix: str) -> str:
@@ -284,6 +283,7 @@ def run_iw_checks(wifi_interface: str, mlo_ssid: str):
     :raises SystemExit: if iw shows that the connection is not a wifi 7 conn
     :raises SystemExit: if iw shows no MLO links or less than 2 links
     """
+    PLAINBOX_SESSION_SHARE = Path(os.environ["PLAINBOX_SESSION_SHARE"])
     iw_info_output = sp.check_output(
         ["iw", "dev", wifi_interface, "info"],
         universal_newlines=True,

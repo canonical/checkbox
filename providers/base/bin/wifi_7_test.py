@@ -299,14 +299,14 @@ def run_iw_checks(wifi_interface: str, mlo_ssid: str):
     # TODO: is there a way to get the retry index?
     with open(
         PLAINBOX_SESSION_SHARE
-        / slugify("iw_info_{}_{}".format(wifi_interface, mlo_ssid)),
+        / slugify("iw_info_{}_{}.log".format(wifi_interface, mlo_ssid)),
         "w",
     ) as f:
         f.write(iw_info_output)
 
     with open(
         PLAINBOX_SESSION_SHARE
-        / slugify("iw_link_{}_{}".format(wifi_interface, mlo_ssid)),
+        / slugify("iw_link_{}_{}.log".format(wifi_interface, mlo_ssid)),
         "w",
     ) as f:
         f.write(iw_link_output)

@@ -272,8 +272,9 @@ def get_wifi_interface() -> str:
 def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     """Runs the iw checks after connection
     - This assumes a connection to mlo_ssid is already established with nmcli
-    - Retry 30 times, once every 2 seconds. We want to retry faster here
-      because wifi7 links are sensitive to the environment.
+    - Retry 30 times, delay only 2 seconds between retries. 
+      We want to retry faster here because wifi7 links are very sensitive 
+      to the environment.
 
     :param wifi_interface: name of the interface like wlan0
     :param mlo_ssid: ssid of the wifi7 access point

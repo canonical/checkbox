@@ -299,7 +299,9 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     print(
         "Attempting to connect to '{}' on '{}'...".format(
             mlo_ssid, wifi_interface
-        )
+        ),
+        # force a flush to print this before the connection
+        flush=True,
     )
 
     connect(mlo_ssid, password, wifi_interface)

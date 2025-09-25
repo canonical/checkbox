@@ -322,16 +322,16 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
-id: wireless/wifi7_specific_features_{{ interface }}
-template-id: wireless/wifi7_specific_features_interface
+id: wireless/wifi7_mlo_{{ interface }}
+template-id: wireless/wifi7_mlo_interface
 depends: wireless/detect
-_summary: Test Wi-Fi 7 Specific Features on {{ interface }}
+_summary: Test Wi-Fi 7 Multi-Link-Operation (MLO) on {{ interface }}
 _purpose:
   Check if the DUT supports Wi-Fi 7 features like Multi-Link-Operation
 plugin: shell
 user: root
 command:
-  wifi_7_test.py -m "$WPA3_BE_SSID" -p "$WPA3_BE_PSK"
+  wifi_7_test.py -m "$MLO_BE_SSID" -p "$MLO_BE_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend

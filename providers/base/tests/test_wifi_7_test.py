@@ -23,7 +23,9 @@ class TestStrUtils(ut.TestCase):
         self.assertEqual(w7.remove_suffix("pre", "pref123"), "pre")
 
 
-@patch.dict(os.environ, {"PLAINBOX_SESSION_SHARE": "session-share"}, clear=True)
+@patch.dict(
+    os.environ, {"PLAINBOX_SESSION_SHARE": "session-share"}, clear=True
+)
 class TestWifi7Tests(ut.TestCase):
 
     @mock_retry()

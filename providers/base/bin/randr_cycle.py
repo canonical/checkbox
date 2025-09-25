@@ -36,7 +36,7 @@ def resolution_filter(modes: List[Mode]):
     For filtering resolution then returning needed,
     Following will be ignored:
     1. aspect is too small
-    2. the same resoultion
+    2. the same resolution
     3. smaller width with the same aspect
     This function will be called by the cycle method in the
     checkbox_support.dbus.gnome_monitor

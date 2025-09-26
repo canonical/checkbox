@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+source $(dirname "$0")/setup-env.sh
+
+sudo apt update -y
+sudo apt install -y build-essential cmake libpng-dev clang python3-pip meson glslang-tools pkg-config cmake libgl1 mesa-common-dev libglfw3-dev libgles2-mesa-dev wayland-protocols
+pip3 install lxml --break-system-packages
+
+echo "Installing VK-GL-CTS for OpenGL"
+cd $WORKING_DIR
+git clone https://github.com/KhronosGroup/VK-GL-CTS
+cd VK-GL-CTS
+git checkout opengl-cts-4.6.6.0
+python3 external/fetch_sources.py
+mkdir build && cd build
+cmake .. -DDEQP_TARGET=default
+# 64GB RAM wasn't enough for -j. Add nproc
+make -j`nproc`
+sudo mv $WORKING_DIR/VK-GL-CTS $INSTALL_DIR/GL-CTS

@@ -28,9 +28,11 @@ import json
 import socket
 import fcntl
 import struct
+from checkbox_support.helpers.retry import retry
 
 
-def send_request_to_wol_server(url, data=None, retry=3):
+@retry(max_attempts=3, delay=2)
+def send_request_to_wol_server(url, data=None):
     # Convert data to JSON format
     data_encoded = json.dumps(data).encode("utf-8")
 
@@ -38,37 +40,71 @@ def send_request_to_wol_server(url, data=None, retry=3):
     headers = {"Content-Type": "application/json"}
     req = urllib.request.Request(url, data=data_encoded, headers=headers)
 
-    attempts = 0
-    while attempts < retry:
-        try:
-            with urllib.request.urlopen(req) as response:
-                logging.info("in the urllib request.")
-                response_data = json.loads(response.read().decode("utf-8"))
-                logging.debug(
-                    "Response message: {}".format(response_data["message"])
+    logging.info("Sending request to Wake-on-LAN server.")
+
+    try:
+        with urllib.request.urlopen(req) as response:
+            logging.info("In the urllib request.")
+            response_data = json.loads(response.read().decode("utf-8"))
+            logging.debug(
+                "Response message: {}".format(response_data["message"])
+            )
+            status_code = response.status
+            logging.debug("Status code: {}".format(status_code))
+
+            if status_code == 200:
+                logging.info(
+                    "Request to Wake-on-LAN server sent successfully."
                 )
-                status_code = response.status
-                logging.debug("Status code: {}".format(status_code))
-                if status_code == 200:
-                    logging.info(
-                        "Request to Wake-on-LAN server sent successfully."
+                return
+            else:
+                # If the status code is not 200, we regard the attempt as
+                # failed and throw an exception so that the decorator can
+                # catch it and retry.
+                raise RuntimeError(
+                    "WOL server returned non-200 status: {}".format(
+                        status_code
                     )
-                    return
-                else:
-                    logging.error(
-                        "Failed to send request to Wake-on-LAN server."
-                    )
-        except Exception as e:
-            logging.error("An unexpected error occurred: {}".format(e))
+                )
 
-        attempts += 1
-        time.sleep(1)  # Wait for a second before retrying
-        logging.debug("Retrying... ({}/{})".format(attempts, retry))
+    except urllib.error.URLError as e:
+        # Handle connection errors like "Connection refused"
+        error_msg = "Failed to connect to WOL server {}: {}".format(
+            url, e.reason
+        )
 
-    raise SystemExit(
-        "Failed to send request to WOL server. "
-        "Please ensure the WOL server setup correctlly."
-    )
+        # Provide more specific error messages for common connection issues
+        if hasattr(e.reason, "errno"):
+            if e.reason.errno == 111:  # Connection refused
+                error_msg = (
+                    "Connection refused - WOL server may not be "
+                    "running at {}".format(url)
+                )
+            elif e.reason.errno == 110:  # Connection timed out
+                error_msg = (
+                    "Connection timed out - server took too long to "
+                    "respond at {}".format(url)
+                )
+
+        logging.error(error_msg)
+        # Re-raise as RuntimeError to trigger retry mechanism
+        raise RuntimeError(error_msg) from e
+
+    except json.JSONDecodeError as e:
+        # Handle JSON parsing errors
+        error_msg = "Failed to parse server response as JSON: {}".format(e)
+        logging.error(error_msg)
+        raise RuntimeError(error_msg) from e
+
+    except Exception as e:
+        # Catch any other unexpected exceptions
+        error_msg = (
+            "Unexpected error while sending request to WOL server: {}".format(
+                e
+            )
+        )
+        logging.error(error_msg)
+        raise RuntimeError(error_msg) from e
 
 
 def check_wakeup(interface):
@@ -241,7 +277,7 @@ def main():
         )
 
     delay = args.delay
-    retry = args.retry
+    num_retry = args.retry
 
     ip = get_ip_address(args.interface)
     mac = get_mac_address(args.interface)
@@ -260,9 +296,9 @@ def main():
         "wake_type": args.waketype,
     }
 
-    send_request_to_wol_server(url, data=req, retry=retry)
+    send_request_to_wol_server(url, data=req)
 
-    bring_up_system("rtc", delay * retry * 2)
+    bring_up_system("rtc", delay * num_retry * 2)
 
     # write the time stamp
     write_timestamp(args.timestamp_file)

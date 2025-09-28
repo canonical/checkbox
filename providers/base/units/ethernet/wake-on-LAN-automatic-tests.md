@@ -31,7 +31,7 @@ DUT:
       - The time (in seconds) to wait between sending the Wake-on-LAN packet and checking for a response from the target device.
       - Example: WAKE_ON_LAN_DELAY=60
     - WAKE_ON_LAN_RETRY
-      - The number of times to retry sending the Wake-on-LAN packet if the initial attempt fails.
+      - The number of times the server retries sending the Wake-on-LAN packet if the initial attempt fails.
       - Example: WAKE_ON_LAN_RETRY=3
 
 ## Test scripts

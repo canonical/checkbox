@@ -36,7 +36,10 @@ from wol_client import (
     main,
 )
 
+from checkbox_support.helpers.retry import mock_retry
 
+
+@mock_retry()
 class TestSendRequestToWolServerFunction(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_send_request_success(self, mock_urlopen):
@@ -61,14 +64,17 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
         mock_response.read.return_value = json.dumps(
             {"message": "failure"}
         ).encode("utf-8")
-        mock_response.getcode.return_value = 400
-        mock_urlopen.return_value = mock_response
+        mock_response.status = 400
         mock_urlopen.return_value.__enter__.return_value = mock_response
 
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(RuntimeError) as context:
             send_request_to_wol_server(
                 "http://192.168.1.1", data={"key": "value"}
             )
+
+        self.assertIn(
+            "WOL server returned non-200 status: 400", str(context.exception)
+        )
 
     @patch("urllib.request.urlopen")
     def test_send_request_failed_response_not_success(self, mock_urlopen):
@@ -76,26 +82,49 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
         mock_response.read.return_value = json.dumps(
             {"message": "failure"}
         ).encode("utf-8")
-        mock_response.getcode.return_value = 500
-        mock_urlopen.return_value = mock_response
+
+        mock_response.status = 500
         mock_urlopen.return_value.__enter__.return_value = mock_response
 
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(RuntimeError) as context:
             send_request_to_wol_server(
                 "http://192.168.1.1", data={"key": "value"}
             )
+
+        self.assertIn(
+            "WOL server returned non-200 status: 500", str(context.exception)
+        )
+
+    @patch("wol_client.urllib.request.urlopen")
+    def test_json_decode_error(self, mock_urlopen):
+        # Mock json decode error
+        mock_response = MagicMock()
+        mock_response.status = 200
+        mock_response.read.return_value = b"Invalid JSON response"
+        mock_response.__enter__.return_value = mock_response
+
+        mock_urlopen.return_value = mock_response
+
+        with self.assertRaises(RuntimeError) as context:
+            send_request_to_wol_server(
+                "http://192.168.1.1", data={"key": "value"}
+            )
+
+        self.assertIn(
+            "Failed to parse server response as JSON", str(context.exception)
+        )
 
     @patch("urllib.request.urlopen")
     def test_send_request_unexpected_exception(self, mock_urlopen):
         # Mock an unexpected exception
         mock_urlopen.side_effect = Exception("Unexpected error")
 
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(Exception) as context:
             send_request_to_wol_server(
                 "http://192.168.1.1", data={"key": "value"}
             )
 
-        self.assertEqual(mock_urlopen.call_count, 3)
+        self.assertIn("Unexpected error", str(context.exception))
 
 
 class TestCheckWakeup(unittest.TestCase):
@@ -423,7 +452,6 @@ class TestMainFunction(unittest.TestCase):
                 "retry_times": 3,
                 "wake_type": "magic_packet",
             },
-            retry=3,
         )
         mock_bring_up_system.assert_called_once_with("rtc", 10 * 3 * 2)
         mock_write_timestamp.assert_called_once_with("/tmp/timestamp")

@@ -44,6 +44,8 @@ from plainbox.impl.session.resume import (
     IncompatibleJobError,
     CorruptedSessionError,
 )
+
+from plainbox.impl.session import SessionMetaData
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
@@ -374,6 +376,8 @@ class Launcher(MainLoopStage, ReportsStage):
                     return False
 
                 self.sa.select_test_plan(app_blob["testplan_id"])
+                if SessionMetaData.FLAG_SETTING_UP in self.sa._metadata.flags:
+                    return True
                 self.sa.bootstrap()
 
                 if not metadata.running_job_name:
@@ -548,7 +552,9 @@ class Launcher(MainLoopStage, ReportsStage):
         """
         Resumes the session with the given session_id assigning to the latest
         running job the given outcome. If outcome is not provided it will be
-        calculated from the function _get_autoresume_outcome_last_job
+        calculated from the function _get_autoresume_outcome_last_job. The
+        function calling this function expects the session to be ready (post
+        bootstrap for sessions with a testplan)
         """
         metadata = self.sa.prepare_resume_session(session_id)
         if "testplanless" not in metadata.flags:
@@ -556,7 +562,14 @@ class Launcher(MainLoopStage, ReportsStage):
             test_plan_id = app_blob["testplan_id"]
             self.load_configs_from_app_blob(app_blob)
             self.sa.select_test_plan(test_plan_id)
-            self.sa.bootstrap()
+            # when setting up, the testplan is not yet bootstrapped, we have to
+            # resume setting up after use_job_result
+            if self.sa.setting_up():
+                # prepare the session to re-start bootstrapping
+                self.sa.resume_setup()
+            else:
+                self.sa.bootstrap()
+
             if outcome is None:
                 outcome = self._get_autoresume_outcome_last_job(metadata)
 
@@ -604,6 +617,22 @@ class Launcher(MainLoopStage, ReportsStage):
             )
         result = MemoryJobResult(result_dict)
         self.sa.use_job_result(last_job, result)
+        if self.sa.setting_up():
+            self.setup()
+            self.bootstrap()
+        if "testplanless" not in metadata.flags:
+            self.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
+
+    def bootstrap(self):
+        bs_jobs = self.sa.start_bootstrap()
+        self._run_bootstrap_jobs(bs_jobs)
+        self.sa.finish_bootstrap()
+
+    def setup(self):
+        setup_jobs = self.sa.start_setup()
+        failed_setups = self._run_setup_jobs(setup_jobs)
+        self.sa.finish_setup()
+        return failed_setups
 
     def _start_new_session(self):
         print(_("Preparing..."))
@@ -661,9 +690,10 @@ class Launcher(MainLoopStage, ReportsStage):
             except FileNotFoundError:
                 pass
         self.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
-        bs_jobs = self.sa.start_bootstrap()
-        self._run_bootstrap_jobs(bs_jobs)
-        self.sa.finish_bootstrap()
+        failed_setups = self.setup()
+        if failed_setups:
+            raise SystemExit("Failed to prepare the machine")
+        self.bootstrap()
 
     def _delete_old_sessions(self, ids):
         completed_ids = [s[0] for s in self.sa.get_old_sessions()]

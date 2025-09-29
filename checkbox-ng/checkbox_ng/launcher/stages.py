@@ -38,6 +38,8 @@ from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.unit.exporter import ExporterError
+from plainbox.impl.color import Colorizer
+from plainbox.impl.session.assistant import SessionAssistant
 
 from checkbox_ng.launcher.run import (
     Action,
@@ -72,12 +74,12 @@ class CheckboxUiStage(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def sa(self):
+    def sa(self) -> SessionAssistant:
         """SessionAssistant instance to use."""
 
     @property
     @abc.abstractmethod
-    def C(self):
+    def C(self) -> Colorizer:
         """Colorizer instance to use."""
 
     @property
@@ -361,20 +363,37 @@ class MainLoopStage(CheckboxUiStage):
         return CheckboxUI(self.C.c, show_cmd_output=show_out)
 
     def _run_jobs(self, jobs_to_run):
+        # some jobs here could have been already executed because we are
+        # resuming the session, lets filter them out
+        job_id_def_states = [
+            (job_id, self.sa.get_job(job_id), self.sa.get_job_state(job_id))
+            for job_id in jobs_to_run
+        ]
+
+        def job_done(job_state) -> bool:
+            return job_state.result.outcome != IJobResult.OUTCOME_NONE
+
+        already_done = list(
+            filter(lambda x: job_done(x[2]), job_id_def_states)
+        )
+        still_todo = list(
+            filter(lambda x: not job_done(x[2]), job_id_def_states)
+        )
         # some jobs that are planned to be run don't have an
         # estimated_duration defined, but we still want to keep track of
         # the ones that do.  if any of the job doesn't have it we have to
         # add "at least" to the estimate
         estimated_time = 0
         had_unknown_time = False
-        for job_id in jobs_to_run:
-            job = self.sa.get_job(job_id)
-            if job.estimated_duration is not None:
-                estimated_time += job.estimated_duration
+        for job_id, job_def, job_state in still_todo:
+            if job_def.estimated_duration is not None:
+                estimated_time += job_def.estimated_duration
             else:
                 had_unknown_time = True
         header = _("Running job {} / {}. Estimated time left{}: {}")
-        for job_no, job_id in enumerate(jobs_to_run, start=1):
+        for job_no, (job_id, job_def, job_state) in enumerate(
+            still_todo, start=len(already_done) + 1
+        ):
             print(
                 self.C.header(
                     header.format(
@@ -386,13 +405,30 @@ class MainLoopStage(CheckboxUiStage):
                     )
                 )
             )
-            job = self.sa.get_job(job_id)
             builder = self._run_single_job_with_ui_loop(
-                job, self._get_ui_for_job(job)
+                job_def, self._get_ui_for_job(job_def)
             )
             result = builder.get_result()
             self.sa.use_job_result(job_id, result)
-            estimated_time -= job.estimated_duration or 0
+            estimated_time -= job_def.estimated_duration or 0
+
+    def _run_setup_jobs(self, jobs_to_run):
+        """
+        Runs a list of setup jobs and returns a list with those that failed
+        or crashed.
+        """
+        self._run_jobs(jobs_to_run)
+        job_id_outcome = (
+            (job_id, self.sa.get_job_state(job_id).result.outcome)
+            for job_id in jobs_to_run
+        )
+        return list(
+            filter(
+                lambda x: x[1]
+                in [IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH],
+                job_id_outcome,
+            )
+        )
 
     def _run_bootstrap_jobs(self, jobs_to_run):
         for job_no, job_id in enumerate(jobs_to_run, start=1):

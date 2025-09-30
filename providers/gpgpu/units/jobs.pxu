@@ -84,8 +84,6 @@ category_id: gpgpu
 plugin: shell
 estimated_duration: 1m 45s
 environ:
-    LXD_GPU_THRESHOLD
-    LXD_GPU_RUNS
     QEMU_OPTS
     VM_RAM_MB
     VM_CPUS
@@ -105,6 +103,10 @@ requires:
 category_id: gpgpu
 plugin: shell
 estimated_duration: 12m
+environ:
+    QEMU_OPTS
+    VM_RAM_MB
+    VM_CPUS
 command: gpu_passthrough.py -v --vendor=nvidia --pci={pci_device_name} lxdvm
 _purpose: Creates a LXD virtual machine and passes {pci_device_name} GPU through
 _summary: Test LXD VM GPU passthrough on NVIDIA GPU {pci_device_name}

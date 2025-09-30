@@ -17,7 +17,6 @@ command:
     exit 1
   fi
   echo "PASS: Using HW rendering"
-  exit 0
 
 id: gfx_mesa_gl_sru_info
 category_id: mesa

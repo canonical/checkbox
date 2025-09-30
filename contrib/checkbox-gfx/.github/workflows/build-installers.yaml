@@ -46,7 +46,7 @@ jobs:
             opencl:
               - 'bin/install-opencl'
             opengl:
-	      - 'bin/install-opengl'
+              - 'bin/install-opengl'
 
   manual-build:
     if: github.event_name == 'workflow_dispatch'

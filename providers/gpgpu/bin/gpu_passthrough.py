@@ -28,7 +28,7 @@ from checkbox_support.lxd_support import LXD, LXDVM
 
 GPU_VENDORS = {
     "nvidia": {
-        "test": "sudo mixbench.cuda",
+        "test": "gpu-burn 30",
         "lxd": {
             "launch_options": [
                 "-c",
@@ -101,7 +101,7 @@ def test_lxd_gpu(args):
         instance.wait_until_running()
 
         logging.info("Installing mixbench snap")
-        instance.run("snap install mixbench", on_guest=True)
+        instance.run("snap install gpu-burn", on_guest=True)
 
         run_gpu_test(instance, GPU_VENDORS[args.vendor]["test"])
 
@@ -162,7 +162,7 @@ def test_lxdvm_gpu(args):
         instance.wait_until_running()
 
         logging.info("Installing mixbench snap")
-        instance.run("snap install mixbench", on_guest=True)
+        instance.run("snap install gpu-burn", on_guest=True)
 
         run_gpu_test(instance, GPU_VENDORS[args.vendor]["test"])
 

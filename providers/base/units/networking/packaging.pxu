@@ -1,6 +1,16 @@
 unit: packaging meta-data
 os-id: debian
-Depends: ntpdate, net-tools, ethtool
+Depends: net-tools, ethtool
+
+unit: packaging meta-data
+os-id: ubuntu
+os-version-id: < 22.04
+Depends: ntpdate
+
+unit: packaging meta-data
+os-id: ubuntu
+os-version-id: >= 22.04
+Depends: ntpsec-ntpdate
 
 unit: packaging meta-data
 os-id: debian

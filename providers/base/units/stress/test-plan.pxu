@@ -290,7 +290,7 @@ _name: Automated stress-ng tests
 _description: Automated stress-ng tests for Snappy Ubuntu Core devices
 include:
     stress/stress-ng-test-for-stressor-.*
-    disk/disk_stress_ng_.*
+    disk/disk_stress_ng_name
 bootstrap_include:
     device
     stress-ng-stressors

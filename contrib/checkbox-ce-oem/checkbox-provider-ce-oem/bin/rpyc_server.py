@@ -21,6 +21,10 @@ LIBS = {
         "source": os.path.join(CHECKBOX_PROVIDER_CEOEM_PATH, "serial_test.py"),
         "function": "server_mode",
     },
+    "serial_client_test": {
+        "source": os.path.join(CHECKBOX_PROVIDER_CEOEM_PATH, "serial_test.py"),
+        "function": "client_mode",
+    },
     "serial_check": {
         "source": os.path.join(
             CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"

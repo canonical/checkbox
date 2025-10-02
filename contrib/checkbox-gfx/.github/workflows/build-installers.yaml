@@ -34,6 +34,7 @@ jobs:
     outputs:
       vulkan: ${{ steps.changes.outputs.vulkan }}
       opencl: ${{ steps.changes.outputs.opencl }}
+      opengl: ${{ steps.changes.outputs.opengl }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -44,12 +45,14 @@ jobs:
               - 'bin/install-vulkan'
             opencl:
               - 'bin/install-opencl'
+            opengl:
+              - 'bin/install-opengl'
 
   manual-build:
     if: github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
-        test_name: [vulkan, opencl]
+        test_name: [vulkan, opencl, opengl]
     name: "Manual Build - ${{ matrix.test_name }}"
     runs-on: [self-hosted, linux, "${{ inputs.arch }}", "${{ inputs.version }}"]
 
@@ -122,4 +125,31 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: output-opencl-${{ matrix.arch }}
+          path: /usr/local/checkbox-gfx/*
+
+  pr-build-opengl:
+    needs: changes
+    # needs.changes only runs if the event is a PR
+    if: needs.changes.outputs.opengl == 'true'
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    name: "Installer testing - OpenGL CTS"
+    runs-on: [self-hosted, linux, "${{ matrix.arch }}", noble]
+
+    steps:
+      - name: "Installers - OpenGL - ${{ matrix.arch }}"
+        run: echo "Running OpenGL ${{ matrix.arch }} install"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run install-opengl
+        shell: bash
+        run: bin/install-opengl
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-opengl-${{ matrix.arch }}
           path: /usr/local/checkbox-gfx/*

@@ -13,3 +13,25 @@ include:
     gfx_cl_.*
 bootstrap_include:
     com.canonical.certification::executable
+
+id: opengl-test-plan
+unit: test plan
+_name: GFX test plan for verifying OpenGL
+include:
+  gfx_mesa_gl_sru.*
+  gfx_mesa_gl_longrun.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    graphics_card
+
+id: opengl-test-plan-sru
+unit: test plan
+_name: Shorter GFX test plan for verifying OpenGL
+include:
+  gfx_mesa_gl_sru_.*
+  gfx_mesa_gl_extra_sru.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    graphics_card

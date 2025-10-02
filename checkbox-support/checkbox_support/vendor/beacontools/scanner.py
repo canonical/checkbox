@@ -19,7 +19,10 @@ from .const import (CJ_MANUFACTURER_ID, EDDYSTONE_UUID,
                     BluetoothAddressType, ScanFilter, ScannerMode, ScanType,
                     OCF_LE_SET_EXT_SCAN_PARAMETERS, OCF_LE_SET_EXT_SCAN_ENABLE,
                     EVT_LE_EXT_ADVERTISING_REPORT, OGF_INFO_PARAM,
-                    OCF_READ_LOCAL_VERSION, EVT_CMD_COMPLETE)
+                    OCF_LE_READ_LOCAL_SUPPORTED_FEATURES,
+                    OCF_READ_LOCAL_VERSION, EVT_CMD_COMPLETE,
+                    HCI_MAX_EVENT_PKT_SIZE)
+from .structs.common import HciAdReportEvent
 from .const import MetaEventReportTypeEnum as MERTE
 from .device_filters import BtAddrFilter, DeviceFilter
 from .packet_types import (EddystoneEIDFrame, EddystoneEncryptedTLMFrame,
@@ -154,11 +157,14 @@ class Monitor(threading.Thread):
         self.socket = self.backend.open_dev(self.bt_device_id)
 
         self.hci_version = self.get_hci_version()
+        self.support_ext_advertising = self.is_le_extended_advertising_support()
+        _LOGGER.info("# Extended advertising support: %s", self.support_ext_advertising)
+
         self.set_scan_parameters(**self.scan_parameters)
         self.toggle_scan(True)
 
         while self.keep_going:
-            pkt = self.socket.recv(255)
+            pkt = self.socket.recv(HCI_MAX_EVENT_PKT_SIZE)
             event = to_int(pkt[1])
 
             # Print opcode and error code when HCI command failed
@@ -212,6 +218,56 @@ class Monitor(threading.Thread):
         except (ConstructError, NotImplementedError):
             return HCIVersion.BT_CORE_SPEC_1_0
 
+    def is_le_extended_advertising_support(self):
+        is_supported = False
+        _LOGGER.info("# Checking the LE Extended advertising capability")
+        resp = self.backend.send_req(
+            self.socket,
+            OGF_LE_CTL,
+            OCF_LE_READ_LOCAL_SUPPORTED_FEATURES,
+            EVT_CMD_COMPLETE,
+            1000,
+            bytes(),
+            0,
+        )
+        _LOGGER.info("Received response from controller.")
+        # The response is a binary string containing the event data.
+        # For a successful Command Complete event for this command, the structure is:
+        # Index 0-2: Event header (already processed by hci_send_req)
+        # Index 3: Status (1 byte). 0x00 means success.
+        # Index 4-11: LE Features (8 bytes / 64 bits). This is the feature mask.
+        status, data = struct.unpack_from("<B8s", resp)
+
+        if status != 0:
+            _LOGGER.error("HCI command failed with status 0x%02x.", status)
+            return False
+        _LOGGER.info("Raw 8-byte LE feature mask: %s", data.hex(' '))
+
+        # According to the Bluetooth Core Specification (v5.0+), support for
+        # "LE Extended Advertising" is indicated by bit 12 of the 64-bit feature mask.
+        #
+        # Let's break down the 8-byte (64-bit) mask:
+        # Byte 0: bits 0-7
+        # Byte 1: bits 8-15
+        # ... and so on.
+        #
+        # Bit 12 falls within the second byte (Byte 1).
+        # Specifically, it is the 5th bit within that byte (12 % 8 = 4).
+        # Bit position (0-indexed): 0 1 2 3 [4] 5 6 7
+        # Bit value:               1 2 4 8 [16] 32 64 128
+        #
+        # So we need to check if the 5th bit (value 16 or 0x10) is set in the second byte.
+
+        # Extract the second byte (index 1)
+        byte_1 = data[1]
+
+        # Check if the 5th bit (mask 0x10) is set
+        # (1 << 4) is a programmatic way to create the mask for the 5th bit (0x10).
+        if (byte_1 & (1 << 4)):
+            is_supported = True
+
+        return is_supported
+
     def set_scan_parameters(self, scan_type=ScanType.ACTIVE, interval_ms=10, window_ms=10,
                             address_type=BluetoothAddressType.RANDOM, filter_type=ScanFilter.ALL):
         """"Sets the le scan parameters
@@ -237,7 +293,7 @@ class Monitor(threading.Thread):
         Raises:
             ValueError: A value had an unexpected format or was not in range
         """
-        max_interval = (0x4000 if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0 else 0xFFFF)
+        max_interval = (0xFFFF if self.support_ext_advertising else 0x4000)
         interval_fractions = interval_ms / MS_FRACTION_DIVIDER
         if interval_fractions < 0x0004 or interval_fractions > max_interval:
             raise ValueError(
@@ -251,18 +307,8 @@ class Monitor(threading.Thread):
 
         interval_fractions, window_fractions = int(interval_fractions), int(window_fractions)
 
-        if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0:
-            _LOGGER.info("Issue LE Set Scan Parameters by hci command")
-            command_field = OCF_LE_SET_SCAN_PARAMETERS
-            scan_parameter_pkg = struct.pack(
-                "<BHHBB",
-                scan_type,
-                interval_fractions,
-                window_fractions,
-                address_type,
-                filter_type)
-        else:
-            _LOGGER.info("Issue LE Set Extended Scan Parameters by hci command")
+        if self.support_ext_advertising:
+            _LOGGER.info("# Issue LE Set Extended Scan Parameters by hci command")
             command_field = OCF_LE_SET_EXT_SCAN_PARAMETERS
             scan_parameter_pkg = struct.pack(
                 "<BBBBHH",
@@ -272,6 +318,16 @@ class Monitor(threading.Thread):
                 scan_type,
                 interval_fractions,
                 window_fractions)
+        else:
+            _LOGGER.info("# Issue LE Set Scan Parameters by hci command")
+            command_field = OCF_LE_SET_SCAN_PARAMETERS
+            scan_parameter_pkg = struct.pack(
+                "<BHHBB",
+                scan_type,
+                interval_fractions,
+                window_fractions,
+                address_type,
+                filter_type)
 
         self.backend.send_cmd(self.socket, OGF_LE_CTL, command_field, scan_parameter_pkg)
 
@@ -287,67 +343,77 @@ class Monitor(threading.Thread):
             enable: boolean value to enable (True) or disable (False) scanner
             filter_duplicates: boolean value to enable/disable filter, that
                 omits duplicated packets"""
-        if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0:
-            _LOGGER.info("Issue LE Set Scan Enable by hci command")
-            command_field = OCF_LE_SET_SCAN_ENABLE
-            command = struct.pack("BB", enable, filter_duplicates)
-        else:
-            _LOGGER.info("Issue LE Set Extended Scan Enable by hci command")
+        if self.support_ext_advertising:
+            _LOGGER.info("# Issue LE Set Extended Scan Enable to '%s' by hci command", enable)
             command_field = OCF_LE_SET_EXT_SCAN_ENABLE
             command = struct.pack("<BBHH", enable, filter_duplicates,
                                   0,  # duration
                                   0   # period
                                   )
+        else:
+            _LOGGER.info("# Issue LE Set Scan Enable to '%s' by hci command", enable)
+            command_field = OCF_LE_SET_SCAN_ENABLE
+            command = struct.pack("BB", enable, filter_duplicates)
 
         self.backend.send_cmd(self.socket, OGF_LE_CTL, command_field, command)
 
-    def analyze_le_adv_event(self, pkt):
-        subevent = to_int(pkt[3])
-        ev_type = None
-        try:
-            ev_type = MERTE(subevent)
-        except ValueError:
-            print("Unexpected pkt: ", pkt)
-            return None, None, None, None
-
-        if ev_type == MERTE.LE_ADVERTISING_REPORT:
-            rssi = bin_to_int(pkt[-1])
-            payload = pkt[14:-1]
-        elif ev_type == MERTE.LE_EXT_ADVERTISING_REPORT:
-            rssi = bin_to_int(pkt[18])
-            payload = pkt[29:]
-        else:
-            print("Error pkt: ", pkt)
-            return None, None, None, None
-        rssi = bin_to_int(
-            pkt[-1] if ev_type == MERTE.LE_ADVERTISING_REPORT else pkt[18]
-        )
-        bt_addr = bt_addr_to_string(pkt[7:13])
-        # Print pkt for debugging purpose
-        _LOGGER.debug("Raw packet: %s", " ".join([hex(pk) for pk in pkt]))
-        _LOGGER.debug(
-            (
-                "LE Meta Event: subevent: %s(%s), payload: %s, "
-                "rssi: %s, bt_addr: %s"
-            ),
-            ev_type.name,
-            ev_type.value,
-            " ".join([hex(p) for p in payload]),
-            rssi,
-            bt_addr,
-        )
-
-        return ev_type, payload, rssi, bt_addr
+    def dump_reports(self, reports):
+        for report in reports:
+            _LOGGER.debug(
+                "<evt_type: %s> <mac: %s> <rssi: %s> <data: %s>",
+                report.evt_type,
+                bt_addr_to_string(report.bdaddr),
+                to_int(report.rssi),
+                report.data
+            )
 
     def process_packet(self, pkt):
         """Parse the packet and call callback if one of the filters matches."""
-        subevent = payload = rssi = bt_addr = packet = None
-        subevent, payload, rssi, bt_addr = self.analyze_le_adv_event(pkt)
-        # strip bluetooth address and parse packet
-        if payload:
-            packet = parse_packet(payload)
+        subevent = le_event_data = None
+        _LOGGER.debug("Raw packet: %s", " ".join([hex(pk) for pk in pkt]))
+        try:
+            le_event_data = HciAdReportEvent.parse(pkt)
+        except ConstructError:
+            _LOGGER.warning("Unexpected pkt: %s", pkt)
+            return
 
-        # return if packet was not an beacon advertisement
+        if not le_event_data:
+            return
+
+        subevent = MERTE(le_event_data.subevent)
+        # For bluetooth 5.0+ and LE extended advertising is supported
+        # EVT_LE_EXT_ADVERTISING_REPORT with eddystone URL frame
+        #       is expected to received
+        # For bluetooth 4.0+
+        # EVT_LE_ADVERTISING_REPORT with eddystone URL frame
+        #       is expected to received
+        expect_evt = (
+            MERTE.LE_EXT_ADVERTISING_REPORT
+            if self.support_ext_advertising
+            else MERTE.LE_ADVERTISING_REPORT
+        )
+
+        if isinstance(subevent, MERTE):
+            subevent_str = "{}({})".format(subevent.name, subevent.value)
+        else:
+            subevent_str = subevent
+
+        self.dump_reports(le_event_data.reports)
+        if subevent != expect_evt:
+            _LOGGER.error(
+                "Unexpected event detected: Type: {}".format(subevent_str)
+            )
+            return
+
+        if le_event_data.reports:
+            _LOGGER.debug(
+                "Parsing %d reports in  %s event..", le_event_data.num_reports, subevent_str
+            )
+            for report in le_event_data.reports:
+                self.process_report_data(report.data, bt_addr_to_string(report.bdaddr), to_int(report.rssi), subevent)
+
+    def process_report_data(self, report, bt_addr, rssi, subevent):
+        packet = parse_packet(report)
         if not packet:
             return
 

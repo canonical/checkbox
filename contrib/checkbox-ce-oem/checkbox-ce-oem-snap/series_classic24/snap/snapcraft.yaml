@@ -44,6 +44,7 @@ parts:
       - device-tree-compiler
       - linuxptp
       - snmp
+      - gpsd
       - python3-rpyc
     override-prime: |
       craftctl default

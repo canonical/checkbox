@@ -172,7 +172,8 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
         ).returncode
         == 0  # returns 10 if connection doesn't exist
     ):
-        print("Deleting existing connections of '{}'".format(ssid))
+        # flush here to make sure it prints before we actually delete
+        print("Deleting existing connections of '{}'".format(ssid), flush=True)
         sp.check_call(["nmcli", "connection", "delete", ssid])
 
     # color is removed when nmcli detects that its output is being piped

@@ -43,6 +43,11 @@ def get_kernel_version() -> "tuple[int, int]":
 
 def main():
     # have to produce true/false here, pxu files only support string comparison
+
+    # TODO: if the pxu engine supports rich comparison in the future,
+    # move these comparisons to the pxu files to make job requirements more
+    # explicit
+
     print(
         "wpa_supplicant_at_least_2_11: {}".format(
             get_wpa_supplicant_version() >= (2, 11)

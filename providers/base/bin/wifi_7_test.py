@@ -14,7 +14,7 @@ https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wi-Fi_7_(802
 
 Prerequisites for running this test:
 - 6.14+ kernel (the kernels in 24.04.3 and newer versions are ok!)
-- wpasupplicant >= 2.11 (it's coming to 24.04 soon)
+- wpasupplicant >= 2.11
 - The AP specified in -m/--mlo-ssid is assumed to support wifi 7
   and have MLO enabled
 """
@@ -91,6 +91,7 @@ class ConnectionInfo:
             words = remove_prefix(
                 remove_prefix(clean_line, "tx bitrate:"), "rx bitrate:"
             ).split()
+            # Example:
             # words = [48, MBit/s, 320MHz, EHT-MCS, 11, EHT-NSS, 2, EHT-GI, 0]
 
             conn_type = remove_suffix(words[3], "-MCS")
@@ -180,7 +181,7 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
     nmcli_output = sp.check_output(
         [
             "nmcli",
-            "--get-values",  # -g, -get-values, --get-values are all accepted
+            "--get-values",
             "SSID",
             "device",
             "wifi",

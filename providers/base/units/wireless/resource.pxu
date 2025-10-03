@@ -1,0 +1,8 @@
+id: wifi_7_resource
+plugin: resource
+_summary:
+    Resource job for the wifi 7 tests
+command:
+    wifi_7_resource.py
+_description: 
+    Returns whether the kernel and wpa_supplicant are new enough for wifi 7

@@ -84,6 +84,7 @@ class ConnectionInfo:
 
         for line in iw_link_output.splitlines():
             clean_line = line.strip()
+
             if not clean_line.startswith(("tx bitrate:", "rx bitrate:")):
                 continue
 
@@ -91,6 +92,18 @@ class ConnectionInfo:
             words = remove_prefix(
                 remove_prefix(clean_line, "tx bitrate:"), "rx bitrate:"
             ).split()
+
+            if len(words) != 9:
+                # the MHz section can be completely missing
+                print(
+                    "Incomplete output from iw.",
+                    "Is the wifi AP capable of MLO?",
+                    "iw output:",
+                    clean_line,
+                    file=stderr,
+                )
+                raise ValueError("Incomplete output from iw")
+
             # Example:
             # words = [48, MBit/s, 320MHz, EHT-MCS, 11, EHT-NSS, 2, EHT-GI, 0]
 

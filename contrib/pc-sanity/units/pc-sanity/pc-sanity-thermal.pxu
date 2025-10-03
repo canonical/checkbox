@@ -286,3 +286,24 @@ requires:
  package.name == 'systemd'
 depends: miscellanea/thermald
 command: check-thermald-unknown-cond.sh
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-thermald-adaptive-engine
+user: root
+_summary: Test thermald's adaptive engine startup by monitoring its output.
+_description:
+    This test launches thermald with adaptive engine and uses grep to detect
+    which pattern appears first:
+    - SUCCESS: "Start main loop" - adaptive engine started correctly
+    - FAILURE: "Also unable to evaluate any conditions" - adaptive engine failed,
+      thermald falls back to highest power profile
+    The test captures the first occurrence of either pattern to determine if
+    the adaptive engine initialization was successful.
+estimated_duration: 0.5
+requires:
+ cpuinfo.type == 'GenuineIntel'
+ package.name == 'systemd'
+depends: miscellanea/thermald
+command: thermald_adaptive_engine_test.py
+

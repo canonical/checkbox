@@ -338,7 +338,8 @@ flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_be == 'supported'
  executable.name == 'nmcli'
- package.name == 'wpasupplicant' and package.version >= '2.11'
+ wifi_7_resource.wpa_supplicant_at_least_2_11 == 'True'
+ wifi_7_resource.kernel_at_least_6_14 == 'True'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template

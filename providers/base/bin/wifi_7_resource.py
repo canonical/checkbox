@@ -34,15 +34,19 @@ def get_wpa_supplicant_version() -> "tuple[int, int]":
 
 
 def get_kernel_version() -> "tuple[int, int]":
+    # kernel versing string format is consistent
+    # https://askubuntu.com/questions/843197/what-are-kernel-version-number-components-w-x-yy-zzz-called # noqa: E501
     version_str = os.uname().release
     # '6.14.0-32-generic'
     # '6.14.0-1012-oem'
-    major_minor_patch = version_str.split("-", maxsplit=1)[0].split(".")
-    return (int(major_minor_patch[0]), int(major_minor_patch[1]))
+    major, minor, _ = version_str.split("-", maxsplit=1)[0].split(".")
+    return (int(major), int(minor))
 
 
 def main():
-    # have to produce true/false here, pxu files only support string comparison
+    # workaround: we need to produce true/false in the resource job since 
+    # pxu resource expressions only support string comparison,
+    # which means the only predictable comparator is '=='
 
     # TODO: if the pxu engine supports rich comparison in the future,
     # move these comparisons to the pxu files to make job requirements more

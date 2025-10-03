@@ -43,13 +43,12 @@ def get_kernel_version() -> "tuple[int, int]":
 
 def main():
     # have to produce true/false here, pxu files only support string comparison
-    # geq = greater than or equal to
     print(
-        "wpa_supplicant_geq_2_11: {}".format(
+        "wpa_supplicant_at_least_2_11: {}".format(
             get_wpa_supplicant_version() >= (2, 11)
         )
     )
-    print("kernel_geq_6_14: {}".format(get_kernel_version() >= (6, 14)))
+    print("kernel_at_least_6_14: {}".format(get_kernel_version() >= (6, 14)))
 
 
 if __name__ == "__main__":

@@ -45,7 +45,7 @@ def get_kernel_version() -> "tuple[int, int]":
 
 
 def main():
-    # workaround: we need to produce true/false in the resource job since 
+    # workaround: we need to produce true/false in the resource job since
     # pxu resource expressions only support string comparison,
     # which means the only predictable comparator is '=='
 

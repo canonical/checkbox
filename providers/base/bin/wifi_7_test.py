@@ -93,7 +93,7 @@ class ConnectionInfo:
                 remove_prefix(clean_line, "tx bitrate:"), "rx bitrate:"
             ).split()
 
-            if len(words) != 9:
+            if len(words) < 9:
                 # the MHz section can be completely missing
                 print(
                     "Incomplete output from iw.",

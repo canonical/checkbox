@@ -1,4 +1,5 @@
 id: wifi_7_resource
+category_id: com.canonical.plainbox::wireless
 plugin: resource
 _summary:
     Resource job for the wifi 7 tests

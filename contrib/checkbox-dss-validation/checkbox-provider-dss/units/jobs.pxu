@@ -179,25 +179,6 @@ template-engine: jinja2
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
-requires: executable.name == 'dss'
-id: dss/create_new_notebook_using_{{ image }}
-depends: {{ depends }}
-_summary: Check that a new notebook can be created from '{{ image }}'
-estimated_duration: 15m
-command: timeout 15m run_dss.sh create new-{{ framework }}-{{ accel }} --image {{ image }}
-_siblings: [
-  { "id": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
-    "_summary": "Check that a long living notebook can be created from '{{ image }}' before reboot",
-    "depends": "{{ depends }}",
-    "command": "timeout 15m run_dss.sh create long-living-{{ framework }}-{{ accel }} --image {{ image }}" }
-  ]
-
-unit: template
-template-resource: dss/notebook_tests_list
-template-engine: jinja2
-plugin: shell
-category_id: dss-regress
-imports: from com.canonical.certification import executable
 requires: executable.name == 'kubectl'
 id: dss/verify_new_notebook_of_{{ image }}
 depends: dss/create_new_notebook_using_{{ image }}
@@ -213,27 +194,6 @@ _siblings: [
     "_summary": "Check that the long living notebook from '{{ image }}' can use accel. after reboot",
     "depends": "dss/restart_long_living_notebook_after_reboot_using_{{ image }}",
     "command": "timeout 1m check_notebook.py long-living-{{ framework }}-{{ accel }} {{ check }}" }
-  ]
-
-unit: template
-template-resource: dss/notebook_tests_list
-template-engine: jinja2
-plugin: shell
-category_id: dss-regress
-imports: from com.canonical.certification import executable
-requires: executable.name == 'dss'
-id: dss/remove_new_notebook_of_{{ image }}
-depends: {{ depends }}
-after: dss/create_new_notebook_using_{{ image }}
-_summary: Check that the new notebook from '{{ image }}' can be removed
-estimated_duration: 1m
-command: timeout 1m run_dss.sh remove new-{{ framework }}-{{ accel }}
-_siblings: [
-  { "id": "dss/remove_long_living_notebook_after_reboot_of_{{ image }}",
-    "_summary": "Check that the long living notebook from '{{ image }}' can be removed after reboot",
-    "depends": "{{ depends }}_after_reboot",
-    "after": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
-    "command": "timeout 1m run_dss.sh remove long-living-{{ framework }}-{{ accel }}" }
   ]
 
 unit: template
@@ -342,6 +302,48 @@ _siblings: [
       "_summary": "Check that a new notebook can be created from 'tensorflow-cuda' after reboot",
       "estimated_duration": "15m",
       "command": "timeout 15m run_dss.sh create new-after-reboot-tensorflow-cuda --image tensorflow-cuda"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_pytorch",
+      "depends": "dss/status_mlflow",
+      "_summary": "Check that a long-living notebook can be created from 'pytorch' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-pytorch-cpu --image pytorch"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_tensorflow",
+      "depends": "dss/status_mlflow",
+      "_summary": "Check that a long-living notebook can be created from 'tensorflow' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-tensorflow-cpu --image tensorflow"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_pytorch-intel",
+      "depends": "dss/status_intel_gpu",
+      "_summary": "Check that a long-living notebook can be created from 'pytorch-intel' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-pytorch-intel --image pytorch-intel"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_tensorflow-intel",
+      "depends": "dss/status_intel_gpu",
+      "_summary": "Check that a long-living notebook can be created from 'tensorflow-intel' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-tensorflow-intel --image tensorflow-intel"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_pytorch-cuda",
+      "depends": "dss/status_nvidia_gpu",
+      "_summary": "Check that a long-living notebook can be created from 'pytorch-cuda' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-pytorch-cuda --image pytorch-cuda"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_tensorflow-cuda",
+      "depends": "dss/status_nvidia_gpu",
+      "_summary": "Check that a long-living notebook can be created from 'tensorflow-cuda' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-tensorflow-cuda --image tensorflow-cuda"
     }
   ]
 
@@ -520,5 +522,47 @@ _siblings: [
       "_summary": "Check that the new notebook from 'tensorflow-cuda' can be removed after reboot",
       "estimated_duration": "1m",
       "command": "timeout 1m run_dss.sh remove new-after-reboot-tensorflow-cuda"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_pytorch",
+      "depends": "dss/create_long_living_notebook_after_reboot_using_pytorch",
+      "_summary": "Check that the long-living notebook from 'pytorch' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-pytorch-cpu"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_tensorflow",
+      "depends": "dss/create_long_living_notebook_after_reboot_using_tensorflow",
+      "_summary": "Check that the long-living notebook from 'tensorflow' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-tensorflow-cpu"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_pytorch-intel",
+      "depends": "dss/create_long_living_notebook_after_reboot_using_pytorch-intel",
+      "_summary": "Check that the long-living notebook from 'pytorch-intel' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-pytorch-intel"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_tensorflow-intel",
+      "depends": "dss/create_long_living_notebook_after_reboot_using_tensorflow-intel",
+      "_summary": "Check that the long-living notebook from 'tensorflow-intel' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-tensorflow-intel"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_pytorch-cuda",
+      "depends": "dss/create_long_living_notebook_after_reboot_using_pytorch-cuda",
+      "_summary": "Check that the long-living notebook from 'pytorch-cuda' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-pytorch-cuda"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_tensorflow-cuda",
+      "depends": "dss/create_long_living_notebook_after_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the long-living notebook from 'tensorflow-cuda' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-tensorflow-cuda"
     }
   ]

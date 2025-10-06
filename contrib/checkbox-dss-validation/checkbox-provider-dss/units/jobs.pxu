@@ -130,7 +130,6 @@ category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'kubectl'
 depends: dss/create_new_notebook_using_pytorch
-before: dss/remove_new_notebook_of_pytorch
 _summary: Check that the new notebook from 'pytorch' can use acceleration
 flags: simple
 estimated_duration: 1m
@@ -139,7 +138,6 @@ _siblings: [
     {
       "id": "dss/verify_new_notebook_of_tensorflow",
       "depends": "dss/create_new_notebook_using_tensorflow",
-      "before": "dss/remove_new_notebook_of_tensorflow",
       "_summary": "Check that the new notebook from 'tensorflow' can use acceleration",
       "estimated_duration": "1m",
       "command": "timeout 1m check_notebook.py new-tensorflow-cpu has_tensorflow_available"
@@ -147,7 +145,6 @@ _siblings: [
     {
       "id": "dss/verify_new_notebook_of_pytorch-intel",
       "depends": "dss/create_new_notebook_using_pytorch-intel",
-      "before": "dss/remove_new_notebook_of_pytorch-intel",
       "_summary": "Check that the new notebook from 'pytorch-intel' can use acceleration",
       "estimated_duration": "1m",
       "command": "timeout 1m check_notebook.py new-pytorch-intel sees_intel_gpu_in_pytorch"
@@ -155,7 +152,6 @@ _siblings: [
     {
       "id": "dss/verify_new_notebook_of_tensorflow-intel",
       "depends": "dss/create_new_notebook_using_tensorflow-intel",
-      "before": "dss/remove_new_notebook_of_tensorflow-intel",
       "_summary": "Check that the new notebook from 'tensorflow-intel' can use acceleration",
       "estimated_duration": "1m",
       "command": "timeout 1m check_notebook.py new-tensorflow-intel sees_intel_gpu_in_tensorflow"
@@ -163,7 +159,6 @@ _siblings: [
     {
       "id": "dss/verify_new_notebook_of_pytorch-cuda",
       "depends": "dss/create_new_notebook_using_pytorch-cuda",
-      "before": "dss/remove_new_notebook_of_pytorch-cuda",
       "_summary": "Check that the new notebook from 'pytorch-cuda' can use acceleration",
       "estimated_duration": "1m",
       "command": "timeout 1m check_notebook.py new-pytorch-cuda sees_nvidia_gpu_in_pytorch"
@@ -171,7 +166,6 @@ _siblings: [
     {
       "id": "dss/verify_new_notebook_of_tensorflow-cuda",
       "depends": "dss/create_new_notebook_using_tensorflow-cuda",
-      "before": "dss/remove_new_notebook_of_tensorflow-cuda",
       "_summary": "Check that the new notebook from 'tensorflow-cuda' can use acceleration",
       "estimated_duration": "1m",
       "command": "timeout 1m check_notebook.py new-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"

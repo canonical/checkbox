@@ -50,4 +50,3 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
-    dss/notebook_tests_list

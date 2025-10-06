@@ -218,7 +218,7 @@ _siblings: [
       "_summary": "Check that the long living notebook from 'tensorflow-cuda' can be restarted",
       "estimated_duration": "5m",
       "command": "timeout 10s run_dss.sh stop long-living-tensorflow-cuda && sleep 10 && timeout 5m run_dss.sh start long-living-tensorflow-cuda"
-    },
+    }
   ]
 
 id: dss/create_new_notebook_using_pytorch

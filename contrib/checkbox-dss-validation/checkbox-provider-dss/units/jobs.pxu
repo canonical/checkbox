@@ -186,10 +186,6 @@ _summary: Check that a new notebook can be created from '{{ image }}'
 estimated_duration: 15m
 command: timeout 15m run_dss.sh create new-{{ framework }}-{{ accel }} --image {{ image }}
 _siblings: [
-  { "id": "dss/create_new_notebook_after_reboot_using_{{ image }}",
-    "_summary": "Check that a new notebook can be created from '{{ image }}' after reboot",
-    "depends": "{{ depends }}_after_reboot",
-    "command": "timeout 15m run_dss.sh create new-after-reboot-{{ framework }}-{{ accel }} --image {{ image }}" },
   { "id": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
     "_summary": "Check that a long living notebook can be created from '{{ image }}' before reboot",
     "depends": "{{ depends }}",
@@ -209,10 +205,6 @@ _summary: Check that the new notebook from '{{ image }}' can use acceleration
 estimated_duration: 1m
 command: timeout 1m check_notebook.py new-{{ framework }}-{{ accel }} {{ check }}
 _siblings: [
-  { "id": "dss/verify_new_notebook_after_reboot_of_{{ image }}",
-    "_summary": "Check that the new notebook from '{{ image }}' can use accel. after reboot",
-    "depends": "dss/create_new_notebook_after_reboot_using_{{ image }}",
-    "command": "timeout 1m check_notebook.py new-after-reboot-{{ framework }}-{{ accel }} {{ check }}" },
   { "id": "dss/verify_long_living_notebook_before_reboot_of_{{ image }}",
     "_summary": "Check that the long living notebook from '{{ image }}' can use accel. before reboot",
     "depends": "dss/create_long_living_notebook_before_reboot_using_{{ image }}",
@@ -237,11 +229,6 @@ _summary: Check that the new notebook from '{{ image }}' can be removed
 estimated_duration: 1m
 command: timeout 1m run_dss.sh remove new-{{ framework }}-{{ accel }}
 _siblings: [
-  { "id": "dss/remove_new_notebook_after_reboot_of_{{ image }}",
-    "_summary": "Check that the new notebook from '{{ image }}' can be removed after reboot",
-    "depends": "{{ depends }}_after_reboot",
-    "after": "dss/create_new_notebook_after_reboot_using_{{ image }}",
-    "command": "timeout 1m run_dss.sh remove new-after-reboot-{{ framework }}-{{ accel }}" },
   { "id": "dss/remove_long_living_notebook_after_reboot_of_{{ image }}",
     "_summary": "Check that the long living notebook from '{{ image }}' can be removed after reboot",
     "depends": "{{ depends }}_after_reboot",
@@ -313,6 +300,48 @@ _siblings: [
       "_summary": "Check that a new notebook can be created from 'tensorflow-cuda'",
       "estimated_duration": "15m",
       "command": "timeout 15m run_dss.sh create new-tensorflow-cuda --image tensorflow-cuda"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_pytorch",
+      "depends": "dss/status_mlflow_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'pytorch' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-pytorch-cpu --image pytorch"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_tensorflow",
+      "depends": "dss/status_mlflow_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'tensorflow' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-tensorflow-cpu --image tensorflow"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_pytorch-intel",
+      "depends": "dss/status_intel_gpu_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'pytorch-intel' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-pytorch-intel --image pytorch-intel"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_tensorflow-intel",
+      "depends": "dss/status_intel_gpu_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'tensorflow-intel' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-tensorflow-intel --image tensorflow-intel"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_pytorch-cuda",
+      "depends": "dss/status_nvidia_gpu_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'pytorch-cuda' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-pytorch-cuda --image pytorch-cuda"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_tensorflow-cuda",
+      "depends": "dss/status_nvidia_gpu_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'tensorflow-cuda' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-tensorflow-cuda --image tensorflow-cuda"
     }
   ]
 
@@ -360,6 +389,48 @@ _siblings: [
       "_summary": "Check that the new notebook from 'tensorflow-cuda' can use acceleration",
       "estimated_duration": "1m",
       "command": "timeout 1m check_notebook.py new-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_pytorch",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch",
+      "_summary": "Check that the new notebook from 'pytorch' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-pytorch-cpu has_pytorch_available"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_tensorflow",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow",
+      "_summary": "Check that the new notebook from 'tensorflow' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-tensorflow-cpu has_tensorflow_available"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_pytorch-intel",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch-intel",
+      "_summary": "Check that the new notebook from 'pytorch-intel' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-pytorch-intel sees_intel_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_tensorflow-intel",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow-intel",
+      "_summary": "Check that the new notebook from 'tensorflow-intel' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-tensorflow-intel sees_intel_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_pytorch-cuda",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch-cuda",
+      "_summary": "Check that the new notebook from 'pytorch-cuda' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-pytorch-cuda sees_nvidia_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_tensorflow-cuda",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the new notebook from 'tensorflow-cuda' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"
     }
   ]
 
@@ -407,5 +478,47 @@ _siblings: [
       "_summary": "Check that the new notebook from 'tensorflow-cuda' can be removed",
       "estimated_duration": "1m",
       "command": "timeout 1m run_dss.sh remove new-tensorflow-cuda"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_pytorch",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch",
+      "_summary": "Check that the new notebook from 'pytorch' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-pytorch-cpu"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_tensorflow",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow",
+      "_summary": "Check that the new notebook from 'tensorflow' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-tensorflow-cpu"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_pytorch-intel",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch-intel",
+      "_summary": "Check that the new notebook from 'pytorch-intel' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-pytorch-intel"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_tensorflow-intel",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow-intel",
+      "_summary": "Check that the new notebook from 'tensorflow-intel' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-tensorflow-intel"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_pytorch-cuda",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch-cuda",
+      "_summary": "Check that the new notebook from 'pytorch-cuda' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-pytorch-cuda"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_tensorflow-cuda",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the new notebook from 'tensorflow-cuda' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-tensorflow-cuda"
     }
   ]

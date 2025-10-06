@@ -179,25 +179,6 @@ template-engine: jinja2
 plugin: shell
 category_id: dss-regress
 imports: from com.canonical.certification import executable
-requires: executable.name == 'kubectl'
-id: dss/verify_new_notebook_of_{{ image }}
-depends: dss/create_new_notebook_using_{{ image }}
-_summary: Check that the new notebook from '{{ image }}' can use acceleration
-estimated_duration: 1m
-command: timeout 1m check_notebook.py new-{{ framework }}-{{ accel }} {{ check }}
-_siblings: [
-  { "id": "dss/verify_long_living_notebook_after_reboot_of_{{ image }}",
-    "_summary": "Check that the long living notebook from '{{ image }}' can use accel. after reboot",
-    "depends": "dss/restart_long_living_notebook_after_reboot_using_{{ image }}",
-    "command": "timeout 1m check_notebook.py long-living-{{ framework }}-{{ accel }} {{ check }}" }
-  ]
-
-unit: template
-template-resource: dss/notebook_tests_list
-template-engine: jinja2
-plugin: shell
-category_id: dss-regress
-imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 id: dss/restart_long_living_notebook_after_reboot_using_{{ image }}
 depends:
@@ -469,6 +450,48 @@ _siblings: [
       "id": "dss/verify_long_living_notebook_before_reboot_of_tensorflow-cuda",
       "depends": "dss/create_long_living_notebook_before_reboot_using_tensorflow-cuda",
       "_summary": "Check that the long-living notebook from 'tensorflow-cuda' can use accel. before reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_pytorch",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_pytorch",
+      "_summary": "Check that the long-living notebook from 'pytorch' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-cpu has_pytorch_available"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_tensorflow",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_tensorflow",
+      "_summary": "Check that the long-living notebook from 'tensorflow' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-cpu has_tensorflow_available"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_pytorch-intel",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_pytorch-intel",
+      "_summary": "Check that the long-living notebook from 'pytorch-intel' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-intel sees_intel_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_tensorflow-intel",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_tensorflow-intel",
+      "_summary": "Check that the long-living notebook from 'tensorflow-intel' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-intel sees_intel_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_pytorch-cuda",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_pytorch-cuda",
+      "_summary": "Check that the long-living notebook from 'pytorch-cuda' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-cuda sees_nvidia_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_tensorflow-cuda",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the long-living notebook from 'tensorflow-cuda' can use accel. after reboot",
       "estimated_duration": "1m",
       "command": "timeout 1m check_notebook.py long-living-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"
     }

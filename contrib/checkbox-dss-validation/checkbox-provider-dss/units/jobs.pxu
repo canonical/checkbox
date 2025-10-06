@@ -173,18 +173,22 @@ _siblings: [
 # New-Notebook test jobs ######################################################
 
 
-id: dss/restart_long_living_notebook_after_reboot_using_pytorch
+id: dss/restart_long_living_notebook_after_reboot_dummy
 category_id: dss-regress
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-depends:
-  dss/status_mlflow_after_reboot
-  dss/create_long_living_notebook_before_reboot_using_pytorch
-_summary: Check that the long living notebook from 'pytorch' can be restarted
+_summary: Dummy job for sibling restart jobs; MUST NOT BE RUN
 flags: simple
 estimated_duration: 5m
 command: timeout 10s run_dss.sh stop long-living-pytorch-cpu && sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-cpu
 _siblings: [
+    {
+      "id": "dss/restart_long_living_notebook_after_reboot_using_pytorch",
+      "depends": "dss/status_mlflow_after_reboot dss/create_long_living_notebook_before_reboot_using_pytorch",
+      "_summary": "Check that the long living notebook from 'pytorch' can be restarted",
+      "estimated_duration": "5m",
+      "command": "timeout 10s run_dss.sh stop long-living-pytorch-cpu && sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-cpu"
+    },
     {
       "id": "dss/restart_long_living_notebook_after_reboot_using_tensorflow",
       "depends": "dss/status_mlflow_after_reboot dss/create_long_living_notebook_before_reboot_using_tensorflow",

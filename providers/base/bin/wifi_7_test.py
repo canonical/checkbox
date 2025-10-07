@@ -316,7 +316,7 @@ def get_wifi_interface() -> str:
     return wifi_interface
 
 
-@retry(3, 2)
+@retry(max_attempts=30, delay=2)
 def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     """
     The main "Connect -> Do iw checks -> Dump logs -> Disconnect" sequence

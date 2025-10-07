@@ -64,10 +64,10 @@ class ConnectionInfo:
     # whole connect -> bind -> link sequence is even more complicated
     def __init__(
         self,
-        mcs: int,
-        conn_type: "T.Literal['EHT', 'HE', 'VT', 'HT']",
+        mcs: "int | None",
+        conn_type: "T.Literal['EHT', 'HE', 'VT', 'HT', 'Legacy']",
         direction: "T.Literal['rx', 'tx']",
-        bandwidth: int,
+        bandwidth: "int | None",
     ) -> None:
         # TODO: Move to dataclass once we drop 3.5
         self.mcs = mcs
@@ -105,20 +105,29 @@ class ConnectionInfo:
                 remove_prefix(clean_line, "tx bitrate:"), "rx bitrate:"
             ).split()
 
-            # Examples:
-            # words = [11.0, MBit/s, 40MHz, HE-MCS, 3,
-            #          HE-NSS, 2, HE-GI, 2, HE-DCM, 0]
-            # words = [48, MBit/s, 320MHz, EHT-MCS, 11, EHT-NSS, 2, EHT-GI, 0]
-
-            conn_type_word = find_by_fn(words, lambda s: s.endswith("-MCS"))
+            # based on this answer
+            # https://askubuntu.com/questions/191650/how-to-know-which-standard-my-wi-fi-connection-is-currently-using # noqa: E501
+            conn_type_word = find_by_fn(words, lambda s: s.endswith("MCS"))
             if conn_type_word is None:
-                continue
-            conn_type = remove_suffix(conn_type_word, "-MCS")
+                conn_type = "Legacy"
+            elif conn_type_word == "MCS":
+                # special case:
+                # for 802.11n connections specifically, conn_type_word == "MCS"
+                conn_type = "HT"
+            else:
+                # Examples:
+                # words = [11.0, MBit/s, 40MHz, HE-MCS, 3,
+                #          HE-NSS, 2, HE-GI, 2, HE-DCM, 0]
+                # words = [48, MBit/s, 320MHz, EHT-MCS, 11,
+                #          EHT-NSS, 2, EHT-GI, 0]
+                conn_type = remove_suffix(conn_type_word, "-MCS")
+
             if conn_type not in (
                 "EHT",  # wifi 7
                 "HE",  # wifi 6 and wifi 6e
                 "VT",  # wifi 5
                 "HT",  # wifi 4
+                "Legacy",  # all standards older than 802.11n
             ):
                 print(
                     "Unexpected",
@@ -129,24 +138,27 @@ class ConnectionInfo:
                 )
                 continue
 
+            bandwidth = None  # type: int | None
             bandwidth_word = find_by_fn(words, lambda s: s.endswith("MHz"))
             if bandwidth_word is None:
                 print(
-                    "No connection frequency was found for",
+                    "No connection bandwidth was found for",
                     "tx" if is_tx else "rx",
                     file=stderr,
                 )
-                continue
-            bandwidth = int(remove_suffix(bandwidth_word, "MHz"))
+            else:
+                bandwidth = int(remove_suffix(bandwidth_word, "MHz"))
 
-            try:
-                mcs_word_index = words.index(conn_type_word)
-                mcs = int(words[mcs_word_index + 1])
-            except ValueError as e:
-                # both <list>.index() and int() raise ValueError
-                # stop parsing if either happens
-                print(e, file=stderr)
-                continue
+            mcs = None  # type: int | None
+            if conn_type_word:
+                try:
+                    mcs_word_index = words.index(conn_type_word)
+                    mcs = int(words[mcs_word_index + 1])
+                except ValueError as e:
+                    # both <list>.index() and int() raise ValueError
+                    # stop parsing if either happens
+                    print(e, file=stderr)
+                    continue
 
             if is_tx:
                 tx = ConnectionInfo(mcs, conn_type, "tx", bandwidth)
@@ -159,7 +171,7 @@ class ConnectionInfo:
 def get_num_mlo_links(iw_info_output: str) -> int:
     """Get the number of MLO links based on the output of 'iw dev <iface> info'
 
-    :param iw_info_output: 'iw dev <iface> info's output
+    :param iw_info_output: output of 'iw dev <iface> info'
     :return: number of MLO links. This is NOT the same as regular wifi links
     """
     # https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/interface.c#n480 # noqa: E501
@@ -396,7 +408,7 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
             )
             + "is not an MLO connection. "
             + "Expected at least 2 MLO links, got {}".format(num_links),
-            # mlo link != plain wifi link, it;s possible to get 0 here
+            # mlo link != plain wifi link, it's possible to get 0 here
         )
 
     # optional checks, they just print warnings

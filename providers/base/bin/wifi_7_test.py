@@ -20,6 +20,7 @@ Prerequisites for running this test:
 """
 
 import argparse
+from calendar import c
 import itertools
 import subprocess as sp
 import typing as T
@@ -315,7 +316,7 @@ def get_wifi_interface() -> str:
     return wifi_interface
 
 
-@retry(30, 2)
+@retry(3, 2)
 def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     """
     The main "Connect -> Do iw checks -> Dump logs -> Disconnect" sequence
@@ -433,6 +434,7 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
 
 def main():
     args = parse_args()
+
     if not args.interface:
         wifi_interface = get_wifi_interface()
         print(
@@ -443,7 +445,41 @@ def main():
     else:
         wifi_interface = args.interface
 
-    run_iw_checks(args.mlo_ssid, args.password, wifi_interface)
+    # a list of connection UUIDs
+    active_wifi_conn_uuids = []  # type: list[str]
+    previous_mlo_ap_conn_uuid = None  # type: str | None
+
+    for conn_line in sp.check_output(
+        ["nmcli", "connection", "show", "--active"],
+        universal_newlines=True,
+    ).splitlines():
+        if "wifi" in conn_line and wifi_interface in conn_line:
+            conn_uuid = conn_line.split()[1].strip()
+            active_wifi_conn_uuids.append(conn_uuid)
+            if args.mlo_ssid in conn_line:
+                previous_mlo_ap_conn_uuid = conn_uuid
+
+    # turn down all active connections
+    for conn_uuid in active_wifi_conn_uuids:
+        print(
+            "Turning down connection", conn_uuid, "before the test", flush=True
+        )
+        sp.check_call(["nmcli", "connection", "down", conn_uuid])
+
+    try:
+        run_iw_checks(args.mlo_ssid, args.password, wifi_interface)
+    finally:
+        for conn_uuid in active_wifi_conn_uuids:
+            if conn_uuid == previous_mlo_ap_conn_uuid:
+                # if the mlo ap was connected before the test,
+                # we can't use 'nmcli c up' to restore the connection
+                # because it would've been deleted.
+                # instead, call connect() again
+                print("Restoring connection:", args.mlo_ssid, flush=True)
+                connect(args.mlo_ssid, args.password, wifi_interface)
+            else:
+                print("Restoring connection:", conn_uuid, flush=True)
+                sp.check_call(["nmcli", "connection", "up", conn_uuid])
 
 
 if __name__ == "__main__":

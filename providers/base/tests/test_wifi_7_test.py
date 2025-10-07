@@ -11,6 +11,7 @@ from checkbox_support.helpers.retry import mock_retry
 TEST_DATA_DIR = Path(__file__).parent / "test_data"
 MOCK_AP_NAME = "wifi7-ap"
 MOCK_IFACE = "wlp0s20f3"
+MOCK_PASSWORD = "password123"
 
 
 class TestStrUtils(ut.TestCase):
@@ -43,59 +44,75 @@ class TestWifi7Tests(ut.TestCase):
         mock_sleep,
         mock_open,
     ):
-        def fake_check_output(args: "list[str]", *other_args, **kwargs):
-            if args[0:3] == ["nmcli", "connection", "delete"]:
-                return "Deleted {}".format(args[3])
-            if args[0:5] == [
-                "nmcli",
-                "--get-values",
-                "GENERAL.DEVICE,GENERAL.TYPE",
-                "device",
-                "show",
-            ]:
-                return "\n".join([MOCK_IFACE, "wifi", "", "lo", "loopback"])
-            if args[0:4] == ["iw", "dev", MOCK_IFACE, "info"]:
-                with (TEST_DATA_DIR / "iw_dev_info_succ.txt").open() as f:
-                    return f.read()
-            if args[0:4] == ["iw", "dev", MOCK_IFACE, "link"]:
-                with (TEST_DATA_DIR / "iw_dev_link_succ.txt").open() as f:
-                    return f.read()
-            if args[0:8] == [
-                "nmcli",
-                "--get-values",
-                "SSID",
-                "device",
-                "wifi",
-                "list",
-                "--rescan",
-                "yes",
-            ]:
-                return "\n".join(
-                    [
-                        "some-other-random-wifi",
-                        "wifi6-ap",
-                        "",  # nmcli output can have random new lines
-                        "",
-                        "some-random-wifi",
-                        MOCK_AP_NAME,
-                    ]
-                )
-            if args[0:4] == ["nmcli", "connection", "show", "--active"]:
-                return "\n".join(
-                    [
-                        "NAME UUID TYPE DEVICE",
-                        "some-wifi 7a18fc1e-e021-4fcb-a3e5 wifi {}".format(
-                            MOCK_IFACE
-                        ),
-                    ]
-                )
 
-        mock_check_output.side_effect = fake_check_output
+        def make_fake_check_output(previous_conn_is_mlo_ap=False):
+            def fake_check_output(args: "list[str]", *other_args, **kwargs):
+                if args[0:3] == ["nmcli", "connection", "delete"]:
+                    return "Deleted {}".format(args[3])
+                if args[0:5] == [
+                    "nmcli",
+                    "--get-values",
+                    "GENERAL.DEVICE,GENERAL.TYPE",
+                    "device",
+                    "show",
+                ]:
+                    return "\n".join(
+                        [MOCK_IFACE, "wifi", "", "lo", "loopback"]
+                    )
+                if args[0:4] == ["iw", "dev", MOCK_IFACE, "info"]:
+                    with (TEST_DATA_DIR / "iw_dev_info_succ.txt").open() as f:
+                        return f.read()
+                if args[0:4] == ["iw", "dev", MOCK_IFACE, "link"]:
+                    with (TEST_DATA_DIR / "iw_dev_link_succ.txt").open() as f:
+                        return f.read()
+                if args[0:8] == [
+                    "nmcli",
+                    "--get-values",
+                    "SSID",
+                    "device",
+                    "wifi",
+                    "list",
+                    "--rescan",
+                    "yes",
+                ]:
+                    return "\n".join(
+                        [
+                            "some-other-random-wifi",
+                            "wifi6-ap",
+                            "",  # nmcli output can have random new lines
+                            "",
+                            "some-random-wifi",
+                            MOCK_AP_NAME,
+                        ]
+                    )
+                if args[0:4] == ["nmcli", "connection", "show", "--active"]:
+                    if previous_conn_is_mlo_ap:
+                        return "\n".join(
+                            [
+                                "NAME UUID TYPE DEVICE",
+                                "{} 7a18fc1e-e021-4fcb wifi {}".format(
+                                    MOCK_AP_NAME, MOCK_IFACE
+                                ),
+                            ]
+                        )
+                    else:
+                        return "\n".join(
+                            [
+                                "NAME UUID TYPE DEVICE",
+                                "some-wifi 7a18fc1e-e021-4fcb wifi {}".format(
+                                    MOCK_IFACE
+                                ),
+                            ]
+                        )
+
+            return fake_check_output
+
         mock_run.return_value = subprocess.CompletedProcess([], 10, "", "")
         with patch(
             "sys.argv",
-            ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"],
+            ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", MOCK_PASSWORD],
         ):
+            mock_check_output.side_effect = make_fake_check_output(False)
             w7.main()
             mock_check_call.assert_has_calls(
                 [
@@ -104,7 +121,28 @@ class TestWifi7Tests(ut.TestCase):
                             "nmcli",
                             "connection",
                             "up",
-                            "7a18fc1e-e021-4fcb-a3e5",
+                            "7a18fc1e-e021-4fcb",
+                        ]
+                    )
+                ]
+            )
+
+            mock_check_call.reset_mock()
+            mock_check_output.side_effect = make_fake_check_output(True)
+            w7.main()
+            mock_check_call.assert_has_calls(
+                [
+                    call(
+                        [
+                            "nmcli",
+                            "device",
+                            "wifi",
+                            "connect",
+                            MOCK_AP_NAME,
+                            "password",
+                            MOCK_PASSWORD,
+                            "ifname",
+                            MOCK_IFACE,
                         ]
                     )
                 ]
@@ -118,9 +156,9 @@ class TestWifi7Tests(ut.TestCase):
                 "-m",
                 MOCK_AP_NAME,
                 "-p",
-                "password123",
+                MOCK_PASSWORD,
                 "-i",
-                "wlp0s20f3",
+                MOCK_IFACE,
             ],
         ), patch("wifi_7_test.get_wifi_interface") as mock_get_iface:
             w7.main()

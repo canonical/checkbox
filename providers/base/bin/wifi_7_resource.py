@@ -59,6 +59,10 @@ def main():
         )
     )
     print("kernel_at_least_6_14: {}".format(get_kernel_version() >= (6, 14)))
+    # TODO: this is only used during the transition period when not all 
+    # the labs have a MLO AP. Remove it once MLO_SSID is filled in for all the 
+    # labs on C3
+    print("mlo_ssid_specified: {}".format("MLO_SSID" in os.environ))
 
 
 if __name__ == "__main__":

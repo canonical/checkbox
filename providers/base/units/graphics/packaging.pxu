@@ -6,3 +6,9 @@ Depends: gnome-randr
 unit: packaging meta-data
 os-id: debian
 Depends: gnome-screenshot
+
+# For vulkan tests
+unit: packaging meta-data
+os-id: ubuntu
+os-version-id: >= 24.04
+Depends: vulkan-tools

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: TICS
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
@@ -75,7 +75,7 @@ jobs:
           echo "::endgroup::"
 
       - name: TICS GitHub Action
-        uses: tiobe/tics-github-action@009979693978bfefad2ad15c1020066694968dc7
+        uses: tiobe/tics-github-action@b9861e16fd5d38624516fcd3e49e233c133ebaf3
         with:
           mode: qserver
           project: checkbox

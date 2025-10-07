@@ -1,0 +1,230 @@
+{
+    "capture_image": [
+        {
+            "camera": "sony_imx214",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam0)",
+            "formats": ["JPEG"],
+            "resolutions": [
+                {"width": 320, "height": 240},
+                {"width": 640, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1280, "height": 960},
+                {"width": 1440, "height": 1088},
+                {"width": 1920, "height": 1080},
+                {"width": 1920, "height": 1088},
+                {"width": 1920, "height": 1440},
+                {"width": 2560, "height": 1920},
+                {"width": 3840, "height": 2160},
+                {"width": 4096, "height": 2304},
+                {"width": 4000, "height": 3000}
+            ]
+        },
+        {
+            "camera": "sony_imx214",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam0)",
+            "formats": ["JPEG"],
+            "resolutions": [
+                {"width": 320, "height": 240},
+                {"width": 640, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1280, "height": 960},
+                {"width": 1440, "height": 1088},
+                {"width": 1920, "height": 1080},
+                {"width": 1920, "height": 1088},
+                {"width": 1920, "height": 1440},
+                {"width": 2560, "height": 1920},
+                {"width": 3840, "height": 2160},
+                {"width": 4096, "height": 2304},
+                {"width": 4000, "height": 3000}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0830",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam1)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1920, "height": 1080},
+                {"width": 2560, "height": 1440},
+                {"width": 3840, "height": 2160}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0830",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam1)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1920, "height": 1080},
+                {"width": 2560, "height": 1440},
+                {"width": 3840, "height": 2160}
+            ]
+        },
+        {
+            "camera": "sony_imx214",
+            "method": "gstreamer",
+            "physical_interface": "csi2",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam2)",
+            "formats": ["JPEG"],
+            "resolutions": [
+                {"width": 320, "height": 240},
+                {"width": 640, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1280, "height": 960},
+                {"width": 1440, "height": 1088},
+                {"width": 1920, "height": 1080},
+                {"width": 1920, "height": 1088},
+                {"width": 1920, "height": 1440},
+                {"width": 2560, "height": 1920},
+                {"width": 3840, "height": 2160},
+                {"width": 4096, "height": 2304},
+                {"width": 4000, "height": 3000}
+            ]
+        },
+        {
+            "camera": "sony_imx214",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi2",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam2)",
+            "formats": ["JPEG"],
+            "resolutions": [
+                {"width": 320, "height": 240},
+                {"width": 640, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1280, "height": 960},
+                {"width": 1440, "height": 1088},
+                {"width": 1920, "height": 1080},
+                {"width": 1920, "height": 1088},
+                {"width": 1920, "height": 1440},
+                {"width": 2560, "height": 1920},
+                {"width": 3840, "height": 2160},
+                {"width": 4096, "height": 2304},
+                {"width": 4000, "height": 3000}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "sony_imx214",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam0)",
+            "formats": ["YUY2", "NV12", "RGB"],
+            "resolutions": [
+                {"width": 640, "height": 360, "fps": 30},
+                {"width": 576, "height": 432, "fps": 30},
+                {"width": 640, "height": 480, "fps": 30},
+                {"width": 960, "height": 540, "fps": 30},
+                {"width": 928, "height": 696, "fps": 30},
+                {"width": 1024, "height": 768, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1440, "height": 1080, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 1856, "height": 1392, "fps": 30},
+                {"width": 2048, "height": 1536, "fps": 30},
+                {"width": 2104, "height": 1560, "fps": 30},
+                {"width": 3840, "height": 2160, "fps": 30},
+                {"width": 4000, "height": 3000, "fps": 30}
+            ]
+        },
+        {
+            "camera": "sony_imx214",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam0)",
+            "formats": ["YUYV", "YM21", "NM12", "RGB3"],
+            "resolutions": [
+                {"width": 640, "height": 360, "fps": 30},
+                {"width": 576, "height": 432, "fps": 30},
+                {"width": 640, "height": 480, "fps": 30},
+                {"width": 960, "height": 540, "fps": 30},
+                {"width": 928, "height": 696, "fps": 30},
+                {"width": 1024, "height": 768, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1440, "height": 1080, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 1856, "height": 1392, "fps": 30},
+                {"width": 2048, "height": 1536, "fps": 30},
+                {"width": 2104, "height": 1560, "fps": 30},
+                {"width": 3840, "height": 2160, "fps": 30},
+                {"width": 4000, "height": 3000, "fps": 30}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0830",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam1)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 2560, "height": 1440, "fps": 30},
+                {"width": 3840, "height": 2160, "fps": 30}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0830",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam1)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 2560, "height": 1440, "fps": 30},
+                {"width": 3840, "height": 2160, "fps": 30}
+            ]
+        },
+        {
+            "camera": "sony_imx214",
+            "method": "gstreamer",
+            "physical_interface": "csi2",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam2)",
+            "formats": ["YUY2", "NV12", "RGB"],
+            "resolutions": [
+                {"width": 640, "height": 360, "fps": 30},
+                {"width": 576, "height": 432, "fps": 30},
+                {"width": 640, "height": 480, "fps": 30},
+                {"width": 960, "height": 540, "fps": 30},
+                {"width": 928, "height": 696, "fps": 30},
+                {"width": 1024, "height": 768, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1440, "height": 1080, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 1856, "height": 1392, "fps": 30},
+                {"width": 2048, "height": 1536, "fps": 30},
+                {"width": 2104, "height": 1560, "fps": 30},
+                {"width": 3840, "height": 2160, "fps": 30},
+                {"width": 4000, "height": 3000, "fps": 30}
+            ]
+        },
+        {
+            "camera": "sony_imx214",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi2",
+            "v4l2_device_name": "mtk-v4l2-camera (platform:mtkcam2)",
+            "formats": ["YUYV", "YM21", "NM12", "RGB3"],
+            "resolutions": [
+                {"width": 640, "height": 360, "fps": 30},
+                {"width": 576, "height": 432, "fps": 30},
+                {"width": 640, "height": 480, "fps": 30},
+                {"width": 960, "height": 540, "fps": 30},
+                {"width": 928, "height": 696, "fps": 30},
+                {"width": 1024, "height": 768, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1440, "height": 1080, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 1856, "height": 1392, "fps": 30},
+                {"width": 2048, "height": 1536, "fps": 30},
+                {"width": 2104, "height": 1560, "fps": 30},
+                {"width": 3840, "height": 2160, "fps": 30},
+                {"width": 4000, "height": 3000, "fps": 30}
+            ]
+        }
+    ]
+}

@@ -1,0 +1,118 @@
+{
+    "capture_image": [
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050000.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 400, "height": 300},
+                {"width": 720, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1920, "height": 1080},
+                {"width": 2316, "height": 1746}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050800.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 400, "height": 300},
+                {"width": 720, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1920, "height": 1080},
+                {"width": 2316, "height": 1746}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050000.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 400, "height": 300},
+                {"width": 720, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1920, "height": 1080},
+                {"width": 2316, "height": 1746}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050800.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 400, "height": 300},
+                {"width": 720, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1920, "height": 1080},
+                {"width": 2316, "height": 1746}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050000.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 400, "height": 300, "fps": 30},
+                {"width": 720, "height": 480, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 2316, "height": 1746, "fps": 30}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050800.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 400, "height": 300, "fps": 30},
+                {"width": 720, "height": 480, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 2316, "height": 1746, "fps": 30}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050000.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 400, "height": 300, "fps": 30},
+                {"width": 720, "height": 480, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 2316, "height": 1746, "fps": 30}
+            ]
+        },
+        {
+            "camera": "onsemi_ap1302_ar0430",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "mtk-camsv-isp30 (platform:15050800.camsv)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 400, "height": 300, "fps": 30},
+                {"width": 720, "height": 480, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30},
+                {"width": 2316, "height": 1746, "fps": 30}
+            ]
+        }
+    ]
+}

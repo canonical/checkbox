@@ -564,7 +564,7 @@ estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_line_out == 'True'
- dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
+ dmi.sane_product == "non-portable"
 _purpose:
       Check that external line out connection works correctly
 _steps:
@@ -585,7 +585,7 @@ estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_line_in == 'True'
- dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
+ dmi.sane_product == "non-portable"
  manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -839,7 +839,6 @@ _verification:
  Did you hear the sound?
 plugin: user-interact-verify
 depends: audio/detect-playback-devices
-user: root
 environ: ALSA_CONFIG_PATH ALSADEVICE
 flags: also-after-suspend
 command: alsa_test playback -d 5
@@ -855,7 +854,6 @@ _purpose:
  connected.
 plugin: shell
 depends: audio/detect-playback-devices audio/detect-capture-devices
-user: root
 environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
 flags: also-after-suspend
 command: alsa_test loopback -d 5

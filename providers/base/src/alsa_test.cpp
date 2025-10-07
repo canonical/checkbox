@@ -354,6 +354,7 @@ int playback_test(float duration, int sampling_rate, const char* capture_pcm, co
     auto player = Alsa::Pcm<storage_type>();
     player.set_params(sampling_rate);
     player.sine(440, duration, 0.5f);
+    player.drain();
     return 0;
 }
 

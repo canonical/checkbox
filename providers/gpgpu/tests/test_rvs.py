@@ -69,7 +69,10 @@ class TestMain(TestCase):
 
     @patch.object(ModuleRunner, "run")
     @patch(
-        "rvs.parse_args", return_value=MagicMock(log_level=0, module="gpup")
+        "rvs.parse_args",
+        return_value=MagicMock(
+            rvs=Path("/opt/rocm/bin/rvs"), log_level=0, module="gpup"
+        ),
     )
     def test_main_successful(self, parse_args_mock, run_mock, logging_mock):
         try:
@@ -79,7 +82,10 @@ class TestMain(TestCase):
 
     @patch.object(ModuleRunner, "run", side_effect=SystemExit(1))
     @patch(
-        "rvs.parse_args", return_value=MagicMock(log_level=0, module="gpup")
+        "rvs.parse_args",
+        return_value=MagicMock(
+            rvs=Path("/opt/rocm/bin/rvs"), log_level=0, module="gpup"
+        ),
     )
     def test_main_failure(self, parse_args_mock, run_mock, logging_mock):
         with self.assertRaises(SystemExit) as cm:
@@ -88,6 +94,17 @@ class TestMain(TestCase):
 
 @patch("rvs.logging")
 class TestModuleRunner(TestCase):
+    @patch("pathlib.Path.glob")
+    def test_rvs_snap(self, glob_mock, logging_mock):
+        config = Path("/usr/share/checkbox-provider-gpgpu/data/rvs-gpup.conf")
+        snap_rvs = Path("/snap/bin/rvs")
+        expected_rvs = Path(
+            "/snap/rocm-validation-suite/current/opt/rocm-6.4.1/bin/rvs"
+        )
+        glob_mock.return_value = [expected_rvs]
+        runner = ModuleRunner(snap_rvs, config)
+        self.assertEqual(runner.rvs, expected_rvs)
+
     @patch("subprocess.run", return_value=MagicMock(returncode=255))
     def test_run_failure(self, run_mock, logging_mock):
         runner = ModuleRunner(RVS_BIN, Path("."))

@@ -26,10 +26,11 @@ import picamera
 
 # resolutions and framerates corresponding to sensor modes at:
 # https://picamera.readthedocs.io/en/release-1.13/fov.html#camera-modes
+#
+# resolution of 2592x1944 is supported by the camera but it requires to
+# allocate more memory the raspberry pi to perform the capture.
 test_res = [
     ((1920, 1080), 2),
-    ((2592, 1944), 2),
-    ((2592, 1944), (1, 8)),
     ((1296, 972), 5),
     ((1296, 730), 20),
     ((640, 480), 50),

@@ -349,6 +349,25 @@ class SessionStateAPITests(TestCase):
             [UndesiredJobReadinessInhibitor],
         )
 
+    def test_also_after_suspend_flag_extra_fields(self):
+        # Define a job
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=Suspend.AUTO_FLAG,
+            after="early_job",
+            group="group1",
+        )
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_unit(job)
+        # Both jobs got added to job list
+        self.assertEqual(len(session.job_list), 2)
+        self.assertEqual(session.job_list[1].id, "after-suspend-A")
+        self.assertEqual(session.job_list[1].after, "early_job A")
+        self.assertEqual(session.job_list[1].group, "after-suspend-group1")
+
     def test_also_after_suspend_manual_flag(self):
         # Define a job
         job = make_job("A", summary="foo", flags=Suspend.MANUAL_FLAG)
@@ -386,6 +405,25 @@ class SessionStateAPITests(TestCase):
             session.job_state_map[sibling.id].readiness_inhibitor_list,
             [UndesiredJobReadinessInhibitor],
         )
+
+    def test_also_after_suspend_manual_flag_extra_fields(self):
+        # Define a job
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=Suspend.MANUAL_FLAG,
+            after="early_job",
+            group="group1",
+        )
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_unit(job)
+        # Both jobs got added to job list
+        self.assertEqual(len(session.job_list), 2)
+        self.assertEqual(session.job_list[1].id, "after-suspend-manual-A")
+        self.assertEqual(session.job_list[1].after, "early_job A")
+        self.assertEqual(session.job_list[1].group, "after-suspend-group1")
 
     def test_get_estimated_duration_auto(self):
         # Define jobs with an estimated duration
@@ -1039,6 +1077,18 @@ class SessionMetadataTests(TestCase):
             self_mock._flags,
         )
         self.assertTrue(logger.warning.called)
+
+    def test_bootstrapping_property(self):
+        # this relies on the fact that phases are tracked in the flag set
+        metadata = SessionMetaData(flags=[])
+        self.assertFalse(metadata.bootstrapping)
+        metadata.bootstrapping = False
+        self.assertFalse(metadata.bootstrapping)
+        metadata.bootstrapping = True
+        self.assertTrue(metadata.bootstrapping)
+        # this is an implementation detail on how metadata is tracking the
+        # phase. if implementation changes, feel free to change this.
+        self.assertTrue(metadata.flags)
 
 
 class SessionDeviceContextTests(SignalTestCase):

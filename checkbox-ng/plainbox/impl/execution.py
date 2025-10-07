@@ -32,7 +32,9 @@ import sys
 import tempfile
 import threading
 import time
-import itertools
+import shlex
+import signal
+import shutil
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
@@ -199,10 +201,9 @@ class UnifiedRunner(IJobRunner):
         )
         io_log_gen = IOLogRecordGenerator()
         log = os.path.join(self._jobs_io_log_dir, "{}.record.gz".format(slug))
-        with (
-            gzip.open(log, mode="wb") as gzip_stream,
-            io.TextIOWrapper(gzip_stream, encoding="UTF-8") as record_stream,
-        ):
+        with gzip.open(log, mode="wb") as gzip_stream, io.TextIOWrapper(
+            gzip_stream, encoding="UTF-8"
+        ) as record_stream:
             writer = IOLogRecordWriter(record_stream)
             io_log_gen.on_new_record.connect(writer.write_record)
             delegate = extcmd.Chain(
@@ -308,7 +309,6 @@ class UnifiedRunner(IJobRunner):
                         break
                     except KeyboardInterrupt:
                         is_alive = False
-                        import signal
 
                         self.send_signal(signal.SIGKILL, target_user)
                         # And send a notification about this
@@ -354,9 +354,10 @@ class UnifiedRunner(IJobRunner):
             # See https://bugs.launchpad.net/snapd/+bug/2003955
             env["SYSTEMD_IGNORE_CHROOT"] = "1"
             # run the command
-            logger.debug(
-                _("job[%(ID)s] executing %(CMD)r with env %(ENV)r"),
-                {"ID": job.id, "CMD": cmd, "ENV": env},
+
+            logger.info(
+                _("job[%(ID)s] executing '%(CMD)r' with env %(ENV)r"),
+                {"ID": job.id, "CMD": shlex.join(cmd), "ENV": env},
             )
             if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
                 return_code = call(
@@ -372,8 +373,6 @@ class UnifiedRunner(IJobRunner):
                         cwd=cwd_dir,
                     )
             if "noreturn" in job.get_flag_set():
-                import signal
-
                 signal.pause()
             return return_code
 
@@ -742,13 +741,14 @@ def get_execution_command_systemd_unit(
     executed not as a child process of Checkbox in the current slice, but as a
     child process of systemd in the appropriate slice for the user
     """
+
     cmd = [
         "sudo",
         "--prompt",
         "",
         "--reset-timestamp",
         "--stdin",
-        "plz-run",
+        shutil.which("plz-run"),
         "-same-dir",
         "-g",
         target_user,
@@ -760,10 +760,22 @@ def get_execution_command_systemd_unit(
     env = get_differential_execution_environment(
         job, environ, session_id, nest_dir, extra_env
     )
-    env_str = ("{}={}".format(*x) for x in env.items())
-    e_iter = itertools.repeat("-E")
-    # ["x=1", "x=2"] -> ["-E", "x=1", "-E", "y=2"]
-    env_cmds = [val for lst in zip(e_iter, env_str) for val in lst]
-    cmd += env_cmds
-    cmd += ["/bin/bash", "-c", job.command]
+    env_cmds = []
+    env_cmds += [
+        "{key}={value}".format(key=key, value=value)
+        for key, value in sorted(env.items())
+    ]
+    if on_ubuntucore():
+        # when in a core snap, we need the snap mount namespace to use anything
+        # that was shared via a content interface
+        snap_name = os.getenv("SNAP_NAME", "checkbox")
+        cmd += [
+            "sudo",
+            shutil.which("nsenter"),
+            "-m/run/snapd/ns/{}.mnt".format(snap_name),
+            "sudo",
+            "-u",
+            target_user,
+        ]
+    cmd += ["env", *env_cmds, job.shell, "-c", job.command]
     return cmd

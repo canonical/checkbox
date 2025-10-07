@@ -37,10 +37,12 @@ try:
 except ImportError:
     grp = None
 import itertools
+import shutil
 import json
 import logging
 import os
 from functools import partial
+from pathlib import Path
 
 from plainbox.abc import IJobResult, ISessionStateController
 from plainbox.i18n import gettext as _

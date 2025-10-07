@@ -130,35 +130,27 @@ class ConnectionInfo:
                 )
                 continue
 
-            frequency_word = find_by_fn(words, lambda s: s.endswith("MHz"))
-            if frequency_word is None:
+            bandwidth_word = find_by_fn(words, lambda s: s.endswith("MHz"))
+            if bandwidth_word is None:
                 print(
                     "No connection frequency was found for",
                     "tx" if is_tx else "rx",
                     file=stderr,
                 )
                 continue
+            bandwidth = int(remove_suffix(bandwidth_word, "MHz"))
 
             try:
-                mcs_word_index = words.index(conn_type_word + "-MCS")
-                mcs = int(words[mcs_word_index])
-            except ValueError:
+                mcs_word_index = words.index(conn_type_word)
+                mcs = int(words[mcs_word_index + 1])
+            except ValueError as e:
+                print(e, file=stderr)
                 continue
 
             if is_tx:
-                tx = ConnectionInfo(
-                    mcs,
-                    conn_type,
-                    "tx",
-                    int(remove_suffix(frequency_word, "MHz")),
-                )
+                tx = ConnectionInfo(mcs, conn_type, "tx", bandwidth)
             else:
-                rx = ConnectionInfo(
-                    mcs,
-                    conn_type,
-                    "rx",
-                    int(remove_suffix(frequency_word, "MHz")),
-                )
+                rx = ConnectionInfo(mcs, conn_type, "rx", bandwidth)
 
         return (tx, rx)
 

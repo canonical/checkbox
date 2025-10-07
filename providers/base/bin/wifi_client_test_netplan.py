@@ -354,10 +354,12 @@ def perform_ping_test(interface, renderer):
         count = 5
         result = ping(target, interface, count, 10)
         print("Ping result: {}".format(result))
-        if result["received"] == result["transmitted"]:
-            return True
-
-    return False
+        if result["received"] != result["transmitted"]:
+            raise ValueError(
+                "{} packets expected but only {} received".format(
+                    count, result["received"]
+                )
+            )
 
 
 def print_journal_entries(start, renderer):
@@ -491,29 +493,25 @@ def main():
     renderer = check_and_get_renderer(args.renderer)
     args.renderer = renderer
 
-    with handle_original_np_config():
-        with handle_test_np_config(args):
-            print_head("Wait for interface to be routable")
-            reached_routable = wait_for_routable(args.interface, renderer)
+    try:
+        with handle_original_np_config():
+            with handle_test_np_config(args):
+                print_head("Wait for interface to be routable")
+                reached_routable = wait_for_routable(args.interface, renderer)
 
-            test_result = False
-            if reached_routable:
-                print_head("Display address")
-                print_address_info(args.interface)
+                test_result = False
+                if reached_routable:
+                    print_head("Display address")
+                    print_address_info(args.interface)
 
-                print_head("Display route table")
-                print_route_info()
+                    print_head("Display route table")
+                    print_route_info()
 
-                # Check connection by ping or link status
-                print_head("Perform a ping test")
-                test_result = perform_ping_test(args.interface, renderer)
-                if test_result:
-                    print("Connection test passed\n")
-                else:
-                    print("Connection test failed\n")
-    print_journal_entries(start_time, renderer)
-    if not test_result:
-        raise SystemExit(1)
+                    # Check connection by ping or link status
+                    print_head("Perform a ping test")
+                    perform_ping_test(args.interface, renderer)
+    finally:
+        print_journal_entries(start_time, renderer)
 
 
 if __name__ == "__main__":

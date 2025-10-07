@@ -129,6 +129,36 @@ class TestWifi7Tests(ut.TestCase):
                     getattr(expected, prop), getattr(actual, prop)
                 )
 
+    def test_parser_not_wifi_7(self):
+        # test the special cases
+        answers = [
+            (
+                "iw_dev_link_wifi_4.txt",
+                w7.ConnectionInfo(
+                    mcs=11, conn_type="HT", direction="tx", bandwidth=None
+                ),
+            ),
+            (
+                "iw_dev_link_legacy_wifi.txt",
+                w7.ConnectionInfo(
+                    mcs=None,
+                    conn_type="Legacy",
+                    direction="tx",
+                    bandwidth=None,
+                ),
+            ),
+        ]
+        for file, expected in answers:
+            with (TEST_DATA_DIR / file).open() as f:
+                actual, _ = w7.ConnectionInfo.parse(f.read())
+                for prop in dir(expected):
+                    if prop.startswith("__"):
+                        # don't compare dunder methods/props
+                        continue
+                    self.assertEqual(
+                        getattr(expected, prop), getattr(actual, prop)
+                    )
+
     @mock_retry()
     @patch("builtins.open")
     @patch("time.sleep")
@@ -138,7 +168,7 @@ class TestWifi7Tests(ut.TestCase):
     @patch("subprocess.run")
     @patch("subprocess.check_call")
     @patch("subprocess.check_output")
-    def test_not_wifi_7(
+    def test_main_not_wifi_7(
         self,
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
@@ -157,12 +187,12 @@ class TestWifi7Tests(ut.TestCase):
                 return "\n".join([MOCK_IFACE, "wifi", "", "lo", "loopback"])
             if args[0:4] == ["iw", "dev", MOCK_IFACE, "info"]:
                 with (
-                    TEST_DATA_DIR / "iw_dev_info_not_wifi_7.txt"
+                    TEST_DATA_DIR / "iw_dev_info_wifi_6.txt"
                 ).open() as f:
                     return f.read()
             if args[0:4] == ["iw", "dev", MOCK_IFACE, "link"]:
                 with (
-                    TEST_DATA_DIR / "iw_dev_link_not_wifi_7.txt"
+                    TEST_DATA_DIR / "iw_dev_link_wifi_6.txt"
                 ).open() as f:
                     return f.read()
             if args[0:8] == [

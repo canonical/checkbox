@@ -185,42 +185,42 @@ _siblings: [
     {
       "id": "dss/restart_long_living_notebook_after_reboot_using_pytorch",
       "depends": "dss/status_mlflow_after_reboot dss/create_long_living_notebook_before_reboot_using_pytorch",
-      "_summary": "Check that the long living notebook from 'pytorch' can be restarted",
+      "_summary": "Check that the long-living notebook from 'pytorch' can be restarted",
       "estimated_duration": "5m",
       "command": "timeout 10s run_dss.sh stop long-living-pytorch-cpu && sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-cpu"
     },
     {
       "id": "dss/restart_long_living_notebook_after_reboot_using_tensorflow",
       "depends": "dss/status_mlflow_after_reboot dss/create_long_living_notebook_before_reboot_using_tensorflow",
-      "_summary": "Check that the long living notebook from 'tensorflow' can be restarted",
+      "_summary": "Check that the long-living notebook from 'tensorflow' can be restarted",
       "estimated_duration": "5m",
       "command": "timeout 10s run_dss.sh stop long-living-tensorflow-cpu && sleep 10 && timeout 5m run_dss.sh start long-living-tensorflow-cpu"
     },
     {
       "id": "dss/restart_long_living_notebook_after_reboot_using_pytorch-intel",
       "depends": "dss/status_intel_gpu_after_reboot dss/create_long_living_notebook_before_reboot_using_pytorch-intel",
-      "_summary": "Check that the long living notebook from 'pytorch-intel' can be restarted",
+      "_summary": "Check that the long-living notebook from 'pytorch-intel' can be restarted",
       "estimated_duration": "5m",
       "command": "timeout 10s run_dss.sh stop long-living-pytorch-intel&& sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-intel"
     },
     {
       "id": "dss/restart_long_living_notebook_after_reboot_using_tensorflow-intel",
       "depends": "dss/status_intel_gpu_after_reboot dss/create_long_living_notebook_before_reboot_using_tensorflow-intel",
-      "_summary": "Check that the long living notebook from 'tensorflow-intel' can be restarted",
+      "_summary": "Check that the long-living notebook from 'tensorflow-intel' can be restarted",
       "estimated_duration": "5m",
       "command": "timeout 10s run_dss.sh stop long-living-tensorflow-intel && sleep 10 && timeout 5m run_dss.sh start long-living-tensorflow-intel"
     },
     {
       "id": "dss/restart_long_living_notebook_after_reboot_using_pytorch-cuda",
       "depends": "dss/status_nvidia_gpu_after_reboot dss/create_long_living_notebook_before_reboot_using_pytorch-cuda",
-      "_summary": "Check that the long living notebook from 'pytorch-cuda' can be restarted",
+      "_summary": "Check that the long-living notebook from 'pytorch-cuda' can be restarted",
       "estimated_duration": "5m",
       "command": "timeout 10s run_dss.sh stop long-living-pytorch-cuda && sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-cuda"
     },
     {
       "id": "dss/restart_long_living_notebook_after_reboot_using_tensorflow-cuda",
       "depends": "dss/status_nvidia_gpu_after_reboot dss/create_long_living_notebook_before_reboot_using_tensorflow-cuda",
-      "_summary": "Check that the long living notebook from 'tensorflow-cuda' can be restarted",
+      "_summary": "Check that the long-living notebook from 'tensorflow-cuda' can be restarted",
       "estimated_duration": "5m",
       "command": "timeout 10s run_dss.sh stop long-living-tensorflow-cuda && sleep 10 && timeout 5m run_dss.sh start long-living-tensorflow-cuda"
     }

@@ -104,7 +104,9 @@ class ConnectionInfo:
                 )
                 raise ValueError("Incomplete output from iw")
 
-            # Example:
+            # Examples:
+            # words = [11.0, MBit/s, 40MHz, HE-MCS, 3, 
+            #          HE-NSS, 2, HE-GI, 2, HE-DCM, 0]
             # words = [48, MBit/s, 320MHz, EHT-MCS, 11, EHT-NSS, 2, EHT-GI, 0]
 
             conn_type = remove_suffix(words[3], "-MCS")
@@ -308,7 +310,6 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     :raises SystemExit: if iw shows that the connection is not a wifi 7 conn
     :raises SystemExit: if iw shows no MLO links or less than 2 links
     """
-    PLAINBOX_SESSION_SHARE = Path(os.environ["PLAINBOX_SESSION_SHARE"])
 
     print(
         "Attempting to connect to '{}' on '{}'...".format(
@@ -331,23 +332,11 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     )
     disconnect(mlo_ssid)
 
-    # only dump the last check
-    # TODO: is there a way to get the retry index?
-    with open(
-        PLAINBOX_SESSION_SHARE
-        / slugify("iw_info_{}_{}.log".format(wifi_interface, mlo_ssid)),
-        "w",
-    ) as f:
-        f.write(iw_info_output)
-
-    with open(
-        PLAINBOX_SESSION_SHARE
-        / slugify("iw_link_{}_{}.log".format(wifi_interface, mlo_ssid)),
-        "w",
-    ) as f:
-        f.write(iw_link_output)
-
-    print("iw outputs have been saved to {}".format(PLAINBOX_SESSION_SHARE))
+    print("iw dev {} info".format(wifi_interface))
+    print(iw_info_output)
+    print()
+    print("iw dev {} link".format(wifi_interface))
+    print(iw_link_output)
 
     if mlo_ssid not in iw_info_output:
         raise SystemExit(

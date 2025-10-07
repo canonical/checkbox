@@ -3,7 +3,7 @@ import subprocess
 import unittest as ut
 from contextlib import suppress
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import wifi_7_test as w7
 from checkbox_support.helpers.retry import mock_retry
@@ -97,6 +97,18 @@ class TestWifi7Tests(ut.TestCase):
             ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"],
         ):
             w7.main()
+            mock_check_call.assert_has_calls(
+                [
+                    call(
+                        [
+                            "nmcli",
+                            "connection",
+                            "up",
+                            "7a18fc1e-e021-4fcb-a3e5",
+                        ]
+                    )
+                ]
+            )
 
         mock_run.return_value = subprocess.CompletedProcess([], 0, "", "")
         with patch(

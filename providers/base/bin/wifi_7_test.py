@@ -20,7 +20,6 @@ Prerequisites for running this test:
 """
 
 import argparse
-from calendar import c
 import itertools
 import subprocess as sp
 import typing as T
@@ -445,7 +444,6 @@ def main():
     else:
         wifi_interface = args.interface
 
-    # a list of connection UUIDs
     active_wifi_conn_uuids = []  # type: list[str]
     previous_mlo_ap_conn_uuid = None  # type: str | None
 
@@ -475,10 +473,12 @@ def main():
                 # we can't use 'nmcli c up' to restore the connection
                 # because it would've been deleted.
                 # instead, call connect() again
-                print("Restoring connection:", args.mlo_ssid, flush=True)
+                print(
+                    "Restoring connection by name:", args.mlo_ssid, flush=True
+                )
                 connect(args.mlo_ssid, args.password, wifi_interface)
             else:
-                print("Restoring connection:", conn_uuid, flush=True)
+                print("Restoring connection by uuid:", conn_uuid, flush=True)
                 sp.check_call(["nmcli", "connection", "up", conn_uuid])
 
 

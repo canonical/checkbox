@@ -53,15 +53,10 @@ def find_by_fn(items: "list[E]", fn: T.Callable[[E], bool]) -> "E | None":
     :return: the element such that fn(element) == True
              or None if nothing in 'items' satisfies the predicate
     """
-    try:
-        return next(
-            filter(
-                fn,
-                items,
-            )
-        )
-    except StopIteration:
-        return None
+    for item in items:
+        if fn(item):
+            return item
+    return None
 
 
 class ConnectionInfo:

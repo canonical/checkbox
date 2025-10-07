@@ -186,14 +186,10 @@ class TestWifi7Tests(ut.TestCase):
             ]:
                 return "\n".join([MOCK_IFACE, "wifi", "", "lo", "loopback"])
             if args[0:4] == ["iw", "dev", MOCK_IFACE, "info"]:
-                with (
-                    TEST_DATA_DIR / "iw_dev_info_wifi_6.txt"
-                ).open() as f:
+                with (TEST_DATA_DIR / "iw_dev_info_wifi_6.txt").open() as f:
                     return f.read()
             if args[0:4] == ["iw", "dev", MOCK_IFACE, "link"]:
-                with (
-                    TEST_DATA_DIR / "iw_dev_link_wifi_6.txt"
-                ).open() as f:
+                with (TEST_DATA_DIR / "iw_dev_link_wifi_6.txt").open() as f:
                     return f.read()
             if args[0:8] == [
                 "nmcli",

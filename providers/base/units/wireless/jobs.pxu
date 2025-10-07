@@ -340,6 +340,7 @@ requires:
  executable.name == 'nmcli'
  wifi_7_resource.wpa_supplicant_at_least_2_11 == 'True'
  wifi_7_resource.kernel_at_least_6_14 == 'True'
+ wifi_7_resource.mlo_ssid_specified == 'True'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template

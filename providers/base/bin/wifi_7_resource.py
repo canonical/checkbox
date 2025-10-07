@@ -35,7 +35,7 @@ def get_wpa_supplicant_version() -> "tuple[int, int]":
 
 
 def get_kernel_version() -> "tuple[int, int]":
-    # kernel versing string format is consistent
+    # kernel version string format is consistent
     # https://askubuntu.com/questions/843197/what-are-kernel-version-number-components-w-x-yy-zzz-called # noqa: E501
     version_str = os.uname().release
     # '6.14.0-32-generic'

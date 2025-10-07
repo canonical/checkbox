@@ -1,0 +1,11 @@
+Connected to 04:d9:f5:2e:a6:20 (on wlp0s20f3)
+	SSID: wifi4-wpa
+	freq: 2422.0
+	RX: 2133 bytes (17 packets)
+	TX: 2035 bytes (17 packets)
+	signal: -39 dBm
+	rx bitrate: 130.0 MBit/s MCS 15
+	tx bitrate: 52.0 MBit/s MCS 11
+	bss flags: short-slot-time
+	dtim period: 1
+	beacon int: 100

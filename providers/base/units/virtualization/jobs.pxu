@@ -6,6 +6,7 @@ estimated_duration: 60.0
 requires:
  executable.name == 'lxc'
  package.name == 'lxd-installer' or snap.name == 'lxd'
+ virtualization.kvm == 'supported'
 command: virtualization.py --debug lxdvm
 _purpose:
  Verifies that an LXD Virtual Machine can be created and launched

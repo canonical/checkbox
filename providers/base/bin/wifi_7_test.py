@@ -360,7 +360,7 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     print("iw dev {} link".format(wifi_interface))
     print(iw_link_output)
 
-    if mlo_ssid not in iw_info_output:
+    if mlo_ssid not in iw_info_output and mlo_ssid not in iw_link_output:
         raise SystemExit(
             "Interface '{}' was not connected to SSID '{}'".format(
                 wifi_interface, mlo_ssid

@@ -31,6 +31,7 @@ from checkbox_support.helpers.retry import retry
 from checkbox_support.helpers.slugify import slugify
 
 COMMAND_TIMEOUT = 120
+E = T.TypeVar("E")
 
 
 def remove_prefix(s: str, prefix: str) -> str:
@@ -45,6 +46,18 @@ def remove_suffix(s: str, suffix: str) -> str:
     if s.endswith(suffix):
         return s[: len(s) - len(suffix)]
     return s
+
+
+def find_by_fn(items: "list[E]", fn: T.Callable[[E], bool]) -> "E | None":
+    try:
+        return next(
+            filter(
+                fn,
+                items,
+            )
+        )
+    except StopIteration:
+        return None
 
 
 class ConnectionInfo:
@@ -93,43 +106,58 @@ class ConnectionInfo:
                 remove_prefix(clean_line, "tx bitrate:"), "rx bitrate:"
             ).split()
 
-            if len(words) < 9:
-                # the MHz section can be completely missing
-                print(
-                    "Incomplete output from iw.",
-                    "Is the wifi AP capable of MLO?",
-                    "iw output:",
-                    clean_line,
-                    file=stderr,
-                )
-                raise ValueError("Incomplete output from iw")
-
             # Examples:
-            # words = [11.0, MBit/s, 40MHz, HE-MCS, 3, 
+            # words = [11.0, MBit/s, 40MHz, HE-MCS, 3,
             #          HE-NSS, 2, HE-GI, 2, HE-DCM, 0]
             # words = [48, MBit/s, 320MHz, EHT-MCS, 11, EHT-NSS, 2, EHT-GI, 0]
 
-            conn_type = remove_suffix(words[3], "-MCS")
-            assert conn_type in (
+            conn_type_word = find_by_fn(words, lambda s: s.endswith("-MCS"))
+            if conn_type_word is None:
+                continue
+            conn_type = remove_suffix(conn_type_word, "-MCS")
+            if conn_type not in (
                 "EHT",  # wifi 7
                 "HE",  # wifi 6 and wifi 6e
                 "VT",  # wifi 5
                 "HT",  # wifi 4
-            ), "Unexpected connection type {}".format(conn_type)
+            ):
+                print(
+                    "Unexpected",
+                    "tx" if is_tx else "rx",
+                    "connection type:",
+                    conn_type,
+                    file=stderr,
+                )
+                continue
+
+            frequency_word = find_by_fn(words, lambda s: s.endswith("MHz"))
+            if frequency_word is None:
+                print(
+                    "No connection frequency was found for",
+                    "tx" if is_tx else "rx",
+                    file=stderr,
+                )
+                continue
+
+            try:
+                mcs_word_index = words.index(conn_type_word + "-MCS")
+                mcs = int(words[mcs_word_index])
+            except ValueError:
+                continue
 
             if is_tx:
                 tx = ConnectionInfo(
-                    int(words[4]),
+                    mcs,
                     conn_type,
                     "tx",
-                    int(remove_suffix(words[2], "MHz")),
+                    int(remove_suffix(frequency_word, "MHz")),
                 )
             else:
                 rx = ConnectionInfo(
-                    int(words[4]),
+                    mcs,
                     conn_type,
                     "rx",
-                    int(remove_suffix(words[2], "MHz")),
+                    int(remove_suffix(frequency_word, "MHz")),
                 )
 
         return (tx, rx)

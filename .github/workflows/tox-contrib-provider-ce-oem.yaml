@@ -57,6 +57,9 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python }}
         run: |
           sudo add-apt-repository ppa:deadsnakes/ppa
+          # python3.5 and python3.6 are no longer in deadsnakes for focal
+          # we pushed them to the Checkbox PPA instead
+          sudo add-apt-repository ppa:checkbox-dev/edge
           sudo apt-get update
           sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
           pip install tox

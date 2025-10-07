@@ -10,6 +10,7 @@ from checkbox_support.helpers.retry import mock_retry
 
 TEST_DATA_DIR = Path(__file__).parent / "test_data"
 MOCK_AP_NAME = "wifi7-ap"
+MOCK_IFACE = "wlp0s20f3"
 
 
 class TestStrUtils(ut.TestCase):
@@ -43,7 +44,6 @@ class TestWifi7Tests(ut.TestCase):
         mock_open,
     ):
         def fake_check_output(args: "list[str]", *other_args, **kwargs):
-            iface = "wlp0s20f3"
             if args[0:3] == ["nmcli", "connection", "delete"]:
                 return "Deleted {}".format(args[3])
             if args[0:5] == [
@@ -53,11 +53,11 @@ class TestWifi7Tests(ut.TestCase):
                 "device",
                 "show",
             ]:
-                return "\n".join([iface, "wifi", "", "lo", "loopback"])
-            if args[0:4] == ["iw", "dev", iface, "info"]:
+                return "\n".join([MOCK_IFACE, "wifi", "", "lo", "loopback"])
+            if args[0:4] == ["iw", "dev", MOCK_IFACE, "info"]:
                 with (TEST_DATA_DIR / "iw_dev_info_succ.txt").open() as f:
                     return f.read()
-            if args[0:4] == ["iw", "dev", iface, "link"]:
+            if args[0:4] == ["iw", "dev", MOCK_IFACE, "link"]:
                 with (TEST_DATA_DIR / "iw_dev_link_succ.txt").open() as f:
                     return f.read()
             if args[0:8] == [
@@ -78,6 +78,15 @@ class TestWifi7Tests(ut.TestCase):
                         "",
                         "some-random-wifi",
                         MOCK_AP_NAME,
+                    ]
+                )
+            if args[0:4] == ["nmcli", "connection", "show", "--active"]:
+                return "\n".join(
+                    [
+                        "NAME UUID TYPE DEVICE",
+                        "some-wifi 7a18fc1e-e021-4fcb-a3e5 wifi {}".format(
+                            MOCK_IFACE
+                        ),
                     ]
                 )
 
@@ -138,7 +147,6 @@ class TestWifi7Tests(ut.TestCase):
         mock_open,
     ):
         def fake_check_output(args: "list[str]", *other_args, **kwargs):
-            iface = "wlp0s20f3"
             if args[0:5] == [
                 "nmcli",
                 "--get-values",
@@ -146,13 +154,13 @@ class TestWifi7Tests(ut.TestCase):
                 "device",
                 "show",
             ]:
-                return "\n".join([iface, "wifi", "", "lo", "loopback"])
-            if args[0:4] == ["iw", "dev", iface, "info"]:
+                return "\n".join([MOCK_IFACE, "wifi", "", "lo", "loopback"])
+            if args[0:4] == ["iw", "dev", MOCK_IFACE, "info"]:
                 with (
                     TEST_DATA_DIR / "iw_dev_info_not_wifi_7.txt"
                 ).open() as f:
                     return f.read()
-            if args[0:4] == ["iw", "dev", iface, "link"]:
+            if args[0:4] == ["iw", "dev", MOCK_IFACE, "link"]:
                 with (
                     TEST_DATA_DIR / "iw_dev_link_not_wifi_7.txt"
                 ).open() as f:
@@ -175,6 +183,12 @@ class TestWifi7Tests(ut.TestCase):
                         "",
                         "some-random-wifi",
                         MOCK_AP_NAME,
+                    ]
+                )
+            if args[0:4] == ["nmcli", "connection", "show", "--active"]:
+                return "\n".join(
+                    [
+                        "NAME UUID TYPE DEVICE",
                     ]
                 )
 
@@ -208,7 +222,6 @@ class TestWifi7Tests(ut.TestCase):
         mock_check_output.reset_mock()
 
         def fake_check_output(args: "list[str]", *other_args, **kwargs):
-            iface = "wlp0s20f3"
             if args[0:5] == [
                 "nmcli",
                 "--get-values",
@@ -216,7 +229,7 @@ class TestWifi7Tests(ut.TestCase):
                 "device",
                 "show",
             ]:
-                return "\n".join([iface, "wifi", "", "lo", "loopback"])
+                return "\n".join([MOCK_IFACE, "wifi", "", "lo", "loopback"])
 
             if args[0:8] == [
                 "nmcli",
@@ -237,6 +250,9 @@ class TestWifi7Tests(ut.TestCase):
                         "some-random-wifi",
                     ]
                 )
+
+            if args[0:4] == ["nmcli", "connection", "show", "--active"]:
+                return ""
 
         mock_check_output.side_effect = fake_check_output
         # didn't find the given AP, exit

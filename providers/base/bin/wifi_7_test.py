@@ -21,14 +21,11 @@ Prerequisites for running this test:
 
 import argparse
 import itertools
-import os
 import subprocess as sp
 import typing as T
-from pathlib import Path
 from sys import stderr
 
 from checkbox_support.helpers.retry import retry
-from checkbox_support.helpers.slugify import slugify
 
 COMMAND_TIMEOUT = 120
 E = T.TypeVar("E")
@@ -49,6 +46,13 @@ def remove_suffix(s: str, suffix: str) -> str:
 
 
 def find_by_fn(items: "list[E]", fn: T.Callable[[E], bool]) -> "E | None":
+    """Find the first element that satisfies the predicate
+
+    :param items: list to search through
+    :param fn: the predicate function
+    :return: the element such that fn(element) == True
+             or None if nothing in 'items' satisfies the predicate
+    """
     try:
         return next(
             filter(
@@ -144,6 +148,8 @@ class ConnectionInfo:
                 mcs_word_index = words.index(conn_type_word)
                 mcs = int(words[mcs_word_index + 1])
             except ValueError as e:
+                # both <list>.index() and int() raise ValueError
+                # stop parsing if either happens
                 print(e, file=stderr)
                 continue
 

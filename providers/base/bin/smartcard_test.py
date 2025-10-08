@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2015-2020 Canonical Ltd.
+# Copyright 2015-2025 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:

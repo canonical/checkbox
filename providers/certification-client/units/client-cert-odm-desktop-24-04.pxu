@@ -156,7 +156,7 @@ nested_part:
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
     # process.
-    misc-client-cert-full
+    misc-client-cert-automated
     cpu-cert-automated
     disk-cert-automated
     stress-iperf3-automated

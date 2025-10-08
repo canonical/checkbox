@@ -27,6 +27,7 @@ import io
 import logging
 import os
 import select
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -56,6 +57,13 @@ from plainbox.vendor import extcmd
 from plainbox.impl.unit.job import InvalidJob
 
 logger = logging.getLogger("plainbox.unified")
+
+try:
+    join_cmd = shlex.join
+except AttributeError:
+
+    def join_cmd(args):
+        return " ".join(shlex.quote(x) for x in args)
 
 
 class UnifiedRunner(IJobRunner):
@@ -338,9 +346,9 @@ class UnifiedRunner(IJobRunner):
             # See https://bugs.launchpad.net/snapd/+bug/2003955
             env["SYSTEMD_IGNORE_CHROOT"] = "1"
             # run the command
-            logger.debug(
-                _("job[%(ID)s] executing %(CMD)r with env %(ENV)r"),
-                {"ID": job.id, "CMD": cmd, "ENV": env},
+            logger.info(
+                _("Starting job [%(ID)s] executing: %(CMD)r"),
+                {"ID": job.id, "CMD": join_cmd(cmd)},
             )
             if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
                 return_code = call(
@@ -355,6 +363,7 @@ class UnifiedRunner(IJobRunner):
                         env=env,
                         cwd=cwd_dir,
                     )
+            logger.info("Finished job [{}]".format(job.id))
             if "noreturn" in job.get_flag_set():
                 import signal
 

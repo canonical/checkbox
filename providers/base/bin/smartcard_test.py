@@ -182,7 +182,7 @@ class SmartcardTest:
         )
 
         cardrequest = CardRequest(timeout=30, newcardonly=True)
-        cards = []  # type: list[smartcard.Card]
+        cards = []  # list[smartcard.Card]
         while len(cards) == 0:
             currentcards = cardrequest.waitforcardevent()
             for card in currentcards:

@@ -182,24 +182,28 @@ class UdevadmDevice(object):
     def name(self):
         if self._name is not None:
             return self._name
-        # For nvme subsystem devices (controller) without a DEVNAME,
-        # derive the name from the DEVPATH by looking for nvmeXnY pattern
-        # in child devices during post-processing
+        # For nvme DISK devices without a DEVNAME, derive the name from DEVPATH
+        # This handles NVMe subsystem/controller devices and namespace devices
+        # that are categorized as DISK but don't have a /dev/nvmeXnY entry
         if (
             self.bus == "nvme"
             and self.driver == "nvme"
             and self.category == "DISK"
-            and self._environment.get("SUBSYSTEM") == "nvme"
             and "DEVNAME" not in self._environment
         ):
-            # Extract nvme controller number from DEVPATH
-            # e.g., /devices/.../nvme/nvme0 -> nvme0
+            # Use _raw_path (actual DEVPATH) not path (which may be modified)
+            # Look for patterns like:
+            #   /devices/.../nvme/nvme2/nvme2n1 -> nvme2n1
+            #   /devices/.../nvme/nvme0 -> nvme0n1 (fallback)
             devpath = self._environment.get("DEVPATH", "")
-            # Look for nvmeX pattern at the end of parent paths
+            # First try to match nvmeXnY (namespace device)
+            match = re.search(r'/(nvme\d+n\d+)(?:/|$)', devpath)
+            if match:
+                return match.group(1)
+            # Fallback: match nvmeX (controller) and append n1
             match = re.search(r'/nvme/nvme(\d+)(?:/|$)', devpath)
             if match:
                 nvme_num = match.group(1)
-                # Return nvmeXn1 as the default namespace
                 return f"nvme{nvme_num}n1"
         return None
 

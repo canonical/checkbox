@@ -5,6 +5,7 @@ import logging
 from checkbox_support.helpers.timeout import mock_timeout
 
 from smartcard_test import (
+    main,
     SmartcardTest,
     NoCardException,
     CardConnectionException,
@@ -501,6 +502,39 @@ class TestSmartcardTest(unittest.TestCase):
         mock_args.reader = "AnotherReader"
         self.sc.function_select(mock_args)
         mock_send_apdu_test.assert_called_once_with("AnotherReader")
+
+    @patch("smartcard_test.SmartcardTest")
+    @patch("smartcard_test.logging.StreamHandler")
+    @patch("smartcard_test.sys.exit")
+    def test_main(
+        self, mock_sys_exit, mock_stream_handler, mock_smartcard_test
+    ):
+        mock_instance = MagicMock()
+        mock_smartcard_test.return_value = mock_instance
+
+        mock_instance._args_parsing.return_value = ["dummy_arg"]
+
+        mock_instance.function_select.return_value = 0
+
+        mock_instance.logger = MagicMock()
+        mock_logger = mock_instance.logger
+        mock_logger.setLevel = MagicMock()
+        mock_logger.addHandler = MagicMock()
+
+        mock_handler_instance = MagicMock()
+        mock_stream_handler.return_value = mock_handler_instance
+        mock_handler_instance.setFormatter = MagicMock()
+
+        # Call main
+        main()
+
+        mock_logger.setLevel.assert_called_once_with(logging.INFO)
+        mock_logger.addHandler.assert_called_once_with(mock_handler_instance)
+
+        mock_instance._args_parsing.assert_called_once()
+        mock_instance.function_select.assert_called_once_with(["dummy_arg"])
+
+        mock_sys_exit.assert_called_once_with(0)
 
 
 if __name__ == "__main__":

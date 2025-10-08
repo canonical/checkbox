@@ -342,6 +342,7 @@ _verification:
 plugin: manual
 category_id: com.canonical.plainbox::keys
 id:  keys/power-button-suspend
+depends: com.canonical.certification::suspend/suspend_advanced_auto
 estimated_duration: 5.0
 _purpose:
     Verify the system can enter suspend and resume via the power button.

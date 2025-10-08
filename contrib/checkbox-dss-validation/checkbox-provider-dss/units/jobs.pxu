@@ -72,9 +72,9 @@ imports:
   from com.canonical.certification import graphics_card
 requires:
   executable.name == 'dss'
-  graphics_card.vendor == 'Intel Corporation'
+  graphics_card.vendor == 'NVIDIA Corporation'
 depends: dss/status_mlflow
-_summary: Check that DSS status reports Intel GPU acceleration is enabled
+_summary: Check that DSS status reports NVIDIA GPU acceleration is enabled
 estimated_duration: 5s
 command:
   set -eo pipefail

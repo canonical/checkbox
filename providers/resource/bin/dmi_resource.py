@@ -44,8 +44,9 @@ def sane_product(og_product: str) -> str:
         "space-saving",
         "all-in-one",
         "aio",
+        "main-server-chassis",
     ]:
-        return "not-portable"
+        return "non-portable"
     elif cleaned in [
         "notebook",
         "laptop",

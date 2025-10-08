@@ -48,7 +48,7 @@ class TestDmiResource(TestCase):
             "aio",
         ]
         category = set(map(dmi_resource.sane_product, products))
-        self.assertEqual(category, {"not-portable"})
+        self.assertEqual(category, {"non-portable"})
 
     def test_sane_product_unknown(self):
         products = ["strange-iot-product"]

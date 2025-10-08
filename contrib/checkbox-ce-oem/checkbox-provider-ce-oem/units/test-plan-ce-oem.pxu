@@ -50,6 +50,7 @@ nested_part:
     ce-oem-secure-boot-manual
     ce-oem-mipi-camera-manual
     ce-oem-regulator-manual
+    ce-oem-graphics-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -95,6 +96,7 @@ nested_part:
     ce-oem-regulator-automated
     ce-oem-power-automated-by-pdu
     ce-oem-mipi-camera-automated
+    ce-oem-graphics-automated
 certification_status_overrides:
     apply blocker to .*
 

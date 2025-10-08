@@ -32,6 +32,10 @@ jobs:
             arch: amd64
           - release: 16
             arch: arm64
+          - release: 22
+            arch: riscv64
+          - release: 24
+            arch: riscv64
     # uc16 needs ubuntu20 because we need cgroup v1 to build it
     runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
@@ -111,6 +115,13 @@ jobs:
             arch: amd64
           - release: 24
             arch: arm64
+        include:
+          - release: 22
+            arch: riscv64
+            type: uc
+          - release: 24
+            arch: riscv64
+            type: uc
     # uc16 needs ubuntu20 because we need cgroup v1 to build it
     runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts

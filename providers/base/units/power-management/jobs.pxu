@@ -581,6 +581,7 @@ description:
 plugin: manual
 category_id: com.canonical.plainbox::power-management
 id: power-management/suspend-on-battery-power
+depends: com.canonical.certification::suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_dc_mode == 'True'
@@ -600,6 +601,7 @@ _verification:
 plugin: manual
 category_id: com.canonical.plainbox::power-management
 id: power-management/suspend-on-AC-power
+depends: com.canonical.certification::suspend/suspend_advanced_auto
 estimated_duration: 20.0
 _purpose:
     Verify the system can enter suspend being idle for 15 minutes on AC power.

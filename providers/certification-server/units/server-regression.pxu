@@ -15,6 +15,7 @@ nested_part:
     com.canonical.certification::server-memory
     com.canonical.certification::server-networking
     com.canonical.certification::nvdimm-full
+    com.canonical.certification::stress-sru-tests
 include:
     info/hdparm_.*.txt                         certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
@@ -32,7 +33,7 @@ include:
     miscellanea/klog_results.log
 exclude:
     stress/memory_stress_ng
-    disk/disk_stress_ng_.*
+    disk/disk_stress_ng_(?!sru).*
     disk/disk_cpu_load_.*
 bootstrap_include:
     device

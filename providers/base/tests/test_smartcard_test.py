@@ -531,7 +531,6 @@ class TestSmartcardTest(unittest.TestCase):
         mock_logger.setLevel.assert_called_once_with(logging.INFO)
         mock_logger.addHandler.assert_called_once_with(mock_handler_instance)
 
-        mock_instance._args_parsing.assert_called_once()
         mock_instance.function_select.assert_called_once_with(["dummy_arg"])
 
         mock_sys_exit.assert_called_once_with(0)

@@ -22,17 +22,49 @@
 """Setup K8s cluster to use any detected GPUs from NVIDIA or Intel."""
 
 import argparse
+import io
 import json
+import os
 import shlex
 import subprocess
+import tempfile
 import time
 import typing as t
+
+import yaml
 
 from checkbox_support.helpers.retry import run_with_retry
 from checkbox_support.helpers.timeout import timeout
 
 
 SLEEP_BEFORE_ROLLOUT = 60  # seconds
+
+INTEL_SHARED_DEV_NUM = 10
+# This enables sharing the GPU with upto `shared-dev-num` number of pods.
+# See:
+# <https://documentation.ubuntu.com/data-science-stack/latest/how-to/enable-gpus/enable-intel-gpu/#enable-the-intel-gpu-plugin>
+INTEL_GPU_PLUGIN_KUSTOMIZATION_PATCH = {
+    "apiVersion": "apps/v1",
+    "kind": "DaemonSet",
+    "metadata": {"name": "intel-gpu-plugin"},
+    "spec": {
+        "template": {
+            "spec": {
+                "containers": [
+                    {
+                        "name": "intel-gpu-plugin",
+                        "args": [
+                            "-enable-monitoring",
+                            "-v=2",
+                            f"-shared-dev-num={INTEL_SHARED_DEV_NUM}",
+                        ],
+                    }
+                ]
+            }
+        }
+    },
+}
+
 
 SNAP_MK8S = "/var/snap/microk8s"
 MK8S_CONTAINERD_INFO = {
@@ -133,17 +165,40 @@ def setup_nvidia_gpu_operator(version: str, is_microk8s: bool) -> None:
 def setup_intel_gpu_plugin(version: str, is_microk8s: bool) -> None:
     _ = is_microk8s  # irrelevant at the moment
     print(f"Installing Intel GPU plugin {version}", flush=True)
+
     repo = (
         "https://github.com/intel/"
         "intel-device-plugins-for-kubernetes/deployments"
     )
-    urls = [
+    for url in [
         f"{repo}/nfd?ref={version}",
         f"{repo}/nfd/overlays/node-feature-rules?ref={version}",
-        f"{repo}/gpu_plugin/overlays/nfd_labeled_nodes?ref={version}",
-    ]
-    for url in urls:
+    ]:
         cmd = f"kubectl apply -k {url}"
+        subprocess.run(shlex.split(cmd), check=True)
+
+    # patch gpu_plugin to allow sharing the GPU across multiple pods
+    with tempfile.TemporaryDirectory() as kustomization_dir:
+        gpu_plugin_url = (
+            f"{repo}/gpu_plugin/overlays/nfd_labeled_nodes?ref={version}"
+        )
+
+        # The patch needs to be a stringified yaml value inside the final yaml
+        yaml_patch = io.StringIO()
+        yaml.dump(INTEL_GPU_PLUGIN_KUSTOMIZATION_PATCH, yaml_patch)
+
+        kustomization = {
+            "resources": [gpu_plugin_url],
+            "patches": [{"patch": yaml_patch.getvalue()}],
+        }
+
+        destination_file = os.path.join(
+            kustomization_dir, "kustomization.yaml"
+        )
+        with open(destination_file, "w") as f:
+            yaml.dump(kustomization, f)
+
+        cmd = f"kubectl apply -k {kustomization_dir}"
         subprocess.run(shlex.split(cmd), check=True)
 
     print(f"sleeping for {SLEEP_BEFORE_ROLLOUT} sec before checking rollout")

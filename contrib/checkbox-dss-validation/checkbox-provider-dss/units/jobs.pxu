@@ -84,9 +84,9 @@ imports:
   from com.canonical.certification import graphics_card
 requires:
   executable.name == 'dss'
-  graphics_card.vendor == 'NVIDIA Corporation'
+  graphics_card.vendor == 'Intel Corporation'
 depends: dss/status_mlflow
-_summary: Check that DSS status reports NVIDIA GPU acceleration is enabled
+_summary: Check that DSS status reports Intel GPU acceleration is enabled
 estimated_duration: 5s
 command:
   set -eo pipefail
@@ -193,7 +193,7 @@ depends: dss/status_mlflow_after_reboot dss/create_long_living_notebook_before_r
 _summary: Check that the long-living notebook from 'pytorch' can be restarted
 flags: simple
 estimated_duration: 5m
-command:  
+command:
   timeout 10s run_dss.sh stop long-living-pytorch-cpu && sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-cpu
 _siblings: [
     {

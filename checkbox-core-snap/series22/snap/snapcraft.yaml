@@ -84,7 +84,8 @@ parts:
   plz-run:
     plugin: go
     source: https://gitlab.com/zygoon/plz-run.git
-    source-type: git
+    build-snaps:
+      - go/latest/stable
 ################################################################################
 # Upstream: https://github.com/fwts/fwts/blob/master/snapcraft.yaml
   fwts:

@@ -118,9 +118,9 @@ nested_part:
     wireless-cert-automated
     wireless-netplan-cert-automated
     # start of suspend related tests
-    before-suspend-reference-cert-full
+    before-suspend-reference-cert-automated
     # suspend point
-    after-suspend-reference-cert-full
+    after-suspend-reference-cert-automated
     after-suspend-audio-cert-automated
     after-suspend-graphics-gpu-cert-automated
     # after-suspend-monitor-gpu-cert-automated # not defined

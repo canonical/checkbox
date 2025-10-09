@@ -138,7 +138,7 @@ def main():
         "--lsblkcommand",
         action="store",
         type=str,
-        default="lsblk -i -n --json --bytes -o KNAME,TYPE,MOUNTPOINT,FSTYPE,SIZE,UUID",
+        default="lsblk -i -n -J -b -o KNAME,TYPE,MOUNTPOINT,FSTYPE,SIZE,UUID",
         help="""Command to execute to get lsblk information.
                               Only change it if you know what you're doing.""",
     )

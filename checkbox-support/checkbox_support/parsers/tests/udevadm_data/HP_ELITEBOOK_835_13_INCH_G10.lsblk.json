@@ -1,0 +1,102 @@
+{
+  "blockdevices": [
+    {
+      "kname": "loop0",
+      "type": "loop",
+      "mountpoint": "/snap/snapd/20092",
+      "fstype": "squashfs",
+      "size": 451438767
+    },
+    {
+      "kname": "loop1",
+      "type": "loop",
+      "mountpoint": "/snap/core22/864",
+      "fstype": "squashfs",
+      "size": 472114309
+    },
+    {
+      "kname": "loop2",
+      "type": "loop",
+      "mountpoint": "/snap/bare/5",
+      "fstype": "squashfs",
+      "size": 180519524
+    },
+    {
+      "kname": "loop3",
+      "type": "loop",
+      "mountpoint": "/snap/firefox/3131",
+      "fstype": "squashfs",
+      "size": 461431863
+    },
+    {
+      "kname": "loop4",
+      "type": "loop",
+      "mountpoint": "/snap/gnome-42-2204/126",
+      "fstype": "squashfs",
+      "size": 453836241
+    },
+    {
+      "kname": "loop5",
+      "type": "loop",
+      "mountpoint": "/snap/gtk-common-themes/1535",
+      "fstype": "squashfs",
+      "size": 93619617
+    },
+    {
+      "kname": "loop6",
+      "type": "loop",
+      "mountpoint": "/snap/snap-store/959",
+      "fstype": "squashfs",
+      "size": 395145253
+    },
+    {
+      "kname": "loop7",
+      "type": "loop",
+      "mountpoint": "/snap/snapd-desktop-integration/83",
+      "fstype": "squashfs",
+      "size": 131538445
+    },
+    {
+      "kname": "sda",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 540082752989
+    },
+    {
+      "kname": "sda1",
+      "type": "part",
+      "mountpoint": "/media/ubuntu/4526-3FDB",
+      "fstype": "btrfs",
+      "size": 277366678950
+    },
+    {
+      "kname": "nvme0n1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1322997073182
+    },
+    {
+      "kname": "nvme0n1p1",
+      "type": "part",
+      "mountpoint": "/boot/efi",
+      "fstype": "vfat",
+      "size": 430400488060
+    },
+    {
+      "kname": "nvme0n1p2",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 165071596477
+    },
+    {
+      "kname": "nvme0n1p3",
+      "type": "part",
+      "mountpoint": "/",
+      "fstype": "xfs",
+      "size": 295721607570
+    }
+  ]
+}

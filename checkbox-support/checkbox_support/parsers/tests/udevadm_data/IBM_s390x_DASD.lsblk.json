@@ -1,0 +1,53 @@
+{
+  "blockdevices": [
+    {
+      "kname": "dasda",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1386063927162
+    },
+    {
+      "kname": "dasda1",
+      "type": "part",
+      "mountpoint": "/boot",
+      "fstype": "btrfs",
+      "size": 337807256036
+    },
+    {
+      "kname": "dasda2",
+      "type": "part",
+      "mountpoint": "[SWAP]",
+      "fstype": "swap",
+      "size": 335077960609
+    },
+    {
+      "kname": "dasdb",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1741801820838
+    },
+    {
+      "kname": "dasdb1",
+      "type": "part",
+      "mountpoint": "/var",
+      "fstype": "btrfs",
+      "size": 371914415201
+    },
+    {
+      "kname": "dasdc",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1967478490558
+    },
+    {
+      "kname": "dasdc1",
+      "type": "part",
+      "mountpoint": "/",
+      "fstype": "btrfs",
+      "size": 145369371821
+    }
+  ]
+}

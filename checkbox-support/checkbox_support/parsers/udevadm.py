@@ -209,7 +209,7 @@ class UdevadmDevice(object):
             match = re.search(r'/nvme/nvme(\d+)(?:/|$)', devpath)
             if match:
                 nvme_num = match.group(1)
-                return f"nvme{nvme_num}n1"
+                return "nvme{}n1".format(nvme_num)
         return None
 
     @property

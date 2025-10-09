@@ -1,0 +1,312 @@
+{
+  "blockdevices": [
+    {
+      "kname": "loop0",
+      "type": "loop",
+      "mountpoint": "/snap/core20/975",
+      "fstype": "squashfs",
+      "size": 288811490
+    },
+    {
+      "kname": "loop1",
+      "type": "loop",
+      "mountpoint": "/snap/pc-kernel/761",
+      "fstype": "squashfs",
+      "size": 127985324
+    },
+    {
+      "kname": "loop2",
+      "type": "loop",
+      "mountpoint": "/snap/bluez/258",
+      "fstype": "squashfs",
+      "size": 216191239
+    },
+    {
+      "kname": "loop3",
+      "type": "loop",
+      "mountpoint": "/snap/core/10958",
+      "fstype": "squashfs",
+      "size": 164385508
+    },
+    {
+      "kname": "loop4",
+      "type": "loop",
+      "mountpoint": "/snap/core/11081",
+      "fstype": "squashfs",
+      "size": 135143842
+    },
+    {
+      "kname": "loop5",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-apex-gadget/57",
+      "fstype": "squashfs",
+      "size": 487262131
+    },
+    {
+      "kname": "loop6",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-evernet/14",
+      "fstype": "squashfs",
+      "size": 199881140
+    },
+    {
+      "kname": "loop7",
+      "type": "loop",
+      "mountpoint": "/snap/core18/1997",
+      "fstype": "squashfs",
+      "size": 161963352
+    },
+    {
+      "kname": "loop8",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-cloud-connector/11",
+      "fstype": "squashfs",
+      "size": 146400070
+    },
+    {
+      "kname": "loop9",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-iot-agent/4",
+      "fstype": "squashfs",
+      "size": 324797338
+    },
+    {
+      "kname": "loop10",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-gateway-controller/52",
+      "fstype": "squashfs",
+      "size": 116207468
+    },
+    {
+      "kname": "loop11",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-firmware-sensor-radio/11",
+      "fstype": "squashfs",
+      "size": 450822661
+    },
+    {
+      "kname": "loop12",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-evernet/41",
+      "fstype": "squashfs",
+      "size": 284128377
+    },
+    {
+      "kname": "loop13",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-ufw/6",
+      "fstype": "squashfs",
+      "size": 240982753
+    },
+    {
+      "kname": "loop14",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-firmware-mc/9",
+      "fstype": "squashfs",
+      "size": 153393273
+    },
+    {
+      "kname": "loop15",
+      "type": "loop",
+      "mountpoint": "/snap/network-manager/645",
+      "fstype": "squashfs",
+      "size": 325860880
+    },
+    {
+      "kname": "loop16",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-gateway-services/18",
+      "fstype": "squashfs",
+      "size": 108799747
+    },
+    {
+      "kname": "loop17",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-psiclone/15",
+      "fstype": "squashfs",
+      "size": 295613783
+    },
+    {
+      "kname": "loop18",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-dnsmasq/13",
+      "fstype": "squashfs",
+      "size": 448668242
+    },
+    {
+      "kname": "loop19",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-gateway-essentials/47",
+      "fstype": "squashfs",
+      "size": 112264625
+    },
+    {
+      "kname": "loop20",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-gateway-services/42",
+      "fstype": "squashfs",
+      "size": 97070009
+    },
+    {
+      "kname": "loop21",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-gateway-base/20",
+      "fstype": "squashfs",
+      "size": 279741559
+    },
+    {
+      "kname": "loop22",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-psiclone/54",
+      "fstype": "squashfs",
+      "size": 187515639
+    },
+    {
+      "kname": "loop23",
+      "type": "loop",
+      "mountpoint": "/snap/checkbox-staunton/9",
+      "fstype": "squashfs",
+      "size": 81236833
+    },
+    {
+      "kname": "loop24",
+      "type": "loop",
+      "mountpoint": "/snap/modem-manager/454",
+      "fstype": "squashfs",
+      "size": 308840336
+    },
+    {
+      "kname": "loop25",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-chrony/6",
+      "fstype": "squashfs",
+      "size": 323588353
+    },
+    {
+      "kname": "loop26",
+      "type": "loop",
+      "mountpoint": "/snap/network-manager/660",
+      "fstype": "squashfs",
+      "size": 145257636
+    },
+    {
+      "kname": "loop27",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-nats/4",
+      "fstype": "squashfs",
+      "size": 378343987
+    },
+    {
+      "kname": "loop28",
+      "type": "loop",
+      "mountpoint": "/snap/everactive-firmware-utilities/11",
+      "fstype": "squashfs",
+      "size": 288613090
+    },
+    {
+      "kname": "loop29",
+      "type": "loop",
+      "mountpoint": "/snap/snapd/11588",
+      "fstype": "squashfs",
+      "size": 467921992
+    },
+    {
+      "kname": "loop30",
+      "type": "loop",
+      "mountpoint": "/snap/snapd/11841",
+      "fstype": "squashfs",
+      "size": 317267749
+    },
+    {
+      "kname": "loop31",
+      "type": "loop",
+      "mountpoint": "/snap/checkbox20/497",
+      "fstype": "squashfs",
+      "size": 276079775
+    },
+    {
+      "kname": "mmcblk0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1736506241751
+    },
+    {
+      "kname": "mmcblk0p1",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 69993731079
+    },
+    {
+      "kname": "mmcblk0p2",
+      "type": "part",
+      "mountpoint": "/run/mnt/ubuntu-seed",
+      "fstype": "xfs",
+      "size": 75068915023
+    },
+    {
+      "kname": "mmcblk0p3",
+      "type": "part",
+      "mountpoint": "/run/mnt/ubuntu-boot",
+      "fstype": "ext4",
+      "size": 36225236987
+    },
+    {
+      "kname": "mmcblk0p4",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 430556175993
+    },
+    {
+      "kname": "mmcblk0p5",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 195799062632
+    },
+    {
+      "kname": "mmcblk0boot0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 568847133043
+    },
+    {
+      "kname": "mmcblk0boot1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1495513096029
+    },
+    {
+      "kname": "mmcblk1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1773275127169
+    },
+    {
+      "kname": "mmcblk1p1",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 300455545856
+    },
+    {
+      "kname": "dm-0",
+      "type": "crypt",
+      "mountpoint": "/run/mnt/base/writable",
+      "fstype": "unknown",
+      "size": 5084932318
+    },
+    {
+      "kname": "dm-1",
+      "type": "crypt",
+      "mountpoint": "/run/mnt/ubuntu-save",
+      "fstype": "unknown",
+      "size": 5024360046
+    }
+  ]
+}

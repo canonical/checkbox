@@ -1,0 +1,151 @@
+{
+  "blockdevices": [
+    {
+      "kname": "loop0",
+      "type": "loop",
+      "mountpoint": "/snap/core22/1985",
+      "fstype": "squashfs",
+      "size": 416234079
+    },
+    {
+      "kname": "loop1",
+      "type": "loop",
+      "mountpoint": "/snap/pi/133",
+      "fstype": "squashfs",
+      "size": 467362413
+    },
+    {
+      "kname": "loop2",
+      "type": "loop",
+      "mountpoint": "/snap/pi-kernel/976",
+      "fstype": "squashfs",
+      "size": 124772962
+    },
+    {
+      "kname": "loop3",
+      "type": "loop",
+      "mountpoint": "/snap/bluez/396",
+      "fstype": "squashfs",
+      "size": 340456238
+    },
+    {
+      "kname": "loop4",
+      "type": "loop",
+      "mountpoint": "/snap/checkbox/13902",
+      "fstype": "squashfs",
+      "size": 438806891
+    },
+    {
+      "kname": "loop5",
+      "type": "loop",
+      "mountpoint": "/snap/checkbox22/1629",
+      "fstype": "squashfs",
+      "size": 474953228
+    },
+    {
+      "kname": "loop6",
+      "type": "loop",
+      "mountpoint": "/snap/core18/2858",
+      "fstype": "squashfs",
+      "size": 229327919
+    },
+    {
+      "kname": "loop7",
+      "type": "loop",
+      "mountpoint": "/snap/core22/1124",
+      "fstype": "squashfs",
+      "size": 317667936
+    },
+    {
+      "kname": "loop8",
+      "type": "loop",
+      "mountpoint": "/snap/core22/1910",
+      "fstype": "squashfs",
+      "size": 480517130
+    },
+    {
+      "kname": "loop9",
+      "type": "loop",
+      "mountpoint": "/snap/docker/3066",
+      "fstype": "squashfs",
+      "size": 448577301
+    },
+    {
+      "kname": "loop10",
+      "type": "loop",
+      "mountpoint": "/snap/pi-bluetooth/18",
+      "fstype": "squashfs",
+      "size": 466859842
+    },
+    {
+      "kname": "loop11",
+      "type": "loop",
+      "mountpoint": "/snap/pi-kernel/767",
+      "fstype": "squashfs",
+      "size": 196473167
+    },
+    {
+      "kname": "loop12",
+      "type": "loop",
+      "mountpoint": "/snap/snapd/20675",
+      "fstype": "squashfs",
+      "size": 469188599
+    },
+    {
+      "kname": "loop13",
+      "type": "loop",
+      "mountpoint": "/snap/snapd/24507",
+      "fstype": "squashfs",
+      "size": 251218416
+    },
+    {
+      "kname": "sda",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 771091806172
+    },
+    {
+      "kname": "sda1",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 254650925540
+    },
+    {
+      "kname": "mmcblk0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 728483912366
+    },
+    {
+      "kname": "mmcblk0p1",
+      "type": "part",
+      "mountpoint": "/var/lib/snapd/seed",
+      "fstype": "btrfs",
+      "size": 179548958573
+    },
+    {
+      "kname": "mmcblk0p2",
+      "type": "part",
+      "mountpoint": "/run/mnt/ubuntu-boot",
+      "fstype": "xfs",
+      "size": 200783913668
+    },
+    {
+      "kname": "mmcblk0p3",
+      "type": "part",
+      "mountpoint": "/var/lib/snapd/save",
+      "fstype": "xfs",
+      "size": 451494644806
+    },
+    {
+      "kname": "mmcblk0p4",
+      "type": "part",
+      "mountpoint": "/writable",
+      "fstype": "btrfs",
+      "size": 121665857597
+    }
+  ]
+}

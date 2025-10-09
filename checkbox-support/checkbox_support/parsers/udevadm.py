@@ -193,10 +193,15 @@ class UdevadmDevice(object):
         ):
             # Use _raw_path (actual DEVPATH) not path (which may be modified)
             # Look for patterns like:
-            #   /devices/.../nvme/nvme2/nvme2n1 -> nvme2n1
-            #   /devices/.../nvme/nvme0 -> nvme0n1 (fallback)
+            #   /devices/.../nvme/nvme0/nvme0c0n1 -> nvme0c0n1 (cloud NVMe)
+            #   /devices/.../nvme/nvme2/nvme2n1 -> nvme2n1 (standard namespace)
+            #   /devices/.../nvme/nvme0 -> nvme0n1 (controller fallback)
             devpath = self._environment.get("DEVPATH", "")
-            # First try to match nvmeXnY (namespace device)
+            # First try to match nvmeXcYnZ (cloud NVMe device)
+            match = re.search(r'/(nvme\d+c\d+n\d+)(?:/|$)', devpath)
+            if match:
+                return match.group(1)
+            # Then try to match nvmeXnY (standard namespace device)
             match = re.search(r'/(nvme\d+n\d+)(?:/|$)', devpath)
             if match:
                 return match.group(1)

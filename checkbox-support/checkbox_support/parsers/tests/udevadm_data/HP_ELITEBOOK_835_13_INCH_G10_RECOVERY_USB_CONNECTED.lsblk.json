@@ -1,0 +1,173 @@
+{
+   "blockdevices": [
+      {
+         "kname": "loop0",
+         "type": "loop",
+         "mountpoint": "/snap/bare/5",
+         "fstype": "squashfs",
+         "size": 4096,
+         "uuid": null
+      },{
+         "kname": "loop1",
+         "type": "loop",
+         "mountpoint": "/snap/core22/864",
+         "fstype": "squashfs",
+         "size": 77492224,
+         "uuid": null
+      },{
+         "kname": "loop2",
+         "type": "loop",
+         "mountpoint": "/snap/firefox/6966",
+         "fstype": null,
+         "size": 259588096,
+         "uuid": null
+      },{
+         "kname": "loop3",
+         "type": "loop",
+         "mountpoint": "/snap/gnome-42-2204/126",
+         "fstype": "squashfs",
+         "size": 509100032,
+         "uuid": null
+      },{
+         "kname": "loop4",
+         "type": "loop",
+         "mountpoint": "/snap/gtk-common-themes/1535",
+         "fstype": "squashfs",
+         "size": 96141312,
+         "uuid": null
+      },{
+         "kname": "loop5",
+         "type": "loop",
+         "mountpoint": "/snap/snap-store/959",
+         "fstype": "squashfs",
+         "size": 12922880,
+         "uuid": null
+      },{
+         "kname": "loop6",
+         "type": "loop",
+         "mountpoint": "/snap/snapd/20092",
+         "fstype": "squashfs",
+         "size": 42827776,
+         "uuid": null
+      },{
+         "kname": "loop7",
+         "type": "loop",
+         "mountpoint": "/snap/snapd-desktop-integration/83",
+         "fstype": "squashfs",
+         "size": 462848,
+         "uuid": null
+      },{
+         "kname": "loop8",
+         "type": "loop",
+         "mountpoint": "/snap/snapd/25202",
+         "fstype": null,
+         "size": 53235712,
+         "uuid": null
+      },{
+         "kname": "loop9",
+         "type": "loop",
+         "mountpoint": "/snap/core22/2133",
+         "fstype": null,
+         "size": 77512704,
+         "uuid": null
+      },{
+         "kname": "loop10",
+         "type": "loop",
+         "mountpoint": "/snap/snapd-desktop-integration/315",
+         "fstype": "squashfs",
+         "size": 589824,
+         "uuid": null
+      },{
+         "kname": "loop12",
+         "type": "loop",
+         "mountpoint": "/snap/snap-store/1216",
+         "fstype": "squashfs",
+         "size": 12791808,
+         "uuid": null
+      },{
+         "kname": "loop13",
+         "type": "loop",
+         "mountpoint": "/snap/firefox/6933",
+         "fstype": "squashfs",
+         "size": 259145728,
+         "uuid": null
+      },{
+         "kname": "loop14",
+         "type": "loop",
+         "mountpoint": "/snap/gnome-42-2204/226",
+         "fstype": "squashfs",
+         "size": 541278208,
+         "uuid": null
+      },{
+         "kname": "sda",
+         "type": "disk",
+         "mountpoint": null,
+         "fstype": "iso9660",
+         "size": 64160400896,
+         "uuid": "2025-08-05-18-20-26-00"
+      },{
+         "kname": "sda1",
+         "type": "part",
+         "mountpoint": "/media/ubuntu/Ubuntu 24.04.3 LTS amd64",
+         "fstype": "iso9660",
+         "size": 6340313088,
+         "uuid": "2025-08-05-18-20-26-00"
+      },{
+         "kname": "sda2",
+         "type": "part",
+         "mountpoint": null,
+         "fstype": "vfat",
+         "size": 5201920,
+         "uuid": "73B7-988D"
+      },{
+         "kname": "sda3",
+         "type": "part",
+         "mountpoint": null,
+         "fstype": null,
+         "size": 307200,
+         "uuid": null
+      },{
+         "kname": "sdb",
+         "type": "disk",
+         "mountpoint": null,
+         "fstype": null,
+         "size": 31042043904,
+         "uuid": null
+      },{
+         "kname": "sdb1",
+         "type": "part",
+         "mountpoint": "/media/ubuntu/USB",
+         "fstype": "ext4",
+         "size": 31037915136,
+         "uuid": "6f079390-f07a-4712-a3b8-e2fca864de28"
+      },{
+         "kname": "nvme0n1",
+         "type": "disk",
+         "mountpoint": null,
+         "fstype": null,
+         "size": 512110190592,
+         "uuid": null
+      },{
+         "kname": "nvme0n1p1",
+         "type": "part",
+         "mountpoint": "/boot/efi",
+         "fstype": "vfat",
+         "size": 269982720,
+         "uuid": "77A9-9264"
+      },{
+         "kname": "nvme0n1p2",
+         "type": "part",
+         "mountpoint": null,
+         "fstype": "vfat",
+         "size": 6144000000,
+         "uuid": "77AD-68DF"
+      },{
+         "kname": "nvme0n1p3",
+         "type": "part",
+         "mountpoint": "/",
+         "fstype": "ext4",
+         "size": 505695698944,
+         "uuid": "8aa302d5-0a0d-40a5-b60f-2b6085d277df"
+      }
+   ]
+}

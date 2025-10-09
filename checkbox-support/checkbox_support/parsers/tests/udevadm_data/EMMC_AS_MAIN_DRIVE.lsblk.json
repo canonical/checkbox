@@ -1,0 +1,53 @@
+{
+  "blockdevices": [
+    {
+      "kname": "mmcblk0rpmb",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 928479051284
+    },
+    {
+      "kname": "mmcblk0boot0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 283912797341
+    },
+    {
+      "kname": "mmcblk0boot1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1597473841643
+    },
+    {
+      "kname": "mmcblk0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1919196260057
+    },
+    {
+      "kname": "mmcblk0p1",
+      "type": "part",
+      "mountpoint": "/boot/efi",
+      "fstype": "vfat",
+      "size": 333494856512
+    },
+    {
+      "kname": "mmcblk0p2",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 202684808781
+    },
+    {
+      "kname": "mmcblk0p3",
+      "type": "part",
+      "mountpoint": "/",
+      "fstype": "btrfs",
+      "size": 462167867696
+    }
+  ]
+}

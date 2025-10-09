@@ -132,7 +132,7 @@ def is_small_partition(devname, lsblk=None):
         for device in lsblk.get("blockdevices", []):
             if (
                 device.get("kname") == devname
-                and int(device.get("size", 0)) <= 104_857_600
+                and int(device.get("size", 0)) <= 104857600
             ):  # 100 MiB
                 return True
     return False

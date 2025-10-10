@@ -737,9 +737,9 @@ def get_execution_command_systemd_unit(
     """
     Generates a command that if executed runs a Checkbox command section
 
-    This is different from get_execution_command_v1 because the new job is
+    This is different from get_execution_command_subshell because the new job is
     executed not as a child process of Checkbox in the current slice, but as a
-    child process of systemd in the appropriate slice for the user
+    new transient systemd unit in the appropriate slice for the user.
     """
 
     cmd = [

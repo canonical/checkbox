@@ -168,6 +168,7 @@ class SessionMetaData:
         else:
             logger.warning("Using legacy non-strict template expansion")
         if config.get_value("features", "systemd_based_job_runner"):
+            logger.warning("Using experimental systemd-based runner")
             self._flags.add(self.FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER)
 
     @property

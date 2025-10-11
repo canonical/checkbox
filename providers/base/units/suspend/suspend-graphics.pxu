@@ -99,7 +99,7 @@ depends:
 estimated_duration: 120.0
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
- # shellcheck disable=SC1091
+ # shellcheck disable=SC1091,SC1083
  source graphics_env.sh {{ driver }} {{ index }}
  if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then

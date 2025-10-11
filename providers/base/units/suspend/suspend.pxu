@@ -1216,7 +1216,9 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/xrandr_screens_after_suspend.tar.gz
 depends: suspend/cycle_resolutions_after_suspend
-command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
+command:
+    # shellcheck disable=SC1091,SC1083
+    [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
 _purpose: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 _summary: Attach screenshots from the suspend/cycle_resolutions_after_suspend test to results.
 
@@ -1228,7 +1230,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz
 template-id: suspend/index_xrandr_screens_after_suspend.tar.gz
 depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
-command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
+command:
+    # shellcheck disable=SC1091,SC1083
+    [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
 _purpose: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 _summary: Attach screenshots from suspend/cycle_resolutions_after_suspend test to the results.
 

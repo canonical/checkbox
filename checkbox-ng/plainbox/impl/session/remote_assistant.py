@@ -305,7 +305,9 @@ class RemoteSessionAssistant:
             "WAYLAND_DISPLAY": self._set_envvar_from_proc("WAYLAND_DISPLAY"),
             "XAUTHORITY": self._set_envvar_from_proc("XAUTHORITY"),
             "XDG_SESSION_TYPE": self._set_envvar_from_proc("XDG_SESSION_TYPE"),
-            "XDG_CURRENT_DESKTOP": self._set_envvar_from_proc("XDG_CURRENT_DESKTOP"),
+            "XDG_CURRENT_DESKTOP": self._set_envvar_from_proc(
+                "XDG_CURRENT_DESKTOP"
+            ),
             "XDG_RUNTIME_DIR": "/run/user/{}".format(uid),
             "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/{}/bus".format(
                 uid
@@ -367,9 +369,9 @@ class RemoteSessionAssistant:
         if "XDG_RUNTIME_DIR" not in extra_env:
             extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
         if "DBUS_SESSION_BUS_ADDRESS" not in extra_env:
-            extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
-                "unix:path=/run/user/{}/bus".format(uid)
-            )
+            extra_env[
+                "DBUS_SESSION_BUS_ADDRESS"
+            ] = "unix:path=/run/user/{}/bus".format(uid)
         return extra_env
 
     @allowed_when(RemoteSessionStates.Idle)

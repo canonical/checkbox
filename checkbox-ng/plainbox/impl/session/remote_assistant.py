@@ -369,9 +369,9 @@ class RemoteSessionAssistant:
         if "XDG_RUNTIME_DIR" not in extra_env:
             extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
         if "DBUS_SESSION_BUS_ADDRESS" not in extra_env:
-            extra_env[
-                "DBUS_SESSION_BUS_ADDRESS"
-            ] = "unix:path=/run/user/{}/bus".format(uid)
+            extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
+                "unix:path=/run/user/{}/bus".format(uid)
+            )
         return extra_env
 
     @allowed_when(RemoteSessionStates.Idle)

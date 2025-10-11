@@ -305,6 +305,9 @@ class RemoteSessionAssistant:
             "WAYLAND_DISPLAY": self._set_envvar_from_proc("WAYLAND_DISPLAY"),
             "XAUTHORITY": self._set_envvar_from_proc("XAUTHORITY"),
             "XDG_SESSION_TYPE": self._set_envvar_from_proc("XDG_SESSION_TYPE"),
+            "XDG_CURRENT_DESKTOP": self._set_envvar_from_proc(
+                "XDG_CURRENT_DESKTOP"
+            ),
             "XDG_RUNTIME_DIR": "/run/user/{}".format(uid),
             "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/{}/bus".format(
                 uid
@@ -321,6 +324,7 @@ class RemoteSessionAssistant:
             "DISPLAY",
             "XAUTHORITY",
             "XDG_SESSION_TYPE",
+            "XDG_CURRENT_DESKTOP",
             "XDG_RUNTIME_DIR",
             "DBUS_SESSION_BUS_ADDRESS",
             "WAYLAND_DISPLAY",

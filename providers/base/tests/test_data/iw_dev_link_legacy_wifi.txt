@@ -1,0 +1,11 @@
+Connected to 54:83:3a:72:fd:08 (on wlp0s20f3)
+	SSID: very-old-wifi
+	freq: 2457.0
+	RX: 1927 bytes (15 packets)
+	TX: 2025 bytes (16 packets)
+	signal: -41 dBm
+	rx bitrate: 54.0 MBit/s
+	tx bitrate: 18.0 MBit/s
+	bss flags: short-preamble short-slot-time
+	dtim period: 1
+	beacon int: 100

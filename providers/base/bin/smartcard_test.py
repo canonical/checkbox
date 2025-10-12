@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
-# Copyright 2015-2025 Canonical Ltd.
+# Copyright 2025 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 from smartcard.Exceptions import (
     NoCardException,

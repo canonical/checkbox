@@ -116,7 +116,6 @@ nested_part:
     graphics-discrete-gpu-cert-automated
     monitor-discrete-gpu-cert-automated
     input-cert-automated
-    disk-cert-manual
     keys-cert-automated
     led-cert-automated
     mediacard-cert-automated

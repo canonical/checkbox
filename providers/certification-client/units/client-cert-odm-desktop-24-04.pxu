@@ -111,7 +111,6 @@ nested_part:
     graphics-gpu-cert-automated
     input-cert-automated
     ishtp-automated
-    disk-cert-manual
     keys-cert-automated
     led-cert-automated
     mediacard-cert-automated

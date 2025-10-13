@@ -18,7 +18,6 @@ import json
 
 from io import StringIO
 from unittest import TestCase
-from unittest.mock import patch, MagicMock
 from textwrap import dedent
 
 try:
@@ -62,7 +61,6 @@ class UdevadmDataMixIn(object):
             return None
 
 
-@patch("checkbox_support.parsers.udevadm.check_output", MagicMock())
 class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def parse(self, name, with_lsblk=False, with_partitions=False):

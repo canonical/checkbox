@@ -10,5 +10,5 @@ value-type: bool
 
 unit: manifest entry
 id: has_apste_support
-_name: Disk/Autonomous_Power_State_Transition
+_name: Disk with Autonomous Power State Transition (APST) support
 value-type: bool

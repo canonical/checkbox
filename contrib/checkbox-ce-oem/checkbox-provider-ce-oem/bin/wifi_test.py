@@ -184,10 +184,6 @@ def sshpass_cmd_gen(ip, user, pwd, cmd):
     )
 
 
-def ping_cmd(ip):
-    return "ping {} -c 4".format(ip)
-
-
 @contextmanager
 def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
     ip = host_net_info["ip"]
@@ -199,12 +195,15 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
     up_host_conn = connect_info["up_cmd"]
     connected = False
 
-    logging.info("Pinging target host first...")
+    logging.info("check the SSH port available on target host first...")
     try:
-        run_command(ping_cmd(ip))
-        logging.info("Ping to target host %s successful.", ip)
+        command = "timeout 5 nc -zv {}".format(ip)
+        run_command(command)
+        logging.info("the SSH port available on target host %s", ip)
     except Exception as e:
-        raise SystemError("Unable to ping the HOST! Error: %s", str(e))
+        raise SystemError(
+            "the SSH port not available on the HOST! Error: %s", str(e)
+        )
     try:
         connected = create_conn_from_host(ip, user, pwd, connect_cmd)
         if connected:
@@ -264,8 +263,9 @@ def ping_test(target_ip, host_net_info: dict):
     pwd = host_net_info["pwd"]
     try:
         logging.info("Attempting to ping DUT...")
+        command = "ping {} -c 4".format(target_ip)
         ping_result = run_command(
-            sshpass_cmd_gen(ip, user, pwd, ping_cmd(target_ip))
+            sshpass_cmd_gen(ip, user, pwd, command)
         )
 
         packet_loss_match = re.search(r"(\d+)% packet loss", ping_result)

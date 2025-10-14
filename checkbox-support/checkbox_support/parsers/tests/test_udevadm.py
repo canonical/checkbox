@@ -187,7 +187,26 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(devices[0].name, "nvme10c5n2")
         self.assertEqual(devices[0].category, "DISK")
 
-        # Test case 5: NVMe device WITH DEVNAME should use DEVNAME
+        # Test case 5: Controller device with multi-digit number (nvme15 -> nvme15n1)
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme15
+                E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme15
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme15n1")
+        self.assertEqual(devices[0].category, "DISK")
+
+        # Test case 6: NVMe device WITH DEVNAME should use DEVNAME
         stream = StringIO(
             dedent(
                 """

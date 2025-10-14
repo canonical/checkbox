@@ -182,6 +182,30 @@ class UdevadmDevice(object):
     def name(self):
         if self._name is not None:
             return self._name
+        # For nvme DISK devices without a DEVNAME, derive the name from 
+        # DEVPATH
+        if (
+            self.bus == "nvme"
+            and self.driver == "nvme"
+            and self.category == "DISK"
+            and "DEVNAME" not in self._environment
+        ):
+            # Use DEVPATH
+            devpath = self._environment.get("DEVPATH", "")
+            # First try to match nvmeXcYnZ (virtual NVMe device)
+            match = re.search(r'/(nvme\d+c\d+n\d+)(?:/|$)', devpath)
+            if match:
+                return match.group(1)
+            # Then try to match nvmeXnY (standard namespace device)
+            match = re.search(r'/(nvme\d+n\d+)(?:/|$)', devpath)
+            if match:
+                return match.group(1)
+            # Fallback: match nvmeX (controller) and append n1
+            match = re.search(r'/nvme/nvme(\d+)(?:/|$)', devpath)
+            if match:
+                nvme_num = match.group(1)
+                return "nvme{}n1".format(nvme_num)
+        return None
 
     @property
     def bus(self):

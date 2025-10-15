@@ -33,6 +33,7 @@ import sys
 from plainbox.i18n import gettext as _
 from subprocess import (
     check_output,
+    check_call,
     CalledProcessError,
     STDOUT,
     DEVNULL,

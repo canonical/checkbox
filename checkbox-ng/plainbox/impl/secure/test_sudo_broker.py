@@ -17,7 +17,10 @@
 from subprocess import CalledProcessError
 from unittest import TestCase, mock
 
-from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
+from plainbox.impl.secure.sudo_broker import (
+    is_passwordless_sudo,
+    validate_pass,
+)
 
 
 class IsPasswordlessSudoTests(TestCase):
@@ -46,3 +49,14 @@ class IsPasswordlessSudoTests(TestCase):
     def test_non_root_raising(self, mock_check_output, mock_getuid):
         mock_check_output.side_effect = CalledProcessError(1, "oops")
         self.assertFalse(is_passwordless_sudo())
+
+
+class ValidatePassTest(TestCase):
+    @mock.patch("plainbox.impl.secure.sudo_broker.check_call")
+    def test_validate_pass_wrong(self, check_output_mock):
+        check_output_mock.side_effect = CalledProcessError(1, "oops")
+        self.assertFalse(validate_pass(b"password"))
+
+    @mock.patch("plainbox.impl.secure.sudo_broker.check_call")
+    def test_validate_pass_ok(self, check_output_mock):
+        self.assertTrue(validate_pass(b"password"))

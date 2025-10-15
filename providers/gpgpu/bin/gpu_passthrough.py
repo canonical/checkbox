@@ -117,7 +117,7 @@ def test_lxdvm_gpu(args):
         )
 
         logging.info("Waiting for %s to be up", instance.name)
-        instance.wait_until_running()
+        instance.wait_until_running(allow_degraded=True)
 
         instance.stop(force=True)
 

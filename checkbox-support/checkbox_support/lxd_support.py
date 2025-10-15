@@ -212,9 +212,14 @@ class LXD:
         self.run("lxc restart {}".format(self.name))
 
     @retry(10, 10)
-    def wait_until_running(self):
+    def wait_until_running(self, allow_degraded: bool = False):
         """Waits for the instance to be up and running."""
-        self.run("systemctl is-system-running --wait", on_guest=True)
+        try:
+            self.run("systemctl is-system-running --wait", on_guest=True)
+        except subprocess.CalledProcessError as e:
+            if allow_degraded and e.stdout == "degraded":
+                return
+            raise
 
     def add_device(
         self,

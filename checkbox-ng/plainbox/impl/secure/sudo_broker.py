@@ -34,7 +34,8 @@ from plainbox.i18n import gettext as _
 from subprocess import (
     check_output,
     CalledProcessError,
-    STDOUT, DEVNULL,
+    STDOUT,
+    DEVNULL,
     SubprocessError,
 )
 

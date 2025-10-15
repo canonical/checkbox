@@ -1,0 +1,67 @@
+{
+  "blockdevices": [
+    {
+      "kname": "sda",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1734636624391
+    },
+    {
+      "kname": "sda1",
+      "type": "part",
+      "mountpoint": "/boot/efi",
+      "fstype": "vfat",
+      "size": 91024191260
+    },
+    {
+      "kname": "sda2",
+      "type": "part",
+      "mountpoint": "/",
+      "fstype": "ext4",
+      "size": 198510558139
+    },
+    {
+      "kname": "sdb",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1506883499731
+    },
+    {
+      "kname": "md0",
+      "type": "raid0",
+      "mountpoint": "/raid",
+      "fstype": "unknown",
+      "size": 5080820411
+    },
+    {
+      "kname": "sdc",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1859795965441
+    },
+    {
+      "kname": "md0",
+      "type": "raid0",
+      "mountpoint": "/raid",
+      "fstype": "unknown",
+      "size": 4886862577
+    },
+    {
+      "kname": "sdd",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1488652524467
+    },
+    {
+      "kname": "md0",
+      "type": "raid0",
+      "mountpoint": "/raid",
+      "fstype": "unknown",
+      "size": 4480481321
+    }
+  ]
+}

@@ -31,7 +31,12 @@ import os
 import sys
 
 from plainbox.i18n import gettext as _
-from subprocess import check_call, CalledProcessError, DEVNULL, SubprocessError
+from subprocess import (
+    check_output,
+    CalledProcessError,
+    STDOUT, DEVNULL,
+    SubprocessError,
+)
 
 
 logger = logging.getLogger("sudo_broker")
@@ -57,14 +62,20 @@ def is_passwordless_sudo():
         # to a normal user for jobs not requiring root, so let's see if sudo
         # actually works.
         try:
-            check_call(
-                check_passwordless_sudo_cmd, stdout=DEVNULL, stderr=DEVNULL
+            check_output(
+                check_passwordless_sudo_cmd,
+                stderr=STDOUT,
+                universal_newlines=True,
             )
         except (SubprocessError, OSError) as exc:
-            raise SystemExit("Unable to run sudo {}".format(exc))
+            try:
+                print(exc.output)
+            except AttributeError:
+                pass
+            raise SystemExit("Checkbox is unable to run sudo: {}".format(exc))
         return True
     try:
-        check_call(check_passwordless_sudo_cmd, stdout=DEVNULL, stderr=DEVNULL)
+        check_output(check_passwordless_sudo_cmd, stderr=STDOUT)
     except CalledProcessError:
         return False
     return True

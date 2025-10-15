@@ -197,7 +197,7 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
 
     logging.info("check the SSH port available on target host first...")
     try:
-        command = "timeout 5 nc -zv {}".format(ip)
+        command = "timeout 5 nc -zv {} 22".format(ip)
         run_command(command)
         logging.info("the SSH port available on target host %s", ip)
     except Exception as e:

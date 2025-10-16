@@ -1249,7 +1249,9 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
             self.assertIn(
                 expected_name,
                 virtual_nvme_names,
-                "Virtual Kioxia disk {} should be detected".format(expected_name),
+                "Virtual Kioxia disk {} should be detected".format(
+                    expected_name
+                ),
             )
 
         # Verify we have exactly 2 standard and 8 virtual NVMe disks

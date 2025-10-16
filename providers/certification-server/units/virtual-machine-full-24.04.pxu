@@ -1,4 +1,4 @@
-id: virtual-machine-full
+id: 24.04-virtual-machine-full
 _name: Virtual Machine Full (For Hypervisors)
 unit: test plan
 _description:

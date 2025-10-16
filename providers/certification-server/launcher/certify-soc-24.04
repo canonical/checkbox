@@ -6,7 +6,7 @@ launcher_version = 1
 stock_reports = submission_files, certification
 
 [test plan]
-unit = com.canonical.certification::virtual-machine-full
+unit = com.canonical.certification::24.04-server-soc-cert
 forced = yes
 
 [test selection]

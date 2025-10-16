@@ -24,6 +24,8 @@ id: dss-validation
 unit: test plan
 _name: DSS validations with Intel and NVIDIA GPUs if available
 include:
+    dss/verify_integration_cpu_.*
+    dss/verify_integration_gpu_.*
     dss/initialize
     dss/namespace
     dss/status_mlflow
@@ -52,3 +54,5 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+    dss/collect_integration_cpu_test_names
+    dss/collect_integration_gpu_test_names

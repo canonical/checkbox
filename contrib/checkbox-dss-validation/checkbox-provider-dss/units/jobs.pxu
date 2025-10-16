@@ -1,3 +1,84 @@
+# DSS integration test jobs ###################################################
+
+id: dss/run_integration_cpu_tests
+category_id: dss-regress
+group: dss-integration-tests
+_summary: Run the integration tests from DSS repo for CPU
+flags: simple
+estimated_duration: 30m
+command:
+  set -ex
+  DSS_REPO="/tmp/dss-repo"
+  cd $DSS_REPO
+  timeout 30m .venv/bin/tox -e integration -- --junit-xml=dss-integration-cpu.xml
+
+id: dss/run_integration_gpu_tests
+category_id: dss-regress
+group: dss-integration-tests
+_summary: Run the integration tests from DSS repo for GPU
+flags: simple
+estimated_duration: 30m
+command:
+  set -ex
+  DSS_REPO="/tmp/dss-repo"
+  cd $DSS_REPO
+  timeout 30m .venv/bin/tox -e integration-gpu -- --junit-xml=dss-integration-gpu.xml
+
+id: dss/collect_integration_cpu_test_names
+category_id: dss-regress
+group: dss-integration-tests
+plugin: resource
+_summary: List integration tests from DSS repo for CPU
+command:
+  set -ex
+  DSS_REPO="/tmp/dss-repo"
+  cd $DSS_REPO
+  .venv/bin/tox -e integration -- --collect-only -qq | grep '^tests/integration' | awk -F'::' '{print "test_case: " $1; print "test_name: " $2 "\n"}'
+
+id: dss/collect_integration_gpu_test_names
+category_id: dss-regress
+group: dss-integration-tests
+plugin: resource
+_summary: List integration tests from DSS repo for GPU
+imports: from com.canonical.certification import graphics_card
+requires: graphics_card.vendor == 'NVIDIA Corporation'
+command:
+  set -ex
+  DSS_REPO="/tmp/dss-repo"
+  cd $DSS_REPO
+  .venv/bin/tox -e integration-gpu -- --collect-only -qq | grep '^tests/integration' | awk -F'::' '{print "test_case: " $1; print "test_name: " $2 "\n"}'
+
+unit: template
+template-engine: jinja2
+template-resource: dss/collect_integration_cpu_test_names
+category_id: dss-regress
+group: dss-integration-tests
+after: dss/run_integration_cpu_tests
+plugin: shell
+id: dss/verify_integration_cpu_result_for_{{ test_case }}-{{ test_name }}
+_summary: Verify integration test `{{ test_case }}-{{ test_name}}` passed for CPU
+command:
+  set -ex
+  REPORT_PATH=/tmp/dss-repo/dss-integration-cpu.xml
+  verify_junit_report.py $REPORT_PATH {{ test_case }} {{ test_name }}
+
+unit: template
+template-engine: jinja2
+template-resource: dss/collect_integration_gpu_test_names
+category_id: dss-regress
+group: dss-integration-tests
+after: dss/run_integration_gpu_tests
+plugin: shell
+id: dss/verify_integration_gpu_result_for_{{ test_case }}-{{ test_name }}
+_summary: Verify integration test `{{ test_case }}-{{ test_name}}` passed for GPU
+command:
+  set -ex
+  REPORT_PATH=/tmp/dss-repo/dss-integration-gpu.xml
+  verify_junit_report.py $REPORT_PATH {{ test_case }} {{ test_name }}
+
+
+# DSS provider test jobs ######################################################
+
 id: dss/initialize
 category_id: dss-regress
 flags: simple
@@ -182,7 +263,7 @@ _siblings: [
   ]
 
 
-# New-Notebook test jobs ######################################################
+# Notebook test jobs ##########################################################
 
 
 id: dss/restart_long_living_notebook_after_reboot_using_pytorch

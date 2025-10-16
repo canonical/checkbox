@@ -6,6 +6,7 @@ include:
     setup_dss/write_microk8s_kube_config
     setup_dss/microk8s_nvidia_gpu_setup
     setup_dss/microk8s_intel_gpu_setup
+    setup_dss/clone_and_setup_dss_integration_tests
 
 id: setup-dss-validation-on-canonical-k8s
 unit: test plan
@@ -17,6 +18,7 @@ include:
     setup_dss/write_canonical_k8s_kube_config
     setup_dss/canonical_k8s_nvidia_gpu_setup
     setup_dss/canonical_k8s_intel_gpu_setup
+    setup_dss/clone_and_setup_dss_integration_tests
 
 id: dss-validation
 unit: test plan

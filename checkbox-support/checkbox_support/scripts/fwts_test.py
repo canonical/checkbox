@@ -313,7 +313,7 @@ def filter_available_tests(requested_tests):
     return available, unavailable
 
 
-def main():
+def parse_arguments(args):
     description_text = "Tests the system BIOS using the Firmware Test Suite"
     epilog_text = (
         "To perform sleep testing, you will need at least some of "
@@ -434,7 +434,14 @@ def main():
         action="store_true",
         help=("List all Server Certification concerned tests " "in fwts"),
     )
-    args = parser.parse_args()
+    args = parser.parse_args(args)
+    return args
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    args = parse_arguments(args)
 
     tests = []
     requested_tests = []

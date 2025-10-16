@@ -34,43 +34,40 @@ systemctl status snap.checkbox-dss.remote-slave.service
 
 > [!NOTE]
 > We are migrating to using `setup_include` from Checkbox.
-> While it is not available, installing dependencies is currently a 2 stage process.
-> Most importantly, the `install-deps` **will soon be removed**.
+> While it is not available, installing dependencies is currently done in a separate test plan.
 
-## `microk8s`
+DSS 1.0/stable works on Microk8s, whereas DSS 1.1/stable onwards
+DSS will work on Canonical K8s.
+There are accordingly the following launchers available:
 
-Run the helper script `install-deps` as shown below:
+- `launchers/setup-microk8s.conf`
+- `launchers/setup-canonical-k8s.conf`
 
-```shell
-checkbox-dss.install-deps
-```
-
-By default this will install `microk8s` from `1.28/stable` in classic mode,
-but this can be customized as
-(please note that this snap must to be `--classic` to enable GPU support):
+Run Checkbox CLI with the Microk8s setup launcher as below
+substituting the appropriate launcher to setup Canonical K8s:
 
 ```shell
-checkbox-dss.install-deps --microk8s-snap-channel 1.31/stable
+checkbox-dss.checkbox-cli control 127.0.0.1 launchers/setup-microk8s.conf
 ```
 
-## `data-science-stack`, `kubectl`, and `intel-gpu-tools`
+By default, the Microk8s setup will attempt to install the following:
 
-> [!NOTE]
-> This step will become unnecessary once we can use `setup_include` from Checkbox.
-
-Run Checkbox CLI with the setup launcher:
-
-```shell
-checkbox-dss.checkbox-cli control 127.0.0.1 launchers/setup.conf
-```
-
-By default it will attempt to install the following:
-
+- `microk8s` snap from channel `1.28/stable` in `--classic` mode
 - `data-science-stack` snap from channel `1.0/stable`
 - `kubectl` snap from `1.29/stable`
 - `intel-gpu-tools` package
+- Setup the NVIDIA GPU Operator `v24.6.2` in `microk8s`
+  - Only if there's a manifest entry with `com.canonical.contrib::has_nvidia_gpus = true`
+- Setup the Intel GPU Plugin `v0.30.0` in `microk8s`
+  - Only if there's a manifest entry with `com.canonical.contrib::has_intel_gpus = true`
 
-Please edit the environment section in the setup launcher to customize the channels.
+The difference in the Canonical K8s launcher will be:
+
+- Instead of `microk8s`, `k8s` snap from channel `1.32-classic/stable` in `--classic` mode.
+- `data-science-stack` snap from channel `1.1/stable`
+
+Please edit the environment section in the appropriate setup launcher to customize the versions.
+You can add a `[manifest]` section too with the appropriate entries to setup appropriate GPUs.
 
 # Automated Run
 

@@ -42,8 +42,16 @@ class ModuleRunner:
 
     def __init__(self, rvs: Path, config: Path) -> None:
         """Initializes the module runner."""
-        self.rvs = rvs
         self.config = config
+
+        # CHECKBOX-2021: Snap confinement prevents access to /usr/share
+        snap_bins = ["/snap/bin/rvs", "/snap/bin/rocm-validation-suite"]
+        if any(rvs.match(p) for p in snap_bins):
+            # To avoid confinement issues we run the binary directly
+            snap_current = Path("/snap/rocm-validation-suite/current")
+            self.rvs = list(snap_current.glob("opt/rocm-*/bin/rvs"))[0]
+        else:
+            self.rvs = rvs
 
     def run(self, module: str):
         """Runs and validates the RVS module.

@@ -18,12 +18,17 @@ import os
 import subprocess as sp
 import sys
 import shlex
+from pathlib import Path
+import shutil
+import glob
+import tempfile
 
 from packaging import version as version_parser
 
 from checkbox_support.helpers.retry import retry
 from gateway_ping_test import ping
 
+NETPLAN_DIR = "/lib/netplan"
 
 print = functools.partial(print, flush=True)
 
@@ -191,7 +196,7 @@ def perform_ping_test(interface):
     if target:
         count = 5
         result = ping(target, interface, count, 10)
-        if result["received"] != count:
+        if result["received"] != result["transmitted"]:
             raise ValueError(
                 "{} packets expected but only {} received".format(
                     count, result["received"]
@@ -342,7 +347,7 @@ def print_journal_entries(start):
 
 def parser_args():
     parser = argparse.ArgumentParser(
-        description="WiFi connection test using mmcli"
+        description="WiFi connection test using nmcli"
     )
 
     subparsers = parser.add_subparsers(dest="test_type")
@@ -386,8 +391,75 @@ def parser_args():
     return args
 
 
+def backup_netplan_files(backup_dir: str, netplan_dir: str):
+    """
+    Backup netplan YAML files from /etc/netplan/ to a
+    temporary directory, if there are.
+    """
+
+    # Find all netplan YAML files
+    yaml_files = glob.glob(os.path.join(netplan_dir, "*.yaml"))
+
+    if not yaml_files:
+        print("No netplan YAML files found")
+        return
+
+    # Create temporary directory
+    Path(backup_dir).mkdir(parents=True, exist_ok=True)
+
+    # Copy each file to temp directory
+    for yaml_file in yaml_files:
+        filename = os.path.basename(yaml_file)
+        temp_path = os.path.join(backup_dir, filename)
+        shutil.copy2(yaml_file, temp_path)
+        # Then copy ownership
+        st = os.stat(yaml_file)
+        os.chown(temp_path, st.st_uid, st.st_gid)
+        print("Backed up: {} -> {}".format(yaml_file, temp_path))
+
+    print("Netplan files backed up to: {}", backup_dir)
+
+
+def restore_netplan_files(backup_dir: str, netplan_dir: str):
+    """
+    Restore netplan YAML files from backup directory to /etc/netplan/.
+
+    Returns:
+        bool: True if restoration successful, False otherwise
+    """
+    if not backup_dir or not os.path.exists(backup_dir):
+        print("Backup directory does not exist: {}".format(netplan_dir))
+        return
+
+    # Clean up existing netplan files first
+    existing_files = glob.glob(os.path.join(netplan_dir, "*.yaml"))
+    for existing_file in existing_files:
+        os.remove(existing_file)
+        print("Removed: {}".format(existing_file))
+
+    # Find all YAML files in backup directory
+    backup_files = glob.glob(os.path.join(backup_dir, "*.yaml"))
+
+    if not backup_files:
+        print("No netplan files found in backup directory")
+        return
+
+    # Restore each file
+    for backup_file in backup_files:
+        filename = os.path.basename(backup_file)
+        target_path = os.path.join(netplan_dir, filename)
+        shutil.copy2(backup_file, target_path)
+        # Then copy ownership
+        st = os.stat(backup_file)
+        os.chown(target_path, st.st_uid, st.st_gid)
+        print("Restored: {} -> {}".format(backup_file, target_path))
+
+    print("Netplan files restored successfully")
+    return
+
+
 @retry(max_attempts=5, delay=60)
-def main():
+def run():
     args = parser_args()
     start_time = datetime.datetime.now()
     device_rescan()
@@ -423,6 +495,20 @@ def main():
         finally:
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()
+
+
+def main():
+
+    # backup the netplans, because nmcli corrupts them
+    # and debsums will complain afterwards
+    # This is ugly. Ideally, nmcli should be patched instead
+    temp_dir = tempfile.TemporaryDirectory()
+    backup_netplan_files(str(temp_dir.name), NETPLAN_DIR)
+
+    try:
+        run()
+    finally:
+        restore_netplan_files(str(temp_dir.name), NETPLAN_DIR)
 
 
 if __name__ == "__main__":

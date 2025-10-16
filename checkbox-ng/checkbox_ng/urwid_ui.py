@@ -1064,7 +1064,8 @@ class ManifestBrowser:
             footer=self.default_footer,
         )
 
-    def get_manifests_by_visibility(self, question_manifests, hidden):
+    @classmethod
+    def get_manifests_by_visibility(cls, question_manifests, hidden):
         """Returns a dict of all question : [non-hidden manifests]"""
         # filter out all hidden manifests
         visible_question_manifests = {
@@ -1079,6 +1080,22 @@ class ManifestBrowser:
             q: manifests
             for q, manifests in visible_question_manifests.items()
             if manifests
+        }
+
+    @classmethod
+    def has_visible_manifests(cls, question_manifests):
+        """Check if there are any visible manifest questions."""
+        return bool(
+            cls.get_manifests_by_visibility(question_manifests, hidden=False)
+        )
+
+    @staticmethod
+    def get_flattened_values(question_manifests):
+        """Extract default manifest values from the manifest representation."""
+        return {
+            conf["id"]: conf["value"]
+            for conf_list in question_manifests.values()
+            for conf in conf_list
         }
 
     def run(self):
@@ -1109,11 +1126,20 @@ class ManifestBrowser:
 
     def unhandled_input(self, key):
         if key in ("t", "T"):
-            for w in self._question_store:
-                if w.value is None:
-                    break
-            else:
-                raise urwid.ExitMainLoop()
+            self.handle_submit_key()
+        else:
+            self.handle_focused_question_input(key)
+
+    def handle_submit_key(self):
+        for w in self._question_store:
+            if w.value is None:
+                break
+        else:
+            raise urwid.ExitMainLoop()
+
+    def handle_focused_question_input(self, key):
+        if self._pile.focus is None:
+            return
         if self._pile.focus._value_type == "bool":
             if key in ("y", "Y"):
                 self.loop.process_input(["left", " ", "down"])

@@ -137,7 +137,8 @@ class SuspendStats:
         else:
             if self.is_any_failed():
                 raise SystemExit(
-                    "There are [{}] failed".format(self.contents["fail"])
+                    "\nFailed results have been found "
+                    "(see logs above for more information)."
                 )
 
 

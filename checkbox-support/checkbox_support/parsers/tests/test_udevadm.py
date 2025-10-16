@@ -14,9 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+
 from io import StringIO
 from unittest import TestCase
-from unittest.mock import patch, MagicMock
 from textwrap import dedent
 
 try:
@@ -28,7 +29,13 @@ try:
 except ImportError:
     from pkg_resources import resource_filename
 
-from checkbox_support.parsers.udevadm import UdevadmParser, decode_id
+from checkbox_support.parsers.udevadm import (
+    UdevadmParser,
+    decode_id,
+    find_pkname_is_root_mountpoint,
+    is_readonly_partition,
+    is_small_partition,
+)
 from checkbox_support.parsers.udevadm import parse_udevadm_output
 
 
@@ -44,19 +51,19 @@ class UdevadmDataMixIn(object):
             return stream.read()
 
     def get_lsblk(self, name):
-        resource = "parsers/tests/udevadm_data/{}.lsblk".format(name)
+        resource = "parsers/tests/udevadm_data/{}.lsblk.json".format(name)
         filename = resource_filename("checkbox_support", resource)
         try:
-            with open(filename, "rt", encoding="UTF-8") as stream:
-                return stream.read()
+            with open(filename, "rt", encoding="UTF-8") as f:
+                data = json.load(f)
+                return data
         except (IOError, OSError):
             return None
 
 
-@patch("checkbox_support.parsers.udevadm.check_output", MagicMock())
 class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
-    def parse(self, name, with_lsblk=True, with_partitions=False):
+    def parse(self, name, with_lsblk=False, with_partitions=False):
         # Uncomment only for debugging purpose
         """
         attributes = ("path", "driver", "bus", "product_id", "vendor_id",
@@ -66,7 +73,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         for i,j in enumerate(devices):
             print(i, j.category, [getattr(j, a) for a in attributes])
         """
-        lsblk = ""
+        lsblk = {}
         if with_lsblk:
             lsblk = self.get_lsblk(name)
         return parse_udevadm_output(
@@ -75,6 +82,38 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])
+
+    def test_mi300x_video(self):
+        """Tests that AMD's MI300X accelerator is marked as a video device."""
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/pci0000:00/0000:00:01.1/0000:01:00.0/0000:02:00.0/0000:03:00.0/0000:04:00.0/0000:05:00.0
+                M: 0000:05:00.0
+                R: 0
+                U: pci
+                V: amdgpu
+                E: DEVPATH=/devices/pci0000:00/0000:00:01.1/0000:01:00.0/0000:02:00.0/0000:03:00.0/0000:04:00.0/0000:05:00.0
+                E: SUBSYSTEM=pci
+                E: DRIVER=amdgpu
+                E: PCI_CLASS=120000
+                E: PCI_ID=1002:74A1
+                E: PCI_SUBSYS_ID=1002:74A1
+                E: PCI_SLOT_NAME=0000:05:00.0
+                E: MODALIAS=pci:v00001002d000074A1sv00001002sd000074A1bc12sc00i00
+                E: USEC_INITIALIZED=11569986
+                E: ID_PCI_CLASS_FROM_DATABASE=Processing accelerators
+                E: ID_PCI_SUBCLASS_FROM_DATABASE=Processing accelerators
+                E: ID_VENDOR_FROM_DATABASE=Advanced Micro Devices, Inc. [AMD/ATI]
+                E: ID_PATH=pci-0000:05:00.0
+                E: ID_PATH_TAG=pci-0000_05_00_0
+                E: NVME_HOST_IFACE=none
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(devices[0].category, "VIDEO")
 
     def test_openfirmware_network(self):
         stream = StringIO(
@@ -628,7 +667,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "DISK"), 0)
 
     def test_EMMC_AS_MAIN_DRIVE(self):
-        devices = self.parse("EMMC_AS_MAIN_DRIVE")
+        devices = self.parse("EMMC_AS_MAIN_DRIVE", with_lsblk=True)
         self.assertEqual(len(devices), 70)
         # Check that the eMMC drive is reported as a DISK
         self.assertEqual(self.count(devices, "VIDEO"), 1)
@@ -647,7 +686,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "DISK"), 1)
 
     def test_EMMC_INTEL_NUC_SNAPPY(self):
-        devices = self.parse("INTEL_NUC_SNAPPY")
+        devices = self.parse("INTEL_NUC_SNAPPY", with_lsblk=True)
         self.assertEqual(len(devices), 78)
         # Check that the eMMC drive is reported as a DISK
         self.assertEqual(self.count(devices, "DISK"), 1)
@@ -930,7 +969,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_CARA_T(self):
         # A Snappy system with CANBus
-        devices = self.parse("CARA_T")
+        devices = self.parse("CARA_T", with_lsblk=True)
         self.assertEqual(len(devices), 79)
         self.assertEqual(self.count(devices, "VIDEO"), 0)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
@@ -949,7 +988,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_CARA_T_SOCKETCAN(self):
         # A Snappy system with a SocketCAN device
-        devices = self.parse("CARA_T_SOCKETCAN")
+        devices = self.parse("CARA_T_SOCKETCAN", with_lsblk=True)
         self.assertEqual(len(devices), 79)
         self.assertEqual(self.count(devices, "VIDEO"), 0)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
@@ -1000,7 +1039,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "NETWORK"), 8)
 
     def test_VESTA_300(self):
-        devices = self.parse("VESTA_300")
+        devices = self.parse("VESTA_300", with_lsblk=True)
         self.assertEqual(len(devices), 15)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
@@ -1145,12 +1184,16 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "CDROM"), 0)
 
     def test_CRYPTO_FDE_UC20(self):
-        devices = self.parse("CRYPTO_FDE", with_partitions=True)
+        devices = self.parse(
+            "CRYPTO_FDE", with_lsblk=True, with_partitions=True
+        )
         self.assertEqual(len(devices), 93)
         self.assertEqual(self.count(devices, "PARTITION"), 1)
 
     def test_XILINX_KR260(self):
-        devices = self.parse("XILINX_KR260", with_partitions=True)
+        devices = self.parse(
+            "XILINX_KR260", with_lsblk=True, with_partitions=True
+        )
         self.assertEqual(self.count(devices, "DISK"), 18)
         self.assertEqual(self.count(devices, "CARDREADER"), 1)
 
@@ -1165,6 +1208,25 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         """
         devices = self.parse("two_dms_one_with_ubuntu_save")
         self.assertEqual(len(devices), 1)
+
+    def test_ignore_recovery_partitions(self):
+        """
+        This test makes sure Recovery disks/USB drives are ignored. These
+        recovery media usually use a Joliet (ISO9660) file system that is
+        read-only, or leave a very small sized partition that should be ignored,
+        otherwise the removable storage test tries to write on these and fails.
+        """
+        devices = self.parse(
+            "HP_ELITEBOOK_835_13_INCH_G10_RECOVERY_USB_CONNECTED",
+            with_lsblk=True,
+            with_partitions=True,
+        )
+        # When recorded, this device had a Recovery USB disk connected to it
+        # with several partitions, but only 1 was fit to run the removable
+        # storage test (the others were either readonly or too small, so they
+        # should be ignored)
+        self.assertEqual(self.count(devices, "PARTITION"), 1)
+        self.assertEqual(self.count(devices, "DISK"), 1)
 
     def test_VRAID_machine(self):
         """
@@ -1265,3 +1327,36 @@ class TestDecodeId(TestCase):
 
     def test_strip_whitespace(self):
         self.assertEqual("USB 2.0", decode_id("  USB 2.0  "))
+
+
+class TestLsblkFunctions(TestCase, UdevadmDataMixIn):
+    def setUp(self):
+        self.recovery_usb_data = self.get_lsblk(
+            "HP_ELITEBOOK_835_13_INCH_G10_RECOVERY_USB_CONNECTED"
+        )
+
+    def test_find_pkname_not_root_mountpoint(self):
+        self.assertFalse(
+            find_pkname_is_root_mountpoint("sda", self.recovery_usb_data)
+        )
+
+    def test_find_pkname_root_mountpoint(self):
+        self.assertTrue(
+            find_pkname_is_root_mountpoint("nvme0n1", self.recovery_usb_data)
+        )
+
+    def test_is_readonly_partition(self):
+        self.assertTrue(is_readonly_partition("sda1", self.recovery_usb_data))
+
+    def test_is_readwrite_partition(self):
+        self.assertFalse(
+            is_readonly_partition("nvme0n1p3", self.recovery_usb_data)
+        )
+
+    def test_is_small_partition(self):
+        self.assertTrue(is_small_partition("sda3", self.recovery_usb_data))
+
+    def test_is_big_partition(self):
+        self.assertFalse(
+            is_small_partition("nvme0n1p3", self.recovery_usb_data)
+        )

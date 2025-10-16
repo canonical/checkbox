@@ -165,7 +165,7 @@ flags: also-after-suspend
 _summary: Webcam BRISQUE score for {product_slug}
 estimated_duration: 20s
 depends: camera/detect
-requires: lsb.release >= '22.04'
+requires: os.release >= '22.04'
 command:
   camera_quality_test.py -d {name} -o "$PLAINBOX_SESSION_SHARE"
 _purpose:
@@ -184,7 +184,7 @@ flags: also-after-suspend
 _summary: Attach the image used for the BRISQUE score for {product_slug}
 estimated_duration: 1s
 after: camera/camera-quality_{name}
-requires: lsb.release >= '22.04'
+requires: os.release >= '22.04'
 command:
   [ -f "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg ] &&
   cat "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg
@@ -223,8 +223,8 @@ estimated_duration: 1s
 after: camera/multiple-resolution-images-rpi_{name}
 requires: cpuinfo.platform == 'armv7l'
 command:
-  [ -f "$PLAINBOX_SESSION_SHARE"/picam_6.jpg ] &&
-  cat "$PLAINBOX_SESSION_SHARE"/picam_6.jpg
+  [ -f "$PLAINBOX_SESSION_SHARE"/picam_1.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/picam_1.jpg
 _description:
   This test will attach one of the images used for the multiple resolution
   images test.
@@ -247,10 +247,16 @@ depends:
   camera/detect
   {% endif -%}
 requires:
+  {#
+    If the device that generated this test is MMAL, check that we are on armhf
+    (libmmal doesn't exist for amd64 or arm64).
+    See: https://github.com/waveform80/picamera/issues/716#issuecomment-1063878114
+  #}
+  (device.name == '{{name}}' and device.category == 'MMAL' and dpkg.architecture == 'armhf') or (device.name == '{{ name}}' and device.category == 'CAPTURE')
   {%- if __on_ubuntucore__ %}
-  lsb.release >= '19.1'
+  os.release >= '19.1'
   {%- else %}
-  lsb.release >= '19.1'
+  os.release >= '19.1'
   package.name == 'python3-zbar'
   package.name == 'python3-pyqrcode'
   package.name == 'python3-pil'

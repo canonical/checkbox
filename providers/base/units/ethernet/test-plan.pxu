@@ -27,6 +27,15 @@ include:
 bootstrap_include:
     device
 
+id: ethernet-wake-on-lan-cert-automated
+unit: test plan
+_name: Ethernet wake-on-LAN tests for S3 (automated)
+_description: Ethernet wake-on-LAN tests for S3 (automated)
+include:
+    ethernet/wol_auto_S3_interface
+bootstrap_include:
+    device
+
 id: ethernet-cert-automated
 unit: test plan
 _name: Ethernet tests (automated)
@@ -53,7 +62,7 @@ bootstrap_include:
 
 id: ethernet-full
 unit: test plan
-_name: QA tests for ethernet
+_name: QA tests for ethernet (Core devices)
 _description: Ethernet tests for Ubuntu Core devices
 estimated_duration: 1m
 include:

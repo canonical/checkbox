@@ -22,6 +22,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from collections import OrderedDict
+import json
 from subprocess import check_output, CalledProcessError
 import os
 import re
@@ -91,27 +92,48 @@ FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
 MD_DEVICE_RE = re.compile(r"MD_DEVICE_\w+_DEV")
 ROOT_MOUNTPOINT = re.compile(
-    r"MOUNTPOINT=.*/(writable|hostfs|"
-    r"ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)"
+    r".*/(writable|hostfs|" r"ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)"
 )
 CAMERA_RE = re.compile(r"Camera", re.I)
 
 
 def find_pkname_is_root_mountpoint(devname, lsblk=None):
     """Check for partition mounted as root for a DISK device."""
+    if lsblk and devname:
+        for device in lsblk.get("blockdevices", []):
+            if devname in device.get("kname") and device.get("mountpoint"):
+                if device.get("mountpoint") == "/":
+                    return True
+                elif ROOT_MOUNTPOINT.search(device.get("mountpoint")):
+                    return True
+    return False
+
+
+def is_readonly_partition(devname, lsblk=None):
+    """Determine if the partition is readonly (iso9660, squashfs)"""
     if lsblk:
-        try:
-            lsblk = lsblk.read()
-        except AttributeError:
-            pass
-        for line in lsblk.splitlines():
-            if line.endswith('MOUNTPOINT="/"') and line.startswith(
-                'KNAME="{}'.format(devname)
-            ):
+        for device in lsblk.get("blockdevices", []):
+            if device.get("kname") == devname and device.get("fstype") in [
+                "iso9660",
+                "squashfs",
+            ]:
                 return True
-            if ROOT_MOUNTPOINT.search(line) and line.startswith(
-                'KNAME="{}'.format(devname)
-            ):
+    return False
+
+
+def is_small_partition(devname, lsblk=None):
+    """
+    Determine if the partition is too small (< 100 MiB).
+
+    This is to prevent testing partitions that are too small to run the
+    removable storage test that requires at least 100 MiB available.
+    """
+    if lsblk:
+        for device in lsblk.get("blockdevices", []):
+            if (
+                device.get("kname") == devname
+                and int(device.get("size", 0)) <= 104857600
+            ):  # 100 MiB
                 return True
     return False
 
@@ -308,6 +330,14 @@ class UdevadmDevice(object):
                     return "WIRELESS"
                 else:
                     return "NETWORK"
+            if class_id == Pci.BASE_CLASS_PROCESSING_ACCELERATORS:
+                # Some vendors use the PROCESSING ACCELERATORS class for
+                # devices meant for more specific workflows like deep learning
+                if known_to_be_video_device(
+                    self.vendor_id, self.product_id, class_id, subclass_id
+                ):
+                    return "VIDEO"
+                return "PROCESSING ACCELERATOR"
             if class_id == Pci.BASE_CLASS_DISPLAY:
                 # Not all DISPLAY devices are display adapters. The ones with
                 # subclass OTHER are usually uninteresting devices. As an
@@ -1256,6 +1286,14 @@ class UdevadmParser(object):
         if device.major == "94":
             return False
 
+        # Ignore partitions that are either readonly or too small, because
+        # these fail the removable storage tests.
+        if is_readonly_partition(device.name, self.lsblk):
+            return True
+
+        if is_small_partition(device.name, self.lsblk):
+            return True
+
         # Keep /dev/mapper devices (non swap)
         if "/dev/mapper" in device._environment.get("DEVLINKS", ""):
             if "ID_FS_USAGE" in device._environment:
@@ -1628,16 +1666,39 @@ def known_to_be_video_device(vendor_id, product_id, pci_class, pci_subclass):
     # devices. This method encapsulates heuristics to decide if a device is a
     # valid video adapter, based on product/vendor and pci class/subclass
     # information.
-    if vendor_id == Pci.VENDOR_ID_AMD:
-        # AMD hadn't used subclass OTHER before, so all AMD devices we get
-        # asked about are VIDEO.
-        return True
-    if vendor_id == Pci.VENDOR_ID_INTEL:
-        # Intel recently (2014) started using subclass OTHER erratically, some
-        # older GPUs have subdevices with OTHER which are uninteresting. If
-        # Intel, we only consider OTHER devices as VIDEO if they are in this
-        # explicit list
-        return product_id in [0x0152, 0x0412, 0x0402, 0xA780]
+    if pci_class == Pci.BASE_CLASS_PROCESSING_ACCELERATORS:
+        if vendor_id == Pci.VENDOR_ID_AMD:
+            # AMD uses the PROCESSING ACCELERATORS class for their higher-end
+            # devices meant for GPU kernel programming, HPC, and deep learning.
+            return True
+    if pci_class == Pci.BASE_CLASS_DISPLAY:
+        if vendor_id == Pci.VENDOR_ID_AMD:
+            # AMD hadn't used subclass OTHER before, so all AMD devices we get
+            # asked about are VIDEO.
+            return True
+        if vendor_id == Pci.VENDOR_ID_INTEL:
+            # Intel recently (2014) started using subclass OTHER erratically,
+            # some older GPUs have subdevices with OTHER which are
+            # uninteresting. If Intel, we only consider OTHER devices as VIDEO
+            # if they are in this explicit list
+            return product_id in [0x0152, 0x0412, 0x0402, 0xA780]
+    return False
+
+
+def get_lsblk_json():
+    lsblk = check_output(
+        [
+            "lsblk",
+            "-i",
+            "-n",
+            "--json",
+            "--bytes",
+            "-o",
+            "KNAME,TYPE,MOUNTPOINT,FSTYPE,SIZE,UUID",
+        ],
+        universal_newlines=True,
+    )
+    return json.loads(lsblk)
 
 
 def parse_udevadm_output(output, lsblk=None, list_partitions=False, bits=None):
@@ -1648,11 +1709,5 @@ def parse_udevadm_output(output, lsblk=None, list_partitions=False, bits=None):
     parsed input
     """
     if lsblk is None:
-        try:
-            lsblk = check_output(
-                ["lsblk", "-i", "-n", "-P", "-o", "KNAME,TYPE,MOUNTPOINT"],
-                universal_newlines=True,
-            )
-        except CalledProcessError:
-            lsblk = ""
+        lsblk = get_lsblk_json()
     return UdevadmParser(output, lsblk, list_partitions, bits).run()

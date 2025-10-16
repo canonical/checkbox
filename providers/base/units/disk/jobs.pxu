@@ -137,6 +137,22 @@ template-resource: device
 template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
+id: disk/disk_stress_ng_sru_{name}
+template-id: disk/disk_stress_ng_sru_name
+estimated_duration: 900.0
+user: root
+requires:
+ executable.name == 'stress-ng'
+ executable.name == 'uuidgen'
+_summary: Disk stress-ng test for {product_slug} (SRU shortened runtime)
+_purpose: Disk stress-ng test for {product_slug} (SRU shortened runtime)
+command: stress_ng_test.py disk --device {name} --base-time 30
+
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: com.canonical.plainbox::disk
 id: disk/disk_cpu_load_{name}
 template-id: disk/disk_cpu_load_name
 estimated_duration: 15

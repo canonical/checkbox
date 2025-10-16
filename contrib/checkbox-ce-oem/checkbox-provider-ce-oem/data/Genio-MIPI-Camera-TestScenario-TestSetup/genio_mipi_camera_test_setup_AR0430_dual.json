@@ -1,0 +1,54 @@
+{
+    "media_node_v4l2_name": "mtk-camsys-3.0 (platform:15040000.seninf)",
+    "cameras": [
+        {
+            "physical_interface": "csi0",
+            "pads": [
+                {
+                    "action": "set_format",
+                    "node": "ar0430 2-0036",
+                    "source": 0,
+                    "fmt": "SGRBG10_1X10"
+                },
+                {
+                    "action": "set_format",
+                    "node": "15040000.seninf",
+                    "source": 4,
+                    "fmt": "SGRBG10_1X10"
+                },
+                {
+                    "action": "set_format",
+                    "node": "15050000.camsv",
+                    "source": 1,
+                    "fmt": "SGRBG10_1X10"
+                }
+            ],
+            "links": []
+        },
+        {
+            "physical_interface": "csi1",
+            "pads": [
+                {
+                    "action": "set_format",
+                    "node": "ar0430 3-0036",
+                    "source": 0,
+                    "fmt": "SGRBG10_1X10"
+                },
+                {
+                    "action": "set_format",
+                    "node": "15040000.seninf",
+                    "source": 5,
+                    "fmt": "SGRBG10_1X10"
+                },
+                {
+                    "action": "set_format",
+                    "node": "15050800.camsv",
+                    "source": 1,
+                    "fmt": "SGRBG10_1X10"
+                }
+            ],
+            "links": []
+        }
+    ]
+
+}

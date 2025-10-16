@@ -14,14 +14,14 @@ include:
 
 id: memory-automated
 unit: test plan
-_name: Automated memory tests
+_name: Automated memory tests (Core)
 _description: Automated memory tests for Ubuntu Core devices
 include:
     memory/info    certification-status=blocker
 
 id: server-memory
 unit: test plan
-_name: Automated memory tests
+_name: Automated memory tests (Server)
 _desctiption: Automated memory tests for Server Cert
 include:
     memory/info                 certification-status=blocker

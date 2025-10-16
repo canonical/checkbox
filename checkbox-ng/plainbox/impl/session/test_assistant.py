@@ -171,7 +171,87 @@ class SessionAssistantTests(morris.SignalTestCase):
         self_mock.get_resumable_sessions.return_value = []
 
         with self.assertRaises(KeyError):
-            SessionAssistant.resume_session(self_mock, "session_id")
+            SessionAssistant.prepare_resume_session(self_mock, "session_id")
+
+    @mock.patch(
+        "plainbox.impl.session.assistant.UsageExpectation",
+    )
+    @mock.patch("plainbox.impl.session.assistant.WellKnownDirsHelper")
+    @mock.patch("plainbox.impl.session.assistant.SessionPeekHelper")
+    def test_get_resumable_sessions_nominal(
+        self, sph_mock, wkd_mock, ue_mock, get_providers_mock
+    ):
+        def _session(app_id, flags):
+            to_r = mock.MagicMock(
+                app_id=app_id,
+                flags=flags,
+                __len__=lambda x: 100,
+            )
+            to_r.load_checkpoint.return_value = to_r
+            return to_r
+
+        sessions = [
+            # included, app id matches and incomplete
+            _session("app_id", {SessionMetaData.FLAG_INCOMPLETE}),
+            # discarded, mismatching app id
+            _session("discarded_app_id", {SessionMetaData.FLAG_INCOMPLETE}),
+            # included, app id matches and setting up
+            _session("app_id", {SessionMetaData.FLAG_SETTING_UP}),
+            # discarded, app_id matches but no matching flag
+            _session("app_id", set()),
+        ]
+        sph_mock().peek.side_effect = sessions
+        # we don't need storage.load_checkpoint(), lets re-use the session list
+        wkd_mock.get_storage_list.return_value = sessions
+
+        self_mock = mock.MagicMock(_app_id="app_id")
+        resumable = list(SessionAssistant.get_resumable_sessions(self_mock))
+
+        self.assertEqual(len(resumable), 2)
+
+    @mock.patch(
+        "plainbox.impl.session.assistant.UsageExpectation",
+    )
+    @mock.patch("plainbox.impl.session.assistant.select_units")
+    def test_start_setup(
+        self, select_units_mock, usage_expectation_mock, select_providers_mock
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._metadata.setting_up = False
+
+        SessionAssistant.start_setup(self_mock)
+
+        self.assertTrue(self_mock._metadata.setting_up)
+        self.assertTrue(select_units_mock.called)
+
+    @mock.patch(
+        "plainbox.impl.session.assistant.UsageExpectation",
+    )
+    @mock.patch("plainbox.impl.session.assistant.select_units")
+    def test_finish_setup(
+        self, select_units_mock, usage_expectation_mock, select_providers_mock
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._metadata.setting_up = True
+
+        SessionAssistant.finish_setup(self_mock)
+
+        self.assertFalse(self_mock._metadata.setting_up)
+
+    @mock.patch(
+        "plainbox.impl.session.assistant.UsageExpectation",
+    )
+    @mock.patch("plainbox.impl.session.assistant.select_units")
+    def test_start_bootstrap(
+        self, select_units_mock, usage_expectation_mock, select_providers_mock
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._metadata.bootstrapping = False
+
+        SessionAssistant.start_bootstrap(self_mock)
+
+        self.assertTrue(self_mock._metadata.bootstrapping)
+        self.assertTrue(select_units_mock.called)
 
     @mock.patch("plainbox.impl.session.assistant.SessionManager")
     @mock.patch("plainbox.impl.session.assistant.JobRunnerUIDelegate")
@@ -195,12 +275,18 @@ class SessionAssistantTests(morris.SignalTestCase):
 
         self_mock.get_resumable_sessions.return_value = [session_mock]
 
-        _ = SessionAssistant.resume_session(self_mock, "session_id")
+        _ = SessionAssistant.prepare_resume_session(self_mock, "session_id")
 
     @mock.patch("plainbox.impl.session.state.select_units")
     @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
     def test_bootstrap(self, mock_tpu, mock_su, mock_get_providers):
         self_mock = mock.MagicMock()
+        self_mock.start_bootstrap = partial(
+            SessionAssistant.start_bootstrap, self_mock
+        )
+        self_mock.finish_bootstrap = partial(
+            SessionAssistant.finish_bootstrap, self_mock
+        )
         SessionAssistant.bootstrap(self_mock)
         # Bootstrapping involves updating the list of desired jobs twice:
         # - one time to get the resource jobs
@@ -223,7 +309,7 @@ class SessionAssistantTests(morris.SignalTestCase):
         self, mock_tpu, mock_su, mock_get_providers
     ):
         self_mock = mock.MagicMock()
-        SessionAssistant.get_bootstrap_todo_list(self_mock)
+        SessionAssistant.start_bootstrap(self_mock)
         self.assertEqual(
             self_mock._context.state.update_desired_job_list.call_count, 1
         )

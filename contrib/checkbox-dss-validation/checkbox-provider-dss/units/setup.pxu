@@ -215,9 +215,11 @@ estimated_duration: 2m
 command:
   set -e
   DSS_REPO="/tmp/dss-repo"
-  if [ ! -d "$DSS_REPO" ]; then
-    git clone https://github.com/canonical/data-science-stack.git $DSS_REPO
+  if [ -d "$DSS_REPO" ]; then
+    echo "Warning: existing directory deleted at: $DSS_REPO"
+    rm -rf $DSS_REPO
   fi
+  git clone https://github.com/canonical/data-science-stack.git $DSS_REPO
   cd $DSS_REPO
   echo "Latest commit in DSS repo:"
   git log --name-status HEAD^..HEAD

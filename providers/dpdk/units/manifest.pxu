@@ -3,3 +3,9 @@ id: has_dpdk
 _name: DPDK Network Adapter
 _prompt: Does this machine have a DPDK supported NIC?
 value-type: bool
+
+unit: manifest entry
+id: dpdk_version
+_name: DPDK Version
+_prompt: Which is the DPDK version to test?
+value-type: natural

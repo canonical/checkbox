@@ -6,8 +6,10 @@ _description:
     only. It provides DPDK functionality testing for supported NICs.
     This should only be run on systems with dpdk capable network hardware.
 include:
-    networking/dpdk_setup                         certification-status=blocker
-    networking/dpdk_hello_world_test_driver_.*    certification-status=blocker
+    networking/dpdk_blocklist_test_driver_.*      certification-status=blocker
+    networking/dpdk_checksum_offload_driver_.*    certification-status=blocker
+    networking/dpdk_pmd_buffer_scatter_driver_.*  certification-status=blocker
+    networking/dpdk_vlan_driver_.*                certification-status=blocker
     miscellanea/oops                              certification-status=non-blocker
     miscellanea/oops_results.log                  certification-status=non-blocker
     miscellanea/olog                              certification-status=blocker

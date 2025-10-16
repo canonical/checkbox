@@ -1205,12 +1205,6 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_DISK_SAMSUNG_KIOXIA(self):
         """
-        Test system with both standard NVMe disks and virtual NVMe disks.
-        This system has:
-        - 2 standard Samsung NVMe disks (nvme0n1, nvme1n1)
-        - 8 virtual Kioxia NVMe disks with controller notation (nvme2c2n1,
-          nvme3c3n1, nvme4c4n1, nvme5c5n1, nvme6c6n1, nvme7c7n1, nvme8c8n1,
-          nvme9c9n1)
         This test verifies that the NVMe name detection correctly handles
         both standard nvmeXnY pattern and virtual nvmeXcYnZ pattern.
         """

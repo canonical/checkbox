@@ -65,6 +65,8 @@ package-repositories:
     ppa: checkbox-dev/stable
   - type: apt
     ppa: colin-king/stress-ng
+  - type: apt
+    ppa: colin-king/ppa
 
 parts:
   version-calculator:
@@ -81,7 +83,7 @@ parts:
 ################################################################################
 # Upstream: https://github.com/fwts/fwts/blob/master/snapcraft.yaml
   fwts:
-    source-tag: "V25.03.00"
+    source-tag: "V25.07.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git

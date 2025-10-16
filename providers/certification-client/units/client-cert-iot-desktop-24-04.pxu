@@ -164,6 +164,7 @@ nested_part:
   socketcan-auto-local
   socketcan-auto-remote
   submission-cert-automated
+  info-attachment-cert-automated
   thunderbolt-cert-automated
   tpm-cert-automated
   usb-automated

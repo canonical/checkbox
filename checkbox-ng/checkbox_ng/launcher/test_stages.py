@@ -21,7 +21,7 @@ from pathlib import Path
 from functools import partial
 from unittest import TestCase, mock
 
-from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
+from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage, IJobResult
 
 
 class TestMainLoopStage(TestCase):
@@ -65,6 +65,61 @@ class TestMainLoopStage(TestCase):
             )
 
         self.assertEqual(result_builder.outcome, "skip")
+
+    def test__run_jobs(self):
+        self_mock = mock.MagicMock()
+        job_done_mock = mock.MagicMock(id="done_job", estimated_duration=100)
+        job_todo_mock = mock.MagicMock(id="todo_job", estimated_duration=200)
+        job_done_state_mock = mock.MagicMock(result_history=["some_result"])
+        job_todo_state_mock = mock.MagicMock(
+            result=mock.MagicMock(outcome=None)
+        )
+        self_mock.sa.get_job.side_effect = [job_done_mock, job_todo_mock]
+        self_mock.sa.get_job_state.side_effect = [
+            job_done_state_mock,
+            job_todo_state_mock,
+        ]
+        run_single_job_mock = mock.MagicMock()
+        self_mock._run_single_job_with_ui_loop = run_single_job_mock
+        result_builder_mock = mock.MagicMock()
+        result_builder_mock.get_result.return_value = "job_result"
+        run_single_job_mock.return_value = result_builder_mock
+        jobs_to_run = ["done_job", "todo_job"]
+
+        MainLoopStage._run_jobs(self_mock, jobs_to_run)
+
+        self.assertEqual(self_mock.sa.get_job.call_count, 2)
+        self.assertEqual(self_mock.sa.get_job_state.call_count, 2)
+        self.assertEqual(self_mock._run_single_job_with_ui_loop.call_count, 1)
+
+    def test__run_setup_jobs(self):
+        self_mock = mock.MagicMock()
+
+        job_ids = ["job_success", "job_fail", "job_crash"]
+        job_success_state_mock = mock.MagicMock()
+        job_success_state_mock.result.outcome = IJobResult.OUTCOME_PASS
+
+        job_fail_state_mock = mock.MagicMock()
+        job_fail_state_mock.result.outcome = IJobResult.OUTCOME_FAIL
+
+        job_crash_state_mock = mock.MagicMock()
+        job_crash_state_mock.result.outcome = IJobResult.OUTCOME_CRASH
+
+        self_mock.sa.get_job_state.side_effect = [
+            job_success_state_mock,
+            job_fail_state_mock,
+            job_crash_state_mock,
+        ]
+
+        failed_jobs = MainLoopStage._run_setup_jobs(self_mock, job_ids)
+
+        self_mock._run_jobs.assert_called_once_with(job_ids)
+        self.assertEqual(self_mock.sa.get_job_state.call_count, len(job_ids))
+        expected_failed_jobs = [
+            ("job_fail", IJobResult.OUTCOME_FAIL),
+            ("job_crash", IJobResult.OUTCOME_CRASH),
+        ]
+        self.assertCountEqual(failed_jobs, expected_failed_jobs)
 
 
 class TestReportsStage(TestCase):
@@ -161,6 +216,7 @@ class TestReportsStage(TestCase):
     @mock.patch("os.makedirs")
     def test__prepare_stock_report_submission_json(self, makedirs):
         self_mock = mock.MagicMock()
+        self_mock.sa.configuration_type.side_effect = AttributeError
         self_mock._get_submission_file_path = partial(
             ReportsStage._get_submission_file_path, self_mock
         )

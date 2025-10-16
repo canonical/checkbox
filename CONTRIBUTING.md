@@ -66,6 +66,9 @@ You should now be able to run checkbox, select a test plan and run it:
 
     (venv) $ checkbox-cli
 
+#### <img src=https://code.visualstudio.com/assets/images/code-stable.png alt="Visual Studio Code" height="16" align="absmiddle">&nbsp;&nbsp;VS Code
+If you are using VS Code for development, you can refer to the VS Code-specific setup instructions in [.vscode/README.md](.vscode/README.md) after setting up your virtual environment.
+
 ### Running/Testing Checkbox Remote
 
 By default `checkbox-cli` runs locally. If you want to run the [remote version]
@@ -75,6 +78,11 @@ you have to activate the `checkbox-cli run-agent` on the Machine under test:
 
 > Note: Keep in mind that run-agent has to be run as root and needs the
 > virtual env, you may have to re-enable/activate it after a `sudo -s`
+>
+> You can circumvent this constraint if you are developing for Checkbox by
+> setting the `ALLOW_CHECKBOX_AGENT_NONROOT` environment variable to `true`.
+> This only makes sense if you are debugging Checkbox internals.
+> The agent will not work as normal user.
 
 Now you can run the control command to connect to it:
 

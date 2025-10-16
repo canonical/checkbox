@@ -354,7 +354,7 @@ def perform_ping_test(interface, renderer):
         count = 5
         result = ping(target, interface, count, 10)
         print("Ping result: {}".format(result))
-        if result["received"] == count:
+        if result["received"] == result["transmitted"]:
             return True
 
     return False

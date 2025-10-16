@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+source $(dirname "$0")/setup-env.sh
+
+sudo apt update -y
+sudo apt install -y build-essential cmake ocl-icd-libopencl1 libpng-dev libboost-all-dev ninja-build clang ocl-icd-opencl-dev clinfo python3-pip meson glslang-tools pkg-config cmake
+
+# install OpenCL-CTS
+cd $WORKING_DIR
+git clone https://github.com/KhronosGroup/OpenCL-CTS
+cd OpenCL-CTS
+git checkout v2024-02-27-00
+mkdir build
+cd ..
+cmake -S OpenCL-CTS -B OpenCL-CTS/build  -DCL_INCLUDE_DIR=/usr/include/CL -DCL_LIB_DIR=/usr/lib/x86_64-linux-gnu/  -DOPENCL_LIBRARIES=OpenCL
+cmake --build OpenCL-CTS/build --config Release
+sudo mv $WORKING_DIR/OpenCL-CTS $INSTALL_DIR/OpenCL-CTS

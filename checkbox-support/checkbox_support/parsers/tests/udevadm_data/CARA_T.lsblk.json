@@ -1,0 +1,193 @@
+{
+  "blockdevices": [
+    {
+      "kname": "sda",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 717046693650
+    },
+    {
+      "kname": "sda1",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 126653232096
+    },
+    {
+      "kname": "loop0",
+      "type": "loop",
+      "mountpoint": "/",
+      "fstype": "squashfs",
+      "size": 433112864
+    },
+    {
+      "kname": "loop1",
+      "type": "loop",
+      "mountpoint": "/lib/firmware",
+      "fstype": "squashfs",
+      "size": 54424330
+    },
+    {
+      "kname": "loop2",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/wifi-ap/60",
+      "fstype": "squashfs",
+      "size": 350630662
+    },
+    {
+      "kname": "loop3",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/checkbox-plano/12",
+      "fstype": "squashfs",
+      "size": 381271070
+    },
+    {
+      "kname": "loop4",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/caracalla/13",
+      "fstype": "squashfs",
+      "size": 446361936
+    },
+    {
+      "kname": "loop5",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/caracalla-kernel/11",
+      "fstype": "squashfs",
+      "size": 279035227
+    },
+    {
+      "kname": "loop6",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/bluez/15",
+      "fstype": "squashfs",
+      "size": 77908263
+    },
+    {
+      "kname": "loop7",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/snapweb/24",
+      "fstype": "squashfs",
+      "size": 493559759
+    },
+    {
+      "kname": "loop8",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/modem-manager/14",
+      "fstype": "squashfs",
+      "size": 180693269
+    },
+    {
+      "kname": "loop9",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/core/888",
+      "fstype": "squashfs",
+      "size": 339175426
+    },
+    {
+      "kname": "mmcblk0rpmb",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 741116585048
+    },
+    {
+      "kname": "mmcblk0boot0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1323169825444
+    },
+    {
+      "kname": "mmcblk0boot1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1078252410940
+    },
+    {
+      "kname": "mmcblk0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1122887294068
+    },
+    {
+      "kname": "mmcblk0p1",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 377127166154
+    },
+    {
+      "kname": "mmcblk0p2",
+      "type": "part",
+      "mountpoint": "/boot/efi",
+      "fstype": "vfat",
+      "size": 450010464850
+    },
+    {
+      "kname": "mmcblk0p3",
+      "type": "part",
+      "mountpoint": "[SWAP]",
+      "fstype": "swap",
+      "size": 165023438802
+    },
+    {
+      "kname": "mmcblk0p4",
+      "type": "part",
+      "mountpoint": "/writable",
+      "fstype": "btrfs",
+      "size": 356392469228
+    },
+    {
+      "kname": "loop10",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/checkbox-snappy/x1",
+      "fstype": "squashfs",
+      "size": 492764415
+    },
+    {
+      "kname": "loop11",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/tpm2/12",
+      "fstype": "squashfs",
+      "size": 95872955
+    },
+    {
+      "kname": "loop12",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/core/714",
+      "fstype": "squashfs",
+      "size": 387910002
+    },
+    {
+      "kname": "loop13",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/uefi-fw-tools/3",
+      "fstype": "squashfs",
+      "size": 428508712
+    },
+    {
+      "kname": "loop14",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/locationd/64",
+      "fstype": "squashfs",
+      "size": 80277964
+    },
+    {
+      "kname": "loop15",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/wifi-ap/27",
+      "fstype": "squashfs",
+      "size": 329517027
+    },
+    {
+      "kname": "loop16",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/network-manager/73",
+      "fstype": "squashfs",
+      "size": 93465214
+    }
+  ]
+}

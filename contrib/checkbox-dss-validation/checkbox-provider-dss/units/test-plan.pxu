@@ -1,9 +1,22 @@
-id: setup-dss-validation
+id: setup-dss-validation-on-microk8s
 unit: test plan
-_name: Setup to run DSS validations
+_name: Setup to run DSS validations on microk8s
 include:
-    setup_dss/install_snap_.*
-    setup_dss/install_package_.*
+    setup_dss/install_snap_data-science-stack
+    setup_dss/write_microk8s_kube_config
+    setup_dss/microk8s_nvidia_gpu_setup
+    setup_dss/microk8s_intel_gpu_setup
+
+id: setup-dss-validation-on-canonical-k8s
+unit: test plan
+_name: Setup to run DSS validations on Canonical K8s
+include:
+    setup_dss/install_snap_data-science-stack
+    setup_dss/bootstrap_and_enable_canonical_k8s
+    setup_dss/restart_k8s_snap_as_workaround
+    setup_dss/write_canonical_k8s_kube_config
+    setup_dss/canonical_k8s_nvidia_gpu_setup
+    setup_dss/canonical_k8s_intel_gpu_setup
 
 id: dss-validation
 unit: test plan
@@ -12,30 +25,26 @@ include:
     dss/initialize
     dss/namespace
     dss/status_mlflow
-    dss/create_pytorch_cpu_notebook
-    cpu/pytorch_can_use_cpu
-    dss/remove_pytorch_cpu_notebook
-    dss/create_tensorflow_cpu_notebook
-    cpu/tensorflow_can_use_cpu
-    dss/remove_tensorflow_cpu_notebook
-    intel_gpu_plugin/install
-    intel_gpu_plugin/labels
+    dss/wait_for_intel_gpu_rollout
+    dss/wait_for_nvidia_gpu_rollout
     dss/status_intel_gpu
-    dss/create_tensorflow_intel_notebook
-    xpu/tensorflow_can_use_xpu
-    dss/remove_tensorflow_intel_notebook
-    dss/create_pytorch_intel_notebook
-    xpu/pytorch_can_use_xpu
-    dss/remove_pytorch_intel_notebook
-    microk8s_nvidia_gpu_addon/enable
-    nvidia_gpu_addon/validations_succeed
     dss/status_nvidia_gpu
-    dss/create_pytorch_cuda_notebook
-    cuda/pytorch_can_use_cuda
-    dss/remove_pytorch_cuda_notebook
-    dss/create_tensorflow_cuda_notebook
-    cuda/tensorflow_can_use_cuda
-    dss/remove_tensorflow_cuda_notebook
+    dss/create_new_notebook_using_.*
+    dss/verify_new_notebook_of_.*
+    dss/remove_new_notebook_of_.*
+    dss/create_long_living_notebook_before_reboot_using_.*
+    dss/verify_long_living_notebook_before_reboot_of_.*
+    dss/reboot
+    dss/wait_after_reboot.*
+    dss/status_mlflow_after_reboot
+    dss/status_intel_gpu_after_reboot
+    dss/status_nvidia_gpu_after_reboot
+    dss/restart_long_living_notebook_after_reboot_using_.*
+    dss/verify_long_living_notebook_after_reboot_of_.*
+    dss/remove_long_living_notebook_after_reboot_of_.*
+    dss/create_new_notebook_after_reboot_using_.*
+    dss/verify_new_notebook_after_reboot_of_.*
+    dss/remove_new_notebook_after_reboot_of_.*
     dss/purge
 bootstrap_include:
     com.canonical.certification::executable

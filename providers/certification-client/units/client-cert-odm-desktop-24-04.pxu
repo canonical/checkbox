@@ -38,9 +38,7 @@ nested_part:
     wireless-cert-manual
     va-api-manual
     # start of suspend related tests
-    before-suspend-reference-cert-full
     # suspend point
-    after-suspend-reference-cert-full
     after-suspend-graphics-gpu-cert-manual
     after-suspend-monitor-gpu-cert-manual
     suspend-key-led-oops-check-cert
@@ -58,7 +56,7 @@ nested_part:
     after-suspend-usb3-cert-full # no-manual only
     after-suspend-usb-c-cert-full # no manual only
     # after-suspend-wireless-cert-full # auto only
-    info-attachment-cert-full
+    info-attachment-cert-manual
 exclude:
     com.canonical.certification::keys/hibernate
     com.canonical.certification::keys/lock-screen
@@ -102,7 +100,7 @@ _description:
  Desktop images.
 include:
 nested_part:
-    submission-cert-full
+    submission-cert-automated
     acpi-automated
     audio-cert-automated
     bluetooth-cert-automated
@@ -113,7 +111,6 @@ nested_part:
     graphics-gpu-cert-automated
     input-cert-automated
     ishtp-automated
-    disk-cert-manual
     keys-cert-automated
     led-cert-automated
     mediacard-cert-automated
@@ -133,9 +130,9 @@ nested_part:
     wireless-cert-automated
     va-api-automated
     # start of suspend related tests
-    before-suspend-reference-cert-full
+    before-suspend-reference-cert-automated
     # suspend point
-    after-suspend-reference-cert-full
+    after-suspend-reference-cert-automated
     after-suspend-graphics-gpu-cert-automated
     # after-suspend-monitor-gpu-cert-automated # not defined
     # after-suspend-audio-cert-automated
@@ -156,7 +153,7 @@ nested_part:
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
     # process.
-    misc-client-cert-full
+    misc-client-cert-automated
     cpu-cert-automated
     disk-cert-automated
     stress-iperf3-automated
@@ -165,7 +162,7 @@ nested_part:
     suspend-cycles-stress-test
     stress-ng-cert-automated
     tpm-cert-automated
-    info-attachment-cert-full
+    info-attachment-cert-automated
 exclude:
     com.canonical.certification::keys/hibernate
     com.canonical.certification::keys/lock-screen

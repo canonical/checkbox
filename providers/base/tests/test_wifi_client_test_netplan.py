@@ -24,6 +24,7 @@ import subprocess as sp
 import io
 import sys
 from unittest.mock import call
+
 from wifi_client_test_netplan import (
     netplan_renderer,
     check_and_get_renderer,
@@ -777,6 +778,33 @@ class WifiClientTestNetplanTests(TestCase):
         self.assertEqual(result, "")
         mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
         self.assertIn("Got gateway address: ", captured_output.getvalue())
+
+
+@patch("wifi_client_test_netplan.ping")
+@patch("wifi_client_test_netplan.get_gateway")
+@patch("wifi_client_test_netplan.sp.check_output")
+class TestPerformPingTest(TestCase):
+    def test_perform_ping_test_success(
+        self, mock_check_output, mock_gateway, mock_ping
+    ):
+        mock_gateway.return_value = "127.1"
+        mock_ping.return_value = {
+            "transmitted": 5,
+            "received": 5,
+            "pct_loss": 0,
+        }
+        self.assertTrue(perform_ping_test("wlan0", "networkd"))
+
+    def test_perform_ping_test_failure(
+        self, mock_check_output, mock_gateway, mock_ping
+    ):
+        mock_gateway.return_value = "127.1"
+        mock_ping.return_value = {
+            "transmitted": 5,
+            "received": 0,
+            "pct_loss": 0,
+        }
+        self.assertFalse(perform_ping_test("wlan0", "networkd"))
 
 
 class TestMain(TestCase):

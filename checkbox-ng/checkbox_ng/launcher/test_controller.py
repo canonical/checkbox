@@ -18,16 +18,70 @@
 
 
 import socket
+import json
 
 from unittest import TestCase, mock
 from functools import partial
 
 from checkbox_ng.urwid_ui import ResumeInstead
-from checkbox_ng.launcher.controller import RemoteController
+from checkbox_ng.launcher.controller import (
+    RemoteController,
+    RemoteSessionStates,
+)
 from checkbox_ng.launcher.controller import is_hostname_a_loopback
 
 
 class ControllerTests(TestCase):
+    def test_connection_strategy_comprehensive(self):
+        connection_strategy = RemoteController.connection_strategy()
+        for state in RemoteSessionStates:
+            connection_strategy[state]
+
+    def test_setup_noresume(self):
+        self_mock = mock.MagicMock()
+
+        self_mock.sa.start_setup_json.return_value = json.dumps(
+            ["job1", "job2", "job3"]
+        )
+        self_mock.sa.finish_setup.return_value = []
+
+        def get_job_result(id):
+            if id == "job1":
+                return mock.MagicMock(outcome=True)
+            return mock.MagicMock(outcome=None)
+
+        self_mock.sa.get_job_result = get_job_result
+
+        RemoteController.setup(self_mock, {"last_job": "job1"})
+
+        self.assertTrue(self_mock.run_uninteractable_jobs.called)
+        self.assertTrue(self_mock.sa.finish_setup.called)
+
+    def test_setup_and_continue(self):
+        self_mock = mock.MagicMock()
+
+        RemoteController.setup_and_continue(self_mock)
+
+        self.assertTrue(self_mock.setup.called)
+        self.assertTrue(self_mock.bootstrap_and_continue.called)
+
+    def test_bootstrap_and_continue_no_jobs(self):
+        self_mock = mock.MagicMock()
+        self_mock.jobs = []
+
+        with self.assertRaises(SystemExit):
+            RemoteController.bootstrap_and_continue(self_mock)
+
+    def test_bootstrap_and_continue(self):
+        self_mock = mock.MagicMock()
+        self_mock.jobs = ["job1"]
+
+        RemoteController.bootstrap_and_continue(self_mock)
+
+        self.assertTrue(self_mock.bootstrap.called)
+        self.assertTrue(self_mock.select_jobs.called)
+        self.assertTrue(self_mock.run_interactable_jobs)
+
     @mock.patch("checkbox_ng.launcher.controller.is_hostname_a_loopback")
     @mock.patch("time.time")
     @mock.patch("builtins.print")
@@ -180,13 +234,8 @@ class ControllerTests(TestCase):
         """
         self_mock = mock.MagicMock()
 
-        mock_job_state_map = {
-            "job1": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
-            "job2": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
-        }
-        self_mock.manager.default_device_context._state._job_state_map = (
-            mock_job_state_map
-        )
+        self_mock.sa.has_any_job_failed.return_value = False
+
         RemoteController.finish_session(self_mock)
 
         self.assertFalse(self_mock._has_anything_failed)
@@ -283,8 +332,9 @@ class ControllerTests(TestCase):
 
         RemoteController.resume_or_start_new_session(self_mock)
 
-        self.assertTrue(self_mock.interactively_choose_tp.called)
-        self.assertTrue(self_mock.run_jobs.called)
+        self.assertTrue(
+            self_mock.interactively_choose_test_plan_and_continue.called
+        )
 
     def test_resume_or_start_new_session_auto_last_session(self):
         self_mock = mock.MagicMock()
@@ -293,8 +343,7 @@ class ControllerTests(TestCase):
 
         RemoteController.resume_or_start_new_session(self_mock)
 
-        self.assertTrue(self_mock.automatically_resume_last_session.called)
-        self.assertTrue(self_mock.run_jobs.called)
+        self.assertTrue(self_mock.resume_last_session_and_continue.called)
 
     def test_resume_or_start_new_session_auto_launcher(self):
         self_mock = mock.MagicMock()
@@ -303,8 +352,9 @@ class ControllerTests(TestCase):
 
         RemoteController.resume_or_start_new_session(self_mock)
 
-        self.assertTrue(self_mock.automatically_start_via_launcher.called)
-        self.assertTrue(self_mock.run_jobs.called)
+        self.assertTrue(
+            self_mock.automatically_start_via_launcher_and_continue.called
+        )
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_command_none(self, simple_ui_mock):
@@ -322,7 +372,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_skip(self, simple_ui_mock):
@@ -340,7 +390,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_enter(self, simple_ui_mock):
@@ -358,7 +408,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = ""
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_quit(self, simple_ui_mock):
@@ -377,7 +427,9 @@ class ControllerTests(TestCase):
         simple_ui_mock().wait_for_interaction_prompt.return_value = "quit"
 
         with self.assertRaises(SystemExit):
-            RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+            RemoteController._run_interactable_jobs(
+                self_mock, [jobs_repr_mock]
+            )
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_steps_run(self, simple_ui_mock):
@@ -394,7 +446,7 @@ class ControllerTests(TestCase):
             "category_name": "category",
         }
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_steps_enter(self, simple_ui_mock):
@@ -412,7 +464,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = ""
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_steps_skip(self, simple_ui_mock):
@@ -430,7 +482,7 @@ class ControllerTests(TestCase):
         }
         simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
 
-        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_steps_quit(self, simple_ui_mock):
@@ -449,7 +501,9 @@ class ControllerTests(TestCase):
         simple_ui_mock().wait_for_interaction_prompt.return_value = "quit"
 
         with self.assertRaises(SystemExit):
-            RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+            RemoteController._run_interactable_jobs(
+                self_mock, [jobs_repr_mock]
+            )
 
     @mock.patch(
         "checkbox_ng.launcher.controller.generate_resume_candidate_description",
@@ -477,7 +531,7 @@ class ControllerTests(TestCase):
             1:
         ]
 
-        resumed = RemoteController._resume_session_menu(
+        resumed = RemoteController.resume_session_via_menu_and_continue(
             self_mock, resumable_sessions
         )
 
@@ -512,7 +566,7 @@ class ControllerTests(TestCase):
 
         self_mock.sa.get_resumable_sessions.return_value = []
 
-        resumed = RemoteController._resume_session_menu(
+        resumed = RemoteController.resume_session_via_menu_and_continue(
             self_mock, [resumable_sessions[0]]
         )
 
@@ -535,7 +589,7 @@ class ControllerTests(TestCase):
             action="resume", session_id=None
         )
 
-        resumed = RemoteController._resume_session_menu(
+        resumed = RemoteController.resume_session_via_menu_and_continue(
             self_mock, resumable_sessions
         )
 
@@ -559,7 +613,7 @@ class ControllerTests(TestCase):
             action="resume", session_id=2
         )
 
-        resumed = RemoteController._resume_session_menu(
+        resumed = RemoteController.resume_session_via_menu_and_continue(
             self_mock, resumable_sessions
         )
 
@@ -591,7 +645,7 @@ class ControllerTests(TestCase):
             flags=[],
             running_job_name="job1",
         )
-        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.prepare_resume_session.return_value = metadata_mock
         sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="non-blocker"
         )
@@ -601,10 +655,10 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock.resume_session.assert_called_once_with("123")
+        sa_mock.prepare_resume_session.assert_called_once_with("123")
         sa_mock.select_test_plan.assert_called_once_with("abc")
         self.assertTrue(sa_mock.bootstrap.called)
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "Initial comment\nPassed after resuming execution",
@@ -636,7 +690,7 @@ class ControllerTests(TestCase):
             flags=[],
             running_job_name="job1",
         )
-        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.prepare_resume_session.return_value = metadata_mock
         sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="non-blocker"
         )
@@ -646,10 +700,10 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock.resume_session.assert_called_once_with("123")
+        sa_mock.prepare_resume_session.assert_called_once_with("123")
         sa_mock.select_test_plan.assert_called_once_with("abc")
         self.assertTrue(sa_mock.bootstrap.called)
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "Initial comment\nFailed after resuming execution",
@@ -681,7 +735,7 @@ class ControllerTests(TestCase):
             flags=["testplanless"],
             running_job_name="job1",
         )
-        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.prepare_resume_session.return_value = metadata_mock
         sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="blocker"
         )
@@ -691,8 +745,8 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock.resume_session.assert_called_once_with("123")
-        sa_mock.resume_by_id.assert_called_once_with(
+        sa_mock.prepare_resume_session.assert_called_once_with("123")
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "comment requested from user",
@@ -724,7 +778,7 @@ class ControllerTests(TestCase):
             flags=[],
             running_job_name="job1",
         )
-        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.prepare_resume_session.return_value = metadata_mock
         sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="non-blocker"
         )
@@ -734,10 +788,10 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock.resume_session.assert_called_once_with("123")
+        sa_mock.prepare_resume_session.assert_called_once_with("123")
         sa_mock.select_test_plan.assert_called_once_with("abc")
         self.assertTrue(sa_mock.bootstrap.called)
-        sa_mock.resume_by_id.assert_called_once_with(
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "Initial comment\nSkipped after resuming execution",
@@ -769,7 +823,7 @@ class ControllerTests(TestCase):
             flags=["testplanless"],
             running_job_name="job1",
         )
-        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.prepare_resume_session.return_value = metadata_mock
         sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="blocker"
         )
@@ -779,8 +833,8 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock.resume_session.assert_called_once_with("123")
-        sa_mock.resume_by_id.assert_called_once_with(
+        sa_mock.prepare_resume_session.assert_called_once_with("123")
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": "comment requested from user",
@@ -812,7 +866,7 @@ class ControllerTests(TestCase):
             flags=["testplanless"],
             running_job_name="job1",
         )
-        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.prepare_resume_session.return_value = metadata_mock
         sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="blocker"
         )
@@ -822,8 +876,8 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock.resume_session.assert_called_once_with("123")
-        sa_mock.resume_by_id.assert_called_once_with(
+        sa_mock.prepare_resume_session.assert_called_once_with("123")
+        self_mock.resume_by_id.assert_called_once_with(
             "123",
             {
                 "comments": None,
@@ -876,34 +930,36 @@ class ControllerTests(TestCase):
         with self.assertRaises(SystemExit):
             RemoteController.should_start_via_launcher(self_mock)
 
-    def test_interactively_choose_tp(self):
+    def test_interactively_choose_test_plan_and_continue(self):
         self_mock = mock.MagicMock()
 
         # by default always try to start a new session and not resuming
-        RemoteController.interactively_choose_tp(self_mock)
+        RemoteController.interactively_choose_test_plan_and_continue(self_mock)
 
-        self.assertTrue(self_mock._new_session_flow.called)
-        self.assertFalse(self_mock._resume_session_menu.called)
+        self.assertTrue(self_mock.start_session.called)
+        self.assertFalse(self_mock.resume_session_via_menu_and_continue.called)
 
-    def test_interactively_choose_tp_resume(self):
+    def test_interactively_choose_test_plan_and_continue_resume(self):
         self_mock = mock.MagicMock()
-        self_mock._new_session_flow.side_effect = ResumeInstead
-        self_mock._resume_session_menu.return_value = True
+        self_mock.select_test_plan_via_menu.side_effect = [ResumeInstead, True]
+        self_mock.resume_session_via_menu_and_continue.return_value = True
 
-        RemoteController.interactively_choose_tp(self_mock)
+        RemoteController.interactively_choose_test_plan_and_continue(self_mock)
 
-        self.assertTrue(self_mock._new_session_flow.called)
-        self.assertTrue(self_mock._resume_session_menu.called)
+        self.assertTrue(self_mock.start_session.called)
+        self.assertTrue(self_mock.select_test_plan_via_menu.called)
+        self.assertTrue(self_mock.resume_session_via_menu_and_continue.called)
 
-    def test_interactively_choose_tp_resume_retry_tp(self):
+    def test_interactively_choose_test_plan_and_continue_resume_retry_tp(self):
         self_mock = mock.MagicMock()
-        self_mock._new_session_flow.side_effect = [ResumeInstead, True]
-        self_mock._resume_session_menu.return_value = True
+        self_mock.select_test_plan_via_menu.side_effect = [ResumeInstead, True]
+        self_mock.resume_session_via_menu_and_continue.return_value = True
 
-        RemoteController.interactively_choose_tp(self_mock)
+        RemoteController.interactively_choose_test_plan_and_continue(self_mock)
 
-        self.assertTrue(self_mock._new_session_flow.called)
-        self.assertTrue(self_mock._resume_session_menu.called)
+        self.assertTrue(self_mock.start_session.called)
+        self.assertTrue(self_mock.select_test_plan_via_menu.called)
+        self.assertTrue(self_mock.resume_session_via_menu_and_continue.called)
 
     def test__resumed_session(self):
         self_mock = mock.MagicMock()
@@ -912,9 +968,9 @@ class ControllerTests(TestCase):
             self_mock, "session_id"
         ) as metadata:
             self.assertEqual(
-                self_mock.sa.resume_session.return_value, metadata
+                self_mock.sa.prepare_resume_session.return_value, metadata
             )
-        self.assertTrue(self_mock.sa.resume_session.called)
+        self.assertTrue(self_mock.sa.prepare_resume_session.called)
         self.assertTrue(self_mock.sa.abandon_session.called)
 
     def test_should_start_via_autoresume_true(self):
@@ -927,7 +983,7 @@ class ControllerTests(TestCase):
         self_mock._resumed_session = partial(
             RemoteController._resumed_session, self_mock
         )
-        metadata = self_mock.sa.resume_session()
+        metadata = self_mock.sa.prepare_resume_session()
         metadata.app_blob = b"""
             {
                 "testplan_id" : "testplan_id"
@@ -964,7 +1020,7 @@ class ControllerTests(TestCase):
         self_mock._resumed_session = partial(
             RemoteController._resumed_session, self_mock
         )
-        metadata = self_mock.sa.resume_session()
+        metadata = self_mock.sa.prepare_resume_session()
         metadata.app_blob = b"{}"
 
         self.assertFalse(
@@ -982,7 +1038,7 @@ class ControllerTests(TestCase):
         self_mock._resumed_session = partial(
             RemoteController._resumed_session, self_mock
         )
-        metadata = self_mock.sa.resume_session()
+        metadata = self_mock.sa.prepare_resume_session()
         metadata.app_blob = b'{"testplan_id" : "testplan_id"}'
         metadata.running_job_name = ""
 
@@ -1000,7 +1056,7 @@ class ControllerTests(TestCase):
         self_mock._resumed_session = partial(
             RemoteController._resumed_session, self_mock
         )
-        metadata = self_mock.sa.resume_session()
+        metadata = self_mock.sa.prepare_resume_session()
         metadata.app_blob = b'{"testplan_id" : "testplan_id"}'
         metadata.running_job_name = "job_id"
 
@@ -1015,18 +1071,20 @@ class ControllerTests(TestCase):
     def test_automatically_start_via_launcher(self):
         self_mock = mock.MagicMock()
 
-        RemoteController.automatically_start_via_launcher(self_mock)
+        RemoteController.automatically_start_via_launcher_and_continue(
+            self_mock
+        )
 
-        self.assertTrue(self_mock.select_tp.called)
-        self.assertTrue(self_mock.select_jobs.called)
+        self.assertTrue(self_mock.select_test_plan.called)
+        self.assertTrue(self_mock.setup_and_continue.called)
 
-    def test_automatically_resume_last_session(self):
+    def test_resume_last_session_and_continue(self):
         self_mock = mock.MagicMock()
 
-        RemoteController.automatically_resume_last_session(self_mock)
+        RemoteController.resume_last_session_and_continue(self_mock)
 
         self.assertTrue(self_mock.sa.get_resumable_sessions.called)
-        self.assertTrue(self_mock.sa.resume_by_id.called)
+        self.assertTrue(self_mock.resume_by_id.called)
 
     def test_start_session_success(self):
         self_mock = mock.MagicMock()
@@ -1037,14 +1095,14 @@ class ControllerTests(TestCase):
             "normal_user": True,
         }
 
-        self_mock.sa.start_session.return_value = "session_started"
+        self_mock.sa.start_session_json.return_value = '["testplan1"]'
 
         tps = RemoteController.start_session(self_mock)
 
-        self_mock.sa.start_session.assert_called_once_with(
-            expected_configuration
+        self_mock.sa.start_session_json.assert_called_once_with(
+            json.dumps(expected_configuration)
         )
-        self.assertEqual(tps, "session_started")
+        self.assertEqual(tps, ["testplan1"])
 
     def test_start_session_with_sideloaded_providers(self):
         self_mock = mock.MagicMock()
@@ -1052,7 +1110,7 @@ class ControllerTests(TestCase):
         self_mock._normal_user = True
         self_mock.sa.sideloaded_providers = True
 
-        self_mock.sa.start_session.return_value = "session_started"
+        self_mock.sa.start_session_json.return_value = '["testplan1"]'
 
         RemoteController.start_session(self_mock)
 
@@ -1060,12 +1118,198 @@ class ControllerTests(TestCase):
         self_mock = mock.MagicMock()
         self_mock._launcher_text = "launcher_example"
         self_mock._normal_user = True
-        self_mock.sa.start_session.side_effect = RuntimeError(
+        self_mock.sa.start_session_json.side_effect = RuntimeError(
             "Failed to start session"
         )
 
         with self.assertRaises(SystemExit) as _:
             RemoteController.start_session(self_mock)
+
+    @mock.patch("checkbox_ng.launcher.controller.ManifestBrowser")
+    def test__save_manifest_interactive_with_visible_manifests(
+        self, mock_browser_class
+    ):
+        controller = RemoteController()
+        sa_mock = mock.MagicMock()
+        controller._sa = sa_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "visible1", "value": 0, "hidden": False},
+                {"id": "visible2", "value": False, "hidden": False},
+            ]
+        }
+        sa_mock.get_manifest_repr_json.return_value = json.dumps(manifest_repr)
+
+        mock_browser = mock.MagicMock()
+        mock_browser.run.return_value = {
+            "visible1": 5,
+            "visible2": True,
+        }
+        mock_browser_class.return_value = mock_browser
+        mock_browser_class.has_visible_manifests.return_value = True
+
+        controller._save_manifest(interactive=True)
+
+        sa_mock.save_manifest_json.assert_called_with(
+            json.dumps({"visible1": 5, "visible2": True})
+        )
+
+    @mock.patch("checkbox_ng.launcher.controller.ManifestBrowser")
+    def test__save_manifest_interactive_no_visible_manifests(
+        self, mock_browser_class
+    ):
+        controller = RemoteController()
+        sa_mock = mock.MagicMock()
+        controller._sa = sa_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "hidden1", "value": True, "hidden": True},
+                {"id": "hidden2", "value": 2, "hidden": True},
+            ]
+        }
+        sa_mock.get_manifest_repr_json.return_value = json.dumps(manifest_repr)
+        mock_browser_class.has_visible_manifests.return_value = False
+        mock_browser_class.get_flattened_values.return_value = {
+            "hidden1": True,
+            "hidden2": 2,
+        }
+
+        controller._save_manifest(interactive=True)
+
+        self.assertEqual(mock_browser_class.call_count, 0)
+        self.assertEqual(
+            mock_browser_class.has_visible_manifests.call_count, 1
+        )
+        self.assertEqual(mock_browser_class.get_flattened_values.call_count, 1)
+        self.assertEqual(sa_mock.save_manifest_json.call_count, 1)
+        sa_mock.save_manifest_json.assert_called_with(
+            json.dumps({"hidden1": True, "hidden2": 2})
+        )
+
+    @mock.patch("checkbox_ng.launcher.controller.ManifestBrowser")
+    def test__save_manifest_non_interactive(self, mock_browser_class):
+        controller = RemoteController()
+        sa_mock = mock.MagicMock()
+        controller._sa = sa_mock
+
+        manifest_repr = {
+            "section1": [
+                {"id": "manifest1", "value": False, "hidden": False},
+                {"id": "manifest2", "value": 7, "hidden": True},
+            ]
+        }
+        sa_mock.get_manifest_repr_json.return_value = json.dumps(manifest_repr)
+        mock_browser_class.get_flattened_values.return_value = {
+            "manifest1": False,
+            "manifest2": 7,
+        }
+
+        controller._save_manifest(interactive=False)
+
+        sa_mock.save_manifest_json.assert_called_with(
+            json.dumps({"manifest1": False, "manifest2": 7})
+        )
+
+    def test__save_manifest_no_repr(self):
+        self_mock = mock.MagicMock()
+        self_mock.sa.get_manifest_repr_json.return_value = "{}"
+        RemoteController._save_manifest(self_mock, False)
+
+    def test_select_jobs_forced_with_manifest(self):
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = True
+        self_mock.launcher.manifest = True
+
+        RemoteController.select_jobs(self_mock, [])
+
+        self.assertTrue(self_mock._save_manifest.called)
+        self.assertTrue(self_mock.sa.finish_job_selection.called)
+        self.assertFalse(self_mock.sa.get_jobs_repr_json.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
+    def test_select_jobs_interactive_modified(self, category_browser_mock):
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = False
+        all_jobs = ["job1", "job2", "job3"]
+        self_mock.sa.get_jobs_repr_json.return_value = json.dumps(all_jobs)
+        wanted_set = {"job1", "job3"}
+        category_browser_mock.return_value.run.return_value = wanted_set
+
+        RemoteController.select_jobs(self_mock, all_jobs)
+
+        self.assertTrue(category_browser_mock.called)
+        self.assertTrue(self_mock.sa.modify_todo_list_json.called)
+        self.assertTrue(self_mock._save_manifest.called)
+        self.assertTrue(self_mock.sa.finish_job_selection.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
+    def test_select_jobs_interactive_not_modified(self, category_browser_mock):
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = False
+        all_jobs = ["job1", "job2", "job3"]
+        self_mock.sa.get_jobs_repr_json.return_value = json.dumps(all_jobs)
+        wanted_set = {"job1", "job2", "job3"}
+        category_browser_mock.return_value.run.return_value = wanted_set
+
+        RemoteController.select_jobs(self_mock, all_jobs)
+
+        self.assertTrue(category_browser_mock.called)
+        self.assertFalse(self_mock.sa.modify_todo_list_json.called)
+        self.assertTrue(self_mock._save_manifest.called)
+        self.assertTrue(self_mock.sa.finish_job_selection.called)
+
+    @mock.patch("time.sleep")
+    def test_wait_for_job_finishes_on_non_running_state(self, sleep_mock):
+        self_mock = mock.MagicMock()
+        self_mock.sa.monitor_job.side_effect = [("completed", None)]
+
+        RemoteController.wait_for_job(self_mock, dont_finish=False)
+
+        self.assertTrue(self_mock.finish_job.called)
+        self.assertFalse(sleep_mock.called)
+
+    @mock.patch("select.select")
+    @mock.patch("time.sleep")
+    def test_wait_for_job_sleeps_increasingly(self, sleep_mock, select_mock):
+        self_mock = mock.MagicMock()
+        select_mock.return_value = ([], [], [])
+        self_mock.sa.monitor_job.side_effect = [
+            ("running", None),
+            ("running", None),
+            ("running", None),
+            ("running", None),
+            ("running", None),
+            ("finished", None),
+        ]
+
+        RemoteController.wait_for_job(self_mock)
+
+        self.assertTrue(sleep_mock.called)
+        calls = sleep_mock.call_args_list
+        self.assertEqual(calls[0], mock.call(0))
+        self.assertEqual(calls[1], mock.call(0.1))
+        self.assertEqual(calls[2], mock.call(0.2))
+        self.assertEqual(calls[3], mock.call(0.5))
+        self.assertEqual(calls[4], mock.call(0.5))
+        self.assertTrue(self_mock.finish_job.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test_wait_for_job_with_payload(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        self_mock._is_bootstrapping = False
+        payload = "stdout:OK\nstderr:ERROR"
+        self_mock.sa.monitor_job.side_effect = [
+            ("finished", payload),
+        ]
+
+        RemoteController.wait_for_job(self_mock)
+
+        self.assertTrue(self_mock.sa.monitor_job.called)
+        self.assertTrue(simple_ui_mock.green_text.called)
+        self.assertTrue(simple_ui_mock.red_text.called)
+        self.assertTrue(self_mock.finish_job.called)
 
 
 class IsHostnameALoopbackTests(TestCase):

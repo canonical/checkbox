@@ -24,10 +24,6 @@ base: core22
 #     in the remote fashion (through checkbox-cli)
 # shell:
 #   - give shell access to the provider snap
-# install-full-deps:
-#   - install all dependencies needed for provider jobs
-# regression-testing:
-#   - Run the OpenCL regression test suite
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
@@ -43,8 +39,6 @@ apps:
   shell:
     command-chain: [bin/wrapper_local]
     command: bin/shell-wrapper
-  install-deps:
-    command: bin/install-deps
   remove-deps:
     command: bin/remove-deps
 

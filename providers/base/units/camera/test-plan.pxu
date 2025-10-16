@@ -89,7 +89,7 @@ bootstrap_include:
 
 id: camera-full
 unit: test plan
-_name: Camera tests
+_name: Camera tests (Full test plan for Core devices)
 _description: Camera tests for Ubuntu Core devices
 include:
 nested_part:

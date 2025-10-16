@@ -26,6 +26,8 @@ import json
 import logging
 import re
 
+from contextlib import suppress
+
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
@@ -72,6 +74,12 @@ class SessionMetaData:
     # once the testing begin
     FLAG_BOOTSTRAPPING = "bootstrapping"
 
+    # Flag indicates that the session is running pre-boostrap setup jobs to
+    # prepare the machine to be tested. Applications shou;d set this flag
+    # after a session is created but before bootstrapping. Once the phase is
+    # over, the application shoul procede with bootstrap as usual
+    FLAG_SETTING_UP = "setting_up"
+
     # Flag indicating that session is using hand-picked list of jobs
     # and is not following any test plan
     FLAG_TESTPLANLESS = "testplanless"
@@ -107,6 +115,30 @@ class SessionMetaData:
             self.flags,
             self.running_job_name,
         )
+
+    @property
+    def bootstrapping(self) -> bool:
+        return self.FLAG_BOOTSTRAPPING in self.flags
+
+    @bootstrapping.setter
+    def bootstrapping(self, value: bool):
+        if value:
+            self.flags.add(self.FLAG_BOOTSTRAPPING)
+        else:
+            with suppress(KeyError):
+                self.flags.remove(self.FLAG_BOOTSTRAPPING)
+
+    @property
+    def setting_up(self) -> bool:
+        return self.FLAG_SETTING_UP in self.flags
+
+    @setting_up.setter
+    def setting_up(self, value):
+        if value:
+            self.flags.add(self.FLAG_SETTING_UP)
+        else:
+            with suppress(KeyError):
+                self.flags.remove(self.FLAG_SETTING_UP)
 
     @property
     def title(self):
@@ -1146,12 +1178,19 @@ class SessionState:
             data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
             data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
             data["id"] = "after-suspend-{}".format(new_job.partial_id)
+
             data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
             if new_job.depends:
                 data["depends"] += " {}".format(new_job.id)
             else:
                 data["depends"] = "{}".format(new_job.id)
             data["depends"] += " {}".format(Suspend.AUTO_JOB_ID)
+            if new_job.after:
+                data["after"] += " {}".format(new_job.id)
+            else:
+                data["after"] = "{}".format(new_job.id)
+            if new_job.group:
+                data["group"] = "after-suspend-{}".format(new_job.group)
             self._add_job_unit(
                 JobDefinition(
                     data,
@@ -1179,6 +1218,12 @@ class SessionState:
             else:
                 data["depends"] = "{}".format(new_job.id)
             data["depends"] += " {}".format(Suspend.MANUAL_JOB_ID)
+            if new_job.after:
+                data["after"] += " {}".format(new_job.id)
+            else:
+                data["after"] = "{}".format(new_job.id)
+            if new_job.group:
+                data["group"] = "after-suspend-{}".format(new_job.group)
             self._add_job_unit(
                 JobDefinition(
                     data,

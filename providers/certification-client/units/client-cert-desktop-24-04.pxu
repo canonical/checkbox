@@ -71,7 +71,6 @@ nested_part:
     after-suspend-usb3-cert-full
     after-suspend-usb-c-cert-full
     # after-suspend-wireless-cert-full # auto only
-    ethernet-wake-on-lan-cert-manual
     info-attachment-cert-manual
 exclude:
     keys/hibernate
@@ -95,7 +94,6 @@ nested_part:
     monitor-gpu-cert-automated
     graphics-gpu-cert-automated
     cpu-cert-automated
-    gpgpu-nvidia-cert-automated
     input-cert-automated
     disk-cert-automated
     misc-client-cert-automated
@@ -120,9 +118,9 @@ nested_part:
     wireless-cert-automated
     wireless-netplan-cert-automated
     # start of suspend related tests
-    before-suspend-reference-cert-full
+    before-suspend-reference-cert-automated
     # suspend point
-    after-suspend-reference-cert-full
+    after-suspend-reference-cert-automated
     after-suspend-audio-cert-automated
     after-suspend-graphics-gpu-cert-automated
     # after-suspend-monitor-gpu-cert-automated # not defined
@@ -147,6 +145,7 @@ nested_part:
     # with.
     power-automated
     tpm-cert-automated
+    ethernet-wake-on-lan-cert-auto
 bootstrap_include:
     device
     graphics_card

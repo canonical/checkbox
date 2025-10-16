@@ -306,7 +306,7 @@ id: graphics/{index}_auto_glxgears_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.sane_product == "portable"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -319,6 +319,64 @@ description:
     and validate the outcome automatically.
     This test covers all devices with an integrated display, such as laptops and all-in-one (AIO) devices.
 
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/vulkaninfo-debug
+requires:
+    executable.name == 'vulkaninfo'
+    dmi.sane_product in ['portable', 'not-portable']
+user: root
+command:
+  export VK_LOADER_DEBUG=all
+  vulkaninfo
+estimated_duration: 1s
+summary:
+    Test that vulkaninfo works
+description:
+    Run vulkaninfo with debug info
+
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/vulkaninfo-api-version
+requires:
+    executable.name == 'vulkaninfo'
+    dmi.sane_product in ['portable', 'not-portable']
+user: root
+environ: CHECKBOX_EXPECTED_VK_API_VERSION
+command:
+    api_version=$(vulkaninfo | awk '/apiVersion/ { print $0 } ' | awk ' NR == 1 { print $0 }' | cut -d '=' -f2 | xargs)
+    if [[ -z $api_version ]] ; then exit 1 ; fi
+    echo "Target: ${CHECKBOX_EXPECTED_VK_API_VERSION}. Current: $api_version"
+    if [[ "$api_version" == "${CHECKBOX_EXPECTED_VK_API_VERSION}"* ]]; then
+        echo "OK"
+    else
+        echo "Unexpected Vulkan API version: $api_version"
+        exit 1
+    fi
+estimated_duration: 1s
+summary:
+    Test that vulkaninfo api version is right
+description:
+    Run vulkaninfo - api version check
+
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/{index}_vkcube_{product_slug}
+requires:
+    executable.name == 'vkcube'
+    dmi.sane_product in ['portable', 'not-portable']
+user: root
+command:
+ # shellcheck disable=SC1091
+ prime_offload_tester.py -c vkcube -p {pci_device_name} -d {driver} -t 5
+estimated_duration: 5
+summary:
+    Test that vkcube works for {vendor} {product}
+description:
+    Run vkcube while offloading rendering to the {vendor} {product} GPU
+
 unit: template
 template-resource: graphics_card
 plugin: user-interact-verify
@@ -327,7 +385,7 @@ id: graphics/{index}_valid_glxgears_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.sane_product == "portable"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -356,7 +414,7 @@ id: graphics/{index}_auto_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.sane_product == "portable"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -377,7 +435,7 @@ id: graphics/{index}_valid_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
+    dmi.sane_product == "portable"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -405,7 +463,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
+    dmi.sane_product == "non-portable"
 command:
     prime_offload_tester.py -c glxgears -t 30
 summary:
@@ -420,7 +478,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
+    dmi.sane_product == "non-portable"
 command:
      prime_offload_tester.py -c "glxgears -fullscreen" -t 30
 summary:
@@ -435,7 +493,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
+    dmi.sane_product == "non-portable"
 command:
     prime_offload_tester.py -c glxgears -t 30
 summary:
@@ -456,7 +514,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
+    dmi.sane_product == "non-portable"
 command:
     prime_offload_tester.py -c "glxgears -fullscreen" -t 30
 summary:
@@ -673,7 +731,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/nvlink-status-check
 requires:
- dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving']
+ dmi.sane_product == "non-portable"
  graphics_card.driver == 'nvidia'
 command: nvidia_nvlink_check.sh
 _summary: Check NVIDIA NVLINK status

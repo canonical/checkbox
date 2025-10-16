@@ -9,6 +9,12 @@ _name: Wake-on-LAN support through Ethernet port
 value-type: bool
 
 unit: manifest entry
+id: wake_on_lan_server_running
+_prompt: Is the following server setup and running?:
+_name: A Wake-on-LAN server for automation
+value-type: bool
+
+unit: manifest entry
 id: _ignore_disconnected_ethernet_interfaces
 _name: Ignore disconnected Ethernet interfaces
 value-type: bool

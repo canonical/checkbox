@@ -82,6 +82,7 @@ parts:
       - device-tree-compiler
       - linuxptp
       - snmp
+      - gpsd
     override-prime: |
       snapcraftctl prime
       rm lib/systemd/system/alsa-utils.service

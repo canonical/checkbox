@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2017-2020 Canonical Ltd.
+# Copyright 2017-2025 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -30,7 +31,14 @@ import os
 import sys
 
 from plainbox.i18n import gettext as _
-from subprocess import check_call, CalledProcessError, DEVNULL, SubprocessError
+from subprocess import (
+    check_output,
+    check_call,
+    CalledProcessError,
+    STDOUT,
+    DEVNULL,
+    SubprocessError,
+)
 
 
 logger = logging.getLogger("sudo_broker")
@@ -40,27 +48,36 @@ def is_passwordless_sudo():
     """
     Check if system can run sudo without pass.
     """
+    # this command fails if passowrdless sudo is not configured because
+    # --reset-timestamp will trigger re-authentication
+    # --non-interactive will make the command fail if user interaction is due
+    # We no longer use `-A` (ASKPASS) because sudo-rs doesn't currently support
+    # it
+    check_passwordless_sudo_cmd = [
+        "sudo",
+        "--non-interactive",
+        "--reset-timestamp",
+        "true",
+    ]
     if os.geteuid() == 0:
         # even though we run as root, we still may need to use sudo to switch
         # to a normal user for jobs not requiring root, so let's see if sudo
         # actually works.
         try:
-            check_call(
-                ["sudo", "-A", "-k", "true"], stdout=DEVNULL, stderr=DEVNULL
+            check_output(
+                check_passwordless_sudo_cmd,
+                stderr=STDOUT,
+                universal_newlines=True,
             )
         except (SubprocessError, OSError) as exc:
-            logger.error(_("Unable to run sudo %s"), exc)
-            raise SystemExit(1)
+            try:
+                print(exc.output)
+            except AttributeError:
+                pass
+            raise SystemExit("Checkbox is unable to run sudo: {}".format(exc))
         return True
-    # running sudo with -A will try using ASKPASS envvar that should specify
-    # the program to use when asking for password
-    # If the system is configured to not ask for password, this will silently
-    # succeed. If the pass is required, it'll return 1 and not ask for pass,
-    # as the askpass program is not provided
     try:
-        check_call(
-            ["sudo", "-A", "-k", "true"], stdout=DEVNULL, stderr=DEVNULL
-        )
+        check_output(check_passwordless_sudo_cmd, stderr=STDOUT)
     except CalledProcessError:
         return False
     return True

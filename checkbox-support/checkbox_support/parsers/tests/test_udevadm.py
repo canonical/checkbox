@@ -1196,6 +1196,46 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(len(devices), 92)
         self.assertEqual(self.count(devices, "WATCHDOG"), 1)
 
+    def test_DISK_SAMSUNG_KIOXIA(self):
+        """
+        Test system with both standard NVMe disks and virtual NVMe disks.
+        This system has:
+        - 2 standard Samsung NVMe disks (nvme0n1, nvme1n1)
+        - 8 virtual Kioxia NVMe disks with controller notation (nvme2c2n1,
+          nvme3c3n1, nvme4c4n1, nvme5c5n1, nvme6c6n1, nvme7c7n1, nvme8c8n1,
+          nvme9c9n1)
+        This test verifies that the NVMe name detection correctly handles
+        both standard nvmeXnY pattern and virtual nvmeXcYnZ pattern.
+        """
+        devices = self.parse("DISK_SAMSUNG_KIOXIA")
+        # Count total NVMe disks (2 standard + 8 virtual = 10)
+        nvme_disks = [d for d in devices if d.category == "DISK" and
+                      d.name and d.name.startswith("nvme")]
+        self.assertEqual(len(nvme_disks), 10,
+                         f"Expected 10 NVMe disks, found {len(nvme_disks)}")
+
+        # Verify standard NVMe disk names are correctly detected
+        standard_nvme_names = [d.name for d in nvme_disks if "c" not in d.name]
+        self.assertIn("nvme0n1", standard_nvme_names,
+                      "Standard Samsung disk nvme0n1 should be detected")
+        self.assertIn("nvme1n1", standard_nvme_names,
+                      "Standard Samsung disk nvme1n1 should be detected")
+
+        # Verify virtual NVMe disk names are correctly detected with controller notation
+        virtual_nvme_names = [d.name for d in nvme_disks if "c" in d.name]
+        expected_virtual_names = ["nvme2c2n1", "nvme3c3n1", "nvme4c4n1",
+                                  "nvme5c5n1", "nvme6c6n1", "nvme7c7n1",
+                                  "nvme8c8n1", "nvme9c9n1"]
+        for expected_name in expected_virtual_names:
+            self.assertIn(expected_name, virtual_nvme_names,
+                          f"Virtual Kioxia disk {expected_name} should be detected")
+
+        # Verify we have exactly 2 standard and 8 virtual NVMe disks
+        self.assertEqual(len(standard_nvme_names), 2,
+                         "Should have 2 standard NVMe disks")
+        self.assertEqual(len(virtual_nvme_names), 8,
+                         "Should have 8 virtual NVMe disks with controller notation")
+
     def test_SHUTTLE_DH170_WITH_USB_DISK(self):
         """DH170 with USB stick comparing pre and post reboot."""
         devices_pre = self.parse(

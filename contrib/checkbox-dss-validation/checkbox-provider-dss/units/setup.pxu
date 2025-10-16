@@ -213,7 +213,7 @@ flags: simple
 _summary: Clone and setup integration tests from DSS repo
 estimated_duration: 2m
 command:
-  set -ex
+  set -e
   DSS_REPO="/tmp/dss-repo"
   if [ ! -d "$DSS_REPO" ]; then
     git clone https://github.com/canonical/data-science-stack.git $DSS_REPO

@@ -330,6 +330,7 @@ _purpose:
   Check if the DUT supports Wi-Fi 7 features like Multi-Link-Operation
 plugin: shell
 user: root
+environ: MLO_SSID MLO_PSK
 command:
   wifi_7_test.py -m "$MLO_SSID" -p "$MLO_PSK" -i {{ interface }}
 category_id: com.canonical.plainbox::wireless

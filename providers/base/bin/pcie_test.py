@@ -26,7 +26,6 @@ This script is designed for Ubuntu on x86 and ARM64 platforms.
 
 import argparse
 import logging
-import re
 import subprocess
 import sys
 
@@ -128,13 +127,33 @@ class PCIeTester(object):
         Returns:
             tuple: A tuple (speed, width) or (None, None) if not found.
         """
-        link_info_pattern = re.compile(
-            r"Speed\s+(?P<speed>[\d\.]+GT/s).*Width\s+(?P<width>x\d+)"
-        )
-        match = link_info_pattern.search(line)
-        if match:
-            return match.group("speed"), match.group("width")
-        return None, None
+        speed = None
+        width = None
+
+        # Example: "LnkCap: Speed 8GT/s, Width x16, ASPM L0s L1..."
+        # Split by comma to get parts
+        parts = line.split(",")
+
+        for part in parts:
+            part = part.strip()
+            # Look for Speed
+            if "Speed" in part:
+                # Extract speed value (e.g., "Speed 8GT/s" -> "8GT/s")
+                tokens = part.split()
+                for i, token in enumerate(tokens):
+                    if token == "Speed" and i + 1 < len(tokens):
+                        speed = tokens[i + 1]
+                        break
+            # Look for Width
+            elif "Width" in part:
+                # Extract width value (e.g., "Width x16" -> "x16")
+                tokens = part.split()
+                for i, token in enumerate(tokens):
+                    if token == "Width" and i + 1 < len(tokens):
+                        width = tokens[i + 1]
+                        break
+
+        return speed, width
 
     def _get_pcie_info(self, pcie_slot):
         """

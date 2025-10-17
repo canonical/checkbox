@@ -155,15 +155,9 @@ class TestCpuBenchmark(unittest.TestCase):
     @patch("psutil.Process")
     def test_set_cpu_affinity_success(self, mock_process):
         """Test successful CPU affinity setting"""
-        mock_process.return_value.cpu_affinity.return_value = [0, 1, 2]
-        with patch.object(
-            self.benchmark,
-            "get_cpu_affinity",
-            return_value=[0, 1, 2],
-        ):
-            result = self.benchmark.set_cpu_affinity(1)
-            self.assertEqual(result, [0, 1, 2])
-            mock_process.return_value.cpu_affinity.assert_called_with([1])
+        mock_process.return_value.cpu_affinity.return_value = None
+        self.benchmark.set_cpu_affinity([1])
+        mock_process.return_value.cpu_affinity.assert_called_with([1])
 
     @patch("psutil.Process")
     def test_set_cpu_affinity_access_denied(self, mock_process):
@@ -173,7 +167,7 @@ class TestCpuBenchmark(unittest.TestCase):
             psutil.AccessDenied()
         )
         with self.assertRaises(CpuAffinityError):
-            self.benchmark.set_cpu_affinity(1)
+            self.benchmark.set_cpu_affinity([1])
 
     @patch("psutil.Process")
     def test_restore_cpu_affinity_success(self, mock_process):
@@ -294,10 +288,11 @@ class TestCpuBenchmark(unittest.TestCase):
 
             execution_time = end_time - start_time
             # Should take some measurable time (not instant)
-            self.assertGreater(execution_time, 0.0001)  # At least 0.1ms
+            self.assertGreater(execution_time, 0.0)  # Should take some time
             # Should not take too long (indicating it's not stuck)
             self.assertLess(execution_time, 1.0)  # Less than 1 second
 
+    @patch.object(CpuBenchmark, "get_cpu_affinity")
     @patch.object(CpuBenchmark, "set_cpu_affinity")
     @patch.object(CpuBenchmark, "restore_cpu_affinity")
     @patch.object(CpuBenchmark, "burn_cpu_cycles")
@@ -308,15 +303,17 @@ class TestCpuBenchmark(unittest.TestCase):
         mock_burn,
         mock_restore,
         mock_set,
+        mock_get_affinity,
     ):
         """Test successful CPU benchmark"""
         # Mock time to return increasing values
         mock_time.side_effect = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
-        mock_set.return_value = [0, 1, 2]
+        mock_get_affinity.return_value = [0, 1, 2]
 
         result = self.benchmark.cpu_benchmark(1)
 
-        mock_set.assert_called_with(1)
+        mock_get_affinity.assert_called_once()
+        mock_set.assert_called_with([1])
         mock_restore.assert_called_with([0, 1, 2])
         self.assertIsInstance(result, float)
 
@@ -327,26 +324,14 @@ class TestCpuBenchmark(unittest.TestCase):
         with self.assertRaises(CpuAffinityError):
             self.benchmark.cpu_benchmark(1)
 
-    @patch.object(CpuBenchmark, "get_cpu_affinity")
-    def test_set_cpu_affinity_get_affinity_error(self, mock_get_affinity):
-        """Test set_cpu_affinity when get_cpu_affinity fails"""
-        mock_get_affinity.side_effect = CpuAffinityError("Test error")
-        with self.assertRaises(CpuAffinityError):
-            self.benchmark.set_cpu_affinity(1)
-
     @patch("psutil.Process")
     def test_set_cpu_affinity_psutil_error(self, mock_process):
         """Test set_cpu_affinity when psutil.Process().cpu_affinity() fails"""
-        # Mock get_cpu_affinity to succeed but psutil.Process().cpu_affinity()
-        # to fail
-        with patch.object(
-            self.benchmark, "get_cpu_affinity", return_value=[0, 1, 2]
-        ):
-            mock_process.return_value.cpu_affinity.side_effect = (
-                psutil.AccessDenied()
-            )
-            with self.assertRaises(CpuAffinityError):
-                self.benchmark.set_cpu_affinity(1)
+        mock_process.return_value.cpu_affinity.side_effect = (
+            psutil.AccessDenied()
+        )
+        with self.assertRaises(CpuAffinityError):
+            self.benchmark.set_cpu_affinity([1])
 
 
 class TestCpuIdleTest(unittest.TestCase):

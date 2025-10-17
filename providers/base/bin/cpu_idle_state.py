@@ -134,14 +134,17 @@ class CpuBenchmark:
             msg = "Cannot get CPU affinity - need root privileges"
             raise CpuAffinityError(msg)
 
-    def set_cpu_affinity(self, cpu_id: int) -> None:
-        """Set CPU affinity to a specific CPU and return previous affinity"""
+    def set_cpu_affinity(self, cpu_id: List[int]) -> None:
+        """Set CPU affinity to a list of CPUs"""
         try:
-            psutil.Process().cpu_affinity([cpu_id])
+            psutil.Process().cpu_affinity(cpu_id)
         except psutil.AccessDenied:
-            msg = "Cannot set CPU affinity to CPU {} ".format(cpu_id)
-            msg += "- need root privileges"
+            msg = "Cannot set CPU affinity - need root privileges"
             raise CpuAffinityError(msg)
+
+    def restore_cpu_affinity(self, affinity: List[int]) -> None:
+        """Restore CPU affinity to previous setting"""
+        self.set_cpu_affinity(affinity)
 
     def burn_cpu_cycles(self):
         """
@@ -173,7 +176,7 @@ class CpuBenchmark:
         """
         # Set CPU affinity
         old_affinity = self.get_cpu_affinity()
-        self.set_cpu_affinity(cpu_id)
+        self.set_cpu_affinity([cpu_id])
 
         try:
             start_time = time.time()
@@ -189,7 +192,7 @@ class CpuBenchmark:
 
         finally:
             # Restore CPU affinity
-            self.set_cpu_affinity(old_affinity)
+            self.restore_cpu_affinity(old_affinity)
 
 
 class CpuIdleTest:

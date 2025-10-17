@@ -6,6 +6,7 @@ include:
     setup_dss/write_microk8s_kube_config
     setup_dss/microk8s_nvidia_gpu_setup
     setup_dss/microk8s_intel_gpu_setup
+    setup_dss/clone_and_setup_dss_integration_tests
 
 id: setup-dss-validation-on-canonical-k8s
 unit: test plan
@@ -17,11 +18,14 @@ include:
     setup_dss/write_canonical_k8s_kube_config
     setup_dss/canonical_k8s_nvidia_gpu_setup
     setup_dss/canonical_k8s_intel_gpu_setup
+    setup_dss/clone_and_setup_dss_integration_tests
 
 id: dss-validation
 unit: test plan
 _name: DSS validations with Intel and NVIDIA GPUs if available
 include:
+    dss/verify_integration_cpu_.*
+    dss/verify_integration_gpu_.*
     dss/initialize
     dss/namespace
     dss/status_mlflow
@@ -50,3 +54,5 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+    dss/collect_integration_cpu_test_names
+    dss/collect_integration_gpu_test_names

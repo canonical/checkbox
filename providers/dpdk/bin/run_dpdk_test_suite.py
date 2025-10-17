@@ -57,7 +57,7 @@ class DTSRunner:
             self.run_ssh_command(
                 cmd="test -d {}".format(DTS_REMOTE_PATH),
             )
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             raise ConfigurationError("Remote DTS directory missing")
         logging.info("Remote directory is properly set.")
 
@@ -69,7 +69,7 @@ class DTSRunner:
                     CONTAINER_NAME
                 ),
             )
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             raise ConfigurationError(
                 "Required docker container is not running"
             )
@@ -79,7 +79,7 @@ class DTSRunner:
         """Delete results from previous execution on remote host"""
         try:
             self.run_ssh_command(cmd="rm -f {}".format(REMOTE_RESULTS_PATH))
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             # No test results found
             pass
 
@@ -136,7 +136,7 @@ class DTSRunner:
                 universal_newlines=True,
                 timeout=timeout,
             )
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             output = None
 
         return output
@@ -172,7 +172,7 @@ class DTSRunner:
                 check=True,
                 timeout=60,
             )
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             raise ConfigurationError(
                 "Unable to copy config file to remote host"
             )
@@ -323,7 +323,7 @@ def main():
             "Unable to start Test Suite execution due to the following "
             "exception: {}".format(exc)
         )
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         # Attempt to print test results before exit
         dts_runner.print_results()
         raise SystemExit("Test Suite execution failed")

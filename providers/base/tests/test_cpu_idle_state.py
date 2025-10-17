@@ -312,7 +312,7 @@ class TestCpuBenchmark(unittest.TestCase):
 
         result = self.benchmark.cpu_benchmark(1)
 
-        mock_get_affinity.assert_called_once()
+        self.assertEqual(mock_get_affinity.call_count, 1)
         mock_set.assert_called_with([1])
         mock_restore.assert_called_with([0, 1, 2])
         self.assertIsInstance(result, float)

@@ -6,15 +6,15 @@ _description:
     only. It provides DPDK functionality testing for supported NICs.
     This should only be run on systems with dpdk capable network hardware.
 include:
-    networking/dpdk_blocklist_test_driver_.*      certification-status=blocker
-    networking/dpdk_checksum_offload_driver_.*    certification-status=blocker
-    networking/dpdk_pmd_buffer_scatter_driver_.*  certification-status=blocker
-    networking/dpdk_vlan_driver_.*                certification-status=blocker
-    miscellanea/oops                              certification-status=non-blocker
-    miscellanea/oops_results.log                  certification-status=non-blocker
-    miscellanea/olog                              certification-status=blocker
+    networking/dpdk_blocklist_test_driver_.*           certification-status=blocker
+    networking/dpdk_checksum_offload_test_driver_.*    certification-status=blocker
+    networking/dpdk_pmd_buffer_scatter_test_driver_.*  certification-status=blocker
+    networking/dpdk_vlan_test_driver_.*                certification-status=blocker
+    miscellanea/oops                                   certification-status=non-blocker
+    miscellanea/oops_results.log                       certification-status=non-blocker
+    miscellanea/olog                                   certification-status=blocker
     miscellanea/olog_results.log
-    miscellanea/klog                              certification-status=blocker
+    miscellanea/klog                                   certification-status=blocker
     miscellanea/klog_results.log
 bootstrap_include:
     dpdk_drivers

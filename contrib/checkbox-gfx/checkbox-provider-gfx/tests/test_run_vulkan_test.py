@@ -12,7 +12,7 @@ class TestRunVulkanCTS(unittest.TestCase):
     def test_run_vk_test_success(self, mock_exit, mock_run):
         # Mock a successful subprocess result
         mock_result = MagicMock()
-        mock_result.stdout = "test passed"
+        mock_result.stdout = "Vulkan test passed"
         mock_result.stderr = ""
         mock_result.returncode = 0
         mock_run.return_value = mock_result
@@ -28,7 +28,7 @@ class TestRunVulkanCTS(unittest.TestCase):
         # Mock a failed subprocess result
         mock_result = MagicMock()
         mock_result.stdout = ""
-        mock_result.stderr = "error running test"
+        mock_result.stderr = "error running Vulkan test (Expected)"
         mock_result.returncode = 1
         mock_run.return_value = mock_result
 

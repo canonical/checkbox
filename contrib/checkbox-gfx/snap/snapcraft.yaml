@@ -38,6 +38,9 @@ apps:
   test-opencl:
     command-chain: [bin/wrapper_local]
     command: bin/test-opencl
+  test-crucible:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-crucible
   run-agent:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper run-agent
@@ -52,6 +55,8 @@ apps:
     command: bin/install-opengl
   install-opencl:
     command: bin/install-opencl
+  install-crucible:
+    command: bin/install-crucible
   remove:
     command: bin/remove
 

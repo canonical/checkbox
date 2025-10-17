@@ -281,16 +281,11 @@ class DTSRunner:
 def parse_args():
     """Parses command-line arguments."""
     parser = argparse.ArgumentParser(description="DPDK Test Suite Execution")
-
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         help="Increase logging level in test suite execution",
-    )
-
-    parser.add_argument(
-        "-d", "--driver", required=True, help="NIC driver with DPDK Support"
     )
     parser.add_argument(
         "-T", "--test-suite", required=True, help="Specified Test Suite to run"

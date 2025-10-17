@@ -78,7 +78,9 @@ class DTSRunner:
     def _clear_old_results(self):
         """Delete results from previous execution on remote host"""
         try:
-            self.run_ssh_command(cmd="rm -f {}".format(REMOTE_RESULTS_PATH))
+            self.run_ssh_command(
+                cmd="sudo rm -f {}".format(REMOTE_RESULTS_PATH)
+            )
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             # No test results found
             pass
@@ -213,7 +215,7 @@ class DTSRunner:
             cmd="docker exec {} bash -l -c '{}'".format(
                 CONTAINER_NAME, dts_command
             ),
-            timeout=300,
+            timeout=600,
         )
 
         logging.info("DTS Test Suite Run completed")

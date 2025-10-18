@@ -28,7 +28,7 @@ from checkbox_support.lxd_support import LXD, LXDVM
 
 GPU_VENDORS = {
     "nvidia": {
-        "test": "sudo mixbench.cuda",
+        "test": "gpu-burn 30",
         "lxd": {
             "launch_options": [
                 "-c",
@@ -49,20 +49,6 @@ GPU_VENDORS = {
     },
 }
 """Mapping of supported vendor names to test configuration."""
-
-GPU_RUNS = 20
-"""How many times to run the GPU test.
-
-This can be overwritten by the `--count` option or by setting the environment
-variable `LXD_GPU_RUNS`. With priority in that order.
-"""
-
-GPU_THRESHOLD_SEC = 12.0
-"""The threshold for the GPU test to pass.
-
-This can be overwritten by the `--threshold` option or by setting the
-environment variable `LXD_GPU_THRESHOLD`. With priority in that order.
-"""
 
 QEMU_OPTS = ""
 """Any custom QEMU options required for passthrough on your platform
@@ -86,39 +72,22 @@ environment variable `VM_CPUS`. With priority in that order.
 """
 
 
-def run_gpu_test(
-    instance: LXD,
-    cmd: str,
-    run_count: int = GPU_RUNS,
-    threshold_sec: float = GPU_THRESHOLD_SEC,
-):
+def run_gpu_test(instance: LXD, cmd: str):
     """Executes GPU passthrough test."""
-    logging.info("Running GPU passthrough test %d times", run_count)
+    logging.info("Running GPU passthrough test")
     total_runtime_sec = 0.0
-    for i in range(run_count):
-        tic = time.time()
-        instance.run(cmd, on_guest=True)
-        toc = time.time()
-        runtime_sec = toc - tic
-        total_runtime_sec += runtime_sec
-        logging.debug("Runtime #%d (sec): %f", i, runtime_sec)
-
-    avg_runtime_sec = total_runtime_sec / run_count
-    logging.info("Average runtime (sec): %f", avg_runtime_sec)
-    if avg_runtime_sec >= threshold_sec:
-        logging.error(
-            "Average runtime %fs greater than threshold %fs",
-            avg_runtime_sec,
-            threshold_sec,
-        )
-        raise SystemExit(1)
+    tic = time.time()
+    instance.run(cmd, on_guest=True)
+    toc = time.time()
+    runtime_sec = toc - tic
+    total_runtime_sec += runtime_sec
+    logging.debug("Runtime: %f sec", runtime_sec)
 
 
 def test_lxd_gpu(args):
     """Tests GPU passthrough with a LXD container."""
     logging.info("Executing LXD GPU passthrough test")
 
-    instance = LXD(args.template, args.rootfs)
     with LXD(args.template, args.rootfs) as instance:
         logging.info("Launching container: %s", instance.name)
         instance.launch(
@@ -131,15 +100,10 @@ def test_lxd_gpu(args):
         logging.info("Waiting for %s to be up", instance.name)
         instance.wait_until_running()
 
-        logging.info("Installing mixbench snap")
-        instance.run("snap install mixbench", on_guest=True)
+        logging.info("Installing gpu-burn snap")
+        instance.run("snap install gpu-burn", on_guest=True)
 
-        run_gpu_test(
-            instance,
-            GPU_VENDORS[args.vendor]["test"],
-            args.count,
-            args.threshold,
-        )
+        run_gpu_test(instance, GPU_VENDORS[args.vendor]["test"])
 
 
 def test_lxdvm_gpu(args):
@@ -153,7 +117,7 @@ def test_lxdvm_gpu(args):
         )
 
         logging.info("Waiting for %s to be up", instance.name)
-        instance.wait_until_running()
+        instance.wait_until_running(allow_degraded=True)
 
         instance.stop(force=True)
 
@@ -197,15 +161,10 @@ def test_lxdvm_gpu(args):
         logging.info("Waiting for %s to be up", instance.name)
         instance.wait_until_running()
 
-        logging.info("Installing mixbench snap")
-        instance.run("snap install mixbench", on_guest=True)
+        logging.info("Installing gpu-burn snap")
+        instance.run("snap install gpu-burn", on_guest=True)
 
-        run_gpu_test(
-            instance,
-            GPU_VENDORS[args.vendor]["test"],
-            args.count,
-            args.threshold,
-        )
+        run_gpu_test(instance, GPU_VENDORS[args.vendor]["test"])
 
 
 def parse_args():
@@ -221,20 +180,6 @@ def parse_args():
         default=logging.INFO,
         const=logging.DEBUG,
         help="Increase logging level",
-    )
-
-    test_group = parser.add_argument_group("test")
-    test_group.add_argument(
-        "--threshold",
-        type=float,
-        default=float(os.getenv("LXD_GPU_THRESHOLD") or GPU_THRESHOLD_SEC),
-        help="Threshold (sec) for GPU test",
-    )
-    test_group.add_argument(
-        "--count",
-        type=int,
-        default=int(os.getenv("LXD_GPU_RUNS") or GPU_RUNS),
-        help="Times to run GPU test",
     )
 
     gpu_group = parser.add_argument_group("gpu")

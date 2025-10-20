@@ -576,7 +576,13 @@ def get_execution_environment(job, environ, session_id, nest_dir):
         )
     # Inject nest_dir into PATH
     env["PATH"] = os.pathsep.join(
-        [nest_dir] + env.get("PATH", "").split(os.pathsep)
+        [nest_dir]
+        + env.get("PATH", "").split(os.pathsep)
+        + job.provider.extra_PATH
+    )
+    env["LD_LIBRARY_PATH"] = os.pathsep.join(
+        env.get("LD_LIBRARY_PATH", "").split(os.pathsep)
+        + job.provider.extra_LD_LIBRARY_PATH
     )
     # Add per-session shared state directory
     env["PLAINBOX_SESSION_SHARE"] = WellKnownDirsHelper.session_share(

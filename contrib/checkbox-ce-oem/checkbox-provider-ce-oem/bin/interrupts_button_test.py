@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 A script to monitor interrupts, verify IRQ CPU affinity, and test
-interrupt triggers via GPIO or manual sysfs interaction.
+interrupt triggers via manual sysfs interaction.
 """
 
 import argparse
@@ -26,7 +26,7 @@ class InterruptsTest:
     def __init__(self, irq_name: str):
         """
         Args:
-            irq_name: The name of the interrupt source (e.g., 'gpio-keys').
+            irq_name: The name of the interrupt source (e.g., 'test-keys').
         """
         self.irq_name = irq_name
         # It maps each IRQ number to its list of target CPUs.
@@ -277,7 +277,7 @@ def parse_arguments() -> argparse.Namespace:
         type=str,
         required=True,
         help=(
-            "The name of the interrupt source (e.g., 'gpio-keys') "
+            "The name of the interrupt source (e.g., 'test-keys') "
             "to find in /proc/interrupts. "
         ),
     )

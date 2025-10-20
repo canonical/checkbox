@@ -4,6 +4,6 @@ _name: A Wi-Fi Module
 value-type: bool
 
 unit: manifest entry
-id: has_mlo_environment
-_name: Does the test environment have a WiFi 7 router with tri-band (2.4, 5, 6) Multi-Link-Operation enabled and is this router's name specified in the environment variable MLO_SSID?
+id: has_wifi_mlo_environment
+_name: Does the test environment have a WiFi 7 router with tri-band (2.4, 5, 6) multi-link-operation (MLO) enabled and are this router's ssid and password specified in the environment variables MLO_SSID/MLO_PSK?
 value-type: bool

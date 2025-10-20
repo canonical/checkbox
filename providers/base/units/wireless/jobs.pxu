@@ -331,6 +331,7 @@ _purpose:
 plugin: shell
 user: root
 environ: MLO_SSID MLO_PSK
+imports: from com.canonical.plainbox import manifest
 command:
   wifi_7_test.py -m "$MLO_SSID" -p "$MLO_PSK" -i {{ interface }}
 category_id: com.canonical.plainbox::wireless
@@ -341,8 +342,8 @@ requires:
  executable.name == 'nmcli'
  wifi_7_resource.wpa_supplicant_at_least_2_11 == 'True'
  wifi_7_resource.kernel_at_least_6_14 == 'True'
- manifest.has_mlo_environment == 'True'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+ manifest.has_wifi_mlo_environment == 'True'
 
 unit: template
 template-resource: device

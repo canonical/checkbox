@@ -123,7 +123,6 @@ class TestWifi7Tests(ut.TestCase):
                             "up",
                             "7a18fc1e-e021-4fcb",
                         ],
-                        universal_newlines=True,
                     )
                 ]
             )
@@ -145,7 +144,6 @@ class TestWifi7Tests(ut.TestCase):
                             "ifname",
                             MOCK_IFACE,
                         ],
-                        universal_newlines=True,
                     )
                 ]
             )

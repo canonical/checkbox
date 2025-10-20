@@ -222,7 +222,10 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
     ):
         # flush here to make sure it prints before we actually delete
         print("Deleting existing connections of '{}'".format(ssid), flush=True)
-        sp.check_call(["nmcli", "connection", "delete", ssid])
+        sp.check_call(
+            ["nmcli", "connection", "delete", ssid],
+            universal_newlines=True,
+        )
 
     # color is removed when nmcli detects that its output is being piped
     # so we don't need to manually remove colors
@@ -261,7 +264,8 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
                     "password",
                     password,
                     *(["ifname", interface] if interface else []),
-                ]
+                ],
+                universal_newlines=True,
             )
         else:
             sp.check_call(
@@ -272,7 +276,8 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
                     "connect",
                     ssid,
                     *(["ifname", interface] if interface else []),
-                ]
+                ],
+                universal_newlines=True,
             )
 
         print("[ OK ] Connected to {}".format(ssid))
@@ -422,7 +427,7 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
             ),
             "is not using 320MHz bandwidth.",
             "It's possible that the AP of {}".format(mlo_ssid),
-            "isn't configured correctly"
+            "isn't configured correctly",
             "or the SoC on this wifi card doesn't support 320MHz",
             file=stderr,
         )
@@ -472,9 +477,16 @@ def main():
     # turn down all active connections
     for conn_uuid in active_wifi_conn_uuids:
         print(
-            "Turning down connection", conn_uuid, "before the test", flush=True
+            "Turning down connection",
+            "'{}'".format(conn_uuid),
+            "before the test",
+            flush=True,
         )
-        sp.check_call(["nmcli", "connection", "down", conn_uuid])
+        sp.check_call(
+            ["nmcli", "connection", "down", conn_uuid],
+            universal_newlines=True,
+            # ^^ if unspecified, a random escape sequence appears in the output
+        )
 
     try:
         run_iw_checks(args.mlo_ssid, args.password, wifi_interface)
@@ -491,7 +503,10 @@ def main():
                 connect(args.mlo_ssid, args.password, wifi_interface)
             else:
                 print("Restoring connection by uuid:", conn_uuid, flush=True)
-                sp.check_call(["nmcli", "connection", "up", conn_uuid])
+                sp.check_call(
+                    ["nmcli", "connection", "up", conn_uuid],
+                    universal_newlines=True,
+                )
 
 
 if __name__ == "__main__":

@@ -122,7 +122,8 @@ class TestWifi7Tests(ut.TestCase):
                             "connection",
                             "up",
                             "7a18fc1e-e021-4fcb",
-                        ]
+                        ],
+                        universal_newlines=True,
                     )
                 ]
             )
@@ -143,7 +144,8 @@ class TestWifi7Tests(ut.TestCase):
                             MOCK_PASSWORD,
                             "ifname",
                             MOCK_IFACE,
-                        ]
+                        ],
+                        universal_newlines=True,
                     )
                 ]
             )

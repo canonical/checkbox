@@ -19,10 +19,11 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import logging
 import unittest
 from unittest import mock
 
-import pcie_test
+from pcie_test import PCIeTester, _run_command, init_logger, main
 
 
 class TestPCIeTester(unittest.TestCase):
@@ -32,7 +33,7 @@ class TestPCIeTester(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        self.tester = pcie_test.PCIeTester()
+        self.tester = PCIeTester()
 
     @mock.patch("pcie_test.subprocess.run")
     def test_run_command_success(self, mock_run):
@@ -41,7 +42,7 @@ class TestPCIeTester(unittest.TestCase):
         mock_result.stdout = "Test output"
         mock_run.return_value = mock_result
 
-        result = pcie_test._run_command(["lspci"])
+        result = _run_command(["lspci"])
         self.assertEqual(result, "Test output")
         self.assertEqual(mock_run.call_count, 1)
 
@@ -51,7 +52,7 @@ class TestPCIeTester(unittest.TestCase):
         mock_run.side_effect = FileNotFoundError()
 
         with self.assertRaises(RuntimeError) as cm:
-            pcie_test._run_command(["lspci"])
+            _run_command(["lspci"])
         self.assertIn("command not found", str(cm.exception))
 
     @mock.patch("pcie_test.subprocess.run")
@@ -64,7 +65,7 @@ class TestPCIeTester(unittest.TestCase):
         )
 
         with self.assertRaises(RuntimeError) as cm:
-            pcie_test._run_command(["lspci"])
+            _run_command(["lspci"])
         self.assertIn("Error executing command", str(cm.exception))
 
     def test_parse_link_info_valid(self):
@@ -253,9 +254,9 @@ class TestInitLogger(unittest.TestCase):
 
     def test_init_logger(self):
         """Test that init_logger creates a logger"""
-        logger = pcie_test.init_logger()
+        logger = init_logger()
         self.assertIsNotNone(logger)
-        self.assertEqual(logger.level, pcie_test.logging.INFO)
+        self.assertEqual(logger.level, logging.INFO)
 
 
 class TestMain(unittest.TestCase):
@@ -263,20 +264,20 @@ class TestMain(unittest.TestCase):
 
     @mock.patch("pcie_test.sys.exit")
     @mock.patch("pcie_test.init_logger")
-    @mock.patch.object(pcie_test.PCIeTester, "list_resources")
+    @mock.patch.object(PCIeTester, "list_resources")
     @mock.patch("pcie_test.sys.argv", ["pcie_test.py", "resource"])
     def test_main_resource_command(self, mock_list, mock_logger, mock_exit):
         """Test main with resource command"""
         mock_list.return_value = 0
         mock_logger.return_value = mock.Mock()
-        pcie_test.main()
+        main()
         self.assertEqual(mock_list.call_count, 1)
         mock_exit.assert_called_with(0)
         self.assertEqual(mock_exit.call_count, 1)
 
     @mock.patch("pcie_test.sys.exit")
     @mock.patch("pcie_test.init_logger")
-    @mock.patch.object(pcie_test.PCIeTester, "check_link_state")
+    @mock.patch.object(PCIeTester, "check_link_state")
     @mock.patch(
         "pcie_test.sys.argv", ["pcie_test.py", "check_speed", "-s", "00:00.0"]
     )
@@ -286,7 +287,7 @@ class TestMain(unittest.TestCase):
         """Test main with check_speed command"""
         mock_check.return_value = 0
         mock_logger.return_value = mock.Mock()
-        pcie_test.main()
+        main()
         mock_check.assert_called_with("00:00.0", force=False)
         self.assertEqual(mock_check.call_count, 1)
         mock_exit.assert_called_with(0)
@@ -294,7 +295,7 @@ class TestMain(unittest.TestCase):
 
     @mock.patch("pcie_test.sys.exit")
     @mock.patch("pcie_test.init_logger")
-    @mock.patch.object(pcie_test.PCIeTester, "check_link_state")
+    @mock.patch.object(PCIeTester, "check_link_state")
     @mock.patch(
         "pcie_test.sys.argv",
         ["pcie_test.py", "check_speed", "-s", "00:00.0", "--force"],
@@ -305,7 +306,7 @@ class TestMain(unittest.TestCase):
         """Test main with check_speed command and --force flag"""
         mock_check.return_value = 1
         mock_logger.return_value = mock.Mock()
-        pcie_test.main()
+        main()
         mock_check.assert_called_with("00:00.0", force=True)
         self.assertEqual(mock_check.call_count, 1)
         mock_exit.assert_called_with(1)
@@ -313,7 +314,7 @@ class TestMain(unittest.TestCase):
 
     @mock.patch("pcie_test.sys.exit")
     @mock.patch("pcie_test.init_logger")
-    @mock.patch.object(pcie_test.PCIeTester, "check_aspm_state")
+    @mock.patch.object(PCIeTester, "check_aspm_state")
     @mock.patch(
         "pcie_test.sys.argv", ["pcie_test.py", "check_aspm", "-s", "00:00.0"]
     )
@@ -321,7 +322,7 @@ class TestMain(unittest.TestCase):
         """Test main with check_aspm command"""
         mock_check.return_value = 0
         mock_logger.return_value = mock.Mock()
-        pcie_test.main()
+        main()
         mock_check.assert_called_with("00:00.0", force=False)
         self.assertEqual(mock_check.call_count, 1)
         mock_exit.assert_called_with(0)
@@ -329,7 +330,7 @@ class TestMain(unittest.TestCase):
 
     @mock.patch("pcie_test.sys.exit")
     @mock.patch("pcie_test.init_logger")
-    @mock.patch.object(pcie_test.PCIeTester, "check_aspm_state")
+    @mock.patch.object(PCIeTester, "check_aspm_state")
     @mock.patch(
         "pcie_test.sys.argv",
         ["pcie_test.py", "check_aspm", "-s", "00:00.0", "--force"],
@@ -340,7 +341,7 @@ class TestMain(unittest.TestCase):
         """Test main with check_aspm command and --force flag"""
         mock_check.return_value = 1
         mock_logger.return_value = mock.Mock()
-        pcie_test.main()
+        main()
         mock_check.assert_called_with("00:00.0", force=True)
         self.assertEqual(mock_check.call_count, 1)
         mock_exit.assert_called_with(1)
@@ -348,17 +349,15 @@ class TestMain(unittest.TestCase):
 
     @mock.patch("pcie_test.sys.exit")
     @mock.patch("pcie_test.init_logger")
-    @mock.patch.object(pcie_test.PCIeTester, "list_resources")
+    @mock.patch.object(PCIeTester, "list_resources")
     @mock.patch("pcie_test.sys.argv", ["pcie_test.py", "--debug", "resource"])
     def test_main_with_debug_flag(self, mock_list, mock_logger, mock_exit):
         """Test main with --debug flag"""
         mock_list.return_value = 0
         mock_logger_instance = mock.Mock()
         mock_logger.return_value = mock_logger_instance
-        pcie_test.main()
-        mock_logger_instance.setLevel.assert_called_with(
-            pcie_test.logging.DEBUG
-        )
+        main()
+        mock_logger_instance.setLevel.assert_called_with(logging.DEBUG)
         self.assertEqual(mock_logger_instance.setLevel.call_count, 1)
 
 

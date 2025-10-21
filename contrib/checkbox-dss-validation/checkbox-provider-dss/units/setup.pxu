@@ -207,7 +207,7 @@ command:
 id: setup_dss/clone_and_setup_dss_integration_tests
 category_id: setup-dss-regress
 depends:
-  #setup_dss/install_snap_data-science-stack
+  setup_dss/install_snap_data-science-stack
   setup_dss/install_package_python3-venv
 flags: simple
 _summary: Clone and setup integration tests from DSS repo

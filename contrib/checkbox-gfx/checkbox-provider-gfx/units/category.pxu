@@ -9,3 +9,7 @@ _name: A test suite for opencl
 unit: category
 id: opengl
 _name: A test suite for opengl
+
+unit: category
+id: level-zero
+_name: Category for Intel level zero tests

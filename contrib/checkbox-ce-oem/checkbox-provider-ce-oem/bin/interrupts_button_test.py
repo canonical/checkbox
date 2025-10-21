@@ -15,6 +15,12 @@ from typing import List, Optional
 PROC_INTERRUPTS = "/proc/interrupts"
 TEST_TIMEOUT = 30
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
 
 class InterruptsTest:
     """
@@ -34,7 +40,7 @@ class InterruptsTest:
         self.irq_numbers = {}
         self.num_cpus = os.cpu_count()
 
-    def _get_irq_numbers(self) -> bool:
+    def _get_irq_numbers_counts(self) -> bool:
         """
         Finds all IRQ numbers for the given device name.
 
@@ -47,21 +53,31 @@ class InterruptsTest:
             PROC_INTERRUPTS,
         )
         """
-        The self.irq_numbers will be store the mapping of IRQs for target
-        interrupt name as a dict and assigned IRQ number as key only.
-        self.irq_numbers = { IRQ_number1: None,
-                             IRQ_number2: None }
+        Following logic will mapping self.irq_numbers with initial_counts_map
+        initial_counts_map is a mapping of IRQ and the interrupt count of
+        all CPUs
+        initial_counts_map = { 132: [0, 0, 0, 0],
+                               144: [2, 0, 4, 0] }
         """
         try:
             with open(PROC_INTERRUPTS, "r") as f:
                 for line in f:
                     if self.irq_name in line:
                         parts = line.split()
+                        # looking for irq_number for matching irq_name
                         irq_str = parts[0].strip().replace(":", "")
+                        # Get max CPU index. The index start from 0.
+                        max_idx = self.num_cpus + 1
+                        # Get interrupts count for each CPU.
+                        counts = [
+                            int(p) for p in parts[1:max_idx] if p.isdigit()
+                        ]
                         if irq_str.isdigit():
                             # Append every found IRQ number
-                            self.irq_numbers[(int(irq_str))] = None
-
+                            self.irq_numbers[(int(irq_str))] = counts
+                        else:
+                            logging.error(line)
+                            raise ValueError("Can't found IRQ number by name!")
         except FileNotFoundError:
             logging.error("Proc file not found at %s.", PROC_INTERRUPTS)
             return False
@@ -74,10 +90,7 @@ class InterruptsTest:
                 "Could not find any IRQ associated with %s.", self.irq_name
             )
             return False
-
-        formatted_keys = ", ".join(str(k) for k in self.irq_numbers.keys())
-        logging.info("Successfully found IRQ numbers: %s", formatted_keys)
-        return True
+        return self.irq_numbers
 
     def _get_smp_affinities(self) -> bool:
         """
@@ -101,84 +114,26 @@ class InterruptsTest:
 
                 Refer to https://docs.kernel.org/core-api/irq/irq-affinity.html
                 for more detail.
-
+                affected_cpus will be a list include the affected cpu core for
+                the irq.
                 """
                 affinity_mask = int(affinity_hex, 16)
-                affected_cpus = [
+                affected_cpus = {
                     cpu
                     for cpu in range(self.num_cpus)
                     if (affinity_mask >> cpu) & 1
-                ]
-                """
-                self.irq_numbers will be updated by assigning a list of
-                affinity CPUs as the value for each IRQ accordingly.
-                self.irq_numbers = { IRQ_number1: [0, 1],
-                                     IRQ_number2: [3, 4] }
-                """
-                if not affected_cpus:
-                    logging.warning(
-                        "IRQ %d affinity mask '%s' targets no CPUs. "
-                        "Defaulting to all CPUs for this IRQ.",
-                        irq,
-                        affinity_hex,
-                    )
-                    self.irq_numbers[irq] = list(range(self.num_cpus))
-                else:
-                    self.irq_numbers[irq] = affected_cpus
-
+                }
                 logging.info(
-                    "IRQ %d is tuned to run on CPU(s): %s",
+                    "IRQ %d affinity mask '%s' targets CPU(s): %s",
                     irq,
-                    self.irq_numbers[irq],
+                    affinity_hex,
+                    affected_cpus,
                 )
+                return affected_cpus                
             except Exception as e:
-                logging.error(
+                raise SystemError(
                     "Error reading smp_affinity for IRQ %d: %s", irq, e
                 )
-                return False
-        return True
-
-    def _get_interrupt_counts(self, irq_number: int) -> Optional[List[int]]:
-        """
-        Gets current interrupt counts for a specific IRQ across all CPUs.
-
-        Args:
-            irq_number: The IRQ number to look for.
-
-        Returns:
-            A list of integer counts, or None on error.
-        """
-        try:
-            """
-            counts will be a list of the numbers that from the output
-            of /proc/interrupts. It will parse the line start with
-            specific IRQ number and get the mulitple columes value
-            which is depend on how many CPU cores for system.
-            e.g. The output for /proc/interrupts as follows.
-            count for IRQ number 1 will be count = [0, 0]
-
-                    CPU0       CPU1
-            1:          0          0     GICv3  25 Level     vgic
-            3:    4341111    1892740     GICv3  30 Level     arch_timer
-            """
-            with open(PROC_INTERRUPTS, "r") as f:
-                for line in f:
-                    # Match the line starting with the exact IRQ number
-                    if line.strip().startswith("{}:".format(irq_number)):
-                        parts = line.split()
-                        # Get counts only for the number of available CPUs
-                        max_idx = self.num_cpus + 1
-                        counts = [
-                            int(p) for p in parts[1:max_idx] if p.isdigit()
-                        ]
-                        return counts
-        except Exception as e:
-            logging.error(
-                "Error reading interrupt counts for IRQ %d: %s",
-                irq_number,
-                e,
-            )
-        return None
 
     def run_test(self) -> bool:
         """
@@ -188,73 +143,49 @@ class InterruptsTest:
         Returns:
             True if an interrupt was detected, False otherwise.
         """
-        if not self._get_irq_numbers():
-            raise RuntimeError(
-                "Could not find IRQs for '{}'.".format(self.irq_name)
-            )
-
-        if not self._get_smp_affinities():
-            raise RuntimeError("Could not get CPU affinities for all IRQs.")
 
         """
         Store initial counts for all monitored IRQs
-        initial_counts_map = { IRQ_number1: [cpu0_count, cpu1_count, ...],
-                               IRQ_number1: [cpu0_count, cpu1_count, ...] }
+        initial_counts = { IRQ_number1: [cpu0_count, cpu1_count, ...],
+                           IRQ_number2: [cpu0_count, cpu1_count, ...] }
         """
-        initial_counts_map = {}
-        for irq in self.irq_numbers:
-            counts = self._get_interrupt_counts(irq)
-            if counts is None:
-                logging.error("Failed to get initial counts for IRQ %d.", irq)
-                return False  # Or raise an error
-            initial_counts_map[irq] = counts
-
+        initial_counts = self._get_irq_numbers_counts()
+        if not initial_counts:
+            raise RuntimeError(
+                "Could not find IRQs for '{}'.".format(self.irq_name)
+            )
+        affected_cpus = self._get_smp_affinities()
         logging.info("Initial interrupt counts on target CPUs:")
-        """
-        Following logic will mapping self.irq_numbers with initial_counts_map
-        self.irq_numbers is a mapping of IRQ and affinity of CPUs.
-        self.irq_numbers = { 132: [2,3],
-                             144: [0,1] }
-        initial_counts_map is a mapping of IRQ and the interrupt count of
-        all CPUs
-        initial_counts_map = { 132: [0, 0, 0, 0],
-                               144: [2, 0, 4, 0] }
-        """
-        for irq, cpus in self.irq_numbers.items():
-            for cpu in cpus:
-                logging.info(
-                    "IRQ %d, CPU %d: %d",
-                    irq,
-                    cpu,
-                    initial_counts_map[irq][cpu],
-                )
+        for irq, cpus in initial_counts.items():
+            logging.info("IRQ %d, CPU counts %s", irq, cpus)
 
         logging.info(
             "Monitoring for interrupt activity for %d seconds...",
             TEST_TIMEOUT,
         )
         for _ in range(TEST_TIMEOUT):
-            # Check each IRQ for an increase in counts
-            for irq_num, target_cpus in self.irq_numbers.items():
-                current_counts = self._get_interrupt_counts(irq_num)
-                if not current_counts:
-                    continue  # Skip if we failed to read counts
-
-                initial_counts = initial_counts_map[irq_num]
-                for cpu in target_cpus:
-                    if current_counts[cpu] > initial_counts[cpu]:
-                        logging.info(
-                            "SUCCESS: Interrupt detected on IRQ %d (CPU %d)!",
-                            irq_num,
-                            cpu,
-                        )
-                        logging.info(
-                            "Initial count: %d, Final count: %d",
-                            initial_counts[cpu],
-                            current_counts[cpu],
-                        )
-                        return True
-            time.sleep(1)
+            current_counts = self._get_irq_numbers_counts()
+            if not current_counts:
+                continue  # Skip if we failed to read counts
+            # Compare current counts to initial counts
+            # If any target CPU shows an increase, the test passes
+            for irq_num in current_counts.keys():
+                # Check if there is any change in interrupt counts
+                if current_counts[irq_num] != initial_counts[irq_num]:
+                    for indesx, value in enumerate(current_counts[irq_num]):
+                        if value != initial_counts[irq_num][indesx]:
+                            if indesx in affected_cpus:
+                                logging.info(
+                                    "SUCCESS: Interrupt detected on IRQ %d!",
+                                    irq_num
+                                )
+                                logging.info(
+                                    "Initial count: %s, Final count: %s",
+                                    initial_counts,
+                                    current_counts,
+                                )
+                                return True
+            time.sleep(3)
 
         logging.error(
             "TEST FAILED: No interrupt activity detected on any "

@@ -196,6 +196,9 @@ category_id: com.canonical.plainbox::disk
 id: disk/apste_support_on_{name}
 template-id: disk/apste_support_on_name
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_apste_support == 'True'
 estimated_duration: 1.0
 user: root
 command: nvme get-feature -f 0x0c -H /dev/{name} | grep '(APSTE).*Enabled' && test -e /sys/class/nvme/{name}/power/pm_qos_latency_tolerance_us

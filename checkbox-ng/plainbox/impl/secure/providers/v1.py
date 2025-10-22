@@ -28,6 +28,7 @@ import collections
 import gettext
 import logging
 import os
+import sys
 from pathlib import Path
 
 from plainbox.abc import IProvider1
@@ -1091,6 +1092,11 @@ class Provider1(IProvider1):
             raise ValueError("Provider is not a custom frontend")
         return Path(self.base_dir).parent.parent.resolve()
 
+    def paths_to_custom_frontend_path(self, paths) -> list:
+        frontend_root = self.custom_frontend_root()
+        frontend_paths = [frontend_root / path for path in paths]
+        return [str(path) for path in frontend_paths if path.exists()]
+
     @property
     def extra_PYTHONPATH(self):
         """
@@ -1102,7 +1108,20 @@ class Provider1(IProvider1):
         .. note::
             The result may be None
         """
-        return None
+        if not self.custom_frontend_provider:
+            return None
+        python_name = "python{}.{}".format(
+            sys.version_info.major, sys.version_info.minor
+        )
+        paths = [
+            "lib/{}/site-packages".format(python_name),
+            "lib/{}/dist-packages".format(python_name),
+            "usr/lib/{}/site-packages".format(python_name),
+            "usr/lib/{}/lib-dynload".format(python_name),
+            "usr/lib/python3/dist-packages",
+            "usr/local/lib/{}/dist-packages".format(python_name),
+        ]
+        return self.paths_to_custom_frontend_path(paths)
 
     @property
     def extra_PATH(self) -> list:
@@ -1114,7 +1133,6 @@ class Provider1(IProvider1):
         """
         if not self.custom_frontend_provider:
             return []
-        frontend_root = self.custom_frontend_root()
         paths = [
             # Don't put a / in front or you will point to the root one
             # as Path("/a/b") / "/a" == Path("/a")
@@ -1125,9 +1143,7 @@ class Provider1(IProvider1):
             "bin",
             "sbin",
         ]
-        frontend_bin_paths = [frontend_root / path for path in paths]
-        # avoid polluting PATH with dozen of non-existing directories
-        return [str(path) for path in frontend_bin_paths if path.exists()]
+        return self.paths_to_custom_frontend_path(paths)
 
     @property
     def extra_LD_LIBRARY_PATH(self):
@@ -1136,7 +1152,6 @@ class Provider1(IProvider1):
         """
         if not self.custom_frontend_provider:
             return []
-        frontend_root = self.custom_frontend_root()
         paths = [
             # Don't put a / in front or you will point to the root one
             # as Path("/a/b") / "/a" == Path("/a")
@@ -1145,9 +1160,8 @@ class Provider1(IProvider1):
             "lib",
             "lib64",
         ]
-        frontend_lib_paths = [frontend_root / path for path in paths]
-        # avoid polluting PATH with dozen of non-existing directories
-        return [str(path) for path in frontend_lib_paths if path.exists()]
+
+        return self.paths_to_custom_frontend_path(paths)
 
     @property
     def secure(self):

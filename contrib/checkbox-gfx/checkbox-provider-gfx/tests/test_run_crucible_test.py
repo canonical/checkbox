@@ -37,16 +37,22 @@ class TestCrucibleRunner(unittest.TestCase):
             use_fork=True,
         )
 
-        self.assertTrue(passed, "Expected run to pass when success marker is present.")
+        self.assertTrue(
+            passed, "Expected run to pass when success marker is present."
+        )
         # Output file should be cleaned up
-        self.assertFalse(self.out_path.exists(), "Output file should be removed after run.")
+        self.assertFalse(
+            self.out_path.exists(), "Output file should be removed after run."
+        )
         # Stdout should include the content that was written (and then 'cat'-ed)
         printed = sys.stdout.getvalue()
         self.assertIn(SUCCESS_MARKER, printed)
 
         # Verify we invoked crucible with expected args
         args, kwargs = mock_run.call_args
-        self.assertIn("--fork", args[0], "Expected --fork in command arguments.")
+        self.assertIn(
+            "--fork", args[0], "Expected --fork in command arguments."
+        )
 
         # Check env and cwd were set
         self.assertEqual(kwargs["cwd"], "/fake/dir")
@@ -67,12 +73,18 @@ class TestCrucibleRunner(unittest.TestCase):
             use_fork=False,  # also exercise the no-fork path
         )
 
-        self.assertFalse(passed, "Expected run to fail when success marker is absent.")
-        self.assertFalse(self.out_path.exists(), "Output file should be removed after run.")
+        self.assertFalse(
+            passed, "Expected run to fail when success marker is absent."
+        )
+        self.assertFalse(
+            self.out_path.exists(), "Output file should be removed after run."
+        )
 
         # Verify we *didn't* include --fork
         args, _ = mock_run.call_args
-        self.assertNotIn("--fork", args[0], "Did not expect --fork in command arguments.")
+        self.assertNotIn(
+            "--fork", args[0], "Did not expect --fork in command arguments."
+        )
 
     @patch("run_crucible_test.subprocess.run")
     def test_run_crucible_prints_entire_stdout(self, mock_run):
@@ -87,7 +99,12 @@ class TestCrucibleRunner(unittest.TestCase):
         )
 
         printed = sys.stdout.getvalue()
-        self.assertEqual(printed.endswith(fake_output), True, "Printed output should match crucible stdout")
+        self.assertEqual(
+            printed.endswith(fake_output),
+            True,
+            "Printed output should match crucible stdout",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

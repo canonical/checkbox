@@ -29,13 +29,7 @@ category_id: dss-regress
 group: dss-integration-tests
 plugin: resource
 _summary: List integration tests from DSS repo for CPU
-command:
-  set -eo pipefail
-  DSS_REPO="/tmp/dss-repo"
-  cd $DSS_REPO
-  .venv/bin/tox -e integration -- --collect-only -qq \
-    | grep '^tests/integration' \
-    | awk -F'::' '{print "test_case: " $1; print "test_name: " $2 "\n"}'
+command: extract_dss_repo_tests.py /tmp/dss-repo integration
 
 id: dss/collect_integration_gpu_test_names
 category_id: dss-regress
@@ -44,13 +38,7 @@ plugin: resource
 _summary: List integration tests from DSS repo for GPU
 imports: from com.canonical.certification import graphics_card
 requires: graphics_card.vendor == 'NVIDIA Corporation'
-command:
-  set -eo pipefail
-  DSS_REPO="/tmp/dss-repo"
-  cd $DSS_REPO
-  .venv/bin/tox -e integration-gpu -- --collect-only -qq \
-    | grep '^tests/integration' \
-    | awk -F'::' '{print "test_case: " $1; print "test_name: " $2 "\n"}'
+command: extract_dss_repo_tests.py /tmp/dss-repo integration-gpu
 
 unit: template
 template-engine: jinja2

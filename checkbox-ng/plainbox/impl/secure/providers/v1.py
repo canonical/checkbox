@@ -1799,7 +1799,7 @@ class Provider1PlugIn(PlugIn):
         )
 
 
-def get_secure_custom_frontend_PROVIDERPATH_list() -> list[str]:
+def get_secure_custom_frontend_PROVIDERPATH_list():
     """
     Additional PROVIDERPATH for cu interfaces
 

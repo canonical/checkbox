@@ -18,8 +18,8 @@ TEST_TIMEOUT = 30
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 class InterruptsTest:
@@ -129,7 +129,7 @@ class InterruptsTest:
                     affinity_hex,
                     affected_cpus,
                 )
-                return affected_cpus                
+                return affected_cpus
             except Exception as e:
                 raise SystemError(
                     "Error reading smp_affinity for IRQ %d: %s", irq, e
@@ -177,7 +177,7 @@ class InterruptsTest:
                             if indesx in affected_cpus:
                                 logging.info(
                                     "SUCCESS: Interrupt detected on IRQ %d!",
-                                    irq_num
+                                    irq_num,
                                 )
                                 logging.info(
                                     "Initial count: %s, Final count: %s",

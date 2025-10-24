@@ -26,6 +26,9 @@ apps:
   configure:
     command-chain: [bin/wrapper_local]
     command: bin/configure
+  test-lvl-zero:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-lvl-zero
   test-vulkan:
     command-chain: [bin/wrapper_local]
     command: bin/test-vulkan
@@ -49,6 +52,8 @@ apps:
   shell:
     command-chain: [bin/wrapper_local]
     command: bin/shell-wrapper
+  install-lvl-zero:
+    command: bin/install-lvl-zero
   install-vulkan:
     command: bin/install-vulkan
   install-opengl:

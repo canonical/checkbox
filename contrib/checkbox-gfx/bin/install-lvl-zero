@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+source $(dirname "$0")/setup-env.sh
+
+sudo apt update -y
+sudo apt install -y build-essential cmake ocl-icd-libopencl1 libva2 libva-drm2 libze-dev libze-intel-gpu-dev libpng-dev libboost-all-dev libmfx-gen1.2 ninja-build clang ocl-icd-opencl-dev clinfo python3-pip meson glslang-tools pkg-config cmake libvulkan-dev libgl1 mesa-common-dev libglfw3-dev libgles2-mesa-dev
+pip3 install opencv-python lxml --break-system-packages
+
+if [ "$VENDOR" = "Intel" ]; then
+    echo "Installing Level Zero tests"
+    # install level-zero testing
+
+    cd $WORKING_DIR
+    git clone https://github.com/oneapi-src/level-zero-tests
+    cd level-zero-tests
+    git checkout 5477490d98ad737a79ce8017954d1c3b1301e88c
+    mkdir build
+    cd build
+    cmake -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR ..
+    sudo cmake --build . --config Release --target install
+    sudo mv $WORKING_DIR/level-zero-tests $INSTALL_DIR/level-zero-tests
+else
+    echo "Not installing Level Zero testing because it is Intel-specific"
+fi

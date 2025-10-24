@@ -322,7 +322,6 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             normalized_value = normalize_rfc822_value(raw_value)
             record.raw_data[key] = raw_value
             record.data[key] = normalized_value
-            logger.debug(_("Committed key/value %r=%r"), key, normalized_value)
             key = None
 
     def _set_start_lineno_if_needed():
@@ -347,7 +346,6 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         stream = iter(stream.splitlines(True))
     # Iterate over subsequent lines of the stream
     for lineno, line in enumerate(stream, start=1):
-        logger.debug(_("Looking at line %d:%r"), lineno, line)
         # Treat # as comments
         if line.startswith("#"):
             pass
@@ -359,7 +357,6 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             # If data is non-empty, yield the record, this allows us to safely
             # use newlines for formatting
             if record.data:
-                logger.debug(_("yielding record: %r"), record)
                 yield record
             # Reset local state so that we can build a new record
             _new_record()
@@ -430,5 +427,4 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
     _commit_key_value_if_needed()
     # Once we've seen the whole file return the last record, if any
     if record.data:
-        logger.debug(_("yielding record: %r"), record)
         yield record

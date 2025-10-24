@@ -9,7 +9,7 @@ import time
 import os
 import sys
 import logging
-from typing import List, Optional
+from typing import List, Dict
 
 # Define paths and constants
 PROC_INTERRUPTS = "/proc/interrupts"
@@ -39,8 +39,9 @@ class InterruptsTest:
         # Example: {35: [0, 1], 36: [2, 3]}
         self.irq_numbers = {}
         self.num_cpus = os.cpu_count()
+        self.affected_cpu = {}
 
-    def _get_irq_numbers_counts(self) -> bool:
+    def _get_irq_numbers_counts(self) -> Dict[int, List]:
         """
         Finds all IRQ numbers for the given device name.
 
@@ -92,7 +93,7 @@ class InterruptsTest:
             return False
         return self.irq_numbers
 
-    def _get_smp_affinities(self) -> bool:
+    def _get_smp_affinities(self) -> Dict[int, List]:
         """
         Gets the list of CPU cores for each IRQ's affinity.
 
@@ -129,11 +130,12 @@ class InterruptsTest:
                     affinity_hex,
                     affected_cpus,
                 )
-                return affected_cpus
+                self.affected_cpu[irq] = affected_cpus
             except Exception as e:
                 raise SystemError(
                     "Error reading smp_affinity for IRQ %d: %s", irq, e
                 )
+        return self.affected_cpu
 
     def run_test(self) -> bool:
         """
@@ -174,7 +176,7 @@ class InterruptsTest:
                 if current_counts[irq_num] != initial_counts[irq_num]:
                     for indesx, value in enumerate(current_counts[irq_num]):
                         if value != initial_counts[irq_num][indesx]:
-                            if indesx in affected_cpus:
+                            if indesx in affected_cpus[irq_num]:
                                 logging.info(
                                     "SUCCESS: Interrupt detected on IRQ %d!",
                                     irq_num,

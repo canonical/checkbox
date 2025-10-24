@@ -60,6 +60,22 @@ slots:
     read:
       - /
 
+plugs:
+  custom-frontend:
+    interface: content
+    content: custom-frontend
+    target: $SNAP/custom_frontends/custom_frontend
+
+apps:
+  checkbox:
+    command: bin/checkbox-cli
+    plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
+      gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
+      system-observe, tpm, udisks2, account-control, accounts-service,
+      login-session-control, login-session-observe]
+    environment:
+      PYTHONPATH: $SNAP/lib/python3.12/site-packages/:$SNAP/lib64/python3.12/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+
 package-repositories:
   - type: apt
     ppa: colin-king/stress-ng

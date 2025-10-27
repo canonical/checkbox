@@ -69,7 +69,7 @@ jobs:
             path: contrib/checkbox-dss-validation/
             snapcraft-channel: 8.x/stable
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         name: Upload logs on failure
         if: failure()
         with:
@@ -80,7 +80,7 @@ jobs:
             contrib/checkbox-dss-validation/checkbox*.txt
 
       - id: upload_artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         name: Upload the snaps as artifact
         with:
           name: checkbox-dss.snap

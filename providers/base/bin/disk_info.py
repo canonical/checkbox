@@ -26,9 +26,8 @@
 """disk_info utility."""
 
 import json
-import re
 import sys
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output
 
 from checkbox_support.parsers.udevadm import find_pkname_is_root_mountpoint
 

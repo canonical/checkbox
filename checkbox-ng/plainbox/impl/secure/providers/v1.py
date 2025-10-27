@@ -1098,7 +1098,7 @@ class Provider1(IProvider1):
         return [str(path) for path in frontend_paths if path.exists()]
 
     @property
-    def extra_PYTHONPATH(self):
+    def extra_PYTHONPATH(self) -> list:
         """
         additional entry for PYTHONPATH, if needed.
 
@@ -1801,7 +1801,7 @@ class Provider1PlugIn(PlugIn):
 
 def get_secure_custom_frontend_PROVIDERPATH_list():
     """
-    Additional PROVIDERPATH for cu interfaces
+    Additional PROVIDERPATH for custom-frontend interface
 
     Custom frontend that adopted the custom-frontend interface provide their
     root as content. From this root the installed providers are always at

@@ -21,27 +21,28 @@ plainbox.impl.secure.providers.test_v1
 
 Test definitions for plainbox.impl.secure.providers.v1 module
 """
-
-from unittest import TestCase
+import sys
+from unittest import TestCase, mock
+from unittest.mock import Mock, MagicMock
+from pathlib import Path
 
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.secure.config import Unset
-from plainbox.impl.secure.config import ValidationError
-from plainbox.impl.secure.plugins import PlugIn
-from plainbox.impl.secure.plugins import PlugInError
-from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
-from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
-from plainbox.impl.secure.providers.v1 import IQNValidator
-from plainbox.impl.secure.providers.v1 import Provider1
-from plainbox.impl.secure.providers.v1 import Provider1Definition
-from plainbox.impl.secure.providers.v1 import Provider1PlugIn
-from plainbox.impl.secure.providers.v1 import ProviderContentLoader
-from plainbox.impl.secure.providers.v1 import UnitPlugIn
-from plainbox.impl.secure.providers.v1 import VersionValidator
-from plainbox.impl.secure.rfc822 import FileTextSource
-from plainbox.impl.secure.rfc822 import Origin
+from plainbox.impl.secure.config import Unset, ValidationError
+from plainbox.impl.secure.plugins import PlugIn, PlugInError
+from plainbox.impl.secure.providers.v1 import (
+    AbsolutePathValidator,
+    ExistingDirectoryValidator,
+    IQNValidator,
+    Provider1,
+    Provider1Definition,
+    Provider1PlugIn,
+    ProviderContentLoader,
+    UnitPlugIn,
+    VersionValidator,
+    get_secure_custom_frontend_PROVIDERPATH_list,
+)
+from plainbox.impl.secure.rfc822 import FileTextSource, Origin
 from plainbox.impl.unit.file import FileUnit
-from plainbox.vendor import mock
 
 
 class IQNValidatorTests(TestCase):
@@ -572,11 +573,11 @@ class UnitPlugInTests(TestCase):
     LOAD_TIME = 42
 
     def setUp(self):
-        self.provider = mock.Mock(name="provider", spec=Provider1)
+        self.provider = Mock(name="provider", spec=Provider1)
         self.provider.classify.return_value = (
-            mock.Mock("role"),
-            mock.Mock("base"),
-            mock.Mock("plugin_cls"),
+            Mock("role"),
+            Mock("base"),
+            Mock("plugin_cls"),
         )
         self.provider.namespace = "com.canonical.plainbox"
         self.plugin = UnitPlugIn(
@@ -774,6 +775,7 @@ class Provider1Tests(TestCase):
         self.provider._base_dir = None
         self.assertEqual(self.provider.CHECKBOX_SHARE, None)
 
+    @mock.patch("os.getenv", new=Mock(return_value=None))
     def test_extra_PYTHONPATH(self):
         """
         Verify that Provider1.extra_PYTHONPATH is always None
@@ -913,11 +915,182 @@ class Provider1Tests(TestCase):
         )
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])
 
+    @mock.patch("os.getenv", new=Mock(return_value=None))
+    def test_custom_frontend_provider_non_snap(self):
+        self.assertFalse(self.provider.custom_frontend_provider)
+
+    @mock.patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_custom_frontend_provider_non_custom_frontend(self):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/current/providers/some-provider",
+        )
+        self.assertFalse(provider.custom_frontend_provider)
+
+    @mock.patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_custom_frontend_provider_ok(self):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
+        )
+        self.assertTrue(provider.custom_frontend_provider)
+
+    @mock.patch(
+        "plainbox.impl.secure.providers.v1.Path",
+        new=MagicMock(spec=Path, exists=Mock(return_value=True)),
+    )
+    @mock.patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_extra_PYTHONPATH_custom_frontend(
+        self,
+    ):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
+        )
+        self.assertGreater(len(provider.extra_PYTHONPATH), 0)
+
+    @mock.patch(
+        "plainbox.impl.secure.providers.v1.Path",
+        new=MagicMock(spec=Path, exists=Mock(return_value=True)),
+    )
+    @mock.patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_extra_PATH_custom_frontend(
+        self,
+    ):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
+        )
+        self.assertGreater(len(provider.extra_PATH), 0)
+
+    @mock.patch("os.getenv", new=Mock(return_value=None))
+    def test_extra_PATH_none(self):
+        self.assertFalse(self.provider.extra_PATH)
+
+    @mock.patch(
+        "plainbox.impl.secure.providers.v1.Path",
+        new=MagicMock(spec=Path, exists=Mock(return_value=True)),
+    )
+    @mock.patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_extra_LD_LIBRARY_PATH_custom_frontend(
+        self,
+    ):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
+        )
+        self.assertGreater(len(provider.extra_LD_LIBRARY_PATH), 0)
+
+    @mock.patch("os.getenv", new=Mock(return_value=None))
+    def test_extra_LD_LIBRARY_PATH_none(self):
+        self.assertFalse(self.provider.extra_LD_LIBRARY_PATH)
+
+    @mock.patch("os.getenv", new=Mock(return_value=None))
+    def test_custom_frontend_root_value_error(self):
+        with self.assertRaises(ValueError):
+            self.provider.custom_frontend_root()
+
+
+class CustomFrontendPROVIDERPATHTest(TestCase):
+    @mock.patch("os.getenv", new=Mock(return_value=None))
+    def test_no_path_not_snap(self):
+        self.assertEqual(get_secure_custom_frontend_PROVIDERPATH_list(), [])
+
+    @mock.patch(
+        "plainbox.impl.secure.providers.v1.Path",
+        new=MagicMock(spec=Path, exists=Mock(return_value=False)),
+    )
+    @mock.patch(
+        "os.getenv", new=Mock(return_value="/snap/checkbox24/x1/current")
+    )
+    def test_no_path_no_custom_frontend(self):
+        self.assertEqual(get_secure_custom_frontend_PROVIDERPATH_list(), [])
+
+    @mock.patch("plainbox.impl.secure.providers.v1.Path")
+    @mock.patch(
+        "os.getenv", new=Mock(return_value="/snap/checkbox24/x1/current")
+    )
+    def test_path_custom_frontend(self, mock_Path):
+        custom_frontends = mock_Path() / "custom_frontends"
+        custom_frontends.exists.return_value = True
+
+        # valid, has a custom_frontend/providers
+        valid_custom_frontend = MagicMock()
+        valid_custom_frontend_providers = valid_custom_frontend / "providers"
+        valid_custom_frontend_providers.exists = Mock(return_value=True)
+        # frontend contains 2 providers
+        valid_custom_frontend_providers.iterdir.return_value = [
+            Path("a"),
+            Path("b"),
+        ]
+
+        # invalid, doesn't have custom_frontend/providers
+        invalid_custom_frontend = MagicMock()
+        (invalid_custom_frontend / "providers").exists.return_value = False
+
+        custom_frontends.iterdir.return_value = [
+            valid_custom_frontend,
+            invalid_custom_frontend,
+        ]
+        self.assertEqual(
+            get_secure_custom_frontend_PROVIDERPATH_list(), ["a", "b"]
+        )
+
 
 @mock.patch("plainbox.impl.secure.providers.v1.logger")
 class ProviderContentLoaderTests(TestCase):
     def test__warn_ignored_file_warned(self, logger_mock):
-        self_mock = mock.MagicMock()
+        self_mock = MagicMock()
         self_mock.provider.units_dir = "/some/path"
         ProviderContentLoader._warn_ignored_file(
             self_mock, "/some/path/script.py"
@@ -925,7 +1098,7 @@ class ProviderContentLoaderTests(TestCase):
         self.assertTrue(logger_mock.warning.called)
 
     def test__warn_ignored_file_ignored(self, logger_mock):
-        self_mock = mock.MagicMock()
+        self_mock = MagicMock()
         self_mock.provider.units_dir = "/some/path"
         ProviderContentLoader._warn_ignored_file(
             self_mock, "/some/path/__pycache__/script.pyc"

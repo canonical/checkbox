@@ -69,7 +69,7 @@ jobs:
             path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         name: Upload logs on failure
         if: failure()
         with:
@@ -79,7 +79,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         name: Upload the snaps as artefacts
         with:
           name: series_${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}

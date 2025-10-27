@@ -4,6 +4,7 @@ import argparse
 import collections
 import dbus
 import hashlib
+import json
 import logging
 import os
 import platform
@@ -168,21 +169,17 @@ class DiskTest:
 
     def _find_parent(self, device):
         if self.lsblk:
-            pattern = re.compile(
-                r'KNAME="(?P<KNAME>.*)" '
-                r'TYPE="(?P<TYPE>.*)" '
-                r'MOUNTPOINT="(?P<MOUNTPOINT>.*)"'
-            )
-            for line in self.lsblk.splitlines():
-                m = pattern.match(line)
-                if m and device.startswith(m.group("KNAME")):
-                    return m.group("KNAME")
+            for devblk in self.lsblk.get("blockdevices", []):
+                if device.startswith(devblk["kname"]):
+                    return devblk["kname"]
         return False
 
     def _run_lsblk(self, lsblkcommand):
         try:
-            self.lsblk = subprocess.check_output(
-                shlex.split(lsblkcommand), universal_newlines=True
+            self.lsblk = json.loads(
+                subprocess.check_output(
+                    shlex.split(lsblkcommand), universal_newlines=True
+                )
             )
         except subprocess.CalledProcessError as exc:
             raise SystemExit(exc)
@@ -707,7 +704,7 @@ def main():
         "--lsblkcommand",
         action="store",
         type=str,
-        default="lsblk -i -n -P -e 7 -o KNAME,TYPE,MOUNTPOINT",
+        default="lsblk -i -n --json -e 7 -o KNAME,TYPE,MOUNTPOINT",
         help=(
             "Command to execute to get lsblk information. "
             "Only change it if you know what you're doing."

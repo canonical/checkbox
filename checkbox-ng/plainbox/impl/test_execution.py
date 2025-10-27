@@ -228,7 +228,7 @@ class UnifiedRunnerTests(TestCase):
 
         with self.assertRaises(Exception) as e:
             UnifiedRunner.execute_job(
-                self_mock, job_mock, {}, mock.Mock(), systemd_unit=True
+                self_mock, job_mock, {}, mock.Mock(), as_systemd_unit=True
             )
 
         self.assertEqual(str(e.exception), "systemd")

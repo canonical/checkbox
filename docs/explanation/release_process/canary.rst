@@ -1,3 +1,5 @@
+.. _canary-explanation:
+
 Canary testing for Checkbox edge version: in-depth process
 ==========================================================
 
@@ -93,7 +95,7 @@ The `beta` branch head is then updated on GitHub.
 Conclusion
 ----------
 
-This canary testing process, complete from snap building to testing, ensures that every release of Checkbox in the edge channel is thoroughly vetted and stable. 
+This canary testing process, complete from snap building to testing, ensures that every release of Checkbox in the edge channel is thoroughly vetted and stable.
 
 
 .. toctree::

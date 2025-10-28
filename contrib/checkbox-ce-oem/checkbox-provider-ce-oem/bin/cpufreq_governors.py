@@ -357,7 +357,7 @@ class CPUScalingHandler:
         frequency = self.get_policy_attribute("scaling_max_freq")
         if not frequency:
             raise RuntimeError("Unable to retrieve max frequency")
-        return int(frequency) if frequency else 0
+        return int(frequency)
 
     def get_current_frequency(self) -> int:
         """

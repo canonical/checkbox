@@ -579,7 +579,7 @@ class CPUScalingTest:
         logging.info("Current CPU frequency is %s", curr_freq)
         margin = abs(target - curr_freq)
 
-        return margin / target < 0.01
+        return (margin / target) < 0.01
 
     @with_timeout()
     def is_frequency_settled_down(self) -> bool:

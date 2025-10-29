@@ -6,18 +6,35 @@ Creating a custom Checkbox frontend
 This guide describes how to create a custom Checkbox frontend for testing a
 new project. This is usually done to package in-development tests and test
 plans before shifting them to the main Checkbox providers. This tutorial will
-guide you to package as a snap the tutorial provider we have previously
+guide you to package as a snap the
+:ref:`2024.com.tutorial:tutorial provider <adv_test_case>` we have previously
 created.
+
+Prerequisites
+=============
+
+To complete this tutorial you will need snapcraft. Refer to the following to
+install it: `Set up Snapcraft <https://documentation.ubuntu.com/snapcraft/stable/how-to/set-up-snapcraft/>`_
+
+Additionally, you will need the provider we created during the previous
+tutorial. If you don't have it, you can still follow this tutorial by borrowing
+the `one in the main Checkbox repository <https://github.com/canonical/checkbox/tree/main/providers/tutorial>`_
+but remember: you must change the `namespace (here) <https://github.com/canonical/checkbox/blob/main/providers/tutorial/manage.py#L6>`_! If you don't do that Checkbox
+will complain about duplicated units.
 
 Starting a new Checkbox Frontend snap
 =====================================
 
-Prepare the following tree file structure creating a new ``providers``
-directory and a ``snap`` directory::
+To begin our new snap we start from creating a new project directory. Usually
+cusom frontends are named `checkbox_name_of_the_project`, so start by creating
+a `checkbox_tutorial` directory. Prepare the following tree structure,
+creating a new ``providers`` directory and a ``snap`` directory inside of it,
+then copy the ``2024.com.tutorial:tutorial`` directory we created via
+``startprovider`` inside ``providers``::
 
   checkbox_tutorial:
   ├─ providers
-  │  ├── tutorial
+  │  ├── 2024.com.tutorial:tutorial
   │  │   ├─── manage.py
   │  [...]
   └── snap
@@ -25,15 +42,16 @@ directory and a ``snap`` directory::
 
 In this tutorial we will package only one provider, the tutorial provider, but
 this structure is future-proof, allowing you to expand your custom frontend
-snap as needed.
+snap as needed. This is exactly the structure we use for the main Checkbox
+repository.
 
 .. warning::
 
    This tutorial will focus on creating a core24 snap. If you need a snap for
-   another base (remember that the base should match your system) you will need
-   to adjust the base of the snap and the runtime version you pull. They must
-   match (base: core24 -> checkbox24). If they don't match, you may encounter
-   several very hard to debug issues so keep this in mind!
+   another base, ensure that both the snap's base and the runtime version you
+   pull match your system (e.g., the snap base core24 requires runtime version
+   checkbox24). A version mismatch can cause errors that are very difficult to
+   debug.
 
 Edit the ``snapcraft.yaml`` and set it to the following:
 
@@ -74,12 +92,12 @@ Edit the ``snapcraft.yaml`` and set it to the following:
     checkbox-provider-tutorial:
       # install each provider in its own independent part
       plugin: dump
-      source: providers/tutorial
+      source: providers/2024.com.tutorial:tutorial
       source-type: local
       build-environment:
         - PYTHONPYCACHEPREFIX: "/tmp"
       build-packages: # add here any other build dependency you may have
-        - checkbox-ng # this is necessary to run mange.py
+        - checkbox-ng # this is necessary to run manage.py
       stage-packages: # add here any runtime dependency of your provider
         - jq          # Note: we added a packaging metadata unit but those are
                       #       not used in snap builds! Repeat all dependencies
@@ -91,16 +109,16 @@ Edit the ``snapcraft.yaml`` and set it to the following:
         python3 manage.py build
         # Note: providers MUST be in /providers to use the new custom-frontend
         #       connection, do not change the location
+        # Note2: if you are building with snapcraft<7.x, change CRAFT_PART_INSTALL to SNAPCRAFT_PART_INSTALL
         python3 manage.py install --layout=relocatable --prefix=/providers/tutorial --root="$CRAFT_PART_INSTALL"
 
 Let's try to build our new frontend snap:
 
 .. code:: shell-session
 
-   $ sudo snap install --classic snapcraft
    $ cd checkbox_tutorial
    $ snapcraft pack --use-lxd
-   $ ls
+   $ ls # Note: name will depend on the architecture of the machine you are building on
    providers  snap  checkbox-tutorial_v1.2.3_amd64.snap
 
 To try/use our new snap we now need to install the runtime, then install our

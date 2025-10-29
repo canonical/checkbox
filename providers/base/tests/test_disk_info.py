@@ -2,14 +2,15 @@ import unittest
 import textwrap
 from contextlib import redirect_stdout
 from io import StringIO
+from unittest.mock import patch
 
 import disk_info
 
 
 class DiskInfoTests(unittest.TestCase):
-    def test_disk_info_main_ok(self):
-        self.maxDiff = None
-        lsblk = {
+    @patch("disk_info.get_lsblk_json")
+    def test_disk_info_main_ok(self, mock_get_lsblk_json):
+        mock_get_lsblk_json.return_value = {
             "blockdevices": [
                 {
                     "kname": "loop17",
@@ -96,6 +97,6 @@ class DiskInfoTests(unittest.TestCase):
             """
         )
         with redirect_stdout(StringIO()) as buffer:
-            disk_info.main(lsblk)
+            disk_info.main()
 
         self.assertEqual(buffer.getvalue(), expected_output)

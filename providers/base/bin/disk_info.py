@@ -47,7 +47,7 @@ def get_lsblk_json():
     return json.loads(lsblk)
 
 
-def main(lsblk):
+def main():
     """
     disk_info.
 
@@ -55,6 +55,7 @@ def main(lsblk):
     Outputs kernel name, model and size data
     """
     disks = 0
+    lsblk = get_lsblk_json()
     for blkdev in lsblk.get("blockdevices", []):
         if blkdev["type"] not in ("disk", "crypt"):
             continue
@@ -79,5 +80,4 @@ def main(lsblk):
 
 
 if __name__ == "__main__":
-    lsblk = get_lsblk_json()
-    sys.exit(main(lsblk))
+    sys.exit(main())

@@ -146,7 +146,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             RemoteSessionStates.SettingUp: cls.setup_and_continue,
             RemoteSessionStates.SetupCompleted: cls.restart,
             RemoteSessionStates.Bootstrapping: cls.restart,
-            RemoteSessionStates.Bootstrapped: cls.select_jobs,
+            RemoteSessionStates.Bootstrapped: cls.resume_select_jobs,
             RemoteSessionStates.TestsSelected: cls.run_interactable_jobs,
             RemoteSessionStates.Running: cls.wait_and_continue,
             RemoteSessionStates.Interacting: cls.resume_interacting,
@@ -712,6 +712,9 @@ class RemoteController(ReportsStage, MainLoopStage):
             )
 
         self.sa.save_manifest_json(json.dumps(to_save_manifest))
+
+    def resume_select_jobs(self, all_jobs_json):
+        return self.select_jobs(json.loads(all_jobs_json))
 
     def select_jobs(self, all_jobs):
         if self.launcher.get_value("test selection", "forced"):

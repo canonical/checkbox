@@ -1,10 +1,9 @@
 import unittest
 from unittest.mock import MagicMock
-
 import sys
+
 sys.modules["dbus"] = MagicMock()
 sys.modules["dbus.exceptions"] = MagicMock()
-
 
 from removable_storage_test import DiskTest  # noqa: E402
 

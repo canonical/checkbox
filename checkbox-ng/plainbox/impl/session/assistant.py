@@ -1640,8 +1640,16 @@ class SessionAssistant:
                                 )
                             )
             if not native:
+                as_systemd_unit = (
+                    self._metadata.FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER
+                    in self._metadata.flags
+                )
                 result = self._runner.run_job(
-                    job, job_state, self._config.environment, ui
+                    job,
+                    job_state,
+                    self._config.environment,
+                    ui,
+                    as_systemd_unit=as_systemd_unit,
                 )
                 builder = result.get_builder()
             else:

@@ -1,19 +1,21 @@
 id: serial/rs232-console
 _summary: Serial debugging console is enabled and operational
 _purpose:
- Check user can log into system through serial port from another machine
+ Check if the user can log in through the serial port on the test machine (DUT)
 _steps:
- 1. Connect USB to DB9 null modem adapter cable to the serial port of the test machine.
+ 1. Connect USB to DB9 null modem adapter cable to the serial port of the DUT.
  2. Connect the cable to a USB port of another Ubuntu machine (client).
- 3. Install screen on the client (if not done in Prerequisite).
+ 3. Install screen on the client (if the "screen" command doesn't exist).
  4. Execute the following command on the client:
   sudo screen /dev/ttyUSB0
- 5. Start the getty service on the test machine:
-  sudo systemctl start getty@[rs232 device, e.g., /dev/ttyS0].service
+ 5. Check if a serial-getty service is already running on the test machine
+  systemctl list-units --type service | grep serial-getty
+  If not, start the serial-getty service on the test machine for the desired rs232 device. For example:
+  sudo systemctl start serial-getty@ttyS0.service
  6. Log into the test machine from the terminal on the client.
 _verification:
- 1. The output to the client is fine after the getty service is started.
- 2. Log into the test machine from the terminal on the client successfully.
+ 1. The output in the client's terminal looks fine after the serial-getty service has started.
+ 2. The client can successfully log into the DUT.
 plugin: manual
 flags: also-after-suspend
 category_id: serial

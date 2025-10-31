@@ -66,13 +66,9 @@ class TestEddystoneScanner(unittest.TestCase):
 
     @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")
     @patch("time.time")
-    @patch("time.sleep")
-    def test_beacon_scan_fail(
-        self, mock_sleep, mock_time, mock_beacon_scanner
-    ):
+    def test_beacon_scan_fail(self, mock_time, mock_beacon_scanner):
         mock_time.side_effect = [0, 1, 60 * 60 * 60]  # 60h, trigger timeout
         self.assertEqual(eddystone_scanner.beacon_scan("1"), 1)
-        mock_sleep.assert_called_with(0.5)
 
     @mock_timeout()
     @patch.object(argparse.ArgumentParser, "parse_args")

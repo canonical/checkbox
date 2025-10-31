@@ -95,109 +95,241 @@ class MonitorTests(unittest.TestCase):
         mock_instance.finalize.assert_called_once_with()
 
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_analyze_le_adv_event_report(self, mock_mon_init):
+    def test_get_le_adv_report_length(self, mock_mon_init):
         mock_mon_init.return_value = None
-        logger = logging.getLogger(
-            "checkbox_support.vendor.beacontools.scanner"
-        )
-
-        pkts = (
-            "03 6e 02 02 11 22 33 44 55 66 77 88 99 00 11 22 33 44 55 66"
-        ).split()
-        packet = b"".join(
-            [int(p, 16).to_bytes(1, byteorder="big") for p in pkts]
-        )
         mon = Monitor()
 
-        with patch.object(logger, "debug") as mock_debug:
-            event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
-            call1 = call(
-                "Raw packet: %s", " ".join([hex(int(pk, 16)) for pk in pkts])
-            )
-            call2 = call(
-                (
-                    "LE Meta Event: subevent: %s(%s), payload: %s, "
-                    "rssi: %s, bt_addr: %s"
-                ),
-                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.name,
-                MetaEventReportTypeEnum.LE_ADVERTISING_REPORT.value,
-                "0x11 0x22 0x33 0x44 0x55",
-                102,
-                "99:88:77:66:55:44",
-            )
+        mock_backend = Mock()
+        mock_backend.send_req.return_value = b"\x00\x00\x08\x00"
+        mock_socket = Mock()
 
-            mock_debug.assert_has_calls([call1, call2])
+        mon.socket = mock_socket
+        mon.backend = mock_backend
 
-        self.assertEqual(event, MetaEventReportTypeEnum.LE_ADVERTISING_REPORT)
-        self.assertEqual(payload, packet[14:-1])
-        self.assertEqual(rssi, int(pkts[-1], 16))
-        self.assertEqual(addr, "99:88:77:66:55:44")
+        self.assertEqual(mon.get_le_adv_report_length(), 2048)
+        mock_backend.send_req.assert_called_with(
+            mock_socket, 8, 58, 14, 1000, b"", 0
+        )
 
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_analyze_le_adv_ext_event_report(self, mock_mon_init):
+    def test_get_le_adv_report_length_failed(self, mock_mon_init):
         mock_mon_init.return_value = None
-
-        pkts = (
-            "03 6e 02 0d 11 22 33 44 55 66 77 88 99 00 11 22 33 44 55 66 "
-            "77 88 99 00 11 22 33 44 55 66 77 88 99 00 11 22 33 44 55 66"
-        ).split()
-        packet = b"".join(
-            [int(p, 16).to_bytes(1, byteorder="big") for p in pkts]
-        )
         mon = Monitor()
-        mon.debug = False
-        event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
-        self.assertEqual(
-            event, MetaEventReportTypeEnum.LE_EXT_ADVERTISING_REPORT
-        )
-        self.assertEqual(payload, packet[29:])
-        self.assertEqual(rssi, int(pkts[18], 16))
-        self.assertEqual(addr, "99:88:77:66:55:44")
 
-    @patch("builtins.print")
+        mock_backend = Mock()
+        mock_backend.send_req.return_value = b"\x01\x00\x08\x00"
+        mock_socket = Mock()
+
+        mon.socket = mock_socket
+        mon.backend = mock_backend
+
+        self.assertEqual(mon.get_le_adv_report_length(), 255)
+
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_analyze_le_adv_ext_event_report_failed(
-        self, mock_mon_init, mock_print
+    def test_is_le_extended_advertising_support_true(self, mock_mon_init):
+        mock_mon_init.return_value = None
+        mon = Monitor()
+
+        mock_backend = Mock()
+        mock_backend.send_req.return_value = (
+            b"\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00"
+        )
+        mock_socket = Mock()
+
+        mon.socket = mock_socket
+        mon.backend = mock_backend
+
+        self.assertEqual(mon.is_le_extended_advertising_support(), True)
+
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
+    def test_is_le_extended_advertising_support_command_failed(
+        self, mock_mon_init
     ):
         mock_mon_init.return_value = None
-
-        pkts = ["03", "6e", "02", "ff", "11", "22", "33", "44", "55", "66"]
-
-        packet = b"".join(
-            [int(p, 16).to_bytes(1, byteorder="big") for p in pkts]
-        )
         mon = Monitor()
-        mon.debug = False
-        event, payload, rssi, addr = mon.analyze_le_adv_event(packet)
-        self.assertEqual(event, None)
-        self.assertEqual(payload, None)
-        self.assertEqual(rssi, None)
-        self.assertEqual(addr, None)
-        mock_print.assert_called_with("Unexpected pkt: ", packet)
+
+        mock_backend = Mock()
+        mock_backend.send_req.return_value = (
+            b"\x01\x00\x08\x00\x00\x00\x00\x00\x00\x00"
+        )
+        mock_socket = Mock()
+
+        mon.socket = mock_socket
+        mon.backend = mock_backend
+
+        self.assertEqual(mon.is_le_extended_advertising_support(), False)
+
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
+    def test_set_scan_parameters_le_extended(self, mock_mon_init):
+        mock_mon_init.return_value = None
+        mon = Monitor()
+
+        mock_send_cmd = Mock()
+        mock_socket = Mock()
+
+        mon.socket = mock_socket
+        mon.backend = Mock(send_cmd=mock_send_cmd)
+        mon.support_ext_advertising = True
+
+        mon.set_scan_parameters()
+        mock_send_cmd.assert_called_with(
+            mock_socket, 8, 65, b"\x01\x00\x01\x01\x10\x00\x10\x00"
+        )
+
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
+    def test_set_scan_parameters_le_legacy(self, mock_mon_init):
+        mock_mon_init.return_value = None
+        mon = Monitor()
+
+        mock_send_cmd = Mock()
+        mock_socket = Mock()
+
+        mon.socket = mock_socket
+        mon.backend = Mock(send_cmd=mock_send_cmd)
+        mon.support_ext_advertising = False
+
+        mon.set_scan_parameters()
+        mock_send_cmd.assert_called_with(
+            mock_socket, 8, 11, b"\x01\x10\x00\x10\x00\x01\x00"
+        )
+
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
+    def test_toggle_scan_enable_le_extended(self, mock_mon_init):
+        mock_mon_init.return_value = None
+        mon = Monitor()
+
+        mock_send_cmd = Mock()
+        mock_socket = Mock()
+
+        mon.socket = mock_socket
+        mon.backend = Mock(send_cmd=mock_send_cmd)
+        mon.support_ext_advertising = True
+
+        mon.toggle_scan(True)
+        mock_send_cmd.assert_called_with(
+            mock_socket, 8, 66, b"\x01\x00\x00\x00\x00\x00"
+        )
+
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
+    def test_toggle_scan_enable_le_legacy(self, mock_mon_init):
+        mock_mon_init.return_value = None
+        mon = Monitor()
+
+        mock_send_cmd = Mock()
+        mock_socket = Mock()
+
+        mon.socket = mock_socket
+        mon.backend = Mock(send_cmd=mock_send_cmd)
+        mon.support_ext_advertising = False
+
+        mon.toggle_scan(True)
+        mock_send_cmd.assert_called_with(mock_socket, 8, 12, b"\x01\x00")
+
+    @patch("checkbox_support.vendor.beacontools.scanner._LOGGER")
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
+    def test_dump_reports(self, mock_mon_init, mock_logger):
+        mock_mon_init.return_value = None
+        mon = Monitor()
+
+        report = Mock()
+        report.evt_type = "le_ext"
+        report.bdaddr = b"\x61\x62\x63\x64\x65\x66"
+        report.rssi = "03"
+        report.data = "data"
+
+        mon.dump_reports([report])
+        mock_logger.debug.assert_called_with(
+            "<evt_type: %s> <mac: %s> <rssi: %s> <data: %s>",
+            "le_ext",
+            "66:65:64:63:62:61",
+            48,
+            "data",
+        )
+
+    @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
+    @patch(
+        "checkbox_support.vendor.beacontools.scanner."
+        "Monitor.process_report_data"
+    )
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.dump_reports")
+    @patch(
+        "checkbox_support.vendor.beacontools.structs"
+        ".common.HciAdReportEvent.parse"
+    )
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
+    def test_process_packet_pass(
+        self,
+        mock_mon_init,
+        mock_event_parse,
+        mock_dump_reports,
+        mock_process_report_data,
+        mock_report_parse,
+    ):
+        mock_mon_init.return_value = None
+        mock_report = [
+            Mock(data=b"data", bdaddr=b"\x61\x62\x63\x64\x65\x66", rssi=100)
+        ]
+        mock_event_data = Mock(
+            subevent=0x0D,
+            reports=mock_report,
+        )
+
+        mock_event_parse.return_value = mock_event_data
+        mock_report_parse.return_value = "report1"
+
+        mon = Monitor()
+        mon.support_ext_advertising = True
+
+        src_packet = b"packet"
+        mon.process_packet(src_packet)
+
+        mock_event_parse.assert_called_with(src_packet)
+        mock_dump_reports.assert_called_with(mock_report)
+        mock_report_parse.assert_called_with(mock_report[0].data)
+        mock_process_report_data.assert_called_with(
+            "report1",
+            "66:65:64:63:62:61",
+            100,
+            MetaEventReportTypeEnum.LE_EXT_ADVERTISING_REPORT,
+        )
+
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.dump_reports")
+    @patch(
+        "checkbox_support.vendor.beacontools.structs"
+        ".common.HciAdReportEvent.parse"
+    )
+    @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
+    def test_process_packet_unexpected_event(
+        self,
+        mock_mon_init,
+        mock_event_parse,
+        mock_dump_reports,
+    ):
+        mock_mon_init.return_value = None
+        mock_event_data = Mock(subevent=0x02, reports=[])
+
+        mock_event_parse.return_value = mock_event_data
+
+        mon = Monitor()
+        mon.support_ext_advertising = False
+
+        src_packet = b"packet"
+        self.assertEqual(mon.process_packet(src_packet), None)
+
+        mock_event_parse.assert_called_with(src_packet)
+        mock_dump_reports.assert_called_with(mock_event_data.reports)
 
     @patch(
         "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
     )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
-    @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch(
-        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
-    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_process_packet_no_filter_ok(
-        self, mock_init, mock_ana, mock_parse, mock_addr, mock_properties
+    def test_process_report_no_filter_ok(
+        self, mock_init, mock_save_addr, mock_properties
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
-            "payload",
-            "rssi",
-            "addr",
-        )
-        mock_packet = Mock()
-        mock_packet.url = "url"
-        mock_parse.return_value = mock_packet
+        mock_packet = "packets"
         mock_properties.return_value = "properties"
 
         mon = Monitor()
@@ -206,13 +338,11 @@ class MonitorTests(unittest.TestCase):
         mon.device_filter = None
         mon.packet_filter = None
 
-        mon.process_packet("packets")
-        mock_ana.assert_called_with("packets")
-        mock_parse.assert_called_with("payload")
-        mock_addr.assert_called_with(mock_packet, "addr")
+        mon.process_report_data(mock_packet, "addr", "rssi", "type")
+        mock_save_addr.assert_called_with(mock_packet, "addr")
         mock_properties.assert_called_with(mock_packet, "addr")
         mock_callback.assert_called_with(
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "type",
             "addr",
             "rssi",
             mock_packet,
@@ -224,33 +354,19 @@ class MonitorTests(unittest.TestCase):
         "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
     )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
-    @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch(
-        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
-    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_process_packet_packet_filter_ok(
+    def test_process_report_packet_filter_ok(
         self,
         mock_init,
-        mock_ana,
-        mock_parse,
         mock_addr,
         mock_properties,
-        mock_func,
+        mock_func_one_of,
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
-            "payload",
-            "rssi",
-            "addr",
-        )
-        mock_packet = Mock()
-        mock_packet.url = "url"
-        mock_parse.return_value = mock_packet
+        mock_packet = "packets"
         mock_properties.return_value = "properties"
-        mock_func.return_value = True
+        mock_func_one_of.return_value = True
 
         mon = Monitor()
         mon.hci_version = 8
@@ -258,14 +374,13 @@ class MonitorTests(unittest.TestCase):
         mon.device_filter = None
         mon.packet_filter = "pkt_filter"
 
-        mon.process_packet("packets")
-        mock_ana.assert_called_with("packets")
-        mock_parse.assert_called_with("payload")
+        mon.process_report_data(mock_packet, "addr", "rssi", "type")
+
         mock_addr.assert_called_with(mock_packet, "addr")
         mock_properties.assert_called_with(mock_packet, "addr")
-        mock_func.assert_called_with(mock_packet, "pkt_filter")
+        mock_func_one_of.assert_called_with(mock_packet, "pkt_filter")
         mock_callback.assert_called_with(
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "type",
             "addr",
             "rssi",
             mock_packet,
@@ -277,31 +392,17 @@ class MonitorTests(unittest.TestCase):
         "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
     )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
-    @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch(
-        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
-    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_process_packet_device_filter_not_match(
+    def test_process_report_device_filter_not_match(
         self,
         mock_init,
-        mock_ana,
-        mock_parse,
         mock_addr,
         mock_properties,
         mock_is_one_of,
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
-            "payload",
-            "rssi",
-            "addr",
-        )
-        mock_packet = Mock()
-        mock_packet.url = "url"
-        mock_parse.return_value = mock_packet
+        mock_packet = "packets"
         mock_properties.return_value = "properties"
         mock_is_one_of.return_value = False
 
@@ -311,9 +412,7 @@ class MonitorTests(unittest.TestCase):
         mon.device_filter = "dev_filter"
         mon.packet_filter = "pkt_filter"
 
-        mon.process_packet("packets")
-        mock_ana.assert_called_with("packets")
-        mock_parse.assert_called_with("payload")
+        mon.process_report_data("packets", "addr", "rssi", "type")
         mock_addr.assert_called_with(mock_packet, "addr")
         mock_properties.assert_called_with(mock_packet, "addr")
         mock_is_one_of.assert_called_with(mock_packet, "pkt_filter")
@@ -325,16 +424,10 @@ class MonitorTests(unittest.TestCase):
         "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
     )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
-    @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch(
-        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
-    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_process_packet_filters_addr_ok(
+    def test_process_report_filters_addr_ok(
         self,
         mock_init,
-        mock_ana,
-        mock_parse,
         mock_addr,
         mock_properties,
         mock_is_one_of,
@@ -342,15 +435,7 @@ class MonitorTests(unittest.TestCase):
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
-            "payload",
-            "rssi",
-            "addr",
-        )
-        mock_packet = Mock()
-        mock_packet.url = "url"
-        mock_parse.return_value = mock_packet
+        mock_packet = "packets"
         mock_properties.return_value = "properties"
         mock_is_one_of.return_value = True
         mock_addr_filter.return_value = True
@@ -361,18 +446,12 @@ class MonitorTests(unittest.TestCase):
         mon.device_filter = [BtAddrFilter("00:11:22:33:44:55")]
         mon.packet_filter = "pkt_filter"
 
-        mon.process_packet("packets")
-        mock_ana.assert_called_with("packets")
-        mock_parse.assert_called_with("payload")
+        mon.process_report_data("packets", "addr", "rssi", "type")
         mock_addr.assert_called_with(mock_packet, "addr")
         mock_properties.assert_called_with(mock_packet, "addr")
         mock_is_one_of.assert_called_with(mock_packet, "pkt_filter")
         mock_callback.assert_called_with(
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
-            "addr",
-            "rssi",
-            mock_packet,
-            "properties",
+            "type", "addr", "rssi", mock_packet, "properties"
         )
 
     @patch.object(DeviceFilter, "matches")
@@ -381,16 +460,10 @@ class MonitorTests(unittest.TestCase):
         "checkbox_support.vendor.beacontools.scanner.Monitor.get_properties"
     )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.save_bt_addr")
-    @patch("checkbox_support.vendor.beacontools.scanner.parse_packet")
-    @patch(
-        "checkbox_support.vendor.beacontools.scanner.Monitor.analyze_le_adv_event"
-    )
     @patch("checkbox_support.vendor.beacontools.scanner.Monitor.__init__")
-    def test_process_packet_filters_device_ok(
+    def test_process_report_filters_device_ok(
         self,
         mock_init,
-        mock_ana,
-        mock_parse,
         mock_addr,
         mock_properties,
         mock_is_one_of,
@@ -398,15 +471,7 @@ class MonitorTests(unittest.TestCase):
     ):
         mock_init.return_value = None
         mock_callback = Mock()
-        mock_ana.return_value = (
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
-            "payload",
-            "rssi",
-            "addr",
-        )
-        mock_packet = Mock()
-        mock_packet.url = "url"
-        mock_parse.return_value = mock_packet
+        mock_packet = "packets"
         mock_properties.return_value = "properties"
         mock_is_one_of.return_value = True
         mock_addr_filter.return_value = True
@@ -417,14 +482,12 @@ class MonitorTests(unittest.TestCase):
         mon.device_filter = [DeviceFilter()]
         mon.packet_filter = "pkt_filter"
 
-        mon.process_packet("packets")
-        mock_ana.assert_called_with("packets")
-        mock_parse.assert_called_with("payload")
+        mon.process_report_data(mock_packet, "addr", "rssi", "type")
         mock_addr.assert_called_with(mock_packet, "addr")
         mock_properties.assert_called_with(mock_packet, "addr")
         mock_is_one_of.assert_called_with(mock_packet, "pkt_filter")
         mock_callback.assert_called_with(
-            MetaEventReportTypeEnum.LE_ADVERTISING_REPORT,
+            "type",
             "addr",
             "rssi",
             mock_packet,

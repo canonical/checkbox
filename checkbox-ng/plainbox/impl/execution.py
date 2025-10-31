@@ -580,13 +580,20 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     # Use PATH that can lookup checkbox scripts
     if job.provider.extra_PYTHONPATH:
         env["PYTHONPATH"] = os.pathsep.join(
-            [job.provider.extra_PYTHONPATH]
+            job.provider.extra_PYTHONPATH
             + env.get("PYTHONPATH", "").split(os.pathsep)
         )
     # Inject nest_dir into PATH
     env["PATH"] = os.pathsep.join(
-        [nest_dir] + env.get("PATH", "").split(os.pathsep)
+        [nest_dir]
+        + env.get("PATH", "").split(os.pathsep)
+        + job.provider.extra_PATH
     )
+    if job.provider.extra_LD_LIBRARY_PATH:
+        env["LD_LIBRARY_PATH"] = os.pathsep.join(
+            env.get("LD_LIBRARY_PATH", "").split(os.pathsep)
+            + job.provider.extra_LD_LIBRARY_PATH
+        )
     # Add per-session shared state directory
     env["PLAINBOX_SESSION_SHARE"] = WellKnownDirsHelper.session_share(
         session_id

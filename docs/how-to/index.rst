@@ -7,7 +7,6 @@ These how-to guides cover key operations and processes in Checkbox.
    :maxdepth: 1
    :glob:
 
-   custom-app
    nested-test-plan
    side-loading
    agent-service

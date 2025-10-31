@@ -65,11 +65,9 @@ def beacon_scan(hci_device, debug=False):
 
     scanner.start()
     start = time.time()
-    while not beacon_packet and time.time() - start < TIMEOUT:
-        time.sleep(0.5)
-    scanner.stop()
-    if beacon_packet:
-        print(
+    while time.time() - start < TIMEOUT:
+        if beacon_packet:
+            print(
             "Eddystone beacon detected: [Adv Report Type: {}({})] "
             "URL: {} <mac: {}> <rssi: {}>".format(
                 report_type.name,
@@ -79,6 +77,9 @@ def beacon_scan(hci_device, debug=False):
                 beacon_rssi,
             )
         )
+            break
+    scanner.stop()
+    if beacon_packet:
         return 0
     print("No EddyStone URL advertisement detected!")
     return 1

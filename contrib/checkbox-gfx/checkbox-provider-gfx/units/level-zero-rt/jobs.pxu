@@ -1,0 +1,88 @@
+id: gfx_level_zero_rt_embree_rthwif_cornell_box
+category_id: level-zero-raytracing
+flags: simple
+user: root
+_summary: Run the embree_rthwif_cornell_box test from level zero tests
+requires: cpuinfo.type == 'GenuineIntel'
+environ:
+  # necessary for local mode
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+  NORMAL_USER
+estimated_duration: 1m
+command:
+  . $PLAINBOX_PROVIDER_DATA/env_lvlzerort
+  cd $LVL_ZERO_BUILD_DIR
+  embree_rthwif_cornell_box --compare cornell_box_reference.tga
+_siblings: [{ "id": "gfx_level_zero_rt_rthwif_test_builder_triangles_expected",
+    "_summary": "Run the rthwif_test_builder_triangles_expected tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --build_test_triangles --build_mode_expected" },
+  { "id": "gfx_level_zero_rt_rthwif_test_builder_procedurals_expected",
+    "_summary": "Run the rthwif_test_builder_procedurals_expected tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --build_test_procedurals --build_mode_expected" },
+  { "id": "gfx_level_zero_rt_rthwif_test_builder_instances_expected",
+    "_summary": "Run the rthwif_test_builder_instances_expected tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --build_test_instances --build_mode_expected" },
+  { "id": "gfx_level_zero_rt_rthwif_test_builder_mixed_expected",
+    "_summary": "Run the rthwif_test_builder_mixed_expected tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --build_test_mixed --build_mode_expected" },
+  { "id": "gfx_level_zero_rt_rthwif_test_benchmark_triangles",
+    "_summary": "Run the rthwif_test_benchmark_triangles tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --benchmark_triangles" },
+  { "id": "gfx_level_zero_rt_rthwif_test_benchmark_procedurals",
+    "_summary": "Run the rthwif_test_benchmark_procedurals tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --benchmark_procedurals" },
+  { "id": "gfx_level_zero_rt_rthwif_test_builder_triangles_worst_case",
+    "_summary": "Run the rthwif_test_builder_triangles_worst_case tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --build_test_triangles --build_mode_worst_case" },
+  { "id": "gfx_level_zero_rt_rthwif_test_builder_procedurals_worst_case",
+    "_summary": "Run the rthwif_test_builder_procedurals_worst_case tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --build_test_procedurals --build_mode_worst_case" },
+  { "id": "gfx_level_zero_rt_rthwif_test_builder_instances_worst_case",
+    "_summary": "Run the rthwif_test_builder_instances_worst_case tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --build_test_instances --build_mode_worst_case" },
+  { "id": "gfx_level_zero_rt_rthwif_test_builder_mixed_worst_case",
+    "_summary": "Run the rthwif_test_builder_mixed_worst_case tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --build_test_mixed --build_mode_worst_case" },
+  { "id": "gfx_level_zero_rt_rthwif_test_triangles_committed_hit",
+    "_summary": "Run the rthwif_test_triangles_committed_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --no-instancing --triangles-committed-hit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_triangles_potential_hit",
+    "_summary": "Run the rthwif_test_triangles_potential_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --no-instancing --triangles-potential-hit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_triangles_anyhit_shader_commit",
+    "_summary": "Run the rthwif_test_triangles_anyhit_shader_commit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --no-instancing --triangles-anyhit-shader-commit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_triangles_anyhit_shader_reject",
+    "_summary": "Run the rthwif_test_triangles_anyhit_shader_reject tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --no-instancing --triangles-anyhit-shader-reject" },
+  { "id": "gfx_level_zero_rt_rthwif_test_procedurals_committed_hit",
+    "_summary": "Run the rthwif_test_procedurals_committed_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --no-instancing --procedurals-committed-hit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_hwinstancing_triangles_committed_hit",
+    "_summary": "Run the rthwif_test_hwinstancing_triangles_committed_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --hw-instancing --triangles-committed-hit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_hwinstancing_triangles_potential_hit",
+    "_summary": "Run the rthwif_test_hwinstancing_triangles_potential_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --hw-instancing --triangles-potential-hit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_hwinstancing_triangles_anyhit_shader_commit",
+    "_summary": "Run the rthwif_test_hwinstancing_triangles_anyhit_shader_commit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --hw-instancing --triangles-anyhit-shader-commit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_hwinstancing_procedurals_committed_hit",
+    "_summary": "Run the rthwif_test_hwinstancing_procedurals_committed_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --hw-instancing --procedurals-committed-hit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_swinstancing_triangles_committed_hit",
+    "_summary": "Run the rthwif_test_swinstancing_triangles_committed_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --sw-instancing --triangles-committed-hit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_swinstancing_triangles_potential_hit",
+    "_summary": "Run the rthwif_test_swinstancing_triangles_potential_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --sw-instancing --triangles-potential-hit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_swinstancing_triangles_anyhit_shader_commit",
+    "_summary": "Run the rthwif_test_swinstancing_triangles_anyhit_shader_commit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --sw-instancing --triangles-anyhit-shader-commit" },
+  { "id": "gfx_level_zero_rt_rthwif_test_swinstancing_triangles_anyhit_shader_reject",
+    "_summary": "Run the rthwif_test_swinstancing_triangles_anyhit_shader_reject tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --sw-instancing --triangles-anyhit-shader-reject" },
+  { "id": "gfx_level_zero_rt_rthwif_test_swinstancing_procedurals_committed_hit",
+    "_summary": "Run the rthwif_test_swinstancing_procedurals_committed_hit tests from Level Zero Raytracing",
+    "command": ". $PLAINBOX_PROVIDER_DATA/env_lvlzerort; cd $LVL_ZERO_BUILD_DIR; embree_rthwif_test --sw-instancing --procedurals-committed-hit" }]

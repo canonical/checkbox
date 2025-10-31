@@ -20,8 +20,8 @@ from .const import (CJ_MANUFACTURER_ID, EDDYSTONE_UUID,
                     OCF_LE_SET_EXT_SCAN_PARAMETERS, OCF_LE_SET_EXT_SCAN_ENABLE,
                     EVT_LE_EXT_ADVERTISING_REPORT, OGF_INFO_PARAM,
                     OCF_LE_READ_LOCAL_SUPPORTED_FEATURES,
-                    OCF_READ_LOCAL_VERSION, EVT_CMD_COMPLETE,
-                    HCI_MAX_EVENT_PKT_SIZE)
+                    OCF_LE_READ_MAX_ADVERTISING_DATA_LENGTH,
+                    OCF_READ_LOCAL_VERSION, EVT_CMD_COMPLETE)
 from .structs.common import HciAdReportEvent
 from .const import MetaEventReportTypeEnum as MERTE
 from .device_filters import BtAddrFilter, DeviceFilter
@@ -158,13 +158,18 @@ class Monitor(threading.Thread):
 
         self.hci_version = self.get_hci_version()
         self.support_ext_advertising = self.is_le_extended_advertising_support()
-        _LOGGER.info("# Extended advertising support: %s", self.support_ext_advertising)
-
+        _LOGGER.info(
+            "# Extended advertising support: %s", self.support_ext_advertising
+        )
+        max_advertising_data_length = self.get_le_adv_report_length()
+        _LOGGER.info(
+            "# Max advertising data length: %s", max_advertising_data_length
+        )
         self.set_scan_parameters(**self.scan_parameters)
         self.toggle_scan(True)
 
         while self.keep_going:
-            pkt = self.socket.recv(HCI_MAX_EVENT_PKT_SIZE)
+            pkt = self.socket.recv(max_advertising_data_length)
             event = to_int(pkt[1])
 
             # Print opcode and error code when HCI command failed
@@ -217,6 +222,47 @@ class Monitor(threading.Thread):
             return HCIVersion(GreedyRange(local_version).parse(resp)[0]["hci_version"])
         except (ConstructError, NotImplementedError):
             return HCIVersion.BT_CORE_SPEC_1_0
+
+    def get_le_adv_report_length(self):
+        """
+        Read the maximum length of data supported by the Controller
+        for use as advertisement data or
+            scan response data in an advertising event or
+            as periodic advertisement data.
+
+        set the _max_advertising_data_length to 255 when this command is not supported
+
+        Reference: https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host-controller-interface/host-controller-interface-functional-specification.html#UUID-e1de0ec4-eba6-5365-4f6a-0de9d5bfb7be
+        """
+        try:
+            _LOGGER.info("# Checking the LE Extended advertising length")
+            resp = self.backend.send_req(
+                self.socket,
+                OGF_LE_CTL,
+                OCF_LE_READ_MAX_ADVERTISING_DATA_LENGTH,
+                EVT_CMD_COMPLETE,
+                1000,
+                bytes(),
+                0,
+            )
+            readable_resp = " ".join([hex(pk) for pk in resp])
+            _LOGGER.debug(
+                "Received response from controller. raw: %s", readable_resp
+            )
+
+            status = struct.unpack("B", resp[0:1])[0]
+            if status != 0:
+                _LOGGER.error("HCI command failed with status 0x%02x.", status)
+            else:
+                data = struct.unpack_from("<H", resp, 1)[0]
+                return data
+        except (ConstructError, NotImplementedError) as err:
+            _LOGGER.error(err)
+        _LOGGER.warning(
+            "Failed to get the max_advertising_data_length from controller"
+            ", return '255'"
+        )
+        return 255
 
     def is_le_extended_advertising_support(self):
         is_supported = False
@@ -370,7 +416,11 @@ class Monitor(threading.Thread):
     def process_packet(self, pkt):
         """Parse the packet and call callback if one of the filters matches."""
         subevent = le_event_data = None
-        _LOGGER.debug("Raw packet: %s", " ".join([hex(pk) for pk in pkt]))
+        _LOGGER.debug(
+            "## Received packet. Length: %d. Data: %s",
+            len(pkt),
+            " ".join([hex(pk) for pk in pkt]),
+        )
         try:
             le_event_data = HciAdReportEvent.parse(pkt)
         except ConstructError:
@@ -407,43 +457,25 @@ class Monitor(threading.Thread):
 
         if le_event_data.reports:
             _LOGGER.debug(
-                "Parsing %d reports in  %s event..", le_event_data.num_reports, subevent_str
+                "  Parsing %d reports in  %s event (packet length: %d)...",
+                le_event_data.num_reports,
+                subevent_str,
+                len(pkt),
             )
             for report in le_event_data.reports:
-                self.process_report_data(report.data, bt_addr_to_string(report.bdaddr), to_int(report.rssi), subevent)
+                eddystone_data = parse_packet(report.data)
+                if not eddystone_data:
+                    continue
 
-    def process_report_data(self, report, bt_addr, rssi, subevent):
-        packet = parse_packet(report)
-        if not packet:
-            return
+                _LOGGER.info("  Found an eddystone report")
+                self.process_report_data(
+                    eddystone_data,
+                    bt_addr_to_string(report.bdaddr),
+                    to_int(report.rssi),
+                    subevent,
+                )
 
-        # For bluetooth 5.0+
-        # EVT_LE_EXT_ADVERTISING_REPORT with eddystone URL frame
-        #       is expected to received
-        # For bluetooth 4.0+
-        # EVT_LE_ADVERTISING_REPORT with eddystone URL frame
-        #       is expected to received
-        expect_evt = (
-            MERTE.LE_EXT_ADVERTISING_REPORT
-            if self.hci_version >= HCIVersion.BT_CORE_SPEC_5_0
-            else MERTE.LE_ADVERTISING_REPORT
-        )
-
-        if subevent != expect_evt:
-            if isinstance(subevent, MERTE):
-                subevent_str = "{}({})".format(subevent.name, subevent.value)
-            else:
-                subevent_str = subevent
-
-            print(
-                "Unexpected Eddystone beacon detected: Type: {}"
-                "URL: {} <mac: {}> <rssi: {}>".format(
-                    subevent_str, packet.url, bt_addr, rssi
-                ),
-                file=sys.stderr,
-            )
-            return
-
+    def process_report_data(self, packet, bt_addr, rssi, subevent):
         # we need to remeber which eddystone beacon has which bt address
         # because the TLM and URL frames do not contain the namespace and instance
         self.save_bt_addr(packet, bt_addr)

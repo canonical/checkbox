@@ -1,0 +1,20 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+
+unit: job
+id: browser_resource
+plugin: resource
+_summary: Simply show all browsers that need to be tested.
+_description:
+    Simply show all browsers that need to be tested.
+command:
+    for browser in "firefox" "chromium" "google-chrome"
+    do
+        echo "browser: ${browser}"
+        echo
+    done
+estimated_duration: 3s
+flags: preserve-locale

@@ -327,3 +327,21 @@ include:
     suspend/2_glxgears_after_suspend_.*_graphics         certification-status=blocker
     suspend/2_rotation_after_suspend_.*_graphics         certification-status=blocker
     suspend/2_video_after_suspend_.*_graphics            certification-status=blocker
+
+id: webgl-conformance-test
+unit: test plan
+_name: WebGL conformance test
+_description: WebGL conformance test
+include:
+    graphics/webgl-conformance-test-.*
+bootstrap_include:
+    browser_resource
+
+id: after-suspend-webgl-conformance-test
+unit: test plan
+_name: WebGL conformance test (After suspend)
+_description: WebGL conformance test
+include:
+    after-suspend-graphics/webgl-conformance-test-.*
+bootstrap_include:
+    browser_resource

@@ -43,13 +43,22 @@ class ModuleRunner:
     def __init__(self, rvs: Path, config: Path) -> None:
         """Initializes the module runner."""
         self.config = config
+        self.env = None
 
         # CHECKBOX-2021: Snap confinement prevents access to /usr/share
         snap_bins = ["/snap/bin/rvs", "/snap/bin/rocm-validation-suite"]
         if any(rvs.match(p) for p in snap_bins):
             # To avoid confinement issues we run the binary directly
             snap_current = Path("/snap/rocm-validation-suite/current")
-            self.rvs = list(snap_current.glob("opt/rocm-*/bin/rvs"))[0]
+            rocm_path = list(snap_current.glob("opt/rocm-*"))[0]
+            self.rvs = rocm_path / "bin/rvs"
+            # The snap provides the versioned libraries it needs
+            rocm_libs = rocm_path / "lib"
+            self.env = os.environ
+            ld_library_path = self.env.get("LD_LIBRARY_PATH", "")
+            self.env["LD_LIBRARY_PATH"] = "{}:{}".format(
+                ld_library_path, rocm_libs
+            )
         else:
             self.rvs = rvs
 
@@ -67,6 +76,7 @@ class ModuleRunner:
             stderr=subprocess.PIPE,
             universal_newlines=True,
             check=False,
+            env=self.env,
         )
 
         if result.returncode != 0:

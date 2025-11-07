@@ -269,6 +269,7 @@ def client_mode(
     timeout=None,
     datasize=1024,
     rs485_settings=None,
+    loop=1,
 ):
     """
     Running as a clinet and it will sending out a string and wait
@@ -290,17 +291,21 @@ def client_mode(
         datasize,
         rs485_settings,
     )
-
     # clean up the garbage in the serial before test
     while ser.recv():
         continue
 
+    for c in range(1, loop + 1):
+        logging.info("Loop {} of {}".format(c, loop))
+        serial_echo_test(ser, datasize)
+
+def serial_echo_test(serial_session, datasize):
     random_string = generate_random_string(datasize)
-    ser.send(random_string.encode())
-    for i in range(1, 6):
+    serial_session.send(random_string.encode())
+    for i in range(1, 3):
         logging.info("Attempting receive string... {} time".format(i))
-        readback = ser.recv()
-        time.sleep(3)
+        readback = serial_session.recv()
+        time.sleep(1)
         if readback:
             if readback.decode() == random_string:
                 logging.info("[PASS] Received string is correct!")
@@ -442,6 +447,12 @@ def create_args():
         required=False,
         default="",
     )
+    parser.add_argument(
+        "--loop",
+        type=int,
+        help="Number of loops for serial client test",
+        default=1,
+    )
     return parser
 
 
@@ -482,6 +493,7 @@ def main():
             args.timeout,
             args.datasize,
             rs485_settings,
+            args.loop,
         )
     elif args.mode == "console":
         console_mode(

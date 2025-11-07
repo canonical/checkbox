@@ -46,3 +46,13 @@ bootstrap_include:
 include:
     after-suspend-ce-oem-serial/serial-transmit-data-.*
     after-suspend-ce-oem-serial/serial-console-.*
+
+id: ce-oem-serial-stress
+unit: test plan
+_name: serial stress tests
+_description:
+    serial stress tests for devices
+bootstrap_include:
+    ce-oem-serial/serial-list
+include:
+    ce-oem-serial/serial-transmit-data-stress-.*

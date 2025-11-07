@@ -179,6 +179,7 @@ include:
 nested_part:
     ce-oem-cold-boot-stress-test-by-pdu
     ce-oem-ethernet-tcp-stress
+    ce-oem-serial-stress
 certification_status_overrides:
     apply blocker to .*
 

@@ -57,6 +57,7 @@ class FileRole(SymbolDef):
     manage_py = "manage.py"  # management script
     legal = "legal"  # license & copyright
     docs = "docs"  # documentation
+    launcher = "launcher"  # launcher configuration file
     unknown = "unknown"  # unknown / unclassified
     build = "build"  # build artefact
     invalid = "invalid"  # invalid file that will never be used

@@ -33,6 +33,8 @@ from pathlib import Path
 
 from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
+
+from plainbox.impl.unit.launcher import LauncherUnit
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import (
     ValidationError as ConfigValidationError,
@@ -282,6 +284,48 @@ class UnitPlugIn(ProviderContentPlugIn):
         return all_units.get_by_name(unit_name).plugin_object
 
 
+class LauncherPlugIn(ProviderContentPlugIn):
+    """
+    A specialized PlugIn that creates LauncherUnit instances for .conf files
+    in the launchers/ directory.
+    """
+
+    def inspect(
+        self,
+        filename: str,
+        text: str,
+        provider: "Provider1",
+        validate: bool,
+        validation_kwargs: "Dict[str, Any]",
+        check: bool,
+        context: "???",
+    ) -> "Any":
+        """
+        Inspect a launcher file (no parsing needed, just metadata).
+        """
+        return None
+
+    def discover_units(
+        self,
+        inspect_result: "Any",
+        filename: str,
+        text: str,
+        provider: "Provider1",
+    ) -> "Iterable[Unit]":
+        """
+        Create a LauncherUnit and a FileUnit for the launcher file.
+        """
+        launcher_unit = LauncherUnit.from_path(
+            filename,
+            text,
+            origin=Origin(FileTextSource(filename)),
+            provider=provider,
+            virtual=True,
+        )
+        yield launcher_unit
+        yield self.make_file_unit(filename, provider)
+
+
 class ProviderContentEnumerator:
     """
     Support class for enumerating provider content.
@@ -525,7 +569,7 @@ class ProviderContentClassifier:
                 return (
                     FileRole.launcher,
                     self.provider.launchers_dir,
-                    ProviderContentPlugIn,
+                    LauncherPlugIn,
                 )
 
     def _classify_data(self, filename: str):
@@ -1256,8 +1300,7 @@ class Provider1(IProvider1):
         return [
             Path(unit.path)
             for unit in self.unit_list
-            if unit.Meta.name == "file"
-            and unit.role == FileRole.launcher
+            if unit.Meta.name == "launcher"
         ]
 
     @property

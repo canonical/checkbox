@@ -12,19 +12,25 @@ import json
 import logging
 import subprocess
 import time
-from dataclasses import dataclass
-from typing import List, Literal, Optional
+from typing import Generator, List, Optional
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-@dataclass()
-class Node:
-    device_id: str
-    profile_id: Optional[str]
-    name: str  # this might change after switching profile
-    id: str  # this might change after switching profile
-    description: Optional[str]
+class Node(object):
+    """Represents an audio node (sink or source)."""
+    def __init__(self, device_id, profile_id, name, id, description):
+        # type: (str, Optional[str], str, str, Optional[str]) -> None
+        self.device_id = device_id
+        self.profile_id = profile_id
+        self.name = name  # this might change after switching profile
+        self.id = id  # this might change after switching profile
+        self.description = description
+
+    def __repr__(self):
+        return "Node(device_id={!r}, profile_id={!r}, name={!r}, id={!r}, description={!r})".format(
+            self.device_id, self.profile_id, self.name, self.id, self.description
+        )
 
 
 class AudioUtils:
@@ -49,31 +55,56 @@ class AudioUtils:
         raise OSError("Cannot find a running audio server")
 
     @abc.abstractmethod
-    def get_sinks(self) -> List[Node]:
+    def list_sinks(self):
+        # type: () -> List[Node]
         """
-        Get a list of available sinks.
-        """
-
-    @abc.abstractmethod
-    def get_sources(self) -> List[Node]:
-        """
-        Get a list of available sources.
+        Get a lightweight list of available sinks without activating profiles.
         """
 
     @abc.abstractmethod
-    def set_sink(self, sink: Node):
+    def list_sources(self):
+        # type: () -> List[Node]
+        """
+        Get a lightweight list of available sources without activating profiles.
+        """
+
+    @abc.abstractmethod
+    def iter_sinks(self):
+        # type: () -> Generator[Node, None, None]
+        """
+        Iterate over available sinks, automatically activating each profile.
+        The yielded node is already active and ready to use.
+        Original state is restored after iteration completes.
+        """
+
+    @abc.abstractmethod
+    def iter_sources(self):
+        # type: () -> Generator[Node, None, None]
+        """
+        Iterate over available sources, automatically activating each profile.
+        The yielded node is already active and ready to use.
+        Original state is restored after iteration completes.
+        """
+
+    @abc.abstractmethod
+    def set_sink(self, sink):
+        # type: (Node) -> None
         """
         Set the target sink as default output.
+        Node should already be active (e.g., from iter_sinks()).
         """
 
     @abc.abstractmethod
-    def set_source(self, source: Node):
+    def set_source(self, source):
+        # type: (Node) -> None
         """
         Set the target source as default input.
+        Node should already be active (e.g., from iter_sources()).
         """
 
     @abc.abstractmethod
-    def set_volume(self, node: Node, volume: float):
+    def set_volume(self, node, volume):
+        # type: (Node, float) -> None
         """
         Set the volume [0, 1] of the target node (sink or source).
         """
@@ -102,9 +133,9 @@ class PipewireUtils(AudioUtils):
                     result = subprocess.check_output(["pw-dump"])
                     return json.loads(result)
                 except subprocess.CalledProcessError as e:
-                    raise RuntimeError(f"Failed to run pw-dump: {e}")
+                    raise RuntimeError("Failed to run pw-dump: {}".format(e))
                 except json.JSONDecodeError as e:
-                    raise RuntimeError(f"Failed to parse pw-dump output: {e}")
+                    raise RuntimeError("Failed to parse pw-dump output: {}".format(e))
             except RuntimeError as e:
                 exc = e
                 time.sleep(1)
@@ -118,7 +149,39 @@ class PipewireUtils(AudioUtils):
             and obj["info"]["props"]["media.class"] == "Audio/Device"
         }
 
-    def _get_audio_nodes(self, node_type: Literal["Sink", "Source"]):
+    def _get_current_profile(self, device_id: str) -> Optional[str]:
+        """Get the currently active profile index for a device."""
+        devices = self._get_audio_devices()
+        device = devices.get(device_id)
+        if not device:
+            return None
+
+        # Find the active profile
+        profiles = device.get("info", {}).get("params", {}).get("Profile", [])
+        for profile in profiles:
+            if profile.get("index") is not None:
+                return str(profile["index"])
+        return None
+
+    def _save_device_states(self) -> dict:
+        """Save current profile state for all audio devices."""
+        states = {}
+        devices = self._get_audio_devices()
+        for device_id in devices:
+            states[device_id] = self._get_current_profile(device_id)
+        return states
+
+    def _restore_device_states(self, states: dict):
+        """Restore profile state for all audio devices."""
+        for device_id, profile_id in states.items():
+            if profile_id is not None:
+                try:
+                    self._set_card_profile(device_id, profile_id)
+                except RuntimeError as e:
+                    logging.warning("Failed to restore profile for device %s: %s", device_id, e)
+
+    def _get_audio_nodes(self, node_type):
+        # type: (str) -> dict
         return {
             str(obj["id"]): obj
             for obj in self._load_pw_dump()
@@ -127,7 +190,8 @@ class PipewireUtils(AudioUtils):
             == "Audio/{}".format(node_type)
         }
 
-    def _get_available_profiles(self, device, profile_type: Literal["Sink", "Source"]):
+    def _get_available_profiles(self, device, profile_type):
+        # type: (dict, str) -> dict
         def _check_class(profile, profile_type):
             profile_classes = profile.get("classes", [])
             if not profile_classes:
@@ -148,9 +212,14 @@ class PipewireUtils(AudioUtils):
             if profile.get("available") == "yes" and _check_class(profile, profile_type)
         }
 
-    def _get_nodes_of_type(self, target: Literal["Sink", "Source"]) -> List[Node]:
-        nodes = []
+    def _list_nodes_of_type(self, target):
+        # type: (str) -> List[Node]
+        """List all nodes by using the iterator and collecting them into a list."""
+        return list(self._iter_nodes_of_type(target))
 
+    def _iter_nodes_of_type(self, target):
+        # type: (str) -> Generator[Node, None, None]
+        """Iterator that activates each profile and yields ready-to-use nodes."""
         devices = self._get_audio_devices()
         logging.debug("Found %s available audio device(s)", len(devices))
 
@@ -180,30 +249,29 @@ class PipewireUtils(AudioUtils):
                     description = (
                         node.get("info", {}).get("props", {}).get("node.description")
                     )
-                    node = Node(device_id, profile_id, name, node_id, description)
-                    nodes.append(node)
+                    node_obj = Node(device_id, profile_id, name, node_id, description)
+                    yield node_obj
 
-        return nodes
-
-    def _set_card_profile(self, device_id: str, profile_id: str):
+    def _set_card_profile(self, device_id, profile_id):
+        # type: (str, str) -> None
         try:
-            cmd = ["pw-cli", "s", device_id, "Profile", f"{{ index: {profile_id} }}"]
+            cmd = ["pw-cli", "s", device_id, "Profile", "{{ index: {} }}".format(profile_id)]
             logging.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             error = "Cannot set profile '{}' on device '{}'".format(
                 profile_id, device_id
             )
-            raise RuntimeError(error) from e
+            raise RuntimeError(error)
 
-    def _set_default_audio_node(
-        self, node_id: str, node_type: Literal["Sink", "Source"]
-    ):
+    def _set_default_audio_node(self, node_id, node_type):
+        # type: (str, str) -> None
         cmd = ["wpctl", "set-default", node_id]
         logging.debug("[shell] %s", " ".join(cmd))
         subprocess.check_output(cmd)
 
-    def _set_node_of_type(self, node: Node, target: Literal["Sink", "Source"]):
+    def _set_node_of_type(self, node, target):
+        # type: (Node, str) -> None
         self._set_card_profile(node.device_id, node.profile_id)
 
         nodes = self._get_audio_nodes(target)
@@ -235,20 +303,38 @@ class PipewireUtils(AudioUtils):
 
         self._set_default_audio_node(node.id, target)
 
-    def get_sinks(self) -> List[Node]:
-        return self._get_nodes_of_type("Sink")
+    def list_sinks(self):
+        # type: () -> List[Node]
+        return self._list_nodes_of_type("Sink")
 
-    def get_sources(self) -> List[Node]:
-        return self._get_nodes_of_type("Source")
+    def list_sources(self):
+        # type: () -> List[Node]
+        return self._list_nodes_of_type("Source")
 
-    def set_sink(self, sink: Node):
+    def iter_sinks(self):
+        # type: () -> Generator[Node, None, None]
+        return self._iter_nodes_of_type("Sink")
+
+    def iter_sources(self):
+        # type: () -> Generator[Node, None, None]
+        return self._iter_nodes_of_type("Source")
+
+    def set_sink(self, sink):
+        # type: (Node) -> None
+        """Set sink as default. Assumes node is already active."""
         logging.info("Setting sink %s", sink.name)
-        self._set_node_of_type(sink, "Sink")
+        # Profile should already be active from iteration, just set as default
+        self._set_default_audio_node(sink.id, "Sink")
 
-    def set_source(self, source: Node):
-        self._set_node_of_type(source, "Source")
+    def set_source(self, source):
+        # type: (Node) -> None
+        """Set source as default. Assumes node is already active."""
+        logging.info("Setting source %s", source.name)
+        # Profile should already be active from iteration, just set as default
+        self._set_default_audio_node(source.id, "Source")
 
-    def set_volume(self, node: Node, volume: float):
+    def set_volume(self, node, volume):
+        # type: (Node, float) -> None
         try:
             cmd = ["wpctl", "set-volume", str(node.id), "1.0"]
             logging.debug("[shell] %s", " ".join(cmd))
@@ -256,16 +342,17 @@ class PipewireUtils(AudioUtils):
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 "Cannot set volume of {} at {}".format(node.name, volume)
-            ) from e
+            )
 
 
 class PulseaudioUtils(AudioUtils):
-    def _parse_pactl_list(self, target_type: Literal["sinks", "sources"]):
+    def _parse_pactl_list(self, target_type):
+        # type: (str) -> List[Node]
         """Parse pactl list output to extract sink/source information."""
         try:
-            output = subprocess.check_output(["pactl", "list", target_type], text=True)
+            output = subprocess.check_output(["pactl", "list", target_type]).decode('utf-8')
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Failed to run pactl list {target_type}: {e}")
+            raise RuntimeError("Failed to run pactl list {}: {}".format(target_type, e))
 
         nodes = []
         current_item = {}
@@ -274,7 +361,7 @@ class PulseaudioUtils(AudioUtils):
         for line in lines:
             line = line.strip()
 
-            if line.startswith(f"{target_type.capitalize()[:-1]} #"):
+            if line.startswith("{} #".format(target_type.capitalize()[:-1])):
                 # New sink/source entry
                 if current_item:
                     nodes.append(self._create_node_from_pactl(current_item))
@@ -305,24 +392,41 @@ class PulseaudioUtils(AudioUtils):
             description=item_data.get("description", ""),
         )
 
-    def get_sinks(self) -> List[Node]:
+    def list_sinks(self):
+        # type: () -> List[Node]
         """Get list of available audio sinks."""
         return self._parse_pactl_list("sinks")
 
-    def get_sources(self) -> List[Node]:
+    def list_sources(self):
+        # type: () -> List[Node]
         """Get list of available audio sources."""
         return self._parse_pactl_list("sources")
 
-    def set_sink(self, sink: Node):
+    def iter_sinks(self):
+        # type: () -> Generator[Node, None, None]
+        """Iterate over available sinks. For PulseAudio, just yields all nodes."""
+        for node in self._parse_pactl_list("sinks"):
+            yield node
+
+    def iter_sources(self):
+        # type: () -> Generator[Node, None, None]
+        """Iterate over available sources. For PulseAudio, just yields all nodes."""
+        for node in self._parse_pactl_list("sources"):
+            yield node
+
+    def set_sink(self, sink):
+        # type: (Node) -> None
         """Set the specified sink as default output."""
+        logging.info("Setting PulseAudio sink %s", sink.name)
         try:
             cmd = ["pactl", "set-default-sink", sink.name]
             logging.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Failed to set sink {sink.name} as default: {e}")
+            raise RuntimeError("Failed to set sink {} as default: {}".format(sink.name, e))
 
-    def set_source(self, source: Node):
+    def set_source(self, source):
+        # type: (Node) -> None
         """Set the specified source as default input."""
         logging.info("Setting PulseAudio source %s", source.name)
         try:
@@ -330,9 +434,10 @@ class PulseaudioUtils(AudioUtils):
             logging.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Failed to set source {source.name} as default: {e}")
+            raise RuntimeError("Failed to set source {} as default: {}".format(source.name, e))
 
-    def set_volume(self, node: Node, volume: float):
+    def set_volume(self, node, volume):
+        # type: (Node, float) -> None
         """Set volume for the specified node (sink or source)."""
         if not 0.0 <= volume <= 1.0:
             raise ValueError("Volume must be between 0.0 and 1.0")
@@ -343,21 +448,21 @@ class PulseaudioUtils(AudioUtils):
         # Try to set volume using the node name first, fallback to index
         for node_id in [node.name, node.id]:
             try:
-                cmd = ["pactl", "set-sink-volume", node_id, f"{volume_percent}%"]
+                cmd = ["pactl", "set-sink-volume", node_id, "{}%".format(volume_percent)]
                 logging.debug("[shell] %s", " ".join(cmd))
                 subprocess.check_output(cmd)
                 return
             except subprocess.CalledProcessError:
                 # Try with set-source-volume
                 try:
-                    cmd = ["pactl", "set-source-volume", node_id, f"{volume_percent}%"]
+                    cmd = ["pactl", "set-source-volume", node_id, "{}%".format(volume_percent)]
                     logging.debug("[shell] %s", " ".join(cmd))
                     subprocess.check_output(cmd)
                     return
                 except subprocess.CalledProcessError:
                     continue
 
-        raise RuntimeError(f"Cannot set volume of {node.name} to {volume}")
+        raise RuntimeError("Cannot set volume of {} to {}".format(node.name, volume))
 
 
 if __name__ == "__main__":
@@ -370,40 +475,46 @@ if __name__ == "__main__":
         "type", choices=["sinks", "sources"], help="Type to list (sinks or sources)"
     )
 
-    # Set subcommands
-    set_parser = subparsers.add_parser("set", help="Set default sink or source")
-    set_parser.add_argument(
-        "type", choices=["sink", "source"], help="Type to set (sink or source)"
+    # Interactive iteration subcommand
+    iter_parser = subparsers.add_parser(
+        "iter", help="Iterate over sinks/sources and select one interactively"
     )
-    set_parser.add_argument("name", help="Name of the sink or source to set as default")
+    iter_parser.add_argument(
+        "type", choices=["sinks", "sources"], help="Type to iterate (sinks or sources)"
+    )
 
     args = parser.parse_args()
     audio = AudioUtils()
 
     if args.command == "list":
         if args.type == "sinks":
-            nodes = audio.get_sinks()
+            nodes = audio.list_sinks()
         else:
-            nodes = audio.get_sources()
+            nodes = audio.list_sources()
 
-        for node in nodes:
-            print(f"{node.id}: {node.name} - {node.description}")
+        for i, node in enumerate(nodes):
+            print("{}: {} - {}".format(i, node.name, node.description))
 
-    elif args.command == "set":
-        if args.type == "sink":
-            nodes = audio.get_sinks()
-        else:
-            nodes = audio.get_sources()
+    elif args.command == "iter":
+        node_type = "sink" if args.type == "sinks" else "source"
+        iterator = audio.iter_sinks() if args.type == "sinks" else audio.iter_sources()
 
-        try:
-            target_node = next(n for n in nodes if n.name == args.name)
-        except StopIteration:  # strip dynamic component
-            stripped = args.name.rsplit(".", 1)[0]
-            target_node = next(n for n in nodes if n.name.rsplit(".", 1)[0] == stripped)
+        for i, node in enumerate(iterator):
+            # Immediately set as default
+            if args.type == "sinks":
+                audio.set_sink(node)
+            else:
+                audio.set_source(node)
 
-        if args.type == "sink":
-            audio.set_sink(target_node)
-        else:
-            audio.set_source(target_node)
+            print("\n[{}] Now active: {}".format(i, node.name))
+            print("    Description: {}".format(node.description))
 
-        print(f"Successfully set {args.type}: {target_node.name}")
+            choice = input("Keep this one? (y to keep, n for next, q to quit): ").strip().lower()
+
+            if choice == 'y':
+                print("Kept {}: {}".format(node_type, node.name))
+                break
+            elif choice == 'q':
+                print("Cancelled")
+                break
+            # 'n' or anything else continues to next node

@@ -1,3 +1,18 @@
+# This file is part of Checkbox.
+#
+# Copyright 2025 Canonical Ltd.
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
 A set of libraries to work with PulseAudio and Pipewire
 without having to understand much about them.
@@ -73,9 +88,7 @@ class AudioUtils:
     def get_server() -> str:
         for server in ["pipewire", "pulseaudio"]:
             try:
-                subprocess.check_call(
-                    ["systemctl", "--user", "status", server]
-                )
+                subprocess.check_call(["systemctl", "--user", "status", server])
                 return server
             except subprocess.CalledProcessError:
                 continue
@@ -155,9 +168,7 @@ class PipewireUtils(AudioUtils):
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("Failed to run pw-dump: {}".format(e))
                 except json.JSONDecodeError as e:
-                    raise RuntimeError(
-                        "Failed to parse pw-dump output: {}".format(e)
-                    )
+                    raise RuntimeError("Failed to parse pw-dump output: {}".format(e))
             except RuntimeError as e:
                 exc = e
                 time.sleep(1)
@@ -233,8 +244,7 @@ class PipewireUtils(AudioUtils):
             for profile in device.get("info", {})
             .get("params", {})
             .get("EnumProfile", [])
-            if profile.get("available") == "yes"
-            and _check_class(profile, profile_type)
+            if profile.get("available") == "yes" and _check_class(profile, profile_type)
         }
 
     def _list_nodes_of_type(self, target: str) -> List[Node]:
@@ -268,17 +278,11 @@ class PipewireUtils(AudioUtils):
                 )
 
                 for node_id, node in audio_nodes.items():
-                    name = (
-                        node.get("info", {}).get("props", {}).get("node.name")
-                    )
+                    name = node.get("info", {}).get("props", {}).get("node.name")
                     description = (
-                        node.get("info", {})
-                        .get("props", {})
-                        .get("node.description")
+                        node.get("info", {}).get("props", {}).get("node.description")
                     )
-                    node_obj = Node(
-                        device_id, profile_id, name, node_id, description
-                    )
+                    node_obj = Node(device_id, profile_id, name, node_id, description)
                     yield node_obj
 
     def _set_card_profile(self, device_id: str, profile_id: str) -> None:
@@ -310,16 +314,13 @@ class PipewireUtils(AudioUtils):
 
         def match(node_id: str, node_name: str, obj) -> bool:
             return (
-                obj.get("info", {}).get("props", {}).get("node.id", "")
-                == node_id
+                obj.get("info", {}).get("props", {}).get("node.id", "") == node_id
                 and obj.get("info", {}).get("props", {}).get("node.name", "")
                 == node_name
             )
 
         try:
-            next(
-                obj for obj in nodes.values() if match(node.id, node.name, obj)
-            )
+            next(obj for obj in nodes.values() if match(node.id, node.name, obj))
         except StopIteration:
             # handle cases where the node name include an index
             # i.e. alsa_output.pci-0000_00_1f.3.analog-stereo.10
@@ -334,9 +335,7 @@ class PipewireUtils(AudioUtils):
                 == stripped_name
             )
             node.id = str(new_node["id"])
-            node.name = (
-                new_node.get("info", {}).get("props", {}).get("node.name")
-            )
+            node.name = new_node.get("info", {}).get("props", {}).get("node.name")
 
         self._set_default_audio_node(node.id, target)
 
@@ -379,13 +378,11 @@ class PulseaudioUtils(AudioUtils):
     def _parse_pactl_list(self, target_type: str) -> List[Node]:
         """Parse pactl list output to extract sink/source information."""
         try:
-            output = subprocess.check_output(
-                ["pactl", "list", target_type]
-            ).decode("utf-8")
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                "Failed to run pactl list {}: {}".format(target_type, e)
+            output = subprocess.check_output(["pactl", "list", target_type]).decode(
+                "utf-8"
             )
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError("Failed to run pactl list {}: {}".format(target_type, e))
 
         nodes = []
         current_item = {}
@@ -502,21 +499,15 @@ class PulseaudioUtils(AudioUtils):
                 except subprocess.CalledProcessError:
                     continue
 
-        raise RuntimeError(
-            "Cannot set volume of {} to {}".format(node.name, volume)
-        )
+        raise RuntimeError("Cannot set volume of {} to {}".format(node.name, volume))
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Manage audio sinks and sources"
-    )
+    parser = argparse.ArgumentParser(description="Manage audio sinks and sources")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # List subcommands
-    list_parser = subparsers.add_parser(
-        "list", help="List available sinks or sources"
-    )
+    list_parser = subparsers.add_parser("list", help="List available sinks or sources")
     list_parser.add_argument(
         "type",
         choices=["sinks", "sources"],
@@ -547,11 +538,7 @@ if __name__ == "__main__":
 
     elif args.command == "iter":
         node_type = "sink" if args.type == "sinks" else "source"
-        iterator = (
-            audio.iter_sinks()
-            if args.type == "sinks"
-            else audio.iter_sources()
-        )
+        iterator = audio.iter_sinks() if args.type == "sinks" else audio.iter_sources()
 
         for i, node in enumerate(iterator):
             # Immediately set as default

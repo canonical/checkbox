@@ -63,26 +63,19 @@ class Node(object):
         self.id = id  # this might change after switching profile
         self.description = description
 
-    def __repr__(self):
-        return "Node(device_id={!r}, profile_id={!r}, name={!r}, id={!r}, description={!r})".format(
-            self.device_id,
-            self.profile_id,
-            self.name,
-            self.id,
-            self.description,
-        )
-
 
 class AudioUtils:
     def __new__(cls, *args, **kwargs):
-        server = cls.get_server()
-        logging.info("Detected audio server is %s", server)
-        if server == "pipewire":
-            return super().__new__(PipewireUtils)
-        elif server == "pulseaudio":
-            return super().__new__(PulseaudioUtils)
-        else:
-            raise RuntimeError("Unsupported audio server: {}".format(server))
+        if cls is AudioUtils:
+            server = cls.get_server()
+            logging.info("Detected audio server is %s", server)
+            if server == "pipewire":
+                cls = PipewireUtils
+            elif server == "pulseaudio":
+                cls = PulseaudioUtils
+            else:
+                raise RuntimeError("Unsupported audio server: {}".format(server))
+        return super().__new__(cls)
 
     @staticmethod
     def get_server() -> str:

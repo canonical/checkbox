@@ -1166,6 +1166,33 @@ class SessionAssistant:
         )
         self._context.state.update_desired_job_list(desired_job_list)
 
+    def is_provider_launcher_id(self, launcher_id: str):
+        try:
+            _ = self.get_provider_launcher_by_id(launcher_id)
+            return True
+        except FileNotFoundError:
+            return False
+
+    def get_provider_launcher_by_id(self, launcher_id: str):
+        namespace, *_ = launcher_id.split("::", maxsplit=1)
+        selected_providers = self.get_selected_providers()
+        relevant_providers = filter(
+            lambda x: x.namespace == namespace, selected_providers
+        )
+        try:
+            return str(
+                next(
+                    launcher
+                    for provider in relevant_providers
+                    for launcher in provider.launcher_list
+                    if launcher.id == launcher_id
+                ).text
+            )
+        except StopIteration:
+            raise FileNotFoundError(
+                "Unkown launcher id: {}".format(launcher_id)
+            )
+
     @raises(KeyError, UnexpectedMethodCall)
     def get_job_state(self, job_id: str) -> "JobState":
         """

@@ -1298,9 +1298,7 @@ class Provider1(IProvider1):
         List of all the launchers
         """
         return [
-            Path(unit.path)
-            for unit in self.unit_list
-            if unit.Meta.name == "launcher"
+            unit for unit in self.unit_list if unit.Meta.name == "launcher"
         ]
 
     @property

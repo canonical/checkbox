@@ -7,6 +7,7 @@ References:
 """
 
 import abc
+import argparse
 import json
 import logging
 import subprocess
@@ -29,7 +30,7 @@ class Node:
 class AudioUtils:
     def __new__(cls, *args, **kwargs):
         server = cls.get_server()
-        logging.getLogger().info("Detected audio server is %s", server)
+        logging.info("Detected audio server is %s", server)
         if server == "pipewire":
             return super().__new__(PipewireUtils)
         elif server == "pulseaudio":
@@ -79,8 +80,22 @@ class AudioUtils:
 
 
 class PipewireUtils(AudioUtils):
+    """
+    PipeWire audio utility implementation.
+
+    Device/Profile/Node hierarchy:
+
+        Device: "alsa_card.pci-0000_00_1f.3"
+        ├── Profile: "output:analog-stereo" (index: 0)
+        │   └── Node: "alsa_output.pci-0000_00_1f.3.analog-stereo" (Sink)
+        ├── Profile: "output:hdmi-stereo" (index: 1)
+        │   └── Node: "alsa_output.pci-0000_00_1f.3.hdmi-stereo" (Sink)
+        └── Profile: "input:analog-stereo" (index: 2)
+            └── Node: "alsa_input.pci-0000_00_1f.3.analog-stereo" (Source)
+    """
+
     def _load_pw_dump(self):
-        exc = Exception
+        exc = RuntimeError
         for _ in range(3):
             try:
                 try:
@@ -137,19 +152,35 @@ class PipewireUtils(AudioUtils):
         nodes = []
 
         devices = self._get_audio_devices()
+        logging.debug("Found %s available audio device(s)", len(devices))
+
         for device_id, device in devices.items():
+            device_name = device["info"]["props"]["device.name"]
             profiles = self._get_available_profiles(device, target)
+            logging.debug(
+                "Found %s available profile(s) for device %s",
+                len(profiles),
+                device_name,
+            )
+
             for profile_id, profile in profiles.items():
                 # Set the device profile to make pipewire create Nodes
                 self._set_card_profile(device_id, profile_id)
 
                 audio_nodes = self._get_audio_nodes(target)
-                for id, node in audio_nodes.items():
+                logging.debug(
+                    "Found %s available node(s) for device %s@%s",
+                    len(audio_nodes),
+                    device_name,
+                    profile["name"],
+                )
+
+                for node_id, node in audio_nodes.items():
                     name = node.get("info", {}).get("props", {}).get("node.name")
                     description = (
                         node.get("info", {}).get("props", {}).get("node.description")
                     )
-                    node = Node(device_id, profile_id, name, id, description)
+                    node = Node(device_id, profile_id, name, node_id, description)
                     nodes.append(node)
 
         return nodes
@@ -157,7 +188,7 @@ class PipewireUtils(AudioUtils):
     def _set_card_profile(self, device_id: str, profile_id: str):
         try:
             cmd = ["pw-cli", "s", device_id, "Profile", f"{{ index: {profile_id} }}"]
-            logging.getLogger().debug(" ".join(cmd))
+            logging.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             error = "Cannot set profile '{}' on device '{}'".format(
@@ -165,31 +196,31 @@ class PipewireUtils(AudioUtils):
             )
             raise RuntimeError(error) from e
 
-    def _set_default_audio_node(self, name: str, node_type: Literal["Sink", "Source"]):
-        cmd = [
-            "pw-metadata",
-            "0",
-            "default.configured.audio.{}".format(node_type.lower()),
-            "{{ name: {} }}".format(name),
-        ]
-        logging.getLogger().debug(" ".join(cmd))
+    def _set_default_audio_node(
+        self, node_id: str, node_type: Literal["Sink", "Source"]
+    ):
+        cmd = ["wpctl", "set-default", node_id]
+        logging.debug("[shell] %s", " ".join(cmd))
         subprocess.check_output(cmd)
 
     def _set_node_of_type(self, node: Node, target: Literal["Sink", "Source"]):
         self._set_card_profile(node.device_id, node.profile_id)
 
-        # Node name / ID might change after applying a profile
         nodes = self._get_audio_nodes(target)
-        try:
-            next(
-                obj
-                for obj in nodes.values()
-                if obj.get("info", {}).get("props", {}).get("node.name", "")
-                == node.name
+
+        def match(node_id: str, node_name: str, obj) -> bool:
+            return (
+                obj.get("info", {}).get("props", {}).get("node.id", "") == node_id
+                and obj.get("info", {}).get("props", {}).get("node.name", "")
+                == node_name
             )
+
+        try:
+            next(obj for obj in nodes.values() if match(node.id, node.name, obj))
         except StopIteration:
             # handle cases where the node name include an index
             # i.e. alsa_output.pci-0000_00_1f.3.analog-stereo.10
+            stripped_name = node.name.rsplit(".", 1)[0]
             new_node = next(
                 obj
                 for obj in nodes.values()
@@ -197,12 +228,12 @@ class PipewireUtils(AudioUtils):
                 .get("props", {})
                 .get("node.name", "")
                 .rsplit(".", 1)[0]
-                == node.name.rsplit(".", 1)[0]
+                == stripped_name
             )
             node.id = str(new_node["id"])
             node.name = new_node.get("info", {}).get("props", {}).get("node.name")
 
-        self._set_default_audio_node(node.name, target)
+        self._set_default_audio_node(node.id, target)
 
     def get_sinks(self) -> List[Node]:
         return self._get_nodes_of_type("Sink")
@@ -211,7 +242,7 @@ class PipewireUtils(AudioUtils):
         return self._get_nodes_of_type("Source")
 
     def set_sink(self, sink: Node):
-        logging.getLogger().info("Setting sink %s", sink)
+        logging.info("Setting sink %s", sink.name)
         self._set_node_of_type(sink, "Sink")
 
     def set_source(self, source: Node):
@@ -220,7 +251,7 @@ class PipewireUtils(AudioUtils):
     def set_volume(self, node: Node, volume: float):
         try:
             cmd = ["wpctl", "set-volume", str(node.id), "1.0"]
-            logging.getLogger().debug(" ".join(cmd))
+            logging.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
@@ -286,17 +317,17 @@ class PulseaudioUtils(AudioUtils):
         """Set the specified sink as default output."""
         try:
             cmd = ["pactl", "set-default-sink", sink.name]
-            logging.getLogger().debug(" ".join(cmd))
+            logging.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Failed to set sink {sink.name} as default: {e}")
 
     def set_source(self, source: Node):
         """Set the specified source as default input."""
-        logging.getLogger().info("Setting PulseAudio source %s", source)
+        logging.info("Setting PulseAudio source %s", source.name)
         try:
             cmd = ["pactl", "set-default-source", source.name]
-            logging.getLogger().debug(" ".join(cmd))
+            logging.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Failed to set source {source.name} as default: {e}")
@@ -313,14 +344,14 @@ class PulseaudioUtils(AudioUtils):
         for node_id in [node.name, node.id]:
             try:
                 cmd = ["pactl", "set-sink-volume", node_id, f"{volume_percent}%"]
-                logging.getLogger().debug(" ".join(cmd))
+                logging.debug("[shell] %s", " ".join(cmd))
                 subprocess.check_output(cmd)
                 return
             except subprocess.CalledProcessError:
                 # Try with set-source-volume
                 try:
                     cmd = ["pactl", "set-source-volume", node_id, f"{volume_percent}%"]
-                    logging.getLogger().debug(" ".join(cmd))
+                    logging.debug("[shell] %s", " ".join(cmd))
                     subprocess.check_output(cmd)
                     return
                 except subprocess.CalledProcessError:
@@ -330,23 +361,49 @@ class PulseaudioUtils(AudioUtils):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Manage audio sinks and sources")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # List subcommands
+    list_parser = subparsers.add_parser("list", help="List available sinks or sources")
+    list_parser.add_argument(
+        "type", choices=["sinks", "sources"], help="Type to list (sinks or sources)"
+    )
+
+    # Set subcommands
+    set_parser = subparsers.add_parser("set", help="Set default sink or source")
+    set_parser.add_argument(
+        "type", choices=["sink", "source"], help="Type to set (sink or source)"
+    )
+    set_parser.add_argument("name", help="Name of the sink or source to set as default")
+
+    args = parser.parse_args()
     audio = AudioUtils()
 
-    target = ""
-    while target not in ["sink", "source"]:
-        target = input("What do you want to set, sink or source? ")
+    if args.command == "list":
+        if args.type == "sinks":
+            nodes = audio.get_sinks()
+        else:
+            nodes = audio.get_sources()
 
-    if target == "sink":
-        sinks = audio.get_sinks()
-        for i, sink in enumerate(sinks):
-            print(i, sink.description, sink.name)
+        for node in nodes:
+            print(f"{node.id}: {node.name} - {node.description}")
 
-        target = int(input("Which sink do you want to set? "))
-        audio.set_sink(sinks[target])
-    else:
-        sources = audio.get_sources()
-        for i, source in enumerate(sources):
-            print(i, source.description, source.name)
+    elif args.command == "set":
+        if args.type == "sink":
+            nodes = audio.get_sinks()
+        else:
+            nodes = audio.get_sources()
 
-        target = int(input("Which source do you want to set? "))
-        audio.set_source(sources[target])
+        try:
+            target_node = next(n for n in nodes if n.name == args.name)
+        except StopIteration:  # strip dynamic component
+            stripped = args.name.rsplit(".", 1)[0]
+            target_node = next(n for n in nodes if n.name.rsplit(".", 1)[0] == stripped)
+
+        if args.type == "sink":
+            audio.set_sink(target_node)
+        else:
+            audio.set_source(target_node)
+
+        print(f"Successfully set {args.type}: {target_node.name}")

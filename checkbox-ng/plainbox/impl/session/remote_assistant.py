@@ -698,7 +698,7 @@ class RemoteSessionAssistant:
         elif self.state == RemoteSessionStates.Interacting:
             payload = self._current_interaction
         elif self.state == RemoteSessionStates.Bootstrapped:
-            payload = self._sa.get_static_todo_list()
+            payload = json.dumps(self._sa.get_static_todo_list())
         elif self.state == RemoteSessionStates.SettingUp:
             # this is set by the resume_by_id function or None
             payload = {"last_job": self._last_job}

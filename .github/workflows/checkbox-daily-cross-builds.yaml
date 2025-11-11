@@ -53,7 +53,7 @@ jobs:
           ./prepare.sh series${{ matrix.release }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
 
       - id: snap_build
         name: Build (retries on fail)
@@ -65,7 +65,7 @@ jobs:
             architecture: ${{ matrix.arch }}
             path: checkbox-core-snap/series${{ matrix.release }}
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         name: Upload logs on failure
         if: failure()
         with:
@@ -75,7 +75,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         name: Upload the snap as artifact
         with:
           name: runtime_snap${{ matrix.release }}_${{ matrix.arch }}.snap
@@ -139,7 +139,7 @@ jobs:
           ./prepare_${{ matrix.type }}.sh series_${{ matrix.type }}${{ matrix.release }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
 
       - id: snap_build
         name: Build (retries on fail)
@@ -151,7 +151,7 @@ jobs:
             architecture: ${{ matrix.arch }}
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         name: Upload logs on failure
         if: failure()
         with:
@@ -161,7 +161,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         name: Upload the snaps as artefacts
         with:
           name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap

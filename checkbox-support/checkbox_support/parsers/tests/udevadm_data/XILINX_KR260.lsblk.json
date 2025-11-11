@@ -1,0 +1,200 @@
+{
+  "blockdevices": [
+    {
+      "kname": "loop0",
+      "type": "loop",
+      "mountpoint": "/snap/core20/2186",
+      "fstype": "squashfs",
+      "size": 85096871
+    },
+    {
+      "kname": "loop1",
+      "type": "loop",
+      "mountpoint": "/snap/core20/2321",
+      "fstype": "squashfs",
+      "size": 447949219
+    },
+    {
+      "kname": "loop2",
+      "type": "loop",
+      "mountpoint": "/snap/lxd/27038",
+      "fstype": "squashfs",
+      "size": 363121469
+    },
+    {
+      "kname": "loop3",
+      "type": "loop",
+      "mountpoint": "/snap/lxd/29353",
+      "fstype": "squashfs",
+      "size": 265702767
+    },
+    {
+      "kname": "loop4",
+      "type": "loop",
+      "mountpoint": "/snap/snapd/20674",
+      "fstype": "squashfs",
+      "size": 363750718
+    },
+    {
+      "kname": "loop5",
+      "type": "loop",
+      "mountpoint": "/snap/snapd/21761",
+      "fstype": "squashfs",
+      "size": 206893518
+    },
+    {
+      "kname": "sda",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 329687429281
+    },
+    {
+      "kname": "sda1",
+      "type": "part",
+      "mountpoint": "/boot/firmware",
+      "fstype": "xfs",
+      "size": 214625514802
+    },
+    {
+      "kname": "sda2",
+      "type": "part",
+      "mountpoint": "/",
+      "fstype": "ext4",
+      "size": 159374892386
+    },
+    {
+      "kname": "sdb",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 870310595670
+    },
+    {
+      "kname": "sdb1",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 392484733588
+    },
+    {
+      "kname": "mtdblock0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1255130153848
+    },
+    {
+      "kname": "mtdblock1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 933067726193
+    },
+    {
+      "kname": "mtdblock2",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 732499147178
+    },
+    {
+      "kname": "mtdblock3",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 775151272105
+    },
+    {
+      "kname": "mtdblock4",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1226444900077
+    },
+    {
+      "kname": "mtdblock5",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1735809211365
+    },
+    {
+      "kname": "mtdblock6",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1231647420162
+    },
+    {
+      "kname": "mtdblock7",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1033861628937
+    },
+    {
+      "kname": "mtdblock8",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1473067223424
+    },
+    {
+      "kname": "mtdblock9",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 617067968007
+    },
+    {
+      "kname": "mtdblock10",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1406330192911
+    },
+    {
+      "kname": "mtdblock11",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1501257891351
+    },
+    {
+      "kname": "mtdblock12",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 410911345871
+    },
+    {
+      "kname": "mtdblock13",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1328408371113
+    },
+    {
+      "kname": "mtdblock14",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 896392195594
+    },
+    {
+      "kname": "mtdblock15",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 664915388485
+    },
+    {
+      "kname": "mtdblock16",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 334848253664
+    }
+  ]
+}

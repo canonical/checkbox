@@ -76,3 +76,7 @@ BASE_PROVIDERS=($RUNTIME/providers/*)
 BASE_PROVIDERS_PATH=$(IFS=:; echo "${BASE_PROVIDERS[*]}")
 PROVIDERS=($SNAP/providers/*)
 export PROVIDERPATH=$(IFS=:; echo "${PROVIDERS[*]}"):$BASE_PROVIDERS_PATH
+
+echo "We are deprecating the classic frontend Checkbox snaps" 1>&2
+echo "Consider switching to the strict frontend" 1>&2
+echo 1>&2

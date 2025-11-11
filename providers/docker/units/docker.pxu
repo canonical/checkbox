@@ -372,8 +372,13 @@ command:
  [ $restartPolicy = on-failure ] || exit 1
  maximumRetryCount=$(docker inspect  -f {maximumRetryCount} $ID)
  [ $maximumRetryCount = 3 ] || exit 1
- sleep 10
- restartCount=$(docker inspect -f {restartCount} $ID)
+ count=0
+ while [ $count -lt 10 ]; do
+   restartCount=$(docker inspect -f {restartCount} $ID)
+   [ $restartCount = 3 ] && break
+   sleep 3
+   count=$((count + 1))
+ done
  [ $restartCount = 3 ] || exit 1
  docker rm -f $ID
 _summary: Test container restart policy with on_failure applied

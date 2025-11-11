@@ -1,3 +1,76 @@
+# DSS integration test jobs ###################################################
+
+id: dss/run_integration_cpu_tests
+category_id: dss-regress
+group: dss-integration-tests
+_summary: Run the integration tests from DSS repo for CPU
+flags: simple
+estimated_duration: 30m
+command:
+  set -e
+  DSS_REPO="/tmp/dss-repo"
+  cd $DSS_REPO
+  timeout 30m .venv/bin/tox -e integration -- --junit-xml=dss-integration-cpu.xml
+
+id: dss/run_integration_gpu_tests
+category_id: dss-regress
+group: dss-integration-tests
+_summary: Run the integration tests from DSS repo for GPU
+flags: simple
+estimated_duration: 30m
+command:
+  set -e
+  DSS_REPO="/tmp/dss-repo"
+  cd $DSS_REPO
+  timeout 30m .venv/bin/tox -e integration-gpu -- --junit-xml=dss-integration-gpu.xml
+
+id: dss/collect_integration_cpu_test_names
+category_id: dss-regress
+group: dss-integration-tests
+plugin: resource
+_summary: List integration tests from DSS repo for CPU
+command: extract_dss_repo_tests.py /tmp/dss-repo integration
+
+id: dss/collect_integration_gpu_test_names
+category_id: dss-regress
+group: dss-integration-tests
+plugin: resource
+_summary: List integration tests from DSS repo for GPU
+imports: from com.canonical.certification import graphics_card
+requires: graphics_card.vendor == 'NVIDIA Corporation'
+command: extract_dss_repo_tests.py /tmp/dss-repo integration-gpu
+
+unit: template
+template-engine: jinja2
+template-resource: dss/collect_integration_cpu_test_names
+category_id: dss-regress
+group: dss-integration-tests
+after: dss/run_integration_cpu_tests
+plugin: shell
+id: dss/verify_integration_cpu_result_for_{{ test_case }}-{{ test_name }}
+_summary: Verify integration test `{{ test_case }}-{{ test_name}}` passed for CPU
+command:
+  set -e
+  REPORT_PATH=/tmp/dss-repo/dss-integration-cpu.xml
+  verify_junit_report.py $REPORT_PATH {{ test_case }} {{ test_name }}
+
+unit: template
+template-engine: jinja2
+template-resource: dss/collect_integration_gpu_test_names
+category_id: dss-regress
+group: dss-integration-tests
+after: dss/run_integration_gpu_tests
+plugin: shell
+id: dss/verify_integration_gpu_result_for_{{ test_case }}-{{ test_name }}
+_summary: Verify integration test `{{ test_case }}-{{ test_name}}` passed for GPU
+command:
+  set -e
+  REPORT_PATH=/tmp/dss-repo/dss-integration-gpu.xml
+  verify_junit_report.py $REPORT_PATH {{ test_case }} {{ test_name }}
+
+
+# DSS provider test jobs ######################################################
+
 id: dss/initialize
 category_id: dss-regress
 flags: simple
@@ -21,6 +94,16 @@ _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
 command: kubectl get ns dss
 
+id: dss/namespace_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'kubectl'
+depends: dss/wait_after_reboot
+_summary: Check that the dss namespace is still deployed after reboot
+estimated_duration: 5s
+command: kubectl get ns dss
+
 id: dss/status_mlflow
 category_id: dss-regress
 flags: simple
@@ -28,6 +111,18 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/namespace
 _summary: Check that the DSS mlflow is deployed and ready
+estimated_duration: 5s
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "MLflow deployment: Ready"
+
+id: dss/status_mlflow_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/namespace_after_reboot
+_summary: Check that the DSS mlflow is still deployed after reboot
 estimated_duration: 5s
 command:
   set -eo pipefail
@@ -48,6 +143,11 @@ estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "NVIDIA GPU acceleration: Enabled.*"
+_siblings: [
+  { "id": "dss/status_nvidia_gpu_after_reboot",
+    "_summary": "Check that DSS status still reports NVIDIA GPU is enabled after reboot",
+    "depends": "dss/status_mlflow_after_reboot" }
+  ]
 
 id: dss/status_intel_gpu
 category_id: dss-regress
@@ -64,6 +164,11 @@ estimated_duration: 5s
 command:
   set -eo pipefail
   run_dss.sh status | grep "Intel GPU acceleration: Enabled.*"
+_siblings: [
+  { "id": "dss/status_intel_gpu_after_reboot",
+    "_summary": "Check that DSS status still reports Intel GPU is enabled after reboot",
+    "depends": "dss/status_mlflow_after_reboot" }
+  ]
 
 id: dss/purge
 category_id: dss-regress
@@ -75,8 +180,131 @@ _summary: Check that DSS can be purged
 estimated_duration: 5m
 command: timeout 5m run_dss.sh purge
 
-# New-Notebook test jobs ######################################################
+id: dss/reboot
+category_id: dss-regress
+flags: noreturn
+plugin: shell
+depends: dss/initialize
+_summary: Reboot the machine
+estimated_duration: 2m
+command:
+  set -ex
+  echo "starting rebooting"
+  sudo reboot
+  echo "finished rebooting"
 
+id: dss/wait_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'kubectl'
+depends: dss/reboot
+_summary: Wait for cluster to settle down after reboot
+estimated_duration: 15m
+command:
+  set -ex
+  sleep 120
+  timeout 15m bash -c 'while ! kubectl get pods -A &> /dev/null; do
+      echo "Waiting for Kubernetes cluster to get ready"
+      sleep 5
+    done'
+  kubectl get pods -A
+  echo "Waiting a bit more for the daemonsets to restart"
+  sleep 120
+
+id: dss/wait_for_intel_gpu_rollout
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  executable.name == 'kubectl'
+  graphics_card.vendor == 'Intel Corporation'
+_summary: Check that Intel GPU plugin has rolled out in the cluster
+estimated_duration: 15m
+command:
+  set -ex
+  timeout 15m kubectl -n node-feature-discovery rollout status ds/nfd-worker
+  timeout 15m kubectl -n default rollout status ds/intel-gpu-plugin
+_siblings: [
+  { "id": "dss/wait_after_reboot_for_intel_gpu_rollout",
+    "_summary": "Check that Intel GPU plugin has rolled out in the cluster after reboot",
+    "after": "dss/wait_after_reboot" }
+  ]
+
+id: dss/wait_for_nvidia_gpu_rollout
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  executable.name == 'kubectl'
+  graphics_card.vendor == 'NVIDIA Corporation'
+_summary: Check that NVIDIA GPU plugin has rolled out in the cluster
+estimated_duration: 15m
+command:
+  set -ex
+  timeout 15m kubectl -n gpu-operator-resources rollout status ds/nvidia-device-plugin-daemonset
+  timeout 15m kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
+_siblings: [
+  { "id": "dss/wait_after_reboot_for_nvidia_gpu_rollout",
+    "_summary": "Check that NVIDIA GPU plugin has rolled out in the cluster after reboot",
+    "after": "dss/wait_after_reboot" }
+  ]
+
+
+# Notebook test jobs ##########################################################
+
+
+id: dss/restart_long_living_notebook_after_reboot_using_pytorch
+category_id: dss-regress
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_mlflow_after_reboot dss/create_long_living_notebook_before_reboot_using_pytorch
+_summary: Check that the long-living notebook from 'pytorch' can be restarted
+flags: simple
+estimated_duration: 5m
+command:
+  timeout 10s run_dss.sh stop long-living-pytorch-cpu && sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-cpu
+_siblings: [
+    {
+      "id": "dss/restart_long_living_notebook_after_reboot_using_tensorflow",
+      "depends": "dss/status_mlflow_after_reboot dss/create_long_living_notebook_before_reboot_using_tensorflow",
+      "_summary": "Check that the long-living notebook from 'tensorflow' can be restarted",
+      "estimated_duration": "5m",
+      "command": "timeout 10s run_dss.sh stop long-living-tensorflow-cpu && sleep 10 && timeout 5m run_dss.sh start long-living-tensorflow-cpu"
+    },
+    {
+      "id": "dss/restart_long_living_notebook_after_reboot_using_pytorch-intel",
+      "depends": "dss/status_intel_gpu_after_reboot dss/create_long_living_notebook_before_reboot_using_pytorch-intel",
+      "_summary": "Check that the long-living notebook from 'pytorch-intel' can be restarted",
+      "estimated_duration": "5m",
+      "command": "timeout 10s run_dss.sh stop long-living-pytorch-intel&& sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-intel"
+    },
+    {
+      "id": "dss/restart_long_living_notebook_after_reboot_using_tensorflow-intel",
+      "depends": "dss/status_intel_gpu_after_reboot dss/create_long_living_notebook_before_reboot_using_tensorflow-intel",
+      "_summary": "Check that the long-living notebook from 'tensorflow-intel' can be restarted",
+      "estimated_duration": "5m",
+      "command": "timeout 10s run_dss.sh stop long-living-tensorflow-intel && sleep 10 && timeout 5m run_dss.sh start long-living-tensorflow-intel"
+    },
+    {
+      "id": "dss/restart_long_living_notebook_after_reboot_using_pytorch-cuda",
+      "depends": "dss/status_nvidia_gpu_after_reboot dss/create_long_living_notebook_before_reboot_using_pytorch-cuda",
+      "_summary": "Check that the long-living notebook from 'pytorch-cuda' can be restarted",
+      "estimated_duration": "5m",
+      "command": "timeout 10s run_dss.sh stop long-living-pytorch-cuda && sleep 10 && timeout 5m run_dss.sh start long-living-pytorch-cuda"
+    },
+    {
+      "id": "dss/restart_long_living_notebook_after_reboot_using_tensorflow-cuda",
+      "depends": "dss/status_nvidia_gpu_after_reboot dss/create_long_living_notebook_before_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the long-living notebook from 'tensorflow-cuda' can be restarted",
+      "estimated_duration": "5m",
+      "command": "timeout 10s run_dss.sh stop long-living-tensorflow-cuda && sleep 10 && timeout 5m run_dss.sh start long-living-tensorflow-cuda"
+    }
+  ]
 
 id: dss/create_new_notebook_using_pytorch
 category_id: dss-regress
@@ -122,6 +350,95 @@ _siblings: [
       "_summary": "Check that a new notebook can be created from 'tensorflow-cuda'",
       "estimated_duration": "15m",
       "command": "timeout 15m run_dss.sh create new-tensorflow-cuda --image tensorflow-cuda"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_pytorch",
+      "depends": "dss/status_mlflow_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'pytorch' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-pytorch-cpu --image pytorch"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_tensorflow",
+      "depends": "dss/status_mlflow_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'tensorflow' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-tensorflow-cpu --image tensorflow"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_pytorch-intel",
+      "depends": "dss/status_intel_gpu_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'pytorch-intel' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-pytorch-intel --image pytorch-intel"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_tensorflow-intel",
+      "depends": "dss/status_intel_gpu_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'tensorflow-intel' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-tensorflow-intel --image tensorflow-intel"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_pytorch-cuda",
+      "depends": "dss/status_nvidia_gpu_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'pytorch-cuda' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-pytorch-cuda --image pytorch-cuda"
+    },
+    {
+      "id": "dss/create_new_notebook_after_reboot_using_tensorflow-cuda",
+      "depends": "dss/status_nvidia_gpu_after_reboot",
+      "_summary": "Check that a new notebook can be created from 'tensorflow-cuda' after reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create new-after-reboot-tensorflow-cuda --image tensorflow-cuda"
+    }
+  ]
+
+id: dss/create_long_living_notebook_before_reboot_using_pytorch
+category_id: dss-regress
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_mlflow
+_summary: Check that a long-living notebook can be created from 'pytorch' before reboot
+flags: simple
+estimated_duration: 15m
+command: timeout 15m run_dss.sh create long-living-pytorch-cpu --image pytorch
+_siblings: [
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_tensorflow",
+      "depends": "dss/status_mlflow",
+      "_summary": "Check that a long-living notebook can be created from 'tensorflow' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-tensorflow-cpu --image tensorflow"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_pytorch-intel",
+      "depends": "dss/status_intel_gpu",
+      "_summary": "Check that a long-living notebook can be created from 'pytorch-intel' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-pytorch-intel --image pytorch-intel"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_tensorflow-intel",
+      "depends": "dss/status_intel_gpu",
+      "_summary": "Check that a long-living notebook can be created from 'tensorflow-intel' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-tensorflow-intel --image tensorflow-intel"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_pytorch-cuda",
+      "depends": "dss/status_nvidia_gpu",
+      "_summary": "Check that a long-living notebook can be created from 'pytorch-cuda' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-pytorch-cuda --image pytorch-cuda"
+    },
+    {
+      "id": "dss/create_long_living_notebook_before_reboot_using_tensorflow-cuda",
+      "depends": "dss/status_nvidia_gpu",
+      "_summary": "Check that a long-living notebook can be created from 'tensorflow-cuda' before reboot",
+      "estimated_duration": "15m",
+      "command": "timeout 15m run_dss.sh create long-living-tensorflow-cuda --image tensorflow-cuda"
     }
   ]
 
@@ -169,6 +486,132 @@ _siblings: [
       "_summary": "Check that the new notebook from 'tensorflow-cuda' can use acceleration",
       "estimated_duration": "1m",
       "command": "timeout 1m check_notebook.py new-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_pytorch",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch",
+      "_summary": "Check that the new notebook from 'pytorch' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-pytorch-cpu has_pytorch_available"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_tensorflow",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow",
+      "_summary": "Check that the new notebook from 'tensorflow' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-tensorflow-cpu has_tensorflow_available"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_pytorch-intel",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch-intel",
+      "_summary": "Check that the new notebook from 'pytorch-intel' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-pytorch-intel sees_intel_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_tensorflow-intel",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow-intel",
+      "_summary": "Check that the new notebook from 'tensorflow-intel' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-tensorflow-intel sees_intel_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_pytorch-cuda",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch-cuda",
+      "_summary": "Check that the new notebook from 'pytorch-cuda' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-pytorch-cuda sees_nvidia_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_new_notebook_after_reboot_of_tensorflow-cuda",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the new notebook from 'tensorflow-cuda' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py new-after-reboot-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_before_reboot_of_pytorch",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_pytorch",
+      "_summary": "Check that the long-living notebook from 'pytorch' can use accel. before reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-cpu has_pytorch_available"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_before_reboot_of_tensorflow",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_tensorflow",
+      "_summary": "Check that the long-living notebook from 'tensorflow' can use accel. before reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-cpu has_tensorflow_available"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_before_reboot_of_pytorch-intel",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_pytorch-intel",
+      "_summary": "Check that the long-living notebook from 'pytorch-intel' can use accel. before reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-intel sees_intel_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_before_reboot_of_tensorflow-intel",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_tensorflow-intel",
+      "_summary": "Check that the long-living notebook from 'tensorflow-intel' can use accel. before reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-intel sees_intel_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_before_reboot_of_pytorch-cuda",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_pytorch-cuda",
+      "_summary": "Check that the long-living notebook from 'pytorch-cuda' can use accel. before reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-cuda sees_nvidia_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_before_reboot_of_tensorflow-cuda",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the long-living notebook from 'tensorflow-cuda' can use accel. before reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_pytorch",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_pytorch",
+      "_summary": "Check that the long-living notebook from 'pytorch' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-cpu has_pytorch_available"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_tensorflow",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_tensorflow",
+      "_summary": "Check that the long-living notebook from 'tensorflow' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-cpu has_tensorflow_available"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_pytorch-intel",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_pytorch-intel",
+      "_summary": "Check that the long-living notebook from 'pytorch-intel' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-intel sees_intel_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_tensorflow-intel",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_tensorflow-intel",
+      "_summary": "Check that the long-living notebook from 'tensorflow-intel' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-intel sees_intel_gpu_in_tensorflow"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_pytorch-cuda",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_pytorch-cuda",
+      "_summary": "Check that the long-living notebook from 'pytorch-cuda' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-pytorch-cuda sees_nvidia_gpu_in_pytorch"
+    },
+    {
+      "id": "dss/verify_long_living_notebook_after_reboot_of_tensorflow-cuda",
+      "depends": "dss/restart_long_living_notebook_after_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the long-living notebook from 'tensorflow-cuda' can use accel. after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m check_notebook.py long-living-tensorflow-cuda sees_nvidia_gpu_in_tensorflow"
     }
   ]
 
@@ -216,5 +659,89 @@ _siblings: [
       "_summary": "Check that the new notebook from 'tensorflow-cuda' can be removed",
       "estimated_duration": "1m",
       "command": "timeout 1m run_dss.sh remove new-tensorflow-cuda"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_pytorch",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch",
+      "_summary": "Check that the new notebook from 'pytorch' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-pytorch-cpu"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_tensorflow",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow",
+      "_summary": "Check that the new notebook from 'tensorflow' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-tensorflow-cpu"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_pytorch-intel",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch-intel",
+      "_summary": "Check that the new notebook from 'pytorch-intel' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-pytorch-intel"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_tensorflow-intel",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow-intel",
+      "_summary": "Check that the new notebook from 'tensorflow-intel' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-tensorflow-intel"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_pytorch-cuda",
+      "depends": "dss/create_new_notebook_after_reboot_using_pytorch-cuda",
+      "_summary": "Check that the new notebook from 'pytorch-cuda' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-pytorch-cuda"
+    },
+    {
+      "id": "dss/remove_new_notebook_after_reboot_of_tensorflow-cuda",
+      "depends": "dss/create_new_notebook_after_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the new notebook from 'tensorflow-cuda' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove new-after-reboot-tensorflow-cuda"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_pytorch",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_pytorch",
+      "_summary": "Check that the long-living notebook from 'pytorch' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-pytorch-cpu"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_tensorflow",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_tensorflow",
+      "_summary": "Check that the long-living notebook from 'tensorflow' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-tensorflow-cpu"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_pytorch-intel",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_pytorch-intel",
+      "_summary": "Check that the long-living notebook from 'pytorch-intel' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-pytorch-intel"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_tensorflow-intel",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_tensorflow-intel",
+      "_summary": "Check that the long-living notebook from 'tensorflow-intel' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-tensorflow-intel"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_pytorch-cuda",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_pytorch-cuda",
+      "_summary": "Check that the long-living notebook from 'pytorch-cuda' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-pytorch-cuda"
+    },
+    {
+      "id": "dss/remove_long_living_notebook_after_reboot_of_tensorflow-cuda",
+      "depends": "dss/create_long_living_notebook_before_reboot_using_tensorflow-cuda",
+      "_summary": "Check that the long-living notebook from 'tensorflow-cuda' can be removed after reboot",
+      "estimated_duration": "1m",
+      "command": "timeout 1m run_dss.sh remove long-living-tensorflow-cuda"
     }
   ]

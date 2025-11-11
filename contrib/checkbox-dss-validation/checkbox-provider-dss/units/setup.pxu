@@ -49,6 +49,15 @@ command:
   sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
     apt-get install -y intel-gpu-tools
 
+id: setup_dss/install_package_python3-venv
+category_id: setup-dss-regress
+flags: simple
+_summary: Install Package python3-venv
+estimated_duration: 2m
+command:
+  sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
+    apt-get install -y python3-venv
+
 id: setup_dss/enable_microk8s_addons
 category_id: setup-dss-regress
 depends: setup_dss/install_snap_microk8s
@@ -194,3 +203,28 @@ command:
   timeout 45m k8s_gpu_setup.py \
     intel \
     "${SETUP_INTEL_GPU_PLUGIN_VERSION}"
+
+id: setup_dss/clone_and_setup_dss_integration_tests
+category_id: setup-dss-regress
+depends:
+  setup_dss/install_snap_data-science-stack
+  setup_dss/install_package_python3-venv
+flags: simple
+_summary: Clone and setup integration tests from DSS repo
+estimated_duration: 2m
+command:
+  set -e
+  DSS_REPO="/tmp/dss-repo"
+  if [ -d "$DSS_REPO" ]; then
+    echo "Warning: existing directory deleted at: $DSS_REPO"
+    rm -rf $DSS_REPO
+  fi
+  git clone https://github.com/canonical/data-science-stack.git $DSS_REPO
+  cd $DSS_REPO
+  echo "Latest commit in DSS repo:"
+  git log --name-status HEAD^..HEAD
+  if [ ! -d ".venv" ]; then
+    python3 -m venv .venv
+    .venv/bin/pip install tox
+  fi
+  .venv/bin/tox -e integration -- --collect-only -qq

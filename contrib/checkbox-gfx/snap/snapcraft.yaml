@@ -26,6 +26,9 @@ apps:
   configure:
     command-chain: [bin/wrapper_local]
     command: bin/configure
+  test-lvl-zero:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-lvl-zero
   test-vulkan:
     command-chain: [bin/wrapper_local]
     command: bin/test-vulkan
@@ -38,6 +41,9 @@ apps:
   test-opencl:
     command-chain: [bin/wrapper_local]
     command: bin/test-opencl
+  test-crucible:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-crucible
   run-agent:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper run-agent
@@ -46,12 +52,16 @@ apps:
   shell:
     command-chain: [bin/wrapper_local]
     command: bin/shell-wrapper
+  install-lvl-zero:
+    command: bin/install-lvl-zero
   install-vulkan:
     command: bin/install-vulkan
   install-opengl:
     command: bin/install-opengl
   install-opencl:
     command: bin/install-opencl
+  install-crucible:
+    command: bin/install-crucible
   remove:
     command: bin/remove
 

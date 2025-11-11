@@ -14,9 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+
 from io import StringIO
 from unittest import TestCase
-from unittest.mock import patch, MagicMock
 from textwrap import dedent
 
 try:
@@ -28,7 +29,13 @@ try:
 except ImportError:
     from pkg_resources import resource_filename
 
-from checkbox_support.parsers.udevadm import UdevadmParser, decode_id
+from checkbox_support.parsers.udevadm import (
+    UdevadmParser,
+    decode_id,
+    find_pkname_is_root_mountpoint,
+    is_readonly_partition,
+    is_small_partition,
+)
 from checkbox_support.parsers.udevadm import parse_udevadm_output
 
 
@@ -44,19 +51,19 @@ class UdevadmDataMixIn(object):
             return stream.read()
 
     def get_lsblk(self, name):
-        resource = "parsers/tests/udevadm_data/{}.lsblk".format(name)
+        resource = "parsers/tests/udevadm_data/{}.lsblk.json".format(name)
         filename = resource_filename("checkbox_support", resource)
         try:
-            with open(filename, "rt", encoding="UTF-8") as stream:
-                return stream.read()
+            with open(filename, "rt", encoding="UTF-8") as f:
+                data = json.load(f)
+                return data
         except (IOError, OSError):
             return None
 
 
-@patch("checkbox_support.parsers.udevadm.check_output", MagicMock())
 class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
-    def parse(self, name, with_lsblk=True, with_partitions=False):
+    def parse(self, name, with_lsblk=False, with_partitions=False):
         # Uncomment only for debugging purpose
         """
         attributes = ("path", "driver", "bus", "product_id", "vendor_id",
@@ -66,7 +73,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         for i,j in enumerate(devices):
             print(i, j.category, [getattr(j, a) for a in attributes])
         """
-        lsblk = ""
+        lsblk = {}
         if with_lsblk:
             lsblk = self.get_lsblk(name)
         return parse_udevadm_output(
@@ -107,6 +114,125 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(devices[0].category, "VIDEO")
+
+    def test_nvme_name_detection_without_devname(self):
+        """Test NVMe device name extraction from DEVPATH when DEVNAME is missing."""
+
+        # Test case 1: Virtual NVMe device (nvmeXcYnZ pattern)
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
+                E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme0c0n1")
+        self.assertEqual(devices[0].category, "DISK")
+
+        # Test case 2: Standard namespace device (nvmeXnY pattern)
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme0/nvme0n1
+                E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme0/nvme0n1
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme0n1")
+        self.assertEqual(devices[0].category, "DISK")
+
+        # Test case 3: Controller device (nvmeX pattern - should fallback to nvmeXn1)
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme0
+                E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme0
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme0n1")
+        self.assertEqual(devices[0].category, "DISK")
+
+        # Test case 4: Multiple digit numbers (nvme10c5n2)
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/virtual/nvme-subsystem/nvme-subsys10/nvme10c5n2
+                E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys10/nvme10c5n2
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme10c5n2")
+        self.assertEqual(devices[0].category, "DISK")
+
+        # Test case 5: Controller device with multi-digit number (nvme15 -> nvme15n1)
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme15
+                E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme15
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme15n1")
+        self.assertEqual(devices[0].category, "DISK")
+
+        # Test case 6: NVMe device WITH DEVNAME should use DEVNAME
+        stream = StringIO(
+            dedent(
+                """
+                P: /devices/pci0000:00/0000:00:1d.0/0000:07:00.0/nvme/nvme1/nvme1n1
+                N: nvme1n1
+                E: DEVNAME=/dev/nvme1n1
+                E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/0000:07:00.0/nvme/nvme1/nvme1n1
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """
+            )
+        )
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme1n1")
+        self.assertEqual(devices[0].category, "DISK")
 
     def test_openfirmware_network(self):
         stream = StringIO(
@@ -660,7 +786,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "DISK"), 0)
 
     def test_EMMC_AS_MAIN_DRIVE(self):
-        devices = self.parse("EMMC_AS_MAIN_DRIVE")
+        devices = self.parse("EMMC_AS_MAIN_DRIVE", with_lsblk=True)
         self.assertEqual(len(devices), 70)
         # Check that the eMMC drive is reported as a DISK
         self.assertEqual(self.count(devices, "VIDEO"), 1)
@@ -679,7 +805,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "DISK"), 1)
 
     def test_EMMC_INTEL_NUC_SNAPPY(self):
-        devices = self.parse("INTEL_NUC_SNAPPY")
+        devices = self.parse("INTEL_NUC_SNAPPY", with_lsblk=True)
         self.assertEqual(len(devices), 78)
         # Check that the eMMC drive is reported as a DISK
         self.assertEqual(self.count(devices, "DISK"), 1)
@@ -962,7 +1088,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_CARA_T(self):
         # A Snappy system with CANBus
-        devices = self.parse("CARA_T")
+        devices = self.parse("CARA_T", with_lsblk=True)
         self.assertEqual(len(devices), 79)
         self.assertEqual(self.count(devices, "VIDEO"), 0)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
@@ -981,7 +1107,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_CARA_T_SOCKETCAN(self):
         # A Snappy system with a SocketCAN device
-        devices = self.parse("CARA_T_SOCKETCAN")
+        devices = self.parse("CARA_T_SOCKETCAN", with_lsblk=True)
         self.assertEqual(len(devices), 79)
         self.assertEqual(self.count(devices, "VIDEO"), 0)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
@@ -1032,7 +1158,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "NETWORK"), 8)
 
     def test_VESTA_300(self):
-        devices = self.parse("VESTA_300")
+        devices = self.parse("VESTA_300", with_lsblk=True)
         self.assertEqual(len(devices), 15)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
@@ -1076,6 +1202,68 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("ELEMENT_BIOSCIENCES_INSTRUMENT")
         self.assertEqual(len(devices), 92)
         self.assertEqual(self.count(devices, "WATCHDOG"), 1)
+
+    def test_DISK_SAMSUNG_KIOXIA(self):
+        """
+        This test verifies that the NVMe name detection correctly handles
+        both standard nvmeXnY pattern and virtual nvmeXcYnZ pattern.
+        """
+        devices = self.parse("DISK_SAMSUNG_KIOXIA")
+        # Count total NVMe disks (2 standard + 8 virtual = 10)
+        nvme_disks = [
+            d
+            for d in devices
+            if d.category == "DISK" and d.name and d.name.startswith("nvme")
+        ]
+        self.assertEqual(
+            len(nvme_disks),
+            10,
+            "Expected 10 NVMe disks, found {}".format(len(nvme_disks)),
+        )
+
+        # Verify standard NVMe disk names are correctly detected
+        standard_nvme_names = [d.name for d in nvme_disks if "c" not in d.name]
+        self.assertIn(
+            "nvme0n1",
+            standard_nvme_names,
+            "Standard Samsung disk nvme0n1 should be detected",
+        )
+        self.assertIn(
+            "nvme1n1",
+            standard_nvme_names,
+            "Standard Samsung disk nvme1n1 should be detected",
+        )
+
+        # Verify virtual NVMe disk names are correctly detected with controller notation
+        virtual_nvme_names = [d.name for d in nvme_disks if "c" in d.name]
+        expected_virtual_names = [
+            "nvme2c2n1",
+            "nvme3c3n1",
+            "nvme4c4n1",
+            "nvme5c5n1",
+            "nvme6c6n1",
+            "nvme7c7n1",
+            "nvme8c8n1",
+            "nvme9c9n1",
+        ]
+        for expected_name in expected_virtual_names:
+            self.assertIn(
+                expected_name,
+                virtual_nvme_names,
+                "Virtual Kioxia disk {} should be detected".format(
+                    expected_name
+                ),
+            )
+
+        # Verify we have exactly 2 standard and 8 virtual NVMe disks
+        self.assertEqual(
+            len(standard_nvme_names), 2, "Should have 2 standard NVMe disks"
+        )
+        self.assertEqual(
+            len(virtual_nvme_names),
+            8,
+            "Should have 8 virtual NVMe disks with controller notation",
+        )
 
     def test_SHUTTLE_DH170_WITH_USB_DISK(self):
         """DH170 with USB stick comparing pre and post reboot."""
@@ -1177,12 +1365,16 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "CDROM"), 0)
 
     def test_CRYPTO_FDE_UC20(self):
-        devices = self.parse("CRYPTO_FDE", with_partitions=True)
+        devices = self.parse(
+            "CRYPTO_FDE", with_lsblk=True, with_partitions=True
+        )
         self.assertEqual(len(devices), 93)
         self.assertEqual(self.count(devices, "PARTITION"), 1)
 
     def test_XILINX_KR260(self):
-        devices = self.parse("XILINX_KR260", with_partitions=True)
+        devices = self.parse(
+            "XILINX_KR260", with_lsblk=True, with_partitions=True
+        )
         self.assertEqual(self.count(devices, "DISK"), 18)
         self.assertEqual(self.count(devices, "CARDREADER"), 1)
 
@@ -1197,6 +1389,25 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         """
         devices = self.parse("two_dms_one_with_ubuntu_save")
         self.assertEqual(len(devices), 1)
+
+    def test_ignore_recovery_partitions(self):
+        """
+        This test makes sure Recovery disks/USB drives are ignored. These
+        recovery media usually use a Joliet (ISO9660) file system that is
+        read-only, or leave a very small sized partition that should be ignored,
+        otherwise the removable storage test tries to write on these and fails.
+        """
+        devices = self.parse(
+            "HP_ELITEBOOK_835_13_INCH_G10_RECOVERY_USB_CONNECTED",
+            with_lsblk=True,
+            with_partitions=True,
+        )
+        # When recorded, this device had a Recovery USB disk connected to it
+        # with several partitions, but only 1 was fit to run the removable
+        # storage test (the others were either readonly or too small, so they
+        # should be ignored)
+        self.assertEqual(self.count(devices, "PARTITION"), 1)
+        self.assertEqual(self.count(devices, "DISK"), 1)
 
     def test_VRAID_machine(self):
         """
@@ -1297,3 +1508,36 @@ class TestDecodeId(TestCase):
 
     def test_strip_whitespace(self):
         self.assertEqual("USB 2.0", decode_id("  USB 2.0  "))
+
+
+class TestLsblkFunctions(TestCase, UdevadmDataMixIn):
+    def setUp(self):
+        self.recovery_usb_data = self.get_lsblk(
+            "HP_ELITEBOOK_835_13_INCH_G10_RECOVERY_USB_CONNECTED"
+        )
+
+    def test_find_pkname_not_root_mountpoint(self):
+        self.assertFalse(
+            find_pkname_is_root_mountpoint("sda", self.recovery_usb_data)
+        )
+
+    def test_find_pkname_root_mountpoint(self):
+        self.assertTrue(
+            find_pkname_is_root_mountpoint("nvme0n1", self.recovery_usb_data)
+        )
+
+    def test_is_readonly_partition(self):
+        self.assertTrue(is_readonly_partition("sda1", self.recovery_usb_data))
+
+    def test_is_readwrite_partition(self):
+        self.assertFalse(
+            is_readonly_partition("nvme0n1p3", self.recovery_usb_data)
+        )
+
+    def test_is_small_partition(self):
+        self.assertTrue(is_small_partition("sda3", self.recovery_usb_data))
+
+    def test_is_big_partition(self):
+        self.assertFalse(
+            is_small_partition("nvme0n1p3", self.recovery_usb_data)
+        )

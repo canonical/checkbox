@@ -3,6 +3,7 @@
 # Copyright 2013-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # PEP440 version pattern:
 # Copyright (c) Donald Stufft and individual contributors.
@@ -27,6 +28,8 @@ import collections
 import gettext
 import logging
 import os
+import sys
+from pathlib import Path
 
 from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
@@ -1072,7 +1075,30 @@ class Provider1(IProvider1):
         return self.base_dir
 
     @property
-    def extra_PYTHONPATH(self):
+    def custom_frontend_provider(self) -> bool:
+        """
+        Returns True if the provider is installed in a custom frontend
+
+        Custom frontend providers are installed in the custom frontend and
+        provided to the runtime via a content interface that mounts them in
+        /snap/runtime_name/current/custom_frontends/custom_frontendX?
+        (where the first that gets connected is custom_frontend and the others
+         are custom_frontend1..N)
+        """
+        return bool(os.getenv("SNAP")) and "custom_frontends" in self.base_dir
+
+    def custom_frontend_root(self) -> Path:
+        if not self.custom_frontend_provider:
+            raise ValueError("Provider is not a custom frontend")
+        return Path(self.base_dir).parent.parent.resolve()
+
+    def paths_to_custom_frontend_path(self, paths) -> list:
+        frontend_root = self.custom_frontend_root()
+        frontend_paths = [frontend_root / path for path in paths]
+        return [str(path) for path in frontend_paths if path.exists()]
+
+    @property
+    def extra_PYTHONPATH(self) -> list:
         """
         additional entry for PYTHONPATH, if needed.
 
@@ -1082,7 +1108,60 @@ class Provider1(IProvider1):
         .. note::
             The result may be None
         """
-        return None
+        if not self.custom_frontend_provider:
+            return None
+        python_name = "python{}.{}".format(
+            sys.version_info.major, sys.version_info.minor
+        )
+        paths = [
+            "lib/{}/site-packages".format(python_name),
+            "lib/{}/dist-packages".format(python_name),
+            "usr/lib/{}/site-packages".format(python_name),
+            "usr/lib/{}/lib-dynload".format(python_name),
+            "usr/lib/python3/dist-packages",
+            "usr/local/lib/{}/dist-packages".format(python_name),
+        ]
+        return self.paths_to_custom_frontend_path(paths)
+
+    @property
+    def extra_PATH(self) -> list:
+        """
+        Additional PATH entries necessary to make tests in this provider work
+
+        This includes all PATH entries that are necessary beside bin/ given
+        that it is populated (merged with the others) in the nest
+        """
+        if not self.custom_frontend_provider:
+            return []
+        paths = [
+            # Don't put a / in front or you will point to the root one
+            # as Path("/a/b") / "/a" == Path("/a")
+            "usr/local/bin",
+            "usr/local/sbin",
+            "usr/bin",
+            "usr/sbin",
+            "bin",
+            "sbin",
+        ]
+        return self.paths_to_custom_frontend_path(paths)
+
+    @property
+    def extra_LD_LIBRARY_PATH(self):
+        """
+        Additional LD_LIBRARY_PATH necessary to run tests in this provider
+        """
+        if not self.custom_frontend_provider:
+            return []
+        paths = [
+            # Don't put a / in front or you will point to the root one
+            # as Path("/a/b") / "/a" == Path("/a")
+            "usr/lib",
+            "usr/lib64",
+            "lib",
+            "lib64",
+        ]
+
+        return self.paths_to_custom_frontend_path(paths)
 
     @property
     def secure(self):
@@ -1720,6 +1799,35 @@ class Provider1PlugIn(PlugIn):
         )
 
 
+def get_secure_custom_frontend_PROVIDERPATH_list():
+    """
+    Additional PROVIDERPATH for custom-frontend interface
+
+    Custom frontend that adopted the custom-frontend interface provide their
+    root as content. From this root the installed providers are always at
+    $custom_frontend_root/providers/
+    """
+    snap_path = os.getenv("SNAP")
+    if not snap_path:
+        return []
+    custom_frontends_path = Path(snap_path) / "custom_frontends"
+    if not custom_frontends_path.exists():
+        return []
+    providers_paths = []
+    for custom_frontend_root in custom_frontends_path.iterdir():
+        providers_path = custom_frontend_root / "providers"
+        if not providers_path.exists():
+            logger.error(
+                "Custom frontend must have `providers` directory in root. "
+                "Invalid custom frontend found: {}".format(
+                    custom_frontend_root
+                )
+            )
+            continue
+        providers_paths += providers_path.iterdir()
+    return list(map(str, providers_paths))
+
+
 def get_secure_PROVIDERPATH_list():
     """
     Computes the secure value of PROVIDERPATH
@@ -1739,7 +1847,7 @@ def get_secure_PROVIDERPATH_list():
             return [
                 os.path.join(snap_providers_path, provider)
                 for provider in os.listdir(snap_providers_path)
-            ]
+            ] + get_secure_custom_frontend_PROVIDERPATH_list()
     else:
         return [
             "/usr/local/share/plainbox-providers-1",

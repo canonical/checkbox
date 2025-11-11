@@ -56,6 +56,30 @@ slots:
     read:
       - /
 
+plugs:
+  custom-frontend:
+    interface: content
+    content: custom-frontend
+    target: $SNAP/custom_frontends/custom_frontend
+
+apps:
+  checkbox:
+    command: bin/checkbox-cli
+    plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
+      gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
+      system-observe, tpm, udisks2, account-control, accounts-service,
+      login-session-control, login-session-observe]
+    environment:
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/lib64/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+  agent:
+    command: bin/checkbox-cli run-agent
+    daemon: simple
+    restart-condition: always
+    restart-delay: 1s
+    plugs: *standard
+    environment:
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/lib64/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+
 package-repositories:
   - type: apt
     ppa: checkbox-dev/stable

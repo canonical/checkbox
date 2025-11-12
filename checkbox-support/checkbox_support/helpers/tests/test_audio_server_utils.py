@@ -272,8 +272,16 @@ class PipewireUtilsTests(unittest.TestCase):
         self.pipewire.set_volume(node, 0.8)
 
         mock_check_output.assert_called_once_with(
-            ["wpctl", "set-volume", "123", "1.0"]
+            ["wpctl", "set-volume", "123", "0.8"]
         )
+
+    def test_set_volume_invalid(self):
+        """Test volume in range"""
+        with self.assertRaises(AssertionError):
+            self.pipewire.set_volume(None, 1.2)
+
+        with self.assertRaises(AssertionError):
+            self.pipewire.set_volume(None, -0.1)
 
     @patch(
         "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
@@ -462,15 +470,12 @@ class PulseaudioUtilsTests(unittest.TestCase):
             ["pactl", "set-sink-volume", "test_sink", "50%"]
         )
 
-    @patch(
-        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
-    )
-    def test_set_volume_invalid(self, mock_check_output):
-        """Test setting invalid volume raises ValueError."""
+    def test_set_volume_invalid(self):
+        """Test setting invalid volume raises AssertionError."""
         node = Node("0", None, "test_sink", "0", "Test Sink")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AssertionError):
             self.pulseaudio.set_volume(node, 1.5)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AssertionError):
             self.pulseaudio.set_volume(node, -0.1)

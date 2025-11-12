@@ -87,7 +87,9 @@ class AudioServerUtils:
             elif server == AudioServer.PULSEAUDIO:
                 cls = PulseaudioUtils
         else:
-            logging.warning("Avoid creating an AudioServer sub-class direcly.")
+            logging.warning(
+                "Avoid creating an AudioServer sub-class directly."
+            )
         return super().__new__(cls)
 
     @staticmethod
@@ -158,7 +160,8 @@ class PipewireUtils(AudioServerUtils):
 
         Device: "alsa_card.pci-0000_00_1f.3"
         ├── Profile: "output:analog-stereo" (index: 0)
-        │   └── Node: "alsa_output.pci-0000_00_1f.3.analog-stereo" (Sink)
+        │   ├── Node: "alsa_output.pci-0000_00_1f.3.analog-stereo" (Sink)
+        │   └── Node: "alsa_output.pci-0000_00_1f.4.analog-stereo" (Sink)
         ├── Profile: "output:hdmi-stereo" (index: 1)
         │   └── Node: "alsa_output.pci-0000_00_1f.3.hdmi-stereo" (Sink)
         └── Profile: "input:analog-stereo" (index: 2)
@@ -167,6 +170,8 @@ class PipewireUtils(AudioServerUtils):
 
     def _load_pw_dump(self):
         exc = RuntimeError
+
+        # Multiple attempts because it might be unstable after switching card
         for _ in range(3):
             try:
                 try:
@@ -347,18 +352,19 @@ class PipewireUtils(AudioServerUtils):
     def set_sink(self, sink: Node) -> None:
         """Set sink as default. Assumes node is already active."""
         logging.info("Setting sink %s", sink.name)
-        # Profile should already be active from iteration, just set as default
+        # Supposing the card profile is already active by the iterator
         self._set_default_audio_node(sink.id)
 
     def set_source(self, source: Node) -> None:
         """Set source as default. Assumes node is already active."""
         logging.info("Setting source %s", source.name)
-        # Profile should already be active from iteration, just set as default
+        # Supposing the card profile is already active by the iterator
         self._set_default_audio_node(source.id)
 
     def set_volume(self, node: Node, volume: float) -> None:
+        assert 0 <= volume <= 1.0, "Volume must be in range [0,1]"
         try:
-            cmd = ["wpctl", "set-volume", str(node.id), "1.0"]
+            cmd = ["wpctl", "set-volume", str(node.id), str(volume)]
             logging.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
@@ -461,8 +467,7 @@ class PulseaudioUtils(AudioServerUtils):
 
     def set_volume(self, node: Node, volume: float) -> None:
         """Set volume for the specified node (sink or source)."""
-        if not 0.0 <= volume <= 1.0:
-            raise ValueError("Volume must be between 0.0 and 1.0")
+        assert 0 <= volume <= 1.0, "Volume must be in range [0,1]"
 
         # Convert to percentage
         volume_percent = int(volume * 100)

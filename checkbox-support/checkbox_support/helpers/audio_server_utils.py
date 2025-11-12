@@ -348,19 +348,60 @@ class PipewireUtils(AudioServerUtils):
         return self._iter_nodes_of_type(NodeType.SOURCE)
 
     def set_sink(self, sink: Node) -> None:
-        """Set sink as default. Assumes node is already active."""
-        logging.info("Setting sink %s", sink.name)
-        # Supposing the card profile is already active by the iterator
-        self._set_default_audio_node(sink.id)
+        """
+        Set sink as default output.
+
+        Important: This method assumes the node's profile is already active
+        (e.g., the node was obtained from iter_sinks()). If you need to set
+        a sink obtained from list_sinks(), call iter_sinks() to activate it
+        first, or activate the profile manually.
+
+        Args:
+            sink: The sink node to set as default
+
+        Raises:
+            RuntimeError: If the node cannot be set as default
+        """
+        logger.info("Setting sink %s", sink.name)
+        try:
+            self._set_default_audio_node(sink.id)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                "Failed to set sink '{}' (id: {}). Node may not be active. "
+                "Ensure the node was obtained from iter_sinks().".format(
+                    sink.name, sink.id
+                )
+            ) from e
 
     def set_source(self, source: Node) -> None:
-        """Set source as default. Assumes node is already active."""
-        logging.info("Setting source %s", source.name)
-        # Supposing the card profile is already active by the iterator
-        self._set_default_audio_node(source.id)
+        """
+        Set source as default input.
+
+        Important: This method assumes the node's profile is already active
+        (e.g., the node was obtained from iter_sources()). If you need to set
+        a source obtained from list_sources(), call iter_sources() to activate
+        it first, or activate the profile manually.
+
+        Args:
+            source: The source node to set as default
+
+        Raises:
+            RuntimeError: If the node cannot be set as default
+        """
+        logger.info("Setting source %s", source.name)
+        try:
+            self._set_default_audio_node(source.id)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                "Failed to set source '{}' (id: {}). Node may not be active. "
+                "Ensure the node was obtained from iter_sources().".format(
+                    source.name, source.id
+                )
+            ) from e
 
     def set_volume(self, node: Node, volume: float) -> None:
-        assert 0 <= volume <= 1.0, "Volume must be in range [0,1]"
+        if not 0 <= volume <= 1.0:
+            raise ValueError("Volume must be in range [0,1]")
         try:
             cmd = ["wpctl", "set-volume", str(node.id), str(volume)]
             logger.debug("[shell] %s", " ".join(cmd))
@@ -440,32 +481,57 @@ class PulseaudioUtils(AudioServerUtils):
             yield node
 
     def set_sink(self, sink: Node) -> None:
-        """Set the specified sink as default output."""
-        logging.info("Setting PulseAudio sink %s", sink.name)
+        """
+        Set the specified sink as default output.
+
+        For PulseAudio, nodes from list_sinks() or iter_sinks() are both
+        ready to use without additional activation.
+
+        Args:
+            sink: The sink node to set as default
+
+        Raises:
+            RuntimeError: If the node cannot be set as default
+        """
+        logger.info("Setting PulseAudio sink %s", sink.name)
         try:
             cmd = ["pactl", "set-default-sink", sink.name]
-            logging.debug("[shell] %s", " ".join(cmd))
+            logger.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
-                "Failed to set sink {} as default: {}".format(sink.name, e)
-            )
+                "Failed to set sink '{}' as default: {}".format(sink.name, e)
+            ) from e
 
     def set_source(self, source: Node) -> None:
-        """Set the specified source as default input."""
-        logging.info("Setting PulseAudio source %s", source.name)
+        """
+        Set the specified source as default input.
+
+        For PulseAudio, nodes from list_sources() or iter_sources() are both
+        ready to use without additional activation.
+
+        Args:
+            source: The source node to set as default
+
+        Raises:
+            RuntimeError: If the node cannot be set as default
+        """
+        logger.info("Setting PulseAudio source %s", source.name)
         try:
             cmd = ["pactl", "set-default-source", source.name]
-            logging.debug("[shell] %s", " ".join(cmd))
+            logger.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
-                "Failed to set source {} as default: {}".format(source.name, e)
-            )
+                "Failed to set source '{}' as default: {}".format(
+                    source.name, e
+                )
+            ) from e
 
     def set_volume(self, node: Node, volume: float) -> None:
         """Set volume for the specified node (sink or source)."""
-        assert 0 <= volume <= 1.0, "Volume must be in range [0,1]"
+        if not 0 <= volume <= 1.0:
+            raise ValueError("Volume must be in range [0,1]")
 
         # Convert to percentage
         volume_percent = int(volume * 100)

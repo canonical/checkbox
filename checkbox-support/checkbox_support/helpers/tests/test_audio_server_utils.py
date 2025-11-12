@@ -276,12 +276,14 @@ class PipewireUtilsTests(unittest.TestCase):
         )
 
     def test_set_volume_invalid(self):
-        """Test volume in range"""
-        with self.assertRaises(AssertionError):
-            self.pipewire.set_volume(None, 1.2)
+        """Test volume validation raises ValueError."""
+        node = Node("dev1", "prof1", "sink1", "123", "Sink 1")
 
-        with self.assertRaises(AssertionError):
-            self.pipewire.set_volume(None, -0.1)
+        with self.assertRaises(ValueError):
+            self.pipewire.set_volume(node, 1.2)
+
+        with self.assertRaises(ValueError):
+            self.pipewire.set_volume(node, -0.1)
 
     @patch(
         "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
@@ -471,11 +473,11 @@ class PulseaudioUtilsTests(unittest.TestCase):
         )
 
     def test_set_volume_invalid(self):
-        """Test setting invalid volume raises AssertionError."""
+        """Test setting invalid volume raises ValueError."""
         node = Node("0", None, "test_sink", "0", "Test Sink")
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             self.pulseaudio.set_volume(node, 1.5)
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             self.pulseaudio.set_volume(node, -0.1)

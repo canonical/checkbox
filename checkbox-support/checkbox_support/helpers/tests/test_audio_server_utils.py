@@ -252,6 +252,22 @@ class PipewireUtilsTests(unittest.TestCase):
     @patch(
         "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
     )
+    def test_set_sink_error(self, mock_check_output):
+        """Test setting a sink raises RuntimeError on failure."""
+        mock_check_output.side_effect = subprocess.CalledProcessError(
+            1, "wpctl"
+        )
+        node = Node("dev1", "prof1", "sink1", "123", "Sink 1")
+
+        with self.assertRaises(RuntimeError) as cm:
+            self.pipewire.set_sink(node)
+
+        self.assertIn("sink1", str(cm.exception))
+        self.assertIn("123", str(cm.exception))
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_source(self, mock_check_output):
         """Test setting a source as default."""
         node = Node("dev1", "prof1", "source1", "456", "Source 1")
@@ -261,6 +277,22 @@ class PipewireUtilsTests(unittest.TestCase):
         mock_check_output.assert_called_once_with(
             ["wpctl", "set-default", "456"]
         )
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_set_source_error(self, mock_check_output):
+        """Test setting a source raises RuntimeError on failure."""
+        mock_check_output.side_effect = subprocess.CalledProcessError(
+            1, "wpctl"
+        )
+        node = Node("dev1", "prof1", "source1", "456", "Source 1")
+
+        with self.assertRaises(RuntimeError) as cm:
+            self.pipewire.set_source(node)
+
+        self.assertIn("source1", str(cm.exception))
+        self.assertIn("456", str(cm.exception))
 
     @patch(
         "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
@@ -472,6 +504,19 @@ class PulseaudioUtilsTests(unittest.TestCase):
         mock_check_output.assert_called_once_with(
             ["pactl", "set-default-source", "test_source"]
         )
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_set_source_error(self, mock_check_output):
+        """Test setting a source raises RuntimeError on error."""
+        mock_check_output.side_effect = subprocess.CalledProcessError(
+            1, "pactl"
+        )
+        node = Node("0", None, "test_source", "0", "Test Source")
+
+        with self.assertRaises(RuntimeError):
+            self.pulseaudio.set_source(node)
 
     @patch(
         "checkbox_support.helpers.audio_server_utils.subprocess.check_output"

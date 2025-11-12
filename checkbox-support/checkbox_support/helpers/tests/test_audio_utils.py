@@ -34,34 +34,34 @@ class NodeTests(unittest.TestCase):
 class AudioUtilsTests(unittest.TestCase):
     """Test cases for the AudioUtils factory class."""
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_get_server_pipewire(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_get_server_pipewire(self, mock_check_output):
         """Test detection of PipeWire audio server."""
 
         def systemctl(*args, **kwargs) -> bool:
             if "pipewire" not in args[0]:
                 raise subprocess.CalledProcessError(1, "")
 
-        mock_check_call.side_effect = systemctl
+        mock_check_output.side_effect = systemctl
         server = AudioUtils.get_server()
         self.assertEqual(server, AudioServer.PIPEWIRE)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_get_server_pulseaudio(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_get_server_pulseaudio(self, mock_check_output):
         """Test detection of PulseAudio audio server."""
 
         def systemctl(*args, **kwargs) -> bool:
             if "pulseaudio" not in args[0]:
                 raise subprocess.CalledProcessError(1, "")
 
-        mock_check_call.side_effect = systemctl
+        mock_check_output.side_effect = systemctl
         server = AudioUtils.get_server()
         self.assertEqual(server, AudioServer.PULSEAUDIO)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_get_server_none(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_get_server_none(self, mock_check_output):
         """Test OSError when no audio server is running."""
-        mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
+        mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
         with self.assertRaises(OSError):
             AudioUtils.get_server()
 
@@ -211,52 +211,52 @@ class PipewireUtilsTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], node1)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_sink(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_sink(self, mock_check_output):
         """Test setting a sink as default."""
         node = Node("dev1", "prof1", "sink1", "123", "Sink 1")
 
         self.pipewire.set_sink(node)
 
-        mock_check_call.assert_called_once_with(
+        mock_check_output.assert_called_once_with(
             ["wpctl", "set-default", "123"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_source(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_source(self, mock_check_output):
         """Test setting a source as default."""
         node = Node("dev1", "prof1", "source1", "456", "Source 1")
 
         self.pipewire.set_source(node)
 
-        mock_check_call.assert_called_once_with(
+        mock_check_output.assert_called_once_with(
             ["wpctl", "set-default", "456"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_volume(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_volume(self, mock_check_output):
         """Test setting volume on a node."""
         node = Node("dev1", "prof1", "sink1", "123", "Sink 1")
 
         self.pipewire.set_volume(node, 0.8)
 
-        mock_check_call.assert_called_once_with(
+        mock_check_output.assert_called_once_with(
             ["wpctl", "set-volume", "123", "1.0"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_card_profile(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_card_profile(self, mock_check_output):
         """Test setting card profile."""
         self.pipewire._set_card_profile("42", "5")
 
-        mock_check_call.assert_called_once_with(
+        mock_check_output.assert_called_once_with(
             ["pw-cli", "s", "42", "Profile", "{ index: 5 }"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_card_profile_error(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_card_profile_error(self, mock_check_output):
         """Test setting card profile raises on error."""
-        mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
+        mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
 
         with self.assertRaises(RuntimeError):
             self.pipewire._set_card_profile("42", "5")
@@ -328,50 +328,50 @@ class PulseaudioUtilsTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], node1)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_sink(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_sink(self, mock_check_output):
         """Test setting a sink as default."""
         node = Node("0", None, "test_sink", "0", "Test Sink")
 
         self.pulseaudio.set_sink(node)
 
-        mock_check_call.assert_called_once_with(
+        mock_check_output.assert_called_once_with(
             ["pactl", "set-default-sink", "test_sink"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_sink_error(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_sink_error(self, mock_check_output):
         """Test setting a sink raises on error."""
-        mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
+        mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
         node = Node("0", None, "test_sink", "0", "Test Sink")
 
         with self.assertRaises(RuntimeError):
             self.pulseaudio.set_sink(node)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_source(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_source(self, mock_check_output):
         """Test setting a source as default."""
         node = Node("0", None, "test_source", "0", "Test Source")
 
         self.pulseaudio.set_source(node)
 
-        mock_check_call.assert_called_once_with(
+        mock_check_output.assert_called_once_with(
             ["pactl", "set-default-source", "test_source"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_volume_sink(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_volume_sink(self, mock_check_output):
         """Test setting volume on a sink."""
         node = Node("0", None, "test_sink", "0", "Test Sink")
 
         self.pulseaudio.set_volume(node, 0.5)
 
-        mock_check_call.assert_called_once_with(
+        mock_check_output.assert_called_once_with(
             ["pactl", "set-sink-volume", "test_sink", "50%"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
-    def test_set_volume_invalid(self, mock_check_call):
+    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    def test_set_volume_invalid(self, mock_check_output):
         """Test setting invalid volume raises ValueError."""
         node = Node("0", None, "test_sink", "0", "Test Sink")
 

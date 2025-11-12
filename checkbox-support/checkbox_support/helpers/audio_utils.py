@@ -88,7 +88,9 @@ class AudioUtils:
         for server in AudioServer:
             try:
                 name = server.name.lower()
-                subprocess.check_call(["systemctl", "--user", "status", name])
+                subprocess.check_output(
+                    ["systemctl", "--user", "status", name]
+                )
                 return server
             except subprocess.CalledProcessError:
                 continue
@@ -304,7 +306,7 @@ class PipewireUtils(AudioUtils):
                 "{{ index: {} }}".format(profile_id),
             ]
             logging.debug("[shell] %s", " ".join(cmd))
-            subprocess.check_call(cmd)
+            subprocess.check_output(cmd)
         except subprocess.CalledProcessError:
             error = "Cannot set profile '{}' on device '{}'".format(
                 profile_id, device_id
@@ -314,7 +316,7 @@ class PipewireUtils(AudioUtils):
     def _set_default_audio_node(self, node_id: str, node_type: str) -> None:
         cmd = ["wpctl", "set-default", node_id]
         logging.debug("[shell] %s", " ".join(cmd))
-        subprocess.check_call(cmd)
+        subprocess.check_output(cmd)
 
     def _set_node_of_type(self, node: Node, target: str) -> None:
         self._set_card_profile(node.device_id, node.profile_id)
@@ -381,7 +383,7 @@ class PipewireUtils(AudioUtils):
         try:
             cmd = ["wpctl", "set-volume", str(node.id), "1.0"]
             logging.debug("[shell] %s", " ".join(cmd))
-            subprocess.check_call(cmd)
+            subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 "Cannot set volume of {} at {}".format(node.name, volume)
@@ -462,7 +464,7 @@ class PulseaudioUtils(AudioUtils):
         try:
             cmd = ["pactl", "set-default-sink", sink.name]
             logging.debug("[shell] %s", " ".join(cmd))
-            subprocess.check_call(cmd)
+            subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 "Failed to set sink {} as default: {}".format(sink.name, e)
@@ -474,7 +476,7 @@ class PulseaudioUtils(AudioUtils):
         try:
             cmd = ["pactl", "set-default-source", source.name]
             logging.debug("[shell] %s", " ".join(cmd))
-            subprocess.check_call(cmd)
+            subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 "Failed to set source {} as default: {}".format(source.name, e)
@@ -498,7 +500,7 @@ class PulseaudioUtils(AudioUtils):
                     "{}%".format(volume_percent),
                 ]
                 logging.debug("[shell] %s", " ".join(cmd))
-                subprocess.check_call(cmd)
+                subprocess.check_output(cmd)
                 return
             except subprocess.CalledProcessError:
                 # Try with set-source-volume
@@ -510,7 +512,7 @@ class PulseaudioUtils(AudioUtils):
                         "{}%".format(volume_percent),
                     ]
                     logging.debug("[shell] %s", " ".join(cmd))
-                    subprocess.check_call(cmd)
+                    subprocess.check_output(cmd)
                     return
                 except subprocess.CalledProcessError:
                     continue

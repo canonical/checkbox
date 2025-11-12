@@ -91,7 +91,9 @@ class PipewireUtilsTests(unittest.TestCase):
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
     def test_load_pw_dump_success(self, mock_check_output):
         """Test successful pw-dump load."""
-        mock_check_output.return_value = b'[{"id": 1, "type": "test"}]'
+        mock_result = Mock()
+        mock_result.decode = Mock(return_value='[{"id": 1, "type": "test"}]')
+        mock_check_output.return_value = mock_result
         result = self.pipewire._load_pw_dump()
         self.assertEqual(result, [{"id": 1, "type": "test"}])
 
@@ -99,10 +101,12 @@ class PipewireUtilsTests(unittest.TestCase):
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
     def test_load_pw_dump_retry(self, mock_check_output):
         """Test pw-dump retry on failure."""
+        success_mock = Mock()
+        success_mock.decode = Mock(return_value='[{"id": 2, "type": "test3"}]')
         mock_check_output.side_effect = [
             subprocess.CalledProcessError(1, ""),
             json.JSONDecodeError("", "", 0),
-            b'[{"id": 2, "type": "test3"}]',
+            success_mock,
         ]
         result = self.pipewire._load_pw_dump()
         self.assertEqual(result, [{"id": 2, "type": "test3"}])

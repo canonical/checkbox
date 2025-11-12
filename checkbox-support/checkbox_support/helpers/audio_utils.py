@@ -168,7 +168,9 @@ class PipewireUtils(AudioUtils):
         for _ in range(3):
             try:
                 try:
-                    result = subprocess.check_output(["pw-dump"])
+                    result = subprocess.check_output(["pw-dump"]).decode(
+                        "utf-8"
+                    )
                     return json.loads(result)
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("Failed to run pw-dump: {}".format(e))

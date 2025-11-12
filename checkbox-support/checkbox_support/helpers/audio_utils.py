@@ -42,7 +42,7 @@ import logging
 import subprocess
 import time
 from enum import Enum
-from typing import Generator, List, Optional
+from typing import Dict, Generator, List, Optional
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -191,7 +191,7 @@ class PipewireUtils(AudioUtils):
             and obj["info"]["props"]["media.class"] == "Audio/Device"
         }
 
-    def _get_audio_nodes(self, node_type: NodeType) -> dict:
+    def _get_audio_nodes(self, node_type: NodeType) -> Dict:
         return {
             str(obj["id"]): obj
             for obj in self._load_pw_dump()
@@ -201,8 +201,8 @@ class PipewireUtils(AudioUtils):
         }
 
     def _get_available_profiles(
-        self, device: dict, profile_type: NodeType
-    ) -> dict:
+        self, device: Dict, profile_type: NodeType
+    ) -> Dict:
         def _check_class(profile, profile_type):
             profile_classes = profile.get("classes", [])
             if not profile_classes:

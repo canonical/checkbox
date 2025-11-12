@@ -270,6 +270,33 @@ class PipewireUtilsTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.pipewire._set_card_profile("42", "5")
 
+    def test_get_available_profiles(self):
+        """Test getting available profiles for a device."""
+        sink = {"available": "yes", "index": 1, "classes": [0, ["Audio/Sink"]]}
+        source = {
+            "available": "yes",
+            "index": 1,
+            "classes": [0, ["Audio/Source"]],
+        }
+        device = {"info": {"params": {"EnumProfile": [sink, source, {}]}}}
+        profiles = self.pipewire._get_available_profiles(device, NodeType.SINK)
+        self.assertEqual({"1": sink}, profiles)
+
+        profiles = self.pipewire._get_available_profiles(
+            device, NodeType.SOURCE
+        )
+        self.assertEqual({"1": source}, profiles)
+
+    def test_iter_nodes_of_type(self):
+        """Test iterating over nodes of a specific type."""
+        # TODO: Implement test
+        pass
+
+    def test_set_node_of_type(self):
+        """Test setting a node by type and name."""
+        # TODO: Implement test
+        pass
+
 
 class PulseaudioUtilsTests(unittest.TestCase):
     """Test cases for the PulseaudioUtils class."""

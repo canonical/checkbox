@@ -321,17 +321,24 @@ class PipewireUtils(AudioServerUtils):
             # handle cases where the node name include an index
             # i.e. alsa_output.pci-0000_00_1f.3.analog-stereo.10
             stripped_name = node.name.rsplit(".", 1)[0]
-            new_node = next(
-                obj
-                for obj in nodes.values()
-                if obj.get("info", {})
-                .get("props", {})
-                .get("node.name", "")
-                .rsplit(".", 1)[0]
-                == stripped_name
-            )
-            node.id = str(new_node["info"]["props"]["node.id"])
-            node.name = new_node["info"]["props"]["node.name"]
+            try:
+                new_node = next(
+                    obj
+                    for obj in nodes.values()
+                    if obj.get("info", {})
+                    .get("props", {})
+                    .get("node.name", "")
+                    .rsplit(".", 1)[0]
+                    == stripped_name
+                )
+                node.id = str(new_node["info"]["props"]["node.id"])
+                node.name = new_node["info"]["props"]["node.name"]
+            except StopIteration:
+                raise RuntimeError(
+                    "Node '{}' (id: {}) not found after setting profile '{}' on device '{}'".format(
+                        node.name, node.id, node.profile_id, node.device_id
+                    )
+                )
 
         self._set_default_audio_node(node.id)
 

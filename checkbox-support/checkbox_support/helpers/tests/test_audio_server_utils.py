@@ -353,6 +353,20 @@ class PipewireUtilsTests(unittest.TestCase):
         self.pipewire._set_card_profile.assert_called_once_with("1", "2")
         self.pipewire._set_default_audio_node.assert_called_once_with("new_id")
 
+    def test_set_node_of_type_not_found(self):
+        """Test setting a node that cannot be found raises RuntimeError."""
+
+        node = Node("1", "2", "name", "id", "description")
+        self.pipewire._set_card_profile = Mock()
+        self.pipewire._get_audio_nodes = Mock(return_value={})
+
+        with self.assertRaises(RuntimeError) as cm:
+            self.pipewire._set_node_of_type(node, NodeType.SINK)
+
+        self.assertIn("name", str(cm.exception))
+        self.assertIn("id", str(cm.exception))
+        self.assertIn("not found", str(cm.exception))
+
 
 class PulseaudioUtilsTests(unittest.TestCase):
     """Test cases for the PulseaudioUtils class."""

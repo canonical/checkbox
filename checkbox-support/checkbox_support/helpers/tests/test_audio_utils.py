@@ -7,6 +7,7 @@ from checkbox_support.helpers.audio_utils import (
     AudioServer,
     AudioUtils,
     Node,
+    NodeType,
     PipewireUtils,
     PulseaudioUtils,
 )
@@ -154,11 +155,11 @@ class PipewireUtilsTests(unittest.TestCase):
         self.pipewire._load_pw_dump = Mock(return_value=dump)
 
         # Sinks
-        sinks = self.pipewire._get_audio_nodes("Sink")
+        sinks = self.pipewire._get_audio_nodes(NodeType.SINK)
         self.assertEqual({"1": sink}, sinks)
 
         # Sources
-        sources = self.pipewire._get_audio_nodes("Source")
+        sources = self.pipewire._get_audio_nodes(NodeType.SOURCE)
         self.assertEqual({"2": source}, sources)
 
     def test_list_sinks(self):
@@ -174,7 +175,9 @@ class PipewireUtilsTests(unittest.TestCase):
         self.assertEqual(len(sinks), 2)
         self.assertEqual(sinks[0], node1)
         self.assertEqual(sinks[1], node2)
-        self.pipewire._iter_nodes_of_type.assert_called_once_with("Sink")
+        self.pipewire._iter_nodes_of_type.assert_called_once_with(
+            NodeType.SINK
+        )
 
     def test_list_sources(self):
         """Test listing all available sources."""
@@ -185,7 +188,9 @@ class PipewireUtilsTests(unittest.TestCase):
 
         self.assertEqual(len(sources), 1)
         self.assertEqual(sources[0], node1)
-        self.pipewire._iter_nodes_of_type.assert_called_once_with("Source")
+        self.pipewire._iter_nodes_of_type.assert_called_once_with(
+            NodeType.SOURCE
+        )
 
     def test_iter_sinks(self):
         """Test iterating over sinks."""

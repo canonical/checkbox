@@ -70,6 +70,11 @@ class AudioServer(Enum):
     PIPEWIRE = 1
 
 
+class NodeType(Enum):
+    SINK = 0
+    SOURCE = 1
+
+
 class AudioUtils:
     def __new__(cls, *args, **kwargs):
         if cls is AudioUtils:
@@ -184,16 +189,18 @@ class PipewireUtils(AudioUtils):
             and obj["info"]["props"]["media.class"] == "Audio/Device"
         }
 
-    def _get_audio_nodes(self, node_type: str) -> dict:
+    def _get_audio_nodes(self, node_type: NodeType) -> dict:
         return {
             str(obj["id"]): obj
             for obj in self._load_pw_dump()
             if obj.get("type") == "PipeWire:Interface:Node"
             and obj.get("info", {}).get("props", {}).get("media.class")
-            == "Audio/{}".format(node_type)
+            == "Audio/{}".format(node_type.name.capitalize())
         }
 
-    def _get_available_profiles(self, device: dict, profile_type: str) -> dict:
+    def _get_available_profiles(
+        self, device: dict, profile_type: NodeType
+    ) -> dict:
         def _check_class(profile, profile_type):
             profile_classes = profile.get("classes", [])
             if not profile_classes:
@@ -201,7 +208,10 @@ class PipewireUtils(AudioUtils):
 
             classes = profile_classes[1:]
             for profile_class in classes:
-                if "Audio/{}".format(profile_type) in profile_class:
+                if (
+                    "Audio/{}".format(profile_type.name.capitalize())
+                    in profile_class
+                ):
                     return True
 
             return False
@@ -215,11 +225,13 @@ class PipewireUtils(AudioUtils):
             and _check_class(profile, profile_type)
         }
 
-    def _list_nodes_of_type(self, target: str) -> List[Node]:
+    def _list_nodes_of_type(self, target: NodeType) -> List[Node]:
         """List all nodes by using the iterator and collecting them into a list."""
         return list(self._iter_nodes_of_type(target))
 
-    def _iter_nodes_of_type(self, target: str) -> Generator[Node, None, None]:
+    def _iter_nodes_of_type(
+        self, target: NodeType
+    ) -> Generator[Node, None, None]:
         """Iterator that activates each profile and yields ready-to-use nodes."""
         devices = self._get_audio_devices()
         logging.debug("Found %s available audio device(s)", len(devices))
@@ -276,7 +288,7 @@ class PipewireUtils(AudioUtils):
             )
             raise RuntimeError(error)
 
-    def _set_default_audio_node(self, node_id: str, node_type: str) -> None:
+    def _set_default_audio_node(self, node_id: str) -> None:
         cmd = ["wpctl", "set-default", node_id]
         logging.debug("[shell] %s", " ".join(cmd))
         subprocess.check_output(cmd)
@@ -316,31 +328,31 @@ class PipewireUtils(AudioUtils):
                 new_node.get("info", {}).get("props", {}).get("node.name")
             )
 
-        self._set_default_audio_node(node.id, target)
+        self._set_default_audio_node(node.id)
 
     def list_sinks(self) -> List[Node]:
-        return self._list_nodes_of_type("Sink")
+        return self._list_nodes_of_type(NodeType.SINK)
 
     def list_sources(self) -> List[Node]:
-        return self._list_nodes_of_type("Source")
+        return self._list_nodes_of_type(NodeType.SOURCE)
 
     def iter_sinks(self) -> Generator[Node, None, None]:
-        return self._iter_nodes_of_type("Sink")
+        return self._iter_nodes_of_type(NodeType.SINK)
 
     def iter_sources(self) -> Generator[Node, None, None]:
-        return self._iter_nodes_of_type("Source")
+        return self._iter_nodes_of_type(NodeType.SOURCE)
 
     def set_sink(self, sink: Node) -> None:
         """Set sink as default. Assumes node is already active."""
         logging.info("Setting sink %s", sink.name)
         # Profile should already be active from iteration, just set as default
-        self._set_default_audio_node(sink.id, "Sink")
+        self._set_default_audio_node(sink.id)
 
     def set_source(self, source: Node) -> None:
         """Set source as default. Assumes node is already active."""
         logging.info("Setting source %s", source.name)
         # Profile should already be active from iteration, just set as default
-        self._set_default_audio_node(source.id, "Source")
+        self._set_default_audio_node(source.id)
 
     def set_volume(self, node: Node, volume: float) -> None:
         try:

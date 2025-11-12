@@ -1,0 +1,47 @@
+commit 313ffee4b12d6d6efc0e6dabf689ed9a1bfd17ab
+Author: Gabriel Zhi Chen <gabriel.chen@canonical.com>
+Date:   Wed Nov 12 11:38:29 2025 +0800
+
+    Add a test case to OEMQA-5338
+
+diff --git a/providers/base/units/audio/jobs.pxu b/providers/base/units/audio/jobs.pxu
+index dadd1a97d..95082817f 100644
+--- a/providers/base/units/audio/jobs.pxu
++++ b/providers/base/units/audio/jobs.pxu
+@@ -1009,3 +1009,23 @@ flags: also-after-suspend
+ requires: snap.name == 'pulseaudio'
+ category_id: com.canonical.plainbox::audio
+ estimated_duration: 1m
++
++id: after-suspend-audio/after-suspend-audio-occupied
++_summary: Verify the test audio I/O post-suspend with previously occupied devices.
++_purpose:
++ Validate the audio could input and output after suspending while audio devices are occupied before suspending
++_steps:
++ 1. Make sure the internal speaker device working normally
++ 2. Commence the test
++ 3. The sound will last for 20 seconds. Please execute the suspend after hearing the sound about 10 seconds
++ 4. Make sure the system enter suspend, the suspend LED is blinking
++ 5. After the system enter suspend 15 seconds, resume the system back
++ 6. You will hear the remaining 10 seconds of sound
++_verification:
++ Did you hear the sound after suspend?
++plugin: user-interact-verify
++depends: audio/detect-playback-devices suspend/suspend_advanced_auto
++environ: ALSA_CONFIG_PATH ALSADEVICE LD_LIBRARY_PATH
++command: alsa_test playback -d 20
++category_id: com.canonical.plainbox::audio
++estimated_duration: 2m
+\ No newline at end of file
+diff --git a/providers/base/units/audio/test-plan.pxu b/providers/base/units/audio/test-plan.pxu
+index abeeaf3fa..81eb51930 100644
+--- a/providers/base/units/audio/test-plan.pxu
++++ b/providers/base/units/audio/test-plan.pxu
+@@ -41,6 +41,7 @@ include:
+     after-suspend-audio/channels
+     after-suspend-audio/external-linein
+     after-suspend-audio/external-lineout
++    after-suspend-audio/after-suspend-audio-occupied
+ 
+ id: audio-cert-automated
+ unit: test plan

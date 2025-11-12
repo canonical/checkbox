@@ -41,6 +41,7 @@ include:
     after-suspend-audio/channels
     after-suspend-audio/external-linein
     after-suspend-audio/external-lineout
+    after-suspend-audio/after-suspend-audio-occupied
 
 id: audio-cert-automated
 unit: test plan

@@ -44,7 +44,7 @@ import time
 from enum import Enum
 from typing import Dict, Generator, List, Optional
 
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class Node(object):
@@ -79,7 +79,7 @@ class AudioServerUtils:
     def __new__(cls, *args, **kwargs):
         if cls is AudioServerUtils:
             server = cls.get_server()
-            logging.info(
+            logger.info(
                 "Detected audio server is %s", server.name.capitalize()
             )
             if server == AudioServer.PIPEWIRE:
@@ -87,9 +87,7 @@ class AudioServerUtils:
             elif server == AudioServer.PULSEAUDIO:
                 cls = PulseaudioUtils
         else:
-            logging.warning(
-                "Avoid creating an AudioServer sub-class directly."
-            )
+            logger.warning("Avoid creating an AudioServer sub-class directly.")
         return super().__new__(cls)
 
     @staticmethod
@@ -243,12 +241,12 @@ class PipewireUtils(AudioServerUtils):
     ) -> Generator[Node, None, None]:
         """Iterator that activates each profile and yields ready-to-use nodes."""
         devices = self._get_audio_devices()
-        logging.debug("Found %s available audio device(s)", len(devices))
+        logger.debug("Found %s available audio device(s)", len(devices))
 
         for device_id, device in devices.items():
             device_name = device["info"]["props"]["device.name"]
             profiles = self._get_available_profiles(device, target)
-            logging.debug(
+            logger.debug(
                 "Found %s available profile(s) for device %s",
                 len(profiles),
                 device_name,
@@ -259,7 +257,7 @@ class PipewireUtils(AudioServerUtils):
                 self._set_card_profile(device_id, profile_id)
 
                 audio_nodes = self._get_audio_nodes(target)
-                logging.debug(
+                logger.debug(
                     "Found %s available node(s) for device %s@%s",
                     len(audio_nodes),
                     device_name,
@@ -289,7 +287,7 @@ class PipewireUtils(AudioServerUtils):
                 "Profile",
                 "{{ index: {} }}".format(profile_id),
             ]
-            logging.debug("[shell] %s", " ".join(cmd))
+            logger.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError:
             error = "Cannot set profile '{}' on device '{}'".format(
@@ -299,7 +297,7 @@ class PipewireUtils(AudioServerUtils):
 
     def _set_default_audio_node(self, node_id: str) -> None:
         cmd = ["wpctl", "set-default", node_id]
-        logging.debug("[shell] %s", " ".join(cmd))
+        logger.debug("[shell] %s", " ".join(cmd))
         subprocess.check_output(cmd)
 
     def _set_node_of_type(self, node: Node, target: str) -> None:
@@ -365,7 +363,7 @@ class PipewireUtils(AudioServerUtils):
         assert 0 <= volume <= 1.0, "Volume must be in range [0,1]"
         try:
             cmd = ["wpctl", "set-volume", str(node.id), str(volume)]
-            logging.debug("[shell] %s", " ".join(cmd))
+            logger.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
@@ -481,7 +479,7 @@ class PulseaudioUtils(AudioServerUtils):
                     node_id,
                     "{}%".format(volume_percent),
                 ]
-                logging.debug("[shell] %s", " ".join(cmd))
+                logger.debug("[shell] %s", " ".join(cmd))
                 subprocess.check_output(cmd)
                 return
             except subprocess.CalledProcessError:
@@ -493,7 +491,7 @@ class PulseaudioUtils(AudioServerUtils):
                         node_id,
                         "{}%".format(volume_percent),
                     ]
-                    logging.debug("[shell] %s", " ".join(cmd))
+                    logger.debug("[shell] %s", " ".join(cmd))
                     subprocess.check_output(cmd)
                     return
                 except subprocess.CalledProcessError:

@@ -113,7 +113,6 @@ class AudioUtils:
         """
         Iterate over available sinks, automatically activating each profile.
         The yielded node is already active and ready to use.
-        Original state is restored after iteration completes.
         """
 
     @abc.abstractmethod
@@ -121,7 +120,6 @@ class AudioUtils:
         """
         Iterate over available sources, automatically activating each profile.
         The yielded node is already active and ready to use.
-        Original state is restored after iteration completes.
         """
 
     @abc.abstractmethod
@@ -185,41 +183,6 @@ class PipewireUtils(AudioUtils):
             if obj.get("type") == "PipeWire:Interface:Device"
             and obj["info"]["props"]["media.class"] == "Audio/Device"
         }
-
-    def _get_current_profile(self, device_id: str) -> Optional[str]:
-        """Get the currently active profile index for a device."""
-        devices = self._get_audio_devices()
-        device = devices.get(device_id)
-        if not device:
-            return None
-
-        # Find the active profile
-        profiles = device.get("info", {}).get("params", {}).get("Profile", [])
-        for profile in profiles:
-            if profile.get("index") is not None:
-                return str(profile["index"])
-        return None
-
-    def _save_device_states(self) -> dict:
-        """Save current profile state for all audio devices."""
-        states = {}
-        devices = self._get_audio_devices()
-        for device_id in devices:
-            states[device_id] = self._get_current_profile(device_id)
-        return states
-
-    def _restore_device_states(self, states: dict):
-        """Restore profile state for all audio devices."""
-        for device_id, profile_id in states.items():
-            if profile_id is not None:
-                try:
-                    self._set_card_profile(device_id, profile_id)
-                except RuntimeError as e:
-                    logging.warning(
-                        "Failed to restore profile for device %s: %s",
-                        device_id,
-                        e,
-                    )
 
     def _get_audio_nodes(self, node_type: str) -> dict:
         return {

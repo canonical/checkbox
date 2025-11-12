@@ -1011,21 +1011,21 @@ category_id: com.canonical.plainbox::audio
 estimated_duration: 1m
 
 id: after-suspend-audio/after-suspend-audio-occupied
-_summary: Verify the test audio I/O post-suspend with previously occupied devices.
+_summary: Verify the test audio I/O after suspend with previously occupied devices.
 _purpose:
  Validate the audio could input and output after suspending while audio devices are occupied before suspending
 _steps:
  1. Make sure the internal speaker device working normally
  2. Commence the test
- 3. The sound will last for 20 seconds. Please execute the suspend after hearing the sound about 10 seconds
+ 3. The sound will last for 90 seconds. Please execute the suspend after hearing the sound about 30 seconds
  4. Make sure the system enter suspend, the suspend LED is blinking
  5. After the system enter suspend 15 seconds, resume the system back
- 6. You will hear the remaining 10 seconds of sound
+ 6. You will hear the remaining 60 seconds of sound
 _verification:
  Did you hear the sound after suspend?
 plugin: user-interact-verify
 depends: audio/detect-playback-devices suspend/suspend_advanced_auto
 environ: ALSA_CONFIG_PATH ALSADEVICE LD_LIBRARY_PATH
-command: alsa_test playback -d 20
+command: alsa_test playback -d 90
 category_id: com.canonical.plainbox::audio
 estimated_duration: 2m

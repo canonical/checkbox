@@ -41,6 +41,7 @@ import json
 import logging
 import subprocess
 import time
+from enum import Enum
 from typing import Generator, List, Optional
 
 logging.basicConfig(level=logging.DEBUG)
@@ -64,28 +65,30 @@ class Node(object):
         self.description = description
 
 
+class AudioServer(Enum):
+    PULSEAUDIO = 0
+    PIPEWIRE = 1
+
+
 class AudioUtils:
     def __new__(cls, *args, **kwargs):
         if cls is AudioUtils:
             server = cls.get_server()
-            logging.info("Detected audio server is %s", server)
-            if server == "pipewire":
+            logging.info(
+                "Detected audio server is %s", server.name.capitalize()
+            )
+            if server == AudioServer.PIPEWIRE:
                 cls = PipewireUtils
-            elif server == "pulseaudio":
+            elif server == AudioServer.PULSEAUDIO:
                 cls = PulseaudioUtils
-            else:
-                raise RuntimeError(
-                    "Unsupported audio server: {}".format(server)
-                )
         return super().__new__(cls)
 
     @staticmethod
-    def get_server() -> str:
-        for server in ["pipewire", "pulseaudio"]:
+    def get_server() -> AudioServer:
+        for server in AudioServer:
             try:
-                subprocess.check_call(
-                    ["systemctl", "--user", "status", server]
-                )
+                name = server.name.lower()
+                subprocess.check_call(["systemctl", "--user", "status", name])
                 return server
             except subprocess.CalledProcessError:
                 continue

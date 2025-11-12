@@ -287,15 +287,35 @@ class PipewireUtilsTests(unittest.TestCase):
         )
         self.assertEqual({"1": source}, profiles)
 
-    def test_iter_nodes_of_type(self):
-        """Test iterating over nodes of a specific type."""
-        # TODO: Implement test
-        pass
-
     def test_set_node_of_type(self):
         """Test setting a node by type and name."""
-        # TODO: Implement test
-        pass
+
+        node = Node("1", "2", "name", "id", "description")
+        raw_node = {"info": {"props": {"node.id": "id", "node.name": "name"}}}
+        self.pipewire._set_card_profile = Mock()
+        self.pipewire._set_default_audio_node = Mock()
+        self.pipewire._get_audio_nodes = Mock(return_value={"id": raw_node})
+
+        self.pipewire._set_node_of_type(node, NodeType.SINK)
+
+        self.pipewire._set_card_profile.assert_called_once_with("1", "2")
+        self.pipewire._set_default_audio_node.assert_called_once_with("id")
+
+    def test_set_node_of_type_ephemeral(self):
+        """Test setting a node by type and name when name/id changed."""
+
+        node = Node("1", "2", "name.5", "id", "description")
+        raw_node = {
+            "info": {"props": {"node.id": "new_id", "node.name": "name.6"}}
+        }
+        self.pipewire._set_card_profile = Mock()
+        self.pipewire._set_default_audio_node = Mock()
+        self.pipewire._get_audio_nodes = Mock(return_value={"id": raw_node})
+
+        self.pipewire._set_node_of_type(node, NodeType.SINK)
+
+        self.pipewire._set_card_profile.assert_called_once_with("1", "2")
+        self.pipewire._set_default_audio_node.assert_called_once_with("new_id")
 
 
 class PulseaudioUtilsTests(unittest.TestCase):

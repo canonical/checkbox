@@ -325,10 +325,8 @@ class PipewireUtils(AudioUtils):
                 .rsplit(".", 1)[0]
                 == stripped_name
             )
-            node.id = str(new_node["id"])
-            node.name = (
-                new_node.get("info", {}).get("props", {}).get("node.name")
-            )
+            node.id = str(new_node["info"]["props"]["node.id"])
+            node.name = new_node["info"]["props"]["node.name"]
 
         self._set_default_audio_node(node.id)
 

@@ -1,7 +1,7 @@
 import json
 import subprocess
 import unittest
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 from checkbox_support.helpers.audio_utils import (
     AudioUtils,
@@ -211,11 +211,7 @@ class PipewireUtilsTests(unittest.TestCase):
 
         self.pipewire.set_sink(node)
 
-        mock_check_call.assert_called_once()
-        args = mock_check_call.call_args[0][0]
-        self.assertEqual(args[0], "wpctl")
-        self.assertEqual(args[1], "set-default")
-        self.assertEqual(args[2], "123")
+        mock_check_call.assert_called_once_with(["wpctl", "set-default", "123"])
 
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
     def test_set_source(self, mock_check_call):
@@ -224,11 +220,7 @@ class PipewireUtilsTests(unittest.TestCase):
 
         self.pipewire.set_source(node)
 
-        mock_check_call.assert_called_once()
-        args = mock_check_call.call_args[0][0]
-        self.assertEqual(args[0], "wpctl")
-        self.assertEqual(args[1], "set-default")
-        self.assertEqual(args[2], "456")
+        mock_check_call.assert_called_once_with(["wpctl", "set-default", "456"])
 
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
     def test_set_volume(self, mock_check_call):
@@ -237,25 +229,16 @@ class PipewireUtilsTests(unittest.TestCase):
 
         self.pipewire.set_volume(node, 0.8)
 
-        mock_check_call.assert_called_once()
-        args = mock_check_call.call_args[0][0]
-        self.assertEqual(args[0], "wpctl")
-        self.assertEqual(args[1], "set-volume")
-        self.assertEqual(args[2], "123")
-        self.assertEqual(args[3], "1.0")
+        mock_check_call.assert_called_once_with(["wpctl", "set-volume", "123", "1.0"])
 
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
     def test_set_card_profile(self, mock_check_call):
         """Test setting card profile."""
         self.pipewire._set_card_profile("42", "5")
 
-        mock_check_call.assert_called_once()
-        args = mock_check_call.call_args[0][0]
-        self.assertEqual(args[0], "pw-cli")
-        self.assertEqual(args[1], "s")
-        self.assertEqual(args[2], "42")
-        self.assertEqual(args[3], "Profile")
-        self.assertIn("5", args[4])
+        mock_check_call.assert_called_once_with(
+            ["pw-cli", "s", "42", "Profile", "{ index: 5 }"]
+        )
 
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
     def test_set_card_profile_error(self, mock_check_call):
@@ -337,11 +320,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
 
         self.pulseaudio.set_sink(node)
 
-        mock_check_call.assert_called_once()
-        args = mock_check_call.call_args[0][0]
-        self.assertEqual(args[0], "pactl")
-        self.assertEqual(args[1], "set-default-sink")
-        self.assertEqual(args[2], "test_sink")
+        mock_check_call.assert_called_once_with(["pactl", "set-default-sink", "test_sink"])
 
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
     def test_set_sink_error(self, mock_check_call):
@@ -359,11 +338,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
 
         self.pulseaudio.set_source(node)
 
-        mock_check_call.assert_called_once()
-        args = mock_check_call.call_args[0][0]
-        self.assertEqual(args[0], "pactl")
-        self.assertEqual(args[1], "set-default-source")
-        self.assertEqual(args[2], "test_source")
+        mock_check_call.assert_called_once_with(["pactl", "set-default-source", "test_source"])
 
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
     def test_set_volume_sink(self, mock_check_call):
@@ -372,12 +347,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
 
         self.pulseaudio.set_volume(node, 0.5)
 
-        mock_check_call.assert_called_once()
-        args = mock_check_call.call_args[0][0]
-        self.assertEqual(args[0], "pactl")
-        self.assertEqual(args[1], "set-sink-volume")
-        self.assertEqual(args[2], "test_sink")
-        self.assertEqual(args[3], "50%")
+        mock_check_call.assert_called_once_with(["pactl", "set-sink-volume", "test_sink", "50%"])
 
     @patch("checkbox_support.helpers.audio_utils.subprocess.check_call")
     def test_set_volume_invalid(self, mock_check_call):

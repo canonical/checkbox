@@ -3,9 +3,9 @@ import subprocess
 import unittest
 from unittest.mock import Mock, patch
 
-from checkbox_support.helpers.audio_utils import (
+from checkbox_support.helpers.audio_server_utils import (
     AudioServer,
-    AudioUtils,
+    AudioServerUtils,
     Node,
     NodeType,
     PipewireUtils,
@@ -32,10 +32,12 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(node.description, "Test Node")
 
 
-class AudioUtilsTests(unittest.TestCase):
-    """Test cases for the AudioUtils factory class."""
+class AudioServerUtilsTests(unittest.TestCase):
+    """Test cases for the AudioServerUtils factory class."""
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_get_server_pipewire(self, mock_check_output):
         """Test detection of PipeWire audio server."""
 
@@ -44,10 +46,12 @@ class AudioUtilsTests(unittest.TestCase):
                 raise subprocess.CalledProcessError(1, "")
 
         mock_check_output.side_effect = systemctl
-        server = AudioUtils.get_server()
+        server = AudioServerUtils.get_server()
         self.assertEqual(server, AudioServer.PIPEWIRE)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_get_server_pulseaudio(self, mock_check_output):
         """Test detection of PulseAudio audio server."""
 
@@ -56,28 +60,34 @@ class AudioUtilsTests(unittest.TestCase):
                 raise subprocess.CalledProcessError(1, "")
 
         mock_check_output.side_effect = systemctl
-        server = AudioUtils.get_server()
+        server = AudioServerUtils.get_server()
         self.assertEqual(server, AudioServer.PULSEAUDIO)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_get_server_none(self, mock_check_output):
         """Test OSError when no audio server is running."""
         mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
         with self.assertRaises(OSError):
-            AudioUtils.get_server()
+            AudioServerUtils.get_server()
 
-    @patch("checkbox_support.helpers.audio_utils.AudioUtils.get_server")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.AudioServerUtils.get_server"
+    )
     def test_factory_returns_pipewire_utils(self, mock_get_server):
         """Test factory returns PipewireUtils instance."""
         mock_get_server.return_value = AudioServer.PIPEWIRE
-        audio = AudioUtils()
+        audio = AudioServerUtils()
         self.assertIsInstance(audio, PipewireUtils)
 
-    @patch("checkbox_support.helpers.audio_utils.AudioUtils.get_server")
-    def test_factory_returns_pulseaudio_utils(self, mock_get_server):
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.AudioServerUtils.get_server"
+    )
+    def test_factory_returns_pulseaudio_server_utils(self, mock_get_server):
         """Test factory returns PulseaudioUtils instance."""
         mock_get_server.return_value = AudioServer.PULSEAUDIO
-        audio = AudioUtils()
+        audio = AudioServerUtils()
         self.assertIsInstance(audio, PulseaudioUtils)
 
 
@@ -88,7 +98,9 @@ class PipewireUtilsTests(unittest.TestCase):
         """Set up test fixtures."""
         self.pipewire = PipewireUtils()
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_load_pw_dump_success(self, mock_check_output):
         """Test successful pw-dump load."""
         mock_result = Mock()
@@ -98,7 +110,9 @@ class PipewireUtilsTests(unittest.TestCase):
         self.assertEqual(result, [{"id": 1, "type": "test"}])
 
     @patch("time.sleep", Mock())
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_load_pw_dump_retry(self, mock_check_output):
         """Test pw-dump retry on failure."""
         success_mock = Mock()
@@ -112,7 +126,9 @@ class PipewireUtilsTests(unittest.TestCase):
         self.assertEqual(result, [{"id": 2, "type": "test3"}])
 
     @patch("time.sleep", Mock())
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_load_pw_dump_raises(self, mock_check_output):
         """Test pw-dump raises on multiple failures."""
         mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
@@ -220,7 +236,9 @@ class PipewireUtilsTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], node1)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_sink(self, mock_check_output):
         """Test setting a sink as default."""
         node = Node("dev1", "prof1", "sink1", "123", "Sink 1")
@@ -231,7 +249,9 @@ class PipewireUtilsTests(unittest.TestCase):
             ["wpctl", "set-default", "123"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_source(self, mock_check_output):
         """Test setting a source as default."""
         node = Node("dev1", "prof1", "source1", "456", "Source 1")
@@ -242,7 +262,9 @@ class PipewireUtilsTests(unittest.TestCase):
             ["wpctl", "set-default", "456"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_volume(self, mock_check_output):
         """Test setting volume on a node."""
         node = Node("dev1", "prof1", "sink1", "123", "Sink 1")
@@ -253,7 +275,9 @@ class PipewireUtilsTests(unittest.TestCase):
             ["wpctl", "set-volume", "123", "1.0"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_card_profile(self, mock_check_output):
         """Test setting card profile."""
         self.pipewire._set_card_profile("42", "5")
@@ -262,7 +286,9 @@ class PipewireUtilsTests(unittest.TestCase):
             ["pw-cli", "s", "42", "Profile", "{ index: 5 }"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_card_profile_error(self, mock_check_output):
         """Test setting card profile raises on error."""
         mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
@@ -325,7 +351,9 @@ class PulseaudioUtilsTests(unittest.TestCase):
         """Set up test fixtures."""
         self.pulseaudio = PulseaudioUtils()
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_parse_pactl_list_sinks(self, mock_check_output):
         """Test parsing pactl list sinks output."""
         mock_check_output.return_value = b"""Sink #0
@@ -384,7 +412,9 @@ class PulseaudioUtilsTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], node1)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_sink(self, mock_check_output):
         """Test setting a sink as default."""
         node = Node("0", None, "test_sink", "0", "Test Sink")
@@ -395,7 +425,9 @@ class PulseaudioUtilsTests(unittest.TestCase):
             ["pactl", "set-default-sink", "test_sink"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_sink_error(self, mock_check_output):
         """Test setting a sink raises on error."""
         mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
@@ -404,7 +436,9 @@ class PulseaudioUtilsTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.pulseaudio.set_sink(node)
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_source(self, mock_check_output):
         """Test setting a source as default."""
         node = Node("0", None, "test_source", "0", "Test Source")
@@ -415,7 +449,9 @@ class PulseaudioUtilsTests(unittest.TestCase):
             ["pactl", "set-default-source", "test_source"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_volume_sink(self, mock_check_output):
         """Test setting volume on a sink."""
         node = Node("0", None, "test_sink", "0", "Test Sink")
@@ -426,7 +462,9 @@ class PulseaudioUtilsTests(unittest.TestCase):
             ["pactl", "set-sink-volume", "test_sink", "50%"]
         )
 
-    @patch("checkbox_support.helpers.audio_utils.subprocess.check_output")
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
     def test_set_volume_invalid(self, mock_check_output):
         """Test setting invalid volume raises ValueError."""
         node = Node("0", None, "test_sink", "0", "Test Sink")

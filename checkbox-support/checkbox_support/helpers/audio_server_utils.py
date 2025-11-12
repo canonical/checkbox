@@ -23,7 +23,7 @@ Usage:
     node as the system default and make it active.
 
     Example:
-        audio = AudioUtils()
+        audio = AudioServerUtils()
         for node in audio.iter_sinks():
             # Set this node as default to test it
             audio.set_sink(node)
@@ -75,9 +75,9 @@ class NodeType(Enum):
     SOURCE = 1
 
 
-class AudioUtils:
+class AudioServerUtils:
     def __new__(cls, *args, **kwargs):
-        if cls is AudioUtils:
+        if cls is AudioServerUtils:
             server = cls.get_server()
             logging.info(
                 "Detected audio server is %s", server.name.capitalize()
@@ -86,6 +86,8 @@ class AudioUtils:
                 cls = PipewireUtils
             elif server == AudioServer.PULSEAUDIO:
                 cls = PulseaudioUtils
+        else:
+            logging.warning("Avoid creating an AudioServer sub-class direcly.")
         return super().__new__(cls)
 
     @staticmethod
@@ -148,7 +150,7 @@ class AudioUtils:
         """
 
 
-class PipewireUtils(AudioUtils):
+class PipewireUtils(AudioServerUtils):
     """
     PipeWire audio utility implementation.
 
@@ -365,7 +367,7 @@ class PipewireUtils(AudioUtils):
             ) from e
 
 
-class PulseaudioUtils(AudioUtils):
+class PulseaudioUtils(AudioServerUtils):
     def _parse_pactl_list(self, target_type: str) -> List[Node]:
         """Parse pactl list output to extract sink/source information."""
         try:
@@ -524,7 +526,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    audio = AudioUtils()
+    audio = AudioServerUtils()
 
     if args.command == "list":
         if args.type == "sinks":

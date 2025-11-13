@@ -25,6 +25,7 @@ import gettext
 import logging
 import os
 from pathlib import Path
+from contextlib import suppress
 
 from plainbox.impl.config import Configuration
 
@@ -152,29 +153,26 @@ def resolve_configs(launcher_config, session_assistant):
     return config
 
 
-def load_launcher_or_default(launcher_path_or_id, session_assistant):
+def load_launcher_text(launcher_path_or_id, session_assistant):
     """
-    Ensure that if a launcher is requested it is loaded correctly else an empty
-    config is returned
+    Returns the launcher text either loading it from disk or from the session
+    assistant
 
-    This is different from using `from_path` because it doesn't fail if the
-    file doesn't exist, while this raises an exception
+    This automatically disabiguates the nominal 3 cases:
+    - None: no launcher, ""
+    - launcher is path: load it from disk
+    - launcher is launcher id: load if from the SA
+    + launcher doesn't exist: blow up
     """
     if launcher_path_or_id is None:
-        return Configuration()
+        return ""  # launcher from empty string is default
 
     launcher_path = Path(launcher_path_or_id)
-    if launcher_path.exists():
-        # here we check before we create because from_path doesn't fail on
-        # non existent inputs, it "notices" a problem sigh
-        return Configuration.from_path(launcher_path)
+    with suppress(FileNotFoundError), launcher_path.open("r") as f:
+        return f.read()
     launcher_id = str(launcher_path_or_id)
-    try:
-        launcher_text = session_assistant.get_provider_launcher_by_id(
-            launcher_id
-        )
-        return Configuration.from_text(launcher_text, launcher_path)
-    except FileNotFoundError:
-        # launcher was requested but it is neither a provider launcher
-        # nor a local file
-        raise SystemExit('Launcher "{}" not found'.format(launcher_path))
+    with suppress(FileNotFoundError):
+        return session_assistant.get_provider_launcher_by_id(launcher_id)
+    # launcher was requested but it is neither a provider launcher
+    # nor a local file
+    raise SystemExit('Launcher "{}" not found'.format(launcher_path))

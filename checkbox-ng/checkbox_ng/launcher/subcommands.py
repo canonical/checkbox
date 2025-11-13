@@ -61,7 +61,7 @@ from plainbox.impl.transport import SECURE_ID_PATTERN
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.impl.config import Configuration
 
-from checkbox_ng.config import resolve_configs, load_launcher_or_default
+from checkbox_ng.config import resolve_configs, load_launcher_text
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.launcher.startprovider import (
     EmptyProviderSkeleton,
@@ -242,7 +242,10 @@ class Launcher(MainLoopStage, ReportsStage):
             # exited by now, so validation passed
             print(_("Launcher seems valid."))
             return
-        launcher_config = load_launcher_or_default(ctx.args.launcher, ctx.sa)
+        launcher_config = Configuration.from_text(
+            load_launcher_text(ctx.args.launcher, ctx.sa),
+            "Launcher {}".format(ctx.args.launcher),
+        )
         self.configuration = resolve_configs(launcher_config, ctx.sa)
         logging_level = {
             "normal": logging.WARNING,

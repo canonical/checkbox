@@ -19,8 +19,13 @@
 """This module contains the implementation of the `check-config` subcmd."""
 
 from argparse import ArgumentParser
-from plainbox.impl.config import CONFIG_SPEC, DynamicSection, ParametricSection
-from checkbox_ng.config import load_configs
+from plainbox.impl.config import (
+    CONFIG_SPEC,
+    DynamicSection,
+    ParametricSection,
+    Configuration,
+)
+from checkbox_ng.config import resolve_configs, load_launcher_text
 
 
 class Config:
@@ -97,7 +102,11 @@ class CheckConfig:
     @staticmethod
     def invoked(context):
         """Function that's run with `check-config` invocation."""
-        config = load_configs(context.args.launcher)
+        config = Configuration.from_text(
+            load_launcher_text(context.args.launcher, context.sa),
+            context.args.launcher,
+        )
+        config = resolve_configs(config, context.sa)
         print("Configuration files:")
         for source in config.sources:
             print(" - {}".format(source))

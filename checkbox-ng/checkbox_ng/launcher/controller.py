@@ -70,6 +70,7 @@ from checkbox_ng.utils import (
 from checkbox_ng.launcher.run import NormalUI, ReRunJob
 from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.launcher.stages import ReportsStage
+from checkbox_ng.config import load_launcher_text
 from tqdm import tqdm
 
 _ = gettext.gettext
@@ -172,22 +173,10 @@ class RemoteController(ReportsStage, MainLoopStage):
     def invoked(self, ctx):
         self._C = Colorizer()
         self._override_exporting(self.local_export)
-        self._launcher_text = ""
         self._has_anything_failed = False
         self._target_host = ctx.args.host
         self._normal_user = ""
-        self.launcher = Configuration()
-        if ctx.args.launcher:
-            expanded_path = os.path.expanduser(ctx.args.launcher)
-            if not os.path.exists(expanded_path):
-                raise SystemExit(
-                    _("{} launcher file was not found!").format(expanded_path)
-                )
-            with open(expanded_path, "rt") as f:
-                self._launcher_text = f.read()
-            self.launcher = Configuration.from_text(
-                self._launcher_text, "Controller:{}".format(expanded_path)
-            )
+        self._launcher_path_or_id = ctx.args.launcher
         if ctx.args.user:
             self._normal_user = ctx.args.user
         timeout = 600
@@ -324,6 +313,19 @@ class RemoteController(ReportsStage, MainLoopStage):
                     )
 
                 self.check_remote_api_match()
+                self._launcher_text = load_launcher_text(
+                    self._launcher_path_or_id, self.sa
+                )
+                # this is necessary because the configuration may import global
+                # configuartion on the DUT
+                self.launcher = Configuration.from_json(
+                    self.sa.get_resolved_launcher_json(
+                        Configuration.from_text(
+                            self._launcher_text,
+                            "Controller: {}".format(self._launcher_path_or_id),
+                        ).to_json()
+                    )
+                )
 
                 state, payload = self.sa.whats_up()
                 _logger.info("controller: Main dispatch with state: %s", state)

@@ -26,6 +26,7 @@ import io
 import logging
 import os
 import shlex
+import json
 
 from configparser import ConfigParser
 from collections import namedtuple, OrderedDict
@@ -297,6 +298,28 @@ class Configuration:
                     cfg.notice_problem(problem)
                     continue
                 cfg.set_value(sect_name, var_name, var, origin)
+        return cfg
+
+    def to_json(self):
+        """
+        Encodes the Configuration in a json object with sections and origins
+        """
+        to_encode = {
+            "origins": self._origins,
+            "sections": self.sections,
+            "problems": self._problems,
+            "sources": self.sources,
+        }
+        return json.dumps(to_encode)
+
+    @classmethod
+    def from_json(cls, config_json: str):
+        config_dict = json.loads(config_json)
+        cfg = cls()
+        cfg._origins = config_dict["origins"]
+        cfg._problems = config_dict["problems"]
+        cfg._sources = config_dict["sources"]
+        cfg.sections = config_dict["sections"]
         return cfg
 
     _DYNAMIC_SECTIONS = ("environment", "manifest")

@@ -24,6 +24,7 @@
 import gettext
 import logging
 import os
+from pathlib import Path
 
 from plainbox.impl.config import Configuration
 
@@ -101,7 +102,9 @@ def resolve_configs(launcher_config, session_assistant):
     """
     config = Configuration()
     if launcher_config:
-        global_config_name = config.get_value("config", "config_filename")
+        global_config_name = launcher_config.get_value(
+            "config", "config_filename"
+        )
     else:
         global_config_name = config.get_value("config", "config_filename")
 
@@ -149,71 +152,29 @@ def resolve_configs(launcher_config, session_assistant):
     return config
 
 
-def load_configs(launcher_file=None, cfg=None, sa=None):
+def load_launcher_or_default(launcher_path_or_id, session_assistant):
     """
-    Read a chain of configs/launchers.
+    Ensure that if a launcher is requested it is loaded correctly else an empty
+    config is returned
 
-    In theory there can be a very long list of configs that are linked by
-    specifying config_filename in each. Each config that defines a
-    config_filename imports the values that are defined in the path/name
-    provided. The imported are overwritten by the importee and whoever has
-    an higher priority.
-
-    Ex: If ~/.config/checkbox.conf has config_filename A and we have both
-        ~/.config/A and /etc/xdg/A:
-
-        - ~/.config/A has an higher priority than /etc/xdg/A
-        - anything that ~/.config/A imports has a higher priority
-            than /etc/xdg/A but lower than ~/.config/A itself
-        - anything that /etc/xdg/A imports has the lowest possible
-            priority
+    This is different from using `from_path` because it doesn't fail if the
+    file doesn't exist, while this raises an exception
     """
-    assert not (
-        launcher_file and cfg
-    ), "config_filename in cfg will be ignored, FIXME"
-    if not cfg:
-        cfg = Configuration()
-    if launcher_file:
-        # Use the config_filename if it is defined in launcher
-        launcher_file_conf = Configuration.from_path(launcher_file)
-        to_load_conf_names = _search_configs_by_name(
-            launcher_file_conf.get_value("config", "config_filename")
-        )
-    else:
-        # configs to read which may reference other configs
-        to_load_conf_names = _search_configs_by_name(
-            cfg.get_value("config", "config_filename")
-        )
-    # used to avoid "loops"
-    # Note: checkbox.conf is always the default "config_filename"
-    #       so we *always* have a loop eventually
-    already_loaded = {cfg.get_value("config", "config_filename")}
-    loaded_confs_sources = []
-    while to_load_conf_names:
-        to_load = to_load_conf_names.pop(0)
-        curr_cfg = Configuration.from_path(to_load)
-        imported_cfg_name = curr_cfg.get_value("config", "config_filename")
-        if imported_cfg_name and imported_cfg_name not in already_loaded:
-            # next load what this conf imports
-            to_load_conf_names = (
-                _search_configs_by_name(imported_cfg_name) + to_load_conf_names
-            )
-            already_loaded.add(imported_cfg_name)
-        loaded_confs_sources.append((curr_cfg, to_load))
+    if launcher_path_or_id is None:
+        return Configuration()
 
-    # here if A -> B -> C in loaded_confs_sources we have [A_conf, B_conf, C_conf]
-    #  but A -> B means A overrides B so we reverse order
-    _logger.debug("Applying conf, latest applied has the highest priority")
-    for conf, source in reversed(loaded_confs_sources):
-        _logger.debug("Applying %s", source)
-        cfg.update_from_another(conf, "config file: {}".format(source))
-
-    if launcher_file:
-        # Launcher files always have priority, we've loaded it before just to
-        # read the config_filename
-        cfg.update_from_another(
-            launcher_file_conf,
-            "Launcher file: {}".format(launcher_file),
+    launcher_path = Path(launcher_path_or_id)
+    if launcher_path.exists():
+        # here we check before we create because from_path doesn't fail on
+        # non existent inputs, it "notices" a problem sigh
+        return Configuration.from_path(launcher_path)
+    launcher_id = str(launcher_path_or_id)
+    try:
+        launcher_text = session_assistant.get_provider_launcher_by_id(
+            launcher_id
         )
-
-    return cfg
+        return Configuration.from_text(launcher_text, launcher_path)
+    except FileNotFoundError:
+        # launcher was requested but it is neither a provider launcher
+        # nor a local file
+        raise SystemExit('Launcher "{}" not found'.format(launcher_path))

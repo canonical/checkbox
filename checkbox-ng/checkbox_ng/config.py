@@ -81,6 +81,8 @@ def load_config(config_name: str, session_assistant):
         return Configuration.from_path(config_name)
 
 
+# WARNING: dont call this function on the controller side! It only makes sense
+#          on the DUT
 def resolve_configs(launcher_config, session_assistant):
     """
     Resolves imports and overrides in a chain of configs applying also the
@@ -147,7 +149,8 @@ def resolve_configs(launcher_config, session_assistant):
         # read the config_filename
         config.update_from_another(
             launcher_config,
-            "Launcher file: {}".format(launcher_config.sources[0]),
+            # launcher may be default therefore sources is empty
+            next(iter(launcher_config.sources), ""),
         )
 
     return config

@@ -930,7 +930,6 @@ class RemoteSessionAssistant:
 
     def resume_by_id(self, session_id=None, result_interactively_decided={}):
         _logger.info("resume_by_id: %r", session_id)
-        self._launcher = load_configs()
         resume_candidates = list(self._sa.get_resumable_sessions())
         if not session_id:
             if not resume_candidates:
@@ -950,14 +949,11 @@ class RemoteSessionAssistant:
             session_id, runner_kwargs=runner_kwargs
         )
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
-        if "launcher" in app_blob:
-            launcher_from_controller = Configuration.from_text(
-                app_blob["launcher"], "Remote launcher"
-            )
-        else:
-            launcher_from_controller = Configuration()
-        self._launcher.update_from_another(
-            launcher_from_controller, "Remote launcher"
+        self._launcher = resolve_configs(
+            Configuration.from_text(
+                app_blob.get("launcher", ""), origin="Remote launcher"
+            ),
+            self._sa,
         )
         self._sa.use_alternate_configuration(self._launcher)
 

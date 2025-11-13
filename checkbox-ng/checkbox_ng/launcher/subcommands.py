@@ -61,7 +61,7 @@ from plainbox.impl.transport import SECURE_ID_PATTERN
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.impl.config import Configuration
 
-from checkbox_ng.config import resolve_configs
+from checkbox_ng.config import resolve_configs, load_launcher_or_default
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.launcher.startprovider import (
     EmptyProviderSkeleton,
@@ -242,25 +242,7 @@ class Launcher(MainLoopStage, ReportsStage):
             # exited by now, so validation passed
             print(_("Launcher seems valid."))
             return
-        launcher_config = None
-        from pathlib import Path
-
-        if ctx.args.launcher and Path(ctx.args.launcher).exists():
-            launcher_config = Configuration.from_path(ctx.args.launcher)
-        elif ctx.args.launcher:
-            try:
-                launcher_text = ctx.sa.get_provider_launcher_by_id(
-                    ctx.args.launcher
-                )
-                launcher_config = Configuration.from_text(
-                    launcher_text, ctx.args.launcher
-                )
-            except FileNotFoundError:
-                # launcher was requested but it is neither a provider launcher
-                # nor a local file
-                raise SystemExit(
-                    'Launcher "{}" not found'.format(ctx.args.launcher)
-                )
+        launcher_config = load_launcher_or_default(ctx.args.launcher, ctx.sa)
         self.configuration = resolve_configs(launcher_config, ctx.sa)
         logging_level = {
             "normal": logging.WARNING,

@@ -185,6 +185,10 @@ class RemoteAssistantTests(TestCase):
             tps = RemoteSessionAssistant.start_session(rsa, extra_cfg)
             self.assertEqual(tps[0][0][1], "tp")
 
+    @mock.patch(
+        "plainbox.impl.session.remote_assistant.resolve_configs",
+        new=mock.Mock(side_effect=lambda conf, sa: conf),
+    )
     def test_resume_by_id_with_session_id(self):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
@@ -213,6 +217,10 @@ class RemoteAssistantTests(TestCase):
         RemoteSessionAssistant.resume_by_id(rsa, "bad_id")
         self.assertEqual(rsa.state, RemoteSessionStates.Idle)
 
+    @mock.patch(
+        "plainbox.impl.session.remote_assistant.resolve_configs",
+        new=mock.Mock(side_effect=lambda conf, sa: conf),
+    )
     def test_resume_by_id_without_session_id(self):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
@@ -227,8 +235,11 @@ class RemoteAssistantTests(TestCase):
         RemoteSessionAssistant.resume_by_id(rsa)
         self.assertEqual(rsa.state, RemoteSessionStates.TestsSelected)
 
-    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
-    def test_resume_by_id_with_result_file_ok(self, mock_load_configs):
+    @mock.patch(
+        "plainbox.impl.session.remote_assistant.resolve_configs",
+        new=mock.Mock(side_effect=lambda conf, sa: conf),
+    )
+    def test_resume_by_id_with_result_file_ok(self):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
         resumable_session.id = "session_id"
@@ -269,10 +280,11 @@ class RemoteAssistantTests(TestCase):
         )
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
-    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
-    def test_resume_by_id_with_result_file_garbage_outcome(
-        self, mock_load_configs
-    ):
+    @mock.patch(
+        "plainbox.impl.session.remote_assistant.resolve_configs",
+        new=mock.Mock(side_effect=lambda conf, sa: conf),
+    )
+    def test_resume_by_id_with_result_file_garbage_outcome(self):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
         resumable_session.id = "session_id"
@@ -316,10 +328,11 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
     @mock.patch("plainbox.impl.session.remote_assistant.open")
-    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
-    def test_resume_by_id_with_result_no_file_noreturn(
-        self, mock_load_configs, mock_open
-    ):
+    @mock.patch(
+        "plainbox.impl.session.remote_assistant.resolve_configs",
+        new=mock.Mock(side_effect=lambda conf, sa: conf),
+    )
+    def test_resume_by_id_with_result_no_file_noreturn(self, mock_open):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
         resumable_session.id = "session_id"
@@ -358,10 +371,11 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
     @mock.patch("plainbox.impl.session.remote_assistant.open")
-    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
-    def test_resume_by_id_with_result_no_file_normal(
-        self, mock_load_configs, mock_open
-    ):
+    @mock.patch(
+        "plainbox.impl.session.remote_assistant.resolve_configs",
+        new=mock.Mock(side_effect=lambda conf, sa: conf),
+    )
+    def test_resume_by_id_with_result_no_file_normal(self, mock_open):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
         resumable_session.id = "session_id"
@@ -403,10 +417,11 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
     @mock.patch("plainbox.impl.session.remote_assistant.open")
-    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
-    def test_resume_by_id_with_result_no_file_already_set(
-        self, mock_load_configs, mock_open
-    ):
+    @mock.patch(
+        "plainbox.impl.session.remote_assistant.resolve_configs",
+        new=mock.Mock(side_effect=lambda conf, sa: conf),
+    )
+    def test_resume_by_id_with_result_no_file_already_set(self, mock_open):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
         resumable_session.id = "session_id"
@@ -437,8 +452,11 @@ class RemoteAssistantTests(TestCase):
         # the job already has an outcome, don't re-adopt it
         self.assertFalse(rsa._sa.use_job_result.called)
 
-    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
-    def test_resume_by_id_with_result_file_not_json(self, mock_load_configs):
+    @mock.patch(
+        "plainbox.impl.session.remote_assistant.resolve_configs",
+        new=mock.Mock(side_effect=lambda conf, sa: conf),
+    )
+    def test_resume_by_id_with_result_file_not_json(self):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
         resumable_session.id = "session_id"

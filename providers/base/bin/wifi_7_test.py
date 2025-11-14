@@ -1,0 +1,500 @@
+#!/usr/bin/env python3
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#  Zhongning Li <zhongning.li@canonical.com>
+
+"""
+This is a simple test to see if Wi-Fi 7 features like MLO
+(Multi-Link Operation) are supported on the DUT.
+
+The checks come from this guide:
+https://documentation.meraki.com/MR/Wi-Fi_Basics_and_Best_Practices/Wi-Fi_7_(802.11be)_Technical_Guide  # noqa: E501
+
+Prerequisites for running this test:
+- 6.14+ kernel (the kernels in 24.04.3 and newer versions are ok!)
+- wpasupplicant >= 2.11
+- The AP specified in -m/--mlo-ssid is assumed to support wifi 7
+  and have MLO enabled
+"""
+
+import argparse
+import itertools
+import subprocess as sp
+import typing as T
+from sys import stderr
+
+from checkbox_support.helpers.retry import retry
+
+COMMAND_TIMEOUT = 120
+E = T.TypeVar("E")
+
+
+def remove_prefix(s: str, prefix: str) -> str:
+    """3.8 and older doesn't have <str>.removeprefix()"""
+    if s.startswith(prefix):
+        return s[len(prefix) :]
+    return s
+
+
+def remove_suffix(s: str, suffix: str) -> str:
+    """3.8 and older doesn't have <str>.removesuffix()"""
+    if s.endswith(suffix):
+        return s[: len(s) - len(suffix)]
+    return s
+
+
+def find_by_fn(items: "list[E]", fn: T.Callable[[E], bool]) -> "E | None":
+    """Find the first element that satisfies the predicate
+
+    :param items: list to search through
+    :param fn: the predicate function
+    :return: the element such that fn(element) == True
+             or None if nothing in 'items' satisfies the predicate
+    """
+    for item in items:
+        if fn(item):
+            return item
+    return None
+
+
+class ConnectionInfo:
+    # ideally we don't parse iw but reimplementing the
+    # whole connect -> bind -> link sequence is even more complicated
+    def __init__(
+        self,
+        mcs: "int | None",
+        conn_type: "T.Literal['EHT', 'HE', 'VT', 'HT', 'Legacy']",
+        direction: "T.Literal['rx', 'tx']",
+        bandwidth: "int | None",
+    ) -> None:
+        # TODO: Move to dataclass once we drop 3.5
+        self.mcs = mcs
+        self.conn_type = conn_type
+        self.direction = direction
+        self.bandwidth = bandwidth
+
+    @classmethod
+    def parse(
+        cls, iw_link_output: str
+    ) -> "tuple[ConnectionInfo | None, ConnectionInfo | None]":
+        """Parses the output of 'iw dev <interface> link' and put the values in
+        this wrapper object
+
+        Check this file to see how the outputs are produced by iw:
+        https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/station.c#n199 # noqa: E501
+
+        For MCS (Modulation Coding Scheme) values, check this table:
+        https://mcsindex.net/
+
+        :param iw_link_output: output from iw dev <interface> link
+        :return: the (tx, rx) pair
+        """
+        tx = None  # type: ConnectionInfo | None
+        rx = None  # type: ConnectionInfo | None
+
+        for line in iw_link_output.splitlines():
+            clean_line = line.strip()
+
+            if not clean_line.startswith(("tx bitrate:", "rx bitrate:")):
+                continue
+
+            is_tx = clean_line.startswith("tx")
+            words = remove_prefix(
+                remove_prefix(clean_line, "tx bitrate:"), "rx bitrate:"
+            ).split()
+
+            # based on this answer
+            # https://askubuntu.com/questions/191650/how-to-know-which-standard-my-wi-fi-connection-is-currently-using # noqa: E501
+            conn_type_word = find_by_fn(words, lambda s: s.endswith("MCS"))
+            if conn_type_word is None:
+                conn_type = "Legacy"
+            elif conn_type_word == "MCS":
+                # special case:
+                # for 802.11n connections specifically, conn_type_word == "MCS"
+                conn_type = "HT"
+            else:
+                # Examples:
+                # words = [11.0, MBit/s, 40MHz, HE-MCS, 3,
+                #          HE-NSS, 2, HE-GI, 2, HE-DCM, 0]
+                # words = [48, MBit/s, 320MHz, EHT-MCS, 11,
+                #          EHT-NSS, 2, EHT-GI, 0]
+                conn_type = remove_suffix(conn_type_word, "-MCS")
+
+            if conn_type not in (
+                "EHT",  # wifi 7
+                "HE",  # wifi 6 and wifi 6e
+                "VT",  # wifi 5
+                "HT",  # wifi 4
+                "Legacy",  # all standards older than 802.11n
+            ):
+                print(
+                    "Unexpected",
+                    "tx" if is_tx else "rx",
+                    "connection type:",
+                    conn_type,
+                    file=stderr,
+                )
+                continue
+
+            bandwidth = None  # type: int | None
+            bandwidth_word = find_by_fn(words, lambda s: s.endswith("MHz"))
+            if bandwidth_word is None:
+                print(
+                    "No connection bandwidth was found for",
+                    "tx" if is_tx else "rx",
+                    file=stderr,
+                )
+            else:
+                bandwidth = int(remove_suffix(bandwidth_word, "MHz"))
+
+            mcs = None  # type: int | None
+            if conn_type_word:
+                try:
+                    mcs_word_index = words.index(conn_type_word)
+                    mcs = int(words[mcs_word_index + 1])
+                except ValueError as e:
+                    # both <list>.index() and int() raise ValueError
+                    # stop parsing if either happens
+                    print(e, file=stderr)
+                    continue
+
+            if is_tx:
+                tx = ConnectionInfo(mcs, conn_type, "tx", bandwidth)
+            else:
+                rx = ConnectionInfo(mcs, conn_type, "rx", bandwidth)
+
+        return (tx, rx)
+
+
+def get_num_mlo_links(iw_info_output: str) -> int:
+    """Get the number of MLO links based on the output of 'iw dev <iface> info'
+
+    :param iw_info_output: output of 'iw dev <iface> info'
+    :return: number of MLO links. This is NOT the same as regular wifi links
+    """
+    # https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/interface.c#n480 # noqa: E501
+
+    num_links = 0
+    for line in iw_info_output.splitlines():
+        if line.strip().startswith("- link ID"):
+            num_links += 1
+
+    return num_links
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-m",
+        "--mlo-ssid",
+        help="Name/SSID of the MLO wifi access point",
+        dest="mlo_ssid",
+        required=True,
+        type=str,
+    )
+    parser.add_argument(
+        "-p", "--password", help="the password to use when connecting to wifi"
+    )
+    parser.add_argument(
+        "-i",
+        "--interface",
+        help="Specify which wifi interface nmcli should use",
+        required=False,
+    )
+    return parser.parse_args()
+
+
+def connect(ssid: str, password: "str | None", interface: "str | None" = None):
+    """Connect to wifi through nmcli
+
+    :raises SystemExit: if ssid cannot be found
+    """
+    # delete the connection if we have it
+    if (
+        sp.run(
+            ["nmcli", "connection", "show", ssid],
+            stderr=sp.DEVNULL,
+            stdout=sp.DEVNULL,
+        ).returncode
+        == 0  # returns 10 if connection doesn't exist
+    ):
+        # flush here to make sure it prints before we actually delete
+        print("Deleting existing connections of '{}'".format(ssid), flush=True)
+        sp.check_call(["nmcli", "connection", "delete", ssid])
+
+    # color is removed when nmcli detects that its output is being piped
+    # so we don't need to manually remove colors
+
+    nmcli_output = sp.check_output(
+        [
+            "nmcli",
+            "--get-values",
+            "SSID",
+            "device",
+            "wifi",
+            "list",
+            "--rescan",
+            "yes",
+            *(["ifname", interface] if interface else []),
+        ],
+        universal_newlines=True,
+        timeout=COMMAND_TIMEOUT,
+    )
+
+    for line in nmcli_output.splitlines():
+        clean_line = line.strip()
+        # should match exactly, otherwise the nmcli connect call is
+        # guaranteed to fail
+        if ssid != clean_line:
+            continue
+
+        if password:
+            sp.check_call(
+                [
+                    "nmcli",
+                    "device",
+                    "wifi",
+                    "connect",
+                    ssid,
+                    "password",
+                    password,
+                    *(["ifname", interface] if interface else []),
+                ],
+            )
+        else:
+            sp.check_call(
+                [
+                    "nmcli",
+                    "device",
+                    "wifi",
+                    "connect",
+                    ssid,
+                    *(["ifname", interface] if interface else []),
+                ],
+            )
+
+        print("[ OK ] Connected to {}".format(ssid))
+        return
+
+    raise SystemExit("Did not see '{}' in nmcli's scan output".format(ssid))
+
+
+def disconnect(ssid: str):
+    sp.check_call(
+        ["nmcli", "connection", "delete", ssid],
+        timeout=COMMAND_TIMEOUT,
+    )
+
+
+def get_wifi_interface() -> str:
+    """Get the default wifi interface's name by asking nmcli
+
+    :raises SystemExit: If there's no default interface
+    :return: name of the interface like wlan0
+    """
+    wifi_interface = None  # type: str | None
+    nmcli_output = sp.check_output(
+        [
+            "nmcli",
+            "--get-values",
+            "GENERAL.DEVICE,GENERAL.TYPE",
+            "device",
+            "show",
+        ],
+        universal_newlines=True,
+        timeout=COMMAND_TIMEOUT,
+    )
+    # https://stackoverflow.com/a/15358422
+    name_type_pairs = [  # list of [str, str] pairs
+        list(words_iterator)
+        for is_separator, words_iterator in itertools.groupby(
+            nmcli_output.splitlines(), lambda s: s == ""
+        )
+        if not is_separator
+    ]
+
+    for interface_name, interface_type in name_type_pairs:
+        if interface_type == "wifi":
+            wifi_interface = interface_name
+            break  # just pick the first one
+
+    if wifi_interface is None:
+        raise SystemExit("There are no wifi interfaces on this DUT")
+
+    return wifi_interface
+
+
+@retry(max_attempts=30, delay=2)
+def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
+    """
+    The main "Connect -> Do iw checks -> Dump logs -> Disconnect" sequence
+
+    Retry 30 times, delay only 2 seconds between retries.
+    We want to retry faster here because wifi7 links are very sensitive
+    to the environment.
+
+    :param wifi_interface: name of the interface like wlan0
+    :param mlo_ssid: ssid of the wifi7 access point
+    :param password: connection password
+    :raises SystemExit: if ssid is not listed in iw dev
+    :raises SystemExit: if iw shows that the connection is not a wifi 7 conn
+    :raises SystemExit: if iw shows no MLO links or less than 2 links
+    """
+
+    print(
+        "Attempting to connect to '{}' on '{}'...".format(
+            mlo_ssid, wifi_interface
+        ),
+        # force a flush to print this before the connection
+        flush=True,
+    )
+
+    connect(mlo_ssid, password, wifi_interface)
+    iw_info_output = sp.check_output(
+        ["iw", "dev", wifi_interface, "info"],
+        universal_newlines=True,
+        timeout=COMMAND_TIMEOUT,
+    )
+    iw_link_output = sp.check_output(
+        ["iw", "dev", wifi_interface, "link"],
+        universal_newlines=True,
+        timeout=COMMAND_TIMEOUT,
+    )
+    disconnect(mlo_ssid)
+
+    print("iw dev {} info".format(wifi_interface))
+    print(iw_info_output)
+    print()
+    print("iw dev {} link".format(wifi_interface))
+    print(iw_link_output)
+
+    if mlo_ssid not in iw_info_output and mlo_ssid not in iw_link_output:
+        raise SystemExit(
+            "Interface '{}' was not connected to SSID '{}'".format(
+                wifi_interface, mlo_ssid
+            )
+        )
+
+    num_links = get_num_mlo_links(iw_info_output)
+    (tx, rx) = ConnectionInfo.parse(iw_link_output)
+
+    # required, must be a 802.11be conn and have 2 links
+
+    if (tx and tx.conn_type == "EHT") or (rx and rx.conn_type == "EHT"):
+        print("[ OK ] This is a 802.11be connection (EHT)")
+    else:
+        raise SystemExit(
+            "This wifi connection (interface: {}, ssid: {}) ".format(
+                wifi_interface, mlo_ssid
+            )
+            + "is not a 802.11be connection. "
+            + "Expected EHT, but got 'tx: {}', 'rx: {}'".format(
+                tx and tx.conn_type, rx and rx.conn_type
+            )
+        )
+
+    if num_links >= 2:
+        print(
+            "[ OK ] Found {} links in this connection".format(num_links),
+            "(interface: {}, ssid: {})".format(wifi_interface, mlo_ssid),
+        )
+    else:
+        raise SystemExit(
+            "This wifi connection (interface: {}, ssid: {}) ".format(
+                wifi_interface, mlo_ssid
+            )
+            + "is not an MLO connection. "
+            + "Expected at least 2 MLO links, got {}".format(num_links),
+            # mlo link != plain wifi link, it's possible to get 0 here
+        )
+
+    # optional checks, they just print warnings
+
+    if (tx and tx.bandwidth == 320) or (rx and rx.bandwidth == 320):
+        print("[ OK ] This connection is using 320MHz bandwidth")
+    else:
+        print(
+            "This wifi connection (interface: {}, ssid: {}) ".format(
+                wifi_interface, mlo_ssid
+            ),
+            "is not using 320MHz bandwidth.",
+            "It's possible that the AP of {}".format(mlo_ssid),
+            "isn't configured correctly",
+            "or the SoC on this wifi card doesn't support 320MHz",
+            file=stderr,
+        )
+
+    if (tx and tx.mcs in (12, 13)) or (rx and rx.mcs in (12, 13)):
+        print("[ OK ] This connection is using 4096 QAM (MCS 12 and 13)!")
+    else:
+        # DUT pretty much has to be next to the AP for this
+        print(
+            "[ WARN ] Expected 4096QAM (MCS12 or 13),",
+            "but got tx MCS={}, rx MCS={}.".format(
+                tx and tx.mcs, rx and rx.mcs
+            ),
+            "Which MCS is chosen by the AP is",
+            "highly dependent on the environment.",
+            "Try moving the DUT next to the AP and run the test again.",
+            file=stderr,
+        )
+
+
+def main():
+    args = parse_args()
+
+    if not args.interface:
+        wifi_interface = get_wifi_interface()
+        print(
+            "Interface not specified,",
+            "using the default wifi interface:",
+            wifi_interface,
+        )
+    else:
+        wifi_interface = args.interface
+
+    active_wifi_conn_uuids = []  # type: list[str]
+    previous_mlo_ap_conn_uuid = None  # type: str | None
+
+    for conn_line in sp.check_output(
+        ["nmcli", "connection", "show", "--active"],
+        universal_newlines=True,
+    ).splitlines():
+        if "wifi" in conn_line and wifi_interface in conn_line:
+            conn_uuid = conn_line.split()[1].strip()
+            active_wifi_conn_uuids.append(conn_uuid)
+            if args.mlo_ssid in conn_line:
+                previous_mlo_ap_conn_uuid = conn_uuid
+
+    # turn down all active connections
+    for conn_uuid in active_wifi_conn_uuids:
+        print(
+            "Turning down connection",
+            "'{}'".format(conn_uuid),
+            "before the test",
+            flush=True,
+        )
+        sp.check_call(["nmcli", "connection", "down", conn_uuid])
+
+    try:
+        run_iw_checks(args.mlo_ssid, args.password, wifi_interface)
+    finally:
+        for conn_uuid in active_wifi_conn_uuids:
+            if conn_uuid == previous_mlo_ap_conn_uuid:
+                # if the mlo ap was connected before the test,
+                # we can't use 'nmcli c up' to restore the connection
+                # because it would've been deleted.
+                # instead, call connect() again
+                print(
+                    "Restoring connection by name:", args.mlo_ssid, flush=True
+                )
+                connect(args.mlo_ssid, args.password, wifi_interface)
+            else:
+                print("Restoring connection by uuid:", conn_uuid, flush=True)
+                sp.check_call(["nmcli", "connection", "up", conn_uuid])
+
+
+if __name__ == "__main__":
+    main()

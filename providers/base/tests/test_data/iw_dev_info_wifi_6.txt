@@ -1,0 +1,12 @@
+Interface wlp0s20f3
+	ifindex 2
+	wdev 0x1
+	addr 2c:7b:a0:e9:ae:80
+	ssid wifi7-ap
+	type managed
+	wiphy 0
+	channel 149 (5745 MHz), width: 40 MHz, center1: 5755 MHz
+	txpower 22.00 dBm
+	multicast TXQ:
+		qsz-byt	qsz-pkt	flows	drops	marks	overlmt	hashcol	tx-bytes	tx-packets
+		0	0	0	0	0	0	0	0		0

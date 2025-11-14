@@ -1,0 +1,14 @@
+Connected to f0:a7:31:16:77:a1 (on wlp0s20f3)
+	SSID: wifi7-ap
+	Link 1 BSSID fe:a7:31:16:77:9f
+		freq: 5240.0
+	Link 2 BSSID f2:a7:31:16:77:a3
+		freq: 6375.0
+MLD f0:a7:31:16:77:a1 stats:
+	RX: 585329392 bytes (8827749 packets)
+	TX: 2395896496 bytes (572452 packets)
+	signal: -40 dBm
+	tx bitrate: 4803.8 MBit/s 320MHz EHT-MCS 12 EHT-NSS 2 EHT-GI 0
+	bss flags: 
+	dtim period: 0
+	beacon int: 100

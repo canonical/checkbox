@@ -75,7 +75,7 @@ def load_config(config_name: str, session_assistant):
         config_text = session_assistant.get_provider_launcher_by_id(
             config_name
         )
-        # the source will be overwritten futther down anyway
+        # the source will be overwritten further down anyway
         return Configuration.from_text(config_text, config_name)
     except FileNotFoundError:
         return Configuration.from_path(config_name)

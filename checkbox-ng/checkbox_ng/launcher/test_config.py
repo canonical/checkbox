@@ -57,12 +57,17 @@ class DefaultsTests(TestCase):
 
 class CheckConfigTests(TestCase):
     @mock.patch("builtins.print")
-    @mock.patch("checkbox_ng.launcher.config.load_configs")
-    def test_invoked_ok(self, mock_load_configs, mock_print):
+    @mock.patch(
+        "checkbox_ng.launcher.config.load_launcher_text",
+        new=MagicMock(return_value=""),
+    )
+    @mock.patch(
+        "checkbox_ng.launcher.config.resolve_configs",
+        new=MagicMock(side_effect=lambda conf, sa: conf),
+    )
+    def test_invoked_ok(self, mock_print):
         args_mock = MagicMock()
         args_mock.args.launcher = None
-        # this is the default configuration
-        mock_load_configs.return_value = Configuration()
 
         ret_val = CheckConfig.invoked(args_mock)
 
@@ -71,14 +76,20 @@ class CheckConfigTests(TestCase):
         self.assertEqual(ret_val, 0)
 
     @mock.patch("builtins.print")
-    @mock.patch("checkbox_ng.launcher.config.load_configs")
-    def test_invoked_has_problems(self, mock_load_configs, mock_print):
+    @mock.patch(
+        "checkbox_ng.launcher.config.load_launcher_text",
+        new=MagicMock(return_value=""),
+    )
+    @mock.patch(
+        "checkbox_ng.launcher.config.resolve_configs",
+    )
+    def test_invoked_has_problems(self, resolve_configs_mock, mock_print):
         args_mock = MagicMock()
         args_mock.args.launcher = None
         # this is the default configuration
         conf = Configuration()
         conf.notice_problem("Test problem")
-        mock_load_configs.return_value = conf
+        resolve_configs_mock.return_value = conf
 
         ret_val = CheckConfig.invoked(args_mock)
 

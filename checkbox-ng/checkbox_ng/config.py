@@ -106,10 +106,10 @@ def resolve_configs(launcher_config, session_assistant):
     config = Configuration()
     if launcher_config:
         global_config_name = launcher_config.get_value(
-            "config", "config_filename"
+            "config", "import_override"
         )
     else:
-        global_config_name = config.get_value("config", "config_filename")
+        global_config_name = config.get_value("config", "import_override")
 
     to_load_conf_names = _search_configs_by_name(
         global_config_name, session_assistant
@@ -118,13 +118,13 @@ def resolve_configs(launcher_config, session_assistant):
     loaded_confs_sources = []
 
     # used to avoid "loops"
-    # Note: checkbox.conf is always the default "config_filename"
+    # Note: checkbox.conf is always the default "import_override"
     #       so we *always* have a loop eventually
     loaded_confs_sources = []
     while to_load_conf_names:
         to_load = to_load_conf_names.pop(0)
         curr_cfg = load_config(to_load, session_assistant)
-        imported_cfg_name = curr_cfg.get_value("config", "config_filename")
+        imported_cfg_name = curr_cfg.get_value("config", "import_override")
         if (
             imported_cfg_name
             and imported_cfg_name not in already_loaded_conf_names

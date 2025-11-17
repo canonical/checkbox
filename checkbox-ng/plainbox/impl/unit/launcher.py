@@ -52,7 +52,7 @@ class LauncherUnit(UnitWithId):
         """
         Calculating checksums of launchers is not supported
         """
-        return "0"
+        return str(hash(self._data["path"]))
 
     @property
     def text(self):
@@ -61,9 +61,13 @@ class LauncherUnit(UnitWithId):
 
     @classmethod
     def from_path(cls, path: str, text: str, **kwargs):
-        path = Path(path)
         return cls(
-            {"unit": "launcher", "path": path, "id": path.stem, "text": text},
+            {
+                "unit": "launcher",
+                "path": str(path),
+                "id": str(Path(path).stem),
+                "text": text,
+            },
             **kwargs
         )
 

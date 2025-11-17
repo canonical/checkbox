@@ -197,6 +197,9 @@ class InstallCommand(ManageCommand):
             "units": os.path.join(
                 "{prefix}", "share", "{provider.name}", "units"
             ),
+            "launchers": os.path.join(
+                "{prefix}", "share", "{provider.name}", "launchers"
+            ),
             "po": None,
             "provider": os.path.join(
                 "{prefix}",
@@ -241,6 +244,13 @@ class InstallCommand(ManageCommand):
                 "{provider.name}",
                 "units",
             ),
+            "launchers": os.path.join(
+                "{prefix}",
+                "lib",
+                "plainbox-providers-1",
+                "{provider.name}",
+                "launchers",
+            ),
             "po": None,
             "provider": os.path.join(
                 "{prefix}",
@@ -255,6 +265,7 @@ class InstallCommand(ManageCommand):
             "data": os.path.join("{prefix}", "data"),
             "jobs": os.path.join("{prefix}", "jobs"),
             "units": os.path.join("{prefix}", "units"),
+            "launchers": os.path.join("{prefix}", "launchers"),
             "po": None,
             "provider": os.path.join(
                 "{prefix}", "{provider.name_without_colon}.provider"
@@ -269,6 +280,7 @@ class InstallCommand(ManageCommand):
         "data": "data_dir",
         "jobs": "jobs_dir",
         "units": "units_dir",
+        "launchers": "launchers_dir",
     }
 
     def get_command_epilog(self):

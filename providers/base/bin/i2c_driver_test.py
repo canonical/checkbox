@@ -107,7 +107,11 @@ class I2cDriverTest:
 
     def main(self):
         subcommands = {"bus": Bus, "device": Device}
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            epilog="NOTE: When using 'device', the IGNORED_I2C_BUSES "
+            "environment variable is respected and should contain "
+            "a comma-separated list of bus names to ignore."
+        )
         parser.add_argument("subcommand", type=str, choices=subcommands)
         parser.add_argument(
             "-b",

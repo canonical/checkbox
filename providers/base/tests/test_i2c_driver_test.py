@@ -76,7 +76,7 @@ def mock_subprocess_check_output(cmd_args, **kwargs):
     if cmd_args == ["i2cdetect", "-y", "-r", "7"]:
         return MOCK_DETECT_BUS_FAILURE
 
-    raise ValueError(f"Unexpected subprocess call: {cmd_args}")
+    raise ValueError("Unexpected subprocess call: {}".format(cmd_args))
 
 
 class TestI2CDevice(unittest.TestCase):
@@ -104,7 +104,7 @@ class TestI2CDevice(unittest.TestCase):
                 return MOCK_BUS_LIST_OUTPUT.splitlines()[0]
             if cmd_args == ["i2cdetect", "-y", "-r", "0"]:
                 return MOCK_DETECT_BUS_0_SUCCESS
-            raise ValueError(f"Unexpected subprocess call: {cmd_args}")
+            raise ValueError("Unexpected subprocess call: {}".format(cmd_args))
 
         mock_check_output.side_effect = bus_0_side_effect
         with io.StringIO() as buf, redirect_stdout(buf):
@@ -130,7 +130,7 @@ class TestI2CDevice(unittest.TestCase):
                 return MOCK_BUS_LIST_OUTPUT.splitlines()[1]
             if cmd_args == ["i2cdetect", "-y", "-r", "1"]:
                 return MOCK_DETECT_BUS_1_SUCCESS
-            raise ValueError(f"Unexpected subprocess call: {cmd_args}")
+            raise ValueError("Unexpected subprocess call: {}".format(cmd_args))
 
         mock_check_output.side_effect = bus_1_side_effect
         with io.StringIO() as buf, redirect_stdout(buf):
@@ -160,7 +160,7 @@ class TestI2CDevice(unittest.TestCase):
                 return MOCK_BUS_LIST_OUTPUT.splitlines()[4]
             if cmd_args == ["i2cdetect", "-y", "-r", "5"]:
                 return MOCK_DETECT_BUS_FAILURE
-            raise ValueError(f"Unexpected subprocess call: {cmd_args}")
+            raise ValueError("Unexpected subprocess call: {}".format(cmd_args))
 
         mock_check_output.side_effect = no_devices_side_effect
 

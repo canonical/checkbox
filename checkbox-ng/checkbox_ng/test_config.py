@@ -136,7 +136,7 @@ class ResolveConfigsTests(TestCase):
 
         result = resolve_configs(None, session_assistant)
 
-        search_mock.assert_called_once()
+        self.assertEqual(search_mock.call_count, 1)
         self.assertIsNotNone(result)
 
     def test_launcher_config_overrides_all(self, search_mock, load_mock):

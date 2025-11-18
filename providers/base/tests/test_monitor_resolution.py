@@ -58,7 +58,7 @@ class TestMonitorResolution(unittest.TestCase):
             # Mock retrieving geometry from Gdk.Monitor including scale factor
             mock_obj = MagicMock()
             mock_obj.get_geometry.return_value = mock_geom
-            mock_obj.get_scale_factor.return_value = 2
+            mock_obj.get_scale.return_value = 2
             
             # Get width and height from the mocked object
             width, height = get_gobject_geometry(mock_obj)
@@ -78,7 +78,7 @@ class TestMonitorResolution(unittest.TestCase):
             # Mock retrieving geometry from Gdk.Monitor including fractional scale factor
             mock_obj = MagicMock()
             mock_obj.get_geometry.return_value = mock_geom
-            mock_obj.get_scale_factor.return_value = 1.5
+            mock_obj.get_scale.return_value = 1.5
             
             # Get width and height from the mocked object
             width, height = get_gobject_geometry(mock_obj)
@@ -121,7 +121,7 @@ class TestMonitorResolution(unittest.TestCase):
                 # Mock retrieving geometry from Gdk.Monitor
                 mock_monitor = MagicMock()
                 mock_monitor.get_geometry.return_value = mock_geom
-                mock_monitor.get_scale_factor.return_value = 2
+                mock_monitor.get_scale.return_value = 2
                 
                 # Mock retrieving geometry from mocked monitor
                 mock_monitors = MagicMock()

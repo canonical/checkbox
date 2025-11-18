@@ -31,12 +31,11 @@ def get_gobject_geometry(gobject, index=None):
     """
     if release >= GTK4_UBUNTU_RELEASE:
         geom = gobject.get_geometry()
-        scale_factor = gobject.get_scale_factor()
+        scale = gobject.get_scale()
         print(
-            "Resolution is considering the following scale factor: %s"
-            % (scale_factor),
+            "Resolution is considering the following scale: %s" % (scale),
         )
-        return geom.width * scale_factor, geom.height * scale_factor
+        return geom.width * scale, geom.height * scale
     else:
         geom = gobject.get_monitor_geometry(index)
         return geom.width, geom.height

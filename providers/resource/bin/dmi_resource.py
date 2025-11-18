@@ -44,7 +44,7 @@ def sane_product(og_product: str) -> str:
         "space-saving",
         "all-in-one",
         "aio",
-        "mini-pc"
+        "mini-pc",
         "main-server-chassis",
     ]:
         return "non-portable"

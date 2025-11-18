@@ -22,6 +22,7 @@ else:
     gi.require_version("Gdk", "3.0")
     from gi.repository import Gdk
 
+
 def get_gobject_geometry(gobject, index=None):
     """Get the width and height of a given GDK object.
 

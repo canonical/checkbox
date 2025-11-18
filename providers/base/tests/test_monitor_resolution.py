@@ -14,8 +14,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+import sys
 from unittest.mock import patch, MagicMock
-from resolution_test import get_gobject_geometry, compare_resolution
+
+# Mock gi module
+sys.modules["gi"] = MagicMock()
+sys.modules["gi.repository"] = MagicMock()
+
+from resolution_test import get_gobject_geometry, compare_resolution  # noqa: E402
 
 
 class TestMonitorResolution(unittest.TestCase):

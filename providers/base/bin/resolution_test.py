@@ -14,6 +14,7 @@ GTK4_UBUNTU_RELEASE = 25
 release = int(get_release_info()["release"].split(".")[0])
 if release >= GTK4_UBUNTU_RELEASE:
     gi.require_version("Gtk", "4.0")
+    gi.require_version("Gdk", "4.0")
     from gi.repository import Gtk, Gdk
 
     Gtk.init()
@@ -31,6 +32,10 @@ def get_gobject_geometry(gobject, index=None):
     if release >= GTK4_UBUNTU_RELEASE:
         geom = gobject.get_geometry()
         scale_factor = gobject.get_scale_factor()
+        print(
+            "Resolution is considering the following scale factor: %s"
+            % (scale_factor),
+        )
         return geom.width * scale_factor, geom.height * scale_factor
     else:
         geom = gobject.get_monitor_geometry(index)

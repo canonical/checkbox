@@ -6,6 +6,10 @@ dependency solver treat them as a single block. This is useful for
 jobs that require a setup/teardown, or a sequence of jobs that
 must not be interleaved with others.
 
+Groups are not units, therefore a group id cannot be used in the ``include`` section
+of a test plan. They are fields inside job units, like ``depends``, ``after`` or
+``before``, and also serve the purpose of controlling execution order.
+
 Key behaviors of groups
 --------------------------
 

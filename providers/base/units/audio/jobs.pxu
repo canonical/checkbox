@@ -1018,7 +1018,7 @@ _steps:
  1. Make sure the internal speaker device working normally
  2. Commence the test
  3. The sound will last for 90 seconds. Please execute the suspend after hearing the sound about 30 seconds
- 4. Make sure the system enter suspend, the suspend LED is blinking
+ 4. Make sure the system enter suspend. 
  5. After the system enter suspend 15 seconds, resume the system back
  6. You will hear the remaining 60 seconds of sound
 _verification:

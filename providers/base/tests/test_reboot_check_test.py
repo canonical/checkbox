@@ -671,11 +671,11 @@ class MainFunctionTests(unittest.TestCase):
         ) as mock_has_desktop_environment:
             mock_poll.return_value = False
             mock_tester = MagicMock()
-            mock_tester_class().return_value = mock_tester
+            mock_tester_class.return_value = mock_tester
             mock_tester.has_display_connection.return_value = True
-           
+
             mock_has_desktop_environment.return_value = True
-           
+
             RCT.main()
             mock_print.assert_has_calls(
                 [

@@ -154,6 +154,20 @@ Following fields may be used by the job unit:
     is pushed to the end of the test plan, positioned after the
     ``also-after-suspend`` sibling.
 
+.. option:: group
+
+    (optional). It allows organizing jobs into named groups. Jobs in the same group
+    are always run together. To ensure this behavior, the dependencies follow these
+    rules:
+
+    - Dependencies between jobs inside the group are not changed.
+    - If a job inside the group depends on a job outside the group, then the whole
+      group will have a dependency on that outside job.
+    - If a job outside the group depends on a job inside the group, then that 
+      outside job will depend on the whole group.
+    - In case this creates circular dependencies, a warning will be raised detailing
+      the groups and jobs involved, and they will be removed from the test plan.
+
 .. option:: salvages
 
     (optional). If specified, the job will only run if all the listed jobs have

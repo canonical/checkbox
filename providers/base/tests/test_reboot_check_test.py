@@ -1,6 +1,7 @@
 import shutil
 from shlex import split as sh_split
-from unittest.mock import MagicMock, mock_open, patch, DEFAULT
+import sys
+from unittest.mock import MagicMock, call, mock_open, patch, DEFAULT
 import reboot_check_test as RCT
 import unittest
 import os
@@ -654,6 +655,30 @@ class MainFunctionTests(unittest.TestCase):
             ValueError
         ):
             RCT.main()
+
+    def test_continue_tests_even_with_boot_timeout(self):
+        with patch(
+            "sys.argv",
+            sh_split(
+                'reboot_check_test.py -g --graphical-target-timeout 1'
+            ),
+        ), patch(
+            "reboot_check_test.poll_systemd_is_running"
+        ) as mock_poll, patch(
+            "builtins.print"
+        ) as mock_print:
+            mock_poll.return_value = False
+            RCT.main()
+            mock_print.assert_has_calls(
+                [
+                    call(
+                        "[ WARN ] System did not finish booting",
+                        "in 1 seconds.",
+                        "Continuing reboot checks as-is.",
+                        file=sys.stderr,
+                    )
+                ]
+            )
 
 
 if __name__ == "__main__":

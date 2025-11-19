@@ -323,7 +323,7 @@ put them all in the same group:
 
     id: network_available
     flags: simple
-    depends: network_available
+    depends: network_setup
     before: network_teardown
     group: network_tests
     _summary: Test that the internet is reachable
@@ -349,7 +349,7 @@ put them all in the same group:
       echo "Cleaning up network tests"
 
 
-When you run a ::ref:`test plan<adv_test_plan>` that includes the network
+When you run a :ref:`test plan<adv_test_plan>` that includes the network
 tests, Checkbox will keep all jobs in the ``network_tests`` group together and
 respect the dependencies inside the group. In this case, the execution order
 will be:

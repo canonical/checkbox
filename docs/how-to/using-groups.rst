@@ -15,9 +15,8 @@ Key behaviors of groups
   depends on that outside job.
 - If a job **outside** the group depends on a job **inside**, it depends on the
   **whole group**.
-- If these group-level dependencies create a cycle, Checkbox raises a
-  dependency error and removes the involved jobs/groups from the plan.
-
+- If these group-level dependencies create a cycle, Checkbox outputs a dependency
+  warning and removes the involved jobs from the test plan. 
 
 Examples
 --------
@@ -32,26 +31,26 @@ where the setup and teardown jobs are part of the same group as the tests.
 
     id: wireless_setup
     flags: simple
-    group: wireless_tests
+    group: group_wireless
     command: echo 'Setting up wireless tests' 
 
     id: wireless_test_1
     flags: simple
-    group: wireless_tests
+    group: group_wireless
     after: wireless_setup
     before: wireless_teardown
     command: echo 'Running wireless test 1'
 
     id: wireless_test_2
     flags: simple
-    group: wireless_tests
+    group: group_wireless
     after: wireless_setup
     before: wireless_teardown
     command: echo 'Running wireless test 2'
 
     id: wireless_teardown
     flags: simple
-    group: wireless_tests
+    group: group_wireless
     after: wireless_setup
     command: echo 'Tearing down wireless tests'
 
@@ -69,7 +68,7 @@ Execution order::
     wireless_test_2
     wireless_teardown
 
-Step by step execution
+Step-by-step execution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If we want to ensure a strict step-by-step execution order between jobs, even
@@ -83,24 +82,24 @@ if there are dependencies on other jobs, we can use groups to enforce that.
 
     id: device_insert
     flags: simple
-    group: device_test
+    group: group_device
     command: echo "Inserting device"
 
     id: device_test_write 
     flags: simple
-    group: device_test
+    group: group_device
     depends: gather_device_info device_insert
     command: echo "Testing device write"
 
     id: device_test_read
     flags: simple
-    group: device_test
+    group: group_device
     after: device_test_write
     command: echo "Testing device read"
 
     id: device_remove
     flags: simple
-    group: device_test
+    group: group_device
     after: device_test_read
     command: echo "Removing device"
 
@@ -112,13 +111,19 @@ if there are dependencies on other jobs, we can use groups to enforce that.
       device_.*
       gather_device_info
 
-Expected order::
+Execution order::
 
     gather_device_info
     device_insert
     device_test_write
     device_test_read
     device_remove
+
+.. note::
+  
+  Although `gather_device_info` is placed after the `device_*` jobs, it will be
+  executed by Checkbox before them because `device_test_write` depends on it and
+  because it's part of the `group_device` group like all the other device_* jobs.
 
 Templated groups
 ~~~~~~~~~~~~~~~~
@@ -167,7 +172,7 @@ The group field can also be used in templated jobs.
    bootstrap_include:
      group_template_resource
 
-Expected order::
+Execution order::
 
     test_A_1
     test_A_2
@@ -216,7 +221,7 @@ flag inside groups.
     include:
       .*test_.*
 
-Expected order::
+Execution order::
 
     test_A_1
     test_A_2

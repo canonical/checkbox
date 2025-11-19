@@ -535,6 +535,7 @@ def poll_systemd_is_running(max_wait_seconds: int) -> bool:
     :raises: sp.TimeoutExpired if the command timed out
     """
 
+    print(time.sleep, sp.run)
     start = time.time()
     while time.time() - start < max_wait_seconds:
         # https://unix.stackexchange.com/questions
@@ -543,7 +544,7 @@ def poll_systemd_is_running(max_wait_seconds: int) -> bool:
         # The better way to do this is
         # with the --wait flag so we don't busy-poll, but that's not available
         # on ubuntu 16 and 18
-        print(sp.run, time.sleep)
+        # print(sp.run, time.sleep)
         out = sp.run(
             ["systemctl", "is-system-running"],
             stdout=sp.PIPE,
@@ -551,7 +552,7 @@ def poll_systemd_is_running(max_wait_seconds: int) -> bool:
             universal_newlines=True,
             timeout=min(COMMAND_TIMEOUT_SECONDS, max_wait_seconds),
         )
-        print(out)
+        # print(out)
         if "running" in out.stdout or "degraded" in out.stdout:
             # degraded is when the system finished booting
             # but some services failed

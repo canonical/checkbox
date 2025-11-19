@@ -125,9 +125,9 @@ Execution order::
 
 .. note::
   
-  Although `gather_device_info` is placed after the `device_*` jobs, it will be
-  executed by Checkbox before them because `device_test_write` depends on it and
-  because it's part of the `group_device` group like all the other `device_*` jobs.
+  Although ``gather_device_info`` is placed after the ``device_*`` jobs, it will be
+  executed by Checkbox before them because ``device_test_write`` depends on it and
+  because it's part of the ``group_device`` group like all the other ``device_*`` jobs.
 
 Templated groups
 ~~~~~~~~~~~~~~~~
@@ -189,7 +189,7 @@ flag inside groups.
 
 .. note::
   
-  Since `also-after-suspend` jobs make use of the `siblings` feature, they can not be used
+  Since ``also-after-suspend`` jobs make use of the ``siblings`` feature, they can not be used
   as dependencies. See Instantiation in :ref:`Template unit<templates>`.
 
 

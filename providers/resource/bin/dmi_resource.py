@@ -33,10 +33,15 @@ def sane_product(og_product: str) -> str:
     The product key is basically free-form text. In order to make it more
     usable in resource expressions, which usually want to know if a device is
     portable (a laptop/tablet) or not, this cleans up the key to a "canonical"
-    answer, either `non-portable` or `portable`
+    answer, either `aio`, `non-portable` or `portable`.
     """
     cleaned = og_product.lower().replace(" ", "-")
     if cleaned in [
+        "all-in-one",
+        "aio",
+    ]:
+        return "aio"
+    elif cleaned in [
         "desktop",
         "low-profile-desktop",
         "tower",

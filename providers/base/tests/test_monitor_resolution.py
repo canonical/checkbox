@@ -30,7 +30,7 @@ class TestMonitorResolution(unittest.TestCase):
     def test_get_gobject_geometry_gtk3(self):
         """Test get_gobject_geometry with GTK3 behavior."""
         # Gtk3 is used for releases below 25
-        with patch('resolution_test.release', 24):
+        with patch("resolution_test.release", 24):
             # Mock the display geometry
             mock_geom = MagicMock()
             mock_geom.width = 1920
@@ -39,7 +39,7 @@ class TestMonitorResolution(unittest.TestCase):
             # Mock retrieving geometry from Gdk.Screen
             mock_obj = MagicMock()
             mock_obj.get_monitor_geometry.return_value = mock_geom
-            
+
             # Get width and height from the mocked object
             width, height = get_gobject_geometry(mock_obj, 0)
 
@@ -49,17 +49,17 @@ class TestMonitorResolution(unittest.TestCase):
     def test_get_gobject_geometry_gtk4(self):
         """Test get_gobject_geometry with GTK4 behavior."""
         # Gtk4 is used for releases 25 and above
-        with patch('resolution_test.release', 25):
+        with patch("resolution_test.release", 25):
             # Mock the display geometry
             mock_geom = MagicMock()
             mock_geom.width = 960
             mock_geom.height = 540
-            
+
             # Mock retrieving geometry from Gdk.Monitor including scale factor
             mock_obj = MagicMock()
             mock_obj.get_geometry.return_value = mock_geom
             mock_obj.get_scale.return_value = 2
-            
+
             # Get width and height from the mocked object
             width, height = get_gobject_geometry(mock_obj)
 
@@ -69,17 +69,17 @@ class TestMonitorResolution(unittest.TestCase):
     def test_get_gobject_geometry_fractional_scaling(self):
         """Test get_gobject_geometry with GTK4 behavior with fractional scaling."""
         # Gtk4 is used for releases 25 and above
-        with patch('resolution_test.release', 25):
+        with patch("resolution_test.release", 25):
             # Mock the display geometry
             mock_geom = MagicMock()
             mock_geom.width = 1280
             mock_geom.height = 720
-            
+
             # Mock retrieving geometry from Gdk.Monitor including fractional scale factor
             mock_obj = MagicMock()
             mock_obj.get_geometry.return_value = mock_geom
             mock_obj.get_scale.return_value = 1.5
-            
+
             # Get width and height from the mocked object
             width, height = get_gobject_geometry(mock_obj)
 
@@ -89,19 +89,19 @@ class TestMonitorResolution(unittest.TestCase):
     def test_compare_resolution_gtk3(self):
         """Test compare_resolution with GTK3 behavior."""
         # Gtk3 is used for releases below 25
-        with patch('resolution_test.release', 24):
-            with patch('resolution_test.Gdk') as mock_gdk:
+        with patch("resolution_test.release", 24):
+            with patch("resolution_test.Gdk") as mock_gdk:
                 # Mock the display geometry
                 mock_geom = MagicMock()
                 mock_geom.width = 1024
                 mock_geom.height = 768
-                
+
                 # Mock retrieving geometry from Gdk.Screen primary monitor
                 mock_screen = MagicMock()
                 mock_screen.get_monitor_geometry.return_value = mock_geom
                 mock_screen.get_primary_monitor.return_value = 0
                 mock_gdk.Screen.get_default.return_value = mock_screen
-                
+
                 # Get the resolution comparison result
                 result = compare_resolution(800, 600)
 
@@ -111,27 +111,27 @@ class TestMonitorResolution(unittest.TestCase):
     def test_compare_resolution_gtk4_with_scaling(self):
         """Test compare_resolution with GTK4 behavior and scale factor."""
         # Gtk4 is used for releases 25 and above
-        with patch('resolution_test.release', 25):
-            with patch('resolution_test.Gdk') as mock_gdk:
+        with patch("resolution_test.release", 25):
+            with patch("resolution_test.Gdk") as mock_gdk:
                 # Mock the display geometry
                 mock_geom = MagicMock()
                 mock_geom.width = 960
                 mock_geom.height = 540
-                
+
                 # Mock retrieving geometry from Gdk.Monitor
                 mock_monitor = MagicMock()
                 mock_monitor.get_geometry.return_value = mock_geom
                 mock_monitor.get_scale.return_value = 2
-                
+
                 # Mock retrieving geometry from mocked monitor
                 mock_monitors = MagicMock()
                 mock_monitors.get_item.return_value = mock_monitor
-                
+
                 # Mock retrieving Gdk.Display and its monitors
                 mock_display = MagicMock()
                 mock_display.get_monitors.return_value = mock_monitors
                 mock_gdk.Display.get_default.return_value = mock_display
-                
+
                 # Get the resolution comparison result
                 result = compare_resolution(800, 600)
 
@@ -139,5 +139,6 @@ class TestMonitorResolution(unittest.TestCase):
                 # Without scaling, the resolution is 960x540 which is below 800x600
                 self.assertTrue(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

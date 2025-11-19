@@ -33,7 +33,6 @@ def check_acpi_bios_errors():
     Raises SystemExit if errors are found.
     """
     try:
-        # Get kernel messages from current boot
         journal = subprocess.check_output(
             ["journalctl", "-b", "-k"],
             universal_newlines=True,
@@ -54,10 +53,9 @@ def check_acpi_bios_errors():
             for j in range(i + 1, min(i + 21, len(lines))):
                 error_context.append(lines[j])
             acpi_errors.extend(error_context)
-            acpi_errors.append("")  # Add blank line between error blocks
+            acpi_errors.append("")
 
     if acpi_errors:
-        # Get BIOS information for diagnostics
         bios_info = get_bios_info()
 
         print("!!! ACPI BIOS Error detected !!!")
@@ -74,7 +72,6 @@ def check_acpi_bios_errors():
 
 
 def main():
-    """Main function to run ACPI BIOS error check."""
     try:
         check_acpi_bios_errors()
         print("No ACPI BIOS errors detected in current boot")

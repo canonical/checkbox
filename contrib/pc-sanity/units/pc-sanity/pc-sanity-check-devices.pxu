@@ -219,7 +219,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/acpi-bios-error_{type}
-command: bios-error.sh
+command: acpi_bios_error.py
 _summary: Check if kernel reports ACPI BIOS Error
 _description:
  Check if the kernel reports ACPI BIOS Error

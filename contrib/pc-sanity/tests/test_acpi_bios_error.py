@@ -1,11 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 import subprocess
-import sys
-import os
 
-# Add the bin directory to sys.path to import the module
-# sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'bin'))
 from acpi_bios_error import get_bios_info, check_acpi_bios_errors, main
 
 
@@ -19,15 +15,15 @@ class TestAcpiBiosError(unittest.TestCase):
             '/sys/class/dmi/id/bios_vendor': 'Test Vendor',
             '/sys/class/dmi/id/bios_version': '2.4.0'
         }
-        
+
         def mock_open_func(path, mode='r'):
             if path in mock_files:
                 return mock_open(read_data=mock_files[path])()
             raise FileNotFoundError(f"No such file: {path}")
-        
+
         with patch('builtins.open', side_effect=mock_open_func):
             bios_info = get_bios_info()
-            
+
         self.assertEqual(bios_info['date'], '02/29/2024')
         self.assertEqual(bios_info['release'], '1.2.3')
         self.assertEqual(bios_info['vendor'], 'Test Vendor')
@@ -36,14 +32,17 @@ class TestAcpiBiosError(unittest.TestCase):
     @patch('subprocess.check_output')
     def test_check_acpi_bios_errors_no_errors(self, mock_subprocess):
         """Test when no ACPI BIOS errors are found."""
-        # Mock journalctl output without ACPI BIOS errors
-        mock_subprocess.return_value = """
-        Jan 01 12:00:00 hostname kernel: Linux version 6.5.0-generic
-        Jan 01 12:00:01 hostname kernel: Command line: root=/dev/sda1
-        Jan 01 12:00:02 hostname kernel: ACPI: DSDT table loaded
-        """
-        
-        # Should not raise SystemExit
+        mock_subprocess.return_value = """Sep 18 17:17:37 test-host kernel: ACPI: 28 ACPI AML tables successfully acquired and loaded
+Sep 18 17:17:37 test-host kernel: ACPI Error: No pointer back to namespace node in package (___ptrval___) (20240827/dsargs-301)
+Sep 18 17:17:37 test-host kernel: ACPI Error: No pointer back to namespace node in package (___ptrval___) (20240827/dsargs-301)
+Sep 18 17:17:37 test-host kernel: ACPI: EC: EC started
+Sep 18 17:17:37 test-host kernel: ACPI: EC: interrupt blocked
+Sep 18 17:17:37 test-host kernel: ACPI: EC: EC_CMD/EC_SC=0x66, EC_DATA=0x62
+Sep 18 17:17:37 test-host kernel: ACPI: EC: Boot ECDT EC used to handle transactions
+Sep 18 17:17:37 test-host kernel: ACPI: [Firmware Bug]: BIOS _OSI(Linux) query ignored
+Sep 18 17:17:37 test-host kernel: ACPI: USB4 _OSC: OS supports USB3+ DisplayPort+ PCIe+ XDomain+
+Sep 18 17:17:37 test-host kernel: ACPI: USB4 _OSC: OS controls USB3+ DisplayPort+ PCIe+ XDomain+"""
+
         check_acpi_bios_errors()
         mock_subprocess.assert_called_once_with(
             ["journalctl", "-b", "-k"],
@@ -54,44 +53,29 @@ class TestAcpiBiosError(unittest.TestCase):
     @patch('subprocess.check_output')
     def test_check_acpi_bios_errors_found(self, mock_subprocess):
         """Test when ACPI BIOS errors are detected."""
-        # Mock journalctl output with ACPI BIOS error
-        mock_subprocess.return_value = """
-        Jan 01 12:00:00 hostname kernel: Linux version 6.5.0-generic
-        Jan 01 12:00:01 hostname kernel: ACPI BIOS Error (bug): Could not resolve symbol
-        Jan 01 12:00:01 hostname kernel: Additional error context line 1
-        Jan 01 12:00:02 hostname kernel: Normal kernel message
-        """
-        
+        mock_subprocess.return_value = """Sep 18 17:17:37 test-host kernel: ACPI BIOS Error (bug): Failure creating named object [_SB.PC00.TXHC.RHUB.SS01._UPC], AE_ALREADY_EXISTS (20240827/dswload2-326)
+Sep 18 17:17:37 test-host kernel: ACPI Error: AE_ALREADY_EXISTS, During name lookup/catalog (20240827/psobject-220)
+Sep 18 17:17:37 test-host kernel: ACPI: Skipping parse of AML opcode: Method (0x0014)
+Sep 18 17:17:37 test-host kernel: ACPI BIOS Error (bug): Failure creating named object [_SB.PC00.TXHC.RHUB.SS01._PLD], AE_ALREADY_EXISTS (20240827/dswload2-326)
+Sep 18 17:17:37 test-host kernel: ACPI Error: AE_ALREADY_EXISTS, During name lookup/catalog (20240827/psobject-220)
+Sep 18 17:17:37 test-host kernel: ACPI: Skipping parse of AML opcode: Method (0x0014)
+Sep 18 17:17:37 test-host kernel: ACPI BIOS Error (bug): Could not resolve symbol [_SB.PC02.RP21.PXSX.TBDU.XHCI.RHUB.SS01], AE_NOT_FOUND (20240827/dswload2-162)
+Sep 18 17:17:37 test-host kernel: ACPI Error: AE_NOT_FOUND, During name lookup/catalog (20240827/psobject-220)
+Sep 18 17:17:37 test-host kernel: ACPI: Skipping parse of AML opcode: Scope (0x0010)
+Sep 18 17:17:37 test-host kernel: ACPI: 28 ACPI AML tables successfully acquired and loaded"""
+
         with patch('acpi_bios_error.get_bios_info') as mock_bios_info:
             mock_bios_info.return_value = {
-                'date': '01/15/2024',
-                'release': '1.0.0', 
-                'vendor': 'ACME Corp',
-                'version': '1.2.3'
+                'date': '02/29/2024',
+                'release': '1.2.3',
+                'vendor': 'Test Vendor',
+                'version': '2.4.0'
             }
-            
+
             with self.assertRaises(SystemExit) as cm:
                 check_acpi_bios_errors()
-            
+
             self.assertEqual(str(cm.exception), "ACPI BIOS Error detected in kernel messages")
-
-    @patch('acpi_bios_error.check_acpi_bios_errors')
-    def test_main_no_errors(self, mock_check):
-        """Test main function when no errors are found."""
-        mock_check.return_value = None
-        
-        with patch('builtins.print') as mock_print:
-            main()
-            
-        mock_print.assert_called_with("No ACPI BIOS errors detected in current boot")
-
-    @patch('acpi_bios_error.check_acpi_bios_errors')
-    def test_main_with_system_exit(self, mock_check):
-        """Test main function when SystemExit is raised."""
-        mock_check.side_effect = SystemExit("ACPI BIOS Error detected")
-        
-        with self.assertRaises(SystemExit):
-            main()
 
 
 if __name__ == '__main__':

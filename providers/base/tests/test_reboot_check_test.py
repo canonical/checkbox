@@ -404,6 +404,14 @@ class DisplayConnectionTests(unittest.TestCase):
                 sp.TimeoutExpired, lambda: RCT.poll_systemd_is_running(2)
             )
 
+    def test_normal_boot(self):
+        with patch("subprocess.run") as mock_run, patch("time.sleep"), patch(
+            "time.time"
+        ) as mock_time:
+            mock_time.side_effect = [0, 2]
+            mock_run.return_value = sp.CompletedProcess([], 0, "running")
+            self.assertTrue(RCT.poll_systemd_is_running(3))
+
 
 class InfoDumpTests(unittest.TestCase):
     @classmethod

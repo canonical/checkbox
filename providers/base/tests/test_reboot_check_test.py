@@ -664,8 +664,18 @@ class MainFunctionTests(unittest.TestCase):
             "reboot_check_test.poll_systemd_is_running"
         ) as mock_poll, patch(
             "builtins.print"
-        ) as mock_print:
+        ) as mock_print, patch(
+            "reboot_check_test.HardwareRendererTester"
+        ) as mock_tester_class, patch(
+            "reboot_check_test.has_desktop_environment"
+        ) as mock_has_desktop_environment:
             mock_poll.return_value = False
+            mock_tester = MagicMock()
+            mock_tester_class().return_value = mock_tester
+            mock_tester.has_display_connection.return_value = True
+           
+            mock_has_desktop_environment.return_value = True
+           
             RCT.main()
             mock_print.assert_has_calls(
                 [
@@ -677,6 +687,7 @@ class MainFunctionTests(unittest.TestCase):
                     )
                 ]
             )
+            mock_tester.is_hardware_renderer_available.assert_any_call()
 
 
 if __name__ == "__main__":

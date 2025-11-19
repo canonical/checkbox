@@ -425,6 +425,12 @@ Following fields may be used by the job unit:
         will make sure the original job runs **before** the suspend job.
 
     .. warning::
+
+        Jobs created with the siblings field will not be expanded during validation.
+        Therefore, they cannot be used in the ``depends``, ``after`` or ``before``
+        fields of other jobs. See Instantiation in :ref:`Template unit<templates>`.
+
+    .. warning::
         The curly braces used in this field have to be escaped when used in a
         template job (python format, Jinja2 templates do not have this issue).
         The syntax for templates is::

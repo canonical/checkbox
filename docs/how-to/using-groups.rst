@@ -123,7 +123,7 @@ Execution order::
   
   Although `gather_device_info` is placed after the `device_*` jobs, it will be
   executed by Checkbox before them because `device_test_write` depends on it and
-  because it's part of the `group_device` group like all the other device_* jobs.
+  because it's part of the `group_device` group like all the other `device_*` jobs.
 
 Templated groups
 ~~~~~~~~~~~~~~~~
@@ -132,10 +132,7 @@ The group field can also be used in templated jobs.
 
 .. note::
   
-  When using templated jobs, we have to be careful when using dependencies, since
-  the templated jobs are expanded after the validation phase. Templated jobs will
-  fail validation if they are included in the depends/after/before fields of other
-  jobs. The same applies to sibling jobs.
+  Templated jobs can not be used as dependencies, See Instantiation in :ref:`Template unit<templates>`.
 
 .. code-block::
 
@@ -188,8 +185,8 @@ flag inside groups.
 
 .. note::
   
-  In a similar way to templated jobs, we have to be careful when using dependencies,
-  since the jobs with "also-after-suspend" are expanded after the validation phase.
+  Since `also-after-suspend` jobs make use of the `siblings` feature, they can not be used
+  as dependencies. See Instantiation in :ref:`Template unit<templates>`.
 
 
 .. code-block::

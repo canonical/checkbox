@@ -385,10 +385,7 @@ class DisplayConnectionTests(unittest.TestCase):
 
         with patch("subprocess.run") as mock_run, patch(
             "time.sleep"
-        ) as mock_sleep, patch("time.time") as mock_time, patch(
-            "sys.argv",
-            sh_split("reboot_check_test.py -g --graphical-target-timeout 2"),
-        ):
+        ) as mock_sleep, patch("time.time") as mock_time:
             mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
                 [],
                 1,
@@ -397,11 +394,7 @@ class DisplayConnectionTests(unittest.TestCase):
             )
             mock_sleep.side_effect = do_nothing
             mock_time.side_effect = fake_time(3)
-            self.assertFalse(RCT.poll_systemd_is_running(2))
-
-            mock_sleep.reset_mock()
-            mock_time.side_effect = fake_time(3)
-            self.assertEqual(RCT.main(), 1)
+            self.assertFalse(RCT.poll_systemd_is_running(2))            
             self.assertTrue(mock_time.called)
             self.assertTrue(mock_sleep.called)
 

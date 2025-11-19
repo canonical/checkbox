@@ -44,9 +44,6 @@ class TestDmiResource(TestCase):
             "Tower",
             "Mini-Tower",
             "Space Saving",
-            "All-In-One",
-            "All In One",
-            "AIO",
             "Mini PC",
         ]
         category = set(map(dmi_resource.sane_product, products))

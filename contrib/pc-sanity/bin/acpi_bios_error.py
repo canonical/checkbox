@@ -11,15 +11,15 @@ def get_bios_info():
     """
     bios_info = {}
     dmi_fields = {
-        'date': '/sys/class/dmi/id/bios_date',
-        'release': '/sys/class/dmi/id/bios_release',
-        'vendor': '/sys/class/dmi/id/bios_vendor',
-        'version': '/sys/class/dmi/id/bios_version'
+        "date": "/sys/class/dmi/id/bios_date",
+        "release": "/sys/class/dmi/id/bios_release",
+        "vendor": "/sys/class/dmi/id/bios_vendor",
+        "version": "/sys/class/dmi/id/bios_version",
     }
 
     for field, path in dmi_fields.items():
         try:
-            with open(path, 'r') as f:
+            with open(path, "r") as f:
                 bios_info[field] = f.read().strip()
         except (OSError, IOError) as e:
             bios_info[field] = f"Unable to read {path}: {e}"
@@ -36,7 +36,7 @@ def check_acpi_bios_errors():
         journal = subprocess.check_output(
             ["journalctl", "-b", "-k"],
             universal_newlines=True,
-            stderr=subprocess.STDOUT
+            stderr=subprocess.STDOUT,
         )
     except subprocess.CalledProcessError as e:
         print(f"Error running journalctl: {e}", file=sys.stderr)

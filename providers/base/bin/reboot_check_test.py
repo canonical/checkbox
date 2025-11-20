@@ -536,6 +536,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
     """
 
     start = time.time()
+    status = None  # type: str | None
     while time.time() - start < max_wait_seconds:
         # https://unix.stackexchange.com/questions
         # /460324/is-there-a-way-to-wait-for-boot-to-complete
@@ -550,13 +551,28 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
             universal_newlines=True,
             timeout=min(COMMAND_TIMEOUT_SECONDS, max_wait_seconds),
         )
-        if "running" in out.stdout or "degraded" in out.stdout:
+        status = out.stdout.strip()
+        # all possible return values:
+        # https://www.freedesktop.org/software/systemd/man
+        # /latest/systemctl.html#is-system-running
+        if status in ("running", "degraded"):
             # degraded is when the system finished booting
             # but some services failed
+            # we will check that in get_failed_services()
+            print(
+                "Final 'systemctl is-system-running' return value: {}".format(
+                    status
+                )
+            )
             return True
         else:
+            # degraded will also cause the command to return 1
+            # so we can't use the return code here
             time.sleep(1)
 
+    print(
+        "Final 'systemctl is-system-running' return value: {}".format(status)
+    )
     return False
 
 
@@ -626,7 +642,7 @@ def main() -> int:
 
     args = create_parser().parse_args()
 
-    print("Waiting for boot to finish...")
+    print("Waiting for boot to finish...", flush=True)
     if poll_systemctl_is_system_running(args.boot_ready_timeout):
         print("[ OK ] System finished booting!")
     else:

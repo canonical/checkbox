@@ -526,7 +526,7 @@ def get_failed_services() -> T.List[str]:
     return sp.check_output(command, universal_newlines=True).splitlines()
 
 
-def poll_systemd_is_running(max_wait_seconds: int) -> bool:
+def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
     """Poll systemd and see if it finished booting
 
     :param max_wait_seconds: max number of seconds to wait
@@ -627,7 +627,7 @@ def main() -> int:
     args = create_parser().parse_args()
 
     print("Waiting for boot to finish...")
-    if poll_systemd_is_running(args.boot_ready_timeout):
+    if poll_systemctl_is_system_running(args.boot_ready_timeout):
         print("[ OK ] System finished booting!")
     else:
         print(

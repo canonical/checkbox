@@ -395,14 +395,15 @@ class DisplayConnectionTests(unittest.TestCase):
             )
             mock_sleep.side_effect = do_nothing
             mock_time.side_effect = fake_time(3)
-            self.assertFalse(RCT.poll_systemd_is_running(2))
+            self.assertFalse(RCT.poll_systemctl_is_system_running(2))
             self.assertTrue(mock_time.called)
             self.assertTrue(mock_sleep.called)
 
             mock_time.side_effect = fake_time(3)
             mock_run.side_effect = sp.TimeoutExpired([], 1)
             self.assertRaises(
-                sp.TimeoutExpired, lambda: RCT.poll_systemd_is_running(2)
+                sp.TimeoutExpired,
+                lambda: RCT.poll_systemctl_is_system_running(2),
             )
 
     def test_normal_boot(self):
@@ -411,7 +412,7 @@ class DisplayConnectionTests(unittest.TestCase):
         ) as mock_time:
             mock_time.side_effect = [0, 2]
             mock_run.return_value = sp.CompletedProcess([], 0, "running")
-            self.assertTrue(RCT.poll_systemd_is_running(3))
+            self.assertTrue(RCT.poll_systemctl_is_system_running(3))
 
 
 class InfoDumpTests(unittest.TestCase):
@@ -548,7 +549,7 @@ class MainFunctionTests(unittest.TestCase):
         with patch(
             "sys.argv",
             sh_split("reboot_check_test.py -d {}".format(self.tmp_output_dir)),
-        ), patch("reboot_check_test.poll_systemd_is_running"):
+        ), patch("reboot_check_test.poll_systemctl_is_system_running"):
             RCT.main()
             self.assertEqual(
                 mock_run.call_count,
@@ -567,7 +568,7 @@ class MainFunctionTests(unittest.TestCase):
         ), patch(
             "reboot_check_test.DeviceInfoCollector.compare_device_lists"
         ) as mock_compare, patch(
-            "reboot_check_test.poll_systemd_is_running"
+            "reboot_check_test.poll_systemctl_is_system_running"
         ):
             mock_compare.return_value = False
 
@@ -606,7 +607,7 @@ class MainFunctionTests(unittest.TestCase):
         ) as mock_compare, patch(
             "reboot_check_test.FwtsTester.is_fwts_supported"
         ) as mock_is_fwts_supported, patch(
-            "reboot_check_test.poll_systemd_is_running"
+            "reboot_check_test.poll_systemctl_is_system_running"
         ):
             mock_is_fwts_supported.return_value = True
             mock_compare.return_value = True
@@ -650,7 +651,7 @@ class MainFunctionTests(unittest.TestCase):
                 'reboot_check_test.py -c "{}"'.format(self.tmp_output_dir)
             ),
         ), patch(
-            "reboot_check_test.poll_systemd_is_running"
+            "reboot_check_test.poll_systemctl_is_system_running"
         ), self.assertRaises(
             ValueError
         ):
@@ -661,7 +662,7 @@ class MainFunctionTests(unittest.TestCase):
             "sys.argv",
             sh_split("reboot_check_test.py -g --boot-ready-timeout 1"),
         ), patch(
-            "reboot_check_test.poll_systemd_is_running"
+            "reboot_check_test.poll_systemctl_is_system_running"
         ) as mock_poll, patch(
             "builtins.print"
         ) as mock_print, patch(

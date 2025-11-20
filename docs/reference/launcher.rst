@@ -26,8 +26,11 @@ Launcher can specify external file(s) to load values from.
 ``[config]``
     Beginning of the configuration section.
 
-``config_filename``
-    Name of the configuration file to look for. The value may be a file name or an absolute path, and may use environment variables. If no directory is specified, the default directories where the file will be searched for are ``/etc/xdg/`` and ``~/.config/``.
+``include_override``
+    Name, path or ID of the configuration file to include and (potentially)
+    override with the current one. If a name without a directory is specified,
+    the configuration is searched in both ``/etc/xdg/`` and ``~/.config/``.
+    Each matching configuration is loaded.
 
     Default value: ``checkbox.conf``
 
@@ -503,6 +506,15 @@ Example of all three sections working to produce a report:
     transport = out
     forced = yes
 
+Packaging
+=========
+
+Launchers can be packaged in providers in the ``launcher/`` directory.
+Launchers that are included in this directory can be used by their fully
+qualified ID which is composed by
+``namespace.of.the.provider::file_name_without_extension``. All launchers
+included in the ``launcher/`` directory must have a ``.conf`` extension and
+their name must be unique in the namespace.
 
 Launcher examples
 =================

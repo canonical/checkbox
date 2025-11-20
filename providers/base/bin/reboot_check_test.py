@@ -640,7 +640,7 @@ def main() -> int:
 
     args = create_parser().parse_args()
 
-    print("Waiting for boot to finish...", flush=True)
+    print("Waiting for boot to finish...")
     if poll_systemctl_is_system_running(args.boot_ready_timeout):
         print("[ OK ] System finished booting!")
     else:

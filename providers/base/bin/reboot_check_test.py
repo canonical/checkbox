@@ -535,7 +535,6 @@ def poll_systemd_is_running(max_wait_seconds: int) -> bool:
     :raises: sp.TimeoutExpired if the command timed out
     """
 
-    print(time.sleep, sp.run)
     start = time.time()
     while time.time() - start < max_wait_seconds:
         # https://unix.stackexchange.com/questions
@@ -544,7 +543,6 @@ def poll_systemd_is_running(max_wait_seconds: int) -> bool:
         # The better way to do this is
         # with the --wait flag so we don't busy-poll, but that's not available
         # on ubuntu 16 and 18
-        # print(sp.run, time.sleep)
         out = sp.run(
             ["systemctl", "is-system-running"],
             stdout=sp.PIPE,
@@ -552,7 +550,6 @@ def poll_systemd_is_running(max_wait_seconds: int) -> bool:
             universal_newlines=True,
             timeout=min(COMMAND_TIMEOUT_SECONDS, max_wait_seconds),
         )
-        # print(out)
         if "running" in out.stdout or "degraded" in out.stdout:
             # degraded is when the system finished booting
             # but some services failed
@@ -606,14 +603,15 @@ def create_parser():
         help="If specified, check if hardware rendering is being used",
     )
     parser.add_argument(
-        "--graphical-target-timeout",
+        "--boot-ready-timeout",
         default=120,
         type=int,
-        dest="graphical_target_timeout",
-        help="How many seconds should we wait for systemd to report "
-        "that it has reached graphical.target in its critical chain "
-        "before the renderer check starts. "
-        "Default is 120 seconds. Ignored if -g/--graphics is not specified.",
+        dest="boot_ready_timeout",
+        help=(
+            "How many seconds should we wait for systemd to report "
+            "that it has fully booted up before running the rest of the test. "
+            "Default is 120 seconds."
+        ),
     )
 
     return parser
@@ -629,12 +627,12 @@ def main() -> int:
     args = create_parser().parse_args()
 
     print("Waiting for boot to finish...")
-    if poll_systemd_is_running(args.graphical_target_timeout):
+    if poll_systemd_is_running(args.boot_ready_timeout):
         print("[ OK ] System finished booting!")
     else:
         print(
             "[ WARN ] System did not finish booting",
-            "in {} seconds.".format(args.graphical_target_timeout),
+            "in {} seconds.".format(args.boot_ready_timeout),
             "Continuing reboot checks as-is.",
             file=sys.stderr,
         )

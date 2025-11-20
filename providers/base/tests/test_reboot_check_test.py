@@ -659,7 +659,7 @@ class MainFunctionTests(unittest.TestCase):
     def test_continue_tests_even_with_boot_timeout(self):
         with patch(
             "sys.argv",
-            sh_split("reboot_check_test.py -g --graphical-target-timeout 1"),
+            sh_split("reboot_check_test.py -g --boot-ready-timeout 1"),
         ), patch(
             "reboot_check_test.poll_systemd_is_running"
         ) as mock_poll, patch(

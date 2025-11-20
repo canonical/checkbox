@@ -32,6 +32,7 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.validation import Problem, Severity
+from plainbox.impl.config import Configuration
 
 __all__ = ["LauncherUnit"]
 
@@ -104,6 +105,20 @@ class LauncherUnit(UnitWithId):
             """
 
             path = "path"
+            text = "text"
+
+        def _raise_problems(text, unit):
+            """
+            This allows us to report problems in the unit straight in the
+            validation error
+            """
+            problems = Configuration.from_text(text, unit.path).get_problems()
+            if not problems:
+                return True
+            raise ValueError(
+                "Configuration has the following problems:"
+                + "\n- ".join(problems)
+            )
 
         field_validators = {
             fields.path: [
@@ -113,5 +128,12 @@ class LauncherUnit(UnitWithId):
                     Severity.error,
                     message=_("launcher name can not be named 'checkbox'"),
                 )
-            ]
+            ],
+            fields.text: [
+                CorrectFieldValueValidator(
+                    _raise_problems,
+                    Problem.wrong,
+                    Severity.error,
+                )
+            ],
         }

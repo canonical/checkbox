@@ -555,20 +555,17 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
         # all possible return values:
         # https://www.freedesktop.org/software/systemd/man
         # /latest/systemctl.html#is-system-running
-        if status in ("running", "degraded"):
-            # degraded is when the system finished booting
-            # but some services failed
-            # we will check that in get_failed_services()
+        if status in ("initializing", "starting"):
+            # only mark these 2 states as "still booting"
+            # to be consistent with the behavior of --wait
+            time.sleep(1)
+        else:
             print(
                 "Final 'systemctl is-system-running' return value: {}".format(
                     status
                 )
             )
             return True
-        else:
-            # degraded will also cause the command to return 1
-            # so we can't use the return code here
-            time.sleep(1)
 
     print(
         "Final 'systemctl is-system-running' return value: {}".format(status)

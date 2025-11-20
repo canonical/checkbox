@@ -530,8 +530,8 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
     """Poll systemd and see if it finished booting
 
     :param max_wait_seconds: max number of seconds to wait
-    :return: whether "systemctl is-system-running" returns 0
-             within max_wait_seconds
+    :return: whether "systemctl is-system-running" returns a state that's not
+             "initializing" or "starting" within max_wait_seconds
     :raises: sp.TimeoutExpired if the command timed out
     """
 
@@ -544,6 +544,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
         # The better way to do this is
         # with the --wait flag so we don't busy-poll, but that's not available
         # on ubuntu 16 and 18
+        # TODO: remove this function once we drop ubuntu 18 and use --wait
         out = sp.run(
             ["systemctl", "is-system-running"],
             stdout=sp.PIPE,

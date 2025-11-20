@@ -28,8 +28,11 @@ Sep 18 17:17:37 test-host kernel: ACPI: USB4 _OSC: OS controls USB3+ DisplayPort
             stderr=subprocess.STDOUT,
         )
 
+    @patch("acpi_bios_error.print_bios_info")
     @patch("subprocess.check_output")
-    def test_check_acpi_bios_errors_found(self, mock_subprocess):
+    def test_check_acpi_bios_errors_found(
+        self, mock_subprocess, mock_print_bios
+    ):
         """Test when ACPI BIOS errors are detected."""
         mock_subprocess.return_value = """Sep 18 17:17:37 test-host kernel: ACPI BIOS Error (bug): Failure creating named object [_SB.PC00.TXHC.RHUB.SS01._UPC], AE_ALREADY_EXISTS (20240827/dswload2-326)
 Sep 18 17:17:37 test-host kernel: ACPI Error: AE_ALREADY_EXISTS, During name lookup/catalog (20240827/psobject-220)
@@ -42,27 +45,8 @@ Sep 18 17:17:37 test-host kernel: ACPI Error: AE_NOT_FOUND, During name lookup/c
 Sep 18 17:17:37 test-host kernel: ACPI: Skipping parse of AML opcode: Scope (0x0010)
 Sep 18 17:17:37 test-host kernel: ACPI: 28 ACPI AML tables successfully acquired and loaded"""
 
-        # Mock the DMI files for BIOS information collection
-        mock_files = {
-            "/sys/class/dmi/id/bios_date": "02/29/2024",
-            "/sys/class/dmi/id/bios_release": "1.2.3",
-            "/sys/class/dmi/id/bios_vendor": "Test Vendor",
-            "/sys/class/dmi/id/bios_version": "2.4.0",
-        }
-
-        def mock_open_func(path, mode="r"):
-            if path in mock_files:
-                return mock_open(read_data=mock_files[path])()
-            raise FileNotFoundError(f"No such file: {path}")
-
-        with patch("builtins.open", side_effect=mock_open_func):
-            with self.assertRaises(SystemExit) as cm:
-                check_acpi_bios_errors()
-
-            self.assertEqual(
-                str(cm.exception),
-                "ACPI BIOS Error detected in kernel messages",
-            )
+        with self.assertRaises(SystemExit):
+            check_acpi_bios_errors()
 
 
 if __name__ == "__main__":

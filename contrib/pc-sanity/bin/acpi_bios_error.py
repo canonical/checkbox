@@ -3,6 +3,25 @@
 import subprocess
 
 
+def print_bios_info():
+    """Print BIOS information from DMI fields."""
+    dmi_fields = {
+        "date": "/sys/class/dmi/id/bios_date",
+        "release": "/sys/class/dmi/id/bios_release",
+        "vendor": "/sys/class/dmi/id/bios_vendor",
+        "version": "/sys/class/dmi/id/bios_version",
+    }
+
+    for field, path in dmi_fields.items():
+        try:
+            with open(path, "r") as f:
+                value = f.read().strip()
+        except (OSError, IOError) as e:
+            value = f"Unable to read {path}: {e}"
+
+        print(f"BIOS {field}: {value}")
+
+
 def check_acpi_bios_errors():
     """
     Check for ACPI BIOS errors in the current boot's kernel messages.
@@ -38,29 +57,8 @@ def check_acpi_bios_errors():
                     picked_lines.add(j)
                     output_lines.append(lines[j])
                     last_added = j
-
-        bios_info = {}
-        dmi_fields = {
-            "date": "/sys/class/dmi/id/bios_date",
-            "release": "/sys/class/dmi/id/bios_release",
-            "vendor": "/sys/class/dmi/id/bios_vendor",
-            "version": "/sys/class/dmi/id/bios_version",
-        }
-
-        for field, path in dmi_fields.items():
-            try:
-                with open(path, "r") as f:
-                    bios_info[field] = f.read().strip()
-            except (OSError, IOError) as e:
-                bios_info[field] = f"Unable to read {path}: {e}"
-
         print("!!! ACPI BIOS Error detected !!!")
-        print(f"BIOS date: {bios_info['date']}")
-        print(f"BIOS release: {bios_info['release']}")
-        print(f"BIOS vendor: {bios_info['vendor']}")
-        print(f"BIOS version: {bios_info['version']}")
-        print()
-        print("ACPI BIOS Error details:")
+        print_bios_info()
         for error_line in output_lines:
             print(error_line)
 

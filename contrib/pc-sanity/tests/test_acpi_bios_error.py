@@ -2,32 +2,10 @@ import unittest
 from unittest.mock import patch, mock_open
 import subprocess
 
-from acpi_bios_error import get_bios_info, check_acpi_bios_errors, main
+from acpi_bios_error import check_acpi_bios_errors, main
 
 
 class TestAcpiBiosError(unittest.TestCase):
-
-    def test_get_bios_info_success(self):
-        """Test successful BIOS info collection."""
-        mock_files = {
-            "/sys/class/dmi/id/bios_date": "02/29/2024",
-            "/sys/class/dmi/id/bios_release": "1.2.3",
-            "/sys/class/dmi/id/bios_vendor": "Test Vendor",
-            "/sys/class/dmi/id/bios_version": "2.4.0",
-        }
-
-        def mock_open_func(path, mode="r"):
-            if path in mock_files:
-                return mock_open(read_data=mock_files[path])()
-            raise FileNotFoundError(f"No such file: {path}")
-
-        with patch("builtins.open", side_effect=mock_open_func):
-            bios_info = get_bios_info()
-
-        self.assertEqual(bios_info["date"], "02/29/2024")
-        self.assertEqual(bios_info["release"], "1.2.3")
-        self.assertEqual(bios_info["vendor"], "Test Vendor")
-        self.assertEqual(bios_info["version"], "2.4.0")
 
     @patch("subprocess.check_output")
     def test_check_acpi_bios_errors_no_errors(self, mock_subprocess):
@@ -64,14 +42,20 @@ Sep 18 17:17:37 test-host kernel: ACPI Error: AE_NOT_FOUND, During name lookup/c
 Sep 18 17:17:37 test-host kernel: ACPI: Skipping parse of AML opcode: Scope (0x0010)
 Sep 18 17:17:37 test-host kernel: ACPI: 28 ACPI AML tables successfully acquired and loaded"""
 
-        with patch("acpi_bios_error.get_bios_info") as mock_bios_info:
-            mock_bios_info.return_value = {
-                "date": "02/29/2024",
-                "release": "1.2.3",
-                "vendor": "Test Vendor",
-                "version": "2.4.0",
-            }
+        # Mock the DMI files for BIOS information collection
+        mock_files = {
+            "/sys/class/dmi/id/bios_date": "02/29/2024",
+            "/sys/class/dmi/id/bios_release": "1.2.3",
+            "/sys/class/dmi/id/bios_vendor": "Test Vendor",
+            "/sys/class/dmi/id/bios_version": "2.4.0",
+        }
 
+        def mock_open_func(path, mode="r"):
+            if path in mock_files:
+                return mock_open(read_data=mock_files[path])()
+            raise FileNotFoundError(f"No such file: {path}")
+
+        with patch("builtins.open", side_effect=mock_open_func):
             with self.assertRaises(SystemExit) as cm:
                 check_acpi_bios_errors()
 

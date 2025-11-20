@@ -1,30 +1,6 @@
 #!/usr/bin/env python3
 
 import subprocess
-import sys
-
-
-def get_bios_info():
-    """
-    Collect BIOS information from DMI sysfs interface.
-    Returns a dictionary with BIOS details.
-    """
-    bios_info = {}
-    dmi_fields = {
-        "date": "/sys/class/dmi/id/bios_date",
-        "release": "/sys/class/dmi/id/bios_release",
-        "vendor": "/sys/class/dmi/id/bios_vendor",
-        "version": "/sys/class/dmi/id/bios_version",
-    }
-
-    for field, path in dmi_fields.items():
-        try:
-            with open(path, "r") as f:
-                bios_info[field] = f.read().strip()
-        except (OSError, IOError) as e:
-            bios_info[field] = f"Unable to read {path}: {e}"
-
-    return bios_info
 
 
 def check_acpi_bios_errors():
@@ -32,31 +8,51 @@ def check_acpi_bios_errors():
     Check for ACPI BIOS errors in the current boot's kernel messages.
     Raises SystemExit if errors are found.
     """
-    try:
-        journal = subprocess.check_output(
-            ["journalctl", "-b", "-k"],
-            universal_newlines=True,
-            stderr=subprocess.STDOUT,
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"Error running journalctl: {e}", file=sys.stderr)
-        return
+    journal = subprocess.check_output(
+        ["journalctl", "-b", "-k"],
+        universal_newlines=True,
+        stderr=subprocess.STDOUT,
+    )
 
-    # Look for ACPI BIOS Error patterns
-    acpi_errors = []
     lines = journal.splitlines()
-
+    acpi_error_lines = []
     for i, line in enumerate(lines):
         if "ACPI BIOS Error" in line:
-            # Collect the error line and up to 20 following lines for context
-            error_context = [line]
-            for j in range(i + 1, min(i + 21, len(lines))):
-                error_context.append(lines[j])
-            acpi_errors.extend(error_context)
-            acpi_errors.append("")
+            acpi_error_lines.append(i)
 
-    if acpi_errors:
-        bios_info = get_bios_info()
+    if acpi_error_lines:
+        # Mimic grep -A 20: error line + 20 lines after it
+        picked_lines = set()
+        output_lines = []
+        last_added = -1
+
+        for error_line in acpi_error_lines:
+            # Add separator when next error outside of 20 lines context
+            if output_lines and error_line > last_added + 1:
+                output_lines.append("------")
+
+            for j in range(error_line, min(error_line + 21, len(lines))):
+                # Track picked lines to avoid duplicates if next error
+                # within 20 lines context
+                if j not in picked_lines:
+                    picked_lines.add(j)
+                    output_lines.append(lines[j])
+                    last_added = j
+
+        bios_info = {}
+        dmi_fields = {
+            "date": "/sys/class/dmi/id/bios_date",
+            "release": "/sys/class/dmi/id/bios_release",
+            "vendor": "/sys/class/dmi/id/bios_vendor",
+            "version": "/sys/class/dmi/id/bios_version",
+        }
+
+        for field, path in dmi_fields.items():
+            try:
+                with open(path, "r") as f:
+                    bios_info[field] = f.read().strip()
+            except (OSError, IOError) as e:
+                bios_info[field] = f"Unable to read {path}: {e}"
 
         print("!!! ACPI BIOS Error detected !!!")
         print(f"BIOS date: {bios_info['date']}")
@@ -65,23 +61,15 @@ def check_acpi_bios_errors():
         print(f"BIOS version: {bios_info['version']}")
         print()
         print("ACPI BIOS Error details:")
-        for error_line in acpi_errors:
+        for error_line in output_lines:
             print(error_line)
 
         raise SystemExit("ACPI BIOS Error detected in kernel messages")
 
 
 def main():
-    try:
-        check_acpi_bios_errors()
-        print("No ACPI BIOS errors detected in current boot")
-    except SystemExit:
-        # Re-raise SystemExit to maintain error code
-        raise
-    except Exception as e:
-        error_msg = f"Unexpected error during ACPI BIOS error check: {e}"
-        print(error_msg, file=sys.stderr)
-        sys.exit(1)
+    check_acpi_bios_errors()
+    print("No ACPI BIOS errors detected in current boot")
 
 
 if __name__ == "__main__":

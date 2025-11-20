@@ -390,8 +390,7 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
                 [],
                 1,
-                "systemd says it's not ready",
-                "graphical target not reached blah",
+                "starting",
             )
             mock_sleep.side_effect = do_nothing
             mock_time.side_effect = fake_time(3)

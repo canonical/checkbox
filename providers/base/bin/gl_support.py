@@ -23,10 +23,17 @@ import typing as T
 import os
 import platform
 import argparse
+from pathlib import Path
+
 
 # Checkbox could run in a snap container, so we need to prepend this root path
-RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
-GLMARK2_DATA_PATH = "/usr/share/glmark2"
+# RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
+
+try:
+    CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
+except KeyError:
+    CHECKBOX_RUNTIME = None
+GLMARK2_DATA_PATH = Path("/usr/share/glmark2")
 
 
 class GLSupportTester:
@@ -193,13 +200,13 @@ class GLSupportTester:
             )
 
         try:
-            if RUNTIME_ROOT and not os.path.exists(GLMARK2_DATA_PATH):
+            if CHECKBOX_RUNTIME and not os.path.exists(GLMARK2_DATA_PATH):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 path is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-                src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
+                src = CHECKBOX_RUNTIME / GLMARK2_DATA_PATH
                 dst = GLMARK2_DATA_PATH
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
@@ -224,7 +231,7 @@ class GLSupportTester:
             return glmark2_output
         finally:
             # immediately cleanup
-            if RUNTIME_ROOT and os.path.islink(GLMARK2_DATA_PATH):
+            if CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_PATH):
                 print("[ DEBUG ] Un-symlinking glmark2 data")
                 os.unlink(GLMARK2_DATA_PATH)
 

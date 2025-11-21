@@ -47,6 +47,7 @@ class HCIVersion(IntEnum):
     BT_CORE_SPEC_5_2 = 11
     BT_CORE_SPEC_5_3 = 12
     BT_CORE_SPEC_5_4 = 13
+    BT_CORE_SPEC_6_0 = 14
 
 
 _LOGGER = logging.getLogger(__name__)

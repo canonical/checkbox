@@ -1151,10 +1151,11 @@ id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
 requires: package.name == 'xorg'
 depends: suspend/suspend_advanced_auto
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
- if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then
-   gnome_randr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+   randr_cycle.py -c resolution --screenshot_dir="$PLAINBOX_SESSION_SHARE"
  else
    xrandr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
  fi
@@ -1175,11 +1176,12 @@ id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
 template-id: suspend/index_cycle_resolutions_after_suspend_product_slug
 requires: package.name == 'xorg'
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 estimated_duration: 120.0
 command:
- if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then
-   gnome_randr_cycle.py --keyword={index}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+   randr_cycle.py -c resolution --prefix {index} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
  else
    xrandr_cycle.py --keyword={index}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
  fi
@@ -1197,13 +1199,14 @@ id: suspend/cycle_resolutions_after_suspend_auto
 estimated_duration: 1.2
 requires: package.name == 'xorg'
 depends: suspend/suspend_advanced_auto
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 _purpose:
  This test will check to make sure supported video modes work after a suspend and resume.
  This is done automatically by taking screenshots and uploading them as an attachment.
 command:
- if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then
-   gnome_randr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+   randr_cycle.py -c resolution --screenshot_dir="$PLAINBOX_SESSION_SHARE"
  else
    xrandr_cycle.py --keyword=after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
  fi
@@ -1213,7 +1216,9 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/xrandr_screens_after_suspend.tar.gz
 depends: suspend/cycle_resolutions_after_suspend
-command: [ -f "$PLAINBOX_SESSION_SHARE"/xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/xrandr_screens_after_suspend.tgz
+command:
+    # shellcheck disable=SC1091,SC1083
+    [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
 _purpose: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 _summary: Attach screenshots from the suspend/cycle_resolutions_after_suspend test to results.
 
@@ -1225,7 +1230,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz
 template-id: suspend/index_xrandr_screens_after_suspend.tar.gz
 depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
-command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
+command:
+    # shellcheck disable=SC1091,SC1083
+    [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
 _purpose: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 _summary: Attach screenshots from suspend/cycle_resolutions_after_suspend test to the results.
 

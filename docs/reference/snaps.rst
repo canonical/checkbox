@@ -73,4 +73,4 @@ If you want the most up-to-date possible build of Checkbox you can use the
 ``edge`` channel. These builds are updated daily and contain the latest changes to
 the framework. We do not advise to use this channel in production, it is tested
 via CI and it is built from the latest commit in the ``main`` branch of the
-`Checkbox Repository on github <https://github.com/canonical/checkbox>`_.
+`Checkbox Repository on GitHub <https://github.com/canonical/checkbox>`_.

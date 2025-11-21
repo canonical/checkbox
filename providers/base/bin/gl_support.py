@@ -144,7 +144,7 @@ class GLSupportTester:
 
         :param glmark2_validate_output: stdout of `glmark2 --validate`
         :param gl_variable_name: the variable to get
-        :raises ValueError: when the value of this variable doesn't appear in
+        :raises SystemExit: when the value of this variable doesn't appear in
                             glmark2_validate_output
         :return: value of gl_variable_name, trimmed
         """
@@ -168,7 +168,7 @@ class GLSupportTester:
         Calls 'glmark2 --validate --offscreen' with the symlink hack,
         but allow errors to be thrown unlike reboot_check_test.py
 
-        :raises ValueError: when XDG_SESSION_TYPE is not x11/wayland
+        :raises SystemExit: when XDG_SESSION_TYPE is not x11/wayland
         :return: stdout of `glmark2 --validate`
         """
         desktop_env_vars = self.get_desktop_environment_variables()

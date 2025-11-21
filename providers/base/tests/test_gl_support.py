@@ -17,14 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import pathlib
+from pathlib import Path, PosixPath
 import subprocess as sp
 import unittest as ut
 from unittest.mock import MagicMock, patch
 
 import gl_support
 
-TEST_DATA_DIR = pathlib.Path(__file__).parent / "test_data"
+TEST_DATA_DIR = Path(__file__).parent / "test_data"
 
 
 class TestGLSupportTests(ut.TestCase):
@@ -225,7 +225,9 @@ class TestGLSupportTests(ut.TestCase):
 
         for is_snap in (True, False):
             mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
-            gl_support.CHECKBOX_RUNTIME = custom_env("CHECKBOX_RUNTIME", is_snap)
+            gl_support.CHECKBOX_RUNTIME = PosixPath(
+                custom_env("CHECKBOX_RUNTIME", is_snap)
+            )
             # RCT.SNAP = custom_env("SNAP", is_snap)
             mock_islink.return_value = is_snap
             # deb case, the file actually exists
@@ -234,24 +236,22 @@ class TestGLSupportTests(ut.TestCase):
             tester.call_glmark2_validate()
 
             if is_snap:
-                print("\n\n\n")
-                print(gl_support.CHECKBOX_RUNTIME, mock_path_exists.return_value)
-                print(mock_symlink.call_args)
-                print("\n\n\n")
                 mock_symlink.assert_called_once_with(
-                    "{}/usr/share/glmark2".format(gl_support.CHECKBOX_RUNTIME),
-                    "/usr/share/glmark2",
+                    gl_support.CHECKBOX_RUNTIME / gl_support.GLMARK2_DATA_PATH,
+                    PosixPath("/usr/share/glmark2"),
                     target_is_directory=True,
                 )
 
-                mock_unlink.assert_called_once_with("/usr/share/glmark2")
+                mock_unlink.assert_called_once_with(
+                    PosixPath("/usr/share/glmark2")
+                )
             else:
                 mock_symlink.assert_not_called()
                 mock_unlink.assert_not_called()
 
             mock_symlink.reset_mock()
             mock_unlink.reset_mock()
-        gl_support.CHECKBOX_RUNTIME = ""
+        gl_support.CHECKBOX_RUNTIME = None
 
     @patch("subprocess.run")
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")

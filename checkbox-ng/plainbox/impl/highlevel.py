@@ -147,6 +147,7 @@ class Explorer:
         "category",
         "exporter",
         "job",
+        "launcher",
         "manifest entry",
         "packaging meta-data",
         "template",
@@ -253,6 +254,8 @@ class Explorer:
             return self._packaging_meta_data_to_obj(unit)
         elif unit.Meta.name == "exporter":
             return self._exporter_entry_to_obj(unit)
+        elif unit.Meta.name == "launcher":
+            return self._launcher_to_obj(unit)
         else:
             raise NotImplementedError(unit.Meta.name)
 
@@ -410,6 +413,21 @@ class Explorer:
                     ("id", unit.id),
                     ("summary", unit.summary),
                     ("tr_summary", unit.tr_summary()),
+                )
+            ),
+        )
+
+    def _launcher_to_obj(self, unit):
+        return PlainBoxObject(
+            unit,
+            group=unit.Meta.name,
+            name=unit.name,
+            attrs=OrderedDict(
+                (
+                    ("id", unit.id),
+                    ("name", unit.name),
+                    ("path", unit.path),
+                    ("origin", str(unit.origin)),
                 )
             ),
         )

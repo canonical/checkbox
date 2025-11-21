@@ -29,7 +29,7 @@ TEST_DATA_DIR = pathlib.Path(__file__).parent / "test_data"
 
 class TestGLSupportTests(ut.TestCase):
     def setUp(self) -> None:
-        gl_support.RUNTIME_ROOT = ""
+        gl_support.CHECKBOX_RUNTIME = None
 
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("platform.uname")
@@ -225,7 +225,7 @@ class TestGLSupportTests(ut.TestCase):
 
         for is_snap in (True, False):
             mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
-            gl_support.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
+            gl_support.CHECKBOX_RUNTIME = custom_env("CHECKBOX_RUNTIME", is_snap)
             # RCT.SNAP = custom_env("SNAP", is_snap)
             mock_islink.return_value = is_snap
             # deb case, the file actually exists
@@ -235,11 +235,11 @@ class TestGLSupportTests(ut.TestCase):
 
             if is_snap:
                 print("\n\n\n")
-                print(gl_support.RUNTIME_ROOT, mock_path_exists.return_value)
+                print(gl_support.CHECKBOX_RUNTIME, mock_path_exists.return_value)
                 print(mock_symlink.call_args)
                 print("\n\n\n")
                 mock_symlink.assert_called_once_with(
-                    "{}/usr/share/glmark2".format(gl_support.RUNTIME_ROOT),
+                    "{}/usr/share/glmark2".format(gl_support.CHECKBOX_RUNTIME),
                     "/usr/share/glmark2",
                     target_is_directory=True,
                 )
@@ -251,7 +251,7 @@ class TestGLSupportTests(ut.TestCase):
 
             mock_symlink.reset_mock()
             mock_unlink.reset_mock()
-        gl_support.RUNTIME_ROOT = ""
+        gl_support.CHECKBOX_RUNTIME = ""
 
     @patch("subprocess.run")
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")

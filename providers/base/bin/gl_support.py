@@ -198,7 +198,7 @@ class GLSupportTester:
             )
 
         try:
-            if CHECKBOX_RUNTIME and not GLMARK2_DATA_PATH.exists():
+            if CHECKBOX_RUNTIME and not os.path.exists(GLMARK2_DATA_PATH):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
@@ -229,7 +229,7 @@ class GLSupportTester:
             return glmark2_output
         finally:
             # immediately cleanup
-            if CHECKBOX_RUNTIME and GLMARK2_DATA_PATH.is_symlink():
+            if CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_PATH) :
                 print("[ DEBUG ] Un-symlinking glmark2 data")
                 os.unlink(GLMARK2_DATA_PATH)
 

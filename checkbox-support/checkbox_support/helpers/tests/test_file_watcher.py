@@ -1,15 +1,15 @@
-from checkbox_support.helpers.file_watcher import FileWatcher, InotfiyEvent
+from checkbox_support.helpers.file_watcher import FileWatcher, InotifyEvent
 from unittest.mock import MagicMock, patch
 import unittest
 
 
 class TestInotifyEvent(unittest.TestCase):
     """
-    Test the InotfiyEvent data class.
+    Test the InotifyEvent data class.
     """
 
     def test_inotify_event_creation(self):
-        event = InotfiyEvent(
+        event = InotifyEvent(
             wd=1, event_type="modify", cookie=0, name="test_file.txt"
         )
         self.assertEqual(event.wd, 1)
@@ -84,7 +84,7 @@ class TestFileWatcher(unittest.TestCase):
         self.assertEqual(watcher._mask2event(0x0000FFFF), "unknown")
 
     @patch("checkbox_support.helpers.file_watcher.os.read")
-    @patch("checkbox_support.helpers.file_watcher.InotfiyEvent")
+    @patch("checkbox_support.helpers.file_watcher.InotifyEvent")
     @patch.object(FileWatcher, "libc")
     def test_read_events_single_event(
         self, mock_libc, mock_inotify_event, mock_os_read
@@ -108,7 +108,7 @@ class TestFileWatcher(unittest.TestCase):
         self.assertEqual(events[0], mock_event_instance)
 
     @patch("checkbox_support.helpers.file_watcher.os.read")
-    @patch("checkbox_support.helpers.file_watcher.InotfiyEvent")
+    @patch("checkbox_support.helpers.file_watcher.InotifyEvent")
     @patch.object(FileWatcher, "libc")
     def test_read_events_multiple_events(
         self, mock_libc, mock_inotify_event, mock_os_read

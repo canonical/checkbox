@@ -27,7 +27,7 @@ import struct
 import os
 
 
-class InotfiyEvent:
+class InotifyEvent:
     """
     A class to store inotify system event
     """
@@ -147,7 +147,7 @@ class FileWatcher:
                     else ""
                 )
                 event.append(
-                    InotfiyEvent(wd, self._mask2event(mask), cookie, name)
+                    InotifyEvent(wd, self._mask2event(mask), cookie, name)
                 )
                 raw_data = raw_data[length:]
             return event

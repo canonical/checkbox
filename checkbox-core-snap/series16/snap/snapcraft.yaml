@@ -287,6 +287,7 @@ parts:
       - ethtool
       - freeipmi-tools
       - freeglut3
+      - fscrypt
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0

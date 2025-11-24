@@ -29,64 +29,12 @@ from pathlib import Path
 # Checkbox could run in a snap container, so we need to prepend this root path
 try:
     CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
-except KeyError:
+except KeyError:  # from indexing os.environ
     CHECKBOX_RUNTIME = None
 GLMARK2_DATA_PATH = Path("/usr/share/glmark2")
 
 
 class GLSupportTester:
-
-    def get_desktop_environment_variables(
-        self,
-    ) -> "dict[str, str]":
-        """Gets all the environment variables used by the desktop process
-
-        :return: dict[str, str] similar to os.environ
-        """
-        # "-s" guarantees at most 1 result
-        # do not use check_output here,
-        # pidof will return 1 when process is not found
-        gnome_pid = sp.run(
-            ["pidof", "-s", "gnome-shell"],
-            stdout=sp.PIPE,
-            universal_newlines=True,
-        )
-        # TODO: remove unity related checks after 16.04 reaches end of life
-        compiz_pid = sp.run(  # 16.04 only
-            ["pidof", "-s", "compiz"], stdout=sp.PIPE, universal_newlines=True
-        )
-
-        desktop_pid = None  # type: int | None
-        if gnome_pid.returncode == 0:
-            desktop_pid = int(gnome_pid.stdout)
-        elif compiz_pid.returncode == 0:
-            desktop_pid = int(compiz_pid.stdout)
-
-        if desktop_pid is None:
-            # this means the desktop failed to load
-            # or we are not in a graphical session
-            raise SystemExit(
-                "Unable to get the environment variables "
-                + "used by either gnome or unity. "
-                + "Is the desktop process running?",
-            )
-
-        # /proc/pid/environ is a null-char separated string
-        proc_env_strings = sp.check_output(
-            ["cat", "/proc/{}/environ".format(desktop_pid)],
-            universal_newlines=True,
-        ).split("\0")
-
-        # ideally we don't manually parse this and just use the env file
-        # but py3.5 only takes a mapping for the env param
-        desktop_env_vars = {}  # type: dict[str, str]
-        for env_str in proc_env_strings:
-            kv = env_str.split("=", maxsplit=1)  # DISPLAY=:0
-            if len(kv) == 2:
-                key, value = kv
-                desktop_env_vars[key] = value
-
-        return desktop_env_vars
 
     def pick_glmark2_executable(
         self, xdg_session_type: str, cpu_arch: str
@@ -171,9 +119,8 @@ class GLSupportTester:
         :raises SystemExit: when XDG_SESSION_TYPE is not x11/wayland
         :return: stdout of `glmark2 --validate`
         """
-        desktop_env_vars = self.get_desktop_environment_variables()
 
-        XDG_SESSION_TYPE = desktop_env_vars.get("XDG_SESSION_TYPE")
+        XDG_SESSION_TYPE = os.environ.get("XDG_SESSION_TYPE")
         if XDG_SESSION_TYPE not in ("x11", "wayland"):
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
@@ -215,7 +162,6 @@ class GLSupportTester:
             # override is needed for snaps on classic ubuntu
             # to allow the glmark2 command itself to be discovered
             # in debian version of checkbox this line does nothing
-            desktop_env_vars["PATH"] = os.environ["PATH"]
             glmark2_output = sp.check_output(
                 # all glmark2 programs share the same args
                 [glmark2_executable, "--off-screen", "--validate"],
@@ -223,13 +169,11 @@ class GLSupportTester:
                 # be more relaxed on this timeout in case
                 # the device needs a lot of time to wake up the GPU
                 timeout=120,
-                # literally dump all envs from gnome/unity to glmark2
-                env=desktop_env_vars,
             )
             return glmark2_output
         finally:
             # immediately cleanup
-            if CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_PATH) :
+            if CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_PATH):
                 print("[ DEBUG ] Un-symlinking glmark2 data")
                 os.unlink(GLMARK2_DATA_PATH)
 
@@ -301,7 +245,9 @@ def main() -> None:
     print(
         "OK! This machine meets the minimum OpenGL version requirement",
         "({} >= 3.0)".format(gl_version_str),
-        "and is using a hardware renderer",
+        "and is using a hardware renderer fpr {} apps".format(
+            os.environ["XDG_SESSION_TYPE"]
+        ),  # wayland working doesn't necessarily imply Xwayland working
     )
 
 

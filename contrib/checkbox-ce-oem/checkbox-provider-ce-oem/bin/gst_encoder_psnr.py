@@ -144,6 +144,14 @@ def project_factory(args: argparse.Namespace) -> Any:
             height=args.height,
             framerate=args.framerate,
         )
+    elif "imx8m" in args.platform:
+        return NxpIMX8mProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
+        )
     else:
         raise SystemExit(
             "Error: Cannot get the implementation for '{}'".format(
@@ -371,6 +379,89 @@ class CarmelProject(PipelineInterface):
                 "Error: unknow encoder '{}' be used".format(self._codec)
             )
 
+
+class NxpIMX8mProject(PipelineInterface):
+    """NXP i.MX8M project pipeline handler and builder"""
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        width: int,
+        height: int,
+        framerate: int,
+    ) -> None:
+        self._platform = platform
+        self._codec = codec
+        self._width = width
+        self._height = height
+        self._framerate = framerate
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = os.path.join(
+            VIDEO_CODEC_TESTING_DATA,
+            "video",
+            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
+        )
+        self._artifact_file = ""
+
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            self._artifact_file = generate_artifact_name()
+        return self._artifact_file
+
+    @property
+    def psnr_reference_file(self) -> str:
+        return self._golden_sample
+
+    def _h264_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 encoder
+        """
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! h264parse ! v4l2h264dec !"
+            " videoconvert ! video/x-raw,format={} !"
+            " v4l2h264enc ! h264parse ! mp4mux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def _h265_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 encoder
+        """
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! h265parse ! v4l2h265dec !"
+            " videoconvert ! video/x-raw,format={} !"
+            " v4l2h265enc ! h265parse ! mp4mux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def build_pipeline(self) -> str:
+        """
+        Build the GStreamer commands based on the codec.
+
+        Returns:
+            str: A GStreamer command.
+        """
+        if self._codec == GStreamerEncodePlugins.V4L2H264ENC.value:
+            return self._h264_pipeline_builder()
+        elif self._codec == GStreamerEncodePlugins.V4L2H265ENC.value:
+            return self._h265_pipeline_builder()
+        else:
+            raise SystemExit(
+                "Error: unknow encoder '{}' be used".format(self._codec)
+            )
 
 def main() -> None:
     args = register_arguments()

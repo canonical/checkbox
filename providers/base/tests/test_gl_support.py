@@ -18,7 +18,6 @@
 
 
 from pathlib import Path, PosixPath
-import subprocess as sp
 import unittest as ut
 from unittest.mock import MagicMock, patch
 
@@ -33,14 +32,12 @@ class TestGLSupportTests(ut.TestCase):
 
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("platform.uname")
-    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("subprocess.check_output")
     @patch("os.getenv")
     def test_happy_path(
         self,
         mock_getenv: MagicMock,
         mock_check_output: MagicMock,
-        mock_get_desktop_envs: MagicMock,
         mock_uname: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
@@ -48,98 +45,70 @@ class TestGLSupportTests(ut.TestCase):
         )
         for arch in "x86_64", "aarch64":
             mock_uname().machine = arch
-            mock_get_desktop_envs.return_value = {
-                "DISPLAY": ":0",
-                "XDG_SESSION_TYPE": "wayland",
-            }
 
             with (TEST_DATA_DIR / "glmark2_ok.txt").open() as f:
                 mock_check_output.return_value = f.read()
                 gl_support.main()
 
     @patch("sys.argv", ["gl_support_test.py"])
-    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("subprocess.check_output")
     @patch("os.getenv")
     def test_happy_path_es2(
         self,
         mock_getenv: MagicMock,
         mock_check_output: MagicMock,
-        mock_get_desktop_envs: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
         )
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": ":0",
-            "XDG_SESSION_TYPE": "x11",
-        }
 
         with (TEST_DATA_DIR / "glmark2_es2_ok.txt").open() as f:
             mock_check_output.return_value = f.read()
             gl_support.main()
 
     @patch("sys.argv", ["gl_support_test.py"])
-    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("subprocess.check_output")
     @patch("os.getenv")
     def test_llvmpipe_path(
         self,
         mock_getenv: MagicMock,
         mock_check_output: MagicMock,
-        mock_get_desktop_envs: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
         )
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": ":0",
-            "XDG_SESSION_TYPE": "x11",
-        }
 
         with (TEST_DATA_DIR / "glmark2_llvmpipe.txt").open() as f:
             mock_check_output.return_value = f.read()
             self.assertRaises(SystemExit, gl_support.main)
 
     @patch("sys.argv", ["gl_support_test.py"])
-    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("subprocess.check_output")
     @patch("os.getenv")
     def test_llvmpipe_path_es2(
         self,
         mock_getenv: MagicMock,
         mock_check_output: MagicMock,
-        mock_get_desktop_envs: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
         )
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": ":0",
-            "XDG_SESSION_TYPE": "x11",
-        }
 
         with (TEST_DATA_DIR / "glmark2_es2_llvmpipe.txt").open() as f:
             mock_check_output.return_value = f.read()
             self.assertRaises(SystemExit, gl_support.main)
 
     @patch("sys.argv", ["gl_support_test.py"])
-    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("subprocess.check_output")
     @patch("os.getenv")
     def test_version_too_old_path_x86(
         self,
         mock_getenv: MagicMock,
         mock_check_output: MagicMock,
-        mock_get_desktop_envs: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
         )
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": ":0",
-            "XDG_SESSION_TYPE": "x11",
-        }
 
         with (TEST_DATA_DIR / "glmark2_version_too_old.txt").open() as f:
             mock_check_output.return_value = f.read()
@@ -151,7 +120,6 @@ class TestGLSupportTests(ut.TestCase):
                 )
 
     @patch("gl_support.GLSupportTester.pick_glmark2_executable")
-    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("os.path.exists")
     @patch("os.path.islink")
     @patch("os.unlink")
@@ -166,7 +134,6 @@ class TestGLSupportTests(ut.TestCase):
         mock_unlink: MagicMock,
         mock_islink: MagicMock,
         mock_path_exists: MagicMock,
-        mock_get_desktop_envs: MagicMock,
         mock_pick_glmark2_executable: MagicMock,
     ):
         def custom_env(key: str, is_snap: bool) -> str:
@@ -175,10 +142,6 @@ class TestGLSupportTests(ut.TestCase):
 
             raise Exception("unexpected use of this mock")
 
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": ":0",
-            "XDG_SESSION_TYPE": "x11",
-        }
         mock_pick_glmark2_executable.return_value = "glmark2"
 
         tester = gl_support.GLSupportTester()
@@ -214,40 +177,31 @@ class TestGLSupportTests(ut.TestCase):
         gl_support.CHECKBOX_RUNTIME = None
 
     @patch("subprocess.run")
-    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
+    @patch("os.environ")
     def test_is_hardware_renderer_available_bad_session_type(
         self,
-        mock_get_desktop_envs: MagicMock,
         _: MagicMock,
+        mock_env: MagicMock,
     ):
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": "",
-            "XDG_SESSION_TYPE": "tty",
-        }
+        mock_env["XDG_SESSION_TYPE"] = "tty"
         self.assertRaises(
             SystemExit, gl_support.GLSupportTester().call_glmark2_validate
         )
 
     @patch("shutil.which")
     @patch("gl_support.GLSupportTester.pick_glmark2_executable")
-    @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("subprocess.check_output")
     @patch("os.getenv")
     def test_glmark2_cmd_override(
         self,
         mock_getenv: MagicMock,
         mock_check_output: MagicMock,
-        mock_get_desktop_envs: MagicMock,
         mock_pick_exec: MagicMock,
         mock_which: MagicMock,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
         )
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": ":0",
-            "XDG_SESSION_TYPE": "x11",
-        }
         mock_which.return_value = None
         self.assertRaises(
             SystemExit,

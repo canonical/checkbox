@@ -12,7 +12,7 @@ jobs:
   check-with-black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
         with:
           persist-credentials: false
       - uses: psf/black@05f0a8ce1f71fbb36e1e032d3b518c7b945089a2

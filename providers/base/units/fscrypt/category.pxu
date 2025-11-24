@@ -1,0 +1,3 @@
+unit: category
+id: fscrypt
+_name: Ubuntu filesystem encryption feature tests

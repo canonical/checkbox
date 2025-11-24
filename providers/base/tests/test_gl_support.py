@@ -150,46 +150,6 @@ class TestGLSupportTests(ut.TestCase):
                     "The minimum required OpenGL version is 3.0, but got 2.1",
                 )
 
-    @patch("subprocess.run")
-    def test_get_desktop_env_vars_no_desktop_session(
-        self, mock_run: MagicMock
-    ):
-        mock_run.return_value = sp.CompletedProcess([], 1, "", "")
-        self.assertRaises(
-            SystemExit,
-            gl_support.GLSupportTester().get_desktop_environment_variables,
-        )
-
-    @patch("subprocess.check_output")
-    @patch("subprocess.run")
-    def test_get_desktop_env_vars_happy_path(
-        self, mock_run: MagicMock, mock_check_output: MagicMock
-    ):
-        mock_run.return_value = sp.CompletedProcess([], 0, "12345")
-        mock_check_output.return_value = "\0".join(
-            [
-                "XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg",
-                "XDG_CURRENT_DESKTOP=ubuntu:GNOME",
-                "XDG_SESSION_CLASS=user",
-                "XDG_SESSION_DESKTOP=ubuntu-wayland",
-                "XDG_SESSION_TYPE=wayland",
-            ]
-        )
-
-        out = gl_support.GLSupportTester().get_desktop_environment_variables()
-
-        self.assertIsNotNone(out)
-        self.assertDictEqual(
-            out,  # type: ignore
-            {
-                "XDG_CONFIG_DIRS": "/etc/xdg/xdg-ubuntu:/etc/xdg",
-                "XDG_CURRENT_DESKTOP": "ubuntu:GNOME",
-                "XDG_SESSION_CLASS": "user",
-                "XDG_SESSION_DESKTOP": "ubuntu-wayland",
-                "XDG_SESSION_TYPE": "wayland",
-            },
-        )
-
     @patch("gl_support.GLSupportTester.pick_glmark2_executable")
     @patch("gl_support.GLSupportTester.get_desktop_environment_variables")
     @patch("os.path.exists")

@@ -43,16 +43,7 @@ _description:
 estimated_duration: 0.02
 plugin: resource
 command:
-    if [[ "$INTERRUPTS_BUTTONS" == *"|"* ]]; then
-        patten="-F|"
-    else
-        patten="-F "
-    fi
-    awk "$patten" '{
-        for (i=1; i<=NF; i++) {
-        printf "name: %s\n\n", $i
-        }
-    }' <<< "$INTERRUPTS_BUTTONS"
+    interrupts_button_test.py --dump-resources "$INTERRUPTS_BUTTONS"
 
 unit: template
 template-resource: ce-oem-interrupts-button-mapping

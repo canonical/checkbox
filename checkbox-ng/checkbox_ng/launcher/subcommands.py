@@ -18,12 +18,11 @@
 """
 Definition of sub-command classes for checkbox-cli
 """
-from argparse import ArgumentTypeError
-from argparse import RawDescriptionHelpFormatter
-from argparse import SUPPRESS
+from argparse import ArgumentTypeError, RawDescriptionHelpFormatter, SUPPRESS
 from collections import defaultdict
 from string import Formatter
 from tempfile import TemporaryDirectory
+from functools import lru_cache
 import fnmatch
 import itertools
 import contextlib
@@ -81,6 +80,7 @@ from checkbox_ng.utils import (
     generate_resume_candidate_description,
     request_comment,
 )
+from checkbox_ng.user_utils import guess_normal_user
 
 _ = gettext.gettext
 
@@ -634,6 +634,13 @@ class Launcher(MainLoopStage, ReportsStage):
         self.sa.finish_setup()
         return failed_setups
 
+    @lru_cache(maxsize=1)
+    def get_normal_user(self):
+        return (
+            self.configuration.get_value("agent", "normal_user")
+            or guess_normal_user()
+        )
+
     def _start_new_session(self):
         print(_("Preparing..."))
         title = self.ctx.args.title or self.configuration.get_value(
@@ -644,9 +651,7 @@ class Launcher(MainLoopStage, ReportsStage):
         if app_version:
             title += " {}".format(app_version)
         runner_kwargs = {
-            "normal_user_provider": lambda: self.configuration.get_value(
-                "agent", "normal_user"
-            ),
+            "normal_user_provider": self.get_normal_user,
             "password_provider": sudo_password_provider.get_sudo_password,
             "stdin": None,
         }

@@ -25,6 +25,7 @@ import collections
 import json
 import logging
 import re
+import shutil
 
 from contextlib import suppress
 
@@ -84,7 +85,12 @@ class SessionMetaData:
     # and is not following any test plan
     FLAG_TESTPLANLESS = "testplanless"
 
+    # After expanding templates validate them and add invalid jobs as
+    # InvalidJob. These jobs will be noted as "crashed"
     FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = "strict_template_expansion"
+    # Jobs are executed as systemd units. This is used to make jobs escape
+    # the snapd/apparmor sandbox.
+    FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER = "systemd_based_job_runner"
 
     def __init__(
         self,
@@ -158,10 +164,30 @@ class SessionMetaData:
         self._title = title
 
     def update_feature_flags(self, config):
+        """
+        feature flags are a mechanism to enable or disable Checkbox features
+
+        The purpose of feature flags is to provide a way to the users to try
+        out new experimental features without impacting all users or to disable
+        new features that may cause issues and confusion in the short term.
+        """
+        # Note: Always issue a warning in the following situations:
+        # - If a feature is default and the user disables it
+        # - If a feature is experimental and the user enables it
         if config.get_value("features", "strict_template_expansion"):
             self._flags.add(self.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION)
         else:
             logger.warning("Using legacy non-strict template expansion")
+        if config.get_value("features", "systemd_based_job_runner"):
+            if shutil.which("plz-run"):
+                logger.warning("Using experimental systemd-based runner")
+                self._flags.add(self.FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER)
+            else:
+                logger.error(
+                    "Experimental systemd-based runner was requested but "
+                    "required dependency plz-run is not installed"
+                )
+                logger.error("Falling back to shell based runner")
 
     @property
     def flags(self):

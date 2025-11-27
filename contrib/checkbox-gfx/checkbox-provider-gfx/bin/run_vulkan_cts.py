@@ -3,6 +3,7 @@
 import subprocess
 import argparse
 import os
+import sys
 
 
 def run_vk_test(test_file, from_provider_data=False, terminate_on_fail=False):
@@ -17,18 +18,38 @@ def run_vk_test(test_file, from_provider_data=False, terminate_on_fail=False):
         else testfile_dir + test_file
     )
 
-    result = subprocess.run(
-        [
-            binary,
-            "--deqp-caselist-file={}".format(file_path),
-            "--deqp-terminate-on-fail={}".format(terminate_on_fail_str),
-        ],
-        capture_output=True,
+    command_list = [
+        binary,
+        "--deqp-caselist-file={}".format(file_path),
+        "--deqp-terminate-on-fail={}".format(terminate_on_fail_str),
+    ]
+
+    process = subprocess.Popen(
+        command_list,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
         cwd=run_dir,
+        universal_newlines=True,
     )
-    print(result.stdout + result.stderr)
-    exit(result.returncode)
+
+    while True:
+        line = process.stdout.readline()
+        if not line:
+            break
+        # Print the line immediately
+        sys.stdout.write(line)
+        sys.stdout.flush()
+
+    return_code = process.wait()
+    stderr_output = process.stderr.read()
+    (
+        sys.stderr.write(stderr_output)
+        if stderr_output
+        else sys.stderr.write("No STDERR output.\n")
+    )
+
+    exit(return_code)
 
 
 if __name__ == "__main__":
@@ -49,7 +70,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--terminate_on_fail",
         action="store_true",
-        help="Terminate on first failure (default is to continue running all tests)",
+        help="Terminate on first failure",
     )
     args = parser.parse_args()
 

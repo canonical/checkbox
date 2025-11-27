@@ -116,5 +116,5 @@ command:
     if [ {{ type }} == "RS485" ]; then
         serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}  --rs485-config "$RS485_CONFIG" --loop "${SERIAL_STRESS_ITERATIONS:-10000}"
     else
-        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }} --loop "${SERIAL_STRESS_ITERACTIONS:-1000}"
+        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }} --loop "${SERIAL_STRESS_ITERATIONS:-1000}"
     fi

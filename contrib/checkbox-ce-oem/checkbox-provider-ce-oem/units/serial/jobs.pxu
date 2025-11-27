@@ -110,7 +110,7 @@ plugin: shell
 user: root
 category_id: com.canonical.certification::serial
 estimated_duration: 1800
-environ: RS485_CONFIG SERIAL_STRESS_ITERACTIONS
+environ: RS485_CONFIG SERIAL_STRESS_ITERATIONS
 command:
     # shellcheck disable=SC2050
     if [ {{ type }} == "RS485" ]; then

@@ -6,6 +6,14 @@ include:
 bootstrap_include:
     com.canonical.certification::executable
 
+id: vulkan-test-plan-subset
+unit: test plan
+_name: GFX test plan for verifying Vulkan (smaller ~20min subset)
+include:
+  vk_subset_for_nvidia
+bootstrap_include:
+    com.canonical.certification::executable
+
 id: opencl-test-plan
 unit: test plan
 _name: GFX test plan for verifying OpenCL

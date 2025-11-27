@@ -283,6 +283,6 @@ _siblings: [
   { "id": "vk_subset_for_nvidia",
     "estimated_duration: 10m",
     "_summary": "Run the VK-GL-CTS subset that nvidia requested.",
-    "command": "run_vulkan_cts.py -u --test_file cts_subset.txt --from_provider_data --terminate_on_fail" }
+    "command": "run_vulkan_cts.py --test_file cts_subset.txt --from_provider_data --terminate_on_fail" }
   ]
   

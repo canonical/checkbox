@@ -10,7 +10,7 @@ environ:
   NORMAL_USER
 requires: cpuinfo.type == 'GenuineIntel'
 estimated_duration: 1m
-command: (cd /usr/local/checkbox-gfx; sudo /usr/local/checkbox-gfx/test_api_tracing)
+command: (cd /usr/local/checkbox-gfx && sudo /usr/local/checkbox-gfx/test_api_tracing)
 _siblings: [{ "id": "gfx_level_zero_test_sysman_events",
     "_summary": "Run the test_sysman_events tests from Level Zero",
     "command": "(cd /usr/local/checkbox-gfx; sudo /usr/local/checkbox-gfx/test_sysman_events)" },

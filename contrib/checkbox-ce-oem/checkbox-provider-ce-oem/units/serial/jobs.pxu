@@ -98,7 +98,7 @@ template-id: ce-oem-serial/serial-transmit-data-stress-tests
 id: ce-oem-serial/serial-transmit-data-stress-{{ type }}-{{ node }}-{{ baudrate }}
 imports: from com.canonical.plainbox import manifest
 requires:
-    manifest.has_serial_ehco_server == 'True'
+    manifest.has_serial_echo_server == 'True'
 _template-summary:
     Transmit data via serial ports
 _purpose:

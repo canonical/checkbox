@@ -9,6 +9,7 @@ import time
 import os
 import sys
 import logging
+import copy
 from typing import List, Dict
 
 # Define paths and constants
@@ -60,42 +61,36 @@ class InterruptsTest:
         initial_counts_map = { 132: [0, 0, 0, 0],
                                144: [2, 0, 4, 0] }
         """
-        try:
-            with open(PROC_INTERRUPTS, "r") as f:
-                for line in f:
-                    if self.irq_name in line:
-                        parts = line.split()
-                        # looking for irq_number for matching irq_name
-                        irq_str = parts[0].strip().replace(":", "")
-                        # Get max CPU index. The index start from 0.
-                        max_idx = self.num_cpus + 1
-                        # Get interrupts count for each CPU.
-                        counts = [
-                            int(p) for p in parts[1:max_idx] if p.isdigit()
-                        ]
-                        if irq_str.isdigit():
-                            # Append every found IRQ number
-                            self.irq_numbers[(int(irq_str))] = counts
-                        else:
-                            logging.error(line)
-                            raise ValueError("Can't found IRQ number by name!")
-        except FileNotFoundError:
-            logging.error("Proc file not found at %s.", PROC_INTERRUPTS)
-            return False
-        except Exception as e:
-            logging.error("An error occurred while reading interrupts: %s", e)
-            return False
+        with open(PROC_INTERRUPTS, "r") as f:
+            for line in f:
+                if self.irq_name in line:
+                    parts = line.strip().split()
+                    # looking for irq_number for matching irq_name
+                    irq_str = parts[0].strip().replace(":", "")
+                    # Get max CPU index. The index start from 0.
+                    max_idx = self.num_cpus + 1
+                    # Get interrupts count for each CPU.
+                    counts = [
+                        int(p) for p in parts[1 : max_idx + 1] if p.isdigit()
+                    ]
+                    if irq_str.isdigit():
+                        # Append every found IRQ number
+                        self.irq_numbers[(int(irq_str))] = counts
+                    else:
+                        # Handle non-numeric IRQs (IPIs)
+                        self.irq_numbers[irq_str] = counts
 
         if not self.irq_numbers:
             logging.error(
                 "Could not find any IRQ associated with %s.", self.irq_name
             )
-            return False
+
         return self.irq_numbers
 
     def _get_smp_affinities(self) -> Dict[int, List]:
         """
         Gets the list of CPU cores for each IRQ's affinity.
+        IPIs do not have smp_affinity files, so we treat it as all CPUs.
 
         Returns:
             True if affinities were determined for all IRQs, False otherwise.
@@ -105,6 +100,9 @@ class InterruptsTest:
             try:
                 with open(affinity_file, "r") as f:
                     affinity_hex = f.read().strip()
+            except FileNotFoundError:
+                # If smp_affinity file is not found, assume all CPUs are affected.
+                affinity_hex = "f" * (self.num_cpus // 4 + 1) # Max possible hex for all CPUs
 
                 """
                 The value in smp_affinity is the hex as a bitmask
@@ -125,7 +123,7 @@ class InterruptsTest:
                     if (affinity_mask >> cpu) & 1
                 }
                 logging.info(
-                    "IRQ %d affinity mask '%s' targets CPU(s): %s",
+                    "IRQ %s affinity mask '%s' targets CPU(s): %s",
                     irq,
                     affinity_hex,
                     affected_cpus,
@@ -151,7 +149,7 @@ class InterruptsTest:
         initial_counts = { IRQ_number1: [cpu0_count, cpu1_count, ...],
                            IRQ_number2: [cpu0_count, cpu1_count, ...] }
         """
-        initial_counts = self._get_irq_numbers_counts()
+        initial_counts = copy.deepcopy(self._get_irq_numbers_counts())
         if not initial_counts:
             raise RuntimeError(
                 "Could not find IRQs for '{}'.".format(self.irq_name)
@@ -159,7 +157,7 @@ class InterruptsTest:
         affected_cpus = self._get_smp_affinities()
         logging.info("Initial interrupt counts on target CPUs:")
         for irq, cpus in initial_counts.items():
-            logging.info("IRQ %d, CPU counts %s", irq, cpus)
+            logging.info("IRQ %s, CPU counts %s", irq, cpus)
 
         logging.info(
             "Monitoring for interrupt activity for %d seconds...",
@@ -174,11 +172,11 @@ class InterruptsTest:
             for irq_num in current_counts.keys():
                 # Check if there is any change in interrupt counts
                 if current_counts[irq_num] != initial_counts[irq_num]:
-                    for indesx, value in enumerate(current_counts[irq_num]):
-                        if value != initial_counts[irq_num][indesx]:
-                            if indesx in affected_cpus[irq_num]:
+                    for index, value in enumerate(current_counts[irq_num]):
+                        if value > initial_counts[irq_num][index]:
+                            if index in affected_cpus.get(irq_num, []):
                                 logging.info(
-                                    "SUCCESS: Interrupt detected on IRQ %d!",
+                                    "SUCCESS: Interrupt detected on IRQ %s!",
                                     irq_num,
                                 )
                                 logging.info(
@@ -197,6 +195,16 @@ class InterruptsTest:
         return False
 
 
+def dump_resources(interrupt_buttons):
+    if "|" in interrupt_buttons:
+        delimiter = "|"
+    else:
+        delimiter = " " 
+    records = interrupt_buttons.split(delimiter)
+    for record in records:
+        print("name: {}\n".format(record))
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -208,11 +216,15 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--name",
         type=str,
-        required=True,
         help=(
             "The name of the interrupt source (e.g., 'test-keys') "
             "to find in /proc/interrupts. "
         ),
+    )
+    parser.add_argument(
+        "--dump-resources",
+        type=str,
+        help="A string of interrupt button names to generate resources for.",
     )
 
     args = parser.parse_args()
@@ -225,18 +237,24 @@ def main():
         level=logging.INFO, format="%(message)s", stream=sys.stdout
     )
 
+    args = parse_arguments()
+
+    if args.dump_resources:
+        dump_resources(args.dump_resources)
+        sys.exit(0)
+
+    if not args.name:
+        logging.error("The --name argument is required to run the test.")
+        sys.exit(1)
+
     if os.geteuid() != 0:
         logging.error(
             "This script needs root privileges to access sysfs and /proc."
         )
         sys.exit(1)
 
-    args = parse_arguments()
-    test_result = None
     button_test = InterruptsTest(irq_name=args.name)
-    test_result = button_test.run_test()
-
-    if test_result:
+    if button_test.run_test():
         logging.info("Button Test for '%s' PASSED!", args.name)
     else:
         logging.error("Button Test for '%s' FAILED!", args.name)

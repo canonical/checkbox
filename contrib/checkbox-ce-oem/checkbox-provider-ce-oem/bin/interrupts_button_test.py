@@ -101,7 +101,8 @@ class InterruptsTest:
                 with open(affinity_file, "r") as f:
                     affinity_hex = f.read().strip()
             except FileNotFoundError:
-                # If smp_affinity file is not found, assume all CPUs are affected.
+                # If smp_affinity file is not found, assume all CPUs are
+                # affected.
                 affinity_hex = "f" * (
                     self.num_cpus // 4 + 1
                 )  # Max possible hex for all CPUs

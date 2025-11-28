@@ -44,6 +44,7 @@ include:
     com.canonical.certification::miscellanea/gate_rste_raid
     com.canonical.certification::miscellanea/screen-pkg-not-public
     com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
+    com.canonical.certification::miscellanea/screen-private-ppa
     com.canonical.certification::miscellanea/edid-continuous-frequency
     com.canonical.certification::miscellanea/bluetooth-on-off-rfkill_.*
     com.canonical.certification::miscellanea/csme-detection-tool

@@ -1,0 +1,23 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+
+unit: job
+id: smartcard_resource_contact
+category_id: smartcard
+plugin: resource
+_description:
+    Gather device info about smartcard reader
+command: smartcard_test.py resources -t contact
+estimated_duration: 3s
+
+unit: job
+id: smartcard_resource_contactless
+category_id: smartcard
+plugin: resource
+_description:
+    Gather device info about smartcard reader
+command: smartcard_test.py resources -t contactless
+estimated_duration: 3s

@@ -102,7 +102,9 @@ class InterruptsTest:
                     affinity_hex = f.read().strip()
             except FileNotFoundError:
                 # If smp_affinity file is not found, assume all CPUs are affected.
-                affinity_hex = "f" * (self.num_cpus // 4 + 1) # Max possible hex for all CPUs
+                affinity_hex = "f" * (
+                    self.num_cpus // 4 + 1
+                )  # Max possible hex for all CPUs
 
                 """
                 The value in smp_affinity is the hex as a bitmask
@@ -199,7 +201,7 @@ def dump_resources(interrupt_buttons):
     if "|" in interrupt_buttons:
         delimiter = "|"
     else:
-        delimiter = " " 
+        delimiter = " "
     records = interrupt_buttons.split(delimiter)
     for record in records:
         print("name: {}\n".format(record))

@@ -1,0 +1,4 @@
+SYCL_BUNDLE_ROOT=/usr/local/checkbox-gfx/sycl_linux/
+LVL_ZERO_BUILD_DIR=$SYCL_BUNDLE_ROOT/../level-zero-raytracing-support/build/
+PATH=$LVL_ZERO_BUILD_DIR:$PATH
+LD_LIBRARY_PATH=$SYCL_BUNDLE_ROOT/lib/oclgpu:$SYCL_BUNDLE_ROOT/lib:$SYCL_BUNDLE_ROOT/linux/lib/x64:$LD_LIBRARY_PATH

@@ -89,3 +89,32 @@ command:
     else
         serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}
     fi
+
+unit: template
+template-resource: ce-oem-serial/serial-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-serial/serial-transmit-data-stress-tests
+id: ce-oem-serial/serial-transmit-data-stress-{{ type }}-{{ node }}-{{ baudrate }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_serial_echo_server == 'True'
+_template-summary:
+    Transmit data via serial ports
+_purpose:
+    To check the serial port {{ type }} ({{ node }}) can transmit
+    data with baudate {{ baudrate }} in multiple cycles
+_description:
+    Have to connect the serial port to serial testing server
+plugin: shell
+user: root
+category_id: com.canonical.certification::serial
+estimated_duration: 1800
+environ: RS485_CONFIG SERIAL_STRESS_ITERATIONS
+command:
+    # shellcheck disable=SC2050
+    if [ {{ type }} == "RS485" ]; then
+        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}  --rs485-config "$RS485_CONFIG" --loop "${SERIAL_STRESS_ITERATIONS:-10000}"
+    else
+        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }} --loop "${SERIAL_STRESS_ITERATIONS:-1000}"
+    fi

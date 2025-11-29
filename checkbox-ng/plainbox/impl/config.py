@@ -26,6 +26,7 @@ import io
 import logging
 import os
 import shlex
+import json
 
 from configparser import ConfigParser
 from collections import namedtuple, OrderedDict
@@ -57,6 +58,9 @@ class Configuration:
     """
 
     DEPRECATED_SECTION_NAMES = {"daemon": "agent"}
+    DEPRECATED_KEY_NAMES = {"config_filename": "import_override"}
+
+    _DYNAMIC_SECTIONS = ("environment", "manifest")
 
     def __init__(self, source=None):
         """Create a new configuration object filled with default values."""
@@ -145,7 +149,12 @@ class Configuration:
         if parametrized:
             prefix, _ = section.split(":")
             # TODO: do the check here for typing
-
+        if name in self.DEPRECATED_KEY_NAMES:
+            name, deprecated_name = self.DEPRECATED_KEY_NAMES[name], name
+            problem = (
+                'Deprecated key "{}=...", use "{}" instead. ' "Origin: {}"
+            ).format(deprecated_name, name, origin)
+            self.notice_problem(problem)
         index = -1
         for i, (sect_name, spec) in enumerate(CONFIG_SPEC):
             if sect_name == section:
@@ -167,9 +176,16 @@ class Configuration:
             )
             self.notice_problem(problem)
             return
-
         assert index > -1
-        kind = CONFIG_SPEC[index][1][name].kind
+        try:
+            kind = CONFIG_SPEC[index][1][name].kind
+        except KeyError:
+            self.notice_problem(
+                'Unknown key "{}=..." in section [{}]. Ignoring it. Origin: {}'.format(
+                    name, section, origin
+                )
+            )
+            return
         try:
             if kind == list:
                 value = shlex.split(value.replace(",", " "))
@@ -288,18 +304,30 @@ class Configuration:
                 cfg.notice_problem(problem)
                 continue
             for var_name, var in section.items():
-                is_dyn = sect_name in cls._DYNAMIC_SECTIONS
-                if var_name not in cfg.sections[sect_name] and not is_dyn:
-                    problem = (
-                        "Unexpected variable '{}' in section [{}] "
-                        "Origin: {}"
-                    ).format(var_name, sect_name, origin)
-                    cfg.notice_problem(problem)
-                    continue
                 cfg.set_value(sect_name, var_name, var, origin)
         return cfg
 
-    _DYNAMIC_SECTIONS = ("environment", "manifest")
+    def to_json(self):
+        """
+        Encodes the Configuration in a json object with sections and origins
+        """
+        to_encode = {
+            "origins": self._origins,
+            "sections": self.sections,
+            "problems": self._problems,
+            "sources": self.sources,
+        }
+        return json.dumps(to_encode)
+
+    @classmethod
+    def from_json(cls, config_json: str):
+        config_dict = json.loads(config_json)
+        cfg = cls()
+        cfg._origins = config_dict["origins"]
+        cfg._problems = config_dict["problems"]
+        cfg._sources = config_dict["sources"]
+        cfg.sections = config_dict["sections"]
+        return cfg
 
 
 VarSpec = namedtuple("VarSpec", ["kind", "default", "help"])
@@ -326,10 +354,11 @@ CONFIG_SPEC = [
     (
         "config",
         {
-            "config_filename": VarSpec(
+            "import_override": VarSpec(
                 str,
                 "checkbox.conf",
-                "Name of the configuration file to look for.",
+                "Import configuration by name, path or ID and override it with"
+                " the current configuration values",
             ),
         },
     ),

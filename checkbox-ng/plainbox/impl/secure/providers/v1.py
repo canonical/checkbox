@@ -33,6 +33,8 @@ from pathlib import Path
 
 from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
+
+from plainbox.impl.unit.launcher import LauncherUnit
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import (
     ValidationError as ConfigValidationError,
@@ -282,6 +284,48 @@ class UnitPlugIn(ProviderContentPlugIn):
         return all_units.get_by_name(unit_name).plugin_object
 
 
+class LauncherPlugIn(ProviderContentPlugIn):
+    """
+    A specialized PlugIn that creates LauncherUnit instances for .conf files
+    in the launchers/ directory.
+    """
+
+    def inspect(
+        self,
+        filename: str,
+        text: str,
+        provider: "Provider1",
+        validate: bool,
+        validation_kwargs: "Dict[str, Any]",
+        check: bool,
+        context: "???",
+    ) -> "Any":
+        """
+        Inspect a launcher file (no parsing needed, just metadata).
+        """
+        return None
+
+    def discover_units(
+        self,
+        inspect_result: "Any",
+        filename: str,
+        text: str,
+        provider: "Provider1",
+    ) -> "Iterable[Unit]":
+        """
+        Create a LauncherUnit and a FileUnit for the launcher file.
+        """
+        launcher_unit = LauncherUnit.from_path(
+            filename,
+            text,
+            origin=Origin(FileTextSource(filename)),
+            provider=provider,
+            virtual=True,
+        )
+        yield launcher_unit
+        yield self.make_file_unit(filename, provider)
+
+
 class ProviderContentEnumerator:
     """
     Support class for enumerating provider content.
@@ -336,6 +380,8 @@ class ProviderContentEnumerator:
                 dir_list.append(provider.bin_dir)
             if provider.locale_dir:
                 dir_list.append(provider.locale_dir)
+            if provider.launchers_dir:
+                dir_list.append(provider.launchers_dir)
         # Find all the files that belong to a provider
         self._content_collection = LazyFsPlugInCollection(
             dir_list, ext=None, recursive=True
@@ -450,6 +496,8 @@ class ProviderContentClassifier:
             classify_fn_list.append(self._classify_pxu_jobs)
         if self.provider.units_dir:
             classify_fn_list.append(self._classify_pxu_units)
+        if self.provider.launchers_dir:
+            classify_fn_list.append(self._classify_launchers)
         if self.provider.data_dir:
             classify_fn_list.append(self._classify_data)
         if self.provider.bin_dir:
@@ -512,6 +560,16 @@ class ProviderContentClassifier:
                     FileRole.unit_source,
                     self.provider.units_dir,
                     UnitPlugIn,
+                )
+
+    def _classify_launchers(self, filename: str):
+        """classify files in launchers_dir as launcher"""
+        if filename.startswith(self.provider.launchers_dir):
+            if Path(filename).suffix == ".conf":
+                return (
+                    FileRole.launcher,
+                    self.provider.launchers_dir,
+                    LauncherPlugIn,
                 )
 
     def _classify_data(self, filename: str):
@@ -681,6 +739,7 @@ class ProviderContentLoader:
             for path in (
                 self.provider.units_dir,
                 self.provider.jobs_dir,
+                self.provider.launchers_dir,
                 self.provider.data_dir,
                 self.provider.bin_dir,
                 self.provider.locale_dir,
@@ -737,6 +796,7 @@ class Provider1(IProvider1):
         data_dir,
         bin_dir,
         locale_dir,
+        launchers_dir,
         base_dir,
         *,
         validate=False,
@@ -788,6 +848,9 @@ class Provider1(IProvider1):
         :param locale_dir:
             path of the directory with locale database (translation catalogs)
 
+        :param launchers_dir:
+            path of the directory with launcher definitions
+
         :param base_dir:
             path of the directory with (perhaps) all of jobs_dir, data_dir,
             bin_dir, locale_dir. This may be None.
@@ -821,6 +884,7 @@ class Provider1(IProvider1):
         self._data_dir = data_dir
         self._bin_dir = bin_dir
         self._locale_dir = locale_dir
+        self._launchers_dir = launchers_dir
         self._base_dir = base_dir
         # Create support classes
         self._enumerator = ProviderContentEnumerator(self)
@@ -900,6 +964,7 @@ class Provider1(IProvider1):
             definition.effective_data_dir,
             definition.effective_bin_dir,
             definition.effective_locale_dir,
+            definition.effective_launchers_dir,
             definition.location or None,
             validate=validate,
             validation_kwargs=validation_kwargs,
@@ -1004,6 +1069,13 @@ class Provider1(IProvider1):
         The value is applicable as argument bindtextdomain()
         """
         return self._locale_dir
+
+    @property
+    def launchers_dir(self):
+        """
+        absolute path of the launchers directory
+        """
+        return self._launchers_dir
 
     @property
     def base_dir(self):
@@ -1219,6 +1291,15 @@ class Provider1(IProvider1):
             if unit.Meta.name == "file"
             and unit.role in (FileRole.script, FileRole.binary)
         )
+
+    @property
+    def launcher_list(self):
+        """
+        List of all the launchers
+        """
+        return [
+            unit for unit in self.unit_list if unit.Meta.name == "launcher"
+        ]
 
     @property
     def problem_list(self):
@@ -1715,6 +1796,43 @@ class Provider1Definition(Config):
         if implicit2 is not None and os.path.isdir(implicit2):
             return implicit2
 
+    launchers_dir = Variable(
+        section="PlainBox Provider",
+        help_text=_("Pathname of the directory with launcher definitions"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ],
+    )
+
+    @property
+    def implicit_launchers_dir(self):
+        """
+        implicit value of launchers_dir (if Unset)
+
+        The implicit value is only defined if location is not Unset. It is the
+        'launchers' subdirectory of the directory that location points to.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "launchers")
+
+    @property
+    def effective_launchers_dir(self):
+        """
+        effective value of launchers_dir
+
+        The effective value is :meth:`launchers_dir` itself, unless it is Unset.
+        If it is Unset the effective value is the :meth:`implicit_launchers_dir`,
+        if that value would be valid. The effective value may be None.
+        """
+        if self.launchers_dir is not Unset:
+            return self.launchers_dir
+        implicit = self.implicit_launchers_dir
+        if implicit is not None and os.path.isdir(implicit):
+            return implicit
+
     def validate_whole(self):
         """
         Validate the provider definition object.
@@ -1770,6 +1888,7 @@ class Provider1PlugIn(PlugIn):
             definition.data_dir = Unset
             definition.bin_dir = Unset
             definition.locale_dir = Unset
+            definition.launchers_dir = Unset
         # any validation issues prevent plugin from being used
         if definition.problem_list:
             # take the earliest problem and report it

@@ -1,0 +1,49 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hector Cao <hector.cao@canonical.com>
+
+id: intel-tdx-common/host_hardware
+category_id: intel-tdx
+plugin: shell
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_intel_tdx == 'True'
+_summary: Check Host support
+_description: The purpose of this job is to check the TDX support on the Host
+command:
+  cc_tdx_test.py check_host_hardware
+
+id: intel-tdx-common/host_kernel
+category_id: intel-tdx
+plugin: shell
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_intel_tdx == 'True'
+_summary: Check kernel support on Host
+_description: The purpose of this job is to check the TDX support in the kernel on the Host
+command:
+  cc_tdx_test.py check_host_kernel
+
+id: intel-tdx-common/host_cpu
+category_id: intel-tdx
+plugin: shell
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_intel_tdx == 'True'
+_summary: Check Host CPU support
+_description: The purpose of this job is to check the TDX support on the Host CPU
+command:
+  cc_tdx_test.py check_host_cpu
+
+id: intel-tdx-common/boot_guest
+category_id: intel-tdx
+plugin: shell
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_intel_tdx == 'True'
+_summary: Boot an Intel TDX Guest
+_description: The purpose of this job is to boot an Intel TDX Guest
+command:
+  cc_tdx_test.py test_boot_guest

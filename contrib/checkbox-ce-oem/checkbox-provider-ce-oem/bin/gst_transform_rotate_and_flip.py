@@ -136,6 +136,14 @@ def project_factory(args: argparse.Namespace) -> Any:
             height=args.height,
             framerate=args.framerate,
         )
+    elif "carmel" in args.platform:
+        return CarmelProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            action=args.action,
+            width=args.width,
+            height=args.height,
+        )
     else:
         raise SystemExit(
             "Error: Cannot get the implementation for '{}'".format(
@@ -240,6 +248,95 @@ class GenioProject(PipelineInterface):
             self._codec_parser_map.get(self._codec),
             self.artifact_file,
         )
+        return pipeline
+
+
+class CarmelProject(PipelineInterface):
+    """Carmel project pipeline handler and builder"""
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        action: str,
+        width: int,
+        height: int,
+    ) -> None:
+        self._platform = platform
+        self._codec = codec
+        self._action = action
+        self._width = width
+        self._height = height
+        self._codec_parser_map = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse",
+            GStreamerEncodePlugins.V4L2H265ENC.value: "h265parse",
+        }
+        self._actions_map = {
+            Actions.ROTATE_90: "rotate=90CW",
+            Actions.ROTATE_180: "rotate=180",
+            Actions.ROTATE_270: "rotate=90CCW",
+            Actions.HORIZONTAL_FLIP: "flip-horizontal=true",
+            Actions.VERTICAL_FLIP: "flip-vertical=true",
+        }
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = os.path.join(
+            VIDEO_CODEC_TESTING_DATA,
+            "video",
+            "{}p_30fps_h264.mp4".format(self._height),
+        )
+        self._artifact_file = ""
+
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            self._artifact_file = generate_artifact_name()
+        return self._artifact_file
+
+    @property
+    def psnr_reference_file(self) -> str:
+        """
+        A golden reference which has been transformed in advance. It's used to
+        be the compared reference file for PSNR.
+        """
+        golden_reference = "{}p_30fps_h264_{}.mp4".format(
+            self._height, self._action
+        )
+
+        full_path = os.path.join(
+            VIDEO_CODEC_TESTING_DATA, "video", golden_reference
+        )
+        if not os.path.exists(full_path):
+            raise SystemExit(
+                "Error: Golden PSNR reference '{}' doesn't exist".format(
+                    full_path
+                )
+            )
+
+        return full_path
+
+    def build_pipeline(self) -> str:
+        """
+        Build the GStreamer commands based on the platform and codec.
+
+        Returns:
+            str: A GStreamer command based on the platform and
+            codec.
+        """
+        pipeline = (
+            "{} -e filesrc location={} ! qtdemux ! queue ! "
+            "h264parse ! v4l2h264dec capture-io-mode=5 output-io-mode=5 ! "
+            "qtivtransform {} ! "
+            "v4l2h264enc capture-io-mode=5 output-io-mode=5 ! "
+            "queue ! h264parse ! mp4mux ! queue ! "
+            "filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._actions_map.get(self._action),
+            self.artifact_file,
+        )
+
         return pipeline
 
 

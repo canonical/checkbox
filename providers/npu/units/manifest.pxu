@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_npu
+_name: An NPU
+value-type: bool

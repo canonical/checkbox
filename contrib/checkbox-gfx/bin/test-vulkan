@@ -5,7 +5,7 @@ launcher_version = 1
 stock_reports = text, submission_files
 
 [test plan]
-unit = com.canonical.certification::vulkan-test-plan
+unit = com.canonical.certification::vulkan-test-plan-subset
 forced = yes
 
 [test selection]
@@ -16,3 +16,6 @@ type = silent
 auto_retry = yes
 max_attempts = 3
 delay_before_retry = 15
+
+[environment]
+DISPLAY = :0

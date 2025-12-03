@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import patch, mock_open
 import subprocess
 import sys
 import os
@@ -20,7 +20,6 @@ class TestGpuDriverSigned(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_get_gpu_addresses(self, mock_subprocess):
         """Test getting GPU PCI addresses from lspci."""
-        # Mock lspci output based on actual system
         mock_subprocess.side_effect = [
             "00:02.0 VGA compatible controller [0300]: Intel Corporation Device [8086:a7a0] (rev 04)\n",
             "01:00.0 3D controller [0302]: NVIDIA Corporation Device [10de:25e2] (rev a1)\n",
@@ -47,7 +46,9 @@ class TestGpuDriverSigned(unittest.TestCase):
     @patch("subprocess.run")
     @patch("os.path.isdir")
     @patch("builtins.open", new_callable=mock_open)
-    def test_has_gpu_driver_without_driver(self, mock_file, mock_isdir, mock_run):
+    def test_has_gpu_driver_without_driver(
+        self, mock_file, mock_isdir, mock_run
+    ):
         """Test GPU without driver bound."""
         mock_file.return_value.read.side_effect = ["0x10de", "0x25e2"]
         mock_isdir.return_value = False
@@ -55,7 +56,9 @@ class TestGpuDriverSigned(unittest.TestCase):
         result = has_gpu_driver("01:00.0")
         self.assertFalse(result)
         # Verify lspci was called for debugging
-        mock_run.assert_called_once_with(["lspci", "-nnvk", "-s", "0000:01:00.0"])
+        mock_run.assert_called_once_with(
+            ["lspci", "-nnvk", "-s", "0000:01:00.0"]
+        )
 
     def test_has_nvidia_signature_signed(self):
         """Test NVIDIA driver with Canonical signature."""
@@ -72,7 +75,7 @@ sig_hashalgo:   sha512"""
     def test_has_nvidia_signature_not_signed(self, mock_subprocess):
         """Test NVIDIA driver without Canonical signature."""
         mock_subprocess.return_value = "6.8.0-49-generic"
-        
+
         modinfo_output = """filename:       /lib/modules/6.8.0-49-generic/kernel/drivers/video/nvidia.ko
 version:        535.274.02
 signer:         Some Other Signer
@@ -120,7 +123,9 @@ sig_hashalgo:   sha512"""
     @patch("subprocess.check_output")
     def test_get_nvidia_version_not_present(self, mock_subprocess):
         """Test getting NVIDIA version when driver is not present."""
-        mock_subprocess.side_effect = subprocess.CalledProcessError(1, "modinfo")
+        mock_subprocess.side_effect = subprocess.CalledProcessError(
+            1, "modinfo"
+        )
 
         version, modinfo_output = get_nvidia_version_modinfo()
         self.assertIsNone(version)

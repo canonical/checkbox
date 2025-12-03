@@ -56,7 +56,9 @@ def has_nvidia_signature(modinfo_output, nvidia_version):
         ["uname", "-r"], text=True
     ).strip()
     major_version = nvidia_version.split(".")[0]
-    print(f"E: Expecting linux-modules-nvidia-{major_version}-{kernel_version}.")
+    print(
+        f"E: Expecting linux-modules-nvidia-{major_version}-{kernel_version}."
+    )
     return False
 
 

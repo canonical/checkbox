@@ -77,6 +77,7 @@ apps:
     restart-condition: always
     restart-delay: 1s
     plugs: *standard
+    install-mode: disable
     environment:
       PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/lib64/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
 

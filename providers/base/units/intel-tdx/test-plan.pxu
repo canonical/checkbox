@@ -1,0 +1,17 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hector Cao <hector.cao@canonical.com>
+
+id: intel-tdx-cert
+unit: test plan
+_name: Intel Trust Domain eXtension (TDX)
+_description:
+ Intel Intel Trust Domain eXtension (TDX) tests
+include:
+    intel-tdx/.*
+    intel-tdx-common/.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap

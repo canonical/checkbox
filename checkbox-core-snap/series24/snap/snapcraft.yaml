@@ -104,6 +104,12 @@ parts:
     stage:
       - version.txt
   ################################################################################
+  plz-run:
+    plugin: go
+    source: https://gitlab.com/zygoon/plz-run.git
+    build-snaps:
+      - go/latest/stable
+  ################################################################################
   fwts:
     source-tag: "V25.07.00"
     source-depth: 1

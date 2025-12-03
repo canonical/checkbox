@@ -106,6 +106,12 @@ parts:
     stage:
       - version.txt
 ################################################################################
+  plz-run:
+    plugin: go
+    source: https://gitlab.com/zygoon/plz-run.git
+    build-snaps:
+      - go/latest/stable
+################################################################################
 # Upstream: https://github.com/fwts/fwts/blob/master/snapcraft.yaml
   fwts:
     source-tag: "V25.07.00"

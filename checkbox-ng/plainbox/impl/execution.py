@@ -33,6 +33,9 @@ import sys
 import tempfile
 import threading
 import time
+import shlex
+import signal
+import shutil
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
@@ -103,7 +106,9 @@ class UnifiedRunner(IJobRunner):
         self._running_jobs_pid = None
         self._extra_env = extra_env
 
-    def run_job(self, job, job_state, environ=None, ui=None):
+    def run_job(
+        self, job, job_state, environ=None, ui=None, as_systemd_unit=False
+    ):
         logger.info(_("Running %r"), job)
         self._job_runner_ui_delegate.ui = ui
 
@@ -147,7 +152,9 @@ class UnifiedRunner(IJobRunner):
         if job.plugin == "resource" and "cachable" in job.get_flag_set():
             from_cache, result = self._resource_cache.get(
                 job.checksum,
-                lambda: self._run_command(job, environ).get_result(),
+                lambda: self._run_command(
+                    job, environ, as_systemd_unit
+                ).get_result(),
             )
             if from_cache:
                 print(Colorizer().header(_("Using cached data!")))
@@ -172,7 +179,7 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_FAIL,
                 comments=_("No command to run!"),
             ).get_result()
-        result_builder = self._run_command(job, environ)
+        result_builder = self._run_command(job, environ, as_systemd_unit)
 
         # for user-interact-verify and user-verify jobs the operator chooses
         # the final outcome, so we need to reset the outcome to undecided
@@ -189,7 +196,7 @@ class UnifiedRunner(IJobRunner):
         # this is left here to conform to the interface
         return []
 
-    def _run_command(self, job, environ):
+    def _run_command(self, job, environ, as_systemd_unit):
         start_time = time.time()
         slug = slugify(job.id)
         output_writer = CommandOutputWriter(
@@ -216,7 +223,9 @@ class UnifiedRunner(IJobRunner):
                 ]
             )
             ecmd = extcmd.ExternalCommandWithDelegate(delegate)
-            return_code = self.execute_job(job, environ, ecmd, self._stdin)
+            return_code = self.execute_job(
+                job, environ, ecmd, self._stdin, as_systemd_unit
+            )
             io_log_gen.on_new_record.disconnect(writer.write_record)
         if return_code == 0:
             outcome = IJobResult.OUTCOME_PASS
@@ -231,10 +240,15 @@ class UnifiedRunner(IJobRunner):
             execution_duration=time.time() - start_time,
         )
 
-    def execute_job(self, job, environ, extcmd_popen, stdin=None):
-        """Run the 'binary' associated with the job."""
+    def execute_job(
+        self, job, environ, extcmd_popen, stdin=None, as_systemd_unit=False
+    ):
+        """
+        Runs the 'command' section associated with the job.
+        """
         target_user = job.user or self._user_provider()
-        if target_user == getpass.getuser():
+        # the systemd unit always needs the user
+        if target_user == getpass.getuser() and not as_systemd_unit:
             target_user = None
 
         def call(extcmd_popen, *args, **kwargs):
@@ -303,7 +317,6 @@ class UnifiedRunner(IJobRunner):
                         break
                     except KeyboardInterrupt:
                         is_alive = False
-                        import signal
 
                         self.send_signal(signal.SIGKILL, target_user)
                         # And send a notification about this
@@ -325,6 +338,9 @@ class UnifiedRunner(IJobRunner):
             extcmd_popen._delegate.on_end(proc.returncode)
             return proc.returncode
 
+        get_execution_command = get_execution_command_subshell
+        if as_systemd_unit:
+            get_execution_command = get_execution_command_systemd_unit
         # Setup the executable nest directory
         with self.configured_filesystem(job) as nest_dir:
             # Get the command and the environment.
@@ -365,8 +381,6 @@ class UnifiedRunner(IJobRunner):
                     )
             logger.info("Finished job [{}]".format(job.id))
             if "noreturn" in job.get_flag_set():
-                import signal
-
                 signal.pause()
             return return_code
 
@@ -411,6 +425,7 @@ class UnifiedRunner(IJobRunner):
         suffix = ".{}".format(job.checksum)
         try:
             with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
+                os.chmod(cwd_dir, 0o777)
                 logger.debug(
                     _("Job temporary current working directory: %s"), cwd_dir
                 )
@@ -689,10 +704,18 @@ def get_differential_execution_environment(
     return delta_env
 
 
-def get_execution_command(
+def get_execution_command_subshell(
     job, environ, session_id, nest_dir, target_user=None, extra_env=None
 ):
-    """Generate a command argv to run in the shell."""
+    """
+    Generate a command that if executed runs a Checkbox command section
+
+    The command returned by this function spawns a shell with the proper
+    environment for the target user and, on core, an unconfined confinement
+    profile, which gives the new process an (almost) unconfined access to the
+    system. Note that the resulting process spawned by this command is still a
+    child of whatever executes it.
+    """
     cmd = []
     if target_user:
         # we want sudo to:
@@ -728,4 +751,55 @@ def get_execution_command(
     if on_ubuntucore():
         cmd += ["aa-exec", "-p", "unconfined"]
     cmd += [job.shell, "-c", job.command]
+    return cmd
+
+
+def get_execution_command_systemd_unit(
+    job, environ, session_id, nest_dir, target_user, extra_env=None
+):
+    """
+    Generates a command that if executed spawns a Checkbox command section as a
+    oneshot systemd unit
+
+    This is different from get_execution_command_subshell because the new job is
+    executed not as a child process of Checkbox in the current slice, but as a
+    new transient systemd unit in the appropriate slice for the user.
+    """
+
+    cmd = [
+        "sudo",
+        "--prompt",
+        "",
+        "--reset-timestamp",
+        "--stdin",
+        shutil.which("plz-run"),
+        "-same-dir",
+        "-g",
+        target_user,
+        "-u",
+        target_user,
+    ]
+    if target_user != "root":
+        cmd += ["-pam", "systemd-login"]
+    env = get_differential_execution_environment(
+        job, environ, session_id, nest_dir, extra_env
+    )
+    env_cmds = []
+    env_cmds += [
+        "{key}={value}".format(key=key, value=value)
+        for key, value in sorted(env.items())
+    ]
+    if on_ubuntucore():
+        # when in a core snap, we need the snap mount namespace to use anything
+        # that was shared via a content interface
+        snap_name = os.getenv("SNAP_NAME", "checkbox")
+        cmd += [
+            "sudo",
+            shutil.which("nsenter"),
+            "-m/run/snapd/ns/{}.mnt".format(snap_name),
+            "sudo",
+            "-u",
+            target_user,
+        ]
+    cmd += ["env", *env_cmds, job.shell, "-c", job.command]
     return cmd

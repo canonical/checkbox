@@ -784,11 +784,12 @@ def get_execution_command_systemd_unit(
     env = get_differential_execution_environment(
         job, environ, session_id, nest_dir, extra_env
     )
-    env_cmds = []
-    env_cmds += [
+    env_cmds = [
         "{key}={value}".format(key=key, value=value)
         for key, value in sorted(env.items())
-    ]
+    ] + ["SYSTEMD_IGNORE_CHROOT=1"]
+    # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
+    # any systemd command will not work
     if on_ubuntucore():
         # when in a core snap, we need the snap mount namespace to use anything
         # that was shared via a content interface

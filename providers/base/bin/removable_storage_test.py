@@ -509,24 +509,25 @@ class DiskTest:
                 device
                 for device in enumerator.execute()
                 if (
-                    device.get_driver() == "xhci-hcd"
-                    or device.get_driver() == "xhci_hcd"
+                    device.get_driver() == "xhci_hcd"
+                    or device.get_driver() == "xhci_pci_renesas"
                 )
             ]
         for udev_device_xhci in udev_devices_xhci:
             pci_slot_name = udev_device_xhci.get_property("PCI_SLOT_NAME")
             xhci_devpath = udev_device_xhci.get_property("DEVPATH")
+            driver_name = udev_device_xhci.get_driver()
             for udev_device in udev_devices:
                 devpath = udev_device.get_property("DEVPATH")
                 if self._compare_pci_slot_from_devpath(devpath, pci_slot_name):
                     self.rem_disks_xhci[
                         udev_device.get_property("DEVNAME")
-                    ] = "xhci"
+                    ] = (driver_name if driver_name else "xhci")
                 if platform.machine() in ("aarch64", "armv7l"):
                     if xhci_devpath in devpath:
                         self.rem_disks_xhci[
                             udev_device.get_property("DEVNAME")
-                        ] = "xhci"
+                        ] = (driver_name if driver_name else "xhci")
         return self.rem_disks_xhci
 
     def mount(self):
@@ -695,8 +696,9 @@ def main():
         "--driver",
         choices=["xhci_hcd"],
         help=(
-            "Detect the driver of the host controller."
-            "Only xhci_hcd for usb3 is supported so far."
+            "Detect the driver of the host controller. "
+            "Only xhci_hcd for usb3 is supported so far. "
+            "Compatible drivers (xhci_pci_renesas) are also accepted."
         ),
     )
     parser.add_argument(
@@ -1009,11 +1011,20 @@ def main():
                             # controller drivers.
                             # This will raise KeyError for no
                             # associated disk device was found.
-                            if test.get_disks_xhci().get(disk, "") != "xhci":
+                            detected_driver = test.get_disks_xhci().get(
+                                disk, ""
+                            )
+                            # Accept xhci_hcd, xhci_pci_renesas, or generic "xhci"
+                            valid_xhci_drivers = [
+                                "xhci",
+                                "xhci_hcd",
+                                "xhci_pci_renesas",
+                            ]
+                            if detected_driver not in valid_xhci_drivers:
                                 raise SystemExit(
-                                    "\t\tDisk does not use xhci_hcd."
+                                    "\t\tDisk does not use xhci_hcd or compatible driver."
                                 )
-                            print("\t\tDriver Detected: xhci_hcd")
+                            print("\t\tDriver Detected: %s" % detected_driver)
                         else:
                             # Give it a hint for the detection failure.
                             # LP: #1362902

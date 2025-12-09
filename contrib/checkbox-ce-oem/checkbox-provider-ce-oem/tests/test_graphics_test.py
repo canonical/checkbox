@@ -35,9 +35,7 @@ class TestGraphicsTest(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_is_ubuntu_frame_active_true(self, mock_check_output):
         self.assertTrue(graphics_test.is_ubuntu_frame_active())
-        mock_check_output.assert_called_with(
-            ["pgrep", "-if", "ubuntu-frame"]
-        )
+        mock_check_output.assert_called_with(["pgrep", "-if", "ubuntu-frame"])
 
     @patch(
         "subprocess.check_output",
@@ -45,9 +43,7 @@ class TestGraphicsTest(unittest.TestCase):
     )
     def test_is_ubuntu_frame_active_false(self, mock_check_output):
         self.assertFalse(graphics_test.is_ubuntu_frame_active())
-        mock_check_output.assert_called_with(
-            ["pgrep", "-if", "ubuntu-frame"]
-        )
+        mock_check_output.assert_called_with(["pgrep", "-if", "ubuntu-frame"])
 
     @patch("graphics_test.is_ubuntu_frame_active", return_value=True)
     @patch("subprocess.run")

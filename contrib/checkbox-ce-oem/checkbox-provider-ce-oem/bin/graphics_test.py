@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+import re
 import time
 import logging
 
@@ -100,21 +101,25 @@ def test_glmark2_es2_wayland():
         )
         return 1
 
-    if f"GL_VENDOR: {gl_vendor}" not in output:
+    if not re.search(r"GL_VENDOR:\s+{}".format(gl_vendor), output):
         logger.error("FAIL: Wrong vendor!")
-        logger.error(f"The expected 'GL_VENDOR' should include '{gl_vendor}'!")
-        exit_code = 1
-    else:
-        logger.info(f"PASS: GL_VENDOR is '{gl_vendor}'")
-
-    if f"GL_RENDERER: {gl_renderer}" not in output:
-        logger.error("FAIL: Wrong renderer!")
         logger.error(
-            f"The expected 'GL_RENDERER' should include '{gl_renderer}'"
+            "The expected 'GL_VENDOR' should include '{}'!".format(gl_vendor)
         )
         exit_code = 1
     else:
-        logger.info(f"PASS: GL_RENDERER is '{gl_renderer}'")
+        logger.info("PASS: GL_VENDOR is '{}'".format(gl_vendor))
+
+    if not re.search(r"GL_RENDERER:\s+{}".format(gl_renderer), output):
+        logger.error("FAIL: Wrong renderer!")
+        logger.error(
+            "The expected 'GL_RENDERER' should include '{}'".format(
+                gl_renderer
+            )
+        )
+        exit_code = 1
+    else:
+        logger.info("PASS: GL_RENDERER is '{}'".format(gl_renderer))
 
     return exit_code
 

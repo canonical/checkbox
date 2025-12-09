@@ -51,7 +51,7 @@ class TestGraphicsTest(unittest.TestCase):
         self, mock_run, mock_is_active
     ):
         self.assertEqual(graphics_test.test_ubuntu_frame_launching(), 0)
-        mock_is_active.assert_called_once()
+        self.assertEqual(mock_is_active.call_count, 1)
         mock_run.assert_called_with(
             ["journalctl", "-b", "0", "-g", "ubuntu-frame"]
         )
@@ -61,7 +61,7 @@ class TestGraphicsTest(unittest.TestCase):
     def test_ubuntu_frame_launching_timeout(self, mock_run, mock_is_active):
         mock_run.side_effect = subprocess.CalledProcessError(124, "cmd")
         self.assertEqual(graphics_test.test_ubuntu_frame_launching(), 0)
-        mock_is_active.assert_called_once()
+        self.assertEqual(mock_is_active.call_count, 1)
         mock_run.assert_called_with(
             ["timeout", "20s", "ubuntu-frame"],
             check=True,
@@ -74,7 +74,7 @@ class TestGraphicsTest(unittest.TestCase):
     def test_ubuntu_frame_launching_fail(self, mock_run, mock_is_active):
         mock_run.side_effect = subprocess.CalledProcessError(1, "cmd")
         self.assertEqual(graphics_test.test_ubuntu_frame_launching(), 1)
-        mock_is_active.assert_called_once()
+        self.assertEqual(mock_is_active.call_count, 1)
 
     @patch("os.environ.get")
     @patch("time.sleep")
@@ -156,32 +156,32 @@ class TestGraphicsTest(unittest.TestCase):
         with patch("sys.argv", ["script.py"]):
             with self.assertRaises(SystemExit) as cm:
                 graphics_test.main()
-        mock_help.assert_called_once()
         self.assertEqual(cm.exception.code, 1)
+        self.assertEqual(mock_help.call_count, 1)
 
     @patch("sys.exit")
     @patch("graphics_test.test_ubuntu_frame_launching", return_value=0)
     def test_main_frame_arg(self, mock_test_func, mock_exit):
         with patch("sys.argv", ["script.py", "frame"]):
             graphics_test.main()
-            mock_test_func.assert_called_once()
-            mock_exit.assert_called_with(0)
+        self.assertEqual(mock_test_func.call_count, 1)
+        mock_exit.assert_called_with(0)
 
     @patch("sys.exit")
     @patch("graphics_test.test_glmark2_es2_wayland", return_value=0)
     def test_main_glmark2_arg(self, mock_test_func, mock_exit):
         with patch("sys.argv", ["script.py", "glmark2"]):
             graphics_test.main()
-            mock_test_func.assert_called_once()
-            mock_exit.assert_called_with(0)
+        self.assertEqual(mock_test_func.call_count, 1)
+        mock_exit.assert_called_with(0)
 
     @patch("sys.exit")
     @patch("graphics_test.help_function")
     def test_main_invalid_arg(self, mock_help, mock_exit):
         with patch("sys.argv", ["script.py", "invalid"]):
             graphics_test.main()
-            mock_help.assert_called_once()
-            mock_exit.assert_called_with(1)
+        self.assertEqual(mock_help.call_count, 1)
+        mock_exit.assert_called_with(1)
 
 
 if __name__ == "__main__":

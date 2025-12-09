@@ -45,7 +45,8 @@ def test_ubuntu_frame_launching():
             subprocess.run(
                 ["timeout", "20s", "ubuntu-frame"],
                 check=True,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
         except subprocess.CalledProcessError as e:
             if e.returncode == 124:
@@ -79,7 +80,10 @@ def test_glmark2_es2_wayland():
 
     logger.info("Running glmark2-es2-wayland benchmark...")
     process = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
     )
     output = ""
     for line in process.stdout:

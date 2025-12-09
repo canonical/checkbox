@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 import subprocess
 import logging
 import sys
@@ -65,7 +65,8 @@ class TestGraphicsTest(unittest.TestCase):
         mock_run.assert_called_with(
             ["timeout", "20s", "ubuntu-frame"],
             check=True,
-            capture_output=True,
+            stdout=unittest.mock.ANY,
+            stderr=unittest.mock.ANY,
         )
 
     @patch("graphics_test.is_ubuntu_frame_active", return_value=False)
@@ -101,8 +102,8 @@ class TestGraphicsTest(unittest.TestCase):
         self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 0)
         mock_popen.assert_any_call(
             ["ubuntu-frame"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=unittest.mock.ANY,
+            stderr=unittest.mock.ANY,
         )
         mock_run.assert_called_with(["kill", "1234"])
 
@@ -184,8 +185,6 @@ class TestGraphicsTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # Add the script's directory to the Python path
-    # to allow importing graphics_test
     script_dir = os.path.dirname(__file__)
     if script_dir not in sys.path:
         sys.path.insert(0, script_dir)

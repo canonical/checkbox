@@ -97,6 +97,13 @@ def register_arguments():
             "fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync"
         ),
     )
+    parser.add_argument(
+        "-p",
+        "--platform",
+        required=True,
+        type=str,
+        help="device platform uses for choosing pipeline builder e.g. imx8mp",
+    )
 
     args = parser.parse_args()
     return args
@@ -136,6 +143,53 @@ def build_gst_command(
         'queue ! fpsdisplaysink video-sink="{}"'
         " text-overlay=false sync={}"
     ).format(gst_bin, golden_sample_path, decoder, sink, fpsdisplaysink_sync)
+
+    return cmd
+
+
+def build_imx_gst_command(
+    gst_bin: str,
+    golden_sample_path: str,
+    decoder: str,
+    sink: str,
+    fpsdisplaysink_sync: str,
+) -> str:
+    """
+    Builds a GStreamer command to process the golden sample.
+
+    :param gst_bin:
+        The binary name of gstreamer. Default is "gst-launch-1.0"
+        You can assign the snap name to GST_LAUNCH_BIN env variable if you
+        want to using snap.
+    :param golden_sample:
+        The path to the golden sample file.
+    :param decoder:
+        The decoder to use for the video, e.g., "v4l2vp8dec", "v4l2vp9dec".
+    :param sink:
+        The desired sink option, e.g., "fakesink".
+    :param fpsdisplaysink_sync:
+        The property option of fpsdisplaysink."
+        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
+        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
+
+    :returns:
+        The GStreamer command to execute.
+    """
+    if decoder == "v4l2h264dec":
+        part_pipeline = "qtdemux ! h264parse ! {}".format(decoder)
+        # qtdemux ! h264parse ! v4l2h264dec
+    elif decoder == "v4l2h265dec":
+        part_pipeline = "qtdemux ! h265parse ! {}".format(decoder)
+        # qtdemux ! h264parse ! v4l2h264dec
+    elif decoder in ["v4l2vp8dec", "v4l2vp9dec"]:
+        part_pipeline = "matroskademux ! queue ! {}".format(decoder)
+        # matroskademux ! queue ! v4l2vp9dec
+    cmd = (
+        "{} -v filesrc location={} ! {} ! queue ! videoconvert ! "
+        "queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
+    ).format(
+        gst_bin, golden_sample_path, part_pipeline, sink, fpsdisplaysink_sync
+    )
 
     return cmd
 
@@ -238,13 +292,22 @@ def main() -> None:
             "Golden Sample '{}' doesn't exist".format(args.golden_sample_path)
         )
     gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
-    cmd = build_gst_command(
-        gst_bin=gst_launch_bin,
-        golden_sample_path=args.golden_sample_path,
-        decoder=args.decoder_plugin,
-        sink=args.sink,
-        fpsdisplaysink_sync=args.fpsdisplaysink_sync,
-    )
+    if "imx8m" in args.platform:
+        cmd = build_imx_gst_command(
+            gst_bin=gst_launch_bin,
+            golden_sample_path=args.golden_sample_path,
+            decoder=args.decoder_plugin,
+            sink=args.sink,
+            fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+        )
+    else:
+        cmd = build_gst_command(
+            gst_bin=gst_launch_bin,
+            golden_sample_path=args.golden_sample_path,
+            decoder=args.decoder_plugin,
+            sink=args.sink,
+            fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+        )
 
     output = ""
 

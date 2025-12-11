@@ -58,22 +58,29 @@ class TestGraphicsTest(unittest.TestCase):
         )
 
     @patch("graphics_test.is_ubuntu_frame_active", return_value=False)
-    @patch("subprocess.run")
-    def test_ubuntu_frame_launching_timeout(self, mock_run, mock_is_active):
-        mock_run.side_effect = subprocess.CalledProcessError(124, "cmd")
+    @patch("subprocess.Popen")
+    def test_ubuntu_frame_launching_timeout(self, mock_popen, mock_is_active):
+        mock_proc = MagicMock()
+        mock_proc.wait.side_effect = [
+            subprocess.TimeoutExpired(cmd="ubuntu-frame", timeout=20),
+            None,
+        ]
+        mock_popen.return_value = mock_proc
         self.assertEqual(graphics_test.test_ubuntu_frame_launching(), 0)
         self.assertEqual(mock_is_active.call_count, 1)
-        mock_run.assert_called_with(
-            ["timeout", "20s", "ubuntu-frame"],
-            check=True,
-            stdout=unittest.mock.ANY,
-            stderr=unittest.mock.ANY,
+        mock_popen.assert_called_with(
+            ["ubuntu-frame"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
+        mock_proc.terminate.assert_called_once()
 
     @patch("graphics_test.is_ubuntu_frame_active", return_value=False)
-    @patch("subprocess.run")
-    def test_ubuntu_frame_launching_fail(self, mock_run, mock_is_active):
-        mock_run.side_effect = subprocess.CalledProcessError(1, "cmd")
+    @patch("subprocess.Popen")
+    def test_ubuntu_frame_launching_fail(self, mock_popen, mock_is_active):
+        mock_proc = MagicMock()
+        mock_proc.returncode = 1
+        mock_popen.return_value = mock_proc
         self.assertEqual(graphics_test.test_ubuntu_frame_launching(), 1)
         self.assertEqual(mock_is_active.call_count, 1)
 

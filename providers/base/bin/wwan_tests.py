@@ -316,7 +316,7 @@ def _allow_roaming(mm_id: str, apn: str):
         apn (str): The APN (Access Point Name) to use.
     """
     print_head("Set bearer to enable roaming")
-    bearer = "apn={},allow-roaming=yes".format(apn)
+    bearer = "apn={},allow-roaming=true".format(apn)
     cmd = ["mmcli", "-m", mm_id, "--create-bearer={}".format(bearer)]
     print_cmd(cmd)
     subprocess.check_call(cmd)

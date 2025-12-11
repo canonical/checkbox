@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+import argparse
 import re
 import time
 import logging
@@ -10,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def setup_logging(verbose=False):
+def debug_logging(verbose=False):
     """Configure logging output.
 
     Args:
@@ -128,30 +129,28 @@ def test_glmark2_es2_wayland():
     return exit_code
 
 
-def help_function():
-    """Show help message."""
-    logger.info("This script is used for graphics test cases")
-    logger.info("Usage: graphics_test.py <test_case>")
-    logger.info("Test cases currently implemented:")
-    logger.info("\t<frame>: test_ubuntu_frame_launching")
-    logger.info("\t<glmark2>: test_glmark2_es2_wayland")
-
-
 def main():
     """Main function."""
-    setup_logging()
-    if len(sys.argv) != 2:
-        help_function()
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="This script is used for graphics test cases"
+    )
+    parser.add_argument(
+        "test_case",
+        choices=["frame", "glmark2"],
+        help="Test case to run",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Turn on debug level output for extra info during test run.",
+    )
+    args = parser.parse_args()
+    debug_logging(args.debug)
 
-    test_case = sys.argv[1]
-    if test_case == "frame":
+    if args.test_case == "frame":
         sys.exit(test_ubuntu_frame_launching())
-    elif test_case == "glmark2":
+    elif args.test_case == "glmark2":
         sys.exit(test_glmark2_es2_wayland())
-    else:
-        help_function()
-        sys.exit(1)
 
 
 if __name__ == "__main__":

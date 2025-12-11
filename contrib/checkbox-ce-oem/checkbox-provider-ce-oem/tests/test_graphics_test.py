@@ -6,6 +6,7 @@ import subprocess
 import logging
 import sys
 import os
+from io import StringIO
 import graphics_test
 
 
@@ -19,14 +20,14 @@ class TestGraphicsTest(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     @patch("logging.basicConfig")
-    def test_setup_logging(self, mock_basic_config):
-        graphics_test.setup_logging(verbose=False)
+    def test_debug_logging(self, mock_basic_config):
+        graphics_test.debug_logging(verbose=False)
         mock_basic_config.assert_called_with(
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s",
         )
 
-        graphics_test.setup_logging(verbose=True)
+        graphics_test.debug_logging(verbose=True)
         mock_basic_config.assert_called_with(
             level=logging.DEBUG,
             format="%(asctime)s - %(levelname)s - %(message)s",
@@ -146,42 +147,58 @@ class TestGraphicsTest(unittest.TestCase):
 
         self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 1)
 
-    @patch("graphics_test.logger.info")
-    def test_help_function(self, mock_logger_info):
-        graphics_test.help_function()
-        self.assertGreater(mock_logger_info.call_count, 2)
-
-    @patch("graphics_test.help_function")
-    def test_main_no_args(self, mock_help):
+    @patch("sys.stderr", new_callable=StringIO)
+    def test_main_no_args(self, mock_stderr):
         with patch("sys.argv", ["script.py"]):
             with self.assertRaises(SystemExit) as cm:
                 graphics_test.main()
-        self.assertEqual(cm.exception.code, 1)
-        self.assertEqual(mock_help.call_count, 1)
+        self.assertEqual(cm.exception.code, 2)
 
     @patch("sys.exit")
     @patch("graphics_test.test_ubuntu_frame_launching", return_value=0)
-    def test_main_frame_arg(self, mock_test_func, mock_exit):
+    def test_main_frame_arg(self, mock_test_frame, mock_exit):
         with patch("sys.argv", ["script.py", "frame"]):
             graphics_test.main()
-        self.assertEqual(mock_test_func.call_count, 1)
+        self.assertEqual(mock_test_frame.call_count, 1)
         mock_exit.assert_called_with(0)
 
     @patch("sys.exit")
     @patch("graphics_test.test_glmark2_es2_wayland", return_value=0)
-    def test_main_glmark2_arg(self, mock_test_func, mock_exit):
+    def test_main_glmark2_arg(self, mock_test_glmark2, mock_exit):
         with patch("sys.argv", ["script.py", "glmark2"]):
             graphics_test.main()
-        self.assertEqual(mock_test_func.call_count, 1)
+        self.assertEqual(mock_test_glmark2.call_count, 1)
         mock_exit.assert_called_with(0)
 
-    @patch("sys.exit")
-    @patch("graphics_test.help_function")
-    def test_main_invalid_arg(self, mock_help, mock_exit):
+    @patch("sys.stderr", new_callable=StringIO)
+    def test_main_invalid_arg(self, mock_stderr):
         with patch("sys.argv", ["script.py", "invalid"]):
+            with self.assertRaises(SystemExit) as cm:
+                graphics_test.main()
+        self.assertEqual(cm.exception.code, 2)
+
+    @patch("sys.exit")
+    @patch("graphics_test.test_ubuntu_frame_launching")
+    @patch("graphics_test.debug_logging")
+    def test_main_debug_arg(
+        self, mock_debug_logging, mock_test_frame, mock_exit
+    ):
+        with patch("sys.argv", ["script.py", "frame", "--debug"]):
             graphics_test.main()
-        self.assertEqual(mock_help.call_count, 1)
-        mock_exit.assert_called_with(1)
+        mock_debug_logging.assert_called_with(True)
+        self.assertEqual(mock_test_frame.call_count, 1)
+        mock_exit.assert_called_with(mock_test_frame.return_value)
+
+        # Reset mock and test without --debug
+        mock_debug_logging.reset_mock()
+        mock_test_frame.reset_mock()
+        mock_exit.reset_mock()
+
+        with patch("sys.argv", ["script.py", "frame"]):
+            graphics_test.main()
+        mock_debug_logging.assert_called_with(False)
+        self.assertEqual(mock_test_frame.call_count, 1)
+        mock_exit.assert_called_with(mock_test_frame.return_value)
 
 
 if __name__ == "__main__":

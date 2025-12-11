@@ -68,6 +68,15 @@ def test_glmark2_es2_wayland():
     ]
     exit_code = 0
 
+    gl_vendor = os.environ.get("GL_VENDOR")
+    gl_renderer = os.environ.get("GL_RENDERER")
+
+    if not gl_vendor or not gl_renderer:
+        logger.error(
+            "FAIL: 'GL_VENDOR' or 'GL_RENDERER' is empty. Please set them in config file!"
+        )
+        return 1
+
     frame_pid = None
     if not is_ubuntu_frame_active():
         logger.info("Activating ubuntu-frame now...")
@@ -80,31 +89,16 @@ def test_glmark2_es2_wayland():
         time.sleep(10)
 
     logger.info("Running glmark2-es2-wayland benchmark...")
-    process = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        universal_newlines=True,
-    )
-    output = ""
-    for line in process.stdout:
-        logger.info(line.strip())
-        output += line
-
-    process.wait()
+    try:
+        output = subprocess.check_output(
+            cmd, stderr=subprocess.STDOUT, text=True
+        )
+    except subprocess.CalledProcessError as e:
+        output = e.output
+    logger.info(output)
 
     if frame_pid:
         subprocess.run(["kill", str(frame_pid)])
-
-    gl_vendor = os.environ.get("GL_VENDOR")
-    gl_renderer = os.environ.get("GL_RENDERER")
-
-    if not gl_vendor or not gl_renderer:
-        logger.error(
-            "FAIL: 'GL_VENDOR' or 'GL_RENDERER' is empty. "
-            "Please set them in config file!"
-        )
-        return 1
 
     if not re.search(r"GL_VENDOR:\s+{}".format(gl_vendor), output):
         logger.error("FAIL: Wrong vendor!")

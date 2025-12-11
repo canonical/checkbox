@@ -505,41 +505,6 @@ class HardwareRendererTester:
         print("[ ERR ] Software rendering detected", file=sys.stderr)
         return False
 
-    def wait_for_graphical_target(self, max_wait_seconds: int) -> bool:
-        """Wait for DUT to reach graphical.target in systemd's critical chain
-
-        :param max_wait_seconds: num seconds to wait at most
-        :return: (bool, float) pair where
-        - bool: whether graphical.target was reached within max_wait_seconds
-        - float: how many seconds have elapsed since the start of this check
-        """
-
-        start = time.time()
-        while time.time() - start < max_wait_seconds:
-            # keep polling systemd-analyze until it says it's done booting
-            # calling this command during boot will return non-zero
-            try:
-                out = sp.run(
-                    [
-                        "systemd-analyze",
-                        "critical-chain",
-                        "graphical.target",
-                        "--no-pager",
-                    ],
-                    stdout=sp.DEVNULL,
-                    stderr=sp.DEVNULL,
-                    timeout=min(COMMAND_TIMEOUT_SECONDS, max_wait_seconds),
-                )
-                if out.returncode == 0:
-                    return True
-                else:
-                    time.sleep(1)
-            except sp.TimeoutExpired:
-                print("systemd-analyze timed out!")
-                return False
-
-        return False
-
 
 def get_failed_services() -> T.List[str]:
     """
@@ -559,6 +524,54 @@ def get_failed_services() -> T.List[str]:
     ]
 
     return sp.check_output(command, universal_newlines=True).splitlines()
+
+
+def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
+    """Poll systemd and see if it finished booting
+
+    :param max_wait_seconds: max number of seconds to wait
+    :return: whether "systemctl is-system-running" returns a state that's not
+             "initializing" or "starting" within max_wait_seconds
+    :raises: sp.TimeoutExpired if the command timed out
+    """
+
+    start = time.time()
+    status = None  # type: str | None
+    while time.time() - start < max_wait_seconds:
+        # https://unix.stackexchange.com/questions
+        # /460324/is-there-a-way-to-wait-for-boot-to-complete
+
+        # The better way to do this is
+        # with the --wait flag so we don't busy-poll, but that's not available
+        # on ubuntu 16 and 18
+        # TODO: remove this function once we drop ubuntu 18 and use --wait
+        out = sp.run(
+            ["systemctl", "is-system-running"],
+            stdout=sp.PIPE,
+            stderr=sp.STDOUT,
+            universal_newlines=True,
+            timeout=min(COMMAND_TIMEOUT_SECONDS, max_wait_seconds),
+        )
+        status = out.stdout.strip()
+        # all possible return values:
+        # https://www.freedesktop.org/software/systemd/man
+        # /latest/systemctl.html#is-system-running
+        if status in ("initializing", "starting"):
+            # only mark these 2 states as "still booting"
+            # to be consistent with the behavior of --wait
+            time.sleep(1)
+        else:
+            print(
+                "Final 'systemctl is-system-running' return value: {}".format(
+                    status
+                )
+            )
+            return True
+
+    print(
+        "Final 'systemctl is-system-running' return value: {}".format(status)
+    )
+    return False
 
 
 def create_parser():
@@ -604,14 +617,15 @@ def create_parser():
         help="If specified, check if hardware rendering is being used",
     )
     parser.add_argument(
-        "--graphical-target-timeout",
+        "--boot-ready-timeout",
         default=120,
         type=int,
-        dest="graphical_target_timeout",
-        help="How many seconds should we wait for systemd to report "
-        "that it has reached graphical.target in its critical chain "
-        "before the renderer check starts. "
-        "Default is 120 seconds. Ignored if -g/--graphics is not specified.",
+        dest="boot_ready_timeout",
+        help=(
+            "How many seconds should we wait for systemd to report "
+            "that it has fully booted up before running the rest of the test. "
+            "Default is 120 seconds."
+        ),
     )
 
     return parser
@@ -625,6 +639,17 @@ def main() -> int:
     """
 
     args = create_parser().parse_args()
+
+    print("Waiting for boot to finish...")
+    if poll_systemctl_is_system_running(args.boot_ready_timeout):
+        print("[ OK ] System finished booting!")
+    else:
+        print(
+            "[ WARN ] System did not finish booting",
+            "in {} seconds.".format(args.boot_ready_timeout),
+            "Continuing reboot checks as-is.",
+            file=sys.stderr,
+        )
 
     # all 4 tests pass by default
     # they only fail if their respective flags are specified
@@ -688,24 +713,9 @@ def main() -> int:
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()
-
-        print("Checking if DUT has reached graphical.target...")
-        graphical_target_reached = tester.wait_for_graphical_target(
-            args.graphical_target_timeout
-        )
-
-        if not graphical_target_reached:
-            print(
-                "[ ERR ] systemd's graphical.target was not reached",
-                "in {} seconds.".format(args.graphical_target_timeout),
-                "Marking the renderer test as failed.",
-            )
-            renderer_test_passed = False
-        else:
-            print("Graphical target was reached!")
-            if has_desktop_environment() and tester.has_display_connection():
-                # skip renderer test if there's no display
-                renderer_test_passed = tester.is_hardware_renderer_available()
+        if has_desktop_environment() and tester.has_display_connection():
+            # skip renderer test if there's no display
+            renderer_test_passed = tester.is_hardware_renderer_available()
 
     print("Finished reboot checks. {}".format(get_timestamp_str()))
 

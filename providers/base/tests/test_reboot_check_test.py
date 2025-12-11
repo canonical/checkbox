@@ -1,6 +1,7 @@
 import shutil
 from shlex import split as sh_split
-from unittest.mock import MagicMock, mock_open, patch, DEFAULT
+import sys
+from unittest.mock import MagicMock, call, mock_open, patch, DEFAULT
 import reboot_check_test as RCT
 import unittest
 import os
@@ -385,33 +386,32 @@ class DisplayConnectionTests(unittest.TestCase):
 
         with patch("subprocess.run") as mock_run, patch(
             "time.sleep"
-        ) as mock_sleep, patch("time.time") as mock_time, patch(
-            "sys.argv",
-            sh_split("reboot_check_test.py -g --graphical-target-timeout 2"),
-        ):
+        ) as mock_sleep, patch("time.time") as mock_time:
             mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
                 [],
                 1,
-                "systemd says it's not ready",
-                "graphical target not reached blah",
+                "starting",
             )
             mock_sleep.side_effect = do_nothing
             mock_time.side_effect = fake_time(3)
-            tester = RCT.HardwareRendererTester()
-
-            self.assertFalse(tester.wait_for_graphical_target(2))
-
-            mock_sleep.reset_mock()
-            mock_time.side_effect = fake_time(3)
-            tester = RCT.HardwareRendererTester()
-            self.assertEqual(RCT.main(), 1)
+            self.assertFalse(RCT.poll_systemctl_is_system_running(2))
             self.assertTrue(mock_time.called)
             self.assertTrue(mock_sleep.called)
 
             mock_time.side_effect = fake_time(3)
             mock_run.side_effect = sp.TimeoutExpired([], 1)
-            tester = RCT.HardwareRendererTester()
-            self.assertFalse(tester.wait_for_graphical_target(2))
+            self.assertRaises(
+                sp.TimeoutExpired,
+                lambda: RCT.poll_systemctl_is_system_running(2),
+            )
+
+    def test_normal_boot(self):
+        with patch("subprocess.run") as mock_run, patch("time.sleep"), patch(
+            "time.time"
+        ) as mock_time:
+            mock_time.side_effect = [0, 2]
+            mock_run.return_value = sp.CompletedProcess([], 0, "running")
+            self.assertTrue(RCT.poll_systemctl_is_system_running(3))
 
 
 class InfoDumpTests(unittest.TestCase):
@@ -548,7 +548,7 @@ class MainFunctionTests(unittest.TestCase):
         with patch(
             "sys.argv",
             sh_split("reboot_check_test.py -d {}".format(self.tmp_output_dir)),
-        ):
+        ), patch("reboot_check_test.poll_systemctl_is_system_running"):
             RCT.main()
             self.assertEqual(
                 mock_run.call_count,
@@ -566,7 +566,9 @@ class MainFunctionTests(unittest.TestCase):
             ),
         ), patch(
             "reboot_check_test.DeviceInfoCollector.compare_device_lists"
-        ) as mock_compare:
+        ) as mock_compare, patch(
+            "reboot_check_test.poll_systemctl_is_system_running"
+        ):
             mock_compare.return_value = False
 
             rv = RCT.main()
@@ -603,7 +605,9 @@ class MainFunctionTests(unittest.TestCase):
             "reboot_check_test.DeviceInfoCollector.compare_device_lists"
         ) as mock_compare, patch(
             "reboot_check_test.FwtsTester.is_fwts_supported"
-        ) as mock_is_fwts_supported:
+        ) as mock_is_fwts_supported, patch(
+            "reboot_check_test.poll_systemctl_is_system_running"
+        ):
             mock_is_fwts_supported.return_value = True
             mock_compare.return_value = True
 
@@ -645,5 +649,46 @@ class MainFunctionTests(unittest.TestCase):
             sh_split(
                 'reboot_check_test.py -c "{}"'.format(self.tmp_output_dir)
             ),
-        ), self.assertRaises(ValueError):
+        ), patch(
+            "reboot_check_test.poll_systemctl_is_system_running"
+        ), self.assertRaises(
+            ValueError
+        ):
             RCT.main()
+
+    def test_continue_tests_even_with_boot_timeout(self):
+        with patch(
+            "sys.argv",
+            sh_split("reboot_check_test.py -g --boot-ready-timeout 1"),
+        ), patch(
+            "reboot_check_test.poll_systemctl_is_system_running"
+        ) as mock_poll, patch(
+            "builtins.print"
+        ) as mock_print, patch(
+            "reboot_check_test.HardwareRendererTester"
+        ) as mock_tester_class, patch(
+            "reboot_check_test.has_desktop_environment"
+        ) as mock_has_desktop_environment:
+            mock_poll.return_value = False
+            mock_tester = MagicMock()
+            mock_tester_class.return_value = mock_tester
+            mock_tester.has_display_connection.return_value = True
+
+            mock_has_desktop_environment.return_value = True
+
+            RCT.main()
+            mock_print.assert_has_calls(
+                [
+                    call(
+                        "[ WARN ] System did not finish booting",
+                        "in 1 seconds.",
+                        "Continuing reboot checks as-is.",
+                        file=sys.stderr,
+                    )
+                ]
+            )
+            mock_tester.is_hardware_renderer_available.assert_any_call()
+
+
+if __name__ == "__main__":
+    unittest.main()

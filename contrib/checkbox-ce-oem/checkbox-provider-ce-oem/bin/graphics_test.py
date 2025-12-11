@@ -73,7 +73,8 @@ def test_glmark2_es2_wayland():
 
     if not gl_vendor or not gl_renderer:
         logger.error(
-            "FAIL: 'GL_VENDOR' or 'GL_RENDERER' is empty. Please set them in config file!"
+            "FAIL: 'GL_VENDOR' or 'GL_RENDERER' is empty."
+            "Please set them in config file!"
         )
         return 1
 

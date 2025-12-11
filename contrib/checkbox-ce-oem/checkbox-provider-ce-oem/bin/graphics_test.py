@@ -52,9 +52,7 @@ def test_ubuntu_frame_launching():
         except subprocess.TimeoutExpired:
             proc.terminate()
             proc.wait()
-            logger.info(
-                "PASS: Timeout reached without any failures detected."
-            )
+            logger.info("PASS: Timeout reached without any failures detected.")
         else:
             if proc.returncode != 0:
                 logger.error(

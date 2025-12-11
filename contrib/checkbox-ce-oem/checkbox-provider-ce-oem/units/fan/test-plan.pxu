@@ -1,0 +1,40 @@
+id: ce-oem-pwm-fan-full
+unit: test plan
+_name: PWM Fan tests
+_description: Full PWM Fan tests for devices
+include:
+nested_part:
+    ce-oem-pwm-fan-manual
+    ce-oem-pwm-fan-automated
+    after-suspend-ce-oem-pwm-fan-manual
+    after-suspend-ce-oem-pwm-fan-automated
+
+id: ce-oem-pwm-fan-manual
+unit: test plan
+_name: PWM Fan manual tests
+_description: Manual PWM Fan tests for devices
+bootstrap_include:
+    ce-oem-fan/pwm-controller-list
+include:
+    ce-oem-fan/pwm-fan-controller-test-.*
+
+id: ce-oem-pwm-fan-automated
+unit: test plan
+_name: PWM Fan tests automated tests
+_description: Automated PWM Fan tests for devices
+include:
+
+id: after-suspend-ce-oem-pwm-fan-manual
+unit: test plan
+_name: After suspendPWM Fan manual tests
+_description: Manual PWM Fan tests for devices in post suspend stage
+bootstrap_include:
+    ce-oem-fan/pwm-controller-list
+include:
+    after-suspend-ce-oem-fan/pwm-fan-controller-test-.*
+
+id: after-suspend-ce-oem-pwm-fan-automated
+unit: test plan
+_name: After suspend PWM Fan tests automated tests
+_description: Automated PWM Fan tests for devices in post suspend stage
+include:

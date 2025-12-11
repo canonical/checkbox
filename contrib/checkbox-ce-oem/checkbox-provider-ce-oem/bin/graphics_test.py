@@ -42,19 +42,25 @@ def test_ubuntu_frame_launching():
         subprocess.run(["journalctl", "-b", "0", "-g", "ubuntu-frame"])
     else:
         logger.info("Activating ubuntu-frame now...")
+        proc = subprocess.Popen(
+            ["ubuntu-frame"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         try:
-            subprocess.run(
-                ["timeout", "20s", "ubuntu-frame"],
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+            proc.wait(timeout=20)
+        except subprocess.TimeoutExpired:
+            proc.terminate()
+            proc.wait()
+            logger.info(
+                "PASS: Timeout reached without any failures detected."
             )
-        except subprocess.CalledProcessError as e:
-            if e.returncode == 124:
-                logger.info(
-                    "\nPASS: Timeout reached without any failures detected."
+        else:
+            if proc.returncode != 0:
+                logger.error(
+                    "FAIL: ubuntu-frame exited earlier with code %s",
+                    proc.returncode,
                 )
-            else:
                 return 1
     return 0
 

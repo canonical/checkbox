@@ -80,12 +80,14 @@ class TestGraphicsTest(unittest.TestCase):
     @patch("os.environ.get")
     @patch("time.sleep")
     @patch("subprocess.run")
+    @patch("subprocess.check_output")
     @patch("subprocess.Popen")
     @patch("graphics_test.is_ubuntu_frame_active")
     def test_glmark2_success(
         self,
         mock_is_active,
         mock_popen,
+        mock_check_output,
         mock_run,
         mock_sleep,
         mock_env_get,
@@ -93,56 +95,44 @@ class TestGraphicsTest(unittest.TestCase):
         mock_is_active.side_effect = [False, True]
         mock_proc = MagicMock()
         mock_proc.pid = 1234
-        mock_proc.stdout = [
-            "GL_VENDOR:     TestVendor",
-            "GL_RENDERER:   TestRenderer",
-        ]
         mock_popen.return_value = mock_proc
+        mock_check_output.return_value = (
+            "GL_VENDOR:     TestVendor\nGL_RENDERER:   TestRenderer"
+        )
         mock_env_get.side_effect = ["TestVendor", "TestRenderer"]
 
         self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 0)
         mock_popen.assert_any_call(
             ["ubuntu-frame"],
-            stdout=unittest.mock.ANY,
-            stderr=unittest.mock.ANY,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
         mock_run.assert_called_with(["kill", "1234"])
 
-    @patch("subprocess.Popen")
-    @patch("graphics_test.is_ubuntu_frame_active", return_value=True)
     @patch("os.environ.get", return_value=None)
-    def test_glmark2_no_env_vars(
-        self, mock_env_get, mock_is_active, mock_popen
-    ):
-        mock_proc = MagicMock()
-        mock_popen.return_value = mock_proc
+    def test_glmark2_no_env_vars(self, mock_env_get):
         self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 1)
 
     @patch("os.environ.get")
-    @patch("subprocess.Popen")
+    @patch("subprocess.check_output")
     @patch("graphics_test.is_ubuntu_frame_active", return_value=True)
     def test_glmark2_wrong_vendor(
-        self, mock_is_active, mock_popen, mock_env_get
+        self, mock_is_active, mock_check_output, mock_env_get
     ):
-        mock_proc = MagicMock()
-        mock_proc.stdout = ["GL_VENDOR: WrongVendor"]
-        mock_popen.return_value = mock_proc
+        mock_check_output.return_value = "GL_VENDOR: WrongVendor"
         mock_env_get.side_effect = ["CorrectVendor", "TestRenderer"]
 
         self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 1)
 
     @patch("os.environ.get")
-    @patch("subprocess.Popen")
+    @patch("subprocess.check_output")
     @patch("graphics_test.is_ubuntu_frame_active", return_value=True)
     def test_glmark2_wrong_renderer(
-        self, mock_is_active, mock_popen, mock_env_get
+        self, mock_is_active, mock_check_output, mock_env_get
     ):
-        mock_proc = MagicMock()
-        mock_proc.stdout = [
-            "GL_VENDOR:     TestVendor",
-            "GL_RENDERER:   WrongRenderer",
-        ]
-        mock_popen.return_value = mock_proc
+        mock_check_output.return_value = (
+            "GL_VENDOR:     TestVendor\nGL_RENDERER:   WrongRenderer"
+        )
         mock_env_get.side_effect = ["TestVendor", "CorrectRenderer"]
 
         self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 1)

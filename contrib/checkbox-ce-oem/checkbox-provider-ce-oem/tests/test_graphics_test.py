@@ -73,7 +73,7 @@ class TestGraphicsTest(unittest.TestCase):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        mock_proc.terminate.assert_called_once()
+        self.assertEqual(mock_proc.terminate.call_count, 1)
 
     @patch("graphics_test.is_ubuntu_frame_active", return_value=False)
     @patch("subprocess.Popen")

@@ -120,6 +120,7 @@ noble_prod = [
   'manifest entry' = "plainbox.impl.unit.manifest:ManifestEntryUnit"
   'packaging meta-data' = "plainbox.impl.unit.packaging_metadata:PackagingMetaDataUnit"
   exporter = "plainbox.impl.unit.exporter:ExporterUnit"
+  launcher = "plainbox.impl.unit.launcher:LauncherUnit"
 [project.entry-points."plainbox.parsers"]
   pxu = "plainbox.impl.secure.rfc822:load_rfc822_records"
   regex = "plainbox.impl.xparsers:Re.parse"

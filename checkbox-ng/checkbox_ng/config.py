@@ -24,6 +24,8 @@
 import gettext
 import logging
 import os
+from pathlib import Path
+from contextlib import suppress
 
 from plainbox.impl.config import Configuration
 
@@ -47,13 +49,16 @@ def expand_all(path):
     return os.path.expandvars(os.path.expanduser(path))
 
 
-def _search_configs_by_name(name: str) -> "list[str]":
+def _search_configs_by_name(name: str, session_assistant) -> "list[str]":
     """
     Returns all well known config locations that have a `name` file
     in them
     """
-    if os.path.isabs(expand_all(name)):
+    if os.path.isabs(
+        expand_all(name)
+    ) or session_assistant.is_provider_launcher_id(name):
         return [name]
+
     to_r = []
     _logger.debug("Searching for %s files...", name)
     for sdir in SEARCH_DIRS:
@@ -65,9 +70,23 @@ def _search_configs_by_name(name: str) -> "list[str]":
     return to_r
 
 
-def load_configs(launcher_file=None, cfg=None):
+def load_config(config_name: str, session_assistant):
+    try:
+        config_text = session_assistant.get_provider_launcher_by_id(
+            config_name
+        )
+        # the source will be overwritten further down anyway
+        return Configuration.from_text(config_text, config_name)
+    except FileNotFoundError:
+        return Configuration.from_path(config_name)
+
+
+# WARNING: dont call this function on the controller side! It only makes sense
+#          on the DUT
+def resolve_configs(launcher_config, session_assistant):
     """
-    Read a chain of configs/launchers.
+    Resolves imports and overrides in a chain of configs applying also the
+    global config
 
     In theory there can be a very long list of configs that are linked by
     specifying config_filename in each. Each config that defines a
@@ -84,37 +103,38 @@ def load_configs(launcher_file=None, cfg=None):
         - anything that /etc/xdg/A imports has the lowest possible
             priority
     """
-    assert not (
-        launcher_file and cfg
-    ), "config_filename in cfg will be ignored, FIXME"
-    if not cfg:
-        cfg = Configuration()
-    if launcher_file:
-        # Use the config_filename if it is defined in launcher
-        launcher_file_conf = Configuration.from_path(launcher_file)
-        to_load_conf_names = _search_configs_by_name(
-            launcher_file_conf.get_value("config", "config_filename")
+    config = Configuration()
+    if launcher_config:
+        global_config_name = launcher_config.get_value(
+            "config", "import_override"
         )
     else:
-        # configs to read which may reference other configs
-        to_load_conf_names = _search_configs_by_name(
-            cfg.get_value("config", "config_filename")
-        )
+        global_config_name = config.get_value("config", "import_override")
+
+    to_load_conf_names = _search_configs_by_name(
+        global_config_name, session_assistant
+    )
+    already_loaded_conf_names = {global_config_name}
+    loaded_confs_sources = []
+
     # used to avoid "loops"
-    # Note: checkbox.conf is always the default "config_filename"
+    # Note: checkbox.conf is always the default "import_override"
     #       so we *always* have a loop eventually
-    already_loaded = {cfg.get_value("config", "config_filename")}
     loaded_confs_sources = []
     while to_load_conf_names:
         to_load = to_load_conf_names.pop(0)
-        curr_cfg = Configuration.from_path(to_load)
-        imported_cfg_name = curr_cfg.get_value("config", "config_filename")
-        if imported_cfg_name and imported_cfg_name not in already_loaded:
+        curr_cfg = load_config(to_load, session_assistant)
+        imported_cfg_name = curr_cfg.get_value("config", "import_override")
+        if (
+            imported_cfg_name
+            and imported_cfg_name not in already_loaded_conf_names
+        ):
             # next load what this conf imports
             to_load_conf_names = (
-                _search_configs_by_name(imported_cfg_name) + to_load_conf_names
+                _search_configs_by_name(imported_cfg_name, session_assistant)
+                + to_load_conf_names
             )
-            already_loaded.add(imported_cfg_name)
+            already_loaded_conf_names.add(imported_cfg_name)
         loaded_confs_sources.append((curr_cfg, to_load))
 
     # here if A -> B -> C in loaded_confs_sources we have [A_conf, B_conf, C_conf]
@@ -122,12 +142,40 @@ def load_configs(launcher_file=None, cfg=None):
     _logger.debug("Applying conf, latest applied has the highest priority")
     for conf, source in reversed(loaded_confs_sources):
         _logger.debug("Applying %s", source)
-        cfg.update_from_another(conf, "config file: {}".format(source))
+        config.update_from_another(conf, "config file: {}".format(source))
 
-    if launcher_file:
-        cfg.update_from_another(
-            launcher_file_conf,
-            "Launcher file: {}".format(launcher_file),
+    if launcher_config:
+        # Launcher files always have priority, we've loaded it before just to
+        # read the config_filename
+        config.update_from_another(
+            launcher_config,
+            # launcher may be default therefore sources is empty
+            next(iter(launcher_config.sources), ""),
         )
 
-    return cfg
+    return config
+
+
+def load_launcher_text(launcher_path_or_id, session_assistant):
+    """
+    Returns the launcher text either loading it from disk or from the session
+    assistant
+
+    This automatically disabiguates the nominal 3 cases:
+    - None: no launcher, ""
+    - launcher is path: load it from disk
+    - launcher is launcher id: load if from the SA
+    + launcher doesn't exist: blow up
+    """
+    if launcher_path_or_id is None:
+        return ""  # launcher from empty string is default
+
+    launcher_path = Path(launcher_path_or_id)
+    with suppress(FileNotFoundError), launcher_path.open("r") as f:
+        return f.read()
+    launcher_id = str(launcher_path_or_id)
+    with suppress(FileNotFoundError):
+        return session_assistant.get_provider_launcher_by_id(launcher_id)
+    # launcher was requested but it is neither a provider launcher
+    # nor a local file
+    raise SystemExit('Launcher "{}" not found'.format(launcher_path))

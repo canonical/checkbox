@@ -276,10 +276,15 @@ class TestLauncher(TestCase):
         self.assertFalse(Launcher._manually_resume_session(self_mock, []))
 
     @patch("checkbox_ng.launcher.subcommands.Configuration")
-    @patch("checkbox_ng.launcher.subcommands.load_configs")
-    def test_load_configs_from_app_blob(
-        self, load_config_mock, configuration_mock
-    ):
+    @patch(
+        "checkbox_ng.launcher.subcommands.load_launcher_text",
+        new=Mock(return_value=""),
+    )
+    @patch(
+        "checkbox_ng.launcher.subcommands.resolve_configs",
+        new=Mock(side_effect=lambda conf, sa: conf),
+    )
+    def test_load_configs_from_app_blob(self, configuration_mock):
         self_mock = MagicMock()
         app_blob = {
             "launcher": textwrap.dedent(
@@ -293,21 +298,24 @@ class TestLauncher(TestCase):
         Launcher.load_configs_from_app_blob(self_mock, app_blob)
 
         self.assertTrue(configuration_mock.from_text.called)
-        self.assertTrue(load_config_mock.called)
         self.assertTrue(self_mock.sa.use_alternate_configuration.called)
 
     @patch("checkbox_ng.launcher.subcommands.Configuration")
-    @patch("checkbox_ng.launcher.subcommands.load_configs")
-    def test_load_configs_from_app_blob_no_launcher(
-        self, load_config_mock, configuration_mock
-    ):
+    @patch(
+        "checkbox_ng.launcher.subcommands.load_launcher_text",
+        new=Mock(return_value=""),
+    )
+    @patch(
+        "checkbox_ng.launcher.subcommands.resolve_configs",
+        new=Mock(side_effect=lambda conf, sa: conf),
+    )
+    def test_load_configs_from_app_blob_no_launcher(self, configuration_mock):
         self_mock = MagicMock()
         app_blob = {}
 
         Launcher.load_configs_from_app_blob(self_mock, app_blob)
 
         self.assertFalse(configuration_mock.from_text.called)
-        self.assertTrue(load_config_mock.called)
         self.assertTrue(self_mock.sa.use_alternate_configuration.called)
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
@@ -801,14 +809,22 @@ class TestLauncher(TestCase):
         )
         self.assertFalse(self_mock._resume_session.called)
 
-    @patch("checkbox_ng.launcher.subcommands.load_configs")
+    @patch(
+        "checkbox_ng.launcher.subcommands.load_launcher_text",
+        new=Mock(return_value=""),
+    )
+    @patch(
+        "checkbox_ng.launcher.subcommands.resolve_configs",
+        new=Mock(side_effect=lambda conf, sa: conf),
+    )
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
-    def test_invoked_resume(self, load_config_mock):
+    def test_invoked_resume(self):
         self_mock = MagicMock()
         self_mock._auto_resume_session.return_value = False
         self_mock._manually_resume_session.side_effect = [False, True]
         self_mock._pick_jobs_to_run.side_effect = ResumeInstead()
         self_mock._maybe_auto_rerun_jobs.return_value = False
+        self_mock._maybe_rerun_jobs.return_value = False
 
         ctx_mock = MagicMock()
         ctx_mock.args.verify = False
@@ -817,8 +833,6 @@ class TestLauncher(TestCase):
         ctx_mock.args.debug = False
         ctx_mock.sa.get_resumable_sessions.return_value = []
         ctx_mock.sa.get_static_todo_list.return_value = False
-
-        load_config_mock.return_value.get_value.return_value = "normal"
 
         Launcher.invoked(self_mock, ctx_mock)
 
@@ -964,26 +978,66 @@ class TestLauncherReturnCodes(TestCase):
         )
         self.sa = self.ctx.sa
 
+    @patch(
+        "checkbox_ng.launcher.subcommands.load_launcher_text",
+        new=Mock(return_value=""),
+    )
+    @patch(
+        "checkbox_ng.launcher.subcommands.resolve_configs",
+        new=Mock(side_effect=lambda conf, sa: conf),
+    )
     def test_invoke_returns_0_on_no_fails(self):
         mock_results = {"fail": 0, "crash": 0, "pass": 1}
         self.ctx.sa.get_summary = Mock(return_value=mock_results)
         self.assertEqual(self.launcher.invoked(self.ctx), 0)
 
+    @patch(
+        "checkbox_ng.launcher.subcommands.load_launcher_text",
+        new=Mock(return_value=""),
+    )
+    @patch(
+        "checkbox_ng.launcher.subcommands.resolve_configs",
+        new=Mock(side_effect=lambda conf, sa: conf),
+    )
     def test_invoke_returns_1_on_fail(self):
         mock_results = {"fail": 1, "crash": 0, "pass": 1}
         self.ctx.sa.get_summary = Mock(return_value=mock_results)
         self.assertEqual(self.launcher.invoked(self.ctx), 1)
 
+    @patch(
+        "checkbox_ng.launcher.subcommands.load_launcher_text",
+        new=Mock(return_value=""),
+    )
+    @patch(
+        "checkbox_ng.launcher.subcommands.resolve_configs",
+        new=Mock(side_effect=lambda conf, sa: conf),
+    )
     def test_invoke_returns_1_on_crash(self):
         mock_results = {"fail": 0, "crash": 1, "pass": 1}
         self.ctx.sa.get_summary = Mock(return_value=mock_results)
         self.assertEqual(self.launcher.invoked(self.ctx), 1)
 
+    @patch(
+        "checkbox_ng.launcher.subcommands.load_launcher_text",
+        new=Mock(return_value=""),
+    )
+    @patch(
+        "checkbox_ng.launcher.subcommands.resolve_configs",
+        new=Mock(side_effect=lambda conf, sa: conf),
+    )
     def test_invoke_returns_0_on_no_tests(self):
         mock_results = {"fail": 0, "crash": 0, "pass": 0}
         self.ctx.sa.get_summary = Mock(return_value=mock_results)
         self.assertEqual(self.launcher.invoked(self.ctx), 0)
 
+    @patch(
+        "checkbox_ng.launcher.subcommands.load_launcher_text",
+        new=Mock(return_value=""),
+    )
+    @patch(
+        "checkbox_ng.launcher.subcommands.resolve_configs",
+        new=Mock(side_effect=lambda conf, sa: conf),
+    )
     def test_invoke_returns_1_on_many_diff_outcomes(self):
         mock_results = {"fail": 6, "crash": 7, "pass": 8}
         self.ctx.sa.get_summary = Mock(return_value=mock_results)

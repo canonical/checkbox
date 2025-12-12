@@ -568,3 +568,81 @@ class SessionAssistantTests(morris.SignalTestCase):
                 mock.MagicMock(value_type="weird new invention"),
                 "abc",
             )
+
+    def test_get_provider_launcher_by_id_exists(self, _):
+        self_mock = mock.MagicMock()
+        launcher_mock = mock.MagicMock(
+            id="com.canonical.certification::exists",
+            text="launcher text content",
+        )
+        provider_mock = mock.MagicMock(
+            namespace="com.canonical.certification",
+            launcher_list=[launcher_mock],
+        )
+        self_mock.get_selected_providers.return_value = [provider_mock]
+
+        result = SessionAssistant.get_provider_launcher_by_id(
+            self_mock, "com.canonical.certification::exists"
+        )
+
+        self.assertEqual(result, "launcher text content")
+
+    def test_get_provider_launcher_by_id_doesnt_exist(self, _):
+        self_mock = mock.MagicMock()
+        launcher_mock = mock.MagicMock(
+            id="com.canonical.certification::exists",
+            text="launcher text content",
+        )
+        launcher_mock_doest_match = mock.MagicMock(
+            id="com.canonical.certification::wrong",
+            text="launcher text content",
+        )
+        provider_mock = mock.MagicMock(
+            namespace="com.canonical.certification",
+            launcher_list=[launcher_mock],
+        )
+        provider_mismatched_namespace = mock.MagicMock(
+            namespace="com.example.other",
+            launcher_list=[launcher_mock_doest_match],
+        )
+        provider_no_launcher = mock.MagicMock(
+            namespace="com.canonical.certification",
+            launcher_list=[],
+        )
+        self_mock.get_selected_providers.return_value = [
+            provider_mock,
+            provider_mismatched_namespace,
+            provider_no_launcher,
+        ]
+
+        with self.assertRaises(FileNotFoundError) as cm:
+            SessionAssistant.get_provider_launcher_by_id(
+                self_mock, "com.canonical.certification::doesnt-exist"
+            )
+
+        self.assertIn("doesnt-exist", str(cm.exception))
+
+    def test_is_provider_launcher_id(self, _):
+        self_mock = mock.MagicMock()
+        launcher_mock = mock.MagicMock(
+            id="com.canonical.certification::exists",
+            text="launcher text content",
+        )
+        provider_mock = mock.MagicMock(
+            namespace="com.canonical.certification",
+            launcher_list=[launcher_mock],
+        )
+        self_mock.get_selected_providers.return_value = [provider_mock]
+        self_mock.get_provider_launcher_by_id = partial(
+            SessionAssistant.get_provider_launcher_by_id, self_mock
+        )
+
+        result_exists = SessionAssistant.is_provider_launcher_id(
+            self_mock, "com.canonical.certification::exists"
+        )
+        result_not_exists = SessionAssistant.is_provider_launcher_id(
+            self_mock, "com.canonical.certification::doesnt-exist"
+        )
+
+        self.assertTrue(result_exists)
+        self.assertFalse(result_not_exists)

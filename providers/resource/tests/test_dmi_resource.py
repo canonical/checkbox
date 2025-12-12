@@ -44,11 +44,19 @@ class TestDmiResource(TestCase):
             "Tower",
             "Mini-Tower",
             "Space Saving",
-            "All-in-One",
-            "aio",
+            "Mini PC",
         ]
         category = set(map(dmi_resource.sane_product, products))
         self.assertEqual(category, {"non-portable"})
+
+    def test_sane_product_aio(self):
+        products = [
+            "All-In-One",
+            "All In One",
+            "AIO",
+        ]
+        category = set(map(dmi_resource.sane_product, products))
+        self.assertEqual(category, {"aio"})
 
     def test_sane_product_unknown(self):
         products = ["strange-iot-product"]

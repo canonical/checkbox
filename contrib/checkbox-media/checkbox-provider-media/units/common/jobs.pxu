@@ -1,0 +1,4 @@
+id: mediasource
+plugin: resource
+_description: Generates media source info from media_source.yaml
+command: media_source.py

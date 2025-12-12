@@ -1,0 +1,207 @@
+media:
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_30fps_normal_AV1.mkv
+    codec: AV1
+    operation: decode
+    resolution: 4K
+    libva_profile: 32
+    libva_entrypoint: 1
+    browser_compatible: false
+    container: mkv
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_AV1.mkv
+    codec: AV1
+    operation: decode
+    resolution: 1080p
+    libva_profile: 32
+    libva_entrypoint: 1
+    browser_compatible: false
+    container: mkv
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_60fps_normal_VP9.mkv
+    codec: VP9
+    operation: decode
+    resolution: 4K
+    libva_profile: 19
+    libva_entrypoint: 1
+    browser_compatible: false
+    container: mkv
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_VP9.mkv
+    codec: VP9
+    operation: decode
+    resolution: 1080p
+    libva_profile: 19
+    libva_entrypoint: 1
+    browser_compatible: false
+    container: mkv
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_30fps_normal_h264.mp4
+    codec: H264
+    operation: decode
+    resolution: 4K
+    libva_profile: 7
+    libva_entrypoint: 1
+    browser_compatible: true
+    container: mp4
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_h264.mp4
+    codec: H264
+    operation: decode
+    resolution: 1080p
+    libva_profile: 7
+    libva_entrypoint: 1
+    browser_compatible: true
+    container: mp4
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_30fps_normal_h264.mp4
+    codec: VP9
+    operation: encode
+    resolution: 4K
+    ffmpeg_output_codec: vp9_vaapi
+    gstreamer_encoder: vaapivp9enc
+    gstreamer_parser: vp9parse
+    gstreamer_muxer: webmmux
+    libva_profile: "19,20,21,22"
+    libva_entrypoint: 8
+    output_container: mkv
+    browser_compatible: true
+    container: mp4
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_h264.mp4
+    codec: VP9
+    operation: encode
+    resolution: 1080p
+    ffmpeg_output_codec: vp9_vaapi
+    gstreamer_encoder: vaapivp9enc
+    gstreamer_parser: vp9parse
+    gstreamer_muxer: webmmux
+    libva_profile: "19,20,21,22"
+    libva_entrypoint: 8
+    output_container: mkv
+    browser_compatible: true
+    container: mp4
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_60fps_normal_VP9.mkv
+    codec: H264
+    operation: encode
+    resolution: 4K
+    ffmpeg_output_codec: h264_vaapi
+    gstreamer_encoder: vaapih264enc
+    gstreamer_parser: h264parse
+    gstreamer_muxer: mp4mux
+    libva_profile: "6,7,13"
+    libva_entrypoint: "6,8"
+    output_container: mp4
+    browser_compatible: false
+    container: mkv
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_AV1.mkv
+    codec: H264
+    operation: encode
+    resolution: 1080p
+    ffmpeg_output_codec: h264_vaapi
+    gstreamer_encoder: vaapih264enc
+    gstreamer_parser: h264parse
+    gstreamer_muxer: mp4mux
+    libva_profile: "6,7,13"
+    libva_entrypoint: "6,8"
+    output_container: mp4
+    browser_compatible: false
+    container: mkv
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_AV1.webm
+    codec: AV1
+    operation: decode
+    resolution: 1080p
+    libva_profile: 32
+    libva_entrypoint: 1
+    browser_compatible: true
+    container: webm
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_30fps_normal_AV1.webm
+    codec: AV1
+    operation: decode
+    resolution: 4K
+    libva_profile: 32
+    libva_entrypoint: 1
+    browser_compatible: true
+    container: webm
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_VP9.webm
+    codec: VP9
+    operation: decode
+    resolution: 1080p
+    libva_profile: 19
+    libva_entrypoint: 1
+    browser_compatible: true
+    container: webm
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_60fps_normal_VP9.webm
+    codec: VP9
+    operation: decode
+    resolution: 4K
+    libva_profile: 19
+    libva_entrypoint: 1
+    browser_compatible: true
+    container: webm
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_mjpeg.avi
+    codec: mjpeg
+    operation: decode
+    resolution: 1080p
+    libva_profile: 12
+    libva_entrypoint: 1
+    browser_compatible: false
+    container: avi
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_30fps_normal_mjpeg.avi
+    codec: mjpeg
+    operation: decode
+    resolution: 4K
+    libva_profile: 12
+    libva_entrypoint: 1
+    browser_compatible: false
+    container: avi
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_vp8.webm
+    codec: VP8
+    operation: decode
+    resolution: 1080p
+    libva_profile: 14
+    libva_entrypoint: 1
+    browser_compatible: true
+    container: webm
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_30fps_normal_vp8.webm
+    codec: VP8
+    operation: decode
+    resolution: 4K
+    libva_profile: 14
+    libva_entrypoint: 1
+    browser_compatible: true
+    container: webm
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_mpeg2.mpg
+    codec: mpeg2
+    operation: decode
+    resolution: 1080p
+    libva_profile: 1
+    libva_entrypoint: 1
+    browser_compatible: false
+    container: mpg
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_30fps_normal_mpeg2.mpg
+    codec: mpeg2
+    operation: decode
+    resolution: 4K
+    libva_profile: 1
+    libva_entrypoint: 1
+    browser_compatible: false
+    container: mpg
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_1080p_30fps_normal_AV1.mkv
+    codec: mpeg2
+    operation: encode
+    resolution: 1080p
+    ffmpeg_output_codec: mpeg2_vaapi
+    gstreamer_encoder: vaapimpeg2enc
+    gstreamer_parser: mpegvideoparse
+    gstreamer_muxer: mpegpsmux
+    libva_profile: "0,1"
+    libva_entrypoint: "6,8"
+    output_container: mpg
+    browser_compatible: false
+    container: mkv
+  - video_url: https://people.canonical.com/~mckeesh/media_testing_videos/BBB/bbb_sunflower_2160p_30fps_normal_mpeg2.mpg
+    codec: mpeg2
+    operation: encode
+    resolution: 4K
+    ffmpeg_output_codec: mpeg2_vaapi
+    gstreamer_encoder: vaapimpeg2enc
+    gstreamer_parser: mpegvideoparse
+    gstreamer_muxer: mpegpsmux
+    libva_profile: "0,1"
+    libva_entrypoint: "6,8"
+    output_container: mpg
+    browser_compatible: false
+    container: mkv

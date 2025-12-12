@@ -29,3 +29,4 @@ include:
     ce-oem-video-codec/gst_transform_rotate_and_flip
     ce-oem-video-codec/genio-gst_transform_resize
     ce-oem-video-codec/carmel-gst_encoder_psnr
+    ce-oem-video-codec/imx-gst_encoder_psnr

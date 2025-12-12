@@ -72,9 +72,9 @@ estimated_duration: 1s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME
+environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME PLATFORM_NAME
 command:
-    gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}"
+    gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "$PLATFORM_NAME"
 
 unit: template
 template-engine: jinja2
@@ -147,7 +147,7 @@ template-filter:
 template-unit: job
 template-id: ce-oem-video-codec/carmel-gst_encoder_psnr
 _template-summary: Verify the PSNR ratio meets requirement for specific encoder on Carmel
-id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
+id: ce-oem-video-codec/carmel-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
 _summary: Encoder PSNR - Carmel - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
 _description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Carmel platform
 plugin: shell
@@ -157,3 +157,23 @@ estimated_duration: 60s
 environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter:
+    video_codec_resource.scenario == "gst_encoder_psnr"
+    video_codec_resource.platform in ["nxp-imx8mp", "nxp-imx8mm"]
+template-unit: job
+template-id: ce-oem-video-codec/imx-gst_encoder_psnr
+_template-summary: Verify the PSNR ratio for specific encoder on NXP i.MX8M platform
+id: ce-oem-video-codec/imx8-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
+_summary: Encoder PSNR - iMX8 - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
+_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on NXP i.MX8M platform
+plugin: shell
+user: root
+category_id: video-codec
+estimated_duration: 60s
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+command:
+    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"

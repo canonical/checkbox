@@ -29,6 +29,7 @@ class GStreamerEncodePlugins(Enum):
     V4L2H264ENC = "v4l2h264enc"
     V4L2H265ENC = "v4l2h265enc"
     V4L2JPEGENC = "v4l2jpegenc"
+    V4L2VP8ENC = "v4l2vp8enc"
 
 
 class GStreamerMuxerType(Enum):
@@ -62,6 +63,28 @@ class GStreamerMuxerType(Enum):
             )
 
 
+def _identify_gst_bin_from_snap(bin_name: str) -> bool:
+    """
+    Identify the gstreamer binary path.
+
+    :param bin_name:
+        The gstreamer binary name.
+
+    :returns:
+        The gstreamer binary path.
+    """
+    ret = subprocess.run(["which", bin_name], capture_output=True)
+    if ret.returncode != 0:
+        raise SystemExit(
+            "Error: Cannot find the gstreamer binary. name: {}".format(
+                bin_name
+            )
+        )
+    if ret.stdout.decode("utf-8").strip().startswith == "/snap/":
+        return True
+    return False
+
+
 def execute_command(cmd: str = "", timeout: int = 300) -> str:
     """
     Executes the GStreamer command and extracts the specific data from the
@@ -75,6 +98,34 @@ def execute_command(cmd: str = "", timeout: int = 300) -> str:
         The extracted last_message.
     """
     try:
+        bin_from_snap = _identify_gst_bin_from_snap(GST_LAUNCH_BIN)
+
+        if bin_from_snap:
+            logging.info(
+                "GStreamer binary is from snap package, "
+                "skip setting USER_DEFINED_GST_LD_LIBRARY_PATH "
+                "and USER_DEFINED_GST_PLUGIN_PATH"
+            )
+            env = None
+        else:
+            env = os.environ.copy()
+            # Update GStreamer library path and plugin path if user defined
+            gst_ld_path = os.environ.get("USER_DEFINED_GST_LD_LIBRARY_PATH")
+            gst_plugin_path = os.environ.get("USER_DEFINED_GST_PLUGIN_PATH")
+            logging.info("User defined LD_LIBRARY_PATH: %s", gst_ld_path)
+            logging.info("User defined LD_PLUGIN_PATH: %s", gst_plugin_path)
+            if gst_ld_path:
+                logging.info(
+                    "Append %s to LD_LIBRARY_PATH for GStreamer", gst_ld_path
+                )
+                env.update(LD_LIBRARY_PATH=gst_ld_path)
+            if gst_plugin_path:
+                logging.info(
+                    "Append %s to GST_PLUGIN_PATH for GStreamer",
+                    gst_plugin_path,
+                )
+                env.update(GST_PLUGIN_PATH=gst_plugin_path)
+
         logging.info("Starting command: '{}'".format(cmd))
         ret = subprocess.run(
             shlex.split(cmd),
@@ -83,6 +134,7 @@ def execute_command(cmd: str = "", timeout: int = 300) -> str:
             stderr=subprocess.PIPE,
             universal_newlines=True,
             timeout=timeout,
+            env=env,
         )
         logging.info(ret.stdout)
         return ret.stdout
@@ -242,6 +294,7 @@ class MetadataValidator:
             GStreamerEncodePlugins.V4L2H264ENC.value: "H.264",
             GStreamerEncodePlugins.V4L2H265ENC.value: "H.265",
             GStreamerEncodePlugins.V4L2JPEGENC.value: "JPEG",
+            GStreamerEncodePlugins.V4L2VP8ENC.value: "VP8",
         }
         if expected not in codec_map:
             raise SystemExit(

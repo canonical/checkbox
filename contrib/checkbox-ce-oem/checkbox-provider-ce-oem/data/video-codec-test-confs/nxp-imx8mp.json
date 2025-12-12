@@ -1,0 +1,60 @@
+{
+  "gst_v4l2_video_decoder_performance_fakesink": [
+    {
+      "decoder_plugin": "v4l2h264dec",
+      "golden_sample_file": "1080p_60fps_h264.mp4",
+      "minimum_fps": 45,
+      "enable_performance_mode": false
+    },
+    {
+      "decoder_plugin": "v4l2h265dec",
+      "golden_sample_file": "1080p_60fps_h265.mp4",
+      "minimum_fps": 45,
+      "enable_performance_mode": false
+    },
+    {
+      "decoder_plugin": "v4l2vp8dec",
+      "golden_sample_file": "1080p_60fps_vp8.webm",
+      "minimum_fps": 45,
+      "enable_performance_mode": false
+    },
+    {
+      "decoder_plugin": "v4l2vp9dec",
+      "golden_sample_file": "1080p_60fps_vp9.webm",
+      "minimum_fps": 45,
+      "enable_performance_mode": false
+    }
+  ],
+  "gst_encoder_psnr": [
+    {
+      "encoder_plugin": "v4l2h264enc",
+      "resolutions": [
+        { "width": 1920, "height": 1080, "fps": 60 },
+        { "width": 1920, "height": 1080, "fps": 30 },
+        { "width": 1280, "height": 720, "fps": 60 },
+        { "width": 1280, "height": 720, "fps": 30 }
+      ],
+      "color_spaces": [
+        "YUY2",
+        "NV12",
+        "NV21",
+        "I420"
+      ]
+    },
+    {
+      "encoder_plugin": "v4l2h265enc",
+      "resolutions": [
+        { "width": 1920, "height": 1080, "fps": 60 },
+        { "width": 1920, "height": 1080, "fps": 30 },
+        { "width": 1280, "height": 720, "fps": 60 },
+        { "width": 1280, "height": 720, "fps": 30 }
+      ],
+      "color_spaces": [
+        "YUY2",
+        "NV12",
+        "NV21",
+        "I420"
+      ]
+    }
+  ]
+}

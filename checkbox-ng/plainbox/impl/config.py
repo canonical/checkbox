@@ -412,7 +412,7 @@ CONFIG_SPEC = [
             ),
             "systemd_based_job_runner": VarSpec(
                 bool,
-                False,
+                None,
                 "Run Checkbox jobs as a systemd unit escaping the snap sandbox",
             ),
         },

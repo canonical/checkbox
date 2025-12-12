@@ -44,6 +44,7 @@ from plainbox.impl.session.system_information import (
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
+from plainbox.impl.unit.unit import on_ubuntucore
 from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 
@@ -178,9 +179,14 @@ class SessionMetaData:
             self._flags.add(self.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION)
         else:
             logger.warning("Using legacy non-strict template expansion")
-        if config.get_value("features", "systemd_based_job_runner"):
+        systemd_based_job_runner = config.get_value(
+            "features", "systemd_based_job_runner"
+        )
+        if systemd_based_job_runner is None:
+            systemd_based_job_runner = on_ubuntucore()
+        if systemd_based_job_runner:
             if shutil.which("plz-run"):
-                logger.warning("Using experimental systemd-based runner")
+                logger.info("Using systemd-based runner")
                 self._flags.add(self.FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER)
             else:
                 logger.error(
@@ -188,6 +194,8 @@ class SessionMetaData:
                     "required dependency plz-run is not installed"
                 )
                 logger.error("Falling back to shell based runner")
+        else:
+            logger.info("Using subprocess-based runner")
 
     @property
     def flags(self):

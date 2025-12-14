@@ -48,9 +48,9 @@ Check the [contributing guide] to learn how to:
 
 [Checkbox]: https://checkbox.readthedocs.io
 [documentation]: https://checkbox.readthedocs.io
-[installation instructions]: https://canonical-checkbox.readthedocs-hosted.com/latest/tutorial/using-checkbox/installing-checkbox/
+[installation instructions]: https://checkbox.readthedocs.io/latest/tutorial/using-checkbox/installing-checkbox/
 [contributing guide]: CONTRIBUTING.md
-[providers]: https://canonical-checkbox.readthedocs-hosted.com/latest/explanation/understanding/#provider
+[providers]: https://checkbox.readthedocs.io/latest/explanation/understanding/#provider
 [Ubuntu Certification program]: https://ubuntu.com/certified
 [^1]: formerly known as "Checkbox provider" or `plainbox-provider-checkbox`
 [^2]: beside Checkbox framework bundled providers, providers hosted elsewhere can also be used (e.g. providers specific to private projects).

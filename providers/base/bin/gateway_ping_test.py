@@ -484,6 +484,7 @@ def is_cable_interface(interface: str) -> bool:
         interface.startswith("en")
         or interface.startswith("eth")
         or interface.startswith("oob")
+        or interface.startswith("lan")
     )
 
 

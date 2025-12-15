@@ -780,7 +780,7 @@ def get_execution_command_systemd_unit(
         target_user,
     ]
     if target_user != "root":
-        cmd += ["-pam", "systemd-login"]
+        cmd += ["-pam", "system-login"]
     env = get_differential_execution_environment(
         job, environ, session_id, nest_dir, extra_env
     )

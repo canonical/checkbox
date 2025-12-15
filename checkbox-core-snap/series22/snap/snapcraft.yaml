@@ -108,7 +108,7 @@ parts:
 ################################################################################
   plz-run:
     plugin: go
-    source: https://gitlab.com/zygoon/plz-run.git
+    source: https://github.com/Hook25/plz-run.git
     build-snaps:
       - go/latest/stable
 ################################################################################

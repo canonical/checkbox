@@ -194,7 +194,8 @@ def main():
     args = register_arguments()
     fan_controller = args.device
     if not fan_controller:
-        print("Usage: sudo python3 hwmon_pwm_control.py <hwmon_chip_name>")
+        print("Usage: sudo python3 hwmon_pwm_control.py <chip_name>")
+        print("  chip_name means the value of /sys/class/hwmon/hwmonX/name>")
         print("Example: sudo python3 hwmon_pwm_control.py nct6775")
         sys.exit(1)
 

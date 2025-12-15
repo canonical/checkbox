@@ -7,8 +7,6 @@ import argparse
 import os
 import subprocess
 from pathlib import Path
-from typing import Optional
-
 
 SUCCESS_MARKER = "crucible: info   : fail 0"
 

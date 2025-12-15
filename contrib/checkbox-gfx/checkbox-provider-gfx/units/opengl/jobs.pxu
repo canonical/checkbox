@@ -30,151 +30,151 @@ environ:
   XDG_RUNTIME_DIR
 estimated_duration: 1m
 command:
-  cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.info.*
+  cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.info.*
 _siblings: [
   { "id": "gfx_mesa_gl_sru_shaders",
     "_summary": "Run the shaders tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.shaders.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.shaders.*"
   },
   { "id": "gfx_mesa_gl_sru_geometry_shader",
     "_summary": "Run the geometry_shader tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.geometry_shader.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.geometry_shader.*"
   },
   { "id": "gfx_mesa_gl_sru_gpu_shader5",
     "_summary": "Run the gpu_shader5 tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.gpu_shader5.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.gpu_shader5.*"
   },
   { "id": "gfx_mesa_gl_sru_tessellation_shader",
     "_summary": "Run the tessellation_shader tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.tessellation_shader.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.tessellation_shader.*"
   },
   { "id": "gfx_mesa_gl_sru_texture_cube_map_array",
     "_summary": "Run the texture_cube_map_array tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.texture_cube_map_array.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.texture_cube_map_array.*"
   },
   { "id": "gfx_mesa_gl_sru_texture_border_clamp",
     "_summary": "Run the texture_border_clamp tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.texture_border_clamp.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.texture_border_clamp.*"
   },
   { "id": "gfx_mesa_gl_sru_texture_buffer",
     "_summary": "Run the texture_buffer tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.texture_buffer.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.texture_buffer.*"
   },
   { "id": "gfx_mesa_gl_sru_draw_buffers_indexed",
     "_summary": "Run the draw_buffers_indexed tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.draw_buffers_indexed.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.draw_buffers_indexed.*"
   },
   { "id": "gfx_mesa_gl_sru_constant_expressions",
     "_summary": "Run the constant_expressions tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.constant_expressions.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.constant_expressions.*"
   },
   { "id": "gfx_mesa_gl_sru_shader_macros",
     "_summary": "Run the shader_macros tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.shader_macros.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.shader_macros.*"
   },
   { "id": "gfx_mesa_gl_sru_separable_programs_tf",
     "_summary": "Run the separable_programs_tf tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.separable_programs_tf.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.separable_programs_tf.*"
   },
   { "id": "gfx_mesa_gl_sru_copy_image",
     "_summary": "Run the copy_image tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.copy_image.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.copy_image.*"
   },
   { "id": "gfx_mesa_gl_sru_texture2d",
     "_summary": "Run the texture2d tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.texture2d.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.texture2d.*"
   },
   { "id": "gfx_mesa_gl_sru_copy_tex_image",
     "_summary": "Run the copy_tex_image tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.copy_tex_image.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.copy_tex_image.*"
   },
   { "id": "gfx_mesa_gl_sru_renderbuffer",
     "_summary": "Run the renderbuffer tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.rgb5_a1"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.rgb5_a1"
   },
   { "id": "gfx_mesa_gl_sru_renderbuffer_depth_component32f",
     "_summary": "Run the renderbuffer_depth_component32f tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.depth_component32f"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.depth_component32f"
   },
   { "id": "gfx_mesa_gl_sru_renderbuffer_depth32f_stencil8",
     "_summary": "Run the renderbuffer_depth32f_stencil8 tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.depth32f_stencil8"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.depth32f_stencil8"
   },
   { "id": "gfx_mesa_gl_extra_sru_sampler2darrayshadow_fragment",
     "_summary": "Run the sampler2darrayshadow_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.sampler2darrayshadow_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.sampler2darrayshadow_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_sampler2darrayshadow_bias_fragment",
     "_summary": "Run the sampler2darrayshadow_bias_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.sampler2darrayshadow_bias_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.sampler2darrayshadow_bias_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_samplercubearrayshadow_vertex",
     "_summary": "Run the samplercubearrayshadow_vertex tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_vertex"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_vertex"
   },
   { "id": "gfx_mesa_gl_extra_sru_samplercubearrayshadow_fragment",
     "_summary": "Run the samplercubearrayshadow_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_samplercubearrayshadow_bias_fragment",
     "_summary": "Run the samplercubearrayshadow_bias_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_bias_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_bias_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_textureoffset_sampler2darrayshadow_vertex",
     "_summary": "Run the textureoffset_sampler2darrayshadow_vertex tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_vertex"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_vertex"
   },
   { "id": "gfx_mesa_gl_extra_sru_textureoffset_sampler2darrayshadow_fragment",
     "_summary": "Run the textureoffset_sampler2darrayshadow_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_textureoffset_sampler2darrayshadow_bias_fragment",
     "_summary": "Run the textureoffset_sampler2darrayshadow_bias_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_bias_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_bias_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_texturelod_sampler2darrayshadow_vertex",
     "_summary": "Run the texturelod_sampler2darrayshadow_vertex tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.sampler2darrayshadow_vertex"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.sampler2darrayshadow_vertex"
   },
   { "id": "gfx_mesa_gl_extra_sru_texturelod_sampler2darrayshadow_fragment",
     "_summary": "Run the texturelod_sampler2darrayshadow_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.sampler2darrayshadow_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.sampler2darrayshadow_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_texturelod_samplercubeshadow_vertex",
     "_summary": "Run the texturelod_samplercubeshadow_vertex tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubeshadow_vertex"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubeshadow_vertex"
   },
   { "id": "gfx_mesa_gl_extra_sru_texturelod_samplercubeshadow_fragment",
     "_summary": "Run the texturelod_samplercubeshadow_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubeshadow_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubeshadow_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_texturelod_samplercubearrayshadow_fragment",
     "_summary": "Run the texturelod_samplercubearrayshadow_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubearrayshadow_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubearrayshadow_fragment"
   },
   { "id": "gfx_mesa_gl_extra_sru_texturelodoffset_sampler2darrayshadow_vertex",
     "_summary": "Run the texturelodoffset_sampler2darrayshadow_vertex tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelodoffset.sampler2darrayshadow_vertex"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelodoffset.sampler2darrayshadow_vertex"
   },
   { "id": "gfx_mesa_gl_extra_sru_texturelodoffset_sampler2darrayshadow_fragment",
     "_summary": "Run the texturelodoffset_sampler2darrayshadow_fragment tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelodoffset.sampler2darrayshadow_fragment"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelodoffset.sampler2darrayshadow_fragment"
   },
   {"id": "gfx_mesa_gl_sru_nearest_edge",
     "_summary": "Run the nearest_edge tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.nearest_edge.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.nearest_edge.*"
   },
   { "id": "gfx_mesa_gl_sru_framebuffer_completeness",
     "_summary": "Run the framebuffer_completeness tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.framebuffer_completeness.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.framebuffer_completeness.*"
   },
   { "id": "gfx_mesa_gl_sru_texture_compatibility",
     "_summary": "Run the texture_compatibility tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.texture_compatibility.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.texture_compatibility.*"
   },
   { "id": "gfx_mesa_gl_sru_compressed_format",
     "_summary": "Run the compressed_format tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.compressed_format.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.compressed_format.*"
   }]
 
 id: gfx_mesa_gl_longrun_renderbuffer
@@ -189,10 +189,10 @@ environ:
   XDG_RUNTIME_DIR
 estimated_duration: 1m
 command:
-  cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.*
+  cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.*
 _siblings:
   [{ "id": "gfx_mesa_gl_longrun_ext_texture_shadow_lod",
     "_summary": "Run the ext_texture_shadow_lod tests from VK-GL-CTS",
-    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules; ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.*"
+    "command": "cd /usr/local/checkbox-gfx/GL-CTS/build/external/openglcts/modules && ./glcts --deqp-surface-type=fbo --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.*"
   }]
 

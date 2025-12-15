@@ -48,9 +48,7 @@ class FanMonitor:
                 try:
                     with open(pci_class_path, "r") as _file:
                         pci_class = _file.read().splitlines()
-                        pci_device_class = (
-                            int(pci_class[0], base=16) >> 16
-                        ) & 0xFF
+                        pci_device_class = (int(pci_class[0], base=16) >> 16) & 0xFF
                         """Make sure the fan is not on graphic card"""
                         if pci_device_class == 3:
                             continue
@@ -98,9 +96,7 @@ class Stressor:
     def start(self):
         """Start stress processes in the background."""
         for n in range(self._thread_count):
-            self._procs.append(
-                multiprocessing.Process(target=self._stress_fun)
-            )
+            self._procs.append(multiprocessing.Process(target=self._stress_fun))
             self._procs[-1].start()
 
     def stop(self):

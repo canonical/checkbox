@@ -120,9 +120,7 @@ class UnitWithId(Unit):
                 UniqueValueValidator(),
                 # We want to have bare, namespace-less identifiers
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        "::" not in unit.get_record_value("id")
-                    ),
+                    lambda value, unit: ("::" not in unit.get_record_value("id")),
                     message=_("identifier cannot define a custom namespace"),
                     onlyif=lambda unit: unit.get_record_value("id"),
                 ),

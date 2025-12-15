@@ -117,9 +117,7 @@ class CategoryUnitFieldValidationTests(UnitWithIdFieldValidationTests):
     unit_cls = CategoryUnit
 
     def test_name__translatable(self):
-        issue_list = self.unit_cls(
-            {"name": "name"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"name": "name"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.name,
@@ -159,9 +157,7 @@ class CategoryUnitFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_name__short_line(self):
-        issue_list = self.unit_cls(
-            {"name": "x" * 81}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"name": "x" * 81}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.name,

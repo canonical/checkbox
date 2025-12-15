@@ -169,9 +169,7 @@ def main():
         GlxWindows[i].start()
         time.sleep(5)
         try:
-            windows = subprocess.check_output(
-                "wmctrl -l | grep glxgears", shell=True
-            )
+            windows = subprocess.check_output("wmctrl -l | grep glxgears", shell=True)
         except subprocess.CalledProcessError as er:
             print("WARNING: Got an exception %s" % er)
             windows = ""

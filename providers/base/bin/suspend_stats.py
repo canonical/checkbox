@@ -33,9 +33,7 @@ class SuspendStats:
     def __init__(self):
         suspend_stat_path = "/sys/power/suspend_stats/"
         try:
-            self.contents = self.collect_content_under_directory(
-                suspend_stat_path
-            )
+            self.contents = self.collect_content_under_directory(suspend_stat_path)
         except FileNotFoundError:
             print(
                 "There is no {}, use the information in debugfs".format(

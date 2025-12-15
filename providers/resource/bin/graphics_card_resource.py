@@ -136,9 +136,7 @@ def main():
     # udev_devices generates one dict per device, the list shown
     # below filters that to only VIDEO ones
     video_devices = list(
-        r
-        for r in udev_devices(udev_output)
-        if r.get("category", "") == "VIDEO"
+        r for r in udev_devices(udev_output) if r.get("category", "") == "VIDEO"
     )
     video_devices.sort(key=lambda r: bus_ordering(r))
 
@@ -213,9 +211,7 @@ def main():
             if index == 2 and len(video_devices) == 2:
                 # we're at GPU number 2 and there are two, so here we assume
                 # that video_devices[0] is the built-in one
-                video_devices[0]["switch_to_cmd"] = switch_cmds[
-                    record["driver"]
-                ][1]
+                video_devices[0]["switch_to_cmd"] = switch_cmds[record["driver"]][1]
         # Finally, print the records
         for record in video_devices:
             items = [

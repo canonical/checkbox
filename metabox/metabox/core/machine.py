@@ -132,9 +132,7 @@ class ContainerBaseMachine:
             self._container.stop(wait=True)
         self._container.restore_snapshot(savepoint, wait=True)
         self._container.start(wait=True)
-        logger.opt(colors=True).debug(
-            "[<y>restored</y>    ] {}", self._container.name
-        )
+        logger.opt(colors=True).debug("[<y>restored</y>    ] {}", self._container.name)
         if self.config.role == "agent":
             attempts_left = 60
             out = ""
@@ -159,9 +157,7 @@ class ContainerBaseMachine:
             raise
 
     def get_connecting_cmd(self):
-        return "lxc exec {} -- sudo --user ubuntu --login".format(
-            self._container.name
-        )
+        return "lxc exec {} -- sudo --user ubuntu --login".format(self._container.name)
 
     @property
     def address(self):
@@ -214,9 +210,7 @@ class ContainerBaseMachine:
         assert self.config.role == "local"
         if interactive:
             # Return a PTS object to interact with
-            return self.interactive_execute(
-                cmd, env=env, verbose=True, timeout=timeout
-            )
+            return self.interactive_execute(cmd, env=env, verbose=True, timeout=timeout)
         else:
             # Return an ExecuteResult named tuple
             return self.execute(cmd, env=env, verbose=True, timeout=timeout)
@@ -225,9 +219,7 @@ class ContainerBaseMachine:
         verbose = True
         if interactive:
             # Return a PTS object to interact with
-            return interactive_execute(
-                self._container, cmd, env, verbose, timeout
-            )
+            return interactive_execute(self._container, cmd, env, verbose, timeout)
         else:
             # Return an ExecuteResult named tuple
             return run_or_raise(self._container, cmd, env, verbose, timeout)
@@ -303,9 +295,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
         if self.config.alias == "noble":
             return to_run  # noble pip is recent enough
         pip_version = (
-            '"pip<21"'
-            if self.config.alias in ["xenial", "bionic"]
-            else '"pip>20"'
+            '"pip<21"' if self.config.alias in ["xenial", "bionic"] else '"pip>20"'
         )
         return to_run + [
             "bash -c 'sudo python3 -m pip install -U {}'".format(pip_version),
@@ -399,9 +389,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 uid=0,
                 gid=0,
             )
-        self.mock_inxi_at(
-            "/home/ubuntu/checkbox/checkbox-ng" "/plainbox/vendor/inxi"
-        )
+        self.mock_inxi_at("/home/ubuntu/checkbox/checkbox-ng" "/plainbox/vendor/inxi")
 
         return commands
 
@@ -414,9 +402,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def stop_service(self):
         assert self.config.role in ("controller", "agent")
-        return run_or_raise(
-            self._container, "sudo systemctl stop checkbox-ng.service"
-        )
+        return run_or_raise(self._container, "sudo systemctl stop checkbox-ng.service")
 
     def reboot_service(self):
         assert self.config.role == "agent"
@@ -464,9 +450,7 @@ class ContainerPPAMachine(ContainerBaseMachine):
 
     def stop_service(self):
         assert self.config.role == "agent"
-        return run_or_raise(
-            self._container, "sudo systemctl stop checkbox-ng.service"
-        )
+        return run_or_raise(self._container, "sudo systemctl stop checkbox-ng.service")
 
     def is_service_active(self):
         assert self.config.role == "agent"
@@ -505,9 +489,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
     def get_file_transfer(self):
         file_tranfer_list = []
         if self.config.checkbox_core_snap.get("uri"):
-            core_filename = Path(
-                self.config.checkbox_core_snap.get("uri")
-            ).expanduser()
+            core_filename = Path(self.config.checkbox_core_snap.get("uri")).expanduser()
             self.core_dest = Path("/home", "ubuntu", core_filename.name)
             file_tranfer_list.append((core_filename, self.core_dest))
         if self.config.checkbox_snap.get("uri"):
@@ -517,9 +499,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         return file_tranfer_list
 
     def get_early_dir_transfer(self):
-        provider_path = pkg_resources.resource_filename(
-            "metabox", "metabox-provider"
-        )
+        provider_path = pkg_resources.resource_filename("metabox", "metabox-provider")
         return [(provider_path, "/home/ubuntu/metabox-provider")]
 
     def get_setup_overlay_fs(self):
@@ -588,9 +568,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
             "sudo systemctl daemon-reload",
             "sudo systemctl enable overlay-checkbox.service --now",
             install_metabox_provider,
-            "sudo systemctl restart snap.{}.agent.service".format(
-                self._snap_name
-            ),
+            "sudo systemctl restart snap.{}.agent.service".format(self._snap_name),
         ]
 
         return cmds
@@ -604,17 +582,13 @@ class ContainerSnapMachine(ContainerBaseMachine):
             else:
                 core_snap = self.CHECKBOX_CORE_SNAP_MAP[self.config.alias]
                 channel = f"latest/{self.config.checkbox_core_snap['risk']}"
-                cmds.append(
-                    f"sudo snap install {core_snap} --channel={channel}"
-                )
+                cmds.append(f"sudo snap install {core_snap} --channel={channel}")
         # Then install the checkbox snap
         confinement = "devmode"
         if self.config.origin == "classic-snap":
             confinement = "classic"
         if self.config.checkbox_snap.get("uri"):
-            cmds.append(
-                f"sudo snap install {self.dest} --{confinement} --dangerous"
-            )
+            cmds.append(f"sudo snap install {self.dest} --{confinement} --dangerous")
         else:
             try:
                 track_map = self.config.checkbox_snap["track_map"]
@@ -638,18 +612,14 @@ class ContainerSnapMachine(ContainerBaseMachine):
         if force:
             return run_or_raise(
                 self._container,
-                "sudo systemctl start snap.{}.agent.service".format(
-                    self._snap_name
-                ),
+                "sudo systemctl start snap.{}.agent.service".format(self._snap_name),
             )
 
     def stop_service(self):
         assert self.config.role == "agent"
         return run_or_raise(
             self._container,
-            "sudo systemctl stop snap.{}.agent.service".format(
-                self._snap_name
-            ),
+            "sudo systemctl stop snap.{}.agent.service".format(self._snap_name),
         )
 
     def is_service_active(self):
@@ -657,9 +627,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         return (
             run_or_raise(
                 self._container,
-                "systemctl is-active snap.{}.agent.service".format(
-                    self._snap_name
-                ),
+                "systemctl is-active snap.{}.agent.service".format(self._snap_name),
             ).stdout
             == "active"
         )

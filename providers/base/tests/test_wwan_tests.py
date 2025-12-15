@@ -38,9 +38,7 @@ class TestMMDbus(unittest.TestCase):
 
         self.assertEqual(obj_mmdbus.__init__.call_count, 1)
         obj_mmdbus._modem_props_iface.assert_called_with(1)
-        mock_get.assert_called_with(
-            wwan_tests.DBUS_MM1_IF_MODEM, "HardwareRevision"
-        )
+        mock_get.assert_called_with(wwan_tests.DBUS_MM1_IF_MODEM, "HardwareRevision")
         self.assertEqual(resp, hw_revision_pattern)
 
 
@@ -55,9 +53,7 @@ class TestMMCli(unittest.TestCase):
         resp = obj_mmcli.get_firmware_revision(1)
 
         self.assertEqual(obj_mmcli.__init__.call_count, 1)
-        mock_value_from_table.assert_called_with(
-            "modem", 1, "firmware revision"
-        )
+        mock_value_from_table.assert_called_with("modem", 1, "firmware revision")
         self.assertEqual(resp, fw_revision_pattern)
 
     @patch("wwan_tests.MMCLI.__init__", Mock(return_value=None))

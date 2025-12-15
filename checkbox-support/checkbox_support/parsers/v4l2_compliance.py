@@ -160,8 +160,7 @@ def parse_v4l2_compliance(
     lines = [line.strip() for line in out.stdout.splitlines() if line.strip()]
 
     pattern = (
-        r"Total(?: for (.*))?: (.*), "
-        r"Succeeded: (.*), Failed: (.*), Warnings: (.*)"
+        r"Total(?: for (.*))?: (.*), " r"Succeeded: (.*), Failed: (.*), Warnings: (.*)"
     )
     match_output = re.match(pattern, lines[-1])
 
@@ -185,9 +184,7 @@ def parse_v4l2_compliance(
     }  # type: dict[str, list[str]]
 
     for line in lines:
-        if not summary["device_name"] and line.startswith(
-            "Compliance test for"
-        ):
+        if not summary["device_name"] and line.startswith("Compliance test for"):
             # try to see if there's a device name at the top
             # if not, report None
             clean_name = (

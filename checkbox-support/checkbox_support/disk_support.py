@@ -119,9 +119,7 @@ class Disk:
         try:
             mode = os.stat(self.device).st_mode
             if not stat.S_ISBLK(mode):
-                logging.error(
-                    "{} is NOT a block device! Aborting!".format(self.device)
-                )
+                logging.error("{} is NOT a block device! Aborting!".format(self.device))
                 return False
         except FileNotFoundError:
             logging.error("{} does not exist! Aborting!".format(self.device))
@@ -177,9 +175,7 @@ class Disk:
             if self.unsupported_fs is not None:
                 logging.error(
                     "A filesystem of type {} was found, but is not "
-                    "supported by this test.".format(
-                        self.unsupported_fs["fs_type"]
-                    )
+                    "supported by this test.".format(self.unsupported_fs["fs_type"])
                 )
                 logging.error(
                     "A Linux-native filesystem (ext2/3/4fs, XFS, "
@@ -213,24 +209,16 @@ class Disk:
             if not self.mount_point:
                 self.mount_point = "/mnt/{}".format(target_part["name"])
                 logging.info(
-                    "Trying to mount {} to {}...".format(
-                        full_device, self.mount_point
-                    )
+                    "Trying to mount {} to {}...".format(full_device, self.mount_point)
                 )
                 os.makedirs(self.mount_point, exist_ok=True)
                 command = "mount {} {}".format(full_device, self.mount_point)
-                output = check_output(shlex.split(command)).decode(
-                    encoding="utf-8"
-                )
+                output = check_output(shlex.split(command)).decode(encoding="utf-8")
                 logging.info(output)
             else:
                 logging.info(
-                    "{} is already mounted at {}".format(
-                        full_device, self.mount_point
-                    )
+                    "{} is already mounted at {}".format(full_device, self.mount_point)
                 )
-            self.test_dir = "{}/tmp/stress-ng-{}".format(
-                self.mount_point, uuid.uuid1()
-            )
+            self.test_dir = "{}/tmp/stress-ng-{}".format(self.mount_point, uuid.uuid1())
             os.makedirs(self.test_dir, exist_ok=True)
         return True

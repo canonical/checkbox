@@ -105,9 +105,7 @@ def can_bus_off_test(can_dev, timeout):
             input()
 
             can_socket = CANSocket(can_dev, False)
-            can_pkt = can_socket.struct_packet(
-                222, os.urandom(8), 0, fd_frame=False
-            )
+            can_pkt = can_socket.struct_packet(222, os.urandom(8), 0, fd_frame=False)
             for _ in range(10):
                 can_socket.send(can_pkt, timeout=5)
 
@@ -138,9 +136,7 @@ def register_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="SocketCAN BUS-OFF Tests",
     )
-    parser.add_argument(
-        "-d", "--device", required=True, help="CAN network interface"
-    )
+    parser.add_argument("-d", "--device", required=True, help="CAN network interface")
     parser.add_argument("-t", "--timeout", type=int, default=60)
     parser.add_argument(
         "--debug",

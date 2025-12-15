@@ -42,9 +42,7 @@ def extract_timestamp(log_line):
 def get_wakeup_timestamp():
     # Get the time stamp of the system resume from suspend for s3
     command = ["journalctl", "-b", "0", "--output=short-unix"]
-    result = subprocess.check_output(
-        command, shell=False, universal_newlines=True
-    )
+    result = subprocess.check_output(command, shell=False, universal_newlines=True)
     logs = result.splitlines()
 
     for log in reversed(logs):
@@ -84,9 +82,7 @@ def parse_args(args=sys.argv[1:]):
     :param args: arguments from sys
     :type args: sys.argv
     """
-    parser = argparse.ArgumentParser(
-        description="Parse command line arguments."
-    )
+    parser = argparse.ArgumentParser(description="Parse command line arguments.")
 
     parser.add_argument("--powertype", type=str, help="Waked from s3 or s5.")
     parser.add_argument(
@@ -127,9 +123,7 @@ def main():
 
     test_start_time = get_timestamp(timestamp_file)
     if test_start_time is None:
-        raise SystemExit(
-            "Couldn't get the test start time from timestamp file."
-        )
+        raise SystemExit("Couldn't get the test start time from timestamp file.")
 
     system_back_time = (
         get_wakeup_timestamp() if powertype == "s3" else get_system_boot_time()

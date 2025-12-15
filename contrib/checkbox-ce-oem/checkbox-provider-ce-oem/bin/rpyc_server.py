@@ -22,27 +22,19 @@ LIBS = {
         "function": "server_mode",
     },
     "serial_check": {
-        "source": os.path.join(
-            CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"
-        ),
+        "source": os.path.join(CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"),
         "function": "serial_check",
     },
     "ethernet_check": {
-        "source": os.path.join(
-            CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"
-        ),
+        "source": os.path.join(CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"),
         "function": "ethernet_check",
     },
     "configure_local_network": {
-        "source": os.path.join(
-            CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"
-        ),
+        "source": os.path.join(CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"),
         "function": "configure_local_network",
     },
     "usb_storage_test": {
-        "source": os.path.join(
-            CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"
-        ),
+        "source": os.path.join(CHECKBOX_PROVIDER_CEOEM_PATH, "rpyc_test_methods.py"),
         "function": "usb_storage_test",
     },
 }

@@ -87,9 +87,7 @@ def save_connections(keyfile_list):
 
 
 def restore_connections():
-    saved_list = glob.glob(
-        "{}/**/*.nmconnection".format(SAVE_DIR), recursive=True
-    )
+    saved_list = glob.glob("{}/**/*.nmconnection".format(SAVE_DIR), recursive=True)
     if len(saved_list) == 0:
         print("No stored 802.11 connections found")
         return

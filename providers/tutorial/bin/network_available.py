@@ -6,9 +6,7 @@ import subprocess
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "interface", help="Interface which will be used to ping"
-    )
+    parser.add_argument("interface", help="Interface which will be used to ping")
     parser.add_argument(
         "--threshold",
         "-t",
@@ -26,12 +24,8 @@ def network_available(interface, threshold):
     )
     print(ping_output)
     if "% packet loss" not in ping_output:
-        raise SystemExit(
-            "Unable to determine the % packet loss from the output"
-        )
-    perc_packet_loss = ping_output.rsplit("% packet loss", 1)[0].rsplit(
-        maxsplit=1
-    )[1]
+        raise SystemExit("Unable to determine the % packet loss from the output")
+    perc_packet_loss = ping_output.rsplit("% packet loss", 1)[0].rsplit(maxsplit=1)[1]
     if float(perc_packet_loss) > float(threshold):
         raise SystemExit(
             "Detected packet loss ({}%) is higher than threshold ({}%)".format(

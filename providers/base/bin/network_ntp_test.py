@@ -47,9 +47,7 @@ def SilentCall(*popenargs):
     """
     null_fh = open("/dev/null", "wb", 0)
     try:
-        return Popen(
-            *popenargs, shell=True, stdout=null_fh, stderr=null_fh
-        ).wait()
+        return Popen(*popenargs, shell=True, stdout=null_fh, stderr=null_fh).wait()
     finally:
         null_fh.close()
 
@@ -60,9 +58,7 @@ def CheckNTPD():
     (status,pid,command) where status is either on or off.
     """
     ps_list = (
-        Popen("ps axo pid,comm", shell=True, stdout=PIPE)
-        .communicate()[0]
-        .splitlines()
+        Popen("ps axo pid,comm", shell=True, stdout=PIPE).communicate()[0].splitlines()
     )
     for item in ps_list:
         fields = item.split()
@@ -92,9 +88,7 @@ def StartStopNTPD(state, pid=0):
         else:
             logging.error("ntpd restart failed for some reason")
     else:
-        logging.error(
-            "%s is an unknown state, unable to start/stop ntpd" % state
-        )
+        logging.error("%s is an unknown state, unable to start/stop ntpd" % state)
 
 
 def SyncTime(server):
@@ -145,9 +139,7 @@ def SkewTime():
 
 
 def main():
-    description = (
-        "Tests the ability to skew and sync the clock with an NTP server"
-    )
+    description = "Tests the ability to skew and sync the clock with an NTP server"
     parser = ArgumentParser(description=description)
     parser.add_argument(
         "--server",

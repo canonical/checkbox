@@ -203,9 +203,7 @@ class DiskTest:
         # First we will build up a db of udisks info by scraping the output
         # of the dump command
         # TODO: remove the snap prefix when the alias becomes available
-        proc = subprocess.Popen(
-            ["udisks2.udisksctl", "dump"], stdout=subprocess.PIPE
-        )
+        proc = subprocess.Popen(["udisks2.udisksctl", "dump"], stdout=subprocess.PIPE)
         udisks_devices = {}
         current_bd = None
         current_interface = None
@@ -263,14 +261,9 @@ class DiskTest:
                 # Get the connection bus property from the drive interface of
                 # the drive object. This is required to filter out the devices
                 # we don't want to look at now.
-                connection_bus = drive_object[UDISKS2_DRIVE_INTERFACE][
-                    "ConnectionBus:"
-                ]
+                connection_bus = drive_object[UDISKS2_DRIVE_INTERFACE]["ConnectionBus:"]
                 desired_connection_buses = set(
-                    [
-                        map_udisks1_connection_bus(device)
-                        for device in self.device
-                    ]
+                    [map_udisks1_connection_bus(device) for device in self.device]
                 )
                 # Skip devices that are attached to undesired connection buses
                 if connection_bus not in desired_connection_buses:
@@ -279,9 +272,7 @@ class DiskTest:
                 dev_file = interfaces[UDISKS2_BLOCK_INTERFACE].get("Device:")
 
                 parent = self._find_parent(dev_file.replace("/dev/", ""))
-                if parent and find_pkname_is_root_mountpoint(
-                    parent, self.lsblk
-                ):
+                if parent and find_pkname_is_root_mountpoint(parent, self.lsblk):
                     continue
 
                 # XXX: we actually only scrape the first one currently
@@ -314,13 +305,9 @@ class DiskTest:
                 udev_devices = get_udev_block_devices(GUdev.Client())
                 for udev_device in udev_devices:
                     if udev_device.get_device_file() == dev_file:
-                        interconnect_speed = get_interconnect_speed(
-                            udev_device
-                        )
+                        interconnect_speed = get_interconnect_speed(udev_device)
                         if interconnect_speed:
-                            self.rem_disks_speed[dev_file] = (
-                                interconnect_speed * 10**6
-                            )
+                            self.rem_disks_speed[dev_file] = interconnect_speed * 10**6
                         else:
                             self.rem_disks_speed[dev_file] = None
 
@@ -360,9 +347,7 @@ class DiskTest:
             udisks2_object = udisks2_objects[udisks2_object_path]
             # Find the path of the udisks2 object that represents the drive
             # this object is a part of
-            drive_object_path = udisks2_object[UDISKS2_BLOCK_INTERFACE][
-                "Drive"
-            ]
+            drive_object_path = udisks2_object[UDISKS2_BLOCK_INTERFACE]["Drive"]
             # Lookup the drive object, if any. This can fail when
             try:
                 drive_object = udisks2_objects[drive_object_path]
@@ -400,9 +385,7 @@ class DiskTest:
             if parent and find_pkname_is_root_mountpoint(parent, self.lsblk):
                 continue
             # Get the list of mount points of this block device
-            mount_points = udisks2_object[UDISKS2_FILESYSTEM_INTERFACE][
-                "MountPoints"
-            ]
+            mount_points = udisks2_object[UDISKS2_FILESYSTEM_INTERFACE]["MountPoints"]
             # Get the speed of the interconnect that is associated with the
             # block device we're looking at. This is purely informational but
             # it is a part of the required API
@@ -453,9 +436,7 @@ class DiskTest:
                             "org.freedesktop.UDisks",
                             device_props.Get(udisks, "PartitionSlave"),
                         )
-                        parent_props = dbus.Interface(
-                            parent_obj, dbus.PROPERTIES_IFACE
-                        )
+                        parent_props = dbus.Interface(parent_obj, dbus.PROPERTIES_IFACE)
                         parent_model = parent_props.Get(udisks, "DriveModel")
                         parent_vendor = parent_props.Get(udisks, "DriveVendor")
                         parent_media = parent_props.Get(udisks, "DriveMedia")
@@ -475,14 +456,10 @@ class DiskTest:
                         ):
                             continue
                     dev_file = str(device_props.Get(udisks, "DeviceFile"))
-                    dev_speed = str(
-                        device_props.Get(udisks, "DriveConnectionSpeed")
-                    )
+                    dev_speed = str(device_props.Get(udisks, "DriveConnectionSpeed"))
                     self.rem_disks_speed[dev_file] = dev_speed
                     if len(device_props.Get(udisks, "DeviceMountPaths")) > 0:
-                        devPath = str(
-                            device_props.Get(udisks, "DeviceMountPaths")[0]
-                        )
+                        devPath = str(device_props.Get(udisks, "DeviceMountPaths")[0])
                         self.rem_disks[dev_file] = devPath
                         self.rem_disks_memory_cards[dev_file] = devPath
                     else:
@@ -519,14 +496,12 @@ class DiskTest:
             for udev_device in udev_devices:
                 devpath = udev_device.get_property("DEVPATH")
                 if self._compare_pci_slot_from_devpath(devpath, pci_slot_name):
-                    self.rem_disks_xhci[
-                        udev_device.get_property("DEVNAME")
-                    ] = "xhci"
+                    self.rem_disks_xhci[udev_device.get_property("DEVNAME")] = "xhci"
                 if platform.machine() in ("aarch64", "armv7l"):
                     if xhci_devpath in devpath:
-                        self.rem_disks_xhci[
-                            udev_device.get_property("DEVNAME")
-                        ] = "xhci"
+                        self.rem_disks_xhci[udev_device.get_property("DEVNAME")] = (
+                            "xhci"
+                        )
         return self.rem_disks_xhci
 
     def mount(self):
@@ -557,9 +532,7 @@ class DiskTest:
                 continue
             if self._umount(disk) != 0:
                 errors += 1
-                logging.error(
-                    "can't umount %s on %s", disk, self.rem_disks_nm[disk]
-                )
+                logging.error("can't umount %s on %s", disk, self.rem_disks_nm[disk])
         return errors
 
     def _umount(self, mount_point):
@@ -678,8 +651,7 @@ def main():
         action="store_true",
         default=False,
         help=(
-            "skip the removable devices "
-            "which haven't been mounted before the test."
+            "skip the removable devices " "which haven't been mounted before the test."
         ),
     )
     parser.add_argument(
@@ -765,14 +737,12 @@ def main():
 
                 if errors_mount > 0:
                     print(
-                        "There're total %d device(s) failed at mounting."
-                        % errors_mount
+                        "There're total %d device(s) failed at mounting." % errors_mount
                     )
                     errors += errors_mount
 
                 disks_all = dict(
-                    list(test.rem_disks.items())
-                    + list(test.rem_disks_nm.items())
+                    list(test.rem_disks.items()) + list(test.rem_disks_nm.items())
                 )
 
             if len(disks_all) > 0:
@@ -788,9 +758,7 @@ def main():
                         % (disk, mount_point, supported_speed),
                         end="",
                     )
-                    if args.min_speed and int(args.min_speed) > int(
-                        supported_speed
-                    ):
+                    if args.min_speed and int(args.min_speed) > int(supported_speed):
                         print(
                             " (Will not test it, speed is below %s bits/s)"
                             % args.min_speed,
@@ -822,9 +790,7 @@ def main():
                     disks_freespace[disk] = stat.f_bfree * stat.f_bsize
                 smallest_freespace = min(disks_freespace.values())
                 smallest_partition = [
-                    d
-                    for d, v in disks_freespace.items()
-                    if v == smallest_freespace
+                    d for d, v in disks_freespace.items() if v == smallest_freespace
                 ][0]
                 desired_size = args.size
                 if desired_size > smallest_freespace:
@@ -836,9 +802,7 @@ def main():
                                     min_space, smallest_partition
                                 )
                             )
-                        new_size = HumanReadableBytes(
-                            int(0.8 * smallest_freespace)
-                        )
+                        new_size = HumanReadableBytes(int(0.8 * smallest_freespace))
                         logging.warning(
                             "Automatically reducing test data size"
                             ". {} requested. Reducing to {}.".format(
@@ -855,9 +819,7 @@ def main():
                 # Generate our data file(s)
                 for count in range(args.count):
                     test_files[count] = RandomData(desired_size)
-                    write_sizes.append(
-                        os.path.getsize(test_files[count].tfile.name)
-                    )
+                    write_sizes.append(os.path.getsize(test_files[count].tfile.name))
                     total_write_size = sum(write_sizes)
 
                 try:
@@ -879,19 +841,14 @@ def main():
                                 parent_file = test_files[file_index].tfile.name
                                 parent_hash = md5_hash_file(parent_file)
                                 target_filename = (
-                                    test_files[file_index].name
-                                    + ".%s" % iteration
+                                    test_files[file_index].name + ".%s" % iteration
                                 )
                                 target_path = mount_point
-                                target_file = os.path.join(
-                                    target_path, target_filename
-                                )
+                                target_file = os.path.join(target_path, target_filename)
                                 target_file_list.append(target_file)
                                 test.read_file(parent_file)
                                 with ActionTimer() as timer:
-                                    if not test.write_file(
-                                        test.data, target_file
-                                    ):
+                                    if not test.write_file(test.data, target_file):
                                         logging.error(
                                             "Failed to copy %s to %s",
                                             parent_file,
@@ -908,12 +865,8 @@ def main():
                                         iteration,
                                         target_file,
                                     )
-                                    logging.warning(
-                                        "\tParent hash: %s", parent_hash
-                                    )
-                                    logging.warning(
-                                        "\tChild hash: %s", child_hash
-                                    )
+                                    logging.warning("\tParent hash: %s", parent_hash)
+                                    logging.warning("\tChild hash: %s", child_hash)
                                     errors += 1
                             for file in target_file_list:
                                 test.clean_up(file)
@@ -921,9 +874,7 @@ def main():
                             # avg_write_time = total_write_time / args.count
                             try:
                                 avg_write_speed = (
-                                    (total_write_size / total_write_time)
-                                    / 1024
-                                    / 1024
+                                    (total_write_size / total_write_time) / 1024 / 1024
                                 )
                             except ZeroDivisionError:
                                 avg_write_speed = 0.00
@@ -937,12 +888,10 @@ def main():
                             iteration_write_time = sum(iteration_write_times)
                         print("\tSummary:")
                         print(
-                            "\t\tTotal Data Attempted: %0.4f MB"
-                            % iteration_write_size
+                            "\t\tTotal Data Attempted: %0.4f MB" % iteration_write_size
                         )
                         print(
-                            "\t\tTotal Time to write: %0.4f secs"
-                            % iteration_write_time
+                            "\t\tTotal Time to write: %0.4f secs" % iteration_write_time
                         )
                         print(
                             "\t\tAverage Write Time: %0.4f secs"
@@ -956,8 +905,7 @@ def main():
                             avg_write_speed = 0.00
                         finally:
                             print(
-                                "\t\tAverage Write Speed: %0.4f MB/s"
-                                % avg_write_speed
+                                "\t\tAverage Write Speed: %0.4f MB/s" % avg_write_speed
                             )
                 finally:
                     for key in range(args.count):
@@ -973,8 +921,7 @@ def main():
 
                 if errors > 0:
                     logging.warning(
-                        "Completed %s test iterations, but there were"
-                        " errors",
+                        "Completed %s test iterations, but there were" " errors",
                         args.count,
                     )
                     return 1
@@ -1010,9 +957,7 @@ def main():
                             # This will raise KeyError for no
                             # associated disk device was found.
                             if test.get_disks_xhci().get(disk, "") != "xhci":
-                                raise SystemExit(
-                                    "\t\tDisk does not use xhci_hcd."
-                                )
+                                raise SystemExit("\t\tDisk does not use xhci_hcd.")
                             print("\t\tDriver Detected: xhci_hcd")
                         else:
                             # Give it a hint for the detection failure.
@@ -1031,10 +976,7 @@ def main():
                             )
                             return 1
                     # Pass is not assured
-                    if (
-                        not args.pass_speed
-                        or avg_write_speed >= args.pass_speed
-                    ):
+                    if not args.pass_speed or avg_write_speed >= args.pass_speed:
                         return 0
                     else:
                         print(
@@ -1044,8 +986,7 @@ def main():
                         return 1
             else:
                 logging.error(
-                    "No device being mounted successfully "
-                    "for testing, aborting"
+                    "No device being mounted successfully " "for testing, aborting"
                 )
                 return 1
 

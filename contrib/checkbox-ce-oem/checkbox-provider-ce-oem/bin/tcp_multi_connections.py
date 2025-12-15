@@ -27,9 +27,7 @@ class StatusEnum(Enum):
 
 def generate_random_string(length):
     letters_and_digits = string.ascii_letters + string.digits
-    random_string = "".join(
-        random.choice(letters_and_digits) for _ in range(length)
-    )
+    random_string = "".join(random.choice(letters_and_digits) for _ in range(length))
     return random_string
 
 
@@ -81,9 +79,7 @@ def check_result(results):
             logging.error("Fail on port %s: %s", port["port"], port["message"])
             logging.error("Detail:")
             for value in port["fail"]:
-                logging.error(
-                    "Period: %s, Status: %s", value["time"], value["status"]
-                )
+                logging.error("Period: %s, Status: %s", value["time"], value["status"])
         elif port["status"] == StatusEnum.ERROR:
             final = 1
             logging.error(
@@ -140,9 +136,7 @@ def handle_port(port):
                 except Exception as e:
                     logging.error("Error handling connection: %s", str(e))
     except Exception as e:
-        logging.error(
-            "%s: An unexpected error occurred for port %s", str(e), port
-        )
+        logging.error("%s: An unexpected error occurred for port %s", str(e), port)
 
 
 def client(host, start_port, end_port, payload, start_time, results):
@@ -169,9 +163,7 @@ def client(host, start_port, end_port, payload, start_time, results):
     # Wait for all client threads to finish
     for thread in threads:
         thread.join()
-    logging.info(
-        "Running TCP multi-connections in %s", (datetime.now() - start_time)
-    )
+    logging.info("Running TCP multi-connections in %s", (datetime.now() - start_time))
     check_result(results)
 
 
@@ -193,9 +185,7 @@ def send_payload(host, port, payload, start_time, results):
             server_host = (host, port)
             with socket.create_connection(server_host) as client_socket:
                 # Set send buffer size to 4096
-                client_socket.setsockopt(
-                    socket.SOL_SOCKET, socket.SO_SNDBUF, 4096
-                )
+                client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 4096)
                 logging.info("Connect to port %s", port)
                 # Sleep until start time)
                 start_time = start_time - datetime.now()
@@ -272,9 +262,7 @@ if __name__ == "__main__":
         description="Client-server with payload check on multiple ports"
     )
 
-    subparsers = parser.add_subparsers(
-        dest="mode", help="Run as server or client"
-    )
+    subparsers = parser.add_subparsers(dest="mode", help="Run as server or client")
 
     # Subparser for the server command
     server_parser = subparsers.add_parser("server", help="Run as server")

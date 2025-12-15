@@ -169,9 +169,7 @@ class CpuinfoParser(object):
             if machine in platform:
                 for pkey, ckey in conversion.items():
                     if isinstance(ckey, (list, tuple)):
-                        processor[pkey] = "/".join(
-                            [attributes[k] for k in ckey]
-                        )
+                        processor[pkey] = "/".join([attributes[k] for k in ckey])
                     elif ckey in attributes:
                         processor[pkey] = attributes[ckey]
 

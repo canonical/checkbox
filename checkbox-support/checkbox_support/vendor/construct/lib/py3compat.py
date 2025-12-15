@@ -3,41 +3,48 @@ import sys
 PY = sys.version_info[:2]
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
-PYPY = '__pypy__' in sys.builtin_module_names
+PYPY = "__pypy__" in sys.builtin_module_names
 
 try:
     import numpy
+
     supportsnumpy = True
 except ImportError:
     supportsnumpy = False
 try:
     import ruamel.yaml
+
     assert PY3
     supportsksyexport = True
 except (ImportError, AssertionError):
     supportsksyexport = False
 try:
     from enum import IntEnum
+
     supportsintenum = True
 except ImportError:
     supportsintenum = False
 try:
     from enum import IntFlag
+
     supportsintflag = True
 except ImportError:
     supportsintflag = False
 
-supportskwordered = PY >= (3,6) or PYPY
-supportshalffloats = PY >= (3,6)
+supportskwordered = PY >= (3, 6) or PYPY
+supportshalffloats = PY >= (3, 6)
 
 
 if PY3:
     #: PY2: str unicode
     #: PY3: bytes str
-    stringtypes = (bytes, str, )
+    stringtypes = (
+        bytes,
+        str,
+    )
     #: PY2: int long
     #: PY3: int
-    integertypes = (int, )
+    integertypes = (int,)
     #: PY2: unicode
     #: PY3: str
     unicodestringtype = str
@@ -45,7 +52,8 @@ if PY3:
     #: PY3: bytes
     bytestringtype = bytes
 
-    INT2BYTE_CACHE = {i:bytes((i,)) for i in range(256)}
+    INT2BYTE_CACHE = {i: bytes((i,)) for i in range(256)}
+
     def int2byte(character):
         """Converts (0 through 255) integer into b'...' character."""
         return INT2BYTE_CACHE[character]
@@ -70,7 +78,8 @@ if PY3:
         """Converts u'...' string into '...' string. On PY2 its utf8 decoded. On PY3 they are equivalent."""
         return string
 
-    ITERATEBYTES_CACHE = {i:bytes((i,)) for i in range(256)}
+    ITERATEBYTES_CACHE = {i: bytes((i,)) for i in range(256)}
+
     def iteratebytes(data):
         """Iterates though b'...' string yielding b'...' characters."""
         return (ITERATEBYTES_CACHE[i] for i in data)
@@ -84,7 +93,7 @@ if PY3:
         if isinstance(data, bytes):
             return repr(data)
         if isinstance(data, str):
-            return 'u' + repr(data)
+            return "u" + repr(data)
 
     def trimstring(data):
         """Trims b- u- prefix"""
@@ -94,6 +103,7 @@ if PY3:
             return repr(data)
 
     import builtins
+
     bytes = builtins.bytes
 
     def integers2bytes(ints):
@@ -104,14 +114,19 @@ if PY3:
         """Converts bytes into bytes/bytearray, so indexing/iterating yields integers."""
         return data
 
-
 else:
     #: PY2: str unicode
     #: PY3: bytes str
-    stringtypes = (str, unicode, )
+    stringtypes = (
+        str,
+        unicode,
+    )
     #: PY2: int long
     #: PY3: int
-    integertypes = (long, int, )
+    integertypes = (
+        long,
+        int,
+    )
     #: PY2: unicode
     #: PY3: str
     unicodestringtype = unicode
@@ -154,7 +169,7 @@ else:
     def reprstring(data):
         """Ensures there is b- u- prefix before the string."""
         if isinstance(data, str):
-            return 'b' + repr(data)
+            return "b" + repr(data)
         if isinstance(data, unicode):
             return repr(data)
 

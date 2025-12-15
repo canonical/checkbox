@@ -187,14 +187,11 @@ def mount_usb_storage(partition):
         # means something wrong.
         # quit this script and return a non-zero value to plainbox
         if subprocess.call(["mount", device_to_mount, FOLDER_TO_MOUNT]):
-            logging.error(
-                "mount %s on %s failed." % (device_to_mount, FOLDER_TO_MOUNT)
-            )
+            logging.error("mount %s on %s failed." % (device_to_mount, FOLDER_TO_MOUNT))
             sys.exit(1)
         else:
             logging.debug(
-                "mount %s on %s successfully."
-                % (device_to_mount, FOLDER_TO_MOUNT)
+                "mount %s on %s successfully." % (device_to_mount, FOLDER_TO_MOUNT)
             )
         yield
     finally:
@@ -226,15 +223,11 @@ def read_test_unit(random_source_file, idx=""):
     """
     # access the temporary file
     path_random_file = (
-        os.path.join(
-            FOLDER_TO_MOUNT, os.path.basename(random_source_file.tfile.name)
-        )
+        os.path.join(FOLDER_TO_MOUNT, os.path.basename(random_source_file.tfile.name))
         + idx
     )
     # get the md5sum of the temp random files to compare
-    process = subprocess.Popen(
-        ["md5sum", path_random_file], stdout=subprocess.PIPE
-    )
+    process = subprocess.Popen(["md5sum", path_random_file], stdout=subprocess.PIPE)
     tfile_md5sum = process.communicate()[0].decode().split(" ")[0]
     # get the md5sum of the source random file
     process = subprocess.Popen(
@@ -242,23 +235,17 @@ def read_test_unit(random_source_file, idx=""):
     )
     source_md5sum = process.communicate()[0].decode().split(" ")[0]
     logging.debug("%s %s (verified)" % (tfile_md5sum, path_random_file))
-    logging.debug(
-        "%s %s (source)" % (source_md5sum, random_source_file.tfile.name)
-    )
+    logging.debug("%s %s (source)" % (source_md5sum, random_source_file.tfile.name))
     # Clean the target file
     os.remove(path_random_file)
     # verify the md5sum
     if tfile_md5sum == source_md5sum:
-        print(
-            "PASS: READING TEST: %s passes md5sum comparison."
-            % path_random_file
-        )
+        print("PASS: READING TEST: %s passes md5sum comparison." % path_random_file)
     else:
         # failed in the reading test
         # tell plainbox the failure code
         logging.warning(
-            "FAIL: READING TEST: %s failed in md5sum comparison."
-            % path_random_file
+            "FAIL: READING TEST: %s failed in md5sum comparison." % path_random_file
         )
         sys.exit(1)
 
@@ -291,8 +278,7 @@ def write_test_unit(random_file, idx=""):
     # Clear dmesg so we can check for I/O errors later
     subprocess.check_output(["dmesg", "-C"])
     target_file = (
-        os.path.join(FOLDER_TO_MOUNT, os.path.basename(random_file.tfile.name))
-        + idx
+        os.path.join(FOLDER_TO_MOUNT, os.path.basename(random_file.tfile.name)) + idx
     )
     process = subprocess.Popen(
         [
@@ -353,8 +339,7 @@ def gen_random_file():
             os.rmdir(FOLDER_TO_MOUNT)
         except OSError:
             logging.warning(
-                "Failed to remove %s (mount folder not empty)."
-                % FOLDER_TO_MOUNT
+                "Failed to remove %s (mount folder not empty)." % FOLDER_TO_MOUNT
             )
         # delete the random file (source file of a writing test)
         os.unlink(random_file.tfile.name)
@@ -369,9 +354,7 @@ def get_md5sum(file_to_check):
     """
     try:
         # return the md5sum of the temp file
-        process = subprocess.Popen(
-            ["md5sum", file_to_check], stdout=subprocess.PIPE
-        )
+        process = subprocess.Popen(["md5sum", file_to_check], stdout=subprocess.PIPE)
         # something like
         # (b'07bc8f96b7c7dba2c1f3eb2f7dd50541  /tmp/tmp9jnuv329\n', None)
         # will be returned by communicate() in this case

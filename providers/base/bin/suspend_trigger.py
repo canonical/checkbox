@@ -69,9 +69,7 @@ def main(args=sys.argv[1:]):
         suspend_cmd = ["systemctl", "suspend"]
         print("Running: {}".format(" ".join(rtcwake_cmd)))
         subprocess.check_call(rtcwake_cmd)
-        print(
-            "Running: {} to suspend the system".format(" ".join(suspend_cmd))
-        )
+        print("Running: {} to suspend the system".format(" ".join(suspend_cmd)))
         subprocess.check_call(suspend_cmd)
 
     # Clean up the FWTS log file from its default path.

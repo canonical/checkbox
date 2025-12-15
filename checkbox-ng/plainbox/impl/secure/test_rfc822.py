@@ -56,9 +56,7 @@ class NormalizationTests(TestCase):
         # the dot is stripped even if whitespace is present
         self.assertEqual(n("  foo\n" "  .\n" "  bar\n"), ("foo\n" "\n" "bar"))
         # Two dots don't invoke the special behaviour though
-        self.assertEqual(
-            n("  foo\n" "  ..\n" "  bar\n"), ("foo\n" "..\n" "bar")
-        )
+        self.assertEqual(n("  foo\n" "  ..\n" "  bar\n"), ("foo\n" "..\n" "bar"))
         # Regardless of whitespace
         self.assertEqual(n("foo\n" "..\n" "bar\n"), ("foo\n" "..\n" "bar"))
 
@@ -175,9 +173,7 @@ class RFC822ParserTests(TestCase):
         """
         text = "key: something\n" " .\n" " .this\n" " ..should\n" " ...work\n"
         expected_value = "something\n" "\n" ".this\n" "..should\n" "...work"
-        expected_raw_value = (
-            "something\n" ".\n" ".this\n" "..should\n" "...work\n"
-        )
+        expected_raw_value = "something\n" ".\n" ".this\n" "..should\n" "...work\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
@@ -354,9 +350,7 @@ class RFC822ParserTests(TestCase):
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
                 type(self).loader(stream)
-        self.assertEqual(
-            call.exception.msg, "Unexpected non-empty line: 'garbage'"
-        )
+        self.assertEqual(call.exception.msg, "Unexpected non-empty line: 'garbage'")
 
     def test_syntax_error(self):
         text = "key1 = value1"

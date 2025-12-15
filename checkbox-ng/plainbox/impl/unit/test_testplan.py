@@ -65,9 +65,7 @@ class TestTestPlan(TestCase):
         self.assertEqual(name.description, None)
 
     def test_description__normal(self):
-        name = TestPlanUnit(
-            {"description": "description"}, provider=self.provider
-        )
+        name = TestPlanUnit({"description": "description"}, provider=self.provider)
         self.assertEqual(name.description, "description")
 
     def test_icon__default(self):
@@ -221,9 +219,7 @@ class TestTestPlan(TestCase):
         )
 
     def test_estimated_duration__broken(self):
-        unit = TestPlanUnit(
-            {"estimated_duration": "foo"}, provider=self.provider
-        )
+        unit = TestPlanUnit({"estimated_duration": "foo"}, provider=self.provider)
         with self.assertRaises(ValueError):
             unit.estimated_duration
 
@@ -356,15 +352,11 @@ class TestTestPlan(TestCase):
             [(0, "ns::wireless", "^ns::wireless/.*$")],
         )
         self.assertEqual(
-            unit.parse_category_overrides(
-                'apply "other::wireless" to "wireless/.*"'
-            ),
+            unit.parse_category_overrides('apply "other::wireless" to "wireless/.*"'),
             [(0, "other::wireless", "^ns::wireless/.*$")],
         )
         self.assertEqual(
-            unit.parse_category_overrides(
-                'apply "wireless" to "other::wireless/.*"'
-            ),
+            unit.parse_category_overrides('apply "wireless" to "other::wireless/.*"'),
             [(0, "ns::wireless", "^other::wireless/.*$")],
         )
         self.assertEqual(
@@ -381,15 +373,11 @@ class TestTestPlan(TestCase):
             [(0, "wireless", "^wireless/.*$")],
         )
         self.assertEqual(
-            unit.parse_category_overrides(
-                'apply "other::wireless" to "wireless/.*"'
-            ),
+            unit.parse_category_overrides('apply "other::wireless" to "wireless/.*"'),
             [(0, "other::wireless", "^wireless/.*$")],
         )
         self.assertEqual(
-            unit.parse_category_overrides(
-                'apply "wireless" to "other::wireless/.*"'
-            ),
+            unit.parse_category_overrides('apply "wireless" to "other::wireless/.*"'),
             [(0, "wireless", "^other::wireless/.*$")],
         )
         self.assertEqual(
@@ -413,9 +401,7 @@ class TestTestPlan(TestCase):
         self.assertEqual(unit.get_bootstrap_job_ids(), ["Foo", "Bar"])
 
     def test_get_bootstrap_job_ids__qualified_ids(self):
-        unit = TestPlanUnit(
-            {"bootstrap_include": "Foo\nBar"}, provider=self.provider
-        )
+        unit = TestPlanUnit({"bootstrap_include": "Foo\nBar"}, provider=self.provider)
         self.assertEqual(unit.get_bootstrap_job_ids(), ["ns::Foo", "ns::Bar"])
 
 

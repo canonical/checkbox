@@ -108,9 +108,7 @@ class NetworkTests(unittest.TestCase):
         with redirect_stdout(StringIO()):
             self.assertTrue(network.turn_down_network("test_if"))
 
-        mock_call.assert_called_with(
-            ["ip", "link", "set", "dev", "test_if", "down"]
-        )
+        mock_call.assert_called_with(["ip", "link", "set", "dev", "test_if", "down"])
 
     @patch("network.check_call")
     def test_turn_down_network_fail(self, mock_call):
@@ -120,9 +118,7 @@ class NetworkTests(unittest.TestCase):
         with redirect_stdout(StringIO()):
             self.assertFalse(network.turn_down_network("test_if"))
 
-        mock_call.assert_called_with(
-            ["ip", "link", "set", "dev", "test_if", "down"]
-        )
+        mock_call.assert_called_with(["ip", "link", "set", "dev", "test_if", "down"])
 
     @patch("network.wait_for_iface_up")
     @patch("network.check_call")
@@ -133,9 +129,7 @@ class NetworkTests(unittest.TestCase):
         with redirect_stdout(StringIO()):
             self.assertTrue(network.turn_up_network("test_if", 30))
 
-        mock_call.assert_called_with(
-            ["ip", "link", "set", "dev", "test_if", "up"]
-        )
+        mock_call.assert_called_with(["ip", "link", "set", "dev", "test_if", "up"])
 
     @patch("network.wait_for_iface_up")
     @patch("network.check_call")
@@ -146,9 +140,7 @@ class NetworkTests(unittest.TestCase):
         with redirect_stdout(StringIO()):
             self.assertFalse(network.turn_up_network("test_if", 30))
 
-        mock_call.assert_called_with(
-            ["ip", "link", "set", "dev", "test_if", "up"]
-        )
+        mock_call.assert_called_with(["ip", "link", "set", "dev", "test_if", "up"])
 
     @patch("network.wait_for_iface_up")
     @patch("network.check_call")
@@ -159,16 +151,12 @@ class NetworkTests(unittest.TestCase):
         with redirect_stdout(StringIO()):
             self.assertFalse(network.turn_up_network("test_if", 30))
 
-        mock_call.assert_called_with(
-            ["ip", "link", "set", "dev", "test_if", "up"]
-        )
+        mock_call.assert_called_with(["ip", "link", "set", "dev", "test_if", "up"])
 
     @patch("logging.error")
     @patch("network.Interface")
     def test_check_is_underspeed(self, mock_intf, mock_logging):
-        mock_intf.return_value = Mock(
-            status="up", link_speed=100, max_speed=1000
-        )
+        mock_intf.return_value = Mock(status="up", link_speed=100, max_speed=1000)
 
         self.assertTrue(network.check_underspeed("test_if"))
         mock_intf.assert_called_with("test_if")
@@ -176,9 +164,7 @@ class NetworkTests(unittest.TestCase):
 
     @patch("network.Interface")
     def test_check_is_not_underspeed(self, mock_intf):
-        mock_intf.return_value = Mock(
-            status="up", link_speed=1000, max_speed=1000
-        )
+        mock_intf.return_value = Mock(status="up", link_speed=1000, max_speed=1000)
 
         with redirect_stderr(StringIO()):
             self.assertFalse(network.check_underspeed("test_if"))
@@ -199,9 +185,7 @@ class NetworkTests(unittest.TestCase):
     @patch("time.sleep")
     @patch("network.Interface")
     def test_wait_for_iface_up_fail(self, mock_intf, mock_sleep):
-        mock_intf.return_value = Mock(
-            status="down", link_speed=100, max_speed=1000
-        )
+        mock_intf.return_value = Mock(status="down", link_speed=100, max_speed=1000)
 
         with redirect_stderr(StringIO()):
             self.assertFalse(network.wait_for_iface_up("test_if", 0.1))
@@ -212,9 +196,7 @@ class NetworkTests(unittest.TestCase):
     @patch("network.check_underspeed")
     @patch("network.turn_down_network")
     @patch("network.turn_up_network")
-    def test_setup_network_ifaces_success(
-        self, mock_net_up, mock_net_down, mock_speed
-    ):
+    def test_setup_network_ifaces_success(self, mock_net_up, mock_net_down, mock_speed):
         network_info = {
             "eth0": {
                 "status": "down",
@@ -298,9 +280,7 @@ class NetworkTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as context:
             network.setup_network_ifaces(network_info, "lan1", True, True, 10)
 
-        self.assertEqual(
-            str(context.exception), "Conduit network interface not found"
-        )
+        self.assertEqual(str(context.exception), "Conduit network interface not found")
 
     @patch("network.turn_up_network")
     def test_setup_network_ifaces_conduit_network_not_up(self, mock_net_up):
@@ -330,9 +310,7 @@ class NetworkTests(unittest.TestCase):
         mock_net_up.assert_called_with("eth0", 10)
 
     @patch("network.turn_down_network")
-    def test_setup_network_ifaces_shutdown_other_netif_failed(
-        self, mock_net_down
-    ):
+    def test_setup_network_ifaces_shutdown_other_netif_failed(self, mock_net_down):
         network_info = {
             "eth0": {
                 "status": "up",
@@ -353,9 +331,7 @@ class NetworkTests(unittest.TestCase):
             network.setup_network_ifaces(network_info, "eth0", True, True, 10)
 
         # print(context.exception)
-        self.assertEqual(
-            str(context.exception), "Failed to shutdown eth1 interface"
-        )
+        self.assertEqual(str(context.exception), "Failed to shutdown eth1 interface")
         mock_net_down.assert_called_with("eth1")
 
     @patch("network.turn_up_network")
@@ -393,9 +369,7 @@ class NetworkTests(unittest.TestCase):
         mock_net_up.return_value = True
 
         self.assertTrue(
-            network.restore_network_ifaces(
-                cur_network_info, origin_network_info, 5
-            )
+            network.restore_network_ifaces(cur_network_info, origin_network_info, 5)
         )
 
     @patch("network.turn_down_network")
@@ -419,16 +393,12 @@ class NetworkTests(unittest.TestCase):
         mock_net_down.return_value = False
 
         self.assertFalse(
-            network.restore_network_ifaces(
-                cur_network_info, origin_network_info, 5
-            )
+            network.restore_network_ifaces(cur_network_info, origin_network_info, 5)
         )
 
     @patch("network.turn_up_network")
     @patch("network.turn_down_network")
-    def test_restore_network_ifaces_turn_up_failed(
-        self, mock_net_down, mock_net_up
-    ):
+    def test_restore_network_ifaces_turn_up_failed(self, mock_net_down, mock_net_up):
         origin_network_info = {
             "eth1": {
                 "status": "up",
@@ -448,9 +418,7 @@ class NetworkTests(unittest.TestCase):
         mock_net_down.return_value = False
 
         self.assertTrue(
-            network.restore_network_ifaces(
-                cur_network_info, origin_network_info, 5
-            )
+            network.restore_network_ifaces(cur_network_info, origin_network_info, 5)
         )
 
     @patch("network.restore_network_ifaces")
@@ -561,10 +529,7 @@ class NetworkTests(unittest.TestCase):
         mock_net_setup.assert_called_with({}, "eth0", False, True, 10)
         mock_net_restore.assert_called_with({}, {}, 10)
         self.assertIn(
-            (
-                "Command 'restore network failed' "
-                "returned non-zero exit status 3"
-            ),
+            ("Command 'restore network failed' " "returned non-zero exit status 3"),
             str(context.exception),
         )
 
@@ -628,9 +593,7 @@ class NetworkTests(unittest.TestCase):
         self, mock_get_test_params, mock_mk_targets, mock_logging
     ):
         mock_mk_targets.return_value = ["192.168.1.1"]
-        mock_get_test_params.return_value = {
-            "test_target_iperf": "example.com"
-        }
+        mock_get_test_params.return_value = {"test_target_iperf": "example.com"}
         args = Namespace(test_type="iperf", interface="eth0")
 
         with self.assertRaises(SystemExit) as context:

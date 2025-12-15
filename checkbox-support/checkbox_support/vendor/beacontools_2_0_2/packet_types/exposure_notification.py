@@ -1,12 +1,14 @@
 """Packet classes for Eddystone beacons."""
+
 from ..utils import data_to_hexstring, data_to_binstring
+
 
 class ExposureNotificationFrame(object):
     """COVID-19 Exposure Notification frame."""
 
     def __init__(self, data):
-        self._identifier = data_to_hexstring(data['identifier'])
-        self._encrypted_metadata = data_to_binstring(data['encrypted_metadata'])
+        self._identifier = data_to_hexstring(data["identifier"])
+        self._encrypted_metadata = data_to_binstring(data["encrypted_metadata"])
 
     @property
     def identifier(self):
@@ -21,7 +23,10 @@ class ExposureNotificationFrame(object):
     @property
     def properties(self):
         """Get beacon properties."""
-        return {'identifier': self.identifier, 'encrypted_metadata' : self.encrypted_metadata}
+        return {
+            "identifier": self.identifier,
+            "encrypted_metadata": self.encrypted_metadata,
+        }
 
     def __str__(self):
         return "ExposureNotificationFrame<identifier: %s>" % (self.identifier)

@@ -12,31 +12,58 @@ from plainbox.vendor.rpyc.lib import setup_logger
 
 
 class RegistryServer(cli.Application):
-    mode = cli.SwitchAttr(["-m", "--mode"], cli.Set("UDP", "TCP"), default="UDP",
-                          help="Serving mode")
+    mode = cli.SwitchAttr(
+        ["-m", "--mode"], cli.Set("UDP", "TCP"), default="UDP", help="Serving mode"
+    )
 
     ipv6 = cli.Flag(["-6", "--ipv6"], help="use ipv6 instead of ipv4")
 
-    port = cli.SwitchAttr(["-p", "--port"], cli.Range(0, 65535), default=REGISTRY_PORT,
-                          help="The UDP/TCP listener port")
+    port = cli.SwitchAttr(
+        ["-p", "--port"],
+        cli.Range(0, 65535),
+        default=REGISTRY_PORT,
+        help="The UDP/TCP listener port",
+    )
 
-    logfile = cli.SwitchAttr(["--logfile"], str, default=None,
-                             help="The log file to use; the default is stderr")
+    logfile = cli.SwitchAttr(
+        ["--logfile"],
+        str,
+        default=None,
+        help="The log file to use; the default is stderr",
+    )
 
-    quiet = cli.SwitchAttr(["-q", "--quiet"], help="Quiet mode (only errors are logged)")
+    quiet = cli.SwitchAttr(
+        ["-q", "--quiet"], help="Quiet mode (only errors are logged)"
+    )
 
-    pruning_timeout = cli.SwitchAttr(["-t", "--timeout"], int,
-                                     default=DEFAULT_PRUNING_TIMEOUT, help="Set a custom pruning timeout (in seconds)")
+    pruning_timeout = cli.SwitchAttr(
+        ["-t", "--timeout"],
+        int,
+        default=DEFAULT_PRUNING_TIMEOUT,
+        help="Set a custom pruning timeout (in seconds)",
+    )
 
-    allow_listing = cli.SwitchAttr(["-l", "--listing"], bool, default=False, help="Enable/disable listing on registry")
+    allow_listing = cli.SwitchAttr(
+        ["-l", "--listing"],
+        bool,
+        default=False,
+        help="Enable/disable listing on registry",
+    )
 
     def main(self):
         if self.mode.upper() == "UDP":
-            server = UDPRegistryServer(host='::' if self.ipv6 else '0.0.0.0', port=self.port,
-                                       pruning_timeout=self.pruning_timeout, allow_listing=self.allow_listing)
+            server = UDPRegistryServer(
+                host="::" if self.ipv6 else "0.0.0.0",
+                port=self.port,
+                pruning_timeout=self.pruning_timeout,
+                allow_listing=self.allow_listing,
+            )
         elif self.mode.upper() == "TCP":
-            server = TCPRegistryServer(port=self.port, pruning_timeout=self.pruning_timeout,
-                                       allow_listing=self.allow_listing)
+            server = TCPRegistryServer(
+                port=self.port,
+                pruning_timeout=self.pruning_timeout,
+                allow_listing=self.allow_listing,
+            )
         setup_logger(self.quiet, self.logfile)
         server.start()
 

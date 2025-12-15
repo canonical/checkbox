@@ -67,9 +67,7 @@ class ResumeAfterCrashManual(Scenario):
     launcher = "# no launcher"
     steps = [
         Expect("Select test plan"),
-        SelectTestPlan(
-            "2021.com.canonical.certification::checkbox-crash-then-reboot"
-        ),
+        SelectTestPlan("2021.com.canonical.certification::checkbox-crash-then-reboot"),
         Send(keys.KEY_ENTER),
         Expect("Press (T) to start"),
         Send("T"),
@@ -180,9 +178,7 @@ class LocalResumePreservesRejectedJobsStateMap(Scenario):
     steps = [
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan(
-            "2021.com.canonical.certification::checkbox-crash-then-reboot"
-        ),
+        SelectTestPlan("2021.com.canonical.certification::checkbox-crash-then-reboot"),
         Send(keys.KEY_ENTER),
         Expect("Press (T) to start"),
         Send(keys.KEY_ENTER),
@@ -221,9 +217,7 @@ class RemoteResumePreservesRejectedJobsStateMap(Scenario):
     steps = [
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan(
-            "2021.com.canonical.certification::checkbox-crash-then-reboot"
-        ),
+        SelectTestPlan("2021.com.canonical.certification::checkbox-crash-then-reboot"),
         Send(keys.KEY_ENTER),
         Expect("Press (T) to start"),
         Send(keys.KEY_ENTER),

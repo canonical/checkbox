@@ -51,9 +51,7 @@ def model_to_resource(model_assertion):
         for snap in model_assertion["snaps"]:
             if snap["type"] in ("kernel", "gadget"):
                 resource[snap["type"]] = snap["name"]
-                resource["{}_track".format(snap["type"])] = snap[
-                    "default-channel"
-                ]
+                resource["{}_track".format(snap["type"])] = snap["default-channel"]
     else:
         # older formats
         for key in ("kernel", "gadget"):

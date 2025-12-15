@@ -38,9 +38,7 @@ def instance_method_lru_cache(*cache_args, **cache_kwargs):
         @functools.wraps(func)
         def cache_factory(self, *args, **kwargs):
             # Wrap the function in a cache by calling the decorator
-            instance_cache = functools.lru_cache(*cache_args, **cache_kwargs)(
-                func
-            )
+            instance_cache = functools.lru_cache(*cache_args, **cache_kwargs)(func)
             # Bind the decorated function to the instance to make it a method
             instance_cache = instance_cache.__get__(self, self.__class__)
             setattr(self, func.__name__, instance_cache)
@@ -92,8 +90,7 @@ class UndocumentedException(TypeError):
 
     def __str__(self):
         return (
-            "{!r} (from {!a}:{:d}) doesn't document possible"
-            " exception: {!r}"
+            "{!r} (from {!a}:{:d}) doesn't document possible" " exception: {!r}"
         ).format(
             self.func,
             self.func.__code__.co_filename,
@@ -126,9 +123,7 @@ def raises(*exc_cls_list: BaseException):
        valued) which contains the list of exceptions that may be raised.
     """
     for exc_cls in exc_cls_list:
-        if not isinstance(exc_cls, type) or not issubclass(
-            exc_cls, BaseException
-        ):
+        if not isinstance(exc_cls, type) or not issubclass(exc_cls, BaseException):
             raise TypeError("All arguments must be exceptions")
 
     def decorator(func):

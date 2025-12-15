@@ -33,13 +33,9 @@ class Config:
         subparsers = parser.add_subparsers(
             dest="action", title="action", description="action to be done on"
         )
-        parser = subparsers.add_parser(
-            "check", description=CheckConfig.__doc__
-        )
+        parser = subparsers.add_parser("check", description=CheckConfig.__doc__)
         CheckConfig.register_arguments(parser)
-        parser = subparsers.add_parser(
-            "defaults", description=Defaults.__doc__
-        )
+        parser = subparsers.add_parser("defaults", description=Defaults.__doc__)
         Defaults.register_arguments(parser)
 
 
@@ -50,9 +46,7 @@ class Defaults:
 
     @staticmethod
     def invoked(context):
-        print(
-            "# This is every possible section with the default value assigned"
-        )
+        print("# This is every possible section with the default value assigned")
         for section_name, section_spec in CONFIG_SPEC:
             printer = print
             if isinstance(section_spec, ParametricSection):

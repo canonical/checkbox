@@ -47,9 +47,7 @@ def vgamem_paser(data=None):
         if device is None:
             continue
         # Memory at e0000000 (32-bit, prefetchable) [size=256M]
-        for match in re.finditer(
-            r"Memory(.+) prefetchable\) \[size=(\d+)M\]", line
-        ):
+        for match in re.finditer(r"Memory(.+) prefetchable\) \[size=(\d+)M\]", line):
             vgamem_size = match.group(2)
             vgamem = {
                 "device": device,
@@ -66,9 +64,7 @@ def main():
     """
 
     try:
-        data = subprocess.check_output(
-            ["lspci", "-v"], universal_newlines=True
-        )
+        data = subprocess.check_output(["lspci", "-v"], universal_newlines=True)
     except subprocess.CalledProcessError as exc:
         return exc.returncode
 
@@ -76,9 +72,7 @@ def main():
     for vgamem in vgamems:
         output_str = "Device({0})\t Name: {1}\tVGA Memory Size: {2}M"
         print(
-            output_str.format(
-                vgamem["device"], vgamem["name"], vgamem["vgamem_size"]
-            )
+            output_str.format(vgamem["device"], vgamem["name"], vgamem["vgamem_size"])
         )
 
 

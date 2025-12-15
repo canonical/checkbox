@@ -77,9 +77,7 @@ def read_test(device):
         if compare_tree(device_dir, image_dir):
             passed = True
     except (SubprocessError, OSError):
-        print(
-            "File Comparison failed while testing %s" % device, file=sys.stderr
-        )
+        print("File Comparison failed while testing %s" % device, file=sys.stderr)
         passed = False
     finally:
         _command("umount %s" % device_dir).communicate(3)
@@ -107,10 +105,7 @@ def main():
     parser.add_argument(
         "device",
         nargs="+",
-        help=(
-            "Specify an optical device or list of devices "
-            "such as /dev/cdrom"
-        ),
+        help=("Specify an optical device or list of devices " "such as /dev/cdrom"),
     )
     args = parser.parse_args()
 

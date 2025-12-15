@@ -121,9 +121,7 @@ def test_lxd_gpu(args):
     instance = LXD(args.template, args.rootfs)
     with LXD(args.template, args.rootfs) as instance:
         logging.info("Launching container: %s", instance.name)
-        instance.launch(
-            options=GPU_VENDORS[args.vendor]["lxd"].get("launch_options")
-        )
+        instance.launch(options=GPU_VENDORS[args.vendor]["lxd"].get("launch_options"))
 
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
@@ -148,9 +146,7 @@ def test_lxdvm_gpu(args):
 
     with LXDVM(args.template, args.image) as instance:
         logging.info("Launching virtual machine: %s", instance.name)
-        instance.launch(
-            options=GPU_VENDORS[args.vendor]["lxdvm"].get("launch_options")
-        )
+        instance.launch(options=GPU_VENDORS[args.vendor]["lxdvm"].get("launch_options"))
 
         logging.info("Waiting for %s to be up", instance.name)
         instance.wait_until_running()
@@ -158,9 +154,7 @@ def test_lxdvm_gpu(args):
         instance.stop(force=True)
 
         if args.qemuopts:
-            logging.info(
-                "Setting user-provided QEMU options: %s", args.qemuopts
-            )
+            logging.info("Setting user-provided QEMU options: %s", args.qemuopts)
             instance.set_config("raw.qemu={}".format(args.qemuopts))
 
         if args.vmcpus:
@@ -238,9 +232,7 @@ def parse_args():
     )
 
     gpu_group = parser.add_argument_group("gpu")
-    gpu_group.add_argument(
-        "--pci", type=str, help="PCI address of GPU", required=True
-    )
+    gpu_group.add_argument("--pci", type=str, help="PCI address of GPU", required=True)
     gpu_group.add_argument(
         "--vendor",
         type=str,

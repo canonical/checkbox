@@ -351,21 +351,15 @@ class WifiClientTestNetplanTests(TestCase):
         renderer = netplan_renderer()
         self.assertEqual(renderer, "networkd")
 
-    @patch(
-        "wifi_client_test_netplan.netplan_renderer", return_value="networkd"
-    )
+    @patch("wifi_client_test_netplan.netplan_renderer", return_value="networkd")
     def test_auto_detect_matches_networkd(self, mock_renderer):
         self.assertEqual(check_and_get_renderer("AutoDetect"), "networkd")
 
-    @patch(
-        "wifi_client_test_netplan.netplan_renderer", return_value="networkd"
-    )
+    @patch("wifi_client_test_netplan.netplan_renderer", return_value="networkd")
     def test_explicit_networkd_matches(self, mock_renderer):
         self.assertEqual(check_and_get_renderer("networkd"), "networkd")
 
-    @patch(
-        "wifi_client_test_netplan.netplan_renderer", return_value="networkd"
-    )
+    @patch("wifi_client_test_netplan.netplan_renderer", return_value="networkd")
     def test_explicit_network_manager_mismatch(self, mock_renderer):
         with self.assertRaises(SystemExit):
             check_and_get_renderer("NetworkManager")
@@ -375,34 +369,26 @@ class WifiClientTestNetplanTests(TestCase):
         return_value="NetworkManager",
     )
     def test_auto_detect_matches_network_manager(self, mock_renderer):
-        self.assertEqual(
-            check_and_get_renderer("AutoDetect"), "NetworkManager"
-        )
+        self.assertEqual(check_and_get_renderer("AutoDetect"), "NetworkManager")
 
     @patch(
         "wifi_client_test_netplan.netplan_renderer",
         return_value="NetworkManager",
     )
     def test_explicit_network_manager_matches(self, mock_renderer):
-        self.assertEqual(
-            check_and_get_renderer("NetworkManager"), "NetworkManager"
-        )
+        self.assertEqual(check_and_get_renderer("NetworkManager"), "NetworkManager")
 
     @patch(
         "wifi_client_test_netplan.netplan_renderer",
         return_value="NetworkManager",
     )
-    def test_explicit_networkd_mismatch_with_network_manager(
-        self, mock_renderer
-    ):
+    def test_explicit_networkd_mismatch_with_network_manager(self, mock_renderer):
         with self.assertRaises(SystemExit):
             check_and_get_renderer("networkd")
 
     @patch("shutil.rmtree", side_effect=lambda x: None)
     @patch("shutil.copy")
-    @patch(
-        "os.path.exists", return_value=True
-    )  # Assuming the path always exists
+    @patch("os.path.exists", return_value=True)  # Assuming the path always exists
     @patch("glob.glob", return_value=["/etc/netplan/config.yaml"])
     @patch("os.makedirs")
     def test_netplan_config_backup_existing_backup(
@@ -415,9 +401,7 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch("shutil.rmtree", side_effect=lambda x: None)
     @patch("shutil.copy")
-    @patch(
-        "os.path.exists", return_value=True
-    )  # Adjust based on function logic
+    @patch("os.path.exists", return_value=True)  # Adjust based on function logic
     @patch("glob.glob", return_value=[])
     @patch("os.makedirs")
     def test_netplan_config_backup_no_config_files(
@@ -440,9 +424,7 @@ class WifiClientTestNetplanTests(TestCase):
     ):
         def exists_side_effect(path):
             return (
-                False
-                if path == "/tmp/WIFI-TEST-NETPLAN-CREATED-BY-CHECKBOX"
-                else True
+                False if path == "/tmp/WIFI-TEST-NETPLAN-CREATED-BY-CHECKBOX" else True
             )
 
         mock_exists.side_effect = exists_side_effect
@@ -506,9 +488,7 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_no_state(self, mock_check_output):
-        mock_check_output.return_value = (
-            "Some other info: value\nsome more info"
-        )
+        mock_check_output.return_value = "Some other info: value\nsome more info"
         interface = "wlan0"
         renderer = "networkd"
         info = get_interface_info(interface, renderer)
@@ -527,9 +507,7 @@ class WifiClientTestNetplanTests(TestCase):
         "subprocess.check_output",
         side_effect=sp.CalledProcessError(1, "Command failed"),
     )
-    def test_get_interface_info_networkd_command_fails(
-        self, mock_check_output
-    ):
+    def test_get_interface_info_networkd_command_fails(self, mock_check_output):
         interface = "wlan0"
         renderer = "networkd"
         info = get_interface_info(interface, renderer)
@@ -562,9 +540,7 @@ class WifiClientTestNetplanTests(TestCase):
         "subprocess.check_output",
         side_effect=sp.CalledProcessError(1, "Command failed"),
     )
-    def test_get_interface_info_networkmanager_command_fails(
-        self, mock_check_output
-    ):
+    def test_get_interface_info_networkmanager_command_fails(self, mock_check_output):
         interface = "wlan0"
         renderer = "NetworkManager"
         info = get_interface_info(interface, renderer)
@@ -579,9 +555,7 @@ class WifiClientTestNetplanTests(TestCase):
     @patch("wifi_client_test_netplan.get_netplan_config_files")
     @patch("wifi_client_test_netplan.os.remove")
     @patch("wifi_client_test_netplan.print_head")
-    def test_successful_wipe(
-        self, mock_print_head, mock_remove, mock_get_files
-    ):
+    def test_successful_wipe(self, mock_print_head, mock_remove, mock_get_files):
         mock_get_files.side_effect = [
             ["/etc/netplan/01-netcfg.yaml", "/etc/netplan/02-wifi.yaml"],
             [],
@@ -689,9 +663,7 @@ class WifiClientTestNetplanTests(TestCase):
         sys.stdout = sys.__stdout__
         self.assertFalse(result)
         self.assertEqual(mock_check_state.call_count, 5)
-        self.assertIn(
-            "ERROR: did not reach routable state", captured_output.getvalue()
-        )
+        self.assertIn("ERROR: did not reach routable state", captured_output.getvalue())
 
     @patch(
         "wifi_client_test_netplan._check_routable_state",
@@ -721,9 +693,7 @@ class WifiClientTestNetplanTests(TestCase):
         sys.stdout = sys.__stdout__
         self.assertEqual(result, "192.168.1.1")
         mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
-        self.assertIn(
-            "Got gateway address: 192.168.1.1", captured_output.getvalue()
-        )
+        self.assertIn("Got gateway address: 192.168.1.1", captured_output.getvalue())
 
     @patch(
         "wifi_client_test_netplan.get_interface_info",
@@ -736,9 +706,7 @@ class WifiClientTestNetplanTests(TestCase):
         sys.stdout = sys.__stdout__
         self.assertEqual(result, "192.168.1.1")
         mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
-        self.assertIn(
-            "Got gateway address: 192.168.1.1", captured_output.getvalue()
-        )
+        self.assertIn("Got gateway address: 192.168.1.1", captured_output.getvalue())
 
     @patch(
         "wifi_client_test_netplan.get_interface_info",

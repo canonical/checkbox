@@ -195,8 +195,7 @@ class SessionSuspendHelper1:
         """
         return {
             "jobs": {
-                state.job.id: state.job.checksum
-                for state in obj.job_state_map.values()
+                state.job.id: state.job.checksum for state in obj.job_state_map.values()
             },
             "results": {
                 # Currently we store only one result but we may store
@@ -303,9 +302,7 @@ class SessionSuspendHelper1:
         result = self._repr_JobResultBase(obj, session_dir)
         result.update(
             {
-                "io_log": [
-                    self._repr_IOLogRecord(record) for record in obj.io_log
-                ],
+                "io_log": [self._repr_IOLogRecord(record) for record in obj.io_log],
             }
         )
         return result
@@ -405,9 +402,7 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
         if obj.app_blob is None:
             data["app_blob"] = None
         else:
-            data["app_blob"] = base64.standard_b64encode(obj.app_blob).decode(
-                "ASCII"
-            )
+            data["app_blob"] = base64.standard_b64encode(obj.app_blob).decode("ASCII")
         return data
 
 
@@ -676,9 +671,7 @@ class SessionSuspendHelper8(SessionSuspendHelper7):
 
     def _repr_SessionState(self, obj, session_dir):
         data = super()._repr_SessionState(obj, session_dir)
-        data["system_information"] = self._repr_system_information(
-            obj, session_dir
-        )
+        data["system_information"] = self._repr_system_information(obj, session_dir)
         return data
 
 
@@ -705,8 +698,7 @@ class SessionSuspendHelper10(SessionSuspendHelper9):
         # setup phase we don't know which jobs will eventually be "desired".
         if obj.metadata.setting_up:
             data["jobs"] = {
-                state.job.id: state.job.checksum
-                for state in obj.job_state_map.values()
+                state.job.id: state.job.checksum for state in obj.job_state_map.values()
             }
         return data
 

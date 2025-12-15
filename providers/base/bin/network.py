@@ -104,9 +104,7 @@ class IPerfPerformanceTest(object):
                 # other return value means something did fail
                 if "unable to connect to server" in iperf_exception.output:
                     logging.error(
-                        "Unable to connect to server on port {}".format(
-                            port_num
-                        )
+                        "Unable to connect to server on port {}".format(port_num)
                     )
                     if port_num == 5202:
                         # 5202 is 2nd port in high-speed configs
@@ -117,12 +115,8 @@ class IPerfPerformanceTest(object):
                         logging.warning("more information.")
                 else:
                     # Unknown error; log it....
-                    logging.error(
-                        "Failed executing iperf on port {}.".format(port_num)
-                    )
-                    logging.error(
-                        "Output is '{}'".format(iperf_exception.output)
-                    )
+                    logging.error("Failed executing iperf on port {}.".format(port_num))
+                    logging.error("Output is '{}'".format(iperf_exception.output))
                 return iperf_exception.returncode
             else:
                 # this is normal so we "except" this exception and we
@@ -151,14 +145,10 @@ class IPerfPerformanceTest(object):
                     )
                 )
                 logging.debug(
-                    "Min Transfer speed for thread {}: {} Mb/s".format(
-                        n, min(speeds)
-                    )
+                    "Min Transfer speed for thread {}: {} Mb/s".format(n, min(speeds))
                 )
                 logging.debug(
-                    "Max Transfer speed for thread {}: {} Mb/s".format(
-                        n, max(speeds)
-                    )
+                    "Max Transfer speed for thread {}: {} Mb/s".format(n, max(speeds))
                 )
                 n = n + 1
         return total_throughput
@@ -177,9 +167,7 @@ class IPerfPerformanceTest(object):
             )
             if new_cpu:
                 float_cpu = float(new_cpu[0])
-                logging.debug(
-                    "CPU load for thread {}: {}%".format(n, float_cpu)
-                )
+                logging.debug("CPU load for thread {}: {}%".format(n, float_cpu))
                 sum_cpu = sum_cpu + float_cpu
                 n = n + 1
             if n > 0:
@@ -335,9 +323,7 @@ class IPerfPerformanceTest(object):
                 full_cmd = cmd
             port_num = start_port + thread_num
             t.append(
-                threading.Thread(
-                    target=self.run_one_thread, args=(full_cmd, port_num)
-                )
+                threading.Thread(target=self.run_one_thread, args=(full_cmd, port_num))
             )
             t[thread_num].start()
         for thread_num in range(0, python_threads):
@@ -372,19 +358,12 @@ class IPerfPerformanceTest(object):
 
         if self.iperf3:
             cpu_load = self.summarize_cpu()
-            logging.info(
-                "Average CPU utilization: {}%".format(round(cpu_load, 1))
-            )
+            logging.info("Average CPU utilization: {}%".format(round(cpu_load, 1)))
         else:
             cpu_load = 0
-        if (
-            percent < self.fail_threshold
-            or cpu_load > self.cpu_load_fail_threshold
-        ):
+        if percent < self.fail_threshold or cpu_load > self.cpu_load_fail_threshold:
             logging.warning(
-                "The network test against {} failed because:".format(
-                    self.target
-                )
+                "The network test against {} failed because:".format(self.target)
             )
             if percent < self.fail_threshold:
                 logging.error("  Transfer speed: {} Mb/s".format(throughput))
@@ -439,9 +418,7 @@ class IPerfPerformanceTest(object):
         self.run_time = orig_run_time
         self.scan_timeout = orig_scan_timeout
         self.num_threads = int(max_multiple * orig_num_threads)
-        logging.info(
-            "Setting number of threads to {}.".format(self.num_threads)
-        )
+        logging.info("Setting number of threads to {}.".format(self.num_threads))
 
 
 class StressPerformanceTest:
@@ -453,13 +430,9 @@ class StressPerformanceTest:
 
     def run(self):
         if self.iperf3:
-            iperf_cmd = "timeout -k 1 320 iperf3 -c {} -t 300".format(
-                self.target
-            )
+            iperf_cmd = "timeout -k 1 320 iperf3 -c {} -t 300".format(self.target)
         else:
-            iperf_cmd = "timeout -k 1 320 iperf -c {} -t 300".format(
-                self.target
-            )
+            iperf_cmd = "timeout -k 1 320 iperf -c {} -t 300".format(self.target)
         print("Running iperf...")
         iperf = subprocess.Popen(shlex.split(iperf_cmd))
 
@@ -660,15 +633,11 @@ def run_test(args, test_target):
     logging.info("Testing {} against {}".format(args.interface, test_target))
     if can_ping(args.interface, test_target):
         logging.info(
-            "Have successfully pinged {} on {}".format(
-                test_target, args.interface
-            )
+            "Have successfully pinged {} on {}".format(test_target, args.interface)
         )
     else:
         logging.error(
-            "Can't ping test server {} on {}".format(
-                test_target, args.interface
-            )
+            "Can't ping test server {} on {}".format(test_target, args.interface)
         )
         return 1
 
@@ -732,9 +701,7 @@ def make_target_list(iface, test_targets, log_warnings):
     test_targets_list = test_targets.split(",")
     try:
         net = ipaddress.IPv4Network(
-            "{}/{}".format(
-                Interface(iface).ipaddress, Interface(iface).netmask
-            ),
+            "{}/{}".format(Interface(iface).ipaddress, Interface(iface).netmask),
             False,
         )
     except ipaddress.AddressValueError as e:
@@ -766,9 +733,7 @@ def make_target_list(iface, test_targets, log_warnings):
                     return_list.remove(test_target)
             except ValueError:
                 if log_warnings:
-                    logging.warning(
-                        "Invalid address: {}; skipping".format(test_target)
-                    )
+                    logging.warning("Invalid address: {}; skipping".format(test_target))
                 return_list.remove(test_target)
     return_list.reverse()
     if return_list == [""]:
@@ -842,18 +807,14 @@ def check_underspeed(iface):
     # UNLESS --underspeed-ok option was used or max_speed is 0
     # (which indicates a probable WiFi link)
     network_if = Interface(iface)
-    if (
-        network_if.link_speed < network_if.max_speed
-        and network_if.max_speed != 0
-    ):
+    if network_if.link_speed < network_if.max_speed and network_if.max_speed != 0:
         logging.error(
             "Detected link speed ({}) is lower than detected max "
             "speed ({})".format(network_if.link_speed, network_if.max_speed)
         )
         logging.error("Check your device configuration and try again.")
         logging.error(
-            "If you want to override and test despite this "
-            "under-speed link, use"
+            "If you want to override and test despite this " "under-speed link, use"
         )
         logging.error("the --underspeed-ok option.")
         return True
@@ -870,15 +831,11 @@ def setup_network_ifaces(
     if target_if_attrs["status"] == "down" and not turn_up_network(
         target_network, timeout
     ):
-        raise SystemExit(
-            "Failed to bring up {} interface".format(target_network)
-        )
+        raise SystemExit("Failed to bring up {} interface".format(target_network))
 
     if not underspeed_ok and check_underspeed(target_network):
         raise SystemExit(
-            "the network speed is incorrect for {} interface".format(
-                target_network
-            )
+            "the network speed is incorrect for {} interface".format(target_network)
         )
 
     if (
@@ -911,9 +868,7 @@ def setup_network_ifaces(
         # Shutdown other network interfaces
         for iface, attrs in network_info.items():
             if attrs["status"] == "up" and not turn_down_network(iface):
-                raise SystemExit(
-                    "Failed to shutdown {} interface".format(iface)
-                )
+                raise SystemExit("Failed to shutdown {} interface".format(iface))
 
 
 def restore_network_ifaces(cur_network_info, origin_network_info, timeout):
@@ -940,9 +895,7 @@ def interface_test_initialize(
         # Back up routing table, since network down/up process
         # tends to trash it....
         logging.debug("Backup routing table")
-        check_call(
-            ["ip", "route", "save", "table", "all"], stdout=tempfile_route
-        )
+        check_call(["ip", "route", "save", "table", "all"], stdout=tempfile_route)
         setup_network_ifaces(
             network_info,
             target_dev,
@@ -986,28 +939,19 @@ def interface_test(args):
 
     if args.test_type.lower() == "iperf" or args.test_type.lower() == "stress":
         test_targets = test_parameters["test_target_iperf"]
-        test_targets_list = make_target_list(
-            args.interface, test_targets, True
-        )
+        test_targets_list = make_target_list(args.interface, test_targets, True)
 
     # Validate that we got reasonable values
     if not test_targets_list or "example.com" in test_targets:
         # Default values found in config file
         logging.error("Valid target server has not been supplied.")
-        logging.error(
-            "Configuration settings can be configured 3 different " "ways:"
-        )
-        logging.error(
-            "1- If calling the script directly, pass the --target " "option"
-        )
+        logging.error("Configuration settings can be configured 3 different " "ways:")
+        logging.error("1- If calling the script directly, pass the --target " "option")
         logging.error("2- Define the TEST_TARGET_IPERF environment variable")
-        logging.error(
-            "3- If running the test via checkbox/plainbox, define " "the "
-        )
+        logging.error("3- If running the test via checkbox/plainbox, define " "the ")
         logging.error("target in /etc/xdg/canonical-certification.conf")
         logging.error(
-            "Please run this script with -h to see more details on "
-            "how to configure"
+            "Please run this script with -h to see more details on " "how to configure"
         )
         sys.exit(1)
 
@@ -1020,9 +964,7 @@ def interface_test(args):
             args.dont_toggle_ifaces,
             args.iface_timeout,
         ):
-            logging.debug(
-                "Start Iperf testing with %s iperf server", test_targets_list
-            )
+            logging.debug("Start Iperf testing with %s iperf server", test_targets_list)
             start_time = datetime.datetime.now()
             first_loop = True
             # Keep testing until a success
@@ -1030,25 +972,19 @@ def interface_test(args):
             while test_targets_list:
                 test_target = test_targets_list.pop().strip()
                 error_number = run_test(args, test_target)
-                elapsed_seconds = (
-                    datetime.datetime.now() - start_time
-                ).seconds
+                elapsed_seconds = (datetime.datetime.now() - start_time).seconds
                 if (
                     elapsed_seconds > args.scan_timeout and not first_loop
                 ) or not error_number:
                     break
                 if not test_targets_list:
                     logging.warning(
-                        " Exhausted test target list; trying again ".center(
-                            60, "="
-                        )
+                        " Exhausted test target list; trying again ".center(60, "=")
                     )
                     test_targets_list = make_target_list(
                         args.interface, test_targets, False
                     )
-                    time.sleep(
-                        30
-                    )  # Wait to give server(s) time to come online
+                    time.sleep(30)  # Wait to give server(s) time to come online
                     first_loop = False
 
         return error_number
@@ -1130,9 +1066,7 @@ TEST_TARGET_IPERF = iperf-server.example.com
     subparsers = parser.add_subparsers()
 
     # Main cli options
-    test_parser = subparsers.add_parser(
-        "test", help=("Run network performance test")
-    )
+    test_parser = subparsers.add_parser("test", help=("Run network performance test"))
     info_parser = subparsers.add_parser("info", help=("Gather network info"))
 
     # Sub test options
@@ -1266,21 +1200,13 @@ TEST_TARGET_IPERF = iperf-server.example.com
     # Sub info options
     info_parser.add_argument("-i", "--interface", type=str, required=True)
     info_parser.add_argument("--all", default=False, action="store_true")
-    info_parser.add_argument(
-        "--duplex-mode", default=False, action="store_true"
-    )
-    info_parser.add_argument(
-        "--link-speed", default=False, action="store_true"
-    )
+    info_parser.add_argument("--duplex-mode", default=False, action="store_true")
+    info_parser.add_argument("--link-speed", default=False, action="store_true")
     info_parser.add_argument("--max-speed", default=False, action="store_true")
     info_parser.add_argument("--ipaddress", default=False, action="store_true")
     info_parser.add_argument("--netmask", default=False, action="store_true")
-    info_parser.add_argument(
-        "--device-name", default=False, action="store_true"
-    )
-    info_parser.add_argument(
-        "--macaddress", default=False, action="store_true"
-    )
+    info_parser.add_argument("--device-name", default=False, action="store_true")
+    info_parser.add_argument("--macaddress", default=False, action="store_true")
     info_parser.add_argument(
         "--status",
         default=False,
@@ -1303,9 +1229,7 @@ TEST_TARGET_IPERF = iperf-server.example.com
         and not args.cpu_load_fail_threshold != 100
         and not args.iperf3
     ):
-        parser.error(
-            "--cpu-load-fail-threshold can only be set with " "--iperf3."
-        )
+        parser.error("--cpu-load-fail-threshold can only be set with " "--iperf3.")
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)

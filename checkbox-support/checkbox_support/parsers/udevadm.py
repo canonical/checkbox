@@ -308,9 +308,7 @@ class UdevadmDevice(object):
                     return "WIRELESS"
                 # generic CAN device will be named as 'can$n'
                 # LLCE CAN device will be named as 'llcecan$n'
-                if re.search(
-                    r"^(llce){0,1}can[0-9]+$", self._environment["INTERFACE"]
-                ):
+                if re.search(r"^(llce){0,1}can[0-9]+$", self._environment["INTERFACE"]):
                     return "SOCKETCAN"
             if "ID_MODEL" in self._environment:
                 if self._environment["ID_MODEL"].startswith("XClarity"):
@@ -527,8 +525,7 @@ class UdevadmDevice(object):
                 return "CARDREADER"
             if (
                 (
-                    self._environment.get("DEVTYPE")
-                    not in ("disk", "partition")
+                    self._environment.get("DEVTYPE") not in ("disk", "partition")
                     or "ID_DRIVE_FLASH_SD" in self._environment
                     or (
                         "ID_MODEL" in self._environment
@@ -704,10 +701,7 @@ class UdevadmDevice(object):
             if self._environment["SUBSYSTEM"] == "watchdog":
                 return "WATCHDOG"
 
-        if (
-            "RFKILL_TYPE" in self._environment
-            and "RFKILL_NAME" in self._environment
-        ):
+        if "RFKILL_TYPE" in self._environment and "RFKILL_NAME" in self._environment:
             if self._environment["RFKILL_TYPE"] == "bluetooth":
                 if self._environment["RFKILL_NAME"].startswith("hci"):
                     return "BLUETOOTH"
@@ -818,11 +812,7 @@ class UdevadmDevice(object):
         if match:
             return int(match.group("product_id"), 16)
         # disk
-        if (
-            self.driver == "nvme"
-            and self.bus in ("pci", "misc")
-            and self._stack
-        ):
+        if self.driver == "nvme" and self.bus in ("pci", "misc") and self._stack:
             parent = self._stack[-1]
             return parent.product_id
         elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
@@ -883,11 +873,7 @@ class UdevadmDevice(object):
                 vendor_id = 9
             return vendor_id
         # disk
-        if (
-            self.driver == "nvme"
-            and self.bus in ("pci", "misc")
-            and self._stack
-        ):
+        if self.driver == "nvme" and self.bus in ("pci", "misc") and self._stack:
             parent = self._stack[-1]
             return parent.vendor_id
         elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
@@ -929,11 +915,7 @@ class UdevadmDevice(object):
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subproduct_id = pci_subsys_id.split(":")[1]
             return int(subproduct_id, 16)
-        if (
-            self.driver == "nvme"
-            and self.bus in ("pci", "misc")
-            and self._stack
-        ):
+        if self.driver == "nvme" and self.bus in ("pci", "misc") and self._stack:
             parent = self._stack[-1]
             return parent.subproduct_id
         elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
@@ -953,11 +935,7 @@ class UdevadmDevice(object):
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subvendor_id = pci_subsys_id.split(":")[0]
             return int(subvendor_id, 16)
-        if (
-            self.driver == "nvme"
-            and self.bus in ("pci", "misc")
-            and self._stack
-        ):
+        if self.driver == "nvme" and self.bus in ("pci", "misc") and self._stack:
             parent = self._stack[-1]
             return parent.subvendor_id
         elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
@@ -1017,10 +995,7 @@ class UdevadmDevice(object):
             and self.bus == "virtio"
         ):
             return self.name
-        elif (
-            self._list_partitions
-            and self._environment.get("DEVTYPE") == "partition"
-        ):
+        elif self._list_partitions and self._environment.get("DEVTYPE") == "partition":
             return self.name
         elif "/dev/md" in self._environment.get("DEVNAME", ""):
             if "MD_NAME" in self._environment:
@@ -1058,9 +1033,7 @@ class UdevadmDevice(object):
             if self._stack:
                 parent = self._stack[-1]
                 if "MODALIAS" in parent._environment:
-                    match = USB_RE.match(
-                        parent._environment.get("MODALIAS", "")
-                    )
+                    match = USB_RE.match(parent._environment.get("MODALIAS", ""))
                     if match:
                         if int(match.group("class"), 16) == 0xFF:
                             vendor_specific = True
@@ -1072,15 +1045,11 @@ class UdevadmDevice(object):
         if "IFINDEX" in self._environment:
             for device in reversed(self._stack):
                 # wireless (SoC)
-                match = PLATFORM_RE.match(
-                    device._environment.get("MODALIAS", "")
-                )
+                match = PLATFORM_RE.match(device._environment.get("MODALIAS", ""))
                 if match:
                     return match.group("module_name")
                 # Network (Open Firmware)
-                match = OPENFIRMWARE_RE.match(
-                    device._environment.get("MODALIAS", "")
-                )
+                match = OPENFIRMWARE_RE.match(device._environment.get("MODALIAS", ""))
                 if match:
                     return match.group("name")
 
@@ -1148,11 +1117,7 @@ class UdevadmDevice(object):
 
         if "ID_VENDOR_FROM_DATABASE" in self._environment:
             return self._environment["ID_VENDOR_FROM_DATABASE"]
-        if (
-            self.driver == "nvme"
-            and self.bus in ("pci", "misc")
-            and self._stack
-        ):
+        if self.driver == "nvme" and self.bus in ("pci", "misc") and self._stack:
             parent = self._stack[-1]
             return parent.vendor
         elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
@@ -1178,9 +1143,7 @@ class UdevadmDevice(object):
             if self._stack:
                 parent = self._stack[-1]
                 if "MODALIAS" in parent._environment:
-                    match = USB_RE.match(
-                        parent._environment.get("MODALIAS", "")
-                    )
+                    match = USB_RE.match(parent._environment.get("MODALIAS", ""))
                     if match:
                         if int(match.group("class"), 16) == 0xFF:
                             vendor_specific = True
@@ -1234,9 +1197,7 @@ class UdevadmDevice(object):
         if self.category in ("INFINIBAND", "NETWORK", "WIRELESS", "WWAN"):
             if "ID_NET_NAME_MAC" in self._environment:
                 mac = self._environment["ID_NET_NAME_MAC"][3:]
-                return ":".join(
-                    [mac[i : i + 2] for i in range(0, len(mac), 2)]
-                )
+                return ":".join([mac[i : i + 2] for i in range(0, len(mac), 2)])
             else:
                 return "UNKNOWN"
         return None
@@ -1292,9 +1253,7 @@ class UdevadmParser(object):
 
     device_factory = UdevadmDevice
 
-    def __init__(
-        self, stream_or_string, lsblk=None, list_partitions=False, bits=None
-    ):
+    def __init__(self, stream_or_string, lsblk=None, list_partitions=False, bits=None):
         self.stream_or_string = stream_or_string
         self.lsblk = lsblk
         self.list_partitions = list_partitions
@@ -1334,10 +1293,7 @@ class UdevadmParser(object):
                     "ubuntu-boot",
                     "ubuntu-seed",
                 ]
-                if (
-                    device._environment.get("ID_FS_LABEL")
-                    in IGNORED_PARTITIONS
-                ):
+                if device._environment.get("ID_FS_LABEL") in IGNORED_PARTITIONS:
                     return True
             return False
 
@@ -1408,9 +1364,7 @@ class UdevadmParser(object):
             return True
 
         # Ignore invalid subsystem information
-        if (
-            device.subproduct_id is None and device.subvendor_id is not None
-        ) or (
+        if (device.subproduct_id is None and device.subvendor_id is not None) or (
             device.subproduct_id is not None and device.subvendor_id is None
         ):
             return True
@@ -1483,9 +1437,7 @@ class UdevadmParser(object):
                 elif key == "E":
                     key_match = multi_pattern.match(value)
                     if not key_match:
-                        raise Exception(
-                            "Device property not supported: %s" % value
-                        )
+                        raise Exception("Device property not supported: %s" % value)
                     element = key_match.group("key")
                     environment[element] = key_match.group("value")
 
@@ -1527,9 +1479,7 @@ class UdevadmParser(object):
                     elif device.category != "OTHER":
                         self.devices[device._raw_path] = device
                 elif device.category == "BLUETOOTH":
-                    usb_interface_path = USB_SYSFS_CONFIG_RE.sub(
-                        "", device._raw_path
-                    )
+                    usb_interface_path = USB_SYSFS_CONFIG_RE.sub("", device._raw_path)
                     if not [
                         d
                         for d in self.devices.values()

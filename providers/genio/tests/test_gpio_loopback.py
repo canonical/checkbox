@@ -114,9 +114,7 @@ class TestGpioLoopback(unittest.TestCase):
         mock_gpio_controller = MagicMock()
         mock_gpio_controller.ROOT_PATH = "/sys/class/gpio"
         with patch("builtins.open", mock_open()) as mock_file:
-            GPIOSysFsController.set_direction(
-                mock_gpio_controller, "test", "out"
-            )
+            GPIOSysFsController.set_direction(mock_gpio_controller, "test", "out")
             mock_file.assert_called_once_with(
                 "/sys/class/gpio/gpio{}/direction".format("test"), "w"
             )
@@ -129,9 +127,7 @@ class TestGpioLoopback(unittest.TestCase):
         mock_gpio_controller.check_gpio_node.return_value = True
         GPIOSysFsController.configure_gpio(mock_gpio_controller, "port", "dir")
         mock_open.assert_not_called()
-        mock_gpio_controller.set_direction.assert_called_once_with(
-            "port", "dir"
-        )
+        mock_gpio_controller.set_direction.assert_called_once_with("port", "dir")
 
         # If the GPIO node does not exist, it should be created
         mock_gpio_controller.check_gpio_node.side_effect = [False, True]
@@ -147,18 +143,14 @@ class TestGpioLoopback(unittest.TestCase):
         # The test should fail if the GPIO can't be exported
         mock_gpio_controller.check_gpio_node.side_effect = [False, False]
         with self.assertRaises(SystemExit):
-            GPIOSysFsController.configure_gpio(
-                mock_gpio_controller, "port", "dir"
-            )
+            GPIOSysFsController.configure_gpio(mock_gpio_controller, "port", "dir")
         mock_gpio_controller.set_direction.assert_not_called()
 
         # The test should fail if the direction can't be set
         mock_gpio_controller.check_gpio_node.side_effect = [True, True]
         mock_gpio_controller.set_direction.side_effect = IOError
         with self.assertRaises(IOError):
-            GPIOSysFsController.configure_gpio(
-                mock_gpio_controller, "port", "dir"
-            )
+            GPIOSysFsController.configure_gpio(mock_gpio_controller, "port", "dir")
 
     @patch("time.sleep", MagicMock())
     def test_loopback_test(self):
@@ -200,9 +192,7 @@ class TestGpioLoopback(unittest.TestCase):
         )
         with patch("sys.argv", args):
             self.assertEqual(main(), None)
-            mock_run_test.assert_called_once_with(
-                "0", "1", "J1", "J2", "1", "2"
-            )
+            mock_run_test.assert_called_once_with("0", "1", "J1", "J2", "1", "2")
 
         # Test fails if run_test raises a SystemExit
         mock_run_test.side_effect = SystemExit

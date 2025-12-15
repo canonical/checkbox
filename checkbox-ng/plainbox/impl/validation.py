@@ -97,13 +97,9 @@ class Issue:
                     + ansi.s.RESET_ALL
                 )
             if self.severity == Severity.warning:
-                severity = (
-                    ansi.f.YELLOW + _(str(self.severity)) + ansi.s.RESET_ALL
-                )
+                severity = ansi.f.YELLOW + _(str(self.severity)) + ansi.s.RESET_ALL
             if self.severity == Severity.advice:
-                severity = (
-                    ansi.f.BLUE + _(str(self.severity)) + ansi.s.RESET_ALL
-                )
+                severity = ansi.f.BLUE + _(str(self.severity)) + ansi.s.RESET_ALL
             return "{severity}: {origin}: {message}".format(
                 origin=self.origin, severity=severity, message=self.message
             )
@@ -113,9 +109,7 @@ class Issue:
             )
 
     def __repr__(self):
-        return (
-            "{}(message={!r}, severity={!r}, kind={!r}, origin={!r})"
-        ).format(
+        return ("{}(message={!r}, severity={!r}, kind={!r}, origin={!r})").format(
             self.__class__.__name__,
             self.message,
             self.severity,
@@ -146,6 +140,5 @@ class ValidationError(ValueError):
 
     def __repr__(self):
         return (
-            "ValidationError(field={!r}, problem={!r}, "
-            "hint={!r}, origin={!r})"
+            "ValidationError(field={!r}, problem={!r}, " "hint={!r}, origin={!r})"
         ).format(self.field, self.problem, self.hint, self.origin)

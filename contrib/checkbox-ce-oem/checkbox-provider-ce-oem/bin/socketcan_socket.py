@@ -91,9 +91,7 @@ class CANSocket:
         if self._fdmode:  # default is off
             self.sock.setsockopt(socket.SOL_CAN_RAW, self.CAN_RAW_FD_FRAMES, 1)
 
-    def struct_packet(
-        self, can_id, data, id_flag=0, fd_flag=0, fd_frame=False
-    ):
+    def struct_packet(self, can_id, data, id_flag=0, fd_flag=0, fd_frame=False):
         """
         Generate CAN frame binary data
 
@@ -109,9 +107,7 @@ class CANSocket:
         """
         can_id = can_id | id_flag
         if fd_frame:
-            can_packet = struct.pack(
-                self.FD_FORMAT, can_id, len(data), fd_flag, data
-            )
+            can_packet = struct.pack(self.FD_FORMAT, can_id, len(data), fd_flag, data)
         else:
             can_packet = struct.pack(self.FORMAT, can_id, len(data), data)
 
@@ -122,9 +118,7 @@ class CANSocket:
         logging.debug("Destruct CAN packet..")
         if nbytes == self.CANFD_MTU:
             logging.debug("Got CAN FD frame..")
-            can_id, length, fd_flags, data = struct.unpack(
-                self.FD_FORMAT, can_packet
-            )
+            can_id, length, fd_flags, data = struct.unpack(self.FD_FORMAT, can_packet)
         elif nbytes == self.CAN_MTU:
             logging.debug("Got Classical CAN frame..")
             can_id, length, data = struct.unpack(self.FORMAT, can_packet)
@@ -280,15 +274,11 @@ class CANLinkInfo:
         cmd_str = ""
         for key, value in bittiming.items():
             if key in supported_attributes:
-                cmd_str = "{} {} {}".format(
-                    cmd_str, key.replace("_", "-"), value
-                )
+                cmd_str = "{} {} {}".format(cmd_str, key.replace("_", "-"), value)
 
         for key, value in data_bittiming.items():
             if key in supported_attributes:
-                cmd_str = "{} d{} {}".format(
-                    cmd_str, key.replace("_", "-"), value
-                )
+                cmd_str = "{} d{} {}".format(cmd_str, key.replace("_", "-"), value)
         mtu = 16
         if fd:
             mtu = 72
@@ -301,9 +291,7 @@ class CANLinkInfo:
             cmd_str = "ip link set {} mtu {} type can {}".format(
                 self._can_dev, mtu, cmd_str
             )
-            logging.debug(
-                "configure CAN %s device - '%s'", self._can_dev, cmd_str
-            )
+            logging.debug("configure CAN %s device - '%s'", self._can_dev, cmd_str)
             subprocess.run(cmd_str, shell=True)
         else:
             logging.debug("CAN attribute has no difference")

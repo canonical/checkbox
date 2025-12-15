@@ -34,9 +34,7 @@ def fitdumpimage(filename):
 
     # from then on should get blocks of text describing the objects that were
     # combined in to the FIT image e.g. kernel, ramdisk, device tree
-    image_config_re = re.compile(
-        r"(?:^\ Image|Configuration)\ \d+\ \((\S+)\)$"
-    )
+    image_config_re = re.compile(r"(?:^\ Image|Configuration)\ \d+\ \((\S+)\)$")
     configuration_re = re.compile(r"^\ Default Configuration")
     objects = {}
     name = ""
@@ -74,18 +72,14 @@ def get_bootloader(gadget_yaml):
         raise SystemExit("ERROR: could not find name of bootloader")
 
     if bootloader not in ("u-boot", "grub", "lk"):
-        raise SystemExit(
-            "ERROR: Unexpected bootloader name {}".format(bootloader)
-        )
+        raise SystemExit("ERROR: Unexpected bootloader name {}".format(bootloader))
     print("Bootloader is {}\n".format(bootloader))
     return bootloader
 
 
 def get_uboot_kernel(kernel):
     """Get u-boot kernel path"""
-    kernel_rev = os.path.basename(
-        os.path.realpath("/snap/{}/current".format(kernel))
-    )
+    kernel_rev = os.path.basename(os.path.realpath("/snap/{}/current".format(kernel)))
     # update boot kernel path according to
     # https://snapcraft.io/docs/the-system-backup-interface
     return "/var/lib/snapd/hostfs/boot/uboot/{}_{}.snap/kernel.img".format(
@@ -102,9 +96,7 @@ def main():
     gadget_yaml = os.path.join("/snap", gadget, "current/meta/gadget.yaml")
 
     if not os.path.exists(gadget_yaml):
-        raise SystemExit(
-            "ERROR: failed to find gadget.yaml at {}".format(gadget_yaml)
-        )
+        raise SystemExit("ERROR: failed to find gadget.yaml at {}".format(gadget_yaml))
 
     bootloader = get_bootloader(gadget_yaml)
 
@@ -127,9 +119,7 @@ def main():
                 print("Found expected signing algorithms")
             else:
                 raise SystemExit(
-                    "ERROR: unexpected signing algorithms {}".format(
-                        attrs["Sign algo"]
-                    )
+                    "ERROR: unexpected signing algorithms {}".format(attrs["Sign algo"])
                 )
             print()
 
@@ -137,9 +127,7 @@ def main():
         snap_kernel = "/snap/{}/current/kernel.img".format(kernel)
         snap_objects = fitdumpimage(snap_kernel)
         if snap_objects != boot_objects:
-            raise SystemExit(
-                "ERROR: boot kernel and current snap kernel do not match"
-            )
+            raise SystemExit("ERROR: boot kernel and current snap kernel do not match")
         print("Kernel images in current snap and u-boot match\n")
 
         print("Secure Boot appears to be enabled on this system")
@@ -171,9 +159,7 @@ def main():
                 print("Found expected signing algorithms")
             else:
                 raise SystemExit(
-                    "ERROR: unexpected signing algorithms {}".format(
-                        attrs["Sign algo"]
-                    )
+                    "ERROR: unexpected signing algorithms {}".format(attrs["Sign algo"])
                 )
             print()
 
@@ -181,9 +167,7 @@ def main():
         snap_kernel = "/snap/{}/current/boot.img".format(kernel)
         snap_objects = fitdumpimage(snap_kernel)
         if snap_objects != boot_objects:
-            raise SystemExit(
-                "ERROR: boot kernel and current snap kernel do not match"
-            )
+            raise SystemExit("ERROR: boot kernel and current snap kernel do not match")
         print("Kernel images in current snap and lk snapbootsel match\n")
 
         print("Secure Boot appears to be enabled on this system")

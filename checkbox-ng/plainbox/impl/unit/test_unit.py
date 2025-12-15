@@ -174,13 +174,9 @@ class TestUnitDefinition(TestCase):
         with self.assertRaises(KeyError):
             unit4.get_raw_record_value("key")
         self.assertEqual(unit5.get_raw_record_value("key"), None)
-        self.assertEqual(
-            unit5.get_raw_record_value("key", "default"), "default"
-        )
+        self.assertEqual(unit5.get_raw_record_value("key", "default"), "default")
         self.assertEqual(unit6.get_raw_record_value("key"), None)
-        self.assertEqual(
-            unit6.get_raw_record_value("key", "default"), "default"
-        )
+        self.assertEqual(unit6.get_raw_record_value("key", "default"), "default")
 
     def test_get_record_value(self):
         """
@@ -317,9 +313,7 @@ class TestUnitDefinition(TestCase):
         )
         # Ensure that units with equal data but different origin are still
         # equal
-        self.assertEqual(
-            Unit({}, origin=mock.Mock()), Unit({}, origin=mock.Mock())
-        )
+        self.assertEqual(Unit({}, origin=mock.Mock()), Unit({}, origin=mock.Mock()))
         # Ensure that units with equal data but different provider are still
         # equal
         self.assertEqual(Unit({}, provider=None), Unit({}, provider=None))
@@ -330,9 +324,7 @@ class TestUnitDefinition(TestCase):
             Unit({}, raw_data={"key": "raw-value-2"}),
         )
         # Ensure that units with different data are not equal
-        self.assertNotEqual(
-            Unit({"key": "value"}), Unit({"key": "other-value"})
-        )
+        self.assertNotEqual(Unit({"key": "value"}), Unit({"key": "other-value"}))
         # Ensure that units with equal data but different parameters are not
         # equal
         self.assertNotEqual(
@@ -401,9 +393,7 @@ class UnitFieldValidationTests(TestCase, IssueMixIn):
         self.provider.namespace = "ns"
 
     def test_unit__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_unit": "unit"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"_unit": "unit"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.unit,

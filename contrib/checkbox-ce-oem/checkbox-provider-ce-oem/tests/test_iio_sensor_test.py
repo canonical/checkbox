@@ -55,9 +55,7 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
 
     @patch("pathlib.Path.read_text")
     @patch("iio_sensor_test._check_node")
-    def test_check_pressure_sensor_unexpected_value(
-        self, mock_check_node, mock_read
-    ):
+    def test_check_pressure_sensor_unexpected_value(self, mock_check_node, mock_read):
 
         mock_check_node.return_value = Path("fake")
         mock_read.side_effect = ["20.1", "-255", "+a"]
@@ -131,9 +129,7 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
 
     @patch("pathlib.Path.read_text")
     @patch("iio_sensor_test._check_node")
-    def test_check_humidity_sensor_unexpected_value(
-        self, mock_check_node, mock_read
-    ):
+    def test_check_humidity_sensor_unexpected_value(self, mock_check_node, mock_read):
 
         mock_check_node.return_value = Path("fake")
         mock_read.side_effect = ["20.d1", "-255", "+a"]
@@ -143,9 +139,7 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
 
     @patch("iio_sensor_test.check_pressure_sensor")
     def test_validate_iio_sensor_test(self, mock_func):
-        mock_args = Mock(
-            return_value=argparse.Namespace(type="pressure", index="0")
-        )
+        mock_args = Mock(return_value=argparse.Namespace(type="pressure", index="0"))
         mock_func.return_value = True
 
         with redirect_stdout(StringIO()):
@@ -174,9 +168,7 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
         )
 
     def test_sensor_resource_with_unexpected_format(self):
-        mock_args = Mock(
-            return_value=argparse.Namespace(mapping="0:pressure:error")
-        )
+        mock_args = Mock(return_value=argparse.Namespace(mapping="0:pressure:error"))
 
         with self.assertRaises(ValueError) as context:
             iio_sensor_test.dump_sensor_resource(mock_args())

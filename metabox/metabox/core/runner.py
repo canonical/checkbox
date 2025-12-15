@@ -82,9 +82,7 @@ class Runner:
                 revisions = self._get_revisions_jobs()
                 for controller_revision, agent_revision in revisions:
                     controller_config["revision"] = controller_revision
-                    self.combo.add(
-                        MachineConfig("controller", controller_config)
-                    )
+                    self.combo.add(MachineConfig("controller", controller_config))
                     agent_config["revision"] = agent_revision
                     self.combo.add(MachineConfig("agent", agent_config))
             elif v.mode == "local":
@@ -136,9 +134,7 @@ class Runner:
         scenarios_modes_origins = (
             (scenario_cls, mode, origin)
             for scenario_cls in self.scenarios
-            for (mode, origin) in product(
-                scenario_cls.modes, scenario_cls.origins
-            )
+            for (mode, origin) in product(scenario_cls.modes, scenario_cls.origins)
         )
 
         for scenario_cls, mode, origin in scenarios_modes_origins:
@@ -149,9 +145,7 @@ class Runner:
             }
             role = mode_to_role[mode]
             if role not in self.config:
-                logger.debug(
-                    "Skipping a scenario: [{}] {}", mode, scenario_cls.name
-                )
+                logger.debug("Skipping a scenario: [{}] {}", mode, scenario_cls.name)
                 continue
             if origin != self.config[role]["origin"]:
                 logger.debug(
@@ -207,8 +201,7 @@ class Runner:
         if self.args.tags or self.args.exclude_tags:
             if self.args.tags:
                 logger.info(
-                    "Including scenario tag(s): %s"
-                    % ", ".join(sorted(self.args.tags))
+                    "Including scenario tag(s): %s" % ", ".join(sorted(self.args.tags))
                 )
             if self.args.exclude_tags:
                 logger.info(
@@ -234,9 +227,7 @@ class Runner:
         config = self.config[mode].copy()
         config["alias"] = release_alias
         config["role"] = mode
-        return self.machine_provider.get_machine_by_config(
-            MachineConfig(mode, config)
-        )
+        return self.machine_provider.get_machine_by_config(MachineConfig(mode, config))
 
     def _get_scenario_description(self, scn):
         scenario_description_fmt = "[{mode}][{release_version}] {name}"
@@ -261,9 +252,7 @@ class Runner:
         total = len(self.scn_variants)
         for idx, scn in enumerate(self.scn_variants, 1):
             if scn.mode == "remote":
-                scn.controller_machine = self._load(
-                    "controller", scn.releases[0]
-                )
+                scn.controller_machine = self._load("controller", scn.releases[0])
                 scn.agent_machine = self._load("agent", scn.releases[1])
                 scn.controller_machine.rollback_to("provisioned")
                 scn.agent_machine.rollback_to("provisioned")
@@ -279,9 +268,7 @@ class Runner:
 
             scenario_description = self._get_scenario_description(scn)
             logger.info(
-                "Starting scenario ({}/{}): {}".format(
-                    idx, total, scenario_description
-                )
+                "Starting scenario ({}/{}): {}".format(idx, total, scenario_description)
             )
             scn.run()
             if scn.failures:

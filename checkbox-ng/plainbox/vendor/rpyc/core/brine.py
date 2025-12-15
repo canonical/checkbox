@@ -17,6 +17,7 @@ Example::
  >>> x == z
  True
 """
+
 from plainbox.vendor.rpyc.lib.compat import Struct, BytesIO, BYTES_LITERAL
 
 
@@ -49,7 +50,7 @@ TAG_FLOAT = b"\x18"
 TAG_SLICE = b"\x19"
 TAG_FSET = b"\x1a"
 TAG_COMPLEX = b"\x1b"
-IMM_INTS = dict((i, bytes([i + 0x50])) for i in range(-0x30, 0xa0))
+IMM_INTS = dict((i, bytes([i + 0x50])) for i in range(-0x30, 0xA0))
 
 # Below "!" is used to set byte order as network (= big-endian). See https://docs.python.org/3/library/struct.html
 F8 = Struct("!d")  # Python type float w/ size [8] (ctype double)
@@ -73,6 +74,7 @@ def register(coll, key):
     def deco(func):
         coll[key] = func
         return func
+
     return deco
 
 
@@ -156,7 +158,7 @@ def _dump_bytes(obj, stream):
         stream.append(TAG_STR_L4 + I4.pack(lenobj) + obj)
 
 
-@register(_dump_registry, type(u""))
+@register(_dump_registry, type(""))
 def _dump_str(obj, stream):
     stream.append(TAG_UNICODE)
     _dump_bytes(obj.encode("utf8"), stream)
@@ -262,13 +264,13 @@ def _load_str4(stream):
 
 @register(_load_registry, TAG_STR_L1)
 def _load_str_l1(stream):
-    l, = I1.unpack(stream.read(1))
+    (l,) = I1.unpack(stream.read(1))
     return stream.read(l)
 
 
 @register(_load_registry, TAG_STR_L4)
 def _load_str_l4(stream):
-    l, = I4.unpack(stream.read(4))
+    (l,) = I4.unpack(stream.read(4))
     return stream.read(l)
 
 
@@ -300,13 +302,13 @@ def _load_tup4(stream):
 
 @register(_load_registry, TAG_TUP_L1)
 def _load_tup_l1(stream):
-    l, = I1.unpack(stream.read(1))
+    (l,) = I1.unpack(stream.read(1))
     return tuple(_load(stream) for i in range(l))
 
 
 @register(_load_registry, TAG_TUP_L4)
 def _load_tup_l4(stream):
-    l, = I4.unpack(stream.read(4))
+    (l,) = I4.unpack(stream.read(4))
     return tuple(_load(stream) for i in range(l))
 
 
@@ -323,13 +325,13 @@ def _load_frozenset(stream):
 
 @register(_load_registry, TAG_INT_L1)
 def _load_int_l1(stream):
-    l, = I1.unpack(stream.read(1))
+    (l,) = I1.unpack(stream.read(1))
     return int(stream.read(l))
 
 
 @register(_load_registry, TAG_INT_L4)
 def _load_int_l4(stream):
-    l, = I4.unpack(stream.read(4))
+    (l,) = I4.unpack(stream.read(4))
     return int(stream.read(l))
 
 
@@ -338,6 +340,7 @@ def _load(stream):
     if tag in IMM_INTS_LOADER:
         return IMM_INTS_LOADER[tag]
     return _load_registry.get(tag)(stream)
+
 
 # ===============================================================================
 # API
@@ -367,7 +370,19 @@ def load(data):
     return _load(stream)
 
 
-simple_types = frozenset([type(None), int, bool, float, bytes, str, complex, type(NotImplemented), type(Ellipsis)])
+simple_types = frozenset(
+    [
+        type(None),
+        int,
+        bool,
+        float,
+        bytes,
+        str,
+        complex,
+        type(NotImplemented),
+        type(Ellipsis),
+    ]
+)
 
 
 def dumpable(obj):
@@ -387,4 +402,5 @@ def dumpable(obj):
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

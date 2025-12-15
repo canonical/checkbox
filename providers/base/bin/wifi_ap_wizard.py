@@ -30,9 +30,7 @@ class InteractiveCommandWithShell(InteractiveCommand):
 
 def main():
     if len(sys.argv) < 3:
-        raise SystemExit(
-            "Usage: wifi_ap_wizard.py WLAN_INTERFACE SHARED_INTERFACE"
-        )
+        raise SystemExit("Usage: wifi_ap_wizard.py WLAN_INTERFACE SHARED_INTERFACE")
     wlan_iface = sys.argv[1]
     shared_iface = sys.argv[2]
 

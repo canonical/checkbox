@@ -77,9 +77,7 @@ def parse_summary(summary, results, filter_test, ignore_warning):
             current_level = level_matches.group("level")
         elif end_level_re.search(logline) and current_level:
             if current_level:
-                logging.debug(
-                    "Current level (%s) has %s", current_level, current_acum
-                )
+                logging.debug("Current level (%s) has %s", current_level, current_acum)
                 # By passing results[current_level] a key in results will be
                 # created for every level we see, regardless of whether it
                 # reports failures or not.  This is OK because we can later
@@ -99,9 +97,7 @@ def parse_summary(summary, results, filter_test, ignore_warning):
             current_acum.append(logline)
 
 
-def parse_level(
-    level_lines, level_results, level_filter_test, level_ignore_warning
-):
+def parse_level(level_lines, level_results, level_filter_test, level_ignore_warning):
     """
     Parses the level's lines, appending the failures to the level's results.
     level_results is a dictionary with a key per test type (s3, s4, and so on).
@@ -167,9 +163,7 @@ def main():
                               to check. Default is [%(default)s]. And `all` \
                               is a special entry to check everything at once.",
     )
-    parser.add_argument(
-        "logfile", action="store", help="The log file to parse"
-    )
+    parser.add_argument("logfile", action="store", help="The log file to parse")
     parser.add_argument(
         "--ignore-warning",
         action="store_true",
@@ -184,9 +178,7 @@ def main():
     logging.basicConfig(level=args.debug)
 
     # Create a generator and get our lines
-    log = (
-        line.rstrip() for line in open(args.logfile, "rt", encoding="UTF-8")
-    )
+    log = (line.rstrip() for line in open(args.logfile, "rt", encoding="UTF-8"))
 
     # End result will be a dictionary with a key per level, value is another
     # dictionary with a key per test (s3, s4, ...) and a list of all failures
@@ -217,9 +209,7 @@ def main():
             # We may have seen the levelheader but had it report no failures.
             print("{} failures:".format(level))
             for test in results[level].keys():
-                print(
-                    "  {}: {} failures".format(test, len(results[level][test]))
-                )
+                print("  {}: {} failures".format(test, len(results[level][test])))
                 if args.verbose:
                     print("=" * 40)
                     counts = collections.Counter(results[level][test])

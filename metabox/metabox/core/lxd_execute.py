@@ -127,13 +127,9 @@ class InteractiveWebsocket(SafeWebSocketClient):
                     f"Timeout expired while waiting for cmd: '{self.cmd}'"
                 )
             elif result is not None:
-                raise CalledProcessError(
-                    result, self.cmd, output=self.stdout_data_full
-                )
+                raise CalledProcessError(result, self.cmd, output=self.stdout_data_full)
             elif timeout and time.time() > deadline:
-                raise TimeoutError(
-                    "Check timeout has expired, unable to fetch result"
-                )
+                raise TimeoutError("Check timeout has expired, unable to fetch result")
             time.sleep(0.1)
 
     def connect(self):
@@ -157,9 +153,7 @@ class InteractiveWebsocket(SafeWebSocketClient):
 
         else:
             raise TypeError(
-                "Unsupported search pattern type: {}".format(
-                    type(search_pattern)
-                )
+                "Unsupported search pattern type: {}".format(type(search_pattern))
             )
 
         return (search, split_first)

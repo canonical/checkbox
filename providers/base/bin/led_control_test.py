@@ -13,9 +13,7 @@ class SysFsLEDController:
 
     SysFsLEDPath = "/sys/class/leds"
 
-    def __init__(
-        self, name, on_value="0", off_value="0", is_multi_color_led=False
-    ):
+    def __init__(self, name, on_value="0", off_value="0", is_multi_color_led=False):
         self.led_name = name
         self._on_value = on_value
         self._off_value = off_value
@@ -31,9 +29,7 @@ class SysFsLEDController:
         if self.is_multi_color_led:
             self.blinking_test_func = self.multi_color_blinking
             self.multi_index_node = self.led_node.joinpath("multi_index")
-            self.multi_intensity_node = self.led_node.joinpath(
-                "multi_intensity"
-            )
+            self.multi_intensity_node = self.led_node.joinpath("multi_intensity")
             self.initial_state["multi_intensity"] = None
 
     def __enter__(self):
@@ -81,9 +77,7 @@ class SysFsLEDController:
         self._node_exists(node)
         node.write_text(value)
         if check and self._read_node(node) != value:
-            raise ValueError(
-                "Unable to change the value of {} file".format(str(node))
-            )
+            raise ValueError("Unable to change the value of {} file".format(str(node)))
 
     @property
     def brightness(self):
@@ -126,9 +120,7 @@ class SysFsLEDController:
 
     @multi_intensity.setter
     def multi_intensity(self, value):
-        logging.debug(
-            "set color intensities to %s for %s LED", value, self.led_name
-        )
+        logging.debug("set color intensities to %s for %s LED", value, self.led_name)
         self._write_node(self.multi_intensity_node, value)
 
     @property

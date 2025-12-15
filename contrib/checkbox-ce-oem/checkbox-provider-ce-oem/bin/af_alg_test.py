@@ -18,8 +18,7 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
             sock.close()
             print("Error: {}".format(e))
             raise Exception(
-                "Error: Not able to use algorithm\n"
-                "Please check kernel config!"
+                "Error: Not able to use algorithm\n" "Please check kernel config!"
             )
         else:
             return sock
@@ -36,8 +35,7 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
 
     def test_hash_sha256(self):
         expected = bytes.fromhex(
-            "ba7816bf8f01cfea414140de5dae2223b00361a396"
-            "177a9cb410ff61f20015ad"
+            "ba7816bf8f01cfea414140de5dae2223b00361a396" "177a9cb410ff61f20015ad"
         )
         with self.create_alg("hash", "sha256") as algo:
             op, _ = algo.accept()
@@ -64,9 +62,7 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
             algo.setsockopt(socket.SOL_ALG, socket.ALG_SET_KEY, key)
             op, _ = algo.accept()
             with op:
-                op.sendmsg_afalg(
-                    op=socket.ALG_OP_ENCRYPT, iv=iv, flags=socket.MSG_MORE
-                )
+                op.sendmsg_afalg(op=socket.ALG_OP_ENCRYPT, iv=iv, flags=socket.MSG_MORE)
                 op.sendall(msg)
                 self.assertEqual(op.recv(msglen), ciphertext)
 
@@ -105,9 +101,7 @@ class LinuxKernelCryptoAPI(unittest.TestCase):
         assoclen = len(assoc)
         with self.create_alg("aead", "gcm(aes)") as algo:
             algo.setsockopt(socket.SOL_ALG, socket.ALG_SET_KEY, key)
-            algo.setsockopt(
-                socket.SOL_ALG, socket.ALG_SET_AEAD_AUTHSIZE, None, taglen
-            )
+            algo.setsockopt(socket.SOL_ALG, socket.ALG_SET_AEAD_AUTHSIZE, None, taglen)
 
             # send assoc, plain and tag buffer in separate steps
             op, _ = algo.accept()

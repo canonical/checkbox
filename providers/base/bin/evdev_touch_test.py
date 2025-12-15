@@ -56,11 +56,7 @@ def main():
             else:
                 # value is the 0-indexed amount of simultaneous detected
                 # fingers
-                if (
-                    e.type == EV_ABS
-                    and e.code == ABS_MT_SLOT
-                    and e.value == tap - 1
-                ):
+                if e.type == EV_ABS and e.code == ABS_MT_SLOT and e.value == tap - 1:
                     print("SUCCESS:", e)
                     raise SystemExit
 

@@ -106,9 +106,7 @@ class UnifiedRunner(IJobRunner):
         self._running_jobs_pid = None
         self._extra_env = extra_env
 
-    def run_job(
-        self, job, job_state, environ=None, ui=None, as_systemd_unit=False
-    ):
+    def run_job(self, job, job_state, environ=None, ui=None, as_systemd_unit=False):
         logger.info(_("Running %r"), job)
         self._job_runner_ui_delegate.ui = ui
 
@@ -123,18 +121,12 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_FAIL,
                 return_code=1,
                 io_log=[
-                    IOLogRecord(
-                        0, "stderr", "\n".join(job.error_lines).encode("utf8")
-                    )
+                    IOLogRecord(0, "stderr", "\n".join(job.error_lines).encode("utf8"))
                 ],
             ).get_result()
 
         if job.plugin not in supported_plugins:
-            print(
-                Colorizer().RED(
-                    "Unsupported plugin type: {}".format(job.plugin)
-                )
-            )
+            print(Colorizer().RED("Unsupported plugin type: {}".format(job.plugin)))
             return JobResultBuilder(
                 outcome=IJobResult.OUTCOME_SKIP,
                 comments=_("Unsupported plugin type: {}".format(job.plugin)),
@@ -152,9 +144,7 @@ class UnifiedRunner(IJobRunner):
         if job.plugin == "resource" and "cachable" in job.get_flag_set():
             from_cache, result = self._resource_cache.get(
                 job.checksum,
-                lambda: self._run_command(
-                    job, environ, as_systemd_unit
-                ).get_result(),
+                lambda: self._run_command(job, environ, as_systemd_unit).get_result(),
             )
             if from_cache:
                 print(Colorizer().header(_("Using cached data!")))
@@ -168,9 +158,7 @@ class UnifiedRunner(IJobRunner):
         # manual jobs don't require running anything so we just return
         # the 'undecided' outcome
         if job.plugin == "manual":
-            return JobResultBuilder(
-                outcome=IJobResult.OUTCOME_UNDECIDED
-            ).get_result()
+            return JobResultBuilder(outcome=IJobResult.OUTCOME_UNDECIDED).get_result()
 
         # all other kinds of jobs at this point need to run their command
         if not job.command:
@@ -200,12 +188,8 @@ class UnifiedRunner(IJobRunner):
         start_time = time.time()
         slug = slugify(job.id)
         output_writer = CommandOutputWriter(
-            stdout_path=os.path.join(
-                self._jobs_io_log_dir, "{}.stdout".format(slug)
-            ),
-            stderr_path=os.path.join(
-                self._jobs_io_log_dir, "{}.stderr".format(slug)
-            ),
+            stdout_path=os.path.join(self._jobs_io_log_dir, "{}.stdout".format(slug)),
+            stderr_path=os.path.join(self._jobs_io_log_dir, "{}.stderr".format(slug)),
         )
         io_log_gen = IOLogRecordGenerator()
         log = os.path.join(self._jobs_io_log_dir, "{}.record.gz".format(slug))
@@ -288,9 +272,7 @@ class UnifiedRunner(IJobRunner):
                     pass
                 os.close(in_w)
 
-            forwarder_thread = threading.Thread(
-                target=stdin_forwarder, args=(stdin,)
-            )
+            forwarder_thread = threading.Thread(target=stdin_forwarder, args=(stdin,))
             forwarder_thread.start()
             kwargs["stdin"] = in_r
 
@@ -353,9 +335,7 @@ class UnifiedRunner(IJobRunner):
                 target_user,
                 self._extra_env,
             )
-            env = get_execution_environment(
-                job, environ, self._session_id, nest_dir
-            )
+            env = get_execution_environment(job, environ, self._session_id, nest_dir)
             if self._user_provider():
                 env["NORMAL_USER"] = self._user_provider()
             # Always set SYSTEMD_IGNORE_CHROOT
@@ -367,9 +347,7 @@ class UnifiedRunner(IJobRunner):
                 {"ID": job.id, "CMD": join_cmd(cmd)},
             )
             if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
-                return_code = call(
-                    extcmd_popen, cmd, stdin=subprocess.PIPE, env=env
-                )
+                return_code = call(extcmd_popen, cmd, stdin=subprocess.PIPE, env=env)
             else:
                 with self.temporary_cwd(job) as cwd_dir:
                     return_code = call(
@@ -426,9 +404,7 @@ class UnifiedRunner(IJobRunner):
         try:
             with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
                 os.chmod(cwd_dir, 0o777)
-                logger.debug(
-                    _("Job temporary current working directory: %s"), cwd_dir
-                )
+                logger.debug(_("Job temporary current working directory: %s"), cwd_dir)
                 try:
                     yield cwd_dir
                 finally:
@@ -447,9 +423,7 @@ class UnifiedRunner(IJobRunner):
         for dirpath, dirnames, filenames in os.walk(cwd_dir):
             if dirpath != cwd_dir:
                 leftovers.append(dirpath)
-            leftovers.extend(
-                os.path.join(dirpath, filename) for filename in filenames
-            )
+            leftovers.extend(os.path.join(dirpath, filename) for filename in filenames)
         if leftovers:
             logger.warning(
                 _(
@@ -595,14 +569,11 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     # Use PATH that can lookup checkbox scripts
     if job.provider.extra_PYTHONPATH:
         env["PYTHONPATH"] = os.pathsep.join(
-            job.provider.extra_PYTHONPATH
-            + env.get("PYTHONPATH", "").split(os.pathsep)
+            job.provider.extra_PYTHONPATH + env.get("PYTHONPATH", "").split(os.pathsep)
         )
     # Inject nest_dir into PATH
     env["PATH"] = os.pathsep.join(
-        [nest_dir]
-        + env.get("PATH", "").split(os.pathsep)
-        + job.provider.extra_PATH
+        [nest_dir] + env.get("PATH", "").split(os.pathsep) + job.provider.extra_PATH
     )
     if job.provider.extra_LD_LIBRARY_PATH:
         env["LD_LIBRARY_PATH"] = os.pathsep.join(
@@ -610,9 +581,7 @@ def get_execution_environment(job, environ, session_id, nest_dir):
             + job.provider.extra_LD_LIBRARY_PATH
         )
     # Add per-session shared state directory
-    env["PLAINBOX_SESSION_SHARE"] = WellKnownDirsHelper.session_share(
-        session_id
-    )
+    env["PLAINBOX_SESSION_SHARE"] = WellKnownDirsHelper.session_share(session_id)
 
     def set_if_not_none(envvar, source):
         """Update env if the source variable is not None"""

@@ -42,9 +42,7 @@ from collections import defaultdict, namedtuple
 from typing import Dict, List, Set
 from checkbox_support.monitor_config import MonitorConfig
 
-Mode = namedtuple(
-    "Mode", ["resolution", "refresh_rate", "is_preferred", "is_current"]
-)
+Mode = namedtuple("Mode", ["resolution", "refresh_rate", "is_preferred", "is_current"])
 
 
 class MonitorConfigX11(MonitorConfig):
@@ -120,9 +118,7 @@ class MonitorConfigX11(MonitorConfig):
 
                 is_preferred = "+" in rate
                 is_current = "*" in rate
-                modes.append(
-                    Mode(resolution, refresh_rate, is_preferred, is_current)
-                )
+                modes.append(Mode(resolution, refresh_rate, is_preferred, is_current))
             return "mode", modes
 
         return None

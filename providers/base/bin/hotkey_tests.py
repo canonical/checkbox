@@ -308,9 +308,7 @@ class KeyCodes(enum.Enum):
         try:
             return KeyCodes[keycode_name]
         except KeyError:
-            raise SystemExit(
-                "One does not simply convert {} to a keycode".format(c)
-            )
+            raise SystemExit("One does not simply convert {} to a keycode".format(c))
 
 
 class VolumeChange:
@@ -324,9 +322,7 @@ class VolumeChange:
 class FauxKeyboard:
     def __init__(self):
         base = "/dev/input/by-path"
-        all_devs = [
-            os.path.join(base, dev) for dev in sorted(os.listdir(base))
-        ]
+        all_devs = [os.path.join(base, dev) for dev in sorted(os.listdir(base))]
         kbd_devs = [dev for dev in all_devs if dev.endswith("kbd")]
         event_devs = [dev for dev in all_devs if dev.endswith("event-mouse")]
         self.kb_dev_file = None
@@ -433,9 +429,7 @@ class HotKeyTesting:
         # before we start raising the volume
         vc = VolumeChange()
         with self._monitored_volume_change(vc):
-            self.kb.press_key(
-                KeyCodes.KEY_VOLUMEDOWN, repetitions=3, delay=0.2
-            )
+            self.kb.press_key(KeyCodes.KEY_VOLUMEDOWN, repetitions=3, delay=0.2)
         return vc.before > vc.after
 
     def check_mute(self):
@@ -454,15 +448,11 @@ class HotKeyTesting:
     @contextlib.contextmanager
     def _monitored_volume_change(self, vc):
         before = (
-            subprocess.check_output("amixer")
-            .decode(sys.stdout.encoding)
-            .splitlines()
+            subprocess.check_output("amixer").decode(sys.stdout.encoding).splitlines()
         )
         yield
         after = (
-            subprocess.check_output("amixer")
-            .decode(sys.stdout.encoding)
-            .splitlines()
+            subprocess.check_output("amixer").decode(sys.stdout.encoding).splitlines()
         )
         temp = before.copy()
         for line in temp:

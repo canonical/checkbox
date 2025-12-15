@@ -63,9 +63,7 @@ def read_node_text(node):
         logging.error("'%s' does not exists", str(node))
         return None
     except OSError as err:
-        logging.error(
-            "Unexpected error while accessing %s. %s", str(node), err
-        )
+        logging.error("Unexpected error while accessing %s. %s", str(node), err)
         return None
 
     return value
@@ -122,9 +120,7 @@ class RegulatorBase:
 
     def has_duplicated_regulators(self):
         logging.info("\n# checking duplicated regulators ..")
-        name_counts = Counter(
-            [attrs["name"] for attrs in self.raw_regulators.values()]
-        )
+        name_counts = Counter([attrs["name"] for attrs in self.raw_regulators.values()])
         result = {
             node: attrs["name"]
             for node, attrs in self.raw_regulators.items()
@@ -193,13 +189,9 @@ def compare_regulators(args):
     results = check_difference(exp_regulator_devs, regulator)
     summarize_test_results(results["logs"])
     if results["result"]:
-        logging.error(
-            "\nFailed: the expected %s regulators does not match", type
-        )
+        logging.error("\nFailed: the expected %s regulators does not match", type)
     else:
-        logging.info(
-            "\nPassed: the expected %s regulators are all available", type
-        )
+        logging.info("\nPassed: the expected %s regulators are all available", type)
 
     if duplicated or results["result"]:
         raise SystemExit(1)

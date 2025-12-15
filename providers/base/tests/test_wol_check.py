@@ -69,9 +69,7 @@ class TestGetSystemBootTime(unittest.TestCase):
         boot_time = get_system_boot_time()
         self.assertEqual(boot_time, 1618912536.0)
 
-    @patch(
-        "builtins.open", new_callable=mock_open, read_data="some other data\n"
-    )
+    @patch("builtins.open", new_callable=mock_open, read_data="some other data\n")
     def test_get_system_boot_time_no_btime(self, mock_file):
         with self.assertLogs(level="ERROR") as log:
             boot_time = get_system_boot_time()
@@ -150,9 +148,7 @@ class TestMain(unittest.TestCase):
             self.assertTrue(main())
 
         # Verify logging messages
-        self.assertIn(
-            "wake-on-LAN check test started.", log_messages.output[0]
-        )
+        self.assertIn("wake-on-LAN check test started.", log_messages.output[0])
         self.assertIn("PowerType: s3", log_messages.output[1])
         self.assertIn("wake-on-LAN works well.", log_messages.output[2])
 
@@ -187,9 +183,7 @@ class TestMain(unittest.TestCase):
 
         with self.assertRaises(SystemExit) as cm:
             main()
-        self.assertEqual(
-            str(cm.exception), "System resumed earlier than expected."
-        )
+        self.assertEqual(str(cm.exception), "System resumed earlier than expected.")
 
     @patch("wol_check.parse_args")
     @patch("wol_check.get_timestamp")

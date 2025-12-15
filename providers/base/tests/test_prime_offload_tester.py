@@ -313,9 +313,7 @@ class CheckOffloadTests(unittest.TestCase):
         cmd = ["echo"]
         mock_client.return_value = cmd
         po = PrimeOffloader()
-        self.assertEqual(
-            po.check_offload(cmd, "card_id", "card_name", 1), None
-        )
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1), None)
         self.assertEqual(po.check_result, False)
 
     @patch("time.sleep", return_value=None)
@@ -327,18 +325,14 @@ class CheckOffloadTests(unittest.TestCase):
         mock_client.return_value = ""
         mock_time.side_effect = [0, 0, 1, 2, 3, 4]
         po = PrimeOffloader()
-        self.assertEqual(
-            po.check_offload(cmd, "card_id", "card_name", 1), None
-        )
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1), None)
         self.assertEqual(po.check_result, True)
 
         # get_clients return None by CalledProcessError
         mock_client.return_value = None
         mock_time.side_effect = [0, 0, 1, 2, 3, 4]
         po = PrimeOffloader()
-        self.assertEqual(
-            po.check_offload(cmd, "card_id", "card_name", 1), None
-        )
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1), None)
         self.assertEqual(po.check_result, True)
 
 
@@ -516,9 +510,7 @@ class CmdFinderTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             po.cmd_finder("glxgears", 1)
         # check check_offload function get correct args
-        mock_thread.assert_called_with(
-            target=po.find_offload, args=("glxgears", 1)
-        )
+        mock_thread.assert_called_with(target=po.find_offload, args=("glxgears", 1))
 
 
 @patch("subprocess.check_output", MagicMock())

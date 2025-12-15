@@ -6,6 +6,7 @@ Note that the services by both parties need not be symmetric, e.g., one side may
 exposed *service A*, while the other may expose *service B*. As long as the two
 can interoperate, you're good to go.
 """
+
 import importlib.util
 from functools import partial
 
@@ -53,6 +54,7 @@ class Service(object):
        You can override ``_rpyc_getattr``, ``_rpyc_setattr`` and ``_rpyc_delattr``
        to change attribute lookup -- but beware of possible **security implications!**
     """
+
     __slots__ = ()
     ALIASES = ()
     _protocol = Connection
@@ -109,6 +111,7 @@ class Service(object):
 
 class VoidService(Service):
     """void service - an do-nothing service"""
+
     __slots__ = ()
 
 
@@ -120,11 +123,11 @@ class ModuleNamespace(object):
 
     def __init__(self, getmodule):
         self.__getmodule = getmodule
-        self.__cache = {m: self.__getmodule(m) for m in ('builtins', 'importlib.util')}
+        self.__cache = {m: self.__getmodule(m) for m in ("builtins", "importlib.util")}
 
     def __contains__(self, name):
         """Returns True if a module CAN be imported (the loader may still fail to execute module)"""
-        return self.__cache['importlib.util']._find_spec_from_path(name) is not None
+        return self.__cache["importlib.util"]._find_spec_from_path(name) is not None
 
     def __getitem__(self, name):
         """Acts as a 'read-through-cache' for results of getmodule"""
@@ -173,21 +176,24 @@ class SlaveService(Slave, Service):
 
     This service is very useful in local, secure networks, but it exposes
     a **major security risk** otherwise."""
+
     __slots__ = ()
 
     def on_connect(self, conn):
         self._conn = conn
-        self._conn._config.update(dict(
-            allow_all_attrs=True,
-            allow_pickle=True,
-            allow_getattr=True,
-            allow_setattr=True,
-            allow_delattr=True,
-            allow_exposed_attrs=False,
-            import_custom_exceptions=True,
-            instantiate_custom_exceptions=True,
-            instantiate_oldstyle_exceptions=True,
-        ))
+        self._conn._config.update(
+            dict(
+                allow_all_attrs=True,
+                allow_pickle=True,
+                allow_getattr=True,
+                allow_setattr=True,
+                allow_delattr=True,
+                allow_exposed_attrs=False,
+                import_custom_exceptions=True,
+                instantiate_custom_exceptions=True,
+                instantiate_oldstyle_exceptions=True,
+            )
+        )
         super().on_connect(conn)
 
 
@@ -195,6 +201,7 @@ class FakeSlaveService(VoidService):
     """VoidService that can be used for connecting to peers that operate a
     :class:`MasterService`, :class:`ClassicService`, or the old
     ``SlaveService`` (pre v3.5) without exposing any functionality to them."""
+
     __slots__ = ()
     exposed_namespace = None
     exposed_execute = None
@@ -204,10 +211,10 @@ class FakeSlaveService(VoidService):
 
 
 class MasterService(Service):
-
     """Peer for a new-style (>=v3.5) :class:`SlaveService`. Use this service
     if you want to connect to a ``SlaveService`` without exposing any
     functionality to them."""
+
     __slots__ = ()
 
     def on_connect(self, conn):
@@ -222,14 +229,18 @@ class MasterService(Service):
         conn.execute = slave.execute
         conn.namespace = slave.namespace
         conn.builtins = modules.builtins
-        conn.builtin = modules.builtins  # TODO: cruft from py2 that requires cleanup elsewhere and CHANGELOG note
+        conn.builtin = (
+            modules.builtins
+        )  # TODO: cruft from py2 that requires cleanup elsewhere and CHANGELOG note
         from rpyc.utils.classic import teleport_function
+
         conn.teleport = partial(teleport_function, conn)
 
 
 class ClassicService(MasterService, SlaveService):
     """Full duplex master/slave service, i.e. both parties have full control
     over the other. Must be used by both parties."""
+
     __slots__ = ()
 
 
@@ -237,4 +248,5 @@ class ClassicClient(MasterService, FakeSlaveService):
     """MasterService that can be used for connecting to peers that operate a
     :class:`MasterService`, :class:`ClassicService` without exposing any
     functionality to them."""
+
     __slots__ = ()

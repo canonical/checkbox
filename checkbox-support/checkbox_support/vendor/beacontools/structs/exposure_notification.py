@@ -1,4 +1,5 @@
 """All low level structures used for parsing COVID-19 exposure notifications."""
+
 from checkbox_support.vendor.construct import Array, Byte, Struct
 
 # pylint: disable=invalid-name

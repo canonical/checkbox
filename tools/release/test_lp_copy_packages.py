@@ -33,16 +33,12 @@ class TestMain(unittest.TestCase):
             print(source_name)
             if source_name == "outdated source":
                 raise lazr.restfulclient.errors.BadRequest(
-                    response=MagicMock(
-                        items=lambda: [], status=400, reason="some"
-                    ),
+                    response=MagicMock(items=lambda: [], status=400, reason="some"),
                     content=b"distro is obsolete and will not accept new uploads",
                 )
             copied += 1
 
         ppas.copyPackage = fail_on_outdated
-        lp_copy_packages.main(
-            ["checkbox-dev", "beta", "checkbox-dev", "stable"]
-        )
+        lp_copy_packages.main(["checkbox-dev", "beta", "checkbox-dev", "stable"])
 
         self.assertEqual(copied, 5)

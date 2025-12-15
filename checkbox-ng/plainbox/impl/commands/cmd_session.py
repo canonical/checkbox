@@ -172,7 +172,6 @@ class SessionCommand(PlainBoxCommand):
             metavar=_("FILE"),
             type=FileType("wb"),
             help=_(
-                "save test results to the specified FILE"
-                " (or to stdout if FILE is -)"
+                "save test results to the specified FILE" " (or to stdout if FILE is -)"
             ),
         )

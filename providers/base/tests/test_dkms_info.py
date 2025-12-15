@@ -107,9 +107,7 @@ usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
         o = mock.Mock()
         o.release = "3.19.0-15-generic"
         mock_os_uname.return_value = o
-        self.assertEqual(
-            [["hello", "0.1"]], dkms_info.get_installed_dkms_modules()
-        )
+        self.assertEqual([["hello", "0.1"]], dkms_info.get_installed_dkms_modules())
 
     @mock.patch("dkms_info.get_system_modaliases")
     def test_match_patterns(self, mock_get_system_modaliases):
@@ -131,9 +129,7 @@ usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
         ]
         matched_modalieses = dkms_info.match_patterns(tuple(pkg_modalieses))
         # match_patterns
-        self.assertIn(
-            "pci:v00008086d00008C26sv*sd*bc*sc*i*", matched_modalieses
-        )
+        self.assertIn("pci:v00008086d00008C26sv*sd*bc*sc*i*", matched_modalieses)
         self.assertIn("oemalias:test", matched_modalieses)
         self.assertNotIn(
             "usb:v07B4p010Ad0102dc*dsc*dp*ic*isc*ip*in*", matched_modalieses

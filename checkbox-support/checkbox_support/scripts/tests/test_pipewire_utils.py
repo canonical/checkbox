@@ -50,72 +50,32 @@ class GeneratePwMediaClassTests(unittest.TestCase):
         pt = PipewireTest()
 
         # return Audio/Sink
-        self.assertEqual(
-            "Audio/Sink", pt.generate_pw_media_class("audio", "sink")
-        )
-        self.assertEqual(
-            "Audio/Sink", pt.generate_pw_media_class("audio", "Sink")
-        )
-        self.assertEqual(
-            "Audio/Sink", pt.generate_pw_media_class("Audio", "sink")
-        )
-        self.assertEqual(
-            "Audio/Sink", pt.generate_pw_media_class("Audio", "Sink")
-        )
-        self.assertEqual(
-            "Audio/Sink", pt.generate_pw_media_class("Audio", "Sinks")
-        )
+        self.assertEqual("Audio/Sink", pt.generate_pw_media_class("audio", "sink"))
+        self.assertEqual("Audio/Sink", pt.generate_pw_media_class("audio", "Sink"))
+        self.assertEqual("Audio/Sink", pt.generate_pw_media_class("Audio", "sink"))
+        self.assertEqual("Audio/Sink", pt.generate_pw_media_class("Audio", "Sink"))
+        self.assertEqual("Audio/Sink", pt.generate_pw_media_class("Audio", "Sinks"))
 
         # return Audio/Source
-        self.assertEqual(
-            "Audio/Source", pt.generate_pw_media_class("audio", "source")
-        )
-        self.assertEqual(
-            "Audio/Source", pt.generate_pw_media_class("audio", "Source")
-        )
-        self.assertEqual(
-            "Audio/Source", pt.generate_pw_media_class("Audio", "source")
-        )
-        self.assertEqual(
-            "Audio/Source", pt.generate_pw_media_class("Audio", "Source")
-        )
-        self.assertEqual(
-            "Audio/Source", pt.generate_pw_media_class("Audio", "Sources")
-        )
+        self.assertEqual("Audio/Source", pt.generate_pw_media_class("audio", "source"))
+        self.assertEqual("Audio/Source", pt.generate_pw_media_class("audio", "Source"))
+        self.assertEqual("Audio/Source", pt.generate_pw_media_class("Audio", "source"))
+        self.assertEqual("Audio/Source", pt.generate_pw_media_class("Audio", "Source"))
+        self.assertEqual("Audio/Source", pt.generate_pw_media_class("Audio", "Sources"))
 
         # return Video/Sink
-        self.assertEqual(
-            "Video/Sink", pt.generate_pw_media_class("video", "sink")
-        )
-        self.assertEqual(
-            "Video/Sink", pt.generate_pw_media_class("video", "Sink")
-        )
-        self.assertEqual(
-            "Video/Sink", pt.generate_pw_media_class("Video", "sink")
-        )
-        self.assertEqual(
-            "Video/Sink", pt.generate_pw_media_class("Video", "Sink")
-        )
-        self.assertEqual(
-            "Video/Sink", pt.generate_pw_media_class("Video", "Sinks")
-        )
+        self.assertEqual("Video/Sink", pt.generate_pw_media_class("video", "sink"))
+        self.assertEqual("Video/Sink", pt.generate_pw_media_class("video", "Sink"))
+        self.assertEqual("Video/Sink", pt.generate_pw_media_class("Video", "sink"))
+        self.assertEqual("Video/Sink", pt.generate_pw_media_class("Video", "Sink"))
+        self.assertEqual("Video/Sink", pt.generate_pw_media_class("Video", "Sinks"))
 
         # return Video/Source
-        self.assertEqual(
-            "Video/Source", pt.generate_pw_media_class("video", "source")
-        )
-        self.assertEqual(
-            "Video/Source", pt.generate_pw_media_class("video", "Source")
-        )
-        self.assertEqual(
-            "Video/Source", pt.generate_pw_media_class("Video", "source")
-        )
-        self.assertEqual(
-            "Video/Source", pt.generate_pw_media_class("Video", "Source")
-        )
-        self.assertEqual(
-            "Video/Source", pt.generate_pw_media_class("Video", "Sources")
-        )
+        self.assertEqual("Video/Source", pt.generate_pw_media_class("video", "source"))
+        self.assertEqual("Video/Source", pt.generate_pw_media_class("video", "Source"))
+        self.assertEqual("Video/Source", pt.generate_pw_media_class("Video", "source"))
+        self.assertEqual("Video/Source", pt.generate_pw_media_class("Video", "Source"))
+        self.assertEqual("Video/Source", pt.generate_pw_media_class("Video", "Sources"))
 
     def test_fail(self):
         pt = PipewireTest()
@@ -236,9 +196,7 @@ class DetectDeviceTests(unittest.TestCase):
 
         # detect audio sink succ
         mock_checkout.return_value = self.sink_audio_node
-        self.assertEqual(
-            PipewireTestError.NO_ERROR, pt.detect_device("audio", "sink")
-        )
+        self.assertEqual(PipewireTestError.NO_ERROR, pt.detect_device("audio", "sink"))
 
         # detect audio source succ
         mock_checkout.return_value = self.source_audio_node
@@ -264,9 +222,7 @@ class DetectDeviceTests(unittest.TestCase):
 
         # wrong media class
         mock_checkout.return_value = self.sink_audio_node
-        self.assertEqual(
-            PipewireTestError.NOT_DETECTED, pt.detect_device("xxx", "ooo")
-        )
+        self.assertEqual(PipewireTestError.NOT_DETECTED, pt.detect_device("xxx", "ooo"))
 
 
 class SelectDeviceTests(unittest.TestCase):
@@ -846,9 +802,7 @@ Settings
     status_sorted_not_match_list = status_sorted_not_match.splitlines()
 
     @patch("builtins.open", read_data=[])
-    @patch(
-        "checkbox_support.scripts.pipewire_utils.PipewireTest._sort_wpctl_status"
-    )
+    @patch("checkbox_support.scripts.pipewire_utils.PipewireTest._sort_wpctl_status")
     def test_match(self, mock_wp_status, mock_open):
         pt = PipewireTest()
         mock_wp_status.side_effect = [
@@ -859,9 +813,7 @@ Settings
         self.assertEqual(rv, None)
 
     @patch("builtins.open", read_data=[])
-    @patch(
-        "checkbox_support.scripts.pipewire_utils.PipewireTest._sort_wpctl_status"
-    )
+    @patch("checkbox_support.scripts.pipewire_utils.PipewireTest._sort_wpctl_status")
     def test_not_match(self, mock_wp_status, mock_open):
         pt = PipewireTest()
         mock_wp_status.side_effect = [
@@ -872,9 +824,7 @@ Settings
             pt.compare_wpctl_status("s1", "s2")
 
     @patch("builtins.open", read_data=[])
-    @patch(
-        "checkbox_support.scripts.pipewire_utils.PipewireTest._sort_wpctl_status"
-    )
+    @patch("checkbox_support.scripts.pipewire_utils.PipewireTest._sort_wpctl_status")
     def test_missing_lines(self, mock_wp_status, mock_open):
         pt = PipewireTest()
         sorted_list_1 = [

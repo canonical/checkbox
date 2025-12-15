@@ -139,9 +139,7 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.user, None)
         self.assertEqual(job.shell, "bash")
         self.assertEqual(job.flags, None)
-        self.assertEqual(
-            job.category_id, "com.canonical.plainbox::uncategorised"
-        )
+        self.assertEqual(job.category_id, "com.canonical.plainbox::uncategorised")
 
     def test_checksum_smoke(self):
         job1 = JobDefinition({"plugin": "plugin", "user": "root"})
@@ -227,9 +225,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         pass
 
     def test_name__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_name": "name"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"_name": "name"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.name,
@@ -249,9 +245,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_name__deprecated(self):
-        issue_list = self.unit_cls(
-            {"name": "name"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"name": "name"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.name,
@@ -337,9 +331,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_plugin__correct(self):
-        issue_list = self.unit_cls(
-            {"plugin": "foo"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"plugin": "foo"}, provider=self.provider).check()
         message = (
             "field 'plugin', valid values are: attachment,"
             " manual, resource, shell, user-interact,"
@@ -462,9 +454,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         # from that line. Note, the offset is a bit confusing since the error
         # is on line reading 'for i in 1 2 "3; do' but shlex will actually only
         # report it at the end of the input which is the line with 'done'
-        self.assertEqual(
-            issue.origin.line_start, issue.unit.origin.line_start + 3
-        )
+        self.assertEqual(issue.origin.line_start, issue.unit.origin.line_start + 3)
 
     def test_description__translatable(self):
         issue_list = self.unit_cls(
@@ -496,9 +486,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             " field, or a set of purpose, steps, and verification"
             " fields"
         )
-        issue_list = self.unit_cls(
-            {"plugin": "manual"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"plugin": "manual"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.description,
@@ -508,9 +496,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_user__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_user": "user"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"_user": "user"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.user,
@@ -533,9 +519,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
     def test_user__defined_but_not_root(self):
         message = "field 'user', user can only be 'root'"
-        issue_list = self.unit_cls(
-            {"user": "user"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"user": "user"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.user,
@@ -546,9 +530,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
     def test_user__useless_without_command(self):
         message = "field 'user', user without a command makes no sense"
-        issue_list = self.unit_cls(
-            {"user": "user"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"user": "user"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.user,
@@ -658,9 +640,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_after__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_after": "after"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"_after": "after"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.after,
@@ -761,9 +741,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_shell__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_shell": "shell"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"_shell": "shell"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.shell,
@@ -822,9 +800,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_category_id__refers_to_other_units(self):
-        unit = self.unit_cls(
-            {"category_id": "some-unit"}, provider=self.provider
-        )
+        unit = self.unit_cls({"category_id": "some-unit"}, provider=self.provider)
         message = "field 'category_id', unit 'ns::some-unit' is not available"
         self.provider.unit_list = [unit]
         context = UnitValidationContext([self.provider])
@@ -839,9 +815,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
     def test_category_id__refers_to_other_jobs(self):
         other_unit = UnitWithId({"id": "some-unit"}, provider=self.provider)
-        unit = self.unit_cls(
-            {"category_id": "some-unit"}, provider=self.provider
-        )
+        unit = self.unit_cls({"category_id": "some-unit"}, provider=self.provider)
         message = "field 'category_id', the referenced unit is not a category"
         self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
@@ -855,9 +829,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_siblings__valid_json(self):
-        issue_list = self.unit_cls(
-            {"_siblings": "foo"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"_siblings": "foo"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.siblings,
@@ -1049,9 +1021,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(expected, observed)
 
     def test_dependency_parsing_single_word(self):
-        job = JobDefinition(
-            {"id": "id", "plugin": "plugin", "depends": "word"}
-        )
+        job = JobDefinition({"id": "id", "plugin": "plugin", "depends": "word"})
         expected = set(["word"])
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
@@ -1071,9 +1041,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(expected, observed)
 
     def test_environ_parsing_single_word(self):
-        job = JobDefinition(
-            {"id": "id", "plugin": "plugin", "environ": "word"}
-        )
+        job = JobDefinition({"id": "id", "plugin": "plugin", "environ": "word"})
         expected = set(["word"])
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
@@ -1136,9 +1104,7 @@ class TestJobDefinition(TestCase):
             65,
         )
         self.assertEqual(
-            JobDefinition(
-                {"estimated_duration": "1h 1m 5s"}
-            ).estimated_duration,
+            JobDefinition({"estimated_duration": "1h 1m 5s"}).estimated_duration,
             3665,
         )
         self.assertEqual(
@@ -1157,9 +1123,7 @@ class TestJobDefinition(TestCase):
             65,
         )
         self.assertEqual(
-            JobDefinition(
-                {"estimated_duration": "1h:1m:5s"}
-            ).estimated_duration,
+            JobDefinition({"estimated_duration": "1h:1m:5s"}).estimated_duration,
             3665,
         )
         self.assertEqual(
@@ -1299,11 +1263,7 @@ class TestJobDefinition(TestCase):
             [("com.canonical.certification::package", "package")],
         )
         job3 = JobDefinition(
-            {
-                "imports": (
-                    "from com.canonical.certification" " import package as pkg"
-                )
-            }
+            {"imports": ("from com.canonical.certification" " import package as pkg")}
         )
         self.assertEqual(
             list(job3.get_imported_jobs()),

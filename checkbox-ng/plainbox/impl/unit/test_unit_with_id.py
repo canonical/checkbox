@@ -36,9 +36,7 @@ class UnitWithIdFieldValidationTests(UnitFieldValidationTests):
     unit_cls = UnitWithId
 
     def test_id__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_id": "id"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"_id": "id"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.id,

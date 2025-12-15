@@ -51,13 +51,9 @@ class TestGetAptCacheInformation(unittest.TestCase):
         self.assertEqual(context.exception.code, 1)
 
     @patch("check_prerelease.check_output")
-    def test_get_apt_cache_information_nonexistent_package(
-        self, mock_check_output
-    ):
+    def test_get_apt_cache_information_nonexistent_package(self, mock_check_output):
         command = "some_apt_cache_command"
-        mock_check_output.side_effect = CalledProcessError(
-            returncode=0, cmd=command
-        )
+        mock_check_output.side_effect = CalledProcessError(returncode=0, cmd=command)
 
         with self.assertRaises(SystemExit) as context:
             get_apt_cache_information(command)
@@ -167,9 +163,7 @@ class TestVerifyAptCacheShow(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     @patch("check_prerelease.get_apt_cache_information")
-    def test_verify_apt_cache_show_success(
-        self, mock_get_apt_cache_information
-    ):
+    def test_verify_apt_cache_show_success(self, mock_get_apt_cache_information):
         mock_get_apt_cache_information.return_value = "Source: linux"
         result = verify_apt_cache_show("kernel_test")
         self.assertTrue(result)
@@ -183,9 +177,7 @@ class TestVerifyAptCacheShow(unittest.TestCase):
         self.assertFalse(result)
 
     @patch("check_prerelease.get_apt_cache_information")
-    def test_verify_apt_cache_show_edge_kernel(
-        self, mock_get_apt_cache_information
-    ):
+    def test_verify_apt_cache_show_edge_kernel(self, mock_get_apt_cache_information):
         mock_get_apt_cache_information.return_value = (
             "Source: linux-signed-hwe-edge"  # noqa E501
         )

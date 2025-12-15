@@ -413,15 +413,15 @@ import inspect
 import logging
 import unittest
 
-__author__ = 'Zygmunt Krynicki'
-__email__ = 'zygmunt.krynicki@canonical.com'
-__version__ = '1.2'
-__all__ = ['signal', 'SignalTestCase']
+__author__ = "Zygmunt Krynicki"
+__email__ = "zygmunt.krynicki@canonical.com"
+__version__ = "1.2"
+__all__ = ["signal", "SignalTestCase"]
 
 _logger = logging.getLogger("plainbox.vendor.morris")
 
 
-listenerinfo = collections.namedtuple('listenerinfo', 'listener pass_signal')
+listenerinfo = collections.namedtuple("listenerinfo", "listener pass_signal")
 
 
 class signal(object):
@@ -438,13 +438,13 @@ class signal(object):
         List of signal listeners. Each item is a tuple ``(listener,
         pass_signal)`` that encodes how to call the listener.
     """
+
     try:
         _str_bases = (str, unicode)
     except NameError:
         _str_bases = (str,)
 
-    def __init__(self, name_or_first_responder, pass_signal=False,
-                 signal_name=None):
+    def __init__(self, name_or_first_responder, pass_signal=False, signal_name=None):
         """
         Construct a signal with the given name
 
@@ -483,10 +483,12 @@ class signal(object):
             - a signal object created via a signal descriptor on an object
             - a signal object acting as a descriptor or function decorator
         """
-        if (len(self._listeners) > 0
-                and isinstance(self.listeners[0].listener, boundmethod)):
+        if len(self._listeners) > 0 and isinstance(
+            self.listeners[0].listener, boundmethod
+        ):
             return "<signal name:{!r} (specific to {!r})>".format(
-                str(self._name), self._listeners[0].listener.instance)
+                str(self._name), self._listeners[0].listener.instance
+            )
         else:
             return "<signal name:{!r}>".format(str(self._name))
 
@@ -681,8 +683,7 @@ class signal(object):
         """
         info = listenerinfo(listener, pass_signal)
         self._listeners.remove(info)
-        _logger.debug(
-            "disconnect %r from %r", str(listener), self._name)
+        _logger.debug("disconnect %r from %r", str(listener), self._name)
         if inspect.ismethod(listener):
             listener_object = listener.__self__
             if hasattr(listener_object, "__listeners__"):
@@ -715,6 +716,7 @@ class signal(object):
         """
         self.fire(args, kwargs)
 
+
 # In the past this used to be a helper method for defining signals.
 # Now the same functionality is available through the signal class.
 signal.define = signal
@@ -732,7 +734,7 @@ signaldescriptor = signal
 
 
 def _get_fn_name(fn):
-    if hasattr(fn, '__qualname__'):
+    if hasattr(fn, "__qualname__"):
         return fn.__qualname__
     else:
         return fn.__name__
@@ -750,7 +752,7 @@ class boundmethod(object):
     def __init__(self, instance, func):
         self.instance = instance
         self.func = func
-        if hasattr(func, '__qualname__'):
+        if hasattr(func, "__qualname__"):
             self.__qualname__ = self.func.__qualname__
         self.__name__ = self.func.__name__
 
@@ -767,7 +769,7 @@ class SignalInterceptorMixIn:
     """
 
     def _extend_state(self):
-        if not hasattr(self, '_events_seen'):
+        if not hasattr(self, "_events_seen"):
             self._events_seen = []
 
     def watchSignal(self, signal):
@@ -784,8 +786,9 @@ class SignalInterceptorMixIn:
 
         def signal_handler(*args, **kwargs):
             self._events_seen.append((signal, args, kwargs))
+
         signal.connect(signal_handler)
-        if hasattr(self, 'addCleanup'):
+        if hasattr(self, "addCleanup"):
             self.addCleanup(signal.disconnect, signal_handler)
 
     def assertSignalFired(self, signal, *args, **kwargs):
@@ -804,8 +807,10 @@ class SignalInterceptorMixIn:
         """
         event = (signal, args, kwargs)
         self.assertIn(
-            event, self._events_seen,
-            "\nSignal unexpectedly not fired: {}\n".format(event))
+            event,
+            self._events_seen,
+            "\nSignal unexpectedly not fired: {}\n".format(event),
+        )
         return event
 
     def assertSignalNotFired(self, signal, *args, **kwargs):
@@ -822,8 +827,8 @@ class SignalInterceptorMixIn:
         """
         event = (signal, args, kwargs)
         self.assertNotIn(
-            event, self._events_seen,
-            "\nSignal unexpectedly fired: {}\n".format(event))
+            event, self._events_seen, "\nSignal unexpectedly fired: {}\n".format(event)
+        )
 
     def assertSignalOrdering(self, *expected_events):
         """
@@ -838,20 +843,25 @@ class SignalInterceptorMixIn:
             If you are using :meth:`assertSignalFired()` then the return value
             of that method is a single event that can be passed to this method
         """
-        expected_order = [self._events_seen.index(event)
-                          for event in expected_events]
+        expected_order = [self._events_seen.index(event) for event in expected_events]
         actual_order = sorted(expected_order)
         self.assertEqual(
-            expected_order, actual_order,
+            expected_order,
+            actual_order,
             "\nExpected order of fired signals:\n{}\n"
             "Actual order observed:\n{}".format(
                 "\n".join(
                     "\t{}: {}".format(i, event)
-                    for i, event in enumerate(expected_events, 1)),
+                    for i, event in enumerate(expected_events, 1)
+                ),
                 "\n".join(
                     "\t{}: {}".format(i, event)
                     for i, event in enumerate(
-                        (self._events_seen[idx] for idx in actual_order), 1))))
+                        (self._events_seen[idx] for idx in actual_order), 1
+                    )
+                ),
+            ),
+        )
 
 
 class SignalTestCase(unittest.TestCase, SignalInterceptorMixIn):

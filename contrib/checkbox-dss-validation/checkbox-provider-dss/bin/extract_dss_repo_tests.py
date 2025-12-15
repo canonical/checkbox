@@ -36,9 +36,7 @@ def main(args: t.List[str] | None = None) -> None:
     parser.add_argument(
         "dss_repo", help="Path to the local clone of the DSS repository"
     )
-    parser.add_argument(
-        "tox_env", help="Tox environment to collect tests from"
-    )
+    parser.add_argument("tox_env", help="Tox environment to collect tests from")
 
     given = parser.parse_args(args)
     dss_repo = given.dss_repo
@@ -64,9 +62,7 @@ def main(args: t.List[str] | None = None) -> None:
             print()
 
     if not found_matches:
-        raise ValueError(
-            f"Did not find expected '{MATCHING_PREFIX}' in:\n{output}"
-        )
+        raise ValueError(f"Did not find expected '{MATCHING_PREFIX}' in:\n{output}")
 
 
 if __name__ == "__main__":  # pragma: no cover

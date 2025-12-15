@@ -25,9 +25,7 @@ class TestStrUtils(ut.TestCase):
         self.assertEqual(w7.remove_suffix("pre", "pref123"), "pre")
 
 
-@patch.dict(
-    os.environ, {"PLAINBOX_SESSION_SHARE": "session-share"}, clear=True
-)
+@patch.dict(os.environ, {"PLAINBOX_SESSION_SHARE": "session-share"}, clear=True)
 class TestWifi7Tests(ut.TestCase):
 
     @mock_retry()
@@ -56,9 +54,7 @@ class TestWifi7Tests(ut.TestCase):
                     "device",
                     "show",
                 ]:
-                    return "\n".join(
-                        [MOCK_IFACE, "wifi", "", "lo", "loopback"]
-                    )
+                    return "\n".join([MOCK_IFACE, "wifi", "", "lo", "loopback"])
                 if args[0:4] == ["iw", "dev", MOCK_IFACE, "info"]:
                     with (TEST_DATA_DIR / "iw_dev_info_succ.txt").open() as f:
                         return f.read()
@@ -175,9 +171,7 @@ class TestWifi7Tests(ut.TestCase):
                 if prop.startswith("__"):
                     # don't compare dunder methods/props
                     continue
-                self.assertEqual(
-                    getattr(expected, prop), getattr(actual, prop)
-                )
+                self.assertEqual(getattr(expected, prop), getattr(actual, prop))
 
     def test_parser_not_wifi_7(self):
         # test the special cases
@@ -205,16 +199,12 @@ class TestWifi7Tests(ut.TestCase):
                     if prop.startswith("__"):
                         # don't compare dunder methods/props
                         continue
-                    self.assertEqual(
-                        getattr(expected, prop), getattr(actual, prop)
-                    )
+                    self.assertEqual(getattr(expected, prop), getattr(actual, prop))
 
     @mock_retry()
     @patch("builtins.open")
     @patch("time.sleep")
-    @patch(
-        "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
-    )
+    @patch("sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"])
     @patch("subprocess.run")
     @patch("subprocess.check_call")
     @patch("subprocess.check_output")
@@ -274,9 +264,7 @@ class TestWifi7Tests(ut.TestCase):
     @mock_retry()
     @patch("builtins.open")
     @patch("time.sleep")
-    @patch(
-        "sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"]
-    )
+    @patch("sys.argv", ["wifi_7_test.py", "-m", MOCK_AP_NAME, "-p", "password123"])
     @patch("subprocess.run")
     @patch("subprocess.check_call")
     @patch("subprocess.check_output")

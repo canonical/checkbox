@@ -27,9 +27,7 @@ import sys
 
 def _run_cmd(cmd):
     try:
-        return subprocess.check_output(
-            cmd, shell=True, universal_newlines=True
-        )
+        return subprocess.check_output(cmd, shell=True, universal_newlines=True)
     except subprocess.CalledProcessError as e:
         print(e.output, file=sys.stderr)
         return None
@@ -69,9 +67,7 @@ class INXI:
         for i in system_info:
             for k, v in i.items():
                 if "#Kernel" in k:
-                    system_details += "{}: {}\n".format(
-                        re.sub(".*#", "", k), v
-                    )
+                    system_details += "{}: {}\n".format(re.sub(".*#", "", k), v)
                 elif "#Distro" in k:
                     system_details += "{}: {}".format(re.sub(".*#", "", k), v)
         if system_details:
@@ -226,9 +222,7 @@ def main():
         "Touchpad": "TOUCHPAD",
     }
     for section, udev_category in extra_sections.items():
-        section_info = _run_cmd(
-            "udev_resource.py -l {} -s".format(udev_category)
-        )
+        section_info = _run_cmd("udev_resource.py -l {} -s".format(udev_category))
         if section_info:
             sys_info[section] = section_info.splitlines()
     print(json.dumps(sys_info, indent=4))

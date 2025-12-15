@@ -61,9 +61,7 @@ class ReactiveListBox(urwid.ListBox):
         return res
 
 
-ResumeOutcome = namedtuple(
-    "ResumeOutcome", ["session_id", "action", "comments"]
-)
+ResumeOutcome = namedtuple("ResumeOutcome", ["session_id", "action", "comments"])
 
 
 class ResumeMenu:
@@ -155,9 +153,7 @@ class ResumeMenu:
             ("start", "<ESC>"),
             (" to go back"),
         ]
-        return urwid.AttrWrap(
-            urwid.Padding(urwid.Text(footer_text), left=1), "foot"
-        )
+        return urwid.AttrWrap(urwid.Padding(urwid.Text(footer_text), left=1), "foot")
 
     def _create_menu_frame(self):
         """Create an urwid frame for the menu."""
@@ -242,9 +238,7 @@ class ResumeMenu:
             handle_mouse=False,
         )
         self.loop.run()
-        return ResumeOutcome(
-            self._chosen_session, self._chosen_action, self._comment
-        )
+        return ResumeOutcome(self._chosen_session, self._chosen_action, self._comment)
 
     def _handle_input_on_session_menu(self, key):
         if key == "enter":
@@ -344,8 +338,7 @@ class ResumeMenu:
 
         return max(
             0,
-            self._menu_body.focus_position
-            - len(self._SESSION_MENU_STATIC_ELEMENTS),
+            self._menu_body.focus_position - len(self._SESSION_MENU_STATIC_ELEMENTS),
         )
 
     def _update_infobox(self):

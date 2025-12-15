@@ -30,9 +30,7 @@ Sep 18 17:17:37 test-host kernel: ACPI: USB4 _OSC: OS controls USB3+ DisplayPort
 
     @patch("acpi_bios_error.print_bios_info")
     @patch("subprocess.check_output")
-    def test_check_acpi_bios_errors_found(
-        self, mock_subprocess, mock_print_bios
-    ):
+    def test_check_acpi_bios_errors_found(self, mock_subprocess, mock_print_bios):
         """Test when ACPI BIOS errors are detected."""
         mock_subprocess.return_value = """Sep 18 17:17:37 test-host kernel: ACPI BIOS Error (bug): Failure creating named object [_SB.PC00.TXHC.RHUB.SS01._UPC], AE_ALREADY_EXISTS (20240827/dswload2-326)
 Sep 18 17:17:37 test-host kernel: ACPI Error: AE_ALREADY_EXISTS, During name lookup/catalog (20240827/psobject-220)

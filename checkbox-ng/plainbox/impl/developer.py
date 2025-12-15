@@ -101,9 +101,7 @@ class UnexpectedMethodCall(DeveloperError):
             cls_name=self.cls.__name__,
             fn_name=self.fn_name,
             allowed_calls="\n".join(
-                " - call {}.{}() to {}.".format(
-                    self.cls.__name__, allowed_fn_name, why
-                )
+                " - call {}.{}() to {}.".format(self.cls.__name__, allowed_fn_name, why)
                 for allowed_fn_name, why in self.allowed_pairs
             ),
         )
@@ -204,10 +202,7 @@ class UsageExpectation:
                 return
             # This can be removed later, it allows the caller to make an
             # off-by-one mistake and go away with it.
-            if (
-                alt_caller_frame is not None
-                and alt_caller_frame.f_code in allowed_code
-            ):
+            if alt_caller_frame is not None and alt_caller_frame.f_code in allowed_code:
                 warnings.warn(
                     "Please back={}. Properly constructed decorators are"
                     " automatically handled and do not require the use of the"

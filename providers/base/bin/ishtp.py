@@ -27,9 +27,7 @@ def check_modules():
     for module in expected_modules:
         print("Checking module: {}".format(module))
         if module not in module_list:
-            raise SystemExit(
-                "FAIL: The '{}' module is not loaded!".format(module)
-            )
+            raise SystemExit("FAIL: The '{}' module is not loaded!".format(module))
         else:
             print("PASS: It's loaded")
         print()
@@ -39,15 +37,11 @@ def check_devices():
     ishtp_dir = "/sys/bus/ishtp/devices/"
 
     if not os.path.isdir(ishtp_dir):
-        raise SystemExit(
-            "The ISHTP folder does not exist:  {}".format(ishtp_dir)
-        )
+        raise SystemExit("The ISHTP folder does not exist:  {}".format(ishtp_dir))
 
     devices = os.listdir(ishtp_dir)
     if not devices:
-        raise SystemExit(
-            "No devices found on the ISHTP folder:  {}".format(ishtp_dir)
-        )
+        raise SystemExit("No devices found on the ISHTP folder:  {}".format(ishtp_dir))
 
     print("Found ishtp devices under {}:".format(ishtp_dir))
     for device in devices:

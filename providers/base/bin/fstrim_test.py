@@ -58,9 +58,7 @@ def run_fstrim(device):
         command = "fstrim -v {}".format(mount_point)
         triminfo = Popen(shlex.split(command), stdout=PIPE)
         lsbinfo_bytes = triminfo.communicate()[0]
-        lsbinfo = lsbinfo_bytes.decode(
-            encoding="utf-8", errors="ignore"
-        ).rstrip()
+        lsbinfo = lsbinfo_bytes.decode(encoding="utf-8", errors="ignore").rstrip()
         logging.info(lsbinfo)
         retval = triminfo.returncode
     else:

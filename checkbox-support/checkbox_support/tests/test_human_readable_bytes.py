@@ -66,14 +66,10 @@ class HumanReadableBytesTests(unittest.TestCase):
         self.assertEqual(str(HumanReadableBytes("4mi")), "4MiB")
 
     def test_str_rounding(self):
-        self.assertEqual(
-            str(HumanReadableBytes(4 * 1024 * 1024 + 1)), "4.00MiB"
-        )
+        self.assertEqual(str(HumanReadableBytes(4 * 1024 * 1024 + 1)), "4.00MiB")
 
     def test_str_zero(self):
         self.assertEqual(str(HumanReadableBytes("0 MiB")), "0B")
 
     def test_repr(self):
-        self.assertEqual(
-            repr(HumanReadableBytes("5kib")), "HumanReadableBytes(5120)"
-        )
+        self.assertEqual(repr(HumanReadableBytes("5kib")), "HumanReadableBytes(5120)")

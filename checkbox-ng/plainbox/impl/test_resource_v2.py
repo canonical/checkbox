@@ -188,9 +188,7 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_in(self):
         expr = "namespace.a in ['1', '2']"
-        namespace = {
-            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
-        }
+        namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
         result = {"namespace": [HD({"a": "1"}), HD({"a": "2"})]}
 
         evaluated = evaluate(expr, namespace)
@@ -198,9 +196,7 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_in_tuple(self):
         expr = "namespace.a in ('1', '2')"
-        namespace = {
-            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
-        }
+        namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
         result = {"namespace": [HD({"a": "1"}), HD({"a": "2"})]}
 
         evaluated = evaluate(expr, namespace, explain_callback=print)
@@ -208,27 +204,21 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_not_in(self):
         expr = "namespace.a not in ['1', '2']"
-        namespace = {
-            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
-        }
+        namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
         result = {"namespace": [HD({"a": "3"})]}
         evaluated = evaluate(expr, namespace)
         self.assertEqual(evaluated, result)
 
     def test_neq_true(self):
         expr = "namespace.a != '1'"
-        namespace = {
-            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
-        }
+        namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
         result = {"namespace": [HD({"a": "2"}), HD({"a": "3"})]}
 
         evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_neq_false(self):
-        expr = (
-            "namespace.a != '1' and namespace.a != '2' and namespace.a != '3'"
-        )
+        expr = "namespace.a != '1' and namespace.a != '2' and namespace.a != '3'"
         namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"})]}
         result = {"namespace": []}
 
@@ -237,12 +227,8 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_multiple_or(self):
         expr = "namespace.a == '1' or namespace.a == '2' or namespace.a == '3'"
-        namespace = {
-            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
-        }
-        result = {
-            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
-        }
+        namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
+        result = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
 
         evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
@@ -264,9 +250,7 @@ class TestEvaluateEndToEnd(TestCase):
             implicit_namespace="com.canonical.certification",
         )
 
-        result = {
-            "com.canonical.certification::namespace": [HD({"a": 3, "b": 2})]
-        }
+        result = {"com.canonical.certification::namespace": [HD({"a": 3, "b": 2})]}
         result_bool = True
 
         self.assertEqual(evaluated, result)
@@ -330,9 +314,7 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_const_fetching(self):
         expr = "dmi.product in DESKTOP_PC_PRODUCT"
-        namespace = {
-            "dmi": [HD({"product": "All In One"}), HD({"product": "Laptop"})]
-        }
+        namespace = {"dmi": [HD({"product": "All In One"}), HD({"product": "Laptop"})]}
         result = {"dmi": [HD({"product": "All In One"})]}
 
         self.assertEqual(
@@ -394,9 +376,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {
             "namespace": [
                 HD({"a": 0, "b": 0, "c": 3, "d": 4}),  # First condition (d==4)
-                HD(
-                    {"a": 0, "b": 0, "c": 3, "d": 5}
-                ),  # Second condition (d==5)
+                HD({"a": 0, "b": 0, "c": 3, "d": 5}),  # Second condition (d==5)
                 HD({"a": 1, "b": 2, "c": 0, "d": 0}),  # No match
                 HD({"a": 0, "b": 0, "c": 3, "d": 6}),  # No match
                 HD({"a": 1, "b": 0, "c": 3, "d": 6}),  # No match
@@ -476,15 +456,11 @@ class TestUnsupportedGrammars(TestCase):
             _ = evaluate("'abc' in [namespace.a, namespace.b]", {})
 
     def test_unsupported_namespace_comparison(self):
-        with self.assertRaisesMessage(
-            ValueError, ["comparison", "namespaces"]
-        ):
+        with self.assertRaisesMessage(ValueError, ["comparison", "namespaces"]):
             _ = evaluate("namespace_1.a == namespace_2.a", {})
 
     def test_unsupported_function_reported(self):
-        with self.assertRaisesMessage(
-            ValueError, ["function", "called", "isinstance"]
-        ):
+        with self.assertRaisesMessage(ValueError, ["function", "called", "isinstance"]):
             _ = evaluate("isinstance(namespace.a, str) == True", {})
 
     def test_unsupported_is(self):
@@ -492,9 +468,7 @@ class TestUnsupportedGrammars(TestCase):
             _ = evaluate("namespace.a is True", {"namespace": []})
 
     def test_unsupported_multinamespace_function(self):
-        with self.assertRaisesMessage(
-            ValueError, ["call", "namespace", "namespace_1"]
-        ):
+        with self.assertRaisesMessage(ValueError, ["call", "namespace", "namespace_1"]):
             _ = evaluate("int(namespace.a, 1, namespace_1.b) == 1", {})
 
     def test_unsupported_constant_function_calls(self):
@@ -511,9 +485,7 @@ class TestUnsupportedGrammars(TestCase):
         _ = ast.Compare
 
         def test_unsupported_compare(self):
-            with self.assertRaisesMessage(
-                ValueError, ["multi-operator", "constraint"]
-            ):
+            with self.assertRaisesMessage(ValueError, ["multi-operator", "constraint"]):
                 _ = evaluate("1 < namespace.a < 3", {})
 
     except AttributeError:

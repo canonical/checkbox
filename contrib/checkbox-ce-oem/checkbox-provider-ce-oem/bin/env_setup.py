@@ -73,9 +73,7 @@ def get_config(config_file, config_path):
                 e,
             )
     else:
-        logging.warning(
-            "Invalid config path: %s. Using default config.", config_path
-        )
+        logging.warning("Invalid config path: %s. Using default config.", config_path)
 
     return config_file
 
@@ -123,9 +121,7 @@ def connect_interfaces(snapd, plug_snap, expect_plugs, snap_plugs):
                 )
                 logging.error(err)
         else:
-            logging.error(
-                'Expect plug "%s" not in the snap "%s".', plug, plug_snap
-            )
+            logging.error('Expect plug "%s" not in the snap "%s".', plug, plug_snap)
             status = False
     return status
 
@@ -177,9 +173,7 @@ def main():
         logging.info("Attempting to install %s snap", plug_snap)
         if not snapd.list(plug_snap):
             try:
-                snapd.install(
-                    plug_snap, channel=config_file[plug_snap]["channel"]
-                )
+                snapd.install(plug_snap, channel=config_file[plug_snap]["channel"])
             except Exception as err:
                 logging.error(err)
                 status = False

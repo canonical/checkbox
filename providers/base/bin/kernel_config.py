@@ -69,9 +69,7 @@ def check_flag(flag, min_version):
 
     version_parts = os.uname().release.split("-")
     kernel_version = "-".join(version_parts[:2])
-    if min_version and version.parse(kernel_version) < version.parse(
-        min_version
-    ):
+    if min_version and version.parse(kernel_version) < version.parse(min_version):
         print(
             "Kernel version is {}.".format(kernel_version),
             "Versions lower than {} don't require ".format(min_version),

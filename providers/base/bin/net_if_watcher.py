@@ -32,11 +32,7 @@ def main():
         new_ifaces = now_ifaces - starting_ifaces
         if new_ifaces:
             print()
-            print(
-                "New interface(s) detected: {}".format(
-                    ", ".join(list(new_ifaces))
-                )
-            )
+            print("New interface(s) detected: {}".format(", ".join(list(new_ifaces))))
             return
         time.sleep(1)
         print(".", end="", flush=True)

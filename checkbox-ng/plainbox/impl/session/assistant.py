@@ -203,9 +203,7 @@ class SessionAssistant:
             self.start_new_session: "create a new session from scratch",
             self.prepare_resume_session: "resume a resume candidate",
             self.get_resumable_sessions: "get resume candidates",
-            self.use_alternate_configuration: (
-                "use an alternate configuration system"
-            ),
+            self.use_alternate_configuration: ("use an alternate configuration system"),
             self.use_alternate_execution_controllers: (
                 "use an alternate execution controllers"
             ),
@@ -284,9 +282,7 @@ class SessionAssistant:
             del allowed_calls[self.use_alternate_restart_strategy]
 
     @raises(UnexpectedMethodCall)
-    def use_alternate_restart_strategy(
-        self, strategy: IRestartStrategy
-    ) -> None:
+    def use_alternate_restart_strategy(self, strategy: IRestartStrategy) -> None:
         """
         Setup an alternate restart strategy object.
 
@@ -317,9 +313,7 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         self._restart_strategy = strategy
-        del UsageExpectation.of(self).allowed_calls[
-            self.use_alternate_restart_strategy
-        ]
+        del UsageExpectation.of(self).allowed_calls[self.use_alternate_restart_strategy]
 
     @raises(UnexpectedMethodCall)
     def use_alternate_configuration(self, config):
@@ -341,20 +335,14 @@ class SessionAssistant:
         self._config = config
         self._exclude_qualifiers = []
         for pattern in self._config.get_value("test selection", "exclude"):
-            self._exclude_qualifiers.append(
-                RegExpJobQualifier(pattern, None, False)
-            )
+            self._exclude_qualifiers.append(RegExpJobQualifier(pattern, None, False))
 
         self._match_qualifiers = []
         for pattern in self._config.get_value("test selection", "match"):
-            self._match_qualifiers.append(
-                RegExpJobQualifier(pattern, None, True)
-            )
+            self._match_qualifiers.append(RegExpJobQualifier(pattern, None, True))
         Unit.config = config
         # NOTE: We expect applications to call this at most once.
-        del UsageExpectation.of(self).allowed_calls[
-            self.use_alternate_configuration
-        ]
+        del UsageExpectation.of(self).allowed_calls[self.use_alternate_configuration]
 
     @raises(UnexpectedMethodCall)
     def use_alternate_execution_controllers(
@@ -589,9 +577,7 @@ class SessionAssistant:
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)
         if self._metadata.running_job_name:
-            job = self._context.get_unit(
-                self._metadata.running_job_name, "job"
-            )
+            job = self._context.get_unit(self._metadata.running_job_name, "job")
             if "autorestart" in job.get_flag_set():
                 result = JobResultBuilder(
                     outcome=(
@@ -759,9 +745,7 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         return [
-            unit.id
-            for unit in self._context.unit_list
-            if unit.Meta.name == "test plan"
+            unit.id for unit in self._context.unit_list if unit.Meta.name == "test plan"
         ]
 
     @raises(KeyError, UnexpectedMethodCall)
@@ -865,10 +849,7 @@ class SessionAssistant:
         self._metadata.bootstrapping = True
         desired_job_list = select_units(
             self._context.state.job_list,
-            [
-                plan.get_bootstrap_qualifier()
-                for plan in (self._manager.test_plans)
-            ]
+            [plan.get_bootstrap_qualifier() for plan in (self._manager.test_plans)]
             + self._exclude_qualifiers,
         )
         self._context.state.update_desired_job_list(
@@ -982,10 +963,7 @@ class SessionAssistant:
         self._metadata.bootstrapping = True
         desired_job_list = select_units(
             self._context.state.job_list,
-            [
-                plan.get_bootstrap_qualifier()
-                for plan in (self._manager.test_plans)
-            ]
+            [plan.get_bootstrap_qualifier() for plan in (self._manager.test_plans)]
             + self._exclude_qualifiers,
         )
         self._context.state.update_desired_job_list(
@@ -1037,11 +1015,7 @@ class SessionAssistant:
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans]
             + self._exclude_qualifiers
-            + [
-                JobIdQualifier(
-                    "com.canonical.plainbox::collect-manifest", None, False
-                )
-            ]
+            + [JobIdQualifier("com.canonical.plainbox::collect-manifest", None, False)]
             + already_rejected,
         )
         if self._match_qualifiers:
@@ -1139,9 +1113,7 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         selection = [
             job.id
-            for job in [
-                self.get_job(job_id) for job_id in self.get_static_todo_list()
-            ]
+            for job in [self.get_job(job_id) for job_id in self.get_static_todo_list()]
             if job.category_id in categories
         ]
         self.use_alternate_selection(selection)
@@ -1406,9 +1378,7 @@ class SessionAssistant:
 
     def _parse_value(self, m, value):
         try:
-            return {"bool": self._strtobool, "natural": int}[m.value_type](
-                value
-            )
+            return {"bool": self._strtobool, "natural": int}[m.value_type](value)
         except ValueError:
             raise SystemExit(
                 ("Invalid manifest {} value '{}'").format(
@@ -1452,8 +1422,7 @@ class SessionAssistant:
         manifest_list = (
             unit
             for unit in self._context.unit_list
-            if unit.Meta.name == "manifest entry"
-            and unit.id in manifest_id_set
+            if unit.Meta.name == "manifest entry" and unit.id in manifest_id_set
         )
         disk_manifest = {}
         manifest_path = WellKnownDirsHelper.manifest_file()
@@ -1567,9 +1536,7 @@ class SessionAssistant:
                 raise ValueError("unknown user interface: {!r}".format(ui))
         else:
             raise TypeError("incorrect UI type")
-        warm_up_list = self._runner.get_warm_up_sequence(
-            self._context.state.run_list
-        )
+        warm_up_list = self._runner.get_warm_up_sequence(self._context.state.run_list)
         if warm_up_list:
             for warm_up_func in warm_up_list:
                 warm_up_func()
@@ -1613,31 +1580,21 @@ class SessionAssistant:
                 # 'share' the information how to respawn the application
                 # once all the test actions are performed.
                 # tests can read this from $PLAINBOX_PROVIDER_SHARE envvar
-                session_share = WellKnownDirsHelper.session_share(
-                    self.get_session_id()
-                )
-                respawn_cmd_file = os.path.join(
-                    session_share, "__respawn_checkbox"
-                )
+                session_share = WellKnownDirsHelper.session_share(self.get_session_id())
+                respawn_cmd_file = os.path.join(session_share, "__respawn_checkbox")
                 if self._restart_cmd_callback:
                     with open(respawn_cmd_file, "wt") as f:
-                        if isinstance(
-                            self._restart_strategy, RemoteDebRestartStrategy
-                        ):
+                        if isinstance(self._restart_strategy, RemoteDebRestartStrategy):
                             service = RemoteDebRestartStrategy.service_name
                             f.writelines(
                                 [
-                                    "sudo systemctl enable {}\n".format(
-                                        service
-                                    ),
+                                    "sudo systemctl enable {}\n".format(service),
                                     "sudo systemctl start {}".format(service),
                                 ]
                             )
                         else:
                             f.writelines(
-                                self._restart_cmd_callback(
-                                    self.get_session_id()
-                                )
+                                self._restart_cmd_callback(self.get_session_id())
                             )
             if not native:
                 as_systemd_unit = (
@@ -1657,9 +1614,7 @@ class SessionAssistant:
                     outcome=IJobResult.OUTCOME_UNDECIDED,
                 )
             if autorestart:
-                self._restart_strategy.diffuse_application_restart(
-                    self._app_id
-                )
+                self._restart_strategy.diffuse_application_restart(self._app_id)
             self._manager.checkpoint()
             ui.finished_running(job, job_state, builder.get_result())
         else:
@@ -1762,9 +1717,7 @@ class SessionAssistant:
         """
         rerun_candidates = []
         todo_list = self.get_static_todo_list()
-        job_states = {
-            job_id: self.get_job_state(job_id) for job_id in todo_list
-        }
+        job_states = {job_id: self.get_job_state(job_id) for job_id in todo_list}
         for job_id, job_state in job_states.items():
             if session_type == "manual":
                 if job_state.result.outcome in (
@@ -1782,9 +1735,7 @@ class SessionAssistant:
                     continue
                 if job_state.effective_auto_retry == "no":
                     continue
-                if job_state.result.outcome in (
-                    IJobResult.OUTCOME_NOT_SUPPORTED
-                ):
+                if job_state.result.outcome in (IJobResult.OUTCOME_NOT_SUPPORTED):
                     for inhibitor in job_state.readiness_inhibitor_list:
                         if inhibitor.cause == InhibitionCause.FAILED_DEP:
                             rerun_candidates.append(self.get_job(job_id))
@@ -1824,9 +1775,7 @@ class SessionAssistant:
             self.get_job_state(job.id).result = MemoryJobResult({})
             candidates.append(job.id)
             _logger.info(
-                "{}: {} attempts".format(
-                    job.id, self.get_job_state(job.id).attempts
-                )
+                "{}: {} attempts".format(job.id, self.get_job_state(job.id).attempts)
             )
         return candidates
 
@@ -1881,8 +1830,7 @@ class SessionAssistant:
             }
             if not (ignored_flags & set(self._metadata.flags)):
                 _logger.warning(
-                    "Finalizing session that hasn't been submitted "
-                    "anywhere: %s",
+                    "Finalizing session that hasn't been submitted " "anywhere: %s",
                     self._manager.storage.id,
                 )
             for flag in finalizable_flags:
@@ -1986,9 +1934,7 @@ class SessionAssistant:
             When there is a problem when writing the output.
         """
         UsageExpectation.of(self).enforce()
-        exporter = self._manager.create_exporter(
-            exporter_id, option_list, strict=False
-        )
+        exporter = self._manager.create_exporter(exporter_id, option_list, strict=False)
 
         # LP:1585326 maintain isoformat but removing ':' chars that cause
         # issues when copying files.
@@ -2063,9 +2009,7 @@ class SessionAssistant:
             self.get_job: "to access the definition of any job",
             self.get_test_plan: "to access the definition of any test plan",
             self.get_category: "to access the definition of ant category",
-            self.get_participating_categories: (
-                "to access participating categories"
-            ),
+            self.get_participating_categories: ("to access participating categories"),
             self.get_mandatory_jobs: "to get all mandatory job ids",
             self.filter_jobs_by_categories: (
                 "to select the jobs that match particular category"
@@ -2099,14 +2043,10 @@ class SessionAssistant:
             self._manager.storage.id
         )
         runner_kwargs["command_io_delegate"] = self._command_io_delegate
-        runner_kwargs["execution_ctrl_list"] = (
-            self._execution_ctrl_list or None
-        )
+        runner_kwargs["execution_ctrl_list"] = self._execution_ctrl_list or None
 
         self._runner = runner_cls(
-            self._manager.storage.id,
-            self._context.provider_list,
-            **runner_kwargs
+            self._manager.storage.id, self._context.provider_list, **runner_kwargs
         )
         return
 

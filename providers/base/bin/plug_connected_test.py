@@ -20,14 +20,10 @@ if __name__ == "__main__":
     for plug in data.get("plugs", []):
         if plug["snap"] == snap_name and plug["plug"] == plug_name:
             if "connections" in plug:
-                print(
-                    "{}:{} is connected to:".format(plug["snap"], plug["plug"])
-                )
+                print("{}:{} is connected to:".format(plug["snap"], plug["plug"]))
                 for slot in plug["connections"]:
                     print("{}:{}".format(slot["snap"], slot["slot"]))
             else:
                 raise SystemExit(
-                    "ERROR: {}:{} is not connected".format(
-                        plug["snap"], plug["plug"]
-                    )
+                    "ERROR: {}:{} is not connected".format(plug["snap"], plug["plug"])
                 )

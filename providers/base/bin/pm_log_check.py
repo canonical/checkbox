@@ -17,9 +17,7 @@ def main():
     args = parse_args()
 
     if not os.path.isfile(args.input_log_filename):
-        sys.stderr.write(
-            "Log file {0!r} not found\n".format(args.input_log_filename)
-        )
+        sys.stderr.write("Log file {0!r} not found\n".format(args.input_log_filename))
         sys.exit(NOT_FOUND)
 
     LoggingConfiguration.set(args.log_level, args.output_log_filename)
@@ -37,17 +35,11 @@ class Parser(object):
     Reboot test log file parser
     """
 
-    is_logging_line = re.compile(
-        r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}"
-    ).search
-    is_getting_info_line = re.compile(
-        r"Gathering hardware information...$"
-    ).search
+    is_logging_line = re.compile(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}").search
+    is_getting_info_line = re.compile(r"Gathering hardware information...$").search
     is_executing_line = re.compile(r"Executing: '(?P<command>.*)'...$").search
     is_output_line = re.compile(r"Output:$").search
-    is_field_line = re.compile(
-        r"^- (?P<field>returncode|stdout|stderr):$"
-    ).match
+    is_field_line = re.compile(r"^- (?P<field>returncode|stdout|stderr):$").match
     is_test_complete_line = re.compile(r"test complete$").search
 
     def __init__(self, filename):
@@ -186,9 +178,7 @@ class LoggingConfiguration(object):
 
         # Log to rotating file using DEBUG log level
         log_handler = logging.FileHandler(log_filename, mode="w")
-        formatter = logging.Formatter(
-            "%(asctime)s %(levelname)-8s " "%(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s %(levelname)-8s " "%(message)s")
         log_handler.setFormatter(formatter)
         log_handler.setLevel(logging.DEBUG)
         logger.addHandler(log_handler)
@@ -215,9 +205,7 @@ def compare_results(results):
                 if baseline_field != result_field:
                     differ = difflib.Differ()
 
-                    message = [
-                        "** {field!r} field doesn't match:".format(field=field)
-                    ]
+                    message = ["** {field!r} field doesn't match:".format(field=field)]
                     comparison = differ.compare(
                         baseline_field.splitlines(), result_field.splitlines()
                     )
@@ -225,22 +213,16 @@ def compare_results(results):
                     error_messages.append("\n".join(message))
 
             if not error_messages:
-                logging.debug(
-                    "[Iteration {0}] {1}...\t[OK]".format(index + 1, command)
-                )
+                logging.debug("[Iteration {0}] {1}...\t[OK]".format(index + 1, command))
             else:
                 success = False
                 if command.startswith("fwts"):
                     logging.error(
-                        "[Iteration {0}] {1}...\t[FAIL]".format(
-                            index + 1, command
-                        )
+                        "[Iteration {0}] {1}...\t[FAIL]".format(index + 1, command)
                     )
                 else:
                     logging.error(
-                        "[Iteration {0}] {1}...\t[FAIL]\n".format(
-                            index + 1, command
-                        )
+                        "[Iteration {0}] {1}...\t[FAIL]\n".format(index + 1, command)
                     )
                     for message in error_messages:
                         logging.error(message)
@@ -252,9 +234,7 @@ def parse_args():
     """
     Parse command-line arguments
     """
-    parser = ArgumentParser(
-        description=("Check power management " "test case results")
-    )
+    parser = ArgumentParser(description=("Check power management " "test case results"))
     parser.add_argument(
         "input_log_filename",
         metavar="log_filename",

@@ -86,9 +86,7 @@ class CANSocket:
     def send(self, can_id, data, id_flags=0, fd_flags=0):
         can_id = can_id | id_flags
         if self._fdmode:
-            can_pkt = struct.pack(
-                self.FD_FORMAT, can_id, len(data), fd_flags, data
-            )
+            can_pkt = struct.pack(self.FD_FORMAT, can_id, len(data), fd_flags, data)
         else:
             can_pkt = struct.pack(self.FORMAT, can_id, len(data), data)
         self.sock.send(can_pkt)
@@ -97,9 +95,7 @@ class CANSocket:
         can_pkt = self.sock.recv(self.CANFD_MTU)
         nbytes = len(can_pkt)
         if nbytes == self.CANFD_MTU:
-            can_id, length, fd_flags, data = struct.unpack(
-                self.FD_FORMAT, can_pkt
-            )
+            can_id, length, fd_flags, data = struct.unpack(self.FD_FORMAT, can_pkt)
         else:
             can_id, length, data = struct.unpack(self.FORMAT, can_pkt)
         can_id &= socket.CAN_EFF_MASK
@@ -135,9 +131,7 @@ def echo_test(args):
         nonlocal recv_id_i
         nonlocal recv_data_b
         print("Opening read socket on {}".format(args.interface))
-        with CANSocket(
-            args.interface, fdmode=args.fdmode, loopback=loopback
-        ) as recv_s:
+        with CANSocket(args.interface, fdmode=args.fdmode, loopback=loopback) as recv_s:
             recv_id_i, recv_data_b = recv_s.recv()
 
     # Create a receive thread
@@ -147,9 +141,7 @@ def echo_test(args):
 
     print("Opening send socket on {}".format(args.interface))
     # Open socket, will raise OSError on failure
-    with CANSocket(
-        args.interface, fdmode=args.fdmode, loopback=loopback
-    ) as send_s:
+    with CANSocket(args.interface, fdmode=args.fdmode, loopback=loopback) as send_s:
         print("Sending data...", flush=True)
         try:
             send_s.send(can_id_i, data_b, id_flags=id_flags)
@@ -202,9 +194,7 @@ def main():
         action="store_true",
         help="Expect a remote device to echo the test packet",
     )
-    parser.add_argument(
-        "--effid", action="store_true", help="Use EFF ID (CAN 2.0 B)"
-    )
+    parser.add_argument("--effid", action="store_true", help="Use EFF ID (CAN 2.0 B)")
     parser.add_argument(
         "--fdmode",
         action="store_true",

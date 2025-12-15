@@ -34,6 +34,4 @@ class TestBootModeTestSnappy(unittest.TestCase):
         Test if system-backup interface is included in kernel.img file path
         https://snapcraft.io/docs/the-system-backup-interface
         """
-        self.assertIn(
-            "/var/lib/snapd/hostfs/boot/uboot/", get_uboot_kernel("kernel")
-        )
+        self.assertIn("/var/lib/snapd/hostfs/boot/uboot/", get_uboot_kernel("kernel"))

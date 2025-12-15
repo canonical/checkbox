@@ -1,6 +1,7 @@
 """
 Helpers and wrappers for common RPyC tasks
 """
+
 import time
 from plainbox.vendor.rpyc.lib import spawn
 from plainbox.vendor.rpyc.lib.colls import WeakValueDict
@@ -78,13 +79,16 @@ def restricted(obj, attrs, wattrs=None):
             if name not in attrs:
                 raise AttributeError(name)
             return getattr(obj, name)
+
         __getattr__ = _rpyc_getattr
 
         def _rpyc_setattr(self, name, value):
             if name not in wattrs:
                 raise AttributeError(name)
             setattr(obj, name, value)
+
         __setattr__ = _rpyc_setattr
+
     return Restricted()
 
 
@@ -154,7 +158,7 @@ def async_(proxy):
 
 
 async_.__doc__ = _Async.__doc__
-globals()['async'] = async_         # backward compatibility alias
+globals()["async"] = async_  # backward compatibility alias
 
 
 class timed(object):
@@ -207,11 +211,18 @@ class BgServingThread(object):
        ``BgServingThread``, see :ref:`tut5`
 
     """
+
     # these numbers are magical...
     SERVE_INTERVAL = 0.0
     SLEEP_INTERVAL = 0.1
 
-    def __init__(self, conn, callback=None, serve_interval=SERVE_INTERVAL, sleep_interval=SLEEP_INTERVAL):
+    def __init__(
+        self,
+        conn,
+        callback=None,
+        serve_interval=SERVE_INTERVAL,
+        sleep_interval=SLEEP_INTERVAL,
+    ):
         self._conn = conn
         self._active = True
         self._callback = callback
@@ -253,5 +264,6 @@ def classpartial(*args, **kwargs):
 
         def __new__(self):
             return cls(*args, **kwargs)
+
     Partial.__name__ = cls.__name__
     return Partial

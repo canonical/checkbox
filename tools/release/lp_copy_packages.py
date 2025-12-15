@@ -57,9 +57,7 @@ def copy_packages(source_owner, source_ppa, dest_owner, dest_ppa):
     source_ppa = get_ppa(lp, source_ppa, source_owner)
     dest_ppa = get_ppa(lp, dest_ppa, dest_owner)
 
-    packages = source_ppa.getPublishedSources(
-        order_by_date=True, status="Published"
-    )
+    packages = source_ppa.getPublishedSources(order_by_date=True, status="Published")
 
     # Copy each package from the source PPA to the destination PPA,
     # without rebuilding them

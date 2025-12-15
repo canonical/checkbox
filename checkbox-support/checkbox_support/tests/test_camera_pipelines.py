@@ -57,9 +57,7 @@ class TestPipelineLogic(ut.TestCase):
         )
 
         # first call, first pair, 2nd element
-        real_eos_handler = mock_GLib.timeout_add_seconds.call_args_list[0][0][
-            1
-        ]
+        real_eos_handler = mock_GLib.timeout_add_seconds.call_args_list[0][0][1]
         real_eos_handler()
         pipeline.send_event.assert_called_with(mock_eos_signal_obj)
 
@@ -296,9 +294,7 @@ class TestPipelineLogic(ut.TestCase):
         mock_type: MagicMock,
     ):
         mock_caps = MagicMock()
-        mock_caps.to_string.return_value = (
-            "video/x-theora,width=1280,height=720"
-        )
+        mock_caps.to_string.return_value = "video/x-theora,width=1280,height=720"
         mock_caps.get_structure(0).get_name.return_value = "video/x-theora"
         mock_type.return_value = mock_Gst.Pipeline
         cam.take_photo(
@@ -452,9 +448,7 @@ class TestUtilFunctions(ut.TestCase):
             return getattr(self, prop_name)
 
     @patch("checkbox_support.camera_pipelines.Gst")
-    def test_get_launch_line_null_and_exceptionchecks(
-        self, mock_Gst: MagicMock
-    ):
+    def test_get_launch_line_null_and_exceptionchecks(self, mock_Gst: MagicMock):
         device = MagicMock()
         device.create_element.return_value = None
         self.assertIsNone(cam.get_launch_line(device))

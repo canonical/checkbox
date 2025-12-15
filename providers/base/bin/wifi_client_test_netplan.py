@@ -373,9 +373,7 @@ def print_journal_entries(start, renderer):
         "-u {} "
         "-u wpa_supplicant.service "
         "-u netplan-* "
-        '--since "{}" '.format(
-            render_service, start.strftime("%Y-%m-%d %H:%M:%S")
-        )
+        '--since "{}" '.format(render_service, start.strftime("%Y-%m-%d %H:%M:%S"))
     )
     print_cmd(cmd)
     sp.call(cmd, shell=True)
@@ -385,8 +383,7 @@ def parse_args():
     # Read arguments
     parser = argparse.ArgumentParser(
         description=(
-            "This script will test wireless network with netplan"
-            " in client mode."
+            "This script will test wireless network with netplan" " in client mode."
         )
     )
     parser.add_argument(

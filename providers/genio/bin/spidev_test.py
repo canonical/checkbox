@@ -68,9 +68,7 @@ def test_spi_content_consistency(platform):
         tx_content = tx.split("|")[2]
         rx_content = rx.split("|")[2]
         if tx_content != rx_content:
-            raise SystemExit(
-                "ERROR: the content is not consistent between TX and RX"
-            )
+            raise SystemExit("ERROR: the content is not consistent between TX and RX")
 
 
 def main():

@@ -91,9 +91,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if exporter_unit:
             for option in exporter_unit.option_list:
                 if option not in self.supported_option_list:
-                    raise ValueError(
-                        _("Unsupported option: {}").format(option)
-                    )
+                    raise ValueError(_("Unsupported option: {}").format(option))
         self._option_list = (
             SessionStateExporterBase.OPTION_WITH_IO_LOG,
             SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
@@ -313,9 +311,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         resource = "com.canonical.certification::dmi"
         if resource in data["resource_map"]:
             result = [
-                "{} {} ({})".format(
-                    i.get("vendor"), i.get("product"), i.get("version")
-                )
+                "{} {} ({})".format(i.get("vendor"), i.get("product"), i.get("version"))
                 for i in data["resource_map"][resource]
                 if i.get("category") == "SYSTEM"
             ]
@@ -340,14 +336,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if resource in data["attachment_map"]:
             lspci = data["attachment_map"][resource]
             content = standard_b64decode(lspci.encode()).decode("UTF-8")
-            match = re.search(
-                r"ISA bridge.*?:\s(?P<chipset>.*?)\sLPC", content
-            )
+            match = re.search(r"ISA bridge.*?:\s(?P<chipset>.*?)\sLPC", content)
             if match:
                 hw_info["chipset"] = match.group("chipset")
-            match = re.search(
-                r"Audio device.*?:\s(?P<audio>.*?)\s\[\w+:\w+]", content
-            )
+            match = re.search(r"Audio device.*?:\s(?P<audio>.*?)\s\[\w+:\w+]", content)
             if match:
                 hw_info["audio"] = match.group("audio")
             match = re.search(
@@ -379,9 +371,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         resource = "com.canonical.certification::meminfo"
         if resource in data["resource_map"]:
             result = [
-                "{} GiB".format(
-                    format(int(i.get("total", 0)) / 1073741824, ".1f")
-                )
+                "{} GiB".format(format(int(i.get("total", 0)) / 1073741824, ".1f"))
                 for i in data["resource_map"][resource]
             ]
             if result:
@@ -487,18 +477,12 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         row += 2
         resource = "com.canonical.certification::package"
         if resource in data["resource_map"]:
-            self.worksheet1.write(
-                row, 1, _("Packages Installed"), self.format03
-            )
+            self.worksheet1.write(row, 1, _("Packages Installed"), self.format03)
             row += 2
-            self.worksheet1.write_row(
-                row, 1, [_("Name"), _("Version")], self.format07
-            )
+            self.worksheet1.write_row(row, 1, [_("Name"), _("Version")], self.format07)
             row += 1
             for i in range(row - 2, row):
-                self.worksheet1.set_row(
-                    i, None, None, {"level": 1, "hidden": True}
-                )
+                self.worksheet1.set_row(i, None, None, {"level": 1, "hidden": True})
             packages_starting_row = row
             for i, pkg in enumerate(data["resource_map"][resource]):
                 self.worksheet1.write_row(
@@ -540,9 +524,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             4,
             2,
             (
-                ngettext(
-                    "{} Test passed", "{} Tests passed", self.total_pass
-                ).format(self.total_pass)
+                ngettext("{} Test passed", "{} Tests passed", self.total_pass).format(
+                    self.total_pass
+                )
                 + " - "
                 + _("Success Rate: {} ({}/{})").format(
                     pass_rate, self.total_pass, self.total
@@ -557,9 +541,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             5,
             2,
             (
-                ngettext(
-                    "{} Test failed", "{} Tests failed", self.total_fail
-                ).format(self.total_fail)
+                ngettext("{} Test failed", "{} Tests failed", self.total_fail).format(
+                    self.total_fail
+                )
                 + " - "
                 + _("Failure Rate: {} ({}/{})").format(
                     fail_rate, self.total_fail, self.total
@@ -574,9 +558,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             6,
             2,
             (
-                ngettext(
-                    "{} Test skipped", "{} Tests skipped", self.total_skip
-                ).format(self.total_skip)
+                ngettext("{} Test skipped", "{} Tests skipped", self.total_skip).format(
+                    self.total_skip
+                )
                 + " - "
                 + _("Skip Rate: {} ({}/{})").format(
                     skip_rate, self.total_skip, self.total
@@ -630,36 +614,28 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             # Generate categories status
             child_status = result_map[job_name]["outcome"]
             if child_status == IJobResult.OUTCOME_FAIL:
-                tmp_result_map[category][
-                    "category_status"
-                ] = IJobResult.OUTCOME_FAIL
+                tmp_result_map[category]["category_status"] = IJobResult.OUTCOME_FAIL
             elif (
                 child_status == IJobResult.OUTCOME_PASS
                 and tmp_result_map[category]["category_status"]
                 != IJobResult.OUTCOME_FAIL
             ):
-                tmp_result_map[category][
-                    "category_status"
-                ] = IJobResult.OUTCOME_PASS
+                tmp_result_map[category]["category_status"] = IJobResult.OUTCOME_PASS
             elif tmp_result_map[category]["category_status"] not in (
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
             ):
-                tmp_result_map[category][
-                    "category_status"
-                ] = IJobResult.OUTCOME_SKIP
+                tmp_result_map[category]["category_status"] = IJobResult.OUTCOME_SKIP
         result_map.update(tmp_result_map)
         return res, 2
 
     def _write_job(self, tree, result_map, max_level, level=0):
         for job, children in OrderedDict(
-            sorted(
-                tree.items(), key=lambda t: "z" + t[0] if t[1] else "a" + t[0]
-            )
+            sorted(tree.items(), key=lambda t: "z" + t[0] if t[1] else "a" + t[0])
         ).items():
-            if result_map[job]["plugin"] == "local" and not result_map[
-                job
-            ].get("category_status"):
+            if result_map[job]["plugin"] == "local" and not result_map[job].get(
+                "category_status"
+            ):
                 continue
             self._lineno += 1
             if children:
@@ -686,17 +662,13 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         self.format15,
                     )
                 if level:
-                    self.worksheet3.set_row(
-                        self._lineno, 13, None, {"level": level}
-                    )
+                    self.worksheet3.set_row(self._lineno, 13, None, {"level": level})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
                             self._lineno, 13, None, {"level": level}
                         )
                 else:
-                    self.worksheet3.set_row(
-                        self._lineno, 13, None, {"collapsed": True}
-                    )
+                    self.worksheet3.set_row(self._lineno, 13, None, {"collapsed": True})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
                             self._lineno, 13, None, {"collapsed": True}
@@ -764,9 +736,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 if result_map[job]["plugin"] not in ("resource", "attachment"):
                     if result_map[job]["io_log"]:
                         io_log = (
-                            standard_b64decode(
-                                result_map[job]["io_log"].encode()
-                            )
+                            standard_b64decode(result_map[job]["io_log"].encode())
                             .decode("UTF-8")
                             .rstrip()
                         )
@@ -774,9 +744,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 if io_lines > 2:
                     io_log = "\n".join(io_log.splitlines()[:3]) + "\n[...]"
                     io_lines = len(io_log.splitlines()) - 1
-                desc_lines = len(
-                    result_map[job].get("description", "").splitlines()
-                )
+                desc_lines = len(result_map[job].get("description", "").splitlines())
                 desc_lines -= 1
                 self.worksheet3.write(
                     self._lineno,
@@ -857,10 +825,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             self.worksheet4.write(3, 1, _("Test Descriptions"), self.format03)
             self.worksheet4.freeze_panes(6, 0)
             self.worksheet4.set_column(0, 0, 5)
-            [
-                self.worksheet4.set_column(i, i, 2)
-                for i in range(1, max_level + 1)
-            ]
+            [self.worksheet4.set_column(i, i, 2) for i in range(1, max_level + 1)]
             self.worksheet4.set_column(max_level + 1, max_level + 1, 48)
             self.worksheet4.set_column(max_level + 2, max_level + 2, 65)
             self.worksheet4.write_row(
@@ -868,13 +833,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             )
         self._lineno = 5
         self._write_job(tree, data["result_map"], max_level)
-        self.worksheet3.set_row(
-            self._lineno + 1, None, None, {"collapsed": True}
-        )
+        self.worksheet3.set_row(self._lineno + 1, None, None, {"collapsed": True})
         if self.OPTION_WITH_DESCRIPTION in self._option_list:
-            self.worksheet4.set_row(
-                self._lineno + 1, None, None, {"collapsed": True}
-            )
+            self.worksheet4.set_row(self._lineno + 1, None, None, {"collapsed": True})
         self.worksheet3.autofilter(5, max_level, self._lineno, max_level + 3)
 
     def _category_map(self, state):
@@ -894,9 +855,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         }
 
     def write_tp_export(self, data):
-        self.worksheet4.set_header(
-            "&C{}".format(data["manager"].test_plans[0])
-        )
+        self.worksheet4.set_header("&C{}".format(data["manager"].test_plans[0]))
         self.worksheet4.set_footer("&CPage &P of &N")
         self.worksheet4.set_margins(left=0.3, right=0.3, top=0.5, bottom=0.5)
         self.worksheet4.set_column(0, 0, 40)
@@ -927,9 +886,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     and job_state.job.plugin not in ("resource", "attachment")
                 ):
                     self._lineno += 1
-                    certification_status = (
-                        job_state.effective_certification_status
-                    )
+                    certification_status = job_state.effective_certification_status
                     if certification_status == "non-blocker":
                         certification_status = ""
                     description = job_state.job.description
@@ -963,15 +920,11 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 continue
             self.worksheet5.write(i, 1, name, self.format03)
             i += 1
-            self.worksheet5.set_row(
-                i, None, None, {"level": 1, "hidden": True}
-            )
+            self.worksheet5.set_row(i, None, None, {"level": 1, "hidden": True})
             j = 1
             for line in content.splitlines():
                 self.worksheet5.write(j + i, 1, line, self.format13)
-                self.worksheet5.set_row(
-                    j + i, None, None, {"level": 1, "hidden": True}
-                )
+                self.worksheet5.set_row(j + i, None, None, {"level": 1, "hidden": True})
                 j += 1
             self.worksheet5.set_row(i + j, None, None, {"collapsed": True})
             i += j + 1  # Insert a newline between attachments
@@ -996,15 +949,11 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 continue
             self.worksheet6.write(i, 1, name, self.format03)
             i += 1
-            self.worksheet6.set_row(
-                i, None, None, {"level": 1, "hidden": True}
-            )
+            self.worksheet6.set_row(i, None, None, {"level": 1, "hidden": True})
             j = 1
             for line in io_log.splitlines():
                 self.worksheet6.write(j + i, 1, line, self.format13)
-                self.worksheet6.set_row(
-                    j + i, None, None, {"level": 1, "hidden": True}
-                )
+                self.worksheet6.set_row(j + i, None, None, {"level": 1, "hidden": True})
                 j += 1
             self.worksheet6.set_row(i + j, None, None, {"collapsed": True})
             i += j + 1  # Insert a newline between resources logs
@@ -1041,9 +990,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             self.OPTION_WITH_DESCRIPTION in self._option_list
             or self.OPTION_TEST_PLAN_EXPORT in self._option_list
         ):
-            self.worksheet4 = self.workbook.add_worksheet(
-                _("Test Descriptions")
-            )
+            self.worksheet4 = self.workbook.add_worksheet(_("Test Descriptions"))
         if self.OPTION_TEST_PLAN_EXPORT in self._option_list:
             self.write_tp_export(data)
         else:

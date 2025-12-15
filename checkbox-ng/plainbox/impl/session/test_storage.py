@@ -37,9 +37,7 @@ class SessionStorageTests(TestCase):
         session_prefix = "test_storage-"
         storage = SessionStorage(session_prefix)
         session_id = storage.id
-        self.assertEqual(
-            storage.location, WellKnownDirsHelper.session_dir(session_id)
-        )
+        self.assertEqual(storage.location, WellKnownDirsHelper.session_dir(session_id))
 
     def test_create_remove(self):
         session_prefix = "test_storage-"

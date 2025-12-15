@@ -28,9 +28,7 @@ def _run_command(cmd, **kwargs):
         print("Error output: {}".format(e.stderr), flush=True)
         raise e
     except Exception as e:
-        print(
-            "Unexpected error running command: {}".format(str(e)), flush=True
-        )
+        print("Unexpected error running command: {}".format(str(e)), flush=True)
         raise e
 
 
@@ -120,8 +118,7 @@ def parse_json_file(filepath, filter_pkcs11=False):
 
     if not filepath:
         default_provider_path = (
-            "/snap/checkbox-ce-oem/current/providers"
-            "/checkbox-provider-ce-oem/data/"
+            "/snap/checkbox-ce-oem/current/providers" "/checkbox-provider-ce-oem/data/"
         )
         fw_ver = _lookup_optee_version()
         if not fw_ver:
@@ -179,13 +176,9 @@ def register_arguments():
     check_parser = sub_parsers.add_parser(
         "check_firmware_version", description="check OPTEE firmware"
     )
-    check_parser.add_argument(
-        "expected_version", help="OPTEE firmware version"
-    )
+    check_parser.add_argument("expected_version", help="OPTEE firmware version")
 
-    test_parser = sub_parsers.add_parser(
-        "xtest", description="perform xtest case"
-    )
+    test_parser = sub_parsers.add_parser("xtest", description="perform xtest case")
     test_parser.add_argument("test_suite", type=str)
     test_parser.add_argument("test_id", type=str)
 

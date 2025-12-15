@@ -73,9 +73,7 @@ def generate_resume_candidate_description(candidate):
     last_job_id = candidate.metadata.running_job_name or "Unknown"
     last_job_timestamp = candidate.metadata.last_job_start_time or None
     if last_job_timestamp:
-        dt = datetime.datetime.fromtimestamp(
-            last_job_timestamp, datetime.timezone.utc
-        )
+        dt = datetime.datetime.fromtimestamp(last_job_timestamp, datetime.timezone.utc)
         last_job_start_time = dt.strftime("%Y-%m-%d %H:%M:%S")
     else:
         last_job_start_time = "Unknown"

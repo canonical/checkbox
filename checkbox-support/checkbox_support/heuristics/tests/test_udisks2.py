@@ -40,6 +40,4 @@ class TestIsMemoryCard(TestCase):
         """
         Device with vendor string "GENERIC" is a memory card
         """
-        self.assertTrue(
-            is_memory_card(vendor="Generic", model="", udisks2_media=None)
-        )
+        self.assertTrue(is_memory_card(vendor="Generic", model="", udisks2_media=None))

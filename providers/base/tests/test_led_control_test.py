@@ -66,9 +66,7 @@ class TestSysFsLEDController(unittest.TestCase):
         mock_path.return_value = True
         mock_read.return_value = "22"
 
-        self.led_controller._write_node(
-            self.led_controller.led_node, "22", True
-        )
+        self.led_controller._write_node(self.led_controller.led_node, "22", True)
         mock_read.assert_called_once_with(self.led_controller.led_node)
         mock_write.assert_called_once_with("22")
 
@@ -83,9 +81,7 @@ class TestSysFsLEDController(unittest.TestCase):
 
         led_name = "status"
         with SysFsLEDController(led_name, "3", "0") as led_controller:
-            mock_read.assert_called_once_with(
-                led_controller.max_brightness_node
-            )
+            mock_read.assert_called_once_with(led_controller.max_brightness_node)
             mock_get_initial.assert_called_once_with()
             mock_off.assert_called_once_with()
             mock_write.assert_called_once_with(
@@ -112,9 +108,7 @@ class TestSysFsLEDController(unittest.TestCase):
     @patch("led_control_test.SysFsLEDController._write_node")
     def test_set_brightness(self, mock_write):
         self.led_controller.brightness = "33"
-        mock_write.assert_called_once_with(
-            self.led_controller.brightness_node, "33"
-        )
+        mock_write.assert_called_once_with(self.led_controller.brightness_node, "33")
 
     @patch("led_control_test.SysFsLEDController._read_node")
     def test_get_trigger(self, mock_read):
@@ -181,9 +175,7 @@ class TestMultiColorSysFsLEDController(unittest.TestCase):
         mock_get_ini.assert_called_with()
         mock_trigger.assert_called_with("none")
         mock_off.assert_called_with()
-        self.assertEqual(
-            self.led_controller.color_mapping, ["red", "green", "blue"]
-        )
+        self.assertEqual(self.led_controller.color_mapping, ["red", "green", "blue"])
 
     @patch(
         "led_control_test.SysFsLEDController.multi_intensity",
@@ -261,9 +253,7 @@ class TestMultiColorSysFsLEDController(unittest.TestCase):
     )
     @patch("led_control_test.SysFsLEDController.blinking")
     @patch("led_control_test.SysFsLEDController.form_multi_intensity_value")
-    def test_multi_color_blinking(
-        self, mock_form_func, mock_blink, mock_intensity
-    ):
+    def test_multi_color_blinking(self, mock_form_func, mock_blink, mock_intensity):
         mock_form_func.return_value = "color value"
 
         self.led_controller.color_mapping = ["red"]

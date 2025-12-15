@@ -39,9 +39,7 @@ def unpair_all(devices, manager):
     else:
         # print(flush=True) to bypass plainbox output buffer,
         # see LP: #1569808 for more details.
-        print(
-            "Please reset the device to pairing mode in 13 seconds", flush=True
-        )
+        print("Please reset the device to pairing mode in 13 seconds", flush=True)
         time.sleep(13)
         print("INFO: Re-scaning for devices in pairing mode", flush=True)
         manager.scan()
@@ -50,9 +48,7 @@ def unpair_all(devices, manager):
 def main():
     """Add argument parser here and do most of the job."""
     parser = ArgumentParser(
-        description=(
-            "Bluetooth auto paring and connect. " "Please select one option."
-        )
+        description=("Bluetooth auto paring and connect. " "Please select one option.")
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -84,9 +80,7 @@ def main():
         print("INFO: Trying to pair with {}".format(args.mac))
         device = list(manager.get_bt_devices(filters={"Address": args.mac}))
         paired_device = list(
-            manager.get_bt_devices(
-                filters={"Address": args.mac, "Paired": True}
-            )
+            manager.get_bt_devices(filters={"Address": args.mac, "Paired": True})
         )
         if not device:
             print("ERROR: No pairable device found, terminating")

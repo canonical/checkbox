@@ -42,9 +42,7 @@ class SessionManagerTests(SignalTestCase):
         self.storage = mock.Mock(name="storage", spec=SessionStorage)
         self.state = mock.Mock(name="state", spec=SessionState)
         self.context = mock.Mock(name="context", spec=SessionDeviceContext)
-        self.context2 = mock.Mock(
-            name="context2", spec_set=SessionDeviceContext
-        )
+        self.context2 = mock.Mock(name="context2", spec_set=SessionDeviceContext)
         self.context_list = [self.context]  # NOTE: just the first context
         self.manager = SessionManager(self.context_list, self.storage)
 
@@ -126,9 +124,7 @@ class SessionManagerTests(SignalTestCase):
         # location
         helper_cls.assert_called_with(unit_list, flags, self.storage.location)
         # Ensure that the helper instance was asked to recreate session state
-        helper_cls().resume.assert_called_with(
-            self.storage.load_checkpoint(), None
-        )
+        helper_cls().resume.assert_called_with(self.storage.load_checkpoint(), None)
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(manager.state, helper_cls().resume())
         self.assertEqual(manager.storage, self.storage)
@@ -212,9 +208,7 @@ class SessionManagerTests(SignalTestCase):
         # object
         mocks["SessionDeviceContext"].assert_called_with(self.state)
         # Ensure that the resulting manager has correct data inside
-        self.assertEqual(
-            manager.device_context_list, [mocks["SessionDeviceContext"]()]
-        )
+        self.assertEqual(manager.device_context_list, [mocks["SessionDeviceContext"]()])
         # self.assertEqual(manager.state, self.state)
         self.assertEqual(manager.storage, storage)
 

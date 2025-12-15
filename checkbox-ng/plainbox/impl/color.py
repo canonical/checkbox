@@ -179,9 +179,7 @@ class Colorizer:
             done to ensure that any custom styling is not permantently enabled
             if colors are to be disabled.
         """
-        return "".join(
-            [ansi_code if self.is_enabled else "", text, self.c.s.RESET_ALL]
-        )
+        return "".join([ansi_code if self.is_enabled else "", text, self.c.s.RESET_ALL])
 
     def BLACK(self, text, bright=True):
         return self(text, "BLACK", bright)

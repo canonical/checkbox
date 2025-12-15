@@ -79,9 +79,7 @@ class ResumeDiscardQualifierTests(TestCase):
         self.obj = ResumeDiscardQualifier({"foo", "bar", "froz"})
 
     def test_init(self):
-        self.assertEqual(
-            self.obj._retain_id_set, frozenset(["foo", "bar", "froz"])
-        )
+        self.assertEqual(self.obj._retain_id_set, frozenset(["foo", "bar", "froz"]))
 
     def test_get_simple_match(self):
         # Direct hits return the IGNORE vote as those jobs are not to be
@@ -100,12 +98,8 @@ class ResumeDiscardQualifierTests(TestCase):
             IUnitQualifier.VOTE_IGNORE,
         )
         # Jobs that are in the retain set are NOT designated
-        self.assertEqual(
-            self.obj.designates(JobDefinition({"id": "bar"})), False
-        )
-        self.assertEqual(
-            self.obj.designates(JobDefinition({"id": "foo"})), False
-        )
+        self.assertEqual(self.obj.designates(JobDefinition({"id": "bar"})), False)
+        self.assertEqual(self.obj.designates(JobDefinition({"id": "foo"})), False)
         # Jobs that are not on the retain list are INCLUDED and marked for
         # removal. This includes jobs that are substrings of strings in the
         # retain set, ids are matched exactly, not by pattern.
@@ -129,9 +123,7 @@ class SessionResumeExceptionTests(TestCase):
         verify that all three exception classes inherit from the common base
         """
         self.assertTrue(issubclass(CorruptedSessionError, SessionResumeError))
-        self.assertTrue(
-            issubclass(IncompatibleSessionError, SessionResumeError)
-        )
+        self.assertTrue(issubclass(IncompatibleSessionError, SessionResumeError))
         self.assertTrue(issubclass(IncompatibleJobError, SessionResumeError))
 
 
@@ -770,9 +762,7 @@ class SessionStateResumeTests(TestCaseWithParameters):
         """
         with mock.patch.object(self.helper, attribute="_build_SessionState"):
             self.helper._build_SessionState(self.session_repr)
-            self.helper._build_SessionState.assert_called_once_with(
-                self.session_repr
-            )
+            self.helper._build_SessionState.assert_called_once_with(self.session_repr)
 
     def test_calls_restore_SessionState_jobs_and_results(self):
         """
@@ -877,9 +867,7 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         verify that _build_IOLogRecord() checks that ``delay`` is float
         """
         with self.assertRaises(CorruptedSessionError):
-            self.parameters.resume_cls._build_IOLogRecord(
-                ["abc", "stdout", ""]
-            )
+            self.parameters.resume_cls._build_IOLogRecord(["abc", "stdout", ""])
 
     def test_build_IOLogRecord_negative_delay(self):
         """
@@ -922,9 +910,7 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         verify that _build_IOLogRecord() checks that ``data`` is ASCII
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            self.parameters.resume_cls._build_IOLogRecord(
-                [0.0, "stdout", "\ufffd"]
-            )
+            self.parameters.resume_cls._build_IOLogRecord([0.0, "stdout", "\ufffd"])
         self.assertIsInstance(boom.exception.__context__, UnicodeEncodeError)
 
     def test_build_IOLogRecord_non_base64_ascii_data(self):
@@ -932,9 +918,7 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         verify that _build_IOLogRecord() checks that ``data`` is valid base64
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            self.parameters.resume_cls._build_IOLogRecord(
-                [0.0, "stdout", "==broken"]
-            )
+            self.parameters.resume_cls._build_IOLogRecord([0.0, "stdout", "==broken"])
         # base64.standard_b64decode() raises binascii.Error
         self.assertIsInstance(boom.exception.__context__, binascii.Error)
 
@@ -969,9 +953,7 @@ class JobResultResumeMixIn:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr["outcome"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
-        self.assertEqual(
-            str(boom.exception), "Missing value for key 'outcome'"
-        )
+        self.assertEqual(str(boom.exception), "Missing value for key 'outcome'")
 
     def test_build_JobResult_checks_type_of_outcome(self):
         """
@@ -1031,9 +1013,7 @@ class JobResultResumeMixIn:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr["comments"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
-        self.assertEqual(
-            str(boom.exception), "Missing value for key 'comments'"
-        )
+        self.assertEqual(str(boom.exception), "Missing value for key 'comments'")
 
     def test_build_JobResult_checks_type_of_comments(self):
         """
@@ -1075,9 +1055,7 @@ class JobResultResumeMixIn:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr["return_code"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
-        self.assertEqual(
-            str(boom.exception), "Missing value for key 'return_code'"
-        )
+        self.assertEqual(str(boom.exception), "Missing value for key 'return_code'")
 
     def test_build_JobResult_checks_type_of_return_code(self):
         """
@@ -1185,9 +1163,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
     }
 
     def test_build_JobResult_restores_MemoryJobResult_representations(self):
-        obj = self.parameters.resume_cls._build_JobResult(
-            self.good_repr, 0, None
-        )
+        obj = self.parameters.resume_cls._build_JobResult(self.good_repr, 0, None)
         self.assertIsInstance(obj, MemoryJobResult)
 
     def test_build_JobResult_checks_for_missing_io_log(self):
@@ -1223,9 +1199,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
             obj_repr = copy.copy(self.good_repr)
             obj_repr["io_log"] = None
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
-        self.assertEqual(
-            str(boom.exception), "Value of key 'io_log' cannot be None"
-        )
+        self.assertEqual(str(boom.exception), "Value of key 'io_log' cannot be None")
 
     def test_build_JobResult_restores_io_log(self):
         """
@@ -1241,9 +1215,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         self.assertEqual(obj.io_log, tuple([IOLogRecord(0.0, "stdout", b"")]))
 
 
-class DiskJobResultResumeTestsCommon(
-    JobResultResumeMixIn, TestCaseWithParameters
-):
+class DiskJobResultResumeTestsCommon(JobResultResumeMixIn, TestCaseWithParameters):
     """Tests for common behavior of DiskJobResult resume for all formats."""
 
     parameter_names = ("resume_cls",)
@@ -1265,9 +1237,7 @@ class DiskJobResultResumeTestsCommon(
     }
 
     def test_build_JobResult_restores_DiskJobResult_representations(self):
-        obj = self.parameters.resume_cls._build_JobResult(
-            self.good_repr, 0, None
-        )
+        obj = self.parameters.resume_cls._build_JobResult(self.good_repr, 0, None)
         self.assertIsInstance(obj, DiskJobResult)
 
     def test_build_JobResult_does_not_check_for_missing_io_log_filename(self):
@@ -1343,18 +1313,14 @@ class DiskJobResultResumeTests1to4(TestCaseWithParameters):
         """_build_JobResult() ignores location for relative paths."""
         obj_repr = copy.copy(self.good_repr)
         obj_repr["io_log_filename"] = "some-file.txt"
-        obj = self.parameters.resume_cls._build_JobResult(
-            obj_repr, 0, "/path/to"
-        )
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, "/path/to")
         self.assertEqual(obj.io_log_filename, "some-file.txt")
 
     def test_build_JobResult_restores_absolute_io_log_filename(self):
         """_build_JobResult() preserves absolute paths."""
         obj_repr = copy.copy(self.good_repr)
         obj_repr["io_log_filename"] = "/some-file.txt"
-        obj = self.parameters.resume_cls._build_JobResult(
-            obj_repr, 0, "/path/to"
-        )
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, "/path/to")
         self.assertEqual(obj.io_log_filename, "/some-file.txt")
 
 
@@ -1382,18 +1348,14 @@ class DiskJobResultResumeTests5(TestCaseWithParameters):
         """_build_JobResult() uses location for relative paths."""
         obj_repr = copy.copy(self.good_repr)
         obj_repr["io_log_filename"] = "some-file.txt"
-        obj = self.parameters.resume_cls._build_JobResult(
-            obj_repr, 0, "/path/to"
-        )
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, "/path/to")
         self.assertEqual(obj.io_log_filename, "/path/to/some-file.txt")
 
     def test_build_JobResult_restores_absolute_io_log_filename(self):
         """_build_JobResult() preserves absolute paths."""
         obj_repr = copy.copy(self.good_repr)
         obj_repr["io_log_filename"] = "/some-file.txt"
-        obj = self.parameters.resume_cls._build_JobResult(
-            obj_repr, 0, "/path/to"
-        )
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, "/path/to")
         self.assertEqual(obj.io_log_filename, "/some-file.txt")
 
 
@@ -1473,9 +1435,7 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
         self.assertEqual(self.session.desired_job_list, [])
         self.resume_fn(self.session, self.good_repr)
         # Good representation has two jobs, 'a' and 'b', in that order
-        self.assertEqual(
-            self.session.desired_job_list, [self.job_a, self.job_b]
-        )
+        self.assertEqual(self.session.desired_job_list, [self.job_a, self.job_b])
 
 
 class SessionMetaDataResumeTests(TestCaseWithParameters):
@@ -1522,9 +1482,7 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
     def setUp(self):
         # All of the tests need a SessionState object
         self.session = SessionState([])
-        self.good_repr = copy.deepcopy(
-            self.good_repr_map[self.parameters.format]
-        )
+        self.good_repr = copy.deepcopy(self.good_repr_map[self.parameters.format])
         self.resume_fn = self.resume_cls_map[
             self.parameters.format
         ]._restore_SessionState_metadata
@@ -1593,9 +1551,7 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         with self.assertRaises(CorruptedSessionError) as boom:
             self.good_repr["metadata"]["flags"] = None
             self.resume_fn(self.session.metadata, self.good_repr)
-        self.assertEqual(
-            str(boom.exception), "Value of key 'flags' cannot be None"
-        )
+        self.assertEqual(str(boom.exception), "Value of key 'flags' cannot be None")
 
     def test_restore_SessionState_metadata_checks_type_of_each_flag(self):
         """
@@ -1867,48 +1823,36 @@ class ProcessJobTests(TestCaseWithParameters):
             self.helper._process_job(
                 self.session, jobs_repr, self.results_repr, self.job_id
             )
-        self.assertEqual(
-            str(boom.exception), "Definition of job 'job' has changed"
-        )
+        self.assertEqual(str(boom.exception), "Definition of job 'job' has changed")
 
     def test_process_job_handles_ignores_empty_results(self):
         """
         verify that _process_job() does not crash if we have no results
         for a particular job
         """
-        self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, None
-        )
+        self.assertEqual(self.session.job_state_map[self.job_id].result.outcome, None)
         results_repr = {self.job_id: []}
         self.helper._process_job(
             self.session, self.jobs_repr, results_repr, self.job_id
         )
-        self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, None
-        )
+        self.assertEqual(self.session.job_state_map[self.job_id].result.outcome, None)
 
     def test_process_job_handles_only_result_back_to_the_session(self):
         """
         verify that _process_job() passes the only result to the session
         """
-        self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, None
-        )
+        self.assertEqual(self.session.job_state_map[self.job_id].result.outcome, None)
         self.helper._process_job(
             self.session, self.jobs_repr, self.results_repr, self.job_id
         )
         # The result in self.results_repr is a failure so we should see it here
-        self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, "fail"
-        )
+        self.assertEqual(self.session.job_state_map[self.job_id].result.outcome, "fail")
 
     def test_process_job_handles_last_result_back_to_the_session(self):
         """
         verify that _process_job() passes last of the results to the session
         """
-        self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, None
-        )
+        self.assertEqual(self.session.job_state_map[self.job_id].result.outcome, None)
         results_repr = {
             self.job_id: [
                 {
@@ -1932,9 +1876,7 @@ class ProcessJobTests(TestCaseWithParameters):
         )
         # results_repr has two entries: [fail, pass] so we should see
         # the passing entry only
-        self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, "pass"
-        )
+        self.assertEqual(self.session.job_state_map[self.job_id].result.outcome, "pass")
 
     def test_process_job_checks_results_repr_is_a_list(self):
         """
@@ -2008,9 +1950,7 @@ class JobPluginSpecificTests(TestCaseWithParameters):
                         [
                             0.0,
                             "stdout",
-                            base64.standard_b64encode(b"key: value").decode(
-                                "ASCII"
-                            ),
+                            base64.standard_b64encode(b"key: value").decode("ASCII"),
                         ]
                     ],
                 }
@@ -2025,9 +1965,7 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         # Ensure that we now have the resource in the resource map
         self.assertIn(job_id, session.resource_map)
         # And that it looks right
-        self.assertEqual(
-            session.resource_map[job_id], [Resource({"key": "value"})]
-        )
+        self.assertEqual(session.resource_map[job_id], [Resource({"key": "value"})])
 
 
 class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
@@ -2149,9 +2087,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         helper = self.parameters.resume_cls([], None, None)
         session = SessionState([])
         with self.assertRaises(CorruptedSessionError) as boom:
-            helper._restore_SessionState_jobs_and_results(
-                session, session_repr
-            )
+            helper._restore_SessionState_jobs_and_results(session, session_repr)
         self.assertEqual(str(boom.exception), "Unknown jobs remaining: job-id")
 
 
@@ -2217,9 +2153,7 @@ class RegressionTests(TestCase):
                 "results": {},  # nothing ran yet
             },
         }
-        helper = SessionResumeHelper4(
-            [job_a, job_a_dep, job_unrelated], None, None
-        )
+        helper = SessionResumeHelper4([job_a, job_a_dep, job_unrelated], None, None)
         # Mock away meta-data restore code as we're not testing that
         with mock.patch.object(helper, "_restore_SessionState_metadata"):
             session = helper.resume_json(session_repr)

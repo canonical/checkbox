@@ -44,9 +44,9 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_send_request_success(self, mock_urlopen):
         mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps(
-            {"message": "success"}
-        ).encode("utf-8")
+        mock_response.read.return_value = json.dumps({"message": "success"}).encode(
+            "utf-8"
+        )
         mock_response.status = 200
         mock_urlopen.return_value = mock_response
         mock_urlopen.return_value.__enter__.return_value = mock_response
@@ -61,39 +61,31 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
     @patch("urllib.request.urlopen")
     def test_send_request_failed_status_not_200(self, mock_urlopen):
         mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps(
-            {"message": "failure"}
-        ).encode("utf-8")
+        mock_response.read.return_value = json.dumps({"message": "failure"}).encode(
+            "utf-8"
+        )
         mock_response.status = 400
         mock_urlopen.return_value.__enter__.return_value = mock_response
 
         with self.assertRaises(RuntimeError) as context:
-            send_request_to_wol_server(
-                "http://192.168.1.1", data={"key": "value"}
-            )
+            send_request_to_wol_server("http://192.168.1.1", data={"key": "value"})
 
-        self.assertIn(
-            "WOL server returned non-200 status: 400", str(context.exception)
-        )
+        self.assertIn("WOL server returned non-200 status: 400", str(context.exception))
 
     @patch("urllib.request.urlopen")
     def test_send_request_failed_response_not_success(self, mock_urlopen):
         mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps(
-            {"message": "failure"}
-        ).encode("utf-8")
+        mock_response.read.return_value = json.dumps({"message": "failure"}).encode(
+            "utf-8"
+        )
 
         mock_response.status = 500
         mock_urlopen.return_value.__enter__.return_value = mock_response
 
         with self.assertRaises(RuntimeError) as context:
-            send_request_to_wol_server(
-                "http://192.168.1.1", data={"key": "value"}
-            )
+            send_request_to_wol_server("http://192.168.1.1", data={"key": "value"})
 
-        self.assertIn(
-            "WOL server returned non-200 status: 500", str(context.exception)
-        )
+        self.assertIn("WOL server returned non-200 status: 500", str(context.exception))
 
     @patch("wol_client.urllib.request.urlopen")
     def test_json_decode_error(self, mock_urlopen):
@@ -106,13 +98,9 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
         mock_urlopen.return_value = mock_response
 
         with self.assertRaises(RuntimeError) as context:
-            send_request_to_wol_server(
-                "http://192.168.1.1", data={"key": "value"}
-            )
+            send_request_to_wol_server("http://192.168.1.1", data={"key": "value"})
 
-        self.assertIn(
-            "Failed to parse server response as JSON", str(context.exception)
-        )
+        self.assertIn("Failed to parse server response as JSON", str(context.exception))
 
     @patch("urllib.request.urlopen")
     def test_send_request_unexpected_exception(self, mock_urlopen):
@@ -120,9 +108,7 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
         mock_urlopen.side_effect = Exception("Unexpected error")
 
         with self.assertRaises(Exception) as context:
-            send_request_to_wol_server(
-                "http://192.168.1.1", data={"key": "value"}
-            )
+            send_request_to_wol_server("http://192.168.1.1", data={"key": "value"})
 
         self.assertIn("Unexpected error", str(context.exception))
 
@@ -131,24 +117,18 @@ class TestCheckWakeup(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="enabled\n")
     def test_wakeup_enabled(self, mock_file):
         self.assertTrue(check_wakeup("eth0"))
-        mock_file.assert_called_with(
-            "/sys/class/net/eth0/device/power/wakeup", "r"
-        )
+        mock_file.assert_called_with("/sys/class/net/eth0/device/power/wakeup", "r")
 
     @patch("builtins.open", new_callable=mock_open, read_data="disabled\n")
     def test_wakeup_disabled(self, mock_file):
         self.assertFalse(check_wakeup("eth0"))
-        mock_file.assert_called_with(
-            "/sys/class/net/eth0/device/power/wakeup", "r"
-        )
+        mock_file.assert_called_with("/sys/class/net/eth0/device/power/wakeup", "r")
 
     @patch("builtins.open", new_callable=mock_open, read_data="unknown\n")
     def test_wakeup_unexpected_status(self, mock_file):
         with self.assertRaises(ValueError) as context:
             check_wakeup("eth0")
-        self.assertEqual(
-            str(context.exception), "Unexpected wakeup status: unknown"
-        )
+        self.assertEqual(str(context.exception), "Unexpected wakeup status: unknown")
 
     @patch("builtins.open", side_effect=FileNotFoundError)
     def test_interface_not_found(self, mock_file):
@@ -250,9 +230,7 @@ class TestGetMACAddress(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             get_mac_address(interface)
 
-        self.assertEqual(
-            cm.exception.code, "Error: Unable to retrieve MAC address"
-        )
+        self.assertEqual(cm.exception.code, "Error: Unable to retrieve MAC address")
 
 
 class TestSetRTCWake(unittest.TestCase):
@@ -275,9 +253,7 @@ class TestSetRTCWake(unittest.TestCase):
         )
         with self.assertRaises(SystemExit) as cm:
             set_rtc_wake(60)
-        self.assertEqual(
-            str(cm.exception), "Failed to set RTC wake: Error message"
-        )
+        self.assertEqual(str(cm.exception), "Failed to set RTC wake: Error message")
 
     @patch("wol_client.subprocess.check_output")
     def test_set_rtc_wake_unexpected_error(self, mock_check_output):
@@ -481,9 +457,7 @@ class TestMainFunction(unittest.TestCase):
 
         with self.assertRaises(SystemExit) as cm:
             main()
-        self.assertEqual(
-            str(cm.exception), "Error: failed to get the ip address."
-        )
+        self.assertEqual(str(cm.exception), "Error: failed to get the ip address.")
 
     @patch("wol_client.send_request_to_wol_server")
     @patch("wol_client.get_ip_address")

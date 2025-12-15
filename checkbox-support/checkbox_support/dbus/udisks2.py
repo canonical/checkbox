@@ -367,8 +367,7 @@ class UDisks2Observer:
         interfaces_and_properties = drop_dbus_type(interfaces_and_properties)
         # Log what's going on
         logging.debug(
-            "The object %r has gained the following interfaces and "
-            "properties: %r",
+            "The object %r has gained the following interfaces and " "properties: %r",
             object_path,
             interfaces_and_properties,
         )
@@ -450,12 +449,8 @@ class UDisks2Model:
         # Connect all the signals to the observer
         self._observer.on_initial_objects.connect(self._on_initial_objects)
         self._observer.on_interfaces_added.connect(self._on_interfaces_added)
-        self._observer.on_interfaces_removed.connect(
-            self._on_interfaces_removed
-        )
-        self._observer.on_properties_changed.connect(
-            self._on_properties_changed
-        )
+        self._observer.on_interfaces_removed.connect(self._on_interfaces_removed)
+        self._observer.on_properties_changed.connect(self._on_properties_changed)
 
     @Signal.define
     def on_change(self):

@@ -1,41 +1,47 @@
 """Packet classes for Estimote beacons."""
+
 from ..utils import data_to_hexstring
+
 
 class EstimoteTelemetryFrameA(object):
     """Estimote telemetry subframe A."""
 
     def __init__(self, data, protocol_version):
         self._protocol_version = protocol_version
-        self._identifier = data_to_hexstring(data['identifier'])
-        sub = data['sub_frame']
+        self._identifier = data_to_hexstring(data["identifier"])
+        sub = data["sub_frame"]
         # acceleration: convert to tuple and normalize
-        self._acceleration = tuple([v * 2 / 127.0 for v in sub['acceleration']])
+        self._acceleration = tuple([v * 2 / 127.0 for v in sub["acceleration"]])
         # motion states
-        self._previous_motion_state = self.parse_motion_state(sub['previous_motion'])
-        self._current_motion_state = self.parse_motion_state(sub['current_motion'])
-        self._is_moving = (sub['combined_fields'][0] & 0b00000011) == 1
+        self._previous_motion_state = self.parse_motion_state(sub["previous_motion"])
+        self._current_motion_state = self.parse_motion_state(sub["current_motion"])
+        self._is_moving = (sub["combined_fields"][0] & 0b00000011) == 1
         # gpio
         states = []
         for i in range(4):
-            states.append((sub['combined_fields'][0] & (1 << (4+i))) != 0)
+            states.append((sub["combined_fields"][0] & (1 << (4 + i))) != 0)
         self._gpio_states = tuple(states)
         # error codes
         if self.protocol_version == 2:
-            self._has_firmware_error = ((sub['combined_fields'][0] & 0b00000100) >> 2) == 1
-            self._has_clock_error = ((sub['combined_fields'][0] & 0b00001000) >> 3) == 1
+            self._has_firmware_error = (
+                (sub["combined_fields"][0] & 0b00000100) >> 2
+            ) == 1
+            self._has_clock_error = ((sub["combined_fields"][0] & 0b00001000) >> 3) == 1
         elif self.protocol_version == 1:
-            self._has_firmware_error = (sub['combined_fields'][1] & 0b00000001) == 1
-            self._has_clock_error = ((sub['combined_fields'][1] & 0b00000010) >> 1) == 1
+            self._has_firmware_error = (sub["combined_fields"][1] & 0b00000001) == 1
+            self._has_clock_error = ((sub["combined_fields"][1] & 0b00000010) >> 1) == 1
         else:
             self._has_firmware_error = None
             self._has_clock_error = None
         # pressure
         if self.protocol_version == 2:
-            self._pressure = sub['combined_fields'][1] | \
-                                sub['combined_fields'][2] << 8 | \
-                                sub['combined_fields'][3] << 16 | \
-                                sub['combined_fields'][4] << 24
-            if self._pressure == 0xffffffff:
+            self._pressure = (
+                sub["combined_fields"][1]
+                | sub["combined_fields"][2] << 8
+                | sub["combined_fields"][3] << 16
+                | sub["combined_fields"][4] << 24
+            )
+            if self._pressure == 0xFFFFFFFF:
                 self._pressure = None
             else:
                 self._pressure /= 256.0
@@ -48,14 +54,14 @@ class EstimoteTelemetryFrameA(object):
         number = val & 0b00111111
         unit = (val & 0b11000000) >> 6
         if unit == 1:
-            number *= 60 # minutes
+            number *= 60  # minutes
         elif unit == 2:
-            number *= 60 * 60 # hours
+            number *= 60 * 60  # hours
         elif unit == 3 and number < 32:
-            number *= 60 * 60 * 24 # days
+            number *= 60 * 60 * 24  # days
         elif unit == 3:
             number -= 32
-            number *= 60 * 60 * 24 * 7 # weeks
+            number *= 60 * 60 * 24 * 7  # weeks
         return number
 
     @property
@@ -84,7 +90,6 @@ class EstimoteTelemetryFrameA(object):
         E.g., if is_moving is True, this states how long the beacon is beeing moved already and
         previous_motion_state will tell how long it has been still before."""
         return self._current_motion_state
-
 
     @property
     def previous_motion_state(self):
@@ -116,11 +121,16 @@ class EstimoteTelemetryFrameA(object):
     @property
     def properties(self):
         """Get beacon properties."""
-        return {'identifier': self.identifier, 'protocol_version': self.protocol_version}
+        return {
+            "identifier": self.identifier,
+            "protocol_version": self.protocol_version,
+        }
 
     def __str__(self):
-        return "EstimoteTelemetryFrameA<identifier: %s, protocol_version: %u>" \
-            % (self.identifier, self.protocol_version)
+        return "EstimoteTelemetryFrameA<identifier: %s, protocol_version: %u>" % (
+            self.identifier,
+            self.protocol_version,
+        )
 
 
 class EstimoteTelemetryFrameB(object):
@@ -128,53 +138,58 @@ class EstimoteTelemetryFrameB(object):
 
     def __init__(self, data, protocol_version):
         self._protocol_version = protocol_version
-        self._identifier = data_to_hexstring(data['identifier'])
-        sub = data['sub_frame']
+        self._identifier = data_to_hexstring(data["identifier"])
+        sub = data["sub_frame"]
         # magnetic field: convert to tuple and normalize
-        if sub['magnetic_field'] == [-1, -1, -1]:
+        if sub["magnetic_field"] == [-1, -1, -1]:
             self._magnetic_field = None
         else:
-            self._magnetic_field = tuple([v / 128.0 for v in sub['magnetic_field']])
+            self._magnetic_field = tuple([v / 128.0 for v in sub["magnetic_field"]])
         # ambient light
-        ambient_upper = (sub['ambient_light'] & 0b11110000) >> 4
-        ambient_lower = sub['ambient_light'] & 0b00001111
-        if ambient_upper == 0xf and ambient_lower == 0xf:
+        ambient_upper = (sub["ambient_light"] & 0b11110000) >> 4
+        ambient_lower = sub["ambient_light"] & 0b00001111
+        if ambient_upper == 0xF and ambient_lower == 0xF:
             self._ambient_light = None
         else:
             self._ambient_light = pow(2, ambient_upper) * ambient_lower * 0.72
         # uptime
-        uptime_unit_code = (sub['combined_fields'][1] & 0b00110000) >> 4
-        uptime_number = ((sub['combined_fields'][1] & 0b00001111) << 8) | \
-                            sub['combined_fields'][0]
+        uptime_unit_code = (sub["combined_fields"][1] & 0b00110000) >> 4
+        uptime_number = ((sub["combined_fields"][1] & 0b00001111) << 8) | sub[
+            "combined_fields"
+        ][0]
         if uptime_unit_code == 1:
-            uptime_number *= 60 # minutes
+            uptime_number *= 60  # minutes
         elif uptime_unit_code == 2:
-            uptime_number *= 60 * 60 # hours
+            uptime_number *= 60 * 60  # hours
         elif uptime_unit_code == 3:
-            uptime_number *= 60 * 60 * 24 # days
+            uptime_number *= 60 * 60 * 24  # days
         else:
             uptime_number = 0
         self._uptime = uptime_number
         # temperature
-        temperature = ((sub['combined_fields'][3] & 0b00000011) << 10) |   \
-                        (sub['combined_fields'][2]               <<  2) |  \
-                        ((sub['combined_fields'][1] & 0b11000000) >>  6)
+        temperature = (
+            ((sub["combined_fields"][3] & 0b00000011) << 10)
+            | (sub["combined_fields"][2] << 2)
+            | ((sub["combined_fields"][1] & 0b11000000) >> 6)
+        )
         temperature = temperature - 4096 if temperature > 2047 else temperature
         self._temperature = temperature / 16.0
         # battery voltage
-        voltage = (sub['combined_fields'][4] << 6) |  \
-                    ((sub['combined_fields'][3] & 0b11111100) >> 2)
+        voltage = (sub["combined_fields"][4] << 6) | (
+            (sub["combined_fields"][3] & 0b11111100) >> 2
+        )
         self._voltage = None if voltage == 0b11111111111111 else voltage
         if self._protocol_version == 0:
             # errors (only protocol ver 0)
-            self._has_firmware_error = (sub['battery_level'] & 0b00000001) == 1
-            self._has_clock_error = (sub['battery_level'] & 0b00000010) == 0b10
+            self._has_firmware_error = (sub["battery_level"] & 0b00000001) == 1
+            self._has_clock_error = (sub["battery_level"] & 0b00000010) == 0b10
             self._battery_level = None
         else:
-            self._battery_level = None if sub['battery_level'] == 0xFF else sub['battery_level']
+            self._battery_level = (
+                None if sub["battery_level"] == 0xFF else sub["battery_level"]
+            )
             self._has_clock_error = None
             self._has_firmware_error = None
-
 
     @property
     def protocol_version(self):
@@ -228,29 +243,34 @@ class EstimoteTelemetryFrameB(object):
     @property
     def properties(self):
         """Get beacon properties."""
-        return {'identifier': self.identifier, 'protocol_version': self.protocol_version}
+        return {
+            "identifier": self.identifier,
+            "protocol_version": self.protocol_version,
+        }
 
     def __str__(self):
-        return "EstimoteTelemetryFrameB<identifier: %s, protocol_version: %u>" \
-            % (self.identifier, self.protocol_version)
+        return "EstimoteTelemetryFrameB<identifier: %s, protocol_version: %u>" % (
+            self.identifier,
+            self.protocol_version,
+        )
 
 
 class EstimoteNearable(object):
     """Estimote Nearable advertisement."""
 
     def __init__(self, data):
-        self._identifier = data_to_hexstring(data['identifier'])
-        self._hardware_version = data['hardware_version']
-        self._firmware_version = data['firmware_version']
+        self._identifier = data_to_hexstring(data["identifier"])
+        self._hardware_version = data["hardware_version"]
+        self._firmware_version = data["firmware_version"]
 
         # byte 13 and the first 4 bits of byte 14 is the temperature in signed,
-        temperature_raw_value = (data['temperature'] & 0x0fff)
+        temperature_raw_value = data["temperature"] & 0x0FFF
         if temperature_raw_value > 2047:
             # convert a 12-bit unsigned integer to a signed one
             temperature_raw_value = temperature_raw_value - 4096
         temperature = temperature_raw_value / 16.0
         self._temperature = temperature
-        self._is_moving = data['is_moving'] & 0b01000000 != 0
+        self._is_moving = data["is_moving"] & 0b01000000 != 0
 
     @property
     def identifier(self):
@@ -280,9 +300,11 @@ class EstimoteNearable(object):
     @property
     def properties(self):
         """Get beacon properties."""
-        return {'identifier': self.identifier, 'temperature': self.temperature,
-                'is_moving': self._is_moving}
+        return {
+            "identifier": self.identifier,
+            "temperature": self.temperature,
+            "is_moving": self._is_moving,
+        }
 
     def __str__(self):
-        return "EstimoteNearable<identifier: %s>" \
-               % self.identifier
+        return "EstimoteNearable<identifier: %s>" % self.identifier

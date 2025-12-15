@@ -138,9 +138,7 @@ class Brightness(object):
                 for m in [0, 0.25, 0.5, 0.75, 1]:
                     # Set the brightness to half the max value
                     current_brightness = math.ceil(max_brightness * m)
-                    print(
-                        "Set the brightness as {}".format(current_brightness)
-                    )
+                    print("Set the brightness as {}".format(current_brightness))
                     self.write_value(
                         current_brightness,
                         os.path.join(interface, "brightness"),
@@ -165,9 +163,7 @@ class Brightness(object):
                 break
 
         if not find_target_display:
-            raise SystemExit(
-                "ERROR: no {} interface be found".format(target_interface)
-            )
+            raise SystemExit("ERROR: no {} interface be found".format(target_interface))
         if exit_status:
             raise SystemExit(exit_status)
 

@@ -43,9 +43,7 @@ class Jinja2SessionStateExporterTests(TestCase):
         self.prepare_manager_single_job()
 
     def prepare_manager_single_job(self):
-        result = mock.Mock(
-            spec_set=MemoryJobResult, outcome="fail", is_hollow=False
-        )
+        result = mock.Mock(spec_set=MemoryJobResult, outcome="fail", is_hollow=False)
         result.tr_outcome.return_value = "fail"
         job = mock.Mock(spec_set=JobDefinition, id="job_id")
         job.tr_summary.return_value = "job name"
@@ -162,6 +160,4 @@ class Jinja2SessionStateExporterTests(TestCase):
             )
             stream = BytesIO()
             with self.assertRaises(ExporterError):
-                exporter.dump_from_session_manager(
-                    self.manager_single_job, stream
-                )
+                exporter.dump_from_session_manager(self.manager_single_job, stream)

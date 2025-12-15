@@ -103,9 +103,7 @@ def main():
                 package_name = "checkbox-" + package_name
             if os.getenv("CHECKBOX_REPO", "").endswith("staging"):
                 package_name = "staging-" + package_name
-            cmd = run(
-                ["git", "describe", "--tags", "--abbrev=0", "--match", "v*"]
-            )
+            cmd = run(["git", "describe", "--tags", "--abbrev=0", "--match", "v*"])
             new_version = cmd.stdout.decode().rstrip().split("v")[1]
             print("Request {} build ({})".format(package_name, new_version))
             recipes_name = package_name + "-beta"

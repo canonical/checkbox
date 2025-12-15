@@ -144,6 +144,34 @@ class GstResources:
                 ]
             )
 
+    def _decoder_comparison_helper(
+        self,
+        pipeline: str,
+        golden_pipeline: str,
+    ) -> dict:
+        """
+        Generate a resource item dictionary for
+        gst_decoder_comparison scenario
+        """
+        returned_dict = {
+            "scenario": self._current_scenario_name,
+            "pipeline": pipeline,
+            "golden_pipeline": golden_pipeline,
+        }
+
+        return returned_dict
+
+    def gst_decoder_comparison(self, scenario_data: list[dict]) -> None:
+        for item in scenario_data:
+            self._resource_items.extend(
+                [
+                    self._decoder_comparison_helper(
+                        pipeline=item["pipeline"],
+                        golden_pipeline=item["golden_pipeline"],
+                    )
+                ]
+            )
+
     def gst_encoder_psnr(self, scenario_data: list[dict]) -> None:
         # Iterate through each encoder plugin configuration
         for item in scenario_data:
@@ -170,9 +198,7 @@ class GstResources:
                 }
                 self._resource_items.append(config)
 
-    def gst_v4l2_audio_video_synchronization(
-        self, scenario_data: dict
-    ) -> None:
+    def gst_v4l2_audio_video_synchronization(self, scenario_data: dict) -> None:
         video_sink = ""
         if on_ubuntucore():
             video_sink = scenario_data["video_sinks"]["on_core"]
@@ -194,9 +220,7 @@ class GstResources:
                             self.VIDEO_GOLDEN_SAMPLES,
                             sample_file["file_name"],
                         ),
-                        "capssetter_pipeline": sample_file[
-                            "capssetter_pipeline"
-                        ],
+                        "capssetter_pipeline": sample_file["capssetter_pipeline"],
                     }
                 )
 

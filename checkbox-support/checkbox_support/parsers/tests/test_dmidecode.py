@@ -158,9 +158,7 @@ class TestDmidecodeRealParser(TestCase):
             "bios_revision",
             "runtime_size",
         ]
-        self.assertEqual(
-            sorted(expected_attrs), sorted(device.raw_attributes.keys())
-        )
+        self.assertEqual(sorted(expected_attrs), sorted(device.raw_attributes.keys()))
         self.assertEqual(device.raw_attributes["firmware_revision"], "1.7")
         self.assertEqual(device.raw_attributes["bios_revision"], "2.1")
         self.assertEqual(device.raw_attributes["address"], "0xE0000")

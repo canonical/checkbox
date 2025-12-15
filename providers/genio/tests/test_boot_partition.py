@@ -11,9 +11,7 @@ class TestBootPartition(unittest.TestCase):
 
     @patch("boot_partition.subprocess.run")
     def test_runcmd(self, mock_run):
-        mock_run.return_value = MagicMock(
-            stdout="output", stderr="error", returncode=0
-        )
+        mock_run.return_value = MagicMock(stdout="output", stderr="error", returncode=0)
         result = bp.runcmd("echo Hello")
 
         mock_run.assert_called_once_with(
@@ -120,9 +118,7 @@ class TestBootPartition(unittest.TestCase):
         }
 
         # Correct partitions
-        self.pbd.actual_result = {
-            "partitions": [{"number": 1, "name": "bootloaders"}]
-        }
+        self.pbd.actual_result = {"partitions": [{"number": 1, "name": "bootloaders"}]}
         self.pbd.check_partitions()
 
         # Different lenght of partitions
@@ -136,16 +132,12 @@ class TestBootPartition(unittest.TestCase):
             self.pbd.check_partitions()
 
         # Different partition number
-        self.pbd.actual_result = {
-            "partitions": [{"number": 2, "name": "bootloaders"}]
-        }
+        self.pbd.actual_result = {"partitions": [{"number": 2, "name": "bootloaders"}]}
         with self.assertRaises(SystemExit):
             self.pbd.check_partitions()
 
         # Different partition name
-        self.pbd.actual_result = {
-            "partitions": [{"number": 1, "name": "bad_name"}]
-        }
+        self.pbd.actual_result = {"partitions": [{"number": 1, "name": "bad_name"}]}
         with self.assertRaises(SystemExit):
             self.pbd.check_partitions()
 

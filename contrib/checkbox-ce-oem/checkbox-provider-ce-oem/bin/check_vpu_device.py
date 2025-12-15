@@ -53,9 +53,7 @@ def get_soc_family():
         soc_family = soc_file.read_text().strip("\n")
         logging.info("SoC family is %s", soc_family)
     else:
-        raise FileNotFoundError(
-            "{} file is not available".format(str(soc_file))
-        )
+        raise FileNotFoundError("{} file is not available".format(str(soc_file)))
 
     return soc_family
 
@@ -72,9 +70,7 @@ def get_soc_id():
     if soc_file.is_file():
         soc_id = soc_file.read_text().strip("\n")
     else:
-        raise FileNotFoundError(
-            "{} file is not available".format(str(soc_file))
-        )
+        raise FileNotFoundError("{} file is not available".format(str(soc_file)))
 
     logging.info("SoC ID is %s", soc_id)
     return soc_id
@@ -97,9 +93,7 @@ def get_kernel_version():
     else:
         raise FileNotFoundError("{} file is not available".format(path))
 
-    kernel_match = re.search(
-        r"Linux version ([0-9]+\.[0-9]+)\.[0-9]+-", raw_data
-    )
+    kernel_match = re.search(r"Linux version ([0-9]+\.[0-9]+)\.[0-9]+-", raw_data)
     if kernel_match is None:
         raise ValueError("Failed to identify kernel version")
 
@@ -129,9 +123,7 @@ def determine_expected_imx_vpu(soc_type, kernel_version):
     elif soc_type == "i.MX8MP":
         expected_devices = ["ion", "mxc_hantro", "mxc_hantro_vc8000e"]
     else:
-        raise SystemExit(
-            "Supported VPU devices for {} is not defined".format(soc_type)
-        )
+        raise SystemExit("Supported VPU devices for {} is not defined".format(soc_type))
 
     major_ver, minor_ver = kernel_version.split(".")
     if int(major_ver) > 5 or (int(major_ver) == 5 and int(minor_ver) >= 15):
@@ -156,9 +148,7 @@ def check_imx_vpu_devices():
     """
     result = True
 
-    expected_devices = determine_expected_imx_vpu(
-        get_soc_id(), get_kernel_version()
-    )
+    expected_devices = determine_expected_imx_vpu(get_soc_id(), get_kernel_version())
     nodes = [dev.name for dev in list(Path("/dev").iterdir())]
     for dev in expected_devices:
         if dev in nodes:

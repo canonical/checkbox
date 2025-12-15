@@ -53,9 +53,7 @@ def run_vk_test(test_file, from_provider_data=False, terminate_on_fail=False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Run a vulkan test from VK-GL-CTS"
-    )
+    parser = argparse.ArgumentParser(description="Run a vulkan test from VK-GL-CTS")
     parser.add_argument(
         "--test_file",
         type=str,

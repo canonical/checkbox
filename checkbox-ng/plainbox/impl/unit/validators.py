@@ -265,9 +265,7 @@ class CorrectFieldValueValidator(FieldValidatorBase):
     default_severity = Severity.error
     default_kind = Problem.wrong
 
-    def __init__(
-        self, correct_fn, kind=None, severity=None, message=None, onlyif=None
-    ):
+    def __init__(self, correct_fn, kind=None, severity=None, message=None, onlyif=None):
         """
         correct_fn:
             A function that checks if the value is correct or not. If it
@@ -495,9 +493,7 @@ class TemplateInvariantFieldValidator(FieldValidatorBase):
             if value is None:
                 return
             if unit.template_engine == "jinja2":
-                param_set = get_accessed_parameters(
-                    value, template_engine="jinja2"
-                )
+                param_set = get_accessed_parameters(value, template_engine="jinja2")
             else:
                 param_set = get_accessed_parameters(value)
             # Invariant fields cannot depend on any parameters
@@ -520,25 +516,19 @@ class TemplateVariantFieldValidator(FieldValidatorBase):
             # No value? No problem!
             if value is not None:
                 if unit.template_engine == "jinja2":
-                    param_set = get_accessed_parameters(
-                        value, template_engine="jinja2"
-                    )
+                    param_set = get_accessed_parameters(value, template_engine="jinja2")
                 else:
                     param_set = get_accessed_parameters(value)
                 # Variant fields must depend on some parameters
                 if len(param_set) == 0:
-                    yield parent.error(
-                        unit, field, Problem.constant, self.message
-                    )
+                    yield parent.error(unit, field, Problem.constant, self.message)
                 # Each parameter must be present in the unit
                 for param_name in param_set:
                     if param_name not in unit.parameters:
-                        message = _(
-                            "reference to unknown parameter {!r}"
-                        ).format(param_name)
-                        yield parent.error(
-                            unit, field, Problem.unknown_param, message
+                        message = _("reference to unknown parameter {!r}").format(
+                            param_name
                         )
+                        yield parent.error(unit, field, Problem.unknown_param, message)
 
 
 class ShellProgramValidator(FieldValidatorBase):
@@ -727,8 +717,7 @@ class UnitReferenceValidator(FieldValidatorBase):
                     unit,
                     field,
                     Problem.bad_reference,
-                    self.message
-                    or _("unit {!a} is not available").format(unit_id),
+                    self.message or _("unit {!a} is not available").format(unit_id),
                 )
                 continue
             n = len(units_with_this_id)
@@ -737,9 +726,8 @@ class UnitReferenceValidator(FieldValidatorBase):
                 referrer = unit
                 referee = units_with_this_id[0]
                 for constraint in self.constraints:
-                    if (
-                        constraint.onlyif is not None
-                        and not constraint.onlyif(referrer, referee)
+                    if constraint.onlyif is not None and not constraint.onlyif(
+                        referrer, referee
                     ):
                         continue
                     if not constraint.constraint_fn(referrer, referee):

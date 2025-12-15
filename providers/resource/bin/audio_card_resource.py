@@ -52,9 +52,7 @@ def get_audio_cards():
 
 
 def has_capability(capability_prefix: str, capabilities: list) -> bool:
-    return any(
-        capability.startswith(capability_prefix) for capability in capabilities
-    )
+    return any(capability.startswith(capability_prefix) for capability in capabilities)
 
 
 def print_audio_cards(cards):

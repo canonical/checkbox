@@ -142,9 +142,7 @@ def oauth_available():
 
 class NoOauthTransport:
     def __init__(self, **args):
-        raise NotImplementedError(
-            "This platform does not support the OAuth transport."
-        )
+        raise NotImplementedError("This platform does not support the OAuth transport.")
 
 
 class _OAuthTransport(TransportBase):

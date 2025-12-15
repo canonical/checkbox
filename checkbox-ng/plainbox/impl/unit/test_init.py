@@ -36,9 +36,7 @@ class FunctionTests(TestCase):
             get_accessed_parameters("some {parametric} text"),
             frozenset(["parametric"]),
         )
-        self.assertEqual(
-            get_accessed_parameters("some {} text"), frozenset([""])
-        )
+        self.assertEqual(get_accessed_parameters("some {} text"), frozenset([""]))
         self.assertEqual(
             get_accessed_parameters("some {1} {2} {3} text"),
             frozenset(["1", "2", "3"]),

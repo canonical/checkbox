@@ -70,9 +70,7 @@ class NoBaseIncludeValidator(FieldValidatorBase):
     """
 
     def check_in_context(self, parent, unit, field, context):
-        for issue in self._check_test_plan_in_context(
-            parent, unit, field, context
-        ):
+        for issue in self._check_test_plan_in_context(parent, unit, field, context):
             yield issue
 
     def _check_test_plan_in_context(self, parent, unit, field, context):
@@ -84,9 +82,7 @@ class NoBaseIncludeValidator(FieldValidatorBase):
             "selector {!a} will select a job already matched by the "
             "'include' field patterns"
         )
-        qual_gen = unit._gen_qualifiers(
-            "include", getattr(unit, "include"), True
-        )
+        qual_gen = unit._gen_qualifiers("include", getattr(unit, "include"), True)
         # Build the list of all jobs already included with the normal include
         # field
         for qual in qual_gen:
@@ -108,9 +104,7 @@ class NoBaseIncludeValidator(FieldValidatorBase):
                 raise NotImplementedError
         # Now check that mandatory field patterns do not select a job already
         # included with normal include.
-        qual_gen = unit._gen_qualifiers(
-            str(field), getattr(unit, str(field)), True
-        )
+        qual_gen = unit._gen_qualifiers(str(field), getattr(unit, str(field)), True)
         for qual in qual_gen:
             assert isinstance(qual, FieldQualifier)
             if qual.field != "id":
@@ -291,9 +285,7 @@ class TestPlanUnit(UnitWithId):
                     job_ids.append(self.qualify_id(node.text))
 
                 def visit_Error_node(visitor, node: Error):
-                    logger.warning(
-                        _("unable to parse setup_include: %s"), node.msg
-                    )
+                    logger.warning(_("unable to parse setup_include: %s"), node.msg)
 
             V().visit(WordList.parse(self.setup_include))
         for tp_unit in self.get_nested_part():
@@ -312,9 +304,7 @@ class TestPlanUnit(UnitWithId):
                     job_ids.append(self.qualify_id(node.text))
 
                 def visit_Error_node(visitor, node: Error):
-                    logger.warning(
-                        _("unable to parse bootstrap_include: %s"), node.msg
-                    )
+                    logger.warning(_("unable to parse bootstrap_include: %s"), node.msg)
 
             V().visit(WordList.parse(self.bootstrap_include))
         for tp_unit in self.get_nested_part():
@@ -338,20 +328,14 @@ class TestPlanUnit(UnitWithId):
                         testplan_ids.append(self.qualify_id(node.text))
 
                     def visit_Error_node(visitor, node: Error):
-                        logger.warning(
-                            _("unable to parse nested_part: %s"), node.msg
-                        )
+                        logger.warning(_("unable to parse nested_part: %s"), node.msg)
 
                 V().visit(WordList.parse(self.nested_part))
                 for tp_id in testplan_ids:
                     try:
-                        nested_parts.append(
-                            context.get_unit(tp_id, "test plan")
-                        )
+                        nested_parts.append(context.get_unit(tp_id, "test plan"))
                     except KeyError:
-                        logger.warning(
-                            _("unable to find nested part: %s"), tp_id
-                        )
+                        logger.warning(_("unable to find nested part: %s"), tp_id)
         return nested_parts
 
     @instance_method_lru_cache(maxsize=None)
@@ -381,9 +365,7 @@ class TestPlanUnit(UnitWithId):
             the include and exclude fields.
         """
         qual_list = []
-        qual_list.extend(
-            self._gen_qualifiers("include", self.mandatory_include, True)
-        )
+        qual_list.extend(self._gen_qualifiers("include", self.mandatory_include, True))
         for tp_unit in self.get_nested_part():
             qual_list.extend([tp_unit.get_mandatory_qualifier()])
         return CompositeQualifier(qual_list)
@@ -510,9 +492,7 @@ class TestPlanUnit(UnitWithId):
                             outer_self.qualify_id(text[:-1])
                         )
                     else:
-                        target_id_pattern = "^{}$".format(
-                            outer_self.qualify_id(text)
-                        )
+                        target_id_pattern = "^{}$".format(outer_self.qualify_id(text))
                     matcher = PatternMatcher(target_id_pattern)
                     error = None
                 result = (node.lineno, "id", matcher, error)
@@ -560,9 +540,7 @@ class TestPlanUnit(UnitWithId):
                 regexp_pattern = r"^{}$".format(
                     outer_self.qualify_id(node.pattern.text)
                 )
-                self.override_list.append(
-                    (node.lineno, category_id, regexp_pattern)
-                )
+                self.override_list.append((node.lineno, category_id, regexp_pattern))
 
             def visit_Error_node(self, node: Error):
                 raise ValueError(node.msg)
@@ -584,9 +562,7 @@ class TestPlanUnit(UnitWithId):
         """
         effective_map = {job.id: job.category_id for job in job_list}
         if self.category_overrides is not None:
-            overrides_gen = self.parse_category_overrides(
-                self.category_overrides
-            )
+            overrides_gen = self.parse_category_overrides(self.category_overrides)
             for lineno_offset, category_id, pattern in overrides_gen:
                 for job in job_list:
                     if re.match(pattern, job.id):
@@ -604,9 +580,7 @@ class TestPlanUnit(UnitWithId):
             The effective category_id
         """
         if self.category_overrides is not None:
-            overrides_gen = self.parse_category_overrides(
-                self.category_overrides
-            )
+            overrides_gen = self.parse_category_overrides(self.category_overrides)
             for lineno_offset, category_id, pattern in overrides_gen:
                 if re.match(pattern, job.id):
                     return category_id
@@ -670,15 +644,12 @@ class TestPlanUnit(UnitWithId):
                     constraints=[
                         ReferenceConstraint(
                             lambda _, referee: referee.unit == "setup_job",
-                            message=_(
-                                "the referenced unit is not a setup job"
-                            ),
+                            message=_("the referenced unit is not a setup job"),
                         ),
                         ReferenceConstraint(
                             lambda _, referee: referee.automated,
                             message=_(
-                                "only automated jobs are allowed "
-                                "in setup_include"
+                                "only automated jobs are allowed " "in setup_include"
                             ),
                         ),
                     ],
@@ -796,9 +767,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         results = []
         for lineno_offset, matcher_field, matcher in matchers_gen:
             offset = field_origin.with_offset(lineno_offset)
-            results.append(
-                FieldQualifier(matcher_field, matcher, offset, inclusive)
-            )
+            results.append(FieldQualifier(matcher_field, matcher, offset, inclusive))
         return results
 
     def _get_matchers(self, testplan, text):
@@ -867,13 +836,10 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             override_map[pattern].extend(field_value_list)
         for pattern, field, value in self._get_category_overrides(testplan):
             override_map[pattern].append((field, value))
-        for pattern, field, value in self._get_blocker_status_overrides(
-            testplan
-        ):
+        for pattern, field, value in self._get_blocker_status_overrides(testplan):
             override_map[pattern].append((field, value))
         return sorted(
-            (key, field_value_list)
-            for key, field_value_list in override_map.items()
+            (key, field_value_list) for key, field_value_list in override_map.items()
         )
 
     def _get_category_overrides(
@@ -895,9 +861,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
 
             def visit_FieldOverride_node(self, node: FieldOverride):
                 category_id = testplan.qualify_id(node.value.text)
-                pattern = r"^{}$".format(
-                    testplan.qualify_id(node.pattern.text)
-                )
+                pattern = r"^{}$".format(testplan.qualify_id(node.pattern.text))
                 override_list.append((pattern, "category_id", category_id))
 
         V().visit(OverrideFieldList.parse(testplan.category_overrides))
@@ -923,18 +887,12 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
 
                 def visit_FieldOverride_node(self, node: FieldOverride):
                     blocker_status = node.value.text
-                    pattern = r"^{}$".format(
-                        testplan.qualify_id(node.pattern.text)
-                    )
+                    pattern = r"^{}$".format(testplan.qualify_id(node.pattern.text))
                     override_list.append(
                         (pattern, "certification_status", blocker_status)
                     )
 
-            V().visit(
-                OverrideFieldList.parse(
-                    testplan.certification_status_overrides
-                )
-            )
+            V().visit(OverrideFieldList.parse(testplan.certification_status_overrides))
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_blocker_status_overrides(tp_unit))
         return override_list
@@ -954,9 +912,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             def visit_IncludeStmt_node(self, node: IncludeStmt):
                 if not node.overrides:
                     return
-                pattern = r"^{}$".format(
-                    testplan.qualify_id(node.pattern.text)
-                )
+                pattern = r"^{}$".format(testplan.qualify_id(node.pattern.text))
                 field_value_list = [
                     (
                         override_exp.field.text.replace("-", "_"),

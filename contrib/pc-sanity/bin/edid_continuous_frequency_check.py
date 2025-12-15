@@ -20,9 +20,7 @@ def find_internal_panel_edid():
     lcd_interface_list = ["eDP-1", "LVDS-1"]
     root_depth = root_dir.rstrip(os.path.sep).count(os.path.sep)
     for dirpath, dirnames, filenames in os.walk(root_dir, followlinks=True):
-        current_depth = (
-            dirpath.rstrip(os.path.sep).count(os.path.sep) - root_depth
-        )
+        current_depth = dirpath.rstrip(os.path.sep).count(os.path.sep) - root_depth
         if current_depth >= max_depth:
             dirnames[:] = []
         if (

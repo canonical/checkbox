@@ -556,9 +556,7 @@ def docstring(docstring):
             return cls_or_func
         except AttributeError:
             assert isinstance(cls_or_func, type)
-            return type(
-                cls_or_func.__name__, (cls_or_func,), {"__doc__": docstring}
-            )
+            return type(cls_or_func.__name__, (cls_or_func,), {"__doc__": docstring})
 
     return decorator
 
@@ -596,9 +594,7 @@ try:
         "lorem-ipsum-ru": LoremIpsumTranslator("ru"),
     }[os.getenv("PLAINBOX_I18N_MODE", "gettext")]
 except KeyError as exc:
-    raise RuntimeError(
-        "Unsupported PLAINBOX_I18N_MODE: {!r}".format(exc.args[0])
-    )
+    raise RuntimeError("Unsupported PLAINBOX_I18N_MODE: {!r}".format(exc.args[0]))
 
 
 # This is the public API of this module

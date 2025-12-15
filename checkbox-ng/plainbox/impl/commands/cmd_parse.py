@@ -66,8 +66,7 @@ class ParseCommand(PlainBoxCommand):
             """
             ),
             epilog=(
-                _("Example: ")
-                + "LANG=C pactl list | plainbox dev parse pactl-list"
+                _("Example: ") + "LANG=C pactl list | plainbox dev parse pactl-list"
             ),
         )
         parser.set_defaults(command=self)

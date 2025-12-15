@@ -87,8 +87,7 @@ class DkmsInfoParser(object):
                         # Validate that it contains a dkms_name, dkms_ver,
                         # and pkg_name.
                         if all(
-                            k in data
-                            for k in ("dkms_name", "dkms_ver", "pkg_name")
+                            k in data for k in ("dkms_name", "dkms_ver", "pkg_name")
                         ):
                             package = data["pkg_name"]
                             resdict = {"dkms-status": kind}

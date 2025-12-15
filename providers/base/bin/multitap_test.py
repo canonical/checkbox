@@ -75,9 +75,7 @@ def main():
 
     parser.register_callback("TouchBegin", begin)
     parser.register_callback("TouchEnd", end)
-    proc = subprocess.Popen(
-        ["xinput", "test-xi2", "--root"], stdout=subprocess.PIPE
-    )
+    proc = subprocess.Popen(["xinput", "test-xi2", "--root"], stdout=subprocess.PIPE)
     while not proc.stdout.closed:
         line = proc.stdout.readline().decode(sys.stdout.encoding)
         if not line:

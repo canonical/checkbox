@@ -43,9 +43,7 @@ class MemoryTest:
                 else:
                     break
         except Exception as e:
-            print(
-                "ERROR: Unable to get data from /proc/meminfo", file=sys.stderr
-            )
+            print("ERROR: Unable to get data from /proc/meminfo", file=sys.stderr)
             print(e, file=sys.stderr)
         finally:
             mem_info.close()
@@ -72,15 +70,11 @@ class MemoryTest:
         self.process_memory = self.free_memory
         try:
             arch = self._command_out("arch").decode()
-            if (
-                re.match(r"(i[0-9]86|s390|arm.*)", arch)
-                and self.free_memory > 1024
-            ):
+            if re.match(r"(i[0-9]86|s390|arm.*)", arch) and self.free_memory > 1024:
                 self.is_process_limited = True
                 self.process_memory = 1024  # MB, due to 32-bit address space
                 print(
-                    "%s arch, Limiting Process Memory: %u"
-                    % (arch, self.process_memory)
+                    "%s arch, Limiting Process Memory: %u" % (arch, self.process_memory)
                 )
         # others?  what about PAE kernel?
         except Exception as e:
@@ -141,9 +135,7 @@ class MemoryTest:
             "%s -qv -m%um -t%u"
             % (self.threaded_memtest_script, self.process_memory, run_time),
         ):
-            print(
-                "Multi-process, threaded memory Test FAILED", file=sys.stderr
-            )
+            print("Multi-process, threaded memory Test FAILED", file=sys.stderr)
             return False
 
         return True
@@ -235,10 +227,7 @@ class MemoryTest:
                                 file=sys.stderr,
                             )
                             passed = False
-                        print(
-                            "process %u pid %u returned success"
-                            % (i, pipe[i].pid)
-                        )
+                        print("process %u pid %u returned success" % (i, pipe[i].pid))
                         pipe[i] = None
         sys.stdout.flush()
         return passed
@@ -246,9 +235,7 @@ class MemoryTest:
 
 def main(args):
     parser = ArgumentParser()
-    parser.add_argument(
-        "-q", "--quiet", action="store_true", help="Suppress output."
-    )
+    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress output.")
     args = parser.parse_args(args)
 
     if args.quiet:

@@ -176,9 +176,7 @@ class ExporterUnitFieldValidationTests(UnitWithIdFieldValidationTests):
         )
 
     def test_data__json_content(self):
-        issue_list = self.unit_cls(
-            {"data": "junk"}, provider=self.provider
-        ).check()
+        issue_list = self.unit_cls({"data": "junk"}, provider=self.provider).check()
         self.assertIssueFound(
             issue_list,
             self.unit_cls.Meta.fields.data,

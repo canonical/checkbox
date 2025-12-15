@@ -40,12 +40,8 @@ class WordScannerTests(unittest.TestCase):
 
     def test_comments_newline2(self):
         scanner = WordScanner("before# comment\nafter")
-        self.assertEqual(
-            scanner.get_token(), (WordScanner.TokenEnum.WORD, "before")
-        )
-        self.assertEqual(
-            scanner.get_token(), (WordScanner.TokenEnum.WORD, "after")
-        )
+        self.assertEqual(scanner.get_token(), (WordScanner.TokenEnum.WORD, "before"))
+        self.assertEqual(scanner.get_token(), (WordScanner.TokenEnum.WORD, "after"))
         self.assertEqual(scanner.get_token(), (WordScanner.TokenEnum.EOF, ""))
 
     def test_comments_eof(self):

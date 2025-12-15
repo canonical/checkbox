@@ -86,9 +86,7 @@ def _get_cmd_info(cmd, key_map, renderer):
                 info[key_map[key]] = val
     except sp.CalledProcessError as e:
         raise SystemExit(
-            "Error running command '{}' for renderer '{}': {}".format(
-                cmd, renderer, e
-            )
+            "Error running command '{}' for renderer '{}': {}".format(cmd, renderer, e)
         ) from e
     return info
 

@@ -79,9 +79,7 @@ class SessionAssistantTests(morris.SignalTestCase):
 
         # patch system_information to avoid the actual collection of
         # system_information in tests
-        with mock.patch(
-            "plainbox.impl.session.state.SessionState.system_information"
-        ):
+        with mock.patch("plainbox.impl.session.state.SessionState.system_information"):
             # Call SessionAssistant.start_new_session()
             self.sa.start_new_session("just for testing")
 
@@ -104,34 +102,26 @@ class SessionAssistantTests(morris.SignalTestCase):
         new=mock.MagicMock(),
     )
     @mock.patch("plainbox.impl.session.assistant._logger")
-    def test_finalize_session_incomplete(
-        self, logger_mock, mock_get_providers
-    ):
+    def test_finalize_session_incomplete(self, logger_mock, mock_get_providers):
         self_mock = mock.MagicMock()
         self_mock._metadata.flags = [SessionMetaData.FLAG_INCOMPLETE]
 
         SessionAssistant.finalize_session(self_mock)
 
-        self.assertNotIn(
-            SessionMetaData.FLAG_INCOMPLETE, self_mock._metadata.flags
-        )
+        self.assertNotIn(SessionMetaData.FLAG_INCOMPLETE, self_mock._metadata.flags)
 
     @mock.patch(
         "plainbox.impl.session.assistant.UsageExpectation",
         new=mock.MagicMock(),
     )
     @mock.patch("plainbox.impl.session.assistant._logger")
-    def test_finalize_session_bootstrapping(
-        self, logger_mock, mock_get_providers
-    ):
+    def test_finalize_session_bootstrapping(self, logger_mock, mock_get_providers):
         self_mock = mock.MagicMock()
         self_mock._metadata.flags = [SessionMetaData.FLAG_BOOTSTRAPPING]
 
         SessionAssistant.finalize_session(self_mock)
 
-        self.assertNotIn(
-            SessionMetaData.FLAG_BOOTSTRAPPING, self_mock._metadata.flags
-        )
+        self.assertNotIn(SessionMetaData.FLAG_BOOTSTRAPPING, self_mock._metadata.flags)
 
     @mock.patch("plainbox.impl.session.assistant.WellKnownDirsHelper")
     def test_delete_sessions(self, mock_well_known_dirs_helper, _):
@@ -281,9 +271,7 @@ class SessionAssistantTests(morris.SignalTestCase):
     @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
     def test_bootstrap(self, mock_tpu, mock_su, mock_get_providers):
         self_mock = mock.MagicMock()
-        self_mock.start_bootstrap = partial(
-            SessionAssistant.start_bootstrap, self_mock
-        )
+        self_mock.start_bootstrap = partial(SessionAssistant.start_bootstrap, self_mock)
         self_mock.finish_bootstrap = partial(
             SessionAssistant.finish_bootstrap, self_mock
         )
@@ -291,28 +279,20 @@ class SessionAssistantTests(morris.SignalTestCase):
         # Bootstrapping involves updating the list of desired jobs twice:
         # - one time to get the resource jobs
         # - one time to generate jobs out of the resource jobs
-        self.assertEqual(
-            self_mock._context.state.update_desired_job_list.call_count, 2
-        )
+        self.assertEqual(self_mock._context.state.update_desired_job_list.call_count, 2)
 
     @mock.patch("plainbox.impl.session.state.select_units")
     def test_hand_pick_jobs(self, mock_su, mock_get_providers):
         self_mock = mock.MagicMock()
         SessionAssistant.hand_pick_jobs(self_mock, [])
-        self.assertEqual(
-            self_mock._context.state.update_desired_job_list.call_count, 1
-        )
+        self.assertEqual(self_mock._context.state.update_desired_job_list.call_count, 1)
 
     @mock.patch("plainbox.impl.session.state.select_units")
     @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
-    def test_get_bootstrap_todo_list(
-        self, mock_tpu, mock_su, mock_get_providers
-    ):
+    def test_get_bootstrap_todo_list(self, mock_tpu, mock_su, mock_get_providers):
         self_mock = mock.MagicMock()
         SessionAssistant.start_bootstrap(self_mock)
-        self.assertEqual(
-            self_mock._context.state.update_desired_job_list.call_count, 1
-        )
+        self.assertEqual(self_mock._context.state.update_desired_job_list.call_count, 1)
 
     @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
     def test_use_alternate_configuration(self, ue_mock, mock_get_providers):
@@ -455,9 +435,7 @@ class SessionAssistantTests(morris.SignalTestCase):
             return to_r
 
         self_mock = mock.MagicMock()
-        self_mock._parse_value = partial(
-            SessionAssistant._parse_value, self_mock
-        )
+        self_mock._parse_value = partial(SessionAssistant._parse_value, self_mock)
         # make testing easier down below
         self_mock._strtobool = lambda x: x
 
@@ -506,10 +484,7 @@ class SessionAssistantTests(morris.SignalTestCase):
 
         self.assertEqual(len(manifest_info_dict), 1)
         self.assertEqual(
-            {
-                (x["id"], x["value"])
-                for x in list(manifest_info_dict.values())[0]
-            },
+            {(x["id"], x["value"]) for x in list(manifest_info_dict.values())[0]},
             {
                 # this is non-hidden and doesn't have a disk value
                 ("selected_manifest", None),
@@ -529,12 +504,8 @@ class SessionAssistantTests(morris.SignalTestCase):
 
     def test__strtobool(self, _):
         strtobool = SessionAssistant._strtobool
-        self.assertTrue(
-            all(strtobool(None, x) for x in ("true", "t", "True", "yes"))
-        )
-        self.assertFalse(
-            any(strtobool(None, x) for x in ("false", "f", "False", "no"))
-        )
+        self.assertTrue(all(strtobool(None, x) for x in ("true", "t", "True", "yes")))
+        self.assertFalse(any(strtobool(None, x) for x in ("false", "f", "False", "no")))
 
         with self.assertRaises(ValueError):
             strtobool(None, "value")
@@ -542,9 +513,7 @@ class SessionAssistantTests(morris.SignalTestCase):
     def test__parse_value(self, _):
         self_mock = mock.MagicMock()
 
-        SessionAssistant._parse_value(
-            self_mock, mock.MagicMock(value_type="bool"), "t"
-        )
+        SessionAssistant._parse_value(self_mock, mock.MagicMock(value_type="bool"), "t")
 
         self.assertTrue(self_mock._strtobool.called)
 

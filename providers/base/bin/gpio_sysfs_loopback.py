@@ -78,9 +78,7 @@ def gpio_pairs(model_name):
         "$PLAINBOX_PROVIDER_DATA/gpio-loopback.{}.in".format(model_name)
     )
     if not os.path.exists(gpio_data):
-        raise SystemExit(
-            "ERROR: no gpio information found at: {}".format(gpio_data)
-        )
+        raise SystemExit("ERROR: no gpio information found at: {}".format(gpio_data))
     with open(gpio_data, "r") as f:
         for line in f:
             if line.startswith("#"):

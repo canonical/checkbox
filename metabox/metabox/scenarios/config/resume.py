@@ -101,9 +101,7 @@ class ConfigLoadedAlsoWhenResumableSessionAvailable(Scenario):
         # generate a resume candidate
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan(
-            "2021.com.canonical.certification::cert-blocker-manual-resume"
-        ),
+        SelectTestPlan("2021.com.canonical.certification::cert-blocker-manual-resume"),
         Send(keys.KEY_ENTER),
         Expect("Press (T) to start"),
         Send("T"),

@@ -106,9 +106,7 @@ def main():
                 print(" - {}".format(item))
 
     if results["failed"]:
-        raise SystemExit(
-            "The following IOCTLs failed: {}".format(results["failed"])
-        )
+        raise SystemExit("The following IOCTLs failed: {}".format(results["failed"]))
 
     if args.treat_unsupported_as_fail and results["not_supported"]:
         raise SystemExit(

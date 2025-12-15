@@ -53,16 +53,12 @@ from wifi_nmcli_test import (
 class WifiNmcliBackupTests(unittest.TestCase):
     @patch("wifi_nmcli_test.sp")
     def test_legacy_nmcli_true(self, subprocess_mock):
-        subprocess_mock.check_output.return_value = (
-            "nmcli tool, version 1.9.8-5"
-        )
+        subprocess_mock.check_output.return_value = "nmcli tool, version 1.9.8-5"
         self.assertTrue(legacy_nmcli())
 
     @patch("wifi_nmcli_test.sp")
     def test_legacy_nmcli_false(self, subprocess_mock):
-        subprocess_mock.check_output.return_value = (
-            "nmcli tool, version 1.46.0-2"
-        )
+        subprocess_mock.check_output.return_value = "nmcli tool, version 1.46.0-2"
         self.assertFalse(legacy_nmcli())
 
 
@@ -142,9 +138,7 @@ class TestTurnUpConnection(unittest.TestCase):
 class TestTurnDownNmConnections(unittest.TestCase):
     @patch("wifi_nmcli_test.sp.call")
     @patch("wifi_nmcli_test._get_nm_wireless_connections", return_value={})
-    def test_no_connections_to_turn_down(
-        self, get_connections_mock, sp_call_mock
-    ):
+    def test_no_connections_to_turn_down(self, get_connections_mock, sp_call_mock):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
         sp_call_mock.assert_not_called()
@@ -159,9 +153,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_check_call_mock.assert_called_once_with(
-            "nmcli c down uuid1".split()
-        )
+        sp_check_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
     @patch("wifi_nmcli_test.sp.check_call")
     @patch(
@@ -175,9 +167,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_check_call_mock.assert_called_once_with(
-            "nmcli c down uuid1".split()
-        )
+        sp_check_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
     @patch("wifi_nmcli_test.sp.check_call")
     @patch(
@@ -203,9 +193,7 @@ class TestDeleteTestApSsidConnection(unittest.TestCase):
     @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
-        return_value={
-            "TEST_CON": {"uuid": "uuid-test", "state": "deactivated"}
-        },
+        return_value={"TEST_CON": {"uuid": "uuid-test", "state": "deactivated"}},
     )
     @patch("wifi_nmcli_test.print")
     def test_delete_existing_test_con(
@@ -216,13 +204,9 @@ class TestDeleteTestApSsidConnection(unittest.TestCase):
 
     @patch("wifi_nmcli_test._get_nm_wireless_connections", return_value={})
     @patch("wifi_nmcli_test.print")
-    def test_no_test_con_to_delete(
-        self, print_mock, get_nm_wireless_connections_mock
-    ):
+    def test_no_test_con_to_delete(self, print_mock, get_nm_wireless_connections_mock):
         delete_test_ap_ssid_connection()
-        print_mock.assert_called_with(
-            "No TEST_CON connection found, nothing to delete"
-        )
+        print_mock.assert_called_with("No TEST_CON connection found, nothing to delete")
 
 
 class TestListAps(unittest.TestCase):
@@ -414,9 +398,7 @@ class TestDeviceRescan(unittest.TestCase):
         device_rescan()
 
     @patch("wifi_nmcli_test.sp.check_output")
-    def test_device_rescan_success_ok_failure_immediate(
-        self, mock_sp_check_call
-    ):
+    def test_device_rescan_success_ok_failure_immediate(self, mock_sp_check_call):
         mock_sp_check_call.side_effect = CalledProcessError(
             1,
             cmd="",
@@ -425,9 +407,7 @@ class TestDeviceRescan(unittest.TestCase):
         device_rescan()
 
     @patch("wifi_nmcli_test.sp.check_output")
-    def test_device_rescan_success_ok_failure_already(
-        self, mock_sp_check_call
-    ):
+    def test_device_rescan_success_ok_failure_already(self, mock_sp_check_call):
         mock_sp_check_call.side_effect = CalledProcessError(
             1,
             cmd="",
@@ -537,9 +517,7 @@ class TestMainFunction(unittest.TestCase):
     @patch("wifi_nmcli_test.turn_down_nm_connections", new=MagicMock())
     @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
     @patch("wifi_nmcli_test.device_rescan", new=MagicMock())
-    @patch(
-        "wifi_nmcli_test.get_nm_activate_connection", return_value="uuid123"
-    )
+    @patch("wifi_nmcli_test.get_nm_activate_connection", return_value="uuid123")
     @patch("wifi_nmcli_test.list_aps", return_value={})
     @patch("wifi_nmcli_test.sys.argv", ["wifi_nmcli_test.py", "scan", "wlan0"])
     def test_main_scan_no_aps_found(

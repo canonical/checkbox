@@ -57,9 +57,7 @@ class BtAdapter:
         self._addr = self._props.Get(ADAPTER_INTERFACE, "Address")
         self._alias = self._props.Get(ADAPTER_INTERFACE, "Alias")
         logger.info(
-            "Adapter found: [ {} ] {} - {}".format(
-                self._path, self._addr, self._alias
-            )
+            "Adapter found: [ {} ] {} - {}".format(self._path, self._addr, self._alias)
         )
 
     def _get_managed_objects(self):
@@ -70,9 +68,7 @@ class BtAdapter:
             adapter = ifaces.get(ADAPTER_INTERFACE)
             if adapter is None:
                 continue
-            if self._pattern == adapter["Address"] or path.endswith(
-                self._pattern
-            ):
+            if self._pattern == adapter["Address"] or path.endswith(self._pattern):
                 obj = self._bus.get_object("org.bluez", path)
                 return dbus.Interface(obj, ADAPTER_INTERFACE)
         raise SystemExit("Bluetooth adapter not found!")
@@ -100,9 +96,7 @@ class BtAdapter:
             device = ifaces.get(DEVICE_INTERFACE)
             if device is None:
                 continue
-            logger.debug(
-                "{} {} {}".format(path, device["Address"], device["Alias"])
-            )
+            logger.debug("{} {} {}".format(path, device["Address"], device["Alias"]))
             if ADV_SVC_UUID in device["UUIDs"] and path.startswith(self._path):
                 obj = self._bus.get_object("org.bluez", path)
                 logger.info(
@@ -216,12 +210,8 @@ def main():
     parser.add_argument(
         "id", help="Address, udev path or name (hciX) of the BT adapter"
     )
-    parser.add_argument(
-        "ADV_SVC_UUID", help="Beacon Gatt configuration service UUID"
-    )
-    parser.add_argument(
-        "SVC_UUID", help="Beacon Gatt notification service UUID"
-    )
+    parser.add_argument("ADV_SVC_UUID", help="Beacon Gatt configuration service UUID")
+    parser.add_argument("SVC_UUID", help="Beacon Gatt notification service UUID")
     parser.add_argument("MSRMT_UUID", help="Beacon Gatt measurement UUID")
     parser.add_argument(
         "--max-notif",
@@ -243,9 +233,7 @@ def main():
         raise SystemExit(1)
     logger.info("Device connected, waiting 10s for services to be available")
     time.sleep(10)  # Let all the services to broadcast their UUIDs
-    service = BtGATTRemoteService(
-        args.SVC_UUID, adapter, device, args.max_notif
-    )
+    service = BtGATTRemoteService(args.SVC_UUID, adapter, device, args.max_notif)
     chrc = service.find_chrc(args.MSRMT_UUID)
     service.check_notification(chrc)
     try:

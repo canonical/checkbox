@@ -149,14 +149,10 @@ class UnitValidator:
         """
         for field, validators in sorted(unit.Meta.field_validators.items()):
             for validator in validators:
-                for issue in validator.check_in_context(
-                    self, unit, field, context
-                ):
+                for issue in validator.check_in_context(self, unit, field, context):
                     yield issue
 
-    def advice(
-        self, unit, field, kind, message=None, *, offset=0, origin=None
-    ):
+    def advice(self, unit, field, kind, message=None, *, offset=0, origin=None):
         """
         Shortcut for :meth:`report_issue` with severity=Severity.advice
         """
@@ -170,9 +166,7 @@ class UnitValidator:
             origin=origin,
         )
 
-    def warning(
-        self, unit, field, kind, message=None, *, offset=0, origin=None
-    ):
+    def warning(self, unit, field, kind, message=None, *, offset=0, origin=None):
         """
         Shortcut for :meth:`report_issue` with severity=Severity.warning
         """
@@ -201,15 +195,7 @@ class UnitValidator:
         )
 
     def report_issue(
-        self,
-        unit,
-        field,
-        kind,
-        severity,
-        message=None,
-        *,
-        offset=0,
-        origin=None
+        self, unit, field, kind, severity, message=None, *, offset=0, origin=None
     ):
         """
         Helper method that aids in adding issues
@@ -249,9 +235,7 @@ class UnitValidator:
             unit[0] if isinstance(unit, list) else unit, field, kind, message
         )
         if message is None:
-            raise ValueError(
-                _("unable to deduce message and no message provided")
-            )
+            raise ValueError(_("unable to deduce message and no message provided"))
         # compute the origin
         if isinstance(unit, list):
             cls = MultiUnitFieldIssue
@@ -264,8 +248,7 @@ class UnitValidator:
                 elif "_{}".format(field) in unit[0].field_offset_map:
                     if origin is None:
                         origin = origin.with_offset(
-                            unit[0].field_offset_map["_{}".format(field)]
-                            + offset
+                            unit[0].field_offset_map["_{}".format(field)] + offset
                         ).just_line()
         else:
             cls = UnitFieldIssue
@@ -308,9 +291,7 @@ class UnitValidator:
         Problem.unknown_param: _("field refers to unknown parameter"),
         Problem.not_unique: _("field value is not unique"),
         Problem.expected_i18n: _("field should be marked as translatable"),
-        Problem.unexpected_i18n: (
-            _("field should not be marked as translatable")
-        ),
+        Problem.unexpected_i18n: (_("field should not be marked as translatable")),
         Problem.syntax_error: _("syntax error inside the field"),
         Problem.bad_reference: _("bad reference to another unit"),
     }
@@ -405,16 +386,12 @@ class UnitType(abc.ABCMeta):
                 )
                 # Create a new class in place of the 'fields' defined in
                 # our_meta.fields.
-                fields = SymbolDefMeta(
-                    "fields", merged_fields_bases, merged_fields_ns
-                )
+                fields = SymbolDefMeta("fields", merged_fields_bases, merged_fields_ns)
                 fields.__qualname__ = "{}.Meta.fields".format(name)
                 new_meta_ns["fields"] = fields
             # Ensure that Meta.name is explicitly defined
             if "name" not in our_meta.__dict__:
-                raise TypeError(
-                    _("Please define 'name' in {}.Meta").format(name)
-                )
+                raise TypeError(_("Please define 'name' in {}.Meta").format(name))
             ns["Meta"] = type("Meta", new_meta_bases, new_meta_ns)
         ns["fields"] = ns["Meta"].fields
         return super().__new__(mcls, name, bases, ns)
@@ -512,9 +489,7 @@ class Unit(metaclass=UnitType):
         assert cls is Unit, "{}.instantiate_template() not customized".format(
             cls.__name__
         )
-        return cls(
-            data, raw_data, origin, provider, parameters, field_offset_map
-        )
+        return cls(data, raw_data, origin, provider, parameters, field_offset_map)
 
     def __eq__(self, other):
         return self.checksum == other.checksum
@@ -617,9 +592,7 @@ class Unit(metaclass=UnitType):
         """
         return self._parameters is not None
 
-    def get_accessed_parameters(
-        self, *, force=False, template_engine="default"
-    ):
+    def get_accessed_parameters(self, *, force=False, template_engine="default"):
         """
         Get a set of attributes accessed from each template attribute
 
@@ -644,9 +617,7 @@ class Unit(metaclass=UnitType):
         """
         if force or self.is_parametric:
             return {
-                key: get_accessed_parameters(
-                    value, template_engine=template_engine
-                )
+                key: get_accessed_parameters(value, template_engine=template_engine)
                 for key, value in self._data.items()
             }
         else:
@@ -714,13 +685,9 @@ class Unit(metaclass=UnitType):
                 value = Template(value).render(tmp_params)
             else:
                 try:
-                    value = string.Formatter().vformat(
-                        value, (), self.parameters
-                    )
+                    value = string.Formatter().vformat(value, (), self.parameters)
                 except KeyError as e:
-                    raise MissingParam(
-                        self.template_id, name, value, e.args[0]
-                    )
+                    raise MissingParam(self.template_id, name, value, e.args[0])
         elif (
             value is not None
             and self.template_engine == "jinja2"
@@ -817,16 +784,12 @@ class Unit(metaclass=UnitType):
                 # of the problem?
                 if self.template_engine == "jinja2":
                     tmp_params = self.parameters.copy()
-                    tmp_params.update(
-                        {"__checkbox_env__": self._checkbox_env()}
-                    )
+                    tmp_params.update({"__checkbox_env__": self._checkbox_env()})
                     tmp_params.update({"__system_env__": os.environ})
                     tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
                     msgstr = Template(msgstr).render(tmp_params)
                 else:
-                    msgstr = string.Formatter().vformat(
-                        msgstr, (), self.parameters
-                    )
+                    msgstr = string.Formatter().vformat(msgstr, (), self.parameters)
             elif self.template_engine == "jinja2":
                 tmp_params = {
                     "__checkbox_env__": self._checkbox_env(),
@@ -844,16 +807,12 @@ class Unit(metaclass=UnitType):
             if self.is_parametric:
                 if self.template_engine == "jinja2":
                     tmp_params = self.parameters.copy()
-                    tmp_params.update(
-                        {"__checkbox_env__": self._checkbox_env()}
-                    )
+                    tmp_params.update({"__checkbox_env__": self._checkbox_env()})
                     tmp_params.update({"__system_env__": os.environ})
                     tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
                     msgstr = Template(msgstr).render(tmp_params)
                 else:
-                    msgstr = string.Formatter().vformat(
-                        msgstr, (), self.parameters
-                    )
+                    msgstr = string.Formatter().vformat(msgstr, (), self.parameters)
             elif self.template_engine == "jinja2":
                 tmp_params = {
                     "__checkbox_env__": self._checkbox_env(),
@@ -942,9 +901,7 @@ class Unit(metaclass=UnitType):
         # Parametric units also get a copy of their parameters stored as an
         # additional piece of data
         if self.is_parametric:
-            sorted_parameters = collections.OrderedDict(
-                sorted(self.parameters.items())
-            )
+            sorted_parameters = collections.OrderedDict(sorted(self.parameters.items()))
             canonical_parameters = json.dumps(
                 sorted_parameters,
                 indent=None,

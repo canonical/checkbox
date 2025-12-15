@@ -8,9 +8,7 @@ from checkbox_support.snap_utils.system import get_gadget_snap
 
 
 def register_arguments():
-    parser = argparse.ArgumentParser(
-        description="Validate the slot and plug interface"
-    )
+    parser = argparse.ArgumentParser(description="Validate the slot and plug interface")
     parser.add_argument(
         "--type",
         type=str,
@@ -37,9 +35,7 @@ def filter_gadget_interface(type):
 
 
 def verify_slot_interface(name, interface):
-    logging.info(
-        "[Expected Slot Interface] name: %s, type: %s", name, interface
-    )
+    logging.info("[Expected Slot Interface] name: %s, type: %s", name, interface)
     gadget_interfaces = filter_gadget_interface("slot")
     for sys_intf in gadget_interfaces:
         if sys_intf["slot"] != name:
@@ -62,9 +58,7 @@ def verify_slot_interface(name, interface):
 
 
 def verify_plug_interface(name, interface):
-    logging.info(
-        "[Expected Plug Interface] name: %s, type: %s", name, interface
-    )
+    logging.info("[Expected Plug Interface] name: %s, type: %s", name, interface)
 
     gadget_interfaces = filter_gadget_interface("plug")
 

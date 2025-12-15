@@ -59,9 +59,7 @@ def get_active_series():
 
     undesired_active = active_series - desired_series
     if undesired_active:
-        print(
-            "The following series weren't desired but are active:\n- ", end=""
-        )
+        print("The following series weren't desired but are active:\n- ", end="")
         print("\n- ".join(undesired_active))
 
     possible_series = desired_series & active_series
@@ -125,8 +123,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--new-version",
         "-n",
-        help="New version to use in the recipe "
-        "(for debian changelog) and bzr tags.",
+        help="New version to use in the recipe " "(for debian changelog) and bzr tags.",
         required=True,
     )
     parser.add_argument("--revision", help="Revision to build", required=True)
@@ -135,9 +132,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv):
     args = parse_args(argv)
-    update_build_recipe(
-        args.project, args.recipe, args.new_version, args.revision
-    )
+    update_build_recipe(args.project, args.recipe, args.new_version, args.revision)
 
 
 if __name__ == "__main__":

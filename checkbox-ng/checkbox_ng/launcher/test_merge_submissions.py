@@ -57,9 +57,7 @@ class MergeSubmissionsTests(TestCase):
         self_mock = mock.MagicMock()
         temp_location = mock.MagicMock()
 
-        MergeSubmissions.export(
-            self_mock, mock.MagicMock(), temp_location, "json"
-        )
+        MergeSubmissions.export(self_mock, mock.MagicMock(), temp_location, "json")
 
         expected_creates = temp_location / "submission.json"
         self.assertTrue(expected_creates.open.called)

@@ -171,9 +171,7 @@ class ConfigIntegrationTests(unittest.TestCase):
     @patch("checkbox_support.snap_utils.config.get_configuration_set")
     @patch("subprocess.check_output")
     @patch("subprocess.run")
-    def test_one_value_overriden_by_config(
-        self, mock_run, mock_subproc, mock_conf_set
-    ):
+    def test_one_value_overriden_by_config(self, mock_run, mock_subproc, mock_conf_set):
         """
         FOO=default in config_vars,
         and snapd db has foo=bar,

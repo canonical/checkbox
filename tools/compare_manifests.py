@@ -17,12 +17,7 @@ def diff_manifests(manifest1: list[dict], manifest2: list[dict]) -> list[str]:
     Return a list of hidden manifests that are present in manifest2 but not in
     manifest1.
     """
-    return [
-        k["name"]
-        for k in manifest2
-        if k not in manifest1
-        if "::_" in k["name"]
-    ]
+    return [k["name"] for k in manifest2 if k not in manifest1 if "::_" in k["name"]]
 
 
 def main(args):

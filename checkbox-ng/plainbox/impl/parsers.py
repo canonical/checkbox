@@ -123,9 +123,7 @@ class ParserPlugIn(IParser, PlugIn):
         """
         ast = self.parse_text_to_ast(text)
         if ast is not None:
-            return json.dumps(
-                ast, indent=4, sort_keys=True, default=self._to_json
-            )
+            return json.dumps(ast, indent=4, sort_keys=True, default=self._to_json)
 
     def parse_text_to_ast(self, text):
         """
@@ -160,12 +158,8 @@ class ParserPlugIn(IParser, PlugIn):
         elif hasattr(obj, "__slots__"):
             return {slot: getattr(obj, slot) for slot in obj.__slots__}
         else:
-            raise NotImplementedError(
-                "unable to json-ify {!r}".format(obj.__class__)
-            )
+            raise NotImplementedError("unable to json-ify {!r}".format(obj.__class__))
 
 
 # Collection of all parsers
-all_parsers = PkgResourcesPlugInCollection(
-    "plainbox.parsers", wrapper=ParserPlugIn
-)
+all_parsers = PkgResourcesPlugInCollection("plainbox.parsers", wrapper=ParserPlugIn)

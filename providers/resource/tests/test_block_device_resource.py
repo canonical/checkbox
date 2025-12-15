@@ -9,9 +9,7 @@ class TestDeviceState(unittest.TestCase):
     @patch("os.path.exists")
     @patch("os.listdir")
     @patch("os.readlink")
-    def test_device_state_removable(
-        self, mock_readlink, mock_listdir, mock_exists
-    ):
+    def test_device_state_removable(self, mock_readlink, mock_listdir, mock_exists):
         mock_readlink.return_value = "/sys/bus/usb/devices/usb1"
         mock_exists.return_value = True
         mock_listdir.return_value = ["usb1"]
@@ -21,9 +19,7 @@ class TestDeviceState(unittest.TestCase):
     @patch("os.path.exists")
     @patch("os.listdir")
     @patch("os.readlink")
-    def test_device_state_internal(
-        self, mock_readlink, mock_listdir, mock_exists
-    ):
+    def test_device_state_internal(self, mock_readlink, mock_listdir, mock_exists):
         mock_readlink.return_value = "/sys/bus/sata/devices/sata1"
         mock_exists.return_value = False
         result = block_device_resource.device_state("sdb")
@@ -88,9 +84,7 @@ class TestSmartSupportDiskInfo(unittest.TestCase):
 
     @patch("block_device_resource.check_output")
     def test_smart_support_disabled(self, mock_check_output):
-        mock_check_output.return_value = (
-            "some output indicating no SMART support"
-        )
+        mock_check_output.return_value = "some output indicating no SMART support"
 
         result = block_device_resource.smart_support("sdb")
         self.assertEqual(result, "False")

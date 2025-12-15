@@ -118,9 +118,7 @@ class AgentTests(TestCase):
         geteuid_mock.return_value = 0
 
         RemoteAgent.invoked(self_mock, ctx_mock)
-        self.assertFalse(
-            remote_assistant_mock.return_value.resume_by_id.called
-        )
+        self.assertFalse(remote_assistant_mock.return_value.resume_by_id.called)
 
 
 class ExitIfPortUnavilableTests(TestCase):

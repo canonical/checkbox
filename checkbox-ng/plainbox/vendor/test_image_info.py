@@ -142,9 +142,7 @@ class TestDCDStringE2E(TestCase):
 
 class TestDCDStringToInfoIoT(TestCase):
     def test_valid_dcd_with_all_fields(self):
-        example = (
-            "canonical-oem-carlsbad:element-v2-uc24:20241205.15:v2-uc24-x01"
-        )
+        example = "canonical-oem-carlsbad:element-v2-uc24:20241205.15:v2-uc24-x01"
         info = image_info.dcd_string_to_info_iot(example)
 
         self.assertEqual(info["project"], "carlsbad")
@@ -218,9 +216,7 @@ class TestDCDStringE2EIoT(TestCase):
 
     @patch("builtins.open")
     @patch("pathlib.Path.is_file")
-    def test_dcd_info_iot_path_no_additional_info(
-        self, mock_is_file, mock_open
-    ):
+    def test_dcd_info_iot_path_no_additional_info(self, mock_is_file, mock_open):
         mock_is_file.return_value = True
         mock_file = mock_open.return_value.__enter__.return_value
         mock_file.read.return_value = (
@@ -239,9 +235,7 @@ class TestDCDStringE2EIoT(TestCase):
 
     @patch("pathlib.Path.is_file")
     @patch("subprocess.check_output")
-    def test_dcd_info_iot_path_not_exists(
-        self, mock_check_output, mock_is_file
-    ):
+    def test_dcd_info_iot_path_not_exists(self, mock_check_output, mock_is_file):
         mock_is_file.return_value = False
         mock_check_output.return_value = """{
           "Version": "24.04",

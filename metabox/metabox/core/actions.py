@@ -57,8 +57,7 @@ class ActionBase:
 
     def __str__(self):
         kwargs_str = ", ".join(
-            f"{key}={pprint.pformat(value)}"
-            for key, value in self.kwargs.items()
+            f"{key}={pprint.pformat(value)}" for key, value in self.kwargs.items()
         )
         args_str = ", ".join(pprint.pformat(arg) for arg in self.args)
         # if both are defined, separate them with a comma, else nothing

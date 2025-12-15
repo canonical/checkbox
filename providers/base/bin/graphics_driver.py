@@ -129,9 +129,7 @@ class XorgLog(object):
                     self.modules.append(module)
                 gathering_module = False
                 module = None
-                m = re.search(
-                    r"\(II\) Loading.*modules\/drivers\/(.+)_drv\.so", line
-                )
+                m = re.search(r"\(II\) Loading.*modules\/drivers\/(.+)_drv\.so", line)
                 if m:
                     found_ddx = True
                     continue
@@ -198,9 +196,7 @@ class XorgLog(object):
                 display = {"Output": display_name}
                 continue
 
-            m = re.search(
-                r"\(II\) (.*)\(\d+\): Assigned Display Device: (.*)$", line
-            )
+            m = re.search(r"\(II\) (.*)\(\d+\): Assigned Display Device: (.*)$", line)
             if m:
                 self.displays[display_name] = display
                 self.video_driver = m.group(1)
@@ -211,9 +207,7 @@ class XorgLog(object):
             # For NVIDIA
             m = re.search(r'\(II\) (.*)\(\d+\): Setting mode "(.*?):', line)
             if not m:
-                m = re.search(
-                    r'\(II\) (.*)\(\d+\): Setting mode "(NULL)"', line
-                )
+                m = re.search(r'\(II\) (.*)\(\d+\): Setting mode "(NULL)"', line)
             if m:
                 self.displays[display_name] = display
                 self.video_driver = m.group(1)
@@ -222,9 +216,7 @@ class XorgLog(object):
                 continue
 
             # For 4th Intel after 3.11
-            m = re.search(
-                r"\(II\) (.*)\(\d+\): switch to mode .* using (.*),", line
-            )
+            m = re.search(r"\(II\) (.*)\(\d+\): switch to mode .* using (.*),", line)
             if m:
                 self.displays[display_name] = display
                 self.video_driver = "intel"  # 'intel' is what we expect to see
@@ -232,9 +224,7 @@ class XorgLog(object):
                 display = {"Output": display_name}
                 continue
 
-            m = re.search(
-                r"Manufacturer: (.*) *Model: (.*) *Serial#: (.*)", line
-            )
+            m = re.search(r"Manufacturer: (.*) *Model: (.*) *Serial#: (.*)", line)
             if m:
                 display["display manufacturer"] = m.group(1)
                 display["display model"] = m.group(2)
@@ -249,9 +239,7 @@ class XorgLog(object):
                 display["vendor"] = m.group(1)
                 display["product id"] = m.group(2)
 
-            m = re.search(
-                r"Max Image Size \[(.*)\]: *horiz.: (.*) *vert.: (.*)", line
-            )
+            m = re.search(r"Max Image Size \[(.*)\]: *horiz.: (.*) *vert.: (.*)", line)
             if m:
                 display["size max horizontal"] = "%s %s" % (
                     m.group(2),

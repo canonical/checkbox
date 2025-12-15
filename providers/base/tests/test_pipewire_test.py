@@ -37,9 +37,7 @@ def sorting(item):
 class PIDControllerTests(unittest.TestCase):
 
     def test_input_change(self):
-        pc = PIDController(
-            kp=0.7, ki=0.01, kd=0.01, setpoint=REC_LEVEL_RANGE[0]
-        )
+        pc = PIDController(kp=0.7, ki=0.01, kd=0.01, setpoint=REC_LEVEL_RANGE[0])
         self.assertEqual(0.7, pc.kp)
         self.assertEqual(0.01, pc.ki)
         self.assertEqual(0.01, pc.kd)
@@ -49,9 +47,7 @@ class PIDControllerTests(unittest.TestCase):
         self.assertAlmostEqual(-2.403, pc.input_change(1, 0.10))
 
     def test_set_change_limit(self):
-        pc = PIDController(
-            kp=0.7, ki=0.01, kd=0.01, setpoint=REC_LEVEL_RANGE[0]
-        )
+        pc = PIDController(kp=0.7, ki=0.01, kd=0.01, setpoint=REC_LEVEL_RANGE[0])
         pc.set_change_limit(0.5)
         self.assertEqual(0.5, pc._change_limit)
         self.assertAlmostEqual(-0.5, pc.input_change(1, 0.10))
@@ -122,9 +118,7 @@ class FileDumperTests(unittest.TestCase):
     def test_write_to_file(self):
         open_mock = mock_open()
         with patch("pipewire_test.open", open_mock, create=True):
-            self.assertEqual(
-                True, FileDumper().write_to_file("test.txt", "test-data")
-            )
+            self.assertEqual(True, FileDumper().write_to_file("test.txt", "test-data"))
             open_mock.assert_called_with("test.txt", "w")
             open_mock.return_value.write.assert_has_calls(
                 [
@@ -153,13 +147,9 @@ class FileDumperTests(unittest.TestCase):
         open_mock = mock_open()
         with patch("pipewire_test.open", open_mock, create=True):
             open_mock.side_effect = TypeError
-            self.assertEqual(
-                False, FileDumper().write_to_file("test.txt", "test-data")
-            )
+            self.assertEqual(False, FileDumper().write_to_file("test.txt", "test-data"))
             open_mock.side_effect = IOError
-            self.assertEqual(
-                False, FileDumper().write_to_file("test.txt", "test-data")
-            )
+            self.assertEqual(False, FileDumper().write_to_file("test.txt", "test-data"))
 
 
 class SpectrumAnalyzerTests(unittest.TestCase):
@@ -203,9 +193,7 @@ class SpectrumAnalyzerTests(unittest.TestCase):
 
     def test_frequencies_for_band(self):
         sa = SpectrumAnalyzer(points=256)
-        self.assertEqual(
-            (18949.21875, 19035.3515625), sa.frequencies_for_band(220)
-        )
+        self.assertEqual((18949.21875, 19035.3515625), sa.frequencies_for_band(220))
 
         # band >= len(self.spectrum)
         self.assertEqual(None, sa.frequencies_for_band(280))
@@ -362,6 +350,4 @@ class RunTestTests(unittest.TestCase):
     @patch("pipewire_test.VolumeController._wpctl_output")
     def test_with_spectrum(self, mock_wpctl, mock_fd):
         mock_fd.return_value = True
-        self.assertEqual(
-            1, run_test(process_arguments(["-u", "8", "--quiet"]))
-        )
+        self.assertEqual(1, run_test(process_arguments(["-u", "8", "--quiet"])))

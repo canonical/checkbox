@@ -70,13 +70,9 @@ class SupportedCamera(Enum):
     The string value matches the camera module identifier used in the system.
     """
 
-    ONSEMI_AP1302_AR0430 = (
-        "onsemi_ap1302_ar0430"  # OnSemi AP1302 + AR0430 sensor
-    )
+    ONSEMI_AP1302_AR0430 = "onsemi_ap1302_ar0430"  # OnSemi AP1302 + AR0430 sensor
     ONSEMI_AR0430 = "onsemi_ar0430"  # OnSemi AR0430 sensor only
-    ONSEMI_AP1302_AR0830 = (
-        "onsemi_ap1302_ar0830"  # OnSemi AP1302 + AR0830 sensor
-    )
+    ONSEMI_AP1302_AR0830 = "onsemi_ap1302_ar0830"  # OnSemi AP1302 + AR0830 sensor
     SONY_IMX214 = "sony_imx214"  # Sony IMX214 sensor
 
     def __str__(self):
@@ -163,15 +159,11 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
             CameraError: For unsupported camera types or architectures
             CameraOperationError: For operational errors
         """
-        camera_value = (
-            camera.value if isinstance(camera, SupportedCamera) else camera
-        )
+        camera_value = camera.value if isinstance(camera, SupportedCamera) else camera
 
         # Classify by camera type instead of architecture
         if camera_value == SupportedCamera.SONY_IMX214.value:
-            return self._resolve_sony_imx214(
-                v4l2_device_name, arch, camera_value
-            )
+            return self._resolve_sony_imx214(v4l2_device_name, arch, camera_value)
         elif camera_value == SupportedCamera.ONSEMI_AP1302_AR0830.value:
             return self._resolve_onsemi_ap1302_ar0830(
                 v4l2_device_name, arch, camera_value
@@ -180,9 +172,7 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
             SupportedCamera.ONSEMI_AP1302_AR0430.value,
             SupportedCamera.ONSEMI_AR0430.value,
         ):
-            return self._resolve_onsemi_ar0430(
-                v4l2_device_name, arch, camera_value
-            )
+            return self._resolve_onsemi_ar0430(v4l2_device_name, arch, camera_value)
         else:
             log_and_raise_error(
                 "Unsupported camera type: {}".format(camera), CameraError
@@ -201,9 +191,7 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
 
         # SONY_IMX214 requires 3 video nodes (preview, record, capture)
         dev_video_nodes = self.get_video_nodes(v4l2_device_name)
-        self._validate_video_nodes(
-            dev_video_nodes, 3, camera_value, v4l2_device_name
-        )
+        self._validate_video_nodes(dev_video_nodes, 3, camera_value, v4l2_device_name)
 
         return {
             "preview": dev_video_nodes[0],
@@ -299,9 +287,7 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
         """Validate video nodes count and log results."""
         if not dev_video_nodes:
             log_and_raise_error(
-                "No video device nodes found for '{}'".format(
-                    v4l2_device_name
-                ),
+                "No video device nodes found for '{}'".format(v4l2_device_name),
                 CameraConfigurationError,
             )
 
@@ -331,9 +317,7 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
         """Validate architecture support for camera."""
         if arch not in supported_archs:
             log_and_raise_error(
-                "Unsupported architecture: {} on {}".format(
-                    arch, camera_value
-                ),
+                "Unsupported architecture: {} on {}".format(arch, camera_value),
                 CameraError,
             )
 
@@ -383,9 +367,7 @@ class GenioBaseCamera(CameraInterface):
             format_str = "image/jpeg"
         else:
             format_str = "video/x-raw"
-        format_str += ",width={},height={},format={}".format(
-            width, height, format
-        )
+        format_str += ",width={},height={},format={}".format(width, height, format)
 
         if framerate is not None:
             format_str += ",framerate={}/1".format(framerate)
@@ -393,9 +375,7 @@ class GenioBaseCamera(CameraInterface):
         if count is not None:
             sink = "filesink location={}".format(full_artifact_path)
         else:
-            sink = "multifilesink location={} max-files=1".format(
-                full_artifact_path
-            )
+            sink = "multifilesink location={} max-files=1".format(full_artifact_path)
 
         return base_cmd + format_str + " ! " + sink
 
@@ -419,9 +399,7 @@ class GenioBaseCamera(CameraInterface):
         else:
             base_cmd += " --stream-skip=30 --stream-count=1"
 
-        return base_cmd + " --stream-to={} --verbose".format(
-            full_artifact_path
-        )
+        return base_cmd + " --stream-to={} --verbose".format(full_artifact_path)
 
     def _get_camera_dev_video_node(self, v4l2_device_name: str) -> dict:
         """Get the video device node for the given v4l2 device name."""
@@ -441,15 +419,11 @@ class GenioBaseCamera(CameraInterface):
         v4l2_device_name: str,
     ) -> None:
         """Capture an image using the specified method."""
-        full_artifact_path = self._get_artifact_path(
-            store_path, artifact_name, format
-        )
+        full_artifact_path = self._get_artifact_path(store_path, artifact_name, format)
         logging.info("Capture image as {}".format(full_artifact_path))
 
         dev_video_nodes = self._get_camera_dev_video_node(v4l2_device_name)
-        dev_video_node = dev_video_nodes.get("capture") or dev_video_nodes.get(
-            "all"
-        )
+        dev_video_node = dev_video_nodes.get("capture") or dev_video_nodes.get("all")
         if not dev_video_node:
             log_and_raise_error(
                 "No video device node found for {}".format(v4l2_device_name),
@@ -489,15 +463,11 @@ class GenioBaseCamera(CameraInterface):
         v4l2_device_name: str,
     ) -> None:
         """Record a video using the specified method."""
-        full_artifact_path = self._get_artifact_path(
-            store_path, artifact_name, "YUV"
-        )
+        full_artifact_path = self._get_artifact_path(store_path, artifact_name, "YUV")
         logging.info("Record a video as {}".format(full_artifact_path))
 
         dev_video_nodes = self._get_camera_dev_video_node(v4l2_device_name)
-        dev_video_node = dev_video_nodes.get("record") or dev_video_nodes.get(
-            "all"
-        )
+        dev_video_node = dev_video_nodes.get("record") or dev_video_nodes.get("all")
         if not dev_video_node:
             log_and_raise_error(
                 "No video device node found for {}".format(v4l2_device_name),

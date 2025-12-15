@@ -60,9 +60,7 @@ class TemplateUnitTests(TestCase):
                 "id": "check-device-{dev_name}",
             }
         )
-        self.assertEqual(
-            repr(template), "<TemplateUnit template_id:'check-devices'>"
-        )
+        self.assertEqual(repr(template), "<TemplateUnit template_id:'check-devices'>")
 
     def test_id(self):
         template = TemplateUnit(
@@ -86,9 +84,7 @@ class TemplateUnitTests(TestCase):
         ``template-resource`` field
         """
         self.assertEqual(
-            TemplateUnit(
-                {"template-resource": "resource"}
-            ).resource_partial_id,
+            TemplateUnit({"template-resource": "resource"}).resource_partial_id,
             "resource",
         )
 
@@ -170,9 +166,7 @@ class TemplateUnitTests(TestCase):
         when ``template-resource`` is also fully-qualified.
         """
         self.assertEqual(
-            TemplateUnit(
-                {"template-resource": "explicit::resource"}
-            ).resource_id,
+            TemplateUnit({"template-resource": "explicit::resource"}).resource_id,
             "explicit::resource",
         )
 
@@ -185,9 +179,7 @@ class TemplateUnitTests(TestCase):
         self.assertEqual(
             TemplateUnit(
                 {
-                    "template-imports": (
-                        "from com.example import resource/name as rc"
-                    ),
+                    "template-imports": ("from com.example import resource/name as rc"),
                     "template-resource": "rc",
                 }
             ).resource_id,
@@ -207,9 +199,7 @@ class TemplateUnitTests(TestCase):
         self.assertEqual(
             TemplateUnit(
                 {
-                    "template-imports": (
-                        "from com.example import resource/name as rc"
-                    ),
+                    "template-imports": ("from com.example import resource/name as rc"),
                     "template-resource": "rc",
                 },
                 provider=provider,
@@ -226,9 +216,7 @@ class TemplateUnitTests(TestCase):
         provider = mock.Mock(spec=IProvider1)
         provider.namespace = "namespace"
         self.assertEqual(
-            TemplateUnit(
-                {"template-resource": "rc"}, provider=provider
-            ).resource_id,
+            TemplateUnit({"template-resource": "rc"}, provider=provider).resource_id,
             "namespace::rc",
         )
 
@@ -376,9 +364,7 @@ class TemplateUnitTests(TestCase):
 
     def test_template_resource__explicit(self):
         self.assertEqual(
-            TemplateUnit(
-                {"template-resource": "explicit::resource"}
-            ).template_resource,
+            TemplateUnit({"template-resource": "explicit::resource"}).template_resource,
             "explicit::resource",
         )
 
@@ -414,10 +400,7 @@ class TemplateUnitTests(TestCase):
                     )
                 }
             ).template_filter,
-            (
-                'resource.attr == "value"\n'
-                'resource.other == "some other value"\n'
-            ),
+            ('resource.attr == "value"\n' 'resource.other == "some other value"\n'),
         )
 
     def test_get_filter_program__nothing(self):
@@ -571,12 +554,8 @@ class TemplateUnitTests(TestCase):
                 "template-filter": 'resource.attr == "value"',
             }
         )
-        self.assertTrue(
-            template.should_instantiate(Resource({"attr": "value"}))
-        )
-        self.assertFalse(
-            template.should_instantiate(Resource({"attr": "other value"}))
-        )
+        self.assertTrue(template.should_instantiate(Resource({"attr": "value"})))
+        self.assertFalse(template.should_instantiate(Resource({"attr": "other value"})))
         self.assertFalse(template.should_instantiate(Resource()))
 
     def test_should_instantiate__no_filter(self):
@@ -585,12 +564,8 @@ class TemplateUnitTests(TestCase):
                 "template-resource": "resource",
             }
         )
-        self.assertTrue(
-            template.should_instantiate(Resource({"attr": "value"}))
-        )
-        self.assertTrue(
-            template.should_instantiate(Resource({"attr": "other value"}))
-        )
+        self.assertTrue(template.should_instantiate(Resource({"attr": "value"})))
+        self.assertTrue(template.should_instantiate(Resource({"attr": "other value"})))
         self.assertTrue(template.should_instantiate(Resource()))
 
     def test_instantiate_all(self):
@@ -697,15 +672,12 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     def test_template_id__unique(self):
         unit = self.unit_cls({"template-id": "id"}, provider=self.provider)
-        other_unit = self.unit_cls(
-            {"template-id": "id"}, provider=self.provider
-        )
+        other_unit = self.unit_cls({"template-id": "id"}, provider=self.provider)
         self.provider.unit_list = [unit, other_unit]
         self.provider.problem_list = []
         context = UnitValidationContext([self.provider])
         message_start = (
-            "{} 'id', field 'template-id', clashes with 1 other unit,"
-            " look at: "
+            "{} 'id', field 'template-id', clashes with 1 other unit," " look at: "
         ).format(unit.tr_unit())
         issue_list = unit.check(context=context)
         issue = self.assertIssueFound(
@@ -812,13 +784,8 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
         )
 
     def test_template_resource__refers_to_other_units(self):
-        unit = self.unit_cls(
-            {"template-resource": "some-unit"}, provider=self.provider
-        )
-        message = (
-            "field 'template-resource',"
-            " unit 'ns::some-unit' is not available"
-        )
+        unit = self.unit_cls({"template-resource": "some-unit"}, provider=self.provider)
+        message = "field 'template-resource'," " unit 'ns::some-unit' is not available"
         self.provider.unit_list = [unit]
         self.provider.problem_list = []
         context = UnitValidationContext([self.provider])
@@ -833,12 +800,8 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     def test_template_resource__refers_to_other_jobs(self):
         other_unit = UnitWithId({"id": "some-unit"}, provider=self.provider)
-        unit = self.unit_cls(
-            {"template-resource": "some-unit"}, provider=self.provider
-        )
-        message = (
-            "field 'template-resource'," " the referenced unit is not a job"
-        )
+        unit = self.unit_cls({"template-resource": "some-unit"}, provider=self.provider)
+        message = "field 'template-resource'," " the referenced unit is not a job"
         self.provider.unit_list = [unit, other_unit]
         self.provider.problem_list = []
         context = UnitValidationContext([self.provider])

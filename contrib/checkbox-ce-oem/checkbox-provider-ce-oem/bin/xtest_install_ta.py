@@ -8,9 +8,7 @@ import os
 
 def run_command(cmd, capture_output=True, text=True, check=True):
     try:
-        result = run(
-            cmd, capture_output=capture_output, text=text, check=check
-        )
+        result = run(cmd, capture_output=capture_output, text=text, check=check)
         return result.stdout.strip() if capture_output else None
     except CalledProcessError as e:
         raise SystemExit("Error: {}".format(e))

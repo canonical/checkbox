@@ -107,9 +107,7 @@ class Origin:
         elif mode is OriginMode.single_line:
             return "{}:{}".format(self.source, self.line_start)
         elif mode is OriginMode.line_range:
-            return "{}:{}-{}".format(
-                self.source, self.line_start, self.line_end
-            )
+            return "{}:{}-{}".format(self.source, self.line_start, self.line_end)
         else:
             raise NotImplementedError
 
@@ -146,9 +144,7 @@ class Origin:
         if mode is OriginMode.whole_file:
             return self
         elif mode is OriginMode.single_line or mode is OriginMode.line_range:
-            return Origin(
-                self.source, self.line_start + offset, self.line_end + offset
-            )
+            return Origin(self.source, self.line_start + offset, self.line_end + offset)
         else:
             raise NotImplementedError
 
@@ -383,10 +379,7 @@ class CommandLineTextSource(ITextSource):
 
     def __eq__(self, other):
         if isinstance(other, CommandLineTextSource):
-            return (
-                self.arg_name == other.arg_name
-                and self.arg_value == other.arg_value
-            )
+            return self.arg_name == other.arg_name and self.arg_value == other.arg_value
         return NotImplemented
 
     def __gt__(self, other):

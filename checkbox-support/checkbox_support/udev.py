@@ -104,9 +104,7 @@ def get_udev_xhci_devices(udev_client):
     # Iterate over pci devices only
     enumerator.add_match_subsystem("pci")
     devices = [
-        device
-        for device in enumerator.execute()
-        if (device.get_driver() == "xhci_hcd")
+        device for device in enumerator.execute() if (device.get_driver() == "xhci_hcd")
     ]
     # Sort the list, this is not needed but makes various debugging dumps
     # look better.

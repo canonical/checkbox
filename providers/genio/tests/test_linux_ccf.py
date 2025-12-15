@@ -6,9 +6,7 @@ import linux_ccf as ccf
 class TestLinuxCCF(unittest.TestCase):
     @patch("linux_ccf.subprocess.run")
     def test_runcmd(self, mock_run):
-        mock_run.return_value = MagicMock(
-            stdout="output", stderr="error", returncode=0
-        )
+        mock_run.return_value = MagicMock(stdout="output", stderr="error", returncode=0)
         result = ccf.runcmd("echo Hello")
         self.assertEqual(result.stdout, "output")
         self.assertEqual(result.stderr, "error")

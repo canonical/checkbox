@@ -40,8 +40,7 @@ def check_muted():
         else:
             print(
                 "Unable to find a %s active_entry in the pacmd list-%ss"
-                " output\npacmd output was: %s"
-                % (vtype, vtype, pacmd_entries),
+                " output\npacmd output was: %s" % (vtype, vtype, pacmd_entries),
                 file=sys.stderr,
             )
             return 1
@@ -52,8 +51,7 @@ def check_muted():
         else:
             print(
                 "Unable to determine device bus information from the"
-                " pacmd list-%ss output\npacmd output was: %s"
-                % (vtype, pacmd_entries),
+                " pacmd list-%ss output\npacmd output was: %s" % (vtype, pacmd_entries),
                 file=sys.stderr,
             )
             return 1
@@ -117,21 +115,17 @@ def check_volume(minvol, maxvol):
                 if volume > maxvol:
                     print(
                         "FAIL: Volume of %d is greater than"
-                        " maximum of %d for %s %s"
-                        % (volume, maxvol, name, vtype)
+                        " maximum of %d for %s %s" % (volume, maxvol, name, vtype)
                     )
                     retval = 1
                 elif volume < minvol:
                     print(
                         "FAIL: Volume of %d is less than"
-                        " minimum of %d for %s %s"
-                        % (volume, minvol, name, vtype)
+                        " minimum of %d for %s %s" % (volume, minvol, name, vtype)
                     )
                     retval = 1
                 else:
-                    print(
-                        "PASS: Volume is %d for %s %s" % (volume, name, vtype)
-                    )
+                    print("PASS: Volume is %d for %s %s" % (volume, name, vtype))
             else:
                 print(
                     "Unable to find volume information in the pacmd"

@@ -31,9 +31,7 @@ class TestSriovFunctions(TestCase):
     @patch("sriov.logging.info")
     def test_check_ubuntu_version_valid(self, mock_logging, mock_get_release):
         sriov.check_ubuntu_version()
-        mock_logging.assert_called_with(
-            "The system is 24.04 or greater, proceed"
-        )
+        mock_logging.assert_called_with("The system is 24.04 or greater, proceed")
 
     @patch("sriov.get_release_to_test", return_value="22.04")
     def test_check_ubuntu_version_invalid(self, mock_get_release):
@@ -45,9 +43,7 @@ class TestSriovFunctions(TestCase):
             "Ubuntu 24.04 or greater is required, but found 22.04.",
         )
 
-    @patch(
-        "sriov.get_release_to_test", side_effect=Exception("Mocked exception")
-    )
+    @patch("sriov.get_release_to_test", side_effect=Exception("Mocked exception"))
     def test_check_ubuntu_version_exception(self, mock_get_release):
         with self.assertRaises(Exception) as context:
             sriov.check_ubuntu_version()
@@ -57,9 +53,7 @@ class TestSriovFunctions(TestCase):
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data="0x8086")
     @patch("sriov.logging.info")
-    def test_check_interface_vendor_intel(
-        self, mock_logging, mock_open, mock_exists
-    ):
+    def test_check_interface_vendor_intel(self, mock_logging, mock_open, mock_exists):
         sriov.check_interface_vendor("eth0")
         mock_logging.assert_called_with(
             "The interface %s is a(n) %s NIC", "eth0", "Intel"
@@ -91,9 +85,7 @@ class TestSriovFunctions(TestCase):
     def test_check_interface_vendor_unknown(self, mock_open, mock_exists):
         with self.assertRaises(ValueError) as context:
             sriov.check_interface_vendor("eth0")
-        self.assertEqual(
-            str(context.exception), "eth0 has an unknown vendor ID 0x0000"
-        )
+        self.assertEqual(str(context.exception), "eth0 has an unknown vendor ID 0x0000")
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", side_effect=Exception("File read error"))
@@ -107,9 +99,7 @@ class TestSriovFunctions(TestCase):
     @patch("sriov.logging.info")
     def test_is_sriov_capable(self, mock_logging, mock_open, mock_exists):
         sriov.is_sriov_capable("eth0")
-        mock_logging.assert_any_call(
-            "SR-IOV enabled with 1 VFs on interface eth0."
-        )
+        mock_logging.assert_any_call("SR-IOV enabled with 1 VFs on interface eth0.")
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", side_effect=IOError("Permission denied"))
@@ -259,9 +249,7 @@ class TestSriovFunctions(TestCase):
         with patch("builtins.__import__") as mock_import:
             # Mock lsb_release module
             mock_lsb_release = MagicMock()
-            mock_lsb_release.get_distro_information.return_value = {
-                "RELEASE": "24.04"
-            }
+            mock_lsb_release.get_distro_information.return_value = {"RELEASE": "24.04"}
 
             def side_effect(name, *args):
                 if name == "distro":
@@ -283,9 +271,7 @@ class TestSriovFunctions(TestCase):
         """Test successful cleanup of SRIOV interface."""
         sriov.cleanup_sriov("eth0")
 
-        mock_exists.assert_called_once_with(
-            "/sys/class/net/eth0/device/sriov_numvfs"
-        )
+        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
         mock_open.assert_called_once_with(
@@ -296,15 +282,11 @@ class TestSriovFunctions(TestCase):
     @patch("os.path.exists", return_value=False)
     @patch("sriov.logging.info")
     @patch("sys.exit")
-    def test_cleanup_sriov_file_not_exists(
-        self, mock_exit, mock_logging, mock_exists
-    ):
+    def test_cleanup_sriov_file_not_exists(self, mock_exit, mock_logging, mock_exists):
         """Test cleanup when SRIOV file does not exist."""
         sriov.cleanup_sriov("eth0")
 
-        mock_exists.assert_called_once_with(
-            "/sys/class/net/eth0/device/sriov_numvfs"
-        )
+        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call(
             "Failed to disable SR-IOV on eth0: SR-IOV interface eth0 does not exist."
@@ -324,9 +306,7 @@ class TestSriovFunctions(TestCase):
         """Test cleanup when file write raises FileNotFoundError."""
         sriov.cleanup_sriov("eth0")
 
-        mock_exists.assert_called_once_with(
-            "/sys/class/net/eth0/device/sriov_numvfs"
-        )
+        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
         mock_logging.assert_any_call(
@@ -344,9 +324,7 @@ class TestSriovFunctions(TestCase):
         """Test cleanup when file write raises IOError."""
         sriov.cleanup_sriov("eth0")
 
-        mock_exists.assert_called_once_with(
-            "/sys/class/net/eth0/device/sriov_numvfs"
-        )
+        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
         mock_logging.assert_any_call("An error occurred: Permission denied")
@@ -362,9 +340,7 @@ class TestSriovFunctions(TestCase):
         """Test cleanup when file operations raise general Exception."""
         sriov.cleanup_sriov("eth0")
 
-        mock_exists.assert_called_once_with(
-            "/sys/class/net/eth0/device/sriov_numvfs"
-        )
+        mock_exists.assert_called_once_with("/sys/class/net/eth0/device/sriov_numvfs")
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
         mock_logging.assert_any_call("An error occurred: Unexpected error")
@@ -379,9 +355,7 @@ class TestSriovFunctions(TestCase):
         """Test cleanup with different interface name."""
         sriov.cleanup_sriov("enp0s3")
 
-        mock_exists.assert_called_once_with(
-            "/sys/class/net/enp0s3/device/sriov_numvfs"
-        )
+        mock_exists.assert_called_once_with("/sys/class/net/enp0s3/device/sriov_numvfs")
         mock_logging.assert_any_call("checking if sriov_numvfs exists")
         mock_logging.assert_any_call("Setting numvfs to zero")
         mock_open.assert_called_once_with(

@@ -35,11 +35,7 @@ def _device_node_detect(func, device_type=""):
         new_ifaces = now_ifaces - starting_ifaces
         if new_ifaces:
             print()
-            print(
-                "New interface(s) detected: {}".format(
-                    ", ".join(list(new_ifaces))
-                )
-            )
+            print("New interface(s) detected: {}".format(", ".join(list(new_ifaces))))
             return new_ifaces
         time.sleep(1)
         print(".", end="", flush=True)
@@ -82,9 +78,7 @@ def usb_storage_test(usb_type):
     usb_read_write.REPETITION_NUM = 2
     watcher = run_watcher.USBStorage(usb_type)
     mounted_partition = watcher.run_insertion()
-    logging.info(
-        "%s drive been mounted to %s on RPYC", usb_type, mounted_partition
-    )
+    logging.info("%s drive been mounted to %s on RPYC", usb_type, mounted_partition)
     watcher.run_storage(mounted_partition)
     # usb_read_write been imported in run_watcher
     # the temporary mount point been created while import it

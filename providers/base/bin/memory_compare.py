@@ -51,9 +51,7 @@ class LshwJsonResult:
 
 def get_installed_memory_size():
     try:
-        output = check_output(
-            ["lshw", "-json"], universal_newlines=True, stderr=PIPE
-        )
+        output = check_output(["lshw", "-json"], universal_newlines=True, stderr=PIPE)
     except CalledProcessError:
         return 0
     lshw = LshwJsonParser(output)
@@ -116,8 +114,7 @@ def main():
         )
         print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
         print(
-            "\nFAIL: Either lshw or /proc/meminfo returned a memory size "
-            "of 0 kB",
+            "\nFAIL: Either lshw or /proc/meminfo returned a memory size " "of 0 kB",
             file=sys.stderr,
         )
         return 1
@@ -142,8 +139,7 @@ def main():
         print(
             "\nFAIL: Meminfo reports %d less than lshw, "
             "a difference of %.2f%%. Only a variance of %d%% in "
-            "reported memory is allowed."
-            % (difference, percentage, threshold),
+            "reported memory is allowed." % (difference, percentage, threshold),
             file=sys.stderr,
         )
         return 1

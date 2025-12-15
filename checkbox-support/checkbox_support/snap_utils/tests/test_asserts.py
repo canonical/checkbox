@@ -27,9 +27,7 @@ model_uc18 = "snap_utils/tests/asserts_data/MODEL_UC18.txt"
 model_uc20 = "snap_utils/tests/asserts_data/MODEL_UC20.txt"
 model_bionic_server = "snap_utils/tests/asserts_data/MODEL_BIONIC_SERVER.txt"
 model_focal_server = "snap_utils/tests/asserts_data/MODEL_FOCAL_SERVER.txt"
-model_uc16_brandstore = (
-    "snap_utils/tests/asserts_data/MODEL_UC16_BRANDSTORE.txt"
-)
+model_uc16_brandstore = "snap_utils/tests/asserts_data/MODEL_UC16_BRANDSTORE.txt"
 
 
 def create_mock_response(assert_path):

@@ -140,9 +140,7 @@ class UsbIds:
                 description = "{}:{}".format(
                     self._subclasses[class_id, subclass_id], line[6:]
                 )
-                self._protocols[class_id, subclass_id, protocol_id] = (
-                    description
-                )
+                self._protocols[class_id, subclass_id, protocol_id] = description
                 continue
             # if we got here without satisfying any of the above ifs
             # then we need to set paraser into a state where lines won't be
@@ -297,8 +295,7 @@ class UsbDevice(dict):
         """Generate a short string representation of this USB Device."""
         template = "ID {idVendor:04x}:{idProduct:04x} {name}"
         return "\n".join(
-            [template.format(**self)]
-            + [c.to_short_str() for c in self.children]
+            [template.format(**self)] + [c.to_short_str() for c in self.children]
         )
 
     def to_legacy_str(self):
@@ -311,8 +308,7 @@ class UsbDevice(dict):
             "ID {idVendor:04x}:{idProduct:04x} {name}"
         )
         return "\n".join(
-            [template.format(**self)]
-            + [c.to_legacy_str() for c in self.children]
+            [template.format(**self)] + [c.to_legacy_str() for c in self.children]
         )
 
     def get_all_devices(self):

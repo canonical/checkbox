@@ -32,9 +32,7 @@ class UrwidTestPlanSelection(Scenario):
         # SelectTestPlan(
         #    'com.canonical.certification::'
         #    'after-suspend-graphics-discrete-gpu-cert-automated'),
-        SelectTestPlan(
-            "com.canonical.certification::client-cert-desktop-18-04"
-        ),
+        SelectTestPlan("com.canonical.certification::client-cert-desktop-18-04"),
         Send(keys.KEY_ENTER),
         Expect("Choose tests to run on your system:"),
         Send("d" + keys.KEY_ENTER),

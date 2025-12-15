@@ -26,9 +26,7 @@ import requests
 from typing import Dict, List
 
 
-def list_gpio_slots(
-    snapd: object, gadget_name: str
-) -> Dict[str, Dict[str, int]]:
+def list_gpio_slots(snapd: object, gadget_name: str) -> Dict[str, Dict[str, int]]:
     """
     List GPIO slots defined by a gadget snap.
 
@@ -82,9 +80,7 @@ def parse_config(config: str) -> List[int]:
                 start_port = int(start_port)
                 end_port = int(end_port)
                 if start_port > end_port:
-                    raise ValueError(
-                        "Invalid port range: {}".format(port_list)
-                    )
+                    raise ValueError("Invalid port range: {}".format(port_list))
                 for range_port in range(start_port, end_port + 1):
                     expect_port.append(range_port)
             except ValueError:
@@ -115,9 +111,7 @@ def check_gpio_list(gpio_list: Dict[int, Dict[str, int]], config: str) -> None:
     if expect_port:
         for gpio_slot in expect_port:
             print(
-                "Error: Slot of GPIO {} is not defined in gadget snap".format(
-                    gpio_slot
-                )
+                "Error: Slot of GPIO {} is not defined in gadget snap".format(gpio_slot)
             )
         raise SystemExit(1)
     else:
@@ -125,9 +119,7 @@ def check_gpio_list(gpio_list: Dict[int, Dict[str, int]], config: str) -> None:
 
 
 @contextmanager
-def interface_test(
-    gpio_slot: str, gadget_name: str, timeout: int = 60
-) -> None:
+def interface_test(gpio_slot: str, gadget_name: str, timeout: int = 60) -> None:
     snap = os.environ["SNAP_NAME"]
     timeout = int(os.environ.get("SNAPD_TASK_TIMEOUT", timeout))
     try:
@@ -154,9 +146,7 @@ def connect_interface(
     # Get the snap name of checkbox
     print("Attempting connect GPIO to {}:{}".format(gadget_name, gpio_slot))
     try:
-        Snapd(task_timeout=timeout).connect(
-            gadget_name, gpio_slot, snap, "gpio"
-        )
+        Snapd(task_timeout=timeout).connect(gadget_name, gpio_slot, snap, "gpio")
         print("Success")
     except requests.HTTPError:
         print("Failed to connect {}".format(gpio_slot))
@@ -178,13 +168,9 @@ def disconnect_interface(
     """
 
     # Get the snap name of checkbox
-    print(
-        "Attempting disconnect GPIO slot {}:{}".format(gadget_name, gpio_slot)
-    )
+    print("Attempting disconnect GPIO slot {}:{}".format(gadget_name, gpio_slot))
     try:
-        Snapd(task_timeout=timeout).disconnect(
-            gadget_name, gpio_slot, snap, "gpio"
-        )
+        Snapd(task_timeout=timeout).disconnect(gadget_name, gpio_slot, snap, "gpio")
         print("Success")
     except requests.HTTPError:
         print("Failed to disconnect {}".format(gpio_slot))
@@ -247,11 +233,7 @@ def main():
         check_gpio_list(gpio_slots, args.config)
     if args.action == "dump":
         for x in gpio_slots:
-            print(
-                "slot: {}\ngpio_number: {}\n".format(
-                    x, gpio_slots[x]["number"]
-                )
-            )
+            print("slot: {}\ngpio_number: {}\n".format(x, gpio_slots[x]["number"]))
     if args.action == "check-node":
         with interface_test(args.slot, gadget_name):
             check_node(args.num)

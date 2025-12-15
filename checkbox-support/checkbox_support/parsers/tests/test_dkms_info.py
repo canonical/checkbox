@@ -146,8 +146,6 @@ class TestDkmsInfoParser(TestCase):
         )
         self.assertIn("oem-guestsession-workaround-1324327", result.dkms_info)
         self.assertEqual(
-            result.dkms_info["oem-guestsession-workaround-1324327"][
-                "dkms-status"
-            ],
+            result.dkms_info["oem-guestsession-workaround-1324327"]["dkms-status"],
             "non-dkms",
         )

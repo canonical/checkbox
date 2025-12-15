@@ -42,8 +42,7 @@ def parse_ubuntu_report():
         )
     except FileNotFoundError:
         raise SystemExit(
-            "ubuntu-report is not installed, "
-            "install it to collect this information"
+            "ubuntu-report is not installed, " "install it to collect this information"
         )
 
 
@@ -140,9 +139,7 @@ def dcd_string_to_info_iot(dcd_string):
     :([0-9.-]+) : Build ID (numbers, dot, dash, mandatory)
     (:(.*))? : Additional info (anything, optional) - currently unused
     """
-    pattern = (
-        r"^canonical-oem-([a-zA-Z0-9]+):([a-zA-Z0-9-]+):([0-9.-]+)(:(.*))?$"
-    )
+    pattern = r"^canonical-oem-([a-zA-Z0-9]+):([a-zA-Z0-9-]+):([0-9.-]+)(:(.*))?$"
 
     match = re.match(pattern, dcd_string)
     if not match:
@@ -175,23 +172,17 @@ def dcd_info():
         if DCD_FILE_IOT.is_file():
             with open(str(DCD_FILE_IOT), "r", encoding="utf-8") as f:
                 dcd_string = f.read().strip()
-            print(
-                "Found IoT dcd string: {}".format(dcd_string), file=sys.stderr
-            )
+            print("Found IoT dcd string: {}".format(dcd_string), file=sys.stderr)
             return dcd_string_to_info_iot(dcd_string)
     except (IOError, OSError):
         print("IoT dcd file not found. Assuming PC platform", file=sys.stderr)
 
     ubuntu_report = parse_ubuntu_report()
-    print(
-        "Parsed report: {}".format(json.dumps(ubuntu_report)), file=sys.stderr
-    )
+    print("Parsed report: {}".format(json.dumps(ubuntu_report)), file=sys.stderr)
     try:
         dcd_string = ubuntu_report["OEM"]["DCD"]
     except KeyError:
-        raise SystemExit(
-            "Unable to find the OEM DCD string in the parsed report"
-        )
+        raise SystemExit("Unable to find the OEM DCD string in the parsed report")
     return dcd_string_to_info(dcd_string)
 
 

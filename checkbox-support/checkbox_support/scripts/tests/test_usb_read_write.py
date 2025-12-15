@@ -35,9 +35,7 @@ class TestUsbReadWrite(unittest.TestCase):
     @patch("subprocess.Popen")
     @patch("subprocess.check_output")
     @patch("subprocess.run")
-    def test_write_test_unit(
-        self, mock_run, mock_check_output, mock_popen, mock_os
-    ):
+    def test_write_test_unit(self, mock_run, mock_check_output, mock_popen, mock_os):
         mock_os.join.return_value = "output_file"
 
         mock_process = MagicMock()

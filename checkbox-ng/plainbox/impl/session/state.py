@@ -367,9 +367,7 @@ class SessionDeviceContext:
             # If we do have an existing state object then our lists must be
             # obtained / derived from the state object's data
             self._unit_list = state.unit_list
-            self._provider_list = list(
-                {unit.provider for unit in self._unit_list}
-            )
+            self._provider_list = list({unit.provider for unit in self._unit_list})
             self._state = state
             self._unit_id_map = {
                 unit.id: unit
@@ -452,9 +450,7 @@ class SessionDeviceContext:
             context. If you have obtained this value in the past it may be
             no longer accurate.
         """
-        return self.compute_shared(
-            self._CACHE_OVERRIDE_MAP, self._compute_override_map
-        )
+        return self.compute_shared(self._CACHE_OVERRIDE_MAP, self._compute_override_map)
 
     def set_test_plan_list(self, test_plan_list: "List[TestPlanUnit]"):
         """
@@ -498,10 +494,7 @@ class SessionDeviceContext:
         """
         if provider in self._provider_list:
             raise ValueError(
-                _(
-                    "attempting to add the same provider twice: %s"
-                    % provider.name
-                )
+                _("attempting to add the same provider twice: %s" % provider.name)
             )
         self._provider_list.append(provider)
         self.on_provider_added(provider)
@@ -525,9 +518,7 @@ class SessionDeviceContext:
         This method fires the :meth:`on_unit_added()` signal
         """
         if unit.checksum in self._already_added_checksums:
-            raise ValueError(
-                _("attempting to add the same unit twice: %s" % unit.id)
-            )
+            raise ValueError(_("attempting to add the same unit twice: %s" % unit.id))
         self._already_added_checksums.add(unit.checksum)
         self.state.add_unit(unit, recompute)
         # NOTE: no need to fire the on_unit_added() signal because the state
@@ -543,9 +534,7 @@ class SessionDeviceContext:
         This method fires the :meth:`on_unit_removed()` signal
         """
         if unit not in self._unit_list:
-            raise ValueError(
-                _("attempting to remove unit not in this context")
-            )
+            raise ValueError(_("attempting to remove unit not in this context"))
         self._already_added_checksums.remove(unit.checksum)
         self.state.remove_unit(unit)
         # NOTE: no need to fire the on_unit_removed() signal because the state
@@ -798,9 +787,7 @@ class SessionState:
         session knows about.
         """
         # Start by making a copy of job_list as we may modify it below
-        job_list = [
-            unit for unit in unit_list if isinstance(unit, JobDefinition)
-        ]
+        job_list = [unit for unit in unit_list if isinstance(unit, JobDefinition)]
         while True:
             try:
                 # Construct a solver with the job list as passed by the caller.
@@ -883,9 +870,7 @@ class SessionState:
         run_list_id_set = frozenset([job.id for job in self.run_list])
         # Check if this is safe to do. None of the jobs may be in the run list
         # (or the desired job list which is always a subset of run list)
-        unremovable_job_id_set = remove_job_id_set.intersection(
-            run_list_id_set
-        )
+        unremovable_job_id_set = remove_job_id_set.intersection(run_list_id_set)
         if unremovable_job_id_set:
             raise ValueError(
                 _("cannot remove jobs that are on the run list: {}").format(
@@ -902,15 +887,11 @@ class SessionState:
                     del self._resource_map[job.id]
         # Compute a list of jobs to retain
         retain_list = [
-            job
-            for job, should_remove in job_and_flag_list
-            if should_remove is False
+            job for job, should_remove in job_and_flag_list if should_remove is False
         ]
         # And a list of jobs to remove
         remove_list = [
-            job
-            for job, should_remove in job_and_flag_list
-            if should_remove is True
+            job for job, should_remove in job_and_flag_list if should_remove is True
         ]
         # Replace job list with the filtered list
         self._job_list = retain_list
@@ -945,9 +926,7 @@ class SessionState:
         """
         self._mandatory_job_list = mandatory_job_list
 
-    def update_desired_job_list(
-        self, desired_job_list, include_mandatory=True
-    ):
+    def update_desired_job_list(self, desired_job_list, include_mandatory=True):
         """
         Update the set of desired jobs (that ought to run).
 
@@ -1491,10 +1470,7 @@ class SessionState:
     def resource_global_outcome(self):
         global_outcome = IJobResult.OUTCOME_SKIP
         for job_state in self.job_state_map.values():
-            if (
-                job_state.job.plugin != "resource"
-                or not job_state.result.outcome
-            ):
+            if job_state.job.plugin != "resource" or not job_state.result.outcome:
                 continue
             # Generate categories status
             child_status = job_state.result.outcome
@@ -1519,10 +1495,7 @@ class SessionState:
     def attachment_global_outcome(self):
         global_outcome = IJobResult.OUTCOME_SKIP
         for job_state in self.job_state_map.values():
-            if (
-                job_state.job.plugin != "attachment"
-                or not job_state.result.outcome
-            ):
+            if job_state.job.plugin != "attachment" or not job_state.result.outcome:
                 continue
             # Generate categories status
             child_status = job_state.result.outcome
@@ -1589,9 +1562,7 @@ class SessionState:
         # _run_list this correctly updates all values in the _job_state_map
         # (the UI can safely use the readiness state of all jobs)
         for job_state in self._job_state_map.values():
-            job_state.readiness_inhibitor_list = [
-                UndesiredJobReadinessInhibitor
-            ]
+            job_state.readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
         # Take advantage of the fact that run_list is topologically sorted and
         # do a single O(N) pass over _run_list. All "current/update" state is
         # computed before it needs to be observed (thanks to the ordering)

@@ -43,9 +43,7 @@ def sine(freq, length, period_len, amplitude=0.5):
     while t < length:
         sample = []
         for i in range(period_len):
-            sample.append(
-                amplitude * math.sin(2 * math.pi * ((t + i) / (RATE / freq)))
-            )
+            sample.append(amplitude * math.sin(2 * math.pi * ((t + i) / (RATE / freq))))
         yield sample
         t += period_len
 

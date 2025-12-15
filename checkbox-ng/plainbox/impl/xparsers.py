@@ -93,19 +93,13 @@ afn_typed_const = (pod.typed, pod.const)
 def F(doc, type, initial_fn=None):
     """shortcut for creating fields"""
     if type is list:
-        return pod.Field(
-            doc, type, initial_fn=type, assign_filter_list=afn_typed_const
-        )
+        return pod.Field(doc, type, initial_fn=type, assign_filter_list=afn_typed_const)
     else:
-        return pod.Field(
-            doc, type, pod.MANDATORY, assign_filter_list=afn_typed_const
-        )
+        return pod.Field(doc, type, pod.MANDATORY, assign_filter_list=afn_typed_const)
 
 
 @pod.modify_field_docstring("not negative")
-def not_negative(
-    instance: pod.POD, field: pod.Field, old: "Any", new: "Any"
-) -> "Any":
+def not_negative(instance: pod.POD, field: pod.Field, old: "Any", new: "Any") -> "Any":
     if new < 0:
         raise ValueError(
             "({}) {}.{} cannot be negative".format(
@@ -445,9 +439,7 @@ class OverrideFieldList(Node):
     )
 
     @staticmethod
-    def parse(
-        text: str, lineno: int = 1, col_offset: int = 0
-    ) -> "OverrideFieldList":
+    def parse(text: str, lineno: int = 1, col_offset: int = 0) -> "OverrideFieldList":
         entries = []
         initial_lineno = lineno
         # NOTE: lineno is consciously shadowed below
@@ -597,9 +589,7 @@ class IncludeStmtList(Node):
     )
 
     @staticmethod
-    def parse(
-        text: str, lineno: int = 1, col_offset: int = 0
-    ) -> "IncludeStmtList":
+    def parse(text: str, lineno: int = 1, col_offset: int = 0) -> "IncludeStmtList":
         """
         Parse a multi-line ``include`` field.
 

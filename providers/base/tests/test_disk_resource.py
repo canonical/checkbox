@@ -24,16 +24,12 @@ class TestDiskResource(unittest.TestCase):
             mocked_print.assert_any_call("rotational:", False)
 
     def test_get_relevant_block_devices_is_mmc(self):
-        block_devices = [
-            {"type": "disk", "kname": "mmcblk0", "mountpoint": "/boot"}
-        ]
+        block_devices = [{"type": "disk", "kname": "mmcblk0", "mountpoint": "/boot"}]
         result = list(disk_resource.get_relevant_block_devices(block_devices))
         self.assertEqual(len(result), 0)
 
     def test_get_relevant_block_devices_loopback(self):
-        block_devices = [
-            {"type": "loop", "kname": "loop0", "mountpoint": None}
-        ]
+        block_devices = [{"type": "loop", "kname": "loop0", "mountpoint": None}]
         result = list(disk_resource.get_relevant_block_devices(block_devices))
         self.assertEqual(len(result), 0)
 

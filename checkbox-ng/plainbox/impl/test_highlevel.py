@@ -66,12 +66,8 @@ class TestPlainBoxObject(TestCase):
         self.assertEqual(list(found.values()), [[pbo]])
 
     def test_explore_tree(self):
-        target = PlainBoxObject(
-            None, name="com.canonical.certification::target"
-        )
-        target1 = PlainBoxObject(
-            None, name="com.canonical.certification::target1"
-        )
+        target = PlainBoxObject(None, name="com.canonical.certification::target")
+        target1 = PlainBoxObject(None, name="com.canonical.certification::target1")
         sibiling_unrelated = PlainBoxObject(
             None, name="com.canonical.certification::not-target"
         )

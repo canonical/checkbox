@@ -154,17 +154,14 @@ class Configuration:
                 if parametrized and sect_name == prefix:
                     if name not in spec:
                         problem = (
-                            "Unexpected variable '{}' in section [{}] "
-                            "Origin: {}"
+                            "Unexpected variable '{}' in section [{}] " "Origin: {}"
                         ).format(name, section, origin)
                         self.notice_problem(problem)
                         return
                     index = i
         if index == -1:
             # this should happen only for parametric sections
-            problem = "Unexpected section [{}]. Origin: {}".format(
-                section, origin
-            )
+            problem = "Unexpected section [{}]. Origin: {}".format(section, origin)
             self.notice_problem(problem)
             return
 
@@ -206,9 +203,7 @@ class Configuration:
         """
         result = dict()
 
-        non_param_sec_names = [
-            name for name, _ in _get_non_param_spec_sections()
-        ]
+        non_param_sec_names = [name for name, _ in _get_non_param_spec_sections()]
         for sect_name, section in CONFIG_SPEC:
             if section in non_param_sec_names:
                 continue
@@ -291,8 +286,7 @@ class Configuration:
                 is_dyn = sect_name in cls._DYNAMIC_SECTIONS
                 if var_name not in cfg.sections[sect_name] and not is_dyn:
                     problem = (
-                        "Unexpected variable '{}' in section [{}] "
-                        "Origin: {}"
+                        "Unexpected variable '{}' in section [{}] " "Origin: {}"
                     ).format(var_name, sect_name, origin)
                     cfg.notice_problem(problem)
                     continue
@@ -337,9 +331,7 @@ CONFIG_SPEC = [
         "launcher",
         {
             "launcher_version": VarSpec(int, 1, "Version of launcher to use"),
-            "app_id": VarSpec(
-                str, "checkbox-cli", "Identifier of the application"
-            ),
+            "app_id": VarSpec(str, "checkbox-cli", "Identifier of the application"),
             "app_version": VarSpec(str, "", "Version of the application"),
             "stock_reports": VarSpec(
                 list,
@@ -382,9 +374,7 @@ CONFIG_SPEC = [
                 "Constrain interactive choice to test plans matching this glob",
             ),
             "unit": VarSpec(str, "", "Select this test plan by default."),
-            "forced": VarSpec(
-                bool, False, "Don't allow the user to change test plan."
-            ),
+            "forced": VarSpec(bool, False, "Don't allow the user to change test plan."),
         },
     ),
     (
@@ -420,12 +410,8 @@ CONFIG_SPEC = [
     (
         "ui",
         {
-            "type": VarSpec(
-                str, "interactive", "Type of user interface to use."
-            ),
-            "output": VarSpec(
-                str, "show", "Silence or restrict command output."
-            ),
+            "type": VarSpec(str, "interactive", "Type of user interface to use."),
+            "output": VarSpec(str, "show", "Silence or restrict command output."),
             "dont_suppress_output": VarSpec(
                 bool,
                 False,
@@ -483,9 +469,7 @@ CONFIG_SPEC = [
         ParametricSection(
             {
                 "type": VarSpec(str, "", "Type of transport to use."),
-                "stream": VarSpec(
-                    str, "stdout", "Stream to use - stdout or stderr."
-                ),
+                "stream": VarSpec(str, "stdout", "Stream to use - stdout or stderr."),
                 "path": VarSpec(
                     str, "", "Path to where the report should be saved to."
                 ),
@@ -501,9 +485,7 @@ CONFIG_SPEC = [
         ParametricSection(
             {
                 "unit": VarSpec(str, "", "ID of the exporter to use."),
-                "options": VarSpec(
-                    list, [], "Flags to forward to the exporter."
-                ),
+                "options": VarSpec(list, [], "Flags to forward to the exporter."),
             }
         ),
     ),

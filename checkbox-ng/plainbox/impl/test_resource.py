@@ -154,9 +154,7 @@ class ResourceTests(TestCase):
 
     def test_eq(self):
         self.assertEqual(Resource(), Resource())
-        self.assertEqual(
-            Resource({"attr": "value"}), Resource({"attr": "value"})
-        )
+        self.assertEqual(Resource({"attr": "value"}), Resource({"attr": "value"}))
         self.assertFalse(Resource() == object())
 
     def test_ne(self):
@@ -201,9 +199,7 @@ class ResourceProgramErrorTests(TestCase):
 
     def test_none(self):
         exc = NoResourcesReferenced()
-        self.assertEqual(
-            str(exc), "expression did not reference any resources"
-        )
+        self.assertEqual(str(exc), "expression did not reference any resources")
 
 
 class CodeNotAllowedTests(TestCase):
@@ -423,15 +419,9 @@ class ResourceExpressionTests(TestCase):
     def test_evaluate_normal(self):
         # NOTE: the actual expr.resource_id_list is irrelevant for this test
         expr = ResourceExpression("obj.a == 2")
-        self.assertTrue(
-            expr.evaluate([Resource({"a": 1}), Resource({"a": 2})])
-        )
-        self.assertTrue(
-            expr.evaluate([Resource({"a": 2}), Resource({"a": 1})])
-        )
-        self.assertFalse(
-            expr.evaluate([Resource({"a": 1}), Resource({"a": 3})])
-        )
+        self.assertTrue(expr.evaluate([Resource({"a": 1}), Resource({"a": 2})]))
+        self.assertTrue(expr.evaluate([Resource({"a": 2}), Resource({"a": 1})]))
+        self.assertFalse(expr.evaluate([Resource({"a": 1}), Resource({"a": 3})]))
 
     def test_evaluate_exception(self):
         # NOTE: the actual expr.resource_id_list is irrelevant for this test
@@ -454,9 +444,7 @@ class ResourceExpressionTests(TestCase):
             ],
         }
         expr = ResourceExpression("a.foo == 1 and a.baz != 'b'")
-        self.assertFalse(
-            expr.evaluate(resource_map["a"], resource_map=resource_map)
-        )
+        self.assertFalse(expr.evaluate(resource_map["a"], resource_map=resource_map))
 
     def test_evaluate_same_object_parens(self):
         resource_map = {
@@ -466,9 +454,7 @@ class ResourceExpressionTests(TestCase):
             ],
         }
         expr = ResourceExpression("(a.foo == 1) and a.baz != 'b'")
-        self.assertFalse(
-            expr.evaluate(resource_map["a"], resource_map=resource_map)
-        )
+        self.assertFalse(expr.evaluate(resource_map["a"], resource_map=resource_map))
 
 
 class ResourceProgramTests(TestCase):
@@ -483,24 +469,16 @@ class ResourceProgramTests(TestCase):
 
     def test_expressions(self):
         self.assertEqual(len(self.prog.expression_list), 2)
-        self.assertEqual(
-            self.prog.expression_list[0].text, "package.name == 'fwts'"
-        )
-        self.assertEqual(
-            self.prog.expression_list[0].resource_id_list, ["package"]
-        )
+        self.assertEqual(self.prog.expression_list[0].text, "package.name == 'fwts'")
+        self.assertEqual(self.prog.expression_list[0].resource_id_list, ["package"])
         self.assertEqual(
             self.prog.expression_list[1].text,
             "platform.arch in ('i386', 'amd64')",
         )
-        self.assertEqual(
-            self.prog.expression_list[1].resource_id_list, ["platform"]
-        )
+        self.assertEqual(self.prog.expression_list[1].resource_id_list, ["platform"])
 
     def test_required_resources(self):
-        self.assertEqual(
-            self.prog.required_resources, set(("package", "platform"))
-        )
+        self.assertEqual(self.prog.required_resources, set(("package", "platform")))
 
     def test_evaluate_failure_not_true(self):
         resource_map = {
@@ -511,25 +489,19 @@ class ResourceProgramTests(TestCase):
         }
         with self.assertRaises(ExpressionFailedError) as call:
             self.prog.evaluate_or_raise(resource_map)
-        self.assertEqual(
-            call.exception.expression.text, "package.name == 'fwts'"
-        )
+        self.assertEqual(call.exception.expression.text, "package.name == 'fwts'")
 
     def test_evaluate_without_no_match(self):
         resource_map = {"package": [], "platform": []}
         with self.assertRaises(ExpressionFailedError) as call:
             self.prog.evaluate_or_raise(resource_map)
-        self.assertEqual(
-            call.exception.expression.text, "package.name == 'fwts'"
-        )
+        self.assertEqual(call.exception.expression.text, "package.name == 'fwts'")
 
     def test_evaluate_failure_no_resource(self):
         resource_map = {"platform": [Resource({"arch": "i386"})]}
         with self.assertRaises(ExpressionCannotEvaluateError) as call:
             self.prog.evaluate_or_raise(resource_map)
-        self.assertEqual(
-            call.exception.expression.text, "package.name == 'fwts'"
-        )
+        self.assertEqual(call.exception.expression.text, "package.name == 'fwts'")
 
     def test_evaluate_success(self):
         resource_map = {

@@ -117,9 +117,7 @@ class SessionStateExporterBaseTests(TestCase):
 
     def test_option_list_init_non_boolean(self):
         option = SessionStateExporterBase.OPTION_WITH_COMMENTS
-        exporter = self.TestSessionStateExporter(
-            ["{}=detailed".format(option)]
-        )
+        exporter = self.TestSessionStateExporter(["{}=detailed".format(option)])
         self.assertEqual(exporter.get_option_value(option), "detailed")
 
     def test_option_list_non_duplicated_options(self):
@@ -136,9 +134,7 @@ class SessionStateExporterBaseTests(TestCase):
         exporter.set_option_value("with-comments")
         self.assertEqual(exporter.get_option_value("with-comments"), True)
         exporter.set_option_value("with-comments", "detailed")
-        self.assertEqual(
-            exporter.get_option_value("with-comments"), "detailed"
-        )
+        self.assertEqual(exporter.get_option_value("with-comments"), "detailed")
 
     def test_defaults(self):
         # Test all defaults, with all options unset
@@ -236,9 +232,7 @@ class SessionStateExporterBaseTests(TestCase):
             "run_list": ["job_b", "job_a"],
             "desired_job_list": ["job_a", "job_b"],
             "resource_map": {"job_b": [{"ready": "yes"}]},
-            "category_map": {
-                "com.canonical.plainbox::uncategorised": "Uncategorised"
-            },
+            "category_map": {"com.canonical.plainbox::uncategorised": "Uncategorised"},
             "result_map": {
                 "job_a": OrderedDict(
                     [

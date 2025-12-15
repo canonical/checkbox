@@ -245,9 +245,7 @@ if __name__ == "__main__":
     parser.add_argument("--buffer-days", type=int, default=7)
     parser.add_argument("--include-packages", metavar="dpkg.list")
     parser.add_argument("--release", default="jammy")
-    parser.add_argument(
-        "--version", action="version", version="%(prog)s 0.3.2"
-    )
+    parser.add_argument("--version", action="version", version="%(prog)s 0.3.2")
 
     args = parser.parse_args()
     main(

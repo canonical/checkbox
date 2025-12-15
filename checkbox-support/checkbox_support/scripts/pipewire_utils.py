@@ -218,9 +218,7 @@ class PipewireTest:
         node_id = None
         while not chosen:
             self.logger.info(
-                "Which {} would you like to test? -1 means don't change".format(
-                    mclass
-                )
+                "Which {} would you like to test? -1 means don't change".format(mclass)
             )
             self.logger.info("    {} id:".format(mclass))
             node_id = input()
@@ -230,9 +228,7 @@ class PipewireTest:
                 chosen = False
             if chosen:
                 cmd = "wpctl set-default {}".format(node_id)
-                subprocess.check_output(
-                    cmd, shell=True, universal_newlines=True
-                )
+                subprocess.check_output(cmd, shell=True, universal_newlines=True)
             elif node_id == "-1":
                 chosen = True
             else:
@@ -270,9 +266,7 @@ class PipewireTest:
                                 )
                             )
                             return True
-            raise ValueError(
-                "No available output device for {}".format(device)
-            )
+            raise ValueError("No available output device for {}".format(device))
         except (IndexError, ValueError) as e:
             logging.error(repr(e))
             return False
@@ -302,9 +296,7 @@ class PipewireTest:
             element = Gst.parse_launch(pipe)
         except GLib.GError as error:
             self.logger.info("Specified pipeline couldn't be processed.")
-            self.logger.info(
-                "Error when processing pipeline: {}".format(error)
-            )
+            self.logger.info("Error when processing pipeline: {}".format(error))
             # Exit harmlessly
             return PipewireTestError.PIPELINE_PROCESS_FAIL
         self.logger.info("Pipeline initialized, now starting playback.")
@@ -364,9 +356,7 @@ class PipewireTest:
         """
         initial_cfg = self._get_audio_config(mode)
         self.logger.info("Starting with config: {}".format(initial_cfg))
-        self.logger.info(
-            "You have {} seconds to plug the item in".format(timeout)
-        )
+        self.logger.info("You have {} seconds to plug the item in".format(timeout))
 
         for _ in range(int(timeout)):
             new_cfg = self._get_audio_config(mode)
@@ -400,9 +390,7 @@ class PipewireTest:
             if ports:
                 for p in ports:
                     chosen = None
-                    if p["direction"] == self._get_pw_type(mode) and p[
-                        "available"
-                    ] in [
+                    if p["direction"] == self._get_pw_type(mode) and p["available"] in [
                         "yes",
                         "unknown",
                     ]:
@@ -471,15 +459,11 @@ class PipewireTest:
         ]
         self.logger.info("Default input device:")
         try:
-            source = subprocess.check_output(
-                source_cmd, universal_newlines=True
-            )
+            source = subprocess.check_output(source_cmd, universal_newlines=True)
             self.logger.info(self._get_node_description(source))
             if device_type == "AUDIO":
                 self.logger.info("Default output device:")
-                sink = subprocess.check_output(
-                    sink_cmd, universal_newlines=True
-                )
+                sink = subprocess.check_output(sink_cmd, universal_newlines=True)
                 self.logger.info(self._get_node_description(sink))
             self.logger.info(
                 "If these are not you would like to test,"
@@ -542,9 +526,7 @@ class PipewireTest:
                 self.logger.info("".join(status_1))
                 self.logger.info("And the second status:\n")
                 self.logger.info("".join(status_2))
-                self.logger.info(
-                    "Differ in the following lines (after sorting):"
-                )
+                self.logger.info("Differ in the following lines (after sorting):")
                 self.logger.info(diff)
                 raise SystemExit("The two status don't match !!!")
 
@@ -606,9 +588,7 @@ class PipewireTest:
         parser_gst = subparsers.add_parser(
             "gst", help="Simple GStreamer pipeline player"
         )
-        parser_gst.add_argument(
-            "PIPELINE", help="Quoted GStreamer pipeline to launch"
-        )
+        parser_gst.add_argument("PIPELINE", help="Quoted GStreamer pipeline to launch")
         parser_gst.add_argument(
             "-t",
             "--timeout",
@@ -651,9 +631,7 @@ class PipewireTest:
         )
 
         # Add parser for show default device function
-        parser_show = subparsers.add_parser(
-            "show", help="show the default device"
-        )
+        parser_show = subparsers.add_parser("show", help="show the default device")
         parser_show.add_argument(
             "-t", "--type", type=str, required=True, help="VIDEO or AUDIO"
         )

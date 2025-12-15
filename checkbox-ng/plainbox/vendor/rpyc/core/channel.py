@@ -1,8 +1,10 @@
 """*Channel* is an abstraction layer over streams that works with *packets of data*,
 rather than an endless stream of bytes, and adds support for compression.
 """
+
 from plainbox.vendor.rpyc.lib import safe_import
 from plainbox.vendor.rpyc.lib.compat import Struct, BYTES_LITERAL
+
 zlib = safe_import("zlib")
 
 # * 64 bit length field?
@@ -54,7 +56,7 @@ class Channel(object):
         """
         header = self.stream.read(self.FRAME_HEADER.size)
         length, compressed = self.FRAME_HEADER.unpack(header)
-        data = self.stream.read(length + len(self.FLUSHER))[:-len(self.FLUSHER)]
+        data = self.stream.read(length + len(self.FLUSHER))[: -len(self.FLUSHER)]
         if compressed:
             data = zlib.decompress(data)
         return data

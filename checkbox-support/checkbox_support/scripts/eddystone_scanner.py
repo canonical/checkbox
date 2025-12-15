@@ -76,9 +76,7 @@ def main(argv=None):
         argv = sys.argv[1:]
     init_bluetooth()
 
-    parser = argparse.ArgumentParser(
-        description="Track BLE advertised packets"
-    )
+    parser = argparse.ArgumentParser(description="Track BLE advertised packets")
     parser.add_argument(
         "-D",
         "--device",

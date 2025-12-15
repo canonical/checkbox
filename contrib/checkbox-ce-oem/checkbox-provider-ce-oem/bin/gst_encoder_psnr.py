@@ -45,8 +45,7 @@ def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=(
-            "Script helps verify the gst_encoder_psnr scenario of specific"
-            " encoder."
+            "Script helps verify the gst_encoder_psnr scenario of specific" " encoder."
         ),
     )
 
@@ -155,9 +154,7 @@ def project_factory(args: argparse.Namespace) -> Any:
         )
     else:
         raise SystemExit(
-            "Error: Cannot get the implementation for '{}'".format(
-                args.platform
-            )
+            "Error: Cannot get the implementation for '{}'".format(args.platform)
         )
 
 
@@ -252,9 +249,7 @@ class GenioProject(PipelineInterface):
             )
         else:
             raise SystemExit(
-                "Error: Pipeline for '{}' mux not implemented.".format(
-                    self._mux
-                )
+                "Error: Pipeline for '{}' mux not implemented.".format(self._mux)
             )
 
         return final_pipeline
@@ -264,9 +259,7 @@ class GenioProject(PipelineInterface):
         Build gstreamer pipeline for JPEG encoder
         """
         if self._platform == "genio-350":
-            raise SystemExit(
-                "Genio 350 platform doesn't support v4l2jpegenc codec"
-            )
+            raise SystemExit("Genio 350 platform doesn't support v4l2jpegenc codec")
         # Capture the first frame and save it as jpg file
         final_pipeline = (
             "{} filesrc location={} ! decodebin ! videorate !"
@@ -297,9 +290,7 @@ class GenioProject(PipelineInterface):
         elif self._codec == GStreamerEncodePlugins.V4L2JPEGENC.value:
             return self._v4l2jpegenc_pipeline_builder()
         else:
-            raise SystemExit(
-                "Error: unknow encoder '{}' be used".format(self._codec)
-            )
+            raise SystemExit("Error: unknow encoder '{}' be used".format(self._codec))
 
 
 class CarmelProject(PipelineInterface):
@@ -376,9 +367,7 @@ class CarmelProject(PipelineInterface):
         ):
             return self._264_265_pipeline_builder()
         else:
-            raise SystemExit(
-                "Error: unknow encoder '{}' be used".format(self._codec)
-            )
+            raise SystemExit("Error: unknow encoder '{}' be used".format(self._codec))
 
 
 class NxpIMX8mProject(PipelineInterface):

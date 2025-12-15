@@ -202,29 +202,19 @@ class SuspendTest:
         if perf:
             for idx in range(0, len(loglist)):
                 if "PM: Syncing filesystems" in loglist[idx]:
-                    sleep_start_time = re.split(r"[\[\]]", loglist[idx])[
-                        1
-                    ].strip()
+                    sleep_start_time = re.split(r"[\[\]]", loglist[idx])[1].strip()
                     logging.debug("Sleep started at %s" % sleep_start_time)
                 if "ACPI: Low-level resume complete" in loglist[idx]:
-                    sleep_end_time = re.split(r"[\[\]]", loglist[idx - 1])[
-                        1
-                    ].strip()
+                    sleep_end_time = re.split(r"[\[\]]", loglist[idx - 1])[1].strip()
                     logging.debug("Sleep ended at %s" % sleep_end_time)
-                    resume_start_time = re.split(r"[\[\]]", loglist[idx])[
-                        1
-                    ].strip()
+                    resume_start_time = re.split(r"[\[\]]", loglist[idx])[1].strip()
                     logging.debug("Resume started at %s" % resume_start_time)
                     idx += 1
                 if "Restarting tasks" in loglist[idx]:
-                    resume_end_time = re.split(r"[\[\]]", loglist[idx])[
-                        1
-                    ].strip()
+                    resume_end_time = re.split(r"[\[\]]", loglist[idx])[1].strip()
                     logging.debug("Resume ended at %s" % resume_end_time)
                 if self.end_marker in loglist[idx]:
-                    logging.debug(
-                        "End Marker found, run appears to " "have completed"
-                    )
+                    logging.debug("End Marker found, run appears to " "have completed")
                     run_complete = "Pass"
                     break
 
@@ -234,9 +224,7 @@ class SuspendTest:
             logging.debug("Resume elapsed: %.4f seconds" % resume_elapsed)
         else:
             if self.end_marker in loglist:
-                logging.debug(
-                    "End Marker found, " "run appears to have completed"
-                )
+                logging.debug("End Marker found, " "run appears to have completed")
                 run_complete = "Pass"
             sleep_elapsed = None
             resume_elapsed = None
@@ -396,9 +384,7 @@ def main():
         logging.error("%s sleep state not supported" % options.mode)
         return 1
     else:
-        logging.debug(
-            "%s sleep state supported, continuing test" % options.mode
-        )
+        logging.debug("%s sleep state supported, continuing test" % options.mode)
 
     # We run the following for the number of iterations requested
     for iteration in range(0, options.iterations):
@@ -406,9 +392,7 @@ def main():
         suspender.SetWakeTime(options.wake_time)
         suspender.DoSuspend(options.mode)
         run_count += 1
-        run_result[run_count] = suspender.GetResults(
-            options.mode, options.perf
-        )
+        run_result[run_count] = suspender.GetResults(options.mode, options.perf)
         if suspender.CheckAlarm(options.mode):
             logging.debug("The alarm is still set")
 
@@ -434,9 +418,7 @@ def main():
         logging.error(run_result)
         return 1
     else:
-        logging.info(
-            "Successfully completed %s sleep iterations" % options.iterations
-        )
+        logging.info("Successfully completed %s sleep iterations" % options.iterations)
         return 0
 
 

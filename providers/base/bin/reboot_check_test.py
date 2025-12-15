@@ -71,9 +71,7 @@ class DeviceInfoCollector:
         lines = iw_out.splitlines()
         lines_to_write = list(
             filter(
-                lambda line: "addr" in line
-                or "Interface" in line
-                or "ssid" in line,
+                lambda line: "addr" in line or "Interface" in line or "ssid" in line,
                 sorted(lines),
             )
         )
@@ -150,23 +148,17 @@ class DeviceInfoCollector:
         os.makedirs(output_directory, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
-            with open(
-                "{}/{}_log".format(output_directory, device), "w"
-            ) as file:
+            with open("{}/{}_log".format(output_directory, device), "w") as file:
                 file.write(self.dump_function[device]())
 
         for device in devices["optional"]:
-            with open(
-                "{}/{}_log".format(output_directory, device), "w"
-            ) as file:
+            with open("{}/{}_log".format(output_directory, device), "w") as file:
                 file.write(self.dump_function[device]())
 
         os.sync()
 
     def print_diff(self, name: str, expected_path: str, actual_path: str):
-        with open(expected_path) as file_expected, open(
-            actual_path
-        ) as file_actual:
+        with open(expected_path) as file_expected, open(actual_path) as file_actual:
             print("Expected {} output:".format(name), file=sys.stderr)
             print(file_expected.read(), file=sys.stderr)
             print("Actual {} output:".format(name), file=sys.stderr)
@@ -279,16 +271,13 @@ class HardwareRendererTester:
         # look for GPU file nodes first
         DRM_PATH = "/sys/class/drm"
         possible_gpu_nodes = [
-            directory
-            for directory in os.listdir(DRM_PATH)
-            if directory != "version"
+            directory for directory in os.listdir(DRM_PATH) if directory != "version"
         ]
         if len(possible_gpu_nodes) == 0:
             # kernel doesn't see any GPU nodes
             print(
                 "There's nothing under {}".format(DRM_PATH),
-                "if an external GPU is connected,"
-                "check if the connection is loose.",
+                "if an external GPU is connected," "check if the connection is loose.",
             )
             return False
 
@@ -323,9 +312,7 @@ class HardwareRendererTester:
 
         return connected_to_display
 
-    def pick_glmark2_executable(
-        self, xdg_session_type: str, cpu_arch: str
-    ) -> str:
+    def pick_glmark2_executable(self, xdg_session_type: str, cpu_arch: str) -> str:
         """
         Pure function that picks a glmark2 executable based on xdg_session_type
         and cpu arch
@@ -411,9 +398,7 @@ class HardwareRendererTester:
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
             print(
-                "[ ERR ] Unsupported session type: '{}'.".format(
-                    XDG_SESSION_TYPE
-                ),
+                "[ ERR ] Unsupported session type: '{}'.".format(XDG_SESSION_TYPE),
                 "Expected either 'x11' or 'wayland'",
                 file=sys.stderr,
             )
@@ -435,9 +420,7 @@ class HardwareRendererTester:
                 src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
                 dst = glmark2_data_path
                 print(
-                    "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
-                        src, dst
-                    )
+                    "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(src, dst)
                 )
                 os.symlink(src, dst, target_is_directory=True)
             # override is needed for snaps on classic ubuntu
@@ -490,14 +473,8 @@ class HardwareRendererTester:
             )
             return False
 
-        print(
-            "GL_RENDERER found by {} is: {}".format(
-                glmark2_executable, gl_renderer
-            )
-        )
-        is_hardware_rendered = self.gl_renderer_str_is_hardware_renderer(
-            gl_renderer
-        )
+        print("GL_RENDERER found by {} is: {}".format(glmark2_executable, gl_renderer))
+        is_hardware_rendered = self.gl_renderer_str_is_hardware_renderer(gl_renderer)
         if is_hardware_rendered:
             print("[ OK ] This machine is using a hardware renderer!")
             return True
@@ -677,9 +654,7 @@ def main() -> int:
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
-                "These services failed:\n{}".format(
-                    "\n".join(failed_services)
-                ),
+                "These services failed:\n{}".format("\n".join(failed_services)),
                 file=sys.stderr,
             )
             service_check_passed = False

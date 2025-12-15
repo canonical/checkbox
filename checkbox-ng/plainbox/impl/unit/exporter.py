@@ -237,11 +237,7 @@ class ExporterUnitSupport:
     def _get_exporter_cls(self, exporter):
         """Return the exporter class."""
         return next(
-            iter(
-                get_entry_points(
-                    group="plainbox.exporter", name=exporter.entry_point
-                )
-            )
+            iter(get_entry_points(group="plainbox.exporter", name=exporter.entry_point))
         ).load()
 
 

@@ -84,9 +84,7 @@ class TestCommandTests(TestCase):
 
     @patch("plainbox.provider_manager.create_subprocess_test")
     @patch("plainbox.provider_manager.InlineShellcheckTests", new=MagicMock())
-    def test_get_inline_shellcheck_tests_jobs(
-        self, mock_create_subprocess_test
-    ):
+    def test_get_inline_shellcheck_tests_jobs(self, mock_create_subprocess_test):
         mock_self = MagicMock()
         mock_self.get_provider().unit_list = [
             self.create_unit("job", command="true"),
@@ -99,9 +97,7 @@ class TestCommandTests(TestCase):
 
     @patch("plainbox.provider_manager.create_subprocess_test")
     @patch("plainbox.provider_manager.InlineShellcheckTests", new=MagicMock())
-    def test_get_inline_shellcheck_tests_templates(
-        self, mock_create_subprocess_test
-    ):
+    def test_get_inline_shellcheck_tests_templates(self, mock_create_subprocess_test):
         mock_self = MagicMock()
         mock_self.get_provider().unit_list = [
             self.create_unit("template", command="true"),
@@ -143,9 +139,7 @@ class TestCommandTests(TestCase):
         test = create_subprocess_test()
         with patch(
             "subprocess.check_output",
-            side_effect=subprocess.CalledProcessError(
-                1, "some", output="some output"
-            ),
+            side_effect=subprocess.CalledProcessError(1, "some", output="some output"),
         ):
             self_mock = MagicMock()
             test(self_mock)
@@ -250,9 +244,7 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ``install --layout=flat`` works
         """
-        self.tool.main(
-            ["install", "--prefix=/foo", "--root={}".format(self.tmpdir)]
-        )
+        self.tool.main(["install", "--prefix=/foo", "--root={}".format(self.tmpdir)])
         self.assert_common_flat_install()
         self.assertFileContent(
             self.tmpdir
@@ -277,9 +269,7 @@ class ProviderManagerToolTests(TestCase):
         are missing
         """
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
-        self.tool.main(
-            ["install", "--prefix=/foo", "--root={}".format(self.tmpdir)]
-        )
+        self.tool.main(["install", "--prefix=/foo", "--root={}".format(self.tmpdir)])
         self.assert_common_flat_install()
         self.assertFalse(
             os.path.exists(
@@ -317,9 +307,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(filename, content)
         self.assertFileContent(
             self.tmpdir
-            + os.path.join(
-                prefix, "share", "com.example:test", "jobs", "jobs.pxu"
-            ),
+            + os.path.join(prefix, "share", "com.example:test", "jobs", "jobs.pxu"),
             "id: dummy\n"
             "plugin: shell\n"
             "command: true\n"
@@ -342,16 +330,12 @@ class ProviderManagerToolTests(TestCase):
         )
         self.assertFileContent(
             self.tmpdir
-            + os.path.join(
-                prefix, "share", "com.example:test", "data", "test.dat"
-            ),
+            + os.path.join(prefix, "share", "com.example:test", "data", "test.dat"),
             "data\n",
         )
         self.assertFileContent(
             self.tmpdir
-            + os.path.join(
-                prefix, "lib", "com.example:test", "bin", "test.sh"
-            ),
+            + os.path.join(prefix, "lib", "com.example:test", "bin", "test.sh"),
             "#!/bin/sh\n:\n",
         )
 
@@ -400,9 +384,7 @@ class ProviderManagerToolTests(TestCase):
         """
         with patch("subprocess.call"):
             self.tool.main(["sdist"])
-        tarball = os.path.join(
-            self.tmpdir, "dist", "com.example.test-1.0.tar.gz"
-        )
+        tarball = os.path.join(self.tmpdir, "dist", "com.example.test-1.0.tar.gz")
         self.assertTarballContent(
             tarball,
             "com.example.test-1.0/jobs/jobs.pxu",
@@ -422,12 +404,8 @@ class ProviderManagerToolTests(TestCase):
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
         with patch("subprocess.call"):
             self.tool.main(["sdist"])
-        tarball = os.path.join(
-            self.tmpdir, "dist", "com.example.test-1.0.tar.gz"
-        )
-        self.assertNoTarballContent(
-            tarball, "com.example.test-1.0/jobs/jobs.pxu"
-        )
+        tarball = os.path.join(self.tmpdir, "dist", "com.example.test-1.0.tar.gz")
+        self.assertNoTarballContent(tarball, "com.example.test-1.0/jobs/jobs.pxu")
         self.assert_common_sdist(tarball)
 
     @patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
@@ -456,9 +434,7 @@ class ProviderManagerToolTests(TestCase):
     @patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
     @patch("os.getenv")
     @patch("os.path.samefile")
-    def test_develop_provider_path(
-        self, mock_samefile, mock_getenv, mock_path_entry
-    ):
+    def test_develop_provider_path(self, mock_samefile, mock_getenv, mock_path_entry):
         """
         verify that ``develop`` creates a provider file
         """

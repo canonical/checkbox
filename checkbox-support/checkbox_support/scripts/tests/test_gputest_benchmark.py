@@ -42,8 +42,7 @@ class LogParserTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             check_log(self.logfile.name)
         self.assertEqual(
-            "[Errno 2] No such file or directory: "
-            "'{}'".format(self.logfile.name),
+            "[Errno 2] No such file or directory: " "'{}'".format(self.logfile.name),
             str(cm.exception),
         )
 

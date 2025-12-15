@@ -202,9 +202,7 @@ def get_allowlist(
                         pkg_ver = pkg_ver_split[1].strip()
                         pkg = PackageNameWithVersion(pkg_name, pkg_ver)
 
-                    allowed_packages[pkg] = AllowedPackage(
-                        pkg, filename, comment
-                    )
+                    allowed_packages[pkg] = AllowedPackage(pkg, filename, comment)
                 print(f"# allowlist {filename} loaded")
         except FileNotFoundError:
             print(f"# allowlist {filename} not found")
@@ -245,9 +243,7 @@ def get_installed_pkgs(apt_cache: Cache) -> List[PkgTuple]:
             "/var/local/plainbox-provider-pc-sanity/clean-installed-dpkg.list",
             "r",
         ) as dpkglist:
-            installed_pkgs = set(
-                line.strip().split(":")[0] for line in dpkglist
-            )
+            installed_pkgs = set(line.strip().split(":")[0] for line in dpkglist)
     except IOError:
         print(
             """
@@ -256,9 +252,7 @@ packages."""
         )
 
         return [
-            PkgTuple(
-                PackageNameWithVersion(pkg.name, pkg.installed.version), pkg
-            )
+            PkgTuple(PackageNameWithVersion(pkg.name, pkg.installed.version), pkg)
             for pkg in apt_cache
             if pkg.installed is not None
         ]
@@ -331,9 +325,7 @@ def check_public_scanning(
     # ]
     pkgs_allowed = [
         allowlist_item
-        for allowlist_item in [
-            allowlist.get(item.k) for item in pkgs_not_public
-        ]
+        for allowlist_item in [allowlist.get(item.k) for item in pkgs_not_public]
         if allowlist_item is not None
     ]
 

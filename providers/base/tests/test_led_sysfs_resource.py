@@ -10,9 +10,7 @@ class TestSupportedColorType(unittest.TestCase):
 
     def test_color_definition(self):
 
-        self.assertEqual(
-            led_sysfs_resource.SupportedColorType, ["single", "multi"]
-        )
+        self.assertEqual(led_sysfs_resource.SupportedColorType, ["single", "multi"])
 
 
 class TestLEDParser(unittest.TestCase):

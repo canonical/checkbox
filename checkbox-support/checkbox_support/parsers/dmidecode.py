@@ -28,9 +28,7 @@ HANDLE_RE = re.compile(
     r"DMI type (?P<type>\d+), "
     r"(?P<size>\d+) bytes$" % hexdigits
 )
-KEY_VALUE_RE = re.compile(
-    r"^\t(?P<key>[%s][^:]+):( (?P<value>.+))?$" % ascii_uppercase
-)
+KEY_VALUE_RE = re.compile(r"^\t(?P<key>[%s][^:]+):( (?P<value>.+))?$" % ascii_uppercase)
 
 
 class DmiResult:
@@ -127,12 +125,7 @@ class DmidecodeParser(object):
                 key = self._parseKey(match.group("key"))
                 if not key:
                     # If not, then use the "raw" DMI key.
-                    key = (
-                        match.group("key")
-                        .lower()
-                        .replace(" ", "_")
-                        .replace("-", "_")
-                    )
+                    key = match.group("key").lower().replace(" ", "_").replace("-", "_")
 
                 key = "%s_%s" % (category.lower(), key)
                 value = self._parseValue(match.group("value"))

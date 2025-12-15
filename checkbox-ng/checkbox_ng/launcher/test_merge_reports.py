@@ -49,9 +49,7 @@ class MergeReportsTests(TestCase):
         ctx_mock.args.output_file = "file_location"
 
         self_mock = MagicMock()
-        self_mock._parse_submission = partial(
-            MergeReports._parse_submission, self_mock
-        )
+        self_mock._parse_submission = partial(MergeReports._parse_submission, self_mock)
 
         basic_job_info = {
             "name": "test_name",

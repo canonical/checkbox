@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
+
 sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
 from svm import *
 from svm import __all__ as svm_all
@@ -9,9 +10,10 @@ from svm import scipy, sparse
 if sys.version_info[0] < 3:
     range = xrange
     from itertools import izip as zip
-    _cstr = lambda s: s.encode("utf-8") if isinstance(s,unicode) else str(s)
+
+    _cstr = lambda s: s.encode("utf-8") if isinstance(s, unicode) else str(s)
 else:
-    _cstr = lambda s: bytes(s, "utf-8")        
+    _cstr = lambda s: bytes(s, "utf-8")
 
 
 ###########################################################
@@ -28,7 +30,8 @@ except:
     scipy = None
     sparse = None
 
-common_all = ['svm_read_problem', 'evaluations', 'csr_find_scale_param', 'csr_scale']
+common_all = ["svm_read_problem", "evaluations", "csr_find_scale_param", "csr_scale"]
+
 
 def svm_read_problem(data_file_name, return_scipy=False):
     """
@@ -39,10 +42,10 @@ def svm_read_problem(data_file_name, return_scipy=False):
     and data instances x.
     """
     if scipy != None and return_scipy:
-        prob_y = array('d')
-        prob_x = array('d')
-        row_ptr = array('l', [0])
-        col_idx = array('l')
+        prob_y = array("d")
+        prob_x = array("d")
+        row_ptr = array("l", [0])
+        col_idx = array("l")
     else:
         prob_y = []
         prob_x = []
@@ -52,21 +55,22 @@ def svm_read_problem(data_file_name, return_scipy=False):
     for i, line in enumerate(open(data_file_name)):
         line = line.split(None, 1)
         # In case an instance with all zero features
-        if len(line) == 1: line += ['']
+        if len(line) == 1:
+            line += [""]
         label, features = line
         prob_y.append(float(label))
         if scipy != None and return_scipy:
             nz = 0
             for e in features.split():
                 ind, val = e.split(":")
-                if ind == '0':
+                if ind == "0":
                     indx_start = 0
                 val = float(val)
                 if val != 0:
-                    col_idx.append(int(ind)-indx_start)
+                    col_idx.append(int(ind) - indx_start)
                     prob_x.append(val)
                     nz += 1
-            row_ptr.append(row_ptr[-1]+nz)
+            row_ptr.append(row_ptr[-1] + nz)
         else:
             xi = {}
             for e in features.split():
@@ -74,12 +78,13 @@ def svm_read_problem(data_file_name, return_scipy=False):
                 xi[int(ind)] = float(val)
             prob_x += [xi]
     if scipy != None and return_scipy:
-        prob_y = scipy.frombuffer(prob_y, dtype='d')
-        prob_x = scipy.frombuffer(prob_x, dtype='d')
-        col_idx = scipy.frombuffer(col_idx, dtype='l')
-        row_ptr = scipy.frombuffer(row_ptr, dtype='l')
+        prob_y = scipy.frombuffer(prob_y, dtype="d")
+        prob_x = scipy.frombuffer(prob_x, dtype="d")
+        col_idx = scipy.frombuffer(col_idx, dtype="l")
+        row_ptr = scipy.frombuffer(row_ptr, dtype="l")
         prob_x = sparse.csr_matrix((prob_x, col_idx, row_ptr))
     return (prob_y, prob_x)
+
 
 def evaluations_scipy(ty, pv):
     """
@@ -89,26 +94,33 @@ def evaluations_scipy(ty, pv):
     Calculate accuracy, mean squared error and squared correlation coefficient
     using the true values (ty) and predicted values (pv).
     """
-    if not (scipy != None and isinstance(ty, scipy.ndarray) and isinstance(pv, scipy.ndarray)):
+    if not (
+        scipy != None
+        and isinstance(ty, scipy.ndarray)
+        and isinstance(pv, scipy.ndarray)
+    ):
         raise TypeError("type of ty and pv must be ndarray")
     if len(ty) != len(pv):
         raise ValueError("len(ty) must be equal to len(pv)")
-    ACC = 100.0*(ty == pv).mean()
-    MSE = ((ty - pv)**2).mean()
+    ACC = 100.0 * (ty == pv).mean()
+    MSE = ((ty - pv) ** 2).mean()
     l = len(ty)
     sumv = pv.sum()
     sumy = ty.sum()
-    sumvy = (pv*ty).sum()
-    sumvv = (pv*pv).sum()
-    sumyy = (ty*ty).sum()
-    with scipy.errstate(all = 'raise'):
+    sumvy = (pv * ty).sum()
+    sumvv = (pv * pv).sum()
+    sumyy = (ty * ty).sum()
+    with scipy.errstate(all="raise"):
         try:
-            SCC = ((l*sumvy-sumv*sumy)*(l*sumvy-sumv*sumy))/((l*sumvv-sumv*sumv)*(l*sumyy-sumy*sumy))
+            SCC = ((l * sumvy - sumv * sumy) * (l * sumvy - sumv * sumy)) / (
+                (l * sumvv - sumv * sumv) * (l * sumyy - sumy * sumy)
+            )
         except:
-            SCC = float('nan')
+            SCC = float("nan")
     return (float(ACC), float(MSE), float(SCC))
 
-def evaluations(ty, pv, useScipy = True):
+
+def evaluations(ty, pv, useScipy=True):
     """
     evaluations(ty, pv, useScipy) -> (ACC, MSE, SCC)
     ty, pv: list, tuple or ndarray
@@ -126,20 +138,23 @@ def evaluations(ty, pv, useScipy = True):
     for v, y in zip(pv, ty):
         if y == v:
             total_correct += 1
-        total_error += (v-y)*(v-y)
+        total_error += (v - y) * (v - y)
         sumv += v
         sumy += y
-        sumvv += v*v
-        sumyy += y*y
-        sumvy += v*y
+        sumvv += v * v
+        sumyy += y * y
+        sumvy += v * y
     l = len(ty)
-    ACC = 100.0*total_correct/l
-    MSE = total_error/l
+    ACC = 100.0 * total_correct / l
+    MSE = total_error / l
     try:
-        SCC = ((l*sumvy-sumv*sumy)*(l*sumvy-sumv*sumy))/((l*sumvv-sumv*sumv)*(l*sumyy-sumy*sumy))
+        SCC = ((l * sumvy - sumv * sumy) * (l * sumvy - sumv * sumy)) / (
+            (l * sumvv - sumv * sumv) * (l * sumyy - sumy * sumy)
+        )
     except:
-        SCC = float('nan')
+        SCC = float("nan")
     return (float(ACC), float(MSE), float(SCC))
+
 
 def csr_find_scale_param(x, lower=-1, upper=1):
     assert isinstance(x, sparse.csr_matrix)
@@ -161,44 +176,55 @@ def csr_find_scale_param(x, lower=-1, upper=1):
         print(
             "WARNING: The #nonzeros of the scaled data is at least 2 times larger than the original one.\n"
             "If feature values are non-negative and sparse, set lower=0 rather than the default lower=-1.",
-            file=sys.stderr)
+            file=sys.stderr,
+        )
 
-    return {'coef':coef, 'offset':offset}
+    return {"coef": coef, "offset": offset}
+
 
 def csr_scale(x, scale_param):
     assert isinstance(x, sparse.csr_matrix)
 
-    offset = scale_param['offset']
-    coef = scale_param['coef']
+    offset = scale_param["offset"]
+    coef = scale_param["coef"]
     assert len(coef) == len(offset)
 
     l, n = x.shape
 
     if not n == len(coef):
-        print("WARNING: The dimension of scaling parameters and feature number do not match.", file=sys.stderr)
+        print(
+            "WARNING: The dimension of scaling parameters and feature number do not match.",
+            file=sys.stderr,
+        )
         coef = resize(coef, n)
         offset = resize(offset, n)
 
     # scaled_x = x * diag(coef) + ones(l, 1) * offset'
     offset = sparse.csr_matrix(offset.reshape(1, n))
-    offset = sparse.vstack([offset] * l, format='csr', dtype=x.dtype)
+    offset = sparse.vstack([offset] * l, format="csr", dtype=x.dtype)
     scaled_x = x.dot(sparse.diags(coef, 0, shape=(n, n))) + offset
 
     if scaled_x.getnnz() > x.getnnz():
         print(
-            "WARNING: original #nonzeros %d\n" % x.getnnz() +
-            "       > new      #nonzeros %d\n" % scaled_x.getnnz() +
-            "If feature values are non-negative and sparse, get scale_param by setting lower=0 rather than the default lower=-1.",
-            file=sys.stderr)
+            "WARNING: original #nonzeros %d\n" % x.getnnz()
+            + "       > new      #nonzeros %d\n" % scaled_x.getnnz()
+            + "If feature values are non-negative and sparse, get scale_param by setting lower=0 rather than the default lower=-1.",
+            file=sys.stderr,
+        )
 
     return scaled_x
+
 
 #####################################
 #### End of merged commonutil.py ####
 #####################################
 
 
-__all__ = ['svm_load_model', 'svm_predict', 'svm_save_model', 'svm_train'] + svm_all + common_all
+__all__ = (
+    ["svm_load_model", "svm_predict", "svm_save_model", "svm_train"]
+    + svm_all
+    + common_all
+)
 
 
 def svm_load_model(model_file_name):
@@ -214,6 +240,7 @@ def svm_load_model(model_file_name):
     model = toPyModel(model)
     return model
 
+
 def svm_save_model(model_file_name, model):
     """
     svm_save_model(model_file_name, model) -> None
@@ -221,6 +248,7 @@ def svm_save_model(model_file_name, model):
     Save a LIBSVM model to the file model_file_name.
     """
     libsvm.svm_save_model(_cstr(model_file_name), model)
+
 
 def svm_train(arg1, arg2=None, arg3=None):
     """
@@ -269,7 +297,9 @@ def svm_train(arg1, arg2=None, arg3=None):
     """
     prob, param = None, None
     if isinstance(arg1, (list, tuple)) or (scipy and isinstance(arg1, scipy.ndarray)):
-        assert isinstance(arg2, (list, tuple)) or (scipy and isinstance(arg2, (scipy.ndarray, sparse.spmatrix)))
+        assert isinstance(arg2, (list, tuple)) or (
+            scipy and isinstance(arg2, (scipy.ndarray, sparse.spmatrix))
+        )
         y, x, options = arg1, arg2, arg3
         param = svm_parameter(options)
         prob = svm_problem(y, x, isKernel=(param.kernel_type == PRECOMPUTED))
@@ -287,16 +317,20 @@ def svm_train(arg1, arg2=None, arg3=None):
             xi = prob.x[i]
             idx, val = xi[0].index, xi[0].value
             if idx != 0:
-                raise ValueError('Wrong input format: first column must be 0:sample_serial_number')
+                raise ValueError(
+                    "Wrong input format: first column must be 0:sample_serial_number"
+                )
             if val <= 0 or val > prob.n:
-                raise ValueError('Wrong input format: sample_serial_number out of range')
+                raise ValueError(
+                    "Wrong input format: sample_serial_number out of range"
+                )
 
     if param.gamma == 0 and prob.n > 0:
         param.gamma = 1.0 / prob.n
     libsvm.svm_set_print_string_function(param.print_func)
     err_msg = libsvm.svm_check_parameter(prob, param)
     if err_msg:
-        raise ValueError('Error: %s' % err_msg)
+        raise ValueError("Error: %s" % err_msg)
 
     if param.cross_validation:
         l, nr_fold = prob.l, param.nr_fold
@@ -317,6 +351,7 @@ def svm_train(arg1, arg2=None, arg3=None):
         # If prob is destroyed, data including SVs pointed by m can remain.
         m.x_space = prob.x_space
         return m
+
 
 def svm_predict(y, x, m, options=""):
     """
@@ -354,27 +389,29 @@ def svm_predict(y, x, m, options=""):
         print(s)
 
     if scipy and isinstance(x, scipy.ndarray):
-        x = scipy.ascontiguousarray(x) # enforce row-major
+        x = scipy.ascontiguousarray(x)  # enforce row-major
     elif sparse and isinstance(x, sparse.spmatrix):
         x = x.tocsr()
     elif not isinstance(x, (list, tuple)):
         raise TypeError("type of x: {0} is not supported!".format(type(x)))
 
-    if (not isinstance(y, (list, tuple))) and (not (scipy and isinstance(y, scipy.ndarray))):
+    if (not isinstance(y, (list, tuple))) and (
+        not (scipy and isinstance(y, scipy.ndarray))
+    ):
         raise TypeError("type of y: {0} is not supported!".format(type(y)))
 
     predict_probability = 0
     argv = options.split()
     i = 0
     while i < len(argv):
-        if argv[i] == '-b':
+        if argv[i] == "-b":
             i += 1
             predict_probability = int(argv[i])
-        elif argv[i] == '-q':
+        elif argv[i] == "-q":
             info = print_null
         else:
             raise ValueError("Wrong options")
-        i+=1
+        i += 1
 
     svm_type = m.get_svm_type()
     is_prob_model = m.is_probability_model()
@@ -392,17 +429,25 @@ def svm_predict(y, x, m, options=""):
             raise ValueError("Model does not support probabiliy estimates")
 
         if svm_type in [NU_SVR, EPSILON_SVR]:
-            info("Prob. model for test data: target value = predicted value + z,\n"
-            "z: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g" % m.get_svr_probability());
+            info(
+                "Prob. model for test data: target value = predicted value + z,\n"
+                "z: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g"
+                % m.get_svr_probability()
+            )
             nr_class = 0
 
         prob_estimates = (c_double * nr_class)()
         for i in range(nr_instance):
             if scipy and isinstance(x, sparse.spmatrix):
-                indslice = slice(x.indptr[i], x.indptr[i+1])
-                xi, idx = gen_svm_nodearray((x.indices[indslice], x.data[indslice]), isKernel=(m.param.kernel_type == PRECOMPUTED))
+                indslice = slice(x.indptr[i], x.indptr[i + 1])
+                xi, idx = gen_svm_nodearray(
+                    (x.indices[indslice], x.data[indslice]),
+                    isKernel=(m.param.kernel_type == PRECOMPUTED),
+                )
             else:
-                xi, idx = gen_svm_nodearray(x[i], isKernel=(m.param.kernel_type == PRECOMPUTED))
+                xi, idx = gen_svm_nodearray(
+                    x[i], isKernel=(m.param.kernel_type == PRECOMPUTED)
+                )
             label = libsvm.svm_predict_probability(m, xi, prob_estimates)
             values = prob_estimates[:nr_class]
             pred_labels += [label]
@@ -413,16 +458,21 @@ def svm_predict(y, x, m, options=""):
         if svm_type in (ONE_CLASS, EPSILON_SVR, NU_SVC):
             nr_classifier = 1
         else:
-            nr_classifier = nr_class*(nr_class-1)//2
+            nr_classifier = nr_class * (nr_class - 1) // 2
         dec_values = (c_double * nr_classifier)()
         for i in range(nr_instance):
             if scipy and isinstance(x, sparse.spmatrix):
-                indslice = slice(x.indptr[i], x.indptr[i+1])
-                xi, idx = gen_svm_nodearray((x.indices[indslice], x.data[indslice]), isKernel=(m.param.kernel_type == PRECOMPUTED))
+                indslice = slice(x.indptr[i], x.indptr[i + 1])
+                xi, idx = gen_svm_nodearray(
+                    (x.indices[indslice], x.data[indslice]),
+                    isKernel=(m.param.kernel_type == PRECOMPUTED),
+                )
             else:
-                xi, idx = gen_svm_nodearray(x[i], isKernel=(m.param.kernel_type == PRECOMPUTED))
+                xi, idx = gen_svm_nodearray(
+                    x[i], isKernel=(m.param.kernel_type == PRECOMPUTED)
+                )
             label = libsvm.svm_predict_values(m, xi, dec_values)
-            if(nr_class == 1):
+            if nr_class == 1:
                 values = [1]
             else:
                 values = dec_values[:nr_classifier]
@@ -437,6 +487,9 @@ def svm_predict(y, x, m, options=""):
         info("Mean squared error = %g (regression)" % MSE)
         info("Squared correlation coefficient = %g (regression)" % SCC)
     else:
-        info("Accuracy = %g%% (%d/%d) (classification)" % (ACC, int(round(nr_instance*ACC/100)), nr_instance))
+        info(
+            "Accuracy = %g%% (%d/%d) (classification)"
+            % (ACC, int(round(nr_instance * ACC / 100)), nr_instance)
+        )
 
     return pred_labels, (ACC, MSE, SCC), pred_values

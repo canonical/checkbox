@@ -82,9 +82,7 @@ class TestWiFiFunctions(unittest.TestCase):
 
     @patch("wifi_interface_mode.get_interfaces")
     @patch("wifi_interface_mode.get_wiphy_info")
-    def test_print_supported_modes(
-        self, mock_get_wiphy_info, mock_get_interfaces
-    ):
+    def test_print_supported_modes(self, mock_get_wiphy_info, mock_get_interfaces):
         # Mock the return values
         mock_get_interfaces.return_value = [("0", "wlan0"), ("1", "wlan1")]
         mock_get_wiphy_info.return_value = {

@@ -232,9 +232,8 @@ class Field:
             if hasattr(fn, "field_docstring_ext"):
                 doc_extra.append(fn.field_docstring_ext.format(field=self))
         if doc_extra:
-            self.__doc__ += (
-                "\n\nSide effects of assign filters:\n"
-                + "\n".join("  - {}".format(extra) for extra in doc_extra)
+            self.__doc__ += "\n\nSide effects of assign filters:\n" + "\n".join(
+                "  - {}".format(extra) for extra in doc_extra
             )
         self.counter = self.__class__._counter
         self.__class__._counter += 1
@@ -315,11 +314,7 @@ class Field:
         assert self.signal_name is not None
         if not hasattr(cls, self.signal_name):
             signal_def = morris.signal(
-                (
-                    self.notify_fn
-                    if self.notify_fn is not None
-                    else self.on_changed
-                ),
+                (self.notify_fn if self.notify_fn is not None else self.on_changed),
                 signal_name="{}.{}".format(cls.__name__, self.signal_name),
             )
             setattr(cls, self.signal_name, signal_def)
@@ -429,18 +424,14 @@ class PODBase:
             if not isinstance(field, Field):
                 raise TypeError("no such field: {}".format(field_name))
             if getattr(self, field.instance_attr) is not UNSET:
-                raise TypeError(
-                    "field initialized twice: {}".format(field_name)
-                )
+                raise TypeError("field initialized twice: {}".format(field_name))
             setattr(self, field_name, field_value)
         # Initialize remaining fields using their default initializers
         for field in field_list:
             if getattr(self, field.instance_attr) is not UNSET:
                 continue
             if field.is_mandatory:
-                raise TypeError(
-                    "mandatory argument missing: {}".format(field.name)
-                )
+                raise TypeError("mandatory argument missing: {}".format(field.name))
             if field.initial_fn is not None:
                 field_value = field.initial_fn()
             else:
@@ -774,9 +765,7 @@ def type_convert_assign_filter(
     return field.type(new)
 
 
-@modify_field_docstring(
-    "type-checked (value must be of type {field.type.__name__})"
-)
+@modify_field_docstring("type-checked (value must be of type {field.type.__name__})")
 def type_check_assign_filter(
     instance: POD, field: Field, old: "Any", new: "Any"
 ) -> "Any":
@@ -868,9 +857,7 @@ class sequence_type_check_assign_filter:
             self.item_type.__name__
         )
 
-    def __call__(
-        self, instance: POD, field: Field, old: "Any", new: "Any"
-    ) -> "Any":
+    def __call__(self, instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
         """
         An assign filter that type-checks the value of all sequence elements.
 
@@ -915,13 +902,11 @@ class unset_or_sequence_type_check_assign_filter(typed.sequence):
 
     @property
     def field_docstring_ext(self) -> str:
-        return (
-            "unset or type-checked sequence (items must be of type {})"
-        ).format(self.item_type.__name__)
+        return ("unset or type-checked sequence (items must be of type {})").format(
+            self.item_type.__name__
+        )
 
-    def __call__(
-        self, instance: POD, field: Field, old: "Any", new: "Any"
-    ) -> "Any":
+    def __call__(self, instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
         """
         An assign filter that type-checks the value of all sequence elements.
 

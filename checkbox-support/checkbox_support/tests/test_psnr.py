@@ -107,9 +107,7 @@ class TestGetAveragePSNR(unittest.TestCase):
         mock_psnr.return_value = 30
 
         # Code under test
-        avg_psnr, psnr_array = get_average_psnr(
-            reference_file_path, test_file_path
-        )
+        avg_psnr, psnr_array = get_average_psnr(reference_file_path, test_file_path)
 
         # Assertions
         expected_psnr_array = np.array([30] * total_frame_count)
@@ -169,9 +167,7 @@ class TestMainFunction(unittest.TestCase):
 
         main()
 
-        expected_output = (
-            "Average PSNR:  30.0\nPSNR each frame:  [28.5, 31.2, 29.8]\n"
-        )
+        expected_output = "Average PSNR:  30.0\nPSNR each frame:  [28.5, 31.2, 29.8]\n"
         self.assertEqual(mock_stdout.getvalue(), expected_output)
         mock_get_average_psnr.assert_called_once_with("ref_file", "test_file")
 

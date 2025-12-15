@@ -25,9 +25,7 @@ class TestBrightness(unittest.TestCase):
         mock_brightness = MagicMock()
         data = "100\n"
         with patch("builtins.open", mock_open(read_data=data)):
-            self.assertEqual(
-                Brightness.read_value(mock_brightness, "test_path"), 100
-            )
+            self.assertEqual(Brightness.read_value(mock_brightness, "test_path"), 100)
 
         # The test raises a value error if the data is None
         file = None
@@ -38,9 +36,7 @@ class TestBrightness(unittest.TestCase):
         mock_file = MagicMock()
         mock_file.write = ""
         mock_file.readlines.return_value = ["100\n"]
-        self.assertEqual(
-            Brightness.read_value(mock_brightness, mock_file), 100
-        )
+        self.assertEqual(Brightness.read_value(mock_brightness, mock_file), 100)
 
     @patch("builtins.open")
     def test_write_value(self, mock_open):
@@ -142,12 +138,8 @@ class TestBrightness(unittest.TestCase):
         target_interface = "/sys/class/backlight/interface1"
         Brightness.brightness_test(mock_brightness, target_interface)
 
-        mock_brightness.get_actual_brightness.assert_called_once_with(
-            target_interface
-        )
-        mock_brightness.get_max_brightness.assert_called_once_with(
-            target_interface
-        )
+        mock_brightness.get_actual_brightness.assert_called_once_with(target_interface)
+        mock_brightness.get_max_brightness.assert_called_once_with(target_interface)
         mock_brightness.write_value.assert_called_with(
             100, os.path.join(target_interface, "brightness")
         )

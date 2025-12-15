@@ -147,11 +147,7 @@ def test_regulator(soc):
         print("Checking the '{0}' node exists in System...".format(node))
         if node not in current_set:
             missing_node = True
-            print(
-                " - ERROR: expect the '{0}' node exist but it doesn't".format(
-                    node
-                )
-            )
+            print(" - ERROR: expect the '{0}' node exist but it doesn't".format(node))
 
     if missing_node:
         print("Test Fail")

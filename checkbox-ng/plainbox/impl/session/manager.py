@@ -146,9 +146,7 @@ class SessionManager(pod.POD):
             using the single-device APIs.
         """
         return (
-            self.device_context_list[0]
-            if len(self.device_context_list) > 0
-            else None
+            self.device_context_list[0] if len(self.device_context_list) > 0 else None
         )
 
     @property
@@ -273,9 +271,9 @@ class SessionManager(pod.POD):
             else:
                 raise
         else:
-            state = SessionResumeHelper(
-                unit_list, flags, storage.location
-            ).resume(data, early_cb)
+            state = SessionResumeHelper(unit_list, flags, storage.location).resume(
+                data, early_cb
+            )
         context = SessionDeviceContext(state)
         return cls([context], storage)
 
@@ -287,9 +285,7 @@ class SessionManager(pod.POD):
         :meth:`SessionManager.load_session()`.
         """
         logger.debug("SessionManager.checkpoint()")
-        data = SessionSuspendHelper().suspend(
-            self.state, self.storage.location
-        )
+        data = SessionSuspendHelper().suspend(self.state, self.storage.location)
         logger.debug(
             ngettext(
                 "Saving %d byte of checkpoint data to %r",
@@ -379,9 +375,7 @@ class SessionManager(pod.POD):
         """
         Signal fired when a session device context object is added
         """
-        logger.debug(
-            _("Device context %s added to session manager %s"), context, self
-        )
+        logger.debug(_("Device context %s added to session manager %s"), context, self)
         self._propagate_test_plans()
 
     @morris.signal
@@ -467,9 +461,7 @@ class SessionManager(pod.POD):
             supported_options = frozenset(
                 exporter_support.exporter_cls.supported_option_list
             )
-            option_list = [
-                item for item in option_list if item in supported_options
-            ]
+            option_list = [item for item in option_list if item in supported_options]
         return exporter_support.exporter_cls(
             option_list, exporter_unit=exporter_support
         )

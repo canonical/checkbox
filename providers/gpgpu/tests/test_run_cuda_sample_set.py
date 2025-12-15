@@ -42,9 +42,7 @@ def dummy_clone(orig_dir, test_set):
             return subprocess.CompletedProcess("", 0)
         clone_counter = clone_counter + 1
         # Create a temporary directory to simulate the workspace
-        test_set_dir_to_keep = (
-            orig_dir / test_set / "Samples" / "5_Domain_Specific"
-        )
+        test_set_dir_to_keep = orig_dir / test_set / "Samples" / "5_Domain_Specific"
         test_set_dir_to_keep_2 = orig_dir / test_set / "Samples" / "3_Dummy"
         test_set_dir_to_keep_5 = (
             orig_dir
@@ -93,9 +91,7 @@ def dummy_clone(orig_dir, test_set):
         with open(str(Path(test_set_dir_to_keep_5 / "truc.yuv")), "w") as file:
             file.write("dummydum")
 
-        with open(
-            str(Path(orig_dir / test_set / "CMakeLists.txt")), "w"
-        ) as file:
+        with open(str(Path(orig_dir / test_set / "CMakeLists.txt")), "w") as file:
             file.write("dummydum")
 
         return subprocess.CompletedProcess("", 0)
@@ -130,9 +126,7 @@ class TestCudaSamples(unittest.TestCase):
             )
 
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
-        run_cuda_sample_set.clone_and_build(
-            orig_dir, test_set, cuda_samples_version
-        )
+        run_cuda_sample_set.clone_and_build(orig_dir, test_set, cuda_samples_version)
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
         run_cuda_sample_set.cleanup_temporary_files(".", str(0))
@@ -141,27 +135,21 @@ class TestCudaSamples(unittest.TestCase):
         clone_counter = 0
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
         mock_subprocess_run.side_effect = dummy_clone(orig_dir, test_set)
-        run_cuda_sample_set.clone_and_build(
-            orig_dir, test_set, cuda_samples_version
-        )
+        run_cuda_sample_set.clone_and_build(orig_dir, test_set, cuda_samples_version)
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
 
         test_set = "8"
         clone_counter = 0
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
         mock_subprocess_run.side_effect = dummy_clone(orig_dir, test_set)
-        run_cuda_sample_set.clone_and_build(
-            orig_dir, test_set, cuda_samples_version
-        )
+        run_cuda_sample_set.clone_and_build(orig_dir, test_set, cuda_samples_version)
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
 
         test_set = "7"
         clone_counter = 0
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
         mock_subprocess_run.side_effect = dummy_clone(orig_dir, test_set)
-        run_cuda_sample_set.clone_and_build(
-            orig_dir, test_set, cuda_samples_version
-        )
+        run_cuda_sample_set.clone_and_build(orig_dir, test_set, cuda_samples_version)
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
 
     def test_remove_add_subdirectory_line(self):
@@ -197,13 +185,7 @@ class TestCudaSamples(unittest.TestCase):
         # Create a temporary directory to simulate the workspace
         orig_dir = Path(".")
         exe_dir = (
-            orig_dir
-            / "3"
-            / "build"
-            / "Samples"
-            / "5_Domain_Specific"
-            / "truc"
-            / "bin"
+            orig_dir / "3" / "build" / "Samples" / "5_Domain_Specific" / "truc" / "bin"
         )
         exe_dir.mkdir(parents=True, exist_ok=True)
 
@@ -251,9 +233,7 @@ class TestCudaSamples(unittest.TestCase):
     )
     @mock.patch(
         "run_cuda_sample_set.run_tests",
-        side_effect=subprocess.CalledProcessError(
-            "File exist patched.", cmd=""
-        ),
+        side_effect=subprocess.CalledProcessError("File exist patched.", cmd=""),
     )
     def test_main(self, mock_run, mock_clone, mock_args):
         with self.assertRaises(FileExistsError):

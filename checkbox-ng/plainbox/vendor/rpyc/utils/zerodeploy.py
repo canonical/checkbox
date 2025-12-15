@@ -3,6 +3,7 @@
 
 Requires [plumbum](http://plumbum.readthedocs.org/)
 """
+
 from __future__ import with_statement
 from subprocess import TimeoutExpired
 import sys
@@ -12,13 +13,18 @@ from plainbox.vendor.rpyc.core.service import VoidService
 from plainbox.vendor.rpyc.core.stream import SocketStream
 import rpyc.utils.factory
 import rpyc.utils.classic
+
 try:
     from plumbum import local, ProcessExecutionError, CommandNotFound
     from plumbum.commands.base import BoundCommand
     from plumbum.path import copy
 except ImportError:
     import inspect
-    if any("sphinx" in line[1] or "docutils" in line[1] or "autodoc" in line[1] for line in inspect.stack()):
+
+    if any(
+        "sphinx" in line[1] or "docutils" in line[1] or "autodoc" in line[1]
+        for line in inspect.stack()
+    ):
         # let the sphinx docs be built without requiring plumbum installed
         pass
     else:
@@ -88,8 +94,13 @@ class DeployedServer(object):
     :param extra_setup: any extra code to add to the script
     """
 
-    def __init__(self, remote_machine, server_class="rpyc.utils.server.ThreadedServer",
-                 extra_setup="", python_executable=None):
+    def __init__(
+        self,
+        remote_machine,
+        server_class="rpyc.utils.server.ThreadedServer",
+        extra_setup="",
+        python_executable=None,
+    ):
         self.proc = None
         self.tun = None
         self.remote_machine = remote_machine
@@ -100,10 +111,13 @@ class DeployedServer(object):
         tmp = self._tmpdir_ctx.__enter__()
         copy(rpyc_root, tmp / "rpyc")
 
-        script = (tmp / "deployed-rpyc.py")
+        script = tmp / "deployed-rpyc.py"
         modname, clsname = server_class.rsplit(".", 1)
-        script.write(SERVER_SCRIPT.replace("$MODULE$", modname).replace(
-            "$SERVER$", clsname).replace("$EXTRA_SETUP$", extra_setup))
+        script.write(
+            SERVER_SCRIPT.replace("$MODULE$", modname)
+            .replace("$SERVER$", clsname)
+            .replace("$EXTRA_SETUP$", extra_setup)
+        )
         if isinstance(python_executable, BoundCommand):
             cmd = python_executable
         elif python_executable:
@@ -134,7 +148,12 @@ class DeployedServer(object):
             except Exception:
                 pass
             stdout, stderr = self.proc.communicate()
-            raise ProcessExecutionError(self.proc.argv, self.proc.returncode, BYTES_LITERAL(line) + stdout, stderr)
+            raise ProcessExecutionError(
+                self.proc.argv,
+                self.proc.returncode,
+                BYTES_LITERAL(line) + stdout,
+                stderr,
+            )
 
         if hasattr(remote_machine, "connect_sock"):
             # Paramiko: use connect_sock() instead of tunnels
@@ -203,13 +222,13 @@ class DeployedServer(object):
         """Same as :func:`~rpyc.utils.factory.connect`, but with the ``host`` and ``port``
         parameters fixed"""
         return rpyc.utils.factory.connect_stream(
-            SocketStream(self._connect_sock()), service=service, config=config)
+            SocketStream(self._connect_sock()), service=service, config=config
+        )
 
     def classic_connect(self):
         """Same as :func:`classic.connect <rpyc.utils.classic.connect>`, but with the ``host`` and
         ``port`` parameters fixed"""
-        return rpyc.utils.classic.connect_stream(
-            SocketStream(self._connect_sock()))
+        return rpyc.utils.classic.connect_stream(SocketStream(self._connect_sock()))
 
 
 class MultiServerDeployment(object):
@@ -218,7 +237,9 @@ class MultiServerDeployment(object):
     separately, but lets you manage them as a single deployment.
     """
 
-    def __init__(self, remote_machines, server_class="rpyc.utils.server.ThreadedServer"):
+    def __init__(
+        self, remote_machines, server_class="rpyc.utils.server.ThreadedServer"
+    ):
         self.remote_machines = remote_machines
         # build the list incrementally, so we can clean it up if we have an exception
         self.servers = [DeployedServer(mach, server_class) for mach in remote_machines]

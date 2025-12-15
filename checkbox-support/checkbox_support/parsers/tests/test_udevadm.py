@@ -76,9 +76,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         lsblk = {}
         if with_lsblk:
             lsblk = self.get_lsblk(name)
-        return parse_udevadm_output(
-            self.get_text(name), lsblk, with_partitions, 64
-        )
+        return parse_udevadm_output(self.get_text(name), lsblk, with_partitions, 64)
 
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])
@@ -738,9 +736,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         # Check that the Ericsson MBM module is set as a NETWORK device with
         # proper vendor/product names
         self.assertEqual(devices[59].product, "H5321 gw")
-        self.assertEqual(
-            devices[59].vendor, "Ericsson Business Mobile Networks BV"
-        )
+        self.assertEqual(devices[59].vendor, "Ericsson Business Mobile Networks BV")
         self.assertEqual(devices[59].category, "WWAN")
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 9)
@@ -1250,9 +1246,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
             self.assertIn(
                 expected_name,
                 virtual_nvme_names,
-                "Virtual Kioxia disk {} should be detected".format(
-                    expected_name
-                ),
+                "Virtual Kioxia disk {} should be detected".format(expected_name),
             )
 
         # Verify we have exactly 2 standard and 8 virtual NVMe disks
@@ -1365,16 +1359,12 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "CDROM"), 0)
 
     def test_CRYPTO_FDE_UC20(self):
-        devices = self.parse(
-            "CRYPTO_FDE", with_lsblk=True, with_partitions=True
-        )
+        devices = self.parse("CRYPTO_FDE", with_lsblk=True, with_partitions=True)
         self.assertEqual(len(devices), 93)
         self.assertEqual(self.count(devices, "PARTITION"), 1)
 
     def test_XILINX_KR260(self):
-        devices = self.parse(
-            "XILINX_KR260", with_lsblk=True, with_partitions=True
-        )
+        devices = self.parse("XILINX_KR260", with_lsblk=True, with_partitions=True)
         self.assertEqual(self.count(devices, "DISK"), 18)
         self.assertEqual(self.count(devices, "CARDREADER"), 1)
 
@@ -1452,9 +1442,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
             # If we have a name to match, eliminate everyhing without
             # that name (as they are bogus, uninteresting devices)
             if device[0] is not None:
-                indices = [
-                    idx for idx in indices if devices[idx].product == device[0]
-                ]
+                indices = [idx for idx in indices if devices[idx].product == device[0]]
             # Here, devices that matched the one I'm looking for will be
             # pointed to in indices. These indices refer to the devices
             # list.
@@ -1517,9 +1505,7 @@ class TestLsblkFunctions(TestCase, UdevadmDataMixIn):
         )
 
     def test_find_pkname_not_root_mountpoint(self):
-        self.assertFalse(
-            find_pkname_is_root_mountpoint("sda", self.recovery_usb_data)
-        )
+        self.assertFalse(find_pkname_is_root_mountpoint("sda", self.recovery_usb_data))
 
     def test_find_pkname_root_mountpoint(self):
         self.assertTrue(
@@ -1530,14 +1516,10 @@ class TestLsblkFunctions(TestCase, UdevadmDataMixIn):
         self.assertTrue(is_readonly_partition("sda1", self.recovery_usb_data))
 
     def test_is_readwrite_partition(self):
-        self.assertFalse(
-            is_readonly_partition("nvme0n1p3", self.recovery_usb_data)
-        )
+        self.assertFalse(is_readonly_partition("nvme0n1p3", self.recovery_usb_data))
 
     def test_is_small_partition(self):
         self.assertTrue(is_small_partition("sda3", self.recovery_usb_data))
 
     def test_is_big_partition(self):
-        self.assertFalse(
-            is_small_partition("nvme0n1p3", self.recovery_usb_data)
-        )
+        self.assertFalse(is_small_partition("nvme0n1p3", self.recovery_usb_data))

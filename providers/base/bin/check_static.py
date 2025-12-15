@@ -13,12 +13,7 @@ import sys
 
 def check_networkmanager(interface, expected_address):
     def nmcli_field(cmd):
-        val = (
-            sp.check_output(cmd)
-            .decode(sys.stdout.encoding)
-            .strip()
-            .split(":")[1]
-        )
+        val = sp.check_output(cmd).decode(sys.stdout.encoding).strip().split(":")[1]
         return val
 
     carrier = nmcli_field(

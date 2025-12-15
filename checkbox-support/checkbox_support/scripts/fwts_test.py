@@ -329,9 +329,7 @@ def parse_arguments(args):
         "matching the fail-level set by -f",
     )
     group = parser.add_mutually_exclusive_group()
-    group.add_argument(
-        "-t", "--test", action="append", help="Name of the test to run."
-    )
+    group.add_argument("-t", "--test", action="append", help="Name of the test to run.")
     group.add_argument(
         "-a",
         "--all",
@@ -370,9 +368,7 @@ def parse_arguments(args):
         action="store_true",
         help="Display the help info for fwts itself (lengthy)",
     )
-    group.add_argument(
-        "--list", action="store_true", help="List all tests in fwts."
-    )
+    group.add_argument("--list", action="store_true", help="List all tests in fwts.")
     group.add_argument(
         "--list-hwe",
         action="store_true",
@@ -484,17 +480,15 @@ def main(args=sys.argv[1:]):
                 " ".join(tests),
             )
             results["sleep"] = (
-                Popen(command, stdout=PIPE, shell=True)
-                .communicate()[0]
-                .strip()
+                Popen(command, stdout=PIPE, shell=True).communicate()[0].strip()
             ).decode()
             if "s4" not in args.sleep:
                 suspend_time, resume_time = get_sleep_times(args.log, marker)
                 iteration_results[iteration] = (suspend_time, resume_time)
                 if not suspend_time or not resume_time:
-                    progress_string = (
-                        "Cycle %s/%s - Suspend: N/A s - Resume: N/A s"
-                        % (iteration, iterations)
+                    progress_string = "Cycle %s/%s - Suspend: N/A s - Resume: N/A s" % (
+                        iteration,
+                        iterations,
                     )
                 else:
                     progress_string = (
@@ -515,15 +509,9 @@ def main(args=sys.argv[1:]):
                         progress_indicator.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
                     progress_indicator.stdin.write("XXX\n".encode("utf-8"))
-                    progress_indicator.stdin.write(
-                        progress_pct.encode("utf-8")
-                    )
-                    progress_indicator.stdin.write(
-                        "\nTest progress\n".encode("utf-8")
-                    )
-                    progress_indicator.stdin.write(
-                        progress_string.encode("utf-8")
-                    )
+                    progress_indicator.stdin.write(progress_pct.encode("utf-8"))
+                    progress_indicator.stdin.write("\nTest progress\n".encode("utf-8"))
+                    progress_indicator.stdin.write(progress_string.encode("utf-8"))
                     progress_indicator.stdin.write("\nXXX\n".encode("utf-8"))
                     if progress_indicator.poll() is None:
                         progress_indicator.stdin.flush()
@@ -572,9 +560,7 @@ def main(args=sys.argv[1:]):
                     test = "--acpitests"
                 command = "fwts -q --stdout-summary -r %s %s" % (log, test)
                 results[test] = (
-                    Popen(command, stdout=PIPE, shell=True)
-                    .communicate()[0]
-                    .strip()
+                    Popen(command, stdout=PIPE, shell=True).communicate()[0].strip()
                 ).decode()
     # parse the summaries
     if results:

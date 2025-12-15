@@ -128,9 +128,7 @@ class Reporter(object):
                 and (raw_bytes[index + 1] & 0x80) != 0
                 and (raw_bytes[index + 2] & 0x80) != 0
             ):
-                code = ((raw_bytes[index + 1] & 0x7F) << 7) | (
-                    raw_bytes[2] & 0x7F
-                )
+                code = ((raw_bytes[index + 1] & 0x7F) << 7) | (raw_bytes[2] & 0x7F)
                 index += 3
             else:
                 code = raw_bytes[0] & 0x7F
@@ -215,9 +213,7 @@ class CLIReporter(Reporter):
 
     def found_key(self, key):
         super(CLIReporter, self).found_key(key)
-        self.show_text(
-            _("%(key_name)s key has been pressed" % {"key_name": key.name})
-        )
+        self.show_text(_("%(key_name)s key has been pressed" % {"key_name": key.name}))
 
         self.show_keys()
         if self.required_keys_tested:
@@ -340,9 +336,7 @@ class GtkReporter(Reporter):
 
     def found_key(self, key):
         super(GtkReporter, self).found_key(key)
-        self.icons[key].set_from_icon_name(
-            self.ICON_TESTED, size=self.ICON_SIZE
-        )
+        self.icons[key].set_from_icon_name(self.ICON_TESTED, size=self.ICON_SIZE)
 
         self.check_keys()
 

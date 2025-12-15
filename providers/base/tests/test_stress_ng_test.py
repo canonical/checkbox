@@ -88,9 +88,7 @@ class TestMainFunction(unittest.TestCase):
 
     @patch("stress_ng_test.check_output", side_effect=TimeoutExpired(b"", 1))
     @patch("sys.argv", ["stress_ng_test.py", "cpu"])
-    def test_main_timeout(
-        self, shutil_which_mock, os_geteuid_mock, check_output_mock
-    ):
+    def test_main_timeout(self, shutil_which_mock, os_geteuid_mock, check_output_mock):
         self.assertEqual(main(), 1)
 
     @patch("stress_ng_test.check_output", side_effect=KeyboardInterrupt)

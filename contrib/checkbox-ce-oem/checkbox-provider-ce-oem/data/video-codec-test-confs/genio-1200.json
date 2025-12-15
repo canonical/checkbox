@@ -25,6 +25,12 @@
       "source_format": "webm"
     }
   ],
+  "gst_decoder_comparison": [
+    {
+      "pipeline": "filesrc location=/opt/hardware_codec_testing_data/video_golden_samples/320x320-v4l2h264dec-NV12.mp4 ! qtdemux ! h264parse ! avdec_h264 ! checksumsink hash-type=1",
+      "golden_pipeline": "filesrc location=/opt/hardware_codec_testing_data/video_golden_samples/320x320-v4l2h264dec-NV12.mp4 ! qtdemux ! h264parse ! v4l2h264dec ! checksumsink hash-type=1"
+    }
+  ],
   "gst_v4l2_audio_video_synchronization": {
     "video_sinks": {
       "on_desktop": "waylandsink",

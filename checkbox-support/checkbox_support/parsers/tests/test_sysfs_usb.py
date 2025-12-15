@@ -130,9 +130,7 @@ class TestUsbIds(TestCase):
         mopen = mock_open(read_data=usb_ids_content)
         with patch("builtins.open", mopen):
             ids = UsbIds()
-            self.assertEqual(
-                ids.decode_protocol(0x42, 0x06, 0x01), "Explosives:Bomb"
-            )
+            self.assertEqual(ids.decode_protocol(0x42, 0x06, 0x01), "Explosives:Bomb")
 
     @patch("os.path.isfile")
     def test_class_only(self, m_isfile):
@@ -146,6 +144,4 @@ class TestUsbIds(TestCase):
         mopen = mock_open(read_data=usb_ids_content)
         with patch("builtins.open", mopen):
             ids = UsbIds()
-            self.assertEqual(
-                ids.decode_protocol(0x42, 0x06, 0x01), "Explosives"
-            )
+            self.assertEqual(ids.decode_protocol(0x42, 0x06, 0x01), "Explosives")

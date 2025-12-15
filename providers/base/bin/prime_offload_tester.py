@@ -69,9 +69,7 @@ class PrimeOffloader:
             for file_name in fnmatch.filter(files, filename_pattern):
                 file_path = os.path.join(root, file_name)
                 # Check if the search string is in the file
-                with open(
-                    file_path, "r", encoding="utf-8", errors="ignore"
-                ) as file:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as file:
                     if search_string in file.read():
                         return file_path
 
@@ -117,9 +115,7 @@ class PrimeOffloader:
         except (KeyError, TypeError, json.decoder.JSONDecodeError) as e:
             raise SystemExit("return value format error {}".format(e))
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise SystemExit(
-                "Running command:{} failed due to {}".format(cmd, repr(e))
-            )
+            raise SystemExit("Running command:{} failed due to {}".format(cmd, repr(e)))
 
     def get_clients(self, card_id: str) -> str:
         """
@@ -209,9 +205,7 @@ class PrimeOffloader:
             time.sleep(delay)
             # The command shows in /sys/kernel/debug/dri/<card_id>/clients
             # doesn't include arguments. Therefore cmd[0] is used to search
-            card_path = self.find_file_containing_string(
-                directory, "clients", cmd[0]
-            )
+            card_path = self.find_file_containing_string(directory, "clients", cmd[0])
 
             if card_path and directory in card_path:
                 try:
@@ -222,9 +216,7 @@ class PrimeOffloader:
                     bdf = self._find_bdf(card_id)
                     self.logger.info("Process is running on:")
                     self.logger.info("  process:[{}]".format(cmd[0]))
-                    self.logger.info(
-                        "  Card ID:[{}]".format(self.find_card_id(bdf))
-                    )
+                    self.logger.info("  Card ID:[{}]".format(self.find_card_id(bdf)))
                     self.logger.info(
                         "  Device Name:[{}]".format(self.find_card_name(bdf))
                     )
@@ -263,9 +255,7 @@ class PrimeOffloader:
                     raise SystemExit("nvidia driver error")
                 raise SystemExit("NVLINK detected")
         except FileNotFoundError:
-            self.logger.info(
-                "No prime-select, it should be ok to run prime offload"
-            )
+            self.logger.info("No prime-select, it should be ok to run prime offload")
 
     def cmd_runner(self, cmd: T.List[str], env: T.Optional[T.Dict] = None):
         """
@@ -306,9 +296,7 @@ class PrimeOffloader:
             raise SystemExit("Put timeout in command isn't allowed")
 
         # use other thread to find offload
-        find_thread = threading.Thread(
-            target=self.find_offload, args=(cmd, timeout)
-        )
+        find_thread = threading.Thread(target=self.find_offload, args=(cmd, timeout))
         find_thread.start()
         try:
             run_with_timeout(self.cmd_runner, timeout, cmd.split())
@@ -319,9 +307,7 @@ class PrimeOffloader:
         if self.check_result:
             raise SystemExit("Couldn't find process running on GPU")
 
-    def cmd_checker(
-        self, cmd_str: str, pci_bdf: str, driver: str, timeout: int
-    ):
+    def cmd_checker(self, cmd_str: str, pci_bdf: str, driver: str, timeout: int):
         """
         run offload command and check it runs on correct GPU
 
@@ -370,9 +356,7 @@ class PrimeOffloader:
         check_thread.join()
 
         if self.check_result:
-            raise SystemExit(
-                "offload to specific GPU: {} failed".format(pci_bdf)
-            )
+            raise SystemExit("offload to specific GPU: {} failed".format(pci_bdf))
 
     def parse_args(self, args=sys.argv[1:]):
         """

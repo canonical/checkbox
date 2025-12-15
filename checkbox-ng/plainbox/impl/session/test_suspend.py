@@ -146,9 +146,7 @@ class SuspendMemoryJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         """
         verify that MemoryJobResult.io_log is serialized correctly
         """
-        data = self.helper._repr_MemoryJobResult(
-            self.typical_result, self.session_dir
-        )
+        data = self.helper._repr_MemoryJobResult(self.typical_result, self.session_dir)
         self.assertEqual(
             data["io_log"],
             [
@@ -190,9 +188,7 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         """
         verify that DiskJobResult.io_log_filename is serialized correctly
         """
-        data = self.helper._repr_DiskJobResult(
-            self.typical_result, self.session_dir
-        )
+        data = self.helper._repr_DiskJobResult(self.typical_result, self.session_dir)
         self.assertEqual(data["io_log_filename"], "/path/to/log.txt")
 
 
@@ -241,9 +237,7 @@ class SessionSuspendHelper1Tests(TestCase):
         with mpo(self.helper, "_repr_MemoryJobResult"):
             result = MemoryJobResult({})
             self.helper._repr_JobResult(result, self.session_dir)
-            self.helper._repr_MemoryJobResult.assert_called_once_with(
-                result, None
-            )
+            self.helper._repr_MemoryJobResult.assert_called_once_with(result, None)
 
     def test_repr_JobResult_with_DiskJobResult(self):
         """
@@ -254,9 +248,7 @@ class SessionSuspendHelper1Tests(TestCase):
         with mpo(self.helper, "_repr_DiskJobResult"):
             result = DiskJobResult({})
             self.helper._repr_JobResult(result, self.session_dir)
-            self.helper._repr_DiskJobResult.assert_called_once_with(
-                result, None
-            )
+            self.helper._repr_DiskJobResult.assert_called_once_with(result, None)
 
     def test_repr_JobResult_with_junk(self):
         """
@@ -271,12 +263,8 @@ class SessionSuspendHelper1Tests(TestCase):
         verify that representation of empty SessionMetaData is okay
         """
         # all defaults with empty values
-        data = self.helper._repr_SessionMetaData(
-            SessionMetaData(), self.session_dir
-        )
-        self.assertEqual(
-            data, {"title": None, "flags": [], "running_job_name": None}
-        )
+        data = self.helper._repr_SessionMetaData(SessionMetaData(), self.session_dir)
+        self.assertEqual(data, {"title": None, "flags": [], "running_job_name": None})
 
     def test_repr_SessionMetaData_typical_metadata(self):
         """
@@ -304,9 +292,7 @@ class SessionSuspendHelper1Tests(TestCase):
         """
         verify that representation of empty SessionState is okay
         """
-        data = self.helper._repr_SessionState(
-            SessionState([]), self.session_dir
-        )
+        data = self.helper._repr_SessionState(SessionState([]), self.session_dir)
         self.assertEqual(
             data,
             {
@@ -391,9 +377,7 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         verify that representation of empty SessionMetaData is okay
         """
         # all defaults with empty values
-        data = self.helper._repr_SessionMetaData(
-            SessionMetaData(), self.session_dir
-        )
+        data = self.helper._repr_SessionMetaData(SessionMetaData(), self.session_dir)
         self.assertEqual(
             data,
             {
@@ -432,9 +416,7 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         """
         verify that representation of empty SessionState is okay
         """
-        data = self.helper._repr_SessionState(
-            SessionState([]), self.session_dir
-        )
+        data = self.helper._repr_SessionState(SessionState([]), self.session_dir)
         self.assertEqual(
             data,
             {
@@ -499,9 +481,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         verify that representation of empty SessionMetaData is okay
         """
         # all defaults with empty values
-        data = self.helper._repr_SessionMetaData(
-            SessionMetaData(), self.session_dir
-        )
+        data = self.helper._repr_SessionMetaData(SessionMetaData(), self.session_dir)
         self.assertEqual(
             data,
             {
@@ -543,9 +523,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         """
         verify that representation of empty SessionState is okay
         """
-        data = self.helper._repr_SessionState(
-            SessionState([]), self.session_dir
-        )
+        data = self.helper._repr_SessionState(SessionState([]), self.session_dir)
         self.assertEqual(
             data,
             {
@@ -861,9 +839,7 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         """
         verify that representation of empty SessionState is okay
         """
-        data = self.helper._repr_SessionState(
-            SessionState([]), self.session_dir
-        )
+        data = self.helper._repr_SessionState(SessionState([]), self.session_dir)
         self.assertEqual(
             data,
             {
@@ -888,9 +864,7 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         verify that representation of empty SessionMetaData is okay
         """
         # all defaults with empty values
-        data = self.helper._repr_SessionMetaData(
-            SessionMetaData(), self.session_dir
-        )
+        data = self.helper._repr_SessionMetaData(SessionMetaData(), self.session_dir)
         print(data)
         self.assertEqual(
             data,
@@ -941,9 +915,7 @@ class SessionSuspendHelper8Tests(TestCase):
         session_state_mock = SessionState_mock()
         session_state_mock._system_information = None
         session_suspend_helper = SessionSuspendHelper8()
-        data = session_suspend_helper._repr_SessionState(
-            session_state_mock, None
-        )
+        data = session_suspend_helper._repr_SessionState(session_state_mock, None)
         self.assertIn("system_information", data)
         self.assertTrue(session_state_mock.system_information.items.called)
 
@@ -955,9 +927,7 @@ class SessionSuspendHelper9Tests(TestCase):
         session_state_mock = SessionState_mock()
         session_state_mock._system_information = None
         session_suspend_helper = SessionSuspendHelper9()
-        data = session_suspend_helper._repr_SessionState(
-            session_state_mock, None
-        )
+        data = session_suspend_helper._repr_SessionState(session_state_mock, None)
         self.assertIn("system_information", data)
         self.assertFalse(data["system_information"])
         self.assertFalse(session_state_mock.system_information.items.called)
@@ -972,9 +942,7 @@ class SessionSuspendHelper9Tests(TestCase):
             session_state_mock._system_information.items
         )
         session_suspend_helper = SessionSuspendHelper9()
-        data = session_suspend_helper._repr_SessionState(
-            session_state_mock, None
-        )
+        data = session_suspend_helper._repr_SessionState(session_state_mock, None)
         self.assertIn("system_information", data)
         print(data["system_information"])
         self.assertEqual(

@@ -104,9 +104,7 @@ class TestTcpMulitConnections(unittest.TestCase):
         start_time = datetime.now() + timedelta(seconds=1)
         results = []
         mock_socket = Mock(recv=Mock(return_value=payload.encode()))
-        mock_create_connection.return_value.__enter__.return_value = (
-            mock_socket
-        )
+        mock_create_connection.return_value.__enter__.return_value = mock_socket
 
         result = tcp_multi_connections.send_payload(
             host, port, payload, start_time, results
@@ -128,9 +126,7 @@ class TestTcpMulitConnections(unittest.TestCase):
         start_time = datetime.now() + timedelta(seconds=1)
         results = []
         mock_socket = Mock(recv=Mock(return_value="unexpect".encode()))
-        mock_create_connection.return_value.__enter__.return_value = (
-            mock_socket
-        )
+        mock_create_connection.return_value.__enter__.return_value = mock_socket
 
         result = tcp_multi_connections.send_payload(
             host, port, payload, start_time, results

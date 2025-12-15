@@ -82,38 +82,26 @@ class NoOpTranslatorTests(TestCase):
         self.assertEqual(self.t.pgettext("msgctxt", "msgid"), "msgid")
 
     def test_pdgettext(self):
-        self.assertEqual(
-            self.t.pdgettext("msgctxt", "other-domain", "msgid"), "msgid"
-        )
+        self.assertEqual(self.t.pdgettext("msgctxt", "other-domain", "msgid"), "msgid")
 
     def test_pngettext(self):
-        self.assertEqual(
-            self.t.pngettext("msgctxt", "msgid1", "msgid2", 1), "msgid1"
-        )
-        self.assertEqual(
-            self.t.pngettext("msgctxt", "msgid1", "msgid2", 2), "msgid2"
-        )
+        self.assertEqual(self.t.pngettext("msgctxt", "msgid1", "msgid2", 1), "msgid1")
+        self.assertEqual(self.t.pngettext("msgctxt", "msgid1", "msgid2", 2), "msgid2")
 
     def test_pdngettext(self):
         self.assertEqual(
-            self.t.pdngettext(
-                "msgctxt", "other-domain", "msgid1", "msgid2", 1
-            ),
+            self.t.pdngettext("msgctxt", "other-domain", "msgid1", "msgid2", 1),
             "msgid1",
         )
         self.assertEqual(
-            self.t.pdngettext(
-                "msgctxt", "other-domain", "msgid1", "msgid2", 2
-            ),
+            self.t.pdngettext("msgctxt", "other-domain", "msgid1", "msgid2", 2),
             "msgid2",
         )
 
 
 @contextmanager
 def mocked_translation(translator, domain, translation):
-    with mock.patch.dict(
-        translator._translations, values=[(domain, translation)]
-    ):
+    with mock.patch.dict(translator._translations, values=[(domain, translation)]):
         yield
 
 
@@ -219,9 +207,7 @@ class GettextTranslatorTests(TestCase):
     def test_pdngettext(self):
         translation = mock.Mock()
         with mocked_translation(self.t, "other-domain", translation):
-            msgstr = self.t.pdngettext(
-                "msgctxt", "other-domain", "msgid1", "msgid2", 1
-            )
+            msgstr = self.t.pdngettext("msgctxt", "other-domain", "msgid1", "msgid2", 1)
         translation.ngettext.assert_called_with(
             "msgctxt\u0004msgid1", "msgctxt\u0004msgid2", 1
         )
@@ -231,9 +217,7 @@ class GettextTranslatorTests(TestCase):
         translation = mock.Mock()
         translation.ngettext.side_effect = lambda s1, s2, n: s1
         with mocked_translation(self.t, "other-domain", translation):
-            msgstr = self.t.pdngettext(
-                "msgctxt", "other-domain", "msgid1", "msgid2", 1
-            )
+            msgstr = self.t.pdngettext("msgctxt", "other-domain", "msgid1", "msgid2", 1)
         translation.ngettext.assert_called_with(
             "msgctxt\u0004msgid1", "msgctxt\u0004msgid2", 1
         )
@@ -243,9 +227,7 @@ class GettextTranslatorTests(TestCase):
         translation = mock.Mock()
         translation.ngettext.side_effect = lambda s1, s2, n: s2
         with mocked_translation(self.t, "other-domain", translation):
-            msgstr = self.t.pdngettext(
-                "msgctxt", "other-domain", "msgid1", "msgid2", 2
-            )
+            msgstr = self.t.pdngettext("msgctxt", "other-domain", "msgid1", "msgid2", 2)
         translation.ngettext.assert_called_with(
             "msgctxt\u0004msgid1", "msgctxt\u0004msgid2", 2
         )

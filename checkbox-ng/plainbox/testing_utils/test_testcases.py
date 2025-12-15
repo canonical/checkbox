@@ -75,9 +75,7 @@ class TestCaseWithParametersTests(TestCase):
         )
 
         def test_str_upper(self):
-            self.assertEqual(
-                self.parameters.original.upper(), self.parameters.upper
-            )
+            self.assertEqual(self.parameters.original.upper(), self.parameters.upper)
 
     def setUp(self):
         self.test_case = self.UpperTests("test_str_upper")
@@ -126,9 +124,7 @@ class TestCaseWithParametersTests(TestCase):
         self.assertEqual(RegressionTest().countTestCases(), 2)
 
     def test_id(self):
-        self.assertIn(
-            "test_str_upper [<unparameterized>]", self.test_case.id()
-        )
+        self.assertIn("test_str_upper [<unparameterized>]", self.test_case.id())
         self.assertIn(
             "test_str_upper [original: foo, upper: FOO]",
             self.parametrized_test_case.id(),
@@ -136,9 +132,7 @@ class TestCaseWithParametersTests(TestCase):
 
     def test_str(self):
         self.assertIn("[<unparameterized>]", str(self.test_case))
-        self.assertIn(
-            "[original: foo, upper: FOO]", str(self.parametrized_test_case)
-        )
+        self.assertIn("[original: foo, upper: FOO]", str(self.parametrized_test_case))
 
     def test_repr(self):
         self.assertIn("parameters=None>", repr(self.test_case))
@@ -156,9 +150,7 @@ class TestCaseWithParametersTests(TestCase):
         case1 = TestCaseWithParameters()
         case2 = TestCaseWithParameters()
         self.assertEqual(hash(case1), hash(case2))
-        case1_param = case1._parametrize(
-            TestCaseParameters(("name",), ("value",))
-        )
+        case1_param = case1._parametrize(TestCaseParameters(("name",), ("value",)))
         self.assertNotEqual(case1, case1_param)
 
     def test_run_spots_common_mistake(self):

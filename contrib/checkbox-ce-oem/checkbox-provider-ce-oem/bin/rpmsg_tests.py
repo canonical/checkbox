@@ -30,9 +30,7 @@ class RpmsgSysFsHandler:
         self.started_by_script = False
 
         if not os.path.isdir(root_path):
-            logging.error(
-                "Error: Remoteproc directory not found at '%s'", root_path
-            )
+            logging.error("Error: Remoteproc directory not found at '%s'", root_path)
             raise SystemExit(1)
 
     def _read_node(self, path):
@@ -125,9 +123,7 @@ class RpmsgSysFsHandler:
         """Reads and stores the initial firmware configuration and state"""
         self.original_firmware_path = self.firmware_path
         if self.original_firmware_path is not None:
-            logging.info(
-                "Original firmware path was: %s", self.original_firmware_path
-            )
+            logging.info("Original firmware path was: %s", self.original_firmware_path)
         else:
             logging.warning("Could not read original firmwar path.")
 
@@ -150,9 +146,7 @@ class RpmsgSysFsHandler:
                 self.stop()
                 time.sleep(1)  # Give it a moment to stop
 
-            logging.info(
-                "Restoring original firmware: %s", self.original_firmware
-            )
+            logging.info("Restoring original firmware: %s", self.original_firmware)
             self.firmware_file = self.original_firmware
         else:
             logging.info("No original firmware to restore.")
@@ -189,9 +183,7 @@ class RpmsgSysFsHandler:
 
 
 class RpmsgTest:
-    def __init__(
-        self, rpmsg_node, load_firmware, firmware_path, firmware_file
-    ):
+    def __init__(self, rpmsg_node, load_firmware, firmware_path, firmware_file):
         self._test_func = None
         self.kernel_module = None
         self.probe_cmd = None
@@ -225,9 +217,7 @@ class RpmsgTest:
             pass
 
     def _init_logger(self) -> None:
-        self.log_reader = subprocess.Popen(
-            ["journalctl", "-f"], stdout=subprocess.PIPE
-        )
+        self.log_reader = subprocess.Popen(["journalctl", "-f"], stdout=subprocess.PIPE)
 
     def lookup_reload_logs(self, entry: str) -> bool:
         keep_looking = True
@@ -240,9 +230,7 @@ class RpmsgTest:
 
         return keep_looking
 
-    def verify_load_firmware_logs(
-        self, match_records: list, search_stages: list
-    ):
+    def verify_load_firmware_logs(self, match_records: list, search_stages: list):
         logging.info("Validate RPMSG related log from journal logs")
         logging.debug(match_records)
         actuall_stage = []
@@ -270,14 +258,12 @@ class RpmsgTest:
         proc_pattern = "remoteproc remoteproc[0-9]+"
         self._search_patterns = {
             "start": r"{}: powering up .*".format(proc_pattern),
-            "boot_image": (
-                r"{}: Booting fw image (?P<image>\w*.elf), \w*"
-            ).format(proc_pattern),
-            # Please keep latest record in ready stage
-            # This function will return if latest record been captured.
-            "ready": (r"{}: remote processor .* is now up").format(
+            "boot_image": (r"{}: Booting fw image (?P<image>\w*.elf), \w*").format(
                 proc_pattern
             ),
+            # Please keep latest record in ready stage
+            # This function will return if latest record been captured.
+            "ready": (r"{}: remote processor .* is now up").format(proc_pattern),
         }
         self._monitor_journal_logs()
         self.log_reader.kill()
@@ -332,9 +318,7 @@ class RpmsgPingPongTest(RpmsgTest):
         firmware_path=None,
         firmware_file=None,
     ):
-        super().__init__(
-            rpmsg_node, load_firmware, firmware_path, firmware_file
-        )
+        super().__init__(rpmsg_node, load_firmware, firmware_path, firmware_file)
         self._test_func = self.pingpong_test
         self.kernel_module = kernel_module
         self.probe_cmd = probe_cmd
@@ -418,9 +402,7 @@ class RpmsgPingPongTest(RpmsgTest):
             if self.log_reader is None:
                 self._init_logger()
 
-            thread = threading.Thread(
-                target=self.monitor_journal_pingpong_logs
-            )
+            thread = threading.Thread(target=self.monitor_journal_pingpong_logs)
             thread.start()
             self.probe_module()
             thread.join()
@@ -454,9 +436,7 @@ class RpmsgStringEchoTest(RpmsgTest):
         firmware_path=None,
         firmware_file=None,
     ):
-        super().__init__(
-            rpmsg_node, load_firmware, firmware_path, firmware_file
-        )
+        super().__init__(rpmsg_node, load_firmware, firmware_path, firmware_file)
         self._test_func = self.serial_tty_test
         self.kernel_module = kernel_module
         self.probe_cmd = probe_cmd
@@ -711,9 +691,7 @@ def rpmsg_node_detection_test(rpmsg_node):
 
 def register_arguments():
     parser = argparse.ArgumentParser(
-        description=(
-            "RPMSG validation tool for ping-pong and string-echo tests."
-        ),
+        description=("RPMSG validation tool for ping-pong and string-echo tests."),
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
@@ -750,8 +728,7 @@ def register_arguments():
         "--firmware-file",
         default="",
         help=(
-            "Specific firmware file to load "
-            "(required if --load-firmware is set)."
+            "Specific firmware file to load " "(required if --load-firmware is set)."
         ),
     )
     parser_pingpong.set_defaults(func=pingpong_test)
@@ -774,8 +751,7 @@ def register_arguments():
         "--firmware-file",
         default="",
         help=(
-            "Specific firmware file to load "
-            "(required if --load-firmware is set)."
+            "Specific firmware file to load " "(required if --load-firmware is set)."
         ),
     )
     parser_echo.set_defaults(func=string_echo_test)

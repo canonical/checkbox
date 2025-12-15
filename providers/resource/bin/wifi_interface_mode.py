@@ -9,10 +9,7 @@ def get_interfaces() -> List[Tuple[str, str]]:
     device_pattern = r"phy#(\d+).*?Interface (\S+)"
     if output:
         matches = re.findall(device_pattern, output, re.DOTALL)
-        return [
-            (device_id, interface_name)
-            for device_id, interface_name in matches
-        ]
+        return [(device_id, interface_name) for device_id, interface_name in matches]
     raise SystemExit(0)
 
 
@@ -52,11 +49,7 @@ def print_supported_modes() -> str:
         interface = interfaces[int(wiphy_index)][1]
         print("interface: {}".format(interface))
         for mode in modes:
-            print(
-                "{}: supported".format(
-                    mode.replace("-", "_").replace("/", "_")
-                )
-            )
+            print("{}: supported".format(mode.replace("-", "_").replace("/", "_")))
         print()
 
 

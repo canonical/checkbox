@@ -211,14 +211,10 @@ class UnitPlugIn(ProviderContentPlugIn):
         """
         logger.debug(_("Loading units from %r..."), filename)
         try:
-            records = load_rfc822_records(
-                text, source=FileTextSource(filename)
-            )
+            records = load_rfc822_records(text, source=FileTextSource(filename))
         except RFC822SyntaxError as exc:
             raise PlugInError(
-                _("Cannot load job definitions from {!r}: {}").format(
-                    filename, exc
-                )
+                _("Cannot load job definitions from {!r}: {}").format(filename, exc)
             )
         unit_list = []
         for record in records:
@@ -226,16 +222,12 @@ class UnitPlugIn(ProviderContentPlugIn):
             try:
                 unit_cls = self._get_unit_cls(unit_name)
             except KeyError:
-                raise PlugInError(
-                    _("Unknown unit type: {!r}").format(unit_name)
-                )
+                raise PlugInError(_("Unknown unit type: {!r}").format(unit_name))
             try:
                 unit = unit_cls.from_rfc822_record(record, provider)
             except ValueError as exc:
                 raise PlugInError(
-                    _("Cannot define unit from record {!r}: {}").format(
-                        record, exc
-                    )
+                    _("Cannot define unit from record {!r}: {}").format(record, exc)
                 )
             if check:
                 for issue in unit.check(context=context, live=True):
@@ -698,9 +690,7 @@ class ProviderContentLoader:
             self._warn_ignored_file(filename)
             return
         try:
-            plugin = plugin_cls(
-                filename, text, 0, self.provider, **plugin_kwargs
-            )
+            plugin = plugin_cls(filename, text, 0, self.provider, **plugin_kwargs)
         except PlugInError as exc:
             self.problem_list.append(exc)
         else:
@@ -1794,9 +1784,7 @@ class Provider1PlugIn(PlugIn):
         super().__init__(provider.name, provider, load_time, wrap_time)
 
     def __repr__(self):
-        return "<{!s} plugin_name:{!r}>".format(
-            type(self).__name__, self.plugin_name
-        )
+        return "<{!s} plugin_name:{!r}>".format(type(self).__name__, self.plugin_name)
 
 
 def get_secure_custom_frontend_PROVIDERPATH_list():
@@ -1819,9 +1807,7 @@ def get_secure_custom_frontend_PROVIDERPATH_list():
         if not providers_path.exists():
             logger.error(
                 "Custom frontend must have `providers` directory in root. "
-                "Invalid custom frontend found: {}".format(
-                    custom_frontend_root
-                )
+                "Invalid custom frontend found: {}".format(custom_frontend_root)
             )
             continue
         providers_paths += providers_path.iterdir()
@@ -1874,9 +1860,7 @@ class SecureProvider1PlugInCollection(FsPlugInCollection):
 
     def __init__(self, **kwargs):
         dir_list = get_secure_PROVIDERPATH_list()
-        super().__init__(
-            dir_list, ".provider", wrapper=Provider1PlugIn, **kwargs
-        )
+        super().__init__(dir_list, ".provider", wrapper=Provider1PlugIn, **kwargs)
 
 
 # Collection of all providers

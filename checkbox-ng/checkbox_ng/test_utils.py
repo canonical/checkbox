@@ -62,8 +62,5 @@ class TestSetAllLoggersLevel(unittest.TestCase):
         }
         set_all_loggers_level(0)
         self.assertTrue(
-            all(
-                x.level == 0
-                for x in logging_mock.root.manager.loggerDict.values()
-            )
+            all(x.level == 0 for x in logging_mock.root.manager.loggerDict.values())
         )

@@ -57,9 +57,7 @@ class MonitorConfigX11Tests(unittest.TestCase):
 
         x11_monitor = MonitorConfigX11()
         resolutions = x11_monitor.get_current_resolutions()
-        self.assertEqual(
-            resolutions, {"eDP": "1920x1080", "HDMI-A-0": "2560x1440"}
-        )
+        self.assertEqual(resolutions, {"eDP": "1920x1080", "HDMI-A-0": "2560x1440"})
 
     @patch("subprocess.run")
     @patch("subprocess.check_output")

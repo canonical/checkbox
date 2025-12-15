@@ -13,9 +13,7 @@ class TestCheckGpio(unittest.TestCase):
 
     def test_parse_port_ranges(self):
         # Test parsing port ranges
-        self.assertEqual(
-            check_gpio.parse_config("5:8,10:12"), [5, 6, 7, 8, 10, 11, 12]
-        )
+        self.assertEqual(check_gpio.parse_config("5:8,10:12"), [5, 6, 7, 8, 10, 11, 12])
 
     def test_parse_mixed(self):
         # Test parsing mixed single ports and port ranges
@@ -171,9 +169,7 @@ class TestCheckGpio(unittest.TestCase):
         snap = "checkbox_snap"
         timeout = 30
         with self.assertRaises(SystemExit) as err:
-            check_gpio.disconnect_interface(
-                gadget_name, gpio_slot, snap, timeout
-            )
+            check_gpio.disconnect_interface(gadget_name, gpio_slot, snap, timeout)
 
         expected_calls = [call(gadget_name, gpio_slot, snap, "gpio")]
         mock_snapd.return_value.disconnect.assert_has_calls(expected_calls)
@@ -194,9 +190,7 @@ class TestCheckGpio(unittest.TestCase):
             with self.assertRaises(SystemExit) as context:
                 check_gpio.check_node(499)
         # Assert that SystemExit is raised with the correct message
-        self.assertEqual(
-            context.exception.args[0], "GPIO node of 499 not exist!"
-        )
+        self.assertEqual(context.exception.args[0], "GPIO node of 499 not exist!")
 
     @patch.dict(os.environ, {"SNAP_NAME": "checkbox_snap"})
     @patch.dict(os.environ, {"SNAPD_TASK_TIMEOUT": "30"})

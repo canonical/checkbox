@@ -38,9 +38,7 @@ def main():
 
     # Verify that script is run as root
     if os.getuid():
-        sys.stderr.write(
-            "This script needs superuser permissions to run correctly\n"
-        )
+        sys.stderr.write("This script needs superuser permissions to run correctly\n")
         return 1
 
     configure_logging(args.log_level, args.output)
@@ -156,9 +154,7 @@ class GtkApplication(Application):
             Application.run(self)
         except PingError as exception:
             logging.error(
-                "Failed to ping {0!r}\n{1}".format(
-                    exception.address, exception.reason
-                )
+                "Failed to ping {0!r}\n{1}".format(exception.address, exception.reason)
             )
             self.return_code = -1
         except CalledProcessError:
@@ -247,9 +243,7 @@ class Networking:
             try:
                 check_output(["/sbin/ifconfig", interface, "up"])
             except CalledProcessError:
-                logging.error(
-                    "Unable to bring up interface {0!r}".format(interface)
-                )
+                logging.error("Unable to bring up interface {0!r}".format(interface))
                 raise
 
         logging.info("Starting network manager...")
@@ -285,9 +279,7 @@ class Networking:
             try:
                 check_output(["/sbin/ifconfig", interface, "down"])
             except CalledProcessError:
-                logging.error(
-                    "Unable to bring down interface {0!r}".format(interface)
-                )
+                logging.error("Unable to bring down interface {0!r}".format(interface))
                 raise
 
         # Verify that network interface is down
@@ -389,8 +381,6 @@ if __name__ == "__main__":
         sys.exit(main())
     except PingError as exception:
         logging.error(
-            "Failed to ping {0!r}\n{1}".format(
-                exception.address, exception.reason
-            )
+            "Failed to ping {0!r}\n{1}".format(exception.address, exception.reason)
         )
         sys.exit(1)

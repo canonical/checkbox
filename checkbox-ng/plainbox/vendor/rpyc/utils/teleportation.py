@@ -46,25 +46,74 @@ def _export_codeobj(cobj):
         elif isinstance(const, CodeType):
             consts2.append(_export_codeobj(const))
         else:
-            raise TypeError("Cannot export a function with non-brinable constants: {!r}".format(const))
+            raise TypeError(
+                "Cannot export a function with non-brinable constants: {!r}".format(
+                    const
+                )
+            )
 
     if is_py_gte311:
         # Constructor was changed in 3.11 by adding exceptionable and qualname
-        exported = (cobj.co_argcount, cobj.co_posonlyargcount, cobj.co_kwonlyargcount, cobj.co_nlocals,
-                    cobj.co_stacksize, cobj.co_flags, cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames,
-                    cobj.co_filename, cobj.co_name, cobj.co_qualname, cobj.co_firstlineno, cobj.co_linetable,
-                    cobj.co_exceptiontable, cobj.co_freevars, cobj.co_cellvars)
+        exported = (
+            cobj.co_argcount,
+            cobj.co_posonlyargcount,
+            cobj.co_kwonlyargcount,
+            cobj.co_nlocals,
+            cobj.co_stacksize,
+            cobj.co_flags,
+            cobj.co_code,
+            tuple(consts2),
+            cobj.co_names,
+            cobj.co_varnames,
+            cobj.co_filename,
+            cobj.co_name,
+            cobj.co_qualname,
+            cobj.co_firstlineno,
+            cobj.co_linetable,
+            cobj.co_exceptiontable,
+            cobj.co_freevars,
+            cobj.co_cellvars,
+        )
     elif is_py_gte38:
         # Constructor was changed in 3.8 to support "advanced" programming styles
-        exported = (cobj.co_argcount, cobj.co_posonlyargcount, cobj.co_kwonlyargcount, cobj.co_nlocals,
-                    cobj.co_stacksize, cobj.co_flags, cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames,
-                    cobj.co_filename, cobj.co_name, cobj.co_firstlineno,
-                    cobj.co_linetable if is_py_gte310 else cobj.co_lnotab,  # 3.10 switched from lnotab to linetable
-                    cobj.co_freevars, cobj.co_cellvars)
+        exported = (
+            cobj.co_argcount,
+            cobj.co_posonlyargcount,
+            cobj.co_kwonlyargcount,
+            cobj.co_nlocals,
+            cobj.co_stacksize,
+            cobj.co_flags,
+            cobj.co_code,
+            tuple(consts2),
+            cobj.co_names,
+            cobj.co_varnames,
+            cobj.co_filename,
+            cobj.co_name,
+            cobj.co_firstlineno,
+            (
+                cobj.co_linetable if is_py_gte310 else cobj.co_lnotab
+            ),  # 3.10 switched from lnotab to linetable
+            cobj.co_freevars,
+            cobj.co_cellvars,
+        )
     else:
-        exported = (cobj.co_argcount, cobj.co_kwonlyargcount, cobj.co_nlocals, cobj.co_stacksize, cobj.co_flags,
-                    cobj.co_code, tuple(consts2), cobj.co_names, cobj.co_varnames, cobj.co_filename,
-                    cobj.co_name, cobj.co_firstlineno, cobj.co_lnotab, cobj.co_freevars, cobj.co_cellvars)
+        exported = (
+            cobj.co_argcount,
+            cobj.co_kwonlyargcount,
+            cobj.co_nlocals,
+            cobj.co_stacksize,
+            cobj.co_flags,
+            cobj.co_code,
+            tuple(consts2),
+            cobj.co_names,
+            cobj.co_varnames,
+            cobj.co_filename,
+            cobj.co_name,
+            cobj.co_firstlineno,
+            cobj.co_lnotab,
+            cobj.co_freevars,
+            cobj.co_cellvars,
+        )
     assert brine.dumpable(exported)
     return (CODEOBJ_MAGIC, exported)
 
@@ -80,11 +129,21 @@ def export_function(func):
     if closure:
         raise TypeError("Cannot export a function closure")
     if not brine.dumpable(defaults):
-        raise TypeError("Cannot export a function with non-brinable defaults (__defaults__)")
+        raise TypeError(
+            "Cannot export a function with non-brinable defaults (__defaults__)"
+        )
     if not brine.dumpable(kwdefaults):
-        raise TypeError("Cannot export a function with non-brinable defaults (__kwdefaults__)")
+        raise TypeError(
+            "Cannot export a function with non-brinable defaults (__kwdefaults__)"
+        )
 
-    return func.__name__, func.__module__, defaults, kwdefaults, _export_codeobj(code)[1]
+    return (
+        func.__name__,
+        func.__module__,
+        defaults,
+        kwdefaults,
+        _export_codeobj(code)[1],
+    )
 
 
 def _import_codetup(codetup):
@@ -93,20 +152,69 @@ def _import_codetup(codetup):
     qualname = ""
     # Handle tuples sent from >=3.11, >=3.8 and <=3.8
     if len(codetup) == 18:
-        (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-         filename, name, qualname, firstlineno, lnotab, exceptiontable, freevars, cellvars) = codetup
+        (
+            argcount,
+            posonlyargcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            qualname,
+            firstlineno,
+            lnotab,
+            exceptiontable,
+            freevars,
+            cellvars,
+        ) = codetup
         if not is_py_gte310:
             # Since version, codetup length, and lnotab length, lnotab is set as though there is no linenumber
-            lnotab = b''  # lnotab_notes.txt describes lnotab as imperfect anyway
+            lnotab = b""  # lnotab_notes.txt describes lnotab as imperfect anyway
     elif len(codetup) == 16:
-        (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-         filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
+        (
+            argcount,
+            posonlyargcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            firstlineno,
+            lnotab,
+            freevars,
+            cellvars,
+        ) = codetup
         if not is_py_gte310 and len(lnotab) > 2:
             # Since version, codetup length, and lnotab length, lnotab is set as though there is no linenumber
-            lnotab = b''  # lnotab_notes.txt describes lnotab as imperfect anyway
+            lnotab = b""  # lnotab_notes.txt describes lnotab as imperfect anyway
     else:
-        (argcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-         filename, name, firstlineno, lnotab, freevars, cellvars) = codetup
+        (
+            argcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            firstlineno,
+            lnotab,
+            freevars,
+            cellvars,
+        ) = codetup
 
     consts2 = []
     for const in consts:
@@ -116,14 +224,63 @@ def _import_codetup(codetup):
             consts2.append(const)
     consts = tuple(consts2)
     if is_py_gte311:
-        codetup = (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-                   filename, name, qualname, firstlineno, lnotab, exceptiontable, freevars, cellvars)
+        codetup = (
+            argcount,
+            posonlyargcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            qualname,
+            firstlineno,
+            lnotab,
+            exceptiontable,
+            freevars,
+            cellvars,
+        )
     elif is_py_gte38:
-        codetup = (argcount, posonlyargcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames,
-                   filename, name, firstlineno, lnotab, freevars, cellvars)
+        codetup = (
+            argcount,
+            posonlyargcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            firstlineno,
+            lnotab,
+            freevars,
+            cellvars,
+        )
     else:
-        codetup = (argcount, kwonlyargcount, nlocals, stacksize, flags, code, consts, names, varnames, filename, name,
-                   firstlineno, lnotab, freevars, cellvars)
+        codetup = (
+            argcount,
+            kwonlyargcount,
+            nlocals,
+            stacksize,
+            flags,
+            code,
+            consts,
+            names,
+            varnames,
+            filename,
+            name,
+            firstlineno,
+            lnotab,
+            freevars,
+            cellvars,
+        )
     return CodeType(*codetup)
 
 
@@ -138,8 +295,9 @@ def import_function(functup, globals=None, def_=True):
     # function globals must be real dicts, sadly:
     if isinstance(globals, netref.BaseNetref):
         from rpyc.utils.classic import obtain
+
         globals = obtain(globals)
-    globals.setdefault('__builtins__', __builtins__)
+    globals.setdefault("__builtins__", __builtins__)
     codeobj = _import_codetup(codetup)
     funcobj = FunctionType(codeobj, globals, name, defaults)
     if kwdefaults is not None:

@@ -55,9 +55,7 @@ logger = logging.getLogger("plainbox.result")
 #
 # NOTE: we don't want to match certain control characters (newlines, carriage
 # returns, tabs or vertical tabs).
-CONTROL_CODE_RE_STR = re.compile(
-    r"(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]"
-)
+CONTROL_CODE_RE_STR = re.compile(r"(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
 
 # Regular expression that matches ANSI Escape Sequences (e.g. arrow keys)
 # For more info, see <http://stackoverflow.com/a/33925425>
@@ -109,10 +107,7 @@ IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 #   Canonical Certification web application.
 OutcomeMetadata = namedtuple(
     "OutcomeMetadata",
-    (
-        "value unicode_sigil tr_outcome tr_label color_ansi"
-        " color_hex hexr_mapping"
-    ),
+    ("value unicode_sigil tr_outcome tr_label color_ansi" " color_hex hexr_mapping"),
 )
 
 OUTCOME_METADATA_MAP = {
@@ -276,9 +271,7 @@ class JobResultBuilder(pod.POD):
             If both io_log and io_log_filename were used.
         """
         if not (self.io_log_filename is pod.UNSET or self.io_log is pod.UNSET):
-            raise ValueError(
-                "you can use only io_log or io_log_filename at a time"
-            )
+            raise ValueError("you can use only io_log or io_log_filename at a time")
         if self.io_log_filename is not pod.UNSET:
             cls = DiskJobResult
         else:
@@ -559,9 +552,7 @@ class DiskJobResult(_JobResultBase):
     def get_io_log(self):
         record_path = self.io_log_filename
         if record_path:
-            with gzip.GzipFile(
-                record_path, mode="rb"
-            ) as gzip_stream, io.TextIOWrapper(
+            with gzip.GzipFile(record_path, mode="rb") as gzip_stream, io.TextIOWrapper(
                 gzip_stream, encoding="UTF-8"
             ) as stream:
                 for record in IOLogRecordReader(stream):

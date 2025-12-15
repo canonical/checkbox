@@ -37,9 +37,7 @@ class MEI_INTERFACE:
     def connect(self, str_uuid):
         obj_uuid = uuid.UUID(str_uuid)
         array_data = array.array("b", obj_uuid.bytes_le)
-        fcntl.ioctl(
-            self._mei_obj, self.IOCTL_MEI_CONNECT_CLIENT, array_data, 1
-        )
+        fcntl.ioctl(self._mei_obj, self.IOCTL_MEI_CONNECT_CLIENT, array_data, 1)
         max_length, version = struct.unpack("<IB", array_data.tobytes()[:5])
         return max_length, version
 
@@ -81,9 +79,7 @@ def get_mei_firmware_version():
         )
         print("MEI firmware version: {}".format(str_ver))
     except Exception as err:
-        err_msg = (
-            "Unable to retrieve MEI firmware version" " due to {}".format(err)
-        )
+        err_msg = "Unable to retrieve MEI firmware version" " due to {}".format(err)
         raise SystemExit(err_msg)
     finally:
         if mei_interface._mei_obj is not None:

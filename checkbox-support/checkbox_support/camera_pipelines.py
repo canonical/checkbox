@@ -94,8 +94,7 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
         if (
             actual_value is not None
             and default_value is not None
-            and Gst.value_compare(default_value, actual_value)
-            == Gst.VALUE_EQUAL
+            and Gst.value_compare(default_value, actual_value) == Gst.VALUE_EQUAL
         ):
             continue
 
@@ -113,9 +112,7 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
         if not serialized_value:
             continue  # ignore non-serializable ones
 
-        launch_line_components.append(
-            "{}={}".format(prop.name, serialized_value)
-        )
+        launch_line_components.append("{}={}".format(prop.name, serialized_value))
 
     # example: pipewiresrc target-object=49
     return " ".join(launch_line_components)
@@ -261,9 +258,7 @@ def run_pipeline(
         # but destroying an already destroyed source is ok
         # See: https://docs.gtk.org/glib/method.Source.destroy.html
         # and: https://docs.gtk.org/glib/type_func.Source.remove.html
-        timeout_sources.append(
-            loop.get_context().find_source_by_id(eos_timeout_id)
-        )
+        timeout_sources.append(loop.get_context().find_source_by_id(eos_timeout_id))
 
     for delay, intermediate_call in intermediate_calls:
         if run_n_seconds is not None and delay > run_n_seconds:
@@ -275,9 +270,7 @@ def run_pipeline(
             )
 
         timeout_id = GLib.timeout_add_seconds(delay, intermediate_call)
-        timeout_sources.append(
-            loop.get_context().find_source_by_id(timeout_id)
-        )
+        timeout_sources.append(loop.get_context().find_source_by_id(timeout_id))
 
     bus = pipeline.get_bus()
     bus.add_signal_watch()
@@ -346,9 +339,7 @@ def take_photo(
     # the 2nd condition is a workaround for <object>.is_integer on older python
     if delay_seconds < 0 or int(delay_seconds) != delay_seconds:
         raise ValueError(
-            "delay_seconds must be a positive integer. Got {}".format(
-                delay_seconds
-            )
+            "delay_seconds must be a positive integer. Got {}".format(delay_seconds)
         )
 
     # dict order is not guaranteed on python < 3.7
@@ -361,9 +352,7 @@ def take_photo(
             ("encoder", "jpegenc"),
             (
                 "sink",
-                "multifilesink post-messages=True location={}".format(
-                    str(file_path)
-                ),
+                "multifilesink post-messages=True location={}".format(str(file_path)),
             ),
         )
     )
@@ -407,9 +396,7 @@ def take_photo(
     # therefore we explicitly check for Gst.Pipeline
     if type(pipeline) is not Gst.Pipeline:
         raise TypeError(
-            "Unexpected return type from parse_launch: Got {}".format(
-                type(pipeline)
-            )
+            "Unexpected return type from parse_launch: Got {}".format(type(pipeline))
         )
 
     head_elem = pipeline.get_by_name(head_elem_name)
@@ -425,9 +412,7 @@ def take_photo(
         )
 
     if not head_elem or not source.link(head_elem):
-        raise RuntimeError(
-            "Could not link source element to {}".format(head_elem)
-        )
+        raise RuntimeError("Could not link source element to {}".format(head_elem))
 
     if delay_seconds == 0:
         intermediate_calls = []
@@ -446,9 +431,7 @@ def take_photo(
 
         intermediate_calls = [(delay_seconds, open_valve)]
         logger.info(
-            "Created photo pipeline with {} second delay. ".format(
-                delay_seconds
-            )
+            "Created photo pipeline with {} second delay. ".format(delay_seconds)
             + '"{} ! {}"'.format(elem_to_str(source), partial)
         )
 

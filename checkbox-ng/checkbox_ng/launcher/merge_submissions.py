@@ -54,9 +54,7 @@ class MergeSubmissions(MergeReports):
 
     def export(self, manager, temp_dir, exporter):
         export_file = temp_dir / "submission.{}".format(exporter)
-        exporter = self._create_exporter(
-            "com.canonical.plainbox::{}".format(exporter)
-        )
+        exporter = self._create_exporter("com.canonical.plainbox::{}".format(exporter))
         with export_file.open("wb+") as f:
             exporter.dump_from_session_manager(manager, f)
 
@@ -66,9 +64,7 @@ class MergeSubmissions(MergeReports):
         self.category_dict = {}
         self.system_information = {}
         for submission in ctx.args.submission:
-            session_title = self._parse_submission(
-                submission, tmpdir, mode="dict"
-            )
+            session_title = self._parse_submission(submission, tmpdir, mode="dict")
         manager = SessionManager.create_with_unit_list(
             list(self.job_dict.values()) + list(self.category_dict.values())
         )

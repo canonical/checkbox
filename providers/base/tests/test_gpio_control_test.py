@@ -59,9 +59,7 @@ class TestGPIOController(unittest.TestCase):
                 gpio_controller.gpio_chip_node
 
     @patch("gpio_control_test.GPIOController.get_gpiochip_mapping")
-    def test_initial_gpio_controller_with_notexist_gpiochip(
-        self, mock_mapping
-    ):
+    def test_initial_gpio_controller_with_notexist_gpiochip(self, mock_mapping):
         mock_mapping.return_value = {"0": "32"}
         with self.assertRaises(KeyError):
             GPIOController("1", "1", "in", True)
@@ -175,9 +173,7 @@ class TestGPIOController(unittest.TestCase):
     @patch("pathlib.Path.write_text")
     @patch("pathlib.Path.read_text")
     @patch("pathlib.Path.exists")
-    def test_write_failed(
-        self, mock_path, mock_read, mock_write, mock_mapping
-    ):
+    def test_write_failed(self, mock_path, mock_read, mock_write, mock_mapping):
         read_value = "33"
         write_value = "22"
 
@@ -193,9 +189,7 @@ class TestGPIOController(unittest.TestCase):
     @patch("pathlib.Path.write_text")
     @patch("pathlib.Path.read_text")
     @patch("pathlib.Path.exists")
-    def test_write_passed(
-        self, mock_path, mock_read, mock_write, mock_mapping
-    ):
+    def test_write_passed(self, mock_path, mock_read, mock_write, mock_mapping):
         read_value = "33"
         write_value = "33"
         mock_path.return_value = True
@@ -337,9 +331,7 @@ class TestMainFunction(unittest.TestCase):
         )
 
     def test_led_resource(self):
-        mock_args = Mock(
-            return_value=argparse.Namespace(mapping="DL14:5:1 DL14:5:2")
-        )
+        mock_args = Mock(return_value=argparse.Namespace(mapping="DL14:5:1 DL14:5:2"))
         with redirect_stdout(StringIO()) as stdout:
             leds_resource(mock_args())
 

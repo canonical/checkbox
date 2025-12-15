@@ -231,6 +231,7 @@ import signal
 import subprocess
 import sys
 import threading
+
 try:
     import posix
 except ImportError:
@@ -267,12 +268,13 @@ class ExternalCommand(object):
         returncode = self.call(*args, **kwargs)
         if returncode != 0:
             raise subprocess.CalledProcessError(
-                returncode, kwargs.get("args") or args[0])
+                returncode, kwargs.get("args") or args[0]
+            )
         return returncode
 
     def _popen(self, *args, **kwargs):
         if posix:
-            kwargs['close_fds'] = True
+            kwargs["close_fds"] = True
         return subprocess.Popen(*args, **kwargs)
 
 
@@ -374,13 +376,11 @@ class SafeDelegate(IDelegate):
 
     def __init__(self, delegate):
         if isinstance(delegate, IDelegate):
-            raise TypeError(
-                "Using SafeDelegate with IDelegate subclass makes no sense")
+            raise TypeError("Using SafeDelegate with IDelegate subclass makes no sense")
         self._delegate = delegate
 
     def __repr__(self):
-        return "<{0} wrapping {1!r}>".format(
-            self.__class__.__name__, self._delegate)
+        return "<{0} wrapping {1!r}>".format(self.__class__.__name__, self._delegate)
 
     def on_begin(self, args, kwargs):
         """
@@ -460,8 +460,12 @@ class ExternalCommandWithDelegate(ExternalCommand):
         Set the delegate helper. Technically it needs to have a 'on_line()'
         method. For actual example code look at :class:`Tee`.
         """
-        _logger.debug("ExternalCommandWithDelegate(%r, killsig=%r, flags=%x)",
-                      delegate, killsig, flags)
+        _logger.debug(
+            "ExternalCommandWithDelegate(%r, killsig=%r, flags=%x)",
+            delegate,
+            killsig,
+            flags,
+        )
         self._queue = Queue()
         self._delegate = SafeDelegate.wrap_if_needed(delegate)
         self._killsig = killsig
@@ -481,8 +485,8 @@ class ExternalCommandWithDelegate(ExternalCommand):
         # Notify that the process is about to start
         self._delegate.on_begin(args, kwargs)
         # Setup stodut/stderr redirection
-        kwargs['stdout'] = subprocess.PIPE
-        kwargs['stderr'] = subprocess.PIPE
+        kwargs["stdout"] = subprocess.PIPE
+        kwargs["stderr"] = subprocess.PIPE
         self.proc = None
         stdout_reader = None
         stderr_reader = None
@@ -492,18 +496,22 @@ class ExternalCommandWithDelegate(ExternalCommand):
             # Start the process
             _logger.debug("starting process %r", (args,))
             self.proc = self._popen(*args, **kwargs)
-            _logger.debug(
-                "Process created: %r (pid: %d)", self.proc, self.proc.pid)
+            _logger.debug("Process created: %r (pid: %d)", self.proc, self.proc.pid)
             # Setup all worker threads. By now the pipes have been created and
             # proc.stdout/proc.stderr point to open pipe objects.
             stdout_reader = threading.Thread(
-                target=self._read_stream, name='stdout_reader',
-                args=(self.proc.stdout, "stdout"))
+                target=self._read_stream,
+                name="stdout_reader",
+                args=(self.proc.stdout, "stdout"),
+            )
             stderr_reader = threading.Thread(
-                target=self._read_stream, name='stderr_reader',
-                args=(self.proc.stderr, "stderr"))
+                target=self._read_stream,
+                name="stderr_reader",
+                args=(self.proc.stderr, "stderr"),
+            )
             queue_worker = threading.Thread(
-                target=self._drain_queue, name='queue_worker')
+                target=self._drain_queue, name="queue_worker"
+            )
             # Start all workers
             _logger.debug("Starting thread: %r", queue_worker)
             queue_worker.start()
@@ -516,8 +524,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
                     # Wait for the process to finish
                     _logger.debug("Waiting for process to exit")
                     return_code = self.proc.wait()
-                    _logger.debug(
-                        "Process did exit with code %d", return_code)
+                    _logger.debug("Process did exit with code %d", return_code)
                     # Break out of the endless loop if it does
                     should_terminate = False
                     break
@@ -589,8 +596,8 @@ class ExternalCommandWithDelegate(ExternalCommand):
             if exc.errno == errno.ESRCH:
                 pass
                 _logger.debug(
-                    "Cannot deliver signal %d, the process gone",
-                    self._killsig)
+                    "Cannot deliver signal %d, the process gone", self._killsig
+                )
             else:
                 raise
 
@@ -643,12 +650,11 @@ class Chain(IDelegate):
         Each delegate is wrapped in :class:`SafeDelegate` if needed
         """
         self.delegate_list = [
-            SafeDelegate.wrap_if_needed(delegate)
-            for delegate in delegate_list]
+            SafeDelegate.wrap_if_needed(delegate) for delegate in delegate_list
+        ]
 
     def __repr__(self):
-        return "<{0} {1!r}>".format(
-            self.__class__.__name__, self.delegate_list)
+        return "<{0} {1!r}>".format(self.__class__.__name__, self.delegate_list)
 
     def on_begin(self, args, kwargs):
         """
@@ -695,8 +701,13 @@ class Redirect(DelegateBase):
     Redirect each line to desired stream.
     """
 
-    def __init__(self, stdout=None, stderr=None, close_stdout_on_end=False,
-                 close_stderr_on_end=False):
+    def __init__(
+        self,
+        stdout=None,
+        stderr=None,
+        close_stdout_on_end=False,
+        close_stderr_on_end=False,
+    ):
         """
         Set ``stdout`` and ``stderr`` streams for writing the output to.  If
         left blank then ``sys.stdout`` and ``sys.stderr`` are used instead.
@@ -708,15 +719,15 @@ class Redirect(DelegateBase):
 
     def __repr__(self):
         return "<{0} stdout:{1!r} stderr:{2!r}>".format(
-            self.__class__.__name__,
-            self._stdout, self._stderr)
+            self.__class__.__name__, self._stdout, self._stderr
+        )
 
     def on_line(self, stream_name, line):
         """
         Write each line, verbatim, to the desired stream.
         """
-        assert stream_name == 'stdout' or stream_name == 'stderr'
-        if stream_name == 'stdout':
+        assert stream_name == "stdout" or stream_name == "stderr"
+        if stream_name == "stdout":
             self._stdout.write(line)
         else:
             self._stderr.write(line)
@@ -725,8 +736,8 @@ class Redirect(DelegateBase):
         """
         Write each chunk, verbatim, to the desired stream.
         """
-        assert stream_name == 'stdout' or stream_name == 'stderr'
-        if stream_name == 'stdout':
+        assert stream_name == "stdout" or stream_name == "stderr"
+        if stream_name == "stdout":
             self._stdout.write(chunk)
         else:
             self._stderr.write(chunk)
@@ -768,7 +779,8 @@ class Transform(DelegateBase):
 
     def __repr__(self):
         return "<{0} callback:{1!r} delegate:{2!r}>".format(
-            self.__class__.__name__, self._callback, self._delegate)
+            self.__class__.__name__, self._callback, self._delegate
+        )
 
     def on_line(self, stream_name, line):
         """
@@ -804,7 +816,7 @@ class Decode(Transform):
     bytes on the outside, as it should be. Especially useful in python 3.
     """
 
-    def __init__(self, delegate, encoding='UTF-8'):
+    def __init__(self, delegate, encoding="UTF-8"):
         """
         Set the callback and subsequent delegate.
         """
@@ -813,7 +825,8 @@ class Decode(Transform):
 
     def __repr__(self):
         return "<{0} encoding:{1!r} delegate:{2!r}>".format(
-            self.__class__.__name__, self._encoding, self._delegate)
+            self.__class__.__name__, self._encoding, self._delegate
+        )
 
     def _decode(self, stream_name, line):
         """
@@ -830,7 +843,7 @@ class Encode(Transform):
     bytes on the outside, as it should be. Especially useful in python 3.
     """
 
-    def __init__(self, delegate, encoding='UTF-8'):
+    def __init__(self, delegate, encoding="UTF-8"):
         """
         Set the callback and subsequent delegate.
         """
@@ -839,7 +852,8 @@ class Encode(Transform):
 
     def __repr__(self):
         return "<{0} encoding:{1!r} delegate:{2!r}>".format(
-            self.__class__.__name__, self._encoding, self._delegate)
+            self.__class__.__name__, self._encoding, self._delegate
+        )
 
     def _encode(self, stream_name, line):
         """

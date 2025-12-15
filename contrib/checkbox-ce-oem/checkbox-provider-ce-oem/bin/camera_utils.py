@@ -35,9 +35,7 @@ PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 GST_LAUNCH_BIN = shutil.which(os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0"))
 MEDIA_CTL_CMD = shutil.which(os.getenv("MEDIA_CTL_CMD", "media-ctl"))
 V4L2_CTL_CMD = shutil.which(os.getenv("V4L2_CTL_CMD", "v4l2-ctl"))
-GST_DISCOVERER = shutil.which(
-    os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
-)
+GST_DISCOVERER = shutil.which(os.getenv("GST_DISCOVERER", "gst-discoverer-1.0"))
 
 logger = logging.getLogger(__name__)
 
@@ -213,9 +211,7 @@ def get_video_node(v4l2_devices: str, v4l2_device_name: str) -> str:
     else:
         logger.error("==== V4L2 Devices ====\n{}".format(v4l2_devices))
         log_and_raise_error(
-            "Fail to get the video device node based on '{}'".format(
-                v4l2_device_name
-            ),
+            "Fail to get the video device node based on '{}'".format(v4l2_device_name),
             CameraConfigurationError,
         )
 
@@ -382,9 +378,7 @@ class VideoMediaNodeResolver:
         media_nodes = self.get_media_nodes(group_name)
         return media_nodes[0] if media_nodes else None
 
-    def get_video_node_by_index(
-        self, group_name: str, index: int
-    ) -> Optional[str]:
+    def get_video_node_by_index(self, group_name: str, index: int) -> Optional[str]:
         """
         Get a specific video node by index for a device group.
 
@@ -473,9 +467,7 @@ class MediaController:
         self._setup_conf = setup_conf
         self._v4l2_devices = v4l2_devices
         self._dev_media_node = ""
-        self._resolver = (
-            VideoMediaNodeResolver(v4l2_devices) if v4l2_devices else None
-        )
+        self._resolver = VideoMediaNodeResolver(v4l2_devices) if v4l2_devices else None
         logger.info("Setup Configuration:\n{}".format(self._setup_conf))
 
     def _get_the_media_dev_node(self):
@@ -498,8 +490,7 @@ class MediaController:
         """
         if not self._resolver:
             self._log_and_raise_error(
-                "VideoMediaNodeResolver not initialized - no V4L2 devices "
-                "provided"
+                "VideoMediaNodeResolver not initialized - no V4L2 devices " "provided"
             )
 
         candidate_node = self._setup_conf["media_node_v4l2_name"]
@@ -509,9 +500,7 @@ class MediaController:
 
         if media_node:
             self._dev_media_node = media_node
-            logger.info(
-                "Found media device node: {}".format(self._dev_media_node)
-            )
+            logger.info("Found media device node: {}".format(self._dev_media_node))
         else:
             # Log available groups for debugging
             available_groups = self._resolver.list_all_group_names()
@@ -601,14 +590,10 @@ class MediaController:
             CameraConfigurationError: If camera configuration is invalid
         """
         required_fields = ["physical_interface", "pads"]
-        missing_fields = [
-            field for field in required_fields if field not in camera
-        ]
+        missing_fields = [field for field in required_fields if field not in camera]
         if missing_fields:
             log_and_raise_error(
-                "Missing required fields in camera config: {}".format(
-                    missing_fields
-                ),
+                "Missing required fields in camera config: {}".format(missing_fields),
                 CameraConfigurationError,
             )
 
@@ -661,9 +646,7 @@ class MediaController:
 
     def dump_the_full_topology(self, media_node: str = "") -> str:
         logger.info("Dump the topology of '{}'".format(media_node))
-        return execute_command(
-            cmd="{} -d {} -p".format(MEDIA_CTL_CMD, media_node)
-        )
+        return execute_command(cmd="{} -d {} -p".format(MEDIA_CTL_CMD, media_node))
 
 
 class CameraScenarios(Enum):
@@ -804,9 +787,7 @@ class CameraResources:
         except json.JSONDecodeError as e:
             logger.error(
                 "Invalid JSON in scenario file '{}': {} "
-                "(line {}, column {})".format(
-                    file_path, e.msg, e.lineno, e.colno
-                )
+                "(line {}, column {})".format(file_path, e.msg, e.lineno, e.colno)
             )
             return {}
         except FileNotFoundError:
@@ -814,15 +795,11 @@ class CameraResources:
             return {}
         except PermissionError:
             logger.error(
-                "Permission denied accessing scenario file: '{}'".format(
-                    file_path
-                )
+                "Permission denied accessing scenario file: '{}'".format(file_path)
             )
             return {}
         except Exception as e:
-            logger.error(
-                "Failed to load scenario file {}: {}".format(file_path, e)
-            )
+            logger.error("Failed to load scenario file {}: {}".format(file_path, e))
             return {}
 
     def main(self) -> bool:
@@ -842,17 +819,13 @@ class CameraResources:
                 self._dump_resources()
             except Exception as e:
                 logger.error(
-                    "Error processing scenario '{}': {}".format(
-                        scenario_name, e
-                    )
+                    "Error processing scenario '{}': {}".format(scenario_name, e)
                 )
                 return False
 
         return True
 
-    def _process_scenario(
-        self, scenario_name: str, scenario_data: list
-    ) -> None:
+    def _process_scenario(self, scenario_name: str, scenario_data: list) -> None:
         """
         Process a single scenario by calling the appropriate handler method.
 
@@ -876,9 +849,7 @@ class CameraResources:
         handler_method = getattr(self, scenario_name, None)
         if handler_method is None:
             raise AttributeError(
-                "No handler method found for scenario '{}'".format(
-                    scenario_name
-                )
+                "No handler method found for scenario '{}'".format(scenario_name)
             )
 
         if not isinstance(scenario_data, list):
@@ -890,26 +861,18 @@ class CameraResources:
 
         handler_method(scenario_data)
 
-    def _validate_scenario_item(
-        self, item: dict, required_fields: list
-    ) -> None:
+    def _validate_scenario_item(self, item: dict, required_fields: list) -> None:
         """
         Validate that a scenario item contains all required fields.
         """
-        missing_fields = [
-            field for field in required_fields if field not in item
-        ]
+        missing_fields = [field for field in required_fields if field not in item]
         if missing_fields:
             log_and_raise_error(
-                "Missing required fields in scenario item: {}".format(
-                    missing_fields
-                ),
+                "Missing required fields in scenario item: {}".format(missing_fields),
                 CameraConfigurationError,
             )
 
-    def _validate_resolution_formats(
-        self, item: dict, scenario_type: str
-    ) -> None:
+    def _validate_resolution_formats(self, item: dict, scenario_type: str) -> None:
         """
         Validate resolution and format configurations for a scenario item.
 
@@ -938,9 +901,7 @@ class CameraResources:
 
         # Validate each resolution
         for i, res in enumerate(item["resolutions"]):
-            self._validate_single_resolution(
-                res, i, camera_name, scenario_type
-            )
+            self._validate_single_resolution(res, i, camera_name, scenario_type)
 
         # Validate each format
         for i, fmt in enumerate(item["formats"]):
@@ -976,9 +937,7 @@ class CameraResources:
 
         # Check required fields
         required_fields = ["width", "height"]
-        missing_fields = [
-            field for field in required_fields if field not in resolution
-        ]
+        missing_fields = [field for field in required_fields if field not in resolution]
         if missing_fields:
             log_and_raise_error(
                 "Resolution {} for camera '{}' missing fields: {}".format(
@@ -988,12 +947,8 @@ class CameraResources:
             )
 
         # Validate width and height
-        self._validate_dimension(
-            resolution["width"], "width", index, camera_name
-        )
-        self._validate_dimension(
-            resolution["height"], "height", index, camera_name
-        )
+        self._validate_dimension(resolution["width"], "width", index, camera_name)
+        self._validate_dimension(resolution["height"], "height", index, camera_name)
 
         # Validate fps for video scenarios
         if scenario_type == "record_video":
@@ -1003,9 +958,7 @@ class CameraResources:
                     "{} of camera '{}'".format(index, camera_name),
                     CameraConfigurationError,
                 )
-            self._validate_dimension(
-                resolution["fps"], "fps", index, camera_name
-            )
+            self._validate_dimension(resolution["fps"], "fps", index, camera_name)
 
     def _validate_single_format(
         self, format_str: str, index: int, camera_name: str
@@ -1052,9 +1005,7 @@ class CameraResources:
                 CameraConfigurationError,
             )
 
-    def _process_scenario_items(
-        self, scenarios: list, scenario_type: str
-    ) -> None:
+    def _process_scenario_items(self, scenarios: list, scenario_type: str) -> None:
         """
         Process scenario items and generate resources.
 
@@ -1099,26 +1050,20 @@ class CameraResources:
                     self._resource_items.append(resource_item)
 
             except Exception as e:
-                logger.error(
-                    "Error processing {} item: {}".format(scenario_type, e)
-                )
+                logger.error("Error processing {} item: {}".format(scenario_type, e))
                 continue
 
     def capture_image(self, scenarios: list) -> None:
         """
         Handle and generate the resource of the capture_image scenario
         """
-        self._process_scenario_items(
-            scenarios, CameraScenarios.CAPTURE_IMAGE.value
-        )
+        self._process_scenario_items(scenarios, CameraScenarios.CAPTURE_IMAGE.value)
 
     def record_video(self, scenarios: list) -> None:
         """
         Handle and generate the resource of the record_video scenario
         """
-        self._process_scenario_items(
-            scenarios, CameraScenarios.RECORD_VIDEO.value
-        )
+        self._process_scenario_items(scenarios, CameraScenarios.RECORD_VIDEO.value)
 
     def _dump_resources(self) -> None:
         """

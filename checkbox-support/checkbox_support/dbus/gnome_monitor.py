@@ -123,9 +123,7 @@ class PhysicalMonitor(_PhysicalMonitorT):
         # not going to do extensive checks here
         # since get_current_state already checked
         assert len(v) == 3
-        return cls(
-            MonitorInfo(*v[0]), [MutterDisplayMode(*raw) for raw in v[1]], v[2]
-        )
+        return cls(MonitorInfo(*v[0]), [MutterDisplayMode(*raw) for raw in v[1]], v[2])
 
     @property
     def is_builtin(self) -> bool:
@@ -304,9 +302,7 @@ class MonitorConfigGnome(MonitorConfig):
         for physical_monitor in state.physical_monitors:
             try:
                 target_mode = next(
-                    mode
-                    for mode in physical_monitor.modes
-                    if mode.is_preferred
+                    mode for mode in physical_monitor.modes if mode.is_preferred
                 )
             except StopIteration:
                 target_mode = self._get_mode_at_max(physical_monitor.modes)
@@ -329,9 +325,7 @@ class MonitorConfigGnome(MonitorConfig):
                 )
             )
             position_x += int(target_mode.width)
-            configuration[physical_monitor.info.connector] = (
-                target_mode.resolution
-            )
+            configuration[physical_monitor.info.connector] = target_mode.resolution
 
         self._apply_monitors_config(state.serial, extended_logical_monitors)
         return configuration
@@ -479,8 +473,7 @@ class MonitorConfigGnome(MonitorConfig):
 
         if not raw.get_type().equal(self.CONFIG_VARIANT_TYPE):
             raise TypeError(
-                "DBus GetCurrentState returned unexpected type: "
-                + str(raw.get_type())
+                "DBus GetCurrentState returned unexpected type: " + str(raw.get_type())
             )
 
         return MutterDisplayConfig.from_variant(raw)

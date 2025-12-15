@@ -55,9 +55,7 @@ class ThermalMonitor:
             try:
                 return node.read_text().strip("\n")
             except Exception as e:
-                raise SystemExit(
-                    "Failed to read node: {}\n{}".format(str(node), e)
-                )
+                raise SystemExit("Failed to read node: {}\n{}".format(str(node), e))
         else:
             raise FileNotFoundError("{} file not exists".format(str(node)))
 
@@ -122,9 +120,7 @@ def thermal_monitor_test(args):
         cur_temp = thermal_op.temperature
         result = check_temperature(cur_temp, initial_value)
         if result:
-            logging.info(
-                "# The temperature of %s thermal has been altered", args.name
-            )
+            logging.info("# The temperature of %s thermal has been altered", args.name)
             break
         time.sleep(1)
     if proc and proc.poll() is None:
@@ -144,11 +140,7 @@ def dump_thermal_zones(args):
 
     for thermal in sorted(Path("/sys/class/thermal").glob("thermal_zone*")):
         node = ThermalMonitor(thermal.name)
-        print(
-            "name: {}\nmode: {}\ntype: {}\n".format(
-                node.name, node.mode, node.type
-            )
-        )
+        print("name: {}\nmode: {}\ntype: {}\n".format(node.name, node.mode, node.type))
 
 
 def register_arguments():

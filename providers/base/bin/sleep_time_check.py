@@ -61,12 +61,7 @@ def main():
                 sleep_time = float(line.split(":")[1].strip())
                 sleep_times.append(sleep_time)
             except ValueError as e:
-                print(
-                    (
-                        "ERROR: One or more sleep times was not reported "
-                        "correctly:"
-                    )
-                )
+                print(("ERROR: One or more sleep times was not reported " "correctly:"))
                 print(e)
                 failed = 1
         elif "Average time to resume" in line:
@@ -76,10 +71,7 @@ def main():
                 resume_times.append(resume_time)
             except ValueError as e:
                 print(
-                    (
-                        "ERROR: One or more resume times was not reported "
-                        "correctly:"
-                    )
+                    ("ERROR: One or more resume times was not reported " "correctly:")
                 )
                 print(e)
                 failed = 1
@@ -87,10 +79,7 @@ def main():
     print()
     if sleep_times:
         print("=================================================")
-        print(
-            "Average time to enter sleep state: %.4f seconds"
-            % mean(sleep_times)
-        )
+        print("Average time to enter sleep state: %.4f seconds" % mean(sleep_times))
         if max(sleep_times) > args.sleep_threshold:
             print(
                 "System failed to suspend in less than %s seconds"
@@ -104,8 +93,7 @@ def main():
     if resume_times:
         print("=================================================")
         print(
-            "Average time to resume from sleep state: %.4f seconds"
-            % mean(resume_times)
+            "Average time to resume from sleep state: %.4f seconds" % mean(resume_times)
         )
         if max(resume_times) > args.resume_threshold:
             print(

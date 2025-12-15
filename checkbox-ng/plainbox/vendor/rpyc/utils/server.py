@@ -1,6 +1,7 @@
 """
 rpyc plug-in server (threaded or forking)
 """
+
 import sys
 import os
 import socket
@@ -9,6 +10,7 @@ import threading  # noqa: F401
 import errno
 import logging
 from contextlib import closing
+
 try:
     import Queue
 except ImportError:
@@ -18,6 +20,7 @@ from plainbox.vendor.rpyc.utils.registry import UDPRegistryClient
 from plainbox.vendor.rpyc.utils.authenticators import AuthenticationError
 from plainbox.vendor.rpyc.lib import safe_import, spawn, spawn_waitready
 from plainbox.vendor.rpyc.lib.compat import poll, get_exc_errno
+
 signal = safe_import("signal")
 gevent = safe_import("gevent")
 
@@ -47,10 +50,22 @@ class Server(object):
                              on embedded platforms with limited battery)
     """
 
-    def __init__(self, service, hostname=None, ipv6=False, port=0,
-                 backlog=socket.SOMAXCONN, reuse_addr=True, authenticator=None, registrar=None,
-                 auto_register=None, protocol_config=None, logger=None, listener_timeout=0.5,
-                 socket_path=None):
+    def __init__(
+        self,
+        service,
+        hostname=None,
+        ipv6=False,
+        port=0,
+        backlog=socket.SOMAXCONN,
+        reuse_addr=True,
+        authenticator=None,
+        registrar=None,
+        auto_register=None,
+        protocol_config=None,
+        logger=None,
+        listener_timeout=0.5,
+        socket_path=None,
+    ):
         self.active = False
         self._closed = False
         self.service = service
@@ -69,7 +84,9 @@ class Server(object):
 
         if socket_path is not None:
             if hostname is not None or port != 0 or ipv6 is not False:
-                raise ValueError("socket_path is mutually exclusive with: hostname, port, ipv6")
+                raise ValueError(
+                    "socket_path is mutually exclusive with: hostname, port, ipv6"
+                )
             self.listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             self.listener.bind(socket_path)
             # set the self.port to the path as it's used for the registry and logging
@@ -80,8 +97,14 @@ class Server(object):
             else:
                 family = socket.AF_INET
             self.listener = socket.socket(family, socket.SOCK_STREAM)
-            address = socket.getaddrinfo(hostname, port, family=family, type=socket.SOCK_STREAM,
-                                         proto=socket.IPPROTO_TCP, flags=socket.AI_PASSIVE)[0][-1]
+            address = socket.getaddrinfo(
+                hostname,
+                port,
+                family=family,
+                type=socket.SOCK_STREAM,
+                proto=socket.IPPROTO_TCP,
+                flags=socket.AI_PASSIVE,
+            )[0][-1]
 
             if reuse_addr and sys.platform != "win32":
                 # warning: reuseaddr is not what you'd expect on windows!
@@ -96,7 +119,9 @@ class Server(object):
             self.host, self.port = sockname[0], sockname[1]
 
         if logger is None:
-            logger = logging.getLogger("{}/{}".format(self.service.get_service_name(), self.port))
+            logger = logging.getLogger(
+                "{}/{}".format(self.service.get_service_name(), self.port)
+            )
         self.logger = logger
         if "logger" not in self.protocol_config:
             self.protocol_config["logger"] = self.logger
@@ -172,7 +197,11 @@ class Server(object):
                 try:
                     sock2, credentials = self.authenticator(sock)
                 except AuthenticationError:
-                    self.logger.info("{} failed to authenticate... rejecting connection".format(addrinfo))
+                    self.logger.info(
+                        "{} failed to authenticate... rejecting connection".format(
+                            addrinfo
+                        )
+                    )
                     return
                 else:
                     self.logger.info("{} authenticated successfully".format(addrinfo))
@@ -199,8 +228,12 @@ class Server(object):
         else:
             self.logger.info("welcome {}".format(addrinfo))
         try:
-            config = dict(self.protocol_config, credentials=credentials,
-                          endpoints=(sock.getsockname(), addrinfo), logger=self.logger)
+            config = dict(
+                self.protocol_config,
+                credentials=credentials,
+                endpoints=(sock.getsockname(), addrinfo),
+                logger=self.logger,
+            )
             conn = self.service._connect(Channel(SocketStream(sock)), config)
             self._handle_connection(conn)
         finally:
@@ -212,8 +245,10 @@ class Server(object):
 
     def _bg_register(self):
         interval = self.registrar.REREGISTER_INTERVAL
-        self.logger.info("started background auto-register thread "
-                         "(interval = {})".format(interval))
+        self.logger.info(
+            "started background auto-register thread "
+            "(interval = {})".format(interval)
+        )
         tnext = 0
         try:
             while self.active:
@@ -222,7 +257,9 @@ class Server(object):
                     did_register = False
                     aliases = self.service.get_service_aliases()
                     try:
-                        did_register = self.registrar.register(aliases, self.port, interface=self.host)
+                        did_register = self.registrar.register(
+                            aliases, self.port, interface=self.host
+                        )
                     except Exception:
                         self.logger.exception("error registering services")
 
@@ -321,10 +358,10 @@ class ThreadPoolServer(Server):
     """
 
     def __init__(self, *args, **kwargs):
-        '''Initializes a ThreadPoolServer. In particular, instantiate the thread pool.'''
+        """Initializes a ThreadPoolServer. In particular, instantiate the thread pool."""
         # get the number of threads in the pool
-        self.nbthreads = kwargs.pop('nbThreads', 20)
-        self.request_batch_size = kwargs.pop('requestBatchSize', 10)
+        self.nbthreads = kwargs.pop("nbThreads", 20)
+        self.request_batch_size = kwargs.pop("requestBatchSize", 10)
         # init the parent
         Server.__init__(self, *args, **kwargs)
         # a queue of connections having something to process
@@ -346,10 +383,10 @@ class ThreadPoolServer(Server):
             self.workers.append(t)
         # setup a thread for polling inactive connections
         self.polling_thread = spawn(self._poll_inactive_clients)
-        self.polling_thread.setName('PollingThread')
+        self.polling_thread.setName("PollingThread")
 
     def close(self):
-        '''closes a ThreadPoolServer. In particular, joins the thread pool.'''
+        """closes a ThreadPoolServer. In particular, joins the thread pool."""
         # close parent server
         Server.close(self)
         # stop producer thread
@@ -362,7 +399,7 @@ class ThreadPoolServer(Server):
             w.join()
 
     def _remove_from_inactive_connection(self, fd):
-        '''removes a connection from the set of inactive ones'''
+        """removes a connection from the set of inactive ones"""
         # unregister the connection in the polling object
         try:
             self.poll_object.unregister(fd)
@@ -371,7 +408,7 @@ class ThreadPoolServer(Server):
             pass
 
     def _drop_connection(self, fd):
-        '''removes a connection by closing it and removing it from internal structs'''
+        """removes a connection by closing it and removing it from internal structs"""
         conn = None
 
         # cleanup fd_to_conn dictionnary
@@ -388,11 +425,11 @@ class ThreadPoolServer(Server):
             conn.close()
 
     def _add_inactive_connection(self, fd):
-        '''adds a connection to the set of inactive ones'''
+        """adds a connection to the set of inactive ones"""
         self.poll_object.register(fd, "reh")
 
     def _handle_poll_result(self, connlist):
-        '''adds a connection to the set of inactive ones'''
+        """adds a connection to the set of inactive ones"""
         for fd, evt in connlist:
             try:
                 # remove connection from the inactive ones
@@ -409,8 +446,8 @@ class ThreadPoolServer(Server):
                 pass
 
     def _poll_inactive_clients(self):
-        '''Main method run by the polling thread of the thread pool.
-        Check whether inactive clients have become active'''
+        """Main method run by the polling thread of the thread pool.
+        Check whether inactive clients have become active"""
         while self.active:
             try:
                 # the actual poll, with a timeout of 0.1s so that we can exit in case
@@ -421,12 +458,14 @@ class ThreadPoolServer(Server):
             except Exception:
                 ex = sys.exc_info()[1]
                 # "Caught exception in Worker thread" message
-                self.logger.warning("Failed to poll clients, caught exception : {}".format(ex))
+                self.logger.warning(
+                    "Failed to poll clients, caught exception : {}".format(ex)
+                )
                 # wait a bit so that we do not loop too fast in case of error
                 time.sleep(0.2)
 
     def _serve_requests(self, fd):
-        '''Serves requests from the given connection and puts it back to the appropriate queue'''
+        """Serves requests from the given connection and puts it back to the appropriate queue"""
         # serve a maximum of RequestBatchSize requests for this connection
         for _ in range(self.request_batch_size):
             try:
@@ -446,8 +485,9 @@ class ThreadPoolServer(Server):
         self._active_connection_queue.put(fd)
 
     def _serve_clients(self):
-        '''Main method run by the processing threads of the thread pool.
-        Loops forever, handling requests read from the connections present in the active_queue'''
+        """Main method run by the processing threads of the thread pool.
+        Loops forever, handling requests read from the connections present in the active_queue
+        """
         while self.active:
             try:
                 # note that we do not use a timeout here. This is because the implementation of
@@ -469,9 +509,9 @@ class ThreadPoolServer(Server):
                 time.sleep(0.2)
 
     def _authenticate_and_build_connection(self, sock):
-        '''Authenticate a client and if it succeeds, wraps the socket in a connection object.
+        """Authenticate a client and if it succeeds, wraps the socket in a connection object.
         Note that this code is cut and paste from the rpyc internals and may have to be
-        changed if rpyc evolves'''
+        changed if rpyc evolves"""
         # authenticate
         if self.authenticator:
             sock, credentials = self.authenticator(sock)
@@ -479,13 +519,17 @@ class ThreadPoolServer(Server):
             credentials = None
         # build a connection
         addrinfo = sock.getpeername()
-        config = dict(self.protocol_config, credentials=credentials, connid="{}".format(addrinfo),
-                      endpoints=(sock.getsockname(), addrinfo))
+        config = dict(
+            self.protocol_config,
+            credentials=credentials,
+            connid="{}".format(addrinfo),
+            endpoints=(sock.getsockname(), addrinfo),
+        )
         return sock, self.service._connect(Channel(SocketStream(sock)), config)
 
     def _accept_method(self, sock):
-        '''Implementation of the accept method : only pushes the work to the internal queue.
-        In case the queue is full, raises an AsynResultTimeout error'''
+        """Implementation of the accept method : only pushes the work to the internal queue.
+        In case the queue is full, raises an AsynResultTimeout error"""
         try:
             addrinfo = None
             # authenticate and build connection object
@@ -560,7 +604,6 @@ class ForkingServer(Server):
 
 
 class GeventServer(Server):
-
     """gevent based Server. Requires using ``gevent.monkey.patch_all()``."""
 
     def _register(self):

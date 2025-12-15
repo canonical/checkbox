@@ -79,9 +79,7 @@ class ResourceJobCache:
         job_checksum = os.path.basename(job_cache_path)
         logger.debug(_("Loading cache entry %s"), job_checksum)
         try:
-            with open(
-                os.path.join(job_cache_path, "result.json"), "rb"
-            ) as result_file:
+            with open(os.path.join(job_cache_path, "result.json"), "rb") as result_file:
                 data = result_file.read()
                 cache_entry = json.loads(data.decode("UTF-8"))
                 if not os.path.exists(cache_entry["io_log_filename"]):
@@ -98,18 +96,14 @@ class ResourceJobCache:
     def _get_cache_path(self):
         suc = os.environ.get("SNAP_USER_COMMON")
         if suc:
-            return os.path.join(
-                suc, ".cache", "plainbox", "resource_job_cache"
-            )
+            return os.path.join(suc, ".cache", "plainbox", "resource_job_cache")
         xdg_cache_home = os.environ.get("XDG_CACHE_HOME")
         if not xdg_cache_home:
             xdg_cache_home = os.path.join(os.path.expanduser("~"), ".cache")
         return os.path.join(xdg_cache_home, "plainbox", "resource_job_cache")
 
     def _store(self, job_checksum, result):
-        logger.info(
-            _("Caching job result for job with checksum %s"), job_checksum
-        )
+        logger.info(_("Caching job result for job with checksum %s"), job_checksum)
         job_cache_path = os.path.join(self._get_cache_path(), job_checksum)
         if os.path.exists(job_cache_path):
             # this can happen if the loading failed, so let's clear the path
@@ -135,9 +129,7 @@ class ResourceJobCache:
             indent=None,
             separators=(",", ":"),
         ).encode("UTF-8")
-        with open(
-            os.path.join(job_cache_path, "result.json"), "wb"
-        ) as result_file:
+        with open(os.path.join(job_cache_path, "result.json"), "wb") as result_file:
             result_file.write(data)
         logger.debug(
             _("Wrote %s to %s"),

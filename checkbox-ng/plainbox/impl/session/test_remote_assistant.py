@@ -40,9 +40,7 @@ from plainbox.impl.session.assistant import SessionAssistant
 class RemoteAssistantTests(TestCase):
     @mock.patch("pwd.getpwnam")
     @mock.patch("psutil.process_iter")
-    def test_prepare_extra_env_priority(
-        self, process_iter_mock, getpwnam_mock
-    ):
+    def test_prepare_extra_env_priority(self, process_iter_mock, getpwnam_mock):
         self_mock = mock.MagicMock()
         self_mock._normal_user = "ubuntu"
 
@@ -163,9 +161,7 @@ class RemoteAssistantTests(TestCase):
         rsa.start_session = partial(RemoteSessionAssistant.start_session, rsa)
         with mock.patch("plainbox.impl.config.Configuration.from_text") as cm:
             cm.return_value = Configuration()
-            tps = RemoteSessionAssistant.start_session_json(
-                rsa, json.dumps(extra_cfg)
-            )
+            tps = RemoteSessionAssistant.start_session_json(rsa, json.dumps(extra_cfg))
             tps = json.loads(tps)
             self.assertEqual(tps[0][0][1], "tp")
 
@@ -270,9 +266,7 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
     @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
-    def test_resume_by_id_with_result_file_garbage_outcome(
-        self, mock_load_configs
-    ):
+    def test_resume_by_id_with_result_file_garbage_outcome(self, mock_load_configs):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
         resumable_session.id = "session_id"
@@ -611,9 +605,7 @@ class RemoteAssistantTests(TestCase):
         chosen_jobs_list = ["job1", "job2", "job3"]
         chosen_jobs_json = json.dumps(chosen_jobs_list)
 
-        RemoteSessionAssistant.modify_todo_list_json(
-            self_mock, chosen_jobs_json
-        )
+        RemoteSessionAssistant.modify_todo_list_json(self_mock, chosen_jobs_json)
 
         self.assertTrue(self_mock._sa.use_alternate_selection.called)
 

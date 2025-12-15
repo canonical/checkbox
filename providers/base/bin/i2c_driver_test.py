@@ -24,9 +24,7 @@ class Bus:
     def invoked(self, args):
         """Method called when the command is invoked."""
         # Detect I2C buses and calculate number of them
-        result = subprocess.check_output(
-            ["i2cdetect", "-l"], universal_newlines=True
-        )
+        result = subprocess.check_output(["i2cdetect", "-l"], universal_newlines=True)
         print(result)
         bus_number = len(result.splitlines())
         print("Detected bus number: {}".format(bus_number))
@@ -42,8 +40,7 @@ class Bus:
                     print("Test passed")
                 else:
                     raise SystemExit(
-                        "Test failed, expecting {} I2C "
-                        "buses.".format(args.bus)
+                        "Test failed, expecting {} I2C " "buses.".format(args.bus)
                     )
 
 
@@ -55,9 +52,7 @@ class Device:
         if os.geteuid() != 0:
             raise SystemExit("Error: please run this command as root")
         # Calculate number of buses
-        result = subprocess.check_output(
-            ["i2cdetect", "-l"], universal_newlines=True
-        )
+        result = subprocess.check_output(["i2cdetect", "-l"], universal_newlines=True)
         detected_i2c_bus = []
         for line in result.splitlines():
             fields = line.split("\t")
@@ -81,9 +76,7 @@ class Device:
         exit_code = 1
         for bus_id, bus_name in detected_i2c_bus:
             if bus_name in ignored_i2c_buses:
-                print(
-                    "Ignoring bus id: {}, name: {}\n".format(bus_id, bus_name)
-                )
+                print("Ignoring bus id: {}, name: {}\n".format(bus_id, bus_name))
                 continue
 
             print("Checking I2C bus id: {}, name: {}".format(bus_id, bus_name))

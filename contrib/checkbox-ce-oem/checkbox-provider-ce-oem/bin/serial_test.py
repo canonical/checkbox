@@ -105,18 +105,10 @@ class Serial:
             handle different rts_level.
             """
             ser.rs485_mode = serial.rs485.RS485Settings(
-                rts_level_for_tx=self.rs485_settings[node].get(
-                    "rts_level_for_tx"
-                ),
-                rts_level_for_rx=self.rs485_settings[node].get(
-                    "rts_level_for_rx"
-                ),
-                delay_before_tx=self.rs485_settings[node].get(
-                    "delay_before_tx"
-                ),
-                delay_before_rx=self.rs485_settings[node].get(
-                    "delay_before_rx"
-                ),
+                rts_level_for_tx=self.rs485_settings[node].get("rts_level_for_tx"),
+                rts_level_for_rx=self.rs485_settings[node].get("rts_level_for_rx"),
+                delay_before_tx=self.rs485_settings[node].get("delay_before_tx"),
+                delay_before_rx=self.rs485_settings[node].get("delay_before_rx"),
             )
             logging.info(
                 "Init port %s with RS485 config "
@@ -148,9 +140,7 @@ class Serial:
             if rcv:
                 logging.debug("Received: {}".format(rcv.decode()))
         except Exception:
-            logging.exception(
-                "Received unmanageable string format {}".format(rcv)
-            )
+            logging.exception("Received unmanageable string format {}".format(rcv))
             return None
         return rcv
 
@@ -161,9 +151,7 @@ def generate_random_string(length):
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def parse_rs485_config(
-    target_node: str, rs485_conf: str = "", group: list = []
-):
+def parse_rs485_config(target_node: str, rs485_conf: str = "", group: list = []):
     rs485_conf_lists = {}
     """
     Parse RS485 config,
@@ -491,9 +479,7 @@ def main():
 
     _logger = init_logger()
     if args.type == "RS485":
-        rs485_settings = parse_rs485_config(
-            args.node, args.rs485_config, args.group
-        )
+        rs485_settings = parse_rs485_config(args.node, args.rs485_config, args.group)
     else:
         rs485_settings = None
 

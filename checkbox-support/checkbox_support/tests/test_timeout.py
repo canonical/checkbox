@@ -98,9 +98,7 @@ class TestTimeoutExec(TestCase):
 
     def test_function_args_kwargs_support(self):
         self.assertEqual(
-            run_with_timeout(
-                kwargs_args_support, 1, "first", "second", third="third"
-            ),
+            run_with_timeout(kwargs_args_support, 1, "first", "second", third="third"),
             ("first", "second", "third"),
         )
 
@@ -208,9 +206,7 @@ class TestTimeoutExec(TestCase):
 
     @patch("checkbox_support.helpers.timeout.Queue")
     @patch("checkbox_support.helpers.timeout.Process")
-    def test_run_with_timeout_system_exit_no_get(
-        self, process_mock, queue_mock
-    ):
+    def test_run_with_timeout_system_exit_no_get(self, process_mock, queue_mock):
         process_mock().is_alive.return_value = False
         queue_mock().get_nowait.side_effect = Empty()
         queue_mock().get.side_effect = Empty()
@@ -227,9 +223,7 @@ class TestTimeoutExec(TestCase):
     @patch("subprocess.run")
     def test_kill_tree_fallback(self, run_mock, check_call_mock, which_mock):
         which_mock.return_value = None
-        check_call_mock.side_effect = subprocess.CalledProcessError(
-            1, "Some cmd"
-        )
+        check_call_mock.side_effect = subprocess.CalledProcessError(1, "Some cmd")
 
         kill_tree(123)
         # kill_tree tried to search for known consoles

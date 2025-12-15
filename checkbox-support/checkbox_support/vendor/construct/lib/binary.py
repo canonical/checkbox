@@ -82,13 +82,15 @@ def bytes2integer(data, signed=False):
         number = (number << 8) | b
 
     if signed and byte2int(bytes2bits(data[0:1])[0:1]):
-        bias = 1 << len(data)*8
+        bias = 1 << len(data) * 8
         return number - bias
     else:
         return number
 
 
-BYTES2BITS_CACHE = {i:integer2bits(i,8) for i in range(256)}
+BYTES2BITS_CACHE = {i: integer2bits(i, 8) for i in range(256)}
+
+
 def bytes2bits(data):
     r"""
     Converts between bit and byte representations in b-strings.
@@ -101,7 +103,9 @@ def bytes2bits(data):
     return b"".join(BYTES2BITS_CACHE[b] for b in iterateints(data))
 
 
-BITS2BYTES_CACHE = {bytes2bits(int2byte(i)):int2byte(i) for i in range(256)}
+BITS2BYTES_CACHE = {bytes2bits(int2byte(i)): int2byte(i) for i in range(256)}
+
+
 def bits2bytes(data):
     r"""
     Converts between bit and byte representations in b-strings.
@@ -113,7 +117,7 @@ def bits2bytes(data):
     """
     if len(data) & 7:
         raise ValueError("data length must be a multiple of 8")
-    return b"".join(BITS2BYTES_CACHE[data[i:i+8]] for i in range(0,len(data),8))
+    return b"".join(BITS2BYTES_CACHE[data[i : i + 8]] for i in range(0, len(data), 8))
 
 
 def swapbytes(data):
@@ -139,10 +143,14 @@ def swapbytesinbits(data):
     """
     if len(data) & 7:
         raise ValueError("data length must be multiple of 8")
-    return b"".join(data[i:i+8] for i in reversed(range(0,len(data),8)))
+    return b"".join(data[i : i + 8] for i in reversed(range(0, len(data), 8)))
 
 
-SWAPBITSINBYTES_CACHE = {i:bits2bytes(bytes2bits(int2byte(i))[::-1]) for i in range(256)}
+SWAPBITSINBYTES_CACHE = {
+    i: bits2bytes(bytes2bits(int2byte(i))[::-1]) for i in range(256)
+}
+
+
 def swapbitsinbytes(data):
     r"""
     Performs a bit-reversal within a byte-string.

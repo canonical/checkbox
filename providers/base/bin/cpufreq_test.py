@@ -88,30 +88,20 @@ class CpuFreqTest:
         self.freq_chainmap = collections.ChainMap()
         # cpufreq driver
         path_scaling_driver = path.join("cpu0", "cpufreq", "scaling_driver")
-        self.scaling_driver = self._read_sysfs(path_scaling_driver).rstrip(
-            "\n"
-        )
+        self.scaling_driver = self._read_sysfs(path_scaling_driver).rstrip("\n")
         path_scaling_gvrnrs = path.join(
             "cpu0", "cpufreq", "scaling_available_governors"
         )
-        path_startup_governor = path.join(
-            "cpu0", "cpufreq", "scaling_governor"
-        )
-        self.scaling_gvrnrs = (
-            self._read_sysfs(path_scaling_gvrnrs).rstrip("\n").split()
-        )
-        self.startup_governor = self._read_sysfs(path_startup_governor).rstrip(
-            "\n"
-        )
+        path_startup_governor = path.join("cpu0", "cpufreq", "scaling_governor")
+        self.scaling_gvrnrs = self._read_sysfs(path_scaling_gvrnrs).rstrip("\n").split()
+        self.startup_governor = self._read_sysfs(path_startup_governor).rstrip("\n")
 
         # ensure the correct freq table is populated
         if any(drvr in self.scaling_driver for drvr in self.driver_types):
             path_scaling_freqs = path.join(
                 "cpu0", "cpufreq", "scaling_available_frequencies"
             )
-            scaling_freqs = (
-                self._read_sysfs(path_scaling_freqs).rstrip("\n").split()
-            )
+            scaling_freqs = self._read_sysfs(path_scaling_freqs).rstrip("\n").split()
             self.scaling_freqs = list(map(int, scaling_freqs))
             # test freqs in ascending order
             self.scaling_freqs.sort()
@@ -194,11 +184,7 @@ class CpuFreqTest:
             if _inner_val:
                 # calc freq_median/freq_target %
                 result_pct = int((_inner_val / _inner_key) * 100)
-                if (
-                    CpuFreqTest.min_freq_pct
-                    <= result_pct
-                    <= (CpuFreqTest.max_freq_pct)
-                ):
+                if CpuFreqTest.min_freq_pct <= result_pct <= (CpuFreqTest.max_freq_pct):
                     # append result pass/fail
                     new_inner_val = [str(result_pct) + "%", "Pass"]
                 else:
@@ -232,9 +218,7 @@ class CpuFreqTest:
             thread_siblings = []
             online_cores = self._get_cores("online")
             for _core in online_cores:
-                _fpath = path.join(
-                    "cpu%i" % _core, "topology", "thread_siblings_list"
-                )
+                _fpath = path.join("cpu%i" % _core, "topology", "thread_siblings_list")
                 # second core is sibling
                 thread_siblings += self._get_cores(_fpath)[1:]
 
@@ -278,9 +262,7 @@ class CpuFreqTest:
             logging.info("* resetting intel p_state cpufreq driver")
             # wait 300ms between setting driver modes
             time.sleep(0.3)
-            logging.info(
-                "  - setting driver mode: %s", self.startup_ipst_status
-            )
+            logging.info("  - setting driver mode: %s", self.startup_ipst_status)
             self._write_sysfs(self.path_ipst_status, self.startup_ipst_status)
 
         def enable_off_cores():
@@ -304,12 +286,8 @@ class CpuFreqTest:
             logging.info("* restoring max, min freq files")
             present_cores = self._get_cores("present")
             for core in present_cores:
-                path_max = path.join(
-                    "cpu%i" % core, "cpufreq", "scaling_max_freq"
-                )
-                path_min = path.join(
-                    "cpu%i" % core, "cpufreq", "scaling_min_freq"
-                )
+                path_max = path.join("cpu%i" % core, "cpufreq", "scaling_max_freq")
+                path_min = path.join("cpu%i" % core, "cpufreq", "scaling_min_freq")
                 # reset max freq
                 self._write_sysfs(path_max, self.startup_max_freq)
                 # reset min freq
@@ -348,15 +326,11 @@ class CpuFreqTest:
             time.sleep(0.3)
             # prefer the intel_cpufreq driver (passive mode)
             self._write_sysfs(self.path_ipst_status, "passive")
-            cur_ipst_status = self._read_sysfs(self.path_ipst_status).rstrip(
-                "\n"
-            )
+            cur_ipst_status = self._read_sysfs(self.path_ipst_status).rstrip("\n")
             logging.info("  - driver mode: %s", cur_ipst_status)
 
         logging.info(
-            "---------------------\n"
-            "| CpuFreqTest Begin |\n"
-            "---------------------"
+            "---------------------\n" "| CpuFreqTest Begin |\n" "---------------------"
         )
         start_time = time.time()
         # disable hyperthreading
@@ -595,9 +569,7 @@ class CpuFreqCoreTest(CpuFreqTest):
 
         def get_cur_freq():
             """Get current frequency."""
-            fpath = path.join(
-                self.__instance_cpu, "cpufreq", "scaling_cur_freq"
-            )
+            fpath = path.join(self.__instance_cpu, "cpufreq", "scaling_cur_freq")
             freqs = self.__read_sysfs(fpath).rstrip("\n").split()[0]
             return int(freqs)
 
@@ -617,9 +589,7 @@ class CpuFreqCoreTest(CpuFreqTest):
                 freq_median = sorted(obs_freqs)[c_index]
             # even number of samples
             else:
-                freq_median = (
-                    sum(sorted(obs_freqs)[(c_index - 1) : (c_index + 1)]) / 2
-                )
+                freq_median = sum(sorted(obs_freqs)[(c_index - 1) : (c_index + 1)]) / 2
             return freq_median
 
         def map_observed_freqs(target_freq):
@@ -679,14 +649,10 @@ class CpuFreqCoreTest(CpuFreqTest):
 
         # cpufreq class driver (non-intel) supports full freq table scaling
         if any(drvr in self.scaling_driver for drvr in self.driver_types):
-            fpath = path.join(
-                self.__instance_cpu, "cpufreq", "scaling_setspeed"
-            )
+            fpath = path.join(self.__instance_cpu, "cpufreq", "scaling_setspeed")
         # others support max, min freq scaling
         else:
-            fpath = path.join(
-                self.__instance_cpu, "cpufreq", "scaling_max_freq"
-            )
+            fpath = path.join(self.__instance_cpu, "cpufreq", "scaling_max_freq")
 
         # iterate over supported frequency scaling table
         for idx, freq in enumerate(self.scaling_freqs):

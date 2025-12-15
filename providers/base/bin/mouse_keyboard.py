@@ -85,9 +85,7 @@ def dev_init(name):
         e.EV_REL: [e.REL_X, e.REL_Y],
     }
     # Create the virtual input device
-    device = UInput(
-        capabilities, name=name, vendor=0xBAD, product=0xA55, version=777
-    )
+    device = UInput(capabilities, name=name, vendor=0xBAD, product=0xA55, version=777)
     time.sleep(1)  # Give userspace time to detect the new device
     return device
 
@@ -124,9 +122,7 @@ def rand_mouse_moves(device):
     # Generate random X and Y movements
     x = random.randint(-MOVE_MAX // 2, MOVE_MAX // 2)
     y = random.randint(-MOVE_MAX // 2, MOVE_MAX // 2)
-    steps = (
-        max(abs(x), abs(y)) // MOVE_DELTA + 1
-    )  # Calculate the number of steps
+    steps = max(abs(x), abs(y)) // MOVE_DELTA + 1  # Calculate the number of steps
     # Move the mouse in small steps for smooth movement
     for _ in range(steps):
         mouse_move(device, x // steps, y // steps)

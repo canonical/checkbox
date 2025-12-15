@@ -118,11 +118,7 @@ class SessionInvocation:
                 )
                 print(_("session title: {0!r}").format(metadata.title))
                 print(_("session flags: {0!r}").format(sorted(metadata.flags)))
-                print(
-                    _("current job ID: {0!r}").format(
-                        metadata.running_job_name
-                    )
-                )
+                print(_("current job ID: {0!r}").format(metadata.running_job_name))
                 print(_("data size: {0}").format(len(data)))
                 if self.ns.resume:
                     print(_("Resuming session {0} ...").format(storage.id))
@@ -182,17 +178,13 @@ class SessionInvocation:
                 )
                 copyfileobj(exported_stream, translating_stream)
             else:
-                print(
-                    _("Saving results to {}").format(self.ns.output_file.name)
-                )
+                print(_("Saving results to {}").format(self.ns.output_file.name))
                 copyfileobj(exported_stream, self.ns.output_file)
             if self.ns.output_file is not sys.stdout:
                 self.ns.output_file.close()
 
     def _get_all_units(self):
-        return list(
-            itertools.chain(*[p.unit_list for p in self.provider_loader()])
-        )
+        return list(itertools.chain(*[p.unit_list for p in self.provider_loader()]))
 
     def _print_output_format_list(self):
         print(

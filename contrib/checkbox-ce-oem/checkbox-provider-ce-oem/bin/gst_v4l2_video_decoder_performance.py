@@ -100,7 +100,6 @@ def register_arguments():
     parser.add_argument(
         "-p",
         "--platform",
-        required=True,
         type=str,
         help="device platform uses for choosing pipeline builder e.g. imx8mp",
     )

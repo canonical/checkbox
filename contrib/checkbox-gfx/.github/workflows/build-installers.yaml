@@ -37,6 +37,7 @@ jobs:
       opengl: ${{ steps.changes.outputs.opengl }}
       crucible: ${{ steps.changes.outputs.crucible }}
       lvl-zero: ${{ steps.changes.outputs.lvl-zero }}
+      lvl-zero-rt: ${{ steps.changes.outputs.lvl-zero-rt }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -53,12 +54,14 @@ jobs:
               - 'bin/install-crucible'
             lvl-zero:
               - 'bin/install-lvl-zero'
+            lvl-zero-rt:
+              - 'bin/install-lvl-zero-rt'
 
   manual-build:
     if: github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
-        test_name: [vulkan, opencl, opengl, crucible, lvl-zero]
+        test_name: [vulkan, opencl, opengl, crucible, lvl-zero, lvl-zero-rt]
     name: "Manual Build - ${{ matrix.test_name }}"
     runs-on: [self-hosted, linux, "${{ inputs.arch }}", "${{ inputs.version }}"]
 
@@ -212,4 +215,31 @@ pr-build-lvl-zero:
         uses: actions/upload-artifact@v4
         with:
           name: output-lvl-zero-${{ matrix.arch }}
+          path: /usr/local/checkbox-gfx/*
+
+pr-build-lvl-zero-rt:
+    needs: changes
+    # needs.changes only runs if the event is a PR
+    if: needs.changes.outputs.lvl-zero-rt == 'true'
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    name: "Installer testing - Level Zero Raytracing"
+    runs-on: [self-hosted, linux, "${{ matrix.arch }}", noble]
+
+    steps:
+      - name: "Installers - Level Zero Raytracing - ${{ matrix.arch }}"
+        run: echo "Running Level Zero Raytracing ${{ matrix.arch }} install"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run install-lvl-zero-rt
+        shell: bash
+        run: bin/install-lvl-zero-rt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-lvl-zero-rt-${{ matrix.arch }}
           path: /usr/local/checkbox-gfx/*

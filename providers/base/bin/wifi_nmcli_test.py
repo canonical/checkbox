@@ -92,21 +92,16 @@ def turn_up_connection(uuid):
 
 def turn_down_nm_connections():
     print_head("Turn off NM all connections")
-    while True:
-        connections = _get_nm_wireless_connections()
-        did_down = False
-        for name, value in connections.items():
-            if value["state"] != "activated":
-                continue
-            did_down = True
-            uuid = value["uuid"]
-            print("Turn down connection", name)
-            cmd = "nmcli c down {}".format(uuid)
-            print_cmd(cmd)
-            sp.check_call(shlex.split(cmd))
-            print("{} {} is down now".format(name, uuid))
-        if not did_down:
-            break
+    connections = _get_nm_wireless_connections()
+    for name, value in connections.items():
+        if value["state"] != "activated":
+            continue
+        uuid = value["uuid"]
+        print("Turn down connection", name)
+        cmd = "nmcli c down {}".format(uuid)
+        print_cmd(cmd)
+        sp.check_call(shlex.split(cmd))
+        print("{} {} is down now".format(name, uuid))
     print()
 
 

@@ -547,6 +547,7 @@ command: platform_profile_resource.py
 
 id: desktop_session
 plugin: resource
+category_id: information_gathering
 _summary: Check whether a desktop session is available and of which type.
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command: desktop_session_resource.py resources

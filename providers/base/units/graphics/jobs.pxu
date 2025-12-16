@@ -115,6 +115,7 @@ id: graphics/{index}_minimum_resolution_{product_slug}
 template-id: graphics/index_minimum_resolution_product_slug
 flags: also-after-suspend
 requires:
+ desktop_session.desktop_session == 'True'
  device.category == 'VIDEO'
 command:
  # shellcheck disable=SC1091

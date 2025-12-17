@@ -193,6 +193,50 @@ def build_imx_gst_command(
     return cmd
 
 
+def build_rz_gst_command(
+    gst_bin: str,
+    golden_sample_path: str,
+    decoder: str,
+    sink: str,
+    fpsdisplaysink_sync: str,
+    platform: str,
+) -> str:
+    """
+    Builds a GStreamer command to process the golden sample.
+
+    :param gst_bin:
+        The binary name of gstreamer. Default is "gst-launch-1.0"
+        You can assign the snap name to GST_LAUNCH_BIN env variable if you
+        want to using snap.
+    :param golden_sample:
+        The path to the golden sample file.
+    :param decoder:
+        The decoder to use for the video, e.g., "omxh264dec".
+    :param sink:
+        The desired sink option, e.g., "fakesink".
+    :param fpsdisplaysink_sync:
+        The property option of fpsdisplaysink."
+        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
+        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
+
+    :returns:
+        The GStreamer command to execute.
+    """
+    # RZG series support only omxh264dec as hardware decoder
+    if "rzg2" in platform:
+        part_pipeline = "qtdemux ! h264parse ! {} use-dmabuf=true".format(
+            decoder)
+
+    cmd = (
+        "{} -v filesrc location={} ! {} ! queue ! videoconvert ! "
+        "queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
+    ).format(
+        gst_bin, golden_sample_path, part_pipeline, sink, fpsdisplaysink_sync
+    )
+
+    return cmd
+
+
 def execute_command(cmd: str) -> str:
     """
     Executes the GStreamer command and extracts the specific data from the
@@ -298,6 +342,15 @@ def main() -> None:
             decoder=args.decoder_plugin,
             sink=args.sink,
             fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+        )
+    elif "rz" in args.platform:
+        cmd = build_rz_gst_command(
+            gst_bin=gst_launch_bin,
+            golden_sample_path=args.golden_sample_path,
+            decoder=args.decoder_plugin,
+            sink=args.sink,
+            fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+            platform=args.platform,
         )
     else:
         cmd = build_gst_command(

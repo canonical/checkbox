@@ -243,7 +243,7 @@ def fix_sleep_args(args):
     return new_args
 
 
-def detect_progress_indicator() -> 'list[str]':
+def detect_progress_indicator() -> "list[str]":
     # Return a command suitable for piping progress information to its
     # stdin (invoked via Popen), in list format.
     # Return zenity if installed and DISPLAY (--auto-close)
@@ -485,22 +485,21 @@ def main(args=sys.argv[1:]):
 
             if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
                 # snap checkbox, must specify where the klog.json file is
-                klog_json_path = (
+                fwts_json_data_dir = (
                     Path(os.environ["SNAP"])
                     / "checkbox-runtime"
                     / "share"
                     / "fwts"
-                    / "klog.json"
                 )
-                if not klog_json_path.exists():
+                if not fwts_json_data_dir.exists():
                     raise SystemExit(
                         "We are in a snap environment, "
-                        + "but {}".format(klog_json_path)
+                        + "but {}".format(fwts_json_data_dir)
                         + "doesn't exist"
                     )
-                command = "fwts -J {} -q --stdout-summary -r {} {}".format(
+                command = "fwts -j {} -q --stdout-summary -r {} {}".format(
                     # "/checkbox-runtime/share/fwts/klog.json",
-                    klog_json_path,
+                    fwts_json_data_dir,
                     args.log,
                     " ".join(tests),
                 )

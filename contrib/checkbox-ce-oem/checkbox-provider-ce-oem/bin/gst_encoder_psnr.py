@@ -144,6 +144,15 @@ def project_factory(args: argparse.Namespace) -> Any:
             height=args.height,
             framerate=args.framerate,
         )
+    elif "imx8m" in args.platform:
+        return NxpIMX8mProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            color_space=args.color_space,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
+        )
     else:
         raise SystemExit(
             "Error: Cannot get the implementation for '{}'".format(
@@ -366,6 +375,132 @@ class CarmelProject(PipelineInterface):
             GStreamerEncodePlugins.V4L2H265ENC.value,
         ):
             return self._264_265_pipeline_builder()
+        else:
+            raise SystemExit(
+                "Error: unknow encoder '{}' be used".format(self._codec)
+            )
+
+
+class NxpIMX8mProject(PipelineInterface):
+    """NXP i.MX8M project pipeline handler and builder"""
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        color_space: str,
+        width: int,
+        height: int,
+        framerate: int,
+    ) -> None:
+        self._platform = platform
+        self._codec = codec
+        self._color_space = color_space
+        self._width = width
+        self._height = height
+        self._framerate = framerate
+        self._artifact_file = ""
+
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            if self._codec == GStreamerEncodePlugins.V4L2VP8ENC.value:
+                self._artifact_file = generate_artifact_name(extension="mkv")
+            else:
+                self._artifact_file = generate_artifact_name()
+        return self._artifact_file
+
+    @property
+    def psnr_reference_file(self) -> str:
+        return self._golden_sample
+
+    def _h264_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 encoder
+        """
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = os.path.join(
+            VIDEO_CODEC_TESTING_DATA,
+            "video",
+            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
+        )
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! decodebin !"
+            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
+            " v4l2h264enc extra-controls="
+            '"controls,h264_profile=1,video_bitrate=15000000;" !'
+            " h264parse ! mp4mux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def _h265_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 encoder
+        """
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = os.path.join(
+            VIDEO_CODEC_TESTING_DATA,
+            "video",
+            "{}p_{}fps_h265.mp4".format(self._height, self._framerate),
+        )
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! decodebin !"
+            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
+            " v4l2h265enc ! h265parse ! mp4mux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def _vp8_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 encoder
+        """
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = os.path.join(
+            VIDEO_CODEC_TESTING_DATA,
+            "video",
+            "{}p_{}fps_vp8.webm".format(self._height, self._framerate),
+        )
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! decodebin !"
+            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
+            " v4l2vp8enc ! matroskamux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def build_pipeline(self) -> str:
+        """
+        Build the GStreamer commands based on the codec.
+
+        Returns:
+            str: A GStreamer command.
+        """
+        if self._codec == GStreamerEncodePlugins.V4L2H264ENC.value:
+            return self._h264_pipeline_builder()
+        elif self._codec == GStreamerEncodePlugins.V4L2H265ENC.value:
+            return self._h265_pipeline_builder()
+        elif self._codec == GStreamerEncodePlugins.V4L2VP8ENC.value:
+            return self._vp8_pipeline_builder()
         else:
             raise SystemExit(
                 "Error: unknow encoder '{}' be used".format(self._codec)

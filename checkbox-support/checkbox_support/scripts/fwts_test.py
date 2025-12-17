@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+from pathlib import Path
 import sys
 import re
 from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
@@ -242,7 +243,7 @@ def fix_sleep_args(args):
     return new_args
 
 
-def detect_progress_indicator():
+def detect_progress_indicator() -> 'list[str]':
     # Return a command suitable for piping progress information to its
     # stdin (invoked via Popen), in list format.
     # Return zenity if installed and DISPLAY (--auto-close)
@@ -395,8 +396,8 @@ def parse_arguments(args):
 def main(args=sys.argv[1:]):
     args = parse_arguments(args)
 
-    tests = []
-    requested_tests = []
+    tests = []  # type: list[str]
+    requested_tests = []  # type: list[str]
     results = {}
     critical_fails = []
     high_fails = []
@@ -409,6 +410,7 @@ def main(args=sys.argv[1:]):
     warnings = []
 
     # Set correct fail level
+    iterations = None  # type: int | None
     if args.fail_level != "none":
         args.fail_level = "FAILED_%s" % args.fail_level.upper()
 
@@ -467,6 +469,7 @@ def main(args=sys.argv[1:]):
 
         # run the tests we want
     if args.sleep:
+        assert iterations is not None
         tests = requested_tests
         iteration_results = {}
         print("=" * 20 + " Test Results " + "=" * 20)
@@ -479,10 +482,35 @@ def main(args=sys.argv[1:]):
             marker = "{:=^80}\n".format(" Iteration {} ".format(iteration))
             with open(args.log, "a") as f:
                 f.write(marker)
-            command = "fwts -q --stdout-summary -r %s %s" % (
-                args.log,
-                " ".join(tests),
-            )
+
+            if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
+                # snap checkbox, must specify where the klog.json file is
+                klog_json_path = (
+                    Path(os.environ["SNAP"])
+                    / "checkbox-runtime"
+                    / "share"
+                    / "fwts"
+                    / "klog.json"
+                )
+                if not klog_json_path.exists():
+                    raise SystemExit(
+                        "We are in a snap environment, "
+                        + "but {}".format(klog_json_path)
+                        + "doesn't exist"
+                    )
+                command = "fwts -J {} -q --stdout-summary -r {} {}".format(
+                    # "/checkbox-runtime/share/fwts/klog.json",
+                    klog_json_path,
+                    args.log,
+                    " ".join(tests),
+                )
+            else:
+                # deb
+                command = "fwts -q --stdout-summary -r {} {}".format(
+                    args.log,
+                    " ".join(tests),
+                )
+
             results["sleep"] = (
                 Popen(command, stdout=PIPE, shell=True)
                 .communicate()[0]
@@ -503,6 +531,7 @@ def main(args=sys.argv[1:]):
                     )
                 progress_pct = "{}".format(int(100 * iteration / iterations))
                 if "zenity" in detect_progress_indicator():
+                    assert progress_indicator and progress_indicator.stdin
                     progress_indicator.stdin.write(
                         "# {}\n".format(progress_string).encode("utf-8")
                     )
@@ -514,6 +543,7 @@ def main(args=sys.argv[1:]):
                         # flushing its stdin would yield broken pipe
                         progress_indicator.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
+                    assert progress_indicator and progress_indicator.stdin
                     progress_indicator.stdin.write("XXX\n".encode("utf-8"))
                     progress_indicator.stdin.write(
                         progress_pct.encode("utf-8")

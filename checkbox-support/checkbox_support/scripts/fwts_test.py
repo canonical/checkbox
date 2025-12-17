@@ -174,15 +174,11 @@ def get_sleep_times(log: "str | Path", start_marker: str):
     suspend_time = ""
     resume_time = ""
     with open(log, "r", encoding="UTF-8", errors="ignore") as f:
-        line = ""
-        loglist = []  # type: list[str]
-        while start_marker not in line:
-            line = f.readline()
-            if start_marker in line:
-                loglist = f.readlines()
-                break
-        for i, l in enumerate(loglist):
-            if "Suspend/Resume Timings:" in l:
+        while start_marker not in f.readline():
+            continue
+        loglist = f.readlines() # read the remaining lines
+        for i, line in enumerate(loglist):
+            if "Suspend/Resume Timings:" in line:
                 suspend_line = loglist[i + 1]
                 resume_line = loglist[i + 2]
                 match = SLEEP_TIME_RE.search(suspend_line)

@@ -497,7 +497,7 @@ def main(args=None):
         tests = requested_tests
         iteration_results = (
             {}
-        )  #  # type: dict[int, tuple[float | str, float|str]]
+        )  # type: dict[int, tuple[float | str, float | str]]
         print("=" * 20 + " Test Results " + "=" * 20)
         progress_indicator_process = None
         if detect_progress_indicator():

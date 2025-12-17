@@ -174,6 +174,7 @@ def get_sleep_times(log, start_marker):
     resume_time = ""
     with open(log, "r", encoding="UTF-8", errors="ignore") as f:
         line = ""
+        loglist = []  # type: list[str]
         while start_marker not in line:
             line = f.readline()
             if start_marker in line:
@@ -406,24 +407,24 @@ def main(args=sys.argv[1:]):
     passed = []
     aborted = []
     skipped = []
-    unavailable = []
+    unavailable = []  # type: list[str]
     warnings = []
 
     # Set correct fail level
     iterations = None  # type: int | None
+    fail_priority = -99999  # report everything by default
+    # Get our failure priority and create the priority values
+    fail_levels = {
+        "FAILED_SUPERCRITICAL": 5,
+        "FAILED_CRITICAL": 4,
+        "FAILED_HIGH": 3,
+        "FAILED_MEDIUM": 2,
+        "FAILED_LOW": 1,
+        "FAILED_NONE": 0,
+        "FAILED_ABORTED": -1,
+    }
     if args.fail_level != "none":
         args.fail_level = "FAILED_%s" % args.fail_level.upper()
-
-        # Get our failure priority and create the priority values
-        fail_levels = {
-            "FAILED_SUPERCRITICAL": 5,
-            "FAILED_CRITICAL": 4,
-            "FAILED_HIGH": 3,
-            "FAILED_MEDIUM": 2,
-            "FAILED_LOW": 1,
-            "FAILED_NONE": 0,
-            "FAILED_ABORTED": -1,
-        }
         fail_priority = fail_levels[args.fail_level]
 
     if args.fwts_help:
@@ -473,9 +474,9 @@ def main(args=sys.argv[1:]):
         tests = requested_tests
         iteration_results = {}
         print("=" * 20 + " Test Results " + "=" * 20)
-        progress_indicator = None
+        progress_indicator_process = None
         if detect_progress_indicator():
-            progress_indicator = Popen(
+            progress_indicator_process = Popen(
                 detect_progress_indicator(), stdin=PIPE, stderr=DEVNULL
             )
         for iteration in range(1, iterations + 1):
@@ -484,7 +485,8 @@ def main(args=sys.argv[1:]):
                 f.write(marker)
 
             if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
-                # snap checkbox, must specify where the klog.json file is
+                # snap checkbox
+                # must specify where the klog.json, clog.json files are
                 fwts_json_data_dir = (
                     Path(os.environ["SNAP"])
                     / "checkbox-runtime"
@@ -498,13 +500,12 @@ def main(args=sys.argv[1:]):
                         + "doesn't exist"
                     )
                 command = "fwts -j {} -q --stdout-summary -r {} {}".format(
-                    # "/checkbox-runtime/share/fwts/klog.json",
                     fwts_json_data_dir,
                     args.log,
                     " ".join(tests),
                 )
             else:
-                # deb
+                # deb, use the original command
                 command = "fwts -q --stdout-summary -r {} {}".format(
                     args.log,
                     " ".join(tests),
@@ -530,36 +531,46 @@ def main(args=sys.argv[1:]):
                     )
                 progress_pct = "{}".format(int(100 * iteration / iterations))
                 if "zenity" in detect_progress_indicator():
-                    assert progress_indicator and progress_indicator.stdin
-                    progress_indicator.stdin.write(
+                    assert (
+                        progress_indicator_process
+                        and progress_indicator_process.stdin
+                    )
+                    progress_indicator_process.stdin.write(
                         "# {}\n".format(progress_string).encode("utf-8")
                     )
-                    progress_indicator.stdin.write(
+                    progress_indicator_process.stdin.write(
                         "{}\n".format(progress_pct).encode("utf-8")
                     )
-                    if progress_indicator.poll() is None:
+                    if progress_indicator_process.poll() is None:
                         # LP: #1741217 process may have already terminated
                         # flushing its stdin would yield broken pipe
-                        progress_indicator.stdin.flush()
+                        progress_indicator_process.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
-                    assert progress_indicator and progress_indicator.stdin
-                    progress_indicator.stdin.write("XXX\n".encode("utf-8"))
-                    progress_indicator.stdin.write(
+                    assert (
+                        progress_indicator_process
+                        and progress_indicator_process.stdin
+                    )
+                    progress_indicator_process.stdin.write(
+                        "XXX\n".encode("utf-8")
+                    )
+                    progress_indicator_process.stdin.write(
                         progress_pct.encode("utf-8")
                     )
-                    progress_indicator.stdin.write(
+                    progress_indicator_process.stdin.write(
                         "\nTest progress\n".encode("utf-8")
                     )
-                    progress_indicator.stdin.write(
+                    progress_indicator_process.stdin.write(
                         progress_string.encode("utf-8")
                     )
-                    progress_indicator.stdin.write("\nXXX\n".encode("utf-8"))
-                    if progress_indicator.poll() is None:
-                        progress_indicator.stdin.flush()
+                    progress_indicator_process.stdin.write(
+                        "\nXXX\n".encode("utf-8")
+                    )
+                    if progress_indicator_process.poll() is None:
+                        progress_indicator_process.stdin.flush()
                 else:
                     print(progress_string, flush=True)
-        if detect_progress_indicator():
-            progress_indicator.terminate()
+        if progress_indicator_process:
+            progress_indicator_process.terminate()
         if "s4" not in args.sleep:
             average_times(iteration_results)
     else:

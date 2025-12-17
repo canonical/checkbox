@@ -556,10 +556,7 @@ def main(args=None):
                     )
                 progress_pct = "{}".format(int(100 * iteration / iterations))
                 if "zenity" in detect_progress_indicator():
-                    assert (
-                        progress_indicator
-                        and progress_indicator.stdin
-                    )
+                    assert progress_indicator and progress_indicator.stdin
                     progress_indicator.stdin.write(
                         "# {}\n".format(progress_string).encode("utf-8")
                     )
@@ -571,13 +568,8 @@ def main(args=None):
                         # flushing its stdin would yield broken pipe
                         progress_indicator.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
-                    assert (
-                        progress_indicator
-                        and progress_indicator.stdin
-                    )
-                    progress_indicator.stdin.write(
-                        "XXX\n".encode("utf-8")
-                    )
+                    assert progress_indicator and progress_indicator.stdin
+                    progress_indicator.stdin.write("XXX\n".encode("utf-8"))
                     progress_indicator.stdin.write(
                         progress_pct.encode("utf-8")
                     )
@@ -587,9 +579,7 @@ def main(args=None):
                     progress_indicator.stdin.write(
                         progress_string.encode("utf-8")
                     )
-                    progress_indicator.stdin.write(
-                        "\nXXX\n".encode("utf-8")
-                    )
+                    progress_indicator.stdin.write("\nXXX\n".encode("utf-8"))
                     if progress_indicator.poll() is None:
                         progress_indicator.stdin.flush()
                 else:

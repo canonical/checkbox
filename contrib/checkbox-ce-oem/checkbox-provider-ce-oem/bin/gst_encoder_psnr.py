@@ -152,9 +152,19 @@ def project_factory(args: argparse.Namespace) -> Any:
             height=args.height,
             framerate=args.framerate,
         )
+    elif "rz" in args.platform:
+        return RzProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            color_space=args.color_space,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
+        )
     else:
         raise SystemExit(
-            "Error: Cannot get the implementation for '{}'".format(args.platform)
+            "Error: Cannot get the implementation for '{}'".format(
+                args.platform)
         )
 
 
@@ -490,6 +500,77 @@ class NxpIMX8mProject(PipelineInterface):
             return self._h265_pipeline_builder()
         elif self._codec == GStreamerEncodePlugins.V4L2VP8ENC.value:
             return self._vp8_pipeline_builder()
+        else:
+            raise SystemExit(
+                "Error: unknow encoder '{}' be used".format(self._codec)
+            )
+
+
+class RzProject(PipelineInterface):
+    """Rz project pipeline handler and builder"""
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        color_space: str,
+        width: int,
+        height: int,
+        framerate: int,
+    ) -> None:
+        self._platform = platform
+        self._codec = codec
+        self._color_space = color_space
+        self._width = width
+        self._height = height
+        self._framerate = framerate
+        self._artifact_file = ""
+        self._golden_sample = ""
+
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            self._artifact_file = generate_artifact_name()
+        return self._artifact_file
+
+    @property
+    def psnr_reference_file(self) -> str:
+        return self._golden_sample
+
+    def _omxh264_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for omxh264enc
+        """
+        self._golden_sample = os.path.join(
+            VIDEO_CODEC_TESTING_DATA,
+            "video",
+            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
+        )
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! h264parse !"
+            " omxh264dec use-dmabuf=false !"
+            " video/x-raw,format={} ! {} use-dmabuf=true"
+            " target-bitrate=10485760 !"
+            " h264parse ! mp4mux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self._codec,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def build_pipeline(self) -> str:
+        """
+        Build the GStreamer commands based on the codec.
+
+        Returns:
+            str: A GStreamer command.
+        """
+        if "rzg2" in self._platform and self._codec == "omxh264enc":
+            return self._omxh264_pipeline_builder()
         else:
             raise SystemExit(
                 "Error: unknow encoder '{}' be used".format(self._codec)

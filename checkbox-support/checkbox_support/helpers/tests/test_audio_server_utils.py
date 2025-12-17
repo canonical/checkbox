@@ -665,3 +665,157 @@ class PulseaudioUtilsTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             self.pulseaudio.set_volume(node, -0.1)
+
+
+class IntegrationTests(unittest.TestCase):
+    """Integration tests from list to set sink/volume using both servers."""
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.AudioServerUtils.get_server"
+    )
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_pipewire_workflow(self, mock_check_output, mock_get_server):
+        """Test PipeWire workflow: iterate sinks and set one as default."""
+        mock_get_server.return_value = AudioServer.PIPEWIRE
+
+        device = {
+            "id": 100,
+            "type": "PipeWire:Interface:Device",
+            "info": {
+                "props": {
+                    "media.class": "Audio/Device",
+                    "device.name": "alsa_card.pci-0000_00_1f.3",
+                },
+                "params": {
+                    "EnumProfile": [
+                        {
+                            "index": 0,
+                            "name": "output:analog-stereo",
+                            "available": "yes",
+                            "classes": [1, ["Audio/Sink"]],
+                        },
+                        {
+                            "index": 1,
+                            "name": "output:hdmi-stereo",
+                            "available": "yes",
+                            "classes": [1, ["Audio/Sink"]],
+                        },
+                    ]
+                },
+            },
+        }
+        analog_sink = {
+            "id": 200,
+            "type": "PipeWire:Interface:Node",
+            "info": {
+                "props": {
+                    "media.class": "Audio/Sink",
+                    "node.name": "analog-stereo",
+                    "node.description": "Analog",
+                    "node.id": "200",
+                }
+            },
+        }
+        hdmi_sink = {
+            "id": 201,
+            "type": "PipeWire:Interface:Node",
+            "info": {
+                "props": {
+                    "media.class": "Audio/Sink",
+                    "node.name": "hdmi-stereo",
+                    "node.description": "HDMI",
+                    "node.id": "201",
+                }
+            },
+        }
+
+        mock_check_output.side_effect = [
+            json.dumps([device]),
+            "",  # pw-cli set profile
+            json.dumps([device, analog_sink]),
+            "",  # pw-cli set profile
+            json.dumps([device, hdmi_sink]),
+            "",  # wpctl set-default
+            "",  # wpctl set-volume
+        ]
+
+        audio = AudioServerUtils()
+        self.assertIsInstance(audio, PipewireUtils)
+
+        sinks = list(audio.iter_sinks())
+
+        self.assertEqual(len(sinks), 2)
+        self.assertEqual(sinks[0].name, "analog-stereo")
+        self.assertEqual(sinks[0].description, "Analog")
+        self.assertEqual(sinks[1].name, "hdmi-stereo")
+        self.assertEqual(sinks[1].description, "HDMI")
+
+        audio.set_sink(sinks[0])
+        mock_check_output.assert_called_with(
+            ["wpctl", "set-default", "200"]
+        )
+
+        audio.set_volume(sinks[0], 0.75)
+        mock_check_output.assert_called_with(
+            ["wpctl", "set-volume", "200", "0.75"]
+        )
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.AudioServerUtils.get_server"
+    )
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_pulseaudio_workflow(self, mock_check_output, mock_get_server):
+        """Test PulseAudio workflow: iterate sinks and set one as default."""
+        mock_get_server.return_value = AudioServer.PULSEAUDIO
+
+        pactl_output = textwrap.dedent("""\
+            Sink #0
+            	State: RUNNING
+            	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
+            	Description: Built-in Audio Analog Stereo
+            	Driver: module-alsa-card.c
+            	Index: 0
+
+            Sink #1
+            	State: IDLE
+            	Name: alsa_output.usb-audio.analog-stereo
+            	Description: USB Audio
+            	Driver: module-alsa-card.c
+            	Index: 1
+            """)
+
+        def check_output_side_effect(cmd, **kwargs):
+            if cmd == ["pactl", "list", "sinks"]:
+                return pactl_output
+            return ""
+
+        mock_check_output.side_effect = check_output_side_effect
+
+        audio = AudioServerUtils()
+        self.assertIsInstance(audio, PulseaudioUtils)
+
+        sinks = list(audio.iter_sinks())
+
+        self.assertEqual(len(sinks), 2)
+        self.assertEqual(
+            sinks[0].name, "alsa_output.pci-0000_00_1f.3.analog-stereo"
+        )
+        self.assertEqual(sinks[0].description, "Built-in Audio Analog Stereo")
+        self.assertEqual(sinks[1].name, "alsa_output.usb-audio.analog-stereo")
+        self.assertEqual(sinks[1].description, "USB Audio")
+
+        mock_check_output.side_effect = None
+
+        audio.set_sink(sinks[0])
+        mock_check_output.assert_called_with(
+            ["pactl", "set-default-sink", "alsa_output.pci-0000_00_1f.3.analog-stereo"]
+        )
+
+        audio.set_volume(sinks[0], 0.75)
+        mock_check_output.assert_called_with(
+            ["pactl", "set-sink-volume", "alsa_output.pci-0000_00_1f.3.analog-stereo", "75%"]
+        )

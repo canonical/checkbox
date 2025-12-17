@@ -43,7 +43,7 @@ Create ``checkbox-providers`` directory in ``/var/tmp/``::
 
 .. note::
     You may not have write permissions for ``/var/tmp/``. You may want to
-    run mkdir with ``sudo`` and later ``chown`` that directory
+    run ``mkdir`` with ``sudo`` and later ``chown`` that directory
 
 Clone Checkbox repository and copy the base provider to the side-loaded
 directory::

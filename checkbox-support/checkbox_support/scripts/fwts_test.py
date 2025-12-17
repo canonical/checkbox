@@ -179,6 +179,7 @@ def get_sleep_times(log, start_marker):
             line = f.readline()
             if start_marker in line:
                 loglist = f.readlines()
+                break
         for i, l in enumerate(loglist):
             if "Suspend/Resume Timings:" in l:
                 suspend_line = loglist[i + 1]

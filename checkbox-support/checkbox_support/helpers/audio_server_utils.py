@@ -173,8 +173,8 @@ class PipewireUtils(AudioServerUtils):
         for _ in range(3):
             try:
                 try:
-                    result = subprocess.check_output(["pw-dump"]).decode(
-                        "utf-8"
+                    result = subprocess.check_output(
+                        ["pw-dump"], universal_newlines=True
                     )
                     return json.loads(result)
                 except subprocess.CalledProcessError as e:
@@ -424,8 +424,8 @@ class PulseaudioUtils(AudioServerUtils):
         """Parse pactl list output to extract sink/source information."""
         try:
             output = subprocess.check_output(
-                ["pactl", "list", target_type]
-            ).decode("utf-8")
+                ["pactl", "list", target_type], universal_newlines=True
+            )
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 "Failed to run pactl list {}: {}".format(target_type, e)

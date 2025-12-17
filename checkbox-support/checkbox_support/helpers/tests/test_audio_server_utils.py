@@ -103,9 +103,7 @@ class PipewireUtilsTests(unittest.TestCase):
     )
     def test_load_pw_dump_success(self, mock_check_output):
         """Test successful pw-dump load."""
-        mock_result = Mock()
-        mock_result.decode = Mock(return_value='[{"id": 1, "type": "test"}]')
-        mock_check_output.return_value = mock_result
+        mock_check_output.return_value = '[{"id": 1, "type": "test"}]'
         result = self.pipewire._load_pw_dump()
         self.assertEqual(result, [{"id": 1, "type": "test"}])
 
@@ -115,12 +113,10 @@ class PipewireUtilsTests(unittest.TestCase):
     )
     def test_load_pw_dump_retry(self, mock_check_output):
         """Test pw-dump retry on failure."""
-        success_mock = Mock()
-        success_mock.decode = Mock(return_value='[{"id": 2, "type": "test3"}]')
         mock_check_output.side_effect = [
             subprocess.CalledProcessError(1, ""),
             json.JSONDecodeError("", "", 0),
-            success_mock,
+            '[{"id": 2, "type": "test3"}]',
         ]
         result = self.pipewire._load_pw_dump()
         self.assertEqual(result, [{"id": 2, "type": "test3"}])
@@ -412,7 +408,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
     )
     def test_parse_pactl_list_sinks(self, mock_check_output):
         """Test parsing pactl list sinks output."""
-        mock_check_output.return_value = b"""Sink #0
+        mock_check_output.return_value = """Sink #0
 	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
 	Description: Built-in Audio Analog Stereo
 	Index: 0

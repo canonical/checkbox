@@ -7,6 +7,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE, DEVNULL
 from shutil import which
 import os
+import typing as T
 
 # These tests require user interaction and need either special handling
 # or skipping altogether (right now, we skip them but they're kept here
@@ -169,7 +170,7 @@ TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 
 
-def get_sleep_times(log, start_marker):
+def get_sleep_times(log: "str | Path", start_marker: str):
     suspend_time = ""
     resume_time = ""
     with open(log, "r", encoding="UTF-8", errors="ignore") as f:
@@ -193,7 +194,7 @@ def get_sleep_times(log, start_marker):
     return (suspend_time, resume_time)
 
 
-def average_times(runs):
+def average_times(runs: "dict[T.Any, T.Any]"):
     sleep_run_count = 0
     sleep_total = 0.0
     resume_run_count = 0
@@ -235,8 +236,8 @@ def average_times(runs):
     print()
 
 
-def fix_sleep_args(args):
-    new_args = []
+def fix_sleep_args(args: "list[str]"):
+    new_args = []  # type: list[str]
     for arg in args:
         if "=" in arg:
             new_args.extend(arg.split("="))
@@ -259,7 +260,7 @@ def detect_progress_indicator() -> "list[str]":
     return []
 
 
-def print_log(logfile):
+def print_log(logfile: "str | Path"):
     """
     Print logfile to the output
     """
@@ -267,7 +268,7 @@ def print_log(logfile):
         try:
             print(f.read())
         except UnicodeDecodeError as e:
-            print("WARNING: Found bad char in " + logfile)
+            print("WARNING: Found bad char in", logfile)
 
 
 def parse_arguments(args):

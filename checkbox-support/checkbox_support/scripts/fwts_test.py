@@ -176,7 +176,7 @@ def get_sleep_times(log: "str | Path", start_marker: str):
     with open(log, "r", encoding="UTF-8", errors="ignore") as f:
         while start_marker not in f.readline():
             continue
-        loglist = f.readlines() # read the remaining lines
+        loglist = f.readlines()  # read the remaining lines
         for i, line in enumerate(loglist):
             if "Suspend/Resume Timings:" in line:
                 suspend_line = loglist[i + 1]
@@ -398,6 +398,7 @@ def main(args=sys.argv[1:]):
     tests = []  # type: list[str]
     requested_tests = []  # type: list[str]
     results = {}
+    # these are all list[str]
     critical_fails = []
     high_fails = []
     medium_fails = []
@@ -405,7 +406,7 @@ def main(args=sys.argv[1:]):
     passed = []
     aborted = []
     skipped = []
-    unavailable = []  # type: list[str]
+    unavailable = []
     warnings = []
 
     # Set correct fail level
@@ -470,7 +471,9 @@ def main(args=sys.argv[1:]):
     if args.sleep:
         assert iterations is not None
         tests = requested_tests
-        iteration_results = {}
+        iteration_results = (
+            {}
+        )  #  # type: dict[int, tuple[float | str, float|str]]
         print("=" * 20 + " Test Results " + "=" * 20)
         progress_indicator_process = None
         if detect_progress_indicator():

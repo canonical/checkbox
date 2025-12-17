@@ -1,5 +1,6 @@
 import json
 import subprocess
+import textwrap
 import unittest
 from unittest.mock import Mock, patch
 
@@ -408,17 +409,145 @@ class PulseaudioUtilsTests(unittest.TestCase):
     )
     def test_parse_pactl_list_sinks(self, mock_check_output):
         """Test parsing pactl list sinks output."""
-        mock_check_output.return_value = """Sink #0
-	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
-	Description: Built-in Audio Analog Stereo
-	Index: 0
-"""
+        mock_check_output.return_value = textwrap.dedent("""\
+            Sink #0
+            	State: SUSPENDED
+            	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
+            	Description: Built-in Audio Analog Stereo
+            	Driver: module-alsa-card.c
+            	Sample Specification: s16le 2ch 44100Hz
+            	Channel Map: front-left,front-right
+            	Owner Module: 7
+            	Mute: no
+            	Volume: front-left: 65536 / 100% / 0.00 dB
+            	Index: 0
+            """)
         nodes = self.pulseaudio._parse_pactl_list("sinks")
         self.assertEqual(len(nodes), 1)
         self.assertEqual(
             nodes[0].name, "alsa_output.pci-0000_00_1f.3.analog-stereo"
         )
         self.assertEqual(nodes[0].description, "Built-in Audio Analog Stereo")
+        self.assertEqual(nodes[0].id, "0")
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_parse_pactl_list_multiple_sinks(self, mock_check_output):
+        """Test parsing pactl output with multiple sinks."""
+        mock_check_output.return_value = textwrap.dedent("""\
+            Sink #0
+            	State: SUSPENDED
+            	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
+            	Description: Built-in Audio Analog Stereo
+            	Driver: module-alsa-card.c
+            	Sample Specification: s16le 2ch 44100Hz
+            	Channel Map: front-left,front-right
+            	Owner Module: 7
+            	Mute: no
+            	Volume: front-left: 65536 / 100%
+            	Index: 0
+
+            Sink #1
+            	State: RUNNING
+            	Name: alsa_output.usb-Generic_USB_Audio-00.analog-stereo
+            	Description: USB Audio Analog Stereo
+            	Driver: module-alsa-card.c
+            	Sample Specification: s16le 2ch 48000Hz
+            	Channel Map: front-left,front-right
+            	Owner Module: 23
+            	Mute: no
+            	Volume: front-left: 45000 / 69%
+            	Index: 1
+
+            Sink #42
+            	State: IDLE
+            	Name: bluez_sink.AA_BB_CC_DD_EE_FF.a2dp_sink
+            	Description: WH-1000XM4
+            	Driver: module-bluez5-device.c
+            	Sample Specification: s16le 2ch 44100Hz
+            	Channel Map: front-left,front-right
+            	Owner Module: 31
+            	Mute: no
+            	Volume: front-left: 32768 / 50%
+            	Index: 42
+            """)
+        nodes = self.pulseaudio._parse_pactl_list("sinks")
+        self.assertEqual(len(nodes), 3)
+
+        self.assertEqual(
+            nodes[0].name, "alsa_output.pci-0000_00_1f.3.analog-stereo"
+        )
+        self.assertEqual(nodes[0].description, "Built-in Audio Analog Stereo")
+        self.assertEqual(nodes[0].id, "0")
+
+        self.assertEqual(
+            nodes[1].name, "alsa_output.usb-Generic_USB_Audio-00.analog-stereo"
+        )
+        self.assertEqual(nodes[1].description, "USB Audio Analog Stereo")
+        self.assertEqual(nodes[1].id, "1")
+
+        self.assertEqual(
+            nodes[2].name, "bluez_sink.AA_BB_CC_DD_EE_FF.a2dp_sink"
+        )
+        self.assertEqual(nodes[2].description, "WH-1000XM4")
+        self.assertEqual(nodes[2].id, "42")
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_parse_pactl_list_sources(self, mock_check_output):
+        """Test parsing pactl list sources output."""
+        mock_check_output.return_value = textwrap.dedent("""\
+            Source #0
+            	State: SUSPENDED
+            	Name: alsa_input.pci-0000_00_1f.3.analog-stereo
+            	Description: Built-in Audio Analog Stereo
+            	Driver: module-alsa-card.c
+            	Sample Specification: s16le 2ch 44100Hz
+            	Channel Map: front-left,front-right
+            	Owner Module: 7
+            	Mute: no
+            	Volume: front-left: 65536 / 100%
+            	Index: 0
+
+            Source #1
+            	State: RUNNING
+            	Name: alsa_output.pci-0000_00_1f.3.analog-stereo.monitor
+            	Description: Monitor of Built-in Audio Analog Stereo
+            	Driver: module-alsa-card.c
+            	Sample Specification: s16le 2ch 44100Hz
+            	Channel Map: front-left,front-right
+            	Owner Module: 7
+            	Mute: no
+            	Volume: front-left: 65536 / 100%
+            	Index: 1
+            """)
+        nodes = self.pulseaudio._parse_pactl_list("sources")
+        self.assertEqual(len(nodes), 2)
+
+        self.assertEqual(
+            nodes[0].name, "alsa_input.pci-0000_00_1f.3.analog-stereo"
+        )
+        self.assertEqual(nodes[0].description, "Built-in Audio Analog Stereo")
+        self.assertEqual(nodes[0].id, "0")
+
+        self.assertEqual(
+            nodes[1].name, "alsa_output.pci-0000_00_1f.3.analog-stereo.monitor"
+        )
+        self.assertEqual(
+            nodes[1].description, "Monitor of Built-in Audio Analog Stereo"
+        )
+        self.assertEqual(nodes[1].id, "1")
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_parse_pactl_list_empty(self, mock_check_output):
+        """Test parsing empty pactl output."""
+        mock_check_output.return_value = ""
+        nodes = self.pulseaudio._parse_pactl_list("sinks")
+        self.assertEqual(len(nodes), 0)
 
     def test_list_sinks(self):
         """Test listing all available sinks."""

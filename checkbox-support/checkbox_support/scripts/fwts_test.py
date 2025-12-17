@@ -475,9 +475,9 @@ def main(args=sys.argv[1:]):
             {}
         )  # type: dict[int, tuple[float | str, float | str]]
         print("=" * 20 + " Test Results " + "=" * 20)
-        progress_indicator_process = None
+        progress_indicator = None
         if detect_progress_indicator():
-            progress_indicator_process = Popen(
+            progress_indicator = Popen(
                 detect_progress_indicator(), stdin=PIPE, stderr=DEVNULL
             )
         for iteration in range(1, iterations + 1):
@@ -533,45 +533,45 @@ def main(args=sys.argv[1:]):
                 progress_pct = "{}".format(int(100 * iteration / iterations))
                 if "zenity" in detect_progress_indicator():
                     assert (
-                        progress_indicator_process
-                        and progress_indicator_process.stdin
+                        progress_indicator
+                        and progress_indicator.stdin
                     )
-                    progress_indicator_process.stdin.write(
+                    progress_indicator.stdin.write(
                         "# {}\n".format(progress_string).encode("utf-8")
                     )
-                    progress_indicator_process.stdin.write(
+                    progress_indicator.stdin.write(
                         "{}\n".format(progress_pct).encode("utf-8")
                     )
-                    if progress_indicator_process.poll() is None:
+                    if progress_indicator.poll() is None:
                         # LP: #1741217 process may have already terminated
                         # flushing its stdin would yield broken pipe
-                        progress_indicator_process.stdin.flush()
+                        progress_indicator.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
                     assert (
-                        progress_indicator_process
-                        and progress_indicator_process.stdin
+                        progress_indicator
+                        and progress_indicator.stdin
                     )
-                    progress_indicator_process.stdin.write(
+                    progress_indicator.stdin.write(
                         "XXX\n".encode("utf-8")
                     )
-                    progress_indicator_process.stdin.write(
+                    progress_indicator.stdin.write(
                         progress_pct.encode("utf-8")
                     )
-                    progress_indicator_process.stdin.write(
+                    progress_indicator.stdin.write(
                         "\nTest progress\n".encode("utf-8")
                     )
-                    progress_indicator_process.stdin.write(
+                    progress_indicator.stdin.write(
                         progress_string.encode("utf-8")
                     )
-                    progress_indicator_process.stdin.write(
+                    progress_indicator.stdin.write(
                         "\nXXX\n".encode("utf-8")
                     )
-                    if progress_indicator_process.poll() is None:
-                        progress_indicator_process.stdin.flush()
+                    if progress_indicator.poll() is None:
+                        progress_indicator.stdin.flush()
                 else:
                     print(progress_string, flush=True)
-        if progress_indicator_process:
-            progress_indicator_process.terminate()
+        if progress_indicator:
+            progress_indicator.terminate()
         if "s4" not in args.sleep:
             average_times(iteration_results)
     else:

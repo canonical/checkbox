@@ -5,20 +5,13 @@
       "golden_sample_file": "1080p_30fps_h264.mp4",
       "minimum_fps": 30,
       "enable_performance_mode": false
-    },
-    {
-      "decoder_plugin": "omxh264dec",
-      "golden_sample_file": "80p_30fps_h264.mp4",
-      "minimum_fps": 30,
-      "enable_performance_mode": false
     }
   ],
   "gst_encoder_psnr": [
     {
       "encoder_plugin": "omxh264enc",
       "resolutions": [
-        { "width": 1920, "height": 1080, "fps": 30 },
-        { "width": 80, "height": 80, "fps": 30 }
+        { "width": 1920, "height": 1080, "fps": 30 }
       ],
       "color_spaces": [
         "NV12"

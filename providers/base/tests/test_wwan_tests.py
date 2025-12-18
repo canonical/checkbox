@@ -379,7 +379,7 @@ class TestAllowRoaming(unittest.TestCase):
 
         _allow_roaming(test_mm_id, test_apn)
 
-        expected_bearer = "apn={},allow-roaming=yes".format(test_apn)
+        expected_bearer = "apn={},allow-roaming=true".format(test_apn)
         expected_cmd = [
             "mmcli",
             "-m",

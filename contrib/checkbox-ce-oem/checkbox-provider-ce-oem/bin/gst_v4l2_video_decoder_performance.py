@@ -223,7 +223,7 @@ def build_rz_gst_command(
     :returns:
         The GStreamer command to execute.
     """
-    # RZG series support only omxh264dec as hardware decoder
+    # RZG2 series support only omxh264dec as hardware decoder
     if "rzg2" in platform:
         part_pipeline = "qtdemux ! h264parse ! {} use-dmabuf=true".format(
             decoder

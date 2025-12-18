@@ -54,12 +54,16 @@ def test_linux_ccf(soc):
 
     clk_summary_path = "{}/clk-summary.txt".format(PLAINBOX_SESSION_SHARE)
     cat_ret = runcmd(
-        ["cat /sys/kernel/debug/clk/clk_summary " "| tee {}".format(clk_summary_path)]
+        [
+            "cat /sys/kernel/debug/clk/clk_summary "
+            "| tee {}".format(clk_summary_path)
+        ]
     )
 
     if cat_ret.returncode:
         print(
-            "Failed: unable to dump clk_summary data " "to {}".format(clk_summary_path)
+            "Failed: unable to dump clk_summary data "
+            "to {}".format(clk_summary_path)
         )
         exit(1)
     print("Dump /sys/kernel/debug/clk/clk_summary:")
@@ -89,7 +93,10 @@ def test_linux_ccf(soc):
     if verify_ret.returncode:
         print("Failed: {}".format(verify_ret.stdout))
         exit(1)
-    if verify_ret.stdout.split("\n")[0] != "[-] Success, all clocks are mapped !":
+    if (
+        verify_ret.stdout.split("\n")[0]
+        != "[-] Success, all clocks are mapped !"
+    ):
         print("Wrong output: {}".format(verify_ret.stdout))
         exit(1)
 

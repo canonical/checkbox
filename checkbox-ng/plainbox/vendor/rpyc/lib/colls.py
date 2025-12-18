@@ -5,7 +5,6 @@ from threading import Lock
 
 class WeakValueDict(object):
     """a light-weight version of weakref.WeakValueDictionary"""
-
     __slots__ = ("_dict",)
 
     def __init__(self):
@@ -43,7 +42,6 @@ class WeakValueDict(object):
     def __setitem__(self, key, value):
         def remover(wr, _dict=self._dict, key=key):
             _dict.pop(key, None)
-
         self._dict[key] = weakref.ref(value, remover)
 
     def __delitem__(self, key):
@@ -75,7 +73,6 @@ class WeakValueDict(object):
 
 class RefCountingColl(object):
     """a set-like object that implements refcounting on its contained objects"""
-
     __slots__ = ("_lock", "_dict")
 
     def __init__(self):

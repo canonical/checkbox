@@ -223,7 +223,9 @@ def move_window(app, timeout):
                 else:
                     current = "STOP"
 
-            check_call(["wmctrl", "-i", "-r", window_id, "-e", ",".join(move_line)])
+            check_call(
+                ["wmctrl", "-i", "-r", window_id, "-e", ",".join(move_line)]
+            )
 
         os.kill(pid, SIGTERM)
     else:
@@ -259,10 +261,14 @@ def print_suspend_resume(iterations, timeout, *args):
 
 def print_open_close_multi(iterations, timeout, windows_number):
     status = 0
-    print("Opening and closing %d 3D windows at the same time" % windows_number)
+    print(
+        "Opening and closing %d 3D windows at the same time" % windows_number
+    )
     for it in range(iterations):
         print("Iteration %d of %d:" % (it + 1, iterations))
-        exit_status = open_close_multi_process("glxgears", timeout, windows_number)
+        exit_status = open_close_multi_process(
+            "glxgears", timeout, windows_number
+        )
         if exit_status != 0:
             status = 1
     print("")
@@ -289,7 +295,9 @@ def main():
         "move": print_move_window,
     }
 
-    parser = ArgumentParser(description="Script that performs window operation")
+    parser = ArgumentParser(
+        description="Script that performs window operation"
+    )
     parser.add_argument(
         "-t",
         "--test",

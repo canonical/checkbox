@@ -29,12 +29,20 @@ class UnitWithIdFieldValidationTests(TestCase):
         self.assertFalse(ManifestEntryUnit({"id": "visible"}).is_hidden)
 
     def test_default_prompt(self):
-        self.assertTrue(ManifestEntryUnit({"value-type": "natural"}).default_prompt())
-        self.assertTrue(ManifestEntryUnit({"value-type": "bool"}).default_prompt())
+        self.assertTrue(
+            ManifestEntryUnit({"value-type": "natural"}).default_prompt()
+        )
+        self.assertTrue(
+            ManifestEntryUnit({"value-type": "bool"}).default_prompt()
+        )
 
     def test_default_value(self):
-        self.assertTrue(ManifestEntryUnit({"value-type": "natural"}).default_value())
-        self.assertTrue(ManifestEntryUnit({"value-type": "bool"}).default_value())
+        self.assertTrue(
+            ManifestEntryUnit({"value-type": "natural"}).default_value()
+        )
+        self.assertTrue(
+            ManifestEntryUnit({"value-type": "bool"}).default_value()
+        )
 
     def test_raises_no_hidden_reason(self):
         res = ManifestEntryUnit(

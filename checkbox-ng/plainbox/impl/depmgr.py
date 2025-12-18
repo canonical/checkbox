@@ -190,7 +190,9 @@ class DependencyCycleError(DependencyError):
 
     def __repr__(self):
         """Get a debugging representation of an error."""
-        return "<{} job_list:{!r}>".format(self.__class__.__name__, self.job_list)
+        return "<{} job_list:{!r}>".format(
+            self.__class__.__name__, self.job_list
+        )
 
 
 class DependencyMissingError(DependencyError):
@@ -296,7 +298,9 @@ class Group(object):
     def __init__(self, name, jobs=None, external_deps=None):
         self.name = name
         self.jobs = [] if jobs is None else list(jobs)
-        self.external_deps = [] if external_deps is None else set(external_deps)
+        self.external_deps = (
+            [] if external_deps is None else set(external_deps)
+        )
 
 
 class State(enum.Enum):
@@ -370,10 +374,14 @@ class DependencySolver:
         self._groups = dict()
         self._jobs_in_groups = dict()
 
-        self._job_state_map = {job.id: State.NOT_VISITED for job in self._job_list}
+        self._job_state_map = {
+            job.id: State.NOT_VISITED for job in self._job_list
+        }
 
     def _clear_state_map(self):
-        self._job_state_map = {k: State.NOT_VISITED for k in self._job_state_map.keys()}
+        self._job_state_map = {
+            k: State.NOT_VISITED for k in self._job_state_map.keys()
+        }
 
     def _solve(self, visit_list=None):
         """
@@ -407,7 +415,9 @@ class DependencySolver:
         self._pulled_map = self._get_job_map(pull_solution)
         # Add the before dependencies for the jobs in the map
         for job in pull_solution:
-            job.controller.add_before_deps(job, self._pulled_map, self._job_map)
+            job.controller.add_before_deps(
+                job, self._pulled_map, self._job_map
+            )
 
         # Look for groups in the pulled map
         self.create_groups(pull_solution)
@@ -423,7 +433,9 @@ class DependencySolver:
             replaced_solution = self.replace_jobs_by_groups(pull_solution)
 
             # Solve again for order dependencies
-            general_solution = self._solve_order_deps(replaced_solution, group=None)
+            general_solution = self._solve_order_deps(
+                replaced_solution, group=None
+            )
 
             # Solve internally for each group
             group_solutions = {}
@@ -431,7 +443,9 @@ class DependencySolver:
                 # Get the jobs in the group from the map of pulled jobs
                 name = group.name
 
-                group_solutions[name] = self._solve_order_deps(group.jobs, group=name)
+                group_solutions[name] = self._solve_order_deps(
+                    group.jobs, group=name
+                )
 
             # Replace the group jobs with the original jobs inside the group
             final_solution = self.replace_groups_by_jobs(
@@ -531,7 +545,9 @@ class DependencySolver:
             # We can just skip it and go back
             return
         else:
-            raise ValueError("Invalid state for job {!r}: {!r}".format(job.id, state))
+            raise ValueError(
+                "Invalid state for job {!r}: {!r}".format(job.id, state)
+            )
 
     def _pull_visit(self, job, trail=None):
         # We travel through dependencies recursively
@@ -677,7 +693,9 @@ class DependencySolver:
                 group_job_id = "{}{}".format(GROUP_PREFIX, group_name)
                 # Add external dependencies as dependencies of the group job
                 deps = self._groups[group_name].external_deps
-                group_job = JobDefinition({"id": group_job_id, "after": " ".join(deps)})
+                group_job = JobDefinition(
+                    {"id": group_job_id, "after": " ".join(deps)}
+                )
 
                 # Add the group job to the pulled map and job state map
                 self._pulled_map[group_job_id] = group_job

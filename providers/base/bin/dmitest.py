@@ -278,7 +278,9 @@ def version_tests(args, stream, dmi_data):
         [r"to be filled by o\.e\.m\.", "empty", r"x\.x"],
         False,
     ):
-        dmi_data["Chassis Information"]["Version"] += " *** Invalid chassis version!"
+        dmi_data["Chassis Information"][
+            "Version"
+        ] += " *** Invalid chassis version!"
         retval += 1
     if find_in_section(
         stream,

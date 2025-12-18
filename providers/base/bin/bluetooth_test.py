@@ -88,7 +88,9 @@ class ObexFTPTest:
             return self._error_helper(expected_pattern, output=output)
         except OSError as e:
             logging.error(e)
-            logging.error("Binary not found, " "maybe obexftp is not installed")
+            logging.error(
+                "Binary not found, " "maybe obexftp is not installed"
+            )
         except CalledProcessError as e:
             return self._error_helper(expected_pattern, exception=e)
         finally:
@@ -115,7 +117,9 @@ class ObexFTPTest:
 
     def remove(self):
         logging.info("[ Remove test ]".center(80, "="))
-        logging.info("Removing {} from {}".format(self._filename, self._btaddr))
+        logging.info(
+            "Removing {} from {}".format(self._filename, self._btaddr)
+        )
         return self._run_command(
             ["obexrm", "-b", self._btaddr, self._filename], "Sending.*?done"
         )
@@ -123,7 +127,9 @@ class ObexFTPTest:
     def get(self):
         with TemporaryDirectory() as tmpdirname:
             logging.info("[ Get test ]".center(80, "="))
-            logging.info("Getting file {} from {}".format(self._filename, self._btaddr))
+            logging.info(
+                "Getting file {} from {}".format(self._filename, self._btaddr)
+            )
             # Dont trust "get" returncode, it's always 0...
             return self._run_command(
                 ["obexget", "-b", self._btaddr, self._filename],

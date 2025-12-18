@@ -93,7 +93,9 @@ class DebianPackagingDriverTests(TestCase):
     )
 
     debian_unit = PackagingMetaDataUnit({"os-id": "debian"})
-    debian_8_unit = PackagingMetaDataUnit({"os-id": "debian", "os-version-id": "8"})
+    debian_8_unit = PackagingMetaDataUnit(
+        {"os-id": "debian", "os-version-id": "8"}
+    )
     ubuntu_unit = PackagingMetaDataUnit({"os-id": "ubuntu"})
     ubuntu_15_unit = PackagingMetaDataUnit(
         {"os-id": "ubuntu", "os-version-id": "15.04"}
@@ -101,7 +103,9 @@ class DebianPackagingDriverTests(TestCase):
     ubuntu_22_unit = PackagingMetaDataUnit(
         {"os-id": "ubuntu", "os-version-id": "22.04"}
     )
-    fedora_unit = PackagingMetaDataUnit({"os-id": "fedora", "os-version-id": "33"})
+    fedora_unit = PackagingMetaDataUnit(
+        {"os-id": "fedora", "os-version-id": "33"}
+    )
 
     def test_fix_1476678(self):
         """Check https://bugs.launchpad.net/plainbox/+bug/1476678."""
@@ -110,10 +114,14 @@ class DebianPackagingDriverTests(TestCase):
             PackagingMetaDataUnit(
                 {
                     "Depends": (
-                        "python3-checkbox-support (>= 0.2),\n" "python3 (>= 3.2),\n"
+                        "python3-checkbox-support (>= 0.2),\n"
+                        "python3 (>= 3.2),\n"
                     ),
                     "Recommends": (
-                        "dmidecode,\n" "dpkg (>= 1.13),\n" "lsb-release,\n" "wodim"
+                        "dmidecode,\n"
+                        "dpkg (>= 1.13),\n"
+                        "lsb-release,\n"
+                        "wodim"
                     ),
                 }
             )
@@ -203,7 +211,9 @@ class DebianPackagingDriverTests(TestCase):
         self.assertFalse(driver._is_id_version_match(self.ubuntu_unit))
 
     def test_package_with_comparision(self):
-        unit = PackagingMetaDataUnit({"os-id": "ubuntu", "os-version-id": ">=20.04"})
+        unit = PackagingMetaDataUnit(
+            {"os-id": "ubuntu", "os-version-id": ">=20.04"}
+        )
         # Using id and version match
         self.assertTrue(self.ubuntu_jammy_driver.is_applicable(unit))
         self.assertTrue(self.ubuntu_focal_driver.is_applicable(unit))

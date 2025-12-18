@@ -15,13 +15,17 @@ parser.add_argument(
     "--keyword",
     default="",
     help=(
-        "A keyword to distinguish the screenshots " "taken in this run of the script"
+        "A keyword to distinguish the screenshots "
+        "taken in this run of the script"
     ),
 )
 parser.add_argument(
     "--screenshot-dir",
     default=os.environ["HOME"],
-    help=("Specify a directory to store screenshots in. " "Default is %(default)s"),
+    help=(
+        "Specify a directory to store screenshots in. "
+        "Default is %(default)s"
+    ),
 )
 args = parser.parse_args()
 
@@ -35,7 +39,9 @@ failure_messages = []  # remember which modes failed
 success_messages = []  # remember which modes succeeded
 
 # Run xrandr and ask it what devices and modes are supported
-xrandrinfo = subprocess.Popen("xrandr -q --verbose", shell=True, stdout=subprocess.PIPE)
+xrandrinfo = subprocess.Popen(
+    "xrandr -q --verbose", shell=True, stdout=subprocess.PIPE
+)
 output = xrandrinfo.communicate()[0].decode().split("\n")
 
 

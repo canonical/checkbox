@@ -8,7 +8,9 @@ class TestSpidev(unittest.TestCase):
 
     @patch("spidev_test.subprocess.run")
     def test_runcmd(self, mock_run):
-        mock_run.return_value = MagicMock(stdout="output", stderr="error", returncode=0)
+        mock_run.return_value = MagicMock(
+            stdout="output", stderr="error", returncode=0
+        )
         result = spidev.runcmd("echo Hello")
 
         mock_run.assert_called_once_with(
@@ -42,7 +44,8 @@ class TestSpidev(unittest.TestCase):
         mock_check_spi.return_value = None
         mock_runcmd.return_value = MagicMock(
             stdout=(
-                "TX | FF FF FF FF FF FF | ......\n" "RX | FF FF FF FF FF FF | ......\n"
+                "TX | FF FF FF FF FF FF | ......\n"
+                "RX | FF FF FF FF FF FF | ......\n"
             ),
             stderr="",
             returncode=0,
@@ -64,7 +67,8 @@ class TestSpidev(unittest.TestCase):
         mock_check_spi.return_value = None
         mock_runcmd.return_value = MagicMock(
             stdout=(
-                "TX | FF FF FF FF FF FF | ......\n" "RX | FF FF FF FF FF FF | ......\n"
+                "TX | FF FF FF FF FF FF | ......\n"
+                "RX | FF FF FF FF FF FF | ......\n"
             ),
             stderr="",
             returncode=0,
@@ -95,11 +99,14 @@ class TestSpidev(unittest.TestCase):
     @patch("spidev_test.PLAINBOX_PROVIDER_DATA", "/tmp")
     @patch("spidev_test.runcmd")
     @patch("spidev_test.check_spi_node")
-    def test_test_spi_content_no_consistency(self, mock_check_spi, mock_runcmd):
+    def test_test_spi_content_no_consistency(
+        self, mock_check_spi, mock_runcmd
+    ):
         mock_check_spi.return_value = None
         mock_runcmd.return_value = MagicMock(
             stdout=(
-                "TX | FF FF FF FF FF FF | ......\n" "RX | 31 31 31 31 31 31 | 111111\n"
+                "TX | FF FF FF FF FF FF | ......\n"
+                "RX | 31 31 31 31 31 31 | 111111\n"
             ),
             stderr="",
             returncode=0,

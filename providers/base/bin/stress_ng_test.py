@@ -74,12 +74,15 @@ class StressNg:
     def run(self):
         """Run a stress-ng test, storing results in self.results."""
 
-        stressor_list = "--" + " {} --".format(self.thread_count).join(self.stressors)
+        stressor_list = "--" + " {} --".format(self.thread_count).join(
+            self.stressors
+        )
         # LP:1983122 ensure the final stressor in the list is properly defined
         stressor_list = stressor_list + " {}".format(self.thread_count)
 
         command = (
-            "stress-ng --aggressive --verify --oom-avoid-bytes {} " "--timeout {} {} {}"
+            "stress-ng --aggressive --verify --oom-avoid-bytes {} "
+            "--timeout {} {} {}"
         ).format(
             self.oom_avoid_bytes,
             self.sng_timeout,
@@ -150,7 +153,11 @@ def stress_cpu(args):
     # Add 10% to runtime; will forcefully terminate if stress-ng
     # fails to return in that time.
     end_time = 1.1 * args.base_time
-    print("Estimated total run time is {:.0f} minutes\n".format(args.base_time / 60))
+    print(
+        "Estimated total run time is {:.0f} minutes\n".format(
+            args.base_time / 60
+        )
+    )
 
     test_object = StressNg(
         stressors=stressors,
@@ -170,7 +177,9 @@ def num_numa_nodes():
     """Return the number of NUMA nodes supported by the CPU."""
 
     try:
-        return int(run(["numactl", "--hardware"], stdout=PIPE).stdout.split()[1])
+        return int(
+            run(["numactl", "--hardware"], stdout=PIPE).stdout.split()[1]
+        )
     except (ValueError, OSError, IndexError):
         return 1
 
@@ -252,7 +261,9 @@ def stress_memory(args):
         oom_avoid_bytes = "10%"
     vrt = args.base_time + total_mem_in_gb * args.time_per_gig
     print("Total memory is {:.1f} GiB".format(total_mem_in_gb))
-    print("Constant run time is {} seconds per stressor".format(args.base_time))
+    print(
+        "Constant run time is {} seconds per stressor".format(args.base_time)
+    )
     print("Variable run time is {:.0f} seconds per stressor".format(vrt))
     print("Number of NUMA nodes is {}".format(num_numa_nodes()))
 
@@ -290,8 +301,12 @@ def stress_memory(args):
     # Low-thread-count stressors -- throttle to >8 threads...
     ltc_stressors = ["stack", "bigheap", "brk"]
 
-    est_runtime = len(crt_stressors) * args.base_time + len(vrt_stressors) * vrt
-    print("Estimated total run time is {:.0f} minutes\n".format(est_runtime / 60))
+    est_runtime = (
+        len(crt_stressors) * args.base_time + len(vrt_stressors) * vrt
+    )
+    print(
+        "Estimated total run time is {:.0f} minutes\n".format(est_runtime / 60)
+    )
     for stressor in crt_stressors:
         test_object = StressNg(
             stressors=stressor.split(),
@@ -373,7 +388,11 @@ def stress_disk(args):
     if test_disk.mount_filesystem(args.simulate):
         est_runtime = len(disk_stressors) * args.base_time
         print("Using test directory: '{}'".format(test_disk.test_dir))
-        print("Estimated total run time is {:.0f} minutes\n".format(est_runtime / 60))
+        print(
+            "Estimated total run time is {:.0f} minutes\n".format(
+                est_runtime / 60
+            )
+        )
         retval = 0
         if not args.simulate:
             for stressor in disk_stressors:
@@ -436,7 +455,8 @@ def main():
         "-t",
         "--time-per-gig",
         type=int,
-        help="Extra time per GiB for some stressors," + " in seconds (default=10)",
+        help="Extra time per GiB for some stressors,"
+        + " in seconds (default=10)",
         default=10,
     )
     memory_parser.add_argument(

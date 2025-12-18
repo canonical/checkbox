@@ -29,15 +29,19 @@ def test_sysfs_attrs_read(soc):
     mail_type = "13000000.mali"
     if soc == "mt8365":
         mail_type = "13040000.mali"
-    node_path = "/sys/devices/platform/soc/{}/devfreq/{}/" "available_governors".format(
-        mail_type, mail_type
+    node_path = (
+        "/sys/devices/platform/soc/{}/devfreq/{}/"
+        "available_governors".format(mail_type, mail_type)
     )
 
     with open(node_path) as f:
         for node in f.read().strip().split():
             if node not in GOVERNORS:
                 fail = 1
-                print("Failed: found governor '{}' out of " "expectation".format(node))
+                print(
+                    "Failed: found governor '{}' out of "
+                    "expectation".format(node)
+                )
     return fail
 
 

@@ -77,7 +77,9 @@ def get_source_build_recipe(project_name: str, recipe_name: str):
     if project.recipes.total_size == 0:
         raise SystemExit(f"{project_name} does not have any recipes.")
 
-    build_recipe = (recipe for recipe in project.recipes if recipe.name == recipe_name)
+    build_recipe = (
+        recipe for recipe in project.recipes if recipe.name == recipe_name
+    )
     # Note: this is intentionally an iterator because every call that we make
     #       to .name will make a GET request to LP, so we avoid the full
     #       unwrapping of the iterator given that we only ever going to use 1

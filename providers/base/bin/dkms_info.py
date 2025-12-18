@@ -78,7 +78,9 @@ def get_system_modaliases():
     name = "modalias"
     for root, dirs, files in os.walk("/sys/devices/"):
         if name in files:
-            with io.open(os.path.join(root, name), "rt", encoding="UTF-8") as stream:
+            with io.open(
+                os.path.join(root, name), "rt", encoding="UTF-8"
+            ) as stream:
                 data = stream.read().strip()
                 pattern_array = data.split(":", 1)
                 if len(pattern_array) < 2:
@@ -239,7 +241,9 @@ class DkmsPackage(object):
                 continue
             _logger.info("Inspecting module %s", m)
 
-            output = subprocess.check_output(["modinfo", m], universal_newlines=True)
+            output = subprocess.check_output(
+                ["modinfo", m], universal_newlines=True
+            )
             aliases = []
             for line in output.splitlines():
                 if not line.startswith("alias:"):
@@ -281,7 +285,9 @@ class DebianPackageHandler(object):
            where stored system package information
         """
         if file_object is None:
-            file_object = io.open("/var/lib/dpkg/status", "rt", encoding="UTF-8")
+            file_object = io.open(
+                "/var/lib/dpkg/status", "rt", encoding="UTF-8"
+            )
         self._file_object = file_object
         self.extra_pkgs = extra_pkgs
         self.pkgs = self._get_device_pkgs()
@@ -319,7 +325,9 @@ class DebianPackageHandler(object):
                 pstr = "Package: {}".format(pkg.pkg_name)
                 if pstr in pkg_str:
                     _logger.info(
-                        "Gathering information of package, {}".format(pkg.pkg_name)
+                        "Gathering information of package, {}".format(
+                            pkg.pkg_name
+                        )
                     )
                     pkg.pkg = _headers_to_dist(pkg_str)
                     break

@@ -22,7 +22,9 @@ from plainbox.impl.commands.inv_session import SessionInvocation
 
 
 class SessionInvocationTests(TestCase):
-    @mock.patch("plainbox.impl.commands.inv_session.SessionInvocation._lookup_storage")
+    @mock.patch(
+        "plainbox.impl.commands.inv_session.SessionInvocation._lookup_storage"
+    )
     @mock.patch("builtins.print")
     def test_register_parser_none(self, print_mock, lookup_mock):
         lookup_mock.return_value = None

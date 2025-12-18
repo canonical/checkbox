@@ -57,7 +57,9 @@ class ExpressionFailedError(Exception):
         )
 
     def __repr__(self):
-        return "<{} expression:{!r}>".format(self.__class__.__name__, self.expression)
+        return "<{} expression:{!r}>".format(
+            self.__class__.__name__, self.expression
+        )
 
 
 class ExpressionCannotEvaluateError(ExpressionFailedError):
@@ -145,16 +147,16 @@ class Resource:
     def __eq__(self, other):
         if not isinstance(other, Resource):
             return False
-        return object.__getattribute__(self, "_data") == object.__getattribute__(
-            other, "_data"
-        )
+        return object.__getattribute__(
+            self, "_data"
+        ) == object.__getattribute__(other, "_data")
 
     def __ne__(self, other):
         if not isinstance(other, Resource):
             return True
-        return object.__getattribute__(self, "_data") != object.__getattribute__(
-            other, "_data"
-        )
+        return object.__getattribute__(
+            self, "_data"
+        ) != object.__getattribute__(other, "_data")
 
 
 class FakeResource:
@@ -252,7 +254,9 @@ class ResourceProgram:
         for expression in self._expression_list:
             for resource_id in expression.resource_id_list:
                 if resource_id not in resource_map:
-                    raise ExpressionCannotEvaluateError(expression, resource_id)
+                    raise ExpressionCannotEvaluateError(
+                        expression, resource_id
+                    )
         # Then evaluate all expressions
         for expression in self._expression_list:
             result = expression.evaluate(
@@ -565,7 +569,9 @@ class ResourceExpression:
                 self._resource_id_list.append(resource_alias)
         self._text = text
         self._lambda = eval(
-            "lambda {}: {}".format(", ".join(self._resource_alias_list), self._text)
+            "lambda {}: {}".format(
+                ", ".join(self._resource_alias_list), self._text
+            )
         )
 
     def __str__(self):
@@ -663,7 +669,9 @@ class ResourceExpression:
         for resource_list in resource_list_list:
             for resource in resource_list:
                 if not isinstance(resource, Resource):
-                    raise TypeError("Each resource must be a Resource instance")
+                    raise TypeError(
+                        "Each resource must be a Resource instance"
+                    )
         # Try each resource in sequence.
         for resource_pack in itertools.product(*resource_list_list):
             # Attempt to evaluate the code with the current resource
@@ -675,7 +683,10 @@ class ResourceExpression:
                 # XXX: it would be interesting to see if we have exceptions and
                 # why they happen.  We could do deeper validation this way.
                 logger.debug(
-                    _("Exception in requirement expression %r (with %s=%r):" " %r"),
+                    _(
+                        "Exception in requirement expression %r (with %s=%r):"
+                        " %r"
+                    ),
                     self._text,
                     self._resource_id_list,
                     resource_pack,
@@ -698,13 +709,25 @@ class ResourceExpression:
 
     def _split_and_evaluate(self, operator, resource_map):
         head, tail = self._text.rsplit(operator, 1)
-        head_expr = ResourceExpression(head, self._implicit_namespace, self._imports)
-        new_res_list = [resource_map[rid] for rid in head_expr.resource_id_list]
-        head_result = head_expr.evaluate(*new_res_list, resource_map=resource_map)
+        head_expr = ResourceExpression(
+            head, self._implicit_namespace, self._imports
+        )
+        new_res_list = [
+            resource_map[rid] for rid in head_expr.resource_id_list
+        ]
+        head_result = head_expr.evaluate(
+            *new_res_list, resource_map=resource_map
+        )
         tail = tail.strip()
-        tail_expr = ResourceExpression(tail, self._implicit_namespace, self._imports)
-        new_res_list = [resource_map[rid] for rid in tail_expr.resource_id_list]
-        tail_result = tail_expr.evaluate(*new_res_list, resource_map=resource_map)
+        tail_expr = ResourceExpression(
+            tail, self._implicit_namespace, self._imports
+        )
+        new_res_list = [
+            resource_map[rid] for rid in tail_expr.resource_id_list
+        ]
+        tail_result = tail_expr.evaluate(
+            *new_res_list, resource_map=resource_map
+        )
         return (head_result, tail_result)
 
     @classmethod

@@ -64,7 +64,9 @@ class OtgConfigFsOperatorBase:
         self.usb_type = usb_type
 
     def __enter__(self):
-        logging.info("Setup the OTG configurations on %s UDC node", self.udc_node)
+        logging.info(
+            "Setup the OTG configurations on %s UDC node", self.udc_node
+        )
         if self._child_modules:
             logging.info(self._child_modules)
             # To clean up the OTG modules
@@ -84,7 +86,9 @@ class OtgConfigFsOperatorBase:
         logging.debug("Clean up OTG configurations")
         self._cleanup_usb_gadget()
         cur_modules = [
-            mod for mod in self._get_child_modules() if mod not in self._child_modules
+            mod
+            for mod in self._get_child_modules()
+            if mod not in self._child_modules
         ]
         self.disable_otg_related_modules(cur_modules)
         if self._child_modules:
@@ -102,11 +106,15 @@ class OtgConfigFsOperatorBase:
 
     def enable_otg_module(self, modules):
         for module in modules:
-            subprocess.run("modprobe {}".format(module), shell=True, check=True)
+            subprocess.run(
+                "modprobe {}".format(module), shell=True, check=True
+            )
 
     def disable_otg_related_modules(self, modules):
         for module in modules:
-            subprocess.run("modprobe -r {}".format(module), shell=True, check=True)
+            subprocess.run(
+                "modprobe -r {}".format(module), shell=True, check=True
+            )
 
     def otg_setup(self):
         """
@@ -206,7 +214,9 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
         logging.info("Create an USB image file for Mass Storage Test")
         self._usb_img = tempfile.NamedTemporaryFile("+bw", delete=False)
         subprocess.run(
-            "dd if=/dev/zero of={} bs=1M count=1024".format(self._usb_img.name),
+            "dd if=/dev/zero of={} bs=1M count=1024".format(
+                self._usb_img.name
+            ),
             shell=True,
             check=True,
         )
@@ -260,7 +270,9 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
 
     def otg_test_process(self, rpyc_ip):
         logging.info("Start Mass Storage Testing with OTG interface")
-        t_thread = Process(target=self.function_check_with_rpyc, args=(rpyc_ip,))
+        t_thread = Process(
+            target=self.function_check_with_rpyc, args=(rpyc_ip,)
+        )
         t_thread.start()
         logging.debug("Launch USB detection and storage tests on RPYC server")
         # Sleep few seconds to activate USB detection on RPYC server
@@ -282,7 +294,9 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
     OTG_TARGET_MODULE = "usb_f_ecm"
 
     def _collect_net_intfs(self):
-        return [os.path.basename(intf) for intf in glob.glob("/sys/class/net/*")]
+        return [
+            os.path.basename(intf) for intf in glob.glob("/sys/class/net/*")
+        ]
 
     def otg_setup(self):
         self._net_intfs = self._collect_net_intfs()
@@ -301,7 +315,9 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
 
         otg_net_intf = [x for x in cur_net_intfs if x not in self._net_intfs]
         if len(otg_net_intf) != 1:
-            logging.error("Found more than one new interface. %s", otg_net_intf)
+            logging.error(
+                "Found more than one new interface. %s", otg_net_intf
+            )
         else:
             logging.info("Found new network interface '%s'", otg_net_intf[0])
         self._net_dev = otg_net_intf[0]
@@ -367,7 +383,9 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
 
         otg_ser_intf = [x for x in cur_ser_intfs if x not in self._ser_intfs]
         if len(otg_ser_intf) != 1:
-            logging.error("Found more than one new interface. %s", otg_ser_intf)
+            logging.error(
+                "Found more than one new interface. %s", otg_ser_intf
+            )
         else:
             logging.info("Found new network interface '%s'", otg_ser_intf[0])
         self._serial_iface = otg_ser_intf[0]
@@ -437,7 +455,9 @@ OTG_TESTING_MAPPING = {
 
 def otg_testing(udc_node, test_func, rpyc_ip, usb_type):
     configfs_dir = initial_configfs()
-    with OTG_TESTING_MAPPING[test_func](configfs_dir, udc_node, usb_type) as otg_cfg:
+    with OTG_TESTING_MAPPING[test_func](
+        configfs_dir, udc_node, usb_type
+    ) as otg_cfg:
         otg_cfg.otg_test_process(rpyc_ip)
 
 

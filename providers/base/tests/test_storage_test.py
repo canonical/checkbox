@@ -47,7 +47,9 @@ class TestMountpoint(unittest.TestCase):
 
     @patch("storage_test.devmapper_name", return_value="mapper_name")
     @patch("storage_test.devmapper_test")
-    def test_main_devmapper_test(self, mock_devmapper_test, mock_devmapper_name):
+    def test_main_devmapper_test(
+        self, mock_devmapper_test, mock_devmapper_name
+    ):
         with patch("sys.argv", ["storage_test.py", "sda"]):
             main()
             mock_devmapper_test.assert_called_once_with("sda")

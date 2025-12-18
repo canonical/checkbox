@@ -21,11 +21,15 @@ import re
 
 # Device string to match:
 #   ⎡ Virtual core pointer                      id=2    [master pointer  (3)]
-DEVICE_RE = re.compile(r""".+?(?P<name>[%s].+?) *\sid=(?P<id>\d+)""" % ascii_uppercase)
+DEVICE_RE = re.compile(
+    r""".+?(?P<name>[%s].+?) *\sid=(?P<id>\d+)""" % ascii_uppercase
+)
 
 # Attribute string to match:
 #   Buttons supported: 12
-ATTRIBUTE_RE = re.compile(r"""(?P<key>[%s].+?): (?P<value>.+)""" % ascii_letters)
+ATTRIBUTE_RE = re.compile(
+    r"""(?P<key>[%s].+?): (?P<value>.+)""" % ascii_letters
+)
 
 # Class string to match:
 #   12. Type: XIButtonClass

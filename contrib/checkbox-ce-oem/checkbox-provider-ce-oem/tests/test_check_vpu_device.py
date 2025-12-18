@@ -201,7 +201,9 @@ class VPUDeviceCheckTests(unittest.TestCase):
         mock_result[1].name = "mxc_hantro"
         mock_listdir.return_value = mock_result
 
-        with self.assertRaises(SystemExit), self.assertLogs(level="ERROR") as lc:
+        with self.assertRaises(SystemExit), self.assertLogs(
+            level="ERROR"
+        ) as lc:
 
             check_vpu_device.check_imx_vpu_devices()
         self.assertEqual(
@@ -228,7 +230,9 @@ class VPUDeviceCheckTests(unittest.TestCase):
         for index, dev in enumerate(expected_devices):
             self.assertEqual(prefix.format(dev), lc.output[index])
 
-        self.assertEqual("INFO:root:# VPU devices check: Passed", lc.output[-1])
+        self.assertEqual(
+            "INFO:root:# VPU devices check: Passed", lc.output[-1]
+        )
 
     @mock.patch("check_vpu_device.get_v4l2_devices")
     def test_mtk_vpu_devices_mismatch(self, mock_v4l2_devices):

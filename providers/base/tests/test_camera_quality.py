@@ -182,7 +182,9 @@ class CameraQualityTests(unittest.TestCase):
         mock_exists.return_value = True
 
         cqt.save_image(self.img, "video0", "/tmp")
-        mock_imwrite.assert_called_with("/tmp/quality_image_video0.jpg", self.img)
+        mock_imwrite.assert_called_with(
+            "/tmp/quality_image_video0.jpg", self.img
+        )
 
     @patch("cv2.imwrite")
     @patch("os.path.exists")

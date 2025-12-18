@@ -940,7 +940,9 @@ class SessionStateReactionToJobResultTests(TestCase):
     def test_get_certification_status_map(self):
         result_A = MemoryJobResult({"outcome": IJobResult.OUTCOME_PASS})
         self.session.update_job_result(self.job_A, result_A)
-        self.session.job_state_map[self.job_A.id].effective_certification_status = "foo"
+        self.session.job_state_map[
+            self.job_A.id
+        ].effective_certification_status = "foo"
         self.assertEqual(self.session.get_certification_status_map(), {})
         self.assertEqual(
             self.session.get_certification_status_map(
@@ -950,7 +952,9 @@ class SessionStateReactionToJobResultTests(TestCase):
             {self.job_A.id: self.session.job_state_map[self.job_A.id]},
         )
         result_Y = MemoryJobResult({"outcome": IJobResult.OUTCOME_FAIL})
-        self.session.job_state_map[self.job_Y.id].effective_certification_status = "bar"
+        self.session.job_state_map[
+            self.job_Y.id
+        ].effective_certification_status = "bar"
         self.assertEqual(self.session.get_certification_status_map(), {})
         self.assertEqual(
             self.session.get_certification_status_map(
@@ -1327,7 +1331,9 @@ class SessionDeviceContextTests(SignalTestCase):
         job1 = Mock(id="job1", template_id=None)
         tpl_job = Mock(id="job2", template_id="test-tpl")
         SessionDeviceContext._override_update(self_mock, job1)
-        self.assertTrue(self_mock.state.job_state_map[job1.id].apply_overrides.called)
+        self.assertTrue(
+            self_mock.state.job_state_map[job1.id].apply_overrides.called
+        )
         SessionDeviceContext._override_update(self_mock, tpl_job)
         self.assertTrue(
             self_mock.state.job_state_map[tpl_job.id].apply_overrides.called

@@ -12,7 +12,9 @@ from ishtp import (
 
 class TestISHTP(unittest.TestCase):
 
-    @patch("subprocess.check_output", return_value="module1\nnodule2\nmodule3\n")
+    @patch(
+        "subprocess.check_output", return_value="module1\nnodule2\nmodule3\n"
+    )
     def test_get_module_list(self, mock_subproc):
         self.assertEqual(get_module_list(), ["module1", "nodule2", "module3"])
 

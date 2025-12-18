@@ -87,4 +87,6 @@ class FeaturesTests(TestCase):
     def test_invoked(self, mock_stdout):
         self.features._has_kernel_extraction_feature = Mock(return_value=True)
         self.features.invoked()
-        self.assertIn("force_kernel_extraction: True\n\n", mock_stdout.getvalue())
+        self.assertIn(
+            "force_kernel_extraction: True\n\n", mock_stdout.getvalue()
+        )

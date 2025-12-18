@@ -92,7 +92,9 @@ def drop_dbus_type(value):
         }
     elif isinstance(value, (String, ObjectPath)):
         return str(value)
-    elif isinstance(value, (Byte, UInt16, UInt32, UInt64, Int16, Int32, Int64)):
+    elif isinstance(
+        value, (Byte, UInt16, UInt32, UInt64, Int16, Int32, Int64)
+    ):
         return int(value)
     elif isinstance(value, Boolean):
         return bool(value)

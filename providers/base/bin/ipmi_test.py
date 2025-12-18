@@ -100,10 +100,13 @@ class FreeIpmiTest:
         """
         if type(exc) is TimeoutExpired:
             logging.info(
-                "* Timeout calling %s! (%ss)\n" % (test_method, self._subproc_timeout)
+                "* Timeout calling %s! (%ss)\n"
+                % (test_method, self._subproc_timeout)
             )
         elif type(exc) is FileNotFoundError:
-            logging.info("* Error calling %s! Check cmds/paths.\n" % test_method)
+            logging.info(
+                "* Error calling %s! Check cmds/paths.\n" % test_method
+            )
         else:
             logging.info("* Error calling %s!\n" % test_method)
 
@@ -133,7 +136,10 @@ class FreeIpmiTest:
                 if module in output:
                     logging.info("- %s already loaded" % module)
                 else:
-                    if module == "ipmi_powernv" and platform.machine() != "ppc64le":
+                    if (
+                        module == "ipmi_powernv"
+                        and platform.machine() != "ppc64le"
+                    ):
                         logging.info(
                             " * Skipping module %s, incorrect "
                             "system architecture" % module
@@ -281,7 +287,9 @@ def main():
         action="store_true",
         help="debug/verbose output (stdout/stderr)",
     )
-    parser.add_argument("-q", "--quiet", action="store_true", help="suppress output")
+    parser.add_argument(
+        "-q", "--quiet", action="store_true", help="suppress output"
+    )
     args = parser.parse_args()
     # init logging
     if not args.quiet or args.debug:

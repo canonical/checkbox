@@ -62,7 +62,9 @@ class propertywithsymbols(property):
     A property that also keeps a group of symbols around
     """
 
-    def __init__(self, fget=None, fset=None, fdel=None, doc=None, symbols=None):
+    def __init__(
+        self, fget=None, fset=None, fdel=None, doc=None, symbols=None
+    ):
         """
         Initializes the property with the specified values
         """
@@ -239,9 +241,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
         # This assertion is a low-cost trick to ensure that we override this
         # method in all of the subclasses to ensure that the initializer is
         # called with correctly-ordered arguments.
-        assert cls is JobDefinition, "{}.instantiate_template() not customized".format(
-            cls.__name__
-        )
+        assert (
+            cls is JobDefinition
+        ), "{}.instantiate_template() not customized".format(cls.__name__)
         return cls(
             data,
             origin,
@@ -256,7 +258,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.summary
 
     def __repr__(self):
-        return "<JobDefinition id:{!r} plugin:{!r}>".format(self.id, self.plugin)
+        return "<JobDefinition id:{!r} plugin:{!r}>".format(
+            self.id, self.plugin
+        )
 
     @property
     def unit(self):
@@ -516,7 +520,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
             for stage in ["purpose", "steps", "verification"]:
                 stage_value = self.get_translated_record_value(stage)
                 if stage_value is not None:
-                    tr_description += tr_stages[stage] + ":\n" + stage_value + "\n"
+                    tr_description += (
+                        tr_stages[stage] + ":\n" + stage_value + "\n"
+                    )
             tr_description = tr_description.strip()
             if not tr_description:
                 # combining new description yielded empty string
@@ -772,7 +778,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             record.origin,
             provider=provider,
             raw_data={
-                key: value.rstrip("\n") for key, value in record.raw_data.items()
+                key: value.rstrip("\n")
+                for key, value in record.raw_data.items()
             },
             field_offset_map=record.field_offset_map,
         )
@@ -815,7 +822,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.name: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateVariant,
-                DeprecatedFieldValidator(_("use 'id' and 'summary' instead of 'name'")),
+                DeprecatedFieldValidator(
+                    _("use 'id' and 'summary' instead of 'name'")
+                ),
             ],
             # NOTE: 'id' validators are "inherited" so we don't have it here
             fields.summary: [
@@ -855,7 +864,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated,
                     Severity.advice,
                     message=_(
-                        "please use PLAINBOX_PROVIDER_DATA" " instead of CHECKBOX_SHARE"
+                        "please use PLAINBOX_PROVIDER_DATA"
+                        " instead of CHECKBOX_SHARE"
                     ),
                     onlyif=lambda unit: unit.command is not None,
                 ),
@@ -865,7 +875,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated,
                     Severity.advice,
                     message=_(
-                        "please use PLAINBOX_SESSION_SHARE" " instead of CHECKBOX_DATA"
+                        "please use PLAINBOX_SESSION_SHARE"
+                        " instead of CHECKBOX_DATA"
                     ),
                     onlyif=lambda unit: unit.command is not None,
                 ),
@@ -927,13 +938,17 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 CorrectFieldValueValidator(
                     lambda duration: float(duration) > 0,
                     message="value must be a positive number",
-                    onlyif=lambda unit: (unit.get_record_value("estimated_duration")),
+                    onlyif=lambda unit: (
+                        unit.get_record_value("estimated_duration")
+                    ),
                 ),
             ],
             fields.depends: [
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
-                    lambda value, unit: (unit.get_direct_dependencies() is not None)
+                    lambda value, unit: (
+                        unit.get_direct_dependencies() is not None
+                    )
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_direct_dependencies(),
@@ -950,7 +965,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.after: [
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
-                    lambda value, unit: (unit.get_after_dependencies() is not None)
+                    lambda value, unit: (
+                        unit.get_after_dependencies() is not None
+                    )
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_after_dependencies(),
@@ -965,7 +982,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.before: [
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
-                    lambda value, unit: (unit.get_before_dependencies() is not None)
+                    lambda value, unit: (
+                        unit.get_before_dependencies() is not None
+                    )
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_before_dependencies(),
@@ -994,9 +1013,15 @@ class JobDefinition(UnitWithId, IJobDefinition):
                             message=_("the referenced unit is not a job"),
                         ),
                         ReferenceConstraint(
-                            lambda referrer, referee: (referee.plugin == "resource"),
-                            onlyif=lambda referrer, referee: (referee.unit == "job"),
-                            message=_("the referenced job is not a resource job"),
+                            lambda referrer, referee: (
+                                referee.plugin == "resource"
+                            ),
+                            onlyif=lambda referrer, referee: (
+                                referee.unit == "job"
+                            ),
+                            message=_(
+                                "the referenced job is not a resource job"
+                            ),
                         ),
                     ],
                 ),
@@ -1016,11 +1041,14 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
-                    lambda value, unit: (list(unit.get_imported_jobs()) is not None)
+                    lambda value, unit: (
+                        list(unit.get_imported_jobs()) is not None
+                    )
                 ),
                 UnitReferenceValidator(
                     lambda unit: [
-                        job_id for job_id, identifier in unit.get_imported_jobs()
+                        job_id
+                        for job_id, identifier in unit.get_imported_jobs()
                     ],
                     constraints=[
                         ReferenceConstraint(
@@ -1036,10 +1064,14 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 UnitReferenceValidator(
-                    lambda unit: ([unit.get_category_id()] if unit.category_id else ()),
+                    lambda unit: (
+                        [unit.get_category_id()] if unit.category_id else ()
+                    ),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: (referee.unit == "category"),
+                            lambda referrer, referee: (
+                                referee.unit == "category"
+                            ),
                             message=_("the referenced unit is not a category"),
                         )
                     ],
@@ -1054,7 +1086,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.certification_status: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
-                MemberOfFieldValidator(_CertificationStatusValues.get_all_symbols()),
+                MemberOfFieldValidator(
+                    _CertificationStatusValues.get_all_symbols()
+                ),
             ],
             fields.siblings: [
                 concrete_validators.translatable,

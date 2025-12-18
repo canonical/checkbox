@@ -21,7 +21,9 @@ class CollectorOutputs(dict):
     COLLECTOR_OUTPUTS_VERSION = 2
 
     def to_json(self) -> str:
-        to_dump = {name: collected.to_dict() for (name, collected) in self.items()}
+        to_dump = {
+            name: collected.to_dict() for (name, collected) in self.items()
+        }
         to_dump["version"] = self.COLLECTOR_OUTPUTS_VERSION
         return json.dumps(to_dump, indent=4)
 
@@ -36,7 +38,8 @@ class CollectorOutputs(dict):
         # merge-reports and merge-submissions
         _ = dct.pop("version")
         to_load = {
-            name: CollectionOutput.from_dict(value) for (name, value) in dct.items()
+            name: CollectionOutput.from_dict(value)
+            for (name, value) in dct.items()
         }
         return cls(to_load)
 
@@ -236,7 +239,8 @@ class Collector(metaclass=CollectorMeta):
                 )
             except self.collector_exceptions as e:
                 output = (
-                    "Failed to decode with error: {}\n" "Collection output:\n{}"
+                    "Failed to decode with error: {}\n"
+                    "Collection output:\n{}"
                 ).format(str(e), collection_result.stdout)
                 outputs = OutputFailure(
                     stdout=output,

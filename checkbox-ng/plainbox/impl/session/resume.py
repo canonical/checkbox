@@ -200,7 +200,9 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
         try:
             return version_peek_helper_map[version]().peek_json(json_repr)
         except KeyError:
-            raise IncompatibleSessionError(_("Unsupported version {}").format(version))
+            raise IncompatibleSessionError(
+                _("Unsupported version {}").format(version)
+            )
 
 
 class SessionResumeHelper(EnvelopeUnpackMixIn):
@@ -324,7 +326,9 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         try:
             helper_class = version_session_resume_map[version]
         except KeyError:
-            raise IncompatibleSessionError(_("Unsupported version {}").format(version))
+            raise IncompatibleSessionError(
+                _("Unsupported version {}").format(version)
+            )
 
         helper = helper_class(self.job_list, self.flags, self.location)
         return helper.resume_json(json_repr, early_cb)
@@ -365,7 +369,9 @@ class MetaDataHelper1MixIn:
         and set it in the given session object
         """
         # Get the representation of the meta-data
-        metadata_repr = _validate(session_repr, key="metadata", value_type=dict)
+        metadata_repr = _validate(
+            session_repr, key="metadata", value_type=dict
+        )
         # Set each bit back to the session
         metadata.title = _validate(
             metadata_repr, key="title", value_type=str, value_none=True
@@ -377,7 +383,9 @@ class MetaDataHelper1MixIn:
                     value_type=str,
                     value_type_msg=_("Each flag must be a string"),
                 )
-                for flag in _validate(metadata_repr, key="flags", value_type=list)
+                for flag in _validate(
+                    metadata_repr, key="flags", value_type=list
+                )
             ]
         )
         metadata.running_job_name = _validate(
@@ -401,7 +409,9 @@ class MetaDataHelper2MixIn(MetaDataHelper1MixIn):
         """
         super()._restore_SessionState_metadata(metadata, session_repr)
         # Get the representation of the meta-data
-        metadata_repr = _validate(session_repr, key="metadata", value_type=dict)
+        metadata_repr = _validate(
+            session_repr, key="metadata", value_type=dict
+        )
         app_blob = _validate(
             metadata_repr, key="app_blob", value_type=str, value_none=True
         )
@@ -432,7 +442,9 @@ class MetaDataHelper3MixIn(MetaDataHelper2MixIn):
         """
         super()._restore_SessionState_metadata(metadata, session_repr)
         # Get the representation of the meta-data
-        metadata_repr = _validate(session_repr, key="metadata", value_type=dict)
+        metadata_repr = _validate(
+            session_repr, key="metadata", value_type=dict
+        )
         metadata.app_id = _validate(
             metadata_repr, key="app_id", value_type=str, value_none=True
         )
@@ -443,7 +455,9 @@ class MetaDataHelper6MixIn(MetaDataHelper3MixIn):
     @classmethod
     def _restore_SessionState_metadata(cls, metadata, session_repr):
         super()._restore_SessionState_metadata(metadata, session_repr)
-        metadata_repr = _validate(session_repr, key="metadata", value_type=dict)
+        metadata_repr = _validate(
+            session_repr, key="metadata", value_type=dict
+        )
         metadata.custom_joblist = _validate(
             metadata_repr, key="custom_joblist", value_type=bool
         )
@@ -724,10 +738,14 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             logger.debug(_("Invoking early callback %r"), early_cb)
             new_session = early_cb(session)
             if new_session is not None:
-                logger.debug(_("Using different session for resume: %r"), new_session)
+                logger.debug(
+                    _("Using different session for resume: %r"), new_session
+                )
                 session = new_session
         # Restore bits and pieces of state
-        logger.debug(_("Starting to restore jobs and results to %r..."), session)
+        logger.debug(
+            _("Starting to restore jobs and results to %r..."), session
+        )
         self._restore_SessionState_jobs_and_results(session, session_repr)
         logger.debug(_("Starting to restore metadata..."))
         self._restore_SessionState_metadata(session.metadata, session_repr)
@@ -762,14 +780,18 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         # work (generated jobs) gets added to leftover_jobs list.
         # To make this bit deterministic (we like determinism) we're always
         # going to process job results in alphabetic orderer.
-        first_pass_list = sorted(set(jobs_repr.keys()) | set(results_repr.keys()))
+        first_pass_list = sorted(
+            set(jobs_repr.keys()) | set(results_repr.keys())
+        )
         for job_id in first_pass_list:
             try:
                 self._process_job(session, jobs_repr, results_repr, job_id)
             except KeyError:
                 leftover_jobs.append(job_id)
 
-        leftover_jobs += session_repr.get("metadata", {}).get("rejected_jobs", [])
+        leftover_jobs += session_repr.get("metadata", {}).get(
+            "rejected_jobs", []
+        )
         # Process leftovers. For each iteration the leftover_jobs list should
         # shrink or we're not making any progress. If that happens we've got
         # undefined jobs (in general the session is corrupted)
@@ -796,7 +818,9 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             # that nothing generated so we need an end condition for that case
             if not leftover_shrunk:
                 raise CorruptedSessionError(
-                    _("Unknown jobs remaining: {}").format(", ".join(leftover_jobs))
+                    _("Unknown jobs remaining: {}").format(
+                        ", ".join(leftover_jobs)
+                    )
                 )
 
     def _process_job(self, session, jobs_repr, results_repr, job_id):
@@ -846,7 +870,9 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         )
         for result_repr in result_list_repr:
             _validate(result_repr, value_type=dict)
-            result = self._build_JobResult(result_repr, self.flags, self.location)
+            result = self._build_JobResult(
+                result_repr, self.flags, self.location
+            )
             result_list.append(result)
         # Replay each result, one by one
         for result in result_list:
@@ -877,14 +903,21 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             )
         ]
         # Restore job selection
-        logger.debug(_("calling update_desired_job_list(%r)"), desired_job_list)
+        logger.debug(
+            _("calling update_desired_job_list(%r)"), desired_job_list
+        )
         try:
             session.update_desired_job_list(
-                [session.job_state_map[job_id].job for job_id in desired_job_list]
+                [
+                    session.job_state_map[job_id].job
+                    for job_id in desired_job_list
+                ]
             )
         except KeyError as exc:
             raise CorruptedSessionError(
-                _("'desired_job_list' refers to unknown job {!r}").format(exc.args[0])
+                _("'desired_job_list' refers to unknown job {!r}").format(
+                    exc.args[0]
+                )
             )
 
     @classmethod
@@ -909,14 +942,21 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             )
         ]
         # Restore job selection
-        logger.debug(_("calling update_mandatory_job_list(%r)"), mandatory_job_list)
+        logger.debug(
+            _("calling update_mandatory_job_list(%r)"), mandatory_job_list
+        )
         try:
             session.update_mandatory_job_list(
-                [session.job_state_map[job_id].job for job_id in mandatory_job_list]
+                [
+                    session.job_state_map[job_id].job
+                    for job_id in mandatory_job_list
+                ]
             )
         except KeyError as exc:
             raise CorruptedSessionError(
-                _("'mandatory_job_list' refers to unknown job {!r}").format(exc.args[0])
+                _("'mandatory_job_list' refers to unknown job {!r}").format(
+                    exc.args[0]
+                )
             )
 
     @classmethod
@@ -987,21 +1027,26 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         )
         # Construct either DiskJobResult or MemoryJobResult
         if "io_log_filename" in result_repr:
-            io_log_filename = cls._load_io_log_filename(result_repr, flags, location)
+            io_log_filename = cls._load_io_log_filename(
+                result_repr, flags, location
+            )
             if (
                 flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
                 and not os.path.isfile(io_log_filename)
                 and flags & cls.FLAG_REWRITE_LOG_PATHNAMES_F
             ):
-                io_log_filename2 = cls._rewrite_pathname(io_log_filename, location)
+                io_log_filename2 = cls._rewrite_pathname(
+                    io_log_filename, location
+                )
                 logger.warning(
                     _("Rewrote file name from %r to %r"),
                     io_log_filename,
                     io_log_filename2,
                 )
                 io_log_filename = io_log_filename2
-            if flags & cls.FLAG_FILE_REFERENCE_CHECKS_F and not os.path.isfile(
-                io_log_filename
+            if (
+                flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
+                and not os.path.isfile(io_log_filename)
             ):
                 raise BrokenReferenceToExternalFile(
                     _("cannot access file: {!r}").format(io_log_filename)
@@ -1018,7 +1063,9 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         else:
             io_log = [
                 cls._build_IOLogRecord(record_repr)
-                for record_repr in _validate(result_repr, key="io_log", value_type=list)
+                for record_repr in _validate(
+                    result_repr, key="io_log", value_type=list
+                )
             ]
             return MemoryJobResult(
                 {
@@ -1036,7 +1083,9 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
 
     @classmethod
     def _rewrite_pathname(cls, pathname, location):
-        return re.sub(r".*\/\.cache\/plainbox\/sessions/[^//]+", location, pathname)
+        return re.sub(
+            r".*\/\.cache\/plainbox\/sessions/[^//]+", location, pathname
+        )
 
     @classmethod
     def _build_IOLogRecord(cls, record_repr):
@@ -1065,7 +1114,9 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         try:
             data = data.encode("ASCII")
         except UnicodeEncodeError:
-            raise CorruptedSessionError(_("record data {!r} is not ASCII").format(data))
+            raise CorruptedSessionError(
+                _("record data {!r} is not ASCII").format(data)
+            )
         try:
             data = base64.standard_b64decode(data)
         except binascii.Error:
@@ -1152,7 +1203,9 @@ class SessionResumeHelper5(SessionResumeHelper4):
 
     @classmethod
     def _load_io_log_filename(cls, result_repr, flags, location):
-        io_log_filename = super()._load_io_log_filename(result_repr, flags, location)
+        io_log_filename = super()._load_io_log_filename(
+            result_repr, flags, location
+        )
         if os.path.isabs(io_log_filename):
             return io_log_filename
         if location is None:
@@ -1196,13 +1249,17 @@ class SessionResumeHelper6(MetaDataHelper6MixIn, SessionResumeHelper5):
             logger.debug(_("Invoking early callback %r"), early_cb)
             new_session = early_cb(session)
             if new_session is not None:
-                logger.debug(_("Using different session for resume: %r"), new_session)
+                logger.debug(
+                    _("Using different session for resume: %r"), new_session
+                )
                 session = new_session
         # Restore bits and pieces of state
         logger.debug(_("Starting to restore metadata..."))
         self._restore_SessionState_metadata(session.metadata, session_repr)
         logger.debug(_("restored metadata %r"), session.metadata)
-        logger.debug(_("Starting to restore jobs and results to %r..."), session)
+        logger.debug(
+            _("Starting to restore jobs and results to %r..."), session
+        )
         self._restore_SessionState_jobs_and_results(session, session_repr)
         logger.debug(_("Starting to restore mandatory job list..."))
         self._restore_SessionState_mandatory_job_list(session, session_repr)
@@ -1220,7 +1277,9 @@ class SessionResumeHelper7(MetaDataHelper7MixIn, SessionResumeHelper6):
 
 
 class SessionResumeHelper8(SessionResumeHelper7):
-    def _restore_SessionState_system_information(self, session_state, session_repr):
+    def _restore_SessionState_system_information(
+        self, session_state, session_repr
+    ):
         _validate(session_repr, key="system_information", value_type=dict)
         system_information = CollectorOutputs(
             {
@@ -1234,7 +1293,9 @@ class SessionResumeHelper8(SessionResumeHelper7):
 
     def _build_SessionState(self, session_repr, early_cb=None):
         session_state = super()._build_SessionState(session_repr, early_cb)
-        self._restore_SessionState_system_information(session_state, session_repr)
+        self._restore_SessionState_system_information(
+            session_state, session_repr
+        )
         return session_state
 
 

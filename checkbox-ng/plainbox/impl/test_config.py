@@ -65,7 +65,9 @@ class ConfigurationTests(TestCase):
         self.assertEqual(cfg.get_value("agent", "normal_user"), "")
         self.assertEqual(cfg.get_origin("agent", "normal_user"), "")
         self.assertEqual(cfg.get_value("launcher", "stock_reports"), ["text"])
-        self.assertEqual(cfg.get_origin("launcher", "stock_reports"), "unit test")
+        self.assertEqual(
+            cfg.get_origin("launcher", "stock_reports"), "unit test"
+        )
 
     @patch("os.path.isfile", return_value=True)
     def test_string_list_distinction(self, _):
@@ -87,7 +89,9 @@ class ConfigurationTests(TestCase):
             cfg.get_value("launcher", "stock_reports"),
             ["submission_files", "text"],
         )
-        self.assertEqual(cfg.get_value("launcher", "session_title"), "A session title")
+        self.assertEqual(
+            cfg.get_value("launcher", "session_title"), "A session title"
+        )
 
     @patch("os.path.isfile", return_value=True)
     def test_unexpected_content(self, _):

@@ -114,7 +114,9 @@ class ExistingDirectoryValidatorTests(TestCase):
     @patch("os.path.isdir")
     def test_missing_directories_dont(self, mock_isdir):
         mock_isdir.return_value = False
-        self.assertEqual(self.validator(self.variable, self._PATH), "no such directory")
+        self.assertEqual(
+            self.validator(self.variable, self._PATH), "no such directory"
+        )
         mock_isdir.assert_called_with(self._PATH)
 
 
@@ -128,7 +130,9 @@ class AbsolutePathValidatorTests(TestCase):
         self.assertEqual(self.validator(self.variable, "/path"), None)
 
     def test_relative_values_dont(self):
-        self.assertEqual(self.validator(self.variable, "path"), "cannot be relative")
+        self.assertEqual(
+            self.validator(self.variable, "path"), "cannot be relative"
+        )
 
 
 class Provider1DefinitionTests(TestCase):
@@ -316,7 +320,9 @@ class Provider1DefinitionTests(TestCase):
         def_ = Provider1Definition()
         with self.assertRaises(ValidationError) as boom:
             def_.version = "FOOBAR+git4654654654"
-        self.assertEqual(str(boom.exception), "must be a PEP440 compatible version")
+        self.assertEqual(
+            str(boom.exception), "must be a PEP440 compatible version"
+        )
 
     def test_init_validation__typical_version(self):
         """
@@ -460,7 +466,9 @@ class Provider1PlugInTests(TestCase):
         with patch("os.path.isdir") as mock_isdir:
             # Mock os.path.isdir so that we can validate location
             mock_isdir.return_value = True
-            self.plugin = Provider1PlugIn("a.provider", self.DEF_TEXT, self.LOAD_TIME)
+            self.plugin = Provider1PlugIn(
+                "a.provider", self.DEF_TEXT, self.LOAD_TIME
+            )
             self.plugin_w_location = Provider1PlugIn(
                 "a.provider", self.DEF_TEXT_w_location, self.LOAD_TIME
             )
@@ -606,7 +614,9 @@ class UnitPlugInTests(TestCase):
         self.assertEqual(job.id, "com.canonical.plainbox::test/job")
         self.assertEqual(job.plugin, "shell")
         self.assertEqual(job.command, "true")
-        self.assertEqual(job.origin, Origin(FileTextSource("/path/to/jobs.txt"), 1, 3))
+        self.assertEqual(
+            job.origin, Origin(FileTextSource("/path/to/jobs.txt"), 1, 3)
+        )
 
     def test_job_provider(self):
         """
@@ -622,7 +632,9 @@ class UnitPlugInTests(TestCase):
         """
         # The pattern is purposefully invalid
         with self.assertRaises(PlugInError) as boom:
-            UnitPlugIn("/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider)
+            UnitPlugIn(
+                "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider
+            )
         self.assertEqual(
             str(boom.exception),
             (
@@ -1065,7 +1077,9 @@ class CustomFrontendPROVIDERPATHTest(TestCase):
             valid_custom_frontend,
             invalid_custom_frontend,
         ]
-        self.assertEqual(get_secure_custom_frontend_PROVIDERPATH_list(), ["a", "b"])
+        self.assertEqual(
+            get_secure_custom_frontend_PROVIDERPATH_list(), ["a", "b"]
+        )
 
 
 @patch("plainbox.impl.secure.providers.v1.logger")
@@ -1073,7 +1087,9 @@ class ProviderContentLoaderTests(TestCase):
     def test__warn_ignored_file_warned(self, logger_mock):
         self_mock = MagicMock()
         self_mock.provider.units_dir = "/some/path"
-        ProviderContentLoader._warn_ignored_file(self_mock, "/some/path/script.py")
+        ProviderContentLoader._warn_ignored_file(
+            self_mock, "/some/path/script.py"
+        )
         self.assertTrue(logger_mock.warning.called)
 
     def test__warn_ignored_file_ignored(self, logger_mock):

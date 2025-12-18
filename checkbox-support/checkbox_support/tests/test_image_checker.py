@@ -92,7 +92,9 @@ class ImageCheckerTest(unittest.TestCase):
         mock_run.side_effect = create_dpkg_side_effect("ubuntu-desktop")
         self.assertTrue(has_desktop_environment())
 
-        mock_run.side_effect = create_dpkg_side_effect("ubuntu-desktop-minimal")
+        mock_run.side_effect = create_dpkg_side_effect(
+            "ubuntu-desktop-minimal"
+        )
         self.assertTrue(has_desktop_environment())
 
         mock_run.side_effect = create_dpkg_side_effect("neither")

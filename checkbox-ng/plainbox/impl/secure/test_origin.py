@@ -196,7 +196,8 @@ class OriginTests(TestCase):
         verify that Origin.__repr__() works
         """
         expected = (
-            "<Origin source:FileTextSource('file.txt')" " line_start:10 line_end:12>"
+            "<Origin source:FileTextSource('file.txt')"
+            " line_start:10 line_end:12>"
         )
         observed = repr(self.origin)
         self.assertEqual(expected, observed)
@@ -305,7 +306,9 @@ class OriginTests(TestCase):
         verify that Origin.get_caller_origin() uses PythonFileTextSource as the
         origin.source attribute.
         """
-        self.assertIsInstance(Origin.get_caller_origin().source, PythonFileTextSource)
+        self.assertIsInstance(
+            Origin.get_caller_origin().source, PythonFileTextSource
+        )
 
     def test_origin_source_filename_is_correct(self):
         """

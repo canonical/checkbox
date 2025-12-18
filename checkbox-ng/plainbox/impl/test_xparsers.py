@@ -24,7 +24,9 @@ from plainbox.impl.xparsers import WordList, Error, Text
 
 def load_tests(loader, tests, ignore):
     tests.addTests(
-        doctest.DocTestSuite("plainbox.impl.xparsers", optionflags=doctest.REPORT_NDIFF)
+        doctest.DocTestSuite(
+            "plainbox.impl.xparsers", optionflags=doctest.REPORT_NDIFF
+        )
     )
     return tests
 

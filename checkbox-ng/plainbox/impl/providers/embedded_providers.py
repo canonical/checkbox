@@ -74,7 +74,9 @@ class ManagePyProvider1PlugIn(Provider1PlugIn):
             definition.namespace = setup_kwargs.get("namespace", Unset)
             definition.version = setup_kwargs.get("version", None)
             definition.description = setup_kwargs.get("description", None)
-            definition.gettext_domain = setup_kwargs.get("gettext_domain", Unset)
+            definition.gettext_domain = setup_kwargs.get(
+                "gettext_domain", Unset
+            )
         self._provider = Provider1.from_definition(
             definition,
             secure=False,

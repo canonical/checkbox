@@ -65,7 +65,9 @@ def parse_args():
     utilities_parser = subparsers.add_parser("utilities", help="Utilities")
     utilities_parser.set_defaults(test_set=1)
 
-    concepts_parser = subparsers.add_parser("concepts", help="Concepts_and_Techniques")
+    concepts_parser = subparsers.add_parser(
+        "concepts", help="Concepts_and_Techniques"
+    )
     concepts_parser.set_defaults(test_set=2)
     concepts_parser.set_defaults(
         missing_files=[
@@ -87,13 +89,17 @@ def parse_args():
     features_parser = subparsers.add_parser("features", help="CUDA_Features")
     features_parser.set_defaults(test_set=3)
 
-    libraries_parser = subparsers.add_parser("libraries", help="CUDA_Libraries")
+    libraries_parser = subparsers.add_parser(
+        "libraries", help="CUDA_Libraries"
+    )
     libraries_parser.set_defaults(test_set=4)
 
     domain_parser = subparsers.add_parser("domain", help="Domain_Specific")
     domain_parser.set_defaults(test_set=5)
 
-    performance_parser = subparsers.add_parser("performance", help="Performance")
+    performance_parser = subparsers.add_parser(
+        "performance", help="Performance"
+    )
     performance_parser.set_defaults(test_set=6)
 
     libnvvm_parser = subparsers.add_parser("libnvvm", help="libNVVM")
@@ -108,7 +114,9 @@ def parse_args():
         ]
     )
 
-    platform_parser = subparsers.add_parser("platform", help="Platform_Specific")
+    platform_parser = subparsers.add_parser(
+        "platform", help="Platform_Specific"
+    )
     platform_parser.set_defaults(test_set=8)
     platform_parser.set_defaults(
         missing_files=[
@@ -252,7 +260,9 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
 
     cmake_file = test_set_dir / "CMakeLists.txt"
     cmake_file.write_text(
-        "{}\n{}".format('set(EXECUTABLE_OUTPUT_PATH "bin")', cmake_file.read_text())
+        "{}\n{}".format(
+            'set(EXECUTABLE_OUTPUT_PATH "bin")', cmake_file.read_text()
+        )
     )
 
     # Remove unnecessary folders
@@ -261,7 +271,9 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
         folder_number = folder.name.split("_")[0]
         if folder_number != test_set:
             shutil.rmtree(str(folder))
-            remove_add_subdirectory_line(Path(samples_dir, "CMakeLists.txt"), folder)
+            remove_add_subdirectory_line(
+                Path(samples_dir, "CMakeLists.txt"), folder
+            )
         else:
             logging.info("Keeping directory: %s", folder.name)
 
@@ -304,7 +316,9 @@ def run_tests(orig_dir, test_set, exclude_list):
     test_set_dir = Path(orig_dir) / test_set / "build" / "Samples"
 
     executable_list = [
-        exe for exe in test_set_dir.rglob("*/*/bin/*") if os.access(str(exe), os.X_OK)
+        exe
+        for exe in test_set_dir.rglob("*/*/bin/*")
+        if os.access(str(exe), os.X_OK)
     ]
 
     skipped = 0
@@ -345,7 +359,9 @@ def main():
 
     try:
         if not args.no_clone:
-            clone_and_build(orig_dir, str(args.test_set), args.cuda_samples_version)
+            clone_and_build(
+                orig_dir, str(args.test_set), args.cuda_samples_version
+            )
     except (subprocess.CalledProcessError, FileExistsError, OSError):
         if not args.keep_cache:
             cleanup_temporary_files(orig_dir, str(args.test_set))

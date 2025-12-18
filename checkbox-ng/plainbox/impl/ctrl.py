@@ -123,7 +123,9 @@ class CheckBoxSessionStateController(ISessionStateController):
             Suspend.MANUAL_JOB_ID,
         ]
         if job.id in suspend_job_id_list:
-            suspend_deps = self._get_before_suspend_dependency_set(job.id, job_list)
+            suspend_deps = self._get_before_suspend_dependency_set(
+                job.id, job_list
+            )
         else:
             suspend_deps = set()
 
@@ -185,7 +187,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         :returns:
             A set of job ids that need to be run before the suspend job
         """
-        p_suspend_job_id = partial(self._is_job_impacting_suspend, suspend_job_id)
+        p_suspend_job_id = partial(
+            self._is_job_impacting_suspend, suspend_job_id
+        )
         suspend_deps_jobs = filter(p_suspend_job_id, job_list)
         suspend_deps = set(job.id for job in suspend_deps_jobs)
         return suspend_deps
@@ -314,7 +318,9 @@ class CheckBoxSessionStateController(ISessionStateController):
                 )
                 inhibitors.append(inhibitor)
         if job.id in [Suspend.AUTO_JOB_ID, Suspend.MANUAL_JOB_ID]:
-            for inhibitor in self._get_suspend_inhibitor_list(session_state, job):
+            for inhibitor in self._get_suspend_inhibitor_list(
+                session_state, job
+            ):
                 inhibitors.append(inhibitor)
         return inhibitors
 
@@ -339,14 +345,18 @@ class CheckBoxSessionStateController(ISessionStateController):
             List of JobReadinessInhibitor
         """
         suspend_inhibitors = []
-        undesired_inhibitor = JobReadinessInhibitor(cause=InhibitionCause.UNDESIRED)
+        undesired_inhibitor = JobReadinessInhibitor(
+            cause=InhibitionCause.UNDESIRED
+        )
         # We are only interested in jobs that are actually going to run
         run_list = [
             state.job
             for state in session_state.job_state_map.values()
             if undesired_inhibitor not in state.readiness_inhibitor_list
         ]
-        p_suspend_job_id = partial(self._is_job_impacting_suspend, suspend_job.id)
+        p_suspend_job_id = partial(
+            self._is_job_impacting_suspend, suspend_job.id
+        )
         suspend_inhibitors_jobs = filter(p_suspend_job_id, run_list)
         for job in suspend_inhibitors_jobs:
             if (
@@ -395,7 +405,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         session_state.on_job_result_changed(job, result)
         # Treat some jobs specially and interpret their output
         if job.plugin == "resource":
-            self._process_resource_result(session_state, job, result, fake_resources)
+            self._process_resource_result(
+                session_state, job, result, fake_resources
+            )
 
     def _process_resource_result(
         self, session_state, job, result, fake_resources=False
@@ -406,7 +418,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         """
         self._parse_and_store_resource(session_state, job, result)
         if session_state.resource_map[job.id] != [Resource({})]:
-            self._instantiate_templates(session_state, job, result, fake_resources)
+            self._instantiate_templates(
+                session_state, job, result, fake_resources
+            )
 
     def _parse_and_store_resource(self, session_state, job, result):
         # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
@@ -468,7 +482,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         try:
             check_result = unit.check()
             errors = [c for c in check_result if c.severity == Severity.error]
-            warnings = (c for c in check_result if c.severity == Severity.warning)
+            warnings = (
+                c for c in check_result if c.severity == Severity.warning
+            )
             for warning in warnings:
                 logger.warning(str(warning))
         except MissingParam as m:
@@ -477,7 +493,9 @@ class CheckBoxSessionStateController(ISessionStateController):
             return unit
         return InvalidJob.from_unit(unit, errors=errors)
 
-    def _instantiate_templates(self, session_state, job, result, fake_resources=False):
+    def _instantiate_templates(
+        self, session_state, job, result, fake_resources=False
+    ):
         # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
         # If we are resuming from a session that had a resource job that
         # never ran, we will see an empty MemoryJobResult object.
@@ -488,7 +506,8 @@ class CheckBoxSessionStateController(ISessionStateController):
             return
         # get all templates that use this (resource) job as template_resource
         template_units = filter(
-            lambda unit: isinstance(unit, TemplateUnit) and unit.resource_id == job.id,
+            lambda unit: isinstance(unit, TemplateUnit)
+            and unit.resource_id == job.id,
             session_state.unit_list,
         )
         # get the parsed resource (list of dict created from the resource
@@ -503,7 +522,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         )
         # flattening list to make it easier to work with
         new_units = (
-            new_unit for new_unit_list in new_units_lists for new_unit in new_unit_list
+            new_unit
+            for new_unit_list in new_units_lists
+            for new_unit in new_unit_list
         )
 
         if (
@@ -579,7 +600,9 @@ class SymLinkNest:
         """
         Add a executable to the control directory
         """
-        logger.debug(_("Adding executable %s to nest %s"), filename, self._dirname)
+        logger.debug(
+            _("Adding executable %s to nest %s"), filename, self._dirname
+        )
         dest = os.path.join(self._dirname, os.path.basename(filename))
         try:
             os.symlink(filename, dest)

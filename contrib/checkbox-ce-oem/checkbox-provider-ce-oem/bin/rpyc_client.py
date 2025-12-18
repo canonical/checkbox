@@ -41,7 +41,9 @@ def rpyc_client(host, cmd, *args, **kwargs):
         return res.value
         # return getattr(conn.root, cmd)(*args, **kwargs)
     except AttributeError:
-        raise SystemExit("RPYC host does not provide a '{}' command.".format(cmd))
+        raise SystemExit(
+            "RPYC host does not provide a '{}' command.".format(cmd)
+        )
     except rpyc.core.vinegar.GenericException as exc:
         raise SystemExit(
             "Zapper host failed to process the requested command."

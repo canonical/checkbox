@@ -56,7 +56,9 @@ class Actions(Enum):
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=("Script helps verify the gst_transform_rotate_and_flip scenario"),
+        description=(
+            "Script helps verify the gst_transform_rotate_and_flip scenario"
+        ),
     )
 
     parser.add_argument(
@@ -136,7 +138,9 @@ def project_factory(args: argparse.Namespace) -> Any:
         )
     else:
         raise SystemExit(
-            "Error: Cannot get the implementation for '{}'".format(args.platform)
+            "Error: Cannot get the implementation for '{}'".format(
+                args.platform
+            )
         )
 
 
@@ -162,7 +166,9 @@ class GenioProject(PipelineInterface):
         self._width = width
         self._height = height
         self._framerate = framerate
-        self._codec_parser_map = {GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"}
+        self._codec_parser_map = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
+        }
         self._actions_map = {
             Actions.ROTATE_90: "rotate=90",
             Actions.ROTATE_180: "rotate=180",
@@ -198,7 +204,9 @@ class GenioProject(PipelineInterface):
         )
         if not os.path.exists(full_path):
             raise SystemExit(
-                "Error: Golden PSNR reference '{}' doesn't exist".format(full_path)
+                "Error: Golden PSNR reference '{}' doesn't exist".format(
+                    full_path
+                )
             )
 
         return full_path
@@ -252,9 +260,11 @@ def main() -> None:
         expeted_width = args.height
         expeted_height = args.width
     mv = MetadataValidator(file_path=p.artifact_file)
-    mv.validate("width", expeted_width).validate("height", expeted_height).validate(
-        "frame_rate", args.framerate
-    ).validate("codec", args.encoder_plugin).is_valid()
+    mv.validate("width", expeted_width).validate(
+        "height", expeted_height
+    ).validate("frame_rate", args.framerate).validate(
+        "codec", args.encoder_plugin
+    ).is_valid()
     logging.info("\nStep 3: Comparing PSNR...")
     compare_psnr(
         golden_reference_file=p.psnr_reference_file,

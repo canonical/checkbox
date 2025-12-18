@@ -196,7 +196,9 @@ class TestPlanSelectionSkip(Scenario):
 
     # the conf file should be overwritten by the launcher,
     # if it is not, this will make the test fail intentionally
-    checkbox_conf = read_text(test_selection, "checkbox_testplan_unit_forced.conf")
+    checkbox_conf = read_text(
+        test_selection, "checkbox_testplan_unit_forced.conf"
+    )
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -209,7 +211,9 @@ class TestPlanSelectionSkip(Scenario):
     )
     steps = [
         MkTree("/home/ubuntu/.config", target="agent"),
-        Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf, target="agent"),
+        Put(
+            "/home/ubuntu/.config/checkbox.conf", checkbox_conf, target="agent"
+        ),
         Put("/etc/xdg/checkbox.conf", checkbox_conf, target="agent"),
         Start(),
         # Assert that we have reached test selection
@@ -227,7 +231,9 @@ class TestPlanPreselected(Scenario):
 
     # the conf file should be overwritten by the launcher,
     # if it is not, this will make the test fail intentionally
-    checkbox_conf = read_text(test_selection, "checkbox_testplan_unit_forced.conf")
+    checkbox_conf = read_text(
+        test_selection, "checkbox_testplan_unit_forced.conf"
+    )
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -242,7 +248,9 @@ class TestPlanPreselected(Scenario):
     )
     steps = [
         MkTree("/home/ubuntu/.config", target="agent"),
-        Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf, target="agent"),
+        Put(
+            "/home/ubuntu/.config/checkbox.conf", checkbox_conf, target="agent"
+        ),
         Put("/etc/xdg/checkbox.conf", checkbox_conf, target="agent"),
         Start(),
         # ( ) Some other test
@@ -293,7 +301,9 @@ class TestPlanSelectionPreselectNothing(Scenario):
         """
     )
     steps = [
-        AssertPrinted(".*The test plan selection was forced but no unit was provided")
+        AssertPrinted(
+            ".*The test plan selection was forced but no unit was provided"
+        )
     ]
 
 

@@ -1,21 +1,8 @@
 """All low level structures used for parsing Estimote packets."""
+from checkbox_support.vendor.construct import Struct, Byte, Switch, Int8sl, Array, Int8ul, Const, Int16ul
 
-from checkbox_support.vendor.construct import (
-    Struct,
-    Byte,
-    Switch,
-    Int8sl,
-    Array,
-    Int8ul,
-    Const,
-    Int16ul,
-)
-
-from ..const import (
-    ESTIMOTE_TELEMETRY_SUBFRAME_A,
-    ESTIMOTE_TELEMETRY_SUBFRAME_B,
-    ESTIMOTE_NEARABLE_FRAME,
-)
+from ..const import ESTIMOTE_TELEMETRY_SUBFRAME_A, ESTIMOTE_TELEMETRY_SUBFRAME_B, \
+                    ESTIMOTE_NEARABLE_FRAME
 
 # pylint: disable=invalid-name
 
@@ -36,14 +23,10 @@ EstimoteTelemetrySubFrameB = Struct(
 EstimoteTelemetryFrame = Struct(
     "identifier" / Array(8, Byte),
     "subframe_type" / Byte,
-    "sub_frame"
-    / Switch(
-        lambda ctx: ctx.subframe_type,
-        {
-            ESTIMOTE_TELEMETRY_SUBFRAME_A: EstimoteTelemetrySubFrameA,
-            ESTIMOTE_TELEMETRY_SUBFRAME_B: EstimoteTelemetrySubFrameB,
-        },
-    ),
+    "sub_frame" / Switch(lambda ctx: ctx.subframe_type, {
+        ESTIMOTE_TELEMETRY_SUBFRAME_A: EstimoteTelemetrySubFrameA,
+        ESTIMOTE_TELEMETRY_SUBFRAME_B: EstimoteTelemetrySubFrameB,
+    })
 )
 
 EstimoteNearableFrame = Struct(

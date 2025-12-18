@@ -1,4 +1,5 @@
-"""Constants used by the protocol"""
+"""Constants used by the protocol
+"""
 
 # messages
 MSG_REQUEST = 1

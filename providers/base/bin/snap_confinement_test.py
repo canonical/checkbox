@@ -145,7 +145,9 @@ class SnapsConfinementVerifier:
         ]
         self._allowlist_from_config_var = [
             element.strip()
-            for element in os.environ.get("SNAP_CONFINEMENT_ALLOWLIST", "").split(",")
+            for element in os.environ.get(
+                "SNAP_CONFINEMENT_ALLOWLIST", ""
+            ).split(",")
         ]
         # Define the attributes of snap we are interested in.
         self._desired_attributes = [
@@ -163,7 +165,10 @@ class SnapsConfinementVerifier:
             )
             logging.info("Result: Skip")
             return True
-        elif any(re.match(pattern, snap_name) for pattern in self._official_allowlist):
+        elif any(
+            re.match(pattern, snap_name)
+            for pattern in self._official_allowlist
+        ):
             logging.warning("This snap is officially defined in the allowlist")
             logging.info("Result: Skip")
             return True
@@ -202,7 +207,9 @@ class SnapsConfinementVerifier:
             value = target_snap.get(attr)
             if value is None:
                 has_error = True
-                logging.error("Snap '{}' not found in the snap data.".format(attr))
+                logging.error(
+                    "Snap '{}' not found in the snap data.".format(attr)
+                )
                 continue
             return_dict.update({attr: value})
         return has_error, return_dict
@@ -221,7 +228,9 @@ class SnapsConfinementVerifier:
                 exit_code = 1
                 continue
 
-            logging.info("=== Checking Snap: {} ===".format(snap_dict.get("name")))
+            logging.info(
+                "=== Checking Snap: {} ===".format(snap_dict.get("name"))
+            )
 
             # Skip if target snap in allow list
             if self._is_snap_in_allow_list(snap_dict.get("name")):
@@ -235,14 +244,18 @@ class SnapsConfinementVerifier:
                 snap_dict.get("revision")
             )
 
-            logging.info("Result: {}".format("Fail" if tmp_exit_code else "Pass"))
+            logging.info(
+                "Result: {}".format("Fail" if tmp_exit_code else "Pass")
+            )
 
             exit_code |= tmp_exit_code
         return exit_code
 
 
 def main():
-    logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+    logging.basicConfig(
+        format="%(levelname)s: %(message)s", level=logging.INFO
+    )
     sub_commands = {
         "system": test_system_confinement,
         "snaps": SnapsConfinementVerifier().verify_snap,

@@ -92,7 +92,9 @@ class TestMEIInterface(unittest.TestCase):
         get_mei_firmware_version()
         # Assert that the MEI_INTERFACE methods are called correctly
         mock_open.assert_called_once_with()
-        mock_connect.assert_called_once_with("8e6a6715-9abc-4043-88ef" "-9e39c6f63e0f")
+        mock_connect.assert_called_once_with(
+            "8e6a6715-9abc-4043-88ef" "-9e39c6f63e0f"
+        )
         mock_write.assert_called_once_with(0x000002FF)
         mock_read.assert_called_once_with(28)
         # Check Raise SystemExit

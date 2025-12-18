@@ -175,7 +175,10 @@ class JobReadinessInhibitor(pod.POD):
         necessary as well. A ValueError is raised when this is violated.
         """
         super().__init__(cause, related_job, related_expression)
-        if self.cause != InhibitionCause.UNDESIRED and self.related_job is None:
+        if (
+            self.cause != InhibitionCause.UNDESIRED
+            and self.related_job is None
+        ):
             raise ValueError(
                 # TRANSLATORS: please don't translate related_job, None and
                 # cause
@@ -218,7 +221,9 @@ class JobReadinessInhibitor(pod.POD):
                 self.related_job.id
             )
         elif self.cause == InhibitionCause.FAILED_DEP:
-            return _("required dependency {!r} has failed").format(self.related_job.id)
+            return _("required dependency {!r} has failed").format(
+                self.related_job.id
+            )
         elif self.cause == InhibitionCause.PENDING_RESOURCE:
             return _(
                 "resource expression {!r} could not be evaluated because"
@@ -237,7 +242,9 @@ class JobReadinessInhibitor(pod.POD):
 
 # A global instance of :class:`JobReadinessInhibitor` with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
-UndesiredJobReadinessInhibitor = JobReadinessInhibitor(InhibitionCause.UNDESIRED)
+UndesiredJobReadinessInhibitor = JobReadinessInhibitor(
+    InhibitionCause.UNDESIRED
+)
 
 
 JOB_VALUE = object()
@@ -264,7 +271,9 @@ class OverridableJobField(pod.Field):
         assign_filter_list=None,
     ):
         """Initialize a new overridable job field."""
-        super().__init__(doc, type, JOB_VALUE, None, notify, assign_filter_list)
+        super().__init__(
+            doc, type, JOB_VALUE, None, notify, assign_filter_list
+        )
         self.job_field = job_field
 
     def __get__(self, instance, owner):
@@ -378,7 +387,9 @@ class JobState(pod.POD):
         assert isinstance(new, IJobResult)
         if new.is_hollow:
             return
-        logger.debug("Appending result %r to history: %r", new, self.result_history)
+        logger.debug(
+            "Appending result %r to history: %r", new, self.result_history
+        )
         self.result_history += (new,)
 
     def can_start(self):
@@ -390,7 +401,10 @@ class JobState(pod.POD):
         if self.readiness_inhibitor_list:
             return _("job cannot be started: {}").format(
                 ", ".join(
-                    (str(inhibitor) for inhibitor in self.readiness_inhibitor_list)
+                    (
+                        str(inhibitor)
+                        for inhibitor in self.readiness_inhibitor_list
+                    )
                 )
             )
         else:

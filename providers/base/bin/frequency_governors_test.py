@@ -18,7 +18,9 @@ class CPUScalingTest(object):
         self.retryLimit = 5
         self.retryTolerance = 5.0  # percent
         self.sysCPUDirectory = "/sys/devices/system/cpu"
-        self.cpufreqDirectory = os.path.join(self.sysCPUDirectory, "cpu0", "cpufreq")
+        self.cpufreqDirectory = os.path.join(
+            self.sysCPUDirectory, "cpu0", "cpufreq"
+        )
         self.idaFlag = "ida"
         self.idaSpeedupFactor = 8.0  # percent
         self.selectorExe = "cpufreq-selector"
@@ -85,7 +87,9 @@ class CPUScalingTest(object):
                 return line.strip().split()
         return None
 
-    def setParameter(self, setFile, readFile, value, skip=False, automatch=False):
+    def setParameter(
+        self, setFile, readFile, value, skip=False, automatch=False
+    ):
         def findParameter(targetFile):
             logging.debug("Finding parameters for %s" % targetFile)
             for root, _, files in os.walk(self.sysCPUDirectory):
@@ -157,7 +161,9 @@ class CPUScalingTest(object):
         skip = True
         if self.checkSelectorExecutable():
             try:
-                check_call("cpufreq-selector -%s %s" % (switch, value), shell=True)
+                check_call(
+                    "cpufreq-selector -%s %s" % (switch, value), shell=True
+                )
             except CalledProcessError as exception:
                 logging.exception("Note: command failed: %s" % exception.cmd)
                 skip = False
@@ -208,7 +214,8 @@ class CPUScalingTest(object):
             line = parameterFile.readline()
             if not line:
                 logging.error(
-                    "Error: failed to get %s for %s" % (parameter, cpufreqDirectory)
+                    "Error: failed to get %s for %s"
+                    % (parameter, cpufreqDirectory)
                 )
                 return None
             values.append(line.strip())
@@ -251,14 +258,17 @@ class CPUScalingTest(object):
                 runTime = stop_elapsed_time - start_elapsed_time
             else:
                 thisTime = stop_elapsed_time - start_elapsed_time
-                if (abs(thisTime - runTime) / runTime) * 100 < self.retryTolerance:
+                if (
+                    abs(thisTime - runTime) / runTime
+                ) * 100 < self.retryTolerance:
                     return runTime
                 else:
                     runTime = thisTime
             tries += 1
 
         logging.error(
-            "Could not repeat load test times within %.1f%%" % self.retryTolerance
+            "Could not repeat load test times within %.1f%%"
+            % self.retryTolerance
         )
         return None
 
@@ -334,7 +344,9 @@ class CPUScalingTest(object):
                 logging.info("    cpu%u: %s" % (i, g))
                 i += 1
         else:
-            logging.error("Error: could not determine current governor settings")
+            logging.error(
+                "Error: could not determine current governor settings"
+            )
             return False
 
         self.getCPUFlags()
@@ -380,7 +392,9 @@ class CPUScalingTest(object):
 
             # Set the CPU speed to its lowest value
             frequency = self.minFreq
-            logging.info("Setting CPU frequency to %u MHz" % (int(frequency) / 1000))
+            logging.info(
+                "Setting CPU frequency to %u MHz" % (int(frequency) / 1000)
+            )
             if not self.setFrequency(frequency):
                 success = False
 
@@ -402,7 +416,8 @@ class CPUScalingTest(object):
             self.minimumFrequencyTestTime = self.runLoadTest()
             if not self.minimumFrequencyTestTime:
                 logging.error(
-                    "Could not retrieve the minimum frequency test's" " execution time."
+                    "Could not retrieve the minimum frequency test's"
+                    " execution time."
                 )
                 success = False
             else:
@@ -413,7 +428,9 @@ class CPUScalingTest(object):
 
             # Set the CPU speed to it's highest value as above.
             frequency = self.maxFreq
-            logging.info("Setting CPU frequency to %u MHz" % (int(frequency) / 1000))
+            logging.info(
+                "Setting CPU frequency to %u MHz" % (int(frequency) / 1000)
+            )
             if not self.setFrequency(frequency):
                 success = False
 
@@ -434,7 +451,8 @@ class CPUScalingTest(object):
             self.maximumFrequencyTestTime = self.runLoadTest()
             if not self.maximumFrequencyTestTime:
                 logging.error(
-                    "Could not retrieve the maximum frequency test's " "execution time."
+                    "Could not retrieve the maximum frequency test's "
+                    "execution time."
                 )
                 success = False
             else:
@@ -444,7 +462,9 @@ class CPUScalingTest(object):
                 )
 
             # Verify MHz increase is comparable to time % decrease
-            predictedSpeedup = float(maximumFrequency) / float(minimumFrequency)
+            predictedSpeedup = float(maximumFrequency) / float(
+                minimumFrequency
+            )
 
             # If "ida" turbo thing, increase the expectation by 8%
             if self.cpuFlags and self.idaFlag in self.cpuFlags:
@@ -458,14 +478,17 @@ class CPUScalingTest(object):
 
             if self.minimumFrequencyTestTime and self.maximumFrequencyTestTime:
                 measuredSpeedup = (
-                    self.minimumFrequencyTestTime / self.maximumFrequencyTestTime
+                    self.minimumFrequencyTestTime
+                    / self.maximumFrequencyTestTime
                 )
                 logging.info("CPU Frequency Speed Up: %.2f" % predictedSpeedup)
                 logging.info("Measured Speed Up: %.2f" % measuredSpeedup)
                 differenceSpeedUp = (
                     (measuredSpeedup - predictedSpeedup) / predictedSpeedup
                 ) * 100
-                logging.info("Percentage Difference %.1f%%" % differenceSpeedUp)
+                logging.info(
+                    "Percentage Difference %.1f%%" % differenceSpeedUp
+                )
                 if differenceSpeedUp > self.speedUpTolerance:
                     logging.error(
                         "Measured speedup vs expected speedup is %.1f%% "
@@ -479,7 +502,9 @@ class CPUScalingTest(object):
                         % (measuredSpeedup, predictedSpeedup)
                     )
             else:
-                logging.error("Not enough timing data to calculate speed differences.")
+                logging.error(
+                    "Not enough timing data to calculate speed differences."
+                )
 
         return success
 
@@ -513,7 +538,9 @@ class CPUScalingTest(object):
                 logging.warning("No On Demand load test time available.")
                 success = False
             else:
-                logging.info("On Demand load test time: %.2f" % onDemandTestTime)
+                logging.info(
+                    "On Demand load test time: %.2f" % onDemandTestTime
+                )
 
             if onDemandTestTime and self.maximumFrequencyTestTime:
                 # Compare the timing to the max results from earlier,
@@ -534,7 +561,9 @@ class CPUScalingTest(object):
                     )
                     success = False
             else:
-                logging.error("Not enough timing data to calculate speed differences.")
+                logging.error(
+                    "Not enough timing data to calculate speed differences."
+                )
 
             # Verify the current speed has returned to the lowest speed again
             if not self.verifyMinimumFrequency():
@@ -572,7 +601,8 @@ class CPUScalingTest(object):
             ):
                 logging.error(
                     "Current cpu frequency of %s is not close enough to the "
-                    "maximum value of %s" % (currentFrequency, maximumFrequency)
+                    "maximum value of %s"
+                    % (currentFrequency, maximumFrequency)
                 )
                 success = False
 
@@ -582,7 +612,9 @@ class CPUScalingTest(object):
                 logging.error("No Performance load test time available.")
                 success = False
             else:
-                logging.info("Performance load test time: %.2f" % performanceTestTime)
+                logging.info(
+                    "Performance load test time: %.2f" % performanceTestTime
+                )
 
             if performanceTestTime and self.maximumFrequencyTestTime:
                 # Compare the timing to the max results
@@ -605,7 +637,9 @@ class CPUScalingTest(object):
                     )
                     success = False
             else:
-                logging.error("Not enough timing data to calculate speed differences.")
+                logging.error(
+                    "Not enough timing data to calculate speed differences."
+                )
 
         return success
 
@@ -649,7 +683,9 @@ class CPUScalingTest(object):
                 logging.error("No Conservative load test time available.")
                 success = False
             else:
-                logging.info("Conservative load test time: %.2f" % conservativeTestTime)
+                logging.info(
+                    "Conservative load test time: %.2f" % conservativeTestTime
+                )
 
             if conservativeTestTime and self.minimumFrequencyTestTime:
                 # Compare the timing to the max results
@@ -672,18 +708,24 @@ class CPUScalingTest(object):
                     )
                     success = False
             else:
-                logging.error("Not enough timing data to calculate speed differences.")
+                logging.error(
+                    "Not enough timing data to calculate speed differences."
+                )
 
         return success
 
     def restoreGovernors(self):
-        logging.info("Restoring original governor to %s" % (self.originalGovernors[0]))
+        logging.info(
+            "Restoring original governor to %s" % (self.originalGovernors[0])
+        )
         self.setGovernor(self.originalGovernors[0])
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress output.")
+    parser.add_argument(
+        "-q", "--quiet", action="store_true", help="Suppress output."
+    )
     parser.add_argument(
         "-c",
         "--capabilities",

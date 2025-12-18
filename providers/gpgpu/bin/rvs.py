@@ -112,7 +112,10 @@ class MemModuleRunner(ModuleRunner):
     def _validate_output(self, output: str, module: str):
         # Check that every memory test passed
         for test in range(1, 12):
-            if any("mem Test %s : PASS" % test in line for line in output.splitlines()):
+            if any(
+                "mem Test %s : PASS" % test in line
+                for line in output.splitlines()
+            ):
                 continue
             return False
 
@@ -134,7 +137,9 @@ RVS_MODULES = {
 
 def parse_args():
     """Parses command-line arguments."""
-    parser = argparse.ArgumentParser(description="ROCm Validation Suite wrapper")
+    parser = argparse.ArgumentParser(
+        description="ROCm Validation Suite wrapper"
+    )
     parser.add_argument(
         "module",
         metavar="MOD",
@@ -177,13 +182,17 @@ def parse_args():
     args = parser.parse_args()
 
     if args.list_modules:
-        parser.exit(message="Modules supported: {}\n".format(" ".join(RVS_MODULES)))
+        parser.exit(
+            message="Modules supported: {}\n".format(" ".join(RVS_MODULES))
+        )
     elif not args.module:
         parser.error("--list-modules or module required")
 
     # Add default configuration if none is provided
     if args.config is None:
-        args.config = PLAINBOX_PROVIDER_DATA / "rvs-{}.conf".format(args.module)
+        args.config = PLAINBOX_PROVIDER_DATA / "rvs-{}.conf".format(
+            args.module
+        )
 
     return args
 

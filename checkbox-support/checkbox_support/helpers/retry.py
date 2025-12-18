@@ -38,10 +38,14 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
     backoff_factor = 2
     if max_attempts < 1:
         raise ValueError(
-            "max_attempts should be at least 1 ({} was used)".format(max_attempts)
+            "max_attempts should be at least 1 ({} was used)".format(
+                max_attempts
+            )
         )
     if delay < 1:
-        raise ValueError("delay should be at least 1 ({} was used)".format(delay))
+        raise ValueError(
+            "delay should be at least 1 ({} was used)".format(delay)
+        )
     for attempt in range(1, max_attempts + 1):
         attempt_string = "Attempt {}/{} (function '{}')".format(
             attempt, max_attempts, f.__name__
@@ -64,10 +68,14 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
                 initial_delay * (backoff_factor**attempt),
                 delay,
             )
-            jitter = random.uniform(0, delay * 0.5)  # Jitter: up to 50% of the delay
+            jitter = random.uniform(
+                0, delay * 0.5
+            )  # Jitter: up to 50% of the delay
             total_delay = min_delay + jitter
             print(
-                "Waiting {:.2f} seconds before retrying...".format(total_delay),
+                "Waiting {:.2f} seconds before retrying...".format(
+                    total_delay
+                ),
                 flush=True,
             )
             time.sleep(total_delay)

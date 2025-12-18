@@ -68,7 +68,9 @@ class TestClassValueRe(TestCase):
 class TestListValueRe(TestCase):
 
     def test_string(self):
-        elements = LIST_VALUE_RE.split(""""Button Horiz Wheel Right" None None""")[1::2]
+        elements = LIST_VALUE_RE.split(
+            """"Button Horiz Wheel Right" None None"""
+        )[1::2]
         self.assertTrue(elements)
         self.assertEqual(len(elements), 3)
         self.assertEqual(elements[0], '"Button Horiz Wheel Right"')

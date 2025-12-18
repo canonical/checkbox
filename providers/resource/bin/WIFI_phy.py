@@ -94,7 +94,9 @@ def create_phy_interface_mapping(phy_interface: List[Tuple[str, str]]) -> Dict:
     """
     phy_interface_mapping = {}
     for phy, interface in phy_interface:
-        phy_info_output = check_output(["iw", phy, "info"], universal_newlines=True)
+        phy_info_output = check_output(
+            ["iw", phy, "info"], universal_newlines=True
+        )
         bands = parse_phy_info_output(phy_info_output)
         freq_supported = check_freq_support(bands)
         sta_supported = check_sta_support(phy_info_output)

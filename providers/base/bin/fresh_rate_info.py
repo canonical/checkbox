@@ -59,7 +59,9 @@ def main():
     """main function"""
 
     try:
-        data = subprocess.check_output(["xrandr", "--current"], universal_newlines=True)
+        data = subprocess.check_output(
+            ["xrandr", "--current"], universal_newlines=True
+        )
     except subprocess.CalledProcessError as exc:
         return exc.returncode
 

@@ -202,7 +202,8 @@ def register_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=(
-            "This script as the enrty point for testing Vendor Specific" " Camera cases"
+            "This script as the enrty point for testing Vendor Specific"
+            " Camera cases"
         ),
     )
 
@@ -213,7 +214,8 @@ def register_arguments() -> argparse.Namespace:
     parser_resource = subparsers.add_parser(
         "generate_resource",
         help=(
-            "Generate the resource by consumming a specific " "Checkbox Configuration."
+            "Generate the resource by consumming a specific "
+            "Checkbox Configuration."
         ),
     )
 
@@ -352,7 +354,9 @@ def _setup_camera_config(args: argparse.Namespace, v4l2_devices: str) -> None:
     # Validate that the path is not just whitespace
     config_path = args.camera_setup_conf_path.strip()
     if not config_path:
-        logger.info("Empty camera setup configuration path - skipping camera setup")
+        logger.info(
+            "Empty camera setup configuration path - skipping camera setup"
+        )
         return
 
     logger.info("Setting up camera configuration from: {}".format(config_path))
@@ -364,11 +368,15 @@ def _setup_camera_config(args: argparse.Namespace, v4l2_devices: str) -> None:
         config_path = os.path.join(plainbox_provider_data, config_path)
         if os.path.exists(config_path):
             logger.debug(
-                "Loading camera setup config from provider data: {}".format(config_path)
+                "Loading camera setup config from provider data: {}".format(
+                    config_path
+                )
             )
 
     if not os.path.exists(config_path):
-        raise SystemExit("Camera setup config file not found: {}".format(config_path))
+        raise SystemExit(
+            "Camera setup config file not found: {}".format(config_path)
+        )
 
     try:
         with open(config_path, "r") as file:
@@ -384,9 +392,9 @@ def _setup_camera_config(args: argparse.Namespace, v4l2_devices: str) -> None:
         raise SystemExit(error_msg)
 
     try:
-        MediaController(setup_conf=setup_conf, v4l2_devices=v4l2_devices).do_setup(
-            width=args.width, height=args.height
-        )
+        MediaController(
+            setup_conf=setup_conf, v4l2_devices=v4l2_devices
+        ).do_setup(width=args.width, height=args.height)
         logger.info("Camera setup configuration applied successfully")
     except Exception as e:
         error_msg = "Failed to setup camera configuration: {}".format(e)
@@ -440,7 +448,9 @@ def _run_camera_test(args: argparse.Namespace) -> None:
 
     # Verify artifacts
     logger.debug(
-        "Checking all files' size in directory: '{}'".format(artifact_store_path)
+        "Checking all files' size in directory: '{}'".format(
+            artifact_store_path
+        )
     )
     check_nonzero_files(artifact_store_path)
 

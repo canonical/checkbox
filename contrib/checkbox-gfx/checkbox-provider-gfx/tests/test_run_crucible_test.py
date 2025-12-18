@@ -23,7 +23,9 @@ class TestCrucibleRunner(unittest.TestCase):
     @patch("run_crucible_test.subprocess.check_output")
     def test_run_crucible_passes_on_success_marker(self, mock_run):
         # Simulate crucible stdout that includes the success marker
-        mock_run.return_value = f"some lines...\n{SUCCESS_MARKER}\nmore lines...\n"
+        mock_run.return_value = (
+            f"some lines...\n{SUCCESS_MARKER}\nmore lines...\n"
+        )
 
         run_crucible(
             "func.depthstencil.stencil-triangles.clear-0x17.ref-0x17.compare-op-always",
@@ -38,7 +40,9 @@ class TestCrucibleRunner(unittest.TestCase):
 
         # Verify we invoked crucible with expected args
         args, kwargs = mock_run.call_args
-        self.assertIn("--fork", args[0], "Expected --fork in command arguments.")
+        self.assertIn(
+            "--fork", args[0], "Expected --fork in command arguments."
+        )
 
         # Check env and cwd were set
         self.assertEqual(kwargs["cwd"], "/fake/dir")

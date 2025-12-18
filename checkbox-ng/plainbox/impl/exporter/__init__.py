@@ -150,7 +150,11 @@ class SessionStateExporterBase(ISessionStateExporter):
         the value assigned to it, can use this API.
         """
         return sorted(
-            [option for option in self._option_dict.keys() if self._option_dict[option]]
+            [
+                option
+                for option in self._option_dict.keys()
+                if self._option_dict[option]
+            ]
         )
 
     @_option_list.setter
@@ -191,7 +195,9 @@ class SessionStateExporterBase(ISessionStateExporter):
         information from it, and dumps it to a stream.
         """
         self.dump(
-            self.get_session_data_subset(self._trim_session_manager(session_manager)),
+            self.get_session_data_subset(
+                self._trim_session_manager(session_manager)
+            ),
             stream,
         )
 
@@ -213,7 +219,9 @@ class SessionStateExporterBase(ISessionStateExporter):
         if self.OPTION_WITH_RUN_LIST in self._option_list:
             data["run_list"] = [job.id for job in session.run_list]
         if self.OPTION_WITH_DESIRED_JOB_LIST in self._option_list:
-            data["desired_job_list"] = [job.id for job in session.desired_job_list]
+            data["desired_job_list"] = [
+                job.id for job in session.desired_job_list
+            ]
         if self.OPTION_WITH_RESOURCE_MAP in self._option_list:
             data["resource_map"] = {
                 # TODO: there is no method to get all data from a Resource
@@ -239,7 +247,8 @@ class SessionStateExporterBase(ISessionStateExporter):
             data["category_map"] = {
                 unit.id: unit.tr_name()
                 for unit in session.unit_list
-                if unit.Meta.name == "category" and unit.id in wanted_category_ids
+                if unit.Meta.name == "category"
+                and unit.id in wanted_category_ids
             }
             # Inject the special, built-in 'uncategorized' category, if any
             # job needs it
@@ -251,14 +260,18 @@ class SessionStateExporterBase(ISessionStateExporter):
                 continue
             data["result_map"][job_id] = OrderedDict()
             data["result_map"][job_id]["summary"] = job_state.job.tr_summary()
-            data["result_map"][job_id]["category_id"] = job_state.effective_category_id
+            data["result_map"][job_id][
+                "category_id"
+            ] = job_state.effective_category_id
             data["result_map"][job_id]["outcome"] = job_state.result.outcome
             if job_state.result.execution_duration:
                 data["result_map"][job_id][
                     "execution_duration"
                 ] = job_state.result.execution_duration
             if self.OPTION_WITH_COMMENTS in self._option_list:
-                data["result_map"][job_id]["comments"] = job_state.result.comments
+                data["result_map"][job_id][
+                    "comments"
+                ] = job_state.result.comments
 
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:
@@ -275,7 +288,9 @@ class SessionStateExporterBase(ISessionStateExporter):
                 ):
                     if not getattr(job_state.job, prop):
                         continue
-                    data["result_map"][job_id][prop] = getattr(job_state.job, prop)
+                    data["result_map"][job_id][prop] = getattr(
+                        job_state.job, prop
+                    )
 
             # Add Attachments if requested
             if job_state.job.plugin == "attachment":
@@ -288,9 +303,13 @@ class SessionStateExporterBase(ISessionStateExporter):
                 # If requested, squash the IO log so that only textual data is
                 # saved, discarding stream name and the relative timestamp.
                 if self.OPTION_SQUASH_IO_LOG in self._option_list:
-                    io_log_data = self._squash_io_log(job_state.result.get_io_log())
+                    io_log_data = self._squash_io_log(
+                        job_state.result.get_io_log()
+                    )
                 elif self.OPTION_FLATTEN_IO_LOG in self._option_list:
-                    io_log_data = self._flatten_io_log(job_state.result.get_io_log())
+                    io_log_data = self._flatten_io_log(
+                        job_state.result.get_io_log()
+                    )
                 else:
                     io_log_data = self._io_log(job_state.result.get_io_log())
                 data["result_map"][job_id]["io_log"] = io_log_data
@@ -310,16 +329,17 @@ class SessionStateExporterBase(ISessionStateExporter):
                 if record[1] == "stdout"
             )
         )
-        data["attachment_map"][job_id] = base64.standard_b64encode(raw_bytes).decode(
-            "ASCII"
-        )
+        data["attachment_map"][job_id] = base64.standard_b64encode(
+            raw_bytes
+        ).decode("ASCII")
 
     @classmethod
     def _squash_io_log(cls, io_log):
         # Squash the IO log by discarding everything except for the 'data'
         # portion. The actual data is escaped with base64.
         return [
-            base64.standard_b64encode(record.data).decode("ASCII") for record in io_log
+            base64.standard_b64encode(record.data).decode("ASCII")
+            for record in io_log
         ]
 
     @classmethod
@@ -411,6 +431,8 @@ class ByteStringStreamTranslator(RawIOBase):
                 self.encoding,
             )
             # fall back to ASCII encoding
-            return self.dest_stream.write(data.decode("ascii", errors="ignore"))
+            return self.dest_stream.write(
+                data.decode("ascii", errors="ignore")
+            )
 
         return self.dest_stream.write(data.decode(self.encoding))

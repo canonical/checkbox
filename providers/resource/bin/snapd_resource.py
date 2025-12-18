@@ -180,7 +180,9 @@ class Features:
 
     def invoked(self):
         print(
-            "force_kernel_extraction: {}".format(self._has_kernel_extraction_feature())
+            "force_kernel_extraction: {}".format(
+                self._has_kernel_extraction_feature()
+            )
         )
         print()
 
@@ -197,7 +199,9 @@ class Features:
             # UC 20 no longer requires file presence
             if int(get_series()) >= 20:
                 return True
-            feature_f = "/snap/{}/current/meta/force-kernel-extraction".format(snap)
+            feature_f = "/snap/{}/current/meta/force-kernel-extraction".format(
+                snap
+            )
             return os.path.exists(feature_f)
         return False
 

@@ -50,7 +50,9 @@ def get_user_PROVIDERPATH_entry():
     :returns:
         `$XDG_DATA_HOME/plainbox-providers-1`
     """
-    XDG_DATA_HOME = os.getenv("XDG_DATA_HOME", os.path.expanduser("~/.local/share/"))
+    XDG_DATA_HOME = os.getenv(
+        "XDG_DATA_HOME", os.path.expanduser("~/.local/share/")
+    )
     return os.path.join(XDG_DATA_HOME, "plainbox-providers-1")
 
 
@@ -101,7 +103,10 @@ class InsecureProvider1PlugInCollection(FsPlugInCollection):
 
     def __init__(self, **kwargs):
         super().__init__(
-            self.provider_search_paths, ".provider", wrapper=Provider1PlugIn, **kwargs
+            self.provider_search_paths,
+            ".provider",
+            wrapper=Provider1PlugIn,
+            **kwargs
         )
 
     @property

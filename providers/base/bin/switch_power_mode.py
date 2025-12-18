@@ -69,7 +69,9 @@ def set_power_profile(profile):
     try:
         subprocess.check_call(["powerprofilesctl", "set", profile])
     except subprocess.CalledProcessError as e:
-        raise SystemExit("Failed to set power mode to {}.".format(profile)) from e
+        raise SystemExit(
+            "Failed to set power mode to {}.".format(profile)
+        ) from e
 
 
 @contextlib.contextmanager

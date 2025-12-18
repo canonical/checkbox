@@ -35,7 +35,6 @@ from plainbox.vendor.morris import signaldescriptor
 
 def load_tests(loader, tests, ignore):
     from plainbox.vendor import morris
-
     tests.addTests(DocTestSuite(morris))
     return tests
 
@@ -57,7 +56,7 @@ class SignalTestCaseTest(TestCase):
     """
 
     def setUp(self):
-        self.signal = Signal("signal")
+        self.signal = Signal('signal')
         self.case = FakeSignalTestCase()
 
     def test_watchSignal(self):
@@ -75,7 +74,7 @@ class SignalTestCaseTest(TestCase):
         self.case.watchSignal(self.signal)
         self.signal.fire((), {})
         sig = self.case.assertSignalFired(self.signal)
-        self.assertEqual(sig, (self.signal, (), {}))
+        self.assertEqual(sig,  (self.signal, (), {}))
 
     def test_assertSignalNotFired(self):
         """
@@ -89,12 +88,12 @@ class SignalTestCaseTest(TestCase):
         Ensure that assertSignalOrdering works correctly
         """
         self.case.watchSignal(self.signal)
-        self.signal("first")
-        self.signal("second")
-        self.signal("third")
-        first = self.case.assertSignalFired(self.signal, "first")
-        second = self.case.assertSignalFired(self.signal, "second")
-        third = self.case.assertSignalFired(self.signal, "third")
+        self.signal('first')
+        self.signal('second')
+        self.signal('third')
+        first = self.case.assertSignalFired(self.signal, 'first')
+        second = self.case.assertSignalFired(self.signal, 'second')
+        third = self.case.assertSignalFired(self.signal, 'third')
         self.case.assertSignalOrdering(first, second, third)
 
 
@@ -149,17 +148,14 @@ def get_foo_bar():
     Helper function that returns two functions, on_foo() and on_bar(), similar
     to what :class:`C1` and :class:`C2` define internally.
     """
-
     def on_foo(*args, **kwargs):
         """
         A signal accepting (ignoring) arbitrary arguments
         """
-
     def on_bar():
         """
         A signal accepting no arguments
         """
-
     return on_foo, on_bar
 
 
@@ -235,24 +231,22 @@ class SignalTestsBase(object):
         """
         Ensure that connecting signals works
         """
-
         def handler():
             pass
-
         self.c.on_foo.connect(handler)
-        self.assertIn(handler, (info.listener for info in self.c.on_foo.listeners))
+        self.assertIn(
+            handler, (info.listener for info in self.c.on_foo.listeners))
 
     def test_disconnect(self):
         """
         Ensure that disconnecting signals works
         """
-
         def handler():
             pass
-
         self.c.on_foo.connect(handler)
         self.c.on_foo.disconnect(handler)
-        self.assertNotIn(handler, (info.listener for info in self.c.on_foo.listeners))
+        self.assertNotIn(
+            handler, (info.listener for info in self.c.on_foo.listeners))
 
     def test_calling_signal_fires_them(self):
         """

@@ -34,7 +34,9 @@ class TestKernelConfig(TestCase):
     @patch("kernel_config.os.uname")
     @patch("kernel_config.decode")
     @patch("kernel_config.os.path.exists")
-    def test_get_kernel_config_path_snap(self, exists_mock, decode_mock, uname_mock):
+    def test_get_kernel_config_path_snap(
+        self, exists_mock, decode_mock, uname_mock
+    ):
         uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
         decode_mock.return_value = [{"kernel": "pc-kernel"}]
         exists_mock.side_effect = (
@@ -48,7 +50,9 @@ class TestKernelConfig(TestCase):
     @patch("kernel_config.os.uname")
     @patch("kernel_config.decode")
     @patch("kernel_config.os.path.exists")
-    def test_get_kernel_config_path_host(self, exists_mock, decode_mock, uname_mock):
+    def test_get_kernel_config_path_host(
+        self, exists_mock, decode_mock, uname_mock
+    ):
         uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
         decode_mock.return_value = []
         exists_mock.side_effect = (
@@ -62,11 +66,17 @@ class TestKernelConfig(TestCase):
     @patch("kernel_config.os.uname")
     @patch("kernel_config.decode")
     @patch("kernel_config.os.path.exists")
-    def test_get_kernel_config_path_classic(self, exists_mock, decode_mock, uname_mock):
+    def test_get_kernel_config_path_classic(
+        self, exists_mock, decode_mock, uname_mock
+    ):
         uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
         decode_mock.return_value = []
-        exists_mock.side_effect = lambda x: x == "/boot/config-5.4.0-42-generic"
-        self.assertEqual(get_kernel_config_path(), "/boot/config-5.4.0-42-generic")
+        exists_mock.side_effect = (
+            lambda x: x == "/boot/config-5.4.0-42-generic"
+        )
+        self.assertEqual(
+            get_kernel_config_path(), "/boot/config-5.4.0-42-generic"
+        )
 
     @patch("kernel_config.os.uname")
     @patch("kernel_config.decode")
@@ -80,7 +90,9 @@ class TestKernelConfig(TestCase):
 
         with self.assertRaises(SystemExit) as context:
             get_kernel_config_path()
-        self.assertEqual(str(context.exception), "Kernel configuration not found.")
+        self.assertEqual(
+            str(context.exception), "Kernel configuration not found."
+        )
 
     @patch("kernel_config.get_kernel_config_path")
     @patch("kernel_config.shutil.copy2")
@@ -210,7 +222,9 @@ class TestKernelConfig(TestCase):
     @patch("kernel_config.get_configuration")
     @patch("kernel_config.check_flag")
     @patch("kernel_config.parse_args")
-    def test_main_check_flag(self, parse_args_mock, check_flag_mock, get_config_mock):
+    def test_main_check_flag(
+        self, parse_args_mock, check_flag_mock, get_config_mock
+    ):
         parse_args_mock.return_value = MagicMock(
             output=None,
             config_flag="CONFIG_INTEL_IOMMU",
@@ -218,7 +232,9 @@ class TestKernelConfig(TestCase):
         )
 
         main()
-        check_flag_mock.assert_called_once_with("CONFIG_INTEL_IOMMU", "6.8.0-20")
+        check_flag_mock.assert_called_once_with(
+            "CONFIG_INTEL_IOMMU", "6.8.0-20"
+        )
         get_config_mock.assert_not_called()
 
     @patch("kernel_config.get_configuration")

@@ -8,7 +8,9 @@ class TestSerialCheck(unittest.TestCase):
 
     @patch("serialcheck.subprocess.run")
     def test_runcmd(self, mock_run):
-        mock_run.return_value = MagicMock(stdout="output", stderr="error", returncode=0)
+        mock_run.return_value = MagicMock(
+            stdout="output", stderr="error", returncode=0
+        )
         result = sc.runcmd("echo Hello")
 
         mock_run.assert_called_once_with(

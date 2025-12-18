@@ -73,7 +73,9 @@ class TestSwitchPowerMode(unittest.TestCase):
         """
         set_power_profile("balanced")
 
-        mock_check_call.assert_called_once_with(["powerprofilesctl", "set", "balanced"])
+        mock_check_call.assert_called_once_with(
+            ["powerprofilesctl", "set", "balanced"]
+        )
 
     @patch("subprocess.check_call")  # Mock the subprocess.check_call function
     def test_set_power_profile_low_power(self, mock_check_call):
@@ -98,7 +100,9 @@ class TestSwitchPowerMode(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             set_power_profile("performance")
 
-        self.assertEqual(str(cm.exception), "Failed to set power mode to performance.")
+        self.assertEqual(
+            str(cm.exception), "Failed to set power mode to performance."
+        )
         mock_check_call.assert_called_once_with(
             ["powerprofilesctl", "set", "performance"]
         )

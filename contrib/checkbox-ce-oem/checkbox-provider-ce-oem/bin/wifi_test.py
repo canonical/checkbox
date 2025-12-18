@@ -145,8 +145,10 @@ class WiFiManager:
         return "sudo {} c delete {}".format(self._command, self.conname)
 
     def connect_dut_cmd(self, host_if):
-        connect_cmd = "sudo {} con add type wifi ifname {} con-name {} ssid {}".format(
-            self._command, host_if, self.conname, self.ssid
+        connect_cmd = (
+            "sudo {} con add type wifi ifname {} con-name {} ssid {}".format(
+                self._command, host_if, self.conname, self.ssid
+            )
         )
         if self.key_mgmt:
             connect_cmd += " wifi-sec.key-mgmt {}" " wifi-sec.psk {}".format(
@@ -216,7 +218,9 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
                 run_command(sshpass_cmd_gen(ip, user, pwd, del_host_conn))
                 logging.info("Deleted host connection successfully.")
             except Exception as e:
-                raise SystemError("Failed to delete host connection: %s", str(e))
+                raise SystemError(
+                    "Failed to delete host connection: %s", str(e)
+                )
         else:
             raise SystemError(
                 "Unable to connect to DUT AP SSID %s after 10 attempts.", ssid
@@ -230,12 +234,16 @@ def create_conn_from_host(ip, user, pwd, connect_cmd):
         logging.info("Create connection configuration successful!")
         return True
     except Exception as e:
-        logging.warning("Unable to create connection configuration on HOST. %s", str(e))
+        logging.warning(
+            "Unable to create connection configuration on HOST. %s", str(e)
+        )
 
 
 def bring_up_conn_from_host(ip, user, pwd, up_host_conn):
     for i in range(1, 4):
-        logging.info("Attempting to bring up the connection on HOST (%d/%d)...", i, 3)
+        logging.info(
+            "Attempting to bring up the connection on HOST (%d/%d)...", i, 3
+        )
         try:
             run_command(sshpass_cmd_gen(ip, user, pwd, up_host_conn))
             logging.info("Bring up connection successful!")
@@ -256,7 +264,9 @@ def ping_test(target_ip, host_net_info: dict):
     pwd = host_net_info["pwd"]
     try:
         logging.info("Attempting to ping DUT...")
-        ping_result = run_command(sshpass_cmd_gen(ip, user, pwd, ping_cmd(target_ip)))
+        ping_result = run_command(
+            sshpass_cmd_gen(ip, user, pwd, ping_cmd(target_ip))
+        )
 
         packet_loss_match = re.search(r"(\d+)% packet loss", ping_result)
         if packet_loss_match:
@@ -266,7 +276,9 @@ def ping_test(target_ip, host_net_info: dict):
                 logging.info("Ping DUT passed.")
                 return 0
             else:
-                logging.error("Ping DUT failed with %s %% packet loss!", packet_loss)
+                logging.error(
+                    "Ping DUT failed with %s %% packet loss!", packet_loss
+                )
         else:
             logging.error("Could not parse packet loss from ping result.")
 
@@ -294,13 +306,17 @@ def main():
     wifi_parser.add_argument(
         "--channel", required=True, type=int, help="WiFi channel to use"
     )
-    wifi_parser.add_argument("--keymgmt", required=False, help="Key management method")
+    wifi_parser.add_argument(
+        "--keymgmt", required=False, help="Key management method"
+    )
     wifi_parser.add_argument(
         "--group", required=False, help="Group key management method"
     )
     wifi_parser.add_argument(
         "--ssid",
-        default="".join([random.choice(string.ascii_letters) for _ in range(10)]),
+        default="".join(
+            [random.choice(string.ascii_letters) for _ in range(10)]
+        ),
         required=False,
         help="SSID for AP mode",
     )
@@ -312,11 +328,15 @@ def main():
     )
 
     # Subparser for 'wifi-p2p'
-    wifi_p2p_parser = subparsers.add_parser("wifi-p2p", help="WiFi P2P configuration")
+    wifi_p2p_parser = subparsers.add_parser(
+        "wifi-p2p", help="WiFi P2P configuration"
+    )
     wifi_p2p_parser.add_argument(
         "--peer", required=True, help="MAC address for P2P peer"
     )
-    parser.add_argument("--interface", required=True, help="WiFi interface to use")
+    parser.add_argument(
+        "--interface", required=True, help="WiFi interface to use"
+    )
     parser.add_argument(
         "--host-ip",
         required=True,

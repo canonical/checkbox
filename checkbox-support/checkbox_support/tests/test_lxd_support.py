@@ -144,7 +144,9 @@ class TestLXD(TestCase):
 
     @patch("urllib.request.urlretrieve")
     @patch("os.path.isfile", return_value=True)
-    def test_download_image_exists(self, isfile_mock, urlretrieve_mock, logging_mock):
+    def test_download_image_exists(
+        self, isfile_mock, urlretrieve_mock, logging_mock
+    ):
         self_mock = MagicMock()
         LXD.download_image(self_mock, "https://ubuntu.com/image", "/tmp/image")
         self.assertEqual(isfile_mock.call_count, 1)
@@ -152,7 +154,9 @@ class TestLXD(TestCase):
 
     @patch("os.path.isfile", side_effect=[False, True])
     @patch("urllib.request.urlretrieve")
-    def test_download_image_success(self, urlretrieve_mock, isfile_mock, logging_mock):
+    def test_download_image_success(
+        self, urlretrieve_mock, isfile_mock, logging_mock
+    ):
         self_mock = MagicMock()
         LXD.download_image(self_mock, "https://ubuntu.com/image", "/tmp/image")
         self.assertEqual(isfile_mock.call_count, 2)
@@ -165,7 +169,9 @@ class TestLXD(TestCase):
     ):
         self_mock = MagicMock()
         with self.assertRaises(IOError):
-            LXD.download_image(self_mock, "https://ubuntu.com/image", "/tmp/image")
+            LXD.download_image(
+                self_mock, "https://ubuntu.com/image", "/tmp/image"
+            )
         self.assertEqual(isfile_mock.call_count, 1)
         self.assertTrue(urlretrieve_mock.called)
 
@@ -176,7 +182,9 @@ class TestLXD(TestCase):
     ):
         self_mock = MagicMock()
         with self.assertRaises(FileNotFoundError):
-            LXD.download_image(self_mock, "https://ubuntu.com/image", "/tmp/image")
+            LXD.download_image(
+                self_mock, "https://ubuntu.com/image", "/tmp/image"
+            )
         self.assertEqual(isfile_mock.call_count, 2)
         self.assertTrue(urlretrieve_mock.called)
 
@@ -185,7 +193,9 @@ class TestLXD(TestCase):
         LXD.insert_images(self_mock)
 
     @patch("checkbox_support.lxd_support.run_with_retry")
-    def test_insert_images_remote_success(self, logging_mock, run_with_retry_mock):
+    def test_insert_images_remote_success(
+        self, logging_mock, run_with_retry_mock
+    ):
         self_mock = MagicMock(template=None, image=None, remote="ubuntu:")
         LXD.insert_images(self_mock)
 
@@ -193,7 +203,9 @@ class TestLXD(TestCase):
         "checkbox_support.lxd_support.run_with_retry",
         side_effect=subprocess.CalledProcessError(1, "", ""),
     )
-    def test_insert_images_remote_fail(self, logging_mock, fake_run_with_retry_mock):
+    def test_insert_images_remote_fail(
+        self, logging_mock, fake_run_with_retry_mock
+    ):
         self_mock = MagicMock(template=None, image=None, remote="ubuntu:")
         with self.assertRaises(subprocess.CalledProcessError):
             LXD.insert_images(self_mock)
@@ -221,13 +233,17 @@ class TestLXD(TestCase):
     def test_launch_no_options(self, logging_mock):
         self_mock = MagicMock()
         self_mock.name = "testbed"
-        self_mock.image_alias = MagicMock(hex="656382d4-d820-4d01-944b-82b5b63041a7")
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
+        )
         LXD.launch(self_mock)
 
     def test_launch_options(self, logging_mock):
         self_mock = MagicMock()
         self_mock.name = "testbed"
-        self_mock.image_alias = MagicMock(hex="656382d4-d820-4d01-944b-82b5b63041a7")
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
+        )
         LXD.launch(self_mock, ["-d root,size=50GB"])
         self_mock.run.assert_called_with(
             "lxc launch 656382d4-d820-4d01-944b-82b5b63041a7 testbed -d root,size=50GB"
@@ -290,7 +306,9 @@ class TestLXDVM(TestCase):
         LXDVM.insert_images(self_mock)
 
     @patch("checkbox_support.lxd_support.run_with_retry")
-    def test_insert_images_remote_success(self, logging_mock, run_with_retry_mock):
+    def test_insert_images_remote_success(
+        self, logging_mock, run_with_retry_mock
+    ):
         self_mock = MagicMock(template=None, image=None, remote="ubuntu:")
         LXDVM.insert_images(self_mock)
 
@@ -299,7 +317,9 @@ class TestLXDVM(TestCase):
         self_mock.name = "testbed"
         self_mock.template = "/tmp/template"
         self_mock.image = "/tmp/image"
-        self_mock.image_alias = MagicMock(hex="656382d4-d820-4d01-944b-82b5b63041a7")
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
+        )
         LXDVM.launch(self_mock)
 
     def test_launch_no_images(self, logging_mock):
@@ -308,7 +328,9 @@ class TestLXDVM(TestCase):
         self_mock.remote = "ubuntu:"
         self_mock.template = None
         self_mock.image = None
-        self_mock.image_alias = MagicMock(hex="656382d4-d820-4d01-944b-82b5b63041a7")
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
+        )
         LXDVM.launch(self_mock)
 
     def test_launch_options(self, logging_mock):
@@ -317,7 +339,9 @@ class TestLXDVM(TestCase):
         self_mock.remote = "ubuntu:"
         self_mock.template = None
         self_mock.image = None
-        self_mock.image_alias = MagicMock(hex="656382d4-d820-4d01-944b-82b5b63041a7")
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
+        )
         LXDVM.launch(self_mock, options=["-d root,size=50GB"])
 
     @patch("checkbox_support.lxd_support.super")

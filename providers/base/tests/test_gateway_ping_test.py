@@ -19,7 +19,9 @@ from gateway_ping_test import (
 class TestRoute(unittest.TestCase):
     @patch("subprocess.check_output")
     def test__get_default_gateway_from_ip_nominal(self, mock_check_output):
-        ok_output = "default via 192.168.1.1 proto dhcp src 192.168.1.119 metric 100"
+        ok_output = (
+            "default via 192.168.1.1 proto dhcp src 192.168.1.119 metric 100"
+        )
         mock_check_output.return_value = ok_output
         expected_gateway = "192.168.1.1"
         self_mock = MagicMock()
@@ -36,7 +38,9 @@ class TestRoute(unittest.TestCase):
         self.assertIsNone(Route._get_default_gateway_from_ip(self_mock))
 
     @patch("subprocess.check_output")
-    def test__get_default_gateway_from_ip_invalid_route(self, mock_check_output):
+    def test__get_default_gateway_from_ip_invalid_route(
+        self, mock_check_output
+    ):
         invalid_output = "invalid routing information"
         mock_check_output.return_value = invalid_output
         self_mock = MagicMock()
@@ -65,7 +69,9 @@ class TestRoute(unittest.TestCase):
             eth0 00000000 0101A8C0 0003 0 0 0 00000000 0 0 0
             """
         )
-        with patch("builtins.open", new_callable=mock_open, read_data=output_sample):
+        with patch(
+            "builtins.open", new_callable=mock_open, read_data=output_sample
+        ):
             self.assertEqual(
                 Route._get_default_gateway_from_proc(self_mock),
                 expected_gateway,
@@ -79,7 +85,9 @@ class TestRoute(unittest.TestCase):
 
         self_mock._num_to_dotted_quad = _num_to_dotted_quad
         self_mock.interface = "eth0"
-        with patch("builtins.open", side_effect=FileNotFoundError("File not found")):
+        with patch(
+            "builtins.open", side_effect=FileNotFoundError("File not found")
+        ):
             self.assertIsNone(
                 Route._get_default_gateway_from_proc(self_mock),
             )
@@ -96,7 +104,9 @@ class TestRoute(unittest.TestCase):
         self.assertEqual(gateway, "192.168.1.100")
 
     @patch("gateway_ping_test.get_default_gateways")
-    def test__get_default_gateway_from_bin_route_if_not_found(self, mock_get_d_gws):
+    def test__get_default_gateway_from_bin_route_if_not_found(
+        self, mock_get_d_gws
+    ):
         mock_get_d_gws.return_value = {
             "enp5s0": "192.168.1.1",
             "wlan0": "192.168.1.100",
@@ -162,7 +172,9 @@ class TestRoute(unittest.TestCase):
         self.assertEqual(def_gateway, "192.168.1.1")
 
     @patch("subprocess.check_output")
-    def test__get_default_gateway_from_networkctl_no_gateway(self, mock_check_output):
+    def test__get_default_gateway_from_networkctl_no_gateway(
+        self, mock_check_output
+    ):
         mock_check_output.return_value = textwrap.dedent(
             """
             systemd-networkd is not running, output might be incomplete.
@@ -183,13 +195,17 @@ class TestRoute(unittest.TestCase):
         self.assertIsNone(def_gateway)
 
     @patch("subprocess.check_output")
-    def test__get_default_gateway_from_networkctl_failure(self, mock_check_output):
+    def test__get_default_gateway_from_networkctl_failure(
+        self, mock_check_output
+    ):
         mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
         def_gateway = Route("enp5s0")._get_default_gateway_from_networkctl()
         self.assertIsNone(def_gateway)
 
     @patch("subprocess.check_output")
-    def test__get_default_gateway_from_bin_route_exception(self, mock_check_output):
+    def test__get_default_gateway_from_bin_route_exception(
+        self, mock_check_output
+    ):
         mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
         self_mock = MagicMock()
         self_mock.interface = "enp1s0"
@@ -203,15 +219,21 @@ class TestRoute(unittest.TestCase):
         self_mock._get_default_gateway_from_bin_route.return_value = None
         self_mock._get_default_gateway_from_networkctl.return_value = None
 
-        self.assertEqual(Route.get_default_gateways(self_mock), {"192.168.1.1"})
+        self.assertEqual(
+            Route.get_default_gateways(self_mock), {"192.168.1.1"}
+        )
 
     @patch("logging.warning")
     def test_get_default_gateways_warns(self, mock_warn):
         self_mock = MagicMock()
         self_mock._get_default_gateway_from_ip.return_value = None
         self_mock._get_default_gateway_from_proc.return_value = None
-        self_mock._get_default_gateway_from_bin_route.return_value = "192.168.1.1"
-        self_mock._get_default_gateway_from_networkctl.return_value = "192.168.1.2"
+        self_mock._get_default_gateway_from_bin_route.return_value = (
+            "192.168.1.1"
+        )
+        self_mock._get_default_gateway_from_networkctl.return_value = (
+            "192.168.1.2"
+        )
 
         self.assertEqual(
             Route.get_default_gateways(self_mock),
@@ -224,7 +246,9 @@ class TestRoute(unittest.TestCase):
         return_value="192.168.1.203 dev enp5s0 src 192.168.1.119 uid 1000",
     )
     def test_get_interface_from_ip_ok(self, mock_check_output):
-        self.assertEqual(Route.get_interface_from_ip("192.168.1.203"), "enp5s0")
+        self.assertEqual(
+            Route.get_interface_from_ip("192.168.1.203"), "enp5s0"
+        )
 
     @patch("subprocess.check_output", return_value="")
     def test_get_interface_from_ip_no_route(self, mock_check_output):
@@ -285,7 +309,9 @@ class TestReachabilityFunctions(unittest.TestCase):
     def test_get_default_gateway_reachable_on_gateway_reachable(
         self, mock_is_reachable, mock_route
     ):
-        mock_route.return_value.get_default_gateways.return_value = ["192.168.1.1"]
+        mock_route.return_value.get_default_gateways.return_value = [
+            "192.168.1.1"
+        ]
         interface = "eth0"
         result = get_default_gateway_reachable_on(interface)
         self.assertEqual(result, "192.168.1.1")
@@ -296,7 +322,9 @@ class TestReachabilityFunctions(unittest.TestCase):
         interface = None
         with self.assertRaises(ValueError) as context:
             get_default_gateway_reachable_on(interface)
-        self.assertTrue("Unable to ping on interface None" in str(context.exception))
+        self.assertTrue(
+            "Unable to ping on interface None" in str(context.exception)
+        )
 
     @patch("gateway_ping_test.Route")
     @patch("gateway_ping_test.is_reachable", return_value=False)
@@ -339,7 +367,9 @@ class TestReachabilityFunctions(unittest.TestCase):
         interface = None
         with self.assertRaises(ValueError) as context:
             get_any_host_reachable_on(interface)
-        self.assertTrue("Unable to ping on interface None" in str(context.exception))
+        self.assertTrue(
+            "Unable to ping on interface None" in str(context.exception)
+        )
 
     @patch("gateway_ping_test.subprocess.check_output")
     @patch("gateway_ping_test.ping")
@@ -362,7 +392,8 @@ class TestReachabilityFunctions(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             get_any_host_reachable_on(interface)
         self.assertTrue(
-            "Unable to reach any host on interface eth0" in str(context.exception)
+            "Unable to reach any host on interface eth0"
+            in str(context.exception)
         )
 
     @patch("gateway_ping_test.is_reachable", return_value=True)
@@ -383,7 +414,9 @@ class TestReachabilityFunctions(unittest.TestCase):
         self.assertEqual(get_host_to_ping(None, "10.0.0.1"), "10.0.0.20")
 
     @patch("gateway_ping_test.is_reachable", return_value=False)
-    @patch("gateway_ping_test.get_any_host_reachable_on", return_value="10.0.1.2")
+    @patch(
+        "gateway_ping_test.get_any_host_reachable_on", return_value="10.0.1.2"
+    )
     @patch(
         "gateway_ping_test.get_default_gateway_reachable_on",
         side_effect=ValueError,
@@ -402,7 +435,9 @@ class TestReachabilityFunctions(unittest.TestCase):
         self.assertEqual(get_host_to_ping(None, "10.0.0.1"), "10.0.1.2")
 
     @patch("gateway_ping_test.is_reachable", return_value=False)
-    @patch("gateway_ping_test.get_any_host_reachable_on", side_effect=ValueError)
+    @patch(
+        "gateway_ping_test.get_any_host_reachable_on", side_effect=ValueError
+    )
     @patch(
         "gateway_ping_test.get_default_gateway_reachable_on",
         side_effect=ValueError,
@@ -446,7 +481,9 @@ class TestPingFunction(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_ping_failure(self, mock_check_output):
         mock_check_output.side_effect = MagicMock(
-            side_effect=subprocess.CalledProcessError(1, "ping", "ping: unknown host")
+            side_effect=subprocess.CalledProcessError(
+                1, "ping", "ping: unknown host"
+            )
         )
         result = ping("invalid.host", None)
         # Since the function does not return a detailed error for general
@@ -470,7 +507,9 @@ class TestPingFunction(unittest.TestCase):
 class TestMainFunction(unittest.TestCase):
     @patch("gateway_ping_test.get_host_to_ping")
     @patch("gateway_ping_test.ping")
-    def test_no_internet_connection_no_cause(self, mock_ping, mock_get_host_to_ping):
+    def test_no_internet_connection_no_cause(
+        self, mock_ping, mock_get_host_to_ping
+    ):
         mock_get_host_to_ping.return_value = "1.1.1.1"
         mock_ping.return_value = {
             "received": 0,
@@ -481,7 +520,9 @@ class TestMainFunction(unittest.TestCase):
 
     @patch("gateway_ping_test.get_host_to_ping")
     @patch("gateway_ping_test.ping")
-    def test_no_internet_connection_auto_cause(self, mock_ping, mock_get_host_to_ping):
+    def test_no_internet_connection_auto_cause(
+        self, mock_ping, mock_get_host_to_ping
+    ):
         mock_get_host_to_ping.return_value = None
         mock_ping.return_value = {"received": 0}
         result = main(["1.1.1.1"])
@@ -489,7 +530,9 @@ class TestMainFunction(unittest.TestCase):
 
     @patch("gateway_ping_test.get_host_to_ping")
     @patch("gateway_ping_test.ping")
-    def test_no_internet_connection_cause(self, mock_ping, mock_get_host_to_ping):
+    def test_no_internet_connection_cause(
+        self, mock_ping, mock_get_host_to_ping
+    ):
         mock_ping.return_value = {
             "received": 0,
             "transmitted": 0,
@@ -500,7 +543,9 @@ class TestMainFunction(unittest.TestCase):
 
     @patch("gateway_ping_test.get_host_to_ping")
     @patch("gateway_ping_test.ping")
-    def test_spotty_connection_with_cause(self, mock_ping, mock_get_host_to_ping):
+    def test_spotty_connection_with_cause(
+        self, mock_ping, mock_get_host_to_ping
+    ):
         mock_ping.return_value = {
             "received": 1,
             "transmitted": 2,
@@ -551,7 +596,9 @@ class TestMainFunction(unittest.TestCase):
     @patch("gateway_ping_test.is_reachable", return_value=True)
     @patch("gateway_ping_test.get_default_gateways")
     @patch("gateway_ping_test.ping")
-    def test_main_any_cable_no_iface(self, mock_ping, mock_get_default_gateways, _):
+    def test_main_any_cable_no_iface(
+        self, mock_ping, mock_get_default_gateways, _
+    ):
         mock_get_default_gateways.return_value = {
             "wlan0": "192.168.1.2",
         }

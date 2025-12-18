@@ -79,7 +79,9 @@ def class_with_syntax(cls):
     attribute. It also calls from_tokens() with the appropriate class.
     """
     if hasattr(cls, "__syntax__"):
-        cls.Syntax = (cls.__syntax__).setParseAction(cls.from_tokens).parseWithTabs()
+        cls.Syntax = (
+            (cls.__syntax__).setParseAction(cls.from_tokens).parseWithTabs()
+        )
     return cls
 
 
@@ -233,9 +235,9 @@ class Port(Node):
         # The syntax here combines a sequence of words, as defined by
         # anything other than a space and '(', delimited by a single
         # whitespace.
-        + p.delimitedList(p.Regex(r"[^ (\n]+"), " ", combine=True).setResultsName(
-            "port-label"
-        )
+        + p.delimitedList(
+            p.Regex(r"[^ (\n]+"), " ", combine=True
+        ).setResultsName("port-label")
         + p.Suppress("(")
         + p.Optional(
             p.Keyword("type").suppress()
@@ -453,7 +455,8 @@ BaseVolumeAttributeValue = p.Combine(
 
 
 SimpleAttributeValue = (
-    p.Regex(r"[^\n]*").setResultsName("attribute-value") + p.LineEnd().suppress()
+    p.Regex(r"[^\n]*").setResultsName("attribute-value")
+    + p.LineEnd().suppress()
 )
 
 # simple values
@@ -623,9 +626,9 @@ class Document(Node):
     }
 
     __syntax__ = (
-        p.OneOrMore(Record.Syntax + p.Optional("\n").suppress()).setResultsName(
-            "record-list"
-        )
+        p.OneOrMore(
+            Record.Syntax + p.Optional("\n").suppress()
+        ).setResultsName("record-list")
     ).parseWithTabs()
 
 

@@ -181,7 +181,9 @@ class Route:
             fields = line.split()
             if len(fields) > 3:
                 return fields[2]
-        raise ValueError("Unable to determine any device used for {}".format(ip))
+        raise ValueError(
+            "Unable to determine any device used for {}".format(ip)
+        )
 
     @staticmethod
     def get_any_interface():
@@ -229,7 +231,9 @@ def get_default_gateway_reachable_on(interface: str) -> str:
         if is_reachable(desired_target, interface):
             return desired_target
     raise ValueError(
-        "Unable to reach any estimated gateway of interface {}".format(interface),
+        "Unable to reach any estimated gateway of interface {}".format(
+            interface
+        ),
     )
 
 
@@ -265,7 +269,9 @@ def get_any_host_reachable_on(interface: str) -> str:
         # we were unable to get any reachable host in the arp table, this may
         # be due to a slow network, lets retry in a few seconds
         time.sleep(5)
-    raise ValueError("Unable to reach any host on interface {}".format(interface))
+    raise ValueError(
+        "Unable to reach any host on interface {}".format(interface)
+    )
 
 
 def get_host_to_ping(interface: str, target: str = None) -> "str|None":
@@ -353,7 +359,9 @@ def ping(
         }
     except StopIteration:
         ping_summary["cause"] = (
-            "Failed to parse the stats from the ping output. Log: {}".format(output)
+            "Failed to parse the stats from the ping output. Log: {}".format(
+                output
+            )
         )
     return ping_summary
 
@@ -367,9 +375,15 @@ def perform_ping_test(interfaces: List[str], target=None) -> None:
     for iface in interfaces:
         host = get_host_to_ping(iface, target)
         if not host:
-            print("Failed to find a host to ping on interface {}".format(iface))
+            print(
+                "Failed to find a host to ping on interface {}".format(iface)
+            )
             continue
-        print("Pinging {} with {} interface".format(host, iface or "*unspecified*"))
+        print(
+            "Pinging {} with {} interface".format(
+                host, iface or "*unspecified*"
+            )
+        )
         ping_summary = ping(host, iface)
         if ping_summary["received"] != ping_summary["transmitted"]:
             print("FAIL: {0}% packet loss.".format(ping_summary["pct_loss"]))
@@ -420,7 +434,9 @@ def main(argv) -> int:
         all_ifaces = get_default_gateways().keys()
         args.interfaces = list(filter(is_cable_interface, all_ifaces))
         if not args.interfaces:
-            raise SystemExit("FAIL: Couldn't find any suitable cable interface.")
+            raise SystemExit(
+                "FAIL: Couldn't find any suitable cable interface."
+            )
 
     # If no interfaces were specified, use None to let the function
     # determine the interface to use (this is to make it compliant with
@@ -438,7 +454,9 @@ def get_default_gateways() -> Dict[str, str]:
     returns a dictionary in a form of {interface_name: gateway}
     """
     try:
-        routes = subprocess.check_output(["route", "-n"], universal_newlines=True)
+        routes = subprocess.check_output(
+            ["route", "-n"], universal_newlines=True
+        )
     except subprocess.CalledProcessError as exc:
         logging.debug("Failed to run `route -n `", exc)
         return {}

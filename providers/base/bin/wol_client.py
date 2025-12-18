@@ -46,24 +46,32 @@ def send_request_to_wol_server(url, data=None):
         with urllib.request.urlopen(req) as response:
             logging.info("In the urllib request.")
             response_data = json.loads(response.read().decode("utf-8"))
-            logging.debug("Response message: {}".format(response_data["message"]))
+            logging.debug(
+                "Response message: {}".format(response_data["message"])
+            )
             status_code = response.status
             logging.debug("Status code: {}".format(status_code))
 
             if status_code == 200:
-                logging.info("Request to Wake-on-LAN server sent successfully.")
+                logging.info(
+                    "Request to Wake-on-LAN server sent successfully."
+                )
                 return
             else:
                 # If the status code is not 200, we regard the attempt as
                 # failed and throw an exception so that the decorator can
                 # catch it and retry.
                 raise RuntimeError(
-                    "WOL server returned non-200 status: {}".format(status_code)
+                    "WOL server returned non-200 status: {}".format(
+                        status_code
+                    )
                 )
 
     except urllib.error.URLError as e:
         # Handle connection errors like "Connection refused"
-        error_msg = "Failed to connect to WOL server {}: {}".format(url, e.reason)
+        error_msg = "Failed to connect to WOL server {}: {}".format(
+            url, e.reason
+        )
 
         # Provide more specific error messages for common connection issues
         if hasattr(e.reason, "errno"):
@@ -90,7 +98,11 @@ def send_request_to_wol_server(url, data=None):
 
     except Exception as e:
         # Catch any other unexpected exceptions
-        error_msg = "Unexpected error while sending request to WOL server: {}".format(e)
+        error_msg = (
+            "Unexpected error while sending request to WOL server: {}".format(
+                e
+            )
+        )
         logging.error(error_msg)
         raise RuntimeError(error_msg) from e
 
@@ -101,14 +113,18 @@ def check_wakeup(interface):
         with open(wakeup_file, "r") as f:
             wakeup_status = f.read().strip()
 
-        logging.info("Wakeup status for {}: {}".format(interface, wakeup_status))
+        logging.info(
+            "Wakeup status for {}: {}".format(interface, wakeup_status)
+        )
 
         if wakeup_status == "enabled":
             return True
         elif wakeup_status == "disabled":
             return False
         else:
-            raise ValueError("Unexpected wakeup status: {}".format(wakeup_status))
+            raise ValueError(
+                "Unexpected wakeup status: {}".format(wakeup_status)
+            )
 
     except FileNotFoundError:
         raise FileNotFoundError(
@@ -154,7 +170,9 @@ def set_rtc_wake(wake_time):
     try:
         subprocess.check_output(command, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-        raise SystemExit("Failed to set RTC wake: {}".format(e.output.decode().strip()))
+        raise SystemExit(
+            "Failed to set RTC wake: {}".format(e.output.decode().strip())
+        )
     except Exception as e:
         raise SystemExit("An unexpected error occurred: {}".format(e))
 
@@ -174,7 +192,9 @@ def s3_or_s5_system(type):
     }
 
     if type not in commands:
-        raise RuntimeError("Error: type should be s3 or s5(provided: {})".format(type))
+        raise RuntimeError(
+            "Error: type should be s3 or s5(provided: {})".format(type)
+        )
 
     try:
         subprocess.check_output(commands[type], stderr=subprocess.STDOUT)
@@ -204,7 +224,9 @@ def write_timestamp(timestamp_file):
 
 
 def parse_args(args=sys.argv[1:]):
-    parser = argparse.ArgumentParser(description="Parse command line arguments.")
+    parser = argparse.ArgumentParser(
+        description="Parse command line arguments."
+    )
 
     parser.add_argument(
         "--interface", required=True, help="The network interface to use."
@@ -250,7 +272,9 @@ def main():
 
     wakeup_enabled = check_wakeup(args.interface)
     if not wakeup_enabled:
-        raise SystemExit("wake-on-LAN of {} is disabled!".format(args.interface))
+        raise SystemExit(
+            "wake-on-LAN of {} is disabled!".format(args.interface)
+        )
 
     delay = args.delay
     num_retry = args.retry

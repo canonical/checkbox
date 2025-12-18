@@ -23,7 +23,9 @@ class DisplayConnectionTests(unittest.TestCase):
         RCT.SNAP = ""
 
     def test_display_check_happy_path(self):
-        with patch("os.listdir", return_value=["fakeCard0", "fakeCard1"]), patch(
+        with patch(
+            "os.listdir", return_value=["fakeCard0", "fakeCard1"]
+        ), patch(
             "builtins.open",
             new_callable=mock_open,
             read_data="connected",
@@ -33,7 +35,9 @@ class DisplayConnectionTests(unittest.TestCase):
     def test_display_check_no_display_path(self):
         with patch("os.listdir", return_value=["version"]):
             self.assertFalse(self.tester.has_display_connection())
-        with patch("os.listdir", return_value=["fakeCard0", "fakeCard1"]), patch(
+        with patch(
+            "os.listdir", return_value=["fakeCard0", "fakeCard1"]
+        ), patch(
             "builtins.open",
             new_callable=mock_open,
             read_data="not connected",
@@ -41,7 +45,9 @@ class DisplayConnectionTests(unittest.TestCase):
             self.assertFalse(self.tester.has_display_connection())
 
     @patch("subprocess.run")
-    def test_get_desktop_env_vars_no_desktop_session(self, mock_run: MagicMock):
+    def test_get_desktop_env_vars_no_desktop_session(
+        self, mock_run: MagicMock
+    ):
         def run_result(cmd_array: T.List[str], **_):
             if "pidof" in cmd_array:
                 return sp.CompletedProcess(cmd_array, 1, "", "")
@@ -98,7 +104,9 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_run: MagicMock,
         mock_get_desktop_envs: MagicMock,
     ):
-        mock_getenv.side_effect = lambda key: (":0" if key == "DISPLAY" else "x11")
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
         mock_get_desktop_envs.return_value = {
             "DISPLAY": ":0",
             "XDG_SESSION_TYPE": "x11",
@@ -183,7 +191,9 @@ class DisplayConnectionTests(unittest.TestCase):
     def test_is_hardware_renderer_available_glmark2_timeout(
         self, mock_getenv: MagicMock, mock_run: MagicMock
     ):
-        mock_getenv.side_effect = lambda key: (":0" if key == "DISPLAY" else "x11")
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
 
         def mock_run_side_effect(*args, **kwargs):
             if "glmark2" in args[0][0]:
@@ -209,7 +219,9 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_run: MagicMock,
         mock_get_desktop_envs: MagicMock,
     ):
-        mock_getenv.side_effect = lambda key: (":0" if key == "DISPLAY" else "x11")
+        mock_getenv.side_effect = lambda key: (
+            ":0" if key == "DISPLAY" else "x11"
+        )
         mock_get_desktop_envs.return_value = {
             "DISPLAY": ":0",
             "XDG_SESSION_TYPE": "x11",
@@ -265,7 +277,9 @@ class DisplayConnectionTests(unittest.TestCase):
             "XDG_SESSION_TYPE": "x11",
         }
         mock_run.side_effect = lambda *args, **kwargs: (
-            sp.CompletedProcess(args, 0, "x86_64") if args[0][0] == "uname" else DEFAULT
+            sp.CompletedProcess(args, 0, "x86_64")
+            if args[0][0] == "uname"
+            else DEFAULT
         )
         tester = RCT.HardwareRendererTester()
         tester.is_hardware_renderer_available()
@@ -284,9 +298,13 @@ class DisplayConnectionTests(unittest.TestCase):
         # 0 takes the list of positional args
         # 0 again takes the 1st positional arg
         # last 0 is the 1st element in sp.run()'s command array
-        self.assertEqual(mock_run.call_args_list[-1][0][0][0], "glmark2-wayland")
+        self.assertEqual(
+            mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
+        )
 
-    @patch("reboot_check_test." + "HardwareRendererTester.pick_glmark2_executable")
+    @patch(
+        "reboot_check_test." + "HardwareRendererTester.pick_glmark2_executable"
+    )
     @patch(
         "reboot_check_test."
         + "HardwareRendererTester.get_desktop_environment_variables"
@@ -495,7 +513,9 @@ class FailedServiceCheckerTests(unittest.TestCase):
         self.assertEqual(RCT.get_failed_services(), [])
 
     @patch("subprocess.run")
-    def test_get_failed_services_with_failed_services(self, mock_run: MagicMock):
+    def test_get_failed_services_with_failed_services(
+        self, mock_run: MagicMock
+    ):
         mock_run.return_value = sp.CompletedProcess(
             [],
             0,
@@ -503,7 +523,9 @@ class FailedServiceCheckerTests(unittest.TestCase):
                   for snap applictaion checkbox.agent",
             "",
         )
-        self.assertEqual(RCT.get_failed_services(), [mock_run.return_value.stdout])
+        self.assertEqual(
+            RCT.get_failed_services(), [mock_run.return_value.stdout]
+        )
 
 
 class MainFunctionTests(unittest.TestCase):
@@ -561,7 +583,9 @@ class MainFunctionTests(unittest.TestCase):
         + "HardwareRendererTester.get_desktop_environment_variables"
     )
     @patch("subprocess.run")
-    def test_main_function_full(self, mock_run: MagicMock, mock_get_desktop_envs):
+    def test_main_function_full(
+        self, mock_run: MagicMock, mock_get_desktop_envs
+    ):
         mock_run.side_effect = do_nothing
         mock_get_desktop_envs.return_value = {
             "DISPLAY": ":0",
@@ -602,7 +626,9 @@ class MainFunctionTests(unittest.TestCase):
 
             # <= is an overloaded operator for sets
             # that checks the isSubset relation
-            self.assertLessEqual(expected_commands, actual, "should be a subset")
+            self.assertLessEqual(
+                expected_commands, actual, "should be a subset"
+            )
 
             with patch(
                 "reboot_check_test.get_failed_services"
@@ -616,6 +642,8 @@ class MainFunctionTests(unittest.TestCase):
     def test_only_comparison_is_specified(self):
         with patch(
             "sys.argv",
-            sh_split('reboot_check_test.py -c "{}"'.format(self.tmp_output_dir)),
+            sh_split(
+                'reboot_check_test.py -c "{}"'.format(self.tmp_output_dir)
+            ),
         ), self.assertRaises(ValueError):
             RCT.main()

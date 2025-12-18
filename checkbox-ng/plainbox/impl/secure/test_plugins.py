@@ -142,7 +142,9 @@ class PlugInCollectionBaseTests(TestCase):
         verify that PlugInCollectionBase.get_by_name() works
         """
         with self.col.fake_plugins([self.plug1]):
-            self.assertEqual(self.col.get_by_name(self.plug1.plugin_name), self.plug1)
+            self.assertEqual(
+                self.col.get_by_name(self.plug1.plugin_name), self.plug1
+            )
 
     def test_get_by_name__missing(self):
         """
@@ -167,7 +169,9 @@ class PlugInCollectionBaseTests(TestCase):
         verify that PlugInCollectionBase.get_all_plugins() works
         """
         with self.col.fake_plugins([self.plug1, self.plug2]):
-            self.assertEqual(self.col.get_all_plugins(), [self.plug1, self.plug2])
+            self.assertEqual(
+                self.col.get_all_plugins(), [self.plug1, self.plug2]
+            )
 
     def test_get_all_plugin_objects(self):
         """
@@ -269,8 +273,12 @@ class PlugInCollectionBaseTests(TestCase):
         self.col.wrap_and_add_plugin("new-name", "new-obj", self.LOAD_TIME)
         self.assertIn("new-name", self.col._plugins)
         self.assertEqual(self.col._plugins["new-name"].plugin_name, "new-name")
-        self.assertEqual(self.col._plugins["new-name"].plugin_object, "new-obj")
-        self.assertEqual(self.col._plugins["new-name"].plugin_load_time, self.LOAD_TIME)
+        self.assertEqual(
+            self.col._plugins["new-name"].plugin_object, "new-obj"
+        )
+        self.assertEqual(
+            self.col._plugins["new-name"].plugin_load_time, self.LOAD_TIME
+        )
 
     @mock.patch("plainbox.impl.secure.plugins.logger")
     def test_wrap_and_add_plugin__problem(self, mock_logger):
@@ -281,7 +289,9 @@ class PlugInCollectionBaseTests(TestCase):
         with mock.patch.object(self.col, "_wrapper") as mock_wrapper:
             mock_wrapper.side_effect = PlugInError
             self.col.wrap_and_add_plugin("new-name", "new-obj", self.LOAD_TIME)
-            mock_wrapper.assert_called_with("new-name", "new-obj", self.LOAD_TIME)
+            mock_wrapper.assert_called_with(
+                "new-name", "new-obj", self.LOAD_TIME
+            )
         self.assertIsInstance(self.col.problem_list[0], PlugInError)
         self.assertNotIn("new-name", self.col._plugins)
         mock_logger.warning.assert_called_once_with(
@@ -300,7 +310,9 @@ class PlugInCollectionBaseTests(TestCase):
                 self.args = args
                 self.kwargs = kwargs
 
-        col = DummyPlugInCollection(False, TestPlugIn, 1, 2, 3, some="argument")
+        col = DummyPlugInCollection(
+            False, TestPlugIn, 1, 2, 3, some="argument"
+        )
         col.wrap_and_add_plugin("name", "obj", self.LOAD_TIME)
         self.assertEqual(col._plugins["name"].args, (1, 2, 3))
         self.assertEqual(col._plugins["name"].kwargs, {"some": "argument"})
@@ -374,7 +386,9 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()
         # Ensure that an exception was logged
-        mock_logger.exception.assert_called_with("Unable to import %s", mock_ep2)
+        mock_logger.exception.assert_called_with(
+            "Unable to import %s", mock_ep2
+        )
         # Ensure that the error was collected
         self.assertIsInstance(self.col.problem_list[0], ImportError)
 
@@ -562,6 +576,8 @@ class FsPlugInCollectionTests(TestCase):
             "text",
         )
         self.assertEqual(
-            col.get_by_name(os.path.join(self._P1, "bar.txt.in")).plugin_object,
+            col.get_by_name(
+                os.path.join(self._P1, "bar.txt.in")
+            ).plugin_object,
             "text",
         )

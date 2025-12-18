@@ -66,7 +66,9 @@ class DigitalIOSysFsController:
             direction (str): the direction of gpio port
         """
         print("# Set GPIO {} direction to {}".format(port, value))
-        with open("{}/gpio{}/direction".format(self.ROOT_PATH, port), "w") as fp:
+        with open(
+            "{}/gpio{}/direction".format(self.ROOT_PATH, port), "w"
+        ) as fp:
             fp.write("{}\n".format(value))
 
     def configure_gpio(self, port, direction):

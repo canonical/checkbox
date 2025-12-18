@@ -90,13 +90,17 @@ class XLSXSessionStateExporterTests(TestCase):
         state = SessionState(job_list)
         data["manager"].default_device_context.state = state
         XLSXSessionStateExporter.write_tp_export(self_mock, data)
-        self_mock.worksheet4.write_row.assert_called_with(ANY, 0, ["test", "", ""], ANY)
+        self_mock.worksheet4.write_row.assert_called_with(
+            ANY, 0, ["test", "", ""], ANY
+        )
         state.update_desired_job_list(job_list)
         state.unit_list.append(unit)
 
         data["manager"].default_device_context.state = state
         XLSXSessionStateExporter.write_tp_export(self_mock, data)
-        self_mock.worksheet4.write_row.assert_any_call(ANY, 0, ["A", "", "A"], ANY)
+        self_mock.worksheet4.write_row.assert_any_call(
+            ANY, 0, ["A", "", "A"], ANY
+        )
         self_mock.worksheet4.write_row.assert_any_call(
             ANY, 0, ["B", "blocker", "B"], ANY
         )

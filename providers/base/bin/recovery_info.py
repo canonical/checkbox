@@ -65,7 +65,9 @@ _escape_pattern = re.compile(r"\\x([0-9a-fA-F][0-9a-fA-F])")
 
 def lsblk_unescape(label):
     """Un-escape text escaping done by lsblk(8)."""
-    return _escape_pattern.sub(lambda match: chr(int(match.group(1), 16)), label)
+    return _escape_pattern.sub(
+        lambda match: chr(int(match.group(1), 16)), label
+    )
 
 
 def get_recovery_partition():
@@ -131,7 +133,9 @@ class MountedPartition(object):
 
         Unmount and remove the mntdir.
         """
-        subprocess.check_output(["umount", self.mntdir], universal_newlines=True)
+        subprocess.check_output(
+            ["umount", self.mntdir], universal_newlines=True
+        )
         os.rmdir(self.mntdir)
 
 
@@ -163,11 +167,15 @@ class RecoveryInfo:
 
         if subcommand == "checktype":
             if len(sys.argv) != 3:
-                raise SystemExit("ERROR: recovery_info.py checktype EXPECTED_TYPE")
+                raise SystemExit(
+                    "ERROR: recovery_info.py checktype EXPECTED_TYPE"
+                )
             expected_type = sys.argv[2]
             if recovery_type != expected_type:
                 raise SystemExit(
-                    "FAIL: expected {}, found {}".format(expected_type, recovery_type)
+                    "FAIL: expected {}, found {}".format(
+                        expected_type, recovery_type
+                    )
                 )
 
         if subcommand == "file":

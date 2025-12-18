@@ -54,7 +54,9 @@ class DeprecatedDecoratorTests(TestCase):
         with warnings.catch_warnings(record=True) as warning_list:
             warnings.simplefilter("always")
             result = callable(*args, **kwds)
-            self.assertTrue(any(item.category == warning for item in warning_list))
+            self.assertTrue(
+                any(item.category == warning for item in warning_list)
+            )
             return result, warning_list
 
     def test_func_deprecation_warning(self):

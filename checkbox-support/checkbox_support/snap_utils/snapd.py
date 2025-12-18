@@ -96,7 +96,9 @@ class Snapd:
                             task["status"], task["summary"], total_progress
                         )
                     else:
-                        message = "({}) {}".format(task["status"], task["summary"])
+                        message = "({}) {}".format(
+                            task["status"], task["summary"]
+                        )
                     self._info(message)
                 elif task["status"] == "Wait":
                     message = "({}) {}".format(task["status"], task["summary"])

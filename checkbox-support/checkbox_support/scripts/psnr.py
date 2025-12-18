@@ -34,9 +34,13 @@ def psnr_args() -> argparse.ArgumentParser:
         ArgumentParser: The configured argument parser
     """
     parser = argparse.ArgumentParser(
-        description=("Calculate PSNR between two files." " File can be image or video.")
+        description=(
+            "Calculate PSNR between two files." " File can be image or video."
+        )
     )
-    parser.add_argument("reference_file", type=str, help="Path to the reference file")
+    parser.add_argument(
+        "reference_file", type=str, help="Path to the reference file"
+    )
     parser.add_argument("test_file", type=str, help="Path to the test file")
     parser.add_argument(
         "-s",
@@ -100,7 +104,9 @@ def get_average_psnr(
 
 def main() -> None:
     args = psnr_args()
-    avg_psnr, psnr_each_frame = get_average_psnr(args.reference_file, args.test_file)
+    avg_psnr, psnr_each_frame = get_average_psnr(
+        args.reference_file, args.test_file
+    )
     print("Average PSNR: ", avg_psnr)
     if args.show_psnr_each_frame:
         print("PSNR each frame: ", psnr_each_frame)

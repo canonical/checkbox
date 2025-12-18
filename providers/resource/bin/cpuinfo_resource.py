@@ -30,7 +30,9 @@ CPUINFO_FILENAME = "/proc/cpuinfo"
 FREQUENCY_FILENAME = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
 
 # Filename where available frequency governors are stored.
-GOVERNORS_FILENAME = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors"
+GOVERNORS_FILENAME = (
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors"
+)
 
 # Files for indicating system lpi(low power idle) residency
 SYSLPICHECK_FILENAMES = (

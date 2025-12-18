@@ -44,7 +44,10 @@ def MockJobDefinition(id, *args, **kwargs):
     Mock for JobDefinition class
     """
     job = Mock(
-        *args, name="job-with-id:{}".format(id), spec_set=JobDefinition, **kwargs
+        *args,
+        name="job-with-id:{}".format(id),
+        spec_set=JobDefinition,
+        **kwargs
     )
     job.id = id
     return job

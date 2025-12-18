@@ -41,7 +41,9 @@ class TestCollector(TestCase):
         with patch(
             "plainbox.impl.session.system_information.check_output"
         ) as check_output_mock:
-            check_output_mock.side_effect = CalledProcessError(1, "Command failed")
+            check_output_mock.side_effect = CalledProcessError(
+                1, "Command failed"
+            )
             version = Collector.collect_version(self_mock)
         # Don't crash when version collection fails but report the error
         # in the version info
@@ -92,7 +94,9 @@ class TestCollector(TestCase):
 
         try:
             json.loads(collection_result.stdout)
-            self.fail("{} should be an invalid json".format(collection_result.stdout))
+            self.fail(
+                "{} should be an invalid json".format(collection_result.stdout)
+            )
         except json.JSONDecodeError as e:
             exception_str = str(e)
 
@@ -109,7 +113,9 @@ class TestCollector(TestCase):
 
     def test_collect_ok(self):
         collector = Collector(version_cmd=[], collection_cmd=[])
-        with patch("plainbox.impl.session.system_information.run") as run_mock, patch(
+        with patch(
+            "plainbox.impl.session.system_information.run"
+        ) as run_mock, patch(
             "plainbox.impl.session.system_information.check_output"
         ) as check_output_mock:
             check_output_mock.return_value = "version_str"
@@ -120,14 +126,18 @@ class TestCollector(TestCase):
 
             collection_output = collector.collect()
             # Correctly report an OutputSuccess as outputs
-            self.assertTrue(isinstance(collection_output.outputs, OutputSuccess))
+            self.assertTrue(
+                isinstance(collection_output.outputs, OutputSuccess)
+            )
             # The version_str is stored as is
             self.assertEqual(collection_output.tool_version, "version_str")
             self.assertTrue(collection_output.success)
 
     def test_collect_fail(self):
         collector = Collector(version_cmd=[], collection_cmd=[])
-        with patch("plainbox.impl.session.system_information.run") as run_mock, patch(
+        with patch(
+            "plainbox.impl.session.system_information.run"
+        ) as run_mock, patch(
             "plainbox.impl.session.system_information.check_output"
         ) as check_output_mock:
             check_output_mock.return_value = "version_str"
@@ -138,7 +148,9 @@ class TestCollector(TestCase):
 
             collection_output = collector.collect()
             # Correctly report an OutputSuccess as outputs
-            self.assertTrue(isinstance(collection_output.outputs, OutputFailure))
+            self.assertTrue(
+                isinstance(collection_output.outputs, OutputFailure)
+            )
             # The version_str is stored as is
             self.assertEqual(collection_output.tool_version, "version_str")
             # The return code is stored as is
@@ -149,7 +161,9 @@ class TestCollector(TestCase):
 class TestCollectionOutput(TestCase):
     def test_to_dict_success(self):
         output_success = OutputSuccess({"key": "value"}, "")
-        collection_output = CollectionOutput(tool_version="1.0", outputs=output_success)
+        collection_output = CollectionOutput(
+            tool_version="1.0", outputs=output_success
+        )
         expected_dict = {
             "tool_version": "1.0",
             "success": True,
@@ -159,7 +173,9 @@ class TestCollectionOutput(TestCase):
 
     def test_to_dict_failure(self):
         output_failure = OutputFailure("Failure", "", 1)
-        collection_output = CollectionOutput(tool_version="1.0", outputs=output_failure)
+        collection_output = CollectionOutput(
+            tool_version="1.0", outputs=output_failure
+        )
         expected_dict = {
             "tool_version": "1.0",
             "success": False,

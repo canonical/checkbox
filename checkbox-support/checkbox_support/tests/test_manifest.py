@@ -24,7 +24,9 @@ from checkbox_support.manifest import get_manifest
 
 class TestManifest(TestCase):
     def test_manifest_present(self):
-        mock_file = mock_open(read_data='{"com.canonical.certification::some": true}')
+        mock_file = mock_open(
+            read_data='{"com.canonical.certification::some": true}'
+        )
         with patch("builtins.open", mock_file) as _:
             manifest = get_manifest()
         self.assertTrue(manifest["com.canonical.certification::some"])

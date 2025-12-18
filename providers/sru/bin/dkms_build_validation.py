@@ -84,7 +84,9 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
                 )
             )
 
-    sorted_kernel_info = sorted(kernel_info, key=lambda x: parse_version(x["version"]))
+    sorted_kernel_info = sorted(
+        kernel_info, key=lambda x: parse_version(x["version"])
+    )
     return sorted_kernel_info
 
 
@@ -162,7 +164,9 @@ def has_dkms_build_errors(kernel_ver_current: str) -> int:
         log = f.readlines()
         err_line_numbers = {i for i, line in enumerate(log) if err_msg in line}
         if err_line_numbers:
-            logger.error("Found dkms build error messages in {}".format(log_path))
+            logger.error(
+                "Found dkms build error messages in {}".format(log_path)
+            )
             logger.error("\n=== build log ===")
             err_with_context = get_context_lines(log, err_line_numbers)
             logger.error("".join(err_with_context))
@@ -186,7 +190,9 @@ def main():
 
     # kernel_ver_max should be the same as kernel_ver_current
     kernel_ver_current = run_command(["uname", "-r"])
-    if check_kernel_version(kernel_ver_current, sorted_kernel_info, dkms_status):
+    if check_kernel_version(
+        kernel_ver_current, sorted_kernel_info, dkms_status
+    ):
         return 1
 
     # Count the occurrences of the latest and the oldest kernel version and

@@ -146,7 +146,9 @@ class AxisData(threading.Thread):
     def grab_current_readings(self):
         """Search device path and return axis tuple"""
         time.sleep(0.5)  # Sleep to accomodate slower processors
-        data_file = os.path.join("/sys", self.device_path, "device", "position")
+        data_file = os.path.join(
+            "/sys", self.device_path, "device", "position"
+        )
 
         # Try and retrieve positional data from kernel
         try:
@@ -267,7 +269,9 @@ def check_module_status():
     }
 
     oem_module = None
-    dmi_info = Popen(["dmidecode"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    dmi_info = Popen(
+        ["dmidecode"], stdout=PIPE, stderr=PIPE, universal_newlines=True
+    )
 
     output, error = dmi_info.communicate()
 

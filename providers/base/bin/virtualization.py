@@ -220,7 +220,9 @@ class QemuRunner(object):
         elif self.config["qemu_disk_type"] == QEMU_DISK_TYPE_VIRTIO:
             drive = drive + ["file=%s,if=virtio" % (cloudimg)]
         elif self.config["qemu_disk_type"] == QEMU_DISK_TYPE_VIRTIO_BLK:
-            drive = drive + ["file=%s,if=none,id=disk.%d" % (cloudimg, self.drive_id)]
+            drive = drive + [
+                "file=%s,if=none,id=disk.%d" % (cloudimg, self.drive_id)
+            ]
             drive = drive + [
                 "-device",
                 "virtio-blk-device,drive=disk.%d" % (self.drive_id),
@@ -344,7 +346,9 @@ class KVMTest(object):
             if (
                 url.path.endswith("/")
                 or url.path == ""
-                or not (url.path.endswith(".img") or url.path.endswith(".tar.gz"))
+                or not (
+                    url.path.endswith(".img") or url.path.endswith(".tar.gz")
+                )
             ):
                 # If we have a relative URL (local copies of official images)
                 # http://192.168.0.1/ or http://192.168.0.1/images/
@@ -398,7 +402,9 @@ class KVMTest(object):
             urllib.error.HTTPError,
             urllib.error.URLError,
         ) as exception:
-            logging.error("Failed download of image from %s: %s", image_url, exception)
+            logging.error(
+                "Failed download of image from %s: %s", image_url, exception
+            )
             return False
 
         # Unpack img file from tar
@@ -444,7 +450,9 @@ class KVMTest(object):
         logging.debug("Using params:{}".format(" ".join(params)))
 
         logging.info(
-            "Storing VM console output in {}".format(os.path.realpath(self.debug_file))
+            "Storing VM console output in {}".format(
+                os.path.realpath(self.debug_file)
+            )
         )
         # Open VM STDERR/STDOUT log file for writing
         try:
@@ -506,13 +514,20 @@ class KVMTest(object):
             logging.debug("Checking QEMU version for arm64 arch")
             cmd = "apt-cache policy qemu-system-arm | grep Installed"
             installed_version = (
-                check_output(["/bin/bash", "-c", cmd]).decode().split(":", 1)[1].strip()
+                check_output(["/bin/bash", "-c", cmd])
+                .decode()
+                .split(":", 1)[1]
+                .strip()
             )
 
-            cmd = 'dpkg --compare-versions "2.0.0" "lt" "{}"'.format(installed_version)
+            cmd = 'dpkg --compare-versions "2.0.0" "lt" "{}"'.format(
+                installed_version
+            )
             retcode = call(["/bin/bash", "-c", cmd])
             if retcode != 0:
-                logging.error("arm64 needs qemu-system version later than " "2.0.0")
+                logging.error(
+                    "arm64 needs qemu-system version later than " "2.0.0"
+                )
                 return 1
 
         logging.debug("Starting KVM Test")
@@ -529,7 +544,9 @@ class KVMTest(object):
                 # Download cloud image
                 self.image = self.download_image()
             else:
-                logging.debug("Cloud image location specified: %s" % self.image)
+                logging.debug(
+                    "Cloud image location specified: %s" % self.image
+                )
                 self.image = self.url_to_path(self.image)
 
             if self.image and os.path.isfile(self.image):
@@ -628,7 +645,9 @@ class LXDTest(object):
         task = RunCommand(cmd)
         if task.returncode != 0:
             logging.error(
-                "Command {} returned a code of {}".format(task.cmd, task.returncode)
+                "Command {} returned a code of {}".format(
+                    task.cmd, task.returncode
+                )
             )
             logging.error(" STDOUT: {}".format(task.stdout))
             logging.error(" STDERR: {}".format(task.stderr))
@@ -680,7 +699,9 @@ class LXDTest(object):
             targetfile = urlparse(self.rootfs_url).path.split("/")[-1]
             filename = os.path.join("/tmp", targetfile)
             if not os.path.isfile(filename):
-                self.rootfs_tarball = self.download_images(self.rootfs_url, filename)
+                self.rootfs_tarball = self.download_images(
+                    self.rootfs_url, filename
+                )
                 if not self.rootfs_tarball:
                     logging.error(
                         "Unable to download {} from{}".format(
@@ -705,12 +726,14 @@ class LXDTest(object):
             result = self.run_command(cmd)
             if not result:
                 logging.error(
-                    "Error encountered while attempting to " "import images into LXD"
+                    "Error encountered while attempting to "
+                    "import images into LXD"
                 )
                 result = False
         else:
             logging.debug(
-                "No local image available, attempting to " "import from default remote."
+                "No local image available, attempting to "
+                "import from default remote."
             )
             retry = 2
             cmd = "lxc image copy {}{} local: --alias {}".format(
@@ -732,7 +755,9 @@ class LXDTest(object):
         Downloads LXD files for same release as host machine
         """
         # TODO: Clean this up to use a non-internet simplestream on MAAS server
-        logging.debug("Attempting download of {} from {}".format(filename, url))
+        logging.debug(
+            "Attempting download of {} from {}".format(filename, url)
+        )
         try:
             urllib.request.urlretrieve(url, filename)
         except (
@@ -741,7 +766,9 @@ class LXDTest(object):
             urllib.error.HTTPError,
             urllib.error.URLError,
         ) as exception:
-            logging.error("Failed download of image from %s: %s", url, exception)
+            logging.error(
+                "Failed download of image from %s: %s", url, exception
+            )
             return False
         except ValueError as verr:
             logging.error("Invalid URL %s" % url)
@@ -773,7 +800,9 @@ class LXDTest(object):
 
         # Create container
         logging.debug("Launching container")
-        if not self.run_command("lxc launch {} {}".format(self.image_alias, self.name)):
+        if not self.run_command(
+            "lxc launch {} {}".format(self.image_alias, self.name)
+        ):
             return False
 
         logging.debug("Container listing:")
@@ -808,7 +837,9 @@ class LXDTest_vm(object):
         task = RunCommand(cmd)
         if task.returncode != 0:
             logging.error(
-                "Command {} returned a code of {}".format(task.cmd, task.returncode)
+                "Command {} returned a code of {}".format(
+                    task.cmd, task.returncode
+                )
             )
             logging.error(" STDOUT: {}".format(task.stdout))
             if log_stderr:
@@ -861,7 +892,9 @@ class LXDTest_vm(object):
             targetfile = urlparse(self.image_url).path.split("/")[-1]
             filename = os.path.join("/tmp", targetfile)
             if not os.path.isfile(filename):
-                self.image_tarball = self.download_images(self.image_url, filename)
+                self.image_tarball = self.download_images(
+                    self.image_url, filename
+                )
                 if not self.image_tarball:
                     logging.error(
                         "Unable to download {} from{}".format(
@@ -886,7 +919,8 @@ class LXDTest_vm(object):
             result = self.run_command(cmd)
             if not result:
                 logging.error(
-                    "Error encountered while attempting to " "import images into LXD"
+                    "Error encountered while attempting to "
+                    "import images into LXD"
                 )
                 result = False
         return result
@@ -896,7 +930,9 @@ class LXDTest_vm(object):
         Downloads LXD files for same release as host machine
         """
         # TODO: Clean this up to use a non-internet simplestream on MAAS server
-        logging.debug("Attempting download of {} from {}".format(filename, url))
+        logging.debug(
+            "Attempting download of {} from {}".format(filename, url)
+        )
         try:
             urllib.request.urlretrieve(url, filename)
         except (
@@ -905,7 +941,9 @@ class LXDTest_vm(object):
             urllib.error.HTTPError,
             urllib.error.URLError,
         ) as exception:
-            logging.error("Failed download of image from %s: %s", url, exception)
+            logging.error(
+                "Failed download of image from %s: %s", url, exception
+            )
             return False
         except ValueError as verr:
             logging.error("Invalid URL %s" % url)
@@ -939,7 +977,8 @@ class LXDTest_vm(object):
         logging.debug("Launching Virtual Machine")
         if not self.image_url and not self.template_url:
             logging.debug(
-                "No local image available, attempting to " "import from default remote."
+                "No local image available, attempting to "
+                "import from default remote."
             )
             cmd = "lxc init {}{} {} --vm ".format(
                 self.default_remote, self.os_version, self.name
@@ -1077,8 +1116,12 @@ def main():
     subparsers = parser.add_subparsers()
 
     # Main cli options
-    kvm_test_parser = subparsers.add_parser("kvm", help=("Run kvm virtualization test"))
-    lxd_test_parser = subparsers.add_parser("lxd", help=("Run the LXD validation test"))
+    kvm_test_parser = subparsers.add_parser(
+        "kvm", help=("Run kvm virtualization test")
+    )
+    lxd_test_parser = subparsers.add_parser(
+        "lxd", help=("Run the LXD validation test")
+    )
     lxd_test_vm_parser = subparsers.add_parser(
         "lxdvm", help=("Run the LXD VM validation test")
     )

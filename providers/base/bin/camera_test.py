@@ -293,7 +293,9 @@ class CameraTest:
             sep="",
         )
 
-        formats = self._supported_formats_to_string(self._get_supported_formats(device))
+        formats = self._supported_formats_to_string(
+            self._get_supported_formats(device)
+        )
         formats = formats.replace("Resolutions:", "    Resolutions:")
         formats = formats.replace("Format:", "    Format:")
         print(formats)
@@ -378,7 +380,9 @@ class CameraTest:
         """
         webcam = self.Gst.ElementFactory.make("v4l2src")
         webcam.set_property("device", self.device)
-        wrappercamerabinsrc = self.Gst.ElementFactory.make("wrappercamerabinsrc")
+        wrappercamerabinsrc = self.Gst.ElementFactory.make(
+            "wrappercamerabinsrc"
+        )
         wrappercamerabinsrc.set_property("video-source", webcam)
         pipeline = self.Gst.ElementFactory.make("camerabin", "pipeline")
         pipeline.set_property("camera-source", wrappercamerabinsrc)
@@ -397,8 +401,12 @@ class CameraTest:
             )
         if not supported_resolutions:
             raise SystemExit("No supported resolutions found!")
-        width = min(supported_resolutions.keys(), key=lambda x: abs(x - self._width))
-        height = min(supported_resolutions[width], key=lambda y: abs(y - self._height))
+        width = min(
+            supported_resolutions.keys(), key=lambda x: abs(x - self._width)
+        )
+        height = min(
+            supported_resolutions[width], key=lambda y: abs(y - self._height)
+        )
         vf_caps = self.Gst.Caps.from_string(
             "video/x-raw, width={}, height={}".format(width, height)
         )
@@ -427,12 +435,16 @@ class CameraTest:
         # list[(int, int)]
         self._width, self._height = default_format["resolutions"][0]
         if self.output:
-            self._capture_image(self.output, self._width, self._height, pixelformat)
+            self._capture_image(
+                self.output, self._width, self._height, pixelformat
+            )
         else:
             with NamedTemporaryFile(
                 prefix="camera_test_", suffix=".jpg", delete=False
             ) as f:
-                self._capture_image(f.name, self._width, self._height, pixelformat)
+                self._capture_image(
+                    f.name, self._width, self._height, pixelformat
+                )
 
     def _capture_image(self, filename, width, height, pixelformat):
         """
@@ -440,7 +452,9 @@ class CameraTest:
         fswebcam, it will try to capture the image with gstreamer.
         """
         # Try to take a picture with fswebcam
-        if not self._capture_image_fswebcam(filename, width, height, pixelformat):
+        if not self._capture_image_fswebcam(
+            filename, width, height, pixelformat
+        ):
             print("Failed to capture image with fswebcam, using gstreamer")
             # If fswebcam fails, try with gstreamer
             self._capture_image_gstreamer(filename, width, height, pixelformat)
@@ -466,7 +480,9 @@ class CameraTest:
 
         if pixelformat:
             # special tweak for fswebcam
-            command.extend(["-p", pixelformat if pixelformat != "MJPG" else "MJPEG"])
+            command.extend(
+                ["-p", pixelformat if pixelformat != "MJPG" else "MJPEG"]
+            )
         try:
             check_call(command, stdout=open(os.devnull, "w"), stderr=STDOUT)
             return os.path.getsize(filename) != 0
@@ -664,7 +680,10 @@ class CameraTest:
         self.headless = True
 
         format = self._get_default_format()
-        print("Taking multiple images using the %s pixelformat" % format["pixelformat"])
+        print(
+            "Taking multiple images using the %s pixelformat"
+            % format["pixelformat"]
+        )
 
         if self.output:
             self._save_debug_image(format, self.device, self.output)
@@ -679,7 +698,9 @@ class CameraTest:
             )
             print("Taking a picture at %sx%s" % (w, h))
 
-            self._capture_image(f.name, w, h, pixelformat=format["pixelformat"])
+            self._capture_image(
+                f.name, w, h, pixelformat=format["pixelformat"]
+            )
             if self._validate_image(f.name, w, h):
                 print("Validated image %s" % f.name)
                 os.remove(f.name)
@@ -695,7 +716,9 @@ class CameraTest:
         """
         # Check if the output directory exists
         if not os.path.exists(output):
-            raise SystemExit("Output directory does not exist: {}".format(output))
+            raise SystemExit(
+                "Output directory does not exist: {}".format(output)
+            )
 
         # Choose one resolution image to store as an artifact. We will use
         # the closest resolution to 640x480 as the target to have some
@@ -745,7 +768,8 @@ class CameraTest:
             # more formats, so we ignore it
             if e.errno != errno.EINVAL:
                 print(
-                    "Unable to determine Pixel Formats, this may be a " "driver issue."
+                    "Unable to determine Pixel Formats, this may be a "
+                    "driver issue."
                 )
             return supported_pixel_formats
         return supported_pixel_formats
@@ -781,7 +805,9 @@ class CameraTest:
             framesize.pixel_format = supported_format["pixelformat_int"]
             with open(device, "r") as vd:
                 try:
-                    while fcntl.ioctl(vd, VIDIOC_ENUM_FRAMESIZES, framesize) == 0:
+                    while (
+                        fcntl.ioctl(vd, VIDIOC_ENUM_FRAMESIZES, framesize) == 0
+                    ):
                         if framesize.type == V4L2_FRMSIZE_TYPE_DISCRETE:
                             resolutions.append(
                                 [
@@ -888,13 +914,15 @@ class CameraTest:
                 return False
             if outw != width:
                 print(
-                    "Image width does not match, was %s should be %s" % (outw, width),
+                    "Image width does not match, was %s should be %s"
+                    % (outw, width),
                     file=sys.stderr,
                 )
                 return False
             if outh != height:
                 print(
-                    "Image width does not match, was %s should be %s" % (outh, height),
+                    "Image width does not match, was %s should be %s"
+                    % (outh, height),
                     file=sys.stderr,
                 )
                 return False
@@ -936,7 +964,9 @@ def parse_arguments(argv):
         group.add_argument(
             "--highest-device",
             action="store_true",
-            help=("Use the /dev/videoN where N is the highest value available"),
+            help=(
+                "Use the /dev/videoN where N is the highest value available"
+            ),
         )
         group.add_argument(
             "--lowest-device",

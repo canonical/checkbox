@@ -89,7 +89,9 @@ def get_all_binary_builds(
     started after started_date (UTC+0)
     """
     recipe_target = recipe_name_to_source_name(build_recipe.name)
-    builds = build_recipe.daily_build_archive.getBuildRecords(source_name=recipe_target)
+    builds = build_recipe.daily_build_archive.getBuildRecords(
+        source_name=recipe_target
+    )
 
     # date_first_dispatched is filled in once a build is dispatched
     # and is the actual start time, it can be None if the build is
@@ -257,10 +259,14 @@ def build_monitor_recipe(project_name: str, recipe_name: str):
     source_builds_to_check = get_all_source_builds(build_recipe, start_time)
     builds_unrecoverable = monitor_retry_builds(source_builds_to_check)
 
-    builds_unrecoverable += monitor_retry_binary_builds(build_recipe, start_time)
+    builds_unrecoverable += monitor_retry_binary_builds(
+        build_recipe, start_time
+    )
 
     if builds_unrecoverable:
-        weblinks_of_failed = "\n".join(build.web_link for build in builds_unrecoverable)
+        weblinks_of_failed = "\n".join(
+            build.web_link for build in builds_unrecoverable
+        )
         raise SystemExit(
             "The following failed and can't be recovered\n"
             + textwrap.indent(weblinks_of_failed, "  ")

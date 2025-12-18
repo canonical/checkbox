@@ -38,7 +38,9 @@ class FanMonitorTests(unittest.TestCase):
                 fan_monitor = FanMonitor()
                 # Mock the open function to return a mocked file objects
                 with patch("builtins.open") as mock_open:
-                    mock_open.return_value.__enter__().read.return_value = "1000"
+                    mock_open.return_value.__enter__().read.return_value = (
+                        "1000"
+                    )
                     rpm = fan_monitor.get_rpm()
                     self.assertEqual(rpm, {"hwmon1/fan1_input": 1000})
 
@@ -53,7 +55,9 @@ class FanMonitorTests(unittest.TestCase):
                 mock_path.return_value = "foo"
                 fan_monitor = FanMonitor()
                 with patch("builtins.open") as mock_open:
-                    mock_open.return_value.__enter__().read.return_value = "1000"
+                    mock_open.return_value.__enter__().read.return_value = (
+                        "1000"
+                    )
                     rpm = fan_monitor.get_rpm()
                     self.assertEqual(
                         rpm,
@@ -70,7 +74,9 @@ class FanMonitorTests(unittest.TestCase):
                     "/sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0"
                 )
                 with patch("builtins.open") as mock_open:
-                    mock_open.return_value.__enter__().read.return_value = "0x030000"
+                    mock_open.return_value.__enter__().read.return_value = (
+                        "0x030000"
+                    )
                     # This test case includes the possibility that there is no CPU fan
                     # If considering the absence of a CPU fan as a failure, then modification is needed here
                     # (Because there is no CPU fan to test with)
@@ -97,9 +103,13 @@ class FanMonitorTests(unittest.TestCase):
                 ]
                 with patch("builtins.open") as mock_open:
                     # Mock the return values for the two fans
-                    mock_open.return_value.__enter__().read.return_value = "0x030000"
+                    mock_open.return_value.__enter__().read.return_value = (
+                        "0x030000"
+                    )
                     fan_monitor = FanMonitor()
                     with patch("builtins.open") as mock_open:
-                        mock_open.return_value.__enter__().read.return_value = "1000"
+                        mock_open.return_value.__enter__().read.return_value = (
+                            "1000"
+                        )
                         rpm = fan_monitor.get_rpm()
                         self.assertEqual(rpm, {"hwmon2/fan2_input": 1000})

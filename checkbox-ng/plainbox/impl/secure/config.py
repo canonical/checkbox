@@ -176,7 +176,9 @@ class Variable(INameTracking):
             #
             # If the value _is_ unset and the validator doesn't claim to
             # support it then just skip it.
-            if value is Unset and not getattr(validator, "understands_Unset", False):
+            if value is Unset and not getattr(
+                validator, "understands_Unset", False
+            ):
                 continue
             message = validator(self, value)
             if message is not None:
@@ -371,7 +373,9 @@ class ConfigMeta(type):
             if hasattr(namespace["Meta"], "section_list"):
                 section_list = namespace["Meta"].section_list[:]
             if hasattr(namespace["Meta"], "parametric_section_list"):
-                parametric_section_list = namespace["Meta"].parametric_section_list[:]
+                parametric_section_list = namespace[
+                    "Meta"
+                ].parametric_section_list[:]
         # Discover all Variable and Section instances
         # defined in the class namespace
         for attr_name, attr_value in namespace.items():
@@ -445,7 +449,9 @@ class PlainBoxConfigParser(configparser.ConfigParser):
                 fp, self.default_section, sorted(self._defaults.items()), d
             )
         for section in self._sections:
-            self._write_section(fp, section, sorted(self._sections[section].items()), d)
+            self._write_section(
+                fp, section, sorted(self._sections[section].items()), d
+            )
 
     def getlist(
         self,
@@ -674,7 +680,9 @@ class Config(metaclass=ConfigMeta):
         for variable in self.Meta.variable_list:
             # Access the variable in the configuration file
             try:
-                value = reader_fn[variable.kind](variable.section, variable.name)
+                value = reader_fn[variable.kind](
+                    variable.section, variable.name
+                )
             except (configparser.NoSectionError, configparser.NoOptionError):
                 value = variable.default
             # Try to assign it
@@ -694,7 +702,9 @@ class Config(metaclass=ConfigMeta):
         # Load all parametric sections
         for parametric_section in self.Meta.parametric_section_list:
             matching_keys = [
-                k for k in parser.keys() if k.startswith(parametric_section.name + ":")
+                k
+                for k in parser.keys()
+                if k.startswith(parametric_section.name + ":")
             ]
             value = dict()
             for key in matching_keys:

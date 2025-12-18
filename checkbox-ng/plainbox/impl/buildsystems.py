@@ -47,7 +47,9 @@ class MakefileBuildSystem(IBuildSystem):
     def get_build_command(self, src_dir: str, build_dir: str) -> str:
         return "VPATH={} make -f {}".format(
             shlex.quote(os.path.relpath(src_dir, build_dir)),
-            shlex.quote(os.path.relpath(os.path.join(src_dir, "Makefile"), build_dir)),
+            shlex.quote(
+                os.path.relpath(os.path.join(src_dir, "Makefile"), build_dir)
+            ),
         )
 
 

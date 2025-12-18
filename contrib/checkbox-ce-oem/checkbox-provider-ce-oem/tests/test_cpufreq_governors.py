@@ -131,7 +131,9 @@ class TestCPUSStress(unittest.TestCase):
     def test_stress_cpus(self, mock_cpu_count, mock_popen):
         mock_cpu_count.return_value = 4  # Simulating 4 CPU cores
         mock_popen_instance = MagicMock()
-        mock_popen.return_value = mock_popen_instance  # Mocking the Popen object
+        mock_popen.return_value = (
+            mock_popen_instance  # Mocking the Popen object
+        )
 
         stress_cpus()
 
@@ -143,7 +145,9 @@ class TestCPUSStress(unittest.TestCase):
     @patch("cpufreq_governors.subprocess.Popen")
     def test_stop_stress_cpus(self, mock_popen):
         # Mocking a list of mock Popen objects
-        mock_processes = [MagicMock() for _ in range(4)]  # Simulating 4 CPU cores
+        mock_processes = [
+            MagicMock() for _ in range(4)
+        ]  # Simulating 4 CPU cores
 
         stop_stress_cpus(mock_processes)
 

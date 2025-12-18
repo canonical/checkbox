@@ -41,7 +41,9 @@ from plainbox.vendor import mock
 
 def load_tests(loader, tests, ignore):
     tests.addTests(
-        doctest.DocTestSuite("plainbox.impl.result", optionflags=doctest.REPORT_NDIFF)
+        doctest.DocTestSuite(
+            "plainbox.impl.result", optionflags=doctest.REPORT_NDIFF
+        )
     )
     return tests
 

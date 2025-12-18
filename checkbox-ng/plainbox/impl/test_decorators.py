@@ -43,9 +43,13 @@ class RaisesTests(unittest.TestCase):
             def meth(self):
                 pass
 
-        self.assertEqual(C.meth.__annotations__["raise"], (ValueError, IOError))
+        self.assertEqual(
+            C.meth.__annotations__["raise"], (ValueError, IOError)
+        )
 
-    @unittest.skipIf(sys.version_info[0:2] < (3, 4), "assertLogs not supported")
+    @unittest.skipIf(
+        sys.version_info[0:2] < (3, 4), "assertLogs not supported"
+    )
     def test_logs_and_forwards_unknown_exceptions(self):
         @raises(ValueError)
         def func():
@@ -56,7 +60,12 @@ class RaisesTests(unittest.TestCase):
                 func()
         self.assertEqual(
             cm.output,
-            ["ERROR:plainbox.bug:" "Undeclared exception KeyError raised from func"],
+            [
+                (
+                    "ERROR:plainbox.bug:"
+                    "Undeclared exception KeyError raised from func"
+                )
+            ],
         )
 
     def test_forwards_known_exceptions(self):

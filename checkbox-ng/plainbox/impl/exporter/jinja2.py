@@ -134,7 +134,9 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         if version.parse(jinja2.__version__) >= version.parse("2.9.0"):
             env = Environment(loader=loader)
         else:
-            env = Environment(loader=loader, extensions=["jinja2.ext.autoescape"])
+            env = Environment(
+                loader=loader, extensions=["jinja2.ext.autoescape"]
+            )
         self.customize_environment(env)
 
         def include_file(name):

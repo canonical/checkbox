@@ -256,7 +256,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         else:
             problem_msg = older_msg
 
-        raise SystemExit(problem_msg.format(agent_api_version, controller_api_version))
+        raise SystemExit(
+            problem_msg.format(agent_api_version, controller_api_version)
+        )
 
     def connect_and_run(self, host, port=18871):
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
@@ -423,7 +425,10 @@ class RemoteController(ReportsStage, MainLoopStage):
             # no session to resume
             return False
         # Resume the session if the last session was abandoned during the setup
-        if SessionMetaData.FLAG_SETTING_UP in last_abandoned_session.metadata.flags:
+        if (
+            SessionMetaData.FLAG_SETTING_UP
+            in last_abandoned_session.metadata.flags
+        ):
             return True
         # resume session in agent to be able to peek at the latest job run
         # info
@@ -522,7 +527,8 @@ class RemoteController(ReportsStage, MainLoopStage):
             self.sa.bootstrap()
         last_job = metadata.running_job_name
         is_cert_blocker = (
-            self.sa.get_job_state(last_job).effective_certification_status == "blocker"
+            self.sa.get_job_state(last_job).effective_certification_status
+            == "blocker"
         )
         # If we resumed maybe not rerun the same, probably broken job
         result_dict = {
@@ -547,7 +553,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         elif resume_params.action == "skip":
             if is_cert_blocker and not resume_params.comments:
                 # cert blockers must be commented when skipped
-                result_dict["comments"] = request_comment("why you want to skip it.")
+                result_dict["comments"] = request_comment(
+                    "why you want to skip it."
+                )
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
@@ -577,7 +585,9 @@ class RemoteController(ReportsStage, MainLoopStage):
             # this can't fail as we have adopted the result when this is set
             # so if the job doesn't exist, it will crash before
             starting_index = next(
-                i for (i, job_id) in enumerate(setup_jobs) if job_id == last_running_job
+                i
+                for (i, job_id) in enumerate(setup_jobs)
+                if job_id == last_running_job
             )
             # if the job outcome was already decided (either interactively or
             # by the resume process) go on
@@ -638,7 +648,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                 # the entries list is just a copy of the resume_candidates,
                 # and it's not updated when we delete a session, so we need
                 # to update it manually
-                entries = [en for en in entries if en[0] != resume_params.session_id]
+                entries = [
+                    en for en in entries if en[0] != resume_params.session_id
+                ]
 
                 if not entries:
                     # if everything got deleted let's go back to the test plan
@@ -686,12 +698,18 @@ class RemoteController(ReportsStage, MainLoopStage):
             _logger.info("Skipping saving of the manifest")
             return
 
-        if interactive and ManifestBrowser.has_visible_manifests(manifest_repr):
+        if interactive and ManifestBrowser.has_visible_manifests(
+            manifest_repr
+        ):
             # Ask the user the values
-            to_save_manifest = ManifestBrowser("System Manifest:", manifest_repr).run()
+            to_save_manifest = ManifestBrowser(
+                "System Manifest:", manifest_repr
+            ).run()
         else:
             # Use the one provided in repr (either non-interactive or no visible manifests)
-            to_save_manifest = ManifestBrowser.get_flattened_values(manifest_repr)
+            to_save_manifest = ManifestBrowser.get_flattened_values(
+                manifest_repr
+            )
 
         self.sa.save_manifest_json(json.dumps(to_save_manifest))
 
@@ -704,7 +722,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self._save_manifest(interactive=False)
         else:
             _logger.info("controller: Selecting jobs.")
-            reprs = json.loads(self.sa.get_jobs_repr_json(json.dumps(all_jobs)))
+            reprs = json.loads(
+                self.sa.get_jobs_repr_json(json.dumps(all_jobs))
+            )
             wanted_set = CategoryBrowser(
                 "Choose tests to run on your system:", reprs
             ).run()
@@ -726,7 +746,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         parser.add_argument(
             "--port", type=int, default=18871, help=_("port to connect to")
         )
-        parser.add_argument("-u", "--user", help=_("normal user to run non-root jobs"))
+        parser.add_argument(
+            "-u", "--user", help=_("normal user to run non-root jobs")
+        )
 
     def _handle_interrupt(self):
         """
@@ -766,7 +788,11 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def wait_and_continue(self, progress):
         print("Rejoined session.")
-        print("In progress: {} ({}/{})".format(progress[2], progress[0], progress[1]))
+        print(
+            "In progress: {} ({}/{})".format(
+                progress[2], progress[0], progress[1]
+            )
+        )
         self.wait_for_job()
         self.run_interactable_jobs()
 
@@ -782,7 +808,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         print(_("Category: {0}").format(job["category_name"]))
         SimpleUI.horiz_line()
         print(
-            _("Outcome") + ": " + SimpleUI.C.result(self.sa.get_job_result(job["id"]))
+            _("Outcome")
+            + ": "
+            + SimpleUI.C.result(self.sa.get_job_result(job["id"]))
         )
 
     def run_uninteractable_jobs(
@@ -812,7 +840,10 @@ class RemoteController(ReportsStage, MainLoopStage):
         """
         Runs the desired job list in normal mode (post bootstrap).
         """
-        if resumed_ongoing_session_info and resumed_ongoing_session_info["last_job"]:
+        if (
+            resumed_ongoing_session_info
+            and resumed_ongoing_session_info["last_job"]
+        ):
             self._handle_last_job_after_resume(resumed_ongoing_session_info)
         _logger.info("controller: Running jobs.")
         jobs = json.loads(self.sa.get_session_progress_json())
@@ -823,7 +854,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         total_num = len(jobs["done"]) + len(jobs["todo"])
 
         jobs_repr = json.loads(
-            self.sa.get_jobs_repr_json(json.dumps(jobs["todo"]), len(jobs["done"]))
+            self.sa.get_jobs_repr_json(
+                json.dumps(jobs["todo"]), len(jobs["done"])
+            )
         )
 
         self._run_interactable_jobs(jobs_repr, total_num)
@@ -924,7 +957,10 @@ class RemoteController(ReportsStage, MainLoopStage):
         # we wait before retrying
         delay = self.launcher.get_value("ui", "delay_before_retry")
         _logger.info(
-            _("Waiting {} seconds before retrying failed" " jobs...".format(delay))
+            _(
+                "Waiting {} seconds before retrying failed"
+                " jobs...".format(delay)
+            )
         )
         time.sleep(delay)
         # include resource jobs that jobs to retry depend on
@@ -961,7 +997,9 @@ class RemoteController(ReportsStage, MainLoopStage):
             # Note: job_state is a remote object, no need to json encode it
             self.sa.note_metadata_starting_job_json(json.dumps(job), job_state)
             SimpleUI.header(
-                _("Running job {} / {}").format(job["num"], total_num, fill="-")
+                _("Running job {} / {}").format(
+                    job["num"], total_num, fill="-"
+                )
             )
             SimpleUI.header(job["name"])
             print(_("ID: {0}").format(job["id"]))
@@ -980,7 +1018,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                         if job["command"] is None:
                             cmd = "run"
                         else:
-                            cmd = SimpleUI(None).wait_for_interaction_prompt(None)
+                            cmd = SimpleUI(None).wait_for_interaction_prompt(
+                                None
+                            )
                         if cmd == "skip":
                             next_job = True
                         elif cmd == "quit":
@@ -993,7 +1033,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                         if job["command"] is None:
                             cmd = "run"
                         else:
-                            cmd = SimpleUI(None).wait_for_interaction_prompt(None)
+                            cmd = SimpleUI(None).wait_for_interaction_prompt(
+                                None
+                            )
                         if cmd == "skip":
                             next_job = True
                         elif cmd == "quit":
@@ -1011,7 +1053,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                                 job_lite, job_state, interaction.extra._builder
                             )
                             self.sa.remember_users_response(cmd)
-                            self.finish_job(interaction.extra._builder.get_result())
+                            self.finish_job(
+                                interaction.extra._builder.get_result()
+                            )
                             next_job = True
                             break
                         except ReRunJob:
@@ -1023,13 +1067,18 @@ class RemoteController(ReportsStage, MainLoopStage):
                             break
                     elif kind == "comment":
                         new_comment = input(
-                            SimpleUI.C.BLUE(_("Please enter your comments:") + "\n")
+                            SimpleUI.C.BLUE(
+                                _("Please enter your comments:") + "\n"
+                            )
                         )
                         self.sa.remember_users_response(new_comment + "\n")
                     elif kind == "skip":
                         if (
-                            job_state.effective_certification_status == "blocker"
-                            and not isinstance(interaction.extra._builder.comments, str)
+                            job_state.effective_certification_status
+                            == "blocker"
+                            and not isinstance(
+                                interaction.extra._builder.comments, str
+                            )
                         ):
                             print(
                                 self.C.RED(
@@ -1054,7 +1103,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                             )
                             break
                         else:
-                            self.finish_job(interaction.extra._builder.get_result())
+                            self.finish_job(
+                                interaction.extra._builder.get_result()
+                            )
                             next_job = True
                             break
                 else:

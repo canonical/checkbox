@@ -47,7 +47,10 @@ DEFAULT_INTEL_PLUGIN_VERSION = "v0.30.0"
 @mock.patch("time.sleep", new=lambda x: None)
 class TestInstallIntelGpuPlugin(unittest.TestCase):
     version = DEFAULT_INTEL_PLUGIN_VERSION
-    repo = "https://github.com/intel/" "intel-device-plugins-for-kubernetes/deployments"
+    repo = (
+        "https://github.com/intel/"
+        "intel-device-plugins-for-kubernetes/deployments"
+    )
     apply = "kubectl apply -k "
 
     def setUp(self):
@@ -73,10 +76,14 @@ class TestInstallIntelGpuPlugin(unittest.TestCase):
             f"{self.repo}/nfd/overlays/node-feature-rules?ref={self.version}",
             self.temp_dir_path,
         ]
-        calls = [mock.call(f"{self.apply} {url}".split(), check=True) for url in urls]
+        calls = [
+            mock.call(f"{self.apply} {url}".split(), check=True)
+            for url in urls
+        ]
 
         gpu_plugin_url = (
-            f"{self.repo}/gpu_plugin/overlays/" f"nfd_labeled_nodes?ref={self.version}"
+            f"{self.repo}/gpu_plugin/overlays/"
+            f"nfd_labeled_nodes?ref={self.version}"
         )
         with (
             open(os.path.join(self.temp_dir_path, "kustomization.yaml")) as f,
@@ -84,7 +91,9 @@ class TestInstallIntelGpuPlugin(unittest.TestCase):
         ):
             kustomization = yaml.safe_load(f)
             with self.subTest("resources url"):
-                self.assertListEqual(kustomization["resources"], [gpu_plugin_url])
+                self.assertListEqual(
+                    kustomization["resources"], [gpu_plugin_url]
+                )
 
             with self.subTest("num patches"):
                 patches = kustomization["patches"]
@@ -177,7 +186,9 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
         containerd_config_path = (
             "/var/snap/microk8s/current/args/containerd-template.toml"
         )
-        containerd_socket_path = "/var/snap/microk8s/common/run/containerd.sock"
+        containerd_socket_path = (
+            "/var/snap/microk8s/common/run/containerd.sock"
+        )
         helm_config = {
             "toolkit": {
                 "env": [
@@ -213,7 +224,9 @@ class TestInstallNvidialGpuOperator(unittest.TestCase):
 class TestMainCli(unittest.TestCase):
     def test_vendor_must_be_intel_or_nvidia(self, nvidia_setup, intel_setup):
         version = "version"
-        for vendor, microk8s in itertools.product(["intel", "nvidia"], [True, False]):
+        for vendor, microk8s in itertools.product(
+            ["intel", "nvidia"], [True, False]
+        ):
             args = [vendor, version]
             if microk8s:
                 args.append("--microk8s")

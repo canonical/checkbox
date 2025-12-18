@@ -128,7 +128,9 @@ class TestDKMSValidation(unittest.TestCase):
 
     def test_parse_dkms_status_added_only(self):
         ubuntu_release = "22.04"
-        kernel_info = parse_dkms_status(self.dkms_status_added_only, ubuntu_release)
+        kernel_info = parse_dkms_status(
+            self.dkms_status_added_only, ubuntu_release
+        )
         expected_kernel_info = []
         self.assertEqual(kernel_info, expected_kernel_info)
 
@@ -154,7 +156,9 @@ class TestDKMSValidation(unittest.TestCase):
 
     def test_parse_dkms_status_with_warning(self):
         ubuntu_release = "22.04"
-        kernel_info = parse_dkms_status(self.dkms_status_with_warning, ubuntu_release)
+        kernel_info = parse_dkms_status(
+            self.dkms_status_with_warning, ubuntu_release
+        )
         expected_kernel_info = [
             {"version": "6.0.0-1011-oem", "status": "installed"},
         ]
@@ -181,12 +185,16 @@ class TestDKMSValidation(unittest.TestCase):
 
     def test_parse_version(self):
         # Test with a valid version string
-        self.assertEqual(parse_version("6.5.0-18-generic"), Version("6.5.0.post18"))
+        self.assertEqual(
+            parse_version("6.5.0-18-generic"), Version("6.5.0.post18")
+        )
         # Test with a shorter valid version string
         self.assertEqual(parse_version("6.5.0"), Version("6.5.0"))
 
         # Test with an different version string
-        self.assertNotEqual(parse_version("6.5.0-20-generic"), Version("6.5.0.post18"))
+        self.assertNotEqual(
+            parse_version("6.5.0-20-generic"), Version("6.5.0.post18")
+        )
 
         # Test with an invalid version string
         with self.assertRaises(SystemExit):

@@ -76,7 +76,9 @@ def start_echo_server(interface, fd_mode, delay=0.001):
             except OSError as e:
                 logging.error(e)
                 if e.errno == 90:
-                    raise SystemExit("ERROR: interface does not support FD Mode")
+                    raise SystemExit(
+                        "ERROR: interface does not support FD Mode"
+                    )
                 else:
                     raise SystemExit("ERROR: OSError on attempt to send")
 
@@ -144,7 +146,9 @@ def echo_test(interface, can_id, eff_flag, fd_mode):
     logging.info("Initial CAN Link object with %s", interface)
     with prepare_can_link(interface, fd_mode):
         can_socket = CANSocket(interface, fd_mode)
-        can_pkt = can_socket.struct_packet(can_id_i, data_b, id_flags, fd_frame=fd_mode)
+        can_pkt = can_socket.struct_packet(
+            can_id_i, data_b, id_flags, fd_frame=fd_mode
+        )
         can_socket.send(can_pkt, timeout=5)
 
         can_recv_pkt = can_socket.recv(5)
@@ -173,7 +177,9 @@ def stress_echo_test(interface, can_id, eff_flag, fd_mode, count=30):
     # So we need to generate extra random data (56 bytes)
     data_size = 56 if fd_mode else 0
 
-    can_id_i, prefix_data, id_flags = _random_can_data(can_id, eff_flag, data_size)
+    can_id_i, prefix_data, id_flags = _random_can_data(
+        can_id, eff_flag, data_size
+    )
 
     logging.info("Initial CAN Link object with %s", interface)
     with prepare_can_link(interface, fd_mode):
@@ -187,7 +193,12 @@ def stress_echo_test(interface, can_id, eff_flag, fd_mode, count=30):
                     [
                         prefix_data,
                         bytes.fromhex(
-                            str(int(datetime.datetime.now().timestamp() * 1000000))
+                            str(
+                                int(
+                                    datetime.datetime.now().timestamp()
+                                    * 1000000
+                                )
+                            )
                         ),
                     ]
                 ),
@@ -218,18 +229,24 @@ def stress_echo_test(interface, can_id, eff_flag, fd_mode, count=30):
 
         end_time = datetime.datetime.now()
         logging.info(
-            "# End stress echo string test at {}".format(end_time.strftime(time_format))
+            "# End stress echo string test at {}".format(
+                end_time.strftime(time_format)
+            )
         )
 
         elapsed_time = end_time - start_time
-        logging.info("received %s frames in %s", len(recv_records), elapsed_time)
+        logging.info(
+            "received %s frames in %s", len(recv_records), elapsed_time
+        )
 
         if len(recv_records) == count:
             logging.info("# Checking the data in received frames")
             failed_count = 0
             for index, data in enumerate(original_records):
                 # validate data field in CAN packet only
-                if not _validate_packet_data(can_socket, data, recv_records[index]):
+                if not _validate_packet_data(
+                    can_socket, data, recv_records[index]
+                ):
                     failed_count += 1
 
             if failed_count > 0:
@@ -252,7 +269,9 @@ def register_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="SocketCAN Tests",
     )
-    parser.add_argument("-d", "--device", required=True, help="CAN network interface")
+    parser.add_argument(
+        "-d", "--device", required=True, help="CAN network interface"
+    )
     parser.add_argument("-f", "--fd-mode", action="store_true", default=False)
     parser.add_argument(
         "--debug",
@@ -273,7 +292,9 @@ def register_arguments():
         default="stress-echo",
     )
     client_parser.add_argument("-c", "--can-id", type=str, required=True)
-    client_parser.add_argument("-e", "--eff-mode", action="store_true", default=False)
+    client_parser.add_argument(
+        "-e", "--eff-mode", action="store_true", default=False
+    )
     client_parser.add_argument("-l", "--loop", type=int, default=30)
 
     args = parser.parse_args()

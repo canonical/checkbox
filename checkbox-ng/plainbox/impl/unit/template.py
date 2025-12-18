@@ -175,7 +175,9 @@ class TemplateUnit(UnitWithId):
         """
         if origin is None:
             origin = Origin.get_caller_origin()
-        super().__init__(data, raw_data, origin, provider, parameters, field_offset_map)
+        super().__init__(
+            data, raw_data, origin, provider, parameters, field_offset_map
+        )
         self._filter_program = None
         self._fake_resources = False
 
@@ -195,10 +197,12 @@ class TemplateUnit(UnitWithId):
         # This assertion is a low-cost trick to ensure that we override this
         # method in all of the subclasses to ensure that the initializer is
         # called with correctly-ordered arguments.
-        assert cls is TemplateUnit, "{}.instantiate_template() not customized".format(
-            cls.__name__
+        assert (
+            cls is TemplateUnit
+        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        return cls(
+            data, raw_data, origin, provider, parameters, field_offset_map
         )
-        return cls(data, raw_data, origin, provider, parameters, field_offset_map)
 
     def __str__(self):
         """String representation of Template unit objects."""
@@ -282,7 +286,9 @@ class TemplateUnit(UnitWithId):
     def template_id(self):
         """Identifier of this template, with the provider namespace."""
         if self.provider and self.template_partial_id:
-            return "{}::{}".format(self.provider.namespace, self.template_partial_id)
+            return "{}::{}".format(
+                self.provider.namespace, self.template_partial_id
+            )
         else:
             return self.template_partial_id
 
@@ -431,7 +437,9 @@ class TemplateUnit(UnitWithId):
             if self.should_instantiate(resource):
                 index += 1
                 resources.append(
-                    self.instantiate_one(resource, unit_cls_hint=unit_cls, index=index)
+                    self.instantiate_one(
+                        resource, unit_cls_hint=unit_cls, index=index
+                    )
                 )
         return resources
 
@@ -486,7 +494,9 @@ class TemplateUnit(UnitWithId):
         accessed_parameters = set(
             itertools.chain(
                 *{
-                    get_accessed_parameters(value, template_engine=self.template_engine)
+                    get_accessed_parameters(
+                        value, template_engine=self.template_engine
+                    )
                     for value in data.values()
                 }
             )
@@ -497,7 +507,9 @@ class TemplateUnit(UnitWithId):
         # when resuming and bootstrapping sessions, causing job checksums
         # mismatches.
         # See https://bugs.launchpad.net/bugs/1561821
-        parameters = {k: v for k, v in parameters.items() if k in accessed_parameters}
+        parameters = {
+            k: v for k, v in parameters.items() if k in accessed_parameters
+        }
         if self._fake_resources:
             parameters = {k: k.upper() for k in accessed_parameters}
             for k in parameters:
@@ -604,16 +616,24 @@ class TemplateUnit(UnitWithId):
                 concrete_validators.untranslatable,
                 concrete_validators.present,
                 UnitReferenceValidator(
-                    lambda unit: ([unit.resource_id] if unit.resource_id else []),
+                    lambda unit: (
+                        [unit.resource_id] if unit.resource_id else []
+                    ),
                     constraints=[
                         ReferenceConstraint(
                             lambda referrer, referee: referee.unit == "job",
                             message=_("the referenced unit is not a job"),
                         ),
                         ReferenceConstraint(
-                            lambda referrer, referee: (referee.plugin == "resource"),
-                            onlyif=lambda referrer, referee: (referee.unit == "job"),
-                            message=_("the referenced job is not a resource job"),
+                            lambda referrer, referee: (
+                                referee.plugin == "resource"
+                            ),
+                            onlyif=lambda referrer, referee: (
+                                referee.unit == "job"
+                            ),
+                            message=_(
+                                "the referenced job is not a resource job"
+                            ),
                         ),
                     ],
                 ),
@@ -632,10 +652,14 @@ class TemplateUnit(UnitWithId):
             fields.template_imports: [
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
-                    lambda value, unit: (list(unit.get_imported_jobs()) is not None)
+                    lambda value, unit: (
+                        list(unit.get_imported_jobs()) is not None
+                    )
                 ),
                 CorrectFieldValueValidator(
-                    lambda value, unit: (len(list(unit.get_imported_jobs())) in (0, 1)),
+                    lambda value, unit: (
+                        len(list(unit.get_imported_jobs())) in (0, 1)
+                    ),
                     message=_("at most one import statement is allowed"),
                 ),
                 # TODO: must refer to known or possibly-known job

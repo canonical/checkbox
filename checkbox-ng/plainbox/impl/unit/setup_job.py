@@ -54,7 +54,9 @@ class SetupJobUnit(JobDefinition):
     """
 
     def __repr__(self):
-        return "<SetupJobUnit id:{!r} plugin:{!r}>".format(self.id, self.plugin)
+        return "<SetupJobUnit id:{!r} plugin:{!r}>".format(
+            self.id, self.plugin
+        )
 
     @property
     def unit(self):
@@ -110,24 +112,38 @@ class SetupJobUnit(JobDefinition):
                 concrete_validators.present,
                 MemberOfFieldValidator(_PluginValues.get_all_symbols()),
             ],
-            fields.command: JobDefinition.Meta.field_validators[fields.command],
-            fields.description: JobDefinition.Meta.field_validators[fields.description],
-            fields.purpose: JobDefinition.Meta.field_validators[fields.purpose],
+            fields.command: JobDefinition.Meta.field_validators[
+                fields.command
+            ],
+            fields.description: JobDefinition.Meta.field_validators[
+                fields.description
+            ],
+            fields.purpose: JobDefinition.Meta.field_validators[
+                fields.purpose
+            ],
             fields.steps: JobDefinition.Meta.field_validators[fields.steps],
             fields.verification: JobDefinition.Meta.field_validators[
                 fields.verification
             ],
             fields.user: JobDefinition.Meta.field_validators[fields.user],
-            fields.environ: JobDefinition.Meta.field_validators[fields.environ],
+            fields.environ: JobDefinition.Meta.field_validators[
+                fields.environ
+            ],
             fields.estimated_duration: JobDefinition.Meta.field_validators[
                 fields.estimated_duration
             ],
             fields.shell: JobDefinition.Meta.field_validators[fields.shell],
-            fields.category_id: JobDefinition.Meta.field_validators[fields.category_id],
+            fields.category_id: JobDefinition.Meta.field_validators[
+                fields.category_id
+            ],
             fields.flags: JobDefinition.Meta.field_validators[fields.flags],
             fields.certification_status: JobDefinition.Meta.field_validators[
                 fields.certification_status
             ],
-            fields.siblings: JobDefinition.Meta.field_validators[fields.siblings],
-            fields.auto_retry: JobDefinition.Meta.field_validators[fields.auto_retry],
+            fields.siblings: JobDefinition.Meta.field_validators[
+                fields.siblings
+            ],
+            fields.auto_retry: JobDefinition.Meta.field_validators[
+                fields.auto_retry
+            ],
         }

@@ -65,9 +65,12 @@ CAP_MAP = OrderedDict(
 
 def main():
     parser = ArgumentParser(
-        "Shows which capabilities are supported " "by the specified optical device."
+        "Shows which capabilities are supported "
+        "by the specified optical device."
     )
-    parser.add_argument("device", help="The optical device to get capabilities for")
+    parser.add_argument(
+        "device", help="The optical device to get capabilities for"
+    )
     args = parser.parse_args()
 
     try:

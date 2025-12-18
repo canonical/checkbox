@@ -311,7 +311,9 @@ class ToolBase(metaclass=abc.ABCMeta):
             self.early_init()
             logger.debug(_("Parsing command line arguments (early mode)"))
             early_ns = self._early_parser.parse_args(argv)
-            logger.debug(_("Command line parsed to (early mode): %r"), early_ns)
+            logger.debug(
+                _("Command line parsed to (early mode): %r"), early_ns
+            )
             logger.debug(_("Tool initialization (late mode)"))
             self.late_init(early_ns)
             # Construct the full command line argument parser
@@ -578,7 +580,10 @@ class ToolBase(metaclass=abc.ABCMeta):
         # To compensate, on python3.3 and beyond, when the user just runs
         # plainbox without specifying the command, we manually, explicitly do
         # what python3.2 did: call parser.error(_('too few arguments'))
-        if sys.version_info[:2] >= (3, 3) and getattr(ns, "command", None) is None:
+        if (
+            sys.version_info[:2] >= (3, 3)
+            and getattr(ns, "command", None) is None
+        ):
             self._parser.error(argparse._("too few arguments"))
         else:
             return ns.command.invoked(ns)
@@ -722,7 +727,9 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
             overridden directly. To register your commands use
             :meth:`get_command_collection()`
         """
-        logger.debug(_("Trying to load exactly the right command: %r"), hint_list)
+        logger.debug(
+            _("Trying to load exactly the right command: %r"), hint_list
+        )
         command_collection = self.get_command_collection()
         for hint in hint_list:
             # Skip all the things that look like additional options
@@ -778,7 +785,9 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
         for command in command_collection.get_all_plugin_objects():
             logger.debug("Registering command %r", command)
             command.register_parser(subparsers)
-        logger.debug(_("Cost of registering all top-level commands: %f"), now() - start)
+        logger.debug(
+            _("Cost of registering all top-level commands: %f"), now() - start
+        )
 
 
 class SingleCommandToolMixIn:
@@ -926,5 +935,7 @@ def find_exec(name_list):
             if os.access(pathname, os.X_OK):
                 return (name, pathname)
     raise LookupError(
-        _("Unable to find any of the executables {}").format(", ".join(name_list))
+        _("Unable to find any of the executables {}").format(
+            ", ".join(name_list)
+        )
     )

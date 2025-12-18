@@ -209,7 +209,9 @@ class RemoteResumeInvalidUnitErrorIgnoredBackwardCompatibility(Scenario):
         AssertPrinted("job passed"),
         AssertNotPrinted("template_validation_invalid_fields_invalid_body"),
         AssertNotPrinted("job failed"),
-        AssertNotPrinted("template_validation_missing_parameter_MISSING_PARAM_1"),
+        AssertNotPrinted(
+            "template_validation_missing_parameter_MISSING_PARAM_1"
+        ),
         AssertNotPrinted("job failed"),
         AssertPrinted("job passed"),
         AssertPrinted("job passed"),

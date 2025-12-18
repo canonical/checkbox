@@ -123,7 +123,9 @@ def device_rescan():
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
     try:
-        sp.check_output(shlex.split(cmd), stderr=sp.STDOUT, universal_newlines=True)
+        sp.check_output(
+            shlex.split(cmd), stderr=sp.STDOUT, universal_newlines=True
+        )
     except sp.CalledProcessError as e:
         error = e.output
         # the objective here is to trigger a rescan, so if one is already
@@ -204,8 +206,9 @@ def perform_ping_test(interface):
 
 @retry(max_attempts=5, delay=1)
 def wait_for_connected(interface, essid):
-    cmd = "nmcli -m tabular -t -f GENERAL.STATE,GENERAL.CONNECTION " "d show {}".format(
-        interface
+    cmd = (
+        "nmcli -m tabular -t -f GENERAL.STATE,GENERAL.CONNECTION "
+        "d show {}".format(interface)
     )
     print_cmd(cmd)
     output = sp.check_output(shlex.split(cmd), universal_newlines=True)
@@ -286,7 +289,9 @@ def secured_connection(args):
         "wifi-sec.psk {} "
         "ipv4.method auto "
         "ipv4.dhcp-timeout 30 "
-        "ipv6.method ignore".format(args.device, args.essid, args.exchange, args.psk)
+        "ipv6.method ignore".format(
+            args.device, args.essid, args.exchange, args.psk
+        )
     )
     connection(cmd, args.device)
 
@@ -312,7 +317,8 @@ def hotspot(args):
         print("Set band failed\n")
         return retcode
     cmd = (
-        "nmcli c modify TEST_CON wifi-sec.key-mgmt wpa-psk " 'wifi-sec.psk "ubuntu1234"'
+        "nmcli c modify TEST_CON wifi-sec.key-mgmt wpa-psk "
+        'wifi-sec.psk "ubuntu1234"'
     )
     print_cmd(cmd)
     retcode = sp.call(shlex.split(cmd))
@@ -340,12 +346,16 @@ def print_journal_entries(start):
 
 
 def parser_args():
-    parser = argparse.ArgumentParser(description="WiFi connection test using nmcli")
+    parser = argparse.ArgumentParser(
+        description="WiFi connection test using nmcli"
+    )
 
     subparsers = parser.add_subparsers(dest="test_type")
     subparsers.required = True
 
-    parser_scan = subparsers.add_parser("scan", help="Test can scan for networks only")
+    parser_scan = subparsers.add_parser(
+        "scan", help="Test can scan for networks only"
+    )
     parser_scan.add_argument("device", type=str, help="Device name e.g. wlan0")
 
     parser_open = subparsers.add_parser(
@@ -358,7 +368,9 @@ def parser_args():
     parser_secured = subparsers.add_parser(
         "secured", help="Test connection to a secured access point"
     )
-    parser_secured.add_argument("device", type=str, help="Device name e.g. wlan0")
+    parser_secured.add_argument(
+        "device", type=str, help="Device name e.g. wlan0"
+    )
     parser_secured.add_argument("essid", type=str, help="ESSID")
     parser_secured.add_argument("psk", type=str, help="Pre-Shared Key")
     parser_secured.add_argument(
@@ -463,7 +475,9 @@ def run():
             return
 
     if not aps_dict:
-        raise SystemExit("Targed access point: {} not found".format(args.essid))
+        raise SystemExit(
+            "Targed access point: {} not found".format(args.essid)
+        )
 
     if args.func:
         delete_test_ap_ssid_connection()

@@ -68,7 +68,9 @@ class SessionAssistantAgent(rpyc.Service):
                     conn._config["endpoints"][1][1],
                 )
                 SessionAssistantAgent.controller_blaster(msg)
-                old_controller = SessionAssistantAgent.controlling_controller_conn
+                old_controller = (
+                    SessionAssistantAgent.controlling_controller_conn
+                )
                 if old_controller is not None:
                     old_controller.close()
                 SessionAssistantAgent.controller_blaster = None
@@ -140,7 +142,9 @@ class RemoteAgent:
         # start the agent as a part of restart strategy. We don't need that
         # functionality, so we just pass a dummy callable that will never be
         # called. It's left in to avoid breaking the API.
-        SessionAssistantAgent.session_assistant = RemoteSessionAssistant(lambda x: None)
+        SessionAssistantAgent.session_assistant = RemoteSessionAssistant(
+            lambda x: None
+        )
 
         self._server = ThreadedServer(
             SessionAssistantAgent,
@@ -153,7 +157,9 @@ class RemoteAgent:
                 "propagate_SystemExit_locally": True,
             },
         )
-        SessionAssistantAgent.session_assistant.terminate_cb = self._server.close
+        SessionAssistantAgent.session_assistant.terminate_cb = (
+            self._server.close
+        )
         self._server.start()
 
     def register_arguments(self, parser):
@@ -180,7 +186,7 @@ def exit_if_port_unavailable(port: int) -> None:
     # level connect() call failed)
     if result == 0:
         raise SystemExit(
-            _("Found port {} is open. Is Checkbox agent" " already running?").format(
-                port
-            )
+            _(
+                "Found port {} is open. Is Checkbox agent" " already running?"
+            ).format(port)
         )

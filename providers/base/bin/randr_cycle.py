@@ -41,7 +41,9 @@ def _is_too_small(mode: Mode) -> bool:
     :param mode:  The Mode that defined in checkbox_support.dbus.gnome_monitor
     """
     aspect = Fraction(mode.width, mode.height)
-    return mode.width < MIN_RESOLUTION.w or mode.width / aspect < MIN_RESOLUTION.h
+    return (
+        mode.width < MIN_RESOLUTION.w or mode.width / aspect < MIN_RESOLUTION.h
+    )
 
 
 def _is_duplicate_resolution(mode: Mode, processed_resolutions: list):
@@ -220,7 +222,8 @@ class MonitorTest:
             "--screenshot_dir",
             default=os.getenv("HOME", "~"),
             help=(
-                "Specify a directory to store screenshots in. " "(default: %(default)s)"
+                "Specify a directory to store screenshots in. "
+                "(default: %(default)s)"
             ),
         )
 

@@ -106,7 +106,9 @@ def smart_support_raid(name, raid_type):
     # of disk_smart. This is by design, since such a mix is likely an assembly
     # error by the manufacturer.
     while True:
-        command = "smartctl -x /dev/{} -d {},{}".format(name, raid_type, disk_num)
+        command = "smartctl -x /dev/{} -d {},{}".format(
+            name, raid_type, disk_num
+        )
         try:
             diskinfo = check_output(
                 shlex.split(command), universal_newlines=True

@@ -101,7 +101,9 @@ class Netplan:
                 ):
                     names_to_paths[os.path.basename(yaml_file)] = yaml_file
 
-            files = [names_to_paths[name] for name in sorted(names_to_paths.keys())]
+            files = [
+                names_to_paths[name] for name in sorted(names_to_paths.keys())
+            ]
 
             for yaml_file in files:
                 with open(yaml_file) as f:
@@ -141,7 +143,9 @@ class Netplan:
                     )
                     new_interfaces |= new
                 if "wifis" in network:
-                    new = self._merge_interface_config(self.wifis, network.get("wifis"))
+                    new = self._merge_interface_config(
+                        self.wifis, network.get("wifis")
+                    )
                     new_interfaces |= new
                 if "bridges" in network:
                     new = self._merge_interface_config(
@@ -149,13 +153,19 @@ class Netplan:
                     )
                     new_interfaces |= new
                 if "bonds" in network:
-                    new = self._merge_interface_config(self.bonds, network.get("bonds"))
+                    new = self._merge_interface_config(
+                        self.bonds, network.get("bonds")
+                    )
                     new_interfaces |= new
                 if "vlans" in network:
-                    new = self._merge_interface_config(self.vlans, network.get("vlans"))
+                    new = self._merge_interface_config(
+                        self.vlans, network.get("vlans")
+                    )
                     new_interfaces |= new
                 if "renderer" in network:
-                    self.config["network"]["renderer"] = network.get("renderer")
+                    self.config["network"]["renderer"] = network.get(
+                        "renderer"
+                    )
             return new_interfaces
         except (IOError, yaml.YAMLError):
             logging.error("Error while loading yaml")

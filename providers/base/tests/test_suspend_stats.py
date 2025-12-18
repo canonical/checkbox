@@ -94,7 +94,9 @@ class TestSuspendStats(unittest.TestCase):
         mock_init.return_value = None
         stats = SuspendStats()
         with tempfile.TemporaryDirectory() as tmp_dir:
-            self.assertEqual(stats.collect_content_under_directory(tmp_dir), {})
+            self.assertEqual(
+                stats.collect_content_under_directory(tmp_dir), {}
+            )
 
     @patch("suspend_stats.SuspendStats.__init__")
     def test_single_file(self, mock_init):
@@ -119,7 +121,9 @@ class TestSuspendStats(unittest.TestCase):
             file_path_2.write_text("Line21\nLine22")
 
             result = stats.collect_content_under_directory(tmp_dir)
-            self.assertEqual(result, {"file1.txt": "Line11", "file2.txt": "Line21"})
+            self.assertEqual(
+                result, {"file1.txt": "Line11", "file2.txt": "Line21"}
+            )
 
     @patch("suspend_stats.SuspendStats.__init__")
     @patch("pathlib.Path.iterdir")
@@ -206,7 +210,9 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.is_after_suspend")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_valid_succ(self, mock_print, mock_after, mock_parse_args, mock_init):
+    def test_run_valid_succ(
+        self, mock_print, mock_after, mock_parse_args, mock_init
+    ):
         mock_init.return_value = None
         args_mock = MagicMock()
         args_mock.check_type = "after_suspend"
@@ -218,7 +224,9 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.is_after_suspend")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_valid_fail(self, mock_print, mock_after, mock_parse_args, mock_init):
+    def test_run_valid_fail(
+        self, mock_print, mock_after, mock_parse_args, mock_init
+    ):
         mock_init.return_value = None
         args_mock = MagicMock()
         args_mock.check_type = "after_suspend"
@@ -231,7 +239,9 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.is_any_failed")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_any_succ(self, mock_print, mock_any, mock_parse_args, mock_init):
+    def test_run_any_succ(
+        self, mock_print, mock_any, mock_parse_args, mock_init
+    ):
         mock_init.return_value = None
         args_mock = MagicMock()
         args_mock.check_type = "any_failure"
@@ -243,7 +253,9 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.is_any_failed")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_any_fail(self, mock_print, mock_any, mock_parse_args, mock_init):
+    def test_run_any_fail(
+        self, mock_print, mock_any, mock_parse_args, mock_init
+    ):
         mock_init.return_value = None
         args_mock = MagicMock()
         args_mock.check_type = "any_failure"

@@ -29,7 +29,9 @@ def slugify(_string):
     if not _string:
         return _string
 
-    valid_chars = frozenset("_{}{}".format(string.ascii_letters, string.digits))
+    valid_chars = frozenset(
+        "_{}{}".format(string.ascii_letters, string.digits)
+    )
     # Python identifiers cannot start with a digit
     if _string[0].isdigit():
         _string = "_" + _string

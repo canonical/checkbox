@@ -48,7 +48,9 @@ class UnifiedRunnerTests(TestCase):
         self.assertEqual(result.outcome, "fail")
 
     @mock.patch("shutil.which")
-    @mock.patch("plainbox.impl.execution.get_differential_execution_environment")
+    @mock.patch(
+        "plainbox.impl.execution.get_differential_execution_environment"
+    )
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
     def test_get_execution_command_systemd_unit_command_and_envvars(
         self, mock_on_ubuntucore, mock_get_diff_env, mock_shutil_which
@@ -71,7 +73,9 @@ class UnifiedRunnerTests(TestCase):
         self.assertIn("-pam", result)
 
     @mock.patch("shutil.which")
-    @mock.patch("plainbox.impl.execution.get_differential_execution_environment")
+    @mock.patch(
+        "plainbox.impl.execution.get_differential_execution_environment"
+    )
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
     @mock.patch("os.getenv")
     def test_get_execution_command_systemd_unit_nsenter_on_core(
@@ -104,7 +108,9 @@ class UnifiedRunnerTests(TestCase):
         # don't log in root commands
         self.assertNotIn("-pam", result)
 
-    @mock.patch("plainbox.impl.execution.get_differential_execution_environment")
+    @mock.patch(
+        "plainbox.impl.execution.get_differential_execution_environment"
+    )
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
     def test_get_execution_command_subshell_with_user(
         self, mock_on_ubuntucore, mock_get_diff_env
@@ -184,7 +190,9 @@ class UnifiedRunnerTests(TestCase):
         getuser_mock.return_value = "ubuntu"
 
         get_execution_command_subshell_mock.side_effect = Exception("subshell")
-        get_execution_command_systemd_unit_mock.side_effect = Exception("systemd")
+        get_execution_command_systemd_unit_mock.side_effect = Exception(
+            "systemd"
+        )
 
         with self.assertRaises(Exception) as e:
             UnifiedRunner.execute_job(self_mock, job_mock, {}, mock.Mock())
@@ -214,7 +222,9 @@ class UnifiedRunnerTests(TestCase):
         getuser_mock.return_value = "ubuntu"
 
         get_execution_command_subshell_mock.side_effect = Exception("subshell")
-        get_execution_command_systemd_unit_mock.side_effect = Exception("systemd")
+        get_execution_command_systemd_unit_mock.side_effect = Exception(
+            "systemd"
+        )
 
         with self.assertRaises(Exception) as e:
             UnifiedRunner.execute_job(

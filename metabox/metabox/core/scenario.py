@@ -89,7 +89,10 @@ class Scenario:
         # Simple scenarios don't need to specify a START step
         # If there's no START step, add one unless the scenario
         # explicitly says not to start a session
-        if not any(isinstance(s, Start) for s in self.steps) and self.start_session:
+        if (
+            not any(isinstance(s, Start) for s in self.steps)
+            and self.start_session
+        ):
             self.steps.insert(0, Start())
         for i, step in enumerate(self.steps):
             # Check how to start checkbox, interactively or not
@@ -136,7 +139,9 @@ class Scenario:
         :param patter: regular expresion to check against the lines.
         """
         regex = re.compile(pattern)
-        return bool(regex.search(self._stdout)) or bool(regex.search(self._stderr))
+        return bool(regex.search(self._stdout)) or bool(
+            regex.search(self._stderr)
+        )
 
     def assert_not_printed(self, pattern):
         """
@@ -265,12 +270,18 @@ class Scenario:
         deadline = time.time() + timeout
         if self.mode == "remote":
             if target == "controller":
-                result = self.controller_machine.run_cmd(cmd, env, interactive, timeout)
+                result = self.controller_machine.run_cmd(
+                    cmd, env, interactive, timeout
+                )
             elif target == "agent":
-                result = self.agent_machine.run_cmd(cmd, env, interactive, timeout)
+                result = self.agent_machine.run_cmd(
+                    cmd, env, interactive, timeout
+                )
             else:
                 result = [
-                    self.controller_machine.run_cmd(cmd, env, interactive, timeout),
+                    self.controller_machine.run_cmd(
+                        cmd, env, interactive, timeout
+                    ),
                     self.agent_machine.run_cmd(cmd, env, interactive, timeout),
                 ]
         else:
@@ -343,7 +354,9 @@ class Scenario:
     def is_agent_active(self):
         return self.agent_machine.is_agent_active()
 
-    def mktree(self, path, privileged=False, timeout=0, target="all", check=False):
+    def mktree(
+        self, path, privileged=False, timeout=0, target="all", check=False
+    ):
         """
         Creates a directory including any missing parent
         """
@@ -351,7 +364,9 @@ class Scenario:
         if privileged:
             cmd = ["sudo"] + cmd
         cmd_str = shlex.join(cmd)
-        return self.run_cmd(cmd_str, target=target, timeout=timeout, check=check)
+        return self.run_cmd(
+            cmd_str, target=target, timeout=timeout, check=check
+        )
 
     def run_manage(self, args, timeout=0, target="all"):
         """

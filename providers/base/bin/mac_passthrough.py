@@ -58,7 +58,8 @@ def get_pass_through_mac():
                 if "AUXMAC" in line:
                     bios_mac = line.split("#")[1]
                     print(
-                        "Pass-through MAC address from DSDT table: " + bios_mac.lower()
+                        "Pass-through MAC address from DSDT table: "
+                        + bios_mac.lower()
                     )
                     return bios_mac.lower()
         raise SystemExit(

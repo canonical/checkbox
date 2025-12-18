@@ -38,7 +38,9 @@ class TestKernelPackageResource(unittest.TestCase):
 
     @patch("kernel_package_resource.subprocess.check_output")
     @patch("kernel_package_resource.os.uname")
-    def test_get_kernel_package_info_non_core(self, mock_uname, mock_check_output):
+    def test_get_kernel_package_info_non_core(
+        self, mock_uname, mock_check_output
+    ):
         "Test the function to get the kernel package info on classic"
         apt_result = (
             "Package: linux-modules-6.8.0-57-generic\n"
@@ -73,7 +75,9 @@ class TestKernelPackageResource(unittest.TestCase):
         mock_get_release_info.return_value = {}
         with self.assertRaises(SystemExit) as cm:
             main()
-        self.assertEqual(str(cm.exception), "Unable to get release information.")
+        self.assertEqual(
+            str(cm.exception), "Unable to get release information."
+        )
 
     @patch("kernel_package_resource.get_release_info", Mock())
     @patch("kernel_package_resource.get_kernel_package_info")

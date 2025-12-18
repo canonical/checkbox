@@ -147,7 +147,9 @@ def get_needed_bump(history: "list[str]") -> TraceabilityEnum:
         except ValueError:
             # clean up the pr so that we can use it in the warning
             pr = pr.replace("(", "").replace(")", "").replace("#", "")
-            failed_category.append(FailedCategory(commit=commit_message, pr=pr))
+            failed_category.append(
+                FailedCategory(commit=commit_message, pr=pr)
+            )
             continue
         needed_bump = max(needed_bump, current_trace)
 
@@ -166,7 +168,9 @@ def get_needed_bump(history: "list[str]") -> TraceabilityEnum:
     return needed_bump
 
 
-def add_dev_suffix(version: str, history_len: int, output_format: OutputFormats):
+def add_dev_suffix(
+    version: str, history_len: int, output_format: OutputFormats
+):
     """
     Adds the dev suffix to a version string
     """
@@ -260,7 +264,9 @@ def get_version(
         last_stable_release, needed_bump, output_format
     )
     if dev_suffix:
-        final_version = add_dev_suffix(bumped_version, len(history), output_format)
+        final_version = add_dev_suffix(
+            bumped_version, len(history), output_format
+        )
 
     bump_reason = needed_bump.describe()
     logger.info(f"Detected necessary bump: {bump_reason}")
@@ -271,7 +277,9 @@ def get_version(
 
 def main(argv):
     args = get_cli_args(argv)
-    version = get_version(args.dev_suffix, args.output_format, args.v, args.repo_path)
+    version = get_version(
+        args.dev_suffix, args.output_format, args.v, args.repo_path
+    )
     print(version)
 
 

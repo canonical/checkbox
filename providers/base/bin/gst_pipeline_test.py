@@ -17,16 +17,18 @@ from subprocess import check_output  # noqa: E402
 
 def check_state(device):
     """Checks whether the sink is available for the given device."""
-    sink_info = check_output(["pactl", "list", "sinks"], universal_newlines=True)
+    sink_info = check_output(
+        ["pactl", "list", "sinks"], universal_newlines=True
+    )
 
     data = sink_info.split("\n")
     try:
-        device_name = re.findall(r".*Name:\s.*%s.*" % device, sink_info, re.IGNORECASE)[
-            0
-        ].lstrip()
-        sink = re.findall(r".*Name:\s(.*%s.*)" % device, sink_info, re.IGNORECASE)[
-            0
-        ].lstrip()
+        device_name = re.findall(
+            r".*Name:\s.*%s.*" % device, sink_info, re.IGNORECASE
+        )[0].lstrip()
+        sink = re.findall(
+            r".*Name:\s(.*%s.*)" % device, sink_info, re.IGNORECASE
+        )[0].lstrip()
         status = data[data.index("\t" + device_name) - 1]
     except (IndexError, ValueError):
         logging.error("Failed to find status for device: %s" % device)
@@ -48,7 +50,9 @@ def main():
         required=True,
         help="Timeout for running the pipeline",
     )
-    parser.add_argument("-d", "--device", type=str, help="Device to check for status")
+    parser.add_argument(
+        "-d", "--device", type=str, help="Device to check for status"
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -64,7 +68,11 @@ def main():
 
     Gst.init(None)
     try:
-        print("Attempting to initialize Gstreamer pipeline: {}".format(args.PIPELINE))
+        print(
+            "Attempting to initialize Gstreamer pipeline: {}".format(
+                args.PIPELINE
+            )
+        )
         element = Gst.parse_launch(args.PIPELINE)
     except GLib.GError as error:
         print("Specified pipeline couldn't be processed.")

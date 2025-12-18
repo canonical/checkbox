@@ -18,7 +18,9 @@ def get_wpa_supplicant_version() -> "tuple[int, int]":
     )
 
     # take the 1st line, 2nd word, remove the 'v'
-    clean_version_str = wpa_supplicant_version_output.splitlines()[0].split()[1][1:]
+    clean_version_str = wpa_supplicant_version_output.splitlines()[0].split()[
+        1
+    ][1:]
     # Example: clean_version_str == '2.11'
     # Now convert to a sys.version style tuple
     version_tuple = tuple(

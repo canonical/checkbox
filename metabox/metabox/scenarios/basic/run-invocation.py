@@ -56,7 +56,9 @@ class RunTestplanWithEnvvar(Scenario):
     modes = ["local"]
     environment = {"foo": 42}
     steps = [
-        Start("run 2021.com.canonical.certification::basic-automated", timeout=30),
+        Start(
+            "run 2021.com.canonical.certification::basic-automated", timeout=30
+        ),
         AssertPrinted("foo: 42"),
     ]
 
@@ -121,7 +123,9 @@ class RunRunAgent(Scenario):
     modes = ["local"]
     steps = [
         Start("run-agent"),
-        AssertNotPrinted("Unable to load launcher 'run-agent'. File not found!"),
+        AssertNotPrinted(
+            "Unable to load launcher 'run-agent'. File not found!"
+        ),
     ]
 
 

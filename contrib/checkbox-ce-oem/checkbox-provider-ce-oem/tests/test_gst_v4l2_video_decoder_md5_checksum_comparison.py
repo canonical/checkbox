@@ -25,7 +25,9 @@ class TestBuildGstCommand(unittest.TestCase):
             "parsebin ! v4l2vp8dec ! v4l2convert ! "
             "checksumsink hash=0 sync=false"
         )
-        command = build_gst_command(gst_bin, golden_sample_path, decoder, color_space)
+        command = build_gst_command(
+            gst_bin, golden_sample_path, decoder, color_space
+        )
         self.assertEqual(command, expected_command)
 
     def test_build_gst_command_other_decoder(self):
@@ -39,7 +41,9 @@ class TestBuildGstCommand(unittest.TestCase):
             "parsebin ! v4l2h264dec ! v4l2convert ! "
             "video/x-raw,format=NV12 ! checksumsink hash=0 sync=false"
         )
-        command = build_gst_command(gst_bin, golden_sample_path, decoder, color_space)
+        command = build_gst_command(
+            gst_bin, golden_sample_path, decoder, color_space
+        )
         self.assertEqual(command, expected_command)
 
 
@@ -92,7 +96,10 @@ class TestGetMD5ChecksumFromCommand(unittest.TestCase):
         sys.stdout = cls.original_stdout
         logging.disable(logging.NOTSET)
 
-    @patch("gst_v4l2_video_decoder_md5_checksum_comparison." "extract_the_md5_checksum")
+    @patch(
+        "gst_v4l2_video_decoder_md5_checksum_comparison."
+        "extract_the_md5_checksum"
+    )
     @patch("subprocess.run")
     def test_get_md5_checksum_from_command_success(
         self, mock_subprocess_run, mock_extract_the_md5_checksum
@@ -155,7 +162,9 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     @patch("os.path.exists")
-    @patch("gst_v4l2_video_decoder_md5_checksum_comparison." "build_gst_command")
+    @patch(
+        "gst_v4l2_video_decoder_md5_checksum_comparison." "build_gst_command"
+    )
     @patch(
         "gst_v4l2_video_decoder_md5_checksum_comparison."
         "get_md5_checksum_from_command"
@@ -192,8 +201,12 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
         mock_os_path_exists.assert_has_calls(
             [call("golden_sample.mp4"), call("my_test.md5")]
         )
-        mock_get_md5_checksum_from_command.assert_called_once_with("my testing command")
-        mock_open.assert_called_once_with("my_test.md5", mode="r", encoding="UTF-8")
+        mock_get_md5_checksum_from_command.assert_called_once_with(
+            "my testing command"
+        )
+        mock_open.assert_called_once_with(
+            "my_test.md5", mode="r", encoding="UTF-8"
+        )
 
     @patch("os.path.exists")
     @patch(
@@ -228,7 +241,9 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
             cm.exception.code,
             "Golden Sample 'non_exist_golden_sample.mp4' doesn't exist",
         )
-        mock_os_path_exists.assert_has_calls([call("non_exist_golden_sample.mp4")])
+        mock_os_path_exists.assert_has_calls(
+            [call("non_exist_golden_sample.mp4")]
+        )
         mock_get_md5_checksum_from_command.assert_not_called()
         mock_open.assert_not_called()
 
@@ -249,7 +264,9 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
             (),
             {
                 "golden_sample_path": "golden_sample.mp4",
-                "golden_sample_md5_checksum_path": ("non_exist_golden_sample.md5"),
+                "golden_sample_md5_checksum_path": (
+                    "non_exist_golden_sample.md5"
+                ),
                 "decoder_plugin": "fake_decoder",
                 "color_space": "NN",
             },
@@ -273,7 +290,9 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
         mock_open.assert_not_called()
 
     @patch("os.path.exists")
-    @patch("gst_v4l2_video_decoder_md5_checksum_comparison." "build_gst_command")
+    @patch(
+        "gst_v4l2_video_decoder_md5_checksum_comparison." "build_gst_command"
+    )
     @patch(
         "gst_v4l2_video_decoder_md5_checksum_comparison."
         "get_md5_checksum_from_command"
@@ -315,7 +334,9 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
         mock_os_path_exists.assert_has_calls(
             [call("golden_sample.mp4"), call("golden_sample.md5")]
         )
-        mock_get_md5_checksum_from_command.assert_called_once_with("my testing command")
+        mock_get_md5_checksum_from_command.assert_called_once_with(
+            "my testing command"
+        )
         mock_open.assert_called_once_with(
             "golden_sample.md5", mode="r", encoding="UTF-8"
         )

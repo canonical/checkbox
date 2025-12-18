@@ -41,7 +41,9 @@ class TestIO:
 
     def __enter__(self):
         # Remember the number of columns the terminal uses
-        self._original_columns = os.environ.get("COLUMNS", os.terminal_size.columns)
+        self._original_columns = os.environ.get(
+            "COLUMNS", os.terminal_size.columns
+        )
         # change the COLUMNS envvar to 80, so we get predictible outputs
         os.environ["COLUMNS"] = "80"
         # Remember the real objects that we'll replace

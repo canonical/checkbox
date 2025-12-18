@@ -108,13 +108,19 @@ class XDGRestartStrategy(IRestartStrategy):
         if app_icon:
             config.set(section, "Icon", app_icon)
         config.set(section, "Categories", app_categories or "System")
-        config.set(section, "StartupNotify", "true" if app_startup_notify else "false")
+        config.set(
+            section, "StartupNotify", "true" if app_startup_notify else "false"
+        )
 
     def get_desktop_filename(self, app_id: str) -> str:
         # TODO: use correct xdg lookup mechanism
-        return os.path.expandvars("$HOME/.config/autostart/{}.desktop".format(app_id))
+        return os.path.expandvars(
+            "$HOME/.config/autostart/{}.desktop".format(app_id)
+        )
 
-    def prime_application_restart(self, app_id: str, session_id: str, cmd: str) -> None:
+    def prime_application_restart(
+        self, app_id: str, session_id: str, cmd: str
+    ) -> None:
         filename = self.get_desktop_filename(app_id)
         # Prefix the command with sh -c to comply with the Exec spec
         # See https://askubuntu.com/a/1242773/32239
@@ -230,7 +236,9 @@ class RemoteSnappyRestartStrategy(IRestartStrategy):
         snap_data = os.getenv("SNAP_DATA")
         return os.path.join(snap_data, "session_resume")
 
-    def prime_application_restart(self, app_id: str, session_id: str, cmd: str) -> None:
+    def prime_application_restart(
+        self, app_id: str, session_id: str, cmd: str
+    ) -> None:
         with open(self.session_resume_filename, "wt") as f:
             f.write(session_id)
             os.fsync(f.fileno())
@@ -258,7 +266,9 @@ class RemoteDebRestartStrategy(RemoteSnappyRestartStrategy):
         cache_dir = os.getenv("XDG_CACHE_HOME", "/var/cache")
         return os.path.join(cache_dir, "session_resume")
 
-    def prime_application_restart(self, app_id: str, session_id: str, cmd: str) -> None:
+    def prime_application_restart(
+        self, app_id: str, session_id: str, cmd: str
+    ) -> None:
         with open(self.session_resume_filename, "wt") as f:
             f.write(session_id)
             os.fsync(f.fileno())
@@ -266,7 +276,9 @@ class RemoteDebRestartStrategy(RemoteSnappyRestartStrategy):
             subprocess.call(["systemctl", "disable", self.service_name])
 
 
-def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy:
+def detect_restart_strategy(
+    session=None, session_type=None
+) -> IRestartStrategy:
     """
     Detect the restart strategy for the current environment.
     :param session:

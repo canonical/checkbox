@@ -22,7 +22,9 @@ def led_arrays(model_name):
         "$PLAINBOX_PROVIDER_DATA/led-brightness.{}.in".format(model_name)
     )
     if not os.path.exists(led_data):
-        raise SystemExit("ERROR: no led information found at: {}".format(led_data))
+        raise SystemExit(
+            "ERROR: no led information found at: {}".format(led_data)
+        )
     with open(led_data, "r") as f:
         for line in f:
             if line.startswith("#"):

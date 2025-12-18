@@ -61,19 +61,25 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
         self.assertEqual(value, "test_firmware")
 
     def test_read_node_ioerror(self):
-        with patch("builtins.open", side_effect=IOError("No such file or directory")):
+        with patch(
+            "builtins.open", side_effect=IOError("No such file or directory")
+        ):
             value = self.handler._read_node("fake_path")
             self.assertIsNone(value)
 
     def test_write_node(self):
 
-        value = self.handler._write_node(self.handler.sysfs_firmware_file, "fake_path")
+        value = self.handler._write_node(
+            self.handler.sysfs_firmware_file, "fake_path"
+        )
         self.assertTrue(value)
 
     def test_write_node_ioerror(self):
         with patch("builtins.open", side_effect=IOError("Permission denied")):
             with self.assertRaises(IOError):
-                self.handler._write_node(self.handler.sysfs_firmware_file, "fake_path")
+                self.handler._write_node(
+                    self.handler.sysfs_firmware_file, "fake_path"
+                )
 
     def test_firmware_path_property(self):
         self.assertEqual(self.handler.firmware_path, "test_path")
@@ -104,7 +110,9 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
         self.assertEqual(self.handler.rpmsg_state, "offline")
 
     def test_setup_teardown_no_original_values(self):
-        with patch("builtins.open", side_effect=IOError("No such file or directory")):
+        with patch(
+            "builtins.open", side_effect=IOError("No such file or directory")
+        ):
             self.handler.setup()
 
             self.assertIsNone(self.handler.original_firmware_path)

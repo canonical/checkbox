@@ -57,7 +57,9 @@ class GtkScroller(object):
         # Create GTK window.
         window = Gtk.Window()
         window.set_type_hint(Gdk.WindowType.TOPLEVEL)
-        window.add_events(Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK)
+        window.add_events(
+            Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK
+        )
         window.set_size_request(200, 100)
         window.set_resizable(False)
         window.set_title(_("Type Text"))
@@ -78,7 +80,9 @@ class GtkScroller(object):
         self.icons = {}
         for direction in self.directions:
             self._add_label(button_hbox, direction.name)
-            self.icons[direction] = self._add_image(validation_hbox, self.ICON_UNTESTED)
+            self.icons[direction] = self._add_image(
+                validation_hbox, self.ICON_UNTESTED
+            )
 
         self.show_text(
             _("Please move the mouse cursor to this window.")
@@ -135,9 +139,13 @@ class GtkScroller(object):
         # Set touchpad settings.
         if self.edge_scroll:
             self.touchpad_settings.set_boolean("edge-scrolling-enabled", True)
-            self.touchpad_settings.set_boolean("two-finger-scrolling-enabled", False)
+            self.touchpad_settings.set_boolean(
+                "two-finger-scrolling-enabled", False
+            )
         else:
-            self.touchpad_settings.set_boolean("two-finger-scrolling-enabled", True)
+            self.touchpad_settings.set_boolean(
+                "two-finger-scrolling-enabled", True
+            )
             self.touchpad_settings.set_boolean("edge-scrolling-enabled", False)
         Gtk.main()
 
@@ -161,12 +169,16 @@ class GtkScroller(object):
 
     def found_direction(self, direction):
         direction.tested = True
-        self.icons[direction].set_from_icon_name(self.ICON_TESTED, size=self.ICON_SIZE)
+        self.icons[direction].set_from_icon_name(
+            self.ICON_TESTED, size=self.ICON_SIZE
+        )
         self.check_directions()
 
     def check_directions(self):
         if all([direction.tested for direction in self.directions]):
-            self.show_text(_("All required directions have been tested!"), self.status)
+            self.show_text(
+                _("All required directions have been tested!"), self.status
+            )
             self.exit_code = EXIT_WITH_SUCCESS
             self.exit_button.grab_focus()
 

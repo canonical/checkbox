@@ -90,7 +90,9 @@ def verify_apt_cache_showpkg(kernel_release: str):
     target_repo = os.environ.get("KERNEL_REPO", "main")
     if "{}_binary".format(target_repo) not in aptinfo:
         logging.error(
-            "* Kernel does not come from the {} Ubuntu repository!".format(target_repo)
+            "* Kernel does not come from the {} Ubuntu repository!".format(
+                target_repo
+            )
         )
         retval = False
     return retval

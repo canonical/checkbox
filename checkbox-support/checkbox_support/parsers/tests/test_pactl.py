@@ -68,7 +68,9 @@ class ParsingMixIn(object):
                 lineno = p.lineno(exc.loc, text)
                 col = p.col(exc.loc, text)
             print()
-            print("Parse error on line {} column {}: {}".format(lineno, col, exc))
+            print(
+                "Parse error on line {} column {}: {}".format(lineno, col, exc)
+            )
             self._show_text(text, lineno, col, context=3)
             raise
 
@@ -106,7 +108,9 @@ class ParsingMixIn(object):
 
         print_col_ruler()
         for lineno, line in enumerate(lines, window.start + 1):
-            print(("{:" + str(line_cols_needed) + "d} |").format(lineno), end="")
+            print(
+                ("{:" + str(line_cols_needed) + "d} |").format(lineno), end=""
+            )
             for c in line:
                 if c.isprintable():
                     print(c, end="")
@@ -154,9 +158,9 @@ class PropertyTests(ParsingTestCase):
         self.assertEqual(prop.value, "Intel Corporation")
 
     def test_underscore(self):
-        prop = self.assertParses(pactl.Property.Syntax, 'alsa.resolution_bits = "16"')[
-            "property"
-        ]
+        prop = self.assertParses(
+            pactl.Property.Syntax, 'alsa.resolution_bits = "16"'
+        )["property"]
         self.assertEqual(prop.name, "alsa.resolution_bits")
         self.assertEqual(prop.value, "16")
 
@@ -173,7 +177,10 @@ class PortTests(ParsingTestCase):
     def test_port(self):
         port = self.assertParses(
             pactl.Port.Syntax,
-            ("hdmi-output-1: HDMI / DisplayPort 2 (priority: " "5800, available)"),
+            (
+                "hdmi-output-1: HDMI / DisplayPort 2 (priority: "
+                "5800, available)"
+            ),
         )["port"]
         self.assertEqual(port.name, "hdmi-output-1")
         self.assertEqual(port.label, "HDMI / DisplayPort 2")
@@ -183,7 +190,10 @@ class PortTests(ParsingTestCase):
     def test_port_not_available(self):
         port = self.assertParses(
             pactl.Port.Syntax,
-            ("analog-output-headphones: Słuchawki (priority: 9000, " "not available)"),
+            (
+                "analog-output-headphones: Słuchawki (priority: 9000, "
+                "not available)"
+            ),
         )["port"]
         self.assertEqual(port.name, "analog-output-headphones")
         self.assertEqual(port.label, "Słuchawki")
@@ -422,9 +432,9 @@ class AttributeTests(ParsingTestCase):
             self.parse(pactl.GenericSimpleAttribute.Syntax, " attr: value")
 
     def test_empty_value(self):
-        attr = self.assertParses(pactl.GenericSimpleAttribute.Syntax, "Argument:")[
-            "attribute"
-        ]
+        attr = self.assertParses(
+            pactl.GenericSimpleAttribute.Syntax, "Argument:"
+        )["attribute"]
         self.assertEqual(attr.name, "Argument")
         self.assertEqual(attr.value, "")
 
@@ -461,7 +471,11 @@ class AttributeTests(ParsingTestCase):
         self.assertEqual(attr.name, "Volume")
         self.assertEqual(
             attr.value,
-            ("0:  60% 1:  60%\n" "0: -13.40 dB 1: -13.40 dB\n" "balance 0.00\n"),
+            (
+                "0:  60% 1:  60%\n"
+                "0: -13.40 dB 1: -13.40 dB\n"
+                "balance 0.00\n"
+            ),
         )
 
     def test_volume_variant1(self):
@@ -512,7 +526,11 @@ class AttributeTests(ParsingTestCase):
         self.assertEqual(attr.name, "Volume")
         self.assertEqual(
             attr.value,
-            ("0:  60% 1:  60%\n" "0: -13.40 dB 1: -13.40 dB\n" "balance 0.00\n"),
+            (
+                "0:  60% 1:  60%\n"
+                "0: -13.40 dB 1: -13.40 dB\n"
+                "balance 0.00\n"
+            ),
         )
 
     def test_base_volume(self):
@@ -582,7 +600,9 @@ class AttributeTests(ParsingTestCase):
         )["attribute"]
         self.assertEqual(attr.name, "Ports")
         self.assertEqual(len(attr.value), 4)
-        self.assertEqual(attr.value[1].name, "analog-output;output-amplifier-off")
+        self.assertEqual(
+            attr.value[1].name, "analog-output;output-amplifier-off"
+        )
         self.assertEqual(attr.value[1].label, "模拟输出 / 无均衡器")
 
     def test_with_profile_association(self):
@@ -623,8 +643,12 @@ class AttributeTests(ParsingTestCase):
         self.assertEqual(attr.name, "Ports")
         self.assertEqual(attr.value[0].latency_offset, 982)
         self.assertEqual(attr.value[0].properties[0].name, "device.icon_name")
-        self.assertEqual(attr.value[0].properties[0].value, "audio-input-microphone")
-        self.assertEqual(attr.value[0].properties[1].name, "device.display_name")
+        self.assertEqual(
+            attr.value[0].properties[0].value, "audio-input-microphone"
+        )
+        self.assertEqual(
+            attr.value[0].properties[1].name, "device.display_name"
+        )
         self.assertEqual(attr.value[0].properties[1].value, "Microphone")
 
     def test_SPDIF_in_port_label(self):
@@ -676,7 +700,10 @@ class AttributeTests(ParsingTestCase):
         self.assertEqual(attr.value[0].priority, 6000)
         self.assertEqual(
             attr.value[-3].label,
-            ("Wyjście Digital Surround 5.1 (HDMI) + Wejście " "Analogowe stereo"),
+            (
+                "Wyjście Digital Surround 5.1 (HDMI) + Wejście "
+                "Analogowe stereo"
+            ),
         )
         self.assertEqual(attr.value[-3].priority, 360)
         self.assertEqual(attr.value[-1].name, "off")
@@ -699,8 +726,12 @@ class RecordTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(record.attribute_list[0].name, "State")
         self.assertIs(record.attribute_map["State"], record.attribute_list[0])
         # Probe some random things
-        self.assertEqual(record.attribute_map["Ports"].value[0].name, "hdmi-output-1")
-        self.assertEqual(record.attribute_map["Properties"].value[2].value, "sound")
+        self.assertEqual(
+            record.attribute_map["Ports"].value[0].name, "hdmi-output-1"
+        )
+        self.assertEqual(
+            record.attribute_map["Properties"].value[2].value, "sound"
+        )
         self.assertEqual(record.attribute_map["Formats"].value, ["pcm"])
 
     def test_DMIC_sinks(self):
@@ -712,7 +743,9 @@ class RecordTests(ParsingTestCase, PactlDataMixIn):
         self.assertIs(record.attribute_map["State"], record.attribute_list[0])
         # Probe some random things
         self.assertEqual(record.attribute_map["Ports"].value[0].name, "HDMI2")
-        self.assertEqual(record.attribute_map["Properties"].value[2].value, "sound")
+        self.assertEqual(
+            record.attribute_map["Properties"].value[2].value, "sound"
+        )
         self.assertEqual(record.attribute_map["Formats"].value, ["pcm"])
 
     def test_sinks_p16gen1(self):
@@ -723,13 +756,19 @@ class RecordTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(record.attribute_list[0].name, "State")
         self.assertIs(record.attribute_map["State"], record.attribute_list[0])
         # Probe some random things
-        self.assertEqual(record.attribute_map["Ports"].value[0].name, "Speaker")
+        self.assertEqual(
+            record.attribute_map["Ports"].value[0].name, "Speaker"
+        )
         self.assertEqual(
             record.attribute_map["Ports"].value[0].availability,
             "availability unknown",
         )
-        self.assertEqual(record.attribute_map["Ports"].value[1].name, "Headphones")
-        self.assertEqual(record.attribute_map["Properties"].value[2].value, "sound")
+        self.assertEqual(
+            record.attribute_map["Ports"].value[1].name, "Headphones"
+        )
+        self.assertEqual(
+            record.attribute_map["Properties"].value[2].value, "sound"
+        )
         self.assertEqual(record.attribute_map["Formats"].value, ["pcm"])
 
     def test_sinks_latitude3540(self):
@@ -741,12 +780,16 @@ class RecordTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(record.attribute_list[0].name, "State")
         self.assertIs(record.attribute_map["State"], record.attribute_list[0])
         # Probe some random things
-        self.assertEqual(record.attribute_map["Ports"].value[0].name, "Speaker")
+        self.assertEqual(
+            record.attribute_map["Ports"].value[0].name, "Speaker"
+        )
         self.assertEqual(
             record.attribute_map["Ports"].value[0].availability,
             "availability unknown",
         )
-        self.assertEqual(record.attribute_map["Ports"].value[1].name, "Headphones")
+        self.assertEqual(
+            record.attribute_map["Ports"].value[1].name, "Headphones"
+        )
         self.assertEqual(record.attribute_map["Ports"].value[1].priority, 200)
         self.assertEqual(record.attribute_map["Formats"].value, ["pcm"])
 
@@ -756,16 +799,24 @@ class RecordTests(ParsingTestCase, PactlDataMixIn):
         )["record"]
         self.assertEqual(record.name, "Module #0")
         self.assertEqual(record.attribute_list[0].name, "Name")
-        self.assertEqual(record.attribute_list[0].value, "module-device-restore")
+        self.assertEqual(
+            record.attribute_list[0].value, "module-device-restore"
+        )
         self.assertEqual(record.attribute_list[1].name, "Argument")
         self.assertEqual(record.attribute_list[1].value, "")
         self.assertEqual(record.attribute_list[2].name, "Usage counter")
         self.assertEqual(record.attribute_list[2].value, "n/a")
         self.assertEqual(record.attribute_list[3].name, "Properties")
-        self.assertEqual(record.attribute_list[3].value[0].name, "module.author")
-        self.assertEqual(record.attribute_list[3].value[0].value, "Lennart Poettering")
+        self.assertEqual(
+            record.attribute_list[3].value[0].name, "module.author"
+        )
+        self.assertEqual(
+            record.attribute_list[3].value[0].value, "Lennart Poettering"
+        )
         # Skip the second property because it's pretty long
-        self.assertEqual(record.attribute_list[3].value[2].name, "module.version")
+        self.assertEqual(
+            record.attribute_list[3].value[2].name, "module.version"
+        )
         self.assertEqual(record.attribute_list[3].value[2].value, "1.1")
 
 
@@ -777,7 +828,9 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         )[0]
         self.assertEqual(len(document.record_list), 24)
         self.assertEqual(document.record_list[0].name, "Module #0")
-        self.assertEqual(document.record_list[0].attribute_map["Argument"].value, "")
+        self.assertEqual(
+            document.record_list[0].attribute_map["Argument"].value, ""
+        )
         self.assertEqual(document.record_list[23].name, "Module #23")
 
     def test_pactl_list_sinks(self):
@@ -864,7 +917,9 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
             pactl.Document.Syntax, self.get_text("desktop-precise")
         )[0]
         for i in range(24):
-            self.assertEqual(document.record_list[i].name, "Module #{}".format(i))
+            self.assertEqual(
+                document.record_list[i].name, "Module #{}".format(i)
+            )
         self.assertEqual(document.record_list[24].name, "Sink #0")
         self.assertEqual(document.record_list[25].name, "Source #0")
         self.assertEqual(document.record_list[26].name, "Source #1")
@@ -896,7 +951,9 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
             pactl.Document.Syntax, self.get_text("desktop-trusty-bt-headset")
         )[0]
         for i in range(26):
-            self.assertEqual(document.record_list[i].name, "Module #{}".format(i))
+            self.assertEqual(
+                document.record_list[i].name, "Module #{}".format(i)
+            )
         self.assertEqual(document.record_list[26].name, "Sink #1")
         self.assertEqual(document.record_list[27].name, "Sink #2")
         self.assertEqual(document.record_list[28].name, "Sink #3")

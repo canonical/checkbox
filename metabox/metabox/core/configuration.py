@@ -105,7 +105,8 @@ def _has_local_or_remote_declaration(config):
     """
 
     return bool(
-        config.get("local") or (config.get("agent") and config.get("controller"))
+        config.get("local")
+        or (config.get("agent") and config.get("controller"))
     )
 
 
@@ -162,9 +163,15 @@ def _decl_has_a_valid_origin(decl):
             logger.error("Failed to dry-run install {}", setup_file_location)
             raise
         if "checkbox-ng" not in package_dry_install_log.stdout:
-            logger.error("{} did not install a package named `checkbox-ng`", source)
-            logger.error("Installation stdout:\n{}", package_dry_install_log.stdout)
-            logger.error("Installation stderr:\n{}", package_dry_install_log.stderr)
+            logger.error(
+                "{} did not install a package named `checkbox-ng`", source
+            )
+            logger.error(
+                "Installation stdout:\n{}", package_dry_install_log.stdout
+            )
+            logger.error(
+                "Installation stderr:\n{}", package_dry_install_log.stderr
+            )
             return False
         return True
     return False

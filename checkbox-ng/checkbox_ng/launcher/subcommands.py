@@ -113,14 +113,17 @@ class Submit:
             action="store_true",
             help=_("Use staging environment"),
         )
-        parser.add_argument("-m", "--message", help=_("Submission description"))
+        parser.add_argument(
+            "-m", "--message", help=_("Submission description")
+        )
 
     def invoked(self, ctx):
         transport_cls = None
         mode = "rb"
         options_string = "secure_id={0}".format(ctx.args.secure_id)
-        url = "https://certification.canonical.com/" "api/v1/submission/{}/".format(
-            ctx.args.secure_id
+        url = (
+            "https://certification.canonical.com/"
+            "api/v1/submission/{}/".format(ctx.args.secure_id)
         )
         submission_file = ctx.args.submission
         if ctx.args.staging:
@@ -171,7 +174,11 @@ class Submit:
                 )
             else:
                 # TRANSLATORS: Do not translate the {} format marker.
-                print(_("Successfully sent, server response" ": {0}").format(result))
+                print(
+                    _("Successfully sent, server response" ": {0}").format(
+                        result
+                    )
+                )
 
 
 class StartProvider:
@@ -277,7 +284,9 @@ class Launcher(MainLoopStage, ReportsStage):
             # we initialize the nb of attempts for all the selected jobs...
             for job_id in self.sa.get_dynamic_todo_list():
                 job_state = self.sa.get_job_state(job_id)
-                job_state.attempts = self.configuration.get_value("ui", "max_attempts")
+                job_state.attempts = self.configuration.get_value(
+                    "ui", "max_attempts"
+                )
             # ... before running them
             self._run_jobs(self.sa.get_dynamic_todo_list())
             if self.is_interactive and not self.configuration.get_value(
@@ -386,8 +395,12 @@ class Launcher(MainLoopStage, ReportsStage):
                 last_abandoned_session.id,
             )
             _logger.error(str(ije))
-            _logger.error("To resume it either revert the latest Checkbox snap refresh")
-            _logger.error("or roll back the relevant provider debian package first")
+            _logger.error(
+                "To resume it either revert the latest Checkbox snap refresh"
+            )
+            _logger.error(
+                "or roll back the relevant provider debian package first"
+            )
 
             input("\nPress enter to start Checkbox.")
             return False
@@ -404,7 +417,9 @@ class Launcher(MainLoopStage, ReportsStage):
         """
         if self.ctx.args.session_id:
             requested_sessions = [
-                s for s in resume_candidates if (s.id == self.ctx.args.session_id)
+                s
+                for s in resume_candidates
+                if (s.id == self.ctx.args.session_id)
             ]
             if requested_sessions:
                 # session_ids are unique, so there should be only 1
@@ -447,7 +462,9 @@ class Launcher(MainLoopStage, ReportsStage):
                 # the entries list is just a copy of the resume_candidates,
                 # and it's not updated when we delete a session, so we need
                 # to update it manually
-                entries = [en for en in entries if en[0] != resume_params.session_id]
+                entries = [
+                    en for en in entries if en[0] != resume_params.session_id
+                ]
 
                 if not entries:
                     # if everything got deleted let's go back to the test plan
@@ -529,7 +546,9 @@ class Launcher(MainLoopStage, ReportsStage):
         config = load_configs(cfg=resumed_launcher)
         self.sa.use_alternate_configuration(config)
 
-    def _resume_session(self, session_id: str, outcome: "IJobResult|None", comments=[]):
+    def _resume_session(
+        self, session_id: str, outcome: "IJobResult|None", comments=[]
+    ):
         """
         Resumes the session with the given session_id assigning to the latest
         running job the given outcome. If outcome is not provided it will be
@@ -556,7 +575,8 @@ class Launcher(MainLoopStage, ReportsStage):
 
         last_job = metadata.running_job_name
         is_cert_blocker = (
-            self.sa.get_job_state(last_job).effective_certification_status == "blocker"
+            self.sa.get_job_state(last_job).effective_certification_status
+            == "blocker"
         )
         # If we resumed maybe not rerun the same, probably broken job
         result_dict = {"comments": comments, "outcome": outcome}
@@ -574,7 +594,9 @@ class Launcher(MainLoopStage, ReportsStage):
                 )
         elif outcome == IJobResult.OUTCOME_SKIP:
             if is_cert_blocker and not comments:
-                result_dict["comments"] = request_comment("why you want to skip it")
+                result_dict["comments"] = request_comment(
+                    "why you want to skip it"
+                )
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
@@ -590,7 +612,9 @@ class Launcher(MainLoopStage, ReportsStage):
             # if we don't call use_job_result it means we'll rerun the job
             return
         else:
-            raise ValueError("Unsupported outcome for resume {}".format(outcome))
+            raise ValueError(
+                "Unsupported outcome for resume {}".format(outcome)
+            )
         result = MemoryJobResult(result_dict)
         self.sa.use_job_result(last_job, result)
         if self.sa.setting_up():
@@ -613,7 +637,8 @@ class Launcher(MainLoopStage, ReportsStage):
     @lru_cache(maxsize=1)
     def get_normal_user(self):
         return (
-            self.configuration.get_value("agent", "normal_user") or guess_normal_user()
+            self.configuration.get_value("agent", "normal_user")
+            or guess_normal_user()
         )
 
     def _start_new_session(self):
@@ -637,7 +662,9 @@ class Launcher(MainLoopStage, ReportsStage):
             tp_id = self.configuration.get_value("test plan", "unit")
             if not tp_id:
                 _logger.error(
-                    _("The test plan selection was forced but no unit was provided")
+                    _(
+                        "The test plan selection was forced but no unit was provided"
+                    )
                 )
                 raise SystemExit(1)
             if tp_id not in self.sa.get_test_plans():
@@ -703,12 +730,18 @@ class Launcher(MainLoopStage, ReportsStage):
             _logger.info("Skipping saving of the manifest")
             return
 
-        if interactive and ManifestBrowser.has_visible_manifests(manifest_repr):
+        if interactive and ManifestBrowser.has_visible_manifests(
+            manifest_repr
+        ):
             # Ask the user the values
-            to_save_manifest = ManifestBrowser("System Manifest:", manifest_repr).run()
+            to_save_manifest = ManifestBrowser(
+                "System Manifest:", manifest_repr
+            ).run()
         else:
             # Use the one provided in repr (either non-interactive or no visible manifests)
-            to_save_manifest = ManifestBrowser.get_flattened_values(manifest_repr)
+            to_save_manifest = ManifestBrowser.get_flattened_values(
+                manifest_repr
+            )
 
         self.sa.save_manifest(to_save_manifest)
 
@@ -719,7 +752,8 @@ class Launcher(MainLoopStage, ReportsStage):
             # by default all tests are selected; so we're done here
             return
         job_list = [
-            self.sa.get_job(job_id) for job_id in self.sa.get_static_todo_list()
+            self.sa.get_job(job_id)
+            for job_id in self.sa.get_static_todo_list()
         ]
         if not job_list:
             print(self.C.RED(_("There were no tests to select from!")))
@@ -736,7 +770,9 @@ class Launcher(MainLoopStage, ReportsStage):
         # the original ordering we should just treat it as a mask and
         # use it to filter jobs from get_static_todo_list.
         job_id_list = [
-            job_id for job_id in self.sa.get_static_todo_list() if job_id in wanted_set
+            job_id
+            for job_id in self.sa.get_static_todo_list()
+            if job_id in wanted_set
         ]
         self.sa.use_alternate_selection(job_id_list)
 
@@ -749,7 +785,9 @@ class Launcher(MainLoopStage, ReportsStage):
                 "outcome": IJobResult.OUTCOME_PASS,
                 "comments": _("Automatically passed after resuming execution"),
             }
-            session_share = WellKnownDirsHelper.session_share(self.sa.get_session_id())
+            session_share = WellKnownDirsHelper.session_share(
+                self.sa.get_session_id()
+            )
             result_path = os.path.join(session_share, "__result")
             if os.path.exists(result_path):
                 try:
@@ -769,14 +807,18 @@ class Launcher(MainLoopStage, ReportsStage):
             print(
                 _(
                     "Automatically resuming session. "
-                    "Outcome of the previous job: {}".format(result_dict["outcome"])
+                    "Outcome of the previous job: {}".format(
+                        result_dict["outcome"]
+                    )
                 )
             )
             result = MemoryJobResult(result_dict)
             self.sa.use_job_result(last_job, result)
             return
 
-        print(_("Previous session run tried to execute job: {}").format(last_job))
+        print(
+            _("Previous session run tried to execute job: {}").format(last_job)
+        )
         last_job_cert_status = self.sa.get_job_state(
             last_job
         ).effective_certification_status
@@ -793,10 +835,15 @@ class Launcher(MainLoopStage, ReportsStage):
                 _("What do you want to do with that job?"),
             )
             if cmd == "skip" or cmd is None:
-                if last_job_cert_status == "blocker" and not result_dict["comments"]:
+                if (
+                    last_job_cert_status == "blocker"
+                    and not result_dict["comments"]
+                ):
                     print(
                         self.C.RED(
-                            _("This job is required in order to issue a certificate.")
+                            _(
+                                "This job is required in order to issue a certificate."
+                            )
                         )
                     )
                     print(
@@ -809,30 +856,43 @@ class Launcher(MainLoopStage, ReportsStage):
                     continue
                 else:
                     if not result_dict["comments"]:
-                        result_dict["comments"] = _("Skipped after resuming execution")
+                        result_dict["comments"] = _(
+                            "Skipped after resuming execution"
+                        )
                     result_dict["outcome"] = IJobResult.OUTCOME_SKIP
                     result = MemoryJobResult(result_dict)
                     break
             elif cmd == "pass":
                 if not result_dict["comments"]:
-                    result_dict["comments"] = _("Passed after resuming execution")
+                    result_dict["comments"] = _(
+                        "Passed after resuming execution"
+                    )
                 result_dict["outcome"] = IJobResult.OUTCOME_PASS
                 result = MemoryJobResult(result_dict)
                 break
             elif cmd == "fail":
-                if last_job_cert_status == "blocker" and not result_dict["comments"]:
+                if (
+                    last_job_cert_status == "blocker"
+                    and not result_dict["comments"]
+                ):
                     print(
                         self.C.RED(
-                            _("This job is required in order to issue a certificate.")
+                            _(
+                                "This job is required in order to issue a certificate."
+                            )
                         )
                     )
                     print(
-                        self.C.RED(_("Please add a comment to explain why it failed."))
+                        self.C.RED(
+                            _("Please add a comment to explain why it failed.")
+                        )
                     )
                     continue
                 else:
                     if not result_dict["comments"]:
-                        result_dict["comments"] = _("Failed after resuming execution")
+                        result_dict["comments"] = _(
+                            "Failed after resuming execution"
+                        )
                     result_dict["outcome"] = IJobResult.OUTCOME_FAIL
                     result = MemoryJobResult(result_dict)
                     break
@@ -857,7 +917,10 @@ class Launcher(MainLoopStage, ReportsStage):
         # we wait before retrying
         delay = self.configuration.get_value("ui", "delay_before_retry")
         _logger.info(
-            _("Waiting {} seconds before retrying failed" " jobs...".format(delay))
+            _(
+                "Waiting {} seconds before retrying failed"
+                " jobs...".format(delay)
+            )
         )
         time.sleep(delay)
         candidates = self.sa.prepare_rerun_candidates(rerun_candidates)
@@ -925,7 +988,9 @@ class Launcher(MainLoopStage, ReportsStage):
             metavar="SESSION_NAME",
             help=_("title of the session to use"),
         )
-        parser.add_argument("-m", "--message", help=_("submission description"))
+        parser.add_argument(
+            "-m", "--message", help=_("submission description")
+        )
         parser.add_argument(
             "--dont-suppress-output",
             action="store_true",
@@ -1006,7 +1071,8 @@ class Run(MainLoopStage):
             default="-",
             metavar=_("FILE"),  # type=FileType("wb"),
             help=_(
-                "save test results to the specified FILE" " (or to stdout if FILE is -)"
+                "save test results to the specified FILE"
+                " (or to stdout if FILE is -)"
             ),
         )
         parser.add_argument(
@@ -1038,7 +1104,9 @@ class Run(MainLoopStage):
             metavar="SESSION_NAME",
             help=_("title of the session to use"),
         )
-        parser.add_argument("-m", "--message", help=_("submission description"))
+        parser.add_argument(
+            "-m", "--message", help=_("submission description")
+        )
         parser.add_argument(
             "--exact",
             action="store_true",
@@ -1072,7 +1140,9 @@ class Run(MainLoopStage):
         providers = self.sa.get_selected_providers()
         root = Explorer(providers).get_object_tree()
         # here handle the patterns one by one to not change the order
-        matching_units = [root.find_children_by_name([pattern]) for pattern in patterns]
+        matching_units = [
+            root.find_children_by_name([pattern]) for pattern in patterns
+        ]
         all_ids = [
             [pattern] if not matches else [match.name for match in matches]
             for matching_unit in matching_units
@@ -1094,7 +1164,9 @@ class Run(MainLoopStage):
             )
             tps = self.sa.get_test_plans()
             self._configure_report()
-            selection = self._get_relevant_units(ctx.args.PATTERN, ctx.args.exact)
+            selection = self._get_relevant_units(
+                ctx.args.PATTERN, ctx.args.exact
+            )
             submission_message = self.ctx.args.message
             if len(selection) == 1 and selection[0] in tps:
                 self.ctx.sa.update_app_blob(
@@ -1108,7 +1180,9 @@ class Run(MainLoopStage):
                 self.just_run_test_plan(selection[0])
             else:
                 self.ctx.sa.update_app_blob(
-                    json.dumps({"description": submission_message}).encode("UTF-8")
+                    json.dumps({"description": submission_message}).encode(
+                        "UTF-8"
+                    )
                 )
                 self.sa.hand_pick_jobs(selection)
                 print(self.C.header(_("Running Selected Jobs")))
@@ -1142,10 +1216,14 @@ class Run(MainLoopStage):
             raise SystemExit(0)
         if not self.ctx.args.transport:
             if self.ctx.args.transport_where:
-                _logger.error(_("--transport-where is useless without --transport"))
+                _logger.error(
+                    _("--transport-where is useless without --transport")
+                )
                 raise SystemExit(1)
             if self.ctx.args.transport_options:
-                _logger.error(_("--transport-options is useless without --transport"))
+                _logger.error(
+                    _("--transport-options is useless without --transport")
+                )
                 raise SystemExit(1)
             if self.ctx.args.output_file != "-":
                 self.transport = "file"
@@ -1178,7 +1256,9 @@ class Run(MainLoopStage):
             print(_("Saving results to {}").format(self.transport_where))
         elif self.transport == "certification":
             print(_("Sending results to {}").format(self.transport_where))
-        self.sa.export_to_transport(self.exporter, transport, self.exporter_opts)
+        self.sa.export_to_transport(
+            self.exporter, transport, self.exporter_opts
+        )
 
     def _configure_restart(self):
         strategy = detect_restart_strategy(session_type="local")
@@ -1249,7 +1329,9 @@ class List:
                 # the 'all-jobs' group.
                 ctx.args.format = "id: {full_id}\n{_summary}\n"
             for job in jobs:
-                unescaped = ctx.args.format.replace("\\n", "\n").replace("\\t", "\t")
+                unescaped = ctx.args.format.replace("\\n", "\n").replace(
+                    "\\t", "\t"
+                )
 
                 class DefaultKeyedDict(defaultdict):
                     def __missing__(self, key):
@@ -1263,7 +1345,9 @@ class List:
                 else:
                     job["unit_type"] = "job"
                 print(
-                    Formatter().vformat(unescaped, (), DefaultKeyedDict(None, job)),
+                    Formatter().vformat(
+                        unescaped, (), DefaultKeyedDict(None, job)
+                    ),
                     end="",
                 )
             return
@@ -1384,8 +1468,8 @@ class Expand:
             obj["id"] = unit.id  # To get the fully qualified id
             # these two don't make sense for manifest units
             if unit.unit != "manifest entry":
-                obj["certification-status"] = self.get_effective_certification_status(
-                    unit
+                obj["certification-status"] = (
+                    self.get_effective_certification_status(unit)
                 )
                 if unit.template_id:
                     obj["template-id"] = unit.template_id
@@ -1404,7 +1488,9 @@ class Expand:
                 elif obj["unit"] == "job":
                     print("Job '{}'".format(obj["id"]))
                 else:
-                    raise AssertionError("Unknown unit type {}".format(obj["unit"]))
+                    raise AssertionError(
+                        "Unknown unit type {}".format(obj["unit"])
+                    )
 
     def get_effective_certification_status(self, unit):
         if unit.unit == "template":
@@ -1477,14 +1563,18 @@ class ListBootstrapped:
             return
         if ctx.args.format:
             for job in jobs:
-                unescaped = ctx.args.format.replace("\\n", "\n").replace("\\t", "\t")
+                unescaped = ctx.args.format.replace("\\n", "\n").replace(
+                    "\\t", "\t"
+                )
 
                 class DefaultKeyedDict(defaultdict):
                     def __missing__(self, key):
                         return _("<missing {}>").format(key)
 
                 print(
-                    Formatter().vformat(unescaped, (), DefaultKeyedDict(None, job)),
+                    Formatter().vformat(
+                        unescaped, (), DefaultKeyedDict(None, job)
+                    ),
                     end="",
                 )
         else:
@@ -1620,11 +1710,15 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
 
 class Show:
     def register_arguments(self, parser):
-        parser.add_argument("IDs", nargs="+", help=_("Show the definitions of objects"))
+        parser.add_argument(
+            "IDs", nargs="+", help=_("Show the definitions of objects")
+        )
         parser.add_argument(
             "--exact",
             action="store_true",
-            help=_("Only show units that exactly match the fully qualified ID"),
+            help=_(
+                "Only show units that exactly match the fully qualified ID"
+            ),
         )
 
     def invoked(self, ctx):
@@ -1647,7 +1741,9 @@ class Show:
             try:
                 print("origin:", obj.attrs["origin"])
                 path, line_range = obj.attrs["origin"].rsplit(":", maxsplit=1)
-                start_index, end_index = [int(i) for i in line_range.split("-")]
+                start_index, end_index = [
+                    int(i) for i in line_range.split("-")
+                ]
                 with open(path, "rt", encoding="utf-8") as pxu:
                     # origin uses human-like numbering (starts with 1), so we need
                     # to substract 1. The range in origin is inclusive,
@@ -1655,7 +1751,9 @@ class Show:
                     record = pxu.readlines()[start_index - 1 : end_index]
                     print("".join(record))
             except (ValueError, KeyError):
-                print("Could not read the record for {}!".format(obj.attrs["id"]))
+                print(
+                    "Could not read the record for {}!".format(obj.attrs["id"])
+                )
             except OSError as exc:
                 print(
                     "Could not read '{}' containing record for '{}'!".format(

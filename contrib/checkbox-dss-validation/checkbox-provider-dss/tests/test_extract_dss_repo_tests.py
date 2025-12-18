@@ -42,7 +42,9 @@ class TestMain(unittest.TestCase):
         args = [dss_repo, self.tox_env]
         with self.assertRaises(FileNotFoundError) as caught:
             extract_dss_repo_tests.main(args)
-        self.assertIn(f"No such file or directory: '{dss_repo}'", str(caught.exception))
+        self.assertIn(
+            f"No such file or directory: '{dss_repo}'", str(caught.exception)
+        )
 
     def test_fails_when_dss_repo_has_no_venv(self):
         with tempfile.TemporaryDirectory() as dss_repo:
@@ -259,11 +261,15 @@ SAMPLE_OUTPUT_END_PART = """\
 """
 
 SAMPLE_OUTPUT_WITH_MATCHES = (
-    SAMPLE_OUTPUT_PREAMBLE + SAMPLE_OUTPUT_PART_WITH_MATCHES + SAMPLE_OUTPUT_END_PART
+    SAMPLE_OUTPUT_PREAMBLE
+    + SAMPLE_OUTPUT_PART_WITH_MATCHES
+    + SAMPLE_OUTPUT_END_PART
 )
 
 SAMPLE_OUTPUT_WITHOUT_MATCHES = (
-    SAMPLE_OUTPUT_PREAMBLE + SAMPLE_OUTPUT_PART_WITHOUT_MATCHES + SAMPLE_OUTPUT_END_PART
+    SAMPLE_OUTPUT_PREAMBLE
+    + SAMPLE_OUTPUT_PART_WITHOUT_MATCHES
+    + SAMPLE_OUTPUT_END_PART
 )
 
 SAMPLE_OUTPUT_WITHOUT_ANY_TESTS = (

@@ -83,7 +83,9 @@ class File:
 
     def instantiate(self, root, **kwargs):
         if self.parent:
-            filename = os.path.join(root, self.parent, self.name.format(**kwargs))
+            filename = os.path.join(
+                root, self.parent, self.name.format(**kwargs)
+            )
         else:
             filename = os.path.join(root, self.name.format(**kwargs))
         if os.path.exists(filename):
@@ -133,7 +135,9 @@ class Skeleton(Directory):
     def instantiate(self, root, **kwargs):
         super().instantiate(root, **kwargs)
         for thing in self.things:
-            thing.instantiate(os.path.join(root, self.name.format(**kwargs)), **kwargs)
+            thing.instantiate(
+                os.path.join(root, self.name.format(**kwargs)), **kwargs
+            )
 
 
 class EmptyProviderSkeleton(Skeleton):

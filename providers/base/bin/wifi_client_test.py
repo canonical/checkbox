@@ -59,7 +59,8 @@ if PING_TEST == "yes":
         "--ping",
         type=str,
         help=(
-            "Server in target network which respond to ping," " default is ubuntu.com"
+            "Server in target network which respond to ping,"
+            " default is ubuntu.com"
         ),
         default="ubuntu.com",
     )
@@ -92,7 +93,9 @@ time.sleep(15)
 
 # Check connection
 if PING_TEST == "yes":
-    test_result = subprocess.call(["ping", "-c", "5", "-I", args.interface, args.ping])
+    test_result = subprocess.call(
+        ["ping", "-c", "5", "-I", args.interface, args.ping]
+    )
     if not test_result:
         print("Connection test passed")
         exit_code = 0
@@ -100,7 +103,9 @@ if PING_TEST == "yes":
         print("Connection test failed")
         exit_code = 1
 else:
-    test_result = subprocess.check_output(["iw", args.interface, "link"]).decode()
+    test_result = subprocess.check_output(
+        ["iw", args.interface, "link"]
+    ).decode()
     if test_result.find("SSID") != -1:
         print("Connection test passed")
         exit_code = 0

@@ -21,7 +21,9 @@ class Battery:
             elif line.find("energy:") != -1:
                 self._energy, self._energy_units = self._get_capacity(line)
             elif line.find("energy-full:") != -1:
-                self._energy_full, self._energy_full_units = self._get_capacity(line)
+                self._energy_full, self._energy_full_units = (
+                    self._get_capacity(line)
+                )
             elif line.find("energy-full-design:") != -1:
                 self._energy_full_design, self._energy_full_design_units = (
                     self._get_capacity(line)
@@ -111,15 +113,22 @@ def validate_battery_info(battery):
 
 def battery_life(before, after, time):
     capacity_difference = before._energy - after._energy
-    print("Battery drained by %f %s" % (capacity_difference, before._energy_units))
+    print(
+        "Battery drained by %f %s"
+        % (capacity_difference, before._energy_units)
+    )
     if capacity_difference == 0:
         print(
-            "Battery capacity did not change, unable to determine remaining" " time",
+            "Battery capacity did not change, unable to determine remaining"
+            " time",
             file=sys.stderr,
         )
         return 1
     drain_per_second = capacity_difference / time
-    print("Battery drained %f %s per second" % (drain_per_second, before._energy_units))
+    print(
+        "Battery drained %f %s per second"
+        % (drain_per_second, before._energy_units)
+    )
 
     # the battery at it's max design capacity (when it was brand new)
     design_life_minutes = round(

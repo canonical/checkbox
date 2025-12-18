@@ -65,7 +65,9 @@ def main():
     """main function"""
 
     depth, pixmap_format = get_color_depth()
-    print("Color Depth: {0}\nPixmap Format: {1} bpp".format(depth, pixmap_format))
+    print(
+        "Color Depth: {0}\nPixmap Format: {1} bpp".format(depth, pixmap_format)
+    )
     if depth == 8:
         return 1
     return 0

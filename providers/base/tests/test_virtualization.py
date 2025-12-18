@@ -32,7 +32,9 @@ class TestLXDTest_vm(TestCase):
         task.stdout = "abc"
         task.stderr = None
 
-        command_result = LXDTest_vm.run_command(MagicMock(), "command", log_stderr=True)
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
 
         self.assertTrue(logging_mock.debug.called)
         self.assertTrue(command_result)
@@ -59,7 +61,9 @@ class TestLXDTest_vm(TestCase):
         task.stdout = "abc"
         task.stderr = "some error"
 
-        command_result = LXDTest_vm.run_command(MagicMock(), "command", log_stderr=True)
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
 
         self.assertTrue(logging_mock.error.called)
         self.assertFalse(command_result)
@@ -72,7 +76,9 @@ class TestLXDTest_vm(TestCase):
         task.stdout = "abc"
         task.stderr = "some error"
 
-        command_result = LXDTest_vm.run_command(MagicMock(), "command", log_stderr=True)
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
 
         self.assertTrue(logging_mock.debug.called)
         self.assertTrue(command_result)
@@ -85,7 +91,9 @@ class TestLXDTest_vm(TestCase):
         task.stdout = ""
         task.stderr = "some error"
 
-        command_result = LXDTest_vm.run_command(MagicMock(), "command", log_stderr=True)
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
 
         self.assertTrue(logging_mock.debug.called)
         self.assertTrue(command_result)

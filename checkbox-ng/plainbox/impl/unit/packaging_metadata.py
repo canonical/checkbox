@@ -331,7 +331,9 @@ class PackagingDriverBase(IPackagingDriver):
             _logger.debug(_("Strategy successful: ID and Version ID match"))
             return True
         if self._is_id_match(unit):
-            _logger.debug(_("Strategy successful: ID match, no Version ID required"))
+            _logger.debug(
+                _("Strategy successful: ID match, no Version ID required")
+            )
             return True
         if self._is_id_like_match(unit):
             _logger.debug(
@@ -466,7 +468,11 @@ class DebianPackagingDriver(PackagingDriverBase):
     def collect(self, unit: Unit) -> None:
         def rel_list(field):
             relations = unit.get_record_value(field, "").replace("\n", " ")
-            return (rel.strip() for rel in re.split(", *", relations) if rel.strip())
+            return (
+                rel.strip()
+                for rel in re.split(", *", relations)
+                if rel.strip()
+            )
 
         self._depends.extend(rel_list("Depends"))
         self._suggests.extend(rel_list("Suggests"))
@@ -489,7 +495,9 @@ class DebianPackagingDriver(PackagingDriverBase):
                 )
             if self._recommends:
                 print(
-                    "plainbox:Recommends={}".format(", ".join(self._recommends)),
+                    "plainbox:Recommends={}".format(
+                        ", ".join(self._recommends)
+                    ),
                     file=stream,
                 )
 
@@ -521,7 +529,10 @@ def get_packaging_driver() -> IPackagingDriver:
     """Get the packaging driver appropriate for the current platform."""
     if sys.platform.startswith("linux"):
         os_release = get_os_release()
-        if os_release.get("ID") == "debian" or os_release.get("ID_LIKE") == "debian":
+        if (
+            os_release.get("ID") == "debian"
+            or os_release.get("ID_LIKE") == "debian"
+        ):
             _logger.info(_("Using Debian packaging driver"))
             return DebianPackagingDriver(os_release)
     _logger.info(_("Using null packaging driver"))

@@ -1,7 +1,6 @@
 """
 A library of various helpers functions and classes
 """
-
 import inspect
 import sys
 import socket
@@ -12,7 +11,7 @@ import random
 from plainbox.vendor.rpyc.lib.compat import maxint  # noqa: F401
 
 
-SPAWN_THREAD_PREFIX = "RpycSpawnThread"
+SPAWN_THREAD_PREFIX = 'RpycSpawnThread'
 
 
 class MissingModule(object):
@@ -28,7 +27,6 @@ class MissingModule(object):
 
     def __bool__(self):
         return False
-
     __nonzero__ = __bool__
 
 
@@ -49,21 +47,17 @@ def safe_import(name):
 def setup_logger(quiet=False, logfile=None, namespace=None):
     opts = {}
     if quiet:
-        opts["level"] = logging.ERROR
-        opts["format"] = "%(asctime)s %(levelname)s: %(message)s"
-        opts["datefmt"] = "%b %d %H:%M:%S"
+        opts['level'] = logging.ERROR
+        opts['format'] = '%(asctime)s %(levelname)s: %(message)s'
+        opts['datefmt'] = '%b %d %H:%M:%S'
     else:
-        opts["level"] = logging.DEBUG
-        opts["format"] = (
-            "%(asctime)s %(levelname)s %(name)s[%(threadName)s]: %(message)s"
-        )
-        opts["datefmt"] = "%b %d %H:%M:%S"
+        opts['level'] = logging.DEBUG
+        opts['format'] = '%(asctime)s %(levelname)s %(name)s[%(threadName)s]: %(message)s'
+        opts['datefmt'] = '%b %d %H:%M:%S'
     if logfile:
-        opts["filename"] = logfile
+        opts['filename'] = logfile
     logging.basicConfig(**opts)
-    return logging.getLogger(
-        "rpyc" if namespace is None else "rpyc.{}".format(namespace)
-    )
+    return logging.getLogger('rpyc' if namespace is None else 'rpyc.{}'.format(namespace))
 
 
 class hybridmethod(object):
@@ -94,13 +88,8 @@ def hasattr_static(obj, attr):
 def spawn(*args, **kwargs):
     """Start and return daemon thread. ``spawn(func, *args, **kwargs)``."""
     func, args = args[0], args[1:]
-    str_id_pack = "-".join(["{}".format(i) for i in get_id_pack(func)])
-    thread = threading.Thread(
-        name="{}-{}".format(SPAWN_THREAD_PREFIX, str_id_pack),
-        target=func,
-        args=args,
-        kwargs=kwargs,
-    )
+    str_id_pack = '-'.join(['{}'.format(i) for i in get_id_pack(func)])
+    thread = threading.Thread(name='{}-{}'.format(SPAWN_THREAD_PREFIX, str_id_pack), target=func, args=args, kwargs=kwargs)
     thread.daemon = True
     thread.start()
     return thread
@@ -114,14 +103,13 @@ def spawn_waitready(init, main):
     Returns a tuple ``(thread, init_result)``.
     """
     event = threading.Event()
-    stack = [event]  # used to exchange arguments with thread, so `event`
+    stack = [event]     # used to exchange arguments with thread, so `event`
     # can be deleted when it has fulfilled its purpose.
 
     def start():
         stack.append(init())
         stack.pop(0).set()
         return main()
-
     thread = spawn(start)
     event.wait()
     return thread, stack.pop()
@@ -172,7 +160,7 @@ def socket_backoff_connect(family, socktype, proto, addr, timeout, attempts):
 
 
 def exp_backoff(collision):
-    """Exponential backoff algorithm from
+    """ Exponential backoff algorithm from
     Peterson, L.L., and Davie, B.S. Computer Networks: a systems approach. 5th ed. pp. 127
     """
     n = min(collision, 10)
@@ -190,35 +178,35 @@ def get_id_pack(obj):
 
     So, check thy assumptions regarding the given object when creating `id_pack`.
     """
-    if hasattr(obj, "____id_pack__"):
+    if hasattr(obj, '____id_pack__'):
         # netrefs are handled first since __class__ is a descriptor
         return obj.____id_pack__
-    elif inspect.ismodule(obj) or getattr(obj, "__name__", None) == "module":
+    elif inspect.ismodule(obj) or getattr(obj, '__name__', None) == 'module':
         # TODO: not sure about this, need to enumerate cases in units
         if isinstance(obj, type):  # module
             obj_cls = type(obj)
-            name_pack = "{0}.{1}".format(obj_cls.__module__, obj_cls.__name__)
+            name_pack = '{0}.{1}'.format(obj_cls.__module__, obj_cls.__name__)
             return (name_pack, id(type(obj)), id(obj))
         else:
-            if inspect.ismodule(obj) and obj.__name__ != "module":
+            if inspect.ismodule(obj) and obj.__name__ != 'module':
                 if obj.__name__ in sys.modules:
                     name_pack = obj.__name__
                 else:
-                    name_pack = "{0}.{1}".format(obj.__class__.__module__, obj.__name__)
+                    name_pack = '{0}.{1}'.format(obj.__class__.__module__, obj.__name__)
             elif inspect.ismodule(obj):
-                name_pack = "{0}.{1}".format(obj.__module__, obj.__name__)
+                name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
                 print(name_pack)
-            elif hasattr(obj, "__module__"):
-                name_pack = "{0}.{1}".format(obj.__module__, obj.__name__)
+            elif hasattr(obj, '__module__'):
+                name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
             else:
                 obj_cls = type(obj)
-                name_pack = "{0}".format(obj.__name__)
+                name_pack = '{0}'.format(obj.__name__)
             return (name_pack, id(type(obj)), id(obj))
     elif not inspect.isclass(obj):
-        name_pack = "{0}.{1}".format(obj.__class__.__module__, obj.__class__.__name__)
+        name_pack = '{0}.{1}'.format(obj.__class__.__module__, obj.__class__.__name__)
         return (name_pack, id(type(obj)), id(obj))
     else:
-        name_pack = "{0}.{1}".format(obj.__module__, obj.__name__)
+        name_pack = '{0}.{1}'.format(obj.__module__, obj.__name__)
         return (name_pack, id(obj), 0)
 
 

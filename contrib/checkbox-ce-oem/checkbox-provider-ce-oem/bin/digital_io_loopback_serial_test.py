@@ -90,7 +90,11 @@ class DigitalIOSerialController:
         Raises:
             SystemExit: Exit the function with the test result
         """
-        print("# Digital I/O loopback test. out:{}, in:{}".format(out_port, in_port))
+        print(
+            "# Digital I/O loopback test. out:{}, in:{}".format(
+                out_port, in_port
+            )
+        )
         raise SystemExit(not self.loopback_test(out_port, in_port))
 
     def loopback_test(self, out_port, in_port):

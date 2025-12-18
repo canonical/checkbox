@@ -100,7 +100,9 @@ class PIDController(object):
         derivative = (error - self._previous_error) / dt
         self._previous_error = error
         input_change = (
-            (self.Kp * error) + (self.Ki * self._integral) + (self.Kd * derivative)
+            (self.Kp * error)
+            + (self.Ki * self._integral)
+            + (self.Kd * derivative)
         )
         if self._change_limit and abs(input_change) > abs(self._change_limit):
             sign = input_change / abs(input_change)
@@ -191,10 +193,14 @@ class PAVolumeController(object):
         identifier = self.pa_types[type].capitalize()
         find_string = "Default %s: " % identifier
 
-        line = next((line for line in result if line.startswith(find_string)), None)
+        line = next(
+            (line for line in result if line.startswith(find_string)), None
+        )
         if line is None:
             if self.identifier and self.logger:
-                self.logger.error('Cannot find "%s" from `pactl info`.' % find_string)
+                self.logger.error(
+                    'Cannot find "%s" from `pactl info`.' % find_string
+                )
             return None
 
         # .removeprefix() but need to support Python 3.8
@@ -223,7 +229,9 @@ class PAVolumeController(object):
         # any bad effects.
         for attempt in range(0, 3):
             try:
-                return subprocess.check_output(command, universal_newlines=True)
+                return subprocess.check_output(
+                    command, universal_newlines=True
+                )
             except subprocess.CalledProcessError:
                 time.sleep(5)
         self.logger.error("Fail to execute: {}".format(command))
@@ -261,7 +269,8 @@ class SpectrumAnalyzer(object):
         if len(sample) != len(self.spectrum):
             return
         self.spectrum = [
-            ((old * self.number_of_samples) + new) / (self.number_of_samples + 1)
+            ((old * self.number_of_samples) + new)
+            / (self.number_of_samples + 1)
             for old, new in zip(self.spectrum, sample)
         ]
         self.number_of_samples += 1
@@ -271,7 +280,9 @@ class SpectrumAnalyzer(object):
         per_magnitude_bins = collections.defaultdict(int)
         for magnitude in self.spectrum:
             per_magnitude_bins[magnitude] += 1
-        base_level = max(per_magnitude_bins, key=lambda x: per_magnitude_bins[x])
+        base_level = max(
+            per_magnitude_bins, key=lambda x: per_magnitude_bins[x]
+        )
         # Now return all values that are higher (more positive)
         # than base_level + threshold
         peaks = []
@@ -385,7 +396,8 @@ class GStreamerMessageHandler(object):
         current_volume = volume_controller.get_volume()
         if current_volume is None:
             self.logger.error(
-                "Unable to control recording volume. " "Test results may be wrong"
+                "Unable to control recording volume. "
+                "Test results may be wrong"
             )
             return
         self.current_level = level
@@ -595,14 +607,20 @@ def main():
 
     # This just receives a process feedback and tells me how much to change to
     # achieve the setpoint
-    pidctrl = PIDController(Kp=0.7, Ki=0.01, Kd=0.01, setpoint=REC_LEVEL_RANGE[0])
+    pidctrl = PIDController(
+        Kp=0.7, Ki=0.01, Kd=0.01, setpoint=REC_LEVEL_RANGE[0]
+    )
     pidctrl.set_change_limit(5)
     # This  gathers spectrum data.
-    analyzer = SpectrumAnalyzer(points=BINS, sampling_frequency=SAMPLING_FREQUENCY)
+    analyzer = SpectrumAnalyzer(
+        points=BINS, sampling_frequency=SAMPLING_FREQUENCY
+    )
 
     # Volume controllers actually set volumes for their device types.
     # we should at least issue a warning
-    recorder.volumecontroller = PAVolumeController(type="input", logger=logging)
+    recorder.volumecontroller = PAVolumeController(
+        type="input", logger=logging
+    )
     if not recorder.volumecontroller.get_identifier():
         logging.warning(
             "Unable to get input volume control identifier. "
@@ -653,7 +671,9 @@ def main():
 
     # See if data gathering was successful.
     test_band = analyzer.frequency_band_for(args.frequency)
-    candidate_bands = analyzer.frequencies_with_peak_magnitude(MAGNITUDE_THRESHOLD)
+    candidate_bands = analyzer.frequencies_with_peak_magnitude(
+        MAGNITUDE_THRESHOLD
+    )
     for band in candidate_bands:
         logging.debug(
             "Band (%.2f,%.2f) contains a magnitude peak"
@@ -663,7 +683,8 @@ def main():
         freqs_for_band = analyzer.frequencies_for_band(test_band)
         logging.info(
             "PASS: Test frequency of %s in band (%.2f, %.2f) "
-            "which contains a magnitude peak" % ((args.frequency,) + freqs_for_band)
+            "which contains a magnitude peak"
+            % ((args.frequency,) + freqs_for_band)
         )
         return_value = 0
     else:
@@ -675,16 +696,22 @@ def main():
     # Is the microphone broken?
     if len(set(analyzer.spectrum)) <= 1:
         logging.info(
-            "WARNING: Microphone seems broken, didn't even " "record ambient noise"
+            "WARNING: Microphone seems broken, didn't even "
+            "record ambient noise"
         )
 
     if args.spectrum:
         logging.info("Saving spectrum data for plotting as %s" % args.spectrum)
         if not FileDumper().write_to_file(
             args.spectrum,
-            ["%s,%s" % t for t in zip(analyzer.frequencies, analyzer.spectrum)],
+            [
+                "%s,%s" % t
+                for t in zip(analyzer.frequencies, analyzer.spectrum)
+            ],
         ):
-            logging.error("Couldn't save spectrum data for plotting", file=sys.stderr)
+            logging.error(
+                "Couldn't save spectrum data for plotting", file=sys.stderr
+            )
 
     return return_value
 

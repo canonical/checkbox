@@ -69,7 +69,9 @@ class InstallCommandExt(InstallCommand):
 
 if __name__ == "__main__":
     if exporters_def.effective_locale_dir:
-        bindtextdomain(exporters_def.gettext_domain, exporters_def.effective_locale_dir)
+        bindtextdomain(
+            exporters_def.gettext_domain, exporters_def.effective_locale_dir
+        )
     setup(
         name=exporters_def.name,
         version=exporters_def.version,

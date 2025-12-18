@@ -170,7 +170,9 @@ class PlugIn(IPlugIn):
         self._wrap_time = wrap_time
 
     def __repr__(self):
-        return "<{!s} plugin_name:{!r}>".format(type(self).__name__, self.plugin_name)
+        return "<{!s} plugin_name:{!r}>".format(
+            type(self).__name__, self.plugin_name
+        )
 
     @property
     def plugin_name(self) -> str:
@@ -299,7 +301,9 @@ class PlugInCollectionBase(IPlugInCollection):
     PlugInCollection implemenetations.
     """
 
-    def __init__(self, load=False, wrapper=PlugIn, *wrapper_args, **wrapper_kwargs):
+    def __init__(
+        self, load=False, wrapper=PlugIn, *wrapper_args, **wrapper_kwargs
+    ):
         """
         Initialize a collection of plug-ins
 
@@ -432,7 +436,9 @@ class PlugInCollectionBase(IPlugInCollection):
                 **self._wrapper_kwargs
             )
         except PlugInError as exc:
-            logger.warning(_("Unable to prepare plugin %s: %s"), plugin_name, exc)
+            logger.warning(
+                _("Unable to prepare plugin %s: %s"), plugin_name, exc
+            )
             self._problem_list.append(exc)
         else:
             self._plugins[plugin_name] = wrapper
@@ -447,7 +453,9 @@ class PlugInCollectionBase(IPlugInCollection):
         predictable cost related to traversing the file system.
         """
         if self._loaded is False:
-            raise AttributeError(_("discovery_time is meaningful after calling load()"))
+            raise AttributeError(
+                _("discovery_time is meaningful after calling load()")
+            )
         return self._discovery_time
 
     def get_total_time(self) -> float:
@@ -480,7 +488,12 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
     """
 
     def __init__(
-        self, namespace, load=False, wrapper=PlugIn, *wrapper_args, **wrapper_kwargs
+        self,
+        namespace,
+        load=False,
+        wrapper=PlugIn,
+        *wrapper_args,
+        **wrapper_kwargs
     ):
         """
         Initialize a collection of plug-ins from the specified name-space.
@@ -524,7 +537,9 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
                 logger.exception(_("Unable to import %s"), entry_point)
                 self._problem_list.append(exc)
             else:
-                self.wrap_and_add_plugin(entry_point.name, obj, now() - start_time)
+                self.wrap_and_add_plugin(
+                    entry_point.name, obj, now() - start_time
+                )
         self._loaded = True
 
     def _get_entry_points(self):
@@ -628,7 +643,9 @@ class FsPlugInCollection(PlugInCollectionBase):
                 for base_dir, dirs, files in os.walk(dirname):
                     entries.extend(
                         [
-                            os.path.relpath(os.path.join(base_dir, filename), dirname)
+                            os.path.relpath(
+                                os.path.join(base_dir, filename), dirname
+                            )
                             for filename in files
                         ]
                     )
@@ -725,7 +742,12 @@ class LazyPlugInCollection(PlugInCollectionBase):
     """
 
     def __init__(
-        self, mapping, load=False, wrapper=PlugIn, *wrapper_args, **wrapper_kwargs
+        self,
+        mapping,
+        load=False,
+        wrapper=PlugIn,
+        *wrapper_args,
+        **wrapper_kwargs
     ):
         """
         Initialize a collection of plug-ins from the specified mapping of

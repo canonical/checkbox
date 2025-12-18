@@ -80,7 +80,9 @@ class TestPartedBootDevice:
         if pathlib.Path(self.path).is_block_device():
             print("PASS: {} is a block device!".format(self.path))
         else:
-            raise SystemExit("FAIL: {} is not a block device!".format(self.path))
+            raise SystemExit(
+                "FAIL: {} is not a block device!".format(self.path)
+            )
 
     def check_disk(self):
         print("\nChecking Parted...")

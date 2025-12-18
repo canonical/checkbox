@@ -17,7 +17,9 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
         self.verifier = SnapsConfinementVerifier()
 
     def test_snap_in_allow_list_from_config_var(self):
-        with patch.dict("os.environ", {"SNAP_CONFINEMENT_ALLOWLIST": "sp1, sp2"}):
+        with patch.dict(
+            "os.environ", {"SNAP_CONFINEMENT_ALLOWLIST": "sp1, sp2"}
+        ):
             verifier = SnapsConfinementVerifier()
             result = verifier._is_snap_in_allow_list("sp2")
             self.assertTrue(result)
@@ -100,7 +102,9 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
         mock_extract_attributes_from_snap.return_value = (False, snap_info)
         mock_is_snap_in_allow_list.return_value = True
         result = self.verifier.verify_snap()
-        mock_is_snap_in_allow_list.assert_called_once_with(snap_info.get("name"))
+        mock_is_snap_in_allow_list.assert_called_once_with(
+            snap_info.get("name")
+        )
         self.assertEqual(0, result)
 
     @patch(
@@ -145,8 +149,12 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
         mock_is_snap_sideloaded_revision.return_value = False
 
         result = self.verifier.verify_snap()
-        mock_extract_attributes_from_snap.assert_called_once_with(target_snap=snap_info)
-        mock_is_snap_in_allow_list.assert_called_once_with(snap_info.get("name"))
+        mock_extract_attributes_from_snap.assert_called_once_with(
+            target_snap=snap_info
+        )
+        mock_is_snap_in_allow_list.assert_called_once_with(
+            snap_info.get("name")
+        )
         mock_is_snap_confinement_not_strict.assert_called_once_with(
             snap_info.get("confinement")
         )
@@ -198,8 +206,12 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
         mock_is_snap_devmode.return_value = True
         mock_is_snap_sideloaded_revision.return_value = False
         result = self.verifier.verify_snap()
-        mock_extract_attributes_from_snap.assert_called_once_with(target_snap=snap_info)
-        mock_is_snap_in_allow_list.assert_called_once_with(snap_info.get("name"))
+        mock_extract_attributes_from_snap.assert_called_once_with(
+            target_snap=snap_info
+        )
+        mock_is_snap_in_allow_list.assert_called_once_with(
+            snap_info.get("name")
+        )
         mock_is_snap_confinement_not_strict.assert_called_once_with(
             snap_info.get("confinement")
         )

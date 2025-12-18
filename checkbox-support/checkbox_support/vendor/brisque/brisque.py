@@ -68,7 +68,9 @@ class BRISQUE:
     def gaussian_kernel2d(self, n, sigma):
         Y, X = np.indices((n, n)) - int(n / 2)
         gaussian_kernel = (
-            1 / (2 * np.pi * sigma**2) * (np.exp(-(X**2 + Y**2) / (2 * sigma**2)))
+            1
+            / (2 * np.pi * sigma**2)
+            * (np.exp(-(X**2 + Y**2) / (2 * sigma**2)))
         )
         return self.normalize_kernel(gaussian_kernel)
 
@@ -113,7 +115,9 @@ class BRISQUE:
         def f_par(x, sigma):
             return coefficient * np.exp(-((x / beta(sigma)) ** nu))
 
-        coefficient = nu / ((beta(sigma_l) + beta(sigma_r)) * math.gamma(1 / nu))
+        coefficient = nu / (
+            (beta(sigma_l) + beta(sigma_r)) * math.gamma(1 / nu)
+        )
 
         return np.where(x < 0, f_par(-x, sigma_l), f_par(x, sigma_r))
 
@@ -196,7 +200,8 @@ class BRISQUE:
         coeff = self.calculate_pair_product_coeff(mscn_coeff)
 
         features = [
-            calculate_features(coeff_name=name, coeff=cf) for name, cf in coeff.items()
+            calculate_features(coeff_name=name, coeff=cf)
+            for name, cf in coeff.items()
         ]
         flatten_features = list(chain.from_iterable(features))
         return np.array(flatten_features, dtype=object)
@@ -219,4 +224,6 @@ class BRISQUE:
         nr_classifier = 1
         prob_estimates = (svmutil.c_double * nr_classifier)()
 
-        return svmutil.libsvm.svm_predict_probability(self.model, x, prob_estimates)
+        return svmutil.libsvm.svm_predict_probability(
+            self.model, x, prob_estimates
+        )

@@ -157,7 +157,9 @@ class GPIOSysFsController:
             direction (str): the direction of gpio port
         """
         print("# Set GPIO {} direction to {}".format(port, value))
-        with open("{}/gpio{}/direction".format(self.ROOT_PATH, port), "w") as fp:
+        with open(
+            "{}/gpio{}/direction".format(self.ROOT_PATH, port), "w"
+        ) as fp:
             fp.write("{}\n".format(value))
 
     def configure_gpio(self, port, direction):
@@ -205,7 +207,11 @@ class GPIOSysFsController:
         for state in self.TEST_STATES:
             print("Try to send and receive {}".format(state))
             value = self.read_gpio(in_port)
-            print("The initial input GPIO {}'s value is {}".format(in_port, value))
+            print(
+                "The initial input GPIO {}'s value is {}".format(
+                    in_port, value
+                )
+            )
 
             self.set_gpio(out_port, state)
             time.sleep(1)

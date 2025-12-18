@@ -212,7 +212,9 @@ def validate_video_decoder_md5_checksum(args: Any) -> None:
     )
     # Read the Golden Sample's MD5 checksum and compare it
     # with compared_md5_data data
-    with open(args.golden_sample_md5_checksum_path, mode="r", encoding="UTF-8") as gf:
+    with open(
+        args.golden_sample_md5_checksum_path, mode="r", encoding="UTF-8"
+    ) as gf:
         golden_content = gf.read().rstrip(os.linesep)
         if golden_content == compared_md5_data:
             logging.info("Pass. MD5 checksum is same as Golden Sample")
@@ -222,7 +224,9 @@ def validate_video_decoder_md5_checksum(args: Any) -> None:
                     args.golden_sample_md5_checksum_path, golden_content
                 )
             )
-            raise SystemExit("Failed. MD5 checksum is not same as Golden Sample")
+            raise SystemExit(
+                "Failed. MD5 checksum is not same as Golden Sample"
+            )
 
 
 def main() -> None:

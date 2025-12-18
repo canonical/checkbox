@@ -63,7 +63,9 @@ class GoBuildSystemTests(TestCase):
         Ensure that the build command is correct
         """
         self.assertEqual(
-            self.buildsystem.get_build_command("/path/to/src", "/path/to/build/bin"),
+            self.buildsystem.get_build_command(
+                "/path/to/src", "/path/to/build/bin"
+            ),
             "go build ../../src/*.go",
         )
 
@@ -112,7 +114,9 @@ class MakefileBuildSystemTests(TestCase):
         Ensure that the build command is correct
         """
         self.assertEqual(
-            self.buildsystem.get_build_command("/path/to/src", "/path/to/build/bin"),
+            self.buildsystem.get_build_command(
+                "/path/to/src", "/path/to/build/bin"
+            ),
             "VPATH=../../src make -f ../../src/Makefile",
         )
 
@@ -148,6 +152,8 @@ class AutotoolsBuildSystemTests(TestCase):
         Ensure that the build command is correct
         """
         self.assertEqual(
-            self.buildsystem.get_build_command("/path/to/src", "/path/to/build/bin"),
+            self.buildsystem.get_build_command(
+                "/path/to/src", "/path/to/build/bin"
+            ),
             "../../src/configure && make",
         )

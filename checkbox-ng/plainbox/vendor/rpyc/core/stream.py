@@ -2,21 +2,13 @@
 An abstraction layer over OS-dependent file-like objects, that provides a
 consistent view of a *duplex byte stream*.
 """
-
 import sys
 import os
 import socket
 import errno
 from plainbox.vendor.rpyc.lib import safe_import, Timeout, socket_backoff_connect
-from plainbox.vendor.rpyc.lib.compat import (
-    poll,
-    select_error,
-    BYTES_LITERAL,
-    get_exc_errno,
-    maxint,
-)  # noqa: F401
+from plainbox.vendor.rpyc.lib.compat import poll, select_error, BYTES_LITERAL, get_exc_errno, maxint  # noqa: F401
 from plainbox.vendor.rpyc.core.consts import STREAM_CHUNK
-
 win32file = safe_import("win32file")
 win32pipe = safe_import("win32pipe")
 win32event = safe_import("win32event")
@@ -49,9 +41,7 @@ class Stream(object):
         seconds)"""
         timeout = Timeout(timeout)
         try:
-            p = (
-                poll()
-            )  # from lib.compat, it may be a select object on non-Unix platforms
+            p = poll()   # from lib.compat, it may be a select object on non-Unix platforms
             p.register(self.fileno(), "r")
             while True:
                 try:
@@ -98,7 +88,6 @@ class Stream(object):
 
 class ClosedFile(object):
     """Represents a closed file object (singleton)"""
-
     __slots__ = ()
 
     def __getattr__(self, name):
@@ -130,21 +119,10 @@ class SocketStream(Stream):
         self.sock = sock
 
     @classmethod
-    def _connect(
-        cls,
-        host,
-        port,
-        family=socket.AF_INET,
-        socktype=socket.SOCK_STREAM,
-        proto=0,
-        timeout=3,
-        nodelay=False,
-        keepalive=False,
-        attempts=6,
-    ):
-        family, socktype, proto, _, sockaddr = socket.getaddrinfo(
-            host, port, family, socktype, proto
-        )[0]
+    def _connect(cls, host, port, family=socket.AF_INET, socktype=socket.SOCK_STREAM,
+                 proto=0, timeout=3, nodelay=False, keepalive=False, attempts=6):
+        family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, family,
+                                                                  socktype, proto)[0]
         s = socket_backoff_connect(family, socktype, proto, sockaddr, timeout, attempts)
         try:
             if nodelay:
@@ -307,7 +285,7 @@ class SocketStream(Stream):
     def write(self, data):
         try:
             while data:
-                count = self.sock.send(data[: self.MAX_IO_CHUNK])
+                count = self.sock.send(data[:self.MAX_IO_CHUNK])
                 data = data[count:]
         except socket.error:
             ex = sys.exc_info()[1]
@@ -397,7 +375,7 @@ class PipeStream(Stream):
     def write(self, data):
         try:
             while data:
-                chunk = data[: self.MAX_IO_CHUNK]
+                chunk = data[:self.MAX_IO_CHUNK]
                 written = os.write(self.outgoing.fileno(), chunk)
                 data = data[written:]
         except EnvironmentError:
@@ -416,7 +394,6 @@ class Win32PipeStream(Stream):
 
     def __init__(self, incoming, outgoing):
         import msvcrt
-
         self._keepalive = (incoming, outgoing)
         if hasattr(incoming, "fileno"):
             self._fileno = incoming.fileno()
@@ -461,9 +438,7 @@ class Win32PipeStream(Stream):
         try:
             data = []
             while count > 0:
-                dummy, buf = win32file.ReadFile(
-                    self.incoming, int(min(self.MAX_IO_CHUNK, count))
-                )
+                dummy, buf = win32file.ReadFile(self.incoming, int(min(self.MAX_IO_CHUNK, count)))
                 count -= len(buf)
                 data.append(buf)
         except TypeError:
@@ -480,9 +455,7 @@ class Win32PipeStream(Stream):
     def write(self, data):
         try:
             while data:
-                dummy, count = win32file.WriteFile(
-                    self.outgoing, data[: self.MAX_IO_CHUNK]
-                )
+                dummy, count = win32file.WriteFile(self.outgoing, data[:self.MAX_IO_CHUNK])
                 data = data[count:]
         except TypeError:
             ex = sys.exc_info()[1]
@@ -515,13 +488,12 @@ class NamedPipeStream(Win32PipeStream):
     """A stream over two named pipes (one used to input, another for output).
     Windows implementation."""
 
-    NAMED_PIPE_PREFIX = r"\\.\pipe\rpyc_"
+    NAMED_PIPE_PREFIX = r'\\.\pipe\rpyc_'
     PIPE_IO_TIMEOUT = 3
     CONNECT_TIMEOUT = 3
 
     def __init__(self, handle, is_server_side):
         import pywintypes
-
         Win32PipeStream.__init__(self, handle, handle)
         self.is_server_side = is_server_side
         self.read_overlapped = pywintypes.OVERLAPPED()
@@ -561,7 +533,7 @@ class NamedPipeStream(Win32PipeStream):
             cls.PIPE_BUFFER_SIZE,
             cls.PIPE_BUFFER_SIZE,
             cls.PIPE_IO_TIMEOUT * 1000,
-            None,
+            None
         )
         inst = cls(handle, True)
         if connect:
@@ -574,9 +546,7 @@ class NamedPipeStream(Win32PipeStream):
         if not self.is_server_side:
             raise ValueError("this must be the server side")
         win32pipe.ConnectNamedPipe(self.incoming, self.write_overlapped)
-        win32event.WaitForSingleObject(
-            self.write_overlapped.hEvent, win32event.INFINITE
-        )
+        win32event.WaitForSingleObject(self.write_overlapped.hEvent, win32event.INFINITE)
 
     @classmethod
     def create_client(cls, pipename):
@@ -598,7 +568,7 @@ class NamedPipeStream(Win32PipeStream):
             None,
             win32file.OPEN_EXISTING,
             win32file.FILE_FLAG_OVERLAPPED,
-            None,
+            None
         )
         return cls(handle, False)
 
@@ -623,14 +593,10 @@ class NamedPipeStream(Win32PipeStream):
             else:
                 data = []
             while count > 0:
-                hr, buf = win32file.ReadFile(
-                    self.incoming,
-                    win32file.AllocateReadBuffer(int(min(self.MAX_IO_CHUNK, count))),
-                    self.read_overlapped,
-                )
-                n = win32file.GetOverlappedResult(
-                    self.incoming, self.read_overlapped, 1
-                )
+                hr, buf = win32file.ReadFile(self.incoming,
+                                             win32file.AllocateReadBuffer(int(min(self.MAX_IO_CHUNK, count))),
+                                             self.read_overlapped)
+                n = win32file.GetOverlappedResult(self.incoming, self.read_overlapped, 1)
                 count -= n
                 data.append(buf[:n])
         except TypeError:
@@ -647,9 +613,7 @@ class NamedPipeStream(Win32PipeStream):
     def write(self, data):
         try:
             while data:
-                dummy, count = win32file.WriteFile(
-                    self.outgoing, data[: self.MAX_IO_CHUNK], self.write_overlapped
-                )
+                dummy, count = win32file.WriteFile(self.outgoing, data[:self.MAX_IO_CHUNK], self.write_overlapped)
                 data = data[count:]
         except TypeError:
             ex = sys.exc_info()[1]
@@ -671,9 +635,9 @@ class NamedPipeStream(Win32PipeStream):
                 wait_time = win32event.INFINITE
 
             if not self.poll_read:
-                hr, self.poll_buffer = win32file.ReadFile(
-                    self.incoming, self.poll_buffer, self.read_overlapped
-                )
+                hr, self.poll_buffer = win32file.ReadFile(self.incoming,
+                                                          self.poll_buffer,
+                                                          self.read_overlapped)
                 self.poll_read = True
                 if hr == 0:
                     return True

@@ -70,7 +70,9 @@ def compare_resolution(min_h, min_v):
         width, height = get_gobject_geometry(primary_monitor)
     else:
         screen = Gdk.Screen.get_default()
-        width, height = get_gobject_geometry(screen, screen.get_primary_monitor())
+        width, height = get_gobject_geometry(
+            screen, screen.get_primary_monitor()
+        )
 
     print("Minimum acceptable display resolution: %d x %d" % (min_h, min_v))
     print("Detected display resolution: %d x %d" % (width, height))

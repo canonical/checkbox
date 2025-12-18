@@ -39,7 +39,9 @@ class ResumeMenuMultipleDelete(Scenario):
         # Generate 2 resume candidates
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::cert-blocker-manual-resume"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::cert-blocker-manual-resume"
+        ),
         Send(keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("p" + keys.KEY_ENTER),
@@ -48,7 +50,9 @@ class ResumeMenuMultipleDelete(Scenario):
         Expect("Session paused"),
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::cert-blocker-manual-resume"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::cert-blocker-manual-resume"
+        ),
         Send(keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("p" + keys.KEY_ENTER),
@@ -91,7 +95,9 @@ class ResumeMenuMarkSkip(Scenario):
         # Generate 1 resume candidates
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::cert-blocker-manual-resume"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::cert-blocker-manual-resume"
+        ),
         Send(keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("p" + keys.KEY_ENTER),
@@ -134,7 +140,9 @@ class ResumeMenuMarkFail(Scenario):
         # Generate 1 resume candidates
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::cert-blocker-manual-resume"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::cert-blocker-manual-resume"
+        ),
         Send(keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("p" + keys.KEY_ENTER),
@@ -180,7 +188,9 @@ class ResumeMenuMarkPreCommentFail(Scenario):
         # Generate 1 resume candidates
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::cert-blocker-manual-resume"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::cert-blocker-manual-resume"
+        ),
         Send(keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("p" + keys.KEY_ENTER),
@@ -225,7 +235,9 @@ class ResumeMenuMarkPassed(Scenario):
         # Generate 1 resume candidates
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::cert-blocker-manual-resume"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::cert-blocker-manual-resume"
+        ),
         Send(keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("p" + keys.KEY_ENTER),
@@ -261,7 +273,9 @@ class ResumeMenuResumeLastJob(Scenario):
         # Generate 1 resume candidates
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::cert-blocker-manual-resume"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::cert-blocker-manual-resume"
+        ),
         Send(keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("p" + keys.KEY_ENTER),

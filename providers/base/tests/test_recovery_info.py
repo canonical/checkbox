@@ -39,7 +39,9 @@ dell-recovery:
      1.11
         500 https://archive/cesg-mirror/ test/public amd64 Packages
 """
-        self.assertEqual(recovery_info.get_recovery_package(), "dell-recovery_1.11")
+        self.assertEqual(
+            recovery_info.get_recovery_package(), "dell-recovery_1.11"
+        )
 
     @mock.patch("subprocess.check_output")
     def test_get_recovery_partition(self, mock_subprocess_check_output):
@@ -64,12 +66,18 @@ dell-recovery:
             b"disk  sdf \n"
             b"part ntfs sda3 RECOVERY\n"
         )
-        self.assertEqual(recovery_info.get_recovery_partition(), ("DELL", "/dev/sda3"))
+        self.assertEqual(
+            recovery_info.get_recovery_partition(), ("DELL", "/dev/sda3")
+        )
 
     def test_lsblk_unescape(self):
         """Smoke tests for lsblk_unescape()."""
-        self.assertEqual(recovery_info.lsblk_unescape("Windows\\x208.1"), "Windows 8.1")
-        self.assertEqual(recovery_info.lsblk_unescape("Windows XP"), "Windows XP")
+        self.assertEqual(
+            recovery_info.lsblk_unescape("Windows\\x208.1"), "Windows 8.1"
+        )
+        self.assertEqual(
+            recovery_info.lsblk_unescape("Windows XP"), "Windows XP"
+        )
 
 
 class MountedPartitionTests(unittest.TestCase):
@@ -102,7 +110,9 @@ class RecoveryInfoTests(unittest.TestCase):
 
     @mock.patch("recovery_info.get_recovery_package")
     @mock.patch("recovery_info.get_recovery_partition")
-    def test_smoke(self, mock_get_recovery_partition, mock_get_recovery_package):
+    def test_smoke(
+        self, mock_get_recovery_partition, mock_get_recovery_package
+    ):
         """Smoke tests for running recovery_info."""
         mock_get_recovery_partition.return_value = ("DELL", "/dev/sda3")
         mock_get_recovery_package.return_value = "dell-recovery_1.11"

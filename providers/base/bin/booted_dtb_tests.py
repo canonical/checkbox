@@ -43,9 +43,13 @@ for dirpath, dirs, files in walk(snap_dtbs):
     if dirpath == snap_dtbs:
         snap_files.extend(files)
     else:
-        snap_files.extend([join(relpath(dirpath, snap_dtbs), f) for f in files])
+        snap_files.extend(
+            [join(relpath(dirpath, snap_dtbs), f) for f in files]
+        )
 
-match, mismatch, errors = filecmp.cmpfiles(snap_dtbs, dtb_dir, snap_files, shallow=True)
+match, mismatch, errors = filecmp.cmpfiles(
+    snap_dtbs, dtb_dir, snap_files, shallow=True
+)
 
 if match:
     print(

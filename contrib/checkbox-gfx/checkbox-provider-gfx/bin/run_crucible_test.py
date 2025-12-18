@@ -27,7 +27,9 @@ def run_crucible(
 
     output = ""
     try:
-        output = subprocess.check_output(cmd, cwd=str(crucible_dir), env=env, text=True)
+        output = subprocess.check_output(
+            cmd, cwd=str(crucible_dir), env=env, text=True
+        )
 
         print(output)
     except subprocess.CalledProcessError as e:
@@ -46,7 +48,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run Crucible tests with pass/fail parsing."
     )
-    parser.add_argument("test_string", help="Test string to pass to `crucible run`.")
+    parser.add_argument(
+        "test_string", help="Test string to pass to `crucible run`."
+    )
     parser.add_argument(
         "--no-fork",
         action="store_true",

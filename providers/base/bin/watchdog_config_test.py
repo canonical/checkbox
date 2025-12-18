@@ -37,7 +37,9 @@ def get_systemd_wdt_usec():
         runtime_watchdog_usec = result.split("=")[1].strip()
         return runtime_watchdog_usec
     else:
-        raise SystemExit("Unexpected failure occurred when executing: {}".format(cmd))
+        raise SystemExit(
+            "Unexpected failure occurred when executing: {}".format(cmd)
+        )
 
 
 def watchdog_service_check():

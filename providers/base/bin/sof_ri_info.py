@@ -3295,7 +3295,9 @@ def parse_params():
         help="increase output verbosity",
         action="store_true",
     )
-    parser.add_argument("--headers", help="display headers only", action="store_true")
+    parser.add_argument(
+        "--headers", help="display headers only", action="store_true"
+    )
     parser.add_argument(
         "--full_bytes", help="display full byte arrays", action="store_true"
     )
@@ -3532,10 +3534,14 @@ def parse_cse_manifest(reader):
         hdr_entry.add_a(Ahex("entry_length", entry_length))
         hdr.add_comp(hdr_entry)
 
-        reader.info("CSE Entry name {} length {}".format(entry_name, entry_length))
+        reader.info(
+            "CSE Entry name {} length {}".format(entry_name, entry_length)
+        )
 
         if ".man" in entry_name:
-            entry = CssManifest(entry_name, reader.ext_mft_length + entry_offset)
+            entry = CssManifest(
+                entry_name, reader.ext_mft_length + entry_offset
+            )
             cur_off = reader.set_offset(reader.ext_mft_length + entry_offset)
             parse_css_manifest(
                 entry,
@@ -3619,7 +3625,9 @@ def parse_css_manifest_4(css_mft, reader, size_limit):
     #   that could be parsed if extension type is recognized
     #
     #   or series of 0xffffffff that should be skipped
-    reader.info("Parsing CSS Manifest extensions end 0x{:x}".format(size_limit))
+    reader.info(
+        "Parsing CSS Manifest extensions end 0x{:x}".format(size_limit)
+    )
     ext_idx = 0
     while reader.get_offset() < size_limit:
         ext_type = reader.read_dw()
@@ -3684,7 +3692,9 @@ def parse_adsp_manifest_hdr(reader):
         sys.exit(1)
     reader.info("ADSP Manifest (" + sig + ")", -4)
 
-    hdr = Component("adsp_mft_hdr", "ADSP Manifest Header", reader.get_offset() - 4)
+    hdr = Component(
+        "adsp_mft_hdr", "ADSP Manifest Header", reader.get_offset() - 4
+    )
     hdr.add_a(Astring("sig", sig))
 
     hdr.add_a(Auint("size", reader.read_dw()))
@@ -3732,7 +3742,9 @@ def parse_adsp_manifest_mod_entry(index, reader):
     mod.add_a(Astring("mod_name", chararr_to_string(reader.read_bytes(8), 8)))
     mod.add_a(Astring("uuid", reader.read_uuid()))
     me_type = reader.read_dw()
-    mod.add_a(Astring("type", hex(me_type) + " " + mod_type_to_string(me_type)))
+    mod.add_a(
+        Astring("type", hex(me_type) + " " + mod_type_to_string(me_type))
+    )
     mod.add_a(Abytes("hash", reader.read_bytes(32)))
     mod.add_a(Ahex("entry_point", reader.read_dw()))
     mod.add_a(Adec("cfg_offset", reader.read_w()))
@@ -3826,7 +3838,9 @@ class BinReader:
         """Retrieves the data from beg to beg+length.
         This one is good to peek the data w/o advancing the read pointer
         """
-        return self.data[self.cur_offset + beg : self.cur_offset + beg + length]
+        return self.data[
+            self.cur_offset + beg : self.cur_offset + beg + length
+        ]
 
     def read_bytes(self, count):
         """Reads the specified number of bytes from the stream"""
@@ -3862,7 +3876,10 @@ class BinReader:
         out += "-" + "{:04x}".format(self.read_w())
         out += "-" + "{:04x}".format(self.read_w())
         out += (
-            "-" + "{:02x}".format(self.read_b()) + "{:02x}".format(self.read_b()) + "-"
+            "-"
+            + "{:02x}".format(self.read_b())
+            + "{:02x}".format(self.read_b())
+            + "-"
         )
         for _ in range(0, 6):
             out += "{:02x}".format(self.read_b())
@@ -3960,7 +3977,9 @@ class Abytes(Attribute):
         else:
             out += " ".join("{:02x}".format(b) for b in self.val[:8])
             out += " ... "
-            out += " ".join("{:02x}".format(b) for b in self.val[length - 8 : length])
+            out += " ".join(
+                "{:02x}".format(b) for b in self.val[length - 8 : length]
+            )
         if not Attribute.no_colors:
             out += "{}".format(change_color("none"))
         return out
@@ -4064,7 +4083,9 @@ class Component:
         """Prints out a single attribute"""
         attrib = self.adir[attr_name]
         print(
-            "{:}  {:<{:}} {:}".format(pref, attrib.name, self.max_attr_name_len, attrib)
+            "{:}  {:<{:}} {:}".format(
+                pref, attrib.name, self.max_attr_name_len, attrib
+            )
         )
 
     def dump_comp_info(self, pref, comp_filter=""):
@@ -4084,7 +4105,9 @@ class ExtendedManifestAE1(Component):
     """Extended manifest"""
 
     def __init__(self):
-        super(ExtendedManifestAE1, self).__init__("ext_mft", "Extended Manifest", 0)
+        super(ExtendedManifestAE1, self).__init__(
+            "ext_mft", "Extended Manifest", 0
+        )
 
     def dump_info(self, pref, comp_filter):
         hdr = self.cdir["ext_mft_hdr"]
@@ -4101,7 +4124,9 @@ class ExtendedManifestXMan(Component):
     """Extended manifest"""
 
     def __init__(self):
-        super(ExtendedManifestXMan, self).__init__("ext_mft", "Extended Manifest", 0)
+        super(ExtendedManifestXMan, self).__init__(
+            "ext_mft", "Extended Manifest", 0
+        )
 
     def dump_info(self, pref, comp_filter):
         hdr = self.cdir["ext_mft_hdr"]
@@ -4148,9 +4173,17 @@ class CssManifest(Component):
         out += " date {}".format(hdr.adir["date"])
         print(out)
         print("{}  Rsvd0 {}".format(pref, hdr.adir["reserved0"]))
-        print("{}  Modulus size (dwords) {}".format(pref, hdr.adir["modulus_size"]))
+        print(
+            "{}  Modulus size (dwords) {}".format(
+                pref, hdr.adir["modulus_size"]
+            )
+        )
         print("{}    {}".format(pref, hdr.adir["modulus"]))
-        print("{}  Exponent size (dwords) {}".format(pref, hdr.adir["exponent_size"]))
+        print(
+            "{}  Exponent size (dwords) {}".format(
+                pref, hdr.adir["exponent_size"]
+            )
+        )
         print("{}    {}".format(pref, hdr.adir["exponent"]))
         print("{}  Signature".format(pref))
         print("{}    {}".format(pref, hdr.adir["signature"]))
@@ -4162,7 +4195,9 @@ class MftExtension(Component):
     """Manifest Extension"""
 
     def __init__(self, ext_id, name, offset):
-        super(MftExtension, self).__init__("mft_ext" + repr(ext_id), name, offset)
+        super(MftExtension, self).__init__(
+            "mft_ext" + repr(ext_id), name, offset
+        )
 
     def dump_info(self, pref, comp_filter):
         print(
@@ -4238,7 +4273,11 @@ class AdspModuleEntry(Component):
         super(AdspModuleEntry, self).__init__(uid, "Module Entry", offset)
 
     def dump_info(self, pref, comp_filter):
-        print("{}{:9} {}".format(pref, str(self.adir["mod_name"]), self.adir["uuid"]))
+        print(
+            "{}{:9} {}".format(
+                pref, str(self.adir["mod_name"]), self.adir["uuid"]
+            )
+        )
         print(
             "{}  entry point {} type {}".format(
                 pref, self.adir["entry_point"], self.adir["type"]  # noqa: 501
@@ -4368,7 +4407,8 @@ class DspMemorySegment(object):
     def is_inner(self, segment):
         return (
             self.base_address <= segment.base_address
-            and segment.base_address + segment.size <= self.base_address + self.size
+            and segment.base_address + segment.size
+            <= self.base_address + self.size
         )  # noqa: 501
 
     def insert_segment(self, segment):
@@ -4494,7 +4534,9 @@ def main(args):
 
     if args.valid:
         css_mft_hdr = (
-            fw_bin.get_comp("cse_mft").get_comp("css_mft").get_comp("css_mft_hdr")
+            fw_bin.get_comp("cse_mft")
+            .get_comp("css_mft")
+            .get_comp("css_mft_hdr")
         )
         modulus = css_mft_hdr.adir["modulus"]
         if "Other" in modulus.val_type:

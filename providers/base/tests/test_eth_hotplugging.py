@@ -59,7 +59,9 @@ class EthHotpluggingTests(TestCase):
     )
     @patch("os.path.exists", return_value=True)
     @patch("glob.glob", return_value=["/etc/netplan/01-netcfg.yaml"])
-    def test_renderer_networkd_no_renderer(self, mock_exists, mock_glob, mock_open):
+    def test_renderer_networkd_no_renderer(
+        self, mock_exists, mock_glob, mock_open
+    ):
         renderer = netplan_renderer()
         self.assertEqual(renderer, "networkd")
 
@@ -94,7 +96,8 @@ class EthHotpluggingTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_any_name(self, mock_check_output):
         mock_check_output.return_value = (
-            "State: routable\nGateway: 192.168.1.1 (ABC 123)\n" "Path: pci-0000:02:00.0"
+            "State: routable\nGateway: 192.168.1.1 (ABC 123)\n"
+            "Path: pci-0000:02:00.0"
         )
         interface = "eth0"
         renderer = "networkd"
@@ -104,7 +107,9 @@ class EthHotpluggingTests(TestCase):
 
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_no_state(self, mock_check_output):
-        mock_check_output.return_value = "Some other info: value\nsome more info"
+        mock_check_output.return_value = (
+            "Some other info: value\nsome more info"
+        )
         interface = "eth0"
         renderer = "networkd"
         info = get_interface_info(interface, renderer)
@@ -123,7 +128,9 @@ class EthHotpluggingTests(TestCase):
         "subprocess.check_output",
         side_effect=sp.CalledProcessError(1, "Command failed"),
     )
-    def test_get_interface_info_networkd_command_fails(self, mock_check_output):
+    def test_get_interface_info_networkd_command_fails(
+        self, mock_check_output
+    ):
         interface = "eth0"
         renderer = "networkd"
         with self.assertRaises(SystemExit) as cm:
@@ -162,7 +169,9 @@ class EthHotpluggingTests(TestCase):
         "subprocess.check_output",
         side_effect=sp.CalledProcessError(1, "Command failed"),
     )
-    def test_get_interface_info_networkmanager_command_fails(self, mock_check_output):
+    def test_get_interface_info_networkmanager_command_fails(
+        self, mock_check_output
+    ):
         interface = "eth0"
         renderer = "NetworkManager"
         with self.assertRaises(SystemExit) as cm:
@@ -191,7 +200,9 @@ class EthHotpluggingTests(TestCase):
         "eth_hotplugging.get_interface_info",
         return_value={"state": "connected"},
     )
-    def test_check_routable_state_networkmanager(self, mock_get_interface_info):
+    def test_check_routable_state_networkmanager(
+        self, mock_get_interface_info
+    ):
         renderer = "NetworkManager"
         self.assertTrue(_check_routable_state("eth0", renderer))
 
@@ -295,7 +306,9 @@ class TestWaitForRoutableState(TestCase):
     def test_not_reached_not_routable(self, mock_check_state):
         with self.assertRaises(SystemExit) as cm:
             wait_for_routable_state("eth0", "networkd", do_routable=False)
-        self.assertEqual(str(cm.exception), "Failed to reach NOT routable state!")
+        self.assertEqual(
+            str(cm.exception), "Failed to reach NOT routable state!"
+        )
 
 
 @mock_retry()
@@ -306,7 +319,9 @@ class TestWaitForCableState(TestCase):
         sys.stdout = captured_output
         wait_for_cable_state("eth0", do_cable=True)
         sys.stdout = sys.__stdout__
-        self.assertIn("Detected cable state: plugged", captured_output.getvalue())
+        self.assertIn(
+            "Detected cable state: plugged", captured_output.getvalue()
+        )
 
     @patch("eth_hotplugging.has_cable", return_value=False)
     def test_not_reached_cable_plugged(self, mock_has_cable):

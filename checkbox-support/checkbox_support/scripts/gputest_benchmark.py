@@ -60,9 +60,13 @@ def main():
         "test", metavar="TEST", help="test type", choices=["fur", "gi", "tess"]
     )
     parser.add_argument("--width", help="window width", default=1024, type=int)
-    parser.add_argument("--height", help="window height", default=640, type=int)
+    parser.add_argument(
+        "--height", help="window height", default=640, type=int
+    )
     parser.add_argument("-f", "--fullscreen", action="store_true")
-    parser.add_argument("-d", "--duration", default=60, type=int, help="duration in s")
+    parser.add_argument(
+        "-d", "--duration", default=60, type=int, help="duration in s"
+    )
     parser.add_argument(
         "-p",
         "--path",

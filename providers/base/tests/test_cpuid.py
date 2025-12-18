@@ -20,10 +20,14 @@ from cpuid import cpuid_to_human_friendly, main
 
 class CpuidTests(unittest.TestCase):
     def test_hygon_dhyana_plus(self):
-        self.assertEqual(cpuid_to_human_friendly("0x900f22"), "Hygon Dhyana Plus")
+        self.assertEqual(
+            cpuid_to_human_friendly("0x900f22"), "Hygon Dhyana Plus"
+        )
 
     def test_hygon_C86_4G_7490(self):
-        self.assertEqual(cpuid_to_human_friendly("0x900f41"), "Hygon C86-4G 7490")
+        self.assertEqual(
+            cpuid_to_human_friendly("0x900f41"), "Hygon C86-4G 7490"
+        )
 
     def test_unknown_throws(self):
         with self.assertRaises(ValueError):

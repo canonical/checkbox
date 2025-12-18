@@ -88,8 +88,12 @@ class SnapInfo:
         self.candidate_revision = revisions.get(
             "{}candidate".format(self.tracking_prefix), ""
         )
-        self.beta_revision = revisions.get("{}beta".format(self.tracking_prefix), "")
-        self.edge_revision = revisions.get("{}edge".format(self.tracking_prefix), "")
+        self.beta_revision = revisions.get(
+            "{}beta".format(self.tracking_prefix), ""
+        )
+        self.edge_revision = revisions.get(
+            "{}edge".format(self.tracking_prefix), ""
+        )
 
     def print_as_resource(self):
         print("name: {}".format(self.name))
@@ -159,11 +163,14 @@ class SnapRefreshRevert:
                 result = {
                     "outcome": "fail",
                     "comments": (
-                        "Marking the test as failed because it raised" " the following:"
+                        "Marking the test as failed because it raised"
+                        " the following:"
                     )
                     + str(exc),
                 }
-                result_filename = os.path.join(checkbox_session_dir, "__result")
+                result_filename = os.path.join(
+                    checkbox_session_dir, "__result"
+                )
                 with open(result_filename, "wt") as result_f:
                     json.dump(result, result_f)
             raise
@@ -193,7 +200,9 @@ class SnapRefreshRevert:
                     "outcome": "fail",
                     "comments": exc.message,
                 }
-                result_filename = os.path.join(checkbox_session_dir, "__result")
+                result_filename = os.path.join(
+                    checkbox_session_dir, "__result"
+                )
                 with open(result_filename, "wt") as result_f:
                     json.dump(result, result_f)
             raise
@@ -223,7 +232,9 @@ class SnapRefreshRevert:
                     if task.get("log"):
                         for log in task["log"]:
                             print("\t {}".format(log))
-                raise SystemExit("Error during snap {} {}.".format(self.name, type))
+                raise SystemExit(
+                    "Error during snap {} {}.".format(self.name, type)
+                )
 
             current_time = time.time()
             if current_time - start_time >= self.timeout:
@@ -232,7 +243,9 @@ class SnapRefreshRevert:
                         self.name, type, self.timeout
                     )
                 )
-            print("Waiting for {} snap {} to be done...".format(self.name, type))
+            print(
+                "Waiting for {} snap {} to be done...".format(self.name, type)
+            )
             print("Trying again in 10 seconds...")
             time.sleep(10)
 
@@ -240,7 +253,8 @@ class SnapRefreshRevert:
         print("Beginning verify...")
         if type not in ("refresh", "revert"):
             msg = (
-                "'{}' verification unknown. Can be either 'refresh' " "or 'revert'."
+                "'{}' verification unknown. Can be either 'refresh' "
+                "or 'revert'."
             ).format(type)
             raise SystemExit(msg)
         data = load_change_info(self.path)
@@ -255,7 +269,8 @@ class SnapRefreshRevert:
             tested_rev = data["original_revision"]
         if current_rev != tested_rev:
             msg = (
-                "Current revision ({}) is different from expected revision " "({})"
+                "Current revision ({}) is different from expected revision "
+                "({})"
             ).format(current_rev, tested_rev)
             raise SystemExit(msg)
         else:

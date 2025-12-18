@@ -71,8 +71,12 @@ class DependencyMissingErrorTests(TestCase):
 
     def setUp(self):
         self.A = make_job("A")
-        self.exc_direct = DependencyMissingError(self.A, "B", DependencyType.DEPENDS)
-        self.exc_resource = DependencyMissingError(self.A, "B", DependencyType.RESOURCE)
+        self.exc_direct = DependencyMissingError(
+            self.A, "B", DependencyType.DEPENDS
+        )
+        self.exc_resource = DependencyMissingError(
+            self.A, "B", DependencyType.RESOURCE
+        )
 
     def test_job(self):
         self.assertIs(self.exc_direct.job, self.A)
@@ -309,7 +313,9 @@ class TestDependencySolver(TestCase):
             DependencySolver.resolve_dependencies(job_list)
         self.assertIs(call.exception.job, A)
         self.assertEqual(call.exception.missing_job_id, "R")
-        self.assertEqual(call.exception.dep_type, DependencyType.RESOURCE.value)
+        self.assertEqual(
+            call.exception.dep_type, DependencyType.RESOURCE.value
+        )
 
     def test_dependency_cycle_self(self):
         # This tests dependency loops

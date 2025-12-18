@@ -60,13 +60,20 @@ class MMDbus:
         self._bus = dbus.SystemBus()
         self._modems = []
         try:
-            manager_proxy = self._bus.get_object(DBUS_MM1_SERVICE, DBUS_MM1_PATH)
+            manager_proxy = self._bus.get_object(
+                DBUS_MM1_SERVICE, DBUS_MM1_PATH
+            )
             om = dbus.Interface(manager_proxy, DBUS_OBJECTMANAGER)
             self._modems = om.GetManagedObjects()
         except dbus.exceptions.DBusException as excp:
-            if excp.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
+            if (
+                excp.get_dbus_name()
+                == "org.freedesktop.DBus.Error.ServiceUnknown"
+            ):
                 logging.error(excp.get_dbus_message())
-                logging.error("Note: wwan_tests.py requires ModemManager >=1.0")
+                logging.error(
+                    "Note: wwan_tests.py requires ModemManager >=1.0"
+                )
             else:
                 logging.error(excp.get_dbus_message())
             return
@@ -160,7 +167,9 @@ def _value_from_table(item, item_id, key):
         flag = "-m"
     if item == "sim":
         flag = "-i"
-    proc = subprocess.Popen(["mmcli", flag, str(item_id)], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(
+        ["mmcli", flag, str(item_id)], stdout=subprocess.PIPE
+    )
     while True:
         line = proc.stdout.readline().decode(sys.stdout.encoding)
         if line == "":
@@ -342,13 +351,17 @@ def _ping_test(if_name):
 class ThreeGppConnection:
     def register_argument(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument("hw_id", type=str, help="The hardware ID of the modem")
+        parser.add_argument(
+            "hw_id", type=str, help="The hardware ID of the modem"
+        )
         parser.add_argument(
             "wwan_net_if",
             type=str,
             help="The network interface used when connected",
         )
-        parser.add_argument("apn", type=str, help="The APN for data connection")
+        parser.add_argument(
+            "apn", type=str, help="The APN for data connection"
+        )
         parser.add_argument(
             "wwan_setup_time",
             type=int,
@@ -369,7 +382,9 @@ class ThreeGppConnection:
         ret_code = 1
         try:
             with WWANTestCtx(args.hw_id, True, True) as ctx:
-                wwan_control_if = ctx.mm_obj.get_primary_port(str(ctx.modem_idx))
+                wwan_control_if = ctx.mm_obj.get_primary_port(
+                    str(ctx.modem_idx)
+                )
                 if args.roaming:
                     _allow_roaming(str(ctx.modem_idx), args.apn)
                 _create_3gpp_connection(wwan_control_if, args.apn)
@@ -404,7 +419,9 @@ class ThreeGppScanTest:
     def register_argument(self):
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("hw_id", type=str, help="The hardware ID of the modem")
+        parser.add_argument(
+            "hw_id", type=str, help="The hardware ID of the modem"
+        )
         parser.add_argument(
             "--timeout",
             type=int,
@@ -474,8 +491,16 @@ class Resources:
             print("hw_id: {}".format(mm.get_equipment_id(m)))
             print("manufacturer: {}".format(slugify(mm.get_manufacturer(m))))
             print("model: {}".format(slugify(mm.get_model_name(m))))
-            print("firmware_revision: {}".format(slugify(mm.get_firmware_revision(m))))
-            print("hardware_revision: {}".format(slugify(mm.get_hardware_revision(m))))
+            print(
+                "firmware_revision: {}".format(
+                    slugify(mm.get_firmware_revision(m))
+                )
+            )
+            print(
+                "hardware_revision: {}".format(
+                    slugify(mm.get_hardware_revision(m))
+                )
+            )
             print()
 
 
@@ -485,7 +510,8 @@ class SimPresent:
         parser.add_argument(
             "hw_id",
             type=str,
-            help="The hardware ID of the modem whose attached" "SIM we want to query",
+            help="The hardware ID of the modem whose attached"
+            "SIM we want to query",
         )
         parser.add_argument(
             "--use-cli",
@@ -508,7 +534,8 @@ class SimInfo:
         parser.add_argument(
             "hw_id",
             type=str,
-            help="The hardware ID of the modem whose attached" "SIM we want to query",
+            help="The hardware ID of the modem whose attached"
+            "SIM we want to query",
         )
         parser.add_argument(
             "--use-cli",

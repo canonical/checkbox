@@ -70,7 +70,9 @@ class RFC822Record:
     file/stream where it was parsed from).
     """
 
-    def __init__(self, data, origin=None, raw_data=None, field_offset_map=None):
+    def __init__(
+        self, data, origin=None, raw_data=None, field_offset_map=None
+    ):
         """
         Initialize a new record.
 
@@ -418,7 +420,9 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             _update_end_lineno()
         # Treat all other lines as syntax errors
         else:
-            raise _syntax_error(_("Unexpected non-empty line: {!r}").format(line))
+            raise _syntax_error(
+                _("Unexpected non-empty line: {!r}").format(line)
+            )
     # Make sure to commit the last key from the record
     _commit_key_value_if_needed()
     # Once we've seen the whole file return the last record, if any

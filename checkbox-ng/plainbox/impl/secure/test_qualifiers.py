@@ -123,7 +123,9 @@ class SimpleQualifierTests(TestCase):
         obj = DummySimpleQualifier(self.origin, inclusive=True)
         with mock.patch.object(obj, "get_simple_match") as mock_gsm:
             mock_gsm.return_value = True
-            self.assertEqual(obj.get_vote(self.job), IUnitQualifier.VOTE_INCLUDE)
+            self.assertEqual(
+                obj.get_vote(self.job), IUnitQualifier.VOTE_INCLUDE
+            )
 
     def test_get_vote__not_inclusive_matching(self):
         """
@@ -133,7 +135,9 @@ class SimpleQualifierTests(TestCase):
         obj = DummySimpleQualifier(self.origin, inclusive=False)
         with mock.patch.object(obj, "get_simple_match") as mock_gsm:
             mock_gsm.return_value = True
-            self.assertEqual(obj.get_vote(self.job), IUnitQualifier.VOTE_EXCLUDE)
+            self.assertEqual(
+                obj.get_vote(self.job), IUnitQualifier.VOTE_EXCLUDE
+            )
 
     def test_get_vote__inclusive_nonmatching(self):
         """
@@ -143,7 +147,9 @@ class SimpleQualifierTests(TestCase):
         obj = DummySimpleQualifier(self.origin, inclusive=True)
         with mock.patch.object(obj, "get_simple_match") as mock_gsm:
             mock_gsm.return_value = False
-            self.assertEqual(obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE)
+            self.assertEqual(
+                obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE
+            )
 
     def test_get_vote__not_inclusive_nonmatching(self):
         """
@@ -153,14 +159,18 @@ class SimpleQualifierTests(TestCase):
         obj = DummySimpleQualifier(self.origin, inclusive=False)
         with mock.patch.object(obj, "get_simple_match") as mock_gsm:
             mock_gsm.return_value = False
-            self.assertEqual(obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE)
+            self.assertEqual(
+                obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE
+            )
 
     def test_get_primitive_qualifiers(self):
         """
         verify that SimpleQualifier.get_primitive_qualifiers() returns a list
         with itself
         """
-        return self.assertEqual(self.obj.get_primitive_qualifiers(), [self.obj])
+        return self.assertEqual(
+            self.obj.get_primitive_qualifiers(), [self.obj]
+        )
 
 
 class OperatorMatcherTests(TestCase):
@@ -191,7 +201,9 @@ class PatternMatcherTests(TestCase):
         self.assertFalse(matcher.match("fo"))
 
     def test_repr(self):
-        self.assertEqual(repr(PatternMatcher("text")), "PatternMatcher('text')")
+        self.assertEqual(
+            repr(PatternMatcher("text")), "PatternMatcher('text')"
+        )
 
 
 class FieldQualifierTests(TestCase):
@@ -204,8 +216,12 @@ class FieldQualifierTests(TestCase):
     def setUp(self):
         self.matcher = mock.Mock(name="matcher", spec_set=IMatcher)
         self.origin = mock.Mock(name="origin", spec_set=Origin)
-        self.qualifier_i = FieldQualifier(self._FIELD, self.matcher, self.origin, True)
-        self.qualifier_e = FieldQualifier(self._FIELD, self.matcher, self.origin, False)
+        self.qualifier_i = FieldQualifier(
+            self._FIELD, self.matcher, self.origin, True
+        )
+        self.qualifier_e = FieldQualifier(
+            self._FIELD, self.matcher, self.origin, False
+        )
 
     def test_init(self):
         """
@@ -248,7 +264,9 @@ class FieldQualifierTests(TestCase):
         for qualifier in (self.qualifier_i, self.qualifier_e):
             self.matcher.reset_mock()
             result = qualifier.get_simple_match(job)
-            self.matcher.match.assert_called_once_with(getattr(job, self._FIELD))
+            self.matcher.match.assert_called_once_with(
+                getattr(job, self._FIELD)
+            )
             self.assertEqual(result, self.matcher.match())
 
     def test_field_setter(self):
@@ -327,7 +345,9 @@ class RegExpJobQualifierTests(TestCase):
         template_job_mock = mock.Mock(template_id="some", id="other")
 
         reg_match_template_id = RegExpJobQualifier("some", self.origin)
-        self.assertTrue(reg_match_template_id.get_simple_match(template_job_mock))
+        self.assertTrue(
+            reg_match_template_id.get_simple_match(template_job_mock)
+        )
 
         reg_match_id = RegExpJobQualifier("other", self.origin)
         self.assertTrue(reg_match_id.get_simple_match(template_job_mock))
@@ -362,14 +382,18 @@ class JobIdQualifierTests(TestCase):
         """
         verify that JobIdQualifier.__repr__() works as expected
         """
-        self.assertEqual(repr(self.qualifier), "JobIdQualifier('foo', inclusive=True)")
+        self.assertEqual(
+            repr(self.qualifier), "JobIdQualifier('foo', inclusive=True)"
+        )
 
     def test_get_vote(self):
         """
         verify that JobIdQualifier.get_vote() works as expected
         """
         self.assertEqual(
-            JobIdQualifier("foo", self.origin).get_vote(JobDefinition({"id": "foo"})),
+            JobIdQualifier("foo", self.origin).get_vote(
+                JobDefinition({"id": "foo"})
+            ),
             IUnitQualifier.VOTE_INCLUDE,
         )
         self.assertEqual(
@@ -379,7 +403,9 @@ class JobIdQualifierTests(TestCase):
             IUnitQualifier.VOTE_EXCLUDE,
         )
         self.assertEqual(
-            JobIdQualifier("foo", self.origin).get_vote(JobDefinition({"id": "bar"})),
+            JobIdQualifier("foo", self.origin).get_vote(
+                JobDefinition({"id": "bar"})
+            ),
             IUnitQualifier.VOTE_IGNORE,
         )
         self.assertEqual(
@@ -399,8 +425,12 @@ class JobIdQualifierTests(TestCase):
         self.assertFalse(
             JobIdQualifier("nam", self.origin).designates(make_job("name"))
         )
-        self.assertFalse(JobIdQualifier(".*", self.origin).designates(make_job("name")))
-        self.assertFalse(JobIdQualifier("*", self.origin).designates(make_job("name")))
+        self.assertFalse(
+            JobIdQualifier(".*", self.origin).designates(make_job("name"))
+        )
+        self.assertFalse(
+            JobIdQualifier("*", self.origin).designates(make_job("name"))
+        )
 
 
 class CompositeQualifierTests(TestCase):
@@ -562,7 +592,9 @@ class FunctionTests(TestCase):
         for job_list in permutations([job_a, job_b, job_c], 3):
             # Regardless of how the list of job is ordered the result
             # should be the same, depending on the qualifier list
-            self.assertEqual(select_units(job_list, [qual_a, qual_c]), [job_a, job_c])
+            self.assertEqual(
+                select_units(job_list, [qual_a, qual_c]), [job_a, job_c]
+            )
 
     def test_select_units__exclusion(self):
         """

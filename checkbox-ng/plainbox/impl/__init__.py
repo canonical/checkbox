@@ -92,7 +92,9 @@ def public(import_path, introduced=None, deprecated=None):
         try:
             impl = getattr(module, func_name)
         except AttributeError:
-            raise NotImplementedError("%s.%s does not exist" % (module_name, func_name))
+            raise NotImplementedError(
+                "%s.%s does not exist" % (module_name, func_name)
+            )
 
         @wraps(shim)
         def call_impl(*args, **kwargs):
@@ -131,13 +133,18 @@ def public(import_path, introduced=None, deprecated=None):
                 [
                     "    warn:",
                     "        This function is deprecated",
-                    "        It will be removed in version: {}".format(deprecated),
+                    "        It will be removed in version: {}".format(
+                        deprecated
+                    ),
                 ]
             )
         # Add implementation docs, if any
         if impl.__doc__ is not None:
             call_impl.__doc__ += "\n".join(
-                ["    Additional documentation from the private" " implementation:"]
+                [
+                    "    Additional documentation from the private"
+                    " implementation:"
+                ]
             )
             call_impl.__doc__ += impl.__doc__
         return call_impl
@@ -172,7 +179,9 @@ def deprecated(version, explanation=None):
         """
         The @deprecated decorator with deprecation information
         """
-        msg = "{0} is deprecated since version {1}".format(func.__name__, version)
+        msg = "{0} is deprecated since version {1}".format(
+            func.__name__, version
+        )
         if func.__doc__ is None:
             func.__doc__ = ""
             indent = 4 * " "

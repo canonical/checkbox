@@ -63,7 +63,9 @@ else:
 
 class FlagUnitWidget(urwid.TreeWidget):
     # apply an attribute to the expand/unexpand icons
-    unexpanded_icon = urwid.AttrMap(urwid.TreeWidget.unexpanded_icon, "dirmark")
+    unexpanded_icon = urwid.AttrMap(
+        urwid.TreeWidget.unexpanded_icon, "dirmark"
+    )
     expanded_icon = urwid.AttrMap(urwid.TreeWidget.expanded_icon, "dirmark")
     selected = urwid.Text("[X]")
     unselected = urwid.Text("[ ]")
@@ -92,7 +94,9 @@ class FlagUnitWidget(urwid.TreeWidget):
             widget = urwid.Columns(
                 [
                     (3, [self.selected, self.unselected][self.flagged]),
-                    urwid.Padding(widget, width=("relative", 100), left=indent_cols),
+                    urwid.Padding(
+                        widget, width=("relative", 100), left=indent_cols
+                    ),
                 ],
                 dividechars=1,
             )
@@ -103,7 +107,9 @@ class FlagUnitWidget(urwid.TreeWidget):
                     (indent_cols - 1, urwid.Text(" ")),
                     (
                         1,
-                        [self.unexpanded_icon, self.expanded_icon][self.expanded],
+                        [self.unexpanded_icon, self.expanded_icon][
+                            self.expanded
+                        ],
                     ),
                     urwid.Padding(widget, width=("relative", 100)),
                 ],
@@ -299,7 +305,9 @@ class CategoryNode(urwid.ParentNode):
                 for job in test_info_list
                 if job["id"] == key
             )
-            return JobNode(value, parent=self, key=key, depth=self.get_depth() + 1)
+            return JobNode(
+                value, parent=self, key=key, depth=self.get_depth() + 1
+            )
 
 
 class CategoryWalker(urwid.TreeWalker):
@@ -342,7 +350,9 @@ class CategoryListBox(urwid.TreeListBox):
         """Move focus to first category."""
         widget, pos = self.body.get_focus()
         rootnode = pos.get_root()
-        self.change_focus(size, rootnode.get_widget().next_inorder().get_node())
+        self.change_focus(
+            size, rootnode.get_widget().next_inorder().get_node()
+        )
 
 
 class CategoryBrowser:
@@ -362,7 +372,9 @@ class CategoryBrowser:
     help_text = urwid.ListBox(
         urwid.SimpleListWalker(
             [
-                urwid.Text(("focus", " Keyboard Controls and Shortcuts "), "center"),
+                urwid.Text(
+                    ("focus", " Keyboard Controls and Shortcuts "), "center"
+                ),
                 urwid.Divider(),
                 urwid.Text("Expand/Collapse          Enter/+/-"),
                 urwid.Text("Select/Deselect all      s/d"),
@@ -455,7 +467,9 @@ class CategoryBrowser:
         ]
 
         def add_section(title, body):
-            contents.extend([urwid.Text(title), urwid.Text(body), urwid.Divider()])
+            contents.extend(
+                [urwid.Text(title), urwid.Text(body), urwid.Divider()]
+            )
 
         add_section(_("Job Identifier:"), job["id"])
         add_section(_("Summary:"), job["name"])
@@ -543,7 +557,9 @@ class RerunNode(CategoryNode):
                 for job in test_info_list
                 if job["id"] == key
             )
-            return JobNode(value, parent=self, key=key, depth=self.get_depth() + 1)
+            return JobNode(
+                value, parent=self, key=key, depth=self.get_depth() + 1
+            )
 
 
 class ReRunBrowser(CategoryBrowser):
@@ -652,7 +668,9 @@ class TestPlanBrowser:
     help_text = urwid.ListBox(
         urwid.SimpleListWalker(
             [
-                urwid.Text(("focus", " Keyboard Controls and Shortcuts "), "center"),
+                urwid.Text(
+                    ("focus", " Keyboard Controls and Shortcuts "), "center"
+                ),
                 urwid.Divider(),
                 urwid.Text("Select/Deselect                 Space"),
                 urwid.Text("Navigation                      Up/Down"),
@@ -686,7 +704,9 @@ class TestPlanBrowser:
         ]
         self.listbox = urwid.ListBox(urwid.SimpleListWalker(listbox_content))
         # Footer
-        footer_components = [urwid.Padding(urwid.Text(self.footer_text), left=1)]
+        footer_components = [
+            urwid.Padding(urwid.Text(self.footer_text), left=1)
+        ]
         if resume_count > 0:
             footer_components.append(
                 urwid.Text(
@@ -696,7 +716,9 @@ class TestPlanBrowser:
             )
         footer_components.append(urwid.Text("(H) Help ", "right"))
 
-        self.default_footer = urwid.AttrWrap(urwid.Columns(footer_components), "foot")
+        self.default_footer = urwid.AttrWrap(
+            urwid.Columns(footer_components), "foot"
+        )
         self.filter_footer = urwid.AttrWrap(urwid.Edit("filter: "), "foot")
         self.filtering = False
         # Main frame
@@ -815,7 +837,11 @@ def interrupt_dialog(host):
         _("Nothing, continue testing (ESC)"),
         _("Stop the test case in progress and move on to the next"),
         _("Pause the test session and disconnect from the agent (CTRL+C)"),
-        _("Exit and stop the Checkbox agent on the testbed at {}".format(host)),
+        _(
+            "Exit and stop the Checkbox agent on the testbed at {}".format(
+                host
+            )
+        ),
         _("End this test session preserving its data and launch a new one"),
     ]
     footer_text = [
@@ -829,13 +855,17 @@ def interrupt_dialog(host):
     blank = urwid.Divider()
     listbox_content = [
         blank,
-        urwid.Padding(urwid.Text(_("What do you want to interrupt?")), left=20),
+        urwid.Padding(
+            urwid.Text(_("What do you want to interrupt?")), left=20
+        ),
         blank,
         urwid.Padding(
             urwid.Pile(
                 [
                     urwid.AttrWrap(
-                        urwid.RadioButton(radio_button_group, txt, state=False),
+                        urwid.RadioButton(
+                            radio_button_group, txt, state=False
+                        ),
                         "buttn",
                         "buttnf",
                     )
@@ -851,7 +881,9 @@ def interrupt_dialog(host):
     radio_button_group[0].set_state(True)  # select cancel by default
     title = _("Interruption!")
     header = urwid.AttrWrap(urwid.Padding(urwid.Text(title), left=1), "header")
-    footer = urwid.AttrWrap(urwid.Padding(urwid.Text(footer_text), left=1), "foot")
+    footer = urwid.AttrWrap(
+        urwid.Padding(urwid.Text(footer_text), left=1), "foot"
+    )
     listbox = urwid.ListBox(urwid.SimpleListWalker(listbox_content))
     frame = urwid.Frame(
         urwid.AttrWrap(urwid.LineBox(listbox), "body"),
@@ -876,7 +908,9 @@ def interrupt_dialog(host):
         screen=Screen(),
     ).run()
     try:
-        index = next(radio_button_group.index(i) for i in radio_button_group if i.state)
+        index = next(
+            radio_button_group.index(i) for i in radio_button_group if i.state
+        )
         return [
             "cancel",
             "kill-command",
@@ -992,7 +1026,9 @@ class ManifestBrowser:
     footer_shortcuts = [("Shortcuts: "), ("bold", "y"), ("/"), ("bold", "n ")]
 
     def __init__(self, title, manifest):
-        self._hidden_manifests = self.get_manifests_by_visibility(manifest, hidden=True)
+        self._hidden_manifests = self.get_manifests_by_visibility(
+            manifest, hidden=True
+        )
         self._visible_manifests = self.get_manifests_by_visibility(
             manifest, hidden=False
         )
@@ -1006,7 +1042,9 @@ class ManifestBrowser:
             content.append(urwid.Text(prompt))
             for q in sorted(questions, key=lambda i: i["name"]):
                 question_widget = ManifestQuestion(q)
-                content.append(urwid.AttrWrap(question_widget, "buttn", "buttnf"))
+                content.append(
+                    urwid.AttrWrap(question_widget, "buttn", "buttnf")
+                )
                 self._question_store.append(question_widget)
         self._pile = urwid.Pile(content)
         listbox_content = [
@@ -1051,7 +1089,9 @@ class ManifestBrowser:
     @classmethod
     def has_visible_manifests(cls, question_manifests):
         """Check if there are any visible manifest questions."""
-        return bool(cls.get_manifests_by_visibility(question_manifests, hidden=False))
+        return bool(
+            cls.get_manifests_by_visibility(question_manifests, hidden=False)
+        )
 
     @staticmethod
     def get_flattened_values(question_manifests):
@@ -1072,7 +1112,9 @@ class ManifestBrowser:
             screen=Screen(),
         )
         self.loop.run()
-        self._manifest_out.update({q.id: q.value for q in self._question_store})
+        self._manifest_out.update(
+            {q.id: q.value for q in self._question_store}
+        )
         # hidden manifests aren't in the question_store
         # value will be:
         # - value set in the launcher
@@ -1131,7 +1173,9 @@ def resume_dialog(duration):
     timer_fill = urwid.Filler(timer_pad)
     title = _("Checkbox agent is about to resume the session!")
     header = urwid.AttrWrap(urwid.Padding(urwid.Text(title), left=1), "header")
-    footer = urwid.AttrWrap(urwid.Padding(urwid.Text(footer_text), left=1), "foot")
+    footer = urwid.AttrWrap(
+        urwid.Padding(urwid.Text(footer_text), left=1), "foot"
+    )
     frame = urwid.Frame(
         urwid.AttrWrap(urwid.LineBox(timer_fill), "body"),
         header=header,

@@ -97,7 +97,9 @@ class TestCpuinfoParser(TestCase):
 
         self.assertEqual(processor["type"], "Unspecified Server Cartridge")
         self.assertEqual(processor["count"], 8)
-        self.assertEqual(processor["model"], "AArch64 Processor rev 1 (aarch64)")
+        self.assertEqual(
+            processor["model"], "AArch64 Processor rev 1 (aarch64)"
+        )
         self.assertEqual(processor["model_number"], "0x0")
         self.assertEqual(processor["model_revision"], "1")
         self.assertEqual(processor["model_version"], "AArch64")
@@ -114,8 +116,12 @@ class TestCpuinfoParser(TestCase):
 
         self.assertEqual(processor["type"], "pSeries")
         self.assertEqual(processor["count"], 1)
-        self.assertEqual(processor["model"], "POWER8E (raw), altivec supported")
-        self.assertEqual(processor["model_number"], "IBM pSeries (emulated by qemu)")
+        self.assertEqual(
+            processor["model"], "POWER8E (raw), altivec supported"
+        )
+        self.assertEqual(
+            processor["model_number"], "IBM pSeries (emulated by qemu)"
+        )
         self.assertEqual(processor["model_revision"], "2.0 ")
         self.assertEqual(processor["model_version"], "pvr 004b 0200")
         self.assertEqual(processor["platform"], "pSeries")
@@ -132,7 +138,9 @@ class TestCpuinfoParser(TestCase):
         # Check for specific values.
         self.assertEqual(processor["type"], "GenuineIntel")
         self.assertEqual(processor["count"], 4)
-        self.assertEqual(processor["model"], "Intel(R) Core(TM) i7-4500U CPU @ 1.80GHz")
+        self.assertEqual(
+            processor["model"], "Intel(R) Core(TM) i7-4500U CPU @ 1.80GHz"
+        )
         self.assertEqual(processor["bogomips"], 4789)
         self.assertEqual(processor["cache"], 4194304)
         self.assertEqual(processor["model_number"], "6")

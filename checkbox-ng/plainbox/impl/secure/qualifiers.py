@@ -177,7 +177,9 @@ class RegExpJobQualifier(SimpleQualifier):
         """
         pattern = self._pattern
         if unit.template_id:
-            return bool(pattern.match(unit.template_id) or pattern.match(unit.id))
+            return bool(
+                pattern.match(unit.template_id) or pattern.match(unit.id)
+            )
         return pattern.match(unit.id) is not None
 
     @property
@@ -416,7 +418,9 @@ class CompositeQualifier(pod.POD):
         .. versionadded: 0.5
         """
         if self.qualifier_list:
-            return min([qualifier.get_vote(job) for qualifier in self.qualifier_list])
+            return min(
+                [qualifier.get_vote(job) for qualifier in self.qualifier_list]
+            )
         else:
             return IUnitQualifier.VOTE_IGNORE
 
@@ -440,7 +444,9 @@ class NonPrimitiveQualifierOrigin(Exception):
 
 def get_flat_primitive_qualifier_list(qualifier_list):
     return list(
-        itertools.chain(*[qual.get_primitive_qualifiers() for qual in qualifier_list])
+        itertools.chain(
+            *[qual.get_primitive_qualifiers() for qual in qualifier_list]
+        )
     )
 
 

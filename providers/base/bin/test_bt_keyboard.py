@@ -18,7 +18,9 @@ def main():
     mgr.scan()
 
     keyboards = sorted(
-        mgr.get_bt_devices(category=bt_helper.BT_KEYBOARD, filters={"Paired": False}),
+        mgr.get_bt_devices(
+            category=bt_helper.BT_KEYBOARD, filters={"Paired": False}
+        ),
         key=lambda x: int(x.rssi or -255),
         reverse=True,
     )
@@ -32,7 +34,9 @@ def main():
         print("{}. {} (RSSI: {})".format(num, kb, kb.rssi))
     chosen = False
     while not chosen:
-        print("Which one would you like to connect to? (0 to exit) ", flush=True)
+        print(
+            "Which one would you like to connect to? (0 to exit) ", flush=True
+        )
         num = input()
         if num == "0":
             return
@@ -40,7 +44,12 @@ def main():
     kb = keyboards[int(num)]
     print("{} chosen. Pairing...".format(kb))
     kb.pair()
-    print(("Try typing on a keyboard. " 'Type "quit" and press ENTER to end the test.'))
+    print(
+        (
+            "Try typing on a keyboard. "
+            'Type "quit" and press ENTER to end the test.'
+        )
+    )
     while input().lower() != "quit":
         pass
     print("Unpairing the keyboard...")

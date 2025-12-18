@@ -138,7 +138,9 @@ class HTMLExporterTests(TestCase):
         session_state.update_job_result(self.job3, self.result_skip)
         session_state.update_job_result(self.res1, self.res1_result)
         session_state.update_job_result(self.res2, self.res2_result)
-        session_state.update_job_result(self.attachment, self.attachment_result)
+        session_state.update_job_result(
+            self.attachment, self.attachment_result
+        )
         for resource_id, resource_list in self.resource_map.items():
             session_state.set_resource_list(resource_id, resource_list)
 
@@ -166,10 +168,14 @@ class HTMLExporterTests(TestCase):
         return exporter_map
 
     def prepare_manager_without_certification_status(self):
-        return self._get_session_manager("non-blocker", "non-blocker", "non-blocker")
+        return self._get_session_manager(
+            "non-blocker", "non-blocker", "non-blocker"
+        )
 
     def prepare_manager_with_certification_blocker(self):
-        return self._get_session_manager("blocker", "non-blocker", "non-blocker")
+        return self._get_session_manager(
+            "blocker", "non-blocker", "non-blocker"
+        )
 
     def test_perfect_match_without_certification_status(self):
         """

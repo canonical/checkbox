@@ -9,7 +9,9 @@ def text_fallback_boots_parser(boots_txt):
     boots_lines = boots_txt.splitlines()
     boots_lines_items = map(str.split, boots_lines)
     # for malformed lines with just one item, lets set the boot id to none
-    boots_lines_items = (itertools.chain(x, [None, None]) for x in boots_lines_items)
+    boots_lines_items = (
+        itertools.chain(x, [None, None]) for x in boots_lines_items
+    )
     return [
         {"boot_id": boot_id}
         for (boot_number, boot_id, *_) in boots_lines_items
@@ -54,7 +56,9 @@ def check_error(boot_id, error="Microcode SW error detected"):
     for line in journal.splitlines():
         if error in line:
             raise SystemExit(
-                "Microcode software error detected during boot {}.".format(boot_id)
+                "Microcode software error detected during boot {}.".format(
+                    boot_id
+                )
             )
 
 

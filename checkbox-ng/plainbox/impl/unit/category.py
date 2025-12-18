@@ -64,10 +64,12 @@ class CategoryUnit(UnitWithId):
         # This assertion is a low-cost trick to ensure that we override this
         # method in all of the subclasses to ensure that the initializer is
         # called with correctly-ordered arguments.
-        assert cls is CategoryUnit, "{}.instantiate_template() not customized".format(
-            cls.__name__
+        assert (
+            cls is CategoryUnit
+        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        return cls(
+            data, raw_data, origin, provider, parameters, field_offset_map
         )
-        return cls(data, raw_data, origin, provider, parameters, field_offset_map)
 
     def __str__(self):
         """

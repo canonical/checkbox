@@ -94,7 +94,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
-        mock_proxy.call_sync.return_value = self.MockGetCurrentStateReturnValue(raw)
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         monitors = gnome_monitor.get_connected_monitors()
         self.assertSetEqual(monitors, {"eDP-1", "HDMI-1"})
 
@@ -159,9 +161,13 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
-        mock_proxy.call_sync.return_value = self.MockGetCurrentStateReturnValue(raw)
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         resolutions = gnome_monitor.get_current_resolutions()
-        self.assertEqual(resolutions, {"eDP-1": "1920x1200", "HDMI-1": "2560x1440"})
+        self.assertEqual(
+            resolutions, {"eDP-1": "1920x1200", "HDMI-1": "2560x1440"}
+        )
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_bad_input_type(self, mock_dbus_proxy):
@@ -169,8 +175,8 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
         gnome_monitor = MonitorConfigGnome()
-        mock_proxy.call_sync.return_value = self.MockGetCurrentStateReturnValue(
-            tuple(), False
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(tuple(), False)
         )
         self.assertRaises(TypeError, gnome_monitor.get_current_state)
 
@@ -235,7 +241,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
-        mock_proxy.call_sync.return_value = self.MockGetCurrentStateReturnValue(raw)
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         configuration = gnome_monitor.set_extended_mode()
 
         logical_monitors = [
@@ -326,7 +334,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
-        mock_proxy.call_sync.return_value = self.MockGetCurrentStateReturnValue(raw)
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         gnome_monitor.cycle()
 
         logical_monitors = [
@@ -413,10 +423,14 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
-        mock_proxy.call_sync.return_value = self.MockGetCurrentStateReturnValue(raw)
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
         # mock callback
         mock_resolution_filter = MagicMock()
-        mock_resolution_filter.side_effect = lambda x: x  # keep the real mode values
+        mock_resolution_filter.side_effect = (
+            lambda x: x
+        )  # keep the real mode values
         mock_post_cycle_action = MagicMock()
         gnome_monitor.cycle(
             cycle_resolutions=False,

@@ -44,7 +44,9 @@ def discover_data():
     """
     command = "efibootmgr -v"
     bootinfo_bytes = Popen(shlex.split(command), stdout=PIPE).communicate()[0]
-    bootinfo = bootinfo_bytes.decode(encoding="utf-8", errors="ignore").splitlines()
+    bootinfo = bootinfo_bytes.decode(
+        encoding="utf-8", errors="ignore"
+    ).splitlines()
     boot_entries = {}
     boot_order = []
     boot_current = ""

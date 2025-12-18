@@ -16,7 +16,9 @@ def main():
         version = ""
         stream = b""
         try:
-            stream = check_output([cmd, module], stderr=PIPE, universal_newlines=False)
+            stream = check_output(
+                [cmd, module], stderr=PIPE, universal_newlines=False
+            )
         except CalledProcessError as e:
             if e.returncode != 1:
                 raise e

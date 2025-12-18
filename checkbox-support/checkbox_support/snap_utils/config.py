@@ -16,7 +16,9 @@ import sys
 def get_snapctl_config():
     """Query snapctl for config file variables"""
     out = (
-        sp.check_output(["snapctl", "get", "conf"]).decode(sys.stdout.encoding).strip()
+        sp.check_output(["snapctl", "get", "conf"])
+        .decode(sys.stdout.encoding)
+        .strip()
     )
     if out:
         return json.loads(out)

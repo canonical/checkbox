@@ -394,7 +394,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertIs(session_state.job_state_map[job.id].result, result)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once_with()
-        session_state.on_job_result_changed.assert_called_once_with(job, result)
+        session_state.on_job_result_changed.assert_called_once_with(
+            job, result
+        )
 
     def test_observe_result__OUTCOME_NONE(self):
         job = mock.Mock(spec=JobDefinition, plugin="resource")
@@ -405,7 +407,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertIs(session_state.job_state_map[job.id].result, result)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once_with()
-        session_state.on_job_result_changed.assert_called_once_with(job, result)
+        session_state.on_job_result_changed.assert_called_once_with(
+            job, result
+        )
         # Ensure that a resource was *not* defined
         self.assertEqual(session_state.set_resource_list.call_count, 0)
 
@@ -423,7 +427,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertIs(session_state.job_state_map[job.id].result, result)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once_with()
-        session_state.on_job_result_changed.assert_called_once_with(job, result)
+        session_state.on_job_result_changed.assert_called_once_with(
+            job, result
+        )
         # Ensure that new resource was defined
         session_state.set_resource_list.assert_called_once_with(
             job.id,
@@ -441,7 +447,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertIs(session_state.job_state_map[job.id].result, result)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once_with()
-        session_state.on_job_result_changed.assert_called_once_with(job, result)
+        session_state.on_job_result_changed.assert_called_once_with(
+            job, result
+        )
         # Ensure that a warning was logged
         mock_logger.warning.assert_called_once_with(
             "local script %s returned invalid RFC822 data: %s",
@@ -475,7 +483,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         )
 
     @mock.patch("plainbox.impl.ctrl.logger")
-    def test_observe_result__missing_resource_key_invalid_units(self, mock_logger):
+    def test_observe_result__missing_resource_key_invalid_units(
+        self, mock_logger
+    ):
         job = make_job("R", plugin="resource")
         template = TemplateUnit(
             {
@@ -545,7 +555,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         unit_warning = mock.MagicMock(severity=Severity.warning)
         valid_unit = mock.MagicMock()
         valid_unit.check.return_value = [unit_warning]
-        wrapped = CheckBoxSessionStateController._wrap_invalid_units(valid_unit)
+        wrapped = CheckBoxSessionStateController._wrap_invalid_units(
+            valid_unit
+        )
 
         self.assertTrue(mock_logger.warning.called)
         # unit is valid, has should return the unit unchanged
@@ -557,7 +569,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         unit_error = mock.MagicMock(severity=Severity.error)
         invalid_unit = mock.MagicMock()
         invalid_unit.check.return_value = [unit_warning, unit_error]
-        wrapped = CheckBoxSessionStateController._wrap_invalid_units(invalid_unit)
+        wrapped = CheckBoxSessionStateController._wrap_invalid_units(
+            invalid_unit
+        )
 
         self.assertTrue(mock_logger.warning.called)
         # unit contains at least 1 error, has to be wrapped to make reporting
@@ -569,7 +583,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         invalid_unit.check.side_effect = MissingParam(
             "template_123", "id", "generated_unit_id{abc}", "abc"
         )
-        wrapped = CheckBoxSessionStateController._wrap_invalid_units(invalid_unit)
+        wrapped = CheckBoxSessionStateController._wrap_invalid_units(
+            invalid_unit
+        )
 
         # unit contains at least 1 error, it has to be discarded
         self.assertIsInstance(wrapped, InvalidJob)
@@ -634,7 +650,9 @@ class FunctionTests(TestCase):
         mock_logger.warning.assert_called_once_with(
             "local script %s returned invalid RFC822 data: %s",
             job.id,
-            RFC822SyntaxError(None, 3, "Unexpected non-empty line: 'error\\n'"),
+            RFC822SyntaxError(
+                None, 3, "Unexpected non-empty line: 'error\\n'"
+            ),
         )
 
 

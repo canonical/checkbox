@@ -92,7 +92,9 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         """
         mock_machine.return_value = "aarch64"
 
-        suspend_trigger.main(["--sleep-delay", "25", "--rtc-device", "/dev/my_rtc"])
+        suspend_trigger.main(
+            ["--sleep-delay", "25", "--rtc-device", "/dev/my_rtc"]
+        )
 
         self.assertFalse(mock_fwts_test.main.called)
         expected_rtcwake_cmd = [

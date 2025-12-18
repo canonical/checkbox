@@ -110,7 +110,9 @@ def string_to_datetime(string):
         second = 59
         milliseconds = 999999
 
-    dt = datetime(year, month, day, hour, minute, second, milliseconds, tzinfo=tzutc)
+    dt = datetime(
+        year, month, day, hour, minute, second, milliseconds, tzinfo=tzutc
+    )
 
     tz_sign = time_parts["tz_sign"]
     tz_hour = time_parts["tz_hour"]

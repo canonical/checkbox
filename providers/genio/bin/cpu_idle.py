@@ -72,7 +72,11 @@ def output_checker(cpu, state, name, disable, usage):
     """
     fail = 0
     print("CPU node: cpu/{}/cpuidle/state{}".format(cpu, state))
-    print("Got name: {}, disable: {}, usage: {}".format(name[0], disable[0], usage))
+    print(
+        "Got name: {}, disable: {}, usage: {}".format(
+            name[0], disable[0], usage
+        )
+    )
     if name[0] != name[1]:
         node_path = GENERAL_PATH.format(cpu, state, "name")
         error_handler("name", node_path, name[0], name[1])
@@ -95,7 +99,9 @@ def test_wfi():
     name = read_idle_attr(cpu, state, "name")
     disable = read_idle_attr(cpu, state, "disable")
     usage = read_idle_attr_num(cpu, state, "usage")
-    output_checker(cpu, state, name=(name, "WFI"), disable=(disable, "0"), usage=usage)
+    output_checker(
+        cpu, state, name=(name, "WFI"), disable=(disable, "0"), usage=usage
+    )
 
 
 def test_mcdi_cpu(soc):

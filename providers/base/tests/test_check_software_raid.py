@@ -11,7 +11,9 @@ class TestCheckSoftwareRAID(unittest.TestCase):
 
         expected_data = [{"device": "md126", "mode": "raid0"}]
         test_dir = pathlib.Path(__file__).parent / "test_data"
-        raid_data = check_software_raid.get_md_stat(test_dir / "mdstat_intel_rst.txt")
+        raid_data = check_software_raid.get_md_stat(
+            test_dir / "mdstat_intel_rst.txt"
+        )
         self.assertListEqual(raid_data, expected_data)
 
     def test_get_md_stat_multiple_raid(self):
@@ -28,7 +30,9 @@ class TestCheckSoftwareRAID(unittest.TestCase):
 
     def test_get_md_stat_empty(self):
         test_dir = pathlib.Path(__file__).parent / "test_data"
-        raid_data = check_software_raid.get_md_stat(test_dir / "mdstat_none_raid.txt")
+        raid_data = check_software_raid.get_md_stat(
+            test_dir / "mdstat_none_raid.txt"
+        )
         self.assertListEqual(raid_data, [])
 
     @patch("check_software_raid.dump_raid_info")
@@ -61,7 +65,9 @@ class TestCheckSoftwareRAID(unittest.TestCase):
 
     @patch("check_software_raid.dump_raid_info")
     @patch("check_software_raid.get_md_stat")
-    def test_check_raid_mode_is_not_expected(self, mock_get_md, mock_dump_raid):
+    def test_check_raid_mode_is_not_expected(
+        self, mock_get_md, mock_dump_raid
+    ):
 
         mock_get_md.return_value = [
             {"device": "md2", "mode": "raid1"},

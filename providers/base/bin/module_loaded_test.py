@@ -34,7 +34,8 @@ class ModuleLoadedTest:
         # module not loaded
         if args.no_load:
             raise SystemExit(
-                "ERROR: module {} not loaded in running" " kernel".format(args.module)
+                "ERROR: module {} not loaded in running"
+                " kernel".format(args.module)
             )
 
         # attempt a load of the module

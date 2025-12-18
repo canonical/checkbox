@@ -34,7 +34,9 @@ from plainbox.impl.testing_utils import make_job, make_job_result
 
 
 def load_tests(loader, tests, ignore):
-    tests.addTests(DocTestSuite("plainbox.impl.session.jobs", optionflags=REPORT_NDIFF))
+    tests.addTests(
+        DocTestSuite("plainbox.impl.session.jobs", optionflags=REPORT_NDIFF)
+    )
     return tests
 
 
@@ -52,7 +54,9 @@ class JobReadinessInhibitorTests(TestCase):
         self.assertRaises(
             ValueError, JobReadinessInhibitor, InhibitionCause.PENDING_DEP
         )
-        self.assertRaises(ValueError, JobReadinessInhibitor, InhibitionCause.FAILED_DEP)
+        self.assertRaises(
+            ValueError, JobReadinessInhibitor, InhibitionCause.FAILED_DEP
+        )
         self.assertRaises(
             ValueError, JobReadinessInhibitor, InhibitionCause.PENDING_RESOURCE
         )
@@ -87,7 +91,9 @@ class JobReadinessInhibitorTests(TestCase):
 
     def test_pending_dep(self):
         job = make_job("A")
-        obj = JobReadinessInhibitor(InhibitionCause.PENDING_DEP, related_job=job)
+        obj = JobReadinessInhibitor(
+            InhibitionCause.PENDING_DEP, related_job=job
+        )
         self.assertEqual(
             repr(obj),
             (
@@ -100,7 +106,9 @@ class JobReadinessInhibitorTests(TestCase):
 
     def test_failed_dep(self):
         job = make_job("A")
-        obj = JobReadinessInhibitor(InhibitionCause.FAILED_DEP, related_job=job)
+        obj = JobReadinessInhibitor(
+            InhibitionCause.FAILED_DEP, related_job=job
+        )
         self.assertEqual(
             repr(obj),
             (
@@ -156,7 +164,10 @@ class JobReadinessInhibitorTests(TestCase):
         )
         self.assertEqual(
             str(obj),
-            ("resource expression \"resource.attr == 'value'\"" " evaluates to false"),
+            (
+                "resource expression \"resource.attr == 'value'\""
+                " evaluates to false"
+            ),
         )
 
     def test_unknown_global(self):
@@ -179,12 +190,16 @@ class JobStateTests(TestCase):
             self.job_state.readiness_inhibitor_list,
             [UndesiredJobReadinessInhibitor],
         )
-        self.assertEqual(self.job_state.effective_category_id, self.job.category_id)
+        self.assertEqual(
+            self.job_state.effective_category_id, self.job.category_id
+        )
         self.assertEqual(
             self.job_state.effective_certification_status,
             self.job.certification_status,
         )
-        self.assertEqual(self.job_state.effective_auto_retry, self.job.auto_retry)
+        self.assertEqual(
+            self.job_state.effective_auto_retry, self.job.auto_retry
+        )
 
     def test_getting_job(self):
         self.assertIs(self.job_state.job, self.job)
@@ -261,7 +276,9 @@ class JobStateTests(TestCase):
     def test_can_start(self):
         self.job_state.readiness_inhibitor_list = []
         self.assertTrue(self.job_state.can_start())
-        self.job_state.readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
+        self.job_state.readiness_inhibitor_list = [
+            UndesiredJobReadinessInhibitor
+        ]
         self.assertFalse(self.job_state.can_start())
 
     def test_readiness_description(self):
@@ -269,7 +286,9 @@ class JobStateTests(TestCase):
         self.assertEqual(
             self.job_state.get_readiness_description(), "job can be started"
         )
-        self.job_state.readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
+        self.job_state.readiness_inhibitor_list = [
+            UndesiredJobReadinessInhibitor
+        ]
         self.assertTrue(
             self.job_state.get_readiness_description().startswith(
                 "job cannot be started: "
@@ -282,4 +301,6 @@ class JobStateTests(TestCase):
 
     def test_setting_effective_cert_certification_status(self):
         self.job_state.effective_certification_status = "value"
-        self.assertEqual(self.job_state.effective_certification_status, "value")
+        self.assertEqual(
+            self.job_state.effective_certification_status, "value"
+        )

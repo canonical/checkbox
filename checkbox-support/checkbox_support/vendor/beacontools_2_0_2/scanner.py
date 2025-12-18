@@ -1,5 +1,4 @@
 """Classes responsible for Beacon scanning."""
-
 import logging
 import struct
 import threading
@@ -7,43 +6,21 @@ from importlib import import_module
 
 from checkbox_support.vendor.ahocorapy.keywordtree import KeywordTree
 
-from .const import (
-    CJ_MANUFACTURER_ID,
-    EDDYSTONE_UUID,
-    ESTIMOTE_MANUFACTURER_ID,
-    ESTIMOTE_UUID,
-    EVT_LE_ADVERTISING_REPORT,
-    EXPOSURE_NOTIFICATION_UUID,
-    IBEACON_MANUFACTURER_ID,
-    IBEACON_PROXIMITY_TYPE,
-    LE_META_EVENT,
-    MANUFACTURER_SPECIFIC_DATA_TYPE,
-    MS_FRACTION_DIVIDER,
-    OCF_LE_SET_SCAN_ENABLE,
-    OCF_LE_SET_SCAN_PARAMETERS,
-    OGF_LE_CTL,
-    BluetoothAddressType,
-    ScanFilter,
-    ScannerMode,
-    ScanType,
-)
+from .const import (CJ_MANUFACTURER_ID, EDDYSTONE_UUID,
+                    ESTIMOTE_MANUFACTURER_ID, ESTIMOTE_UUID,
+                    EVT_LE_ADVERTISING_REPORT, EXPOSURE_NOTIFICATION_UUID,
+                    IBEACON_MANUFACTURER_ID, IBEACON_PROXIMITY_TYPE,
+                    LE_META_EVENT, MANUFACTURER_SPECIFIC_DATA_TYPE,
+                    MS_FRACTION_DIVIDER, OCF_LE_SET_SCAN_ENABLE,
+                    OCF_LE_SET_SCAN_PARAMETERS, OGF_LE_CTL,
+                    BluetoothAddressType, ScanFilter, ScannerMode, ScanType)
 from .device_filters import BtAddrFilter, DeviceFilter
-from .packet_types import (
-    EddystoneEIDFrame,
-    EddystoneEncryptedTLMFrame,
-    EddystoneTLMFrame,
-    EddystoneUIDFrame,
-    EddystoneURLFrame,
-)
+from .packet_types import (EddystoneEIDFrame, EddystoneEncryptedTLMFrame,
+                           EddystoneTLMFrame, EddystoneUIDFrame,
+                           EddystoneURLFrame)
 from .parser import parse_packet
-from .utils import (
-    bin_to_int,
-    bt_addr_to_string,
-    get_mode,
-    is_one_of,
-    is_packet_type,
-    to_int,
-)
+from .utils import (bin_to_int, bt_addr_to_string, get_mode, is_one_of,
+                    is_packet_type, to_int)
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
@@ -54,14 +31,7 @@ _LOGGER.setLevel(logging.DEBUG)
 class BeaconScanner(object):
     """Scan for Beacon advertisements."""
 
-    def __init__(
-        self,
-        callback,
-        bt_device_id=0,
-        device_filter=None,
-        packet_filter=None,
-        scan_parameters=None,
-    ):
+    def __init__(self, callback, bt_device_id=0, device_filter=None, packet_filter=None, scan_parameters=None):
         """Initialize scanner."""
         # check if device filters are valid
         if device_filter is not None:
@@ -70,9 +40,7 @@ class BeaconScanner(object):
             if len(device_filter) > 0:
                 for filtr in device_filter:
                     if not isinstance(filtr, DeviceFilter):
-                        raise ValueError(
-                            "Device filters must be instances of DeviceFilter"
-                        )
+                        raise ValueError("Device filters must be instances of DeviceFilter")
             else:
                 device_filter = None
 
@@ -83,18 +51,14 @@ class BeaconScanner(object):
             if len(packet_filter) > 0:
                 for filtr in packet_filter:
                     if not is_packet_type(filtr):
-                        raise ValueError(
-                            "Packet filters must be one of the packet types"
-                        )
+                        raise ValueError("Packet filters must be one of the packet types")
             else:
                 packet_filter = None
 
         if scan_parameters is None:
             scan_parameters = {}
 
-        self._mon = Monitor(
-            callback, bt_device_id, device_filter, packet_filter, scan_parameters
-        )
+        self._mon = Monitor(callback, bt_device_id, device_filter, packet_filter, scan_parameters)
 
     def start(self):
         """Start beacon scanning."""
@@ -108,14 +72,10 @@ class BeaconScanner(object):
 class Monitor(threading.Thread):
     """Continously scan for BLE advertisements."""
 
-    def __init__(
-        self, callback, bt_device_id, device_filter, packet_filter, scan_parameters
-    ):
+    def __init__(self, callback, bt_device_id, device_filter, packet_filter, scan_parameters):
         """Construct interface object."""
         # do import here so that the package can be used in parsing-only mode (no bluez required)
-        self.backend = import_module(
-            "checkbox_support.vendor.beacontools_2_0_2.backend"
-        )
+        self.backend = import_module('checkbox_support.vendor.beacontools_2_0_2.backend')
 
         threading.Thread.__init__(self)
         self.daemon = False
@@ -140,22 +100,14 @@ class Monitor(threading.Thread):
         service_uuid_prefix = b"\x03\x03"
         self.kwtree = KeywordTree()
         if self.mode & ScannerMode.MODE_IBEACON:
-            self.kwtree.add(
-                bytes([MANUFACTURER_SPECIFIC_DATA_TYPE])
-                + IBEACON_MANUFACTURER_ID
-                + IBEACON_PROXIMITY_TYPE
-            )
+            self.kwtree.add(bytes([MANUFACTURER_SPECIFIC_DATA_TYPE]) + IBEACON_MANUFACTURER_ID + IBEACON_PROXIMITY_TYPE)
         if self.mode & ScannerMode.MODE_EDDYSTONE:
             self.kwtree.add(service_uuid_prefix + EDDYSTONE_UUID)
         if self.mode & ScannerMode.MODE_ESTIMOTE:
             self.kwtree.add(service_uuid_prefix + ESTIMOTE_UUID)
-            self.kwtree.add(
-                bytes([MANUFACTURER_SPECIFIC_DATA_TYPE]) + ESTIMOTE_MANUFACTURER_ID
-            )
+            self.kwtree.add(bytes([MANUFACTURER_SPECIFIC_DATA_TYPE]) + ESTIMOTE_MANUFACTURER_ID)
         if self.mode & ScannerMode.MODE_CJMONITOR:
-            self.kwtree.add(
-                bytes([MANUFACTURER_SPECIFIC_DATA_TYPE]) + CJ_MANUFACTURER_ID
-            )
+            self.kwtree.add(bytes([MANUFACTURER_SPECIFIC_DATA_TYPE]) + CJ_MANUFACTURER_ID)
         if self.mode & ScannerMode.MODE_EXPOSURE_NOTIFICATION:
             self.kwtree.add(service_uuid_prefix + EXPOSURE_NOTIFICATION_UUID)
         self.kwtree.finalize()
@@ -176,15 +128,9 @@ class Monitor(threading.Thread):
                 self.process_packet(pkt)
         self.socket.close()
 
-    def set_scan_parameters(
-        self,
-        scan_type=ScanType.ACTIVE,
-        interval_ms=10,
-        window_ms=10,
-        address_type=BluetoothAddressType.RANDOM,
-        filter_type=ScanFilter.ALL,
-    ):
-        """ "sets the le scan parameters
+    def set_scan_parameters(self, scan_type=ScanType.ACTIVE, interval_ms=10, window_ms=10,
+                            address_type=BluetoothAddressType.RANDOM, filter_type=ScanFilter.ALL):
+        """"sets the le scan parameters
 
         Args:
             scan_type: ScanType.(PASSIVE|ACTIVE)
@@ -206,20 +152,14 @@ class Monitor(threading.Thread):
         if interval_fractions < 0x0004 or interval_fractions > 0x4000:
             raise ValueError(
                 "Invalid interval given {}, must be in range of 2.5ms to 10240ms!".format(
-                    interval_fractions
-                )
-            )
+                    interval_fractions))
         window_fractions = window_ms / MS_FRACTION_DIVIDER
         if window_fractions < 0x0004 or window_fractions > 0x4000:
             raise ValueError(
                 "Invalid window given {}, must be in range of 2.5ms to 10240ms!".format(
-                    window_fractions
-                )
-            )
+                    window_fractions))
 
-        interval_fractions, window_fractions = int(interval_fractions), int(
-            window_fractions
-        )
+        interval_fractions, window_fractions = int(interval_fractions), int(window_fractions)
 
         scan_parameter_pkg = struct.pack(
             "<BHHBB",
@@ -227,11 +167,8 @@ class Monitor(threading.Thread):
             interval_fractions,
             window_fractions,
             address_type,
-            filter_type,
-        )
-        self.backend.send_cmd(
-            self.socket, OGF_LE_CTL, OCF_LE_SET_SCAN_PARAMETERS, scan_parameter_pkg
-        )
+            filter_type)
+        self.backend.send_cmd(self.socket, OGF_LE_CTL, OCF_LE_SET_SCAN_PARAMETERS, scan_parameter_pkg)
 
     def toggle_scan(self, enable, filter_duplicates=False):
         """Enables or disables BLE scanning
@@ -284,7 +221,7 @@ class Monitor(threading.Thread):
             # iterate over filters and call .matches() on each
             for filtr in self.device_filter:
                 if isinstance(filtr, BtAddrFilter):
-                    if filtr.matches({"bt_addr": bt_addr}):
+                    if filtr.matches({'bt_addr':bt_addr}):
                         self.callback(bt_addr, rssi, packet, properties)
                         return
 
@@ -302,15 +239,8 @@ class Monitor(threading.Thread):
 
     def get_properties(self, packet, bt_addr):
         """Get properties of beacon depending on type."""
-        if is_one_of(
-            packet,
-            [
-                EddystoneTLMFrame,
-                EddystoneURLFrame,
-                EddystoneEncryptedTLMFrame,
-                EddystoneEIDFrame,
-            ],
-        ):
+        if is_one_of(packet, [EddystoneTLMFrame, EddystoneURLFrame, \
+                              EddystoneEncryptedTLMFrame, EddystoneEIDFrame]):
             # here we retrieve the namespace and instance which corresponds to the
             # eddystone beacon with this bt address
             return self.properties_from_mapping(bt_addr)

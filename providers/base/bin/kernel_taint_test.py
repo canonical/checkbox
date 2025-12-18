@@ -44,7 +44,9 @@ def find_taints(taint_file):
         f = open(taint_file, "r")
         taints = int(f.read())
     except OSError:
-        raise SystemExit("Kernel taint file ({}) not found!".format(taint_file))
+        raise SystemExit(
+            "Kernel taint file ({}) not found!".format(taint_file)
+        )
     print("Kernel taint value is {}".format(taints))
     return taints
 
@@ -74,7 +76,9 @@ def process_GPL_incompatible_modules(modules):
     modules = remove_ignored_modules(modules)
     for mod in modules:
         cmd = "modinfo -F license %s" % mod
-        license = check_output(shlex.split(cmd), universal_newlines=True).strip()
+        license = check_output(
+            shlex.split(cmd), universal_newlines=True
+        ).strip()
         if "GPL" not in license and "MIT" not in license:
             mod_list.append((mod, license))
     return mod_list
@@ -152,7 +156,8 @@ def main():
                     count += 1
                 else:
                     print(
-                        "*   Proprietary modules found, " "but they are expected and OK"
+                        "*   Proprietary modules found, "
+                        "but they are expected and OK"
                     )
             elif i == 11:
                 print("*   Firmware workarounds are expected and OK")
@@ -165,7 +170,8 @@ def main():
                     count += 1
                 else:
                     print(
-                        "*   Out of Tree modules found, " "but they are expected and OK"
+                        "*   Out of Tree modules found, "
+                        "but they are expected and OK"
                     )
             else:
                 count += 1

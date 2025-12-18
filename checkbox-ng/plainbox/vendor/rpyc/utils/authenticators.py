@@ -23,16 +23,13 @@ validate an incoming connection. Using them is pretty trivial ::
     s = ThreadedServer(...., authenticator = magic_word_authenticator)
     s.start()
 """
-
 import sys
 from plainbox.vendor.rpyc.lib import safe_import
-
 ssl = safe_import("ssl")
 
 
 class AuthenticationError(Exception):
     """raised to signal a failed authentication attempt"""
-
     pass
 
 
@@ -60,15 +57,8 @@ class SSLAuthenticator(object):
     service parameters.
     """
 
-    def __init__(
-        self,
-        keyfile,
-        certfile,
-        ca_certs=None,
-        cert_reqs=None,
-        ssl_version=None,
-        ciphers=None,
-    ):
+    def __init__(self, keyfile, certfile, ca_certs=None, cert_reqs=None,
+                 ssl_version=None, ciphers=None):
         self.keyfile = str(keyfile)
         self.certfile = str(certfile)
         self.ca_certs = str(ca_certs) if ca_certs else None

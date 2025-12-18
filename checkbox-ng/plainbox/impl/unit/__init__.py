@@ -49,7 +49,9 @@ def get_accessed_parameters(text, template_engine="default"):
         # formatting field) it _may_ be None if there are no format
         # parameters used
         return frozenset(
-            info[1] for info in string.Formatter().parse(text) if info[1] is not None
+            info[1]
+            for info in string.Formatter().parse(text)
+            if info[1] is not None
         )
 
 

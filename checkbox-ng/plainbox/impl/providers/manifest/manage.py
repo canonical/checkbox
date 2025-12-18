@@ -72,7 +72,9 @@ class InstallCommandExt(InstallCommand):
 
 if __name__ == "__main__":
     if manifest_def.effective_locale_dir:
-        bindtextdomain(manifest_def.gettext_domain, manifest_def.effective_locale_dir)
+        bindtextdomain(
+            manifest_def.gettext_domain, manifest_def.effective_locale_dir
+        )
     setup(
         name=manifest_def.name,
         version=manifest_def.version,

@@ -43,7 +43,9 @@ class TestGetFirmwareInfo(unittest.TestCase):
 
     @patch("json.loads")
     @patch("subprocess.run")
-    def test_get_deb_fwupd_version_key_not_match(self, mock_subporcess, mock_json):
+    def test_get_deb_fwupd_version_key_not_match(
+        self, mock_subporcess, mock_json
+    ):
 
         dict_resp = {
             "Services": [
@@ -112,7 +114,9 @@ class TestGetFirmwareInfo(unittest.TestCase):
 
     @patch("subprocess.run")
     @patch("checkbox_support.snap_utils.snapd.Snapd.list")
-    def test_get_firmware_data_by_fwupd_snap(self, mock_snapd, mock_subporcess):
+    def test_get_firmware_data_by_fwupd_snap(
+        self, mock_snapd, mock_subporcess
+    ):
 
         mock_snapd.return_value = {
             "id": "HpOj37PuyuaMUZY0NQhtwnp7oS5P8u5R",
@@ -121,7 +125,9 @@ class TestGetFirmwareInfo(unittest.TestCase):
         }
         get_firmware_info_fwupd.get_firmware_info_fwupd()
         mock_snapd.assert_called_with("fwupd")
-        mock_subporcess.assert_called_with(["fwupd.fwupdmgr", "get-devices", "--json"])
+        mock_subporcess.assert_called_with(
+            ["fwupd.fwupdmgr", "get-devices", "--json"]
+        )
 
     @patch.dict(os.environ, {"SNAP": "checkbox-snap"})
     @patch("subprocess.run")
@@ -137,7 +143,9 @@ class TestGetFirmwareInfo(unittest.TestCase):
         get_firmware_info_fwupd.get_firmware_info_fwupd()
         mock_snapd.assert_called_with("fwupd")
         self.assertEqual(os.environ.get("SNAP"), "checkbox-snap")
-        mock_subporcess.assert_called_with(["fwupdmgr", "get-devices", "--json"])
+        mock_subporcess.assert_called_with(
+            ["fwupdmgr", "get-devices", "--json"]
+        )
 
     @patch.dict(os.environ, {"SNAP": "checkbox-snap"})
     @patch("subprocess.run")
@@ -156,7 +164,9 @@ class TestGetFirmwareInfo(unittest.TestCase):
         mock_snapd.assert_called_with("fwupd")
         # SNAP env is empty after get_firmware_info_fwupd been called
         self.assertIsNone(os.environ.get("SNAP"))
-        mock_subporcess.assert_called_with(["fwupdmgr", "get-devices", "--json"])
+        mock_subporcess.assert_called_with(
+            ["fwupdmgr", "get-devices", "--json"]
+        )
 
     @patch("subprocess.run")
     @patch("get_firmware_info_fwupd.get_fwupd_runtime_version")
@@ -170,4 +180,6 @@ class TestGetFirmwareInfo(unittest.TestCase):
 
         get_firmware_info_fwupd.get_firmware_info_fwupd()
         mock_snapd.assert_called_with("fwupd")
-        mock_subporcess.assert_called_with(["fwupdmgr", "get-devices", "--json"])
+        mock_subporcess.assert_called_with(
+            ["fwupdmgr", "get-devices", "--json"]
+        )

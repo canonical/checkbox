@@ -98,7 +98,9 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
                     Part of profile(s): output:hdmi-stereo
         """
         self.assertEqual(
-            _guess_hdmi_profile(self.get_text("desktop-precise-radeon-hdmi-available")),
+            _guess_hdmi_profile(
+                self.get_text("desktop-precise-radeon-hdmi-available")
+            ),
             ("0", "output:hdmi-stereo"),
         )
 
@@ -158,7 +160,9 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
                     Part of profile(s): output:hdmi-stereo-extra2, output:hdmi-stereo-extra2+input:analog-stereo, output:hdmi-surround-extra2, output:hdmi-surround-extra2+input:analog-stereo
         """
         self.assertEqual(
-            _guess_hdmi_profile(self.get_text("desktop-raring-t430s-dp-available")),
+            _guess_hdmi_profile(
+                self.get_text("desktop-raring-t430s-dp-available")
+            ),
             ("2", "output:hdmi-stereo"),
         )
 

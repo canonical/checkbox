@@ -14,14 +14,18 @@ class TouchpadDevices:
     def _collect_devices(self):
         cmd = ["udevadm", "info", "--export-db"]
         try:
-            output = check_output(cmd).decode(sys.stdout.encoding, errors="ignore")
+            output = check_output(cmd).decode(
+                sys.stdout.encoding, errors="ignore"
+            )
         except CalledProcessError as err:
             sys.stderr.write(err)
             return
         udev = UdevadmParser(output)
         for device in udev.run():
             if getattr(device, "category") == "TOUCHPAD":
-                self.devices[getattr(device, "product_slug")] = getattr(device, "path")
+                self.devices[getattr(device, "product_slug")] = getattr(
+                    device, "path"
+                )
 
 
 def main():

@@ -31,7 +31,9 @@ author = "Canonical Ltd."
 # Here we just keep the version number and not any .devhash because that would
 #  make the CI/CD spellcheck fail mistaking any .devhash occurence for an
 #  unknown word
-release = re.match(r"(\d+\.{0,1})+", checkbox_ng.__version__).group(0).rstrip(".")
+release = (
+    re.match(r"(\d+\.{0,1})+", checkbox_ng.__version__).group(0).rstrip(".")
+)
 
 # Sidebar documentation title; best kept reasonably short
 html_title = project + " " + release + " documentation"
@@ -72,7 +74,9 @@ ogp_site_url = "https://canonical-checkbox.readthedocs-hosted.com/latest/"
 ogp_site_name = project
 
 # Preview image URL
-ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
+ogp_image = (
+    "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
+)
 
 
 # Product favicon; shown in bookmarks, browser tabs, etc.

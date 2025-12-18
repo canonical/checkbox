@@ -16,6 +16,8 @@ from plainbox.provider_manager import setup, N_
 setup(
     name="com.canonical.certification:checkbox-provider-iiotg",
     version="1.0",
-    description=N_("The com.canonical.certification:checkbox-provider-iiotg provider"),
+    description=N_(
+        "The com.canonical.certification:checkbox-provider-iiotg provider"
+    ),
     gettext_domain="com_canonical_certification_checkbox-provider-iiotg",
 )

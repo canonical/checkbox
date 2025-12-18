@@ -41,7 +41,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Collapse or rename a type definition in a JSON schema."
     )
-    parser.add_argument("schema", type=str, help="Path to the JSON schema file.")
+    parser.add_argument(
+        "schema", type=str, help="Path to the JSON schema file."
+    )
     parser.add_argument(
         "definition",
         type=str,

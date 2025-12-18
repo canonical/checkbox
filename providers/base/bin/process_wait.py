@@ -16,7 +16,9 @@ def process_pids(process, *options):
     command = COMMAND_FORMAT % {"options": options_string, "process": process}
 
     # Exclude this process and the pgrep process
-    subprocess = Popen(command, stdout=PIPE, shell=True, universal_newlines=True)
+    subprocess = Popen(
+        command, stdout=PIPE, shell=True, universal_newlines=True
+    )
     exclude_pids = [os.getpid(), os.getppid(), subprocess.pid]
 
     pids_string = subprocess.communicate()[0]

@@ -185,7 +185,9 @@ class SnapRefreshRevertTests(unittest.TestCase):
     @patch("os.getenv")
     def test_snap_refresh_exception(self, mock_getenv):
         mock_self = MagicMock()
-        mock_self.snapd.refresh.side_effect = SnapdRequestError("test msg", "test")
+        mock_self.snapd.refresh.side_effect = SnapdRequestError(
+            "test msg", "test"
+        )
         with self.assertRaises(SnapdRequestError):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 mock_getenv.return_value = tmpdirname
@@ -206,7 +208,9 @@ class SnapRefreshRevertTests(unittest.TestCase):
     @patch("snap_update_test.load_change_info")
     def test_snap_revert_exception(self, mock_load_change_info, mock_getenv):
         mock_self = MagicMock()
-        mock_self.snapd.revert.side_effect = SnapdRequestError("test msg", "test")
+        mock_self.snapd.revert.side_effect = SnapdRequestError(
+            "test msg", "test"
+        )
         with self.assertRaises(SnapdRequestError):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 mock_getenv.return_value = tmpdirname
@@ -215,7 +219,9 @@ class SnapRefreshRevertTests(unittest.TestCase):
     def test_verify_invalid(self):
         mock_self = MagicMock()
         with self.assertRaises(SystemExit):
-            snap_update_test.SnapRefreshRevert.verify(mock_self, type="invalid")
+            snap_update_test.SnapRefreshRevert.verify(
+                mock_self, type="invalid"
+            )
 
     @patch("snap_update_test.load_change_info")
     def test_verify_refresh_wrong_revision(self, mock_load_change):
@@ -226,7 +232,9 @@ class SnapRefreshRevertTests(unittest.TestCase):
         }
         mock_self.snapd.list.return_value = {"revision": "2"}
         with self.assertRaises(SystemExit):
-            snap_update_test.SnapRefreshRevert.verify(mock_self, type="refresh")
+            snap_update_test.SnapRefreshRevert.verify(
+                mock_self, type="refresh"
+            )
 
     @patch("snap_update_test.load_change_info")
     def test_verify_refresh_expected_revision(self, mock_load_change):

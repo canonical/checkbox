@@ -84,7 +84,9 @@ def load_configs(launcher_file=None, cfg=None):
         - anything that /etc/xdg/A imports has the lowest possible
             priority
     """
-    assert not (launcher_file and cfg), "config_filename in cfg will be ignored, FIXME"
+    assert not (
+        launcher_file and cfg
+    ), "config_filename in cfg will be ignored, FIXME"
     if not cfg:
         cfg = Configuration()
     if launcher_file:

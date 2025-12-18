@@ -66,7 +66,9 @@ def find_finished_time(log, action):
                     + int(timestamp[1]) * 60
                     + int(timestamp[2])
                 )
-                time_finished = timestamp_lastline - timestamp_finished + time_sec
+                time_finished = (
+                    timestamp_lastline - timestamp_finished + time_sec
+                )
                 return str(time_finished)
 
 
@@ -115,7 +117,9 @@ def main():
     args = parser.parse_args()
     path = "/var/log/"
     snapd = Snapd().list("snapd")
-    result = {"snapd": {"version": snapd["version"], "revision": snapd["revision"]}}
+    result = {
+        "snapd": {"version": snapd["version"], "revision": snapd["revision"]}
+    }
     if args.target == "snapd":
         snapd_id = check_change_id()
         log = {}
@@ -125,7 +129,9 @@ def main():
             if log:
                 if args.action == "timing":
                     for line in log.keys():
-                        result["snapd"][line] = str(parser_log(log[line], args.action))
+                        result["snapd"][line] = str(
+                            parser_log(log[line], args.action)
+                        )
                         print(
                             "Snapd {} takes : {} seconds".format(
                                 line, result["snapd"][line]

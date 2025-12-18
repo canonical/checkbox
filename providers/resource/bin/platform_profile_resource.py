@@ -31,7 +31,9 @@ def check_platform_profiles():
     choices_path = sysfs_root / "platform_profile_choices"
     profile_path = sysfs_root / "platform_profile"
 
-    supported = sysfs_root.exists() and choices_path.exists() and profile_path.exists()
+    supported = (
+        sysfs_root.exists() and choices_path.exists() and profile_path.exists()
+    )
 
     print("supported: {}".format(supported))
 

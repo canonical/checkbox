@@ -22,7 +22,7 @@ class RestreamedBytesIO(object):
                 if data is None or len(data) == 0:
                     break
                 self.rbuffer += self.decoder(data)
-            data, self.rbuffer = self.rbuffer, b""
+            data, self.rbuffer = self.rbuffer, b''
             self.sincereadwritten += len(data)
             return data
 
@@ -32,7 +32,7 @@ class RestreamedBytesIO(object):
             while len(self.rbuffer) < count:
                 data = self.substream.read(self.decoderunit)
                 if data is None or len(data) == 0:
-                    return b""
+                    return b''
                 self.rbuffer += self.decoder(data)
             data, self.rbuffer = self.rbuffer[:count], self.rbuffer[count:]
             self.sincereadwritten += count
@@ -42,25 +42,16 @@ class RestreamedBytesIO(object):
         self.wbuffer += data
         datalen = len(data)
         while len(self.wbuffer) >= self.encoderunit:
-            data, self.wbuffer = (
-                self.wbuffer[: self.encoderunit],
-                self.wbuffer[self.encoderunit :],
-            )
+            data, self.wbuffer = self.wbuffer[:self.encoderunit], self.wbuffer[self.encoderunit:]
             self.substream.write(self.encoder(data))
         self.sincereadwritten += datalen
         return datalen
 
     def close(self):
         if len(self.rbuffer):
-            raise ValueError(
-                "closing stream but %d unread bytes remain, %d is decoded unit"
-                % (len(self.rbuffer), self.decoderunit)
-            )
+            raise ValueError("closing stream but %d unread bytes remain, %d is decoded unit" % (len(self.rbuffer), self.decoderunit))
         if len(self.wbuffer):
-            raise ValueError(
-                "closing stream but %d unwritten bytes remain, %d is encoded unit"
-                % (len(self.wbuffer), self.encoderunit)
-            )
+            raise ValueError("closing stream but %d unwritten bytes remain, %d is encoded unit" % (len(self.wbuffer), self.encoderunit))
 
     def seek(self, at, whence=0):
         if whence == 0 and at == self.sincereadwritten:
@@ -97,14 +88,14 @@ class RebufferedBytesIO(object):
             raise IOError("could not read because tail was cut off")
         while self.moved + len(self.rwbuffer) < endsat:
             try:
-                newdata = self.substream.read(128 * 1024)
+                newdata = self.substream.read(128*1024)
             except BlockingIOError:
                 newdata = None
             if not newdata:
                 sleep(0)
                 continue
             self.rwbuffer += newdata
-        data = self.rwbuffer[startsat - self.moved : endsat - self.moved]
+        data = self.rwbuffer[startsat-self.moved:endsat-self.moved]
         self.offset += count
         if self.tailcutoff is not None and self.moved < self.offset - self.tailcutoff:
             removed = self.offset - self.tailcutoff - self.moved
@@ -118,15 +109,11 @@ class RebufferedBytesIO(object):
         startsat = self.offset
         endsat = startsat + len(data)
         while self.moved + len(self.rwbuffer) < startsat:
-            newdata = self.substream.read(128 * 1024)
+            newdata = self.substream.read(128*1024)
             self.rwbuffer += newdata
             if not newdata:
                 sleep(0)
-        self.rwbuffer = (
-            self.rwbuffer[: startsat - self.moved]
-            + data
-            + self.rwbuffer[endsat - self.moved :]
-        )
+        self.rwbuffer = self.rwbuffer[:startsat-self.moved] + data + self.rwbuffer[endsat-self.moved:]
         self.offset = endsat
         if self.tailcutoff is not None and self.moved < self.offset - self.tailcutoff:
             removed = self.offset - self.tailcutoff - self.moved

@@ -84,7 +84,8 @@ def main():
         "-t",
         "--timeout",
         type=int,
-        help="Specified max time allowed for Wifi/Wired to" " reconnect in seconds",
+        help="Specified max time allowed for Wifi/Wired to"
+        " reconnect in seconds",
         required=True,
     )
     parser.add_argument(
@@ -102,7 +103,8 @@ def main():
         return 0
 
     print(
-        "Your %s resumed in %s seconds after the last suspend" % (args.device, timedif)
+        "Your %s resumed in %s seconds after the last suspend"
+        % (args.device, timedif)
     )
     if timedif > args.timeout:
         print("FAIL: the network failed to reconnect within the allotted time")

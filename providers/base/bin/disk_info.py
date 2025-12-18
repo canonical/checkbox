@@ -61,9 +61,9 @@ def main():
             continue
         # Only consider MMC block devices if one of their mounted partitions is
         # root (/)
-        if blkdev["kname"].startswith("mmcblk") and not find_pkname_is_root_mountpoint(
-            blkdev["kname"], lsblk
-        ):
+        if blkdev["kname"].startswith(
+            "mmcblk"
+        ) and not find_pkname_is_root_mountpoint(blkdev["kname"], lsblk):
             continue
         # Don't consider any block dev mounted as snapd save partition
         if blkdev["mountpoint"] and "snapd/save" in blkdev["mountpoint"]:

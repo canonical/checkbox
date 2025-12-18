@@ -292,7 +292,9 @@ class CPUScalingHandler:
         Returns:
             str: The value of the specified attribute for the current policy.
         """
-        return self.get_attribute("cpufreq/policy{}/{}".format(self.policy, attr))
+        return self.get_attribute(
+            "cpufreq/policy{}/{}".format(self.policy, attr)
+        )
 
     def set_attribute(self, attr, value) -> bool:
         """
@@ -698,7 +700,9 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Userspace Governor Test on CPU policy%s", self.policy)
+        logging.info(
+            "Running Userspace Governor Test on CPU policy%s", self.policy
+        )
         governor = "userspace"
         return self.test_frequency_influence(
             governor,
@@ -716,7 +720,9 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Performance Governor Test on CPU policy%s", self.policy)
+        logging.info(
+            "Running Performance Governor Test on CPU policy%s", self.policy
+        )
         governor = "performance"
         return self.test_frequency_influence(governor)
 
@@ -728,7 +734,9 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Powersave Governor Test on CPU policy%s", self.policy)
+        logging.info(
+            "Running Powersave Governor Test on CPU policy%s", self.policy
+        )
         governor = "powersave"
         return self.test_frequency_influence(governor)
 
@@ -740,7 +748,9 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Ondemand Governor Test on CPU policy%s", self.policy)
+        logging.info(
+            "Running Ondemand Governor Test on CPU policy%s", self.policy
+        )
         governor = "ondemand"
         return self.test_frequency_influence(governor)
 
@@ -752,7 +762,9 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Conservative Governor Test on CPU policy%s", self.policy)
+        logging.info(
+            "Running Conservative Governor Test on CPU policy%s", self.policy
+        )
         governor = "conservative"
         return self.test_frequency_influence(governor)
 
@@ -764,7 +776,9 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Schedutil Governor Test on CPU policy%s", self.policy)
+        logging.info(
+            "Running Schedutil Governor Test on CPU policy%s", self.policy
+        )
         governor = "schedutil"
         return self.test_frequency_influence(governor)
 

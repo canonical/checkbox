@@ -188,7 +188,9 @@ class Explorer:
                 - all repositories
                     - all storages
         """
-        service_obj = PlainBoxObject(self, name="service object", group="service")
+        service_obj = PlainBoxObject(
+            self, name="service object", group="service"
+        )
         # Milk each provider for jobs and test plans
         for provider in self.provider_list:
             provider_obj = PlainBoxObject(

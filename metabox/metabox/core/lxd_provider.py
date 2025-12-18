@@ -91,9 +91,13 @@ class LxdMachineProvider:
                     #       by _create_machine and causes problems because it
                     #       will not contain up to date infos
                     self._owned_containers = [
-                        oc for oc in self._owned_containers if oc.config != config
+                        oc
+                        for oc in self._owned_containers
+                        if oc.config != config
                     ]
-                    self._create_machine(config, use_existing=self._use_existing)
+                    self._create_machine(
+                        config, use_existing=self._use_existing
+                    )
                 continue
             self._create_machine(config)
 
@@ -106,7 +110,9 @@ class LxdMachineProvider:
                 if container.status != "Running":
                     logger.debug("Starting {}...", container.name)
                     container.start(wait=True)
-                logger.debug("Retrieving config file for {}...", container.name)
+                logger.debug(
+                    "Retrieving config file for {}...", container.name
+                )
                 content = container.files.get(self.LXD_INTERNAL_CONFIG_PATH)
                 logger.debug("Stopping {}...", container.name)
                 container.stop(wait=True)
@@ -114,7 +120,9 @@ class LxdMachineProvider:
                 config = MachineConfig(config_dict["role"], config_dict)
                 logger.debug("Config: {}", repr(config))
             except NotFound:
-                logger.debug("Deleting {} because it has no config", container.name)
+                logger.debug(
+                    "Deleting {} because it has no config", container.name
+                )
                 container.stop(wait=True)
                 container.delete(wait=True)
                 continue
@@ -122,11 +130,17 @@ class LxdMachineProvider:
                 logger.warning("{}: {}", container.name, e)
                 continue
             if config in self._machine_config:
-                logger.debug("Adding {} to list of owned containers...", repr(config))
-                self._owned_containers.append(machine_selector(config, container))
+                logger.debug(
+                    "Adding {} to list of owned containers...", repr(config)
+                )
+                self._owned_containers.append(
+                    machine_selector(config, container)
+                )
 
     def _create_profiles(self):
-        profiles_path = pkg_resources.resource_filename("metabox", "lxd_profiles")
+        profiles_path = pkg_resources.resource_filename(
+            "metabox", "lxd_profiles"
+        )
         for profile_file in os.listdir(profiles_path):
             profile_name = Path(profile_file).stem
             with open(os.path.join(profiles_path, profile_file)) as f:
@@ -138,14 +152,18 @@ class LxdMachineProvider:
                 if "devices" in profile_dict:
                     profile.devices = profile_dict["devices"]
                 profile.save()
-                logger.debug("{} LXD profile updated successfully", profile_name)
+                logger.debug(
+                    "{} LXD profile updated successfully", profile_name
+                )
             else:
                 profile = self.client.profiles.create(
                     profile_name,
                     config=profile_dict.get("config", None),
                     devices=profile_dict.get("devices", None),
                 )
-                logger.debug("{} LXD profile created successfully", profile_name)
+                logger.debug(
+                    "{} LXD profile created successfully", profile_name
+                )
 
     def _create_container(self, config, name, use_existing=False):
         """
@@ -184,7 +202,9 @@ class LxdMachineProvider:
 
     def _create_machine(self, config, use_existing=False):
         if use_existing and not config.origin == "source":
-            raise ValueError("Use existing can not be enabled in non source runs")
+            raise ValueError(
+                "Use existing can not be enabled in non source runs"
+            )
         name = "metabox-{}".format(config)
         base_profiles = ["default", "checkbox"]
         alias = config.alias
@@ -215,7 +235,9 @@ class LxdMachineProvider:
             max_attempt = self.LXD_CREATE_TIMEOUT / self.LXD_POLL_INTERVAL
             while attempt < max_attempt:
                 time.sleep(self.LXD_POLL_INTERVAL)
-                (ret, out, err) = container.execute(["cloud-init", "status", "--long"])
+                (ret, out, err) = container.execute(
+                    ["cloud-init", "status", "--long"]
+                )
                 if "status: done" in out:
                     break
                 elif ret != 0:
@@ -224,8 +246,12 @@ class LxdMachineProvider:
                 attempt += 1
             else:
                 raise SystemExit("Timeout reached (still running cloud-init)")
-            logger.opt(colors=True).debug("[<y>created</y>     ] {}", container.name)
-            logger.opt(colors=True).debug("[<y>provisioning</y>] {}", container.name)
+            logger.opt(colors=True).debug(
+                "[<y>created</y>     ] {}", container.name
+            )
+            logger.opt(colors=True).debug(
+                "[<y>provisioning</y>] {}", container.name
+            )
             self._run_transfer_commands(machine)
             self._run_setup_commands(machine)
             self._store_config(machine)
@@ -235,12 +261,18 @@ class LxdMachineProvider:
                 with suppress(NotFound):
                     container.snapshots.get("provisioned").delete(wait=True)
                     logger.debug("Deleted old 'provisioned'")
-            logger.debug("Creating 'provisioned' snapshot for {}...", container.name)
-            container.snapshots.create("provisioned", stateful=False, wait=True)
+            logger.debug(
+                "Creating 'provisioned' snapshot for {}...", container.name
+            )
+            container.snapshots.create(
+                "provisioned", stateful=False, wait=True
+            )
             logger.debug("Starting container {}...", container.name)
             container.start(wait=True)
             self._owned_containers.append(machine)
-            logger.opt(colors=True).debug("[<y>provisioned</y> ] {}", container.name)
+            logger.opt(colors=True).debug(
+                "[<y>provisioned</y> ] {}", container.name
+            )
 
         except LXDAPIException as exc:
             error = self._api_exc_to_human(exc)
@@ -289,7 +321,9 @@ class LxdMachineProvider:
                 # Copy the mounted dir to the desired location
                 run_or_raise(
                     machine._container,
-                    "sudo cp -rT /{} {}".format(self.LXD_SOURCE_MOUNT_POINT, dest),
+                    "sudo cp -rT /{} {}".format(
+                        self.LXD_SOURCE_MOUNT_POINT, dest
+                    ),
                     verbose=self._debug_machine_setup,
                 )
                 # Own it to the correct user

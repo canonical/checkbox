@@ -68,7 +68,9 @@ def get_manifest_def():
     manifest_def.description = N_("Hardware Manifest Provider")
     manifest_def.secure = False
     manifest_def.gettext_domain = "plainbox-provider-manifest"
-    manifest_def.location = os.path.join(get_plainbox_dir(), "impl/providers/manifest")
+    manifest_def.location = os.path.join(
+        get_plainbox_dir(), "impl/providers/manifest"
+    )
     return manifest_def
 
 

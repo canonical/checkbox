@@ -188,9 +188,15 @@ class InstallCommand(ManageCommand):
         "unix": {
             "bin": os.path.join("{prefix}", "lib", "{provider.name}", "bin"),
             "build/mo": os.path.join("{prefix}", "share", "locale"),
-            "data": os.path.join("{prefix}", "share", "{provider.name}", "data"),
-            "jobs": os.path.join("{prefix}", "share", "{provider.name}", "jobs"),
-            "units": os.path.join("{prefix}", "share", "{provider.name}", "units"),
+            "data": os.path.join(
+                "{prefix}", "share", "{provider.name}", "data"
+            ),
+            "jobs": os.path.join(
+                "{prefix}", "share", "{provider.name}", "jobs"
+            ),
+            "units": os.path.join(
+                "{prefix}", "share", "{provider.name}", "units"
+            ),
             "po": None,
             "provider": os.path.join(
                 "{prefix}",
@@ -309,7 +315,10 @@ class InstallCommand(ManageCommand):
         parser.add_argument(
             "--root",
             default="",
-            help=_("install everything relative to this alternate root" " directory"),
+            help=_(
+                "install everything relative to this alternate root"
+                " directory"
+            ),
         )
         parser.set_defaults(command=self)
 
@@ -381,7 +390,9 @@ class InstallCommand(ManageCommand):
         # Compute directory layout
         dir_layout = self._INSTALL_LAYOUT[layout]
         return {
-            src_name: dest_name_template.format(prefix=prefix, provider=self.definition)
+            src_name: dest_name_template.format(
+                prefix=prefix, provider=self.definition
+            )
             for src_name, dest_name_template in dir_layout.items()
             if dest_name_template is not None
         }
@@ -398,7 +409,9 @@ class InstallCommand(ManageCommand):
             config_obj.set(
                 section,
                 "location",
-                self._LOCATION_TEMPLATE.format(prefix=prefix, provider=self.definition),
+                self._LOCATION_TEMPLATE.format(
+                    prefix=prefix, provider=self.definition
+                ),
             )
         elif layout == "relocatable":
             # The relocatable layout is also special, it just has the flag set
@@ -511,7 +524,9 @@ class SourceDistributionCommand(ManageCommand):
 
     @property
     def tarball_name(self):
-        return os.path.join(self.dist_dir, "{}.tar.gz".format(self.toplevel_name))
+        return os.path.join(
+            self.dist_dir, "{}.tar.gz".format(self.toplevel_name)
+        )
 
     def invoked(self, ns):
         """
@@ -536,7 +551,9 @@ class SourceDistributionCommand(ManageCommand):
                 if os.path.exists(src_name):
                     tarball.add(src_name, dst_name)
         subprocess.call(
-            "gpg --armor --sign --detach-sig {}.tar.gz".format(self.toplevel_name),
+            "gpg --armor --sign --detach-sig {}.tar.gz".format(
+                self.toplevel_name
+            ),
             shell=True,
             cwd=self.dist_dir,
         )
@@ -795,7 +812,9 @@ class BuildCommand(ManageCommand):
             os.makedirs(self.build_bin_dir)
         # Execute the build command
         env = dict(os.environ)
-        env["PLAINBOX_SRC_DIR"] = os.path.relpath(self.src_dir, self.build_bin_dir)
+        env["PLAINBOX_SRC_DIR"] = os.path.relpath(
+            self.src_dir, self.build_bin_dir
+        )
         retval = subprocess.call(
             self.build_cmd, shell=True, cwd=self.build_bin_dir, env=env
         )
@@ -958,7 +977,10 @@ class InfoCommand(ManageCommand):
         else:
             # TRANSLATORS: {} is the namespace of the test provider
             print(
-                "\t" + _("namespace: {} (derived from name)").format(provider.namespace)
+                "\t"
+                + _("namespace: {} (derived from name)").format(
+                    provider.namespace
+                )
             )
         # TRANSLATORS: {} is the name of the test provider
         print("\t" + _("description: {}").format(provider.tr_description()))
@@ -968,14 +990,20 @@ class InfoCommand(ManageCommand):
         print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
         unit_list, problem_list = provider.unit_list, provider.problem_list
         print(_("[Job Definitions]"))
-        self._display_units((unit for unit in unit_list if unit.Meta.name == "job"))
+        self._display_units(
+            (unit for unit in unit_list if unit.Meta.name == "job")
+        )
         print(_("[Test Plans]"))
         self._display_units(
             (unit for unit in unit_list if unit.Meta.name == "test plan")
         )
         print(_("[Other Units]"))
         self._display_units(
-            (unit for unit in unit_list if unit.Meta.name not in ("job", "test plan"))
+            (
+                unit
+                for unit in unit_list
+                if unit.Meta.name not in ("job", "test plan")
+            )
         )
         if problem_list:
             print("\t" + _("Some units could not be parsed correctly"))
@@ -1186,7 +1214,12 @@ class ValidateCommand(ManageCommand):
                     )
                 else:
                     print("{}".format(exc))
-            print(_("NOTE: subsequent units from problematic" " files are ignored"))
+            print(
+                _(
+                    "NOTE: subsequent units from problematic"
+                    " files are ignored"
+                )
+            )
         return unit_list, problem_list
 
     def validate_units(self, unit_list, ns):
@@ -1202,7 +1235,9 @@ class ValidateCommand(ManageCommand):
         _logger.info(_("Loading provider..."))
         provider = self.get_provider()
         _logger.info(_("Loading other providers..."))
-        all_providers = InsecureProvider1PlugInCollection(validate=False, check=False)
+        all_providers = InsecureProvider1PlugInCollection(
+            validate=False, check=False
+        )
         all_providers.load()
         provider_list = all_providers.get_all_plugin_objects()
         if all(p.name != provider.name for p in provider_list):
@@ -1249,9 +1284,15 @@ class ValidateCommand(ManageCommand):
                     hidden,
                 ).format(hidden)
             )
-            print(_("Run 'manage.py validate --strict --deprecated' for details"))
+            print(
+                _("Run 'manage.py validate --strict --deprecated' for details")
+            )
         if failed:
-            print(_("Validation of provider {0} has failed").format(provider.name))
+            print(
+                _("Validation of provider {0} has failed").format(
+                    provider.name
+                )
+            )
             return 1
         else:
             print(_("The provider seems to be valid"))
@@ -1265,7 +1306,9 @@ class ValidateCommand(ManageCommand):
             for exc in exc_list:
                 yield exc2issue(exc)
         if exc_list:
-            print(_("NOTE: subsequent units from problematic files are ignored"))
+            print(
+                _("NOTE: subsequent units from problematic files are ignored")
+            )
 
     def validate_units_in_context(self, context, unit_list):
         for unit in unit_list:
@@ -1427,7 +1470,9 @@ class I18NCommand(ManageCommand):
             self._cmd(
                 [
                     "intltool-update",
-                    "--gettext-package={}".format(self.definition.gettext_domain),
+                    "--gettext-package={}".format(
+                        self.definition.gettext_domain
+                    ),
                     "--dist",
                     lang,
                 ],
@@ -1448,7 +1493,9 @@ class I18NCommand(ManageCommand):
                     "{}/{}.po".format(os.path.relpath(self.po_dir), lang),
                     "-o",
                     os.path.relpath(
-                        "{}/{}.mo".format(mo_dir, self.definition.gettext_domain)
+                        "{}/{}.mo".format(
+                            mo_dir, self.definition.gettext_domain
+                        )
                     ),
                 ],
                 None,
@@ -1563,7 +1610,9 @@ def create_subprocess_test(*args, **kwargs):
 def create_inline_shellcheck_test(command):
     """Creates the target for the monkey patched methods in ShellcheckTests"""
 
-    return create_subprocess_test(["shellcheck", "-", "--shell=bash"], input=command)
+    return create_subprocess_test(
+        ["shellcheck", "-", "--shell=bash"], input=command
+    )
 
 
 def create_shellcheck_test(shellfile):
@@ -1613,7 +1662,9 @@ class TestCommand(ManageCommand):
             action="store_true",
             help=_("Only job inline commands"),
         )
-        group.add_argument("-f", "--flake8", action="store_true", help=_("Only Flake8"))
+        group.add_argument(
+            "-f", "--flake8", action="store_true", help=_("Only Flake8")
+        )
         group.add_argument(
             "-s",
             "--shellcheck",
@@ -1631,7 +1682,9 @@ class TestCommand(ManageCommand):
             help=_("Only tests/test class with name matching the glob"),
             default="*",
         )
-        group.add_argument("-v", help=_("Enable verbose output"), action="store_true")
+        group.add_argument(
+            "-v", help=_("Enable verbose output"), action="store_true"
+        )
 
     def get_sh_tests(self):
         # create unittest for each bin/*.sh file
@@ -1666,7 +1719,9 @@ class TestCommand(ManageCommand):
                 resource = Resource(
                     {
                         key: key.upper()
-                        for key in set(itertools.chain(*accessed_parameters.values()))
+                        for key in set(
+                            itertools.chain(*accessed_parameters.values())
+                        )
                     }
                 )
                 command = unit.instantiate_one(resource).command
@@ -1706,13 +1761,19 @@ class TestCommand(ManageCommand):
         # and it is not supported
         if ns.k != "*" and not hasattr(defaultTestLoader, "testNamePatterns"):
             # testNamePatterns is 3.7+
-            _logger.error("-k used but your python version is too old to support it")
+            _logger.error(
+                "-k used but your python version is too old to support it"
+            )
         else:
             defaultTestLoader.testNamePatterns = [self._starwrap(ns.k)]
 
-        shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(self.get_sh_tests())
+        shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
+            self.get_sh_tests()
+        )
 
-        flake8_suite = defaultTestLoader.loadTestsFromTestCase(self.get_flake8_tests())
+        flake8_suite = defaultTestLoader.loadTestsFromTestCase(
+            self.get_flake8_tests()
+        )
 
         inline_shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
             self.get_inline_shellcheck_tests()
@@ -1824,7 +1885,11 @@ class ProviderManagerTool(ToolBase):
             prog=self.get_exec_name(),
             # TRANSLATORS: please keep 'manage.py', '--help', '--version'
             # untranslated. Translate only '[options]'
-            usage=_("{} [--help] [--version] [options]".format(self.get_exec_name())),
+            usage=_(
+                "{} [--help] [--version] [options]".format(
+                    self.get_exec_name()
+                )
+            ),
         )
         parser.add_argument(
             "--version",

@@ -90,7 +90,9 @@ class TestI2CDevice(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             self.device.invoked(self.mock_args)
 
-        self.assertIn("Error: please run this command as root", str(cm.exception))
+        self.assertIn(
+            "Error: please run this command as root", str(cm.exception)
+        )
 
     @patch("i2c_driver_test.subprocess.check_output")
     @patch("i2c_driver_test.os.geteuid", return_value=0)
@@ -110,7 +112,9 @@ class TestI2CDevice(unittest.TestCase):
 
         calls = mock_check_output.call_args_list
 
-        self.assertIn(call(["i2cdetect", "-l"], universal_newlines=True), calls)
+        self.assertIn(
+            call(["i2cdetect", "-l"], universal_newlines=True), calls
+        )
         self.assertIn(
             call(["i2cdetect", "-y", "-r", "0"], universal_newlines=True),
             calls,
@@ -134,7 +138,9 @@ class TestI2CDevice(unittest.TestCase):
 
         calls = mock_check_output.call_args_list
 
-        self.assertIn(call(["i2cdetect", "-l"], universal_newlines=True), calls)
+        self.assertIn(
+            call(["i2cdetect", "-l"], universal_newlines=True), calls
+        )
         self.assertIn(
             call(["i2cdetect", "-y", "-r", "1"], universal_newlines=True),
             calls,
@@ -142,7 +148,9 @@ class TestI2CDevice(unittest.TestCase):
 
     @patch("i2c_driver_test.subprocess.check_output")
     @patch("i2c_driver_test.os.geteuid", return_value=0)
-    def test_device_fails_if_no_devices_found(self, mock_geteuid, mock_check_output):
+    def test_device_fails_if_no_devices_found(
+        self, mock_geteuid, mock_check_output
+    ):
         """
         Test fails (raises SystemExit) if no devices are found on any bus.
         """
@@ -168,7 +176,9 @@ class TestI2CDevice(unittest.TestCase):
     )
     @patch("i2c_driver_test.subprocess.check_output")
     @patch("i2c_driver_test.os.geteuid", return_value=0)
-    def test_device_ignores_buses_from_env(self, mock_geteuid, mock_check_output):
+    def test_device_ignores_buses_from_env(
+        self, mock_geteuid, mock_check_output
+    ):
         """Test that buses from IGNORED_I2C_BUSES are not scanned."""
         mock_check_output.side_effect = mock_subprocess_check_output
 
@@ -177,7 +187,9 @@ class TestI2CDevice(unittest.TestCase):
 
         calls = mock_check_output.call_args_list
 
-        self.assertIn(call(["i2cdetect", "-l"], universal_newlines=True), calls)
+        self.assertIn(
+            call(["i2cdetect", "-l"], universal_newlines=True), calls
+        )
         self.assertNotIn(
             call(["i2cdetect", "-y", "-r", "0"], universal_newlines=True),
             calls,

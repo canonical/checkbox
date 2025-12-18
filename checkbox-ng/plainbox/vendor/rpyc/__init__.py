@@ -25,57 +25,21 @@ Classic-style usage::
     ...
 
 """
-
 # flake8: noqa: F401
-from plainbox.vendor.rpyc.core import (
-    SocketStream,
-    TunneledSocketStream,
-    PipeStream,
-    Channel,
-    Connection,
-    Service,
-    BaseNetref,
-    AsyncResult,
-    GenericException,
-    AsyncResultTimeout,
-    VoidService,
-    SlaveService,
-    MasterService,
-    ClassicService,
-)
-from plainbox.vendor.rpyc.utils.factory import (
-    connect_stream,
-    connect_channel,
-    connect_pipes,
-    connect_stdpipes,
-    connect,
-    ssl_connect,
-    list_services,
-    discover,
-    connect_by_service,
-    connect_subproc,
-    connect_thread,
-    ssh_connect,
-)
-from plainbox.vendor.rpyc.utils.helpers import (
-    async_,
-    timed,
-    buffiter,
-    BgServingThread,
-    restricted,
-)
+from plainbox.vendor.rpyc.core import (SocketStream, TunneledSocketStream, PipeStream, Channel,
+                       Connection, Service, BaseNetref, AsyncResult, GenericException,
+                       AsyncResultTimeout, VoidService, SlaveService, MasterService, ClassicService)
+from plainbox.vendor.rpyc.utils.factory import (connect_stream, connect_channel, connect_pipes,
+                                connect_stdpipes, connect, ssl_connect, list_services, discover, connect_by_service, connect_subproc,
+                                connect_thread, ssh_connect)
+from plainbox.vendor.rpyc.utils.helpers import async_, timed, buffiter, BgServingThread, restricted
 from plainbox.vendor.rpyc.utils import classic, exposed, service
 from plainbox.vendor.rpyc.version import __version__
 
 from plainbox.vendor.rpyc.lib import setup_logger, spawn
-from plainbox.vendor.rpyc.utils.server import (
-    OneShotServer,
-    ThreadedServer,
-    ThreadPoolServer,
-    ForkingServer,
-)
+from plainbox.vendor.rpyc.utils.server import OneShotServer, ThreadedServer, ThreadPoolServer, ForkingServer
 from plainbox.vendor.rpyc import cli
 
 __author__ = "Tomer Filiba (tomerfiliba@gmail.com)"
 
-globals()["async"] = async_  # backward compatibility
+globals()['async'] = async_     # backward compatibility

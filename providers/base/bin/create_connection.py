@@ -101,7 +101,9 @@ autoconnect=false
     return connection_section
 
 
-def mobilebroadband_type_section(connection_type, apn, username, password, pin):
+def mobilebroadband_type_section(
+    connection_type, apn, username, password, pin
+):
     number = "*99#" if connection_type == "gsm" else "#777"
     type_section = """
 [{type}]
@@ -203,7 +205,8 @@ def create_wifi_connection(args):
         # Set security options
         if not args.key:
             print(
-                "You need to specify a key using --key " "if using wireless security.",
+                "You need to specify a key using --key "
+                "if using wireless security.",
                 file=sys.stderr,
             )
             sys.exit(1)
@@ -260,7 +263,9 @@ def main():
     parser = ArgumentParser()
     subparsers = parser.add_subparsers(help="sub command help")
 
-    wifi_parser = subparsers.add_parser("wifi", help="Create a Wifi connection.")
+    wifi_parser = subparsers.add_parser(
+        "wifi", help="Create a Wifi connection."
+    )
     wifi_parser.add_argument("ssid", help="The SSID to connect to.")
     wifi_parser.add_argument(
         "-S",
@@ -287,7 +292,9 @@ def main():
     mobilebroadband_parser.add_argument(
         "-n", "--name", default="MobileBB", help="The name of the connection."
     )
-    mobilebroadband_parser.add_argument("-a", "--apn", help="The APN to connect to.")
+    mobilebroadband_parser.add_argument(
+        "-a", "--apn", help="The APN to connect to."
+    )
     mobilebroadband_parser.add_argument(
         "-u",
         "--username",

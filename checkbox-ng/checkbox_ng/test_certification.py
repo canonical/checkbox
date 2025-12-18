@@ -59,14 +59,18 @@ class SubmissionServiceTransportTests(TestCase):
 
     def setUp(self):
         self.sample_archive = BytesIO(
-            resource_string("plainbox", "test-data/tar-exporter/example-data.tar.xz")
+            resource_string(
+                "plainbox", "test-data/tar-exporter/example-data.tar.xz"
+            )
         )
         self.patcher = mock.patch("requests.post")
         self.mock_requests = self.patcher.start()
 
     def test_parameter_parsing(self):
         # Makes sense since I'm overriding the base class's constructor.
-        transport = SubmissionServiceTransport(self.valid_url, self.valid_option_string)
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
         self.assertEqual(self.valid_url, transport.url)
         self.assertEqual(self.valid_secure_id, transport.options["secure_id"])
 
@@ -107,7 +111,9 @@ class SubmissionServiceTransportTests(TestCase):
         requests.post.assert_called_with(self.unreachable_url, data=dummy_data)
 
     def test_send_success(self):
-        transport = SubmissionServiceTransport(self.valid_url, self.valid_option_string)
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
         requests.post.return_value = MagicMock(name="response")
         requests.post.return_value.status_code = 200
         requests.post.return_value.text = '{"id": 768}'
@@ -115,7 +121,9 @@ class SubmissionServiceTransportTests(TestCase):
         self.assertTrue(result)
 
     def test_send_failure(self):
-        transport = SubmissionServiceTransport(self.valid_url, self.valid_option_string)
+        transport = SubmissionServiceTransport(
+            self.valid_url, self.valid_option_string
+        )
         requests.post.return_value = MagicMock(name="response")
         requests.post.return_value.status_code = 412
         requests.post.return_value.text = "Some error"
@@ -123,6 +131,8 @@ class SubmissionServiceTransportTests(TestCase):
         # so I have to mock *that* method as well..
         response = requests.Response()
         error = HTTPError(response=response)
-        requests.post.return_value.raise_for_status = MagicMock(side_effect=error)
+        requests.post.return_value.raise_for_status = MagicMock(
+            side_effect=error
+        )
         with self.assertRaises(TransportError):
             transport.send(self.sample_archive)

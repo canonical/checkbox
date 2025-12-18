@@ -63,7 +63,9 @@ class TestCheckIwlwifi(unittest.TestCase):
 
         # When used with --output json, journalctl outputs one json object per
         # line. Reconstructing it as it originally appears...
-        mock_sb_co.return_value = "\n".join([json.dumps(msg) for msg in journal_json])
+        mock_sb_co.return_value = "\n".join(
+            [json.dumps(msg) for msg in journal_json]
+        )
         linux_version = get_kernel_version_from_journal("")
         self.assertEqual(linux_version, "6.11.0-21-generic")
 
@@ -75,7 +77,9 @@ class TestCheckIwlwifi(unittest.TestCase):
     @patch("check_iwlwifi_microcode_errors.subprocess.check_output")
     def test_check_error_found(self, mock_sb_co):
         mock_sb_co.return_value = "line1\nMicrocode SW error detected\nline3"
-        with self.assertRaisesRegex(SystemExit, "error detected during boot 1"):
+        with self.assertRaisesRegex(
+            SystemExit, "error detected during boot 1"
+        ):
             check_error("1")
 
     @patch("check_iwlwifi_microcode_errors.get_boot_ids")
@@ -89,7 +93,9 @@ class TestCheckIwlwifi(unittest.TestCase):
         main()
         mock_ce.assert_any_call("1")
         mock_ce.assert_any_call("2")
-        mock_print.assert_called_once_with("No microcode software errors detected.")
+        mock_print.assert_called_once_with(
+            "No microcode software errors detected."
+        )
 
     @patch("check_iwlwifi_microcode_errors.get_boot_ids")
     @patch("check_iwlwifi_microcode_errors.get_kernel_version_from_journal")
@@ -101,7 +107,9 @@ class TestCheckIwlwifi(unittest.TestCase):
 
         main()
         mock_ce.assert_not_called()
-        mock_print.assert_called_once_with("No microcode software errors detected.")
+        mock_print.assert_called_once_with(
+            "No microcode software errors detected."
+        )
 
     @patch("subprocess.check_output")
     def test_text_fallback_list_boots(self, mock_sp_check_output):

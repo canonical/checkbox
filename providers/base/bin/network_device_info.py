@@ -55,13 +55,19 @@ class Utils:
                 label_start = line.find(key)
                 data_start = label_start + len(key)
                 output_line = True
-            if output_line is True and line[label_start] != " " and key not in line:
+            if (
+                output_line is True
+                and line[label_start] != " "
+                and key not in line
+            ):
                 output_line = False
             if output_line:
                 data.append(line[data_start:].strip())
                 if len(data) == 0:
                     data.append("Not reported")
-            result = "\n" + "".join(["\t" + item + "\n" for item in natsorted(data)])
+            result = "\n" + "".join(
+                ["\t" + item + "\n" for item in natsorted(data)]
+            )
         result = result.rstrip()
         return result
 
@@ -334,7 +340,9 @@ class NMDevices:
         for d in self._devices:
             bus = dbus.SystemBus()
             dev_proxy = bus.get_object("org.freedesktop.NetworkManager", d)
-            prop_iface = dbus.Interface(dev_proxy, "org.freedesktop.DBus.Properties")
+            prop_iface = dbus.Interface(
+                dev_proxy, "org.freedesktop.DBus.Properties"
+            )
             props = prop_iface.GetAll("org.freedesktop.NetworkManager.Device")
             devtype = self.devtypes.get(props.get("DeviceType"))
             if devtype is None:
@@ -369,13 +377,18 @@ class UdevDevices:
     def _collect_devices(self):
         cmd = ["udevadm", "info", "--export-db"]
         try:
-            output = check_output(cmd).decode(sys.stdout.encoding, errors="ignore")
+            output = check_output(cmd).decode(
+                sys.stdout.encoding, errors="ignore"
+            )
         except CalledProcessError as err:
             sys.stderr.write(err)
             return
         udev = UdevadmParser(output)
         for device in udev.run():
-            if device.category == self.category and device.interface != "UNKNOWN":
+            if (
+                device.category == self.category
+                and device.interface != "UNKNOWN"
+            ):
                 self._devices.append(device)
 
     def devices(self):

@@ -344,7 +344,9 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     """
 
     print(
-        "Attempting to connect to '{}' on '{}'...".format(mlo_ssid, wifi_interface),
+        "Attempting to connect to '{}' on '{}'...".format(
+            mlo_ssid, wifi_interface
+        ),
         # force a flush to print this before the connection
         flush=True,
     )
@@ -430,7 +432,9 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
         # DUT pretty much has to be next to the AP for this
         print(
             "[ WARN ] Expected 4096QAM (MCS12 or 13),",
-            "but got tx MCS={}, rx MCS={}.".format(tx and tx.mcs, rx and rx.mcs),
+            "but got tx MCS={}, rx MCS={}.".format(
+                tx and tx.mcs, rx and rx.mcs
+            ),
             "Which MCS is chosen by the AP is",
             "highly dependent on the environment.",
             "Try moving the DUT next to the AP and run the test again.",
@@ -483,7 +487,9 @@ def main():
                 # we can't use 'nmcli c up' to restore the connection
                 # because it would've been deleted.
                 # instead, call connect() again
-                print("Restoring connection by name:", args.mlo_ssid, flush=True)
+                print(
+                    "Restoring connection by name:", args.mlo_ssid, flush=True
+                )
                 connect(args.mlo_ssid, args.password, wifi_interface)
             else:
                 print("Restoring connection by uuid:", conn_uuid, flush=True)

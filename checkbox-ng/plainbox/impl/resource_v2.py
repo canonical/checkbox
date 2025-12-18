@@ -134,14 +134,18 @@ class CallGetter(NamespacedGetter):
     }
 
     def _get_common_namespace(self, args):
-        namespaces = {arg.namespace for arg in args if hasattr(arg, "namespace")}
+        namespaces = {
+            arg.namespace for arg in args if hasattr(arg, "namespace")
+        }
         if len(namespaces) > 1:
             raise UnsupportedGrammar(
                 "Function call can access at most one namespace but this is "
                 "using: " + " ".join(namespaces)
             )
         elif len(namespaces) == 0:
-            raise UnsupportedGrammar("Function calls with no namespace are unsupported")
+            raise UnsupportedGrammar(
+                "Function calls with no namespace are unsupported"
+            )
         return namespaces.pop()
 
     def __init__(self, parsed_ast):
@@ -149,7 +153,9 @@ class CallGetter(NamespacedGetter):
             self.function_name = parsed_ast.func.id
             self.function = self.CALLS_MEANING[parsed_ast.func.id]
         except KeyError:
-            raise UnsupportedGrammar("Unknown function called", parsed_ast=parsed_ast)
+            raise UnsupportedGrammar(
+                "Unknown function called", parsed_ast=parsed_ast
+            )
 
         self.args = [getter_from_ast(arg) for arg in parsed_ast.args]
         self.namespace = self._get_common_namespace(self.args)
@@ -229,7 +235,9 @@ class NamedConstant(ConstantGetter):
 class ListGetter(ConstantGetter):
     def __init__(self, parsed_ast):
         values_getters = [getter_from_ast(value) for value in parsed_ast.elts]
-        if any(isinstance(value, NamespacedGetter) for value in values_getters):
+        if any(
+            isinstance(value, NamespacedGetter) for value in values_getters
+        ):
             raise UnsupportedGrammar(
                 "Unsupported collection of non-constant values",
                 parsed_ast=parsed_ast,
@@ -411,16 +419,23 @@ class ConstraintExplainer(Constraint):
 
     @classmethod
     def parse_from_ast(cls, parsed_ast, explain_callback):
-        to_r = super().parse_from_ast(parsed_ast, explain_callback=explain_callback)
+        to_r = super().parse_from_ast(
+            parsed_ast, explain_callback=explain_callback
+        )
         return to_r
 
-    def get_namespace_state(self, namespaces, namespace, max_namespace_items) -> list:
+    def get_namespace_state(
+        self, namespaces, namespace, max_namespace_items
+    ) -> list:
         # we need to pretty print the namespace without destroying the
         # iterators inside it
-        namespaces[namespace], printable = itertools.tee(namespaces[namespace], 2)
+        namespaces[namespace], printable = itertools.tee(
+            namespaces[namespace], 2
+        )
         # take at most max_namespace_items
         filtered_list = [
-            filtered for i, filtered in zip(range(max_namespace_items), printable)
+            filtered
+            for i, filtered in zip(range(max_namespace_items), printable)
         ]
         try:
             # note [...] if we are truncating to max_namespace_items
@@ -496,9 +511,13 @@ class Namespace:
             return self.namespace[key]
         except KeyError as e:
             with contextlib.suppress(KeyError):
-                return self.namespace["{}::{}".format(self.implicit_namespace, key)]
+                return self.namespace[
+                    "{}::{}".format(self.implicit_namespace, key)
+                ]
             with contextlib.suppress(KeyError):
-                return self.namespace["{}::{}".format(self.DEFAULT_NAMESPACE, key)]
+                return self.namespace[
+                    "{}::{}".format(self.DEFAULT_NAMESPACE, key)
+                ]
             raise UnknownResource from e
 
     def __setitem__(self, key, value):
@@ -506,7 +525,9 @@ class Namespace:
             self.namespace[key] = value
             return
 
-        implicit_namespaced_name = "{}::{}".format(self.implicit_namespace, key)
+        implicit_namespaced_name = "{}::{}".format(
+            self.implicit_namespace, key
+        )
         if implicit_namespaced_name in self:
             self.namespace[implicit_namespaced_name] = value
             return
@@ -545,11 +566,16 @@ class Namespace:
         )
 
     def duplicate_namespace(self, count: int):
-        duplicated_namespace = {x: itertools.tee(y, count) for (x, y) in self.items()}
+        duplicated_namespace = {
+            x: itertools.tee(y, count) for (x, y) in self.items()
+        }
         namespaces = [
             Namespace(
                 self.implicit_namespace,
-                {key: duplicated_namespace[key][i] for key in duplicated_namespace},
+                {
+                    key: duplicated_namespace[key][i]
+                    for key in duplicated_namespace
+                },
             )
             for i in range(count)
         ]
@@ -573,26 +599,34 @@ def _prepare_filter(ast_item: ast.AST, namespace, constraint_class):
     parsed_expr ~= 'a.v > 1'
     output_namespace = {'a' : (x for x in input_namespace['a'] if x['v'] > 1) }
     """
-    raise NotImplementedError("Unsupported ast item: {}".format(ast.dump(ast_item)))
+    raise NotImplementedError(
+        "Unsupported ast item: {}".format(ast.dump(ast_item))
+    )
 
 
 @_prepare_filter.register(ast.BoolOp)
 def _prepare_boolop(bool_op, namespace, constraint_class):
     if isinstance(bool_op.op, ast.And):
         return functools.reduce(
-            lambda ns, constraint: _prepare_filter(constraint, ns, constraint_class),
+            lambda ns, constraint: _prepare_filter(
+                constraint, ns, constraint_class
+            ),
             bool_op.values,
             namespace,
         )
     elif isinstance(bool_op.op, ast.Or):
-        duplicated_namespaces = namespace.duplicate_namespace(len(bool_op.values))
+        duplicated_namespaces = namespace.duplicate_namespace(
+            len(bool_op.values)
+        )
         ns_constraint = zip(duplicated_namespaces, bool_op.values)
         filtered_namespaces = (
             _prepare_filter(constraint, namespace, constraint_class)
             for namespace, constraint in ns_constraint
         )
         return functools.reduce(Namespace.namespace_union, filtered_namespaces)
-    raise UnsupportedGrammar("Unsupported boolean operator", parsed_ast=bool_op.op)
+    raise UnsupportedGrammar(
+        "Unsupported boolean operator", parsed_ast=bool_op.op
+    )
 
 
 @_prepare_filter.register(ast.Expression)
@@ -644,7 +678,9 @@ def prepare(
         CC = Constraint.parse_from_ast
     if isinstance(expr, str):
         expr = ast.parse(expr, mode="eval")
-    return _prepare_filter(expr, Namespace(implicit_namespace, copy(namespace)), CC)
+    return _prepare_filter(
+        expr, Namespace(implicit_namespace, copy(namespace)), CC
+    )
 
 
 def evaluate_lazy(

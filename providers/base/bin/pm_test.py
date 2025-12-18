@@ -102,7 +102,9 @@ class PowerManagementOperation:
         self.extra_args = extra_args
         self.user = user
         self.dry_run = dry_run
-        self.hw_list_start = os.path.join(self.args.log_dir, "hardware.at_start")
+        self.hw_list_start = os.path.join(
+            self.args.log_dir, "hardware.at_start"
+        )
 
     def setup(self):
         """
@@ -138,10 +140,14 @@ class PowerManagementOperation:
             now = datetime.now()
             pm_time = now - pm_timestamp
             logging.info(
-                "{0} time: {1}".format(self.args.pm_operation.capitalize(), pm_time)
+                "{0} time: {1}".format(
+                    self.args.pm_operation.capitalize(), pm_time
+                )
             )
         if self.args.repetitions > 0:
-            self.run_suspend_cycles(self.args.suspends_before_reboot, self.args.fwts)
+            self.run_suspend_cycles(
+                self.args.suspends_before_reboot, self.args.fwts
+            )
             self.run_pm_command()
             if self.args.check_hardware_list:
                 self.check_hw_list()
@@ -165,14 +171,18 @@ class PowerManagementOperation:
         # A small sleep time is added to reboot and poweroff
         # so that script has time to return a value
         # (useful when running it as an automated test)
-        command_str = "sleep {0}; {1}".format(self.SLEEP_TIME, self.args.pm_operation)
+        command_str = "sleep {0}; {1}".format(
+            self.SLEEP_TIME, self.args.pm_operation
+        )
         if self.extra_args:
             command_str += " {0}".format(" ".join(self.extra_args))
 
         if self.args.pm_operation != "reboot":
             WakeUpAlarm.set(seconds=self.args.wakeup)
 
-        logging.info("Executing new {0!r} operation...".format(self.args.pm_operation))
+        logging.info(
+            "Executing new {0!r} operation...".format(self.args.pm_operation)
+        )
         logging.debug("Executing: {0!r}...".format(command_str))
         if self.dry_run:
             print("\n\nRUNNING IN DRY-RUN MODE")
@@ -194,11 +204,13 @@ class PowerManagementOperation:
         if fwts:
             script_path = "checkbox-support-fwts_test"
             command_tpl = (
-                "-s s3 --s3-device-check " "--s3-sleep-delay=30 --s3-multiple={}"
+                "-s s3 --s3-device-check "
+                "--s3-sleep-delay=30 --s3-multiple={}"
             )
             if self.args.log_dir:
                 command_tpl = (
-                    "--log={}/fwts.log ".format(self.args.log_dir) + command_tpl
+                    "--log={}/fwts.log ".format(self.args.log_dir)
+                    + command_tpl
                 )
             command_tpl = "{} " + command_tpl
         else:
@@ -254,7 +266,9 @@ class PowerManagementOperation:
             sleep_time = timedelta(seconds=self.args.wakeup)
 
         wait_time = timedelta(
-            seconds=(self.args.pm_delay + self.args.hardware_delay * self.args.total)
+            seconds=(
+                self.args.pm_delay + self.args.hardware_delay * self.args.total
+            )
         )
         average = (end - start - wait_time) / self.args.total - sleep_time
         time_message = (
@@ -265,9 +279,13 @@ class PowerManagementOperation:
         )
         logging.info(time_message)
 
-        message = "{0} test complete".format(self.args.pm_operation.capitalize())
+        message = "{0} test complete".format(
+            self.args.pm_operation.capitalize()
+        )
         if self.args.suspends_before_reboot:
-            total_suspends_expected = self.args.suspends_before_reboot * self.args.total
+            total_suspends_expected = (
+                self.args.suspends_before_reboot * self.args.total
+            )
             problems = ""
             fwts_log_path = os.path.join(self.args.log_dir, "fwts.log")
             try:
@@ -281,7 +299,9 @@ class PowerManagementOperation:
                     if count != total_suspends_expected:
                         problems = (
                             "Found {} occurrences of S3/S2idle."
-                            " Expected {}".format(count, total_suspends_expected)
+                            " Expected {}".format(
+                                count, total_suspends_expected
+                            )
                         )
             except FileNotFoundError:
                 problems = "Error opening {}".format(fwts_log_path)
@@ -332,8 +352,12 @@ class PowerManagementOperation:
 
     def get_hw_list(self):
         try:
-            content = subprocess.check_output("lspci", encoding=sys.stdout.encoding)
-            content += subprocess.check_output("lsusb", encoding=sys.stdout.encoding)
+            content = subprocess.check_output(
+                "lspci", encoding=sys.stdout.encoding
+            )
+            content += subprocess.check_output(
+                "lsusb", encoding=sys.stdout.encoding
+            )
             return content
         except subprocess.CalledProcessError as exc:
             logging.warning("Problem running lspci or lsusb: %s", exc)
@@ -410,7 +434,9 @@ class WakeUpAlarm:
                 logging.debug(
                     "Wakeup timestamp: {0} ({1})".format(
                         wakeup_time_stored,
-                        datetime.fromtimestamp(wakeup_time_stored).strftime("%c"),
+                        datetime.fromtimestamp(wakeup_time_stored).strftime(
+                            "%c"
+                        ),
                     )
                 )
             except ValueError as e:
@@ -425,10 +451,17 @@ class WakeUpAlarm:
 
         with open(cls.RTC_FILENAME) as rtc_file:
             separator_regex = re.compile(r"\s+:\s+")
-            rtc_data = dict([separator_regex.split(line.rstrip()) for line in rtc_file])
+            rtc_data = dict(
+                [separator_regex.split(line.rstrip()) for line in rtc_file]
+            )
             logging.debug(
                 "RTC data:\n{0}".format(
-                    "\n".join(["- {0}: {1}".format(*pair) for pair in rtc_data.items()])
+                    "\n".join(
+                        [
+                            "- {0}: {1}".format(*pair)
+                            for pair in rtc_data.items()
+                        ]
+                    )
                 )
             )
 
@@ -436,13 +469,17 @@ class WakeUpAlarm:
             # by looking into the alarm_IRQ and alrm_date field
             if rtc_data["alarm_IRQ"] != "yes":
                 logging.error(
-                    "alarm_IRQ not set properly: {0}".format(rtc_data["alarm_IRQ"])
+                    "alarm_IRQ not set properly: {0}".format(
+                        rtc_data["alarm_IRQ"]
+                    )
                 )
                 sys.exit(1)
 
             if "*" in rtc_data["alrm_date"]:
                 logging.error(
-                    "alrm_date not set properly: {0}".format(rtc_data["alrm_date"])
+                    "alrm_date not set properly: {0}".format(
+                        rtc_data["alrm_date"]
+                    )
                 )
                 sys.exit(1)
 
@@ -481,7 +518,10 @@ class Command:
 
         if self.verbose:
             stdout, stderr = result
-            message = ["Output:\n" "- returncode:\n{0}".format(self.process.returncode)]
+            message = [
+                "Output:\n"
+                "- returncode:\n{0}".format(self.process.returncode)
+            ]
             if stdout:
                 if type(stdout) is bytes:
                     stdout = stdout.decode("utf-8", "ignore")
@@ -531,7 +571,9 @@ class CountdownDialog(Gtk.Dialog):
         self.vbox.pack_start(progress_bar, True, True, 0)
 
         operation_event = {
-            "template": ("Next {0} in {{time}} seconds...".format(self.pm_operation)),
+            "template": (
+                "Next {0} in {{time}} seconds...".format(self.pm_operation)
+            ),
             "timeout": pm_delay,
         }
         hardware_info_event = {
@@ -630,14 +672,18 @@ class CountdownDialog(Gtk.Dialog):
             "{iwconfig}".format(
                 network=(Command("lspci | grep Network").run().stdout),
                 ethernet=(Command("lspci | grep Ethernet").run().stdout),
-                ifconfig=(Command(r"ifconfig -a | grep -A1 '^\w'").run().stdout),
+                ifconfig=(
+                    Command(r"ifconfig -a | grep -A1 '^\w'").run().stdout
+                ),
                 iwconfig=(Command(r"iwconfig | grep -A1 '^\w'").run().stdout),
             )
         )
         logging.debug(
             "Bluetooth Device:\n"
             "{hciconfig}".format(
-                hciconfig=(Command(r"hciconfig -a " r"| grep -A2 '^\w'").run().stdout)
+                hciconfig=(
+                    Command(r"hciconfig -a " r"| grep -A2 '^\w'").run().stdout
+                )
             )
         )
         logging.debug(
@@ -800,7 +846,9 @@ class SudoersConfigurator:
         command = (
             "sed -i -e '$a{mark}\\n"
             "{user} ALL=NOPASSWD: /usr/bin/python3' "
-            "{filename}".format(mark=self.MARK, user=self.user, filename=self.SUDOERS)
+            "{filename}".format(
+                mark=self.MARK, user=self.user, filename=self.SUDOERS
+            )
         )
 
         Command(command, verbose=False).run()
@@ -838,8 +886,12 @@ Hidden=false
         # Generate desktop filename
         # based on environment variables
         username = self.user
-        default_config_directory = os.path.expanduser("~{0}/.config".format(username))
-        config_directory = os.getenv("XDG_CONFIG_HOME", default_config_directory)
+        default_config_directory = os.path.expanduser(
+            "~{0}/.config".format(username)
+        )
+        config_directory = os.getenv(
+            "XDG_CONFIG_HOME", default_config_directory
+        )
         autostart_directory = os.path.join(config_directory, "autostart")
         if not os.path.exists(autostart_directory):
             os.makedirs(autostart_directory)
@@ -856,7 +908,9 @@ Hidden=false
         """
         Write autostart file to execute the script on startup
         """
-        logging.debug("Writing desktop file ({0!r})...".format(self.desktop_filename))
+        logging.debug(
+            "Writing desktop file ({0!r})...".format(self.desktop_filename)
+        )
         snap_name = os.getenv("SNAP_NAME")
         if snap_name:
             script = "/snap/bin/{}.pm-test".format(snap_name)
@@ -881,7 +935,9 @@ Hidden=false
             pm_operation=self.args.pm_operation,
             checkbox_respawn=self.args.checkbox_respawn_cmd,
             check_hardware=(
-                "--check-hardware-list" if self.args.check_hardware_list else ""
+                "--check-hardware-list"
+                if self.args.check_hardware_list
+                else ""
             ),
         )
         logging.debug(contents)
@@ -895,7 +951,9 @@ Hidden=false
         """
         if os.path.exists(self.desktop_filename):
             logging.debug(
-                "Removing desktop file ({0!r})...".format(self.desktop_filename)
+                "Removing desktop file ({0!r})...".format(
+                    self.desktop_filename
+                )
             )
             os.remove(self.desktop_filename)
 
@@ -921,7 +979,9 @@ class LoggingConfiguration:
         log_handler = logging.handlers.RotatingFileHandler(
             log_filename, mode="a+", backupCount=3
         )
-        formatter = logging.Formatter("%(asctime)s %(levelname)-8s " "%(message)s")
+        formatter = logging.Formatter(
+            "%(asctime)s %(levelname)-8s " "%(message)s"
+        )
         log_handler.setFormatter(formatter)
         log_handler.setLevel(logging.DEBUG)
         logger.addHandler(log_handler)
@@ -1114,7 +1174,10 @@ class MyArgumentParser:
         parser.add_argument(
             "--check-hardware-list",
             action="store_true",
-            help=("Look for changes in the list of devices " "after each PM action"),
+            help=(
+                "Look for changes in the list of devices "
+                "after each PM action"
+            ),
             default=False,
         )
         self.parser = parser

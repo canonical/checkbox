@@ -77,7 +77,8 @@ def _guess_hdmi_profile(pactl_list):
         ports = [
             p
             for p in record.attribute_map["Ports"].value
-            if ("HDMI" in p.label) and (("DisplayPort" in p.label) or ("DP" in p.label))
+            if ("HDMI" in p.label)
+            and (("DisplayPort" in p.label) or ("DP" in p.label))
         ]
         if not ports:
             continue
@@ -151,7 +152,9 @@ def set_profile_hdmi():
     try:
         check_call(["pactl", "set-card-profile", card, profile])
     except CalledProcessError as error:
-        logging.error("Failed setting audio output to:{}: {}".format(profile, error))
+        logging.error(
+            "Failed setting audio output to:{}: {}".format(profile, error)
+        )
 
 
 def get_current_profiles_settings(profiles_file):
@@ -178,7 +181,9 @@ def get_current_profiles_settings(profiles_file):
             config.write(active_profiles)
     except IOError:
         logging.error(
-            "Failed to save active profiles information: {}".format(sys.exc_info()[1])
+            "Failed to save active profiles information: {}".format(
+                sys.exc_info()[1]
+            )
         )
 
 
@@ -353,7 +358,9 @@ def restore_audio_settings(file):
             settings_file = f.read().split()
     except IOError:
         logging.error(
-            "Unable to open existing settings file: {}".format(sys.exc_info()[1])
+            "Unable to open existing settings file: {}".format(
+                sys.exc_info()[1]
+            )
         )
         return 1
 
@@ -362,12 +369,19 @@ def restore_audio_settings(file):
         # If we fail to get any of them, it means the file's format
         # is incorrect, so we just abort.
         try:
-            name = settings_file[settings_file.index("default_{}:".format(type)) + 1]
-            muted = settings_file[settings_file.index("{}_muted:".format(type)) + 1]
-            volume = settings_file[settings_file.index("{}_volume:".format(type)) + 1]
+            name = settings_file[
+                settings_file.index("default_{}:".format(type)) + 1
+            ]
+            muted = settings_file[
+                settings_file.index("{}_muted:".format(type)) + 1
+            ]
+            volume = settings_file[
+                settings_file.index("{}_volume:".format(type)) + 1
+            ]
         except ValueError:
             logging.error(
-                "Unable to restore settings because settings " "file is invalid"
+                "Unable to restore settings because settings "
+                "file is invalid"
             )
             return 1
 
@@ -427,7 +441,9 @@ def main():
         help="""The file to store settings in or restore
                                 settings from.""",
     )
-    parser.add_argument("--verbose", action="store_true", help="Turn on verbosity")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Turn on verbosity"
+    )
     args = parser.parse_args()
 
     # Settings and profiles need to be stored separately

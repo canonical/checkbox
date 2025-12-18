@@ -96,10 +96,18 @@ class SymbolTests(unittest.TestCase):
         verify that comparing symbols to other types (or vice
         versa) is always False
         """
-        self.assertFalse(Symbol("foo") == 1, "Symbol compared equal to integer")
-        self.assertFalse(1 == Symbol("foo"), "integer compared equal to Symbol")
-        self.assertTrue(Symbol("foo") != 1, "Symbol compared unequal to integer")
-        self.assertTrue(1 != Symbol("foo"), "integer compared unequal to Symbol")
+        self.assertFalse(
+            Symbol("foo") == 1, "Symbol compared equal to integer"
+        )
+        self.assertFalse(
+            1 == Symbol("foo"), "integer compared equal to Symbol"
+        )
+        self.assertTrue(
+            Symbol("foo") != 1, "Symbol compared unequal to integer"
+        )
+        self.assertTrue(
+            1 != Symbol("foo"), "integer compared unequal to Symbol"
+        )
 
 
 class SymbolDefTests(unittest.TestCase):
@@ -176,7 +184,9 @@ class SymbolDefTests(unittest.TestCase):
             b
             c
 
-        self.assertEqual(S.get_all_symbols(), [Symbol("a"), Symbol("b"), Symbol("c")])
+        self.assertEqual(
+            S.get_all_symbols(), [Symbol("a"), Symbol("b"), Symbol("c")]
+        )
 
     def test_allow_outer(self):
         """

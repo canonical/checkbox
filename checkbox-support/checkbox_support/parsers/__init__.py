@@ -58,7 +58,9 @@ Pattern = type(re.compile(""))
 
 def main():
     """Entry point to the program."""
-    arg_parser = ArgumentParser(description="parse stdin with the specified parser")
+    arg_parser = ArgumentParser(
+        description="parse stdin with the specified parser"
+    )
     arg_parser.add_argument(
         "parser_name",
         metavar="PARSER-NAME",
@@ -72,7 +74,9 @@ def main():
         raise SystemExit()
     parser = AVAILABLE_PARSERS[args.parser_name]
     stdin = sys.stdin
-    with io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8", errors="ignore") as stdin:
+    with io.TextIOWrapper(
+        sys.stdin.buffer, encoding="utf-8", errors="ignore"
+    ) as stdin:
         try:
             text = stdin.read()
             print(run_parsing(parser, text))
@@ -85,7 +89,9 @@ def run_parsing(parser_fn, text):
     """Do the actual parsing."""
     try:
         ast = parser_fn(text)
-        return json.dumps(ast, indent=4, sort_keys=True, default=_json_fallback)
+        return json.dumps(
+            ast, indent=4, sort_keys=True, default=_json_fallback
+        )
     except Exception as exc:
         msg = "Failed to parse the text: {}".format(str(exc))
         raise SystemExit(msg) from exc

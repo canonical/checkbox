@@ -35,9 +35,15 @@ def main():
             cmd = "findfs LABEL=writable"
     print("+ {}".format(cmd))
     try:
-        source = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding).strip()
+        source = (
+            sp.check_output(cmd, shell=True)
+            .decode(sys.stdout.encoding)
+            .strip()
+        )
     except sp.CalledProcessError:
-        raise SystemExit("ERROR: could not find mountpoint for the encrypted partition")
+        raise SystemExit(
+            "ERROR: could not find mountpoint for the encrypted partition"
+        )
     print(source, "\n")
 
     # resolve the source to an actual device node
@@ -52,7 +58,11 @@ def main():
         cmd = 'lsblk -r -n -i -o KNAME,TYPE,PKNAME | grep "^{}"'.format(kname)
         print("+ {}".format(cmd))
         try:
-            lsblk = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding).strip()
+            lsblk = (
+                sp.check_output(cmd, shell=True)
+                .decode(sys.stdout.encoding)
+                .strip()
+            )
         except sp.CalledProcessError:
             raise SystemExit("ERROR: lsblk call failed")
         _, devtype, parent = lsblk.split(maxsplit=2)
@@ -62,7 +72,9 @@ def main():
             break
         if devtype == "disk":
             # reached the physical device, end the search
-            raise SystemExit('ERROR: could not find a block device of type "crypt"')
+            raise SystemExit(
+                'ERROR: could not find a block device of type "crypt"'
+            )
         kname = parent
 
     # the presence of device with type 'crypt' is probably confirmation enough
@@ -79,14 +91,20 @@ def main():
             .split()[-1]
         )
     except sp.CalledProcessError:
-        raise SystemExit("ERROR: dmsetup info on device {} failed".format(kname))
+        raise SystemExit(
+            "ERROR: dmsetup info on device {} failed".format(kname)
+        )
     print(mapper_name, "\n")
 
     # then query the info in cryptsetup
     cmd = "cryptsetup status {}".format(mapper_name)
     print("+ {}".format(cmd))
     try:
-        cryptinfo = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding).strip()
+        cryptinfo = (
+            sp.check_output(cmd, shell=True)
+            .decode(sys.stdout.encoding)
+            .strip()
+        )
     except sp.CalledProcessError:
         raise SystemExit("ERROR: cryptsetup check failed")
     print(cryptinfo)

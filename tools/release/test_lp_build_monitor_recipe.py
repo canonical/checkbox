@@ -28,7 +28,9 @@ class TestHelperFunctions(unittest.TestCase):
             build_selected_pending,
             build_not_selected,
         ]
-        selected = lp_build_monitor_recipe.get_all_binary_builds(build_recipe, 6)
+        selected = lp_build_monitor_recipe.get_all_binary_builds(
+            build_recipe, 6
+        )
 
         self.assertEqual(selected, [build_selected, build_selected_pending])
         build_recipe.daily_build_archive.getBuildRecords.assert_called_with(
@@ -46,7 +48,9 @@ class TestHelperFunctions(unittest.TestCase):
         build_not_selected.date_first_dispatched = 0
 
         build_recipe.builds = [build_selected, build_not_selected]
-        selected = lp_build_monitor_recipe.get_all_source_builds(build_recipe, 6)
+        selected = lp_build_monitor_recipe.get_all_source_builds(
+            build_recipe, 6
+        )
 
         self.assertEqual(selected, [build_selected])
 
@@ -60,7 +64,9 @@ class TestHelperFunctions(unittest.TestCase):
             [],
         ]
 
-        lp_build_monitor_recipe.wait_every_source_build_started(build_recipe_mock)
+        lp_build_monitor_recipe.wait_every_source_build_started(
+            build_recipe_mock
+        )
 
         # the function waited for getPendingBuildInfo to return an empty list
         self.assertEqual(build_recipe_mock.getPendingBuildInfo.call_count, 3)
@@ -77,7 +83,9 @@ class TestHelperFunctions(unittest.TestCase):
             {"pending": 0},
         ]
 
-        lp_build_monitor_recipe.monitor_retry_binary_builds(build_recipe_mock, 0)
+        lp_build_monitor_recipe.monitor_retry_binary_builds(
+            build_recipe_mock, 0
+        )
 
         # the function waited for getPendingBuildInfo to return an empty list
         self.assertEqual(
@@ -87,7 +95,9 @@ class TestHelperFunctions(unittest.TestCase):
 
     def test_recipe_name_to_source_name(self):
         self.assertEqual(
-            lp_build_monitor_recipe.recipe_name_to_source_name("checkbox-ng-edge"),
+            lp_build_monitor_recipe.recipe_name_to_source_name(
+                "checkbox-ng-edge"
+            ),
             "checkbox-ng",
         )
 
@@ -184,7 +194,9 @@ class TestMonitorRetryBuilds(unittest.TestCase):
         self.assertEqual(time_sleep_mock.call_count, 4)
 
     @patch("time.sleep")
-    def test_monitor_retry_builds_unrecoverable_failures(self, time_sleep_mock):
+    def test_monitor_retry_builds_unrecoverable_failures(
+        self, time_sleep_mock
+    ):
         build_mock = MagicMock()
         build_mock.can_be_retried = False
         build_mock.web_link = "https://some.web.build/build"
@@ -201,7 +213,9 @@ class TestMonitorRetryBuilds(unittest.TestCase):
 
         build_mock.lp_refresh.side_effect = lp_refresh_side_effect
 
-        unrecoverable = lp_build_monitor_recipe.monitor_retry_builds([build_mock])
+        unrecoverable = lp_build_monitor_recipe.monitor_retry_builds(
+            [build_mock]
+        )
 
         # we updated till the build reported a success
         self.assertEqual(build_mock.lp_refresh.call_count, 1)
@@ -270,7 +284,9 @@ class TestMain(unittest.TestCase):
 
         bin_build_mock = MagicMock()
         bin_build_mock.date_first_dispatched = 20
-        recipe_mock.daily_build_archive.getBuildRecords.return_value = [bin_build_mock]
+        recipe_mock.daily_build_archive.getBuildRecords.return_value = [
+            bin_build_mock
+        ]
         bin_build_mock.can_be_retried = False
         bin_build_mock.buildstate = "Successfully built"
 
@@ -331,7 +347,9 @@ class TestMain(unittest.TestCase):
 
         bin_build_mock = MagicMock()
         bin_build_mock.date_first_dispatched = 20
-        recipe_mock.daily_build_archive.getBuildRecords.return_value = [bin_build_mock]
+        recipe_mock.daily_build_archive.getBuildRecords.return_value = [
+            bin_build_mock
+        ]
         bin_build_mock.can_be_retried = False
         bin_build_mock.web_link = "https://build_link.com"
         bin_build_mock.buildstate = "Failed to build"

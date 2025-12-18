@@ -8,10 +8,8 @@ import custom modules (imposes a security risk), etc.
 Note that by changing the configuration parameters, this module can be made
 non-secure. Keep this in mind.
 """
-
 import sys
 import traceback
-
 try:
     import exceptions as exceptions_module
 except ImportError:
@@ -84,12 +82,7 @@ def dump(typ, val, tb, include_local_traceback, include_local_version):
     return (typ.__module__, typ.__name__), tuple(args), tuple(attrs), tbtext
 
 
-def load(
-    val,
-    import_custom_exceptions,
-    instantiate_custom_exceptions,
-    instantiate_oldstyle_exceptions,
-):
+def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantiate_oldstyle_exceptions):
     """
     Loads a dumped exception (the tuple returned by :func:`dump`) info a
     throwable exception object. If the exception cannot be instantiated for any
@@ -144,13 +137,9 @@ def load(
         if fullname not in _generic_exceptions_cache:
             fakemodule = {"__module__": "{}/{}".format(__name__, modname)}
             if isinstance(GenericException, ClassType):
-                _generic_exceptions_cache[fullname] = ClassType(
-                    fullname, (GenericException,), fakemodule
-                )
+                _generic_exceptions_cache[fullname] = ClassType(fullname, (GenericException,), fakemodule)
             else:
-                _generic_exceptions_cache[fullname] = type(
-                    fullname, (GenericException,), fakemodule
-                )
+                _generic_exceptions_cache[fullname] = type(fullname, (GenericException,), fakemodule)
         cls = _generic_exceptions_cache[fullname]
 
     cls = _get_exception_class(cls)
@@ -165,15 +154,13 @@ def load(
     for name, attrval in attrs:
         try:
             setattr(exc, name, attrval)
-        except AttributeError:  # handle immutable attrs (@property)
+        except AttributeError:      # handle immutable attrs (@property)
             pass
 
     # When possible and relevant, warn the user about mismatch in major versions between remote and local
     remote_ver = getattr(exc, "_remote_version", "<version denied>")
-    if remote_ver != "<version denied>" and remote_ver.split(".")[0] != str(
-        version.version[0]
-    ):
-        _warn = "\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n"
+    if remote_ver != "<version denied>" and remote_ver.split('.')[0] != str(version.version[0]):
+        _warn = '\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n'
         tbtext += _warn.format(remote_ver, version.__version__)
 
     exc._remote_tb = tbtext
@@ -183,7 +170,6 @@ def load(
 class GenericException(Exception):
     """A 'generic exception' that is raised when the exception the gotten from
     the other party cannot be instantiated locally"""
-
     pass
 
 

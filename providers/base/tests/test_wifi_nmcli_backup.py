@@ -30,19 +30,25 @@ from wifi_nmcli_backup import (
 class WifiNmcliBackupTests(unittest.TestCase):
     @patch("wifi_nmcli_backup.sp")
     def test_legacy_nmcli_true(self, subprocess_mock):
-        subprocess_mock.check_output.return_value = b"nmcli tool, version 1.11.3-5"
+        subprocess_mock.check_output.return_value = (
+            b"nmcli tool, version 1.11.3-5"
+        )
         self.assertTrue(legacy_nmcli())
 
     @patch("wifi_nmcli_backup.sp")
     def test_legacy_nmcli_false(self, subprocess_mock):
-        subprocess_mock.check_output.return_value = b"nmcli tool, version 1.46.0-2"
+        subprocess_mock.check_output.return_value = (
+            b"nmcli tool, version 1.46.0-2"
+        )
         self.assertFalse(legacy_nmcli())
 
     @patch("wifi_nmcli_backup.os.makedirs")
     @patch("wifi_nmcli_backup.print")
     def test_save_connections_empty_list(self, mock_print, mock_makedirs):
         save_connections([])
-        mock_print.assert_called_once_with("No stored 802.11 connections to save")
+        mock_print.assert_called_once_with(
+            "No stored 802.11 connections to save"
+        )
         self.assertEqual(mock_makedirs.call_count, 1)
 
     @patch("wifi_nmcli_backup.os.makedirs")
@@ -62,9 +68,12 @@ class WifiNmcliBackupTests(unittest.TestCase):
         ]
 
         save_connections(keyfile_list)
-        expected_calls = [call("Save connection {}".format(f)) for f in keyfile_list]
+        expected_calls = [
+            call("Save connection {}".format(f)) for f in keyfile_list
+        ]
         expected_calls += [
-            call("  No stored connection found at {}".format(f)) for f in keyfile_list
+            call("  No stored connection found at {}".format(f))
+            for f in keyfile_list
         ]
         mock_print.assert_has_calls(expected_calls, any_order=True)
         self.assertEqual(mock_makedirs.call_count, 1)
@@ -91,24 +100,34 @@ class WifiNmcliBackupTests(unittest.TestCase):
 
         expected_print_calls = [
             call(
-                "Save connection " "/etc/NetworkManager/system-connections/connection1"
+                "Save connection "
+                "/etc/NetworkManager/system-connections/connection1"
             ),
-            call("  Found file " "/etc/NetworkManager/system-connections/connection1"),
+            call(
+                "  Found file "
+                "/etc/NetworkManager/system-connections/connection1"
+            ),
             call("  Saved copy at /fake/backup/location/connection1"),
         ]
         mock_print.assert_has_calls(expected_print_calls, any_order=True)
 
     @patch("wifi_nmcli_backup.print")
     @patch("wifi_nmcli_backup.glob.glob", return_value=[])
-    def test_restore_connections_no_stored_connections(self, mock_glob, mock_print):
+    def test_restore_connections_no_stored_connections(
+        self, mock_glob, mock_print
+    ):
         restore_connections()
-        mock_print.assert_called_once_with("No stored 802.11 connections found")
+        mock_print.assert_called_once_with(
+            "No stored 802.11 connections found"
+        )
 
     @patch("wifi_nmcli_backup.SAVE_DIR", "/stored-system-connections")
     @patch("wifi_nmcli_backup.shutil.move")
     @patch("wifi_nmcli_backup.glob.glob")
     @patch("wifi_nmcli_backup.print")
-    def test_restore_connections_existing_files(self, mock_print, mock_glob, mock_move):
+    def test_restore_connections_existing_files(
+        self, mock_print, mock_glob, mock_move
+    ):
         mock_glob.return_value = [
             "/stored-system-connections/etc/NetworkManager/system-connections/"
             "connection1.nmconnection",
@@ -123,14 +142,16 @@ class WifiNmcliBackupTests(unittest.TestCase):
                 "/stored-system-connections/etc/NetworkManager/"
                 "system-connections/connection1.nmconnection",
                 Path(
-                    "/etc/NetworkManager/system-connections/" "connection1.nmconnection"
+                    "/etc/NetworkManager/system-connections/"
+                    "connection1.nmconnection"
                 ),
             ),
             call(
                 "/stored-system-connections/run/NetworkManager/"
                 "system-connections/connection2.nmconnection",
                 Path(
-                    "/run/NetworkManager/system-connections/" "connection2.nmconnection"
+                    "/run/NetworkManager/system-connections/"
+                    "connection2.nmconnection"
                 ),
             ),
         ]

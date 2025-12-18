@@ -92,7 +92,9 @@ class CameraTestTests(unittest.TestCase):
                 "resolutions": [[123, 987]],
             }
         ]
-        mock_camera._get_supported_formats_to_string.return_value = "Resolutions: fake"
+        mock_camera._get_supported_formats_to_string.return_value = (
+            "Resolutions: fake"
+        )
 
         fake_device = "/dev/video0"
         fake_v4l2_capability = v4l2_capability()
@@ -117,7 +119,9 @@ class CameraTestTests(unittest.TestCase):
                 "resolutions": [[123, 987]],
             }
         ]
-        mock_camera._get_supported_formats_to_string.return_value = "Resolutions: fake"
+        mock_camera._get_supported_formats_to_string.return_value = (
+            "Resolutions: fake"
+        )
 
         fake_device = "/dev/video0"
         fake_v4l2_capability = v4l2_capability()
@@ -214,7 +218,9 @@ class CameraTestTests(unittest.TestCase):
 
         with patch("logging.debug") as mocked_log:
             CameraTest._on_gst_message(mock_camera, None, mock_message)
-            mocked_log.assert_called_with("Pipeline changed state from old to new")
+            mocked_log.assert_called_with(
+                "Pipeline changed state from old to new"
+            )
 
     def test_stop_pipeline(self):
         mock_camera = MagicMock()
@@ -252,7 +258,9 @@ class CameraTestTests(unittest.TestCase):
         ).lstrip()
 
         mock_camera = MagicMock()
-        return_str = CameraTest._supported_formats_to_string(mock_camera, formats)
+        return_str = CameraTest._supported_formats_to_string(
+            mock_camera, formats
+        )
         self.assertEqual(return_str, expected_str)
 
     def test_led(self):
@@ -369,7 +377,9 @@ class CameraTestTests(unittest.TestCase):
         mock_camera._capture_image_fswebcam.return_value = True
         mock_camera._display_image.return_value = True
         mock_camera.headless = False
-        CameraTest._capture_image(mock_camera, "/tmp/test.jpg", 640, 480, "YUYV")
+        CameraTest._capture_image(
+            mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
+        )
         self.assertEqual(mock_camera._capture_image_fswebcam.call_count, 1)
         self.assertEqual(mock_camera._display_image.call_count, 1)
 
@@ -377,13 +387,17 @@ class CameraTestTests(unittest.TestCase):
         mock_camera = MagicMock()
         mock_camera._capture_image_fswebcam.return_value = True
         mock_camera.headless = True
-        CameraTest._capture_image(mock_camera, "/tmp/test.jpg", 640, 480, "YUYV")
+        CameraTest._capture_image(
+            mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
+        )
         self.assertEqual(mock_camera._display_image.call_count, 0)
 
     def test_capture_image_helper_fswebcam_fails(self):
         mock_camera = MagicMock()
         mock_camera._capture_image_fswebcam.return_value = False
-        CameraTest._capture_image(mock_camera, "/tmp/test.jpg", 640, 480, "YUYV")
+        CameraTest._capture_image(
+            mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
+        )
         self.assertEqual(mock_camera._capture_image_gstreamer.call_count, 1)
 
     @patch("camera_test.check_call")
@@ -406,7 +420,9 @@ class CameraTestTests(unittest.TestCase):
             mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
         )
         # delay arg should not be inserted when wait is 0
-        self.assertFalse(any("-D" in arg for arg in mock_check_call.call_args[-1]))
+        self.assertFalse(
+            any("-D" in arg for arg in mock_check_call.call_args[-1])
+        )
 
         mock_check_call.reset_mock()
         mock_camera.photo_wait_seconds = 0
@@ -414,7 +430,9 @@ class CameraTestTests(unittest.TestCase):
             mock_camera, "/tmp/test.jpg", 640, 480, None
         )
         # pixel format arg should not be inserted if not specified
-        self.assertFalse(any("-p" in arg for arg in mock_check_call.call_args[-1]))
+        self.assertFalse(
+            any("-p" in arg for arg in mock_check_call.call_args[-1])
+        )
 
     @patch("camera_test.check_call", MagicMock())
     @patch("os.path.getsize")
@@ -608,7 +626,9 @@ class CameraTestTests(unittest.TestCase):
             "description": "YUYV",
             "resolutions": [[640, 480], [320, 240]],
         }
-        CameraTest._save_debug_image(mock_camera, format, "/dev/video0", "/tmp")
+        CameraTest._save_debug_image(
+            mock_camera, format, "/dev/video0", "/tmp"
+        )
         self.assertEqual(mock_camera._capture_image.call_count, 1)
 
     @patch("camera_test.os.path.exists")
@@ -621,7 +641,9 @@ class CameraTestTests(unittest.TestCase):
             "resolutions": [[640, 480], [320, 240]],
         }
         with self.assertRaises(SystemExit):
-            CameraTest._save_debug_image(mock_camera, format, "/dev/video0", "/tmp")
+            CameraTest._save_debug_image(
+                mock_camera, format, "/dev/video0", "/tmp"
+            )
 
     def ioctl_enum_format_side_effect(self, fd, request, fmt):
         # Define format details based on the index
@@ -739,7 +761,9 @@ class CameraTestTests(unittest.TestCase):
         ]
 
         with patch("builtins.open", MagicMock()):
-            formats = CameraTest._get_supported_formats(mock_camera, "/dev/video0")
+            formats = CameraTest._get_supported_formats(
+                mock_camera, "/dev/video0"
+            )
         self.assertEqual(formats, expected_formats)
 
     @patch("fcntl.ioctl")
@@ -762,7 +786,9 @@ class CameraTestTests(unittest.TestCase):
         ]
         mock_ioctl.side_effect = IOError(errno.EIO, "Unexpected error")
         with patch("builtins.open", MagicMock()):
-            formats = CameraTest._get_supported_formats(mock_camera, "/dev/video0")
+            formats = CameraTest._get_supported_formats(
+                mock_camera, "/dev/video0"
+            )
         self.assertEqual(formats, expected_formats)
 
     @patch("fcntl.ioctl")
@@ -780,7 +806,9 @@ class CameraTestTests(unittest.TestCase):
         ]
 
         with patch("builtins.open", MagicMock()):
-            formats = CameraTest._get_supported_formats(mock_camera, "/dev/video0")
+            formats = CameraTest._get_supported_formats(
+                mock_camera, "/dev/video0"
+            )
         self.assertEqual(formats, expected_formats)
 
     def test_get_default_format(self):
@@ -820,7 +848,9 @@ class CameraTestTests(unittest.TestCase):
     def test_validate_image_no_file(self, mock_exists):
         mock_camera = MagicMock()
         mock_exists.return_value = False
-        result = CameraTest._validate_image(mock_camera, "/tmp/test.jpg", 480, 320)
+        result = CameraTest._validate_image(
+            mock_camera, "/tmp/test.jpg", 480, 320
+        )
         self.assertEqual(result, False)
 
     @patch("os.path.exists")
@@ -837,7 +867,9 @@ class CameraTestTests(unittest.TestCase):
                 )
                 # should not even start reading the file if the `file` command
                 # check didn't pass
-                mocked_print.assert_any_call("Image is not a standard JPEG file")
+                mocked_print.assert_any_call(
+                    "Image is not a standard JPEG file"
+                )
                 self.assertEqual(result, False)
 
     @patch("builtins.open")

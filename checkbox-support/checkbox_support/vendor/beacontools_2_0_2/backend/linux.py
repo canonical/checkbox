@@ -1,9 +1,7 @@
 """Backend for Linux using bluez"""
-
 from bluetooth import _bluetooth as bluez
 
 # pylint: disable=c-extension-no-member
-
 
 def open_dev(bt_device_id):
     """Open hci device socket."""
@@ -15,7 +13,6 @@ def open_dev(bt_device_id):
     socket.setsockopt(bluez.SOL_HCI, bluez.HCI_FILTER, filtr)
 
     return socket
-
 
 def send_cmd(socket, group_field, command_field, data):
     """Send hci command to device."""

@@ -24,7 +24,9 @@ class DiskTestTests(unittest.TestCase):
             ]
         }
 
-        self.assertEqual(DiskTest._find_parent(self_mock, "nvme0n1"), "nvme0n1")
+        self.assertEqual(
+            DiskTest._find_parent(self_mock, "nvme0n1"), "nvme0n1"
+        )
 
     def test_find_parent_not(self):
         self_mock = MagicMock()

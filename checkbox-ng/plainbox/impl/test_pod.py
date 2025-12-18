@@ -68,7 +68,9 @@ class FieldTests(TestCase):
         self.type = mock.Mock(name="type")
         self.initial = mock.Mock(name="initial")
         self.initial_fn = mock.Mock(name="initial_fn")
-        self.field = self.FIELD_CLS(self.doc, self.type, self.initial, self.initial_fn)
+        self.field = self.FIELD_CLS(
+            self.doc, self.type, self.initial, self.initial_fn
+        )
         self.instance = mock.Mock(name="instance")
         self.owner = mock.Mock(name="owner")
 
@@ -167,7 +169,9 @@ class FieldTests(TestCase):
         self.field.gain_name("field")
         self.field.alter_cls(cls)
         self.assertTrue(hasattr(cls, "on_field_changed"))
-        self.assertEqual(cls.on_field_changed.signal_name, "Klass.on_field_changed")
+        self.assertEqual(
+            cls.on_field_changed.signal_name, "Klass.on_field_changed"
+        )
 
 
 class FieldCollectionTests(TestCase):
@@ -206,7 +210,9 @@ class FieldCollectionTests(TestCase):
         self.fc.add_field(self.foo, "cls")
         self.assertEqual(self.fc.field_origin_map, {"foo": "cls"})
         self.fc.add_field(self.bar, "cls")
-        self.assertEqual(self.fc.field_origin_map, {"foo": "cls", "bar": "cls"})
+        self.assertEqual(
+            self.fc.field_origin_map, {"foo": "cls", "bar": "cls"}
+        )
 
     def test_add_field_detects_clashes(self):
         """.add_Field() detects field clashes and raises TypeError."""
@@ -352,13 +358,21 @@ class PODTests(TestCase):
             m1 = Field(initial=MANDATORY)
             m2 = Field(initial=MANDATORY)
 
-        with self.assertRaisesRegex(TypeError, "mandatory argument missing: m1"):
+        with self.assertRaisesRegex(
+            TypeError, "mandatory argument missing: m1"
+        ):
             T()
-        with self.assertRaisesRegex(TypeError, "mandatory argument missing: m1"):
+        with self.assertRaisesRegex(
+            TypeError, "mandatory argument missing: m1"
+        ):
             T(m2=2)
-        with self.assertRaisesRegex(TypeError, "mandatory argument missing: m2"):
+        with self.assertRaisesRegex(
+            TypeError, "mandatory argument missing: m2"
+        ):
             T(1)
-        with self.assertRaisesRegex(TypeError, "mandatory argument missing: m2"):
+        with self.assertRaisesRegex(
+            TypeError, "mandatory argument missing: m2"
+        ):
             T(m1=1)
 
     def test_initializer_default_arguments(self):
@@ -421,9 +435,13 @@ class PODTests(TestCase):
         self.assertLess(joe, Employee("Joe", 45, 1000))
         # The .as_{tuple,dict}() methods work
         self.assertEqual(joe.as_tuple(), ("Joe", 42, 1000))
-        self.assertEqual(joe.as_dict(), {"name": "Joe", "age": 42, "salary": 1000})
+        self.assertEqual(
+            joe.as_dict(), {"name": "Joe", "age": 42, "salary": 1000}
+        )
         # The return value of repr is useful
-        self.assertEqual(repr(joe), "Employee(name='Joe', age=42, salary=1000)")
+        self.assertEqual(
+            repr(joe), "Employee(name='Joe', age=42, salary=1000)"
+        )
 
     def test_as_dict_filters_out_UNSET(self):
         """.as_dict() filters out UNSET values."""
@@ -536,7 +554,9 @@ class AssignFilterTests(TestCase):
         old = "old"
         new = "new"
         # The filter passes the initial data (when old is UNSET)
-        self.assertEqual(read_only_assign_filter(instance, field, UNSET, new), new)
+        self.assertEqual(
+            read_only_assign_filter(instance, field, UNSET, new), new
+        )
         # But rejects everything after that
         with self.assertRaisesRegex(AttributeError, "cls.field is read-only"):
             read_only_assign_filter(instance, field, old, new)
@@ -548,7 +568,9 @@ class AssignFilterTests(TestCase):
         field = mock.Mock(name="field")
         field.type = int
         # The filter converts values
-        self.assertEqual(type_convert_assign_filter(instance, field, old, "10"), 10)
+        self.assertEqual(
+            type_convert_assign_filter(instance, field, old, "10"), 10
+        )
         # And can be used for crude type checking
         msg = "invalid literal for int\\(\\) with base 10: 'hello\\?'"
         with self.assertRaisesRegex(ValueError, msg):
@@ -567,7 +589,9 @@ class AssignFilterTests(TestCase):
         with self.assertRaisesRegex(TypeError, msg):
             type_check_assign_filter(instance, field, old, "10")
         # The filter passes-through correctly-typed values
-        self.assertEqual(type_check_assign_filter(instance, field, old, 10), 10)
+        self.assertEqual(
+            type_check_assign_filter(instance, field, old, 10), 10
+        )
 
     def test_sequence_type_check_assign_filter(self):
         """The sequence_type_check_assign_filter works as designed."""
@@ -579,10 +603,14 @@ class AssignFilterTests(TestCase):
         # The filter type-checks values without any conversion
         msg = "cls.field requires all sequence elements of type int"
         with self.assertRaisesRegex(TypeError, msg):
-            sequence_type_check_assign_filter(int)(instance, field, old, ["10"])
+            sequence_type_check_assign_filter(int)(
+                instance, field, old, ["10"]
+            )
         # The filter passes-through correctly-typed values
         self.assertEqual(
-            sequence_type_check_assign_filter(int)(instance, field, old, [10, 20]),
+            sequence_type_check_assign_filter(int)(
+                instance, field, old, [10, 20]
+            ),
             [10, 20],
         )
         self.assertEqual(
@@ -633,7 +661,9 @@ class AssignFilterTests(TestCase):
         # The filter type-checks values without any conversion
         msg = "cls.field requires all sequence elements of type int"
         with self.assertRaisesRegex(TypeError, msg):
-            sequence_type_check_assign_filter(int)(instance, field, old, ["10"])
+            sequence_type_check_assign_filter(int)(
+                instance, field, old, ["10"]
+            )
         # The filter passes-through correctly-typed values
         self.assertEqual(
             unset_or_sequence_type_check_assign_filter(int)(

@@ -43,14 +43,18 @@ class TestEddystoneScanner(unittest.TestCase):
     @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")
     @patch("time.time")
     @patch("time.sleep")
-    def test_beacon_scan_fail(self, mock_sleep, mock_time, mock_beacon_scanner):
+    def test_beacon_scan_fail(
+        self, mock_sleep, mock_time, mock_beacon_scanner
+    ):
         mock_time.side_effect = [0, 60 * 60 * 60]  # 60h, trigger timeout
         self.assertEqual(eddystone_scanner.beacon_scan("1"), 1)
 
     @patch("checkbox_support.scripts.eddystone_scanner.BeaconScanner")
     @patch("checkbox_support.scripts.eddystone_scanner.InteractiveCommand")
     @patch("time.sleep")
-    def test_main_ok(self, mock_sleep, mock_interactive_command, mock_beacon_scanner):
+    def test_main_ok(
+        self, mock_sleep, mock_interactive_command, mock_beacon_scanner
+    ):
         class BeaconScanner:
             def __init__(self, callback, *args, **kwargs):
                 self.callback = callback

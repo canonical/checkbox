@@ -22,7 +22,9 @@ from plainbox.impl.commands.cmd_session import SessionCommand
 
 
 class SessionCommandTests(TestCase):
-    @mock.patch("plainbox.impl.commands.cmd_session.SessionCommand.add_subcommand")
+    @mock.patch(
+        "plainbox.impl.commands.cmd_session.SessionCommand.add_subcommand"
+    )
     def test_register_parser(self, add_sc):
         subparser_mock = mock.MagicMock()
 

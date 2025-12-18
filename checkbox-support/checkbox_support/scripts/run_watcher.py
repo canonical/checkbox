@@ -228,7 +228,9 @@ class USBStorage(StorageWatcher):
             "high_speed_usb": "new high-speed USB device",
             "super_speed_usb": "new SuperSpeed USB device",
             "super_speed_gen1_usb": "new SuperSpeed Gen 1 USB device",
-            "super_speed_plus_gen2x1_usb": ("new SuperSpeed Plus Gen 2x1 USB device"),
+            "super_speed_plus_gen2x1_usb": (
+                "new SuperSpeed Plus Gen 2x1 USB device"
+            ),
         }
 
         driver_log_dict = {
@@ -245,7 +247,9 @@ class USBStorage(StorageWatcher):
         for driver_type, driver_log in driver_log_dict.items():
             if driver_log in line_str:
                 self.driver = driver_type
-                self.number = re.search(r"device number (\d+)", line_str).group(1)
+                self.number = re.search(
+                    r"device number (\d+)", line_str
+                ).group(1)
 
         # Look for insertion action
         if "New USB device found" in line_str:
@@ -280,7 +284,9 @@ class MediacardStorage(StorageWatcher):
         if self.mounted_partition and self.action == "insertion":
             logger.info("usable partition: {}".format(self.mounted_partition))
             logger.info(
-                "{} card inserted. Address: {}".format(self.device, self.address)
+                "{} card inserted. Address: {}".format(
+                    self.device, self.address
+                )
             )
             logger.info("Mediacard insertion test passed.")
             self.test_passed = True

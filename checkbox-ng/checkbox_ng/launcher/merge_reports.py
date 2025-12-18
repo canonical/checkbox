@@ -166,7 +166,9 @@ class MergeReports:
                 if support:
                     exporter_map[unit.id] = support
         exporter_support = exporter_map[exporter_id]
-        return exporter_support.exporter_cls([], exporter_unit=exporter_support)
+        return exporter_support.exporter_cls(
+            [], exporter_unit=exporter_support
+        )
 
     def _output_potential_action(self, message):
         hint = ""
@@ -197,7 +199,9 @@ class MergeReports:
             for job in self.job_list:
                 self._populate_session_state(job, manager.state)
             manager_list.append(manager)
-        exporter = self._create_exporter("com.canonical.plainbox::html-multi-page")
+        exporter = self._create_exporter(
+            "com.canonical.plainbox::html-multi-page"
+        )
         with open(ctx.args.output_file, "wb") as stream:
             exporter.dump_from_session_manager_list(manager_list, stream)
         print(ctx.args.output_file)

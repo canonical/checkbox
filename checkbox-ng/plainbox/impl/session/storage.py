@@ -194,7 +194,9 @@ class SessionStorage:
         self._id = id
 
     def __repr__(self):
-        return "<{} location:{!r}>".format(self.__class__.__name__, self.location)
+        return "<{} location:{!r}>".format(
+            self.__class__.__name__, self.location
+        )
 
     @property
     def location(self):
@@ -231,7 +233,9 @@ class SessionStorage:
         WellKnownDirsHelper.populate_base()
 
         isoformat = "%Y-%m-%dT%H.%M.%S"
-        timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(isoformat)
+        timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+            isoformat
+        )
         session_id = "{prefix}{timestamp}".format(
             prefix=slugify(prefix), timestamp=timestamp
         )
@@ -272,7 +276,9 @@ class SessionStorage:
         location_fd = os.open(self.location, os.O_DIRECTORY)
         try:
             # Open the current session file in the location directory
-            session_fd = os.open(self._SESSION_FILE, os.O_RDONLY, dir_fd=location_fd)
+            session_fd = os.open(
+                self._SESSION_FILE, os.O_RDONLY, dir_fd=location_fd
+            )
             # Stat the file to know how much to read
             session_stat = os.fstat(session_fd)
             try:
@@ -330,7 +336,9 @@ class SessionStorage:
         # Open the location directory, we need to fsync that later
         # XXX: this may fail, maybe we should keep the fd open all the time?
         location_fd = os.open(self.location, os.O_DIRECTORY)
-        logger.debug(_("Opened %r as descriptor %d"), self.location, location_fd)
+        logger.debug(
+            _("Opened %r as descriptor %d"), self.location, location_fd
+        )
         try:
             # Open the "next" file in the location_directory
             #
@@ -469,7 +477,9 @@ class SessionStorage:
         raises LockedStorageError. It removes the "next" file that is used
         for atomic rename.
         """
-        _next_session_pathname = os.path.join(self.location, self._SESSION_FILE_NEXT)
+        _next_session_pathname = os.path.join(
+            self.location, self._SESSION_FILE_NEXT
+        )
         logger.debug(
             # TRANSLATORS: unlinking as in deleting a file
             # Please keep the 'next' string untranslated

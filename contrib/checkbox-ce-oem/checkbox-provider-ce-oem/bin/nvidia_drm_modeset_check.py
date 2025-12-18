@@ -79,7 +79,9 @@ def get_graphics_info():
                 pci_path = os.path.realpath(device_path)
                 pci_address = os.path.basename(pci_path)
                 if pci_address.split(":")[0].isnumeric():
-                    logging.info("Check card name with PCI bus: %s", pci_address)
+                    logging.info(
+                        "Check card name with PCI bus: %s", pci_address
+                    )
                     lspci_output = subprocess.check_output(
                         ["lspci", "-s", pci_address], text=True
                     ).strip()
@@ -146,7 +148,9 @@ def main():
                 )
                 result = False
         if result:
-            logging.info("All Nvidia graphic cards running with propietary driver")
+            logging.info(
+                "All Nvidia graphic cards running with propietary driver"
+            )
     else:
         result = False
         logging.error("Error: no Nvidia graphic card been detected")

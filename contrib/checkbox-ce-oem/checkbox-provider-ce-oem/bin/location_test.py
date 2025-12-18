@@ -35,7 +35,9 @@ def identify_gps_module(serial_device, msg_protocol="NMEA0183"):
         cmd, shell=True, text=True, universal_newlines=True
     )
 
-    pattern = r"([a-zA-Z0-9\/-]*) identified as a ([a-zA-Z0-9]*) at [0-9]* baud."
+    pattern = (
+        r"([a-zA-Z0-9\/-]*) identified as a ([a-zA-Z0-9]*) at [0-9]* baud."
+    )
     match = re.search(pattern, output)
     if match:
         tty_node, cur_msg_protocol = match.groups()

@@ -63,7 +63,9 @@ def get_performance_ctx_function() -> Optional[Callable]:
     # in ce-oem provider.
     # It's the empty value by defaul, you have to define it as Checkbox's
     # configuraion.
-    performance_module_path = os.environ.get("PERFORMANCE_PYTHON_MODULE_PATH", "")
+    performance_module_path = os.environ.get(
+        "PERFORMANCE_PYTHON_MODULE_PATH", ""
+    )
     if performance_module_path == "":
         raise FileNotFoundError(
             (

@@ -111,7 +111,9 @@ def devmapper_test(udev_name):
             if os.path.exists(dm_device):
                 mount_dir = mountpoint(dm_device)
                 if mount_dir:
-                    print("{} already mounted at {}".format(dm_device, mount_dir))
+                    print(
+                        "{} already mounted at {}".format(dm_device, mount_dir)
+                    )
     with ExitStack() as stack:
         if mount_dir is None:
             mount_dir = tempfile.mkdtemp()

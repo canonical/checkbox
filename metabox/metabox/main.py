@@ -49,7 +49,8 @@ def main():
         "--tag",
         action="append",
         dest="tags",
-        help="Run only scenario with the specified tag. " "Can be used multiple times.",
+        help="Run only scenario with the specified tag. "
+        "Can be used multiple times.",
     )
     parser.add_argument(
         "--exclude-tag",
@@ -83,7 +84,8 @@ def main():
     parser.add_argument(
         "--debug-machine-setup",
         action="store_true",
-        help="Turn on verbosity during machine setup. " "Only works with --log TRACE",
+        help="Turn on verbosity during machine setup. "
+        "Only works with --log TRACE",
     )
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
     # Ignore warnings issued by pylxd/models/operation.py

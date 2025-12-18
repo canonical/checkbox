@@ -8,7 +8,9 @@ try:
     from importlib.resources import files
 
     def read_file_as_str(name: str):
-        resource_path = "parsers/tests/v4l2_compliance_data/{}.txt".format(name)
+        resource_path = "parsers/tests/v4l2_compliance_data/{}.txt".format(
+            name
+        )
         ref = files("checkbox_support")
         file_ref = ref.joinpath(resource_path)
         with file_ref.open("r") as f:
@@ -30,7 +32,9 @@ class TestV4L2ComplianceParser(ut.TestCase):
     @patch("subprocess.run")
     def test_happy_path(self, mock_run: MagicMock):
         ok_input = read_file_as_str("22_04_success")
-        mock_run.return_value = sp.CompletedProcess([], 1, stdout=ok_input, stderr="")
+        mock_run.return_value = sp.CompletedProcess(
+            [], 1, stdout=ok_input, stderr=""
+        )
         summary, detail = parse_v4l2_compliance()
         self.assertDictEqual(
             {
@@ -42,7 +46,9 @@ class TestV4L2ComplianceParser(ut.TestCase):
             },
             summary,
         )
-        expected_failures = read_file_as_str("22_04_expected_fail_1").splitlines()
+        expected_failures = read_file_as_str(
+            "22_04_expected_fail_1"
+        ).splitlines()
         for ioctl_request in expected_failures:
             self.assertIn(ioctl_request.strip(), detail["failed"])
         self.assertEqual(len(expected_failures), len(detail["failed"]))
@@ -50,7 +56,9 @@ class TestV4L2ComplianceParser(ut.TestCase):
     @patch("subprocess.run")
     def test_happy_path_24_04(self, mock_run: MagicMock):
         ok_input = read_file_as_str("24_04_success")
-        mock_run.return_value = sp.CompletedProcess([], 1, stdout=ok_input, stderr="")
+        mock_run.return_value = sp.CompletedProcess(
+            [], 1, stdout=ok_input, stderr=""
+        )
         summary, detail = parse_v4l2_compliance()
         self.assertDictEqual(
             {
@@ -62,7 +70,9 @@ class TestV4L2ComplianceParser(ut.TestCase):
             },
             summary,
         )
-        expected_failures = read_file_as_str("24_04_expected_fail_1").splitlines()
+        expected_failures = read_file_as_str(
+            "24_04_expected_fail_1"
+        ).splitlines()
         for ioctl_request in expected_failures:
             self.assertIn(ioctl_request.strip(), detail["failed"])
         self.assertEqual(len(expected_failures), len(detail["failed"]))
@@ -70,7 +80,9 @@ class TestV4L2ComplianceParser(ut.TestCase):
     @patch("subprocess.run")
     def test_happy_path_18_04(self, mock_run: MagicMock):
         ok_input = read_file_as_str("18_04_success")
-        mock_run.return_value = sp.CompletedProcess([], 1, stdout=ok_input, stderr="")
+        mock_run.return_value = sp.CompletedProcess(
+            [], 1, stdout=ok_input, stderr=""
+        )
         summary, detail = parse_v4l2_compliance()
         self.assertDictEqual(
             {
@@ -82,7 +94,9 @@ class TestV4L2ComplianceParser(ut.TestCase):
             },
             summary,
         )
-        expected_failures = read_file_as_str("18_04_expected_fail_1").splitlines()
+        expected_failures = read_file_as_str(
+            "18_04_expected_fail_1"
+        ).splitlines()
         for ioctl_request in expected_failures:
             self.assertIn(ioctl_request.strip(), detail["failed"])
         self.assertEqual(len(expected_failures), len(detail["failed"]))
@@ -90,7 +104,9 @@ class TestV4L2ComplianceParser(ut.TestCase):
     @patch("subprocess.run")
     def test_unparsable(self, mock_run: MagicMock):
         bad_input = "askdjhasjkdhlakbbeqmnwbeqmvykudsuchab,b1231"
-        mock_run.return_value = sp.CompletedProcess([], 1, stdout=bad_input, stderr="")
+        mock_run.return_value = sp.CompletedProcess(
+            [], 1, stdout=bad_input, stderr=""
+        )
 
         self.assertRaises(AssertionError, parse_v4l2_compliance)
 

@@ -13,7 +13,7 @@ from contextlib import contextmanager
 DEFAULT_SERVER_PORT = 18812
 DEFAULT_SERVER_SSL_PORT = 18821
 
-SlaveService = ClassicService  # avoid renaming SlaveService in this module for now
+SlaveService = ClassicService   # avoid renaming SlaveService in this module for now
 
 # ===============================================================================
 # connecting
@@ -87,17 +87,9 @@ def unix_connect(path):
     return factory.unix_connect(path, SlaveService)
 
 
-def ssl_connect(
-    host,
-    port=DEFAULT_SERVER_SSL_PORT,
-    keyfile=None,
-    certfile=None,
-    ca_certs=None,
-    cert_reqs=None,
-    ssl_version=None,
-    ciphers=None,
-    ipv6=False,
-):
+def ssl_connect(host, port=DEFAULT_SERVER_SSL_PORT, keyfile=None,
+                certfile=None, ca_certs=None, cert_reqs=None, ssl_version=None,
+                ciphers=None, ipv6=False):
     """Creates a secure (``SSL``) socket connection to the given host and port,
     authenticating with the given certfile and CA file.
 
@@ -124,16 +116,9 @@ def ssl_connect(
 
     .. _wrap_socket:
     """
-    return factory.ssl_connect(
-        host,
-        port,
-        keyfile=keyfile,
-        certfile=certfile,
-        ssl_version=ssl_version,
-        ca_certs=ca_certs,
-        service=SlaveService,
-        ipv6=ipv6,
-    )
+    return factory.ssl_connect(host, port, keyfile=keyfile, certfile=certfile,
+                               ssl_version=ssl_version, ca_certs=ca_certs, service=SlaveService,
+                               ipv6=ipv6)
 
 
 def ssh_connect(remote_machine, remote_port):
@@ -161,9 +146,8 @@ def connect_subproc(server_file=None):
         server_file = os.popen("which rpyc_classic.py").read().strip()
         if not server_file:
             raise ValueError("server_file not given and could not be inferred")
-    return factory.connect_subproc(
-        [sys.executable, "-u", server_file, "-q", "-m", "stdio"], SlaveService
-    )
+    return factory.connect_subproc([sys.executable, "-u", server_file, "-q", "-m", "stdio"],
+                                   SlaveService)
 
 
 def connect_thread():
@@ -184,24 +168,14 @@ def connect_multiprocess(args={}):
 
     :returns: an RPyC connection exposing ``SlaveService``
     """
-    return factory.connect_multiprocess(
-        SlaveService, remote_service=SlaveService, args=args
-    )
+    return factory.connect_multiprocess(SlaveService, remote_service=SlaveService, args=args)
 
 
 # ===============================================================================
 # remoting utilities
 # ===============================================================================
 
-
-def upload(
-    conn,
-    localpath,
-    remotepath,
-    filter=None,
-    ignore_invalid=False,
-    chunk_size=STREAM_CHUNK,
-):
+def upload(conn, localpath, remotepath, filter=None, ignore_invalid=False, chunk_size=STREAM_CHUNK):
     """uploads a file or a directory to the given remote path
 
     :param localpath: the local file or directory
@@ -236,24 +210,10 @@ def upload_dir(conn, localpath, remotepath, filter=None, chunk_size=STREAM_CHUNK
         if not filter or filter(fn):
             lfn = os.path.join(localpath, fn)
             rfn = conn.modules.os.path.join(remotepath, fn)
-            upload(
-                conn,
-                lfn,
-                rfn,
-                filter=filter,
-                ignore_invalid=True,
-                chunk_size=chunk_size,
-            )
+            upload(conn, lfn, rfn, filter=filter, ignore_invalid=True, chunk_size=chunk_size)
 
 
-def download(
-    conn,
-    remotepath,
-    localpath,
-    filter=None,
-    ignore_invalid=False,
-    chunk_size=STREAM_CHUNK,
-):
+def download(conn, remotepath, localpath, filter=None, ignore_invalid=False, chunk_size=STREAM_CHUNK):
     """
     download a file or a directory to the given remote path
 
@@ -289,14 +249,7 @@ def download_dir(conn, remotepath, localpath, filter=None, chunk_size=STREAM_CHU
         if not filter or filter(fn):
             rfn = conn.modules.os.path.join(remotepath, fn)
             lfn = os.path.join(localpath, fn)
-            download(
-                conn,
-                rfn,
-                lfn,
-                filter=filter,
-                ignore_invalid=True,
-                chunk_size=chunk_size,
-            )
+            download(conn, rfn, lfn, filter=filter, ignore_invalid=True, chunk_size=chunk_size)
 
 
 def upload_package(conn, module, remotepath=None, chunk_size=STREAM_CHUNK):
@@ -356,7 +309,8 @@ def deliver(conn, localobj):
     :returns: a proxy to the remote object
     """
     # bytes-cast needed for IronPython-to-CPython communication, see #251:
-    return conn.modules["rpyc.lib.compat"].pickle.loads(bytes(pickle.dumps(localobj)))
+    return conn.modules["rpyc.lib.compat"].pickle.loads(
+        bytes(pickle.dumps(localobj)))
 
 
 @contextmanager
@@ -405,16 +359,15 @@ def interact(conn, namespace=None):
         namespace = {}
     namespace["conn"] = conn
     with redirected_stdio(conn):
-        conn.execute(
-            """def _rinteract(ns):
+        conn.execute("""def _rinteract(ns):
             import code
-            code.interact(local = dict(ns))"""
-        )
+            code.interact(local = dict(ns))""")
         conn.namespace["_rinteract"](namespace)
 
 
 class MockClassicConnection(object):
-    """Mock classic RPyC connection object. Useful when you want the same code to run remotely or locally."""
+    """Mock classic RPyC connection object. Useful when you want the same code to run remotely or locally.
+    """
 
     def __init__(self):
         self.root = Slave()
@@ -446,8 +399,6 @@ def teleport_function(conn, func, globals=None, def_=True):
     if globals is None:
         globals = conn.namespace
     from rpyc.utils.teleportation import export_function
-
     exported = export_function(func)
     return conn.modules["rpyc.utils.teleportation"].import_function(
-        exported, globals, def_
-    )
+        exported, globals, def_)

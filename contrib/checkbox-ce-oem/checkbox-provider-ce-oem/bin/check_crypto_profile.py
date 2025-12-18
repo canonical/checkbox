@@ -156,12 +156,18 @@ def dump_crypto_information(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    sub_parser = parser.add_subparsers(help="action", dest="action_type", required=True)
+    sub_parser = parser.add_subparsers(
+        help="action", dest="action_type", required=True
+    )
 
     check_parser = sub_parser.add_parser("check")
-    check_parser.add_argument("-t", "--crypto-type", required=True, nargs="+", type=str)
+    check_parser.add_argument(
+        "-t", "--crypto-type", required=True, nargs="+", type=str
+    )
     check_parser.add_argument("-n", "--crypto-name", required=True, type=str)
-    check_parser.add_argument("-d", "--driver-pattern", required=True, type=str)
+    check_parser.add_argument(
+        "-d", "--driver-pattern", required=True, type=str
+    )
     check_parser.set_defaults(action_type=check_crypto_test)
 
     resource_parser = sub_parser.add_parser("resource")

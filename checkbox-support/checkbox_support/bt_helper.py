@@ -181,7 +181,9 @@ class BtAdapter:
     def ensure_powered(self):
         """Turn the adapter on, and do nothing if already on."""
         powered = self._prop_if.Get(IFACE, "Powered")
-        logger.info("Powering on {}".format(self._if.object_path.split("/")[-1]))
+        logger.info(
+            "Powering on {}".format(self._if.object_path.split("/")[-1])
+        )
         if powered:
             logger.info("Device already powered")
             return
@@ -189,13 +191,17 @@ class BtAdapter:
             self.set_bool_prop("Powered", True)
             logger.info("Powered on")
         except Exception as exc:
-            logging.error("Failed to power on - {}".format(exc.get_dbus_message()))
+            logging.error(
+                "Failed to power on - {}".format(exc.get_dbus_message())
+            )
 
 
 class BtDevice:
     def __init__(self, dbus_iface, bt_mgr):
         self._if = dbus_iface
-        self._obj = bt_mgr.get_object_by_path(self._if.object_path)[DEVICE_IFACE]
+        self._obj = bt_mgr.get_object_by_path(self._if.object_path)[
+            DEVICE_IFACE
+        ]
         self._bt_mgr = bt_mgr
         self._prop_if = bt_mgr.get_prop_iface(dbus_iface)
         self._pair_outcome = None
@@ -214,14 +220,18 @@ class BtDevice:
         first).
         """
         self._prop_if.Set(DEVICE_IFACE, "Trusted", True)
-        self._if.Pair(reply_handler=self._pair_ok, error_handler=self._pair_error)
+        self._if.Pair(
+            reply_handler=self._pair_ok, error_handler=self._pair_error
+        )
         self._bt_mgr.wait()
         if self._pair_outcome:
             raise BtException(self._pair_outcome)
         try:
             self._if.Connect()
         except dbus.exceptions.DBusException as exc:
-            logging.error("Failed to connect - {}".format(exc.get_dbus_message()))
+            logging.error(
+                "Failed to connect - {}".format(exc.get_dbus_message())
+            )
 
     def unpair(self):
         self._if.Disconnect()
@@ -276,7 +286,8 @@ class BtAgent(dbus.service.Object):
     @dbus.service.method(AGENT_IFACE, in_signature="ouq", out_signature="")
     def DisplayPasskey(self, device, passkey, entered):
         print(
-            "DisplayPasskey (%s, %06u entered %u)" % (device, passkey, entered),
+            "DisplayPasskey (%s, %06u entered %u)"
+            % (device, passkey, entered),
             flush=True,
         )
 
@@ -284,7 +295,9 @@ class BtAgent(dbus.service.Object):
     def DisplayPinCode(self, device, pincode):
         logger.info("DisplayPinCode (%s, %s)", device, pincode)
         print(
-            "Type following pin on your device: {} and press ENTER".format(pincode),
+            "Type following pin on your device: {} and press ENTER".format(
+                pincode
+            ),
             flush=True,
         )
 

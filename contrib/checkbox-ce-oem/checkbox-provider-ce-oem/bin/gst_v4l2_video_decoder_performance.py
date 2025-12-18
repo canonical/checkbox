@@ -228,8 +228,9 @@ def build_rz_gst_command(
             decoder)
 
     cmd = (
-        "{} -v filesrc location={} ! {} ! queue ! videoconvert ! "
-        "queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
+        "{} -v filesrc location={} ! {} ! queue !"
+        " vspmfilter dmabuf-use=true !"
+        " queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
     ).format(
         gst_bin, golden_sample_path, part_pipeline, sink, fpsdisplaysink_sync
     )

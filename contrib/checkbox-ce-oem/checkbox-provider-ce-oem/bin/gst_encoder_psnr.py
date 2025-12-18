@@ -154,7 +154,7 @@ def project_factory(args: argparse.Namespace) -> Any:
             framerate=args.framerate,
         )
     elif "rz" in args.platform:
-        return RzProject(
+        return RenesasProject(
             platform=args.platform,
             codec=args.encoder_plugin,
             color_space=args.color_space,
@@ -516,8 +516,8 @@ class NxpIMX8mProject(PipelineInterface):
             )
 
 
-class RzProject(PipelineInterface):
-    """Rz project pipeline handler and builder"""
+class RenesasProject(PipelineInterface):
+    """Renesas project pipeline handler and builder"""
 
     def __init__(
         self,
@@ -580,7 +580,8 @@ class RzProject(PipelineInterface):
             str: A GStreamer command.
         """
         # RZG2 series support only omxh264enc as hardware encoder
-        if "rzg2" in self._platform and self._codec == "omxh264enc":
+        # And only RZG2L supported.
+        if "rzg2l" in self._platform and self._codec == "omxh264enc":
             return self._omxh264_pipeline_builder()
         else:
             raise SystemExit(

@@ -194,7 +194,7 @@ def build_imx_gst_command(
     return cmd
 
 
-def build_rz_gst_command(
+def build_renesas_gst_command(
     gst_bin: str,
     golden_sample_path: str,
     decoder: str,
@@ -224,7 +224,8 @@ def build_rz_gst_command(
         The GStreamer command to execute.
     """
     # RZG2 series support only omxh264dec as hardware decoder
-    if "rzg2" in platform:
+    # And only RZG2L supported.
+    if "rzg2l" in platform:
         part_pipeline = "qtdemux ! h264parse ! {} use-dmabuf=true".format(
             decoder
         )
@@ -347,7 +348,7 @@ def main() -> None:
             fpsdisplaysink_sync=args.fpsdisplaysink_sync,
         )
     elif "rz" in args.platform:
-        cmd = build_rz_gst_command(
+        cmd = build_renesas_gst_command(
             gst_bin=gst_launch_bin,
             golden_sample_path=args.golden_sample_path,
             decoder=args.decoder_plugin,

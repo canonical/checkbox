@@ -196,7 +196,9 @@ class GstResources:
                 }
                 self._resource_items.append(config)
 
-    def gst_v4l2_audio_video_synchronization(self, scenario_data: dict) -> None:
+    def gst_v4l2_audio_video_synchronization(
+        self, scenario_data: dict
+    ) -> None:
         video_sink = ""
         if on_ubuntucore():
             video_sink = scenario_data["video_sinks"]["on_core"]
@@ -217,8 +219,9 @@ class GstResources:
                             self._args.video_codec_testing_data_path,
                             sample_file["file_name"],
                         ),
-                        "capssetter_pipeline":
-                        sample_file["capssetter_pipeline"],
+                        "capssetter_pipeline": sample_file[
+                            "capssetter_pipeline"
+                        ],
                     }
                 )
 

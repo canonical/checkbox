@@ -49,16 +49,39 @@ class TestDmiResource(TestCase):
         category = set(map(dmi_resource.sane_product, products))
         self.assertEqual(category, {"non-portable"})
 
-    def test_sane_product_aio(self):
-        products = [
-            "All-In-One",
-            "All In One",
-            "AIO",
-        ]
-        category = set(map(dmi_resource.sane_product, products))
-        self.assertEqual(category, {"aio"})
-
     def test_sane_product_unknown(self):
         products = ["strange-iot-product"]
         category = set(map(dmi_resource.sane_product, products))
         self.assertEqual(category, {"unknown"})
+
+    def test_display_type_integrated(self):
+        products = [
+            "Notebook",
+            "Laptop",
+            "Portable",
+            "Convertible",
+            "Tablet",
+            "Detachable",
+            "All-In-One",
+            "All In One",
+            "AIO",
+        ]
+        category = set(map(dmi_resource.display_type, products))
+        self.assertEqual(category, {"integrated"})
+
+    def test_display_type_external(self):
+        products = [
+            "Desktop",
+            "Low Profile Desktop",
+            "Tower",
+            "Mini-Tower",
+            "Space Saving",
+            "Mini PC",
+        ]
+        category = set(map(dmi_resource.display_type, products))
+        self.assertEqual(category, {"external"})
+
+    def test_display_type_unknown(self):
+        products = ["strange-iot-product"]
+        category = set(map(dmi_resource.display_type, products))
+        self.assertEqual(category, {"external"})

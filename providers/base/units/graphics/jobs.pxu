@@ -306,7 +306,7 @@ id: graphics/{index}_auto_glxgears_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.sane_product in ['portable', 'aio']
+    dmi.display_type == "integrated"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -385,7 +385,7 @@ id: graphics/{index}_valid_glxgears_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.sane_product in ['portable', 'aio']
+    dmi.display_type == "integrated"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -414,7 +414,7 @@ id: graphics/{index}_auto_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.sane_product in ['portable', 'aio']
+    dmi.display_type == "integrated"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -435,7 +435,7 @@ id: graphics/{index}_valid_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.sane_product in ['portable', 'aio']
+    dmi.display_type == "integrated"
 user: root
 command:
  # shellcheck disable=SC1091

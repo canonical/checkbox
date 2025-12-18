@@ -1,5 +1,5 @@
 {
-  "gst_v4l2_video_decoder_performance_fakesink": [
+  "gst_video_decoder_performance_fakesink": [
     {
       "decoder_plugin": "omxh264dec",
       "golden_sample_file": "1080p_30fps_h264.mp4",

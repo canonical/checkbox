@@ -224,7 +224,7 @@ class GstResources:
                     }
                 )
 
-    def gst_v4l2_video_decoder_performance_fakesink(
+    def gst_video_decoder_performance_fakesink(
         self, scenario_data: list[dict]
     ) -> None:
         for item in scenario_data:

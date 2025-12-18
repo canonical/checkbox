@@ -335,7 +335,6 @@ class CarmelProject(PipelineInterface):
         # input video.
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
-            "video",
             "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
         )
         self._artifact_file = ""
@@ -431,7 +430,6 @@ class NxpIMX8mProject(PipelineInterface):
         # input video.
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
-            "video",
             "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
         )
         pipeline = (
@@ -457,7 +455,6 @@ class NxpIMX8mProject(PipelineInterface):
         # input video.
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
-            "video",
             "{}p_{}fps_h265.mp4".format(self._height, self._framerate),
         )
         pipeline = (
@@ -481,7 +478,6 @@ class NxpIMX8mProject(PipelineInterface):
         # input video.
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
-            "video",
             "{}p_{}fps_vp8.webm".format(self._height, self._framerate),
         )
         pipeline = (
@@ -553,7 +549,6 @@ class RenesasProject(PipelineInterface):
         """
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
-            "video",
             "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
         )
         pipeline = (

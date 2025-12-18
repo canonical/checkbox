@@ -60,9 +60,8 @@ def register_arguments() -> argparse.Namespace:
 
 class GstResources:
 
-    # video_golden_samples is the name of folder in hardware_codec_testing_data
-    # repo. https://github.com/canonical/hardware_codec_testing_data
-    VIDEO_GOLDEN_SAMPLES = "video"
+    # Find the video sample to test hardward codec
+    # repo. https://github.com/canonical/CodecCrafter
 
     def __init__(self, args: argparse.Namespace) -> None:
         self._args = args
@@ -102,7 +101,6 @@ class GstResources:
         name_with_format = "{}.{}".format(name, source_format)
         golden_sample_file = os.path.join(
             self._args.video_codec_testing_data_path,
-            self.VIDEO_GOLDEN_SAMPLES,
             name_with_format,
         )
         md5_name = "{}.md5".format(name)
@@ -217,10 +215,10 @@ class GstResources:
                         "golden_sample_file_name": sample_file["file_name"],
                         "golden_sample_file": os.path.join(
                             self._args.video_codec_testing_data_path,
-                            self.VIDEO_GOLDEN_SAMPLES,
                             sample_file["file_name"],
                         ),
-                        "capssetter_pipeline": sample_file["capssetter_pipeline"],
+                        "capssetter_pipeline":
+                        sample_file["capssetter_pipeline"],
                     }
                 )
 
@@ -235,7 +233,6 @@ class GstResources:
                     "minimum_fps": item["minimum_fps"],
                     "golden_sample_file": os.path.join(
                         self._args.video_codec_testing_data_path,
-                        self.VIDEO_GOLDEN_SAMPLES,
                         item["golden_sample_file"],
                     ),
                     # performance_target is "" means won't enable performance

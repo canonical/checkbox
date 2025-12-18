@@ -21,10 +21,10 @@ import argparse
 import logging
 import os
 import re
-import shlex
-import subprocess
 
 from performance_mode_controller import get_performance_ctx_function
+from gst_utils import execute_command
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -239,34 +239,6 @@ def build_renesas_gst_command(
     )
 
     return cmd
-
-
-def execute_command(cmd: str) -> str:
-    """
-    Executes the GStreamer command and extracts the specific data from the
-    output. The specific data is the value of last-message which is exposed by
-    fpsdisplaysink.
-
-    :param cmd:
-        The GStreamer command to execute.
-
-    :returns:
-        The extracted last_message.
-    """
-    try:
-        logging.info("Starting command: '{}'".format(cmd))
-        ret = subprocess.run(
-            shlex.split(cmd),
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            encoding="utf-8",
-            timeout=30,
-        )
-        logging.info(ret.stdout)
-        return ret.stdout
-    except Exception as e:
-        raise SystemExit(e)
 
 
 def is_valid_result(input_text: str, min_fps: float) -> bool:

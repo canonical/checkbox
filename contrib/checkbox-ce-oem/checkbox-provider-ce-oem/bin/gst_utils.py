@@ -14,7 +14,9 @@ from checkbox_support.scripts.psnr import get_average_psnr
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
-if not VIDEO_CODEC_TESTING_DATA or not os.path.exists(VIDEO_CODEC_TESTING_DATA):
+if not VIDEO_CODEC_TESTING_DATA or not os.path.exists(
+    VIDEO_CODEC_TESTING_DATA
+):
     raise SystemExit(
         "Error: Please define the proper path of golden sample folder to "
         "the environment variable 'VIDEO_CODEC_TESTING_DATA'"
@@ -165,9 +167,13 @@ def delete_file(file_path: str = "") -> None:
         logging.warn("Error occurred while deleting file: {}".format(str(e)))
 
 
-def compare_psnr(golden_reference_file: str = "", artifact_file: str = "") -> None:
+def compare_psnr(
+    golden_reference_file: str = "", artifact_file: str = ""
+) -> None:
     logging.info(
-        "Compare the PSNR: {} vs {}".format(golden_reference_file, artifact_file)
+        "Compare the PSNR: {} vs {}".format(
+            golden_reference_file, artifact_file
+        )
     )
     avg_psnr, _ = get_average_psnr(golden_reference_file, artifact_file)
     logging.info("Average PSNR: {}".format(avg_psnr))
@@ -204,10 +210,14 @@ def get_big_bug_bunny_golden_sample(
         width, height, framerate, codec, container
     )
 
-    full_path = os.path.join(VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_sample)
+    full_path = os.path.join(
+        VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_sample
+    )
     logging.debug("Golden Sample: '{}'".format(full_path))
     if not os.path.exists(full_path):
-        raise SystemExit("Error: Golden sample '{}' doesn't exist".format(full_path))
+        raise SystemExit(
+            "Error: Golden sample '{}' doesn't exist".format(full_path)
+        )
 
     return full_path
 
@@ -262,13 +272,19 @@ class MetadataValidator:
         logging.debug("Validating Height: {}".format(expected))
         height_pattern = "Height: {}".format(expected)
         if height_pattern not in self._metadata:
-            self._errors.append(self.INVALID_PATTERN.format("Height", expected))
+            self._errors.append(
+                self.INVALID_PATTERN.format("Height", expected)
+            )
 
     def _validate_frame_rate(self, expected: int) -> None:
         logging.debug("Validating Frame Rate: {}".format(expected))
-        frame_rate_pattern = re.compile(r"Frame rate:\s*({}/\d+)".format(expected))
+        frame_rate_pattern = re.compile(
+            r"Frame rate:\s*({}/\d+)".format(expected)
+        )
         if not frame_rate_pattern.search(self._metadata):
-            self._errors.append(self.INVALID_PATTERN.format("Frame rate", expected))
+            self._errors.append(
+                self.INVALID_PATTERN.format("Frame rate", expected)
+            )
 
     def _validate_codec(self, expected: str) -> None:
         """
@@ -290,7 +306,9 @@ class MetadataValidator:
             r"video(\(image\))? #\d+: .*{}.*".format(codec_map[expected])
         )
         if not video_pattern.search(self._metadata):
-            self._errors.append(self.INVALID_PATTERN.format("video_or_image", expected))
+            self._errors.append(
+                self.INVALID_PATTERN.format("video_or_image", expected)
+            )
 
     def is_valid(self) -> bool:
         """

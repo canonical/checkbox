@@ -68,7 +68,8 @@ def register_arguments():
         required=True,
         type=str,
         help=(
-            "The minimum value of FPS that " "all average FPS value should not violate"
+            "The minimum value of FPS that "
+            "all average FPS value should not violate"
         ),
     )
 
@@ -225,7 +226,8 @@ def build_rz_gst_command(
     # RZG series support only omxh264dec as hardware decoder
     if "rzg2" in platform:
         part_pipeline = "qtdemux ! h264parse ! {} use-dmabuf=true".format(
-            decoder)
+            decoder
+        )
 
     cmd = (
         "{} -v filesrc location={} ! {} ! queue !"

@@ -31,3 +31,4 @@ include:
     ce-oem-video-codec/genio-gst_transform_resize
     ce-oem-video-codec/carmel-gst_encoder_psnr
     ce-oem-video-codec/imx-gst_encoder_psnr
+    ce-oem-video-codec/renesas-gst_encoder_psnr

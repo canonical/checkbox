@@ -138,6 +138,13 @@ Record data is exposed as attributes of that object.
 The special parameter ``__index__`` can be used to iterate over the devices
 matching the ``template-filter`` field.
 
+.. warning::
+  
+  When using templated jobs, we have to be careful with dependencies, since
+  the templated jobs are not expanded during validation. Running ``manage.py validate``
+  will fail if there are templated jobs in the depends/after/before fields of other
+  jobs. The same applies to sibling jobs.
+
 Examples
 ========
 

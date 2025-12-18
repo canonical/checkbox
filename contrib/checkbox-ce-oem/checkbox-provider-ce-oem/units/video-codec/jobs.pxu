@@ -79,9 +79,9 @@ command:
 unit: template
 template-engine: jinja2
 template-resource: video_codec_resource
-template-filter: video_codec_resource.scenario == "gst_v4l2_video_decoder_performance_fakesink"
+template-filter: video_codec_resource.scenario == "gst_video_decoder_performance_fakesink"
 template-unit: job
-template-id: ce-oem-video-codec/gst_v4l2_video_decoder_performance_fakesink
+template-id: ce-oem-video-codec/gst_video_decoder_performance_fakesink
 _template-summary: To check if the performance of decoder doesn't violate Pass Criteria
 id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}
 _summary: Performance test of decoder {{ decoder_plugin }} - fakesink
@@ -95,7 +95,7 @@ requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
 environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME PLATFORM_NAME
 command:
-    gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "$PLATFORM_NAME"
+    gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "$PLATFORM_NAME"
 
 unit: template
 template-engine: jinja2

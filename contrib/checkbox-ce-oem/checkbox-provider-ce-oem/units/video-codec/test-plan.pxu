@@ -25,7 +25,7 @@ bootstrap_include:
 include:
     ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison
     ce-oem-video-codec/gst_decoder_comparison
-    ce-oem-video-codec/gst_v4l2_video_decoder_performance_fakesink
+    ce-oem-video-codec/gst_video_decoder_performance_fakesink
     ce-oem-video-codec/genio-gst_encoder_psnr
     ce-oem-video-codec/gst_transform_rotate_and_flip
     ce-oem-video-codec/genio-gst_transform_resize

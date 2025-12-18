@@ -579,6 +579,7 @@ class RzProject(PipelineInterface):
         Returns:
             str: A GStreamer command.
         """
+        # RZG2 series support only omxh264enc as hardware encoder
         if "rzg2" in self._platform and self._codec == "omxh264enc":
             return self._omxh264_pipeline_builder()
         else:

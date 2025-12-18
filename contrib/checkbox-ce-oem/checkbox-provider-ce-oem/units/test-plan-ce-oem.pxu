@@ -97,6 +97,7 @@ nested_part:
     ce-oem-power-automated-by-pdu
     ce-oem-mipi-camera-automated
     ce-oem-graphics-automated
+    ce-oem-video-codec-automated
 certification_status_overrides:
     apply blocker to .*
 

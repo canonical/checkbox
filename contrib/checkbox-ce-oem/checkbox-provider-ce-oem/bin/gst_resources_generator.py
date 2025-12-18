@@ -62,7 +62,7 @@ class GstResources:
 
     # video_golden_samples is the name of folder in hardware_codec_testing_data
     # repo. https://github.com/canonical/hardware_codec_testing_data
-    VIDEO_GOLDEN_SAMPLES = "video_golden_samples"
+    VIDEO_GOLDEN_SAMPLES = "video"
 
     def __init__(self, args: argparse.Namespace) -> None:
         self._args = args

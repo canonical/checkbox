@@ -326,7 +326,7 @@ def _delete_all_bearers(mm_id: str):
                 ["mmcli", "-m", mm_id, "--delete-bearer={}".format(path)]
             )
         print()
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         print("No bearers found")
         return
 

@@ -1,11 +1,13 @@
 #! /usr/bin/python3
 
+from pathlib import Path
 import sys
 import re
 from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE, DEVNULL
 from shutil import which
 import os
+import typing as T
 
 # These tests require user interaction and need either special handling
 # or skipping altogether (right now, we skip them but they're kept here
@@ -168,17 +170,15 @@ TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 
 
-def get_sleep_times(log, start_marker):
+def get_sleep_times(log: "str | Path", start_marker: str):
     suspend_time = ""
     resume_time = ""
     with open(log, "r", encoding="UTF-8", errors="ignore") as f:
-        line = ""
-        while start_marker not in line:
-            line = f.readline()
-            if start_marker in line:
-                loglist = f.readlines()
-        for i, l in enumerate(loglist):
-            if "Suspend/Resume Timings:" in l:
+        while start_marker not in f.readline():
+            continue
+        loglist = f.readlines()  # read the remaining lines
+        for i, line in enumerate(loglist):
+            if "Suspend/Resume Timings:" in line:
                 suspend_line = loglist[i + 1]
                 resume_line = loglist[i + 2]
                 match = SLEEP_TIME_RE.search(suspend_line)
@@ -190,7 +190,7 @@ def get_sleep_times(log, start_marker):
     return (suspend_time, resume_time)
 
 
-def average_times(runs):
+def average_times(runs: "dict[T.Any, T.Any]"):
     sleep_run_count = 0
     sleep_total = 0.0
     resume_run_count = 0
@@ -232,8 +232,8 @@ def average_times(runs):
     print()
 
 
-def fix_sleep_args(args):
-    new_args = []
+def fix_sleep_args(args: "list[str]"):
+    new_args = []  # type: list[str]
     for arg in args:
         if "=" in arg:
             new_args.extend(arg.split("="))
@@ -242,7 +242,7 @@ def fix_sleep_args(args):
     return new_args
 
 
-def detect_progress_indicator():
+def detect_progress_indicator() -> "list[str]":
     # Return a command suitable for piping progress information to its
     # stdin (invoked via Popen), in list format.
     # Return zenity if installed and DISPLAY (--auto-close)
@@ -256,7 +256,7 @@ def detect_progress_indicator():
     return []
 
 
-def print_log(logfile):
+def print_log(logfile: "str | Path"):
     """
     Print logfile to the output
     """
@@ -264,7 +264,7 @@ def print_log(logfile):
         try:
             print(f.read())
         except UnicodeDecodeError as e:
-            print("WARNING: Found bad char in " + logfile)
+            print("WARNING: Found bad char in", logfile)
 
 
 def parse_arguments(args):
@@ -395,9 +395,10 @@ def parse_arguments(args):
 def main(args=sys.argv[1:]):
     args = parse_arguments(args)
 
-    tests = []
-    requested_tests = []
+    tests = []  # type: list[str]
+    requested_tests = []  # type: list[str]
     results = {}
+    # these are all list[str]
     critical_fails = []
     high_fails = []
     medium_fails = []
@@ -409,19 +410,20 @@ def main(args=sys.argv[1:]):
     warnings = []
 
     # Set correct fail level
+    iterations = None  # type: int | None
+    fail_priority = -99999  # report everything by default
+    # Get our failure priority and create the priority values
+    fail_levels = {
+        "FAILED_SUPERCRITICAL": 5,
+        "FAILED_CRITICAL": 4,
+        "FAILED_HIGH": 3,
+        "FAILED_MEDIUM": 2,
+        "FAILED_LOW": 1,
+        "FAILED_NONE": 0,
+        "FAILED_ABORTED": -1,
+    }
     if args.fail_level != "none":
         args.fail_level = "FAILED_%s" % args.fail_level.upper()
-
-        # Get our failure priority and create the priority values
-        fail_levels = {
-            "FAILED_SUPERCRITICAL": 5,
-            "FAILED_CRITICAL": 4,
-            "FAILED_HIGH": 3,
-            "FAILED_MEDIUM": 2,
-            "FAILED_LOW": 1,
-            "FAILED_NONE": 0,
-            "FAILED_ABORTED": -1,
-        }
         fail_priority = fail_levels[args.fail_level]
 
     if args.fwts_help:
@@ -467,8 +469,11 @@ def main(args=sys.argv[1:]):
 
         # run the tests we want
     if args.sleep:
+        assert iterations is not None
         tests = requested_tests
-        iteration_results = {}
+        iteration_results = (
+            {}
+        )  # type: dict[int, tuple[float | str, float | str]]
         print("=" * 20 + " Test Results " + "=" * 20)
         progress_indicator = None
         if detect_progress_indicator():
@@ -479,10 +484,34 @@ def main(args=sys.argv[1:]):
             marker = "{:=^80}\n".format(" Iteration {} ".format(iteration))
             with open(args.log, "a") as f:
                 f.write(marker)
-            command = "fwts -q --stdout-summary -r %s %s" % (
-                args.log,
-                " ".join(tests),
-            )
+
+            if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
+                # snap checkbox
+                # must specify where the klog.json, clog.json files are
+                fwts_json_data_dir = (
+                    Path(os.environ["SNAP"])
+                    / "checkbox-runtime"
+                    / "share"
+                    / "fwts"
+                )
+                if not fwts_json_data_dir.exists():
+                    raise SystemExit(
+                        "We are in a snap environment, "
+                        + "but {}".format(fwts_json_data_dir)
+                        + "doesn't exist"
+                    )
+                command = "fwts -j {} -q --stdout-summary -r {} {}".format(
+                    fwts_json_data_dir,
+                    args.log,
+                    " ".join(tests),
+                )
+            else:
+                # deb, use the original command
+                command = "fwts -q --stdout-summary -r {} {}".format(
+                    args.log,
+                    " ".join(tests),
+                )
+
             results["sleep"] = (
                 Popen(command, stdout=PIPE, shell=True)
                 .communicate()[0]
@@ -503,6 +532,7 @@ def main(args=sys.argv[1:]):
                     )
                 progress_pct = "{}".format(int(100 * iteration / iterations))
                 if "zenity" in detect_progress_indicator():
+                    assert progress_indicator and progress_indicator.stdin
                     progress_indicator.stdin.write(
                         "# {}\n".format(progress_string).encode("utf-8")
                     )
@@ -514,6 +544,7 @@ def main(args=sys.argv[1:]):
                         # flushing its stdin would yield broken pipe
                         progress_indicator.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
+                    assert progress_indicator and progress_indicator.stdin
                     progress_indicator.stdin.write("XXX\n".encode("utf-8"))
                     progress_indicator.stdin.write(
                         progress_pct.encode("utf-8")
@@ -529,7 +560,7 @@ def main(args=sys.argv[1:]):
                         progress_indicator.stdin.flush()
                 else:
                     print(progress_string, flush=True)
-        if detect_progress_indicator():
+        if progress_indicator:
             progress_indicator.terminate()
         if "s4" not in args.sleep:
             average_times(iteration_results)

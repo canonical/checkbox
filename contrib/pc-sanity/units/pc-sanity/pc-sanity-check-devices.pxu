@@ -212,19 +212,6 @@ _description:
  Check if touchpad support ABS_PRESSURE and MT_ABS_PRESSURE event.
 
 unit: template
-template-resource: cpuinfo
-template-filter:
- cpuinfo.type in ['GenuineIntel','AuthenticAMD']
-template-unit: job
-plugin: shell
-category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/acpi-bios-error_{type}
-command: acpi_bios_error.py
-_summary: Check if kernel reports ACPI BIOS Error
-_description:
- Check if the kernel reports ACPI BIOS Error
-
-unit: template
 template-resource: dmi
 template-filter:
  dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']

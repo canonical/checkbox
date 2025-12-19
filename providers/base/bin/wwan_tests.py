@@ -12,6 +12,7 @@ import argparse
 import logging
 import time
 import dbus
+import re
 import sys
 import os
 
@@ -307,6 +308,29 @@ def _wwan_radio_status():
     return ret_sp.stdout.decode("utf-8").strip()
 
 
+def _delete_all_bearers(mm_id: str):
+    print_head("Delete all existing bearers (if any)")
+
+    # List and delete all bearer object paths
+    try:
+        out = subprocess.check_output(
+            ["mmcli", "-m", mm_id, "--list-bearers"],
+            universal_newlines=True,
+            stderr=subprocess.STDOUT,
+        )
+
+        for path in set(
+            re.findall(r"/org/freedesktop/ModemManager1/Bearer/\d+", out)
+        ):
+            subprocess.run(
+                ["mmcli", "-m", mm_id, "--delete-bearer={}".format(path)]
+            )
+        print()
+    except subprocess.CalledProcessError as e:
+        print("No bearers found")
+        return
+
+
 def _allow_roaming(mm_id: str, apn: str):
     """
     Sets the bearer to enable roaming using the mmcli command-line tool.
@@ -316,6 +340,7 @@ def _allow_roaming(mm_id: str, apn: str):
         apn (str): The APN (Access Point Name) to use.
     """
     print_head("Set bearer to enable roaming")
+    _delete_all_bearers(mm_id)
     bearer = "apn={},allow-roaming=true".format(apn)
     cmd = ["mmcli", "-m", mm_id, "--create-bearer={}".format(bearer)]
     print_cmd(cmd)
@@ -534,8 +559,8 @@ class SimInfo:
         parser.add_argument(
             "hw_id",
             type=str,
-            help="The hardware ID of the modem whose attached"
-            "SIM we want to query",
+            help="The hardware ID of the modem whose attachedSIM"
+            " we want to query",
         )
         parser.add_argument(
             "--use-cli",

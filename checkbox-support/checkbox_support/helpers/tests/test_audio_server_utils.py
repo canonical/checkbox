@@ -409,7 +409,8 @@ class PulseaudioUtilsTests(unittest.TestCase):
     )
     def test_parse_pactl_list_sinks(self, mock_check_output):
         """Test parsing pactl list sinks output."""
-        mock_check_output.return_value = textwrap.dedent("""\
+        mock_check_output.return_value = textwrap.dedent(
+            """\
             Sink #0
             	State: SUSPENDED
             	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
@@ -421,7 +422,8 @@ class PulseaudioUtilsTests(unittest.TestCase):
             	Mute: no
             	Volume: front-left: 65536 / 100% / 0.00 dB
             	Index: 0
-            """)
+            """
+        )
         nodes = self.pulseaudio._parse_pactl_list("sinks")
         self.assertEqual(len(nodes), 1)
         self.assertEqual(
@@ -435,7 +437,8 @@ class PulseaudioUtilsTests(unittest.TestCase):
     )
     def test_parse_pactl_list_multiple_sinks(self, mock_check_output):
         """Test parsing pactl output with multiple sinks."""
-        mock_check_output.return_value = textwrap.dedent("""\
+        mock_check_output.return_value = textwrap.dedent(
+            """\
             Sink #0
             	State: SUSPENDED
             	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
@@ -471,7 +474,8 @@ class PulseaudioUtilsTests(unittest.TestCase):
             	Mute: no
             	Volume: front-left: 32768 / 50%
             	Index: 42
-            """)
+            """
+        )
         nodes = self.pulseaudio._parse_pactl_list("sinks")
         self.assertEqual(len(nodes), 3)
 
@@ -498,7 +502,8 @@ class PulseaudioUtilsTests(unittest.TestCase):
     )
     def test_parse_pactl_list_sources(self, mock_check_output):
         """Test parsing pactl list sources output."""
-        mock_check_output.return_value = textwrap.dedent("""\
+        mock_check_output.return_value = textwrap.dedent(
+            """\
             Source #0
             	State: SUSPENDED
             	Name: alsa_input.pci-0000_00_1f.3.analog-stereo
@@ -522,7 +527,8 @@ class PulseaudioUtilsTests(unittest.TestCase):
             	Mute: no
             	Volume: front-left: 65536 / 100%
             	Index: 1
-            """)
+            """
+        )
         nodes = self.pulseaudio._parse_pactl_list("sources")
         self.assertEqual(len(nodes), 2)
 
@@ -753,9 +759,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(sinks[1].description, "HDMI")
 
         audio.set_sink(sinks[0])
-        mock_check_output.assert_called_with(
-            ["wpctl", "set-default", "200"]
-        )
+        mock_check_output.assert_called_with(["wpctl", "set-default", "200"])
 
         audio.set_volume(sinks[0], 0.75)
         mock_check_output.assert_called_with(
@@ -772,7 +776,8 @@ class IntegrationTests(unittest.TestCase):
         """Test PulseAudio workflow: iterate sinks and set one as default."""
         mock_get_server.return_value = AudioServer.PULSEAUDIO
 
-        pactl_output = textwrap.dedent("""\
+        pactl_output = textwrap.dedent(
+            """\
             Sink #0
             	State: RUNNING
             	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
@@ -786,7 +791,8 @@ class IntegrationTests(unittest.TestCase):
             	Description: USB Audio
             	Driver: module-alsa-card.c
             	Index: 1
-            """)
+            """
+        )
 
         def check_output_side_effect(cmd, **kwargs):
             if cmd == ["pactl", "list", "sinks"]:
@@ -812,10 +818,19 @@ class IntegrationTests(unittest.TestCase):
 
         audio.set_sink(sinks[0])
         mock_check_output.assert_called_with(
-            ["pactl", "set-default-sink", "alsa_output.pci-0000_00_1f.3.analog-stereo"]
+            [
+                "pactl",
+                "set-default-sink",
+                "alsa_output.pci-0000_00_1f.3.analog-stereo",
+            ]
         )
 
         audio.set_volume(sinks[0], 0.75)
         mock_check_output.assert_called_with(
-            ["pactl", "set-sink-volume", "alsa_output.pci-0000_00_1f.3.analog-stereo", "75%"]
+            [
+                "pactl",
+                "set-sink-volume",
+                "alsa_output.pci-0000_00_1f.3.analog-stereo",
+                "75%",
+            ]
         )

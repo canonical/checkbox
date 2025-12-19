@@ -245,7 +245,7 @@ def main() -> None:
     print(
         "OK! This machine meets the minimum OpenGL version requirement",
         "({} >= 3.0)".format(gl_version_str),
-        "and is using a hardware renderer fpr {} apps".format(
+        "and is using a hardware renderer for {} apps".format(
             os.environ["XDG_SESSION_TYPE"]
         ),  # wayland working doesn't necessarily imply Xwayland working
     )

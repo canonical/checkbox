@@ -223,12 +223,13 @@ template-id: graphics/index_cycle_resolution_product_slug
 flags: also-after-suspend
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
- if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then
-   gnome_randr_cycle.py --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+   randr_cycle.py -c resolution --prefix {index} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
  else
    xrandr_cycle.py --screenshot-dir="$PLAINBOX_SESSION_SHARE"
  fi
@@ -250,10 +251,16 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_rotation_{product_slug}
 template-id: graphics/index_rotation_product_slug
 flags: also-after-suspend
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
- rotation_test.py
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
+ then
+   randr_cycle.py -c transform --prefix {index} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
+ else
+   rotation_test.py
+ fi
 estimated_duration: 20.000
 _summary: Test rotation for {vendor} {product}
 _purpose:

@@ -87,7 +87,6 @@ def test_glmark2_es2_wayland():
         )
         return 1
 
-    frame_pid = None
     if not is_ubuntu_frame_active():
         proc = launch_ubuntu_frame()
         time.sleep(10)

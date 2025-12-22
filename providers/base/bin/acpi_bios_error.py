@@ -17,9 +17,9 @@ def print_bios_info():
             with open(path, "r") as f:
                 value = f.read().strip()
         except (OSError, IOError) as e:
-            value = f"Unable to read {path}: {e}"
+            value = "Unable to read {}: {}".format(path, e)
 
-        print(f"BIOS {field}: {value}")
+        print("BIOS {}: {}".format(field, value))
 
 
 def check_acpi_bios_errors():

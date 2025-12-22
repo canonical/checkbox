@@ -76,6 +76,7 @@ def test_glmark2_es2_wayland():
         "graphics-test-tools.glmark2-es2-wayland",
     ]
     exit_code = 0
+    proc = None
 
     gl_vendor = os.environ.get("GL_VENDOR")
     gl_renderer = os.environ.get("GL_RENDERER")

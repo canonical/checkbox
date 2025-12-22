@@ -40,7 +40,7 @@ def test_ubuntu_frame_launching():
         logger.info("No need to bring it up again")
         logger.info("journal log of ubuntu frame:")
         subprocess.run(["journalctl", "-b", "0", "-g", "ubuntu-frame"])
-    else:        
+    else:
         try:
             proc = launch_ubuntu_frame()
             proc.wait(timeout=20)

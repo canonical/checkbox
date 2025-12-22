@@ -89,13 +89,7 @@ def test_glmark2_es2_wayland():
 
     frame_pid = None
     if not is_ubuntu_frame_active():
-        logger.info("Activating ubuntu-frame now...")
-        proc = subprocess.Popen(
-            ["ubuntu-frame"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        frame_pid = proc.pid
+        proc = launch_ubuntu_frame()
         time.sleep(10)
 
     logger.info("Running glmark2-es2-wayland benchmark...")

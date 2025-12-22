@@ -17,6 +17,7 @@ command:
 plugin: shell
 category_id: smartcard
 id: smartcard/smartcard-reader-detect-contact
+user: root
 estimated_duration: 1.0
 _description:
  Check if Smartcard reader exist or not
@@ -29,6 +30,7 @@ command: smartcard_test.py detect_reader -t contact
 plugin: shell
 category_id: smartcard
 id: smartcard/smartcard-reader-detect-contactless
+user: root
 estimated_duration: 1.0
 _description:
  Check if Smartcard reader exist or not
@@ -44,6 +46,7 @@ template-unit: job
 plugin: shell
 category_id: smartcard
 id: smartcard/{smartcard_reader}-send-apdu-auto
+user: root
 template-id: smartcard/smartcard-reader-send-apdu-auto
 estimated_duration: 5.0
 _description:
@@ -62,6 +65,7 @@ template-unit: job
 plugin: user-interact-verify
 category_id: smartcard
 id: smartcard/{smartcard_reader}-detect-contact-manual
+user: root
 template-id: smartcard/smartcard-reader-detect-contact-manual
 estimated_duration: 45.0
 _description:
@@ -78,6 +82,7 @@ template-unit: job
 plugin: user-interact-verify
 category_id: smartcard
 id: smartcard/{smartcard_reader}-detect-contactless-manual
+user: root
 template-id: smartcard/smartcard-reader-detect-contactless-manual
 estimated_duration: 45.0
 _description:

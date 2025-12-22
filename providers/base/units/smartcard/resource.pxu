@@ -8,6 +8,7 @@ unit: job
 id: smartcard_resource_contact
 category_id: smartcard
 plugin: resource
+user: root
 _description:
     Gather device info about smartcard reader
 command: smartcard_test.py resources -t contact
@@ -17,6 +18,7 @@ unit: job
 id: smartcard_resource_contactless
 category_id: smartcard
 plugin: resource
+user: root
 _description:
     Gather device info about smartcard reader
 command: smartcard_test.py resources -t contactless

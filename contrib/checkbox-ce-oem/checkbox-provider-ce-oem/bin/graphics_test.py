@@ -40,14 +40,9 @@ def test_ubuntu_frame_launching():
         logger.info("No need to bring it up again")
         logger.info("journal log of ubuntu frame:")
         subprocess.run(["journalctl", "-b", "0", "-g", "ubuntu-frame"])
-    else:
-        logger.info("Activating ubuntu-frame now...")
-        proc = subprocess.Popen(
-            ["ubuntu-frame"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+    else:        
         try:
+            proc = launch_ubuntu_frame()
             proc.wait(timeout=20)
         except subprocess.TimeoutExpired:
             proc.terminate()
@@ -61,6 +56,16 @@ def test_ubuntu_frame_launching():
                 )
                 return 1
     return 0
+
+
+def launch_ubuntu_frame():
+    logger.info("Activating ubuntu-frame now...")
+    proc = subprocess.Popen(
+        ["ubuntu-frame"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return proc
 
 
 def test_glmark2_es2_wayland():

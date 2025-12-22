@@ -51,6 +51,7 @@ nested_part:
     ce-oem-mipi-camera-manual
     ce-oem-regulator-manual
     ce-oem-graphics-manual
+    ce-oem-rpmsg-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -98,6 +99,7 @@ nested_part:
     ce-oem-mipi-camera-automated
     ce-oem-graphics-automated
     ce-oem-video-codec-automated
+    ce-oem-rpmsg-automated
 certification_status_overrides:
     apply blocker to .*
 

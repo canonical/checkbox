@@ -112,7 +112,7 @@ class TestGraphicsTest(unittest.TestCase):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        mock_proc.terminate.assert_called_once()
+        self.assertEqual(mock_proc.terminate.call_count, 1)
 
     @patch("os.environ.get", return_value=None)
     def test_glmark2_no_env_vars(self, mock_env_get):

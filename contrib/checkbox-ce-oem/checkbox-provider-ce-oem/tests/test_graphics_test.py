@@ -86,7 +86,6 @@ class TestGraphicsTest(unittest.TestCase):
 
     @patch("os.environ.get")
     @patch("time.sleep")
-    @patch("subprocess.run")
     @patch("subprocess.check_output")
     @patch("subprocess.Popen")
     @patch("graphics_test.is_ubuntu_frame_active")
@@ -95,11 +94,10 @@ class TestGraphicsTest(unittest.TestCase):
         mock_is_active,
         mock_popen,
         mock_check_output,
-        mock_run,
         mock_sleep,
         mock_env_get,
     ):
-        mock_is_active.side_effect = [False, True]
+        mock_is_active.return_value = False
         mock_proc = MagicMock()
         mock_proc.pid = 1234
         mock_popen.return_value = mock_proc
@@ -114,7 +112,7 @@ class TestGraphicsTest(unittest.TestCase):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        mock_run.assert_called_with(["kill", "1234"])
+        mock_proc.terminate.assert_called_once()
 
     @patch("os.environ.get", return_value=None)
     def test_glmark2_no_env_vars(self, mock_env_get):

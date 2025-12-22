@@ -101,8 +101,8 @@ def test_glmark2_es2_wayland():
         output = e.output
     logger.info(output)
 
-    if frame_pid:
-        subprocess.run(["kill", str(frame_pid)])
+    if proc and proc.pid:
+        proc.terminate()
 
     if not re.search(r"GL_VENDOR:\s+{}".format(gl_vendor), output):
         logger.error("FAIL: Wrong vendor!")

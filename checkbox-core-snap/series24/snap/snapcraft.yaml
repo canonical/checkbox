@@ -170,6 +170,7 @@ parts:
       - python3-minimal
       - python3-pkg-resources
       - python3.12-minimal
+      - python3-opencv
     build-packages:
       - libbluetooth-dev
       - python3-dev

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo apt install -y vainfo ffmpeg libflite1 liboss4-salsa2

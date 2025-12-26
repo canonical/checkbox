@@ -92,7 +92,7 @@ plugin: shell
 category_id: video-codec
 estimated_duration: 60s
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER_BIN
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f {{ framerate }} -m "{{ mux }}"
 
@@ -154,7 +154,7 @@ plugin: shell
 user: root
 category_id: video-codec
 estimated_duration: 60s
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER_BIN
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"
 
@@ -174,7 +174,7 @@ plugin: shell
 user: root
 category_id: video-codec
 estimated_duration: 60s
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER_BIN
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"
 
@@ -194,6 +194,6 @@ plugin: shell
 user: root
 category_id: video-codec
 estimated_duration: 60s
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER_BIN
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"

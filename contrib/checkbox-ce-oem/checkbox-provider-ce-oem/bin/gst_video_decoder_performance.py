@@ -21,10 +21,10 @@ import argparse
 import logging
 import os
 import re
-import shlex
-import subprocess
 
 from performance_mode_controller import get_performance_ctx_function
+from gst_utils import execute_command
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -194,32 +194,51 @@ def build_imx_gst_command(
     return cmd
 
 
-def execute_command(cmd: str) -> str:
+def build_renesas_gst_command(
+    gst_bin: str,
+    golden_sample_path: str,
+    decoder: str,
+    sink: str,
+    fpsdisplaysink_sync: str,
+    platform: str,
+) -> str:
     """
-    Executes the GStreamer command and extracts the specific data from the
-    output. The specific data is the value of last-message which is exposed by
-    fpsdisplaysink.
+    Builds a GStreamer command to process the golden sample.
 
-    :param cmd:
-        The GStreamer command to execute.
+    :param gst_bin:
+        The binary name of gstreamer. Default is "gst-launch-1.0"
+        You can assign the snap name to GST_LAUNCH_BIN env variable if you
+        want to using snap.
+    :param golden_sample:
+        The path to the golden sample file.
+    :param decoder:
+        The decoder to use for the video, e.g., "omxh264dec".
+    :param sink:
+        The desired sink option, e.g., "fakesink".
+    :param fpsdisplaysink_sync:
+        The property option of fpsdisplaysink."
+        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
+        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
 
     :returns:
-        The extracted last_message.
+        The GStreamer command to execute.
     """
-    try:
-        logging.info("Starting command: '{}'".format(cmd))
-        ret = subprocess.run(
-            shlex.split(cmd),
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            encoding="utf-8",
-            timeout=30,
+    # RZG2 series support only omxh264dec as hardware decoder
+    # And only RZG2L supported.
+    if "rzg2l" in platform:
+        part_pipeline = "qtdemux ! h264parse ! {} use-dmabuf=true".format(
+            decoder
         )
-        logging.info(ret.stdout)
-        return ret.stdout
-    except Exception as e:
-        raise SystemExit(e)
+
+    cmd = (
+        "{} -v filesrc location={} ! {} ! queue !"
+        " vspmfilter dmabuf-use=true !"
+        " queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
+    ).format(
+        gst_bin, golden_sample_path, part_pipeline, sink, fpsdisplaysink_sync
+    )
+
+    return cmd
 
 
 def is_valid_result(input_text: str, min_fps: float) -> bool:
@@ -299,6 +318,15 @@ def main() -> None:
             decoder=args.decoder_plugin,
             sink=args.sink,
             fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+        )
+    elif "rz" in args.platform:
+        cmd = build_renesas_gst_command(
+            gst_bin=gst_launch_bin,
+            golden_sample_path=args.golden_sample_path,
+            decoder=args.decoder_plugin,
+            sink=args.sink,
+            fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+            platform=args.platform,
         )
     else:
         cmd = build_gst_command(

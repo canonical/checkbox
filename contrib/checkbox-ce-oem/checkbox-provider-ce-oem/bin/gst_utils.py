@@ -30,6 +30,7 @@ class GStreamerEncodePlugins(Enum):
     V4L2H265ENC = "v4l2h265enc"
     V4L2JPEGENC = "v4l2jpegenc"
     V4L2VP8ENC = "v4l2vp8enc"
+    OMXH264ENC = "omxh264enc"
 
 
 class GStreamerMuxerType(Enum):
@@ -295,6 +296,7 @@ class MetadataValidator:
             GStreamerEncodePlugins.V4L2H265ENC.value: "H.265",
             GStreamerEncodePlugins.V4L2JPEGENC.value: "JPEG",
             GStreamerEncodePlugins.V4L2VP8ENC.value: "VP8",
+            GStreamerEncodePlugins.OMXH264ENC.value: "H.264",
         }
         if expected not in codec_map:
             raise SystemExit(

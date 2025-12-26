@@ -58,9 +58,9 @@ command:
 unit: template
 template-engine: jinja2
 template-resource: video_codec_resource
-template-filter: video_codec_resource.scenario == "gst_v4l2_video_decoder_performance_fakesink"
+template-filter: video_codec_resource.scenario == "gst_video_decoder_performance_fakesink"
 template-unit: job
-template-id: ce-oem-video-codec/gst_v4l2_video_decoder_performance_fakesink
+template-id: ce-oem-video-codec/gst_video_decoder_performance_fakesink
 _template-summary: To check if the performance of decoder doesn't violate Pass Criteria
 id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}
 _summary: Performance test of decoder {{ decoder_plugin }} - fakesink
@@ -74,7 +74,7 @@ requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
 environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME PLATFORM_NAME
 command:
-    gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "$PLATFORM_NAME"
+    gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "$PLATFORM_NAME"
 
 unit: template
 template-engine: jinja2
@@ -170,6 +170,26 @@ _template-summary: Verify the PSNR ratio for specific encoder on NXP i.MX8M plat
 id: ce-oem-video-codec/imx8-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
 _summary: Encoder PSNR - iMX8 - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
 _description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on NXP i.MX8M platform
+plugin: shell
+user: root
+category_id: video-codec
+estimated_duration: 60s
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+command:
+    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter:
+    video_codec_resource.scenario == "gst_encoder_psnr"
+    video_codec_resource.platform == "rzg2l"
+template-unit: job
+template-id: ce-oem-video-codec/renesas-gst_encoder_psnr
+_template-summary: Verify the PSNR ratio for specific encoder on Renesas RZG2L platform
+id: ce-oem-video-codec/renesas-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
+_summary: Encoder PSNR - RZG2L - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
+_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Renesas RZG2L platform
 plugin: shell
 user: root
 category_id: video-codec

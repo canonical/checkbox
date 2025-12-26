@@ -18,8 +18,6 @@ _description:
   This is classic 24.04
 include:
   disk/encryption/check-fde-tpm
-  disk/encryption/detect
-  miscellanea/secure_boot_mode_.*
 mandatory_include:
   com.canonical.plainbox::manifest
   executable
@@ -109,6 +107,8 @@ unit: test plan
 _description:
   This is classic 24.04
 include:
+  disk/encryption/detect
+  miscellanea/secure_boot_mode
 mandatory_include:
   com.canonical.plainbox::manifest
   executable

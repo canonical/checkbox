@@ -12,6 +12,7 @@ from typing import Any
 from checkbox_support.scripts.psnr import get_average_psnr
 
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
+GST_DISCOVERER_BIN = os.getenv("GST_DISCOVERER_BIN", "gst-discoverer-1.0")
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
 if not VIDEO_CODEC_TESTING_DATA or not os.path.exists(
@@ -234,7 +235,9 @@ class MetadataValidator:
         """
         self._file_path = file_path
         self._metadata = execute_command(
-            cmd="gst-discoverer-1.0 {}".format(self._file_path)
+            cmd="{} {}".format(
+                GST_DISCOVERER_BIN,
+                self._file_path)
         )
         self._errors = []
 

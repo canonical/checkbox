@@ -235,9 +235,7 @@ class MetadataValidator:
         """
         self._file_path = file_path
         self._metadata = execute_command(
-            cmd="{} {}".format(
-                GST_DISCOVERER_BIN,
-                self._file_path)
+            cmd="{} {}".format(GST_DISCOVERER_BIN, self._file_path)
         )
         self._errors = []
 

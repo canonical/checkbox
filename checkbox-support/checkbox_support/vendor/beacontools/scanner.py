@@ -1,6 +1,7 @@
 """Classes responsible for Beacon scanning."""
 import logging
 import struct
+import sys
 import threading
 from importlib import import_module
 from enum import IntEnum
@@ -18,7 +19,11 @@ from .const import (CJ_MANUFACTURER_ID, EDDYSTONE_UUID,
                     BluetoothAddressType, ScanFilter, ScannerMode, ScanType,
                     OCF_LE_SET_EXT_SCAN_PARAMETERS, OCF_LE_SET_EXT_SCAN_ENABLE,
                     EVT_LE_EXT_ADVERTISING_REPORT, OGF_INFO_PARAM,
+                    OCF_LE_READ_LOCAL_SUPPORTED_FEATURES,
+                    OCF_LE_READ_MAX_ADVERTISING_DATA_LENGTH,
                     OCF_READ_LOCAL_VERSION, EVT_CMD_COMPLETE)
+from .structs.common import HciAdReportEvent
+from .const import MetaEventReportTypeEnum as MERTE
 from .device_filters import BtAddrFilter, DeviceFilter
 from .packet_types import (EddystoneEIDFrame, EddystoneEncryptedTLMFrame,
                            EddystoneTLMFrame, EddystoneUIDFrame,
@@ -48,10 +53,13 @@ class HCIVersion(IntEnum):
     BT_CORE_SPEC_5_3 = 12
     BT_CORE_SPEC_5_4 = 13
     BT_CORE_SPEC_6_0 = 14
+    BT_CORE_SPEC_6_1 = 15
 
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.DEBUG)
+_LOGGER.setLevel(logging.INFO)
+stdout_handler = logging.StreamHandler(sys.stdout)
+_LOGGER.addHandler(stdout_handler)
 
 # pylint: disable=no-member
 
@@ -59,9 +67,11 @@ _LOGGER.setLevel(logging.DEBUG)
 class BeaconScanner(object):
     """Scan for Beacon advertisements."""
 
-    def __init__(self, callback, bt_device_id=0, device_filter=None, packet_filter=None, scan_parameters=None):
+    def __init__(self, callback, bt_device_id=0, device_filter=None, packet_filter=None, scan_parameters=None, debug=False):
         """Initialize scanner."""
         # check if device filters are valid
+        if debug:
+            _LOGGER.setLevel(logging.DEBUG)
         if device_filter is not None:
             if not isinstance(device_filter, list):
                 device_filter = [device_filter]
@@ -147,16 +157,52 @@ class Monitor(threading.Thread):
         self.socket = self.backend.open_dev(self.bt_device_id)
 
         self.hci_version = self.get_hci_version()
+        self.support_ext_advertising = self.is_le_extended_advertising_support()
+        _LOGGER.info(
+            "# Extended advertising support: %s", self.support_ext_advertising
+        )
+        max_advertising_data_length = self.get_le_adv_report_length()
+        _LOGGER.info(
+            "# Max advertising data length: %s", max_advertising_data_length
+        )
         self.set_scan_parameters(**self.scan_parameters)
         self.toggle_scan(True)
 
         while self.keep_going:
-            pkt = self.socket.recv(255)
+            pkt = self.socket.recv(max_advertising_data_length)
             event = to_int(pkt[1])
-            subevent = to_int(pkt[3])
-            if event == LE_META_EVENT and subevent in [EVT_LE_ADVERTISING_REPORT, EVT_LE_EXT_ADVERTISING_REPORT]:
-                # we have an BLE advertisement
-                self.process_packet(pkt)
+
+            # Print opcode and error code when HCI command failed
+            # This may helps to identify issue
+            if event == EVT_CMD_COMPLETE:
+                # HCI completed command event
+                # pkt[1] = event type
+                # pkt[2] = the length of data
+                # pkt[3] = number of packets
+                # pkt[5] + pkt[4] = opcode
+                # pkt[6:] = return parameter(s)
+                # pkt[6] is the command status for following commands
+                #   - LE_Set_Extended_Scan_Enable
+                #   - LE_Set_Extended_Scan_Parameters
+                #   - LE_Set_Scan_Enable
+                #   - LE_Set_Scan_Parameters
+                # 0x0 means command succeeded for following commands
+                # Others means command failed.
+                error_code = to_int(pkt[6])
+                if error_code != 0:
+                    _LOGGER.warning(
+                        "Warning: HCI Command failed. "
+                        "Error code: {}, Payload: {}".format(
+                            hex(error_code), pkt
+                        )
+                    )
+            elif event == LE_META_EVENT:
+                subevent = to_int(pkt[3])
+                if subevent in [
+                    EVT_LE_ADVERTISING_REPORT, EVT_LE_EXT_ADVERTISING_REPORT
+                ]:
+                    # we have an BLE advertisement
+                    self.process_packet(pkt)
         self.socket.close()
 
     def get_hci_version(self):
@@ -176,6 +222,101 @@ class Monitor(threading.Thread):
             return HCIVersion(GreedyRange(local_version).parse(resp)[0]["hci_version"])
         except (ConstructError, NotImplementedError):
             return HCIVersion.BT_CORE_SPEC_1_0
+
+    def get_le_adv_report_length(self):
+        """
+        Read the maximum length of data supported by the Controller
+        for use as advertisement data or
+            scan response data in an advertising event or
+            as periodic advertisement data.
+
+        set the _max_advertising_data_length to 255 when this command is not supported
+
+        Reference: https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host-controller-interface/host-controller-interface-functional-specification.html#UUID-e1de0ec4-eba6-5365-4f6a-0de9d5bfb7be
+        """
+        try:
+            _LOGGER.info("# Checking the LE Extended advertising length")
+            resp = self.backend.send_req(
+                self.socket,
+                OGF_LE_CTL,
+                OCF_LE_READ_MAX_ADVERTISING_DATA_LENGTH,
+                EVT_CMD_COMPLETE,
+                1000,
+                bytes(),
+                0,
+            )
+            _LOGGER.debug(
+                "Received response from controller. raw: %s",
+                " ".join([hex(pk) for pk in resp]),
+            )
+
+            status = struct.unpack("B", resp[0:1])[0]
+            if status != 0:
+                _LOGGER.error("HCI command failed with status 0x%02x.", status)
+            else:
+                data = struct.unpack_from("<H", resp, 1)[0]
+                return data
+        except (struct.error, TypeError) as err:
+            _LOGGER.error(err)
+        _LOGGER.warning(
+            "Failed to get the max_advertising_data_length from controller"
+            ", return '255'"
+        )
+        return 255
+
+    def is_le_extended_advertising_support(self):
+        is_supported = False
+        _LOGGER.info("# Checking the LE Extended advertising capability")
+        resp = self.backend.send_req(
+            self.socket,
+            OGF_LE_CTL,
+            OCF_LE_READ_LOCAL_SUPPORTED_FEATURES,
+            EVT_CMD_COMPLETE,
+            1000,
+            bytes(),
+            0,
+        )
+        _LOGGER.info("Received response from controller.")
+        # The response is a binary string containing the event data.
+        # For a successful Command Complete event for this command, the structure is:
+        # Index 0-2: Event header (already processed by hci_send_req)
+        # Index 3: Status (1 byte). 0x00 means success.
+        # Index 4-11: LE Features (8 bytes / 64 bits). This is the feature mask.
+        status, data = struct.unpack_from("<B8s", resp)
+
+        if status != 0:
+            _LOGGER.error("HCI command failed with status 0x%02x.", status)
+            return False
+
+        _LOGGER.info(
+            "Raw 8-byte LE feature mask: %s",
+            " ".join(["%x" % pk for pk in data]),
+        )
+
+        # According to the Bluetooth Core Specification (v5.0+), support for
+        # "LE Extended Advertising" is indicated by bit 12 of the 64-bit feature mask.
+        #
+        # Let's break down the 8-byte (64-bit) mask:
+        # Byte 0: bits 0-7
+        # Byte 1: bits 8-15
+        # ... and so on.
+        #
+        # Bit 12 falls within the second byte (Byte 1).
+        # Specifically, it is the 5th bit within that byte (12 % 8 = 4).
+        # Bit position (0-indexed): 0 1 2 3 [4] 5 6 7
+        # Bit value:               1 2 4 8 [16] 32 64 128
+        #
+        # So we need to check if the 5th bit (value 16 or 0x10) is set in the second byte.
+
+        # Extract the second byte (index 1)
+        byte_1 = data[1]
+
+        # Check if the 5th bit (mask 0x10) is set
+        # (1 << 4) is a programmatic way to create the mask for the 5th bit (0x10).
+        if (byte_1 & (1 << 4)):
+            is_supported = True
+
+        return is_supported
 
     def set_scan_parameters(self, scan_type=ScanType.ACTIVE, interval_ms=10, window_ms=10,
                             address_type=BluetoothAddressType.RANDOM, filter_type=ScanFilter.ALL):
@@ -202,7 +343,7 @@ class Monitor(threading.Thread):
         Raises:
             ValueError: A value had an unexpected format or was not in range
         """
-        max_interval = (0x4000 if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0 else 0xFFFF)
+        max_interval = (0xFFFF if self.support_ext_advertising else 0x4000)
         interval_fractions = interval_ms / MS_FRACTION_DIVIDER
         if interval_fractions < 0x0004 or interval_fractions > max_interval:
             raise ValueError(
@@ -216,16 +357,8 @@ class Monitor(threading.Thread):
 
         interval_fractions, window_fractions = int(interval_fractions), int(window_fractions)
 
-        if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0:
-            command_field = OCF_LE_SET_SCAN_PARAMETERS
-            scan_parameter_pkg = struct.pack(
-                "<BHHBB",
-                scan_type,
-                interval_fractions,
-                window_fractions,
-                address_type,
-                filter_type)
-        else:
+        if self.support_ext_advertising:
+            _LOGGER.info("# Issue LE Set Extended Scan Parameters by hci command")
             command_field = OCF_LE_SET_EXT_SCAN_PARAMETERS
             scan_parameter_pkg = struct.pack(
                 "<BBBBHH",
@@ -235,6 +368,16 @@ class Monitor(threading.Thread):
                 scan_type,
                 interval_fractions,
                 window_fractions)
+        else:
+            _LOGGER.info("# Issue LE Set Scan Parameters by hci command")
+            command_field = OCF_LE_SET_SCAN_PARAMETERS
+            scan_parameter_pkg = struct.pack(
+                "<BHHBB",
+                scan_type,
+                interval_fractions,
+                window_fractions,
+                address_type,
+                filter_type)
 
         self.backend.send_cmd(self.socket, OGF_LE_CTL, command_field, scan_parameter_pkg)
 
@@ -250,36 +393,91 @@ class Monitor(threading.Thread):
             enable: boolean value to enable (True) or disable (False) scanner
             filter_duplicates: boolean value to enable/disable filter, that
                 omits duplicated packets"""
-        if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0:
-            command_field = OCF_LE_SET_SCAN_ENABLE
-            command = struct.pack("BB", enable, filter_duplicates)
-        else:
+        if self.support_ext_advertising:
+            _LOGGER.info("# Issue LE Set Extended Scan Enable to '%s' by hci command", enable)
             command_field = OCF_LE_SET_EXT_SCAN_ENABLE
             command = struct.pack("<BBHH", enable, filter_duplicates,
                                   0,  # duration
                                   0   # period
                                   )
+        else:
+            _LOGGER.info("# Issue LE Set Scan Enable to '%s' by hci command", enable)
+            command_field = OCF_LE_SET_SCAN_ENABLE
+            command = struct.pack("BB", enable, filter_duplicates)
 
         self.backend.send_cmd(self.socket, OGF_LE_CTL, command_field, command)
 
+    def dump_reports(self, reports):
+        for report in reports:
+            _LOGGER.debug(
+                "<evt_type: %s> <mac: %s> <rssi: %s> <data: %s>",
+                report.evt_type,
+                bt_addr_to_string(report.bdaddr),
+                to_int(report.rssi),
+                report.data
+            )
+
     def process_packet(self, pkt):
         """Parse the packet and call callback if one of the filters matches."""
-        payload = pkt[14:-1] if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0 else pkt[29:]
-
-        # check if this could be a valid packet before parsing
-        # this reduces the CPU load significantly
-        if not self.kwtree.search(payload):
+        subevent = le_event_data = None
+        _LOGGER.debug(
+            "## Received packet. Length: %d. Data: %s",
+            len(pkt),
+            " ".join([hex(pk) for pk in pkt]),
+        )
+        try:
+            le_event_data = HciAdReportEvent.parse(pkt)
+        except ConstructError:
+            _LOGGER.warning("Unexpected pkt: %s", pkt)
             return
 
-        bt_addr = bt_addr_to_string(pkt[7:13])
-        rssi = bin_to_int(pkt[-1] if self.hci_version < HCIVersion.BT_CORE_SPEC_5_0 else pkt[18])
-        # strip bluetooth address and parse packet
-        packet = parse_packet(payload)
-
-        # return if packet was not an beacon advertisement
-        if not packet:
+        if not le_event_data:
             return
 
+        subevent = MERTE(le_event_data.subevent)
+        # the EVT_LE_EXT_ADVERTISING_REPORT with eddystone URL frame is
+        # expected to received when LE extended advertising is supported.
+        # Otherwise the EVT_LE_ADVERTISING_REPORT with eddystone URL frame
+        # is expected to received
+        expect_evt = (
+            MERTE.LE_EXT_ADVERTISING_REPORT
+            if self.support_ext_advertising
+            else MERTE.LE_ADVERTISING_REPORT
+        )
+
+        if isinstance(subevent, MERTE):
+            subevent_str = "{}({})".format(subevent.name, subevent.value)
+        else:
+            subevent_str = subevent
+
+        self.dump_reports(le_event_data.reports)
+        if subevent != expect_evt:
+            _LOGGER.error(
+                "Unexpected event detected: Type: {}".format(subevent_str)
+            )
+            return
+
+        if le_event_data.reports:
+            _LOGGER.debug(
+                "  Parsing %d reports in  %s event (packet length: %d)...",
+                le_event_data.num_reports,
+                subevent_str,
+                len(pkt),
+            )
+            for report in le_event_data.reports:
+                eddystone_data = parse_packet(report.data)
+                if not eddystone_data:
+                    continue
+
+                _LOGGER.info("  Found an eddystone report")
+                self.process_report_data(
+                    eddystone_data,
+                    bt_addr_to_string(report.bdaddr),
+                    to_int(report.rssi),
+                    subevent,
+                )
+
+    def process_report_data(self, packet, bt_addr, rssi, subevent):
         # we need to remeber which eddystone beacon has which bt address
         # because the TLM and URL frames do not contain the namespace and instance
         self.save_bt_addr(packet, bt_addr)
@@ -289,12 +487,12 @@ class Monitor(threading.Thread):
 
         if self.device_filter is None and self.packet_filter is None:
             # no filters selected
-            self.callback(bt_addr, rssi, packet, properties)
+            self.callback(subevent, bt_addr, rssi, packet, properties)
 
         elif self.device_filter is None:
             # filter by packet type
             if is_one_of(packet, self.packet_filter):
-                self.callback(bt_addr, rssi, packet, properties)
+                self.callback(subevent, bt_addr, rssi, packet, properties)
         else:
             # filter by device and packet type
             if self.packet_filter and not is_one_of(packet, self.packet_filter):
@@ -305,11 +503,11 @@ class Monitor(threading.Thread):
             for filtr in self.device_filter:
                 if isinstance(filtr, BtAddrFilter):
                     if filtr.matches({'bt_addr':bt_addr}):
-                        self.callback(bt_addr, rssi, packet, properties)
+                        self.callback(subevent, bt_addr, rssi, packet, properties)
                         return
 
                 elif filtr.matches(properties):
-                    self.callback(bt_addr, rssi, packet, properties)
+                    self.callback(subevent, bt_addr, rssi, packet, properties)
                     return
 
     def save_bt_addr(self, packet, bt_addr):
@@ -341,4 +539,4 @@ class Monitor(threading.Thread):
         """Signal runner to stop and join thread."""
         self.toggle_scan(False)
         self.keep_going = False
-        self.join()
+        self.join(timeout=5)

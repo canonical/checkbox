@@ -1,5 +1,5 @@
 """Constants."""
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 
 # for scanner
@@ -33,13 +33,23 @@ class BluetoothAddressType(IntEnum):
     RANDOM = 0x01  # with a random MAC-address
 
 
+class MetaEventReportTypeEnum(Enum):
+    LE_ADVERTISING_REPORT = 0x02
+    LE_EXT_ADVERTISING_REPORT = 0x0d
+
+
 # used for window and interval (i.e. 0x10 * 0.625 = 10ms, 10ms / 0.625 = 0x10)
 MS_FRACTION_DIVIDER = 0.625
 
+HCI_EVENT_PKT = 0x04
+HCI_MAX_EVENT_PKT_SIZE = 260
 LE_META_EVENT = 0x3e
+
 OGF_LE_CTL = 0x08
+OCF_LE_READ_LOCAL_SUPPORTED_FEATURES = 0x0003
 OCF_LE_SET_SCAN_PARAMETERS = 0x000B
 OCF_LE_SET_SCAN_ENABLE = 0x000C
+OCF_LE_READ_MAX_ADVERTISING_DATA_LENGTH = 0x003A
 EVT_LE_ADVERTISING_REPORT = 0x02
 OCF_LE_SET_EXT_SCAN_PARAMETERS = 0x0041
 OCF_LE_SET_EXT_SCAN_ENABLE = 0x0042
@@ -47,6 +57,12 @@ EVT_LE_EXT_ADVERTISING_REPORT = 0x0D
 OGF_INFO_PARAM = 0x04
 OCF_READ_LOCAL_VERSION = 0x01
 EVT_CMD_COMPLETE = 0x0E
+
+
+class MetaEventReportTypeEnum(Enum):
+    LE_ADVERTISING_REPORT = 0x02
+    LE_EXT_ADVERTISING_REPORT = 0x0d
+
 
 # for Generic Access Profile parsing
 FLAGS_DATA_TYPE = 0x01

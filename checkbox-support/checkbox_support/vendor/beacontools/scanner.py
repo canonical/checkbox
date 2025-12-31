@@ -165,6 +165,7 @@ class Monitor(threading.Thread):
         _LOGGER.info(
             "# Max advertising data length: %s", max_advertising_data_length
         )
+        self.toggle_scan(False)
         self.set_scan_parameters(**self.scan_parameters)
         self.toggle_scan(True)
 

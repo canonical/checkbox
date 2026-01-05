@@ -21,7 +21,7 @@ depends: ce-oem-rpmsg/detect-device
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --rpmsg-node remoteproc0 pingpong
+    rpmsg_tests.py --remoteproc-node remoteproc0 pingpong
 
 id: ce-oem-rpmsg/serial-tty
 _summary: Check if RPMSG string-echo test firmware is loaded and RPMSG TTY works.
@@ -35,7 +35,7 @@ depends: ce-oem-rpmsg/detect-device
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --rpmsg-node remoteproc0 string-echo
+    rpmsg_tests.py --remoteproc-node remoteproc0 string-echo
 
 unit: job
 category_id: rpmsg
@@ -69,4 +69,4 @@ flags: also-after-suspend
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --rpmsg-node "{device}" "{test_method}" --load-firmware --firmware-path "{path}" --firmware-file "{firmware}"
+    rpmsg_tests.py --remoteproc-node "{device}" "{test_method}" --load-firmware --firmware-path "{path}" --firmware-file "{firmware}"

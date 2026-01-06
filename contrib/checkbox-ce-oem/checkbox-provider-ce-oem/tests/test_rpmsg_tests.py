@@ -13,7 +13,7 @@ tmpdir = TemporaryDirectory()
 
 class RpmsgSysFsHandlerTests(unittest.TestCase):
 
-    @patch("rpmsg_tests.RPMSG_PATH", tmpdir.name)
+    @patch("rpmsg_tests.REMOTEPROC_PATH", tmpdir.name)
     def setUp(self):
         self.rpmsg_node = "remoteproc0"
 
@@ -50,7 +50,7 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
 
     def test_rpmsg_sysfs_handler_initialization_no_dir(self):
 
-        with patch("rpmsg_tests.RPMSG_PATH", tmpdir.name):
+        with patch("rpmsg_tests.REMOTEPROC_PATH", tmpdir.name):
             with self.assertRaises(SystemExit) as cm:
                 rpmsg_tests.RpmsgSysFsHandler("nonexistent")
                 self.assertEqual(cm.exception.code, 1)

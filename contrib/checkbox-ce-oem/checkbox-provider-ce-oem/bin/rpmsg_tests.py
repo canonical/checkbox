@@ -813,7 +813,8 @@ def check_rpmsg_transport(node, e_driver):
             return
         else:
             raise SystemExit(
-                f"FAIL: We expect driver {e_driver}, but {os.path.basename(drv)} found"
+                f"FAIL: We expect driver {e_driver}, "
+                f"but {os.path.basename(drv)} found"
             )
     raise SystemExit("FAIL: transport driver not bound")
 
@@ -904,7 +905,8 @@ def register_arguments():
 
     parser_mbox = subparsers.add_parser(
         "mailbox-detection",
-        help="Check if the mailbox device node exists and driver has been probed",
+        help="Check if the mailbox device node exists "
+        "and driver has been probed",
     )
 
     parser_mbox.set_defaults(func=check_mailbox)

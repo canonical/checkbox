@@ -710,7 +710,7 @@ def check_device_tree():
     logging.info("PASSED: mailbox defined is found")
 
     for node in mailboxs:
-        dts = run(f"dtc -qqq -f -I fs -O dts {node}")
+        dts = run("dtc -qqq -f -I fs -O dts {}".format(node))
         interrupt = re.search(r"\binterrupts\s*=\s*<([^>]+)>;", dts)
         if not interrupt:
             raise SystemExit("FAIL: no interrupts is defined for mailbox")
@@ -777,7 +777,7 @@ def has_bound_device(driver_path):
 
 
 def check_mailbox(mbox_driver):
-    logging.info(f"Target mailbox driver: {mbox_driver}")
+    logging.info("Target mailbox driver: {}".format(mbox_driver))
     drivers_path = "/sys/bus/platform/drivers"
 
     if mbox_driver in os.listdir(drivers_path):
@@ -786,12 +786,12 @@ def check_mailbox(mbox_driver):
         has_bound_device(driver_path)
 
     else:
-        raise SystemExit("FAIL: No mailbox driver is not found.")
+        raise SystemExit("FAIL: No mailbox driver is found.")
     logging.info("PASSED: Mailbox driver found")
 
 
 def check_virtio_device(node):
-    logging.info(f"Target device: {node}")
+    logging.info("Target device: {}".format(node))
     virtio_devices = [
         Path(p).name for p in glob.glob("/sys/bus/virtio/devices/virtio*")
     ]
@@ -800,21 +800,22 @@ def check_virtio_device(node):
         raise SystemExit(
             "FAIL: no matched virtio devices created by remoteproc."
         )
-    logging.info(f"PASSED: virtio devices present: {node}")
+    logging.info("PASSED: virtio devices present: {}".format(node))
 
 
 def check_rpmsg_transport(node, e_driver):
-    logging.info(f"Target driver {e_driver}")
+    logging.info("Target driver %s", e_driver)
     driver = os.path.join("/sys/bus/virtio/devices", node, "driver")
     if os.path.islink(driver):
         drv = os.path.realpath(driver)
         if e_driver in drv:
-            logging.info(f"PASSED: rpmsg transport bound to {drv}")
+            logging.info("PASSED: rpmsg transport bound to {}".format(drv))
             return
         else:
             raise SystemExit(
-                f"FAIL: We expect driver {e_driver}, "
-                f"but {os.path.basename(drv)} found"
+                "FAIL: We expect driver {}, but {} found".format(
+                    e_driver, os.path.basename(drv)
+                )
             )
     raise SystemExit("FAIL: transport driver not bound")
 

@@ -21,7 +21,7 @@ class RpmsgSysFsHandler:
     properties = ["firmware_path", "firmware_file", "rpmsg_state"]
 
     def __init__(self, remoteproc_dir):
-        root_path = os.path.join(RPMSG_PATH, remoteproc_dir)
+        root_path = os.path.join(REMOTEPROC_PATH, remoteproc_dir)
         self.sysfs_fw_path = "/sys/module/firmware_class/parameters/path"
         self.sysfs_firmware_file = os.path.join(root_path, "firmware")
         self.sysfs_state_path = os.path.join(root_path, "state")
@@ -694,7 +694,6 @@ def run(cmd):
     return subprocess.check_output(cmd, shell=True, text=True).strip()
 
 def check_device_tree():
-    remoteproc = []
     mailboxs = []
     vdevbuffer = []
     vdevring = []

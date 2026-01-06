@@ -1,3 +1,15 @@
+id: ce-oem-rpmsg/devictree-verify
+_summary: Check if the device is well defined.
+category_id: rpmsg
+estimated_duration: 5
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py dtree-verify
+
+
 id: ce-oem-rpmsg/detect-device
 _summary: Check if the RPMSG device node is initialed.
 category_id: rpmsg
@@ -8,6 +20,42 @@ user: root
 plugin: shell
 command:
     rpmsg_tests.py node-detection
+
+id: ce-oem-rpmsg/detect-mailbox
+_summary: Check if the mailbox driver is initialed.
+category_id: rpmsg
+estimated_duration: 5
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-rpmsg/detect-device
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py mailbox-detection
+
+id: ce-oem-rpmsg/detect-virtio
+_summary: Check if the virtio device is created and transport driver is probed .
+category_id: rpmsg
+estimated_duration: 5
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-rpmsg/detect-device
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py virtio-detection
+
+id: ce-oem-rpmsg/detect-channel
+_summary: Check if the remote channel (NS) is registered.
+category_id: rpmsg
+estimated_duration: 5
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-rpmsg/detect-virtio
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py channel-detection
 
 id: ce-oem-rpmsg/pingpong
 _summary: Check if RPMSG pingpong test firmware is loaded and pingpong demo is completed.

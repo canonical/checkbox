@@ -443,7 +443,6 @@ class RpmsgPingPongTest(RpmsgTest):
 
 
 class RpmsgStringEchoTest(RpmsgTest):
-
     def __init__(
         self,
         rpmsg_node,
@@ -690,8 +689,10 @@ def string_echo_test(
     )
     test_obj.run_test()
 
+
 def run(cmd):
     return subprocess.check_output(cmd, shell=True, text=True).strip()
+
 
 def check_device_tree():
     mailboxs = []
@@ -772,9 +773,7 @@ def has_bound_device(driver_path):
             if re.match(r"^[0-9a-fA-F]", entry):
                 return
     except OSError:
-        raise SystemExit(
-            "FAIL: No mailbox driver be probed."
-        )
+        raise SystemExit("FAIL: No mailbox driver be probed.")
 
 
 def check_mailbox(mbox_driver):
@@ -787,20 +786,22 @@ def check_mailbox(mbox_driver):
         has_bound_device(driver_path)
 
     else:
-        raise SystemExit(
-            "FAIL: No mailbox driver is not found."
-        )
+        raise SystemExit("FAIL: No mailbox driver is not found.")
     logging.info("PASSED: Mailbox driver found")
+
 
 def check_virtio_device(node):
     logging.info(f"Target device: {node}")
-    virtio_devices = [Path(p).name for p in glob.glob("/sys/bus/virtio/devices/virtio*")]
+    virtio_devices = [
+        Path(p).name for p in glob.glob("/sys/bus/virtio/devices/virtio*")
+    ]
     logging.info(virtio_devices)
     if node not in virtio_devices:
         raise SystemExit(
             "FAIL: no matched virtio devices created by remoteproc."
         )
     logging.info(f"PASSED: virtio devices present: {node}")
+
 
 def check_rpmsg_transport(node, e_driver):
     logging.info(f"Target driver {e_driver}")
@@ -811,12 +812,16 @@ def check_rpmsg_transport(node, e_driver):
             logging.info(f"PASSED: rpmsg transport bound to {drv}")
             return
         else:
-            raise SystemExit(f"FAIL: We expect driver {e_driver}, but {os.path.basename(drv)} found")
+            raise SystemExit(
+                f"FAIL: We expect driver {e_driver}, but {os.path.basename(drv)} found"
+            )
     raise SystemExit("FAIL: transport driver not bound")
+
 
 def check_virtio(virtio_device, virtio_driver):
     check_virtio_device(virtio_device)
     check_rpmsg_transport(virtio_device, virtio_driver)
+
 
 def get_rpmsg_channel():
     """
@@ -851,7 +856,6 @@ def get_rpmsg_channel():
     return rpmsg_channels
 
 
-
 def register_arguments():
     parser = argparse.ArgumentParser(
         description=(
@@ -884,8 +888,6 @@ def register_arguments():
         help="The mailbox driver to use(default: imx_mu).",
     )
 
-
-
     subparsers = parser.add_subparsers(
         dest="test_command", required=True, help="The test to run."
     )
@@ -901,7 +903,8 @@ def register_arguments():
     parser_detection.set_defaults(func=remoteproc_node_detection_test)
 
     parser_mbox = subparsers.add_parser(
-        "mailbox-detection", help="Check if the mailbox device node exists and driver has been probed"
+        "mailbox-detection",
+        help="Check if the mailbox device node exists and driver has been probed",
     )
 
     parser_mbox.set_defaults(func=check_mailbox)
@@ -912,7 +915,8 @@ def register_arguments():
     parser_vio.set_defaults(func=check_virtio)
 
     parser_channel = subparsers.add_parser(
-        "channel-detection", help="Check if the transport driver has been probed."
+        "channel-detection",
+        help="Check if the transport driver has been probed.",
     )
     parser_channel.set_defaults(func=get_rpmsg_channel)
 

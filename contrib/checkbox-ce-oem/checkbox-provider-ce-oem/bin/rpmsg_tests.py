@@ -695,7 +695,7 @@ def run(cmd):
 
 
 def check_device_tree():
-    mailboxs = []
+    mailboxes = []
     vdevbuffer = []
     vdevring = []
     rsc_table = []
@@ -704,12 +704,12 @@ def check_device_tree():
     for root, dirs, files in os.walk("/proc/device-tree/"):
         for d in dirs:
             if d.startswith("mailbox"):
-                mailboxs.append(os.path.join(root, d))
-    if not mailboxs:
+                mailboxes.append(os.path.join(root, d))
+    if not mailboxes:
         raise SystemExit("FAIL: no mailbox is defined in device-tree")
     logging.info("PASSED: mailbox defined is found")
 
-    for node in mailboxs:
+    for node in mailboxes:
         dts = run("dtc -qqq -f -I fs -O dts {}".format(node))
         interrupt = re.search(r"\binterrupts\s*=\s*<([^>]+)>;", dts)
         if not interrupt:

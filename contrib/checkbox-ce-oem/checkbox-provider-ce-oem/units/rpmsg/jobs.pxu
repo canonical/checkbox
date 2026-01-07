@@ -2,7 +2,10 @@ id: ce-oem-rpmsg/devictree-verify
 _summary: Check if the device is well defined.
 category_id: rpmsg
 estimated_duration: 5
-requires: manifest.has_rpmsg == 'True'
+requires: 
+    manifest.has_rpmsg == 'True'
+    manifest.has_preload_rpmsg_pingpong_firmware == 'True' or manifest.has_preload_rpmsg_string_echo_firmware == 'True'
+
 imports: from com.canonical.plainbox import manifest
 user: root
 plugin: shell

@@ -190,6 +190,32 @@ def get_sleep_times(log: "str | Path", start_marker: str):
     return (suspend_time, resume_time)
 
 
+def get_sleep_test_command(log_file_path: Path, tests: "list[str]") -> str:
+    if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
+        # snap checkbox
+        # must specify where the klog.json, clog.json files are
+        fwts_json_data_dir = (
+            Path(os.environ["SNAP"]) / "checkbox-runtime" / "share" / "fwts"
+        )
+        if not fwts_json_data_dir.exists():
+            raise SystemExit(
+                "We are in a snap environment, "
+                + "but {}".format(fwts_json_data_dir)
+                + "doesn't exist"
+            )
+        return "fwts -j {} -q --stdout-summary -r {} {}".format(
+            fwts_json_data_dir,
+            str(log_file_path),
+            " ".join(tests),
+        )
+    else:
+        # deb, use the original command
+        return "fwts -q --stdout-summary -r {} {}".format(
+            str(log_file_path),
+            " ".join(tests),
+        )
+
+
 def average_times(runs: "dict[T.Any, T.Any]"):
     sleep_run_count = 0
     sleep_total = 0.0
@@ -482,48 +508,27 @@ def main(args=sys.argv[1:]):
             )
         for iteration in range(1, iterations + 1):
             marker = "{:=^80}\n".format(" Iteration {} ".format(iteration))
-            with open(args.log, "a") as f:
-                f.write(marker)
-
-            if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
-                # snap checkbox
-                # must specify where the klog.json, clog.json files are
-                fwts_json_data_dir = (
-                    Path(os.environ["SNAP"])
-                    / "checkbox-runtime"
-                    / "share"
-                    / "fwts"
-                )
-                if not fwts_json_data_dir.exists():
-                    raise SystemExit(
-                        "We are in a snap environment, "
-                        + "but {}".format(fwts_json_data_dir)
-                        + "doesn't exist"
-                    )
-                command = "fwts -j {} -q --stdout-summary -r {} {}".format(
-                    fwts_json_data_dir,
-                    args.log,
-                    " ".join(tests),
-                )
-            else:
-                # deb, use the original command
-                command = "fwts -q --stdout-summary -r {} {}".format(
-                    args.log,
-                    " ".join(tests),
-                )
 
             results["sleep"] = (
-                Popen(command, stdout=PIPE, shell=True)
+                Popen(
+                    get_sleep_test_command(Path(args.log), tests),
+                    stdout=PIPE,
+                    shell=True,
+                )
                 .communicate()[0]
                 .strip()
             ).decode()
+
             if "s4" not in args.sleep:
                 suspend_time, resume_time = get_sleep_times(args.log, marker)
                 iteration_results[iteration] = (suspend_time, resume_time)
                 if not suspend_time or not resume_time:
                     progress_string = (
                         "Cycle %s/%s - Suspend: N/A s - Resume: N/A s"
-                        % (iteration, iterations)
+                        % (
+                            iteration,
+                            iterations,
+                        )
                     )
                 else:
                     progress_string = (

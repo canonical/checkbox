@@ -44,6 +44,7 @@ testplan
 TServer
 unary
 validator
+vendorize
 venv
 vfork
 wodim

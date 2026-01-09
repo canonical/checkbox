@@ -170,7 +170,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 # sphinx-sitemap uses html_baseurl to generate the full URL for each page:
 
-sitemap_url_scheme = '{link}'
+sitemap_url_scheme = "{link}"
 
 # Include `lastmod` dates in the sitemap:
 

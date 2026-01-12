@@ -104,3 +104,7 @@ class TestGetSleepTestCommand(unittest.TestCase):
             get_sleep_test_command(self.log_path, self.tests)
 
         self.assertIn("doesn't exist", str(cm.exception))
+
+
+if __name__ == "__main__":
+    unittest.main()

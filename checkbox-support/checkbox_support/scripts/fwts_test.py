@@ -1,13 +1,12 @@
 #! /usr/bin/python3
 
-from pathlib import Path
 import sys
 import re
 from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE, DEVNULL
 from shutil import which
 import os
-import typing as T
+from pathlib import Path
 
 # These tests require user interaction and need either special handling
 # or skipping altogether (right now, we skip them but they're kept here
@@ -170,26 +169,6 @@ TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 
 
-def get_sleep_times(log: "str | Path", start_marker: str):
-    suspend_time = ""
-    resume_time = ""
-    with open(log, "r", encoding="UTF-8", errors="ignore") as f:
-        while start_marker not in f.readline():
-            continue
-        loglist = f.readlines()  # read the remaining lines
-        for i, line in enumerate(loglist):
-            if "Suspend/Resume Timings:" in line:
-                suspend_line = loglist[i + 1]
-                resume_line = loglist[i + 2]
-                match = SLEEP_TIME_RE.search(suspend_line)
-                if match:
-                    suspend_time = float(match.group(2))
-                match = SLEEP_TIME_RE.search(resume_line)
-                if match:
-                    resume_time = float(match.group(2))
-    return (suspend_time, resume_time)
-
-
 def get_sleep_test_command(log_file_path: Path, tests: "list[str]") -> str:
     if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
         # snap checkbox
@@ -216,7 +195,29 @@ def get_sleep_test_command(log_file_path: Path, tests: "list[str]") -> str:
         )
 
 
-def average_times(runs: "dict[T.Any, T.Any]"):
+def get_sleep_times(log, start_marker):
+    suspend_time = ""
+    resume_time = ""
+    with open(log, "r", encoding="UTF-8", errors="ignore") as f:
+        line = ""
+        while start_marker not in line:
+            line = f.readline()
+            if start_marker in line:
+                loglist = f.readlines()
+        for i, l in enumerate(loglist):
+            if "Suspend/Resume Timings:" in l:
+                suspend_line = loglist[i + 1]
+                resume_line = loglist[i + 2]
+                match = SLEEP_TIME_RE.search(suspend_line)
+                if match:
+                    suspend_time = float(match.group(2))
+                match = SLEEP_TIME_RE.search(resume_line)
+                if match:
+                    resume_time = float(match.group(2))
+    return (suspend_time, resume_time)
+
+
+def average_times(runs):
     sleep_run_count = 0
     sleep_total = 0.0
     resume_run_count = 0
@@ -258,8 +259,8 @@ def average_times(runs: "dict[T.Any, T.Any]"):
     print()
 
 
-def fix_sleep_args(args: "list[str]"):
-    new_args = []  # type: list[str]
+def fix_sleep_args(args):
+    new_args = []
     for arg in args:
         if "=" in arg:
             new_args.extend(arg.split("="))
@@ -268,7 +269,7 @@ def fix_sleep_args(args: "list[str]"):
     return new_args
 
 
-def detect_progress_indicator() -> "list[str]":
+def detect_progress_indicator():
     # Return a command suitable for piping progress information to its
     # stdin (invoked via Popen), in list format.
     # Return zenity if installed and DISPLAY (--auto-close)
@@ -282,7 +283,7 @@ def detect_progress_indicator() -> "list[str]":
     return []
 
 
-def print_log(logfile: "str | Path"):
+def print_log(logfile):
     """
     Print logfile to the output
     """
@@ -290,7 +291,7 @@ def print_log(logfile: "str | Path"):
         try:
             print(f.read())
         except UnicodeDecodeError as e:
-            print("WARNING: Found bad char in", logfile)
+            print("WARNING: Found bad char in " + logfile)
 
 
 def parse_arguments(args):
@@ -421,10 +422,9 @@ def parse_arguments(args):
 def main(args=sys.argv[1:]):
     args = parse_arguments(args)
 
-    tests = []  # type: list[str]
-    requested_tests = []  # type: list[str]
+    tests = []
+    requested_tests = []
     results = {}
-    # these are all list[str]
     critical_fails = []
     high_fails = []
     medium_fails = []
@@ -436,20 +436,19 @@ def main(args=sys.argv[1:]):
     warnings = []
 
     # Set correct fail level
-    iterations = None  # type: int | None
-    fail_priority = -99999  # report everything by default
-    # Get our failure priority and create the priority values
-    fail_levels = {
-        "FAILED_SUPERCRITICAL": 5,
-        "FAILED_CRITICAL": 4,
-        "FAILED_HIGH": 3,
-        "FAILED_MEDIUM": 2,
-        "FAILED_LOW": 1,
-        "FAILED_NONE": 0,
-        "FAILED_ABORTED": -1,
-    }
     if args.fail_level != "none":
         args.fail_level = "FAILED_%s" % args.fail_level.upper()
+
+        # Get our failure priority and create the priority values
+        fail_levels = {
+            "FAILED_SUPERCRITICAL": 5,
+            "FAILED_CRITICAL": 4,
+            "FAILED_HIGH": 3,
+            "FAILED_MEDIUM": 2,
+            "FAILED_LOW": 1,
+            "FAILED_NONE": 0,
+            "FAILED_ABORTED": -1,
+        }
         fail_priority = fail_levels[args.fail_level]
 
     if args.fwts_help:
@@ -495,11 +494,8 @@ def main(args=sys.argv[1:]):
 
         # run the tests we want
     if args.sleep:
-        assert iterations is not None
         tests = requested_tests
-        iteration_results = (
-            {}
-        )  # type: dict[int, tuple[float | str, float | str]]
+        iteration_results = {}
         print("=" * 20 + " Test Results " + "=" * 20)
         progress_indicator = None
         if detect_progress_indicator():
@@ -508,7 +504,8 @@ def main(args=sys.argv[1:]):
             )
         for iteration in range(1, iterations + 1):
             marker = "{:=^80}\n".format(" Iteration {} ".format(iteration))
-
+            with open(args.log, "a") as f:
+                f.write(marker)
             results["sleep"] = (
                 Popen(
                     get_sleep_test_command(Path(args.log), tests),
@@ -518,17 +515,13 @@ def main(args=sys.argv[1:]):
                 .communicate()[0]
                 .strip()
             ).decode()
-
             if "s4" not in args.sleep:
                 suspend_time, resume_time = get_sleep_times(args.log, marker)
                 iteration_results[iteration] = (suspend_time, resume_time)
                 if not suspend_time or not resume_time:
                     progress_string = (
                         "Cycle %s/%s - Suspend: N/A s - Resume: N/A s"
-                        % (
-                            iteration,
-                            iterations,
-                        )
+                        % (iteration, iterations)
                     )
                 else:
                     progress_string = (
@@ -537,7 +530,6 @@ def main(args=sys.argv[1:]):
                     )
                 progress_pct = "{}".format(int(100 * iteration / iterations))
                 if "zenity" in detect_progress_indicator():
-                    assert progress_indicator and progress_indicator.stdin
                     progress_indicator.stdin.write(
                         "# {}\n".format(progress_string).encode("utf-8")
                     )
@@ -549,7 +541,6 @@ def main(args=sys.argv[1:]):
                         # flushing its stdin would yield broken pipe
                         progress_indicator.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
-                    assert progress_indicator and progress_indicator.stdin
                     progress_indicator.stdin.write("XXX\n".encode("utf-8"))
                     progress_indicator.stdin.write(
                         progress_pct.encode("utf-8")
@@ -565,7 +556,7 @@ def main(args=sys.argv[1:]):
                         progress_indicator.stdin.flush()
                 else:
                     print(progress_string, flush=True)
-        if progress_indicator:
+        if detect_progress_indicator():
             progress_indicator.terminate()
         if "s4" not in args.sleep:
             average_times(iteration_results)

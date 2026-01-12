@@ -597,9 +597,8 @@ def main(args=sys.argv[1:]):
                 # Split the log file for HWE (only if -t is not used)
                 if test == "acpitests":
                     test = "--acpitests"
-                command = "fwts -q --stdout-summary -r %s %s" % (log, test)
                 results[test] = (
-                    Popen(command, stdout=PIPE, shell=True)
+                    Popen(get_sleep_test_command(log, [test]), stdout=PIPE, shell=True)
                     .communicate()[0]
                     .strip()
                 ).decode()

@@ -1005,7 +1005,6 @@ def main():
         args.func(**func_kwargs)
 
     elif args.test_command in ["pingpong", "string-echo"]:
-        func_kwargs = {"remoteproc_node": args.remoteproc_node}
 
         if args.load_firmware and not args.firmware_file:
             logging.error(

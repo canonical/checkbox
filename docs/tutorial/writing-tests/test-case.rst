@@ -298,6 +298,73 @@ is the new Result that Checkbox will present:
      ☒ : Test that the internet is reachable
      ☐ : Test that the network speed is acceptable
 
+.. note::
+
+    For more information about fields related to job ordering, check the :ref:`job unit reference page<job>`.
+
+Grouping related jobs
+=====================
+
+For more complex flows, you may want to keep related jobs together and make
+sure they are not interleaved with other tests. The ``group`` field lets you
+do that by treating a set of jobs as a single block.
+
+In this example we add a setup and teardown job around the network tests and
+put them all in the same group:
+
+.. code-block:: none
+
+    id: network_setup
+    flags: simple
+    group: network_tests
+    _summary: Prepare the system for network tests
+    command:
+      echo "Setting up network tests"
+
+    id: network_available
+    flags: simple
+    depends: network_available
+    before: network_teardown
+    group: network_tests
+    _summary: Test that the internet is reachable
+    command:
+      ping -c 1 1.1.1.1
+
+    id: network_speed
+    flags: simple
+    group: network_tests
+    _summary: Test that the network speed is acceptable
+    depends: network_available
+    before: network_teardown
+    command:
+      curl -Y 600 -o /dev/null \
+        https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/noble-mini-iso-amd64.iso
+
+    id: network_teardown
+    flags: simple
+    group: network_tests
+    _summary: Clean up after network tests
+    depends: network_speed
+    command:
+      echo "Cleaning up network tests"
+
+
+When you run a :ref:`test plan<adv_test_plan>` that includes the network
+tests, Checkbox will keep all jobs in the ``network_tests`` grouped together and
+respect the dependencies inside the group. In this case, the execution order
+will be:
+
+.. code-block:: none
+
+    [...]
+
+    ==================================[ Results ]===================================
+     ☑ : Prepare the system for network tests
+     ☑ : Test that the internet is reachable
+     ☑ : Test that the network speed is acceptable
+     ☑ : Clean up after network tests
+
+
 Customize tests via environment variables
 =========================================
 

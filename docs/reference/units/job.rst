@@ -154,6 +154,21 @@ Following fields may be used by the job unit:
     is pushed to the end of the test plan, positioned after the
     ``also-after-suspend`` sibling.
 
+.. option:: group
+
+    (optional). The id of the group this job belongs to. It allows organizing
+    jobs into named groups. Jobs in the same group are always run together. To
+    ensure this behavior, the dependencies follow these rules:
+
+    - Dependencies between jobs inside the group are not changed.
+    - If a job inside the group depends on a job outside the group, then the whole
+      group will have a dependency on that outside job.
+    - If a job outside the group depends on a job inside the group, then that 
+      outside job will depend on the whole group.
+    - In case this creates circular dependencies, Checkbox will output a dependency
+      warning detailing the groups and jobs involved, and they will be removed from
+      the test plan.
+
 .. option:: salvages
 
     (optional). If specified, the job will only run if all the listed jobs have
@@ -408,6 +423,12 @@ Following fields may be used by the job unit:
     .. note::
         If the sibling definition depends on one of the suspend jobs, Checkbox
         will make sure the original job runs **before** the suspend job.
+
+    .. warning::
+
+        Jobs created with the siblings field will not be expanded during validation.
+        Therefore, they cannot be used in the ``depends``, ``after`` or ``before``
+        fields of other jobs. See Instantiation in :ref:`Template unit<templates>`.
 
     .. warning::
         The curly braces used in this field have to be escaped when used in a

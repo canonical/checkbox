@@ -1,3 +1,5 @@
+#!/bin/sh
+
 SYCL_BUNDLE_ROOT=/usr/local/checkbox-gfx/sycl_linux/
 LVL_ZERO_BUILD_DIR=$SYCL_BUNDLE_ROOT/../level-zero-raytracing-support/build/
 PATH=$LVL_ZERO_BUILD_DIR:$PATH

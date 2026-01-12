@@ -598,7 +598,11 @@ def main(args=sys.argv[1:]):
                 if test == "acpitests":
                     test = "--acpitests"
                 results[test] = (
-                    Popen(get_sleep_test_command(log, [test]), stdout=PIPE, shell=True)
+                    Popen(
+                        get_sleep_test_command(log, [test]),
+                        stdout=PIPE,
+                        shell=True,
+                    )
                     .communicate()[0]
                     .strip()
                 ).decode()

@@ -809,7 +809,7 @@ def check_rpmsg_transport(node, e_driver):
     if os.path.islink(driver):
         drv = os.path.realpath(driver)
         if e_driver in drv:
-            logging.info("PASSED: rpmsg transport bound to {}".format(drv))
+            logging.info("PASSED: rpmsg transport bound to %s", drv)
             return
         else:
             raise SystemExit(

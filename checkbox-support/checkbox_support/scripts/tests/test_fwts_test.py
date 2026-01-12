@@ -81,7 +81,11 @@ class TestGetSleepTestCommand(unittest.TestCase):
         result = get_sleep_test_command(self.log_path, self.tests)
 
         expected_dir = "/snap/test-snap/checkbox-runtime/share/fwts"
-        expected_cmd = "fwts -j {} -q --stdout-summary -r /tmp/results.log s3 s4".format(expected_dir)
+        expected_cmd = (
+            "fwts -j {} -q --stdout-summary -r /tmp/results.log s3 s4".format(
+                expected_dir
+            )
+        )
         self.assertEqual(result, expected_cmd)
 
     @patch.dict(

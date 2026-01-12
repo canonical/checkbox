@@ -11,8 +11,9 @@ environ:
   NORMAL_USER
 estimated_duration: 1m
 command:
-  . $PLAINBOX_PROVIDER_DATA/env_lvlzerort
-  cd $LVL_ZERO_BUILD_DIR
+  # shellcheck source=/dev/null
+  . "$PLAINBOX_PROVIDER_DATA"/env_lvlzerort
+   cd "$LVL_ZERO_BUILD_DIR" || exit 1
   embree_rthwif_cornell_box --compare cornell_box_reference.tga
 _siblings: [{ "id": "gfx_level_zero_rt_rthwif_test_builder_triangles_expected",
     "_summary": "Run the rthwif_test_builder_triangles_expected tests from Level Zero Raytracing",

@@ -601,7 +601,7 @@ def detect_arm_processor_type():
 
 
 def pingpong_test(
-    rpmsg_node,
+    remoteproc_node,
     cpu_type,
     load_firmware=False,
     firmware_path=None,
@@ -630,7 +630,7 @@ def pingpong_test(
         raise SystemExit("Unexpected CPU type.")
 
     test_obj = RpmsgPingPongTest(
-        rpmsg_node,
+        remoteproc_node,
         kernel_module,
         probe_cmd,
         pingpong_event_pattern,
@@ -644,7 +644,7 @@ def pingpong_test(
 
 
 def string_echo_test(
-    rpmsg_node,
+    remoteproc_node,
     cpu_type,
     load_firmware=False,
     firmware_path=None,
@@ -678,7 +678,7 @@ def string_echo_test(
         raise SystemExit("Unexpected CPU type.")
 
     test_obj = RpmsgStringEchoTest(
-        rpmsg_node,
+        remoteproc_node,
         kernel_module,
         probe_cmd,
         check_pattern,

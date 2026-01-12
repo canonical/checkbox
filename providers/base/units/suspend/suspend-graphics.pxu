@@ -97,12 +97,13 @@ depends:
   suspend/suspend_advanced_auto
  {%- endif %}
 estimated_duration: 120.0
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
- # shellcheck disable=SC1091
+ # shellcheck disable=SC1091,SC1083
  source graphics_env.sh {{ driver }} {{ index }}
- if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then
-   gnome_randr_cycle.py --keyword={{ index }}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+   randr_cycle.py -c resolution --prefix {index} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
  else
    xrandr_cycle.py --keyword={{ index }}_after_suspend --screenshot-dir="$PLAINBOX_SESSION_SHARE"
  fi
@@ -122,7 +123,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_auto
 template-id: suspend/index_xrandr_screens_after_suspend.tar.gz_auto
 depends: after-suspend-graphics/{index}_cycle_resolution_{product_slug}
-command: [ -f "$PLAINBOX_SESSION_SHARE"/xrandr_screens_{index}_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/xrandr_screens_{index}_after_suspend.tgz
+command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
 _purpose: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 _summary: Attach screenshots from suspend/cycle resolutions after suspend test to results.
 

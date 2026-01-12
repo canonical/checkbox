@@ -845,10 +845,9 @@ def get_rpmsg_channel():
         logging.info("PASSED: RPMSG device is available")
 
     for file_obj in rpmsg_devices:
-        tmp_file = os.path.join(rpmsg_root, file_obj, "dst")
-        if os.path.isfile(tmp_file):
-            with open(tmp_file, "r") as fp:
-                rpmsg_channels.append(fp.read().strip("\n"))
+        tmp_file = Path(rpmsg_root, file_obj, "dst")
+        if tmp_file.is_file():
+            rpmsg_channels.append(tmp_file.read_text().strip("\n"))
 
     if rpmsg_channels:
         logging.info("PASSED: Available RPMSG channels is %s", rpmsg_channels)

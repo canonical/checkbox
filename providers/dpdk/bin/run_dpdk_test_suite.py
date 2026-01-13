@@ -22,13 +22,12 @@ import json
 import argparse
 import subprocess
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 
-CONTAINER_NAME = "dpdk-dts"
+DPDK_SNAP = "dpdk-dts"
 DEFAULT_SSH_TIMEOUT = 30
-DTS_REMOTE_PATH = "~/dpdk/dts"
-DPDK_VERSION_PATH = "~/dpdk/VERSION"
-REMOTE_RESULTS_PATH = DTS_REMOTE_PATH + "/output/results.json"
+REMOTE_RESULTS_PATH = "~/output/results.json"
+DTS_CONFIG_NAME = "dts_conf.yaml"
 
 
 class ConfigurationError(Exception):
@@ -42,41 +41,30 @@ class DTSRunner:
         """Initialize class attributes."""
         self.dts_user = dts_user
         self.dts_ip = dts_ip
-        self._validate_setup()
+        if not self._is_snap_installed(DPDK_SNAP):
+            raise ConfigurationError("DPDK DTS snap is not installed")
         self._clear_old_results()
 
-    def _validate_setup(self):
-        """Validate minimum requirements on remote host are properly set.
+    def _is_snap_installed(self, snap_name: str) -> bool:
+        """Check if specified snap is installed in remote DTS host.
 
-        :raises: ConfigurationError if any failure during validation
+        :param snap_name: Name of the snap to check
+        :return: True if snap is installed, False otherwise
         """
-        # Validate if DTS directory is available in remote host
-        # Directory should be set according to documentation
-        logging.info("Validating remote DTS repository is configured.")
         try:
             self.run_ssh_command(
-                cmd="test -d {}".format(DTS_REMOTE_PATH),
+                cmd="snap list {}".format(snap_name),
             )
+            return True
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            raise ConfigurationError("Remote DTS directory missing")
-        logging.info("Remote directory is properly set.")
+            return False
 
-        # Validate if docker container exists before test execution
-        logging.info("Validating if docker container is running.")
-        try:
-            self.run_ssh_command(
-                cmd="docker ps --filter 'name={}' -q | grep -q .".format(
-                    CONTAINER_NAME
-                ),
-            )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            raise ConfigurationError(
-                "Required docker container is not running"
-            )
-        logging.info("Container %s running in remote host.", CONTAINER_NAME)
+    def _clear_old_results(self) -> None:
+        """Delete results from previous execution on remote host.
 
-    def _clear_old_results(self):
-        """Delete results from previous execution on remote host"""
+        This is required to avoid reading stale results in case of failure
+        during test execution.
+        """
         try:
             self.run_ssh_command(
                 cmd="sudo rm -f {}".format(REMOTE_RESULTS_PATH)
@@ -87,11 +75,11 @@ class DTSRunner:
 
     def run_ssh_command(
         self, cmd: str, timeout: Optional[int] = DEFAULT_SSH_TIMEOUT
-    ):
+    ) -> None:
         """Run specified SSH command in remote host.
 
-        :cmd: Command to execute, if protocol is ssh
-        :timeout: Timeout in seconds for command execution, defaults to 30
+        :param cmd: Command to execute, if protocol is ssh
+        :param timeout: Timeout in seconds for command execution, defaults to 30
         """
         subprocess.run(
             [
@@ -116,8 +104,8 @@ class DTSRunner:
     ) -> Optional[str]:
         """Read a remote file if exists
 
-        :remote_path: Path where file should be located
-        :timeout: Timeout in seconds for command execution, defaults to 30
+        :param remote_path: Path where file should be located
+        :param timeout: Timeout in seconds for command execution, defaults to 30
         :returns: file content if exists, otherwise return None
         """
         # Define command for reading remote file only if exists
@@ -143,7 +131,7 @@ class DTSRunner:
 
         return output
 
-    def copy_config_file(self, config_file: str):
+    def copy_config_file(self, config_file: str) -> None:
         """Copy configuration file to remote host.
 
         :param config_file: Path to configuration file
@@ -167,8 +155,10 @@ class DTSRunner:
                     "-o",
                     "LogLevel=ERROR",
                     config_path,
-                    "{}@{}:{}/dts_conf.yaml".format(
-                        self.dts_user, self.dts_ip, DTS_REMOTE_PATH
+                    "{}@{}:{}".format(
+                        self.dts_user,
+                        self.dts_ip,
+                        DTS_CONFIG_NAME,
                     ),
                 ],
                 check=True,
@@ -185,42 +175,35 @@ class DTSRunner:
         self,
         test_suite: str,
         verbose: bool,
-    ):
+    ) -> None:
         """Run specified test suite in DTS controller
 
         :param test_suite: Test Suite to run on DTS controller
-        :verbose: verbosity level on test suite execution
+        :param verbose: verbosity level on test suite execution
         """
         # Define verbosity level for DPDK Test Suite
         if verbose:
             dts_command = (
-                "poetry run python3 main.py --test-suite {} "
-                "--config-file dts_conf.yaml --verbose".format(test_suite)
+                "{} --test-suite {} --config-file {} --verbose".format(
+                    DPDK_SNAP, test_suite, DTS_CONFIG_NAME
+                )
             )
         else:
-            dts_command = (
-                "poetry run python3 main.py --test-suite {} "
-                "--config-file dts_conf.yaml".format(test_suite)
+            dts_command = "{} --test-suite {} --config-file {}".format(
+                DPDK_SNAP, test_suite, DTS_CONFIG_NAME
             )
 
-        # Retrieve DPDK version
-        version = self.read_remote_file(DPDK_VERSION_PATH)
         logging.info(
-            "Starting execution of %s with DPDK v%s on remote host: %s",
+            "Starting execution of %s on remote host: %s",
             test_suite,
-            version.strip() if version else "Unknown",
             self.dts_ip,
         )
-        self.run_ssh_command(
-            cmd="docker exec {} bash -l -c '{}'".format(
-                CONTAINER_NAME, dts_command
-            ),
-            timeout=600,
-        )
+        # Modify timeout as test suites can take longer to execute
+        self.run_ssh_command(cmd=dts_command, timeout=600)
 
         logging.info("DTS Test Suite Run completed")
 
-    def get_results(self) -> Optional[Dict]:
+    def get_results(self) -> Optional[Dict[str, Any]]:
         """Get the results from test suite execution.
 
         :return: Results in json format if any returned during test execution
@@ -232,14 +215,13 @@ class DTSRunner:
         results = self.read_remote_file(REMOTE_RESULTS_PATH)
         if results:
             try:
-                json_results = json.loads(results)
-                return json_results
+                return json.loads(results)
             except ValueError:
                 return None
 
         return None
 
-    def print_results(self):
+    def print_results(self) -> None:
         """Print tests results from execution."""
 
         test_results = self.get_results()
@@ -273,7 +255,7 @@ class DTSRunner:
                     # Print summary
                     print("\nSummary:")
                     print("-" * 40)
-                    for status, count in test_run["summary"].items():
+                    for status, count in test_suite["summary"].items():
                         print("{}: {}".format(status, count))
         except KeyError:
             # If unable to pretty print, dump the test results

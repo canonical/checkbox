@@ -28,12 +28,11 @@ category_id: dpdk
 environ: DTS_CONFIG_FILE
 _summary: DPDK Blocklist Tests
 estimated_duration: 600.0
-imports: from com.canonical.plainbox import manifest
 requires:
+    dpdk_drivers.dpdk_supported == "yes"
     executable.name == 'meson'
     executable.name == 'ninja'
-    manifest.has_dpdk == 'True'
-    manifest.dpdk_version == '24'
+    snap.name == 'dpdk-dts'
 command:
     run_dpdk_test_suite.py --test-suite blocklist --verbose
 user: root

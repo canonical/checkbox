@@ -8,7 +8,7 @@ import filecmp
 import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
-from checkbox_support.scripts.fwts_test import get_sleep_test_command
+from checkbox_support.scripts.fwts_test import get_fwts_command
 from datetime import datetime
 import time
 from pathlib import Path
@@ -208,7 +208,7 @@ class FwtsTester:
         )
         sp.run(
             sh_split(
-                get_sleep_test_command(Path(log_file_path), fwts_arguments)
+                get_fwts_command(Path(log_file_path), fwts_arguments)
             )
         )
         result = sp.run(

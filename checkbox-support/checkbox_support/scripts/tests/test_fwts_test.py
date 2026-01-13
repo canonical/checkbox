@@ -24,7 +24,7 @@ from io import StringIO
 
 from checkbox_support.scripts.fwts_test import (
     print_log,
-    get_sleep_test_command,
+    get_fwts_command,
 )
 from unittest.mock import patch, MagicMock
 from pathlib import Path
@@ -61,8 +61,8 @@ class TestGetSleepTestCommand(unittest.TestCase):
 
     @patch.dict(os.environ, {}, clear=True)
     def test_deb_environment(self):
-        """Test the default 'deb' behavior when env vars are missing."""
-        result = get_sleep_test_command(self.log_path, self.tests)
+
+        result = get_fwts_command(self.log_path, self.tests)
         expected = "fwts -q --stdout-summary -r /tmp/results.log s3 s4"
         self.assertEqual(result, expected)
 
@@ -74,11 +74,10 @@ class TestGetSleepTestCommand(unittest.TestCase):
         },
     )
     @patch("checkbox_support.scripts.fwts_test.Path.exists")
-    def test_snap_environment_success(self, mock_exists: MagicMock):
-        """Test the snap behavior when the FWTS data directory exists."""
+    def test_snap_env_happy_path(self, mock_exists: MagicMock):
         mock_exists.return_value = True
 
-        result = get_sleep_test_command(self.log_path, self.tests)
+        result = get_fwts_command(self.log_path, self.tests)
 
         expected_dir = "/snap/test-snap/checkbox-runtime/share/fwts"
         expected_cmd = (
@@ -96,12 +95,11 @@ class TestGetSleepTestCommand(unittest.TestCase):
         },
     )
     @patch("checkbox_support.scripts.fwts_test.Path.exists")
-    def test_snap_environment_missing_dir(self, mock_exists: MagicMock):
-        """Test that SystemExit is raised if the FWTS directory is missing."""
+    def test_snap_env_missing_dir(self, mock_exists: MagicMock):
         mock_exists.return_value = False
 
         with self.assertRaises(SystemExit) as cm:
-            get_sleep_test_command(self.log_path, self.tests)
+            get_fwts_command(self.log_path, self.tests)
 
         self.assertIn("doesn't exist", str(cm.exception))
 

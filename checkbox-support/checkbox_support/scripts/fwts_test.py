@@ -169,7 +169,15 @@ TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 
 
-def get_sleep_test_command(log_file_path: Path, tests: "list[str]") -> str:
+def get_fwts_command(log_file_path: Path, tests: "list[str]") -> str:
+    """Get the correct fwts command template depending on if we are inside a snap
+
+    :param log_file_path: where to put the log file
+    :param tests: list of fwts tests like 's3' 'klog'
+    :raises SystemExit: If we are in snap, but the json files needed by
+                        fwts's parser doesn't exist
+    :return: command string
+    """
     if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
         # snap checkbox
         # must specify where the klog.json, clog.json files are
@@ -508,7 +516,7 @@ def main(args=sys.argv[1:]):
                 f.write(marker)
             results["sleep"] = (
                 Popen(
-                    get_sleep_test_command(Path(args.log), tests),
+                    get_fwts_command(Path(args.log), tests),
                     stdout=PIPE,
                     shell=True,
                 )
@@ -599,7 +607,7 @@ def main(args=sys.argv[1:]):
                     test = "--acpitests"
                 results[test] = (
                     Popen(
-                        get_sleep_test_command(log, [test]),
+                        get_fwts_command(log, [test]),
                         stdout=PIPE,
                         shell=True,
                     )

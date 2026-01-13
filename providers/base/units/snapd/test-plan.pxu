@@ -151,3 +151,11 @@ include:
     snapd/snap-revert-kernel-.*-stable-rev
     snapd/log-attach-after-snap-revert-kernel-.*-stable-rev
     snapd/snap-verify-after-revert-kernel-.*-stable-rev
+
+id: snappy-snap-desktop-26-04-automated
+unit: test plan
+_name: Desktop Snappy Snap for 26.04 (Automated)
+_description: Automated tests for snappy-snap
+include:
+nested_part:
+    snappy-snap-automated

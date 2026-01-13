@@ -61,3 +61,21 @@ unit: test plan
 _name: Manual fwupdmgr tests
 _description: Manual firmware update manager tests
 include:
+
+id: firmware-fwupdmgr-desktop-26-04-manual
+unit: test plan
+_name: Desktop Firmware-fwupdmgr for 26.04 (Manual)
+_description: Manual tests for firmware-fwupdmgr
+include:
+nested_part:
+    submission-cert-full
+    firmware-fwupdmgr-manual
+    info-attachment-cert-full
+
+id: firmware-fwupdmgr-desktop-26-04-automated
+unit: test plan
+_name: Desktop Firmware-fwupdmgr for 26.04 (Automated)
+_description: Automated tests for firmware-fwupdmgr
+include:
+nested_part:
+    firmware-fwupdmgr-automated

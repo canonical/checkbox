@@ -15,6 +15,12 @@ _description:
  Wireless connection tests (Manual)
 include:
 
+id: after-suspend-wireless-cert-manual
+unit: test plan
+_name: Wireless tests after suspend(Manual)
+_description: Manual wireless connection tests after suspend
+include:
+
 id: after-suspend-wireless-cert-full
 unit: test plan
 _name: Wireless tests (cert full after suspend)
@@ -452,3 +458,32 @@ include:
     after-suspend-wireless/wireless_connection_wpa_n_np_interface
 bootstrap_include:
     device
+
+id: wireless-desktop-26-04-manual
+unit: test plan
+_name: Desktop Wireless for 26.04 (Manual)
+_description: Manual tests for wireless
+include:
+nested_part:
+    submission-cert-full
+    wireless-cert-manual
+    after-suspend-wireless-cert-manual
+    info-attachment-cert-full
+
+id: wireless-desktop-26-04-automated
+unit: test plan
+_name: Desktop Wireless for 26.04 (Automated)
+_description: Automated tests for wireless
+include:
+nested_part:
+    wireless-cert-automated
+    after-suspend-wireless-cert-automated
+
+id: wireless-netplan-desktop-26-04-automated
+unit: test plan
+_name: Desktop Wireless for 26.04 (Automated)
+_description: Automated tests for wireless
+include:
+nested_part:
+    wireless-netplan-cert-automated
+    after-suspend-wireless-netplan-cert-automated

@@ -48,6 +48,8 @@ include:
     suspend/memory_after_suspend_auto                   certification-status=blocker
     suspend/validate_suspend_status
     suspend/any_suspend_failure
+    suspend/oops_after_suspend                          certification-status=blocker
+    suspend/oops_results_after_suspend.log
 bootstrap_include:
     device
 
@@ -130,3 +132,12 @@ _description:
   after-hibernate-tp in the nested_part section of the surrounding test plan.
 include:
   power-management/hibernate_advanced
+
+id: before-after-suspend-reference-desktop-26-04-automated
+unit: test plan
+_name: Desktop Before After Suspend Reference for 26.04 (Automated)
+_description: Automated tests for before-after-suspend-reference
+include:
+nested_part:
+    before-suspend-reference-cert-automated
+    after-suspend-reference-cert-automated

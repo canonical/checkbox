@@ -18,6 +18,17 @@ bootstrap_include:
     device
     executable
 
+id: after-suspend-networking-cert-manual
+unit: test plan
+_name: Networking tests after suspend (manual)
+_description: Manual tests for networking after suspend
+include:
+    after-suspend-networking/info_device.*         certification-status=blocker
+    after-suspend-networking/airplane-mode         certification-status=blocker
+bootstrap_include:
+    device
+    executable
+
 id: networking-cert-automated
 unit: test plan
 _name: Networking tests (automated)
@@ -116,3 +127,35 @@ _description: Networking tests for Server Cert
 include:
     networking/predictable_names    certification-status=blocker
     networking/ntp                  certification-status=non-blocker
+
+id: networking-desktop-26-04-manual
+unit: test plan
+_name: Desktop Networking for 26.04 (Manual)
+_description: Manual tests for networking
+include:
+    keys/wireless
+    led/wireless
+    after-suspend-keys/wireless
+    after-suspend-led/wireless
+nested_part:
+    submission-cert-full
+    networking-cert-manual
+    ethernet-cert-manual
+    bluetooth-cert-manual
+    wireless-cert-manual
+    wwan-cert-manual
+    after-suspend-networking-cert-manual
+    after-suspend-ethernet-cert-manual
+    after-suspend-bluetooth-cert-manual
+    after-suspend-wireless-cert-manual
+    after-suspend-wwan-cert-manual
+    info-attachment-cert-full
+
+id: networking-desktop-26-04-automated
+unit: test plan
+_name: Desktop Networking for 26.04 (Automated)
+_description: Automated tests for networking
+include:
+nested_part:
+    networking-cert-automated
+    after-suspend-networking-cert-automated

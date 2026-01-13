@@ -6,6 +6,14 @@ include:
     disk/detect                                certification-status=blocker
     disk/hdd-parking                           certification-status=non-blocker
 
+id: after-suspend-disk-cert-manual
+unit: test plan
+_name: Disk tests after suspend (manual)
+_description: Disk tests after suspend (manual)
+include:
+    after-suspend-disk/detect                  certification-status=blocker
+    after-suspend-disk/hdd-parking             certification-status=non-blocker
+
 id: disk-cert-automated
 unit: test plan
 _name: Disk tests (automated)
@@ -90,3 +98,23 @@ include:
     disk/disk_cpu_load_.*                      certification-status=blocker
 bootstrap_include:
     device
+
+id: disk-desktop-26-04-manual
+unit: test plan
+_name: Desktop Disk for 26.04 (Manual)
+_description: Manual tests for disk
+include:
+nested_part:
+    submission-cert-full
+    disk-cert-manual
+    after-suspend-disk-cert-manual
+    info-attachment-cert-full
+
+id: disk-desktop-26-04-automated
+unit: test plan
+_name: Desktop Disk for 26.04 (Automated)
+_description: Automated tests for disk
+include:
+nested_part:
+    disk-cert-automated
+    after-suspend-disk-cert-automated

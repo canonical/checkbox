@@ -19,6 +19,16 @@ include:
     input/clicking_.*                          certification-status=blocker
     input/keyboard                             certification-status=blocker
 
+id: after-suspend-input-cert-manual
+unit: test plan
+_name: Input tests after suspend (Manual)
+_description: Input tests after suspend (Manual)
+include:
+    after-suspend-input/accelerometer          certification-status=blocker
+    after-suspend-input/pointing_.*            certification-status=blocker
+    after-suspend-input/clicking_.*            certification-status=blocker
+    after-suspend-input/keyboard               certification-status=blocker
+
 id: input-cert-automated
 unit: test plan
 _name: Input tests (Automated)
@@ -65,3 +75,23 @@ _description: Input tests (after suspend, certification blockers only)
 include:
     suspend/pointing-after-suspend_.*          certification-status=blocker
     suspend/clicking-after-suspend_.*          certification-status=blocker
+
+id: input-desktop-26-04-manual
+unit: test plan
+_name: Desktop Input for 26.04 (Manual)
+_description: Manual tests for input
+include:
+nested_part:
+    submission-cert-full
+    input-cert-manual
+    after-suspend-input-cert-manual
+    info-attachment-cert-full
+
+id: input-desktop-26-04-automated
+unit: test plan
+_name: Desktop input for 26.04 (Automated)
+_description: Automated tests for input
+include:
+nested_part:
+    input-cert-automated
+    after-suspend-input-cert-automated

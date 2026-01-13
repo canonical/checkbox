@@ -100,3 +100,21 @@ mandatory_include:
     info/systemd-analyze                       certification-status=non-blocker
     info/systemd-analyze-critical-chain        certification-status=non-blocker
 include:
+
+id: misc-client-desktop-26-04-manual
+unit: test plan
+_name: Desktop Misc Client for 26.04 (Manual)
+_description: Manual tests for misc-client
+include:
+nested_part:
+    submission-cert-full
+    misc-client-cert-manual
+    info-attachment-cert-full
+
+id: misc-client-desktop-26-04-automated
+unit: test plan
+_name: Desktop Misc Client for 26.04 (Automated)
+_description: Automated tests for misc-client
+include:
+nested_part:
+    misc-client-cert-automated

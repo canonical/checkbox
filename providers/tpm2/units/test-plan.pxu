@@ -127,3 +127,11 @@ include:
     tpm2/fwts-event-log-dump
 nested_part:
     clevis-automated
+
+unit: test plan
+id: tpm-desktop-26-04-automated
+_name: Desktop TPM tests for 26.04 (Automated)
+_description: TPM tests (Automated)
+include:
+nested_part:
+    tpm-cert-automated

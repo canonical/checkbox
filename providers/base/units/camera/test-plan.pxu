@@ -19,6 +19,16 @@ include:
 bootstrap_include:
  device
 
+id: after-suspend-camera-cert-manual
+unit: test plan
+_name: Camera tests after suspend (Manual)
+_description: Camera tests after suspend (Manual)
+include:
+ after-suspend-camera/still_.*                     certification-status=blocker
+ after-suspend-camera/display_.*                   certification-status=blocker
+bootstrap_include:
+ device
+
 id: after-suspend-camera-cert-full
 unit: test plan
 _name: Camera tests (after suspend)
@@ -114,3 +124,25 @@ include:
     camera/roundtrip-qrcode_.*
 bootstrap_include:
     device
+
+id: webcam-desktop-26-04-manual
+unit: test plan
+_name: Desktop Webcam for 26.04 (Manual)
+include:
+    camera/led_.*
+    power-management/light_sensor
+    after-suspend-camera/led_.*
+    after-suspend-power-management/light_sensor
+nested_part:
+    submission-cert-full
+    camera-cert-manual
+    after-suspend-camera-cert-manual
+    info-attachment-cert-full
+
+id: webcam-desktop-26-04-automated
+unit: test plan
+_name: Desktop Webcam for 26.04 (Automated)
+include:
+nested_part:
+    camera-cert-automated
+    after-suspend-camera-cert-automated

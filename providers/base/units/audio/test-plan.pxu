@@ -26,6 +26,22 @@ include:
  audio/external-linein
  audio/external-lineout
 
+id: after-suspend-audio-cert-manual
+unit: test plan
+_name: Audio tests after suspend (Manual)
+_description:
+ Audio tests
+ See Monitor / Graphic test plans for hybrid-graphic monitor audio tests (Manual)
+include:
+ after-suspend-audio/speaker-headphone-plug-detection                 certification-status=blocker
+ after-suspend-audio/microphone-plug-detection                        certification-status=blocker
+ after-suspend-audio/playback_headphones                              certification-status=blocker
+ after-suspend-audio/alsa_record_playback_external                    certification-status=blocker
+ after-suspend-audio/playback_auto                                    certification-status=blocker
+ after-suspend-audio/alsa_record_playback_internal                    certification-status=blocker
+ after-suspend-audio/channels
+ after-suspend-audio/external-linein
+ after-suspend-audio/external-lineout
 
 id: after-suspend-audio-cert-full
 unit: test plan
@@ -164,3 +180,23 @@ include:
     after-suspend-audio/detect-playback-devices
     after-suspend-audio/detect-capture-devices
     after-suspend-audio/alsa-loopback-automated
+
+id: audio-desktop-26-04-manual
+unit: test plan
+_name: Desktop Audio for 26.04 (Manual)
+_description: Manual tests for audio
+include:
+nested_part:
+    submission-cert-full
+    audio-cert-manual
+    after-suspend-audio-cert-manual
+    info-attachment-cert-full
+
+id: audio-desktop-26-04-automated
+unit: test plan
+_name: Desktop Audio for 26.04 (Automated)
+_description: Automated tests for audio
+include:
+nested_part:
+    audio-cert-automated
+    after-suspend-audio-cert-automated

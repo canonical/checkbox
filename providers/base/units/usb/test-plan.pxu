@@ -11,11 +11,20 @@ nested_part:
 id: usb-cert-manual
 unit: test plan
 _name: USB tests (Manual)
-_description:
- USB tests (Manual)
+_description: USB tests (Manual)
 include:
+ usb/detect                                 certification-status=blocker
  usb/hid                                    certification-status=blocker
  usb/storage-manual                         certification-status=blocker
+
+id: after-suspend-usb-cert-manual
+unit: test plan
+_name: USB tests after suspend (Manual)
+_description: USB tests after suspend (Manual)
+include:
+ after-suspend-usb/detect                   certification-status=blocker
+ after-suspend-usb/hid                      certification-status=blocker
+ after-suspend-usb/storage-manual           certification-status=blocker
 
 id: usb-cert-automated
 unit: test plan
@@ -51,11 +60,24 @@ _description:
 include:
  usb3/storage-manual                            certification-status=blocker
 
+id: after-suspend-usb3-cert-manual
+unit: test plan
+_name: USB3 tests after suspend (Manual)
+_description: USB3 tests after suspend (Manual)
+include:
+ after-suspend-usb3/storage-manual              certification-status=blocker
+
 id: usb3-cert-automated
 unit: test plan
 _name: USB3 tests (Automated)
 _description:
  USB3 tests (Automated)
+include:
+
+id: after-suspend-usb3-cert-automated
+unit: test plan
+_name: USB3 tests after suspend (Automated)
+_description: USB3 tests after suspend (Automated)
 include:
 
 id: usb-c-cert-full
@@ -118,6 +140,26 @@ include:
     usb-c/c-to-a-adapter/storage-manual        certification-status=blocker
     usb-c/storage-manual                       certification-status=blocker
 
+id: usb-c-cert-manual
+unit: test plan
+_name: USB Type-C tests (Manual)
+_description: USB Type-C tests (Manual)
+include:
+    usb-c/storage-manual                       certification-status=blocker
+    usb-c/c-to-ethernet-adapter-insert
+
+id: usb-c-cert-automated
+unit: test plan
+_name: USB Type-C tests (Automated)
+_description: USB Type-C tests (Automated)
+include:
+
+id: after-suspend-usb-c-cert-automated
+unit: test plan
+_name: USB Type-C tests (Automated)
+_description: USB Type-C tests (Automated)
+include:
+
 id: after-suspend-usb-cert-blockers
 unit: test plan
 _name: USB tests (after suspend, certification blockers only)
@@ -141,6 +183,14 @@ include:
     after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
     after-suspend-usb-c/c-to-a-adapter/storage-manual        certification-status=blocker
     after-suspend-usb-c/storage-manual                       certification-status=blocker
+
+id: after-suspend-usb-c-cert-manual
+unit: test plan
+_name: USB Type-C tests after suspend (Manual)
+_description: USB Type-C tests after suspend (Manual)
+include:
+    after-suspend-usb-c/storage-manual                       certification-status=blocker
+    after-suspend-usb-c/c-to-ethernet-adapter-insert
 
 id: usb-preinserted
 unit: test plan
@@ -332,3 +382,47 @@ include:
     usb/detect
     usb/storage-server      certification-status=blocker
     usb3/storage-server     certification-status=blocker
+
+id: usb-desktop-26-04-manual
+unit: test plan
+_name: Desktop USB for 26.04 (Manual)
+_description: Manual tests for USB
+include:
+nested_part:
+    submission-cert-full
+    usb-cert-manual
+    usb3-cert-manual
+    after-suspend-usb-cert-manual
+    after-suspend-usb3-cert-manual
+    info-attachment-cert-full
+
+id: usb-c-desktop-26-04-manual
+unit: test plan
+_name: Desktop USB-C for 26.04 (Manual)
+_description: Manual tests for USB-C
+include:
+nested_part:
+    submission-cert-full
+    usb-c-cert-manual
+    after-suspend-usb-c-cert-manual
+    info-attachment-cert-full
+
+id: usb-desktop-26-04-automated
+unit: test plan
+_name: Desktop USB for 26.04 (Automated)
+_description: Automated tests for USB
+include:
+nested_part:
+    usb-cert-automated
+    usb3-cert-automated
+    after-suspend-usb-cert-automated
+    after-suspend-usb3-cert-automated
+
+id: usb-c-desktop-26-04-automated
+unit: test plan
+_name: Desktop USB-C for 26.04 (Automated)
+_description: Automated tests for USB-C
+include:
+nested_part:
+    usb-c-cert-automated
+    after-suspend-usb-c-cert-automated

@@ -28,6 +28,29 @@ include:
  keys/power-button-event                        certification-status=blocker
  keys/fn-lock                                   certification-status=non-blocker
  keys/power-button-suspend                      certification-status=blocker
+ keys/sleep                                     certification-status=blocker
+
+ id: after-suspend-keys-cert-manual
+unit: test plan
+_name: Special keys tests after suspend (Manual)
+_description:
+ Special keys tests (w/o sleep/hibernate keys, see Power Management test plans) (Manual)
+include:
+ after-suspend-keys/lock-screen                 certification-status=blocker
+ after-suspend-keys/super                       certification-status=blocker
+ after-suspend-keys/brightness                  certification-status=blocker
+ after-suspend-keys/media-control               certification-status=blocker
+ after-suspend-keys/mute                        certification-status=blocker
+ after-suspend-keys/volume                      certification-status=blocker
+ after-suspend-keys/video-out                   certification-status=blocker
+ after-suspend-keys/wireless                    certification-status=blocker
+ after-suspend-keys/keyboard-backlight          certification-status=blocker
+ after-suspend-keys/microphone-mute             certification-status=blocker
+ after-suspend-keys/power-button                certification-status=blocker
+ after-suspend-keys/power-button-event          certification-status=blocker
+ after-suspend-keys/fn-lock                     certification-status=non-blocker
+ after-suspend-keys/power-button-suspend        certification-status=blocker
+ after-suspend-keys/sleep                       certification-status=blocker
 
 id: keys-cert-automated
 unit: test plan
@@ -36,6 +59,12 @@ _description:
  Special keys tests (w/o sleep/hibernate keys, see Power Management test plans) (Automated)
 include:
 
+id: after-suspend-keys-cert-automated
+unit: test plan
+_name: Special keys tests after suspend (Automated)
+_description:
+ Special keys tests (w/o sleep/hibernate keys, see Power Management test plans) after suspend (Automated)
+include:
 
 id: after-suspend-keys-cert-full
 unit: test plan
@@ -94,3 +123,23 @@ include:
     after-suspend-keys/keyboard-backlight          certification-status=blocker
     after-suspend-keys/microphone-mute             certification-status=blocker
     after-suspend-keys/power-button                certification-status=blocker
+
+id: keys-desktop-26-04-manual
+unit: test plan
+_name: Desktop keys for 26.04 (Manual)
+_description: Manual tests for keys
+include:
+nested_part:
+    submission-cert-full
+    keys-cert-manual
+    after-suspend-keys-cert-manual
+    info-attachment-cert-full
+
+id: keys-desktop-26-04-automated
+unit: test plan
+_name: Desktop keys for 26.04 (Automated)
+_description: Automated tests for keys
+include:
+nested_part:
+    keys-cert-automated
+    after-suspend-keys-cert-automated

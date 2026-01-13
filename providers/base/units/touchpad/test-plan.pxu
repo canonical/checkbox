@@ -22,6 +22,20 @@ include:
  touchpad/multitouch-rightclick                 certification-status=blocker
  touchpad/multitouch                            certification-status=blocker
 
+id: after-suspend-touchpad-cert-manual
+unit: test plan
+_name: Touchpad tests after suspend (Manual)
+_description:
+ Touchpad tests after suspend (Manual)
+include:
+ after-suspend-touchpad/basic                                 certification-status=blocker
+ after-suspend-touchpad/palm-rejection                        certification-status=non-blocker
+ after-suspend-touchpad/continuous-move                       certification-status=blocker
+ after-suspend-touchpad/singletouch-selection                 certification-status=blocker
+ after-suspend-touchpad/drag-and-drop                         certification-status=blocker
+ after-suspend-touchpad/multitouch-rightclick                 certification-status=blocker
+ after-suspend-touchpad/multitouch                            certification-status=blocker
+
 id: touchpad-cert-automated
 unit: test plan
 _name: Touchpad tests (Automated)
@@ -78,3 +92,21 @@ include:
     touchpad/drag-and-drop-after-suspend           certification-status=blocker
     touchpad/multitouch-rightclick-after-suspend   certification-status=blocker
     touchpad/multitouch-after-suspend              certification-status=blocker
+
+id: touchpad-desktop-26-04-manual
+unit: test plan
+_name: Desktop Touchpad for 26.04 (Manual)
+nested_part:
+    submission-cert-full
+    touchpad-cert-manual
+    after-suspend-touchpad-cert-manual
+    info-attachment-cert-full
+
+id: touchpad-desktop-26-04-automated
+unit: test plan
+_name: Desktop Touchpad for 26.04 (Automated)
+_description: Automated tests for touchpad
+include:
+nested_part:
+    touchpad-cert-automated
+    after-suspend-touchpad-cert-automated

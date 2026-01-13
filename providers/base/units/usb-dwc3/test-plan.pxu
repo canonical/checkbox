@@ -16,6 +16,26 @@ include:
     usb-dwc3/mass-storage
     usb-dwc3/mass-storage-cleanup
 
+id: usb-dwc3-cert-manual
+_name: DesignWare Core SuperSpeed USB 3.0 Controller (DWC3) tests (manual)
+unit: test plan
+bootstrap_include:
+    device
+    module
+include:
+    usb-dwc3/mass-storage
+    usb-dwc3/mass-storage-cleanup
+
+id: after-suspend-usb-dwc3-cert-manual
+_name: DesignWare Core SuperSpeed USB 3.0 Controller (DWC3) tests (manual)
+unit: test plan
+bootstrap_include:
+    device
+    module
+include:
+    after-suspend-usb-dwc3/mass-storage
+    after-suspend-usb-dwc3/mass-storage-cleanup
+
 id: usb-dwc3-automated
 _name: DesignWare Core SuperSpeed USB 3.0 Controller (DWC3) tests (automated)
 unit: test plan
@@ -23,5 +43,51 @@ bootstrap_include:
     device
     module
 include:
+    submission-cert-full
     usb-dwc3/driver-detect
     usb-dwc3/module-detect
+    info-attachment-cert-full
+
+id: usb-dwc3-cert-automated
+_name: DesignWare Core SuperSpeed USB 3.0 Controller (DWC3) tests (automated)
+unit: test plan
+bootstrap_include:
+    device
+    module
+include:
+    submission-cert-full
+    usb-dwc3/driver-detect
+    usb-dwc3/module-detect
+    info-attachment-cert-full
+
+id: after-suspend-usb-dwc3-cert-automated
+_name: DesignWare Core SuperSpeed USB 3.0 Controller (DWC3) tests (automated)
+unit: test plan
+bootstrap_include:
+    device
+    module
+include:
+    submission-cert-full
+    after-suspend-usb-dwc3/driver-detect
+    after-suspend-usb-dwc3/module-detect
+    info-attachment-cert-full
+
+id: usb-dwc3-desktop-26-04-manual
+unit: test plan
+_name: Desktop DWC3 for 26.04 after suspend (Manual)
+_description: Manual tests for DWC3 after suspend
+include:
+nested_part:
+    submission-cert-full
+    usb-dwc3-cert-manual
+    after-suspend-usb-dwc3-cert-manual
+    info-attachment-cert-full
+
+id: usb-dwc3-desktop-26-04-automated
+unit: test plan
+_name: Desktop DWC3 for 26.04 (Automated)
+_description: Automated tests for usb-dwc3
+include:
+nested_part:
+    usb-dwc3-cert-automated
+    after-suspend-usb-dwc3-cert-automated

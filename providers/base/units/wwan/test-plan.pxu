@@ -23,6 +23,20 @@ include:
 bootstrap_include:
     wwan_resource
 
+id: wwan-cert-automated
+unit: test plan
+_name: Automated wwan tests
+_description: Automated wwan tests for Snappy Ubuntu Core devices
+include:
+    # Note these tests require snap calling snap support
+    wwan/detect    certification-status=blocker
+    wwan/check-sim-present-manufacturer-model-hw_id-auto
+    wwan/3gpp-scan-manufacturer-model-hw_id-auto
+    wwan/gsm-connection-manufacturer-model-hw_id-auto    certification-status=blocker
+    wwan/gsm-reconnection-.*-auto  certification-status=blocker
+bootstrap_include:
+    wwan_resource
+
 id: after-suspend-wwan-full
 unit: test plan
 _name: Wwan tests (after suspend)
@@ -33,6 +47,19 @@ nested_part:
     after-suspend-wwan-manual
 
 id: after-suspend-wwan-automated
+unit: test plan
+_name: Automated wwan tests (after suspend)
+_description: Automated wwan tests for Snappy Ubuntu Core devices
+include:
+    after-suspend-wwan/detect
+    after-suspend-wwan/check-sim-present-manufacturer-model-hw_id-auto
+    after-suspend-wwan/3gpp-scan-manufacturer-model-hw_id-auto
+    after-suspend-wwan/gsm-connection-manufacturer-model-hw_id-auto    certification-status=blocker
+    after-suspend-wwan/gsm-reconnection-.*-auto  certification-status=blocker
+bootstrap_include:
+    wwan_resource
+
+id: after-suspend-wwan-cert-automated
 unit: test plan
 _name: Automated wwan tests (after suspend)
 _description: Automated wwan tests for Snappy Ubuntu Core devices
@@ -56,3 +83,35 @@ unit: test plan
 _name: Manual wwan tests (after suspend)
 _description: Manual wwan tests for Snappy Ubuntu Core devices
 include:
+
+id: wwan-cert-manual
+unit: test plan
+_name: Manual WWAN tests
+_description: Manual wwan tests
+include:
+
+id: after-suspend-wwan-cert-manual
+unit: test plan
+_name: Manual WWAN tests (after suspend)
+_description: Manual wwan tests after suspend
+include:
+
+id: wwan-desktop-26-04-manual
+unit: test plan
+_name: Desktop WWAN for 26.04 (Manual)
+_description: Manual tests for wwan
+include:
+nested_part:
+    submission-cert-full
+    wwan-cert-manual
+    after-suspend-wwan-cert-manual
+    info-attachment-cert-full
+
+id: wwan-desktop-26-04-automated
+unit: test plan
+_name: Desktop WWAN for 26.04 (Automated)
+_description: Automated tests for wwan
+include:
+nested_part:
+    wwan-cert-automated
+    after-suspend-wwan-cert-automated

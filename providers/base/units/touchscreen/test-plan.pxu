@@ -107,3 +107,21 @@ include:
  after-suspend-touchscreen/evdev.*
 bootstrap_include:
  device
+
+id: touchscreen-desktop-26-04-manual
+unit: test plan
+_name: Desktop Touchscreen for 26.04 (Manual)
+nested_part:
+    submission-cert-full
+    touchscreen-cert-manual
+    after-suspend-touchscreen-cert-manual
+    info-attachment-cert-full
+
+id: touchscreen-desktop-26-04-automated
+unit: test plan
+_name: Desktop Touchscreen for 26.04 (Automated)
+_description: Automated tests for touchscreen
+include:
+nested_part:
+    touchscreen-cert-automated
+    after-suspend-touchscreen-cert-automated

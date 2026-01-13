@@ -134,9 +134,7 @@ def main():
     logging.info("Linking printer as '{}'...".format(printer_name))
     if (
         run_command(
-            "lpadmin -p {} -v '{}' -E {}".format(
-                printer_name, uri, driver_opt
-            )
+            "lpadmin -p {} -v '{}' -E {}".format(printer_name, uri, driver_opt)
         )
         is None
     ):

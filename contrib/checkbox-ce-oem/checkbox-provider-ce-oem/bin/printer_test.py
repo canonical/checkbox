@@ -33,11 +33,13 @@ def find_printer_uri(keyword):
 
     # Look for the specific URI line
     for line in output.split("\n"):
-        if keyword.lower() in line.lower() and "usb://" in line:
-            # Extract URI (starts with usb://)
-            match = re.search(r"usb://\S+", line)
-            if match:
-                return match.group(0)
+        match = re.search(
+            r"\S+://\S*{}\S*".format(re.escape(keyword)),
+            line,
+            re.IGNORECASE,
+        )
+        if match:
+            return match.group(0)
     return None
 
 
@@ -93,6 +95,16 @@ def main():
         required=True,
         help="Keyword to search for printer URI (default: Toshiba)",
     )
+    parser.add_argument(
+        "-m",
+        "--model",
+        help="Target model to link up",
+    )
+    parser.add_argument(
+        "--check-device",
+        action="store_true",
+        help="Only check if the device is present and print the URI",
+    )
     args = parser.parse_args()
     keyword = args.keyword
     printer_name = "Printer_Tester"
@@ -101,15 +113,34 @@ def main():
     uri = find_printer_uri(keyword)
     if not uri:
         logging.error(
-            "Could not find a USB printer with keyword '{}'.".format(keyword)
+            "Could not find a printer with keyword '{}'.".format(keyword)
         )
-        return
+        raise SystemExit(1)
 
     logging.info("Found URI: {}".format(uri))
 
+    if args.check_device:
+        return
+
+    driver_opt = ""
+    if args.model:
+        driver_opt = "-m {}".format(args.model)
+    elif "usb://" in uri:
+        driver_opt = "-m raw"
+    elif "ipp://" in uri:
+        driver_opt = "-m everywhere"
+
     # 2. Create/Link the printer
     logging.info("Linking printer as '{}'...".format(printer_name))
-    run_command("lpadmin -p {} -v '{}' -E -m raw".format(printer_name, uri))
+    if (
+        run_command(
+            "lpadmin -p {} -v '{}' -E {}".format(
+                printer_name, uri, driver_opt
+            )
+        )
+        is None
+    ):
+        raise SystemExit(1)
 
     # 3. Print a test page
     logging.info("Sending test print job...")
@@ -124,9 +155,13 @@ def main():
         logging.info("Job submitted: {}".format(job_id))
 
         # 4. Monitor status
-        monitor_job(printer_name, job_id)
+        if not monitor_job(printer_name, job_id):
+            teardown_printer(printer_name)
+            raise SystemExit(1)
     else:
         logging.error("Failed to submit print job.")
+        teardown_printer(printer_name)
+        raise SystemExit(1)
 
     teardown_printer(printer_name)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # This script rely on user input the brand name of the printer
-# as the keyword to searching connected printer. 
+# as the keyword to searching connected printer.
 import argparse
 import logging
 import subprocess
@@ -109,15 +109,11 @@ def main():
 
     # 2. Create/Link the printer
     logging.info("Linking printer as '{}'...".format(printer_name))
-    run_command(
-        "lpadmin -p {} -v '{}' -E -m raw".format(printer_name, uri)
-    )
+    run_command("lpadmin -p {} -v '{}' -E -m raw".format(printer_name, uri))
 
     # 3. Print a test page
     logging.info("Sending test print job...")
-    test_text = (
-        "Printer TEST\nSTATUS: LINKED\n"
-    )
+    test_text = "Printer TEST\nSTATUS: LINKED\n"
     lp_output = run_command(
         "echo '{}' | lp -d {}".format(test_text, printer_name)
     )

@@ -1,4 +1,4 @@
-id: ce-oem-printer-test-automated
+id: ce-oem/printer-test-automated
 _summary: Test printer functionality
 _purpose:
     This autotest verifies that the printer is correctly installed and can print a test page.
@@ -16,7 +16,7 @@ requires:
     package.name == 'cups-client'
 environ: PRINTER_BRAND
 
-id: ce-oem-printer-test
+id: ce-oem/printer-test
 _summary: Test printer functionality
 _purpose:
     This test verifies that the printer is correctly installed and can print a test page.

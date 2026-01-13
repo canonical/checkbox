@@ -7,7 +7,7 @@ user: root
 category_id: printer
 estimated_duration: 25s
 flags: also-after-suspend
-command: printer_test.py -k "$PRINTER_BRAND" -m "$PRINTER_MODEL --check-device
+command: printer_test.py -k "$PRINTER_BRAND" -m "$PRINTER_MODEL" --check-device
 imports: 
     from com.canonical.plainbox import manifest
     from com.canonical.certification import package

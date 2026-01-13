@@ -44,7 +44,7 @@ from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.abc import IJobResult
 
-from checkbox_ng.config import load_configs
+from checkbox_ng.config import resolve_configs
 from checkbox_ng.launcher.run import SilentUI
 from checkbox_ng.user_utils import check_user_exists
 from checkbox_ng.user_utils import guess_normal_user
@@ -195,7 +195,7 @@ class RemoteSessionAssistant:
     object but JSON encoded.
     """
 
-    REMOTE_API_VERSION = 15
+    REMOTE_API_VERSION = 16
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -386,23 +386,21 @@ class RemoteSessionAssistant:
         session_desc = "remote session"
         session_type = "remote"
 
-        self._launcher = load_configs()
-        if configuration["launcher"]:
-            launcher_from_controller = Configuration.from_text(
-                configuration["launcher"], "Remote launcher"
-            )
-            self._launcher.update_from_another(
-                launcher_from_controller, "Remote launcher"
-            )
-            session_title = (
-                self._launcher.get_value("launcher", "session_title")
-                or session_title
-            )
-            session_desc = (
-                self._launcher.get_value("launcher", "session_desc")
-                or session_desc
-            )
+        self._launcher = resolve_configs(
+            Configuration.from_text(
+                configuration.get("launcher", ""), origin="Remote launcher"
+            ),
+            self._sa,
+        )
 
+        session_title = (
+            self._launcher.get_value("launcher", "session_title")
+            or session_title
+        )
+        session_desc = (
+            self._launcher.get_value("launcher", "session_desc")
+            or session_desc
+        )
         self._sa.use_alternate_configuration(self._launcher)
         self._normal_user = self._launcher.get_value("agent", "normal_user")
         if self._normal_user:
@@ -855,6 +853,22 @@ class RemoteSessionAssistant:
     def bootstrap(self):
         return self._sa.bootstrap()
 
+    def get_provider_launcher_by_id(self, id: str) -> str:
+        return self._sa.get_provider_launcher_by_id(id)
+
+    def get_resolved_launcher_json(self, launcher_json: str) -> str:
+        """
+        Resolve the launcher and propagate it back to the controller
+
+        This is needed because else the view of the launcher on the controller
+        (which was un-resolved) may be different from the one on the agent as
+        the agent does resolve the launcher (potentially importing global
+        configs)
+        """
+        launcher = Configuration.from_json(launcher_json)
+        configuration = resolve_configs(launcher, self._sa)
+        return configuration.to_json()
+
     def update_job_result_after_resume(
         self, last_job_id, result_interactively_decided={}
     ):
@@ -920,7 +934,6 @@ class RemoteSessionAssistant:
 
     def resume_by_id(self, session_id=None, result_interactively_decided={}):
         _logger.info("resume_by_id: %r", session_id)
-        self._launcher = load_configs()
         resume_candidates = list(self._sa.get_resumable_sessions())
         if not session_id:
             if not resume_candidates:
@@ -940,14 +953,11 @@ class RemoteSessionAssistant:
             session_id, runner_kwargs=runner_kwargs
         )
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
-        if "launcher" in app_blob:
-            launcher_from_controller = Configuration.from_text(
-                app_blob["launcher"], "Remote launcher"
-            )
-        else:
-            launcher_from_controller = Configuration()
-        self._launcher.update_from_another(
-            launcher_from_controller, "Remote launcher"
+        self._launcher = resolve_configs(
+            Configuration.from_text(
+                app_blob.get("launcher", ""), origin="Remote launcher"
+            ),
+            self._sa,
         )
         self._sa.use_alternate_configuration(self._launcher)
 

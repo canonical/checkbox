@@ -93,7 +93,7 @@ def main():
         "-k",
         "--keyword",
         required=True,
-        help="Keyword to search for printer URI (default: Toshiba)",
+        help="Keyword to search for printer URI",
     )
     parser.add_argument(
         "-m",
@@ -103,7 +103,7 @@ def main():
     parser.add_argument(
         "--check-device",
         action="store_true",
-        help="Only check if the device is present and print the URI",
+        help="Only check if the device is present the URI only",
     )
     args = parser.parse_args()
     keyword = args.keyword

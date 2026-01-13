@@ -16,13 +16,32 @@ _description:
 include:
  mediacard/sdhc-storage-manual                  certification-status=blocker
 
+id: after-suspend-mediacard-cert-manual
+unit: test plan
+_name: Mediacard tests after suspend (Manual)
+_description: Mediacard tests after suspend (Manual)
+include:
+ after-suspend-mediacard/sdhc-storage-manual    certification-status=blocker
+
 id: mediacard-cert-automated
 unit: test plan
 _name: Mediacard tests (Automated)
 _description:
  Mediacard tests (Automated)
 include:
+    mediacard/storage-preinserted-.*
+bootstrap_include:
+    removable_partition
 
+id: after-suspend-mediacard-cert-automated
+unit: test plan
+_name: Mediacard tests (Automated)
+_description:
+ Mediacard tests (Automated)
+include:
+    after-suspend-mediacard/storage-preinserted-.*
+bootstrap_include:
+    removable_partition
 
 id: after-suspend-mediacard-cert-full
 unit: test plan
@@ -79,3 +98,23 @@ include:
     mediacard/storage-preinserted-.*
 bootstrap_include:
     removable_partition
+
+id: mediacard-desktop-26-04-manual
+unit: test plan
+_name: Desktop Mediacard for 26.04 (Manual)
+_description: Manual tests for mediacard
+include:
+nested_part:
+    submission-cert-full
+    mediacard-cert-manual
+    after-suspend-mediacard-cert-manual
+    info-attachment-cert-full
+
+id: mediacard-desktop-26-04-automated
+unit: test plan
+_name: Desktop Mediacard for 26.04 (Automated)
+_description: Automated tests for mediacard
+include:
+nested_part:
+    mediacard-cert-automated
+    after-suspend-mediacard-cert-automated

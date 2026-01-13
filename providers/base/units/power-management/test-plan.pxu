@@ -21,6 +21,12 @@ unit: test plan
 _name: Power Management precheck tests (Manual)
 _description: Power Management precheck tests (Manual)
 include:
+
+id: after-suspend-power-management-precheck-cert-manual
+unit: test plan
+_name: Power Management precheck tests (Manual)
+_description: Power Management precheck tests (Manual)
+include:
     power-management/suspend-on-battery-power      certification-status=blocker
     power-management/suspend-on-AC-power           certification-status=blocker
 
@@ -105,6 +111,16 @@ include:
     power-management/cold-reboot         certification-status=blocker
     power-management/post-cold-reboot    certification-status=blocker
 
+id: power-cert-automated
+unit: test plan
+_name: Automated power tests
+_description: Automated power tests for Snappy Ubuntu Core devices
+include:
+    power-management/warm-reboot         certification-status=blocker
+    power-management/post-warm-reboot    certification-status=blocker
+    power-management/cold-reboot         certification-status=blocker
+    power-management/post-cold-reboot    certification-status=blocker
+
 id: power-manual
 unit: test plan
 _name: Manual power tests
@@ -129,3 +145,31 @@ _description: AMD specific automated tests for Ubuntu PC devices
 include:
     power-management/amd_pmf_detect
     after-suspend-power-management/amd_pmf_detect
+
+id: power-management-desktop-26-04-manual
+unit: test plan
+_name: Desktop Power Management for 26.04 (Manual)
+_description: Manual tests for power management
+include:
+nested_part:
+    submission-cert-full
+    power-management-precheck-cert-manual
+    after-suspend-power-management-precheck-cert-manual
+    info-attachment-cert-full
+
+id: power-management-precheck-desktop-26-04-automated
+unit: test plan
+_name: Desktop Power Management Precheck for 26.04 (Automated)
+_description: Automated tests for power-management-precheck
+include:
+nested_part:
+    power-management-precheck-cert-automated
+    after-suspend-power-management-precheck-cert-automated
+
+id: power-desktop-26-04-automated
+unit: test plan
+_name: Desktop Power for 26.04 (Automated)
+_description: Automated tests for power
+include:
+nested_part:
+    power-cert-automated

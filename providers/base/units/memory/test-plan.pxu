@@ -12,10 +12,23 @@ _name: Manual memory tests
 _description: Manual memory tests for Ubuntu Core devices
 include:
 
+id: memory-cert-manual
+unit: test plan
+_name: Manual memory tests
+_description: Manual memory tests
+include:
+
 id: memory-automated
 unit: test plan
 _name: Automated memory tests (Core)
 _description: Automated memory tests for Ubuntu Core devices
+include:
+    memory/info    certification-status=blocker
+
+id: memory-cert-automated
+unit: test plan
+_name: Automated memory tests
+_description: Automated memory tests
 include:
     memory/info    certification-status=blocker
 
@@ -26,3 +39,19 @@ _description: Automated memory tests for Server Cert
 include:
     memory/info                 certification-status=blocker
     stress/memory_stress_ng     certification-status=blocker
+
+id: memory-desktop-26-04-manual
+unit: test plan
+_name: Desktop Memory for 26.04 (Manual)
+_description: Manual tests for memory
+include:
+nested_part:
+    memory-cert-manual
+
+id: memory-desktop-26-04-automated
+unit: test plan
+_name: Desktop Memory for 26.04 (Automated)
+_description: Automated tests for memory
+include:
+nested_part:
+    memory-cert-automated

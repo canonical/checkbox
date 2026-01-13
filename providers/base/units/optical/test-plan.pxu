@@ -20,6 +20,15 @@ include:
 bootstrap_include:
     device
 
+id: after-suspend-optical-cert-manual
+unit: test plan
+_name: Optical drive tests after suspend (Manual)
+_description: Optical drive tests after suspend (Manual)
+include:
+ after-suspend-optical/detect                   certification-status=blocker
+bootstrap_include:
+    device
+
 id: optical-cert-automated
 unit: test plan
 _name: Optical drive tests (Automated)
@@ -73,3 +82,23 @@ include:
     after-suspend-optical/bluray-read_.*                                certification-status=blocker
 bootstrap_include:
     device
+
+id: optical-desktop-26-04-manual
+unit: test plan
+_name: Desktop Optical for 26.04 (Manual)
+_description: Manual tests for optical
+include:
+nested_part:
+    submission-cert-full
+    optical-cert-manual
+    after-suspend-optical-cert-manual
+    info-attachment-cert-full
+
+id: optical-desktop-26-04-automated
+unit: test plan
+_name: Desktop Optical for 26.04 (Automated)
+_description: Automated tests for optical
+include:
+nested_part:
+    optical-cert-automated
+    after-suspend-optical-cert-automated

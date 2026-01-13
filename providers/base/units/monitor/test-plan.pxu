@@ -386,3 +386,23 @@ include:
     after-suspend-monitor/hdmi-to-vga
     after-suspend-monitor/displayport_hotplug
     after-suspend-monitor/vga
+
+id: monitor-desktop-26-04-manual
+unit: test plan
+_name: Desktop Monitor for 26.04 (Manual)
+_description: Manual tests for monitor
+include:
+nested_part:
+    submission-cert-full
+    monitor-gpu-cert-manual
+    after-suspend-monitor-gpu-cert-manual
+    info-attachment-cert-full
+
+id: monitor-desktop-26-04-automated
+unit: test plan
+_name: Desktop monitor for 26.04 (Automated)
+_description: Automated tests for monitor
+include:
+nested_part:
+    monitor-gpu-cert-automated
+    after-suspend-monitor-gpu-cert-automated

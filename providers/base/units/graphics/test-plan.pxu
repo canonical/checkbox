@@ -308,7 +308,7 @@ include:
     suspend/1_resolution_after_suspend_.*_auto             certification-status=blocker
     suspend/1_display_after_suspend_.*_graphics            certification-status=blocker
     suspend/1_glxgears_after_suspend_.*_graphics           certification-status=blocker
-    suspend/1_rotation_after_suspend_.*_graphics           certification-status=blocker 
+    suspend/1_rotation_after_suspend_.*_graphics           certification-status=blocker
     suspend/1_video_after_suspend_.*_graphics              certification-status=blocker
     power-management/lid_close_suspend_open                certification-status=blocker
     power-management/lid                                   certification-status=blocker
@@ -345,3 +345,26 @@ include:
     after-suspend-graphics/webgl-conformance-test-.*
 bootstrap_include:
     browser_resource
+id: graphic-desktop-26-04-manual
+unit: test plan
+_name: Desktop Graphics for 26.04 (Manual)
+_description: Manual tests for graphics
+include:
+    keys/video-out
+    after-suspend-keys/video-out
+nested_part:
+    submission-cert-full
+    graphics-gpu-cert-manual
+    monitor-gpu-cert-manual
+    after-suspend-graphics-gpu-cert-manual
+    after-suspend-monitor-gpu-cert-manual
+    info-attachment-cert-full
+
+id: graphic-desktop-26-04-automated
+unit: test plan
+_name: Desktop graphic for 26.04 (Automated)
+_description: Automated tests for graphic
+include:
+nested_part:
+    graphics-gpu-cert-automated
+    after-suspend-graphics-gpu-cert-automated

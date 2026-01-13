@@ -20,7 +20,31 @@ include:
     fingerprint/unlock               certification-status=non-blocker
     fingerprint/delete               certification-status=non-blocker
 
+id: fingerprint-cert-manual
+unit: test plan
+_name: Fingerprint reader tests (Manual)
+_description: Manual tests for fingerprint reader
+include:
+    fingerprint/detect               certification-status=non-blocker
+    fingerprint/enroll               certification-status=non-blocker
+    fingerprint/verify-no-match      certification-status=non-blocker
+    fingerprint/verify-match         certification-status=non-blocker
+    fingerprint/unlock               certification-status=non-blocker
+    fingerprint/delete               certification-status=non-blocker
+
 id: after-suspend-fingerprint-manual
+unit: test plan
+_name: Fingerprint reader tests after suspend
+_description: Manual tests for fingerprint reader after suspend
+include:
+    after-suspend-fingerprint/detect               certification-status=non-blocker
+    after-suspend-fingerprint/enroll               certification-status=non-blocker
+    after-suspend-fingerprint/verify-no-match      certification-status=non-blocker
+    after-suspend-fingerprint/verify-match         certification-status=non-blocker
+    after-suspend-fingerprint/unlock               certification-status=non-blocker
+    after-suspend-fingerprint/delete               certification-status=non-blocker
+
+id: after-suspend-fingerprint-cert-manual
 unit: test plan
 _name: Fingerprint reader tests after suspend
 _description: Manual tests for fingerprint reader after suspend
@@ -37,3 +61,35 @@ unit: test plan
 _name: Fingerprint reader tests (Automated)
 _description: Autoamted tests for fingerprint reader
 include:
+
+id: fingerprint-cert-automated
+unit: test plan
+_name: Fingerprint reader tests (Automated)
+_description: Autoamted tests for fingerprint reader
+include:
+
+id: after-suspend-fingerprint-cert-automated
+unit: test plan
+_name: Fingerprint reader tests after suspend (Automated)
+_description: Autoamted tests for fingerprint reader after suspend
+include:
+
+id: fingerprint-desktop-26-04-manual
+unit: test plan
+_name: Desktop Fingerprint for 26.04 (Manual)
+_description: Manual tests for fingerprint reader
+include:
+nested_part:
+    submission-cert-full
+    fingerprint-cert-manual
+    after-suspend-fingerprint-cert-manual
+    info-attachment-cert-full
+
+id: fingerprint-desktop-26-04-automated
+unit: test plan
+_name: Desktop Fingerprint for 26.04 (Automated)
+_description: Automated tests for fingerprint
+include:
+nested_part:
+    fingerprint-cert-automated
+    after-suspend-fingerprint-cert-Automated

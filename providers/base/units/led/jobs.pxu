@@ -15,6 +15,7 @@ requires:
  manifest.has_led_power == 'True'
 
 id: led/power-blink-suspend
+depends: suspend/suspend_advanced_auto
 _summary: Power LED behavior when suspended
 _purpose:
  Check power led is blinking when system is in suspend

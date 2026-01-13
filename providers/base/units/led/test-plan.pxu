@@ -30,6 +30,23 @@ include:
 bootstrap_include:
     device
 
+id: after-suspend-led-cert-manual
+unit: test plan
+_name: LED tests after suspend (Manual)
+_description: LED tests after suspend (Manual)
+include:
+    after-suspend-camera/led_.*        certification-status=blocker
+    after-suspend-led/caps-lock        certification-status=blocker
+    after-suspend-led/numeric-keypad   certification-status=blocker
+    after-suspend-led/power            certification-status=blocker
+    after-suspend-led/fn               certification-status=non-blocker
+    after-suspend-led/mute             certification-status=blocker
+    after-suspend-led/microphone-mute  certification-status=blocker
+    after-suspend-led/wireless         certification-status=blocker
+    led/power-blink-suspend
+    led/suspend
+bootstrap_include:
+    device
 
 id: led-cert-automated
 unit: test plan
@@ -40,6 +57,14 @@ _description:
              power management testplan just after a number of suspend tests.
 include:
 
+id: after-suspend-led-cert-automated
+unit: test plan
+_name: LED tests after suspend (Automated)
+_description:
+    LED tests
+    Notes: - led/power-blink-suspend and led/suspend are used later in the
+             power management testplan just after a number of suspend tests.
+include:
 
 id: after-suspend-led-cert-full
 unit: test plan
@@ -154,3 +179,23 @@ bootstrap_include:
     led-indicator/gpio-leds
     led-indicator/gpio-controller-leds
     led-indicator/sysfs-leds
+
+id: led-desktop-26-04-manual
+unit: test plan
+_name: Desktop LED for 26.04 (Manual)
+_description: Manual tests for LED
+include:
+nested_part:
+    submission-cert-full
+    led-cert-manual
+    after-suspend-led-cert-manual
+    info-attachment-cert-full
+
+id: led-desktop-26-04-automated
+unit: test plan
+_name: Desktop LED for 26.04 (Automated)
+_description: Automated tests for LED
+include:
+nested_part:
+    led-cert-automated
+    after-suspend-led-cert-automated

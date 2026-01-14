@@ -21,13 +21,12 @@ import os
 import json
 import argparse
 import subprocess
-from pathlib import Path
 from typing import Optional, Dict, Any
+from pathlib import Path
 
-DPDK_SNAP = "dpdk-dts"
-DEFAULT_SSH_TIMEOUT = 30
-REMOTE_RESULTS_PATH = "~/output/results.json"
-DTS_CONFIG_NAME = "dts_conf.yaml"
+DPDK_SNAP_BIN = "/snap/bin/dpdk-dts"
+DEFAULT_TIMEOUT = 600
+DEFAULT_OUTPUT_DIR = "dpdk_test_results"
 
 
 class ConfigurationError(Exception):
@@ -35,171 +34,51 @@ class ConfigurationError(Exception):
 
 
 class DTSRunner:
-    """Class to execute DPDK Test Suite (DTS) on remote host."""
+    """Class to execute snap-based DPDK Test Suite (DTS)"""
 
-    def __init__(self, dts_user: str, dts_ip: str):
+    def __init__(self, test_suite: str, config_file: Path):
         """Initialize class attributes."""
-        self.dts_user = dts_user
-        self.dts_ip = dts_ip
-        if not self._is_snap_installed(DPDK_SNAP):
-            raise ConfigurationError("DPDK DTS snap is not installed")
-        self._clear_old_results()
-
-    def _is_snap_installed(self, snap_name: str) -> bool:
-        """Check if specified snap is installed in remote DTS host.
-
-        :param snap_name: Name of the snap to check
-        :return: True if snap is installed, False otherwise
-        """
-        try:
-            self.run_ssh_command(
-                cmd="snap list {}".format(snap_name),
-            )
-            return True
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            return False
-
-    def _clear_old_results(self) -> None:
-        """Delete results from previous execution on remote host.
-
-        This is required to avoid reading stale results in case of failure
-        during test execution.
-        """
-        try:
-            self.run_ssh_command(
-                cmd="sudo rm -f {}".format(REMOTE_RESULTS_PATH)
-            )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            # No test results found
-            pass
-
-    def run_ssh_command(
-        self, cmd: str, timeout: Optional[int] = DEFAULT_SSH_TIMEOUT
-    ) -> None:
-        """Run specified SSH command in remote host.
-
-        :param cmd: Command to execute, if protocol is ssh
-        :param timeout: Timeout in seconds for command execution, defaults to 30
-        """
-        subprocess.run(
-            [
-                "ssh",
-                "-o",
-                "StrictHostKeyChecking=no",
-                "-o",
-                "UserKnownHostsFile=/dev/null",
-                "-o",
-                "LogLevel=ERROR",
-                "{}@{}".format(self.dts_user, self.dts_ip),
-                cmd,
-            ],
-            check=True,
-            timeout=timeout,
-        )
-
-    def read_remote_file(
-        self,
-        remote_path: str,
-        timeout: Optional[int] = DEFAULT_SSH_TIMEOUT,
-    ) -> Optional[str]:
-        """Read a remote file if exists
-
-        :param remote_path: Path where file should be located
-        :param timeout: Timeout in seconds for command execution, defaults to 30
-        :returns: file content if exists, otherwise return None
-        """
-        # Define command for reading remote file only if exists
-        cmd = "test -f {} && cat {}".format(remote_path, remote_path)
-        try:
-            output = subprocess.check_output(
-                [
-                    "ssh",
-                    "-o",
-                    "StrictHostKeyChecking=no",
-                    "-o",
-                    "UserKnownHostsFile=/dev/null",
-                    "-o",
-                    "LogLevel=ERROR",
-                    "{}@{}".format(self.dts_user, self.dts_ip),
-                    cmd,
-                ],
-                universal_newlines=True,
-                timeout=timeout,
-            )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            output = None
-
-        return output
-
-    def copy_config_file(self, config_file: str) -> None:
-        """Copy configuration file to remote host.
-
-        :param config_file: Path to configuration file
-        :raises: ConfigurationError if any failure during remote copy
-        """
-
-        # Validate path exists before attempting to copy
-        config_path = Path(config_file)
-        if not config_path.exists():
-            raise ConfigurationError("Unable to locate config file")
-
-        logging.info("Copying file %s to remote host.", config_path)
-        try:
-            subprocess.run(
-                [
-                    "scp",
-                    "-o",
-                    "StrictHostKeyChecking=no",
-                    "-o",
-                    "UserKnownHostsFile=/dev/null",
-                    "-o",
-                    "LogLevel=ERROR",
-                    config_path,
-                    "{}@{}:{}".format(
-                        self.dts_user,
-                        self.dts_ip,
-                        DTS_CONFIG_NAME,
-                    ),
-                ],
-                check=True,
-                timeout=60,
-            )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            raise ConfigurationError(
-                "Unable to copy config file to remote host"
-            )
-
-        logging.info("Successfully copied configuration file to remote host.")
+        self.test_suite = test_suite
+        self.config_file = config_file
 
     def run_test_suite(
         self,
-        test_suite: str,
         verbose: bool,
     ) -> None:
         """Run specified test suite in DTS controller
 
-        :param test_suite: Test Suite to run on DTS controller
         :param verbose: verbosity level on test suite execution
         """
         # Define verbosity level for DPDK Test Suite
+        output_dir = Path(DEFAULT_OUTPUT_DIR) / self.test_suite
+        output_dir.mkdir(parents=True, exist_ok=True)
+        dts_command = (
+            "{} --test-suite {} --config-file {} --output-dir {}".format(
+                DPDK_SNAP_BIN, self.test_suite, self.config_file, output_dir
+            )
+        )
         if verbose:
-            dts_command = (
-                "{} --test-suite {} --config-file {} --verbose".format(
-                    DPDK_SNAP, test_suite, DTS_CONFIG_NAME
-                )
-            )
-        else:
-            dts_command = "{} --test-suite {} --config-file {}".format(
-                DPDK_SNAP, test_suite, DTS_CONFIG_NAME
-            )
+            dts_command += " --verbose"
 
         logging.info(
-            "Starting execution of %s on remote host: %s",
-            test_suite,
-            self.dts_ip,
+            "Starting execution of %s",
+            self.test_suite,
         )
-        # Modify timeout as test suites can take longer to execute
-        self.run_ssh_command(cmd=dts_command, timeout=600)
+        try:
+            subprocess.run(
+                dts_command,
+                shell=True,
+                check=True,
+                timeout=DEFAULT_TIMEOUT,
+            )
+        except subprocess.CalledProcessError as exc:
+            logging.error(
+                "DPDK Test Suite execution failed with error: %s", exc
+            )
+            raise
+        except subprocess.TimeoutExpired as exc:
+            logging.error("DPDK Test Suite execution timed out: %s", exc)
+            raise
 
         logging.info("DTS Test Suite Run completed")
 
@@ -209,24 +88,32 @@ class DTSRunner:
         :return: Results in json format if any returned during test execution
         """
 
-        logging.info(
-            "Getting test suite results from remote host: %s", self.dts_ip
+        logging.info("Getting test suite results")
+        results_path = (
+            Path(DEFAULT_OUTPUT_DIR) / self.test_suite / "results.json"
         )
-        results = self.read_remote_file(REMOTE_RESULTS_PATH)
+        if not results_path.is_file():
+            logging.warning("No results file found at %s", results_path)
+            return None
+        with results_path.open("r") as f:
+            results = f.read()
         if results:
             try:
                 return json.loads(results)
             except ValueError:
-                return None
+                logging.error("Unable to parse results file as JSON")
 
         return None
 
-    def print_results(self) -> None:
-        """Print tests results from execution."""
+    def print_results(self) -> bool:
+        """Print tests results from execution.
+
+        :return: True if results were printed, False otherwise
+        """
 
         test_results = self.get_results()
         if not test_results:
-            return
+            return False
 
         # Print Test Suite Results and Summary
         print("\nDPDK Test Results")
@@ -261,6 +148,8 @@ class DTSRunner:
             # If unable to pretty print, dump the test results
             print(json.dumps(test_results, indent=2))
 
+        return True
+
 
 def parse_args():
     """Parses command-line arguments."""
@@ -283,25 +172,22 @@ def main():
     """Main entrypoint to the program."""
     args = parse_args()
     logging.basicConfig(level=logging.INFO)
-    dts_user = os.getenv("DTS_TARGET_USER")
-    dts_ip = os.getenv("DTS_TARGET_IP")
     dts_config = os.getenv("DTS_CONFIG_FILE")
 
     # Print environment variables used for test suite run
-    logging.info("DTS_TARGET_USER: %s", dts_user)
-    logging.info("DTS_TARGET_IP: %s", dts_ip)
     logging.info("DTS_CONFIG_FILE: %s", dts_config)
 
-    if not all([dts_user, dts_ip, dts_config]):
+    if not dts_config or not Path(dts_config).is_file():
         raise SystemExit(
             "Missing environment variables to start test execution"
         )
 
-    # Copy DTS configuration file to controller.
+    # Run snap-based DPDK Test Suite
     try:
-        dts_runner = DTSRunner(dts_user, dts_ip)
-        dts_runner.copy_config_file(dts_config)
-        dts_runner.run_test_suite(args.test_suite, args.verbose)
+        dts_runner = DTSRunner(
+            test_suite=args.test_suite, config_file=Path(dts_config)
+        )
+        dts_runner.run_test_suite(args.verbose)
     except ConfigurationError as exc:
         raise SystemExit(
             "Unable to start Test Suite execution due to the following "
@@ -313,7 +199,8 @@ def main():
         raise SystemExit("Test Suite execution failed")
 
     # Print test suite execution results
-    dts_runner.print_results()
+    if not dts_runner.print_results():
+        raise SystemExit("No test results found")
 
 
 if __name__ == "__main__":

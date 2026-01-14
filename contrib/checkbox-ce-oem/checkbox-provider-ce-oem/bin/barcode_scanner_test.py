@@ -154,9 +154,10 @@ def listen_and_decode(device, timeout_sec=30):
     device.ungrab()
 
 
-if __name__ == "__main__":
+def main():
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
     )
     parser = argparse.ArgumentParser(description="Barcode Scanner Test")
     parser.add_argument(
@@ -190,3 +191,7 @@ if __name__ == "__main__":
         raise SystemExit(1)
     finally:
         target_device.close()
+
+
+if __name__ == "__main__":
+    main()

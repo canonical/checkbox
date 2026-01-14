@@ -820,7 +820,7 @@ def get_execution_command_systemd_unit(
         suffix=".sh",
         dir="/var/tmp",
     ) as f:
-        f.write("#!/bin/bash\neval ")
+        f.write("#!/bin/bash\nexec ")
         f.write(cmd_text)
         os.chmod(f.name, 0o777)
         path = f.name

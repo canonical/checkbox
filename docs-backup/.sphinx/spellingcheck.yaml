@@ -1,0 +1,30 @@
+matrix:
+- name: rST files
+  aspell:
+    lang: en
+    d: en_US
+  dictionary:
+    wordlists:
+    - .sphinx/wordslist.txt
+    output: .sphinx/.wordlist.dic
+  sources:
+  - _build/**/*.html|!_build/reference/submission-schema/*
+  pipeline:
+  - pyspelling.filters.html:
+      comments: false
+      attributes:
+      - alt
+      - title
+      ignores:
+      - code
+      - div.relatedlinks
+      - div.visually-hidden
+      - div.code-block-caption
+      - img
+      - link
+      - div.mermaid
+      - pre
+      - spellexception
+      - title
+      - span.sig-name     # ignore option directive
+      - li:has(a[href*="#cmdoption"])   # ignore option directive in genindex page

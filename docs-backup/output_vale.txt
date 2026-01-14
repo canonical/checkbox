@@ -1,0 +1,356 @@
+Running Vale against *. To change target set TARGET= with make command
+
+== [[community/bugs.rst]]
+ 3:1  [[error]]  'Reporting Bugs' should use     Canonical.007-Headings-sentence-case 
+             sentence-style capitalisation.                                       
+
+
+== [[community/contributing.rst]]
+ 3:1  [[error]]  'Contributing to Checkbox'      Canonical.007-Headings-sentence-case 
+             should use sentence-style                                            
+             capitalisation.                                                      
+
+
+== [[explanation/release_process/canary_pipeline.rst]]
+ 3:1  [[error]]  'Canary Pipeline' should use    Canonical.007-Headings-sentence-case 
+             sentence-style capitalisation.                                       
+
+
+== [[explanation/configs.rst]]
+ 228:1  [[error]]  'Configs with Checkbox Remote'  Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+
+
+== [[explanation/release_process/canary.rst]]
+ 1:1   [[error]]  'Canary Testing for               Canonical.007-Headings-sentence-case 
+              Checkbox Edge Version:                                                 
+              In-depth Process' should use                                           
+              sentence-style capitalisation.                                         
+ 11:1  [[error]]  'Snap Build and Release'          Canonical.007-Headings-sentence-case 
+              should use sentence-style                                              
+              capitalisation.                                                        
+ 20:1  [[error]]  'Build Workflow' should use       Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                         
+ 25:1  [[error]]  'Post-Build Actions'              Canonical.007-Headings-sentence-case 
+              should use sentence-style                                              
+              capitalisation.                                                        
+ 38:1  [[error]]  'Monitoring job URL'              Canonical.007-Headings-sentence-case 
+              should use sentence-style                                              
+              capitalisation.                                                        
+ 51:1  [[error]]  'Validation and Wait Logic'       Canonical.007-Headings-sentence-case 
+              should use sentence-style                                              
+              capitalisation.                                                        
+ 60:1  [[error]]  'checkbox-edge-canary-validation  Canonical.007-Headings-sentence-case 
+              Pipeline' should use                                                   
+              sentence-style capitalisation.                                         
+ 67:1  [[error]]  'Testing Platforms and            Canonical.007-Headings-sentence-case 
+              Specifications' should use                                             
+              sentence-style capitalisation.                                         
+ 82:1  [[error]]  'Canary Test Plan Criteria'       Canonical.007-Headings-sentence-case 
+              should use sentence-style                                              
+              capitalisation.                                                        
+
+
+== [[explanation/release_process/validation_pipeline_execution.rst]]
+ 6:1   [[error]]  'Creating new Edge version'     Canonical.007-Headings-sentence-case 
+              should use sentence-style                                            
+              capitalisation.                                                      
+ 30:1  [[error]]  'Validating the Edge version'   Canonical.007-Headings-sentence-case 
+              should use sentence-style                                            
+              capitalisation.                                                      
+
+
+== [[explanation/understanding.rst]]
+ 1:1   [[error]]  'Understanding Checkbox'        Canonical.007-Headings-sentence-case 
+              should use sentence-style                                            
+              capitalisation.                                                      
+ 16:1  [[error]]  'Test Command' should use       Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 30:1  [[error]]  'Job Unit' should use           Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 50:1  [[error]]  'Test Plan' should use          Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+
+accept:
+Checkbox
+Remote
+Agent
+SSH
+Controller
+RFC
+
+
+== [[explanation/remote.rst]]
+ 3:1   [[error]]  'Checkbox Remote' should use    Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 15:1  [[error]]  'Comparison with SSH'           Canonical.007-Headings-sentence-case 
+              should use sentence-style                                            
+              capitalisation.                                                      
+
+
+== [[how-to/agent-service.rst]]
+ 1:1   [[error]]  'Checkbox Agent Systemd         Canonical.007-Headings-sentence-case 
+              Service' should use                                                  
+              sentence-style capitalisation.                                       
+ 48:1  [[error]]  'I cannot connect to the        Canonical.007-Headings-sentence-case 
+              Agent from the Controller'                                           
+              should use sentence-style                                            
+              capitalisation.                                                      
+
+
+== [[how-to/custom-app.rst]]
+ 9:1  [[error]]  'Preparing a new Checkbox       Canonical.007-Headings-sentence-case 
+             Project snap' should use                                             
+             sentence-style capitalisation.                                       
+
+
+== [[how-to/freeze-checkbox-version.rst]]
+ 2:1    [[error]]  'How to Freeze a Checkbox       Canonical.007-Headings-sentence-case 
+               Version' should use                                                  
+               sentence-style capitalisation.                                       
+ 5:1    [[error]]  'How to freeze Checkbox Snaps'  Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+ 50:1   [[error]]  'How to freeze Checkbox Debs'   Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+ 53:1   [[error]]  'Using Ubuntu Snapshot Service  Canonical.007-Headings-sentence-case 
+               (20.04 or later)' should use                                         
+               sentence-style capitalisation.                                       
+ 63:61  [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions  
+               name correctly. E.g. Ubuntu                                          
+               22.04 LTS, Ubuntu 22.10,                                             
+               Ubuntu 23.04 (Lunar Lobster),                                        
+               Ubuntu 23.10 (Mantic), Ubuntu                                        
+               24.04 LTS (Noble Numbat).                                            
+ 69:1   [[error]]  'For Ubuntu 24.04' should use   Canonical.007-Headings-sentence-case 
+               sentence-style capitalisation.                                       
+ 69:5   [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions  
+               name correctly. E.g. Ubuntu                                          
+               22.04 LTS, Ubuntu 22.10,                                             
+               Ubuntu 23.04 (Lunar Lobster),                                        
+               Ubuntu 23.10 (Mantic), Ubuntu                                        
+               24.04 LTS (Noble Numbat).                                            
+ 72:25  [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions  
+               name correctly. E.g. Ubuntu                                          
+               22.04 LTS, Ubuntu 22.10,                                             
+               Ubuntu 23.04 (Lunar Lobster),                                        
+               Ubuntu 23.10 (Mantic), Ubuntu                                        
+               24.04 LTS (Noble Numbat).                                            
+ 131:1  [[error]]  'For Ubuntu 24.04' should use   Canonical.007-Headings-sentence-case 
+               sentence-style capitalisation.                                       
+ 131:5  [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions  
+               name correctly. E.g. Ubuntu                                          
+               22.04 LTS, Ubuntu 22.10,                                             
+               Ubuntu 23.04 (Lunar Lobster),                                        
+               Ubuntu 23.10 (Mantic), Ubuntu                                        
+               24.04 LTS (Noble Numbat).                                            
+ 153:1  [[error]]  'Disable Snapshot Service       Canonical.007-Headings-sentence-case 
+               for a repository' should use                                         
+               sentence-style capitalisation.                                       
+ 156:1  [[error]]  'For Ubuntu 24.04' should use   Canonical.007-Headings-sentence-case 
+               sentence-style capitalisation.                                       
+ 156:5  [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions  
+               name correctly. E.g. Ubuntu                                          
+               22.04 LTS, Ubuntu 22.10,                                             
+               Ubuntu 23.04 (Lunar Lobster),                                        
+               Ubuntu 23.10 (Mantic), Ubuntu                                        
+               24.04 LTS (Noble Numbat).                                            
+ 159:5  [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions  
+               name correctly. E.g. Ubuntu                                          
+               22.04 LTS, Ubuntu 22.10,                                             
+               Ubuntu 23.04 (Lunar Lobster),                                        
+               Ubuntu 23.10 (Mantic), Ubuntu                                        
+               24.04 LTS (Noble Numbat).                                            
+
+
+== [[how-to/testing-ubuntu-core.rst]]
+ 3:1   [[error]]  'Running Checkbox on            Canonical.007-Headings-sentence-case 
+              Ubuntu Core' should use                                              
+              sentence-style capitalisation.                                       
+ 31:1  [[error]]  'Installing Checkbox Snap'      Canonical.007-Headings-sentence-case 
+              should use sentence-style                                            
+              capitalisation.                                                      
+ 48:1  [[error]]  'Running Checkbox' should use   Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 98:1  [[error]]  'Getting Results' should use    Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+
+
+== [[reference/job-status.rst]]
+ 3:1   [[error]]  'Checkbox Job Status'           Canonical.007-Headings-sentence-case 
+              should use sentence-style                                            
+              capitalisation.                                                      
+ 10:1  [[error]]  'Passed Jobs' should use        Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 27:1  [[error]]  'Skipped Jobs' should use       Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 45:1  [[error]]  'Failed Jobs' should use        Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 60:1  [[error]]  'Crashed Jobs' should use       Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 74:1  [[error]]  'Not Started Jobs' should use   Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+
+
+== [[reference/submission-schema.rst]]
+ 3:1  [[error]]  'Submission JSON Schema'        Canonical.007-Headings-sentence-case 
+             should use sentence-style                                            
+             capitalisation.                                                      
+
+
+== [[reference/snaps.rst]]
+ 27:21  [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions 
+               name correctly. E.g. Ubuntu                                         
+               22.04 LTS, Ubuntu 22.10,                                            
+               Ubuntu 23.04 (Lunar Lobster),                                       
+               Ubuntu 23.10 (Mantic), Ubuntu                                       
+               24.04 LTS (Noble Numbat).                                           
+
+
+== [[reference/stack.rst]]
+ 1:1  [[error]]  'The "Checkbox Stack"'          Canonical.007-Headings-sentence-case 
+             should use sentence-style                                            
+             capitalisation.                                                      
+
+
+ [[reference/units/category.rst]]
+ 2:1  [[error]]  'Category Unit' should use      Canonical.007-Headings-sentence-case 
+             sentence-style capitalisation.                                       
+
+
+ [[reference/units/exporter.rst]]
+ 2:1  [[error]]  'Exporter Unit' should use      Canonical.007-Headings-sentence-case 
+             sentence-style capitalisation.                                       
+
+
+ [[reference/units/index.rst]]
+ 3:1  [[error]]  'Checkbox Unit Types'           Canonical.007-Headings-sentence-case 
+             should use sentence-style                                            
+             capitalisation.                                                      
+
+
+ [[reference/units/job.rst]]
+ 4:1  [[error]]  'Job Unit' should use           Canonical.007-Headings-sentence-case 
+             sentence-style capitalisation.                                       
+
+
+== [[reference/units/manifest-entry.rst]]
+ 4:1    [[error]]  'Manifest Entry Unit'           Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+ 95:1   [[error]]  'Naming Manifest Entries'       Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+ 105:1  [[error]]  'Using Manifest Entries         Canonical.007-Headings-sentence-case 
+               in Jobs' should use                                                  
+               sentence-style capitalisation.                                       
+ 133:1  [[error]]  'Collecting Manifest Data'      Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+ 171:1  [[error]]  'Supplying External Manifest'   Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+
+
+ [[reference/units/packaging-meta-data.rst]]
+ 2:1     [[error]]  'Packaging Meta Data Unit'      Canonical.007-Headings-sentence-case 
+                should use sentence-style                                            
+                capitalisation.                                                      
+ 66:1    [[error]]  'Matching Packaging             Canonical.007-Headings-sentence-case 
+                Meta-Data Units' should use                                          
+                sentence-style capitalisation.                                       
+ 115:56  [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions  
+                name correctly. E.g. Ubuntu                                          
+                22.04 LTS, Ubuntu 22.10,                                             
+                Ubuntu 23.04 (Lunar Lobster),                                        
+                Ubuntu 23.10 (Mantic), Ubuntu                                        
+                24.04 LTS (Noble Numbat).                                            
+ 124:1   [[error]]  'Using Packaging Meta-Data      Canonical.007-Headings-sentence-case 
+                in Debian' should use                                                
+                sentence-style capitalisation.                                       
+
+
+ [[reference/units/rfc822.rst]]
+ 4:1   [[error]]  'Checkbox RFC822                Canonical.007-Headings-sentence-case 
+              Specification' should use                                            
+              sentence-style capitalisation.                                       
+ 13:1  [[error]]  'Backus--Naur Form' should use  Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+
+
+ [[reference/units/resource.rst]]
+ 4:1   [[error]]  'Resource Job Unit' should use  Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 18:1  [[error]]  'Resource Jobs' should use      Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+
+
+ [[reference/units/template.rst]]
+ 4:1   [[error]]  'Template Unit' should use      Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 31:1  [[error]]  'Template-Specific Fields'      Canonical.007-Headings-sentence-case 
+              should use sentence-style                                            
+              capitalisation.                                                      
+
+
+ [[reference/units/test-plan.rst]]
+ 4:1   [[error]]  'Test Plan Unit' should use     Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+ 30:1  [[error]]  'Test Plan Fields' should use   Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+
+
+ [[tutorial/using-checkbox/installing-checkbox.rst]]
+ 4:1    [[error]]  'Installing Checkbox'           Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+ 11:12  [[error]]  Please use the Ubuntu product   Canonical.003-Ubuntu-names-versions  
+               name correctly. E.g. Ubuntu                                          
+               22.04 LTS, Ubuntu 22.10,                                             
+               Ubuntu 23.04 (Lunar Lobster),                                        
+               Ubuntu 23.10 (Mantic), Ubuntu                                        
+               24.04 LTS (Noble Numbat).                                            
+
+
+ [[tutorial/using-checkbox/launcher.rst]]
+ 155:1  [[error]]  'Tailor Checkbox output'        Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+
+
+ [[tutorial/using-checkbox/manifest.rst]]
+ 209:1  [[error]]  'Skipping the System            Canonical.007-Headings-sentence-case 
+               Manifest screen' should use                                          
+               sentence-style capitalisation.                                       
+
+
+ [[tutorial/using-checkbox/test-report.rst]]
+ 4:1   [[error]]  'Review Test Report'            Canonical.007-Headings-sentence-case 
+              should use sentence-style                                            
+              capitalisation.                                                      
+ 26:1  [[error]]  'Text Summary' should use       Canonical.007-Headings-sentence-case 
+              sentence-style capitalisation.                                       
+
+
+ [[tutorial/writing-tests/test-plan.rst]]
+ 4:1    [[error]]  'Writing A Test Plan'           Canonical.007-Headings-sentence-case 
+               should use sentence-style                                            
+               capitalisation.                                                      
+ 241:1  [[error]]  'Nested Parts' should use       Canonical.007-Headings-sentence-case 
+               sentence-style capitalisation.                                       
+
+
+== [[tutorial/writing-tests/test-case.rst]]
+ 4:1     [[error]]  'Writing Test Jobs' should use  Canonical.007-Headings-sentence-case  
+                sentence-style capitalisation.                                        
+ 510:1   [[error]]  'Template Jobs' should use      Canonical.007-Headings-sentence-case  
+                sentence-style capitalisation.                                        
+ 530:51  [[error]]  Replace 'hang' with an          Canonical.400-Enforce-inclusive-terms 
+                inclusive term                                                        
+ 982:1   [[error]]  'Gathering Coverage from        Canonical.007-Headings-sentence-case  
+                Unit Tests' should use                                                
+                sentence-style capitalisation.                                        
+
+✖ [[84 errors[0m, [33m0 warnings[0m and [34m0 suggestions]] in 51 files.

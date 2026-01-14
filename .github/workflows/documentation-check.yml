@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - "docs/**"
+  push:
+    branches: ["fix-docs-check-sitemap2"]
   workflow_dispatch:
 
 concurrency:

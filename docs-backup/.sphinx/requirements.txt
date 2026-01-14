@@ -1,0 +1,17 @@
+furo
+lxd-sphinx-extensions
+myst-parser
+psutil
+pyspelling
+setuptools-scm
+sphinx
+sphinx-autobuild
+sphinx-copybutton
+sphinx-design
+sphinx-jsonschema
+sphinx-reredirects
+sphinx-tabs
+sphinxcontrib-mermaid
+sphinxext-opengraph
+tqdm
+urwid

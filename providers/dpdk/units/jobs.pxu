@@ -1,95 +1,38 @@
-unit: template
-template-resource: dpdk_drivers
-template-id: dpdk/dpdk_blocklist_test_driver__name
-_template-summary: DPDK Blocklist Tests
+id: dpdk_drivers
+plugin: resource
+category_id: information_gathering
+estimated_duration: 0.05
+_summary: Generate DPDK supported status and a list with DPDK compatible drivers
+_description: Return DPDK drivers from all available NICs
+command: dpdk_resource.py
+
+id: networking/dpdk_blocklist_test
 plugin: shell
 category_id: dpdk
-id: networking/dpdk_blocklist_test_driver_{name}
-environ: DTS_TARGET_USER DTS_TARGET_IP DTS_CONFIG_FILE
-_summary: DPDK Blocklist Tests for network device with driver {name}
+environ: DTS_CONFIG_FILE
+_summary: DPDK Blocklist Tests
 estimated_duration: 600.0
-imports: from com.canonical.plainbox import manifest
 requires:
+    dpdk_drivers.dpdk-supported == "yes"
     executable.name == 'meson'
     executable.name == 'ninja'
-    manifest.has_dpdk == 'True'
-    manifest.dpdk_version == '24'
+    snap.name == 'dpdk-dts'
 command:
     run_dpdk_test_suite.py --test-suite blocklist --verbose
 user: root
 _purpose:
-    This test verifies port blocklisting functionality of testpmd on network interface with driver {name}.
-    It uses customer provided configuration file that maps SUT and TG and interact with DPDK Test Suite (DTS) via SSH. 
-    DTS then automatically builds DPDK software on SUT and execute specified Test Suite. 
-
-unit: template
-template-resource: dpdk_drivers
-template-id: dpdk/dpdk_checksum_offload_test_driver__name
-_template-summary: DPDK Checksum Offload Tests
-plugin: shell
-category_id: dpdk
-id: networking/dpdk_checksum_offload_test_driver_{name}
-environ: DTS_TARGET_USER DTS_TARGET_IP DTS_CONFIG_FILE
-_summary: DPDK Checksum Offload Tests for network device with driver {name}
-estimated_duration: 600.0
-imports: from com.canonical.plainbox import manifest
-requires:
-    executable.name == 'meson'
-    executable.name == 'ninja'
-    manifest.has_dpdk == 'True'
-    manifest.dpdk_version == '24'
-command:
-    run_dpdk_test_suite.py --test-suite checksum_offload --verbose
-user: root
-_purpose:
-    This test verifies L3/L4 checksum offload features of the Poll Mode Driver on network interface with driver {name}.
-    It uses customer provided configuration file that maps SUT and TG and interact with DPDK Test Suite (DTS) via SSH. 
-    DTS then automatically builds DPDK software on SUT and execute specified Test Suite. 
-
-unit: template
-template-resource: dpdk_drivers
-template-id: dpdk/dpdk_pmd_buffer_scatter_test_driver__name
-_template-summary: DPDK PMD Buffer Scatter Tests
-plugin: shell
-category_id: dpdk
-id: networking/dpdk_pmd_buffer_scatter_test_driver_{name}
-environ: DTS_TARGET_USER DTS_TARGET_IP DTS_CONFIG_FILE
-_summary: DPDK PMD Buffer Scatter Tests for network device with driver {name}
-estimated_duration: 600.0
-imports: from com.canonical.plainbox import manifest
-requires:
-    executable.name == 'meson'
-    executable.name == 'ninja'
-    manifest.has_dpdk == 'True'
-    manifest.dpdk_version == '24'
-command:
-    run_dpdk_test_suite.py --test-suite pmd_buffer_scatter --verbose
-user: root
-_purpose:
-    This test validates PMD support of transmitting and receiving scattered packets on network interface with driver {name}.
-    It uses customer provided configuration file that maps SUT and TG and interact with DPDK Test Suite (DTS) via SSH. 
-    DTS then automatically builds DPDK software on SUT and execute specified Test Suite. 
-
-unit: template
-template-resource: dpdk_drivers
-template-id: dpdk/dpdk_vlan_test_driver__name
-_template-summary: DPDK VLAN Tests
-plugin: shell
-category_id: dpdk
-id: networking/dpdk_vlan_test_driver_{name}
-environ: DTS_TARGET_USER DTS_TARGET_IP DTS_CONFIG_FILE
-_summary: DPDK VLAN Tests for network device with driver {name}
-estimated_duration: 600.0
-imports: from com.canonical.plainbox import manifest
-requires:
-    executable.name == 'meson'
-    executable.name == 'ninja'
-    manifest.has_dpdk == 'True'
-    manifest.dpdk_version == '24'
-command:
-    run_dpdk_test_suite.py --test-suite vlan --verbose
-user: root
-_purpose:
-    This test verifies that VLAN filtering, stripping, and header insertion works as expected on network interface with driver {name}.
-    It uses customer provided configuration file that maps SUT and TG and interact with DPDK Test Suite (DTS) via SSH. 
-    DTS then automatically builds DPDK software on SUT and execute specified Test Suite. 
+    This test verifies port blocklisting functionality of testpmd
+_siblings: [
+  { "id": "networking/dpdk_checksum_offload_test",
+    "_summary": "DPDK Checksum Offload Tests",
+    "command": "run_dpdk_test_suite.py --test-suite checksum_offload --verbose",
+    "_purpose": "This test verifies L3/L4 checksum offload features of the Poll Mode Driver" },
+  { "id": "networking/dpdk_pmd_buffer_scatter_test",
+    "_summary": "DPDK PMD Buffer Scatter Tests",
+    "command": "run_dpdk_test_suite.py --test-suite pmd_buffer_scatter --verbose",
+    "_purpose": "This test validates PMD support of transmitting and receiving scattered packets" },
+  { "id": "networking/dpdk_vlan_test",
+    "_summary": "DPDK VLAN Tests",
+    "command": "run_dpdk_test_suite.py --test-suite vlan --verbose",
+    "_purpose": "This test verifies that VLAN filtering, stripping, and header insertion works as expected" },
+  ]

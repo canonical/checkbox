@@ -52,7 +52,7 @@ def get_dpdk_supported_drivers() -> Dict[str, List[str]]:
 
     # Iterate over interfaces to get dpdk supported drivers if any
     for _, iface in interfaces:
-        device_path = Path(f"/sys/class/net/{iface}/device/driver")
+        device_path = Path("/sys/class/net/{}/device/driver".format(iface))
         if device_path.exists() and device_path.is_symlink():
             driver_name = device_path.resolve().name
             if any(
@@ -78,7 +78,10 @@ def print_drivers(drivers: Dict[str, List[str]]):
 def main():
     supported_drivers = get_dpdk_supported_drivers()
     if supported_drivers:
+        print("dpdk-supported: yes\n")
         print_drivers(supported_drivers)
+    else:
+        print("dpdk-supported: no\n")
 
 
 if __name__ == "__main__":

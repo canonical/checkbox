@@ -822,7 +822,6 @@ def get_execution_command_systemd_unit(
     ) as f:
         f.write("#!/bin/bash\neval ")
         f.write(cmd_text)
-        f.seek(0)
         os.chmod(f.name, 0o777)
         path = f.name
 

@@ -37,6 +37,8 @@ import shlex
 import signal
 import shutil
 
+from contextlib import suppress
+
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
@@ -345,44 +347,44 @@ class UnifiedRunner(IJobRunner):
         with self.configured_filesystem(job) as nest_dir:
             # Get the command and the environment.
             # of this execution controller
-            cmd = get_execution_command(
+            with get_execution_command(
                 job,
                 environ,
                 self._session_id,
                 nest_dir,
                 target_user,
                 self._extra_env,
-            )
-            env = get_execution_environment(
-                job, environ, self._session_id, nest_dir
-            )
-            if self._user_provider():
-                env["NORMAL_USER"] = self._user_provider()
-            # Always set SYSTEMD_IGNORE_CHROOT
-            # See https://bugs.launchpad.net/snapd/+bug/2003955
-            env["SYSTEMD_IGNORE_CHROOT"] = "1"
-            # run the command
-            logger.info(
-                _("Starting job [%(ID)s] executing: %(CMD)r"),
-                {"ID": job.id, "CMD": join_cmd(cmd)},
-            )
-            if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
-                return_code = call(
-                    extcmd_popen, cmd, stdin=subprocess.PIPE, env=env
+            ) as cmd:
+                env = get_execution_environment(
+                    job, environ, self._session_id, nest_dir
                 )
-            else:
-                with self.temporary_cwd(job) as cwd_dir:
+                if self._user_provider():
+                    env["NORMAL_USER"] = self._user_provider()
+                # Always set SYSTEMD_IGNORE_CHROOT
+                # See https://bugs.launchpad.net/snapd/+bug/2003955
+                env["SYSTEMD_IGNORE_CHROOT"] = "1"
+                # run the command
+                logger.info(
+                    _("Starting job [%(ID)s] executing: %(CMD)r"),
+                    {"ID": job.id, "CMD": join_cmd(cmd)},
+                )
+                if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
                     return_code = call(
-                        extcmd_popen,
-                        cmd,
-                        stdin=subprocess.PIPE,
-                        env=env,
-                        cwd=cwd_dir,
+                        extcmd_popen, cmd, stdin=subprocess.PIPE, env=env
                     )
-            logger.info("Finished job [{}]".format(job.id))
-            if "noreturn" in job.get_flag_set():
-                signal.pause()
-            return return_code
+                else:
+                    with self.temporary_cwd(job) as cwd_dir:
+                        return_code = call(
+                            extcmd_popen,
+                            cmd,
+                            stdin=subprocess.PIPE,
+                            env=env,
+                            cwd=cwd_dir,
+                        )
+                logger.info("Finished job [{}]".format(job.id))
+                if "noreturn" in job.get_flag_set():
+                    signal.pause()
+                return return_code
 
     @contextlib.contextmanager
     def configured_filesystem(self, job):
@@ -704,6 +706,7 @@ def get_differential_execution_environment(
     return delta_env
 
 
+@contextlib.contextmanager
 def get_execution_command_subshell(
     job, environ, session_id, nest_dir, target_user=None, extra_env=None
 ):
@@ -751,9 +754,10 @@ def get_execution_command_subshell(
     if on_ubuntucore():
         cmd += ["aa-exec", "-p", "unconfined"]
     cmd += [job.shell, "-c", job.command]
-    return cmd
+    yield cmd
 
 
+@contextlib.contextmanager
 def get_execution_command_systemd_unit(
     job, environ, session_id, nest_dir, target_user, extra_env=None
 ):
@@ -764,9 +768,13 @@ def get_execution_command_systemd_unit(
     This is different from get_execution_command_subshell because the new job is
     executed not as a child process of Checkbox in the current slice, but as a
     new transient systemd unit in the appropriate slice for the user.
+
+    Note: This dumps the command to a temporary file because there is a
+    limitation on core16's systemd that makes commands longer than 2k
+    characters. See: https://github.com/systemd/systemd/issues/3302
     """
 
-    cmd = [
+    wrapper_cmd = [
         "sudo",
         "--prompt",
         "",
@@ -780,7 +788,8 @@ def get_execution_command_systemd_unit(
         target_user,
     ]
     if target_user != "root":
-        cmd += ["-pam", "system-login"]
+        wrapper_cmd += ["-pam", "system-login"]
+    cmd = []
     env = get_differential_execution_environment(
         job, environ, session_id, nest_dir, extra_env
     )
@@ -803,4 +812,23 @@ def get_execution_command_systemd_unit(
             target_user,
         ]
     cmd += ["env", *env_cmds, job.shell, "-c", job.command]
-    return cmd
+    cmd_text = " ".join(shlex.quote(x) for x in cmd)
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        delete=False,
+        prefix="job_command_",
+        suffix=".sh",
+        dir="/var/tmp",
+    ) as f:
+        f.write("#!/bin/bash\neval ")
+        f.write(cmd_text)
+        f.seek(0)
+        os.chmod(f.name, 0o777)
+        path = f.name
+
+    wrapper_cmd.append(path)
+    try:
+        yield wrapper_cmd
+    finally:
+        with suppress(OSError):
+            os.remove(f.name)

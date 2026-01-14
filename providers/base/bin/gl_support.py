@@ -151,7 +151,7 @@ class GLSupportTester:
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 path is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-                src = CHECKBOX_RUNTIME / GLMARK2_DATA_PATH
+                src = CHECKBOX_RUNTIME / (str(GLMARK2_DATA_PATH).lstrip("/"))
                 dst = GLMARK2_DATA_PATH
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(

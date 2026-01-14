@@ -34,5 +34,5 @@ _siblings: [
   { "id": "networking/dpdk_vlan_test",
     "_summary": "DPDK VLAN Tests",
     "command": "run_dpdk_test_suite.py --test-suite vlan --verbose",
-    "_purpose": "This test verifies that VLAN filtering, stripping, and header insertion works as expected" },
+    "_purpose": "This test verifies that VLAN filtering, stripping, and header insertion works as expected" }
   ]

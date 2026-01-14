@@ -88,17 +88,13 @@ def find_device_by_name(name_substring):
 
 def listen_and_decode(device, timeout_sec=30):
     """Listens for events with a timeout and decodes keystrokes."""
-    logging.info(
-        "Listening for {} seconds. Scan now!".format(timeout_sec)
-    )
+    logging.info("Listening for {} seconds. Scan now!".format(timeout_sec))
 
     # Grab device to prevent it from typing into other windows
     try:
         device.grab()
     except IOError:
-        logging.error(
-            "Could not grab device (another app might have it)."
-        )
+        logging.error("Could not grab device (another app might have it).")
 
     barcode_buffer = ""
     shift_pressed = False

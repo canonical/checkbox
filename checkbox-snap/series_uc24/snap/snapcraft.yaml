@@ -49,7 +49,7 @@ plugs:
 
 layout: 
   /usr/share/glmark2:
-    bind: $SNAP/checkbox-runtime/usr/share/glmark2
+    symlink: $SNAP/checkbox-runtime/usr/share/glmark2
 
 apps:
   checkbox-cli:

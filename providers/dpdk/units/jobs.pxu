@@ -13,7 +13,7 @@ environ: DTS_CONFIG_FILE
 _summary: DPDK Blocklist Tests
 estimated_duration: 600.0
 requires:
-    dpdk_drivers.dpdk-supported == "yes"
+    dpdk_drivers.dpdk_supported == "yes"
     executable.name == 'meson'
     executable.name == 'ninja'
     snap.name == 'dpdk-dts'

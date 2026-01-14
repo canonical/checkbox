@@ -78,10 +78,10 @@ def print_drivers(drivers: Dict[str, List[str]]):
 def main():
     supported_drivers = get_dpdk_supported_drivers()
     if supported_drivers:
-        print("dpdk-supported: yes\n")
+        print("dpdk_supported: yes\n")
         print_drivers(supported_drivers)
     else:
-        print("dpdk-supported: no\n")
+        print("dpdk_supported: no\n")
 
 
 if __name__ == "__main__":

@@ -86,18 +86,24 @@
                                 datasets: [{
                                     data: [
                                         {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                        {%- if outcome != 'not-supported' %}
                                         {{ total }},
+                                        {%- endif %}
                                         {%- endfor %}
                                     ],
                                     backgroundColor: [
                                         {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                        {%- if outcome != 'not-supported' %}
                                         "{{ OUTCOME_METADATA_MAP[outcome].color_hex }}",
+                                        {%- endif %}
                                         {%- endfor %}
                                     ],
                                 }],
                                 labels: [
                                     {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                    {%- if outcome != 'not-supported' %}
                                     "{{ OUTCOME_METADATA_MAP[outcome].tr_label }}",
+                                    {%- endif %}
                                     {%- endfor %}
                                 ]
                             },

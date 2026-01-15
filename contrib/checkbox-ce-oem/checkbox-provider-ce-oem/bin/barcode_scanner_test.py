@@ -129,7 +129,7 @@ def listen_and_decode(device):
                                 barcode_buffer
                             )
                         )
-                        return True
+                        break
                     else:
                         barcode_buffer += char
     finally:
@@ -164,22 +164,20 @@ def main():
     if not target_device:
         raise SystemExit("Target device not found")
 
-    if args.check_device:
-        return
-
-    try:
-        run_with_timeout(
-            listen_and_decode,
-            30,
-            target_device,
-        )
-    except TimeoutError:
-        raise SystemExit("Barcode scanning timeout!")
-    except KeyboardInterrupt:
-        raise SystemExit("Barcode scan stopping manually.")
-    finally:
-        logging.info("Closing device.")
-        target_device.close()
+    if not args.check_device:
+        try:
+            run_with_timeout(
+                listen_and_decode,
+                30,
+                target_device,
+            )
+        except TimeoutError:
+            raise SystemExit("Barcode scanning timeout!")
+        except KeyboardInterrupt:
+            raise SystemExit("Barcode scan stopping manually.")
+        finally:
+            logging.info("Closing device.")
+            target_device.close()
 
 
 if __name__ == "__main__":

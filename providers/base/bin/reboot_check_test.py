@@ -12,13 +12,22 @@ from datetime import datetime
 import time
 import platform
 
-# Checkbox could run in a snap container, so we need to prepend this root path
-CHECKBOX_RUNTIME = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
-# Snap mount point, see
-# https://snapcraft.io/docs/environment-variables#heading--snap
-SNAP = os.getenv("SNAP", default="").rstrip("/")
-# global const for subprocess calls that should timeout
-COMMAND_TIMEOUT_SECONDS = 30
+
+def get_checkbox_runtime_path() -> "str | None":
+    """Finds the correct checkbox runtime path in $CHECKBOX_RUNTIME
+    CHECKBOX_RUNTIME is a string of paths separated by \n
+    Only the /snap/checkbox/checkbox-runtime/... lines is the one we need
+    Iter the lines and find it
+
+    :return: None if not in a snap or failed to find this
+    """
+    if "CHECKBOX_RUNTIME" not in os.environ:
+        return None
+
+    lines = os.environ["CHECKBOX_RUNTIME"].strip().splitlines()
+    for line in lines:
+        if "checkbox-runtime" in line:
+            return line
 
 
 def get_timestamp_str() -> str:
@@ -38,6 +47,14 @@ def get_current_boot_id() -> str:
         # the boot_id file has a Version 4 UUID with hyphens
         # journalctl doesn't use hyphens so we just remove it
         return f.read().strip().replace("-", "")
+
+
+# Snap mount point, see
+# https://snapcraft.io/docs/environment-variables#heading--snap
+SNAP = os.getenv("SNAP", default="").rstrip("/")
+# global const for subprocess calls that should timeout
+COMMAND_TIMEOUT_SECONDS = 30
+CHECKBOX_RUNTIME = get_checkbox_runtime_path() or "" # TODO: use path objects 
 
 
 class DeviceInfoCollector:

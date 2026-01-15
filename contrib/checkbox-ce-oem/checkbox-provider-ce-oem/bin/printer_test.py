@@ -148,11 +148,7 @@ def main():
 
         # 4. Monitor status
         try:
-            run_with_timeout(
-                monitor_job,
-                30,
-                printer_name,
-                job_id)
+            run_with_timeout(monitor_job, 30, printer_name, job_id)
         except TimeoutError:
             logging.error(
                 "TIMEOUT: Job did not reach 'completed' status within "

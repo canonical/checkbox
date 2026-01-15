@@ -207,7 +207,13 @@ class FwtsTester:
             output_directory, "_".join(fwts_arguments)
         )
         sp.run(
-            sh_split(get_fwts_base_cmd(Path(log_file_path), fwts_arguments))
+            [
+                *sh_split(get_fwts_base_cmd()),
+                "-q",
+                "-r",
+                output_directory,
+                *fwts_arguments,
+            ]
         )
         result = sp.run(
             [

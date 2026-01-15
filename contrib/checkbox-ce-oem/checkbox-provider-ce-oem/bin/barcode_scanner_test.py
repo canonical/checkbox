@@ -67,7 +67,7 @@ SHIFT_MAP = {
 }
 
 
-def find_device_by_name(name_substring):
+def find_device_by_name(name_substring: str):
     """Loops through all input devices to find the one matching the name."""
     logging.info(
         "Searching for device with name: '{}'...".format(name_substring)
@@ -149,6 +149,7 @@ def main():
         "-n",
         "--name",
         required=True,
+        type=str,
         help="Name substring of the target input device",
     )
     parser.add_argument(

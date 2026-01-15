@@ -11,7 +11,6 @@ from checkbox_support.scripts.image_checker import has_desktop_environment
 from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
 from datetime import datetime
 import time
-from pathlib import Path
 import platform
 from shlex import split as sh_split
 

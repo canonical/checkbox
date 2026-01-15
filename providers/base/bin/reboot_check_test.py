@@ -48,7 +48,8 @@ def get_current_boot_id() -> str:
         # journalctl doesn't use hyphens so we just remove it
         return f.read().strip().replace("-", "")
 
-  # TODO: use path objects for these 
+
+# TODO: use path objects for these
 
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap

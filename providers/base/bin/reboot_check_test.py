@@ -54,7 +54,7 @@ def get_current_boot_id() -> str:
 SNAP = os.getenv("SNAP", default="").rstrip("/")
 # global const for subprocess calls that should timeout
 COMMAND_TIMEOUT_SECONDS = 30
-CHECKBOX_RUNTIME = get_checkbox_runtime_path() or "" # TODO: use path objects 
+CHECKBOX_RUNTIME = get_checkbox_runtime_path() or ""  # TODO: use path objects
 
 
 class DeviceInfoCollector:

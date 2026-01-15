@@ -24,7 +24,7 @@ from io import StringIO
 
 from checkbox_support.scripts.fwts_test import (
     print_log,
-    get_fwts_command,
+    get_fwts_base_cmd,
 )
 from unittest.mock import patch, MagicMock
 from pathlib import Path
@@ -62,7 +62,7 @@ class TestGetSleepTestCommand(unittest.TestCase):
     @patch.dict(os.environ, {}, clear=True)
     def test_deb_environment(self):
 
-        result = get_fwts_command(self.log_path, self.tests)
+        result = get_fwts_base_cmd(self.log_path, self.tests)
         expected = "fwts -q --stdout-summary -r /tmp/results.log s3 s4"
         self.assertEqual(result, expected)
 
@@ -77,7 +77,7 @@ class TestGetSleepTestCommand(unittest.TestCase):
     def test_snap_env_happy_path(self, mock_exists: MagicMock):
         mock_exists.return_value = True
 
-        result = get_fwts_command(self.log_path, self.tests)
+        result = get_fwts_base_cmd(self.log_path, self.tests)
 
         expected_dir = "/snap/test-snap/checkbox-runtime/share/fwts"
         expected_cmd = (
@@ -99,7 +99,7 @@ class TestGetSleepTestCommand(unittest.TestCase):
         mock_exists.return_value = False
 
         with self.assertRaises(SystemExit) as cm:
-            get_fwts_command(self.log_path, self.tests)
+            get_fwts_base_cmd(self.log_path, self.tests)
 
         self.assertIn("doesn't exist", str(cm.exception))
 

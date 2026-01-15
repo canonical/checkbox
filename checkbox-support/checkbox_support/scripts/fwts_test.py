@@ -169,7 +169,7 @@ TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 
 
-def get_fwts_command(log_file_path: Path, tests: "list[str]") -> str:
+def get_fwts_base_cmd() -> str:
     """Get the correct fwts command template depending on if we are inside a snap
 
     :param log_file_path: where to put the log file
@@ -190,17 +190,10 @@ def get_fwts_command(log_file_path: Path, tests: "list[str]") -> str:
                 + "but {}".format(fwts_json_data_dir)
                 + "doesn't exist"
             )
-        return "fwts -j {} -q --stdout-summary -r {} {}".format(
-            fwts_json_data_dir,
-            str(log_file_path),
-            " ".join(tests),
-        )
+        return "fwts -j {}".format(fwts_json_data_dir)
     else:
         # deb, use the original command
-        return "fwts -q --stdout-summary -r {} {}".format(
-            str(log_file_path),
-            " ".join(tests),
-        )
+        return "fwts"
 
 
 def get_sleep_times(log, start_marker):
@@ -460,7 +453,7 @@ def main(args=sys.argv[1:]):
         fail_priority = fail_levels[args.fail_level]
 
     if args.fwts_help:
-        Popen("fwts -h", shell=True).communicate()[0]
+        Popen("{} -h".format(get_fwts_base_cmd()), shell=True).communicate()[0]
         return 0
     elif args.list:
         print("\n".join(TESTS))
@@ -516,7 +509,9 @@ def main(args=sys.argv[1:]):
                 f.write(marker)
             results["sleep"] = (
                 Popen(
-                    get_fwts_command(Path(args.log), tests),
+                    "{} -q --stdout-summary -r {} {}".format(
+                        get_fwts_base_cmd(), args.log, " ".join(tests)
+                    ),
                     stdout=PIPE,
                     shell=True,
                 )
@@ -601,13 +596,14 @@ def main(args=sys.argv[1:]):
         if tests:
             for test in tests:
                 # ACPI tests can now be run with --acpitests (fwts >= 15.07.00)
-                log = args.log
                 # Split the log file for HWE (only if -t is not used)
                 if test == "acpitests":
                     test = "--acpitests"
                 results[test] = (
                     Popen(
-                        get_fwts_command(log, [test]),
+                        "{} -q --stdout-summary -r {} {}".format(
+                            get_fwts_base_cmd(), args.log, test
+                        ),
                         stdout=PIPE,
                         shell=True,
                     )

@@ -206,7 +206,9 @@ class FwtsTester:
         log_file_path = "{}/fwts_{}.log".format(
             output_directory, "_".join(fwts_arguments)
         )
-        sp.run(sh_split(get_fwts_base_cmd(Path(log_file_path), fwts_arguments)))
+        sp.run(
+            sh_split(get_fwts_base_cmd(Path(log_file_path), fwts_arguments))
+        )
         result = sp.run(
             [
                 "sleep_test_log_check.py",

@@ -55,15 +55,12 @@ class LogPrinterTest(unittest.TestCase):
 
 
 class TestGetSleepTestCommand(unittest.TestCase):
-    def setUp(self):
-        self.log_path = Path("/tmp/results.log")
-        self.tests = ["s3", "s4"]
 
     @patch.dict(os.environ, {}, clear=True)
     def test_deb_environment(self):
 
-        result = get_fwts_base_cmd(self.log_path, self.tests)
-        expected = "fwts -q --stdout-summary -r /tmp/results.log s3 s4"
+        result = get_fwts_base_cmd()
+        expected = "fwts"
         self.assertEqual(result, expected)
 
     @patch.dict(
@@ -77,11 +74,11 @@ class TestGetSleepTestCommand(unittest.TestCase):
     def test_snap_env_happy_path(self, mock_exists: MagicMock):
         mock_exists.return_value = True
 
-        result = get_fwts_base_cmd(self.log_path, self.tests)
+        result = get_fwts_base_cmd()
 
         expected_dir = "/snap/test-snap/checkbox-runtime/share/fwts"
         expected_cmd = (
-            "fwts -j {} -q --stdout-summary -r /tmp/results.log s3 s4".format(
+            "fwts -j {}".format(
                 expected_dir
             )
         )
@@ -99,7 +96,7 @@ class TestGetSleepTestCommand(unittest.TestCase):
         mock_exists.return_value = False
 
         with self.assertRaises(SystemExit) as cm:
-            get_fwts_base_cmd(self.log_path, self.tests)
+            get_fwts_base_cmd()
 
         self.assertIn("doesn't exist", str(cm.exception))
 

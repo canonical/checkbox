@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# This script rely on user input the brand name of the printer
+# as the keyword to searching connected printer. 
 import argparse
 import logging
 import subprocess

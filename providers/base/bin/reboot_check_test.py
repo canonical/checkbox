@@ -444,7 +444,6 @@ class HardwareRendererTester:
         glmark2_executable = self.pick_glmark2_executable(
             XDG_SESSION_TYPE, platform.uname().machine
         )
-        glmark2_data_path = "/usr/share/glmark2"
 
         try:
             # PATH override is needed for snaps on classic ubuntu

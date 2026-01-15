@@ -56,7 +56,7 @@ class GLSupportTester:
         """Checks if gl_renderer is produced by a hardware renderer.
 
         This uses the same logic as unity_support_test. Details:
-        https://github.com/canonical/checkbox/issues/1630#issuecomment-2540843110
+        https://github.com/canonical/checkbox/issues/1630#issuecomment-2540843110 # noqa: E501
 
         :param gl_renderer: the GL_RENDERER string.
         https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetString.xhtml
@@ -104,7 +104,8 @@ class GLSupportTester:
         self, glmark2_executable_override: "str | None" = None
     ) -> str:
         """
-        Calls 'glmark2 --validate --offscreen' but allow errors to be thrown early
+        Calls 'glmark2 --validate --offscreen'
+        but allow errors to be thrown early
 
         :raises SystemExit: when XDG_SESSION_TYPE is not x11/wayland
         :return: stdout of `glmark2 --validate`

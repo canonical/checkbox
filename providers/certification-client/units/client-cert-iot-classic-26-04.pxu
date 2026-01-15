@@ -1,0 +1,44 @@
+id: client-cert-iot-classic-26-04
+_name: IoT Client Certification Tests for 26.04 classic images
+unit: test plan
+_description:
+ This test plan is intended for use inside Canonical's test labs. It will be
+ used to certify IoT devices on behalf of OEM customers as part of
+ commercial engagements.
+include:
+nested_part:
+    client-cert-iot-classic-26-04-manual
+    client-cert-iot-classic-26-04-automated
+    client-cert-iot-classic-26-04-stress
+
+
+id: client-cert-iot-classic-26-04-manual
+_name: IoT Client Certification Tests for 26.04 (Manual Tests)
+unit: test plan
+_description:
+  Includes tests that require input from an operator to complete.
+include:
+nested_part:
+    client-cert-desktop-24-04-manual
+exclude:
+
+
+id: client-cert-iot-classic-26-04-automated
+_name: IoT Client Certification Tests for 26.04 (Automated Tests)
+unit: test plan
+_description:
+  Includes tests that do not require operator input.
+include:
+nested_part:
+    client-cert-desktop-24-04-automated
+bootstrap_include:
+
+
+id: client-cert-iot-classic-26-04-stress
+_name: IoT Client Certification Tests for 24.04 (Stress Tests)
+unit: test plan
+_description:
+ Includes tests that are long running device stress tests.
+include:
+nested_part:
+    client-cert-desktop-24-04-stress

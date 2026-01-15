@@ -1,0 +1,192 @@
+id: client-cert-iot-ubuntucore-24
+_name: IoT Client Certification for Ubuntu Core 24
+unit: test plan
+_description:
+ This test plan is intended for use inside Canonical's test labs. It will be
+ used to certify IoT devices running ubuntucore image.
+include:
+nested_part:
+  client-cert-iot-ubuntucore-24-manual
+  client-cert-iot-ubuntucore-24-automated
+certification_status_overrides:
+  apply blocker to .*
+
+
+id: client-cert-iot-ubuntucore-24-manual
+_name: IoT Client Certification for Ubuntu Core 24 (Manual Tests)
+unit: test plan
+_description:
+  Includes tests that require input from an operator to complete.
+include:
+mandatory_include:
+  com.canonical.plainbox::manifest
+  executable
+  interface
+  connections
+  model_assertion
+  serial_assertion
+  net_if_management_attachment
+  lspci_attachment
+  lsusb_attachment
+  rtc
+  sleep
+  parts_meta_info_attachment
+bootstrap_include:
+  bootloader
+  cpuinfo
+  device
+  interface
+  net_if_management
+nested_part:
+  audio-manual
+  bluetooth-cert-manual
+  camera-manual
+  cpu-manual
+  disk-manual
+  edac-manual
+  ethernet-manual
+  ishtp-manual
+  led-indicator-manual
+  led-manual
+  mediacard-manual
+  mei-manual
+  memory-manual
+  monitor-manual
+  networking-manual
+  qep-manual
+  rtc-manual
+  self-manual
+  serial-manual
+  snappy-snap-manual
+  socketcan-manual-remote
+  socketcan-manual-local
+  submission-cert-full
+  ubuntucore-manual
+  usb-manual
+  usb-c-manual
+  usb3-manual
+  usb-dwc3-manual
+  thunderbolt-cert-manual
+  watchdog-manual
+  wireless-manual
+  wireless-wifi-master-mode-manual
+  wwan-manual
+  after-suspend-audio-manual
+  after-suspend-bluetooth-cert-manual
+  after-suspend-ethernet-manual
+  after-suspend-led-indicator-manual
+  after-suspend-monitor-manual
+  after-suspend-networking-manual
+  after-suspend-serial-manual
+  after-suspend-socketcan-manual-remote
+  after-suspend-socketcan-manual-local
+  after-suspend-usb-manual
+  after-suspend-usb-c-manual
+  after-suspend-usb3-manual
+  after-suspend-thunderbolt-cert-manual
+  after-suspend-wireless-manual
+  after-suspend-wireless-wifi-master-mode-manual
+  after-suspend-wwan-manual
+exclude:
+  bluetooth4/HOGP-mouse
+  after-suspend-bluetooth4/HOGP-mouse
+certification_status_overrides:
+  apply blocker to .*
+
+
+id: client-cert-iot-ubuntucore-24-automated
+_name: IoT Client Certification for Ubuntu Core 24 (Automated Tests)
+unit: test plan
+_description:
+  Includes tests that do not require operator input.
+include:
+  disk/encryption/detect
+  image/model-grade
+  miscellanea/secure_boot_mode_.*
+mandatory_include:
+  com.canonical.plainbox::manifest
+  executable
+  interface
+  connections
+  model_assertion
+  serial_assertion
+  net_if_management_attachment
+  lspci_attachment
+  lsusb_attachment
+  rtc
+  sleep
+  parts_meta_info_attachment
+bootstrap_include:
+  bootloader
+  cpuinfo
+  device
+  interface
+  net_if_management
+nested_part:
+  acpi-automated
+  audio-automated
+  bluetooth-cert-automated
+  bluez-automated
+  camera-automated
+  cpu-automated
+  disk-automated
+  docker-automated
+  edac-automated
+  eeprom-automated
+  ethernet-automated
+  gpio-automated
+  iot-fwts-automated
+  i2c-automated
+  ishtp-automated
+  kernel-snap-automated
+  mediacard-automated
+  mei-automated
+  memory-automated
+  networking-automated
+  power-automated
+  qep-automated
+  rtc-automated
+  self-automated
+  serial-automated
+  snappy-snap-automated
+  socketcan-auto-local
+  socketcan-auto-remote
+  submission-cert-automated
+  info-attachment-cert-automated
+  tpm-cert-automated
+  thunderbolt-cert-automated
+  ubuntucore-automated
+  usb-automated
+  usb-dwc3-automated
+  watchdog-automated
+  wireless-automated
+  wireless-wifi-master-mode-auto
+  wwan-automated
+  after-suspend-audio-automated
+  after-suspend-bluez-automated
+  after-suspend-eeprom-automated
+  after-suspend-ethernet-automated
+  after-suspend-gpio-automated
+  after-suspend-rtc-automated
+  after-suspend-serial-automated
+  after-suspend-usb-automated
+  after-suspend-wireless-automated
+  after-suspend-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
+
+
+id: client-cert-iot-ubuntucore-24-stress
+_name: IoT Client Certification for Ubuntu Core 24 (Stress Tests)
+unit: test plan
+_description:
+  Includes tests that are long running device stress tests.
+include:
+nested_part:
+  suspend-cycles-stress-test
+  warm-boot-stress-test
+  cold-boot-stress-test
+  stress-iperf3-automated
+  stress-ng-automated
+certification_status_overrides:
+  apply blocker to .*

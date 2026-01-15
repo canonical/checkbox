@@ -9,7 +9,7 @@ import re
 from checkbox_support.helpers.timeout import run_with_timeout
 
 
-def run_command(command):
+def run_command(command: str):
     """Executes a shell command and returns the output."""
     try:
         result = subprocess.run(
@@ -25,7 +25,7 @@ def run_command(command):
         return None
 
 
-def find_printer_uri(keyword):
+def find_printer_uri(keyword: str):
     """Scans lpinfo for a printer matching the keyword."""
     logging.info("--- Searching for printer matching: {} ---".format(keyword))
     output = run_command("lpinfo -v")
@@ -44,7 +44,7 @@ def find_printer_uri(keyword):
     return None
 
 
-def monitor_job(printer_name, job_id):
+def monitor_job(printer_name: str, job_id: str):
     """Checks the status of the job."""
     logging.info("--- Monitoring Job {} ---".format(job_id))
 
@@ -71,7 +71,7 @@ def monitor_job(printer_name, job_id):
         time.sleep(5)
 
 
-def teardown_printer(printer_name):
+def teardown_printer(printer_name: str):
     """Removes the printer configuration."""
     logging.info("Removing printer '{}'...".format(printer_name))
     run_command("lpadmin -x {}".format(printer_name))
@@ -86,11 +86,13 @@ def main():
         "-k",
         "--keyword",
         required=True,
+        type=str,
         help="Keyword to search for printer URI",
     )
     parser.add_argument(
         "-m",
         "--model",
+        type=str,
         help="Target model to link up",
     )
     parser.add_argument(

@@ -6,6 +6,7 @@ import logging
 import subprocess
 import time
 import re
+from checkbox_support.helpers.timeout import run_with_timeout
 
 
 def run_command(command):
@@ -43,14 +44,11 @@ def find_printer_uri(keyword):
     return None
 
 
-def monitor_job(printer_name, job_id, timeout=30):
-    """Checks the status of the job for a 30-second period."""
-    logging.info(
-        "--- Monitoring Job {} for {} seconds ---".format(job_id, timeout)
-    )
-    start_time = time.time()
+def monitor_job(printer_name, job_id):
+    """Checks the status of the job."""
+    logging.info("--- Monitoring Job {} ---".format(job_id))
 
-    while time.time() - start_time < timeout:
+    while True:
         # Check if job is in the 'completed' list
         completed_jobs = run_command(
             "lpstat -W completed -o {}".format(printer_name)
@@ -61,21 +59,16 @@ def monitor_job(printer_name, job_id, timeout=30):
                     job_id
                 )
             )
-            return True
+            return
 
         # Check if it's still in the active queue
         active_jobs = run_command("lpq -P {}".format(printer_name))
         if job_id not in active_jobs and job_id in completed_jobs:
             logging.info("SUCCESS: Job {} finished.".format(job_id))
-            return True
+            return
 
         logging.info("Job pending/processing... checking again in 5s")
         time.sleep(5)
-
-    logging.error(
-        "TIMEOUT: Job did not reach 'completed' status within 30 seconds."
-    )
-    return False
 
 
 def teardown_printer(printer_name):
@@ -138,6 +131,7 @@ def main():
         )
         is None
     ):
+        logging.error("Failed to link printer.")
         raise SystemExit(1)
 
     # 3. Print a test page
@@ -153,7 +147,17 @@ def main():
         logging.info("Job submitted: {}".format(job_id))
 
         # 4. Monitor status
-        if not monitor_job(printer_name, job_id):
+        try:
+            run_with_timeout(
+                monitor_job,
+                30,
+                printer_name,
+                job_id)
+        except TimeoutError:
+            logging.error(
+                "TIMEOUT: Job did not reach 'completed' status within "
+                "30 seconds."
+            )
             teardown_printer(printer_name)
             raise SystemExit(1)
     else:

@@ -78,12 +78,13 @@ class TestSriovFunctions(TestCase):
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data="0x14e4")
-    def test_check_interface_vendor_broadcom(self, mock_open, mock_exists):
-        with self.assertRaises(NotImplementedError) as context:
-            sriov.check_interface_vendor("eth0")
-        self.assertEqual(
-            str(context.exception),
-            "Broadcom SRIOV testing is not supported at this time",
+    @patch("sriov.logging.info")
+    def test_check_interface_vendor_broadcom(
+        self, mock_logging, mock_open, mock_exists
+    ):
+        sriov.check_interface_vendor("eth0")
+        mock_logging.assert_called_with(
+            "The interface %s is a(n) %s NIC", "eth0", "Broadcom"
         )
 
     @patch("os.path.exists", return_value=True)

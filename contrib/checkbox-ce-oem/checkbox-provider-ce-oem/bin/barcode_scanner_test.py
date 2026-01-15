@@ -85,7 +85,7 @@ def find_device_by_name(name_substring: str):
     return None
 
 
-def listen_and_decode(device: evdev.InputDevice) -> None:
+def listen_and_decode(device: evdev.InputDevice):
     """Listens for events with a timeout and decodes keystrokes."""
 
     # Grab device to prevent it from typing into other windows

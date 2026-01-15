@@ -3,8 +3,7 @@ import argparse
 import evdev
 import logging
 from evdev import ecodes
-import select
-import time
+from checkbox_support.helpers.timeout import run_with_timeout
 
 # Standard US Keyboard Map (Scancode -> Character)
 # This maps the internal Linux event codes to actual characters
@@ -86,9 +85,8 @@ def find_device_by_name(name_substring):
     return None
 
 
-def listen_and_decode(device, timeout_sec=30):
+def listen_and_decode(device):
     """Listens for events with a timeout and decodes keystrokes."""
-    logging.info("Listening for {} seconds. Scan now!".format(timeout_sec))
 
     # Grab device to prevent it from typing into other windows
     try:
@@ -98,60 +96,47 @@ def listen_and_decode(device, timeout_sec=30):
 
     barcode_buffer = ""
     shift_pressed = False
-    start_time = time.time()
 
-    while True:
-        # Calculate remaining time
-        elapsed = time.time() - start_time
-        remaining = timeout_sec - elapsed
+    try:
+        for event in device.read_loop():
+            if event.type == ecodes.EV_KEY:
+                data = evdev.categorize(event)
 
-        if remaining <= 0:
-            logging.error("Time limit reached.")
-            break
+                # 42 is Left Shift, 54 is Right Shift
+                if data.scancode in [42, 54]:
+                    if data.keystate == 1:  # Key Down
+                        shift_pressed = True
+                    elif data.keystate == 0:  # Key Up
+                        shift_pressed = False
+                    continue
 
-        # select.select waits for data on the file descriptor
-        # This is efficient (sleeps until interrupt) vs a busy loop
-        r, w, x = select.select([device.fd], [], [], remaining)
+                # Only process Key Down (1) events
+                if data.keystate == 1 and data.scancode in KEY_MAP:
+                    char = KEY_MAP[data.scancode]
 
-        if r:
-            for event in device.read():
-                if event.type == ecodes.EV_KEY:
-                    data = evdev.categorize(event)
+                    # Handle Capitalization
+                    if shift_pressed:
+                        # Check specific symbol map first,
+                        # then default to .upper()
+                        if data.scancode in SHIFT_MAP:
+                            char = SHIFT_MAP[data.scancode]
+                        else:
+                            char = char.upper()
 
-                    # 42 is Left Shift, 54 is Right Shift
-                    if data.scancode in [42, 54]:
-                        if data.keystate == 1:  # Key Down
-                            shift_pressed = True
-                        elif data.keystate == 0:  # Key Up
-                            shift_pressed = False
-                        continue
-
-                    # Only process Key Down (1) events
-                    if data.keystate == 1:
-                        if data.scancode in KEY_MAP:
-                            char = KEY_MAP[data.scancode]
-
-                            # Handle Capitalization
-                            if shift_pressed:
-                                # Check specific symbol map first,
-                                # then default to .upper()
-                                if data.scancode in SHIFT_MAP:
-                                    char = SHIFT_MAP[data.scancode]
-                                else:
-                                    char = char.upper()
-
-                            if char == "\n":
-                                logging.info(
-                                    "[SUCCESS] Barcode Detected: {}".format(
-                                        barcode_buffer
-                                    )
-                                )
-                                return True
-                            else:
-                                barcode_buffer += char
-
-    # Clean up
-    device.ungrab()
+                    if char == "\n":
+                        logging.info(
+                            "[SUCCESS] Barcode Detected: {}".format(
+                                barcode_buffer
+                            )
+                        )
+                        return True
+                    else:
+                        barcode_buffer += char
+    finally:
+        try:
+            device.ungrab()
+        except Exception:
+            pass
 
 
 def main():
@@ -177,19 +162,23 @@ def main():
     target_device = find_device_by_name(args.name)
 
     if not target_device:
-        raise SystemExit(1)
+        raise SystemExit("Target device not found")
 
     if args.check_device:
-        raise SystemExit(0)
+        return
 
     try:
-        # 2. Run the listener
-        if not listen_and_decode(target_device):
-            raise SystemExit(1)
+        run_with_timeout(
+            listen_and_decode,
+            30,
+            target_device,
+        )
+    except TimeoutError:
+        raise SystemExit("Barcode scanning timeout!")
     except KeyboardInterrupt:
-        logging.info("Stopping manually.")
-        raise SystemExit(1)
+        raise SystemExit("Barcode scan stopping manually.")
     finally:
+        logging.info("Closing device.")
         target_device.close()
 
 

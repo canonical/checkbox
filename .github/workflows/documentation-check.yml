@@ -4,7 +4,7 @@ permissions:
 on:
   pull_request:
     paths:
-      - 'docs/**'
+      - "docs/**"
   workflow_dispatch:
 
 concurrency:
@@ -37,7 +37,7 @@ jobs:
           sudo apt install -y -qq python3-venv
           make install
 
-      - name: Build docs and run spelling checker
+      - name: Run spelling checker
         working-directory: docs/
         run: |
           make spelling
@@ -87,6 +87,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           persist-credentials: false
+          fetch-depth: 0 # git history use by sphinx-sitemap during build for last-modified dates
 
       - name: Install the doc framework
         working-directory: docs/
@@ -94,7 +95,7 @@ jobs:
           sudo apt install -y -qq python3-venv
           make install
 
-      - name: Run linkchecker
+      - name: Build docs and run linkchecker
         working-directory: docs/
         run: |
           make linkcheck

@@ -48,13 +48,14 @@ def get_current_boot_id() -> str:
         # journalctl doesn't use hyphens so we just remove it
         return f.read().strip().replace("-", "")
 
+  # TODO: use path objects for these 
 
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
 SNAP = os.getenv("SNAP", default="").rstrip("/")
 # global const for subprocess calls that should timeout
 COMMAND_TIMEOUT_SECONDS = 30
-CHECKBOX_RUNTIME = get_checkbox_runtime_path() or ""  # TODO: use path objects
+CHECKBOX_RUNTIME = (get_checkbox_runtime_path() or "").rstrip("/")
 
 
 class DeviceInfoCollector:

@@ -34,6 +34,7 @@ if "SNAP" in os.environ:
     if in_classic_snap():
         CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
     else:
+        # in strict frontend, CHECKBOX_RUNTIME has multiple lines
         CHECKBOX_RUNTIME = Path(os.environ["SNAP"]) / "checkbox-runtime"
 
 GLMARK2_DATA_PATH = Path("/usr/share/glmark2")

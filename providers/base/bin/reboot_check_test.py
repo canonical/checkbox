@@ -21,6 +21,8 @@ if SNAP:
     if in_classic_snap():
         RUNTIME_ROOT = os.environ["CHECKBOX_RUNTIME"].rstrip("/")
     else:
+        # in strict frontend, CHECKBOX_RUNTIME has multiple lines
+        # explicitly build this path
         RUNTIME_ROOT = "{}/checkbox-runtime".format(SNAP)
 else:
     RUNTIME_ROOT = ""

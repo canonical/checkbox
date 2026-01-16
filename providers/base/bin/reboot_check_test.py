@@ -12,13 +12,20 @@ from datetime import datetime
 import time
 import platform
 
+from checkbox_support.snap_utils.system import in_classic_snap
+
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
 SNAP = os.getenv("SNAP", default="").rstrip("/")
 if SNAP:
-    RUNTIME_ROOT = "{}/checkbox-runtime".format(SNAP)
+    if in_classic_snap():
+        RUNTIME_ROOT = os.environ["CHECKBOX_RUNTIME"].rstrip("/")
+    else:
+        RUNTIME_ROOT = "{}/checkbox-runtime".format(SNAP)
 else:
-    RUNTIME_ROOT = ""  # pyright: ignore[reportConstantRedefinition]
+    RUNTIME_ROOT = ""
+
+
 # global const for subprocess calls that should timeout
 COMMAND_TIMEOUT_SECONDS = 30
 

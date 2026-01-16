@@ -24,14 +24,22 @@ import os
 import platform
 import argparse
 from pathlib import Path
-
+from checkbox_support.snap_utils.system import in_classic_snap
 
 # Checkbox could run in a snap container, so we need to prepend this root path
-try:
-    # don't use $CHECKBOX_RUNTIME in Path(), it has multiple paths
-    CHECKBOX_RUNTIME = Path(os.environ["SNAP"]) / "checkbox-runtime"
-except KeyError:  # from indexing os.environ
-    CHECKBOX_RUNTIME = None  # pyright: ignore[reportConstantRedefinition]
+
+CHECKBOX_RUNTIME = None
+if "SNAP" in os.environ:
+    # don't use $CHECKBOX_RUNTIME in Path() unless in classic
+    if in_classic_snap():
+        CHECKBOX_RUNTIME = Path(  # pyright: ignore[reportConstantRedefinition]
+            os.environ["CHECKBOX_RUNTIME"]
+        )
+    else:
+        CHECKBOX_RUNTIME = (  # pyright: ignore[reportConstantRedefinition]
+            Path(os.environ["SNAP"]) / "checkbox-runtime"
+        )
+
 GLMARK2_DATA_PATH = Path("/usr/share/glmark2")
 
 

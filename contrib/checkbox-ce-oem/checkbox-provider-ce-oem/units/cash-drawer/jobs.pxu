@@ -1,0 +1,20 @@
+id: ce-oem/cash-drawer-test
+_summary: Test cash drawer functionality
+_purpose:
+    This test verifies that the cash drawer is correctly installed and the drawer
+    can be opened.
+plugin: user-interact-verify
+user: root
+category_id: cash_drawer
+estimated_duration: 30s
+flags: also-after-suspend
+command: echo -e '\x07' > "$CASH_DRAWER_PORT"
+imports: 
+    from com.canonical.plainbox import manifest
+requires: 
+    manifest.has_cash_drawer == 'True'
+environ: CASH_DRAWER_PORT
+_steps:
+ 1. Press enter to open the cash drawer.
+_verification:
+    Do you see the cash drawer opened?

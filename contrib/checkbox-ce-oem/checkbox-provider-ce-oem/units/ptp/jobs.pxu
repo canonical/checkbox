@@ -3,7 +3,7 @@ category_id: ptp
 id: ce-oem-ptp/ptp-devices
 plugin: resource
 _summary: List hardware PTP-supported Ethernet devices in the DUT
-_description: 
+_description:
     Check all the ethernet devices in the DUT and list PTP-supported devices
 user: root
 estimated_duration: 2s
@@ -25,7 +25,7 @@ command:
             done
             if [[ $supported == true ]]; then
                 echo "eth-interface: $iface"
-                echo 
+                echo
             fi
         fi
     done
@@ -36,7 +36,7 @@ template-unit: job
 id: ce-oem-ptp/verify-PTP-support-for-{eth-interface}
 category_id: ptp
 _summary: Verify Ethernet interface {eth-interface} supports PTP HW Clock
-_description: 
+_description:
     Check that the Ethernet interface {eth-interface} has a PTP Hardware Clock
     If it does, it will have a number identifying which clock ID it is using,
     and a corresponding entry in /dev/ptp#.
@@ -68,7 +68,7 @@ template-unit: job
 id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-auto
 category_id: ptp
 _summary: Verify Ethernet interface {eth-interface} can establish clock sync by ptp4l
-_description: 
+_description:
     Use {eth-interface} on the DUT to synchronize its clock with the clock
     of the Grand Master on another host device.
     This automated test needs another host device which runs the ptp4l as a Grand Master
@@ -111,9 +111,9 @@ unit: template
 template-resource: ce-oem-ptp/ptp-devices
 template-unit: job
 id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-manual
-catageory_id: ptp
+category_id: ptp
 _summary: Verify Ethernet interface {eth-interface} can establish clock sync
-_purpose: 
+_purpose:
     Use {eth-interface} on the DUT to synchronize its clock with the clock
     of the Grand Master on another device.
 plugin: manual
@@ -124,11 +124,11 @@ requires: manifest.has_ptp == 'True'
 _steps:
     1. Connect an Ethernet cable from another device's Ethernet interface which supports ptp
        which supports ptp directly to the {eth-interface} Ethernet interface of our DUT.
-    2. On the Host (another device), execute the command: 
+    2. On the Host (another device), execute the command:
        $ sudo ./ptp4l -i <if_name_on_host> -m --step_threshold=1 --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2
     3. Wait for the system to announce it is the Grand Master.
     4. On the DUT, run the command:
        $ sudo ./ptp4l -i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5
     5. The DUT should announce it has selected a foreign master (Host)
-    6. Clock readings will appear on the DUT.  When the "rms" value remains below 100ns, 
+    6. Clock readings will appear on the DUT.  When the "rms" value remains below 100ns,
        the DUT has successfully synchronized to the clock on the Host.

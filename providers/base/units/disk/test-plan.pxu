@@ -79,7 +79,7 @@ bootstrap_include:
 id: server-disk
 unit: test plan
 _name: Server Disk Tests
-_Description: AUtomated disk tests for Ubuntu Server
+_description: AUtomated disk tests for Ubuntu Server
 include:
     disk/detect                                certification-status=blocker
     disk/stats_.*                              certification-status=blocker

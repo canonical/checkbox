@@ -1,7 +1,7 @@
 id: strict-confinement-thermal-automated
 unit: test plan
 _name: Test thermal sensor in strict confinement mode.
-_desription:
+_description:
     Test thermal sensor in strict confinement mode.
     Rely on test-strict-confinment SNAP to test.
 bootstrap_include:
@@ -12,7 +12,7 @@ include:
 id: after-suspend-strict-confinement-thermal-automated
 unit: test plan
 _name: Test thermal sensor in strict confinement mode.
-_desription:
+_description:
     Test thermal sensor in strict confinement mode.
     Rely on test-strict-confinment SNAP to test.
 bootstrap_include:

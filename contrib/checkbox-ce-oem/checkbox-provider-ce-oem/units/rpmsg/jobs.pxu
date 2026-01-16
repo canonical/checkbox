@@ -17,6 +17,8 @@ category_id: rpmsg
 estimated_duration: 5
 requires: manifest.has_rpmsg == 'True'
 imports: from com.canonical.plainbox import manifest
+after:
+    ce-oem-rpmsg/devicetree-verify
 user: root
 plugin: shell
 command:
@@ -29,6 +31,9 @@ estimated_duration: 5
 requires: manifest.has_rpmsg == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-device
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
 user: root
 plugin: shell
 command:
@@ -41,6 +46,10 @@ estimated_duration: 5
 requires: manifest.has_rpmsg == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-device
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
 user: root
 plugin: shell
 command:
@@ -53,6 +62,11 @@ estimated_duration: 5
 requires: manifest.has_rpmsg == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-virtio
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+    ce-oem-rpmsg/detect-virtio
 user: root
 plugin: shell
 command:

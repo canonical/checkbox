@@ -347,6 +347,7 @@ parts:
       - python3-pyqrcode
       - python3-serial
       - python3-yaml
+      - python3-pyscard
       - python3-zbar
       - qml-module-qtquick-controls
       - qml-module-qtquick-layouts

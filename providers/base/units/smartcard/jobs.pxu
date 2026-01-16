@@ -1,0 +1,94 @@
+plugin: shell
+category_id: smartcard
+id: smartcard/smartcard-reader-info
+user: root
+estimated_duration: 1.0
+_description:
+ Dump pcscd debug message in to log
+flags: fail-on-resource
+imports: from com.canonical.plainbox import manifest
+requires:
+ (manifest.has_contact_smartcard_reader == 'True' or manifest.has_contactless_smartcard_reader == 'True')
+ package.name == 'pcscd' or snap.name == 'pcscd'
+command:
+ pcscd --debug
+ journalctl --since="5 minutes ago" -t pcscd
+
+plugin: shell
+category_id: smartcard
+id: smartcard/smartcard-reader-detect-contact
+user: root
+estimated_duration: 1.0
+_description:
+ Check if Smartcard reader exist or not
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_contact_smartcard_reader == 'True'
+command: smartcard_test.py detect_reader -t contact
+
+plugin: shell
+category_id: smartcard
+id: smartcard/smartcard-reader-detect-contactless
+user: root
+estimated_duration: 1.0
+_description:
+ Check if Smartcard reader exist or not
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_contactless_smartcard_reader == 'True'
+command: smartcard_test.py detect_reader -t contactless
+
+unit: template
+template-resource: smartcard_resource_contact
+template-unit: job
+plugin: shell
+category_id: smartcard
+id: smartcard/{smartcard_reader}-send-apdu-auto
+user: root
+template-id: smartcard/smartcard-reader-send-apdu-auto
+estimated_duration: 5.0
+_description:
+ Check if Smartcard reader could send/receive APDU command to/from smartcard
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_contact_smartcard_reader == 'True'
+ manifest.has_smartcard == 'True'
+depends: smartcard/smartcard-reader-detect-contact
+command: smartcard_test.py send -r {smartcard_reader}
+
+unit: template
+template-resource: smartcard_resource_contact
+template-unit: job
+plugin: user-interact-verify
+category_id: smartcard
+id: smartcard/{smartcard_reader}-detect-contact-manual
+user: root
+template-id: smartcard/smartcard-reader-detect-contact-manual
+estimated_duration: 45.0
+_description:
+ Check if a Smartcard reader could detect contact smartcard insert/remove
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_contact_smartcard_reader == 'True'
+command: smartcard_test.py detect_card -r {smartcard_reader}
+
+unit: template
+template-resource: smartcard_resource_contactless
+template-unit: job
+plugin: user-interact-verify
+category_id: smartcard
+id: smartcard/{smartcard_reader}-detect-contactless-manual
+user: root
+template-id: smartcard/smartcard-reader-detect-contactless-manual
+estimated_duration: 45.0
+_description:
+ Check if a Smartcard reader could detect contactless smartcard touch/remove
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_contactless_smartcard_reader == 'True'
+command: smartcard_test.py detect_card -r {smartcard_reader}

@@ -324,6 +324,7 @@ parts:
       - obexftp
       - parted
       - pciutils
+      - python3-pyscard
       - pulseaudio-utils
       - qml-module-qtquick-controls
       - qml-module-qtquick-layouts

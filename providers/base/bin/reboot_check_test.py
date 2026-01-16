@@ -19,13 +19,13 @@ from checkbox_support.snap_utils.system import in_classic_snap
 SNAP = os.getenv("SNAP", default="").rstrip("/")
 if SNAP:
     if in_classic_snap():
-        RUNTIME_ROOT = os.environ["CHECKBOX_RUNTIME"].rstrip("/")
+        CHECKBOX_RUNTIME = os.environ["CHECKBOX_RUNTIME"].rstrip("/")
     else:
         # in strict frontend, CHECKBOX_RUNTIME has multiple lines
         # explicitly build this path
-        RUNTIME_ROOT = "{}/checkbox-runtime".format(SNAP)
+        CHECKBOX_RUNTIME = "{}/checkbox-runtime".format(SNAP)
 else:
-    RUNTIME_ROOT = ""
+    CHECKBOX_RUNTIME = ""
 
 
 # global const for subprocess calls that should timeout
@@ -95,7 +95,7 @@ class DeviceInfoCollector:
             [
                 "checkbox-support-lsusb",
                 "-f",
-                '"{}"/var/lib/usbutils/usb.ids'.format(RUNTIME_ROOT),
+                '"{}"/var/lib/usbutils/usb.ids'.format(CHECKBOX_RUNTIME),
                 "-s",
             ],
             universal_newlines=True,
@@ -437,13 +437,13 @@ class HardwareRendererTester:
         glmark2_data_path = "/usr/share/glmark2"
 
         try:
-            if RUNTIME_ROOT and not os.path.exists(glmark2_data_path):
+            if CHECKBOX_RUNTIME and not os.path.exists(glmark2_data_path):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-                src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
+                src = "{}/usr/share/glmark2".format(CHECKBOX_RUNTIME)
                 dst = glmark2_data_path
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
@@ -475,7 +475,7 @@ class HardwareRendererTester:
             return False
         finally:
             # immediately cleanup
-            if RUNTIME_ROOT and os.path.islink(glmark2_data_path):
+            if CHECKBOX_RUNTIME and os.path.islink(glmark2_data_path):
                 print("[ DEBUG ] Un-symlinking glmark2 data")
                 os.unlink(glmark2_data_path)
 

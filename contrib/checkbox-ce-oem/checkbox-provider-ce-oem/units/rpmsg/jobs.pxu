@@ -67,6 +67,12 @@ requires:
     manifest.has_preload_rpmsg_pingpong_firmware == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-device
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+    ce-oem-rpmsg/detect-virtio
+    ce-oem-rpmsg/detect-channel
 user: root
 plugin: shell
 command:
@@ -81,6 +87,12 @@ requires:
     manifest.has_preload_rpmsg_string_echo_firmware == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-device
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+    ce-oem-rpmsg/detect-virtio
+    ce-oem-rpmsg/detect-channel
 user: root
 plugin: shell
 command:
@@ -114,6 +126,14 @@ requires:
     manifest.has_rpmsg == 'True'
     manifest.has_rpmsg_firmware_load == 'True'
 imports: from com.canonical.plainbox import manifest
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+    ce-oem-rpmsg/detect-virtio
+    ce-oem-rpmsg/detect-channel
+    ce-oem-rpmsg/serial-tty
+    ce-oem-rpmsg/pingpong
 flags: also-after-suspend
 user: root
 plugin: shell

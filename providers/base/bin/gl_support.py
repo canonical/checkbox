@@ -28,9 +28,10 @@ from pathlib import Path
 
 # Checkbox could run in a snap container, so we need to prepend this root path
 try:
-    CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
+    # don't use $CHECKBOX_RUNTIME in Path(), it has multiple paths
+    CHECKBOX_RUNTIME = Path(os.environ["SNAP"]) / "checkbox-runtime"
 except KeyError:  # from indexing os.environ
-    CHECKBOX_RUNTIME = None
+    CHECKBOX_RUNTIME = None  # pyright: ignore[reportConstantRedefinition]
 GLMARK2_DATA_PATH = Path("/usr/share/glmark2")
 
 
@@ -151,7 +152,10 @@ class GLSupportTester:
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 path is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-                src = CHECKBOX_RUNTIME / GLMARK2_DATA_PATH
+
+                # do not directly truediv against GLMARK2_DATA_PATH
+                # absolute path on the right will overwrite the left hand side
+                src = CHECKBOX_RUNTIME / "usr" / "share" / "glmark2"
                 dst = GLMARK2_DATA_PATH
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
@@ -159,9 +163,7 @@ class GLSupportTester:
                     )
                 )
                 os.symlink(src, dst, target_is_directory=True)
-            # override is needed for snaps on classic ubuntu
-            # to allow the glmark2 command itself to be discovered
-            # in debian version of checkbox this line does nothing
+
             glmark2_output = sp.check_output(
                 # all glmark2 programs share the same args
                 [glmark2_executable, "--off-screen", "--validate"],

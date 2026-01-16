@@ -12,11 +12,13 @@ from datetime import datetime
 import time
 import platform
 
-# Checkbox could run in a snap container, so we need to prepend this root path
-RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
 SNAP = os.getenv("SNAP", default="").rstrip("/")
+if SNAP:
+    RUNTIME_ROOT = "{}/checkbox-runtime".format(SNAP)
+else:
+    RUNTIME_ROOT = ""  # pyright: ignore[reportConstantRedefinition]
 # global const for subprocess calls that should timeout
 COMMAND_TIMEOUT_SECONDS = 30
 

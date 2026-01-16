@@ -66,10 +66,6 @@ plugs:
     content: custom-frontend
     target: $SNAP/custom_frontends/custom_frontend
 
-layout: 
-  /usr/share/glmark2:
-    bind: $SNAP/usr/share/glmark2
-
 apps:
   checkbox:
     command: bin/checkbox-cli

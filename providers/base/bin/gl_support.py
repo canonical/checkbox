@@ -32,13 +32,9 @@ CHECKBOX_RUNTIME = None
 if "SNAP" in os.environ:
     # don't use $CHECKBOX_RUNTIME in Path() unless in classic
     if in_classic_snap():
-        CHECKBOX_RUNTIME = Path(  # pyright: ignore[reportConstantRedefinition]
-            os.environ["CHECKBOX_RUNTIME"]
-        )
+        CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
     else:
-        CHECKBOX_RUNTIME = (  # pyright: ignore[reportConstantRedefinition]
-            Path(os.environ["SNAP"]) / "checkbox-runtime"
-        )
+        CHECKBOX_RUNTIME = Path(os.environ["SNAP"]) / "checkbox-runtime"
 
 GLMARK2_DATA_PATH = Path("/usr/share/glmark2")
 

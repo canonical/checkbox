@@ -1,5 +1,5 @@
 unit: manifest entry
 id: need_gadget_interface_test
 _name: Gadget
-_promt: Does platform have plugs and slots been defined in Gadget snap and need to be verify?
+_prompt: Does platform have plugs and slots been defined in Gadget snap and need to be verify?
 value-type: bool

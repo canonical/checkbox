@@ -22,7 +22,7 @@ include:
 id: server-memory
 unit: test plan
 _name: Automated memory tests (Server)
-_desctiption: Automated memory tests for Server Cert
+_description: Automated memory tests for Server Cert
 include:
     memory/info                 certification-status=blocker
     stress/memory_stress_ng     certification-status=blocker

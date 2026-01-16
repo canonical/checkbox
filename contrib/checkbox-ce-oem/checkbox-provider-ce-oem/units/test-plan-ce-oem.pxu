@@ -52,11 +52,8 @@ nested_part:
     ce-oem-regulator-manual
     ce-oem-graphics-manual
     ce-oem-rpmsg-manual
-<<<<<<< HEAD
     ce-oem-barcode-scanner-manual
-=======
     ce-oem-printer-manual
->>>>>>> bbc87233d (Add printer test)
 certification_status_overrides:
     apply blocker to .*
 
@@ -105,11 +102,8 @@ nested_part:
     ce-oem-graphics-automated
     ce-oem-video-codec-automated
     ce-oem-rpmsg-automated
-<<<<<<< HEAD
     ce-oem-barcode-scanner-automated
-=======
     ce-oem-printer-automated
->>>>>>> bbc87233d (Add printer test)
 certification_status_overrides:
     apply blocker to .*
 
@@ -143,11 +137,8 @@ nested_part:
     after-suspend-ce-oem-digital-io-manual
     after-suspend-ce-oem-mir-automated
     after-suspend-ce-oem-regulator-manual
-<<<<<<< HEAD
     after-suspend-ce-oem-barcode-scanner-manual
-=======
     after-suspend-ce-oem-printer-manual
->>>>>>> bbc87233d (Add printer test)
 certification_status_overrides:
     apply blocker to .*
 
@@ -184,11 +175,8 @@ nested_part:
     after-suspend-ce-oem-digital-io-automated
     after-suspend-ce-oem-spi-automated
     after-suspend-ce-oem-regulator-automated
-<<<<<<< HEAD
     after-suspend-ce-oem-barcode-scanner-automated
-=======
     after-suspend-ce-oem-printer-automated
->>>>>>> bbc87233d (Add printer test)
 certification_status_overrides:
     apply blocker to .*
 

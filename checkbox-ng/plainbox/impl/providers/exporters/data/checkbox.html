@@ -218,7 +218,7 @@
                     {%- endfor %}
                     {%- if has_any_not_supported|length > 0 %}
                     <h2>Not Supported Tests</h2>
-                    <p>The following tests are part of the test plan but were not run because they don't match the device's available features (for instance, wireless tests are skipped on a device without a WiFi chip).</p>
+                    <p>The following tests are part of the test plan but were not run because they don't match the device's available features (for example, wireless tests are skipped on a device without a WiFi chip).</p>
                     {%- for cat_id, cat_name in category_map|dictsort(false, 'value') %}
                     {% set mainloop = loop %}
                     {%- set has_not_supported = [] %}

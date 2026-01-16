@@ -43,7 +43,8 @@ include:
     after-suspend-led/mute             certification-status=blocker
     after-suspend-led/microphone-mute  certification-status=blocker
     after-suspend-led/wireless         certification-status=blocker
-    after-suspend-led/power-blink-suspend
+    led/power-blink-suspend
+    led/suspend
 bootstrap_include:
     device
 

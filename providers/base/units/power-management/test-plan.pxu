@@ -21,16 +21,14 @@ unit: test plan
 _name: Power Management precheck tests (Manual)
 _description: Power Management precheck tests (Manual)
 include:
-    power-management/suspend-on-battery-power      certification-status=blocker
-    power-management/suspend-on-AC-power           certification-status=blocker
 
 id: after-suspend-power-management-precheck-cert-manual
 unit: test plan
 _name: Power Management precheck tests (Manual)
 _description: Power Management precheck tests (Manual)
 include:
-    after-suspend-power-management/suspend-on-battery-power      certification-status=blocker
-    after-suspend-power-management/suspend-on-AC-power           certification-status=blocker
+    power-management/suspend-on-battery-power      certification-status=blocker
+    power-management/suspend-on-AC-power           certification-status=blocker
 
 id: power-management-precheck-cert-automated
 unit: test plan

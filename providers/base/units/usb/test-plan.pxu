@@ -32,6 +32,8 @@ _description:
  USB tests (Automated)
 include:
  usb/detect                                 certification-status=blocker
+ usb/storage-detect
+ usb/storage-preinserted-.*
 
 id: after-suspend-usb-cert-automated
 unit: test plan
@@ -40,6 +42,8 @@ _description:
  USB tests (Automated)
 include:
  after-suspend-usb/detect                                 certification-status=blocker
+ after-suspend-usb/storage-detect
+ after-suspend-usb/storage-preinserted-.*
 
 id: usb3-cert-full
 unit: test plan

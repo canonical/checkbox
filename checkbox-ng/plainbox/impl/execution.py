@@ -773,7 +773,6 @@ def get_execution_command_systemd_unit(
     limitation on core16's systemd that makes commands longer than 2k
     characters. See: https://github.com/systemd/systemd/issues/3302
     """
-
     wrapper_cmd = [
         "sudo",
         "--prompt",
@@ -790,27 +789,50 @@ def get_execution_command_systemd_unit(
     if target_user != "root":
         wrapper_cmd += ["-pam", "system-login"]
     cmd = []
-    env = get_differential_execution_environment(
-        job, environ, session_id, nest_dir, extra_env
-    )
-    env_cmds = [
-        "{key}={value}".format(key=key, value=value)
-        for key, value in sorted(env.items())
-    ] + ["SYSTEMD_IGNORE_CHROOT=1"]
-    # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
-    # any systemd command will not work
     if on_ubuntucore():
+        if target_user != "root":
+            # if we aren't root we need to temporarely give ourselves some
+            # capabilities to mount the namespace
+            # from linux/capability.h
+            # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7))}
+            CAP_SETGID = 6  # necessary for setpriv
+            CAP_SETUID = 7  # necessary for setpriv
+            CAP_SYS_CHROOT = 18  # necessary for nsenter
+            CAP_SYS_ADMIN = 21  # necessary for nsenter
+            ambient_capabilities_bitset = (
+                1 << CAP_SETGID
+                | 1 << CAP_SETUID
+                | 1 << CAP_SYS_CHROOT
+                | 1 << CAP_SYS_ADMIN
+            )
+            wrapper_cmd += [
+                "-ambient-capabilities",
+                str(ambient_capabilities_bitset),
+            ]
         # when in a core snap, we need the snap mount namespace to use anything
         # that was shared via a content interface
         snap_name = os.getenv("SNAP_NAME", "checkbox")
         cmd += [
-            "sudo",
-            shutil.which("nsenter"),
+            # Note: don't make this absolute! We must use the system nsenter
+            #       as we have yet to mount the namespace, so the snap one wont
+            #       work
+            "nsenter",
             "-m/run/snapd/ns/{}.mnt".format(snap_name),
-            "sudo",
-            "-u",
-            target_user,
         ]
+        if target_user != "root":
+            # in order to call nsenter from normal user we had to set special
+            # capabilities, here we have to drop them or our process will be
+            # user but with (effectively) root capabilities
+            cmd += ["setpriv", "--inh-caps=-all"]
+    env = get_differential_execution_environment(
+        job, environ, session_id, nest_dir, extra_env
+    )
+    # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
+    # any systemd command will not work
+    env_cmds = [
+        "{key}={value}".format(key=key, value=value)
+        for key, value in sorted(env.items())
+    ] + ["SYSTEMD_IGNORE_CHROOT=1"]
     cmd += ["env", *env_cmds, job.shell, "-c", job.command]
     cmd_text = " ".join(shlex.quote(x) for x in cmd)
     with tempfile.NamedTemporaryFile(
@@ -820,7 +842,7 @@ def get_execution_command_systemd_unit(
         suffix=".sh",
         dir="/var/tmp",
     ) as f:
-        f.write("#!/bin/bash\nexec ")
+        f.write("#!/bin/bash\n")
         f.write(cmd_text)
         os.chmod(f.name, 0o777)
         path = f.name

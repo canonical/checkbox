@@ -86,18 +86,24 @@
                                 datasets: [{
                                     data: [
                                         {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                        {%- if outcome != 'not-supported' %}
                                         {{ total }},
+                                        {%- endif %}
                                         {%- endfor %}
                                     ],
                                     backgroundColor: [
                                         {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                        {%- if outcome != 'not-supported' %}
                                         "{{ OUTCOME_METADATA_MAP[outcome].color_hex }}",
+                                        {%- endif %}
                                         {%- endfor %}
                                     ],
                                 }],
                                 labels: [
                                     {%- for outcome, total in state.get_test_outcome_stats()|dictsort %}
+                                    {%- if outcome != 'not-supported' %}
                                     "{{ OUTCOME_METADATA_MAP[outcome].tr_label }}",
+                                    {%- endif %}
                                     {%- endfor %}
                                 ]
                             },
@@ -170,6 +176,11 @@
                     </fieldset>
                     {%- for cat_id, cat_name in category_map|dictsort(false, 'value') %}
                     {% set mainloop = loop %}
+                    {%- set has_supported = [] %}
+                    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.result.outcome != 'not-supported' and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
+                        {%- if has_supported.append(1) %}{% endif %}
+                    {%- endfor %}
+                    {%- if has_supported|length > 0 %}
                     <div data-role="collapsible" data-filter="true" data-input="#filterTable-input1" class="openMe" style="margin: 0;" data-content-theme="false">
                     <h3>{{ cat_name }}<span class="ui-li-count {{ OUTCOME_METADATA_MAP[category_outcome_map[cat_id]].tr_label }}Count">{{ OUTCOME_METADATA_MAP[category_outcome_map[cat_id]].tr_label }}</span></h3>
                         <table data-role="table" id="{{ cat_id }}" data-filter="true" data-input="#filterTable-input1" class="ui-body-d ui-shadow table-stroke ui-responsive">
@@ -178,7 +189,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
+                            {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.result.outcome != 'not-supported' and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
                                 <tr>
                                     <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
                                     <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
@@ -198,8 +209,51 @@
                             </tbody>
                         </table>
                     </div>
+                    {%- endif %}
                     {%- endfor %}
                     <p></p>
+                    {%- set has_any_not_supported = [] %}
+                    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome == 'not-supported' and job_state.job.plugin not in ("resource", "attachment") %}
+                        {%- if has_any_not_supported.append(1) %}{% endif %}
+                    {%- endfor %}
+                    {%- if has_any_not_supported|length > 0 %}
+                    <h2>Not Supported Tests</h2>
+                    <p>The following tests are part of the test plan but were not run because they don't match the device's available features (for example, wireless tests are skipped on a device without a WiFi chip).</p>
+                    {%- for cat_id, cat_name in category_map|dictsort(false, 'value') %}
+                    {% set mainloop = loop %}
+                    {%- set has_not_supported = [] %}
+                    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome == 'not-supported' and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
+                        {%- if has_not_supported.append(1) %}{% endif %}
+                    {%- endfor %}
+                    {%- if has_not_supported|length > 0 %}
+                    <div data-role="collapsible" data-filter="true" data-input="#filterTable-input1" class="openMe" style="margin: 0;" data-content-theme="false">
+                    <h3>{{ cat_name }}</h3>
+                        <table data-role="table" id="{{ cat_id }}-not-supported" data-filter="true" data-input="#filterTable-input1" class="ui-body-d ui-shadow table-stroke ui-responsive">
+                            <thead>
+                                <tr class="ui-bar-d">
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome == 'not-supported' and job_state.effective_category_id == cat_id and job_state.job.plugin not in ("resource", "attachment") %}
+                                <tr>
+                                    <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
+                                    <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
+                                    {%- if job_state.effective_certification_status != "non-blocker" %}
+                                    <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
+                                    {%- else %}
+                                    <td style='width:10%'></td>
+                                    {%- endif %}
+                                    <td style='width:10%'></td>
+                                    <td style='width:35%'>{% autoescape false %}{{ job_state.result.comments if job_state.result.comments != None }}{% endautoescape %}</td>
+                                </tr>
+                            {%- endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {%- endif %}
+                    {%- endfor %}
+                    <p></p>
+                    {%- endif %}
                     <h2>Logs</h2>
                     {%- if resource_map %}
                     <div data-role="collapsible" data-filter="true" data-input="#filterTable-input1" class="openMe" data-content-theme="false">

@@ -769,9 +769,9 @@ def get_execution_command_systemd_unit(
     executed not as a child process of Checkbox in the current slice, but as a
     new transient systemd unit in the appropriate slice for the user.
 
-    Note: This dumps the command to a temporary file because there is a
+    Note: Dumps the command to a temporary file because there is a
     limitation on core16's systemd that makes commands longer than 2k
-    characters. See: https://github.com/systemd/systemd/issues/3302
+    characters fail. See: https://github.com/systemd/systemd/issues/3302
     """
     wrapper_cmd = [
         "sudo",
@@ -791,7 +791,7 @@ def get_execution_command_systemd_unit(
     cmd = []
     if on_ubuntucore():
         if target_user != "root":
-            # if we aren't root we need to temporarely give ourselves some
+            # if we aren't root we need to temporarily give ourselves some
             # capabilities to mount the namespace
             # from linux/capability.h
             # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7))}
@@ -814,7 +814,7 @@ def get_execution_command_systemd_unit(
         snap_name = os.getenv("SNAP_NAME", "checkbox")
         cmd += [
             # Note: don't make this absolute! We must use the system nsenter
-            #       as we have yet to mount the namespace, so the snap one wont
+            #       as we have yet to mount the namespace, so the snap one won't
             #       work
             "nsenter",
             "-m/run/snapd/ns/{}.mnt".format(snap_name),
@@ -828,7 +828,7 @@ def get_execution_command_systemd_unit(
         job, environ, session_id, nest_dir, extra_env
     )
     # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
-    # any systemd command will not work
+    # no systemd command will work
     env_cmds = [
         "{key}={value}".format(key=key, value=value)
         for key, value in sorted(env.items())

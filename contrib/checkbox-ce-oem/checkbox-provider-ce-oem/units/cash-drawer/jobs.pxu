@@ -3,6 +3,8 @@ _summary: Test cash drawer functionality
 _purpose:
     This test verifies that the cash drawer is correctly installed and the drawer
     can be opened.
+    # This job rely on user identification of the cash drawer port.
+    # e.g : /dev/ttyS3
 plugin: user-interact-verify
 user: root
 category_id: cash_drawer

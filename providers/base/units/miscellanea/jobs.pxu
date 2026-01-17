@@ -568,6 +568,20 @@ requires:
   bootloader.name == "grub"
 command: grub_file_check.sh
 
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/screen-private-ppa
+user: root
+command:
+  if grep -qrE 'private-ppa\.launchpad(|content)\.net' "/etc/apt/sources.list"* ; then
+      >&2 printf 'The following files have private PPA access:\n'
+      >&2 grep -lrE 'private-ppa\.launchpad(|content)\.net' "/etc/apt/sources.list"*
+      exit 1
+  fi
+_summary: check if any private ppas are added
+_description:
+ This checks if any private ppas are added to the system, fails if any found.
+
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/wallpaper

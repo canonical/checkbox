@@ -4,6 +4,7 @@
 # Copyright 2024 Canonical Ltd.
 # Written by:
 #   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -23,15 +24,6 @@ import typing as T
 import os
 import platform
 import argparse
-from pathlib import Path
-
-
-# Checkbox could run in a snap container, so we need to prepend this root path
-try:
-    CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
-except KeyError:  # from indexing os.environ
-    CHECKBOX_RUNTIME = None
-GLMARK2_DATA_PATH = Path("/usr/share/glmark2")
 
 
 class GLSupportTester:
@@ -65,7 +57,7 @@ class GLSupportTester:
         """Checks if gl_renderer is produced by a hardware renderer.
 
         This uses the same logic as unity_support_test. Details:
-        https://github.com/canonical/checkbox/issues/1630#issuecomment-2540843110
+        https://github.com/canonical/checkbox/issues/1630#issuecomment-2540843110 # noqa: E501
 
         :param gl_renderer: the GL_RENDERER string.
         https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetString.xhtml
@@ -113,14 +105,16 @@ class GLSupportTester:
         self, glmark2_executable_override: "str | None" = None
     ) -> str:
         """
-        Calls 'glmark2 --validate --offscreen' with the symlink hack,
-        but allow errors to be thrown unlike reboot_check_test.py
+        Calls 'glmark2 --validate --offscreen'
+        but allow errors to be thrown early
 
         :raises SystemExit: when XDG_SESSION_TYPE is not x11/wayland
         :return: stdout of `glmark2 --validate`
         """
 
         XDG_SESSION_TYPE = os.environ.get("XDG_SESSION_TYPE")
+        XDG_RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR")
+
         if XDG_SESSION_TYPE not in ("x11", "wayland"):
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
@@ -130,6 +124,7 @@ class GLSupportTester:
             )
 
         print("XDG_SESSION type used by the desktop is:", XDG_SESSION_TYPE)
+        print("XDG_RUNTIME_DIR is:", XDG_RUNTIME_DIR)
 
         if glmark2_executable_override is not None:
             if shutil.which(glmark2_executable_override) is None:
@@ -144,38 +139,14 @@ class GLSupportTester:
                 XDG_SESSION_TYPE, platform.uname().machine
             )
 
-        try:
-            if CHECKBOX_RUNTIME and not os.path.exists(GLMARK2_DATA_PATH):
-                # the official way to specify the location of the data files
-                # is "--data-path path/to/data/files"
-                # but 16, 18, 20 doesn't have this option
-                # and the /usr/share/glmark2 path is hard-coded inside glmark2
-                # by the GLMARK_DATA_PATH build macro
-                src = CHECKBOX_RUNTIME / GLMARK2_DATA_PATH
-                dst = GLMARK2_DATA_PATH
-                print(
-                    "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
-                        src, dst
-                    )
-                )
-                os.symlink(src, dst, target_is_directory=True)
-            # override is needed for snaps on classic ubuntu
-            # to allow the glmark2 command itself to be discovered
-            # in debian version of checkbox this line does nothing
-            glmark2_output = sp.check_output(
-                # all glmark2 programs share the same args
-                [glmark2_executable, "--off-screen", "--validate"],
-                universal_newlines=True,
-                # be more relaxed on this timeout in case
-                # the device needs a lot of time to wake up the GPU
-                timeout=120,
-            )
-            return glmark2_output
-        finally:
-            # immediately cleanup
-            if CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_PATH):
-                print("[ DEBUG ] Un-symlinking glmark2 data")
-                os.unlink(GLMARK2_DATA_PATH)
+        return sp.check_output(
+            # all glmark2 programs share the same args
+            [glmark2_executable, "--off-screen", "--validate"],
+            universal_newlines=True,
+            # be more relaxed on this timeout in case
+            # the device needs a lot of time to wake up the GPU
+            timeout=120,
+        )
 
 
 def remove_prefix(s: str, prefix: str) -> str:

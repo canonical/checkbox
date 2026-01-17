@@ -53,6 +53,7 @@ nested_part:
     ce-oem-graphics-manual
     ce-oem-rpmsg-manual
     ce-oem-barcode-scanner-manual
+    ce-oem-printer-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -102,6 +103,7 @@ nested_part:
     ce-oem-video-codec-automated
     ce-oem-rpmsg-automated
     ce-oem-barcode-scanner-automated
+    ce-oem-printer-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -136,6 +138,7 @@ nested_part:
     after-suspend-ce-oem-mir-automated
     after-suspend-ce-oem-regulator-manual
     after-suspend-ce-oem-barcode-scanner-manual
+    after-suspend-ce-oem-printer-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -173,6 +176,7 @@ nested_part:
     after-suspend-ce-oem-spi-automated
     after-suspend-ce-oem-regulator-automated
     after-suspend-ce-oem-barcode-scanner-automated
+    after-suspend-ce-oem-printer-automated
 certification_status_overrides:
     apply blocker to .*
 

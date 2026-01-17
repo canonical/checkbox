@@ -37,6 +37,8 @@ import shlex
 import signal
 import shutil
 
+from contextlib import suppress
+
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
@@ -345,44 +347,44 @@ class UnifiedRunner(IJobRunner):
         with self.configured_filesystem(job) as nest_dir:
             # Get the command and the environment.
             # of this execution controller
-            cmd = get_execution_command(
+            with get_execution_command(
                 job,
                 environ,
                 self._session_id,
                 nest_dir,
                 target_user,
                 self._extra_env,
-            )
-            env = get_execution_environment(
-                job, environ, self._session_id, nest_dir
-            )
-            if self._user_provider():
-                env["NORMAL_USER"] = self._user_provider()
-            # Always set SYSTEMD_IGNORE_CHROOT
-            # See https://bugs.launchpad.net/snapd/+bug/2003955
-            env["SYSTEMD_IGNORE_CHROOT"] = "1"
-            # run the command
-            logger.info(
-                _("Starting job [%(ID)s] executing: %(CMD)r"),
-                {"ID": job.id, "CMD": join_cmd(cmd)},
-            )
-            if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
-                return_code = call(
-                    extcmd_popen, cmd, stdin=subprocess.PIPE, env=env
+            ) as cmd:
+                env = get_execution_environment(
+                    job, environ, self._session_id, nest_dir
                 )
-            else:
-                with self.temporary_cwd(job) as cwd_dir:
+                if self._user_provider():
+                    env["NORMAL_USER"] = self._user_provider()
+                # Always set SYSTEMD_IGNORE_CHROOT
+                # See https://bugs.launchpad.net/snapd/+bug/2003955
+                env["SYSTEMD_IGNORE_CHROOT"] = "1"
+                # run the command
+                logger.info(
+                    _("Starting job [%(ID)s] executing: %(CMD)r"),
+                    {"ID": job.id, "CMD": join_cmd(cmd)},
+                )
+                if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
                     return_code = call(
-                        extcmd_popen,
-                        cmd,
-                        stdin=subprocess.PIPE,
-                        env=env,
-                        cwd=cwd_dir,
+                        extcmd_popen, cmd, stdin=subprocess.PIPE, env=env
                     )
-            logger.info("Finished job [{}]".format(job.id))
-            if "noreturn" in job.get_flag_set():
-                signal.pause()
-            return return_code
+                else:
+                    with self.temporary_cwd(job) as cwd_dir:
+                        return_code = call(
+                            extcmd_popen,
+                            cmd,
+                            stdin=subprocess.PIPE,
+                            env=env,
+                            cwd=cwd_dir,
+                        )
+                logger.info("Finished job [{}]".format(job.id))
+                if "noreturn" in job.get_flag_set():
+                    signal.pause()
+                return return_code
 
     @contextlib.contextmanager
     def configured_filesystem(self, job):
@@ -704,6 +706,7 @@ def get_differential_execution_environment(
     return delta_env
 
 
+@contextlib.contextmanager
 def get_execution_command_subshell(
     job, environ, session_id, nest_dir, target_user=None, extra_env=None
 ):
@@ -751,9 +754,10 @@ def get_execution_command_subshell(
     if on_ubuntucore():
         cmd += ["aa-exec", "-p", "unconfined"]
     cmd += [job.shell, "-c", job.command]
-    return cmd
+    yield cmd
 
 
+@contextlib.contextmanager
 def get_execution_command_systemd_unit(
     job, environ, session_id, nest_dir, target_user, extra_env=None
 ):
@@ -764,9 +768,12 @@ def get_execution_command_systemd_unit(
     This is different from get_execution_command_subshell because the new job is
     executed not as a child process of Checkbox in the current slice, but as a
     new transient systemd unit in the appropriate slice for the user.
-    """
 
-    cmd = [
+    Note: Dumps the command to a temporary file because there is a
+    limitation on core16's systemd that makes commands longer than 2k
+    characters fail. See: https://github.com/systemd/systemd/issues/3302
+    """
+    wrapper_cmd = [
         "sudo",
         "--prompt",
         "",
@@ -780,27 +787,69 @@ def get_execution_command_systemd_unit(
         target_user,
     ]
     if target_user != "root":
-        cmd += ["-pam", "system-login"]
-    env = get_differential_execution_environment(
-        job, environ, session_id, nest_dir, extra_env
-    )
-    env_cmds = [
-        "{key}={value}".format(key=key, value=value)
-        for key, value in sorted(env.items())
-    ] + ["SYSTEMD_IGNORE_CHROOT=1"]
-    # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
-    # any systemd command will not work
+        wrapper_cmd += ["-pam", "system-login"]
+    cmd = []
     if on_ubuntucore():
+        if target_user != "root":
+            # if we aren't root we need to temporarily give ourselves some
+            # capabilities to mount the namespace
+            # from linux/capability.h
+            # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7))}
+            CAP_SETGID = 6  # necessary for setpriv
+            CAP_SETUID = 7  # necessary for setpriv
+            CAP_SYS_CHROOT = 18  # necessary for nsenter
+            CAP_SYS_ADMIN = 21  # necessary for nsenter
+            ambient_capabilities_bitset = (
+                1 << CAP_SETGID
+                | 1 << CAP_SETUID
+                | 1 << CAP_SYS_CHROOT
+                | 1 << CAP_SYS_ADMIN
+            )
+            wrapper_cmd += [
+                "-ambient-capabilities",
+                str(ambient_capabilities_bitset),
+            ]
         # when in a core snap, we need the snap mount namespace to use anything
         # that was shared via a content interface
         snap_name = os.getenv("SNAP_NAME", "checkbox")
         cmd += [
-            "sudo",
-            shutil.which("nsenter"),
+            # Note: don't make this absolute! We must use the system nsenter
+            #       as we have yet to mount the namespace, so the snap one won't
+            #       work
+            "nsenter",
             "-m/run/snapd/ns/{}.mnt".format(snap_name),
-            "sudo",
-            "-u",
-            target_user,
         ]
+        if target_user != "root":
+            # in order to call nsenter from normal user we had to set special
+            # capabilities, here we have to drop them or our process will be
+            # user but with (effectively) root capabilities
+            cmd += ["setpriv", "--inh-caps=-all"]
+    env = get_differential_execution_environment(
+        job, environ, session_id, nest_dir, extra_env
+    )
+    # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
+    # no systemd command will work
+    env_cmds = [
+        "{key}={value}".format(key=key, value=value)
+        for key, value in sorted(env.items())
+    ] + ["SYSTEMD_IGNORE_CHROOT=1"]
     cmd += ["env", *env_cmds, job.shell, "-c", job.command]
-    return cmd
+    cmd_text = " ".join(shlex.quote(x) for x in cmd)
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        delete=False,
+        prefix="job_command_",
+        suffix=".sh",
+        dir="/var/tmp",
+    ) as f:
+        f.write("#!/bin/bash\n")
+        f.write(cmd_text)
+        os.chmod(f.name, 0o777)
+        path = f.name
+
+    wrapper_cmd.append(path)
+    try:
+        yield wrapper_cmd
+    finally:
+        with suppress(OSError):
+            os.remove(f.name)

@@ -47,23 +47,36 @@ class UnifiedRunnerTests(TestCase):
         self.assertTrue(output_writer.on_end.called)
         self.assertEqual(result.outcome, "fail")
 
+    @mock.patch("os.chmod")
+    @mock.patch("tempfile.NamedTemporaryFile")
     @mock.patch("shutil.which")
     @mock.patch(
         "plainbox.impl.execution.get_differential_execution_environment"
     )
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
     def test_get_execution_command_systemd_unit_command_and_envvars(
-        self, mock_on_ubuntucore, mock_get_diff_env, mock_shutil_which
+        self,
+        mock_on_ubuntucore,
+        mock_get_diff_env,
+        mock_shutil_which,
+        mock_temp_file,
+        mock_chmod,
     ):
         job = mock.Mock(shell="bash", command="test_command")
         mock_on_ubuntucore.return_value = False
         mock_get_diff_env.return_value = {"TEST_VAR": "test_value"}
         mock_shutil_which.return_value = "/usr/bin/plz-run"
 
-        result = get_execution_command_systemd_unit(
+        mock_file = mock.MagicMock()
+        mock_file.name = "/var/tmp/job_command_test.sh"
+        mock_temp_file().__enter__.return_value = mock_file
+
+        with get_execution_command_systemd_unit(
             job, {}, "test_session", "/tmp/nest", "ubuntu", None
-        )
-        result = " ".join(result)
+        ) as result:
+            result = " ".join(result)
+
+        result += " ".join(str(x) for x in mock_file.write.call_args_list)
 
         # outside ubuntucore, there is no filesystem to mount
         self.assertNotIn("nsenter", result)
@@ -72,6 +85,8 @@ class UnifiedRunnerTests(TestCase):
         # user command are executed in a logged in slice/service
         self.assertIn("-pam", result)
 
+    @mock.patch("os.chmod")
+    @mock.patch("tempfile.NamedTemporaryFile")
     @mock.patch("shutil.which")
     @mock.patch(
         "plainbox.impl.execution.get_differential_execution_environment"
@@ -84,6 +99,8 @@ class UnifiedRunnerTests(TestCase):
         mock_on_ubuntucore,
         mock_get_diff_env,
         mock_shutil_which,
+        mock_temp_file,
+        mock_chmod,
     ):
         job = mock.Mock(shell="/bin/bash", command="test_command")
         mock_on_ubuntucore.return_value = True
@@ -95,10 +112,15 @@ class UnifiedRunnerTests(TestCase):
 
         mock_shutil_which.side_effect = shutil_which
 
-        result = get_execution_command_systemd_unit(
+        mock_file = mock.MagicMock()
+        mock_file.name = "/var/tmp/job_command_test.sh"
+        mock_temp_file().__enter__.return_value = mock_file
+
+        with get_execution_command_systemd_unit(
             job, {}, "test_session", "/tmp/nest", "root", None
-        )
-        result = " ".join(result)
+        ) as result:
+            result = " ".join(result)
+        result += " ".join(str(x) for x in mock_file.write.call_args_list)
 
         # on ubuntucore, ensure we mount the frontend filesystem
         self.assertIn("nsenter", result)
@@ -119,10 +141,10 @@ class UnifiedRunnerTests(TestCase):
         mock_on_ubuntucore.return_value = False
         mock_get_diff_env.return_value = {"TEST_VAR": "test_value"}
 
-        result = get_execution_command_subshell(
+        with get_execution_command_subshell(
             job, {}, "test_session", "/tmp/nest", "ubuntu", None
-        )
-        result = " ".join(result)
+        ) as result:
+            result = " ".join(result)
 
         self.assertIn("sudo", result)
         self.assertIn("TEST_VAR=test_value", result)
@@ -138,10 +160,10 @@ class UnifiedRunnerTests(TestCase):
         mock_on_ubuntucore.return_value = False
         mock_get_env.return_value = {"TEST_VAR": "test_value"}
 
-        result = get_execution_command_subshell(
+        with get_execution_command_subshell(
             job, {}, "test_session", "/tmp/nest", None, None
-        )
-        result = " ".join(result)
+        ) as result:
+            result = " ".join(result)
 
         self.assertNotIn("sudo", result)
         self.assertIn("TEST_VAR=test_value", result)
@@ -157,10 +179,10 @@ class UnifiedRunnerTests(TestCase):
         mock_on_ubuntucore.return_value = True
         mock_get_env.return_value = {"TEST_VAR": "test_value"}
 
-        result = get_execution_command_subshell(
+        with get_execution_command_subshell(
             job, {}, "test_session", "/tmp/nest", None, None
-        )
-        result = " ".join(result)
+        ) as result:
+            result = " ".join(result)
 
         self.assertNotIn("sudo", result)
         self.assertIn("TEST_VAR=test_value", result)

@@ -420,6 +420,54 @@ class TestRunWatcher(unittest.TestCase):
         mediacard_combo_storage._parse_journal_line(line_str)
         self.assertEqual(mediacard_combo_storage.action, None)
 
+    def test_mediacard_combo_storage_usb_sd_card_reader_insertion(self):
+        # Test USB SD card reader insertion detection
+        line_str = "sda: detected capacity change from 0 to 31116288"
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, "insertion")
+        self.assertEqual(
+            mediacard_combo_storage.device, "SD/MMC via USB reader"
+        )
+
+    def test_mediacard_combo_storage_usb_sd_card_reader_removal(self):
+        # Test USB SD card reader removal detection
+        line_str = "sda: detected capacity change from 31116288 to 0"
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, "removal")
+
+    def test_mediacard_combo_storage_usb_sd_card_reader_partition(self):
+        # Test partition extraction for USB SD card reader
+        # This tests the USBStorage path which also extracts sda partitions
+        line_str = " sda: sda1"
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.mounted_partition, "sda1")
+
+        # Test edge case with different device names
+        line_str = "sdb: sdb2"
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.mounted_partition, "sdb2")
+
+    def test_mediacard_combo_storage_usb_sd_card_reader_action_update(self):
+        # Test that action can be updated (removal then insertion)
+        mediacard_combo_storage = MediacardComboStorage("mediacard_combo")
+
+        # First detect removal
+        line_str = "sda: detected capacity change from 31116288 to 0"
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, "removal")
+
+        # Then detect insertion - action should update
+        line_str = "sda: detected capacity change from 0 to 31116288"
+        mediacard_combo_storage._parse_journal_line(line_str)
+        self.assertEqual(mediacard_combo_storage.action, "insertion")
+        self.assertEqual(
+            mediacard_combo_storage.device, "SD/MMC via USB reader"
+        )
+
     def test_thunderbolt_storage_init(self):
         thunderbolt_storage = ThunderboltStorage("thunderbolt")
         self.assertEqual(thunderbolt_storage.storage_type, "thunderbolt")

@@ -369,6 +369,23 @@ class MediacardComboStorage(MediacardStorage, USBStorage):
         MediacardStorage._parse_journal_line(self, line_str)
         USBStorage._parse_journal_line(self, line_str)
 
+        # Also handle SD card readers that appear as SCSI/USB mass storage (sd*)
+        # Check for capacity change patterns first (for action detection)
+        if (
+            "detected capacity change from 0 to" in line_str
+            and " to 0" not in line_str
+        ):
+            # This is an insertion - always update to reflect current action
+            self.action = "insertion"
+            self.device = "SD/MMC via USB reader"
+        elif (
+            "detected capacity change from" in line_str and " to 0" in line_str
+        ):
+            # This is a removal - always update to reflect current action
+            self.action = "removal"
+
+        return super()._parse_journal_line(line_str)
+
 
 class ThunderboltStorage(StorageWatcher):
     """

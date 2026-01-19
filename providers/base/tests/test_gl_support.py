@@ -131,14 +131,15 @@ class TestGLSupportTests(ut.TestCase):
                 mock_path_exists.return_value = not is_snap
                 # hack for this unittest, since we import gl_support early
                 # so the variable assignment was already done during import
-                gl_support.CHECKBOX_RUNTIME = PosixPath("/snap/runtime/path/")
+                gl_support.CHECKBOX_RUNTIME = PosixPath(
+                    "/snap/checkbox/20486/"
+                )
 
                 tester.call_glmark2_validate()
 
                 if is_snap:
                     mock_symlink.assert_called_once_with(
-                        gl_support.CHECKBOX_RUNTIME
-                        / gl_support.GLMARK2_DATA_PATH,
+                        PosixPath("/snap/checkbox/20486/usr/share/glmark2"),
                         PosixPath("/usr/share/glmark2"),
                         target_is_directory=True,
                     )

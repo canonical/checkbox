@@ -20,7 +20,7 @@ class DisplayConnectionTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.tester = RCT.HardwareRendererTester()
-        RCT.RUNTIME_ROOT = ""
+        RCT.CHECKBOX_RUNTIME = ""
         RCT.SNAP = ""
 
     def test_display_check_happy_path(self):
@@ -346,7 +346,7 @@ class DisplayConnectionTests(unittest.TestCase):
                 mock_run.side_effect = sp.TimeoutExpired("glmark2", 120)
             for is_snap in (True, False):
                 mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
-                RCT.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
+                RCT.CHECKBOX_RUNTIME = custom_env("CHECKBOX_RUNTIME", is_snap)
                 RCT.SNAP = custom_env("SNAP", is_snap)
                 mock_islink.return_value = is_snap
                 # deb case, the file actually exists
@@ -357,7 +357,7 @@ class DisplayConnectionTests(unittest.TestCase):
 
                 if is_snap:
                     mock_symlink.assert_called_once_with(
-                        "{}/usr/share/glmark2".format(RCT.RUNTIME_ROOT),
+                        "{}/usr/share/glmark2".format(RCT.CHECKBOX_RUNTIME),
                         "/usr/share/glmark2",
                         target_is_directory=True,
                     )

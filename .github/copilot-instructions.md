@@ -19,7 +19,7 @@ Keep guidance short and actionable. If you change behavior, link to a file or te
   2. Enable provider development and build helpers from inside the provider dir:
      - `(venv) $ ./manage.py develop -d $PROVIDERPATH` and `(venv) $ ./manage.py build` (see `CONTRIBUTING.md`).
   3. Install support libs for live edits: `(venv) $ cd checkbox-support && python -m pip install -e .`.
-  4. Run the app with `checkbox-cli` (installer script via `pyproject` entry-points).
+  4. Run the app with `checkbox-cli` (console script defined via `checkbox-ng/pyproject.toml` entry-points).
 
 - Tests and CI
   - Provider tests and checks: run `./manage.py test` from a provider directory (supports `-k` to select tests). See `CONTRIBUTING.md`.
@@ -31,7 +31,7 @@ Keep guidance short and actionable. If you change behavior, link to a file or te
   - Versioning: `setuptools_scm` is used (`checkbox-ng/setup.py`). Some build scripts set `SETUPTOOLS_SCM_PRETEND_VERSION` — be careful when changing version-related logic.
   - Commit signing: signed commits are required by CI (see `CONTRIBUTING.md`).
   - Provider code style: see `providers/README.md` for comprehensive guidelines. Key rules:
-    - Python: use `pathlib` (not `os.path`), `.format()` (not `%`), `subprocess` (not `os.system`), `argparse` for CLI, avoid regexes, always slugify resource fields.
+    - Python: use `pathlib` (not `os.path`), `.format` (not `%`), `subprocess` (not `os.system`), `argparse` for CLI, avoid regexes, always slugify resource fields.
     - PXU jobs: avoid nested bash loops/ifs (use Python scripts in `bin/`), don't destructively redirect output, declare environment variables explicitly.
     - PXU templates: no Jinja, template fields go at end of IDs, assume spaces in resource fields unless explicitly removed.
     - Dependencies: avoid at all costs; must support Ubuntu 18.04+ ESM and all architectures.

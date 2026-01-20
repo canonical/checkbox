@@ -38,6 +38,7 @@ import signal
 import shutil
 
 from contextlib import suppress
+from subprocess import check_output, check_call, run
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
@@ -757,6 +758,49 @@ def get_execution_command_subshell(
     yield cmd
 
 
+def get_plz_run(cmd: list):
+    """ """
+    return [
+        "sudo",
+        "--stdin",
+        shutil.which("plz-run"),
+    ] + cmd
+
+
+@contextlib.contextmanager
+def dangerous_nsenter(path):
+    """
+    Creates a dangerous nsenter copy at path with cap_sys_admin,cap_sys_chroot
+    """
+    if path is None:
+        # this command doens't need dangerous nsenter
+        yield path
+        return
+    try:
+        # here recover setcap and nsenter binaries path outside the sandbox
+        setcap_path = check_output(
+            get_plz_run(["bash", "-c", "which setcap"])
+        ).strip()
+        nsenter_path = check_output(
+            get_plz_run(["bash", "-c", "which nsenter"]),
+            universal_newlines=True,
+        ).strip()
+        check_call(get_plz_run(["cp", nsenter_path, path]))
+        check_call(
+            get_plz_run(
+                [
+                    setcap_path,
+                    "cap_sys_admin,cap_sys_chroot+ep",
+                    path,
+                ]
+            )
+        )
+        check_call(get_plz_run(["chmod", "777", path]))
+        yield path
+    finally:
+        run(get_plz_run(["rm", path]))
+
+
 @contextlib.contextmanager
 def get_execution_command_systemd_unit(
     job, environ, session_id, nest_dir, target_user, extra_env=None
@@ -789,26 +833,20 @@ def get_execution_command_systemd_unit(
     if target_user != "root":
         wrapper_cmd += ["-pam", "system-login"]
     cmd = []
+    dangerous_nsenter_path = None
     if on_ubuntucore():
         if target_user != "root":
-            # if we aren't root we need to temporarily give ourselves some
-            # capabilities to mount the namespace
-            # from linux/capability.h
-            # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7))}
-            CAP_SETGID = 6  # necessary for setpriv
-            CAP_SETUID = 7  # necessary for setpriv
-            CAP_SYS_CHROOT = 18  # necessary for nsenter
-            CAP_SYS_ADMIN = 21  # necessary for nsenter
-            ambient_capabilities_bitset = (
-                1 << CAP_SETGID
-                | 1 << CAP_SETUID
-                | 1 << CAP_SYS_CHROOT
-                | 1 << CAP_SYS_ADMIN
-            )
-            wrapper_cmd += [
-                "-ambient-capabilities",
-                str(ambient_capabilities_bitset),
-            ]
+            # here we need a dangerous copy of nsenter that works as "normal"
+            # user because the unit will be normal user and else it wont be
+            # able to mount the snap namespace
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                delete=False,
+                prefix="nsenter_",
+                dir="/var/tmp",
+            ) as f:
+                dangerous_nsenter_path = f.name
+
         # when in a core snap, we need the snap mount namespace to use anything
         # that was shared via a content interface
         snap_name = os.getenv("SNAP_NAME", "checkbox")
@@ -816,14 +854,13 @@ def get_execution_command_systemd_unit(
             # Note: don't make this absolute! We must use the system nsenter
             #       as we have yet to mount the namespace, so the snap one won't
             #       work
-            "nsenter",
+            (
+                "nsenter"
+                if dangerous_nsenter_path is None
+                else dangerous_nsenter_path
+            ),
             "-m/run/snapd/ns/{}.mnt".format(snap_name),
         ]
-        if target_user != "root":
-            # in order to call nsenter from normal user we had to set special
-            # capabilities, here we have to drop them or our process will be
-            # user but with (effectively) root capabilities
-            cmd += ["setpriv", "--inh-caps=-all"]
     env = get_differential_execution_environment(
         job, environ, session_id, nest_dir, extra_env
     )
@@ -848,8 +885,9 @@ def get_execution_command_systemd_unit(
         path = f.name
 
     wrapper_cmd.append(path)
-    try:
-        yield wrapper_cmd
-    finally:
-        with suppress(OSError):
-            os.remove(f.name)
+    with dangerous_nsenter(dangerous_nsenter_path):
+        try:
+            yield wrapper_cmd
+        finally:
+            with suppress(OSError):
+                os.remove(f.name)

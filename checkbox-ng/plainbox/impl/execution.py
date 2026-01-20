@@ -834,16 +834,17 @@ def get_execution_command_systemd_unit(
         wrapper_cmd += ["-pam", "system-login"]
     cmd = []
     dangerous_nsenter_path = None
+    # this location must be accessible and in the same path for both this
+    # process (that may be inside a snap) and the systemd unit (which is not)
+    # fallback mechanism is for debian/source checkbox
+    shared_location = os.getenv("SNAP_COMMON", "/var/tmp")
     if on_ubuntucore():
         if target_user != "root":
             # here we need a dangerous copy of nsenter that works as "normal"
             # user because the unit will be normal user and else it wont be
             # able to mount the snap namespace
             with tempfile.NamedTemporaryFile(
-                mode="w",
-                delete=False,
-                prefix="nsenter_",
-                dir="/var/tmp",
+                mode="w", delete=False, prefix="nsenter_", dir=shared_location
             ) as f:
                 dangerous_nsenter_path = f.name
 
@@ -877,7 +878,7 @@ def get_execution_command_systemd_unit(
         delete=False,
         prefix="job_command_",
         suffix=".sh",
-        dir="/var/tmp",
+        dir=shared_location,
     ) as f:
         f.write("#!/bin/bash\n")
         f.write(cmd_text)

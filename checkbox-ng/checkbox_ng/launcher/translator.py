@@ -138,6 +138,7 @@ def translate_requires(value):
     for requires_line in requires_lines:
         require, comment = split_comment(requires_line)
         if require:
+            require = require.strip()
             to_r.append(require)
             if comment:
                 to_r.yaml_add_eol_comment(comment, len(to_r) - 1)
@@ -159,13 +160,17 @@ def translate_single_multiline_stringable_values(value):
     to_r = CommentedSeq()
     if "\n" not in value:
         depends, comment = split_comment(value)
-        to_r += depends.split()
+        if "," in depends:
+            to_r += [x.strip() for x in depends.split(",")]
+        else:
+            to_r += depends.split()
         if comment:
             to_r.yaml_set_start_comment(comment)
         return to_r
     depends = value.splitlines()
     for depend in depends:
         depend, comment = split_comment(depend)
+        depend = depend.strip()
         if depend:
             to_r.append(depend)
             if comment:
@@ -179,6 +184,7 @@ def translate_single_multiline_stringable_values(value):
                 )
             else:
                 to_r.yaml_set_start_comment(comment)
+    return to_r
 
 
 @dont_translate_jinja
@@ -233,7 +239,7 @@ field_translators = {
     "id": identity,
     "unit": identity,
     "name": identity,
-    "description": identity,
+    "description": no_trailing_spaces,
     "estimated_duration": identity,
     "description": no_trailing_spaces,
     "os-id": identity,
@@ -241,18 +247,18 @@ field_translators = {
     "category_id": identity,
     "user": identity,
     "command": identity,
-    "summary": identity,
-    "purpose": identity,
-    "steps": identity,
-    "prompt": identity,
+    "summary": no_trailing_spaces,
+    "purpose": no_trailing_spaces,
+    "steps": no_trailing_spaces,
+    "prompt": no_trailing_spaces,
     "value-type": identity,
-    "hidden-reason": identity,
-    "verification": identity,
+    "hidden-reason": no_trailing_spaces,
+    "verification": no_trailing_spaces,
     "template-resource": identity,
     "template-unit": identity,
     "template-id": identity,
     "template-engine": identity,
-    "template-summary": identity,
+    "template-summary": no_trailing_spaces,
     "entry_point": identity,
     "file_extension": identity,
     "Depends": identity,
@@ -285,14 +291,14 @@ field_translators = {
 
 def translate_unit(unit_dict: dict) -> dict:
 
-    def no_translation(x):
+    def no_more_translations(x):
         if x.startswith("_"):
             return x[1:]
         return x
 
     to_return = {}
     for key, value in unit_dict.items():
-        key = no_translation(key)
+        key = no_more_translations(key)
         try:
             translated = field_translators[key](value)
             to_return[key] = translated

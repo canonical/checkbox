@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2023 Canonical Ltd.
+# Copyright 2025 Canonical Ltd.
 # Written by:
 #   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
@@ -17,7 +17,11 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from io import StringIO
+from textwrap import dedent
 from unittest import TestCase, mock
+
+from ruamel.yaml import YAML
 
 from checkbox_ng.launcher.translator import (
     split_comment,
@@ -68,3 +72,308 @@ class SplitStringableTests(TestCase):
             value, '"bluetooth/bluez-internal-hci-tests_Read Country Code"'
         )
         self.assertEqual(attributes, "certification-status=blocker")
+
+
+class TranslatorJobUnitTests(TestCase):
+
+    def _run_translator(self, pxu_input):
+        input_file = StringIO(pxu_input)
+        output_file = StringIO()
+
+        mock_path = mock.MagicMock()
+        mock_path.open.return_value.__enter__.return_value = input_file
+        mock_path.__str__.return_value = "test.pxu"
+
+        mock_yaml_path = mock.MagicMock()
+        mock_yaml_path.open.return_value.__enter__.return_value = output_file
+        mock_path.with_suffix.return_value = mock_yaml_path
+
+        mock_ctx = mock.MagicMock()
+        mock_ctx.args.paths = [mock_path]
+
+        translator = Translator()
+        translator.invoked(mock_ctx)
+
+        output_file.seek(0)
+        yaml = YAML()
+        return list(yaml.load_all(output_file))
+
+    def _parse_yaml(self, yaml_str):
+        yaml = YAML()
+        return list(yaml.load_all(StringIO(yaml_str)))
+
+    def assertYamlEqual(self, first, second):
+        """
+        Compare two yamls ignoring order of keys
+        """
+        first = [dict(sorted(x.items())) for x in first]
+        second = [dict(sorted(x.items())) for x in second]
+        self.assertEqual(first, second)
+
+    def test_basic_job_unit(self):
+        pxu_input = dedent(
+            """
+            id: test-job
+            _summary: A test job
+            plugin: shell
+            command: echo "hello"
+            requires: package.name == 'foo'
+            depends:
+                other-job
+                another-job
+            flags: simple, preserve-cwd
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            id: test-job
+            summary: A test job
+            plugin: shell
+            command: echo "hello"
+            requires:
+              - package.name == 'foo'
+            depends:
+              - other-job
+              - another-job
+            flags:
+              - simple
+              - preserve-cwd
+            """
+        ).strip()
+
+        result = self._run_translator(pxu_input)
+        expected = self._parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_job_unit_with_comments(self):
+        pxu_input = dedent(
+            """
+            id: test-job
+            _summary: A test job
+            plugin: shell
+            command: echo "hello"
+            requires: package.name == 'foo'  # need foo installed
+            depends: other-job another-job  # must run after these
+            flags: simple, preserve-cwd  # keep it simple
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            id: test-job  # the job identifier
+            summary: A test job
+            plugin: shell  # automated test
+            command: echo "hello"
+            requires:
+              - package.name == 'foo'  # need foo installed
+            depends:
+              - other-job
+              - another-job  # must run after these
+            flags:
+              - simple
+              - preserve-cwd  # keep it simple
+            """
+        ).strip()
+
+        result = self._run_translator(pxu_input)
+        expected = self._parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_multiline_fields(self):
+        pxu_input = dedent(
+            """
+            id: test-job
+            _summary: A test job
+            plugin: user-interact-verify
+            command:
+              echo "hello"
+            _purpose:
+              This test verifies that the thing works.
+              It does multiple checks.
+            _steps:
+              1. Do the first thing
+              2. Do the second thing
+              3. Observe the result
+            _verification:
+              Did the thing work correctly?
+            requires:
+              package.name == 'foo'
+              device.category == 'DISK'
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            id: test-job
+            summary: A test job
+            plugin: user-interact-verify
+            command: echo "hello"
+            purpose: |
+              This test verifies that the thing works.
+              It does multiple checks.
+            steps: |
+              1. Do the first thing
+              2. Do the second thing
+              3. Observe the result
+            verification: Did the thing work correctly?
+            requires:
+              - package.name == 'foo'
+              - device.category == 'DISK'
+            """
+        ).strip()
+
+        result = self._run_translator(pxu_input)
+        expected = self._parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_siblings_json_to_yaml(self):
+        pxu_input = dedent(
+            """
+            id: foo
+            _summary: foo foo foo
+            plugin: shell
+            command: echo "Hello world"
+            flags: simple
+            _siblings: [
+                { "id": "foo-after-suspend",
+                  "_summary": "foo foo foo after suspend",
+                  "depends": "suspend/advanced"},
+                { "id": "foo-after-reboot",
+                  "_summary": "foo foo foo after reboot",
+                  "depends": "reboot/advanced"}
+                ]
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            id: foo
+            summary: foo foo foo
+            plugin: shell
+            command: echo "Hello world"
+            flags:
+              - simple
+            siblings:
+              - id: foo-after-suspend
+                summary: foo foo foo after suspend
+                depends:
+                  - suspend/advanced
+              - id: foo-after-reboot
+                summary: foo foo foo after reboot
+                depends:
+                  - reboot/advanced
+            """
+        ).strip()
+
+        result = self._run_translator(pxu_input)
+        expected = self._parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_imports_lines_to_array(self):
+        pxu_input = dedent(
+            """
+            id: test-job
+            _summary: A test job
+            plugin: shell
+            command: echo "test"
+            imports:
+              from com.canonical.certification import cpuinfo
+              from com.canonical.certification import cpu-01-info as cpu01
+              from com.canonical.certification import meminfo
+            requires:
+              'armhf' in cpuinfo.platform
+              'avx2' in cpu01.other
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            id: test-job
+            summary: A test job
+            plugin: shell
+            command: echo "test"
+            imports:
+              - from com.canonical.certification import cpuinfo
+              - from com.canonical.certification import cpu-01-info as cpu01
+              - from com.canonical.certification import meminfo
+            requires:
+              - "'armhf' in cpuinfo.platform"
+              - "'avx2' in cpu01.other"
+            """
+        ).strip()
+
+        result = self._run_translator(pxu_input)
+        expected = self._parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_other_array_fields(self):
+        pxu_input = dedent(
+            """
+            id: test-job
+            _summary: A test job
+            plugin: shell
+            command: echo "test"
+            user: root
+            environ: HOME PATH DISPLAY
+            after: setup-job prepare-job
+            before: cleanup-job teardown-job
+            salvages: failed-job broken-job
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            id: test-job
+            summary: A test job
+            plugin: shell
+            command: echo "test"
+            user: root
+            environ:
+              - HOME
+              - PATH
+              - DISPLAY
+            after:
+              - setup-job
+              - prepare-job
+            before:
+              - cleanup-job
+              - teardown-job
+            salvages:
+              - failed-job
+              - broken-job
+            """
+        ).strip()
+
+        result = self._run_translator(pxu_input)
+        expected = self._parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_top_level_comment(self):
+        pxu_input = dedent(
+            """
+            # top level comments
+            # should be preserved (best effort)
+            id: test-job
+            _summary: A test job
+            # not this one, this one is impossible
+            plugin: shell
+            command: echo "test"
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            # top level comments
+            # should be preserved (best effort)
+            id: test-job
+            summary: A test job
+            # not this one, this one is impossible
+            plugin: shell
+            command: echo "test"
+            """
+        ).strip()
+
+        result = self._run_translator(pxu_input)
+        expected = self._parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)

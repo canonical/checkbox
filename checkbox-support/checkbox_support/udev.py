@@ -98,6 +98,11 @@ def get_udev_block_devices(udev_client):
 def get_udev_xhci_devices(udev_client):
     """
     Get a list of all devices on pci slots using xhci drivers
+
+    Detects various xHCI driver variants including:
+    - xhci_hcd (generic)
+    - xhci-hcd (ARM variant)
+    - xhci-pci-renesas (Renesas-specific)
     """
     # setup an enumerator so that we can list devices
     enumerator = GUdev.Enumerator(client=udev_client)
@@ -106,7 +111,7 @@ def get_udev_xhci_devices(udev_client):
     devices = [
         device
         for device in enumerator.execute()
-        if (device.get_driver() == "xhci_hcd")
+        if device.get_driver() and device.get_driver().startswith("xhci")
     ]
     # Sort the list, this is not needed but makes various debugging dumps
     # look better.

@@ -511,6 +511,7 @@ class DiskTest:
                 if (
                     device.get_driver() == "xhci-hcd"
                     or device.get_driver() == "xhci_hcd"
+                    or device.get_driver() == "xhci-pci-renesas"
                 )
             ]
         for udev_device_xhci in udev_devices_xhci:

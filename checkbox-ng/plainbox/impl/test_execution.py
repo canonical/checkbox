@@ -59,9 +59,7 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch("os.chmod")
     @mock.patch("tempfile.NamedTemporaryFile")
     @mock.patch("shutil.which")
-    @mock.patch(
-        "plainbox.impl.execution.get_differential_execution_environment"
-    )
+    @mock.patch("plainbox.impl.execution.get_execution_environment")
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
     def test_get_execution_command_systemd_unit_command_and_envvars(
         self,
@@ -97,9 +95,7 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch("os.chmod")
     @mock.patch("tempfile.NamedTemporaryFile")
     @mock.patch("shutil.which")
-    @mock.patch(
-        "plainbox.impl.execution.get_differential_execution_environment"
-    )
+    @mock.patch("plainbox.impl.execution.get_execution_environment")
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
     @mock.patch("os.getenv")
     def test_get_execution_command_systemd_unit_nsenter_on_core(

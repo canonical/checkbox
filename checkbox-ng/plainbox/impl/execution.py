@@ -862,9 +862,9 @@ def get_execution_command_systemd_unit(
             ),
             "-m/run/snapd/ns/{}.mnt".format(snap_name),
         ]
-    env = get_differential_execution_environment(
-        job, environ, session_id, nest_dir, extra_env
-    )
+    env = get_execution_environment(job, environ, session_id, nest_dir)
+    if extra_env:
+        env.update(extra_env())
     # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
     # no systemd command will work
     env_cmds = [

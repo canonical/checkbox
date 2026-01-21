@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2024 Canonical Ltd.
+# Copyright 2024-2025 Canonical Ltd.
 # Written by:
 #   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
@@ -22,12 +22,21 @@ from plainbox.impl.execution import (
     UnifiedRunner,
     get_execution_command_systemd_unit,
     get_execution_command_subshell,
+    dangerous_nsenter,
 )
 from plainbox.impl.unit.job import InvalidJob
 
 from unittest import TestCase, mock
 
 
+@contextlib.contextmanager
+def empty_context(path, **kwargs):
+    yield path
+
+
+# we test this separately and mock it globally here to vaoid risking actually
+# calling it in tests
+@mock.patch("plainbox.impl.execution.dangerous_nsenter", new=empty_context)
 class UnifiedRunnerTests(TestCase):
     def test_run_job_invalid_job(self):
         self_mock = mock.MagicMock()
@@ -254,3 +263,68 @@ class UnifiedRunnerTests(TestCase):
             )
 
         self.assertEqual(str(e.exception), "systemd")
+
+
+class TestDangerousNsenter(TestCase):
+    def call_args_to_string(self, call_arg):
+        return " ".join(str(x) for x in call_arg.args[0])
+
+    @mock.patch("plainbox.impl.execution.check_output")
+    @mock.patch("plainbox.impl.execution.check_call")
+    @mock.patch("plainbox.impl.execution.run")
+    def test_dangerous_nsenter_not_needed(
+        self, run_mock, check_call_mock, check_output_mock
+    ):
+        with dangerous_nsenter(None):
+            pass
+        self.assertFalse(run_mock.called)
+        self.assertFalse(check_call_mock.called)
+        self.assertFalse(check_output_mock.called)
+
+    @mock.patch("plainbox.impl.execution.check_output")
+    @mock.patch("plainbox.impl.execution.check_call")
+    @mock.patch("plainbox.impl.execution.run")
+    def test_dangerous_nsenter_cleanup(
+        self, run_mock, check_call_mock, check_output_mock
+    ):
+        with self.assertRaises(ValueError):
+            with dangerous_nsenter("/var/tmp/nsenter_dangerous"):
+                # prepared dangerous nsenter is copied somewhere, made extable
+                # and given caps
+                subprocess_calls = (
+                    run_mock.call_args_list
+                    + check_call_mock.call_args_list
+                    + check_output_mock.call_args_list
+                )
+                subprocess_calls = [
+                    self.call_args_to_string(arg) for arg in subprocess_calls
+                ]
+                # all calls must be executed outside the sandbox as paths are
+                # root relative
+                not_plz_running = [
+                    arg for arg in subprocess_calls if "plz-run" not in arg
+                ]
+                self.assertFalse(not_plz_running)
+                subprocess_calls_str = "\n".join(
+                    str(arg) for arg in subprocess_calls
+                )
+                self.assertIn("cp", subprocess_calls_str)
+                self.assertIn("nsenter", subprocess_calls_str)
+                self.assertIn("chmod", subprocess_calls_str)
+                self.assertIn("777", subprocess_calls_str)
+                # this makes it possible to users to call this nsenter.
+                # This is the dangerous part
+                self.assertIn("cap_sys_admin", subprocess_calls_str)
+                run_mock.reset_mock()
+                check_call_mock.reset_mock()
+                check_output_mock.reset_mock()
+                raise ValueError("Ensure decorator always deletes the binary")
+
+        subprocess_calls = (
+            run_mock.call_args_list
+            + check_call_mock.call_args_list
+            + check_output_mock.call_args_list
+        )
+        subprocess_calls_str = "\n".join(str(arg) for arg in subprocess_calls)
+        self.assertIn("rm", subprocess_calls_str)
+        self.assertIn("nsenter", subprocess_calls_str)

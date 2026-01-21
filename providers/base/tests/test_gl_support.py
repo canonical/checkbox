@@ -149,6 +149,17 @@ class TestGLSupportTests(ut.TestCase):
     ):
         mock_pick_glmark2_executable.return_value = "glmark2"
         mock_in_classic_snap.return_value = False
+        snap_env_dict = {
+            "CHECKBOX_RUNTIME": "\n".join(
+                [
+                    "/snap/checkbox24/1437",
+                    "/snap/checkbox/20486/checkbox-runtime",
+                    "/snap/checkbox/20486/providers/blah-blah",
+                ]
+            ),
+            "SNAP": "/snap/checkbox/20486",
+        }
+
         for is_snap in (True, False):
             with patch.dict(
                 "os.environ",
@@ -156,20 +167,7 @@ class TestGLSupportTests(ut.TestCase):
                     "DISPLAY": ":0",
                     "XDG_SESSION_TYPE": "wayland",
                 }
-                | (
-                    {
-                        "CHECKBOX_RUNTIME": "\n".join(
-                            [
-                                "/snap/checkbox24/1437",
-                                "/snap/checkbox/20486/checkbox-runtime",
-                                "/snap/checkbox/20486/providers/blah-blah",
-                            ]
-                        ),
-                        "SNAP": "/snap/checkbox/20486",
-                    }
-                    if is_snap
-                    else {}
-                ),
+                | (snap_env_dict if is_snap else {}),
             ):
                 mock_islink.return_value = is_snap
                 # deb case, the file actually exists

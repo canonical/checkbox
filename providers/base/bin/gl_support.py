@@ -26,10 +26,10 @@ import argparse
 from pathlib import Path
 from checkbox_support.snap_utils.system import in_classic_snap
 
-GLMARK2_DATA_ABS_PATH = Path("/usr/share/glmark2")
-
 
 class GLSupportTester:
+
+    GLMARK2_DATA_ABS_PATH = Path("/usr/share/glmark2")
 
     def __init__(self) -> None:
         if "SNAP" in os.environ:
@@ -154,7 +154,7 @@ class GLSupportTester:
 
         try:
             if self.CHECKBOX_RUNTIME and not os.path.exists(
-                GLMARK2_DATA_ABS_PATH
+                self.GLMARK2_DATA_ABS_PATH
             ):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
@@ -165,7 +165,7 @@ class GLSupportTester:
                 # do not directly truediv against GLMARK2_DATA_PATH
                 # absolute path on the right will overwrite the left hand side
                 src = self.CHECKBOX_RUNTIME / "usr" / "share" / "glmark2"
-                dst = GLMARK2_DATA_ABS_PATH
+                dst = self.GLMARK2_DATA_ABS_PATH
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
                         src, dst
@@ -184,9 +184,11 @@ class GLSupportTester:
             return glmark2_output
         finally:
             # immediately cleanup
-            if self.CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_ABS_PATH):
+            if self.CHECKBOX_RUNTIME and os.path.islink(
+                self.GLMARK2_DATA_ABS_PATH
+            ):
                 print("[ DEBUG ] Un-symlinking glmark2 data")
-                os.unlink(GLMARK2_DATA_ABS_PATH)
+                os.unlink(self.GLMARK2_DATA_ABS_PATH)
 
 
 def remove_prefix(s: str, prefix: str) -> str:

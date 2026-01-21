@@ -9,3 +9,17 @@ requires:
 user: root
 estimated_duration: 1
 command: acpi_tests.sh
+
+unit: template
+template-resource: cpuinfo
+template-filter:
+ cpuinfo.type in ['GenuineIntel','AuthenticAMD']
+template-unit: job
+plugin: shell
+category_id: acpi
+id: acpi/acpi-bios-error_{type}
+estimated_duration: 1
+command: acpi_bios_error.py
+_summary: Check if kernel reports ACPI BIOS Error
+_description:
+ Check if the kernel reports ACPI BIOS Error

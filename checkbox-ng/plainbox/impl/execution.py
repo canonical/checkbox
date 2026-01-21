@@ -27,7 +27,6 @@ import io
 import logging
 import os
 import select
-import shlex
 import subprocess
 import sys
 import tempfile
@@ -503,7 +502,7 @@ class UnifiedRunner(IJobRunner):
                 "-{}".format(self._running_jobs_pid),
             ]
             try:
-                subprocess.check_call(cmd, stdin=in_r)
+                check_call(cmd, stdin=in_r)
             except subprocess.CalledProcessError:
                 logger.warning("Failed to kill process")
 
@@ -779,7 +778,8 @@ def dangerous_nsenter(path):
     try:
         # here recover setcap and nsenter binaries path outside the sandbox
         setcap_path = check_output(
-            get_plz_run(["bash", "-c", "which setcap"])
+            get_plz_run(["bash", "-c", "which setcap"]),
+            universal_newlines=True,
         ).strip()
         nsenter_path = check_output(
             get_plz_run(["bash", "-c", "which nsenter"]),
@@ -790,7 +790,7 @@ def dangerous_nsenter(path):
             get_plz_run(
                 [
                     setcap_path,
-                    "cap_sys_admin,cap_sys_chroot+ep",
+                    "cap_dac_read_search,cap_sys_admin,cap_sys_chroot+ep",
                     path,
                 ]
             )
@@ -837,7 +837,7 @@ def get_execution_command_systemd_unit(
     # this location must be accessible and in the same path for both this
     # process (that may be inside a snap) and the systemd unit (which is not)
     # fallback mechanism is for debian/source checkbox
-    shared_location = os.getenv("SNAP_COMMON", "/var/tmp")
+    shared_location = os.getenv("SNAP_USER_COMMON", "/var/tmp")
     if on_ubuntucore():
         if target_user != "root":
             # here we need a dangerous copy of nsenter that works as "normal"

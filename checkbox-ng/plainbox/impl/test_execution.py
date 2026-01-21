@@ -267,7 +267,7 @@ class UnifiedRunnerTests(TestCase):
 
 class TestDangerousNsenter(TestCase):
     def call_args_to_string(self, call_arg):
-        return " ".join(str(x) for x in call_arg.args[0])
+        return " ".join(str(x) for x in call_arg[0][0])
 
     @mock.patch("plainbox.impl.execution.check_output")
     @mock.patch("plainbox.impl.execution.check_call")

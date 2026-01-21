@@ -166,8 +166,8 @@ class TestGLSupportTests(ut.TestCase):
                 {
                     "DISPLAY": ":0",
                     "XDG_SESSION_TYPE": "wayland",
-                }
-                | (snap_env_dict if is_snap else {}),
+                    **(snap_env_dict if is_snap else {}),
+                },
             ):
                 mock_islink.return_value = is_snap
                 # deb case, the file actually exists

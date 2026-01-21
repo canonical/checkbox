@@ -27,10 +27,15 @@ TEST_DATA_DIR = Path(__file__).parent / "test_data"
 
 
 class TestGLSupportTests(ut.TestCase):
-    def setUp(self) -> None:
-        gl_support.CHECKBOX_RUNTIME = None
 
-    @patch.dict("os.environ", {"DISPLAY": ":0", "XDG_SESSION_TYPE": "wayland"})
+    @patch.dict(
+        "os.environ",
+        {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "wayland",
+        },
+        clear=True,
+    )
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("platform.uname")
     @patch("subprocess.check_output")
@@ -46,7 +51,14 @@ class TestGLSupportTests(ut.TestCase):
                 mock_check_output.return_value = f.read()
                 gl_support.main()
 
-    @patch.dict("os.environ", {"DISPLAY": ":0", "XDG_SESSION_TYPE": "wayland"})
+    @patch.dict(
+        "os.environ",
+        {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "wayland",
+        },
+        clear=True,
+    )
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("subprocess.check_output")
     def test_happy_path_es2(
@@ -58,7 +70,14 @@ class TestGLSupportTests(ut.TestCase):
             mock_check_output.return_value = f.read()
             gl_support.main()
 
-    @patch.dict("os.environ", {"DISPLAY": ":0", "XDG_SESSION_TYPE": "wayland"})
+    @patch.dict(
+        "os.environ",
+        {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "wayland",
+        },
+        clear=True,
+    )
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("subprocess.check_output")
     def test_llvmpipe_path(
@@ -69,7 +88,14 @@ class TestGLSupportTests(ut.TestCase):
             mock_check_output.return_value = f.read()
             self.assertRaises(SystemExit, gl_support.main)
 
-    @patch.dict("os.environ", {"DISPLAY": ":0", "XDG_SESSION_TYPE": "wayland"})
+    @patch.dict(
+        "os.environ",
+        {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "wayland",
+        },
+        clear=True,
+    )
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("subprocess.check_output")
     def test_llvmpipe_path_es2(
@@ -80,7 +106,14 @@ class TestGLSupportTests(ut.TestCase):
             mock_check_output.return_value = f.read()
             self.assertRaises(SystemExit, gl_support.main)
 
-    @patch.dict("os.environ", {"DISPLAY": ":0", "XDG_SESSION_TYPE": "wayland"})
+    @patch.dict(
+        "os.environ",
+        {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "wayland",
+        },
+        clear=True,
+    )
     @patch("sys.argv", ["gl_support_test.py"])
     @patch("subprocess.check_output")
     def test_version_too_old_path_x86(
@@ -97,6 +130,7 @@ class TestGLSupportTests(ut.TestCase):
                     "The minimum required OpenGL version is 3.0, but got 2.1",
                 )
 
+    @patch("gl_support.in_classic_snap")
     @patch("gl_support.GLSupportTester.pick_glmark2_executable")
     @patch("os.path.exists")
     @patch("os.path.islink")
@@ -111,35 +145,43 @@ class TestGLSupportTests(ut.TestCase):
         mock_islink: MagicMock,
         mock_path_exists: MagicMock,
         mock_pick_glmark2_executable: MagicMock,
+        mock_in_classic_snap: MagicMock,
     ):
         mock_pick_glmark2_executable.return_value = "glmark2"
-        tester = gl_support.GLSupportTester()
-
+        mock_in_classic_snap.return_value = False
         for is_snap in (True, False):
             with patch.dict(
                 "os.environ",
                 {
-                    "CHECKBOX_RUNTIME": (
-                        "/snap/runtime/path/" if is_snap else ""
-                    ),
                     "DISPLAY": ":0",
                     "XDG_SESSION_TYPE": "wayland",
-                },
+                }
+                | (
+                    {
+                        "CHECKBOX_RUNTIME": "\n".join(
+                            [
+                                "/snap/checkbox24/1437",
+                                "/snap/checkbox/20486/checkbox-runtime",
+                                "/snap/checkbox/20486/providers/blah-blah",
+                            ]
+                        ),
+                        "SNAP": "/snap/checkbox/20486",
+                    }
+                    if is_snap
+                    else {}
+                ),
             ):
                 mock_islink.return_value = is_snap
                 # deb case, the file actually exists
                 mock_path_exists.return_value = not is_snap
-                # hack for this unittest, since we import gl_support early
-                # so the variable assignment was already done during import
-                gl_support.CHECKBOX_RUNTIME = PosixPath(
-                    "/snap/checkbox/20486/"
-                )
 
-                tester.call_glmark2_validate()
+                gl_support.GLSupportTester().call_glmark2_validate()
 
                 if is_snap:
                     mock_symlink.assert_called_once_with(
-                        PosixPath("/snap/checkbox/20486/usr/share/glmark2"),
+                        PosixPath(
+                            "/snap/checkbox/20486/checkbox-runtime/usr/share/glmark2"
+                        ),
                         PosixPath("/usr/share/glmark2"),
                         target_is_directory=True,
                     )
@@ -153,7 +195,6 @@ class TestGLSupportTests(ut.TestCase):
 
                 mock_symlink.reset_mock()
                 mock_unlink.reset_mock()
-            gl_support.CHECKBOX_RUNTIME = None
 
     @patch("subprocess.run")
     @patch("os.environ")
@@ -167,7 +208,14 @@ class TestGLSupportTests(ut.TestCase):
             SystemExit, gl_support.GLSupportTester().call_glmark2_validate
         )
 
-    @patch.dict("os.environ", {"DISPLAY": ":0", "XDG_SESSION_TYPE": "wayland"})
+    @patch.dict(
+        "os.environ",
+        {
+            "DISPLAY": ":0",
+            "XDG_SESSION_TYPE": "wayland",
+        },
+        clear=True,
+    )
     @patch("shutil.which")
     @patch("gl_support.GLSupportTester.pick_glmark2_executable")
     @patch("subprocess.check_output")

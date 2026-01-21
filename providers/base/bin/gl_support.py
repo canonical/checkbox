@@ -26,21 +26,23 @@ import argparse
 from pathlib import Path
 from checkbox_support.snap_utils.system import in_classic_snap
 
-# Checkbox could run in a snap container, so we need to prepend this root path
-
-CHECKBOX_RUNTIME = None
-if "SNAP" in os.environ:
-    # don't use $CHECKBOX_RUNTIME in Path() unless in classic
-    if in_classic_snap():
-        CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
-    else:
-        # in strict frontend, CHECKBOX_RUNTIME has multiple lines
-        CHECKBOX_RUNTIME = Path(os.environ["SNAP"]) / "checkbox-runtime"
-
-GLMARK2_DATA_PATH = Path("/usr/share/glmark2")
+GLMARK2_DATA_ABS_PATH = Path("/usr/share/glmark2")
 
 
 class GLSupportTester:
+
+    def __init__(self) -> None:
+        if "SNAP" in os.environ:
+            # don't use $CHECKBOX_RUNTIME in Path() unless in classic
+            if in_classic_snap():
+                self.CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
+            else:
+                # in strict frontend, CHECKBOX_RUNTIME has multiple lines
+                self.CHECKBOX_RUNTIME = (
+                    Path(os.environ["SNAP"]) / "checkbox-runtime"
+                )
+        else:
+            self.CHECKBOX_RUNTIME = None
 
     def pick_glmark2_executable(
         self, xdg_session_type: str, cpu_arch: str
@@ -151,7 +153,9 @@ class GLSupportTester:
             )
 
         try:
-            if CHECKBOX_RUNTIME and not os.path.exists(GLMARK2_DATA_PATH):
+            if self.CHECKBOX_RUNTIME and not os.path.exists(
+                GLMARK2_DATA_ABS_PATH
+            ):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
@@ -160,8 +164,8 @@ class GLSupportTester:
 
                 # do not directly truediv against GLMARK2_DATA_PATH
                 # absolute path on the right will overwrite the left hand side
-                src = CHECKBOX_RUNTIME / "usr" / "share" / "glmark2"
-                dst = GLMARK2_DATA_PATH
+                src = self.CHECKBOX_RUNTIME / "usr" / "share" / "glmark2"
+                dst = GLMARK2_DATA_ABS_PATH
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
                         src, dst
@@ -180,9 +184,9 @@ class GLSupportTester:
             return glmark2_output
         finally:
             # immediately cleanup
-            if CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_PATH):
+            if self.CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_ABS_PATH):
                 print("[ DEBUG ] Un-symlinking glmark2 data")
-                os.unlink(GLMARK2_DATA_PATH)
+                os.unlink(GLMARK2_DATA_ABS_PATH)
 
 
 def remove_prefix(s: str, prefix: str) -> str:

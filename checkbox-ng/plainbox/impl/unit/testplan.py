@@ -861,20 +861,20 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             The code below in *not* resilient to errors so make sure to
             validate the unit before starting with the helper.
         """
-        override_map = collections.defaultdict(list)
+        override_map = collections.OrderedDict()
         # ^^ Dict[str, Tuple[str, str]]
         for pattern, field_value_list in self._get_inline_overrides(testplan):
-            override_map[pattern].extend(field_value_list)
+            override_map.setdefault(pattern, []).extend(field_value_list)
         for pattern, field, value in self._get_category_overrides(testplan):
-            override_map[pattern].append((field, value))
+            override_map.setdefault(pattern, []).append((field, value))
         for pattern, field, value in self._get_blocker_status_overrides(
             testplan
         ):
-            override_map[pattern].append((field, value))
-        return sorted(
+            override_map.setdefault(pattern, []).append((field, value))
+        return [
             (key, field_value_list)
             for key, field_value_list in override_map.items()
-        )
+        ]
 
     def _get_category_overrides(
         self, testplan: TestPlanUnit

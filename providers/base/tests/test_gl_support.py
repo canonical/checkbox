@@ -251,6 +251,52 @@ class TestGLSupportTests(ut.TestCase):
             "glmark2-es2",
         )
 
+    @patch("gl_support.in_classic_snap")
+    def test_checkbox_runtime_path(self, mock_in_classic_snap: MagicMock):
+        with patch.dict(
+            "os.environ",
+            {
+                "CHECKBOX_RUNTIME": "\n".join(
+                    [
+                        "/snap/checkbox24/1437",
+                        "/snap/checkbox/20486/checkbox-runtime",
+                        "/snap/checkbox/20486/providers/blah-blah",
+                    ]
+                ),
+                "SNAP": "/snap/checkbox/20486",
+            },
+            clear=True,
+        ):
+            mock_in_classic_snap.return_value = False
+            tester = gl_support.GLSupportTester()
+            self.assertEqual(
+                tester.CHECKBOX_RUNTIME,
+                PosixPath("/snap/checkbox/20486/checkbox-runtime"),
+            )
+
+        with patch.dict(
+            "os.environ",
+            {
+                "CHECKBOX_RUNTIME": "/snap/checkbox/20486/checkbox-runtime",
+                "SNAP": "/snap/checkbox/20486",
+            },
+            clear=True,
+        ):
+            mock_in_classic_snap.return_value = True
+            tester = gl_support.GLSupportTester()
+            self.assertEqual(
+                tester.CHECKBOX_RUNTIME,
+                PosixPath("/snap/checkbox/20486/checkbox-runtime"),
+            )
+        
+        with patch.dict({}, clear=True):
+            mock_in_classic_snap.return_value = False
+            tester = gl_support.GLSupportTester()
+            self.assertEqual(
+                tester.CHECKBOX_RUNTIME,
+                None,
+            )
+
 
 if __name__ == "__main__":
     ut.main()

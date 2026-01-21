@@ -284,9 +284,11 @@ class TestDangerousNsenter(TestCase):
     @mock.patch("plainbox.impl.execution.check_output")
     @mock.patch("plainbox.impl.execution.check_call")
     @mock.patch("plainbox.impl.execution.run")
+    @mock.patch("shutil.which")
     def test_dangerous_nsenter_cleanup(
-        self, run_mock, check_call_mock, check_output_mock
+        self, which_mock, run_mock, check_call_mock, check_output_mock
     ):
+        which_mock.return_value = "/bin/plz-run"
         with self.assertRaises(ValueError):
             with dangerous_nsenter("/var/tmp/nsenter_dangerous"):
                 # prepared dangerous nsenter is copied somewhere, made extable

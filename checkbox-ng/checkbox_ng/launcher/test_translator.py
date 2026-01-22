@@ -74,9 +74,8 @@ class SplitStringableTests(TestCase):
         self.assertEqual(attributes, "certification-status=blocker")
 
 
-class TranslatorJobUnitTests(TestCase):
-
-    def _run_translator(self, pxu_input):
+class TranslatorTestCase(TestCase):
+    def run_translator(self, pxu_input):
         input_file = StringIO(pxu_input)
         output_file = StringIO()
 
@@ -98,7 +97,7 @@ class TranslatorJobUnitTests(TestCase):
         yaml = YAML()
         return list(yaml.load_all(output_file))
 
-    def _parse_yaml(self, yaml_str):
+    def parse_yaml(self, yaml_str):
         yaml = YAML()
         return list(yaml.load_all(StringIO(yaml_str)))
 
@@ -109,6 +108,9 @@ class TranslatorJobUnitTests(TestCase):
         first = [dict(sorted(x.items())) for x in first]
         second = [dict(sorted(x.items())) for x in second]
         self.assertEqual(first, second)
+
+
+class TranslatorJobUnitTests(TranslatorTestCase):
 
     def test_basic_job_unit(self):
         pxu_input = dedent(
@@ -142,8 +144,8 @@ class TranslatorJobUnitTests(TestCase):
             """
         ).strip()
 
-        result = self._run_translator(pxu_input)
-        expected = self._parse_yaml(expected_yaml)
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_job_unit_with_comments(self):
@@ -176,8 +178,8 @@ class TranslatorJobUnitTests(TestCase):
             """
         ).strip()
 
-        result = self._run_translator(pxu_input)
-        expected = self._parse_yaml(expected_yaml)
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_multiline_fields(self):
@@ -223,8 +225,8 @@ class TranslatorJobUnitTests(TestCase):
             """
         ).strip()
 
-        result = self._run_translator(pxu_input)
-        expected = self._parse_yaml(expected_yaml)
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_siblings_json_to_yaml(self):
@@ -266,8 +268,8 @@ class TranslatorJobUnitTests(TestCase):
             """
         ).strip()
 
-        result = self._run_translator(pxu_input)
-        expected = self._parse_yaml(expected_yaml)
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_imports_lines_to_array(self):
@@ -303,8 +305,8 @@ class TranslatorJobUnitTests(TestCase):
             """
         ).strip()
 
-        result = self._run_translator(pxu_input)
-        expected = self._parse_yaml(expected_yaml)
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_other_array_fields(self):
@@ -345,8 +347,8 @@ class TranslatorJobUnitTests(TestCase):
             """
         ).strip()
 
-        result = self._run_translator(pxu_input)
-        expected = self._parse_yaml(expected_yaml)
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_top_level_comment(self):
@@ -374,6 +376,155 @@ class TranslatorJobUnitTests(TestCase):
             """
         ).strip()
 
-        result = self._run_translator(pxu_input)
-        expected = self._parse_yaml(expected_yaml)
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+
+class TranslatorTestPlanTests(TranslatorTestCase):
+    def test_basic_test_plan(self):
+        pxu_input = dedent(
+            """
+            unit: test plan
+            id: my-test-plan
+            _name: My Test Plan
+            _description:
+                This is a test plan that runs some tests.
+                It has multiple lines.
+            include:
+                job-foo
+                job-bar
+                job-baz certification-status=blocker
+            exclude:
+                job-skip-me
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            unit: test plan
+            id: my-test-plan
+            name: My Test Plan
+            description: |
+                This is a test plan that runs some tests.
+                It has multiple lines.
+            include:
+              - job-foo
+              - job-bar
+              - job-baz:
+                  certification-status: blocker
+            exclude:
+              - job-skip-me
+            """
+        ).strip()
+
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_test_plan_all_inclusions(self):
+        pxu_input = dedent(
+            """
+            unit: test plan
+            id: full-test-plan
+            _name: Full Test Plan
+            setup_include:
+                setup-job1
+                com.canonical.qa::setup-job2
+            bootstrap_include:
+                resource-job-1
+                resource-job-2
+            mandatory_include:
+                critical-job
+                com.canonical.certification::submission-cert-automated
+            include:
+                test-job-1
+                test-job-2
+            nested_part:
+                nested-part1
+                nested-part2
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            unit: test plan
+            id: full-test-plan
+            name: Full Test Plan
+            setup_include:
+              - setup-job1
+              - com.canonical.qa::setup-job2
+            bootstrap_include:
+              - resource-job-1
+              - resource-job-2
+            mandatory_include:
+              - critical-job
+              - com.canonical.certification::submission-cert-automated
+            include:
+              - test-job-1
+              - test-job-2
+            nested_part:
+              - nested-part1
+              - nested-part2
+            """
+        ).strip()
+
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_test_plan_empty_include(self):
+        pxu_input = dedent(
+            """
+            unit: test plan
+            id: composite-test-plan
+            _name: Composite Test Plan
+            nested_part:
+                other-test-plan
+            include:
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            unit: test plan
+            id: composite-test-plan
+            name: Composite Test Plan
+            nested_part:
+              - other-test-plan
+            include: []
+            """
+        ).strip()
+
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_test_plan_with_nested_parts_and_overrides(self):
+        pxu_input = dedent(
+            """
+            unit: test plan
+            id: composite-test-plan
+            _name: Composite Test Plan
+            include:
+            certification_status_overrides:
+                apply blocker to .*wireless.*
+                apply non-blocker to audio/.*
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            unit: test plan
+            id: composite-test-plan
+            name: Composite Test Plan
+            include: []
+            certification_status_overrides:
+              - apply blocker to .*wireless.*
+              - apply non-blocker to audio/.*
+            """
+        ).strip()
+
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)

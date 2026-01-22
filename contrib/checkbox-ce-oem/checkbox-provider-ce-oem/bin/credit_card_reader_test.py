@@ -101,7 +101,8 @@ def main():
     6 different conbinations of parity and bytesize.
     And it use 8 bits and parity None as default setting. We use it as
     our test configuration at the moment.
-    ref: https://drive.google.com/file/d/1UCR0FuF6qbdXMUrc9MrFCFSOYj_FYX-f/view?usp=drive_link
+    ref:
+    https://drive.google.com/file/d/1UCR0FuF6qbdXMUrc9MrFCFSOYj_FYX-f/view
     """
     configs = [
         (serial.EIGHTBITS, serial.PARITY_NONE),

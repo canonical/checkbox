@@ -80,8 +80,8 @@ def is_known_failure(
     test_name,
 ):
     if (
-        test_name.find("Gpu") != -1
-        or category.find("DmaHeap") != -1
+        "Gpu" in test_name
+        or "DmaHeap" in category
         or (category == "Device" and test_name == "GetZesEngineGetActivity")
         or (
             category == "DriverCache"

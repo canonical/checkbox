@@ -1,3 +1,12 @@
+id: kmd/check_npu_driver_present
+category_id: npu_kmd
+flags: simple
+_summary: Check that the kernel driver is present
+estimated_duration: 2s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_npu == 'True'
+command: modinfo -Falias intel_vpu
+
 id: kmd/char_device_permissions
 category_id: npu_kmd
 flags: simple

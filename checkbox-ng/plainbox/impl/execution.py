@@ -837,7 +837,9 @@ def get_execution_command_systemd_unit(
     # this location must be accessible and in the same path for both this
     # process (that may be inside a snap) and the systemd unit (which is not)
     # fallback mechanism is for debian/source checkbox
-    shared_location = os.getenv("SNAP_USER_COMMON", "/var/tmp")
+    # DONT use SNAP_COMMON (not writable by normal user)
+    # DONT use SNAP_USER_COMMON (not writable by normal user if running as root)
+    shared_location = "/var/tmp"
     if on_ubuntucore():
         if target_user != "root":
             # here we need a dangerous copy of nsenter that works as "normal"

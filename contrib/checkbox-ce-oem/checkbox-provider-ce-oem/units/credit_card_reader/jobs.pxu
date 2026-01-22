@@ -8,7 +8,7 @@ user: root
 category_id: credit_card_reader
 estimated_duration: 5s
 flags: also-after-suspend
-command: credit_card_reader_test.py -P "$CREDIT_CARD_READER_PORT" -B "$CREDIT_CARD_READER_BAUD_RATE"
+command: credit_card_reader_test.py -p "$CREDIT_CARD_READER_PORT" -b "$CREDIT_CARD_READER_BAUD_RATE"
 imports: 
     from com.canonical.plainbox import manifest
 requires: 

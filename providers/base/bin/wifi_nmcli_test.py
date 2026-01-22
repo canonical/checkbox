@@ -94,6 +94,8 @@ def turn_down_nm_connections():
     print_head("Turn off NM all connections")
     connections = _get_nm_wireless_connections()
     for name, value in connections.items():
+        if value["state"] != "activated":
+            continue
         uuid = value["uuid"]
         print("Turn down connection", name)
         cmd = "nmcli c down {}".format(uuid)

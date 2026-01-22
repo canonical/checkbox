@@ -10,28 +10,17 @@ ACK = b"\x06"  # Acknowledge
 NAK = b"\x15"  # Negative Acknowledge
 
 
-def test_connection(port, baudrate, parity_mode):
+def test_connection(port, baudrate, bytesize, parity):
     """
-    Test connection with specific parity settings.
-    parity_mode: 'N' (None), 'E' (Even), 'O' (Odd)
+    Test connection with specific serial settings.
     """
 
-    # Configure serial.Serial parameters
-    if parity_mode == "E":
-        bytesize = serial.SEVENBITS  # 7-E-1 typically uses 7 data bits
-        parity = serial.PARITY_EVEN
-    elif parity_mode == "O":
-        bytesize = serial.SEVENBITS
-        parity = serial.PARITY_ODD
-    else:
-        bytesize = serial.EIGHTBITS  # 8-N-1 typically uses 8 data bits
-        parity = serial.PARITY_NONE
+    parity_name = {
+        serial.PARITY_NONE: "None",
+        serial.PARITY_EVEN: "Even",
+        serial.PARITY_ODD: "Odd",
+    }[parity]
 
-    parity_name = (
-        "None"
-        if parity_mode == "N"
-        else ("Even" if parity_mode == "E" else "Odd")
-    )
     logging.info(
         "Testing config: Baud=%s, DataBits=%s, Parity=%s ... ",
         baudrate,
@@ -107,8 +96,24 @@ def main():
         args.port,
     )
 
-    for parity in ["N", "E", "O"]:
-        if test_connection(args.port, args.baudrate, parity):
+    """
+    Accroding to the SPCE of verifone's credit card reader. It support
+    6 different conbinations of parity and bytesize.
+    And it use 8 bits and parity None as default setting. We use it as
+    our test configuration at the moment.
+    ref: https://drive.google.com/file/d/1UCR0FuF6qbdXMUrc9MrFCFSOYj_FYX-f/view?usp=drive_link
+    """
+    configs = [
+        (serial.EIGHTBITS, serial.PARITY_NONE),
+        (serial.EIGHTBITS, serial.PARITY_EVEN),
+        (serial.EIGHTBITS, serial.PARITY_ODD),
+        (serial.SEVENBITS, serial.PARITY_EVEN),
+        (serial.SEVENBITS, serial.PARITY_ODD),
+        (serial.SEVENBITS, serial.PARITY_NONE),
+    ]
+
+    for bytesize, parity in configs:
+        if test_connection(args.port, args.baudrate, bytesize, parity):
             break
     else:
         raise SystemExit(1)

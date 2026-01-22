@@ -213,34 +213,15 @@ class TestMainFunction(unittest.TestCase):
         check_accel_permissions.main()
 
         # Check os.access was called for both Read and Write
-        mock_access.assert_any_call(Path("/dev/accel0"), os.R_OK)
-        mock_access.assert_any_call(Path("/dev/accel0"), os.W_OK)
+        mock_access.assert_any_call(Path("/dev/accel0"), os.R_OK | os.W_OK)
 
-    @patch(
-        "os.access",
-        side_effect=lambda path, mode: False if mode == os.R_OK else True,
-    )
+    @patch("os.access", return_value=False)
     @patch(
         "check_accel_permissions.find_npu_device_path",
         return_value=Path("/dev/accel0"),
     )
-    def test_main_no_read_permission(self, mock_find_device, mock_access):
-        """Test the main failure path: device found, but no read permission."""
-        with pytest.raises(
-            SystemExit, match="User lacks required permissions for .*"
-        ):
-            check_accel_permissions.main()
-
-    @patch(
-        "os.access",
-        side_effect=lambda path, mode: True if mode == os.R_OK else False,
-    )
-    @patch(
-        "check_accel_permissions.find_npu_device_path",
-        return_value=Path("/dev/accel0"),
-    )
-    def test_main_no_write_permission(self, mock_find_device, mock_access):
-        """Test the main failure path: device found, but no write permission."""
+    def test_main_no_rw_permission(self, mock_find_device, mock_access):
+        """Test the main failure path: device found, but no RW permission."""
         with pytest.raises(
             SystemExit, match="User lacks required permissions for .*"
         ):

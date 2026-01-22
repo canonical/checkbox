@@ -35,16 +35,12 @@ def main():
     npu_device = find_npu_device_path()
 
     # Check for read and write permissions
-    has_read_perm = os.access(
+    has_readwrite_perm = os.access(
         npu_device,
-        os.R_OK,
-    )
-    has_write_perm = os.access(
-        npu_device,
-        os.W_OK,
+        os.R_OK | os.W_OK,
     )
 
-    if not has_read_perm or not has_write_perm:
+    if not has_readwrite_perm:
         raise SystemExit(
             "User lacks required permissions for {}".format(npu_device)
         )

@@ -315,7 +315,7 @@ class SmartcardTest:
             # send_apdu_test("Broadcom 58200")
             return self.send_apdu_test(args.reader)
         else:
-            raise SystemExit("Unknown test type: {}".format(args.test_type)) 
+            raise SystemExit("Unknown test type: {}".format(args.test_type))
 
 
 def main():

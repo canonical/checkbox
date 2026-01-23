@@ -10,7 +10,7 @@ ACK = b"\x06"  # Acknowledge
 NAK = b"\x15"  # Negative Acknowledge
 
 
-def test_connection(port, baudrate, bytesize, parity):
+def test_connection(port: str, baudrate: int, bytesize: int, parity: str):
     """
     Test connection with specific serial settings.
     """

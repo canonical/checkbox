@@ -14,22 +14,23 @@ import platform
 
 from checkbox_support.snap_utils.system import in_classic_snap
 
-# Snap mount point, see
-# https://snapcraft.io/docs/environment-variables#heading--snap
-SNAP = os.getenv("SNAP", default="").rstrip("/")
-if SNAP:
-    if in_classic_snap():
-        CHECKBOX_RUNTIME = os.environ["CHECKBOX_RUNTIME"].rstrip("/")
-    else:
-        # in strict frontend, CHECKBOX_RUNTIME has multiple lines
-        # explicitly build this path
-        CHECKBOX_RUNTIME = "{}/checkbox-runtime".format(SNAP)
-else:
-    CHECKBOX_RUNTIME = ""
-
-
 # global const for subprocess calls that should timeout
 COMMAND_TIMEOUT_SECONDS = 30
+
+
+def get_snap_and_checkbox_runtime():
+    SNAP = os.getenv("SNAP", default="").rstrip("/")
+    if SNAP:
+        if in_classic_snap():
+            CHECKBOX_RUNTIME = os.environ["CHECKBOX_RUNTIME"].rstrip("/")
+        else:
+            # in strict frontend, CHECKBOX_RUNTIME has multiple lines
+            # explicitly build this path
+            CHECKBOX_RUNTIME = "{}/checkbox-runtime".format(SNAP)
+    else:
+        CHECKBOX_RUNTIME = ""
+
+    return SNAP, CHECKBOX_RUNTIME
 
 
 def get_timestamp_str() -> str:
@@ -95,7 +96,7 @@ class DeviceInfoCollector:
             [
                 "checkbox-support-lsusb",
                 "-f",
-                '"{}"/var/lib/usbutils/usb.ids'.format(CHECKBOX_RUNTIME),
+                '"{}"/var/lib/usbutils/usb.ids'.format(self.CHECKBOX_RUNTIME),
                 "-s",
             ],
             universal_newlines=True,
@@ -106,7 +107,7 @@ class DeviceInfoCollector:
 
     def get_pci_info(self) -> str:
         return sp.check_output(
-            ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
+            ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(self.SNAP)],
             timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
@@ -185,6 +186,7 @@ class DeviceInfoCollector:
             print("End of {} diff".format(name), file=sys.stderr)
 
     def __init__(self) -> None:
+        self.SNAP, self.CHECKBOX_RUNTIME = get_snap_and_checkbox_runtime()
         self.dump_function = {
             self.Device.PCI: self.get_pci_info,
             self.Device.DRM: self.get_drm_info,
@@ -230,6 +232,9 @@ class FwtsTester:
 
 
 class HardwareRendererTester:
+
+    def __init__(self) -> None:
+        self.SNAP, self.CHECKBOX_RUNTIME = get_snap_and_checkbox_runtime()
 
     def get_desktop_environment_variables(
         self,
@@ -298,7 +303,7 @@ class HardwareRendererTester:
             # kernel doesn't see any GPU nodes
             print(
                 "There's nothing under {}".format(DRM_PATH),
-                "if an external GPU is connected,"
+                "if an external GPU is connected,",
                 "check if the connection is loose.",
             )
             return False
@@ -328,7 +333,7 @@ class HardwareRendererTester:
             print(
                 "No display is connected. This case will be skipped.",
                 "Maybe the display cable is not connected?",
-                "If the device is not supposed to have a display,"
+                "If the device is not supposed to have a display,",
                 "then skipping is expected.",
             )
 
@@ -412,8 +417,8 @@ class HardwareRendererTester:
         desktop_env_vars = self.get_desktop_environment_variables()
         if desktop_env_vars is None:
             print(
-                "[ ERR ] Unable to get the environment variables "
-                "used by the current desktop. Is the desktop process running?"
+                "[ ERR ] Unable to get the environment variables",
+                "used by the current desktop. Is the desktop process running?",
             )
             return False
 
@@ -437,13 +442,13 @@ class HardwareRendererTester:
         glmark2_data_path = "/usr/share/glmark2"
 
         try:
-            if CHECKBOX_RUNTIME and not os.path.exists(glmark2_data_path):
+            if self.CHECKBOX_RUNTIME and not os.path.exists(glmark2_data_path):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-                src = "{}/usr/share/glmark2".format(CHECKBOX_RUNTIME)
+                src = "{}/usr/share/glmark2".format(self.CHECKBOX_RUNTIME)
                 dst = glmark2_data_path
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
@@ -475,7 +480,7 @@ class HardwareRendererTester:
             return False
         finally:
             # immediately cleanup
-            if CHECKBOX_RUNTIME and os.path.islink(glmark2_data_path):
+            if self.CHECKBOX_RUNTIME and os.path.islink(glmark2_data_path):
                 print("[ DEBUG ] Un-symlinking glmark2 data")
                 os.unlink(glmark2_data_path)
 

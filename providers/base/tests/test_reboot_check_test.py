@@ -7,6 +7,7 @@ import unittest
 import os
 import typing as T
 import subprocess as sp
+import importlib
 
 
 def do_nothing(args: T.List[str], **kwargs):
@@ -16,14 +17,15 @@ def do_nothing(args: T.List[str], **kwargs):
         return sp.CompletedProcess(args, 0, "".encode(), "".encode())
 
 
+@patch(
+    "reboot_check_test.get_snap_and_checkbox_runtime", return_value=("", "")
+)
 class DisplayConnectionTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.tester = RCT.HardwareRendererTester()
-        RCT.CHECKBOX_RUNTIME = ""
-        RCT.SNAP = ""
 
-    def test_display_check_happy_path(self):
+    def test_display_check_happy_path(self, _):
         with patch(
             "os.listdir", return_value=["fakeCard0", "fakeCard1"]
         ), patch(
@@ -33,7 +35,7 @@ class DisplayConnectionTests(unittest.TestCase):
         ):
             self.assertTrue(self.tester.has_display_connection())
 
-    def test_display_check_no_display_path(self):
+    def test_display_check_no_display_path(self, _):
         with patch("os.listdir", return_value=["version"]):
             self.assertFalse(self.tester.has_display_connection())
         with patch(
@@ -47,7 +49,7 @@ class DisplayConnectionTests(unittest.TestCase):
 
     @patch("subprocess.run")
     def test_get_desktop_env_vars_no_desktop_session(
-        self, mock_run: MagicMock
+        self, mock_run: MagicMock, _
     ):
         def run_result(cmd_array: T.List[str], **_):
             if "pidof" in cmd_array:
@@ -61,7 +63,7 @@ class DisplayConnectionTests(unittest.TestCase):
     @patch("subprocess.check_output")
     @patch("subprocess.run")
     def test_get_desktop_env_vars_happy_path(
-        self, mock_run: MagicMock, mock_check_output: MagicMock
+        self, mock_run: MagicMock, mock_check_output: MagicMock, _
     ):
         def run_result(cmd_array: T.List[str], **_):
             if cmd_array == ["pidof", "-s", "gnome-shell"]:
@@ -104,6 +106,7 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_getenv: MagicMock,
         mock_run: MagicMock,
         mock_get_desktop_envs: MagicMock,
+        _,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
@@ -190,7 +193,7 @@ class DisplayConnectionTests(unittest.TestCase):
     @patch("subprocess.run")
     @patch("os.getenv")
     def test_is_hardware_renderer_available_glmark2_timeout(
-        self, mock_getenv: MagicMock, mock_run: MagicMock
+        self, mock_getenv: MagicMock, mock_run: MagicMock, _
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
@@ -219,6 +222,7 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_getenv: MagicMock,
         mock_run: MagicMock,
         mock_get_desktop_envs: MagicMock,
+        _,
     ):
         mock_getenv.side_effect = lambda key: (
             ":0" if key == "DISPLAY" else "x11"
@@ -252,9 +256,7 @@ class DisplayConnectionTests(unittest.TestCase):
         + "HardwareRendererTester.get_desktop_environment_variables"
     )
     def test_is_hardware_renderer_available_bad_session_type(
-        self,
-        mock_get_desktop_envs: MagicMock,
-        mock_run: MagicMock,
+        self, mock_get_desktop_envs: MagicMock, mock_run: MagicMock, _
     ):
         mock_get_desktop_envs.return_value = {
             "DISPLAY": "",
@@ -269,9 +271,7 @@ class DisplayConnectionTests(unittest.TestCase):
     )
     @patch("subprocess.run")
     def test_is_hardware_renderer_available_chooses_correct_glmark(
-        self,
-        mock_run: MagicMock,
-        mock_get_desktop_envs: MagicMock,
+        self, mock_run: MagicMock, mock_get_desktop_envs: MagicMock, _
     ):
         mock_get_desktop_envs.return_value = {
             "DISPLAY": ":0",
@@ -303,9 +303,7 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
         )
 
-    @patch(
-        "reboot_check_test." + "HardwareRendererTester.pick_glmark2_executable"
-    )
+    @patch("reboot_check_test.HardwareRendererTester.pick_glmark2_executable")
     @patch(
         "reboot_check_test."
         + "HardwareRendererTester.get_desktop_environment_variables"
@@ -326,6 +324,7 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_path_exists: MagicMock,
         mock_get_desktop_envs: MagicMock,
         mock_pick_glmark2_executable: MagicMock,
+        mock_get_snap_and_checkbox_runtime: MagicMock,  # mocked by setUp
     ):
         def custom_env(key: str, is_snap: bool) -> str:
             if key == "CHECKBOX_RUNTIME":
@@ -346,8 +345,10 @@ class DisplayConnectionTests(unittest.TestCase):
                 mock_run.side_effect = sp.TimeoutExpired("glmark2", 120)
             for is_snap in (True, False):
                 mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
-                RCT.CHECKBOX_RUNTIME = custom_env("CHECKBOX_RUNTIME", is_snap)
-                RCT.SNAP = custom_env("SNAP", is_snap)
+                mock_get_snap_and_checkbox_runtime.return_value = (
+                    custom_env("SNAP", is_snap),
+                    custom_env("CHECKBOX_RUNTIME", is_snap),
+                )
                 mock_islink.return_value = is_snap
                 # deb case, the file actually exists
                 mock_path_exists.return_value = not is_snap
@@ -357,7 +358,9 @@ class DisplayConnectionTests(unittest.TestCase):
 
                 if is_snap:
                     mock_symlink.assert_called_once_with(
-                        "{}/usr/share/glmark2".format(RCT.CHECKBOX_RUNTIME),
+                        "{}/usr/share/glmark2".format(
+                            custom_env("CHECKBOX_RUNTIME", is_snap)
+                        ),
                         "/usr/share/glmark2",
                         target_is_directory=True,
                     )
@@ -368,8 +371,9 @@ class DisplayConnectionTests(unittest.TestCase):
 
                 mock_symlink.reset_mock()
                 mock_unlink.reset_mock()
+        mock_get_snap_and_checkbox_runtime.return_value = ("", "")
 
-    def test_slow_boot_scenario(self):
+    def test_slow_boot_scenario(self, _):
 
         def fake_time(delta: int, ticks=2):
             # fake a time.time() delta using closure
@@ -405,7 +409,7 @@ class DisplayConnectionTests(unittest.TestCase):
                 lambda: RCT.poll_systemctl_is_system_running(2),
             )
 
-    def test_normal_boot(self):
+    def test_normal_boot(self, _):
         with patch("subprocess.run") as mock_run, patch("time.sleep"), patch(
             "time.time"
         ) as mock_time:
@@ -424,7 +428,7 @@ class InfoDumpTests(unittest.TestCase):
         shutil.rmtree(self.temp_output_dir, ignore_errors=True)
         shutil.rmtree(self.temp_comparison_dir, ignore_errors=True)
 
-    def mock_run(self, args: T.List[str], **_) -> sp.CompletedProcess:
+    def mock_run(self, args: T.List[str], **_) -> sp.CompletedProcess[str]:
         stdout = ""
         if args[0] == "iw":
             stdout = """\
@@ -688,6 +692,42 @@ class MainFunctionTests(unittest.TestCase):
                 ]
             )
             mock_tester.is_hardware_renderer_available.assert_any_call()
+
+    @patch("reboot_check_test.in_classic_snap")
+    def test_checkbox_runtime_path(self, mock_in_classic_snap: MagicMock):
+        with patch.dict(
+            "os.environ",
+            {
+                "CHECKBOX_RUNTIME": "\n".join(
+                    [
+                        "/snap/checkbox24/1437",
+                        "/snap/checkbox/20486/checkbox-runtime",
+                        "/snap/checkbox/20486/providers/blah-blah",
+                    ]
+                ),
+                "SNAP": "/snap/checkbox/20486",
+            },
+            clear=True,
+        ):
+            mock_in_classic_snap.return_value = False
+            self.assertEqual(
+                RCT.get_snap_and_checkbox_runtime()[1],
+                "/snap/checkbox/20486/checkbox-runtime",
+            )
+
+        with patch.dict(
+            "os.environ",
+            {
+                "CHECKBOX_RUNTIME": "/snap/checkbox24/current",
+                "SNAP": "/snap/checkbox/20486",
+            },
+            clear=True,
+        ):
+            mock_in_classic_snap.return_value = True
+            self.assertEqual(
+                RCT.get_snap_and_checkbox_runtime()[1],
+                "/snap/checkbox24/current",
+            )
 
 
 if __name__ == "__main__":

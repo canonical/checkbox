@@ -289,7 +289,7 @@ class TestGLSupportTests(ut.TestCase):
                 PosixPath("/snap/checkbox/20486/checkbox-runtime"),
             )
 
-        with patch.dict({}, clear=True):
+        with patch.dict("os.environ", {}, clear=True):
             mock_in_classic_snap.return_value = False
             tester = gl_support.GLSupportTester()
             self.assertEqual(

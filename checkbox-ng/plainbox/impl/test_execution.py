@@ -18,6 +18,8 @@
 
 import contextlib
 
+from pathlib import Path
+
 from plainbox.impl.execution import (
     UnifiedRunner,
     get_execution_command_systemd_unit,
@@ -61,8 +63,10 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch("shutil.which")
     @mock.patch("plainbox.impl.execution.get_execution_environment")
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    @mock.patch("plainbox.impl.execution.get_snap_base")
     def test_get_execution_command_systemd_unit_command_and_envvars(
         self,
+        mock_get_snap_base,
         mock_on_ubuntucore,
         mock_get_diff_env,
         mock_shutil_which,
@@ -97,10 +101,14 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch("shutil.which")
     @mock.patch("plainbox.impl.execution.get_execution_environment")
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    @mock.patch("plainbox.impl.execution.get_snap_base")
+    @mock.patch("plainbox.impl.execution.get_checkbox_runtime_path")
     @mock.patch("os.getenv")
     def test_get_execution_command_systemd_unit_nsenter_on_core(
         self,
         mock_os_getenv,
+        mock_get_checkbox_runtime_path,
+        mock_get_snap_base,
         mock_on_ubuntucore,
         mock_get_diff_env,
         mock_shutil_which,
@@ -111,6 +119,8 @@ class UnifiedRunnerTests(TestCase):
         mock_on_ubuntucore.return_value = True
         mock_os_getenv.return_value = "test_snap"
         mock_get_diff_env.return_value = {}
+
+        mock_get_checkbox_runtime_path.return_value = Path("")
 
         def shutil_which(x):
             return "/bin/{}".format(x)

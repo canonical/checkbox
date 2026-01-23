@@ -691,7 +691,7 @@ class UdevadmDevice(object):
                     "mtk-vcodec-dec",
                     "mtk-jpeg",
                     "mtk-mdp3",
-                    "intel[-_]ipu[0-9][-_].*",
+                    "intel[-_]ipu[0-9].*",
                 )
                 for b in drivers_blocklist:
                     match = re.search(b, str(self.driver))

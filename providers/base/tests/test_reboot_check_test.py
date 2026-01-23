@@ -428,7 +428,7 @@ class InfoDumpTests(unittest.TestCase):
         shutil.rmtree(self.temp_output_dir, ignore_errors=True)
         shutil.rmtree(self.temp_comparison_dir, ignore_errors=True)
 
-    def mock_run(self, args: T.List[str], **_) -> sp.CompletedProcess[str]:
+    def mock_run(self, args: T.List[str], **_) -> sp.CompletedProcess:
         stdout = ""
         if args[0] == "iw":
             stdout = """\

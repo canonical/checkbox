@@ -286,7 +286,6 @@ class SmartcardTest:
         parser_detect.add_argument(
             "-r",
             "--reader",
-            type=str,
             help="smartcard reader for testing",
         )
 

@@ -198,6 +198,7 @@ parts:
       - zlib1g-dev
       - build-essential
     stage-packages:
+      - setpriv # used to downgrade AmbientCapabilities of systemd-based runner
       - python3-markupsafe
       - python3-jinja2
       - python3-packaging

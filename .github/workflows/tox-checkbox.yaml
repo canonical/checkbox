@@ -74,6 +74,7 @@ jobs:
               providers/certification-client \
               providers/certification-server \
               providers/gpgpu \
+              providers/npu \
               providers/resource \
               providers/genio \
               providers/iiotg \

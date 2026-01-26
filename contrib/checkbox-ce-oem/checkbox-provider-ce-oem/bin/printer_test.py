@@ -139,31 +139,32 @@ def main():
     # 3. Print a test page
     logging.info("Sending test print job...")
     test_text = "Printer TEST\nSTATUS: LINKED\n"
-    lp_output = run_command(
-        "echo '{}' | lp -d {}".format(test_text, printer_name)
-    )
+    print_success = True
+    try:
+        lp_output = run_command(
+            "echo '{}' | lp -d {}".format(test_text, printer_name)
+        )
 
-    if lp_output and "request id is" in lp_output:
-        # Extract Job ID (e.g., Printer test_Queue-10)
-        job_id = lp_output.split(" ")[3]
-        logging.info("Job submitted: {}".format(job_id))
+        if lp_output and "request id is" in lp_output:
+            # Extract Job ID (e.g., Printer test_Queue-10)
+            job_id = lp_output.split(" ")[3]
+            logging.info("Job submitted: {}".format(job_id))
 
-        # 4. Monitor status
-        try:
+            # 4. Monitor status
             run_with_timeout(monitor_job, 30, printer_name, job_id)
-        except TimeoutError:
-            logging.error(
-                "TIMEOUT: Job did not reach 'completed' status within "
-                "30 seconds."
-            )
-            teardown_printer(printer_name)
-            raise SystemExit(1)
-    else:
-        logging.error("Failed to submit print job.")
+        else:
+            print_sucess = False
+            logging.error("Failed to submit print job.")
+    except TimeoutError:
+        print_success = False
+        logging.error(
+            "TIMEOUT: Job did not reach 'completed' status within "
+            "30 seconds."
+        )
+    finally:
         teardown_printer(printer_name)
+    if not print_success:        
         raise SystemExit(1)
-
-    teardown_printer(printer_name)
 
 
 if __name__ == "__main__":

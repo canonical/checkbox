@@ -632,3 +632,10 @@ _steps:
     3. Boot into the recovered system without errors
 _verification:
     1. The system boots into the factory recovery system successfully.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 120.0
+id: miscellanea/check-hardware-attributes
+command: check_hardware_attributes.py
+_summary: Check that all the attributes are able to read

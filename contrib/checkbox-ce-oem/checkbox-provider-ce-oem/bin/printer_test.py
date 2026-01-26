@@ -153,7 +153,7 @@ def main():
             # 4. Monitor status
             run_with_timeout(monitor_job, 30, printer_name, job_id)
         else:
-            print_sucess = False
+            print_success = False
             logging.error("Failed to submit print job.")
     except TimeoutError:
         print_success = False
@@ -163,7 +163,7 @@ def main():
         )
     finally:
         teardown_printer(printer_name)
-    if not print_success:        
+    if not print_success:
         raise SystemExit(1)
 
 

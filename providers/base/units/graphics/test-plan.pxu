@@ -345,6 +345,7 @@ include:
     after-suspend-graphics/webgl-conformance-test-.*
 bootstrap_include:
     browser_resource
+
 id: graphic-desktop-26-04-manual
 unit: test plan
 _name: Desktop Graphics for 26.04 (Manual)

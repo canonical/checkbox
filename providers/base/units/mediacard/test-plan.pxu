@@ -137,7 +137,6 @@ unit: test plan
 _name: Desktop Wireless for 26.04 (Automated)
 _description: Automated tests for wireless
 include:
-include:
     mediacard/storage-preinserted-.*
     after-suspend-mediacard/storage-preinserted-.*
 bootstrap_include:

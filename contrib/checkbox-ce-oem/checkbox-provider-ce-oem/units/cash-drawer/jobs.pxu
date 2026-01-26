@@ -16,7 +16,7 @@ command:
         exit 1
     fi
     OPEN_CMD=${CASH_DRAWER_OPEN_STR:-'\x07'}
-    echo -e "Sending trigger: $OPEN_CMD to $CASH_DRAWER_PORT"
+    echo "Sending trigger: $OPEN_CMD to $CASH_DRAWER_PORT"
     echo -e "$OPEN_CMD" > "$CASH_DRAWER_PORT"
 imports:
     from com.canonical.plainbox import manifest

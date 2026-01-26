@@ -25,6 +25,7 @@ from plainbox.impl.execution import (
     get_execution_command_systemd_unit,
     get_execution_command_subshell,
     dangerous_nsenter,
+    MountingStrategy,
 )
 from plainbox.impl.unit.job import InvalidJob
 
@@ -64,9 +65,49 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch("plainbox.impl.execution.get_execution_environment")
     @mock.patch("plainbox.impl.execution.on_ubuntucore")
     @mock.patch("plainbox.impl.execution.get_snap_base")
+    @mock.patch("plainbox.impl.unit.unit.get_snap_base")
     def test_get_execution_command_systemd_unit_command_and_envvars(
         self,
-        mock_get_snap_base,
+        mock_get_snap_base_unit,
+        mock_get_snap_base_execution,
+        mock_on_ubuntucore,
+        mock_get_diff_env,
+        mock_shutil_which,
+        mock_temp_file,
+        mock_chmod,
+    ):
+        job = mock.Mock(shell="bash", command="test_command")
+        mock_on_ubuntucore.return_value = True
+        mock_get_snap_base_unit.return_value = (
+            mock_get_snap_base_execution.return_value
+        ) = "core24"
+        mock_get_diff_env.return_value = {"TEST_VAR": "test_value"}
+        mock_shutil_which.return_value = "/usr/bin/plz-run"
+
+        mock_file = mock.MagicMock()
+        mock_file.name = "/var/tmp/job_command_test.sh"
+        mock_temp_file().__enter__.return_value = mock_file
+
+        with get_execution_command_systemd_unit(
+            job, {}, "test_session", "/tmp/nest", "ubuntu", None
+        ) as result:
+            result = " ".join(result)
+
+        result += " ".join(str(x) for x in mock_file.write.call_args_list)
+
+        self.assertIn("nsenter", result)
+
+        self.assertIn("test_command", result)
+        # user command are executed in a logged in slice/service
+        self.assertIn("-pam", result)
+
+    @mock.patch("os.chmod")
+    @mock.patch("tempfile.NamedTemporaryFile")
+    @mock.patch("shutil.which")
+    @mock.patch("plainbox.impl.execution.get_execution_environment")
+    @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    def test_get_execution_command_systemd_unit_non_core(
+        self,
         mock_on_ubuntucore,
         mock_get_diff_env,
         mock_shutil_which,
@@ -89,7 +130,6 @@ class UnifiedRunnerTests(TestCase):
 
         result += " ".join(str(x) for x in mock_file.write.call_args_list)
 
-        # outside ubuntucore, there is no filesystem to mount
         self.assertNotIn("nsenter", result)
 
         self.assertIn("test_command", result)
@@ -324,3 +364,29 @@ class TestDangerousNsenter(TestCase):
         subprocess_calls_str = "\n".join(str(arg) for arg in subprocess_calls)
         self.assertIn("rm", subprocess_calls_str)
         self.assertIn("nsenter", subprocess_calls_str)
+
+
+class TestMountingStrategy(TestCase):
+    def test_dont_mount(self):
+        self.assertEqual(
+            MountingStrategy.from_user_core("root", False, None),
+            MountingStrategy.DONT_MOUNT,
+        )
+
+    def test_mount_root(self):
+        self.assertEqual(
+            MountingStrategy.from_user_core("root", True, "core16"),
+            MountingStrategy.MOUNT_ROOT,
+        )
+
+    def test_mount_dangerous(self):
+        self.assertEqual(
+            MountingStrategy.from_user_core("ubuntu", True, "core16"),
+            MountingStrategy.MOUNT_DANGEROUS_NSENTER,
+        )
+
+    def test_mount_ambient(self):
+        self.assertEqual(
+            MountingStrategy.from_user_core("ubuntu", True, "core24"),
+            MountingStrategy.MOUNT_AMBIENT_CAPABILITIES,
+        )

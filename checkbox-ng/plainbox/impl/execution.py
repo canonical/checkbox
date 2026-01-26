@@ -853,8 +853,6 @@ def get_snap_mount_namespace_commands(target_user, shared_location):
         # when not on ubuntucore, there is no snap namespace to mount
         return wrapper_cmd, cmd, namespace_mounting_helper
     dangerous_nsenter_path = None
-    snap_base = get_snap_base()
-
     # mounting namespaces is not allowed as non-root, the following makes it
     # possible
     if mounting_strategy == MountingStrategy.MOUNT_DANGEROUS_NSENTER:

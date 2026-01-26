@@ -776,17 +776,13 @@ def dangerous_nsenter(path):
     """
     Creates a dangerous nsenter copy at path with cap_sys_admin,cap_sys_chroot
     """
-    if path is None:
-        # this command doens't need dangerous nsenter
-        yield path
-        return
     try:
         # here recover setcap and nsenter binaries path outside the sandbox
         runtime_path = get_checkbox_runtime_path()
         runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter"
         # Note: this path only works on core<24, on core24+ this is in
-        #       /usr/sbin but this code should only work on core16, so this is
-        #       fine
+        #       /usr/sbin but this code should only be used on core16, so this
+        #       is fine
         runtime_setcap = runtime_path / "sbin" / "setcap"
         setcap_path = str(runtime_setcap)
         nsenter_path = str(runtime_nsenter)

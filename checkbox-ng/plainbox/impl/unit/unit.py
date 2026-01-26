@@ -79,19 +79,21 @@ def get_snap_base():
     Get the current snap base
     """
     snap = os.getenv("SNAP")
-    if snap:
-        with open(os.path.join(snap, "meta/snap.yaml")) as f:
-            for l in f.readlines():
-                if "base:" in l:
-                    core_version = l.replace("base:", "").strip()
-                    if core_version == "core":
-                        return "core16"
-                    return core_version
-        return "core16"  # core16 may not declare base
-    raise ValueError("Couldn't detect snap path. Missing SNAP envvar")
+    if not snap:
+        raise ValueError("Couldn't detect snap path. Missing SNAP envvar")
+    with open(os.path.join(snap, "meta/snap.yaml")) as f:
+        for l in f.readlines():
+            if "base:" in l:
+                core_version = l.replace("base:", "").strip()
+                if core_version == "core":
+                    return "core16"
+                return core_version
+    return "core16"  # core16 may not declare base
 
 
 def get_checkbox_runtime_path():
+    # Note: this is not the same as using SNAP as this will always be the
+    #       runtime, while SNAP on the legacy arch is the frontend
     snap_base_n = get_snap_base().replace("core", "")
     # the bases of the runtime and frontend must always match
     runtime_name = "checkbox" + snap_base_n

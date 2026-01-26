@@ -35,6 +35,7 @@ import time
 import shlex
 import signal
 import shutil
+import enum
 
 from contextlib import suppress
 from subprocess import check_output, check_call, run
@@ -805,6 +806,113 @@ def dangerous_nsenter(path):
         run(get_plz_run(["rm", path]))
 
 
+class MountingStrategy(enum.Enum):
+    # mount is not needed in this context
+    DONT_MOUNT = enum.auto()
+    # mount is needed but not permission is required
+    MOUNT_ROOT = enum.auto()
+    # mount is needed and permission has to be aquired via dangerous nsenter
+    MOUNT_DANGEROUS_NSENTER = enum.auto()
+    # mount is needed and permission has to be aquired via ambient capabilities
+    # this is the preferred option when available and needed
+    MOUNT_AMBIENT_CAPABILITIES = enum.auto()
+
+    @classmethod
+    def from_user_core(cls, job_user, on_core, snap_base):
+        if not on_core:
+            return cls.DONT_MOUNT
+        if job_user == "root":
+            return cls.MOUNT_ROOT
+        if snap_base == "core16":
+            # core16 doesn't support AmbientCapabilities via dbus
+            return cls.MOUNT_DANGEROUS_NSENTER
+        return cls.MOUNT_AMBIENT_CAPABILITIES
+
+
+def get_snap_mount_namespace_commands(target_user, shared_location):
+    """
+    Returns commands and helpers to mount the current snap namespace
+
+    This is necessary because when inside a core snap, some binaries may
+    pass through a content interface. This makes their path "invalid" to any
+    process that doesn't mount the same mount namespace. This function returns
+    said commands (to be appended to the unit command), along with some
+    commands to append to the script (to fix the process permissions) and a
+    helper that will make the commands in the script work on some systems.
+
+    The returned values from this function are always valid, they are no-op
+    on systems where they aren't needed
+    """
+    wrapper_cmd = []
+    cmd = []
+    namespace_mounting_helper = suppress()
+    on_core = on_ubuntucore()
+    snap_base = None if not on_core else get_snap_base()
+
+    mounting_strategy = MountingStrategy.from_user_core(
+        target_user, on_core, snap_base
+    )
+    if mounting_strategy == MountingStrategy.DONT_MOUNT:
+        # when not on ubuntucore, there is no snap namespace to mount
+        return wrapper_cmd, cmd, namespace_mounting_helper
+    dangerous_nsenter_path = None
+    snap_base = get_snap_base()
+
+    # mounting namespaces is not allowed as non-root, the following makes it
+    # possible
+    if mounting_strategy == MountingStrategy.MOUNT_DANGEROUS_NSENTER:
+        # here we need a dangerous copy of nsenter that works as "normal"
+        # user because the unit will be normal user and else it wont be
+        # able to mount the snap namespace. This only on core16 because
+        # other distros support setting AmbientCapabilities via dbus API
+        # making that a better, more secure alternative
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, prefix="nsenter_", dir=shared_location
+        ) as f:
+            dangerous_nsenter_path = f.name
+        namespace_mounting_helper = dangerous_nsenter(dangerous_nsenter_path)
+    elif mounting_strategy == MountingStrategy.MOUNT_AMBIENT_CAPABILITIES:
+        # on core > 16 we can set AmbientCapabilities without using fs caps
+        # These are the capabilities needed to mount the namespace
+        # from linux/capability.h
+        # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7)
+        CAP_SETGID = 6  # necessary for setpriv
+        CAP_SETUID = 7  # necessary for setpriv
+        CAP_SYS_CHROOT = 18  # necessary for nsenter
+        CAP_SYS_ADMIN = 21  # necessary for nsenter
+        ambient_capabilities_bitset = (
+            1 << CAP_SETGID
+            | 1 << CAP_SETUID
+            | 1 << CAP_SYS_CHROOT
+            | 1 << CAP_SYS_ADMIN
+        )
+        wrapper_cmd += [
+            "-ambient-capabilities",
+            str(ambient_capabilities_bitset),
+        ]
+    # these binaries are not reliably shipped / may not be in path
+    runtime_path = get_checkbox_runtime_path()
+    runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter"
+
+    snap_name = os.getenv("SNAP_NAME", "checkbox")
+    cmd += [
+        (
+            str(runtime_nsenter)
+            if dangerous_nsenter_path is None
+            else str(dangerous_nsenter_path)
+        ),
+        "-m/run/snapd/ns/{}.mnt".format(snap_name),
+    ]
+    if mounting_strategy == MountingStrategy.MOUNT_AMBIENT_CAPABILITIES:
+        # on non-core16 we have given ourselves AmbientCapabilities. After
+        # using them for what we needed (mounting the namespace) we must
+        # drop them else the "user" test will have way more priviledges
+        # than it is supposed to
+        runtime_setpriv = runtime_path / "usr" / "bin" / "setpriv"
+        cmd += [str(runtime_setpriv), "--inh-caps=-all"]
+    return wrapper_cmd, cmd, namespace_mounting_helper
+
+
 @contextlib.contextmanager
 def get_execution_command_systemd_unit(
     job, environ, session_id, nest_dir, target_user, extra_env=None
@@ -837,67 +945,19 @@ def get_execution_command_systemd_unit(
     if target_user != "root":
         wrapper_cmd += ["-pam", "system-login"]
     cmd = []
-    dangerous_nsenter_path = None
     # this location must be accessible and in the same path for both this
-    # process (that may be inside a snap) and the systemd unit (which is not)
-    # fallback mechanism is for debian/source checkbox
+    # process (that may be inside a snap) a systemd unit, debian or source
+    # checkbox. All users must be able to read and write to it.
     # DONT use SNAP_COMMON (not writable by normal user)
     # DONT use SNAP_USER_COMMON (not writable by normal user if running as root)
     shared_location = "/var/tmp"
-    core_snap = on_ubuntucore()
     # when in a core snap, we need the snap mount namespace to use anything
     # that was shared via a content interface
-    if core_snap:
-        snap_base = get_snap_base()
-        if target_user != "root" and snap_base == "core16":
-            # here we need a dangerous copy of nsenter that works as "normal"
-            # user because the unit will be normal user and else it wont be
-            # able to mount the snap namespace. This only on core16 because
-            # other distros support setting AmbientCapabilities via dbus API
-            # making that a better, more secure alternative
-            with tempfile.NamedTemporaryFile(
-                mode="w", delete=False, prefix="nsenter_", dir=shared_location
-            ) as f:
-                dangerous_nsenter_path = f.name
-        elif target_user != "root":
-            # on core > 16 we can set AmbientCapabilities without using fs caps
-            # These are the capabilities needed to mount the namespace
-            # from linux/capability.h
-            # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7))}
-            CAP_SETGID = 6  # necessary for setpriv
-            CAP_SETUID = 7  # necessary for setpriv
-            CAP_SYS_CHROOT = 18  # necessary for nsenter
-            CAP_SYS_ADMIN = 21  # necessary for nsenter
-            ambient_capabilities_bitset = (
-                1 << CAP_SETGID
-                | 1 << CAP_SETUID
-                | 1 << CAP_SYS_CHROOT
-                | 1 << CAP_SYS_ADMIN
-            )
-            wrapper_cmd += [
-                "-ambient-capabilities",
-                str(ambient_capabilities_bitset),
-            ]
-        # these binaries are not reliably shipped / may not be in path
-        runtime_path = get_checkbox_runtime_path()
-        runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter"
-        runtime_setpriv = runtime_path / "usr" / "bin" / "setpriv"
-
-        snap_name = os.getenv("SNAP_NAME", "checkbox")
-        cmd += [
-            (
-                str(runtime_nsenter)
-                if dangerous_nsenter_path is None
-                else dangerous_nsenter_path
-            ),
-            "-m/run/snapd/ns/{}.mnt".format(snap_name),
-        ]
-        if snap_base != "core16":
-            # on non-core16 we have given ourselves AmbientCapabilities. After
-            # using them for what we needed (mounting the namespace) we must
-            # drop them else the "user" test will have way more priviledges
-            # than it is supposed to
-            cmd += [str(runtime_setpriv), "--inh-caps=-all"]
+    extra_wrapper_cmd, extra_cmd, namespace_mounting_helper = (
+        get_snap_mount_namespace_commands(target_user, shared_location)
+    )
+    wrapper_cmd += extra_wrapper_cmd
+    cmd += extra_cmd
     env = get_execution_environment(job, environ, session_id, nest_dir)
     if extra_env:
         env.update(extra_env())
@@ -922,11 +982,9 @@ def get_execution_command_systemd_unit(
         path = f.name
 
     wrapper_cmd.append(path)
-    # dangerous_nsenter will create the dangerous version only if it is needed
-    # it is a no-op on non-core16 snaps
-    with dangerous_nsenter(dangerous_nsenter_path):
+    with namespace_mounting_helper:
         try:
             yield wrapper_cmd
         finally:
             with suppress(OSError):
-                os.remove(f.name)
+                os.remove(path)

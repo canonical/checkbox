@@ -64,7 +64,7 @@ class TestGetSleepTestCommand(unittest.TestCase):
         self.assertEqual(result, expected)
 
     @patch.dict(
-        "os.environ",
+        os.environ,
         {
             "CHECKBOX_RUNTIME": "\n".join(
                 [

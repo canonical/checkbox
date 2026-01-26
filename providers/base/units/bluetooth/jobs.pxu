@@ -6,7 +6,7 @@ plugin: shell
 command:
   bt_list_adapters.py && udev_resource.py -f BLUETOOTH
 estimated_duration: 2s
-flags: preserve-locale
+flags: also-after-suspend, preserve-locale
 requires: manifest.has_bt_adapter == 'True'
 imports: from com.canonical.plainbox import manifest
 

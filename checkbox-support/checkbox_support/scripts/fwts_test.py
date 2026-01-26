@@ -187,7 +187,7 @@ def get_fwts_base_cmd() -> str:
         if not fwts_json_data_dir.exists():
             raise SystemExit(
                 "We are in a snap environment, "
-                + "but {}".format(fwts_json_data_dir)
+                + "but '{}' ".format(fwts_json_data_dir)
                 + "doesn't exist"
             )
         return "fwts -j {}".format(fwts_json_data_dir)

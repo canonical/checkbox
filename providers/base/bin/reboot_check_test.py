@@ -210,7 +210,7 @@ class FwtsTester:
                 *sh_split(get_fwts_base_cmd()),
                 "-q",
                 "-r",
-                output_directory,
+                log_file_path,
                 *fwts_arguments,
             ]
         )

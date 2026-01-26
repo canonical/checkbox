@@ -7,6 +7,7 @@ from subprocess import Popen, PIPE, DEVNULL
 from shutil import which
 import os
 from pathlib import Path
+from checkbox_support.snap_utils.system import in_classic_snap
 
 # These tests require user interaction and need either special handling
 # or skipping altogether (right now, we skip them but they're kept here
@@ -181,9 +182,21 @@ def get_fwts_base_cmd() -> str:
     if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
         # snap checkbox
         # must specify where the klog.json, clog.json files are
-        fwts_json_data_dir = (
-            Path(os.environ["SNAP"]) / "checkbox-runtime" / "share" / "fwts"
-        )
+        if in_classic_snap():
+            # workaround for issue 2295
+            # https://github.com/canonical/checkbox/issues/2295
+            # TODO: remove this logic and read CHECKBOX_RUNTIME directly
+            # after 2295 i fixed
+            fwts_json_data_dir = (
+                Path(os.environ["CHECKBOX_RUNTIME"]) / "share" / "fwts"
+            )
+        else:
+            fwts_json_data_dir = (
+                Path(os.environ["SNAP"])
+                / "checkbox-runtime"
+                / "share"
+                / "fwts"
+            )
         if not fwts_json_data_dir.exists():
             raise SystemExit(
                 "We are in a snap environment, "

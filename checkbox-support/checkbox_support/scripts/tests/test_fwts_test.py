@@ -27,7 +27,6 @@ from checkbox_support.scripts.fwts_test import (
     get_fwts_base_cmd,
 )
 from unittest.mock import patch, MagicMock
-from pathlib import Path
 
 
 class LogPrinterTest(unittest.TestCase):
@@ -70,9 +69,13 @@ class TestGetSleepTestCommand(unittest.TestCase):
             "SNAP": "/snap/test-snap",
         },
     )
+    @patch("checkbox_support.scripts.fwts_test.in_classic_snap")
     @patch("checkbox_support.scripts.fwts_test.Path.exists")
-    def test_snap_env_happy_path(self, mock_exists: MagicMock):
+    def test_snap_env_happy_path(
+        self, mock_exists: MagicMock, mock_in_classic_snap: MagicMock
+    ):
         mock_exists.return_value = True
+        mock_in_classic_snap.return_value = False
 
         result = get_fwts_base_cmd()
 
@@ -83,13 +86,17 @@ class TestGetSleepTestCommand(unittest.TestCase):
     @patch.dict(
         os.environ,
         {
-            "CHECKBOX_RUNTIME": "/snap/test-snap/checkbox-runtime/",
-            "SNAP": "/snap/test-snap",
+            "CHECKBOX_RUNTIME": "/snap/checkbox24/current/",
+            "SNAP": "/snap/checkbox-20735/",
         },
     )
+    @patch("checkbox_support.scripts.fwts_test.in_classic_snap")
     @patch("checkbox_support.scripts.fwts_test.Path.exists")
-    def test_snap_env_missing_dir(self, mock_exists: MagicMock):
+    def test_snap_env_missing_dir(
+        self, mock_exists: MagicMock, mock_in_classic_snap: MagicMock
+    ):
         mock_exists.return_value = False
+        mock_in_classic_snap.return_value = True
 
         with self.assertRaises(SystemExit) as cm:
             get_fwts_base_cmd()

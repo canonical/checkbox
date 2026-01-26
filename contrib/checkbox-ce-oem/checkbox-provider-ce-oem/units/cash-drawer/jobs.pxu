@@ -16,20 +16,15 @@ command:
         exit 1
     fi
 
-    if [ -z "$CASH_DRAWER_PORT" ]; then
-        echo "Error: CASH_DRAWER_PORT is not existed in system."
-        exit 1
-    fi
+    OPEN_CMD=${CASH_DRAWER_OPEN_STR:-'\x07'}
 
-    OPEN_CMD=${CASH_DRAWER_CMD:-'\x07'}
-    
     echo -e "Sending trigger: $OPEN_CMD to $CASH_DRAWER_PORT"
     echo -e "$OPEN_CMD" > "$CASH_DRAWER_PORT"
-imports: 
+imports:
     from com.canonical.plainbox import manifest
-requires: 
+requires:
     manifest.has_cash_drawer == 'True'
-environ: CASH_DRAWER_PORT
+environ: CASH_DRAWER_PORT CASH_DRAWER_OPEN_STR
 _steps:
  1. Press enter to open the cash drawer.
 _verification:

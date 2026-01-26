@@ -10,7 +10,21 @@ user: root
 category_id: cash_drawer
 estimated_duration: 30s
 flags: also-after-suspend
-command: echo -e '\x07' > "$CASH_DRAWER_PORT"
+command:
+    if [ ! -e "$CASH_DRAWER_PORT" ]; then
+        echo "Error: Device $CASH_DRAWER_PORT not found."
+        exit 1
+    fi
+
+    if [ -z "$CASH_DRAWER_PORT" ]; then
+        echo "Error: CASH_DRAWER_PORT is not existed in system."
+        exit 1
+    fi
+
+    OPEN_CMD=${CASH_DRAWER_CMD:-'\x07'}
+    
+    echo -e "Sending trigger: $OPEN_CMD to $CASH_DRAWER_PORT"
+    echo -e "$OPEN_CMD" > "$CASH_DRAWER_PORT"
 imports: 
     from com.canonical.plainbox import manifest
 requires: 

@@ -186,7 +186,7 @@ def get_fwts_base_cmd() -> str:
             # workaround for issue 2295
             # https://github.com/canonical/checkbox/issues/2295
             # TODO: remove this logic and read CHECKBOX_RUNTIME directly
-            # after 2295 i fixed
+            # after 2295 is fixed
             fwts_json_data_dir = (
                 Path(os.environ["CHECKBOX_RUNTIME"]) / "share" / "fwts"
             )

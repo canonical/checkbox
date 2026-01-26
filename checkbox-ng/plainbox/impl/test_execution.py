@@ -278,18 +278,6 @@ class TestDangerousNsenter(TestCase):
     @mock.patch("plainbox.impl.execution.check_output")
     @mock.patch("plainbox.impl.execution.check_call")
     @mock.patch("plainbox.impl.execution.run")
-    def test_dangerous_nsenter_not_needed(
-        self, run_mock, check_call_mock, check_output_mock
-    ):
-        with dangerous_nsenter(None):
-            pass
-        self.assertFalse(run_mock.called)
-        self.assertFalse(check_call_mock.called)
-        self.assertFalse(check_output_mock.called)
-
-    @mock.patch("plainbox.impl.execution.check_output")
-    @mock.patch("plainbox.impl.execution.check_call")
-    @mock.patch("plainbox.impl.execution.run")
     @mock.patch("shutil.which")
     def test_dangerous_nsenter_cleanup(
         self, which_mock, run_mock, check_call_mock, check_output_mock

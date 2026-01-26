@@ -1,0 +1,16 @@
+id: ce-oem/credit-card-reader-test-automated
+_summary: Test credit card reader connection established
+_purpose:
+    This autotest verifies that the credit card reader is correctly installed and able
+    to established.
+plugin: shell
+user: root
+category_id: credit_card_reader
+estimated_duration: 5s
+flags: also-after-suspend
+command: credit_card_reader_test.py -P "$CREDIT_CARD_READER_PORT" -B "$CREDIT_CARD_READER_BAUD_RATE"
+imports: 
+    from com.canonical.plainbox import manifest
+requires: 
+    manifest.has_credit_card_reader == 'True'
+environ: CREDIT_CARD_READER_PORT CREDIT_CARD_READER_BAUD_RATE

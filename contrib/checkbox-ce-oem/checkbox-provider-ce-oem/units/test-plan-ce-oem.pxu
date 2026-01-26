@@ -54,6 +54,7 @@ nested_part:
     ce-oem-rpmsg-manual
     ce-oem-barcode-scanner-manual
     ce-oem-printer-manual
+    ce-oem-cash-drawer-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -139,6 +140,7 @@ nested_part:
     after-suspend-ce-oem-regulator-manual
     after-suspend-ce-oem-barcode-scanner-manual
     after-suspend-ce-oem-printer-manual
+    after-suspend-ce-oem-cash-drawer-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -193,4 +195,3 @@ nested_part:
     ce-oem-serial-stress
 certification_status_overrides:
     apply blocker to .*
-

@@ -56,18 +56,26 @@ class LogPrinterTest(unittest.TestCase):
 class TestGetSleepTestCommand(unittest.TestCase):
 
     @patch.dict(os.environ, {}, clear=True)
-    def test_deb_environment(self):
-
+    @patch("checkbox_support.scripts.fwts_test.in_classic_snap")
+    def test_deb_environment(self, mock_in_classic_snap: MagicMock):
+        mock_in_classic_snap.return_value = False
         result = get_fwts_base_cmd()
         expected = "fwts"
         self.assertEqual(result, expected)
 
     @patch.dict(
-        os.environ,
+        "os.environ",
         {
-            "CHECKBOX_RUNTIME": "/snap/test-snap/checkbox-runtime/",
-            "SNAP": "/snap/test-snap",
+            "CHECKBOX_RUNTIME": "\n".join(
+                [
+                    "/snap/checkbox24/1437",
+                    "/snap/checkbox/20486/checkbox-runtime",
+                    "/snap/checkbox/20486/providers/blah-blah",
+                ]
+            ),
+            "SNAP": "/snap/checkbox/20486",
         },
+        clear=True,
     )
     @patch("checkbox_support.scripts.fwts_test.in_classic_snap")
     @patch("checkbox_support.scripts.fwts_test.Path.exists")
@@ -79,7 +87,7 @@ class TestGetSleepTestCommand(unittest.TestCase):
 
         result = get_fwts_base_cmd()
 
-        expected_dir = "/snap/test-snap/checkbox-runtime/share/fwts"
+        expected_dir = "/snap/checkbox/20486/checkbox-runtime/share/fwts"
         expected_cmd = "fwts -j {}".format(expected_dir)
         self.assertEqual(result, expected_cmd)
 

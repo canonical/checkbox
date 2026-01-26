@@ -173,8 +173,6 @@ SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 def get_fwts_base_cmd() -> str:
     """Get the correct fwts command template depending on if we are inside a snap
 
-    :param log_file_path: where to put the log file
-    :param tests: list of fwts tests like 's3' 'klog'
     :raises SystemExit: If we are in snap, but the json files needed by
                         fwts's parser doesn't exist
     :return: command string

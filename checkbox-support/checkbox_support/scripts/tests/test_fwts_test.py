@@ -53,7 +53,7 @@ class LogPrinterTest(unittest.TestCase):
             pass
 
 
-class TestGetSleepTestCommand(unittest.TestCase):
+class TestGetFwtsBaseCommand(unittest.TestCase):
 
     @patch.dict(os.environ, {}, clear=True)
     @patch("checkbox_support.scripts.fwts_test.in_classic_snap")

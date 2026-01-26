@@ -118,3 +118,27 @@ include:
 nested_part:
     mediacard-cert-automated
     after-suspend-mediacard-cert-automated
+
+id: mediacard-iot-26-04-manual
+unit: test plan
+_name: media card tests for Ubuntu 26.04 (manual)
+_description: Manual tests for media card
+include:
+    mediacard/sd-storage-manual
+    mediacard/sdhc-storage-manual
+    mediacard/sdxc-storage-manual
+    after-suspend-mediacard/sd-storage-manual
+    after-suspend-mediacard/sdhc-storage-manual
+    after-suspend-mediacard/sdxc-storage-manual
+nested_part:
+
+id: mediacard-iot-26-04-automated
+unit: test plan
+_name: Desktop Wireless for 26.04 (Automated)
+_description: Automated tests for wireless
+include:
+include:
+    mediacard/storage-preinserted-.*
+    after-suspend-mediacard/storage-preinserted-.*
+bootstrap_include:
+    removable_partition

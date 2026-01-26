@@ -35,6 +35,8 @@ include:
     cpu/offlining_test                             certification-status=blocker
     cpu/topology                                   certification-status=blocker
     cpu/clocktest
+    cpu/armhf_vfp_support_.*
+    cpu/arm64_vfp_support_.*
 
 id: after-suspend-cpu-cert-automated
 unit: test plan

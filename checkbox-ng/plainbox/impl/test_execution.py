@@ -123,8 +123,11 @@ class UnifiedRunnerTests(TestCase):
         mock_file.name = "/var/tmp/job_command_test.sh"
         mock_temp_file().__enter__.return_value = mock_file
 
+        def extra_envvars():
+            return []
+
         with get_execution_command_systemd_unit(
-            job, {}, "test_session", "/tmp/nest", "ubuntu", None
+            job, {}, "test_session", "/tmp/nest", "ubuntu", extra_envvars
         ) as result:
             result = " ".join(result)
 

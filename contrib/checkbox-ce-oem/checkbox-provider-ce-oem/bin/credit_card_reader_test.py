@@ -15,11 +15,7 @@ def test_connection(port: str, baudrate: int, bytesize: int, parity: str):
     Test connection with specific serial settings.
     """
 
-    parity_name = {
-        serial.PARITY_NONE: "None",
-        serial.PARITY_EVEN: "Even",
-        serial.PARITY_ODD: "Odd",
-    }[parity]
+    parity_name = serial.PARITY_NAMES.get(parity, "Unknown")
 
     logging.info(
         "Testing config: Baud=%s, DataBits=%s, Parity=%s ... ",

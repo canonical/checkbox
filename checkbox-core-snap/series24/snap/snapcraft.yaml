@@ -154,7 +154,6 @@ parts:
     source: checkbox-support
     source-type: local
     stage-packages:
-      - setpriv # used to downgrade AmbientCapabilities of systemd-based runner
       # actual requirements
       - python3-bluez
       - python3-pyparsing

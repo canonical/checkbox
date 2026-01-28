@@ -1,0 +1,29 @@
+id: ce-oem/cash-drawer-test
+_summary: Test cash drawer functionality
+_purpose:
+    This test verifies that the cash drawer is correctly installed and the drawer
+    can be opened.
+    # This job rely on user identification of the cash drawer port.
+    # e.g : /dev/ttyS3
+plugin: user-interact-verify
+user: root
+category_id: cash_drawer
+estimated_duration: 30s
+flags: also-after-suspend
+command:
+    if [ ! -e "$CASH_DRAWER_PORT" ]; then
+        echo "Error: Device $CASH_DRAWER_PORT not found."
+        exit 1
+    fi
+    OPEN_CMD=${CASH_DRAWER_OPEN_STR:-'\x07'}
+    echo "Sending trigger: $OPEN_CMD to $CASH_DRAWER_PORT"
+    echo -e "$OPEN_CMD" > "$CASH_DRAWER_PORT"
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_cash_drawer == 'True'
+environ: CASH_DRAWER_PORT CASH_DRAWER_OPEN_STR
+_steps:
+ 1. Press enter to open the cash drawer.
+_verification:
+    Do you see the cash drawer opened?

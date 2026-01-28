@@ -22,7 +22,10 @@ from __future__ import unicode_literals
 from io import StringIO
 from unittest import TestCase
 
-from checkbox_ng.support.parsers.dkms_info import DkmsInfoParser, DkmsInfoResult
+from checkbox_ng.support.parsers.dkms_info import (
+    DkmsInfoParser,
+    DkmsInfoResult,
+)
 
 DKMS1 = """\
 some bogus unjson-parsable string

@@ -163,7 +163,6 @@ parts:
     stage-packages:
       # actual requirements
       - python3-bluez
-      - python3-pyparsing
       - python3-requests-unixsocket
       - libsystemd0
       - v4l-utils
@@ -209,6 +208,7 @@ parts:
       - python3-markupsafe
       - python3-jinja2
       - python3-packaging
+      - python3-pyparsing
       - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter

@@ -22,6 +22,7 @@ import difflib
 import json
 import logging
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -96,7 +97,7 @@ class PipewireTest:
             self.logger.info("Media class:[{}] is unknown".format(media_class))
             return "UNKNOWN CLASS"
 
-    def _get_pw_dump(self, p_type) -> dict:
+    def _get_pw_dump(self, p_type: str) -> dict:
         """
         Use to convert the json output of pw-dump to dict object
 
@@ -434,6 +435,44 @@ class PipewireTest:
 
                             checked = input()
 
+    def iter_audio_sinks(self, cmd: str) -> None:
+        """Execute the cmd for each audio sink discovered by pipewire
+
+        :param cmd: the command to run
+        """
+        clients = self._get_pw_dump("Device")  # type: list[dict[str, T.Any]]
+        for client in clients:
+            ports = None
+            media_class = client["info"]["props"].get("media.class")
+
+            if media_class == "Audio/Device":
+                ports = client["info"]["params"]["EnumRoute"]
+
+            if not ports:
+                return
+
+            for port in ports:
+                if port["direction"] != "Output":
+                    print(
+                        "Skipping '{}'".format(port["description"]),
+                        "because it's not a sink",
+                    )
+                    continue
+                if port["available"] not in ("yes", "unknown"):
+                    print(
+                        "Skipping '{}'".format(port["description"]),
+                        "because it's unavailable",
+                    )
+                    continue
+
+                print("=" * 80)
+                print(
+                    "Testing sink '{}'".format(port["description"]),
+                    "with command '{}'".format(cmd),
+                )
+                subprocess.check_call(cmd, shell=True)
+                print("=" * 80)
+
     def _get_node_description(self, properties) -> str:
         """
         Get node description from the output of wpctl inspect
@@ -753,6 +792,17 @@ class PipewireTest:
             "-m", "--mode", type=str, help="Either sinks or sources"
         )
 
+        parser_iter_sink = subparsers.add_parser(
+            "iter-audio-sinks", help="Iterate all available audio sinks"
+        )
+        parser_iter_sink.add_argument(
+            "-c",
+            "--command",
+            type=str,
+            required=True,
+            help="command for testing",
+        )
+
         # Add parser for show default device function
         parser_show = subparsers.add_parser(
             "show", help="show the default device"
@@ -823,6 +873,8 @@ class PipewireTest:
                 return PipewireTestError.NO_ERROR
             else:
                 return PipewireTestError.NOT_REAL_DEVICE
+        elif args.test_type == "iter-audio-sinks":
+            return self.iter_audio_sinks(args.command)
 
 
 def main():

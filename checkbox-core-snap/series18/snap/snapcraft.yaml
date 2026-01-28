@@ -316,6 +316,7 @@ parts:
       - python3-psutil
       - python3-serial
       - python3-yaml
+      - python3-pyscard
       - qml-module-qtquick-controls
       - qml-module-qtquick-layouts
       - qmlscene

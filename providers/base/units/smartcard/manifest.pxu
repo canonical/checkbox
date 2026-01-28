@@ -1,0 +1,20 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+
+unit: manifest entry
+id: has_contact_smartcard_reader
+_name: Contact Smartcard Reader
+value-type: bool
+
+unit: manifest entry
+id: has_contactless_smartcard_reader
+_name: Contactless Smartcard Reader
+value-type: bool
+
+unit: manifest entry
+id: has_smartcard
+_name: A working Smartcard inserted
+value-type: bool

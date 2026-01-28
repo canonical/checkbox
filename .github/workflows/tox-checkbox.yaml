@@ -141,7 +141,7 @@ jobs:
           # we pushed them to the Checkbox PPA instead
           sudo add-apt-repository ppa:checkbox-dev/edge
           sudo apt-get update
-          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev shellcheck
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev shellcheck libpcsclite-dev swig
           pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}

@@ -37,3 +37,13 @@ recursive-include docs *.rst *.py *.html *.conf
 recursive-include plainbox/test-data *.json *.html *.tar.xz
 recursive-exclude debian *
 recursive-exclude build *
+
+include checkbox_ng/support/parsers/cputable
+recursive-include checkbox_ng/support/parsers/tests/cpuinfo_data *.txt
+recursive-include checkbox_ng/support/parsers/tests/dmidecode_data *.txt
+recursive-include checkbox_ng/support/parsers/tests/fixtures *.txt
+recursive-include checkbox_ng/support/parsers/tests/pactl_data *.txt
+recursive-include checkbox_ng/support/parsers/tests/udevadm_data *.txt *.lsblk.json
+recursive-include checkbox_ng/support/snap_utils/tests/asserts_data *.txt
+recursive-include checkbox_ng/support/vendor/brisque/models *.txt *.pickle
+recursive-include checkbox_ng/support/parsers/tests/v4l2_compliance_data *.txt

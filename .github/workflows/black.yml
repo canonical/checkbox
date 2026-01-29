@@ -15,6 +15,6 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
-      - uses: psf/black@782e5605c86aab56be6f905da10dcd3e463fd9c2
+      - uses: psf/black@6305bf1ae645ab7541be4f5028a86239316178eb
         with:
           options: "--check --diff --line-length 79 --extend-exclude '/vendor/'"

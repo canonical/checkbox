@@ -91,13 +91,14 @@ def is_known_failure(
 
 
 def main():
-    config_path = os.environ.get("NPU_UMD_TEST_CONFIG")
+    test_list_cmd = ["intel-npu-driver.npu-umd-test", "-l"]
 
-    if not config_path:
-        raise SystemExit("NPU_UMD_TEST_CONFIG needs to be defined.")
+    config_path = os.environ.get("NPU_UMD_TEST_CONFIG")
+    if config_path is not None:
+        test_list_cmd.extend(["--config", Path(config_path)])
 
     gtest_output = subprocess.run(
-        ["intel-npu-driver.npu-umd-test", "-l", "--config", Path(config_path)],
+        test_list_cmd,
         capture_output=True,
         text=True,
     )

@@ -8,6 +8,11 @@ category_id: intel_npu
 _name: Intel NPU kernel mode driver validation
 
 unit: category
-id: npu_umd
+id: npu_umd_blocker
 category_id: intel_npu
-_name: Intel NPU user mode driver validation
+_name: Intel NPU user mode driver validation (blockers)
+
+unit: category
+id: npu_umd_non_blocker
+category_id: intel_npu
+_name: Intel NPU user mode driver validation (known failures)

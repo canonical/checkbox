@@ -2,79 +2,78 @@
 import unittest
 import io
 import subprocess
-from collections import OrderedDict
-from unittest.mock import patch, MagicMock
-
+from unittest.mock import patch
 import intel_npu_gtest_resource
 
+# More comprehensive mock data
 MOCK_GTEST_OUTPUT = """
 Umd.File
 ZeInitDriversTest.InitializeAndExecuteCopyCommand
 MetricQuery.RunMetricQueryOnEmptyCommandList
+Device.GetZesEngineGetActivity
+ExternalMemoryDmaHeap.DmaHeapToNpu/2KB
 ImmediateCmdList.FillCopyUsingBarriers
+CommandMemoryFill.FillMemoryWithPattern/0
+MalformedLineWithoutDot
 """
 
-MOCK_KNOWN_FAILURES = """
+MOCK_FAILURES_OUTPUT = """
 Device.GetZesEngineGetActivity
 ExternalMemoryDmaHeap.DmaHeapToNpu/2KB
 """
 
-
-class TestNpuResource(unittest.TestCase):
-
-    @patch("sys.stdout", new_callable=io.StringIO)
-    def test_print_as_resource(self, mock_stdout):
-        d = OrderedDict([("name", "Test1"), ("category", "CatA")])
-        intel_npu_gtest_resource.print_as_resource(d)
-        expected = "name: Test1\ncategory: CatA\n\n"
-        self.assertEqual(mock_stdout.getvalue(), expected)
-
-    def test_get_extra_flags(self):
-        self.assertEqual(
-            intel_npu_gtest_resource.get_extra_flags("ZeInitTest"),
-            ["--ze-init-tests"],
-        )
-        self.assertEqual(
-            intel_npu_gtest_resource.get_extra_flags("NormalTest"), []
-        )
+class TestFiltering(unittest.TestCase):
 
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch("subprocess.run")
-    @patch.dict("os.environ", {"NPU_UMD_TEST_CONFIG": "custom.yaml"})
-    def test_main_logic(self, mock_run, mock_stdout):
+    @patch("sys.argv", ["script.py", "--mode", "blocker"])
+    def test_expanded_blockers(self, mock_run, mock_stdout):
+        """Verify that multiple clean tests pass and known failures are excluded."""
         mock_run.side_effect = [
-            subprocess.CompletedProcess(
-                args=[], returncode=0, stdout=MOCK_GTEST_OUTPUT
-            ),
-            subprocess.CompletedProcess(
-                args=[], returncode=0, stdout=MOCK_KNOWN_FAILURES
-            ),
+            subprocess.CompletedProcess(args=[], returncode=0, stdout=MOCK_GTEST_OUTPUT),
+            subprocess.CompletedProcess(args=[], returncode=0, stdout=MOCK_FAILURES_OUTPUT),
         ]
-
         intel_npu_gtest_resource.main()
-
-        self.assertEqual(mock_run.call_count, 2)
-
-        first_call_args = mock_run.call_args_list[0][0][0]
-        self.assertIn("custom.yaml", first_call_args)
-
         output = mock_stdout.getvalue()
+        
+        # Should be present (Clean tests)
+        self.assertIn("name: File\ncategory: Umd", output)
+        self.assertIn("name: FillCopyUsingBarriers\ncategory: ImmediateCmdList", output)
+        self.assertIn("name: FillMemoryWithPattern/0", output)
+        
+        # Should be absent (These are in the failures list)
+        self.assertNotIn("name: GetZesEngineGetActivity", output)
+        self.assertNotIn("name: DmaHeapToNpu/2KB", output)
+        
+        # Should handle ZeInit flags correctly in the output
+        self.assertIn("category: ZeInitDriversTest\nextra_flags: --ze-init-tests", output)
 
-        self.assertIn(
-            "name: File\ncategory: Umd\nextra_flags: \ncert_status: blocker",
-            output,
-        )
-
-        self.assertIn(
-            "category: ZeInitDriversTest\nextra_flags: --ze-init-tests", output
-        )
-
+    @patch("sys.stdout", new_callable=io.StringIO)
     @patch("subprocess.run")
-    def test_subprocess_error(self, mock_run):
-        mock_run.side_effect = FileNotFoundError("command not found")
-        with self.assertRaises(FileNotFoundError):
-            intel_npu_gtest_resource.main()
+    @patch("sys.argv", ["script.py", "--mode", "non-blocker"])
+    def test_expanded_non_blockers(self, mock_run, mock_stdout):
+        """Verify that only the known failures are printed."""
+        mock_run.side_effect = [
+            subprocess.CompletedProcess(args=[], returncode=0, stdout=MOCK_GTEST_OUTPUT),
+            subprocess.CompletedProcess(args=[], returncode=0, stdout=MOCK_FAILURES_OUTPUT),
+        ]
+        intel_npu_gtest_resource.main()
+        output = mock_stdout.getvalue()
+        
+        # Should be present (These are the known failures)
+        self.assertIn("name: GetZesEngineGetActivity\ncategory: Device", output)
+        self.assertIn("name: DmaHeapToNpu/2KB\ncategory: ExternalMemoryDmaHeap", output)
+        
+        # Should be absent (These are clean/passing tests)
+        self.assertNotIn("name: File\ncategory: Umd", output)
+        self.assertNotIn("name: FillMemoryWithPattern/0", output)
 
+    def test_get_extra_flags_edge_cases(self):
+        """Check various category prefixes for flag assignment."""
+        self.assertEqual(intel_npu_gtest_resource.get_extra_flags("ZeInit"), ["--ze-init-tests"])
+        self.assertEqual(intel_npu_gtest_resource.get_extra_flags("ZeInitSomething"), ["--ze-init-tests"])
+        self.assertEqual(intel_npu_gtest_resource.get_extra_flags("zeinit"), [])
+        self.assertEqual(intel_npu_gtest_resource.get_extra_flags("Compute"), [])
 
 if __name__ == "__main__":
     unittest.main()

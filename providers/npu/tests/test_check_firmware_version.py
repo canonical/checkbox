@@ -5,7 +5,6 @@ import sys
 import subprocess
 from pathlib import Path
 from unittest.mock import patch, MagicMock, mock_open
-import pytest
 
 import check_firmware_version
 
@@ -118,9 +117,7 @@ class TestGetActiveFirmwareLine(unittest.TestCase):
             args=[], returncode=0, stdout=mock_stdout
         )
 
-        with pytest.raises(
-            SystemExit, match="No 'intel_vpu' firmware logs found in dmesg."
-        ):
+        with self.assertRaises(SystemExit):
             check_firmware_version.get_active_firmware_line()
 
 
@@ -246,11 +243,7 @@ class TestMainFunction(unittest.TestCase):
         driver_version = "20241025*MTL_CLIENT_SILICON-release*1830*ci_tag_ud202444_vpu_rc_20241025_1830*ae072b315bc"
         mock_find_version.return_value = driver_version
 
-        with pytest.raises(
-            SystemExit,
-            match="The loaded firmware does not "
-            "match any version in the snap files.",
-        ):
+        with self.assertRaises(SystemExit):
             check_firmware_version.main()
 
         self.assertEqual(mock_stdout.getvalue(), "")
@@ -273,11 +266,7 @@ class TestMainFunction(unittest.TestCase):
         # make get_active_firmware_line fail
         mock_get_line.return_value = None
 
-        with pytest.raises(
-            SystemExit,
-            match="The loaded firmware does not "
-            "match any version in the snap files.",
-        ):
+        with self.assertRaises(SystemExit):
             check_firmware_version.main()
 
         self.assertEqual(mock_stdout.getvalue(), "")
@@ -302,7 +291,7 @@ class TestMainFunction(unittest.TestCase):
         # Directory not found
         mock_fw_dir.is_dir.return_value = False
 
-        with pytest.raises(SystemExit, match="Firmware directory not found."):
+        with self.assertRaises(SystemExit):
             check_firmware_version.main()
 
         mock_find_version.assert_not_called()

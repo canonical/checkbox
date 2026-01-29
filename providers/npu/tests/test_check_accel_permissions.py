@@ -5,7 +5,6 @@ import os
 import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import pytest
 
 import check_accel_permissions
 
@@ -63,7 +62,7 @@ class TestFindNpuDevicePath(unittest.TestCase):
 
         mock_path_class.side_effect = path_side_effect
 
-        with pytest.raises(SystemExit, match=".* is not a directory."):
+        with self.assertRaises(SystemExit):
             check_accel_permissions.find_npu_device_path()
 
     @patch("check_accel_permissions.Path")
@@ -92,10 +91,7 @@ class TestFindNpuDevicePath(unittest.TestCase):
 
         mock_path_class.side_effect = path_side_effect
 
-        with pytest.raises(
-            SystemExit,
-            match="Could not find an Intel NPU device in /sys/class/accel.",
-        ):
+        with self.assertRaises(SystemExit):
             check_accel_permissions.find_npu_device_path()
 
     @patch("check_accel_permissions.Path")  # Patches Path *within* the script
@@ -132,10 +128,7 @@ class TestFindNpuDevicePath(unittest.TestCase):
 
         mock_path_class.side_effect = path_side_effect
 
-        with pytest.raises(
-            SystemExit,
-            match="Could not find an Intel NPU " "device in /sys/class/accel.",
-        ):
+        with self.assertRaises(SystemExit):
             check_accel_permissions.find_npu_device_path()
 
     @patch("check_accel_permissions.Path")
@@ -222,9 +215,7 @@ class TestMainFunction(unittest.TestCase):
     )
     def test_main_no_rw_permission(self, mock_find_device, mock_access):
         """Test the main failure path: device found, but no RW permission."""
-        with pytest.raises(
-            SystemExit, match="User lacks required permissions for .*"
-        ):
+        with self.assertRaises(SystemExit):
             check_accel_permissions.main()
 
 

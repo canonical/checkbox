@@ -5,20 +5,6 @@ _description: Creates resource for firwmare version logging support in dmesg
 estimated_duration: 2s
 command: min_kernel_version.py 6.8
 
-id: metric_streamer
-category_id: intel_npu
-plugin: resource
-_description: Creates resource for metric streamer feature support
-estimated_duration: 2s
-command: min_kernel_version.py 6.9
-
-id: ivpu_bo_create
-category_id: intel_npu
-plugin: resource
-_description: Creates resource for DRM_IOCTL_IVPU_BO_CREATE support
-estimated_duration: 2s
-command: min_kernel_version.py 6.6
-
 plugin: resource
 id: intel_npu_gtest_resource
 category_id: intel_npu

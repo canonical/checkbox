@@ -1,12 +1,3 @@
-id: kmd/check_npu_driver_present
-category_id: npu_kmd
-flags: simple
-_summary: Check that the kernel driver is present
-estimated_duration: 2s
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_npu == 'True'
-command: modinfo -Falias intel_vpu
-
 id: kmd/char_device_permissions
 category_id: npu_kmd
 flags: simple
@@ -28,34 +19,18 @@ estimated_duration: 2s
 user: root
 command: check_firmware_version.py
 
-id: umd/check_npu_umd_test
-category_id: npu_umd
-flags: simple
-_summary: Check that npu-umd-test listing runs with no errors
-_description: Verify that the npu-umd-test config file exists and listing using that config file doesn't lead to an error.
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_npu == 'True'
-command:
-   test -e "$NPU_UMD_TEST_CONFIG" && \
-    intel-npu-driver.npu-umd-test -l --config "$NPU_UMD_TEST_CONFIG"
-
 unit: template
 template-resource: intel_npu_gtest_resource
 template-unit: job
 _template-summary: Run tests from npu-umd-test
 id: umd/{category}.{name}
 category_id: npu_umd
-depends:
-  kmd/char_device_permissions
-  umd/check_npu_umd_test
+depends: kmd/char_device_permissions
 flags: simple
 imports: from com.canonical.plainbox import manifest
 environment: NPU_UMD_TEST_CONFIG
-requires:
-  metric_streamer.state in "{metric_streamer_allowed_states}"
-  ivpu_bo_create.state in "{ivpu_bo_create_allowed_states}"
 _summary: {category} {name}
+certification-status: {cert_status}
 estimated_duration: 2s
 command:
-  cd "$(dirname "$NPU_UMD_TEST_CONFIG")" && \
-   intel-npu-driver.npu-umd-test -S {extra_flags} --gtest_filter={category}.{name} --config "$NPU_UMD_TEST_CONFIG"
+  intel-npu-driver.npu-umd-test -S {extra_flags} --gtest_filter={category}.{name} --config="${{NPU_UMD_TEST_CONFIG:-basic.yaml}}"

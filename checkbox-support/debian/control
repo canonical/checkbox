@@ -41,6 +41,7 @@ Depends: gir1.2-gudev-1.0,
          udev,
          udisks2,
          v4l-utils,
+         checkbox-ng,
          ${misc:Depends},
          ${python3:Depends}
 Recommends: python3-opencv,
@@ -56,16 +57,6 @@ Description: collection of Python modules used by PlainBox providers
  .
   * checkbox_support.heuristics.udev: heuristics for udev
   * checkbox_support.heuristics.udisks2: heuristics for udisks2
- .
-  * checkbox_support.parsers.cpuinfo: parser for the /proc/cpuinfo file
-  * checkbox_support.parsers.dmidecode: parser for the dmidecode command
-  * checkbox_support.parsers.efi: parser for EFI information
-  * checkbox_support.parsers.lshwjson: parser for the lshw JSON output
-  * checkbox_support.parsers.meminfo: parser for the /proc/meminfo file
-  * checkbox_support.parsers.modinfo: parser for modinfo information
-  * checkbox_support.parsers.pactl: parser for the output of 'pactl list' syntax
-  * checkbox_support.parsers.udevadm: parser for the udevadm command
-  * checkbox_support.parsers.xinput: parser for the xinput command
  .
   * checkbox_support.scripts.audio_settings manipulates PulseAudio settings.
   * checkbox_support.scripts.gputest_benchmark is a wrapper for the Geeks3D

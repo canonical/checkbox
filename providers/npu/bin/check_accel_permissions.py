@@ -3,12 +3,9 @@ import os
 from pathlib import (
     Path,
 )
-from typing import (
-    Optional,
-)
 
 
-def find_npu_device_path() -> Optional[Path]:
+def find_npu_device_path():
     base_sys_path = Path("/sys/class/accel")
     if not base_sys_path.is_dir():
         raise SystemExit("'{}' is not a directory.".format(base_sys_path))

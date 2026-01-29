@@ -6,9 +6,7 @@ from pathlib import (
 )
 
 
-def print_as_resource(
-    d: dict,
-) -> None:
+def print_as_resource(d):
     for (
         k,
         v,
@@ -18,18 +16,14 @@ def print_as_resource(
     print("")
 
 
-def get_extra_flags(
-    category,
-) -> list[str]:
+def get_extra_flags(category):
     extra_flags = []
     if category.startswith("ZeInit"):
         extra_flags.append("--ze-init-tests")
     return extra_flags
 
 
-def get_metric_streamer_allowed_states(
-    category: str,
-) -> list[str]:
+def get_metric_streamer_allowed_states(category):
     if category.startswith("Metric"):
         return ["supported"]
     else:
@@ -39,10 +33,7 @@ def get_metric_streamer_allowed_states(
         ]
 
 
-def get_ivpu_bo_create_allowed_states(
-    category: str,
-    test_name: str,
-) -> list[str]:
+def get_ivpu_bo_create_allowed_states(category, test_name):
     if category in [
         "CompilerInDriverWithProfiling",
         "CommandMemoryFill",

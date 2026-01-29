@@ -2,14 +2,9 @@
 import platform
 import argparse
 import re
-from typing import (
-    Tuple,
-)
 
 
-def parse_version(
-    version_str: str,
-) -> Tuple[int, ...]:
+def parse_version(version_str):
     try:
         # Find all sequences of one or more digits in the string
         numbers = re.findall(

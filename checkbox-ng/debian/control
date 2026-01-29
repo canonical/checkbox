@@ -68,7 +68,18 @@ Description: CheckBoxNG test runner (Python 3 library)
  desktops and servers. It is a new version of CheckBox that is built
  directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
  .
- This package contains the checkbox-ng Python 3 library
+ This package contains the checkbox-ng Python 3 library alongside a support
+ library containing the following parsers:
+ .
+  * checkbox_support.parsers.cpuinfo: parser for the /proc/cpuinfo file
+  * checkbox_support.parsers.dmidecode: parser for the dmidecode command
+  * checkbox_support.parsers.efi: parser for EFI information
+  * checkbox_support.parsers.lshwjson: parser for the lshw JSON output
+  * checkbox_support.parsers.meminfo: parser for the /proc/meminfo file
+  * checkbox_support.parsers.modinfo: parser for modinfo information
+  * checkbox_support.parsers.pactl: parser for the output of 'pactl list' syntax
+  * checkbox_support.parsers.udevadm: parser for the udevadm command
+  * checkbox_support.parsers.xinput: parser for the xinput command
 
 Package: python3-checkbox-ng-doc
 Architecture: all

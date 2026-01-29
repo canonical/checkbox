@@ -5,6 +5,7 @@ import sys
 import os
 import subprocess
 from pathlib import Path
+from collections import OrderedDict
 from unittest.mock import patch, MagicMock
 
 import intel_npu_gtest_resource
@@ -15,7 +16,9 @@ class TestHelperFunctions(unittest.TestCase):
     @patch("sys.stdout", new_callable=io.StringIO)
     def test_print_as_resource(self, mock_stdout):
         """Test that the dictionary is printed in the correct format."""
-        d = {"name": "Test1", "category": "CatA", "value": 123}
+        d = OrderedDict(
+            [("name", "Test1"), ("category", "CatA"), ("value", 123)]
+        )
         intel_npu_gtest_resource.print_as_resource(d)
 
         expected_output = "name: Test1\n" "category: CatA\n" "value: 123\n\n"

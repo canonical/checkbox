@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import subprocess
+from collections import OrderedDict
 from pathlib import (
     Path,
 )
@@ -124,7 +125,7 @@ def main():
                 test_name,
             )
 
-            records = {}
+            records = OrderedDict()
             records["name"] = test_name
             records["category"] = category
             records["extra_flags"] = " ".join(extra_flags)

@@ -1,3 +1,4 @@
 unit: packaging meta-data
 os-id: ubuntu
+os-version-id: >= 20.04
 Depends: fscrypt

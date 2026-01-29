@@ -16,7 +16,7 @@ jobs:
     outputs:
       required_run: ${{ steps.check_diff.outputs.required_run }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -54,7 +54,7 @@ jobs:
       PYCHARM_HOSTED: True
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
       - name: Setup LXD

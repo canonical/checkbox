@@ -206,8 +206,8 @@ class TestMainFunction(unittest.TestCase):
 
         return_code = check_firmware_version.main()
 
-        mock_get_line.assert_called_once()
-        mock_fw_dir.is_dir.assert_called_once()
+        mock_get_line.assert_called_once_with()
+        mock_fw_dir.is_dir.assert_called_once_with()
         mock_find_version.assert_called_once_with(mock_fw_bin)
         self.assertIn("Test success", mock_stdout.getvalue())
         self.assertIn(driver_version, mock_stdout.getvalue())

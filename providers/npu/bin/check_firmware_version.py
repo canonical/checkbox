@@ -28,7 +28,6 @@ def get_active_firmware_line():
 
     if not matching_lines:
         raise SystemExit("No 'intel_vpu' firmware logs found in dmesg.")
-        return None
 
     return matching_lines[-1]
 

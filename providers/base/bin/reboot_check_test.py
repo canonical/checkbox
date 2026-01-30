@@ -8,9 +8,11 @@ import filecmp
 import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
+from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
 from datetime import datetime
 import time
 import platform
+from shlex import split as sh_split
 
 # Checkbox could run in a snap container, so we need to prepend this root path
 RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
@@ -189,7 +191,7 @@ class FwtsTester:
     def fwts_log_check_passed(
         self,
         output_directory: str,
-        fwts_arguments: T.Sequence[str] = ["klog", "oops"],
+        fwts_arguments: "list[str]" = ["klog", "oops"],
     ) -> bool:
         """
         Check if fwts logs passes the checks specified in sleep_test_log_check
@@ -203,7 +205,15 @@ class FwtsTester:
         log_file_path = "{}/fwts_{}.log".format(
             output_directory, "_".join(fwts_arguments)
         )
-        sp.run(["fwts", "-r", log_file_path, "-q", *fwts_arguments])
+        sp.run(
+            [
+                *sh_split(get_fwts_base_cmd()),
+                "-q",
+                "-r",
+                log_file_path,
+                *fwts_arguments,
+            ]
+        )
         result = sp.run(
             [
                 "sleep_test_log_check.py",

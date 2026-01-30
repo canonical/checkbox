@@ -6,6 +6,8 @@ from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE, DEVNULL
 from shutil import which
 import os
+from pathlib import Path
+from checkbox_support.snap_utils.system import in_classic_snap
 
 # These tests require user interaction and need either special handling
 # or skipping altogether (right now, we skip them but they're kept here
@@ -166,6 +168,43 @@ SERVER_TESTS.extend(
 # By default, we launch all the tests
 TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
+
+
+def get_fwts_base_cmd() -> str:
+    """Get the correct fwts command template depending on if we are inside a snap
+
+    :raises SystemExit: If we are in snap, but the json files needed by
+                        fwts's parser doesn't exist
+    :return: command string
+    """
+    if "CHECKBOX_RUNTIME" in os.environ and "SNAP" in os.environ:
+        # snap checkbox
+        # must specify where the klog.json, clog.json files are
+        if in_classic_snap():
+            # workaround for issue 2295
+            # https://github.com/canonical/checkbox/issues/2295
+            # TODO: remove this logic and read CHECKBOX_RUNTIME directly
+            # after 2295 is fixed
+            fwts_json_data_dir = (
+                Path(os.environ["CHECKBOX_RUNTIME"]) / "share" / "fwts"
+            )
+        else:
+            fwts_json_data_dir = (
+                Path(os.environ["SNAP"])
+                / "checkbox-runtime"
+                / "share"
+                / "fwts"
+            )
+        if not fwts_json_data_dir.exists():
+            raise SystemExit(
+                "We are in a snap environment, "
+                + "but '{}' ".format(fwts_json_data_dir)
+                + "doesn't exist"
+            )
+        return "fwts -j {}".format(fwts_json_data_dir)
+    else:
+        # deb, use the original command
+        return "fwts"
 
 
 def get_sleep_times(log, start_marker):
@@ -425,7 +464,7 @@ def main(args=sys.argv[1:]):
         fail_priority = fail_levels[args.fail_level]
 
     if args.fwts_help:
-        Popen("fwts -h", shell=True).communicate()[0]
+        Popen("{} -h".format(get_fwts_base_cmd()), shell=True).communicate()[0]
         return 0
     elif args.list:
         print("\n".join(TESTS))
@@ -479,12 +518,14 @@ def main(args=sys.argv[1:]):
             marker = "{:=^80}\n".format(" Iteration {} ".format(iteration))
             with open(args.log, "a") as f:
                 f.write(marker)
-            command = "fwts -q --stdout-summary -r %s %s" % (
-                args.log,
-                " ".join(tests),
-            )
             results["sleep"] = (
-                Popen(command, stdout=PIPE, shell=True)
+                Popen(
+                    "{} -q --stdout-summary -r {} {}".format(
+                        get_fwts_base_cmd(), args.log, " ".join(tests)
+                    ),
+                    stdout=PIPE,
+                    shell=True,
+                )
                 .communicate()[0]
                 .strip()
             ).decode()
@@ -566,13 +607,17 @@ def main(args=sys.argv[1:]):
         if tests:
             for test in tests:
                 # ACPI tests can now be run with --acpitests (fwts >= 15.07.00)
-                log = args.log
                 # Split the log file for HWE (only if -t is not used)
                 if test == "acpitests":
                     test = "--acpitests"
-                command = "fwts -q --stdout-summary -r %s %s" % (log, test)
                 results[test] = (
-                    Popen(command, stdout=PIPE, shell=True)
+                    Popen(
+                        "{} -q --stdout-summary -r {} {}".format(
+                            get_fwts_base_cmd(), args.log, test
+                        ),
+                        stdout=PIPE,
+                        shell=True,
+                    )
                     .communicate()[0]
                     .strip()
                 ).decode()

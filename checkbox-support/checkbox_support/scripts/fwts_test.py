@@ -168,6 +168,38 @@ TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
 SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 
 
+def get_available_fwts_tests():
+    """
+    Get a list of all available FWTS tests by running 'fwts --show-tests'.
+
+    Returns:
+        list: A list of available test names that can be run with FWTS.
+    """
+    cmd = "fwts --show-tests"
+    result = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+    stdout, stderr = result.communicate()
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            "FWTS failed at listing available tests with: {}".format(
+                stderr.decode()
+            )
+        )
+
+    # Parse the output to extract test names
+    output_lines = stdout.decode().strip().split("\n")
+    available_tests = set()
+
+    for line in output_lines:
+        # Skip empty lines and section headers (lines ending with ':')
+        if line.strip() and not line.endswith(":"):
+            # Extract the first word as the test name
+            test_name = line.lstrip().split()[0]
+            available_tests.add(test_name)
+
+    return available_tests
+
+
 def get_sleep_times(log, start_marker):
     suspend_time = ""
     resume_time = ""
@@ -265,6 +297,23 @@ def print_log(logfile):
             print(f.read())
         except UnicodeDecodeError as e:
             print("WARNING: Found bad char in " + logfile)
+
+
+def filter_available_tests(requested_tests):
+    """
+    Given a list of requested tests, return a tuple:
+    (available_tests, unavailable_tests), where available_tests are those
+    present in the current system's available FWTS tests, and unavailable_tests
+    are those not present.
+    """
+    available_tests_set = get_available_fwts_tests()
+    available = [
+        test for test in requested_tests if test in available_tests_set
+    ]
+    unavailable = [
+        test for test in requested_tests if test not in available_tests_set
+    ]
+    return available, unavailable
 
 
 def parse_arguments(args):
@@ -392,7 +441,9 @@ def parse_arguments(args):
     return args
 
 
-def main(args=sys.argv[1:]):
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
     args = parse_arguments(args)
 
     tests = []
@@ -428,17 +479,22 @@ def main(args=sys.argv[1:]):
         Popen("fwts -h", shell=True).communicate()[0]
         return 0
     elif args.list:
-        print("\n".join(TESTS))
+        available, unavailable = filter_available_tests(TESTS)
+        print("\n".join(available))
         return 0
     elif args.list_hwe:
-        print("\n".join(HWE_TESTS))
+        available, unavailable = filter_available_tests(HWE_TESTS)
+        print("\n".join(available))
         return 0
     elif args.list_qa:
-        print("\n".join(QA_TESTS))
+        available, unavailable = filter_available_tests(QA_TESTS)
+        print("\n".join(available))
         return 0
     elif args.list_server:
+        available, unavailable = filter_available_tests(SERVER_TESTS)
         print("Server Certification Tests:")
-        print("  * ", "\n  * ".join(SERVER_TESTS))
+        print("  * ", "\n  * ".join(available))
+        return 0
     elif args.test:
         requested_tests.extend(args.test)
     elif args.hwe:
@@ -537,31 +593,7 @@ def main(args=sys.argv[1:]):
         # Because the list of available tests varies from arch to arch, we
         # need to validate our test selections and remove any unsupported
         # tests.
-        cmd = "fwts --show-tests"
-        fwts_test_list = (
-            Popen(cmd, stdout=PIPE, shell=True)
-            .communicate()[0]
-            .strip()
-            .decode()
-            .split("\n")
-        )
-        AVAILABLE_TESTS = list(
-            dict.fromkeys(
-                [
-                    item.lstrip().split()[0]
-                    for item in fwts_test_list
-                    if not item.endswith(":") and item != ""
-                ]
-            )
-        )
-        # Compare requested tests to AVAILABLE_TESTS, and if we've requested a
-        # test that isn't available, go ahead and mark it as skipped, otherwise
-        # add it to tests for execution
-        for test in requested_tests:
-            if test not in AVAILABLE_TESTS:
-                unavailable.append(test)
-            else:
-                tests.append(test)
+        tests, unavailable = filter_available_tests(requested_tests)
 
         if tests:
             for test in tests:
@@ -684,7 +716,8 @@ def main(args=sys.argv[1:]):
     print()
     print(" Please review the following log for more information:")
     print()
-    print_log(args.log)
+    if tests:  # Only print log if there were tests actually run
+        print_log(args.log)
 
     if args.fail_level != "none":
         if fail_priority == fail_levels["FAILED_CRITICAL"]:

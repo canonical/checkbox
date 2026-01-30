@@ -1,0 +1,38 @@
+id: ce-oem-credit-card-reader-full
+unit: test plan
+_name: Credit Card Reader tests
+_description: Full Credit Card Reader tests for devices
+include:
+nested_part:
+    ce-oem-credit-card-reader-manual
+    ce-oem-credit-card-reader-automated
+    after-suspend-ce-oem-credit-card-reader-manual
+    after-suspend-ce-oem-credit-card-reader-automated
+
+id: ce-oem-credit-card-reader-manual
+unit: test plan
+_name: Credit Card Reader manual tests
+_description: Manual Credit Card Reader tests for devices
+bootstrap_include:
+include:
+
+id: ce-oem-credit-card-reader-automated
+unit: test plan
+_name: Credit Card Reader auto tests
+_description: Automated Credit Card Reader tests for devices
+include:
+    ce-oem/credit-card-reader-test-automated
+
+id: after-suspend-ce-oem-credit-card-reader-manual
+unit: test plan
+_name: After suspend Credit Card Reader manual tests
+_description: Manual after suspend Credit Card Reader tests for devices
+bootstrap_include:
+include:
+
+id: after-suspend-ce-oem-credit-card-reader-automated
+unit: test plan
+_name: After suspend Credit Card Reader auto tests
+_description: Automated after suspend Credit Card Reader tests for devices
+include:
+    after-suspend-ce-oem/credit-card-reader-test-automated

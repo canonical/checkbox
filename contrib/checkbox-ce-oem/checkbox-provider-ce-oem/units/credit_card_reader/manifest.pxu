@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_credit_card_reader
+_name: Does the platform have a credit card reader?
+value-type: bool

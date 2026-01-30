@@ -96,7 +96,6 @@ def get_checkbox_runtime_path():
     #       runtime, while SNAP on the legacy arch is the frontend
     snap_base_n = get_snap_base().replace("core", "")
     # the bases of the runtime and frontend must always match
-    runtime_name = "checkbox" + snap_base_n
     return Path("/snap") / ("checkbox" + snap_base_n) / "current"
 
 

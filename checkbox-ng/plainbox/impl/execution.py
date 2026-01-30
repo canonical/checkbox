@@ -629,6 +629,8 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     set_if_not_none("PLAINBOX_PROVIDER_DATA", job.provider.data_dir)
     set_if_not_none("PLAINBOX_PROVIDER_UNITS", job.provider.units_dir)
     set_if_not_none("CHECKBOX_SHARE", job.provider.CHECKBOX_SHARE)
+    if os.getenv("SNAP"):
+        set_if_not_none("CHECKBOX_RUNTIME", str(get_checkbox_runtime_path()))
     # Inject additional variables that are requested in the config
     if environ is not None:
         for env_var in environ:

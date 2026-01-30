@@ -150,7 +150,7 @@ class GLSupportTester:
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 path is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-               
+
                 # do not directly truediv against GLMARK2_DATA_PATH
                 # absolute path on the right will overwrite the left hand side
                 src = CHECKBOX_RUNTIME / "usr" / "share" / "glmark2"

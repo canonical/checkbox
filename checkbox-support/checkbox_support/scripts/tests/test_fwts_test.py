@@ -62,7 +62,7 @@ class FilterAvailableTestsTest(unittest.TestCase):
     @patch("checkbox_support.scripts.fwts_test.get_available_fwts_tests")
     def test_filter_available_tests_all_available(self, mock_get_available):
         """Test when all requested tests are available."""
-        mock_get_available.return_value = ["acpitests", "version", "mtrr"]
+        mock_get_available.return_value = {"acpitests", "version", "mtrr"}
         requested = ["acpitests", "version"]
 
         available, unavailable = filter_available_tests(requested)
@@ -73,7 +73,7 @@ class FilterAvailableTestsTest(unittest.TestCase):
     @patch("checkbox_support.scripts.fwts_test.get_available_fwts_tests")
     def test_filter_available_tests_some_unavailable(self, mock_get_available):
         """Test when some requested tests are unavailable."""
-        mock_get_available.return_value = ["acpitests", "version"]
+        mock_get_available.return_value = {"acpitests", "version"}
         requested = ["acpitests", "nonexistent_test", "version"]
 
         available, unavailable = filter_available_tests(requested)
@@ -84,7 +84,7 @@ class FilterAvailableTestsTest(unittest.TestCase):
     @patch("checkbox_support.scripts.fwts_test.get_available_fwts_tests")
     def test_filter_available_tests_none_available(self, mock_get_available):
         """Test when none of the requested tests are available."""
-        mock_get_available.return_value = ["acpitests", "version"]
+        mock_get_available.return_value = {"acpitests", "version"}
         requested = ["nonexistent_test1", "nonexistent_test2"]
 
         available, unavailable = filter_available_tests(requested)
@@ -97,7 +97,7 @@ class FilterAvailableTestsTest(unittest.TestCase):
     @patch("checkbox_support.scripts.fwts_test.get_available_fwts_tests")
     def test_filter_available_tests_empty_requested(self, mock_get_available):
         """Test with empty requested tests list."""
-        mock_get_available.return_value = ["acpitests", "version"]
+        mock_get_available.return_value = {"acpitests", "version"}
         requested = []
 
         available, unavailable = filter_available_tests(requested)

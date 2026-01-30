@@ -158,6 +158,9 @@ class Resource:
             self, "_data"
         ) != object.__getattribute__(other, "_data")
 
+    def __hash__(self):
+        return hash(frozenset(object.__getattribute__(self, "_data").items()))
+
 
 class FakeResource:
     """

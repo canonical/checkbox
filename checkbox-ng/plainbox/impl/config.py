@@ -415,6 +415,11 @@ CONFIG_SPEC = [
                 None,
                 "Run Checkbox jobs as a systemd unit escaping the snap sandbox",
             ),
+            "resource_v2_template_expansion": VarSpec(
+                bool,
+                False,
+                "Expand templates with the experimental (faster) resource v2 implementation",
+            ),
         },
     ),
     (

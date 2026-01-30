@@ -510,6 +510,10 @@ class CheckBoxSessionStateController(ISessionStateController):
             and unit.resource_id == job.id,
             session_state.unit_list,
         )
+        resource_v2_expansion = (
+            session_state.metadata.FLAG_FEATURE_RESOURCE_V2_TEMPLATE_EXPANSION
+            in session_state.metadata.flags
+        )
         # get the parsed resource (list of dict created from the resource
         # stdout)
         parsed_resource = session_state.resource_map[job.id]
@@ -517,7 +521,11 @@ class CheckBoxSessionStateController(ISessionStateController):
         # this is an array of arrays units as follows:
         # [[unit_from_template1, ...], [unit_from_template2, ...]]
         new_units_lists = (
-            template_unit.instantiate_all(parsed_resource, fake_resources)
+            template_unit.instantiate_all(
+                parsed_resource,
+                fake_resources=fake_resources,
+                resource_v2=resource_v2_expansion,
+            )
             for template_unit in template_units
         )
         # flattening list to make it easier to work with

@@ -32,6 +32,7 @@ from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import parse_imports_stmt
+from plainbox.impl import resource_v2
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import all_units
@@ -415,7 +416,69 @@ class TemplateUnit(UnitWithId):
         all_units.load()
         return all_units.get_by_name(self.template_unit).plugin_object
 
-    def instantiate_all(self, resource_list, fake_resources=False):
+    def instantiate_all(
+        self, resource_list, fake_resources=False, resource_v2=False
+    ):
+        """
+        Instantiate a list of job definitions.
+
+        By creating one from each non-filtered out resource records.
+
+        :param resource_list:
+            A list of resource objects with the correct name
+            (:meth:`template_resource`)
+        :param fake_resources:
+            An optional parameter to trigger test plan export execution mode
+        :returns:
+            A list of new Unit (or subclass) objects.
+        """
+
+        if resource_v2:
+            return self.instantiate_all_resource_v2(
+                resource_list, fake_resources
+            )
+        return self.instantiate_all_resource_v1(resource_list, fake_resources)
+
+    def instantiate_all_resource_v2(self, resource_list, fake_resources=False):
+        """
+        Instantiate a list of job definitions.
+
+        By creating one from each non-filtered out resource records.
+
+        :param resource_list:
+            A list of resource objects with the correct name
+            (:meth:`template_resource`)
+        :param fake_resources:
+            An optional parameter to trigger test plan export execution mode
+        :returns:
+            A list of new Unit (or subclass) objects.
+        """
+        assert not fake_resources
+
+        unit_cls = self.get_target_unit_cls()
+
+        filtered_resource = new_resource_repr = {
+            self.template_resource: resource_list
+        }
+
+        assert not self.template_imports
+        if self.template_filter:
+            filtered_resource = resource_v2.evaluate(
+                self.template_filter,
+                new_resource_repr,
+                implicit_namespace=self.resource_namespace,
+            )
+
+        resources = [
+            self.instantiate_one(resource, unit_cls_hint=unit_cls, index=index)
+            for (index, resource) in enumerate(
+                filtered_resource[self.template_resource]
+            )
+        ]
+
+        return resources
+
+    def instantiate_all_resource_v1(self, resource_list, fake_resources=False):
         """
         Instantiate a list of job definitions.
 
@@ -433,6 +496,7 @@ class TemplateUnit(UnitWithId):
         resources = []
         index = 0
         self._fake_resources = fake_resources
+
         for resource in resource_list:
             if self.should_instantiate(resource):
                 index += 1

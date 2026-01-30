@@ -92,6 +92,9 @@ class SessionMetaData:
     # Jobs are executed as systemd units. This is used to make jobs escape
     # the snapd/apparmor sandbox.
     FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER = "systemd_based_job_runner"
+    FLAG_FEATURE_RESOURCE_V2_TEMPLATE_EXPANSION = (
+        "resource_v2_template_expansion"
+    )
 
     def __init__(
         self,
@@ -196,6 +199,11 @@ class SessionMetaData:
                 logger.error("Falling back to shell based runner")
         else:
             logger.info("Using subprocess-based runner")
+        if config.get_value("features", "resource_v2_template_expansion"):
+            logger.warning(
+                "Using the experimental resource v2 template expansion"
+            )
+            self._flags.add(self.FLAG_FEATURE_RESOURCE_V2_TEMPLATE_EXPANSION)
 
     @property
     def flags(self):

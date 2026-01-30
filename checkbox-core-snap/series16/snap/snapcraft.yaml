@@ -203,7 +203,7 @@ parts:
       snapcraftctl build
       # install the dependencies of checkbox-support itself because this
       # pip version  pyproject.toml dependencies
-      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pyparsing<3.0.0" "requests<2.26.0" "distro<1.7.0" "requests_unixsocket<=0.3.0" "importlib_metadata<=1.0.0"
+      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "requests<2.26.0" "distro<1.7.0" "requests_unixsocket<=0.3.0" "importlib_metadata<=1.0.0"
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -236,7 +236,7 @@ parts:
       snapcraftctl build
       # install the dependencies of checkbox-support itself because this
       # pip version  pyproject.toml dependencies
-      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "packaging<21.0" "psutil<=5.9.5" "requests<2.26.0" "urwid<=2.1.2" "Jinja2<=2.11.3" "XlsxWriter<=3.0.3" "tqdm<4.65.0" "importlib_metadata<=1.0.0"
+      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "packaging<21.0" "psutil<=5.9.5" "pyparsing<3.0.0" "requests<2.26.0" "urwid<=2.1.2" "Jinja2<=2.11.3" "XlsxWriter<=3.0.3" "tqdm<4.65.0" "importlib_metadata<=1.0.0"
 ################################################################################
   checkbox-provider-resource:
     plugin: dump

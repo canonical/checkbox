@@ -1,0 +1,23 @@
+unit: template
+template-resource: mediasource
+template-engine: jinja2
+template-unit: job
+id: ffmpeg_{{ codec }}_{{ resolution }}_{{ operation }}_{{ container }}
+category_id: ffmpeg
+flags: simple
+user: root
+_summary: Check {{ codec }} hardware {{ operation }} in {{ resolution }} for ffmpeg
+requires:
+  executable.name == "ffmpeg"
+environ:
+  # necessary for local mode
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+  NORMAL_USER
+estimated_duration: 5m
+command:
+  if [[ "{{ operation }}" == "decode" ]]; then
+    run_ffmpeg.py --decode --video_url {{ video_url }} --libva_profile {{ libva_profile }} --libva_entrypoint {{ libva_entrypoint }}
+  elif [[ "{{ operation }}" == "encode" ]]; then
+    run_ffmpeg.py --encode --video_url {{ video_url }} --libva_profile {{ libva_profile }} --libva_entrypoint {{ libva_entrypoint }} --ffmpeg_output_codec {{ ffmpeg_output_codec }} --output_container {{ output_container }}
+  fi

@@ -1,0 +1,54 @@
+id: kmd/char_device_permissions
+category_id: npu_kmd
+flags: simple
+_summary: Check that user has read and write access to NPU char device node
+estimated_duration: 2s
+command: check_accel_permissions.py
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_npu == 'True'
+
+id: kmd/firmware_version
+category_id: npu_kmd
+flags: simple
+imports: from com.canonical.plainbox import manifest
+requires:
+  dmesg_logs_firmware_version.state == 'supported'
+  manifest.has_npu == 'True'
+_summary: Check NPU firmware version
+estimated_duration: 2s
+user: root
+command: check_firmware_version.py
+
+unit: template
+template-resource: intel_npu_gtest_resource_blocker
+template-unit: job
+_template-summary: Run tests from npu-umd-test
+id: umd/blocker/{category}.{name}
+category_id: npu_umd_blocker
+depends: kmd/char_device_permissions
+flags: simple
+imports: from com.canonical.plainbox import manifest
+environment: NPU_UMD_TEST_CONFIG
+_summary: {category} {name}
+certification-status: blocker
+estimated_duration: 2s
+command:
+  set -x
+  intel-npu-driver.npu-umd-test --run_skipped {extra_flags} --gtest_filter={category}.{name} --config="${{NPU_UMD_TEST_CONFIG:-basic.yaml}}"
+
+unit: template
+template-resource: intel_npu_gtest_resource_non_blocker
+template-unit: job
+_template-summary: Run known failures from npu-umd-test
+id: umd/non-blocker/{category}.{name}
+category_id: npu_umd_non_blocker
+depends: kmd/char_device_permissions
+flags: simple
+imports: from com.canonical.plainbox import manifest
+environment: NPU_UMD_TEST_CONFIG
+_summary: {category} {name}
+certification-status: non-blocker
+estimated_duration: 2s
+command:
+  set -x
+  intel-npu-driver.npu-umd-test --run_skipped {extra_flags} --gtest_filter={category}.{name} --config="${{NPU_UMD_TEST_CONFIG:-basic.yaml}}"

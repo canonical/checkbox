@@ -558,7 +558,10 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
         with self.assertRaises(RuntimeError) as context:
             get_available_fwts_tests()
 
-        self.assertIn("FWTS command failed", str(context.exception))
+        self.assertIn(
+            "FWTS failed at listing available tests with:",
+            str(context.exception),
+        )
         self.assertIn("fwts: command not found", str(context.exception))
 
     @patch("checkbox_support.scripts.fwts_test.Popen")

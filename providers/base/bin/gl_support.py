@@ -4,6 +4,7 @@
 # Copyright 2024 Canonical Ltd.
 # Written by:
 #   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,

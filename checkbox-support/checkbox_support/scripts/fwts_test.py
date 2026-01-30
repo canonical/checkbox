@@ -191,8 +191,7 @@ def get_available_fwts_tests():
         if line.strip() and not line.endswith(":"):
             # Extract the first word as the test name
             test_name = line.lstrip().split()[0]
-            if test_name not in available_tests:
-                available_tests.add(test_name)
+            available_tests.add(test_name)
 
     return available_tests
 

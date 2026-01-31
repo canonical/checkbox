@@ -632,3 +632,44 @@ _steps:
     3. Boot into the recovered system without errors
 _verification:
     1. The system boots into the factory recovery system successfully.
+
+id: miscellanea/secure-boot-enabled
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_secure_boot == 'True'
+user: root
+command:
+  check_secure_boot_state.py --enable --verbose
+_summary:
+  Verify secure boot is enabled when manifest indicates support
+_purpose:
+  This test verifies that secure boot is currently enabled on the system
+  when the manifest indicates the system supports secure boot. The test
+  automatically detects and uses the appropriate checking method:
+  - UEFI-based secure boot using mokutil
+  - FIT image-based secure boot using dumpimage
+
+id: miscellanea/secure-boot-disabled
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_secure_boot == 'False'
+user: root
+command:
+  check_secure_boot_state.py --disabled --verbose
+_summary:
+  Verify secure boot is disabled when manifest indicates no support
+_purpose:
+  This test verifies that secure boot is currently disabled on the system
+  when the manifest indicates the system does not support secure boot.
+  This ensures that systems without secure boot capability are properly
+  configured and not attempting to use unsupported features.
+  The test automatically detects and uses the appropriate checking method:
+  - UEFI-based secure boot using mokutil
+  - FIT image-based secure boot using dumpimage
+  

@@ -12,13 +12,22 @@ from datetime import datetime
 import time
 import platform
 
-# Checkbox could run in a snap container, so we need to prepend this root path
-RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
-# Snap mount point, see
-# https://snapcraft.io/docs/environment-variables#heading--snap
-SNAP = os.getenv("SNAP", default="").rstrip("/")
-# global const for subprocess calls that should timeout
-COMMAND_TIMEOUT_SECONDS = 30
+
+def get_checkbox_runtime_path() -> "str | None":
+    """Finds the correct checkbox runtime path in $CHECKBOX_RUNTIME
+    CHECKBOX_RUNTIME is a string of paths separated by \n
+    Only the /snap/checkbox/checkbox-runtime/... lines is the one we need
+    Iter the lines and find it
+
+    :return: None if not in a snap or failed to find this
+    """
+    if "CHECKBOX_RUNTIME" not in os.environ:
+        return None
+
+    lines = os.environ["CHECKBOX_RUNTIME"].strip().splitlines()
+    for line in lines:
+        if "checkbox-runtime" in line:
+            return line
 
 
 def get_timestamp_str() -> str:
@@ -38,6 +47,16 @@ def get_current_boot_id() -> str:
         # the boot_id file has a Version 4 UUID with hyphens
         # journalctl doesn't use hyphens so we just remove it
         return f.read().strip().replace("-", "")
+
+
+# TODO: use path objects for these
+
+# Snap mount point, see
+# https://snapcraft.io/docs/environment-variables#heading--snap
+SNAP = os.getenv("SNAP", default="").rstrip("/")
+# global const for subprocess calls that should timeout
+COMMAND_TIMEOUT_SECONDS = 30
+CHECKBOX_RUNTIME = (get_checkbox_runtime_path() or "").rstrip("/")
 
 
 class DeviceInfoCollector:
@@ -84,7 +103,7 @@ class DeviceInfoCollector:
             [
                 "checkbox-support-lsusb",
                 "-f",
-                '"{}"/var/lib/usbutils/usb.ids'.format(RUNTIME_ROOT),
+                '"{}"/var/lib/usbutils/usb.ids'.format(CHECKBOX_RUNTIME),
                 "-s",
             ],
             universal_newlines=True,
@@ -287,7 +306,7 @@ class HardwareRendererTester:
             # kernel doesn't see any GPU nodes
             print(
                 "There's nothing under {}".format(DRM_PATH),
-                "if an external GPU is connected,"
+                "if an external GPU is connected,",
                 "check if the connection is loose.",
             )
             return False
@@ -317,7 +336,7 @@ class HardwareRendererTester:
             print(
                 "No display is connected. This case will be skipped.",
                 "Maybe the display cable is not connected?",
-                "If the device is not supposed to have a display,"
+                "If the device is not supposed to have a display,",
                 "then skipping is expected.",
             )
 
@@ -401,12 +420,13 @@ class HardwareRendererTester:
         desktop_env_vars = self.get_desktop_environment_variables()
         if desktop_env_vars is None:
             print(
-                "[ ERR ] Unable to get the environment variables "
-                "used by the current desktop. Is the desktop process running?"
+                "[ ERR ] Unable to get the environment variables",
+                "used by the current desktop. Is the desktop process running?",
             )
             return False
 
         XDG_SESSION_TYPE = desktop_env_vars.get("XDG_SESSION_TYPE")
+
         if XDG_SESSION_TYPE not in ("x11", "wayland"):
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
@@ -418,29 +438,15 @@ class HardwareRendererTester:
                 file=sys.stderr,
             )
             return False
+
         print("XDG_SESSION type used by the desktop is:", XDG_SESSION_TYPE)
 
         glmark2_executable = self.pick_glmark2_executable(
             XDG_SESSION_TYPE, platform.uname().machine
         )
-        glmark2_data_path = "/usr/share/glmark2"
 
         try:
-            if RUNTIME_ROOT and not os.path.exists(glmark2_data_path):
-                # the official way to specify the location of the data files
-                # is "--data-path path/to/data/files"
-                # but 16, 18, 20 doesn't have this option
-                # and the /usr/share/glmark2 is hard-coded inside glmark2
-                # by the GLMARK_DATA_PATH build macro
-                src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
-                dst = glmark2_data_path
-                print(
-                    "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
-                        src, dst
-                    )
-                )
-                os.symlink(src, dst, target_is_directory=True)
-            # override is needed for snaps on classic ubuntu
+            # PATH override is needed for snaps on classic ubuntu
             # to allow the glmark2 command itself to be discovered
             desktop_env_vars["PATH"] = os.environ["PATH"]
             glmark2_output = sp.run(
@@ -462,11 +468,6 @@ class HardwareRendererTester:
                 file=sys.stderr,
             )
             return False
-        finally:
-            # immediately cleanup
-            if RUNTIME_ROOT and os.path.islink(glmark2_data_path):
-                print("[ DEBUG ] Un-symlinking glmark2 data")
-                os.unlink(glmark2_data_path)
 
         if glmark2_output.returncode != 0:
             print(

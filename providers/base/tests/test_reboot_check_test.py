@@ -20,7 +20,7 @@ class DisplayConnectionTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.tester = RCT.HardwareRendererTester()
-        RCT.RUNTIME_ROOT = ""
+        RCT.CHECKBOX_RUNTIME = ""
         RCT.SNAP = ""
 
     def test_display_check_happy_path(self):
@@ -302,72 +302,6 @@ class DisplayConnectionTests(unittest.TestCase):
         self.assertEqual(
             mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
         )
-
-    @patch(
-        "reboot_check_test." + "HardwareRendererTester.pick_glmark2_executable"
-    )
-    @patch(
-        "reboot_check_test."
-        + "HardwareRendererTester.get_desktop_environment_variables"
-    )
-    @patch("os.path.exists")
-    @patch("os.path.islink")
-    @patch("os.unlink")
-    @patch("os.symlink")
-    @patch("subprocess.run")
-    @patch("os.getenv")
-    def test_cleanup_glmark2_data_symlink(
-        self,
-        mock_getenv: MagicMock,
-        mock_run: MagicMock,
-        mock_symlink: MagicMock,
-        mock_unlink: MagicMock,
-        mock_islink: MagicMock,
-        mock_path_exists: MagicMock,
-        mock_get_desktop_envs: MagicMock,
-        mock_pick_glmark2_executable: MagicMock,
-    ):
-        def custom_env(key: str, is_snap: bool) -> str:
-            if key == "CHECKBOX_RUNTIME":
-                return "/snap/runtime/path/" if is_snap else ""
-            if key == "SNAP":
-                return "/snap/checkbox/path/" if is_snap else ""
-
-            raise Exception("unexpected use of this mock")
-
-        mock_get_desktop_envs.return_value = {
-            "DISPLAY": ":0",
-            "XDG_SESSION_TYPE": "x11",
-        }
-        mock_pick_glmark2_executable.return_value = "glmark2"
-
-        for glmark2_should_timeout in (True, False):
-            if glmark2_should_timeout:
-                mock_run.side_effect = sp.TimeoutExpired("glmark2", 120)
-            for is_snap in (True, False):
-                mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
-                RCT.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
-                RCT.SNAP = custom_env("SNAP", is_snap)
-                mock_islink.return_value = is_snap
-                # deb case, the file actually exists
-                mock_path_exists.return_value = not is_snap
-                # reapply the env variables
-                tester = RCT.HardwareRendererTester()
-                tester.is_hardware_renderer_available()
-
-                if is_snap:
-                    mock_symlink.assert_called_once_with(
-                        "{}/usr/share/glmark2".format(RCT.RUNTIME_ROOT),
-                        "/usr/share/glmark2",
-                        target_is_directory=True,
-                    )
-                    mock_unlink.assert_called_once_with("/usr/share/glmark2")
-                else:
-                    mock_symlink.assert_not_called()
-                    mock_unlink.assert_not_called()
-
-                mock_symlink.reset_mock()
-                mock_unlink.reset_mock()
 
     def test_slow_boot_scenario(self):
 

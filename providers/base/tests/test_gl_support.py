@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pathlib import Path, PosixPath
+from pathlib import Path
 import unittest as ut
 from unittest.mock import MagicMock, patch
 
@@ -27,8 +27,6 @@ TEST_DATA_DIR = Path(__file__).parent / "test_data"
 
 
 class TestGLSupportTests(ut.TestCase):
-    def setUp(self) -> None:
-        gl_support.CHECKBOX_RUNTIME = None
 
     @patch.dict("os.environ", {"DISPLAY": ":0", "XDG_SESSION_TYPE": "wayland"})
     @patch("sys.argv", ["gl_support_test.py"])
@@ -96,63 +94,6 @@ class TestGLSupportTests(ut.TestCase):
                     ar.msg,
                     "The minimum required OpenGL version is 3.0, but got 2.1",
                 )
-
-    @patch("gl_support.GLSupportTester.pick_glmark2_executable")
-    @patch("os.path.exists")
-    @patch("os.path.islink")
-    @patch("os.unlink")
-    @patch("os.symlink")
-    @patch("subprocess.check_output")
-    def test_cleanup_glmark2_data_symlink(
-        self,
-        _: MagicMock,
-        mock_symlink: MagicMock,
-        mock_unlink: MagicMock,
-        mock_islink: MagicMock,
-        mock_path_exists: MagicMock,
-        mock_pick_glmark2_executable: MagicMock,
-    ):
-        mock_pick_glmark2_executable.return_value = "glmark2"
-        tester = gl_support.GLSupportTester()
-
-        for is_snap in (True, False):
-            with patch.dict(
-                "os.environ",
-                {
-                    "CHECKBOX_RUNTIME": (
-                        "/snap/runtime/path/" if is_snap else ""
-                    ),
-                    "DISPLAY": ":0",
-                    "XDG_SESSION_TYPE": "wayland",
-                },
-            ):
-                mock_islink.return_value = is_snap
-                # deb case, the file actually exists
-                mock_path_exists.return_value = not is_snap
-                # hack for this unittest, since we import gl_support early
-                # so the variable assignment was already done during import
-                gl_support.CHECKBOX_RUNTIME = PosixPath("/snap/runtime/path/")
-
-                tester.call_glmark2_validate()
-
-                if is_snap:
-                    mock_symlink.assert_called_once_with(
-                        gl_support.CHECKBOX_RUNTIME
-                        / gl_support.GLMARK2_DATA_PATH,
-                        PosixPath("/usr/share/glmark2"),
-                        target_is_directory=True,
-                    )
-
-                    mock_unlink.assert_called_once_with(
-                        PosixPath("/usr/share/glmark2")
-                    )
-                else:
-                    mock_symlink.assert_not_called()
-                    mock_unlink.assert_not_called()
-
-                mock_symlink.reset_mock()
-                mock_unlink.reset_mock()
-            gl_support.CHECKBOX_RUNTIME = None
 
     @patch("subprocess.run")
     @patch("os.environ")

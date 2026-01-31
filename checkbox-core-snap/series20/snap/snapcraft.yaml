@@ -8,6 +8,10 @@ adopt-info: version-calculator
 
 base: core20
 
+layout: 
+  /usr/share/glmark2:
+    bind: $SNAP/usr/share/glmark2
+
 # Don't forget to add a new slot if a new provider part is added in the parts
 # section below.
 slots:

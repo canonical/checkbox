@@ -1,0 +1,23 @@
+id: tgpio-full
+_name: TGPIO Tests (Full)
+unit: test plan
+include:
+nested_part:
+    tgpio-manual
+    tgpio-automated
+
+id: tgpio-manual
+_name: TGPIO Tests (Manual)
+unit: test plan
+include:
+bootstrap_include:
+
+id: tgpio-automated
+_name: TGPIO Tests (Automated)
+unit: test plan
+include:
+    tgpio/ptp-virtual-device-node-detect
+    tgpio/intc-driver-loaded
+    tgpio/ptp-time-check-tests
+bootstrap_include:
+    ptp-device-node-info

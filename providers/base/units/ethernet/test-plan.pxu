@@ -17,6 +17,16 @@ include:
 bootstrap_include:
     device
 
+id: after-suspend-ethernet-cert-manual
+unit: test plan
+_name: Ethernet tests after suspend (manual)
+_description: Ethernet tests after suspend
+include:
+    after-suspend-ethernet/detect                  certification-status=blocker
+    after-suspend-ethernet/hotplug-.*              certification-status=blocker
+bootstrap_include:
+    device
+
 id: ethernet-wake-on-lan-cert-manual
 unit: test plan
 _name: Ethernet wake-on-LAN tests (manual)
@@ -166,3 +176,23 @@ include:
 bootstrap_include:
     device
     executable
+
+id: ethernet-desktop-26-04-manual
+unit: test plan
+_name: Desktop Ethernet for 26.04 (Manual)
+_description: Manual tests for ethernet
+include:
+nested_part:
+    submission-cert-full
+    ethernet-cert-manual
+    after-suspend-ethernet-cert-manual
+    info-attachment-cert-full
+
+id: ethernet-desktop-26-04-automated
+unit: test plan
+_name: Desktop Ethernet for 26.04 (Automated)
+_description: Automated tests for ethernet
+include:
+nested_part:
+    ethernet-cert-automated
+    after-suspend-ethernet-cert-automated

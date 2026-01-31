@@ -191,3 +191,23 @@ include:
     after-suspend-bluetooth4/beacon_eddystone_url_.*       certification-status=blocker
 bootstrap_include:
     device
+
+id: bluetooth-desktop-26-04-manual
+unit: test plan
+_name: Desktop Bluetooth for 26.04 (Manual)
+_description: Manual tests for bluetooth
+include:
+nested_part:
+    submission-cert-full
+    bluetooth-cert-manual
+    after-suspend-bluetooth-cert-manual
+    info-attachment-cert-full
+
+id: bluetooth-desktop-26-04-automated
+unit: test plan
+_name: Desktop Bluetooth for 26.04 (Automated)
+_description: Automated tests for bluetooth
+include:
+nested_part:
+    bluetooth-cert-automated
+    after-suspend-bluetooth-cert-automated

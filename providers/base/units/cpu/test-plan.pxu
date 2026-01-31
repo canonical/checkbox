@@ -15,6 +15,12 @@ _description:
  CPU tests (Manual)
 include:
 
+id: after-suspend-cpu-cert-manual
+unit: test plan
+_name: CPU tests after suspend (Manual)
+_description: CPU tests after suspend (Manual)
+include:
+
 id: cpu-cert-automated
 unit: test plan
 _name: CPU tests (automated)
@@ -29,6 +35,8 @@ include:
     cpu/offlining_test                             certification-status=blocker
     cpu/topology                                   certification-status=blocker
     cpu/clocktest
+    cpu/armhf_vfp_support_.*
+    cpu/arm64_vfp_support_.*
 
 id: after-suspend-cpu-cert-automated
 unit: test plan
@@ -104,3 +112,23 @@ include:
     cpu/arm64_vfp_support_.*                    certification-status=non-blocker
     cpu/cstates                                 certification-status=non-blocker
     cpu/cstates_results.log                     certification-status=non-blocker
+
+id: cpu-desktop-26-04-manual
+unit: test plan
+_name: Desktop CPU for 26.04 (Manual)
+_description: Manual tests for cpu
+include:
+nested_part:
+    submission-cert-full
+    cpu-cert-manual
+    after-suspend-cpu-cert-manual
+    info-attachment-cert-full
+
+id: cpu-desktop-26-04-automated
+unit: test plan
+_name: Desktop CPU for 26.04 (Automated)
+_description: Automated tests for cpu
+include:
+nested_part:
+    cpu-cert-automated
+    after-suspend-cpu-cert-automated

@@ -1,0 +1,173 @@
+id: client-cert-iot-desktop-26-04
+_name: IoT Client Certification Tests for 26.04 desktop images
+unit: test plan
+_description:
+ This test plan is intended for use inside Canonical's test labs. It will be
+ used to certify IoT devices running desktop image.
+include:
+nested_part:
+    client-cert-iot-desktop-26-04-manual
+    client-cert-iot-desktop-26-04-automated
+    client-cert-iot-desktop-26-04-stress
+
+
+id: client-cert-iot-desktop-26-04-manual
+_name: IoT Client Certification Tests for Ubuntu 26.04 desktop image (Manual Tests)
+unit: test plan
+_description:
+  Includes tests that require input from an operator to complete.
+include:
+nested_part:
+    edac-manual
+    ishtp-manual
+    led-indicator-manual
+    mei-manual
+    monitor-manual
+    wireless-wifi-master-mode-manual
+    usb-c-manual
+    mediacard-iot-26-04-manual
+    cpu-desktop-26-04-manual
+    memory-desktop-26-04-manual
+    disk-desktop-26-04-manual
+    ethernet-desktop-26-04-manual
+    bluetooth-desktop-26-04-manual
+    wireless-desktop-26-04-manual
+    wwan-desktop-26-04-manual
+    networking-desktop-26-04-manual
+    touchscreen-desktop-26-04-manual
+    thunderbolt-desktop-26-04-manual
+    audio-desktop-26-04-manual
+    graphic-desktop-26-04-manual
+    monitor-desktop-26-04-manual
+    mediacard-desktop-26-04-manual
+    usb-desktop-26-04-manual
+    usb-c-desktop-26-04-manual
+    usb-dwc3-desktop-26-04-manual
+    power-management-desktop-26-04-manual
+    after-suspend-led-indicator-manual
+    after-suspend-monitor-manual
+    after-suspend-wireless-wifi-master-mode-manual
+    after-suspend-usb-c-manual
+    ethernet-manual
+    after-suspend-ethernet-manual
+    info-attachment-cert-manual
+exclude:
+    networking/airplane-mode
+    after-suspend-networking/airplane-mode
+    power-management/suspend-on-AC-power
+    power-management/suspend-on-battery-power
+    power-management/lid
+    power-management/lid_close_suspend_open
+    power-management/light_sensor
+    keys/video-out
+    after-suspend-keys/video-out
+    disk/detect
+    after-suspend-disk/detect
+    disk/hdd-parking
+    after-suspend-disk/hdd-parking
+    graphics/valid_glxgears
+    graphics/valid_glxgears_fullscreen
+    after-suspend-graphics/valid_glxgears
+    after-suspend-graphics/valid_glxgears_fullscreen
+
+
+id: client-cert-iot-desktop-26-04-automated
+_name: IoT Client Certification Tests for Ubuntu 26.04 desktop image (Automated Tests)
+unit: test plan
+_description:
+    Includes tests that do not require operator input.
+    TO DO:
+      - need to cleanup OTG tests
+      - missing serial test plan in desktop-26 test plan
+      - add cpu/armhf_vfp_support_.* and cpu/arm64_vfp_support_.* to cpu-cert-automated
+bootstrap_include:
+include:
+nested_part:
+    audio-automated
+    bluez-automated
+    camera-automated
+    docker-automated
+    edac-automated
+    eeprom-automated
+    ethernet-automated
+    gpio-automated
+    i2c-automated
+    ishtp-automated
+    mei-automated
+    networking-automated
+    qep-automated
+    rtc-automated
+    serial-automated
+    socketcan-auto-local
+    socketcan-auto-remote
+    wireless-wifi-master-mode-auto
+    va-api-automated
+    submission-cert-automated
+    info-attachment-cert-automated
+    networking-desktop-26-04-automated
+    misc-client-desktop-26-04-automated
+    acpi-desktop-26-04-automated
+    power-management-precheck-desktop-26-04-automated
+    snappy-snap-desktop-26-04-automated
+    cpu-desktop-26-04-automated
+    memory-desktop-26-04-automated
+    disk-desktop-26-04-automated
+    ethernet-desktop-26-04-automated
+    bluetooth-desktop-26-04-automated
+    wireless-desktop-26-04-automated
+    wireless-netplan-desktop-26-04-automated
+    wwan-desktop-26-04-automated
+    touchscreen-desktop-26-04-automated
+    keys-desktop-26-04-automated
+    led-desktop-26-04-automated
+    audio-desktop-26-04-automated
+    thunderbolt-desktop-26-04-automated
+    monitor-desktop-26-04-automated
+    graphic-desktop-26-04-automated
+    fingerprint-desktop-26-04-automated
+    mediacard-desktop-26-04-automated
+    usb-desktop-26-04-automated
+    usb-c-desktop-26-04-automated
+    usb-dwc3-desktop-26-04-automated
+    before-after-suspend-reference-desktop-26-04-automated
+    firmware-fwupdmgr-desktop-26-04-automated
+    power-desktop-26-04-automated
+    tpm-desktop-26-04-automated
+    after-suspend-audio-automated
+    after-suspend-bluez-automated
+    after-suspend-camera-automated
+    after-suspend-eeprom-automated
+    after-suspend-ethernet-automated
+    after-suspend-gpio-automated
+    after-suspend-networking-automated
+    after-suspend-rtc-automated
+    after-suspend-serial-automated
+    after-suspend-socketcan-auto-local
+    after-suspend-socketcan-auto-remote
+    watchdog-automated
+exclude:
+    benchmarks/disk/hdparm-cache-read_.*
+    benchmarks/disk/hdparm-read_.*
+    after-suspend-benchmarks/disk/hdparm-cache-read_.*
+    after-suspend-benchmarks/disk/hdparm-read_.*
+    graphics/auto_glxgears
+    graphics/auto_glxgears_fullscreen
+    after-suspend-graphics/auto_glxgears
+    after-suspend-graphics/auto_glxgears_fullscreen
+    power-management/tickless_idle
+    after-suspend-power-management/tickless_idle
+
+id: client-cert-iot-desktop-26-04-stress
+_name: IoT Client Certification Tests for Ubuntu 26.04 desktop (Stress Tests)
+unit: test plan
+_description:
+  Includes tests that are long running device stress tests.
+include:
+nested_part:
+    client-cert-desktop-26-04-stress
+    stress-ng-automated
+exclude:
+    stress/store_and_change_oomd_config
+    stress/cpu_stress_ng_test
+    stress/memory_stress_ng
+    stress/restore_oomd_config

@@ -18,31 +18,80 @@
 # along with Checkbox. If not, see <http://www.gnu.org/licenses/>.
 import re
 import argparse
+import logging
+import sys
 from pathlib import Path
 
 
-IIO_PATH = "/sys/bus/iio/devices/iio:device"
+IIO_PATH = "/sys/bus/iio/devices/"
 
-pressure_nodes = [
-    "in_pressure_input",
-    "in_pressure_oversampling_ratio",
-    "in_pressure_sampling_frequency",
-]
-accelerometer_nodes = [
-    "in_accel_sampling_frequency",
-    "in_accel_scale",
-    "in_accel_x_calibbias",
-    "in_accel_x_raw",
-    "in_accel_y_calibbias",
-    "in_accel_y_raw",
-    "in_accel_z_calibbias",
-    "in_accel_z_raw",
-]
-humidity_nodes = [
-    "in_humidityrelative_integration_time",
-    "in_humidityrelative_scale",
-    "in_humidityrelative_raw",
-]
+NODE_MAPPING = {
+    "pressure": [
+        "in_pressure_input",
+        "in_pressure_oversampling_ratio",
+        "in_pressure_sampling_frequency",
+    ],
+    "accelerometer": [
+        "in_accel_sampling_frequency",
+        "in_accel_scale",
+        "in_accel_x_calibbias",
+        "in_accel_x_raw",
+        "in_accel_y_calibbias",
+        "in_accel_y_raw",
+        "in_accel_z_calibbias",
+        "in_accel_z_raw",
+    ],
+    "humidity": [
+        "in_humidityrelative_integration_time",
+        "in_humidityrelative_scale",
+        "in_humidityrelative_raw",
+    ],
+    "adc": [
+        "in_voltage",
+        "in_voltage_scale",
+    ],
+}
+
+
+def _get_iio_device_mapping():
+    """
+    Get a mapping of IIO device names to their full paths.
+
+    Returns:
+        dict: A dictionary where keys are sensor names (str) and values
+              are their full IIO device paths (str).
+    """
+    iio_devices = {}
+    if Path(IIO_PATH).exists():
+        for device_path in Path(IIO_PATH).glob("iio:device*"):
+            name_node = device_path.joinpath("name")
+            if name_node.exists():
+                name = name_node.read_text().strip()
+                iio_devices[name] = str(device_path)
+        return iio_devices
+    else:
+        return None
+
+
+def _check_device(name):
+    """
+    Initial a Path object for the industrial I/O sensor
+
+    Args:
+        name (str):
+
+    Raises:
+        FileNotFoundError: the sysfs of sensor not exists
+
+    Returns:
+        iio_node: The node of the industrial I/O sensor. (Path object)
+    """
+    iio_devices = _get_iio_device_mapping()
+    if iio_devices:
+        if name in iio_devices.keys():
+            logging.info("Found IIO device %s.", name)
+            return Path(iio_devices[name])
+    raise FileNotFoundError("IIO device {} not exists".format(name))
 
 
 def _check_node(path):
@@ -56,11 +105,11 @@ def _check_node(path):
         FileNotFoundError: the sysfs of sensor not exists
 
     Returns:
-        iio_node: the node of the industrial I/O sensor. (Path object)
+        iio_node: The node of the industrial I/O sensor. (Path object)
     """
     iio_node = Path(path)
     if not iio_node.exists():
-        raise FileNotFoundError("{} file not exists".format(iio_node))
+        raise FileNotFoundError("{} node not exists".format(iio_node))
 
     return iio_node
 
@@ -84,83 +133,53 @@ def _check_reading(values):
     return result
 
 
-def check_pressure_sensor(index):
+def _update_adc_nodes_mapping(nodes_mapping, input_num):
     """
-    Validate the sysfs of industrial I/O pressure sensor
+    Updates the 'adc' key in the nodes_mapping dictionary
+    to include in_voltageX_raw and in_voltageX_scale nodes
+    up to input_num.
 
     Args:
-        index (str): the index of sensor
+        nodes_mapping (dict): The original dictionary of node mappings.
+        input_num (int): The number of voltage input nodes to generate
+                         (0 to input_num-1).
 
-    Raises:
-        ValueError: the reading of sensor is not expected format
+    Returns:
+        dict: The updated nodes_mapping dictionary.
     """
-    iio_node = _check_node(IIO_PATH + index)
-    readings = []
-
-    for sub_node in pressure_nodes:
-        tmp_node = iio_node.joinpath(sub_node)
-        _check_node(tmp_node)
-        value = tmp_node.read_text().strip("\n")
-        print("The value of {} node is {}".format(tmp_node, value))
-        readings.append(value)
-
-    if readings and _check_reading(readings):
-        print("The pressure sensor test passed")
-    else:
-        raise ValueError("ERROR: The pressure value is not valid")
+    new_adc_nodes = []
+    for i in range(input_num):
+        new_adc_nodes.append("in_voltage{}_raw".format(i))
+    new_adc_nodes.append("in_voltage_scale")
+    nodes_mapping["adc"] = new_adc_nodes
+    return nodes_mapping
 
 
-def check_accelerometer_sensor(index):
+def check_sensor(name, type, nodes):
     """
     Validate the sysfs of industrial I/O accelerometer sensor
 
     Args:
-        index (str): the index of sensor
+        name (str): The expected name of sensor
+        type (str): The expected type of sensor
 
     Raises:
-        ValueError: the reading of sensor is not expected format
+        ValueError: The reading of sensor is not expected format
     """
     readings = []
-    iio_node = _check_node(IIO_PATH + index)
+    iio_node = _check_device(name)
 
-    for sub_node in accelerometer_nodes:
-        tmp_node = iio_node.joinpath(sub_node)
-        _check_node(tmp_node)
-
-        value = tmp_node.read_text().strip("\n")
-        print("the value of {} node is {}".format(tmp_node, value))
-        readings.append(value)
-
-    if readings and _check_reading(readings):
-        print("The accelerometer sensor test passed")
-    else:
-        raise ValueError("ERROR: The accelerometer value is not valid")
-
-
-def check_humidity_sensor(index):
-    """
-    Validate the sysfs of industrial I/O humidity sensor
-
-    Args:
-        index (str): the index of sensor
-
-    Raises:
-        ValueError: the reading of sensor is not expected format
-    """
-    readings = []
-    iio_node = _check_node(IIO_PATH + index)
-
-    for sub_node in humidity_nodes:
+    for sub_node in nodes[type]:
         tmp_node = iio_node.joinpath(sub_node)
         _check_node(tmp_node)
         value = tmp_node.read_text().strip("\n")
-        print("the value of {} node is {}".format(tmp_node, value))
+        logging.info("The value of %s node is %s", tmp_node, value)
         readings.append(value)
 
     if readings and _check_reading(readings):
-        print("The humidity sensor test passed")
+        logging.info("The %s sensor test passed", type)
     else:
-        raise ValueError("ERROR: The humidity value is not valid")
+        raise ValueError("ERROR: The {} value is not valid.".format(type))
 
 
 def validate_iio_sensor(args):
@@ -170,15 +189,13 @@ def validate_iio_sensor(args):
     Args:
         args (Namespace): the arguments includes type and index of sensor
     """
-    test_funcs = {
-        "pressure": check_pressure_sensor,
-        "accelerometer": check_accelerometer_sensor,
-        "humidityrelative": check_humidity_sensor,
-    }
+    if args.type == "adc":
+        nodes = _update_adc_nodes_mapping(NODE_MAPPING, args.input_num)
+    else:
+        nodes = NODE_MAPPING
 
-    print("# Perform {} sensor test - index {}".format(args.type, args.index))
-    test_funcs[args.type](args.index)
-    print("# The {} sensor test passed".format(args.type))
+    logging.info("# Perform %s sensor test - name %s", args.type, args.name)
+    check_sensor(args.name, args.type, nodes)
 
 
 def dump_sensor_resource(args):
@@ -186,14 +203,24 @@ def dump_sensor_resource(args):
     Print out the sensor index and sensor type
 
     Args:
-        args (Namespace): the arguments includes type and index of sensor
+        args (Namespace): The arguments includes type and index of sensor
     """
     output = ""
-    resource_text = "index: {}\ntype: {}\n\n"
-    for sensor in args.mapping.split():
-        index, sensor_type = sensor.split(":")
-        output += resource_text.format(index, sensor_type)
-    print(output)
+    resource_text = "name: {}\ntype: {}\ninput_num: {}\n\n"
+    #  Fallback logic for existing checkbox config
+    if "|" in args.mapping:
+        mapping = args.mapping.split("|")
+    else:
+        mapping = args.mapping.split()
+    for sensor in mapping:
+        parts = sensor.split(":")
+        if len(parts) == 2:
+            name, sensor_type = parts
+            output += resource_text.format(name, sensor_type, None)
+        else:
+            name, sensor_type, input_num = parts
+            output += resource_text.format(name, sensor_type, input_num)
+    print(output, end="")
 
 
 def register_arguments():
@@ -210,14 +237,21 @@ def register_arguments():
         "-t",
         "--type",
         required=True,
-        choices=["pressure", "accelerometer", "humidityrelative"],
+        choices=["pressure", "accelerometer", "humidityrelative", "adc"],
         type=str,
     )
     iio_test_parser.add_argument(
-        "-i",
-        "--index",
+        "-n",
+        "--name",
         required=True,
         type=str,
+        help="The name of expected IIO device.",
+    )
+    iio_test_parser.add_argument(
+        "-i",
+        "--input-num",
+        type=int,
+        help="The expected total number of input pin for the ADC.",
     )
     iio_test_parser.set_defaults(test_func=validate_iio_sensor)
 
@@ -226,17 +260,22 @@ def register_arguments():
         "mapping",
         help=(
             "Usage of parameter: IIO_SENSORS="
-            "{index}:{sensor_type} {index}:{sensor_type}"
+            "{name}:{sensor_type}|"
+            "{name}:{sensor_type_adc}:{expected_input_number}"
         ),
     )
 
     iio_arg_parser.set_defaults(test_func=dump_sensor_resource)
 
     args = parser.parse_args()
+
     return args
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO, format="%(message)s", stream=sys.stdout
+    )
 
     args = register_arguments()
 

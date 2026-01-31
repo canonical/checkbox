@@ -9,6 +9,10 @@ confinement: strict
 
 base: core22
 
+layout: 
+  /usr/share/glmark2:
+    symlink: $SNAP/checkbox-runtime/usr/share/glmark2
+
 plugs:
   checkbox-runtime:
     interface: content

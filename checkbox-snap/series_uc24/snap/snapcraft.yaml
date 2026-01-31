@@ -47,6 +47,10 @@ plugs:
     target: $SNAP/providers/checkbox-provider-certification-server
     default-provider: checkbox24
 
+layout: 
+  /usr/share/glmark2:
+    symlink: $SNAP/checkbox-runtime/usr/share/glmark2
+
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]

@@ -28,6 +28,9 @@ template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 template-id: camera/v4l2-compliance-blockers_name
+requires:
+  lsb.release >= "24.04"
+  manifest.has_rpi_camera == 'False'
 flags: also-after-suspend
 _template-summary: To check if the ioctl request works on a v4l2 device
 id: camera/v4l2-compliance-blockers_{name}
@@ -42,6 +45,9 @@ template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 template-id: camera/v4l2-compliance-non-blockers_name
+requires:
+  lsb.release >= "24.04"
+  manifest.has_rpi_camera == 'False'
 flags: also-after-suspend
 _template-summary: To check if the ioctl request works on a v4l2 device
 id: camera/v4l2-compliance-non-blockers_{name}

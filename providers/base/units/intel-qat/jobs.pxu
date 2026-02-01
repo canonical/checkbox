@@ -1,0 +1,260 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hector Cao <hector.cao@canonical.com>
+
+id: intel-qat-common/detect
+category_id: intel-qat
+plugin: shell
+estimated_duration: 2.0
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_intel_qat == 'True'
+_summary: Detect Intel QuickAssist Technology device (>= Gen4)
+_description: The purpose of this job is to check the QAT device presence
+  when QAT support is specified in the manifest. If no QAT device can be detected
+  this test will fail.
+command:
+  PFS=$(qatctl.py list --short | wc -l)
+  if [ "${PFS}" -le 0 ]; then
+    echo "This system is supposed to support Intel QuickAssist Technology, but no Intel QAT device were found!"
+    exit 1
+  fi
+
+unit: template
+template-resource: qat
+template-engine: jinja2
+template-unit: job
+id: intel-qat-common/{{ available }}-attach-devices
+plugin: attachment
+category_id: intel-qat
+user: root
+_summary: Attach devices list
+command:
+  qatctl.py status
+
+unit: template
+template-resource: qat_pf
+template-engine: jinja2
+template-unit: job
+id: intel-qat-common/check_pf_sysfs_{{ pf }}
+category_id: intel-qat
+plugin: shell
+user: root
+_summary: Check PF sysfs for {{ pf }}
+command:
+  test -f /sys/bus/pci/devices/0000:{{ pf }}/qat/state
+  test -f /sys/bus/pci/devices/0000:{{ pf }}/qat/cfg_services
+  test -f /sys/bus/pci/devices/0000:{{ pf }}/sriov_numvfs
+
+unit: template
+template-resource: qat_pf
+template-engine: jinja2
+template-unit: job
+id: intel-qat-common/check_sriov_{{ pf }}
+category_id: intel-qat
+plugin: shell
+user: root
+_summary: Check SR-IOV support {{ pf }}
+_description: Check that SR-IOV support is enabled for the device
+  QAT physical device offers the SR-IOV features. This means that
+  each QAT PF can be virtualized into several virtual devices.
+  Each virtual device is seen as a regular QAT PCI device. 
+command:
+  total_vfs=$(cat /sys/bus/pci/devices/0000:{{ pf }}/sriov_totalvfs)
+  if [ "${total_vfs}" -le 0 ]; then
+    echo "total_vfs should be greater than 0"
+    exit 1
+  fi
+  echo 16 | tee /sys/bus/pci/devices/0000:{{ pf }}/sriov_numvfs
+  numvfs=$(cat /sys/bus/pci/devices/0000:{{ pf }}/sriov_numvfs)
+  if [ "${numvfs}" -le 0 ]; then
+    echo "numvfs should be greater than 0"
+    exit 1
+  fi
+
+unit: template
+template-resource: qat_pf
+template-engine: jinja2
+template-unit: job
+id: intel-qat-common/check_telemery_{{ pf }}
+category_id: intel-qat
+plugin: shell
+user: root
+_summary: Check telemetry data in debugfs for {{ pf }}
+command:
+  mount -t debugfs --onlyonce none /sys/kernel/debug 2>/dev/null || true
+  qatctl.py --get-telemetry-data --devices {{ pf }}
+
+unit: template
+template-resource: qat_pf
+template-engine: jinja2
+template-unit: job
+id: intel-qat-common/check_vfio_{{ pf }}
+category_id: intel-qat
+plugin: shell
+user: root
+_summary: Check VFIO-PCI support {{ pf }}
+_description: Check that VFIO-PCI support is enabled for the device
+  The kernel module vfio-pci will create a device file in /dev/vfio/
+  for each VF. We check that when we unload the vfio-pci module,
+  there is no VFIO files for VFs and when we load the vfio-pci
+  each VF will have it own character file in /dev/vfio/
+command:
+  rmmod vfio-pci || true
+  nb_vfio_before=$(qatctl.py status --devices {{ pf }} --vfio | wc -l)
+  # we have to pass the VF device ids
+  modprobe vfio-pci ids=8086:4941,8086:4943,8086:4945,8086:4947
+  nb_vfio_after=$(qatctl.py status --devices {{ pf }} --vfio | wc -l)
+  [ "$nb_vfio_before" -le 0 ] || (echo "nb vfio devices should be <= 0" && exit 1)
+  [ "$nb_vfio_after" -gt 0 ] || (echo "nb vfio devices should be > 0" && exit 1)
+
+unit: template
+template-resource: qat_pf
+template-engine: jinja2
+template-unit: job
+id: intel-qat-common/check_set_state_{{ pf }}
+category_id: intel-qat
+plugin: shell
+user: root
+_summary: Bring up and down device {{ pf }}
+command:
+  qatctl.py --devices {{ pf }} --set-state down
+  cur_state=$(qatctl.py --devices {{ pf }} --get-state)
+  qatctl.py --devices {{ pf }} --set-state up
+  [ "$cur_state" == "down" ] || exit 1
+
+unit: template
+template-resource: qat
+template-engine: jinja2
+template-unit: job
+id: intel-qat-qatlib/{{ available }}-cpa-sample-code-sym
+category_id: intel-qat
+flags: simple
+user: root
+_summary: Run CPA symmetric crypto tests
+requires:
+  package.name == 'qatlib-examples'
+  package.name == 'qatlib-service'
+command:
+  # TODO : for unknown reason, cpa_sample_code still runs when we cancel the
+  # checkbox session (ctrl-c)
+  # 1  : symmetric crypto tests only
+  # 2  : RSA crypto tests only
+  # 32 : Compression tests only
+  # switch all devices to crypto sym mode
+  mkdir -p /etc/sysconfig
+  printf "POLICY=0\nServicesEnabled=sym\n" | tee /etc/sysconfig/qat
+  systemctl restart qat
+  cpa_sample_code runTests=1
+
+unit: template
+template-resource: qat
+template-engine: jinja2
+template-unit: job
+id: intel-qat-qatlib/{{ available }}-cpa-sample-code-rsa
+category_id: intel-qat
+flags: simple
+user: root
+_summary: Run CPA RSA tests
+requires:
+  package.name == 'qatlib-examples'
+  package.name == 'qatlib-service'
+command:
+  # 1  : symmetric crypto tests only
+  # 2  : RSA crypto tests only
+  # 32 : Compression tests only
+  # switch all devices to crypto asym mode
+  mkdir -p /etc/sysconfig
+  printf "POLICY=0\nServicesEnabled=asym\n" | tee /etc/sysconfig/qat
+  systemctl restart qat
+  cpa_sample_code runTests=2
+
+unit: template
+template-resource: qat
+template-engine: jinja2
+template-unit: job
+id: intel-qat-qatlib/{{ available }}-cpa-sample-code-codec
+category_id: intel-qat
+flags: simple
+user: root
+_summary: Run compression tests
+requires:
+  package.name == 'qatlib-examples'
+  package.name == 'qatlib-service'
+command:
+  # 1  : symmetric crypto tests only
+  # 2  : RSA crypto tests only
+  # 32 : Compression tests only
+  mkdir -p /etc/sysconfig
+  printf "POLICY=0\nServicesEnabled=dc\n" | tee /etc/sysconfig/qat
+  systemctl restart qat
+  cpa_sample_code runTests=32
+
+unit: template
+template-resource: qat
+template-engine: jinja2
+template-unit: job
+id: intel-qat-qatlib/{{ available }}-cpa-sample-code-standalone-sym
+category_id: intel-qat
+flags: simple
+user: root
+_summary: Run CPA symmetric crypto tests (in standalone mode)
+requires:
+  package.name == 'qatlib-examples'
+  package.name == 'qatlib-service'
+command:
+  # 1  : symmetric crypto tests only
+  # 2  : RSA crypto tests only
+  # 32 : Compression tests only
+  # switch all devices to crypto sym mode
+  systemctl stop qat
+  mkdir -p /etc/sysconfig
+  printf "ServicesEnabled=sym\n" | tee /etc/sysconfig/qat
+  qat_init.sh
+  cpa_sample_code runTests=1
+
+unit: template
+template-resource: qat
+template-engine: jinja2
+template-unit: job
+id: intel-qat-qatlib/{{ available }}-cpa-sample-code-standalone-rsa
+category_id: intel-qat
+flags: simple
+user: root
+_summary: Run CPA RSA tests (in standalone mode)
+requires:
+  package.name == 'qatlib-examples'
+  package.name == 'qatlib-service'
+command:
+  # 1  : symmetric crypto tests only
+  # 2  : RSA crypto tests only
+  # 32 : Compression tests only
+  # switch all devices to crypto asym mode
+  systemctl stop qat
+  mkdir -p /etc/sysconfig
+  printf "ServicesEnabled=asym\n" | tee /etc/sysconfig/qat
+  qat_init.sh
+  cpa_sample_code runTests=2
+
+unit: template
+template-resource: qat
+template-engine: jinja2
+template-unit: job
+id: intel-qat-qatlib/{{ available }}-cpa-sample-code-standalone-codec
+category_id: intel-qat
+flags: simple
+user: root
+_summary: Run compression tests (in standalone mode)
+requires:
+  package.name == 'qatlib-examples'
+  package.name == 'qatlib-service'
+command:
+  # 1  : symmetric crypto tests only
+  # 2  : RSA crypto tests only
+  # 32 : Compression tests only
+  systemctl stop qat
+  mkdir -p /etc/sysconfig
+  printf "ServicesEnabled=dc\n" | tee /etc/sysconfig/qat
+  qat_init.sh
+  cpa_sample_code runTests=32

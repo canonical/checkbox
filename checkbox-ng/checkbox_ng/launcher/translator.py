@@ -7,12 +7,34 @@ from functools import wraps
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
 
-def identity(value):
+def multiline_text(value):
+    # no more trailing spaces
+    lines = (x.rstrip() for x in value.splitlines())
+    # line composed by a . is actually a hack to add an empty line in pxus
+    lines = (x if x != "." else "" for x in lines)
+    return "\n".join(lines)
+
+
+class CommentedError(ValueError):
+    def __init__(self, value, comment):
+        self.value = value
+        self.comment = comment
+        super().__init__()
+
+
+def commentable_value(value):
+    """
+    This returns the value or raises a CommentedError if the value contains
+    a comment
+    """
+    # this is technically not proper, as these values are not stringable, but
+    # validation is not the job of the translator
+    value, comment = split_comment(value)
+    if comment:
+        # here we raise an exception as rumel.yaml doesn't support returning
+        # commented fields
+        raise CommentedError(value, comment)
     return value
-
-
-def no_trailing_spaces(value):
-    return "\n".join(x.rstrip() for x in value.splitlines())
 
 
 class JinjaError(ValueError):
@@ -236,36 +258,36 @@ def translate_options(value):
 
 
 field_translators = {
-    "id": identity,
-    "unit": identity,
-    "name": identity,
-    "description": no_trailing_spaces,
-    "estimated_duration": identity,
-    "description": no_trailing_spaces,
-    "os-id": identity,
-    "plugin": identity,
-    "category_id": identity,
-    "user": identity,
-    "command": identity,
-    "summary": no_trailing_spaces,
-    "purpose": no_trailing_spaces,
-    "steps": no_trailing_spaces,
-    "prompt": no_trailing_spaces,
-    "value-type": identity,
-    "hidden-reason": no_trailing_spaces,
-    "verification": no_trailing_spaces,
-    "template-resource": identity,
-    "template-unit": identity,
-    "template-id": identity,
-    "template-engine": identity,
-    "template-summary": no_trailing_spaces,
-    "entry_point": identity,
-    "file_extension": identity,
-    "Depends": identity,
-    "Suggests": identity,
-    "Recommends": identity,
-    "os-version-id": identity,
-    "group": identity,
+    "id": commentable_value,
+    "unit": commentable_value,
+    "name": commentable_value,
+    "estimated_duration": commentable_value,
+    "os-id": commentable_value,
+    "plugin": commentable_value,
+    "category_id": commentable_value,
+    "user": commentable_value,
+    "command": commentable_value,
+    "value-type": commentable_value,
+    "template-resource": commentable_value,
+    "template-unit": commentable_value,
+    "template-id": commentable_value,
+    "template-engine": commentable_value,
+    "entry_point": commentable_value,
+    "file_extension": commentable_value,
+    "Depends": commentable_value,
+    "Suggests": commentable_value,
+    "Recommends": commentable_value,
+    "os-version-id": commentable_value,
+    "group": commentable_value,
+    "description": multiline_text,
+    "description": multiline_text,
+    "summary": multiline_text,
+    "purpose": multiline_text,
+    "steps": multiline_text,
+    "prompt": multiline_text,
+    "hidden-reason": multiline_text,
+    "verification": multiline_text,
+    "template-summary": multiline_text,
     "data": translate_raw_json,
     "environ": translate_single_multiline_stringable_values,
     "flags": translate_single_multiline_stringable_values,
@@ -290,13 +312,14 @@ field_translators = {
 
 
 def translate_unit(unit_dict: dict) -> dict:
+    from ruamel.yaml.comments import CommentedMap
 
     def no_more_translations(x):
         if x.startswith("_"):
             return x[1:]
         return x
 
-    to_return = {}
+    to_return = CommentedMap()
     for key, value in unit_dict.items():
         key = no_more_translations(key)
         try:
@@ -318,61 +341,11 @@ def translate_unit(unit_dict: dict) -> dict:
                 ).format(key, unit_dict.get("id", str(unit_dict)))
             )
             to_return[key] = value
+        except CommentedError as e:
+            to_return[key] = e.value
+            to_return.yaml_add_eol_comment(e.comment, key)
 
     return to_return
-
-
-def sort_unit(unit_dict):
-    """
-    Units should have keys in this order to be easier to read
-    """
-    key_order = [
-        "id",
-        "name",
-        "template-id",
-        "unit",
-        "template-unit",
-        "template-imports",
-        "template-resource",
-        "template-filter",
-        "template-summary",
-        "template-engine",
-        "imports",
-        "requires",
-        "plugin",
-        "description",
-        "summary",
-        "purpose",
-        "steps",
-        "verification",
-        "estimated_duration",
-        "before",
-        "after",
-        "depends",
-        "salvages",
-        "group",
-        "environ",
-        "flags",
-        "category_id",
-        "setup_include",
-        "bootstrap_include",
-        "include",
-        "exclude",
-        "nested_part",
-        "user",
-        "command",
-        "certification_status_overrides",
-        "sibling",
-    ]
-
-    def sorter(kv):
-        k = kv[0]
-        try:
-            return key_order.index(k)
-        except ValueError:
-            return len(key_order) + ord(k[0])
-
-    return dict(sorted(unit_dict.items(), key=sorter))
 
 
 def multiline_str_representer(dumper, data):
@@ -420,7 +393,7 @@ class Translator:
 
             yaml = YAML()
             for unit_dict in loaded:
-                documents.append(sort_unit(translate_unit(unit_dict.data)))
+                documents.append(translate_unit(unit_dict.data))
 
             yaml.width = 120
             yaml.default_flow_style = False

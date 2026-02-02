@@ -1,3 +1,4 @@
 global-include COPYING
 global-include README*
+recursive-include checkbox_support/vendor/brisque/models *.txt *.pickle
 recursive-exclude debian *

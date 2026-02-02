@@ -2,6 +2,7 @@ import json
 import logging
 from pathlib import Path
 from functools import wraps
+from itertools import takewhile
 
 
 from plainbox.impl.secure.rfc822 import load_rfc822_records
@@ -27,6 +28,8 @@ def commentable_value(value):
     This returns the value or raises a CommentedError if the value contains
     a comment
     """
+    # sibling will have mixed types (int), so we need to str it here
+    value = str(value)
     # this is technically not proper, as these values are not stringable, but
     # validation is not the job of the translator
     value, comment = split_comment(value)
@@ -224,8 +227,8 @@ def translate_include(value):
             value = overrides = ""
         if overrides:  # we can assume there is value as well here
             assert overrides.startswith("certification-status")
-            assert " " not in overrides
-            assert "," not in overrides
+            assert " " not in overrides, "Multi overrides are not supported"
+            assert "," not in overrides, "Multi overrides are not supported"
             overriden, override_value = overrides.strip().split(
                 "="
             )  # assumes 1 per line
@@ -336,7 +339,7 @@ def translate_unit(unit_dict: dict) -> dict:
         except JinjaError as e:
             logging.error(
                 (
-                    "Refusing to translate field '{}' of unit '{}' as it"
+                    "Refusing to translate field '{}' of unit '{}' as it "
                     "contains jinja markers. Dumping it as-is in the unit"
                 ).format(key, unit_dict.get("id", str(unit_dict)))
             )
@@ -367,6 +370,23 @@ def multiline_str_representer(dumper, data):
     return dumper.represent_scalar("tag:yaml.org,2002:str", data)
 
 
+def get_header_comment(text: str) -> str:
+    lines = iter(text.splitlines())
+    to_return = "\n".join(
+        # remove # and possible following spaces
+        x[1:].strip()
+        for x in takewhile(lambda x: x.startswith("#"), lines)
+    )
+    # if there are more comments, lets warn the user they will be ignored
+    other_comments = (x for x in lines if x.startswith("#"))
+    for comment in other_comments:
+        logging.error(
+            "Translator doesn't support non-header comments, ignoring: '%s'",
+            comment,
+        )
+    return to_return
+
+
 class Translator:
     def register_arguments(self, parser):
         parser.add_argument(
@@ -385,15 +405,21 @@ class Translator:
                 "from source with:\n"
                 "  pip install checkbox-ng[translator]"
             )
+
         print("Starting...")
         for path in ctx.args.paths:
             with path.open("r") as f:
-                loaded = load_rfc822_records(f, source=str(path))
+                text = f.read()
+            loaded = load_rfc822_records(text, source=str(path))
             documents = []
 
             yaml = YAML()
             for unit_dict in loaded:
                 documents.append(translate_unit(unit_dict.data))
+
+            header_comment = get_header_comment(text)
+            if header_comment:
+                documents[0].yaml_set_start_comment(header_comment)
 
             yaml.width = 120
             yaml.default_flow_style = False

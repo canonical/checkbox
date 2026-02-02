@@ -12,9 +12,7 @@ def get_active_firmware_line():
         ["journalctl", "--dmesg"], universal_newlines=True
     ).splitlines()
 
-    matching_lines = [
-        line for line in result if "Firmware: intel/vpu" in line
-    ]
+    matching_lines = [line for line in result if "Firmware: intel/vpu" in line]
 
     if not matching_lines:
         raise SystemExit("No 'intel_vpu' firmware logs found in dmesg.")
@@ -37,6 +35,8 @@ def find_version_in_file(filepath):
             "`strings` is not installed or can't read "
             "the firmware file {}.".format(filepath)
         )
+
+    print("No version number found in the file {}".format(filepath))
 
 
 def main():

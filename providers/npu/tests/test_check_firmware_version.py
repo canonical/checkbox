@@ -136,7 +136,8 @@ class TestFindVersionInFile(unittest.TestCase):
         self.assertIsNone(result)
 
     @patch(
-        "subprocess.check_output", side_effect=subprocess.CalledProcessError(1, "cmd")
+        "subprocess.check_output",
+        side_effect=subprocess.CalledProcessError(1, "cmd"),
     )
     def test_subprocess_error(self, mock_run):
         """Test when 'strings' command fails."""

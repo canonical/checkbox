@@ -121,6 +121,10 @@ copy such constructs when working on a new test plan from scratch
     below for examples on how you can refer to jobs from other providers
     (you simply use their fully qualified name for that).
 
+    Finally, some options like the job category or its certification status can
+    be overridden inline in this section. See the
+    :ref:`test-plan-inline-overrides` section for more information.
+
 .. option:: mandatory_include
 
     A multi-line list of job identifiers or patterns matching such identifiers
@@ -196,7 +200,7 @@ copy such constructs when working on a new test plan from scratch
 
     For example let's consider a job definition that tests if a specific piece
     of hardware works correctly after a suspend-resume cycle. Let's assume that
-    the job definition  has a natural association with the category describing
+    the job definition has a natural association with the category describing
     such hardware devices. In one test plan, this test will be associated
     with the hardware-specific category (using the natural association). In
     a special suspend-resume test plan the same job definition can
@@ -230,6 +234,11 @@ copy such constructs when working on a new test plan from scratch
     The job definition with the partial identifier ``foo`` will be associated
     with the ``cat-2`` category.
 
+    .. note::
+
+        Categories can also be overriden directly in the :option:`include`
+        section using :ref:`inline overrides<test-plan-inline-overrides>`.
+
 .. option:: certification_status_overrides
 
     A multi-line list of certification status override statements.
@@ -245,6 +254,12 @@ copy such constructs when working on a new test plan from scratch
     certification blocker::
 
         apply blocker to .*wireless.*
+
+    .. note::
+
+        Certification statuses can also be overriden directly in the
+        :option:`include` section using
+        :ref:`inline overrides<test-plan-inline-overrides>`.
 
     .. note::
 

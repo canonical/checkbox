@@ -37,7 +37,7 @@ def only_if_rumel_installed_or_skip(f):
         from ruamel.yaml import YAML
 
         return f
-    except ModuleNotFoundError:
+    except ImportError:
         pass
 
     @wraps(f)

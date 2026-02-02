@@ -296,6 +296,40 @@ copy such constructs when working on a new test plan from scratch
     mis-estimates from all of the job definitions selected by a particular test
     plan.
 
+.. _test-plan-inline-overrides:
+
+Inline Overrides
+================
+
+In addition to the :option:`certification_status_overrides` and
+:option:`category_overrides` fields, overrides can be applied on a line-by-line
+basis in the list of included tests.
+
+This is heavily used in Canonical Hardware Certification program to define the
+certification status of tests executed as part of a given test plan. This is
+because a given test might be required to pass for some certification programs,
+but optional for others.
+
+In the following example, ``graphics/driver_version`` and
+``graphics/gl_support`` have their certification status set to ``blocker`` in
+the test plan. ::
+
+    id: graphics-gpu-cert-automated
+    unit: test plan
+    _name: Graphics tests (Automated)
+    _description:
+     Graphics tests (Automated)
+    include:
+        graphics/driver_version             certification-status=blocker
+        graphics/gl_support                 certification-status=blocker
+        graphics/minimum_resolution
+
+.. note::
+
+    The certification status of the ``graphics/minimum_resolution`` job is left
+    untouched (it might be ``blocker`` or ``non-blocker``, depending on how it
+    was defined at job level).
+
 .. _test-plan-examples:
 
 Examples

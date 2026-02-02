@@ -90,6 +90,9 @@ noble_prod = [
   'xlsxwriter==3.1.9',
   'pyyaml==6.0.1',
 ]
+translator = [
+  'ruamel.yaml'
+]
 [tool.black]
   line-length = 79
   # Exclude vendorized code (e.g. the stuff in plainbox/vendor/)

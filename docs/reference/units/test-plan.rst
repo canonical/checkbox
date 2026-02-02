@@ -11,10 +11,11 @@ Jobs are selected by either listing their identifier or a regular expression
 that matches their identifier. Listing a template identifier will select all
 the jobs instantiated by it. Selected jobs are executed in the sequence they
 appear in the list, unless they need to be reordered to satisfy dependencies
-which always take priority. It is also possible to :option:`test-plan exclude`
-jobs from the selection using the same principles.
+which always take priority. It is also possible to
+:option:`exclude<test-plan exclude>` jobs from the selection using the same
+principles.
 
-Test plans can be :option:`test-plan nested_part`, so you can
+Test plans can be :option:`nested<test-plan nested_part>`, so you can
 define several smaller test plans and combine them into a bigger one, which
 helps with maintenance and flexibility.
 

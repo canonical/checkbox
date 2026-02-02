@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import os
-from pathlib import (
-    Path,
-)
+from pathlib import Path
 
 
 def find_npu_device_path():
@@ -18,10 +16,7 @@ def find_npu_device_path():
                 device_path = Path("/dev/accel") / device_dir.name
                 if device_path.exists():
                     return device_path
-        except (
-            IOError,
-            FileNotFoundError,
-        ):
+        except (IOError, FileNotFoundError):
             # Ignore directories that don't match the expected structure
             continue
 
@@ -32,10 +27,7 @@ def main():
     npu_device = find_npu_device_path()
 
     # Check for read and write permissions
-    has_readwrite_perm = os.access(
-        npu_device,
-        os.R_OK | os.W_OK,
-    )
+    has_readwrite_perm = os.access(npu_device, os.R_OK | os.W_OK)
 
     if not has_readwrite_perm:
         raise SystemExit(

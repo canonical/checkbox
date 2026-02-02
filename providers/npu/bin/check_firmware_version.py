@@ -45,20 +45,29 @@ def main():
     if not FIRMWARE_SEARCH_DIR.is_dir():
         raise SystemExit("Firmware directory not found.")
 
+    found_driver_versions = []
     for filepath in FIRMWARE_SEARCH_DIR.iterdir():
         if filepath.is_file() and filepath.suffix == ".bin":
             driver_version = find_version_in_file(filepath)
 
-            if driver_version and driver_version in active_firmware_line:
-                print(
-                    "Test success: Loaded NPU firmware version matches a "
-                    "file from the snap. Version: {}, File: "
-                    "{}".format(driver_version, str(filepath))
-                )
-                return
+            if driver_version:
+                if driver_version in active_firmware_line:
+                    print(
+                        "Test success: Loaded NPU firmware version matches a "
+                        "file from the snap. Version: {}, File: "
+                        "{}".format(driver_version, str(filepath))
+                    )
+                    return
+
+                found_driver_versions.append(driver_version)
 
     raise SystemExit(
-        "The loaded firmware does not match any version in the snap files."
+        "The loaded firmware does not match any version in the snap files.\n"
+        "Loaded firmware: {}\n"
+        "Versions found in the snap: {}".format(
+            active_firmware_line,
+            "\n".join(map(lambda e: " - " + e, found_driver_versions)),
+        )
     )
 
 

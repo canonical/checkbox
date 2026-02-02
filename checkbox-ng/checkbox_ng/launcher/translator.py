@@ -399,7 +399,7 @@ class Translator:
     def invoked(self, ctx):
         try:
             from ruamel.yaml import YAML
-        except ModuleNotFoundError:
+        except ImportError:
             raise SystemExit(
                 "The translator can be used only by installing Checkbox "
                 "from source with:\n"

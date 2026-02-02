@@ -29,7 +29,7 @@ from gettext import gettext as _
 
 try:
     import urwid.raw_display as raw_display
-except ModuleNotFoundError:
+except ImportError:
     import urwid.display.raw as raw_display
 import urwid
 

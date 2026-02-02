@@ -36,25 +36,20 @@ def main():
 
     config_path = os.environ.get("NPU_UMD_TEST_CONFIG") or "basic.yaml"
 
-    gtest_output = subprocess.run(
+    gtest_output = subprocess.check_output(
         ["intel-npu-driver.npu-umd-test", "-l", "--config", config_path],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
         universal_newlines=True,
     )
 
     known_failures = (
-        subprocess.run(
-            ["intel-npu-driver.known-failures"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
+        subprocess.check_output(
+            ["intel-npu-driver.known-failures"], universal_newlines=True
         )
-        .stdout.strip()
+        .strip()
         .splitlines()
     )
 
-    for line in gtest_output.stdout.strip().splitlines():
+    for line in gtest_output.strip().splitlines():
         if "." in line:
             is_known_failure = line in known_failures
 

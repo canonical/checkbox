@@ -8,20 +8,12 @@ VERSION_PATTERN = re.compile(r"^(\d{8}\*|[A-Z][a-z]{2}\s+\d{1,2}\s+\d{4}\*).*")
 
 
 def get_active_firmware_line():
-    result = subprocess.run(
-        [
-            "journalctl",
-            "--dmesg",
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-        encoding="utf-8",
-    )
-    all_lines = result.stdout.splitlines()
+    result = subprocess.check_output(
+        ["journalctl", "--dmesg"], universal_newlines=True
+    ).splitlines()
 
     matching_lines = [
-        line for line in all_lines if "Firmware: intel/vpu" in line
+        line for line in result if "Firmware: intel/vpu" in line
     ]
 
     if not matching_lines:
@@ -32,24 +24,19 @@ def get_active_firmware_line():
 
 def find_version_in_file(filepath):
     try:
-        result = subprocess.run(
-            [
-                "strings",
-                filepath,
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-            encoding="utf-8",
+        result = subprocess.check_output(
+            ["strings", filepath], universal_newlines=True
         )
-        for line in result.stdout.splitlines():
+        for line in result.splitlines():
             # Return the first match found
             if VERSION_PATTERN.match(line):
                 return line
     except (subprocess.CalledProcessError, FileNotFoundError):
         # This can happen with corrupted files or if 'strings' isn't installed
-        return None
-    return None
+        raise SystemExit(
+            "`strings` is not installed or can't read "
+            "the firmware file {}.".format(filepath)
+        )
 
 
 def main():

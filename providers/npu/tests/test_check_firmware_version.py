@@ -77,58 +77,42 @@ class TestVersionPattern(unittest.TestCase):
 
 class TestGetActiveFirmwareLine(unittest.TestCase):
     @patch("sys.stderr", new_callable=io.StringIO)
-    @patch("subprocess.run")
+    @patch("subprocess.check_output")
     def test_success_single_match(self, mock_run, mock_stderr):
-        mock_stdout = "line 1\nSome log about intel_vpu\nFirmware: intel/vpu foo bar\nline 4"
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout=mock_stdout
-        )
+        mock_run.return_value = "line 1\nSome log about intel_vpu\nFirmware: intel/vpu foo bar\nline 4"
 
         result = check_firmware_version.get_active_firmware_line()
 
         self.assertEqual(result, "Firmware: intel/vpu foo bar")
         mock_run.assert_called_with(
-            ["journalctl", "--dmesg"],
-            capture_output=True,
-            text=True,
-            check=True,
-            encoding="utf-8",
+            ["journalctl", "--dmesg"], universal_newlines=True
         )
         self.assertEqual(mock_stderr.getvalue(), "")
 
     @patch("sys.stderr", new_callable=io.StringIO)
-    @patch("subprocess.run")
+    @patch("subprocess.check_output")
     def test_success_multiple_matches(self, mock_run, mock_stderr):
         """Test finding multiple lines (should return the last one)."""
-        mock_stdout = "line 1\nFirmware: intel/vpu old_version\nline 2\nFirmware: intel/vpu new_version"
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout=mock_stdout
-        )
+        mock_run.return_value = "line 1\nFirmware: intel/vpu old_version\nline 2\nFirmware: intel/vpu new_version"
 
         result = check_firmware_version.get_active_firmware_line()
         self.assertEqual(result, "Firmware: intel/vpu new_version")
 
     @patch("sys.stderr", new_callable=io.StringIO)
-    @patch("subprocess.run")
+    @patch("subprocess.check_output")
     def test_no_match_found(self, mock_run, mock_stderr):
         """Test when no matching lines are found."""
-        mock_stdout = "line 1\nline 2\nline 3"
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout=mock_stdout
-        )
+        mock_run.return_value = "line 1\nline 2\nline 3"
 
         with self.assertRaises(SystemExit):
             check_firmware_version.get_active_firmware_line()
 
 
 class TestFindVersionInFile(unittest.TestCase):
-    @patch("subprocess.run")
+    @patch("subprocess.check_output")
     def test_success_finds_first_match(self, mock_run):
         """Test finding the first version string even if there's multiple in the fw file."""
-        mock_stdout = "some strings\nmore strings\n20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee\n20250115*MTL_CLIENT_SILICON-release*1905*ci_tag_ud202504_vpu_rc_20250115_1905*ae83b65d01c"
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout=mock_stdout
-        )
+        mock_run.return_value = "some strings\nmore strings\n20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee\n20250115*MTL_CLIENT_SILICON-release*1905*ci_tag_ud202504_vpu_rc_20250115_1905*ae83b65d01c"
 
         dummy_path = Path("/fake/fw.bin")
         result = check_firmware_version.find_version_in_file(dummy_path)
@@ -138,20 +122,13 @@ class TestFindVersionInFile(unittest.TestCase):
             "20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee",
         )
         mock_run.assert_called_with(
-            ["strings", dummy_path],
-            capture_output=True,
-            text=True,
-            check=True,
-            encoding="utf-8",
+            ["strings", dummy_path], universal_newlines=True
         )
 
-    @patch("subprocess.run")
+    @patch("subprocess.check_output")
     def test_no_match(self, mock_run):
         """Test when 'strings' runs but no version string is found."""
-        mock_stdout = "strings\nmore strings\neven more strings\nthis definitely doesn't match anything"
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout=mock_stdout
-        )
+        mock_run.return_value = "strings\nmore strings\neven more strings\nthis definitely doesn't match anything"
 
         result = check_firmware_version.find_version_in_file(
             Path("/fake/fw.bin")
@@ -159,14 +136,14 @@ class TestFindVersionInFile(unittest.TestCase):
         self.assertIsNone(result)
 
     @patch(
-        "subprocess.run", side_effect=subprocess.CalledProcessError(1, "cmd")
+        "subprocess.check_output", side_effect=subprocess.CalledProcessError(1, "cmd")
     )
     def test_subprocess_error(self, mock_run):
         """Test when 'strings' command fails."""
-        result = check_firmware_version.find_version_in_file(
-            Path("/fake/fw.bin")
-        )
-        self.assertIsNone(result)
+        with self.assertRaises(SystemExit):
+            result = check_firmware_version.find_version_in_file(
+                Path("/fake/fw.bin")
+            )
 
 
 class TestMainFunction(unittest.TestCase):

@@ -19,7 +19,8 @@ def parse_version(version_str):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Check if the current kernel version is at least the required version."
+        description="Check if the current kernel version is at least "
+        "the required version."
     )
     parser.add_argument(
         "required_version", help="The minimum required kernel version."

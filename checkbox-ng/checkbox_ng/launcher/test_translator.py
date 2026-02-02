@@ -27,6 +27,8 @@ from checkbox_ng.launcher.translator import (
     split_comment,
     split_string_values,
     Translator,
+    commentable_value,
+    CommentedError,
 )
 
 
@@ -72,6 +74,18 @@ class SplitStringableTests(TestCase):
             value, '"bluetooth/bluez-internal-hci-tests_Read Country Code"'
         )
         self.assertEqual(attributes, "certification-status=blocker")
+
+
+class CommentedValueTranslatorTests(TestCase):
+    def test_no_comment(self):
+        value = commentable_value("value")
+        self.assertEqual(value, "value")
+
+    def test_comment(self):
+        with self.assertRaises(CommentedError) as cm:
+            _ = commentable_value("value # some comment")
+        self.assertEqual("value", cm.exception.value)
+        self.assertEqual("some comment", cm.exception.comment)
 
 
 class TranslatorTestCase(TestCase):
@@ -312,7 +326,7 @@ class TranslatorJobUnitTests(TranslatorTestCase):
     def test_other_array_fields(self):
         pxu_input = dedent(
             """
-            id: test-job
+            id: test-job # test job comment
             _summary: A test job
             plugin: shell
             command: echo "test"

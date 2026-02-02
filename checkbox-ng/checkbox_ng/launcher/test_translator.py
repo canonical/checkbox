@@ -188,11 +188,15 @@ class TranslatorJobUnitTests(TranslatorTestCase):
     def test_job_unit_with_comments(self):
         pxu_input = dedent(
             """
-            id: test-job
+            id: test-job  # the job identifier
             _summary: A test job
-            plugin: shell
+            plugin: shell  # automated test
             command: echo "hello"
-            requires: package.name == 'foo'  # need foo installed
+            requires:
+                # requires comment above
+                package.name == 'foo'  # need foo installed
+                # requires comment in the middle
+                package.version > 10
             depends: other-job another-job  # must run after these
             flags: simple, preserve-cwd  # keep it simple
             """
@@ -205,7 +209,10 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             plugin: shell  # automated test
             command: echo "hello"
             requires:
+              # requires comment above
               - package.name == 'foo'  # need foo installed
+              # requires comment in the middle
+              - package.version > 10
             depends:
               - other-job
               - another-job  # must run after these
@@ -214,6 +221,29 @@ class TranslatorJobUnitTests(TranslatorTestCase):
               - preserve-cwd  # keep it simple
             """
         ).strip()
+
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_dont_translate_jinja(self):
+        pxu_input = dedent(
+            """
+            requires:
+                {% jinja comments, for some reson %}
+                package.name == 'foo'
+                package.version > 10
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            requires: |
+                {% jinja comments, for some reson %}
+                package.name == 'foo'
+                package.version > 10
+            """
+        )
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
@@ -305,6 +335,27 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             """
         ).strip()
 
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+    def test_siblings_template_json_to_yaml(self):
+        pxu_input = dedent(
+            """
+            _siblings: [
+                {{ "id": "{id_field}",
+                  "_summary": "{summary_field}"}}
+                ]
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            siblings:
+              - id: '{id_field}'
+                summary: '{summary_field}'
+            """
+        ).strip()
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
@@ -429,8 +480,10 @@ class TranslatorTestPlanTests(TranslatorTestCase):
                 This is a test plan that runs some tests.
                 It has multiple lines.
             include:
+                # first item comment
                 job-foo
-                job-bar
+                job-bar # comment in line
+                # middle comment
                 job-baz certification-status=blocker
             exclude:
                 job-skip-me
@@ -446,8 +499,10 @@ class TranslatorTestPlanTests(TranslatorTestCase):
                 This is a test plan that runs some tests.
                 It has multiple lines.
             include:
+              # first item comment
               - job-foo
-              - job-bar
+              - job-bar # comment in line
+              # middle comment
               - job-baz:
                   certification-status: blocker
             exclude:

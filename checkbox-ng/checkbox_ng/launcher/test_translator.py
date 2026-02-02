@@ -19,9 +19,9 @@
 
 from io import StringIO
 from textwrap import dedent
-from unittest import TestCase, mock
+from unittest import TestCase, mock, SkipTest
+from functools import wraps
 
-from ruamel.yaml import YAML
 
 from checkbox_ng.launcher.translator import (
     split_comment,
@@ -30,6 +30,23 @@ from checkbox_ng.launcher.translator import (
     commentable_value,
     CommentedError,
 )
+
+
+def only_if_rumel_installed_or_skip(f):
+    try:
+        from ruamel.yaml import YAML
+
+        return f
+    except ModuleNotFoundError:
+        pass
+
+    @wraps(f)
+    def _f(self, *args, **kwargs):
+        raise SkipTest(
+            "Not testing as translator wasn't installed. To test install checkbox-ng[translator]"
+        )
+
+    return _f
 
 
 class SplitStringableTests(TestCase):
@@ -89,7 +106,10 @@ class CommentedValueTranslatorTests(TestCase):
 
 
 class TranslatorTestCase(TestCase):
+    @only_if_rumel_installed_or_skip
     def run_translator(self, pxu_input):
+        from ruamel.yaml import YAML
+
         input_file = StringIO(pxu_input)
         output_file = StringIO()
 
@@ -111,7 +131,10 @@ class TranslatorTestCase(TestCase):
         yaml = YAML()
         return list(yaml.load_all(output_file))
 
+    @only_if_rumel_installed_or_skip
     def parse_yaml(self, yaml_str):
+        from ruamel.yaml import YAML
+
         yaml = YAML()
         return list(yaml.load_all(StringIO(yaml_str)))
 

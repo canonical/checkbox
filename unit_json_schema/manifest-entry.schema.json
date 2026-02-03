@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/manifest-entry.schema.json",
+  "title": "Manifest Entry Unit",
+  "description": "Schema that describes a Checkbox Manifest Entry unit",
+  "type": "object",
+  "properties": {
+    "unit": {
+      "description": "The type of unit.",
+      "const": "manifest entry"
+    },
+    "id": {
+      "description": "Unique identifier of the manifest entry.",
+      "type": "string"
+    },
+    "name": {
+      "description": "Human-readable name of the manifest entry.",
+      "type": "string"
+    },
+    "value-type": {
+      "description": "Type of value for this entry.",
+      "type": "string",
+      "enum": ["bool", "natural"]
+    },
+    "value-units": {
+      "description": "Units in which the value is measured, only used when value-type is natural.",
+      "type": "string"
+    },
+    "resource-key": {
+      "description": "Name of the resource key used to store the manifest value as a resource record.",
+      "type": "string"
+    },
+    "prompt": {
+      "description": "Custom prompt presented when collecting values from a user.",
+      "type": "string"
+    },
+    "hidden-reason": {
+      "description": "Explains why a manifest entry was hidden, required if the id starts with an underscore.",
+      "type": "string"
+    }
+  },
+  "required": ["unit", "id", "name", "value-type"]
+}

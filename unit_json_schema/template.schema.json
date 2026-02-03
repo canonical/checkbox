@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/template.schema.json",
+  "title": "Template Unit",
+  "description": "Schema that describes a Checkbox Template unit",
+  "type": "object",
+  "allOf": [{ "$ref": "job.schema.json#/$defs/jobFields" }],
+  "properties": {
+    "unit": {
+      "description": "The type of unit.",
+      "const": "template"
+    },
+    "template-id": {
+      "description": "Unique identifier for the template.",
+      "type": "string"
+    },
+    "template-summary": {
+      "description": "Human-readable name for the template.",
+      "type": "string"
+    },
+    "template-description": {
+      "description": "Long form description of what the template does or the kind of jobs it instantiates.",
+      "type": "string"
+    },
+    "template-unit": {
+      "description": "The unit type this template will generate.",
+      "const": "job"
+    },
+    "template-resource": {
+      "description": "Name of the resource job to use to parametrize the template.",
+      "type": "string"
+    },
+    "template-imports": {
+      "description": "List of resource import statements.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "template-filter": {
+      "description": "Resource program that limits the set of records from which template instances will be made.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "template-engine": {
+      "description": "Name of the template engine to use.",
+      "type": "string",
+      "enum": ["default", "jinja2"],
+      "default": "default"
+    }
+  },
+  "required": ["unit", "id", "template-resource"]
+}

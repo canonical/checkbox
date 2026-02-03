@@ -8,6 +8,10 @@ from itertools import takewhile
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
 
+def identity(value):
+    return value
+
+
 def multiline_text(value):
     # no more trailing spaces
     lines = (x.rstrip() for x in value.splitlines())
@@ -261,6 +265,10 @@ def translate_options(value):
 
 
 field_translators = {
+    "command": identity,
+    "Depends": identity,
+    "Suggests": identity,
+    "Recommends": identity,
     "id": commentable_value,
     "unit": commentable_value,
     "name": commentable_value,
@@ -269,7 +277,6 @@ field_translators = {
     "plugin": commentable_value,
     "category_id": commentable_value,
     "user": commentable_value,
-    "command": commentable_value,
     "value-type": commentable_value,
     "template-resource": commentable_value,
     "template-unit": commentable_value,
@@ -277,9 +284,6 @@ field_translators = {
     "template-engine": commentable_value,
     "entry_point": commentable_value,
     "file_extension": commentable_value,
-    "Depends": commentable_value,
-    "Suggests": commentable_value,
-    "Recommends": commentable_value,
     "os-version-id": commentable_value,
     "group": commentable_value,
     "description": multiline_text,
@@ -414,6 +418,11 @@ class Translator:
             documents = []
 
             yaml = YAML()
+            yaml.width = 120
+            yaml.default_flow_style = False
+            yaml.representer.add_representer(str, multiline_str_representer)
+            yaml.indent(mapping=2, sequence=4, offset=2)
+
             for unit_dict in loaded:
                 documents.append(translate_unit(unit_dict.data))
 
@@ -421,9 +430,5 @@ class Translator:
             if header_comment:
                 documents[0].yaml_set_start_comment(header_comment)
 
-            yaml.width = 120
-            yaml.default_flow_style = False
-            yaml.representer.add_representer(str, multiline_str_representer)
-            yaml.indent(mapping=2, sequence=4, offset=2)
             with path.with_suffix(".yaml").open("w+") as f:
                 yaml.dump_all(documents, f)

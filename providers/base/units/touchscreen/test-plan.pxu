@@ -108,9 +108,9 @@ include:
 bootstrap_include:
  device
 
-id: touchscreen-desktop-26-04-manual
+id: touchscreen-base-26-04-manual
 unit: test plan
-_name: Desktop Touchscreen for 26.04 (Manual)
+_name: Touchscreen for 26.04 (Manual)
 include:
 nested_part:
     submission-cert-full
@@ -118,9 +118,9 @@ nested_part:
     after-suspend-touchscreen-cert-manual
     info-attachment-cert-full
 
-id: touchscreen-desktop-26-04-automated
+id: touchscreen-base-26-04-automated
 unit: test plan
-_name: Desktop Touchscreen for 26.04 (Automated)
+_name: Touchscreen for 26.04 (Automated)
 _description: Automated tests for touchscreen
 include:
 nested_part:

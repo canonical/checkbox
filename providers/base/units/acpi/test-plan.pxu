@@ -4,9 +4,9 @@ _name: ACPI OEM _OSI string tests
 include:
     acpi/oem_osi
 
-id: acpi-desktop-26-04-automated
+id: acpi-base-26-04-automated
 unit: test plan
-_name: Desktop ACPI for 26.04 (Automated)
+_name: ACPI for 26.04 (Automated)
 _description: Automated tests for ACPI
 include:
 nested_part:

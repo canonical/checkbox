@@ -99,9 +99,9 @@ include:
 bootstrap_include:
     removable_partition
 
-id: mediacard-desktop-26-04-manual
+id: mediacard-base-26-04-manual
 unit: test plan
-_name: Desktop Mediacard for 26.04 (Manual)
+_name: Mediacard for 26.04 (Manual)
 _description: Manual tests for mediacard
 include:
 nested_part:
@@ -110,9 +110,9 @@ nested_part:
     after-suspend-mediacard-cert-manual
     info-attachment-cert-full
 
-id: mediacard-desktop-26-04-automated
+id: mediacard-base-26-04-automated
 unit: test plan
-_name: Desktop Mediacard for 26.04 (Automated)
+_name: Mediacard for 26.04 (Automated)
 _description: Automated tests for mediacard
 include:
 nested_part:
@@ -134,7 +134,7 @@ nested_part:
 
 id: mediacard-iot-26-04-automated
 unit: test plan
-_name: Desktop Wireless for 26.04 (Automated)
+_name: media card tests for Ubuntu 26.04 (Automated)
 _description: Automated tests for wireless
 include:
     mediacard/storage-preinserted-.*

@@ -125,9 +125,9 @@ include:
     after-suspend-keys/microphone-mute             certification-status=blocker
     after-suspend-keys/power-button                certification-status=blocker
 
-id: keys-desktop-26-04-manual
+id: keys-base-26-04-manual
 unit: test plan
-_name: Desktop keys for 26.04 (Manual)
+_name: Keys for 26.04 (Manual)
 _description: Manual tests for keys
 include:
 nested_part:
@@ -136,9 +136,9 @@ nested_part:
     after-suspend-keys-cert-manual
     info-attachment-cert-full
 
-id: keys-desktop-26-04-automated
+id: keys-base-26-04-automated
 unit: test plan
-_name: Desktop keys for 26.04 (Automated)
+_name: Keys for 26.04 (Automated)
 _description: Automated tests for keys
 include:
 nested_part:

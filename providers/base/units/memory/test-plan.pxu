@@ -40,17 +40,17 @@ include:
     memory/info                 certification-status=blocker
     stress/memory_stress_ng     certification-status=blocker
 
-id: memory-desktop-26-04-manual
+id: memory-base-26-04-manual
 unit: test plan
-_name: Desktop Memory for 26.04 (Manual)
+_name: Memory for 26.04 (Manual)
 _description: Manual tests for memory
 include:
 nested_part:
     memory-cert-manual
 
-id: memory-desktop-26-04-automated
+id: memory-base-26-04-automated
 unit: test plan
-_name: Desktop Memory for 26.04 (Automated)
+_name: Memory for 26.04 (Automated)
 _description: Automated tests for memory
 include:
 nested_part:

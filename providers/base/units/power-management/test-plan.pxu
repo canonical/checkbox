@@ -146,9 +146,9 @@ include:
     power-management/amd_pmf_detect
     after-suspend-power-management/amd_pmf_detect
 
-id: power-management-desktop-26-04-manual
+id: power-management-base-26-04-manual
 unit: test plan
-_name: Desktop Power Management for 26.04 (Manual)
+_name: Power Management for 26.04 (Manual)
 _description: Manual tests for power management
 include:
 nested_part:
@@ -157,18 +157,18 @@ nested_part:
     after-suspend-power-management-precheck-cert-manual
     info-attachment-cert-full
 
-id: power-management-precheck-desktop-26-04-automated
+id: power-management-precheck-base-26-04-automated
 unit: test plan
-_name: Desktop Power Management Precheck for 26.04 (Automated)
+_name: Power Management Precheck for 26.04 (Automated)
 _description: Automated tests for power-management-precheck
 include:
 nested_part:
     power-management-precheck-cert-automated
     after-suspend-power-management-precheck-cert-automated
 
-id: power-desktop-26-04-automated
+id: power-base-26-04-automated
 unit: test plan
-_name: Desktop Power for 26.04 (Automated)
+_name: Power for 26.04 (Automated)
 _description: Automated tests for power
 include:
 nested_part:

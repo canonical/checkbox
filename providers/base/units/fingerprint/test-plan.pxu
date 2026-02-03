@@ -74,9 +74,9 @@ _name: Fingerprint reader tests after suspend (Automated)
 _description: Autoamted tests for fingerprint reader after suspend
 include:
 
-id: fingerprint-desktop-26-04-manual
+id: fingerprint-base-26-04-manual
 unit: test plan
-_name: Desktop Fingerprint for 26.04 (Manual)
+_name: Fingerprint for 26.04 (Manual)
 _description: Manual tests for fingerprint reader
 include:
 nested_part:
@@ -85,11 +85,11 @@ nested_part:
     after-suspend-fingerprint-cert-manual
     info-attachment-cert-full
 
-id: fingerprint-desktop-26-04-automated
+id: fingerprint-base-26-04-automated
 unit: test plan
-_name: Desktop Fingerprint for 26.04 (Automated)
+_name: Fingerprint for 26.04 (Automated)
 _description: Automated tests for fingerprint
 include:
 nested_part:
     fingerprint-cert-automated
-    after-suspend-fingerprint-cert-Automated
+    after-suspend-fingerprint-cert-automated

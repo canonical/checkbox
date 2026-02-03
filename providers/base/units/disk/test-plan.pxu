@@ -99,9 +99,9 @@ include:
 bootstrap_include:
     device
 
-id: disk-desktop-26-04-manual
+id: disk-base-26-04-manual
 unit: test plan
-_name: Desktop Disk for 26.04 (Manual)
+_name: Disk for 26.04 (Manual)
 _description: Manual tests for disk
 include:
 nested_part:
@@ -110,9 +110,9 @@ nested_part:
     after-suspend-disk-cert-manual
     info-attachment-cert-full
 
-id: disk-desktop-26-04-automated
+id: disk-base-26-04-automated
 unit: test plan
-_name: Desktop Disk for 26.04 (Automated)
+_name: Disk for 26.04 (Automated)
 _description: Automated tests for disk
 include:
 nested_part:

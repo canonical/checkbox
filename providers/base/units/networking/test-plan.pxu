@@ -128,10 +128,10 @@ include:
     networking/predictable_names    certification-status=blocker
     networking/ntp                  certification-status=non-blocker
 
-id: networking-desktop-26-04-manual
+id: connectivity-base-26-04-manual
 unit: test plan
-_name: Desktop Networking for 26.04 (Manual)
-_description: Manual tests for networking
+_name: Desktop Connectivity for 26.04 (Manual)
+_description: Manual tests for Connectivity
 include:
     keys/wireless
     led/wireless
@@ -151,9 +151,20 @@ nested_part:
     after-suspend-wwan-cert-manual
     info-attachment-cert-full
 
-id: networking-desktop-26-04-automated
+id: networking-base-26-04-manual
 unit: test plan
-_name: Desktop Networking for 26.04 (Automated)
+_name: Networking for 26.04 (Manual)
+_description: Manual tests for networking
+include:
+nested_part:
+    submission-cert-full
+    networking-cert-manual
+    after-suspend-networking-cert-manual
+    info-attachment-cert-full
+
+id: networking-base-26-04-automated
+unit: test plan
+_name: Networking for 26.04 (Automated)
 _description: Automated tests for networking
 include:
 nested_part:

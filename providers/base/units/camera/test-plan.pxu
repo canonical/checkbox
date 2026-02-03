@@ -125,23 +125,21 @@ include:
 bootstrap_include:
     device
 
-id: webcam-desktop-26-04-manual
+id: camera-base-26-04-manual
 unit: test plan
-_name: Desktop Webcam for 26.04 (Manual)
+_name: Camera for 26.04 (Manual)
 include:
     camera/led_.*
-    power-management/light_sensor
     after-suspend-camera/led_.*
-    after-suspend-power-management/light_sensor
 nested_part:
     submission-cert-full
     camera-cert-manual
     after-suspend-camera-cert-manual
     info-attachment-cert-full
 
-id: webcam-desktop-26-04-automated
+id: camera-base-26-04-automated
 unit: test plan
-_name: Desktop Webcam for 26.04 (Automated)
+_name: Camera for 26.04 (Automated)
 include:
 nested_part:
     camera-cert-automated

@@ -177,9 +177,9 @@ bootstrap_include:
     device
     executable
 
-id: ethernet-desktop-26-04-manual
+id: ethernet-base-26-04-manual
 unit: test plan
-_name: Desktop Ethernet for 26.04 (Manual)
+_name: Ethernet for 26.04 (Manual)
 _description: Manual tests for ethernet
 include:
 nested_part:
@@ -188,9 +188,9 @@ nested_part:
     after-suspend-ethernet-cert-manual
     info-attachment-cert-full
 
-id: ethernet-desktop-26-04-automated
+id: ethernet-base-26-04-automated
 unit: test plan
-_name: Desktop Ethernet for 26.04 (Automated)
+_name: Ethernet for 26.04 (Automated)
 _description: Automated tests for ethernet
 include:
 nested_part:

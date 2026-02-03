@@ -113,9 +113,9 @@ include:
     cpu/cstates                                 certification-status=non-blocker
     cpu/cstates_results.log                     certification-status=non-blocker
 
-id: cpu-desktop-26-04-manual
+id: cpu-base-26-04-manual
 unit: test plan
-_name: Desktop CPU for 26.04 (Manual)
+_name: CPU for 26.04 (Manual)
 _description: Manual tests for cpu
 include:
 nested_part:
@@ -124,9 +124,9 @@ nested_part:
     after-suspend-cpu-cert-manual
     info-attachment-cert-full
 
-id: cpu-desktop-26-04-automated
+id: cpu-base-26-04-automated
 unit: test plan
-_name: Desktop CPU for 26.04 (Automated)
+_name: CPU for 26.04 (Automated)
 _description: Automated tests for cpu
 include:
 nested_part:

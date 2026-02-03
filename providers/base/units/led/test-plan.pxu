@@ -44,7 +44,7 @@ include:
     after-suspend-led/microphone-mute  certification-status=blocker
     after-suspend-led/wireless         certification-status=blocker
     led/power-blink-suspend
-    led/suspend
+    led/suspend                        certification-status=blocker
 bootstrap_include:
     device
 
@@ -180,9 +180,9 @@ bootstrap_include:
     led-indicator/gpio-controller-leds
     led-indicator/sysfs-leds
 
-id: led-desktop-26-04-manual
+id: led-base-26-04-manual
 unit: test plan
-_name: Desktop LED for 26.04 (Manual)
+_name: LED for 26.04 (Manual)
 _description: Manual tests for LED
 include:
 nested_part:
@@ -191,9 +191,9 @@ nested_part:
     after-suspend-led-cert-manual
     info-attachment-cert-full
 
-id: led-desktop-26-04-automated
+id: led-base-26-04-automated
 unit: test plan
-_name: Desktop LED for 26.04 (Automated)
+_name: LED for 26.04 (Automated)
 _description: Automated tests for LED
 include:
 nested_part:

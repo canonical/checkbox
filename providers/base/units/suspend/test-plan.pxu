@@ -133,9 +133,9 @@ _description:
 include:
   power-management/hibernate_advanced
 
-id: before-after-suspend-reference-desktop-26-04-automated
+id: before-after-suspend-reference-base-26-04-automated
 unit: test plan
-_name: Desktop Before After Suspend Reference for 26.04 (Automated)
+_name: Before After Suspend Reference for 26.04 (Automated)
 _description: Automated tests for before-after-suspend-reference
 include:
 nested_part:

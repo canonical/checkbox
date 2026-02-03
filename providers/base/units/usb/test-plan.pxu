@@ -386,9 +386,9 @@ include:
     usb/storage-server      certification-status=blocker
     usb3/storage-server     certification-status=blocker
 
-id: usb-desktop-26-04-manual
+id: usb-base-26-04-manual
 unit: test plan
-_name: Desktop USB for 26.04 (Manual)
+_name: USB for 26.04 (Manual)
 _description: Manual tests for USB
 include:
 nested_part:
@@ -399,9 +399,9 @@ nested_part:
     after-suspend-usb3-cert-manual
     info-attachment-cert-full
 
-id: usb-desktop-26-04-automated
+id: usb-base-26-04-automated
 unit: test plan
-_name: Desktop USB for 26.04 (Automated)
+_name: USB for 26.04 (Automated)
 _description: Automated tests for USB
 include:
 nested_part:
@@ -410,9 +410,9 @@ nested_part:
     after-suspend-usb-cert-automated
     after-suspend-usb3-cert-automated
 
-id: usb-c-desktop-26-04-manual
+id: usb-c-base-26-04-manual
 unit: test plan
-_name: Desktop USB-C for 26.04 (Manual)
+_name: USB-C for 26.04 (Manual)
 _description: Manual tests for USB-C
 include:
 nested_part:
@@ -421,9 +421,9 @@ nested_part:
     after-suspend-usb-c-cert-manual
     info-attachment-cert-full
 
-id: usb-c-desktop-26-04-automated
+id: usb-c-base-26-04-automated
 unit: test plan
-_name: Desktop USB-C for 26.04 (Automated)
+_name: USB-C for 26.04 (Automated)
 _description: Automated tests for USB-C
 include:
 nested_part:

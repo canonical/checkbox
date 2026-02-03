@@ -83,9 +83,9 @@ include:
 bootstrap_include:
     device
 
-id: optical-desktop-26-04-manual
+id: optical-base-26-04-manual
 unit: test plan
-_name: Desktop Optical for 26.04 (Manual)
+_name: Optical for 26.04 (Manual)
 _description: Manual tests for optical
 include:
 nested_part:
@@ -94,9 +94,9 @@ nested_part:
     after-suspend-optical-cert-manual
     info-attachment-cert-full
 
-id: optical-desktop-26-04-automated
+id: optical-base-26-04-automated
 unit: test plan
-_name: Desktop Optical for 26.04 (Automated)
+_name: Optical for 26.04 (Automated)
 _description: Automated tests for optical
 include:
 nested_part:

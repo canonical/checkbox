@@ -96,9 +96,9 @@ _name: Manual WWAN tests (after suspend)
 _description: Manual wwan tests after suspend
 include:
 
-id: wwan-desktop-26-04-manual
+id: wwan-base-26-04-manual
 unit: test plan
-_name: Desktop WWAN for 26.04 (Manual)
+_name: WWAN for 26.04 (Manual)
 _description: Manual tests for wwan
 include:
 nested_part:
@@ -107,9 +107,9 @@ nested_part:
     after-suspend-wwan-cert-manual
     info-attachment-cert-full
 
-id: wwan-desktop-26-04-automated
+id: wwan-base-26-04-automated
 unit: test plan
-_name: Desktop WWAN for 26.04 (Automated)
+_name: WWAN for 26.04 (Automated)
 _description: Automated tests for wwan
 include:
 nested_part:

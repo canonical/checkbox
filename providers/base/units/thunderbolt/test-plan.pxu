@@ -60,9 +60,9 @@ _description: Thunderbolt tests (after suspend - certification blockers only)
 include:
  after-suspend-thunderbolt3/storage-manual          certification-status=blocker
 
-id: thunderbolt-desktop-26-04-manual
+id: thunderbolt-base-26-04-manual
 unit: test plan
-_name: Desktop thunderbolt for 26.04 (Manual)
+_name: Thunderbolt for 26.04 (Manual)
 _description: Manual tests for thunderbolt
 include:
 nested_part:
@@ -71,9 +71,9 @@ nested_part:
     after-suspend-thunderbolt-cert-manual
     info-attachment-cert-full
 
-id: thunderbolt-desktop-26-04-automated
+id: thunderbolt-base-26-04-automated
 unit: test plan
-_name: Desktop thunderbolt for 26.04 (Automated)
+_name: Thunderbolt for 26.04 (Automated)
 _description: Automated tests for thunderbolt
 include:
 nested_part:

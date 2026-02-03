@@ -66,9 +66,9 @@ include:
     after-suspend-usb-dwc3/driver-detect
     after-suspend-usb-dwc3/module-detect
 
-id: usb-dwc3-desktop-26-04-manual
+id: usb-dwc3-base-26-04-manual
 unit: test plan
-_name: Desktop DWC3 for 26.04 after suspend (Manual)
+_name: DWC3 for 26.04 after suspend (Manual)
 _description: Manual tests for DWC3 after suspend
 include:
 nested_part:
@@ -77,9 +77,9 @@ nested_part:
     after-suspend-usb-dwc3-cert-manual
     info-attachment-cert-full
 
-id: usb-dwc3-desktop-26-04-automated
+id: usb-dwc3-base-26-04-automated
 unit: test plan
-_name: Desktop DWC3 for 26.04 (Automated)
+_name: DWC3 for 26.04 (Automated)
 _description: Automated tests for usb-dwc3
 include:
 nested_part:

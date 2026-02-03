@@ -182,9 +182,9 @@ include:
     after-suspend-audio/detect-capture-devices
     after-suspend-audio/alsa-loopback-automated
 
-id: audio-desktop-26-04-manual
+id: audio-base-26-04-manual
 unit: test plan
-_name: Desktop Audio for 26.04 (Manual)
+_name: Audio for 26.04 (Manual)
 _description: Manual tests for audio
 include:
 nested_part:
@@ -193,9 +193,9 @@ nested_part:
     after-suspend-audio-cert-manual
     info-attachment-cert-full
 
-id: audio-desktop-26-04-automated
+id: audio-base-26-04-automated
 unit: test plan
-_name: Desktop Audio for 26.04 (Automated)
+_name: Audio for 26.04 (Automated)
 _description: Automated tests for audio
 include:
 nested_part:

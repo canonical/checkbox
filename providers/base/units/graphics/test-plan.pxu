@@ -346,9 +346,9 @@ include:
 bootstrap_include:
     browser_resource
 
-id: graphic-desktop-26-04-manual
+id: graphic-base-26-04-manual
 unit: test plan
-_name: Desktop Graphics for 26.04 (Manual)
+_name: Graphics for 26.04 (Manual)
 _description: Manual tests for graphics
 include:
     keys/video-out
@@ -361,9 +361,9 @@ nested_part:
     after-suspend-monitor-gpu-cert-manual
     info-attachment-cert-full
 
-id: graphic-desktop-26-04-automated
+id: graphic-base-26-04-automated
 unit: test plan
-_name: Desktop graphic for 26.04 (Automated)
+_name: Graphic for 26.04 (Automated)
 _description: Automated tests for graphic
 include:
 nested_part:

@@ -12,7 +12,7 @@ nested_part:
 
 
 id: client-cert-iot-desktop-26-04-manual
-_name: IoT Client Certification Tests for Ubuntu 26.04 desktop image (Manual Tests)
+_name: IoT Client Certification Tests for Ubuntu 26.04 desktop images (Manual Tests)
 unit: test plan
 _description:
   Includes tests that require input from an operator to complete.
@@ -26,24 +26,24 @@ nested_part:
     wireless-wifi-master-mode-manual
     usb-c-manual
     mediacard-iot-26-04-manual
-    cpu-desktop-26-04-manual
-    memory-desktop-26-04-manual
-    disk-desktop-26-04-manual
-    ethernet-desktop-26-04-manual
-    bluetooth-desktop-26-04-manual
-    wireless-desktop-26-04-manual
-    wwan-desktop-26-04-manual
-    networking-desktop-26-04-manual
-    touchscreen-desktop-26-04-manual
-    thunderbolt-desktop-26-04-manual
-    audio-desktop-26-04-manual
-    graphic-desktop-26-04-manual
-    monitor-desktop-26-04-manual
-    mediacard-desktop-26-04-manual
-    usb-desktop-26-04-manual
-    usb-c-desktop-26-04-manual
-    usb-dwc3-desktop-26-04-manual
-    power-management-desktop-26-04-manual
+    cpu-base-26-04-manual
+    memory-base-26-04-manual
+    disk-base-26-04-manual
+    ethernet-base-26-04-manual
+    bluetooth-base-26-04-manual
+    wireless-base-26-04-manual
+    wwan-base-26-04-manual
+    networking-base-26-04-manual
+    touchscreen-base-26-04-manual
+    thunderbolt-base-26-04-manual
+    audio-base-26-04-manual
+    graphic-base-26-04-manual
+    monitor-base-26-04-manual
+    mediacard-base-26-04-manual
+    usb-base-26-04-manual
+    usb-c-base-26-04-manual
+    usb-dwc3-base-26-04-manual
+    power-management-base-26-04-manual
     after-suspend-led-indicator-manual
     after-suspend-monitor-manual
     after-suspend-wireless-wifi-master-mode-manual
@@ -72,7 +72,7 @@ exclude:
 
 
 id: client-cert-iot-desktop-26-04-automated
-_name: IoT Client Certification Tests for Ubuntu 26.04 desktop image (Automated Tests)
+_name: IoT Client Certification Tests for Ubuntu 26.04 desktop images (Automated Tests)
 unit: test plan
 _description:
     Includes tests that do not require operator input.
@@ -104,35 +104,35 @@ nested_part:
     va-api-automated
     submission-cert-automated
     info-attachment-cert-automated
-    networking-desktop-26-04-automated
-    misc-client-desktop-26-04-automated
-    acpi-desktop-26-04-automated
-    power-management-precheck-desktop-26-04-automated
-    snappy-snap-desktop-26-04-automated
-    cpu-desktop-26-04-automated
-    memory-desktop-26-04-automated
-    disk-desktop-26-04-automated
-    ethernet-desktop-26-04-automated
-    bluetooth-desktop-26-04-automated
-    wireless-desktop-26-04-automated
-    wireless-netplan-desktop-26-04-automated
-    wwan-desktop-26-04-automated
-    touchscreen-desktop-26-04-automated
-    keys-desktop-26-04-automated
-    led-desktop-26-04-automated
-    audio-desktop-26-04-automated
-    thunderbolt-desktop-26-04-automated
-    monitor-desktop-26-04-automated
-    graphic-desktop-26-04-automated
-    fingerprint-desktop-26-04-automated
-    mediacard-desktop-26-04-automated
-    usb-desktop-26-04-automated
-    usb-c-desktop-26-04-automated
-    usb-dwc3-desktop-26-04-automated
-    before-after-suspend-reference-desktop-26-04-automated
-    firmware-fwupdmgr-desktop-26-04-automated
-    power-desktop-26-04-automated
-    tpm-desktop-26-04-automated
+    networking-base-26-04-automated
+    misc-client-base-26-04-automated
+    acpi-base-26-04-automated
+    power-management-precheck-base-26-04-automated
+    snappy-snap-base-26-04-automated
+    cpu-base-26-04-automated
+    memory-base-26-04-automated
+    disk-base-26-04-automated
+    ethernet-base-26-04-automated
+    bluetooth-base-26-04-automated
+    wireless-base-26-04-automated
+    wireless-netplan-base-26-04-automated
+    wwan-base-26-04-automated
+    touchscreen-base-26-04-automated
+    keys-base-26-04-automated
+    led-base-26-04-automated
+    audio-base-26-04-automated
+    thunderbolt-base-26-04-automated
+    monitor-base-26-04-automated
+    graphic-base-26-04-automated
+    fingerprint-base-26-04-automated
+    mediacard-base-26-04-automated
+    usb-base-26-04-automated
+    usb-c-base-26-04-automated
+    usb-dwc3-base-26-04-automated
+    before-after-suspend-reference-base-26-04-automated
+    firmware-fwupdmgr-base-26-04-automated
+    power-base-26-04-automated
+    tpm-base-26-04-automated
     after-suspend-audio-automated
     after-suspend-bluez-automated
     after-suspend-camera-automated
@@ -158,7 +158,7 @@ exclude:
     after-suspend-power-management/tickless_idle
 
 id: client-cert-iot-desktop-26-04-stress
-_name: IoT Client Certification Tests for Ubuntu 26.04 desktop (Stress Tests)
+_name: IoT Client Certification Tests for Ubuntu 26.04 desktop images (Stress Tests)
 unit: test plan
 _description:
   Includes tests that are long running device stress tests.

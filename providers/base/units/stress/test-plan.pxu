@@ -326,9 +326,9 @@ bootstrap_include:
     device
     executable
 
-id: stress-desktop-26-04-automated
+id: stress-base-26-04-automated
 unit: test plan
-_name: Desktop Stress for 26.04 (Automated)
+_name: Stress for 26.04 (Automated)
 _description: Automated tests for stress
 include:
 nested_part:

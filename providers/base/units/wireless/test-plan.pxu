@@ -459,9 +459,9 @@ include:
 bootstrap_include:
     device
 
-id: wireless-desktop-26-04-manual
+id: wireless-base-26-04-manual
 unit: test plan
-_name: Desktop Wireless for 26.04 (Manual)
+_name: Wireless for 26.04 (Manual)
 _description: Manual tests for wireless
 include:
 nested_part:
@@ -470,18 +470,18 @@ nested_part:
     after-suspend-wireless-cert-manual
     info-attachment-cert-full
 
-id: wireless-desktop-26-04-automated
+id: wireless-base-26-04-automated
 unit: test plan
-_name: Desktop Wireless for 26.04 (Automated)
+_name: Wireless for 26.04 (Automated)
 _description: Automated tests for wireless
 include:
 nested_part:
     wireless-cert-automated
     after-suspend-wireless-cert-automated
 
-id: wireless-netplan-desktop-26-04-automated
+id: wireless-netplan-base-26-04-automated
 unit: test plan
-_name: Desktop Wireless for 26.04 (Automated)
+_name: Wireless for 26.04 (Automated)
 _description: Automated tests for wireless
 include:
 nested_part:

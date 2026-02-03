@@ -190,9 +190,9 @@ include:
 bootstrap_include:
     device
 
-id: bluetooth-desktop-26-04-manual
+id: bluetooth-base-26-04-manual
 unit: test plan
-_name: Desktop Bluetooth for 26.04 (Manual)
+_name: Bluetooth for 26.04 (Manual)
 _description: Manual tests for bluetooth
 include:
 nested_part:
@@ -201,9 +201,9 @@ nested_part:
     after-suspend-bluetooth-cert-manual
     info-attachment-cert-full
 
-id: bluetooth-desktop-26-04-automated
+id: bluetooth-base-26-04-automated
 unit: test plan
-_name: Desktop Bluetooth for 26.04 (Automated)
+_name: Bluetooth for 26.04 (Automated)
 _description: Automated tests for bluetooth
 include:
 nested_part:

@@ -581,7 +581,6 @@ class PipewireTest:
         default_device_id = int(
             wpctl_status_out.split(",", maxsplit=1)[0].strip().split()[-1]
         )
-
         pw_dump_out = subprocess.check_output(
             ["pw-dump", str(default_device_id)], universal_newlines=True
         )
@@ -606,12 +605,26 @@ class PipewireTest:
                     type(pw_dump_json)
                 )
             )
-        assert len(pw_dump_json) == 1
-        assert type(pw_dump_json[0]) is dict
+        assert len(pw_dump_json) >= 1
+
+        # sometimes pw-dump returns extra elements in pw_dump_json
+        # even if we specify the exact ID
+        real = None  # type: dict[str, t.Any] | None
+        for elem in pw_dump_json:
+            if type(elem) is not dict:
+                continue
+            if elem.get("id") == default_device_id:
+                real = elem
+                break
+
+        if real is None:
+            raise SystemExit(
+                "pw-dump did not return a JSON with id = {}", default_device_id
+            )
 
         try:
             # type: dict[str, t.Any]
-            pw_props = pw_dump_json[0]["info"]["props"]
+            pw_props = real["info"]["props"]
             assert type(pw_props) is dict
 
             if pw_props.get("node.virtual") is True:
@@ -832,7 +845,10 @@ class PipewireTest:
             # compare_wpctl_status(STATUS_1, STATUS_2)
             return self.compare_wpctl_status(args.status_1, args.status_2)
         elif args.test_type == "default_device_is_real":
-            return self.default_device_is_real(args.type, args.direction)
+            if self.default_device_is_real(args.type, args.direction):
+                return 0
+            else:
+                return 1
 
 
 def main():

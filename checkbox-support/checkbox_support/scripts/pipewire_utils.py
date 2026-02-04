@@ -653,7 +653,7 @@ class PipewireTest:
                 return False
 
             print(
-                "OK! '{}' (id={}) is not a virtual {} {}".format(
+                "OK! '{}' (id={}) is a real {} {}".format(
                     pw_props["node.description"],
                     default_device_id,
                     device_type,

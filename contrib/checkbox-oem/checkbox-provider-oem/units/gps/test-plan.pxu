@@ -1,0 +1,22 @@
+id: oem-gps-full
+unit: test plan
+_name: GPS tests
+_description: Full GPS tests for devices
+include:
+nested_part:
+  oem-gps-automated
+  oem-gps-manual
+
+id: oem-gps-automated
+unit: test plan
+_name: GPS auto tests
+_description: Automated GPS tests for devices
+bootstrap_include:
+include:
+
+id: oem-gps-manual
+unit: test plan
+_name: GPS manual tests
+_description: Manual GPS tests for devices
+bootstrap_include:
+include:

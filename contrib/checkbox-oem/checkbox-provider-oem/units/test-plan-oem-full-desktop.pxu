@@ -1,0 +1,134 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the IoT devices running Ubuntu Desktop.
+#
+
+id: oem-iot-desktop-24-04
+unit: test plan
+_name: OEM-IOT - Full manual + automated OEM tests for Ubuntu Desktop 24.04
+_description:
+  Combined manual and automated test plans for IoT devices running Ubuntu Desktop.
+include:
+nested_part:
+  oem-iot-desktop-24-04-automated
+  oem-iot-desktop-24-04-manual
+  oem-iot-desktop-24-04-stress
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-desktop-24-04-automated
+unit: test plan
+_name: OEM-IOT - Automated only OEM tests for Ubuntu Desktop 24.04
+_description:
+  Ubuntu Desktop OEM test plan for the IoT devices. This test plan contains
+  all of the automated tests used to validate the IoT devices.
+bootstrap_include:
+  com.canonical.certification::cpuinfo
+  com.canonical.certification::device
+  com.canonical.certification::dmi
+  com.canonical.certification::graphics_card
+nested_part:
+  com.canonical.certification::client-cert-desktop-24-04-automated
+  oem-automated
+include:
+  com.canonical.certification::miscellanea/debsums
+  com.canonical.certification::miscellanea/screen-private-ppa
+  com.canonical.certification::power-management-cpu-cstate-cert-automated
+  com.canonical.certification::power-management/switch_power_mode
+  bios/acpi-bios-error_.*                                                 certification-status=blocker
+  bios/dump_libsmbios_tokens
+  bios/dump_libsmbios_tokens_attachment
+  bluetooth/bluetooth-on-off-rfkill_.*
+  bluetooth/bluetooth-scan
+  boot/boot-up-time-under-2-min
+  boot/grub_boothole
+  device/check-device-runtime-pm_.*
+  device/check-display_.*
+  device/check-i2c-hid-existence
+  device/intel-hid_.*
+  device/intel-vtd-enabled_.*
+  device/tgp-rid-check_.*
+  graphics/check-gpu-driver                                               certification-status=blocker
+  graphics/check-nvidia
+  graphics/check_nvidia_modalias_.*                                       certification-status=blocker
+  graphics/check_windowing_system_.*
+  graphics/edid-continuous-frequency
+  graphics/renderer-mesa-driver-check_.*
+  kernel/check_.*_start_rt_ucode_failed
+  kernel/check_.*_start_wm_firmware_failed
+  kernel/check_.*_unchecked_msr_access_error
+  kernel/check-kernel                                                     certification-status=blocker
+  kernel/check_UBSAN_error
+  miscellanea/ac-automatic-suspend-estar-settings_.*
+  miscellanea/check-oem-recovery-version
+  miscellanea/check-production-suite
+  miscellanea/check-secureboot-fish-not-installed
+  miscellanea/csme-detection-tool
+  miscellanea/cvescan
+  miscellanea/gate_rste_raid
+  miscellanea/google-chrome-included_.*
+  miscellanea/image-url
+  miscellanea/mesa-libdrm-gating_.*
+  miscellanea/platform-userguide-test
+  miscellanea/screen-pkg-not-public
+  miscellanea/screen-pkg-not-supported-by-canonical
+  miscellanea/sideload-hook-no-fail
+  miscellanea/somerville-installation
+  miscellanea/somerville-platform-meta-test
+  power-management/intel_pmc_core
+  thermal/check-thermald-unknown-cond
+  thermal/intel-cpu-thermal
+  thermal/intel-p-state
+  thermal/intel-powerclamp
+  thermal/intel-rapl
+  thermal/intel-rapl-mmio_.*
+  thermal/intel-x86-pkg-temp-thermal
+  thermal/proc_thermal_.*
+  thermal/thermal-policy-set_.*
+  thermal/thermald
+  thermal/valid-thermal-zone-trip-points
+  touchpad/pressure-capability-detect_.*
+  touchpad/touchpad-firmware-version_.*
+  wifi/check_.*_wifi6e_enabled
+  wwan/check-fcclock-state_.*
+  wwan/get-wwan-firmware-version
+exclude:
+  com.canonical.certification::after-suspend-bluetooth4/beacon_.*
+  com.canonical.certification::after-suspend-graphics/1_auto_switch_card_.*
+  com.canonical.certification::bluetooth4/beacon_eddystone.*
+  com.canonical.certification::bluetooth/bluetooth_obex_.*
+  com.canonical.certification::graphics/1_auto_switch_card_.*
+  com.canonical.certification::graphics/2_.*
+  com.canonical.certification::suspend/1_.*
+  com.canonical.certification::suspend/2_.*
+  com.canonical.certification::suspend/bluetooth_obex_.*
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-desktop-24-04-manual
+unit: test plan
+_name: OEM-IOT - Manual only OEM tests for Ubuntu Desktop 24.04
+_description:
+  Ubuntu Desktop OEM test plan for the IoT devices. This test plan contains
+  all of the tests that require manual control of device hardware
+  or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+  oem-manual
+exclude:
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-desktop-24-04-stress
+unit: test plan
+_name: OEM-IOT - Stress only OEM tests for Ubuntu Desktop 24.04
+_description:
+    Ubuntu Desktop OEM test plan that includes all stress tests required for IoT devices
+include:
+nested_part:
+  oem-stress
+exclude:
+certification_status_overrides:
+  apply blocker to .*

@@ -1,0 +1,22 @@
+id: oem-miscellanea-full
+unit: test plan
+_name: Miscellanea tests
+_description: Full miscellanea tests for devices
+include:
+nested_part:
+  oem-miscellanea-automated
+  oem-miscellanea-manual
+
+id: oem-miscellanea-automated
+unit: test plan
+_name: Miscellanea auto tests
+_description: Automated miscellanea tests for devices
+bootstrap_include:
+include:
+
+id: oem-miscellanea-manual
+unit: test plan
+_name: Miscellanea manual tests
+_description: Manual miscellanea tests for devices
+include:
+

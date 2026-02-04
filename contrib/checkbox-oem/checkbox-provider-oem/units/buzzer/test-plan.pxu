@@ -1,0 +1,21 @@
+id: oem-buzzer-full
+unit: test plan
+_name: Buzzer tests
+_description: Full buzzer tests for devices
+include:
+nested_part:
+  oem-buzzer-automated
+  oem-buzzer-manual
+
+id: oem-buzzer-automated
+unit: test plan
+_name: Buzzer auto tests
+_description: Automated buzzer tests for devices
+include:
+
+id: oem-buzzer-manual
+unit: test plan
+_name: Buzzer manual tests
+_description: Manual buzzer tests for devices
+bootstrap_include:
+include:

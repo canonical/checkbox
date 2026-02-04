@@ -1,0 +1,105 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+requires:
+ device.category == 'NETWORK'
+ package.name == 'checkbox-ng'
+estimated_duration: 20
+id: miscellanea/install_kernel_tools_testing
+user: root
+command:
+ dpkg -s linux-tools-"$(uname -r)" || apt-get install -y linux-tools-"$(uname -r)" || exit 1
+_summary: Install linux-tools based on the running kernel version.
+_description: Install linux-tools based on the running kernel version.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/copy_submission_file
+requires: package.name == 'dkms'
+command:
+ report_folder="$HOME/submission-report-$(date +%Y%m%d%H%M)"
+ checkboxk_ng_folder="/home/ubuntu/.local/share/checkbox-ng"
+ [ -d "/home/u" ] && checkboxk_ng_folder="/home/u/.local/share/checkbox-ng"
+ mkdir -p "$report_folder"
+ cp "$checkboxk_ng_folder"/* "$report_folder"
+ rm "$checkboxk_ng_folder"/*
+ mv "$(find "$report_folder" -type f | grep tar)" /tmp/c3-local-submission.tar.xz
+_summary: copy reports to folder
+_description:
+ copy the file for c3 submission.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/prepare-sanity-env
+command:
+ set -x
+ sudo disable-uattu.py
+_summary: disable unattended update
+_description:
+ disable unattended update
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/set-idle-delay-60s
+command:
+ set -x
+ gsettings get org.gnome.desktop.session idle-delay > "$HOME/old-idle-delay"
+ gsettings set org.gnome.desktop.session idle-delay 60
+ [ "$(gsettings get org.gnome.desktop.session idle-delay | cut -d ' ' -f2)" == "60" ]
+_summary: prepare env before suspend testing
+_description:
+ set long idle delay to 1 min, so that we can check suspend after long idle.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/restore-idle-delay
+command:
+ set -x
+ awk -F' ' '{ print $2 }' "$HOME"/old-idle-delay | xargs gsettings set org.gnome.desktop.session idle-delay
+ [ "$(gsettings get org.gnome.desktop.session idle-delay | cut -d ' ' -f2)" == "$(awk -F' ' '{ print $2 }' "$HOME"/old-idle-delay)" ]
+_summary: restore saved idle delay
+_description:
+ restore saved idle delay
+
+id: graphics-discrete-gpu-stress-suspend-3-cycles-with-idle60s-reboots-automated
+unit: test plan
+_name: Suspend stress tests (with reboots)
+_description: Suspend stress tests (with reboots)
+include:
+    miscellanea/set-idle-delay-60s
+    graphics/2_auto_switch_card_.*
+    stress-suspend-3-cycles-with-reboots-automated
+    graphics/1_auto_switch_card_.*
+    miscellanea/restore-idle-delay
+bootstrap_include:
+    graphics_card
+
+id: pc-sanity-collect-info-in-the-end
+unit: test plan
+_name: pc-sanity-collect-info-in-the-end
+_description: Suspend stress tests (with reboots)
+include:
+    cpu_pkg_state_attachment
+    miscellanea/sosreport_attachment
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/bootstrap-pc-sanity-smoke-test
+estimated_duration: 1.0
+command:
+ while read -r folder
+ do
+    git -C "$folder" remote get-url --all origin
+    git -C "$folder" rev-parse HEAD
+ done < <(find /var/tmp/checkbox-providers -mindepth 1 -maxdepth 1 -type d)
+ checkbox-cli list-bootstrapped com.canonical.certification::pc-sanity-smoke-test || true
+_description:
+ Attache the order of executed order of test cases.
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/side-load-changes
+estimated_duration: 1.0
+command: cat /var/tmp/checkbox-providers/*/side-load-changes.json || true
+_description:
+ attach what changed from sideloading.
+

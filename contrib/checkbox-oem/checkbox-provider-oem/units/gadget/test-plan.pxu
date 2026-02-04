@@ -1,0 +1,22 @@
+id: oem-gadget-full
+unit: test plan
+_name: gadget related tests
+_description: Full gadget related tests for devices
+include:
+nested_part:
+  oem-gadget-automated
+  oem-gadget-manual
+
+id: oem-gadget-automated
+unit: test plan
+_name: gadget related auto tests
+_description: Automated gadget related tests for devices
+bootstrap_include:
+include:
+
+id: oem-gadget-manual
+unit: test plan
+_name: gadget related manual tests
+_description: Manual gadget related tests for devices
+include:
+

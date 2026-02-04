@@ -1,0 +1,22 @@
+id: oem-kernel-full
+unit: test plan
+_name: Kernel tests
+_description: Full kernel tests for devices
+include:
+nested_part:
+  oem-kernel-automated
+  oem-kernel-manual
+
+id: oem-kernel-automated
+unit: test plan
+_name: Kernel auto tests
+_description: Automated kernel tests for devices
+bootstrap_include:
+include:
+
+id: oem-kernel-manual
+unit: test plan
+_name: Kernel manual tests
+_description: Manual kernel tests for devices
+bootstrap_include:
+include:

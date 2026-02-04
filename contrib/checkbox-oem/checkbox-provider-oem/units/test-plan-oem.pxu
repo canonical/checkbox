@@ -1,0 +1,129 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the Ubuntu Core and Classic devices.
+#
+
+id: oem-full
+unit: test plan
+_name: OEM - Full manual + automated OEM tests for Ubuntu Core and Classic
+_description:
+  Combined manual and automated test plans for Ubuntu Core and Classic devices.
+include:
+nested_part:
+  oem-automated
+  oem-manual
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-automated
+unit: test plan
+_name: OEM - Automated only OEM tests for Ubuntu Core and Classic
+_description:
+  Ubuntu Core and Classic OEM test plan for the hardware. This test plan contains
+  all of the automated tests used to validate the device.
+estimated_duration: 120
+include:
+nested_part:
+  oem-audio-automated
+  oem-barcode-scanner-automated
+  oem-bios-automated
+  oem-bluetooth-automated
+  oem-boot-automated
+  oem-button-automated
+  oem-buzzer-automated
+  oem-camera-automated
+  oem-cash-drawer-automated
+  oem-cpu-automated
+  oem-crypto-automated
+  oem-device-automated
+  oem-digital-io-automated
+  oem-eeprom-automated
+  oem-ethernet-automated
+  oem-fan-automated
+  oem-gadget-automated
+  oem-gpio-automated
+  oem-gps-automated
+  oem-graphics-automated
+  oem-iio-sensors-automated
+  oem-installation-info-automated
+  oem-kernel-automated
+  oem-led-automated
+  oem-mir-automated
+  oem-miscellanea-automated
+  oem-mtd-automated
+  oem-optee-automated
+  oem-otg-automated
+  oem-power-management-automated
+  oem-printer-automated
+  oem-ptp-automated
+  oem-regulator-automated
+  oem-rpmsg-automated
+  oem-rtc-automated
+  oem-serial-automated
+  oem-socketcan-stress-automated
+  oem-spi-automated
+  oem-strict-confinement-automated
+  oem-thermal-automated
+  oem-touchpad-automated
+  oem-video-codec-automated
+  oem-vpu-automated
+  oem-wifi-automated
+  oem-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-manual
+unit: test plan
+_name: OEM - Manual only OEM tests for Ubuntu Core and Classic
+_description:
+  Ubuntu Core and Classic OEM test plan for the hardware. This test plan contains
+  all of the tests that require manual control of device hardware
+  or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+  oem-audio-manual
+  oem-barcode-scanner-manual
+  oem-bios-manual
+  oem-boot-manual
+  oem-button-manual
+  oem-buzzer-manual
+  oem-camera-manual
+  oem-cash-drawer-manual
+  oem-cpu-manual
+  oem-crypto-manual
+  oem-device-automated
+  oem-digital-io-manual
+  oem-eeprom-manual
+  oem-fan-manual
+  oem-gadget-manual
+  oem-gpio-manual
+  oem-gps-manual
+  oem-graphics-manual
+  oem-iio-sensors-manual
+  oem-installation-info-manual
+  oem-led-manual
+  oem-mir-manual
+  oem-miscellanea-manual
+  oem-mtd-manual
+  oem-optee-manual
+  oem-otg-manual
+  oem-power-management-manual
+  oem-printer-manual
+  oem-ptp-manual
+  oem-regulator-manual
+  oem-rpmsg-manual
+  oem-rtc-manual
+  oem-socketcan-manual
+  oem-spi-manual
+  oem-strict-confinement-manual
+  oem-thermal-manual
+  oem-touchpad-manual
+  oem-touchscreen-manual
+  oem-video-codec-manual
+  oem-vpu-manual
+  oem-wifi-manual
+  oem-wwan-manual
+certification_status_overrides:
+  apply blocker to .*

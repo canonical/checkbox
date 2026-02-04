@@ -1,0 +1,20 @@
+id: oem-vpu-full
+unit: test plan
+_name: VPU tests
+_description: Full VPU tests for devices
+include:
+nested_part:
+  oem-vpu-automated
+  oem-vpu-manual
+
+id: oem-vpu-automated
+unit: test plan
+_name: VPU auto tests
+_description: Automated VPU tests for devices
+include:
+
+id: oem-vpu-manual
+unit: test plan
+_name: VPU manual tests
+_description: Manual VPU tests for devices
+include:

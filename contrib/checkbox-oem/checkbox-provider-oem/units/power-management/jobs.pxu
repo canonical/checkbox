@@ -1,0 +1,52 @@
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/intel_pmc_core
+imports:
+  from com.canonical.certification import cpuinfo
+  from com.canonical.certification import sleep
+requires:
+  sleep.mem_sleep == 's2idle'
+  cpuinfo.type == 'GenuineIntel'
+user: root
+command:
+  if [ ! -d /sys/kernel/debug/pmc_core ]; then
+    echo "The system has no /sys/kernel/debug/pmc_core."
+    echo "It is required for doing low power idle analysis."
+    echo "For more detail, please refer to https://web.archive.org/web/20230614200306/https://01.org/blogs/qwang59/2020/linux-s0ix-troubleshooting"
+    exit 1
+  fi
+_summary: Check if intel_pmc_core driver is probed
+_description:
+  For system support low power idle, intel_pmc_core
+  driver is required for all Intel platforms.
+
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/pm_test_devices
+user: root
+command:
+  echo "devices" | tee /sys/power/pm_test
+_summary: Set pm_test to devices level
+_description:
+  Set pm_test to devices level, so that we can ignore BIOS issue.
+
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/pm_test_freezer
+user: root
+command:
+  echo "freezer" | tee /sys/power/pm_test
+_summary: Set pm_test to freezer level
+_description:
+  Set pm_test to freezer level, so that we can ignore BIOS issue.
+
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power_management/pm_test_platform
+user: root
+command:
+  echo "platform" | tee /sys/power/pm_test
+_summary: Set pm_test to platform level
+_description:
+  Set pm_test to platform level, so that we can ignore BIOS issue.
+

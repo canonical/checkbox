@@ -1,0 +1,62 @@
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHPAD' and device.driver == 'hid-multitouch'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/pressure-capability-detect_{product_slug}
+requires:
+  snap_package.name == 'libinput-bin'
+  snap_package.name == 'dpkg'
+estimated_duration: 5.0
+command:
+  touchpad-support.sh -p
+  RET=$?
+  VER=$(dpkg-query -W libinput-bin | cut -f2)
+  dpkg --compare-versions "$VER" gt 1.15.5-1ubuntu0.2
+  VER_RET=$?
+  if [ $RET -ne 0 ] && [ $VER_RET -ne 0 ]; then
+    echo "The platform touchpad reports pressure event, it requires"
+    echo "a special handle for the event, please make sure if the platform"
+    echo "should support pressure event, if not, plesae follow instruction [1] and [2]"
+    echo "to fine tune it or disable it."
+    echo "Reference:"
+    echo "[1] https://wayland.freedesktop.org/libinput/doc/latest/touchpad-pressure.html"
+    echo "[2] https://wayland.freedesktop.org/libinput/doc/latest/device-quirks.html"
+    exit $RET
+  fi
+_summary: Touchpad EV_ABS pressure capability check
+_description:
+  Check if touchpad support ABS_PRESSURE and MT_ABS_PRESSURE event.
+
+unit: template
+template-resource: device
+template-filter:
+  device.category == 'TOUCHPAD'
+  device.vendor_id == '1160'
+  device.product_id == '4618'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::touchpad
+id: touchpad/touchpad-firmware-version_{product_slug}
+user: root
+imports: from com.canonical.certification import dmi
+requires:
+  snap_executable.name == 'i2ctransfer'
+  dmi.sku in ['0A69','0A6A','09C3','09C4']
+command:
+  out=$(touchpad-get-tp-fw-ver.sh)
+  major=$(echo "$out" | cut -d "," -f1 | cut -d " " -f2)
+  minor=$(echo "$out" | cut -d "," -f2 | cut -d " " -f3)
+  version=$(echo "$out" | cut -d "," -f3 | cut -d " " -f3)
+  # shellcheck disable=SC2050
+  if [ "{vendor_id}" = "1160" ] && [ "{product_id}" = "4618" ]; then
+    if [[ $(("$major")) -lt $((0x05)) ]] || [[ $(("$minor")) -lt $((0x34)) ]]; then
+      echo "The touchpad firmware version is $version which is not correct."
+      echo "please refer to the lp:1903951 for getting correct firmware."
+      exit 1
+    fi
+  fi
+_summary: Touchpad firmware version checking
+_description:
+  The test case is for gating invalid touchpad firmware.

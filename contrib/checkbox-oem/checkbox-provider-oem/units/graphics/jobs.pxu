@@ -1,0 +1,82 @@
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/check-gpu-driver
+user: root
+command:
+  graphics-gpu_driver_signed.py
+_summary: Check drivers on each gpu cards.
+_description:
+  All GPUs should have corresponding driver and those drivers should be
+  LTS/formal version.
+
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+imports: from com.canonical.certification import graphics_card
+requires:
+  graphics_card.driver == 'nvidia'
+id: graphics/check-nvidia
+command:
+  set -x
+  graphics-check-nvidia.sh --out "$PLAINBOX_SESSION_SHARE"
+_summary: Check if nvidia dgpu behave as we expected.
+_description:
+  Nvidia introduce runtime D3 (runtime pm) from Nvidia driver version 450. This test case is used to check if everything work as expected.
+
+unit: template
+template-resource: device
+template-filter:
+  device.category == 'VIDEO'
+  device.vendor_id == '4318'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/check_nvidia_modalias_{__index__}_{product_id}
+requires: snap_executable.name == 'ubuntu-drivers'
+command:
+  if ! ubuntu-drivers list --gpgpu | grep -q "nvidia-driver-"; then
+    echo "modalias not found in Nvidia driver"
+    exit 1
+  fi
+_summary: Nvidia device modalias check
+_description:
+  Check if Nvidia driver contain the device's modalias
+
+unit: template
+template-resource: dmi
+template-filter:
+  dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/check_windowing_system_{product}
+requires:
+  lsb.release >= "22.04"
+  snap_executable.name == "lspci"
+depends: device/check-display_{product}
+command: graphics-check-windowing-system.sh
+_summary: Check if system using correct windowing system
+_description:
+  After 22.04, machine with Nvidia GPU will using X11 as windowing system.
+  And machine with AMD and Intel GPU will default to wayland.
+
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/edid-continuous-frequency
+command:
+  graphics-edid_continuous_frequency_check.py
+_summary: Check if panel edid follow the EDID spec.
+_description:
+  Check if panel edid follow the EDID spec.
+
+unit: template
+template-resource: graphics_card
+template-unit: job
+requires:
+  snap_package.name == 'mesa-utils'
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/renderer-mesa-driver-check_{product_slug}_{index}
+command: graphics-renderer-mesa-driver-check.sh
+_summary: Check if renderer mesa driver support correctness
+_description:
+  Check if mesa driver support the renderer correctly

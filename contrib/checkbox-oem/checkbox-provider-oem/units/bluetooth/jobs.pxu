@@ -1,0 +1,49 @@
+unit: template
+template-resource: device
+template-filter: device.category == 'BLUETOOTH'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/bluetooth-on-off-rfkill_{interface}
+requires:
+  snap_executable.name == 'bluetoothctl'
+  snap_executable.name == 'gdbus'
+command:
+  echo "Turn off Bluetooth by gnome.SettingsDaemon.Rfkill"
+  gdbus call --session --dest org.gnome.SettingsDaemon.Rfkill --object-path /org/gnome/SettingsDaemon/Rfkill --method org.freedesktop.DBus.Properties.Set 'org.gnome.SettingsDaemon.Rfkill' 'BluetoothAirplaneMode' '<true>'
+  sleep 5
+  echo "Turn on Bluetooth by gnome.SettingsDaemon.Rfkill"
+  gdbus call --session --dest org.gnome.SettingsDaemon.Rfkill --object-path /org/gnome/SettingsDaemon/Rfkill --method org.freedesktop.DBus.Properties.Set 'org.gnome.SettingsDaemon.Rfkill' 'BluetoothAirplaneMode' '<false>'
+  sleep 5
+  ret=$(bluetoothctl show | grep -i Powered | sed -r 's/\s+//g' | cut -d ':' -f 2)
+  if [ "$ret" = "no" ]; then
+    echo "Bluetooth can't be powered on by toggling org.gnome.SettingsDaemon.Rfkill BluetoothAirplaneMode property."
+    echo "Please refer to lp:1926062"
+    exit 1
+  fi
+_summary: Check if Bluetooth does not power on if turn off then on by gnome-control-center
+_description:
+  Check if Bluetooth does not work after gnome-control-center on/off.
+
+plugin: shell
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/bluetooth-scan
+imports: from com.canonical.certification import device
+requires:
+  device.category == 'BLUETOOTH'
+  snap_executable.name == 'bluetoothctl'
+command:
+  if ! bluetoothctl --timeout 10 scan on; then
+    echo "bluetoothctl returns error: cannot scan bluetooth devices."
+    exit 1
+  fi
+  if ! ret=$(bluetoothctl devices); then
+    echo "bluetoothctl returns error."
+    exit 1
+  elif [ -z "$ret" ]; then
+    echo "No nearby bluetooth device found."
+    exit 1
+  fi
+_summary: Test scanning Bluetooth devices
+_description:
+  This test checks the scanning of Bluetooth devices around the test subject.

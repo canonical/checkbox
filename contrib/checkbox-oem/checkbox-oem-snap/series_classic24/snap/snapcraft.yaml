@@ -1,0 +1,87 @@
+name: checkbox-oem
+summary: Checkbox OEM test runner and public providers for 24.04 classic
+description: "Checkbox OEM test runner and public providers for 24.04 classic"
+confinement: classic
+grade: stable
+
+version: '1.0-noble'
+
+base: core24
+
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+  configure:
+    command-chain: [bin/wrapper_local]
+    command: bin/configure
+  agent:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper run-agent
+    daemon: simple
+    restart-condition: on-failure
+  shell:
+    command: bin/shell-wrapper
+  test-runner:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  checkbox-provider-oem:
+    plugin: dump
+    source: checkbox-provider-oem
+    source-type: local
+    build-snaps:
+      - checkbox24
+    build-packages:
+      - intltool
+      - gcc
+      - make
+      - flake8
+      - bats
+      - shellcheck
+      - python3
+      - python3-jinja2
+      - python3-packaging
+    stage-packages:
+      - bzip2
+      - curl
+      - git
+      - iputils-ping
+      - i2c-tools
+      - jq
+      - libopenscap25t64
+      - lsb-release
+      - modemmanager
+      - msr-tools
+      - openscap-scanner
+      - pciutils
+      - python3
+      - python3-apt
+      - python3-pip
+      - smbios-utils
+      - ubuntu-report
+      - xautomation
+      - wget
+    override-build: |
+      export PYTHONPATH=/snap/checkbox24/current/lib/python3.12/site-packages/
+      for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-oem --root="$CRAFT_PART_INSTALL"
+    build-attributes:
+      - enable-patchelf
+  launchers:
+    plugin: dump
+    source: launchers/
+    build-attributes: [no-patchelf]
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: config/
+    build-attributes: [no-patchelf]

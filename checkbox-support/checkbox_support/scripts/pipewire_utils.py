@@ -825,8 +825,7 @@ def main():
 
     # Add console handler to logger
     pw.logger.addHandler(console_handler)
-    pw.assert_default_device_is_not_virtual("audio", "sink")
-    # sys.exit(pw.function_select(pw._args_parsing()))
+    sys.exit(pw.function_select(pw._args_parsing()))
 
 
 if __name__ == "__main__":

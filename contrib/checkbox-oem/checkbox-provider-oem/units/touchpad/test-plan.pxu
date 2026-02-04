@@ -1,0 +1,22 @@
+id: oem-touchpad-full
+unit: test plan
+_name: Touchpad tests
+_description: Full touchpad tests for devices
+include:
+nested_part:
+  oem-touchpad-automated
+  oem-touchpad-manual
+
+id: oem-touchpad-automated
+unit: test plan
+_name: Touchpad auto tests
+_description: Automated touchpad tests for devices
+bootstrap_include:
+include:
+
+id: oem-touchpad-manual
+unit: test plan
+_name: Touchpad manual tests
+_description: Manual touchpad tests for devices
+include:
+

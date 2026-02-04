@@ -1,0 +1,21 @@
+id: oem-installation-info-full
+unit: test plan
+_name: Installation info gather test for Ubuntu Core
+_description: Full installation info gather tests for devices
+include:
+nested_part:
+  oem-installation-info-automated
+  oem-installation-info-manual
+
+id: oem-installation-info-automated
+unit: test plan
+_name: Installation info gather auto tests for Ubuntu Core
+_description: Automated installation info gather tests for devices
+include:
+
+id: oem-installation-info-manual
+unit: test plan
+_name: Installation info gather manual for Ubuntu Core
+_description: Manual installation info gather tests for devices
+include:
+

@@ -1,0 +1,145 @@
+unit: template
+template-resource: dmi
+template-filter:
+  dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: device/check-device-runtime-pm_{product}
+command: device-check-device-power-control.sh
+_summary: Check if devices runtime PM enabled
+_description:
+  Check if devices runtime PM is enabled for power sensitive platforms
+
+unit: template
+template-resource: dmi
+template-filter:
+  dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: device/check-display_{product}
+user: root
+command:
+  # shellcheck disable=SC2230
+  UWAKE=$(which uwake)   # sudo doesn't inherit current $PATH
+  "$UWAKE"               # src: c/uwake.c
+  sleep 5                # wait the screen to be on
+  for file in /sys/class/drm/*/status;
+  do
+    status=$(cat < "$file")
+    if [ "$status" = "connected" ]; then
+      dpms_path="${{file//status/dpms}}"
+      dpms=$(cat < "$dpms_path")
+      if [ "$dpms" = "On" ]; then
+        echo "Has disaplay attached and screen on"
+        echo "$file:connected"
+        echo "$dpms_path:On"
+        exit 0
+      fi
+    fi
+  done
+  echo "No display attach to any connectors"
+  echo "Please check if graphic driver probed properly."
+  echo "Please check if display attach to it."
+  exit 1
+_summary: Check if display is available for the machine
+_description:
+  Check if the display is available for the machine
+  to avoid release image without output.
+
+plugin: shell
+category_id: com.canonical.plainbox::touchpad
+id: device/check-i2c-hid-existence
+estimated_duration: 2.0
+imports: from com.canonical.certification import dmi
+requires:
+  dmi.product in ['Notebook','Laptop']
+command:
+  cat /sys/class/input/input*/phys | grep -q i2c || exit 1
+_summary: Check if there is input device on i2c bus
+_description:
+  Touchpad is mandatory on notebook and laptop, which works as input device on i2c bus generally.
+
+unit: template
+template-resource: cpuinfo
+template-filter: cpuinfo.type == 'GenuineIntel'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: device/intel-hid_{model_number}_{model_version}_{model_revision}
+requires:
+  sleep.mem_sleep == 's2idle'
+command:
+  intel_hid=$(grep HIDD /sys/bus/acpi/devices/*/path -l)
+  # shellcheck disable=SC2001
+  status=$(echo "$intel_hid" | sed "s/path/status/")
+  if [ -n "$intel_hid" ] && [ "$(cat "$status")" == "15" ]; then
+    if grep -q intel_hid /proc/modules; then
+      exit 0
+    else
+      echo "The intel_hid is not loaded."
+      echo "HIDD device node:"
+      grep HIDD /sys/bus/acpi/devices/*/path
+      echo "intel_hid modinfo:"
+      modinfo intel_hid
+      exit 1
+    fi
+  fi
+_summary: Check if the intel_hid loaded on the system
+_description:
+  Intel changes intel_hid supported acpi device ID for different generations.
+  Capture the newly added ID before image release.
+
+unit: template
+template-resource: device
+template-filter: device.driver in ['iosm', 'mtk_t7xx', 'thunderbolt']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::virtualization
+id: device/intel-vtd-enabled_{driver}_{__index__}
+requires:
+  cpuinfo.type == 'GenuineIntel'
+user: root
+command:
+  if ! journalctl -k | grep -q 'Intel(R) Virtualization Technology for Directed I/O'; then
+    echo "Intel VT-d disabled which is need for device"
+    echo "Reference for enabling VT-d:"
+    echo "Kernel with CONFIG_INTEL_IOMMU"
+    echo " 1. Kernel with CONFIG_INTEL_IOMMU_DEFAULT_ON"
+    echo " 2. Kernel parameter intel_iommu=on"
+    echo " 3. Force enable Intel VT-d in BIOS"
+    exit 1
+  fi
+  device=$(echo {path} | rev | cut -d '/' -f 1 | rev)
+  if [ ! -d /sys/{path}/iommu ];then
+    echo "Device $device not add to iommu group"
+    exit 1
+  fi
+  exit 0
+_summary: Check the status of Intel VT-d ({driver})
+_description:
+  The test case is for checking the status of Intel VT-d (Virtualization 
+  Technology direct I/O)
+
+unit: template
+template-resource: device
+template-filter:
+  device.path == '/devices/pci0000:00/0000:00:1f.0' and device.vendor_id == '32902'
+  device.product_id >= '17280' and device.product_id <= '17311'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: device/tgp-rid-check_{product_id}
+command:
+  rid_hex=$(lspci -xs 00:1f.0 | grep "00: " | cut -d " " -f10)
+  rid="0x$rid_hex"
+  if [[ $(("$rid")) -eq $((0x10)) ]]; then
+    echo "The PCH has known issue, the detail is in lp:1909053."
+    echo "Please request another hardware to proceed the test."
+    exit 1
+  fi
+_summary: PCH revision ID check
+_description:
+  The specific PCH revision ID has known issue, add the test case
+  for filtering out the invalid hardware.

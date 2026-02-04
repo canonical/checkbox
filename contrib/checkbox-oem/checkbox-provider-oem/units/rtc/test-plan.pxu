@@ -1,0 +1,22 @@
+id: oem-rtc-full
+unit: test plan
+_name: Multiple RTC test
+_description: Check multiple RTC clock and alarm.
+include:
+nested_part:
+  oem-rtc-automated
+  oem-rtc-manual
+
+id: oem-rtc-automated
+unit: test plan
+_name: Multiple RTC auto tests
+_description: Automated multiple RTC tests
+bootstrap_include:
+include:
+nested_part:
+
+id: oem-rtc-manual
+unit: test plan
+_name: Multiple RTC manual tests
+_description: Manual multiple RTC tests
+include:

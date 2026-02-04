@@ -1,0 +1,6 @@
+.coverage
+.tox/
+bin/__pycache__/
+coverage.xml
+uv.lock
+tests/__pycache__/

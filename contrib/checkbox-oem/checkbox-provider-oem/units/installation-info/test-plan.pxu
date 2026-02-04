@@ -1,0 +1,5 @@
+id: oem-installation-info-automated
+unit: test plan
+_name: Installation info gather auto tests for Ubuntu Core
+_description: Automated installation info gather tests for devices
+include:

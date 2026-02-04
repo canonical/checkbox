@@ -612,41 +612,41 @@ class PipewireTest:
         try:
             # type: dict[str, t.Any]
             pw_props = pw_dump_json[0]["info"]["props"]
+            assert type(pw_props) is dict
 
-            if "node.virtual" not in pw_props:
-                print(
-                    "OK! '{}' (id={}) is not a virtual {} {}".format(
-                        pw_props["node.description"],
-                        default_device_id,
-                        device_type,
-                        direction,
-                    )
-                )
-                return True
-
-            if pw_props["node.virtual"] is True:
+            if pw_props.get("node.virtual") is True:
                 # note that v4l2loopback devices do not appear as virtual
                 # since the v4l2 device is what's actually virtual
                 # not the pipewire node
+                print(
+                    "Default {} {} (id={}) is a virtual device.".format(
+                        device_type, direction, default_device_id
+                    ),
+                    file=sys.stderr,
+                )
                 return False  # explicit virtual device
-                # raise SystemExit(
-                #     "Default {} {} (id={}) is a virtual device.".format(
-                #         device_type, direction, default_device_id
-                #     )
-                #     + " It should not be used for any tests!"
-                # )
             if str(pw_props["node.description"]).lower() in (
                 "dummy output",
                 "dummy input",
             ):
                 # this happens when the audio device is completely unrecognized
                 # usually from missing alsa-ucm configs
+                print(
+                    "Default {} {} (id={}) is a dummy output.".format(
+                        device_type, direction, default_device_id
+                    ),
+                    file=sys.stderr,
+                )
                 return False
-                # raise SystemExit(
-                #     "Default {} {} (id={}) is a dummy output.".format(
-                #         device_type, direction, default_device_id
-                #     )
-                # )
+
+            print(
+                "OK! '{}' (id={}) is not a virtual {} {}".format(
+                    pw_props["node.description"],
+                    default_device_id,
+                    device_type,
+                    direction,
+                )
+            )
             return True
         except KeyError as e:
             raise SystemExit(
@@ -784,6 +784,29 @@ class PipewireTest:
             help="path to second output of wpctl status",
         )
 
+        parser_is_real = subparsers.add_parser(
+            "default_device_is_real",
+            help="Check if the *default* audio source/sink or video source "
+            + "is a real, non-virtual/dummy node",
+        )
+        parser_is_real.add_argument(
+            "-t",
+            "--type",
+            type=str,
+            required=True,
+            choices=["audio", "video"],
+            help="Device type, audio or video. If video is selected, "
+            + "then --direction can't be sink",
+        )
+        parser_is_real.add_argument(
+            "-d",
+            "--direction",
+            type=str,
+            required=True,
+            choices=["source", "sink"],
+            help="Device direction, source or sink",
+        )
+
         return parser.parse_args(args)
 
     def function_select(self, args):
@@ -808,6 +831,8 @@ class PipewireTest:
         elif args.test_type == "compare_wpctl_status":
             # compare_wpctl_status(STATUS_1, STATUS_2)
             return self.compare_wpctl_status(args.status_1, args.status_2)
+        elif args.test_type == "default_device_is_real":
+            return self.default_device_is_real(args.type, args.direction)
 
 
 def main():

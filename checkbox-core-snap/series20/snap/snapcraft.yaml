@@ -128,8 +128,8 @@ parts:
     override-build: |
       snapcraftctl build
       ./autogen.sh
-      ./configure --disable-all-programs --enable-nsenter --enable-setpriv \
-        --enable-static-programs=nsenter
+      ./configure --disable-all-programs --disable-year2038 --enable-nsenter \
+        --enable-setpriv --enable-static-programs=nsenter
       make LDFLAGS="-static -all-static"
       install -D -m 755 nsenter.static "$SNAPCRAFT_PART_INSTALL/usr/bin/nsenter.static"
 ################################################################################

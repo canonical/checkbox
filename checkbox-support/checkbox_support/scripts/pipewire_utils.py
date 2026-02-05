@@ -613,8 +613,7 @@ class PipewireTest:
             default_device_id
         )
 
-        
-        node_props = real["info"]["props"] # type: dict[str, t.Any]
+        node_props = real["info"]["props"]  # type: dict[str, t.Any]
         node_description = str(node_props["node.description"])
         assert type(node_props) is dict
 

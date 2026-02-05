@@ -19,7 +19,6 @@
 # Therefore, please don't add new test cases of assertLog.
 
 import sys
-from textwrap import dedent
 import unittest
 from unittest.mock import MagicMock, patch
 from pathlib import Path

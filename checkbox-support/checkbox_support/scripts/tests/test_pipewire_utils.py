@@ -19,12 +19,19 @@
 # Therefore, please don't add new test cases of assertLog.
 
 import sys
+from textwrap import dedent
 import unittest
 from unittest.mock import MagicMock, patch
+from pathlib import Path
 
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
-from checkbox_support.scripts.pipewire_utils import *
+from checkbox_support.scripts.pipewire_utils import (
+    PipewireTest,
+    PipewireTestError,
+)
+
+TEST_DATA_DIR = Path(__file__).parent / "test_data"
 
 
 class GetPwTypeTests(unittest.TestCase):
@@ -889,6 +896,39 @@ Settings
         mock_wp_status.side_effect = [sorted_list_1, sorted_list_2]
         with self.assertRaises(SystemExit):
             pt.compare_wpctl_status("s1", "s2")
+
+
+class DefaultDeviceIsRealTests(unittest.TestCase):
+
+    @patch("subprocess.check_output")
+    def test_happy_path(self, mock_check_output: MagicMock):
+
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_happy_path.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                with (TEST_DATA_DIR / "pw_dump_happy_path.txt").open() as f:
+                    return f.read()
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        self.assertTrue(PipewireTest().default_device_is_real("audio-sink"))
+
+    @patch("subprocess.check_output")
+    def test_dummy_output(self, mock_check_output: MagicMock):
+
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_dummy.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                with (TEST_DATA_DIR / "pw_dump_dummy.txt").open() as f:
+                    return f.read()
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        self.assertFalse(PipewireTest().default_device_is_real("audio-sink"))
 
 
 class ArgsParsingTests(unittest.TestCase):

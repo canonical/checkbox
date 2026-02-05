@@ -1055,3 +1055,16 @@ class FunctionSelectTests(unittest.TestCase):
         args = ["compare_wpctl_status", "-s1", "s1", "-s2", "s2"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 0)
+
+    @patch(
+        "checkbox_support.scripts.pipewire_utils.PipewireTest.default_device_is_real",
+        return_value=True,
+    )
+    def test_default_device_is_real(self, _):
+        pt = PipewireTest()
+        args = ["default_device_is_real", "-d", 'video-source']
+        rv = pt.function_select(pt._args_parsing(args))
+        self.assertEqual(rv, 0)
+
+if __name__ == '__main__':
+    unittest.main()

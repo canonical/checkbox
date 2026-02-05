@@ -1062,9 +1062,10 @@ class FunctionSelectTests(unittest.TestCase):
     )
     def test_default_device_is_real(self, _):
         pt = PipewireTest()
-        args = ["default_device_is_real", "-d", 'video-source']
+        args = ["default_device_is_real", "-d", "video-source"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

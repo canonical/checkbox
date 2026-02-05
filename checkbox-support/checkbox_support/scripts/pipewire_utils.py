@@ -551,8 +551,7 @@ class PipewireTest:
 
     def default_device_is_real(
         self,
-        device_type: 't.Literal["audio", "video"]',
-        direction: 't.Literal["source", "sink"]',
+        device: 't.Literal["audio-source", "audio-sink", "video-source"]',
     ) -> bool:
         """
         Checks whether the default device is a real device in contrast to a
@@ -560,10 +559,10 @@ class PipewireTest:
 
         E.g. "Dummy Output"
 
-        :param device_type: audio or video
-        :param direction: source or sink
-        :return: True if the default device is virtual
+        :param device: audio src/snk or video src
+        :return: True if the default device is real
         """
+        device_type, direction = device.split("-")
         wpctl_status_out = subprocess.check_output(
             [
                 "wpctl",
@@ -601,9 +600,7 @@ class PipewireTest:
                 "Unexpected return type from 'pw-dump {}'".format(
                     default_device_id
                 )
-                + ", expected list[dict[str, Any]], got {}".format(
-                    type(pw_dump_json)
-                )
+                + ", expected list, got {}".format(type(pw_dump_json))
             )
         assert len(pw_dump_json) >= 1
 
@@ -624,40 +621,47 @@ class PipewireTest:
 
         try:
             # type: dict[str, t.Any]
-            pw_props = real["info"]["props"]
-            assert type(pw_props) is dict
+            node_props = real["info"]["props"]
+            node_description = str(node_props["node.description"])
+            assert type(node_props) is dict
 
-            if pw_props.get("node.virtual") is True:
+            if node_props.get("node.virtual") is True:
                 # note that v4l2loopback devices do not appear as virtual
                 # since the v4l2 device is what's actually virtual
                 # not the pipewire node
                 print(
-                    "Default {} {} (id={}) is a virtual device.".format(
-                        device_type, direction, default_device_id
+                    "Default {} {} '{}' (id={}) is a virtual device".format(
+                        device_type,
+                        direction,
+                        node_description,
+                        default_device_id,
                     ),
                     file=sys.stderr,
                 )
                 return False  # explicit virtual device
-            if str(pw_props["node.description"]).lower() in (
-                "dummy output",
-                "dummy input",
+            if (
+                "dummy output" in node_description.lower()
+                or "dummy input" in node_description.lower()
             ):
                 # this happens when the audio device is completely unrecognized
                 # usually from missing alsa-ucm configs
                 print(
-                    "Default {} {} (id={}) is a dummy output.".format(
-                        device_type, direction, default_device_id
+                    "Default {} {} '{}' (id={}) is a dummy".format(
+                        device_type,
+                        direction,
+                        node_description,
+                        default_device_id,
                     ),
                     file=sys.stderr,
                 )
                 return False
 
             print(
-                "OK! '{}' (id={}) is a real {} {}".format(
-                    pw_props["node.description"],
-                    default_device_id,
+                "OK! Default {} {} '{}' (id={}) is a real device".format(
                     device_type,
                     direction,
+                    node_description,
+                    default_device_id,
                 )
             )
             return True
@@ -803,21 +807,12 @@ class PipewireTest:
             + "is a real, non-virtual/dummy node",
         )
         parser_is_real.add_argument(
-            "-t",
-            "--type",
-            type=str,
-            required=True,
-            choices=["audio", "video"],
-            help="Device type, audio or video. If video is selected, "
-            + "then --direction can't be sink",
-        )
-        parser_is_real.add_argument(
             "-d",
-            "--direction",
+            "--device",
             type=str,
             required=True,
-            choices=["source", "sink"],
-            help="Device direction, source or sink",
+            choices=["audio-source", "audio-sink", "video-source"],
+            help="Device type, audio source/sink or video source.",
         )
 
         return parser.parse_args(args)
@@ -845,7 +840,7 @@ class PipewireTest:
             # compare_wpctl_status(STATUS_1, STATUS_2)
             return self.compare_wpctl_status(args.status_1, args.status_2)
         elif args.test_type == "default_device_is_real":
-            if self.default_device_is_real(args.type, args.direction):
+            if self.default_device_is_real(args.device):
                 return 0
             else:
                 return 1

@@ -629,9 +629,9 @@ class PipewireTest:
                 # note that v4l2loopback devices do not appear as virtual
                 # since the v4l2 device is what's actually virtual
                 # not the pipewire node
-                
+
                 # this also catches the "Dummy Output" device that will appear
-                # as both input and output when the OS doesn't recognize the 
+                # as both input and output when the OS doesn't recognize the
                 # sound system at all
                 print(
                     "Default {} {} '{}' (id={}) is a virtual device".format(

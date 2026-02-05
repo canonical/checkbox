@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+from contextlib import suppress
 import difflib
 import json
 import logging
@@ -601,11 +602,10 @@ class PipewireTest:
         # even if we specify the exact ID
         real = None  # type: dict[str, t.Any] | None
         for elem in pw_dump_json:
-            if type(elem) is not dict:
-                continue
-            if elem.get("id") == default_device_id:
-                real = elem
-                break
+            with suppress(Exception):
+                if elem.get("id") == default_device_id:
+                    real = elem
+                    break
 
         assert (
             real is not None

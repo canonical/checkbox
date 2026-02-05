@@ -595,14 +595,7 @@ class PipewireTest:
             )
 
         pw_dump_json = json.loads(pw_dump_out)
-        if type(pw_dump_json) is not list:
-            raise SystemExit(
-                "Unexpected return type from 'pw-dump {}'".format(
-                    default_device_id
-                )
-                + ", expected list, got {}".format(type(pw_dump_json))
-            )
-        assert len(pw_dump_json) >= 1
+        assert type(pw_dump_json) is list and len(pw_dump_json) >= 1
 
         # sometimes pw-dump returns extra elements in pw_dump_json
         # even if we specify the exact ID
@@ -614,53 +607,45 @@ class PipewireTest:
                 real = elem
                 break
 
-        if real is None:
-            raise SystemExit(
-                "pw-dump did not return a JSON with id = {}".format(
-                    default_device_id
-                )
-            )
+        assert (
+            real is not None
+        ), "Pipewire did not return a JSON with id={}".format(
+            default_device_id
+        )
 
-        try:
-            # type: dict[str, t.Any]
-            node_props = real["info"]["props"]
-            node_description = str(node_props["node.description"])
-            assert type(node_props) is dict
+        
+        node_props = real["info"]["props"] # type: dict[str, t.Any]
+        node_description = str(node_props["node.description"])
+        assert type(node_props) is dict
 
-            if node_props.get("node.virtual") is True:
-                # note that v4l2loopback devices do not appear as virtual
-                # since the v4l2 device is what's actually virtual
-                # not the pipewire node
+        if node_props.get("node.virtual") is True:
+            # note that v4l2loopback devices do not appear as virtual
+            # since the v4l2 device is what's actually virtual
+            # not the pipewire node
 
-                # this also catches the "Dummy Output" device that will appear
-                # as both input and output when the OS doesn't recognize the
-                # sound system at all
-                print(
-                    "Default {} {} '{}' (id={}) is a virtual device".format(
-                        device_type,
-                        direction,
-                        node_description,
-                        default_device_id,
-                    ),
-                    file=sys.stderr,
-                )
-                return False  # explicit virtual device
-
+            # this also catches the "Dummy Output" device that will appear
+            # as both input and output when the OS doesn't recognize the
+            # sound system at all
             print(
-                "OK! Default {} {} '{}' (id={}) is a real device".format(
+                "Default {} {} '{}' (id={}) is a virtual device".format(
                     device_type,
                     direction,
                     node_description,
                     default_device_id,
-                )
+                ),
+                file=sys.stderr,
             )
-            return True
-        except KeyError as e:
-            raise SystemExit(
-                "Malformed JSON from pw-dump {}. {}".format(
-                    default_device_id, repr(e)
-                )
+            return False  # explicit virtual device
+
+        print(
+            "OK! Default {} {} '{}' (id={}) is a real device".format(
+                device_type,
+                direction,
+                node_description,
+                default_device_id,
             )
+        )
+        return True
 
     def _args_parsing(self, args=sys.argv[1:]):
         parser = argparse.ArgumentParser(

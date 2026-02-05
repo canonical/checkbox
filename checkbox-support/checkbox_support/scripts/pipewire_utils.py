@@ -450,7 +450,7 @@ class PipewireTest:
         except IndexError as e:
             raise RuntimeError("properties format error {}".format(repr(e)))
 
-    def show_default_device(self, device_type: str):
+    def show_default_device(self, device_type):
         """
         show the default device
 
@@ -489,7 +489,7 @@ class PipewireTest:
         except subprocess.CalledProcessError as e:
             raise RuntimeError("Show default device error {}".format(repr(e)))
 
-    def _sort_wpctl_status(self, lines: "list[str]") -> "list[str]":
+    def _sort_wpctl_status(self, lines: list) -> list:
         """
         This method will sort wpctl status for sub-items under catalog only
 

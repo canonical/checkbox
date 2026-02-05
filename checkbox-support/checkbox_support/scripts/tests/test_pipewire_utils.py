@@ -930,6 +930,20 @@ class DefaultDeviceIsRealTests(unittest.TestCase):
         mock_check_output.side_effect = fake_sp_check_output
         self.assertFalse(PipewireTest().default_device_is_real("audio-sink"))
 
+    @patch("subprocess.check_output")
+    def test_empty_pw_dump(self, mock_check_output: MagicMock):
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_dummy.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                return ""
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        with self.assertRaises(SystemExit):
+            PipewireTest().default_device_is_real("audio-sink")
+
 
 class ArgsParsingTests(unittest.TestCase):
     def test_success(self):

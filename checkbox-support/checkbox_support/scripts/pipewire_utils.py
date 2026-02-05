@@ -629,6 +629,10 @@ class PipewireTest:
                 # note that v4l2loopback devices do not appear as virtual
                 # since the v4l2 device is what's actually virtual
                 # not the pipewire node
+                
+                # this also catches the "Dummy Output" device that will appear
+                # as both input and output when the OS doesn't recognize the 
+                # sound system at all
                 print(
                     "Default {} {} '{}' (id={}) is a virtual device".format(
                         device_type,
@@ -639,22 +643,6 @@ class PipewireTest:
                     file=sys.stderr,
                 )
                 return False  # explicit virtual device
-            if (
-                "dummy output" in node_description.lower()
-                or "dummy input" in node_description.lower()
-            ):
-                # this happens when the audio device is completely unrecognized
-                # usually from missing alsa-ucm configs
-                print(
-                    "Default {} {} '{}' (id={}) is a dummy".format(
-                        device_type,
-                        direction,
-                        node_description,
-                        default_device_id,
-                    ),
-                    file=sys.stderr,
-                )
-                return False
 
             print(
                 "OK! Default {} {} '{}' (id={}) is a real device".format(

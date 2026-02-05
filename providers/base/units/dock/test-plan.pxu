@@ -1,18 +1,3 @@
-id: dock-cert-full
-unit: test plan
-_name: Dock Cert tests
-_description:
-  Cert tests for dock devices.
-include:
-  dock/init-connection                                    certification-status=blocker
-nested_part:
-  dock-all-init-cert
-  dock-all-reboot-cert
-  dock-all-hotplug-cert
-  dock-all-poweroff-cert
-  dock-all-suspend-cert
-  dock-all-suspend-hotplug-cert
-
 id: dock-all-init-cert
 unit: test plan
 _name: Dock Cert tests after init

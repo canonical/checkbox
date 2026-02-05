@@ -109,7 +109,7 @@ command:
   if check_audio_daemon.sh ; then
     set -e 
     checkbox-support-pipewire-utils show -t audio
-    checkbox-support-pipewire-utils default_device_is_real -t audio -d sink
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -487,8 +487,8 @@ command:
   if check_audio_daemon.sh ; then
     set -e 
     checkbox-support-pipewire-utils show -t audio
-    checkbox-support-pipewire-utils default_device_is_real -t audio -d source
-    checkbox-support-pipewire-utils default_device_is_real -t audio -d sink
+    checkbox-support-pipewire-utils default_device_is_real -d audio-source
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     alsa_record_playback.sh
     EXIT_CODE=$?
   else

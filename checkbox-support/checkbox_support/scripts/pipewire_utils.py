@@ -616,7 +616,9 @@ class PipewireTest:
 
         if real is None:
             raise SystemExit(
-                "pw-dump did not return a JSON with id = {}", default_device_id
+                "pw-dump did not return a JSON with id = {}".format(
+                    default_device_id
+                )
             )
 
         try:

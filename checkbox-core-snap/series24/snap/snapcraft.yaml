@@ -110,6 +110,34 @@ parts:
     build-snaps:
       - go/latest/stable
   ################################################################################
+  # statically linked nsenter as plz-run launches nsenter outside of the namespace
+  # so if the user is using a different base / os with a different version of
+  # glibc, nsenter won't work at all.
+  static-nsenter:
+    plugin: nil
+    source-tag: "v2.41.1"
+    source-depth: 1
+    source: https://github.com/util-linux/util-linux.git
+    build-packages:
+      - build-essential
+      - libcap-ng-dev
+      - git
+      - autoconf
+      - automake
+      - libtool
+      - gettext
+      - bison
+      - pkg-config
+      - flex
+      - autopoint
+    override-build: |
+      snapcraftctl build
+      ./autogen.sh
+      ./configure --disable-all-programs --enable-nsenter --enable-setpriv \
+        --enable-static-programs=nsenter
+      make LDFLAGS="-static -all-static"
+      install -D -m 755 nsenter.static "$CRAFT_PART_INSTALL/usr/bin/nsenter.static"
+  ################################################################################
   fwts:
     source-tag: "V25.07.00"
     source-depth: 1

@@ -37,8 +37,10 @@ from typing import (
     Set,
     Tuple,
 )
-from checkbox_support.monitor_config import MonitorConfig
+
 from gi.repository import Gio, GLib  # type: ignore
+
+from checkbox_support.monitor_config import MonitorConfig
 
 
 class Transform(IntEnum):
@@ -117,7 +119,6 @@ _PhysicalMonitorT = NamedTuple(
 
 
 class PhysicalMonitor(_PhysicalMonitorT):
-
     @classmethod
     def from_variant(cls, v: GLib.Variant):
         # not going to do extensive checks here
@@ -281,6 +282,7 @@ class MonitorConfigGnome(MonitorConfig):
             monitor.info.connector: mode.resolution
             for monitor in state.physical_monitors
             for mode in monitor.modes
+            if mode.is_current
         }
 
     def set_extended_mode(self) -> Dict[str, str]:
@@ -342,7 +344,7 @@ class MonitorConfigGnome(MonitorConfig):
         cycle_transforms: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
         post_cycle_action: Callable[..., Any] = lambda *a, **k: sleep(5),
-        **post_cycle_action_kwargs: Any
+        **post_cycle_action_kwargs: Any,
     ):
         """Automatically cycle through the supported monitor configurations.
 

@@ -22,13 +22,14 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 from pathlib import Path
-
-sys.modules["gi"] = MagicMock()
-sys.modules["gi.repository"] = MagicMock()
 from checkbox_support.scripts.pipewire_utils import (
     PipewireTest,
     PipewireTestError,
 )
+
+sys.modules["gi"] = MagicMock()
+sys.modules["gi.repository"] = MagicMock()
+
 
 TEST_DATA_DIR = Path(__file__).parent / "test_data"
 
@@ -1091,7 +1092,7 @@ class FunctionSelectTests(unittest.TestCase):
             pt = PipewireTest()
             args = ["default_device_is_real", "-d", "video-source"]
             rv = pt.function_select(pt._args_parsing(args))
-            self.assertEqual(rv, 0)
+            self.assertEqual(rv, PipewireTestError.NO_ERROR)
         with patch(
             "checkbox_support.scripts.pipewire_utils.PipewireTest.default_device_is_real",
             return_value=False,
@@ -1099,7 +1100,7 @@ class FunctionSelectTests(unittest.TestCase):
             pt = PipewireTest()
             args = ["default_device_is_real", "-d", "video-source"]
             rv = pt.function_select(pt._args_parsing(args))
-            self.assertEqual(rv, 1)
+            self.assertEqual(rv, PipewireTestError.NOT_REAL_DEVICE)
 
 
 if __name__ == "__main__":

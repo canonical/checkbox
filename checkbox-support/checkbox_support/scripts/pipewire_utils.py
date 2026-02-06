@@ -68,6 +68,7 @@ class PipewireTestError(IntEnum):
     NO_SPECIFIC_DEVICE = -3
     PIPELINE_PROCESS_FAIL = -4
     NO_CHANGE_DETECTED = -5
+    NOT_REAL_DEVICE = -6
 
 
 class PipewireTest:
@@ -815,9 +816,9 @@ class PipewireTest:
             return self.compare_wpctl_status(args.status_1, args.status_2)
         elif args.test_type == "default_device_is_real":
             if self.default_device_is_real(args.device):
-                return 0
+                return PipewireTestError.NO_ERROR
             else:
-                return 1
+                return PipewireTestError.NOT_REAL_DEVICE
 
 
 def main():

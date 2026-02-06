@@ -344,7 +344,7 @@ class MonitorConfigGnome(MonitorConfig):
         cycle_transforms: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
         post_cycle_action: Callable[..., Any] = lambda *a, **k: sleep(5),
-        **post_cycle_action_kwargs: Any,
+        **post_cycle_action_kwargs: Any
     ):
         """Automatically cycle through the supported monitor configurations.
 

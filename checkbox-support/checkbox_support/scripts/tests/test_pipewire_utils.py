@@ -22,13 +22,15 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 from pathlib import Path
-from checkbox_support.scripts.pipewire_utils import (
-    PipewireTest,
-    PipewireTestError,
-)
 
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
+
+# must mock gi and gi.repository before importing
+from checkbox_support.scripts.pipewire_utils import (  # noqa: E402
+    PipewireTest,
+    PipewireTestError,
+)
 
 
 TEST_DATA_DIR = Path(__file__).parent / "test_data"

@@ -458,6 +458,7 @@ class Provider1PlugInTests(TestCase):
         "data_dir = /some/directory/data\n"
         "bin_dir = /some/directory/bin\n"
         "locale_dir = /some/directory/locale\n"
+        "launchers_dir = /some/directory/launchers\n"
     )
 
     LOAD_TIME = 42
@@ -658,6 +659,7 @@ class Provider1Tests(TestCase):
     BIN_DIR = "bin-dir"
     LOCALE_DIR = "locale-dir"
     BASE_DIR = "base-dir"
+    LAUNCHERS_DIR = "launchers-dir"
 
     LOAD_TIME = 42
 
@@ -674,6 +676,7 @@ class Provider1Tests(TestCase):
             self.DATA_DIR,
             self.BIN_DIR,
             self.LOCALE_DIR,
+            self.LAUNCHERS_DIR,
             self.BASE_DIR,
             # We are using dummy job definitions so let's not shout about those
             # being invalid in each test
@@ -886,6 +889,7 @@ class Provider1Tests(TestCase):
             self.DATA_DIR,
             self.BIN_DIR,
             self.LOCALE_DIR,
+            self.LAUNCHERS_DIR,
             self.BASE_DIR,
         )
         mock_gettext.bindtextdomain.assert_called_once_with(
@@ -910,6 +914,7 @@ class Provider1Tests(TestCase):
             self.DATA_DIR,
             self.BIN_DIR,
             locale_dir=None,
+            launchers_dir=self.LAUNCHERS_DIR,
             base_dir=self.BASE_DIR,
         )
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])
@@ -932,6 +937,7 @@ class Provider1Tests(TestCase):
             self.DATA_DIR,
             self.BIN_DIR,
             locale_dir=None,
+            launchers_dir=self.LAUNCHERS_DIR,
             base_dir="/snap/checkbox24/current/providers/some-provider",
         )
         self.assertFalse(provider.custom_frontend_provider)
@@ -950,6 +956,7 @@ class Provider1Tests(TestCase):
             self.DATA_DIR,
             self.BIN_DIR,
             locale_dir=None,
+            launchers_dir=self.LAUNCHERS_DIR,
             base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
         )
         self.assertTrue(provider.custom_frontend_provider)
@@ -974,6 +981,7 @@ class Provider1Tests(TestCase):
             self.DATA_DIR,
             self.BIN_DIR,
             locale_dir=None,
+            launchers_dir=self.LAUNCHERS_DIR,
             base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
         )
         self.assertGreater(len(provider.extra_PYTHONPATH), 0)
@@ -998,6 +1006,7 @@ class Provider1Tests(TestCase):
             self.DATA_DIR,
             self.BIN_DIR,
             locale_dir=None,
+            launchers_dir=self.LAUNCHERS_DIR,
             base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
         )
         self.assertGreater(len(provider.extra_PATH), 0)
@@ -1026,6 +1035,7 @@ class Provider1Tests(TestCase):
             self.DATA_DIR,
             self.BIN_DIR,
             locale_dir=None,
+            launchers_dir=self.LAUNCHERS_DIR,
             base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
         )
         self.assertGreater(len(provider.extra_LD_LIBRARY_PATH), 0)

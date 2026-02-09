@@ -586,6 +586,12 @@ class IncludeStmt(Node):
                 return Error(lineno, col_offset, _("expected ','"))
         return IncludeStmt(lineno, col_offset, pattern, overrides)
 
+    @staticmethod
+    def from_preparsed(include, lineno=1):
+        if isinstance(include, str):
+            return IncludeStmt(lineno, 0, Re.parse(include), [])
+        raise SystemExit("Not supported yet")
+
 
 class IncludeStmtList(Node):
     """node representing a list of include statements"""
@@ -631,6 +637,23 @@ class IncludeStmtList(Node):
                 continue
             entries.append(IncludeStmt.parse(line, lineno, col_offset))
         return IncludeStmtList(initial_lineno, col_offset, entries)
+
+    @staticmethod
+    def from_preparsed(include_list: list, lineno: int = 1):
+        """
+        Create AST nodes from a pre-parsed input
+
+        This is used because in YAML we no longer need to re-parse the text,
+        the work was already done by the YAML parser itself.
+        """
+        return IncludeStmtList(
+            lineno,
+            0,
+            entries=[
+                IncludeStmt.from_preparsed(include, i)
+                for (i, include) in enumerate(include_list, lineno)
+            ],
+        )
 
 
 class WordList(Node):

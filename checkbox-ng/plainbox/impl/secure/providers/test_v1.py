@@ -39,7 +39,7 @@ from plainbox.impl.secure.providers.v1 import (
     Provider1Definition,
     Provider1PlugIn,
     ProviderContentLoader,
-    UnitPlugIn,
+    RFC822UnitPlugIn,
     VersionValidator,
     get_secure_custom_frontend_PROVIDERPATH_list,
 )
@@ -582,7 +582,7 @@ class UnitPlugInTests(TestCase):
             Mock("plugin_cls"),
         )
         self.provider.namespace = "com.canonical.plainbox"
-        self.plugin = UnitPlugIn(
+        self.plugin = RFC822UnitPlugIn(
             "/path/to/jobs.txt",
             ("id: test/job\n" "plugin: shell\n" "command: true\n"),
             self.LOAD_TIME,
@@ -635,7 +635,7 @@ class UnitPlugInTests(TestCase):
         """
         # The pattern is purposefully invalid
         with self.assertRaises(PlugInError) as boom:
-            UnitPlugIn(
+            RFC822UnitPlugIn(
                 "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider
             )
         self.assertEqual(

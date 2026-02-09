@@ -457,7 +457,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         second.
         """
         value = self.get_record_value("estimated_duration")
-        # NOTE: Some tests do that, I'd rather not change them now
+        # NOTE: yaml units do this
         if isinstance(value, (int, float)):
             return value
         elif value is None:
@@ -572,8 +572,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         Return a set of flags associated with this job
         """
+        # legacy jinja or pxu support
         if self.flags is not None:
-            return {flag for flag in re.split(r"[\s,]+", self.flags)}
+            if isinstance(self.flags, str):
+                return {flag for flag in re.split(r"[\s,]+", self.flags)}
+            return self.flags
         else:
             return set()
 

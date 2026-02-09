@@ -25,6 +25,7 @@ import os
 from io import StringIO
 
 from checkbox_support.scripts.fwts_test import (
+    get_fwts_base_cmd,
     print_log,
     main,
     filter_available_tests,
@@ -589,3 +590,50 @@ class GetAvailableFwtsTestsTest(unittest.TestCase):
         result = get_available_fwts_tests()
 
         self.assertEqual(result, set())
+
+
+class TestGetFwtsBaseCommand(unittest.TestCase):
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_deb_environment(self):
+        result = get_fwts_base_cmd()
+        expected = "fwts"
+        self.assertEqual(result, expected)
+
+    @patch.dict(
+        os.environ,
+        {
+            "CHECKBOX_RUNTIME": "/snap/checkbox/20486/checkbox-runtime",
+            "SNAP": "/snap/checkbox/20486",
+        },
+        clear=True,
+    )
+    @patch("checkbox_support.scripts.fwts_test.Path.exists")
+    def test_snap_env_happy_path(self, mock_exists: MagicMock):
+        mock_exists.return_value = True
+
+        result = get_fwts_base_cmd()
+
+        expected_dir = "/snap/checkbox/20486/checkbox-runtime/share/fwts"
+        expected_cmd = "fwts -j {}".format(expected_dir)
+        self.assertEqual(result, expected_cmd)
+
+    @patch.dict(
+        os.environ,
+        {
+            "CHECKBOX_RUNTIME": "/snap/checkbox24/current/",
+            "SNAP": "/snap/checkbox-20735/",
+        },
+    )
+    @patch("checkbox_support.scripts.fwts_test.Path.exists")
+    def test_snap_env_missing_dir(self, mock_exists: MagicMock):
+        mock_exists.return_value = False
+
+        with self.assertRaises(SystemExit) as cm:
+            get_fwts_base_cmd()
+
+        self.assertIn("doesn't exist", str(cm.exception))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -18,7 +18,6 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from subprocess import PIPE
 
 from tempfile import NamedTemporaryFile
 import os
@@ -58,9 +57,7 @@ class LogPrinterTest(unittest.TestCase):
 class TestGetFwtsBaseCommand(unittest.TestCase):
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("checkbox_support.scripts.fwts_test.in_classic_snap")
-    def test_deb_environment(self, mock_in_classic_snap: MagicMock):
-        mock_in_classic_snap.return_value = False
+    def test_deb_environment(self):
         result = get_fwts_base_cmd()
         expected = "fwts"
         self.assertEqual(result, expected)
@@ -68,24 +65,14 @@ class TestGetFwtsBaseCommand(unittest.TestCase):
     @patch.dict(
         os.environ,
         {
-            "CHECKBOX_RUNTIME": "\n".join(
-                [
-                    "/snap/checkbox24/1437",
-                    "/snap/checkbox/20486/checkbox-runtime",
-                    "/snap/checkbox/20486/providers/blah-blah",
-                ]
-            ),
+            "CHECKBOX_RUNTIME": "/snap/checkbox/20486/checkbox-runtime",
             "SNAP": "/snap/checkbox/20486",
         },
         clear=True,
     )
-    @patch("checkbox_support.scripts.fwts_test.in_classic_snap")
     @patch("checkbox_support.scripts.fwts_test.Path.exists")
-    def test_snap_env_happy_path(
-        self, mock_exists: MagicMock, mock_in_classic_snap: MagicMock
-    ):
+    def test_snap_env_happy_path(self, mock_exists: MagicMock):
         mock_exists.return_value = True
-        mock_in_classic_snap.return_value = False
 
         result = get_fwts_base_cmd()
 
@@ -100,13 +87,9 @@ class TestGetFwtsBaseCommand(unittest.TestCase):
             "SNAP": "/snap/checkbox-20735/",
         },
     )
-    @patch("checkbox_support.scripts.fwts_test.in_classic_snap")
     @patch("checkbox_support.scripts.fwts_test.Path.exists")
-    def test_snap_env_missing_dir(
-        self, mock_exists: MagicMock, mock_in_classic_snap: MagicMock
-    ):
+    def test_snap_env_missing_dir(self, mock_exists: MagicMock):
         mock_exists.return_value = False
-        mock_in_classic_snap.return_value = True
 
         with self.assertRaises(SystemExit) as cm:
             get_fwts_base_cmd()

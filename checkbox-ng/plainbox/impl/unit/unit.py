@@ -668,6 +668,14 @@ class Unit(metaclass=UnitType):
             return {key: frozenset() for key in self._data}
 
     @classmethod
+    def from_yaml_unit_data(cls, unit_data, provider=None, origin=None):
+        return cls(
+            unit_data,
+            origin,
+            provider=provider,
+        )
+
+    @classmethod
     def from_rfc822_record(cls, record, provider=None):
         """
         Create a new Unit from RFC822 record. The resulting instance may not be

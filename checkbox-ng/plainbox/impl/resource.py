@@ -202,7 +202,7 @@ class ResourceProgram:
     This is used by job requirement expressions
     """
 
-    def __init__(self, program_text, implicit_namespace=None, imports=None):
+    def __init__(self, program_value, implicit_namespace=None, imports=None):
         """
         Analyze the requirement program and prepare it for execution
 
@@ -213,11 +213,15 @@ class ResourceProgram:
         SyntaxError
         """
         self._expression_list = []
-        for line in program_text.splitlines():
-            if line.strip() != "":
-                self._expression_list.append(
-                    ResourceExpression(line, implicit_namespace, imports)
-                )
+        if isinstance(program_value, str):
+            program_lines = (x.strip() for x in program_value.splitlines())
+            program_lines = filter(bool, program_lines)
+        else:
+            program_lines = program_value
+        for line in program_lines:
+            self._expression_list.append(
+                ResourceExpression(line, implicit_namespace, imports)
+            )
 
     @property
     def expression_list(self):

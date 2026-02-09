@@ -446,7 +446,7 @@ class TestPlanUnit(UnitWithId):
                 offset = field_origin.with_offset(lineno_offset)
                 yield FieldQualifier(matcher_field, matcher, offset, inclusive)
 
-    def parse_matchers(self, text):
+    def parse_matchers(self, include_value):
         """
         Parse the specified text and create a list of matchers
 
@@ -525,7 +525,11 @@ class TestPlanUnit(UnitWithId):
                 self.results.append(result)
 
         visitor = IncludeStmtVisitor()
-        visitor.visit(IncludeStmtList.parse(text, 0, 0))
+        if isinstance(include_value, str):
+            parsed = IncludeStmtList.parse(include_value, 0, 0)
+        else:
+            parsed = IncludeStmtList.from_preparsed(include_value)
+        visitor.visit(parsed)
         return visitor.results
 
     @instance_method_lru_cache(maxsize=None)
@@ -794,7 +798,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             )
         return results
 
-    def _get_matchers(self, testplan, text):
+    def _get_matchers(self, testplan, field_value):
         """
         Parse the specified text and create a list of matchers
 
@@ -835,7 +839,13 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
                 result = (node.lineno, "id", matcher)
                 results.append(result)
 
-        V().visit(IncludeStmtList.parse(text, 0))
+        if isinstance(field_value, str):
+            parsed = IncludeStmtList.parse(field_value)
+        elif isinstance(field_value, list):
+            parsed = IncludeStmtList.from_preparsed(field_value)
+        else:
+            assert False
+        V().visit(parsed)
         return results
 
     def _get_override_list(
@@ -966,8 +976,14 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             testplan.include,
         )
         for section in include_sections:
-            if section:
-                V().visit(IncludeStmtList.parse(section))
+
+            if section and isinstance(section, str):
+                parsed = IncludeStmtList.parse(section)
+            elif section and isinstance(section, list):
+                parsed = IncludeStmtList.from_preparsed(section)
+            else:
+                continue
+            V().visit(parsed)
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_inline_overrides(tp_unit))
         return override_list

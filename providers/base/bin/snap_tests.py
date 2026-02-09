@@ -26,7 +26,7 @@ except KeyError:
         TEST_SNAP = "test-snapd-tools-core22"
     elif "checkbox24" in runtime:
         TEST_SNAP = "test-snapd-tools-core24"
-    # This needs to be uncommented once test-snapd-tools-core26 will have a stable version.
+    # Uncomment once test-snapd-tools-core26 will have a stable version.
     # elif "checkbox26" in runtime:
     #     TEST_SNAP = "test-snapd-tools-core26"
     else:

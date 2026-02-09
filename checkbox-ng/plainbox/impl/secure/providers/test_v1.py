@@ -21,6 +21,7 @@ plainbox.impl.secure.providers.test_v1
 
 Test definitions for plainbox.impl.secure.providers.v1 module
 """
+
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
 from pathlib import Path
@@ -777,9 +778,9 @@ class Provider1Tests(TestCase):
     @patch("os.getenv", new=Mock(return_value=None))
     def test_extra_PYTHONPATH(self):
         """
-        Verify that Provider1.extra_PYTHONPATH is always None
+        Verify that Provider1.extra_PYTHONPATH is always empty in unittests
         """
-        self.assertIsNone(self.provider.extra_PYTHONPATH)
+        self.assertFalse(self.provider.extra_PYTHONPATH)
 
     def test_fake(self):
         """

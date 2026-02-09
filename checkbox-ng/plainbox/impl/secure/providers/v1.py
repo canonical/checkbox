@@ -24,12 +24,14 @@
 :mod:`plainbox.impl.secure.providers.v1` -- Implementation of V1 provider
 =========================================================================
 """
+
 import collections
 import gettext
 import logging
 import os
 import sys
 from pathlib import Path
+from collections import defaultdict
 
 from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
@@ -55,9 +57,9 @@ from plainbox.impl.unit import all_units
 from plainbox.impl.unit.file import FileRole
 from plainbox.impl.unit.file import FileUnit
 from plainbox.impl.unit.testplan import TestPlanUnit
+from plainbox.impl.unit.unit import on_ubuntucore
 from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
-
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
 
@@ -1098,18 +1100,52 @@ class Provider1(IProvider1):
         return [str(path) for path in frontend_paths if path.exists()]
 
     @property
+    def extra_snap_environment(self) -> dict:
+        """
+        Additional environment variables from `$PROVIDER_ROOT/extra_environment`
+
+        $PROVIDER_ROOT is either $SNAP if test comes from a runtime provider
+        or custom_frontend_root
+        """
+        if not on_ubuntucore():
+            return {}
+        provider_snap_root = Path(os.environ["SNAP"])
+        if self.custom_frontend_provider:
+            provider_snap_root = self.custom_frontend_root
+        extra_environment_path = provider_snap_root / "extra_environment"
+        if not extra_environment_path.exists():
+            return {}
+        with extra_environment_path.open("r") as f:
+            lines = (l.strip() for l in f if not l.startswith("#"))
+            # allow empty lines
+            lines = list(filter(bool, lines))
+        to_r = defaultdict(list)
+        for line in lines:
+            try:
+                key, value = line.split("+=", maxsplit=1)
+                key = key.strip()
+                value = value.strip()
+                if value.startswith("/"):
+                    value = value[1:]
+                to_r[key].append(str(provider_snap_root / value))
+            except ValueError:
+                logger.error(
+                    "Ignoring malformed line in extra_environment {}".format(
+                        line
+                    )
+                )
+        return dict(to_r)
+
+    @property
     def extra_PYTHONPATH(self) -> list:
         """
         additional entry for PYTHONPATH, if needed.
 
         This entry is required for CheckBox scripts to import the correct
         CheckBox python libraries.
-
-        .. note::
-            The result may be None
         """
         if not self.custom_frontend_provider:
-            return None
+            return []
         python_name = "python{}.{}".format(
             sys.version_info.major, sys.version_info.minor
         )

@@ -96,6 +96,21 @@ parts:
     stage:
       - version.txt
 ################################################################################
+  extra-environment:
+    plugin: nil
+    override-pull: |
+      echo "#fwts is in /lib/fwts instead of /lib
+      LD_LIBRARY_PATH+=/lib/fwts
+      # lapack and blas are pulled by opencv and install libraries in a directory
+      LD_LIBRARY_PATH+=/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack
+      LD_LIBRARY_PATH+=/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas
+      # GLIB object paths are ofc. not default as well
+      GI_TYPELIB_PATH+=/usr/lib/girepository-1.0
+      GI_TYPELIB_PATH+=/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/girepository-1.0
+      " >> $SNAPCRAFT_PART_INSTALL/extra_environment
+    stage:
+      - extra_environment
+################################################################################
   plz-run:
     plugin: go
     source: https://github.com/Hook25/plz-run.git

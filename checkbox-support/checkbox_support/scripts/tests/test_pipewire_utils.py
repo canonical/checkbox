@@ -22,6 +22,7 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 from pathlib import Path
+import json
 
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
@@ -968,6 +969,23 @@ class DefaultDeviceIsRealTests(unittest.TestCase):
                     return f.read()
             elif args[0][0] == "pw-dump":
                 return ""
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        with self.assertRaises(SystemExit):
+            PipewireTest().default_device_is_real("audio-sink")
+
+    @patch("subprocess.check_output")
+    def test_no_such_id(self, mock_check_output: MagicMock):
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_happy_path.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                with (TEST_DATA_DIR / "pw_dump_happy_path.txt").open() as f:
+                    original = json.load(f)
+                    original[0]["id"] = 61
+                    return json.dumps(original)
             raise RuntimeError("unexpected arg: {}".format(args))
 
         mock_check_output.side_effect = fake_sp_check_output

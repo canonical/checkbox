@@ -624,6 +624,7 @@ class TestGetFwtsBaseCommand(unittest.TestCase):
             "CHECKBOX_RUNTIME": "/snap/checkbox24/current/",
             "SNAP": "/snap/checkbox-20735/",
         },
+        clear=True,
     )
     @patch("checkbox_support.scripts.fwts_test.Path.exists")
     def test_snap_env_missing_dir(self, mock_exists: MagicMock):

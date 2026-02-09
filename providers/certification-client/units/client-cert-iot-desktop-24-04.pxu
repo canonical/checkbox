@@ -153,7 +153,6 @@ nested_part:
   monitor-discrete-gpu-cert-automated
   monitor-integrated-gpu-cert-automated
   networking-automated
-  power-automated
   qep-automated
   rtc-automated
   self-automated
@@ -167,7 +166,6 @@ nested_part:
   tpm-cert-automated
   usb-automated
   usb-dwc3-automated
-  watchdog-automated
   wireless-automated
   wireless-wifi-master-mode-auto
   wwan-automated
@@ -186,6 +184,8 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
+  power-automated
+  watchdog-automated
 certification_status_overrides:
   apply blocker to .*
 

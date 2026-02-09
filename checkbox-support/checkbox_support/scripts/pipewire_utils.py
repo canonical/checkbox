@@ -599,8 +599,8 @@ class PipewireTest:
         pw_dump_json = json.loads(pw_dump_out)
         if type(pw_dump_json) is not list or len(pw_dump_json) < 1:
             raise SystemExit(
-                "'pw-dump {}' did not return a list with >= 1 element".format(
-                    default_device_id
+                "'pw-dump {}' did not return a list with >= 1 element, got {}".format(
+                    default_device_id, pw_dump_out
                 )
             )
 
@@ -615,8 +615,8 @@ class PipewireTest:
 
         if real is None:
             raise SystemExit(
-                "Pipewire did not return a JSON with id={}".format(
-                    default_device_id
+                "Pipewire did not return a JSON with id={}, got {}".format(
+                    default_device_id, pw_dump_out
                 )
             )
 
@@ -638,6 +638,7 @@ class PipewireTest:
                     node_description,
                     default_device_id,
                 ),
+                'because it\'s marked as "node.virtual"',
                 file=sys.stderr,
             )
             return False  # explicit virtual device

@@ -597,26 +597,31 @@ class PipewireTest:
             )
 
         pw_dump_json = json.loads(pw_dump_out)
-        assert type(pw_dump_json) is list and len(pw_dump_json) >= 1
+        if type(pw_dump_json) is not list or len(pw_dump_json) < 1:
+            raise SystemExit(
+                "'pw-dump {}' did not return a list with >= 1 element".format(
+                    default_device_id
+                )
+            )
 
         # sometimes pw-dump returns extra elements in pw_dump_json
         # even if we specify the exact ID
         real = None  # type: dict[str, t.Any] | None
         for elem in pw_dump_json:
-            with suppress(Exception):
-                if elem.get("id") == default_device_id:
-                    real = elem
-                    break
+            # with suppress(Exception):
+            if type(elem) is dict and elem.get("id") == default_device_id:
+                real = elem
+                break
 
-        assert (
-            real is not None
-        ), "Pipewire did not return a JSON with id={}".format(
-            default_device_id
-        )
+        if real is None:
+            raise SystemExit(
+                "Pipewire did not return a JSON with id={}".format(
+                    default_device_id
+                )
+            )
 
         node_props = real["info"]["props"]  # type: dict[str, t.Any]
         node_description = str(node_props["node.description"])
-        assert type(node_props) is dict
 
         if node_props.get("node.virtual") is True:
             # note that v4l2loopback devices do not appear as virtual

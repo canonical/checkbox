@@ -188,7 +188,7 @@ def get_fwts_base_cmd() -> str:
                 + "but '{}' ".format(fwts_json_data_dir)
                 + "doesn't exist"
             )
-        return 'fwts -j "{}"'.format(fwts_json_data_dir)
+        return "fwts -j '{}'".format(fwts_json_data_dir)
     else:
         # deb, use the original command
         return "fwts"

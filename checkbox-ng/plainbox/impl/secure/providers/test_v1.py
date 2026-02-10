@@ -23,6 +23,8 @@ Test definitions for plainbox.impl.secure.providers.v1 module
 """
 
 from unittest import TestCase
+from collections import defaultdict
+from textwrap import dedent
 from unittest.mock import Mock, MagicMock, patch
 from pathlib import Path
 
@@ -1039,6 +1041,82 @@ class Provider1Tests(TestCase):
     def test_custom_frontend_root_value_error(self):
         with self.assertRaises(ValueError):
             self.provider.custom_frontend_root()
+
+    def test__parse_extra_environment_file(self):
+        extra_envvar_file = dedent("""# some comment
+        LD_LIBRARY_PATH+=some_path
+          # can also be indented
+          LD_LIBRARY_PATH += /some other path starts slash
+        PATH+=extra/path/location
+        malformed lines are ignored
+        """)
+
+        class PathMock(Path):
+            def read_text(self, *args, **kwargs):
+                return extra_envvar_file
+
+            def exists(self, **kwargs):
+                return True
+
+        path = PathMock("/frontend_root")
+        extra_env = Provider1._parse_extra_environment_file(path)
+
+        self.assertEqual(list(extra_env), ["LD_LIBRARY_PATH", "PATH"])
+        self.assertEqual(
+            extra_env["PATH"], ["/frontend_root/extra/path/location"]
+        )
+        self.assertEqual(
+            extra_env["LD_LIBRARY_PATH"],
+            [
+                "/frontend_root/some_path",
+                "/frontend_root/some other path starts slash",
+            ],
+        )
+
+    @patch("os.getenv")
+    def test_extra_snap_environment_not_snap(self, getenv):
+        getenv.return_value = None
+        self.assertFalse(Provider1.extra_snap_environment.func(MagicMock()))
+
+    @patch("os.getenv")
+    def test_extra_snap_environment_snap(self, getenv):
+        getenv.return_value = "/snap/checkbox24/current"
+        provider = MagicMock(custom_frontend_provider=True)
+        provider._parse_extra_environment_file.side_effect = [
+            defaultdict(
+                list,
+                {
+                    "LD_LIBRARY_PATH": [
+                        "/snap/checkbox24/current/some",
+                        "/snap/checkbox24/current/other",
+                    ]
+                },
+            ),
+            defaultdict(
+                list,
+                {
+                    "LD_LIBRARY_PATH": [
+                        "/snap/custom_frontend/current/some",
+                    ],
+                    "PATH": [
+                        "/snap/custom_frontend/random/bin/path",
+                    ],
+                },
+            ),
+        ]
+        self.assertEqual(
+            Provider1.extra_snap_environment.func(provider),
+            {
+                "LD_LIBRARY_PATH": [
+                    "/snap/custom_frontend/current/some",
+                    "/snap/checkbox24/current/some",
+                    "/snap/checkbox24/current/other",
+                ],
+                "PATH": [
+                    "/snap/custom_frontend/random/bin/path",
+                ],
+            },
+        )
 
 
 class CustomFrontendPROVIDERPATHTest(TestCase):

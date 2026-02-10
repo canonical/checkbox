@@ -1104,6 +1104,7 @@ class Provider1Tests(TestCase):
                 },
             ),
         ]
+        # Note the order, custom frontend variables have precedence
         self.assertEqual(
             Provider1.extra_snap_environment.func(provider),
             {

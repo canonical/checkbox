@@ -1062,7 +1062,7 @@ class Provider1Tests(TestCase):
             path = Path("/frontend_root")
             extra_env = Provider1._parse_extra_environment_file(path)
 
-        self.assertEqual(list(extra_env), ["LD_LIBRARY_PATH", "PATH"])
+        self.assertEqual(set(extra_env), {"LD_LIBRARY_PATH", "PATH"})
         self.assertEqual(
             extra_env["PATH"], ["/frontend_root/extra/path/location"]
         )

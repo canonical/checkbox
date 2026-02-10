@@ -1053,15 +1053,14 @@ class Provider1Tests(TestCase):
         """
         )
 
-        class PathMock(Path):
-            def read_text(self, *args, **kwargs):
-                return extra_envvar_file
+        with patch(
+            "pathlib.Path.read_text",
+            return_value=extra_envvar_file,
+        ):
+            from pathlib import Path
 
-            def exists(self, **kwargs):
-                return True
-
-        path = PathMock("/frontend_root")
-        extra_env = Provider1._parse_extra_environment_file(path)
+            path = Path("/frontend_root")
+            extra_env = Provider1._parse_extra_environment_file(path)
 
         self.assertEqual(list(extra_env), ["LD_LIBRARY_PATH", "PATH"])
         self.assertEqual(

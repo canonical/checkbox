@@ -140,6 +140,7 @@ nested_part:
   edac-automated
   eeprom-automated
   ethernet-automated
+  fscrypt-automated
   graphics-discrete-gpu-cert-automated
   graphics-integrated-gpu-cert-automated
   gpio-automated

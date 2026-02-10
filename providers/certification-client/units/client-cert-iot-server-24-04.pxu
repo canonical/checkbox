@@ -133,6 +133,7 @@ nested_part:
   edac-automated
   eeprom-automated
   ethernet-automated
+  fscrypt-automated
   gpio-automated
   iot-fwts-automated
   i2c-automated

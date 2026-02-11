@@ -1104,9 +1104,10 @@ class Provider1(IProvider1):
         return [str(path) for path in frontend_paths if path.exists()]
 
     @staticmethod
-    def _parse_extra_environment_file(path) -> defaultdict:
+    def _parse_extra_environment_file(source_root) -> defaultdict:
+        extra_environment = source_root / "extra_environment"
         try:
-            text = path.read_text()
+            text = extra_environment.read_text()
         except FileNotFoundError:
             return defaultdict(list)
         lines = text.splitlines()
@@ -1121,7 +1122,7 @@ class Provider1(IProvider1):
                 value = value.strip()
                 if value.startswith("/"):
                     value = value[1:]
-                to_r[key].append(str(path / value))
+                to_r[key].append(str(source_root / value))
             except ValueError:
                 logger.error(
                     "Ignoring malformed line in extra_environment {}".format(
@@ -1145,15 +1146,13 @@ class Provider1(IProvider1):
         runtime_root = Path(runtime_root)
         # Always load the runtime ones as frontend assume that the dependencies
         # from the frontend are available
-        to_r = self._parse_extra_environment_file(
-            runtime_root / "extra_environment"
-        )
+        to_r = self._parse_extra_environment_file(runtime_root)
 
         if not self.custom_frontend_provider:
             return dict(to_r)
 
         custom_frontend_envvars = self._parse_extra_environment_file(
-            self.custom_frontend_root() / "extra_environment"
+            self.custom_frontend_root()
         )
 
         # give priority to the custom_frontend additions

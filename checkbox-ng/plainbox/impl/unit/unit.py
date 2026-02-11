@@ -717,6 +717,30 @@ class Unit(metaclass=UnitType):
         else:
             return {}
 
+    def _get_record_value_leaf(self, value):
+        if self.template_engine == "jinja2":
+            if self.is_parametric or self.unit != "template":
+                # Add the current system environment variables to the
+                # parameters so that they can be used in all fields (i.e. not
+                # just in the command shell). By adding here rather than in the
+                # template instantiation we avoid problems with creation of
+                # checkpoints
+                tmp_params = (self.parameters or {}).copy()
+                tmp_params.update(
+                    {
+                        "__checkbox_env__": self._checkbox_env(),
+                        "__system_env__": os.environ,
+                        "__on_ubuntucore__": on_ubuntucore(),
+                    }
+                )
+                value = Template(value).render(tmp_params)
+        elif self.is_parametric:
+            try:
+                value = string.Formatter().vformat(value, (), self.parameters)
+            except KeyError as e:
+                raise MissingParam(self.template_id, name, value, e.args[0])
+        return value
+
     @instance_method_lru_cache(maxsize=None)
     def get_record_value(self, name, default=None):
         """
@@ -733,39 +757,12 @@ class Unit(metaclass=UnitType):
         value = self._data.get("_{}".format(name))
         if value is None:
             value = self._data.get(name, default)
-        if value is not None and self.is_parametric:
-            if self.template_engine == "jinja2":
-                # Add the current system environment variables to the
-                # parameters so that they can be used in all fields (i.e. not
-                # just in the command shell). By adding here rather than in the
-                # template instantiation we avoid problems with creation of
-                # checkpoints
-                tmp_params = self.parameters.copy()
-                tmp_params.update({"__checkbox_env__": self._checkbox_env()})
-                tmp_params.update({"__system_env__": os.environ})
-                tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
-                value = Template(value).render(tmp_params)
-            else:
-                try:
-                    value = string.Formatter().vformat(
-                        value, (), self.parameters
-                    )
-                except KeyError as e:
-                    raise MissingParam(
-                        self.template_id, name, value, e.args[0]
-                    )
-        elif (
-            value is not None
-            and self.template_engine == "jinja2"
-            and not self.is_parametric
-            and not self.unit == "template"
-        ):
-            tmp_params = {
-                "__checkbox_env__": self._checkbox_env(),
-                "__system_env__": os.environ,
-                "__on_ubuntucore__": on_ubuntucore(),
-            }
-            value = Template(value).render(tmp_params)
+        if value is None:
+            return value
+        if isinstance(value, str):
+            value = self._get_record_value_leaf(value)
+        elif isinstance(value, list):
+            value = list(map(self._get_record_value_leaf, value))
         return value
 
     @instance_method_lru_cache(maxsize=None)

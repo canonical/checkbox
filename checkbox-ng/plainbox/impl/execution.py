@@ -887,8 +887,6 @@ def get_snap_mount_namespace_commands(target_user, shared_location):
         ]
     # these binaries are not reliably shipped / may not be in path
     runtime_path = get_checkbox_runtime_path()
-    # Note: on core16 we use dangerous nsenter, nsenter.static is not part of
-    #       the snap
     runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter.static"
 
     snap_name = os.getenv("SNAP_NAME", "checkbox")

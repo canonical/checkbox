@@ -1185,7 +1185,11 @@ class SessionState:
 
     def _add_job_siblings_unit(self, new_job, recompute, via):
         if new_job.siblings:
-            for overrides in json.loads(new_job.tr_siblings()):
+            siblings = new_job.siblings
+            if isinstance(siblings, str):
+                siblings = json.loads(siblings)
+
+            for overrides in siblings:
                 data = {
                     key: value
                     for key, value in new_job._data.items()
@@ -1210,20 +1214,31 @@ class SessionState:
                 for key, value in new_job._data.items()
                 if not key.endswith("siblings")
             }
-            data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
-            data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
+            if isinstance(data["flags"], str):
+                data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
+                data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
+            else:
+                with suppress(ValueError):
+                    data["flags"].remove(Suspend.AUTO_FLAG)
+                with suppress(ValueError):
+                    data["flags"].remove(Suspend.MANUAL_FLAG)
             data["id"] = "after-suspend-{}".format(new_job.partial_id)
 
             data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
-            if new_job.depends:
+
+            if isinstance(new_job.depends, list) or not new_job.depends:
+                data["depends"] = (new_job.depends or []) + [
+                    new_job.id,
+                    Suspend.AUTO_JOB_ID,
+                ]
+            elif new_job.depends:
                 data["depends"] += " {}".format(new_job.id)
-            else:
-                data["depends"] = "{}".format(new_job.id)
-            data["depends"] += " {}".format(Suspend.AUTO_JOB_ID)
-            if new_job.after:
+                data["depends"] += " {}".format(Suspend.AUTO_JOB_ID)
+
+            if isinstance(new_job.after, list) or not new_job.after:
+                data["after"] = (new_job.after or []) + [new_job.id]
+            elif new_job.after:
                 data["after"] += " {}".format(new_job.id)
-            else:
-                data["after"] = "{}".format(new_job.id)
             if new_job.group:
                 data["group"] = "after-suspend-{}".format(new_job.group)
             self._add_job_unit(
@@ -1248,15 +1263,19 @@ class SessionState:
             data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
             data["id"] = "after-suspend-manual-{}".format(new_job.partial_id)
             data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
-            if new_job.depends:
+            if isinstance(new_job.depends, list) or not new_job.depends:
+                data["depends"] = (new_job.depends or []) + [
+                    new_job.id,
+                    Suspend.MANUAL_JOB_ID,
+                ]
+            elif new_job.depends:
                 data["depends"] += " {}".format(new_job.id)
-            else:
-                data["depends"] = "{}".format(new_job.id)
-            data["depends"] += " {}".format(Suspend.MANUAL_JOB_ID)
-            if new_job.after:
+
+            if isinstance(new_job.after, list) or not new_job.after:
+                data["after"] = (new_job.after or []) + [new_job.id]
+            elif new_job.after:
                 data["after"] += " {}".format(new_job.id)
-            else:
-                data["after"] = "{}".format(new_job.id)
+
             if new_job.group:
                 data["group"] = "after-suspend-{}".format(new_job.group)
             self._add_job_unit(

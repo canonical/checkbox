@@ -588,9 +588,22 @@ class IncludeStmt(Node):
 
     @staticmethod
     def from_preparsed(include, lineno=1):
+        # in yaml, include is either a string (same meaning as before) or
+        # a map include : {override field : override value}
         if isinstance(include, str):
             return IncludeStmt(lineno, 0, Re.parse(include), [])
-        raise SystemExit("Not supported yet")
+        assert len(include) == 1, "Include is a non-single value map"
+        key, overrides = next(iter(include.items()))
+        overrides = [
+            OverrideExpression(
+                lineno,
+                0,
+                Text(lineno, 0, override[0]),
+                Text(lineno, 0, override[1]),
+            )
+            for override in overrides.items()
+        ]
+        return IncludeStmt(lineno, 0, Re.parse(key), overrides)
 
 
 class IncludeStmtList(Node):
@@ -728,3 +741,7 @@ class WordList(Node):
                     )
                 )
         return WordList(lineno, col_offset, entries)
+
+    @staticmethod
+    def from_preparsed(items: list, lineno: int = 1):
+        return WordList(lineno, 0, items)

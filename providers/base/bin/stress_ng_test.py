@@ -42,6 +42,11 @@ import uuid
 import psutil
 from checkbox_support.disk_support import Disk
 
+# Constants
+DEFAULT_OOM_AVOID = "10%"
+LOW_DEFAULT_OOM_AVOID = "5%"
+HIGH_MEM_THRESHOLD = 255
+
 # Swap filename
 my_swap = None
 
@@ -59,7 +64,7 @@ class StressNg:
         sng_timeout,
         thread_count=0,
         extra_options="",
-        oom_avoid_bytes="10%",
+        oom_avoid_bytes=DEFAULT_OOM_AVOID,
     ):
 
         self.stressors = stressors
@@ -255,10 +260,11 @@ def stress_memory(args):
 
     if args.oom_avoid_bytes is not None:
         oom_avoid_bytes = args.oom_avoid_bytes
-    elif total_mem_in_gb > 255:
-        oom_avoid_bytes = "5%"
+    elif total_mem_in_gb > HIGH_MEM_THRESHOLD:
+        oom_avoid_bytes = LOW_DEFAULT_OOM_AVOID
     else:
-        oom_avoid_bytes = "10%"
+        oom_avoid_bytes = DEFAULT_OOM_AVOID
+
     vrt = args.base_time + total_mem_in_gb * args.time_per_gig
     print("Total memory is {:.1f} GiB".format(total_mem_in_gb))
     print(
@@ -378,6 +384,17 @@ def stress_disk(args):
     ]
 
     retval = 0
+
+    ram = psutil.virtual_memory()
+    total_mem_in_gb = ram.total / (1024**3)
+
+    if args.oom_avoid_bytes is not None:
+        oom_avoid_bytes = args.oom_avoid_bytes
+    elif total_mem_in_gb > HIGH_MEM_THRESHOLD:
+        oom_avoid_bytes = LOW_DEFAULT_OOM_AVOID
+    else:
+        oom_avoid_bytes = DEFAULT_OOM_AVOID
+
     if "/dev" not in args.device and args.device != "":
         args.device = "/dev/" + args.device
 
@@ -405,6 +422,7 @@ def stress_disk(args):
                     sng_timeout=args.base_time,
                     wrapper_timeout=args.base_time * 5,
                     extra_options=disk_options,
+                    oom_avoid_bytes=oom_avoid_bytes,
                 )
                 retval = retval | test_object.run()
                 print(test_object.results)
@@ -495,6 +513,12 @@ def main():
         "--simulate",
         action="store_true",
         help="Report disk info, but don't run tests",
+    )
+    disk_parser.add_argument(
+        "--oom-avoid-bytes",
+        type=str,
+        help="OOM avoidance memory (default=10%%, 5%% for >255GB)",
+        default=None,
     )
 
     cpu_parser.set_defaults(func=stress_cpu)

@@ -35,7 +35,7 @@ from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.resource import ResourceProgram, parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit import concrete_validators
+from plainbox.impl.unit import concrete_validators, get_array_field_qualify
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import (
     CorrectFieldValueValidator,
@@ -576,7 +576,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         if self.flags is not None:
             if isinstance(self.flags, str):
                 return {flag for flag in re.split(r"[\s,]+", self.flags)}
-            return self.flags
+            return set(self.flags)
         else:
             return set()
 
@@ -654,20 +654,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         To combat a simple mistake where the jobs are space-delimited any
         mixture of white-space (including newlines) and commas are allowed.
         """
-        deps = set()
-        if self.depends is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse depends: %s"), node.msg)
-
-        V().visit(WordList.parse(self.depends))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.depends, "depends", self.qualify_id, logger
+            )
+        )
 
     def get_after_dependencies(self):
         """
@@ -684,20 +675,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         To combat a simple mistake where the jobs are space-delimited any
         mixture of white-space (including newlines) and commas are allowed.
         """
-        deps = set()
-        if self.after is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse after: %s"), node.msg)
-
-        V().visit(WordList.parse(self.after))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.after, "after", self.qualify_id, logger
+            )
+        )
 
     def get_before_dependencies(self):
         """
@@ -712,38 +694,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
             id: B      ->
             before: A      id: B
         """
-
-        deps = set()
-        if self.before is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse before: %s"), node.msg)
-
-        V().visit(WordList.parse(self.before))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.before, "before", self.qualify_id, logger
+            )
+        )
 
     def get_salvage_dependencies(self):
-        """Return a set of jobs that need to fail before this job can run."""
-        deps = set()
-        if self.salvages is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse depends: %s"), node.msg)
-
-        V().visit(WordList.parse(self.salvages))
-        return deps
+        """return a set of jobs that need to fail before this job can run."""
+        return set(
+            get_array_field_qualify(
+                self.salvages, "salvages", self.qualify_id, logger
+            )
+        )
 
     def get_resource_dependencies(self):
         """

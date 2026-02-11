@@ -103,7 +103,7 @@ template-id: disk/fstrim_name
 estimated_duration: 1.0
 user: root
 requires:
- block_device.rotation == 'no' and block_device.name == '{name}'
+ (block_device.fstrim == 'True' and block_device.name == '{name}')
 _summary: Filesystem TRIM check for {product_slug}
 _purpose: Take the path of the storage device and test its TRIM capabilities
 command: fstrim_test.py --device-file {name}

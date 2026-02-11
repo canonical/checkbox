@@ -57,19 +57,20 @@ def usb_support(name, version):
     return "unsupported"
 
 
-def device_rotation(name):
+def device_fstrim(name):
     """
-    Check the device queue/rotational parameter to determine if it's a spinning
-    device or a non-spinning device, which indicates it's an SSD.
+    Check the device hw maximum discard bytes value. If it's 0, fstrim is
+    not supported; if it's anything else, fstrim should work. Assume a
+    missing file is equivalent to a 0 value (no support).
     """
-    path = "/sys/block/{0}/device/block/{0}/queue/rotational".format(name)
+    path = "/sys/block/{}/queue/discard_max_bytes".format(name)
     if not os.path.exists(path):
-        return "no"
+        return "False"
     with open(path, "rt") as f:
-        if f.read(1) == "1":
-            return "yes"
+        if int(f.read()) > 0:
+            return "True"
 
-    return "no"
+    return "False"
 
 
 def smart_supporting_diskinfo(diskinfo) -> bool:
@@ -160,7 +161,7 @@ def main():
         state = device_state(disk_name)
         usb2 = usb_support(disk_name, 2.00)
         usb3 = usb_support(disk_name, 3.00)
-        rotation = device_rotation(disk_name)
+        fstrim = device_fstrim(disk_name)
         smart = smart_support(disk_name)
         resource_text = textwrap.dedent(
             """
@@ -168,14 +169,14 @@ def main():
             state: {state}
             usb2: {usb2}
             usb3: {usb3}
-            rotation: {rotation}
+            fstrim: {fstrim}
             smart: {smart}
             """.format(
                 disk_name=disk_name,
                 state=state,
                 usb2=usb2,
                 usb3=usb3,
-                rotation=rotation,
+                fstrim=fstrim,
                 smart=smart,
             )
         ).lstrip()

@@ -28,34 +28,32 @@ import operator
 import re
 
 from plainbox.i18n import gettext as _
-from plainbox.impl.decorators import cached_property
-from plainbox.impl.decorators import instance_method_lru_cache
-from plainbox.impl.secure.qualifiers import CompositeQualifier
-from plainbox.impl.secure.qualifiers import FieldQualifier
-from plainbox.impl.secure.qualifiers import OperatorMatcher
-from plainbox.impl.secure.qualifiers import PatternMatcher
+from plainbox.impl.decorators import cached_property, instance_method_lru_cache
+from plainbox.impl.secure.qualifiers import (
+    CompositeQualifier,
+    FieldQualifier,
+    OperatorMatcher,
+    PatternMatcher,
+)
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit import concrete_validators
+from plainbox.impl.unit import concrete_validators, get_array_field_qualify
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import FieldValidatorBase
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import ReferenceConstraint
-from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
-from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import compute_value_map
+from plainbox.impl.unit.validators import (
+    FieldValidatorBase,
+    ReferenceConstraint,
+    UnitReferenceValidator,
+    compute_value_map,
+)
 from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
-from plainbox.impl.xparsers import Error
-from plainbox.impl.xparsers import FieldOverride
-from plainbox.impl.xparsers import IncludeStmt
-from plainbox.impl.xparsers import IncludeStmtList
-from plainbox.impl.xparsers import OverrideFieldList
-from plainbox.impl.xparsers import ReFixed
-from plainbox.impl.xparsers import RePattern
-from plainbox.impl.xparsers import Text
-from plainbox.impl.xparsers import Visitor
-from plainbox.impl.xparsers import WordList
+from plainbox.impl.xparsers import (
+    FieldOverride,
+    IncludeStmt,
+    IncludeStmtList,
+    OverrideFieldList,
+    ReFixed,
+    RePattern,
+    Visitor,
+)
 
 logger = logging.getLogger("plainbox.unit.testplan")
 
@@ -282,20 +280,9 @@ class TestPlanUnit(UnitWithId):
     @instance_method_lru_cache(maxsize=None)
     def get_setup_job_ids(self):
         """Compute and return a set of job ids from setup_include field."""
-        job_ids = []
-        if self.setup_include is not None:
-
-            class V(Visitor):
-
-                def visit_Text_node(visitor, node: Text):
-                    job_ids.append(self.qualify_id(node.text))
-
-                def visit_Error_node(visitor, node: Error):
-                    logger.warning(
-                        _("unable to parse setup_include: %s"), node.msg
-                    )
-
-            V().visit(WordList.parse(self.setup_include))
+        job_ids = get_array_field_qualify(
+            self.get_setup_job_ids, "setup_include", self.qualify_id, logger
+        )
         for tp_unit in self.get_nested_part():
             job_ids.extend(tp_unit.get_setup_job_ids())
         return job_ids
@@ -303,20 +290,12 @@ class TestPlanUnit(UnitWithId):
     @instance_method_lru_cache(maxsize=None)
     def get_bootstrap_job_ids(self):
         """Compute and return a set of job ids from bootstrap_include field."""
-        job_ids = []
-        if self.bootstrap_include is not None:
-
-            class V(Visitor):
-
-                def visit_Text_node(visitor, node: Text):
-                    job_ids.append(self.qualify_id(node.text))
-
-                def visit_Error_node(visitor, node: Error):
-                    logger.warning(
-                        _("unable to parse bootstrap_include: %s"), node.msg
-                    )
-
-            V().visit(WordList.parse(self.bootstrap_include))
+        job_ids = get_array_field_qualify(
+            self.bootstrap_include,
+            "bootstrap_include",
+            self.qualify_id,
+            logger,
+        )
         for tp_unit in self.get_nested_part():
             job_ids.extend(tp_unit.get_bootstrap_job_ids())
         return job_ids
@@ -330,19 +309,9 @@ class TestPlanUnit(UnitWithId):
 
             with SessionManager.get_throwaway_manager(self.provider_list) as m:
                 context = m.default_device_context
-                testplan_ids = []
-
-                class V(Visitor):
-
-                    def visit_Text_node(visitor, node: Text):
-                        testplan_ids.append(self.qualify_id(node.text))
-
-                    def visit_Error_node(visitor, node: Error):
-                        logger.warning(
-                            _("unable to parse nested_part: %s"), node.msg
-                        )
-
-                V().visit(WordList.parse(self.nested_part))
+                testplan_ids = get_array_field_qualify(
+                    self.nested_part, "nested_part", self.qualify_id, logger
+                )
                 for tp_id in testplan_ids:
                     try:
                         nested_parts.append(
@@ -473,11 +442,15 @@ class TestPlanUnit(UnitWithId):
             expressions. The matcher uses the operator.eq operator (equality)
             and stores the expected job identifier as the right-hand-side value
         """
-        from plainbox.impl.xparsers import Error
-        from plainbox.impl.xparsers import ReErr, ReFixed, RePattern
-        from plainbox.impl.xparsers import IncludeStmt
-        from plainbox.impl.xparsers import IncludeStmtList
-        from plainbox.impl.xparsers import Visitor
+        from plainbox.impl.xparsers import (
+            Error,
+            IncludeStmt,
+            IncludeStmtList,
+            ReErr,
+            ReFixed,
+            RePattern,
+            Visitor,
+        )
 
         outer_self = self
 
@@ -547,10 +520,12 @@ class TestPlanUnit(UnitWithId):
         :raises ValueError:
             if there are any issues with the override declarations
         """
-        from plainbox.impl.xparsers import Error
-        from plainbox.impl.xparsers import FieldOverride
-        from plainbox.impl.xparsers import OverrideFieldList
-        from plainbox.impl.xparsers import Visitor
+        from plainbox.impl.xparsers import (
+            Error,
+            FieldOverride,
+            OverrideFieldList,
+            Visitor,
+        )
 
         outer_self = self
 

@@ -468,6 +468,40 @@ class TranslatorJobUnitTests(TranslatorTestCase):
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
+    def test_jinja_depends_ignored(self):
+        pxu_input = dedent(
+            """
+            id: test-job
+            _summary: A test job
+            depends:
+                {% if true %}
+                a
+                {% endif %}
+                b
+            plugin: shell
+            command: echo "test"
+            """
+        ).strip()
+
+        expected_yaml = dedent(
+            """
+            id: test-job
+            summary: A test job
+            depends: |
+                {% if true %}
+                a
+                {% endif %}
+                b
+            plugin: shell
+            command: echo "test"
+            """
+        ).strip()
+
+        result = self.run_translator(pxu_input)
+        expected = self.parse_yaml(expected_yaml)
+        self.assertYamlEqual(result, expected)
+
+
 
 class TranslatorTestPlanTests(TranslatorTestCase):
     def test_basic_test_plan(self):

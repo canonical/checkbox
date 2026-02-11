@@ -183,6 +183,7 @@ def translate_requires(value):
     return to_r
 
 
+@dont_translate_jinja
 def translate_single_multiline_stringable_values(value):
     from ruamel.yaml.comments import CommentedSeq
 

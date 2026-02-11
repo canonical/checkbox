@@ -15,3 +15,4 @@ These how-to guides cover key operations and processes in Checkbox.
    using-match
    using-groups
    ancient-python
+   custom-frontend-envvars

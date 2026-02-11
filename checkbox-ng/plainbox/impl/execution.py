@@ -541,6 +541,17 @@ class FakeJobRunner(UnifiedRunner):
         return builder.get_result()
 
 
+def add_to_environment(environment, key, values):
+    """
+    Modifies in place environment to add to `key` `values`
+    """
+    if not values:
+        return environment
+    current_value = environment.get(key, "").split(os.pathsep)
+    environment[key] = os.pathsep.join(values + current_value)
+    return environment
+
+
 def get_execution_environment(job, environ, session_id, nest_dir):
     """
     Get the environment required to execute the specified job:
@@ -583,39 +594,20 @@ def get_execution_environment(job, environ, session_id, nest_dir):
             env["TEXTDOMAINDIR"] = env["PLAINBOX_PROVIDER_LOCALE_DIR"] = (
                 job.provider.locale_dir
             )
-        if os.getenv("SNAP") or os.getenv("SNAP_APP_PATH"):
-            copy_vars = [
-                "PYTHONHOME",
-                "PYTHONUSERBASE",
-                "LD_LIBRARY_PATH",
-                "GI_TYPELIB_PATH",
-                "PERL5LIB",
-                "QT_PLUGIN_PATH",
-                "QT_QPA_PLATFORM",
-                "QT_QPA_PLATFORMTHEME",
-                "QT_DEBUG_PLUGINS",
-                "QML2_IMPORT_PATH",
-            ]
-            for key, value in env.items():
-                if key in copy_vars or key.startswith("SNAP"):
-                    env[key] = value
     # Use PATH that can lookup checkbox scripts
-    if job.provider.extra_PYTHONPATH:
-        env["PYTHONPATH"] = os.pathsep.join(
-            job.provider.extra_PYTHONPATH
-            + env.get("PYTHONPATH", "").split(os.pathsep)
-        )
+    env = add_to_environment(env, "PYTHONPATH", job.provider.extra_PYTHONPATH)
+
     # Inject nest_dir into PATH
-    env["PATH"] = os.pathsep.join(
-        [nest_dir]
-        + env.get("PATH", "").split(os.pathsep)
-        + job.provider.extra_PATH
+    env = add_to_environment(env, "PATH", [nest_dir] + job.provider.extra_PATH)
+
+    env = add_to_environment(
+        env, "LD_LIBRARY_PATH", job.provider.extra_LD_LIBRARY_PATH
     )
-    if job.provider.extra_LD_LIBRARY_PATH:
-        env["LD_LIBRARY_PATH"] = os.pathsep.join(
-            env.get("LD_LIBRARY_PATH", "").split(os.pathsep)
-            + job.provider.extra_LD_LIBRARY_PATH
-        )
+
+    # custom frontend / runtime may define extra envvars in this config file
+    for key, value in job.provider.extra_snap_environment.items():
+        env = add_to_environment(env, key, value)
+
     # Add per-session shared state directory
     env["PLAINBOX_SESSION_SHARE"] = WellKnownDirsHelper.session_share(
         session_id

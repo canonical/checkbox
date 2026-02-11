@@ -16,20 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import contextlib
-
 from pathlib import Path
+from unittest import TestCase, mock
 
 from plainbox.impl.execution import (
-    UnifiedRunner,
-    get_execution_command_systemd_unit,
-    get_execution_command_subshell,
-    dangerous_nsenter,
     MountingStrategy,
+    UnifiedRunner,
+    add_to_environment,
+    dangerous_nsenter,
+    get_execution_command_subshell,
+    get_execution_command_systemd_unit,
 )
 from plainbox.impl.unit.job import InvalidJob
-
-from unittest import TestCase, mock
 
 
 @contextlib.contextmanager
@@ -393,3 +393,23 @@ class TestMountingStrategy(TestCase):
             MountingStrategy.from_user_core("ubuntu", True, "core24"),
             MountingStrategy.MOUNT_AMBIENT_CAPABILITIES,
         )
+
+
+class TestAddToEnvironment(TestCase):
+    def test_no_values(self):
+        env = {}
+        self.assertEqual(env, add_to_environment(env, "some", []))
+
+    def test_not_present(self):
+        env = add_to_environment({}, "PATH", ["some", "path"])
+        self.assertIn("some", env["PATH"])
+        self.assertIn("path", env["PATH"])
+
+    def test_present(self):
+        og_path = os.pathsep.join(["og_path1", "og_path2"])
+        env = add_to_environment({"PATH": og_path}, "PATH", ["some", "path"])
+        new_path = env["PATH"].split(os.pathsep)
+        self.assertIn("og_path1", new_path)
+        self.assertIn("og_path2", new_path)
+        self.assertIn("some", new_path)
+        self.assertIn("path", new_path)

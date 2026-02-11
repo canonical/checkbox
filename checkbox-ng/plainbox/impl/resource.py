@@ -801,7 +801,9 @@ def parse_imports_stmt(imports):
                      AS <IDENTIFIER>
     """
     # Poor man's parser. Replace this with our own parser once we get one
-    for lineno, line in enumerate(imports.splitlines()):
+    if isinstance(imports, str):
+        imports = imports.splitlines()
+    for lineno, line in enumerate(imports):
         parts = line.split()
         if len(parts) not in (4, 6):
             raise ValueError(

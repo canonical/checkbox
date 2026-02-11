@@ -1042,7 +1042,7 @@ class Provider1Tests(TestCase):
         with self.assertRaises(ValueError):
             self.provider.custom_frontend_root()
 
-    def test__parse_extra_environment_file(self):
+    def test__parse_extra_path_environment_file(self):
         extra_envvar_file = dedent(
             """# some comment
         LD_LIBRARY_PATH+=some_path
@@ -1060,7 +1060,7 @@ class Provider1Tests(TestCase):
             from pathlib import Path
 
             path = Path("/frontend_root")
-            extra_env = Provider1._parse_extra_environment_file(path)
+            extra_env = Provider1._parse_extra_path_environment_file(path)
 
         self.assertEqual(set(extra_env), {"LD_LIBRARY_PATH", "PATH"})
         self.assertEqual(
@@ -1083,7 +1083,7 @@ class Provider1Tests(TestCase):
     def test_extra_snap_environment_snap(self, getenv):
         getenv.return_value = "/snap/checkbox24/current"
         provider = MagicMock(custom_frontend_provider=True)
-        provider._parse_extra_environment_file.side_effect = [
+        provider._parse_extra_path_environment_file.side_effect = [
             defaultdict(
                 list,
                 {

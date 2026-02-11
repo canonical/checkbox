@@ -100,7 +100,7 @@ parts:
     stage:
       - version.txt
 ################################################################################
-  extra-environment:
+  extra-path-environment:
     plugin: nil
     override-pull: |
       echo "#fwts is in /lib/fwts instead of /lib
@@ -111,9 +111,9 @@ parts:
       # GLIB object paths are ofc. not default as well
       GI_TYPELIB_PATH+=/usr/lib/girepository-1.0
       GI_TYPELIB_PATH+=/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/girepository-1.0
-      " >> $SNAPCRAFT_PART_INSTALL/extra_environment
+      " >> $SNAPCRAFT_PART_INSTALL/extra_path_environment
     stage:
-      - extra_environment
+      - extra_path_environment
 ################################################################################
   plz-run:
     plugin: go

@@ -574,6 +574,7 @@ class ProviderContentClassifier:
         classify_fn_list = []
         if self.provider.jobs_dir:
             classify_fn_list.append(self._classify_pxu_jobs)
+            classify_fn_list.append(self._classify_yaml_jobs)
         if self.provider.units_dir:
             classify_fn_list.append(self._classify_pxu_units)
             classify_fn_list.append(self._classify_yaml_units)
@@ -618,7 +619,7 @@ class ProviderContentClassifier:
             self._EXECUTABLES = self._get_EXECUTABLES()
         return self._EXECUTABLES
 
-    def _classify_pxu_jobs(self, filename: str):
+    def _classify_yaml_jobs(self, filename: str):
         """classify certain files in jobs_dir as unit source"""
         if filename.startswith(self.provider.jobs_dir):
             ext = os.path.splitext(filename)[1]
@@ -629,10 +630,21 @@ class ProviderContentClassifier:
                     RFC822UnitPlugIn,
                 )
 
+    def _classify_pxu_jobs(self, filename: str):
+        """classify certain files in jobs_dir as unit source"""
+        if filename.startswith(self.provider.jobs_dir):
+            ext = os.path.splitext(filename)[1]
+            if ext in {".yaml", ".yml"}:
+                return (
+                    FileRole.unit_source,
+                    self.provider.units_dir,
+                    YAMLUnitPlugIn,
+                )
+
     def _classify_yaml_units(self, filename: str):
         if filename.startswith(self.provider.units_dir):
             ext = os.path.splitext(filename)[1]
-            if ext == ".yaml":
+            if ext in {".yaml", ".yml"}:
                 return (
                     FileRole.unit_source,
                     self.provider.units_dir,

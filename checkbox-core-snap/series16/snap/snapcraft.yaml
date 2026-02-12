@@ -98,7 +98,7 @@ parts:
 ################################################################################
   extra-path-environment:
     plugin: nil
-    override-pull: |
+    override-build: |
       echo "#fwts is in /lib/fwts instead of /lib
       LD_LIBRARY_PATH+=/lib/fwts
       # lapack and blas are pulled by opencv and install libraries in a directory

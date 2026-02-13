@@ -86,7 +86,7 @@ include:
     disk/read_performance_.*                   certification-status=blocker
     disk/smart_.*                              certification-status=non-blocker
     disk/fstrim_.*                             certification-status=non-blocker
-    disk/disk_stress_ng_.*                     certification-status=blocker
+    disk/disk_stress_ng_(?!sru).*              certification-status=blocker
     disk/disk_cpu_load_.*                      certification-status=blocker
 bootstrap_include:
     device

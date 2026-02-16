@@ -60,7 +60,7 @@ jobs:
       - name: Setup LXD
         uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee
         with:
-          channel: ${{ matrix.os == '16.04' && '5.12/stable' || 'latest/stable' }}
+          channel: ${{ matrix.os == '16.04' && '5.21/stable' || 'latest/stable' }}
       - name: Add ZFS storage
         run: |
           lxc storage list

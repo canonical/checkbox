@@ -1,0 +1,69 @@
+name: Checkbox Snap - Software Bill of Materials (SBOM)
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      CHANNEL:
+        description: 'Checkbox snap channel (e.g., latest/stable)'
+        type: string
+        default: latest/stable
+        required: true
+
+  workflow_dispatch:
+    inputs:
+      CHANNEL:
+        description: 'Checkbox snap channel (e.g., latest/stable)'
+        type: string
+        default: latest/stable
+        required: true
+
+permissions:
+  contents: read  # Required to check out repository code
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sbom:
+    name: Checkbox Snap - Software Bill of Materials (SBOM)
+    runs-on:
+      - self-hosted-linux-amd64-noble-private-endpoint-medium
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -y \
+            git-lfs
+
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          lfs: true
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Install python dependencies
+        run: |
+          pip install requests
+
+      - name: Request and retrieve SBOM
+        id: sbom
+        env:
+          SBOM_SCRIPT_PATH: .github/scripts/sbom/sbom.py
+          # CHECKBOX_CHANNEL: ${{ inputs.CHANNEL }}
+          CHECKBOX_CHANNEL: latest/stable
+        run: python3 -u ${SBOM_SCRIPT_PATH} --channel=${CHECKBOX_CHANNEL}
+
+      - name: Collect SBOM
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: checkbox-${{ steps.sbom.outputs.revision }}-sbom
+          path: /tmp/checkbox-${{ steps.sbom.outputs.revision }}.sbom.json
+          retention-days: 5

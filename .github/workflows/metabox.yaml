@@ -59,6 +59,8 @@ jobs:
           persist-credentials: false
       - name: Setup LXD
         uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee
+        with:
+          channel: 5.21/stable
       - name: Add ZFS storage
         run: |
           lxc storage list

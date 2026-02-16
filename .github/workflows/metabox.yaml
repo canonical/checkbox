@@ -23,7 +23,7 @@ jobs:
       - name: Use git diff to see if there are any changes in the metabox and checkbox-ng directories
         id: check_diff
         run: |
-          DIFF_LENGTH=`git diff HEAD origin/main -- checkbox-ng metabox | wc -l`
+          DIFF_LENGTH=`git diff HEAD origin/main -- checkbox-ng metabox .github/workflows/metabox.yaml | wc -l`
           if [[ $DIFF_LENGTH -eq 0 ]]
             then
               echo "No Metabox run required."

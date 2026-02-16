@@ -1,8 +1,5 @@
 name: Checkbox Snap - Software Bill of Materials (SBOM)
 on:
-  pull_request:
-    branches:
-      - main
   workflow_call:
     inputs:
       CHANNEL:
@@ -57,8 +54,7 @@ jobs:
         id: sbom
         env:
           SBOM_SCRIPT_PATH: .github/scripts/sbom/sbom.py
-          # CHECKBOX_CHANNEL: ${{ inputs.CHANNEL }}
-          CHECKBOX_CHANNEL: latest/stable
+          CHECKBOX_CHANNEL: ${{ inputs.CHANNEL }}
         run: python3 -u ${SBOM_SCRIPT_PATH} --channel=${CHECKBOX_CHANNEL}
 
       - name: Collect SBOM

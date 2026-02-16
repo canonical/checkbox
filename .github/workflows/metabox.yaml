@@ -47,7 +47,7 @@ jobs:
         working-directory: metabox
     needs: metabox_run_required
     # use 20.04 as we need xenial containers support => cgroup v1
-    runs-on: [self-hosted, focal]
+    runs-on: ${{ matrix.os == '16.04' && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     env:
       # Workaround to get loguru colored output
       # See https://github.com/Delgan/loguru/issues/604
@@ -60,7 +60,7 @@ jobs:
       - name: Setup LXD
         uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee
         with:
-          channel: 5.21/stable
+          channel: ${{ matrix.os == '16.04' && '5.12/latest' || 'latest/stable' }}
       - name: Add ZFS storage
         run: |
           lxc storage list

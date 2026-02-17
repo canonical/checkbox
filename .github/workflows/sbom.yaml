@@ -1,7 +1,15 @@
 name: Checkbox Snap - Software Bill of Materials (SBOM)
 on:
+  pull_request:
+    branches:
+      - main
   workflow_call:
     inputs:
+      SERIES:
+        description: 'Checkbox snap series (e.g., 20, 22, 24)'
+        type: string
+        default: "24"
+        required: true
       CHANNEL:
         description: 'Checkbox snap channel (e.g., latest/stable)'
         type: string
@@ -54,12 +62,15 @@ jobs:
         id: sbom
         env:
           SBOM_SCRIPT_PATH: .github/scripts/sbom/sbom.py
-          CHECKBOX_CHANNEL: ${{ inputs.CHANNEL }}
-        run: python3 -u ${SBOM_SCRIPT_PATH} --channel=${CHECKBOX_CHANNEL}
+          # CHECKBOX_SERIES: ${{ inputs.SERIES }}
+          # CHECKBOX_CHANNEL: ${{ inputs.CHANNEL }}
+          CHECKBOX_SERIES: 24
+          CHECKBOX_CHANNEL: latest/stable
+        run: python3 -u ${SBOM_SCRIPT_PATH} --series=${CHECKBOX_SERIES} --channel=${CHECKBOX_CHANNEL}
 
       - name: Collect SBOM
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: checkbox-${{ steps.sbom.outputs.revision }}-sbom
-          path: /tmp/checkbox-${{ steps.sbom.outputs.revision }}.sbom.json
+          name: checkbox${{ steps.sbom.outputs.series }}-${{ steps.sbom.outputs.revision }}-sbom
+          path: /tmp/checkbox${{ steps.sbom.outputs.series }}-${{ steps.sbom.outputs.revision }}.sbom.json
           retention-days: 5

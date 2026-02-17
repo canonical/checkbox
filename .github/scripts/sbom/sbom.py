@@ -8,12 +8,12 @@ from argparse import ArgumentParser, Namespace
 import requests
 
 
-def get_checkbox_revision(channel: str) -> str:
+def get_checkbox_revision(series: str, channel: str) -> str:
     """
     Get checkbox snap revision.
     """
     result = subprocess.run(
-        ["snap", "info", "checkbox"],
+        ["snap", "info", f"checkbox{series}"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -142,6 +142,11 @@ def parse_arguments(argv: list[str] | None = None) -> Namespace:
 
     parser = ArgumentParser()
     parser.add_argument(
+        "--series",
+        help="Series of Checkbox snap (e.g. 20, 22, 24)",
+        required=True,
+    )
+    parser.add_argument(
         "--channel",
         help="Channel of Checkbox snap (e.g. latest/stable)",
         required=True,
@@ -158,7 +163,7 @@ def parse_arguments(argv: list[str] | None = None) -> Namespace:
 
 if __name__ == "__main__":
     args = parse_arguments()
-    revision = get_checkbox_revision(args.channel)
+    revision = get_checkbox_revision(args.series, args.channel)
     artifact_id = start_sbom_request(revision)
     monitor_artifact_status(artifact_id)
     download_sbom(artifact_id, f"/tmp/checkbox-{revision}.sbom.json")

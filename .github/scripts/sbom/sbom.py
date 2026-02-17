@@ -64,7 +64,7 @@ def start_sbom_request(series: str, revision: str) -> str:
     return artifact_id
 
 
-def monitor_artifact_status(artifact_id, interval=10, timeout=3600) -> None:
+def monitor_artifact_status(artifact_id, interval=10, timeout=10800) -> None:
     """
     Monitor the SBOM generation status.
     """

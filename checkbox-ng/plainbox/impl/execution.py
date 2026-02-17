@@ -889,6 +889,7 @@ def get_snap_mount_namespace_commands(target_user, shared_location):
             else str(dangerous_nsenter_path)
         ),
         "-m/run/snapd/ns/{}.mnt".format(snap_name),
+        "-w.",  # wrapper command expects cwd to not change!
     ]
     if mounting_strategy == MountingStrategy.MOUNT_AMBIENT_CAPABILITIES:
         # on non-core16 we have given ourselves AmbientCapabilities. After

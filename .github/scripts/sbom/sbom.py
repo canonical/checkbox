@@ -169,3 +169,4 @@ if __name__ == "__main__":
     download_sbom(artifact_id, f"/tmp/checkbox-{revision}.sbom.json")
     with open(args.rev_output_path, "a") as f:
         f.write(f"revision={revision}\n")
+        f.write(f"series={args.series}\n")

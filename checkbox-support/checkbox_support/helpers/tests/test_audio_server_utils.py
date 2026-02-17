@@ -556,48 +556,263 @@ class PulseaudioUtilsTests(unittest.TestCase):
         self.assertEqual(len(nodes), 0)
 
     def test_list_sinks(self):
-        """Test listing all available sinks."""
+        """Test listing all available sinks cycles through card profiles."""
         node1 = Node("0", None, "sink1", "0", "Sink 1")
-        self.pulseaudio._parse_pactl_list = Mock(return_value=[node1])
+        node2 = Node("1", None, "sink2", "1", "Sink 2")
+        self.pulseaudio._iter_nodes_of_type = Mock(
+            return_value=iter([node1, node2])
+        )
 
         sinks = self.pulseaudio.list_sinks()
 
-        self.assertEqual(len(sinks), 1)
+        self.assertEqual(len(sinks), 2)
         self.assertEqual(sinks[0], node1)
-        self.pulseaudio._parse_pactl_list.assert_called_once_with("sinks")
+        self.assertEqual(sinks[1], node2)
+        self.pulseaudio._iter_nodes_of_type.assert_called_once_with(
+            NodeType.SINK
+        )
 
     def test_list_sources(self):
-        """Test listing all available sources."""
+        """Test listing all available sources cycles through card profiles."""
         node1 = Node("0", None, "source1", "0", "Source 1")
-        self.pulseaudio._parse_pactl_list = Mock(return_value=[node1])
+        self.pulseaudio._iter_nodes_of_type = Mock(
+            return_value=iter([node1])
+        )
 
         sources = self.pulseaudio.list_sources()
 
         self.assertEqual(len(sources), 1)
         self.assertEqual(sources[0], node1)
-        self.pulseaudio._parse_pactl_list.assert_called_once_with("sources")
+        self.pulseaudio._iter_nodes_of_type.assert_called_once_with(
+            NodeType.SOURCE
+        )
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_get_cards(self, mock_check_output):
+        """Test parsing pactl list cards output."""
+        mock_check_output.return_value = (
+            "Card #0\n"
+            "        Name: alsa_card.pci-0000_00_1f.3\n"
+            "        Driver: module-alsa-card.c\n"
+            "        Owner Module: 7\n"
+            "        Properties:\n"
+            "                alsa.card = \"0\"\n"
+            "        Profiles:\n"
+            "                output:analog-stereo: Analog Stereo Output (sinks: 1, sources: 0, priority: 6500, available: yes)\n"
+            "                output:hdmi-stereo: Digital Stereo (HDMI) Output (sinks: 1, sources: 0, priority: 5900, available: yes)\n"
+            "                input:analog-stereo: Analog Stereo Input (sinks: 0, sources: 1, priority: 1900, available: yes)\n"
+            "                off: Off (sinks: 0, sources: 0, priority: 0, available: yes)\n"
+            "        Active Profile: output:analog-stereo\n"
+            "        Ports:\n"
+            "                analog-output: Analog Output (type: Analog, priority: 9900)\n"
+            "\n"
+            "Card #1\n"
+            "        Name: alsa_card.usb-audio\n"
+            "        Driver: module-alsa-card.c\n"
+            "        Owner Module: 23\n"
+            "        Properties:\n"
+            "                alsa.card = \"1\"\n"
+            "        Profiles:\n"
+            "                output:analog-stereo: Analog Stereo Output (sinks: 1, sources: 0, priority: 6500, available: yes)\n"
+            "                input:analog-stereo: Analog Stereo Input (sinks: 0, sources: 1, priority: 1900, available: no)\n"
+            "                off: Off (sinks: 0, sources: 0, priority: 0, available: yes)\n"
+            "        Active Profile: output:analog-stereo\n"
+        )
+        cards = self.pulseaudio._get_cards()
+        self.assertEqual(len(cards), 2)
+
+        self.assertEqual(cards[0]["name"], "alsa_card.pci-0000_00_1f.3")
+        # All 4 profiles with available: yes are included (including off)
+        self.assertEqual(len(cards[0]["profiles"]), 4)
+        self.assertEqual(
+            cards[0]["profiles"][0]["name"], "output:analog-stereo"
+        )
+        self.assertEqual(cards[0]["profiles"][0]["sinks"], 1)
+        self.assertEqual(cards[0]["profiles"][0]["sources"], 0)
+        self.assertEqual(
+            cards[0]["profiles"][1]["name"], "output:hdmi-stereo"
+        )
+        self.assertEqual(
+            cards[0]["profiles"][2]["name"], "input:analog-stereo"
+        )
+        self.assertEqual(cards[0]["profiles"][3]["name"], "off")
+        self.assertEqual(cards[0]["profiles"][3]["sinks"], 0)
+        self.assertEqual(cards[0]["profiles"][3]["sources"], 0)
+
+        self.assertEqual(cards[1]["name"], "alsa_card.usb-audio")
+        # input:analog-stereo is available: no, so excluded
+        self.assertEqual(len(cards[1]["profiles"]), 2)
+        self.assertEqual(
+            cards[1]["profiles"][0]["name"], "output:analog-stereo"
+        )
+        self.assertEqual(cards[1]["profiles"][1]["name"], "off")
+
+    def test_get_available_profiles_sinks(self):
+        """Test filtering profiles for sink type."""
+        card = {
+            "name": "test_card",
+            "profiles": [
+                {"name": "output:analog", "sinks": 1, "sources": 0},
+                {"name": "input:analog", "sinks": 0, "sources": 1},
+                {"name": "output:hdmi", "sinks": 1, "sources": 0},
+            ],
+        }
+        profiles = self.pulseaudio._get_available_profiles(
+            card, NodeType.SINK
+        )
+        self.assertEqual(len(profiles), 2)
+        self.assertEqual(profiles[0]["name"], "output:analog")
+        self.assertEqual(profiles[1]["name"], "output:hdmi")
+
+    def test_get_available_profiles_sources(self):
+        """Test filtering profiles for source type."""
+        card = {
+            "name": "test_card",
+            "profiles": [
+                {"name": "output:analog", "sinks": 1, "sources": 0},
+                {"name": "input:analog", "sinks": 0, "sources": 1},
+            ],
+        }
+        profiles = self.pulseaudio._get_available_profiles(
+            card, NodeType.SOURCE
+        )
+        self.assertEqual(len(profiles), 1)
+        self.assertEqual(profiles[0]["name"], "input:analog")
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_set_card_profile(self, mock_check_output):
+        """Test setting a card profile."""
+        self.pulseaudio._set_card_profile(
+            "alsa_card.pci-0000_00_1f.3", "output:hdmi-stereo"
+        )
+        mock_check_output.assert_called_once_with(
+            [
+                "pactl",
+                "set-card-profile",
+                "alsa_card.pci-0000_00_1f.3",
+                "output:hdmi-stereo",
+            ]
+        )
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_set_card_profile_error(self, mock_check_output):
+        """Test setting a card profile raises on error."""
+        mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
+        with self.assertRaises(RuntimeError):
+            self.pulseaudio._set_card_profile("card", "profile")
 
     def test_iter_sinks(self):
-        """Test iterating over sinks."""
+        """Test iterating over sinks cycles through card profiles."""
         node1 = Node("0", None, "sink1", "0", "Sink 1")
         node2 = Node("1", None, "sink2", "1", "Sink 2")
-        self.pulseaudio._parse_pactl_list = Mock(return_value=[node1, node2])
+        self.pulseaudio._iter_nodes_of_type = Mock(
+            return_value=iter([node1, node2])
+        )
 
         result = list(self.pulseaudio.iter_sinks())
 
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0], node1)
         self.assertEqual(result[1], node2)
+        self.pulseaudio._iter_nodes_of_type.assert_called_once_with(
+            NodeType.SINK
+        )
 
     def test_iter_sources(self):
-        """Test iterating over sources."""
+        """Test iterating over sources cycles through card profiles."""
         node1 = Node("0", None, "source1", "0", "Source 1")
-        self.pulseaudio._parse_pactl_list = Mock(return_value=[node1])
+        self.pulseaudio._iter_nodes_of_type = Mock(
+            return_value=iter([node1])
+        )
 
         result = list(self.pulseaudio.iter_sources())
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], node1)
+        self.pulseaudio._iter_nodes_of_type.assert_called_once_with(
+            NodeType.SOURCE
+        )
+
+    def test_iter_nodes_of_type(self):
+        """Test _iter_nodes_of_type cycles through cards and profiles."""
+        cards = [
+            {
+                "name": "card0",
+                "profiles": [
+                    {"name": "output:analog", "sinks": 1, "sources": 0},
+                    {"name": "output:hdmi", "sinks": 1, "sources": 0},
+                ],
+            },
+        ]
+        node_analog = Node("0", None, "analog-sink", "0", "Analog")
+        node_hdmi = Node("1", None, "hdmi-sink", "1", "HDMI")
+
+        self.pulseaudio._get_cards = Mock(return_value=cards)
+        self.pulseaudio._set_card_profile = Mock()
+        self.pulseaudio._parse_pactl_list = Mock(
+            side_effect=[[node_analog], [node_hdmi]]
+        )
+
+        result = list(self.pulseaudio._iter_nodes_of_type(NodeType.SINK))
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0], node_analog)
+        self.assertEqual(result[1], node_hdmi)
+        self.pulseaudio._set_card_profile.assert_any_call(
+            "card0", "output:analog"
+        )
+        self.pulseaudio._set_card_profile.assert_any_call(
+            "card0", "output:hdmi"
+        )
+
+    def test_iter_nodes_of_type_deduplicates(self):
+        """Test that duplicate sinks from different profiles are skipped."""
+        cards = [
+            {
+                "name": "card0",
+                "profiles": [
+                    {"name": "output:analog", "sinks": 1, "sources": 0},
+                    {
+                        "name": "output:analog+input:analog",
+                        "sinks": 1,
+                        "sources": 1,
+                    },
+                    {"name": "output:hdmi", "sinks": 1, "sources": 0},
+                    {
+                        "name": "output:hdmi+input:analog",
+                        "sinks": 1,
+                        "sources": 1,
+                    },
+                ],
+            },
+        ]
+        node_analog = Node("0", None, "analog-sink", "0", "Analog")
+        node_analog_dup = Node("0", None, "analog-sink", "0", "Analog")
+        node_hdmi = Node("1", None, "hdmi-sink", "1", "HDMI")
+        node_hdmi_dup = Node("1", None, "hdmi-sink", "1", "HDMI")
+
+        self.pulseaudio._get_cards = Mock(return_value=cards)
+        self.pulseaudio._set_card_profile = Mock()
+        self.pulseaudio._parse_pactl_list = Mock(
+            side_effect=[
+                [node_analog],
+                [node_analog_dup],
+                [node_hdmi],
+                [node_hdmi_dup],
+            ]
+        )
+
+        result = list(self.pulseaudio._iter_nodes_of_type(NodeType.SINK))
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].name, "analog-sink")
+        self.assertEqual(result[1].name, "hdmi-sink")
 
     @patch(
         "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
@@ -776,27 +991,52 @@ class IntegrationTests(unittest.TestCase):
         """Test PulseAudio workflow: iterate sinks and set one as default."""
         mock_get_server.return_value = AudioServer.PULSEAUDIO
 
-        pactl_output = textwrap.dedent(
+        pactl_cards_output = (
+            "Card #0\n"
+            "        Name: alsa_card.pci-0000_00_1f.3\n"
+            "        Driver: module-alsa-card.c\n"
+            "        Owner Module: 7\n"
+            "        Properties:\n"
+            "                alsa.card = \"0\"\n"
+            "        Profiles:\n"
+            "                output:analog-stereo: Analog Stereo Output (sinks: 1, sources: 0, priority: 6500, available: yes)\n"
+            "                output:hdmi-stereo: Digital Stereo (HDMI) Output (sinks: 1, sources: 0, priority: 5900, available: yes)\n"
+            "                off: Off (sinks: 0, sources: 0, priority: 0, available: yes)\n"
+            "        Active Profile: output:analog-stereo\n"
+        )
+
+        analog_sinks_output = textwrap.dedent(
             """\
             Sink #0
-            	State: RUNNING
-            	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
-            	Description: Built-in Audio Analog Stereo
-            	Driver: module-alsa-card.c
-            	Index: 0
-
-            Sink #1
-            	State: IDLE
-            	Name: alsa_output.usb-audio.analog-stereo
-            	Description: USB Audio
-            	Driver: module-alsa-card.c
-            	Index: 1
+            \tState: RUNNING
+            \tName: alsa_output.pci-0000_00_1f.3.analog-stereo
+            \tDescription: Built-in Audio Analog Stereo
+            \tDriver: module-alsa-card.c
+            \tIndex: 0
             """
         )
 
+        hdmi_sinks_output = textwrap.dedent(
+            """\
+            Sink #1
+            \tState: IDLE
+            \tName: alsa_output.pci-0000_00_1f.3.hdmi-stereo
+            \tDescription: Built-in Audio HDMI Stereo
+            \tDriver: module-alsa-card.c
+            \tIndex: 1
+            """
+        )
+
+        call_count = {"list_sinks": 0}
+
         def check_output_side_effect(cmd, **kwargs):
+            if cmd == ["pactl", "list", "cards"]:
+                return pactl_cards_output
             if cmd == ["pactl", "list", "sinks"]:
-                return pactl_output
+                call_count["list_sinks"] += 1
+                if call_count["list_sinks"] == 1:
+                    return analog_sinks_output
+                return hdmi_sinks_output
             return ""
 
         mock_check_output.side_effect = check_output_side_effect
@@ -811,8 +1051,12 @@ class IntegrationTests(unittest.TestCase):
             sinks[0].name, "alsa_output.pci-0000_00_1f.3.analog-stereo"
         )
         self.assertEqual(sinks[0].description, "Built-in Audio Analog Stereo")
-        self.assertEqual(sinks[1].name, "alsa_output.usb-audio.analog-stereo")
-        self.assertEqual(sinks[1].description, "USB Audio")
+        self.assertEqual(
+            sinks[1].name, "alsa_output.pci-0000_00_1f.3.hdmi-stereo"
+        )
+        self.assertEqual(
+            sinks[1].description, "Built-in Audio HDMI Stereo"
+        )
 
         mock_check_output.side_effect = None
 

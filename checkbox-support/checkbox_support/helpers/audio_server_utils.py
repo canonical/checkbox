@@ -39,6 +39,7 @@ import abc
 import argparse
 import json
 import logging
+import re
 import subprocess
 import time
 from enum import Enum
@@ -471,21 +472,133 @@ class PulseaudioUtils(AudioServerUtils):
 
     def list_sinks(self) -> List[Node]:
         """Get list of available audio sinks."""
-        return self._parse_pactl_list("sinks")
+        return list(self._iter_nodes_of_type(NodeType.SINK))
 
     def list_sources(self) -> List[Node]:
         """Get list of available audio sources."""
-        return self._parse_pactl_list("sources")
+        return list(self._iter_nodes_of_type(NodeType.SOURCE))
+
+    def _get_cards(self) -> List[dict]:
+        """Get available audio cards and their profiles."""
+        try:
+            output = subprocess.check_output(
+                ["pactl", "list", "cards"], universal_newlines=True
+            )
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError("Failed to run pactl list cards: {}".format(e))
+
+        cards = []
+        current_card = {}
+        in_profiles = False
+        profiles_indent = 0
+
+        for line in output.strip().split("\n"):
+            stripped = line.strip()
+
+            if line.startswith("Card #"):
+                if current_card.get("name"):
+                    cards.append(current_card)
+                current_card = {"name": "", "profiles": []}
+                in_profiles = False
+
+            elif stripped.startswith("Name: "):
+                current_card["name"] = stripped.split("Name: ", 1)[1]
+
+            elif stripped == "Profiles:":
+                in_profiles = True
+                profiles_indent = len(line) - len(line.lstrip())
+
+            elif in_profiles and (
+                stripped.startswith("Active Profile:")
+                or not stripped
+                or len(line) - len(line.lstrip()) <= profiles_indent
+            ):
+                in_profiles = False
+
+            elif in_profiles:
+                # Profile line format:
+                # output:analog-stereo: ... (sinks: 1, sources: 0,
+                #   priority: 6500, available: yes)
+                match = re.match(
+                    r"(\S+): .+?"
+                    r"\(sinks: (\d+), sources: (\d+),"
+                    r" priority: \d+, available: (yes|no)\)",
+                    stripped,
+                )
+                if match:
+                    name, sinks, sources, available = match.groups()
+                    if available == "yes":
+                        current_card["profiles"].append(
+                            {
+                                "name": name,
+                                "sinks": int(sinks),
+                                "sources": int(sources),
+                            }
+                        )
+
+        if current_card.get("name"):
+            cards.append(current_card)
+
+        return cards
+
+    def _get_available_profiles(
+        self, card: dict, target: NodeType
+    ) -> List[dict]:
+        """Get profiles on a card that provide the target node type."""
+        key = "sinks" if target == NodeType.SINK else "sources"
+        return [p for p in card["profiles"] if p[key] > 0]
+
+    def _set_card_profile(self, card_name: str, profile_name: str) -> None:
+        try:
+            cmd = ["pactl", "set-card-profile", card_name, profile_name]
+            logger.debug("[shell] %s", " ".join(cmd))
+            subprocess.check_output(cmd)
+        except subprocess.CalledProcessError:
+            raise RuntimeError(
+                "Cannot set profile '{}' on card '{}'".format(
+                    profile_name, card_name
+                )
+            )
+
+    def _iter_nodes_of_type(
+        self, target: NodeType
+    ) -> Generator[Node, None, None]:
+        """Iterator that activates each card profile and yields nodes."""
+        cards = self._get_cards()
+        target_type = "sinks" if target == NodeType.SINK else "sources"
+        logger.debug("Found %s available audio card(s)", len(cards))
+
+        seen_names = set()
+
+        for card in cards:
+            profiles = self._get_available_profiles(card, target)
+            logger.debug(
+                "Found %s available profile(s) for card %s",
+                len(profiles),
+                card["name"],
+            )
+
+            for profile in profiles:
+                self._set_card_profile(card["name"], profile["name"])
+
+                nodes = self._parse_pactl_list(target_type)
+                logger.debug(
+                    "Found %s available node(s) for card %s@%s",
+                    len(nodes),
+                    card["name"],
+                    profile["name"],
+                )
+
+                for node in nodes:
+                    if node.name not in seen_names:
+                        seen_names.add(node.name)
+                        yield node
 
     def iter_sinks(self) -> Generator[Node, None, None]:
-        """Iterate over available sinks. For PulseAudio, just yields all nodes."""
-        for node in self._parse_pactl_list("sinks"):
-            yield node
+        return self._iter_nodes_of_type(NodeType.SINK)
 
     def iter_sources(self) -> Generator[Node, None, None]:
-        """Iterate over available sources. For PulseAudio, just yields all nodes."""
-        for node in self._parse_pactl_list("sources"):
-            yield node
+        return self._iter_nodes_of_type(NodeType.SOURCE)
 
     def set_sink(self, sink: Node) -> None:
         """

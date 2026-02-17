@@ -64,7 +64,7 @@ def start_sbom_request(series: str, revision: str) -> str:
     return artifact_id
 
 
-def monitor_artifact_status(artifact_id, interval=10, timeout=1800) -> None:
+def monitor_artifact_status(artifact_id, interval=10, timeout=3600) -> None:
     """
     Monitor the SBOM generation status.
     """
@@ -171,7 +171,9 @@ if __name__ == "__main__":
     revision = get_checkbox_revision(args.series, args.channel)
     artifact_id = start_sbom_request(args.series, revision)
     monitor_artifact_status(artifact_id)
-    download_sbom(artifact_id, f"/tmp/checkbox{args.series}-{revision}.sbom.json")
+    download_sbom(
+        artifact_id, f"/tmp/checkbox{args.series}-{revision}.sbom.json"
+    )
     with open(args.rev_output_path, "a") as f:
         f.write(f"revision={revision}\n")
         f.write(f"series={args.series}\n")

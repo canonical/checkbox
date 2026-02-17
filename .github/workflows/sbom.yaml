@@ -18,6 +18,11 @@ on:
 
   workflow_dispatch:
     inputs:
+      SERIES:
+        description: 'Checkbox snap series (e.g., 20, 22, 24)'
+        type: string
+        default: "24"
+        required: true
       CHANNEL:
         description: 'Checkbox snap channel (e.g., latest/stable)'
         type: string

@@ -575,9 +575,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
     def test_list_sources(self):
         """Test listing all available sources cycles through card profiles."""
         node1 = Node("0", None, "source1", "0", "Source 1")
-        self.pulseaudio._iter_nodes_of_type = Mock(
-            return_value=iter([node1])
-        )
+        self.pulseaudio._iter_nodes_of_type = Mock(return_value=iter([node1]))
 
         sources = self.pulseaudio.list_sources()
 
@@ -598,7 +596,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
             "        Driver: module-alsa-card.c\n"
             "        Owner Module: 7\n"
             "        Properties:\n"
-            "                alsa.card = \"0\"\n"
+            '                alsa.card = "0"\n'
             "        Profiles:\n"
             "                output:analog-stereo: Analog Stereo Output (sinks: 1, sources: 0, priority: 6500, available: yes)\n"
             "                output:hdmi-stereo: Digital Stereo (HDMI) Output (sinks: 1, sources: 0, priority: 5900, available: yes)\n"
@@ -613,7 +611,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
             "        Driver: module-alsa-card.c\n"
             "        Owner Module: 23\n"
             "        Properties:\n"
-            "                alsa.card = \"1\"\n"
+            '                alsa.card = "1"\n'
             "        Profiles:\n"
             "                output:analog-stereo: Analog Stereo Output (sinks: 1, sources: 0, priority: 6500, available: yes)\n"
             "                input:analog-stereo: Analog Stereo Input (sinks: 0, sources: 1, priority: 1900, available: no)\n"
@@ -631,9 +629,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
         )
         self.assertEqual(cards[0]["profiles"][0]["sinks"], 1)
         self.assertEqual(cards[0]["profiles"][0]["sources"], 0)
-        self.assertEqual(
-            cards[0]["profiles"][1]["name"], "output:hdmi-stereo"
-        )
+        self.assertEqual(cards[0]["profiles"][1]["name"], "output:hdmi-stereo")
         self.assertEqual(
             cards[0]["profiles"][2]["name"], "input:analog-stereo"
         )
@@ -659,9 +655,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
                 {"name": "output:hdmi", "sinks": 1, "sources": 0},
             ],
         }
-        profiles = self.pulseaudio._get_available_profiles(
-            card, NodeType.SINK
-        )
+        profiles = self.pulseaudio._get_available_profiles(card, NodeType.SINK)
         self.assertEqual(len(profiles), 2)
         self.assertEqual(profiles[0]["name"], "output:analog")
         self.assertEqual(profiles[1]["name"], "output:hdmi")
@@ -727,9 +721,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
     def test_iter_sources(self):
         """Test iterating over sources cycles through card profiles."""
         node1 = Node("0", None, "source1", "0", "Source 1")
-        self.pulseaudio._iter_nodes_of_type = Mock(
-            return_value=iter([node1])
-        )
+        self.pulseaudio._iter_nodes_of_type = Mock(return_value=iter([node1]))
 
         result = list(self.pulseaudio.iter_sources())
 
@@ -997,7 +989,7 @@ class IntegrationTests(unittest.TestCase):
             "        Driver: module-alsa-card.c\n"
             "        Owner Module: 7\n"
             "        Properties:\n"
-            "                alsa.card = \"0\"\n"
+            '                alsa.card = "0"\n'
             "        Profiles:\n"
             "                output:analog-stereo: Analog Stereo Output (sinks: 1, sources: 0, priority: 6500, available: yes)\n"
             "                output:hdmi-stereo: Digital Stereo (HDMI) Output (sinks: 1, sources: 0, priority: 5900, available: yes)\n"
@@ -1054,9 +1046,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(
             sinks[1].name, "alsa_output.pci-0000_00_1f.3.hdmi-stereo"
         )
-        self.assertEqual(
-            sinks[1].description, "Built-in Audio HDMI Stereo"
-        )
+        self.assertEqual(sinks[1].description, "Built-in Audio HDMI Stereo")
 
         mock_check_output.side_effect = None
 

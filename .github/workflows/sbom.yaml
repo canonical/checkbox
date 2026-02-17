@@ -5,11 +5,6 @@ on:
       - main
   workflow_call:
     inputs:
-      SERIES:
-        description: 'Checkbox snap series (e.g., 20, 22, 24)'
-        type: string
-        default: "24"
-        required: true
       CHANNEL:
         description: 'Checkbox snap channel (e.g., latest/stable)'
         type: string
@@ -18,11 +13,6 @@ on:
 
   workflow_dispatch:
     inputs:
-      SERIES:
-        description: 'Checkbox snap series (e.g., 20, 22, 24)'
-        type: string
-        default: "24"
-        required: true
       CHANNEL:
         description: 'Checkbox snap channel (e.g., latest/stable)'
         type: string
@@ -38,9 +28,13 @@ concurrency:
 
 jobs:
   sbom:
-    name: Checkbox Snap - Software Bill of Materials (SBOM)
+    strategy:
+      fail-fast: false
+      matrix:
+        series: [16, 18, 20, 22, 24]
     runs-on:
       - self-hosted-linux-amd64-noble-private-endpoint-medium
+    name: Checkbox Snap - Software Bill of Materials (SBOM)
     steps:
       - name: Install dependencies
         run: |
@@ -67,9 +61,9 @@ jobs:
         id: sbom
         env:
           SBOM_SCRIPT_PATH: .github/scripts/sbom/sbom.py
-          # CHECKBOX_SERIES: ${{ inputs.SERIES }}
+          # CHECKBOX_SERIES: ${{ matrix.series }}
           # CHECKBOX_CHANNEL: ${{ inputs.CHANNEL }}
-          CHECKBOX_SERIES: 24
+          CHECKBOX_SERIES: ${{ matrix.series }}
           CHECKBOX_CHANNEL: latest/stable
         run: python3 -u ${SBOM_SCRIPT_PATH} --series=${CHECKBOX_SERIES} --channel=${CHECKBOX_CHANNEL}
 

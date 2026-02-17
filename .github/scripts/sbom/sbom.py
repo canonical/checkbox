@@ -32,7 +32,7 @@ def get_checkbox_revision(series: str, channel: str) -> str:
     return None
 
 
-def start_sbom_request(revision: str) -> str:
+def start_sbom_request(series: str, revision: str) -> str:
     """
     Start a SBOM generation request for given revision.
     """
@@ -43,7 +43,7 @@ def start_sbom_request(revision: str) -> str:
         "version": revision,
         "department": {"value": "devices_engineering", "type": "predefined"},
         "team": {"value": "certification", "type": "predefined"},
-        "artifactName": "checkbox",
+        "artifactName": f"checkbox{series}",
     }
     headers = {"Content-Type": "application/json"}
     response = requests.post(url, json=payload, headers=headers)
@@ -108,6 +108,11 @@ def monitor_artifact_status(artifact_id, interval=10, timeout=1800) -> None:
                 f"Artifact processing completed after {elapsed_time:.1f} seconds"
             )
             return
+        elif current_status == "failed":
+            print(
+                f"Artifact processing failed after {elapsed_time:.1f} seconds"
+            )
+            return
 
         time.sleep(interval)
         elapsed_time = time.time() - start_time
@@ -164,9 +169,9 @@ def parse_arguments(argv: list[str] | None = None) -> Namespace:
 if __name__ == "__main__":
     args = parse_arguments()
     revision = get_checkbox_revision(args.series, args.channel)
-    artifact_id = start_sbom_request(revision)
+    artifact_id = start_sbom_request(args.series, revision)
     monitor_artifact_status(artifact_id)
-    download_sbom(artifact_id, f"/tmp/checkbox-{revision}.sbom.json")
+    download_sbom(artifact_id, f"/tmp/checkbox{args.series}-{revision}.sbom.json")
     with open(args.rev_output_path, "a") as f:
         f.write(f"revision={revision}\n")
         f.write(f"series={args.series}\n")

@@ -259,10 +259,16 @@ class UnifiedRunnerTests(TestCase):
         get_execution_environment_mock,
     ):
         @contextlib.contextmanager
-        def configured_filesystem_mock(self, *args, **kwargs):
+        def empty_ctx_manager(self, *args, **kwargs):
             yield
 
-        self_mock = mock.Mock(configured_filesystem=configured_filesystem_mock)
+        configured_filesystem_mock = empty_ctx_manager
+        get_proper_job_cwd_mock = empty_ctx_manager
+
+        self_mock = mock.Mock(
+            configured_filesystem=configured_filesystem_mock,
+            get_proper_job_cwd=get_proper_job_cwd_mock,
+        )
         self_mock._user_provider.return_value = None
 
         job_mock = mock.Mock(user="ubuntu")
@@ -291,10 +297,16 @@ class UnifiedRunnerTests(TestCase):
         get_execution_environment_mock,
     ):
         @contextlib.contextmanager
-        def configured_filesystem_mock(self, *args, **kwargs):
+        def empty_ctx_manager(self, *args, **kwargs):
             yield
 
-        self_mock = mock.Mock(configured_filesystem=configured_filesystem_mock)
+        configured_filesystem_mock = empty_ctx_manager
+        get_proper_job_cwd_mock = empty_ctx_manager
+
+        self_mock = mock.Mock(
+            configured_filesystem=configured_filesystem_mock,
+            get_proper_job_cwd=get_proper_job_cwd_mock,
+        )
         self_mock._user_provider.return_value = None
 
         job_mock = mock.Mock(user="ubuntu")
@@ -310,7 +322,6 @@ class UnifiedRunnerTests(TestCase):
             UnifiedRunner.execute_job(
                 self_mock, job_mock, {}, mock.Mock(), as_systemd_unit=True
             )
-
         self.assertEqual(str(e.exception), "systemd")
 
 

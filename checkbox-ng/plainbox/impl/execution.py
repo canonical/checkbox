@@ -349,7 +349,9 @@ class UnifiedRunner(IJobRunner):
         if as_systemd_unit:
             get_execution_command = get_execution_command_systemd_unit
         # Setup the executable nest directory
-        with self.configured_filesystem(job) as nest_dir, self.proper_job_cwd(
+        with self.configured_filesystem(
+            job
+        ) as nest_dir, self.get_proper_job_cwd(
             job
         ) as cwd_dir, get_execution_command(
             job,
@@ -412,7 +414,7 @@ class UnifiedRunner(IJobRunner):
             yield nest_dir
 
     @contextlib.contextmanager
-    def proper_job_cwd(self, job):
+    def get_proper_job_cwd(self, job):
         """
         Context manager for handling current working directory for a particular
         execution of a job definition command.

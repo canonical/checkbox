@@ -369,3 +369,13 @@ include:
 nested_part:
     graphics-gpu-cert-automated
     after-suspend-graphics-gpu-cert-automated
+
+id: opencl-test-plan
+unit: test plan
+_name: Graphics test plan for verifying OpenCL
+include:
+    setup/install_opencl_cts
+    graphics/cl_.*
+bootstrap_include:
+    graphics_card
+    executable

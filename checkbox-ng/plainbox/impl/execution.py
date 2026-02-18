@@ -35,6 +35,8 @@ import time
 import shlex
 import signal
 import shutil
+import functools
+import operator
 import enum
 
 from contextlib import suppress
@@ -856,6 +858,7 @@ def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
         # when not on ubuntucore, there is no snap namespace to mount
         return wrapper_cmd, cmd, namespace_mounting_helper
     dangerous_nsenter_path = None
+    necessary_caps = {}
     # mounting namespaces is not allowed as non-root, the following makes it
     # possible
     if mounting_strategy == MountingStrategy.MOUNT_DANGEROUS_NSENTER:
@@ -874,15 +877,14 @@ def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
         # These are the capabilities needed to mount the namespace
         # from linux/capability.h
         # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7)
-        CAP_SETGID = 6  # necessary for setpriv
-        CAP_SETUID = 7  # necessary for setpriv
-        CAP_SYS_CHROOT = 18  # necessary for nsenter
-        CAP_SYS_ADMIN = 21  # necessary for nsenter
-        ambient_capabilities_bitset = (
-            1 << CAP_SETGID
-            | 1 << CAP_SETUID
-            | 1 << CAP_SYS_CHROOT
-            | 1 << CAP_SYS_ADMIN
+        necessary_caps = {
+            "setgid": 6,  # necessary for setpriv
+            "setuid": 7,  # necessary for setpriv
+            "sys_chroot": 18,  # necessary for nsenter
+            "sys_admin": 21,  # necessary for nsenter
+        }
+        ambient_capabilities_bitset = functools.reduce(
+            operator.ior, (1 << x for x in necessary_caps.values()), 0
         )
         wrapper_cmd += [
             "-ambient-capabilities",
@@ -908,7 +910,8 @@ def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
         # drop them else the "user" test will have way more priviledges
         # than it is supposed to
         runtime_setpriv = runtime_path / "usr" / "bin" / "setpriv"
-        cmd += [str(runtime_setpriv), "--inh-caps=-all"]
+        caps_to_remove = "-" + ",-".join(necessary_caps)
+        cmd += [str(runtime_setpriv), "--inh-caps={}".format(caps_to_remove)]
     return wrapper_cmd, cmd, namespace_mounting_helper
 
 

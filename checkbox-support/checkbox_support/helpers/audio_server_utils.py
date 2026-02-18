@@ -604,8 +604,10 @@ class PulseaudioUtils(AudioServerUtils):
         """
         Set the specified sink as default output.
 
-        For PulseAudio, nodes from list_sinks() or iter_sinks() are both
-        ready to use without additional activation.
+        Important: This method assumes the node's profile is already active
+        (e.g., the node was obtained from iter_sinks()). If you need to set
+        a sink obtained from list_sinks(), call iter_sinks() to activate it
+        first, or activate the profile manually.
 
         Args:
             sink: The sink node to set as default
@@ -627,8 +629,10 @@ class PulseaudioUtils(AudioServerUtils):
         """
         Set the specified source as default input.
 
-        For PulseAudio, nodes from list_sources() or iter_sources() are both
-        ready to use without additional activation.
+        Important: This method assumes the node's profile is already active
+        (e.g., the node was obtained from iter_sources()). If you need to set
+        a source obtained from list_sources(), call iter_sources() to activate
+        it first, or activate the profile manually.
 
         Args:
             source: The source node to set as default

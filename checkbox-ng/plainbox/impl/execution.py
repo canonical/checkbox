@@ -777,6 +777,11 @@ def dangerous_nsenter(path):
     try:
         # here recover setcap and nsenter binaries path outside the sandbox
         runtime_path = get_checkbox_runtime_path()
+        # nsenter is invoked outside this namespace, we must use the static
+        # one.
+        # Note: This is a newer version of nsenter we compile ad-hoc in the
+        #       snap. Xenial nsenter is too old and does not support -W which
+        #       we need
         runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter.static"
         # Note: this path only works on core<24, on core24+ this is in
         #       /usr/sbin but this code should only be used on core16, so this

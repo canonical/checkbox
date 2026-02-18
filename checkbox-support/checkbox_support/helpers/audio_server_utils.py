@@ -490,7 +490,6 @@ class PulseaudioUtils(AudioServerUtils):
         cards = []
         current_card = {}
         in_profiles = False
-        profiles_indent = 0
 
         for line in output.strip().split("\n"):
             stripped = line.strip()
@@ -506,12 +505,9 @@ class PulseaudioUtils(AudioServerUtils):
 
             elif stripped == "Profiles:":
                 in_profiles = True
-                profiles_indent = len(line) - len(line.lstrip())
 
             elif in_profiles and (
-                stripped.startswith("Active Profile:")
-                or not stripped
-                or len(line) - len(line.lstrip()) <= profiles_indent
+                not stripped or stripped.startswith("Active Profile:")
             ):
                 in_profiles = False
 

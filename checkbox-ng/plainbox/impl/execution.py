@@ -777,7 +777,7 @@ def dangerous_nsenter(path):
     try:
         # here recover setcap and nsenter binaries path outside the sandbox
         runtime_path = get_checkbox_runtime_path()
-        runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter"
+        runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter.static"
         # Note: this path only works on core<24, on core24+ this is in
         #       /usr/sbin but this code should only be used on core16, so this
         #       is fine

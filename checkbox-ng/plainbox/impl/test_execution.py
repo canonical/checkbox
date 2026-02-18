@@ -324,6 +324,24 @@ class UnifiedRunnerTests(TestCase):
             )
         self.assertEqual(str(e.exception), "systemd")
 
+    @mock.patch("os.getcwd")
+    def test_get_proper_job_cwd_preserve_cwd(self, os_cwd_mock):
+        self_mock = mock.Mock()
+        job_mock = mock.Mock()
+        job_mock.get_flag_set.return_value = {"preserve-cwd"}
+        with UnifiedRunner.get_proper_job_cwd(self_mock, job_mock) as cwd:
+            self.assertEqual(cwd, os_cwd_mock())
+
+    @mock.patch("os.getcwd")
+    @mock.patch("os.getenv")
+    def test_get_proper_job_cwd_snap(self, os_getenv_mock, os_cwd_mock):
+        self_mock = mock.Mock()
+        job_mock = mock.Mock()
+        job_mock.get_flag_set.return_value = {}
+        os_getenv_mock.return_value = "/snap/checkbox24"
+        with UnifiedRunner.get_proper_job_cwd(self_mock, job_mock) as cwd:
+            self.assertEqual(cwd, os_cwd_mock())
+
 
 class TestDangerousNsenter(TestCase):
     def call_args_to_string(self, call_arg):

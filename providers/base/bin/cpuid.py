@@ -217,6 +217,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Cooper Lake":      ['0x5065a', '0x5065b'],                      # 2020
         "Tiger Lake":       ['0x806c1'],                                 # 2020
         "Elkhart Lake":     ['0x90660', '0x90661'],                      # 2021
+        "Jasper Lake":      ['0x906c0'],                                 # 2021
         "Rocket Lake":      ['0xa0671'],                                 # 2021
         "Alder Lake":       ['0x906a4', '0x906a3', '0x90675',            # 2021
                              '0x90672'],

@@ -1,20 +1,7 @@
 #!/usr/bin/env python3
 import platform
 import argparse
-import re
-
-
-def parse_version(version_str):
-    try:
-        # Find all sequences of one or more digits in the string
-        numbers = re.findall(r"\d+", version_str)
-        if not numbers:
-            raise ValueError("No version numbers found in the string.")
-
-        # Convert the list of number strings to a tuple of integers
-        return tuple(map(int, numbers))
-    except (ValueError, TypeError):
-        return None
+from packaging import version
 
 
 def main():
@@ -29,8 +16,8 @@ def main():
 
     current_version_str = platform.release()
 
-    current_version = parse_version(current_version_str)
-    required_version = parse_version(args.required_version)
+    current_version = version.Version(current_version_str.rsplit("-", 1)[0])
+    required_version = version.Version(args.required_version.rsplit("-", 1)[0])
 
     if (
         current_version is not None

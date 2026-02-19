@@ -6,5 +6,4 @@ include:
     umd/.*
 bootstrap_include:
     com.canonical.certification::dmesg_logs_firmware_version
-    com.canonical.certification::intel_npu_gtest_resource_blocker
-    com.canonical.certification::intel_npu_gtest_resource_non_blocker
+    com.canonical.certification::intel_npu_gtest_resource

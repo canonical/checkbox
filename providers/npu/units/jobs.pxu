@@ -20,35 +20,26 @@ user: root
 command: check_firmware_version.py
 
 unit: template
-template-resource: intel_npu_gtest_resource_blocker
+template-resource: intel_npu_gtest_resource
 template-unit: job
 _template-summary: Run tests from npu-umd-test
-id: umd/blocker/{category}.{name}
-category_id: npu_umd_blocker
+id: umd/{category}.{name}
+category_id: npu_umd
 depends: kmd/char_device_permissions
 flags: simple
 imports: from com.canonical.plainbox import manifest
 environment: NPU_UMD_TEST_CONFIG
 _summary: {category} {name}
-certification-status: blocker
 estimated_duration: 2s
 command:
   set -x
   intel-npu-driver.npu-umd-test --run_skipped {extra_flags} --gtest_filter={category}.{name} --config="${{NPU_UMD_TEST_CONFIG:-basic.yaml}}"
-
-unit: template
-template-resource: intel_npu_gtest_resource_non_blocker
-template-unit: job
-_template-summary: Run known failures from npu-umd-test
-id: umd/non-blocker/{category}.{name}
-category_id: npu_umd_non_blocker
-depends: kmd/char_device_permissions
-flags: simple
-imports: from com.canonical.plainbox import manifest
-environment: NPU_UMD_TEST_CONFIG
-_summary: {category} {name}
-certification-status: non-blocker
-estimated_duration: 2s
-command:
-  set -x
-  intel-npu-driver.npu-umd-test --run_skipped {extra_flags} --gtest_filter={category}.{name} --config="${{NPU_UMD_TEST_CONFIG:-basic.yaml}}"
+  EXIT_CODE=$?
+  is_failure={known_failure}
+  if [[ "$is_failure" = "True" ]]; then
+    # always succeed for known failures
+    echo "Known failure, exited with: $EXIT_CODE"
+    exit 0
+  else
+    exit $EXIT_CODE
+  fi

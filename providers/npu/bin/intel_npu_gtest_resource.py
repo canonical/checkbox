@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import subprocess
-import argparse
 from collections import OrderedDict
 
 
@@ -23,17 +22,6 @@ def get_extra_flags(category):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Filter NPU UMD tests.")
-    parser.add_argument(
-        "-m",
-        "--mode",
-        choices=["blocker", "non-blocker"],
-        default="blocker",
-        help=" 'blocker' prints only tests that aren't known failures,"
-        "'non-blocker' prints only known failures.",
-    )
-    args = parser.parse_args()
-
     config_path = os.environ.get("NPU_UMD_TEST_CONFIG") or "basic.yaml"
 
     gtest_output = subprocess.check_output(
@@ -53,11 +41,6 @@ def main():
         if "." in line:
             is_known_failure = line in known_failures
 
-            if args.mode == "blocker" and is_known_failure:
-                continue
-            if args.mode == "non-blocker" and not is_known_failure:
-                continue
-
             category, test_name = line.split(".", 1)
             extra_flags = get_extra_flags(category)
 
@@ -65,6 +48,7 @@ def main():
             records["name"] = test_name
             records["category"] = category
             records["extra_flags"] = " ".join(extra_flags)
+            records["known_failure"] = is_known_failure
 
             print_as_resource(records)
 

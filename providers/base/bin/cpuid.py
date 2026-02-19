@@ -203,6 +203,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Knights Landing":  ['0x5067'],                                  # 2016
         "Kaby Lake":        ['0x806e9', '0x906e9'],                      # 2016
         # Amber Lake Y (low power refresh of Kaby Lake) shares CPUID 0x806e9
+        "Apollo Lake":      ['0x506c9', '0x506ca'],                      # 2016
         "Knights Mill":     ['0x8065'],                                  # 2017
         "Coffee Lake":      ['0x806ea', '0x906ea', '0x906eb',            # 2017
                              '0x906ec', '0x906ed'],

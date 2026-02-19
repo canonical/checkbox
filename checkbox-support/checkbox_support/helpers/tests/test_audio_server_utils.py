@@ -304,6 +304,18 @@ class PipewireUtilsTests(unittest.TestCase):
             ["wpctl", "set-volume", "123", "0.8"]
         )
 
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_set_volume_error(self, mock_check_output):
+        """Test setting volume raises RuntimeError on failure."""
+        mock_check_output.side_effect = subprocess.CalledProcessError(
+            1, "wpctl"
+        )
+        node = Node("dev1", "prof1", "sink1", "123", "Sink 1")
+        with self.assertRaises(RuntimeError):
+            self.pipewire.set_volume(node, 0.8)
+
     def test_set_volume_invalid(self):
         """Test volume validation raises ValueError."""
         node = Node("dev1", "prof1", "sink1", "123", "Sink 1")
@@ -351,6 +363,13 @@ class PipewireUtilsTests(unittest.TestCase):
             device, NodeType.SOURCE
         )
         self.assertEqual({"1": source}, profiles)
+
+    def test_get_available_profiles_empty_classes(self):
+        """Test profile with empty classes list is excluded."""
+        profile_no_class = {"available": "yes", "index": 2, "classes": []}
+        device = {"info": {"params": {"EnumProfile": [profile_no_class]}}}
+        profiles = self.pipewire._get_available_profiles(device, NodeType.SINK)
+        self.assertEqual({}, profiles)
 
     def test_set_node_of_type(self):
         """Test setting a node by type and name."""
@@ -555,6 +574,17 @@ class PulseaudioUtilsTests(unittest.TestCase):
         nodes = self.pulseaudio._parse_pactl_list("sinks")
         self.assertEqual(len(nodes), 0)
 
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_parse_pactl_list_error(self, mock_check_output):
+        """Test that CalledProcessError in _parse_pactl_list raises RuntimeError."""
+        mock_check_output.side_effect = subprocess.CalledProcessError(
+            1, "pactl"
+        )
+        with self.assertRaises(RuntimeError):
+            self.pulseaudio._parse_pactl_list("sinks")
+
     def test_list_sinks(self):
         """Test listing all available sinks cycles through card profiles."""
         node1 = Node("0", None, "sink1", "0", "Sink 1")
@@ -584,6 +614,43 @@ class PulseaudioUtilsTests(unittest.TestCase):
         self.pulseaudio._iter_nodes_of_type.assert_called_once_with(
             NodeType.SOURCE
         )
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_get_cards_error(self, mock_check_output):
+        """Test that CalledProcessError in _get_cards raises RuntimeError."""
+        mock_check_output.side_effect = subprocess.CalledProcessError(
+            1, "pactl"
+        )
+        with self.assertRaises(RuntimeError):
+            self.pulseaudio._get_cards()
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_get_cards_malformed_profile_skipped(self, mock_check_output):
+        """Test that malformed profile lines are skipped."""
+        mock_check_output.return_value = (
+            "Card #0\n"
+            "        Name: alsa_card.test\n"
+            "        Profiles:\n"
+            "                malformed-profile-line\n"
+            "        Active Profile: output:analog-stereo\n"
+        )
+        cards = self.pulseaudio._get_cards()
+        self.assertEqual(len(cards), 1)
+        self.assertEqual(cards[0]["name"], "alsa_card.test")
+        self.assertEqual(len(cards[0]["profiles"]), 0)
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_get_cards_unnamed_card_skipped(self, mock_check_output):
+        """Test that cards without a name are excluded."""
+        mock_check_output.return_value = "Card #0\n"
+        cards = self.pulseaudio._get_cards()
+        self.assertEqual(len(cards), 0)
 
     @patch(
         "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
@@ -868,6 +935,33 @@ class PulseaudioUtilsTests(unittest.TestCase):
         mock_check_output.assert_called_once_with(
             ["pactl", "set-sink-volume", "test_sink", "50%"]
         )
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_set_volume_source_fallback(self, mock_check_output):
+        """Test volume falls back to set-source-volume when set-sink-volume fails."""
+        node = Node("0", None, "test_node", "0", "Test Node")
+        mock_check_output.side_effect = [
+            subprocess.CalledProcessError(1, "pactl"),  # set-sink-volume fails
+            None,  # set-source-volume succeeds
+        ]
+        self.pulseaudio.set_volume(node, 0.5)
+        mock_check_output.assert_called_with(
+            ["pactl", "set-source-volume", "test_node", "50%"]
+        )
+
+    @patch(
+        "checkbox_support.helpers.audio_server_utils.subprocess.check_output"
+    )
+    def test_set_volume_all_fail(self, mock_check_output):
+        """Test that RuntimeError is raised when all volume commands fail."""
+        node = Node("0", None, "test_node", "0", "Test Node")
+        mock_check_output.side_effect = subprocess.CalledProcessError(
+            1, "pactl"
+        )
+        with self.assertRaises(RuntimeError):
+            self.pulseaudio.set_volume(node, 0.5)
 
     def test_set_volume_invalid(self):
         """Test setting invalid volume raises ValueError."""

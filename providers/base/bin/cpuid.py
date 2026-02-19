@@ -166,7 +166,6 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
     # let's disable the formatting so the structure is easier to follow
     # fmt: off
     CPUIDS = {
-        "Amber Lake":       ['0x806e9'],
         "AMD EPYC":         ['0x800f12'],
         "AMD Genoa":        ['0xa10f11'],
         "AMD Lisbon":       ['0x100f81'],

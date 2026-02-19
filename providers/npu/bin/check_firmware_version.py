@@ -4,6 +4,11 @@ import subprocess
 from pathlib import Path
 
 FIRMWARE_SEARCH_DIR = Path("/var/snap/intel-npu-driver/current/intel/vpu")
+
+# Version string always starts with a date followed by an asterisk, the date is in one of these two formats: YYYYMMDD or Mmm DD YYYY
+# Examples of both formats:
+#  - "20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee"
+#  - "Sep 25 2025*NPU40xx*build/ci/npu-fw-ci-ci_branch_UD202538_PTL_PV_npu_release_25ww35-20250915_222036-29036-1-g2485cfeafee*2485cfeafeed591eaa9a320bfae2407c1b83b29f"
 VERSION_PATTERN = re.compile(r"^(\d{8}\*|[A-Z][a-z]{2}\s+\d{1,2}\s+\d{4}\*).*")
 
 

@@ -210,6 +210,8 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Gemini Lake":      ['0x706a1', '0x706a8'],                      # 2017
         "Canon Lake":       ['0x6066'],                                  # 2018
         "Whisky Lake":      ['0x806eb', '0x806ec'],                      # 2018
+        # Amber Lake Y shares CPUID 0x806ec and 0x806eb with Whisky Lake
+        "Amber Lake Y":     ['0x406e8'],                                 # 2018
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],           # 2019
         "Ice Lake":         ['0x606e6', '0x606a6', '0x706e6',            # 2019
                              '0x606c1'],

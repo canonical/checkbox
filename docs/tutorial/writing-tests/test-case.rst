@@ -323,7 +323,7 @@ put them all in the same group:
 
     id: network_available
     flags: simple
-    depends: network_available
+    depends: network_setup
     before: network_teardown
     group: network_tests
     _summary: Test that the internet is reachable

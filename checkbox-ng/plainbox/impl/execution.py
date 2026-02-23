@@ -426,14 +426,17 @@ class UnifiedRunner(IJobRunner):
         :returns:
             Pathname of the new directory
         """
-        if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
+        if "preserve-cwd" in job.get_flag_set():
             yield os.getcwd()
             return
         # Create a nest for all the private executables needed for execution
         prefix = "cwd-"
         suffix = ".{}".format(job.checksum)
         try:
-            with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
+            # use /var/tmp because in snaps /tmp is private to the snap
+            with tempfile.TemporaryDirectory(
+                suffix, prefix, "/var/tmp"
+            ) as cwd_dir:
                 os.chmod(cwd_dir, 0o777)
                 logger.debug(
                     _("Job temporary current working directory: %s"), cwd_dir

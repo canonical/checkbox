@@ -27,9 +27,11 @@ from io import BytesIO
 from tempfile import TemporaryDirectory
 from textwrap import dedent
 from unittest import TestCase
+import json
 import os
 
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
+from plainbox.impl.exporter.jinja2 import pretty_json_decode_error
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.unit.exporter import ExporterError
@@ -165,3 +167,55 @@ class Jinja2SessionStateExporterTests(TestCase):
                 exporter.dump_from_session_manager(
                     self.manager_single_job, stream
                 )
+
+
+class PrettyJsonDecodeErrorTests(TestCase):
+
+    def _get_error(self, bad_json):
+        try:
+            json.loads(bad_json)
+        except json.decoder.JSONDecodeError as e:
+            return e
+        self.fail("Expected JSONDecodeError was not raised")
+
+    def _check(self, bad_json):
+        error = self._get_error(bad_json)
+        result = pretty_json_decode_error(error)
+        self.assertIsInstance(result, str)
+        # The original error message should always be present
+        self.assertIn(str(error), result)
+        return result
+
+    def test_error_at_start(self):
+        result = self._check("not json at all")
+        self.assertIn("not json", result)
+
+    def test_trailing_comma_in_object(self):
+        self._check('{"key": "value",}')
+
+    def test_trailing_comma_in_array(self):
+        self._check("[1, 2, 3,]")
+
+    def test_missing_colon(self):
+        self._check('{"key" "value"}')
+
+    def test_single_quotes(self):
+        self._check("{'key': 'value'}")
+
+    def test_empty_string(self):
+        self._check("")
+
+    def test_truncated_object(self):
+        self._check('{"key": "value"')
+
+    def test_error_deep_in_long_document(self):
+        bad_json = '{"a": 1, ' * 100 + "BROKEN}"
+        self._check(bad_json)
+
+    def test_multiline_json(self):
+        self._check('{\n  "a": 1,\n  "b": ,\n  "c": 3\n}')
+
+    def test_result_contains_error_neighbourhood(self):
+        bad_json = '{"good": 1, "bad": tralse, "other": 2}'
+        result = self._check(bad_json)
+        self.assertIn("tralse", result)

@@ -82,6 +82,25 @@ def highlight_keys(text):
     return re.sub(r"(\w+:\s)", r"<b>\1</b>", text)
 
 
+def pretty_json_decode_error(
+    error: json.decoder.JSONDecodeError, lines_around=3
+):
+    lineno = error.lineno
+    colno = error.colno
+    lines = error.doc.splitlines()
+    min_line = max(lineno - lines_around, 0)
+    max_line = min(lineno + lines_around, len(lines) - 1)
+    center = min(lineno + 1, len(lines))
+    error_repr = lines[min_line:center]
+    error_repr.append(" " * colno + "^^^ " + str(error))
+    error_repr += lines[center:max_line]
+    if isinstance(error_repr[0], str):
+        return "\n".join(error_repr)
+    else:
+        # defer decoding here to avoid decoding the whole document
+        return b"\n".join(error_repr).decode("utf8")
+
+
 class Jinja2SessionStateExporter(SessionStateExporterBase):
     """Session state exporter that renders output using jinja2 template."""
 
@@ -279,20 +298,6 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             json.loads(s)
             return []
         except json.decoder.JSONDecodeError as exc:
-            lineno = exc.lineno
-            colno = exc.colno
-            lines = exc.doc.splitlines()
-            around = 3  # print 3 lines before and after
-            min_line = max(lineno - around, 0)
-            max_line = min(lineno + around, len(lines) - 1)
-            center = min(lineno + 1, len(lines))
-            error_repr = lines[min_line:center]
-            error_repr.append(" " * colno + "^^^ " + str(exc))
-            error_repr += lines[center:max_line]
-            if isinstance(error_repr[0], str):
-                return "\n".join(error_repr)
-            else:
-                return b"\n".join(error_repr).decode("utf8")
-
+            return pretty_json_decode_error(exc)
         except Exception as exc:
             return [str(exc)]

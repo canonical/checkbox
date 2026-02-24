@@ -4,6 +4,7 @@
 # Copyright 2024 Canonical Ltd.
 # Written by:
 #   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -26,12 +27,11 @@ import argparse
 from pathlib import Path
 
 
-# Checkbox could run in a snap container, so we need to prepend this root path
 try:
     CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
 except KeyError:  # from indexing os.environ
     CHECKBOX_RUNTIME = None
-GLMARK2_DATA_PATH = Path("/usr/share/glmark2")
+GLMARK2_DATA_ABS_PATH = Path("/usr/share/glmark2")
 
 
 class GLSupportTester:
@@ -145,14 +145,17 @@ class GLSupportTester:
             )
 
         try:
-            if CHECKBOX_RUNTIME and not os.path.exists(GLMARK2_DATA_PATH):
+            if CHECKBOX_RUNTIME and not os.path.exists(GLMARK2_DATA_ABS_PATH):
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 path is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-                src = CHECKBOX_RUNTIME / GLMARK2_DATA_PATH
-                dst = GLMARK2_DATA_PATH
+
+                # do not directly truediv against GLMARK2_DATA_PATH
+                # absolute path on the right will overwrite the left hand side
+                src = CHECKBOX_RUNTIME / "usr" / "share" / "glmark2"
+                dst = GLMARK2_DATA_ABS_PATH
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
                         src, dst
@@ -173,9 +176,9 @@ class GLSupportTester:
             return glmark2_output
         finally:
             # immediately cleanup
-            if CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_PATH):
+            if CHECKBOX_RUNTIME and os.path.islink(GLMARK2_DATA_ABS_PATH):
                 print("[ DEBUG ] Un-symlinking glmark2 data")
-                os.unlink(GLMARK2_DATA_PATH)
+                os.unlink(GLMARK2_DATA_ABS_PATH)
 
 
 def remove_prefix(s: str, prefix: str) -> str:

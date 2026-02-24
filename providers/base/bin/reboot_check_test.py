@@ -8,6 +8,8 @@ import filecmp
 import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
+from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
+from shlex import split as sh_split
 from datetime import datetime
 import time
 import platform
@@ -203,7 +205,15 @@ class FwtsTester:
         log_file_path = "{}/fwts_{}.log".format(
             output_directory, "_".join(fwts_arguments)
         )
-        sp.run(["fwts", "-r", log_file_path, "-q", *fwts_arguments])
+        sp.run(
+            [
+                *sh_split(get_fwts_base_cmd()),
+                "-r",
+                log_file_path,
+                "-q",
+                *fwts_arguments,
+            ]
+        )
         result = sp.run(
             [
                 "sleep_test_log_check.py",

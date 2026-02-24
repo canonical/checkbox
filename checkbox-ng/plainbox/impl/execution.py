@@ -35,6 +35,8 @@ import time
 import shlex
 import signal
 import shutil
+import functools
+import operator
 import enum
 
 from contextlib import suppress
@@ -349,47 +351,44 @@ class UnifiedRunner(IJobRunner):
         if as_systemd_unit:
             get_execution_command = get_execution_command_systemd_unit
         # Setup the executable nest directory
-        with self.configured_filesystem(job) as nest_dir:
-            # Get the command and the environment.
-            # of this execution controller
-            with get_execution_command(
-                job,
-                environ,
-                self._session_id,
-                nest_dir,
-                target_user,
-                self._extra_env,
-            ) as cmd:
-                env = get_execution_environment(
-                    job, environ, self._session_id, nest_dir
-                )
-                if self._user_provider():
-                    env["NORMAL_USER"] = self._user_provider()
-                # Always set SYSTEMD_IGNORE_CHROOT
-                # See https://bugs.launchpad.net/snapd/+bug/2003955
-                env["SYSTEMD_IGNORE_CHROOT"] = "1"
-                # run the command
-                logger.info(
-                    _("Starting job [%(ID)s] executing: %(CMD)r"),
-                    {"ID": job.id, "CMD": join_cmd(cmd)},
-                )
-                if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
-                    return_code = call(
-                        extcmd_popen, cmd, stdin=subprocess.PIPE, env=env
-                    )
-                else:
-                    with self.temporary_cwd(job) as cwd_dir:
-                        return_code = call(
-                            extcmd_popen,
-                            cmd,
-                            stdin=subprocess.PIPE,
-                            env=env,
-                            cwd=cwd_dir,
-                        )
-                logger.info("Finished job [{}]".format(job.id))
-                if "noreturn" in job.get_flag_set():
-                    signal.pause()
-                return return_code
+        with self.configured_filesystem(
+            job
+        ) as nest_dir, self.get_proper_job_cwd(
+            job
+        ) as cwd_dir, get_execution_command(
+            job,
+            environ,
+            self._session_id,
+            nest_dir,
+            target_user,
+            self._extra_env,
+            cwd_dir,
+        ) as cmd:
+            env = get_execution_environment(
+                job, environ, self._session_id, nest_dir
+            )
+            if self._user_provider():
+                env["NORMAL_USER"] = self._user_provider()
+            # Always set SYSTEMD_IGNORE_CHROOT
+            # See https://bugs.launchpad.net/snapd/+bug/2003955
+            env["SYSTEMD_IGNORE_CHROOT"] = "1"
+            # run the command
+            logger.info(
+                _("Starting job [%(ID)s] executing: %(CMD)r"),
+                {"ID": job.id, "CMD": join_cmd(cmd)},
+            )
+
+            return_code = call(
+                extcmd_popen,
+                cmd,
+                stdin=subprocess.PIPE,
+                env=env,
+                cwd=cwd_dir,
+            )
+            logger.info("Finished job [{}]".format(job.id))
+            if "noreturn" in job.get_flag_set():
+                signal.pause()
+            return return_code
 
     @contextlib.contextmanager
     def configured_filesystem(self, job):
@@ -417,16 +416,19 @@ class UnifiedRunner(IJobRunner):
             yield nest_dir
 
     @contextlib.contextmanager
-    def temporary_cwd(self, job):
+    def get_proper_job_cwd(self, job):
         """
-        Context manager for handling temporary current working directory
-        for a particular execution of a job definition command.
+        Context manager for handling current working directory for a particular
+        execution of a job definition command.
 
         :param job:
             The JobDefinition to execute
         :returns:
-            Pathname of the new temporary directory
+            Pathname of the new directory
         """
+        if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
+            yield os.getcwd()
+            return
         # Create a nest for all the private executables needed for execution
         prefix = "cwd-"
         suffix = ".{}".format(job.checksum)
@@ -541,6 +543,17 @@ class FakeJobRunner(UnifiedRunner):
         return builder.get_result()
 
 
+def add_to_environment(environment, key, values):
+    """
+    Modifies in place environment to add to `key` `values`
+    """
+    if not values:
+        return environment
+    current_value = environment.get(key, "").split(os.pathsep)
+    environment[key] = os.pathsep.join(values + current_value)
+    return environment
+
+
 def get_execution_environment(job, environ, session_id, nest_dir):
     """
     Get the environment required to execute the specified job:
@@ -583,39 +596,20 @@ def get_execution_environment(job, environ, session_id, nest_dir):
             env["TEXTDOMAINDIR"] = env["PLAINBOX_PROVIDER_LOCALE_DIR"] = (
                 job.provider.locale_dir
             )
-        if os.getenv("SNAP") or os.getenv("SNAP_APP_PATH"):
-            copy_vars = [
-                "PYTHONHOME",
-                "PYTHONUSERBASE",
-                "LD_LIBRARY_PATH",
-                "GI_TYPELIB_PATH",
-                "PERL5LIB",
-                "QT_PLUGIN_PATH",
-                "QT_QPA_PLATFORM",
-                "QT_QPA_PLATFORMTHEME",
-                "QT_DEBUG_PLUGINS",
-                "QML2_IMPORT_PATH",
-            ]
-            for key, value in env.items():
-                if key in copy_vars or key.startswith("SNAP"):
-                    env[key] = value
     # Use PATH that can lookup checkbox scripts
-    if job.provider.extra_PYTHONPATH:
-        env["PYTHONPATH"] = os.pathsep.join(
-            job.provider.extra_PYTHONPATH
-            + env.get("PYTHONPATH", "").split(os.pathsep)
-        )
+    env = add_to_environment(env, "PYTHONPATH", job.provider.extra_PYTHONPATH)
+
     # Inject nest_dir into PATH
-    env["PATH"] = os.pathsep.join(
-        [nest_dir]
-        + env.get("PATH", "").split(os.pathsep)
-        + job.provider.extra_PATH
+    env = add_to_environment(env, "PATH", [nest_dir] + job.provider.extra_PATH)
+
+    env = add_to_environment(
+        env, "LD_LIBRARY_PATH", job.provider.extra_LD_LIBRARY_PATH
     )
-    if job.provider.extra_LD_LIBRARY_PATH:
-        env["LD_LIBRARY_PATH"] = os.pathsep.join(
-            env.get("LD_LIBRARY_PATH", "").split(os.pathsep)
-            + job.provider.extra_LD_LIBRARY_PATH
-        )
+
+    # custom frontend / runtime may define extra envvars in this config file
+    for key, value in job.provider.extra_snap_environment.items():
+        env = add_to_environment(env, key, value)
+
     # Add per-session shared state directory
     env["PLAINBOX_SESSION_SHARE"] = WellKnownDirsHelper.session_share(
         session_id
@@ -713,7 +707,13 @@ def get_differential_execution_environment(
 
 @contextlib.contextmanager
 def get_execution_command_subshell(
-    job, environ, session_id, nest_dir, target_user=None, extra_env=None
+    job,
+    environ,
+    session_id,
+    nest_dir,
+    target_user=None,
+    extra_env=None,
+    cwd=None,  # for simmetry, ignored!
 ):
     """
     Generate a command that if executed runs a Checkbox command section
@@ -779,7 +779,12 @@ def dangerous_nsenter(path):
     try:
         # here recover setcap and nsenter binaries path outside the sandbox
         runtime_path = get_checkbox_runtime_path()
-        runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter"
+        # nsenter is invoked outside this namespace, we must use the static
+        # one.
+        # Note: This is a newer version of nsenter we compile ad-hoc in the
+        #       snap. Xenial nsenter is too old and does not support -W which
+        #       we need
+        runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter.static"
         # Note: this path only works on core<24, on core24+ this is in
         #       /usr/sbin but this code should only be used on core16, so this
         #       is fine
@@ -826,7 +831,7 @@ class MountingStrategy(enum.Enum):
         return cls.MOUNT_AMBIENT_CAPABILITIES
 
 
-def get_snap_mount_namespace_commands(target_user, shared_location):
+def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
     """
     Returns commands and helpers to mount the current snap namespace
 
@@ -853,6 +858,7 @@ def get_snap_mount_namespace_commands(target_user, shared_location):
         # when not on ubuntucore, there is no snap namespace to mount
         return wrapper_cmd, cmd, namespace_mounting_helper
     dangerous_nsenter_path = None
+    necessary_caps = {}
     # mounting namespaces is not allowed as non-root, the following makes it
     # possible
     if mounting_strategy == MountingStrategy.MOUNT_DANGEROUS_NSENTER:
@@ -871,15 +877,14 @@ def get_snap_mount_namespace_commands(target_user, shared_location):
         # These are the capabilities needed to mount the namespace
         # from linux/capability.h
         # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7)
-        CAP_SETGID = 6  # necessary for setpriv
-        CAP_SETUID = 7  # necessary for setpriv
-        CAP_SYS_CHROOT = 18  # necessary for nsenter
-        CAP_SYS_ADMIN = 21  # necessary for nsenter
-        ambient_capabilities_bitset = (
-            1 << CAP_SETGID
-            | 1 << CAP_SETUID
-            | 1 << CAP_SYS_CHROOT
-            | 1 << CAP_SYS_ADMIN
+        necessary_caps = {
+            "setgid": 6,  # necessary for setpriv
+            "setuid": 7,  # necessary for setpriv
+            "sys_chroot": 18,  # necessary for nsenter
+            "sys_admin": 21,  # necessary for nsenter
+        }
+        ambient_capabilities_bitset = functools.reduce(
+            operator.ior, (1 << x for x in necessary_caps.values()), 0
         )
         wrapper_cmd += [
             "-ambient-capabilities",
@@ -887,7 +892,7 @@ def get_snap_mount_namespace_commands(target_user, shared_location):
         ]
     # these binaries are not reliably shipped / may not be in path
     runtime_path = get_checkbox_runtime_path()
-    runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter"
+    runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter.static"
 
     snap_name = os.getenv("SNAP_NAME", "checkbox")
     cmd += [
@@ -897,6 +902,7 @@ def get_snap_mount_namespace_commands(target_user, shared_location):
             else str(dangerous_nsenter_path)
         ),
         "-m/run/snapd/ns/{}.mnt".format(snap_name),
+        "-W{}".format(cwd),  # wrapper command expects cwd to not change!
     ]
     if mounting_strategy == MountingStrategy.MOUNT_AMBIENT_CAPABILITIES:
         # on non-core16 we have given ourselves AmbientCapabilities. After
@@ -904,13 +910,14 @@ def get_snap_mount_namespace_commands(target_user, shared_location):
         # drop them else the "user" test will have way more priviledges
         # than it is supposed to
         runtime_setpriv = runtime_path / "usr" / "bin" / "setpriv"
-        cmd += [str(runtime_setpriv), "--inh-caps=-all"]
+        caps_to_remove = "-" + ",-".join(necessary_caps)
+        cmd += [str(runtime_setpriv), "--inh-caps={}".format(caps_to_remove)]
     return wrapper_cmd, cmd, namespace_mounting_helper
 
 
 @contextlib.contextmanager
 def get_execution_command_systemd_unit(
-    job, environ, session_id, nest_dir, target_user, extra_env=None
+    job, environ, session_id, nest_dir, target_user, extra_env=None, cwd=None
 ):
     """
     Generates a command that if executed spawns a Checkbox command section as a
@@ -924,6 +931,9 @@ def get_execution_command_systemd_unit(
     limitation on core16's systemd that makes commands longer than 2k
     characters fail. See: https://github.com/systemd/systemd/issues/3302
     """
+    if cwd is None:
+        cwd = os.getcwd()
+
     wrapper_cmd = [
         "sudo",
         "--prompt",
@@ -949,7 +959,7 @@ def get_execution_command_systemd_unit(
     # when in a core snap, we need the snap mount namespace to use anything
     # that was shared via a content interface
     extra_wrapper_cmd, extra_cmd, namespace_mounting_helper = (
-        get_snap_mount_namespace_commands(target_user, shared_location)
+        get_snap_mount_namespace_commands(target_user, shared_location, cwd)
     )
     wrapper_cmd += extra_wrapper_cmd
     cmd += extra_cmd

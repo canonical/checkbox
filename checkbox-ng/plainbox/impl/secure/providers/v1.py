@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013-2015 Canonical Ltd.
+# Copyright 2013-2026 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Massimiliano Girardi <massimiliano.girardi@canonical.com>
@@ -24,40 +24,46 @@
 :mod:`plainbox.impl.secure.providers.v1` -- Implementation of V1 provider
 =========================================================================
 """
+
 import collections
 import gettext
 import logging
 import os
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
-from plainbox.impl.secure.config import Config, Variable
+from plainbox.impl.decorators import cached_property
+from plainbox.impl.secure.config import (
+    Config,
+    IValidator,
+    NotEmptyValidator,
+    NotUnsetValidator,
+    PatternValidator,
+    Unset,
+    Variable,
+)
 from plainbox.impl.secure.config import (
     ValidationError as ConfigValidationError,
 )
-from plainbox.impl.secure.config import IValidator
-from plainbox.impl.secure.config import NotEmptyValidator
-from plainbox.impl.secure.config import NotUnsetValidator
-from plainbox.impl.secure.config import PatternValidator
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.plugins import FsPlugInCollection
-from plainbox.impl.secure.plugins import LazyFsPlugInCollection
-from plainbox.impl.secure.plugins import PlugIn
-from plainbox.impl.secure.plugins import PlugInError
-from plainbox.impl.secure.plugins import now
-from plainbox.impl.secure.rfc822 import FileTextSource
-from plainbox.impl.secure.rfc822 import RFC822SyntaxError
-from plainbox.impl.secure.rfc822 import load_rfc822_records
+from plainbox.impl.secure.plugins import (
+    FsPlugInCollection,
+    LazyFsPlugInCollection,
+    PlugIn,
+    PlugInError,
+    now,
+)
+from plainbox.impl.secure.rfc822 import (
+    FileTextSource,
+    RFC822SyntaxError,
+    load_rfc822_records,
+)
 from plainbox.impl.unit import all_units
-from plainbox.impl.unit.file import FileRole
-from plainbox.impl.unit.file import FileUnit
-from plainbox.impl.unit.testplan import TestPlanUnit
-from plainbox.impl.validation import Severity
-from plainbox.impl.validation import ValidationError
-
+from plainbox.impl.unit.file import FileRole, FileUnit
+from plainbox.impl.validation import Severity, ValidationError
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
 
@@ -1097,6 +1103,64 @@ class Provider1(IProvider1):
         frontend_paths = [frontend_root / path for path in paths]
         return [str(path) for path in frontend_paths if path.exists()]
 
+    @staticmethod
+    def _parse_extra_path_environment_file(source_root) -> defaultdict:
+        extra_path_environment = source_root / "extra_path_environment"
+        try:
+            text = extra_path_environment.read_text()
+        except FileNotFoundError:
+            return defaultdict(list)
+        lines = text.splitlines()
+        lines = (l.strip() for l in lines)
+        lines = filter(bool, lines)
+        lines = [l for l in lines if not l.startswith("#")]
+        to_r = defaultdict(list)
+        for line in lines:
+            try:
+                key, value = line.split("+=", maxsplit=1)
+                key = key.strip()
+                value = value.strip()
+                if value.startswith("/"):
+                    value = value[1:]
+                to_r[key].append(str(source_root / value))
+            except ValueError:
+                logger.error(
+                    "Ignoring malformed line in extra_path_environment {}".format(
+                        line
+                    )
+                )
+        return to_r
+
+    @cached_property
+    def extra_snap_environment(self) -> dict:
+        """
+        Additional environment variables from `$PROVIDER_ROOT/extra_path_environment`
+
+        $PROVIDER_ROOT is either $SNAP if test comes from a runtime provider
+        or custom_frontend_root
+        """
+        runtime_root = os.getenv("SNAP")
+        if not runtime_root:
+            return {}
+
+        runtime_root = Path(runtime_root)
+        # Always load the runtime ones as frontend assume that the dependencies
+        # from the frontend are available
+        to_r = self._parse_extra_path_environment_file(runtime_root)
+
+        if not self.custom_frontend_provider:
+            return dict(to_r)
+
+        custom_frontend_envvars = self._parse_extra_path_environment_file(
+            self.custom_frontend_root()
+        )
+
+        # give priority to the custom_frontend additions
+        for key, value in custom_frontend_envvars.items():
+            to_r[key] = value + to_r[key]
+
+        return dict(to_r)
+
     @property
     def extra_PYTHONPATH(self) -> list:
         """
@@ -1104,12 +1168,9 @@ class Provider1(IProvider1):
 
         This entry is required for CheckBox scripts to import the correct
         CheckBox python libraries.
-
-        .. note::
-            The result may be None
         """
         if not self.custom_frontend_provider:
-            return None
+            return []
         python_name = "python{}.{}".format(
             sys.version_info.major, sys.version_info.minor
         )

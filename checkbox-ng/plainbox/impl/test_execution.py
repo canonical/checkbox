@@ -16,20 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import contextlib
-
 from pathlib import Path
+from unittest import TestCase, mock
 
 from plainbox.impl.execution import (
-    UnifiedRunner,
-    get_execution_command_systemd_unit,
-    get_execution_command_subshell,
-    dangerous_nsenter,
     MountingStrategy,
+    UnifiedRunner,
+    add_to_environment,
+    dangerous_nsenter,
+    get_execution_command_subshell,
+    get_execution_command_systemd_unit,
 )
 from plainbox.impl.unit.job import InvalidJob
-
-from unittest import TestCase, mock
 
 
 @contextlib.contextmanager
@@ -259,10 +259,16 @@ class UnifiedRunnerTests(TestCase):
         get_execution_environment_mock,
     ):
         @contextlib.contextmanager
-        def configured_filesystem_mock(self, *args, **kwargs):
+        def empty_ctx_manager(self, *args, **kwargs):
             yield
 
-        self_mock = mock.Mock(configured_filesystem=configured_filesystem_mock)
+        configured_filesystem_mock = empty_ctx_manager
+        get_proper_job_cwd_mock = empty_ctx_manager
+
+        self_mock = mock.Mock(
+            configured_filesystem=configured_filesystem_mock,
+            get_proper_job_cwd=get_proper_job_cwd_mock,
+        )
         self_mock._user_provider.return_value = None
 
         job_mock = mock.Mock(user="ubuntu")
@@ -291,10 +297,16 @@ class UnifiedRunnerTests(TestCase):
         get_execution_environment_mock,
     ):
         @contextlib.contextmanager
-        def configured_filesystem_mock(self, *args, **kwargs):
+        def empty_ctx_manager(self, *args, **kwargs):
             yield
 
-        self_mock = mock.Mock(configured_filesystem=configured_filesystem_mock)
+        configured_filesystem_mock = empty_ctx_manager
+        get_proper_job_cwd_mock = empty_ctx_manager
+
+        self_mock = mock.Mock(
+            configured_filesystem=configured_filesystem_mock,
+            get_proper_job_cwd=get_proper_job_cwd_mock,
+        )
         self_mock._user_provider.return_value = None
 
         job_mock = mock.Mock(user="ubuntu")
@@ -310,8 +322,25 @@ class UnifiedRunnerTests(TestCase):
             UnifiedRunner.execute_job(
                 self_mock, job_mock, {}, mock.Mock(), as_systemd_unit=True
             )
-
         self.assertEqual(str(e.exception), "systemd")
+
+    @mock.patch("os.getcwd")
+    def test_get_proper_job_cwd_preserve_cwd(self, os_cwd_mock):
+        self_mock = mock.Mock()
+        job_mock = mock.Mock()
+        job_mock.get_flag_set.return_value = {"preserve-cwd"}
+        with UnifiedRunner.get_proper_job_cwd(self_mock, job_mock) as cwd:
+            self.assertEqual(cwd, os_cwd_mock())
+
+    @mock.patch("os.getcwd")
+    @mock.patch("os.getenv")
+    def test_get_proper_job_cwd_snap(self, os_getenv_mock, os_cwd_mock):
+        self_mock = mock.Mock()
+        job_mock = mock.Mock()
+        job_mock.get_flag_set.return_value = {}
+        os_getenv_mock.return_value = "/snap/checkbox24"
+        with UnifiedRunner.get_proper_job_cwd(self_mock, job_mock) as cwd:
+            self.assertEqual(cwd, os_cwd_mock())
 
 
 class TestDangerousNsenter(TestCase):
@@ -393,3 +422,23 @@ class TestMountingStrategy(TestCase):
             MountingStrategy.from_user_core("ubuntu", True, "core24"),
             MountingStrategy.MOUNT_AMBIENT_CAPABILITIES,
         )
+
+
+class TestAddToEnvironment(TestCase):
+    def test_no_values(self):
+        env = {}
+        self.assertEqual(env, add_to_environment(env, "some", []))
+
+    def test_not_present(self):
+        env = add_to_environment({}, "PATH", ["some", "path"])
+        self.assertIn("some", env["PATH"])
+        self.assertIn("path", env["PATH"])
+
+    def test_present(self):
+        og_path = os.pathsep.join(["og_path1", "og_path2"])
+        env = add_to_environment({"PATH": og_path}, "PATH", ["some", "path"])
+        new_path = env["PATH"].split(os.pathsep)
+        self.assertIn("og_path1", new_path)
+        self.assertIn("og_path2", new_path)
+        self.assertIn("some", new_path)
+        self.assertIn("path", new_path)

@@ -334,13 +334,30 @@ class UnifiedRunnerTests(TestCase):
 
     @mock.patch("os.getcwd")
     @mock.patch("os.getenv")
-    def test_get_proper_job_cwd_snap(self, os_getenv_mock, os_cwd_mock):
+    @mock.patch("os.chmod")
+    def test_get_proper_job_cwd_snap(
+        self, chmod_mock, os_getenv_mock, os_cwd_mock
+    ):
         self_mock = mock.Mock()
         job_mock = mock.Mock()
         job_mock.get_flag_set.return_value = {}
         os_getenv_mock.return_value = "/snap/checkbox24"
-        with UnifiedRunner.get_proper_job_cwd(self_mock, job_mock) as cwd:
-            self.assertEqual(cwd, os_cwd_mock())
+
+        class TemporaryDirectoryMock:
+            def __init__(self, suffix, prefix, dir, *args, **kwargs):
+                self.dir = dir
+
+            def __enter__(self):
+                return self.dir + "/some"
+
+            def __exit__(self, *args): ...
+
+        with mock.patch(
+            "tempfile.TemporaryDirectory", new=TemporaryDirectoryMock
+        ) as tmp:
+            with UnifiedRunner.get_proper_job_cwd(self_mock, job_mock) as cwd:
+                self.assertTrue(str(cwd).startswith("/var/tmp"))
+            self.assertTrue(self_mock._check_leftovers.called)
 
 
 class TestDangerousNsenter(TestCase):

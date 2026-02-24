@@ -73,6 +73,40 @@ class TestMMCli(unittest.TestCase):
         mock_value_from_table.assert_called_with("modem", 1, "h/w revision")
         self.assertEqual(resp, hw_revision_pattern)
 
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_delete_all_bearers(self, mock_run, mock_check_output):
+        bearer_list_pattern = (
+            "/org/freedesktop/ModemManager1/Bearer/0\n"
+            "/org/freedesktop/ModemManager1/Bearer/1\n"
+        )
+        mock_check_output.return_value = bearer_list_pattern
+        wwan_tests._delete_all_bearers("0")
+        mock_check_output.assert_called_with(
+            ["mmcli", "-m", "0", "--list-bearers"],
+            universal_newlines=True,
+            stderr=subprocess.STDOUT,
+        )
+        expected_calls = [
+            unittest.mock.call(
+                [
+                    "mmcli",
+                    "-m",
+                    "0",
+                    "--delete-bearer=/org/freedesktop/ModemManager1/Bearer/0",
+                ]
+            ),
+            unittest.mock.call(
+                [
+                    "mmcli",
+                    "-m",
+                    "0",
+                    "--delete-bearer=/org/freedesktop/ModemManager1/Bearer/1",
+                ]
+            ),
+        ]
+        mock_run.assert_has_calls(expected_calls, any_order=True)
+
 
 class TestResources(unittest.TestCase):
     @patch("wwan_tests.MMCLI")
@@ -174,7 +208,6 @@ class TestWWANTestCtx(unittest.TestCase):
 
 class TestThreeGppScanTest(unittest.TestCase):
     def test_register_argument(self):
-
         sys.argv = ["wwan_tests.py", "3gpp-scan", "2", "--timeout", "600"]
         obj_3gppscan = wwan_tests.ThreeGppScanTest()
         ret_args = obj_3gppscan.register_argument()
@@ -262,7 +295,6 @@ class TestThreeGppScanTest(unittest.TestCase):
 
 class TestThreeGppConnectionTest(unittest.TestCase):
     def test_register_argument(self):
-
         sys.argv = [
             "wwan_tests.py",
             "3gpp-connection",
@@ -379,7 +411,7 @@ class TestAllowRoaming(unittest.TestCase):
 
         _allow_roaming(test_mm_id, test_apn)
 
-        expected_bearer = "apn={},allow-roaming=yes".format(test_apn)
+        expected_bearer = "apn={},allow-roaming=true".format(test_apn)
         expected_cmd = [
             "mmcli",
             "-m",

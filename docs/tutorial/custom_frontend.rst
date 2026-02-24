@@ -13,7 +13,7 @@ created.
 Prerequisites
 =============
 
-To complete this tutorial you will need snapcraft. Refer to the following to
+To complete this tutorial you will need Snapcraft. Refer to the following to
 install it: `Set up Snapcraft <https://documentation.ubuntu.com/snapcraft/stable/how-to/set-up-snapcraft/>`_
 
 Additionally, you will need the provider we created during the previous
@@ -26,7 +26,7 @@ Starting a new Checkbox Frontend snap
 =====================================
 
 To begin our new snap we start from creating a new project directory. Usually
-cusom frontends are named `checkbox_name_of_the_project`, so start by creating
+custom frontends are named `checkbox_name_of_the_project`, so start by creating
 a `checkbox_tutorial` directory. Prepare the following tree structure,
 creating a new ``providers`` directory and a ``snap`` directory inside of it,
 then copy the ``2024.com.tutorial:tutorial`` directory we created via
@@ -148,10 +148,10 @@ new snap and connect them.
   Here we have to use ``--dangerous`` because we built the snap locally.
   Once in the store this will no longer be necessary.
 
-Building the snap on Github
+Building the snap on GitHub
 ===========================
 
-We reccommend creating the following workflow in your repository to build and
+We recommend creating the following workflow in your repository to build and
 publish your snap. This tutorial will not go into much detail about how you
 should gate the promotion between edge, beta and stable but we advise you to
 take inspiration from the Checkbox process detailed in :ref:`canary-explanation`.

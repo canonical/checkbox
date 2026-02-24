@@ -81,6 +81,7 @@ apps:
     restart-condition: always
     restart-delay: 1s
     plugs: *standard
+    install-mode: disable
     environment:
       PYTHONPATH: $SNAP/lib/python3.12/site-packages/:$SNAP/lib64/python3.12/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
 
@@ -102,6 +103,55 @@ parts:
       craftctl set version=$version
     stage:
       - version.txt
+  ################################################################################
+  extra-path-environment:
+    plugin: nil
+    override-build: |
+      echo "#fwts is in /lib/fwts instead of /lib
+      LD_LIBRARY_PATH+=/lib/fwts
+      # lapack and blas are pulled by opencv and install libraries in a directory
+      LD_LIBRARY_PATH+=/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack
+      LD_LIBRARY_PATH+=/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas
+      # GLIB object paths are ofc. not default as well
+      GI_TYPELIB_PATH+=/usr/lib/girepository-1.0
+      GI_TYPELIB_PATH+=/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/girepository-1.0
+      " >> $CRAFT_PART_INSTALL/extra_path_environment
+    stage:
+      - extra_path_environment
+  ################################################################################
+  plz-run:
+    plugin: go
+    source: https://github.com/Hook25/plz-run.git
+    build-snaps:
+      - go/latest/stable
+  ################################################################################
+  # statically linked nsenter as plz-run launches nsenter outside of the namespace
+  # so if the user is using a different base / os with a different version of
+  # glibc, nsenter won't work at all.
+  static-nsenter:
+    plugin: nil
+    source-tag: "v2.41.1"
+    source-depth: 1
+    source: https://github.com/util-linux/util-linux.git
+    build-packages:
+      - build-essential
+      - libcap-ng-dev
+      - git
+      - autoconf
+      - automake
+      - libtool
+      - gettext
+      - bison
+      - pkg-config
+      - flex
+      - autopoint
+    override-build: |
+      snapcraftctl build
+      ./autogen.sh
+      ./configure --disable-all-programs --enable-nsenter --enable-setpriv \
+        --enable-static-programs=nsenter
+      make LDFLAGS="-static -all-static"
+      install -D -m 755 nsenter.static "$CRAFT_PART_INSTALL/usr/bin/nsenter.static"
   ################################################################################
   fwts:
     source-tag: "V25.07.00"
@@ -290,6 +340,7 @@ parts:
       - efibootmgr
       - ethtool
       - freeipmi-tools
+      - fscrypt
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -339,6 +390,7 @@ parts:
       - python3-pyqrcode
       - python3-serial
       - python3-yaml
+      - python3-pyscard
       - python3-zbar
       - qml-module-qtquick-controls
       - qml-module-qtquick-layouts

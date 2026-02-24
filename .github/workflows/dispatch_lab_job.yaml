@@ -35,7 +35,7 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
 
@@ -44,7 +44,7 @@ jobs:
         run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Run the spec
-        uses: canonical/checkbox/.github/actions/checkbox_source_deb@bff743aad15fd2efad8a8b310e2cf9ed6bfae44d
+        uses: canonical/checkbox/.github/actions/checkbox_source_deb@e7d6d49ea4251c63c60b76e2e26799cb837163e8
         with:
           data_source: ${{ matrix.spec.data_source }}
           queue: ${{ matrix.spec.queue }}

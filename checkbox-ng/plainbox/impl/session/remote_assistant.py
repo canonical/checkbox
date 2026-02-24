@@ -304,6 +304,9 @@ class RemoteSessionAssistant:
             "DISPLAY": self._set_envvar_from_proc("DISPLAY"),
             "WAYLAND_DISPLAY": self._set_envvar_from_proc("WAYLAND_DISPLAY"),
             "XAUTHORITY": self._set_envvar_from_proc("XAUTHORITY"),
+            "XDG_CURRENT_DESKTOP": self._set_envvar_from_proc(
+                "XDG_CURRENT_DESKTOP"
+            ),
             "XDG_SESSION_TYPE": self._set_envvar_from_proc("XDG_SESSION_TYPE"),
             "XDG_RUNTIME_DIR": "/run/user/{}".format(uid),
             "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/{}/bus".format(
@@ -320,9 +323,8 @@ class RemoteSessionAssistant:
         target_envvars = {
             "DISPLAY",
             "XAUTHORITY",
+            "XDG_CURRENT_DESKTOP",
             "XDG_SESSION_TYPE",
-            "XDG_RUNTIME_DIR",
-            "DBUS_SESSION_BUS_ADDRESS",
             "WAYLAND_DISPLAY",
         }
         extra_env = {}
@@ -359,15 +361,14 @@ class RemoteSessionAssistant:
             present_keys = i_env.keys() & missing_keys
             extra_env.update({k: i_env[k] for k in present_keys})
 
+        # inheriting these two basically never works because they are either
+        # the following or a transient value inherited from another snap, which
+        # will not work.
         uid = pwd.getpwnam(self._normal_user).pw_uid
-        # we may be starting before a user session, lets try to assign a
-        # default value to the runtime dir and dbus session
-        if "XDG_RUNTIME_DIR" not in extra_env:
-            extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
-        if "DBUS_SESSION_BUS_ADDRESS" not in extra_env:
-            extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
-                "unix:path=/run/user/{}/bus".format(uid)
-            )
+        extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
+        extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
+            "unix:path=/run/user/{}/bus".format(uid)
+        )
         return extra_env
 
     @allowed_when(RemoteSessionStates.Idle)

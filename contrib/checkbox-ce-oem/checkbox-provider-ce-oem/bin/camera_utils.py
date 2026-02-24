@@ -180,6 +180,10 @@ def camera_factory(platform: str, camera_module: str) -> Type[CameraInterface]:
         from camera_genio import genio_camera_factory
 
         return genio_camera_factory(camera_module=camera_module)
+    elif "imx" in platform:
+        from camera_imx import imx_camera_factory
+
+        return imx_camera_factory(platform, camera_module)
     else:
         log_and_raise_error(
             "Cannot find the '{}' platform".format(platform),

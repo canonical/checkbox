@@ -1,0 +1,60 @@
+{
+    "capture_image": [
+        {
+            "camera": "imx_os08a20",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "VIV (platform:viv0)",
+            "formats": ["YUY2", "NV12", "NV16"],
+            "resolutions": [
+                {"width": 1280, "height": 720},
+                {"width": 1920, "height": 1080},
+                {"width": 2560, "height": 1440},
+                {"width": 3840, "height": 2160}
+            ]
+        },
+        {
+            "camera": "ov5640",
+            "method": "gstreamer",
+            "physical_interface": "csi2",
+            "v4l2_device_name": "mxc-isi-cap_v1 (platform:32e02000.isi:cap_devic)",
+            "formats": ["YUY2", "NV12", "RGB"],
+            "resolutions": [
+                {"width": 320, "height": 240},
+                {"width": 640, "height": 480},
+                {"width": 720, "height": 480},
+                {"width": 1280, "height": 720},
+                {"width": 1920, "height": 1080}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "imx_os08a20",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "VIV (platform:viv0)",
+            "formats": ["YUY2", "NV12", "NV16"],
+            "resolutions": [
+                {"width": 1280, "height": 720, "fps": 60},
+                {"width": 1920, "height": 1080, "fps": 60},
+                {"width": 2560, "height": 1440, "fps": 60},
+                {"width": 3840, "height": 2160, "fps": 60}
+            ]
+        },
+        {
+            "camera": "ov5640",
+            "method": "gstreamer",
+            "physical_interface": "csi2",
+            "v4l2_device_name": "mxc-isi-cap_v1 (platform:32e02000.isi:cap_devic)",
+            "formats": ["YUY2", "NV12", "RGB"],
+            "resolutions": [
+                {"width": 320, "height": 240, "fps": 30},
+                {"width": 640, "height": 480, "fps": 30},
+                {"width": 720, "height": 480, "fps": 30},
+                {"width": 1280, "height": 720, "fps": 30},
+                {"width": 1920, "height": 1080, "fps": 30}
+            ]
+        }
+    ]
+}

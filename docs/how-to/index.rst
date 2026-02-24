@@ -13,4 +13,6 @@ These how-to guides cover key operations and processes in Checkbox.
    freeze-checkbox-version
    launcher/*
    using-match
+   using-groups
    ancient-python
+   custom-frontend-envvars

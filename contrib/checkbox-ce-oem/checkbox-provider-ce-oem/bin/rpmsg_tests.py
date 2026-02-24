@@ -7,12 +7,13 @@ import re
 import subprocess
 import logging
 import threading
+import glob
 from pathlib import Path
 import serial_test
 
 
 SOC_ROOT = "/sys/devices/soc0"
-RPMSG_PATH = "/sys/class/remoteproc"
+REMOTEPROC_PATH = "/sys/class/remoteproc"
 
 
 class RpmsgSysFsHandler:
@@ -20,7 +21,7 @@ class RpmsgSysFsHandler:
     properties = ["firmware_path", "firmware_file", "rpmsg_state"]
 
     def __init__(self, remoteproc_dir):
-        root_path = os.path.join(RPMSG_PATH, remoteproc_dir)
+        root_path = os.path.join(REMOTEPROC_PATH, remoteproc_dir)
         self.sysfs_fw_path = "/sys/module/firmware_class/parameters/path"
         self.sysfs_firmware_file = os.path.join(root_path, "firmware")
         self.sysfs_state_path = os.path.join(root_path, "state")
@@ -442,7 +443,6 @@ class RpmsgPingPongTest(RpmsgTest):
 
 
 class RpmsgStringEchoTest(RpmsgTest):
-
     def __init__(
         self,
         rpmsg_node,
@@ -601,7 +601,7 @@ def detect_arm_processor_type():
 
 
 def pingpong_test(
-    rpmsg_node,
+    remoteproc_node,
     cpu_type,
     load_firmware=False,
     firmware_path=None,
@@ -630,7 +630,7 @@ def pingpong_test(
         raise SystemExit("Unexpected CPU type.")
 
     test_obj = RpmsgPingPongTest(
-        rpmsg_node,
+        remoteproc_node,
         kernel_module,
         probe_cmd,
         pingpong_event_pattern,
@@ -644,7 +644,7 @@ def pingpong_test(
 
 
 def string_echo_test(
-    rpmsg_node,
+    remoteproc_node,
     cpu_type,
     load_firmware=False,
     firmware_path=None,
@@ -678,7 +678,7 @@ def string_echo_test(
         raise SystemExit("Unexpected CPU type.")
 
     test_obj = RpmsgStringEchoTest(
-        rpmsg_node,
+        remoteproc_node,
         kernel_module,
         probe_cmd,
         check_pattern,
@@ -690,7 +690,59 @@ def string_echo_test(
     test_obj.run_test()
 
 
-def rpmsg_node_detection_test(rpmsg_node):
+def run(cmd):
+    return subprocess.check_output(cmd, shell=True, text=True).strip()
+
+
+def check_device_tree():
+    mailboxes = []
+    vdevbuffer = []
+    vdevring = []
+    rsc_table = []
+
+    # check mailbox define and interrupt value
+    for root, dirs, files in os.walk("/proc/device-tree/"):
+        for d in dirs:
+            if d.startswith("mailbox"):
+                mailboxes.append(os.path.join(root, d))
+    if not mailboxes:
+        raise SystemExit("FAIL: no mailbox is defined in device-tree")
+    logging.info("PASSED: mailbox defined is found")
+
+    for node in mailboxes:
+        dts = run("dtc -qqq -f -I fs -O dts {}".format(node))
+        interrupt = re.search(r"\binterrupts\s*=\s*<([^>]+)>;", dts)
+        if not interrupt:
+            raise SystemExit("FAIL: no interrupts is defined for mailbox")
+        logging.info("PASSED: interrupt defined is found for mailbox")
+
+    # check virtio device ring buffer and buffer define.
+    for root, dirs, files in os.walk("/proc/device-tree/"):
+        for d in dirs:
+            if "vdev" in d and "buffer" in d:
+                vdevbuffer.append(d)
+            elif "vdev" in d and "vring" in d:
+                vdevring.append(d)
+            elif "rsc-table" in d:
+                rsc_table.append(d)
+
+    if not vdevbuffer:
+        raise SystemExit("FAIL: vdevbuffer is not defined")
+    logging.info("PASSED: vdevbuffer define:")
+    logging.debug(vdevbuffer)
+
+    if not vdevring:
+        raise SystemExit("WARNING: vdev vrings are not defined")
+    logging.info("PASSED: vdev vring is are defined:")
+    logging.debug(vdevring)
+
+    if not rsc_table:
+        raise SystemExit("WARNING: resource table is not defined")
+    logging.info("PASSED: resource table is defined:")
+    logging.debug(rsc_table)
+
+
+def remoteproc_node_detection_test(remoteproc_node):
     """
     Validate the remoteproc node is available
 
@@ -699,14 +751,110 @@ def rpmsg_node_detection_test(rpmsg_node):
     """
     logging.info("## Checking remoteproc node is available ...")
 
-    rpmsg_devices = os.listdir(RPMSG_PATH)
-    logging.info(rpmsg_devices)
-    if not rpmsg_devices:
-        raise SystemExit("RPMSG node is not available")
-    elif rpmsg_node and rpmsg_node not in rpmsg_devices:
-        raise SystemExit("{} is not available".format(rpmsg_node))
+    remoteproc_devices = os.listdir(REMOTEPROC_PATH)
+    logging.info(remoteproc_devices)
+    if not remoteproc_devices:
+        raise SystemExit("REMOTEPROC node is not available")
+    elif remoteproc_node and remoteproc_node not in remoteproc_devices:
+        raise SystemExit("{} is not available".format(remoteproc_node))
 
     logging.info("PASSED: remoteproc node is available")
+
+
+def has_bound_device(driver_path):
+    """
+    A bound platform device usually appears as a symlink whose
+    name looks like a hex address or device identifier.
+    """
+
+    try:
+        for entry in os.listdir(driver_path):
+            # platform device names are often hex-like or numeric
+            if re.match(r"^[0-9a-fA-F]", entry):
+                return
+    except OSError:
+        raise SystemExit("FAIL: No mailbox driver be probed.")
+
+
+def check_mailbox(mbox_driver):
+    logging.info("Target mailbox driver: {}".format(mbox_driver))
+    drivers_path = "/sys/bus/platform/drivers"
+
+    if mbox_driver in os.listdir(drivers_path):
+        driver_path = os.path.join(drivers_path, mbox_driver)
+
+        has_bound_device(driver_path)
+
+    else:
+        raise SystemExit("FAIL: No mailbox driver is found.")
+    logging.info("PASSED: Mailbox driver found")
+
+
+def check_virtio_device(node):
+    logging.info("Target device: {}".format(node))
+    virtio_devices = [
+        Path(p).name for p in glob.glob("/sys/bus/virtio/devices/virtio*")
+    ]
+    logging.info(virtio_devices)
+    if node not in virtio_devices:
+        raise SystemExit(
+            "FAIL: no matched virtio devices created by remoteproc."
+        )
+    logging.info("PASSED: virtio devices present: {}".format(node))
+
+
+def check_rpmsg_transport(node, e_driver):
+    logging.info("Target driver %s", e_driver)
+    driver = os.path.join("/sys/bus/virtio/devices", node, "driver")
+    if os.path.islink(driver):
+        drv = os.path.realpath(driver)
+        if e_driver in drv:
+            logging.info("PASSED: rpmsg transport bound to %s", drv)
+            return
+        else:
+            raise SystemExit(
+                "FAIL: We expect driver {}, but {} found".format(
+                    e_driver, os.path.basename(drv)
+                )
+            )
+    raise SystemExit("FAIL: transport driver not bound")
+
+
+def check_virtio(virtio_device, virtio_driver):
+    check_virtio_device(virtio_device)
+    check_rpmsg_transport(virtio_device, virtio_driver)
+
+
+def get_rpmsg_channel():
+    """
+    Get all of the RPMSG destination channel
+
+    Raises:
+        SystemExit: if rpmsg_channels is empty
+
+    Returns:
+        rpmsg_channels (list): a list of RPMSG destination channel
+    """
+    logging.info("## Checking RPMSG channel ...")
+    rpmsg_root = "/sys/bus/rpmsg/devices"
+    rpmsg_channels = []
+    rpmsg_devices = os.listdir(rpmsg_root)
+    if not rpmsg_devices:
+        raise SystemExit("FAIL: RPMSG device is not available")
+    else:
+        logging.info("PASSED: RPMSG device is available")
+
+    for file_obj in rpmsg_devices:
+        tmp_file = Path(rpmsg_root, file_obj, "dst")
+        if tmp_file.is_file():
+            rpmsg_channels.append(tmp_file.read_text().strip("\n"))
+
+    if rpmsg_channels:
+        logging.info("PASSED: Available RPMSG channels is %s", rpmsg_channels)
+    else:
+        raise SystemExit("FAIL: RPMSG channel is not created")
+
+    return rpmsg_channels
 
 
 def register_arguments():
@@ -718,19 +866,61 @@ def register_arguments():
     )
 
     parser.add_argument(
-        "--rpmsg-node",
+        "--remoteproc-node",
         default="remoteproc0",
         help="The RPMSG node to use (default: remoteproc0)",
+    )
+
+    parser.add_argument(
+        "--virtio-device",
+        default="virtio0",
+        help="The virtio device to use(default: virtio0).",
+    )
+
+    parser.add_argument(
+        "--virtio-driver",
+        default="virtio_rpmsg_bus",
+        help="The virtio for rpmsg driver to use(default: virtio_rpmsg_bus).",
+    )
+
+    parser.add_argument(
+        "--mbox-driver",
+        default="imx_mu",
+        help="The mailbox driver to use(default: imx_mu).",
     )
 
     subparsers = parser.add_subparsers(
         dest="test_command", required=True, help="The test to run."
     )
 
+    parser_dtree = subparsers.add_parser(
+        "dtree-verify", help="Check if the device tree is well defined."
+    )
+    parser_dtree.set_defaults(func=check_device_tree)
+
     parser_detection = subparsers.add_parser(
         "node-detection", help="Check if the remoteproc node exists."
     )
-    parser_detection.set_defaults(func=rpmsg_node_detection_test)
+    parser_detection.set_defaults(func=remoteproc_node_detection_test)
+
+    parser_mbox = subparsers.add_parser(
+        "mailbox-detection",
+        help="Check if the mailbox device node exists "
+        "and driver has been probed",
+    )
+
+    parser_mbox.set_defaults(func=check_mailbox)
+
+    parser_vio = subparsers.add_parser(
+        "virtio-detection", help="Check if the virtio device node exists."
+    )
+    parser_vio.set_defaults(func=check_virtio)
+
+    parser_channel = subparsers.add_parser(
+        "channel-detection",
+        help="Check if the transport driver has been probed.",
+    )
+    parser_channel.set_defaults(func=get_rpmsg_channel)
 
     parser_pingpong = subparsers.add_parser(
         "pingpong", help="Run RPMSG ping-pong test."
@@ -808,22 +998,38 @@ def main():
     root_logger.addHandler(stderr_handler)
     root_logger.addHandler(stdout_handler)
 
-    func_kwargs = {"rpmsg_node": args.rpmsg_node}
+    func_kwargs = {}
+    if args.test_command in ["node-detection"]:
+        func_kwargs["remoteproc_node"] = args.remoteproc_node
+        args.func(**func_kwargs)
 
-    if args.test_command in ["pingpong", "string-echo"]:
+    elif args.test_command in ["pingpong", "string-echo"]:
+
         if args.load_firmware and not args.firmware_file:
             logging.error(
                 "firmware-file is required when 'load-firmware' is specified."
             )
             exit(1)
 
+        func_kwargs["remoteproc_node"] = args.remoteproc_node
         cpu_type = detect_arm_processor_type()
         func_kwargs["cpu_type"] = cpu_type
         func_kwargs["load_firmware"] = args.load_firmware
         func_kwargs["firmware_path"] = args.firmware_path
         func_kwargs["firmware_file"] = args.firmware_file
+        args.func(**func_kwargs)
 
-    args.func(**func_kwargs)
+    elif args.test_command in ["mailbox-detection"]:
+        func_kwargs["mbox_driver"] = args.mbox_driver
+        args.func(**func_kwargs)
+
+    elif args.test_command in ["virtio-detection"]:
+        func_kwargs["virtio_device"] = args.virtio_device
+        func_kwargs["virtio_driver"] = args.virtio_driver
+        args.func(**func_kwargs)
+
+    else:
+        args.func()
 
 
 if __name__ == "__main__":

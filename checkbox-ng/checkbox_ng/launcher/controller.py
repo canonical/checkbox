@@ -338,15 +338,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             except EOFError as exc:
                 if keep_running:
                     print("Connection lost!")
-                    # this is yucky but it works, in case of explicit
-                    # connection closing by the agent we get this msg
                     _logger.info("controller: Connection lost due to: %s", exc)
-                    if str(exc) == "stream has been closed":
-                        print(
-                            "Agent explicitly disconnected you. Possible "
-                            "reason: new controller connected to the agent"
-                        )
-                        break
                     print(exc)
                     time.sleep(1)
                 else:

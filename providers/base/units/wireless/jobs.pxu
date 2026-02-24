@@ -322,6 +322,34 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
+id: wireless/wifi7_mlo_{{ interface }}
+template-id: wireless/wifi7_mlo_interface
+depends: wireless/detect
+_summary: Test Wi-Fi 7 Multi-Link-Operation (MLO) on {{ interface }}
+_purpose:
+  Check if the DUT supports Wi-Fi 7 features like Multi-Link-Operation
+plugin: shell
+user: root
+environ: MLO_SSID MLO_PSK
+imports: from com.canonical.plainbox import manifest
+command:
+  wifi_7_test.py -m "$MLO_SSID" -p "$MLO_PSK" -i {{ interface }}
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 30.0
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_be == 'supported'
+ executable.name == 'nmcli'
+ wifi_7_resource.wpa_supplicant_at_least_2_11 == 'True'
+ wifi_7_resource.kernel_at_least_6_14 == 'True'
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
+ manifest.has_wifi_mlo_environment == 'True'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
 id: wireless/wireless_connection_open_be_nm_{{ interface }}
 depends: wireless/detect
 template-id: wireless/wireless_connection_open_be_nm_interface

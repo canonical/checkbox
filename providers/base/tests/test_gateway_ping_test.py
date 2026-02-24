@@ -651,6 +651,9 @@ class IsCableInterfaceTests(unittest.TestCase):
     def test_is_cable_interface_nominal_3(self):
         self.assertTrue(is_cable_interface("enp0s25"))
 
+    def test_is_cable_interface_nominal_4(self):
+        self.assertTrue(is_cable_interface("lan1"))
+
     def test_is_cable_interface_nominal_oob(self):
         """Test out-of-band (oob) management are detected as wired interfaces"""
         self.assertTrue(is_cable_interface("oob_mnic0"))

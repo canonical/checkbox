@@ -26,7 +26,11 @@ import os
 import time
 
 from gettext import gettext as _
-import urwid.raw_display
+
+try:
+    import urwid.raw_display as raw_display
+except ModuleNotFoundError:
+    import urwid.display.raw as raw_display
 import urwid
 
 from plainbox.abc import IJobResult
@@ -37,7 +41,7 @@ test_info_list = ()
 show_job_ids = False
 
 
-class ASCIIScreen(urwid.raw_display.Screen):
+class ASCIIScreen(raw_display.Screen):
     def draw_screen(self, size, r):
         _trans_table = "?" * 32 + "".join([chr(x) for x in range(32, 256)])
         line = []
@@ -54,7 +58,7 @@ class ASCIIScreen(urwid.raw_display.Screen):
 if os.getenv("DISABLE_URWID_ESCAPE_CODES"):
     Screen = ASCIIScreen
 else:
-    Screen = urwid.raw_display.Screen
+    Screen = raw_display.Screen
 
 
 class FlagUnitWidget(urwid.TreeWidget):

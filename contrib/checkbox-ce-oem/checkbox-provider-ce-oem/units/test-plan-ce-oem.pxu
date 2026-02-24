@@ -51,6 +51,10 @@ nested_part:
     ce-oem-mipi-camera-manual
     ce-oem-regulator-manual
     ce-oem-graphics-manual
+    ce-oem-rpmsg-manual
+    ce-oem-barcode-scanner-manual
+    ce-oem-printer-manual
+    ce-oem-cash-drawer-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -97,6 +101,10 @@ nested_part:
     ce-oem-power-automated-by-pdu
     ce-oem-mipi-camera-automated
     ce-oem-graphics-automated
+    ce-oem-video-codec-automated
+    ce-oem-rpmsg-automated
+    ce-oem-barcode-scanner-automated
+    ce-oem-printer-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -130,6 +138,9 @@ nested_part:
     after-suspend-ce-oem-digital-io-manual
     after-suspend-ce-oem-mir-automated
     after-suspend-ce-oem-regulator-manual
+    after-suspend-ce-oem-barcode-scanner-manual
+    after-suspend-ce-oem-printer-manual
+    after-suspend-ce-oem-cash-drawer-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -166,6 +177,8 @@ nested_part:
     after-suspend-ce-oem-digital-io-automated
     after-suspend-ce-oem-spi-automated
     after-suspend-ce-oem-regulator-automated
+    after-suspend-ce-oem-barcode-scanner-automated
+    after-suspend-ce-oem-printer-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -179,6 +192,6 @@ include:
 nested_part:
     ce-oem-cold-boot-stress-test-by-pdu
     ce-oem-ethernet-tcp-stress
+    ce-oem-serial-stress
 certification_status_overrides:
     apply blocker to .*
-

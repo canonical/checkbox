@@ -23,14 +23,12 @@ plainbox.impl.unit.test_init
 Test definitions for plainbox.impl.unit (package init file)
 """
 
-from unittest import TestCase
+import textwrap
+from unittest import TestCase, mock
 
 from plainbox.abc import IProvider1
-from plainbox.impl.unit.unit import Unit
-from plainbox.impl.unit.unit import MissingParam
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
-from plainbox.vendor import mock
+from plainbox.impl.unit.unit import Unit, MissingParam, get_snap_base
+from plainbox.impl.validation import Problem, Severity
 
 
 class IssueMixIn:
@@ -434,3 +432,64 @@ class UnitFieldValidationTests(TestCase, IssueMixIn):
             Severity.advice,
             message,
         )
+
+
+class GetSnapBaseTests(TestCase):
+    @mock.patch(
+        "plainbox.impl.unit.unit.open",
+        new=mock.mock_open(
+            read_data=textwrap.dedent(
+                """
+                name: checkbox
+                version: 7.0.0-dev76
+                summary: Checkbox test runner
+                base: core
+                """
+            )
+        ),
+    )
+    @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
+    def test_core16_just_core(self):
+        get_snap_base.cache_clear()
+        self.assertEqual(get_snap_base(), "core16")
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.open",
+        new=mock.mock_open(
+            read_data=textwrap.dedent(
+                """
+                name: checkbox
+                version: 7.0.0-dev76
+                summary: Checkbox test runner
+                """
+            )
+        ),
+    )
+    @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
+    def test_core16_undeclared(self):
+        get_snap_base.cache_clear()
+        self.assertEqual(get_snap_base(), "core16")
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.open",
+        new=mock.mock_open(
+            read_data=textwrap.dedent(
+                """
+                name: checkbox
+                version: 7.0.0-dev76
+                summary: Checkbox test runner
+                base: core24
+                """
+            )
+        ),
+    )
+    @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
+    def test_core24(self):
+        get_snap_base.cache_clear()
+        self.assertEqual(get_snap_base(), "core24")
+
+    @mock.patch("os.getenv", new=mock.Mock(return_value=None))
+    def test_no_snap_envvar(self):
+        get_snap_base.cache_clear()
+        with self.assertRaises(ValueError):
+            get_snap_base()

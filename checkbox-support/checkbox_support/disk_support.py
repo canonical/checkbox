@@ -229,7 +229,7 @@ class Disk:
                         full_device, self.mount_point
                     )
                 )
-            self.test_dir = "{}/tmp/stress-ng-{}".format(
+            self.test_dir = "{}/stress-ng-{}".format(
                 self.mount_point, uuid.uuid1()
             )
             os.makedirs(self.test_dir, exist_ok=True)

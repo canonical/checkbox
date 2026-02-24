@@ -185,7 +185,7 @@ _description: Attaches a report of sysfs attributes.
 command:
  for i in $(udevadm info --export-db | sed -n 's/^P: //p'); do
   echo "P: $i"
-  udevadm info --attribute-walk --path=/sys"$i" 2>/dev/null | sed -n 's/    ATTR{\(.*\)}=="\(.*\)"/A: \1=\2/p'
+  timeout 10 udevadm info --attribute-walk --path=/sys"$i" 2>/dev/null | sed -n 's/    ATTR{\(.*\)}=="\(.*\)"/A: \1=\2/p'
   echo
  done
 estimated_duration: 6.344

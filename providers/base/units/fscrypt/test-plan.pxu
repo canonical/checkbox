@@ -1,0 +1,15 @@
+id: fscrypt-full
+unit: test plan
+_name: fscrypt tests
+_description: fscrypt tests
+include:
+nested_part:
+    fscrypt-automated
+
+id: fscrypt-automated
+unit: test plan
+_name: automated fscrypt tests
+_description: Automated fscrypt tests
+include:
+    fscrypt/check-kernel-config
+    fscrypt/check-support

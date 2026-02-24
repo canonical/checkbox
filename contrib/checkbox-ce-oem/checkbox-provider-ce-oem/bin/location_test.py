@@ -22,7 +22,40 @@ import re
 import subprocess
 
 
-def identify_gps_module(serial_device, msg_protocol="NMEA0183"):
+DEBUG_LEVEL = 3
+
+
+def gpsctl_detect(cmd):
+    """
+    Execute gpsctl command to detect GPS module
+
+    Args:
+        cmd (str): the gpsctl command
+    Returns:
+        str: the output of gpsctl command
+    """
+    print("Identifying GPS module via command: {}".format(cmd))
+    result = ""
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            shell=True,
+            text=True,
+            stderr=subprocess.STDOUT,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
+
+        result, _ = proc.communicate(timeout=20)
+        print(result)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        raise RuntimeError("Failed: Timeout when executing gpsctl")
+
+    return result
+
+
+def identify_gps_module(serial_device, msg_protocol=""):
     """
     Recognize the GPS module by gpsctl utility
 
@@ -30,31 +63,36 @@ def identify_gps_module(serial_device, msg_protocol="NMEA0183"):
         serial_device (str): the serial device node. e.g. /dev/ttyUSB0
         msg_protocol (str):
     """
-    cmd = "gpsctl -f -T 60 -D 4 {}".format(serial_device)
-    output = subprocess.check_output(
-        cmd, shell=True, text=True, universal_newlines=True
+    pattern = (
+        r"([a-zA-Z0-9\/-]*) identified as a "
+        r"([a-zA-Z0-9 ,\.\-\(\)]*) at [0-9]* baud."
     )
 
-    pattern = (
-        r"([a-zA-Z0-9\/-]*) identified as a ([a-zA-Z0-9]*) at [0-9]* baud."
-    )
-    match = re.search(pattern, output)
-    if match:
-        tty_node, cur_msg_protocol = match.groups()
-        if msg_protocol and cur_msg_protocol != msg_protocol:
-            raise RuntimeError(
-                (
-                    "Failed: GPS module been detected, "
+    if msg_protocol.lower():
+        cmd = "gpsctl -f -D {} -t {} {}".format(
+            DEBUG_LEVEL, msg_protocol, serial_device
+        )
+    else:
+        cmd = "gpsctl -f -D {} {}".format(DEBUG_LEVEL, serial_device)
+
+    for i in range(3):
+        result = gpsctl_detect(cmd)
+
+        match = re.search(pattern, result)
+        if match:
+            tty_node, cur_msg_protocol = match.groups()
+            if msg_protocol and cur_msg_protocol != msg_protocol:
+                print(
+                    "Warning: GPS module been detected, "
                     "but the message protocol is not expected. "
                     "Protocol: {}".format(cur_msg_protocol)
                 )
+                continue
+            print(
+                "Passed: GPS module (w/ {} protocol) "
+                "has been detected via {}".format(cur_msg_protocol, tty_node)
             )
-        print(
-            "Passed: GPS module (w/ {} protocol) been detected via {}".format(
-                cur_msg_protocol, tty_node
-            )
-        )
-        return
+            return True
 
     raise RuntimeError(
         (
@@ -111,7 +149,7 @@ def register_arguments():
     detect_test_parser.add_argument(
         "--message-protocol",
         type=str,
-        default="NMEA0183",
+        default="",
     )
     detect_test_parser.set_defaults(test_func="gps-detection")
 

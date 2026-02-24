@@ -82,10 +82,6 @@ def check_interface_vendor(interface):
         )
 
     vendor_name = VENDOR_INFO[vendor_id]
-    if vendor_name == "Broadcom":
-        raise NotImplementedError(
-            "Broadcom SRIOV testing is not supported at this time"
-        )
 
     logging.info("The interface %s is a(n) %s NIC", interface, vendor_name)
 

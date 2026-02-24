@@ -29,7 +29,7 @@ def init_logger():
     WARNING, ERROR, CRITICAL to stderr.
     """
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
+    root_logger.setLevel(logging.DEBUG)
     logger_format = "%(asctime)s %(levelname)-8s %(message)s"
     date_format = "%Y-%m-%d %H:%M:%S"
 
@@ -137,7 +137,7 @@ class Serial:
     def send(self, data: bytes) -> None:
         try:
             self.ser.write(data)
-            logging.info("Sent: {}".format(data.decode()))
+            logging.debug("Sent: {}".format(data.decode()))
         except Exception:
             logging.exception("Not able to send data!")
 
@@ -146,7 +146,7 @@ class Serial:
         try:
             rcv = self.ser.read(self.datasize)
             if rcv:
-                logging.info("Received: {}".format(rcv.decode()))
+                logging.debug("Received: {}".format(rcv.decode()))
         except Exception:
             logging.exception(
                 "Received unmanageable string format {}".format(rcv)
@@ -252,7 +252,7 @@ def server_mode(
     while True:
         data = ser.recv()
         if data:
-            time.sleep(3)
+            time.sleep(0.5)
             logging.info("Send string back ...")
             ser.send(data)
             logging.info("Listening on port {} ...".format(ser.node))
@@ -269,6 +269,7 @@ def client_mode(
     timeout=None,
     datasize=1024,
     rs485_settings=None,
+    loop=1,
 ):
     """
     Running as a clinet and it will sending out a string and wait
@@ -290,17 +291,50 @@ def client_mode(
         datasize,
         rs485_settings,
     )
-
     # clean up the garbage in the serial before test
     while ser.recv():
         continue
 
+    if loop > 1:
+        serial_echo_stress_test(ser, datasize, loop)
+    else:
+        serial_echo_test(ser, datasize)
+
+
+def serial_echo_stress_test(serial_session, datasize, loop):
+    failed_count = 0
+    for c in range(1, loop + 1):
+        logging.info("## Loop {} of {}".format(c, loop))
+        random_string = generate_random_string(datasize)
+        serial_session.send(random_string.encode())
+        logging.info("Attempting receive string...")
+        readback = serial_session.recv()
+        time.sleep(1)
+        if readback:
+            if readback.decode() == random_string:
+                logging.info("[PASS] Received string is correct!")
+            else:
+                logging.warning("[FAIL] Received string is incorrect!")
+                failed_count += 1
+
+    if failed_count:
+        logging.error(
+            "Received incorrect string %s times in %s iteractions",
+            failed_count,
+            loop,
+        )
+        raise SystemExit(1)
+    else:
+        logging.info("All %s iteractions passed!", loop)
+
+
+def serial_echo_test(serial_session, datasize):
     random_string = generate_random_string(datasize)
-    ser.send(random_string.encode())
-    for i in range(1, 6):
+    serial_session.send(random_string.encode())
+    for i in range(1, 3):
         logging.info("Attempting receive string... {} time".format(i))
-        readback = ser.recv()
-        time.sleep(3)
+        readback = serial_session.recv()
+        time.sleep(1)
         if readback:
             if readback.decode() == random_string:
                 logging.info("[PASS] Received string is correct!")
@@ -442,6 +476,12 @@ def create_args():
         required=False,
         default="",
     )
+    parser.add_argument(
+        "--loop",
+        type=int,
+        help="Number of loops for serial client test",
+        default=1,
+    )
     return parser
 
 
@@ -449,7 +489,7 @@ def main():
     parser = create_args()
     args = parser.parse_args()
 
-    init_logger()
+    _logger = init_logger()
     if args.type == "RS485":
         rs485_settings = parse_rs485_config(
             args.node, args.rs485_config, args.group
@@ -471,6 +511,10 @@ def main():
             rs485_settings,
         )
     elif args.mode == "client":
+        if args.loop > 1:
+            # Set logging level to INFO to reduce output during stress test
+            _logger.setLevel(logging.INFO)
+
         client_mode(
             args.node,
             args.type,
@@ -482,6 +526,7 @@ def main():
             args.timeout,
             args.datasize,
             rs485_settings,
+            args.loop,
         )
     elif args.mode == "console":
         console_mode(

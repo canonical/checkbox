@@ -1,0 +1,37 @@
+id: ce-oem/barcode-scanner-test-automated
+_summary: Test barcode scanner functionality
+_purpose:
+    This autotest verifies that the barcode scanner is correctly installed and detected as
+    input event.
+plugin: shell
+user: root
+category_id: barcode_scanner
+estimated_duration: 30s
+flags: also-after-suspend
+command: barcode_scanner_test.py -n "$BARCODE_SCANNER_NAME" --check-device
+imports: 
+    from com.canonical.plainbox import manifest
+requires: 
+    manifest.has_barcode_scanner == 'True'
+environ: BARCODE_SCANNER_NAME
+
+id: ce-oem/barcode-scanner-test
+_summary: Test barcode scanner functionality
+_purpose:
+    This test verifies that the barcode scanner is correctly installed and scan barcode as
+    keyboard input.
+plugin: user-interact-verify
+user: root
+category_id: barcode_scanner
+estimated_duration: 30s
+flags: also-after-suspend
+command: barcode_scanner_test.py -n "$BARCODE_SCANNER_NAME"
+imports: 
+    from com.canonical.plainbox import manifest
+requires: 
+    manifest.has_barcode_scanner == 'True'
+environ: BARCODE_SCANNER_NAME
+_steps:
+ 1. Press enter and scan the barcode.
+_verification:
+    Do you see the content of the scanned barcode?

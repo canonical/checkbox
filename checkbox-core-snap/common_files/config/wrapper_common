@@ -18,6 +18,9 @@ else
   append_path LD_LIBRARY_PATH $RUNTIME/lib/$ARCH
   append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH
   append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH/fwts
+  # add paths for lapack and blas to import cv2
+  append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH/lapack
+  append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH/blas
   append_path LD_LIBRARY_PATH $RUNTIME/lib/fwts
   append_path GI_TYPELIB_PATH $RUNTIME/usr/lib/girepository-1.0
   append_path GI_TYPELIB_PATH $RUNTIME/usr/lib/$ARCH/girepository-1.0

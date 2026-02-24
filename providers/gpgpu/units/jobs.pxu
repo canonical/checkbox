@@ -40,7 +40,7 @@ plugin: shell
 estimated_duration: 4
 requires:
     graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    snap.name == 'rocm-validation-suite'
+    package.name == 'rocm-validation-suite' or snap.name == 'rocm-validation-suite'
     uname.machine == 'x86_64'
 _summary: AMD GPGPU properties query
 command: rvs.py gpup

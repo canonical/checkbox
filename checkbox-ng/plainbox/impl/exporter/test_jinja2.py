@@ -193,6 +193,9 @@ class PrettyJsonDecodeErrorTests(TestCase):
     def test_trailing_comma_in_object(self):
         self._check('{"key": "value",}')
 
+    def test_trailing_comma_in_object_bindoc(self):
+        self._check(b'{"key": "value",}')
+
     def test_trailing_comma_in_array(self):
         self._check("[1, 2, 3,]")
 

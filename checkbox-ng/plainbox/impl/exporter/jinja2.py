@@ -52,7 +52,6 @@ from plainbox.impl.result import OUTCOME_METADATA_MAP
 from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.config import CheckboxINIParser
 
-
 #: Name-space prefix for Canonical Certification
 CERTIFICATION_NS = "com.canonical.certification::"
 
@@ -279,5 +278,21 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             s = raw.decode("utf-8") if type(raw) == bytes else raw
             json.loads(s)
             return []
+        except json.decoder.JSONDecodeError as exc:
+            lineno = exc.lineno
+            colno = exc.colno
+            lines = exc.doc.splitlines()
+            around = 3  # print 3 lines before and after
+            min_line = max(lineno - around, 0)
+            max_line = min(lineno + around, len(lines) - 1)
+            center = min(lineno + 1, len(lines))
+            error_repr = lines[min_line:center]
+            error_repr.append(" " * colno + "^^^ " + str(exc))
+            error_repr += lines[center:max_line]
+            if isinstance(error_repr[0], str):
+                return "\n".join(error_repr)
+            else:
+                return b"\n".join(error_repr).decode("utf8")
+
         except Exception as exc:
             return [str(exc)]

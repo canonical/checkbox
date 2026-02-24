@@ -21,6 +21,7 @@
 :mod:`plainbox.impl.template` -- template unit
 ==============================================
 """
+
 import itertools
 import logging
 import string
@@ -46,7 +47,6 @@ from plainbox.impl.unit.validators import UnitReferenceValidator
 from plainbox.impl.unit.validators import UniqueValueValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
-
 
 __all__ = ["TemplateUnit"]
 

@@ -16,8 +16,7 @@ class MonitorConfigX11Tests(unittest.TestCase):
         """
 
         # In xrandr, the '*' is used for active monitors
-        mock_check_output.return_value = dedent(
-            """
+        mock_check_output.return_value = dedent("""
         Screen 0: minimum 320 x 200,
         eDP connected primary 1920x1080+0+607
            1680x1050     60.03 +
@@ -27,8 +26,7 @@ class MonitorConfigX11Tests(unittest.TestCase):
            1920x1080     60.00    50.00    59.94
         DisplayPort-0 disconnected (normal left inverted right x axis y axis)
         DisplayPort-1 disconnected (normal left inverted right x axis y axis)
-        """
-        )
+        """)
 
         x11_monitor = MonitorConfigX11()
         monitors = x11_monitor.get_connected_monitors()
@@ -41,8 +39,7 @@ class MonitorConfigX11Tests(unittest.TestCase):
         monitor-id:resolution for any active monitors.
         """
 
-        mock_check_output.return_value = dedent(
-            """
+        mock_check_output.return_value = dedent("""
         Screen 0: minimum 320 x 200,
         eDP connected primary 1920x1080+0+607
            1680x1050     60.03 +
@@ -52,8 +49,7 @@ class MonitorConfigX11Tests(unittest.TestCase):
            1920x1080     60.00    50.00    59.94
         DisplayPort-0 disconnected (normal left inverted right x axis y axis)
         DisplayPort-1 disconnected (normal left inverted right x axis y axis)
-        """
-        )
+        """)
 
         x11_monitor = MonitorConfigX11()
         resolutions = x11_monitor.get_current_resolutions()
@@ -69,8 +65,7 @@ class MonitorConfigX11Tests(unittest.TestCase):
         configuration to two screens at preferred resolution
         placed horizontally.
         """
-        mock_check_output.return_value = dedent(
-            """
+        mock_check_output.return_value = dedent("""
         Screen 0: minimum 320 x 200,
         eDP connected primary 1920x1080+0+607
            1680x1050     60.03 
@@ -81,8 +76,7 @@ class MonitorConfigX11Tests(unittest.TestCase):
            1920x1080     60.00    50.00    59.94
         DisplayPort-0 disconnected (normal left inverted right x axis y axis)
         DisplayPort-1 disconnected (normal left inverted right x axis y axis)
-        """
-        )
+        """)
 
         x11_monitor = MonitorConfigX11()
         configuration = x11_monitor.set_extended_mode()

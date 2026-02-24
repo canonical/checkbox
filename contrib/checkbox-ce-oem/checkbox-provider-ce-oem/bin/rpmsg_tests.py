@@ -11,7 +11,6 @@ import glob
 from pathlib import Path
 import serial_test
 
-
 SOC_ROOT = "/sys/devices/soc0"
 REMOTEPROC_PATH = "/sys/class/remoteproc"
 

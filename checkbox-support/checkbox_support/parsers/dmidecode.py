@@ -22,7 +22,6 @@ from string import ascii_uppercase
 from checkbox_support.lib.dmi import Dmi
 from checkbox_support.lib.dmi import DmiDevice
 
-
 HANDLE_RE = re.compile(
     r"^Handle (?P<handle>0x[%s]{4}), "
     r"DMI type (?P<type>\d+), "

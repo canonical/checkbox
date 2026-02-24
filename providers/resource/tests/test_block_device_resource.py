@@ -85,13 +85,11 @@ class TestSmartSupportDiskInfo(unittest.TestCase):
 
     @patch("block_device_resource.check_output")
     def test_smart_support_enabled(self, mock_check_output):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             Some intro information on the drive
             === START OF SMART DATA SECTION ===
             SMART overall-health self-assessment test result: PASSED
-            """
-        )
+            """)
 
         result = block_device_resource.smart_support("sda")
         self.assertEqual(result, "True")
@@ -114,28 +112,22 @@ class TestSmartSupportDiskInfo(unittest.TestCase):
     @patch("block_device_resource.check_output")
     def test_smart_support_enabled_raid(self, mock_check_output):
         mock_check_output.side_effect = [
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
                 Raid configuration: some -d 3ware,N
-                """
-            ),
+                """),
             # here we are checking inside the raid checking function
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
-                """
-            ),
+                """),
             # Note: at least one disk in the raid doesn't support SMART,
             #       we report true here as this will make the subsequent
             #       test fail as this is likely to be a mistake from the OEM
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
                 === START OF SMART DATA SECTION ===
                 SMART overall-health self-assessment test result: PASSED
-                """
-            ),
+                """),
             CalledProcessError("cmd", 1),
         ]
 
@@ -145,23 +137,17 @@ class TestSmartSupportDiskInfo(unittest.TestCase):
     @patch("block_device_resource.check_output")
     def test_smart_support_disabled_raid(self, mock_check_output):
         mock_check_output.side_effect = [
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
                 Raid configuration: some -d 3ware,N
-                """
-            ),
+                """),
             # here we are checking inside the raid checking function
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
-                """
-            ),
-            textwrap.dedent(
-                """
+                """),
+            textwrap.dedent("""
                 Some intro information of the drive in raid
-                """
-            ),
+                """),
             CalledProcessError("cmd", 1),
         ]
 
@@ -202,15 +188,13 @@ class TestMainFunction(unittest.TestCase):
             block_device_resource.main()
 
             # Verifying the output
-            expected_output = textwrap.dedent(
-                """
+            expected_output = textwrap.dedent("""
                 name: sda
                 state: internal
                 usb2: unsupported
                 usb3: supported
                 fstrim: False
                 smart: True
-                """
-            ).lstrip()
+                """).lstrip()
 
             mocked_print.assert_called_with(expected_output)

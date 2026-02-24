@@ -42,7 +42,6 @@ import os
 import subprocess
 import sys
 
-
 _logger = logging.getLogger(None)
 
 
@@ -88,7 +87,7 @@ def get_system_modaliases():
                         "skip pattern {}, not a valid modalias".format(data)
                     )
                     continue
-                (modalias_type, modalias_string) = pattern_array
+                modalias_type, modalias_string = pattern_array
 
                 if modalias_type not in result:
                     result[modalias_type] = []
@@ -142,7 +141,7 @@ def match_patterns(patterns):
             _logger.info("skip pattern {}, can't find type".format(pattern))
             continue
 
-        (pattern_type, pattern_string) = pattern_array
+        pattern_type, pattern_string = pattern_array
 
         if pattern_type == "oemalias":
             matched.append(pattern)
@@ -220,7 +219,7 @@ class DkmsPackage(object):
         _logger.info("Looking for kernel modules in %s", path)
         result = []
         for module_file in os.listdir(path):
-            (module, extension) = os.path.splitext(module_file)
+            module, extension = os.path.splitext(module_file)
             if extension == ".ko":
                 result.append(module.replace("-", "_"))
         return result
@@ -335,7 +334,7 @@ class DebianPackageHandler(object):
                 if "Modaliases:" in pkg_str:
                     pkg = _headers_to_dist(pkg_str)
 
-                    (modalias_header, pattern_str) = (
+                    modalias_header, pattern_str = (
                         pkg["modaliases"].strip(")").split("(")
                     )
                     patterns = pattern_str.split(", ")

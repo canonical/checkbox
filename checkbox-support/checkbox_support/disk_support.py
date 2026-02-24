@@ -18,7 +18,6 @@
 Support functions related to disk devices for Checkbox.
 """
 
-
 from subprocess import CalledProcessError, check_output
 import logging
 import os

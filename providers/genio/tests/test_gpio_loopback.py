@@ -8,16 +8,14 @@ class TestGpioLoopback(unittest.TestCase):
 
     def test_get_gpio_base_number(self):
         mock_gpio_controller = MagicMock()
-        data = textwrap.dedent(
-            """
+        data = textwrap.dedent("""
             gpiochip0: GPIOs 0-31, ID1, ID2:
                 gpio-0 (                    |sysfs               ) in  hi
                 gpio-1 (                    |sysfs               ) out hi
             gpiochip1: GPIOs 32-63, ID3, ID4:
                 gpio-32 (                   |sysfs               ) in  hi
                 gpio-33 (                   |sysfs               ) out hi
-        """
-        )
+        """)
         with patch("builtins.open", mock_open(read_data=data)):
             self.assertEqual(
                 GPIOSysFsController.get_gpio_base_number(mock_gpio_controller),

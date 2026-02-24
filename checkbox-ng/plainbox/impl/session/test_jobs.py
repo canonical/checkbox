@@ -21,6 +21,7 @@ plainbox.impl.test_session
 
 Test definitions for plainbox.impl.session module
 """
+
 from doctest import DocTestSuite
 from doctest import REPORT_NDIFF
 from unittest import TestCase, expectedFailure

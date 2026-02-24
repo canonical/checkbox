@@ -21,7 +21,6 @@ import sys
 
 from checkbox_support.parsers.dmidecode import DmidecodeParser
 
-
 # Command to retrieve dmi information.
 COMMAND = "dmidecode"
 

@@ -20,6 +20,7 @@
 """
 Entry point to the Metabox program.
 """
+
 import argparse
 import logging
 import warnings

@@ -9,7 +9,6 @@ import sys
 
 from checkbox_support.snap_utils.snapd import Snapd
 
-
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         raise SystemExit("Usage: plug_connected_test.py SNAP PLUG")

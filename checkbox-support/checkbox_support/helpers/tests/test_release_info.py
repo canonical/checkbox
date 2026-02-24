@@ -9,8 +9,7 @@ from checkbox_support.helpers.release_info import (
 
 
 class OsResourceTests(unittest.TestCase):
-    os_release_data = textwrap.dedent(
-        """
+    os_release_data = textwrap.dedent("""
         PRETTY_NAME="Ubuntu 24.04.2 LTS"
         NAME="Ubuntu"
         VERSION_ID="24.04"
@@ -24,8 +23,7 @@ class OsResourceTests(unittest.TestCase):
         PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
         UBUNTU_CODENAME=noble
         LOGO=ubuntu-logo
-        """
-    ).strip()
+        """).strip()
 
     def test_get_release_file_content(self):
         with patch(
@@ -60,16 +58,14 @@ class OsResourceTests(unittest.TestCase):
 
     @patch("checkbox_support.helpers.release_info.get_release_file_content")
     def test_get_release_info_empty_lines(self, mock_file_content):
-        os_release_data = textwrap.dedent(
-            """
+        os_release_data = textwrap.dedent("""
         PRETTY_NAME="Ubuntu 22.04.5 LTS"
 
         NAME="Ubuntu"
         VERSION_ID="22.04"
 
         VERSION_CODENAME=jammy
-        """
-        ).strip()
+        """).strip()
         mock_file_content.return_value = os_release_data
         os_release = get_release_info()
         expected = {
@@ -83,8 +79,7 @@ class OsResourceTests(unittest.TestCase):
     @patch("checkbox_support.helpers.release_info.get_release_file_content")
     def test_get_release_info_core_no_codename(self, mock_file_content):
         # core doesn't have codename
-        os_release_data = textwrap.dedent(
-            """
+        os_release_data = textwrap.dedent("""
             NAME="Ubuntu Core"
             VERSION="22"
             ID=ubuntu-core
@@ -92,8 +87,7 @@ class OsResourceTests(unittest.TestCase):
             VERSION_ID="22"
             HOME_URL="https://snapcraft.io/"
             BUG_REPORT_URL="https://bugs.launchpad.net/snappy/
-            """
-        ).strip()
+            """).strip()
 
         mock_file_content.return_value = os_release_data
         os_release = get_release_info()

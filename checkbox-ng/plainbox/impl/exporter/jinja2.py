@@ -52,7 +52,6 @@ from plainbox.impl.result import OUTCOME_METADATA_MAP
 from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.config import CheckboxINIParser
 
-
 #: Name-space prefix for Canonical Certification
 CERTIFICATION_NS = "com.canonical.certification::"
 

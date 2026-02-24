@@ -19,8 +19,8 @@
 :mod:`plainbox.impl.commands.parser` -- parser sub-command
 ==========================================================
 """
-import warnings
 
+import warnings
 
 warnings.warn(
     "Use either plainbox.impl.commands.cmd_parse or .inv_parse instead",

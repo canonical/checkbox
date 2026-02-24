@@ -58,8 +58,7 @@ def get_notebook_pod(notebook_name: str) -> str:
 
 def create_parser(checks_names: t.Sequence[str]) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description=textwrap.dedent(
-            """
+        description=textwrap.dedent("""
            Check notebooks in DSS by running Python scripts in their pods.
 
            Possible scripts to run must be placed in the data directory,
@@ -71,8 +70,7 @@ def create_parser(checks_names: t.Sequence[str]) -> argparse.ArgumentParser:
 
            `./data` is used as the data directory by default, but it can
            be overridden by setting `PLAINBOX_PROVIDER_DATA` in the env.
-           """
-        ),
+           """),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(

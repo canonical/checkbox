@@ -19,7 +19,6 @@
 
 """Test and validate SUT CPU scaling capabilities via CPUFreq."""
 
-
 from os import path, geteuid
 import multiprocessing
 import collections

@@ -21,6 +21,7 @@
 """
 this script monitors the systemd journal to catch insert/removal USB events
 """
+
 import argparse
 import logging
 import re

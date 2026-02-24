@@ -63,12 +63,10 @@ class TestRoute(unittest.TestCase):
         self_mock._num_to_dotted_quad = _num_to_dotted_quad
         self_mock.interface = "eth0"
         expected_gateway = "192.168.1.1"
-        output_sample = textwrap.dedent(
-            """
+        output_sample = textwrap.dedent("""
             Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT
             eth0 00000000 0101A8C0 0003 0 0 0 00000000 0 0 0
-            """
-        )
+            """)
         with patch(
             "builtins.open", new_callable=mock_open, read_data=output_sample
         ):
@@ -127,32 +125,27 @@ class TestRoute(unittest.TestCase):
     def test_get_broadcast(self):
         self_mock = MagicMock()
         self_mock.interface = "enp5s0"
-        self_mock._get_ip_addr_info.return_value = textwrap.dedent(
-            """
+        self_mock._get_ip_addr_info.return_value = textwrap.dedent("""
             1: lo    inet 127.0.0.1/8 scope host lo\\ valid_lft forever ...
             3: wlan0    inet 192.168.1.115/24 brd 192.168.1.255 scope ...
             4: enp5s0    inet 192.168.1.119/24 brd 192.168.1.255 scope ...
-            """
-        )
+            """)
         self.assertEqual(Route.get_broadcast(self_mock), "192.168.1.255")
 
     def test_get_broadcast_not_found(self):
         self_mock = MagicMock()
         self_mock.interface = "eth0"
-        self_mock._get_ip_addr_info.return_value = textwrap.dedent(
-            """
+        self_mock._get_ip_addr_info.return_value = textwrap.dedent("""
             1: lo    inet 127.0.0.1/8 scope host lo\\ valid_lft forever ...
             3: wlan0    inet 192.168.1.115/24 brd 192.168.1.255 scope ...
             4: enp5s0    inet 192.168.1.119/24 brd 192.168.1.255 scope ...
-            """
-        )
+            """)
         with self.assertRaises(ValueError):
             Route.get_broadcast(self_mock)
 
     @patch("subprocess.check_output")
     def test__get_default_gateway_from_networkctl_ok(self, mock_check_output):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             systemd-networkd is not running, output might be incomplete.
             Failed to query link bit rates: Could not activate remote peer:
                 activation request failed: unknown unit.
@@ -166,8 +159,7 @@ class TestRoute(unittest.TestCase):
                                  Gateway: 192.168.1.1
 
             feb 00 00:00:00 ... systemd-resolved[1430]: enp5s0: Systemd log line
-            """
-        )
+            """)
         def_gateway = Route("enp5s0")._get_default_gateway_from_networkctl()
         self.assertEqual(def_gateway, "192.168.1.1")
 
@@ -175,8 +167,7 @@ class TestRoute(unittest.TestCase):
     def test__get_default_gateway_from_networkctl_no_gateway(
         self, mock_check_output
     ):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             systemd-networkd is not running, output might be incomplete.
             Failed to query link bit rates: Could not activate remote peer:
                 activation request failed: unknown unit.
@@ -189,8 +180,7 @@ class TestRoute(unittest.TestCase):
                                           fe80::eb41:84fa:6da5:c815
 
             feb 00 00:00:00 ... systemd-resolved[1430]: enp5s0: Systemd log line
-            """
-        )
+            """)
         def_gateway = Route("enp5s0")._get_default_gateway_from_networkctl()
         self.assertIsNone(def_gateway)
 
@@ -257,12 +247,10 @@ class TestRoute(unittest.TestCase):
 
     @patch("subprocess.check_output")
     def test_get_any_interface_from_ip_ok(self, mock_check_output):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             default via 192.168.1.1 dev enp5s0 proto dhcp src 192.168.1.119 metric 100
             default via 192.168.1.1 dev wlan0 proto dhcp src 192.168.1.115 metric 600
-            """
-        )
+            """)
         self.assertEqual(Route.get_any_interface(), "enp5s0")
 
     @patch("subprocess.check_output", return_value="")
@@ -609,14 +597,12 @@ class TestMainFunction(unittest.TestCase):
 class GetDefaultGatewaysTests(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_get_default_gateways_nominal(self, mock_check_output):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             Kernel IP routing table
             Destination Gateway       Genmask  Flags Metric Ref Use Iface
             0.0.0.0     192.168.1.1   0.0.0.0  UG    100    0   0   enp5s0
             0.0.0.0     192.168.1.100 0.0.0.0  UG    600    0   0   wlan0
-            """
-        )
+            """)
         gateways = get_default_gateways()
         self.assertDictEqual(
             gateways, {"enp5s0": "192.168.1.1", "wlan0": "192.168.1.100"}
@@ -624,13 +610,11 @@ class GetDefaultGatewaysTests(unittest.TestCase):
 
     @patch("subprocess.check_output")
     def test_get_default_gateways_no_default(self, mock_check_output):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             Kernel IP routing table
             Destination Gateway       Genmask  Flags Metric Ref Use Iface
             192.168.1.0 192.168.1.1   0.0.0.0  UG    100    0   0   enp5s0
-            """
-        )
+            """)
         gateways = get_default_gateways()
         self.assertDictEqual(gateways, {})
 

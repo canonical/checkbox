@@ -152,9 +152,7 @@ def main():
         help="""List devices found under the requested
                         categories.
                         Acceptable categories to list are:
-                        {}""".format(
-            ", ".join(categories)
-        ),
+                        {}""".format(", ".join(categories)),
     )
     parser.add_argument(
         "-f",
@@ -166,9 +164,7 @@ def main():
         help="""Filter devices found under the requested
                         categories.
                         Acceptable categories to list are:
-                        {}""".format(
-            ", ".join(categories)
-        ),
+                        {}""".format(", ".join(categories)),
     )
     parser.add_argument("-s", "--short", action="store_true")
     args = parser.parse_args()

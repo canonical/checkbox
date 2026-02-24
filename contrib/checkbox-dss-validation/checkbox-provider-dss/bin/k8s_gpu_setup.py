@@ -36,7 +36,6 @@ import yaml
 from checkbox_support.helpers.retry import run_with_retry
 from checkbox_support.helpers.timeout import timeout
 
-
 SLEEP_BEFORE_ROLLOUT = 60  # seconds
 
 INTEL_SHARED_DEV_NUM = 10

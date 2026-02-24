@@ -25,6 +25,7 @@ plainbox.impl.exporter.test_html
 
 Test definitions for plainbox.impl.exporter.html module
 """
+
 import io
 from unittest import TestCase
 

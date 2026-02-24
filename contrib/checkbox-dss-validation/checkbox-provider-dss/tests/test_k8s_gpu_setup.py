@@ -37,7 +37,6 @@ from checkbox_support.helpers.retry import mock_retry
 
 import k8s_gpu_setup
 
-
 DEFAULT_NVIDIA_OPERATOR_VERSION = "v24.6.2"
 DEFAULT_INTEL_PLUGIN_VERSION = "v0.30.0"
 

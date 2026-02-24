@@ -85,9 +85,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_mi300x_video(self):
         """Tests that AMD's MI300X accelerator is marked as a video device."""
-        stream = StringIO(
-            dedent(
-                """
+        stream = StringIO(dedent("""
                 P: /devices/pci0000:00/0000:00:01.1/0000:01:00.0/0000:02:00.0/0000:03:00.0/0000:04:00.0/0000:05:00.0
                 M: 0000:05:00.0
                 R: 0
@@ -108,9 +106,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
                 E: ID_PATH=pci-0000:05:00.0
                 E: ID_PATH_TAG=pci-0000_05_00_0
                 E: NVME_HOST_IFACE=none
-                """
-            )
-        )
+                """))
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(devices[0].category, "VIDEO")
@@ -119,18 +115,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         """Test NVMe device name extraction from DEVPATH when DEVNAME is missing."""
 
         # Test case 1: Virtual NVMe device (nvmeXcYnZ pattern)
-        stream = StringIO(
-            dedent(
-                """
+        stream = StringIO(dedent("""
                 P: /devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
                 E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
                 E: DEVTYPE=disk
                 E: DRIVER=nvme
                 E: SUBSYSTEM=nvme
                 E: ID_SERIAL=test-serial
-                """
-            )
-        )
+                """))
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(len(devices), 1)
@@ -138,18 +130,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(devices[0].category, "DISK")
 
         # Test case 2: Standard namespace device (nvmeXnY pattern)
-        stream = StringIO(
-            dedent(
-                """
+        stream = StringIO(dedent("""
                 P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme0/nvme0n1
                 E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme0/nvme0n1
                 E: DEVTYPE=disk
                 E: DRIVER=nvme
                 E: SUBSYSTEM=nvme
                 E: ID_SERIAL=test-serial
-                """
-            )
-        )
+                """))
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(len(devices), 1)
@@ -157,18 +145,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(devices[0].category, "DISK")
 
         # Test case 3: Controller device (nvmeX pattern - should fallback to nvmeXn1)
-        stream = StringIO(
-            dedent(
-                """
+        stream = StringIO(dedent("""
                 P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme0
                 E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme0
                 E: DEVTYPE=disk
                 E: DRIVER=nvme
                 E: SUBSYSTEM=nvme
                 E: ID_SERIAL=test-serial
-                """
-            )
-        )
+                """))
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(len(devices), 1)
@@ -176,18 +160,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(devices[0].category, "DISK")
 
         # Test case 4: Multiple digit numbers (nvme10c5n2)
-        stream = StringIO(
-            dedent(
-                """
+        stream = StringIO(dedent("""
                 P: /devices/virtual/nvme-subsystem/nvme-subsys10/nvme10c5n2
                 E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys10/nvme10c5n2
                 E: DEVTYPE=disk
                 E: DRIVER=nvme
                 E: SUBSYSTEM=nvme
                 E: ID_SERIAL=test-serial
-                """
-            )
-        )
+                """))
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(len(devices), 1)
@@ -195,18 +175,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(devices[0].category, "DISK")
 
         # Test case 5: Controller device with multi-digit number (nvme15 -> nvme15n1)
-        stream = StringIO(
-            dedent(
-                """
+        stream = StringIO(dedent("""
                 P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme15
                 E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme15
                 E: DEVTYPE=disk
                 E: DRIVER=nvme
                 E: SUBSYSTEM=nvme
                 E: ID_SERIAL=test-serial
-                """
-            )
-        )
+                """))
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(len(devices), 1)
@@ -214,9 +190,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(devices[0].category, "DISK")
 
         # Test case 6: NVMe device WITH DEVNAME should use DEVNAME
-        stream = StringIO(
-            dedent(
-                """
+        stream = StringIO(dedent("""
                 P: /devices/pci0000:00/0000:00:1d.0/0000:07:00.0/nvme/nvme1/nvme1n1
                 N: nvme1n1
                 E: DEVNAME=/dev/nvme1n1
@@ -225,9 +199,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
                 E: DRIVER=nvme
                 E: SUBSYSTEM=nvme
                 E: ID_SERIAL=test-serial
-                """
-            )
-        )
+                """))
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(len(devices), 1)
@@ -235,9 +207,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(devices[0].category, "DISK")
 
     def test_openfirmware_network(self):
-        stream = StringIO(
-            dedent(
-                """
+        stream = StringIO(dedent("""
             P: /devices/soc.0/ffe64000.ethernet
             E: DEVPATH=/devices/soc.0/ffe64000.ethernet
             E: DRIVER=XXXXX
@@ -255,9 +225,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
             E: INTERFACE=eth1
             E: SUBSYSTEM=net
             E: UDEV_LOG=3
-            """
-            )
-        )
+            """))
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(devices[0].category, "NETWORK")

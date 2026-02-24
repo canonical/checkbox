@@ -19,7 +19,6 @@
 #
 import sys
 
-
 # Filename where cpuinfo is stored.
 MODULES_FILENAME = "/proc/modules"
 
@@ -36,7 +35,7 @@ def get_module(line):
     state:        The load state of the module: Live, Loading or Unloading.
     offset:       Current kernel memory offset for the loaded module.
     """
-    (name, size, instances, dependencies, state, offset) = line.split(" ")[:6]
+    name, size, instances, dependencies, state, offset = line.split(" ")[:6]
     if dependencies == "-":
         dependencies = ""
 

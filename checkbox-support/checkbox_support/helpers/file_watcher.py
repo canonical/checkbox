@@ -22,6 +22,7 @@ checkbox_support.helpers.file_watcher import FileWatcher
 
 Utility class for watching file create/modify/delete event with inotify
 """
+
 import ctypes
 import struct
 import os

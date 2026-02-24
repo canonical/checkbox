@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """Manifest Entry Unit."""
+
 import logging
 
 from plainbox.impl.symbol import SymbolDef

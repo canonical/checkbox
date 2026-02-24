@@ -7,7 +7,6 @@ from unittest.mock import patch, mock_open, call
 
 import rpmsg_tests
 
-
 tmpdir = TemporaryDirectory()
 
 

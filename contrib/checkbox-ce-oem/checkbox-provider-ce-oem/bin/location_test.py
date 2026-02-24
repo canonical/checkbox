@@ -21,7 +21,6 @@ import argparse
 import re
 import subprocess
 
-
 DEBUG_LEVEL = 3
 
 

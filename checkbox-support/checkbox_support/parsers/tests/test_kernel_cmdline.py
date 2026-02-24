@@ -18,7 +18,6 @@ from unittest import TestCase
 
 from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
 
-
 CL1 = """\
 BOOT_IMAGE=(hd1,gpt1)/EFI/ubuntu/pc-kernel_x1/kernel.img root=LABEL=writable \
 snap_core=core_1.snap snap_kernel=pc-kernel_1.snap ro net.ifnames=0 \

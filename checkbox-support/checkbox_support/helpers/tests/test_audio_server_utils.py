@@ -428,8 +428,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
     )
     def test_parse_pactl_list_sinks(self, mock_check_output):
         """Test parsing pactl list sinks output."""
-        mock_check_output.return_value = textwrap.dedent(
-            """\
+        mock_check_output.return_value = textwrap.dedent("""\
             Sink #0
             	State: SUSPENDED
             	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
@@ -441,8 +440,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
             	Mute: no
             	Volume: front-left: 65536 / 100% / 0.00 dB
             	Index: 0
-            """
-        )
+            """)
         nodes = self.pulseaudio._parse_pactl_list("sinks")
         self.assertEqual(len(nodes), 1)
         self.assertEqual(
@@ -456,8 +454,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
     )
     def test_parse_pactl_list_multiple_sinks(self, mock_check_output):
         """Test parsing pactl output with multiple sinks."""
-        mock_check_output.return_value = textwrap.dedent(
-            """\
+        mock_check_output.return_value = textwrap.dedent("""\
             Sink #0
             	State: SUSPENDED
             	Name: alsa_output.pci-0000_00_1f.3.analog-stereo
@@ -493,8 +490,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
             	Mute: no
             	Volume: front-left: 32768 / 50%
             	Index: 42
-            """
-        )
+            """)
         nodes = self.pulseaudio._parse_pactl_list("sinks")
         self.assertEqual(len(nodes), 3)
 
@@ -521,8 +517,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
     )
     def test_parse_pactl_list_sources(self, mock_check_output):
         """Test parsing pactl list sources output."""
-        mock_check_output.return_value = textwrap.dedent(
-            """\
+        mock_check_output.return_value = textwrap.dedent("""\
             Source #0
             	State: SUSPENDED
             	Name: alsa_input.pci-0000_00_1f.3.analog-stereo
@@ -546,8 +541,7 @@ class PulseaudioUtilsTests(unittest.TestCase):
             	Mute: no
             	Volume: front-left: 65536 / 100%
             	Index: 1
-            """
-        )
+            """)
         nodes = self.pulseaudio._parse_pactl_list("sources")
         self.assertEqual(len(nodes), 2)
 
@@ -1091,27 +1085,23 @@ class IntegrationTests(unittest.TestCase):
             "        Active Profile: output:analog-stereo\n"
         )
 
-        analog_sinks_output = textwrap.dedent(
-            """\
+        analog_sinks_output = textwrap.dedent("""\
             Sink #0
             \tState: RUNNING
             \tName: alsa_output.pci-0000_00_1f.3.analog-stereo
             \tDescription: Built-in Audio Analog Stereo
             \tDriver: module-alsa-card.c
             \tIndex: 0
-            """
-        )
+            """)
 
-        hdmi_sinks_output = textwrap.dedent(
-            """\
+        hdmi_sinks_output = textwrap.dedent("""\
             Sink #1
             \tState: IDLE
             \tName: alsa_output.pci-0000_00_1f.3.hdmi-stereo
             \tDescription: Built-in Audio HDMI Stereo
             \tDriver: module-alsa-card.c
             \tIndex: 1
-            """
-        )
+            """)
 
         call_count = {"list_sinks": 0}
 

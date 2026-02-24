@@ -468,8 +468,7 @@ class ProviderManagerToolTests(TestCase):
         mock_getenv.return_value = provider_path
         mock_samefile.side_effect = FileNotFoundError
         mock_path_entry.return_value = provider_path
-        content = textwrap.dedent(
-            """
+        content = textwrap.dedent("""
             [PlainBox Provider]
             description = description
             gettext_domain = domain
@@ -477,10 +476,7 @@ class ProviderManagerToolTests(TestCase):
             name = com.example:test
             version = 1.0
 
-            """.format(
-                self.tmpdir
-            )
-        ).lstrip()
+            """.format(self.tmpdir)).lstrip()
 
         self.tool.main(["develop"])
         self.assertFileContent(filename, content)
@@ -536,11 +532,9 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(
             test_io.stdout,
-            inline_output(
-                """
+            inline_output("""
             The provider seems to be valid
-            """
-            ),
+            """),
         )
 
     def test_validate__broken_missing_field(self):
@@ -555,12 +549,10 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(
             test_io.stdout,
-            inline_output(
-                """
+            inline_output("""
             error: jobs/broken.pxu:1-2: job 'broken', field 'command', command is mandatory for non-manual jobs
             Validation of provider com.example:test has failed
-            """
-            ),
+            """),
         )
 
     def test_validate__broken_wrong_field(self):
@@ -576,13 +568,11 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(
             test_io.stdout,
-            inline_output(
-                """
+            inline_output("""
             error: jobs/broken.pxu:1-2: job 'broken', field 'command', command is mandatory for non-manual jobs
             error: jobs/broken.pxu:2: job 'broken', field 'plugin', valid values are: attachment, manual, resource, shell, user-interact, user-interact-verify, user-verify
             Validation of provider com.example:test has failed
-            """
-            ),
+            """),
         )
 
     def test_validate__broken_useless_field(self):
@@ -600,13 +590,11 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(
             test_io.stdout,
-            inline_output(
-                """
+            inline_output("""
             warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual job makes no sense
             warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
             Validation of provider com.example:test has failed
-            """
-            ),
+            """),
         )
 
     def test_validate__broken_deprecated_field(self):
@@ -623,14 +611,12 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(
             test_io.stdout,
-            inline_output(
-                """
+            inline_output("""
             warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual job makes no sense
             warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
             advice: jobs/broken.pxu:1: job 'broken', field 'name', use 'id' and 'summary' instead of 'name'
             Validation of provider com.example:test has failed
-            """
-            ),
+            """),
         )
 
     def test_info(self):

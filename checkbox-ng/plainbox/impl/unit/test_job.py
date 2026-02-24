@@ -440,12 +440,10 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
     def test_command__has_valid_syntax(self):
         issue_list = self.unit_cls(
-            {
-                "command": """# Echo a few numbers
+            {"command": """# Echo a few numbers
             for i in 1 2 "3; do
                 echo $i
-            done"""
-            },
+            done"""},
             provider=self.provider,
         ).check()
         message = "field 'command', No closing quotation, near '2'"

@@ -47,7 +47,6 @@ from checkbox_ng.launcher.merge_submissions import MergeSubmissions
 from checkbox_ng.launcher.controller import RemoteController
 from checkbox_ng.launcher.agent import RemoteAgent
 
-
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-cli")

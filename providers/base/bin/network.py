@@ -468,7 +468,7 @@ class StressPerformanceTest:
         iperf.communicate()
 
         ping.terminate()
-        (out, err) = ping.communicate()
+        out, err = ping.communicate()
 
         if iperf.returncode != 0:
             return iperf.returncode

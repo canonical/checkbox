@@ -21,6 +21,7 @@ plainbox.impl.commands.test_parse
 
 Test definitions for plainbox.impl.commands.parse module
 """
+
 import argparse
 from inspect import cleandoc
 from unittest import TestCase
@@ -57,9 +58,7 @@ positional arguments:
   -h, --help   show this help message and exit
 
 Example: LANG=C pactl list | plainbox dev parse pactl-list
-""".format(
-        optionals_section
-    )
+""".format(optionals_section)
 
     maxDiff = None
 
@@ -125,13 +124,10 @@ Example: LANG=C pactl list | plainbox dev parse pactl-list
         # Ensure that a list of parsers was printed
         self.assertEqual(
             io.stdout,
-            cleandoc(
-                """
+            cleandoc("""
                 The following parsers are available:
                   foo: summary of foo
-                """
-            )
-            + "\n",
+                """) + "\n",
         )
         # Ensure that the return code was 0
         self.assertEqual(retval, 0)

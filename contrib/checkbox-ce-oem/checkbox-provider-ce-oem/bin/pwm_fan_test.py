@@ -23,7 +23,6 @@ import sys
 import time
 from pathlib import Path
 
-
 HWMON_BASE_PATH = Path("/sys/class/hwmon")
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)

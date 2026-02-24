@@ -36,6 +36,7 @@ about the modes are indented, like so:
 DP-3 AOC 2770M GDBFBHA000236
     1920x1080  60.00*  59.94   59.93   50.00
 """
+
 import re
 import subprocess
 from collections import defaultdict, namedtuple

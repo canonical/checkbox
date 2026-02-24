@@ -19,6 +19,7 @@
 """
 This module contains Uriwd components used on Resume Session screen.
 """
+
 import urwid
 
 from collections import namedtuple

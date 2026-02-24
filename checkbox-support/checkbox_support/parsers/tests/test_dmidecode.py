@@ -36,7 +36,6 @@ except ImportError:
 from checkbox_support.parsers.dmidecode import DmidecodeParser
 from checkbox_support.parsers.tests.test_dmi import TestDmiMixin, DmiResult
 
-
 FAKE_DMIDECODE = """\
 # dmidecode 2.9
 SMBIOS 2.4 present.

@@ -140,15 +140,13 @@ class TestLauncher(TestCase):
     @patch(
         "checkbox_ng.launcher.subcommands.open",
         new_callable=mock_open,
-        read_data=textwrap.dedent(
-            """
+        read_data=textwrap.dedent("""
             [launcher]
             app_id = "appid"
             app_version = 0
             session_title = "session_title"
             session_desc = "description"
-            """
-        ),
+            """),
     )
     def test_start_new_session_ok(self, _):
         self_mock = MagicMock()
@@ -281,14 +279,10 @@ class TestLauncher(TestCase):
         self, load_config_mock, configuration_mock
     ):
         self_mock = MagicMock()
-        app_blob = {
-            "launcher": textwrap.dedent(
-                """
+        app_blob = {"launcher": textwrap.dedent("""
                 [launcher]
                 launcher_version = 1
-                """
-            )
-        }
+                """)}
 
         Launcher.load_configs_from_app_blob(self_mock, app_blob)
 

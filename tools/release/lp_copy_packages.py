@@ -25,6 +25,7 @@ without the need for rebuilding.
 
 Note: This script uses the LP_CREDENTIALS environment variable
 """
+
 import sys
 import lazr
 import argparse

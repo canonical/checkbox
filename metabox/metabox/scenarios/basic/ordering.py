@@ -29,8 +29,7 @@ from metabox.core.utils import tag
 
 @tag("ordering")
 class OrderingDepends(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -41,8 +40,7 @@ class OrderingDepends(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(
@@ -56,8 +54,7 @@ class OrderingDepends(Scenario):
 
 @tag("ordering")
 class OrderingBefore(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -68,8 +65,7 @@ class OrderingBefore(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(
@@ -83,8 +79,7 @@ class OrderingBefore(Scenario):
 
 @tag("ordering")
 class OrderingMixed(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -95,8 +90,7 @@ class OrderingMixed(Scenario):
         forced = yes
         [ui]
         type = silent
-"""
-    )
+""")
     steps = [
         Start(),
         AssertPrinted(
@@ -110,8 +104,7 @@ class OrderingMixed(Scenario):
 
 @tag("ordering")
 class OrderingResource(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -122,8 +115,7 @@ class OrderingResource(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(
@@ -152,8 +144,7 @@ class OrderingBeforeCycle(Scenario):
 
 @tag("ordering")
 class OrderingGroups(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -164,8 +155,7 @@ class OrderingGroups(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(
@@ -190,8 +180,7 @@ class OrderingGroupsCycle(Scenario):
 
 @tag("ordering")
 class OrderingGroupsTemplate(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -202,8 +191,7 @@ class OrderingGroupsTemplate(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(

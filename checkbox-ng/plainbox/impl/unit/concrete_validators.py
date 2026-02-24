@@ -36,7 +36,6 @@ from plainbox.impl.unit.validators import (
     UntranslatableFieldValidator,
 )
 
-
 translatable = TranslatableFieldValidator()
 templateVariant = TemplateVariantFieldValidator()
 templateInvariant = TemplateInvariantFieldValidator()

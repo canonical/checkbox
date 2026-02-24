@@ -6,7 +6,6 @@
 
 import re
 
-
 _find_unsafe = re.compile(r"[^\w@%+=:,./-]", re.ASCII).search
 
 

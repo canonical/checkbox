@@ -21,6 +21,7 @@
 :mod:`plainbox.impl.unit.job` -- job unit
 =========================================
 """
+
 import collections
 import logging
 import operator
@@ -55,7 +56,6 @@ from plainbox.impl.xparsers import RePattern
 from plainbox.impl.xparsers import Text
 from plainbox.impl.xparsers import Visitor
 from plainbox.impl.xparsers import WordList
-
 
 logger = logging.getLogger("plainbox.unit.testplan")
 

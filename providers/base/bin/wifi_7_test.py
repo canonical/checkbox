@@ -378,7 +378,7 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
         )
 
     num_links = get_num_mlo_links(iw_info_output)
-    (tx, rx) = ConnectionInfo.parse(iw_link_output)
+    tx, rx = ConnectionInfo.parse(iw_link_output)
 
     # required, must be a 802.11be conn and have 2 links
 

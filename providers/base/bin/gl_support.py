@@ -26,7 +26,6 @@ import platform
 import argparse
 from pathlib import Path
 
-
 try:
     CHECKBOX_RUNTIME = Path(os.environ["CHECKBOX_RUNTIME"])
 except KeyError:  # from indexing os.environ

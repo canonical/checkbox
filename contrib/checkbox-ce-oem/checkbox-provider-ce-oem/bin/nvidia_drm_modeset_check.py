@@ -6,7 +6,6 @@ import re
 import subprocess
 import sys
 
-
 VENDOR_MAP = {
     "0x8086": "Intel",
     "0x10de": "NVIDIA",

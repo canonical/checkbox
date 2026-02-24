@@ -50,6 +50,7 @@ the code already contain optimizations for regular expressions that are just a
 plain string comparison there is a special class to highlight that fact
 (``ReFixed``)
 """
+
 import abc
 import itertools
 import re

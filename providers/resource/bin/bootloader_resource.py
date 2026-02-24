@@ -25,7 +25,6 @@ from checkbox_support.snap_utils.system import add_hostfs_prefix
 from checkbox_support.snap_utils.system import get_series
 from checkbox_support.snap_utils.system import on_ubuntucore
 
-
 # Supported bootloaders and detected files taken from:
 # https://github.com/snapcore/snapd/blob/master/bootloader/bootloader.go
 # name = [root dir, config file]

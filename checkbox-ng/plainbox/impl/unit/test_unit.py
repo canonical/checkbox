@@ -437,16 +437,12 @@ class UnitFieldValidationTests(TestCase, IssueMixIn):
 class GetSnapBaseTests(TestCase):
     @mock.patch(
         "plainbox.impl.unit.unit.open",
-        new=mock.mock_open(
-            read_data=textwrap.dedent(
-                """
+        new=mock.mock_open(read_data=textwrap.dedent("""
                 name: checkbox
                 version: 7.0.0-dev76
                 summary: Checkbox test runner
                 base: core
-                """
-            )
-        ),
+                """)),
     )
     @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
     def test_core16_just_core(self):
@@ -455,15 +451,11 @@ class GetSnapBaseTests(TestCase):
 
     @mock.patch(
         "plainbox.impl.unit.unit.open",
-        new=mock.mock_open(
-            read_data=textwrap.dedent(
-                """
+        new=mock.mock_open(read_data=textwrap.dedent("""
                 name: checkbox
                 version: 7.0.0-dev76
                 summary: Checkbox test runner
-                """
-            )
-        ),
+                """)),
     )
     @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
     def test_core16_undeclared(self):
@@ -472,16 +464,12 @@ class GetSnapBaseTests(TestCase):
 
     @mock.patch(
         "plainbox.impl.unit.unit.open",
-        new=mock.mock_open(
-            read_data=textwrap.dedent(
-                """
+        new=mock.mock_open(read_data=textwrap.dedent("""
                 name: checkbox
                 version: 7.0.0-dev76
                 summary: Checkbox test runner
                 base: core24
-                """
-            )
-        ),
+                """)),
     )
     @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
     def test_core24(self):

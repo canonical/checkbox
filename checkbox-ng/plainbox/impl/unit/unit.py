@@ -361,8 +361,7 @@ class UnitType(abc.ABCMeta):
         our_meta = ns.get("Meta")
         if our_meta is not None and base_meta_list:
             new_meta_ns = dict(our_meta.__dict__)
-            new_meta_ns["__doc__"] = (
-                """
+            new_meta_ns["__doc__"] = """
                 Collection of meta-data about :class:`{}`
 
                 This class is partially automatically generated.
@@ -383,10 +382,7 @@ class UnitType(abc.ABCMeta):
                     `validator_cls`:
                         A :class:`UnitValidator` subclass that can be used to
                         check this unit for correctness
-            """.format(
-                    name
-                )
-            )
+            """.format(name)
             new_meta_bases = tuple(base_meta_list)
             # Merge custom field_validators with base unit validators
             if "field_validators" in our_meta.__dict__:
@@ -421,16 +417,12 @@ class UnitType(abc.ABCMeta):
                     sym = getattr(our_meta.fields, sym_name)
                     if isinstance(sym, Symbol):
                         merged_fields_ns[sym_name] = sym
-                merged_fields_ns["__doc__"] = (
-                    """
+                merged_fields_ns["__doc__"] = """
                 A symbol definition containing all fields used by :class:`{}`
 
                 This class is partially automatically generated. It always
                 inherits from the Meta.fields class of the base unit class.
-                """.format(
-                        name
-                    )
-                )
+                """.format(name)
                 # Create a new class in place of the 'fields' defined in
                 # our_meta.fields.
                 fields = SymbolDefMeta(

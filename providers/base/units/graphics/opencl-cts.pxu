@@ -210,7 +210,7 @@ _siblings: [
     "command": "opencl-cts.test spirv_new/test_spirv_new --spirv-binaries-path spirv_bin" },
   { "id": "graphics/cl_spir",
     "_summary": "Run the spir tests from OpenCL-CTS",
-    "command": "opencl-cts.test spir/test_spir" },
+    "command": "opencl-cts.test spir/test_spir no-unzip" },
   { "id": "graphics/cl_image_streams_mipmaps",
     "_summary": "Run the image_streams_mipmaps tests from OpenCL-CTS",
     "command": "opencl-cts.test images/kernel_read_write/test_image_streams test_mipmaps CL_FILTER_NEAREST" },

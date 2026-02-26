@@ -150,8 +150,7 @@ class TranslatorTestCase(TestCase):
 class TranslatorJobUnitTests(TranslatorTestCase):
 
     def test_basic_job_unit(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             id: test-job
             _summary: A test job
             plugin: shell
@@ -161,11 +160,9 @@ class TranslatorJobUnitTests(TranslatorTestCase):
                 other-job
                 another-job
             flags: simple, preserve-cwd
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             id: test-job
             summary: A test job
             plugin: shell
@@ -178,16 +175,14 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             flags:
               - simple
               - preserve-cwd
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_job_unit_with_comments(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             id: test-job  # the job identifier
             _summary: A test job
             plugin: shell  # automated test
@@ -199,11 +194,9 @@ class TranslatorJobUnitTests(TranslatorTestCase):
                 package.version > 10
             depends: other-job another-job  # must run after these
             flags: simple, preserve-cwd  # keep it simple
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             id: test-job  # the job identifier
             summary: A test job
             plugin: shell  # automated test
@@ -219,39 +212,33 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             flags:
               - simple
               - preserve-cwd  # keep it simple
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_dont_translate_jinja(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             requires:
                 {% jinja comments, for some reson %}
                 package.name == 'foo'
                 package.version > 10
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             requires: |
                 {% jinja comments, for some reson %}
                 package.name == 'foo'
                 package.version > 10
-            """
-        )
+            """)
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_multiline_fields(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             id: test-job
             _summary: A test job
             plugin: user-interact-verify
@@ -269,11 +256,9 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             requires:
               package.name == 'foo'
               device.category == 'DISK'
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             id: test-job
             summary: A test job
             plugin: user-interact-verify
@@ -289,16 +274,14 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             requires:
               - package.name == 'foo'
               - device.category == 'DISK'
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_siblings_json_to_yaml(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             id: foo
             _summary: foo foo foo
             plugin: shell
@@ -312,11 +295,9 @@ class TranslatorJobUnitTests(TranslatorTestCase):
                   "_summary": "foo foo foo after reboot",
                   "depends": "reboot/advanced"}
                 ]
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             id: foo
             summary: foo foo foo
             plugin: shell
@@ -332,37 +313,31 @@ class TranslatorJobUnitTests(TranslatorTestCase):
                 summary: foo foo foo after reboot
                 depends:
                   - reboot/advanced
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_siblings_template_json_to_yaml(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             _siblings: [
                 {{ "id": "{id_field}",
                   "_summary": "{summary_field}"}}
                 ]
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             siblings:
               - id: '{id_field}'
                 summary: '{summary_field}'
-            """
-        ).strip()
+            """).strip()
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_imports_lines_to_array(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             id: test-job
             _summary: A test job
             plugin: shell
@@ -374,11 +349,9 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             requires:
               'armhf' in cpuinfo.platform
               'avx2' in cpu01.other
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             id: test-job
             summary: A test job
             plugin: shell
@@ -390,16 +363,14 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             requires:
               - "'armhf' in cpuinfo.platform"
               - "'avx2' in cpu01.other"
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_other_array_fields(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             id: test-job # test job comment
             _summary: A test job
             plugin: shell
@@ -409,11 +380,9 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             after: setup-job prepare-job
             before: cleanup-job teardown-job
             salvages: failed-job broken-job
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             id: test-job
             summary: A test job
             plugin: shell
@@ -432,16 +401,14 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             salvages:
               - failed-job
               - broken-job
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_top_level_comment(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             # top level comments
             # should be preserved (best effort)
             id: test-job
@@ -449,11 +416,9 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             # not this one, this one is impossible
             plugin: shell
             command: echo "test"
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             # top level comments
             # should be preserved (best effort)
             id: test-job
@@ -461,16 +426,14 @@ class TranslatorJobUnitTests(TranslatorTestCase):
             # not this one, this one is impossible
             plugin: shell
             command: echo "test"
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_jinja_depends_ignored(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             id: test-job
             _summary: A test job
             depends:
@@ -480,11 +443,9 @@ class TranslatorJobUnitTests(TranslatorTestCase):
                 b
             plugin: shell
             command: echo "test"
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             id: test-job
             summary: A test job
             depends: |
@@ -494,19 +455,16 @@ class TranslatorJobUnitTests(TranslatorTestCase):
                 b
             plugin: shell
             command: echo "test"
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
 
-
 class TranslatorTestPlanTests(TranslatorTestCase):
     def test_basic_test_plan(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             unit: test plan
             id: my-test-plan
             _name: My Test Plan
@@ -521,11 +479,9 @@ class TranslatorTestPlanTests(TranslatorTestCase):
                 job-baz certification-status=blocker
             exclude:
                 job-skip-me
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             unit: test plan
             id: my-test-plan
             name: My Test Plan
@@ -541,16 +497,14 @@ class TranslatorTestPlanTests(TranslatorTestCase):
                   certification-status: blocker
             exclude:
               - job-skip-me
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_test_plan_all_inclusions(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             unit: test plan
             id: full-test-plan
             _name: Full Test Plan
@@ -569,11 +523,9 @@ class TranslatorTestPlanTests(TranslatorTestCase):
             nested_part:
                 nested-part1
                 nested-part2
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             unit: test plan
             id: full-test-plan
             name: Full Test Plan
@@ -592,43 +544,37 @@ class TranslatorTestPlanTests(TranslatorTestCase):
             nested_part:
               - nested-part1
               - nested-part2
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_test_plan_empty_include(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             unit: test plan
             id: composite-test-plan
             _name: Composite Test Plan
             nested_part:
                 other-test-plan
             include:
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             unit: test plan
             id: composite-test-plan
             name: Composite Test Plan
             nested_part:
               - other-test-plan
             include: []
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)
         self.assertYamlEqual(result, expected)
 
     def test_test_plan_with_nested_parts_and_overrides(self):
-        pxu_input = dedent(
-            """
+        pxu_input = dedent("""
             unit: test plan
             id: composite-test-plan
             _name: Composite Test Plan
@@ -636,11 +582,9 @@ class TranslatorTestPlanTests(TranslatorTestCase):
             certification_status_overrides:
                 apply blocker to .*wireless.*
                 apply non-blocker to audio/.*
-            """
-        ).strip()
+            """).strip()
 
-        expected_yaml = dedent(
-            """
+        expected_yaml = dedent("""
             unit: test plan
             id: composite-test-plan
             name: Composite Test Plan
@@ -648,8 +592,7 @@ class TranslatorTestPlanTests(TranslatorTestCase):
             certification_status_overrides:
               - apply blocker to .*wireless.*
               - apply non-blocker to audio/.*
-            """
-        ).strip()
+            """).strip()
 
         result = self.run_translator(pxu_input)
         expected = self.parse_yaml(expected_yaml)

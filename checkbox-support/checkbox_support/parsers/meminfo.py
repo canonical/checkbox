@@ -36,7 +36,7 @@ class MeminfoParser(object):
                 if key in meminfo_map:
                     key = meminfo_map[key]
                     value = match.group("value")
-                    (integer, factor) = value.split()
+                    integer, factor = value.split()
                     meminfo[key] = int(integer) * 1024
 
         result.setMemory(meminfo)

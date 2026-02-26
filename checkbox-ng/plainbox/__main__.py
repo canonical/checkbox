@@ -28,6 +28,5 @@ This module allows plainbox to be executed with:
 
 from plainbox.impl.box import main
 
-
 if __name__ == "__main__":
     main()

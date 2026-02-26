@@ -21,6 +21,7 @@ Session State Handling.
 :mod:`plainbox.impl.session.state` -- session state handling
 ============================================================
 """
+
 import collections
 import json
 import logging

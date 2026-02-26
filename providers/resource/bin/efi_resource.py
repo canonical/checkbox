@@ -22,7 +22,6 @@ import sys
 
 from checkbox_support.parsers.efi import EfiParser
 
-
 # Command to retrieve efi information.
 COMMAND = (
     "[ -d /sys/firmware/efi ] && cat /var/log/kern.log* | "

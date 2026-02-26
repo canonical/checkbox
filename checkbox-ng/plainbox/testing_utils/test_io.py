@@ -23,6 +23,7 @@ plainbox.testing_utils.test_io
 
 Test definitions for plainbox.testing_utils.io module
 """
+
 import sys
 from unittest import TestCase
 

@@ -4,7 +4,6 @@ import re
 import subprocess as sp
 import typing as T
 
-
 # Not going to try to parse these test names since the
 # ioctls in the test are not necessarily described in its name
 TEST_NAME_TO_IOCTL_MAP = {

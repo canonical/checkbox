@@ -19,7 +19,6 @@ __all__ = ["tzutc"]
 from datetime import timedelta
 from datetime import tzinfo
 
-
 ZERO = timedelta(0)
 
 

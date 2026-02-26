@@ -25,23 +25,19 @@ from metabox.core.utils import tag
 
 @tag("manual", "interact", "manifest")
 class ManifestSelectionNoHiddenSetFalse(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test plan]
         unit=2021.com.canonical.certification::hidden_manifest_testplan
         forced = yes
-        """
-    )
-    machine_manifest = textwrap.dedent(
-        """
+        """)
+    machine_manifest = textwrap.dedent("""
         {
             "2021.com.canonical.certification::_hidden_manifest" : true
         }
-        """
-    )
+        """)
 
     steps = [
         # put in the machine a manifest that sets the hidden_manifest. Given
@@ -67,8 +63,7 @@ class ManifestSelectionNoHiddenSetFalse(Scenario):
 
 @tag("manual", "interact", "manifest")
 class ManifestSelectionCanSetHiddenLauncher(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -77,15 +72,12 @@ class ManifestSelectionCanSetHiddenLauncher(Scenario):
         forced = yes
         [manifest]
         2021.com.canonical.certification::_hidden_manifest=True
-        """
-    )
-    machine_manifest = textwrap.dedent(
-        """
+        """)
+    machine_manifest = textwrap.dedent("""
         {
             "2021.com.canonical.certification::_hidden_manifest" : true
         }
-        """
-    )
+        """)
 
     steps = [
         Start(),

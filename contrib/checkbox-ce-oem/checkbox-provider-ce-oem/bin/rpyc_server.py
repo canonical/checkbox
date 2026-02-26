@@ -8,7 +8,6 @@ from contextlib import redirect_stdout, redirect_stderr
 from importlib.machinery import SourceFileLoader
 from rpyc.utils.server import ThreadedServer
 
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler_std = logging.StreamHandler(sys.stdout)

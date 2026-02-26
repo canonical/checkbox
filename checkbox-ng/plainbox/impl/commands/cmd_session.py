@@ -19,6 +19,7 @@
 :mod:`plainbox.impl.commands.cmd_session` -- run sub-command
 ============================================================
 """
+
 from argparse import FileType
 
 from plainbox.i18n import docstring
@@ -28,9 +29,7 @@ from plainbox.impl.applogic import get_all_exporter_names
 from plainbox.impl.commands import PlainBoxCommand
 
 
-@docstring(
-    N_(
-        """
+@docstring(N_("""
     session management commands
 
     This command can be used to list, show and remove sessions owned by the
@@ -48,9 +47,7 @@ from plainbox.impl.commands import PlainBoxCommand
     used by applications): incomplete and submitted. The 'incomplete' flag is
     removed after all desired jobs have been executed. The 'submitted' flag
     is set after a submission is made using any of the transport mechanisms.
-    """
-    )
-)
+    """))
 class SessionCommand(PlainBoxCommand):
 
     def __init__(self, provider_loader):

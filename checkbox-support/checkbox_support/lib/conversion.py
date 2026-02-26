@@ -19,7 +19,6 @@ from datetime import datetime, timedelta
 
 from checkbox_support.lib.tz import tzutc
 
-
 DATETIME_RE = re.compile(
     r"""
     ^(?P<year>\d\d\d\d)-?(?P<month>\d\d)-?(?P<day>\d\d)

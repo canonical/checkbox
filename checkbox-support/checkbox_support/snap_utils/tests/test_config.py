@@ -26,18 +26,12 @@ class TestSnapctlConfig(unittest.TestCase):
 
     @patch("subprocess.check_output")
     def test_some_config(self, mock_output):
-        SNAPCTL_EXISTING_CONFIG = (
-            dedent(
-                """
+        SNAPCTL_EXISTING_CONFIG = dedent("""
         {
         \t"foo": "bar",
         \t"bar": "baz"
         }
-        """
-            )
-            .lstrip()
-            .encode(sys.stdout.encoding)
-        )
+        """).lstrip().encode(sys.stdout.encoding)
         mock_output.return_value = SNAPCTL_EXISTING_CONFIG
         self.assertEqual(get_snapctl_config(), {"foo": "bar", "bar": "baz"})
 
@@ -147,15 +141,11 @@ class ConfigIntegrationTests(unittest.TestCase):
         mock_conf_set.return_value = {"foo": "bar"}
         mock_subproc.side_effect = [
             b"\n",
-            dedent(
-                """
+            dedent("""
         {
         \t"foo": "bar"
         }
-        """
-            )
-            .lstrip()
-            .encode(sys.stdout.encoding),
+        """).lstrip().encode(sys.stdout.encoding),
         ]
         m = mock_open()
         with patch("builtins.open", m):
@@ -182,24 +172,16 @@ class ConfigIntegrationTests(unittest.TestCase):
         """
         mock_conf_set.return_value = {"foo": "default"}
         mock_subproc.side_effect = [
-            dedent(
-                """
+            dedent("""
             {
             \t"foo": "bar"
             }
-            """
-            )
-            .lstrip()
-            .encode(sys.stdout.encoding),
-            dedent(
-                """
+            """).lstrip().encode(sys.stdout.encoding),
+            dedent("""
             {
             \t"foo": "bar"
             }
-            """
-            )
-            .lstrip()
-            .encode(sys.stdout.encoding),
+            """).lstrip().encode(sys.stdout.encoding),
         ]
         m = mock_open()
         with patch("builtins.open", m):
@@ -223,25 +205,17 @@ class ConfigIntegrationTests(unittest.TestCase):
         """
         mock_conf_set.return_value = {"foo": "bar", "biz": "baz"}
         mock_subproc.side_effect = [
-            dedent(
-                """
+            dedent("""
             {
             \t"foo": "old"
             }
-            """
-            )
-            .lstrip()
-            .encode(sys.stdout.encoding),
-            dedent(
-                """
+            """).lstrip().encode(sys.stdout.encoding),
+            dedent("""
             {
             \t"biz": "baz",
             \t"foo": "old"
             }
-            """
-            )
-            .lstrip()
-            .encode(sys.stdout.encoding),
+            """).lstrip().encode(sys.stdout.encoding),
         ]
         m = mock_open()
         with patch("builtins.open", m):

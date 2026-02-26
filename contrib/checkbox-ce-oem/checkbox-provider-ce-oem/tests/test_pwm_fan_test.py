@@ -4,7 +4,6 @@ from unittest.mock import patch, mock_open, MagicMock, PropertyMock
 from argparse import Namespace
 from pathlib import Path
 
-
 HWMON_BASE_PATH = Path("/sys/class/hwmon")
 
 

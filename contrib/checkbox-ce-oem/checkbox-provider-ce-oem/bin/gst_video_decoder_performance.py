@@ -25,7 +25,6 @@ import re
 from performance_mode_controller import get_performance_ctx_function
 from gst_utils import execute_command
 
-
 logging.basicConfig(level=logging.INFO)
 
 

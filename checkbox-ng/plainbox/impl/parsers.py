@@ -25,6 +25,7 @@ to create abstract syntax trees of compatible inputs. For convenience
 and scriptability any parser is expected to be able to dump its AST
 as JSON.
 """
+
 import abc
 import inspect
 import json
@@ -33,7 +34,6 @@ import re
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection, PlugIn
-
 
 logger = logging.getLogger("plainbox.parsers")
 

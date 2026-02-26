@@ -19,6 +19,7 @@
 """
 This module implements functions necessary to load metabox configs.
 """
+
 import importlib.util
 from importlib_resources import files
 import subprocess

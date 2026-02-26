@@ -26,7 +26,6 @@ from plainbox.abc import IJobRunnerUI
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
 
-
 logger = logging.getLogger("checkbox-ng.launcher.run")
 
 

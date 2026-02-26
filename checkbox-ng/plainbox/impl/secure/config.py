@@ -35,7 +35,6 @@ import shlex
 
 from plainbox.i18n import gettext as _
 
-
 logger = logging.getLogger("plainbox.config")
 
 

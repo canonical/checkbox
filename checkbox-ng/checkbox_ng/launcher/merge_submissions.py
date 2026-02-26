@@ -20,6 +20,7 @@
 :mod:`checkbox-ng.launcher.merge_submissions` -- merge-submissions sub-command
 ==============================================================================
 """
+
 import tarfile
 from pathlib import Path
 from tempfile import TemporaryDirectory

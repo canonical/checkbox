@@ -19,6 +19,7 @@
 """
 Generic utility functions.
 """
+
 import json
 import logging
 import textwrap
@@ -52,8 +53,7 @@ def newline_join(head: str, *tail: str) -> str:
 
 
 def generate_resume_candidate_description(candidate):
-    template = textwrap.dedent(
-        """
+    template = textwrap.dedent("""
         Session Title:
             {session_title}
 
@@ -65,8 +65,7 @@ def generate_resume_candidate_description(candidate):
 
         Last job was started at:
             {last_job_start_time}
-        """
-    )
+        """)
     app_blob = json.loads(candidate.metadata.app_blob.decode("UTF-8"))
     session_title = candidate.metadata.title or "Unknown"
     tp_id = app_blob.get("testplan_id", "Unknown")

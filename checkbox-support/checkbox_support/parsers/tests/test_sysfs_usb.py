@@ -18,6 +18,7 @@
 
 
 """Tests for the sysfs_usb module."""
+
 import textwrap
 
 from unittest import TestCase
@@ -74,12 +75,10 @@ class TestUsbIds(TestCase):
     def test_full_product(self, m_isfile):
         """Test good entry."""
         m_isfile.return_value = True
-        usb_ids_content = textwrap.dedent(
-            """
+        usb_ids_content = textwrap.dedent("""
             0042  ACME
             \t0042  Seafourium
-        """
-        )
+        """)
         mopen = mock_open(read_data=usb_ids_content)
         with patch("builtins.open", mopen):
             ids = UsbIds()
@@ -89,11 +88,9 @@ class TestUsbIds(TestCase):
     def test_vendor_only(self, m_isfile):
         """Test entry with vendor only."""
         m_isfile.return_value = True
-        usb_ids_content = textwrap.dedent(
-            """
+        usb_ids_content = textwrap.dedent("""
             0042  ACME
-        """
-        )
+        """)
         mopen = mock_open(read_data=usb_ids_content)
         with patch("builtins.open", mopen):
             ids = UsbIds()
@@ -103,13 +100,11 @@ class TestUsbIds(TestCase):
     def test_full_protocol(self, m_isfile):
         """Test full protocol triplet."""
         m_isfile.return_value = True
-        usb_ids_content = textwrap.dedent(
-            """
+        usb_ids_content = textwrap.dedent("""
             C 42  Explosives
             \t06  Bomb
             \t\t01  Boom
-        """
-        )
+        """)
         mopen = mock_open(read_data=usb_ids_content)
         with patch("builtins.open", mopen):
             ids = UsbIds()
@@ -121,12 +116,10 @@ class TestUsbIds(TestCase):
     def test_class_and_subclass_only(self, m_isfile):
         """Test fallback to cid and scid."""
         m_isfile.return_value = True
-        usb_ids_content = textwrap.dedent(
-            """
+        usb_ids_content = textwrap.dedent("""
             C 42  Explosives
             \t06  Bomb
-        """
-        )
+        """)
         mopen = mock_open(read_data=usb_ids_content)
         with patch("builtins.open", mopen):
             ids = UsbIds()
@@ -138,11 +131,9 @@ class TestUsbIds(TestCase):
     def test_class_only(self, m_isfile):
         """Test fallback to cid."""
         m_isfile.return_value = True
-        usb_ids_content = textwrap.dedent(
-            """
+        usb_ids_content = textwrap.dedent("""
             C 42  Explosives
-        """
-        )
+        """)
         mopen = mock_open(read_data=usb_ids_content)
         with patch("builtins.open", mopen):
             ids = UsbIds()

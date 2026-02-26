@@ -77,8 +77,7 @@ class DiskInfoTests(unittest.TestCase):
                 },
             ]
         }
-        expected_output = textwrap.dedent(
-            """\
+        expected_output = textwrap.dedent("""\
             Name: /dev/sda
             	Model: 	Unknown
             	Size:  	111.8G
@@ -94,8 +93,7 @@ class DiskInfoTests(unittest.TestCase):
             Name: /dev/mmcblk0
             	Model: 	This should be kept because it's seen as root partition
             	Size:  	4G
-            """
-        )
+            """)
         with redirect_stdout(StringIO()) as buffer:
             disk_info.main()
 

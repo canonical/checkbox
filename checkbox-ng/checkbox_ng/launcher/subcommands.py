@@ -18,6 +18,7 @@
 """
 Definition of sub-command classes for checkbox-cli
 """
+
 from argparse import ArgumentTypeError, RawDescriptionHelpFormatter, SUPPRESS
 from collections import defaultdict
 from string import Formatter

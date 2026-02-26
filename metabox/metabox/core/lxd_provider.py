@@ -24,6 +24,7 @@ lxd_provider
 This module implements the LXD Machine and LXD Machine Provider.
 LXD machines are containers that can run metabox scenarios in them.
 """
+
 import json
 import os
 import sys
@@ -235,7 +236,7 @@ class LxdMachineProvider:
             max_attempt = self.LXD_CREATE_TIMEOUT / self.LXD_POLL_INTERVAL
             while attempt < max_attempt:
                 time.sleep(self.LXD_POLL_INTERVAL)
-                (ret, out, err) = container.execute(
+                ret, out, err = container.execute(
                     ["cloud-init", "status", "--long"]
                 )
                 if "status: done" in out:

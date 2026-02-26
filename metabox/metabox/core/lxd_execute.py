@@ -33,7 +33,6 @@ from ws4py.client.threadedclient import WebSocketClient
 from metabox.core.utils import _re
 from pylxd.models.operation import Operation
 
-
 base_env = {
     "PYTHONUNBUFFERED": "1",
     "DISABLE_URWID_ESCAPE_CODES": "1",

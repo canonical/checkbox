@@ -7,7 +7,6 @@ import struct
 import os
 from argparse import ArgumentParser
 
-
 DEFAULT_MEI_NODE = "mei0"
 
 

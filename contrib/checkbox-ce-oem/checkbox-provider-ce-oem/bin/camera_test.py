@@ -37,7 +37,6 @@ from camera_utils import (
     CameraInterface,
 )
 
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(levelname)-8s - %(module)-10s: %(funcName)s "

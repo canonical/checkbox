@@ -12,6 +12,7 @@ Whole idea of this RS485/232/422 remote test script is to connet
 all RS232/422/485 that on DUT to the server. And test the
 port on DUT.
 """
+
 import sys
 import argparse
 import serial

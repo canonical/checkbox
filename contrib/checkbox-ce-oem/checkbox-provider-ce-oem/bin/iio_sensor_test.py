@@ -20,7 +20,6 @@ import re
 import argparse
 from pathlib import Path
 
-
 IIO_PATH = "/sys/bus/iio/devices/iio:device"
 
 pressure_nodes = [

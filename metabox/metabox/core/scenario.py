@@ -22,6 +22,7 @@ This module defines the Scenario class.
 See Scenario class properties and the assert_* functions, as they serve as
 the interface to a Scenario.
 """
+
 from pathlib import Path
 import re
 import time

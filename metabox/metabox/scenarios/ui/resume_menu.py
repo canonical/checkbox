@@ -25,15 +25,13 @@ from metabox.core.utils import tag, _re
 
 @tag("manual", "resume")
 class ResumeMenuMultipleDelete(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test selection]
         forced = yes
-        """
-    )
+        """)
 
     steps = [
         # Generate 2 resume candidates
@@ -81,15 +79,13 @@ class ResumeMenuMultipleDelete(Scenario):
 
 @tag("manual", "resume")
 class ResumeMenuMarkSkip(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test selection]
         forced = yes
-        """
-    )
+        """)
 
     steps = [
         # Generate 1 resume candidates
@@ -126,15 +122,13 @@ class ResumeMenuMarkSkip(Scenario):
 
 @tag("manual", "resume")
 class ResumeMenuMarkFail(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test selection]
         forced = yes
-        """
-    )
+        """)
 
     steps = [
         # Generate 1 resume candidates
@@ -174,15 +168,13 @@ class ResumeMenuMarkFail(Scenario):
 
 @tag("manual", "resume")
 class ResumeMenuMarkPreCommentFail(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test selection]
         forced = yes
-        """
-    )
+        """)
 
     steps = [
         # Generate 1 resume candidates
@@ -221,15 +213,13 @@ class ResumeMenuMarkPreCommentFail(Scenario):
 
 @tag("manual", "resume")
 class ResumeMenuMarkPassed(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test selection]
         forced = yes
-        """
-    )
+        """)
 
     steps = [
         # Generate 1 resume candidates
@@ -259,15 +249,13 @@ class ResumeMenuMarkPassed(Scenario):
 
 @tag("manual", "resume")
 class ResumeMenuResumeLastJob(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test selection]
         forced = yes
-        """
-    )
+        """)
 
     steps = [
         # Generate 1 resume candidates

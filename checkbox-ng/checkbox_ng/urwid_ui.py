@@ -35,7 +35,6 @@ import urwid
 
 from plainbox.abc import IJobResult
 
-
 _widget_cache = {}
 test_info_list = ()
 show_job_ids = False

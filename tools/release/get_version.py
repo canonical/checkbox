@@ -157,12 +157,10 @@ def get_needed_bump(history: "list[str]") -> TraceabilityEnum:
     if failed_category:
         logger.warning("Failed to categorize:")
     for failure in failed_category:
-        warning_failure_text = textwrap.dedent(
-            f"""
+        warning_failure_text = textwrap.dedent(f"""
             {failure.commit}
             Check: https://github.com/canonical/checkbox/pull/{failure.pr}
-            """
-        ).strip()
+            """).strip()
         logger.warning(warning_failure_text)
 
     return needed_bump

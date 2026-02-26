@@ -35,9 +35,7 @@ type=802-11-wireless
     wireless = """
 [802-11-wireless]
 ssid=%s
-mode=infrastructure""" % (
-        ssid
-    )
+mode=infrastructure""" % (ssid)
 
     return connection + wireless
 
@@ -51,23 +49,17 @@ security=802-11-wireless-security
     """
 
     if security.lower() == "wpa":
-        wireless_security += (
-            """
+        wireless_security += """
 key-mgmt=wpa-psk
 auth-alg=open
 psk=%s
-        """
-            % key
-        )
+        """ % key
 
     elif security.lower() == "wep":
-        wireless_security += (
-            """
+        wireless_security += """
 key-mgmt=none
 wep-key=%s
-        """
-            % key
-        )
+        """ % key
 
     return wireless_security
 
@@ -94,9 +86,7 @@ id={name}
 uuid={uuid}
 type={type}
 autoconnect=false
-    """.format(
-        name=name, uuid=uuid, type=connection_type
-    )
+    """.format(name=name, uuid=uuid, type=connection_type)
 
     return connection_section
 
@@ -108,9 +98,7 @@ def mobilebroadband_type_section(
     type_section = """
 [{type}]
 number={number}
-""".format(
-        type=connection_type, number=number
-    )
+""".format(type=connection_type, number=number)
 
     if apn:
         type_section += "\napn={apn}".format(apn=apn)

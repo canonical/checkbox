@@ -18,7 +18,6 @@ from string import ascii_letters
 from string import ascii_uppercase
 import re
 
-
 # Device string to match:
 #   ⎡ Virtual core pointer                      id=2    [master pointer  (3)]
 DEVICE_RE = re.compile(

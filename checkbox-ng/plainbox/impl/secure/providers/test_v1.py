@@ -1043,15 +1043,13 @@ class Provider1Tests(TestCase):
             self.provider.custom_frontend_root()
 
     def test__parse_extra_path_environment_file(self):
-        extra_envvar_file = dedent(
-            """# some comment
+        extra_envvar_file = dedent("""# some comment
         LD_LIBRARY_PATH+=some_path
           # can also be indented
           LD_LIBRARY_PATH += /some other path starts slash
         PATH+=extra/path/location
         malformed lines are ignored
-        """
-        )
+        """)
 
         with patch(
             "pathlib.Path.read_text",

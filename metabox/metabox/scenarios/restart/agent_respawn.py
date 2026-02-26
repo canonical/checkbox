@@ -38,8 +38,7 @@ from metabox.core.utils import tag
 @tag("resume", "automatic")
 class AutoResumeAfterCrashAuto(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -50,8 +49,7 @@ class AutoResumeAfterCrashAuto(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         AssertRetCode(1),
         AssertPrinted("job crashed"),
@@ -85,8 +83,7 @@ class ResumeAfterCrashManual(Scenario):
 @tag("resume", "automatic")
 class AutoResumeAfterCrashAutoLocal(Scenario):
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -97,8 +94,7 @@ class AutoResumeAfterCrashAutoLocal(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         Start(),

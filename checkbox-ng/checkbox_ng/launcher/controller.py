@@ -19,6 +19,7 @@
 This module contains implementation of the controller end of the remote execution
 functionality.
 """
+
 import contextlib
 import getpass
 import gettext

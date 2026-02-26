@@ -22,6 +22,7 @@ checkbox_support.helpers.retry
 Utility class providing functionalities to let functions retry with a
 delay, backoff and jitter.
 """
+
 import functools
 import random
 import time

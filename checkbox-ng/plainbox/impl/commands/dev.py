@@ -30,7 +30,6 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.cmd_parse import ParseCommand
 
-
 logger = getLogger("plainbox.commands.dev")
 
 

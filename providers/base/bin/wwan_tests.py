@@ -16,7 +16,6 @@ import re
 import sys
 import os
 
-
 TEST_IP = "8.8.8.8"
 GSM_CON_ID = "GSMCONN"
 

@@ -276,13 +276,11 @@ class TestJournalctlCollector(TestCase):
         run_return_mock.returncode = 0
         # note, journalctl doesn't return json when called json, it returns
         # events as json, one per line
-        run_return_mock.stdout = textwrap.dedent(
-            """
+        run_return_mock.stdout = textwrap.dedent("""
             {"PRIORITY":"6","__SEQNUM":"0","MESSAGE":"some"}
             {"PRIORITY":"6","__SEQNUM":"1","MESSAGE":"some"}
             {"PRIORITY":"6","__SEQNUM":"2","MESSAGE":"some"}
-            """
-        ).strip()
+            """).strip()
         run_mock.return_value = run_return_mock
         collection_output = JournalctlCollector().collect()
         self.assertTrue(collection_output.success)
@@ -295,14 +293,12 @@ class TestManifestCollector(TestCase):
     def test_collect_manifest(self, run_mock):
         run_return_mock = MagicMock()
         run_return_mock.returncode = 0
-        run_return_mock.stdout = textwrap.dedent(
-            """
+        run_return_mock.stdout = textwrap.dedent("""
             {
               "com.canonical.certification::has_audio_capture": false,
               "com.canonical.certification::has_camera": true
             }
-            """
-        ).strip()
+            """).strip()
         run_mock.return_value = run_return_mock
         collection_output = ManifestCollector().collect()
         self.assertTrue(collection_output.success)

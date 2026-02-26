@@ -18,6 +18,7 @@
 This module contains implementation of the agent end of the remote execution
 functionality.
 """
+
 import gettext
 import json
 import logging

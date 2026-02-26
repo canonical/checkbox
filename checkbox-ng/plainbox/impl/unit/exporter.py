@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """Exporter Entry Unit."""
+
 import re
 import json
 import logging

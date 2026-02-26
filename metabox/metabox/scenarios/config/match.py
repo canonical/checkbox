@@ -33,8 +33,7 @@ class TestSelectionMatchEmpty(Scenario):
     Try to match a test that is not in the test plan, nothing should run
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -44,8 +43,7 @@ class TestSelectionMatchEmpty(Scenario):
         [test selection]
         forced = yes
         match = .*storage-preinserted.*
-        """
-    )
+        """)
     steps = [Start(), AssertRetCode(1)]
 
 
@@ -56,8 +54,7 @@ class TestSelectionMatchNominal(Scenario):
     all bootstrap jobs. exclude has the precedence over match
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         #!/usr/bin/env checkbox-cli
         [launcher]
         launcher_version = 1
@@ -69,8 +66,7 @@ class TestSelectionMatchNominal(Scenario):
         forced = yes
         exclude = .*launcher_removed_target
         match = .*target
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted("include_direct_dependency"),

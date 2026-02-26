@@ -22,6 +22,7 @@ This module defines class for handling Checkbox configs.
 If we ever need to add validators to config variables, the addition should be
 done in VarSpec (the fourth 'field').
 """
+
 import io
 import logging
 import os

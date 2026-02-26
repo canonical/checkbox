@@ -25,6 +25,7 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
+
 from functools import wraps
 from inspect import getabsfile
 from warnings import warn

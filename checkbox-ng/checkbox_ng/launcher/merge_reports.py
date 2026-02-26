@@ -20,6 +20,7 @@
 :mod:`checkbox-ng.launcher.merge_reports` -- merge-reports sub-command
 ======================================================================
 """
+
 import json
 import os
 import tarfile
@@ -37,7 +38,6 @@ from plainbox.impl.session.system_information import (
     CollectionOutput,
     CollectorOutputs,
 )
-
 
 #: Name-space prefix for Canonical Certification
 CERTIFICATION_NS = "com.canonical.certification::"

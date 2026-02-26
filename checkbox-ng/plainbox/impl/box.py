@@ -23,6 +23,7 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
+
 import collections
 import logging
 import os
@@ -34,7 +35,6 @@ from plainbox.impl.clitools import LazyLoadingToolMixIn
 from plainbox.impl.commands import PlainBoxToolBase
 from plainbox.impl.logging import setup_logging
 from plainbox.impl.secure.plugins import LazyPlugInCollection
-
 
 logger = logging.getLogger("plainbox.box")
 

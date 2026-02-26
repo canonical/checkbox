@@ -44,7 +44,6 @@ from glob import glob
 from subprocess import check_call, CalledProcessError, STDOUT, check_output
 from tempfile import NamedTemporaryFile
 
-
 _IOC_NRBITS = 8
 _IOC_TYPEBITS = 8
 _IOC_SIZEBITS = 14

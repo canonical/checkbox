@@ -19,6 +19,7 @@ typical Bluetooth task like scanning for devices and pairing with them.
 
 It talks with BlueZ stack using dbus.
 """
+
 import logging
 
 import dbus

@@ -19,6 +19,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """Tests for the session assistant module class."""
+
 import json
 
 from unittest import mock

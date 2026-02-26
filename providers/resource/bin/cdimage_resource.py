@@ -20,7 +20,6 @@
 import re
 import sys
 
-
 # Filename containing casper logs
 CASPER_FILENAME = "/var/log/installer/casper.log"
 

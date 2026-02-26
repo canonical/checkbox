@@ -28,7 +28,6 @@ from checkbox_support.parsers.modinfo import (
     ModinfoResult,
 )
 
-
 # A single module that is otherwise well-formed, this tests parsing
 # when a delimiter is not found and basic key handling
 MODINFO1 = """\

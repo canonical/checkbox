@@ -47,6 +47,8 @@ from checkbox_ng.launcher.merge_submissions import MergeSubmissions
 from checkbox_ng.launcher.controller import RemoteController
 from checkbox_ng.launcher.agent import RemoteAgent
 
+from checkbox_ng.launcher.translator import Translator
+
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-cli")
@@ -109,6 +111,7 @@ def main():
         "tp-export": TestPlanExport,
         "run-agent": RemoteAgent,
         "control": RemoteController,
+        "translate": Translator,
     }
     deprecated_commands = {
         "slave": "run-agent",

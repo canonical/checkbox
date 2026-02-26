@@ -219,6 +219,7 @@ def translate_single_multiline_stringable_values(value):
 
 @dont_translate_jinja
 def translate_include(value):
+    original_value = value
     includes = value.splitlines()
     from ruamel.yaml.comments import CommentedSeq, CommentedMap
 
@@ -231,9 +232,12 @@ def translate_include(value):
         else:
             value = overrides = ""
         if overrides:  # we can assume there is value as well here
-            assert overrides.startswith("certification-status")
-            assert " " not in overrides, "Multi overrides are not supported"
-            assert "," not in overrides, "Multi overrides are not supported"
+            if " " in overrides or "," in overrides:
+                raise RuntimeError(
+                    "Multi overrides are not supported, remove: {}".format(
+                        overrides
+                    )
+                )
             overridden, override_value = overrides.strip().split(
                 "="
             )  # assumes 1 per line
@@ -256,17 +260,23 @@ def translate_include(value):
             else:
                 to_r.yaml_set_start_comment(comment)
         else:
-            assert False, "Tragedy"
+            raise RuntimeError(
+                "This should be unreachable code, report it with: {}".format(
+                    original_value
+                )
+            )
     return to_r
 
 
 def translate_options(value):
-    assert "#" not in value
+    if  "#" in value:
+        raise RuntimeError("Comments on options are not supported, remove it from: {}".format(value))
     return [x.strip() for x in value.split(",")]
 
 
 field_translators = {
     "command": identity,
+    "shell": identity,
     "Depends": identity,
     "Suggests": identity,
     "Recommends": identity,
@@ -288,7 +298,6 @@ field_translators = {
     "os-version-id": commentable_value,
     "group": commentable_value,
     "description": multiline_text,
-
     "summary": multiline_text,
     "purpose": multiline_text,
     "steps": multiline_text,

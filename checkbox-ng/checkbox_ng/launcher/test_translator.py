@@ -32,7 +32,7 @@ from checkbox_ng.launcher.translator import (
 )
 
 
-def only_if_rumel_installed_or_skip(f):
+def only_if_ruamel_installed_or_skip(f):
     try:
         from ruamel.yaml import YAML
 
@@ -106,7 +106,7 @@ class CommentedValueTranslatorTests(TestCase):
 
 
 class TranslatorTestCase(TestCase):
-    @only_if_rumel_installed_or_skip
+    @only_if_ruamel_installed_or_skip
     def run_translator(self, pxu_input):
         from ruamel.yaml import YAML
 
@@ -131,7 +131,7 @@ class TranslatorTestCase(TestCase):
         yaml = YAML()
         return list(yaml.load_all(output_file))
 
-    @only_if_rumel_installed_or_skip
+    @only_if_ruamel_installed_or_skip
     def parse_yaml(self, yaml_str):
         from ruamel.yaml import YAML
 

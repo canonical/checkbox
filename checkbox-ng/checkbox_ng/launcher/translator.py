@@ -269,8 +269,12 @@ def translate_include(value):
 
 
 def translate_options(value):
-    if  "#" in value:
-        raise RuntimeError("Comments on options are not supported, remove it from: {}".format(value))
+    if "#" in value:
+        raise RuntimeError(
+            "Comments on options are not supported, remove it from: {}".format(
+                value
+            )
+        )
     return [x.strip() for x in value.split(",")]
 
 
@@ -417,7 +421,7 @@ class Translator:
             raise SystemExit(
                 "The translator can be used only by installing Checkbox "
                 "from source with:\n"
-                "  pip install checkbox-ng[translator]"
+                "  pip install -Ue checkbox-ng[translator]"
             )
 
         print("Starting...")

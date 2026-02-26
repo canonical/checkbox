@@ -18,6 +18,16 @@ estimated_duration: 2s
 user: root
 command: check_firmware_version.py
 
+id: umd/detect
+category_id: npu_umd
+depends: kmd/char_device_permissions
+flags: simple
+_summary: Check if we can use npu-umd-test from the snap
+estimated_duration: 1s
+command: intel-npu-driver.npu-umd-test -l
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_npu == 'True'
+
 unit: template
 template-resource: intel_npu_gtest_resource
 template-unit: job
@@ -25,7 +35,9 @@ template-filter: intel_npu_gtest_resource.known_failure == 'False'
 _template-summary: Run tests from npu-umd-test
 id: umd/{category}.{name}
 category_id: npu_umd
-depends: kmd/char_device_permissions
+depends:
+  kmd/char_device_permissions
+  umd/detect
 flags: simple
 imports: from com.canonical.plainbox import manifest
 environment: NPU_UMD_TEST_CONFIG
@@ -42,7 +54,9 @@ template-filter: intel_npu_gtest_resource.known_failure == 'True'
 _template-summary: Run tests from npu-umd-test (only known failures)
 id: known-failure/umd/{category}.{name}
 category_id: npu_umd
-depends: kmd/char_device_permissions
+depends:
+  kmd/char_device_permissions
+  umd/detect
 flags: simple
 imports: from com.canonical.plainbox import manifest
 environment: NPU_UMD_TEST_CONFIG

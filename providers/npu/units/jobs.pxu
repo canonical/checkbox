@@ -39,7 +39,7 @@ unit: template
 template-resource: intel_npu_gtest_resource
 template-unit: job
 template-filter: intel_npu_gtest_resource.known_failure == 'True'
-_template-summary: Run tests from npu-umd-test
+_template-summary: Run tests from npu-umd-test (only known failures)
 id: known-failure/umd/{category}.{name}
 category_id: npu_umd
 depends: kmd/char_device_permissions

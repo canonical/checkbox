@@ -38,7 +38,7 @@ def commentable_value(value):
     # validation is not the job of the translator
     value, comment = split_comment(value)
     if comment:
-        # here we raise an exception as rumel.yaml doesn't support returning
+        # here we raise an exception as ruamel.yaml doesn't support returning
         # commented fields
         raise CommentedError(value, comment)
     return value
@@ -61,7 +61,7 @@ def dont_translate_jinja(f):
           connections.slot == 'bluez:service'
           {% endif -%}
 
-        This would correclty be translated as
+        This would correctly be translated as
 
         requires:
           - package.name == 'bluez' or snap.name == 'bluez'
@@ -234,10 +234,10 @@ def translate_include(value):
             assert overrides.startswith("certification-status")
             assert " " not in overrides, "Multi overrides are not supported"
             assert "," not in overrides, "Multi overrides are not supported"
-            overriden, override_value = overrides.strip().split(
+            overridden, override_value = overrides.strip().split(
                 "="
             )  # assumes 1 per line
-            translation = {value: {overriden: override_value}}
+            translation = {value: {overridden: override_value}}
             if comment:
                 translation = CommentedMap(translation)
                 translation.yaml_add_eol_comment(comment, value)
@@ -288,7 +288,7 @@ field_translators = {
     "os-version-id": commentable_value,
     "group": commentable_value,
     "description": multiline_text,
-    "description": multiline_text,
+
     "summary": multiline_text,
     "purpose": multiline_text,
     "steps": multiline_text,
@@ -334,15 +334,15 @@ def translate_unit(unit_dict: dict) -> dict:
             translated = field_translators[key](value)
             to_return[key] = translated
         except KeyError as e:
-            logging.error(
+            logging.warning(
                 (
                     "Unit {} has invalid field '{}', is it a typo? "
                     "Dumping it as-is in the unit"
-                ).format(unit_dict.get("id", str(unit_dict)), str(e))
+                ).format(unit_dict.get("id", str(unit_dict)), key)
             )
             to_return[key] = value
         except JinjaError as e:
-            logging.error(
+            logging.warning(
                 (
                     "Refusing to translate field '{}' of unit '{}' as it "
                     "contains jinja markers. Dumping it as-is in the unit"
@@ -428,6 +428,9 @@ class Translator:
                 documents.append(translate_unit(unit_dict.data))
 
             header_comment = get_header_comment(text)
+            if not documents:
+                continue
+
             if header_comment:
                 documents[0].yaml_set_start_comment(header_comment)
 

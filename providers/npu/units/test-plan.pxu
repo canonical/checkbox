@@ -1,8 +1,0 @@
-id: npu-full
-unit: test plan
-_name: NPU user mode driver tests
-include:
-    kmd/.*
-    umd/.*
-bootstrap_include:
-    com.canonical.certification::intel_npu_gtest_resource

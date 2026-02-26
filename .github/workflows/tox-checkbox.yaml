@@ -11,7 +11,6 @@ on:
       - providers/certification-server/**
       - providers/genio/**
       - providers/gpgpu/**
-      - providers/npu/**
       - providers/resource/**
       - providers/sru/**
       - providers/genio/**
@@ -25,7 +24,6 @@ on:
       - providers/certification-client/**
       - providers/certification-server/**
       - providers/gpgpu/**
-      - providers/npu/**
       - providers/resource/**
       - providers/sru/**
       - providers/genio/**
@@ -74,7 +72,6 @@ jobs:
               providers/certification-client \
               providers/certification-server \
               providers/gpgpu \
-              providers/npu \
               providers/resource \
               providers/genio \
               providers/iiotg \

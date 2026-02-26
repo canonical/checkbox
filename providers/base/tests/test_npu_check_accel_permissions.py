@@ -6,11 +6,11 @@ import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import check_accel_permissions
+import npu_check_accel_permissions
 
 
 class TestFindNpuDevicePath(unittest.TestCase):
-    @patch("check_accel_permissions.Path")
+    @patch("npu_check_accel_permissions.Path")
     def test_device_found(self, mock_path_class):
         # Mock that "/sys/class/accel" exists
         mock_base_path = MagicMock()
@@ -46,10 +46,10 @@ class TestFindNpuDevicePath(unittest.TestCase):
 
         mock_path_class.side_effect = path_side_effect
 
-        result = check_accel_permissions.find_npu_device_path()
+        result = npu_check_accel_permissions.find_npu_device_path()
         self.assertEqual(result, mock_dev_device)
 
-    @patch("check_accel_permissions.Path")
+    @patch("npu_check_accel_permissions.Path")
     def test_no_sys_class_accel(self, mock_path_class):
         """Test when the base /sys/class/accel directory doesn't exist."""
         mock_base_path = MagicMock()
@@ -63,9 +63,9 @@ class TestFindNpuDevicePath(unittest.TestCase):
         mock_path_class.side_effect = path_side_effect
 
         with self.assertRaises(SystemExit):
-            check_accel_permissions.find_npu_device_path()
+            npu_check_accel_permissions.find_npu_device_path()
 
-    @patch("check_accel_permissions.Path")
+    @patch("npu_check_accel_permissions.Path")
     def test_wrong_driver(self, mock_path_class):
         """Test when a device exists but it's not the 'intel_vpu' driver."""
         mock_base_path = MagicMock()
@@ -92,9 +92,9 @@ class TestFindNpuDevicePath(unittest.TestCase):
         mock_path_class.side_effect = path_side_effect
 
         with self.assertRaises(SystemExit):
-            check_accel_permissions.find_npu_device_path()
+            npu_check_accel_permissions.find_npu_device_path()
 
-    @patch("check_accel_permissions.Path")  # Patches Path *within* the script
+    @patch("npu_check_accel_permissions.Path")
     def test_driver_found_but_dev_missing(self, mock_path_class):
         """Test when the sysfs entry exists, but the /dev/accel node does not."""
         mock_base_path = MagicMock()
@@ -129,9 +129,9 @@ class TestFindNpuDevicePath(unittest.TestCase):
         mock_path_class.side_effect = path_side_effect
 
         with self.assertRaises(SystemExit):
-            check_accel_permissions.find_npu_device_path()
+            npu_check_accel_permissions.find_npu_device_path()
 
-    @patch("check_accel_permissions.Path")
+    @patch("npu_check_accel_permissions.Path")
     def test_multiple_devices_first_missing_dev_second_ok(
         self, mock_path_class
     ):
@@ -185,7 +185,7 @@ class TestFindNpuDevicePath(unittest.TestCase):
 
         mock_path_class.side_effect = path_side_effect
 
-        result = check_accel_permissions.find_npu_device_path()
+        result = npu_check_accel_permissions.find_npu_device_path()
 
         # Check that the correct device path is returned (the SECOND one)
         self.assertEqual(result, mock_dev_device1)
@@ -198,25 +198,25 @@ class TestFindNpuDevicePath(unittest.TestCase):
 class TestMainFunction(unittest.TestCase):
     @patch("os.access", return_value=True)
     @patch(
-        "check_accel_permissions.find_npu_device_path",
+        "npu_check_accel_permissions.find_npu_device_path",
         return_value=Path("/dev/accel0"),
     )
     def test_main_success(self, mock_find_device, mock_access):
         """Test the main success path: device found, permissions OK."""
-        check_accel_permissions.main()
+        npu_check_accel_permissions.main()
 
         # Check os.access was called for both Read and Write
         mock_access.assert_any_call(Path("/dev/accel0"), os.R_OK | os.W_OK)
 
     @patch("os.access", return_value=False)
     @patch(
-        "check_accel_permissions.find_npu_device_path",
+        "npu_check_accel_permissions.find_npu_device_path",
         return_value=Path("/dev/accel0"),
     )
     def test_main_no_rw_permission(self, mock_find_device, mock_access):
         """Test the main failure path: device found, but no RW permission."""
         with self.assertRaises(SystemExit):
-            check_accel_permissions.main()
+            npu_check_accel_permissions.main()
 
 
 if __name__ == "__main__":

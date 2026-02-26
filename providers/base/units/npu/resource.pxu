@@ -1,8 +1,8 @@
 plugin: resource
-id: intel_npu_gtest_resource
+id: npu_gtest_resource
 category_id: intel_npu
 _summary: Produces a resource per test of Intel NPU Umd test
 _description: Creates a resource for accessing tests for NPU drivers.
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_npu == 'True'
-command: intel_npu_gtest_resource.py
+command: npu_gtest_resource.py

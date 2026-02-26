@@ -7,44 +7,44 @@ from pathlib import Path
 from packaging import version
 from unittest.mock import patch, MagicMock, mock_open
 
-import check_firmware_version
+import npu_check_firmware_version
 
 
 class TestKernelVersion(unittest.TestCase):
     @patch("platform.release", return_value="6.8.0")
     def test_supported_version(self, mock_platform):
-        result = check_firmware_version.check_kernel_version("5.10.0")
+        result = npu_check_firmware_version.check_kernel_version("5.10.0")
         self.assertEqual(result, True)
 
     @patch("platform.release", return_value="6.8.0")
     def test_supported_version_equal(self, mock_platform):
-        result = check_firmware_version.check_kernel_version("6.8.0")
+        result = npu_check_firmware_version.check_kernel_version("6.8.0")
         self.assertEqual(result, True)
 
     @patch("platform.release", return_value="6.8.0-generic")
     def test_supported_different_lengths(self, mock_platform):
-        result = check_firmware_version.check_kernel_version("6.8")
+        result = npu_check_firmware_version.check_kernel_version("6.8")
         self.assertEqual(result, True)
 
     @patch("platform.release", return_value="6.7.9")
     def test_unsupported_version(self, mock_platform):
-        result = check_firmware_version.check_kernel_version("6.8.0")
+        result = npu_check_firmware_version.check_kernel_version("6.8.0")
         self.assertEqual(result, False)
 
     @patch("platform.release", return_value="6.11")
     def test_unsupported_different_lengths(self, mock_platform):
-        result = check_firmware_version.check_kernel_version("6.11.1")
+        result = npu_check_firmware_version.check_kernel_version("6.11.1")
         self.assertEqual(result, False)
 
     @patch("platform.release", return_value="invalid-kernel-string")
     def test_unsupported_parse_fail_current(self, mock_platform):
         with self.assertRaises(version.InvalidVersion):
-            check_firmware_version.check_kernel_version("5.10.0")
+            npu_check_firmware_version.check_kernel_version("5.10.0")
 
     @patch("platform.release", return_value="6.8.1")
     def test_unsupported_parse_fail_required(self, mock_platform):
         with self.assertRaises(version.InvalidVersion):
-            check_firmware_version.check_kernel_version(
+            npu_check_firmware_version.check_kernel_version(
                 "invalid-required-string"
             )
 
@@ -53,28 +53,32 @@ class TestVersionPattern(unittest.TestCase):
     def test_date_format_numeric(self):
         line = "20240101*v1.0.0"
         self.assertIsNotNone(
-            check_firmware_version.VERSION_PATTERN.match(line)
+            npu_check_firmware_version.VERSION_PATTERN.match(line)
         )
 
     def test_date_format_text(self):
         line = "Jan  1 2024*v1.0.0"
         self.assertIsNotNone(
-            check_firmware_version.VERSION_PATTERN.match(line)
+            npu_check_firmware_version.VERSION_PATTERN.match(line)
         )
 
     def test_date_format_text_double_digit(self):
         line = "Feb 12 2024*v1.0.0"
         self.assertIsNotNone(
-            check_firmware_version.VERSION_PATTERN.match(line)
+            npu_check_firmware_version.VERSION_PATTERN.match(line)
         )
 
     def test_no_match(self):
         line = "This is a regular log line."
-        self.assertIsNone(check_firmware_version.VERSION_PATTERN.match(line))
+        self.assertIsNone(
+            npu_check_firmware_version.VERSION_PATTERN.match(line)
+        )
 
     def test_partial_match(self):
         line = "20240101 v1.0.0"
-        self.assertIsNone(check_firmware_version.VERSION_PATTERN.match(line))
+        self.assertIsNone(
+            npu_check_firmware_version.VERSION_PATTERN.match(line)
+        )
 
     def test_previous_releases(self):
         """
@@ -111,7 +115,9 @@ class TestVersionPattern(unittest.TestCase):
 
         for version_string in previous_releases:
             self.assertIsNotNone(
-                check_firmware_version.VERSION_PATTERN.match(version_string)
+                npu_check_firmware_version.VERSION_PATTERN.match(
+                    version_string
+                )
             )
 
 
@@ -121,7 +127,7 @@ class TestGetActiveFirmwareLine(unittest.TestCase):
     def test_success_single_match(self, mock_run, mock_stderr):
         mock_run.return_value = "line 1\nSome log about intel_vpu\nFirmware: intel/vpu foo bar\nline 4"
 
-        result = check_firmware_version.get_active_firmware_line()
+        result = npu_check_firmware_version.get_active_firmware_line()
 
         self.assertEqual(result, "Firmware: intel/vpu foo bar")
         mock_run.assert_called_with(
@@ -135,7 +141,7 @@ class TestGetActiveFirmwareLine(unittest.TestCase):
         """Test finding multiple lines (should return the last one)."""
         mock_run.return_value = "line 1\nFirmware: intel/vpu old_version\nline 2\nFirmware: intel/vpu new_version"
 
-        result = check_firmware_version.get_active_firmware_line()
+        result = npu_check_firmware_version.get_active_firmware_line()
         self.assertEqual(result, "Firmware: intel/vpu new_version")
 
     @patch("sys.stderr", new_callable=io.StringIO)
@@ -145,7 +151,7 @@ class TestGetActiveFirmwareLine(unittest.TestCase):
         mock_run.return_value = "line 1\nline 2\nline 3"
 
         with self.assertRaises(SystemExit):
-            check_firmware_version.get_active_firmware_line()
+            npu_check_firmware_version.get_active_firmware_line()
 
 
 class TestFindVersionInFile(unittest.TestCase):
@@ -155,7 +161,7 @@ class TestFindVersionInFile(unittest.TestCase):
         mock_run.return_value = "some strings\nmore strings\n20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee\n20250115*MTL_CLIENT_SILICON-release*1905*ci_tag_ud202504_vpu_rc_20250115_1905*ae83b65d01c"
 
         dummy_path = Path("/fake/fw.bin")
-        result = check_firmware_version.find_version_in_file(dummy_path)
+        result = npu_check_firmware_version.find_version_in_file(dummy_path)
 
         self.assertEqual(
             result,
@@ -170,7 +176,7 @@ class TestFindVersionInFile(unittest.TestCase):
         """Test when 'strings' runs but no version string is found."""
         mock_run.return_value = "strings\nmore strings\neven more strings\nthis definitely doesn't match anything"
 
-        result = check_firmware_version.find_version_in_file(
+        result = npu_check_firmware_version.find_version_in_file(
             Path("/fake/fw.bin")
         )
         self.assertIsNone(result)
@@ -182,7 +188,7 @@ class TestFindVersionInFile(unittest.TestCase):
     def test_subprocess_error(self, mock_run):
         """Test when 'strings' command fails."""
         with self.assertRaises(SystemExit):
-            result = check_firmware_version.find_version_in_file(
+            result = npu_check_firmware_version.find_version_in_file(
                 Path("/fake/fw.bin")
             )
 
@@ -192,10 +198,11 @@ class TestMainFunction(unittest.TestCase):
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch(
-        "check_firmware_version.FIRMWARE_SEARCH_DIR", new_callable=MagicMock
+        "npu_check_firmware_version.FIRMWARE_SEARCH_DIR",
+        new_callable=MagicMock,
     )
-    @patch("check_firmware_version.find_version_in_file")
-    @patch("check_firmware_version.get_active_firmware_line")
+    @patch("npu_check_firmware_version.find_version_in_file")
+    @patch("npu_check_firmware_version.get_active_firmware_line")
     def test_main_success(
         self,
         mock_get_line,
@@ -224,7 +231,7 @@ class TestMainFunction(unittest.TestCase):
         driver_version = "20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee"
         mock_find_version.return_value = driver_version
 
-        return_code = check_firmware_version.main()
+        return_code = npu_check_firmware_version.main()
 
         mock_get_line.assert_called_once_with()
         mock_fw_dir.is_dir.assert_called_once_with()
@@ -237,10 +244,11 @@ class TestMainFunction(unittest.TestCase):
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch(
-        "check_firmware_version.FIRMWARE_SEARCH_DIR", new_callable=MagicMock
+        "npu_check_firmware_version.FIRMWARE_SEARCH_DIR",
+        new_callable=MagicMock,
     )
-    @patch("check_firmware_version.find_version_in_file")
-    @patch("check_firmware_version.get_active_firmware_line")
+    @patch("npu_check_firmware_version.find_version_in_file")
+    @patch("npu_check_firmware_version.get_active_firmware_line")
     def test_main_fail_no_match(
         self,
         mock_get_line,
@@ -266,7 +274,7 @@ class TestMainFunction(unittest.TestCase):
         mock_find_version.return_value = driver_version
 
         with self.assertRaises(SystemExit):
-            check_firmware_version.main()
+            npu_check_firmware_version.main()
 
         self.assertEqual(mock_stdout.getvalue(), "")
 
@@ -274,10 +282,11 @@ class TestMainFunction(unittest.TestCase):
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch(
-        "check_firmware_version.FIRMWARE_SEARCH_DIR", new_callable=MagicMock
+        "npu_check_firmware_version.FIRMWARE_SEARCH_DIR",
+        new_callable=MagicMock,
     )
-    @patch("check_firmware_version.find_version_in_file")
-    @patch("check_firmware_version.get_active_firmware_line")
+    @patch("npu_check_firmware_version.find_version_in_file")
+    @patch("npu_check_firmware_version.get_active_firmware_line")
     def test_main_fail_no_active_line(
         self,
         mock_get_line,
@@ -291,7 +300,7 @@ class TestMainFunction(unittest.TestCase):
         mock_get_line.return_value = None
 
         with self.assertRaises(SystemExit):
-            check_firmware_version.main()
+            npu_check_firmware_version.main()
 
         self.assertEqual(mock_stdout.getvalue(), "")
 
@@ -299,10 +308,11 @@ class TestMainFunction(unittest.TestCase):
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch(
-        "check_firmware_version.FIRMWARE_SEARCH_DIR", new_callable=MagicMock
+        "npu_check_firmware_version.FIRMWARE_SEARCH_DIR",
+        new_callable=MagicMock,
     )
-    @patch("check_firmware_version.find_version_in_file")
-    @patch("check_firmware_version.get_active_firmware_line")
+    @patch("npu_check_firmware_version.find_version_in_file")
+    @patch("npu_check_firmware_version.get_active_firmware_line")
     def test_main_fail_no_directory(
         self,
         mock_get_line,
@@ -318,7 +328,7 @@ class TestMainFunction(unittest.TestCase):
         mock_fw_dir.is_dir.return_value = False
 
         with self.assertRaises(SystemExit):
-            check_firmware_version.main()
+            npu_check_firmware_version.main()
 
         mock_find_version.assert_not_called()
         self.assertEqual(mock_stdout.getvalue(), "")

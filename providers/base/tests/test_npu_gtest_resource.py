@@ -5,7 +5,7 @@ import subprocess
 from unittest.mock import patch, MagicMock
 from collections import OrderedDict
 
-import intel_npu_gtest_resource
+import npu_gtest_resource
 
 FULL_GTEST_LIST = """
 Umd.ZeDevTypeStr
@@ -29,7 +29,7 @@ class TestIntelNpuGtestResource(unittest.TestCase):
     @patch("sys.stdout", new_callable=io.StringIO)
     def test_print_as_resource_formatting(self, mock_stdout):
         test_data = OrderedDict([("key1", "val1"), ("key2", True)])
-        intel_npu_gtest_resource.print_as_resource(test_data)
+        npu_gtest_resource.print_as_resource(test_data)
 
         expected_output = "key1: val1\nkey2: True\n\n"
         self.assertEqual(mock_stdout.getvalue(), expected_output)
@@ -48,7 +48,7 @@ class TestIntelNpuGtestResource(unittest.TestCase):
         with patch(
             "argparse.ArgumentParser.parse_args", return_value=MagicMock()
         ):
-            intel_npu_gtest_resource.main()
+            npu_gtest_resource.main()
 
         output = mock_stdout.getvalue()
 
@@ -72,7 +72,7 @@ class TestIntelNpuGtestResource(unittest.TestCase):
             with patch(
                 "argparse.ArgumentParser.parse_args", return_value=MagicMock()
             ):
-                intel_npu_gtest_resource.main()
+                npu_gtest_resource.main()
         self.assertIn("custom.yaml", mock_subproc.call_args_list[0][0][0])
 
         mock_env.return_value = None
@@ -80,7 +80,7 @@ class TestIntelNpuGtestResource(unittest.TestCase):
             with patch(
                 "argparse.ArgumentParser.parse_args", return_value=MagicMock()
             ):
-                intel_npu_gtest_resource.main()
+                npu_gtest_resource.main()
         self.assertIn("basic.yaml", mock_subproc.call_args_list[2][0][0])
 
     @patch("subprocess.check_output")
@@ -91,7 +91,7 @@ class TestIntelNpuGtestResource(unittest.TestCase):
         with patch(
             "argparse.ArgumentParser.parse_args", return_value=MagicMock()
         ):
-            intel_npu_gtest_resource.main()
+            npu_gtest_resource.main()
 
         output = mock_stdout.getvalue()
 
@@ -118,15 +118,15 @@ class TestIntelNpuGtestResource(unittest.TestCase):
 
     def test_extra_flags_logic_extended(self):
         self.assertEqual(
-            intel_npu_gtest_resource.get_extra_flags("ZeInitTest"),
+            npu_gtest_resource.get_extra_flags("ZeInitTest"),
             ["--ze-init-tests"],
         )
         self.assertEqual(
-            intel_npu_gtest_resource.get_extra_flags("ExternalMemoryDmaHeap"),
+            npu_gtest_resource.get_extra_flags("ExternalMemoryDmaHeap"),
             ["--dma-heap"],
         )
         self.assertEqual(
-            intel_npu_gtest_resource.get_extra_flags("ZeInitDmaHeapCategory"),
+            npu_gtest_resource.get_extra_flags("ZeInitDmaHeapCategory"),
             ["--ze-init-tests", "--dma-heap"],
         )
 
@@ -138,7 +138,7 @@ class TestIntelNpuGtestResource(unittest.TestCase):
             with patch(
                 "argparse.ArgumentParser.parse_args", return_value=MagicMock()
             ):
-                intel_npu_gtest_resource.main()
+                npu_gtest_resource.main()
 
             self.assertIn("known_failure: False", mock_stdout.getvalue())
 

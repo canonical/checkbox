@@ -2,11 +2,10 @@ import unittest
 from unittest.mock import patch, mock_open
 import subprocess
 
-from acpi_bios_error import check_acpi_bios_errors, main
+from acpi_bios_error import check_acpi_bios_errors, main, print_bios_info
 
 
 class TestAcpiBiosError(unittest.TestCase):
-
     @patch("subprocess.check_output")
     def test_check_acpi_bios_errors_no_errors(self, mock_subprocess):
         """Test when no ACPI BIOS errors are found."""
@@ -47,6 +46,21 @@ Sep 18 17:17:37 test-host kernel: ACPI: 28 ACPI AML tables successfully acquired
 
         with self.assertRaises(SystemExit):
             check_acpi_bios_errors()
+
+    def test_print_bios_info_unreadable(self):
+        with patch("builtins.open", side_effect=OSError("no access")), patch(
+            "builtins.print"
+        ) as mock_print:
+            print_bios_info()
+
+        calls = [args[0] for args, _ in mock_print.call_args_list]
+        self.assertTrue(
+            any(
+                "Unable to read /sys/class/dmi/id/bios_date" in s
+                for s in calls
+            )
+        )
+        self.assertTrue(any(s.startswith("BIOS date:") for s in calls))
 
 
 if __name__ == "__main__":

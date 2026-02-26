@@ -56,7 +56,6 @@ include:
     com.canonical.certification::miscellanea/check_.*_start_wm_firmware_failed
     com.canonical.certification::miscellanea/check_.*_wifi6e_enabled
     com.canonical.certification::miscellanea/check_secureboot_fish_not_installed
-    com.canonical.certification::miscellanea/acpi-bios-error_.*                        certification-status=blocker
     com.canonical.certification::miscellanea/intel-vtd-enabled_.*
     com.canonical.certification::miscellanea/ac-automatic-suspend-estar-settings_.*
     com.canonical.certification::miscellanea/intel-hid_.*

@@ -3,3 +3,4 @@ unit: test plan
 _name: ACPI OEM _OSI string tests
 include:
     acpi/oem_osi
+    acpi/acpi-bios-error_.*                        certification-status=blocker

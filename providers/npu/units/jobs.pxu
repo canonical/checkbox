@@ -12,7 +12,6 @@ category_id: npu_kmd
 flags: simple
 imports: from com.canonical.plainbox import manifest
 requires:
-  dmesg_logs_firmware_version.state == 'supported'
   manifest.has_npu == 'True'
 _summary: Check NPU firmware version
 estimated_duration: 2s

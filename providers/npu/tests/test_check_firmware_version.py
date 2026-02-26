@@ -4,9 +4,49 @@ import io
 import sys
 import subprocess
 from pathlib import Path
+from packaging import version
 from unittest.mock import patch, MagicMock, mock_open
 
 import check_firmware_version
+
+
+class TestKernelVersion(unittest.TestCase):
+    @patch("platform.release", return_value="6.8.0")
+    def test_supported_version(self, mock_platform):
+        result = check_firmware_version.check_kernel_version("5.10.0")
+        self.assertEqual(result, True)
+
+    @patch("platform.release", return_value="6.8.0")
+    def test_supported_version_equal(self, mock_platform):
+        result = check_firmware_version.check_kernel_version("6.8.0")
+        self.assertEqual(result, True)
+
+    @patch("platform.release", return_value="6.8.0-generic")
+    def test_supported_different_lengths(self, mock_platform):
+        result = check_firmware_version.check_kernel_version("6.8")
+        self.assertEqual(result, True)
+
+    @patch("platform.release", return_value="6.7.9")
+    def test_unsupported_version(self, mock_platform):
+        result = check_firmware_version.check_kernel_version("6.8.0")
+        self.assertEqual(result, False)
+
+    @patch("platform.release", return_value="6.11")
+    def test_unsupported_different_lengths(self, mock_platform):
+        result = check_firmware_version.check_kernel_version("6.11.1")
+        self.assertEqual(result, False)
+
+    @patch("platform.release", return_value="invalid-kernel-string")
+    def test_unsupported_parse_fail_current(self, mock_platform):
+        with self.assertRaises(version.InvalidVersion):
+            check_firmware_version.check_kernel_version("5.10.0")
+
+    @patch("platform.release", return_value="6.8.1")
+    def test_unsupported_parse_fail_required(self, mock_platform):
+        with self.assertRaises(version.InvalidVersion):
+            check_firmware_version.check_kernel_version(
+                "invalid-required-string"
+            )
 
 
 class TestVersionPattern(unittest.TestCase):
@@ -148,6 +188,7 @@ class TestFindVersionInFile(unittest.TestCase):
 
 
 class TestMainFunction(unittest.TestCase):
+    @patch("platform.release", return_value="6.8.1")
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch(
@@ -162,6 +203,7 @@ class TestMainFunction(unittest.TestCase):
         mock_fw_dir,
         mock_stdout,
         mock_stderr,
+        mock_platform,
     ):
         active_line = "[   14.967341] intel_vpu 0000:00:0b.0: [drm] Firmware: intel/vpu/vpu_37xx_v1.bin, version: 20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee"
 
@@ -191,6 +233,7 @@ class TestMainFunction(unittest.TestCase):
         self.assertIn(driver_version, mock_stdout.getvalue())
         self.assertEqual(mock_stderr.getvalue(), "")
 
+    @patch("platform.release", return_value="6.8.1")
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch(
@@ -205,6 +248,7 @@ class TestMainFunction(unittest.TestCase):
         mock_fw_dir,
         mock_stdout,
         mock_stderr,
+        mock_platform,
     ):
         active_line = "[   14.967341] intel_vpu 0000:00:0b.0: [drm] Firmware: intel/vpu/vpu_37xx_v1.bin, version: 20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee"
 
@@ -226,6 +270,7 @@ class TestMainFunction(unittest.TestCase):
 
         self.assertEqual(mock_stdout.getvalue(), "")
 
+    @patch("platform.release", return_value="6.11")
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch(
@@ -240,6 +285,7 @@ class TestMainFunction(unittest.TestCase):
         mock_fw_dir,
         mock_stdout,
         mock_stderr,
+        mock_platform,
     ):
         # make get_active_firmware_line fail
         mock_get_line.return_value = None
@@ -249,6 +295,7 @@ class TestMainFunction(unittest.TestCase):
 
         self.assertEqual(mock_stdout.getvalue(), "")
 
+    @patch("platform.release", return_value="6.11")
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch(
@@ -263,6 +310,7 @@ class TestMainFunction(unittest.TestCase):
         mock_fw_dir,
         mock_stdout,
         mock_stderr,
+        mock_platform,
     ):
         """Test when the snap firmware directory doesn't exist (maybe snap not installed or defect)."""
         mock_get_line.return_value = "[ 123.967341] intel_vpu 0000:00:0b.0: [drm] Firmware: intel/vpu/vpu_37xx_v1.bin, version: 20250925*MTL_CLIENT_SILICON-NVR+NN-deployment*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafeed591eaa9a320bfae2407c1b83b29f*2485cfeafee"

@@ -2,6 +2,8 @@
 import re
 import subprocess
 from pathlib import Path
+import platform
+from packaging import version
 
 FIRMWARE_SEARCH_DIR = Path("/var/snap/intel-npu-driver/current/intel/vpu")
 
@@ -15,6 +17,20 @@ FIRMWARE_SEARCH_DIR = Path("/var/snap/intel-npu-driver/current/intel/vpu")
 #        ease_25ww35-20250915_222036-29036-1-g2485cfeafee*2485cfeafeed591eaa9a\
 #        320bfae2407c1b83b29f"
 VERSION_PATTERN = re.compile(r"^(\d{8}\*|[A-Z][a-z]{2}\s+\d{1,2}\s+\d{4}\*).*")
+
+
+def check_kernel_version(required_version):
+    current_version_str = platform.release()
+
+    current_version = version.Version(current_version_str.rsplit("-", 1)[0])
+    required_version = version.Version(required_version.rsplit("-", 1)[0])
+
+    # Return True if current version is at least the required version
+    return (
+        current_version is not None
+        and required_version is not None
+        and current_version >= required_version
+    )
 
 
 def get_active_firmware_line():
@@ -50,6 +66,13 @@ def find_version_in_file(filepath):
 
 
 def main():
+    if not check_kernel_version("6.8"):
+        print(
+            "Getting the firmware version out of dmesg is not supported "
+            "on this system. Skipping..."
+        )
+        return
+
     active_firmware_line = get_active_firmware_line()
 
     if not FIRMWARE_SEARCH_DIR.is_dir():

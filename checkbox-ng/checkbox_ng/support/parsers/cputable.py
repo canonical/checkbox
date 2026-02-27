@@ -16,7 +16,6 @@
 
 import re
 
-
 CPUTABLE_RE = re.compile(
     r"^(?!\#)(?P<debian_name>\S+)"
     r"\s+(?P<gnu_name>\S+)"

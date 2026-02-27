@@ -20,6 +20,7 @@
 This module provides information about USB devices available in the system
 based on the data available in sysfs.
 """
+
 import contextlib
 import glob
 import os

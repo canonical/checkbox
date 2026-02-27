@@ -23,7 +23,7 @@ def get_release_info():
     os_release = {}
     lines = filter(bool, release_file_content.strip().splitlines())
     for line in lines:
-        (key, value) = line.split("=", 1)
+        key, value = line.split("=", 1)
         if key in os_release_map:
             k = os_release_map[key]
             # Strip out quotes and newlines

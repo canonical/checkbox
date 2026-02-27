@@ -1,1 +1,1 @@
-from checkbox_ng.support.parsers.lshwjson.py import *
+from checkbox_ng.support.parsers.lshwjson import *

@@ -1,0 +1,8 @@
+id: npu-full
+unit: test plan
+_name: NPU driver tests
+include:
+    kmd/.*
+    umd/.*
+bootstrap_include:
+    com.canonical.certification::npu_gtest_resource

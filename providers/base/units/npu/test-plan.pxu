@@ -18,6 +18,7 @@ bootstrap_include:
 id: npu-with-known-failures
 unit: test plan
 _name: NPU driver tests (including known failures)
+include:
 nested_part:
     com.canonical.certification::npu-full
     com.canonical.certification::npu-only-known-failures

@@ -68,9 +68,7 @@ def _get_iio_device_mapping():
             if name_node.exists():
                 name = name_node.read_text().strip()
                 iio_devices[name] = str(device_path)
-        return iio_devices
-    else:
-        return None
+    return iio_devices
 
 
 def _check_device(name):

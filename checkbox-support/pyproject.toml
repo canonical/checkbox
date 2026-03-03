@@ -10,7 +10,6 @@
   description='CheckBox support library'
   dynamic = ["version"]
   dependencies=[
-    'pyparsing>=2.2.0',
     'requests>=1.0',
     'distro>=1.0',
     'requests_unixsocket>=0.1.2; python_version>="3.5" and python_version<="3.11"',
@@ -29,7 +28,6 @@ jammy_prod = [ # Note: ancient versions of pip fail to see this section, use pip
   'charset-normalizer==2.0.6',
   'distro==1.7.0',
   'idna==2.10', # universe is 3.3 but it is incompatible with requests
-  'pyparsing==2.4.7',
   'requests==2.25.1',
   'distro==1.7.0',
   'requests_unixsocket==0.2.0',
@@ -44,7 +42,6 @@ noble_prod = [
   'charset-normalizer==3.3.2',
   'distro==1.9.0',
   'idna==3.6',
-  'pyparsing==3.1.1',
   'PyYAML==6.0.1',
   'requests==2.31.0',
   'requests-unixsocket==0.3.0',

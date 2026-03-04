@@ -124,7 +124,9 @@ class TestGraphicsTest(unittest.TestCase):
     def test_glmark2_wrong_vendor(
         self, mock_is_active, mock_check_output, mock_env_get
     ):
-        mock_check_output.return_value = "GL_VENDOR: WrongVendor"
+        mock_check_output.return_value = (
+            "GL_VENDOR:     WrongVendor\nGL_RENDERER:   TestRenderer"
+        )
         mock_env_get.side_effect = ["CorrectVendor", "TestRenderer"]
 
         self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 1)

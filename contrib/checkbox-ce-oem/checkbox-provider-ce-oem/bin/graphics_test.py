@@ -104,24 +104,24 @@ def test_glmark2_es2_wayland():
     if proc and proc.pid:
         proc.terminate()
 
-    if not re.search(r"GL_VENDOR:\s+{}".format(gl_vendor), output):
+    vendor_match = re.search(r"GL_VENDOR:\s+(.*)", output)
+    renderer_match = re.search(r"GL_RENDERER:\s+(.*)", output)
+    if gl_vendor not in vendor_match.group(1):
         logger.error("FAIL: Wrong vendor!")
         logger.error(
             "The expected 'GL_VENDOR' should include '%s'!", gl_vendor
         )
         exit_code = 1
     else:
-        logger.info("PASS: GL_VENDOR is '{}'".format(gl_vendor))
-
-    if not re.search(r"GL_RENDERER:\s+{}".format(gl_renderer), output):
+        logger.info("PASS: GL_VENDOR is '%s'" % vendor_match.group(1))
+    if gl_renderer not in renderer_match.group(1):
         logger.error("FAIL: Wrong renderer!")
         logger.error(
             "The expected 'GL_RENDERER' should include '%s'", gl_renderer
-            )
         )
         exit_code = 1
     else:
-        logger.info("PASS: GL_RENDERER is '{}'".format(gl_renderer))
+        logger.info("PASS: GL_RENDERER is '%s'" % renderer_match.group(1))
 
     return exit_code
 

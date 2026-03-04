@@ -24,7 +24,7 @@ on:
 
 jobs:
   run-matrix:
-    runs-on: [self-hosted, testflinger]
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     strategy:
       fail-fast: false
       matrix:

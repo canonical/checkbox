@@ -17,8 +17,9 @@ warn(){
 }
 
 info(){
- eval pass${i}=
-steps="Fix_APT_Issues Verify_Config_File Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check
+ eval pass${i}=3
+}
+steps="Fix_APT_Issues Verify_Config_File Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check"
 
 while getopts "i" opt; do
   case $opt in

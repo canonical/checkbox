@@ -36,7 +36,6 @@ from camera_utils import (
     check_nonzero_files,
     CameraInterface,
     GST_LAUNCH_BIN,
-    GST_DISCOVERER,
     V4L2_CTL_CMD,
     MEDIA_CTL_CMD,
 )
@@ -468,13 +467,12 @@ def readiness_test():
     result = True
 
     utilities_mapping = {
-        "gst-launch-1.0": GST_LAUNCH_BIN, 
-        "gst-discoverer-1.0": GST_DISCOVERER, 
-        "media-ctl": MEDIA_CTL_CMD, 
+        "gst-launch-1.0": GST_LAUNCH_BIN,
+        "media-ctl": MEDIA_CTL_CMD,
         "v4l2-ctl": V4L2_CTL_CMD,
     }
-    for util, binary in utilities.items():
-        if not util:
+    for util, binary in utilities_mapping.items():
+        if not binary:
             result = False
             logging.error("%s is not available", util)
         else:
@@ -493,9 +491,11 @@ def main() -> None:
 
     if args.action == "testing":
         _run_camera_test(args)
+        return
 
     if args.action == "readiness":
         readiness_test()
+        return
 
 
 if __name__ == "__main__":

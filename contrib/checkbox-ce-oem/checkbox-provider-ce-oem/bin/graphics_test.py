@@ -107,7 +107,7 @@ def test_glmark2_es2_wayland():
     if not re.search(r"GL_VENDOR:\s+{}".format(gl_vendor), output):
         logger.error("FAIL: Wrong vendor!")
         logger.error(
-            "The expected 'GL_VENDOR' should include '{}'!".format(gl_vendor)
+            "The expected 'GL_VENDOR' should include '%s'!", gl_vendor
         )
         exit_code = 1
     else:

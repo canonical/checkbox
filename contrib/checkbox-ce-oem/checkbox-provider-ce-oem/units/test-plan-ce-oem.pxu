@@ -105,6 +105,7 @@ nested_part:
     ce-oem-rpmsg-automated
     ce-oem-barcode-scanner-automated
     ce-oem-printer-automated
+    ce-oem-credit-card-reader-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -179,6 +180,7 @@ nested_part:
     after-suspend-ce-oem-regulator-automated
     after-suspend-ce-oem-barcode-scanner-automated
     after-suspend-ce-oem-printer-automated
+    after-suspend-ce-oem-credit-card-reader-automated
 certification_status_overrides:
     apply blocker to .*
 

@@ -49,7 +49,7 @@ jobs:
   regression-tests:
     needs: checkbox-dss-snap-build
     name: Tests
-    runs-on: [testflinger]
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     defaults:
       run:
         working-directory: contrib/checkbox-dss-validation

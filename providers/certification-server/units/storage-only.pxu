@@ -10,7 +10,6 @@ nested_part:
     com.canonical.certification::server-disk
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-miscellaneous
-    com.canonical.certification::nvdimm-full
 include:
     info/hdparm_.*.txt                         certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*             certification-status=blocker

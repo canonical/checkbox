@@ -9,7 +9,6 @@ nested_part:
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-miscellaneous
     com.canonical.certification::server-memory
-    com.canonical.certification::nvdimm-full
 include:
 bootstrap_include:
     device

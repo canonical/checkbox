@@ -28,7 +28,6 @@ SYNOPSIS
     test-firmware
     test-memory
     test-network
-    test-nvdimm
     test-iso-install
     test-storage
     test-stress

@@ -503,22 +503,6 @@ user: root
 command:
   bootloader_resource.py
 
-id: nvdimm_resource
-estimated_duration: 0.25
-plugin: resource
-category_id: information_gathering
-user: root
-requires:
-  package.name == 'ipmctl' or executable.name == 'ipmctl'
-_summary: Resource for NVDIMM detection
-command:
- if ipmctl show -dimm &> /dev/null;
- then
-     echo "detected: true"
- else
-     echo "detected: false"
- fi
-
 id: audio_card
 estimated_duration: 0.05
 plugin: resource

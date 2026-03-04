@@ -1160,12 +1160,6 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "SOCKETCAN"), 0)
         self.assertEqual(self.count(devices, "HIDRAW"), 1)
 
-    def test_INTEL_OPTANE_DC(self):
-        devices = self.parse("INTEL_OPTANE_DC")
-        self.assertEqual(len(devices), 365)
-        self.assertEqual(self.count(devices, "NETWORK"), 2)
-        self.assertEqual(self.count(devices, "DISK"), 2)
-
     def test_ELEMENT_BIOSCIENCES_INSTRUMENT(self):
         devices = self.parse("ELEMENT_BIOSCIENCES_INSTRUMENT")
         self.assertEqual(len(devices), 92)

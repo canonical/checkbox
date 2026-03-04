@@ -106,6 +106,13 @@ def test_glmark2_es2_wayland():
 
     vendor_match = re.search(r"GL_VENDOR:\s+(.*)", output)
     renderer_match = re.search(r"GL_RENDERER:\s+(.*)", output)
+
+    if not vendor_match or not renderer_match:
+        logger.error(
+            "FAIL: Could not find GL_VENDOR or GL_RENDERER in the output."
+        )
+        return 1
+
     if gl_vendor not in vendor_match.group(1):
         logger.error("FAIL: Wrong vendor!")
         logger.error(
@@ -114,6 +121,7 @@ def test_glmark2_es2_wayland():
         exit_code = 1
     else:
         logger.info("PASS: GL_VENDOR is '%s'" % vendor_match.group(1))
+
     if gl_renderer not in renderer_match.group(1):
         logger.error("FAIL: Wrong renderer!")
         logger.error(

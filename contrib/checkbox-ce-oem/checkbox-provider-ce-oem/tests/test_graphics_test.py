@@ -144,6 +144,19 @@ class TestGraphicsTest(unittest.TestCase):
 
         self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 1)
 
+    @patch("os.environ.get")
+    @patch("subprocess.check_output")
+    @patch("graphics_test.is_ubuntu_frame_active", return_value=True)
+    def test_glmark2_missing_output(
+        self, mock_is_active, mock_check_output, mock_env_get
+    ):
+        mock_check_output.return_value = (
+            "WARNING: wayland interface not connected!"
+        )
+        mock_env_get.side_effect = ["TestVendor", "TestRenderer"]
+
+        self.assertEqual(graphics_test.test_glmark2_es2_wayland(), 1)
+
     @patch("sys.stderr", new_callable=StringIO)
     def test_main_no_args(self, mock_stderr):
         with patch("sys.argv", ["script.py"]):

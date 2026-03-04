@@ -116,8 +116,7 @@ def test_glmark2_es2_wayland():
     if not re.search(r"GL_RENDERER:\s+{}".format(gl_renderer), output):
         logger.error("FAIL: Wrong renderer!")
         logger.error(
-            "The expected 'GL_RENDERER' should include '{}'".format(
-                gl_renderer
+            "The expected 'GL_RENDERER' should include '%s'", gl_renderer
             )
         )
         exit_code = 1

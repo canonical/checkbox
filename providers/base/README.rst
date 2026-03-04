@@ -13,27 +13,27 @@ Base Provider Units
 ###################
 
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| 6lowpan   | eeprom      | hibernate   | memory            | security    | touchscreen    |
+| 6lowpan   | eeprom      | hibernate   | memory            | self        | tmp            |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| acpi      | esata       | i2c         | miscellanea       | self        | tmp            |
+| acpi      | esata       | i2c         | miscellanea       | serial      | ubuntucore     |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| audio     | ethernet    | image       | mobilebroadband   | serial      | ubuntucore     |
+| audio     | ethernet    | image       | mobilebroadband   | smoke       | usb            |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| benchmarks| expresscard | info        | monitor           | smoke       | usb            |
+| benchmarks| expresscard | info        | monitor           | snapd       | virtualization |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| bluetooth | fingerprint | input       | networking        | snapd       | virtualization |
+| bluetooth | fingerprint | input       | networking        | socketcan   | watchdog       |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| camera_   | firewire    | install     | npu               | socketcan   | watchdog       |
+| camera_   | firewire    | install     | npu               | submission  | wireless       |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| canary    | firmware    | kernel-snap | nvdimm            | submission  | wireless       |
+| canary    | firmware    | kernel-snap | oob-management    | suspend     | wwan           |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| codecs    | fscrypt     | keys        | oob-management    | suspend     | wwan           |
+| codecs    | fscrypt     | keys        | optical           | tpm         |                |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| cpu       | gadget      | led         | optical           | tpm         |                |
+| cpu       | gadget      | led         | power-management  | thunderbolt |                |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| disk      | gpio        | location    | power-management  | thunderbolt |                |
+| disk      | gpio        | location    | rtc               | touchpad    |                |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
-| dock      | graphics    | mediacard   | rtc               | touchpad    |                |
+| dock      | graphics    | mediacard   | security          | touchscreen |                |
 +-----------+-------------+-------------+-------------------+-------------+----------------+
 
 .. _camera: units/camera/README.rst

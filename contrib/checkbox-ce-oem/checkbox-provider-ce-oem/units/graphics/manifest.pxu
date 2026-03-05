@@ -3,6 +3,7 @@ id: has_nvidia_drm_modeset_enable
 _name: Has the Nvidia proprietary driver and DRM modeset are enabled?
 value-type: bool
 
+unit: manifest entry
 id: drm_intial_check
 _name: check drm driver initial and runtime status
 value-type: bool

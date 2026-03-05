@@ -4,9 +4,10 @@ import time
 import itertools
 import signal
 import sys
+from typing import Tuple, Optional
 
 
-def pick_wayland_socket() -> tuple[str | None, str | None]:
+def pick_wayland_socket() -> Tuple[Optional[str], Optional[str]]:
     # 1) Prefer current env if it already points to a runtime dir with a socket
     xdg = os.environ.get("XDG_RUNTIME_DIR")
     if xdg:
@@ -31,7 +32,7 @@ def pick_wayland_socket() -> tuple[str | None, str | None]:
 
 
 def die(msg: str, code: int = 1) -> None:
-    print(f"[ERROR] {msg}", file=sys.stderr)
+    print("[ERROR] {}".format(msg), file=sys.stderr)
     sys.exit(code)
 
 
@@ -51,17 +52,18 @@ def main() -> int:
     os.environ["WAYLAND_DISPLAY"] = wayland_display
     os.environ.setdefault("SDL_VIDEODRIVER", "wayland")
 
-    print(f"[INFO] Using XDG_RUNTIME_DIR={xdg_dir}")
-    print(f"[INFO] Using WAYLAND_DISPLAY={wayland_display}")
-    print(f"[INFO] SDL_VIDEODRIVER={os.environ.get('SDL_VIDEODRIVER')}")
+    print("[INFO] Using XDG_RUNTIME_DIR={}".format(xdg_dir))
+    print("[INFO] Using WAYLAND_DISPLAY={}".format(wayland_display))
+    print("[INFO] SDL_VIDEODRIVER={}".format(
+        os.environ.get('SDL_VIDEODRIVER')))
 
     # Import after env is set
     try:
         import pygame
     except Exception as e:
         die(
-            f"Failed to import pygame: {e}\n"
-            "Install: sudo apt install python3-pygame"
+            "Failed to import pygame: {}\n"
+            "Install: sudo apt install python3-pygame".format(e)
         )
 
     pygame.init()
@@ -121,7 +123,7 @@ def main() -> int:
 
         screen.fill(rgb)
         pygame.display.flip()
-        print(f"[INFO] Color: {name}")
+        print("[INFO] Color: {}".format(name))
 
         # Sleep while still pumping events a bit (avoid "not responding")
         end = time.time() + delay_s

@@ -41,7 +41,7 @@ def run(cmd: List[str], timeout: int = 10) -> Tuple[int, str]:
         )
         return p.returncode, p.stdout.strip()
     except Exception as e:
-        return 127, f"<failed to run {cmd}: {e}>"
+        return 127, "<failed to run {}: {}>".format(cmd, e)
 
 
 def read_text(path: Path, max_bytes: int = 200_000) -> Optional[str]:
@@ -59,7 +59,7 @@ def which(cmd: str) -> Optional[str]:
 
 
 def bullet(k: str, v: str) -> str:
-    return f"- {k}: {v}"
+    return "- {}: {}".format(k, v)
 
 
 def is_root() -> bool:
@@ -97,12 +97,13 @@ def parse_cmdline() -> Dict[str, str]:
 
 def ensure_debugfs_ready() -> Tuple[bool, str]:
     if not DEBUGFS.is_dir():
-        return False, f"{DEBUGFS} not present"
+        return False, "{} not present".format(DEBUGFS)
     if not DRI_DEBUGFS.is_dir():
         return (
             False,
-            f"{DRI_DEBUGFS} not present (is debugfs mounted? "
-            "try: sudo mount -t debugfs none /sys/kernel/debug)",
+            "{} not present (is debugfs mounted? "
+            "try: sudo mount -t debugfs none /sys/kernel/debug)".format(
+                DRI_DEBUGFS),
         )
     return True, "ok"
 
@@ -116,7 +117,7 @@ def list_dri_debug_cards() -> List[int]:
             active = 0
             if p.is_dir() and p.name.isdigit():
                 try:
-                    with open(f"{p}/state") as f:
+                    with open("{}/state".format(p)) as f:
                         active = "active=1" in f.read()
                 except FileNotFoundError:
                     pass
@@ -273,7 +274,7 @@ def check_framebuffer_flips(
                 stderr=subprocess.DEVNULL,
             )
         except Exception as e:
-            print(f"[WARN] Failed to start flash_screen.py: {e}")
+            print("[WARN] Failed to start flash_screen.py: {}".format(e))
 
     try:
         prev = sorted(set(_extract_fb_ids_from_state(txt0)))
@@ -338,7 +339,7 @@ def check_psr_alpm_state(card: int) -> PsrAlpmResult:
             None,
             None,
             "",
-            f"Missing/unreadable: {psr_path} (i915-only)",
+            "Missing/unreadable: {} (i915-only)".format(psr_path),
         )
 
     psr_enabled = None
@@ -384,7 +385,7 @@ def check_psr_alpm_state(card: int) -> PsrAlpmResult:
             psr_active,
             alpm_hint,
             excerpt,
-            f"parsed from {psr_path}",
+            "parsed from {}".format(psr_path),
         ),
     )
     return not psr_active and not alpm_hint
@@ -513,14 +514,14 @@ def run_flow_nomodeset():
         for f in ["name", "modes", "virtual_size", "stride", "bits_per_pixel"]:
             t = read_text(fb_sys / f)
             if t is not None:
-                print(f"[INFO] fb0 {f}: {t}")
+                print("[INFO] fb0 {}: {}".format(f, t))
         # driver symlink if present
         drv = fb_sys / "device" / "driver"
         if drv.exists():
             try:
                 if drv.is_symlink():
                     drv_name = Path(os.readlink(str(drv))).name
-                    print(f"[INFO] fb0 driver: {drv_name}")
+                    print("[INFO] fb0 driver: {}".format(drv_name))
             except Exception:
                 pass
     else:
@@ -564,23 +565,25 @@ def run_flow_kms():
         ident = device_identity(c)
         if drv:
             any_driver = True
-            print(f"[PASS] {c.name}: driver bound = {drv}")
+            print("[PASS] {}: driver bound = {}".format(c.name, drv))
         else:
-            raise SystemExit(f"[FAIL] {c.name}: no driver bound symlink")
+            raise SystemExit(
+                "[FAIL] {}: no driver bound symlink".format(c.name))
         if ident:
             brief = ", ".join(
-                f"{k}={v}"
+                "{}={}".format(k, v)
                 for k, v in ident.items()
                 if k in ("DRIVER", "PCI_ID", "vendor", "device", "class")
             )
-            print(f"[INFO] {c.name}: identity: {brief or '<partial>'}")
+            print("[INFO] {}: identity: {}".format(
+                c.name, brief or '<partial>'))
 
         pm = runtime_pm_info(c)
         if pm:
             print(
                 "[INFO] "
-                + f"{c.name} runtime PM: "
-                + ", ".join(f"{k}={v}" for k, v in pm.items())
+                + "{} runtime PM: ".format(c.name)
+                + ", ".join("{}={}".format(k, v) for k, v in pm.items())
             )
 
     if not any_driver:
@@ -623,7 +626,7 @@ def run_flow_kms():
     ]:
         v = module_param(mod, param)
         if v is not None:
-            params.append(f"{mod}.{param}={v}")
+            params.append("{}.{}={}".format(mod, param, v))
     print(
         "[INFO] modeset params: "
         + (", ".join(params) if params else "<none readable>")
@@ -647,27 +650,29 @@ def run_flow_kms():
             edid_bytes = ci.get("edid_bytes", "0")
             link_status = (ci.get("link_status") or "").strip()
             info_msg = (
-                f"[INFO] {ci['name']}: status={status or '<unknown>'}, "
-                f"edid_bytes={edid_bytes}, modes={len(modes)}"
+                "[INFO] {}: status={}, "
+                "edid_bytes={}, modes={}".format(
+                    ci['name'], status or '<unknown>', edid_bytes, len(modes))
             )
             if link_status:
-                info_msg += f", link_status={link_status}"
+                info_msg += ", link_status={}".format(link_status)
             print(info_msg)
             if status == "connected":
                 any_connected = True
                 if len(modes) == 0:
                     raise SystemExit(
-                        f"[FAIL] {ci['name']}: connected but no modes "
-                        "(EDID/AUX/DDC/link issue)"
+                        "[FAIL] {}: connected but no modes "
+                        "(EDID/AUX/DDC/link issue)".format(ci['name'])
                     )
                 if edid_bytes in ("0", "", "?"):
                     print(
-                        f"[WARN] {ci['name']}: EDID size suspicious "
-                        f"(edid_bytes={edid_bytes})"
+                        "[WARN] {}: EDID size suspicious "
+                        "(edid_bytes={})".format(ci['name'], edid_bytes)
                     )
                 if link_status and link_status.lower() != "good":
                     raise SystemExit(
-                        f"[FAIL] {ci['name']}: link_status={link_status}"
+                        "[FAIL] {}: link_status={}".format(
+                            ci['name'], link_status)
                     )
 
     if any_connected:
@@ -685,13 +690,13 @@ def run_flow_kms():
     else:
         vb = capture_drm_trace(duration_s=10)
         if vb:
-            print(f"[PASS] check vblank_event count: {vb}")
+            print("[PASS] check vblank_event count: {}".format(vb))
         else:
             raise SystemExit("[FAIL] no vblank found")
 
         flips = check_framebuffer_flips(card, samples=10, interval_s=2)
         if flips:
-            print(f"[PASS] check framebuffer flips count: {flips}")
+            print("[PASS] check framebuffer flips count: {}".format(flips))
         else:
             raise SystemExit("[FAIL] framebuffer has no flips")
 

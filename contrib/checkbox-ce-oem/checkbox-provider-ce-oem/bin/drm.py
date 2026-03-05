@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
 Flow A (nomodeset):
-  - Validate fbdev / firmware framebuffer path (/dev/fb0, efifb/simplefb/vesafb)
+  - Validate fbdev / firmware framebuffer path
+    (/dev/fb0, efifb/simplefb/vesafb)
   - Optionally collect DRM render-only info as INFO (not required for display)
 
 Flow B (normal):
-  - Device registered -> driver bound -> DRM sysfs -> /dev/dri -> connectors/EDID/modes
+  - Device registered -> driver bound -> DRM sysfs -> /dev/dri
+    -> connectors/EDID/modes
   - Logs for link training / vblank/pageflip / power
   - Optional tools in --deep (modetest/kmsprint/drm_info)
 """
@@ -101,7 +103,8 @@ def ensure_debugfs_ready() -> Tuple[bool, str]:
     if not DRI_DEBUGFS.is_dir():
         return (
             False,
-            f"{DRI_DEBUGFS} not present (is debugfs mounted? try: sudo mount -t debugfs none /sys/kernel/debug)",
+            f"{DRI_DEBUGFS} not present (is debugfs mounted? "
+            "try: sudo mount -t debugfs none /sys/kernel/debug)",
         )
     return True, "ok"
 
@@ -134,7 +137,7 @@ def pick_primary_card() -> Optional[int]:
     return cards[0] if cards else None
 
 
-# ----------------------------check vblank event----------------------------------
+# ----------------------- check vblank event -----------------------
 
 
 def _write(path: Path, data: str) -> None:
@@ -142,7 +145,8 @@ def _write(path: Path, data: str) -> None:
 
 
 def _exists_enable_file(ev: str) -> Optional[Path]:
-    # "drm:drm_vblank_event" -> /sys/kernel/tracing/events/drm/drm_vblank_event/enable
+    # "drm:drm_vblank_event" ->
+    # /sys/kernel/tracing/events/drm/drm_vblank_event/enable
     if ":" not in ev:
         return None
     cat, name = ev.split(":", 1)
@@ -180,7 +184,7 @@ def count_trace_lines() -> int:
     try:
         # read in one shot; trace is usually manageable after a short capture
         txt = trace_path.read_text(errors="replace")
-        # count lines; if file ends without newline, splitlines still counts correctly
+        # count lines; splitlines counts correctly even without final newline
         return len(txt.splitlines())
     except Exception:
         return -1
@@ -189,25 +193,16 @@ def count_trace_lines() -> int:
 def capture_drm_trace(
     duration_s: int = 10,
     events: Optional[List[str]] = None,
-    read_trace: bool = True,
-    max_chars: int = 20000,
     cleanup_disable_all: bool = True,
-) -> TraceCaptureResult:
+) -> int:
     """
-    Python version of your tracefs script + count lines + disable all drm events.
+    Python version of tracefs script + count lines + disable all drm events.
     Requires root (or tracefs write permission).
+    Returns line count, or 0 on error.
     """
     try:
         if not TRACEFS.is_dir():
-            return TraceCaptureResult(
-                False,
-                [],
-                0,
-                "",
-                -1,
-                "",
-                "tracefs not mounted at /sys/kernel/tracing",
-            )
+            return 0
 
         if events is None:
             events = [
@@ -236,26 +231,17 @@ def capture_drm_trace(
         line_count = count_trace_lines()
 
         # Cleanup: disable all drm events
-        disabled_n = 0
         if cleanup_disable_all:
-            disabled_n = disable_all_drm_events()
-
-        trace_path = str(TRACEFS / "trace")
-        excerpt = ""
-        if read_trace:
-            t = (TRACEFS / "trace").read_text(errors="replace")
-            excerpt = t[:max_chars] + (
-                "\n<...truncated...>\n" if len(t) > max_chars else ""
-            )
+            disable_all_drm_events()
 
         return line_count
 
     except PermissionError:
-        print(f"permission denied (run as root)")
-        return
+        print("permission denied (run as root)")
+        return 0
 
 
-# --------------------------- check framebuffer flip------------------------------
+# ----------------------- check framebuffer flip -----------------------
 
 _FB_RE = re.compile(r"\bfb=([0-9]+)\b")
 
@@ -269,7 +255,7 @@ def check_framebuffer_flips(
     card: int, samples: int = 10, interval_s: float = 0.2
 ) -> int:
     """
-    Returns flips_seen = number of times the set of fb IDs changed between samples.
+    Return flips_seen = number of times fb IDs changed between samples.
 
     Runs flash_screen.py in the background to generate framebuffer activity.
     """
@@ -329,12 +315,12 @@ class PsrAlpmResult:
 
 def _bool_from_line(line: str) -> Optional[bool]:
     # Common formats: "Enabled: yes/no", "PSR enabled: 1/0", "Active: yes/no"
-    l = line.strip().lower()
-    if any(x in l for x in ("yes", "enabled", ": 1", "=1")) and not any(
-        x in l for x in ("no", ": 0", "=0", "disabled")
+    low = line.strip().lower()
+    if any(x in low for x in ("yes", "enabled", ": 1", "=1")) and not any(
+        x in low for x in ("no", ": 0", "=0", "disabled")
     ):
         return True
-    if any(x in l for x in ("no", "disabled", ": 0", "=0")):
+    if any(x in low for x in ("no", "disabled", ": 0", "=0")):
         return False
     return None
 
@@ -364,31 +350,31 @@ def check_psr_alpm_state(card: int) -> PsrAlpmResult:
 
     excerpt_lines: List[str] = []
     for line in txt.splitlines():
-        l = line.lower()
+        low = line.lower()
 
         # PSR signals (formats differ slightly by kernel)
-        if "psr" in l and ("enabled" in l or "enable" in l):
+        if "psr" in low and ("enabled" in low or "enable" in low):
             b = _bool_from_line(line)
             if b is not None and psr_enabled is None:
                 psr_enabled = b
-        if "psr" in l and ("active" in l or "state" in l):
+        if "psr" in low and ("active" in low or "state" in low):
             # "Active: yes" / "PSR status: active"
-            if "active" in l and ("yes" in l or "active" in l):
+            if "active" in low and ("yes" in low or "active" in low):
                 psr_active = True
-            if "inactive" in l or "not active" in l:
+            if "inactive" in low or "not active" in low:
                 psr_active = False
 
         # ALPM hints (often appears as "ALPM" string)
-        if "alpm" in l:
+        if "alpm" in low:
             # If file explicitly says active/enabled, capture it
-            if "enable" in l or "active" in l or "on" in l:
+            if "enable" in low or "active" in low or "on" in low:
                 alpm_hint = True
-            if "disable" in l or "off" in l:
+            if "disable" in low or "off" in low:
                 alpm_hint = False
 
         # Keep a useful excerpt for reporting
         if any(
-            k in l for k in ("psr", "alpm", "sink", "source", "dc3", "link")
+            k in low for k in ("psr", "alpm", "sink", "source", "dc3", "link")
         ):
             excerpt_lines.append(line)
 
@@ -463,7 +449,6 @@ def list_dev_dri_nodes() -> List[str]:
 
 
 def drm_connectors_for(card: Path) -> List[Path]:
-    base = Path("/sys/class/drm")
     prefix = card.name + "-"
     out = []
     for p in list_sys_class_drm():
@@ -521,7 +506,8 @@ def run_flow_nomodeset():
         print("[PASS] /dev/fb0 exists (fbdev path available)")
     else:
         raise SystemExit(
-            "[FAIL] /dev/fb0 missing (expected with nomodeset). Check efifb/simplefb/vesafb/simpledrm."
+            "[FAIL] /dev/fb0 missing (expected with nomodeset). "
+            "Check efifb/simplefb/vesafb/simpledrm."
         )
 
     # sysfs fb info
@@ -536,14 +522,14 @@ def run_flow_nomodeset():
         if drv.exists():
             try:
                 if drv.is_symlink():
-                    print(
-                        f"[INFO] fb0 driver: {Path(os.readlink(str(drv))).name}"
-                    )
+                    drv_name = Path(os.readlink(str(drv))).name
+                    print(f"[INFO] fb0 driver: {drv_name}")
             except Exception:
                 pass
     else:
         raise SystemExit(
-            "[FAIL] /sys/class/graphics/fb0 not found; fbdev sysfs info missing"
+            "[FAIL] /sys/class/graphics/fb0 not found; "
+            "fbdev sysfs info missing"
         )
 
     return
@@ -559,7 +545,8 @@ def run_flow_kms():
     sys_drm = list_sys_class_drm()
     if not sys_drm:
         raise SystemExit(
-            "[FAIL] /sys/class/drm missing/empty: DRM not exporting state (driver not loaded/bound?)"
+            "[FAIL] /sys/class/drm missing/empty: "
+            "DRM not exporting state (driver not loaded/bound?)"
         )
     print(
         "[PASS] /sys/class/drm entries: " + ", ".join(p.name for p in sys_drm)
@@ -568,7 +555,8 @@ def run_flow_kms():
     cards = drm_cards()
     if not cards:
         raise SystemExit(
-            "[FAIL] No /sys/class/drm/cardN found: DRM device not registered (driver missing/not bound?)"
+            "[FAIL] No /sys/class/drm/cardN found: "
+            "DRM device not registered (driver missing/not bound?)"
         )
     print("[PASS] Found DRM cards: " + ", ".join(c.name for c in cards))
 
@@ -600,7 +588,8 @@ def run_flow_kms():
 
     if not any_driver:
         raise SystemExit(
-            "[FAIL] DRM cards exist but none show a bound driver: probe/bind issue"
+            "[FAIL] DRM cards exist but none show a bound driver: "
+            "probe/bind issue"
         )
 
     # 3) /dev/dri nodes
@@ -623,7 +612,8 @@ def run_flow_kms():
         print("[PASS] /dev/dri/renderD* present (render node)")
     else:
         raise SystemExit(
-            "[FAIL] No /dev/dri/renderD*: Mesa may fall back to llvmpipe or rendering may fail"
+            "[FAIL] No /dev/dri/renderD*: "
+            "Mesa may fall back to llvmpipe or rendering may fail"
         )
 
     # 4) KMS gating module params
@@ -643,7 +633,8 @@ def run_flow_kms():
     )
     if any(p.startswith("nvidia_drm.modeset=0") for p in params):
         raise SystemExit(
-            "[FAIL] nvidia_drm.modeset=0: KMS disabled for NVIDIA DRM (often black screen on Wayland)"
+            "[FAIL] nvidia_drm.modeset=0: KMS disabled for NVIDIA DRM "
+            "(often black screen on Wayland)"
         )
 
     # 5) Connection / EDID / modes
@@ -658,19 +649,24 @@ def run_flow_kms():
             modes = (ci.get("modes") or "").splitlines()
             edid_bytes = ci.get("edid_bytes", "0")
             link_status = (ci.get("link_status") or "").strip()
-            print(
-                f"[INFO] {ci['name']}: status={status or '<unknown>'}, edid_bytes={edid_bytes}, modes={len(modes)}"
-                + (f", link_status={link_status}" if link_status else "")
+            info_msg = (
+                f"[INFO] {ci['name']}: status={status or '<unknown>'}, "
+                f"edid_bytes={edid_bytes}, modes={len(modes)}"
             )
+            if link_status:
+                info_msg += f", link_status={link_status}"
+            print(info_msg)
             if status == "connected":
                 any_connected = True
                 if len(modes) == 0:
                     raise SystemExit(
-                        f"[FAIL] {ci['name']}: connected but no modes (EDID/AUX/DDC/link issue)"
+                        f"[FAIL] {ci['name']}: connected but no modes "
+                        "(EDID/AUX/DDC/link issue)"
                     )
                 if edid_bytes in ("0", "", "?"):
                     print(
-                        f"[WARN] {ci['name']}: EDID size suspicious (edid_bytes={edid_bytes})"
+                        f"[WARN] {ci['name']}: EDID size suspicious "
+                        f"(edid_bytes={edid_bytes})"
                     )
                 if link_status and link_status.lower() != "good":
                     raise SystemExit(
@@ -681,7 +677,8 @@ def run_flow_kms():
         print("[PASS] At least one connector is connected")
     else:
         raise SystemExit(
-            "[FAIL] No connectors report connected (if you expect display: cable/hotplug/link training)"
+            "[FAIL] No connectors report connected "
+            "(if you expect display: cable/hotplug/link training)"
         )
 
     # 6) runtime checkiong
@@ -693,7 +690,7 @@ def run_flow_kms():
         if vb:
             print(f"[PASS] check vblank_event count: {vb}")
         else:
-            raise SystemExit(f"[FAIL] no vblan found")
+            raise SystemExit("[FAIL] no vblank found")
 
         flips = check_framebuffer_flips(card, samples=10, interval_s=2)
         if flips:

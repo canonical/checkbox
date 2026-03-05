@@ -40,11 +40,13 @@ def main() -> int:
     if not xdg_dir or not wayland_display:
         die(
             "No Wayland socket found.\n"
-            "Make sure Ubuntu Frame (or another Wayland compositor) is running.\n"
+            "Make sure Ubuntu Frame (or another Wayland compositor) "
+            "is running.\n"
             "Hint: ls -l /run/user/*/wayland-*"
         )
 
-    # Must be set BEFORE importing pygame (SDL decides backend at import/init time)
+    # Must be set BEFORE importing pygame
+    # (SDL decides backend at import/init time)
     os.environ["XDG_RUNTIME_DIR"] = xdg_dir
     os.environ["WAYLAND_DISPLAY"] = wayland_display
     os.environ.setdefault("SDL_VIDEODRIVER", "wayland")
@@ -58,7 +60,8 @@ def main() -> int:
         import pygame
     except Exception as e:
         die(
-            f"Failed to import pygame: {e}\nInstall: sudo apt install python3-pygame"
+            f"Failed to import pygame: {e}\n"
+            "Install: sudo apt install python3-pygame"
         )
 
     pygame.init()

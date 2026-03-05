@@ -54,8 +54,9 @@ def main() -> int:
 
     print("[INFO] Using XDG_RUNTIME_DIR={}".format(xdg_dir))
     print("[INFO] Using WAYLAND_DISPLAY={}".format(wayland_display))
-    print("[INFO] SDL_VIDEODRIVER={}".format(
-        os.environ.get('SDL_VIDEODRIVER')))
+    print(
+        "[INFO] SDL_VIDEODRIVER={}".format(os.environ.get("SDL_VIDEODRIVER"))
+    )
 
     # Import after env is set
     try:

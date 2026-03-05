@@ -44,7 +44,7 @@ def run(cmd: List[str], timeout: int = 10) -> Tuple[int, str]:
         return 127, "<failed to run {}: {}>".format(cmd, e)
 
 
-def read_text(path: Path, max_bytes: int = 200_000) -> Optional[str]:
+def read_text(path: Path, max_bytes: int = 200000) -> Optional[str]:
     try:
         data = path.read_bytes()
         if len(data) > max_bytes:
@@ -69,7 +69,7 @@ def is_root() -> bool:
 def grep_lines(
     text: str, patterns: List[str], max_hits: int = 80
 ) -> List[str]:
-    hits: List[str] = []
+    hits = []  # type: List[str]
     for line in text.splitlines():
         for pat in patterns:
             if re.search(pat, line, re.IGNORECASE):
@@ -84,7 +84,7 @@ def grep_lines(
 def parse_cmdline() -> Dict[str, str]:
     cmdline = read_text(Path("/proc/cmdline")) or ""
     tokens = cmdline.split()
-    out: Dict[str, str] = {}
+    out = {}  # type: Dict[str, str]
     for t in tokens:
         if "=" in t:
             k, v = t.split("=", 1)
@@ -103,7 +103,8 @@ def ensure_debugfs_ready() -> Tuple[bool, str]:
             False,
             "{} not present (is debugfs mounted? "
             "try: sudo mount -t debugfs none /sys/kernel/debug)".format(
-                DRI_DEBUGFS),
+                DRI_DEBUGFS
+            ),
         )
     return True, "ok"
 
@@ -214,7 +215,7 @@ def capture_drm_trace(
         _write(TRACEFS / "tracing_on", "0")
         _write(TRACEFS / "trace", "")
 
-        enabled: List[str] = []
+        enabled = []  # type: List[str]
         for ev in events:
             enable_file = _exists_enable_file(ev)
             if enable_file:
@@ -346,7 +347,7 @@ def check_psr_alpm_state(card: int) -> PsrAlpmResult:
     psr_active = None
     alpm_hint = None
 
-    excerpt_lines: List[str] = []
+    excerpt_lines = []  # type: List[str]
     for line in txt.splitlines():
         low = line.lower()
 
@@ -418,7 +419,7 @@ def get_driver_for_card(card: Path) -> Optional[str]:
 
 
 def device_identity(card: Path) -> Dict[str, str]:
-    out: Dict[str, str] = {}
+    out = {}  # type: Dict[str, str]
     dev = card / "device"
     for k in [
         "vendor",
@@ -456,7 +457,7 @@ def drm_connectors_for(card: Path) -> List[Path]:
 
 
 def connector_info(conn: Path) -> Dict[str, str]:
-    info: Dict[str, str] = {"name": conn.name}
+    info = {"name": conn.name}  # type: Dict[str, str]
     for f in ["status", "enabled", "dpms", "modes", "link_status"]:
         t = read_text(conn / f)
         if t is not None:
@@ -476,7 +477,7 @@ def module_param(mod: str, param: str) -> Optional[str]:
 
 
 def runtime_pm_info(card: Path) -> Dict[str, str]:
-    out: Dict[str, str] = {}
+    out = {}  # type: Dict[str, str]
     p = card / "device" / "power"
     if not p.is_dir():
         return out
@@ -568,15 +569,17 @@ def run_flow_kms():
             print("[PASS] {}: driver bound = {}".format(c.name, drv))
         else:
             raise SystemExit(
-                "[FAIL] {}: no driver bound symlink".format(c.name))
+                "[FAIL] {}: no driver bound symlink".format(c.name)
+            )
         if ident:
             brief = ", ".join(
                 "{}={}".format(k, v)
                 for k, v in ident.items()
                 if k in ("DRIVER", "PCI_ID", "vendor", "device", "class")
             )
-            print("[INFO] {}: identity: {}".format(
-                c.name, brief or '<partial>'))
+            print(
+                "[INFO] {}: identity: {}".format(c.name, brief or "<partial>")
+            )
 
         pm = runtime_pm_info(c)
         if pm:
@@ -652,7 +655,8 @@ def run_flow_kms():
             info_msg = (
                 "[INFO] {}: status={}, "
                 "edid_bytes={}, modes={}".format(
-                    ci['name'], status or '<unknown>', edid_bytes, len(modes))
+                    ci["name"], status or "<unknown>", edid_bytes, len(modes)
+                )
             )
             if link_status:
                 info_msg += ", link_status={}".format(link_status)
@@ -662,17 +666,18 @@ def run_flow_kms():
                 if len(modes) == 0:
                     raise SystemExit(
                         "[FAIL] {}: connected but no modes "
-                        "(EDID/AUX/DDC/link issue)".format(ci['name'])
+                        "(EDID/AUX/DDC/link issue)".format(ci["name"])
                     )
                 if edid_bytes in ("0", "", "?"):
                     print(
                         "[WARN] {}: EDID size suspicious "
-                        "(edid_bytes={})".format(ci['name'], edid_bytes)
+                        "(edid_bytes={})".format(ci["name"], edid_bytes)
                     )
                 if link_status and link_status.lower() != "good":
                     raise SystemExit(
                         "[FAIL] {}: link_status={}".format(
-                            ci['name'], link_status)
+                            ci["name"], link_status
+                        )
                     )
 
     if any_connected:

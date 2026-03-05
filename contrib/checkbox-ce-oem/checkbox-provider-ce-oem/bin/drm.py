@@ -303,13 +303,17 @@ def check_framebuffer_flips(
 # --------------------------check PHY power state and Panel power state-
 
 
-class PsrAlpmResult(NamedTuple):
-    supported: bool
-    psr_enabled: Optional[bool]
-    psr_active: Optional[bool]
-    alpm_active_hint: Optional[bool]
-    raw_excerpt: str
-    details: str
+PsrAlpmResult = NamedTuple(
+    "PsrAlpmResult",
+    [
+        ("supported", bool),
+        ("psr_enabled", Optional[bool]),
+        ("psr_active", Optional[bool]),
+        ("alpm_active_hint", Optional[bool]),
+        ("raw_excerpt", str),
+        ("details", str),
+    ],
+)
 
 
 def _bool_from_line(line: str) -> Optional[bool]:

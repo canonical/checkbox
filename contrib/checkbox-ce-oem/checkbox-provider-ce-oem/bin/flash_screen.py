@@ -104,7 +104,7 @@ def main() -> int:
         ((0, 0, 0), "BLACK"),
     ]
 
-    delay_s = 1.0  # seconds per color
+    delay_s = 0.5  # seconds per color
     clock = pygame.time.Clock()
 
     for rgb, name in itertools.cycle(colors):
@@ -137,7 +137,7 @@ def main() -> int:
                     pygame.K_q,
                 ):
                     running = False
-            clock.tick(60)
+            clock.tick(120)
 
     pygame.quit()
     return 0

@@ -12,7 +12,6 @@ Flow B (normal):
   - Optional tools in --deep (modetest/kmsprint/drm_info)
 """
 
-from __future__ import annotations
 import argparse
 import os
 import re
@@ -20,9 +19,8 @@ import shutil
 import subprocess
 import sys
 import time
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 DEBUGFS = Path("/sys/kernel/debug")
 DRI_DEBUGFS = DEBUGFS / "dri"
@@ -37,7 +35,7 @@ def run(cmd: List[str], timeout: int = 10) -> Tuple[int, str]:
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            text=True,
+            universal_newlines=True,
             timeout=timeout,
             check=False,
         )
@@ -303,8 +301,7 @@ def check_framebuffer_flips(
 # --------------------------check PHY power state and Panel power state-
 
 
-@dataclass
-class PsrAlpmResult:
+class PsrAlpmResult(NamedTuple):
     supported: bool
     psr_enabled: Optional[bool]
     psr_active: Optional[bool]

@@ -57,7 +57,9 @@ def main() -> int:
     try:
         import pygame
     except Exception as e:
-        die(f"Failed to import pygame: {e}\nInstall: sudo apt install python3-pygame")
+        die(
+            f"Failed to import pygame: {e}\nInstall: sudo apt install python3-pygame"
+        )
 
     pygame.init()
 
@@ -99,7 +101,7 @@ def main() -> int:
     delay_s = 1.0  # seconds per color
     clock = pygame.time.Clock()
 
-    for (rgb, name) in itertools.cycle(colors):
+    for rgb, name in itertools.cycle(colors):
         if not running:
             break
 
@@ -124,7 +126,10 @@ def main() -> int:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type == pygame.KEYDOWN and event.key in (pygame.K_ESCAPE, pygame.K_q):
+                elif event.type == pygame.KEYDOWN and event.key in (
+                    pygame.K_ESCAPE,
+                    pygame.K_q,
+                ):
                     running = False
             clock.tick(60)
 

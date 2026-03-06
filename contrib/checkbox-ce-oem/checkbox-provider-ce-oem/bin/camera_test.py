@@ -230,7 +230,7 @@ def register_arguments() -> argparse.Namespace:
     )
 
     # subparser for readiness
-    parser_readiness = subparsers.add_parser("readiness")
+    subparsers.add_parser("readiness")
 
     # Subparser for testing
     parser_testing = subparsers.add_parser(

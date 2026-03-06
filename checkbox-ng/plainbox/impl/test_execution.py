@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import contextlib
+import os
 from pathlib import Path
 from unittest import TestCase, mock
 
@@ -28,6 +28,7 @@ from plainbox.impl.execution import (
     dangerous_nsenter,
     get_execution_command_subshell,
     get_execution_command_systemd_unit,
+    get_execution_environment,
 )
 from plainbox.impl.unit.job import InvalidJob
 
@@ -459,3 +460,63 @@ class TestAddToEnvironment(TestCase):
         self.assertIn("og_path2", new_path)
         self.assertIn("some", new_path)
         self.assertIn("path", new_path)
+
+
+class TestGetExecutionEnvironment(TestCase):
+    def setUp(self):
+        self.job = mock.Mock()
+        self.job.get_flag_set.return_value = set()
+        self.job.provider.gettext_domain = None
+        self.job.provider.locale_dir = None
+        self.job.provider.extra_PYTHONPATH = []
+        self.job.provider.extra_PATH = []
+        self.job.provider.extra_LD_LIBRARY_PATH = []
+        self.job.provider.extra_snap_environment = {}
+        self.job.provider.data_dir = None
+        self.job.provider.units_dir = None
+        self.job.provider.CHECKBOX_SHARE = None
+
+    @mock.patch.dict(os.environ, {"ORIGINAL_ENV": "value"}, clear=True)
+    @mock.patch("plainbox.impl.execution.WellKnownDirsHelper")
+    def test_basic_environment(self, mock_well_known):
+        mock_well_known.session_share.return_value = "/session/share"
+
+        env = get_execution_environment(
+            self.job, None, "test_session", "/nest"
+        )
+
+        self.assertIn("ORIGINAL_ENV", env)
+        self.assertEqual(env["ORIGINAL_ENV"], "value")
+        self.assertEqual(env["PLAINBOX_SESSION_SHARE"], "/session/share")
+        self.assertIn("/nest", env["PATH"])
+        mock_well_known.session_share.assert_called_once_with("test_session")
+
+    @mock.patch.dict(os.environ, {"SNAP": "/snap/checkbox24"}, clear=True)
+    @mock.patch("plainbox.impl.execution.get_checkbox_runtime_path")
+    @mock.patch("plainbox.impl.execution.WellKnownDirsHelper")
+    def test_checkbox_runtime_in_snap(
+        self, mock_well_known, mock_runtime_path
+    ):
+        mock_well_known.session_share.return_value = "/session/share"
+        mock_runtime_path.return_value = Path("/snap/checkbox24/current")
+
+        env = get_execution_environment(
+            self.job, None, "test_session", "/nest"
+        )
+
+        self.assertEqual(env["CHECKBOX_RUNTIME"], "/snap/checkbox24/current")
+
+    @mock.patch.dict(
+        os.environ, {"EXISTING_VAR": "original_value"}, clear=True
+    )
+    @mock.patch("plainbox.impl.execution.WellKnownDirsHelper")
+    def test_environ_dict_does_not_override_existing(self, mock_well_known):
+        mock_well_known.session_share.return_value = "/session/share"
+
+        environ = {"EXISTING_VAR": "new_value"}
+
+        env = get_execution_environment(
+            self.job, environ, "test_session", "/nest"
+        )
+
+        self.assertEqual(env["EXISTING_VAR"], "original_value")

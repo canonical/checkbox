@@ -132,12 +132,3 @@ include:
     after-suspend-mediacard/sdxc-storage-manual
 nested_part:
 
-id: mediacard-iot-26-04-automated
-unit: test plan
-_name: media card tests for Ubuntu 26.04 (Automated)
-_description: Automated tests for wireless
-include:
-    mediacard/storage-preinserted-.*
-    after-suspend-mediacard/storage-preinserted-.*
-bootstrap_include:
-    removable_partition

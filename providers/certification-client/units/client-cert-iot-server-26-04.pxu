@@ -3,9 +3,7 @@ _name: IoT Client Certification Tests for 26.04 server images
 unit: test plan
 _description:
  This test plan is intended for use inside Canonical's test labs. It will be
- used to certify IoT devices on behalf of OEM customers as part of
- commercial engagements.
- used to certify IoT devices running server/desktop image.
+ used to certify IoT devices running server image.
 include:
 nested_part:
     client-cert-iot-server-26-04-manual
@@ -92,10 +90,6 @@ _name: IoT Client Certification Tests for 26.04 server images (Automated Tests)
 unit: test plan
 _description:
     Includes tests that do not require operator input.
-    TO DO:
-      - need to cleanup OTG tests
-      - missing serial test plan in desktop-26 test plan
-      - add cpu/armhf_vfp_support_.* and cpu/arm64_vfp_support_.* to cpu-cert-automated
 bootstrap_include:
 include:
 nested_part:

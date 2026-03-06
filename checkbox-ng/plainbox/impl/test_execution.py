@@ -481,7 +481,9 @@ class TestGetExecutionEnvironment(TestCase):
     def test_basic_environment(self, mock_well_known):
         mock_well_known.session_share.return_value = "/session/share"
 
-        env = get_execution_environment(self.job, None, "test_session", "/nest")
+        env = get_execution_environment(
+            self.job, None, "test_session", "/nest"
+        )
 
         self.assertIn("ORIGINAL_ENV", env)
         self.assertEqual(env["ORIGINAL_ENV"], "value")
@@ -498,7 +500,9 @@ class TestGetExecutionEnvironment(TestCase):
         mock_well_known.session_share.return_value = "/session/share"
         mock_runtime_path.return_value = Path("/snap/checkbox24/current")
 
-        env = get_execution_environment(self.job, None, "test_session", "/nest")
+        env = get_execution_environment(
+            self.job, None, "test_session", "/nest"
+        )
 
         self.assertEqual(env["CHECKBOX_RUNTIME"], "/snap/checkbox24/current")
 
@@ -511,6 +515,8 @@ class TestGetExecutionEnvironment(TestCase):
 
         environ = {"EXISTING_VAR": "new_value"}
 
-        env = get_execution_environment(self.job, environ, "test_session", "/nest")
+        env = get_execution_environment(
+            self.job, environ, "test_session", "/nest"
+        )
 
         self.assertEqual(env["EXISTING_VAR"], "original_value")

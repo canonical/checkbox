@@ -83,6 +83,7 @@ parts:
       - linuxptp
       - snmp
       - gpsd
+      - python3-pygame
     override-prime: |
       snapcraftctl prime
       rm lib/systemd/system/alsa-utils.service

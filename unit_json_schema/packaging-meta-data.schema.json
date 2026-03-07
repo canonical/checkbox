@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/packaging-meta-data.schema.json",
+  "title": "Packaging Meta-Data Unit",
+  "description": "Schema that describes a Checkbox Packaging Meta-Data unit",
+  "type": "object",
+  "properties": {
+    "unit": {
+      "description": "The type of unit.",
+      "const": "packaging meta-data"
+    },
+    "os-id": {
+      "description": "Identifier of the operating system this rule applies to, matching the ID field in /etc/os-release.",
+      "type": "string"
+    },
+    "os-version-id": {
+      "description": "Specific version of the operating system this rule applies to, supports comparison operators.",
+      "type": "string"
+    },
+    "Depends": {
+      "description": "Comma-separated list of package dependencies for the binary package.",
+      "type": "string"
+    },
+    "Suggests": {
+      "description": "Comma-separated list of suggested packages for the binary package.",
+      "type": "string"
+    },
+    "Recommends": {
+      "description": "Comma-separated list of recommended packages for the binary package.",
+      "type": "string"
+    }
+  },
+  "required": ["unit", "os-id"]
+}

@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/job.schema.json",
+  "title": "Job Unit",
+  "description": "Schema that describes a Checkbox Job unit",
+  "$defs": {
+    "jobFields": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique identifier of the job",
+          "type": "string"
+        },
+        "summary": {
+          "description": "Human readable description of the job",
+          "type": "string"
+        },
+        "category_id": {
+          "description": "Identifier of the category this job belongs to.",
+          "type": "string"
+        },
+        "plugin": {
+          "description": "Type of job. Determines how the job is run and how the outcome is determined.",
+          "type": "string",
+          "enum": ["manual", "shell", "user-interact", "user-interact-verify", "attachment", "resource"],
+          "default": "shell"
+        },
+        "certification-status": {
+          "description": "Certification status used to determine if the job is required for certification.",
+          "type": "string",
+          "enum": ["non-blocker", "blocker"]
+        },
+        "requires": {
+          "description": "Conditions that must be met for the job to run, using resource expressions.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "depends": {
+          "description": "List of job ids that must pass before this job runs.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "after": {
+          "description": "List of job ids that must run before this job, regardless of outcome.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "before": {
+          "description": "List of job ids that this job must run before.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "group": {
+          "description": "The id of the group this job belongs to.",
+          "type": "string"
+        },
+        "salvages": {
+          "description": "List of job ids that must have failed for this job to run.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "command": {
+          "description": "Command to execute, run using the default system shell.",
+          "type": "string"
+        },
+        "purpose": {
+          "description": "Used to communicate the purpose of an interactive job to the user.",
+          "type": "string"
+        },
+        "steps": {
+          "description": "Actions the user should perform as part of an interactive job execution.",
+          "type": "string"
+        },
+        "verification": {
+          "description": "Informs the user how to evaluate the outcome of an interactive job.",
+          "type": "string"
+        },
+        "user": {
+          "description": "The user to run the job as, most commonly used to run jobs as root.",
+          "type": "string"
+        },
+        "environ": {
+          "description": "List of environment variable names to pass to the job command.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimated_duration": {
+          "description": "Estimated job duration as a float in seconds or a duration string (e.g. 1h 2m 30s).",
+          "oneOf": [
+            { "type": "number", "minimum": 0 },
+            { "type": "string", "pattern": "^(\\d+h)?[: ]*(\\d+m)?[: ]*(\\d+s)?$" }
+          ]
+        },
+        "flags": {
+          "description": "List of flags that may influence how Checkbox runs the job.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "reset-locale",
+              "win32",
+              "noreturn",
+              "explicit-fail",
+              "has-leftovers",
+              "simple",
+              "preserve-cwd",
+              "fail-on-resource",
+              "also-after-suspend",
+              "also-after-suspend-manual",
+              "cachable"
+            ]
+          }
+        },
+        "imports": {
+          "description": "List of resource job imports from other namespaces.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "allOf": [{ "$ref": "#/$defs/jobFields" }],
+  "properties": {
+    "unit": {
+      "description": "The type of unit.",
+      "const": "job"
+    },
+    "siblings": {
+      "description": "List of job definition overrides to create copies of the current job.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/jobFields"
+      }
+    }
+  },
+  "required": ["id", "summary"]
+}

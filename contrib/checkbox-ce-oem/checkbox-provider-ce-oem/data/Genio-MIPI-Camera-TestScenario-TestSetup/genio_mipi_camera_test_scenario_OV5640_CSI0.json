@@ -1,0 +1,46 @@
+{
+    "capture_image": [
+        {
+            "camera": "ov5640",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsys-1a092000.camsv2 (platform:1a092000.camsv)",
+            "formats": ["YUY2"],
+            "resolutions": [
+                {"width": 1920, "height": 1080}
+            ]
+        },
+        {
+            "camera": "ov5640",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsys-1a092000.camsv2 (platform:1a092000.camsv)",
+            "formats": ["YUYV"],
+            "resolutions": [
+                {"width": 1920, "height": 1080}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "ov5640",
+            "method": "gstreamer",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsys-1a092000.camsv2 (platform:1a092000.camsv)",
+            "formats": ["YUY2"],
+            "resolutions": [
+                {"width": 1920, "height": 1080, "fps": 30}
+            ]
+        },
+        {
+            "camera": "ov5640",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsys-1a092000.camsv2 (platform:1a092000.camsv)",
+            "formats": ["YUYV"],
+            "resolutions": [
+                {"width": 1920, "height": 1080, "fps": 30}
+            ]
+        }
+    ]
+}

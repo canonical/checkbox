@@ -204,7 +204,7 @@ estimated_duration: 16.0
 depends: camera/detect-rpi
 requires: 
  cpuinfo.platform == 'armv7l'
- os.release >= '18.04'
+ os.release >= '18'
 command:
   camera_test_rpi.py --device /dev/{name}
 _purpose:

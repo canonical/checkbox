@@ -20,26 +20,25 @@ import logging
 import os
 import json
 import argparse
+import shutil
 import subprocess
 from typing import Optional, Dict, Any
 from pathlib import Path
 
 DPDK_SNAP_BIN = "/snap/bin/dpdk-dts"
+DPDK_DTS_SNAP_COMMON = Path("/var/snap/dpdk-dts/common")
 DEFAULT_TIMEOUT = 600
-DEFAULT_OUTPUT_DIR = "dpdk_test_results"
-
-
-class ConfigurationError(Exception):
-    """Base Class Exception for configuration errors"""
+DEFAULT_OUTPUT_DIR = DPDK_DTS_SNAP_COMMON / "dpdk_test_results"
 
 
 class DTSRunner:
     """Class to execute snap-based DPDK Test Suite (DTS)"""
 
-    def __init__(self, test_suite: str, config_file: Path):
+    def __init__(self, test_suite: str, config_file: Path, tarball: Path):
         """Initialize class attributes."""
         self.test_suite = test_suite
         self.config_file = config_file
+        self.tarball = tarball
 
     def run_test_suite(
         self,
@@ -50,15 +49,21 @@ class DTSRunner:
         :param verbose: verbosity level on test suite execution
         """
         # Define verbosity level for DPDK Test Suite
-        output_dir = Path(DEFAULT_OUTPUT_DIR) / self.test_suite
+        output_dir = DEFAULT_OUTPUT_DIR / self.test_suite
         output_dir.mkdir(parents=True, exist_ok=True)
-        dts_command = (
-            "{} --test-suite {} --config-file {} --output-dir {}".format(
-                DPDK_SNAP_BIN, self.test_suite, self.config_file, output_dir
-            )
-        )
+
+        # Copy DPDK source tarball to snap common directory for access during test suite execution
+        dpdk_tarball = DPDK_DTS_SNAP_COMMON / self.tarball.name
+        shutil.copy(self.tarball, dpdk_tarball)
+        dts_command = [
+            DPDK_SNAP_BIN,
+            "--test-suite", self.test_suite,
+            "--config-file", str(self.config_file),
+            "--output-dir", str(output_dir),
+            "--tarball", str(dpdk_tarball),
+        ]
         if verbose:
-            dts_command += " --verbose"
+            dts_command.append("--verbose")
 
         logging.info(
             "Starting execution of %s",
@@ -67,7 +72,6 @@ class DTSRunner:
         try:
             subprocess.run(
                 dts_command,
-                shell=True,
                 check=True,
                 timeout=DEFAULT_TIMEOUT,
             )
@@ -90,7 +94,7 @@ class DTSRunner:
 
         logging.info("Getting test suite results")
         results_path = (
-            Path(DEFAULT_OUTPUT_DIR) / self.test_suite / "results.json"
+            DEFAULT_OUTPUT_DIR / self.test_suite / "results.json"
         )
         if not results_path.is_file():
             logging.warning("No results file found at %s", results_path)
@@ -163,6 +167,10 @@ def parse_args():
     parser.add_argument(
         "-T", "--test-suite", required=True, help="Specified Test Suite to run"
     )
+    parser.add_argument(
+        "--tarball", required=True, type=Path,
+        help="Path to the DPDK source tarball"
+    )
     args = parser.parse_args()
 
     return args
@@ -177,22 +185,26 @@ def main():
     # Print environment variables used for test suite run
     logging.info("DTS_CONFIG_FILE: %s", dts_config)
 
+    # Validate configuration before test suite execution
     if not dts_config or not Path(dts_config).is_file():
         raise SystemExit(
             "Missing environment variables to start test execution"
+        )
+    
+    # Validate DPDK source tarball is available
+    if not args.tarball.is_file():
+        raise SystemExit(
+            "DPDK source tarball not found: {}".format(args.tarball)
         )
 
     # Run snap-based DPDK Test Suite
     try:
         dts_runner = DTSRunner(
-            test_suite=args.test_suite, config_file=Path(dts_config)
+            test_suite=args.test_suite,
+            config_file=Path(dts_config),
+            tarball=args.tarball,
         )
         dts_runner.run_test_suite(args.verbose)
-    except ConfigurationError as exc:
-        raise SystemExit(
-            "Unable to start Test Suite execution due to the following "
-            "exception: {}".format(exc)
-        )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         # Attempt to print test results before exit
         dts_runner.print_results()

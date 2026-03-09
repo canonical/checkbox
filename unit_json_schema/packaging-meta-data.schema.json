@@ -6,29 +6,36 @@
   "type": "object",
   "properties": {
     "unit": {
+      "title": "Unit (Packaging Meta-Data Unit)",
       "description": "The type of unit.",
       "const": "packaging meta-data"
     },
     "os-id": {
+      "title": "OS ID (Packaging Meta-Data Unit)",
       "description": "Identifier of the operating system this rule applies to, matching the ID field in /etc/os-release.",
       "type": "string"
     },
     "os-version-id": {
+      "title": "OS Version ID (Packaging Meta-Data Unit)",
       "description": "Specific version of the operating system this rule applies to, supports comparison operators.",
       "type": "string"
     },
     "Depends": {
+      "title": "Depends (Packaging Meta-Data Unit)",
       "description": "Comma-separated list of package dependencies for the binary package.",
       "type": "string"
     },
     "Suggests": {
+      "title": "Suggests (Packaging Meta-Data Unit)",
       "description": "Comma-separated list of suggested packages for the binary package.",
       "type": "string"
     },
     "Recommends": {
+      "title": "Recommends (Packaging Meta-Data Unit)",
       "description": "Comma-separated list of recommended packages for the binary package.",
       "type": "string"
     }
   },
-  "required": ["unit", "os-id"]
+  "required": ["unit", "os-id"],
+  "unevaluatedProperties": false
 }

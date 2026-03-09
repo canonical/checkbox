@@ -6,27 +6,33 @@
   "type": "object",
   "properties": {
     "unit": {
+      "title": "Unit (Exporter Unit)",
       "description": "The type of unit.",
       "const": "exporter"
     },
     "id": {
+      "title": "ID (Exporter Unit)",
       "description": "Unique identifier of the exporter.",
       "type": "string"
     },
     "summary": {
+      "title": "Summary (Exporter Unit)",
       "description": "Human-readable name for the exporter.",
       "type": "string"
     },
     "entry_point": {
+      "title": "Entry Point (Exporter Unit)",
       "description": "Entry point from the plainbox.exporters namespace.",
       "type": "string",
       "enum": ["jinja2", "text", "xlsx", "json", "rfc822", "tar"]
     },
     "file_extension": {
+      "title": "File Extension (Exporter Unit)",
       "description": "Filename extension to use when the exporter stream is saved to a file.",
       "type": "string"
     },
     "options": {
+      "title": "Options (Exporter Unit)",
       "description": "List of options for the exporter entry point.",
       "type": "array",
       "items": {
@@ -57,9 +63,11 @@
       }
     },
     "data": {
+      "title": "Data (Exporter Unit)",
       "description": "Extra data sent to the exporter code, must be valid JSON.",
       "type": "object"
     }
   },
-  "required": ["unit", "id", "entry_point", "file_extension"]
+  "required": ["unit", "id", "entry_point", "file_extension"],
+  "unevaluatedProperties": false
 }

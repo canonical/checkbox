@@ -6,17 +6,21 @@
   "type": "object",
   "properties": {
     "unit": {
+      "title": "Unit (Category Unit)",
       "description": "The type of unit.",
       "const": "category"
     },
     "id": {
+      "title": "ID (Category Unit)",
       "description": "Unique identifier of the category.",
       "type": "string"
     },
     "name": {
+      "title": "Name (Category Unit)",
       "description": "Human readable name of the category",
       "type": "string"
     }
   },
-  "required": ["unit", "id", "name"]
+  "required": ["unit", "id", "name"],
+  "unevaluatedProperties": false
 }

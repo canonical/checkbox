@@ -6,6 +6,7 @@ _description:
 include:
   dock/init-connection                                    certification-status=blocker
 nested_part:
+  submission-cert-full
   dock-all-init-cert
   dock-all-reboot-cert
   dock-all-hotplug-cert

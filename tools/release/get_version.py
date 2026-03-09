@@ -141,8 +141,9 @@ def get_needed_bump(history: "list[str]") -> TraceabilityEnum:
 
     # categorize all commits in the history
     for commit_message in history:
-        *_, trace_str, pr = commit_message.rsplit(" ", 2)
+        pr = commit_message
         try:
+            *_, trace_str, pr = commit_message.rsplit(" ", 2)
             current_trace = TraceabilityEnum.parse(trace_str)
         except ValueError:
             # clean up the pr so that we can use it in the warning

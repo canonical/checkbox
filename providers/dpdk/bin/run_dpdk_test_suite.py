@@ -25,20 +25,21 @@ import subprocess
 from typing import Optional, Dict, Any
 from pathlib import Path
 
+
 DPDK_SNAP_BIN = "/snap/bin/dpdk-dts"
 DPDK_DTS_SNAP_COMMON = Path("/var/snap/dpdk-dts/common")
-DEFAULT_TIMEOUT = 600
+DPDK_CONFIG_SNAP_PATH = DPDK_DTS_SNAP_COMMON / "dts_config.yaml"
 DEFAULT_OUTPUT_DIR = DPDK_DTS_SNAP_COMMON / "dpdk_test_results"
+DEFAULT_TIMEOUT = 600
 
 
 class DTSRunner:
     """Class to execute snap-based DPDK Test Suite (DTS)"""
 
-    def __init__(self, test_suite: str, config_file: Path, tarball: Path):
+    def __init__(self, test_suite: str, config_file: Path):
         """Initialize class attributes."""
         self.test_suite = test_suite
         self.config_file = config_file
-        self.tarball = tarball
 
     def run_test_suite(
         self,
@@ -48,19 +49,21 @@ class DTSRunner:
 
         :param verbose: verbosity level on test suite execution
         """
-        # Define verbosity level for DPDK Test Suite
         output_dir = DEFAULT_OUTPUT_DIR / self.test_suite
-        output_dir.mkdir(parents=True, exist_ok=True)
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
+        output_dir.mkdir(parents=True)
 
-        # Copy DPDK source tarball to snap common directory for access during test suite execution
-        dpdk_tarball = DPDK_DTS_SNAP_COMMON / self.tarball.name
-        shutil.copy(self.tarball, dpdk_tarball)
+        # Copy config file to SNAP_COMMON so the strict dpdk-dts snap can access it
+        shutil.copy(self.config_file, DPDK_CONFIG_SNAP_PATH)
         dts_command = [
             DPDK_SNAP_BIN,
-            "--test-suite", self.test_suite,
-            "--config-file", str(self.config_file),
-            "--output-dir", str(output_dir),
-            "--tarball", str(dpdk_tarball),
+            "--test-suite",
+            self.test_suite,
+            "--config-file",
+            str(DPDK_CONFIG_SNAP_PATH),
+            "--output-dir",
+            str(output_dir),
         ]
         if verbose:
             dts_command.append("--verbose")
@@ -76,9 +79,7 @@ class DTSRunner:
                 timeout=DEFAULT_TIMEOUT,
             )
         except subprocess.CalledProcessError as exc:
-            logging.error(
-                "DPDK Test Suite execution failed with error: %s", exc
-            )
+            logging.error("DPDK Test Suite execution failed with error: %s", exc)
             raise
         except subprocess.TimeoutExpired as exc:
             logging.error("DPDK Test Suite execution timed out: %s", exc)
@@ -93,9 +94,7 @@ class DTSRunner:
         """
 
         logging.info("Getting test suite results")
-        results_path = (
-            DEFAULT_OUTPUT_DIR / self.test_suite / "results.json"
-        )
+        results_path = DEFAULT_OUTPUT_DIR / self.test_suite / "results.json"
         if not results_path.is_file():
             logging.warning("No results file found at %s", results_path)
             return None
@@ -126,11 +125,7 @@ class DTSRunner:
         try:
             for test_run in test_results["test_runs"]:
                 for test_suite in test_run["test_suites"]:
-                    print(
-                        "\nTest Suite: {}".format(
-                            test_suite["test_suite_name"]
-                        )
-                    )
+                    print("\nTest Suite: {}".format(test_suite["test_suite_name"]))
                     print("{:<30} {}".format("Test Case", "Result"))
                     print("-" * 40)
 
@@ -167,10 +162,6 @@ def parse_args():
     parser.add_argument(
         "-T", "--test-suite", required=True, help="Specified Test Suite to run"
     )
-    parser.add_argument(
-        "--tarball", required=True, type=Path,
-        help="Path to the DPDK source tarball"
-    )
     args = parser.parse_args()
 
     return args
@@ -187,22 +178,13 @@ def main():
 
     # Validate configuration before test suite execution
     if not dts_config or not Path(dts_config).is_file():
-        raise SystemExit(
-            "Missing environment variables to start test execution"
-        )
-    
-    # Validate DPDK source tarball is available
-    if not args.tarball.is_file():
-        raise SystemExit(
-            "DPDK source tarball not found: {}".format(args.tarball)
-        )
+        raise SystemExit("Missing environment variables to start test execution")
 
     # Run snap-based DPDK Test Suite
     try:
         dts_runner = DTSRunner(
             test_suite=args.test_suite,
             config_file=Path(dts_config),
-            tarball=args.tarball,
         )
         dts_runner.run_test_suite(args.verbose)
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):

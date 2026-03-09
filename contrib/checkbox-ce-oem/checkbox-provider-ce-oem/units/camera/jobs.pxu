@@ -14,7 +14,7 @@ _description: Checks if the system has the necessary binaries installed to proce
 estimated_duration: 2s
 category_id: com.canonical.plainbox::camera
 plugin: shell
-environ: GST_LAUNCH_BIN GST_DISCOVERER MEDIA_CTL_CMD V4L2_CTL_CMD
+environ: GST_LAUNCH_BIN MEDIA_CTL_CMD V4L2_CTL_CMD
 command:
     camera_test.py readiness
 

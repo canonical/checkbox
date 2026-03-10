@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/test-plan.schema.json",
+  "title": "Test Plan Unit",
+  "description": "Schema that describes a Checkbox Test Plan unit",
+  "$defs": {
+    "includeItem": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "certification-status": {
+                "type": "string",
+                "enum": ["non-blocker", "blocker"]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "unit": {
+      "title": "Unit (Test Plan Unit)",
+      "description": "The type of unit.",
+      "const": "test plan"
+    },
+    "id": {
+      "title": "ID (Test Plan Unit)",
+      "description": "Unique identifier of the test plan.",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name (Test Plan Unit)",
+      "description": "Human-readable name of the test plan, used for display purposes.",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description (Test Plan Unit)",
+      "description": "Human-readable description of the test plan.",
+      "type": "string"
+    },
+    "include": {
+      "title": "Include (Test Plan Unit)",
+      "description": "List of job identifiers or patterns to include for execution.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/includeItem" }
+    },
+    "mandatory_include": {
+      "title": "Mandatory Include (Test Plan Unit)",
+      "description": "List of job identifiers or patterns that must always be executed.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/includeItem" }
+    },
+    "bootstrap_include": {
+      "title": "Bootstrap Include (Test Plan Unit)",
+      "description": "List of job identifiers to run before the main phase of the testing.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/includeItem" }
+    },
+    "setup_include": {
+      "title": "Setup Include (Test Plan Unit)",
+      "description": "List of job identifiers to run during the setup phase.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/includeItem" }
+    },
+    "nested_part": {
+      "title": "Nested Part (Test Plan Unit)",
+      "description": "List of test plan identifiers whose contents will become part of this test plan.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exclude": {
+      "title": "Exclude (Test Plan Unit)",
+      "description": "List of job identifiers or patterns to exclude from execution.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "category_overrides": {
+      "title": "Category Overrides (Test Plan Unit)",
+      "description": "List of category override statements for job definitions.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "certification_status_overrides": {
+      "title": "Certification Status Overrides (Test Plan Unit)",
+      "description": "List of certification status override statements for job definitions.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "estimated_duration": {
+      "title": "Estimated Duration (Test Plan Unit)",
+      "description": "Estimated test plan duration as a float in seconds or a duration string (e.g. 1h 2m 30s).",
+      "oneOf": [
+        { "type": "number", "minimum": 0 },
+        { "type": "string", "pattern": "^\\d+(\\.\\d+)?$" },
+        { "type": "string", "pattern": "^(\\d+h)?[: ]*(\\d+m)?[: ]*(\\d+s)?$" }
+      ]
+    }
+  },
+  "required": ["unit", "id", "name", "include"],
+  "unevaluatedProperties": false
+}

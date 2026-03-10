@@ -54,7 +54,7 @@ class DTSRunner:
             shutil.rmtree(output_dir)
         output_dir.mkdir(parents=True)
 
-        # Copy config file to SNAP_COMMON so the strict dpdk-dts snap can access it
+        # Copy config file to SNAP_COMMON so the strict snap can access it
         shutil.copy(self.config_file, DPDK_CONFIG_SNAP_PATH)
         dts_command = [
             DPDK_SNAP_BIN,
@@ -79,7 +79,7 @@ class DTSRunner:
                 timeout=DEFAULT_TIMEOUT,
             )
         except subprocess.CalledProcessError as exc:
-            logging.error("DPDK Test Suite execution failed with error: %s", exc)
+            logging.error("DPDK Test Suite execution failed: %s", exc)
             raise
         except subprocess.TimeoutExpired as exc:
             logging.error("DPDK Test Suite execution timed out: %s", exc)
@@ -125,7 +125,8 @@ class DTSRunner:
         try:
             for test_run in test_results["test_runs"]:
                 for test_suite in test_run["test_suites"]:
-                    print("\nTest Suite: {}".format(test_suite["test_suite_name"]))
+                    suite_name = test_suite["test_suite_name"]
+                    print("\nTest Suite: {}".format(suite_name))
                     print("{:<30} {}".format("Test Case", "Result"))
                     print("-" * 40)
 
@@ -178,7 +179,7 @@ def main():
 
     # Validate configuration before test suite execution
     if not dts_config or not Path(dts_config).is_file():
-        raise SystemExit("Missing environment variables to start test execution")
+        raise SystemExit("Unable to locate config file for test execution.")
 
     # Run snap-based DPDK Test Suite
     try:

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+snap install dpdk-dts
+snap connect dpdk-dts:ssh-keys

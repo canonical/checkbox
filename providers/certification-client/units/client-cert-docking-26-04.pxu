@@ -1,0 +1,16 @@
+id: dock-cert-full-26-04
+unit: test plan
+_name: Dock Certification tests (26.04)
+_description:
+  Certification tests for docking stations (26.04).
+include:
+  dock/init-connection                                    certification-status=blocker
+nested_part:
+  submission-cert-full
+  dock-all-init-cert
+  dock-all-reboot-cert
+  dock-all-hotplug-cert
+  dock-all-poweroff-cert
+  dock-all-suspend-cert
+  dock-all-suspend-hotplug-cert
+

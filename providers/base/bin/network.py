@@ -61,10 +61,12 @@ class IPerfPerformanceTest(object):
         interface,
         target,
         fail_threshold,
+        overall_fail_threshold,
         cpu_load_fail_threshold,
         iperf3,
         num_threads,
         reverse,
+        percent_total=0,
         protocol="tcp",
         data_size="1",
         run_time=None,
@@ -75,8 +77,10 @@ class IPerfPerformanceTest(object):
         self.iface = Interface(interface)
         self.interface = interface
         self.target = target
+        self.percent_total = percent_total
         self.protocol = protocol
         self.fail_threshold = fail_threshold
+        self.overall_fail_threshold = overall_fail_threshold
         self.cpu_load_fail_threshold = cpu_load_fail_threshold
         self.iperf3 = iperf3
         self.num_threads = num_threads
@@ -210,7 +214,7 @@ class IPerfPerformanceTest(object):
         """Extract a list of CPU cores from a line of the form:
         NUMA node# CPU(s):    a-b[,c-d[,...]]"""
         colon = line.find(":")
-        cpu_list = line[colon + 1 :]
+        cpu_list = line[colon + 1 :]  # noqa: E203
         core_list = []
         for core_range in cpu_list.split(","):
             # Skip it if the CPU list for the NUMA node is empty....
@@ -353,6 +357,7 @@ class IPerfPerformanceTest(object):
             # it's up to the reviewer to pass or fail.
             percent = 0
             invalid_speed = True
+        self.percent_total += percent
         logging.info("Avg Transfer speed: {} Mb/s".format(throughput))
         if invalid_speed:
             # If we have no link_speed (e.g. wireless interfaces don't
@@ -673,12 +678,15 @@ def run_test(args, test_target):
         return 1
 
     # Execute requested networking test
+    if args.overall_fail_threshold is None:
+        args.overall_fail_threshold = args.fail_threshold
     if args.test_type.lower() == "iperf":
         error_number = 0
         iperf_benchmark = IPerfPerformanceTest(
             args.interface,
             test_target,
             args.fail_threshold,
+            args.overall_fail_threshold,
             args.cpu_load_fail_threshold,
             args.iperf3,
             args.num_threads,
@@ -698,11 +706,24 @@ def run_test(args, test_target):
             )
             if iperf_benchmark.num_threads > 2:
                 iperf_benchmark.optimize_num_threads()
+        iperf_benchmark.percent_total = 0
         while not error_number and run_num < args.num_runs:
             run_num += 1
             logging.info(" Test Run Number %s ".center(60, "-"), run_num)
             error_number = iperf_benchmark.run()
             logging.info("")
+        overall_avg = iperf_benchmark.percent_total / run_num
+        logging.info("Overall run results: {}".format(overall_avg))
+        if overall_avg < iperf_benchmark.overall_fail_threshold:
+            logging.warning(
+                "Test failed because overall results are less than the "
+            )
+            logging.warning(
+                "minimum ({} percent).".format(
+                    iperf_benchmark.overall_fail_threshold
+                )
+            )
+            error_number = 1
     elif args.test_type.lower() == "stress":
         stress_benchmark = StressPerformanceTest(
             args.interface, test_target, args.iperf3
@@ -1211,6 +1232,16 @@ TEST_TARGET_IPERF = iperf-server.example.com
             "IPERF Test ONLY. Set the failure threshold (Percent of maximum "
             "theoretical bandwidth) as a number like 80.  (Default is "
             "%(default)s)"
+        ),
+    )
+    test_parser.add_argument(
+        "--overall-fail-threshold",
+        type=int,
+        default=None,
+        help=(
+            "IPERF Test ONLY. Set the overall failure threshold (percent of "
+            "maximum theoretical bandwidth, averaged across all runs). "
+            "(Default is the same as specified by --fail-threshold.)"
         ),
     )
     test_parser.add_argument(

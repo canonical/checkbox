@@ -9,6 +9,7 @@ Build-Depends:
  pybuild-plugin-pyproject,
  python3-all,
  python3-bluez,
+ python3-checkbox-ng,
  python3-dbus,
  python3-distro,
  python3-gi,
@@ -30,6 +31,7 @@ Package: python3-checkbox-support
 Architecture: all
 Depends: gir1.2-gudev-1.0,
          python3-bluez,
+         python3-checkbox-ng,
          python3-dbus,
          python3-distro,
          python3-gi,

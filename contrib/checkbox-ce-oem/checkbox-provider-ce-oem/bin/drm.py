@@ -724,7 +724,7 @@ def run_flow_kms():
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
-        "--expect-kms",
+        "--expect-nomodeset",
         action="store_true",
         help="Treat missing KMS pieces as FAIL (desktop expectation).",
     )
@@ -734,15 +734,12 @@ def main() -> int:
     print("[INFO] " + bullet("Kernel cmdline", cmd.get("_raw", "")))
 
     nomodeset = ("nomodeset" in cmd) or (cmd.get("nomodeset") == "1")
-    if nomodeset and args.expect_kms:
-        print("The system run with nomodeset but we expected KMS.")
-        return
-        # logging.error("The system run with nomodeset but we expected KMS.")
-        # raise SystemExit("FAIL: RPMSG channel is not created")
-    elif nomodeset:
+    if nomodeset and args.expect_nomodeset:
         run_flow_nomodeset()
-    else:
+    elif not nomodeset and not args.expect_nomodeset:
         run_flow_kms()
+    else:
+        raise SystemExit("[FAIL]: modeset is not correct")
 
 
 if __name__ == "__main__":

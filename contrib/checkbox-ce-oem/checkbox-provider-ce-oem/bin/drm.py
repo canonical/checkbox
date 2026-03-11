@@ -497,53 +497,7 @@ def runtime_pm_info(card: Path) -> Dict[str, str]:
             out[k] = t
     return out
 
-
-# ------------------------- Flow A: nomodeset / fbdev -------------------------
-
-
-def run_flow_nomodeset():
-    print("[INFO] Flow: nomodeset (fbdev / firmware framebuffer)")
-
-    fb0 = Path("/dev/fb0")
-    if fb0.exists():
-        print("[PASS] /dev/fb0 exists (fbdev path available)")
-    else:
-        raise SystemExit(
-            "[FAIL] /dev/fb0 missing (expected with nomodeset). "
-            "Check efifb/simplefb/vesafb/simpledrm."
-        )
-
-    # sysfs fb info
-    fb_sys = Path("/sys/class/graphics/fb0")
-    if fb_sys.is_dir():
-        for f in ["name", "modes", "virtual_size", "stride", "bits_per_pixel"]:
-            t = read_text(fb_sys / f)
-            if t is not None:
-                print("[INFO] fb0 {}: {}".format(f, t))
-        # driver symlink if present
-        drv = fb_sys / "device" / "driver"
-        if drv.exists():
-            try:
-                if drv.is_symlink():
-                    drv_name = Path(os.readlink(str(drv))).name
-                    print("[INFO] fb0 driver: {}".format(drv_name))
-            except Exception:
-                pass
-    else:
-        raise SystemExit(
-            "[FAIL] /sys/class/graphics/fb0 not found; "
-            "fbdev sysfs info missing"
-        )
-
-    return
-
-
-# ------------------------- Flow B: normal DRM/KMS -------------------------
-
-
-def run_flow_kms():
-    print("[INFO] Flow: normal DRM/KMS")
-
+def drm_register() -> list:
     # 1) DRM registered (sysfs)
     sys_drm = list_sys_class_drm()
     if not sys_drm:
@@ -563,6 +517,9 @@ def run_flow_kms():
         )
     print("[PASS] Found DRM cards: " + ", ".join(c.name for c in cards))
 
+    return cards
+
+def driver_bound(cards: list[str] = []):
     # 2) Driver bound
     any_driver = False
     for c in cards:
@@ -599,6 +556,7 @@ def run_flow_kms():
             "probe/bind issue"
         )
 
+def drm_interface_check():
     # 3) /dev/dri nodes
     dri_nodes = list_dev_dri_nodes()
     if not dri_nodes:
@@ -623,6 +581,7 @@ def run_flow_kms():
             "Mesa may fall back to llvmpipe or rendering may fail"
         )
 
+def modeset_parms_check():
     # 4) KMS gating module params
     params = []
     for mod, param in [
@@ -644,6 +603,7 @@ def run_flow_kms():
             "(often black screen on Wayland)"
         )
 
+def connection_check(cards: list[str] = []):
     # 5) Connection / EDID / modes
     any_connected = False
     for c in cards:
@@ -692,6 +652,7 @@ def run_flow_kms():
             "(if you expect display: cable/hotplug/link training)"
         )
 
+def runtime_checking():
     # 6) runtime checkiong
     card = pick_primary_card()
     if card is None:
@@ -714,6 +675,58 @@ def run_flow_kms():
             print("[PASS] PSR/ALPM status is ok")
         else:
             raise SystemExit("[FAIL] PSR/ALPM status is abnormal")
+
+# ------------------------- Flow A: nomodeset / fbdev -------------------------
+
+
+def run_flow_nomodeset():
+    print("[INFO] Flow: nomodeset (fbdev / firmware framebuffer)")
+
+    fb0 = Path("/dev/fb0")
+    if fb0.exists():
+        print("[PASS] /dev/fb0 exists (fbdev path available)")
+    else:
+        raise SystemExit(
+            "[FAIL] /dev/fb0 missing (expected with nomodeset). "
+            "Check efifb/simplefb/vesafb/simpledrm."
+        )
+
+    # sysfs fb info
+    fb_sys = Path("/sys/class/graphics/fb0")
+    if fb_sys.is_dir():
+        for f in ["name", "modes", "virtual_size", "stride", "bits_per_pixel"]:
+            t = read_text(fb_sys / f)
+            if t is not None:
+                print("[INFO] fb0 {}: {}".format(f, t))
+        # driver symlink if present
+        drv = fb_sys / "device" / "driver"
+        if drv.exists():
+            try:
+                if drv.is_symlink():
+                    drv_name = Path(os.readlink(str(drv))).name
+                    print("[INFO] fb0 driver: {}".format(drv_name))
+            except Exception:
+                pass
+    else:
+        raise SystemExit(
+            "[FAIL] /sys/class/graphics/fb0 not found; "
+            "fbdev sysfs info missing"
+        )
+
+    return
+
+
+# ------------------------- Flow B: normal DRM/KMS -------------------------
+
+
+def run_flow_kms():
+    print("[INFO] Flow: normal DRM/KMS")
+    cards = drm_register()
+    driver_bound(cards)
+    drm_interface_check()
+    modeset_parms_check()
+    connection_check(cards)
+    runtime_checking()
 
     return
 

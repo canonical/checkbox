@@ -24,27 +24,17 @@ from metabox.core.scenario import Scenario
 
 
 class UrwidTestPlanSelection(Scenario):
-
     modes = ["local"]
     steps = [
         Expect("Select test plan"),
-        # SelectTestPlan('com.canonical.certification::stress-pm-graph'),
-        # SelectTestPlan(
-        #    'com.canonical.certification::'
-        #    'after-suspend-graphics-discrete-gpu-cert-automated'),
-        SelectTestPlan(
-            "com.canonical.certification::client-cert-desktop-18-04"
-        ),
+        SelectTestPlan("2021.com.canonical.certification::basic-manual"),
         Send(keys.KEY_ENTER),
-        Expect("Choose tests to run on your system:"),
-        Send("d" + keys.KEY_ENTER),
-        Expect("Choose tests to run on your system:"),
-        # Send(keys.KEY_DOWN * 18 + keys.KEY_SPACE + 't'),
-        # Expect('System Manifest:'),
-        # Send('y' * 11 + 't'),
+        # The basic manual Metabox test plan has only jobs that don't belong
+        # to any categories, so the "Uncategorised" section should be there
+        Expect("[X] + Uncategorised"),
+        # De-select all the test cases
+        Send("d"),
+        # Make sure the "Uncategorised" section gets deselected
+        Expect("[ ] + Uncategorised"),
         Send("t"),
-        # Expect('Pick an action'),
-        # Send('s' + keys.KEY_ENTER),
-        # Expect('Finish'),
-        # Send('f' + keys.KEY_ENTER),
     ]

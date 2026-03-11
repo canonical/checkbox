@@ -15,7 +15,7 @@ SOC_ROOT = "/sys/devices/soc0"
 REMOTEPROC_PATH = "/sys/class/remoteproc"
 
 
-class RpmsgSysFsHandler:
+class RemoteProcSysFsHandler:
 
     properties = ["firmware_path", "firmware_file", "rpmsg_state"]
 
@@ -24,6 +24,7 @@ class RpmsgSysFsHandler:
         self.sysfs_fw_path = "/sys/module/firmware_class/parameters/path"
         self.sysfs_firmware_file = os.path.join(root_path, "firmware")
         self.sysfs_state_path = os.path.join(root_path, "state")
+        self.sysfs_name_path = os.path.join(root_path, "name")
         self.original_firmware_path = None
         self.original_firmware = None
         self.original_state = None
@@ -73,7 +74,11 @@ class RpmsgSysFsHandler:
         self._write_node(self.sysfs_firmware_file, value)
 
     @property
-    def rpmsg_state(self):
+    def name(self):
+        return self._read_node(self.sysfs_name_path)
+
+    @property
+    def state(self):
         """
         Reports the state of the remote processor, which will be one of:
 
@@ -97,8 +102,8 @@ class RpmsgSysFsHandler:
         """
         return self._read_node(self.sysfs_state_path)
 
-    @rpmsg_state.setter
-    def rpmsg_state(self, value: str):
+    @state.setter
+    def state(self, value: str):
         """
         Writing this file controls the state of the remote processor.
 
@@ -137,7 +142,7 @@ class RpmsgSysFsHandler:
         else:
             logging.warning("Could not read original firmware.")
 
-        self.original_state = self.rpmsg_state
+        self.original_state = self.state
         if self.original_state:
             logging.info("Original state was: %s", self.original_state)
         else:
@@ -146,7 +151,7 @@ class RpmsgSysFsHandler:
     def teardown(self):
         """Restores the initial firmware configuration."""
         if self.original_firmware is not None:
-            if self.rpmsg_state == "running":
+            if self.state == "running":
                 self.stop()
                 time.sleep(1)  # Give it a moment to stop
 
@@ -173,18 +178,18 @@ class RpmsgSysFsHandler:
         logging.info("Cleanup complete.")
 
     def start(self):
-        if self.rpmsg_state == "running":
+        if self.state == "running":
             logging.info("Remoteproc is already running.")
             return True
         self.started_by_script = True
-        self.rpmsg_state = "start"
+        self.state = "start"
         return True
 
     def stop(self):
-        if self.rpmsg_state == "offline":
+        if self.state == "offline":
             logging.info("Remoteproc is already offline.")
             return True
-        self.rpmsg_state = "stop"
+        self.state = "stop"
         return True
 
 
@@ -197,7 +202,7 @@ class RpmsgTest:
         self.probe_cmd = None
 
         self.rpmsg_node = rpmsg_node
-        self.handler = RpmsgSysFsHandler(self.rpmsg_node)
+        self.handler = RemoteProcSysFsHandler(self.rpmsg_node)
         self.firmware_name = firmware_file
         self.firmware_path = firmware_path
         self.should_load_firmware = load_firmware
@@ -819,6 +824,60 @@ def check_rpmsg_transport(node, e_driver):
     raise SystemExit("FAIL: transport driver not bound")
 
 
+def check_remoteproc_firmware(remoteproc_data):
+    expect_entries = {}
+    for entry in remoteproc_data.split("|"):
+        parts = entry.split(":")
+        if len(parts) != 3:
+            raise SystemExit(
+                "FAIL: Invalid remoteproc data format. Expected "
+                "proc_name:firmware_name:state|..."
+            )
+        expect_entries[parts[0]] = {
+            "firmware": parts[1], "state": parts[2]
+        }
+
+    actual_entries = {}
+    remoteproc_dirs = os.listdir(REMOTEPROC_PATH)
+    for rp in remoteproc_dirs:
+        try:
+            sysfs_obj = RemoteProcSysFsHandler(rp)
+            logging.info(
+                "remoteproc: %s, name: %s, firmware: %s, state: %s",
+                rp,
+                sysfs_obj.name,
+                sysfs_obj.firmware_file,
+                sysfs_obj.state
+            )
+            actual_entries[sysfs_obj.name] = {
+                "firmware": sysfs_obj.firmware_file, "state": sysfs_obj.state
+            }
+        except Exception as e:
+            logging.error("Error accessing remoteproc %s: %s", rp, e)
+            continue
+
+    result = True
+    for entry in expect_entries:
+        logging.info("Checking remoteproc %s ...", entry)
+        if entry in actual_entries:
+            for key in ["firmware", "state"]:
+                if actual_entries[entry][key] != expect_entries[entry][key]:
+                    logging.error(
+                        "%s mismatch for %s: expected %s, found %s",
+                        key.capitalize(),
+                        entry,
+                        expect_entries[entry][key],
+                        actual_entries[entry][key],
+                    )
+                    result = False
+        else:
+            logging.error("Expected remoteproc %s not found", entry)
+            result = False
+
+    if not result:
+        raise SystemExit("FAIL: Remoteproc firmware/state check failed")
+
+
 def check_virtio(virtio_device, virtio_driver):
     check_virtio_device(virtio_device)
     check_rpmsg_transport(virtio_device, virtio_driver)
@@ -920,6 +979,20 @@ def register_arguments():
         help="Check if the transport driver has been probed.",
     )
     parser_channel.set_defaults(func=get_rpmsg_channel)
+
+    parser_firmware_check = subparsers.add_parser(
+        "firmware-check",
+        help="Check if the firmware can be loaded successfully.",
+    )
+    parser_firmware_check.add_argument(
+        "remoteproc_data",
+        help=(
+            "The information of remoteproc node including name, firmware "
+            "and state. format:proc_name:firmware_name:state|..."
+            "e.g. imx-rpoc:test-firmware:attached|proc:test-firmware2:running"
+        ),
+    )
+    parser_firmware_check.set_defaults(func=check_remoteproc_firmware)
 
     parser_pingpong = subparsers.add_parser(
         "pingpong", help="Run RPMSG ping-pong test."

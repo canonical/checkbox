@@ -21,10 +21,23 @@ import sys
 import time
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Tuple
+from dataclasses import dataclass
 
 DEBUGFS = Path("/sys/kernel/debug")
 DRI_DEBUGFS = DEBUGFS / "dri"
 TRACEFS = Path("/sys/kernel/tracing")
+
+@dataclass
+class DriverParam:
+    driver: str
+    param: str
+
+drivers = [
+    DriverParam("nvidia_drm", "modeset"),
+    DriverParam("i915", "modeset"),
+    DriverParam("amdgpu", "dc"),
+    DriverParam("radeon", "modeset"),
+]
 
 # ------------------------- helpers -------------------------
 
@@ -582,25 +595,29 @@ def drm_interface_check():
         )
 
 def modeset_parms_check():
-    # 4) KMS gating module params
     params = []
-    for mod, param in [
-        ("nvidia_drm", "modeset"),
-        ("i915", "modeset"),
-        ("amdgpu", "dc"),
-        ("radeon", "modeset"),
-    ]:
-        v = module_param(mod, param)
+    for drv in drivers:
+        v = module_param(drv.driver, drv.param)
         if v is not None:
-            params.append("{}.{}={}".format(mod, param, v))
+            params.append("{}.{}={}".format(drv.driver, drv.param, v))
     print(
         "[INFO] modeset params: "
         + (", ".join(params) if params else "<none readable>")
     )
-    if any(p.startswith("nvidia_drm.modeset=0") for p in params):
+
+    # Check if list is empty
+    if not params:
         raise SystemExit(
-            "[FAIL] nvidia_drm.modeset=0: KMS disabled for NVIDIA DRM "
-            "(often black screen on Wayland)"
+            "[FAIL] No modeset parameters found for any known driver"
+        )
+
+    # Check if any value is non-zero
+    # We don't know how many gpu scanout is expected, so we check at least one
+    has_nonzero = any(not p.endswith("=0") for p in params)
+    if not has_nonzero:
+        raise SystemExit(
+            "[FAIL] All modeset parameters are disabled (=0): "
+            "KMS is disabled (often black screen on Wayland)"
         )
 
 def connection_check(cards: list[str] = []):

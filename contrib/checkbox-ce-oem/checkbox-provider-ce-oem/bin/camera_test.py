@@ -477,7 +477,7 @@ def readiness_test():
             logging.error("%s is not available", util)
         if not os.path.exists(binary):
             result = False
-            logging.error ("%s path is not exists", util)
+            logging.error("%s path is not exists", util)
         else:
             logging.info("the location of %s is %s", util, binary)
 

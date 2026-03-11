@@ -35,6 +35,9 @@ from camera_utils import (
     list_device_by_v4l2_ctl,
     check_nonzero_files,
     CameraInterface,
+    GST_LAUNCH_BIN,
+    V4L2_CTL_CMD,
+    MEDIA_CTL_CMD,
 )
 
 logging.basicConfig(
@@ -225,6 +228,9 @@ def register_arguments() -> argparse.Namespace:
         required=True,
         help=("Path of the specified test configuration file."),
     )
+
+    # subparser for readiness
+    subparsers.add_parser("readiness")
 
     # Subparser for testing
     parser_testing = subparsers.add_parser(
@@ -457,6 +463,28 @@ def _run_camera_test(args: argparse.Namespace) -> None:
     _cleanup_artifacts_if_needed(args, artifact_store_path)
 
 
+def readiness_test():
+    result = True
+
+    utilities_mapping = {
+        "gst-launch-1.0": GST_LAUNCH_BIN,
+        "media-ctl": MEDIA_CTL_CMD,
+        "v4l2-ctl": V4L2_CTL_CMD,
+    }
+    for util, binary in utilities_mapping.items():
+        if not binary:
+            result = False
+            logging.error("%s is not available", util)
+        if not os.path.exists(binary):
+            result = False
+            logging.error("%s path is not exists", util)
+        else:
+            logging.info("the location of %s is %s", util, binary)
+
+    if not result:
+        raise SystemExit("the test utilities for camera test are not ready")
+
+
 def main() -> None:
     args = register_arguments()
 
@@ -466,6 +494,11 @@ def main() -> None:
 
     if args.action == "testing":
         _run_camera_test(args)
+        return
+
+    if args.action == "readiness":
+        readiness_test()
+        return
 
 
 if __name__ == "__main__":

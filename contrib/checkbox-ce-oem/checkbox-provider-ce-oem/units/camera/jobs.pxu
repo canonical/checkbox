@@ -8,6 +8,16 @@ environ: MIPI_SCENARIO_DEFINITION_FILE_PATH
 command:
     camera_test.py generate_resource -sf "$MIPI_SCENARIO_DEFINITION_FILE_PATH"
 
+id: ce-oem-mipi-camera/readiness
+_summary: Verify installation of V4L2 and GStreamer tools
+_description: Checks if the system has the necessary binaries installed to proceed with camera testing.
+estimated_duration: 2s
+category_id: com.canonical.plainbox::camera
+plugin: shell
+environ: GST_LAUNCH_BIN MEDIA_CTL_CMD V4L2_CTL_CMD
+command:
+    camera_test.py readiness
+
 unit: template
 template-engine: jinja2
 template-resource: mipi_camera_resource
@@ -23,14 +33,11 @@ plugin: shell
 category_id: com.canonical.plainbox::camera
 estimated_duration: 10s
 flags: also-after-suspend
+depends: ce-oem-mipi-camera/readiness
 imports:
     from com.canonical.certification import executable
     from com.canonical.plainbox import manifest
 requires:
-    executable.name == "v4l2-ctl"
-    executable.name == "media-ctl"
-    executable.name == "gst-launch-1.0"
-    executable.name == "gst-discoverer-1.0"
     manifest.has_vendor_specific_mipi_camera == "True"
 environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
 command:
@@ -51,14 +58,11 @@ plugin: shell
 category_id: com.canonical.plainbox::camera
 estimated_duration: 10s
 flags: also-after-suspend
+depends: ce-oem-mipi-camera/readiness
 imports:
     from com.canonical.certification import executable
     from com.canonical.plainbox import manifest
 requires:
-    executable.name == "v4l2-ctl"
-    executable.name == "media-ctl"
-    executable.name == "gst-launch-1.0"
-    executable.name == "gst-discoverer-1.0"
     manifest.has_vendor_specific_mipi_camera == "True"
 environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
 command:

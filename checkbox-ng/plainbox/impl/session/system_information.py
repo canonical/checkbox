@@ -323,6 +323,16 @@ class ManifestCollector(Collector):
         )
 
 
+class DeviceInfoCollector(Collector):
+    COLLECTOR_NAME = "device_information"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
 if __name__ == "__main__":
     collection = collect()
     print(collection.to_json())

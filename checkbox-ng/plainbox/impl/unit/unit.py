@@ -30,7 +30,7 @@ import logging
 import os
 import string
 from pathlib import Path
-from functools import lru_cache
+from functools import lru_cache, partial
 
 from jinja2 import Template
 
@@ -707,7 +707,7 @@ class Unit(metaclass=UnitType):
         else:
             return {}
 
-    def _get_record_value_leaf(self, value):
+    def _get_record_value_leaf(self, name, value):
         if self.template_engine == "jinja2":
             if self.is_parametric or self.unit != "template":
                 # Add the current system environment variables to the
@@ -750,9 +750,10 @@ class Unit(metaclass=UnitType):
         if value is None:
             return value
         if isinstance(value, str):
-            value = self._get_record_value_leaf(value)
+            value = self._get_record_value_leaf(name, value)
         elif isinstance(value, list):
-            value = list(map(self._get_record_value_leaf, value))
+            f = partial(self._get_record_value_leaf, name)
+            value = list(map(f, value))
         return value
 
     @instance_method_lru_cache(maxsize=None)

@@ -18,7 +18,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 2
+    COLLECTOR_OUTPUTS_VERSION = 3
 
     def to_json(self) -> str:
         to_dump = {

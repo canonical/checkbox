@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import json
 import platform
 import subprocess
@@ -8,27 +9,28 @@ from checkbox_ng.support.parsers.meminfo import MeminfoParser
 from checkbox_ng.support.parsers.udevadm import parse_udevadm_output
 from checkbox_ng.support.parsers import _json_fallback
 
-
 """
 Device Information Collector
 
-This script aggregates system metadata (OS release, kernel parameters,
-hardware via udev and installed packages) into a single JSON object.
+Script that collects information about the device under test and returns it
+as JSON.
 """
 
 
-def get_kernel_cmdline(cmdline_path="/proc/cmdline"):
+def get_kernel_cmdline(cmdline_path="/proc/cmdline") -> str:
     with open(cmdline_path) as fp:
         cmdline = fp.read().strip()
     return cmdline
 
 
-def get_udevadm_db():
+def get_devices():
     cmd = ["udevadm", "info", "--export-db"]
-    return subprocess.check_output(cmd, universal_newlines=True)
+    udevadm_output = subprocess.check_output(cmd, universal_newlines=True)
+    devices = parse_udevadm_output(udevadm_output)
+    return devices
 
 
-def get_packages():
+def get_debian_packages():
     cmd = ["dpkg-query", "-W", "-f=${Package}\t${Version}\t${Architecture}\n"]
     output = subprocess.check_output(cmd, universal_newlines=True)
     packages = []
@@ -39,30 +41,62 @@ def get_packages():
     return packages
 
 
-def main():
-    mem_info = MeminfoParser().run()
-    udevadm_output = get_udevadm_db()
-    device_info = {
-        "distribution": get_release_info(),
-        "uname": {
-            "system": platform.system(),
-            "node": platform.node(),
-            "kernel": platform.release(),
-            "version": platform.version(),
-            "architecture": platform.machine(),
-        },
-        "memory": mem_info,
-        "kernel_cmdline": get_kernel_cmdline(),
-        "devices": parse_udevadm_output(udevadm_output),
-        "packages": get_packages()
+def get_meminfo():
+    return MeminfoParser().run()
+
+
+def get_uname():
+    return {
+        "system": platform.system(),
+        "node": platform.node(),
+        "kernel": platform.release(),
+        "version": platform.version(),
+        "architecture": platform.machine(),
     }
-    print(json.dumps(
-                     device_info,
-                     indent=4,
-                     sort_keys=True,
-                     default=_json_fallback
-                 )
-      )
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Collect device information as JSON"
+    )
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.required = True
+    subparsers.add_parser(
+        "kernel_cmdline", help="Return kernel command line information"
+    )
+    subparsers.add_parser(
+        "devices", help="Return devices found by the udeadvm parser"
+    )
+    subparsers.add_parser(
+        "debian_packages", help="Return installed package information"
+    )
+    subparsers.add_parser(
+        "distribution",
+        help="Return information about the Linux distribution being used",
+    )
+    subparsers.add_parser("memory", help="Return memory information")
+    subparsers.add_parser("uname", help="Return uname information")
+    return parser.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    command_map = {
+        "distribution": get_release_info,
+        "kernel_cmdline": get_kernel_cmdline,
+        "devices": get_devices,
+        "debian_packages": get_debian_packages,
+        "memory": get_meminfo,
+        "uname": get_uname,
+    }
+
+    if args.command:
+        getter = command_map[args.command]
+        print(
+            json.dumps(
+                getter(), indent=4, sort_keys=True, default=_json_fallback
+            )
+        )
 
 
 if __name__ == "__main__":

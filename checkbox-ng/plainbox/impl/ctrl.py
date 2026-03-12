@@ -208,7 +208,7 @@ class CheckBoxSessionStateController(ISessionStateController):
         if job.flags and expected_flag in job.flags:
             return True
         if job.siblings:
-            for sibling_data in json.loads(job.tr_siblings()):
+            for sibling_data in json.loads(job.siblings()):
                 if suspend_job_id in sibling_data.get("depends", []):
                     return True
         return False

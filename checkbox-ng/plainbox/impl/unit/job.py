@@ -369,7 +369,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
     @cached_property
     def siblings(self):
-        return self.get_record_value("siblings")
+        siblings = self.get_record_value("siblings")
+        if isinstance(siblings, str):
+            siblings = json.loads(siblings)
+        return siblings
 
     @cached_property
     def shell(self):
@@ -793,7 +796,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             # NOTE: 'id' validators are "inherited" so we don't have it here
             fields.summary: [
-                concrete_validators.templateVariant,
                 PresentFieldValidator(severity=Severity.advice),
                 concrete_validators.oneLine,
                 concrete_validators.shortValue,

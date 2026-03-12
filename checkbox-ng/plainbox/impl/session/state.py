@@ -1186,9 +1186,6 @@ class SessionState:
     def _add_job_siblings_unit(self, new_job, recompute, via):
         if new_job.siblings:
             siblings = new_job.siblings
-            if isinstance(siblings, str):
-                siblings = json.loads(siblings)
-
             for overrides in siblings:
                 data = {
                     key: value

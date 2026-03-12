@@ -135,7 +135,9 @@ class TestDTSRunnerRunTestSuite(TestCase):
         ).start()
         self.mkdir_mock = patch("run_dpdk_test_suite.Path.mkdir").start()
         self.copy_mock = patch("run_dpdk_test_suite.shutil.copy").start()
-        self.subprocess_mock = patch("run_dpdk_test_suite.subprocess.run").start()
+        self.subprocess_mock = patch(
+            "run_dpdk_test_suite.subprocess.run"
+        ).start()
 
     def tearDown(self):
         patch.stopall()
@@ -185,12 +187,16 @@ class TestDTSRunnerRunTestSuite(TestCase):
 
         self.runner.run_test_suite(verbose=True)
         self.subprocess_mock.assert_called_with(
-            expected_base_cmd + ["--verbose"], check=True, timeout=DEFAULT_TIMEOUT
+            expected_base_cmd + ["--verbose"],
+            check=True,
+            timeout=DEFAULT_TIMEOUT,
         )
 
     def test_dts_raises_called_process_error(self):
         """Test that CalledProcessError is raised on DTS execution failure."""
-        self.subprocess_mock.side_effect = subprocess.CalledProcessError(1, "dpdk-dts")
+        self.subprocess_mock.side_effect = subprocess.CalledProcessError(
+            1, "dpdk-dts"
+        )
 
         with self.assertRaises(subprocess.CalledProcessError):
             self.runner.run_test_suite(verbose=False)

@@ -75,7 +75,7 @@ class InstallCommandExt(InstallCommand):
 
 
 setup(
-    name='checkbox-provider-dpdk',
+    name="checkbox-provider-dpdk",
     namespace="com.canonical.certification",
     version=plainbox.__version__,
     description=N_("Checkbox Provider for Data Plane Development Kit (DPDK)"),

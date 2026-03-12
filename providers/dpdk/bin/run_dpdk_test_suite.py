@@ -25,7 +25,6 @@ import subprocess
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-
 DPDK_SNAP_BIN = "/snap/bin/dpdk-dts"
 DPDK_DTS_SNAP_COMMON = Path("/var/snap/dpdk-dts/common")
 DPDK_CONFIG_SNAP_PATH = DPDK_DTS_SNAP_COMMON / "dts_config.yaml"

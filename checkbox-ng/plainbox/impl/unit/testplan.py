@@ -281,7 +281,7 @@ class TestPlanUnit(UnitWithId):
     def get_setup_job_ids(self):
         """Compute and return a set of job ids from setup_include field."""
         job_ids = get_array_field_qualify(
-            self.get_setup_job_ids, "setup_include", self.qualify_id, logger
+            self.setup_include, "setup_include", self.qualify_id, logger
         )
         for tp_unit in self.get_nested_part():
             job_ids.extend(tp_unit.get_setup_job_ids())

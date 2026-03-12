@@ -36,7 +36,11 @@ def die(msg: str, code: int = 1) -> None:
     sys.exit(code)
 
 
-def main() -> int:
+def start_flash(stop_event=None) -> int:
+    """
+    Flash colors on screen. If stop_event (threading.Event) is provided,
+    will stop when the event is set. Otherwise runs until ESC/Q/Ctrl+C.
+    """
     xdg_dir, wayland_display = pick_wayland_socket()
     if not xdg_dir or not wayland_display:
         die(
@@ -76,7 +80,9 @@ def main() -> int:
         nonlocal running
         running = False
 
-    signal.signal(signal.SIGINT, handle_sigint)
+    # Only set up signal handler in main thread (not when called from a thread)
+    if stop_event is None:
+        signal.signal(signal.SIGINT, handle_sigint)
 
     # Query current display size; fallback if unavailable
     try:
@@ -108,7 +114,7 @@ def main() -> int:
     clock = pygame.time.Clock()
 
     for rgb, name in itertools.cycle(colors):
-        if not running:
+        if not running or (stop_event and stop_event.is_set()):
             break
 
         # Pump events so the window stays responsive
@@ -119,16 +125,16 @@ def main() -> int:
                 if event.key in (pygame.K_ESCAPE, pygame.K_q):
                     running = False
 
-        if not running:
+        if not running or (stop_event and stop_event.is_set()):
             break
 
         screen.fill(rgb)
         pygame.display.flip()
-        print("[INFO] Color: {}".format(name))
 
         # Sleep while still pumping events a bit (avoid "not responding")
         end = time.time() + delay_s
-        while running and time.time() < end:
+        while (running and time.time() < end
+               and not (stop_event and stop_event.is_set())):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -144,4 +150,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(start_flash())

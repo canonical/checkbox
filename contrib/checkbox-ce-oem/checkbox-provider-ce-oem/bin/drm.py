@@ -18,10 +18,12 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Tuple
 from dataclasses import dataclass
+from flash_screen import start_flash
 
 DEBUGFS = Path("/sys/kernel/debug")
 DRI_DEBUGFS = DEBUGFS / "dri"
@@ -270,25 +272,28 @@ def check_framebuffer_flips(
     """
     Return flips_seen = number of times fb IDs changed between samples.
 
-    Runs flash_screen.py in the background to generate framebuffer activity.
+    Runs start_flash() in a background thread to generate framebuffer activity.
     """
     state_path = DRI_DEBUGFS / str(card) / "state"
     txt0 = read_text(state_path)
     if txt0 is None:
         return 0
 
-    # Start flash_screen.py to generate framebuffer flips
-    flash_screen_path = Path(__file__).parent / "flash_screen.py"
-    flash_proc = None
-    if flash_screen_path.exists():
+    # Start flash in a background thread to generate framebuffer flips
+    stop_event = threading.Event()
+    flash_thread = None
+
+    def flash_wrapper():
         try:
-            flash_proc = subprocess.Popen(
-                [sys.executable, str(flash_screen_path)],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+            start_flash(stop_event)
         except Exception as e:
-            print("[WARN] Failed to start flash_screen.py: {}".format(e))
+            print("[WARN] flash thread error: {}".format(e))
+
+    try:
+        flash_thread = threading.Thread(target=flash_wrapper, daemon=True)
+        flash_thread.start()
+    except Exception as e:
+        print("[WARN] Failed to start flash thread: {}".format(e))
 
     try:
         prev = sorted(set(_extract_fb_ids_from_state(txt0)))
@@ -304,13 +309,10 @@ def check_framebuffer_flips(
                 prev = cur
         return flips
     finally:
-        # Terminate flash_screen.py if it's still running
-        if flash_proc is not None:
-            flash_proc.terminate()
-            try:
-                flash_proc.wait(timeout=2)
-            except subprocess.TimeoutExpired:
-                flash_proc.kill()
+        # Signal the flash thread to stop
+        stop_event.set()
+        if flash_thread is not None and flash_thread.is_alive():
+            flash_thread.join(timeout=2)
 
 
 # --------------------------check PHY power state and Panel power state-

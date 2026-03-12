@@ -22,17 +22,15 @@ import threading
 import time
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Tuple
-from dataclasses import dataclass
 from flash_screen import start_flash
 
 DEBUGFS = Path("/sys/kernel/debug")
 DRI_DEBUGFS = DEBUGFS / "dri"
 TRACEFS = Path("/sys/kernel/tracing")
 
-@dataclass
-class DriverParam:
-    driver: str
-    param: str
+
+DriverParam = NamedTuple("DriverParam", [("driver", str), ("param", str)])
+
 
 drivers = [
     DriverParam("nvidia_drm", "modeset"),
@@ -508,6 +506,7 @@ def runtime_pm_info(card: Path) -> Dict[str, str]:
             out[k] = t
     return out
 
+
 def drm_register() -> list:
     # 1) DRM registered (sysfs)
     sys_drm = list_sys_class_drm()
@@ -530,8 +529,11 @@ def drm_register() -> list:
 
     return cards
 
-def driver_bound(cards: list[str] = []):
+
+def driver_bound(cards=None):
     # 2) Driver bound
+    if cards is None:
+        cards = []
     any_driver = False
     for c in cards:
         drv = get_driver_for_card(c)
@@ -567,6 +569,7 @@ def driver_bound(cards: list[str] = []):
             "probe/bind issue"
         )
 
+
 def drm_interface_check():
     # 3) /dev/dri nodes
     dri_nodes = list_dev_dri_nodes()
@@ -591,6 +594,7 @@ def drm_interface_check():
             "[FAIL] No /dev/dri/renderD*: "
             "Mesa may fall back to llvmpipe or rendering may fail"
         )
+
 
 def modeset_parms_check():
     params = []
@@ -618,8 +622,11 @@ def modeset_parms_check():
             "KMS is disabled (often black screen on Wayland)"
         )
 
-def connection_check(cards: list[str] = []):
+
+def connection_check(cards=None):
     # 5) Connection / EDID / modes
+    if cards is None:
+        cards = []
     any_connected = False
     for c in cards:
         conns = drm_connectors_for(c)
@@ -667,6 +674,7 @@ def connection_check(cards: list[str] = []):
             "(if you expect display: cable/hotplug/link training)"
         )
 
+
 def runtime_checking():
     # 6) runtime checkiong
     card = pick_primary_card()
@@ -690,6 +698,7 @@ def runtime_checking():
             print("[PASS] PSR/ALPM status is ok")
         else:
             raise SystemExit("[FAIL] PSR/ALPM status is abnormal")
+
 
 # ------------------------- Flow A: nomodeset / fbdev -------------------------
 

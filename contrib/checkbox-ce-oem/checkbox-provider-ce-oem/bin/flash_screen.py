@@ -133,8 +133,11 @@ def start_flash(stop_event=None) -> int:
 
         # Sleep while still pumping events a bit (avoid "not responding")
         end = time.time() + delay_s
-        while (running and time.time() < end
-               and not (stop_event and stop_event.is_set())):
+        while (
+            running
+            and time.time() < end
+            and not (stop_event and stop_event.is_set())
+        ):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False

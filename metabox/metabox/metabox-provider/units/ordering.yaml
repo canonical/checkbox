@@ -1,0 +1,321 @@
+id: ordering_1_A
+flags:
+  - simple
+command: 'true'
+---
+id: ordering_1_B
+flags:
+  - simple
+depends:
+  - ordering_1_A
+command: 'true'
+---
+id: ordering_1_C
+flags:
+  - simple
+depends:
+  - ordering_1_B
+command: 'true'
+---
+id: ordering_depends
+name: ordering_depends
+unit: test plan
+include:
+  - ordering_1_C
+  - ordering_1_B
+  - ordering_1_A
+---
+id: ordering_2_A
+flags:
+  - simple
+before:
+  - ordering_2_B
+command: 'true'
+---
+id: ordering_2_B
+flags:
+  - simple
+before:
+  - ordering_2_C
+command: 'true'
+---
+id: ordering_2_C
+flags:
+  - simple
+command: 'true'
+---
+id: ordering_before
+name: ordering_before
+unit: test plan
+include:
+  - ordering_2_C
+  - ordering_2_B
+  - ordering_2_A
+---
+id: ordering_3_A
+flags:
+  - simple
+before:
+  - ordering_3_B
+command: 'true'
+---
+id: ordering_3_B
+flags:
+  - simple
+command: 'true'
+---
+id: ordering_3_C
+flags:
+  - simple
+after:
+  - ordering_3_B
+command: 'true'
+---
+id: ordering_mixed
+name: ordering_mixed
+unit: test plan
+include:
+  - ordering_3_C
+  - ordering_3_B
+  - ordering_3_A
+---
+id: ordering_4_R
+plugin: resource
+command: "echo 'type: included'"
+---
+id: ordering_4_A
+flags:
+  - simple
+requires:
+  - ordering_4_R.type == "included"
+command: 'true'
+---
+id: ordering_resource
+name: ordering_resource
+unit: test plan
+include:
+  - ordering_4_A
+  - ordering_4_R
+---
+id: ordering_5_A
+flags:
+  - simple
+command: 'true'
+depends:
+  - ordering_5_C
+---
+id: ordering_5_B
+flags:
+  - simple
+depends:
+  - ordering_5_A
+command: 'true'
+---
+id: ordering_5_C
+flags:
+  - simple
+depends:
+  - ordering_5_B
+command: 'true'
+---
+id: ordering_depends_cycle
+name: ordering_depends_cycle
+unit: test plan
+include:
+  - ordering_5_A
+  - ordering_5_B
+  - ordering_5_C
+---
+id: ordering_6_A
+flags:
+  - simple
+before:
+  - ordering_6_B
+command: 'true'
+---
+id: ordering_6_B
+flags:
+  - simple
+before:
+  - ordering_6_C
+command: 'true'
+---
+id: ordering_6_C
+flags:
+  - simple
+before:
+  - ordering_6_A
+command: 'true'
+---
+id: ordering_before_cycle
+name: ordering_before_cycle
+unit: test plan
+include:
+  - ordering_6_A
+  - ordering_6_B
+  - ordering_6_C
+---
+id: groups_1_A
+flags:
+  - simple
+command: 'true'
+---
+id: groups_1_B
+after:
+  - groups_1_A
+flags:
+  - simple
+command: 'true'
+---
+id: groups_1_g1
+flags:
+  - simple
+after:
+  - groups_1_A
+before:
+  - groups_1_g2
+group: group_1
+command: 'true'
+---
+id: groups_1_g2
+flags:
+  - simple
+before:
+  - groups_1_B
+  - groups_1_D
+group: group_1
+command: 'true'
+---
+id: groups_1_C
+after:
+  - groups_1_g1
+  - groups_1_B
+flags:
+  - simple
+command: 'true'
+---
+id: groups_1_D
+flags:
+  - simple
+command: 'true'
+---
+# Expected order:
+# groups_1_A, groups_1_g1, groups_1_g2, groups_1_g2, groups_1_B, groups_1_C
+id: ordering_groups
+name: ordering_groups
+unit: test plan
+summary: Group order test
+include:
+  - groups_1_C
+  - groups_1_g2
+  - groups_1_B
+  - groups_1_g1
+  - groups_1_A
+---
+id: groups_2_A1
+after:
+  - groups_2_B2
+flags:
+  - simple
+group: group_A
+command: 'true'
+---
+id: groups_2_A2
+group: group_A
+flags:
+  - simple
+command: 'true'
+---
+id: groups_2_B1
+flags:
+  - simple
+after:
+  - groups_2_A1
+group: group_B
+command: 'true'
+---
+id: groups_2_B2
+flags:
+  - simple
+group: group_B
+command: 'true'
+---
+id: ordering_groups_cycle
+name: ordering_groups_cycle
+unit: test plan
+summary: Group cycle test
+include:
+  - groups_2_A1
+  - groups_2_A2
+  - groups_2_B1
+  - groups_2_B2
+---
+id: group_template_resource
+plugin: resource
+command: |
+  echo 'id: 1'
+  echo ''
+  echo 'id: 2'
+---
+unit: template
+template-unit: job
+template-resource: group_template_resource
+id: setup_order_{id}
+group: group_{id}
+flags:
+  - simple
+command: 'True'
+---
+unit: template
+template-unit: job
+template-resource: group_template_resource
+template-id: test_feature_order_A_id
+id: test_feature_order_A_{id}
+group: group_{id}
+after:
+  - setup_order_{id}
+before:
+  - teardown_order_{id}
+flags:
+  - simple
+command: 'True'
+---
+unit: template
+template-unit: job
+template-resource: group_template_resource
+template-id: test_feature_order_B_id
+id: test_feature_order_B_{id}
+group: group_{id}
+after:
+  - setup_order_{id}
+  - test_feature_order_A_{id}
+before:
+  - teardown_order_{id}
+flags:
+  - simple
+command: 'True'
+---
+unit: template
+template-unit: job
+template-resource: group_template_resource
+template-id: teardown_order_id
+id: teardown_order_{id}
+group: group_{id}
+flags:
+  - simple
+command: 'True'
+---
+# Expected order:
+#  setup_order1_ test_feature_order_A_1 test_feature_order_B_1 teardown_order_1
+#  setup_order_2 test_feature_order_A2 test_feature_order_B_2 teardown_order_2
+id: ordering_groups_template
+name: ordering_groups_template
+unit: test plan
+summary: Templated group order test
+include:
+  - teardown_order_id
+  - test_feature_order_B.*
+  - test_feature_order_A.*
+  - setup_order_id
+bootstrap_include:
+  - group_template_resource

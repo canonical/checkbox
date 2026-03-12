@@ -2,28 +2,28 @@ unit: packaging meta-data
 os-id: ubuntu
 os-version-id: <= 20.04
 Depends: dep-pack-le-20
-
+---
 unit: packaging meta-data
 os-id: ubuntu
-os-version-id: > 20.04
+os-version-id: '> 20.04'
 Depends: dep-pack-gt-20
-
+---
 unit: packaging meta-data
 os-id: ubuntu
 os-version-id: <= 20.04
 Recommends: rec-pack-le-20
-
+---
 unit: packaging meta-data
 os-id: ubuntu
-os-version-id: > 20.04
+os-version-id: '> 20.04'
 Recommends: rec-pack-gt-20
-
+---
 unit: packaging meta-data
 os-id: ubuntu
 os-version-id: <= 20.04
 Suggests: sug-pack-le-20
-
+---
 unit: packaging meta-data
 os-id: ubuntu
-os-version-id: > 20.04
+os-version-id: '> 20.04'
 Suggests: sug-pack-gt-20

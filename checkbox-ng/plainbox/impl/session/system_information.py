@@ -323,12 +323,62 @@ class ManifestCollector(Collector):
         )
 
 
-class DeviceInfoCollector(Collector):
-    COLLECTOR_NAME = "device_information"
+class KernelCmdline(Collector):
+    COLLECTOR_NAME = "kernel_cmdline"
 
     def __init__(self):
         super().__init__(
-            collection_cmd=["device-info"],
+            collection_cmd=["device-info", "kernel_cmdline"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class UdevDevices(Collector):
+    COLLECTOR_NAME = "udev_devices"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "devices"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class DebianPackages(Collector):
+    COLLECTOR_NAME = "debian_packages"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "debian_packages"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class Meminfo(Collector):
+    COLLECTOR_NAME = "meminfo"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "meminfo"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class Uname(Collector):
+    COLLECTOR_NAME = "uname"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "uname"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class Distribution(Collector):
+    COLLECTOR_NAME = "distribution"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "distribution"],
             version_cmd=["echo", "-n", checkbox_version],
         )
 

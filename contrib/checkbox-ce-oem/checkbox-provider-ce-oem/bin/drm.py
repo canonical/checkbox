@@ -73,10 +73,6 @@ def which(cmd: str) -> Optional[str]:
     return shutil.which(cmd)
 
 
-def bullet(k: str, v: str) -> str:
-    return "- {}: {}".format(k, v)
-
-
 def is_root() -> bool:
     return os.geteuid() == 0
 
@@ -763,7 +759,7 @@ def main() -> int:
     args = ap.parse_args()
 
     cmd = parse_cmdline()
-    print("[INFO] " + bullet("Kernel cmdline", cmd.get("_raw", "")))
+    print("[INFO] " + " - Kernel cmdline: " + cmd.get("_raw", ""))
 
     nomodeset = ("nomodeset" in cmd) or (cmd.get("nomodeset") == "1")
     if nomodeset and args.expect_nomodeset:

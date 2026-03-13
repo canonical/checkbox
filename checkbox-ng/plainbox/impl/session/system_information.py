@@ -353,8 +353,8 @@ class DebianPackagesCollector(Collector):
         )
 
 
-    COLLECTOR_NAME = "meminfo"
 class MemoryCollector(Collector):
+    COLLECTOR_NAME = "memory"
 
     def __init__(self):
         super().__init__(

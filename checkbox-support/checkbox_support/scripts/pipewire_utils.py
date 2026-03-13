@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+from contextlib import suppress
 import difflib
 import json
 import logging
@@ -26,6 +27,7 @@ import subprocess
 import sys
 import time
 from enum import IntEnum
+import typing as t
 
 import gi
 
@@ -66,6 +68,7 @@ class PipewireTestError(IntEnum):
     NO_SPECIFIC_DEVICE = -3
     PIPELINE_PROCESS_FAIL = -4
     NO_CHANGE_DETECTED = -5
+    NOT_REAL_DEVICE = -6
 
 
 class PipewireTest:
@@ -548,6 +551,108 @@ class PipewireTest:
                 self.logger.info(diff)
                 raise SystemExit("The two status don't match !!!")
 
+    def default_device_is_real(
+        self,
+        device: 't.Literal["audio-source", "audio-sink", "video-source"]',
+    ) -> bool:
+        """
+        Checks whether the default device is a real device in contrast to a
+        virtual or dummy device
+
+        E.g. "Dummy Output"
+
+        :param device: audio src/snk or video src
+        :return: True if the default device is real
+        """
+        device_type, direction = device.split("-")
+        wpctl_status_out = subprocess.check_output(
+            [
+                "wpctl",
+                "inspect",
+                "@DEFAULT_{}_{}@".format(
+                    device_type.upper(), direction.upper()
+                ),
+            ],
+            universal_newlines=True,
+        )
+        # the first line should look like this:
+        # id 103, type PipeWire:Interface:Node
+        # split at comma, take [0] -> 'id 103' -> split, take [-1] -> '103'
+        # also use int() to check if we actually got a number
+        default_device_id = int(
+            wpctl_status_out.split(",", maxsplit=1)[0].strip().split()[-1]
+        )
+        pw_dump_out = subprocess.check_output(
+            ["pw-dump", str(default_device_id)], universal_newlines=True
+        )
+
+        if not pw_dump_out:
+            raise SystemExit(
+                "'pw-dump {}' returned nothing, but {} was listed as the default {} {}".format(
+                    default_device_id,
+                    default_device_id,
+                    device_type,
+                    direction,
+                )
+            )
+
+        pw_dump_json = json.loads(pw_dump_out)
+        if type(pw_dump_json) is not list or len(pw_dump_json) < 1:
+            raise SystemExit(
+                "'pw-dump {}' did not return a list with >= 1 element, got {}".format(
+                    default_device_id, pw_dump_out
+                )
+            )
+
+        # sometimes pw-dump returns extra elements in pw_dump_json
+        # even if we specify the exact ID
+        real = None  # type: dict[str, t.Any] | None
+        for elem in pw_dump_json:
+            # with suppress(Exception):
+            if type(elem) is dict and elem.get("id") == default_device_id:
+                real = elem
+                break
+
+        if real is None:
+            raise SystemExit(
+                "Pipewire did not return a JSON with id={}, got {}".format(
+                    default_device_id, pw_dump_out
+                )
+            )
+
+        node_props = real["info"]["props"]  # type: dict[str, t.Any]
+        node_description = str(node_props["node.description"])
+
+        if node_props.get("node.virtual") is True:
+            # note that v4l2loopback devices do not appear as virtual
+            # since the v4l2 device is what's actually virtual
+            # not the pipewire node
+
+            # this also catches the "Dummy Output" device that will appear
+            # as both input and output when the OS doesn't recognize the
+            # sound system at all
+            print(
+                "Default {} {} '{}' (id={}) is a virtual device".format(
+                    device_type,
+                    direction,
+                    node_description,
+                    default_device_id,
+                ),
+                'because it\'s marked as "node.virtual"',
+                file=sys.stderr,
+            )
+            return False  # explicit virtual device
+
+        print(
+            "OK! Default {} {} '{}' (id={}) is a real device".format(
+                device_type,
+                direction,
+                node_description,
+                default_device_id,
+            )
+        )
+        return True
+
     def _args_parsing(self, args=sys.argv[1:]):
         parser = argparse.ArgumentParser(
             prog="Pipewire validator",
@@ -599,7 +704,7 @@ class PipewireTest:
             "--device",
             type=str,
             default="",
-            help="device type such as hdmi or bluz (default: %(default)s)",
+            help="device type such as hdmi or bluez (default: %(default)s)",
         )
 
         # Add parser for gst pipeline function(Audio only)
@@ -677,6 +782,20 @@ class PipewireTest:
             help="path to second output of wpctl status",
         )
 
+        parser_is_real = subparsers.add_parser(
+            "default_device_is_real",
+            help="Check if the *default* audio source/sink or video source "
+            + "is a real, non-virtual/dummy node",
+        )
+        parser_is_real.add_argument(
+            "-d",
+            "--device",
+            type=str,
+            required=True,
+            choices=["audio-source", "audio-sink", "video-source"],
+            help="Device type, audio source/sink or video source.",
+        )
+
         return parser.parse_args(args)
 
     def function_select(self, args):
@@ -701,6 +820,11 @@ class PipewireTest:
         elif args.test_type == "compare_wpctl_status":
             # compare_wpctl_status(STATUS_1, STATUS_2)
             return self.compare_wpctl_status(args.status_1, args.status_2)
+        elif args.test_type == "default_device_is_real":
+            if self.default_device_is_real(args.device):
+                return PipewireTestError.NO_ERROR
+            else:
+                return PipewireTestError.NOT_REAL_DEVICE
 
 
 def main():

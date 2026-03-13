@@ -21,10 +21,20 @@
 import sys
 import unittest
 from unittest.mock import MagicMock, patch
+from pathlib import Path
+import json
 
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
-from checkbox_support.scripts.pipewire_utils import *
+
+# must mock gi and gi.repository before importing
+from checkbox_support.scripts.pipewire_utils import (  # noqa: E402
+    PipewireTest,
+    PipewireTestError,
+)
+
+
+TEST_DATA_DIR = Path(__file__).parent / "test_data"
 
 
 class GetPwTypeTests(unittest.TestCase):
@@ -891,6 +901,98 @@ Settings
             pt.compare_wpctl_status("s1", "s2")
 
 
+class DefaultDeviceIsRealTests(unittest.TestCase):
+
+    @patch("subprocess.check_output")
+    def test_happy_path(self, mock_check_output: MagicMock):
+
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_happy_path.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                with (TEST_DATA_DIR / "pw_dump_happy_path.txt").open() as f:
+                    return f.read()
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        self.assertTrue(PipewireTest().default_device_is_real("audio-sink"))
+
+    @patch("subprocess.check_output")
+    def test_dummy_output(self, mock_check_output: MagicMock):
+
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_dummy.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                with (TEST_DATA_DIR / "pw_dump_dummy.txt").open() as f:
+                    return f.read()
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        self.assertFalse(PipewireTest().default_device_is_real("audio-sink"))
+
+    @patch("subprocess.check_output")
+    def test_empty_pw_dump(self, mock_check_output: MagicMock):
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_dummy.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                return ""
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        with self.assertRaises(SystemExit):
+            PipewireTest().default_device_is_real("audio-sink")
+
+    @patch("subprocess.check_output")
+    def test_multiple_object_in_pw_dump(self, mock_check_output: MagicMock):
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_happy_path.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                with (TEST_DATA_DIR / "pw_dump_multiple.txt").open() as f:
+                    return f.read()
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        self.assertTrue(PipewireTest().default_device_is_real("audio-sink"))
+
+    @patch("subprocess.check_output")
+    def test_broken_pw_dump(self, mock_check_output: MagicMock):
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_happy_path.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                return ""
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        with self.assertRaises(SystemExit):
+            PipewireTest().default_device_is_real("audio-sink")
+
+    @patch("subprocess.check_output")
+    def test_no_such_id(self, mock_check_output: MagicMock):
+        def fake_sp_check_output(*args, **kwargs) -> str:
+            if args[0][0] == "wpctl":
+                with (TEST_DATA_DIR / "wpctl_happy_path.txt").open() as f:
+                    return f.read()
+            elif args[0][0] == "pw-dump":
+                with (TEST_DATA_DIR / "pw_dump_happy_path.txt").open() as f:
+                    original = json.load(f)
+                    original[0]["id"] = 61
+                    return json.dumps(original)
+            raise RuntimeError("unexpected arg: {}".format(args))
+
+        mock_check_output.side_effect = fake_sp_check_output
+        with self.assertRaises(SystemExit):
+            PipewireTest().default_device_is_real("audio-sink")
+
+
 class ArgsParsingTests(unittest.TestCase):
     def test_success(self):
         pt = PipewireTest()
@@ -1015,3 +1117,25 @@ class FunctionSelectTests(unittest.TestCase):
         args = ["compare_wpctl_status", "-s1", "s1", "-s2", "s2"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 0)
+
+    def test_default_device_is_real(self):
+        with patch(
+            "checkbox_support.scripts.pipewire_utils.PipewireTest.default_device_is_real",
+            return_value=True,
+        ):
+            pt = PipewireTest()
+            args = ["default_device_is_real", "-d", "video-source"]
+            rv = pt.function_select(pt._args_parsing(args))
+            self.assertEqual(rv, PipewireTestError.NO_ERROR)
+        with patch(
+            "checkbox_support.scripts.pipewire_utils.PipewireTest.default_device_is_real",
+            return_value=False,
+        ):
+            pt = PipewireTest()
+            args = ["default_device_is_real", "-d", "video-source"]
+            rv = pt.function_select(pt._args_parsing(args))
+            self.assertEqual(rv, PipewireTestError.NOT_REAL_DEVICE)
+
+
+if __name__ == "__main__":
+    unittest.main()

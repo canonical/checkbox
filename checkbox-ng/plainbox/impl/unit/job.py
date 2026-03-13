@@ -1035,21 +1035,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             fields.siblings: [
                 CorrectFieldValueValidator(
-                    lambda value, unit: json.loads(value),
+                    lambda value, unit: value,
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
                 ),
                 CorrectFieldValueValidator(
-                    lambda value, unit: type(json.loads(value)) is list,
+                    lambda value, unit: type(value) is list,
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
                 ),
                 CorrectFieldValueValidator(
-                    lambda value, unit: all(
-                        [type(s) is dict for s in json.loads(value)]
-                    ),
+                    lambda value, unit: all([type(s) is dict for s in value]),
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
@@ -1063,7 +1061,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                                     for k in s.keys()
                                 ]
                             )
-                            for s in json.loads(value)
+                            for s in value
                         ]
                     ),
                     Problem.bad_reference,

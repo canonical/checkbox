@@ -358,7 +358,7 @@ class Meminfo(Collector):
 
     def __init__(self):
         super().__init__(
-            collection_cmd=["device-info", "meminfo"],
+            collection_cmd=["device-info", "memory"],
             version_cmd=["echo", "-n", checkbox_version],
         )
 

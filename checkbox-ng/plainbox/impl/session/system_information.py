@@ -323,7 +323,7 @@ class ManifestCollector(Collector):
         )
 
 
-class KernelCmdline(Collector):
+class KernelCmdlineCollector(Collector):
     COLLECTOR_NAME = "kernel_cmdline"
 
     def __init__(self):
@@ -333,7 +333,7 @@ class KernelCmdline(Collector):
         )
 
 
-class UdevDevices(Collector):
+class UdevDevicesCollector(Collector):
     COLLECTOR_NAME = "udev_devices"
 
     def __init__(self):
@@ -343,7 +343,7 @@ class UdevDevices(Collector):
         )
 
 
-class DebianPackages(Collector):
+class DebianPackagesCollector(Collector):
     COLLECTOR_NAME = "debian_packages"
 
     def __init__(self):
@@ -353,8 +353,8 @@ class DebianPackages(Collector):
         )
 
 
-class Meminfo(Collector):
     COLLECTOR_NAME = "meminfo"
+class MemoryCollector(Collector):
 
     def __init__(self):
         super().__init__(
@@ -363,7 +363,7 @@ class Meminfo(Collector):
         )
 
 
-class Uname(Collector):
+class UnameCollector(Collector):
     COLLECTOR_NAME = "uname"
 
     def __init__(self):
@@ -373,7 +373,7 @@ class Uname(Collector):
         )
 
 
-class Distribution(Collector):
+class DistributionCollector(Collector):
     COLLECTOR_NAME = "distribution"
 
     def __init__(self):

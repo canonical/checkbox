@@ -149,6 +149,18 @@ class DTSRunner:
 
         return True
 
+    def cleanup(self) -> None:
+        """Remove config file copied to SNAP_COMMON after test execution."""
+        if DPDK_CONFIG_SNAP_PATH.is_file():
+            try:
+                DPDK_CONFIG_SNAP_PATH.unlink()
+            except OSError as exc:
+                logging.warning(
+                    "Failed to remove config file %s: %s",
+                    DPDK_CONFIG_SNAP_PATH,
+                    exc,
+                )
+
 
 def parse_args():
     """Parses command-line arguments."""
@@ -181,16 +193,18 @@ def main():
         raise SystemExit("Unable to locate config file for test execution.")
 
     # Run snap-based DPDK Test Suite
+    dts_runner = DTSRunner(
+        test_suite=args.test_suite,
+        config_file=Path(dts_config),
+    )
     try:
-        dts_runner = DTSRunner(
-            test_suite=args.test_suite,
-            config_file=Path(dts_config),
-        )
         dts_runner.run_test_suite(args.verbose)
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         # Attempt to print test results before exit
         dts_runner.print_results()
         raise SystemExit("Test Suite execution failed")
+    finally:
+        dts_runner.cleanup()
 
     # Print test suite execution results
     if not dts_runner.print_results():

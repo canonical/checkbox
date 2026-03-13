@@ -46,10 +46,8 @@ __all__ = [
     "PresentFieldValidator",
     "TemplateInvariantFieldValidator",
     "TemplateVariantFieldValidator",
-    "TranslatableFieldValidator",
     "UniqueValueValidator",
     "UnitReferenceValidator",
-    "UntranslatableFieldValidator",
 ]
 
 
@@ -442,44 +440,6 @@ class DeprecatedFieldValidator(FieldValidatorBase):
             yield parent.report_issue(
                 unit, field, Problem.deprecated, Severity.advice, self.message
             )
-
-
-class TranslatableFieldValidator(FieldValidatorBase):
-    """
-    Validator ensuring that a field is marked as translatable
-
-    The validator can be customized by passing the following keyword arguments:
-
-    message:
-        Customized error message. This message will be used to report the
-        issue if the validation fails. By default it is derived from
-        ``Problem.expected_i18n`` by :meth:`UnitValidator.explain()`.
-    """
-
-    def check(self, parent, unit, field):
-        if (
-            unit.virtual is False
-            and unit.get_record_value(field) is not None
-            and not unit.is_translatable_field(field)
-        ):
-            yield parent.warning(unit, field, Problem.expected_i18n)
-
-
-class UntranslatableFieldValidator(FieldValidatorBase):
-    """
-    Validator ensuring that a field is not marked as translatable
-
-    The validator can be customized by passing the following keyword arguments:
-
-    message:
-        Customized error message. This message will be used to report the
-        issue if the validation fails. By default it is derived from
-        ``Problem.unexpected_i18n`` by :meth:`UnitValidator.explain()`.
-    """
-
-    def check(self, parent, unit, field):
-        if unit.get_record_value(field) and unit.is_translatable_field(field):
-            yield parent.warning(unit, field, Problem.unexpected_i18n)
 
 
 class TemplateInvariantFieldValidator(FieldValidatorBase):

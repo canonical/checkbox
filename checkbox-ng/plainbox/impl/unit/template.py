@@ -576,7 +576,6 @@ class TemplateUnit(UnitWithId):
 
         field_validators = {
             fields.template_id: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateVariant,
                 UniqueValueValidator(),
                 # We want to have bare, namespace-less identifiers
@@ -589,7 +588,6 @@ class TemplateUnit(UnitWithId):
                 ),
             ],
             fields.template_summary: [
-                concrete_validators.translatable,
                 PresentFieldValidator(severity=Severity.advice),
                 CorrectFieldValueValidator(
                     lambda field: field.count("\n") == 0,
@@ -606,14 +604,9 @@ class TemplateUnit(UnitWithId):
                     onlyif=lambda unit: unit.template_summary,
                 ),
             ],
-            fields.template_description: [
-                concrete_validators.translatable,
-            ],
-            fields.template_unit: [
-                concrete_validators.untranslatable,
-            ],
+            fields.template_description: [],
+            fields.template_unit: [],
             fields.template_resource: [
-                concrete_validators.untranslatable,
                 concrete_validators.present,
                 UnitReferenceValidator(
                     lambda unit: (
@@ -641,7 +634,6 @@ class TemplateUnit(UnitWithId):
                 #       onlyif job itself is not deprecated
             ],
             fields.template_filter: [
-                concrete_validators.untranslatable,
                 # All templates need a valid (or empty) template filter
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_filter_program(),
@@ -650,7 +642,6 @@ class TemplateUnit(UnitWithId):
                 # TODO: must refer to the same job as template-resource
             ],
             fields.template_imports: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         list(unit.get_imported_jobs()) is not None

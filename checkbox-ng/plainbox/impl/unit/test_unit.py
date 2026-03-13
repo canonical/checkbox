@@ -398,16 +398,6 @@ class UnitFieldValidationTests(TestCase, IssueMixIn):
         self.provider = mock.Mock(spec_set=IProvider1)
         self.provider.namespace = "ns"
 
-    def test_unit__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_unit": "unit"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.unit,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
 
     def test_unit__template_invariant(self):
         issue_list = self.unit_cls(

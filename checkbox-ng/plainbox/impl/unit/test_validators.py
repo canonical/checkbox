@@ -31,10 +31,8 @@ from plainbox.impl.unit.validators import IFieldValidator
 from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
 from plainbox.impl.unit.validators import TemplateVariantFieldValidator
-from plainbox.impl.unit.validators import TranslatableFieldValidator
 from plainbox.impl.unit.validators import UniqueValueValidator
 from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import UntranslatableFieldValidator
 
 
 class NoTestsForAllThatCode(TestCase):
@@ -47,8 +45,6 @@ class NoTestsForAllThatCode(TestCase):
         PresentFieldValidator
         TemplateInvariantFieldValidator
         TemplateVariantFieldValidator
-        TranslatableFieldValidator
         UniqueValueValidator
         UnitReferenceValidator
-        UntranslatableFieldValidator
         self.assertTrue(True)

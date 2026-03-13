@@ -646,14 +646,12 @@ class TestPlanUnit(UnitWithId):
 
         field_validators = {
             fields.name: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
                 concrete_validators.present,
                 concrete_validators.oneLine,
                 concrete_validators.shortValue,
             ],
             fields.description: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
             ],
             fields.include: [
@@ -663,7 +661,6 @@ class TestPlanUnit(UnitWithId):
                 NoBaseIncludeValidator(),
             ],
             fields.setup_include: [
-                concrete_validators.untranslatable,
                 NoBaseIncludeValidator(),
                 UnitReferenceValidator(
                     lambda unit: unit.get_setup_job_ids(),
@@ -685,7 +682,6 @@ class TestPlanUnit(UnitWithId):
                 ),
             ],
             fields.bootstrap_include: [
-                concrete_validators.untranslatable,
                 NoBaseIncludeValidator(),
                 UnitReferenceValidator(
                     lambda unit: unit.get_bootstrap_job_ids(),
@@ -705,12 +701,9 @@ class TestPlanUnit(UnitWithId):
                 ),
             ],
             fields.estimated_duration: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
             ],
-            fields.icon: [
-                concrete_validators.untranslatable,
-            ],
+            fields.icon: [],
         }
 
 

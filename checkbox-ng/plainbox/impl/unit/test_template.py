@@ -668,16 +668,6 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     unit_cls = TemplateUnit
 
-    def test_template_id__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_template-id": "template_id"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.template_id,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
 
     def test_template_id__bare(self):
         issue_list = self.unit_cls(
@@ -731,32 +721,6 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
             message,
         )
 
-    def test_template_unit__untranslatable(self):
-        issue_list = self.unit_cls(
-            {
-                # NOTE: the value must be a valid unit!
-                "_template-unit": "unit"
-            },
-            provider=self.provider,
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.template_unit,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
-
-    def test_template_summary__translatable(self):
-        issue_list = self.unit_cls(
-            {"template-summary": "template_summary"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.template_summary,
-            Problem.expected_i18n,
-            Severity.warning,
-        )
-
     def test_template_summary__present(self):
         issue_list = self.unit_cls({}, provider=self.provider).check()
         self.assertIssueFound(
@@ -785,29 +749,6 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
             issue_list,
             self.unit_cls.Meta.fields.template_summary,
             Problem.wrong,
-            Severity.warning,
-        )
-
-    def test_template_description__translatable(self):
-        issue_list = self.unit_cls(
-            {"template-description": "template_description"},
-            provider=self.provider,
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.template_description,
-            Problem.expected_i18n,
-            Severity.warning,
-        )
-
-    def test_template_resource__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_template-resource": "template_resource"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.template_resource,
-            Problem.unexpected_i18n,
             Severity.warning,
         )
 
@@ -849,15 +790,4 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
             Problem.bad_reference,
             Severity.error,
             message,
-        )
-
-    def test_template_filter__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_template-filter": "template-filter"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.template_filter,
-            Problem.unexpected_i18n,
-            Severity.warning,
         )

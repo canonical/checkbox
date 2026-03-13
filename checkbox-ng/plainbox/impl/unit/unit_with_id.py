@@ -114,7 +114,6 @@ class UnitWithId(Unit):
 
         field_validators = {
             fields.id: [
-                concrete_validators.untranslatable,
                 concrete_validators.present,
                 concrete_validators.templateVariant,
                 UniqueValueValidator(),

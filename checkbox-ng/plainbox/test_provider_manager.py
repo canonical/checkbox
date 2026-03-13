@@ -592,7 +592,6 @@ class ProviderManagerToolTests(TestCase):
             test_io.stdout,
             inline_output("""
             warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual job makes no sense
-            warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
             Validation of provider com.example:test has failed
             """),
         )
@@ -613,7 +612,6 @@ class ProviderManagerToolTests(TestCase):
             test_io.stdout,
             inline_output("""
             warning: jobs/broken.pxu:4: job 'broken', field 'command', command on a manual job makes no sense
-            warning: jobs/broken.pxu:3: job 'broken', field 'description', field should be marked as translatable
             advice: jobs/broken.pxu:1: job 'broken', field 'name', use 'id' and 'summary' instead of 'name'
             Validation of provider com.example:test has failed
             """),

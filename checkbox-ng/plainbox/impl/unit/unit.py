@@ -334,10 +334,6 @@ class UnitValidator:
         Problem.variable: _("value must be invariant (unparametrized)"),
         Problem.unknown_param: _("field refers to unknown parameter"),
         Problem.not_unique: _("field value is not unique"),
-        Problem.expected_i18n: _("field should be marked as translatable"),
-        Problem.unexpected_i18n: (
-            _("field should not be marked as translatable")
-        ),
         Problem.syntax_error: _("syntax error inside the field"),
         Problem.bad_reference: _("bad reference to another unit"),
     }
@@ -884,18 +880,6 @@ class Unit(metaclass=UnitType):
         # If we have nothing better let's just return the default value
         return default
 
-    @instance_method_lru_cache(maxsize=None)
-    def is_translatable_field(self, name):
-        """
-        Check if a field is marked as translatable
-
-        :param name:
-            Name of the field to check
-        :returns:
-            True if the field is marked as translatable, False otherwise
-        """
-        return "_{}".format(name) in self._data
-
     def qualify_id(self, some_id):
         """
         Transform some unit identifier to be fully qualified
@@ -1065,7 +1049,6 @@ class Unit(metaclass=UnitType):
 
         field_validators = {
             fields.unit: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 PresentFieldValidator(
                     severity=Severity.advice,

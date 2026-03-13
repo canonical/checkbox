@@ -184,12 +184,9 @@ class PackagingMetaDataUnit(Unit):
 
         field_validators = {
             fields.os_id: [
-                concrete_validators.untranslatable,
                 concrete_validators.present,
             ],
-            fields.os_version_id: [
-                concrete_validators.untranslatable,
-            ],
+            fields.os_version_id: [],
             fields.Depends: [
                 UniqueValueValidator(),
             ],

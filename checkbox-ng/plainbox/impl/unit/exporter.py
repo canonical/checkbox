@@ -129,13 +129,11 @@ class ExporterUnit(UnitWithId):
         field_validators = {
             fields.summary: [
                 PresentFieldValidator(severity=Severity.advice),
-                concrete_validators.translatable,
                 concrete_validators.oneLine,
                 concrete_validators.shortValue,
             ],
             fields.entry_point: [
                 concrete_validators.present,
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda entry_point: next(
                         iter(
@@ -150,18 +148,14 @@ class ExporterUnit(UnitWithId):
             ],
             fields.file_extension: [
                 concrete_validators.present,
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda extension: re.search(r"^[\w\.\-]+$", extension),
                     Problem.syntax_error,
                     Severity.error,
                 ),
             ],
-            fields.options: [
-                concrete_validators.untranslatable,
-            ],
+            fields.options: [],
             fields.data: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: json.loads(value),
                     Problem.syntax_error,

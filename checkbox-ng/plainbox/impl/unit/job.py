@@ -820,7 +820,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
         field_validators = {
             fields.name: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateVariant,
                 DeprecatedFieldValidator(
                     _("use 'id' and 'summary' instead of 'name'")
@@ -828,14 +827,12 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             # NOTE: 'id' validators are "inherited" so we don't have it here
             fields.summary: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
                 PresentFieldValidator(severity=Severity.advice),
                 concrete_validators.oneLine,
                 concrete_validators.shortValue,
             ],
             fields.plugin: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 concrete_validators.present,
                 MemberOfFieldValidator(_PluginValues.get_all_symbols()),
@@ -847,7 +844,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.command: [
-                concrete_validators.untranslatable,
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
                     message=_("command is mandatory for non-manual jobs"),
@@ -884,7 +880,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ShellProgramValidator(),
             ],
             fields.description: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
                 # Description is mandatory for manual jobs
                 PresentFieldValidator(
@@ -901,17 +896,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 # Description or a set of purpose, steps and verification
                 # fields is recommended for all other jobs
             ],
-            fields.purpose: [
-                concrete_validators.translatable,
-            ],
-            fields.steps: [
-                concrete_validators.translatable,
-            ],
-            fields.verification: [
-                concrete_validators.translatable,
-            ],
+            fields.purpose: [],
+            fields.steps: [],
+            fields.verification: [],
             fields.user: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 # User should be either None or 'root'
                 CorrectFieldValueValidator(
@@ -925,7 +913,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.environ: [
-                concrete_validators.untranslatable,
                 # Environ is useless without a command to run
                 UselessFieldValidator(
                     message=_("environ without a command makes no sense"),
@@ -933,7 +920,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.estimated_duration: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
                     lambda duration: float(duration) > 0,
@@ -944,7 +930,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.depends: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_direct_dependencies() is not None
@@ -963,7 +948,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.after: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_after_dependencies() is not None
@@ -980,7 +964,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.before: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_before_dependencies() is not None
@@ -996,11 +979,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     ],
                 ),
             ],
-            fields.group: [
-                concrete_validators.untranslatable,
-            ],
+            fields.group: [],
             fields.requires: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_resource_program(),
                     onlyif=lambda unit: unit.requires is not None,
@@ -1029,7 +1009,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.shell: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 # Shell should be only '/bin/sh', or None (which gives bash)
                 MemberOfFieldValidator(
@@ -1038,7 +1017,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.imports: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
@@ -1061,7 +1039,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.category_id: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 UnitReferenceValidator(
                     lambda unit: (
@@ -1080,18 +1057,15 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.flags: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
             ],
             fields.certification_status: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 MemberOfFieldValidator(
                     _CertificationStatusValues.get_all_symbols()
                 ),
             ],
             fields.siblings: [
-                concrete_validators.translatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: json.loads(value),
                     Problem.syntax_error,
@@ -1131,7 +1105,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.auto_retry: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 MemberOfFieldValidator(_AutoRetryValues.get_all_symbols()),
             ],

@@ -134,22 +134,18 @@ class ManifestEntryUnit(UnitWithId):
 
         field_validators = {
             fields.name: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
                 concrete_validators.present,
             ],
-            fields.prompt: [
-                concrete_validators.translatable,
-            ],
+            fields.prompt: [],
             fields.value_type: [
-                concrete_validators.untranslatable,
                 concrete_validators.present,
                 MemberOfFieldValidator(["bool", "natural"]),
             ],
             fields.value_unit: [
                 # OPTIONAL
             ],
-            fields.resource_key: [concrete_validators.untranslatable],
+            fields.resource_key: [],
             fields.hidden_reason: [
                 PresentFieldValidator(
                     message="hidden_reason is mandatory for hidden manifests",

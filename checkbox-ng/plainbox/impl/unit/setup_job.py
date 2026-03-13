@@ -107,7 +107,6 @@ class SetupJobUnit(JobDefinition):
             fields.name: JobDefinition.Meta.field_validators[fields.name],
             fields.summary: JobDefinition.Meta.field_validators[fields.name],
             fields.plugin: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 concrete_validators.present,
                 MemberOfFieldValidator(_PluginValues.get_all_symbols()),

@@ -22,6 +22,7 @@ checkbox_support.tests.test_vendor_beacontools_scanner
 
 Tests for checkbox_support.vendor.beacontools.scanner module
 """
+
 import logging
 import time
 import unittest

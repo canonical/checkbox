@@ -578,10 +578,19 @@ class TestTestPlanUnitSupport(TestCase):
         )
         self.tp2 = TestPlanUnit(
             {
-                "id": "tp1",
+                "id": "tp2",
                 "unit": "test plan",
                 "name": "An example test plan 2",
                 "include": "job1        certification_status=blocker",
+            }
+        )
+        self.tp3 = TestPlanUnit(
+            {
+                "id": "tp3",
+                "unit": "test plan",
+                "name": "An example test plan 3",
+                "include": "job1        certification_status=non-blocker",
+                "certification_status_overrides": "apply blocker to .*",
             }
         )
 
@@ -592,13 +601,28 @@ class TestTestPlanUnitSupport(TestCase):
             support_tp1.override_list,
             [
                 ("^bootstrap_job$", [("certification_status", "blocker")]),
-                ("^job1$", [("certification_status", "non-blocker")]),
                 ("^mandatory_job$", [("certification_status", "blocker")]),
+                ("^job1$", [("certification_status", "non-blocker")]),
             ],
         )
         self.assertEqual(
             support_tp2.override_list,
             [
                 ("^job1$", [("certification_status", "blocker")]),
+            ],
+        )
+
+    def test_certification_status_overrides(self):
+        """
+        Make sure certification_status_overrides is last in the override list
+        (so that it's applied last and overwrites other certification status
+        definitions)
+        """
+        support_tp3 = TestPlanUnitSupport(self.tp3)
+        self.assertEqual(
+            support_tp3.override_list,
+            [
+                ("^job1$", [("certification_status", "non-blocker")]),
+                ("^.*$", [("certification_status", "blocker")]),
             ],
         )

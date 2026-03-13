@@ -324,7 +324,7 @@ class SessionStateAPITests(TestCase):
         self.assertIn(job, session.job_list)
         self.assertEqual(session.job_list[1].id, "after-suspend-A")
         self.assertEqual(session.job_list[1].summary, "foo after suspend (S3)")
-        expected_depends = "A {}".format(Suspend.AUTO_JOB_ID)
+        expected_depends = ["A", Suspend.AUTO_JOB_ID]
         self.assertEqual(
             session.job_list[1].depends,
             (expected_depends),
@@ -381,7 +381,7 @@ class SessionStateAPITests(TestCase):
         self.assertIn(job, session.job_list)
         self.assertEqual(session.job_list[1].id, "after-suspend-manual-A")
         self.assertEqual(session.job_list[1].summary, "foo after suspend (S3)")
-        expected_depends = "A {}".format(Suspend.MANUAL_JOB_ID)
+        expected_depends = ["A", Suspend.MANUAL_JOB_ID]
         self.assertEqual(
             session.job_list[1].depends,
             expected_depends,

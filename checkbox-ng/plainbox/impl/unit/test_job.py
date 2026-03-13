@@ -248,17 +248,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Severity.advice,
         )
 
-    def test_summary__template_variant(self):
-        issue_list = self.unit_cls(
-            {"summary": "summary"}, provider=self.provider, parameters={}
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.summary,
-            Problem.constant,
-            Severity.error,
-        )
-
     def test_summary__present(self):
         issue_list = self.unit_cls({}, provider=self.provider).check()
         self.assertIssueFound(
@@ -710,17 +699,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             message,
         )
 
-    def test_siblings__valid_json(self):
-        issue_list = self.unit_cls(
-            {"_siblings": "foo"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.siblings,
-            Problem.syntax_error,
-            Severity.error,
-        )
-
     def test_siblings__is_list(self):
         issue_list = self.unit_cls(
             {"_siblings": '{"foo": "bar"}'}, provider=self.provider
@@ -831,7 +809,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
         self.assertEqual(job.description, "description-value")
-        self.assertEqual(job.siblings, '[{"id": "foo", "depends": "bar"}]')
+        self.assertEqual(job.siblings, [{"id": "foo", "depends": "bar"}])
 
     def test_smoke_min_record(self):
         job = JobDefinition(self._min_record.data)

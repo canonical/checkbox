@@ -81,15 +81,42 @@ class ThermalMonitor:
         return self._read_node(self.mode_node)
 
 
+def get_thermal_zone_name(type):
+    for thermal in Path(SYS_THERMAL_PATH).glob("thermal_zone*"):
+        type_node = thermal.joinpath("type")
+        if not type_node.exists():
+            continue
+
+        try:
+            type_value = type_node.read_text().strip()
+            if type_value == type:
+                return thermal.name
+        except Exception as e:
+            raise SystemExit(
+                "Failed to read node: {}\n{}".format(type_node, e)
+            )
+
+    raise FileNotFoundError(
+        "Thermal zone with type '{}' not found".format(type)
+    )
+
+
 def check_temperature(current, initial):
     logging.info("Initial value: %s, current value: %s", initial, current)
     return int(current) != 0 and current != initial
 
 
 def thermal_monitor_test(args):
+
+    if args.name is None:
+        if args.type is None:
+            raise SystemExit("Error: Either --name or --type must be provided")
+        args.name = get_thermal_zone_name(args.type)
+
     logging.info(
-        "# Monitor the temperature of %s thermal around %s seconds",
+        "# Monitor the temperature of %s (%s) thermal around %s seconds",
         args.name,
+        args.type,
         args.duration,
     )
 
@@ -167,7 +194,8 @@ def register_arguments():
     )
 
     monitor_parser = sub_parsers.add_parser("monitor")
-    monitor_parser.add_argument("-n", "--name", required=True, type=str)
+    monitor_parser.add_argument("-t", "--type", type=str)
+    monitor_parser.add_argument("-n", "--name", type=str)
     monitor_parser.add_argument(
         "-d",
         "--duration",

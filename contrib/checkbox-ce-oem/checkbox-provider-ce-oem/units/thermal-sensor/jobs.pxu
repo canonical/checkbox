@@ -18,4 +18,4 @@ user: root
 estimated_duration: 5m
 flags: also-after-suspend
 command:
-    thermal_sensor_test.py monitor -n {name}
+    thermal_sensor_test.py monitor -t {type}

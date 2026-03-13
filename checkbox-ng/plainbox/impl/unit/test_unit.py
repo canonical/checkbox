@@ -398,7 +398,6 @@ class UnitFieldValidationTests(TestCase, IssueMixIn):
         self.provider = mock.Mock(spec_set=IProvider1)
         self.provider.namespace = "ns"
 
-
     def test_unit__template_invariant(self):
         issue_list = self.unit_cls(
             {"unit": "{attr}"},

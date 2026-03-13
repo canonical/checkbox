@@ -113,7 +113,6 @@ class ExporterUnitFieldValidationTests(UnitWithIdFieldValidationTests):
             Severity.advice,
         )
 
-
     def test_file_extension__present(self):
         issue_list = self.unit_cls({}, provider=self.provider).check()
         self.assertIssueFound(

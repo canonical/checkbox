@@ -668,7 +668,6 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     unit_cls = TemplateUnit
 
-
     def test_template_id__bare(self):
         issue_list = self.unit_cls(
             {"template-id": "ns::id"}, provider=self.provider

@@ -607,6 +607,28 @@ class NetworkTests(unittest.TestCase):
         args = Namespace()
         self.assertIsNone(network.interface_test(args))
 
+    # test_run_test_with_overall_fail_threshold
+    @patch("network.run_test")
+    def test_run_test_with_overall_fail_threshold(self):
+        # Setup for testing overall_fail_threshold
+        overall_fail_threshold = 5
+        result = run_test(overall_fail_threshold=overall_fail_threshold)
+        self.assertLessEqual(
+            result.fail_count,
+            overall_fail_threshold,
+            "Expected fail count to be <= the overall fail threshold.",
+        )
+
+    # test_run_test_with_no_overall_fail_threshold
+    @patch("network.run_test")
+    def test_run_test_with_no_overall_fail_threshold(self):
+        # Setup for testing when no overall_fail_threshold is specified
+        result = run_test()
+        self.assertIsNotNone(
+            result,
+            "Expected result should != None without overall_fail_threshold.",
+        )
+
     @patch("logging.error")
     @patch("network.make_target_list")
     @patch("network.get_test_parameters")

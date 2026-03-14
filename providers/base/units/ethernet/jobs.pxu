@@ -89,7 +89,7 @@ requires:
  executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
-command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4
+command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --overall-fail-threshold 90 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4
 _purpose: This test uses iperf3 to ensure network devices pass data at an acceptable
  minimum percentage of advertised speed.
 
@@ -108,7 +108,7 @@ requires:
  executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
-command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 1200
+command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --overall-fail-threshold 90 --cpu-load-fail-threshold 90 --runtime 1200
 _purpose:
  This is a shorter SRU version of the standard iperf3 based network test for
  servers. It is intended to ONLY be used for SRU and is not valid for official
@@ -129,7 +129,7 @@ requires:
  executable.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
-command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4 --underspeed-ok
+command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --overall-fail-threshold 90 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4 --underspeed-ok
 _purpose:
  This is the standard Multi-NIC Iperf3 test with the speed check disabled
  for retesting systems that are incorrectly reporting supported speeds.

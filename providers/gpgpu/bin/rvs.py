@@ -34,7 +34,7 @@ from pathlib import Path
 RVS_BIN = Path("/opt/rocm/bin/rvs")
 
 # ROCm Validation Suite snap common directory for sharing configuration files.
-RVS_SNAP_COMMON = Path("/var/snap/rocm-validation-suite/common")
+RVS_SNAP_COMMON = Path("~/snap/rocm-validation-suite/common").expanduser()
 
 # Location of the RVS module configurations.
 PLAINBOX_PROVIDER_DATA = Path(os.getenv("PLAINBOX_PROVIDER_DATA", "."))

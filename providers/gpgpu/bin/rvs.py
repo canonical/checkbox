@@ -33,6 +33,9 @@ from pathlib import Path
 # Default location for ROCm Validation Suite binary.
 RVS_BIN = Path("/opt/rocm/bin/rvs")
 
+# ROCm Validation Suite snap common directory for sharing configuration files.
+RVS_SNAP_COMMON = Path("/var/snap/rocm-validation-suite/common")
+
 # Location of the RVS module configurations.
 PLAINBOX_PROVIDER_DATA = Path(os.getenv("PLAINBOX_PROVIDER_DATA", "."))
 
@@ -42,16 +45,14 @@ class ModuleRunner:
 
     def __init__(self, rvs: Path, config: Path) -> None:
         """Initializes the module runner."""
+        self.rvs = rvs
         self.config = config
 
         # CHECKBOX-2021: Snap confinement prevents access to /usr/share
         snap_bins = ["/snap/bin/rvs", "/snap/bin/rocm-validation-suite"]
         if any(rvs.match(p) for p in snap_bins):
-            # To avoid confinement issues we run the binary directly
-            snap_current = Path("/snap/rocm-validation-suite/current")
-            self.rvs = list(snap_current.glob("opt/rocm-*/bin/rvs"))[0]
-        else:
-            self.rvs = rvs
+            shutil.copy(config, RVS_SNAP_COMMON)
+            self.config = RVS_SNAP_COMMON / config.name
 
     def run(self, module: str):
         """Runs and validates the RVS module.

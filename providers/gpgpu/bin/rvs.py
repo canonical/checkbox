@@ -30,11 +30,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
+# Default location for ROCm Validation Suite binary.
 RVS_BIN = Path("/opt/rocm/bin/rvs")
-"""Default location for ROCm Validation Suite binary."""
 
+# Location of the RVS module configurations.
 PLAINBOX_PROVIDER_DATA = Path(os.getenv("PLAINBOX_PROVIDER_DATA", "."))
-"""Location of the RVS module configurations."""
 
 
 class ModuleRunner:

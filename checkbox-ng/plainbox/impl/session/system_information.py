@@ -18,7 +18,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 2
+    COLLECTOR_OUTPUTS_VERSION = 3
 
     def to_json(self) -> str:
         to_dump = {
@@ -319,6 +319,66 @@ class ManifestCollector(Collector):
                 "cat",
                 WellKnownDirsHelper.manifest_file(),
             ],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class KernelCmdlineCollector(Collector):
+    COLLECTOR_NAME = "kernel_cmdline"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "kernel_cmdline"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class UdevDevicesCollector(Collector):
+    COLLECTOR_NAME = "udev_devices"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "devices"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class DebianPackagesCollector(Collector):
+    COLLECTOR_NAME = "debian_packages"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "debian_packages"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class MemoryCollector(Collector):
+    COLLECTOR_NAME = "memory"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "memory"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class UnameCollector(Collector):
+    COLLECTOR_NAME = "uname"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "uname"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class DistributionCollector(Collector):
+    COLLECTOR_NAME = "distribution"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "distribution"],
             version_cmd=["echo", "-n", checkbox_version],
         )
 

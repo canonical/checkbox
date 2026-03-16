@@ -96,9 +96,9 @@ def main():
         help="Set the logging level",
     )
     parser.add_argument(
-        "--do-not-dispose",
+        "--dispose",
         action="store_true",
-        help="Do not delete LXD containers after the run",
+        help="Delete LXD containers after the run",
     )
     parser.add_argument(
         "--use-existing",

@@ -42,7 +42,7 @@ $ source venv/bin/activate
 # Usage
 
 ```
-usage: metabox [-h] [--tag TAGS] [--exclude-tag EXCLUDE_TAGS] [--log {TRACE,DEBUG,INFO,SUCCESS,WARNING,ERROR,CRITICAL}] [--do-not-dispose] [--hold-on-fail] [--debug-machine-setup] CONFIG
+usage: metabox [-h] [--tag TAGS] [--exclude-tag EXCLUDE_TAGS] [--log {TRACE,DEBUG,INFO,SUCCESS,WARNING,ERROR,CRITICAL}] [--dispose] [--hold-on-fail] [--debug-machine-setup] CONFIG
 
 positional arguments:
   CONFIG                Metabox configuration file
@@ -54,7 +54,7 @@ optional arguments:
                         Do not run scenario with the specified tag. Can be used multiple times.
   --log {TRACE,DEBUG,INFO,SUCCESS,WARNING,ERROR,CRITICAL}
                         Set the logging level
-  --do-not-dispose      Do not delete LXD containers after the run
+  --dispose             Delete LXD containers after the run
   --hold-on-fail        Pause testing when a scenario fails
   --debug-machine-setup
                         Turn on verbosity during machine setup. Only works with --log TRACE
@@ -86,17 +86,17 @@ configuration = {
 Then call Metabox with it:
 
 ```
-$ metabox local-daily-builds-config.py --do-not-dispose --tag basic
+$ metabox local-daily-builds-config.py --tag basic
 ```
 
 - `--tag basic` will ensure only scenarios that contains the term `basic` will
 be run.
-- `--do-not-dispose` prevents Metabox from deleting the Linux containers it
-created. This will save you tons of time, since Metabox will only download the
-required image and setup the container once, create a snapshot, then stop the
-container once the testing is done. The next time you run the command, Metabox
-will reopen the existing container and rollback to a clean state in it before
-starting the new tests.
+By default, Metabox does not delete the Linux containers it created. This will
+save you tons of time, since Metabox will only download the required image and
+setup the container once, create a snapshot, then stop the container once the
+testing is done. The next time you run the command, Metabox will reopen the
+existing container and rollback to a clean state in it before starting the new
+tests. Use `--dispose` if you want containers to be deleted after the run.
 
 ### Testing Checkbox from a local repository
 

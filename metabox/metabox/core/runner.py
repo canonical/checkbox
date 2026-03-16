@@ -53,7 +53,7 @@ class Runner:
         self.exclude_tags = set(self.args.exclude_tags or [])
         self.hold_on_fail = self.args.hold_on_fail
         self.debug_machine_setup = self.args.debug_machine_setup
-        self.dispose = not self.args.do_not_dispose
+        self.dispose = self.args.dispose
         self.use_existing = self.args.use_existing
         aggregator.load_all()
 

@@ -23,17 +23,45 @@ Entry point to the Metabox program.
 
 import argparse
 import logging
+import sys
 import warnings
+from datetime import datetime
 from pathlib import Path
 
+from loguru import logger
 from loguru._logger import Core
 from metabox.core.runner import Runner
+
+default_log_file = Path("/var/tmp/metabox") / "metabox-{}.log".format(
+    datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+)
 
 
 class InterceptHandler(logging.Handler):
     def emit(self, record):
         # Mute all ws4py ConnectionResetError
         return
+
+
+def configure_logger(args):
+    def _formatter(record):
+        if record["level"].no < 10:
+            return "<level>{message}</level>\n"
+        else:
+            return (
+                "{time:HH:mm:ss} | <level>{level: <8}</level> "
+                "<level>{message}</level>\n"
+            )
+
+    logger.remove()
+    logger.add(sys.stdout, format=_formatter, level=args.log_level)
+    logger.level("TRACE", color="<w><dim>")
+    logger.level("DEBUG", color="<w><dim>")
+    logger.add(args.log_file, level=args.log_level)
+    if args.log_file == default_log_file:
+        args.log_file.parent.mkdir(parents=True, exist_ok=True)
+    logger.info("Logging to: {}", args.log_file)
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
 def main():
@@ -88,11 +116,21 @@ def main():
         help="Turn on verbosity during machine setup. "
         "Only works with --log TRACE",
     )
-    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+    parser.add_argument(
+        "--log-file",
+        dest="log_file",
+        type=Path,
+        default=default_log_file,
+        help="Path to the log file (default: %(default)s)",
+    )
+    args = parser.parse_args()
+
+    configure_logger(args)
+
     # Ignore warnings issued by pylxd/models/operation.py
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        runner = Runner(parser.parse_args())
+        runner = Runner(args)
         runner.setup()
         runner.run()
         raise SystemExit(not runner.wasSuccessful())

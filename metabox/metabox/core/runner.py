@@ -37,11 +37,6 @@ class Runner:
 
     def __init__(self, args):
         self.args = args
-        # logging
-        logger.remove()
-        logger.add(sys.stdout, format=self._formatter, level=args.log_level)
-        logger.level("TRACE", color="<w><dim>")
-        logger.level("DEBUG", color="<w><dim>")
         # session config
         if not args.config.exists():
             raise SystemExit("Config file not found!")
@@ -61,15 +56,6 @@ class Runner:
         self.dispose = not self.args.do_not_dispose
         self.use_existing = self.args.use_existing
         aggregator.load_all()
-
-    def _formatter(self, record):
-        if record["level"].no < 10:
-            return "<level>{message}</level>\n"
-        else:
-            return (
-                "{time:HH:mm:ss} | <level>{level: <8}</level> "
-                "<level>{message}</level>\n"
-            )
 
     def _gather_all_machine_spec(self):
         for v in self.scn_variants:

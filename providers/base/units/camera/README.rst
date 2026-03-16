@@ -13,7 +13,6 @@ Jobs
 - **still**
 - **multiple-resolution-images-rpi**
 - **multiple-resolution-images-rpi**
-- **roundtrip-qrcode**
 - **camera-quality**: Computes the quality of the image using the brisque score
   It depends on python3-opencv and libsvm3.
 

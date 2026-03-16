@@ -99,8 +99,8 @@ class TestModuleRunner(TestCase):
         config = Path("/usr/share/checkbox-provider-gpgpu/data/rvs-gpup.conf")
         snap_rvs = Path("/snap/bin/rvs")
         expected_config = Path(
-            "/var/snap/rocm-validation-suite/common/rvs-gpup.conf"
-        )
+            "~/snap/rocm-validation-suite/common/rvs-gpup.conf"
+        ).expanduser()
         runner = ModuleRunner(snap_rvs, config)
         self.assertEqual(runner.rvs, snap_rvs)
         self.assertEqual(runner.config, expected_config)

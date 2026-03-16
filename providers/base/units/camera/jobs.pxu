@@ -220,13 +220,14 @@ plugin: attachment
 category_id: com.canonical.plainbox::camera
 id: camera/multiple-resolution-images-rpi-attachment_{name}
 template-id: camera/multiple-resolution-images-rpi-attachment_name
+flags: also-after-suspend
 _summary: Attach an image from the multiple resolution images test on rpi
 estimated_duration: 1s
 after: camera/multiple-resolution-images-rpi_{name}
 requires: cpuinfo.platform == 'armv7l'
 command:
-  [ -f "$PLAINBOX_SESSION_SHARE"/picam_1.jpg ] &&
-  cat "$PLAINBOX_SESSION_SHARE"/picam_1.jpg
+  [ -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
 _description:
   This test will attach one of the images used for the multiple resolution
-  images test.
+  images test on rpi.

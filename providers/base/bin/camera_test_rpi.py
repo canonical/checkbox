@@ -38,7 +38,7 @@ test_res = [
 ]
 
 
-def capture():
+def capture(device):
     path = os.path.expandvars("$PLAINBOX_SESSION_SHARE")
     print("Images will be written to:\n{}\n".format(path), flush=True)
     for mode_no, (res, fr) in enumerate(test_res):
@@ -47,7 +47,7 @@ def capture():
             time.sleep(2)
             print("Resolution: {}".format(camera.resolution))
             print("Framerate: {}".format(camera.framerate))
-            file = "picam_{}.jpg".format(mode_no + 1)
+            file = "picam_{}_{}.jpg".format(mode_no + 1, device)
             camera.capture(os.path.join(path, file))
             print("Image {} captured\n".format(file))
 
@@ -57,7 +57,7 @@ def main():
     parser.add_argument("--device", default="/dev/vchiq", type=str)
     args = parser.parse_args()
     print("Resolutions test on device: {}".format(args.device), flush=True)
-    return capture()
+    return capture(args.device)
 
 
 if __name__ == "__main__":

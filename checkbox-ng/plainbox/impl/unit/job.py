@@ -565,8 +565,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         Return a set of requested environment variables
         """
-        if self.environ is not None:
+        if self.environ is not None and isinstance(self.environ, str):
             return {variable for variable in re.split(r"[\s,]+", self.environ)}
+        elif self.environ is not None:
+            return set(self.environ)
         else:
             return set()
 

@@ -54,7 +54,7 @@ class Runner:
         self.hold_on_fail = self.args.hold_on_fail
         self.debug_machine_setup = self.args.debug_machine_setup
         self.dispose = self.args.dispose
-        self.use_existing = self.args.use_existing
+        self.reprovision_existing = not self.args.dont_reprovision_existing
         aggregator.load_all()
 
     def _gather_all_machine_spec(self):
@@ -212,7 +212,7 @@ class Runner:
             self.combo,
             self.debug_machine_setup,
             self.dispose,
-            use_existing=self.use_existing,
+            reprovision_existing=self.reprovision_existing,
         )
         self.machine_provider.setup()
 

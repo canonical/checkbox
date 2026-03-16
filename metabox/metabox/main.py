@@ -101,9 +101,9 @@ def main():
         help="Delete LXD containers after the run",
     )
     parser.add_argument(
-        "--use-existing",
+        "--dont-reprovision-existing",
         action="store_true",
-        help="Use existing containers updating the source inside them",
+        help="Use existing containers as-is without updating the source inside them",
     )
     parser.add_argument(
         "--hold-on-fail",

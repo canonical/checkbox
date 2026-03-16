@@ -402,7 +402,7 @@ _steps:
      3. Click "Test", then speak into the external microphone
      4. After a few seconds, your speech will be played back to you
 _verification:
-     Did you hear your speech played back?
+     Did you hear your speech played back? If the port is a combo jack, your speech must be played back through the same headphones used for recording.
 _summary: Verify external microphone sound recording and playback.
 
 plugin: user-interact-verify

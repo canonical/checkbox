@@ -19,7 +19,10 @@
 import time
 import textwrap
 import itertools
-import pkg_resources
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files
 from pathlib import Path
 
 import pylxd.exceptions
@@ -513,9 +516,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         return file_tranfer_list
 
     def get_early_dir_transfer(self):
-        provider_path = pkg_resources.resource_filename(
-            "metabox", "metabox-provider"
-        )
+        provider_path = str(files("metabox") / "metabox-provider")
         return [(provider_path, "/home/ubuntu/metabox-provider")]
 
     def get_setup_overlay_fs(self):

@@ -34,7 +34,10 @@ import subprocess
 from pathlib import Path
 from contextlib import contextmanager, suppress
 
-import pkg_resources
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files
 import pylxd
 from loguru import logger
 from pylxd.exceptions import ClientConnectionFailed, LXDAPIException, NotFound
@@ -139,12 +142,10 @@ class LxdMachineProvider:
                 )
 
     def _create_profiles(self):
-        profiles_path = pkg_resources.resource_filename(
-            "metabox", "lxd_profiles"
-        )
-        for profile_file in os.listdir(profiles_path):
-            profile_name = Path(profile_file).stem
-            with open(os.path.join(profiles_path, profile_file)) as f:
+        profiles_dir = files("metabox") / "lxd_profiles"
+        for profile_file in profiles_dir.iterdir():
+            profile_name = Path(profile_file.name).stem
+            with profile_file.open() as f:
                 profile_dict = yaml.load(f, Loader=yaml.FullLoader)
             if self.client.profiles.exists(profile_name):
                 profile = self.client.profiles.get(profile_name)

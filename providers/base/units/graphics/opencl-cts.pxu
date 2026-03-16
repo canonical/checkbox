@@ -1,4 +1,4 @@
-unit: job
+unit: setup job
 plugin: shell
 id: setup/install_opencl_cts
 category_id: com.canonical.plainbox::graphics
@@ -8,9 +8,9 @@ _purpose:
 user: root
 command:
  if snap list opencl-cts &>/dev/null; then
-   snap refresh --edge opencl-cts
+   snap refresh --beta opencl-cts
  else
-   snap install --edge opencl-cts
+   snap install --beta opencl-cts
  fi
 estimated_duration: 1m
 
@@ -19,7 +19,7 @@ id: graphics/cl_gpu_avail
 category_id: com.canonical.plainbox::graphics
 user: root
 requires:
-  package.name == 'clinfo'
+  executable.name == 'clinfo'
 _summary: Checks for GPU for OpenCL
 environ:
   # necessary for local mode

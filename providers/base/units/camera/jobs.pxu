@@ -231,3 +231,24 @@ command:
 _description:
   This test will attach one of the images used for the multiple resolution
   images test on rpi.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'MMAL' and device.name != ''
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/camera-quality-rpi_{name}
+template-id: camera/camera-quality-rpi_name
+flags: also-after-suspend
+_summary: Webcam BRISQUE score for rpi devices on {product_slug} 
+estimated_duration: 20s
+depends: camera/detect
+after: camera/multiple-resolution-images-rpi_{name}
+requires: os.release >= '20'
+command:
+  camera_quality_test.py -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
+_purpose:
+  Uses an image of the camera to get the quality based on a No-Reference image
+  quality assessment algorithm called BRISQUE. This test will timeout and fail
+  if the quality has not been computed within 120 seconds.

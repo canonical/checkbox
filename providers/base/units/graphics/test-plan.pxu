@@ -389,3 +389,13 @@ include:
 bootstrap_include:
     graphics_card
     executable
+
+id: vulkan-cts-test-plan
+unit: test plan
+_name: Graphics test plan for verifying Vulkan CTS
+include:
+    setup/install_vulkan_cts
+    graphics/vk_.*
+bootstrap_include:
+    graphics_card
+    executable

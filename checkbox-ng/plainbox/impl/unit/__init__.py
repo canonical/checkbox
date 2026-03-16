@@ -45,9 +45,7 @@ def get_accessed_parameters(value, template_engine="default") -> frozenset:
     if isinstance(value, str):
         if template_engine == "jinja2":
             env = Environment()
-            to_r = frozenset(
-                    meta.find_undeclared_variables(env.parse(value))
-                )
+            to_r = frozenset(meta.find_undeclared_variables(env.parse(value)))
         elif template_engine == "default":
             # https://docs.python.org/3.4/library/string.html#string.Formatter.parse
             #

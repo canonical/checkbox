@@ -135,7 +135,7 @@ def main():
         warnings.simplefilter("ignore")
         runner = Runner(args)
         runner.setup()
-        runner.run()
+        runner.run_all()
         raise SystemExit(not runner.wasSuccessful())
 
 

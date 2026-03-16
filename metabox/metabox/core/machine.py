@@ -24,7 +24,9 @@ try:
     from importlib.resources import files
 except ImportError:
     from importlib_resources import files
+import random
 from pathlib import Path
+from contextlib import contextmanager, suppress
 
 import pylxd.exceptions
 from loguru import logger
@@ -93,7 +95,9 @@ class ContainerBaseMachine:
 
     def __init__(self, config, container):
         self.config = config
-        self._container = container
+        # self._container is the currently used container, which may differ
+        # from original if we are using a temporary one (running in parallel)
+        self._original_container = self._container = container
         self._checkbox_wrapper = self.CHECKBOX
 
     def mock_inxi_at(self, path):
@@ -119,6 +123,43 @@ class ContainerBaseMachine:
             verbose,
             timeout,
         )
+
+    @contextmanager
+    def temporary_container_copy(self):
+        container = self._container
+        temp_name = f"{container.name}-{random.randint(0, int(2e10))}"
+        temp_container = None
+        try:
+            if container.status == "Running":
+                container.stop(wait=True)
+            temp_container = container.client.containers.create(
+                {
+                    "name": temp_name,
+                    "source": {
+                        "type": "copy",
+                        "source": container.name,
+                    },
+                },
+                wait=True,
+            )
+            for device in temp_container.devices.values():
+                if device.get("type") == "nic":
+                    device.pop("hwaddr", None)
+            temp_container.save(wait=True)
+            temp_container.start(wait=True)
+            self._container = temp_container
+            print("yielding")
+            yield temp_container
+        finally:
+            if temp_container is not None:
+                with suppress(Exception):
+                    if temp_container.status == "Running":
+                        print("stopping")
+                        temp_container.stop(wait=True)
+                    print("delete")
+                    temp_container.delete(wait=True)
+                    print("cleaned")
+            self._container = self._original_container
 
     def interactive_execute(self, cmd, env={}, verbose=False, timeout=0):
         return interactive_execute(

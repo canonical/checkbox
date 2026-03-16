@@ -28,6 +28,7 @@ import re
 import time
 import shlex
 
+from contextlib import contextmanager
 from subprocess import CalledProcessError
 from pylxd.exceptions import NotFound
 
@@ -85,6 +86,30 @@ class Scenario:
         if self._pts:
             return self._pts.stdout_data_full
         return self._outstr_full
+
+    def test_ready(self, rollback=False):
+        if self.mode == "remote":
+            if rollback:
+                self.controller_machine.rollback_to("provisioned")
+                self.agent_machine.rollback_to("provisioned")
+            if self.launcher:
+                self.controller_machine.put(self.LAUNCHER_PATH, self.launcher)
+            self.agent_machine.start_user_session()
+        elif self.mode == "local":
+            if rollback:
+                self.local_machine.rollback_to("provisioned")
+            if self.launcher:
+                self.local_machine.put(self.LAUNCHER_PATH, self.launcher)
+            self.local_machine.start_user_session()
+
+    @contextmanager
+    def temporary_container(self):
+        if self.mode == "remote":
+            with self.controller_machine.temporary_container_copy(), self.agent_machine.temporary_container():
+                yield
+        else:
+            with self.local_machine.temporary_container_copy():
+                yield
 
     def run(self):
         # Simple scenarios don't need to specify a START step

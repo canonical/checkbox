@@ -19,7 +19,7 @@
 import sys
 import time
 from itertools import product
-from contextlib import suppress
+from contextlib import suppress, contextmanager
 
 from loguru import logger
 from metabox.core.aggregator import aggregator
@@ -242,70 +242,87 @@ class Runner:
             name=scn.name,
         )
 
-    def run(self):
+    def add_scenario_machines(self, scn):
+        if scn.mode == "remote":
+            scn.controller_machine = self._load("controller", scn.releases[0])
+            scn.agent_machine = self._load("agent", scn.releases[1])
+        elif scn.mode == "local":
+            scn.local_machine = self._load("local", scn.releases[0])
+
+    @contextmanager
+    def machine_handler(self, scn):
+        if True:  # self._parallel
+            ctx = scn.temporary_container
+        else:
+            ctx = suppress
+        with ctx() as _:
+            scn.test_ready()
+            yield scn
+
+    def run(self, scn):
+        with self.machine_handler(scn) as _:
+            scn.run()
+            if scn.failures and self.hold_on_fail:
+                if scn.mode == "remote":
+                    msg = (
+                        "You may hop onto the target machines by issuing "
+                        "the following commands:\n{}\n{}\n"
+                        "Press enter to continue testing"
+                    ).format(
+                        scn.controller_machine.get_connecting_cmd(),
+                        scn.agent_machine.get_connecting_cmd(),
+                    )
+                elif scn.mode == "local":
+                    msg = (
+                        "You may hop onto the target machine by issuing "
+                        "the following command:\n{}\n"
+                        "Press enter to continue testing"
+                    ).format(scn.local_machine.get_connecting_cmd())
+                input(msg)
+        # return scn so that we can map here!
+        return scn
+
+    def run_all(self):
         startTime = time.perf_counter()
         total = len(self.scn_variants)
-        for idx, scn in enumerate(self.scn_variants, 1):
-            if scn.mode == "remote":
-                scn.controller_machine = self._load(
-                    "controller", scn.releases[0]
+        logger.info("Preparing scenario machines")
+        for scn in self.scn_variants:
+            self.add_scenario_machines(scn)
+        logger.info("Starting testing")
+        # executed_scenarios = map(self.run, self.scn_variants)
+        from multiprocessing.pool import ThreadPool
+
+        with ThreadPool(5) as p:
+            executed_scenarios = p.imap_unordered(self.run, self.scn_variants)
+            for idx, scn in enumerate(executed_scenarios, 1):
+                scenario_description = self._get_scenario_description(scn)
+                logger.info(
+                    "Done scenario ({}/{}): {}".format(
+                        idx, total, scenario_description
+                    )
                 )
-                scn.agent_machine = self._load("agent", scn.releases[1])
-                scn.controller_machine.rollback_to("provisioned")
-                scn.agent_machine.rollback_to("provisioned")
-                if scn.launcher:
-                    scn.controller_machine.put(scn.LAUNCHER_PATH, scn.launcher)
-                scn.agent_machine.start_user_session()
-            elif scn.mode == "local":
-                scn.local_machine = self._load("local", scn.releases[0])
-                scn.local_machine.rollback_to("provisioned")
-                if scn.launcher:
-                    scn.local_machine.put(scn.LAUNCHER_PATH, scn.launcher)
-                scn.local_machine.start_user_session()
+                if scn.failures:
+                    self.failed = True
+                    logger.error(
+                        scenario_description + " scenario has failed."
+                    )
 
-            scenario_description = self._get_scenario_description(scn)
-            logger.info(
-                "Starting scenario ({}/{}): {}".format(
-                    idx, total, scenario_description
-                )
-            )
-            scn.run()
-            if scn.failures:
-                self.failed = True
-                logger.error(scenario_description + " scenario has failed.")
+                    # let's escape < from the all outputs to avoid confusing loguru
+                    # loguru assumes that <> is used for colorizing
+                    logger.error("The following steps failed")
+                    for failed_steps in scn.failures:
+                        step = str(failed_steps).replace("<", r"\<")
+                        logger.error("  - {}".format(step))
 
-                # let's escape < from the all outputs to avoid confusing loguru
-                # loguru assumes that <> is used for colorizing
-                logger.error("The following steps failed")
-                for failed_steps in scn.failures:
-                    step = str(failed_steps).replace("<", r"\<")
-                    logger.error("  - {}".format(step))
-
-                output = scn.get_output_streams().strip().replace("<", r"\<")
-                logger.error("Scenario output:\n" + output)
-
-                if self.hold_on_fail:
-                    if scn.mode == "remote":
-                        msg = (
-                            "You may hop onto the target machines by issuing "
-                            "the following commands:\n{}\n{}\n"
-                            "Press enter to continue testing"
-                        ).format(
-                            scn.controller_machine.get_connecting_cmd(),
-                            scn.agent_machine.get_connecting_cmd(),
-                        )
-                    elif scn.mode == "local":
-                        msg = (
-                            "You may hop onto the target machine by issuing "
-                            "the following command:\n{}\n"
-                            "Press enter to continue testing"
-                        ).format(scn.local_machine.get_connecting_cmd())
-                    print(msg)
-                    input()
-            else:
-                logger.success(scenario_description + " scenario has passed.")
-            self.machine_provider.cleanup()
-        del self.machine_provider
+                    output = (
+                        scn.get_output_streams().strip().replace("<", r"\<")
+                    )
+                    logger.error("Scenario output:\n" + output)
+                else:
+                    logger.success(
+                        scenario_description + " scenario has passed."
+                    )
+        self.machine_provider.cleanup()
         stopTime = time.perf_counter()
         timeTaken = stopTime - startTime
         print("-" * 80)

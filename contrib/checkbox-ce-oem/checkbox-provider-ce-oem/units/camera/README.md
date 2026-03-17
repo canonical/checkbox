@@ -141,10 +141,10 @@ The camera testing system follows this workflow:
 flowchart TD
     Start([User runs camera_test.py]) --> Parse[Parse command line arguments]
     Parse --> Action{Action type?}
-    
+
     Action -->|generate_resource| LoadScenarios[Load scenario definition file]
     Action -->|testing| DetectPlatform[Detect platform from PLATFORM_NAME]
-    
+
     LoadScenarios --> CheckPath{File path relative to PLAINBOX_PROVIDER_DATA?}
     CheckPath -->|Yes| TryRelative[Try relative path first]
     CheckPath -->|No| UseAbsolute[Use absolute path]
@@ -155,16 +155,16 @@ flowchart TD
     LoadRelative --> ProcessScenarios[Process scenarios and generate resources]
     LoadAbsolute --> ProcessScenarios
     ProcessScenarios --> OutputResources[Output test resources to stdout]
-    
+
     DetectPlatform --> LoadModule[Dynamically load platform module]
     LoadModule --> CreateHandler[Create camera handler instance]
     CreateHandler --> ExecuteTest[Execute specified camera test]
     ExecuteTest --> Capture[Capture image or record video]
     Capture --> SaveArtifacts[Save test artifacts]
-    
+
     OutputResources --> End1([Resource generation complete])
     SaveArtifacts --> End2([Test execution complete])
-    
+
     style Start fill:#e3f2fd
     style Action fill:#fff3e0
     style LoadScenarios fill:#e8f5e8
@@ -217,10 +217,10 @@ class SupportedCamera(Enum):
 def <platform>_camera_factory(camera_module: str) -> CameraInterface:
     """
     Factory function to create camera handler instances.
-    
+
     Args:
         camera_module: String identifier of the camera module
-        
+
     Returns:
         Camera handler class that implements CameraInterface
     """
@@ -228,7 +228,7 @@ def <platform>_camera_factory(camera_module: str) -> CameraInterface:
         str(SupportedCamera.CAMERA_MODEL_1): CameraModel1Handler,
         str(SupportedCamera.CAMERA_MODULE_2): CameraModule2Handler,
     }
-    
+
     handler_class = camera_handlers.get(camera_module)
     if not handler_class:
         raise CameraError(
@@ -241,21 +241,21 @@ def <platform>_camera_factory(camera_module: str) -> CameraInterface:
 
 class <Platform>BaseCamera(CameraInterface):
     """Base class for your platform camera implementations."""
-    
+
     def __init__(self, v4l2_devices: str):
         super().__init__(v4l2_devices)
         self._v4l2_devices = v4l2_devices
-        
-    def capture_image(self, width: int, height: int, format: str, 
-                     store_path: str, artifact_name: str, 
+
+    def capture_image(self, width: int, height: int, format: str,
+                     store_path: str, artifact_name: str,
                      method: str, v4l2_device_name: str) -> None:
         """Implement image capture for your platform."""
         # Your platform-specific implementation
         pass
-        
-    def record_video(self, width: int, height: int, framerate: int, 
-                    format: str, count: int, store_path: str, 
-                    artifact_name: str, method: str, 
+
+    def record_video(self, width: int, height: int, framerate: int,
+                    format: str, count: int, store_path: str,
+                    artifact_name: str, method: str,
                     v4l2_device_name: str) -> None:
         """Implement video recording for your platform."""
         # Your platform-specific implementation
@@ -397,9 +397,16 @@ For comprehensive details about Genio platform configurations, test scenarios, a
 This documentation includes:
 
 - V4L2 Sensor Configurations
-- Mediatek Imgsensor Configurations  
+- Mediatek Imgsensor Configurations
 - Available camera models and their configurations
 - Quick reference table for all supported configurations
+
+### RZ Test Scenario and Test Setup Documentation
+
+For comprehensive details about RZ platform configurations, test scenarios, and test setups, refer to:
+
+**[RZ Test Scenario and Test Setup Documentation](../../data/RZ-MIPI-Camera-TestScenario-TestSetup/README.md)**
+
 
 ## Troubleshooting
 

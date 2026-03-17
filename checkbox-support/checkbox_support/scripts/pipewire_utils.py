@@ -18,7 +18,6 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-from contextlib import suppress
 import difflib
 import json
 import logging

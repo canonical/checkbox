@@ -80,7 +80,9 @@ def parse_args(argv=None):
         help="Return information about the Linux distribution being used",
     )
     subparsers.add_parser("memory", help="Return memory information")
-    subparsers.add_parser("snaps", help="Return information about installed Snaps")
+    subparsers.add_parser(
+        "snaps", help="Return information about installed Snaps"
+    )
     subparsers.add_parser("uname", help="Return uname information")
     return parser.parse_args(argv)
 

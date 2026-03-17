@@ -3,9 +3,7 @@ import argparse
 import os
 import sys
 import logging
-from remoteproc_sysfs_handler import (
-    RemoteProcSysFsHandler, REMOTEPROC_PATH
-)
+from remoteproc_sysfs_handler import RemoteProcSysFsHandler, REMOTEPROC_PATH
 
 
 def check_remoteproc_firmware(remoteproc_data):

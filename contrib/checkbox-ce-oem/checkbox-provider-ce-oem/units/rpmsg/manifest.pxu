@@ -19,5 +19,6 @@ _name: Change the RPMSG running firmware is supported?
 value-type: bool
 
 unit: manifest entry
-id: has_remote_proc_firmware_loads_at_boot
+id: has_preload_remoteproc_firmware
 _name: Remote processor (remoteproc) firmware loads at boot
+value-type: bool

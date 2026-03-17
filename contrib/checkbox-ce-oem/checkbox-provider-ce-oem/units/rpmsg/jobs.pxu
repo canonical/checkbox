@@ -1,3 +1,15 @@
+id: ce-oem-remoteproc/check-firmware
+_summary: Check if remoteproc firmwares loads correctly
+category_id: remoteproc
+estimated_duration: 5
+requires:
+    manifest.has_remoteproc == 'True'
+imports: from com.canonical.plainbox import manifest
+plugin: shell
+environ: REMOTEPROC_FIRMWARE_DATA
+command:
+    remoteproc_firmware_check.py "$REMOTEPROC_FIRMWARE_DATA"
+
 id: ce-oem-rpmsg/devicetree-verify
 _summary: Check if the device tree is well defined.
 category_id: rpmsg

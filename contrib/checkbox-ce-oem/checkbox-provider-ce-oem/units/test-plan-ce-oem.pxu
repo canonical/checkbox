@@ -103,6 +103,7 @@ nested_part:
     ce-oem-graphics-automated
     ce-oem-video-codec-automated
     ce-oem-rpmsg-automated
+    ce-oem-remoteproc-automated
     ce-oem-barcode-scanner-automated
     ce-oem-printer-automated
     ce-oem-credit-card-reader-automated

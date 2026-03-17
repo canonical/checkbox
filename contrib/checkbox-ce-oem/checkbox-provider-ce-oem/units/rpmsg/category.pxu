@@ -1,3 +1,7 @@
 unit: category
 id: rpmsg
 _name: Remote Processor Messaging (rpmsg) Framework test
+
+unit: category
+id: remoteproc
+_name: Remote Processor Framework test

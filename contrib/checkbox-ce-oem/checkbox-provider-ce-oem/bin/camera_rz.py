@@ -60,28 +60,27 @@ def rz_camera_factory(
     Raises:
         ValueError: If camera_module is not supported
     """
-    # return Imx8mBaseCamera for all supported cameras for now
-    # unless specific implementations are needed later
-    try:
-        camera = SupportedCamera(camera_module)
-    except ValueError:
-        raise CameraError(
-            "Unsupported camera module: {}. "
-            "Supported modules are: {}".format(
-                camera_module, list(SupportedCamera)
-            )
-        )
-
-    if "rz" in platform:
-        handler = RzBaseCamera
-    else:
+    if "rz" not in platform:
         raise CameraError(
             "Unsupported platform: {}. Supported platform is: RZ".format(
                 platform
             )
         )
-    setattr(handler, "_camera", camera)
-    return handler
+
+    camera_handlers = {
+        str(SupportedCamera.OV_5645): Ov5645Camera,
+    }
+
+    handler_class = camera_handlers.get(camera_module)
+    if not handler_class:
+        raise CameraError(
+            "Unsupported camera module: {}. "
+            "Supported modules are: {}".format(
+                camera_module, list(camera_handlers.keys())
+            )
+        )
+
+    return handler_class
 
 
 class RzVideoNodeResolver(VideoMediaNodeResolver):
@@ -328,3 +327,11 @@ class RzBaseCamera(CameraInterface):
         logger.info("Executing command:\n {}".format(cmd))
         output = execute_command(cmd=cmd)
         logger.info("Output:\n{}".format(output))
+
+
+class Ov5645Camera(RzBaseCamera):
+    """Handler for OV 5645 camera."""
+
+    def __init__(self, v4l2_devices: str):
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.OV_5645

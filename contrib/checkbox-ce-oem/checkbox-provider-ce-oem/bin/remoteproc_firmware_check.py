@@ -31,10 +31,11 @@ def check_remoteproc_firmware(remoteproc_data):
                 rp,
                 sysfs_obj.name,
                 sysfs_obj.firmware_file,
-                sysfs_obj.state
+                sysfs_obj.state,
             )
             actual_entries[sysfs_obj.name] = {
-                "firmware": sysfs_obj.firmware_file, "state": sysfs_obj.state
+                "firmware": sysfs_obj.firmware_file,
+                "state": sysfs_obj.state,
             }
         except Exception as e:
             logging.error("Error accessing remoteproc %s: %s", rp, e)

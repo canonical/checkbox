@@ -95,16 +95,15 @@ class RzVideoNodeResolver(VideoMediaNodeResolver):
 
     def get_camera_video_nodes(
         self,
-        camera: Union[str, SupportedCamera],
+        camera: SupportedCamera,
         v4l2_device_name: str,
     ) -> Dict[str, str]:
         """
         Get video device nodes classified by camera type.
 
         Args:
-            camera: Camera type (string or SupportedCamera enum)
+            camera: Camera type (SupportedCamera enum)
             v4l2_device_name: Name of the V4L2 device
-            arch: Software architecture
 
         Returns:
             Dictionary mapping node types to device paths
@@ -185,29 +184,28 @@ class RzBaseCamera(CameraInterface):
         height: int,
         format: str,
         full_artifact_path: str,
-        count: Optional[int] = None,
-        framerate: Optional[int] = None,
+        count: "int | None" = None,
+        framerate: "int | None" = None,
     ) -> str:
         """Build the GStreamer command."""
-        base_cmd = "{} -v v4l2src device={} io-mode=dmabuf ".format(
-            GST_LAUNCH_BIN, dev_video_node
-        )
+        assert GST_LAUNCH_BIN
+        assert dev_video_node
 
-        if count is not None:
-            base_cmd += "num-buffers={} ! ".format(count)
-        else:
-            base_cmd += "num-buffers=30 ! "
-
-        if format == "JPEG":
-            format_str = "image/jpeg"
-        else:
-            format_str = "video/x-raw"
-        format_str += ",width={},height={},format={}".format(
-            width, height, format
-        )
+        v4l2src_words = [
+            "v4l2src",
+            "device={}".format(dev_video_node),
+            "io-mode=dmabuf",
+            "num-buffers={}".format(count or 30),
+        ]
+        caps_filter_words = [
+            "image/jpeg" if format == "JPEG" else "video/x-raw",
+            "width={}".format(width),
+            "height={}".format(height),
+            "format={}".format(format),
+        ]
 
         if framerate is not None:
-            format_str += ",framerate={}/1".format(framerate)
+            caps_filter_words.append("framerate={}/1".format(framerate))
 
         if count is not None:
             sink = "filesink location={}".format(full_artifact_path)
@@ -216,7 +214,12 @@ class RzBaseCamera(CameraInterface):
                 full_artifact_path
             )
 
-        return base_cmd + format_str + " ! " + sink
+        return "{} ! {} ! {} ! {}".format(
+            GST_LAUNCH_BIN,
+            " ".join(v4l2src_words),
+            ",".join(caps_filter_words),
+            sink,
+        )
 
     def _get_camera_dev_video_node(self, v4l2_device_name: str) -> dict:
         """Get the video device node for the given v4l2 device name."""

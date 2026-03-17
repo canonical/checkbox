@@ -3,7 +3,7 @@ _summary: Check if remoteproc firmwares loads correctly
 category_id: remoteproc
 estimated_duration: 5
 requires:
-    manifest.has_remoteproc == 'True'
+    manifest.has_preload_remoteproc_firmware == 'True'
 imports: from com.canonical.plainbox import manifest
 plugin: shell
 environ: REMOTEPROC_FIRMWARE_DATA
@@ -153,6 +153,7 @@ requires:
     manifest.has_rpmsg_firmware_load == 'True'
 imports: from com.canonical.plainbox import manifest
 after:
+    ce-oem-remoteproc/check-firmware
     ce-oem-rpmsg/devicetree-verify
     ce-oem-rpmsg/detect-device
     ce-oem-rpmsg/detect-mailbox

@@ -161,6 +161,7 @@ class ExporterUnit(UnitWithId):
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.data
+                    # LEGACY: pxu compatibility, now data is an object
                     and isinstance(unit.data, str),
                 ),
                 CorrectFieldValueValidator(
@@ -174,6 +175,7 @@ class ExporterUnit(UnitWithId):
                     Severity.error,
                     message=_("Jinja2 template not found"),
                     onlyif=lambda unit: unit.entry_point == "jinja2"
+                    # LEGACY: pxu compatibility, now value is a template
                     and isinstance(unit.data, str),
                 ),
             ],
@@ -222,6 +224,7 @@ class ExporterUnitSupport:
         if exporter.data:
             if isinstance(exporter.data, dict):
                 return exporter.data
+            # LEGACY: pxu compatibility, now data is an object
             return json.loads(exporter.data)
         else:
             return {}
@@ -231,6 +234,7 @@ class ExporterUnitSupport:
         if exporter.options:
             if isinstance(exporter.options, list):
                 return exporter.options
+            # LEGACY: pxu compatibility, now objects is a list
             return re.split(r"[;,\s]+", exporter.options)
         else:
             return []

@@ -1212,6 +1212,7 @@ class SessionState:
                 if not key.endswith("siblings")
             }
             if isinstance(data["flags"], str):
+                # LEGACY: pxu compatibility, flags are now a list
                 data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
                 data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
             else:
@@ -1229,12 +1230,14 @@ class SessionState:
                     Suspend.AUTO_JOB_ID,
                 ]
             elif new_job.depends:
+                # LEGACY: pxu compatibility, depends is now a list
                 data["depends"] += " {}".format(new_job.id)
                 data["depends"] += " {}".format(Suspend.AUTO_JOB_ID)
 
             if isinstance(new_job.after, list) or not new_job.after:
                 data["after"] = (new_job.after or []) + [new_job.id]
             elif new_job.after:
+                # LEGACY: pxu compatibility, after is now a list
                 data["after"] += " {}".format(new_job.id)
             if new_job.group:
                 data["group"] = "after-suspend-{}".format(new_job.group)
@@ -1266,11 +1269,13 @@ class SessionState:
                     Suspend.MANUAL_JOB_ID,
                 ]
             elif new_job.depends:
+                # LEGACY: pxu compatibility, depends is now a list
                 data["depends"] += " {}".format(new_job.id)
 
             if isinstance(new_job.after, list) or not new_job.after:
                 data["after"] = (new_job.after or []) + [new_job.id]
             elif new_job.after:
+                # LEGACY: pxu compatibility, after is now a list
                 data["after"] += " {}".format(new_job.id)
 
             if new_job.group:

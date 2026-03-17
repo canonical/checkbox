@@ -371,6 +371,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
     def siblings(self):
         siblings = self.get_record_value("siblings")
         if isinstance(siblings, str):
+            # LEGACY: pxu compatibility, siblings are objects now
             siblings = json.loads(siblings)
         return siblings
 
@@ -566,6 +567,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Return a set of requested environment variables
         """
         if self.environ is not None and isinstance(self.environ, str):
+            # LEGACY: pxu compatibility, environ is now a list
             return {variable for variable in re.split(r"[\s,]+", self.environ)}
         elif self.environ is not None:
             return set(self.environ)
@@ -580,6 +582,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         # legacy jinja or pxu support
         if self.flags is not None:
             if isinstance(self.flags, str):
+                # LEGACY: pxu compatibility, flag set is a list now
                 return {flag for flag in re.split(r"[\s,]+", self.flags)}
             return set(self.flags)
         else:

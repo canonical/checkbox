@@ -212,16 +212,16 @@ class ResourceProgram:
         May raise ResourceProgramError (including CodeNotAllowed) or a
         SyntaxError
         """
-        self._expression_list = []
         if isinstance(program_value, str):
+            # LEGACY: pxu compatibility, now resources are list
             program_lines = (x.strip() for x in program_value.splitlines())
             program_lines = filter(bool, program_lines)
         else:
             program_lines = program_value
-        for line in program_lines:
-            self._expression_list.append(
-                ResourceExpression(line, implicit_namespace, imports)
-            )
+        self._expression_list = [
+            ResourceExpression(line, implicit_namespace, imports)
+            for line in program_lines
+        ]
 
     @property
     def expression_list(self):
@@ -802,6 +802,7 @@ def parse_imports_stmt(imports):
     """
     # Poor man's parser. Replace this with our own parser once we get one
     if isinstance(imports, str):
+        # LEGACY: pxu compatibility, now imports is a list
         imports = imports.splitlines()
     for lineno, line in enumerate(imports):
         parts = line.split()

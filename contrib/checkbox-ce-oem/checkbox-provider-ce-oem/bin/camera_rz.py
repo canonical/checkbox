@@ -16,7 +16,7 @@ import logging
 import os
 
 from enum import Enum
-from typing import Union, Dict, List, Optional, Type
+from typing import Dict, List, Type
 from camera_utils import (
     CameraInterface,
     execute_command,

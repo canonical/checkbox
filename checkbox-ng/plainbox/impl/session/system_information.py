@@ -18,7 +18,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 3
+    COLLECTOR_OUTPUTS_VERSION = 4
 
     def to_json(self) -> str:
         to_dump = {
@@ -349,6 +349,16 @@ class DebianPackagesCollector(Collector):
     def __init__(self):
         super().__init__(
             collection_cmd=["device-info", "debian_packages"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class SnapPackagesCollector(Collector):
+    COLLECTOR_NAME = "snaps"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "snaps"],
             version_cmd=["echo", "-n", checkbox_version],
         )
 

@@ -309,15 +309,6 @@ class RzBaseCamera(CameraInterface):
                 count=count,
                 framerate=framerate,
             )
-        elif method == SupportedMethods.V4L2_CTL:
-            cmd = self._build_v4l2_cmd(
-                dev_video_node,
-                width,
-                height,
-                format,
-                full_artifact_path,
-                count=count,
-            )
         else:
             msg = "No suitable method such as '{}' or '{}' be provided".format(
                 SupportedMethods.GSTREAMER, SupportedMethods.V4L2_CTL

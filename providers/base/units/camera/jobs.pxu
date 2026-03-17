@@ -11,17 +11,6 @@ command:
 _summary: This Automated test attempts to detect a camera.
 user: root
 
-plugin: shell
-category_id: com.canonical.plainbox::camera
-id: camera/detect-rpi
-estimated_duration: 1.0
-imports: from com.canonical.plainbox import manifest
-requires:
-  manifest.has_rpi_camera == 'True'
-command:
-  udev_resource.py -f MMAL | grep "category: MMAL"
-_summary: Detect presence of a MMAL camera.
-
 unit: template
 category_id: com.canonical.plainbox::camera
 template-resource: device
@@ -190,6 +179,17 @@ command:
   cat "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg
 _description:
   This test will attach the image used for the BRISQUE score.
+
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/detect-rpi
+estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_rpi_camera == 'True'
+command:
+  udev_resource.py -f MMAL | grep "category: MMAL"
+_summary: Detect presence of a MMAL camera.
 
 unit: template
 template-resource: device

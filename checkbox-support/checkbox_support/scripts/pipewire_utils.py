@@ -599,7 +599,7 @@ class PipewireTest:
         pw_dump_json = json.loads(pw_dump_out)
         if type(pw_dump_json) is not list or len(pw_dump_json) < 1:
             raise SystemExit(
-                "'pw-dump {}' did not return a list with >= 1 element, got {}".format(
+                "'pw-dump {}' did not return a valid list, got {}".format(
                     default_device_id, pw_dump_out
                 )
             )
@@ -608,7 +608,6 @@ class PipewireTest:
         # even if we specify the exact ID
         real = None  # type: dict[str, t.Any] | None
         for elem in pw_dump_json:
-            # with suppress(Exception):
             if type(elem) is dict and elem.get("id") == default_device_id:
                 real = elem
                 break

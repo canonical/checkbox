@@ -19,7 +19,7 @@
 
 
 """
-:mod:`checkbox_support.snap_utils`
+:mod:`checkbox_ng.support.snap_utils`
 ==================================
 
 This module provides tools for testing aspects of systems running snapd.

@@ -17,9 +17,9 @@ try:
 except ImportError:
     from pkg_resources import resource_filename
 
-from checkbox_support.snap_utils.asserts import decode
-from checkbox_support.snap_utils.asserts import model_to_resource
-from checkbox_support.snap_utils.asserts import serial_to_resource
+from checkbox_ng.support.snap_utils.asserts import decode
+from checkbox_ng.support.snap_utils.asserts import model_to_resource
+from checkbox_ng.support.snap_utils.asserts import serial_to_resource
 
 model_focal_desktop = "snap_utils/tests/asserts_data/MODEL_FOCAL_DESKTOP.txt"
 serial_focal_desktop = "snap_utils/tests/asserts_data/SERIAL_FOCAL_DESKTOP.txt"
@@ -36,7 +36,7 @@ def create_mock_response(assert_path):
     mock_response = Mock(spec=Response)
     mock_response.status_code = 400
     mock_response.headers = {"X-Ubuntu-Assertions-Count": 1}
-    with open(resource_filename("checkbox_support", assert_path), "r") as f:
+    with open(resource_filename("checkbox_ng.support", assert_path), "r") as f:
         mock_response.text = f.read()
     return mock_response
 

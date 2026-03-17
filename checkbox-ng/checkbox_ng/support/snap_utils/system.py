@@ -11,10 +11,10 @@ import yaml
 
 import distro
 
-from checkbox_support.parsers.kernel_cmdline import parse_kernel_cmdline
-from checkbox_support.snap_utils.asserts import decode
-from checkbox_support.snap_utils.asserts import model_to_resource
-from checkbox_support.snap_utils.snapd import Snapd
+from checkbox_ng.support.parsers.kernel_cmdline import parse_kernel_cmdline
+from checkbox_ng.support.snap_utils.asserts import decode
+from checkbox_ng.support.snap_utils.asserts import model_to_resource
+from checkbox_ng.support.snap_utils.snapd import Snapd
 
 
 def on_ubuntucore():

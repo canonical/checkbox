@@ -26,7 +26,6 @@ from camera_utils import (
     execute_command,
     SupportedMethods,
     GST_LAUNCH_BIN,
-    V4L2_CTL_CMD,
     CameraError,
     CameraConfigurationError,
     VideoMediaNodeResolver,

@@ -35,6 +35,7 @@ from metabox.core.runner import Runner
 default_log_file = Path("/var/tmp/metabox") / "metabox-{}.log".format(
     datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 )
+help_log_file_message = default_log_file.parent / "metabox-<TIMESTAMP>.log"
 
 
 class InterceptHandler(logging.Handler):
@@ -121,7 +122,9 @@ def main():
         dest="log_file",
         type=Path,
         default=default_log_file,
-        help="Path to the log file (default: %(default)s)",
+        help="Path to the log file (default: {})".format(
+            help_log_file_message
+        ),
     )
     args = parser.parse_args()
 

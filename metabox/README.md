@@ -42,22 +42,34 @@ $ source venv/bin/activate
 # Usage
 
 ```
-usage: metabox [-h] [--tag TAGS] [--exclude-tag EXCLUDE_TAGS] [--log {TRACE,DEBUG,INFO,SUCCESS,WARNING,ERROR,CRITICAL}] [--dispose] [--hold-on-fail] [--debug-machine-setup] CONFIG
+usage: metabox [-h] [--tag TAGS] [--exclude-tag EXCLUDE_TAGS]
+               [--log {TRACE,DEBUG,INFO,SUCCESS,WARNING,ERROR,CRITICAL}]
+               [--dispose] [--dont-reprovision-existing] [--hold-on-fail]
+               [--debug-machine-setup] [--log-file LOG_FILE]
+               CONFIG
 
 positional arguments:
   CONFIG                Metabox configuration file
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  --tag TAGS            Run only scenario with the specified tag. Can be used multiple times.
+  --tag TAGS            Run only scenario with the specified tag. Can be used
+                        multiple times.
   --exclude-tag EXCLUDE_TAGS
-                        Do not run scenario with the specified tag. Can be used multiple times.
+                        Do not run scenario with the specified tag. Can be used
+                        multiple times.
   --log {TRACE,DEBUG,INFO,SUCCESS,WARNING,ERROR,CRITICAL}
                         Set the logging level
   --dispose             Delete LXD containers after the run
+  --dont-reprovision-existing
+                        Use existing containers as-is without updating the
+                        source inside them
   --hold-on-fail        Pause testing when a scenario fails
   --debug-machine-setup
-                        Turn on verbosity during machine setup. Only works with --log TRACE
+                        Turn on verbosity during machine setup. Only works with
+                        --log TRACE
+  --log-file LOG_FILE   Path to the log file (default:
+                        /var/tmp/metabox/metabox-<TIMESTAMP>.log)
 ```
 
 ## Examples

@@ -27,10 +27,8 @@ LXD machines are containers that can run metabox scenarios in them.
 
 import json
 import os
-import sys
 import time
 import yaml
-import subprocess
 from pathlib import Path
 from contextlib import contextmanager, suppress
 

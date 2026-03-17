@@ -648,60 +648,6 @@ def check_rpmsg_transport(node, e_driver):
     raise SystemExit("FAIL: transport driver not bound")
 
 
-def check_remoteproc_firmware(remoteproc_data):
-    expect_entries = {}
-    for entry in remoteproc_data.split("|"):
-        parts = entry.split(":")
-        if len(parts) != 3:
-            raise SystemExit(
-                "FAIL: Invalid remoteproc data format. Expected "
-                "proc_name:firmware_name:state|..."
-            )
-        expect_entries[parts[0]] = {
-            "firmware": parts[1], "state": parts[2]
-        }
-
-    actual_entries = {}
-    remoteproc_dirs = os.listdir(REMOTEPROC_PATH)
-    for rp in remoteproc_dirs:
-        try:
-            sysfs_obj = RemoteProcSysFsHandler(rp)
-            logging.info(
-                "remoteproc: %s, name: %s, firmware: %s, state: %s",
-                rp,
-                sysfs_obj.name,
-                sysfs_obj.firmware_file,
-                sysfs_obj.state
-            )
-            actual_entries[sysfs_obj.name] = {
-                "firmware": sysfs_obj.firmware_file, "state": sysfs_obj.state
-            }
-        except Exception as e:
-            logging.error("Error accessing remoteproc %s: %s", rp, e)
-            continue
-
-    result = True
-    for entry in expect_entries:
-        logging.info("Checking remoteproc %s ...", entry)
-        if entry in actual_entries:
-            for key in ["firmware", "state"]:
-                if actual_entries[entry][key] != expect_entries[entry][key]:
-                    logging.error(
-                        "%s mismatch for %s: expected %s, found %s",
-                        key.capitalize(),
-                        entry,
-                        expect_entries[entry][key],
-                        actual_entries[entry][key],
-                    )
-                    result = False
-        else:
-            logging.error("Expected remoteproc %s not found", entry)
-            result = False
-
-    if not result:
-        raise SystemExit("FAIL: Remoteproc firmware/state check failed")
-
-
 def check_virtio(virtio_device, virtio_driver):
     check_virtio_device(virtio_device)
     check_rpmsg_transport(virtio_device, virtio_driver)
@@ -803,20 +749,6 @@ def register_arguments():
         help="Check if the transport driver has been probed.",
     )
     parser_channel.set_defaults(func=get_rpmsg_channel)
-
-    parser_firmware_check = subparsers.add_parser(
-        "firmware-check",
-        help="Check if the firmware can be loaded successfully.",
-    )
-    parser_firmware_check.add_argument(
-        "remoteproc_data",
-        help=(
-            "The information of remoteproc node including name, firmware "
-            "and state. format:proc_name:firmware_name:state|..."
-            "e.g. imx-rpoc:test-firmware:attached|proc:test-firmware2:running"
-        ),
-    )
-    parser_firmware_check.set_defaults(func=check_remoteproc_firmware)
 
     parser_pingpong = subparsers.add_parser(
         "pingpong", help="Run RPMSG ping-pong test."

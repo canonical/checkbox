@@ -33,7 +33,6 @@ from checkbox_support.scripts.pipewire_utils import (  # noqa: E402
     PipewireTestError,
 )
 
-
 TEST_DATA_DIR = Path(__file__).parent / "test_data"
 
 

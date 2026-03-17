@@ -205,7 +205,7 @@ class LxdMachineProvider:
     def _create_machine(self, config, reprovision_existing=False):
         if reprovision_existing and not config.origin == "source":
             raise ValueError(
-                "Use existing can not be enabled in non source runs"
+                "Reprovision existing can not be enabled in non source runs"
             )
         name = "metabox-{}".format(config)
         base_profiles = ["default", "checkbox"]

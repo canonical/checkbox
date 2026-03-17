@@ -34,12 +34,14 @@ class TestDeviceInfoCLI(TestCase):
     @patch("checkbox_ng.support.device_info.get_devices")
     @patch("checkbox_ng.support.device_info.get_release_info")
     @patch("checkbox_ng.support.device_info.get_meminfo")
+    @patch("checkbox_ng.support.device_info.get_snap_packages")
     @patch("checkbox_ng.support.device_info.get_uname")
     @patch("checkbox_ng.support.device_info.get_kernel_cmdline")
     def test_kernel_cmdline_subcommand_uses_only_kernel_getter(
         self,
         mock_kernel_cmdline,
         mock_uname,
+        mock_snap_packages,
         mock_meminfo,
         mock_release_info,
         mock_devices,
@@ -58,4 +60,5 @@ class TestDeviceInfoCLI(TestCase):
         mock_meminfo.assert_not_called()
         mock_release_info.assert_not_called()
         mock_devices.assert_not_called()
+        mock_snap_packages.assert_not_called()
         mock_debian_packages.assert_not_called()

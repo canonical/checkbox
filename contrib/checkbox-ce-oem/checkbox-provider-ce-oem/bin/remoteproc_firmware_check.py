@@ -17,9 +17,7 @@ def check_remoteproc_firmware(remoteproc_data):
                 "FAIL: Invalid remoteproc data format. Expected "
                 "proc_name:firmware_name:state|..."
             )
-        expect_entries[parts[0]] = {
-            "firmware": parts[1], "state": parts[2]
-        }
+        expect_entries[parts[0]] = {"firmware": parts[1], "state": parts[2]}
 
     actual_entries = {}
     remoteproc_dirs = os.listdir(REMOTEPROC_PATH)

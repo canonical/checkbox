@@ -14,7 +14,6 @@ import serial_test
 from remoteproc_sysfs_handler import RemoteProcSysFsHandler, REMOTEPROC_PATH
 
 SOC_ROOT = "/sys/devices/soc0"
-REMOTEPROC_PATH = "/sys/class/remoteproc"
 
 
 class RpmsgTest:

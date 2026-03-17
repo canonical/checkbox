@@ -214,7 +214,7 @@ class RzBaseCamera(CameraInterface):
                 full_artifact_path
             )
 
-        return "{} ! {} ! {} ! {}".format(
+        return "{} -v {} ! {} ! {}".format(
             GST_LAUNCH_BIN,
             " ".join(v4l2src_words),
             ",".join(caps_filter_words),

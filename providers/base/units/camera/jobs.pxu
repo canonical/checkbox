@@ -243,7 +243,7 @@ _summary: Webcam BRISQUE score for rpi devices on {product_slug}
 estimated_duration: 20s
 depends: camera/detect-rpi
 after: camera/multiple-resolution-images-rpi_{name}
-requires: os.release >= '20'
+requires: cpuinfo.platform == 'armv7l' and os.release >= '20'
 command:
   camera_quality_test.py -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
 _purpose:

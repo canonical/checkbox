@@ -47,7 +47,7 @@ def capture(device):
             time.sleep(2)
             print("Resolution: {}".format(camera.resolution))
             print("Framerate: {}".format(camera.framerate))
-            file = "picam_{}_{}.jpg".format(mode_no + 1, device)
+            file = "picam_{}_{}.jpg".format(mode_no + 1, device.split("/")[-1])
             camera.capture(os.path.join(path, file))
             print("Image {} captured\n".format(file))
 

@@ -402,7 +402,7 @@ requires:
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
-    set -e    
+    set -e
     checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils default_device_is_real -d audio-source
     alsa_record_playback.sh
@@ -780,7 +780,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
  manifest.has_audio_playback == 'True'
  manifest.has_audio_capture == 'True'
-command: audio_test.py
+command:
   if check_audio_daemon.sh ; then
     set -e
     checkbox-support-pipewire-utils default_device_is_real -d audio-sink

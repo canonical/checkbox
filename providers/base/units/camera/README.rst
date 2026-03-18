@@ -15,7 +15,6 @@ Jobs
 - **camera-quality**: Computes the quality of the image using the brisque score
   It depends on python3-opencv and libsvm3.
 - **camera-quality-rpi**: RPi-specific variant of the BRISQUE image quality check.
-- **roundtrip-qrcode**
 
     **NOTE:**
 

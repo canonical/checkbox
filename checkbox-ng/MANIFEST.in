@@ -6,6 +6,11 @@ global-include COPYING LICENSE
 global-include README*
 global-include Vagrantfile
 
+exclude HACKING.md
+exclude .coveragerc
+exclude mk-venv
+exclude tox.ini
+
 include plainbox/impl/resource_constants.yaml
 include plainbox/impl/providers/categories/README.md
 include plainbox/impl/providers/categories/manage.py
@@ -37,6 +42,7 @@ recursive-include docs *.rst *.py *.html *.conf
 recursive-include plainbox/test-data *.json *.html *.tar.xz
 recursive-exclude debian *
 recursive-exclude build *
+recursive-exclude contrib *
 
 include checkbox_ng/support/parsers/cputable
 recursive-include checkbox_ng/support/parsers/tests/cpuinfo_data *.txt

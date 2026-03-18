@@ -1,4 +1,4 @@
-unit: setup job
+unit: job
 plugin: shell
 id: setup/install_opencl_cts
 category_id: com.canonical.plainbox::graphics
@@ -14,7 +14,8 @@ command:
  fi
 estimated_duration: 1m
 
-plugin: resource
+unit: job
+plugin: shell
 id: graphics/cl_gpu_avail
 category_id: com.canonical.plainbox::graphics
 user: root
@@ -37,7 +38,6 @@ command:
 id: graphics/cl_basic
 depends:
   graphics/cl_gpu_avail
-setup_include:
   setup/install_opencl_cts
 category_id: com.canonical.plainbox::graphics
 flags: simple

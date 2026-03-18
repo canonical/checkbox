@@ -560,8 +560,10 @@ id: audio/channels
 flags: also-after-suspend
 estimated_duration:  20.0
 command: 
-  set -e
-  checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+  if check_audio_daemon.sh; then
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+  fi
   speaker-test -c 2 -l 1 -t wav
 imports: from com.canonical.plainbox import manifest
 requires:

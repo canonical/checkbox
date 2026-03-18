@@ -41,12 +41,15 @@ test_res = [
 def capture(device):
     path = os.path.expandvars("$PLAINBOX_SESSION_SHARE")
     print("Images will be written to:\n{}\n".format(path), flush=True)
+
     for mode_no, (res, fr) in enumerate(test_res):
         with picamera.PiCamera(resolution=res, framerate=fr) as camera:
             print("Camera initialised, wait to settle...", flush=True)
             time.sleep(2)
+
             print("Resolution: {}".format(camera.resolution))
             print("Framerate: {}".format(camera.framerate))
+
             file = "picam_{}_{}.jpg".format(mode_no + 1, device.split("/")[-1])
             camera.capture(os.path.join(path, file))
             print("Image {} captured\n".format(file))
@@ -56,6 +59,7 @@ def main():
     parser = argparse.ArgumentParser(description="PiCamera Tests")
     parser.add_argument("--device", default="/dev/vchiq", type=str)
     args = parser.parse_args()
+
     print("Resolutions test on device: {}".format(args.device), flush=True)
     return capture(args.device)
 

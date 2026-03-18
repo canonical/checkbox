@@ -4,6 +4,7 @@ global-include LICENSE*
 global-include CHANGELOG*
 recursive-include checkbox_support/vendor/brisque/models *.txt *.pickle
 recursive-include checkbox_support/snap_utils/tests/asserts_data *.txt
+recursive-include checkbox_support/scripts/tests/test_data *.txt
 recursive-exclude debian *
 exclude .coveragerc
 exclude tox.ini

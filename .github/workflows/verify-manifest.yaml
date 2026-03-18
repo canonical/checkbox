@@ -1,0 +1,81 @@
+name: Verify MANIFEST.in is up to date
+permissions:
+  contents: read
+on:
+  push:
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - .github/workflows/verify-manifest.yaml
+  pull_request:
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - .github/workflows/verify-manifest.yaml
+  workflow_dispatch:
+
+jobs:
+  get_path_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      path: ${{ steps.paths.outputs.paths }}
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Fetch all modified paths
+        id: paths
+        run: |
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [ "$CURRENT_BRANCH" == "main" ]; then
+            echo "Workflow triggered on main, diffing with HEAD~1"
+            DIFF=$(git diff --name-only HEAD~1)
+          else
+            echo "Workflow triggered on a branch, diffing with origin/main"
+            DIFF=$(git diff --name-only origin/main)
+          fi
+          # Checks if a specific path has changed
+          changed(){ echo "$DIFF" | grep -o $1; }
+          if changed ".github/workflows/verify-manifest.yaml"; then
+            # when changing the workflow, re-test all tox to check they still work
+            echo "The workflow has been changed, all tox will be retriggered"
+            changed(){ true; }
+          fi;
+
+          echo -n "paths=[" >> to_output
+          for path in \
+              checkbox-ng \
+              checkbox-support; do
+            if changed $path; then
+              echo -n "\"$path\"," >> to_output
+            fi;
+          done
+          sed -i '$ s/.$//' to_output
+          echo -n "]" >> to_output
+
+          cat to_output >> $GITHUB_STEP_SUMMARY
+          cat to_output >> $GITHUB_OUTPUT
+
+  check_manifest_path:
+    needs: get_path_matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        path: ${{ fromJson(needs.get_path_matrix.outputs.path) }}
+    name: Verify MANIFEST.in for ${{ matrix.path }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }}
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq check-manifest
+      - name: Run check-manifest
+        run: check-manifest

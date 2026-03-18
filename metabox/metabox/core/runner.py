@@ -37,11 +37,6 @@ class Runner:
 
     def __init__(self, args):
         self.args = args
-        # logging
-        logger.remove()
-        logger.add(sys.stdout, format=self._formatter, level=args.log_level)
-        logger.level("TRACE", color="<w><dim>")
-        logger.level("DEBUG", color="<w><dim>")
         # session config
         if not args.config.exists():
             raise SystemExit("Config file not found!")
@@ -58,18 +53,9 @@ class Runner:
         self.exclude_tags = set(self.args.exclude_tags or [])
         self.hold_on_fail = self.args.hold_on_fail
         self.debug_machine_setup = self.args.debug_machine_setup
-        self.dispose = not self.args.do_not_dispose
-        self.use_existing = self.args.use_existing
+        self.dispose = self.args.dispose
+        self.reprovision_existing = not self.args.dont_reprovision_existing
         aggregator.load_all()
-
-    def _formatter(self, record):
-        if record["level"].no < 10:
-            return "<level>{message}</level>\n"
-        else:
-            return (
-                "{time:HH:mm:ss} | <level>{level: <8}</level> "
-                "<level>{message}</level>\n"
-            )
 
     def _gather_all_machine_spec(self):
         for v in self.scn_variants:
@@ -226,7 +212,7 @@ class Runner:
             self.combo,
             self.debug_machine_setup,
             self.dispose,
-            use_existing=self.use_existing,
+            reprovision_existing=self.reprovision_existing,
         )
         self.machine_provider.setup()
 

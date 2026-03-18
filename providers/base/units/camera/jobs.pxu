@@ -239,7 +239,7 @@ plugin: shell
 category_id: com.canonical.plainbox::camera
 id: camera/camera-quality-rpi_{name}
 template-id: camera/camera-quality-rpi_name
-_summary: Webcam BRISQUE score for rpi devices on {product_slug} 
+_summary: Webcam BRISQUE score for rpi devices on {name}
 estimated_duration: 20s
 depends: camera/detect-rpi
 after: camera/multiple-resolution-images-rpi_{name}

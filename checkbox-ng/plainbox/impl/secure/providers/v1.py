@@ -90,6 +90,7 @@ class ProviderContentPlugIn(PlugIn):
         The list of loaded units
     """
 
+    # fmt: off
     def __init__(
         self,
         filename,
@@ -100,8 +101,11 @@ class ProviderContentPlugIn(PlugIn):
         validate=False,
         validation_kwargs=None,
         check=True,
-        context=None,
+        context=None
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         start_time = now()
         try:
             # Inspect the file
@@ -897,6 +901,7 @@ class Provider1(IProvider1):
     number of fields involved in basic initialization.
     """
 
+    # fmt: off
     def __init__(
         self,
         name,
@@ -916,8 +921,11 @@ class Provider1(IProvider1):
         validation_kwargs=None,
         check=True,
         context=None,
-        sideloaded=False,
+        sideloaded=False
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -1021,6 +1029,7 @@ class Provider1(IProvider1):
         if self._gettext_domain and self._locale_dir:
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
+    # fmt: off
     @classmethod
     def from_definition(
         cls,
@@ -1031,8 +1040,11 @@ class Provider1(IProvider1):
         validation_kwargs=None,
         check=True,
         context=None,
-        sideloaded=False,
+        sideloaded=False
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize a provider from Provider1Definition object
 
@@ -1967,6 +1979,7 @@ class Provider1PlugIn(PlugIn):
     files
     """
 
+    # fmt: off
     def __init__(
         self,
         filename,
@@ -1976,8 +1989,11 @@ class Provider1PlugIn(PlugIn):
         validate=None,
         validation_kwargs=None,
         check=None,
-        context=None,
+        context=None
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize the plug-in with the specified name and external object
         """

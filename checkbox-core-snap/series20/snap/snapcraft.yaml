@@ -361,6 +361,7 @@ parts:
       - libcap2-bin
       - libfdt1
       - libglu1-mesa
+      - libsvm3
       - lsb-release
       - lshw
       - mesa-utils
@@ -378,9 +379,9 @@ parts:
       - python3-evdev
       - python3-gi
       - python3-natsort
+      - python3-opencv
       - python3-pil
       - python3-psutil
-      - python3-pyqrcode
       - python3-serial
       - python3-yaml
       - python3-pyscard

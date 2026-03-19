@@ -592,7 +592,8 @@ class IncludeStmt(Node):
         # a map include : {override field : override value}
         if isinstance(include, str):
             return IncludeStmt(lineno, 0, Re.parse(include), [])
-        assert len(include) == 1, "Include is a non-single value map"
+        if len(include) != 1:
+            raise ValueError("Include is a non-single value map, got: {}".format(include))
         key, overrides = next(iter(include.items()))
         overrides = [
             OverrideExpression(

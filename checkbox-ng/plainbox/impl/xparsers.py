@@ -593,7 +593,9 @@ class IncludeStmt(Node):
         if isinstance(include, str):
             return IncludeStmt(lineno, 0, Re.parse(include), [])
         if len(include) != 1:
-            raise ValueError("Include is a non-single value map, got: {}".format(include))
+            raise ValueError(
+                "Include is a non-single value map, got: {}".format(include)
+            )
         key, overrides = next(iter(include.items()))
         overrides = [
             OverrideExpression(

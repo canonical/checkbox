@@ -721,6 +721,39 @@ class YAMLUnitPlugInTests(TestCase):
                 "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider
             )
 
+    def test_unknown_unit_raises(self):
+        with self.assertRaises(PlugInError) as boom:
+            YAMLUnitPlugIn(
+                "/path/to/jobs.txt",
+                "unit: _unknown_unit_for_sure",
+                self.LOAD_TIME,
+                self.provider,
+            )
+        self.assertIn("Unknown unit type", str(boom.exception))
+
+    def test_problem_unit_raises(self):
+        with self.assertRaises(PlugInError) as boom:
+            YAMLUnitPlugIn(
+                "/path/to/jobs.txt",
+                dedent("""
+                flags: simple
+                """),
+                self.LOAD_TIME,
+                self.provider,
+            )
+        self.assertIn("Problem in unit definition", str(boom.exception))
+
+    def test_problem_unit_dont_check(self):
+        YAMLUnitPlugIn(
+            "/path/to/jobs.txt",
+            dedent("""
+                flags: simple
+                """),
+            self.LOAD_TIME,
+            self.provider,
+            check=False,
+        )
+
 
 class Provider1Tests(TestCase):
 

@@ -681,7 +681,7 @@ class Unit(metaclass=UnitType):
     def from_yaml_unit_data(cls, unit_data, provider=None, origin=None):
         return cls(
             unit_data,
-            origin,
+            origin=origin,
             provider=provider,
         )
 

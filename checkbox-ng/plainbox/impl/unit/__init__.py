@@ -26,9 +26,8 @@ import string
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
 
 from jinja2 import Environment, meta
-import jinja2
 
-__all__ = ["get_accessed_parameters", "all_unit"]
+__all__ = ["get_accessed_parameters", "get_array_field_qualify", "all_units"]
 
 
 def get_accessed_parameters(value, template_engine="default") -> frozenset:
@@ -75,8 +74,9 @@ def get_array_field_qualify(field, field_name, qualifier, logger):
     """
     Compute and return a set of qualified ids from a variadic field.
 
-    This implicitly parses the field if it is text (legacy pxu field or
-    template) and then qualifies all the ids with the given qualifier
+    This implicitly parses the field if necessary (legacy pxu field or
+    template) and then qualifies all the ids with the given qualifier. This
+    is used to qualify (i.e. add namespace) to *include fields.
     """
 
     from plainbox.impl.xparsers import Visitor, WordList, Text, Error
@@ -87,6 +87,7 @@ def get_array_field_qualify(field, field_name, qualifier, logger):
     to_ret = field
 
     if isinstance(field, str):
+        # LEGACY: pxu compatibility, all the fields here are now lists
         to_ret = []
 
         class V(Visitor):

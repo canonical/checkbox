@@ -14,7 +14,9 @@ Jobs
 - **multiple-resolution-images-rpi**
 - **camera-quality**: Computes the quality of the image using the brisque score
   It depends on python3-opencv and libsvm3.
-- **camera-quality-rpi**: RPi-specific variant of the BRISQUE image quality check.
+- **camera-quality-rpi**: RPi-specific variant of the BRISQUE image quality 
+  check. The algorithm is the same as the one, but the raspberry pi can't
+  use opencv to grab the image, so we pass the image as an argument.
 
     **NOTE:**
 

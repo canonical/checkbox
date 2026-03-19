@@ -1,7 +1,7 @@
 Camera unit
 =======================
 
-Unit is responsible for camera control and image processing tests.
+Unit is responsible for camera control and image-processing tests.
 
 Jobs
 ####
@@ -12,11 +12,11 @@ Jobs
 - **led**
 - **still**
 - **multiple-resolution-images-rpi**
-- **camera-quality**: Computes the quality of the image using the brisque score
+- **camera-quality**: Computes the quality of the image using the BRISQUE score
   It depends on python3-opencv and libsvm3.
-- **camera-quality-rpi**: RPi-specific variant of the BRISQUE image quality 
-  check. The algorithm is the same as the one, but the raspberry pi can't
-  use opencv to grab the image, so we pass the image as an argument.
+- **camera-quality-rpi**: RPi-specific variant of the BRISQUE image-quality 
+  check. The algorithm is the same as as in `camera-quality`, but the Raspberry 
+  Pi can't use OpenCV to grab the image, so we pass it as an argument.
 
     **NOTE:**
 

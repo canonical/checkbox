@@ -40,6 +40,7 @@ from plainbox.impl.secure.providers.v1 import (
     Provider1PlugIn,
     ProviderContentLoader,
     RFC822UnitPlugIn,
+    YAMLUnitPlugIn,
     VersionValidator,
     get_secure_custom_frontend_PROVIDERPATH_list,
 )
@@ -567,7 +568,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.base_dir, None)
 
 
-class UnitPlugInTests(TestCase):
+class RFC822UnitPlugInTests(TestCase):
     """
     Tests for UnitPlugIn
     """
@@ -584,7 +585,7 @@ class UnitPlugInTests(TestCase):
         self.provider.namespace = "com.canonical.plainbox"
         self.plugin = RFC822UnitPlugIn(
             "/path/to/jobs.txt",
-            ("id: test/job\n" "plugin: shell\n" "command: true\n"),
+            "id: test/job\nplugin: shell\ncommand: true\n",
             self.LOAD_TIME,
             self.provider,
         )
@@ -645,6 +646,80 @@ class UnitPlugInTests(TestCase):
                 "Unexpected non-empty line: 'broken' (line 1)"
             ),
         )
+
+
+class YAMLUnitPlugInTests(TestCase):
+    """
+    Tests for UnitPlugIn
+    """
+
+    LOAD_TIME = 42
+
+    def setUp(self):
+        self.provider = Mock(name="provider", spec=Provider1)
+        self.provider.classify.return_value = (
+            Mock("role"),
+            Mock("base"),
+            Mock("plugin_cls"),
+        )
+        self.provider.namespace = "com.canonical.plainbox"
+        self.plugin = YAMLUnitPlugIn(
+            "/path/to/jobs.txt",
+            "id: test/job\nplugin: shell\ncommand: 'true'\n",
+            self.LOAD_TIME,
+            self.provider,
+        )
+
+    def test_plugin_name(self):
+        """
+        verify that the UnitPlugIn.plugin_name property returns
+        pathname of the job definition file
+        """
+        self.assertEqual(self.plugin.plugin_name, "/path/to/jobs.txt")
+
+    def test_plugin_object(self):
+        """
+        verify that the UnitPlugIn.plugin_object property returns a
+        list of JobDefintion instances
+        """
+        self.assertEqual(len(self.plugin.plugin_object), 2)
+        self.assertIsInstance(self.plugin.plugin_object[0], JobDefinition)
+        self.assertIsInstance(self.plugin.plugin_object[1], FileUnit)
+
+    def test_plugin_load_time(self):
+        self.assertEqual(self.plugin.plugin_load_time, self.LOAD_TIME)
+
+    def test_job_data(self):
+        """
+        verify the contents of the loaded JobDefinition object
+        """
+        job = self.plugin.plugin_object[0]
+        self.assertEqual(job.partial_id, "test/job")
+        self.assertEqual(job.id, "com.canonical.plainbox::test/job")
+        self.assertEqual(job.plugin, "shell")
+        self.assertEqual(job.command, "true")
+        # Metadata of yaml units doesn't contain anything but the filename
+        self.assertEqual(
+            job.origin, Origin(FileTextSource("/path/to/jobs.txt"), 1, 3)
+        )
+
+    def test_job_provider(self):
+        """
+        verify the loaded job got the provider from the plugin
+        """
+        job = self.plugin.plugin_object[0]
+        self.assertIs(job.provider, self.provider)
+
+    def test_init_failing(self):
+        """
+        verify how UnitPlugIn() initializer works if something is
+        wrong
+        """
+        # The pattern is purposefully invalid
+        with self.assertRaises(PlugInError) as boom:
+            YAMLUnitPlugIn(
+                "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider
+            )
 
 
 class Provider1Tests(TestCase):

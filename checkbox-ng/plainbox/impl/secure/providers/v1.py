@@ -100,7 +100,7 @@ class ProviderContentPlugIn(PlugIn):
         validate=False,
         validation_kwargs=None,
         check=True,
-        context=None
+        context=None,
     ):
         start_time = now()
         try:
@@ -302,6 +302,18 @@ class YAMLUnitPlugIn(ProviderContentPlugIn):
     list of :class:`plainbox.impl.unit.Unit` instances from a yaml file.
     """
 
+    def _load_units(self, text):
+        loader = yaml.Loader(text)
+        try:
+            while loader.check_node():
+                node = loader.get_node()
+                start = node.start_mark
+                end = node.end_mark
+                value = loader.construct_document(node)
+                yield (value, start.line, end.line)
+        finally:
+            loader.dispose()
+
     def inspect(
         self,
         filename: str,
@@ -338,8 +350,9 @@ class YAMLUnitPlugIn(ProviderContentPlugIn):
             If checking, use this validation context.
         """
         logger.debug(_("Loading units from %r..."), filename)
+
         try:
-            units_data = yaml.load_all(str(text), Loader=Loader)
+            units_data = self._load_units(str(text))
         except yaml.YAMLError as exc:
             raise PlugInError(
                 _("Cannot load job definitions from {!r}: {}").format(
@@ -347,7 +360,7 @@ class YAMLUnitPlugIn(ProviderContentPlugIn):
                 )
             )
         unit_list = []
-        for unit_data in units_data:
+        for unit_data, start_line, end_line in units_data:
             unit_name = unit_data.get("unit", "job")
             try:
                 unit_cls = self._get_unit_cls(unit_name)
@@ -356,7 +369,18 @@ class YAMLUnitPlugIn(ProviderContentPlugIn):
                     _("Unknown unit type: {!r}").format(unit_name)
                 )
             try:
-                unit = unit_cls.from_yaml_unit_data(unit_data, provider)
+                unit = unit_cls.from_yaml_unit_data(
+                    unit_data,
+                    provider=provider,
+                    origin=Origin(
+                        # Origin is ""human readable"" and uses n+1 for lines
+                        #        end line is already the first line that is not
+                        #        us, so no need to +1
+                        FileTextSource(filename),
+                        start_line + 1,
+                        end_line,
+                    ),
+                )
             except ValueError as exc:
                 raise PlugInError(
                     _("Cannot define unit from record {!r}: {}").format(
@@ -892,7 +916,7 @@ class Provider1(IProvider1):
         validation_kwargs=None,
         check=True,
         context=None,
-        sideloaded=False
+        sideloaded=False,
     ):
         """
         Initialize a provider with a set of meta-data and directories.
@@ -1007,7 +1031,7 @@ class Provider1(IProvider1):
         validation_kwargs=None,
         check=True,
         context=None,
-        sideloaded=False
+        sideloaded=False,
     ):
         """
         Initialize a provider from Provider1Definition object
@@ -1952,7 +1976,7 @@ class Provider1PlugIn(PlugIn):
         validate=None,
         validation_kwargs=None,
         check=None,
-        context=None
+        context=None,
     ):
         """
         Initialize the plug-in with the specified name and external object

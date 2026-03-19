@@ -207,7 +207,6 @@ parts:
       - python3-evdev
       - python3-gi
       - python3-natsort
-      - python3-requests-unixsocket
       - python3-serial
       - python3-setuptools
       - python3-yaml
@@ -260,6 +259,7 @@ parts:
       - python3-jinja2
       - python3-packaging
       - python3-requests-oauthlib
+      - python3-requests-unixsocket
       - python3-urwid
       - python3-xlsxwriter
       - python3-setuptools

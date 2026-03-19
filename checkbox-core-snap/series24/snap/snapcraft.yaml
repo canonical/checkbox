@@ -244,7 +244,6 @@ parts:
       - python3-jinja2
       - python3-packaging
       - python3-pyparsing
-      - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter
       # added to stage python:
@@ -260,6 +259,8 @@ parts:
       - python3.12-minimal
       - python3-yaml
     python-packages:
+      - requests-oauthlib
+      - requests-unixsocket
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
     after: [checkbox-support]

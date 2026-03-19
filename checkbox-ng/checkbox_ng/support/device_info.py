@@ -8,6 +8,7 @@ from checkbox_ng.support.release_info import get_release_info
 from checkbox_ng.support.parsers.meminfo import MeminfoParser
 from checkbox_ng.support.parsers.udevadm import parse_udevadm_output
 from checkbox_ng.support.parsers import _json_fallback
+from checkbox_ng.support.snap_utils.snapd import Snapd
 
 """
 Device Information Collector
@@ -45,6 +46,10 @@ def get_meminfo():
     return MeminfoParser().run()
 
 
+def get_snap_packages():
+    return Snapd().list()
+
+
 def get_uname():
     return {
         "system": platform.system(),
@@ -75,6 +80,9 @@ def parse_args(argv=None):
         help="Return information about the Linux distribution being used",
     )
     subparsers.add_parser("memory", help="Return memory information")
+    subparsers.add_parser(
+        "snaps", help="Return information about installed Snaps"
+    )
     subparsers.add_parser("uname", help="Return uname information")
     return parser.parse_args(argv)
 
@@ -87,6 +95,7 @@ def main(argv=None):
         "devices": get_devices,
         "debian_packages": get_debian_packages,
         "memory": get_meminfo,
+        "snaps": get_snap_packages,
         "uname": get_uname,
     }
 

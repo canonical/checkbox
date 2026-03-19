@@ -10,10 +10,10 @@ import sys
 from textwrap import dedent
 from unittest.mock import call, mock_open, patch
 
-from checkbox_support.snap_utils.config import get_configuration_set
-from checkbox_support.snap_utils.config import get_snapctl_config
-from checkbox_support.snap_utils.config import refresh_configuration
-from checkbox_support.snap_utils.config import write_checkbox_conf
+from checkbox_ng.support.snap_utils.config import get_configuration_set
+from checkbox_ng.support.snap_utils.config import get_snapctl_config
+from checkbox_ng.support.snap_utils.config import refresh_configuration
+from checkbox_ng.support.snap_utils.config import write_checkbox_conf
 
 
 class TestSnapctlConfig(unittest.TestCase):
@@ -111,8 +111,8 @@ class ConfigIntegrationTests(unittest.TestCase):
         expect checkbox.conf to be written
     """
 
-    @patch("checkbox_support.snap_utils.config.get_configuration_set")
-    @patch("checkbox_support.snap_utils.config.write_checkbox_conf")
+    @patch("checkbox_ng.support.snap_utils.config.get_configuration_set")
+    @patch("checkbox_ng.support.snap_utils.config.write_checkbox_conf")
     @patch("subprocess.run")
     def test_empty_on_missing(self, mock_run, mock_write, mock_conf_set):
         """nothing in config_vars,
@@ -127,7 +127,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         self.assertFalse(mock_run.called)
 
     @patch.dict("os.environ", {"SNAP_DATA": "SNAP_DATA_VALUE"})
-    @patch("checkbox_support.snap_utils.config.get_configuration_set")
+    @patch("checkbox_ng.support.snap_utils.config.get_configuration_set")
     @patch("subprocess.check_output")
     @patch("subprocess.run")
     def test_one_value(self, mock_run, mock_subproc, mock_conf_set):
@@ -158,7 +158,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         mock_run.assert_called_once_with(["snapctl", "set", "conf.foo=bar"])
 
     @patch.dict("os.environ", {"SNAP_DATA": "SNAP_DATA_VALUE"})
-    @patch("checkbox_support.snap_utils.config.get_configuration_set")
+    @patch("checkbox_ng.support.snap_utils.config.get_configuration_set")
     @patch("subprocess.check_output")
     @patch("subprocess.run")
     def test_one_value_overriden_by_config(
@@ -193,7 +193,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         mock_run.assert_called_once_with(["snapctl", "set", "conf.foo=bar"])
 
     @patch.dict("os.environ", {"SNAP_DATA": "SNAP_DATA_VALUE"})
-    @patch("checkbox_support.snap_utils.config.get_configuration_set")
+    @patch("checkbox_ng.support.snap_utils.config.get_configuration_set")
     @patch("subprocess.check_output")
     @patch("subprocess.run")
     def test_one_new_one_existing(self, mock_run, mock_subproc, mock_conf_set):

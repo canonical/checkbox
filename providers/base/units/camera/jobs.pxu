@@ -205,6 +205,7 @@ depends: camera/detect-rpi
 requires: 
  cpuinfo.platform == 'armv7l'
  os.release >= '18'
+ environment.SNAP != ""
 command:
   camera_test_rpi.py --device /dev/{name}
 _purpose:
@@ -223,7 +224,9 @@ template-id: camera/multiple-resolution-images-rpi-attachment_name
 _summary: Attach an image from the multiple resolution images test on rpi
 estimated_duration: 1s
 after: camera/multiple-resolution-images-rpi_{name}
-requires: cpuinfo.platform == 'armv7l'
+requires:
+ cpuinfo.platform == 'armv7l'
+ environment.SNAP != ""
 command:
   [ -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg ] &&
   cat "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
@@ -243,7 +246,10 @@ _summary: Webcam BRISQUE score for rpi devices on {name}
 estimated_duration: 20s
 depends: camera/detect-rpi
 after: camera/multiple-resolution-images-rpi_{name}
-requires: cpuinfo.platform == 'armv7l' and os.release >= '20'
+requires: 
+ cpuinfo.platform == 'armv7l'
+ os.release >= '20'
+ environment.SNAP != ""
 command:
   camera_quality_test.py -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
 _purpose:

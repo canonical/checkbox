@@ -21,9 +21,9 @@
             "v4l2_device_name": "RZG2L_CRU (platform:10830000.video)",
             "formats": ["UYVY"],
             "resolutions": [
-                {"width": 1280, "height": 960, "fps": 30},
+                {"width": 1280, "height": 960, "fps": 45},
                 {"width": 1920, "height": 1080, "fps": 30},
-                {"width": 2592, "height": 1944, "fps": 30}
+                {"width": 2592, "height": 1944, "fps": 15}
             ]
         }
     ]

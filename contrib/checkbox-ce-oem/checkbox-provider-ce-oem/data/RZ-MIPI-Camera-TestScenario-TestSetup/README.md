@@ -18,5 +18,6 @@ The OV5645 camera is configured to support the following resolutions/frame rates
 - **Supported resolutions:** 1280x960, 1920x1080, 2592x1944
 
 Please refer to https://renesas-wiki.atlassian.net/wiki/spaces/REN/pages/1016843/Camera for more details.
+Also the data sheet about ov5645 is here: https://www.v-visiontech.com/web/userfiles/download/OV5645_CSP3_DS_1.1_KingHornInternationalLtd..pdf
 
 These tests use the custom tooling paths provided by the `rz-camera-ov5645` snap via environment variables, ensuring compatibility between Checkbox and the underlying RZ platform drivers.

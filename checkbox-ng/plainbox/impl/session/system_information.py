@@ -18,7 +18,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 4
+    COLLECTOR_OUTPUTS_VERSION = 5
 
     def to_json(self) -> str:
         to_dump = {
@@ -389,6 +389,16 @@ class DistributionCollector(Collector):
     def __init__(self):
         super().__init__(
             collection_cmd=["device-info", "distribution"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class BiosCollector(Collector):
+    COLLECTOR_NAME = "bios"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "bios"],
             version_cmd=["echo", "-n", checkbox_version],
         )
 

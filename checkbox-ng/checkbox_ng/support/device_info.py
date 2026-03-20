@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
+import glob
 import json
+import os
 import platform
 import subprocess
 
@@ -29,6 +31,34 @@ def get_devices():
     udevadm_output = subprocess.check_output(cmd, universal_newlines=True)
     devices = parse_udevadm_output(udevadm_output)
     return devices
+
+
+def get_bios_info() -> dict:
+    """
+    Retrieve BIOS information from sysfs.
+
+    Usually, Linux provides the following information in /sys/class/dmi/id/:
+    - bios_date
+    - bios_release
+    - bios_vendor
+    - bios_version
+
+    This function extracts the content from these files and returns a dict,
+    using the filename as a key.
+    """
+    bios_data = {}
+    base_path = "/sys/class/dmi/id/bios_*"
+
+    for filepath in glob.glob(base_path):
+        key = os.path.basename(filepath)
+        try:
+            with open(filepath, "r") as f:
+                bios_data[key] = f.read().strip()
+        except (PermissionError, OSError):
+            # If a specific file is restricted or unreadable, skip it
+            continue
+
+    return bios_data
 
 
 def get_debian_packages():
@@ -79,6 +109,9 @@ def parse_args(argv=None):
         "distribution",
         help="Return information about the Linux distribution being used",
     )
+    subparsers.add_parser(
+        "bios", help="Return BIOS information provided by /sys/class/dmi/id/"
+    )
     subparsers.add_parser("memory", help="Return memory information")
     subparsers.add_parser(
         "snaps", help="Return information about installed Snaps"
@@ -94,6 +127,7 @@ def main(argv=None):
         "kernel_cmdline": get_kernel_cmdline,
         "devices": get_devices,
         "debian_packages": get_debian_packages,
+        "bios": get_bios_info,
         "memory": get_meminfo,
         "snaps": get_snap_packages,
         "uname": get_uname,

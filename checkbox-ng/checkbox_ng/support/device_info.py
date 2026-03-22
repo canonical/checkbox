@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import argparse
-import glob
 import json
-import os
+from pathlib import Path
 import platform
 import subprocess
+import sys
 
 from checkbox_ng.support.release_info import get_release_info
 from checkbox_ng.support.parsers.meminfo import MeminfoParser
@@ -44,20 +44,27 @@ def get_bios_info() -> dict:
     - bios_version
 
     This function extracts the content from these files and returns a dict,
-    using the filename as a key.
+    using the filename as a key, defaulting to `None` if it cannot find data.
     """
-    bios_data = {}
-    base_path = "/sys/class/dmi/id/bios_*"
-
-    for filepath in glob.glob(base_path):
-        key = os.path.basename(filepath)
+    bios_data = {
+        "date": None,
+        "release": None,
+        "vendor": None,
+        "version": None,
+    }
+    bios_root = Path("/sys/class/dmi/id/")
+    bios_data_name = "bios_{}"
+    for key in bios_data:
         try:
-            with open(filepath, "r") as f:
-                bios_data[key] = f.read().strip()
-        except (PermissionError, OSError):
-            # If a specific file is restricted or unreadable, skip it
-            continue
-
+            value = (
+                (bios_root / bios_data_name.format(key)).read_text().strip()
+            )
+            bios_data[key] = value
+        except (PermissionError, FileNotFoundError) as e:
+            print(
+                "Failed to read bios {}. Error: {}".format(key, e),
+                file=sys.stderr,
+            )
     return bios_data
 
 

@@ -30,53 +30,51 @@ class TestDeviceInfoCLI(TestCase):
         self.assertEqual(pkg[0]["version"], "23.01+dfsg-11")
         self.assertEqual(pkg[0]["architecture"], "amd64")
 
-    @patch("glob.glob")
-    def test_get_bios_info_success(self, mock_glob):
+    def test_get_bios_info_success(self):
         """Test successful retrieval of multiple BIOS files."""
-        # Setup mocks
-        mock_glob.return_items = [
-            "/sys/class/dmi/id/bios_vendor",
-            "/sys/class/dmi/id/bios_version",
+
+        file_contents = [
+            "2026/03/20",
+            "v1.0",
+            "Dell Inc.",
+            "1.5.0",
         ]
-        mock_glob.return_value = mock_glob.return_items
 
-        # Use a mapping for mock_open to return different data for different files
-        file_contents = {
-            "/sys/class/dmi/id/bios_vendor": "Dell Inc.",
-            "/sys/class/dmi/id/bios_version": "1.5.0",
-        }
-
-        def side_effect_open(filename, mode):
-            content = file_contents.get(filename, "")
-            return mock_open(read_data=content).return_value
-
-        with patch("builtins.open", side_effect=side_effect_open):
+        with patch(
+            "checkbox_ng.support.device_info.Path.read_text",
+            side_effect=file_contents,
+        ):
             result = device_info.get_bios_info()
 
-            self.assertEqual(result["bios_vendor"], "Dell Inc.")
-            self.assertEqual(result["bios_version"], "1.5.0")
-            self.assertEqual(len(result), 2)
+            self.assertEqual(result["vendor"], "Dell Inc.")
+            self.assertEqual(result["version"], "1.5.0")
+            self.assertEqual(len(result), 4)
 
-    @patch("glob.glob")
-    def test_get_bios_info_empty(self, mock_glob):
+    def test_get_bios_info_empty(self):
         """Test behavior when no bios_* files are found."""
-        mock_glob.return_value = []
-
-        result = device_info.get_bios_info()
-
-        self.assertEqual(result, {})
-
-    @patch("glob.glob")
-    @patch("os.path.basename")
-    def test_get_bios_info_permission_denied(self, mock_basename, mock_glob):
-        """Test behavior when a file exists but cannot be read."""
-        mock_glob.return_value = ["/sys/class/dmi/id/bios_version"]
-        mock_basename.return_value = "bios_version"
-
-        # Force a PermissionError when trying to open the file
-        with patch("builtins.open", side_effect=PermissionError):
+        with patch(
+            "checkbox_ng.support.device_info.Path.read_text",
+            side_effect=FileNotFoundError,
+        ):
             result = device_info.get_bios_info()
-            self.assertEqual(result, {})
+
+        self.assertEqual(
+            result,
+            {"date": None, "release": None, "vendor": None, "version": None},
+        )
+
+    def test_get_bios_info_permission_denied(self):
+        """Test behavior when a file exists but cannot be read."""
+        with patch(
+            "checkbox_ng.support.device_info.Path.read_text",
+            side_effect=PermissionError,
+        ):
+            result = device_info.get_bios_info()
+
+        self.assertEqual(
+            result,
+            {"date": None, "release": None, "vendor": None, "version": None},
+        )
 
     @patch("checkbox_ng.support.device_info.get_debian_packages")
     @patch("checkbox_ng.support.device_info.get_devices")
@@ -84,10 +82,12 @@ class TestDeviceInfoCLI(TestCase):
     @patch("checkbox_ng.support.device_info.get_meminfo")
     @patch("checkbox_ng.support.device_info.get_snap_packages")
     @patch("checkbox_ng.support.device_info.get_uname")
+    @patch("checkbox_ng.support.device_info.get_bios_info")
     @patch("checkbox_ng.support.device_info.get_kernel_cmdline")
     def test_kernel_cmdline_subcommand_uses_only_kernel_getter(
         self,
         mock_kernel_cmdline,
+        mock_bios_info,
         mock_uname,
         mock_snap_packages,
         mock_meminfo,
@@ -105,6 +105,7 @@ class TestDeviceInfoCLI(TestCase):
         )
         mock_kernel_cmdline.assert_called_once_with()
         mock_uname.assert_not_called()
+        mock_bios_info.assert_not_called()
         mock_meminfo.assert_not_called()
         mock_release_info.assert_not_called()
         mock_devices.assert_not_called()

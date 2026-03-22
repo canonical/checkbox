@@ -54,7 +54,7 @@ def get_bios_info() -> dict:
     }
     bios_root = Path("/sys/class/dmi/id/")
     bios_data_name = "bios_{}"
-    for key in bios_data:
+    for key in sorted(bios_data.keys()):
         try:
             value = (
                 (bios_root / bios_data_name.format(key)).read_text().strip()

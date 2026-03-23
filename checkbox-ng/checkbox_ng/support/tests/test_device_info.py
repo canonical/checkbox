@@ -30,16 +30,64 @@ class TestDeviceInfoCLI(TestCase):
         self.assertEqual(pkg[0]["version"], "23.01+dfsg-11")
         self.assertEqual(pkg[0]["architecture"], "amd64")
 
+    def test_get_bios_info_success(self):
+        """Test successful retrieval of multiple BIOS files."""
+
+        file_contents = [
+            "2026/03/20",
+            "v1.0",
+            "Dell Inc.",
+            "1.5.0",
+        ]
+
+        with patch(
+            "checkbox_ng.support.device_info.Path.read_text",
+            side_effect=file_contents,
+        ):
+            result = device_info.get_bios_info()
+
+            self.assertEqual(result["vendor"], "Dell Inc.")
+            self.assertEqual(result["version"], "1.5.0")
+            self.assertEqual(len(result), 4)
+
+    def test_get_bios_info_empty(self):
+        """Test behavior when no bios_* files are found."""
+        with patch(
+            "checkbox_ng.support.device_info.Path.read_text",
+            side_effect=FileNotFoundError,
+        ):
+            result = device_info.get_bios_info()
+
+        self.assertEqual(
+            result,
+            {"date": None, "release": None, "vendor": None, "version": None},
+        )
+
+    def test_get_bios_info_permission_denied(self):
+        """Test behavior when a file exists but cannot be read."""
+        with patch(
+            "checkbox_ng.support.device_info.Path.read_text",
+            side_effect=PermissionError,
+        ):
+            result = device_info.get_bios_info()
+
+        self.assertEqual(
+            result,
+            {"date": None, "release": None, "vendor": None, "version": None},
+        )
+
     @patch("checkbox_ng.support.device_info.get_debian_packages")
     @patch("checkbox_ng.support.device_info.get_devices")
     @patch("checkbox_ng.support.device_info.get_release_info")
     @patch("checkbox_ng.support.device_info.get_meminfo")
     @patch("checkbox_ng.support.device_info.get_snap_packages")
     @patch("checkbox_ng.support.device_info.get_uname")
+    @patch("checkbox_ng.support.device_info.get_bios_info")
     @patch("checkbox_ng.support.device_info.get_kernel_cmdline")
     def test_kernel_cmdline_subcommand_uses_only_kernel_getter(
         self,
         mock_kernel_cmdline,
+        mock_bios_info,
         mock_uname,
         mock_snap_packages,
         mock_meminfo,
@@ -57,6 +105,7 @@ class TestDeviceInfoCLI(TestCase):
         )
         mock_kernel_cmdline.assert_called_once_with()
         mock_uname.assert_not_called()
+        mock_bios_info.assert_not_called()
         mock_meminfo.assert_not_called()
         mock_release_info.assert_not_called()
         mock_devices.assert_not_called()

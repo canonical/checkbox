@@ -60,6 +60,7 @@ class IQNValidatorTests(TestCase):
 
     def test_yearless_namespace_work(self):
         name = "com.canonical:certification"
+        self.assertEqual(self.validator(self.variable, name), None)
 
     def test_must_match_whole_string(self):
         name = "com.canonical:certification-resources-server BOGUS"

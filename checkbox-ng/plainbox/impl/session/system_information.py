@@ -2,8 +2,10 @@
 
 import abc
 import json
+
 from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 
+from plainbox.impl import low_memory_device
 from plainbox import vendor
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from checkbox_ng import __version__ as checkbox_version
@@ -296,6 +298,11 @@ class JournalctlCollector(Collector):
         return list(map(json.loads, collector_output.splitlines()))
 
     def __init__(self):
+        to_collect = 80_000  # limit the lines to 80k, ~80Mb of memory
+        if low_memory_device():
+            # when memory is low, we can't afford to load all that json into
+            # memory, try to collect a few logs either way
+            to_collect = 8_000
         super().__init__(
             collection_cmd=[
                 "journalctl",
@@ -304,7 +311,7 @@ class JournalctlCollector(Collector):
                 "--since",
                 "-3 days",
                 "-n",
-                "80000",  # limit the lines to 80k, ~80Mb of memory
+                str(to_collect),
             ],
             version_cmd=["journalctl", "--version"],
         )

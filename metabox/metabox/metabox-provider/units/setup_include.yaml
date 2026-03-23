@@ -17,7 +17,7 @@ command: |
 id: verify_simple_guards
 flags:
   - simple
-name: Verify that the simple guards were created
+summary: Verify that the simple guards were created
 command: |
   if ! test -f $PLAINBOX_SESSION_SHARE/setup_include_guard; then
     echo "setup_guard didn't run"

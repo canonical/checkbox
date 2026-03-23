@@ -44,7 +44,6 @@ summary: Verify job result status when requirements are not met.
 ---
 plugin: manual
 id: smoke/manual
-description: ''
 purpose: This test checks that the manual plugin works fine
 steps: |
   1. Add a comment

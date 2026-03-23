@@ -38,7 +38,7 @@ include:
 unit: test plan
 id: pass-only-rerun
 name: Pass only on rerun
-summary: Test that passes only at the secont try
+description: Test that passes only at the secont try
 include:
   - pass-rerun
   - basic-shell-failing

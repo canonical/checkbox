@@ -204,7 +204,7 @@ command: 'true'
 id: ordering_groups
 name: ordering_groups
 unit: test plan
-summary: Group order test
+description: Group order test
 include:
   - groups_1_C
   - groups_1_g2
@@ -243,7 +243,7 @@ command: 'true'
 id: ordering_groups_cycle
 name: ordering_groups_cycle
 unit: test plan
-summary: Group cycle test
+description: Group cycle test
 include:
   - groups_2_A1
   - groups_2_A2
@@ -311,7 +311,7 @@ command: 'True'
 id: ordering_groups_template
 name: ordering_groups_template
 unit: test plan
-summary: Templated group order test
+description: Templated group order test
 include:
   - teardown_order_id
   - test_feature_order_B.*

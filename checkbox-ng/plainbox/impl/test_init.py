@@ -23,11 +23,11 @@ plainbox.impl.test_init
 Test definitions for plainbox.impl module
 """
 
-from unittest import TestCase
 import warnings
+from unittest import TestCase
+from unittest.mock import patch
 
-from plainbox.impl import _get_doc_margin
-from plainbox.impl import deprecated
+from plainbox.impl import _get_doc_margin, deprecated, low_memory_device
 
 
 class MiscTests(TestCase):
@@ -113,3 +113,16 @@ class DeprecatedDecoratorTests(TestCase):
             str(boom.exception),
             "@deprecated() must be called with a parameter",
         )
+
+
+class LowMemoryDeviceTests(TestCase):
+
+    @patch("os.sysconf")
+    def test_not_lowmem(self, sysconf_mock):
+        sysconf_mock.side_effect = [4096, 7627054]
+        self.assertFalse(low_memory_device())
+
+    @patch("os.sysconf")
+    def test_lowmem(self, sysconf_mock):
+        sysconf_mock.side_effect = [4096, 4]
+        self.assertTrue(low_memory_device())

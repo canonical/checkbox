@@ -5,6 +5,7 @@ from pathlib import Path
 
 from unittest.mock import patch, mock_open, call
 
+import remoteproc_sysfs_handler
 import rpmsg_tests
 
 tmpdir = TemporaryDirectory()
@@ -12,7 +13,7 @@ tmpdir = TemporaryDirectory()
 
 class RpmsgSysFsHandlerTests(unittest.TestCase):
 
-    @patch("rpmsg_tests.REMOTEPROC_PATH", tmpdir.name)
+    @patch("remoteproc_sysfs_handler.REMOTEPROC_PATH", tmpdir.name)
     def setUp(self):
         self.rpmsg_node = "remoteproc0"
 
@@ -20,7 +21,9 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
         remoteproc_dir = dir_path.joinpath(self.rpmsg_node)
         remoteproc_dir.mkdir(exist_ok=True)
 
-        self.handler = rpmsg_tests.RpmsgSysFsHandler(self.rpmsg_node)
+        self.handler = remoteproc_sysfs_handler.RemoteProcSysFsHandler(
+            self.rpmsg_node
+        )
         self.handler.sysfs_fw_path = os.path.join(tmpdir.name, "fw_path")
         self.firmware_path_file = Path(self.handler.sysfs_fw_path)
         self.firmware_path_file.write_text("test_path")
@@ -49,9 +52,9 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
 
     def test_rpmsg_sysfs_handler_initialization_no_dir(self):
 
-        with patch("rpmsg_tests.REMOTEPROC_PATH", tmpdir.name):
+        with patch("remoteproc_sysfs_handler.REMOTEPROC_PATH", tmpdir.name):
             with self.assertRaises(SystemExit) as cm:
-                rpmsg_tests.RpmsgSysFsHandler("nonexistent")
+                remoteproc_sysfs_handler.RemoteProcSysFsHandler("nonexistent")
                 self.assertEqual(cm.exception.code, 1)
 
     def test_read_node(self):
@@ -87,12 +90,12 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
         self.assertEqual(self.handler.firmware_file, "test_firmware")
 
     def test_rpmsg_state_property(self):
-        self.assertEqual(self.handler.rpmsg_state, "running")
+        self.assertEqual(self.handler.state, "running")
 
     def test_rpmsg_state_setter_validation(self):
         with self.assertRaises(ValueError):
-            self.handler.rpmsg_state = "invalid"
-            self.assertEqual(self.handler.rpmsg_state, "running")
+            self.handler.state = "invalid"
+            self.assertEqual(self.handler.state, "running")
 
     def test_setup_teardown(self):
 
@@ -106,7 +109,7 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
         self.handler.teardown()
         self.assertEqual(self.handler.firmware_path, "test_path")
         self.assertEqual(self.handler.firmware_file, "test_firmware")
-        self.assertEqual(self.handler.rpmsg_state, "offline")
+        self.assertEqual(self.handler.state, "offline")
 
     def test_setup_teardown_no_original_values(self):
         with patch(
@@ -123,11 +126,11 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
     def test_start_stop(self):
         self.state_file.write_text("offline")
         self.handler.start()
-        self.assertEqual(self.handler.rpmsg_state, "start")
+        self.assertEqual(self.handler.state, "start")
         self.assertTrue(self.handler.started_by_script)
 
         self.handler.stop()
-        self.assertEqual(self.handler.rpmsg_state, "stop")
+        self.assertEqual(self.handler.state, "stop")
 
     def test_start_already_running(self):
         self.state_file.write_text("running")
@@ -150,4 +153,4 @@ class RpmsgSysFsHandlerTests(unittest.TestCase):
         self.handler.teardown()
         self.handler.firmware_file = "original_firmware"
         self.handler.firmware_path = "test_path"
-        self.handler.rpmsg_state = "start"
+        self.handler.state = "start"

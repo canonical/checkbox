@@ -102,6 +102,7 @@ nested_part:
     ce-oem-mipi-camera-automated
     ce-oem-graphics-automated
     ce-oem-video-codec-automated
+    ce-oem-remoteproc-automated
     ce-oem-rpmsg-automated
     ce-oem-barcode-scanner-automated
     ce-oem-printer-automated

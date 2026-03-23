@@ -14,7 +14,6 @@ from unittest.mock import patch, MagicMock
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "bin"))
 import platform_meta_test as pmt  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -148,7 +147,10 @@ class TestCheckOemMeta(unittest.TestCase):
 
     def test_somerville_jammy_fail_meta_not_installed(self):
         self._assert_fails(
-            "somerville", "jammy", meta_installed=False, factory_installed=False
+            "somerville",
+            "jammy",
+            meta_installed=False,
+            factory_installed=False,
         )
 
     def test_somerville_jammy_fail_factory_not_installed(self):
@@ -159,7 +161,10 @@ class TestCheckOemMeta(unittest.TestCase):
 
     def test_somerville_noble_fail_meta_not_installed(self):
         self._assert_fails(
-            "somerville", "noble", meta_installed=False, factory_installed=False
+            "somerville",
+            "noble",
+            meta_installed=False,
+            factory_installed=False,
         )
 
     def test_somerville_noble_fail_factory_not_installed(self):
@@ -267,12 +272,16 @@ class TestMainArguments(unittest.TestCase):
 
     def test_help_exits_zero(self):
         with self.assertRaises(SystemExit) as cm:
-            with patch.object(sys, "argv", ["platform_meta_test.py", "--help"]):
+            with patch.object(
+                sys, "argv", ["platform_meta_test.py", "--help"]
+            ):
                 pmt.main()
         self.assertEqual(cm.exception.code, 0)
 
     def test_unknown_oem_codename_exits_nonzero(self):
-        self.assertNotEqual(self._main(["--oem-codename", "unknown-project"]), 0)
+        self.assertNotEqual(
+            self._main(["--oem-codename", "unknown-project"]), 0
+        )
 
     def test_no_arguments_exits_nonzero(self):
         self.assertNotEqual(self._main([]), 0)

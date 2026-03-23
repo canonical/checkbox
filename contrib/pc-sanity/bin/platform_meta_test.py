@@ -105,7 +105,9 @@ def check_oem_meta(oem):
     if codename in ("jammy", "noble"):
         for meta in _ubuntu_drivers_list():
             modaliases = _apt_cache_modaliases(meta)
-            if not re.search(cfg["pattern_fn"](biosid), modaliases, re.IGNORECASE):
+            if not re.search(
+                cfg["pattern_fn"](biosid), modaliases, re.IGNORECASE
+            ):
                 continue
             if not _is_installed(meta):
                 continue

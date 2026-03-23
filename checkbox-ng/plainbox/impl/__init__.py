@@ -210,3 +210,17 @@ def get_plainbox_dir():
     Return the root directory of the plainbox package.
     """
     return os.path.dirname(getabsfile(plainbox))
+
+
+def low_memory_device():
+    """
+    Returns if the system we are runing on has very low RAM installed
+
+    This is used to disable or tune down some subsystems to avoid filling
+    the RAM with Checkbox itself and crashing the system.
+    """
+    mem_bytes = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
+    mem_mib = mem_bytes / (1024.0**2)
+    if mem_mib < 1024 * 2:
+        return True
+    return False

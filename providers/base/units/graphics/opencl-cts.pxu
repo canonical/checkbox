@@ -1,0 +1,226 @@
+unit: job
+plugin: shell
+id: setup/install_opencl_cts
+category_id: com.canonical.plainbox::graphics
+_summary: Install opencl-cts snap
+_purpose:
+ This job will install the opencl-cts snap, a dependency of opencl conformance testing
+user: root
+command:
+ if snap list opencl-cts &>/dev/null; then
+   snap refresh --beta opencl-cts
+ else
+   snap install --beta opencl-cts
+ fi
+estimated_duration: 1m
+
+unit: job
+plugin: shell
+id: graphics/cl_gpu_avail
+category_id: com.canonical.plainbox::graphics
+user: root
+requires:
+  executable.name == 'clinfo'
+_summary: Checks for GPU for OpenCL
+environ:
+  # necessary for local mode
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+estimated_duration: 1s
+command:
+ if clinfo --prop CL_DEVICE_TYPE | grep -q CL_DEVICE_TYPE_GPU; then
+   echo "PASS: Found a GPU for OpenCL"
+ else
+   echo "FAIL: No GPU available in clinfo"
+   exit 1
+ fi
+
+id: graphics/cl_basic
+depends:
+  graphics/cl_gpu_avail
+  setup/install_opencl_cts
+category_id: com.canonical.plainbox::graphics
+flags: simple
+user: root
+_summary: Run the basic tests from OpenCL-CTS
+environ:
+  # necessary for local mode
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+estimated_duration: 5m
+command: opencl-cts.test basic/test_basic
+_siblings: [
+  { "id": "graphics/cl_geometrics",
+    "_summary": "Run the geometrics tests from OpenCL-CTS",
+    "command": "opencl-cts.test geometrics/test_geometrics" },
+  { "id": "graphics/cl_api",
+    "_summary": "Run the api tests from OpenCL-CTS",
+    "command": "opencl-cts.test api/test_api" },
+  { "id": "graphics/cl_compiler",
+    "_summary": "Run the compiler tests from OpenCL-CTS",
+    "command": "opencl-cts.test compiler/test_compiler" },
+  { "id": "graphics/cl_commonfns",
+    "_summary": "Run the commonfns tests from OpenCL-CTS",
+    "command": "opencl-cts.test commonfns/test_commonfns" },
+  { "id": "graphics/cl_relationals",
+    "_summary": "Run the relationals tests from OpenCL-CTS",
+    "command": "opencl-cts.test relationals/test_relationals" },
+  { "id": "graphics/cl_thread_dimensions",
+    "_summary": "Run the thread_dimensions tests from OpenCL-CTS",
+    "command": "opencl-cts.test thread_dimensions/test_thread_dimensions full*" },
+  { "id": "graphics/cl_mult_device_contexts",
+    "_summary": "Run the mult_device_contexts tests from OpenCL-CTS",
+    "command": "opencl-cts.test multiple_device_context/test_multiples" },
+  { "id": "graphics/cl_atomics",
+    "_summary": "Run the atomics tests from OpenCL-CTS",
+    "command": "opencl-cts.test atomics/test_atomics" },
+  { "id": "graphics/cl_profiling",
+    "_summary": "Run the profiling tests from OpenCL-CTS",
+    "command": "opencl-cts.test profiling/test_profiling" },
+  { "id": "graphics/cl_events",
+    "_summary": "Run the events tests from OpenCL-CTS",
+    "command": "opencl-cts.test events/test_events" },
+  { "id": "graphics/cl_allocations_single",
+    "_summary": "Run the allocations_single tests from OpenCL-CTS",
+    "command": "opencl-cts.test allocations/test_allocations single 5 all" },
+  { "id": "graphics/cl_allocations_multiple",
+    "_summary": "Run the allocations_multiple tests from OpenCL-CTS",
+    "command": "opencl-cts.test allocations/test_allocations multiple 5 all" },
+  { "id": "graphics/cl_vectors",
+    "_summary": "Run the vectors tests from OpenCL-CTS",
+    "command": "opencl-cts.test vectors/test_vectors" },
+  { "id": "graphics/cl_printf",
+    "_summary": "Run the printf tests from OpenCL-CTS",
+    "command": "opencl-cts.test printf/test_printf" },
+  { "id": "graphics/cl_dev_partition",
+    "_summary": "Run the dev_partition tests from OpenCL-CTS",
+    "command": "opencl-cts.test device_partition/test_device_partition" },
+  { "id": "graphics/cl_buffers",
+    "_summary": "Run the buffers tests from OpenCL-CTS",
+    "command": "opencl-cts.test buffers/test_buffers" },
+  { "id": "graphics/cl_cl_get_info",
+    "_summary": "Run the cl_get_info tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clGetInfo/test_cl_get_info" },
+  { "id": "graphics/cl_kernel_image_methods",
+    "_summary": "Run the kernel_image_methods tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/kernel_image_methods/test_kernel_image_methods" },
+  { "id": "graphics/cl_image_streams_nearest",
+    "_summary": "Run the image_streams_nearest tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/kernel_read_write/test_image_streams CL_FILTER_NEAREST" },
+  { "id": "graphics/cl_image_streams_pitches_nearest",
+    "_summary": "Run the image_streams_pitches_nearest tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/kernel_read_write/test_image_streams use_pitches CL_FILTER_NEAREST" },
+  { "id": "graphics/cl_image_streams_max_nearest",
+    "_summary": "Run the image_streams_max_nearest tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/kernel_read_write/test_image_streams max_images CL_FILTER_NEAREST" },
+  { "id": "graphics/cl_cl_copy_images",
+    "_summary": "Run the cl_copy_images tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clCopyImage/test_cl_copy_images" },
+  { "id": "graphics/cl_cl_copy_small_images",
+    "_summary": "Run the cl_copy_small_images tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clCopyImage/test_cl_copy_images small_images" },
+  { "id": "graphics/cl_cl_copy_max_images",
+    "_summary": "Run the cl_copy_max_images tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clCopyImage/test_cl_copy_images max_images" },
+  { "id": "graphics/cl_read_write_images",
+    "_summary": "Run the read_write_images tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clReadWriteImage/test_cl_read_write_images" },
+  { "id": "graphics/cl_read_write_images_pitches",
+    "_summary": "Run the read_write_images_pitches tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clReadWriteImage/test_cl_read_write_images use_pitches" },
+  { "id": "graphics/cl_read_write_max_images",
+    "_summary": "Run the read_write_max_images tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clReadWriteImage/test_cl_read_write_images max_images" },
+  { "id": "graphics/cl_cl_fill_images",
+    "_summary": "Run the cl_fill_images tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clFillImage/test_cl_fill_images" },
+  { "id": "graphics/cl_cl_fill_images_pitches",
+    "_summary": "Run the cl_fill_images_pitches tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clFillImage/test_cl_fill_images use_pitches" },
+  { "id": "graphics/cl_cl_fill_images_max",
+    "_summary": "Run the cl_fill_images_max tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clFillImage/test_cl_fill_images max_images" },
+  { "id": "graphics/cl_samplerless_reads",
+    "_summary": "Run the samplerless_reads tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/samplerlessReads/test_samplerless_reads" },
+  { "id": "graphics/cl_samplerless_reads_pitches",
+    "_summary": "Run the samplerless_reads_pitches tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/samplerlessReads/test_samplerless_reads use_pitches" },
+  { "id": "graphics/cl_samplerless_reads_max",
+    "_summary": "Run the samplerless_reads_max tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/samplerlessReads/test_samplerless_reads max_images" },
+  { "id": "graphics/cl_mem_host_flags",
+    "_summary": "Run the mem_host_flags tests from OpenCL-CTS",
+    "command": "opencl-cts.test mem_host_flags/test_mem_host_flags" },
+  { "id": "graphics/cl_image_streams_linear",
+    "_summary": "Run the image_streams_linear tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/kernel_read_write/test_image_streams CL_FILTER_LINEAR" },
+  { "id": "graphics/cl_image_streams_linear_pitches",
+    "_summary": "Run the image_streams_linear_pitches tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/kernel_read_write/test_image_streams use_pitches CL_FILTER_LINEAR" },
+  { "id": "graphics/cl_image_streams_linear_max",
+    "_summary": "Run the image_streams_linear_max tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/kernel_read_write/test_image_streams max_images CL_FILTER_LINEAR" },
+  { "id": "graphics/cl_gl",
+    "_summary": "Run the gl tests from OpenCL-CTS",
+    "command": "opencl-cts.test gl/test_gl" },
+  { "id": "graphics/cl_select",
+    "_summary": "Run the select tests from OpenCL-CTS",
+    "command": "opencl-cts.test select/test_select" },
+  { "id": "graphics/cl_conversions",
+    "_summary": "Run the conversions tests from OpenCL-CTS",
+    "command": "opencl-cts.test conversions/test_conversions" },
+  { "id": "graphics/cl_contractions",
+    "_summary": "Run the contractions tests from OpenCL-CTS",
+    "command": "opencl-cts.test contractions/test_contractions" },
+  { "id": "graphics/cl_bruteforce",
+    "_summary": "Run the bruteforce tests from OpenCL-CTS",
+    "command": "opencl-cts.test math_brute_force/test_bruteforce" },
+  { "id": "graphics/cl_integer_ops",
+    "_summary": "Run the integer_ops tests from OpenCL-CTS",
+    "command": "opencl-cts.test integer_ops/test_integer_ops" },
+  { "id": "graphics/cl_half",
+    "_summary": "Run the half tests from OpenCL-CTS",
+    "command": "opencl-cts.test half/test_half" },
+  { "id": "graphics/cl_c11_atomics",
+    "_summary": "Run the c11_atomics tests from OpenCL-CTS",
+    "command": "opencl-cts.test c11_atomics/test_c11_atomics" },
+  { "id": "graphics/cl_device_execution",
+    "_summary": "Run the device_execution tests from OpenCL-CTS",
+    "command": "opencl-cts.test device_execution/test_device_execution" },
+  { "id": "graphics/cl_addr_space",
+    "_summary": "Run the addr_space tests from OpenCL-CTS",
+    "command": "opencl-cts.test generic_address_space/test_generic_address_space" },
+  { "id": "graphics/cl_non_uniform_work_group",
+    "_summary": "Run the non_uniform_work_group tests from OpenCL-CTS",
+    "command": "opencl-cts.test non_uniform_work_group/test_non_uniform_work_group" },
+  { "id": "graphics/cl_pipes",
+    "_summary": "Run the pipes tests from OpenCL-CTS",
+    "command": "opencl-cts.test pipes/test_pipes" },
+  { "id": "graphics/cl_svm",
+    "_summary": "Run the svm tests from OpenCL-CTS",
+    "command": "opencl-cts.test SVM/test_svm" },
+  { "id": "graphics/cl_workgroups",
+    "_summary": "Run the workgroups tests from OpenCL-CTS",
+    "command": "opencl-cts.test workgroups/test_workgroups" },
+  { "id": "graphics/cl_device_timer",
+    "_summary": "Run the device_timer tests from OpenCL-CTS",
+    "command": "opencl-cts.test device_timer/test_device_timer" },
+  { "id": "graphics/cl_spirv_new",
+    "_summary": "Run the spirv_new tests from OpenCL-CTS",
+    "command": "opencl-cts.test spirv_new/test_spirv_new --spirv-binaries-path spirv_bin" },
+  { "id": "graphics/cl_spir",
+    "_summary": "Run the spir tests from OpenCL-CTS",
+    "command": "opencl-cts.test spir/test_spir no-unzip" },
+  { "id": "graphics/cl_image_streams_mipmaps",
+    "_summary": "Run the image_streams_mipmaps tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/kernel_read_write/test_image_streams test_mipmaps CL_FILTER_NEAREST" },
+  { "id": "graphics/cl_cl_copy_images_mipmaps",
+    "_summary": "Run the cl_copy_images_mipmaps tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clCopyImage/test_cl_copy_images test_mipmaps" },
+  { "id": "graphics/cl_cl_read_write_images_mipmaps",
+    "_summary": "Run the cl_read_write_images_mipmaps tests from OpenCL-CTS",
+    "command": "opencl-cts.test images/clReadWriteImage/test_cl_read_write_images test_mipmaps" },
+  { "id": "graphics/cl_subgroups",
+    "_summary": "Run the subgroups tests from OpenCL-CTS",
+    "command": "opencl-cts.test subgroups/test_subgroups" }]

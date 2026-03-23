@@ -701,8 +701,14 @@ def main() -> int:
 
     if args.do_fwts_check:
         tester = FwtsTester()
+        sys_fw = "/sys/firmware"
+        has_dt = os.path.isdir(os.path.join(sys_fw, "devicetree"))
+        has_acpi = os.path.isdir(os.path.join(sys_fw, "acpi"))
+        fwts_args = ["klog", "oops"]
+        if has_dt and not has_acpi:
+            fwts_args.extend(["--filter-error-discard", "KlogAcpiDisabled"])
         if tester.is_fwts_supported() and not tester.fwts_log_check_passed(
-            args.output_directory
+            output_directory=args.output_directory, fwts_arguments=fwts_args
         ):
             fwts_passed = False
         else:

@@ -2,6 +2,11 @@ name: Test pc-sanity (from contrib area) with tox
 permissions:
   contents: read
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/pc-sanity/**
+      - .github/workflows/tox-contrib-pc-sanity.yaml
   workflow_dispatch:
 
 jobs:

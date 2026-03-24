@@ -212,9 +212,9 @@ def get_plainbox_dir():
     return os.path.dirname(getabsfile(plainbox))
 
 
-def low_memory_device():
+def low_memory_device() -> bool:
     """
-    Returns if the system we are runing on has very low RAM installed
+    Returns `True` if the system we are running on has very low RAM installed
 
     This is used to disable or tune down some subsystems to avoid filling
     the RAM with Checkbox itself and crashing the system.

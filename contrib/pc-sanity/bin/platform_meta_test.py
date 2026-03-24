@@ -148,19 +148,14 @@ def main():
     )
     parser.add_argument(
         "--oem-codename",
+        choices=_OEM_CONFIGS.keys(),
         required=True,
         metavar="CODENAME",
-        help="OEM codename: somerville, stella, sutton",
+        help="OEM codename: %(choices)s",
     )
     args = parser.parse_args()
 
-    oem = args.oem_codename
-
-    if oem in _OEM_CONFIGS:
-        check_oem_meta(oem)
-    else:
-        parser.print_usage()
-        sys.exit(1)
+    check_oem_meta(args.oem_codename)
 
 
 if __name__ == "__main__":

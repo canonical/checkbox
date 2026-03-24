@@ -1,14 +1,13 @@
 id: dkms_info_json
-template-engine: jinja2
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command:
- {%- if __on_ubuntucore__ %}
+ if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
  echo "{}"
- {%- else %}
+ else
  dkms_info.py  --format json | checkbox-support-parse dkms-info | \
  jq '.dkms_info'
- {% endif -%}
+ fi
 _description: Attaches json dumps of installed dkms package information.
 _summary: Attaches json dumps of installed dkms package information.
 

@@ -112,12 +112,12 @@ requires:
   package.name == 'lms'
   {% endif -%}
 command:
-  {%- if __on_ubuntucore__ %}
-  {# TODO: name is a guess until snap provided #}
+  if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
+  # TODO: name is a guess until snap provided
   SERVICE_NAME="snap.lms.lms.service"
-  {%- else %}
+  else
   SERVICE_NAME="lms.service"
-  {% endif -%}
+  fi
   systemctl is-active --quiet "$SERVICE_NAME"
   RETVAL=$?
   if [ $RETVAL -ne 0 ]; then

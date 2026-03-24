@@ -223,7 +223,6 @@ command: block_device_resource.py
 _summary: Create resource info for removable block devices
 
 id: usb
-template-engine: jinja2
 estimated_duration: 0.33
 plugin: resource
 category_id: information_gathering
@@ -232,11 +231,11 @@ _summary: Collect information about supported types of USB
 command:
  for version in 2 3; do
      echo -n "usb$version: "
- {%- if __on_ubuntucore__ %}
-     checkbox-support-lsusb -f $SNAP/checkbox-runtime/var/lib/usbutils/usb.ids | grep -Pq "Linux Foundation ${version}.\d+ root hub" && echo "supported" || echo "unsupported"
- {% else %}
-     lsusb | grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
- {% endif -%}
+     if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
+         checkbox-support-lsusb -f "$SNAP"/checkbox-runtime/var/lib/usbutils/usb.ids | grep -Pq "Linux Foundation ${version}.\d+ root hub" && echo "supported" || echo "unsupported"
+     else
+         lsusb | grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
+     fi
  done
 
 id: xinput

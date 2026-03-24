@@ -29,28 +29,24 @@ import json
 import logging
 import os
 import string
-from pathlib import Path
+from contextlib import suppress
 from functools import lru_cache
+from pathlib import Path
 
 from jinja2 import Template
 
 from plainbox.i18n import gettext as _
-from plainbox.impl.decorators import cached_property
-from plainbox.impl.decorators import instance_method_lru_cache
+from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
-from plainbox.impl.symbol import Symbol
-from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.symbol import SymbolDefMeta
-from plainbox.impl.symbol import SymbolDefNs
-from plainbox.impl.unit import concrete_validators
-from plainbox.impl.unit import get_accessed_parameters
-from plainbox.impl.unit.validators import IFieldValidator
-from plainbox.impl.unit.validators import MultiUnitFieldIssue
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import UnitFieldIssue
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
+from plainbox.impl.symbol import Symbol, SymbolDef, SymbolDefMeta, SymbolDefNs
+from plainbox.impl.unit import concrete_validators, get_accessed_parameters
+from plainbox.impl.unit.validators import (
+    MultiUnitFieldIssue,
+    PresentFieldValidator,
+    UnitFieldIssue,
+)
+from plainbox.impl.validation import Problem, Severity
 
 __all__ = ["Unit", "UnitValidator"]
 
@@ -61,16 +57,30 @@ logger = logging.getLogger("plainbox.unit")
 @lru_cache(maxsize=None)
 def on_ubuntucore():
     """
-    Check if running from on ubuntu core
+    Returns `True` when running in a strict snap
     """
     snap = os.getenv("SNAP")
     if snap:
         with open(os.path.join(snap, "meta/snap.yaml")) as f:
-            for l in f.readlines():
-                if l == "confinement: classic\n":
+            for line in f.readlines():
+                if line == "confinement: classic\n":
                     return False
         return True
     return False
+
+
+@lru_cache(maxsize=None)
+def on_os_ubuntucore() -> bool:
+    """
+    Returns `True` if the host OS is Ubuntu Core
+    """
+    with suppress(FileNotFoundError):
+        # if this path exists, we are in a strict snap, but we may not be on UC
+        return (
+            'NAME="Ubuntu Core"'
+            in Path("/var/lib/snapd/hostfs/etc/os-release").read_text()
+        )
+    return 'NAME="Ubuntu Core"' in Path("/etc/os-release").read_text()
 
 
 @lru_cache(maxsize=None)

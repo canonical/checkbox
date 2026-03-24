@@ -376,12 +376,11 @@ _summary: Attaches info about disk partitions
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/buildstamp
-template-engine: jinja2
 estimated_duration: 0.1
 _description: Attaches the buildstamp identifier for the OS
 _summary: Attaches the buildstamp identifier for the OS
 command:
-    {%- if __on_ubuntucore__ %}
+    if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
         if [ -s /run/mnt/ubuntu-seed/.disk/info ]; then
             cat /run/mnt/ubuntu-seed/.disk/info
         elif [ -s /writable/system-data/etc/buildstamp ]; then
@@ -391,7 +390,7 @@ command:
         else
             exit 1
         fi
-    {% else -%}
+    else
         if [ -s /var/lib/ubuntu_dist_channel ]; then  # PC projects
             cat /var/lib/ubuntu_dist_channel
         elif [ -s /var/log/installer/media-info ]; then  # Stock installer info
@@ -403,7 +402,7 @@ command:
         else
             exit 1
         fi
-    {% endif -%}
+    fi
 
 plugin: shell
 category_id: com.canonical.plainbox::info

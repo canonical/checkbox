@@ -57,13 +57,13 @@ logger = logging.getLogger("plainbox.unit")
 @lru_cache(maxsize=None)
 def on_ubuntucore():
     """
-    Check if the running from a strict snap
+    Returns `True` when running in a strict snap
     """
     snap = os.getenv("SNAP")
     if snap:
         with open(os.path.join(snap, "meta/snap.yaml")) as f:
-            for l in f.readlines():
-                if l == "confinement: classic\n":
+            for line in f.readlines():
+                if line == "confinement: classic\n":
                     return False
         return True
     return False
@@ -72,7 +72,7 @@ def on_ubuntucore():
 @lru_cache(maxsize=None)
 def on_os_ubuntucore() -> bool:
     """
-    This returns `True` if the host OS is Ubuntu Core
+    Returns `True` if the host OS is Ubuntu Core
     """
     with suppress(FileNotFoundError):
         # if this path exists, we are in a strict snap, but we may not be on UC

@@ -30,7 +30,8 @@ class TestDeviceInfoCLI(TestCase):
         self.assertEqual(pkg[0]["version"], "23.01+dfsg-11")
         self.assertEqual(pkg[0]["architecture"], "amd64")
 
-    def test_get_bios_info_success(self):
+    @patch("checkbox_ng.support.device_info.Path.is_dir", return_value=True)
+    def test_get_bios_info_success(self, mock_path_is_dir):
         """Test successful retrieval of multiple BIOS files."""
 
         file_contents = [
@@ -48,9 +49,11 @@ class TestDeviceInfoCLI(TestCase):
 
             self.assertEqual(result["vendor"], "Dell Inc.")
             self.assertEqual(result["version"], "1.5.0")
-            self.assertEqual(len(result), 4)
+            self.assertEqual(result["boot_mode"], "UEFI")
+            self.assertEqual(len(result), 5)
 
-    def test_get_bios_info_empty(self):
+    @patch("checkbox_ng.support.device_info.Path.is_dir", return_value=False)
+    def test_get_bios_info_empty(self, mock_path_is_dir):
         """Test behavior when no bios_* files are found."""
         with patch(
             "checkbox_ng.support.device_info.Path.read_text",
@@ -60,10 +63,17 @@ class TestDeviceInfoCLI(TestCase):
 
         self.assertEqual(
             result,
-            {"date": None, "release": None, "vendor": None, "version": None},
+            {
+                "date": None,
+                "release": None,
+                "vendor": None,
+                "version": None,
+                "boot_mode": "BIOS",
+            },
         )
 
-    def test_get_bios_info_permission_denied(self):
+    @patch("checkbox_ng.support.device_info.Path.is_dir", return_value=True)
+    def test_get_bios_info_permission_denied(self, mock_path_is_dir):
         """Test behavior when a file exists but cannot be read."""
         with patch(
             "checkbox_ng.support.device_info.Path.read_text",
@@ -73,7 +83,13 @@ class TestDeviceInfoCLI(TestCase):
 
         self.assertEqual(
             result,
-            {"date": None, "release": None, "vendor": None, "version": None},
+            {
+                "date": None,
+                "release": None,
+                "vendor": None,
+                "version": None,
+                "boot_mode": "UEFI",
+            },
         )
 
     @patch("checkbox_ng.support.device_info.get_debian_packages")

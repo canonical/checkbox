@@ -30,6 +30,7 @@ import tarfile
 import time
 from tempfile import SpooledTemporaryFile
 
+from plainbox.impl import low_memory_device
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.providers import get_providers
@@ -53,14 +54,12 @@ class TARSessionStateExporter(SessionStateExporterBase):
 
         """
         preset = None
-        mem_bytes = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
-        mem_mib = mem_bytes / (1024.0**2)
         # On systems with less than 1GiB of RAM, create the submission tarball
         # without any compression level (i.e preset=0).
         # See https://docs.python.org/3/library/lzma.html
         # With preset 9 for example, the overhead for an LZMACompressor object
         # can be as high as 800 MiB.
-        if mem_mib < 1200:
+        if low_memory_device():
             preset = 0
 
         job_state_map = manager.default_device_context.state.job_state_map

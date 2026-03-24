@@ -13,7 +13,6 @@ on:
       - providers/gpgpu/**
       - providers/resource/**
       - providers/sru/**
-      - providers/genio/**
       - providers/iiotg/**
       - .github/workflows/tox-checkbox.yaml
   pull_request:

@@ -45,6 +45,9 @@ def get_bios_info() -> dict:
 
     This function extracts the content from these files and returns a dict,
     using the filename as a key, defaulting to `None` if it cannot find data.
+
+    In addition, it provides the boot mode by checking the existence of the
+    /sys/firmware/efi directory.
     """
     bios_data = {
         "date": None,
@@ -65,6 +68,11 @@ def get_bios_info() -> dict:
                 "Failed to read bios {}. Error: {}".format(key, e),
                 file=sys.stderr,
             )
+    if Path("/sys/firmware/efi").is_dir():
+        boot_mode = "UEFI"
+    else:
+        boot_mode = "BIOS"
+    bios_data["boot_mode"] = boot_mode
     return bios_data
 
 

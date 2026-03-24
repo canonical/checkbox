@@ -3,6 +3,7 @@ permissions:
   contents: read
 on:
   push:
+    branches: [ main ]
     paths:
       - checkbox-ng/**
       - checkbox-support/**

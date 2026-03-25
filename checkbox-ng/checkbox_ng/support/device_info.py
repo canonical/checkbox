@@ -6,6 +6,8 @@ import platform
 import subprocess
 import sys
 
+from typing import List, Dict
+
 from checkbox_ng.support.release_info import get_release_info
 from checkbox_ng.support.parsers.meminfo import MeminfoParser
 from checkbox_ng.support.parsers.udevadm import parse_udevadm_output
@@ -26,7 +28,7 @@ def get_kernel_cmdline(cmdline_path="/proc/cmdline") -> str:
     return cmdline
 
 
-def get_kernel_modules(modules_path="/proc/modules") -> list[dict]:
+def get_kernel_modules(modules_path="/proc/modules") -> List[Dict]:
     """
     Get information about all the available kernel modules
 

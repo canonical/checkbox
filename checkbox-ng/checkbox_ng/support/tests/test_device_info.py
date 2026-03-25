@@ -19,13 +19,13 @@ class TestDeviceInfoCLI(TestCase):
         with patch("builtins.open", mock_open(read_data=read_data)) as _:
             kernel_modules = device_info.get_kernel_modules()
             expected_module = {
-                    "name": "hid",
-                    "size": 262144,
-                    "instances": 2,
-                    "dependencies": "hid_generic usbhid",
-                    "state": "Live",
-                    "offset": 0,
-                    }
+                "name": "hid",
+                "size": 262144,
+                "instances": 2,
+                "dependencies": ["hid_generic", "usbhid"],
+                "state": "Live",
+                "offset": 0,
+            }
             self.assertEqual(len(kernel_modules), 3)
             self.assertIn(expected_module, kernel_modules)
 

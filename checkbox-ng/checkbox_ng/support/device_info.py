@@ -46,18 +46,27 @@ def get_kernel_modules(modules_path="/proc/modules") -> list[dict]:
         for line in f.readlines():
             line = line.strip()
             if line:
-                name, size, instances, dependencies, state, offset = line.split(" ")[:6]
+                name, size, instances, dependencies, state, offset = (
+                    line.split(" ")[:6]
+                )
                 if dependencies == "-":
                     dependencies = ""
 
-                kernel_modules.append({
-                    "name": name,
-                    "size": int(size),
-                    "instances": int(instances),
-                    "dependencies": dependencies.replace(",", " ").strip(),
-                    "state": state,
-                    "offset": int(offset, 16),
-                })
+                kernel_modules.append(
+                    {
+                        "name": name,
+                        "size": int(size),
+                        "instances": int(instances),
+                        "dependencies": [
+                            d
+                            for d in dependencies.replace(",", " ")
+                            .strip()
+                            .split()
+                        ],
+                        "state": state,
+                        "offset": int(offset, 16),
+                    }
+                )
     return kernel_modules
 
 

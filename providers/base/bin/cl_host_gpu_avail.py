@@ -26,12 +26,10 @@ On success this script emits a resource record that can be referenced with
 depends: graphics/cl_host_gpu_avail.
 """
 
-import os
 import shutil
 import subprocess
 import sys
 import sysconfig
-import tempfile
 
 
 def get_arch_triple():
@@ -51,29 +49,24 @@ def check_host_gpu(plz_run, arch_triple):
     it can load the host ICD stack instead of any snap-bundled libraries.
     """
     ld_library_path = "/usr/lib/{arch}:/usr/lib".format(arch=arch_triple)
-    with tempfile.NamedTemporaryFile(dir="/var/tmp", delete=False) as tmp:
-        tmpfile = tmp.name
     try:
-        subprocess.run(
+        return "CL_DEVICE_TYPE_GPU" in subprocess.check_output(
             [
                 plz_run,
                 "-u",
                 "root",
                 "-g",
                 "root",
-                "bash",
-                "-c",
-                "LD_LIBRARY_PATH={ld} /usr/bin/clinfo > {out} 2>&1".format(
-                    ld=ld_library_path, out=tmpfile
-                ),
+                "-E",
+                "LD_LIBRARY_PATH={}".format(ld_library_path),
+                "--",
+                "/usr/bin/clinfo",
             ],
-            check=False,
+            universal_newlines=True,
+            stderr=subprocess.STDOUT,
         )
-        with open(tmpfile) as fh:
-            output = fh.read()
-    finally:
-        os.unlink(tmpfile)
-    return "CL_DEVICE_TYPE_GPU" in output
+    except subprocess.CalledProcessError:
+        return False
 
 
 def main():

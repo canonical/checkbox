@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import subprocess
 import unittest
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import patch
 
 import cl_host_gpu_avail
 
@@ -47,60 +48,34 @@ class TestFindPlzRun(unittest.TestCase):
 class TestCheckHostGpu(unittest.TestCase):
     PLZ_RUN = "/snap/checkbox22/current/bin/plz-run"
     ARCH_TRIPLE = "x86_64-linux-gnu"
-    TMPFILE = "/var/tmp/tmpABCDEF"
 
-    def _make_tmpfile_mock(self):
-        """Return a mock that behaves like NamedTemporaryFile(delete=False)."""
-        tmp = MagicMock()
-        tmp.name = self.TMPFILE  # .name must be set as an attribute, not via
-        # the MagicMock(name=...) constructor which sets the mock's own name
-        ctx = MagicMock()
-        ctx.__enter__ = MagicMock(return_value=tmp)
-        ctx.__exit__ = MagicMock(return_value=False)
-        return ctx
-
-    @patch("os.unlink")
-    @patch("subprocess.run")
-    @patch("tempfile.NamedTemporaryFile")
-    def test_returns_true_when_gpu_found(
-        self, mock_ntf, mock_run, mock_unlink
-    ):
-        mock_ntf.return_value = self._make_tmpfile_mock()
-        with patch(
-            "builtins.open", mock_open(read_data="CL_DEVICE_TYPE_GPU\n")
-        ):
-            result = cl_host_gpu_avail.check_host_gpu(
-                self.PLZ_RUN, self.ARCH_TRIPLE
-            )
-        self.assertTrue(result)
-        mock_unlink.assert_called_once_with(self.TMPFILE)
-
-    @patch("os.unlink")
-    @patch("subprocess.run")
-    @patch("tempfile.NamedTemporaryFile")
-    def test_returns_false_when_no_gpu(self, mock_ntf, mock_run, mock_unlink):
-        mock_ntf.return_value = self._make_tmpfile_mock()
-        with patch(
-            "builtins.open", mock_open(read_data="Number of platforms: 0\n")
-        ):
-            result = cl_host_gpu_avail.check_host_gpu(
-                self.PLZ_RUN, self.ARCH_TRIPLE
-            )
-        self.assertFalse(result)
-
-    @patch("os.unlink")
-    @patch("subprocess.run")
-    @patch("tempfile.NamedTemporaryFile")
-    def test_passes_correct_ld_library_path(
-        self, mock_ntf, mock_run, mock_unlink
-    ):
-        mock_ntf.return_value = self._make_tmpfile_mock()
-        with patch("builtins.open", mock_open(read_data="")):
+    @patch("subprocess.check_output", return_value="CL_DEVICE_TYPE_GPU\n")
+    def test_returns_true_when_gpu_found(self, mock_check_output):
+        self.assertTrue(
             cl_host_gpu_avail.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
-        cmd = mock_run.call_args[0][0]
-        bash_cmd = cmd[-1]
-        self.assertIn("/usr/lib/x86_64-linux-gnu:/usr/lib", bash_cmd)
-        self.assertIn("/usr/bin/clinfo", bash_cmd)
+        )
+
+    @patch("subprocess.check_output", return_value="Number of platforms: 0\n")
+    def test_returns_false_when_no_gpu(self, mock_check_output):
+        self.assertFalse(
+            cl_host_gpu_avail.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
+        )
+
+    @patch(
+        "subprocess.check_output",
+        side_effect=subprocess.CalledProcessError(1, "plz-run"),
+    )
+    def test_returns_false_on_called_process_error(self, mock_check_output):
+        self.assertFalse(
+            cl_host_gpu_avail.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
+        )
+
+    @patch("subprocess.check_output", return_value="")
+    def test_passes_correct_args(self, mock_check_output):
+        cl_host_gpu_avail.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
+        cmd = mock_check_output.call_args[0][0]
+        self.assertIn("LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib", cmd)
+        self.assertIn("/usr/bin/clinfo", cmd)
 
 
 class TestMain(unittest.TestCase):

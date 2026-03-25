@@ -18,51 +18,29 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest.mock import MagicMock, call, mock_open, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import cl_host_gpu_avail
 
 
 class TestGetArchTriple(unittest.TestCase):
-    def test_amd64(self):
-        self.assertEqual(
-            cl_host_gpu_avail.get_arch_triple("amd64"),
-            "x86_64-linux-gnu",
-        )
-
-    def test_unknown_arch_falls_back_to_generic_triple(self):
-        self.assertEqual(
-            cl_host_gpu_avail.get_arch_triple("riscv64"),
-            "riscv64-linux-gnu",
-        )
-
-    @patch.dict("os.environ", {"SNAP_ARCH": "arm64"})
-    def test_uses_snap_arch_env_when_no_argument(self):
-        self.assertEqual(cl_host_gpu_avail.get_arch_triple(), "aarch64-linux-gnu")
-
-    @patch("subprocess.check_output")
-    def test_falls_back_to_dpkg_when_snap_arch_absent(self, mock_check_output):
-        mock_check_output.return_value = "amd64\n"
-        with patch.dict("os.environ", {}, clear=True):
-            result = cl_host_gpu_avail.get_arch_triple()
-        self.assertEqual(result, "x86_64-linux-gnu")
-        mock_check_output.assert_called_once_with(
-            ["dpkg", "--print-architecture"], universal_newlines=True
-        )
+    @patch("sysconfig.get_config_var", return_value="x86_64-linux-gnu")
+    def test_returns_multiarch_from_sysconfig(self, mock_gcv):
+        self.assertEqual(cl_host_gpu_avail.get_arch_triple(), "x86_64-linux-gnu")
+        mock_gcv.assert_called_once_with("MULTIARCH")
 
 
 class TestFindPlzRun(unittest.TestCase):
-    @patch("glob.glob")
-    def test_returns_first_match(self, mock_glob):
-        mock_glob.return_value = ["/snap/checkbox22/current/bin/plz-run"]
+    @patch("shutil.which", return_value="/snap/checkbox22/current/bin/plz-run")
+    def test_returns_path_when_found(self, mock_which):
         self.assertEqual(
             cl_host_gpu_avail.find_plz_run(),
             "/snap/checkbox22/current/bin/plz-run",
         )
+        mock_which.assert_called_once_with("plz-run")
 
-    @patch("glob.glob")
-    def test_returns_none_when_not_found(self, mock_glob):
-        mock_glob.return_value = []
+    @patch("shutil.which", return_value=None)
+    def test_returns_none_when_not_found(self, mock_which):
         self.assertIsNone(cl_host_gpu_avail.find_plz_run())
 
 

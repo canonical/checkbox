@@ -26,34 +26,22 @@ On success this script emits a resource record that can be referenced with
 depends: graphics/cl_host_gpu_avail.
 """
 
-import glob
 import os
+import shutil
 import subprocess
 import sys
+import sysconfig
 import tempfile
 
 
-def get_arch_triple(snap_arch=None):
+def get_arch_triple():
     """Return the Debian multiarch triple for the current architecture."""
-    if snap_arch is None:
-        snap_arch = os.environ.get("SNAP_ARCH")
-    if not snap_arch:
-        snap_arch = subprocess.check_output(
-            ["dpkg", "--print-architecture"], universal_newlines=True
-        ).strip()
-    arch_map = {
-        "amd64": "x86_64-linux-gnu",
-        "arm64": "aarch64-linux-gnu",
-    }
-    return arch_map.get(snap_arch, "{}-linux-gnu".format(snap_arch))
+    return sysconfig.get_config_var("MULTIARCH")
 
 
 def find_plz_run():
     """Return the path to the first plz-run binary found in checkbox snaps."""
-    matches = glob.glob("/snap/checkbox*/current/bin/plz-run")
-    if not matches:
-        return None
-    return matches[0]
+    return shutil.which("plz-run")
 
 
 def check_host_gpu(plz_run, arch_triple):

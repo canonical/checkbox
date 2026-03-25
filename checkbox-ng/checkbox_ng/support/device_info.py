@@ -26,6 +26,41 @@ def get_kernel_cmdline(cmdline_path="/proc/cmdline") -> str:
     return cmdline
 
 
+def get_kernel_modules(modules_path="/proc/modules") -> list[dict]:
+    """
+    Get information about all the available kernel modules
+
+    Each line in the modules file consists of the following information for
+    each module:
+
+    name:         Name of the module.
+    size:         Memory size of the module, in bytes.
+    instances:    How many instances of the module are currently loaded.
+    dependencies: If the module depends upon another module to be present
+                  in order to function, and lists those modules.
+    state:        The load state of the module: Live, Loading or Unloading.
+    offset:       Current kernel memory offset for the loaded module.
+    """
+    kernel_modules = []
+    with open(modules_path) as f:
+        for line in f.readlines():
+            line = line.strip()
+            if line:
+                name, size, instances, dependencies, state, offset = line.split(" ")[:6]
+                if dependencies == "-":
+                    dependencies = ""
+
+                kernel_modules.append({
+                    "name": name,
+                    "size": int(size),
+                    "instances": int(instances),
+                    "dependencies": dependencies.replace(",", " ").strip(),
+                    "state": state,
+                    "offset": int(offset, 16),
+                })
+    return kernel_modules
+
+
 def get_devices():
     cmd = ["udevadm", "info", "--export-db"]
     udevadm_output = subprocess.check_output(cmd, universal_newlines=True)
@@ -140,6 +175,7 @@ def main(argv=None):
     command_map = {
         "distribution": get_release_info,
         "kernel_cmdline": get_kernel_cmdline,
+        "kernel_modules": get_kernel_modules,
         "devices": get_devices,
         "debian_packages": get_debian_packages,
         "bios": get_bios_info,

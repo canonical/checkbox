@@ -214,12 +214,13 @@ class UdevadmDevice(object):
         ):
             # Use DEVPATH
             devpath = self._environment.get("DEVPATH", "")
-            # First try to match nvmeXcYnZ (virtual NVMe device)
-            match = re.search(r"/(nvme\d+c\d+n\d+)(?:/|$)", devpath)
+            # First try to match nvmeXnY (standard block namespace device);
+            # instead of nvmeXcYnZ (character device)
+            match = re.search(r"/(nvme\d+n\d+)(?:/|$)", devpath)
             if match:
                 return match.group(1)
-            # Then try to match nvmeXnY (standard namespace device)
-            match = re.search(r"/(nvme\d+n\d+)(?:/|$)", devpath)
+            # Next attempt to match nvmeXcYnZ (virtual NVMe device, e.g. DGX)
+            match = re.search(r"/(nvme\d+c\d+n\d+)(?:/|$)", devpath)
             if match:
                 return match.group(1)
             # Fallback: match nvmeX (controller) and append n1

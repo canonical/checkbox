@@ -222,12 +222,18 @@ def build_renesas_gst_command(
     :returns:
         The GStreamer command to execute.
     """
-    # RZG2 series support only omxh264dec as hardware decoder
-    # And only RZG2L supported.
-    if "rzg2l" in platform:
-        part_pipeline = "qtdemux ! h264parse ! {} use-dmabuf=true".format(
-            decoder
-        )
+    # Renesas RZ series support h264 and h265 as hardware decoder
+    # And some platform support both decoder.
+    # We make a simple logic to choose the decoder and build the pipeline,
+    # If the decoder is omxh265dec, we use h265parse, else we use h264parse.
+
+    logging.info("Building pipeline for platform: %s", platform)
+
+    codec_type = "265" if "265" in decoder else "264"
+    part_pipeline = "qtdemux ! h{}parse ! {} use-dmabuf=true".format(
+        codec_type,
+        decoder
+    )
 
     cmd = (
         "{} -v filesrc location={} ! {} ! queue !"

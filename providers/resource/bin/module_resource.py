@@ -25,7 +25,7 @@ def main():
     modules = get_kernel_modules()
     for module in modules:
         for key, value in module.items():
-            if type(value) == list:
+            if isinstance(value, list):
                 value = " ".join(value)
             if value != "":
                 print("%s: %s" % (key, value))

@@ -32,7 +32,11 @@ class GStreamerEncodePlugins(Enum):
     V4L2JPEGENC = "v4l2jpegenc"
     V4L2VP8ENC = "v4l2vp8enc"
     OMXH264ENC = "omxh264enc"
+    OMXH265ENC = "omxh265enc"
 
+class GStreamerDecodePlugins(Enum):
+    OMXH264DEC = "omxh264dec"
+    OMXH265DEC = "omxh265dec"
 
 class GStreamerMuxerType(Enum):
     """

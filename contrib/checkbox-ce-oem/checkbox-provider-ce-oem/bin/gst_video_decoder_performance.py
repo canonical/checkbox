@@ -23,7 +23,7 @@ import os
 import re
 
 from performance_mode_controller import get_performance_ctx_function
-from gst_utils import execute_command
+from gst_utils import execute_command, GStreamerDecodePlugins
 
 logging.basicConfig(level=logging.INFO)
 
@@ -226,12 +226,15 @@ def build_renesas_gst_command(
     # And some platform support both decoder.
     # We make a simple logic to choose the decoder and build the pipeline,
     # If the decoder is omxh265dec, we use h265parse, else we use h264parse.
-
+    codec_parser_map = {
+        GStreamerDecodePlugins.OMXH264DEC.value: "h264parse",
+        GStreamerDecodePlugins.OMXH265DEC.value: "h265parse",
+    }
     logging.info("Building pipeline for platform: %s", platform)
 
-    codec_type = "265" if "265" in decoder else "264"
-    part_pipeline = "qtdemux ! h{}parse ! {} use-dmabuf=true".format(
-        codec_type,
+    encode_parser = codec_parser_map.get(decoder)
+    part_pipeline = "qtdemux ! {} ! {} use-dmabuf=true".format(
+        encode_parser,
         decoder
     )
 

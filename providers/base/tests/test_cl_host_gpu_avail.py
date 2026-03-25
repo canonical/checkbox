@@ -49,14 +49,20 @@ class TestCheckHostGpu(unittest.TestCase):
     PLZ_RUN = "/snap/checkbox22/current/bin/plz-run"
     ARCH_TRIPLE = "x86_64-linux-gnu"
 
-    @patch("subprocess.check_output", return_value="CL_DEVICE_TYPE_GPU\n")
+    CLINFO_GPU_OUTPUT = "[INTEL/0]    CL_DEVICE_TYPE                                  CL_DEVICE_TYPE_GPU\n"
+
+    CLINFO_NO_GPU_OUTPUT = ""
+
+    @patch("subprocess.check_output")
     def test_returns_true_when_gpu_found(self, mock_check_output):
+        mock_check_output.return_value = self.CLINFO_GPU_OUTPUT
         self.assertTrue(
             cl_host_gpu_avail.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
         )
 
-    @patch("subprocess.check_output", return_value="Number of platforms: 0\n")
+    @patch("subprocess.check_output")
     def test_returns_false_when_no_gpu(self, mock_check_output):
+        mock_check_output.return_value = self.CLINFO_NO_GPU_OUTPUT
         self.assertFalse(
             cl_host_gpu_avail.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
         )
@@ -76,6 +82,8 @@ class TestCheckHostGpu(unittest.TestCase):
         cmd = mock_check_output.call_args[0][0]
         self.assertIn("LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib", cmd)
         self.assertIn("/usr/bin/clinfo", cmd)
+        self.assertIn("--prop", cmd)
+        self.assertIn("CL_DEVICE_TYPE", cmd)
 
 
 class TestMain(unittest.TestCase):

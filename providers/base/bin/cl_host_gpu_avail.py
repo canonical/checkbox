@@ -61,6 +61,8 @@ def check_host_gpu(plz_run, arch_triple):
                 "LD_LIBRARY_PATH={}".format(ld_library_path),
                 "--",
                 "/usr/bin/clinfo",
+                "--prop",
+                "CL_DEVICE_TYPE",
             ],
             universal_newlines=True,
             stderr=subprocess.STDOUT,

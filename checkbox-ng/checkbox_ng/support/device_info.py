@@ -150,6 +150,9 @@ def parse_args(argv=None):
         "kernel_cmdline", help="Return kernel command line information"
     )
     subparsers.add_parser(
+        "kernel_modules", help="Return kernel modules exposed to the system"
+    )
+    subparsers.add_parser(
         "devices", help="Return devices found by the udeadvm parser"
     )
     subparsers.add_parser(

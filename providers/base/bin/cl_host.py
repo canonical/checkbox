@@ -18,14 +18,18 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Check whether clinfo reports a GPU when run against host OpenCL drivers.
+Host OpenCL helper for Checkbox.
 
-The check must break out of snap confinement (using plz-run) so that
-/usr/bin/clinfo loads the host ICD loader rather than the snap-bundled one.
-On success this script emits a resource record that can be referenced with
-depends: graphics/cl_host_gpu_avail.
+Subcommands:
+  resource          Emit a resource record if a GPU is available via host
+                    OpenCL drivers (used by depends: graphics/cl_host_gpu_avail).
+  validate-install  Emit a resource record if the host OpenCL ICD loader is
+                    installed (used by depends: graphics/cl_host_ocl_avail).
+  run-test ARGS...  Run an opencl-cts test binary with --no-confinement,
+                    forwarding all remaining arguments to the test.
 """
 
+import os
 import shutil
 import subprocess
 import sys
@@ -71,7 +75,7 @@ def check_host_gpu(plz_run, arch_triple):
         return False
 
 
-def main():
+def cmd_resource():
     arch_triple = get_arch_triple()
 
     plz_run = find_plz_run()
@@ -88,6 +92,51 @@ def main():
         file=sys.stderr,
     )
     return 1
+
+
+def cmd_validate_install():
+    arch_triple = get_arch_triple()
+    host_ocl = "/usr/lib/{}/libOpenCL.so.1".format(arch_triple)
+    if os.path.isfile(host_ocl):
+        print("ocl_icd_available: True")
+        return 0
+    print(
+        "FAIL: Host OpenCL ICD loader not found at {}".format(host_ocl),
+        file=sys.stderr,
+    )
+    print(
+        "Install intel-opencl-icd or equivalent before running host OpenCL tests",
+        file=sys.stderr,
+    )
+    return 1
+
+
+def cmd_run_test(test_args):
+    snap = "/snap/opencl-cts/current"
+    result = subprocess.run(
+        ["{}/test".format(snap), "--no-confinement"] + test_args,
+        env=dict(os.environ, SNAP=snap),
+    )
+    return result.returncode
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(
+            "Usage: cl_host.py {resource,validate-install,run-test} [args...]",
+            file=sys.stderr,
+        )
+        return 1
+    command = sys.argv[1]
+    if command == "resource":
+        return cmd_resource()
+    elif command == "validate-install":
+        return cmd_validate_install()
+    elif command == "run-test":
+        return cmd_run_test(sys.argv[2:])
+    else:
+        print("Unknown command: {}".format(command), file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

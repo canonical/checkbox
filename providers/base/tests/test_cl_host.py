@@ -49,7 +49,10 @@ class TestCheckHostGpu(unittest.TestCase):
     PLZ_RUN = "/snap/checkbox22/current/bin/plz-run"
     ARCH_TRIPLE = "x86_64-linux-gnu"
 
-    CLINFO_GPU_OUTPUT = "[INTEL/0]    CL_DEVICE_TYPE                                  CL_DEVICE_TYPE_GPU\n"
+    CLINFO_GPU_OUTPUT = (
+        "[INTEL/0]    CL_DEVICE_TYPE"
+        "                                  CL_DEVICE_TYPE_GPU\n"
+    )
 
     CLINFO_NO_GPU_OUTPUT = ""
 
@@ -202,13 +205,13 @@ class TestMain(unittest.TestCase):
     def test_dispatches_resource(self, mock_cmd):
         with patch("sys.argv", ["cl_host.py", "resource"]):
             self.assertEqual(cl_host.main(), 0)
-        mock_cmd.assert_called_once()
+        self.assertEqual(mock_cmd.call_count, 1)
 
     @patch("cl_host.cmd_validate_install", return_value=0)
     def test_dispatches_validate_install(self, mock_cmd):
         with patch("sys.argv", ["cl_host.py", "validate-install"]):
             self.assertEqual(cl_host.main(), 0)
-        mock_cmd.assert_called_once()
+        self.assertEqual(mock_cmd.call_count, 1)
 
     @patch("cl_host.cmd_run_test", return_value=0)
     def test_dispatches_run_test_with_args(self, mock_cmd):

@@ -22,7 +22,8 @@ Host OpenCL helper for Checkbox.
 
 Subcommands:
   resource          Emit a resource record if a GPU is available via host
-                    OpenCL drivers (used by depends: graphics/cl_host_gpu_avail).
+                    OpenCL drivers (used by depends:
+                    graphics/cl_host_gpu_avail).
   validate-install  Emit a resource record if the host OpenCL ICD loader is
                     installed (used by depends: graphics/cl_host_ocl_avail).
   run-test ARGS...  Run an opencl-cts test binary with --no-confinement,
@@ -108,7 +109,8 @@ def cmd_validate_install():
         file=sys.stderr,
     )
     print(
-        "Install intel-opencl-icd or equivalent before running host OpenCL tests",
+        "Install intel-opencl-icd or equivalent"
+        " before running host OpenCL tests",
         file=sys.stderr,
     )
     return 1

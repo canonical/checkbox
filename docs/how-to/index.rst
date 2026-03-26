@@ -16,3 +16,4 @@ These how-to guides cover key operations and processes in Checkbox.
    using-groups
    ancient-python
    custom-frontend-envvars
+   migrate-away-jinja2

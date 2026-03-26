@@ -646,7 +646,7 @@ class ProviderContentClassifier:
             self._EXECUTABLES = self._get_EXECUTABLES()
         return self._EXECUTABLES
 
-    def _classify_yaml_jobs(self, filename: str):
+    def _classify_pxu_jobs(self, filename: str):
         """classify certain files in jobs_dir as unit source"""
         if filename.startswith(self.provider.jobs_dir):
             ext = os.path.splitext(filename)[1]
@@ -657,7 +657,7 @@ class ProviderContentClassifier:
                     RFC822UnitPlugIn,
                 )
 
-    def _classify_pxu_jobs(self, filename: str):
+    def _classify_yaml_jobs(self, filename: str):
         """classify certain files in jobs_dir as unit source"""
         if filename.startswith(self.provider.jobs_dir):
             ext = os.path.splitext(filename)[1]

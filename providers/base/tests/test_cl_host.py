@@ -60,12 +60,14 @@ class TestCheckHostGpu(unittest.TestCase):
         )
 
     @patch("subprocess.check_output")
-    def test_returns_true_when_gpu_found(self, mock_check_output):
+    @patch("os.path.isfile", return_value=True)
+    def test_returns_true_when_gpu_found(self, _isfile, mock_check_output):
         mock_check_output.return_value = self.CLINFO_GPU_OUTPUT
         self.assertTrue(cl_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE))
 
     @patch("subprocess.check_output")
-    def test_returns_false_when_no_gpu(self, mock_check_output):
+    @patch("os.path.isfile", return_value=True)
+    def test_returns_false_when_no_gpu(self, _isfile, mock_check_output):
         mock_check_output.return_value = self.CLINFO_NO_GPU_OUTPUT
         self.assertFalse(
             cl_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
@@ -75,21 +77,34 @@ class TestCheckHostGpu(unittest.TestCase):
         "subprocess.check_output",
         side_effect=subprocess.CalledProcessError(1, "plz-run"),
     )
-    def test_returns_false_on_called_process_error(self, mock_check_output):
+    @patch("os.path.isfile", return_value=True)
+    def test_returns_false_on_called_process_error(
+        self, _isfile, mock_check_output
+    ):
         self.assertFalse(
             cl_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
         )
 
     @patch("subprocess.check_output", return_value="")
-    def test_passes_correct_args(self, mock_check_output):
+    @patch("os.path.isfile", return_value=True)
+    def test_passes_correct_args(self, _isfile, mock_check_output):
         cl_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
-        cmd = mock_check_output.call_args[0][0]
-        self.assertIn(
-            "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib", cmd
+        self.assertEqual(
+            mock_check_output.call_args[0][0],
+            [
+                self.PLZ_RUN,
+                "-u",
+                "root",
+                "-g",
+                "root",
+                "-E",
+                "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib",
+                "--",
+                "/usr/bin/clinfo",
+                "--prop",
+                "CL_DEVICE_TYPE",
+            ],
         )
-        self.assertIn("/usr/bin/clinfo", cmd)
-        self.assertIn("--prop", cmd)
-        self.assertIn("CL_DEVICE_TYPE", cmd)
 
 
 class TestCmdResource(unittest.TestCase):
@@ -180,6 +195,30 @@ class TestCmdRunTest(unittest.TestCase):
     def test_returns_subprocess_returncode(self, mock_run):
         mock_run.return_value = MagicMock(returncode=1)
         self.assertEqual(cl_host.cmd_run_test(["basic/test_basic"]), 1)
+
+
+class TestMain(unittest.TestCase):
+    @patch("cl_host.cmd_resource", return_value=0)
+    def test_dispatches_resource(self, mock_cmd):
+        with patch("sys.argv", ["cl_host.py", "resource"]):
+            self.assertEqual(cl_host.main(), 0)
+        mock_cmd.assert_called_once()
+
+    @patch("cl_host.cmd_validate_install", return_value=0)
+    def test_dispatches_validate_install(self, mock_cmd):
+        with patch("sys.argv", ["cl_host.py", "validate-install"]):
+            self.assertEqual(cl_host.main(), 0)
+        mock_cmd.assert_called_once()
+
+    @patch("cl_host.cmd_run_test", return_value=0)
+    def test_dispatches_run_test_with_args(self, mock_cmd):
+        with patch("sys.argv", ["cl_host.py", "run-test", "basic/test_basic"]):
+            self.assertEqual(cl_host.main(), 0)
+        mock_cmd.assert_called_once_with(["basic/test_basic"])
+
+    def test_returns_1_with_no_args(self):
+        with patch("sys.argv", ["cl_host.py"]):
+            self.assertEqual(cl_host.main(), 1)
 
 
 if __name__ == "__main__":

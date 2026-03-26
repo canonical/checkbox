@@ -62,9 +62,7 @@ class TestCheckHostGpu(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_returns_true_when_gpu_found(self, mock_check_output):
         mock_check_output.return_value = self.CLINFO_GPU_OUTPUT
-        self.assertTrue(
-            cl_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
-        )
+        self.assertTrue(cl_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE))
 
     @patch("subprocess.check_output")
     def test_returns_false_when_no_gpu(self, mock_check_output):
@@ -86,7 +84,9 @@ class TestCheckHostGpu(unittest.TestCase):
     def test_passes_correct_args(self, mock_check_output):
         cl_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
         cmd = mock_check_output.call_args[0][0]
-        self.assertIn("LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib", cmd)
+        self.assertIn(
+            "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib", cmd
+        )
         self.assertIn("/usr/bin/clinfo", cmd)
         self.assertIn("--prop", cmd)
         self.assertIn("CL_DEVICE_TYPE", cmd)
@@ -160,7 +160,9 @@ class TestCmdRunTest(unittest.TestCase):
     @patch("subprocess.run")
     def test_passes_multiple_args(self, mock_run):
         mock_run.return_value = MagicMock(returncode=0)
-        cl_host.cmd_run_test(["allocations/test_allocations", "single", "5", "all"])
+        cl_host.cmd_run_test(
+            ["allocations/test_allocations", "single", "5", "all"]
+        )
         cmd = mock_run.call_args[0][0]
         self.assertIn("allocations/test_allocations", cmd)
         self.assertIn("single", cmd)

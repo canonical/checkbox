@@ -234,8 +234,7 @@ def build_renesas_gst_command(
 
     encode_parser = codec_parser_map.get(decoder)
     part_pipeline = "qtdemux ! {} ! {} use-dmabuf=true".format(
-        encode_parser,
-        decoder
+        encode_parser, decoder
     )
 
     cmd = (

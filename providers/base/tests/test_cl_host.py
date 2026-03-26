@@ -53,6 +53,12 @@ class TestCheckHostGpu(unittest.TestCase):
 
     CLINFO_NO_GPU_OUTPUT = ""
 
+    @patch("os.path.isfile", return_value=False)
+    def test_returns_false_when_clinfo_missing(self, _isfile):
+        self.assertFalse(
+            cl_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
+        )
+
     @patch("subprocess.check_output")
     def test_returns_true_when_gpu_found(self, mock_check_output):
         mock_check_output.return_value = self.CLINFO_GPU_OUTPUT

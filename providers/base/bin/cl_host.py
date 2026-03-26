@@ -52,6 +52,9 @@ def check_host_gpu(plz_run, arch_triple):
     clinfo is executed inside a new mount/user namespace (via plz-run) so that
     it can load the host ICD stack instead of any snap-bundled libraries.
     """
+    if not os.path.isfile("/usr/bin/clinfo"):
+        print("FAIL: /usr/bin/clinfo not found", file=sys.stderr)
+        return False
     ld_library_path = "/usr/lib/{arch}:/usr/lib".format(arch=arch_triple)
     try:
         return "CL_DEVICE_TYPE_GPU" in subprocess.check_output(

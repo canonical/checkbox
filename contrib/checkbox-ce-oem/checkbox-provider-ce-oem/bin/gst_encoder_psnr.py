@@ -584,7 +584,8 @@ class RenesasProject(PipelineInterface):
         # Renesas RZ series support h264 and h265 as hardware decoder
         # And some platform support both decoder.
         # We make a simple logic to choose the decoder and build the pipeline,
-        # If the decoder is omxh265dec, we use h265parse, else we use h264parse.
+        # If the decoder is omxh265dec, we use h265parse, else we use
+        # h264parse.
 
         if "omxh264enc" in self._codec or "omxh265enc" in self._codec:
             return self._264_265_pipeline_builder()

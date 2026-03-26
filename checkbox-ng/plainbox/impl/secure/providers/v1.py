@@ -377,9 +377,8 @@ class YAMLUnitPlugIn(ProviderContentPlugIn):
                     unit_data,
                     provider=provider,
                     origin=Origin(
-                        # Origin is ""human readable"" and uses n+1 for lines
-                        #        end line is already the first line that is not
-                        #        us, so no need to +1
+                        # Origin is ""human readable"" so the line ranges are
+                        # start + 1, end as humans count from 1.
                         FileTextSource(filename),
                         start_line + 1,
                         end_line,

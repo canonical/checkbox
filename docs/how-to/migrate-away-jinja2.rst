@@ -39,9 +39,6 @@ Can be expressed as:
   command:
     echo {name}
 
-Units that use Jinja special ``__...___`` variables like ``__system_env__`` or
-``__checkbox_env__`` although their usage should be rarely necessary.
-
 Command section
 ===============
 
@@ -51,8 +48,9 @@ can do with Jinja that is not possible without.
 Conditionals
 ------------
 
-Transitioning away from conditionals is just a matter of re-writing the code as
-follows:
+Checkbox provides a few environment variables (see :ref:`envvar` for more
+information) that can be used to prevent having to use Jinja conditionals. For
+instance, ``$CHECKBOX_RUNNING_STRICT_SNAP`` can be used, so that:
 
 .. code-block:: none
 

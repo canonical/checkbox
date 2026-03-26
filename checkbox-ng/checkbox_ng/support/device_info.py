@@ -61,9 +61,7 @@ def get_kernel_modules(modules_path="/proc/modules") -> List[Dict]:
                         "instances": int(instances),
                         "dependencies": [
                             d
-                            for d in dependencies.replace(",", " ")
-                            .strip()
-                            .split()
+                            for d in dependencies.strip().strip(",").split(",")
                         ],
                         "state": state,
                         "offset": int(offset, 16),

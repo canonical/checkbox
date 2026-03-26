@@ -35,7 +35,7 @@ from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.resource import ResourceProgram, parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit import concrete_validators
+from plainbox.impl.unit import concrete_validators, get_array_field_qualify
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import (
     CorrectFieldValueValidator,
@@ -369,7 +369,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
     @cached_property
     def siblings(self):
-        return self.get_record_value("siblings")
+        siblings = self.get_record_value("siblings")
+        if isinstance(siblings, str):
+            # LEGACY: pxu compatibility, siblings are objects now
+            siblings = json.loads(siblings)
+        return siblings
 
     @cached_property
     def shell(self):
@@ -457,7 +461,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         second.
         """
         value = self.get_record_value("estimated_duration")
-        # NOTE: Some tests do that, I'd rather not change them now
+        # NOTE: yaml units do this
         if isinstance(value, (int, float)):
             return value
         elif value is None:
@@ -562,8 +566,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         Return a set of requested environment variables
         """
-        if self.environ is not None:
+        if self.environ is not None and isinstance(self.environ, str):
+            # LEGACY: pxu compatibility, environ is now a list
             return {variable for variable in re.split(r"[\s,]+", self.environ)}
+        elif self.environ is not None:
+            return set(self.environ)
         else:
             return set()
 
@@ -572,8 +579,12 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         Return a set of flags associated with this job
         """
+        # legacy jinja or pxu support
         if self.flags is not None:
-            return {flag for flag in re.split(r"[\s,]+", self.flags)}
+            if isinstance(self.flags, str):
+                # LEGACY: pxu compatibility, flag set is a list now
+                return {flag for flag in re.split(r"[\s,]+", self.flags)}
+            return set(self.flags)
         else:
             return set()
 
@@ -651,20 +662,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         To combat a simple mistake where the jobs are space-delimited any
         mixture of white-space (including newlines) and commas are allowed.
         """
-        deps = set()
-        if self.depends is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse depends: %s"), node.msg)
-
-        V().visit(WordList.parse(self.depends))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.depends, "depends", self.qualify_id, logger
+            )
+        )
 
     def get_after_dependencies(self):
         """
@@ -681,20 +683,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         To combat a simple mistake where the jobs are space-delimited any
         mixture of white-space (including newlines) and commas are allowed.
         """
-        deps = set()
-        if self.after is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse after: %s"), node.msg)
-
-        V().visit(WordList.parse(self.after))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.after, "after", self.qualify_id, logger
+            )
+        )
 
     def get_before_dependencies(self):
         """
@@ -709,38 +702,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
             id: B      ->
             before: A      id: B
         """
-
-        deps = set()
-        if self.before is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse before: %s"), node.msg)
-
-        V().visit(WordList.parse(self.before))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.before, "before", self.qualify_id, logger
+            )
+        )
 
     def get_salvage_dependencies(self):
-        """Return a set of jobs that need to fail before this job can run."""
-        deps = set()
-        if self.salvages is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse depends: %s"), node.msg)
-
-        V().visit(WordList.parse(self.salvages))
-        return deps
+        """return a set of jobs that need to fail before this job can run."""
+        return set(
+            get_array_field_qualify(
+                self.salvages, "salvages", self.qualify_id, logger
+            )
+        )
 
     def get_resource_dependencies(self):
         """
@@ -827,7 +801,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             # NOTE: 'id' validators are "inherited" so we don't have it here
             fields.summary: [
-                concrete_validators.templateVariant,
                 PresentFieldValidator(severity=Severity.advice),
                 concrete_validators.oneLine,
                 concrete_validators.shortValue,
@@ -1067,21 +1040,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             fields.siblings: [
                 CorrectFieldValueValidator(
-                    lambda value, unit: json.loads(value),
+                    lambda value, unit: value,
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
                 ),
                 CorrectFieldValueValidator(
-                    lambda value, unit: type(json.loads(value)) is list,
+                    lambda value, unit: type(value) is list,
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
                 ),
                 CorrectFieldValueValidator(
-                    lambda value, unit: all(
-                        [type(s) is dict for s in json.loads(value)]
-                    ),
+                    lambda value, unit: all([type(s) is dict for s in value]),
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
@@ -1095,7 +1066,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                                     for k in s.keys()
                                 ]
                             )
-                            for s in json.loads(value)
+                            for s in value
                         ]
                     ),
                     Problem.bad_reference,

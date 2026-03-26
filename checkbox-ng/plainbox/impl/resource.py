@@ -202,7 +202,7 @@ class ResourceProgram:
     This is used by job requirement expressions
     """
 
-    def __init__(self, program_text, implicit_namespace=None, imports=None):
+    def __init__(self, program_value, implicit_namespace=None, imports=None):
         """
         Analyze the requirement program and prepare it for execution
 
@@ -212,12 +212,16 @@ class ResourceProgram:
         May raise ResourceProgramError (including CodeNotAllowed) or a
         SyntaxError
         """
-        self._expression_list = []
-        for line in program_text.splitlines():
-            if line.strip() != "":
-                self._expression_list.append(
-                    ResourceExpression(line, implicit_namespace, imports)
-                )
+        if isinstance(program_value, str):
+            # LEGACY: pxu compatibility, now resources are list
+            program_lines = (x.strip() for x in program_value.splitlines())
+            program_lines = filter(bool, program_lines)
+        else:
+            program_lines = program_value
+        self._expression_list = [
+            ResourceExpression(line, implicit_namespace, imports)
+            for line in program_lines
+        ]
 
     @property
     def expression_list(self):
@@ -797,7 +801,10 @@ def parse_imports_stmt(imports):
                      AS <IDENTIFIER>
     """
     # Poor man's parser. Replace this with our own parser once we get one
-    for lineno, line in enumerate(imports.splitlines()):
+    if isinstance(imports, str):
+        # LEGACY: pxu compatibility, now imports is a list
+        imports = imports.splitlines()
+    for lineno, line in enumerate(imports):
         parts = line.split()
         if len(parts) not in (4, 6):
             raise ValueError(

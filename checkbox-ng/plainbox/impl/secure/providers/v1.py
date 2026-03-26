@@ -31,6 +31,14 @@ import logging
 import os
 import sys
 from collections import defaultdict
+
+import yaml
+
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
+
 from pathlib import Path
 
 from plainbox.abc import IProvider1
@@ -82,6 +90,7 @@ class ProviderContentPlugIn(PlugIn):
         The list of loaded units
     """
 
+    # fmt: off
     def __init__(
         self,
         filename,
@@ -94,6 +103,9 @@ class ProviderContentPlugIn(PlugIn):
         check=True,
         context=None
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         start_time = now()
         try:
             # Inspect the file
@@ -174,10 +186,10 @@ class ProviderContentPlugIn(PlugIn):
         )
 
 
-class UnitPlugIn(ProviderContentPlugIn):
+class RFC822UnitPlugIn(ProviderContentPlugIn):
     """
     A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
-    list of :class:`plainbox.impl.unit.Unit` instances from a file.
+    list of :class:`plainbox.impl.unit.Unit` instances from a pxu file.
     """
 
     def inspect(
@@ -241,6 +253,141 @@ class UnitPlugIn(ProviderContentPlugIn):
                 raise PlugInError(
                     _("Cannot define unit from record {!r}: {}").format(
                         record, exc
+                    )
+                )
+            if check:
+                for issue in unit.check(context=context, live=True):
+                    if issue.severity is Severity.error:
+                        raise PlugInError(
+                            _("Problem in unit definition, {}").format(issue)
+                        )
+            if validate:
+                try:
+                    unit.validate(**validation_kwargs)
+                except ValidationError as exc:
+                    raise PlugInError(
+                        _("Problem in unit definition, field {}: {}").format(
+                            exc.field, exc.problem
+                        )
+                    )
+            unit_list.append(unit)
+            logger.debug(_("Loaded %r"), unit)
+        return unit_list
+
+    def discover_units(
+        self,
+        inspect_result: "List[Unit]",
+        filename: str,
+        text: str,
+        provider: "Provider1",
+    ) -> "Iterable[Unit]":
+        for unit in inspect_result:
+            yield unit
+        yield self.make_file_unit(filename, provider)
+
+    # NOTE: this version of plugin_object() is just for legacy code support
+    @property
+    def plugin_object(self):
+        return self.unit_list
+
+    @staticmethod
+    def _get_unit_cls(unit_name):
+        """
+        Get a class that implements the specified unit
+        """
+        # TODO: transition to lazy plugin collection
+        all_units.load()
+        return all_units.get_by_name(unit_name).plugin_object
+
+
+class YAMLUnitPlugIn(ProviderContentPlugIn):
+    """
+    A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
+    list of :class:`plainbox.impl.unit.Unit` instances from a yaml file.
+    """
+
+    def _load_units(self, text):
+        loader = yaml.Loader(text)
+        try:
+            while loader.check_node():
+                node = loader.get_node()
+                start = node.start_mark
+                end = node.end_mark
+                value = loader.construct_document(node)
+                yield (value, start.line, end.line)
+        finally:
+            loader.dispose()
+
+    def inspect(
+        self,
+        filename: str,
+        text: str,
+        provider: "Provider1",
+        validate: bool,
+        validation_kwargs: "Dict[str, Any]",
+        check: bool,
+        context: "???",
+    ) -> "Any":
+        """
+        Load all units from their YAML representation.
+
+        :param filename:
+            Name of the file with unit definitions
+        :param text:
+            Full text of the file with unit definitions (lazy)
+        :param provider:
+            A provider object to which those units belong to
+        :param validate:
+            Enable unit validation. Incorrect unit definitions will not be
+            loaded and will abort the process of loading of the remainder of
+            the jobs.  This is ON by default to prevent broken units from being
+            used. This is a keyword-only argument.
+        :param validation_kwargs:
+            Keyword arguments to pass to the Unit.validate().  Note, this is a
+            single argument. This is a keyword-only argument.
+        :param check:
+            Enable unit checking. Incorrect unit definitions will not be loaded
+            and will abort the process of loading of the remainder of the jobs.
+            This is OFF by default to prevent broken units from being used.
+            This is a keyword-only argument.
+        :param context:
+            If checking, use this validation context.
+        """
+        logger.debug(_("Loading units from %r..."), filename)
+
+        try:
+            units_data = self._load_units(str(text))
+        except yaml.YAMLError as exc:
+            raise PlugInError(
+                _("Cannot load job definitions from {!r}: {}").format(
+                    filename, exc
+                )
+            )
+        unit_list = []
+        for unit_data, start_line, end_line in units_data:
+            unit_name = unit_data.get("unit", "job")
+            try:
+                unit_cls = self._get_unit_cls(unit_name)
+            except KeyError:
+                raise PlugInError(
+                    _("Unknown unit type: {!r}").format(unit_name)
+                )
+            try:
+                unit = unit_cls.from_yaml_unit_data(
+                    unit_data,
+                    provider=provider,
+                    origin=Origin(
+                        # Origin is ""human readable"" so the line ranges are
+                        # start + 1, end as humans count from 1.
+                        FileTextSource(filename),
+                        start_line + 1,
+                        end_line,
+                    ),
+                )
+            except ValueError as exc:
+                raise PlugInError(
+                    _("Cannot define unit from record {!r}: {}").format(
+                        unit_data, exc
                     )
                 )
             if check:
@@ -454,8 +601,10 @@ class ProviderContentClassifier:
         classify_fn_list = []
         if self.provider.jobs_dir:
             classify_fn_list.append(self._classify_pxu_jobs)
+            classify_fn_list.append(self._classify_yaml_jobs)
         if self.provider.units_dir:
             classify_fn_list.append(self._classify_pxu_units)
+            classify_fn_list.append(self._classify_yaml_units)
         if self.provider.data_dir:
             classify_fn_list.append(self._classify_data)
         if self.provider.bin_dir:
@@ -505,7 +654,28 @@ class ProviderContentClassifier:
                 return (
                     FileRole.unit_source,
                     self.provider.jobs_dir,
-                    UnitPlugIn,
+                    RFC822UnitPlugIn,
+                )
+
+    def _classify_yaml_jobs(self, filename: str):
+        """classify certain files in jobs_dir as unit source"""
+        if filename.startswith(self.provider.jobs_dir):
+            ext = os.path.splitext(filename)[1]
+            if ext in {".yaml", ".yml"}:
+                return (
+                    FileRole.unit_source,
+                    self.provider.units_dir,
+                    YAMLUnitPlugIn,
+                )
+
+    def _classify_yaml_units(self, filename: str):
+        if filename.startswith(self.provider.units_dir):
+            ext = os.path.splitext(filename)[1]
+            if ext in {".yaml", ".yml"}:
+                return (
+                    FileRole.unit_source,
+                    self.provider.units_dir,
+                    YAMLUnitPlugIn,
                 )
 
     def _classify_pxu_units(self, filename: str):
@@ -517,7 +687,7 @@ class ProviderContentClassifier:
                 return (
                     FileRole.unit_source,
                     self.provider.units_dir,
-                    UnitPlugIn,
+                    RFC822UnitPlugIn,
                 )
 
     def _classify_data(self, filename: str):
@@ -730,6 +900,7 @@ class Provider1(IProvider1):
     number of fields involved in basic initialization.
     """
 
+    # fmt: off
     def __init__(
         self,
         name,
@@ -751,6 +922,9 @@ class Provider1(IProvider1):
         context=None,
         sideloaded=False
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -854,6 +1028,7 @@ class Provider1(IProvider1):
         if self._gettext_domain and self._locale_dir:
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
+    # fmt: off
     @classmethod
     def from_definition(
         cls,
@@ -866,6 +1041,9 @@ class Provider1(IProvider1):
         context=None,
         sideloaded=False
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize a provider from Provider1Definition object
 
@@ -1800,6 +1978,7 @@ class Provider1PlugIn(PlugIn):
     files
     """
 
+    # fmt: off
     def __init__(
         self,
         filename,
@@ -1811,6 +1990,9 @@ class Provider1PlugIn(PlugIn):
         check=None,
         context=None
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize the plug-in with the specified name and external object
         """

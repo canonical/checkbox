@@ -42,7 +42,7 @@ def get_arch_triple():
 
 
 def find_plz_run():
-    """Return the path to the first plz-run binary found in checkbox snaps."""
+    """Return the path to plz-run from the running checkbox snap."""
     return shutil.which("plz-run")
 
 

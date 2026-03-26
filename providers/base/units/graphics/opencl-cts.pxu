@@ -223,7 +223,8 @@ _siblings: [
     "_summary": "Run the subgroups tests from OpenCL-CTS (core)",
     "command": "opencl-cts.test subgroups/test_subgroups" }]
 
-plugin: resource
+unit: job
+plugin: shell
 id: graphics/cl_host_gpu_avail
 category_id: com.canonical.plainbox::graphics
 user: root
@@ -233,10 +234,12 @@ _summary: Checks for GPU for OpenCL using host drivers
 environ:
   XDG_SESSION_TYPE
   XDG_RUNTIME_DIR
+  PATH
 estimated_duration: 1s
 command: cl_host.py resource
 
-plugin: job
+unit: job
+plugin: shell
 id: graphics/cl_host_ocl_avail
 category_id: com.canonical.plainbox::graphics
 user: root

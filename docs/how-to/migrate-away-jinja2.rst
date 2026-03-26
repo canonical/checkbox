@@ -7,7 +7,7 @@ they can be accurately translated into YAML.
 .. note::
 
    Textual fields like ``purpose``, ``steps`` and ``verification`` may need to
-   use jinja more often, to give platform-specific instructions. Try to keep
+   use Jinja more often, to give platform-specific instructions. Try to keep
    the usage to a minimum.
 
 .. note::
@@ -26,7 +26,7 @@ formatting as follows:
 
   [...]
   template-resource: some
-  template-engine: jinja2
+  template-engine: Jinja2
   command:
     echo {{ name }}
 
@@ -45,8 +45,8 @@ Units that use Jinja special ``__...___`` variables like ``__system_env__`` or
 Command section
 ===============
 
-Command section usage of jinja is especially dangerous and there is little one
-can do with jinja that is not possible without.
+Command section usage of Jinja is especially dangerous and there is little one
+can do with Jinja that is not possible without.
 
 Conditionals
 ------------

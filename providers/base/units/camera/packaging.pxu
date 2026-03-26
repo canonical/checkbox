@@ -1,18 +1,3 @@
-# For camera/roundtrip-qrcode_.*
-unit: packaging meta-data
-os-id: ubuntu
-Depends: python3-zbar
-
-# For camera/roundtrip-qrcode_.*
-unit: packaging meta-data
-os-id: ubuntu
-Depends: python3-pil
-
-# For camera/roundtrip-qrcode_.*
-unit: packaging meta-data
-os-id: ubuntu
-Depends: python3-pyqrcode
-
 # For camera/camera-quality_.*
 unit: packaging meta-data
 os-id: ubuntu

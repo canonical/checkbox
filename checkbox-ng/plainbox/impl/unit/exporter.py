@@ -161,7 +161,7 @@ class ExporterUnit(UnitWithId):
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.data
-                    # LEGACY: pxu compatibility, now data is an object
+                    # LEGACY: pxu compatibility, now data is a dict
                     and isinstance(unit.data, str),
                 ),
                 CorrectFieldValueValidator(
@@ -224,7 +224,7 @@ class ExporterUnitSupport:
         if exporter.data:
             if isinstance(exporter.data, dict):
                 return exporter.data
-            # LEGACY: pxu compatibility, now data is an object
+            # LEGACY: pxu compatibility, now data is a dict
             return json.loads(exporter.data)
         else:
             return {}

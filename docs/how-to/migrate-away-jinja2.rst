@@ -169,6 +169,6 @@ Can be changed to:
 
 .. note::
   Even though ``__checkbox_env__`` and ``__system_env__`` are not the same as
-  environment, most of the times environment is a superset of both. The only
-  exception is when an environment variable is present in both, in that case,
-  the system environment prevails.
+  ``environment``, most of the times ``environment`` is a superset of both. The
+  only exception is when an environment variable is present in both, in that
+  case, the system environment prevails.

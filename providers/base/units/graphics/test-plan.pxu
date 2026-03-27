@@ -370,12 +370,22 @@ nested_part:
     graphics-gpu-cert-automated
     after-suspend-graphics-gpu-cert-automated
 
-id: opencl-test-plan
+id: opencl-core-test-plan
 unit: test plan
-_name: Graphics test plan for verifying OpenCL
+_name: Graphics test plan for verifying OpenCL (core/snap)
 include:
     setup/install_opencl_cts
-    graphics/cl_.*
+    graphics/cl_core_.*
+bootstrap_include:
+    graphics_card
+    executable
+
+id: opencl-host-test-plan
+unit: test plan
+_name: Graphics test plan for verifying OpenCL (host)
+include:
+    setup/install_opencl_cts
+    graphics/cl_host_.*
 bootstrap_include:
     graphics_card
     executable

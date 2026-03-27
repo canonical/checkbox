@@ -19,6 +19,7 @@
 import time
 import textwrap
 import itertools
+from copy import copy
 
 try:
     from importlib.resources import files
@@ -97,7 +98,7 @@ class ContainerBaseMachine:
         self.config = config
         # self._container is the currently used container, which may differ
         # from original if we are using a temporary one (running in parallel)
-        self._original_container = self._container = container
+        self._container = container
         self._checkbox_wrapper = self.CHECKBOX
 
     def mock_inxi_at(self, path):
@@ -126,7 +127,8 @@ class ContainerBaseMachine:
 
     @contextmanager
     def temporary_container_copy(self):
-        container = self._container
+        to_r = copy(self)
+        container = to_r._container
         temp_name = f"{container.name}-{random.randint(0, int(2e10))}"
         temp_container = None
         try:
@@ -147,19 +149,14 @@ class ContainerBaseMachine:
                     device.pop("hwaddr", None)
             temp_container.save(wait=True)
             temp_container.start(wait=True)
-            self._container = temp_container
-            print("yielding")
-            yield temp_container
+            to_r._container = temp_container
+            yield to_r
         finally:
             if temp_container is not None:
                 with suppress(Exception):
                     if temp_container.status == "Running":
-                        print("stopping")
                         temp_container.stop(wait=True)
-                    print("delete")
-                    temp_container.delete(wait=True)
-                    print("cleaned")
-            self._container = self._original_container
+                temp_container.delete(wait=True)
 
     def interactive_execute(self, cmd, env={}, verbose=False, timeout=0):
         return interactive_execute(

@@ -49,6 +49,8 @@ requires:
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -88,6 +90,8 @@ flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -125,6 +129,8 @@ flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -162,6 +168,8 @@ flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -199,6 +207,8 @@ flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -236,6 +246,8 @@ flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -273,6 +285,8 @@ flags: also-after-suspend
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -309,6 +323,8 @@ requires:
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -347,6 +363,8 @@ requires:
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-source
     alsa_record_playback.sh
     EXIT_CODE=$?
   else
@@ -384,6 +402,9 @@ requires:
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils default_device_is_real -d audio-source
     alsa_record_playback.sh
     EXIT_CODE=$?
   else
@@ -418,6 +439,9 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils default_device_is_real -d audio-source
     alsa_record_playback.sh
     EXIT_CODE=$?
   else
@@ -456,6 +480,9 @@ requires:
  manifest.has_audio_playback == 'True'
 command:
   if check_audio_daemon.sh ; then
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils default_device_is_real -d audio-source
     pipewire_test.py
   else
     audio_test.py
@@ -528,7 +555,12 @@ category_id: com.canonical.plainbox::audio
 id: audio/channels
 flags: also-after-suspend
 estimated_duration:  20.0
-command: speaker-test -c 2 -l 1 -t wav
+command: 
+  if check_audio_daemon.sh; then
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+  fi
+  speaker-test -c 2 -l 1 -t wav
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_internal_speakers == 'True'
@@ -595,6 +627,8 @@ requires:
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     alsa_record_playback.sh
     EXIT_CODE=$?
   else
@@ -702,6 +736,8 @@ requires:
 command:
   if check_audio_daemon.sh ; then
     checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -740,8 +776,11 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
  manifest.has_audio_playback == 'True'
  manifest.has_audio_capture == 'True'
-command: audio_test.py
+command:
   if check_audio_daemon.sh ; then
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils default_device_is_real -d audio-source
     pipewire_test.py
   else
     audio_test.py
@@ -757,6 +796,8 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
     checkbox-support-pipewire-utils detect -t audio -c sinks
   else
     pactl_list.sh sinks

@@ -14,6 +14,21 @@ class TestDeviceInfoCLI(TestCase):
             expected = "BOOT_IMAGE=/boot/vmlinuz-6.17.0-1012-oem quiet splash"
             self.assertEqual(returned, expected)
 
+    def test_get_kernel_modules(self):
+        read_data = "hid_generic 12288 0 - Live 0x0000000000000000\nusbhid 77824 0 - Live 0x0000000000000000\nhid 262144 2 hid_generic,usbhid, Live 0x0000000000000000\n"
+        with patch("builtins.open", mock_open(read_data=read_data)) as _:
+            kernel_modules = device_info.get_kernel_modules()
+            expected_module = {
+                "name": "hid",
+                "size": 262144,
+                "instances": 2,
+                "dependencies": ["hid_generic", "usbhid"],
+                "state": "Live",
+                "offset": 0,
+            }
+            self.assertEqual(len(kernel_modules), 3)
+            self.assertIn(expected_module, kernel_modules)
+
     @patch("checkbox_ng.support.device_info.subprocess.check_output")
     @patch("checkbox_ng.support.device_info.parse_udevadm_output")
     def test_get_devices(self, mock_parse_udevadm, mock_co):
@@ -99,10 +114,12 @@ class TestDeviceInfoCLI(TestCase):
     @patch("checkbox_ng.support.device_info.get_snap_packages")
     @patch("checkbox_ng.support.device_info.get_uname")
     @patch("checkbox_ng.support.device_info.get_bios_info")
+    @patch("checkbox_ng.support.device_info.get_kernel_modules")
     @patch("checkbox_ng.support.device_info.get_kernel_cmdline")
     def test_kernel_cmdline_subcommand_uses_only_kernel_getter(
         self,
         mock_kernel_cmdline,
+        mock_kernel_modules,
         mock_bios_info,
         mock_uname,
         mock_snap_packages,
@@ -120,6 +137,7 @@ class TestDeviceInfoCLI(TestCase):
             "splash quiet",
         )
         mock_kernel_cmdline.assert_called_once_with()
+        mock_kernel_modules.assert_not_called()
         mock_uname.assert_not_called()
         mock_bios_info.assert_not_called()
         mock_meminfo.assert_not_called()

@@ -69,6 +69,53 @@
         "launcher": {
           "$ref": "#/definitions/Launcher"
         },
+        "system_information": {
+          "type": "object",
+          "properties": {
+              "bios": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "debian_packages": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "distribution": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "image_info": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "inxi": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "journalctl": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "kernel_cmdline": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "kernel_modules": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "machine_manifest": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "memory": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "snaps": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "udev_devices": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "uname": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
+              "version": {
+                "type": "integer"
+              }
+        }
+        },
         "testplan_id": {
           "type": "string"
         },
@@ -541,6 +588,29 @@
         "version"
       ],
       "title": "Package"
+    },
+    "SystemInformationOject": {
+      "type": "object",
+      "properties": {
+        "tool_version": { "type": "string" },
+        "success": { "type": "boolean" },
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "stdout": { "type": "string" },
+            "stderr": { "type": "string" },
+            "return_code": { "type": "integer" },
+            "payload": {
+              "oneOf": [
+                { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+                { "type": "object", "additionalProperties": true },
+                { "type": "string", "additionalProperties": true }
+              ]
+            }
+          }
+        }
+      },
+      "required": ["tool_version", "success", "outputs"]
     },
     "Launcher": {
       "type": "object",

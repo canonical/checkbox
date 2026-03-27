@@ -59,10 +59,11 @@ def get_kernel_modules(modules_path="/proc/modules") -> List[Dict]:
                         "name": name,
                         "size": int(size),
                         "instances": int(instances),
-                        "dependencies": [
-                            d
-                            for d in dependencies.strip().strip(",").split(",")
-                        ],
+                        # in /proc/modules, dependencies look like this:
+                        # ghash_clmulni_intel,aesni_intel,crypto_simd,
+                        "dependencies": dependencies.strip()
+                        .strip(",")
+                        .split(","),
                         "state": state,
                         "offset": int(offset, 16),
                     }

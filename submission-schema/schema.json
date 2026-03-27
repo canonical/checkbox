@@ -170,7 +170,7 @@
           "type": "string"
         },
         "architecture": {
-          "$ref": "#/definitions/SubmissionArchitecture"
+          "type": "string"
         },
         "memory": {
           "$ref": "#/definitions/Memory"

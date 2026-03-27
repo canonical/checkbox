@@ -219,21 +219,17 @@ def main():
                     record["driver"]
                 ][1]
 
-            # DRM node named in the udev record
-            if (
-                "name" in record
-                and (drm_path := Path("/dev/") / record["name"]).exists()
-            ):
-                record["drm_node"] = drm_path
-            # Find the DRM node in device tree
-            elif (
-                cards := tuple(Path("/sys" + record["path"]).glob("drm/card*"))
-            ) and len(cards) == 1:
+            cards = tuple(Path("/sys" + record["path"]).glob("drm/card*"))
+            if "name" in record and (Path("/dev/") / record["name"]).exists():
+                # DRM node named in the udev record
+                record["drm_node"] = Path("/dev/") / record["name"]
+            elif len(cards) == 1:
+                # Find the DRM node in device tree
                 record["drm_node"] = Path("/dev/dri") / cards[0].name
             else:
                 sys.stderr.write(
                     "Warning: could not find DRM node for device at path "
-                    f"{record['path']}\n"
+                    "{path}\n".format(path=record["path"])
                 )
                 record["drm_node"] = ""
 

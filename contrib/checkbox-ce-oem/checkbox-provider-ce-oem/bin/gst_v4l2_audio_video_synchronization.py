@@ -23,6 +23,7 @@ import os
 import shlex
 import subprocess
 from typing import Any
+from gst_utils import manage_test_file_by_name
 
 logging.basicConfig(level=logging.INFO)
 
@@ -169,21 +170,20 @@ def play_video_for_av_synchronization_test(args: Any) -> None:
         exist, or if the extracted MD5 checksum does not match the golden MD5
         checksum.
     """
-    # Check the golden sample exists
-    if not os.path.exists(args.golden_sample_path):
-        raise SystemExit(
-            "Golden Sample '{}' doesn't exist".format(args.golden_sample_path)
+    with manage_test_file_by_name(
+        file_name=os.path.basename(args.golden_sample_path),
+        target_dir=os.path.dirname(args.golden_sample_path),
+    ):
+        gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
+        cmd = build_gst_command(
+            gst_bin=gst_launch_bin,
+            golden_sample_path=args.golden_sample_path,
+            decoder=args.decoder_plugin,
+            video_sink=args.video_sink,
+            capssetter_pipeline=args.capssetter_pipeline,
         )
-    gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
-    cmd = build_gst_command(
-        gst_bin=gst_launch_bin,
-        golden_sample_path=args.golden_sample_path,
-        decoder=args.decoder_plugin,
-        video_sink=args.video_sink,
-        capssetter_pipeline=args.capssetter_pipeline,
-    )
-    # The video will be displayed on the real display
-    execute_command(cmd)
+        # The video will be displayed on the real display
+        execute_command(cmd)
 
 
 def main() -> None:

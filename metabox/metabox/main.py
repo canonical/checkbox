@@ -25,6 +25,7 @@ import argparse
 import logging
 import sys
 import warnings
+import multiprocessing
 from datetime import datetime
 from pathlib import Path
 
@@ -65,9 +66,7 @@ def configure_logger(args):
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
-def main():
-    """Entry point to Metabox."""
-
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "config",
@@ -126,7 +125,18 @@ def main():
             help_log_file_message
         ),
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--max-parallel",
+        help="Maximum number of tests running in parallel (default:%(default)s)",
+        type=int,
+        default=max(1, multiprocessing.cpu_count() // 2),
+    )
+    return parser.parse_args()
+
+
+def main():
+    """Entry point to Metabox."""
+    args = parse_args()
 
     configure_logger(args)
 

@@ -1,4 +1,6 @@
 config:
+  limits.cpu: "1"
+  limits.memory: 500MB
   raw.idmap: "both 1000 1000"
   environment.DISPLAY: :0
   user.user-data: |

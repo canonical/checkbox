@@ -55,6 +55,7 @@ class Runner:
         self.debug_machine_setup = self.args.debug_machine_setup
         self.dispose = self.args.dispose
         self.reprovision_existing = not self.args.dont_reprovision_existing
+        self.max_parallel = args.max_parallel
         aggregator.load_all()
 
     def _gather_all_machine_spec(self):
@@ -288,11 +289,15 @@ class Runner:
         logger.info("Preparing scenario machines")
         for scn in self.scn_variants:
             self.add_scenario_machines(scn)
-        logger.info("Starting testing")
+        logger.info(f"Starting testing with {self.max_parallel} runners")
+        # to not confuse the user, if we are running in remote, drop
+        # max_parallel to n/2 as remote uses 2 runners
+        if any(scn.mode == "remote" for scn in self.scn_variants):
+            self.max_parallel = min(1, self.max_parallel // 2)
         # executed_scenarios = map(self.run, self.scn_variants)
         from multiprocessing.pool import ThreadPool
 
-        with ThreadPool(5) as p:
+        with ThreadPool(self.max_parallel) as p:
             executed_scenarios = p.imap_unordered(self.run, self.scn_variants)
             for idx, scn in enumerate(executed_scenarios, 1):
                 scenario_description = self._get_scenario_description(scn)

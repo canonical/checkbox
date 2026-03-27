@@ -105,10 +105,7 @@ class Scenario:
     @contextmanager
     def temporary_container(self):
         if self.mode == "remote":
-            with (
-                self.controller_machine.temporary_container_copy() as controller,
-                self.agent_machine.temporary_container() as agent,
-            ):
+            with self.controller_machine.temporary_container_copy() as controller, self.agent_machine.temporary_container_copy() as agent:
                 self.controller_machine = controller
                 self.agent_machine = agent
                 yield

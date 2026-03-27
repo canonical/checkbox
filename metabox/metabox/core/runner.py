@@ -290,10 +290,6 @@ class Runner:
         for scn in self.scn_variants:
             self.add_scenario_machines(scn)
         logger.info(f"Starting testing with {self.max_parallel} runners")
-        # to not confuse the user, if we are running in remote, drop
-        # max_parallel to n/2 as remote uses 2 runners
-        if any(scn.mode == "remote" for scn in self.scn_variants):
-            self.max_parallel = min(1, self.max_parallel // 2)
         # executed_scenarios = map(self.run, self.scn_variants)
         from multiprocessing.pool import ThreadPool
 

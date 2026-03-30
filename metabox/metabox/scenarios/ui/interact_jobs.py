@@ -25,8 +25,7 @@ from metabox.core.utils import tag
 
 @tag("manual", "interact")
 class ManualInteractQuit(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -35,8 +34,7 @@ class ManualInteractQuit(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
 
     steps = [
         Start(),

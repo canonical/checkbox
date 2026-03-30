@@ -22,6 +22,5 @@ import sys
 
 from checkbox_support.scripts.gputest_benchmark import main
 
-
 if __name__ == "__main__":
     sys.exit(main())

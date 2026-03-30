@@ -35,9 +35,7 @@ imports: from com.canonical.plainbox import manifest
 environ: GENIO_DEVICE
 requires:
     manifest.has_genio_gpio_lookback == "True"
-    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G1200-evk" %}
-    manifest.has_genio_g1200_j34_short == "False"
-    {%- endif %}
+    environment.GENIO_DEVICE != "G1200-evk" or manifest.has_genio_g1200_j34_short == "False"
 flags: also-after-suspend
 command:
     echo "## Perform the GPIO loopback test"
@@ -54,9 +52,7 @@ imports: from com.canonical.plainbox import manifest
 environ: GENIO_DEVICE
 requires:
     manifest.has_genio_spi_lookback == "True"
-    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G1200-evk" %}
-    manifest.has_genio_g1200_j34_short == "False"
-    {%- endif %}
+    environment.GENIO_DEVICE != "G1200-evk" or manifest.has_genio_g1200_j34_short == "False"
 _summary: Test the SPI bus functionality on Raspberry Pi Hat
 _purpose:
     Check the SPI devices exist and can be used via spidev_test tool
@@ -154,9 +150,7 @@ environ: GENIO_DEVICE
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_genio_uart_lookback == "True"
-    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G700" %}
-    manifest.has_genio_g700_j4202_as_rpi_mode == "True" and manifest.has_genio_g700_j4203_as_rpi_mode == "True"
-    {%- endif %}
+    environment.GENIO_DEVICE != "G700" or (manifest.has_genio_g700_j4202_as_rpi_mode == "True" and manifest.has_genio_g700_j4203_as_rpi_mode == "True")
 _summary: Test UART2 functionality on RPI hat
 _description:
     This test will check the UART1 functionality on RPI hat by connecting

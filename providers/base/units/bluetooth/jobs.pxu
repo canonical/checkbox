@@ -6,7 +6,7 @@ plugin: shell
 command:
   bt_list_adapters.py && udev_resource.py -f BLUETOOTH
 estimated_duration: 2s
-flags: preserve-locale
+flags: also-after-suspend, preserve-locale
 requires: manifest.has_bt_adapter == 'True'
 imports: from com.canonical.plainbox import manifest
 
@@ -19,9 +19,7 @@ depends: bluetooth/detect
 template-engine: jinja2
 requires:
   package.name == 'bluez' or snap.name == 'bluez'
-  {%- if __on_ubuntucore__ %}
-  connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
-  {% endif -%}
+  environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez')
 command:
   bluez_list_adapters.py
 estimated_duration: 2s
@@ -269,9 +267,7 @@ category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 30
 requires:
  package.name == 'bluez' or snap.name == 'bluez'
- {%- if __on_ubuntucore__ %}
- connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
- {% endif -%}
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez')
 
 unit: template
 template-resource: device
@@ -290,9 +286,7 @@ category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 10
 requires:
  package.name == 'bluez' or snap.name == 'bluez'
- {%- if __on_ubuntucore__ %}
- connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
- {% endif -%}
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez')
 
 unit: template
 template-resource: bluez-internal-rfcomm-tests

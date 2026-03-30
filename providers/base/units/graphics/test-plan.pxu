@@ -27,6 +27,9 @@ include:
  graphics/auto_glxgears                         certification-status=blocker
  graphics/auto_glxgears_fullscreen              certification-status=blocker
  suspend/resolution_before_suspend              certification-status=blocker
+ graphics/1_vkcube_.*                           certification-status=non-blocker
+ graphics/2_vkcube_.*                           certification-status=non-blocker
+ graphics/vulkaninfo.*                          certification-status=non-blocker
 bootstrap_include:
     graphics_card
 
@@ -305,7 +308,7 @@ include:
     suspend/1_resolution_after_suspend_.*_auto             certification-status=blocker
     suspend/1_display_after_suspend_.*_graphics            certification-status=blocker
     suspend/1_glxgears_after_suspend_.*_graphics           certification-status=blocker
-    suspend/1_rotation_after_suspend_.*_graphics           certification-status=blocker 
+    suspend/1_rotation_after_suspend_.*_graphics           certification-status=blocker
     suspend/1_video_after_suspend_.*_graphics              certification-status=blocker
     power-management/lid_close_suspend_open                certification-status=blocker
     power-management/lid                                   certification-status=blocker
@@ -324,3 +327,65 @@ include:
     suspend/2_glxgears_after_suspend_.*_graphics         certification-status=blocker
     suspend/2_rotation_after_suspend_.*_graphics         certification-status=blocker
     suspend/2_video_after_suspend_.*_graphics            certification-status=blocker
+
+id: webgl-conformance-test
+unit: test plan
+_name: WebGL conformance test
+_description: WebGL conformance test
+include:
+    graphics/webgl-conformance-test-.*
+bootstrap_include:
+    browser_resource
+
+id: after-suspend-webgl-conformance-test
+unit: test plan
+_name: WebGL conformance test (After suspend)
+_description: WebGL conformance test
+include:
+    after-suspend-graphics/webgl-conformance-test-.*
+bootstrap_include:
+    browser_resource
+
+id: graphic-base-26-04-manual
+unit: test plan
+_name: Graphics for 26.04 (Manual)
+_description: Manual tests for graphics
+include:
+    keys/video-out
+    after-suspend-keys/video-out
+nested_part:
+    submission-cert-full
+    graphics-gpu-cert-manual
+    monitor-gpu-cert-manual
+    after-suspend-graphics-gpu-cert-manual
+    after-suspend-monitor-gpu-cert-manual
+    info-attachment-cert-full
+
+id: graphic-base-26-04-automated
+unit: test plan
+_name: Graphic for 26.04 (Automated)
+_description: Automated tests for graphic
+include:
+nested_part:
+    graphics-gpu-cert-automated
+    after-suspend-graphics-gpu-cert-automated
+
+id: opencl-core-test-plan
+unit: test plan
+_name: Graphics test plan for verifying OpenCL (core/snap)
+include:
+    setup/install_opencl_cts
+    graphics/cl_core_.*
+bootstrap_include:
+    graphics_card
+    executable
+
+id: opencl-host-test-plan
+unit: test plan
+_name: Graphics test plan for verifying OpenCL (host)
+include:
+    setup/install_opencl_cts
+    graphics/cl_host_.*
+bootstrap_include:
+    graphics_card
+    executable

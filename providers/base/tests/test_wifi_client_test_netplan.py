@@ -48,8 +48,7 @@ class WifiClientTestNetplanTests(TestCase):
         new=MagicMock(return_value="20.04"),
     )
     def test_open_ap_with_dhcp(self):
-        expected_output = textwrap.dedent(
-            """
+        expected_output = textwrap.dedent("""
             # This is the network config written by checkbox
             network:
               renderer: networkd
@@ -60,8 +59,7 @@ class WifiClientTestNetplanTests(TestCase):
                     my_ap: {}
                   dhcp4: true
                   nameservers: {}
-            """
-        )
+            """)
 
         result = generate_test_config(
             "eth0", "my_ap", None, "", True, False, "networkd"
@@ -73,8 +71,7 @@ class WifiClientTestNetplanTests(TestCase):
         new=MagicMock(return_value="20.04"),
     )
     def test_private_ap_with_dhcp(self):
-        expected_output = textwrap.dedent(
-            """
+        expected_output = textwrap.dedent("""
             # This is the network config written by checkbox
             network:
               renderer: networkd
@@ -88,8 +85,7 @@ class WifiClientTestNetplanTests(TestCase):
                         password: s3cr3t
                   dhcp4: true
                   nameservers: {}
-            """
-        )
+            """)
         result = generate_test_config(
             "eth0", "my_ap", "s3cr3t", "", True, False, "networkd"
         )
@@ -100,8 +96,7 @@ class WifiClientTestNetplanTests(TestCase):
         new=MagicMock(return_value="16.04"),
     )
     def test_private_ap_with_dhcp_ubuntu_16_04(self):
-        expected_output = textwrap.dedent(
-            """
+        expected_output = textwrap.dedent("""
             # This is the network config written by checkbox
             network:
               renderer: networkd
@@ -113,8 +108,7 @@ class WifiClientTestNetplanTests(TestCase):
                       password: s3cr3t
                   dhcp4: true
                   nameservers: {}
-            """
-        )
+            """)
         print(expected_output)
         result = generate_test_config(
             "eth0", "my_ap", "s3cr3t", "", True, False, "networkd"
@@ -127,8 +121,7 @@ class WifiClientTestNetplanTests(TestCase):
         new=MagicMock(return_value="20.04"),
     )
     def test_private_ap_with_wpa3(self):
-        expected_output = textwrap.dedent(
-            """
+        expected_output = textwrap.dedent("""
             # This is the network config written by checkbox
             network:
               renderer: networkd
@@ -142,8 +135,7 @@ class WifiClientTestNetplanTests(TestCase):
                         password: s3cr3t
                   dhcp4: false
                   nameservers: {}
-            """
-        )
+            """)
         result = generate_test_config(
             "eth0", "my_ap_wpa3", "s3cr3t", "", False, True, "networkd"
         )
@@ -154,8 +146,7 @@ class WifiClientTestNetplanTests(TestCase):
         new=MagicMock(return_value="20.04"),
     )
     def test_static_ip_no_dhcp(self):
-        expected_output = textwrap.dedent(
-            """
+        expected_output = textwrap.dedent("""
             # This is the network config written by checkbox
             network:
               renderer: networkd
@@ -171,8 +162,7 @@ class WifiClientTestNetplanTests(TestCase):
                   - 192.168.1.1
                   dhcp4: false
                   nameservers: {}
-            """
-        )
+            """)
         result = generate_test_config(
             "eth0", "my_ap", "s3cr3t", "192.168.1.1", False, False, "networkd"
         )
@@ -778,6 +768,33 @@ class WifiClientTestNetplanTests(TestCase):
         self.assertEqual(result, "")
         mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
         self.assertIn("Got gateway address: ", captured_output.getvalue())
+
+
+@patch("wifi_client_test_netplan.ping")
+@patch("wifi_client_test_netplan.get_gateway")
+@patch("wifi_client_test_netplan.sp.check_output")
+class TestPerformPingTest(TestCase):
+    def test_perform_ping_test_success(
+        self, mock_check_output, mock_gateway, mock_ping
+    ):
+        mock_gateway.return_value = "127.1"
+        mock_ping.return_value = {
+            "transmitted": 5,
+            "received": 5,
+            "pct_loss": 0,
+        }
+        self.assertTrue(perform_ping_test("wlan0", "networkd"))
+
+    def test_perform_ping_test_failure(
+        self, mock_check_output, mock_gateway, mock_ping
+    ):
+        mock_gateway.return_value = "127.1"
+        mock_ping.return_value = {
+            "transmitted": 5,
+            "received": 0,
+            "pct_loss": 0,
+        }
+        self.assertFalse(perform_ping_test("wlan0", "networkd"))
 
 
 class TestMain(TestCase):

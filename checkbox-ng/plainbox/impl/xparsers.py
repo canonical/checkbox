@@ -50,6 +50,7 @@ the code already contain optimizations for regular expressions that are just a
 plain string comparison there is a special class to highlight that fact
 (``ReFixed``)
 """
+
 import abc
 import itertools
 import re
@@ -585,6 +586,28 @@ class IncludeStmt(Node):
                 return Error(lineno, col_offset, _("expected ','"))
         return IncludeStmt(lineno, col_offset, pattern, overrides)
 
+    @staticmethod
+    def from_preparsed(include, lineno=1):
+        # in yaml, include is either a string (same meaning as before) or
+        # a map include : {override field : override value}
+        if isinstance(include, str):
+            return IncludeStmt(lineno, 0, Re.parse(include), [])
+        if len(include) != 1:
+            raise ValueError(
+                "Include is a non-single value map, got: {}".format(include)
+            )
+        key, overrides = next(iter(include.items()))
+        overrides = [
+            OverrideExpression(
+                lineno,
+                0,
+                Text(lineno, 0, override[0]),
+                Text(lineno, 0, override[1]),
+            )
+            for override in overrides.items()
+        ]
+        return IncludeStmt(lineno, 0, Re.parse(key), overrides)
+
 
 class IncludeStmtList(Node):
     """node representing a list of include statements"""
@@ -630,6 +653,23 @@ class IncludeStmtList(Node):
                 continue
             entries.append(IncludeStmt.parse(line, lineno, col_offset))
         return IncludeStmtList(initial_lineno, col_offset, entries)
+
+    @staticmethod
+    def from_preparsed(include_list: list, lineno: int = 1):
+        """
+        Create AST nodes from a pre-parsed input
+
+        This is used because in YAML we no longer need to re-parse the text,
+        the work was already done by the YAML parser itself.
+        """
+        return IncludeStmtList(
+            lineno,
+            0,
+            entries=[
+                IncludeStmt.from_preparsed(include, i)
+                for (i, include) in enumerate(include_list, lineno)
+            ],
+        )
 
 
 class WordList(Node):
@@ -704,3 +744,7 @@ class WordList(Node):
                     )
                 )
         return WordList(lineno, col_offset, entries)
+
+    @staticmethod
+    def from_preparsed(items: list, lineno: int = 1):
+        return WordList(lineno, 0, items)

@@ -249,11 +249,9 @@ def get_installed_pkgs(apt_cache: Cache) -> List[PkgTuple]:
                 line.strip().split(":")[0] for line in dpkglist
             )
     except IOError:
-        print(
-            """
+        print("""
 WARNING: clean-installed-dpkg.list not found, will check all installed
-packages."""
-        )
+packages.""")
 
         return [
             PkgTuple(
@@ -276,10 +274,8 @@ packages."""
     ]
 
     if pkgs_from_test_utils:
-        print(
-            """
-The following packages are installed by test utilities:"""
-        )
+        print("""
+The following packages are installed by test utilities:""")
         for name in pkgs_from_test_utils:
             print(f" - {name}")
         print()
@@ -373,12 +369,10 @@ def check_component_scanning(
         if allowlist.get(item.k) is None and item.pkg.installed is not None
     ]
     if pkgs_not_allowed:
-        print(
-            f"""
+        print(f"""
 The following packages are not in main or restricted component. Send an MP to
 {ALLOWLIST_GIT_URL}
-to review by manager:"""
-        )
+to review by manager:""")
         for item, components in pkgs_not_allowed:
             components.remove("now")
             if len(components) == 0:
@@ -412,17 +406,22 @@ to review by manager:"""
 
 def pkg_is_public(pkg: Package) -> bool:
     ver = pkg.installed
+    public_sites = [
+        "security.ubuntu.com",
+        "archive.ubuntu.com",
+        "ports.ubuntu.com",
+    ]
+
     if ver and ver.origins[0].component == "now" and pkg.is_upgradable:
         # this package is upgradable to a package in the archive
         ver = pkg.candidate
     if ver is None:
         raise Exception("package is not installed")
+
     for origin in ver.origins:
-        if (
-            "security.ubuntu.com" in origin.site
-            or "archive.ubuntu.com" in origin.site  # noqa: W503
-        ) and origin.trusted:
+        if origin.trusted and origin.site in public_sites:
             return True
+
     return False
 
 
@@ -466,7 +465,7 @@ def check_public(args):
     print(f"# platform: {platform.oem}-{platform.platform_with_release}")
 
     print("# getting allowlist")
-    (allowlist, repo_hash) = get_allowlist(platform, outdir=args.out)
+    allowlist, repo_hash = get_allowlist(platform, outdir=args.out)
     print(f"# allowlist hash: {repo_hash}")
 
     print("# getting list of installed packages")
@@ -491,7 +490,7 @@ def check_component(args):
     print(f"# platform: {platform.oem}-{platform.platform_with_release}")
 
     print("# getting allowlist")
-    (allowlist, repo_hash) = get_allowlist(platform, outdir=args.out)
+    allowlist, repo_hash = get_allowlist(platform, outdir=args.out)
     print(f"# allowlist hash: {repo_hash}")
 
     print("# getting list of installed packages")

@@ -44,7 +44,6 @@ from plainbox.i18n import gettext as _
 from plainbox.impl import pod
 from plainbox.impl.secure.origin import Origin
 
-
 _logger = logging.getLogger("plainbox.secure.qualifiers")
 
 

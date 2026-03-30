@@ -30,11 +30,14 @@ import shutil
 import subprocess
 from pathlib import Path
 
+# Default location for ROCm Validation Suite binary.
 RVS_BIN = Path("/opt/rocm/bin/rvs")
-"""Default location for ROCm Validation Suite binary."""
 
+# ROCm Validation Suite snap common directory for sharing configuration files.
+RVS_SNAP_COMMON = Path("~/snap/rocm-validation-suite/common").expanduser()
+
+# Location of the RVS module configurations.
 PLAINBOX_PROVIDER_DATA = Path(os.getenv("PLAINBOX_PROVIDER_DATA", "."))
-"""Location of the RVS module configurations."""
 
 
 class ModuleRunner:
@@ -44,6 +47,12 @@ class ModuleRunner:
         """Initializes the module runner."""
         self.rvs = rvs
         self.config = config
+
+        # CHECKBOX-2021: Snap confinement prevents access to /usr/share
+        snap_bins = ["/snap/bin/rvs", "/snap/bin/rocm-validation-suite"]
+        if any(rvs.match(p) for p in snap_bins):
+            shutil.copy(config, RVS_SNAP_COMMON)
+            self.config = RVS_SNAP_COMMON / config.name
 
     def run(self, module: str):
         """Runs and validates the RVS module.

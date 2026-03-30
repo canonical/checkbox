@@ -46,20 +46,30 @@ class TestUsbSupport(unittest.TestCase):
         self.assertEqual(result, "unsupported")
 
 
-class TestDeviceRotation(unittest.TestCase):
-    @patch("builtins.open", new_callable=mock_open, read_data="1")
+class TestDeviceFstrimSupport(unittest.TestCase):
+    @patch("builtins.open", new_callable=mock_open, read_data="0")
     @patch("os.path.exists")
-    def test_device_rotation_spinning(self, mock_path_exists, mock_file):
+    def test_device_fstrim_no_support(self, mock_path_exists, mock_file):
         mock_path_exists.return_value = True
-        result = block_device_resource.device_rotation("sda")
-        self.assertEqual(result, "yes")
+        result = block_device_resource.device_fstrim("sda")
+        self.assertEqual(result, "False")
+
+    @patch("builtins.open", new_callable=mock_open, read_data="2199023255040")
+    @patch("os.path.exists")
+    def test_device_fstrim(self, mock_path_exists, mock_file):
+        mock_path_exists.return_value = True
+        result = block_device_resource.device_fstrim("sdb")
+        self.assertEqual(result, "True")
 
     @patch("builtins.open", new_callable=mock_open, read_data="0")
     @patch("os.path.exists")
-    def test_device_rotation_non_spinning(self, mock_path_exists, mock_file):
-        mock_path_exists.return_value = True
-        result = block_device_resource.device_rotation("sdb")
-        self.assertEqual(result, "no")
+    def test_device_fstrim_file_missing(self, mock_path_exists, mock_file):
+        """Test device_fstrim when discard_max_bytes file doesn't exist."""
+        mock_path_exists.return_value = False
+        result = block_device_resource.device_fstrim("sdc")
+        self.assertEqual(result, "False")
+        # Verify the file was never opened since it doesn't exist
+        mock_file.assert_not_called()
 
 
 class TestSmartSupportDiskInfo(unittest.TestCase):
@@ -75,13 +85,11 @@ class TestSmartSupportDiskInfo(unittest.TestCase):
 
     @patch("block_device_resource.check_output")
     def test_smart_support_enabled(self, mock_check_output):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             Some intro information on the drive
             === START OF SMART DATA SECTION ===
             SMART overall-health self-assessment test result: PASSED
-            """
-        )
+            """)
 
         result = block_device_resource.smart_support("sda")
         self.assertEqual(result, "True")
@@ -104,28 +112,22 @@ class TestSmartSupportDiskInfo(unittest.TestCase):
     @patch("block_device_resource.check_output")
     def test_smart_support_enabled_raid(self, mock_check_output):
         mock_check_output.side_effect = [
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
                 Raid configuration: some -d 3ware,N
-                """
-            ),
+                """),
             # here we are checking inside the raid checking function
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
-                """
-            ),
+                """),
             # Note: at least one disk in the raid doesn't support SMART,
             #       we report true here as this will make the subsequent
             #       test fail as this is likely to be a mistake from the OEM
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
                 === START OF SMART DATA SECTION ===
                 SMART overall-health self-assessment test result: PASSED
-                """
-            ),
+                """),
             CalledProcessError("cmd", 1),
         ]
 
@@ -135,23 +137,17 @@ class TestSmartSupportDiskInfo(unittest.TestCase):
     @patch("block_device_resource.check_output")
     def test_smart_support_disabled_raid(self, mock_check_output):
         mock_check_output.side_effect = [
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
                 Raid configuration: some -d 3ware,N
-                """
-            ),
+                """),
             # here we are checking inside the raid checking function
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Some intro information of the drive in raid
-                """
-            ),
-            textwrap.dedent(
-                """
+                """),
+            textwrap.dedent("""
                 Some intro information of the drive in raid
-                """
-            ),
+                """),
             CalledProcessError("cmd", 1),
         ]
 
@@ -163,12 +159,12 @@ class TestMainFunction(unittest.TestCase):
     @patch("block_device_resource.Path.glob")
     @patch("block_device_resource.device_state")
     @patch("block_device_resource.usb_support")
-    @patch("block_device_resource.device_rotation")
+    @patch("block_device_resource.device_fstrim")
     @patch("block_device_resource.smart_support")
     def test_block_device_resource_main(
         self,
         mock_smart_support,
-        mock_device_rotation,
+        mock_device_fstrim,
         mock_usb_support,
         mock_device_state,
         mock_path_glob,
@@ -184,7 +180,7 @@ class TestMainFunction(unittest.TestCase):
         mock_usb_support.side_effect = lambda name, version: (
             "supported" if version == 3.00 else "unsupported"
         )
-        mock_device_rotation.return_value = "yes"
+        mock_device_fstrim.return_value = "False"
         mock_smart_support.return_value = "True"
 
         # Capturing the output of print statements
@@ -192,15 +188,13 @@ class TestMainFunction(unittest.TestCase):
             block_device_resource.main()
 
             # Verifying the output
-            expected_output = textwrap.dedent(
-                """
+            expected_output = textwrap.dedent("""
                 name: sda
                 state: internal
                 usb2: unsupported
                 usb3: supported
-                rotation: yes
+                fstrim: False
                 smart: True
-                """
-            ).lstrip()
+                """).lstrip()
 
             mocked_print.assert_called_with(expected_output)

@@ -1,0 +1,75 @@
+id: vulkan-test-plan
+unit: test plan
+_name: GFX test plan for verifying Vulkan
+include:
+  gfx_mesa_vk.*
+bootstrap_include:
+    com.canonical.certification::executable
+
+id: vulkan-test-plan-subset
+unit: test plan
+_name: GFX test plan for verifying Vulkan (smaller ~20min subset)
+include:
+  vk_subset_for_nvidia
+bootstrap_include:
+    com.canonical.certification::executable
+
+id: opencl-test-plan
+unit: test plan
+_name: GFX test plan for verifying OpenCL
+include:
+    gfx_cl_.*
+bootstrap_include:
+    com.canonical.certification::executable
+
+id: opengl-test-plan
+unit: test plan
+_name: GFX test plan for verifying OpenGL
+include:
+  gfx_mesa_gl_sru.*
+  gfx_mesa_gl_longrun.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    graphics_card
+
+id: opengl-test-plan-sru
+unit: test plan
+_name: Shorter GFX test plan for verifying OpenGL
+include:
+  gfx_mesa_gl_sru_.*
+  gfx_mesa_gl_extra_sru.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    graphics_card
+
+id: crucible-test-plan
+unit: test plan
+_name: GFX test plan for verifying Mesa
+include:
+  gfx_mesa_crucible.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    graphics_card
+
+id: lvl-zero-plan
+unit: test plan
+_name: GFX test plan for hardware encode and decode
+include:
+  gfx_level_zero.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    graphics_card
+
+id: lvl-zero-rt-plan
+unit: test plan
+_name: GFX test plan for hardware encode and decode
+include:
+  gfx_level_zero_rt.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    graphics_card

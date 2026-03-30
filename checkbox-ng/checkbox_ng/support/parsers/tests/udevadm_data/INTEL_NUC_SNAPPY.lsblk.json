@@ -1,0 +1,116 @@
+{
+  "blockdevices": [
+    {
+      "kname": "loop0",
+      "type": "loop",
+      "mountpoint": "/",
+      "fstype": "squashfs",
+      "size": 324421206
+    },
+    {
+      "kname": "loop1",
+      "type": "loop",
+      "mountpoint": "/lib/firmware",
+      "fstype": "squashfs",
+      "size": 60723268
+    },
+    {
+      "kname": "loop2",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snaps/canonical-pc-linux.canonical/4.3.0-7-2",
+      "fstype": "squashfs",
+      "size": 322135131
+    },
+    {
+      "kname": "loop3",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snaps/canonical-pc-linux.canonical/4.4.0-14-1",
+      "fstype": "squashfs",
+      "size": 238906753
+    },
+    {
+      "kname": "loop4",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snaps/ubuntu-core.canonical/16.04.0-24",
+      "fstype": "squashfs",
+      "size": 210675031
+    },
+    {
+      "kname": "loop5",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snaps/canonical-pc/3.0",
+      "fstype": "squashfs",
+      "size": 296701993
+    },
+    {
+      "kname": "loop6",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snaps/ubuntu-core.canonical/16.04.0-11+fake1",
+      "fstype": "squashfs",
+      "size": 322863165
+    },
+    {
+      "kname": "loop7",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snaps/ubuntu-core.canonical/16.04.0-11",
+      "fstype": "squashfs",
+      "size": 306061064
+    },
+    {
+      "kname": "loop8",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snaps/checkbox-snappy.sideload/LWFDdfShYcYN",
+      "fstype": "squashfs",
+      "size": 241659423
+    },
+    {
+      "kname": "mmcblk0rpmb",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 953042312634
+    },
+    {
+      "kname": "mmcblk0boot0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1253324942963
+    },
+    {
+      "kname": "mmcblk0boot1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 1071871682135
+    },
+    {
+      "kname": "mmcblk0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1306060450321
+    },
+    {
+      "kname": "mmcblk0p1",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 488089388905
+    },
+    {
+      "kname": "mmcblk0p2",
+      "type": "part",
+      "mountpoint": "/boot/efi",
+      "fstype": "vfat",
+      "size": 436397510776
+    },
+    {
+      "kname": "mmcblk0p3",
+      "type": "part",
+      "mountpoint": "/writable",
+      "fstype": "xfs",
+      "size": 338661374270
+    }
+  ]
+}

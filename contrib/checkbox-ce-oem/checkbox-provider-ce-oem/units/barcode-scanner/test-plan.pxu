@@ -1,0 +1,40 @@
+id: ce-oem-barcode-scanner-full
+unit: test plan
+_name: Barcode Scanner tests
+_description: Full Barcode Scanner tests for devices
+include:
+nested_part:
+    ce-oem-barcode-scanner-manual
+    ce-oem-barcode-scanner-automated
+    after-suspend-ce-oem-barcode-scanner-manual
+    after-suspend-ce-oem-barcode-scanner-automated
+
+id: ce-oem-barcode-scanner-manual
+unit: test plan
+_name: Barcode Scanner manual tests
+_description: Manual Barcode Scanner tests for devices
+bootstrap_include:
+include:
+    ce-oem/barcode-scanner-test
+
+id: ce-oem-barcode-scanner-automated
+unit: test plan
+_name: Barcode Scanner auto tests
+_description: Automated Barcode Scanner tests for devices
+include:
+    ce-oem/barcode-scanner-test-automated
+
+id: after-suspend-ce-oem-barcode-scanner-manual
+unit: test plan
+_name: After suspend Barcode Scanner manual tests
+_description: Manual after suspend Barcode Scanner tests for devices
+bootstrap_include:
+include:
+    after-suspend-ce-oem/barcode-scanner-test
+
+id: after-suspend-ce-oem-barcode-scanner-automated
+unit: test plan
+_name: After suspend Barcode Scanner auto tests
+_description: Automated after suspend Barcode Scanner tests for devices
+include:
+    after-suspend-ce-oem/barcode-scanner-test-automated

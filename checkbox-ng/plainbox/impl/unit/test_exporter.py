@@ -113,28 +113,6 @@ class ExporterUnitFieldValidationTests(UnitWithIdFieldValidationTests):
             Severity.advice,
         )
 
-    def test_summary__translatable(self):
-        issue_list = self.unit_cls(
-            {"summary": "summary"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.summary,
-            Problem.expected_i18n,
-            Severity.warning,
-        )
-
-    def test_entry_point__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_entry_point": "entry_point"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.entry_point,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
-
     def test_file_extension__present(self):
         issue_list = self.unit_cls({}, provider=self.provider).check()
         self.assertIssueFound(
@@ -144,17 +122,6 @@ class ExporterUnitFieldValidationTests(UnitWithIdFieldValidationTests):
             Severity.error,
         )
 
-    def test_file_extension__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_file_extension": "file_extension"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.file_extension,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
-
     def test_entry_point__present(self):
         issue_list = self.unit_cls({}, provider=self.provider).check()
         self.assertIssueFound(
@@ -162,17 +129,6 @@ class ExporterUnitFieldValidationTests(UnitWithIdFieldValidationTests):
             self.unit_cls.Meta.fields.entry_point,
             Problem.missing,
             Severity.error,
-        )
-
-    def test_data__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_data": '{"foo": "bar"}'}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.data,
-            Problem.unexpected_i18n,
-            Severity.warning,
         )
 
     def test_data__json_content(self):

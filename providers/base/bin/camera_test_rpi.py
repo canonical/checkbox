@@ -26,10 +26,11 @@ import picamera
 
 # resolutions and framerates corresponding to sensor modes at:
 # https://picamera.readthedocs.io/en/release-1.13/fov.html#camera-modes
+#
+# resolution of 2592x1944 is supported by the camera but it requires to
+# allocate more memory the raspberry pi to perform the capture.
 test_res = [
     ((1920, 1080), 2),
-    ((2592, 1944), 2),
-    ((2592, 1944), (1, 8)),
     ((1296, 972), 5),
     ((1296, 730), 20),
     ((640, 480), 50),
@@ -37,16 +38,19 @@ test_res = [
 ]
 
 
-def capture():
+def capture(device):
     path = os.path.expandvars("$PLAINBOX_SESSION_SHARE")
     print("Images will be written to:\n{}\n".format(path), flush=True)
+
     for mode_no, (res, fr) in enumerate(test_res):
         with picamera.PiCamera(resolution=res, framerate=fr) as camera:
             print("Camera initialised, wait to settle...", flush=True)
             time.sleep(2)
+
             print("Resolution: {}".format(camera.resolution))
             print("Framerate: {}".format(camera.framerate))
-            file = "picam_{}.jpg".format(mode_no + 1)
+
+            file = "picam_{}_{}.jpg".format(mode_no + 1, device.split("/")[-1])
             camera.capture(os.path.join(path, file))
             print("Image {} captured\n".format(file))
 
@@ -55,8 +59,9 @@ def main():
     parser = argparse.ArgumentParser(description="PiCamera Tests")
     parser.add_argument("--device", default="/dev/vchiq", type=str)
     args = parser.parse_args()
+
     print("Resolutions test on device: {}".format(args.device), flush=True)
-    return capture()
+    return capture(args.device)
 
 
 if __name__ == "__main__":

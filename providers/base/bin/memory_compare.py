@@ -66,20 +66,11 @@ def get_installed_memory_size():
         return result.banks_reported
 
 
-class MeminfoResult:
-
-    memtotal = 0
-
-    def setMemory(self, memory):
-        self.memtotal = memory["total"]
-
-
 def get_visible_memory_size():
-    parser = MeminfoParser(open("/proc/meminfo"))
-    result = MeminfoResult()
-    parser.run(result)
+    parser = MeminfoParser()
+    meminfo = parser.run()
 
-    return result.memtotal
+    return meminfo["total"]
 
 
 def get_threshold(installed_memory):

@@ -248,14 +248,12 @@ class CameraTestTests(unittest.TestCase):
                 "resolutions": [[640, 480]],
             },
         ]
-        expected_str = textwrap.dedent(
-            """
+        expected_str = textwrap.dedent("""
             Format: YUYV (YUYV)
             Resolutions: 640x480,320x240
             Format: fake (fake)
             Resolutions: 640x480
-            """
-        ).lstrip()
+            """).lstrip()
 
         mock_camera = MagicMock()
         return_str = CameraTest._supported_formats_to_string(

@@ -19,6 +19,7 @@
 :mod:`plainbox.impl.commands.session` -- run sub-command
 ========================================================
 """
+
 from base64 import b64encode
 from logging import getLogger
 from shutil import copyfileobj
@@ -35,7 +36,6 @@ from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionPeekHelper
 from plainbox.impl.session import SessionResumeError
 from plainbox.impl.session.storage import WellKnownDirsHelper
-
 
 logger = getLogger("plainbox.commands.session")
 

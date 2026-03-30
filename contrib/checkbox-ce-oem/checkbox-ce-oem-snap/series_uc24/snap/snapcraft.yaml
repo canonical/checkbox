@@ -83,6 +83,7 @@ parts:
       - linuxptp
       - snmp
       - python3-rpyc
+      - gpsd
     override-prime: |
       craftctl default
       rm lib/systemd/system/alsa-utils.service

@@ -19,7 +19,6 @@
 
 from enum import Enum, unique
 
-
 __all__ = ["WordScanner"]
 
 

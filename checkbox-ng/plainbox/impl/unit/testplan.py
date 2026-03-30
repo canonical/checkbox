@@ -21,41 +21,39 @@
 :mod:`plainbox.impl.unit.job` -- job unit
 =========================================
 """
+
 import collections
 import logging
 import operator
 import re
 
 from plainbox.i18n import gettext as _
-from plainbox.impl.decorators import cached_property
-from plainbox.impl.decorators import instance_method_lru_cache
-from plainbox.impl.secure.qualifiers import CompositeQualifier
-from plainbox.impl.secure.qualifiers import FieldQualifier
-from plainbox.impl.secure.qualifiers import OperatorMatcher
-from plainbox.impl.secure.qualifiers import PatternMatcher
+from plainbox.impl.decorators import cached_property, instance_method_lru_cache
+from plainbox.impl.secure.qualifiers import (
+    CompositeQualifier,
+    FieldQualifier,
+    OperatorMatcher,
+    PatternMatcher,
+)
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit import concrete_validators
+from plainbox.impl.unit import concrete_validators, get_array_field_qualify
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import FieldValidatorBase
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import ReferenceConstraint
-from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
-from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import compute_value_map
+from plainbox.impl.unit.validators import (
+    FieldValidatorBase,
+    ReferenceConstraint,
+    UnitReferenceValidator,
+    compute_value_map,
+)
 from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
-from plainbox.impl.xparsers import Error
-from plainbox.impl.xparsers import FieldOverride
-from plainbox.impl.xparsers import IncludeStmt
-from plainbox.impl.xparsers import IncludeStmtList
-from plainbox.impl.xparsers import OverrideFieldList
-from plainbox.impl.xparsers import ReFixed
-from plainbox.impl.xparsers import RePattern
-from plainbox.impl.xparsers import Text
-from plainbox.impl.xparsers import Visitor
-from plainbox.impl.xparsers import WordList
-
+from plainbox.impl.xparsers import (
+    FieldOverride,
+    IncludeStmt,
+    IncludeStmtList,
+    OverrideFieldList,
+    ReFixed,
+    RePattern,
+    Visitor,
+)
 
 logger = logging.getLogger("plainbox.unit.testplan")
 
@@ -189,6 +187,10 @@ class TestPlanUnit(UnitWithId):
         return self.get_record_value("mandatory_include")
 
     @cached_property
+    def setup_include(self):
+        return self.get_record_value("setup_include")
+
+    @cached_property
     def bootstrap_include(self):
         return self.get_record_value("bootstrap_include")
 
@@ -276,22 +278,24 @@ class TestPlanUnit(UnitWithId):
         return self.get_translated_record_value("description")
 
     @instance_method_lru_cache(maxsize=None)
+    def get_setup_job_ids(self):
+        """Compute and return a set of job ids from setup_include field."""
+        job_ids = get_array_field_qualify(
+            self.setup_include, "setup_include", self.qualify_id, logger
+        )
+        for tp_unit in self.get_nested_part():
+            job_ids.extend(tp_unit.get_setup_job_ids())
+        return job_ids
+
+    @instance_method_lru_cache(maxsize=None)
     def get_bootstrap_job_ids(self):
         """Compute and return a set of job ids from bootstrap_include field."""
-        job_ids = []
-        if self.bootstrap_include is not None:
-
-            class V(Visitor):
-
-                def visit_Text_node(visitor, node: Text):
-                    job_ids.append(self.qualify_id(node.text))
-
-                def visit_Error_node(visitor, node: Error):
-                    logger.warning(
-                        _("unable to parse bootstrap_include: %s"), node.msg
-                    )
-
-            V().visit(WordList.parse(self.bootstrap_include))
+        job_ids = get_array_field_qualify(
+            self.bootstrap_include,
+            "bootstrap_include",
+            self.qualify_id,
+            logger,
+        )
         for tp_unit in self.get_nested_part():
             job_ids.extend(tp_unit.get_bootstrap_job_ids())
         return job_ids
@@ -305,19 +309,9 @@ class TestPlanUnit(UnitWithId):
 
             with SessionManager.get_throwaway_manager(self.provider_list) as m:
                 context = m.default_device_context
-                testplan_ids = []
-
-                class V(Visitor):
-
-                    def visit_Text_node(visitor, node: Text):
-                        testplan_ids.append(self.qualify_id(node.text))
-
-                    def visit_Error_node(visitor, node: Error):
-                        logger.warning(
-                            _("unable to parse nested_part: %s"), node.msg
-                        )
-
-                V().visit(WordList.parse(self.nested_part))
+                testplan_ids = get_array_field_qualify(
+                    self.nested_part, "nested_part", self.qualify_id, logger
+                )
                 for tp_id in testplan_ids:
                     try:
                         nested_parts.append(
@@ -364,6 +358,29 @@ class TestPlanUnit(UnitWithId):
         return CompositeQualifier(qual_list)
 
     @instance_method_lru_cache(maxsize=None)
+    def get_setup_qualifier(self, excluding=False):
+        """
+        Convert this test plan to an equivalent qualifier for job selection
+        """
+        qual_list = []
+        if self.setup_include is not None:
+            field_origin = self.origin.just_line().with_offset(
+                self.field_offset_map["setup_include"]
+            )
+            qual_list = [
+                FieldQualifier(
+                    "id",
+                    OperatorMatcher(operator.eq, target_id),
+                    field_origin,
+                    not excluding,
+                )
+                for target_id in self.get_setup_job_ids()
+            ]
+        for tp_unit in self.get_nested_part():
+            qual_list.extend([tp_unit.get_setup_qualifier(excluding)])
+        return CompositeQualifier(qual_list)
+
+    @instance_method_lru_cache(maxsize=None)
     def get_bootstrap_qualifier(self, excluding=False):
         """
         Convert this test plan to an equivalent qualifier for job selection
@@ -398,7 +415,7 @@ class TestPlanUnit(UnitWithId):
                 offset = field_origin.with_offset(lineno_offset)
                 yield FieldQualifier(matcher_field, matcher, offset, inclusive)
 
-    def parse_matchers(self, text):
+    def parse_matchers(self, include_value):
         """
         Parse the specified text and create a list of matchers
 
@@ -425,11 +442,15 @@ class TestPlanUnit(UnitWithId):
             expressions. The matcher uses the operator.eq operator (equality)
             and stores the expected job identifier as the right-hand-side value
         """
-        from plainbox.impl.xparsers import Error
-        from plainbox.impl.xparsers import ReErr, ReFixed, RePattern
-        from plainbox.impl.xparsers import IncludeStmt
-        from plainbox.impl.xparsers import IncludeStmtList
-        from plainbox.impl.xparsers import Visitor
+        from plainbox.impl.xparsers import (
+            Error,
+            IncludeStmt,
+            IncludeStmtList,
+            ReErr,
+            ReFixed,
+            RePattern,
+            Visitor,
+        )
 
         outer_self = self
 
@@ -477,7 +498,11 @@ class TestPlanUnit(UnitWithId):
                 self.results.append(result)
 
         visitor = IncludeStmtVisitor()
-        visitor.visit(IncludeStmtList.parse(text, 0, 0))
+        if isinstance(include_value, str):
+            parsed = IncludeStmtList.parse(include_value, 0, 0)
+        else:
+            parsed = IncludeStmtList.from_preparsed(include_value)
+        visitor.visit(parsed)
         return visitor.results
 
     @instance_method_lru_cache(maxsize=None)
@@ -495,10 +520,12 @@ class TestPlanUnit(UnitWithId):
         :raises ValueError:
             if there are any issues with the override declarations
         """
-        from plainbox.impl.xparsers import Error
-        from plainbox.impl.xparsers import FieldOverride
-        from plainbox.impl.xparsers import OverrideFieldList
-        from plainbox.impl.xparsers import Visitor
+        from plainbox.impl.xparsers import (
+            Error,
+            FieldOverride,
+            OverrideFieldList,
+            Visitor,
+        )
 
         outer_self = self
 
@@ -587,6 +614,7 @@ class TestPlanUnit(UnitWithId):
             name = "name"
             description = "description"
             include = "include"
+            setup_include = "setup_include"
             mandatory_include = "mandatory_include"
             bootstrap_include = "bootstrap_include"
             exclude = "exclude"
@@ -597,14 +625,12 @@ class TestPlanUnit(UnitWithId):
 
         field_validators = {
             fields.name: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
                 concrete_validators.present,
                 concrete_validators.oneLine,
                 concrete_validators.shortValue,
             ],
             fields.description: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
             ],
             fields.include: [
@@ -613,18 +639,38 @@ class TestPlanUnit(UnitWithId):
             fields.mandatory_include: [
                 NoBaseIncludeValidator(),
             ],
+            fields.setup_include: [
+                NoBaseIncludeValidator(),
+                UnitReferenceValidator(
+                    lambda unit: unit.get_setup_job_ids(),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda _, referee: referee.unit == "setup_job",
+                            message=_(
+                                "the referenced unit is not a setup job"
+                            ),
+                        ),
+                        ReferenceConstraint(
+                            lambda _, referee: referee.automated,
+                            message=_(
+                                "only automated jobs are allowed "
+                                "in setup_include"
+                            ),
+                        ),
+                    ],
+                ),
+            ],
             fields.bootstrap_include: [
-                concrete_validators.untranslatable,
                 NoBaseIncludeValidator(),
                 UnitReferenceValidator(
                     lambda unit: unit.get_bootstrap_job_ids(),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == "job",
+                            lambda _, referee: referee.unit == "job",
                             message=_("the referenced unit is not a job"),
                         ),
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.automated,
+                            lambda _, referee: referee.automated,
                             message=_(
                                 "only automated jobs are allowed "
                                 "in bootstrapping_include"
@@ -634,12 +680,9 @@ class TestPlanUnit(UnitWithId):
                 ),
             ],
             fields.estimated_duration: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
             ],
-            fields.icon: [
-                concrete_validators.untranslatable,
-            ],
+            fields.icon: [],
         }
 
 
@@ -730,7 +773,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             )
         return results
 
-    def _get_matchers(self, testplan, text):
+    def _get_matchers(self, testplan, field_value):
         """
         Parse the specified text and create a list of matchers
 
@@ -771,7 +814,13 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
                 result = (node.lineno, "id", matcher)
                 results.append(result)
 
-        V().visit(IncludeStmtList.parse(text, 0))
+        if isinstance(field_value, str):
+            parsed = IncludeStmtList.parse(field_value)
+        elif isinstance(field_value, list):
+            parsed = IncludeStmtList.from_preparsed(field_value)
+        else:
+            assert False
+        V().visit(parsed)
         return results
 
     def _get_override_list(
@@ -902,8 +951,14 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             testplan.include,
         )
         for section in include_sections:
-            if section:
-                V().visit(IncludeStmtList.parse(section))
+
+            if section and isinstance(section, str):
+                parsed = IncludeStmtList.parse(section)
+            elif section and isinstance(section, list):
+                parsed = IncludeStmtList.from_preparsed(section)
+            else:
+                continue
+            V().visit(parsed)
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_inline_overrides(tp_unit))
         return override_list

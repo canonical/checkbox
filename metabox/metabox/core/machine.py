@@ -19,7 +19,11 @@
 import time
 import textwrap
 import itertools
-import pkg_resources
+
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files
 from pathlib import Path
 
 import pylxd.exceptions
@@ -97,16 +101,14 @@ class ContainerBaseMachine:
         Inxi is pretty heavy to run and the result is not actively used for
         now. This replaces inxi with a script that outputs
         """
-        mocked_inxi = textwrap.dedent(
-            """#!/bin/bash
+        mocked_inxi = textwrap.dedent("""#!/bin/bash
             if [[ "$1" == "--vs" ]]
             then
               echo "v0 fake inxi"
             else
               echo "[ ]"
             fi
-            """
-        )
+            """)
         self.put(path, mocked_inxi)
 
     def execute(self, cmd, env={}, verbose=False, timeout=0):
@@ -144,7 +146,7 @@ class ContainerBaseMachine:
                 "degraded",
             ):
                 time.sleep(1)
-                (ret, out, err) = self._container.execute(
+                ret, out, err = self._container.execute(
                     ["systemctl", "is-system-running"]
                 )
                 attempts_left -= 1
@@ -373,8 +375,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 "sudo bash -c 'systemctl daemon-reload'",
                 "sudo bash -c 'systemctl enable checkbox-ng.service --now'",
             ]
-            service_content = textwrap.dedent(
-                """
+            service_content = textwrap.dedent("""
                 [Unit]
                 Description=Checkbox Agent Service
                 Wants=network.target
@@ -390,8 +391,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
                 [Install]
                 WantedBy=multi-user.target
-                """
-            ).lstrip()
+                """).lstrip()
             self.run_cmd("sudo mkdir -p '/usr/lib/systemd/system'")
             self.put(
                 "/usr/lib/systemd/system/checkbox-ng.service",
@@ -517,9 +517,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
         return file_tranfer_list
 
     def get_early_dir_transfer(self):
-        provider_path = pkg_resources.resource_filename(
-            "metabox", "metabox-provider"
-        )
+        provider_path = str(files("metabox") / "metabox-provider")
         return [(provider_path, "/home/ubuntu/metabox-provider")]
 
     def get_setup_overlay_fs(self):
@@ -543,9 +541,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
             work_dir=work_dir,
         )
 
-        service_content = (
-            textwrap.dedent(
-                """
+        service_content = textwrap.dedent("""
                 [Unit]
                 Description=Checkbox Overlay Service
                 Wants=network.target
@@ -561,11 +557,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
 
                 [Install]
                 WantedBy=multi-user.target
-                """
-            )
-            .lstrip()
-            .format(name=self._snap_name, cmd=service_cmd)
-        )
+                """).lstrip().format(name=self._snap_name, cmd=service_cmd)
         self.run_cmd("sudo mkdir -p '/usr/lib/systemd/system'")
         self.run_cmd("sudo mkdir -p '{}'".format(overlay_dir))
         self.run_cmd("sudo mkdir -p '{}'".format(work_dir))

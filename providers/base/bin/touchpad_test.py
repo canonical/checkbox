@@ -13,7 +13,6 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gio, Gtk, Gdk  # noqa: E402
 from optparse import OptionParser  # noqa: E402
 
-
 EXIT_WITH_FAILURE = 1
 EXIT_WITH_SUCCESS = 0
 EXIT_TIMEOUT = 30
@@ -217,7 +216,7 @@ def main(args):
         default=False,
         help="Force touchpad to use edge scrolling only",
     )
-    (options, args) = parser.parse_args(args)
+    options, args = parser.parse_args(args)
 
     if not args:
         parser.error("Must specify directions to test.")

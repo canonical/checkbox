@@ -17,9 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import doctest
-import unittest
+from unittest import TestCase
 
-from plainbox.impl.xparsers import WordList, Error, Text
+from plainbox.impl.xparsers import (
+    WordList,
+    Error,
+    Text,
+    IncludeStmt,
+    ReFixed,
+    RePattern,
+)
 
 
 def load_tests(loader, tests, ignore):
@@ -31,7 +38,7 @@ def load_tests(loader, tests, ignore):
     return tests
 
 
-class WordParserTests(unittest.TestCase):
+class WordParserTests(TestCase):
 
     def test_no_loop_forever_unterminated_word_parsable_prefix(self):
         """
@@ -72,3 +79,36 @@ class WordParserTests(unittest.TestCase):
         self.assertEqual(len(entries), 2)
         self.assertTrue(isinstance(entries[0], Text))
         self.assertTrue(isinstance(entries[1], Error))
+
+
+class IncludeStmtTest(TestCase):
+    def test_from_preparsed_str(self):
+        include = IncludeStmt.from_preparsed("test_id")
+        self.assertEqual(include.pattern.text, "test_id")
+        self.assertIsInstance(include.pattern, ReFixed)
+
+        include = IncludeStmt.from_preparsed("test_id.*")
+        self.assertEqual(include.pattern.text, "test_id.*")
+        self.assertIsInstance(include.pattern, RePattern)
+
+    def test_from_preparsed_dict(self):
+        include = IncludeStmt.from_preparsed({"test_id": {}})
+        self.assertEqual(include.pattern.text, "test_id")
+        self.assertIsInstance(include.pattern, ReFixed)
+        self.assertEqual(len(include.overrides), 0)
+
+        include = IncludeStmt.from_preparsed(
+            {"test_id": {"certification-status": "blocker"}}
+        )
+        self.assertEqual(include.pattern.text, "test_id")
+        self.assertIsInstance(include.pattern, ReFixed)
+        self.assertEqual(len(include.overrides), 1)
+
+    def test_from_preparsed_invalid_dict(self):
+        with self.assertRaises(ValueError):
+            _ = IncludeStmt.from_preparsed(
+                {
+                    "test_id": {"certification-status": "blocker"},
+                    "other_key": {},
+                }
+            )

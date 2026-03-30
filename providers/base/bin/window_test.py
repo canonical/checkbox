@@ -305,8 +305,7 @@ def main():
         help="The name of the test to run. \
                               Available tests: \
                               %s, all. \
-                              Default is all"
-        % (", ".join(tests)),
+                              Default is all" % (", ".join(tests)),
     )
     parser.add_argument(
         "-i",

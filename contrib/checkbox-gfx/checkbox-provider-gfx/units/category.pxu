@@ -1,0 +1,19 @@
+unit: category
+id: mesa
+_name: Category for Mesa tests
+
+unit: category
+id: opencl
+_name: A test suite for opencl
+
+unit: category
+id: opengl
+_name: A test suite for opengl
+
+unit: category
+id: level-zero
+_name: Category for Intel level zero tests
+
+unit: category
+id: level-zero-raytracing
+_name: Category for Intel level zero raytracing tests

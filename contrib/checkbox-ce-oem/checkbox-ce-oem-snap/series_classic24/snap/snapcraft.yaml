@@ -4,9 +4,16 @@ description: "Checkbox CE OEM test runner and public providers for 24.04 classic
 confinement: classic
 grade: stable
 
-version: '1.0-noble'
+version: '1.1-noble'
 
 base: core24
+
+slots:
+  custom-frontend:
+    interface: content
+    content: custom-frontend
+    read:
+      - /
 
 apps:
   checkbox-cli:
@@ -45,6 +52,7 @@ parts:
       - linuxptp
       - snmp
       - python3-rpyc
+      - gpsd
     override-prime: |
       craftctl default
     override-build: |

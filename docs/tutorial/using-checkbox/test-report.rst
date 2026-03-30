@@ -130,8 +130,8 @@ in the search bar, you can view all test results related to audio testing.
     :doc:`../../reference/submission-schema`.
 
 ``junit``
-    `JUnit XML <https://windyroad.com.au/dl/Open%20Source/JUnit.xsd>`_ files 
-    contain test data that can be read by Jenkins.
+    `JUnit XML <https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd>`_
+    files contain test data that can be read by Jenkins.
 
 ``tar.xz``
     The xz compressed tarball is a comprehensive archive that includes the 

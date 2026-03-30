@@ -40,7 +40,7 @@ Following fields may be used by an exporter unit.
 
     (mandatory) - This is a key for a pkg_resources entry point from the
     plainbox.exporters namespace.
-    Allowed values are: jinja2, text, xlsx, json and rfc822.
+    Allowed values are: jinja2, text, xlsx, json, tar and rfc822.
 
 .. option:: file_extension
 
@@ -78,6 +78,7 @@ Following fields may be used by an exporter unit.
         - with-job-description
         - with-text-attachments
         - with-unit-categories
+        - tp-export
 
     jinja2:
         - without-session-desc

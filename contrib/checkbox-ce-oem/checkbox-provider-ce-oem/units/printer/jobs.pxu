@@ -1,0 +1,39 @@
+id: ce-oem/printer-test-automated
+_summary: Test printer functionality
+_purpose:
+    This autotest verifies that the printer listed in CUPS service.
+plugin: shell
+user: root
+category_id: printer
+estimated_duration: 25s
+flags: also-after-suspend
+command: printer_test.py -k "$PRINTER_BRAND" -m "$PRINTER_MODEL" --check-device
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import package
+requires:
+    manifest.has_printer == 'True'
+    package.name == 'cups-client'
+environ: PRINTER_BRAND PRINTER_MODEL
+
+id: ce-oem/printer-test
+_summary: Test printer functionality
+_purpose:
+    This test verifies that the printer is correctly installed and can print a test page.
+plugin: user-interact-verify
+user: root
+category_id: printer
+estimated_duration: 25s
+flags: also-after-suspend
+command: printer_test.py -k "$PRINTER_BRAND" -m "$PRINTER_MODEL"
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import package
+requires:
+    manifest.has_printer == 'True'
+    package.name == 'cups-client'
+environ: PRINTER_BRAND PRINTER_MODEL
+_steps:
+ 1. Press enter and wait the test string printed
+_verification:
+    Do you see the test string printed out?

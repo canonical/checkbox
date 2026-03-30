@@ -121,6 +121,7 @@ _description:
 include:
 nested_part:
     ce-oem-automated
+    com.canonical.certification::gpgpu-automated
     com.canonical.certification::client-cert-iot-server-22-04-automated
     after-suspend-ce-oem-automated
 exclude:

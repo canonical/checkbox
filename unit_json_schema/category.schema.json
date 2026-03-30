@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/category.schema.json",
+  "title": "Category Unit",
+  "description": "Schema that describes a Checkbox Category unit",
+  "type": "object",
+  "properties": {
+    "unit": {
+      "title": "Unit (Category Unit)",
+      "description": "The type of unit.",
+      "const": "category"
+    },
+    "id": {
+      "title": "ID (Category Unit)",
+      "description": "Unique identifier of the category.",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name (Category Unit)",
+      "description": "Human readable name of the category",
+      "type": "string"
+    }
+  },
+  "required": ["unit", "id", "name"],
+  "unevaluatedProperties": false
+}

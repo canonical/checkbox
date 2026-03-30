@@ -243,8 +243,10 @@ requires: executable.name == 'docker'
 command:
  set -e
  docker pull ubuntu
- docker save ubuntu > {root_dir}/ubuntu.tar
- docker load < {root_dir}/ubuntu.tar
+ docker save -o {root_dir}/ubuntu.tar ubuntu
+ docker rmi ubuntu
+ docker image prune -f
+ docker load -i {root_dir}/ubuntu.tar
  docker images -a | grep ubuntu
 _summary: Test docker save and load a docker image
 flags: simple preserve-cwd
@@ -370,8 +372,13 @@ command:
  [ $restartPolicy = on-failure ] || exit 1
  maximumRetryCount=$(docker inspect  -f {maximumRetryCount} $ID)
  [ $maximumRetryCount = 3 ] || exit 1
- sleep 10
- restartCount=$(docker inspect -f {restartCount} $ID)
+ count=0
+ while [ $count -lt 10 ]; do
+   restartCount=$(docker inspect -f {restartCount} $ID)
+   [ $restartCount = 3 ] && break
+   sleep 3
+   count=$((count + 1))
+ done
  [ $restartCount = 3 ] || exit 1
  docker rm -f $ID
 _summary: Test container restart policy with on_failure applied

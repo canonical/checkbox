@@ -1,0 +1,10 @@
+=======================================================
+    glmark2 2010.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Intel
+    GL_RENDERER:    Mesa Intel(R) Graphics
+    GL_VERSION:     OpenGL ES 2.1 Mesa 25.0.7-0ubuntu0.25.04.1
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=24 stencil=0 samples=0
+    Surface Size:   800x600 windowed
+=======================================================

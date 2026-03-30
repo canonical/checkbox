@@ -19,6 +19,8 @@ _name: GPIO auto tests
 _description: Automated GPIO tests for devices
 bootstrap_include:
     ce-oem-gpio-gadget-slots
+    gpio_loopback_pin_mapping
 include:
+    ce-oem-gpio/loopback-on-phycial-output-.*-input-.*
     ce-oem-gpio/check-slots
     ce-oem-gpio/node-export-test

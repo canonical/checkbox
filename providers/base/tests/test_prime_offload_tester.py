@@ -325,7 +325,7 @@ class CheckOffloadTests(unittest.TestCase):
         cmd = ["echo"]
         # get_clients return string that doesn't include cmd
         mock_client.return_value = ""
-        mock_time.side_effect = [0, 0, 1, 2]
+        mock_time.side_effect = [0, 0, 1, 2, 3, 4]
         po = PrimeOffloader()
         self.assertEqual(
             po.check_offload(cmd, "card_id", "card_name", 1), None
@@ -334,7 +334,7 @@ class CheckOffloadTests(unittest.TestCase):
 
         # get_clients return None by CalledProcessError
         mock_client.return_value = None
-        mock_time.side_effect = [0, 0, 1, 2]
+        mock_time.side_effect = [0, 0, 1, 2, 3, 4]
         po = PrimeOffloader()
         self.assertEqual(
             po.check_offload(cmd, "card_id", "card_name", 1), None
@@ -388,7 +388,7 @@ class FindOffloadTests(unittest.TestCase):
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="Intel")
         po.find_file_containing_string = MagicMock(return_value="")
-        mock_time.side_effect = [0, 0, 1, 2]
+        mock_time.side_effect = [0, 0, 1, 2, 3, 4]
         self.assertEqual(po.find_offload(cmd, 1), None)
         po.find_file_containing_string.assert_called_with(
             "/sys/kernel/debug/dri", "clients", cmd

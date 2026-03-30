@@ -14,7 +14,7 @@ Save the following ``cloud-init`` file in ``python35_cloud_init.yaml``:
 
   #cloud-config
   runcmd:
-    - add-apt-repository --yes ppa:deadsnakes/ppa
+    - add-apt-repository --yes ppa:checkbox-dev/edge
     - apt update -q -y
     - apt install -q -y "python3.5" "python3.5-venv" "python3.5-dev" gcc "flake8" "shellcheck"
     - python3.5 -m ensurepip
@@ -41,3 +41,8 @@ The ``cloud-init`` file has prepared you a fresh clone of the Checkbox repo in
 ``/root/checkbox``, it has created a venv you can use in ``/root/venv`` with
 Python3.5 and it has developed the ``resource`` and ``base`` provider. You
 should now be able to iterate on your tests!
+
+.. note::
+
+  Python 3.5 and Python 3.6 are no longer in the deadsnakes PPA. We have added
+  them to the checkbox-dev PPA to still be able to run the tests.

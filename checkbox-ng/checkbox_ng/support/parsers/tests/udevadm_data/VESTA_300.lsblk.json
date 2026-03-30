@@ -1,0 +1,144 @@
+{
+  "blockdevices": [
+    {
+      "kname": "loop0",
+      "type": "loop",
+      "mountpoint": "/",
+      "fstype": "squashfs",
+      "size": 430748518
+    },
+    {
+      "kname": "loop1",
+      "type": "loop",
+      "mountpoint": "/lib/firmware",
+      "fstype": "squashfs",
+      "size": 235650173
+    },
+    {
+      "kname": "loop2",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/core/4209",
+      "fstype": "squashfs",
+      "size": 332828149
+    },
+    {
+      "kname": "loop3",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/vesta-kernel/x1",
+      "fstype": "squashfs",
+      "size": 274256796
+    },
+    {
+      "kname": "loop4",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/rigado-300b/x1",
+      "fstype": "squashfs",
+      "size": 250062543
+    },
+    {
+      "kname": "loop5",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/network-manager/253",
+      "fstype": "squashfs",
+      "size": 319246093
+    },
+    {
+      "kname": "loop6",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/modem-manager/122",
+      "fstype": "squashfs",
+      "size": 110880770
+    },
+    {
+      "kname": "loop7",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/vesta-300b-configuration/x1",
+      "fstype": "squashfs",
+      "size": 154675161
+    },
+    {
+      "kname": "loop8",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/checkbox-tillamook/3",
+      "fstype": "squashfs",
+      "size": 67200052
+    },
+    {
+      "kname": "loop9",
+      "type": "loop",
+      "mountpoint": "/writable/system-data/snap/network-manager/265",
+      "fstype": "squashfs",
+      "size": 485630069
+    },
+    {
+      "kname": "mmcblk0rpmb",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1832151533366
+    },
+    {
+      "kname": "mmcblk0boot0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "btrfs",
+      "size": 282744382391
+    },
+    {
+      "kname": "mmcblk0boot1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 465798667213
+    },
+    {
+      "kname": "mmcblk0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 1196757754978
+    },
+    {
+      "kname": "mmcblk0p1",
+      "type": "part",
+      "mountpoint": "/boot/uboot",
+      "fstype": "btrfs",
+      "size": 259140288265
+    },
+    {
+      "kname": "mmcblk0p2",
+      "type": "part",
+      "mountpoint": "/writable",
+      "fstype": "ext4",
+      "size": 67811368021
+    },
+    {
+      "kname": "mtdblock0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 548049299281
+    },
+    {
+      "kname": "mtdblock1",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 731182279286
+    },
+    {
+      "kname": "mtdblock2",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 679527525150
+    },
+    {
+      "kname": "mtdblock3",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 702691093584
+    }
+  ]
+}

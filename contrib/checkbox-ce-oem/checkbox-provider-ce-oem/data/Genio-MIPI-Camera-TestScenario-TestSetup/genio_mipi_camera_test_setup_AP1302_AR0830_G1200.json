@@ -1,0 +1,47 @@
+{
+    "media_node_v4l2_name": "mtk-cam (platform:16000000.camisp)",
+    "cameras": [
+        {
+            "physical_interface": "csi0",
+            "pads": [
+                {
+                    "action": "set_format",
+                    "node": "ap1302.0-003c",
+                    "source": 2,
+                    "fmt": "UYVY8_1X16",
+                    "field": "none"
+                },
+                {
+                    "action": "set_format",
+                    "node": "seninf-0",
+                    "source": 1,
+                    "fmt": "UYVY8_1X16",
+                    "field": "none"
+                },
+                {
+                    "action": "set_format",
+                    "node": "mtk-cam camsv-0",
+                    "source": 1,
+                    "fmt": "UYVY8_1X16",
+                    "field": "none"
+                }
+            ],
+            "links": [
+                {
+                    "source_entity": "seninf-0",
+                    "source_pad_number": 1,
+                    "sink_entity": "mtk-cam camsv-0",
+                    "sink_pad_number": 0,
+                    "flags": 5
+                },
+                {
+                    "source_entity": "ap1302.0-003c",
+                    "source_pad_number": 2,
+                    "sink_entity": "seninf-0",
+                    "sink_pad_number": 0,
+                    "flags": 1
+                }
+            ]
+        }
+    ]
+}

@@ -2,6 +2,11 @@ name: Test pc-sanity (from contrib area) with tox
 permissions:
   contents: read
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/pc-sanity/**
+      - .github/workflows/tox-contrib-pc-sanity.yaml
   workflow_dispatch:
 
 jobs:
@@ -25,11 +30,11 @@ jobs:
           - python: "3.10"
             tox_env_name: "py310"
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: ${{ matrix.python }}
       - name: Install tox
@@ -37,7 +42,7 @@ jobs:
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: pc-sanity

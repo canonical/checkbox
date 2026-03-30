@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2015 Canonical Ltd.
+# Copyright 2012-2025 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -34,8 +35,18 @@ from logging import getLogger
 import enum
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.job import JobDefinition
 
 logger = getLogger("plainbox.depmgr")
+
+GROUP_PREFIX = "_group_job_"
+
+try:
+    removeprefix = str.removeprefix
+except AttributeError:
+
+    def removeprefix(s, prefix):
+        return s.split(prefix, maxsplit=1)[1]
 
 
 class DependencyType(enum.Enum):
@@ -130,7 +141,7 @@ class DependencyUnknownError(DependencyError):
 class DependencyCycleError(DependencyError):
     """Exception raised when a cyclic dependency is detected."""
 
-    def __init__(self, job_list):
+    def __init__(self, job_list, groups=None):
         """
         Initialize with a list of jobs that form a dependency loop.
 
@@ -144,6 +155,7 @@ class DependencyCycleError(DependencyError):
         assert len(job_list) > 1
         assert job_list[0] is job_list[-1]
         self.job_list = job_list
+        self.groups = groups
 
     @property
     def affected_job(self):
@@ -152,7 +164,14 @@ class DependencyCycleError(DependencyError):
 
         Here it is the job that has a cyclic dependency on itself.
         """
-        return self.job_list[0]
+        job = self.job_list[0]
+        # If we are in a group, we don't know which job is the one that
+        # is affected by the cycle, so we return the first job in the list.
+        # This is not ideal but it is the best we can do.
+        if job.id.startswith(GROUP_PREFIX):
+            name = removeprefix(job.id, GROUP_PREFIX)
+            job = self.groups[name].jobs[0]
+        return job
 
     @property
     def affecting_job(self):
@@ -275,6 +294,15 @@ class DependencyDuplicateError(DependencyError):
         )
 
 
+class Group(object):
+    def __init__(self, name, jobs=None, external_deps=None):
+        self.name = name
+        self.jobs = [] if jobs is None else list(jobs)
+        self.external_deps = (
+            [] if external_deps is None else set(external_deps)
+        )
+
+
 class State(enum.Enum):
     """
     States for recursive DFS graph visitor.
@@ -320,7 +348,7 @@ class DependencySolver:
             if a duplicate job definition is present
         :raises DependencyCycleError:
             if a cyclic dependency is present.
-        :raises DependencyMissingErorr:
+        :raises DependencyMissingError:
             if a required job does not exist.
         """
         return cls(job_list)._solve(visit_list)
@@ -339,12 +367,20 @@ class DependencySolver:
 
         # Solution for all the dependencies that may pull in new jobs
         self._pull_solution = []
-        # The computed solution for all dependencies
+        # Intermediate solution for ordering dependencies
         self._order_solution = []
+
+        # Create some variables to handle grouping
+        self._groups = dict()
+        self._jobs_in_groups = dict()
+
+        self._job_state_map = {
+            job.id: State.NOT_VISITED for job in self._job_list
+        }
 
     def _clear_state_map(self):
         self._job_state_map = {
-            job.id: State.NOT_VISITED for job in self._job_list
+            k: State.NOT_VISITED for k in self._job_state_map.keys()
         }
 
     def _solve(self, visit_list=None):
@@ -373,28 +409,53 @@ class DependencySolver:
             self._visit_list = visit_list
 
         # Solve first for pulling dependencies
-        self._clear_state_map()
-        for job in self._visit_list:
-            self._visit(job, pull=True)
+        pull_solution = self._solve_pull_deps(self._visit_list)
 
         # Create a map of pulled jobs
-        self._pulled_map = self._get_job_map(self._pull_solution)
+        self._pulled_map = self._get_job_map(pull_solution)
         # Add the before dependencies for the jobs in the map
-        for job in self._pull_solution:
+        for job in pull_solution:
             job.controller.add_before_deps(
                 job, self._pulled_map, self._job_map
             )
 
-        # Solve again for order dependencies, using the pulled jobs as the
-        # new visit list
-        self._clear_state_map()
-        for job in self._pull_solution:
-            self._visit(job)
+        # Look for groups in the pulled map
+        self.create_groups(pull_solution)
+
+        # If there are no groups declared in the pulled jobs, solve the
+        # ordering normally
+        if not self._groups:
+            final_solution = self._solve_order_deps(pull_solution)
+
+        # If there are any groups, solve for ordering considering them
+        else:
+            # Replace the jobs in the pulled map with the group job
+            replaced_solution = self.replace_jobs_by_groups(pull_solution)
+
+            # Solve again for order dependencies
+            general_solution = self._solve_order_deps(
+                replaced_solution, group=None
+            )
+
+            # Solve internally for each group
+            group_solutions = {}
+            for group in self._groups.values():
+                # Get the jobs in the group from the map of pulled jobs
+                name = group.name
+
+                group_solutions[name] = self._solve_order_deps(
+                    group.jobs, group=name
+                )
+
+            # Replace the group jobs with the original jobs inside the group
+            final_solution = self.replace_groups_by_jobs(
+                general_solution, group_solutions
+            )
 
         # Perform a sanity check to ensure that no jobs have been added or
         # removed from the solution.
-        pull_jobs = set(self._pull_solution)
-        order_jobs = set(self._order_solution)
+        pull_jobs = set(pull_solution)
+        order_jobs = set(final_solution)
         if pull_jobs != order_jobs:
             raise ValueError(
                 "The dependency manager failed ordering the jobs, some jobs "
@@ -403,12 +464,25 @@ class DependencySolver:
                 "Order solution: {!r}".format(pull_jobs, order_jobs)
             )
 
-        logger.debug(_("Done solving"))
+        return final_solution
 
-        # Return the final solution
+    def _solve_pull_deps(self, visit_list):
+        self._clear_state_map()
+        self._pull_solution = []
+        for job in visit_list:
+            self._visit(job, pull=True)
+
+        return self._pull_solution
+
+    def _solve_order_deps(self, visit_list, group=None):
+        self._clear_state_map()
+        self._order_solution = []
+        for job in visit_list:
+            self._visit(job, group=group)
+
         return self._order_solution
 
-    def _visit(self, job, trail=None, pull=False):
+    def _visit(self, job, trail=None, pull=False, group=None):
         """
         Internal method of DependencySolver.
 
@@ -455,9 +529,7 @@ class DependencySolver:
                 # dependencies that are resource, depends or after.
                 self._pull_visit(job, trail)
             else:
-                # If this is an order operation we only care about the
-                # dependencies that are depends or before.
-                self._order_visit(job, trail)
+                self._order_visit(job, trail, group=group)
 
         elif state == State.VISITED:
             # This node is not fully traced yet but has been visited already
@@ -466,7 +538,7 @@ class DependencySolver:
             # forms a loop
             trail = trail[trail.index(job) :]
             logger.debug(_("Found dependency cycle: %r"), trail)
-            raise DependencyCycleError(trail)
+            raise DependencyCycleError(trail, self._groups)
 
         elif state == State.FINISHED:
             # This node has been visited and is fully traced.
@@ -516,15 +588,27 @@ class DependencySolver:
 
         # We've visited (recursively) all dependencies of this node, so we
         # can change the state to finished and append it to the solution
-        logger.debug(_("Appending %r to pull solution"), job)
         self._job_state_map[job.id] = State.FINISHED
         self._pull_solution.append(job)
 
-    def _order_visit(self, job, trail=None):
+    def _order_visit(self, job, trail=None, group=None):
         # We travel through dependencies recursively
         for dep_type, job_id in job.controller.get_dependency_set(
             job, self._pull_solution
         ):
+            # Check if we are ordering a group
+            if group is None:
+                # If the dependency is pointing to a job inside a group, we
+                # replace it with the group job.
+                if job_id in self._jobs_in_groups:
+                    group_name = self._jobs_in_groups[job_id]
+                    job_id = "{}{}".format(GROUP_PREFIX, group_name)
+            else:
+                # If we are in a group, we only care about the dependencies
+                # inside the group
+                if self._jobs_in_groups.get(job_id) != group:
+                    continue
+
             try:
                 # We look up the job only in the map of pulled jobs
                 next_job = self._pulled_map[job_id]
@@ -541,14 +625,104 @@ class DependencySolver:
                 # Visit the dependency and update the trail
                 logger.debug(_("Visiting dependency: %r"), next_job)
                 trail.append(next_job)
-                self._visit(next_job, trail, pull=False)
+                self._visit(next_job, trail, pull=False, group=group)
                 trail.pop()
 
         # We've visited (recursively) all dependencies of this node, so we
         # can change the state to finished and append it to the solution
-        logger.debug(_("Appending %r to order solution"), job)
         self._job_state_map[job.id] = State.FINISHED
         self._order_solution.append(job)
+
+    def create_groups(self, solution):
+        """
+        Create the groups that are used in the list of pulled jobs.
+        """
+        self._groups = {}
+        self._jobs_in_groups = {}
+
+        for job in solution:
+            # If the job is not in a group, skip it
+            if not job.group:
+                continue
+            # Else, add it to the group dicts
+            if job.group not in self._groups:
+                self._groups[job.group] = Group(job.group)
+            self._groups[job.group].jobs.append(job)
+            self._jobs_in_groups[job.id] = job.group
+
+        for group in self._groups.values():
+            group.external_deps = self.get_external_dependencies(group)
+
+    def get_external_dependencies(self, group):
+        """
+        Get the external dependencies for the groups.
+        The external dependencies are the dependencies of the jobs inside the
+        group that don't point to the jobs inside the group
+        """
+        external_deps = set()
+        for job in group.jobs:
+            # Get the dependencies for the job
+            job_id = job.id
+            deps = job.controller.get_dependency_set(job, self._pulled_map)
+            # Filter out the dependencies that are not external
+            for dep_type, job_id in deps:
+                if self._jobs_in_groups.get(job_id) != group.name:
+                    external_deps.add(job_id)
+        return external_deps
+
+    def replace_jobs_by_groups(self, solution):
+        """
+        Replace the jobs in the pulled map with the group jobs.
+        """
+        added_groups = set()
+
+        def replace_iter():
+            for job in solution:
+                group_name = self._jobs_in_groups.get(job.id)
+
+                # Not in any group: continue
+                if group_name is None:
+                    yield job
+                    continue
+
+                # Already in a group: skip
+                if group_name in added_groups:
+                    continue
+
+                # Create the group job
+                group_job_id = "{}{}".format(GROUP_PREFIX, group_name)
+                # Add external dependencies as dependencies of the group job
+                deps = self._groups[group_name].external_deps
+                group_job = JobDefinition(
+                    {"id": group_job_id, "after": " ".join(deps)}
+                )
+
+                # Add the group job to the pulled map and job state map
+                self._pulled_map[group_job_id] = group_job
+                self._job_state_map[group_job_id] = State.NOT_VISITED
+
+                added_groups.add(group_name)
+                yield group_job
+
+        return list(replace_iter())
+
+    def replace_groups_by_jobs(self, solution, group_solutions):
+        """
+        Replace the temporary group jobs with the original jobs inside the
+        group.
+        """
+
+        def replace_iter():
+            for job in solution:
+                if job.id.startswith(GROUP_PREFIX):
+                    # Remove the prefix and get the group name
+                    name = removeprefix(job.id, GROUP_PREFIX)
+                    # Add the jobs from the group
+                    yield from group_solutions.get(name, [job])
+                else:
+                    yield job
+
+        return list(replace_iter())
 
     @staticmethod
     def _get_job_map(job_list):

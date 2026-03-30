@@ -20,6 +20,7 @@ import textwrap
 
 from metabox.core.actions import (
     AssertPrinted,
+    AssertRetCode,
     Start,
 )
 from metabox.core.scenario import Scenario
@@ -28,8 +29,7 @@ from metabox.core.utils import tag
 
 @tag("ordering")
 class OrderingDepends(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -40,8 +40,7 @@ class OrderingDepends(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(
@@ -55,8 +54,7 @@ class OrderingDepends(Scenario):
 
 @tag("ordering")
 class OrderingBefore(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -67,8 +65,7 @@ class OrderingBefore(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(
@@ -82,8 +79,7 @@ class OrderingBefore(Scenario):
 
 @tag("ordering")
 class OrderingMixed(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -94,8 +90,7 @@ class OrderingMixed(Scenario):
         forced = yes
         [ui]
         type = silent
-"""
-    )
+""")
     steps = [
         Start(),
         AssertPrinted(
@@ -109,8 +104,7 @@ class OrderingMixed(Scenario):
 
 @tag("ordering")
 class OrderingResource(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -121,8 +115,7 @@ class OrderingResource(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(
@@ -150,29 +143,66 @@ class OrderingBeforeCycle(Scenario):
 
 
 @tag("ordering")
-class OrderingAfterSuspend(Scenario):
-    launcher = textwrap.dedent(
-        """
+class OrderingGroups(Scenario):
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::ordering_after_suspend
+        unit = 2021.com.canonical.certification::ordering_groups
         forced = yes
         [test selection]
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(
-            r"(?s)"
-            r".*ordering_7_A"
-            r".*ordering_7_B"
-            r".*suspend/suspend_advanced_auto"
-            r".*after-suspend-ordering_7_B"
-            r".*after-suspend-ordering_7_A"
+            r"(?m)"
+            r".*groups_1_A\n"
+            r".*groups_1_g1\n"
+            r".*groups_1_g2\n"
+            r".*groups_1_B\n"
+            r".*groups_1_C\n"
+        ),
+    ]
+
+
+@tag("ordering")
+class OrderingGroupsCycle(Scenario):
+    modes = ["local"]
+    steps = [
+        Start("run 2021.com.canonical.certification::ordering_groups_cycle"),
+        AssertPrinted(r"Dependency problem: dependency cycle detected"),
+    ]
+
+
+@tag("ordering")
+class OrderingGroupsTemplate(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_groups_template
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """)
+    steps = [
+        Start(),
+        AssertPrinted(
+            r"(?m)"
+            r".*setup_order_1\n"
+            r".*test_feature_order_A_1\n"
+            r".*test_feature_order_B_1\n"
+            r".*teardown_order_1\n"
+            r".*setup_order_2\n"
+            r".*test_feature_order_A_2\n"
+            r".*test_feature_order_B_2\n"
+            r".*teardown_order_2\n"
         ),
     ]

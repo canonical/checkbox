@@ -70,7 +70,8 @@ plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/ntp
 flags: also-after-suspend
-requires: package.name == 'ntpdate'
+requires:
+    (package.name == 'ntpdate' or package.name == 'ntpsec-ntpdate')
 user: root
 command: network_ntp_test.py
 _purpose: Test to see if we can sync local clock to an NTP server
@@ -100,9 +101,23 @@ command: network_predictable_names.sh
 _summary: Verify that all network interfaces have predictable names.
 _purpose: Verify that all network interfaces have predictable names.
 requires:
-  {%- if __on_ubuntucore__ %}
-  lsb.release >= '20'
-  model_assertion.gadget != "pi"
-  {%- else %}
-  lsb.release >= '18'
-  {% endif -%}
+  environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or lsb.release >= '20'
+  environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or model_assertion.gadget != "pi"
+  environment.CHECKBOX_RUNNING_STRICT_SNAP == 1 or lsb.release >= '18'
+
+plugin: manual
+category_id: com.canonical.plainbox::networking
+id: networking/airplane-mode
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_airplane_mode == 'True'
+flags: also-after-suspend
+_purpose:
+    Verify that the airplane mode function works correctly.
+_steps:
+    1. Enable the Airplane Mode in Wi-Fi settings
+    2. Confirm that Wi-Fi, Bluetooth, and WWAN radio devices are disabled
+    3. Disable the Airplane Mode in Wi-Fi settings
+_verification:
+    1. All connections are correctly disabled after enabling Airplane Mode.
+    2. All connections are correctly re-established after disabling Airplane Mode.

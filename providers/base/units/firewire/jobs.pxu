@@ -1,7 +1,7 @@
 plugin: user-interact
 category_id: com.canonical.plainbox::firewire
 id: firewire/insert
-require: device.category == 'FIREWIRE'
+requires: device.category == 'FIREWIRE'
 command: removable_storage_watcher.py insert firewire
 _description:
 _purpose:
@@ -19,7 +19,7 @@ plugin: shell
 category_id: com.canonical.plainbox::firewire
 id: firewire/storage-test
 user: root
-require: device.category == 'FIREWIRE'
+requires: device.category == 'FIREWIRE'
 depends: firewire/insert
 command: removable_storage_test.py -s 268400000 firewire
 _purpose:
@@ -31,7 +31,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::firewire
 id: firewire/remove
 depends: firewire/insert
-require: device.category == 'FIREWIRE'
+requires: device.category == 'FIREWIRE'
 command: removable_storage_watcher.py remove firewire
 _description:
 _purpose:

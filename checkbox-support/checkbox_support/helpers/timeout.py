@@ -22,6 +22,7 @@ checkbox_support.helpers.timeout
 Utility class that provides functionalities connected to placing timeouts on
 functions
 """
+
 import os
 import shutil
 import pickle

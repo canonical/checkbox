@@ -33,7 +33,6 @@ of supported implementations is:
 - HDAPS (Lenovo)
 """
 
-
 import sys
 import time
 

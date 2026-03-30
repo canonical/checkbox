@@ -35,7 +35,7 @@ from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.resource import ResourceProgram, parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit import concrete_validators
+from plainbox.impl.unit import concrete_validators, get_array_field_qualify
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import (
     CorrectFieldValueValidator,
@@ -344,6 +344,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.get_record_value("before")
 
     @cached_property
+    def group(self):
+        return self.get_record_value("group")
+
+    @cached_property
     def salvages(self):
         return self.get_record_value("salvages")
 
@@ -365,7 +369,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
     @cached_property
     def siblings(self):
-        return self.get_record_value("siblings")
+        siblings = self.get_record_value("siblings")
+        if isinstance(siblings, str):
+            # LEGACY: pxu compatibility, siblings are objects now
+            siblings = json.loads(siblings)
+        return siblings
 
     @cached_property
     def shell(self):
@@ -453,7 +461,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         second.
         """
         value = self.get_record_value("estimated_duration")
-        # NOTE: Some tests do that, I'd rather not change them now
+        # NOTE: yaml units do this
         if isinstance(value, (int, float)):
             return value
         elif value is None:
@@ -558,8 +566,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         Return a set of requested environment variables
         """
-        if self.environ is not None:
+        if self.environ is not None and isinstance(self.environ, str):
+            # LEGACY: pxu compatibility, environ is now a list
             return {variable for variable in re.split(r"[\s,]+", self.environ)}
+        elif self.environ is not None:
+            return set(self.environ)
         else:
             return set()
 
@@ -568,8 +579,12 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         Return a set of flags associated with this job
         """
+        # legacy jinja or pxu support
         if self.flags is not None:
-            return {flag for flag in re.split(r"[\s,]+", self.flags)}
+            if isinstance(self.flags, str):
+                # LEGACY: pxu compatibility, flag set is a list now
+                return {flag for flag in re.split(r"[\s,]+", self.flags)}
+            return set(self.flags)
         else:
             return set()
 
@@ -647,20 +662,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         To combat a simple mistake where the jobs are space-delimited any
         mixture of white-space (including newlines) and commas are allowed.
         """
-        deps = set()
-        if self.depends is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse depends: %s"), node.msg)
-
-        V().visit(WordList.parse(self.depends))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.depends, "depends", self.qualify_id, logger
+            )
+        )
 
     def get_after_dependencies(self):
         """
@@ -677,20 +683,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         To combat a simple mistake where the jobs are space-delimited any
         mixture of white-space (including newlines) and commas are allowed.
         """
-        deps = set()
-        if self.after is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse after: %s"), node.msg)
-
-        V().visit(WordList.parse(self.after))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.after, "after", self.qualify_id, logger
+            )
+        )
 
     def get_before_dependencies(self):
         """
@@ -705,38 +702,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
             id: B      ->
             before: A      id: B
         """
-
-        deps = set()
-        if self.before is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse before: %s"), node.msg)
-
-        V().visit(WordList.parse(self.before))
-        return deps
+        return set(
+            get_array_field_qualify(
+                self.before, "before", self.qualify_id, logger
+            )
+        )
 
     def get_salvage_dependencies(self):
-        """Return a set of jobs that need to fail before this job can run."""
-        deps = set()
-        if self.salvages is None:
-            return deps
-
-        class V(Visitor):
-
-            def visit_Text_node(visitor, node: Text):
-                deps.add(self.qualify_id(node.text))
-
-            def visit_Error_node(visitor, node: Error):
-                logger.warning(_("unable to parse depends: %s"), node.msg)
-
-        V().visit(WordList.parse(self.salvages))
-        return deps
+        """return a set of jobs that need to fail before this job can run."""
+        return set(
+            get_array_field_qualify(
+                self.salvages, "salvages", self.qualify_id, logger
+            )
+        )
 
     def get_resource_dependencies(self):
         """
@@ -800,6 +778,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             depends = "depends"
             after = "after"
             before = "before"
+            group = "group"
             salvages = "salvages"
             requires = "requires"
             shell = "shell"
@@ -815,7 +794,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
         field_validators = {
             fields.name: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateVariant,
                 DeprecatedFieldValidator(
                     _("use 'id' and 'summary' instead of 'name'")
@@ -823,14 +801,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             # NOTE: 'id' validators are "inherited" so we don't have it here
             fields.summary: [
-                concrete_validators.translatable,
-                concrete_validators.templateVariant,
                 PresentFieldValidator(severity=Severity.advice),
                 concrete_validators.oneLine,
                 concrete_validators.shortValue,
             ],
             fields.plugin: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 concrete_validators.present,
                 MemberOfFieldValidator(_PluginValues.get_all_symbols()),
@@ -842,7 +817,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.command: [
-                concrete_validators.untranslatable,
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
                     message=_("command is mandatory for non-manual jobs"),
@@ -879,7 +853,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ShellProgramValidator(),
             ],
             fields.description: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
                 # Description is mandatory for manual jobs
                 PresentFieldValidator(
@@ -896,17 +869,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 # Description or a set of purpose, steps and verification
                 # fields is recommended for all other jobs
             ],
-            fields.purpose: [
-                concrete_validators.translatable,
-            ],
-            fields.steps: [
-                concrete_validators.translatable,
-            ],
-            fields.verification: [
-                concrete_validators.translatable,
-            ],
+            fields.purpose: [],
+            fields.steps: [],
+            fields.verification: [],
             fields.user: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 # User should be either None or 'root'
                 CorrectFieldValueValidator(
@@ -920,7 +886,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.environ: [
-                concrete_validators.untranslatable,
                 # Environ is useless without a command to run
                 UselessFieldValidator(
                     message=_("environ without a command makes no sense"),
@@ -928,7 +893,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.estimated_duration: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
                     lambda duration: float(duration) > 0,
@@ -939,7 +903,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.depends: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_direct_dependencies() is not None
@@ -958,7 +921,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.after: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_after_dependencies() is not None
@@ -975,7 +937,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.before: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
                         unit.get_before_dependencies() is not None
@@ -991,8 +952,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     ],
                 ),
             ],
+            fields.group: [],
             fields.requires: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_resource_program(),
                     onlyif=lambda unit: unit.requires is not None,
@@ -1021,7 +982,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.shell: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 # Shell should be only '/bin/sh', or None (which gives bash)
                 MemberOfFieldValidator(
@@ -1030,7 +990,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.imports: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
@@ -1053,7 +1012,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.category_id: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 UnitReferenceValidator(
                     lambda unit: (
@@ -1072,34 +1030,29 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 #       onlyif job itself is not deprecated
             ],
             fields.flags: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
             ],
             fields.certification_status: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 MemberOfFieldValidator(
                     _CertificationStatusValues.get_all_symbols()
                 ),
             ],
             fields.siblings: [
-                concrete_validators.translatable,
                 CorrectFieldValueValidator(
-                    lambda value, unit: json.loads(value),
+                    lambda value, unit: value,
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
                 ),
                 CorrectFieldValueValidator(
-                    lambda value, unit: type(json.loads(value)) is list,
+                    lambda value, unit: type(value) is list,
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
                 ),
                 CorrectFieldValueValidator(
-                    lambda value, unit: all(
-                        [type(s) is dict for s in json.loads(value)]
-                    ),
+                    lambda value, unit: all([type(s) is dict for s in value]),
                     Problem.syntax_error,
                     Severity.error,
                     onlyif=lambda unit: unit.siblings,
@@ -1113,7 +1066,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                                     for k in s.keys()
                                 ]
                             )
-                            for s in json.loads(value)
+                            for s in value
                         ]
                     ),
                     Problem.bad_reference,
@@ -1123,7 +1076,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
             ],
             fields.auto_retry: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 MemberOfFieldValidator(_AutoRetryValues.get_all_symbols()),
             ],

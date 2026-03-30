@@ -1,37 +1,128 @@
+id: ce-oem-remoteproc/check-firmware
+_summary: Check if remoteproc firmwares loads correctly
+category_id: remoteproc
+estimated_duration: 5
+requires:
+    manifest.has_preload_remoteproc_firmware == 'True'
+imports: from com.canonical.plainbox import manifest
+plugin: shell
+environ: REMOTEPROC_FIRMWARE_DATA
+command:
+    remoteproc_firmware_check.py "$REMOTEPROC_FIRMWARE_DATA"
+
+id: ce-oem-rpmsg/devicetree-verify
+_summary: Check if the device tree is well defined.
+category_id: rpmsg
+estimated_duration: 5
+requires:
+    manifest.has_rpmsg == 'True'
+    manifest.has_preload_rpmsg_pingpong_firmware == 'True' or manifest.has_preload_rpmsg_string_echo_firmware == 'True'
+imports: from com.canonical.plainbox import manifest
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py dtree-verify
+
 id: ce-oem-rpmsg/detect-device
-_summary: Check if the RPMSG devices is initialed.
+_summary: Check if the REMOTEPROC device node is initialed.
 category_id: rpmsg
 estimated_duration: 5
 requires: manifest.has_rpmsg == 'True'
 imports: from com.canonical.plainbox import manifest
+after:
+    ce-oem-rpmsg/devicetree-verify
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --type detect
+    rpmsg_tests.py node-detection
+
+id: ce-oem-rpmsg/detect-mailbox
+_summary: Check if the mailbox driver is initialed.
+category_id: rpmsg
+estimated_duration: 5
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-rpmsg/detect-device
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py mailbox-detection
+
+id: ce-oem-rpmsg/detect-virtio
+_summary: Check if the virtio device is created and transport driver is probed .
+category_id: rpmsg
+estimated_duration: 5
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-rpmsg/detect-device
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py virtio-detection
+
+id: ce-oem-rpmsg/detect-channel
+_summary: Check if the remote channel (NS) is registered.
+category_id: rpmsg
+estimated_duration: 5
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-rpmsg/detect-virtio
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+    ce-oem-rpmsg/detect-virtio
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py channel-detection
 
 id: ce-oem-rpmsg/pingpong
-_summary: Check if M series core RPMSG is loaded and pingpong demo is completed.
+_summary: Check if RPMSG pingpong test firmware is loaded and pingpong demo is completed.
 category_id: rpmsg
 estimated_duration: 60
-requires: manifest.has_rpmsg == 'True'
+requires:
+    manifest.has_rpmsg == 'True'
+    manifest.has_preload_rpmsg_pingpong_firmware == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-device
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+    ce-oem-rpmsg/detect-virtio
+    ce-oem-rpmsg/detect-channel
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --type pingpong
+    rpmsg_tests.py --remoteproc-node remoteproc0 pingpong
 
 id: ce-oem-rpmsg/serial-tty
-_summary: Check if M series core RPMSG is loaded and RPMSG TTY works.
+_summary: Check if RPMSG string-echo test firmware is loaded and RPMSG TTY works.
 category_id: rpmsg
 estimated_duration: 60
-requires: manifest.has_rpmsg == 'True'
+requires:
+    manifest.has_rpmsg == 'True'
+    manifest.has_preload_rpmsg_string_echo_firmware == 'True'
 imports: from com.canonical.plainbox import manifest
 depends: ce-oem-rpmsg/detect-device
+after:
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+    ce-oem-rpmsg/detect-virtio
+    ce-oem-rpmsg/detect-channel
 user: root
 plugin: shell
 command:
-    rpmsg_tests.py --type serial-tty
+    rpmsg_tests.py --remoteproc-node remoteproc0 string-echo
 
 unit: job
 category_id: rpmsg
@@ -40,13 +131,13 @@ plugin: resource
 _summary: List Remote Processor firmwares and RPMSG node mapping
 _description:
     List firmware and RPMSG node mapping for reload Remote Processor firmware test
-    RPMSG_RP_FIRMWARE_MAPPING="remoteproc0:test-1.elf remoteproc0:test-2.elf"
+    RPMSG_RP_FIRMWARE_MAPPING="remoteproc0:test-1.elf:string-echo remoteproc0:test-2.elf:pingpong"
     RPMSG_RP_FIRMWARE_PATH="/home/user1"
 estimated_duration: 2s
 flags: preserve-locale
 environ: RPMSG_RP_FIRMWARE_MAPPING RPMSG_RP_FIRMWARE_PATH
 command:
-    rpmsg_load_firmware.py resource-reload --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
+    rpmsg_reload_firmware_resource.py --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
 
 unit: template
 template-resource: ce-oem-rpmsg/rp-firmware-mapping
@@ -61,8 +152,17 @@ requires:
     manifest.has_rpmsg == 'True'
     manifest.has_rpmsg_firmware_load == 'True'
 imports: from com.canonical.plainbox import manifest
+after:
+    ce-oem-remoteproc/check-firmware
+    ce-oem-rpmsg/devicetree-verify
+    ce-oem-rpmsg/detect-device
+    ce-oem-rpmsg/detect-mailbox
+    ce-oem-rpmsg/detect-virtio
+    ce-oem-rpmsg/detect-channel
+    ce-oem-rpmsg/serial-tty
+    ce-oem-rpmsg/pingpong
 flags: also-after-suspend
 user: root
 plugin: shell
 command:
-    rpmsg_load_firmware.py test-reload --device {device} --file {firmware} --path {path}
+    rpmsg_tests.py --remoteproc-node "{device}" "{test_method}" --load-firmware --firmware-path "{path}" --firmware-file "{firmware}"

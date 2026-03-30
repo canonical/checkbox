@@ -29,27 +29,24 @@ import json
 import logging
 import os
 import string
-from functools import lru_cache
+from contextlib import suppress
+from functools import lru_cache, partial
+from pathlib import Path
 
 from jinja2 import Template
 
 from plainbox.i18n import gettext as _
-from plainbox.impl.decorators import cached_property
-from plainbox.impl.decorators import instance_method_lru_cache
+from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
-from plainbox.impl.symbol import Symbol
-from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.symbol import SymbolDefMeta
-from plainbox.impl.symbol import SymbolDefNs
-from plainbox.impl.unit import concrete_validators
-from plainbox.impl.unit import get_accessed_parameters
-from plainbox.impl.unit.validators import IFieldValidator
-from plainbox.impl.unit.validators import MultiUnitFieldIssue
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import UnitFieldIssue
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
+from plainbox.impl.symbol import Symbol, SymbolDef, SymbolDefMeta, SymbolDefNs
+from plainbox.impl.unit import concrete_validators, get_accessed_parameters
+from plainbox.impl.unit.validators import (
+    MultiUnitFieldIssue,
+    PresentFieldValidator,
+    UnitFieldIssue,
+)
+from plainbox.impl.validation import Problem, Severity
 
 __all__ = ["Unit", "UnitValidator"]
 
@@ -60,16 +57,56 @@ logger = logging.getLogger("plainbox.unit")
 @lru_cache(maxsize=None)
 def on_ubuntucore():
     """
-    Check if running from on ubuntu core
+    Returns `True` when running in a strict snap
     """
     snap = os.getenv("SNAP")
     if snap:
         with open(os.path.join(snap, "meta/snap.yaml")) as f:
-            for l in f.readlines():
-                if l == "confinement: classic\n":
+            for line in f.readlines():
+                if line == "confinement: classic\n":
                     return False
         return True
     return False
+
+
+@lru_cache(maxsize=None)
+def on_os_ubuntucore() -> bool:
+    """
+    Returns `True` if the host OS is Ubuntu Core
+    """
+    with suppress(FileNotFoundError):
+        # if this path exists, we are in a strict snap, but we may not be on UC
+        return (
+            'NAME="Ubuntu Core"'
+            in Path("/var/lib/snapd/hostfs/etc/os-release").read_text()
+        )
+    return 'NAME="Ubuntu Core"' in Path("/etc/os-release").read_text()
+
+
+@lru_cache(maxsize=None)
+def get_snap_base():
+    """
+    Get the current snap base
+    """
+    snap = os.getenv("SNAP")
+    if not snap:
+        raise ValueError("Couldn't detect snap path. Missing SNAP envvar")
+    with open(os.path.join(snap, "meta/snap.yaml")) as f:
+        for l in f.readlines():
+            if "base:" in l:
+                core_version = l.replace("base:", "").strip()
+                if core_version == "core":
+                    return "core16"
+                return core_version
+    return "core16"  # core16 may not declare base
+
+
+def get_checkbox_runtime_path():
+    # Note: this is not the same as using SNAP as this will always be the
+    #       runtime, while SNAP on the legacy arch is the frontend
+    snap_base_n = get_snap_base().replace("core", "")
+    # the bases of the runtime and frontend must always match
+    return Path("/snap") / ("checkbox" + snap_base_n) / "current"
 
 
 class MissingParam(Exception):
@@ -307,10 +344,6 @@ class UnitValidator:
         Problem.variable: _("value must be invariant (unparametrized)"),
         Problem.unknown_param: _("field refers to unknown parameter"),
         Problem.not_unique: _("field value is not unique"),
-        Problem.expected_i18n: _("field should be marked as translatable"),
-        Problem.unexpected_i18n: (
-            _("field should not be marked as translatable")
-        ),
         Problem.syntax_error: _("syntax error inside the field"),
         Problem.bad_reference: _("bad reference to another unit"),
     }
@@ -333,8 +366,7 @@ class UnitType(abc.ABCMeta):
         our_meta = ns.get("Meta")
         if our_meta is not None and base_meta_list:
             new_meta_ns = dict(our_meta.__dict__)
-            new_meta_ns["__doc__"] = (
-                """
+            new_meta_ns["__doc__"] = """
                 Collection of meta-data about :class:`{}`
 
                 This class is partially automatically generated.
@@ -355,10 +387,7 @@ class UnitType(abc.ABCMeta):
                     `validator_cls`:
                         A :class:`UnitValidator` subclass that can be used to
                         check this unit for correctness
-            """.format(
-                    name
-                )
-            )
+            """.format(name)
             new_meta_bases = tuple(base_meta_list)
             # Merge custom field_validators with base unit validators
             if "field_validators" in our_meta.__dict__:
@@ -393,16 +422,12 @@ class UnitType(abc.ABCMeta):
                     sym = getattr(our_meta.fields, sym_name)
                     if isinstance(sym, Symbol):
                         merged_fields_ns[sym_name] = sym
-                merged_fields_ns["__doc__"] = (
-                    """
+                merged_fields_ns["__doc__"] = """
                 A symbol definition containing all fields used by :class:`{}`
 
                 This class is partially automatically generated. It always
                 inherits from the Meta.fields class of the base unit class.
-                """.format(
-                        name
-                    )
-                )
+                """.format(name)
                 # Create a new class in place of the 'fields' defined in
                 # our_meta.fields.
                 fields = SymbolDefMeta(
@@ -653,6 +678,14 @@ class Unit(metaclass=UnitType):
             return {key: frozenset() for key in self._data}
 
     @classmethod
+    def from_yaml_unit_data(cls, unit_data, provider=None, origin=None):
+        return cls(
+            unit_data,
+            origin=origin,
+            provider=provider,
+        )
+
+    @classmethod
     def from_rfc822_record(cls, record, provider=None):
         """
         Create a new Unit from RFC822 record. The resulting instance may not be
@@ -684,6 +717,30 @@ class Unit(metaclass=UnitType):
         else:
             return {}
 
+    def _get_record_value_leaf(self, name, value):
+        if self.template_engine == "jinja2":
+            if self.is_parametric or self.unit != "template":
+                # Add the current system environment variables to the
+                # parameters so that they can be used in all fields (i.e. not
+                # just in the command shell). By adding here rather than in the
+                # template instantiation we avoid problems with creation of
+                # checkpoints
+                tmp_params = (self.parameters or {}).copy()
+                tmp_params.update(
+                    {
+                        "__checkbox_env__": self._checkbox_env(),
+                        "__system_env__": os.environ,
+                        "__on_ubuntucore__": on_ubuntucore(),
+                    }
+                )
+                value = Template(value).render(tmp_params)
+        elif self.is_parametric:
+            try:
+                value = string.Formatter().vformat(value, (), self.parameters)
+            except KeyError as e:
+                raise MissingParam(self.template_id, name, value, e.args[0])
+        return value
+
     @instance_method_lru_cache(maxsize=None)
     def get_record_value(self, name, default=None):
         """
@@ -700,39 +757,13 @@ class Unit(metaclass=UnitType):
         value = self._data.get("_{}".format(name))
         if value is None:
             value = self._data.get(name, default)
-        if value is not None and self.is_parametric:
-            if self.template_engine == "jinja2":
-                # Add the current system environment variables to the
-                # parameters so that they can be used in all fields (i.e. not
-                # just in the command shell). By adding here rather than in the
-                # template instantiation we avoid problems with creation of
-                # checkpoints
-                tmp_params = self.parameters.copy()
-                tmp_params.update({"__checkbox_env__": self._checkbox_env()})
-                tmp_params.update({"__system_env__": os.environ})
-                tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
-                value = Template(value).render(tmp_params)
-            else:
-                try:
-                    value = string.Formatter().vformat(
-                        value, (), self.parameters
-                    )
-                except KeyError as e:
-                    raise MissingParam(
-                        self.template_id, name, value, e.args[0]
-                    )
-        elif (
-            value is not None
-            and self.template_engine == "jinja2"
-            and not self.is_parametric
-            and not self.unit == "template"
-        ):
-            tmp_params = {
-                "__checkbox_env__": self._checkbox_env(),
-                "__system_env__": os.environ,
-                "__on_ubuntucore__": on_ubuntucore(),
-            }
-            value = Template(value).render(tmp_params)
+        if value is None:
+            return value
+        if isinstance(value, str):
+            value = self._get_record_value_leaf(name, value)
+        elif isinstance(value, list):
+            f = partial(self._get_record_value_leaf, name)
+            value = list(map(f, value))
         return value
 
     @instance_method_lru_cache(maxsize=None)
@@ -864,18 +895,6 @@ class Unit(metaclass=UnitType):
             return msgstr
         # If we have nothing better let's just return the default value
         return default
-
-    @instance_method_lru_cache(maxsize=None)
-    def is_translatable_field(self, name):
-        """
-        Check if a field is marked as translatable
-
-        :param name:
-            Name of the field to check
-        :returns:
-            True if the field is marked as translatable, False otherwise
-        """
-        return "_{}".format(name) in self._data
 
     def qualify_id(self, some_id):
         """
@@ -1046,7 +1065,6 @@ class Unit(metaclass=UnitType):
 
         field_validators = {
             fields.unit: [
-                concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 PresentFieldValidator(
                     severity=Severity.advice,

@@ -44,6 +44,7 @@ include:
     com.canonical.certification::miscellanea/gate_rste_raid
     com.canonical.certification::miscellanea/screen-pkg-not-public
     com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
+    com.canonical.certification::miscellanea/screen-private-ppa
     com.canonical.certification::miscellanea/edid-continuous-frequency
     com.canonical.certification::miscellanea/bluetooth-on-off-rfkill_.*
     com.canonical.certification::miscellanea/csme-detection-tool
@@ -71,6 +72,7 @@ include:
     com.canonical.certification::miscellanea/check-kernel                              certification-status=blocker
     com.canonical.certification::info/image-url
     com.canonical.certification::miscellanea/sideload-hook-no-fail
+    com.canonical.certification::miscellanea/check-hardware-attributes
 
 id: pc-sanity-smoke-test
 _name: pc-sanity-smoke-test (Ubuntu Desktop)

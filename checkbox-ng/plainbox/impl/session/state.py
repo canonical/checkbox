@@ -21,10 +21,14 @@ Session State Handling.
 :mod:`plainbox.impl.session.state` -- session state handling
 ============================================================
 """
+
 import collections
 import json
 import logging
 import re
+import shutil
+
+from contextlib import suppress
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
@@ -41,6 +45,7 @@ from plainbox.impl.session.system_information import (
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
+from plainbox.impl.unit.unit import on_ubuntucore
 from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 
@@ -72,11 +77,22 @@ class SessionMetaData:
     # once the testing begin
     FLAG_BOOTSTRAPPING = "bootstrapping"
 
+    # Flag indicates that the session is running pre-boostrap setup jobs to
+    # prepare the machine to be tested. Applications shou;d set this flag
+    # after a session is created but before bootstrapping. Once the phase is
+    # over, the application shoul procede with bootstrap as usual
+    FLAG_SETTING_UP = "setting_up"
+
     # Flag indicating that session is using hand-picked list of jobs
     # and is not following any test plan
     FLAG_TESTPLANLESS = "testplanless"
 
+    # After expanding templates validate them and add invalid jobs as
+    # InvalidJob. These jobs will be noted as "crashed"
     FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = "strict_template_expansion"
+    # Jobs are executed as systemd units. This is used to make jobs escape
+    # the snapd/apparmor sandbox.
+    FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER = "systemd_based_job_runner"
 
     def __init__(
         self,
@@ -109,6 +125,30 @@ class SessionMetaData:
         )
 
     @property
+    def bootstrapping(self) -> bool:
+        return self.FLAG_BOOTSTRAPPING in self.flags
+
+    @bootstrapping.setter
+    def bootstrapping(self, value: bool):
+        if value:
+            self.flags.add(self.FLAG_BOOTSTRAPPING)
+        else:
+            with suppress(KeyError):
+                self.flags.remove(self.FLAG_BOOTSTRAPPING)
+
+    @property
+    def setting_up(self) -> bool:
+        return self.FLAG_SETTING_UP in self.flags
+
+    @setting_up.setter
+    def setting_up(self, value):
+        if value:
+            self.flags.add(self.FLAG_SETTING_UP)
+        else:
+            with suppress(KeyError):
+                self.flags.remove(self.FLAG_SETTING_UP)
+
+    @property
     def title(self):
         """
         the session title.
@@ -126,10 +166,37 @@ class SessionMetaData:
         self._title = title
 
     def update_feature_flags(self, config):
+        """
+        feature flags are a mechanism to enable or disable Checkbox features
+
+        The purpose of feature flags is to provide a way to the users to try
+        out new experimental features without impacting all users or to disable
+        new features that may cause issues and confusion in the short term.
+        """
+        # Note: Always issue a warning in the following situations:
+        # - If a feature is default and the user disables it
+        # - If a feature is experimental and the user enables it
         if config.get_value("features", "strict_template_expansion"):
             self._flags.add(self.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION)
         else:
             logger.warning("Using legacy non-strict template expansion")
+        systemd_based_job_runner = config.get_value(
+            "features", "systemd_based_job_runner"
+        )
+        if systemd_based_job_runner is None:
+            systemd_based_job_runner = on_ubuntucore()
+        if systemd_based_job_runner:
+            if shutil.which("plz-run"):
+                logger.info("Using systemd-based runner")
+                self._flags.add(self.FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER)
+            else:
+                logger.error(
+                    "Experimental systemd-based runner was requested but "
+                    "required dependency plz-run is not installed"
+                )
+                logger.error("Falling back to shell based runner")
+        else:
+            logger.info("Using subprocess-based runner")
 
     @property
     def flags(self):
@@ -1118,7 +1185,8 @@ class SessionState:
 
     def _add_job_siblings_unit(self, new_job, recompute, via):
         if new_job.siblings:
-            for overrides in json.loads(new_job.tr_siblings()):
+            siblings = new_job.siblings
+            for overrides in siblings:
                 data = {
                     key: value
                     for key, value in new_job._data.items()
@@ -1137,48 +1205,52 @@ class SessionState:
                     recompute,
                     via,
                 )
-        if Suspend.AUTO_FLAG in new_job.get_flag_set():
+        suspend_siblings = [
+            (Suspend.AUTO_FLAG, Suspend.AUTO_JOB_ID, "after-suspend"),
+            (
+                Suspend.MANUAL_FLAG,
+                Suspend.MANUAL_JOB_ID,
+                "after-suspend-manual",
+            ),
+        ]
+        for suspend_flag, suspend_job_id, suspend_prefix in suspend_siblings:
+            if suspend_flag not in new_job.get_flag_set():
+                continue
             data = {
                 key: value
                 for key, value in new_job._data.items()
                 if not key.endswith("siblings")
             }
-            data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
-            data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
-            data["id"] = "after-suspend-{}".format(new_job.partial_id)
-            data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
-            if new_job.depends:
-                data["depends"] += " {}".format(new_job.id)
+            if isinstance(data["flags"], str):
+                # LEGACY: pxu compatibility, flags are now a list
+                data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
+                data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
             else:
-                data["depends"] = "{}".format(new_job.id)
-            data["depends"] += " {}".format(Suspend.AUTO_JOB_ID)
-            self._add_job_unit(
-                JobDefinition(
-                    data,
-                    origin=new_job.origin,
-                    provider=new_job.provider,
-                    controller=new_job.controller,
-                    parameters=new_job.parameters,
-                    field_offset_map=new_job.field_offset_map,
-                ),
-                recompute,
-                via,
-            )
-        if Suspend.MANUAL_FLAG in new_job.get_flag_set():
-            data = {
-                key: value
-                for key, value in new_job._data.items()
-                if not key.endswith("siblings")
-            }
-            data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
-            data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
-            data["id"] = "after-suspend-manual-{}".format(new_job.partial_id)
+                with suppress(ValueError):
+                    data["flags"].remove(Suspend.AUTO_FLAG)
+                with suppress(ValueError):
+                    data["flags"].remove(Suspend.MANUAL_FLAG)
+
+            data["id"] = "{}-{}".format(suspend_prefix, new_job.partial_id)
             data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
-            if new_job.depends:
+
+            if isinstance(new_job.depends, list) or not new_job.depends:
+                data["depends"] = (new_job.depends or []) + [
+                    new_job.id,
+                    suspend_job_id,
+                ]
+            elif new_job.depends:
+                # LEGACY: pxu compatibility, depends is now a list
                 data["depends"] += " {}".format(new_job.id)
-            else:
-                data["depends"] = "{}".format(new_job.id)
-            data["depends"] += " {}".format(Suspend.MANUAL_JOB_ID)
+                data["depends"] += " {}".format(suspend_job_id)
+
+            if isinstance(new_job.after, list) or not new_job.after:
+                data["after"] = (new_job.after or []) + [new_job.id]
+            elif new_job.after:
+                # LEGACY: pxu compatibility, after is now a list
+                data["after"] += " {}".format(new_job.id)
+            if new_job.group:
+                data["group"] = "{}-{}".format(suspend_prefix, new_job.group)
             self._add_job_unit(
                 JobDefinition(
                     data,

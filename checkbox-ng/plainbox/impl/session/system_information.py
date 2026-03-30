@@ -2,9 +2,13 @@
 
 import abc
 import json
+
 from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 
+from plainbox.impl import low_memory_device
 from plainbox import vendor
+from plainbox.impl.session.storage import WellKnownDirsHelper
+from checkbox_ng import __version__ as checkbox_version
 
 
 class CollectorOutputs(dict):
@@ -16,7 +20,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 2
+    COLLECTOR_OUTPUTS_VERSION = 6
 
     def to_json(self) -> str:
         to_dump = {
@@ -294,6 +298,11 @@ class JournalctlCollector(Collector):
         return list(map(json.loads, collector_output.splitlines()))
 
     def __init__(self):
+        to_collect = 80000  # limit the lines to 80k, ~80Mb of memory
+        if low_memory_device():
+            # when memory is low, we can't afford to load all that json into
+            # memory, try to collect a few logs either way
+            to_collect = 8000
         super().__init__(
             collection_cmd=[
                 "journalctl",
@@ -302,9 +311,112 @@ class JournalctlCollector(Collector):
                 "--since",
                 "-3 days",
                 "-n",
-                "80000",  # limit the lines to 80k, ~80Mb of memory
+                str(to_collect),
             ],
             version_cmd=["journalctl", "--version"],
+        )
+
+
+class ManifestCollector(Collector):
+    COLLECTOR_NAME = "machine_manifest"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=[
+                "cat",
+                WellKnownDirsHelper.manifest_file(),
+            ],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class KernelCmdlineCollector(Collector):
+    COLLECTOR_NAME = "kernel_cmdline"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "kernel_cmdline"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class KernelModuleslineCollector(Collector):
+    COLLECTOR_NAME = "kernel_modules"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "kernel_modules"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class UdevDevicesCollector(Collector):
+    COLLECTOR_NAME = "udev_devices"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "devices"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class DebianPackagesCollector(Collector):
+    COLLECTOR_NAME = "debian_packages"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "debian_packages"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class SnapPackagesCollector(Collector):
+    COLLECTOR_NAME = "snaps"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "snaps"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class MemoryCollector(Collector):
+    COLLECTOR_NAME = "memory"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "memory"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class UnameCollector(Collector):
+    COLLECTOR_NAME = "uname"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "uname"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class DistributionCollector(Collector):
+    COLLECTOR_NAME = "distribution"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "distribution"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class BiosCollector(Collector):
+    COLLECTOR_NAME = "bios"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "bios"],
+            version_cmd=["echo", "-n", checkbox_version],
         )
 
 

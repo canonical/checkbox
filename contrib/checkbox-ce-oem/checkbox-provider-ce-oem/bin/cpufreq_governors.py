@@ -343,7 +343,9 @@ class CPUScalingHandler:
             int: The minimum CPU frequency in kHz.
         """
         frequency = self.get_policy_attribute("scaling_min_freq")
-        return int(frequency) if frequency else 0
+        if not frequency:
+            raise RuntimeError("Unable to retrieve min frequency")
+        return int(frequency)
 
     def get_max_frequency(self) -> int:
         """
@@ -353,7 +355,9 @@ class CPUScalingHandler:
             int: The maximum CPU frequency in kHz.
         """
         frequency = self.get_policy_attribute("scaling_max_freq")
-        return int(frequency) if frequency else 0
+        if not frequency:
+            raise RuntimeError("Unable to retrieve max frequency")
+        return int(frequency)
 
     def get_current_frequency(self) -> int:
         """
@@ -364,7 +368,9 @@ class CPUScalingHandler:
         """
         frequency = self.get_policy_attribute("scaling_cur_freq")
         logging.debug("Current CPU frequency: %s", frequency)
-        return int(frequency) if frequency else 0
+        if not frequency:
+            raise RuntimeError("Unable to retrieve current frequency")
+        return int(frequency)
 
     def get_affected_cpus(self) -> List:
         """
@@ -558,6 +564,24 @@ class CPUScalingTest:
         return curr_freq == target
 
     @with_timeout()
+    def is_frequency_close_to_target(self, target) -> bool:
+        """
+        Check if the current CPU frequency is close to the target frequency.
+
+        Args:
+        - target (str or int): The target CPU frequency to compare against.
+
+        Returns:
+        - bool: Returns True if the current frequency matches the target
+                frequency; otherwise, returns False.
+        """
+        curr_freq = self.handler.get_current_frequency()
+        logging.info("Current CPU frequency is %s", curr_freq)
+        margin = abs(target - curr_freq)
+
+        return (margin / target) < 0.01
+
+    @with_timeout()
     def is_frequency_settled_down(self) -> bool:
         """
         Check if the current CPU frequency has settled down below the maximum.
@@ -601,11 +625,11 @@ class CPUScalingTest:
         with self.handler.context_set_governor(governor):
             if governor in ["ondemand", "conservative", "schedutil"]:
                 with context_stress_cpus():
-                    if self.is_frequency_equal_to_target(
+                    if self.is_frequency_close_to_target(
                         target=frequencies_mapping[governor][0]
                     ):
                         logging.info(
-                            "Verified current CPU frequency is equal to "
+                            "Verified current CPU frequency is close to "
                             "%s frequency %s MHz",
                             frequencies_mapping[governor][1],
                             (frequencies_mapping[governor][0] / 1000),
@@ -613,7 +637,7 @@ class CPUScalingTest:
                     else:
                         success = False
                         logging.error(
-                            "Could not verify that cpu frequency is equal to "
+                            "Could not verify that cpu frequency is close to "
                             "%s frequency %s MHz",
                             frequencies_mapping[governor][1],
                             (frequencies_mapping[governor][0] / 1000),
@@ -651,7 +675,7 @@ class CPUScalingTest:
                     target=frequencies_mapping[governor][0],
                 ):
                     logging.info(
-                        "Verified current CPU frequency is close to "
+                        "Verified current CPU frequency is equal to "
                         "%s frequency %s MHz",
                         frequencies_mapping[governor][1],
                         (frequencies_mapping[governor][0] / 1000),
@@ -659,7 +683,7 @@ class CPUScalingTest:
                 else:
                     success = False
                     logging.error(
-                        "Could not verify that cpu frequency has close to "
+                        "Could not verify that cpu frequency has equal to "
                         "%s frequency %s MHz",
                         frequencies_mapping[governor][1],
                         (frequencies_mapping[governor][0] / 1000),

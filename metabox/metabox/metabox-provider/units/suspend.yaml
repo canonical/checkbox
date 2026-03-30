@@ -1,0 +1,4 @@
+id: suspend/suspend_advanced_auto
+flags:
+  - simple
+command: 'true'

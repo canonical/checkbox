@@ -87,14 +87,12 @@ def get_updated_build_recipe(
     revision: str,
 ) -> str:
     target_path = get_build_path(recipe_name)
-    new_recipe = textwrap.dedent(
-        f"""
+    new_recipe = textwrap.dedent(f"""
         # git-build-recipe format 0.4 deb-version {version}
         lp:~checkbox-dev/checkbox/+git/support empty
         nest-part packaging lp:~checkbox-dev/checkbox {target_path}/debian debian {revision}
         nest-part monorepo lp:~checkbox-dev/checkbox {target_path} {target_path} {revision}
-        """
-    ).strip()
+        """).strip()
     return new_recipe
 
 

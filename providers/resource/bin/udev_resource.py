@@ -19,6 +19,7 @@
 #
 import argparse
 import shlex
+import json
 
 from collections import OrderedDict
 from subprocess import check_output, CalledProcessError
@@ -137,7 +138,7 @@ def main():
         "--lsblkcommand",
         action="store",
         type=str,
-        default="lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT",
+        default="lsblk -i -n -J -b -o KNAME,TYPE,MOUNTPOINT,FSTYPE,SIZE,UUID",
         help="""Command to execute to get lsblk information.
                               Only change it if you know what you're doing.""",
     )
@@ -151,9 +152,7 @@ def main():
         help="""List devices found under the requested
                         categories.
                         Acceptable categories to list are:
-                        {}""".format(
-            ", ".join(categories)
-        ),
+                        {}""".format(", ".join(categories)),
     )
     parser.add_argument(
         "-f",
@@ -165,9 +164,7 @@ def main():
         help="""Filter devices found under the requested
                         categories.
                         Acceptable categories to list are:
-                        {}""".format(
-            ", ".join(categories)
-        ),
+                        {}""".format(", ".join(categories)),
     )
     parser.add_argument("-s", "--short", action="store_true")
     args = parser.parse_args()
@@ -180,6 +177,7 @@ def main():
     # resource to properly match udev properties
     output = output.decode("UTF-8", errors="ignore")
     lsblk = lsblk.decode("UTF-8", errors="ignore")
+    lsblk = json.loads(lsblk)
     list_partitions = False
     if "PARTITION" in args.list or "PARTITION" in args.filter:
         list_partitions = True

@@ -11,17 +11,6 @@ command:
 _summary: This Automated test attempts to detect a camera.
 user: root
 
-plugin: shell
-category_id: com.canonical.plainbox::camera
-id: camera/detect-rpi
-estimated_duration: 1.0
-imports: from com.canonical.plainbox import manifest
-requires:
-  manifest.has_rpi_camera == 'True'
-command:
-  udev_resource.py -f MMAL | grep "category: MMAL"
-_summary: Detect presence of a MMAL camera.
-
 unit: template
 category_id: com.canonical.plainbox::camera
 template-resource: device
@@ -191,6 +180,17 @@ command:
 _description:
   This test will attach the image used for the BRISQUE score.
 
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/detect-rpi
+estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_rpi_camera == 'True'
+command:
+  udev_resource.py -f MMAL | grep "category: MMAL"
+_summary: Detect presence of a MMAL camera.
+
 unit: template
 template-resource: device
 template-filter: device.category == 'MMAL' and device.name != ''
@@ -202,7 +202,9 @@ template-id: camera/multiple-resolution-images-rpi_name
 _summary: Webcam multiple resolution capture test for Pi Camera
 estimated_duration: 16.0
 depends: camera/detect-rpi
-requires: cpuinfo.platform == 'armv7l'
+requires:
+ cpuinfo.platform == 'armv7l'
+ os.release >= '18'
 command:
   camera_test_rpi.py --device /dev/{name}
 _purpose:
@@ -223,50 +225,28 @@ estimated_duration: 1s
 after: camera/multiple-resolution-images-rpi_{name}
 requires: cpuinfo.platform == 'armv7l'
 command:
-  [ -f "$PLAINBOX_SESSION_SHARE"/picam_6.jpg ] &&
-  cat "$PLAINBOX_SESSION_SHARE"/picam_6.jpg
+  [ -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
 _description:
   This test will attach one of the images used for the multiple resolution
-  images test.
+  images test on rpi.
 
 unit: template
-template-engine: jinja2
 template-resource: device
-template-filter: device.category in ('CAPTURE', 'MMAL') and device.name != ''
+template-filter: device.category == 'MMAL' and device.name != ''
 template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::camera
-id: camera/roundtrip-qrcode_{{ name }}
-template-id: camera/roundtrip-qrcode_name
-_summary: Test video output and camera {{ name }} by displaying and reading a QR code
-estimated_duration: 5.0
-depends:
-  {%- if category == 'MMAL' %}
-  camera/detect-rpi
-  {%- else %}
-  camera/detect
-  {% endif -%}
-requires:
-  {#
-    If the device that generated this test is MMAL, check that we are on armhf
-    (libmmal doesn't exist for amd64 or arm64).
-    See: https://github.com/waveform80/picamera/issues/716#issuecomment-1063878114
-  #}
-  (device.name == '{{name}}' and device.category == 'MMAL' and dpkg.architecture == 'armhf') or (device.name == '{{ name}}' and device.category == 'CAPTURE')
-  {%- if __on_ubuntucore__ %}
-  os.release >= '19.1'
-  {%- else %}
-  os.release >= '19.1'
-  package.name == 'python3-zbar'
-  package.name == 'python3-pyqrcode'
-  package.name == 'python3-pil'
-  {% endif -%}
+id: camera/camera-quality-rpi_{name}
+template-id: camera/camera-quality-rpi_name
+_summary: Webcam BRISQUE score for rpi devices on {name}
+estimated_duration: 20s
+depends: camera/detect-rpi
+after: camera/multiple-resolution-images-rpi_{name}
+requires: cpuinfo.platform == 'armv7l' and os.release >= '20'
 command:
-  roundtrip_qr.py {{ name }}
+  camera_quality_test.py -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
 _purpose:
-  Generates a QR code representing a random string of ASCII letters. This is
-  written to tty1 using ASCII escape codes. Either the PiCamera python module or
-  a GStreamer pipeline is used to capture an image of the display. An attempt
-  to decode a QR code in the image is then made and data compared against the
-  random string.
-user: root
+  Uses an image of the camera to get the quality based on a No-Reference image
+  quality assessment algorithm called BRISQUE. This test will timeout and fail
+  if the quality has not been computed within 120 seconds.

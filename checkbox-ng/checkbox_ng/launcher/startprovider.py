@@ -21,6 +21,7 @@
 :mod:`checkbox-ng.launcher.startprovider` -- startprovider sub-command
 ============================================================================
 """
+
 import inspect
 import logging
 import os

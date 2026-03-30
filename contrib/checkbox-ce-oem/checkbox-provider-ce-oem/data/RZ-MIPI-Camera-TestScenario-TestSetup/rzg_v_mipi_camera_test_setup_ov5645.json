@@ -1,0 +1,40 @@
+{
+    "media_node_v4l2_name": "RZG2L_CRU (platform:10830000.video)",
+    "cameras": [
+        {
+            "physical_interface": "csi2",
+            "pads": [
+                {
+                    "action": "set_format",
+                    "node": "csi-10830400.csi2",
+                    "source": 1,
+                    "fmt": "UYVY8_2X8",
+                    "field": "none"
+                },
+                {
+                    "action": "set_format",
+                    "node": "ov5645 0-003c",
+                    "source": 0,
+                    "fmt": "UYVY8_2X8",
+                    "field": "none"
+                },
+                {
+                    "action": "set_format",
+                    "node": "cru-ip-10830000.video",
+                    "source": 0,
+                    "fmt": "UYVY8_2X8",
+                    "field": "none"
+                }
+            ],
+            "links": [
+                {
+                    "source_entity": "csi-10830400.csi2",
+                    "source_pad_number": 1,
+                    "sink_entity": "cru-ip-10830000.video",
+                    "sink_pad_number": 0,
+                    "flags": 1
+                }
+            ]
+        }
+    ]
+}

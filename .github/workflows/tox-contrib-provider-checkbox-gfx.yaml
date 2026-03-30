@@ -1,0 +1,57 @@
+name: Test checkbox-provider-checkbox-gfx (from contrib area) with tox
+permissions:
+  contents: read
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-gfx/checkbox-provider-gfx/**
+      - .github/workflows/tox-contrib-provider-checkbox-gfx.yaml
+  pull_request:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-gfx/checkbox-provider-gfx/**
+      - .github/workflows/tox-contrib-provider-checkbox-gfx.yaml
+  workflow_dispatch:
+
+jobs:
+  tox_test_contrib_gfx_provider:
+    name: Test checkbox-provider-gfx (from contrib area) with tox
+    defaults:
+      run:
+        working-directory: contrib/checkbox-gfx/checkbox-provider-gfx
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python: ["3.10"]
+        include:
+          - python: "3.10"
+            tox_env_name: "py310"
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          # python3.5 and python3.6 are no longer in deadsnakes for focal
+          # we pushed them to the Checkbox PPA instead
+          sudo add-apt-repository ppa:checkbox-dev/edge
+          sudo apt-get update
+          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
+          pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: provider-gfx

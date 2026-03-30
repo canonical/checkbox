@@ -56,6 +56,31 @@ slots:
     read:
       - /
 
+plugs:
+  custom-frontend:
+    interface: content
+    content: custom-frontend
+    target: $SNAP/custom_frontends/custom_frontend
+
+apps:
+  checkbox:
+    command: bin/checkbox-cli
+    plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
+      gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
+      system-observe, tpm, udisks2, account-control, accounts-service,
+      login-session-control, login-session-observe]
+    environment:
+      PYTHONPATH: $SNAP/lib/python3.6/site-packages/:$SNAP/lib64/python3.6/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+  agent:
+    command: bin/checkbox-cli run-agent
+    daemon: simple
+    restart-condition: always
+    restart-delay: 1s
+    plugs: *standard
+    install-mode: disable
+    environment:
+      PYTHONPATH: $SNAP/lib/python3.6/site-packages/:$SNAP/lib64/python3.6/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+
 package-repositories:
   - type: apt
     ppa: checkbox-dev/stable
@@ -75,9 +100,57 @@ parts:
     stage:
       - version.txt
 ################################################################################
+  extra-path-environment:
+    plugin: nil
+    override-build: |
+      echo "#fwts is in /lib/fwts instead of /lib
+      LD_LIBRARY_PATH+=/lib/fwts
+      # lapack and blas are pulled by opencv and install libraries in a directory
+      LD_LIBRARY_PATH+=/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack
+      LD_LIBRARY_PATH+=/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas
+      # GLIB object paths are ofc. not default as well
+      GI_TYPELIB_PATH+=/usr/lib/girepository-1.0
+      GI_TYPELIB_PATH+=/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/girepository-1.0
+      " >> $SNAPCRAFT_PART_INSTALL/extra_path_environment
+    stage:
+      - extra_path_environment
+################################################################################
+  plz-run:
+    plugin: go
+    source: https://github.com/Hook25/plz-run.git
+    source-type: git
+################################################################################
+# statically linked nsenter as plz-run launches nsenter outside of the namespace
+# so if the user is using a different base / os with a different version of
+# glibc, nsenter won't work at all.
+  static-nsenter:
+    plugin: nil
+    source-tag: "v2.41.1"
+    source-depth: 1
+    source: https://github.com/util-linux/util-linux.git
+    build-packages:
+      - build-essential
+      - libcap-ng-dev
+      - git
+      - autoconf
+      - automake
+      - libtool
+      - gettext
+      - bison
+      - pkg-config
+      - flex
+      - autopoint
+    override-build: |
+      snapcraftctl build
+      ./autogen.sh
+      ./configure --disable-all-programs --disable-year2038 --enable-nsenter \
+        --enable-setpriv --enable-static-programs=nsenter
+      make LDFLAGS="-static -all-static"
+      install -D -m 755 nsenter.static "$SNAPCRAFT_PART_INSTALL/usr/bin/nsenter.static"
+################################################################################
 # Upstream: https://github.com/fwts/fwts/blob/master/snapcraft.yaml
   fwts:
-    source-tag: "V25.03.00"
+    source-tag: "V25.07.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
@@ -131,7 +204,6 @@ parts:
     source: checkbox-support
     source-type: local
     stage-packages:
-      - python3-requests-unixsocket
       - libbluetooth3
       - libsystemd0
       - v4l-utils
@@ -168,10 +240,12 @@ parts:
       - zlib1g-dev
       - build-essential
     stage-packages:
+      - setpriv # used to downgrade AmbientCapabilities of systemd-based runner
       - python3-markupsafe
       - python3-jinja2
       - python3-packaging
       - python3-requests-oauthlib
+      - python3-requests-unixsocket
       - python3-urwid
       - python3-xlsxwriter
       - python3-yaml
@@ -237,6 +311,7 @@ parts:
       - ethtool
       - freeipmi-tools
       - freeglut3
+      - fscrypt
       - fswebcam
       - gir1.2-cheese-3.0
       - gir1.2-clutter-1.0
@@ -284,6 +359,7 @@ parts:
       - python3-psutil
       - python3-serial
       - python3-yaml
+      - python3-pyscard
       - qml-module-qtquick-controls
       - qml-module-qtquick-layouts
       - qmlscene

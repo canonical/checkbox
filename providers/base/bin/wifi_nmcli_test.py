@@ -94,6 +94,8 @@ def turn_down_nm_connections():
     print_head("Turn off NM all connections")
     connections = _get_nm_wireless_connections()
     for name, value in connections.items():
+        if value["state"] != "activated":
+            continue
         uuid = value["uuid"]
         print("Turn down connection", name)
         cmd = "nmcli c down {}".format(uuid)
@@ -196,7 +198,7 @@ def perform_ping_test(interface):
     if target:
         count = 5
         result = ping(target, interface, count, 10)
-        if result["received"] != count:
+        if result["received"] != result["transmitted"]:
             raise ValueError(
                 "{} packets expected but only {} received".format(
                     count, result["received"]

@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_barcode_scanner
+_name: Does the platform have a barcode scanner?
+value-type: bool

@@ -33,7 +33,6 @@ from ws4py.client.threadedclient import WebSocketClient
 from metabox.core.utils import _re
 from pylxd.models.operation import Operation
 
-
 base_env = {
     "PYTHONUNBUFFERED": "1",
     "DISABLE_URWID_ESCAPE_CODES": "1",
@@ -203,7 +202,7 @@ class InteractiveWebsocket(SafeWebSocketClient):
         else:
             self.send(keys.KEY_HOME.encode("utf-8"), binary=True)
         not_found = True
-        max_attemps = 10
+        max_attempts = 100
         attempt = 0
         still_on_first_screen = True
         old_stdout_data = ""
@@ -211,7 +210,7 @@ class InteractiveWebsocket(SafeWebSocketClient):
         self.send(f"/{postfix}\ni".encode("utf8"), binary=True)
         if len(data) > 67:
             data = data[:67] + "   │\r\n│        " + data[67:]
-        while attempt < max_attemps:
+        while attempt < max_attempts:
             if self._new_data and self.stdout_data:
                 if old_stdout_data == self.stdout_data:
                     break
@@ -238,7 +237,7 @@ class InteractiveWebsocket(SafeWebSocketClient):
         attempt = 0
         if still_on_first_screen:
             self.send(keys.KEY_PAGEDOWN.encode("utf-8"), binary=True)
-        while attempt < max_attemps:
+        while attempt < max_attempts:
             if self._new_data and self.stdout_data:
                 check = data in self.stdout_data
                 if not check:

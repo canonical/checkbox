@@ -23,7 +23,7 @@ jobs:
     outputs:
       build_required: ${{ steps.check_diff.outputs.build_required }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -52,7 +52,7 @@ jobs:
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Checkbox DSS validation snap
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -69,7 +69,7 @@ jobs:
             path: contrib/checkbox-dss-validation/
             snapcraft-channel: 8.x/stable
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         name: Upload logs on failure
         if: failure()
         with:
@@ -80,7 +80,7 @@ jobs:
             contrib/checkbox-dss-validation/checkbox*.txt
 
       - id: upload_artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         name: Upload the snaps as artifact
         with:
           name: checkbox-dss.snap

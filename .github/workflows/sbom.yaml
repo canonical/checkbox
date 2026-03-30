@@ -1,0 +1,70 @@
+name: Checkbox Snap - Software Bill of Materials (SBOM)
+on:
+  workflow_call:
+    inputs:
+      CHANNEL:
+        description: 'Checkbox snap channel (e.g., latest/stable)'
+        type: string
+        default: latest/stable
+        required: true
+
+  workflow_dispatch:
+    inputs:
+      CHANNEL:
+        description: 'Checkbox snap channel (e.g., latest/stable)'
+        type: string
+        default: latest/stable
+        required: true
+
+permissions:
+  contents: read  # Required to check out repository code
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sbom:
+    strategy:
+      fail-fast: false
+      matrix:
+        series: [16, 18, 20, 22, 24]
+    runs-on:
+      - self-hosted-linux-amd64-noble-private-endpoint-medium
+    name: Checkbox${{ matrix.series }} Snap - Software Bill of Materials (SBOM)
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -y \
+            git-lfs
+
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          lfs: true
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: Install python dependencies
+        run: |
+          pip install requests
+
+      - name: Request and retrieve SBOM
+        id: sbom
+        env:
+          SBOM_SCRIPT_PATH: .github/scripts/sbom/sbom.py
+          CHECKBOX_SERIES: ${{ matrix.series }}
+          CHECKBOX_CHANNEL: ${{ inputs.CHANNEL }}
+        run: python3 -u ${SBOM_SCRIPT_PATH} --series=${CHECKBOX_SERIES} --channel=${CHECKBOX_CHANNEL}
+
+      - name: Collect SBOM
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: checkbox${{ steps.sbom.outputs.series }}-${{ steps.sbom.outputs.revision }}-sbom
+          path: /tmp/checkbox${{ steps.sbom.outputs.series }}-${{ steps.sbom.outputs.revision }}.sbom.json
+          retention-days: 5

@@ -27,7 +27,6 @@ from checkbox_support.parsers.xinput import (
     XinputParser,
 )
 
-
 # Command to retrieve xinput information.
 COMMAND = "xinput --list --long"
 

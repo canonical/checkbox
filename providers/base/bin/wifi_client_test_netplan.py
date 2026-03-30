@@ -294,7 +294,7 @@ def wait_for_routable(interface, renderer, max_wait=30):
     routable = False
     state = ""
     while not routable and attempts < max_wait:
-        (routable, state) = _check_routable_state(interface, renderer)
+        routable, state = _check_routable_state(interface, renderer)
         time.sleep(1)
         attempts += 1
 
@@ -354,7 +354,7 @@ def perform_ping_test(interface, renderer):
         count = 5
         result = ping(target, interface, count, 10)
         print("Ping result: {}".format(result))
-        if result["received"] == count:
+        if result["received"] == result["transmitted"]:
             return True
 
     return False

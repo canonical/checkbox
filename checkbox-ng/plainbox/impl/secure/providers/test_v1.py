@@ -23,25 +23,29 @@ Test definitions for plainbox.impl.secure.providers.v1 module
 """
 
 from unittest import TestCase
+from collections import defaultdict
+from textwrap import dedent
+from unittest.mock import Mock, MagicMock, patch
+from pathlib import Path
 
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.secure.config import Unset
-from plainbox.impl.secure.config import ValidationError
-from plainbox.impl.secure.plugins import PlugIn
-from plainbox.impl.secure.plugins import PlugInError
-from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
-from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
-from plainbox.impl.secure.providers.v1 import IQNValidator
-from plainbox.impl.secure.providers.v1 import Provider1
-from plainbox.impl.secure.providers.v1 import Provider1Definition
-from plainbox.impl.secure.providers.v1 import Provider1PlugIn
-from plainbox.impl.secure.providers.v1 import ProviderContentLoader
-from plainbox.impl.secure.providers.v1 import UnitPlugIn
-from plainbox.impl.secure.providers.v1 import VersionValidator
-from plainbox.impl.secure.rfc822 import FileTextSource
-from plainbox.impl.secure.rfc822 import Origin
+from plainbox.impl.secure.config import Unset, ValidationError
+from plainbox.impl.secure.plugins import PlugIn, PlugInError
+from plainbox.impl.secure.providers.v1 import (
+    AbsolutePathValidator,
+    ExistingDirectoryValidator,
+    IQNValidator,
+    Provider1,
+    Provider1Definition,
+    Provider1PlugIn,
+    ProviderContentLoader,
+    RFC822UnitPlugIn,
+    YAMLUnitPlugIn,
+    VersionValidator,
+    get_secure_custom_frontend_PROVIDERPATH_list,
+)
+from plainbox.impl.secure.rfc822 import FileTextSource, Origin
 from plainbox.impl.unit.file import FileUnit
-from plainbox.vendor import mock
 
 
 class IQNValidatorTests(TestCase):
@@ -56,6 +60,7 @@ class IQNValidatorTests(TestCase):
 
     def test_yearless_namespace_work(self):
         name = "com.canonical:certification"
+        self.assertEqual(self.validator(self.variable, name), None)
 
     def test_must_match_whole_string(self):
         name = "com.canonical:certification-resources-server BOGUS"
@@ -105,13 +110,13 @@ class ExistingDirectoryValidatorTests(TestCase):
         self.validator = ExistingDirectoryValidator()
         self.variable = None
 
-    @mock.patch("os.path.isdir")
+    @patch("os.path.isdir")
     def test_existing_directories_work(self, mock_isdir):
         mock_isdir.return_value = True
         self.assertEqual(self.validator(self.variable, self._PATH), None)
         mock_isdir.assert_called_with(self._PATH)
 
-    @mock.patch("os.path.isdir")
+    @patch("os.path.isdir")
     def test_missing_directories_dont(self, mock_isdir):
         mock_isdir.return_value = False
         self.assertEqual(
@@ -144,7 +149,7 @@ class Provider1DefinitionTests(TestCase):
         provider would look like.
         """
         def_ = Provider1Definition()
-        with mock.patch("os.path.isdir") as mock_isdir:
+        with patch("os.path.isdir") as mock_isdir:
             # Mock os.path.isdir so that we can validate all of the directory
             # variables.
             mock_isdir.return_value = True
@@ -189,7 +194,7 @@ class Provider1DefinitionTests(TestCase):
         would look like.
         """
         def_ = Provider1Definition()
-        with mock.patch("os.path.isdir") as mock_isdir:
+        with patch("os.path.isdir") as mock_isdir:
             # Mock os.path.isdir so that we can validate all of the directory
             # variables.
             mock_isdir.return_value = True
@@ -247,7 +252,7 @@ class Provider1DefinitionTests(TestCase):
         """
         def_ = Provider1Definition()
         with self.assertRaises(ValidationError) as boom:
-            with mock.patch("os.path.isdir") as mock_isdir:
+            with patch("os.path.isdir") as mock_isdir:
                 mock_isdir.return_value = False
                 def_.location = "/some/place"
         self.assertEqual(str(boom.exception), "no such directory")
@@ -434,7 +439,7 @@ class Provider1DefinitionTests(TestCase):
         ):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
-                with mock.patch("os.path.isdir") as mock_isdir:
+                with patch("os.path.isdir") as mock_isdir:
                     mock_isdir.return_value = False
                     setattr(def_, attr, "/some/place")
             self.assertEqual(str(boom.exception), "no such directory")
@@ -463,7 +468,7 @@ class Provider1PlugInTests(TestCase):
     LOAD_TIME = 42
 
     def setUp(self):
-        with mock.patch("os.path.isdir") as mock_isdir:
+        with patch("os.path.isdir") as mock_isdir:
             # Mock os.path.isdir so that we can validate location
             mock_isdir.return_value = True
             self.plugin = Provider1PlugIn(
@@ -564,7 +569,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.base_dir, None)
 
 
-class UnitPlugInTests(TestCase):
+class RFC822UnitPlugInTests(TestCase):
     """
     Tests for UnitPlugIn
     """
@@ -572,16 +577,16 @@ class UnitPlugInTests(TestCase):
     LOAD_TIME = 42
 
     def setUp(self):
-        self.provider = mock.Mock(name="provider", spec=Provider1)
+        self.provider = Mock(name="provider", spec=Provider1)
         self.provider.classify.return_value = (
-            mock.Mock("role"),
-            mock.Mock("base"),
-            mock.Mock("plugin_cls"),
+            Mock("role"),
+            Mock("base"),
+            Mock("plugin_cls"),
         )
         self.provider.namespace = "com.canonical.plainbox"
-        self.plugin = UnitPlugIn(
+        self.plugin = RFC822UnitPlugIn(
             "/path/to/jobs.txt",
-            ("id: test/job\n" "plugin: shell\n" "command: true\n"),
+            "id: test/job\nplugin: shell\ncommand: true\n",
             self.LOAD_TIME,
             self.provider,
         )
@@ -632,7 +637,7 @@ class UnitPlugInTests(TestCase):
         """
         # The pattern is purposefully invalid
         with self.assertRaises(PlugInError) as boom:
-            UnitPlugIn(
+            RFC822UnitPlugIn(
                 "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider
             )
         self.assertEqual(
@@ -641,6 +646,113 @@ class UnitPlugInTests(TestCase):
                 "Cannot load job definitions from '/path/to/jobs.txt': "
                 "Unexpected non-empty line: 'broken' (line 1)"
             ),
+        )
+
+
+class YAMLUnitPlugInTests(TestCase):
+    """
+    Tests for UnitPlugIn
+    """
+
+    LOAD_TIME = 42
+
+    def setUp(self):
+        self.provider = Mock(name="provider", spec=Provider1)
+        self.provider.classify.return_value = (
+            Mock("role"),
+            Mock("base"),
+            Mock("plugin_cls"),
+        )
+        self.provider.namespace = "com.canonical.plainbox"
+        self.plugin = YAMLUnitPlugIn(
+            "/path/to/jobs.txt",
+            "id: test/job\nplugin: shell\ncommand: 'true'\n",
+            self.LOAD_TIME,
+            self.provider,
+        )
+
+    def test_plugin_name(self):
+        """
+        verify that the UnitPlugIn.plugin_name property returns
+        pathname of the job definition file
+        """
+        self.assertEqual(self.plugin.plugin_name, "/path/to/jobs.txt")
+
+    def test_plugin_object(self):
+        """
+        verify that the UnitPlugIn.plugin_object property returns a
+        list of JobDefintion instances
+        """
+        self.assertEqual(len(self.plugin.plugin_object), 2)
+        self.assertIsInstance(self.plugin.plugin_object[0], JobDefinition)
+        self.assertIsInstance(self.plugin.plugin_object[1], FileUnit)
+
+    def test_plugin_load_time(self):
+        self.assertEqual(self.plugin.plugin_load_time, self.LOAD_TIME)
+
+    def test_job_data(self):
+        """
+        verify the contents of the loaded JobDefinition object
+        """
+        job = self.plugin.plugin_object[0]
+        self.assertEqual(job.partial_id, "test/job")
+        self.assertEqual(job.id, "com.canonical.plainbox::test/job")
+        self.assertEqual(job.plugin, "shell")
+        self.assertEqual(job.command, "true")
+        # Metadata of yaml units doesn't contain anything but the filename
+        self.assertEqual(
+            job.origin, Origin(FileTextSource("/path/to/jobs.txt"), 1, 3)
+        )
+
+    def test_job_provider(self):
+        """
+        verify the loaded job got the provider from the plugin
+        """
+        job = self.plugin.plugin_object[0]
+        self.assertIs(job.provider, self.provider)
+
+    def test_init_failing(self):
+        """
+        verify how UnitPlugIn() initializer works if something is
+        wrong
+        """
+        # The pattern is purposefully invalid
+        with self.assertRaises(PlugInError) as boom:
+            YAMLUnitPlugIn(
+                "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider
+            )
+
+    def test_unknown_unit_raises(self):
+        with self.assertRaises(PlugInError) as boom:
+            YAMLUnitPlugIn(
+                "/path/to/jobs.txt",
+                "unit: _unknown_unit_for_sure",
+                self.LOAD_TIME,
+                self.provider,
+            )
+        self.assertIn("Unknown unit type", str(boom.exception))
+
+    def test_problem_unit_raises(self):
+        with self.assertRaises(PlugInError) as boom:
+            YAMLUnitPlugIn(
+                "/path/to/jobs.txt",
+                dedent("""
+                flags: simple
+                """),
+                self.LOAD_TIME,
+                self.provider,
+            )
+        self.assertIn("Problem in unit definition", str(boom.exception))
+
+    def test_problem_unit_dont_check(self):
+        YAMLUnitPlugIn(
+            "/path/to/jobs.txt",
+            dedent("""
+                flags: simple
+                """),
+            self.LOAD_TIME,
+            self.provider,
+            check=False,
         )
 
 
@@ -774,11 +886,12 @@ class Provider1Tests(TestCase):
         self.provider._base_dir = None
         self.assertEqual(self.provider.CHECKBOX_SHARE, None)
 
+    @patch("os.getenv", new=Mock(return_value=None))
     def test_extra_PYTHONPATH(self):
         """
-        Verify that Provider1.extra_PYTHONPATH is always None
+        Verify that Provider1.extra_PYTHONPATH is always empty in unittests
         """
-        self.assertIsNone(self.provider.extra_PYTHONPATH)
+        self.assertFalse(self.provider.extra_PYTHONPATH)
 
     def test_fake(self):
         """
@@ -822,7 +935,7 @@ class Provider1Tests(TestCase):
         self.assertEqual(job_list[3].partial_id, "a4")
         self.assertEqual(problem_list, fake_problems)
 
-    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    @patch("plainbox.impl.secure.providers.v1.gettext")
     def test_get_translated_data__typical(self, mock_gettext):
         """
         Verify the runtime behavior of get_translated_data()
@@ -832,7 +945,7 @@ class Provider1Tests(TestCase):
         mock_gettext.dgettext.assert_called_with("some-fake-domain", "foo")
         self.assertEqual(retval, mock_gettext.dgettext())
 
-    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    @patch("plainbox.impl.secure.providers.v1.gettext")
     def test_get_translated_data__empty_string(self, mock_gettext):
         """
         Verify the runtime behavior of get_translated_data()
@@ -844,7 +957,7 @@ class Provider1Tests(TestCase):
         # And dgettext should never be called
         self.assertEqual(mock_gettext.dgettext.call_args_list, [])
 
-    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    @patch("plainbox.impl.secure.providers.v1.gettext")
     def test_get_translated_data__None(self, mock_gettext):
         """
         Verify the runtime behavior of get_translated_data()
@@ -860,14 +973,14 @@ class Provider1Tests(TestCase):
         """
         Verify that Provider1.tr_description() works as expected
         """
-        with mock.patch.object(self.provider, "get_translated_data") as mgtd:
+        with patch.object(self.provider, "get_translated_data") as mgtd:
             retval = self.provider.tr_description()
         # Ensure that get_translated_data() was called
         mgtd.assert_called_once_with(self.provider.description)
         # Ensure tr_description() returned its return value
         self.assertEqual(retval, mgtd())
 
-    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    @patch("plainbox.impl.secure.providers.v1.gettext")
     def test_init_bindtextdomain__called(self, mock_gettext):
         """
         Verify that Provider1() calls bindtextdomain under certain
@@ -891,7 +1004,7 @@ class Provider1Tests(TestCase):
             self.GETTEXT_DOMAIN, self.LOCALE_DIR
         )
 
-    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    @patch("plainbox.impl.secure.providers.v1.gettext")
     def test_init_bindtextdomain__not_called(self, mock_gettext):
         """
         Verify that Provider1() calls bindtextdomain under certain
@@ -913,11 +1026,254 @@ class Provider1Tests(TestCase):
         )
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])
 
+    @patch("os.getenv", new=Mock(return_value=None))
+    def test_custom_frontend_provider_non_snap(self):
+        self.assertFalse(self.provider.custom_frontend_provider)
 
-@mock.patch("plainbox.impl.secure.providers.v1.logger")
+    @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_custom_frontend_provider_non_custom_frontend(self):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/current/providers/some-provider",
+        )
+        self.assertFalse(provider.custom_frontend_provider)
+
+    @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_custom_frontend_provider_ok(self):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
+        )
+        self.assertTrue(provider.custom_frontend_provider)
+
+    @patch(
+        "plainbox.impl.secure.providers.v1.Path",
+        new=MagicMock(spec=Path, exists=Mock(return_value=True)),
+    )
+    @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_extra_PYTHONPATH_custom_frontend(
+        self,
+    ):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
+        )
+        self.assertGreater(len(provider.extra_PYTHONPATH), 0)
+
+    @patch(
+        "plainbox.impl.secure.providers.v1.Path",
+        new=MagicMock(spec=Path, exists=Mock(return_value=True)),
+    )
+    @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_extra_PATH_custom_frontend(
+        self,
+    ):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
+        )
+        self.assertGreater(len(provider.extra_PATH), 0)
+
+    @patch("os.getenv", new=Mock(return_value=None))
+    def test_extra_PATH_none(self):
+        self.assertFalse(self.provider.extra_PATH)
+
+    @patch(
+        "plainbox.impl.secure.providers.v1.Path",
+        new=MagicMock(spec=Path, exists=Mock(return_value=True)),
+    )
+    @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1"))
+    def test_extra_LD_LIBRARY_PATH_custom_frontend(
+        self,
+    ):
+        provider = Provider1(
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir="/snap/checkbox24/x1/custom_frontends/custom_frontend2",
+        )
+        self.assertGreater(len(provider.extra_LD_LIBRARY_PATH), 0)
+
+    @patch("os.getenv", new=Mock(return_value=None))
+    def test_extra_LD_LIBRARY_PATH_none(self):
+        self.assertFalse(self.provider.extra_LD_LIBRARY_PATH)
+
+    @patch("os.getenv", new=Mock(return_value=None))
+    def test_custom_frontend_root_value_error(self):
+        with self.assertRaises(ValueError):
+            self.provider.custom_frontend_root()
+
+    def test__parse_extra_path_environment_file(self):
+        extra_envvar_file = dedent("""# some comment
+        LD_LIBRARY_PATH+=some_path
+          # can also be indented
+          LD_LIBRARY_PATH += /some other path starts slash
+        PATH+=extra/path/location
+        malformed lines are ignored
+        """)
+
+        with patch(
+            "pathlib.Path.read_text",
+            return_value=extra_envvar_file,
+        ):
+            from pathlib import Path
+
+            path = Path("/frontend_root")
+            extra_env = Provider1._parse_extra_path_environment_file(path)
+
+        self.assertEqual(set(extra_env), {"LD_LIBRARY_PATH", "PATH"})
+        self.assertEqual(
+            extra_env["PATH"], ["/frontend_root/extra/path/location"]
+        )
+        self.assertEqual(
+            extra_env["LD_LIBRARY_PATH"],
+            [
+                "/frontend_root/some_path",
+                "/frontend_root/some other path starts slash",
+            ],
+        )
+
+    @patch("os.getenv")
+    def test_extra_snap_environment_not_snap(self, getenv):
+        getenv.return_value = None
+        self.assertFalse(Provider1.extra_snap_environment.func(MagicMock()))
+
+    @patch("os.getenv")
+    def test_extra_snap_environment_snap(self, getenv):
+        getenv.return_value = "/snap/checkbox24/current"
+        provider = MagicMock(custom_frontend_provider=True)
+        provider._parse_extra_path_environment_file.side_effect = [
+            defaultdict(
+                list,
+                {
+                    "LD_LIBRARY_PATH": [
+                        "/snap/checkbox24/current/some",
+                        "/snap/checkbox24/current/other",
+                    ]
+                },
+            ),
+            defaultdict(
+                list,
+                {
+                    "LD_LIBRARY_PATH": [
+                        "/snap/custom_frontend/current/some",
+                    ],
+                    "PATH": [
+                        "/snap/custom_frontend/random/bin/path",
+                    ],
+                },
+            ),
+        ]
+        # Note the order, custom frontend variables have precedence
+        self.assertEqual(
+            Provider1.extra_snap_environment.func(provider),
+            {
+                "LD_LIBRARY_PATH": [
+                    "/snap/custom_frontend/current/some",
+                    "/snap/checkbox24/current/some",
+                    "/snap/checkbox24/current/other",
+                ],
+                "PATH": [
+                    "/snap/custom_frontend/random/bin/path",
+                ],
+            },
+        )
+
+
+class CustomFrontendPROVIDERPATHTest(TestCase):
+    @patch("os.getenv", new=Mock(return_value=None))
+    def test_no_path_not_snap(self):
+        self.assertEqual(get_secure_custom_frontend_PROVIDERPATH_list(), [])
+
+    @patch(
+        "plainbox.impl.secure.providers.v1.Path",
+        new=MagicMock(spec=Path, exists=Mock(return_value=False)),
+    )
+    @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1/current"))
+    def test_no_path_no_custom_frontend(self):
+        self.assertEqual(get_secure_custom_frontend_PROVIDERPATH_list(), [])
+
+    @patch("plainbox.impl.secure.providers.v1.Path")
+    @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1/current"))
+    def test_path_custom_frontend(self, mock_Path):
+        custom_frontends = mock_Path() / "custom_frontends"
+        custom_frontends.exists.return_value = True
+
+        # valid, has a custom_frontend/providers
+        valid_custom_frontend = MagicMock()
+        valid_custom_frontend_providers = valid_custom_frontend / "providers"
+        valid_custom_frontend_providers.exists = Mock(return_value=True)
+        # frontend contains 2 providers
+        valid_custom_frontend_providers.iterdir.return_value = [
+            Path("a"),
+            Path("b"),
+        ]
+
+        # invalid, doesn't have custom_frontend/providers
+        invalid_custom_frontend = MagicMock()
+        (invalid_custom_frontend / "providers").exists.return_value = False
+
+        custom_frontends.iterdir.return_value = [
+            valid_custom_frontend,
+            invalid_custom_frontend,
+        ]
+        self.assertEqual(
+            get_secure_custom_frontend_PROVIDERPATH_list(), ["a", "b"]
+        )
+
+
+@patch("plainbox.impl.secure.providers.v1.logger")
 class ProviderContentLoaderTests(TestCase):
     def test__warn_ignored_file_warned(self, logger_mock):
-        self_mock = mock.MagicMock()
+        self_mock = MagicMock()
         self_mock.provider.units_dir = "/some/path"
         ProviderContentLoader._warn_ignored_file(
             self_mock, "/some/path/script.py"
@@ -925,7 +1281,7 @@ class ProviderContentLoaderTests(TestCase):
         self.assertTrue(logger_mock.warning.called)
 
     def test__warn_ignored_file_ignored(self, logger_mock):
-        self_mock = mock.MagicMock()
+        self_mock = MagicMock()
         self_mock.provider.units_dir = "/some/path"
         ProviderContentLoader._warn_ignored_file(
             self_mock, "/some/path/__pycache__/script.pyc"

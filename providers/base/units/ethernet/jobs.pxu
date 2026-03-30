@@ -355,7 +355,7 @@ environ:
  TEST_TARGET_IPERF
  LD_LIBRARY_PATH
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4
-_purpose: 
+_purpose:
  This test uses iperf3 to ensure network devices pass data at an acceptable
  minimum percentage of advertised speed.
 
@@ -398,12 +398,8 @@ estimated_duration: 2s
 command: check_static.py nm {{ interface }}
 requires:
   net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
-  {%- if __on_ubuntucore__ %}
-  snap.name == 'network-manager'
-  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
-  {%- else %}
+  environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
   executable.name == 'nmcli'
-  {% endif -%}
 
 unit: template
 template-resource: device
@@ -439,3 +435,26 @@ command: network_reconnect_resume_test.py -t 10 -d wired
 _summary: Network reconnect resume test (wired)
 _purpose:
  Checks the length of time it takes to reconnect an existing wired connection after a suspend/resume cycle.
+
+id: ethernet/wol_auto_S3_{interface}
+template-id: ethernet/wol_auto_S3_interface
+category_id: com.canonical.plainbox::ethernet
+unit: template
+template-resource: device
+template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
+_summary: Wake on LAN (WOL) automatic test from S3 - {interface}
+plugin: shell
+environ: SERVER_WAKE_ON_LAN WAKE_ON_LAN_DELAY WAKE_ON_LAN_RETRY PLAINBOX_SESSION_SHARE
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_ethernet_adapter == 'True'
+ manifest.has_ethernet_wake_on_lan_support == 'True'
+ manifest.wake_on_lan_server_running == 'True'
+command:
+ set -e
+ wol_client.py --interface {interface} --target "$SERVER_WAKE_ON_LAN" --delay "$WAKE_ON_LAN_DELAY" --retry "$WAKE_ON_LAN_RETRY" --waketype g --powertype s3  --timestamp_file "$PLAINBOX_SESSION_SHARE"/{interface}_s3_timestamp
+ sleep 30
+ wol_check.py --delay "$WAKE_ON_LAN_DELAY" --retry "$WAKE_ON_LAN_RETRY" --powertype s3 --timestamp_file "$PLAINBOX_SESSION_SHARE"/{interface}_s3_timestamp
+user: root
+estimated_duration: 600
+flags: preserve-locale

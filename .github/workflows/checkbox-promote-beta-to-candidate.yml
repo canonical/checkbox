@@ -6,7 +6,7 @@ permissions:
 
 jobs:
   checkbox-promotion-beta-to-candidate-test:
-    runs-on: [self-hosted, testflinger]
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     strategy:
       fail-fast: false
       matrix:
@@ -59,7 +59,7 @@ jobs:
             checkbox_track: uc22
     steps:
     - name: Checkout checkbox monorepo
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       with:
           persist-credentials: false
 

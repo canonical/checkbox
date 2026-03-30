@@ -42,7 +42,6 @@ from plainbox.impl.logging import adjust_logging
 from plainbox.impl.secure.plugins import IPlugInCollection
 from plainbox.impl.secure.plugins import now
 
-
 logger = logging.getLogger("plainbox.clitools")
 
 

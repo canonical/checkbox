@@ -21,33 +21,37 @@ plainbox.impl.test_session
 
 Test definitions for plainbox.impl.session module
 """
-from doctest import DocTestSuite
-from doctest import REPORT_NDIFF
+
+from doctest import REPORT_NDIFF, DocTestSuite
 from unittest import TestCase
-from unittest.mock import MagicMock
-from unittest.mock import Mock
-from unittest.mock import patch
+from unittest.mock import MagicMock, Mock, patch
 
 from plainbox.abc import IJobResult
-from plainbox.impl.depmgr import DependencyType
-from plainbox.impl.depmgr import DependencyDuplicateError
-from plainbox.impl.depmgr import DependencyMissingError
-from plainbox.impl.depmgr import DependencyUnknownError
+from plainbox.impl.depmgr import (
+    DependencyDuplicateError,
+    DependencyMissingError,
+    DependencyType,
+    DependencyUnknownError,
+)
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
-from plainbox.impl.session import InhibitionCause
-from plainbox.impl.session import SessionState
-from plainbox.impl.session import UndesiredJobReadinessInhibitor
-from plainbox.impl.session.state import JobState
-from plainbox.impl.session.state import SessionDeviceContext
-from plainbox.impl.session.state import SessionMetaData
+from plainbox.impl.session import (
+    InhibitionCause,
+    SessionState,
+    UndesiredJobReadinessInhibitor,
+)
+from plainbox.impl.session.state import (
+    JobState,
+    SessionDeviceContext,
+    SessionMetaData,
+)
 from plainbox.impl.testing_utils import make_job
-from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.category import CategoryUnit
+from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.suspend_consts import Suspend
 from plainbox.vendor.morris import SignalTestCase
@@ -313,6 +317,7 @@ class SessionStateAPITests(TestCase):
 
     def test_also_after_suspend_flag(self):
         # Define a job
+        # flags is a string to test backward compatibility with pxu
         job = make_job("A", summary="foo", flags=Suspend.AUTO_FLAG)
         # Define an empty session
         session = SessionState([])
@@ -323,7 +328,7 @@ class SessionStateAPITests(TestCase):
         self.assertIn(job, session.job_list)
         self.assertEqual(session.job_list[1].id, "after-suspend-A")
         self.assertEqual(session.job_list[1].summary, "foo after suspend (S3)")
-        expected_depends = "A {}".format(Suspend.AUTO_JOB_ID)
+        expected_depends = ["A", Suspend.AUTO_JOB_ID]
         self.assertEqual(
             session.job_list[1].depends,
             (expected_depends),
@@ -349,9 +354,52 @@ class SessionStateAPITests(TestCase):
             [UndesiredJobReadinessInhibitor],
         )
 
+    def test_also_after_suspend_flag_extra_fields(self):
+        # Define a job
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=[Suspend.AUTO_FLAG],
+            after="early_job",
+            group="group1",
+        )
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_unit(job)
+        # Both jobs got added to job list
+        self.assertEqual(len(session.job_list), 2)
+        self.assertEqual(session.job_list[1].id, "after-suspend-A")
+        self.assertEqual(session.job_list[1].after, "early_job A")
+        self.assertEqual(session.job_list[1].group, "after-suspend-group1")
+
+    def test_also_after_suspend_flag_extra_fields_yaml(self):
+        # Define a job
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=[Suspend.AUTO_FLAG, Suspend.MANUAL_FLAG],
+            after=["early_job"],
+            depends=["other_job"],
+            group="group1",
+        )
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_unit(job)
+        # Both jobs got added to job list
+        self.assertEqual(len(session.job_list), 3)
+        self.assertEqual(session.job_list[1].id, "after-suspend-A")
+        self.assertEqual(session.job_list[1].after, ["early_job", "A"])
+        self.assertEqual(
+            session.job_list[1].depends,
+            ["other_job", "A", Suspend.AUTO_JOB_ID],
+        )
+        self.assertEqual(session.job_list[1].group, "after-suspend-group1")
+
     def test_also_after_suspend_manual_flag(self):
         # Define a job
-        job = make_job("A", summary="foo", flags=Suspend.MANUAL_FLAG)
+        job = make_job("A", summary="foo", flags=[Suspend.MANUAL_FLAG])
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
@@ -361,7 +409,7 @@ class SessionStateAPITests(TestCase):
         self.assertIn(job, session.job_list)
         self.assertEqual(session.job_list[1].id, "after-suspend-manual-A")
         self.assertEqual(session.job_list[1].summary, "foo after suspend (S3)")
-        expected_depends = "A {}".format(Suspend.MANUAL_JOB_ID)
+        expected_depends = ["A", Suspend.MANUAL_JOB_ID]
         self.assertEqual(
             session.job_list[1].depends,
             expected_depends,
@@ -385,6 +433,27 @@ class SessionStateAPITests(TestCase):
         self.assertEqual(
             session.job_state_map[sibling.id].readiness_inhibitor_list,
             [UndesiredJobReadinessInhibitor],
+        )
+
+    def test_also_after_suspend_manual_flag_extra_fields(self):
+        # Define a job
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=[Suspend.MANUAL_FLAG],
+            after="early_job",
+            group="group1",
+        )
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_unit(job)
+        # Both jobs got added to job list
+        self.assertEqual(len(session.job_list), 2)
+        self.assertEqual(session.job_list[1].id, "after-suspend-manual-A")
+        self.assertEqual(session.job_list[1].after, "early_job A")
+        self.assertEqual(
+            session.job_list[1].group, "after-suspend-manual-group1"
         )
 
     def test_get_estimated_duration_auto(self):
@@ -1039,6 +1108,18 @@ class SessionMetadataTests(TestCase):
             self_mock._flags,
         )
         self.assertTrue(logger.warning.called)
+
+    def test_bootstrapping_property(self):
+        # this relies on the fact that phases are tracked in the flag set
+        metadata = SessionMetaData(flags=[])
+        self.assertFalse(metadata.bootstrapping)
+        metadata.bootstrapping = False
+        self.assertFalse(metadata.bootstrapping)
+        metadata.bootstrapping = True
+        self.assertTrue(metadata.bootstrapping)
+        # this is an implementation detail on how metadata is tracking the
+        # phase. if implementation changes, feel free to change this.
+        self.assertTrue(metadata.flags)
 
 
 class SessionDeviceContextTests(SignalTestCase):

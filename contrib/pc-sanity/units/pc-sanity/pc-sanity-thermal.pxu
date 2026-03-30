@@ -243,8 +243,11 @@ template-unit: job
 plugin: shell
 depends: miscellanea/thermald
 category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/thermal-policy-set_{driver}
+id: miscellanea/thermal-policy-set_{path}
 command:
+ if [ ! -e "/sys{path}/uuids/current_uuid" ]; then
+     exit 0
+ fi
  policy=$(cat "/sys{path}/uuids/current_uuid")
  if [ "$policy" = "INVALID" ]; then
      echo "Check /sys{path}/uuids/current_uuid got INVALID."

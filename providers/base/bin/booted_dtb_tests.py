@@ -25,7 +25,6 @@ from os.path import join, relpath
 
 from checkbox_support.snap_utils.system import get_kernel_snap
 
-
 if len(sys.argv) != 2:
     raise SystemExit("ERROR: please specify the bootloader")
 

@@ -21,27 +21,34 @@ Definition for UnifiedRunner class.
 """
 
 import contextlib
+import enum
+import functools
 import getpass
 import gzip
 import io
 import logging
+import operator
 import os
 import select
+import shlex
+import shutil
+import signal
 import subprocess
 import sys
 import tempfile
 import threading
 import time
+from contextlib import suppress
+from subprocess import check_call, check_output, run
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
-from plainbox.impl.unit.job import supported_plugins
-from plainbox.impl.unit.unit import on_ubuntucore
+from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.result import (
+    IOLogRecord,
     IOLogRecordWriter,
     JobResultBuilder,
-    IOLogRecord,
 )
 from plainbox.impl.runner import (
     CommandOutputWriter,
@@ -49,13 +56,25 @@ from plainbox.impl.runner import (
     JobRunnerUIDelegate,
     slugify,
 )
-from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.storage import WellKnownDirsHelper
+from plainbox.impl.unit.job import InvalidJob, supported_plugins
+from plainbox.impl.unit.unit import (
+    get_checkbox_runtime_path,
+    get_snap_base,
+    on_os_ubuntucore,
+    on_ubuntucore,
+)
 from plainbox.vendor import extcmd
-from plainbox.impl.unit.job import InvalidJob
 
 logger = logging.getLogger("plainbox.unified")
+
+try:
+    join_cmd = shlex.join
+except AttributeError:
+
+    def join_cmd(args):
+        return " ".join(shlex.quote(x) for x in args)
 
 
 class UnifiedRunner(IJobRunner):
@@ -95,7 +114,9 @@ class UnifiedRunner(IJobRunner):
         self._running_jobs_pid = None
         self._extra_env = extra_env
 
-    def run_job(self, job, job_state, environ=None, ui=None):
+    def run_job(
+        self, job, job_state, environ=None, ui=None, as_systemd_unit=False
+    ):
         logger.info(_("Running %r"), job)
         self._job_runner_ui_delegate.ui = ui
 
@@ -139,7 +160,9 @@ class UnifiedRunner(IJobRunner):
         if job.plugin == "resource" and "cachable" in job.get_flag_set():
             from_cache, result = self._resource_cache.get(
                 job.checksum,
-                lambda: self._run_command(job, environ).get_result(),
+                lambda: self._run_command(
+                    job, environ, as_systemd_unit
+                ).get_result(),
             )
             if from_cache:
                 print(Colorizer().header(_("Using cached data!")))
@@ -164,7 +187,7 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_FAIL,
                 comments=_("No command to run!"),
             ).get_result()
-        result_builder = self._run_command(job, environ)
+        result_builder = self._run_command(job, environ, as_systemd_unit)
 
         # for user-interact-verify and user-verify jobs the operator chooses
         # the final outcome, so we need to reset the outcome to undecided
@@ -181,7 +204,7 @@ class UnifiedRunner(IJobRunner):
         # this is left here to conform to the interface
         return []
 
-    def _run_command(self, job, environ):
+    def _run_command(self, job, environ, as_systemd_unit):
         start_time = time.time()
         slug = slugify(job.id)
         output_writer = CommandOutputWriter(
@@ -208,7 +231,9 @@ class UnifiedRunner(IJobRunner):
                 ]
             )
             ecmd = extcmd.ExternalCommandWithDelegate(delegate)
-            return_code = self.execute_job(job, environ, ecmd, self._stdin)
+            return_code = self.execute_job(
+                job, environ, ecmd, self._stdin, as_systemd_unit
+            )
             io_log_gen.on_new_record.disconnect(writer.write_record)
         if return_code == 0:
             outcome = IJobResult.OUTCOME_PASS
@@ -223,10 +248,15 @@ class UnifiedRunner(IJobRunner):
             execution_duration=time.time() - start_time,
         )
 
-    def execute_job(self, job, environ, extcmd_popen, stdin=None):
-        """Run the 'binary' associated with the job."""
+    def execute_job(
+        self, job, environ, extcmd_popen, stdin=None, as_systemd_unit=False
+    ):
+        """
+        Runs the 'command' section associated with the job.
+        """
         target_user = job.user or self._user_provider()
-        if target_user == getpass.getuser():
+        # the systemd unit always needs the user
+        if target_user == getpass.getuser() and not as_systemd_unit:
             target_user = None
 
         def call(extcmd_popen, *args, **kwargs):
@@ -295,7 +325,6 @@ class UnifiedRunner(IJobRunner):
                         break
                     except KeyboardInterrupt:
                         is_alive = False
-                        import signal
 
                         self.send_signal(signal.SIGKILL, target_user)
                         # And send a notification about this
@@ -317,18 +346,23 @@ class UnifiedRunner(IJobRunner):
             extcmd_popen._delegate.on_end(proc.returncode)
             return proc.returncode
 
+        get_execution_command = get_execution_command_subshell
+        if as_systemd_unit:
+            get_execution_command = get_execution_command_systemd_unit
         # Setup the executable nest directory
-        with self.configured_filesystem(job) as nest_dir:
-            # Get the command and the environment.
-            # of this execution controller
-            cmd = get_execution_command(
-                job,
-                environ,
-                self._session_id,
-                nest_dir,
-                target_user,
-                self._extra_env,
-            )
+        with self.configured_filesystem(
+            job
+        ) as nest_dir, self.get_proper_job_cwd(
+            job
+        ) as cwd_dir, get_execution_command(
+            job,
+            environ,
+            self._session_id,
+            nest_dir,
+            target_user,
+            self._extra_env,
+            cwd_dir,
+        ) as cmd:
             env = get_execution_environment(
                 job, environ, self._session_id, nest_dir
             )
@@ -338,26 +372,20 @@ class UnifiedRunner(IJobRunner):
             # See https://bugs.launchpad.net/snapd/+bug/2003955
             env["SYSTEMD_IGNORE_CHROOT"] = "1"
             # run the command
-            logger.debug(
-                _("job[%(ID)s] executing %(CMD)r with env %(ENV)r"),
-                {"ID": job.id, "CMD": cmd, "ENV": env},
+            logger.info(
+                _("Starting job [%(ID)s] executing: %(CMD)r"),
+                {"ID": job.id, "CMD": join_cmd(cmd)},
             )
-            if "preserve-cwd" in job.get_flag_set() or os.getenv("SNAP"):
-                return_code = call(
-                    extcmd_popen, cmd, stdin=subprocess.PIPE, env=env
-                )
-            else:
-                with self.temporary_cwd(job) as cwd_dir:
-                    return_code = call(
-                        extcmd_popen,
-                        cmd,
-                        stdin=subprocess.PIPE,
-                        env=env,
-                        cwd=cwd_dir,
-                    )
-            if "noreturn" in job.get_flag_set():
-                import signal
 
+            return_code = call(
+                extcmd_popen,
+                cmd,
+                stdin=subprocess.PIPE,
+                env=env,
+                cwd=cwd_dir,
+            )
+            logger.info("Finished job [{}]".format(job.id))
+            if "noreturn" in job.get_flag_set():
                 signal.pause()
             return return_code
 
@@ -387,21 +415,28 @@ class UnifiedRunner(IJobRunner):
             yield nest_dir
 
     @contextlib.contextmanager
-    def temporary_cwd(self, job):
+    def get_proper_job_cwd(self, job):
         """
-        Context manager for handling temporary current working directory
-        for a particular execution of a job definition command.
+        Context manager for handling current working directory for a particular
+        execution of a job definition command.
 
         :param job:
             The JobDefinition to execute
         :returns:
-            Pathname of the new temporary directory
+            Pathname of the new directory
         """
+        if "preserve-cwd" in job.get_flag_set():
+            yield os.getcwd()
+            return
         # Create a nest for all the private executables needed for execution
         prefix = "cwd-"
         suffix = ".{}".format(job.checksum)
         try:
-            with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
+            # use /var/tmp because in snaps /tmp is private to the snap
+            with tempfile.TemporaryDirectory(
+                suffix, prefix, "/var/tmp"
+            ) as cwd_dir:
+                os.chmod(cwd_dir, 0o777)
                 logger.debug(
                     _("Job temporary current working directory: %s"), cwd_dir
                 )
@@ -441,7 +476,7 @@ class UnifiedRunner(IJobRunner):
             logger.warning(
                 _(
                     "Please store desired files in $PLAINBOX_SESSION_SHARE"
-                    "and use regular temporary files for everything else"
+                    " and use regular temporary files for everything else"
                 )
             )
 
@@ -476,7 +511,7 @@ class UnifiedRunner(IJobRunner):
                 "-{}".format(self._running_jobs_pid),
             ]
             try:
-                subprocess.check_call(cmd, stdin=in_r)
+                check_call(cmd, stdin=in_r)
             except subprocess.CalledProcessError:
                 logger.warning("Failed to kill process")
 
@@ -508,6 +543,17 @@ class FakeJobRunner(UnifiedRunner):
         builder.outcome = "pass"
         builder.return_code = 0
         return builder.get_result()
+
+
+def add_to_environment(environment, key, values):
+    """
+    Modifies in place environment to add to `key` `values`
+    """
+    if not values:
+        return environment
+    current_value = environment.get(key, "").split(os.pathsep)
+    environment[key] = os.pathsep.join(values + current_value)
+    return environment
 
 
 def get_execution_environment(job, environ, session_id, nest_dir):
@@ -552,32 +598,20 @@ def get_execution_environment(job, environ, session_id, nest_dir):
             env["TEXTDOMAINDIR"] = env["PLAINBOX_PROVIDER_LOCALE_DIR"] = (
                 job.provider.locale_dir
             )
-        if os.getenv("SNAP") or os.getenv("SNAP_APP_PATH"):
-            copy_vars = [
-                "PYTHONHOME",
-                "PYTHONUSERBASE",
-                "LD_LIBRARY_PATH",
-                "GI_TYPELIB_PATH",
-                "PERL5LIB",
-                "QT_PLUGIN_PATH",
-                "QT_QPA_PLATFORM",
-                "QT_QPA_PLATFORMTHEME",
-                "QT_DEBUG_PLUGINS",
-                "QML2_IMPORT_PATH",
-            ]
-            for key, value in env.items():
-                if key in copy_vars or key.startswith("SNAP"):
-                    env[key] = value
     # Use PATH that can lookup checkbox scripts
-    if job.provider.extra_PYTHONPATH:
-        env["PYTHONPATH"] = os.pathsep.join(
-            [job.provider.extra_PYTHONPATH]
-            + env.get("PYTHONPATH", "").split(os.pathsep)
-        )
+    env = add_to_environment(env, "PYTHONPATH", job.provider.extra_PYTHONPATH)
+
     # Inject nest_dir into PATH
-    env["PATH"] = os.pathsep.join(
-        [nest_dir] + env.get("PATH", "").split(os.pathsep)
+    env = add_to_environment(env, "PATH", [nest_dir] + job.provider.extra_PATH)
+
+    env = add_to_environment(
+        env, "LD_LIBRARY_PATH", job.provider.extra_LD_LIBRARY_PATH
     )
+
+    # custom frontend / runtime may define extra envvars in this config file
+    for key, value in job.provider.extra_snap_environment.items():
+        env = add_to_environment(env, key, value)
+
     # Add per-session shared state directory
     env["PLAINBOX_SESSION_SHARE"] = WellKnownDirsHelper.session_share(
         session_id
@@ -591,6 +625,15 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     set_if_not_none("PLAINBOX_PROVIDER_DATA", job.provider.data_dir)
     set_if_not_none("PLAINBOX_PROVIDER_UNITS", job.provider.units_dir)
     set_if_not_none("CHECKBOX_SHARE", job.provider.CHECKBOX_SHARE)
+    if os.getenv("SNAP"):
+        set_if_not_none("CHECKBOX_RUNTIME", str(get_checkbox_runtime_path()))
+
+    if on_ubuntucore():
+        set_if_not_none("CHECKBOX_RUNNING_STRICT_SNAP", "1")
+
+    if on_os_ubuntucore():
+        set_if_not_none("CHECKBOX_OS_IS_UBUNTUCORE", "1")
+
     # Inject additional variables that are requested in the config
     if environ is not None:
         for env_var in environ:
@@ -673,10 +716,25 @@ def get_differential_execution_environment(
     return delta_env
 
 
-def get_execution_command(
-    job, environ, session_id, nest_dir, target_user=None, extra_env=None
+@contextlib.contextmanager
+def get_execution_command_subshell(
+    job,
+    environ,
+    session_id,
+    nest_dir,
+    target_user=None,
+    extra_env=None,
+    cwd=None,  # for simmetry, ignored!
 ):
-    """Generate a command argv to run in the shell."""
+    """
+    Generate a command that if executed runs a Checkbox command section
+
+    The command returned by this function spawns a shell with the proper
+    environment for the target user and, on core, an unconfined confinement
+    profile, which gives the new process an (almost) unconfined access to the
+    system. Note that the resulting process spawned by this command is still a
+    child of whatever executes it.
+    """
     cmd = []
     if target_user:
         # we want sudo to:
@@ -712,4 +770,237 @@ def get_execution_command(
     if on_ubuntucore():
         cmd += ["aa-exec", "-p", "unconfined"]
     cmd += [job.shell, "-c", job.command]
-    return cmd
+    yield cmd
+
+
+def get_plz_run(cmd: list):
+    """ """
+    return [
+        "sudo",
+        "--stdin",
+        shutil.which("plz-run"),
+    ] + cmd
+
+
+@contextlib.contextmanager
+def dangerous_nsenter(path):
+    """
+    Creates a dangerous nsenter copy at path with cap_sys_admin,cap_sys_chroot
+    """
+    try:
+        # here recover setcap and nsenter binaries path outside the sandbox
+        runtime_path = get_checkbox_runtime_path()
+        # nsenter is invoked outside this namespace, we must use the static
+        # one.
+        # Note: This is a newer version of nsenter we compile ad-hoc in the
+        #       snap. Xenial nsenter is too old and does not support -W which
+        #       we need
+        runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter.static"
+        # Note: this path only works on core<24, on core24+ this is in
+        #       /usr/sbin but this code should only be used on core16, so this
+        #       is fine
+        runtime_setcap = runtime_path / "sbin" / "setcap"
+        setcap_path = str(runtime_setcap)
+        nsenter_path = str(runtime_nsenter)
+        check_call(get_plz_run(["cp", nsenter_path, path]))
+        check_call(
+            get_plz_run(
+                [
+                    setcap_path,
+                    "cap_dac_read_search,cap_sys_admin,cap_sys_chroot+ep",
+                    path,
+                ]
+            )
+        )
+        check_call(get_plz_run(["chmod", "777", path]))
+        yield path
+    finally:
+        run(get_plz_run(["rm", path]))
+
+
+# TODO: use enum.auto once python3.5 support is dropped
+class MountingStrategy(enum.Enum):
+    # mount is not needed in this context
+    DONT_MOUNT = 0
+    # mount is needed but not permission is required
+    MOUNT_ROOT = 1
+    # mount is needed and permission has to be aquired via dangerous nsenter
+    MOUNT_DANGEROUS_NSENTER = 2
+    # mount is needed and permission has to be aquired via ambient capabilities
+    # this is the preferred option when available and needed
+    MOUNT_AMBIENT_CAPABILITIES = 3
+
+    @classmethod
+    def from_user_core(cls, job_user, on_core, snap_base):
+        if not on_core:
+            return cls.DONT_MOUNT
+        if job_user == "root":
+            return cls.MOUNT_ROOT
+        if snap_base == "core16":
+            # core16 doesn't support AmbientCapabilities via dbus
+            return cls.MOUNT_DANGEROUS_NSENTER
+        return cls.MOUNT_AMBIENT_CAPABILITIES
+
+
+def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
+    """
+    Returns commands and helpers to mount the current snap namespace
+
+    This is necessary because when inside a core snap, some binaries may
+    pass through a content interface. This makes their path "invalid" to any
+    process that doesn't mount the same mount namespace. This function returns
+    said commands (to be appended to the unit command), along with some
+    commands to append to the script (to fix the process permissions) and a
+    helper that will make the commands in the script work on some systems.
+
+    The returned values from this function are always valid, they are no-op
+    on systems where they aren't needed
+    """
+    wrapper_cmd = []
+    cmd = []
+    namespace_mounting_helper = suppress()
+    on_core = on_ubuntucore()
+    snap_base = None if not on_core else get_snap_base()
+
+    mounting_strategy = MountingStrategy.from_user_core(
+        target_user, on_core, snap_base
+    )
+    if mounting_strategy == MountingStrategy.DONT_MOUNT:
+        # when not on ubuntucore, there is no snap namespace to mount
+        return wrapper_cmd, cmd, namespace_mounting_helper
+    dangerous_nsenter_path = None
+    necessary_caps = {}
+    # mounting namespaces is not allowed as non-root, the following makes it
+    # possible
+    if mounting_strategy == MountingStrategy.MOUNT_DANGEROUS_NSENTER:
+        # here we need a dangerous copy of nsenter that works as "normal"
+        # user because the unit will be normal user and else it wont be
+        # able to mount the snap namespace. This only on core16 because
+        # other distros support setting AmbientCapabilities via dbus API
+        # making that a better, more secure alternative
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, prefix="nsenter_", dir=shared_location
+        ) as f:
+            dangerous_nsenter_path = f.name
+        namespace_mounting_helper = dangerous_nsenter(dangerous_nsenter_path)
+    elif mounting_strategy == MountingStrategy.MOUNT_AMBIENT_CAPABILITIES:
+        # on core > 16 we can set AmbientCapabilities without using fs caps
+        # These are the capabilities needed to mount the namespace
+        # from linux/capability.h
+        # uint64(1 << 21| 1<<18 | 1<<6 | 1<<7)
+        necessary_caps = {
+            "setgid": 6,  # necessary for setpriv
+            "setuid": 7,  # necessary for setpriv
+            "sys_chroot": 18,  # necessary for nsenter
+            "sys_admin": 21,  # necessary for nsenter
+        }
+        ambient_capabilities_bitset = functools.reduce(
+            operator.ior, (1 << x for x in necessary_caps.values()), 0
+        )
+        wrapper_cmd += [
+            "-ambient-capabilities",
+            str(ambient_capabilities_bitset),
+        ]
+    # these binaries are not reliably shipped / may not be in path
+    runtime_path = get_checkbox_runtime_path()
+    runtime_nsenter = runtime_path / "usr" / "bin" / "nsenter.static"
+
+    snap_name = os.getenv("SNAP_NAME", "checkbox")
+    cmd += [
+        (
+            str(runtime_nsenter)
+            if dangerous_nsenter_path is None
+            else str(dangerous_nsenter_path)
+        ),
+        "-m/run/snapd/ns/{}.mnt".format(snap_name),
+        "-W{}".format(cwd),  # wrapper command expects cwd to not change!
+    ]
+    if mounting_strategy == MountingStrategy.MOUNT_AMBIENT_CAPABILITIES:
+        # on non-core16 we have given ourselves AmbientCapabilities. After
+        # using them for what we needed (mounting the namespace) we must
+        # drop them else the "user" test will have way more priviledges
+        # than it is supposed to
+        runtime_setpriv = runtime_path / "usr" / "bin" / "setpriv"
+        caps_to_remove = "-" + ",-".join(necessary_caps)
+        cmd += [str(runtime_setpriv), "--inh-caps={}".format(caps_to_remove)]
+    return wrapper_cmd, cmd, namespace_mounting_helper
+
+
+@contextlib.contextmanager
+def get_execution_command_systemd_unit(
+    job, environ, session_id, nest_dir, target_user, extra_env=None, cwd=None
+):
+    """
+    Generates a command that if executed spawns a Checkbox command section as a
+    oneshot systemd unit
+
+    This is different from get_execution_command_subshell because the new job is
+    executed not as a child process of Checkbox in the current slice, but as a
+    new transient systemd unit in the appropriate slice for the user.
+
+    Note: Dumps the command to a temporary file because there is a
+    limitation on core16's systemd that makes commands longer than 2k
+    characters fail. See: https://github.com/systemd/systemd/issues/3302
+    """
+    if cwd is None:
+        cwd = os.getcwd()
+
+    wrapper_cmd = [
+        "sudo",
+        "--prompt",
+        "",
+        "--reset-timestamp",
+        "--stdin",
+        shutil.which("plz-run"),
+        "-same-dir",
+        "-g",
+        target_user,
+        "-u",
+        target_user,
+    ]
+    if target_user != "root":
+        wrapper_cmd += ["-pam", "system-login"]
+    cmd = []
+    # this location must be accessible and in the same path for both this
+    # process (that may be inside a snap) a systemd unit, debian or source
+    # checkbox. All users must be able to read and write to it.
+    # DONT use SNAP_COMMON (not writable by normal user)
+    # DONT use SNAP_USER_COMMON (not writable by normal user if running as root)
+    shared_location = "/var/tmp"
+    # when in a core snap, we need the snap mount namespace to use anything
+    # that was shared via a content interface
+    extra_wrapper_cmd, extra_cmd, namespace_mounting_helper = (
+        get_snap_mount_namespace_commands(target_user, shared_location, cwd)
+    )
+    wrapper_cmd += extra_wrapper_cmd
+    cmd += extra_cmd
+    env = get_execution_environment(job, environ, session_id, nest_dir)
+    if extra_env:
+        env.update(extra_env())
+    # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
+    # no systemd command will work
+    env_cmds = [
+        "{key}={value}".format(key=key, value=value)
+        for key, value in sorted(env.items())
+    ] + ["SYSTEMD_IGNORE_CHROOT=1"]
+    cmd += ["env", *env_cmds, job.shell, "-c", job.command]
+    cmd_text = " ".join(shlex.quote(x) for x in cmd)
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        delete=False,
+        prefix="job_command_",
+        suffix=".sh",
+        dir=shared_location,
+    ) as f:
+        f.write("#!/bin/bash\n")
+        f.write(cmd_text)
+        os.chmod(f.name, 0o777)
+        path = f.name
+
+    wrapper_cmd.append(path)
+    with namespace_mounting_helper:
+        try:
+            yield wrapper_cmd
+        finally:
+            with suppress(OSError):
+                os.remove(path)

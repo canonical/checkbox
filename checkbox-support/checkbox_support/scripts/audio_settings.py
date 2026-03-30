@@ -333,7 +333,7 @@ def set_audio_settings(device, mute, volume):
                             str(int(mute)),
                         ]
                     )
-                except:
+                except CalledProcessError:
                     logging.error("Failed to set mute for {}".format(name))
                     sys.exit(1)
 
@@ -346,7 +346,7 @@ def set_audio_settings(device, mute, volume):
                             "{}%".format(str(volume)),
                         ]
                     )
-                except:
+                except CalledProcessError:
                     logging.error("Failed to set volume for {}".format(name))
                     sys.exit(1)
 
@@ -400,13 +400,13 @@ def restore_audio_settings(file):
 
         try:
             check_call(["pactl", "set-{}-mute".format(type), name, muted])
-        except:
+        except CalledProcessError:
             logging.error("Failed to restore mute for {}".format(name))
             return 1
 
         try:
             check_call(["pactl", "set-{}-volume".format(type), name, volume])
-        except:
+        except CalledProcessError:
             logging.error("Failed to restore volume for {}".format(name))
             return 1
 

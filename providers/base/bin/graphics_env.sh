@@ -22,7 +22,8 @@ ensure_xdg_session_type() {
         sleep 1
 
         echo "Waiting for XDG_SESSION_TYPE to be set"
-        SESSION=$(loginctl list-sessions --no-legend | grep 'seat0' | cut -d ' ' -f 1)
+        SESSION=$(loginctl list-sessions --no-legend | grep 'seat0' | awk '{print $1}')
+
 
         XDG_SESSION_TYPE=$(loginctl show-session "${SESSION}" | grep 'Type' | cut -d '=' -f 2)
 

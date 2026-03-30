@@ -27,8 +27,7 @@ from metabox.core.utils import tag
 @tag("reboot")
 class Reboot(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -40,8 +39,7 @@ class Reboot(Scenario):
         exclude = .*cold.*
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         AssertPrinted("Connection lost!"),
         AssertPrinted("job passed   : Warm reboot"),
@@ -55,8 +53,7 @@ class SystemInfoPersistency(Scenario):
     """
 
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -79,8 +76,7 @@ class SystemInfoPersistency(Scenario):
         exporter = json
         transport = out
         forced = yes
-        """
-    )
+        """)
     steps = [
         AssertPrinted("Connection lost!"),
         AssertPrinted("job passed   : Warm reboot"),

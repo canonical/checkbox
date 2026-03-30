@@ -23,14 +23,17 @@ plainbox.impl.unit.test_init
 Test definitions for plainbox.impl.unit (package init file)
 """
 
-from unittest import TestCase
+import textwrap
+from unittest import TestCase, mock
 
 from plainbox.abc import IProvider1
-from plainbox.impl.unit.unit import Unit
-from plainbox.impl.unit.unit import MissingParam
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
-from plainbox.vendor import mock
+from plainbox.impl.unit.unit import (
+    Unit,
+    MissingParam,
+    get_snap_base,
+    on_os_ubuntucore,
+)
+from plainbox.impl.validation import Problem, Severity
 
 
 class IssueMixIn:
@@ -400,17 +403,6 @@ class UnitFieldValidationTests(TestCase, IssueMixIn):
         self.provider = mock.Mock(spec_set=IProvider1)
         self.provider.namespace = "ns"
 
-    def test_unit__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_unit": "unit"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.unit,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
-
     def test_unit__template_invariant(self):
         issue_list = self.unit_cls(
             {"unit": "{attr}"},
@@ -434,3 +426,84 @@ class UnitFieldValidationTests(TestCase, IssueMixIn):
             Severity.advice,
             message,
         )
+
+
+class GetSnapBaseTests(TestCase):
+    @mock.patch(
+        "plainbox.impl.unit.unit.open",
+        new=mock.mock_open(read_data=textwrap.dedent("""
+                name: checkbox
+                version: 7.0.0-dev76
+                summary: Checkbox test runner
+                base: core
+                """)),
+    )
+    @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
+    def test_core16_just_core(self):
+        get_snap_base.cache_clear()
+        self.assertEqual(get_snap_base(), "core16")
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.open",
+        new=mock.mock_open(read_data=textwrap.dedent("""
+                name: checkbox
+                version: 7.0.0-dev76
+                summary: Checkbox test runner
+                """)),
+    )
+    @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
+    def test_core16_undeclared(self):
+        get_snap_base.cache_clear()
+        self.assertEqual(get_snap_base(), "core16")
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.open",
+        new=mock.mock_open(read_data=textwrap.dedent("""
+                name: checkbox
+                version: 7.0.0-dev76
+                summary: Checkbox test runner
+                base: core24
+                """)),
+    )
+    @mock.patch("os.getenv", new=mock.Mock(return_value="checkbox"))
+    def test_core24(self):
+        get_snap_base.cache_clear()
+        self.assertEqual(get_snap_base(), "core24")
+
+    @mock.patch("os.getenv", new=mock.Mock(return_value=None))
+    def test_no_snap_envvar(self):
+        get_snap_base.cache_clear()
+        with self.assertRaises(ValueError):
+            get_snap_base()
+
+
+class OnOSUbuntuCore(TestCase):
+    @mock.patch(
+        "plainbox.impl.unit.unit.Path.read_text",
+        return_value='NAME="Ubuntu Core"\nVERSION="20"',
+    )
+    def test_on_uc_strict_snap(self, _):
+        on_os_ubuntucore.cache_clear()
+
+        self.assertTrue(on_os_ubuntucore())
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.Path.read_text",
+        side_effect=[
+            FileNotFoundError(),
+            'NAME="Ubuntu Core"',
+        ],
+    )
+    def test_on_uc_source(self, _):
+        on_os_ubuntucore.cache_clear()
+
+        self.assertTrue(on_os_ubuntucore())
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.Path.read_text",
+        side_effect=[FileNotFoundError(), 'NAME="Ubuntu"'],
+    )
+    def test_not_on_uc(self, _):
+        on_os_ubuntucore.cache_clear()
+
+        self.assertFalse(on_os_ubuntucore())

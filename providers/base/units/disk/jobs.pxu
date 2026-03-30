@@ -103,7 +103,7 @@ template-id: disk/fstrim_name
 estimated_duration: 1.0
 user: root
 requires:
- block_device.rotation == 'no' and block_device.name == '{name}'
+ (block_device.fstrim == 'True' and block_device.name == '{name}')
 _summary: Filesystem TRIM check for {product_slug}
 _purpose: Take the path of the storage device and test its TRIM capabilities
 command: fstrim_test.py --device-file {name}
@@ -131,6 +131,22 @@ command:
     echo "STRESS_NG_DISK_TIME env var is not found, stress-ng disk running time is default value"
     stress_ng_test.py disk --device {name} --base-time 240
   fi
+
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: com.canonical.plainbox::disk
+id: disk/disk_stress_ng_sru_{name}
+template-id: disk/disk_stress_ng_sru_name
+estimated_duration: 900.0
+user: root
+requires:
+ executable.name == 'stress-ng'
+ executable.name == 'uuidgen'
+_summary: Disk stress-ng test for {product_slug} (SRU shortened runtime)
+_purpose: Disk stress-ng test for {product_slug} (SRU shortened runtime)
+command: stress_ng_test.py disk --device {name} --base-time 30
 
 unit: template
 template-resource: device
@@ -180,6 +196,9 @@ category_id: com.canonical.plainbox::disk
 id: disk/apste_support_on_{name}
 template-id: disk/apste_support_on_name
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_apste_support == 'True'
 estimated_duration: 1.0
 user: root
 command: nvme get-feature -f 0x0c -H /dev/{name} | grep '(APSTE).*Enabled' && test -e /sys/class/nvme/{name}/power/pm_qos_latency_tolerance_us

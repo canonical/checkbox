@@ -94,6 +94,7 @@ exclude:
     miscellanea/debsums
     miscellanea/ubuntu-desktop-recommends
     miscellanea/ubuntu-desktop-minimal-recommends
+    wireless/check_iwlwifi_microcode_crash_interface
 
 id: sru
 _name: All SRU Tests (Ubuntu Desktop)

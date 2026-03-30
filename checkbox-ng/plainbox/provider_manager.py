@@ -73,7 +73,6 @@ from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError as UnitValidationError
 
-
 __all__ = ["setup", "manage_py_extension"]
 
 
@@ -123,8 +122,7 @@ class ManageCommand(CommandBase):
     # Pay extra attention to whitespace.  It must be correctly preserved or the
     # result won't work. In particular the leading whitespace *must* be
     # preserved and *must* have the same length on each line.
-    N_(
-        """
+    N_("""
     install this provider in the system
 
     This command installs the provider to the specified prefix.
@@ -173,8 +171,7 @@ class ManageCommand(CommandBase):
 
     This layout is perfect for Click and Snappy environments where /prefix is
     effectively variable.
-    """
-    )
+    """)
 )
 class InstallCommand(ManageCommand):
 
@@ -457,8 +454,7 @@ class InstallCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_(
-        """
+    N_("""
     create a source tarball
 
     This commands creates a source distribution (tarball) of all of the
@@ -479,8 +475,7 @@ class InstallCommand(ManageCommand):
     - the po directory, and everything in it
 
     Any of the missing items are silently ignored.
-    """
-    )
+    """)
 )
 class SourceDistributionCommand(ManageCommand):
 
@@ -568,8 +563,7 @@ class SourceDistributionCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_(
-        """
+    N_("""
     install/remove this provider, only for development
 
     This commands creates or removes the ``.provider`` file describing the
@@ -588,8 +582,7 @@ class SourceDistributionCommand(ManageCommand):
 
     Note that the full path of the source directory is placed in the generated
     file so you will need to re-run develop if you move this directory around.
-    """
-    )
+    """)
 )
 class DevelopCommand(ManageCommand):
 
@@ -675,8 +668,7 @@ class DevelopCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_(
-        """
+    N_("""
     build provider specific executables from source
 
     This command builds provider specific executables from source code.
@@ -699,8 +691,7 @@ class DevelopCommand(ManageCommand):
     'build/bin' subdirectory (which is created automatically). The relative
     path of the 'src/' directory is available as the $PLAINBOX_SRC_DIR
     environment variable.
-    """
-    )
+    """)
 )
 class BuildCommand(ManageCommand):
 
@@ -831,8 +822,7 @@ class BuildCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_(
-        """
+    N_("""
     clean build results
 
     This command complements the build command and is intended to clean-up
@@ -855,8 +845,7 @@ class BuildCommand(ManageCommand):
     setup(
        clean_cmd='rm -rf build/bin'
     )
-    """
-    )
+    """)
 )
 class CleanCommand(ManageCommand):
 
@@ -939,16 +928,14 @@ class CleanCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_(
-        """
+    N_("""
     display basic information about this provider
 
     This command displays various essential facts about the provider associated
     with the ``manage.py`` script. Displayed data includes provider name and
     other meta-data, all of the jobs and test plans, with their precise
     locations.
-    """
-    )
+    """)
 )
 class InfoCommand(ManageCommand):
 
@@ -1047,8 +1034,7 @@ class InfoCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_(
-        """
+    N_("""
     perform various static analysis and validation
 
     This command inspects all of the jobs defined in the provider associated
@@ -1064,8 +1050,7 @@ class InfoCommand(ManageCommand):
 
     The exit code can be used to determine if there were any failures. If you
     have any, ``manage.py validate`` is something that could run in a CI loop.
-    """
-    )
+    """)
 )
 class ValidateCommand(ManageCommand):
 
@@ -1368,14 +1353,12 @@ def exc2issue(exc):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_(
-        """
+    N_("""
     update, merge and build translation catalogs
 
     This command exposes facilities for updating, merging and building
     message translation catalogs.
-    """
-    )
+    """)
 )
 class I18NCommand(ManageCommand):
 
@@ -1522,15 +1505,13 @@ class I18NCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_(
-        """
+    N_("""
     generate packaging meta-data
 
     This command should not be invoked manually. It is applicable for package
     maintainers to allow them to extract packaging meta-data applicable for
     the current operating system from within the provider itself.
-    """
-    )
+    """)
 )
 class PackagingCommand(ManageCommand):
 

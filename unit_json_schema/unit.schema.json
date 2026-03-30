@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/unit.schema.json",
+  "title": "Checkbox Unit Schema",
+  "description": "Schema that validates a Checkbox units",
+  "oneOf": [
+    { "$ref": "job.schema.json" },
+    { "$ref": "test-plan.schema.json" },
+    { "$ref": "category.schema.json" },
+    { "$ref": "template.schema.json" },
+    { "$ref": "exporter.schema.json" },
+    { "$ref": "manifest-entry.schema.json" },
+    { "$ref": "packaging-meta-data.schema.json" }
+  ]
+}

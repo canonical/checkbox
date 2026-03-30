@@ -1,0 +1,32 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+
+unit: manifest entry
+id: has_dock_ethernet_adapter 
+_name: An Ethernet Port on dock
+_prompt: Does this dock has the following features?
+value-type: bool
+  
+unit: manifest entry
+id: has_dock_headset
+_name: Headset (Headphones + Microphone) port on dock
+_prompt: Does this dock has the following features?
+value-type: bool
+  
+unit: manifest entry
+id: has_dock_thunderbolt3 
+_name: Thunderbolt 3 Support on dock
+_prompt: Does this dock has the following features?
+value-type: bool
+  
+unit: manifest entry
+id: has_dock_usbc_data
+_name: USB Type-C Data (e.g. HID, Drives, Ethernet) on dock
+_prompt: Does this dock has the following features?
+value-type: bool
+
+unit: manifest entry
+id: has_dock_usbc_video
+_name: USB Type-C Video Adapter (USB-C to HDMI/DP/...) on dock
+_prompt: Does this dock has the following features?
+value-type: bool

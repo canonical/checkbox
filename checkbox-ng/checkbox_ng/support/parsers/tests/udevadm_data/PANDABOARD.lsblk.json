@@ -1,0 +1,25 @@
+{
+  "blockdevices": [
+    {
+      "kname": "mmcblk0",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": "ext4",
+      "size": 1865575148534
+    },
+    {
+      "kname": "mmcblk0p1",
+      "type": "part",
+      "mountpoint": null,
+      "fstype": "xfs",
+      "size": 375826659778
+    },
+    {
+      "kname": "mmcblk0p2",
+      "type": "part",
+      "mountpoint": "/",
+      "fstype": "btrfs",
+      "size": 57847761853
+    }
+  ]
+}

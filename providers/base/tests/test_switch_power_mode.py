@@ -18,6 +18,7 @@
 # pylint: disable=import-error
 
 """A unittest module for the switch_power_mode module."""
+
 import unittest
 import subprocess
 from pathlib import Path

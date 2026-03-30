@@ -15,7 +15,6 @@ nested_part:
   server-firmware
   server-miscellaneous
   server-ethernet
-  nvdimm-full
   kernel-snap-automated
   snappy-snap-automated
 include:

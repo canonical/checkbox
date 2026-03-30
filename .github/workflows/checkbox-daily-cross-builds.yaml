@@ -32,12 +32,16 @@ jobs:
             arch: amd64
           - release: 16
             arch: arm64
+          - release: 22
+            arch: riscv64
+          - release: 24
+            arch: riscv64
     # uc16 needs ubuntu20 because we need cgroup v1 to build it
     runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -49,7 +53,7 @@ jobs:
           ./prepare.sh series${{ matrix.release }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a
 
       - id: snap_build
         name: Build (retries on fail)
@@ -61,7 +65,7 @@ jobs:
             architecture: ${{ matrix.arch }}
             path: checkbox-core-snap/series${{ matrix.release }}
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         name: Upload logs on failure
         if: failure()
         with:
@@ -71,7 +75,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         name: Upload the snap as artifact
         with:
           name: runtime_snap${{ matrix.release }}_${{ matrix.arch }}.snap
@@ -111,12 +115,19 @@ jobs:
             arch: amd64
           - release: 24
             arch: arm64
+        include:
+          - release: 22
+            arch: riscv64
+            type: uc
+          - release: 24
+            arch: riscv64
+            type: uc
     # uc16 needs ubuntu20 because we need cgroup v1 to build it
     runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -128,7 +139,7 @@ jobs:
           ./prepare_${{ matrix.type }}.sh series_${{ matrix.type }}${{ matrix.release }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a
 
       - id: snap_build
         name: Build (retries on fail)
@@ -140,7 +151,7 @@ jobs:
             architecture: ${{ matrix.arch }}
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         name: Upload logs on failure
         if: failure()
         with:
@@ -150,7 +161,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         name: Upload the snaps as artefacts
         with:
           name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap

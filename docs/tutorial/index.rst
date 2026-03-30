@@ -50,3 +50,11 @@ sections can be followed in any order - they don’t depend on each other.
 
   writing-tests/test-case
   writing-tests/test-plan
+
+Packaging tutorial
+------------------
+
+.. toctree::
+  :maxdepth: 1
+
+  custom_frontend

@@ -35,5 +35,6 @@ command:
 user: root
 plugin: shell
 category_id: i2c
+environ: IGNORED_I2C_BUSES
 estimated_duration: 3m
 depends: i2c/i2c-bus-detect

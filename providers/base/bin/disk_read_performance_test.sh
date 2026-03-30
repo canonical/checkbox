@@ -49,9 +49,6 @@ for disk in "$@"; do
   if [[ $dev_path =~ mmc ]]; then
     disk_type="mmc"
   fi
-  if [[ $dev_path =~ pmem ]]; then
-    disk_type="nvdimm"
-  fi
   if [[ $dev_path =~ mtd ]]; then
     disk_type="mtd"
   fi
@@ -83,7 +80,6 @@ for disk in "$@"; do
     "mmc" ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
     "mtd" ) MIN_BUF_READ=1;;
     "nvme" ) MIN_BUF_READ=$DEFAULT_NVME_READ;;
-    "nvdimm" ) MIN_BUF_READ=500;;
     "mdadm" ) MIN_BUF_READ=$DEFAULT_MDADM_READ;;
     "ata" ) MIN_BUF_READ=80;;
     "scsi" ) MIN_BUF_READ=100;;

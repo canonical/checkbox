@@ -351,6 +351,17 @@ class TestMainTest(unittest.TestCase):
                 lst.main()
         self.assertIn("not found", str(ctx.exception).lower())
 
+    def test_raises_systemexit_when_duplicate_sensor_names(self):
+        duplicate_sensors = [self.SENSOR, self.SENSOR]
+        with patch(
+            "sys.argv", ["lst", "test", "--name", "tsl2591", "--rounds", "1"]
+        ), patch(
+            "light_sensor_test.get_all_sensors", return_value=duplicate_sensors
+        ):
+            with self.assertRaises(SystemExit) as ctx:
+                lst.main()
+        self.assertIn("more than 1", str(ctx.exception).lower())
+
     def test_all_rounds_pass(self):
         out, exc = self._run_test_cmd([100.0, 200.0, 100.0, 200.0])
         self.assertIsNone(exc)

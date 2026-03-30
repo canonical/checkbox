@@ -125,12 +125,21 @@ def main():
 
     elif args.command == "test":
         sensors = get_all_sensors()
-        target = next((s for s in sensors if s["name"] == args.name), None)
-        if not target:
+        sensors_with_matching_name = [
+            s for s in sensors if s["name"] == args.name
+        ]
+        if len(sensors_with_matching_name) == 0:
             raise SystemExit("Error: Sensor '{}' not found.".format(args.name))
+        elif len(sensors_with_matching_name) > 1:
+            raise SystemExit(
+                "Warning: More than 1 sensor has the name '{}'.".format(
+                    args.name
+                )
+            )
+        target_sensor = sensors_with_matching_name[0]
 
         passes = 0
-        path = target["path"]
+        path = target_sensor["path"]
         print("Press enter to start test ")
         input()
         for i in range(1, args.rounds + 1):
@@ -164,7 +173,11 @@ def main():
                 print("Result: PASS ({:.1f}%)".format(pct), flush=True)
                 passes += 1
             else:
-                print("Result: FAIL ({:.1f}%)".format(pct), flush=True)
+                print(
+                    "Result: FAIL ({:.1f}%) was detected, "
+                    "but >= ({}%) was required".format(pct, args.threshold),
+                    flush=True,
+                )
 
             if i < args.rounds:
                 time.sleep(args.delay)

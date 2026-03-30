@@ -28,10 +28,13 @@ class GraphicsCardResourceTests(unittest.TestCase):
 
     def _run_main_with_udev_data(self, udev_data):
         """Helper to run main() with mocked udev data."""
-        with patch("graphics_card_resource.parse_args") as mock_args, \
-             patch("graphics_card_resource.subprocess_lines_generator") as mock_gen, \
-             patch("graphics_card_resource.sys.stderr", new_callable=StringIO) as mock_stderr, \
-             patch("builtins.print"):
+        with patch("graphics_card_resource.parse_args") as mock_args, patch(
+            "graphics_card_resource.subprocess_lines_generator"
+        ) as mock_gen, patch(
+            "graphics_card_resource.sys.stderr", new_callable=StringIO
+        ) as mock_stderr, patch(
+            "builtins.print"
+        ):
 
             mock_args.return_value = MagicMock(command="udev_resource.py")
             mock_gen.return_value = iter(udev_data)
@@ -77,7 +80,7 @@ class GraphicsCardResourceTests(unittest.TestCase):
             "category: VIDEO",
             "path: /devices/pci0000:00/0000:00:02.0",
             "name: card0",
-            ""
+            "",
         ]
 
         def path_factory(path_str):
@@ -99,7 +102,7 @@ class GraphicsCardResourceTests(unittest.TestCase):
         udev_data = [
             "category: VIDEO",
             "path: /devices/pci0000:00/0000:00:02.0",
-            ""
+            "",
         ]
 
         mock_card = MagicMock(spec=Path, name="card0")
@@ -109,7 +112,9 @@ class GraphicsCardResourceTests(unittest.TestCase):
             if path_str.startswith("/sys"):
                 mock_path.glob.return_value = iter([mock_card])
             elif path_str == "/dev/dri":
-                mock_path.__truediv__ = MagicMock(return_value=MagicMock(spec=Path))
+                mock_path.__truediv__ = MagicMock(
+                    return_value=MagicMock(spec=Path)
+                )
             return mock_path
 
         with patch("graphics_card_resource.Path", side_effect=path_factory):
@@ -121,7 +126,7 @@ class GraphicsCardResourceTests(unittest.TestCase):
         udev_data = [
             "category: VIDEO",
             "path: /devices/pci0000:00/0000:00:02.0",
-            ""
+            "",
         ]
 
         def path_factory(path_str):
@@ -140,7 +145,7 @@ class GraphicsCardResourceTests(unittest.TestCase):
         udev_data = [
             "category: VIDEO",
             "path: /devices/pci0000:00/0000:00:02.0",
-            ""
+            "",
         ]
 
         mock_card1 = MagicMock(spec=Path, name="card0")

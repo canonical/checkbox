@@ -22,7 +22,6 @@ import logging
 import sys
 from pathlib import Path
 
-
 IIO_PATH = "/sys/bus/iio/devices/"
 
 NODE_MAPPING = {

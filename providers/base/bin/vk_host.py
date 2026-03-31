@@ -56,9 +56,6 @@ def check_host_gpu(plz_run, arch_triple):
     vulkaninfo is executed inside a new mount/user namespace (via plz-run)
     so that it can load the host ICD stack instead of snap-bundled libraries.
     """
-    if not os.path.isfile("/usr/bin/vulkaninfo"):
-        print("FAIL: /usr/bin/vulkaninfo not found", file=sys.stderr)
-        return False
     ld_library_path = "/usr/lib/{arch}:/usr/lib".format(arch=arch_triple)
     try:
         output = subprocess.check_output(

@@ -184,21 +184,13 @@ class TestCheckHostGpu(unittest.TestCase):
         "    driverUUID         = 6c6c766d-7069-7065-5555-494400000000\n"
     )
 
-    @patch("os.path.isfile", return_value=False)
-    def test_returns_false_when_vulkaninfo_missing(self, _isfile):
-        self.assertFalse(
-            vk_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
-        )
-
     @patch("subprocess.check_output")
-    @patch("os.path.isfile", return_value=True)
-    def test_returns_true_when_gpu_found(self, _isfile, mock_check_output):
+    def test_returns_true_when_gpu_found(self, mock_check_output):
         mock_check_output.return_value = self.VULKANINFO_GPU_OUTPUT
         self.assertTrue(vk_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE))
 
     @patch("subprocess.check_output")
-    @patch("os.path.isfile", return_value=True)
-    def test_returns_false_when_no_gpu(self, _isfile, mock_check_output):
+    def test_returns_false_when_no_gpu(self, mock_check_output):
         mock_check_output.return_value = self.VULKANINFO_NO_GPU_OUTPUT
         self.assertFalse(
             vk_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
@@ -208,17 +200,13 @@ class TestCheckHostGpu(unittest.TestCase):
         "subprocess.check_output",
         side_effect=subprocess.CalledProcessError(1, "plz-run"),
     )
-    @patch("os.path.isfile", return_value=True)
-    def test_returns_false_on_called_process_error(
-        self, _isfile, mock_check_output
-    ):
+    def test_returns_false_on_called_process_error(self, mock_check_output):
         self.assertFalse(
             vk_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
         )
 
     @patch("subprocess.check_output", return_value="")
-    @patch("os.path.isfile", return_value=True)
-    def test_passes_correct_args(self, _isfile, mock_check_output):
+    def test_passes_correct_args(self, mock_check_output):
         vk_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
         self.assertEqual(
             mock_check_output.call_args[0][0],

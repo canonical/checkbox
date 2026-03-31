@@ -39,7 +39,10 @@ import sysconfig
 
 def get_arch_triple():
     """Return the Debian multiarch triple for the current architecture."""
-    return sysconfig.get_config_var("MULTIARCH")
+    triple = sysconfig.get_config_var("MULTIARCH")
+    if triple is None:
+        raise RuntimeError("could not determine multiarch triple")
+    return triple
 
 
 def find_plz_run():
@@ -139,14 +142,18 @@ def main():
         )
         return 1
     command = sys.argv[1]
-    if command == "resource":
-        return cmd_resource()
-    elif command == "validate-install":
-        return cmd_validate_install()
-    elif command == "run-test":
-        return cmd_run_test(sys.argv[2:])
-    else:
-        print("Unknown command: {}".format(command), file=sys.stderr)
+    try:
+        if command == "resource":
+            return cmd_resource()
+        elif command == "validate-install":
+            return cmd_validate_install()
+        elif command == "run-test":
+            return cmd_run_test(sys.argv[2:])
+        else:
+            print("Unknown command: {}".format(command), file=sys.stderr)
+            return 1
+    except RuntimeError as exc:
+        print("FAIL: {}".format(exc), file=sys.stderr)
         return 1
 
 

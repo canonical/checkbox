@@ -317,6 +317,17 @@ class TestCmdRunTest(unittest.TestCase):
         )
 
 
+class TestGetArchTriple(unittest.TestCase):
+    @patch("sysconfig.get_config_var", return_value="x86_64-linux-gnu")
+    def test_returns_multiarch_value(self, _cfg):
+        self.assertEqual(vk_host.get_arch_triple(), "x86_64-linux-gnu")
+
+    @patch("sysconfig.get_config_var", return_value=None)
+    def test_raises_when_multiarch_is_none(self, _cfg):
+        with self.assertRaises(RuntimeError):
+            vk_host.get_arch_triple()
+
+
 class TestMain(unittest.TestCase):
     @patch("vk_host.cmd_run_test", return_value=0)
     def test_dispatches_run_test_with_args(self, mock_cmd):
@@ -335,6 +346,14 @@ class TestMain(unittest.TestCase):
 
     def test_returns_1_with_no_args(self):
         with patch("sys.argv", ["vk_host.py"]):
+            self.assertEqual(vk_host.main(), 1)
+
+    @patch(
+        "vk_host.cmd_resource",
+        side_effect=RuntimeError("could not determine multiarch triple"),
+    )
+    def test_returns_1_on_runtime_error(self, _cmd):
+        with patch("sys.argv", ["vk_host.py", "resource"]):
             self.assertEqual(vk_host.main(), 1)
 
 

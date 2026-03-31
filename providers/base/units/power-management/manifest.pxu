@@ -7,3 +7,8 @@ unit: manifest entry
 id: has_dc_mode
 _name: Battery Power Support
 value-type: bool
+
+unit: manifest entry
+id: has_light_sensor
+_name: Light Sensor Support
+value-type: bool

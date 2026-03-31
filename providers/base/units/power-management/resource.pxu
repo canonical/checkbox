@@ -1,0 +1,16 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+
+unit: job
+id: light_sensor_resource
+plugin: resource
+summary: Show all light sensor that need to be tested.
+description:
+    Show all light sensor that need to be tested.
+command:
+    light_sensor_test.py resource
+estimated_duration: 3s
+flags: preserve-locale

@@ -490,3 +490,22 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_vga == 'True'
 estimated_duration: 300
 flags: also-after-suspend
+
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+id: monitor/als_monitor_brightness_control
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+depends: power-management/light_sensor_detect
+estimated_duration: 10.0
+requires:
+  manifest.has_monitor_als_brightness_control == 'True'
+purpose:
+    This test checks whether your monitor's brightness can be controlled by the ambient light sensor.
+steps:
+    1. Make sure "Automatic brightness" is ON in Power settings.
+    2. Locate the Ambient Light Sensor, which should be around the Camera.
+    3. Cover your hand over the Ambient Light Sensor.
+verification:
+    Did the screen brightness change ?
+summary: This test checks whether your monitor's brightness can be controlled by the ambient light sensor.

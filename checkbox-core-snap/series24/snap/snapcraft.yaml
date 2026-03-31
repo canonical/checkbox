@@ -154,7 +154,7 @@ parts:
       install -D -m 755 nsenter.static "$CRAFT_PART_INSTALL/usr/bin/nsenter.static"
   ################################################################################
   fwts:
-    source-tag: "V25.07.00"
+    source-tag: "V26.03.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git

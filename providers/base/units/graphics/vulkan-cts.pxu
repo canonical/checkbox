@@ -8,9 +8,9 @@ _purpose:
 user: root
 command:
  if snap list vulkan-cts &>/dev/null; then
-   snap refresh --edge vulkan-cts
+   snap refresh --beta vulkan-cts
  else
-   snap install --edge vulkan-cts
+   snap install --beta vulkan-cts
  fi
 estimated_duration: 1m
 

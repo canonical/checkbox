@@ -46,7 +46,10 @@ environ:
   XDG_SESSION_TYPE
   XDG_RUNTIME_DIR
 estimated_duration: 30m
-command: vulkan-cts.test --caselist=mustpass/main/vk-default/api.txt
+command:
+  # mustpass/main/vk-default/api.txt is contained in the vulkan-cts snap
+  # All options can be found in vulkan-cts.list-tests
+  vulkan-cts.test --caselist=mustpass/main/vk-default/api.txt
 _siblings: [
   { "id": "graphics/vk_core_binding_model",
     "_summary": "Run the binding-model tests from Vulkan-CTS (core)",
@@ -378,7 +381,11 @@ environ:
   XDG_SESSION_TYPE
   XDG_RUNTIME_DIR
 estimated_duration: 30m
-command: vk_host.py run-test --caselist=mustpass/main/vk-default/api.txt
+command:
+  # mustpass/main/vk-default/api.txt is contained in the vulkan-cts snap
+  # All options can be found in vulkan-cts.list-tests
+  # vk_host.py used to wrap extra env vars, paths, and flags vs Core tests
+  vk_host.py run-test --caselist=mustpass/main/vk-default/api.txt
 _siblings: [
   { "id": "graphics/vk_classic_binding_model",
     "_summary": "Run the binding-model tests from Vulkan-CTS (classic)",

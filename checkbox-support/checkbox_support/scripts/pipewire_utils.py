@@ -22,7 +22,6 @@ import difflib
 import json
 import logging
 import re
-import shlex
 import subprocess
 import sys
 import time
@@ -79,7 +78,7 @@ class PipewireTest:
 
     logger = logging.getLogger()
 
-    def _get_pw_type(self, media_class) -> str:
+    def _get_pw_type(self, media_class: str) -> str:
         """
         convert sink to Output and source to Input
 
@@ -97,7 +96,9 @@ class PipewireTest:
             self.logger.info("Media class:[{}] is unknown".format(media_class))
             return "UNKNOWN CLASS"
 
-    def _get_pw_dump(self, p_type: str) -> dict:
+    def _get_pw_dump(
+        self, p_type: 't.Literal["Device", "Node"]'
+    ) -> "list[dict[str, t.Any]]":
         """
         Use to convert the json output of pw-dump to dict object
 
@@ -114,7 +115,7 @@ class PipewireTest:
             return json.loads(pw_dump)
         except (json.decoder.JSONDecodeError, TypeError):
             self.logger.error("pw-dump {} failed !!!".format(p_type))
-            return {}
+            return []
 
     def generate_pw_media_class(self, media_type, media_class) -> str:
         """
@@ -320,7 +321,7 @@ class PipewireTest:
 
         return PipewireTestError.NO_ERROR
 
-    def _get_audio_config(self, mode) -> set:
+    def _get_audio_config(self, mode):
         """
         Get simple audio configuration
         This function parse output of pw-dump to find the device type
@@ -332,7 +333,7 @@ class PipewireTest:
         :type mode: str
         """
         clients = self._get_pw_dump("Device")
-        cfg = set()
+        cfg = set()  # type: set[tuple[str, str, str]]
         for client in clients:
             active_ports = None
             mclass = client["info"]["props"].get("media.class")
@@ -381,7 +382,7 @@ class PipewireTest:
         self.logger.info("Couldn't detect active port change!")
         return PipewireTestError.NO_CHANGE_DETECTED
 
-    def go_through_ports(self, cmd, mode):
+    def go_through_ports(self, cmd: str, mode):
         """
         Go through available ports for testing
         This script checks if the ports on either sinks
@@ -440,7 +441,7 @@ class PipewireTest:
 
         :param cmd: the command to run
         """
-        clients = self._get_pw_dump("Device")  # type: list[dict[str, T.Any]]
+        clients = self._get_pw_dump("Device")  # type: list[dict[str, t.Any]]
         for client in clients:
             ports = None
             media_class = client["info"]["props"].get("media.class")
@@ -473,7 +474,7 @@ class PipewireTest:
                 subprocess.check_call(cmd, shell=True)
                 print("=" * 80)
 
-    def _get_node_description(self, properties) -> str:
+    def _get_node_description(self, properties) -> "str | None":
         """
         Get node description from the output of wpctl inspect
 
@@ -529,7 +530,7 @@ class PipewireTest:
         except subprocess.CalledProcessError as e:
             raise RuntimeError("Show default device error {}".format(repr(e)))
 
-    def _sort_wpctl_status(self, lines: list) -> list:
+    def _sort_wpctl_status(self, lines: "list[str]") -> "list[str]":
         """
         This method will sort wpctl status for sub-items under catalog only
 
@@ -572,10 +573,10 @@ class PipewireTest:
         :param status_2: path to second wpctl status
         """
         with open(status_1, "r") as s1, open(status_2, "r") as s2:
-            status_1 = s1.readlines()
-            status_2 = s2.readlines()
-            sorted_status_1 = self._sort_wpctl_status(status_1)
-            sorted_status_2 = self._sort_wpctl_status(status_2)
+            status_1_lines = s1.readlines()
+            status_2_lines = s2.readlines()
+            sorted_status_1 = self._sort_wpctl_status(status_1_lines)
+            sorted_status_2 = self._sort_wpctl_status(status_2_lines)
             delta = difflib.unified_diff(sorted_status_1, sorted_status_2, n=0)
             diff = "".join(delta)
             if diff:

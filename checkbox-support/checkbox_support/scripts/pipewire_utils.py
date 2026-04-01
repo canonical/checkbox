@@ -433,38 +433,71 @@ class PipewireTest:
 
         :param cmd: the command to run
         """
-        clients = self._get_pw_dump("Device")  # type: list[dict[str, t.Any]]
-        for client in clients:
-            ports = None
-            media_class = client["info"]["props"].get("media.class")
+        total_sinks_tested = 0
 
-            if media_class == "Audio/Device":
-                ports = client["info"]["params"]["EnumRoute"]
+        pw_audio_devices = [
+            device
+            for device in self._get_pw_dump("Device")
+            if device["info"]["props"].get("media.class") == "Audio/Device"
+        ]
+        pw_sink_nodes = [
+            node
+            for node in self._get_pw_dump("Node")
+            if node["info"]["props"].get("media.class") == "Audio/Sink"
+        ]
 
-            if not ports:
-                return
+        for node in pw_sink_nodes:
+            # IDs of these "nodes" can be passed to wpctl set-default
+            node_id = int(node["id"])
 
-            for port in ports:
-                if port["direction"] != "Output":
+            device_id = int(node["info"]["props"]["device.id"])
+            device = None  # type: dict[str, t.Any] | None
+            for dev in pw_audio_devices:
+                if dev["id"] == device_id:
+                    device = dev
+                    break
+            assert device, "Could not find device {}".format(device_id)
+
+            # now check if the device has at least 1 available route
+            enum_routes = device["info"]["params"]["EnumRoute"]
+            assert type(enum_routes) is list
+            testable = False
+            for route in enum_routes:
+                # try to match the device to this node
+                if (
+                    route["devices"][0]  # this is an array with just 1 value
+                    != node["info"]["props"]["card.profile.device"]
+                ):
+                    continue
+                if route["direction"] != "Output":
                     print(
-                        "Skipping '{}'".format(port["description"]),
+                        "Skipping '{}'".format(route["description"]),
                         "because it's not a sink",
                     )
                     continue
-                if port["available"] not in ("yes", "unknown"):
+                if route["available"] not in ("yes", "unknown"):
                     print(
-                        "Skipping '{}'".format(port["description"]),
+                        "Skipping '{}'".format(route["description"]),
                         "because it's unavailable",
                     )
                     continue
+                # correct direction + at least 1 available route
+                testable = True
 
+            if testable:
                 print("=" * 80, flush=True)
+                total_sinks_tested += 1
+                # now switch to this sink
+                subprocess.check_call(["wpctl", "set-default", str(node_id)])
                 print(
-                    "Testing sink '{}'".format(port["description"]),
+                    "Testing sink '{}', node id = '{}'".format(
+                        node["info"]["props"]["node.description"], node_id
+                    ),
                     "with command '{}'".format(cmd),
                 )
                 subprocess.check_call(cmd, shell=True)
                 print("=" * 80, flush=True)
+        print("Tested", total_sinks_tested, "audio sinks in total")
 
     def _get_node_description(self, properties) -> "str | None":
         """

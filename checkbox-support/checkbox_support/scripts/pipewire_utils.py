@@ -397,44 +397,36 @@ class PipewireTest:
         """
         clients = self._get_pw_dump("Device")
         for client in clients:
-            ports = None
+            ports = []
             mclass = client["info"]["props"].get("media.class")
             if mclass == "Audio/Device":
                 ports = client["info"]["params"]["EnumRoute"]
-            if ports:
-                for p in ports:
-                    chosen = None
-                    if p["direction"] == self._get_pw_type(mode) and p[
-                        "available"
-                    ] in [
-                        "yes",
-                        "unknown",
-                    ]:
-                        while chosen != "yes":
-                            self.logger.info(
-                                "Please select [{}] for "
-                                "testing (if selected, "
-                                "please enter 'yes')".format(p["description"])
-                            )
+                assert type(ports) is list
 
-                            chosen = input()
-                        checked = None
-                        while checked != "yes":
-                            with subprocess.Popen(
-                                cmd,
-                                shell=True,
-                                stdout=subprocess.PIPE,
-                                universal_newlines=True,
-                            ) as p:
-                                while p.poll() is None:
-                                    line = p.stdout.readline().strip()
-                                    self.logger.info(line)
-                                p.kill()
-                            self.logger.info(
-                                "Is working ?  please enter 'yes' to leave"
-                            )
+            for p in ports:
+                chosen = None
+                if p["direction"] == self._get_pw_type(mode) and p[
+                    "available"
+                ] in [
+                    "yes",
+                    "unknown",
+                ]:
+                    while chosen != "yes":
+                        self.logger.info(
+                            "Please select [{}] for "
+                            "testing (if selected, "
+                            "please enter 'yes')".format(p["description"])
+                        )
 
-                            checked = input()
+                        chosen = input()
+                    checked = None
+                    while checked != "yes":
+                        # check_call will print to stdout for us
+                        subprocess.check_call(cmd, shell=True)
+                        self.logger.info(
+                            "Is working ?  please enter 'yes' to leave"
+                        )
+                        checked = input()
 
     def iter_audio_sinks(self, cmd: str) -> None:
         """Execute the cmd for each audio sink discovered by pipewire

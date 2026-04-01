@@ -25,6 +25,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+import logging
 import os
 import tarfile
 import time
@@ -34,7 +35,9 @@ from plainbox.impl import low_memory_device
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.providers import get_providers
-from plainbox.impl.unit.exporter import ExporterUnitSupport
+from plainbox.impl.unit.exporter import ExporterError, ExporterUnitSupport
+
+_logger = logging.getLogger("plainbox.exporter.tar")
 
 
 class TARSessionStateExporter(SessionStateExporterBase):
@@ -70,7 +73,13 @@ class TARSessionStateExporter(SessionStateExporterBase):
                 ]
                 exporter = Jinja2SessionStateExporter(exporter_unit=unit)
                 with SpooledTemporaryFile(max_size=102400, mode="w+b") as _s:
-                    exporter.dump_from_session_manager(manager, _s)
+                    try:
+                        exporter.dump_from_session_manager(manager, _s)
+                    except ExporterError as exc:
+                        _logger.warning(
+                            "Problem preparing submission.%s: %s", fmt, exc
+                        )
+                        continue
                     tarinfo = tarfile.TarInfo(name="submission.{}".format(fmt))
                     tarinfo.size = _s.tell()
                     tarinfo.mtime = time.time()

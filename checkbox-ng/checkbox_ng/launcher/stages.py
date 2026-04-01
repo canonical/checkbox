@@ -740,6 +740,7 @@ class ReportsStage(CheckboxUiStage):
                 try:
                     self._create_transport(params["transport"])
                     transport = self.transports[params["transport"]]
+                    result = None
                     if self._export_fn:
                         result = self._export_fn(exporter_id, transport)
                     else:

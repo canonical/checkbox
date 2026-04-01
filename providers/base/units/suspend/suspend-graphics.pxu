@@ -321,6 +321,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_rotation_after_suspend_{{ product_slug }}_graphics
 template-id: suspend/index_rotation_after_suspend_product_slug_graphics
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -330,7 +331,12 @@ depends:
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {{ driver }} {{ index }}
- rotation_test.py
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
+ then
+   randr_cycle.py -c transform --prefix {{ index }} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
+ else
+   rotation_test.py
+ fi
 estimated_duration: 20.000
 _summary: Test display rotation for {{ vendor }} {{ product }} graphics card after suspend
 _purpose:

@@ -41,8 +41,8 @@ def test_ubuntu_frame_launching():
         logger.info("journal log of ubuntu frame:")
         subprocess.run(["journalctl", "-b", "0", "-g", "ubuntu-frame"])
     else:
+        proc = launch_ubuntu_frame()
         try:
-            proc = launch_ubuntu_frame()
             proc.wait(timeout=20)
         except subprocess.TimeoutExpired:
             proc.terminate()

@@ -458,13 +458,13 @@ class PipewireTest:
                     )
                     continue
 
-                print("=" * 80)
+                print("=" * 80, flush=True)
                 print(
                     "Testing sink '{}'".format(port["description"]),
                     "with command '{}'".format(cmd),
                 )
                 subprocess.check_call(cmd, shell=True)
-                print("=" * 80)
+                print("=" * 80, flush=True)
 
     def _get_node_description(self, properties) -> "str | None":
         """

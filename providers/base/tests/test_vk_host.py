@@ -232,12 +232,8 @@ class TestCmdResource(unittest.TestCase):
         return_value="/snap/checkbox22/current/bin/plz-run",
     )
     @patch("vk_host.get_arch_triple", return_value="x86_64-linux-gnu")
-    @patch("builtins.print")
-    def test_returns_0_and_prints_record_when_gpu_found(
-        self, mock_print, _arch, _plz, _check
-    ):
+    def test_returns_0_when_gpu_found(self, _arch, _plz, _check):
         self.assertEqual(vk_host.cmd_resource(), 0)
-        mock_print.assert_called_once_with("gpu_available: True")
 
     @patch("vk_host.check_host_gpu", return_value=False)
     @patch(
@@ -257,12 +253,8 @@ class TestCmdResource(unittest.TestCase):
 class TestCmdValidateInstall(unittest.TestCase):
     @patch("os.path.isfile", return_value=True)
     @patch("vk_host.get_arch_triple", return_value="x86_64-linux-gnu")
-    @patch("builtins.print")
-    def test_returns_0_and_prints_record_when_vk_found(
-        self, mock_print, _arch, _isfile
-    ):
+    def test_returns_0_when_vk_found(self, _arch, _isfile):
         self.assertEqual(vk_host.cmd_validate_install(), 0)
-        mock_print.assert_called_once_with("vk_icd_available: True")
 
     @patch("os.path.isfile", return_value=False)
     @patch("vk_host.get_arch_triple", return_value="x86_64-linux-gnu")

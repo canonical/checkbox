@@ -30,6 +30,7 @@ Subcommands:
                     forwarding all remaining arguments to the test.
 """
 
+import logging
 import os
 import shutil
 import subprocess
@@ -91,17 +92,14 @@ def cmd_resource():
 
     plz_run = find_plz_run()
     if plz_run is None:
-        print("FAIL: plz-run not found in any checkbox snap", file=sys.stderr)
+        logging.error("plz-run not found in any checkbox snap")
         return 1
 
     if check_host_gpu(plz_run, arch_triple):
-        print("gpu_available: True")
+        logging.info("Found a Vulkan-capable GPU using host drivers")
         return 0
 
-    print(
-        "FAIL: No GPU device found in vulkaninfo output using host drivers",
-        file=sys.stderr,
-    )
+    logging.error("No GPU device found in vulkaninfo output using host drivers")
     return 1
 
 
@@ -109,15 +107,11 @@ def cmd_validate_install():
     arch_triple = get_arch_triple()
     host_vk = "/usr/lib/{}/libvulkan.so.1".format(arch_triple)
     if os.path.isfile(host_vk):
-        print("vk_icd_available: True")
+        logging.info("Host Vulkan ICD loader found at %s", host_vk)
         return 0
-    print(
-        "FAIL: Host Vulkan ICD loader not found at {}".format(host_vk),
-        file=sys.stderr,
-    )
-    print(
-        "Install libvulkan1 or equivalent" " before running host Vulkan tests",
-        file=sys.stderr,
+    logging.error("Host Vulkan ICD loader not found at %s", host_vk)
+    logging.error(
+        "Install libvulkan1 or equivalent before running host Vulkan tests"
     )
     return 1
 
@@ -132,10 +126,10 @@ def cmd_run_test(test_args):
 
 
 def main():
+    logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
     if len(sys.argv) < 2:
-        print(
-            "Usage: vk_host.py {resource,validate-install,run-test} [args...]",
-            file=sys.stderr,
+        logging.error(
+            "Usage: vk_host.py {resource,validate-install,run-test} [args...]"
         )
         return 1
     command = sys.argv[1]
@@ -147,10 +141,10 @@ def main():
         elif command == "run-test":
             return cmd_run_test(sys.argv[2:])
         else:
-            print("Unknown command: {}".format(command), file=sys.stderr)
+            logging.error("Unknown command: %s", command)
             return 1
     except RuntimeError as exc:
-        print("FAIL: {}".format(exc), file=sys.stderr)
+        logging.error("%s", exc)
         return 1
 
 

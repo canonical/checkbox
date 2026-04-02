@@ -532,13 +532,6 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tutorial --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-base]
   ################################################################################
-  gnome-randr:
-    source: https://github.com/maxwellainatchi/gnome-randr-rust.git
-    plugin: rust
-    rust-channel: nightly
-    build-packages:
-      - libdbus-1-dev
-  ################################################################################
   rpi-support-binaries:
     plugin: nil
     stage-packages:

@@ -135,14 +135,17 @@ jobs:
       - name: Install dependencies
         env:
           PYTHON_VERSION: ${{ matrix.python }}
-        run: |
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          # python3.5 and python3.6 are no longer in deadsnakes for focal
-          # we pushed them to the Checkbox PPA instead
-          sudo add-apt-repository ppa:checkbox-dev/edge
-          sudo apt-get update
-          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev shellcheck libpcsclite-dev swig
-          pip install tox
+        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        with:
+          attempt_limit: 3
+          command: |
+            sudo add-apt-repository ppa:deadsnakes/ppa
+            # python3.5 and python3.6 are no longer in deadsnakes for focal
+            # we pushed them to the Checkbox PPA instead
+            sudo add-apt-repository ppa:checkbox-dev/edge
+            sudo apt-get update
+            sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev shellcheck libpcsclite-dev swig
+            pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Print out the codecov flag

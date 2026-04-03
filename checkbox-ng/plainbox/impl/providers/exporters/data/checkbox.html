@@ -2,6 +2,7 @@
 {%- set state = manager.default_device_context.state -%}
 {%- set resource_map = state.resource_map -%}
 {%- set job_state_map = state.job_state_map -%}
+{%- set system_information = state.system_information -%}
 {%- set category_map = state.category_map_lite -%}
 {%- set category_outcome_map = state.category_outcome_map -%}
 {%- set resource_global_outcome = state.resource_global_outcome -%}
@@ -41,19 +42,20 @@
                     <h1>System Testing Report</h1>
                 </div><!-- /header -->
             <div role="main" class="ui-content jqm-content">
-                {%- if ns ~ 'system_info_json' in state.job_state_map and state.job_state_map[ns ~ 'system_info_json'].result.outcome == 'pass' %}
                 <h2>System Information</h2>
+                <h3>Summary</h3>
+                {%- if ns ~ 'system_info_json' in state.job_state_map and state.job_state_map[ns ~ 'system_info_json'].result.outcome == 'pass' %}
                 {%- set system_info_json = state.job_state_map[ns ~ 'system_info_json'].result.io_log_as_text_attachment.rstrip() %}
                 {%- set system_info = system_info_json|json_load_ordered_dict %}
                 <table data-role="table" id="system-info" data-mode="reflow" class="ui-body-d ui-responsive table-stroke">
                     <thead><tr class="ui-bar-d"></tr></thead>
-                    </tbody>
+                    <tbody>
                     {%- for section, section_data in system_info.items() %}
-                        <tr style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">
-                        <th style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; vertical-align:top; font-size: 0.85em;">{{ section }}</th>
-                        <td style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; line-height: 1em;">
+                        <tr>
+                        <th>{{ section }}</th>
+                        <td>
                         {%- for info in section_data %}
-                        <p style="margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; font-size: 0.85em">
+                        <p>
                         {% autoescape false %}
                         {%- if section in ('System', 'Machine', 'CPU') %}
                         {{ info|highlight_keys }}
@@ -67,8 +69,130 @@
                     {%- endfor %}
                     </tbody>
                 </table>
-                <br>
-                {%- endif %}
+                {% elif system_information %}
+                    <ul>
+                        {% if system_information.distribution and system_information.distribution.success %}
+                        <li>Distribution: {{ system_information.distribution.outputs.payload.description }}</li>
+                        {% endif %}
+                        {% if system_information.uname and system_information.uname.success %}
+                        <li>Kernel: {{ system_information.uname.outputs.payload.kernel }} ({{ system_information.uname.outputs.payload.architecture }})</li>
+                        {% endif %}
+                        {% if system_information.memory and system_information.memory.success %}
+                        <li>Memory: {{ (system_information.memory.outputs.payload.total / 1024 / 1024 / 1024) | round(2) }} GiB</li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+                {% if system_information %}
+                    {% if system_information.image_info.success %}
+                    <details>
+                    <summary><h3>Image Information</h3></summary>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th>Project</th>
+                                <td>{{ system_information.image_info.outputs.payload.project }}</td>
+                            </tr>
+                            <tr>
+                                <th>Series</th>
+                                <td>{{ system_information.image_info.outputs.payload.series }}</td>
+                            </tr>
+                            <tr>
+                                <th>Build Date</th>
+                                <td>{{ system_information.image_info.outputs.payload.build_date }}</td>
+                            </tr>
+                            <tr>
+                                <th>Build Number</th>
+                                <td>{{ system_information.image_info.outputs.payload.build_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Kernel</th>
+                                <td>{{ system_information.image_info.outputs.payload.kernel_type }} {{ system_information.image_info.outputs.payload.kernel_version }}</td>
+                            </tr>
+                            <tr>
+                                <th>Link</th>
+                                <td><a href="{{ system_information.image_info.outputs.payload.url }}">OEM Image</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </details>
+                    {% endif %}
+                    {% if system_information.bios and system_information.bios.success %}
+                    <details>
+                    <summary><h3>BIOS</h3></summary>
+                    <table>
+                    {% for key, value in system_information.bios.outputs.payload.items() %}
+                    <tr>
+                        <th>{{ key }}</th>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                    </table>
+                    </details>
+                    {% endif %}
+                    {% if system_information.machine_manifest and system_information.machine_manifest.success %}
+                    <details>
+                    <summary><h3>Machine Manifest</h3></summary>
+                    <table>
+                        <thead>
+                            <tr>
+                            <th>Name</th>
+                            <th>Value</th>
+                            </tr>
+                        </thead>
+                        {% for key, value in system_information.machine_manifest.outputs.payload.items() %}
+                        <tr>
+                            <th>{{ key }}</th>
+                            <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    </details>
+                    {% endif %}
+                    {% if system_information.snaps and system_information.snaps.success %}
+                    <details>
+                    <summary><h3>Snaps</h3></summary>
+                    <table>
+                        <thead>
+                            <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Channel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for snap in system_information.snaps.outputs.payload %}
+                            <tr>
+                            <th>{{ snap.name }}</th>
+                            <td>{{ snap.version }} (rev{{ snap.revision }})</td>
+                            <td>{{ snap.channel }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </details>
+                    {% endif %}
+                    {% if system_information.debian_packages and system_information.debian_packages.success %}
+                    <details>
+                    <summary><h3>Debian Packages</h3></summary>
+                    <table>
+                        <thead>
+                            <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pkg in system_information.debian_packages.outputs.payload %}
+                            <tr>
+                            <th>{{ pkg.name }}</th>
+                            <td>{{ pkg.version }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </details>
+                    {% endif %}
+                {% endif %}
                 <h2>Tests Results</h2>
                     {%- if manager.test_plans %}
                     <p>Test plan: {{ manager.test_plans[0] }}</p>
@@ -186,6 +310,12 @@
                         <table data-role="table" id="{{ cat_id }}" data-filter="true" data-input="#filterTable-input1" class="ui-body-d ui-shadow table-stroke ui-responsive">
                             <thead>
                                 <tr class="ui-bar-d">
+                                <th>Job ID</th>
+                                <td>Outcome</td>
+                                <td>Certification Status</td>
+                                <td>Execution Time</td>
+                                <td>I/O Log</td>
+                                <td>Comments</td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -198,6 +328,7 @@
                                     {%- else %}
                                     <td style='width:10%'></td>
                                     {%- endif %}
+                                    <td style='width:10%'>{{ (job_state.result.execution_duration | default(0)) | round(1) }}s</td>
                                     {%- if job_state.result.io_log_as_flat_text != "" %}
                                     <td style='width:10%'><a href="#{{ mainloop.index }}-{{ loop.index }}-log">I/O log</a></td>
                                     {%- else %}

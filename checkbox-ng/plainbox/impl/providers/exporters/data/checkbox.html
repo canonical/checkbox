@@ -83,7 +83,7 @@
                     </ul>
                 {% endif %}
                 {% if system_information %}
-                    {% if system_information.image_info.success %}
+                    {% if system_information.image_info and system_information.image_info.success %}
                     <details>
                     <summary><h3>Image Information</h3></summary>
                     <table>

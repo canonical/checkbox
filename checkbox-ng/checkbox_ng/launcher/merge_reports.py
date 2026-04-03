@@ -107,14 +107,9 @@ class MergeReports:
                     self.category_dict[cat_id] = CategoryUnit(
                         {"id": cat_id, "name": cat_name}
                     )
-            if mode == "list":
-                self.system_information.append(
-                    CollectorOutputs.from_dict(data["system_information"])
-                )
-            elif mode == "dict":
-                self.system_information = CollectorOutputs.from_dict(
-                    data["system_information"]
-                )
+            self.system_information = CollectorOutputs.from_dict(
+                data["system_information"]
+            )
         except OSError as e:
             raise SystemExit(e)
         except KeyError as e:

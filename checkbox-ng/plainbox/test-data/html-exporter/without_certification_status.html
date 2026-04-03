@@ -58,6 +58,62 @@
     src: local("Ubuntu Mono"), local("UbuntuMono-Regular"), url("https://fonts.gstatic.com/s/ubuntumono/v6/ViZhet7Ak-LRXZMXzuAfkYbN6UDyHWBl620a-IRfuBk.woff") format("woff");
 }
 
+html {
+    font-size: 62.5%; /* Sets base to 10px */
+}
+
+body {
+    font-size: 1.4em;
+}
+
+details {
+    padding-bottom: 1em;
+}
+
+summary>h3 {
+    color: #DD4815;
+    background-color: transparent;
+    font-size: 1.4em;
+    font-weight: 300;
+    margin: 0 0 1em;
+    display:inline;
+}
+
+summary {
+  list-style: none;
+  cursor: pointer;
+  &::before {
+    content: "+";
+    color: #DD4815;
+    padding: 0 0.5em 0 0;
+    margin-inline-start: 0.5em;
+  }
+  [open] &::before {
+    content: "–";
+  }
+}
+
+th {
+    text-align: left;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #eeeeee;
+}
+
+td > p {
+    padding: 0;
+    margin: 0;
+}
+
+.ui-table td {
+    padding: 0em;
+}
+
+td {
+    padding: 0.25em;
+}
+
 /* JQM Demos custom CSS */
 
 .ui-collapsible-content,
@@ -197,7 +253,7 @@
     line-height: 1.5;
 }
 .jqm-demos .jqm-content > ul:not(.jqm-list) li {
-    font-size: 1.2em;
+    font-size: 1em;
     line-height: 1.5;
 }
 .jqm-demos .jqm-content > p {
@@ -502,6 +558,9 @@ b.matchMedia=b.matchMedia||(function(k,l){var i,g=k.documentElement,h=g.firstEle
                     <h1>System Testing Report</h1>
                 </div><!-- /header -->
             <div role="main" class="ui-content jqm-content">
+                <h2>System Information</h2>
+                <h3>Summary</h3>
+                
                 <h2>Tests Results</h2>
                     <div id="canvas-holder" style="width:300px">
                         <canvas id="chart-area"></canvas>
@@ -601,6 +660,12 @@ b.matchMedia=b.matchMedia||(function(k,l){var i,g=k.documentElement,h=g.firstEle
                         <table data-role="table" id="com.canonical.plainbox::uncategorised" data-filter="true" data-input="#filterTable-input1" class="ui-body-d ui-shadow table-stroke ui-responsive">
                             <thead>
                                 <tr class="ui-bar-d">
+                                <th>Job ID</th>
+                                <td>Outcome</td>
+                                <td>Certification Status</td>
+                                <td>Execution Time</td>
+                                <td>I/O Log</td>
+                                <td>Comments</td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -608,6 +673,7 @@ b.matchMedia=b.matchMedia||(function(k,l){var i,g=k.documentElement,h=g.firstEle
                                     <td data-filtertext="job_id1" style='width:35%'>job_id1</td>
                                     <td style='width:10%; font-weight: bold; color: #DC3912'>failed</td>
                                     <td style='width:10%'></td>
+                                    <td style='width:10%'>1.0s</td>
                                     <td style='width:10%'><a href="#1-1-log">I/O log</a></td>
                                     <td style='width:35%'></td>
                                 </tr>
@@ -615,6 +681,7 @@ b.matchMedia=b.matchMedia||(function(k,l){var i,g=k.documentElement,h=g.firstEle
                                     <td data-filtertext="job_id2" style='width:35%'>job_id2</td>
                                     <td style='width:10%; font-weight: bold; color: #6AA84F'>passed</td>
                                     <td style='width:10%'></td>
+                                    <td style='width:10%'>1.0s</td>
                                     <td style='width:10%'><a href="#1-2-log">I/O log</a></td>
                                     <td style='width:35%'>blah blah</td>
                                 </tr>
@@ -622,6 +689,7 @@ b.matchMedia=b.matchMedia||(function(k,l){var i,g=k.documentElement,h=g.firstEle
                                     <td data-filtertext="job_id3" style='width:35%'>job_id3</td>
                                     <td style='width:10%; font-weight: bold; color: #FF9900'>skipped</td>
                                     <td style='width:10%'></td>
+                                    <td style='width:10%'>1.0s</td>
                                     <td style='width:10%'></td>
                                     <td style='width:35%'>No such device</td>
                                 </tr>

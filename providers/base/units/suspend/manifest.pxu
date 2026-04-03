@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_suspend_support
+_name: System Suspend Support
+value-type: bool

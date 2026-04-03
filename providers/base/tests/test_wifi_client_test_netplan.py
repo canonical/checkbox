@@ -25,6 +25,8 @@ import io
 import sys
 from unittest.mock import call
 
+from checkbox_support.helpers.retry import mock_retry
+
 from wifi_client_test_netplan import (
     netplan_renderer,
     check_and_get_renderer,
@@ -770,6 +772,7 @@ class WifiClientTestNetplanTests(TestCase):
         self.assertIn("Got gateway address: ", captured_output.getvalue())
 
 
+@mock_retry()
 @patch("wifi_client_test_netplan.ping")
 @patch("wifi_client_test_netplan.get_gateway")
 @patch("wifi_client_test_netplan.sp.check_output")
@@ -794,7 +797,15 @@ class TestPerformPingTest(TestCase):
             "received": 0,
             "pct_loss": 0,
         }
-        self.assertFalse(perform_ping_test("wlan0", "networkd"))
+        with self.assertRaises(ValueError):
+            perform_ping_test("wlan0", "networkd")
+
+    def test_perform_ping_test_no_gateway(
+        self, mock_check_output, mock_gateway, mock_ping
+    ):
+        mock_gateway.return_value = ""
+        with self.assertRaises(ValueError):
+            perform_ping_test("wlan0", "networkd")
 
 
 class TestMain(TestCase):
@@ -938,7 +949,7 @@ class TestMain(TestCase):
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
         mock_wait_routable.return_value = True
-        mock_ping.return_value = False
+        mock_ping.side_effect = ValueError("Ping failed")
 
         # Execute and Assert
         with self.assertRaises(SystemExit):

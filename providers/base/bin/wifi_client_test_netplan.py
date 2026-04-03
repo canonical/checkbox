@@ -27,6 +27,7 @@ import yaml
 from contextlib import contextmanager
 
 from gateway_ping_test import ping
+from checkbox_support.helpers.retry import retry
 from checkbox_support.snap_utils.system import get_series
 
 print = functools.partial(print, flush=True)
@@ -347,6 +348,7 @@ def get_gateway(interface, renderer):
     return validated_gateway
 
 
+@retry(max_attempts=3, delay=5)
 def perform_ping_test(interface, renderer):
     target = get_gateway(interface, renderer)
 
@@ -356,8 +358,13 @@ def perform_ping_test(interface, renderer):
         print("Ping result: {}".format(result))
         if result["received"] == result["transmitted"]:
             return True
+        raise ValueError(
+            "Ping failed: {} packets transmitted, {} received".format(
+                result["transmitted"], result["received"]
+            )
+        )
 
-    return False
+    raise ValueError("Could not determine gateway address")
 
 
 def print_journal_entries(start, renderer):
@@ -506,10 +513,12 @@ def main():
 
                 # Check connection by ping or link status
                 print_head("Perform a ping test")
-                test_result = perform_ping_test(args.interface, renderer)
-                if test_result:
+                try:
+                    perform_ping_test(args.interface, renderer)
+                    test_result = True
                     print("Connection test passed\n")
-                else:
+                except ValueError:
+                    test_result = False
                     print("Connection test failed\n")
     print_journal_entries(start_time, renderer)
     if not test_result:

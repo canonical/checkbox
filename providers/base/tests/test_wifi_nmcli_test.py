@@ -149,7 +149,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         self.assertEqual(get_connections_mock.call_count, 1)
         sp_call_mock.assert_not_called()
 
-    @patch("wifi_nmcli_test.sp.check_call")
+    @patch("wifi_nmcli_test.sp.call", return_value=0)
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={
@@ -158,31 +158,45 @@ class TestTurnDownNmConnections(unittest.TestCase):
         },
     )
     def test_turn_down_single_connection(
-        self, get_connections_mock, sp_check_call_mock
+        self, get_connections_mock, sp_call_mock
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_check_call_mock.assert_called_once_with(
+        sp_call_mock.assert_called_once_with(
             "nmcli c down uuid1".split()
         )
 
-    @patch("wifi_nmcli_test.sp.check_call")
+    @patch("wifi_nmcli_test.sp.call", return_value=10)
+    @patch(
+        "wifi_nmcli_test._get_nm_wireless_connections",
+        return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
+    )
+    def test_turn_down_connection_already_inactive(
+        self, get_connections_mock, sp_call_mock
+    ):
+        # exit code 10 means connection is not active — should not raise
+        turn_down_nm_connections()
+        self.assertEqual(get_connections_mock.call_count, 1)
+        sp_call_mock.assert_called_once_with(
+            "nmcli c down uuid1".split()
+        )
+
+    @patch("wifi_nmcli_test.sp.call", return_value=1)
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
     )
     def test_turn_down_single_connection_with_exception(
-        self, get_connections_mock, sp_check_call_mock
+        self, get_connections_mock, sp_call_mock
     ):
-        sp_check_call_mock.side_effect = subprocess.CalledProcessError("", 1)
         with self.assertRaises(subprocess.CalledProcessError):
             turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_check_call_mock.assert_called_once_with(
+        sp_call_mock.assert_called_once_with(
             "nmcli c down uuid1".split()
         )
 
-    @patch("wifi_nmcli_test.sp.check_call")
+    @patch("wifi_nmcli_test.sp.call", return_value=0)
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={
@@ -191,7 +205,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         },
     )
     def test_turn_down_multiple_connections(
-        self, get_connections_mock, sp_check_call_mock
+        self, get_connections_mock, sp_call_mock
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
@@ -199,7 +213,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
             call("nmcli c down uuid1".split()),
             call("nmcli c down uuid2".split()),
         ]
-        sp_check_call_mock.assert_has_calls(calls, any_order=True)
+        sp_call_mock.assert_has_calls(calls, any_order=True)
 
 
 class TestDeleteTestApSsidConnection(unittest.TestCase):

@@ -100,7 +100,10 @@ def turn_down_nm_connections():
         print("Turn down connection", name)
         cmd = "nmcli c down {}".format(uuid)
         print_cmd(cmd)
-        sp.check_call(shlex.split(cmd))
+        ret = sp.call(shlex.split(cmd))
+        # exit code 10: connection is not active — already down, that's fine
+        if ret not in (0, 10):
+            raise sp.CalledProcessError(ret, cmd)
         print("{} {} is down now".format(name, uuid))
     print()
 

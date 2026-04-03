@@ -162,9 +162,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_call_mock.assert_called_once_with(
-            "nmcli c down uuid1".split()
-        )
+        sp_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
     @patch("wifi_nmcli_test.sp.call", return_value=10)
     @patch(
@@ -177,9 +175,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         # exit code 10 means connection is not active — should not raise
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_call_mock.assert_called_once_with(
-            "nmcli c down uuid1".split()
-        )
+        sp_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
     @patch("wifi_nmcli_test.sp.call", return_value=1)
     @patch(
@@ -192,9 +188,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_call_mock.assert_called_once_with(
-            "nmcli c down uuid1".split()
-        )
+        sp_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
     @patch("wifi_nmcli_test.sp.call", return_value=0)
     @patch(

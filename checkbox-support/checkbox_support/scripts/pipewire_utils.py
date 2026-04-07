@@ -444,7 +444,7 @@ class PipewireTest:
                     audio_sink_ids
                 ):
                     print(
-                        "({}) - {} {}".format(
+                        "({}) - '{}' {}".format(
                             i,
                             node_description,
                             ("- Tested" if node_id in tested_ids else ""),
@@ -554,7 +554,10 @@ class PipewireTest:
                     continue
 
                 # correct direction + at least 1 available route => testable
-                testable_node_ids[node_id] = route["description"]
+                testable_node_ids[node_id] = "{} - {}".format(
+                    route["description"],
+                    device["info"]["props"].get("device.product.name", ""),
+                )
         return testable_node_ids
 
     def _get_node_description(self, properties) -> "str | None":

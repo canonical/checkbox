@@ -434,18 +434,48 @@ class PipewireTest:
         :param cmd: the command to run
         """
 
-        test_results = {}  # type: dict[int, bool]
-        audio_sink_ids = self._find_available_audio_sinks()
-        for node_id in audio_sink_ids:
-            subprocess.check_call(["wpctl", "set-default", str(node_id)])
-            subprocess.check_call(cmd, shell=True)
+        tested_ids = set()  # type: set[int]
+        audio_sink_ids = list(self._find_available_audio_sinks().items())
+        N = len(audio_sink_ids)
+        while True:
+            try:
+                for i, (_, node_description) in enumerate(audio_sink_ids):
+                    print("({}) {}".format(i, node_description))
+                _input = input(
+                    "Choose an audio sink to test [0-{}], or type 'q' to quit ".format(
+                        N - 1
+                    )
+                )
+                if _input == "q":
+                    if len(tested_ids) == N:
+                        print("OK, all audio sinks have been tested")
+                        return
+                    else:
+                        raise SystemExit(
+                            "Only {} audio sinks were tested, expected {}".format(
+                                len(tested_ids), N
+                            )
+                        )
 
-    def _find_available_audio_sinks(self) -> "set[int]":
+                idx = int(_input)
+                subprocess.check_call(
+                    ["wpctl", "set-default", str(audio_sink_ids[idx][0])]
+                )
+            except (ValueError, IndexError):
+                # this would loop at input() until a valid index is selected
+                continue
+
+            node_id, node_description = audio_sink_ids[idx]
+            print("Testing '{}', id={}".format(node_description, node_id))
+            subprocess.check_call(cmd, shell=True)
+            tested_ids.add(audio_sink_ids[idx][0])
+
+    def _find_available_audio_sinks(self) -> "dict[int, str]":
         """Finds the list of audio "devices" as shown in gnome's control center
         :return: Returns a set of IDs that can be consumed by wpctl. These are
                  the "ID" to use as shown in `wpctl --help`
         """
-        testable_node_ids = set()  # type: set[int]
+        testable_node_ids = {}  # type: dict[int, str]
         pw_audio_devices = [
             device
             for device in self._get_pw_dump("Device")
@@ -497,7 +527,7 @@ class PipewireTest:
                     continue
 
                 # correct direction + at least 1 available route => testable
-                testable_node_ids.add(node_id)
+                testable_node_ids[node_id] = route["description"]
         return testable_node_ids
 
     def _get_node_description(self, properties) -> "str | None":

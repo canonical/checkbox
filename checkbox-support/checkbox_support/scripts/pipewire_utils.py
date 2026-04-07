@@ -438,6 +438,9 @@ class PipewireTest:
         audio_sink_ids = list(self._find_available_audio_sinks().items())
         N = len(audio_sink_ids)
 
+        if N == 0:
+            raise SystemExit("No audio sinks are available for this test")
+
         while True:
             try:
                 for i, (node_id, node_description) in enumerate(
@@ -457,7 +460,7 @@ class PipewireTest:
                 if _input == "q":
                     if len(tested_ids) == N:
                         print(
-                            "OK, quitting with return code 0.",
+                            "[ OK ] Quitting with return code 0.",
                             "All {} audio sinks have been tested".format(N),
                         )
                         return
@@ -475,6 +478,9 @@ class PipewireTest:
                 )
             except (ValueError, IndexError):
                 # this would loop at input() until a valid index is selected
+                print(
+                    "Please select an index from 0 to", N - 1, file=sys.stderr
+                )
                 continue
 
             node_id, node_description = audio_sink_ids[idx]

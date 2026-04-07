@@ -382,7 +382,7 @@ class PipewireTest:
         self.logger.info("Couldn't detect active port change!")
         return PipewireTestError.NO_CHANGE_DETECTED
 
-    def go_through_ports(self, cmd: str, mode):
+    def go_through_ports(self, cmd: str, mode: 't.Literal["source", "sink"]'):
         """
         Go through available ports for testing
         This script checks if the ports on either sinks
@@ -428,13 +428,24 @@ class PipewireTest:
                         )
                         checked = input()
 
-    def iter_audio_sinks(self, cmd: str) -> None:
+    def iter_audio_sinks(self, cmd: str):
         """Execute the cmd for each audio sink discovered by pipewire
 
         :param cmd: the command to run
         """
-        total_sinks_tested = 0
 
+        test_results = {}  # type: dict[int, bool]
+        audio_sink_ids = self._find_available_audio_sinks()
+        for node_id in audio_sink_ids:
+            subprocess.check_call(["wpctl", "set-default", str(node_id)])
+            subprocess.check_call(cmd, shell=True)
+
+    def _find_available_audio_sinks(self) -> "set[int]":
+        """Finds the list of audio "devices" as shown in gnome's control center
+        :return: Returns a set of IDs that can be consumed by wpctl. These are
+                 the "ID" to use as shown in `wpctl --help`
+        """
+        testable_node_ids = set()  # type: set[int]
         pw_audio_devices = [
             device
             for device in self._get_pw_dump("Device")
@@ -449,19 +460,22 @@ class PipewireTest:
         for node in pw_sink_nodes:
             # IDs of these "nodes" can be passed to wpctl set-default
             node_id = int(node["id"])
-
             device_id = int(node["info"]["props"]["device.id"])
+
             device = None  # type: dict[str, t.Any] | None
             for dev in pw_audio_devices:
                 if dev["id"] == device_id:
                     device = dev
                     break
-            assert device, "Could not find device {}".format(device_id)
+
+            if not device:
+                print("Could not find device", device_id, file=sys.stderr)
+                continue
 
             # now check if the device has at least 1 available route
             enum_routes = device["info"]["params"]["EnumRoute"]
             assert type(enum_routes) is list
-            testable = False
+
             for route in enum_routes:
                 # try to match the device to this node
                 if (
@@ -481,23 +495,10 @@ class PipewireTest:
                         "because it's unavailable",
                     )
                     continue
-                # correct direction + at least 1 available route
-                testable = True
 
-            if testable:
-                print("=" * 80, flush=True)
-                total_sinks_tested += 1
-                # now switch to this sink
-                subprocess.check_call(["wpctl", "set-default", str(node_id)])
-                print(
-                    "Testing sink '{}', node id = '{}'".format(
-                        node["info"]["props"]["node.description"], node_id
-                    ),
-                    "with command '{}'".format(cmd),
-                )
-                subprocess.check_call(cmd, shell=True)
-                print("=" * 80, flush=True)
-        print("Tested", total_sinks_tested, "audio sinks in total")
+                # correct direction + at least 1 available route => testable
+                testable_node_ids.add(node_id)
+        return testable_node_ids
 
     def _get_node_description(self, properties) -> "str | None":
         """

@@ -437,24 +437,36 @@ class PipewireTest:
         tested_ids = set()  # type: set[int]
         audio_sink_ids = list(self._find_available_audio_sinks().items())
         N = len(audio_sink_ids)
+
         while True:
             try:
-                for i, (_, node_description) in enumerate(audio_sink_ids):
-                    print("({}) {}".format(i, node_description))
-                _input = input(
-                    "Choose an audio sink to test [0-{}], or type 'q' to quit ".format(
-                        N - 1
+                for i, (node_id, node_description) in enumerate(
+                    audio_sink_ids
+                ):
+                    print(
+                        "({}) - {} {}".format(
+                            i,
+                            node_description,
+                            ("- Tested" if node_id in tested_ids else ""),
+                        )
                     )
+                _input = input(
+                    "Choose an audio sink to test [0-{}]".format(N - 1)
+                    + ", or type 'q' to quit: "
                 )
                 if _input == "q":
                     if len(tested_ids) == N:
-                        print("OK, all audio sinks have been tested")
+                        print(
+                            "OK, quitting with return code 0.",
+                            "All {} audio sinks have been tested".format(N),
+                        )
                         return
                     else:
                         raise SystemExit(
-                            "Only {} audio sinks were tested, expected {}".format(
-                                len(tested_ids), N
+                            "Only {} audio sinks were tested, ".format(
+                                len(tested_ids)
                             )
+                            + "but expected {}".format(N)
                         )
 
                 idx = int(_input)
@@ -466,14 +478,29 @@ class PipewireTest:
                 continue
 
             node_id, node_description = audio_sink_ids[idx]
-            print("Testing '{}', id={}".format(node_description, node_id))
-            subprocess.check_call(cmd, shell=True)
+
+            print("=" * 80, flush=True)
+            print(
+                "Testing '{}', id={}, command='{}', 60s timeout".format(
+                    node_description, node_id, cmd
+                )
+            )
+            # don't let this fail, just go to the next sink
+            subprocess.run(cmd, shell=True, timeout=60)
+            print("=" * 80, flush=True)
+
             tested_ids.add(audio_sink_ids[idx][0])
+            print(
+                "Progress: {}/{} audio sinks tested".format(len(tested_ids), N)
+            )
 
     def _find_available_audio_sinks(self) -> "dict[int, str]":
-        """Finds the list of audio "devices" as shown in gnome's control center
-        :return: Returns a set of IDs that can be consumed by wpctl. These are
-                 the "ID" to use as shown in `wpctl --help`
+        """
+        Finds the list of audio "devices" as shown in gnome's control center
+
+        :return: Returns a set of IDs that can be consumed by wpctl.
+                 The values are human readable names.
+                 These IDs are the "ID" to use as shown in `wpctl --help`
         """
         testable_node_ids = {}  # type: dict[int, str]
         pw_audio_devices = [

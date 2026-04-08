@@ -55,7 +55,6 @@ import distro
 import pyparsing
 import requests
 import requests
-import requests_unixsocket
 
 try:
     import importlib_metadata

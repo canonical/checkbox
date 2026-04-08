@@ -260,7 +260,6 @@ parts:
       - python3-yaml
     python-packages:
       - requests-oauthlib
-      - requests-unixsocket
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
     after: [checkbox-support]

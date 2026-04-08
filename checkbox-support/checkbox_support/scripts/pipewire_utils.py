@@ -673,9 +673,9 @@ class PipewireTest:
             diff = "".join(delta)
             if diff:
                 self.logger.info("The first status:\n")
-                self.logger.info("".join(status_1))
+                self.logger.info("".join(status_1_lines))
                 self.logger.info("And the second status:\n")
-                self.logger.info("".join(status_2))
+                self.logger.info("".join(status_2_lines))
                 self.logger.info(
                     "Differ in the following lines (after sorting):"
                 )

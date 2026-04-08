@@ -20,7 +20,7 @@
 
 import sys
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 from pathlib import Path
 import json
 
@@ -601,6 +601,48 @@ class GoThroughPortTests(unittest.TestCase):
         mock_checkout.return_value = self.device
         mock_input.side_effect = ["yes", "yes"]
         self.assertEqual(None, pt.go_through_ports("echo test", "sink"))
+
+
+class IterAudioSinksTests(unittest.TestCase):
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_happy_path(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        def fake_sp_check_output(*args, **_) -> str:
+            if args[0] == "pw-dump Device":
+                with (
+                    TEST_DATA_DIR / "pw_dump_device_happy_path.txt"
+                ).open() as f:
+                    return f.read()
+            elif args[0] == "pw-dump Node":
+                with (
+                    TEST_DATA_DIR / "pw_dump_node_happy_path.txt"
+                ).open() as f:
+                    return f.read()
+            else:
+                raise RuntimeError("Unexpected use of this mock")
+
+        mock_check_output.side_effect = fake_sp_check_output
+        mock_input.side_effect = ["0", "0", "1", "q"]
+        mock_check_call.return_value = 0  # only used by wpctl set-default
+
+        # actual cmd here doesn't matter, it just needs to be called
+        cmd = "echo"
+        pt.iter_audio_sinks(cmd)
+        mock_run.assert_has_calls(
+            [
+                call(cmd, shell=True, timeout=60),
+            ]
+        )
 
 
 class ShowDefaultDeviceTests(unittest.TestCase):

@@ -39,9 +39,11 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators, get_array_field_qualify
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import (
+    DeprecatedSchemaValidator,
     FieldValidatorBase,
     ReferenceConstraint,
     UnitReferenceValidator,
+    Severity,
     compute_value_map,
 )
 from plainbox.impl.validation import Problem
@@ -635,9 +637,15 @@ class TestPlanUnit(UnitWithId):
             ],
             fields.include: [
                 concrete_validators.present,
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.mandatory_include: [
                 NoBaseIncludeValidator(),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.setup_include: [
                 NoBaseIncludeValidator(),
@@ -659,6 +667,9 @@ class TestPlanUnit(UnitWithId):
                         ),
                     ],
                 ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.bootstrap_include: [
                 NoBaseIncludeValidator(),
@@ -677,6 +688,9 @@ class TestPlanUnit(UnitWithId):
                             ),
                         ),
                     ],
+                ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
                 ),
             ],
             fields.estimated_duration: [

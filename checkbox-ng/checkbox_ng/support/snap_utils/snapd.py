@@ -1,8 +1,21 @@
-# Copyright 2019 Canonical Ltd.
-# All rights reserved.
+# This file is part of Checkbox.
 #
+# Copyright 2019-2026 Canonical Ltd.
 # Written by:
 #    Jonathan Cave <jonathan.cave@canonical.com>
+#    Massimiliano Girardi <massimiliano.girardi@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import http.client
 import json
@@ -27,14 +40,15 @@ class SnapdRequestError(Exception):
         return cls(result["message"], result.get("kind", ""))
 
 
-class _SnapdResponse:
+class SnapdResponse:
 
     def __init__(self, headers, text):
         self.headers = headers
         self.text = text
 
 
-class _SnapdConnection(http.client.HTTPConnection):
+class SnapdConnection(http.client.HTTPConnection):
+
     def __init__(self, sock_path="/run/snapd.socket"):
         super().__init__("localhost")
         self.sock_path = sock_path
@@ -71,7 +85,7 @@ class Snapd:
     def _request(self, method, path, data=None, params=None, decode=True):
         if params:
             path = "{}?{}".format(path, params)
-        with _SnapdConnection() as conn:
+        with SnapdConnection() as conn:
             headers = {}
             if data is not None:
                 headers["Content-Type"] = "application/json"
@@ -82,7 +96,7 @@ class Snapd:
                 raise SnapdRequestError.from_response(body)
             if decode:
                 return json.loads(body)
-            return _SnapdResponse(resp.headers, body)
+            return SnapdResponse(resp.headers, body)
 
     def _get(self, path, params=None, decode=True):
         return self._request("GET", path, params=params, decode=decode)
@@ -117,12 +131,14 @@ class Snapd:
                         )
                     self._info(message)
                 elif task["status"] == "Wait":
-                    message = "({}) {}".format(task["status"], task["summary"])
-                    self._info(message)
+                    self._info(
+                        "({}) {}".format(task["status"], task["summary"])
+                    )
                     return
                 elif task["status"] == "Error":
-                    message = "({}) {}".format(task["status"], task["summary"])
-                    self._info(message)
+                    self._info(
+                        "({}) {}".format(task["status"], task["summary"])
+                    )
                     raise AsyncException(task.get("log"))
             time.sleep(self._poll_interval)
 

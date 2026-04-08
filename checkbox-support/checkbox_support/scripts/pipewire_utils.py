@@ -22,6 +22,7 @@ import difflib
 import json
 import logging
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -428,7 +429,7 @@ class PipewireTest:
                         )
                         checked = input()
 
-    def iter_audio_sinks(self, cmd: str):
+    def iter_audio_sinks(self, cmd: "list[str]"):
         """Execute the cmd for each audio sink discovered by pipewire
 
         :param cmd: the command to run
@@ -492,7 +493,7 @@ class PipewireTest:
                 )
             )
             # don't let this fail, just go to the next sink
-            subprocess.run(cmd, shell=True, timeout=60)
+            subprocess.run(cmd, timeout=60)
             print("=" * 80, flush=True)
 
             tested_ids.add(audio_sink_ids[idx][0])
@@ -967,7 +968,7 @@ class PipewireTest:
             else:
                 return PipewireTestError.NOT_REAL_DEVICE
         elif args.test_type == "iter-audio-sinks":
-            return self.iter_audio_sinks(args.command)
+            return self.iter_audio_sinks(shlex.split(args.command))
 
 
 def main():

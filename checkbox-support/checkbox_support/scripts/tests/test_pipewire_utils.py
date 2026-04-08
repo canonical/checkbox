@@ -18,6 +18,7 @@
 # https://github.com/python/cpython/commit/6fdfcec5b11f44f27aae3d53ddeb004150ae1f61
 # Therefore, please don't add new test cases of assertLog.
 
+import shlex
 import sys
 import unittest
 from unittest.mock import MagicMock, call, patch
@@ -604,6 +605,17 @@ class GoThroughPortTests(unittest.TestCase):
 
 
 class IterAudioSinksTests(unittest.TestCase):
+
+    def _fake_sp_check_output(self, *args, **_) -> str:
+        if args[0] == "pw-dump Device":
+            with (TEST_DATA_DIR / "pw_dump_device_happy_path.txt").open() as f:
+                return f.read()
+        elif args[0] == "pw-dump Node":
+            with (TEST_DATA_DIR / "pw_dump_node_happy_path.txt").open() as f:
+                return f.read()
+        else:
+            raise RuntimeError("Unexpected use of this mock")
+
     @patch("builtins.input")
     @patch("subprocess.check_call")
     @patch("subprocess.check_output")
@@ -617,31 +629,49 @@ class IterAudioSinksTests(unittest.TestCase):
     ):
         pt = PipewireTest()
 
-        def fake_sp_check_output(*args, **_) -> str:
-            if args[0] == "pw-dump Device":
-                with (
-                    TEST_DATA_DIR / "pw_dump_device_happy_path.txt"
-                ).open() as f:
-                    return f.read()
-            elif args[0] == "pw-dump Node":
-                with (
-                    TEST_DATA_DIR / "pw_dump_node_happy_path.txt"
-                ).open() as f:
-                    return f.read()
-            else:
-                raise RuntimeError("Unexpected use of this mock")
+        mock_check_output.side_effect = self._fake_sp_check_output
 
-        mock_check_output.side_effect = fake_sp_check_output
-        mock_input.side_effect = ["0", "0", "1", "q"]
+        input_seq = ("0", "0", "1", "q")
+        mock_input.side_effect = input_seq
         mock_check_call.return_value = 0  # only used by wpctl set-default
 
         # actual cmd here doesn't matter, it just needs to be called
-        cmd = "echo"
+        cmd = shlex.split("speaker-test -c 2 -l 1 -t wav")
         pt.iter_audio_sinks(cmd)
         mock_run.assert_has_calls(
             [
-                call(cmd, shell=True, timeout=60),
+                call(cmd, timeout=60),
             ]
+            * (len(input_seq) - 1)
+        )
+
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_pressing_q_too_early(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+
+        # the test data has 2 devices
+        # quitting after just 1 should return non-zero
+        input_seq = ("0", "q")
+        mock_input.side_effect = input_seq
+        mock_check_call.return_value = 0  # only used by wpctl set-default
+
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        self.assertEqual(
+            cm.exception.args[0],
+            "Only 1 audio sinks were tested, but expected 2",
         )
 
 

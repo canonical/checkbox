@@ -674,6 +674,102 @@ class IterAudioSinksTests(unittest.TestCase):
             "Only 1 audio sinks were tested, but expected 2",
         )
 
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_no_device(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pw_dump_node_dummy = """
+[
+  {
+    "id": 28,
+    "type": "PipeWire:Interface:Node",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "max-input-ports": 0,
+      "max-output-ports": 0,
+      "change-mask": [ "input-ports", "output-ports", 
+      "state", "props", "params" ],
+      "n-input-ports": 0,
+      "n-output-ports": 0,
+      "state": "suspended",
+      "error": null,
+      "props": {
+        "factory.name": "support.node.driver",
+        "node.name": "Dummy-Driver",
+        "node.group": "pipewire.dummy",
+        "priority.driver": 20000,
+        "factory.id": 10,
+        "clock.quantum-limit": 8192,
+        "node.driver": true,
+        "object.id": 28,
+        "object.serial": 28
+      },
+      "params": {
+      }
+    }
+  },
+  {
+    "id": 29,
+    "type": "PipeWire:Interface:Node",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "max-input-ports": 0,
+      "max-output-ports": 0,
+      "change-mask": [ "input-ports", "output-ports", 
+      "state", "props", "params" ],
+      "n-input-ports": 0,
+      "n-output-ports": 0,
+      "state": "suspended",
+      "error": null,
+      "props": {
+        "factory.name": "support.node.driver",
+        "node.name": "Freewheel-Driver",
+        "priority.driver": 19000,
+        "node.group": "pipewire.freewheel",
+        "node.freewheel": true,
+        "factory.id": 10,
+        "clock.quantum-limit": 8192,
+        "node.driver": true,
+        "object.id": 29,
+        "object.serial": 29
+      },
+      "params": {
+      }
+    }
+  }
+]
+        """
+
+        def fake_sp_check_output(*args, **_) -> str:
+            if args[0] == "pw-dump Device":
+                return ""
+            elif args[0] == "pw-dump Node":
+                return pw_dump_node_dummy
+            else:
+                raise RuntimeError("Unexpected use of this mock")
+
+        pt = PipewireTest()
+        mock_check_output.side_effect = fake_sp_check_output
+
+        input_seq = ("0", "q")
+        mock_input.side_effect = input_seq
+        mock_check_call.return_value = 0
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        self.assertEqual(
+            cm.exception.args[0], "No audio sinks are available for this test"
+        )
+
 
 class ShowDefaultDeviceTests(unittest.TestCase):
     def test_device_type_error(self):

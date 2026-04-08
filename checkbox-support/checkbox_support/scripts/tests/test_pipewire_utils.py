@@ -642,7 +642,7 @@ class IterAudioSinksTests(unittest.TestCase):
             [
                 call(cmd, timeout=60),
             ]
-            * (len(input_seq) - 2) # remove the q and invalid '2'
+            * (len(input_seq) - 2)  # remove the q and invalid '2'
         )
 
     @patch("builtins.input")

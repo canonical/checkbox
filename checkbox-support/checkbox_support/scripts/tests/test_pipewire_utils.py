@@ -631,7 +631,7 @@ class IterAudioSinksTests(unittest.TestCase):
 
         mock_check_output.side_effect = self._fake_sp_check_output
 
-        input_seq = ("0", "0", "1", "q")
+        input_seq = ("0", "0", "1", "2", "1", "q")
         mock_input.side_effect = input_seq
         mock_check_call.return_value = 0  # only used by wpctl set-default
 
@@ -642,7 +642,7 @@ class IterAudioSinksTests(unittest.TestCase):
             [
                 call(cmd, timeout=60),
             ]
-            * (len(input_seq) - 1)
+            * (len(input_seq) - 2) # remove the q and invalid '2'
         )
 
     @patch("builtins.input")

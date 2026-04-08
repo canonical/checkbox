@@ -488,7 +488,7 @@ class PipewireTest:
 
             print("=" * 80, flush=True)
             print(
-                "Testing '{}', id={}, command='{}', 60s timeout".format(
+                "Testing '{}', id={}, command={}, 60s timeout".format(
                     node_description, node_id, cmd
                 )
             )

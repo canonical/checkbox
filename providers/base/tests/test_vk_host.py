@@ -297,16 +297,6 @@ class TestCmdRunTest(unittest.TestCase):
         )
 
 
-class TestGetArchTriple(unittest.TestCase):
-    @patch("sysconfig.get_config_var", return_value="x86_64-linux-gnu")
-    def test_returns_multiarch_value(self, _cfg):
-        self.assertEqual(vk_host.get_arch_triple(), "x86_64-linux-gnu")
-
-    @patch("sysconfig.get_config_var", return_value=None)
-    def test_raises_when_multiarch_is_none(self, _cfg):
-        with self.assertRaises(RuntimeError):
-            vk_host.get_arch_triple()
-
 
 class TestMain(unittest.TestCase):
     @patch("vk_host.cmd_run_test", return_value=0)

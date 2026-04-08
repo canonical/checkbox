@@ -409,3 +409,23 @@ include:
 bootstrap_include:
     graphics_card
     executable
+
+id: crucible-core-test-plan
+unit: test plan
+_name: Graphics test plan for crucible (core/snap)
+include:
+    setup/install_crucible
+    graphics/crucible_core_.*
+bootstrap_include:
+    graphics_card
+    executable
+
+id: crucible-classic-test-plan
+unit: test plan
+_name: Graphics test plan for crucible (classic)
+include:
+    setup/install_crucible
+    graphics/crucible_classic_.*
+bootstrap_include:
+    graphics_card
+    executable

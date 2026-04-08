@@ -18,15 +18,13 @@ plugin: resource
 id: graphics/vk_gpu_avail
 category_id: com.canonical.plainbox::graphics
 user: root
-requires:
-  executable.name == 'vulkaninfo'
 _summary: Checks for Vulkan-capable GPU
 environ:
   XDG_SESSION_TYPE
   XDG_RUNTIME_DIR
 estimated_duration: 1s
 command:
- if vulkaninfo --summary 2>/dev/null | grep -q "PHYSICAL_DEVICE_TYPE_.*_GPU"; then
+ if env -u DISPLAY vulkan-cts.vulkaninfo --summary 2>&1 | grep "PHYSICAL_DEVICE_TYPE_.*_GPU"; then
    echo "PASS: Found a Vulkan-capable GPU"
  else
    echo "FAIL: No Vulkan-capable GPU found"

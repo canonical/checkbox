@@ -19,6 +19,7 @@
 # Therefore, please don't add new test cases of assertLog.
 
 import shlex
+import subprocess
 import sys
 import unittest
 from unittest.mock import MagicMock, call, patch
@@ -820,6 +821,44 @@ class IterAudioSinksTests(unittest.TestCase):
             ):
                 count += 1
         self.assertNotEqual(count, 0)
+
+    @patch("checkbox_support.scripts.pipewire_utils.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_speaker_test_cmd_crash_handlers(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        mock_run.side_effect = subprocess.TimeoutExpired(
+            ["slow-cmd"], 60, "", "too slow"
+        )
+        mock_input.side_effect = ("0", "1", "q")
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+        self.assertEqual(
+            cm.exception.args[0],
+            "[ ERR ] Some of the speakers failed the test",
+        )
+
+        mock_run.side_effect = subprocess.CalledProcessError(
+            1, ["bad-cmd"], "", "crashed"
+        )
+        mock_input.side_effect = ("0", "1", "q")
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+        self.assertEqual(
+            cm.exception.args[0],
+            "[ ERR ] Some of the speakers failed the test",
+        )
 
 
 class ShowDefaultDeviceTests(unittest.TestCase):

@@ -538,7 +538,7 @@ class PipewireTest:
 
             # now check if the device has at least 1 available route
             enum_routes = device["info"]["params"]["EnumRoute"]
-            # assert type(enum_routes) is list
+
             if not isinstance(enum_routes, list):
                 raise TypeError(
                     "EnumRoute of device {} is not a list, got {}".format(

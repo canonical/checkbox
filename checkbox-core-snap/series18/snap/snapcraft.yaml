@@ -245,7 +245,6 @@ parts:
       - python3-jinja2
       - python3-packaging
       - python3-requests-oauthlib
-      - python3-requests-unixsocket
       - python3-urwid
       - python3-xlsxwriter
       - python3-yaml
@@ -271,7 +270,6 @@ parts:
       - dmidecode
       - libjson-xs-perl
       - pciutils
-      - python3-requests-unixsocket
       - smartmontools
     override-build: |
       cd src && autoreconf -i && cd -

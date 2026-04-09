@@ -36,11 +36,6 @@ unit: packaging meta-data
 os-id: debian
 Depends: usbutils
 
-# This is for snapd_resource.py
-unit: packaging meta-data
-os-id: debian
-Depends: python3-requests-unixsocket
-
 # This is for wireless_sta_protocol
 unit: packaging meta-data
 os-id: ubuntu
@@ -120,7 +115,7 @@ id: kernel_package
 plugin: resource
 category_id: information_gathering
 command: kernel_package_resource.py
-_description: 
+_description:
  Gets kernel package from the source of the linux-modules package or from
  snapd if we are on Ubuntu Core.
 _summary: Collect information about the kernel package

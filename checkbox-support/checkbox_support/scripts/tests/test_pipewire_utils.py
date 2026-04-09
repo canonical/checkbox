@@ -812,10 +812,11 @@ class IterAudioSinksTests(unittest.TestCase):
 
         count = 0
         for mock_call in mock_print.call_args_list:
-            print(mock_call.args)
+            # mock_call[0] is args
+            # mock_call[1] is kwargs
             if (
-                mock_call.args[0].startswith("Could not find device")
-                and mock_call.kwargs["file"] == sys.stderr
+                mock_call[0][0] == "Could not find device"
+                and mock_call[1]["file"] == sys.stderr
             ):
                 count += 1
         self.assertNotEqual(count, 0)

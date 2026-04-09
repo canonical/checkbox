@@ -455,11 +455,16 @@ class PipewireTest:
                             ("- Tested" if node_id in tested_ids else ""),
                         )
                     )
-                _input = input(
-                    "Choose an audio sink to test [0-{}]".format(N - 1)
-                    + ", or type 'q' to quit: "
+
+                print(
+                    "Choose an audio sink to test [0-{}],".format(N - 1),
+                    "or type 'q' to quit: ",
+                    end="",
+                    flush=True,
                 )
-                if _input == "q":
+                choice = input()
+
+                if choice == "q":
                     if len(tested_ids) == N:
                         if nothing_failed:
                             print(
@@ -481,7 +486,7 @@ class PipewireTest:
                             + "but expected {}".format(N)
                         )
 
-                idx = int(_input)
+                idx = int(choice)
                 subprocess.check_call(
                     ["wpctl", "set-default", str(audio_sink_ids[idx][0])]
                 )

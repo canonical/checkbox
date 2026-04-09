@@ -513,7 +513,7 @@ class PipewireTest:
                 )
                 nothing_failed = False
             except subprocess.CalledProcessError as e:
-                print("[ ERR ]",e, file=sys.stderr)
+                print("[ ERR ]", e, file=sys.stderr)
                 nothing_failed = False
             finally:
                 tested_ids.add(audio_sink_ids[idx][0])

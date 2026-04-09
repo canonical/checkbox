@@ -436,6 +436,7 @@ class PipewireTest:
         """
 
         tested_ids = set()  # type: set[int]
+        nothing_failed = True
         audio_sink_ids = list(self._find_available_audio_sinks().items())
         N = len(audio_sink_ids)
 
@@ -460,14 +461,21 @@ class PipewireTest:
                 )
                 if _input == "q":
                     if len(tested_ids) == N:
-                        print(
-                            "[ OK ] Quitting with return code 0.",
-                            "All {} audio sinks have been tested".format(N),
-                        )
-                        return
+                        if nothing_failed:
+                            print(
+                                "[ OK ] Quitting with return code 0.",
+                                "All {} audio sinks have been tested".format(
+                                    N
+                                ),
+                            )
+                            return
+                        else:
+                            raise SystemExit(
+                                "[ ERR ] Some of the speakers failed the test"
+                            )
                     else:
                         raise SystemExit(
-                            "Only {} audio sinks were tested, ".format(
+                            "[ ERR ] Only {} audio sinks were tested, ".format(
                                 len(tested_ids)
                             )
                             + "but expected {}".format(N)
@@ -486,20 +494,35 @@ class PipewireTest:
 
             node_id, node_description = audio_sink_ids[idx]
 
-            print("=" * 80, flush=True)
-            print(
-                "Testing '{}', id={}, command={}, 60s timeout".format(
-                    node_description, node_id, cmd
+            TIMEOUT = 60
+            try:
+                print("=" * 80, flush=True)
+                print(
+                    "Testing '{}', id={}, command={}, {}s timeout".format(
+                        node_description, node_id, cmd, TIMEOUT
+                    )
                 )
-            )
-            # don't let this fail, just go to the next sink
-            subprocess.run(cmd, timeout=60)
-            print("=" * 80, flush=True)
-
-            tested_ids.add(audio_sink_ids[idx][0])
-            print(
-                "Progress: {}/{} audio sinks tested".format(len(tested_ids), N)
-            )
+                # don't let this fail, just go to the next sink
+                subprocess.run(cmd, timeout=TIMEOUT, check=True)
+            except subprocess.TimeoutExpired:
+                print(
+                    "[ ERR ]",
+                    cmd,
+                    "did not finish in {}s".format(TIMEOUT),
+                    file=sys.stderr,
+                )
+                nothing_failed = False
+            except subprocess.CalledProcessError as e:
+                print("[ ERR ]",e, file=sys.stderr)
+                nothing_failed = False
+            finally:
+                tested_ids.add(audio_sink_ids[idx][0])
+                print("=" * 80, flush=True)
+                print(
+                    "Progress: {}/{} audio sinks tested".format(
+                        len(tested_ids), N
+                    )
+                )
 
     def _find_available_audio_sinks(self) -> "dict[int, str]":
         """

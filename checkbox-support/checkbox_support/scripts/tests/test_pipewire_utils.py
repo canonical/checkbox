@@ -641,7 +641,7 @@ class IterAudioSinksTests(unittest.TestCase):
         pt.iter_audio_sinks(cmd)
         mock_run.assert_has_calls(
             [
-                call(cmd, timeout=60),
+                call(cmd, timeout=60, check=True),
             ]
             * (len(input_seq) - 2)  # remove the q and invalid '2'
         )
@@ -672,7 +672,7 @@ class IterAudioSinksTests(unittest.TestCase):
 
         self.assertEqual(
             cm.exception.args[0],
-            "Only 1 audio sinks were tested, but expected 2",
+            "[ ERR ] Only 1 audio sinks were tested, but expected 2",
         )
 
     @patch("builtins.input")

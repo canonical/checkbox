@@ -24,6 +24,7 @@ import unittest
 from unittest.mock import MagicMock, call, patch
 from pathlib import Path
 import json
+import typing as t
 
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
@@ -651,7 +652,7 @@ class IterAudioSinksTests(unittest.TestCase):
     @patch("subprocess.run")
     def test_pressing_q_too_early(
         self,
-        mock_run: MagicMock,
+        _: MagicMock,
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_input: MagicMock,
@@ -680,7 +681,7 @@ class IterAudioSinksTests(unittest.TestCase):
     @patch("subprocess.run")
     def test_no_device(
         self,
-        mock_run: MagicMock,
+        _: MagicMock,
         mock_check_output: MagicMock,
         mock_check_call: MagicMock,
         mock_input: MagicMock,
@@ -769,6 +770,54 @@ class IterAudioSinksTests(unittest.TestCase):
         self.assertEqual(
             cm.exception.args[0], "No audio sinks are available for this test"
         )
+
+    @patch("builtins.print")
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_no_matching_device(
+        self,
+        _: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+        mock_print: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+
+        # the test data has 2 devices
+        # quitting after just 1 should return non-zero
+        input_seq = ("0", "1", "q")
+        mock_input.side_effect = input_seq
+        mock_check_call.return_value = 0
+
+        original = pt._get_pw_dump
+
+        def fake_pw_dump_rv(p_type: 't.Literal["Device", "Node"]'):
+            if p_type == "Device":
+                return []
+            else:
+                return original(p_type)
+
+        pt._get_pw_dump = fake_pw_dump_rv
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        self.assertEqual(
+            cm.exception.args[0], "No audio sinks are available for this test"
+        )
+
+        count = 0
+        for mock_call in mock_print.call_args_list:
+            if (
+                mock_call.args[0].startswith("Could not find device")
+                and mock_call.kwargs["file"] == sys.stderr
+            ):
+                count += 1
+        self.assertNotEqual(count, 0)
 
 
 class ShowDefaultDeviceTests(unittest.TestCase):

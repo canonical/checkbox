@@ -523,14 +523,18 @@ class FakeJobRunner(UnifiedRunner):
     Special runner that creates fake resource objects.
     """
 
-    def run_job(self, job, job_state, environ=None, ui=None):
+    def run_job(
+        self, job, job_state, environ=None, ui=None, as_systemd_unit=False
+    ):
         """
         Only one resouce object is created from this runner.
         Exception: 'graphics_card' resource job creates two objects to
         simulate hybrid graphics.
         """
         if job.plugin != "resource":
-            return super().run_job(job, job_state, environ, ui)
+            return super().run_job(
+                job, job_state, environ, ui, as_systemd_unit
+            )
         builder = JobResultBuilder()
         if job.partial_id == "graphics_card":
             builder.io_log = [

@@ -771,7 +771,7 @@ class IterAudioSinksTests(unittest.TestCase):
             cm.exception.args[0], "No audio sinks are available for this test"
         )
 
-    @patch("builtins.print")
+    @patch("checkbox_support.scripts.pipewire_utils.print")
     @patch("builtins.input")
     @patch("subprocess.check_call")
     @patch("subprocess.check_output")
@@ -812,6 +812,7 @@ class IterAudioSinksTests(unittest.TestCase):
 
         count = 0
         for mock_call in mock_print.call_args_list:
+            print(mock_call.args)
             if (
                 mock_call.args[0].startswith("Could not find device")
                 and mock_call.kwargs["file"] == sys.stderr

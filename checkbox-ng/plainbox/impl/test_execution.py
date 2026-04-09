@@ -22,6 +22,7 @@ from pathlib import Path
 from unittest import TestCase, mock
 
 from plainbox.impl.execution import (
+    FakeJobRunner,
     MountingStrategy,
     UnifiedRunner,
     add_to_environment,
@@ -520,3 +521,139 @@ class TestGetExecutionEnvironment(TestCase):
         )
 
         self.assertEqual(env["EXISTING_VAR"], "original_value")
+
+
+@mock.patch("plainbox.impl.execution.dangerous_nsenter", new=empty_context)
+class FakeJobRunnerTests(TestCase):
+    def test_run_job_non_resource_as_systemd_unit_false(self):
+        """Test FakeJobRunner passes as_systemd_unit=False to parent for non-resource jobs."""
+        fake_runner = FakeJobRunner(
+            session_id="test-session",
+            provider_list=[],
+            jobs_io_log_dir=None,
+        )
+
+        job = mock.MagicMock()
+        job.plugin = "shell"
+        job_state = mock.MagicMock()
+
+        with mock.patch.object(
+            UnifiedRunner, "run_job", return_value=mock.MagicMock()
+        ) as mock_parent_run_job:
+            fake_runner.run_job(job, job_state, as_systemd_unit=False)
+
+            mock_parent_run_job.assert_called_once_with(
+                job, job_state, None, None, False
+            )
+
+    def test_run_job_non_resource_as_systemd_unit_true(self):
+        """Test FakeJobRunner passes as_systemd_unit=True to parent for non-resource jobs."""
+        fake_runner = FakeJobRunner(
+            session_id="test-session",
+            provider_list=[],
+            jobs_io_log_dir=None,
+        )
+
+        job = mock.MagicMock()
+        job.plugin = "shell"
+        job_state = mock.MagicMock()
+
+        with mock.patch.object(
+            UnifiedRunner, "run_job", return_value=mock.MagicMock()
+        ) as mock_parent_run_job:
+            fake_runner.run_job(job, job_state, as_systemd_unit=True)
+
+            mock_parent_run_job.assert_called_once_with(
+                job, job_state, None, None, True
+            )
+
+    def test_run_job_resource_default_as_systemd_unit(self):
+        """Test FakeJobRunner creates fake resource for resource jobs (default as_systemd_unit)."""
+        fake_runner = FakeJobRunner(
+            session_id="test-session",
+            provider_list=[],
+            jobs_io_log_dir=None,
+        )
+
+        job = mock.MagicMock()
+        job.plugin = "resource"
+        job.partial_id = "some_resource"
+        job_state = mock.MagicMock()
+
+        result = fake_runner.run_job(job, job_state)
+
+        self.assertEqual(result.outcome, "pass")
+        self.assertEqual(result.return_code, 0)
+        self.assertEqual(len(result.io_log), 1)
+        self.assertEqual(result.io_log[0].stream_name, "stdout")
+        self.assertEqual(result.io_log[0].data, b"a: b\n")
+
+    def test_run_job_graphics_card_resource(self):
+        """Test FakeJobRunner creates two resource objects for graphics_card."""
+        fake_runner = FakeJobRunner(
+            session_id="test-session",
+            provider_list=[],
+            jobs_io_log_dir=None,
+        )
+
+        job = mock.MagicMock()
+        job.plugin = "resource"
+        job.partial_id = "graphics_card"
+        job_state = mock.MagicMock()
+
+        result = fake_runner.run_job(job, job_state)
+
+        self.assertEqual(result.outcome, "pass")
+        self.assertEqual(result.return_code, 0)
+        self.assertEqual(len(result.io_log), 3)
+        self.assertEqual(result.io_log[0].stream_name, "stdout")
+        self.assertEqual(result.io_log[0].data, b"a: b\n")
+        self.assertEqual(result.io_log[1].stream_name, "stdout")
+        self.assertEqual(result.io_log[1].data, b"\n")
+        self.assertEqual(result.io_log[2].stream_name, "stdout")
+        self.assertEqual(result.io_log[2].data, b"a: c\n")
+
+    def test_run_job_resource_with_environ_and_ui(self):
+        """Test FakeJobRunner creates fake resource with environ and ui parameters."""
+        fake_runner = FakeJobRunner(
+            session_id="test-session",
+            provider_list=[],
+            jobs_io_log_dir=None,
+        )
+
+        job = mock.MagicMock()
+        job.plugin = "resource"
+        job.partial_id = "test_resource"
+        job_state = mock.MagicMock()
+        environ = {"TEST": "value"}
+        ui = mock.MagicMock()
+
+        result = fake_runner.run_job(job, job_state, environ, ui)
+
+        self.assertEqual(result.outcome, "pass")
+        self.assertEqual(result.return_code, 0)
+
+    def test_run_job_non_resource_with_all_parameters(self):
+        """Test FakeJobRunner passes all parameters correctly to parent."""
+        fake_runner = FakeJobRunner(
+            session_id="test-session",
+            provider_list=[],
+            jobs_io_log_dir=None,
+        )
+
+        job = mock.MagicMock()
+        job.plugin = "shell"
+        job_state = mock.MagicMock()
+        environ = {"TEST": "value"}
+        ui = mock.MagicMock()
+
+        with mock.patch.object(
+            UnifiedRunner, "run_job", return_value=mock.MagicMock()
+        ) as mock_parent_run_job:
+            fake_runner.run_job(
+                job, job_state, environ, ui, as_systemd_unit=True
+            )
+
+            mock_parent_run_job.assert_called_once_with(
+                job, job_state, environ, ui, True
+            )

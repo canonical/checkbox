@@ -12,7 +12,7 @@ _purpose: Record the current resolution before suspending.
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
- xrandr -q | grep "[*]" | awk '{{print $1}}' > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
+ resolution_test.py > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
 _summary: Capture the current screen resolution before system suspension.
 
 unit: template
@@ -57,7 +57,7 @@ _summary: Check if the resolution remains the same after resuming from suspend.
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {{ driver }} {{ index }}
- xrandr -q | grep "[*]" | awk '{print $1}' | diff "$PLAINBOX_SESSION_SHARE"/{{ index }}_resolution_before_suspend.txt -
+ resolution_test.py | diff "$PLAINBOX_SESSION_SHARE"/{{ index }}_resolution_before_suspend.txt -
 
 unit: template
 template-resource: graphics_card

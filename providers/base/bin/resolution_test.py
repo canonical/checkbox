@@ -2,6 +2,7 @@
 
 import gi
 import sys
+import warnings
 
 from argparse import ArgumentParser
 from checkbox_support.helpers.release_info import get_release_info
@@ -21,6 +22,20 @@ if release >= GTK4_UBUNTU_RELEASE:
 else:
     gi.require_version("Gdk", "3.0")
     from gi.repository import Gdk
+
+
+# This supresses deprecation warnings from Gtk3
+# Keeping Gtk3.Screen for backwards compatibility with older releases
+warnings.filterwarnings(
+    "ignore",
+    message=r"Gdk\.Screen\.get_n_monitors is deprecated",
+    category=DeprecationWarning,
+)
+warnings.filterwarnings(
+    "ignore",
+    message=r"Gdk\.Screen\.get_monitor_geometry is deprecated",
+    category=DeprecationWarning,
+)
 
 
 def get_gobject_geometry(gobject, index=None):

@@ -13,7 +13,7 @@ id: suspend/resolution_before_suspend
 before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
-command: xrandr -q | grep "[*]" | awk '{print $1}' > "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt
+command: resolution_test.py > "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt
 
 unit: template
 template-resource: graphics_card
@@ -26,7 +26,7 @@ depends: graphics/{index}_switch_card_{product_slug}
 before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
-command: xrandr -q | grep "[*]" | awk '{{print $1}}' > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
+command: resolution_test.py > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -428,7 +428,7 @@ id: suspend/resolution_after_suspend
 depends: suspend/suspend_advanced_auto suspend/resolution_before_suspend
 estimated_duration: 1.2
 _purpose: Test to see that we have the same resolution after resuming as before.
-command: xrandr -q | grep "[*]" | awk '{print $1}' | diff "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt -
+command: resolution_test.py | diff "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt -
 _summary: Verify resolution consistency after resuming from suspension.
 
 unit: template
@@ -441,7 +441,7 @@ template-id: suspend/index_resolution_after_suspend_product_slug
 estimated_duration: 1.2
 depends: suspend/{index}_resolution_before_suspend_{product_slug}
 _purpose: Test to see that we have the same resolution after resuming as before.
-command: xrandr -q | grep "[*]" | awk '{{print $1}}' | diff "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt -
+command: resolution_test.py | diff "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt -
 _summary: Ensure resolution remains consistent after resuming from suspend.
 
 plugin: shell

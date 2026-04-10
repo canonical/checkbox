@@ -504,7 +504,8 @@ class PipewireTest:
                 print(
                     "Testing '{}', id={}, command={}, {}s timeout".format(
                         node_description, node_id, cmd, TIMEOUT
-                    )
+                    ),
+                    flush=True
                 )
                 # don't let this fail, just go to the next sink
                 subprocess.run(cmd, timeout=TIMEOUT, check=True)

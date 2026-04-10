@@ -595,9 +595,12 @@ class PipewireTest:
                     continue
 
                 # correct direction + at least 1 available route => testable
-                testable_node_ids[node_id] = "{} - {}".format(
-                    route["description"],
-                    device["info"]["props"].get("device.product.name", ""),
+                testable_node_ids[node_id] = " - ".join(
+                    [
+                        route["description"],
+                        # this product name can be empty
+                        device["info"]["props"].get("device.product.name", ""),
+                    ]
                 )
         return testable_node_ids
 

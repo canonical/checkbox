@@ -458,8 +458,7 @@ class PipewireTest:
 
                 print(
                     "Choose an audio sink to test [0-{}],".format(N - 1),
-                    "or type 'q' to quit: ",
-                    end="",
+                    "or type 'q' to quit:",
                     flush=True,
                 )
                 choice = input()
@@ -598,8 +597,7 @@ class PipewireTest:
                 testable_node_ids[node_id] = " - ".join(
                     [
                         route["description"],
-                        # this product name can be empty
-                        device["info"]["props"].get("device.product.name", ""),
+                        node["info"]["props"]["node.description"],
                     ]
                 )
         return testable_node_ids

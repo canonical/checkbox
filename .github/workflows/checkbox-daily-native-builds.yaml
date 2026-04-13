@@ -70,7 +70,7 @@ jobs:
             path: checkbox-core-snap/series${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
 
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: Upload logs on failure
         if: failure()
         with:
@@ -80,7 +80,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: Upload the snap as artifact
         with:
           name: checkbox${{ matrix.release }}_${{ matrix.arch }}
@@ -145,7 +145,7 @@ jobs:
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
 
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: Upload logs on failure
         if: failure()
         with:
@@ -155,7 +155,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: Upload the snaps as artefacts
         with:
           name: series_${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}

@@ -13,6 +13,18 @@ Window {
     property int targetFps: 10
     property int rectCount: 10
 
+    // old QT workaround, there's no 'Shortcuts' property on Window
+    // in new QTs don't do this
+    Item {
+        anchors.fill: parent
+        focus: true     
+        Keys.onPressed: {
+            if (event.key === Qt.Key_Escape) {
+                root.close()
+            }
+        }
+    }
+
     Timer {
         interval: 1000 / targetFps
         running: true
@@ -63,9 +75,11 @@ Window {
 
     // Control Panel
     Rectangle {
+        id: "panel"
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        width: 320; height: 80
+        width: 400
+        height: 180
         color: "#cc000000"
         radius: 10
         border.color: "white"
@@ -74,7 +88,14 @@ Window {
         Column {
             anchors.centerIn: parent
             spacing: 5
+            // anchors.margins: 5
             
+            Text {
+                text: "Press Esc to quit"
+                color: "grey"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
             Text {
                 text: "Refresh Rate: " + targetFps + " FPS"
                 color: "white"

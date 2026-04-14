@@ -1,0 +1,28 @@
+unit: job
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::graphics
+id: graphics/variable-refresh-rate
+user: root
+flags:
+  - also-after-suspend
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - executable.name == 'qmlscene'
+  - manifest.has_vrr_support == 'True'
+command: GALLIUM_HUD=fps vblank_mode=0 qmlscene vrr_rectangles_test.qml --fullscreen
+estimated_duration: "3600s"
+summary: This test checks if Variable-Refresh-Rate (VRR) is working on the built-in display
+steps: |
+  1. Press Enter to start the test program
+  2. Inside the test program, you will see multiple rectangles bouncing inside the window. 
+     Adjust the FPS slider and look for screen tearing. 
+     It's OK for the fps meter to not match the requested FPS.
+  3. If the DUT appears to be struggling to render all the rectangles, 
+     use the bottom slider to adjust the number of squares.
+  4. Mark as pass if no tearing was observed, fail otherwise.
+---
+unit: manifest entry
+id: has_vrr_support
+name: Does the device have a built-in display with Variable-Refresh-Rate?
+value-type: bool

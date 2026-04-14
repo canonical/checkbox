@@ -171,7 +171,9 @@ class TestTurnDownNmConnections(unittest.TestCase):
             "nmcli -t -f GENERAL.STATE c show uuid1".split(),
             universal_newlines=True,
         )
-        sp_check_call_mock.assert_called_once_with("nmcli c down uuid1".split())
+        sp_check_call_mock.assert_called_once_with(
+            "nmcli c down uuid1".split()
+        )
 
     @patch(
         "wifi_nmcli_test.sp.check_output",
@@ -208,7 +210,9 @@ class TestTurnDownNmConnections(unittest.TestCase):
         sp_check_call_mock.side_effect = subprocess.CalledProcessError(1, "")
         with self.assertRaises(subprocess.CalledProcessError):
             turn_down_nm_connections()
-        sp_check_call_mock.assert_called_once_with("nmcli c down uuid1".split())
+        sp_check_call_mock.assert_called_once_with(
+            "nmcli c down uuid1".split()
+        )
 
     @patch(
         "wifi_nmcli_test.sp.check_output",

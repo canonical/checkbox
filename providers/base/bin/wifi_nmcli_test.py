@@ -112,7 +112,15 @@ def turn_down_nm_connections():
             continue
         cmd = "nmcli c down {}".format(uuid)
         print_cmd(cmd)
-        sp.check_call(shlex.split(cmd))
+        try:
+            sp.check_call(shlex.split(cmd))
+        except sp.CalledProcessError as e:
+            # The connection may have gone inactive in the narrow window
+            # between the state pre-check and this call. Exit code 10
+            # ("connection/device/AP does not exist") means it is already
+            # down — treat as success.
+            if e.returncode != 10:
+                raise
         print("{} {} is down now".format(name, uuid))
     print()
 

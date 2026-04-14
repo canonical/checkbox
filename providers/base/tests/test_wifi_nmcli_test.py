@@ -204,6 +204,29 @@ class TestTurnDownNmConnections(unittest.TestCase):
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
     )
+    def test_turn_down_connection_goes_inactive_during_down(
+        self, get_connections_mock, sp_check_call_mock, sp_check_output_mock
+    ):
+        # Pre-check passes (activated), but nmcli c down returns exit code 10
+        # because the connection went inactive in the narrow window between
+        # the pre-check and the down call — should not raise.
+        sp_check_call_mock.side_effect = subprocess.CalledProcessError(
+            10, "nmcli c down uuid1"
+        )
+        turn_down_nm_connections()
+        sp_check_call_mock.assert_called_once_with(
+            "nmcli c down uuid1".split()
+        )
+
+    @patch(
+        "wifi_nmcli_test.sp.check_output",
+        return_value="GENERAL.STATE:activated",
+    )
+    @patch("wifi_nmcli_test.sp.check_call")
+    @patch(
+        "wifi_nmcli_test._get_nm_wireless_connections",
+        return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
+    )
     def test_turn_down_single_connection_with_exception(
         self, get_connections_mock, sp_check_call_mock, sp_check_output_mock
     ):

@@ -47,7 +47,8 @@ Window {
         Repeater {
             model: rectCount
             Rectangle {
-                width: 50; height: 50
+                width: Screen.width * 0.05
+                height: Screen.width * 0.05
                 color: Qt.hsla(Math.random(), 0.6, 0.6, 0.9)
                 radius: 4
                 
@@ -61,8 +62,8 @@ Window {
 
                 // Custom function called by the Timer
                 function updatePosition() {
-                    x += vx/targetFps;
-                    y += vy/targetFps;
+                    x += vx / targetFps;
+                    y += vy / targetFps;
 
                     // Bounce logic
                     if (x <= 0 || x >= root.width - width) vx *= -1;
@@ -77,33 +78,42 @@ Window {
         id: "panel"
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        width: 600
-        height: 300
+        width: contentColumn.implicitWidth + 50
+        height: contentColumn.implicitHeight + 50
         color: "#cc000000"
-        radius: 10
+        radius: 12
         border.color: "white"
         anchors.margins: 20
 
         Column {
+            id: contentColumn
             anchors.centerIn: parent
             spacing: 5
             
             Text {
                 text: "Press Esc to quit"
-                color: "grey"
-                anchors.horizontalCenter: parent.horizontalCenter
+                color: "white"
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalLeft
             }
 
             Text {
                 text: "This test should be run at fullscreen"
                 color: "grey"
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.horizontalCenter: parent.horizontalLeft
             }
             
             Text {
                 text: "Set GALLIUM_HUD=fps vblank_mode=0"
                 color: "grey"
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.horizontalCenter: parent.horizontalLeft
+            }
+
+            Text {
+                text: "Look for tearing ONLY. Any stutter or fps mismatch is OK."
+                color: "red"
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalLeft
             }
 
             Text {
@@ -120,6 +130,24 @@ Window {
                 onValueChanged: {
                     targetFps = Math.floor(value)
                 }
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            Text {
+                text: "Number of rectangles: " + rectCount
+                color: "white"
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            Slider {
+                minimumValue: 1
+                maximumValue: 10
+                value: rectCount
+                onValueChanged: {
+                    rectCount = value
+                }
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
     }

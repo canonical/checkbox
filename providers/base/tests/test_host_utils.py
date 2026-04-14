@@ -128,19 +128,25 @@ class TestCheckHostGpu(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_returns_true_when_gpu_found(self, mock_check_output):
         mock_check_output.return_value = self.VULKANINFO_GPU_OUTPUT
-        self.assertTrue(host_utils.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE))
+        self.assertTrue(
+            host_utils.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
+        )
 
     @patch("subprocess.check_output")
     def test_returns_false_when_no_gpu(self, mock_check_output):
         mock_check_output.return_value = self.VULKANINFO_NO_GPU_OUTPUT
-        self.assertFalse(host_utils.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE))
+        self.assertFalse(
+            host_utils.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
+        )
 
     @patch(
         "subprocess.check_output",
         side_effect=subprocess.CalledProcessError(1, "plz-run"),
     )
     def test_returns_false_on_called_process_error(self, _mock):
-        self.assertFalse(host_utils.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE))
+        self.assertFalse(
+            host_utils.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
+        )
 
     @patch("subprocess.check_output", return_value="")
     def test_passes_correct_args(self, mock_check_output):
@@ -149,8 +155,10 @@ class TestCheckHostGpu(unittest.TestCase):
             mock_check_output.call_args[0][0],
             [
                 self.PLZ_RUN,
-                "-u", "root",
-                "-g", "root",
+                "-u",
+                "root",
+                "-g",
+                "root",
                 "-E",
                 "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib",
                 "--",
@@ -213,8 +221,9 @@ class TestActiveVendorPrefixes(unittest.TestCase):
     @patch("host_utils.find_plz_run", return_value=None)
     @patch("host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_falls_back_to_sysfs(self, _arch, _plz, _prime):
-        with patch("os.listdir", return_value=["card1"]), \
-             patch("builtins.open", mock_open(read_data="0x8086\n")):
+        with patch("os.listdir", return_value=["card1"]), patch(
+            "builtins.open", mock_open(read_data="0x8086\n")
+        ):
             self.assertEqual(host_utils._active_vendor_prefixes(), ("intel",))
 
     @patch("host_utils.prime_selected_vendor", return_value=None)
@@ -232,10 +241,18 @@ class TestFindHostIcdFilenames(unittest.TestCase):
         def _open(path, *args, **kwargs):
             name = path.split("/")[-1]
             if name in icd_map:
-                return io.StringIO(json.dumps(
-                    {"ICD": {"library_path": icd_map[name], "api_version": "1.3"}}
-                ))
+                return io.StringIO(
+                    json.dumps(
+                        {
+                            "ICD": {
+                                "library_path": icd_map[name],
+                                "api_version": "1.3",
+                            }
+                        }
+                    )
+                )
             raise OSError("not found: {}".format(path))
+
         return _open
 
     def test_excludes_virtual_icds(self):
@@ -245,8 +262,9 @@ class TestFindHostIcdFilenames(unittest.TestCase):
             "gfxstream_vk_icd.json": "libvulkan_gfxstream.so",
             "virtio_icd.json": "libvulkan_virtio.so",
         }
-        with patch("os.listdir", return_value=files), \
-             patch("builtins.open", side_effect=self._icd_open(libs)):
+        with patch("os.listdir", return_value=files), patch(
+            "builtins.open", side_effect=self._icd_open(libs)
+        ):
             result = host_utils.find_host_icd_filenames()
         self.assertIn("{}/intel_icd.json".format(self.ICD_DIR), result)
         self.assertNotIn("gfxstream", result)
@@ -258,8 +276,9 @@ class TestFindHostIcdFilenames(unittest.TestCase):
             "intel_icd.json": "libvulkan_intel.so",
             "radeon_icd.json": "libvulkan_radeon.so",
         }
-        with patch("os.listdir", return_value=files), \
-             patch("builtins.open", side_effect=self._icd_open(libs)):
+        with patch("os.listdir", return_value=files), patch(
+            "builtins.open", side_effect=self._icd_open(libs)
+        ):
             result = host_utils.find_host_icd_filenames(("intel",))
         self.assertIn("intel_icd.json", result)
         self.assertNotIn("radeon_icd.json", result)
@@ -269,8 +288,9 @@ class TestFindHostIcdFilenames(unittest.TestCase):
             self.assertEqual(host_utils.find_host_icd_filenames(), "")
 
     def test_includes_file_on_parse_error(self):
-        with patch("os.listdir", return_value=["bad.json"]), \
-             patch("builtins.open", side_effect=OSError):
+        with patch("os.listdir", return_value=["bad.json"]), patch(
+            "builtins.open", side_effect=OSError
+        ):
             self.assertIn("bad.json", host_utils.find_host_icd_filenames())
 
 

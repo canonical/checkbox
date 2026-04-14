@@ -25,13 +25,19 @@ import vk_host
 
 class TestCmdResource(unittest.TestCase):
     @patch("vk_host.check_host_gpu", return_value=True)
-    @patch("vk_host.find_plz_run", return_value="/snap/checkbox22/current/bin/plz-run")
+    @patch(
+        "vk_host.find_plz_run",
+        return_value="/snap/checkbox22/current/bin/plz-run",
+    )
     @patch("vk_host.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_0_when_gpu_found(self, _arch, _plz, _check):
         self.assertEqual(vk_host.cmd_resource(), 0)
 
     @patch("vk_host.check_host_gpu", return_value=False)
-    @patch("vk_host.find_plz_run", return_value="/snap/checkbox22/current/bin/plz-run")
+    @patch(
+        "vk_host.find_plz_run",
+        return_value="/snap/checkbox22/current/bin/plz-run",
+    )
     @patch("vk_host.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_1_when_no_gpu(self, _arch, _plz, _check):
         self.assertEqual(vk_host.cmd_resource(), 1)
@@ -107,10 +113,13 @@ class TestCmdRunTest(unittest.TestCase):
     def test_respects_explicit_vk_icd_filenames(self, _icd, _prefixes):
         explicit = "/usr/share/vulkan/icd.d/nvidia_icd.json"
         mock_run = self._mock_run()
-        with patch("subprocess.run", mock_run), \
-             patch.dict("os.environ", {"VK_ICD_FILENAMES": explicit}):
+        with patch("subprocess.run", mock_run), patch.dict(
+            "os.environ", {"VK_ICD_FILENAMES": explicit}
+        ):
             vk_host.cmd_run_test([self.CASELIST])
-        self.assertEqual(mock_run.call_args[1]["env"]["VK_ICD_FILENAMES"], explicit)
+        self.assertEqual(
+            mock_run.call_args[1]["env"]["VK_ICD_FILENAMES"], explicit
+        )
 
 
 class TestMain(unittest.TestCase):
@@ -118,7 +127,11 @@ class TestMain(unittest.TestCase):
     def test_dispatches_run_test_with_args(self, mock_cmd):
         with patch(
             "sys.argv",
-            ["vk_host.py", "run-test", "--caselist=mustpass/main/vk-default/api.txt"],
+            [
+                "vk_host.py",
+                "run-test",
+                "--caselist=mustpass/main/vk-default/api.txt",
+            ],
         ):
             self.assertEqual(vk_host.main(), 0)
         mock_cmd.assert_called_once_with(

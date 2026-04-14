@@ -55,7 +55,9 @@ def cmd_resource():
         logging.info("Found a Vulkan-capable GPU using host drivers")
         return 0
 
-    logging.error("No GPU device found in vulkaninfo output using host drivers")
+    logging.error(
+        "No GPU device found in vulkaninfo output using host drivers"
+    )
     return 1
 
 
@@ -89,7 +91,9 @@ def cmd_run_test(test_args):
 
 
 def main():
-    logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+    logging.basicConfig(
+        format="%(levelname)s: %(message)s", level=logging.INFO
+    )
     if len(sys.argv) < 2:
         logging.error(
             "Usage: crucible_host.py"

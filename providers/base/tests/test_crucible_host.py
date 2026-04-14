@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -56,7 +55,9 @@ class TestCmdRunTest(unittest.TestCase):
     def test_forwards_nonzero_returncode(self, _icd, _prefixes):
         mock_run = self._mock_run(returncode=1)
         with patch("subprocess.run", mock_run):
-            self.assertEqual(crucible_host.cmd_run_test([self.FILTER_PATTERN]), 1)
+            self.assertEqual(
+                crucible_host.cmd_run_test([self.FILTER_PATTERN]), 1
+            )
 
     @patch("crucible_host._active_vendor_prefixes", return_value=None)
     @patch("crucible_host.find_host_icd_filenames", return_value=ICD)
@@ -91,10 +92,13 @@ class TestCmdRunTest(unittest.TestCase):
     def test_respects_explicit_vk_icd_filenames(self, _icd, _prefixes):
         explicit = "/usr/share/vulkan/icd.d/nvidia_icd.json"
         mock_run = self._mock_run()
-        with patch("subprocess.run", mock_run), \
-             patch.dict("os.environ", {"VK_ICD_FILENAMES": explicit}):
+        with patch("subprocess.run", mock_run), patch.dict(
+            "os.environ", {"VK_ICD_FILENAMES": explicit}
+        ):
             crucible_host.cmd_run_test([self.FILTER_PATTERN])
-        self.assertEqual(mock_run.call_args[1]["env"]["VK_ICD_FILENAMES"], explicit)
+        self.assertEqual(
+            mock_run.call_args[1]["env"]["VK_ICD_FILENAMES"], explicit
+        )
 
 
 class TestMain(unittest.TestCase):
@@ -105,9 +109,7 @@ class TestMain(unittest.TestCase):
             ["crucible_host.py", "run-test", "--fork", "func.depthstencil.*"],
         ):
             self.assertEqual(crucible_host.main(), 0)
-        mock_cmd.assert_called_once_with(
-            ["--fork", "func.depthstencil.*"]
-        )
+        mock_cmd.assert_called_once_with(["--fork", "func.depthstencil.*"])
 
     def test_returns_1_with_no_args(self):
         with patch("sys.argv", ["crucible_host.py"]):

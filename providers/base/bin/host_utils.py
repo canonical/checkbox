@@ -51,9 +51,9 @@ _PRIME_VENDOR_ICD_PREFIXES = {
 
 # Maps PCI vendor ID from /sys/class/drm to ICD filename prefixes.
 _DRM_VENDOR_ICD_PREFIXES = {
-    "0x8086": ("intel",),        # Intel
-    "0x1002": ("radeon", "amd"), # AMD / Radeon
-    "0x10de": ("nvidia",),       # NVIDIA
+    "0x8086": ("intel",),
+    "0x1002": ("radeon", "amd"),
+    "0x10de": ("nvidia",),
 }
 
 
@@ -65,11 +65,15 @@ def prime_selected_vendor():
     'on-demand'), or fails for any reason.
     """
     try:
-        output = subprocess.check_output(
-            ["/usr/bin/prime-select", "query"],
-            stderr=subprocess.DEVNULL,
-            universal_newlines=True,
-        ).strip().lower()
+        output = (
+            subprocess.check_output(
+                ["/usr/bin/prime-select", "query"],
+                stderr=subprocess.DEVNULL,
+                universal_newlines=True,
+            )
+            .strip()
+            .lower()
+        )
         return output if output in _PRIME_VENDOR_ICD_PREFIXES else None
     except (FileNotFoundError, OSError, subprocess.CalledProcessError):
         return None
@@ -87,10 +91,15 @@ def _run_vulkaninfo(plz_run, arch_triple):
         return subprocess.check_output(
             [
                 plz_run,
-                "-u", "root",
-                "-g", "root",
-                "-E", "LD_LIBRARY_PATH={}".format(ld_library_path),
-                "--", "/usr/bin/vulkaninfo", "--summary",
+                "-u",
+                "root",
+                "-g",
+                "root",
+                "-E",
+                "LD_LIBRARY_PATH={}".format(ld_library_path),
+                "--",
+                "/usr/bin/vulkaninfo",
+                "--summary",
             ],
             universal_newlines=True,
             stderr=subprocess.STDOUT,
@@ -135,7 +144,9 @@ def _active_vendor_prefixes():
     except RuntimeError:
         return None
     plz_run = find_plz_run()
-    output = _run_vulkaninfo(plz_run, arch_triple) if plz_run is not None else None
+    output = (
+        _run_vulkaninfo(plz_run, arch_triple) if plz_run is not None else None
+    )
     if output is not None:
         prefixes = _vendor_prefixes_from_vulkaninfo(output)
         if prefixes is not None:

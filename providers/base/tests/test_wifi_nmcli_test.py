@@ -140,15 +140,21 @@ class TestTurnUpConnection(unittest.TestCase):
 
 
 class TestTurnDownNmConnections(unittest.TestCase):
+    @patch("wifi_nmcli_test.sp.check_output")
     @patch("wifi_nmcli_test.sp.check_call")
     @patch("wifi_nmcli_test._get_nm_wireless_connections", return_value={})
     def test_no_connections_to_turn_down(
-        self, get_connections_mock, sp_check_call_mock
+        self, get_connections_mock, sp_check_call_mock, sp_check_output_mock
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
+        sp_check_output_mock.assert_not_called()
         sp_check_call_mock.assert_not_called()
 
+    @patch(
+        "wifi_nmcli_test.sp.check_output",
+        return_value="GENERAL.STATE:activated",
+    )
     @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
@@ -158,40 +164,56 @@ class TestTurnDownNmConnections(unittest.TestCase):
         },
     )
     def test_turn_down_single_connection(
-        self, get_connections_mock, sp_check_call_mock
+        self, get_connections_mock, sp_check_call_mock, sp_check_output_mock
     ):
         turn_down_nm_connections()
-        self.assertEqual(get_connections_mock.call_count, 1)
+        sp_check_output_mock.assert_called_once_with(
+            "nmcli -t -f GENERAL.STATE c show uuid1".split(),
+            universal_newlines=True,
+        )
         sp_check_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
+    @patch(
+        "wifi_nmcli_test.sp.check_output",
+        return_value="GENERAL.STATE:deactivated",
+    )
     @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
     )
     def test_turn_down_connection_already_inactive(
-        self, get_connections_mock, sp_check_call_mock
+        self, get_connections_mock, sp_check_call_mock, sp_check_output_mock
     ):
-        # exit code 10 means connection is not active — should not raise
-        sp_check_call_mock.side_effect = subprocess.CalledProcessError(10, "")
+        # UUID state re-check shows connection already inactive — skip down
         turn_down_nm_connections()
-        self.assertEqual(get_connections_mock.call_count, 1)
-        sp_check_call_mock.assert_called_once_with("nmcli c down uuid1".split())
+        sp_check_output_mock.assert_called_once_with(
+            "nmcli -t -f GENERAL.STATE c show uuid1".split(),
+            universal_newlines=True,
+        )
+        sp_check_call_mock.assert_not_called()
 
+    @patch(
+        "wifi_nmcli_test.sp.check_output",
+        return_value="GENERAL.STATE:activated",
+    )
     @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
     )
     def test_turn_down_single_connection_with_exception(
-        self, get_connections_mock, sp_check_call_mock
+        self, get_connections_mock, sp_check_call_mock, sp_check_output_mock
     ):
         sp_check_call_mock.side_effect = subprocess.CalledProcessError(1, "")
         with self.assertRaises(subprocess.CalledProcessError):
             turn_down_nm_connections()
-        self.assertEqual(get_connections_mock.call_count, 1)
         sp_check_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
+    @patch(
+        "wifi_nmcli_test.sp.check_output",
+        return_value="GENERAL.STATE:activated",
+    )
     @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
@@ -201,10 +223,11 @@ class TestTurnDownNmConnections(unittest.TestCase):
         },
     )
     def test_turn_down_multiple_connections(
-        self, get_connections_mock, sp_check_call_mock
+        self, get_connections_mock, sp_check_call_mock, sp_check_output_mock
     ):
         turn_down_nm_connections()
-        self.assertEqual(get_connections_mock.call_count, 1)
+        # one UUID state check per activated connection
+        self.assertEqual(sp_check_output_mock.call_count, 2)
         calls = [
             call("nmcli c down uuid1".split()),
             call("nmcli c down uuid2".split()),

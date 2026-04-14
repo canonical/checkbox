@@ -98,14 +98,21 @@ def turn_down_nm_connections():
             continue
         uuid = value["uuid"]
         print("Turn down connection", name)
+        # Re-check this specific UUID's state right before calling down
+        # to handle the race condition where a connection becomes inactive
+        # between the initial query and this point (e.g. another connection
+        # was brought down first, causing NM to deactivate this one too).
+        check_cmd = "nmcli -t -f GENERAL.STATE c show {}".format(uuid)
+        print_cmd(check_cmd)
+        current_state = sp.check_output(
+            shlex.split(check_cmd), universal_newlines=True
+        ).strip()
+        if current_state != "GENERAL.STATE:activated":
+            print("WARN: {} is no longer active, skipping".format(name))
+            continue
         cmd = "nmcli c down {}".format(uuid)
         print_cmd(cmd)
-        try:
-            sp.check_call(shlex.split(cmd))
-        except sp.CalledProcessError as e:
-            # exit code 10: connection is not active — already down, that's fine
-            if e.returncode != 10:
-                raise
+        sp.check_call(shlex.split(cmd))
         print("{} {} is down now".format(name, uuid))
     print()
 

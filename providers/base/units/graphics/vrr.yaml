@@ -17,12 +17,13 @@ steps: |
   1. Press Enter to start the test program
   2. Inside the test program, you will see multiple rectangles bouncing inside the window. 
      Adjust the FPS slider and look for screen tearing. 
-     It's OK for the fps meter to not match the requested FPS.
+     It's OK for the FPS meter to not match the requested FPS.
   3. If the DUT appears to be struggling to render all the rectangles, 
      use the bottom slider to adjust the number of squares.
-  4. Mark as pass if no tearing was observed, fail otherwise.
+  4. Press Esc to quit the program
+  5. Mark as pass if no tearing was observed, fail otherwise.
 ---
 unit: manifest entry
 id: has_vrr_support
-name: Does the device have a built-in display with Variable-Refresh-Rate?
+name: Does the device have a built-in display with Variable Refresh Rate (VRR)?
 value-type: bool

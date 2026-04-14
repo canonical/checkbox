@@ -32,59 +32,16 @@ Subcommands:
 
 import logging
 import os
-import shutil
 import subprocess
 import sys
-import sysconfig
 
-
-def get_arch_triple():
-    """Return the Debian multiarch triple for the current architecture."""
-    triple = sysconfig.get_config_var("MULTIARCH")
-    if triple is None:
-        raise RuntimeError("could not determine multiarch triple")
-    return triple
-
-
-def find_plz_run():
-    """Return the path to plz-run from the running checkbox snap."""
-    return shutil.which("plz-run")
-
-
-def check_host_gpu(plz_run, arch_triple):
-    """Run vulkaninfo via plz-run with host libraries and detect a GPU.
-
-    vulkaninfo is executed inside a new mount/user namespace (via plz-run)
-    so that it can load the host ICD stack instead of snap-bundled libraries.
-    """
-    ld_library_path = "/usr/lib/{arch}:/usr/lib".format(arch=arch_triple)
-    try:
-        output = subprocess.check_output(
-            [
-                plz_run,
-                "-u",
-                "root",
-                "-g",
-                "root",
-                "-E",
-                "LD_LIBRARY_PATH={}".format(ld_library_path),
-                "--",
-                "/usr/bin/vulkaninfo",
-                "--summary",
-            ],
-            universal_newlines=True,
-            stderr=subprocess.STDOUT,
-        )
-        return any(
-            t in output
-            for t in (
-                "PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU",
-                "PHYSICAL_DEVICE_TYPE_DISCRETE_GPU",
-                "PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU",
-            )
-        )
-    except subprocess.CalledProcessError:
-        return False
+from host_utils import (  # noqa: F401
+    _active_vendor_prefixes,
+    check_host_gpu,
+    find_host_icd_filenames,
+    find_plz_run,
+    get_arch_triple,
+)
 
 
 def cmd_resource():
@@ -120,9 +77,16 @@ def cmd_validate_install():
 
 def cmd_run_test(test_args):
     snap = "/snap/vulkan-cts/current"
+    # NODEVICE_SELECT disables VK_LAYER_MESA_device_select — the layer
+    # requires GLIBC_ABI_GNU2_TLS, which the snap's core24 glibc lacks.
+    env = dict(os.environ, SNAP=snap, NODEVICE_SELECT="1")
+    if not env.get("VK_ICD_FILENAMES"):
+        icd_filenames = find_host_icd_filenames(_active_vendor_prefixes())
+        if icd_filenames:
+            env["VK_ICD_FILENAMES"] = icd_filenames
     result = subprocess.run(
         ["{}/test".format(snap), "--no-confinement"] + test_args,
-        env=dict(os.environ, SNAP=snap),
+        env=env,
     )
     return result.returncode
 

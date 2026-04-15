@@ -143,13 +143,13 @@ def test_lxdvm_gpu(args):
 
         instance.start()
 
-        instance.wait_until_running()
+        instance.wait_until_running(allow_degraded=True)
 
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
 
         logging.info("Waiting for %s to be up", instance.name)
-        instance.wait_until_running()
+        instance.wait_until_running(allow_degraded=True)
 
         logging.info("Configuring %s", instance.name)
         for cmd in GPU_VENDORS[args.vendor]["lxdvm"].get("config_cmds", []):
@@ -159,7 +159,7 @@ def test_lxdvm_gpu(args):
         instance.restart()
 
         logging.info("Waiting for %s to be up", instance.name)
-        instance.wait_until_running()
+        instance.wait_until_running(allow_degraded=True)
 
         logging.info("Installing gpu-burn snap")
         instance.run("snap install gpu-burn", on_guest=True)

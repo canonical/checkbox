@@ -77,7 +77,7 @@ Window {
     Rectangle {
         id: "panel"
         anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.horizontalCenter: parent.horizontalLeft
         width: contentColumn.implicitWidth + 50
         height: contentColumn.implicitHeight + 50
         color: "#cc000000"
@@ -117,7 +117,7 @@ Window {
             }
 
             Text {
-                text: "Refresh Rate: " + targetFps + " FPS"
+                text: "Requested Refresh Rate: " + targetFps + " FPS"
                 color: "white"
                 font.bold: true
                 anchors.horizontalCenter: parent.horizontalCenter

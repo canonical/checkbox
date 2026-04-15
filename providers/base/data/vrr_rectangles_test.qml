@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Window 2.0
 import QtQuick.Controls 1.4
+import QtQuick.Layouts 1.2
 
 Window {
     id: root
@@ -12,6 +13,8 @@ Window {
 
     property int targetFps: 60
     property int rectCount: 5
+    property int minFps: 10
+    property int maxFps: 200    
 
     // old QT workaround, there's no 'Shortcuts' property on Window
     // in new QTs don't do this
@@ -95,7 +98,7 @@ Window {
         color: "#cc000000"
         radius: 12
         border.color: "white"
-        anchors.margins: 10
+        anchors.margins: 10    
 
         Column {
             id: contentColumn
@@ -135,14 +138,34 @@ Window {
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
-            Slider {
-                minimumValue: 10
-                maximumValue: 200
-                value: 60
-                onValueChanged: {
-                    targetFps = Math.floor(value)
-                }
+            RowLayout {
+                Layout.minimumHeight: 10
+                Layout.fillWidth: true
                 anchors.horizontalCenter: parent.horizontalCenter
+                Button {
+                    text: '-'
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    onClicked: {
+                        targetFps = Math.max(minFps, targetFps - 1)
+                    }
+                }
+                Slider {
+                    minimumValue: minFps
+                    maximumValue: maxFps
+                    value: targetFps
+                    onValueChanged: {
+                        targetFps = Math.floor(value)
+                    }
+                }
+                Button {
+                    text: '+'
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    onClicked: {
+                        targetFps = Math.min(maxFps, targetFps + 1)
+                    }
+                }
             }
 
             Text {
@@ -152,14 +175,34 @@ Window {
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
-            Slider {
-                minimumValue: 1
-                maximumValue: 10
-                value: rectCount
-                onValueChanged: {
-                    rectCount = Math.floor(value)
-                }
+            RowLayout {
+                Layout.minimumHeight: 10
+                Layout.fillWidth: true
                 anchors.horizontalCenter: parent.horizontalCenter
+                Button {
+                    text: '-'
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    onClicked: {
+                        rectCount = Math.max(1, rectCount - 1)
+                    }
+                }
+                Slider {
+                    minimumValue: 1
+                    maximumValue: 10
+                    value: rectCount
+                    onValueChanged: {
+                        rectCount = Math.floor(value)
+                    }
+                }
+                Button {
+                    text: '+'
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    onClicked: {
+                        rectCount = Math.min(10, rectCount + 1)
+                    }
+                }
             }
         }
     }

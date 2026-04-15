@@ -28,7 +28,7 @@ from checkbox_support.lxd_support import LXD, LXDVM
 
 GPU_VENDORS = {
     "nvidia": {
-        "test": "gpu-burn 30",
+        "test": "gpu-burn",
         "lxd": {
             "launch_options": [
                 "-c",

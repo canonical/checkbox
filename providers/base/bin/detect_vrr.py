@@ -127,15 +127,16 @@ def get_vrr_capable_monitors(dri_card: Path) -> bool:
                 if not prop_ptr:
                     continue
 
-                prop_name = prop_ptr.contents.name.decode()
-                if prop_name == "vrr_capable":
-                    val = conn.prop_values[j]
-                    if val == 1:
-                        print(
-                            "Connection ID",
-                            conn_id,
-                            "is VRR capable",
-                        )
+                prop = prop_ptr.contents
+                if prop.name.decode() == "vrr_capable":
+                    # if we have the right name,
+                    # that means we are on the right index
+                    # use j to index into the value array
+                    if conn.prop_values[j] == 1:
+                        print("card:", str(dri_card))
+                        print("connection_id:", conn_id)
+                        print("vrr_supported: True")
+                        print()
                         # keep going, print the status for all connections
                         vrr_capable = True
                 drm.drmModeFreeProperty(prop_ptr)
@@ -151,11 +152,10 @@ if __name__ == "__main__":
     at_least_1_capable = False
     for path in Path("/dev/dri").iterdir():
         if os.path.basename(str(path)).startswith("card"):
-            print("Testing", path)
             at_least_1_capable = get_vrr_capable_monitors(path)
-            print("=" * 10)
 
     if not at_least_1_capable:
+        # fail here to allow fail-on-resource in the actual job
         raise SystemExit(
             "[ ERR ] None of the monitors connected to this DUT supports VRR"
         )

@@ -30,8 +30,14 @@ Window {
         running: true
         repeat: true
         onTriggered: {
+            // manually update the positions
+            // this also implicitly changes the framerate to the requested one
             for (let i = 0; i < rectContainer.children.length; i++) {
                 let rect = rectContainer.children[i];
+                // this QT version doesn't support optional chaining
+                // don't use rect?.updatePosition?.()
+                // this also must be checked
+                // since it doesn't exist on the very 1st frame
                 if (rect.updatePosition) {
                     rect.updatePosition();
                 }
@@ -52,6 +58,7 @@ Window {
                 color: Qt.hsla(Math.random(), 0.6, 0.6, 0.9)
                 radius: 4
                 
+                // velocity x and y
                 property real vx: (Math.random() - 0.5) * 500
                 property real vy: (Math.random() - 0.5) * 500
 
@@ -62,12 +69,17 @@ Window {
 
                 // Custom function called by the Timer
                 function updatePosition() {
+                    // normalize position change w.r.t. fps
                     x += vx / targetFps;
                     y += vy / targetFps;
 
-                    // Bounce logic
-                    if (x <= 0 || x >= root.width - width) vx *= -1;
-                    if (y <= 0 || y >= root.height - height) vy *= -1;
+                    // bounce at the walls
+                    if (x <= 0 || x >= root.width - width) {
+                        vx *= -1;
+                    }
+                    if (y <= 0 || y >= root.height - height) {
+                        vy *= -1
+                    }
                 }
             }
         }
@@ -104,7 +116,7 @@ Window {
             }
             
             Text {
-                text: "Set GALLIUM_HUD=fps vblank_mode=0 MESA_VK_WSI_PRESENT_MODE=immediate"
+                text: "Set GALLIUM_HUD=fps vblank_mode=3 MESA_VK_WSI_PRESENT_MODE=relaxed"
                 color: "grey"
                 anchors.horizontalCenter: parent.horizontalLeft
             }
@@ -124,7 +136,7 @@ Window {
             }
 
             Slider {
-                minimumValue: 20
+                minimumValue: 10
                 maximumValue: 200
                 value: 60
                 onValueChanged: {

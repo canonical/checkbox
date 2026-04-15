@@ -1,9 +1,32 @@
+#!/usr/bin/env python3
+#
+# This file is part of Checkbox.
+
+# Copyright 2026 Canonical Ltd.
+#
+# Authors:
+#   Zhongning Li <zhongning.li@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+
 import ctypes
 import ctypes.util
 import os
 from pathlib import Path
 
 # this should find "libdrm.so.2"
+# works on xenial too, though we won't test vrr on that
 libdrm_path = ctypes.util.find_library("drm")
 if not libdrm_path:
     raise ImportError("libdrm not found")
@@ -70,7 +93,7 @@ drm.drmModeGetConnector.restype = ctypes.POINTER(drmModeConnector)
 drm.drmModeGetProperty.restype = ctypes.POINTER(drmModePropertyRes)
 
 
-def get_vrr_capable(dri_card: Path):
+def get_vrr_capable_monitors(dri_card: Path) -> bool:
     """Checks if a /dev/dri/cardN is vrr capable
     A monitor must be connected and active for the result to be accurate
 
@@ -78,6 +101,7 @@ def get_vrr_capable(dri_card: Path):
     :raises RuntimeError: Failed to open /dev/driN
     :raises RuntimeError: drmModeGetResources returned nullptr
     """
+    vrr_capable = False
     with dri_card.open() as f:
         fd = f.fileno()
         if fd < 0:
@@ -100,22 +124,38 @@ def get_vrr_capable(dri_card: Path):
 
             for j in range(conn.count_props):
                 prop_ptr = drm.drmModeGetProperty(fd, conn.props[j])
-                if prop_ptr:
-                    prop_name = prop_ptr.contents.name.decode()
-                    print(prop_name)
-                    if prop_name == "vrr_capable":
-                        val = conn.prop_values[j]
-                        vrr_capable = val == 1
-                        print("Connector", conn_id, "capable", vrr_capable)
-                    drm.drmModeFreeProperty(prop_ptr)
+                if not prop_ptr:
+                    continue
+
+                prop_name = prop_ptr.contents.name.decode()
+                if prop_name == "vrr_capable":
+                    val = conn.prop_values[j]
+                    if val == 1:
+                        print(
+                            "Connection ID",
+                            conn_id,
+                            "is VRR capable",
+                        )
+                        # keep going, print the status for all connections
+                        vrr_capable = True
+                drm.drmModeFreeProperty(prop_ptr)
 
             drm.drmModeFreeConnector(conn_ptr)
+
         drm.drmModeFreeResources(res_ptr)
+
+    return vrr_capable
 
 
 if __name__ == "__main__":
+    at_least_1_capable = False
     for path in Path("/dev/dri").iterdir():
         if os.path.basename(str(path)).startswith("card"):
             print("Testing", path)
-            get_vrr_capable(path)
+            at_least_1_capable = get_vrr_capable_monitors(path)
             print("=" * 10)
+
+    if not at_least_1_capable:
+        raise SystemExit(
+            "[ ERR ] None of the monitors connected to this DUT supports VRR"
+        )

@@ -9,7 +9,13 @@ imports:
 requires:
   - executable.name == 'qmlscene'
   - manifest.has_vrr_support == 'True'
-command: GALLIUM_HUD=fps vblank_mode=0 qmlscene vrr_rectangles_test.qml --fullscreen
+# the hud shows an fps graph over time
+# vblank turns off vsync for opengl
+# https://dri.freedesktop.org/wiki/ConfigurationOptions/
+# MESA_VK_WSI_PRESENT_MODE turns off vsync for vulkan
+# https://docs.mesa3d.org/envvars.html#envvar-MESA_VK_WSI_PRESENT_MODE
+# vblank is ignored by vulkan and the MESA_VK var is ignored by opengl => they don't conflict each other
+command: GALLIUM_HUD=fps MESA_VK_WSI_PRESENT_MODE=immediate vblank_mode=0 qmlscene vrr_rectangles_test.qml --fullscreen
 estimated_duration: "20s"
 summary: This test checks if Variable-Refresh-Rate (VRR) is working on the built-in display
 steps: |

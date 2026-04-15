@@ -104,7 +104,7 @@ Window {
             }
             
             Text {
-                text: "Set GALLIUM_HUD=fps vblank_mode=0"
+                text: "Set GALLIUM_HUD=fps vblank_mode=0 MESA_VK_WSI_PRESENT_MODE=immediate"
                 color: "grey"
                 anchors.horizontalCenter: parent.horizontalLeft
             }

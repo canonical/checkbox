@@ -118,7 +118,6 @@ def test_lxd_gpu(args):
     """Tests GPU passthrough with a LXD container."""
     logging.info("Executing LXD GPU passthrough test")
 
-    instance = LXD(args.template, args.rootfs)
     with LXD(args.template, args.rootfs) as instance:
         logging.info("Launching container: %s", instance.name)
         instance.launch(

@@ -32,8 +32,12 @@ Window {
 
     property int targetFps: 60
     property int rectCount: 5
+    
     property int minFps: 10
-    property int maxFps: 200    
+    property int maxFps: 200
+
+    property int minRectCount: 1
+    property int maxRectCount: 10
 
     // old QT workaround, there's no 'Shortcuts' property on Window
     // in new QTs don't do this
@@ -55,12 +59,12 @@ Window {
             // manually update the positions
             // this also implicitly changes the framerate to the requested one
             for (var i = 0; i < rectContainer.children.length; i++) {
-                // must use var here, even if it's the root of all evils in js
+                // must use 'var' here, not let/const like modern js
                 // otherwise older QT won't understand it
                 var rect = rectContainer.children[i]; 
                 // this QT version doesn't support optional chaining
                 // don't use rect?.updatePosition?.()
-                // this also must be checked
+                // method existence also must be checked
                 // since it doesn't exist on the very 1st frame
                 if (rect.updatePosition) {
                     rect.updatePosition();
@@ -205,7 +209,7 @@ Window {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     onClicked: {
-                        rectCount = Math.max(1, rectCount - 1)
+                        rectCount = Math.max(minRectCount, rectCount - 1)
                     }
                 }
                 Slider {
@@ -221,7 +225,7 @@ Window {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     onClicked: {
-                        rectCount = Math.min(10, rectCount + 1)
+                        rectCount = Math.min(maxRectCount, rectCount + 1)
                     }
                 }
             }

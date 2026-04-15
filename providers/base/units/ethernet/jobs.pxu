@@ -398,7 +398,7 @@ estimated_duration: 2s
 command: check_static.py nm {{ interface }}
 requires:
   net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
-  environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+  environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
   executable.name == 'nmcli'
 
 unit: template

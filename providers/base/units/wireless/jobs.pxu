@@ -29,7 +29,7 @@ _purpose:
  Check system can find a wireless network AP nearby
 flags: preserve-locale also-after-suspend
 requires:
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
  manifest.has_wlan_adapter == 'True'
 
@@ -53,7 +53,7 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -76,7 +76,7 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -99,7 +99,7 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -122,7 +122,7 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -146,7 +146,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -170,7 +170,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -194,7 +194,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -218,7 +218,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -242,7 +242,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -266,7 +266,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_be == 'supported'
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -290,7 +290,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_be == 'supported'
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 unit: template
@@ -342,7 +342,7 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_be == 'supported'
- environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
+ environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
 
 plugin: user-interact-verify

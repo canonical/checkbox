@@ -146,8 +146,8 @@ Can be written as:
 
   requires:
     a.a == 'a'
-    environment.CHECKBOX_RUNNING_STRICT_SNAP != 1 or b.b == 'b'
-    environment.CHECKBOX_RUNNING_STRICT_SNAP == 1 or c.c == 'c'
+    environment.CHECKBOX_RUNNING_STRICT_SNAP != '1' or b.b == 'b'
+    environment.CHECKBOX_RUNNING_STRICT_SNAP == '1' or c.c == 'c'
 
 To remove usages of ``__checkbox_env__`` or ``__system_env__``:
 

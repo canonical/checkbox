@@ -414,4 +414,4 @@ id: vrr-test-plan
 unit: test plan
 _name: Sample Variable-Refresh-Rate Test Plan
 include:
-    graphics/variable-refresh-rate*
+    graphics/variable-refresh-rate.*

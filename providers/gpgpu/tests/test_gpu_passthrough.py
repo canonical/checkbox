@@ -33,19 +33,18 @@ from gpu_passthrough import (
 
 @patch("gpu_passthrough.logging")
 class TestMain(TestCase):
-    @patch("time.time", side_effect=[0, 1])
-    def test_run_gpu_test_success(self, time_mock, logging_mock):
+    def test_run_gpu_test_success(self, logging_mock):
         instance = MagicMock()
         try:
-            run_gpu_test(instance, "test", run_count=1, threshold_sec=2)
+            run_gpu_test(instance, "test")
         except SystemExit:
             self.fail("run_gpu_test raised SystemExit")
 
-    @patch("time.time", side_effect=[0, 2])
-    def test_run_gpu_test_failure(self, time_mock, logging_mock):
+    def test_run_gpu_test_failure(self, logging_mock):
         instance = MagicMock()
+        instance.run.side_effect = SystemExit("failure running mixbench...")
         with self.assertRaises(SystemExit):
-            run_gpu_test(instance, "test", run_count=1, threshold_sec=1)
+            run_gpu_test(instance, "test")
 
     @patch("gpu_passthrough.run_gpu_test")
     @patch("gpu_passthrough.LXD")

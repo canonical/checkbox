@@ -24,6 +24,7 @@ import ctypes
 import ctypes.util
 import os
 from pathlib import Path
+from checkbox_support.helpers.slugify import slugify
 
 # this should find "libdrm.so.2"
 # works on xenial too, though we won't test vrr on that
@@ -133,7 +134,7 @@ def get_vrr_capable_monitors(dri_card: Path) -> bool:
                     # that means we are on the right index
                     # use j to index into the value array
                     if conn.prop_values[j] == 1:
-                        print("card:", str(dri_card))
+                        print("card_name:", slugify(str(dri_card)))
                         print("connection_id:", conn_id)
                         print("vrr_supported: True")
                         print()

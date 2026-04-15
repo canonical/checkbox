@@ -54,8 +54,10 @@ Window {
         onTriggered: {
             // manually update the positions
             // this also implicitly changes the framerate to the requested one
-            for (let i = 0; i < rectContainer.children.length; i++) {
-                let rect = rectContainer.children[i];
+            for (var i = 0; i < rectContainer.children.length; i++) {
+                // must use var here, even if it's the root of all evils in js
+                // otherwise older QT won't understand it
+                var rect = rectContainer.children[i]; 
                 // this QT version doesn't support optional chaining
                 // don't use rect?.updatePosition?.()
                 // this also must be checked

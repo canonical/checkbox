@@ -21,40 +21,34 @@ Definition for UnifiedRunner class.
 """
 
 import contextlib
+import enum
+import functools
 import getpass
 import gzip
 import io
 import logging
+import operator
 import os
 import select
+import shlex
+import shutil
+import signal
 import subprocess
 import sys
 import tempfile
 import threading
 import time
-import shlex
-import signal
-import shutil
-import functools
-import operator
-import enum
-
 from contextlib import suppress
-from subprocess import check_output, check_call, run
+from subprocess import check_call, check_output, run
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
-from plainbox.impl.unit.job import supported_plugins
-from plainbox.impl.unit.unit import (
-    on_ubuntucore,
-    get_snap_base,
-    get_checkbox_runtime_path,
-)
+from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.result import (
+    IOLogRecord,
     IOLogRecordWriter,
     JobResultBuilder,
-    IOLogRecord,
 )
 from plainbox.impl.runner import (
     CommandOutputWriter,
@@ -62,11 +56,16 @@ from plainbox.impl.runner import (
     JobRunnerUIDelegate,
     slugify,
 )
-from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.storage import WellKnownDirsHelper
+from plainbox.impl.unit.job import InvalidJob, supported_plugins
+from plainbox.impl.unit.unit import (
+    get_checkbox_runtime_path,
+    get_snap_base,
+    on_os_ubuntucore,
+    on_ubuntucore,
+)
 from plainbox.vendor import extcmd
-from plainbox.impl.unit.job import InvalidJob
 
 logger = logging.getLogger("plainbox.unified")
 
@@ -524,14 +523,18 @@ class FakeJobRunner(UnifiedRunner):
     Special runner that creates fake resource objects.
     """
 
-    def run_job(self, job, job_state, environ=None, ui=None):
+    def run_job(
+        self, job, job_state, environ=None, ui=None, as_systemd_unit=False
+    ):
         """
         Only one resouce object is created from this runner.
         Exception: 'graphics_card' resource job creates two objects to
         simulate hybrid graphics.
         """
         if job.plugin != "resource":
-            return super().run_job(job, job_state, environ, ui)
+            return super().run_job(
+                job, job_state, environ, ui, as_systemd_unit
+            )
         builder = JobResultBuilder()
         if job.partial_id == "graphics_card":
             builder.io_log = [
@@ -628,6 +631,13 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     set_if_not_none("CHECKBOX_SHARE", job.provider.CHECKBOX_SHARE)
     if os.getenv("SNAP"):
         set_if_not_none("CHECKBOX_RUNTIME", str(get_checkbox_runtime_path()))
+
+    if on_ubuntucore():
+        set_if_not_none("CHECKBOX_RUNNING_STRICT_SNAP", "1")
+
+    if on_os_ubuntucore():
+        set_if_not_none("CHECKBOX_OS_IS_UBUNTUCORE", "1")
+
     # Inject additional variables that are requested in the config
     if environ is not None:
         for env_var in environ:

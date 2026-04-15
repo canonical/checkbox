@@ -41,6 +41,62 @@
     src: local("Ubuntu Mono"), local("UbuntuMono-Regular"), url("https://fonts.gstatic.com/s/ubuntumono/v6/ViZhet7Ak-LRXZMXzuAfkYbN6UDyHWBl620a-IRfuBk.woff") format("woff");
 }
 
+html {
+    font-size: 62.5%; /* Sets base to 10px */
+}
+
+body {
+    font-size: 1.4em;
+}
+
+details {
+    padding-bottom: 1em;
+}
+
+summary>h3 {
+    color: #DD4815;
+    background-color: transparent;
+    font-size: 1.4em;
+    font-weight: 300;
+    margin: 0 0 1em;
+    display:inline;
+}
+
+summary {
+  list-style: none;
+  cursor: pointer;
+  &::before {
+    content: "+";
+    color: #DD4815;
+    padding: 0 0.5em 0 0;
+    margin-inline-start: 0.5em;
+  }
+  [open] &::before {
+    content: "–";
+  }
+}
+
+th {
+    text-align: left;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #eeeeee;
+}
+
+td > p {
+    padding: 0;
+    margin: 0;
+}
+
+.ui-table td {
+    padding: 0em;
+}
+
+td {
+    padding: 0.25em;
+}
+
 /* JQM Demos custom CSS */
 
 .ui-collapsible-content,
@@ -180,7 +236,7 @@
     line-height: 1.5;
 }
 .jqm-demos .jqm-content > ul:not(.jqm-list) li {
-    font-size: 1.2em;
+    font-size: 1em;
     line-height: 1.5;
 }
 .jqm-demos .jqm-content > p {

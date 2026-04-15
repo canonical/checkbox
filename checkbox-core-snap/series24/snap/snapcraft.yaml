@@ -154,7 +154,7 @@ parts:
       install -D -m 755 nsenter.static "$CRAFT_PART_INSTALL/usr/bin/nsenter.static"
   ################################################################################
   fwts:
-    source-tag: "V25.07.00"
+    source-tag: "V26.03.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
@@ -244,7 +244,6 @@ parts:
       - python3-jinja2
       - python3-packaging
       - python3-pyparsing
-      - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter
       # added to stage python:
@@ -260,6 +259,7 @@ parts:
       - python3.12-minimal
       - python3-yaml
     python-packages:
+      - requests-oauthlib
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part
     after: [checkbox-support]
@@ -530,13 +530,6 @@ parts:
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tutorial --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-base]
-  ################################################################################
-  gnome-randr:
-    source: https://github.com/maxwellainatchi/gnome-randr-rust.git
-    plugin: rust
-    rust-channel: nightly
-    build-packages:
-      - libdbus-1-dev
   ################################################################################
   rpi-support-binaries:
     plugin: nil

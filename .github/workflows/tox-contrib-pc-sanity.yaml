@@ -2,6 +2,11 @@ name: Test pc-sanity (from contrib area) with tox
 permissions:
   contents: read
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/pc-sanity/**
+      - .github/workflows/tox-contrib-pc-sanity.yaml
   workflow_dispatch:
 
 jobs:
@@ -37,7 +42,7 @@ jobs:
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: pc-sanity

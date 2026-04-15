@@ -3,6 +3,7 @@ permissions:
   contents: read
 on:
   push:
+    branches: [ main ]
     paths:
       - checkbox-ng/**
       - checkbox-support/**
@@ -13,7 +14,6 @@ on:
       - providers/gpgpu/**
       - providers/resource/**
       - providers/sru/**
-      - providers/genio/**
       - providers/iiotg/**
       - .github/workflows/tox-checkbox.yaml
   pull_request:
@@ -135,14 +135,17 @@ jobs:
       - name: Install dependencies
         env:
           PYTHON_VERSION: ${{ matrix.python }}
-        run: |
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          # python3.5 and python3.6 are no longer in deadsnakes for focal
-          # we pushed them to the Checkbox PPA instead
-          sudo add-apt-repository ppa:checkbox-dev/edge
-          sudo apt-get update
-          sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev shellcheck libpcsclite-dev swig
-          pip install tox
+        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        with:
+          attempt_limit: 3
+          command: |
+            sudo add-apt-repository ppa:deadsnakes/ppa
+            # python3.5 and python3.6 are no longer in deadsnakes for focal
+            # we pushed them to the Checkbox PPA instead
+            sudo add-apt-repository ppa:checkbox-dev/edge
+            sudo apt-get update
+            sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev shellcheck libpcsclite-dev swig
+            pip install tox
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Print out the codecov flag
@@ -151,7 +154,7 @@ jobs:
         run: |
           echo "$CODECOV_TAG"
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.path_flag.codecov_flag }}

@@ -20,8 +20,10 @@
 
 import argparse
 import collections
+from pathlib import Path
 import subprocess
 import shlex
+import sys
 
 from checkbox_support.helpers.slugify import slugify
 from checkbox_support.helpers.release_info import get_release_info
@@ -216,6 +218,21 @@ def main():
                 video_devices[0]["switch_to_cmd"] = switch_cmds[
                     record["driver"]
                 ][1]
+
+            cards = tuple(Path("/sys" + record["path"]).glob("drm/card*"))
+            if "name" in record and (Path("/dev/") / record["name"]).exists():
+                # DRM node named in the udev record
+                record["drm_node"] = Path("/dev/") / record["name"]
+            elif len(cards) == 1:
+                # Find the DRM node in device tree
+                record["drm_node"] = Path("/dev/dri") / cards[0].name
+            else:
+                sys.stderr.write(
+                    "Warning: could not find DRM node for device at path "
+                    "{path}\n".format(path=record["path"])
+                )
+                record["drm_node"] = ""
+
         # Finally, print the records
         for record in video_devices:
             items = [

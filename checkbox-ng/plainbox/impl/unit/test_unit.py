@@ -27,7 +27,12 @@ import textwrap
 from unittest import TestCase, mock
 
 from plainbox.abc import IProvider1
-from plainbox.impl.unit.unit import Unit, MissingParam, get_snap_base
+from plainbox.impl.unit.unit import (
+    Unit,
+    MissingParam,
+    get_snap_base,
+    on_os_ubuntucore,
+)
 from plainbox.impl.validation import Problem, Severity
 
 
@@ -470,3 +475,35 @@ class GetSnapBaseTests(TestCase):
         get_snap_base.cache_clear()
         with self.assertRaises(ValueError):
             get_snap_base()
+
+
+class OnOSUbuntuCore(TestCase):
+    @mock.patch(
+        "plainbox.impl.unit.unit.Path.read_text",
+        return_value='NAME="Ubuntu Core"\nVERSION="20"',
+    )
+    def test_on_uc_strict_snap(self, _):
+        on_os_ubuntucore.cache_clear()
+
+        self.assertTrue(on_os_ubuntucore())
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.Path.read_text",
+        side_effect=[
+            FileNotFoundError(),
+            'NAME="Ubuntu Core"',
+        ],
+    )
+    def test_on_uc_source(self, _):
+        on_os_ubuntucore.cache_clear()
+
+        self.assertTrue(on_os_ubuntucore())
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.Path.read_text",
+        side_effect=[FileNotFoundError(), 'NAME="Ubuntu"'],
+    )
+    def test_not_on_uc(self, _):
+        on_os_ubuntucore.cache_clear()
+
+        self.assertFalse(on_os_ubuntucore())

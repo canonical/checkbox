@@ -150,7 +150,7 @@ parts:
 ################################################################################
 # Upstream: https://github.com/fwts/fwts/blob/master/snapcraft.yaml
   fwts:
-    source-tag: "V25.07.00"
+    source-tag: "V26.03.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
@@ -206,7 +206,6 @@ parts:
     stage-packages:
       # actual requirements
       - python3-bluez
-      - python3-requests-unixsocket
       - libsystemd0
       - v4l-utils
       # added to stage python:
@@ -295,7 +294,6 @@ parts:
       - dmidecode
       - libjson-xs-perl
       - pciutils
-      - python3-requests-unixsocket
       - smartmontools
     override-build: |
       cd src && autoreconf -i && cd -

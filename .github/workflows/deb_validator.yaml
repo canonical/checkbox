@@ -87,10 +87,13 @@ jobs:
           persist-credentials: false
       # needed by providers that pull checkbox-support
       - name: Install PPA and dependencies
-        run: |
-          sudo add-apt-repository ppa:checkbox-dev/edge
-          sudo apt-get update
-          sudo apt-get install -qq -y dpkg-dev fakeroot
+        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        with:
+          attempt_limit: 3
+          command: |
+            sudo add-apt-repository ppa:checkbox-dev/edge
+            sudo apt-get update
+            sudo apt-get install -qq -y dpkg-dev fakeroot
       - name: Prepare installation
         env:
           MATRIX_PATH: ${{ matrix.path }}

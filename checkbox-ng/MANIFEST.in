@@ -12,12 +12,15 @@ exclude mk-venv
 exclude tox.ini
 
 include plainbox/impl/resource_constants.yaml
+
 include plainbox/impl/providers/categories/README.md
 include plainbox/impl/providers/categories/manage.py
 include plainbox/impl/providers/categories/po/*.po
 include plainbox/impl/providers/categories/po/*.pot
 include plainbox/impl/providers/categories/po/POTFILES.in
 include plainbox/impl/providers/categories/units/*.pxu
+include plainbox/impl/providers/categories/units/*.yml
+include plainbox/impl/providers/categories/units/*.yaml
 
 include plainbox/impl/providers/exporters/README.md
 include plainbox/impl/providers/exporters/manage.py
@@ -25,6 +28,8 @@ include plainbox/impl/providers/exporters/po/*.po
 include plainbox/impl/providers/exporters/po/*.pot
 include plainbox/impl/providers/exporters/po/POTFILES.in
 include plainbox/impl/providers/exporters/units/*.pxu
+include plainbox/impl/providers/exporters/units/*.yml
+include plainbox/impl/providers/exporters/units/*.yaml
 include plainbox/impl/providers/exporters/data/*
 
 include plainbox/impl/providers/manifest/README.md
@@ -34,6 +39,9 @@ include plainbox/impl/providers/manifest/po/*.po
 include plainbox/impl/providers/manifest/po/*.pot
 include plainbox/impl/providers/manifest/po/POTFILES.in
 include plainbox/impl/providers/manifest/units/*.pxu
+include plainbox/impl/providers/manifest/units/*.yml
+include plainbox/impl/providers/manifest/units/*.yaml
+
 include plainbox/vendor/inxi
 
 recursive-exclude daily-package-testing *
@@ -51,3 +59,4 @@ recursive-include checkbox_ng/support/parsers/tests/fixtures *.txt
 recursive-include checkbox_ng/support/parsers/tests/pactl_data *.txt
 recursive-include checkbox_ng/support/parsers/tests/udevadm_data *.txt *.lsblk.json
 recursive-include checkbox_ng/support/parsers/tests/v4l2_compliance_data *.txt
+recursive-include checkbox_ng/support/snap_utils/tests/asserts_data *.txt

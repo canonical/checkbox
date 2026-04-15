@@ -602,6 +602,9 @@ plugin: manual
 category_id: com.canonical.plainbox::power-management
 id: power-management/suspend-on-AC-power
 depends: com.canonical.certification::suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_dc_mode == 'True'
 estimated_duration: 20.0
 _purpose:
     Verify the system can enter suspend being idle for 15 minutes on AC power.
@@ -613,3 +616,34 @@ _steps:
 _verification:
     The system turns the screen off after 1 minute of idle.
     The system enters suspend mode after 15 minutes of idle.
+
+
+unit: job
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/light_sensor_detect
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_light_sensor == 'True'
+command:
+    light_sensor_test.py detect
+estimated_duration: 5s
+summary:
+    Test this machine have the light sensor support or not
+description:
+    The light sensor will be shown under /sys/bus/iio/devices/ and could be validated by
+    the outcome of name automatically.
+
+unit: template
+template-resource: light_sensor_resource
+template-unit: job
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::power-management
+id: power-management/light_sensor_test_{name}
+template-id: power-management/light_sensor_test_device
+flags: also-after-suspend
+estimated_duration: 50
+depends: com.canonical.certification::power-management/light_sensor_detect
+command:
+    light_sensor_test.py test --name {name} --rounds 5 --period 5 --delay 5
+summary: Verify if light sensor {name} can detect the light change or not.

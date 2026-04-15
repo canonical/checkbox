@@ -202,7 +202,7 @@ template-id: camera/multiple-resolution-images-rpi_name
 _summary: Webcam multiple resolution capture test for Pi Camera
 estimated_duration: 16.0
 depends: camera/detect-rpi
-requires: 
+requires:
  cpuinfo.platform == 'armv7l'
  os.release >= '18'
  environment.SNAP != ""
@@ -246,10 +246,7 @@ _summary: Webcam BRISQUE score for rpi devices on {name}
 estimated_duration: 20s
 depends: camera/detect-rpi
 after: camera/multiple-resolution-images-rpi_{name}
-requires: 
- cpuinfo.platform == 'armv7l'
- os.release >= '20'
- environment.SNAP != ""
+requires: cpuinfo.platform == 'armv7l' and os.release >= '20'
 command:
   camera_quality_test.py -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
 _purpose:

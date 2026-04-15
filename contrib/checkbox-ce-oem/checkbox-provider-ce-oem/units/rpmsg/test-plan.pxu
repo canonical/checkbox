@@ -28,3 +28,11 @@ include:
     ce-oem-rpmsg/serial-tty
     ce-oem-rpmsg/pingpong
     ce-oem-rpmsg/reload-rp-firmware-test
+
+id: ce-oem-remoteproc-automated
+unit: test plan
+_name: Remote Processor auto tests
+_description: Automated Remote Processor tests
+include:
+    ce-oem-remoteproc/check-firmware
+    

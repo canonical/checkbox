@@ -29,28 +29,24 @@ import json
 import logging
 import os
 import string
+from contextlib import suppress
+from functools import lru_cache, partial
 from pathlib import Path
-from functools import lru_cache
 
 from jinja2 import Template
 
 from plainbox.i18n import gettext as _
-from plainbox.impl.decorators import cached_property
-from plainbox.impl.decorators import instance_method_lru_cache
+from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
-from plainbox.impl.symbol import Symbol
-from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.symbol import SymbolDefMeta
-from plainbox.impl.symbol import SymbolDefNs
-from plainbox.impl.unit import concrete_validators
-from plainbox.impl.unit import get_accessed_parameters
-from plainbox.impl.unit.validators import IFieldValidator
-from plainbox.impl.unit.validators import MultiUnitFieldIssue
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import UnitFieldIssue
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
+from plainbox.impl.symbol import Symbol, SymbolDef, SymbolDefMeta, SymbolDefNs
+from plainbox.impl.unit import concrete_validators, get_accessed_parameters
+from plainbox.impl.unit.validators import (
+    MultiUnitFieldIssue,
+    PresentFieldValidator,
+    UnitFieldIssue,
+)
+from plainbox.impl.validation import Problem, Severity
 
 __all__ = ["Unit", "UnitValidator"]
 
@@ -61,16 +57,30 @@ logger = logging.getLogger("plainbox.unit")
 @lru_cache(maxsize=None)
 def on_ubuntucore():
     """
-    Check if running from on ubuntu core
+    Returns `True` when running in a strict snap
     """
     snap = os.getenv("SNAP")
     if snap:
         with open(os.path.join(snap, "meta/snap.yaml")) as f:
-            for l in f.readlines():
-                if l == "confinement: classic\n":
+            for line in f.readlines():
+                if line == "confinement: classic\n":
                     return False
         return True
     return False
+
+
+@lru_cache(maxsize=None)
+def on_os_ubuntucore() -> bool:
+    """
+    Returns `True` if the host OS is Ubuntu Core
+    """
+    with suppress(FileNotFoundError):
+        # if this path exists, we are in a strict snap, but we may not be on UC
+        return (
+            'NAME="Ubuntu Core"'
+            in Path("/var/lib/snapd/hostfs/etc/os-release").read_text()
+        )
+    return 'NAME="Ubuntu Core"' in Path("/etc/os-release").read_text()
 
 
 @lru_cache(maxsize=None)
@@ -668,6 +678,14 @@ class Unit(metaclass=UnitType):
             return {key: frozenset() for key in self._data}
 
     @classmethod
+    def from_yaml_unit_data(cls, unit_data, provider=None, origin=None):
+        return cls(
+            unit_data,
+            origin=origin,
+            provider=provider,
+        )
+
+    @classmethod
     def from_rfc822_record(cls, record, provider=None):
         """
         Create a new Unit from RFC822 record. The resulting instance may not be
@@ -699,6 +717,30 @@ class Unit(metaclass=UnitType):
         else:
             return {}
 
+    def _get_record_value_leaf(self, name, value):
+        if self.template_engine == "jinja2":
+            if self.is_parametric or self.unit != "template":
+                # Add the current system environment variables to the
+                # parameters so that they can be used in all fields (i.e. not
+                # just in the command shell). By adding here rather than in the
+                # template instantiation we avoid problems with creation of
+                # checkpoints
+                tmp_params = (self.parameters or {}).copy()
+                tmp_params.update(
+                    {
+                        "__checkbox_env__": self._checkbox_env(),
+                        "__system_env__": os.environ,
+                        "__on_ubuntucore__": on_ubuntucore(),
+                    }
+                )
+                value = Template(value).render(tmp_params)
+        elif self.is_parametric:
+            try:
+                value = string.Formatter().vformat(value, (), self.parameters)
+            except KeyError as e:
+                raise MissingParam(self.template_id, name, value, e.args[0])
+        return value
+
     @instance_method_lru_cache(maxsize=None)
     def get_record_value(self, name, default=None):
         """
@@ -715,39 +757,13 @@ class Unit(metaclass=UnitType):
         value = self._data.get("_{}".format(name))
         if value is None:
             value = self._data.get(name, default)
-        if value is not None and self.is_parametric:
-            if self.template_engine == "jinja2":
-                # Add the current system environment variables to the
-                # parameters so that they can be used in all fields (i.e. not
-                # just in the command shell). By adding here rather than in the
-                # template instantiation we avoid problems with creation of
-                # checkpoints
-                tmp_params = self.parameters.copy()
-                tmp_params.update({"__checkbox_env__": self._checkbox_env()})
-                tmp_params.update({"__system_env__": os.environ})
-                tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
-                value = Template(value).render(tmp_params)
-            else:
-                try:
-                    value = string.Formatter().vformat(
-                        value, (), self.parameters
-                    )
-                except KeyError as e:
-                    raise MissingParam(
-                        self.template_id, name, value, e.args[0]
-                    )
-        elif (
-            value is not None
-            and self.template_engine == "jinja2"
-            and not self.is_parametric
-            and not self.unit == "template"
-        ):
-            tmp_params = {
-                "__checkbox_env__": self._checkbox_env(),
-                "__system_env__": os.environ,
-                "__on_ubuntucore__": on_ubuntucore(),
-            }
-            value = Template(value).render(tmp_params)
+        if value is None:
+            return value
+        if isinstance(value, str):
+            value = self._get_record_value_leaf(name, value)
+        elif isinstance(value, list):
+            f = partial(self._get_record_value_leaf, name)
+            value = list(map(f, value))
         return value
 
     @instance_method_lru_cache(maxsize=None)

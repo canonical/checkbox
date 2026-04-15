@@ -27,7 +27,7 @@ Test definitions for plainbox.impl.exporter.html module
 """
 
 import io
-from unittest import TestCase
+from unittest import mock, TestCase
 
 try:
     from importlib.resources import files
@@ -78,6 +78,7 @@ class HTMLExporterTests(TestCase):
             {
                 "outcome": IJobResult.OUTCOME_FAIL,
                 "return_code": 1,
+                "execution_duration": 1.0,
                 "io_log": [(0, "stderr", b"FATAL ERROR\n")],
             }
         )
@@ -85,12 +86,17 @@ class HTMLExporterTests(TestCase):
             {
                 "outcome": IJobResult.OUTCOME_PASS,
                 "return_code": 0,
+                "execution_duration": 1.0,
                 "io_log": [(0, "stdout", b"foo\n")],
                 "comments": "blah blah",
             }
         )
         self.result_skip = MemoryJobResult(
-            {"outcome": IJobResult.OUTCOME_SKIP, "comments": "No such device"}
+            {
+                "outcome": IJobResult.OUTCOME_SKIP,
+                "execution_duration": 1.0,
+                "comments": "No such device",
+            }
         )
         self.attachment = JobDefinition(
             {"id": "dmesg_attachment", "plugin": "attachment"}
@@ -98,6 +104,7 @@ class HTMLExporterTests(TestCase):
         self.attachment_result = MemoryJobResult(
             {
                 "outcome": IJobResult.OUTCOME_PASS,
+                "execution_duration": 1.0,
                 "io_log": [(0, "stdout", b"bar\n")],
                 "return_code": 0,
             }
@@ -105,6 +112,7 @@ class HTMLExporterTests(TestCase):
         self.res1_result = MemoryJobResult(
             {
                 "outcome": IJobResult.OUTCOME_PASS,
+                "execution_duration": 1.0,
                 "io_log": [(0, "stdout", b"description: Ubuntu 14.04 LTS\n")],
                 "return_code": 0,
             }
@@ -112,6 +120,7 @@ class HTMLExporterTests(TestCase):
         self.res2_result = MemoryJobResult(
             {
                 "outcome": IJobResult.OUTCOME_PASS,
+                "execution_duration": 1.0,
                 "io_log": [
                     (0, "stdout", b"name: plainbox\n"),
                     (1, "stdout", b"version: 1.0\n"),
@@ -178,7 +187,11 @@ class HTMLExporterTests(TestCase):
             "blocker", "non-blocker", "non-blocker"
         )
 
-    def test_perfect_match_without_certification_status(self):
+    @mock.patch(
+        "plainbox.impl.session.state.collect_system_information",
+        return_value={},
+    )
+    def test_perfect_match_without_certification_status(self, mock_sys_info):
         """
         Test that output from the exporter exactly matches known
         good HTML output, inlining and everything included.
@@ -206,7 +219,11 @@ class HTMLExporterTests(TestCase):
         )  # unintuitively, resource_string returns bytes
         self.assertEqual(actual_result, expected_result)
 
-    def test_perfect_match_with_certification_blocker(self):
+    @mock.patch(
+        "plainbox.impl.session.state.collect_system_information",
+        return_value={},
+    )
+    def test_perfect_match_with_certification_blocker(self, mock_sys_info):
         """
         Test that output from the exporter exactly matches known
         good HTML output, inlining and everything included.

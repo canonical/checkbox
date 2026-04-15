@@ -217,7 +217,7 @@ class LXD:
         try:
             self.run("systemctl is-system-running --wait", on_guest=True)
         except subprocess.CalledProcessError as e:
-            if allow_degraded and e.stdout == "degraded":
+            if allow_degraded and e.stdout.strip() == "degraded":
                 return
             raise
 

@@ -4,8 +4,8 @@ import QtQuick.Controls 1.4
 
 Window {
     id: root
-    width: 800
-    height: 600
+    width: 1280
+    height: 720
     visible: true
     title: "Dynamic Refresh Rate Demo"
     color: "#1a1a1a"
@@ -87,15 +87,15 @@ Window {
 
     // Control Panel
     Rectangle {
-        id: "panel"
+        id: panel
         anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalLeft
+        anchors.horizontalCenter: parent.horizontalCenter
         width: contentColumn.implicitWidth + 50
         height: contentColumn.implicitHeight + 50
         color: "#cc000000"
         radius: 12
         border.color: "white"
-        anchors.margins: 20
+        anchors.margins: 10
 
         Column {
             id: contentColumn
@@ -106,26 +106,26 @@ Window {
                 text: "Press Esc to quit"
                 color: "white"
                 font.bold: true
-                anchors.horizontalCenter: parent.horizontalLeft
+                anchors.left: parent.left
             }
 
             Text {
                 text: "This test should be run at fullscreen"
                 color: "grey"
-                anchors.horizontalCenter: parent.horizontalLeft
+                anchors.left: parent.left
             }
             
             Text {
                 text: "Set GALLIUM_HUD=fps vblank_mode=3 MESA_VK_WSI_PRESENT_MODE=relaxed"
                 color: "grey"
-                anchors.horizontalCenter: parent.horizontalLeft
+                anchors.left: parent.left
             }
 
             Text {
                 text: "Look for tearing ONLY. Any stutter or fps mismatch is OK."
                 color: "red"
                 font.bold: true
-                anchors.horizontalCenter: parent.horizontalLeft
+                anchors.left: parent.left
             }
 
             Text {
@@ -157,7 +157,7 @@ Window {
                 maximumValue: 10
                 value: rectCount
                 onValueChanged: {
-                    rectCount = value
+                    rectCount = Math.floor(value)
                 }
                 anchors.horizontalCenter: parent.horizontalCenter
             }

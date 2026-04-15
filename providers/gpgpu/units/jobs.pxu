@@ -83,6 +83,9 @@ requires:
 category_id: gpgpu
 plugin: shell
 estimated_duration: 1m 45s
+environ:
+    LXD_TEMPLATE
+    LXD_ROOTFS
 command: gpu_passthrough.py -v --vendor=nvidia --pci={pci_device_name} lxd
 _purpose: Creates a LXD container and passes {pci_device_name} GPU through
 _summary: Test LXD GPU passthrough on NVIDIA GPU {pci_device_name}
@@ -100,6 +103,8 @@ category_id: gpgpu
 plugin: shell
 estimated_duration: 12m
 environ:
+    LXD_TEMPLATE
+    KVM_IMAGE
     QEMU_OPTS
     VM_RAM_MB
     VM_CPUS

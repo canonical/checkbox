@@ -478,6 +478,8 @@ include:
 nested_part:
     wireless-cert-automated
     after-suspend-wireless-cert-automated
+certification_status_overrides:
+    apply blocker to com.canonical.certification::wireless/detect
 
 id: wireless-netplan-base-26-04-automated
 unit: test plan

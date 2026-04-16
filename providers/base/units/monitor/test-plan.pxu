@@ -397,6 +397,19 @@ nested_part:
     monitor-gpu-cert-manual
     after-suspend-monitor-gpu-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::power-management/light_sensor
+    apply blocker to com.canonical.certification::monitor/1_thunderbolt3_.*
+    apply blocker to com.canonical.certification::audio/1_playback_thunderbolt3_.*
+    apply blocker to com.canonical.certification::monitor/2_thunderbolt3_.*
+    apply blocker to com.canonical.certification::audio/2_playback_thunderbolt3_.*
+    apply blocker to com.canonical.certification::thunderbolt3/daisy-chain
+    apply blocker to com.canonical.certification::after-suspend-power-management/light_sensor
+    apply blocker to com.canonical.certification::after-suspend-monitor/1_thunderbolt3_.*
+    apply blocker to com.canonical.certification::after-suspend-audio/1_playback_thunderbolt3_.*
+    apply blocker to com.canonical.certification::after-suspend-monitor/2_thunderbolt3_.*
+    apply blocker to com.canonical.certification::after-suspend-audio/2_playback_thunderbolt3_.*
+    apply blocker to com.canonical.certification::after-suspend-thunderbolt3/daisy-chain
 
 id: monitor-base-26-04-automated
 unit: test plan

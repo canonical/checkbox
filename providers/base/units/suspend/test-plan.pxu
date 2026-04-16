@@ -141,3 +141,5 @@ include:
 nested_part:
     before-suspend-reference-cert-automated
     after-suspend-reference-cert-automated
+certification_status_overrides:
+    apply blocker to com.canonical.certification::suspend/validate_suspend_status

@@ -37,6 +37,10 @@ def init_bluetooth():
     with InteractiveCommand("bluetoothctl") as btctl:
         btctl.writeline("power on")
         time.sleep(3)
+        # workaround for some intel bluetooth controller
+        # if we don't enable scan on via bluetoothctl first, the hci 'advertising scan enable' command would failed 
+        btctl.writeline("scan on")
+        time.sleep(3)
         btctl.writeline("exit")
         btctl.kill()
 

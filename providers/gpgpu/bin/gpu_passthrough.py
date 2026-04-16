@@ -104,6 +104,7 @@ def test_lxd_gpu(args):
         instance.run("snap install gpu-burn", on_guest=True)
 
         run_gpu_test(instance, GPU_VENDORS[args.vendor]["test"])
+        instance.stop(force=True)
 
 
 def test_lxdvm_gpu(args):
@@ -165,6 +166,7 @@ def test_lxdvm_gpu(args):
         instance.run("snap install gpu-burn", on_guest=True)
 
         run_gpu_test(instance, GPU_VENDORS[args.vendor]["test"])
+        instance.stop(force=True)
 
 
 def parse_args():

@@ -203,7 +203,7 @@ _summary: Webcam multiple resolution capture test for Pi Camera
 estimated_duration: 16.0
 depends: camera/detect-rpi
 requires:
- environment.CHECKBOX_RUNNING_STRICT_SNAP == "1"
+ environment.SNAP != ""
  cpuinfo.platform == 'armv7l'
  os.release >= '18'
 command:
@@ -225,7 +225,7 @@ _summary: Attach an image from the multiple resolution images test on rpi
 estimated_duration: 1s
 after: camera/multiple-resolution-images-rpi_{name}
 requires:
- environment.CHECKBOX_RUNNING_STRICT_SNAP == "1"
+ environment.SNAP != ""
  cpuinfo.platform == 'armv7l'
  os.release >= '18'
 command:
@@ -248,7 +248,7 @@ estimated_duration: 20s
 depends: camera/detect-rpi
 after: camera/multiple-resolution-images-rpi_{name}
 requires: 
- environment.CHECKBOX_RUNNING_STRICT_SNAP == "1"
+ environment.SNAP != ""
  cpuinfo.platform == 'armv7l'
  os.release >= '20'
 command:

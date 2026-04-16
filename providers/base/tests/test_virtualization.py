@@ -24,9 +24,7 @@ from virtualization import LXDTest, LXDTest_vm
 
 
 class TestLXDTest(TestCase):
-    @patch("virtualization.get_release_to_test")
-    def test_default_remote_is_ubuntu_daily(self, mock_release):
-        mock_release.return_value = "24.04"
+    def test_default_remote_is_ubuntu_daily(self):
         lxd = LXDTest()
         self.assertEqual(lxd.default_remote, "ubuntu-daily:")
 

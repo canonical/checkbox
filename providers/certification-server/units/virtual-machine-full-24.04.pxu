@@ -1,21 +1,19 @@
-id: server-full
-_name: Server Certification Full Test Suite
+id: virtual-machine-full-24.04
+_name: Virtual Machine Full (For Hypervisors)
 unit: test plan
 _description:
-    This test plan contains the full Ubuntu Server Certification Test Suite.
-    The tests should work in any test lab environment however if you are not
-    using an environment set up using our tooling you may need to do some
-    additional test configuration.
+    This whitelist is intended to be used for testing Ubuntu Guests on 
+    hypervisors. The tests contained here should work in any test lab 
+    envrionement. Please use this whitelist for the Ubuntu Certification 
+    self-testing programme.
 nested_part:
     com.canonical.certification::server-cpu
     com.canonical.certification::server-disk
     com.canonical.certification::server-info-attachment-automated
-    com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
     com.canonical.certification::server-ethernet
     com.canonical.certification::server-memory
     com.canonical.certification::server-networking
-    com.canonical.certification::server-usb
 include:
     info/hdparm_.*.txt                         certification-status=non-blocker
     benchmarks/disk/hdparm-read_.*             certification-status=blocker
@@ -23,10 +21,8 @@ include:
     power-management/rtc                       certification-status=blocker
     stress/cpu_stress_ng_test                  certification-status=blocker
     virtualization/verify_lxd                  certification-status=blocker
-    virtualization/verify_lxd_vm               certification-status=blocker
-    info/kvm_output                            certification-status=non-blocker
     miscellanea/oops                           certification-status=blocker
-    miscellanea/oops_results.log
+    miscellanea/oops_results.log               certification-status=non-blocker
     miscellanea/olog                           certification-status=blocker
     miscellanea/olog_results.log
     miscellanea/klog                           certification-status=blocker

@@ -55,4 +55,5 @@ Please provide:
 
 - The steps to follow so that the reviewer can test on their end
 - A list of what tests were run and on what platform/configuration
+- Checkbox submissions where applicable
 -->

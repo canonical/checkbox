@@ -1,4 +1,4 @@
-id: server-soc-cert
+id: server-soc-cert-24.04
 _name: System On Chip Certification (For SoC Testing)
 unit: test plan
 _description:

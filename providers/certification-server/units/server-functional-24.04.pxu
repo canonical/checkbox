@@ -1,4 +1,4 @@
-id: server-functional
+id: server-functional-24.04
 _name: Server Certification Functional Tests Only
 unit: test plan
 _description:

@@ -1,11 +1,11 @@
-id:server-soc-cert-26.04
+id: server-soc-cert-26.04
 _name: Server Certification SoC Test Suite
 unit: test plan
 _description:
     This test plan contains the Ubuntu Server Certification SoC Test Suite.
     It is a subset of the full suite focused mainly on the items that exercise
     an ARM SoC specifically (so it lacks network, usb, disk, and other tests
-    that are not related to a server SoC itself.
+    that are not related to a server SoC itself.)
     The tests should work in any test lab environment however if you are not
     using an environment set up using our tooling you may need to do some
     additional test configuration.
@@ -25,8 +25,8 @@ include:
     cpu/cstates_results.log                 certification-status=non-blocker
     disk/detect                             certification-status=blocker
     disk/disk_cpu_load_.*                   certification-status=blocker
-    ethernet/info_automated_server      	certification-status=non-blocker
-    ethernet/ethtool_info           	    certification-status=non-blocker
+    ethernet/info_automated_server          certification-status=non-blocker
+    ethernet/ethtool_info                   certification-status=non-blocker
     ethernet/ethertool_check_.*             certification-status=non-blocker
     firmware/fwts_server                    certification-status=non-blocker
     firmware/fwts_results.log.gz            certification-status=non-blocker

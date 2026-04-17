@@ -27,10 +27,10 @@ include:
     disk/read_performance_.*                certification-status=blocker
     disk/disk_stress_ng_(?!sru).*           certification-status=blocker
     disk/disk_cpu_load_.*                   certification-status=blocker
-    ethernet/info_automated_server      	certification-status=non-blocker
-    ethernet/ethtool_info           	    certification-status=non-blocker
+    ethernet/info_automated_server          certification-status=non-blocker
+    ethernet/ethtool_info                   certification-status=non-blocker
     ethernet/ethertool_check_.*             certification-status=non-blocker
-    ethernet/multi_iperf3_nic_device.*  	certification-status=blocker
+    ethernet/multi_iperf3_nic_device.*      certification-status=blocker
     info/secure-boot-check                  certification-status=blocker
     miscellanea/apport-directory            certification-status=non-blocker
     miscellanea/check_prerelease            certification-status=blocker
@@ -38,8 +38,8 @@ include:
     miscellanea/debsums                     certification-status=non-blocker
     miscellanea/kernel_taint_test           certification-status=blocker
     miscellanea/submission-resources        certification-status=non-blocker
-    networking/predictable_names    		certification-status=blocker
-    networking/ntp              			certification-status=non-blocker
+    networking/predictable_names            certification-status=blocker
+    networking/ntp                          certification-status=non-blocker
     power-management/rtc                    certification-status=blocker
     memory/info                             certification-status=blocker
     stress/memory_stress_ng                 certification-status=blocker

@@ -1,0 +1,81 @@
+id: server-full-26.04
+_name: Server Certification Full Test Suite
+unit: test plan
+_description:
+    This test plan contains the full Ubuntu Server Certification Test Suite.
+    The tests should work in any test lab environment however if you are not
+    using an environment set up using our tooling you may need to do some
+    additional test configuration.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+include:
+    benchmarks/disk/hdparm-read_.*          certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_.*    certification-status=blocker
+    benchmarks/system/cpu_on_idle           certification-status=non-blocker
+    benchmarks/system/disk_on_idle          certification-status=non-blocker
+    cpu/clocktest                           certification-status=blocker
+    cpu/cpufreq_test-server                 certification-status=non-blocker
+    cpu/maxfreq_test                        certification-status=blocker
+    cpu/maxfreq_test-log-attach             certification-status=non-blocker
+    cpu/topology                            certification-status=blocker
+    cpu/armhf_vfp_support_.*                certification-status=non-blocker
+    cpu/arm64_vfp_support_.*                certification-status=non-blocker
+    cpu/cstates                             certification-status=non-blocker
+    cpu/cstates_results.log                 certification-status=non-blocker
+    disk/detect                             certification-status=blocker
+    disk/stats_.*                           certification-status=blocker
+    disk/read_performance_.*                certification-status=blocker
+    disk/smart_.*                           certification-status=non-blocker
+    disk/fstrim_.*                          certification-status=non-blocker
+    disk/disk_stress_ng_(?!sru).*           certification-status=blocker
+    disk/disk_cpu_load_.*                   certification-status=blocker
+    ethernet/info_automated_server          certification-status=non-blocker
+    ethernet/ethtool_info                   certification-status=non-blocker
+    ethernet/ethertool_check_.*             certification-status=non-blocker
+    ethernet/multi_iperf3_nic_device.*      certification-status=blocker
+    firmware/fwts_server                    certification-status=non-blocker
+    firmware/fwts_results.log.gz            certification-status=non-blocker
+    firmware/fwts_dump                      certification-status=non-blocker
+    firmware/fwts_dump_acpi_attachment.gz   certification-status=non-blocker
+    info/secure-boot-check                  certification-status=blocker
+    miscellanea/apport-directory            certification-status=non-blocker
+    miscellanea/bmc_info                    certification-status=non-blocker
+    miscellanea/check_prerelease            certification-status=blocker
+    miscellanea/cpuid                       certification-status=blocker
+    miscellanea/cpus_are_not_samples        certification-status=blocker
+    miscellanea/debsums                     certification-status=non-blocker
+    miscellanea/dmitest_server              certification-status=blocker
+    miscellanea/efi_boot_mode               certification-status=blocker
+    miscellanea/efi_pxeboot                 certification-status=non-blocker
+    miscellanea/get_make_and_model          certification-status=blocker
+    miscellanea/get_maas_version            certification-status=blocker
+    miscellanea/ipmi_test                   certification-status=blocker
+    miscellanea/kernel_taint_test           certification-status=blocker
+    miscellanea/maas_user_check             certification-status=blocker
+    miscellanea/reboot_firmware             certification-status=non-blocker
+    miscellanea/secure_boot_mode            certification-status=blocker
+    miscellanea/sosreport                   certification-status=non-blocker
+    miscellanea/sosreport_attachment        certification-status=non-blocker
+    miscellanea/submission-resources        certification-status=non-blocker
+    networking/predictable_names            certification-status=blocker
+    networking/ntp                          certification-status=non-blocker
+    power-management/rtc                    certification-status=blocker
+    memory/info                             certification-status=blocker
+    stress/memory_stress_ng                 certification-status=blocker
+    stress/cpu_stress_ng_test               certification-status=blocker
+    usb/detect                              certification-status=blocker
+    usb/storage-server                      certification-status=blocker
+    usb3/storage-server                     certification-status=blocker
+    virtualization/verify_lxd               certification-status=blocker
+    virtualization/verify_lxd_vm            certification-status=blocker
+    miscellanea/oops                        certification-status=blocker
+    miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/olog                        certification-status=blocker
+    miscellanea/olog_results.log            certification-status=non-blocker
+    miscellanea/klog                        certification-status=blocker
+    miscellanea/klog_results.log            certification-status=non-blocker
+    info/kvm_output                         certification-status=non-blocker
+bootstrap_include:
+    device
+    executable
+    fwts

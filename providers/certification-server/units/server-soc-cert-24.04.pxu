@@ -1,11 +1,10 @@
-id: server-full
-_name: Server Certification Full Test Suite
+id: server-soc-cert-24.04
+_name: System On Chip Certification (For SoC Testing)
 unit: test plan
 _description:
-    This test plan contains the full Ubuntu Server Certification Test Suite.
-    The tests should work in any test lab environment however if you are not
-    using an environment set up using our tooling you may need to do some
-    additional test configuration.
+    This whitelist is intended to be used for testing Server SoCs.  The tests
+    contained here should work in any test lab envrionement. Please use this 
+    whitelist for the Ubuntu Certification self-testing programme.
 nested_part:
     com.canonical.certification::server-cpu
     com.canonical.certification::server-disk
@@ -25,7 +24,7 @@ include:
     virtualization/verify_lxd                  certification-status=blocker
     virtualization/verify_lxd_vm               certification-status=blocker
     info/kvm_output                            certification-status=non-blocker
-    miscellanea/oops                           certification-status=blocker
+    miscellanea/oops                           certification-status=non-blocker
     miscellanea/oops_results.log
     miscellanea/olog                           certification-status=blocker
     miscellanea/olog_results.log

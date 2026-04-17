@@ -75,7 +75,11 @@ include:
  info/buildstamp
  info/disk_partitions
  info/hdparm_.*.txt
+ info/kernel_config
+ kernel_config_attachment
  info/network-config
+ info/network_devices
+ info/sriov-check_.*
  installer_debug.gz
  kernel_cmdline_attachment
  lsblk_attachment
@@ -83,6 +87,7 @@ include:
  lsmod_attachment
  lspci_attachment
  lspci_network_attachment
+ lspci_standard_config_attachment
  lstopo_verbose_attachment
  lstopo_visual_attachment
  lsusb_attachment

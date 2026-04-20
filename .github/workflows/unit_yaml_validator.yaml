@@ -4,6 +4,10 @@ permissions:
   contents: read
 
 on:
+  push:
+    paths:
+      - '**/units/*.yaml'
+      - '**/units/*/*.yaml'
   pull_request:
     branches: [ main ]
     paths:

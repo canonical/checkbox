@@ -31,7 +31,7 @@ group: group_suspend_on_battery_power
 estimated_duration: '360.0'
 command: |
   echo "Make sure system running on battery power, then press Enter"
-  read
+  read -r
   idle_suspend.py --mode battery --suspend-time 5 --extra-percent 20
 ---
 category_id: com.canonical.plainbox::power-management

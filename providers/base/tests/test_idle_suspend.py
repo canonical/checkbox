@@ -574,7 +574,7 @@ class TestMain(unittest.TestCase):
         with ExitStack() as stack:
             mocks = self._enter_patches(stack)
             idle_suspend.main()
-        mocks["sleep"].assert_called_once()
+        self.assertEqual(mocks["sleep"].call_count, 1)
         sleep_arg = mocks["sleep"].call_args[0][0]
         self.assertAlmostEqual(sleep_arg, 990.0)
 

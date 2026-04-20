@@ -24,14 +24,11 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
-      - name: Install pipx
-        run: |
-          sudo apt-get update
-          sudo apt-get install -qq -y pipx
-      - name: Install check-jsonschema
-        run: pipx install 'check-jsonschema==0.37.1'
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+      - name: Install validate tool
+        run: uv tool install ./unit_json_schema/validate
       - name: Validate unit YAML files
         run: |
           find . -path '*/units/**' -name "*.yaml" -print0 \
-            | xargs -0 check-jsonschema \
-                --schemafile unit_json_schema/unit.schema.json
+            | xargs -0 validate unit_json_schema/unit.schema.json

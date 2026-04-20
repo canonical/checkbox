@@ -140,7 +140,8 @@
               "fail-on-resource",
               "also-after-suspend",
               "also-after-suspend-manual",
-              "cachable"
+              "cachable",
+              "use-chunked-io"
             ]
           }
         },

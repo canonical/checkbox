@@ -1513,6 +1513,10 @@ class ListBootstrapped:
     def sa(self):
         return self.ctx.sa
 
+    @lru_cache(maxsize=1)
+    def get_normal_user(self):
+        return self.ctx.args.normal_user or guess_normal_user()
+
     def register_arguments(self, parser):
         parser.add_argument(
             "--exact",
@@ -1532,10 +1536,21 @@ class ListBootstrapped:
                 )
             ),
         )
+        parser.add_argument(
+            "--normal-user",
+            help="Normal non-root user to use during bootstrap",
+        )
 
     def invoked(self, ctx):
         self.ctx = ctx
-        self.sa.start_new_session("checkbox-listing-ephemeral")
+        runner_kwargs = {
+            "normal_user_provider": self.get_normal_user,
+            "password_provider": sudo_password_provider.get_sudo_password,
+            "stdin": None,
+        }
+        self.sa.start_new_session(
+            "checkbox-listing-ephemeral", UnifiedRunner, runner_kwargs
+        )
 
         tps = self.sa.get_test_plans()
         testplan_id = get_testplan_id_by_id(

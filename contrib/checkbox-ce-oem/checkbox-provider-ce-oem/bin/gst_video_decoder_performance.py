@@ -23,7 +23,7 @@ import os
 import re
 
 from performance_mode_controller import get_performance_ctx_function
-from gst_utils import execute_command
+from gst_utils import execute_command, manage_test_file_by_name
 
 logging.basicConfig(level=logging.INFO)
 
@@ -304,50 +304,50 @@ def main() -> None:
         ),
         args.minimum_fps,
     )
-    # Check the golden sample exixt
-    if not os.path.exists(args.golden_sample_path):
-        raise SystemExit(
-            "Golden Sample '{}' doesn't exist".format(args.golden_sample_path)
-        )
-    gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
-    if "imx8m" in args.platform:
-        cmd = build_imx_gst_command(
-            gst_bin=gst_launch_bin,
-            golden_sample_path=args.golden_sample_path,
-            decoder=args.decoder_plugin,
-            sink=args.sink,
-            fpsdisplaysink_sync=args.fpsdisplaysink_sync,
-        )
-    elif "rz" in args.platform:
-        cmd = build_renesas_gst_command(
-            gst_bin=gst_launch_bin,
-            golden_sample_path=args.golden_sample_path,
-            decoder=args.decoder_plugin,
-            sink=args.sink,
-            fpsdisplaysink_sync=args.fpsdisplaysink_sync,
-            platform=args.platform,
-        )
-    else:
-        cmd = build_gst_command(
-            gst_bin=gst_launch_bin,
-            golden_sample_path=args.golden_sample_path,
-            decoder=args.decoder_plugin,
-            sink=args.sink,
-            fpsdisplaysink_sync=args.fpsdisplaysink_sync,
-        )
+    with manage_test_file_by_name(
+        file_name=os.path.basename(args.golden_sample_path),
+        target_dir=os.path.dirname(args.golden_sample_path),
+    ):
+        gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
+        if "imx8m" in args.platform:
+            cmd = build_imx_gst_command(
+                gst_bin=gst_launch_bin,
+                golden_sample_path=args.golden_sample_path,
+                decoder=args.decoder_plugin,
+                sink=args.sink,
+                fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+            )
+        elif "rz" in args.platform:
+            cmd = build_renesas_gst_command(
+                gst_bin=gst_launch_bin,
+                golden_sample_path=args.golden_sample_path,
+                decoder=args.decoder_plugin,
+                sink=args.sink,
+                fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+                platform=args.platform,
+            )
+        else:
+            cmd = build_gst_command(
+                gst_bin=gst_launch_bin,
+                golden_sample_path=args.golden_sample_path,
+                decoder=args.decoder_plugin,
+                sink=args.sink,
+                fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+            )
 
-    output = ""
+        output = ""
 
-    if args.performance_mode_target:
-        performance_mode_ctx = get_performance_ctx_function()
-        with performance_mode_ctx(platform=args.performance_mode_target):
+        if args.performance_mode_target:
+            performance_mode_ctx = get_performance_ctx_function()
+            with performance_mode_ctx(platform=args.performance_mode_target):
+                output = execute_command(cmd).rstrip(os.linesep)
+        else:
             output = execute_command(cmd).rstrip(os.linesep)
-    else:
-        output = execute_command(cmd).rstrip(os.linesep)
 
-    if not is_valid_result(output, args.minimum_fps):
-        raise SystemExit(1)
-    logging.info("Pass")
+        is_valid = is_valid_result(output, args.minimum_fps)
+        if not is_valid:
+            raise SystemExit(1)
+        logging.info("Pass")
 
 
 if __name__ == "__main__":

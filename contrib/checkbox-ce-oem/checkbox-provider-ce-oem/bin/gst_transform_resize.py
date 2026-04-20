@@ -25,16 +25,15 @@ from typing import Any
 
 from gst_utils import (
     GST_LAUNCH_BIN,
-    VIDEO_CODEC_TESTING_DATA,
-    SAMPLE_2_FOLDER,
     PipelineInterface,
     GStreamerEncodePlugins,
     MetadataValidator,
-    get_big_bug_bunny_golden_sample,
     generate_artifact_name,
     compare_psnr,
     delete_file,
     execute_command,
+    get_test_file_path_by_params,
+    manage_test_file_by_params,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -169,10 +168,8 @@ class GenioProject(PipelineInterface):
         }
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = get_big_bug_bunny_golden_sample(
-            width=self._width_from,
-            height=self._height_from,
-            framerate=self._framerate,
+        self._golden_sample = get_test_file_path_by_params(
+            self._width_from, self._height_from, self._framerate
         )
         self._artifact_file = ""
 
@@ -188,21 +185,17 @@ class GenioProject(PipelineInterface):
         A golden reference which has been transformed in advance. It's used to
         be the compared reference file for PSNR.
         """
-        golden_reference = get_big_bug_bunny_golden_sample(
+        golden_reference = get_test_file_path_by_params(
             self._width_to, self._height_to, self._framerate
         )
-
-        full_path = os.path.join(
-            VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_reference
-        )
-        if not os.path.exists(full_path):
+        if not os.path.exists(golden_reference):
             raise SystemExit(
                 "Error: Golden PSNR reference '{}' doesn't exist".format(
-                    full_path
+                    golden_reference
                 )
             )
 
-        return full_path
+        return golden_reference
 
     def build_pipeline(self) -> str:
         """
@@ -229,24 +222,30 @@ class GenioProject(PipelineInterface):
 
 def main() -> None:
     args = register_arguments()
-    p = project_factory(args)
-    logging.info("Step 1: Generating artifact...")
-    cmd = p.build_pipeline()
-    # execute command
-    execute_command(cmd=cmd)
-    logging.info("\nStep 2: Checking metadata...")
-    mv = MetadataValidator(file_path=p.artifact_file)
-    mv.validate("width", args.width_to).validate(
-        "height", args.height_to
-    ).validate("frame_rate", args.framerate).validate(
-        "codec", args.encoder_plugin
-    ).is_valid()
-    logging.info("\nStep 3: Comparing PSNR...")
-    compare_psnr(
-        golden_reference_file=p.psnr_reference_file,
-        artifact_file=p.artifact_file,
-    )
-    delete_file(file_path=p.artifact_file)
+    with manage_test_file_by_params(
+        args.width_from, args.height_from, args.framerate, args.encoder_plugin
+    ):
+        with manage_test_file_by_params(
+            args.width_to, args.height_to, args.framerate, args.encoder_plugin
+        ):
+            p = project_factory(args)
+            logging.info("Step 1: Generating artifact...")
+            cmd = p.build_pipeline()
+            # execute command
+            execute_command(cmd=cmd)
+            logging.info("\nStep 2: Checking metadata...")
+            mv = MetadataValidator(file_path=p.artifact_file)
+            mv.validate("width", args.width_to).validate(
+                "height", args.height_to
+            ).validate("frame_rate", args.framerate).validate(
+                "codec", args.encoder_plugin
+            ).is_valid()
+            logging.info("\nStep 3: Comparing PSNR...")
+            compare_psnr(
+                golden_reference_file=p.psnr_reference_file,
+                artifact_file=p.artifact_file,
+            )
+            delete_file(file_path=p.artifact_file)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "validate"
 version = "0.1.0"
-description = "Add your description here"
+description = "Validate multi-document YAML files against a JSON Schema."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

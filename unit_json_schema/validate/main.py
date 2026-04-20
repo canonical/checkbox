@@ -11,7 +11,6 @@ Replace this with an out of the box tool if found
 """
 
 import json
-import sys
 import argparse
 from pathlib import Path
 

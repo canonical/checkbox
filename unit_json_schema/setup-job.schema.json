@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "setup-job.schema.json",
   "title": "Setup Job Unit",
-  "description": "Schema that describes a Checkbox Job unit",
+  "description": "Schema that describes a Checkbox Setup Job unit",
   "$defs": {
     "setupJobFields": {
       "type": "object",

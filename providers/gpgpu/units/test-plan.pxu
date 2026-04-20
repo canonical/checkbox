@@ -18,10 +18,10 @@ _name: GPGPU Compute Automated Testing
 _description:
  Automated Tests for GPGPU Computations (non-graphical)
 include:
-    gpgpu/device-query-drv      certification-status=non-blocker
-    gpgpu/matrix-mul-drv        certification-status=non-blocker
-    gpgpu/vector-add-drv        certification-status=non-blocker
-    gpgpu/simple-texture-drv    certification-status=non-blocker
+    gpgpu/device-query-drv      certification-status=blocker
+    gpgpu/matrix-mul-drv        certification-status=blocker
+    gpgpu/vector-add-drv        certification-status=blocker
+    gpgpu/simple-texture-drv    certification-status=blocker
     gpgpu/rvs-gpup              certification-status=non-blocker
     gpgpu/rvs-peqt              certification-status=non-blocker
     gpgpu/rvs-pebb              certification-status=non-blocker

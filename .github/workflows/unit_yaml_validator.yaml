@@ -1,0 +1,33 @@
+name: Validate unit YAML files
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**/units/*.yaml'
+      - '**/units/*/*.yaml'
+  workflow_dispatch:
+
+jobs:
+  validate_unit_yaml:
+    name: Validate unit YAML files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - name: Install pipx
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq -y pipx
+      - name: Install check-jsonschema
+        run: pipx install 'check-jsonschema==0.37.1'
+      - name: Validate unit YAML files
+        run: |
+          find . -path '*/units/**' -name "*.yaml" -print0 \
+            | xargs -0 check-jsonschema \
+                --schemafile unit_json_schema/unit.schema.json

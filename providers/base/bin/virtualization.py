@@ -639,7 +639,7 @@ class LXDTest(object):
         self.template_tarball = None
         self.name = "testbed"
         self.image_alias = uuid4().hex
-        self.default_remote = "ubuntu:"
+        self.default_remote = "ubuntu-daily:"
         self.os_version = get_release_to_test()
 
     def run_command(self, cmd):
@@ -831,7 +831,7 @@ class LXDTest_vm(object):
         self.template_tarball = None
         self.name = "testbed"
         self.image_alias = uuid4().hex
-        self.default_remote = "ubuntu:"
+        self.default_remote = "ubuntu-daily:"
         self.os_version = get_release_to_test()
 
     def run_command(self, cmd, log_stderr=True):

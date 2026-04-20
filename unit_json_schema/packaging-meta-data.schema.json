@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/packaging-meta-data.schema.json",
+  "$id": "packaging-meta-data.schema.json",
   "title": "Packaging Meta-Data Unit",
   "description": "Schema that describes a Checkbox Packaging Meta-Data unit",
   "type": "object",

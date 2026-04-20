@@ -1,112 +1,52 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "job.schema.json",
-  "title": "Job Unit",
+  "$id": "setup-job.schema.json",
+  "title": "Setup Job Unit",
   "description": "Schema that describes a Checkbox Job unit",
   "$defs": {
-    "jobFields": {
+    "setupJobFields": {
       "type": "object",
       "properties": {
         "id": {
-          "title": "ID (Job Unit)",
+          "title": "ID (Setup Job Unit)",
           "description": "Unique identifier of the job",
           "type": "string"
         },
         "summary": {
-          "title": "Summary (Job Unit)",
+          "title": "Summary (Setup Job Unit)",
           "description": "Human readable description of the job",
           "type": "string"
         },
         "category_id": {
-          "title": "Category ID (Job Unit)",
+          "title": "Category ID (Setup Job Unit)",
           "description": "Identifier of the category this job belongs to.",
           "type": "string"
         },
         "plugin": {
-          "title": "Plugin (Job Unit)",
+          "title": "Plugin (Setup Job Unit)",
           "description": "Type of job. Determines how the job is run and how the outcome is determined.",
           "type": "string",
           "enum": ["manual", "shell", "user-interact", "user-interact-verify", "attachment", "resource"],
           "default": "shell"
         },
         "certification-status": {
-          "title": "Certification Status (Job Unit)",
+          "title": "Certification Status (Setup Job Unit)",
           "description": "Certification status used to determine if the job is required for certification.",
           "type": "string",
           "enum": ["non-blocker", "blocker"]
         },
-        "requires": {
-          "title": "Requires (Job Unit)",
-          "description": "Conditions that must be met for the job to run, using resource expressions.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "depends": {
-          "title": "Depends (Job Unit)",
-          "description": "List of job ids that must pass before this job runs.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "after": {
-          "title": "After (Job Unit)",
-          "description": "List of job ids that must run before this job, regardless of outcome.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "before": {
-          "title": "Before (Job Unit)",
-          "description": "List of job ids that this job must run before.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "group": {
-          "title": "Group (Job Unit)",
-          "description": "The id of the group this job belongs to.",
-          "type": "string"
-        },
-        "salvages": {
-          "title": "Salvages (Job Unit)",
-          "description": "List of job ids that must have failed for this job to run.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "command": {
-          "title": "Command (Job Unit)",
+          "title": "Command (Setup Job Unit)",
           "description": "Command to execute, run using the default system shell.",
           "type": "string"
         },
-        "purpose": {
-          "title": "Purpose (Job Unit)",
-          "description": "Used to communicate the purpose of an interactive job to the user.",
-          "type": "string"
-        },
-        "steps": {
-          "title": "Steps (Job Unit)",
-          "description": "Actions the user should perform as part of an interactive job execution.",
-          "type": "string"
-        },
-        "verification": {
-          "title": "Verification (Job Unit)",
-          "description": "Informs the user how to evaluate the outcome of an interactive job.",
-          "type": "string"
-        },
         "user": {
-          "title": "User (Job Unit)",
+          "title": "User (Setup Job Unit)",
           "description": "The user to run the job as, most commonly used to run jobs as root.",
           "type": "string"
         },
         "environ": {
-          "title": "Environ (Job Unit)",
+          "title": "Environ (Setup Job Unit)",
           "description": "List of environment variable names to pass to the job command.",
           "type": "array",
           "items": {
@@ -114,7 +54,7 @@
           }
         },
         "estimated_duration": {
-          "title": "Estimated Duration (Job Unit)",
+          "title": "Estimated Duration (Setup Job Unit)",
           "description": "Estimated job duration as a float in seconds or a duration string (e.g. 1h 2m 30s).",
           "oneOf": [
             { "type": "number", "minimum": 0 },
@@ -123,7 +63,7 @@
           ]
         },
         "flags": {
-          "title": "Flags (Job Unit)",
+          "title": "Flags (Setup Job Unit)",
           "description": "List of flags that may influence how Checkbox runs the job.",
           "type": "array",
           "items": {
@@ -145,7 +85,7 @@
           }
         },
         "imports": {
-          "title": "Imports (Job Unit)",
+          "title": "Imports (Setup Job Unit)",
           "description": "List of resource job imports from other namespaces.",
           "type": "array",
           "items": {
@@ -156,20 +96,12 @@
     }
   },
   "type": "object",
-  "allOf": [{ "$ref": "#/$defs/jobFields" }],
+  "allOf": [{ "$ref": "#/$defs/setupJobFields" }],
   "properties": {
     "unit": {
-      "title": "Unit (Job Unit)",
+      "title": "Unit (Setup Job Unit)",
       "description": "The type of unit.",
-      "const": "job"
-    },
-    "siblings": {
-      "title": "Siblings (Job Unit)",
-      "description": "List of job definition overrides to create copies of the current job.",
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/jobFields"
-      }
+      "const": "setup job"
     }
   },
   "required": ["id"],

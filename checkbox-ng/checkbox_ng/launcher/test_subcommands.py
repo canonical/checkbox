@@ -1215,8 +1215,14 @@ class TestExpand(TestCase):
             (
                 "^job2$",
                 [
-                    ("certification_status", "blocker"), # Usually inline override
-                    ("certification_status", "non-blocker"), # Usually top level section override
+                    (
+                        "certification_status",
+                        "blocker",
+                    ),  # Usually inline override
+                    (
+                        "certification_status",
+                        "non-blocker",
+                    ),  # Usually top level section override
                 ],
             ),
         ]
@@ -1224,7 +1230,8 @@ class TestExpand(TestCase):
             self.launcher.get_effective_certification_status(job1), "blocker"
         )
         self.assertEqual(
-            self.launcher.get_effective_certification_status(job2), "non-blocker"
+            self.launcher.get_effective_certification_status(job2),
+            "non-blocker",
         )
         self.assertEqual(
             self.launcher.get_effective_certification_status(template1),

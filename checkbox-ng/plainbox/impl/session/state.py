@@ -645,6 +645,9 @@ class SessionDeviceContext:
             job = job_state.job
             self._override_update(job)
 
+    # TODO: Overrides probably don't need to be at State level, since they
+    # are computed earlier. We could then move these functions to be reusable
+    # for things like the `expand` subcommand instead of duplicating code.
     def _override_update(self, job):
         """
         Apply overrides to job if they are directly related or apply to the

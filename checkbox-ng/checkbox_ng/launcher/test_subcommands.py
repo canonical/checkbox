@@ -1194,6 +1194,11 @@ class TestExpand(TestCase):
                 "id": "job1",
             }
         )
+        job2 = JobDefinition(
+            {
+                "id": "job2",
+            }
+        )
         template1 = TemplateUnit(
             {
                 "template-id": "template1",
@@ -1207,9 +1212,19 @@ class TestExpand(TestCase):
                     ("certification_status", "blocker"),
                 ],
             ),
+            (
+                "^job2$",
+                [
+                    ("certification_status", "blocker"), # Usually inline override
+                    ("certification_status", "non-blocker"), # Usually top level section override
+                ],
+            ),
         ]
         self.assertEqual(
             self.launcher.get_effective_certification_status(job1), "blocker"
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job2), "non-blocker"
         )
         self.assertEqual(
             self.launcher.get_effective_certification_status(template1),

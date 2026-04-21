@@ -1493,6 +1493,12 @@ class Expand:
                         "Unknown unit type {}".format(obj["unit"])
                     )
 
+    # TODO: This function is a duplicate of
+    # plainbox.impl.session.state.SessionDeviceContext._override_update()
+    # which itself uses JobState.apply_overrides(). The reason is in expand,
+    # we cannot use anything from the job or the session state. This should
+    # probably be refactored, given that the overrides are available at test
+    # plan level and should not be part of the job state to begin with...
     def get_effective_certification_status(self, unit):
         if unit.unit == "template":
             unit_id = unit.template_id
@@ -1502,7 +1508,8 @@ class Expand:
             if re.match(regex, unit_id):
                 for field, value in override_field_list:
                     if field == "certification_status":
-                        return value
+                        effective_certification_status = value
+                return effective_certification_status
         if hasattr(unit, "certification_status"):
             return unit.certification_status
         return "non-blocker"

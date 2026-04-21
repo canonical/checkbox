@@ -88,7 +88,7 @@ category_id: com.canonical.plainbox::benchmarks
 id: benchmarks/system/cpu_on_idle
 estimated_duration: 10.0
 requires: package.name == 'sysstat'
-command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall("idle\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
+command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall(r"idle\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
 _purpose: CPU utilization on an idle system.
 _summary: Measure CPU utilization on an idle system.
 
@@ -97,7 +97,7 @@ category_id: com.canonical.plainbox::benchmarks
 id: benchmarks/system/disk_on_idle
 estimated_duration: 10.0
 requires: package.name == 'sysstat'
-command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall("util\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
+command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall(r"util\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
 _purpose: Disk utilization on an idle system.
 _summary: Measure disk utilization on an idle system.
 

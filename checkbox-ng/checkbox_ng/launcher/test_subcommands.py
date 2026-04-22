@@ -1238,6 +1238,57 @@ class TestExpand(TestCase):
             "non-blocker",
         )
 
+    def test_get_effective_certificate_status_no_override(self):
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
+        template1 = TemplateUnit(
+            {
+                "template-id": "template1",
+                "id": "job-{res}",
+            }
+        )
+        self.launcher.override_list = []
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job1),
+            "non-blocker",
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(template1),
+            "non-blocker",
+        )
+
+    def test_get_effective_certificate_status_no_certification_override(self):
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
+        template1 = TemplateUnit(
+            {
+                "template-id": "template1",
+                "id": "job-{res}",
+            }
+        )
+        self.launcher.override_list = [
+            (
+                "^job1$",
+                [
+                    ("category_id", "com.canonical.certification::test"),
+                ],
+            ),
+        ]
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job1),
+            "non-blocker",
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(template1),
+            "non-blocker",
+        )
+
 
 class TestUtilsFunctions(TestCase):
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())

@@ -1506,10 +1506,14 @@ class Expand:
             unit_id = unit.id
         for regex, override_field_list in self.override_list:
             if re.match(regex, unit_id):
-                for field, value in override_field_list:
-                    if field == "certification_status":
-                        effective_certification_status = value
-                return effective_certification_status
+                with contextlib.suppress(IndexError):
+                    cert_overrides = [
+                        value
+                        for (field, value) in override_field_list
+                        if field == "certification_status"
+                    ]
+                    # highest priority is last, list is in "inverse dept" order
+                    return cert_overrides[-1]
         if hasattr(unit, "certification_status"):
             return unit.certification_status
         return "non-blocker"

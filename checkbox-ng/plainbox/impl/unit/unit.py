@@ -720,7 +720,9 @@ class Unit(metaclass=UnitType):
     def _get_record_value_leaf(self, name, value):
         assert isinstance(
             value, str
-        ), "Value '{}' is not leaf but type {} ({})".format(name, type(value), value)
+        ), "Value '{}' is not leaf but type {} ({})".format(
+            name, type(value), value
+        )
         if self.template_engine == "jinja2":
             if self.is_parametric or self.unit != "template":
                 # Add the current system environment variables to the

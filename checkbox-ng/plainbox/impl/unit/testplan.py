@@ -922,11 +922,18 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
                         (pattern, "certification_status", blocker_status)
                     )
 
-            V().visit(
-                OverrideFieldList.parse(
+            if isinstance(testplan.certification_status_overrides, str):
+                # LEGACY: pxu compatibility, now certification_status_overrides
+                #         is a list
+                to_visit = OverrideFieldList.parse(
                     testplan.certification_status_overrides
                 )
-            )
+            else:
+                to_visit = OverrideFieldList.from_preparsed(
+                    testplan.certification_status_overrides
+                )
+
+            V().visit(to_visit)
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_blocker_status_overrides(tp_unit))
         return override_list

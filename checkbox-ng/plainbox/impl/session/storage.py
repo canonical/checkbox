@@ -232,7 +232,7 @@ class SessionStorage:
         """
         WellKnownDirsHelper.populate_base()
 
-        isoformat = "%Y-%m-%dT%H.%M.%S"
+        isoformat = "%Y-%m-%dT%H.%M.%S.%f"
         timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(
             isoformat
         )

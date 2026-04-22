@@ -169,7 +169,7 @@ class CPUScalingHandler:
         self.max_freq = self.get_max_frequency()
         self.governors = self.get_supported_governors()
         self.original_governor = self.get_governor()
-        self.affected_cpus = self.get_affected_cpus()
+        self.affected_cpus = self.get_affected_cpus().split()
 
     def get_cpu_policies(self) -> List:
         """
@@ -254,13 +254,23 @@ class CPUScalingHandler:
         """
 
         if not self.cpu_policies:
-            return False
+            print("policy: NotAvailable")
+            print("scaling_driver: NotAvailable")
+            print("cpb: NotAvailable")
+            return
+        
         for policy in self.cpu_policies:
+            self.policy = policy
             print("policy: {}".format(policy))
             print("scaling_driver: {}".format(self.get_scaling_driver(policy)))
+            print("affected_cpus: {}".format(self.get_affected_cpus()))
             print("cpb: {}".format(self.get_cpb(policy)))
+            print(
+                "available_governors: {}".format(
+                    ", ".join(self.get_supported_governors())
+                )
+            )
             print()
-        return True
 
     def get_attribute(self, attr) -> str:
         """
@@ -379,8 +389,7 @@ class CPUScalingHandler:
         Returns:
             List: A list of affected CPUs as strings.
         """
-        values = self.get_policy_attribute("affected_cpus")
-        return values.split()
+        return self.get_policy_attribute("affected_cpus")
 
     def get_supported_governors(self) -> List:
         """
@@ -521,31 +530,6 @@ class CPUScalingTest:
                 logging.info("    %s", governor)
 
         logging.info("Current Governor: %s", self.handler.original_governor)
-
-    def test_driver_detect(self) -> bool:
-        """
-        Print the unique scaling drivers used by available CPU policies.
-
-        If there are multiple drivers, they will be listed in a
-        space-separated format. Example:
-        "scaling_driver: driver_a driver_b"
-
-        Returns:
-            bool: True if the drivers are printed successfully,
-                  False otherwise.
-        """
-        if not self.handler.cpu_policies:
-            return False
-        drivers = []
-        for policy in self.handler.cpu_policies:
-            driver = self.handler.get_scaling_driver(policy)
-            if driver and driver not in drivers:
-                drivers.append(driver)
-        if not drivers:
-            return False
-        else:
-            print("scaling_driver: {}".format(" ".join(drivers)))
-            return True
 
     @with_timeout()
     def is_frequency_equal_to_target(self, target) -> bool:
@@ -792,7 +776,6 @@ def main():
                      test run.
         --policy-resource: Print the policies list in Checkbox resource job
                            format.
-        --driver-detect: Print the CPU scaling driver.
         --policy: Run the test on a specific CPU policy (default is policy 0).
         --governor: Run a specific governor test.
     """
@@ -807,11 +790,6 @@ def main():
         "--policy-resource",
         action="store_true",
         help="Print the polices list in Checkbox resource job format.",
-    )
-    parser.add_argument(
-        "--driver-detect",
-        action="store_true",
-        help="Print the CPU scaling driver.",
     )
     parser.add_argument(
         "--policy",
@@ -836,9 +814,6 @@ def main():
         sys.exit(0)
 
     test = CPUScalingTest(policy=args.policy)
-    if args.driver_detect:
-        sys.exit(0) if test.test_driver_detect() else sys.exit(1)
-
     try:
         test.print_policy_info()
         if args.governor not in handler.governors:

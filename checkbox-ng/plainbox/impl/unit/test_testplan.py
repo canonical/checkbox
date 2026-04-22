@@ -52,6 +52,30 @@ class TestTestPlan(TestCase):
         self.provider = mock.Mock(name="provider", spec_set=IProvider1)
         self.provider.namespace = "ns"
 
+    def test__get_blocker_status_overrides_legacy(self):
+        self_mock = mock.Mock()
+        self_mock.get_nested_part.return_value = []
+        self_mock.certification_status_overrides = "apply blocker to Bar"
+        overrides = TestPlanUnitSupport._get_blocker_status_overrides(
+            self_mock, self_mock
+        )
+        self.assertEqual(len(overrides), 1)
+        _, field, value = overrides[0]
+        # here the pattern is enclosed in weirdness, lets not check it
+        self.assertEqual((field, value), ("certification_status", "blocker"))
+
+    def test__get_blocker_status_overrides(self):
+        self_mock = mock.Mock()
+        self_mock.get_nested_part.return_value = []
+        self_mock.certification_status_overrides = ["apply blocker to Bar"]
+        overrides = TestPlanUnitSupport._get_blocker_status_overrides(
+            self_mock, self_mock
+        )
+        self.assertEqual(len(overrides), 1)
+        _, field, value = overrides[0]
+        # here the pattern is enclosed in weirdness, lets not check it
+        self.assertEqual((field, value), ("certification_status", "blocker"))
+
     def test_name__default(self):
         unit = TestPlanUnit({}, provider=self.provider)
         self.assertEqual(unit.name, None)

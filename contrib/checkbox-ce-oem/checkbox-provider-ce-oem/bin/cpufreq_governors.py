@@ -493,6 +493,14 @@ class CPUScalingHandler:
 
 class CPUScalingTest:
     """A class for CPU scaling test operations."""
+    test_description = ""
+    _registry = {}
+
+    def __init_subclass__(cls, *, key=None, **kwargs):
+        """Register subclasses in the registry."""
+        super().__init_subclass__(**kwargs)
+        if key:
+            CPUScalingTest._registry[key] = cls
 
     def __init__(self, policy=0):
         """
@@ -503,6 +511,29 @@ class CPUScalingTest:
         """
         self.policy = policy
         self.handler = CPUScalingHandler(policy=self.policy)
+
+    @classmethod
+    def create(cls, governor, policy=0):
+        """
+        Create a test instance by governor name.
+
+        Args:
+            governor (str): The name of the governor test to create.
+            policy (int): The CPU policy number to be used (default is 0).
+
+        Returns:
+            CPUScalingTest: An instance of the appropriate test class.
+
+        Raises:
+            ValueError: If the governor is not supported.
+        """
+        test_class = cls._registry.get(governor.lower())
+        if test_class is None:
+            raise ValueError(
+                f"Governor '{governor}' not supported. "
+                f"Available: {', '.join(sorted(cls._registry.keys()))}"
+            )
+        return test_class(policy=policy)
 
     def print_policy_info(self):
         """
@@ -676,6 +707,29 @@ class CPUScalingTest:
                 sys.exit("Governor '{}' not supported".format(governor))
         return success
 
+    def test_governor(self) -> bool:
+        """
+        Run the CPU Scaling Governor Test.
+
+        This function is a placeholder for running the CPU scaling governor
+        test. It should be implemented in the subclasses for specific
+        governors.
+
+        Returns:
+            bool: True if the test passes, False otherwise.
+        """
+        raise NotImplementedError("This method should be implemented in subclass.")
+
+
+class UserspaceCPUScalingTest(CPUScalingTest, key="userspace"):
+    """
+    CPU scaling test operations specific to the userspace governor.
+    """
+    description = """
+    This job sets the governor to "userspace" and verifies the frequency 
+    when setting it to maximum and minimum.
+    """
+
     def test_userspace(self) -> bool:
         """
         Run the Userspace Governor Test.
@@ -696,7 +750,17 @@ class CPUScalingTest:
             self.handler.min_freq,
         )
 
-    def test_performance(self) -> bool:
+
+class PerformanceCPUScalingTest(CPUScalingTest, key="performance"):
+    """
+    CPU scaling test operations specific to the performance and powersave
+    governors.
+    """
+    description = """
+    This job sets the governor to "performance" and verifies whether 
+    the frequency is maximum.
+    """
+    def test_governor(self) -> bool:
         """
         Run the Performance Governor Test.
 
@@ -710,7 +774,17 @@ class CPUScalingTest:
         governor = "performance"
         return self.test_frequency_influence(governor)
 
-    def test_powersave(self) -> bool:
+
+class PowersaveCPUScalingTest(CPUScalingTest, key="powersave"):
+    """
+    CPU scaling test operations specific to the powersave governor.
+    """
+    description = """
+    This job sets the governor to "powersave" and verifies whether 
+    the frequency is minimum.
+    """
+
+    def test_governor(self) -> bool:
         """
         Run the Powersave Governor Test.
 
@@ -724,7 +798,17 @@ class CPUScalingTest:
         governor = "powersave"
         return self.test_frequency_influence(governor)
 
-    def test_ondemand(self) -> bool:
+
+class OndemandCPUScalingTest(CPUScalingTest, key="ondemand"):
+    """
+    CPU scaling test operations specific to the ondemand governor.
+    """
+    description = """
+    This job sets the governor to "ondemand" and verifies whether the 
+    frequency will be maximum after stressing CPUs and settling down after
+    sleeping for a few seconds.
+    """
+    def test_governor(self) -> bool:
         """
         Run the Ondemand Governor Test.
 
@@ -738,7 +822,18 @@ class CPUScalingTest:
         governor = "ondemand"
         return self.test_frequency_influence(governor)
 
-    def test_conservative(self) -> bool:
+
+class ConservativeCPUScalingTest(CPUScalingTest, key="conservative"):
+    """
+    CPU scaling test operations specific to the conservative governor.
+    """
+    description = """
+    This job sets the governor to "conservative" and verifies whether the 
+    frequency will be maximum after stressing CPUs and settling down after
+    sleeping for a few seconds.
+    """
+
+    def test_governor(self) -> bool:
         """
         Run the Conservative Governor Test.
 
@@ -752,7 +847,17 @@ class CPUScalingTest:
         governor = "conservative"
         return self.test_frequency_influence(governor)
 
-    def test_schedutil(self) -> bool:
+
+class SchedutilCPUScalingTest(CPUScalingTest, key="schedutil"):
+    """
+    CPU scaling test operations specific to the schedutil governor.
+    """
+    description = """
+    This job sets the governor to "schedutil" and verifies whether the 
+    frequency will be maximum after stressing CPUs and settling down after
+    sleeping for a few seconds.
+    """
+    def test_governor(self) -> bool:
         """
         Run the Schedutil Governor Test.
 
@@ -813,15 +918,24 @@ def main():
         handler.print_policies_list()
         sys.exit(0)
 
-    test = CPUScalingTest(policy=args.policy)
+    if not args.governor:
+        parser.print_help()
+        sys.exit(1)
+
     try:
+        test = CPUScalingTest.create(args.governor, policy=int(args.policy))
+        logging.info(test.description)
         test.print_policy_info()
         if args.governor not in handler.governors:
-            probe_governor_module(args.governor)
-        if not getattr(test, "test_{}".format(args.governor))():
+            logging.error(
+                "Governor '%s' is not supported by CPU policy%s",
+                args.governor,
+                args.policy,
+            )
+        if not test.test_governor():
             sys.exit(1)
-    except AttributeError:
-        logging.error("Given governor is not supported")
+    except ValueError as err:
+        logging.error(str(err))
         sys.exit(1)
 
 

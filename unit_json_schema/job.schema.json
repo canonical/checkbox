@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/job.schema.json",
+  "$id": "job.schema.json",
   "title": "Job Unit",
   "description": "Schema that describes a Checkbox Job unit",
   "$defs": {
@@ -140,7 +140,8 @@
               "fail-on-resource",
               "also-after-suspend",
               "also-after-suspend-manual",
-              "cachable"
+              "cachable",
+              "use-chunked-io"
             ]
           }
         },
@@ -172,6 +173,6 @@
       }
     }
   },
-  "required": ["id", "summary"],
+  "required": ["id"],
   "unevaluatedProperties": false
 }

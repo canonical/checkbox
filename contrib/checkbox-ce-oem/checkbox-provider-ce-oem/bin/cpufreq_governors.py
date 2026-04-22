@@ -258,7 +258,7 @@ class CPUScalingHandler:
             print("scaling_driver: NotAvailable")
             print("cpb: NotAvailable")
             return
-        
+
         for policy in self.cpu_policies:
             self.policy = policy
             print("policy: {}".format(policy))

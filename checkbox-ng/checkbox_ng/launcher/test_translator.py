@@ -26,6 +26,7 @@ from functools import wraps
 from checkbox_ng.launcher.translator import (
     split_comment,
     split_string_values,
+    no_space_formatters,
     Translator,
     commentable_value,
     CommentedError,
@@ -103,6 +104,22 @@ class CommentedValueTranslatorTests(TestCase):
             _ = commentable_value("value # some comment")
         self.assertEqual("value", cm.exception.value)
         self.assertEqual("some comment", cm.exception.comment)
+
+
+class NoSpaceFormattersTests(TestCase):
+    def test_no_space_formatters(self):
+        self.assertEqual(
+            no_space_formatters(
+                "id_with_jinja_formatter{{ some_resource_key }}"
+            ),
+            "id_with_jinja_formatter{{some_resource_key}}",
+        )
+
+    def test_no_space_formatters_identity(self):
+        self.assertEqual(
+            no_space_formatters("id_with_jinja_formatter"),
+            "id_with_jinja_formatter",
+        )
 
 
 class TranslatorTestCase(TestCase):

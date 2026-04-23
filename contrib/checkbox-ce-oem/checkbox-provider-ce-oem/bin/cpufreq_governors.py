@@ -266,7 +266,11 @@ class CPUScalingHandler:
             supported_governors = self.get_supported_governors()
             for governor in available_governor_tests:
                 print("policy: {}".format(policy))
-                print("scaling_driver: {}".format(self.get_scaling_driver(policy)))
+                print(
+                    "scaling_driver: {}".format(
+                        self.get_scaling_driver(policy)
+                    )
+                )
                 print("affected_cpus: {}".format(self.get_affected_cpus()))
                 print("cpb: {}".format(self.get_cpb(policy)))
                 print("governor: {}".format(governor))
@@ -736,10 +740,10 @@ class UserspaceCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the userspace governor.
     """
 
-    description = """
-    This job sets the governor to "userspace" and verifies the frequency 
-    when setting it to maximum and minimum.
-    """
+    description = (
+        "This job sets the governor to 'userspace' and verifies the frequency"
+        " when setting it to maximum and minimum."
+    )
 
     def test_governor(self) -> bool:
         """
@@ -769,10 +773,10 @@ class PerformanceCPUScalingTest(CPUScalingTest):
     governors.
     """
 
-    description = """
-    This job sets the governor to "performance" and verifies whether 
-    the frequency is maximum.
-    """
+    description = (
+        "This job sets the governor to 'performance' and verifies whether"
+        " the frequency is maximum."
+    )
 
     def test_governor(self) -> bool:
         """
@@ -795,10 +799,10 @@ class PowersaveCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the powersave governor.
     """
 
-    description = """
-    This job sets the governor to "powersave" and verifies whether 
-    the frequency is minimum.
-    """
+    description = (
+        "This job sets the governor to 'powersave' and verifies whether"
+        " the frequency is minimum."
+    )
 
     def test_governor(self) -> bool:
         """
@@ -821,11 +825,11 @@ class OndemandCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the ondemand governor.
     """
 
-    description = """
-    This job sets the governor to "ondemand" and verifies whether the 
-    frequency will be maximum after stressing CPUs and settling down after
-    sleeping for a few seconds.
-    """
+    description = (
+        "This job sets the governor to 'ondemand' and verifies whether the"
+        " frequency will be maximum after stressing CPUs and settling down"
+        " after sleeping for a few seconds."
+    )
 
     def test_governor(self) -> bool:
         """
@@ -848,11 +852,11 @@ class ConservativeCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the conservative governor.
     """
 
-    description = """
-    This job sets the governor to "conservative" and verifies whether the 
-    frequency will be maximum after stressing CPUs and settling down after
-    sleeping for a few seconds.
-    """
+    description = (
+        "This job sets the governor to 'conservative' and verifies whether"
+        " the frequency will be maximum after stressing CPUs and"
+        " settling down after sleeping for a few seconds."
+    )
 
     def test_governor(self) -> bool:
         """
@@ -875,11 +879,11 @@ class SchedutilCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the schedutil governor.
     """
 
-    description = """
-    This job sets the governor to "schedutil" and verifies whether the 
-    frequency will be maximum after stressing CPUs and settling down after
-    sleeping for a few seconds.
-    """
+    description = (
+        "This job sets the governor to 'schedutil' and verifies whether the"
+        " frequency will be maximum after stressing CPUs and"
+        " settling down after sleeping for a few seconds."
+    )
 
     def test_governor(self) -> bool:
         """

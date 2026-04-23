@@ -1572,15 +1572,23 @@ class ListBootstrapped:
             raise SystemExit("Test plan not found")
         self.sa.select_test_plan(testplan_id)
         self.sa.bootstrap()
+
         jobs = []
         for job in self.sa.get_static_todo_list():
             job_unit = self.sa.get_job(job)
-            attrs = job_unit._raw_data.copy()
+
+            # use get_record_value to apply template expansions else all values
+            # beside id and partial_id would be un-templated in the output
+            attrs = {
+                field: job_unit.get_record_value(field)
+                for field in job_unit._raw_data
+            }
             attrs["full_id"] = job_unit.id
             attrs["id"] = job_unit.partial_id
             attrs["certification_status"] = self.ctx.sa.get_job_state(
                 job
             ).effective_certification_status
+
             jobs.append(attrs)
         if ctx.args.format == "?":
             all_keys = set()

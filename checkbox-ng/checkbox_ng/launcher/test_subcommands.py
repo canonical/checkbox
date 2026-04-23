@@ -1194,6 +1194,11 @@ class TestExpand(TestCase):
                 "id": "job1",
             }
         )
+        job2 = JobDefinition(
+            {
+                "id": "job2",
+            }
+        )
         template1 = TemplateUnit(
             {
                 "template-id": "template1",
@@ -1207,9 +1212,77 @@ class TestExpand(TestCase):
                     ("certification_status", "blocker"),
                 ],
             ),
+            (
+                "^job2$",
+                [
+                    (
+                        "certification_status",
+                        "blocker",
+                    ),  # Usually inline override
+                    (
+                        "certification_status",
+                        "non-blocker",
+                    ),  # Usually top level section override
+                ],
+            ),
         ]
         self.assertEqual(
             self.launcher.get_effective_certification_status(job1), "blocker"
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job2),
+            "non-blocker",
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(template1),
+            "non-blocker",
+        )
+
+    def test_get_effective_certificate_status_no_override(self):
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
+        template1 = TemplateUnit(
+            {
+                "template-id": "template1",
+                "id": "job-{res}",
+            }
+        )
+        self.launcher.override_list = []
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job1),
+            "non-blocker",
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(template1),
+            "non-blocker",
+        )
+
+    def test_get_effective_certificate_status_no_certification_override(self):
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
+        template1 = TemplateUnit(
+            {
+                "template-id": "template1",
+                "id": "job-{res}",
+            }
+        )
+        self.launcher.override_list = [
+            (
+                "^job1$",
+                [
+                    ("category_id", "com.canonical.certification::test"),
+                ],
+            ),
+        ]
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job1),
+            "non-blocker",
         )
         self.assertEqual(
             self.launcher.get_effective_certification_status(template1),

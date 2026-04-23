@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_intel_tdx
+_name: Is Intel TDX available and properly configured in the BIOS ?
+value-type: bool

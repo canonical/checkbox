@@ -493,14 +493,19 @@ class CPUScalingHandler:
 
 class CPUScalingTest:
     """A class for CPU scaling test operations."""
+
     test_description = ""
     _registry = {}
 
-    def __init_subclass__(cls, *, key=None, **kwargs):
-        """Register subclasses in the registry."""
-        super().__init_subclass__(**kwargs)
-        if key:
-            CPUScalingTest._registry[key] = cls
+    @classmethod
+    def register(cls, key):
+        """Register test classes by governor name."""
+
+        def decorator(test_cls):
+            cls._registry[key] = test_cls
+            return test_cls
+
+        return decorator
 
     def __init__(self, policy=0):
         """
@@ -531,7 +536,7 @@ class CPUScalingTest:
         if test_class is None:
             raise ValueError(
                 "Governor '{}' not supported. Available: {}".format(
-                    governor, ', '.join(sorted(cls._registry.keys()))
+                    governor, ", ".join(sorted(cls._registry.keys()))
                 )
             )
         return test_class(policy=policy)
@@ -719,10 +724,13 @@ class CPUScalingTest:
         Returns:
             bool: True if the test passes, False otherwise.
         """
-        raise NotImplementedError("This method should be implemented in subclass.")
+        raise NotImplementedError(
+            "This method should be implemented in subclass."
+        )
 
 
-class UserspaceCPUScalingTest(CPUScalingTest, key="userspace"):
+@CPUScalingTest.register("userspace")
+class UserspaceCPUScalingTest(CPUScalingTest):
     """
     CPU scaling test operations specific to the userspace governor.
     """
@@ -753,7 +761,8 @@ class UserspaceCPUScalingTest(CPUScalingTest, key="userspace"):
         )
 
 
-class PerformanceCPUScalingTest(CPUScalingTest, key="performance"):
+@CPUScalingTest.register("performance")
+class PerformanceCPUScalingTest(CPUScalingTest):
     """
     CPU scaling test operations specific to the performance and powersave
     governors.
@@ -779,7 +788,8 @@ class PerformanceCPUScalingTest(CPUScalingTest, key="performance"):
         return self.test_frequency_influence(governor)
 
 
-class PowersaveCPUScalingTest(CPUScalingTest, key="powersave"):
+@CPUScalingTest.register("powersave")
+class PowersaveCPUScalingTest(CPUScalingTest):
     """
     CPU scaling test operations specific to the powersave governor.
     """
@@ -804,7 +814,8 @@ class PowersaveCPUScalingTest(CPUScalingTest, key="powersave"):
         return self.test_frequency_influence(governor)
 
 
-class OndemandCPUScalingTest(CPUScalingTest, key="ondemand"):
+@CPUScalingTest.register("ondemand")
+class OndemandCPUScalingTest(CPUScalingTest):
     """
     CPU scaling test operations specific to the ondemand governor.
     """
@@ -830,7 +841,8 @@ class OndemandCPUScalingTest(CPUScalingTest, key="ondemand"):
         return self.test_frequency_influence(governor)
 
 
-class ConservativeCPUScalingTest(CPUScalingTest, key="conservative"):
+@CPUScalingTest.register("conservative")
+class ConservativeCPUScalingTest(CPUScalingTest):
     """
     CPU scaling test operations specific to the conservative governor.
     """
@@ -856,7 +868,8 @@ class ConservativeCPUScalingTest(CPUScalingTest, key="conservative"):
         return self.test_frequency_influence(governor)
 
 
-class SchedutilCPUScalingTest(CPUScalingTest, key="schedutil"):
+@CPUScalingTest.register("schedutil")
+class SchedutilCPUScalingTest(CPUScalingTest):
     """
     CPU scaling test operations specific to the schedutil governor.
     """

@@ -61,8 +61,6 @@ def get_accessed_parameters(value, template_engine="default") -> frozenset:
         for value in values:
             to_r += list(get_accessed_parameters(value, template_engine))
     elif isinstance(value, dict):
-        # field + overrides
-        assert len(value.keys()) == 1, "Somethings very wrong here"
         to_r += list(
             get_accessed_parameters(next(iter(value.keys())), template_engine)
         )

@@ -11,7 +11,7 @@ command: cpufreq_governors.py --policy-resource
 unit: template
 template-resource: cpufreq_policy_list
 template-unit: job
-template-filter: cpufreq_policy_list.policy != 'NotAvailable' or (cpufreq_policy_list.scaling_driver != 'intel_pstate' and cpufreq_policy_list.cpb != '1')
+template-filter: cpufreq_policy_list.policy != 'NotAvailable'
 id: ce-oem-cpu/cpufreq-governor-{governor}-policy{policy}
 _summary: Test "{governor}" scaling governor on policy{policy}
 _description:
@@ -20,6 +20,9 @@ plugin: shell
 user: root
 category_id: com.canonical.plainbox::cpu
 flags: also-after-suspend
-requires: cpufreq_policy_list.supported == "True"
+requires: 
+    cpufreq_policy_list.supported == "True"
+    cpufreq_policy_list.scaling_driver != 'intel_pstate'
+    cpufreq_policy_list.cpb != '1'
 estimated_duration: 1s
 command: cpufreq_governors.py --policy {policy} --governor {governor}

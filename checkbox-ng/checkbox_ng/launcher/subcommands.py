@@ -1543,7 +1543,8 @@ class ListBootstrapped:
             help=_(
                 (
                     "output format, as passed to print function. "
-                    "Use '?' to list possible values"
+                    "Use '?' to list possible values. "
+                    "Use 'json' to print all objects as a json"
                 )
             ),
         )
@@ -1588,7 +1589,9 @@ class ListBootstrapped:
             print(_("Available fields are:"))
             print(", ".join(sorted(list(all_keys))))
             return
-        if ctx.args.format:
+        if ctx.args.format == "json":
+            json.dump(jobs, sys.stdout)
+        elif ctx.args.format:
             for job in jobs:
                 unescaped = ctx.args.format.replace("\\n", "\n").replace(
                     "\\t", "\t"

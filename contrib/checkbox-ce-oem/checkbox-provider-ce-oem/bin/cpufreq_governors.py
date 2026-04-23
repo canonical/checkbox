@@ -259,18 +259,19 @@ class CPUScalingHandler:
             print("cpb: NotAvailable")
             return
 
+        available_governor_tests = CPUScalingTest._registry.keys()
+
         for policy in self.cpu_policies:
             self.policy = policy
-            print("policy: {}".format(policy))
-            print("scaling_driver: {}".format(self.get_scaling_driver(policy)))
-            print("affected_cpus: {}".format(self.get_affected_cpus()))
-            print("cpb: {}".format(self.get_cpb(policy)))
-            print(
-                "available_governors: {}".format(
-                    ", ".join(self.get_supported_governors())
-                )
-            )
-            print()
+            supported_governors = self.get_supported_governors()
+            for governor in available_governor_tests:
+                print("policy: {}".format(policy))
+                print("scaling_driver: {}".format(self.get_scaling_driver(policy)))
+                print("affected_cpus: {}".format(self.get_affected_cpus()))
+                print("cpb: {}".format(self.get_cpb(policy)))
+                print("governor: {}".format(governor))
+                print("supported: {}".format(governor in supported_governors))
+                print()
 
     def get_attribute(self, attr) -> str:
         """

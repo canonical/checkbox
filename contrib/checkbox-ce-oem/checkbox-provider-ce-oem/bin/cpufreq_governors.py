@@ -169,7 +169,7 @@ class CPUScalingHandler:
         self.max_freq = self.get_max_frequency()
         self.governors = self.get_supported_governors()
         self.original_governor = self.get_governor()
-        self.affected_cpus = self.get_affected_cpus()
+        self.affected_cpus = self.get_affected_cpus().split()
 
     def get_cpu_policies(self) -> List:
         """
@@ -254,13 +254,28 @@ class CPUScalingHandler:
         """
 
         if not self.cpu_policies:
-            return False
+            print("policy: NotAvailable")
+            print("scaling_driver: NotAvailable")
+            print("cpb: NotAvailable")
+            return
+
+        available_governor_tests = CPUScalingTest._registry.keys()
+
         for policy in self.cpu_policies:
-            print("policy: {}".format(policy))
-            print("scaling_driver: {}".format(self.get_scaling_driver(policy)))
-            print("cpb: {}".format(self.get_cpb(policy)))
-            print()
-        return True
+            self.policy = policy
+            supported_governors = self.get_supported_governors()
+            for governor in available_governor_tests:
+                print("policy: {}".format(policy))
+                print(
+                    "scaling_driver: {}".format(
+                        self.get_scaling_driver(policy)
+                    )
+                )
+                print("affected_cpus: {}".format(self.get_affected_cpus()))
+                print("cpb: {}".format(self.get_cpb(policy)))
+                print("governor: {}".format(governor))
+                print("supported: {}".format(governor in supported_governors))
+                print()
 
     def get_attribute(self, attr) -> str:
         """
@@ -379,8 +394,7 @@ class CPUScalingHandler:
         Returns:
             List: A list of affected CPUs as strings.
         """
-        values = self.get_policy_attribute("affected_cpus")
-        return values.split()
+        return self.get_policy_attribute("affected_cpus")
 
     def get_supported_governors(self) -> List:
         """
@@ -485,6 +499,19 @@ class CPUScalingHandler:
 class CPUScalingTest:
     """A class for CPU scaling test operations."""
 
+    test_description = ""
+    _registry = {}
+
+    @classmethod
+    def register(cls, key):
+        """Register test classes by governor name."""
+
+        def decorator(test_cls):
+            cls._registry[key] = test_cls
+            return test_cls
+
+        return decorator
+
     def __init__(self, policy=0):
         """
         Initialize the CPUScalingTest object.
@@ -494,6 +521,30 @@ class CPUScalingTest:
         """
         self.policy = policy
         self.handler = CPUScalingHandler(policy=self.policy)
+
+    @classmethod
+    def create(cls, governor, policy=0):
+        """
+        Create a test instance by governor name.
+
+        Args:
+            governor (str): The name of the governor test to create.
+            policy (int): The CPU policy number to be used (default is 0).
+
+        Returns:
+            CPUScalingTest: An instance of the appropriate test class.
+
+        Raises:
+            ValueError: If the governor is not supported.
+        """
+        test_class = cls._registry.get(governor.lower())
+        if test_class is None:
+            raise ValueError(
+                "Governor '{}' not supported. Available: {}".format(
+                    governor, ", ".join(sorted(cls._registry.keys()))
+                )
+            )
+        return test_class(policy=policy)
 
     def print_policy_info(self):
         """
@@ -521,31 +572,6 @@ class CPUScalingTest:
                 logging.info("    %s", governor)
 
         logging.info("Current Governor: %s", self.handler.original_governor)
-
-    def test_driver_detect(self) -> bool:
-        """
-        Print the unique scaling drivers used by available CPU policies.
-
-        If there are multiple drivers, they will be listed in a
-        space-separated format. Example:
-        "scaling_driver: driver_a driver_b"
-
-        Returns:
-            bool: True if the drivers are printed successfully,
-                  False otherwise.
-        """
-        if not self.handler.cpu_policies:
-            return False
-        drivers = []
-        for policy in self.handler.cpu_policies:
-            driver = self.handler.get_scaling_driver(policy)
-            if driver and driver not in drivers:
-                drivers.append(driver)
-        if not drivers:
-            return False
-        else:
-            print("scaling_driver: {}".format(" ".join(drivers)))
-            return True
 
     @with_timeout()
     def is_frequency_equal_to_target(self, target) -> bool:
@@ -692,7 +718,34 @@ class CPUScalingTest:
                 sys.exit("Governor '{}' not supported".format(governor))
         return success
 
-    def test_userspace(self) -> bool:
+    def test_governor(self) -> bool:
+        """
+        Run the CPU Scaling Governor Test.
+
+        This function is a placeholder for running the CPU scaling governor
+        test. It should be implemented in the subclasses for specific
+        governors.
+
+        Returns:
+            bool: True if the test passes, False otherwise.
+        """
+        raise NotImplementedError(
+            "This method should be implemented in subclass."
+        )
+
+
+@CPUScalingTest.register("userspace")
+class UserspaceCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the userspace governor.
+    """
+
+    description = (
+        "This job sets the governor to 'userspace' and verifies the frequency"
+        " when setting it to maximum and minimum."
+    )
+
+    def test_governor(self) -> bool:
         """
         Run the Userspace Governor Test.
 
@@ -712,7 +765,20 @@ class CPUScalingTest:
             self.handler.min_freq,
         )
 
-    def test_performance(self) -> bool:
+
+@CPUScalingTest.register("performance")
+class PerformanceCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the performance and powersave
+    governors.
+    """
+
+    description = (
+        "This job sets the governor to 'performance' and verifies whether"
+        " the frequency is maximum."
+    )
+
+    def test_governor(self) -> bool:
         """
         Run the Performance Governor Test.
 
@@ -726,7 +792,19 @@ class CPUScalingTest:
         governor = "performance"
         return self.test_frequency_influence(governor)
 
-    def test_powersave(self) -> bool:
+
+@CPUScalingTest.register("powersave")
+class PowersaveCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the powersave governor.
+    """
+
+    description = (
+        "This job sets the governor to 'powersave' and verifies whether"
+        " the frequency is minimum."
+    )
+
+    def test_governor(self) -> bool:
         """
         Run the Powersave Governor Test.
 
@@ -740,7 +818,20 @@ class CPUScalingTest:
         governor = "powersave"
         return self.test_frequency_influence(governor)
 
-    def test_ondemand(self) -> bool:
+
+@CPUScalingTest.register("ondemand")
+class OndemandCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the ondemand governor.
+    """
+
+    description = (
+        "This job sets the governor to 'ondemand' and verifies whether the"
+        " frequency will be maximum after stressing CPUs and settling down"
+        " after sleeping for a few seconds."
+    )
+
+    def test_governor(self) -> bool:
         """
         Run the Ondemand Governor Test.
 
@@ -754,7 +845,20 @@ class CPUScalingTest:
         governor = "ondemand"
         return self.test_frequency_influence(governor)
 
-    def test_conservative(self) -> bool:
+
+@CPUScalingTest.register("conservative")
+class ConservativeCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the conservative governor.
+    """
+
+    description = (
+        "This job sets the governor to 'conservative' and verifies whether"
+        " the frequency will be maximum after stressing CPUs and"
+        " settling down after sleeping for a few seconds."
+    )
+
+    def test_governor(self) -> bool:
         """
         Run the Conservative Governor Test.
 
@@ -768,7 +872,20 @@ class CPUScalingTest:
         governor = "conservative"
         return self.test_frequency_influence(governor)
 
-    def test_schedutil(self) -> bool:
+
+@CPUScalingTest.register("schedutil")
+class SchedutilCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the schedutil governor.
+    """
+
+    description = (
+        "This job sets the governor to 'schedutil' and verifies whether the"
+        " frequency will be maximum after stressing CPUs and"
+        " settling down after sleeping for a few seconds."
+    )
+
+    def test_governor(self) -> bool:
         """
         Run the Schedutil Governor Test.
 
@@ -792,7 +909,6 @@ def main():
                      test run.
         --policy-resource: Print the policies list in Checkbox resource job
                            format.
-        --driver-detect: Print the CPU scaling driver.
         --policy: Run the test on a specific CPU policy (default is policy 0).
         --governor: Run a specific governor test.
     """
@@ -807,11 +923,6 @@ def main():
         "--policy-resource",
         action="store_true",
         help="Print the polices list in Checkbox resource job format.",
-    )
-    parser.add_argument(
-        "--driver-detect",
-        action="store_true",
-        help="Print the CPU scaling driver.",
     )
     parser.add_argument(
         "--policy",
@@ -835,18 +946,24 @@ def main():
         handler.print_policies_list()
         sys.exit(0)
 
-    test = CPUScalingTest(policy=args.policy)
-    if args.driver_detect:
-        sys.exit(0) if test.test_driver_detect() else sys.exit(1)
+    if not args.governor:
+        parser.print_help()
+        sys.exit(1)
 
     try:
+        test = CPUScalingTest.create(args.governor, policy=int(args.policy))
+        logging.info(test.description)
         test.print_policy_info()
         if args.governor not in handler.governors:
-            probe_governor_module(args.governor)
-        if not getattr(test, "test_{}".format(args.governor))():
+            logging.error(
+                "Governor '%s' is not supported by CPU policy%s",
+                args.governor,
+                args.policy,
+            )
+        if not test.test_governor():
             sys.exit(1)
-    except AttributeError:
-        logging.error("Given governor is not supported")
+    except ValueError as err:
+        logging.error(str(err))
         sys.exit(1)
 
 

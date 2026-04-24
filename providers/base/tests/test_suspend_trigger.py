@@ -74,6 +74,7 @@ class TestSuspendTriggerFWTS(unittest.TestCase):
 
 
 @patch("suspend_trigger.fwts_test")
+@patch("suspend_trigger.subprocess.check_output")
 @patch("suspend_trigger.subprocess.check_call")
 @patch("suspend_trigger.platform.machine")
 @patch("os.remove")
@@ -85,12 +86,14 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_remove,
         mock_machine,
         mock_check_call,
+        mock_check_output,
         mock_fwts_test,
     ):
         """
         Tests the rtcwake/systemctl path on aarch64 with custom arguments.
         """
         mock_machine.return_value = "aarch64"
+        mock_check_output.return_value = "No jobs listed."
 
         suspend_trigger.main(
             ["--sleep-delay", "25", "--rtc-device", "/dev/my_rtc"]
@@ -108,12 +111,19 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
             "25",
         ]
         expected_suspend_cmd = ["systemctl", "suspend"]
+        expected_list_cmd = ["systemctl", "list-jobs", "*suspend*"]
+        mock_check_output.assert_called_with(
+            expected_list_cmd,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
         subprocess_calls = [
             call(expected_rtcwake_cmd),
             call(expected_suspend_cmd),
         ]
         mock_check_call.assert_has_calls(subprocess_calls)
         self.assertEqual(mock_check_call.call_count, 2)
+        self.assertEqual(mock_check_output.call_count, 1)
 
     def test_rtcwake_path_with_defaults(
         self,
@@ -121,12 +131,14 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_remove,
         mock_machine,
         mock_check_call,
+        mock_check_output,
         mock_fwts_test,
     ):
         """
         Tests the rtcwake/systemctl path without any argument.
         """
         mock_machine.return_value = "riscv64"
+        mock_check_output.return_value = "No jobs listed."
 
         suspend_trigger.main([])
 
@@ -141,11 +153,74 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
             "30",
         ]
         expected_suspend_cmd = ["systemctl", "suspend"]
+        expected_list_cmd = ["systemctl", "list-jobs", "*suspend*"]
+        mock_check_output.assert_called_with(
+            expected_list_cmd,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
         subprocess_calls = [
             call(expected_rtcwake_cmd),
             call(expected_suspend_cmd),
         ]
         mock_check_call.assert_has_calls(subprocess_calls)
+
+    def test_list_command_failure(
+        self,
+        mock_exists,
+        mock_remove,
+        mock_machine,
+        mock_check_call,
+        mock_check_output,
+        mock_fwts_test,
+    ):
+        """
+        Tests the case where the systemctl list-jobs *suspend* fails.
+        """
+        mock_machine.return_value = "aarch64"
+        # Simulate a command failure
+        error = subprocess.CalledProcessError(
+            returncode=1,
+            cmd="systemctl list-jobs *suspend*",
+            output="Timed out waiting for suspend jobs to finish",
+        )
+        mock_check_output.side_effect = error
+
+        # The script should propagate the exception
+        with self.assertRaises(subprocess.CalledProcessError):
+            suspend_trigger.main([])
+
+        # Verify that only the first command was attempted
+        self.assertTrue(mock_check_output.called)
+        called_args = mock_check_output.call_args[0][0]
+        self.assertEqual(called_args[0], "systemctl")
+        self.assertEqual(called_args[1], "list-jobs")
+
+    def test_wait_for_jobs_timeout(
+        self,
+        mock_exists,
+        mock_remove,
+        mock_machine,
+        mock_check_call,
+        mock_check_output,
+        mock_fwts_test,
+    ):
+        """
+        Tests the case where systemctl list-jobs *suspend* times out.
+        """
+        mock_machine.return_value = "aarch64"
+
+        mock_check_output.return_value = "1 jobs listed. (suspend ongoing)"
+
+        result = suspend_trigger.main([])
+
+        self.assertEqual(result, 1)
+
+        # Verify that check_output was called exactly 10 times (your loop limit).
+        self.assertEqual(mock_check_output.call_count, 10)
+
+        # Verify that rtcwake was NEVER called (because of the timeout).
+        self.assertFalse(mock_check_call.called)
 
     def test_rtcwake_command_failure(
         self,
@@ -153,12 +228,14 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_remove,
         mock_machine,
         mock_check_call,
+        mock_check_output,
         mock_fwts_test,
     ):
         """
         Tests the case where the rtcwake command fails.
         """
         mock_machine.return_value = "aarch64"
+        mock_check_output.return_value = "No jobs listed."
         # Simulate a command failure
         error = subprocess.CalledProcessError(
             returncode=1, cmd="rtcwake", output="Error from rtcwake"
@@ -169,7 +246,8 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             suspend_trigger.main([])
 
-        # Verify that only the first command (rtcwake) was attempted
+        # Verify that only the first 2 commands were attempted
+        self.assertTrue(mock_check_output.called)
         self.assertTrue(mock_check_call.called)
         self.assertIn("rtcwake", mock_check_call.call_args[0][0])
 
@@ -179,12 +257,14 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_remove,
         mock_machine,
         mock_check_call,
+        mock_check_output,
         mock_fwts_test,
     ):
         """
         Tests the case where the systemctl suspend command fails.
         """
         mock_machine.return_value = "aarch64"
+        mock_check_output.return_value = "No jobs listed."
         suspend_error = subprocess.CalledProcessError(
             returncode=1, cmd="systemctl suspend", output="Error from suspend"
         )
@@ -195,6 +275,7 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
             suspend_trigger.main([])
 
         # Verify both commands were attempted
+        self.assertTrue(mock_check_output.called)
         self.assertEqual(mock_check_call.call_count, 2)
         self.assertIn("rtcwake", mock_check_call.call_args_list[0][0][0])
         self.assertIn("systemctl", mock_check_call.call_args_list[1][0][0])
@@ -205,6 +286,7 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_remove,
         mock_machine,
         mock_check_call,
+        mock_check_output,
         mock_fwts_test,
     ):
         """
@@ -214,10 +296,17 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_machine.return_value = "aarch64"
         mock_exists.return_value = True  # Simulate file exists
         mock_check_call.side_effect = [None, None]
+        mock_check_output.return_value = "No jobs listed."
 
         suspend_trigger.main([])
 
         # Verify commands were called
+        expected_list_cmd = ["systemctl", "list-jobs", "*suspend*"]
+        mock_check_output.assert_called_with(
+            expected_list_cmd,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
         expected_rtcwake_cmd = [
             "rtcwake",
             "--verbose",
@@ -246,6 +335,7 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_remove,
         mock_machine,
         mock_check_call,
+        mock_check_output,
         mock_fwts_test,
     ):
         """
@@ -254,6 +344,7 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_machine.return_value = "aarch64"
         mock_exists.return_value = False  # Simulate file missing
         mock_check_call.side_effect = [None, None]
+        mock_check_output.return_value = "No jobs listed."
 
         suspend_trigger.main([])
         # Verify remove was never called

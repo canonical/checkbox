@@ -76,6 +76,7 @@ class MergeReports:
             for result in data["results"]:
                 result["plugin"] = "shell"  # Required so default to shell
                 result["summary"] = result["name"]
+                result["template-id"] = result["template_id"]
                 # 'id' field in json file only contains partial id
                 result["id"] = result.get("full_id", result["id"])
                 if "::" not in result["id"]:

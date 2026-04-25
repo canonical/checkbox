@@ -1,0 +1,25 @@
+id: oem-spi-full
+unit: test plan
+_name: Serial Peripheral Interface (SPI) Full Tests
+_description:
+  Serial Peripheral Interface (SPI) Full Tests
+include:
+nested_part:
+  oem-spi-automated
+  oem-spi-manual
+
+id: oem-spi-automated
+unit: test plan
+_name: Serial Peripheral Interface (SPI) Automated Tests
+_description:
+  Serial Peripheral Interface (SPI) Automated Tests
+bootstrap_include:
+include:
+
+id: oem-spi-manual
+unit: test plan
+_name: Serial Peripheral Interface (SPI) Manual Tests
+_description:
+  Serial Peripheral Interface (SPI) Manual Tests
+bootstrap_include:
+include:

@@ -1,0 +1,338 @@
+unit: template
+template-resource: dmi
+template-filter:
+  dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/ac-automatic-suspend-estar-settings_{product}
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    SNAP_PREFIX="/var/lib/snapd/hostfs";
+  else
+    SNAP_PREFIX=""
+  fi
+  if [ ! -f $SNAP_PREFIX/usr/share/glib-2.0/schemas/40_manage-estar-settings.gschema.override ]; then
+    echo "For somerville project, please check your manifest to see lp:1993993 is applied or not"
+    echo "For stella and sutton, please check manage-estar-settings is installed or not"
+    exit 1
+  fi
+_description:
+  Check if image include manage-estar-settings package to apply default e-star setting
+  LP#1993993
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-oem-recovery-version
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    DPKG_STATUS="/var/lib/snapd/hostfs/var/lib/dpkg/status";
+  else
+    DPKG_STATUS="/var/lib/dpkg/status";
+  fi
+  if awk 'BEGIN{RS="";FS="\n"} $1=="Package: dell-recovery"{print $0}' "$DPKG_STATUS" | grep "^Version:" | grep -q "somerville"; then
+    exit 0
+  elif awk 'BEGIN{RS="";FS="\n"} $1=="Package: ubuntu-recovery"{print $0}' "$DPKG_STATUS" | grep "^Version:" | grep -q -e "timbuktu" -e "ouagadougou" -e "jiayi"; then
+    exit 0
+  else
+    echo "The recovery package version string is wrong, expect somerville for dell-recovery,"
+    echo "and ouagadougou for ubuntu-recovery."
+    exit 1
+  fi
+_summary: Confirm the recovery version string is as expected.
+_description:
+  Based on the meeting conclusion of 4/22, we need somerville version before Mario agree Canonical take the duty of dell-recovery sru.
+  Let it support ubuntu-recovery and dell-recovery.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-production-suite
+imports: from com.canonical.certification import lsb
+requires:
+  lsb.release >= "22.04"
+user: root
+command: misc-check-production-suite.sh
+_summary: Check if production suite is created properly
+_description:
+  Add a job to check the production suite is created correctly.
+  On Ubuntu 22.04, only checks somerville platform archives.
+  On Ubuntu 24.04 and newer versions, checks platform archives for somerville, stella, and sutton.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-secureboot-fish-not-installed
+imports: from com.canonical.certification import lsb
+requires:
+  lsb.release >= "22.04"
+user: root
+command:
+  if [ -n "$SNAP" ]; then
+    DPKG_STATUS="/var/lib/snapd/hostfs/var/lib/dpkg/status";
+  else
+    DPKG_STATUS="/var/lib/dpkg/status";
+  fi
+  if awk 'BEGIN{RS="";FS="\n"} $1=="Package: dell-recovery"{print $0}' "$DPKG_STATUS" | grep -q "Status: install ok installed"; then
+    TARGET=$(python3 -c "import Dell.recovery_common as magic; target=magic.find_partition(); print(target.decode('utf8')) if type(target) is bytes else print(target)")
+  elif awk 'BEGIN{RS="";FS="\n"} $1=="Package: ubuntu-recovery"{print $0}' "$DPKG_STATUS" | grep -q "Status: install ok installed"; then
+    TARGET=$(python3 -c "import ubunturecovery.recovery_common as magic; target=magic.find_partition('PQSERVICE'); print(target.decode('utf8')) if type(target) is bytes else print(target)")
+  fi
+  mount "$TARGET" /cdrom
+  RET=$?
+  if [ $RET -eq 0 ] || [ $RET -eq 32 ]; then
+    if [ -d /cdrom/secureboot ]; then
+      echo "Found the recovery contains file from secureboot fish"
+      echo "The FVR image no longer requires to install dkms, so that we don't need secureboot fish"
+      echo "please remove it before FVR release."
+      exit 1
+    fi
+  else
+    echo "Mount $TARGET to /cdrom failed, can't check content"
+    exit 1
+  fi
+_summary: Check secureboot fish is not installed
+_description:
+  The FVR image no longer require dkms, so check if the secureboot fish
+  has removed.
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/csme-detection-tool
+estimated_duration: 5.0
+imports:
+  from com.canonical.certification import cpuinfo
+  from com.canonical.certification import module
+requires:
+  cpuinfo.type == 'GenuineIntel'
+  module.name == 'mei_me'
+  snap_executable.name == 'curl'
+command: misc-csme-detection-tool.sh
+_description:
+  Attach Intel ME info.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/cvescan
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    SNAP_PREFIX="/var/lib/snapd/hostfs";
+  else
+    SNAP_PREFIX=""
+  fi
+  misc-ubuntu-oval.sh "$PLAINBOX_SESSION_SHARE/oval" "$SNAP_PREFIX/var/local/plainbox-provider-pc-sanity/clean-installed-dpkg.list"
+_summary: Scan if all CVEs are fixed well.
+_description:
+  Refer to https://ubuntu.com/security/oval,
+  to scan if all CVEs are fixed well on the target machine.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/gate_rste_raid
+command:
+  set -x
+  # copy from script https://launchpadlibrarian.net/468773053/hw-detect_1.117ubuntu8.debdiff
+  # shellcheck disable=SC1001
+  for ahci_device in /sys/module/ahci/drivers/pci\:ahci/*/remapped_nvme
+  do
+    if [ -f "$ahci_device" ]; then
+      ref_count="$(cat "$ahci_device")"
+      if [ "$ref_count" -ge 1 ]; then
+        echo "Intel RAID/RST mode detected."
+        exit 1
+      else
+        echo "No Intel RAID/RST mode detected."
+      fi
+    fi
+  done
+_summary: To confirm the dell-recoery is what we expected.
+_description:
+  We don't support RSTe raid, so gate it based on https://docs.google.com/document/d/13G8VkaFB8W2ck-vtzu4OqkYFmi7-w0ooi6qNpxJLtPY/edit#
+
+unit: template
+template-resource: dmi
+template-filter:
+  dmi.category == 'SYSTEM' and dmi.vendor == 'Dell Inc.'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/google-chrome-included_{vendor}
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    DPKG_STATUS="/var/lib/snapd/hostfs/var/lib/dpkg/status";
+  else
+    DPKG_STATUS="/var/lib/dpkg/status";
+  fi
+  grep "Package: google-chrome-stable" -A 1 "$DPKG_STATUS" | grep -q -c "ok installed"
+_summary:
+  Check if Google Chrome is included
+_description:
+  According to PRD 3.9.9, {vendor} has a requirement to include Google Chrome.
+  This check is to ensure the package "google-chrome-stable" is included.
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: miscellanea/image-url
+user: root
+estimated_duration: 0.1
+_description: Get image URL based on DCD
+_summary: Provides image URL based on DistributionChannelDescriptor meta data
+_purpose: Provide a link to the ISO file which was installed on the system
+command: misc-get-image-url.sh
+
+unit: template
+template-resource: cpuinfo
+template-filter:
+  cpuinfo.type == 'GenuineIntel'
+  cpuinfo.model_number == '6'
+  cpuinfo.model_version == '151'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/mesa-libdrm-gating_{model_number}_{model_version}_{model_revision}
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    DPKG_STATUS="/var/lib/snapd/hostfs/var/lib/dpkg/status";
+  else
+    DPKG_STATUS="/var/lib/dpkg/status";
+  fi
+  get_version() {
+    local pkg=$1
+    awk -v pkg="$pkg" '
+      BEGIN { RS=""; FS="\n" }
+      $1 == "Package: "pkg {
+          for(i=1; i<=NF; i++) {
+              if($i ~ /^Version:/) {
+                  sub(/^Version: /, "", $i);
+                  print $i;
+                  exit;
+              }
+          }
+      }' "$DPKG_STATUS"
+  }
+  ver_gt() {
+    [ "$1" = "$2" ] && return 1
+    printf '%s\n%s\n' "$2" "$1" | sort -V -C
+  }
+  GLX_MESA_VER=$(get_version "libglx-mesa0:amd64")
+  EGL_MESA_VER=$(get_version "libegl-mesa0:amd64")
+  GBM_VER=$(get_version "libgbm1:amd64")
+  DRM_VER=$(get_version "libdrm2:amd64")
+  if ! ver_gt "$GLX_MESA_VER" "21.0.3"; then
+    echo "Wrong libglx-mesa0 version $GLX_MESA_VER for supporting ADL-S"
+    exit 1
+  fi
+  if ! ver_gt "$EGL_MESA_VER" "21.0.3"; then
+    echo "Wrong libegl-mesa0 version $EGL_MESA_VER for supporting ADL-S"
+    exit 1
+  fi
+  if ! ver_gt "$GBM_VER" "21.0.3"; then
+    echo "Wrong libgbm1 version $GBM_VER for supporting ADL-S"
+    exit 1
+  fi
+  if ! ver_gt "$DRM_VER" "2.4.105"; then
+    echo "Wrong libdrm2 version $DRM_VER for supporting ADL-S"
+    exit 1
+  fi
+_summary: Check libglx-mesa0 libegl-mesa0 libgbm1 libdrm2 for ADL-S
+_description:
+  Gating the mesa and libdrm packages for supporting ADL-S graphic
+
+plugin: shell
+id: miscellanea/platform-userguide-test
+category_id: com.canonical.plainbox::miscellanea
+imports:
+  from com.canonical.certification import dmi
+  from com.canonical.certification import lsb
+requires:
+  lsb.release >= "20.04"
+  dmi.vendor == 'LENOVO'
+environ:
+  SNAP
+command:
+  misc-platform_userguide_test
+_description: Check if the platform userguide package is installed.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/screen-pkg-not-public
+user: root
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    echo "Not executed due to snap environment"
+    true
+  else
+    misc-screen-pkg.py --out "$PLAINBOX_SESSION_SHARE" check-public
+  fi
+_summary: Check if pkgs not on public archive
+_description:
+  Check if pkgs not on public archive
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/screen-pkg-not-supported-by-canonical
+user: root
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    echo "Not executed due to snap environment"
+    true
+  else
+    misc-screen-pkg.py --out "$PLAINBOX_SESSION_SHARE" check-component
+  fi
+_summary: Check if pkgs are not supported by Canonical
+_description:
+  This lists the packages which is not coming from main or restricted component.
+
+id: miscellanea/sideload-hook-no-fail
+category_id: com.canonical.plainbox::miscellanea
+plugin: shell
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    LOG_LOCATION=/var/lib/snapd/hostfs/var/log/installer/sideload-hook.sh.*.log
+  else
+    LOG_LOCATION=/var/log/installer/sideload-hook.sh.*.log;
+  fi
+  ! grep "# FAILED:" "$LOG_LOCATION"
+_description:
+  Check the result of sideload/hook.sh, used for OEM PC enablements since 24.04
+
+plugin: shell
+id: miscellanea/somerville-installation
+category_id: com.canonical.plainbox::miscellanea
+requires: package.name == 'dell-recovery'
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    SNAP_PREFIX="/var/lib/snapd/hostfs";
+  else
+    SNAP_PREFIX=""
+  fi
+  grep "(SUCCESS) Clean-Up .. Done" $SNAP_PREFIX/var/log/installer/chroot.sh.log
+_description: Check the result of the installation, from oem-qa-checkbox 6596762f
+
+plugin: shell
+id: miscellanea/somerville-platform-meta-test
+category_id: com.canonical.plainbox::miscellanea
+imports: from com.canonical.certification import lsb
+requires: lsb.release >= "20.04"
+environ:
+  SNAP
+command:
+  misc-platform_meta_test --oem-codename "$(misc-get-oem-info.sh --oem-codename)"
+_description: Check if the platform metapackage is installed.
+

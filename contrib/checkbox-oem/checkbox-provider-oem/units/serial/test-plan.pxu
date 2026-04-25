@@ -1,0 +1,26 @@
+id: oem-serial-full
+unit: test plan
+_name:  Serial full tests
+_description:
+    Full serial tests for devices
+bootstrap_include:
+include:
+nested_part:
+    oem-serial-automated
+
+id: oem-serial-automated
+unit: test plan
+_name: Serial automated tests
+_description:
+    Automated serial tests for devices
+    including before and after suspend
+bootstrap_include:
+include:
+
+id: oem-serial-stress
+unit: test plan
+_name: serial stress tests
+_description:
+    serial stress tests for devices
+bootstrap_include:
+include:

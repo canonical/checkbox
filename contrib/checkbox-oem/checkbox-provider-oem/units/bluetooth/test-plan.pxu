@@ -1,0 +1,22 @@
+id: oem-bluetooth-full
+unit: test plan
+_name: Bluetooth tests
+_description: Full bluetooth tests for devices
+include:
+nested_part:
+  oem-bluetooth-automated
+  oem-bluetooth-manual
+
+id: oem-bluetooth-automated
+unit: test plan
+_name: Bluetooth auto tests
+_description: Automated bluetooth tests for devices
+bootstrap_include:
+include:
+
+id: oem-bluetooth-manual
+unit: test plan
+_name: Bluetooth manual tests
+_description: Manual bluetooth tests for devices
+include:
+

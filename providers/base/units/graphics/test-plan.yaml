@@ -693,3 +693,77 @@ include:
 bootstrap_include:
   - graphics_card
   - executable
+---
+id: opencl-core-short-test-plan
+unit: test plan
+name: Graphics short test plan for verifying OpenCL (core/snap)
+include:
+  - setup/install_opencl_cts
+  - graphics/cl_gpu_avail
+  - graphics/cl_core_basic
+  - graphics/cl_core_api
+  - graphics/cl_core_compiler
+  - graphics/cl_core_commonfns
+  - graphics/cl_core_relationals
+  - graphics/cl_core_atomics
+  - graphics/cl_core_svm
+  - graphics/cl_sru_core_thread_dimensions
+  - graphics/cl_sru_core_integer_ops
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: opencl-host-short-test-plan
+unit: test plan
+name: Graphics short test plan for verifying OpenCL (host)
+include:
+  - setup/install_opencl_cts
+  - graphics/cl_host_gpu_avail
+  - graphics/cl_host_ocl_avail
+  - graphics/cl_host_basic
+  - graphics/cl_host_api
+  - graphics/cl_host_compiler
+  - graphics/cl_host_commonfns
+  - graphics/cl_host_relationals
+  - graphics/cl_host_atomics
+  - graphics/cl_host_svm
+  - graphics/cl_sru_host_thread_dimensions
+  - graphics/cl_sru_host_integer_ops
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: vulkan-core-short-test-plan
+unit: test plan
+name: Graphics short test plan for verifying Vulkan CTS (core/snap)
+include:
+  - setup/install_vulkan_cts
+  - graphics/vk_gpu_avail
+  - graphics/vk_core_api
+  - graphics/vk_core_compute
+  - graphics/vk_core_draw
+  - graphics/vk_core_glsl
+  - graphics/vk_core_memory
+  - graphics/vk_core_renderpass
+  - graphics/vk_core_synchronization
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: vulkan-classic-short-test-plan
+unit: test plan
+name: Graphics short test plan for verifying Vulkan CTS (classic)
+include:
+  - setup/install_vulkan_cts
+  - graphics/vk_classic_gpu_avail
+  - graphics/vk_classic_vk_avail
+  - graphics/vk_classic_api
+  - graphics/vk_classic_compute
+  - graphics/vk_classic_draw
+  - graphics/vk_classic_glsl
+  - graphics/vk_classic_memory
+  - graphics/vk_classic_renderpass
+  - graphics/vk_classic_synchronization
+bootstrap_include:
+  - graphics_card
+  - executable

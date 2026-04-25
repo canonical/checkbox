@@ -434,3 +434,61 @@ siblings:
   - id: graphics/cl_host_subgroups
     summary: Run the subgroups tests from OpenCL-CTS (host)
     command: cl_host.py run-test subgroups/test_subgroups
+---
+id: graphics/cl_sru_core_thread_dimensions
+depends:
+  - graphics/cl_gpu_avail
+category_id: com.canonical.plainbox::graphics
+flags:
+  - simple
+user: root
+summary: Run the thread_dimensions tests from OpenCL-CTS (core, quick)
+environ:
+  - XDG_SESSION_TYPE
+  - XDG_RUNTIME_DIR
+estimated_duration: 5m
+command: opencl-cts.test thread_dimensions/test_thread_dimensions quick*
+---
+id: graphics/cl_sru_core_integer_ops
+depends:
+  - graphics/cl_gpu_avail
+category_id: com.canonical.plainbox::graphics
+flags:
+  - simple
+user: root
+summary: Run the integer_ops tests from OpenCL-CTS (core, quick)
+environ:
+  - XDG_SESSION_TYPE
+  - XDG_RUNTIME_DIR
+estimated_duration: 5m
+command: opencl-cts.test integer_ops/test_integer_ops quick*
+---
+id: graphics/cl_sru_host_thread_dimensions
+depends:
+  - graphics/cl_host_gpu_avail
+  - graphics/cl_host_ocl_avail
+category_id: com.canonical.plainbox::graphics
+flags:
+  - simple
+user: root
+summary: Run the thread_dimensions tests from OpenCL-CTS (host, quick)
+environ:
+  - XDG_SESSION_TYPE
+  - XDG_RUNTIME_DIR
+estimated_duration: 5m
+command: cl_host.py run-test thread_dimensions/test_thread_dimensions quick*
+---
+id: graphics/cl_sru_host_integer_ops
+depends:
+  - graphics/cl_host_gpu_avail
+  - graphics/cl_host_ocl_avail
+category_id: com.canonical.plainbox::graphics
+flags:
+  - simple
+user: root
+summary: Run the integer_ops tests from OpenCL-CTS (host, quick)
+environ:
+  - XDG_SESSION_TYPE
+  - XDG_RUNTIME_DIR
+estimated_duration: 5m
+command: cl_host.py run-test integer_ops/test_integer_ops quick*

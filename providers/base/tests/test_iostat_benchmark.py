@@ -63,11 +63,20 @@ class TestMain(unittest.TestCase):
         ):
             ret = iostat_benchmark.main()
         self.assertEqual(ret, 0)
-        mock_run.assert_called_once_with(
-            ["iostat", "-x", "-m", "1", "10"],
-            capture_output=True,
-            text=True,
-            check=True,
+        mock_run.assert_called_once()
+        args, kwargs = mock_run.call_args
+        self.assertEqual(args[0], ["iostat", "-x", "-m", "1", "10"])
+        self.assertTrue(kwargs.get("check"))
+        self.assertTrue(
+            (
+                kwargs.get("capture_output") is True
+                and kwargs.get("text") is True
+            )
+            or (
+                kwargs.get("stdout") == subprocess.PIPE
+                and kwargs.get("stderr") == subprocess.PIPE
+                and kwargs.get("universal_newlines") is True
+            )
         )
 
     @patch(

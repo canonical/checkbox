@@ -60,8 +60,9 @@ def main():
     try:
         result = subprocess.run(
             ["iostat", "-x", "-m", "1", str(args.time)],
-            capture_output=True,
-            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
             check=True,
         )
     except subprocess.CalledProcessError as e:

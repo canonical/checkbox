@@ -287,7 +287,7 @@ class JobResultBuilder(pod.POD):
         assign_filter_list=[pod.unset_or_typed],
     )
     skip_reason = pod.Field(
-        "list of inhibitors (reasons why a job could not start)",
+        "dict of inhibitors (reasons why a job could not start)",
         dict,
         pod.UNSET,
         assign_filter_list=[pod.unset_or_typed],
@@ -559,12 +559,23 @@ class _JobResultBase(IJobResult):
     @property
     def skip_reason(self):
         """
-        Get the skip_reason list that explains why a job could not start.
+        Dictionary that explains why a job could not start.
 
-        This is a list of inhibitor dicts with keys like:
-        - related_dependencies: list of job ids
-        - related_resources: list of resource expressions
-        - related_manifests: list of manifest expressions
+        This is a dict of inhibitor lists that looks like this:
+
+        {
+            'related_dependencies': ['com.canonical.certification::smoke/false'],
+            'related_manifests': ["manifest.doesnt_exist == 'True'"],
+            'related_resources': []
+        }
+
+        or
+
+        {
+            'related_dependencies': [],
+            'related_manifests': [],
+            'related_resources': ['package.name == "missing-program"']
+        }
         """
         return self._data.get("skip_reason")
 

@@ -44,6 +44,11 @@ CERTIFICATION_NS = "com.canonical.certification::"
 
 
 class MergeReports:
+    def __init__(self):
+        self.job_list = []
+        self.category_list = []
+        self.system_information = []
+
     def register_arguments(self, parser):
         parser.add_argument(
             "submission",
@@ -59,15 +64,19 @@ class MergeReports:
             help="save combined test results to the specified FILE",
         )
 
-    def _parse_submission(self, submission, tmpdir, mode="list"):
+    def _get_submission_json(self, submission, tmpdir):
+        with tarfile.open(submission) as tar:
+            tar.extractall(tmpdir.name)
+            with open(os.path.join(tmpdir.name, "submission.json")) as f:
+                submission_json = json.load(f)
+        return submission_json
+
+    def _parse_submission(self, data, mode="list"):
         try:
-            with tarfile.open(submission) as tar:
-                tar.extractall(tmpdir.name)
-                with open(os.path.join(tmpdir.name, "submission.json")) as f:
-                    data = json.load(f)
             for result in data["results"]:
                 result["plugin"] = "shell"  # Required so default to shell
                 result["summary"] = result["name"]
+                result["template-id"] = result["template_id"]
                 # 'id' field in json file only contains partial id
                 result["id"] = result.get("full_id", result["id"])
                 if "::" not in result["id"]:
@@ -183,10 +192,8 @@ class MergeReports:
         manager_list = []
         for submission in ctx.args.submission:
             tmpdir = TemporaryDirectory()
-            self.job_list = []
-            self.category_list = []
-            self.system_information = []
-            session_title = self._parse_submission(submission, tmpdir)
+            submission_json = self._get_submission_json(submission, tmpdir)
+            session_title = self._parse_submission(submission_json)
             manager = SessionManager.create_with_unit_list(
                 self.job_list + self.category_list
             )

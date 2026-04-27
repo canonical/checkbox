@@ -147,7 +147,7 @@ OUTCOME_METADATA_MAP = {
         value=IJobResult.OUTCOME_SKIP,
         unicode_sigil="☐ ",
         tr_outcome=C_("textual outcome", "job manually skipped"),
-        tr_label=C_("chart label", "skipped"),
+        tr_label=C_("chart label", "manually skipped"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
         hexr_mapping="skip",
@@ -158,7 +158,7 @@ OUTCOME_METADATA_MAP = {
         tr_outcome=C_(
             "textual outcome", "job cannot be started (failed dependency)"
         ),
-        tr_label=C_("chart label", "skipped"),
+        tr_label=C_("chart label", "skipped (failed dependency)"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
         hexr_mapping="skip",
@@ -169,7 +169,7 @@ OUTCOME_METADATA_MAP = {
         tr_outcome=C_(
             "textual outcome", "job cannot be started (unmet resource)"
         ),
-        tr_label=C_("chart label", "skipped"),
+        tr_label=C_("chart label", "skipped (unmet resource)"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
         hexr_mapping="skip",
@@ -180,7 +180,7 @@ OUTCOME_METADATA_MAP = {
         tr_outcome=C_(
             "textual outcome", "job cannot be started (unmet manifest)"
         ),
-        tr_label=C_("chart label", "skipped"),
+        tr_label=C_("chart label", "skipped (unmet manifest)"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
         hexr_mapping="skip",

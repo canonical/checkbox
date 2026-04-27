@@ -5,7 +5,6 @@ from unittest.mock import patch
 
 import iostat_benchmark
 
-
 IOSTAT_OUTPUT = """\
 Linux 6.8.0-57-generic (hostname)	04/27/2026	_x86_64_	(8 CPU)
 
@@ -44,7 +43,9 @@ class TestParseIostatColumn(unittest.TestCase):
     def test_missing_column_returns_error(self):
         err = StringIO()
         with patch("sys.stderr", err):
-            ret = iostat_benchmark.parse_iostat_column("no output here", "idle")
+            ret = iostat_benchmark.parse_iostat_column(
+                "no output here", "idle"
+            )
         self.assertEqual(ret, 1)
         self.assertIn("idle", err.getvalue())
 

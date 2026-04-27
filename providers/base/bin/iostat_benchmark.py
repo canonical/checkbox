@@ -24,10 +24,7 @@ import sys
 
 
 def parse_iostat_column(output, column):
-    values = [
-        float(n)
-        for n in re.findall(rf"{column}\n.*?(\S+)\n", output)
-    ]
+    values = [float(n) for n in re.findall(rf"{column}\n.*?(\S+)\n", output)]
     if not values:
         print(
             f"ERROR: No '{column}' values found in iostat output",
@@ -48,10 +45,11 @@ def main():
         help="Which metric to report: 'cpu' (idle %%) or 'disk' (util %%)",
     )
     parser.add_argument(
-        "-t","--time",
+        "-t",
+        "--time",
         action="store",
         default=10,
-        help="Time in seconds to run iostat. (default: %(default)s)"
+        help="Time in seconds to run iostat. (default: %(default)s)",
     )
     args = parser.parse_args()
 

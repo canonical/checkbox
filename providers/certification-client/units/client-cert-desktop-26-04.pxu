@@ -47,53 +47,6 @@ nested_part:
     optical-base-26-04-manual
     power-management-base-26-04-manual
     info-attachment-cert-manual
-certification_status_overrides:
-    apply blocker to com.canonical.certification::audio/channels
-    apply blocker to com.canonical.certification::audio/external-linein
-    apply blocker to com.canonical.certification::audio/external-lineout
-    apply blocker to com.canonical.certification::after-suspend-audio/channels
-    apply blocker to com.canonical.certification::after-suspend-audio/external-linein
-    apply blocker to com.canonical.certification::after-suspend-audio/external-lineout
-    apply blocker to com.canonical.certification::fingerprint/detect
-    apply blocker to com.canonical.certification::fingerprint/enroll
-    apply blocker to com.canonical.certification::fingerprint/verify-no-match
-    apply blocker to com.canonical.certification::fingerprint/verify-match
-    apply blocker to com.canonical.certification::fingerprint/unlock
-    apply blocker to com.canonical.certification::fingerprint/delete
-    apply blocker to com.canonical.certification::after-suspend-fingerprint/detect
-    apply blocker to com.canonical.certification::after-suspend-fingerprint/enroll
-    apply blocker to com.canonical.certification::after-suspend-fingerprint/verify-no-match
-    apply blocker to com.canonical.certification::after-suspend-fingerprint/verify-match
-    apply blocker to com.canonical.certification::after-suspend-fingerprint/unlock
-    apply blocker to com.canonical.certification::after-suspend-fingerprint/delete
-    apply blocker to com.canonical.certification::graphics/1_cycle_resolution_.*
-    apply blocker to com.canonical.certification::graphics/2_cycle_resolution_.*
-    apply blocker to com.canonical.certification::after-suspend-graphics/1_cycle_resolution_.*
-    apply blocker to com.canonical.certification::after-suspend-graphics/2_cycle_resolution_.*
-    apply blocker to com.canonical.certification::keys/fn-lock
-    apply blocker to com.canonical.certification::keys/power-button-suspend
-    apply blocker to com.canonical.certification::keys/sleep
-    apply blocker to com.canonical.certification::after-suspend-keys/fn-lock
-    apply blocker to com.canonical.certification::led/fn
-    apply blocker to com.canonical.certification::after-suspend-led/fn
-    apply blocker to com.canonical.certification::power-management/light_sensor
-    apply blocker to com.canonical.certification::monitor/1_thunderbolt3_.*
-    apply blocker to com.canonical.certification::audio/1_playback_thunderbolt3_.*
-    apply blocker to com.canonical.certification::monitor/2_thunderbolt3_.*
-    apply blocker to com.canonical.certification::audio/2_playback_thunderbolt3_.*
-    apply blocker to com.canonical.certification::thunderbolt3/daisy-chain
-    apply blocker to com.canonical.certification::after-suspend-power-management/light_sensor
-    apply blocker to com.canonical.certification::after-suspend-monitor/1_thunderbolt3_.*
-    apply blocker to com.canonical.certification::after-suspend-audio/1_playback_thunderbolt3_.*
-    apply blocker to com.canonical.certification::after-suspend-monitor/2_thunderbolt3_.*
-    apply blocker to com.canonical.certification::after-suspend-audio/2_playback_thunderbolt3_.*
-    apply blocker to com.canonical.certification::after-suspend-thunderbolt3/daisy-chain
-    apply blocker to com.canonical.certification::touchpad/palm-rejection
-    apply blocker to com.canonical.certification::after-suspend-touchpad/palm-rejection
-    apply blocker to com.canonical.certification::touchscreen/multitouch-rotate
-    apply blocker to com.canonical.certification::after-suspend-touchscreen/multitouch-rotate
-    apply blocker to com.canonical.certification::usb-c/c-to-ethernet-adapter-insert
-    apply blocker to com.canonical.certification::after-suspend-usb-c/c-to-ethernet-adapter-insert
 
 
 id: client-cert-desktop-26-04-automated
@@ -142,30 +95,6 @@ nested_part:
 bootstrap_include:
     device
     graphics_card
-certification_status_overrides:
-    apply blocker to com.canonical.certification::audio/detect_sinks
-    apply blocker to com.canonical.certification::audio/detect_sources
-    apply blocker to com.canonical.certification::audio/alsa_record_playback_automated
-    apply blocker to com.canonical.certification::after-suspend-audio/detect_sinks
-    apply blocker to com.canonical.certification::after-suspend-audio/detect_sources
-    apply blocker to com.canonical.certification::after-suspend-audio/alsa_record_playback_automated
-    apply non-blocker to com.canonical.certification::bluetooth4/beacon_eddystone_url_.*
-    apply non-blocker to com.canonical.certification::after-suspend-bluetooth4/beacon_eddystone_url_.*
-    apply blocker to com.canonical.certification::graphics/1_vkcube_.*
-    apply blocker to com.canonical.certification::graphics/2_vkcube_.*
-    apply blocker to com.canonical.certification::graphics/vulkaninfo.*
-    apply blocker to com.canonical.certification::suspend/validate_suspend_status
-    apply blocker to com.canonical.certification::usb/storage-detect
-    apply blocker to com.canonical.certification::usb/storage-preinserted-.*
-    apply blocker to com.canonical.certification::after-suspend-usb/storage-detect
-    apply blocker to com.canonical.certification::after-suspend-usb/storage-preinserted-.*
-    apply blocker to com.canonical.certification::wireless/detect
-    apply blocker to com.canonical.certification::wwan/detect
-    apply blocker to com.canonical.certification::wwan/check-sim-present-manufacturer-model-hw_id-auto
-    apply blocker to com.canonical.certification::wwan/gsm-reconnection-.*-auto
-    apply blocker to com.canonical.certification::after-suspend-wwan/detect
-    apply blocker to com.canonical.certification::after-suspend-wwan/check-sim-present-manufacturer-model-hw_id-auto
-    apply blocker to com.canonical.certification::after-suspend-wwan/gsm-reconnection-.*-auto
 
 
 id: client-cert-desktop-26-04-stress
@@ -177,7 +106,3 @@ include:
 nested_part:
     submission-cert-automated
     stress-base-26-04-automated
-certification_status_overrides:
-    apply blocker to com.canonical.certification::warm-boot-loop-.*
-    apply blocker to com.canonical.certification::cold-boot-loop-.*
-    apply blocker to com.canonical.certification::ethernet/iperf3_.*

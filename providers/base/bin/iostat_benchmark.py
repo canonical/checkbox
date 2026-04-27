@@ -24,14 +24,14 @@ import sys
 
 
 def parse_iostat_column(output, column):
-    values = [float(n) for n in re.findall(rf"{column}\n.*?(\S+)\n", output)]
+    values = [float(n) for n in re.findall(column + r"\n.*?(\S+)\n", output)]
     if not values:
         print(
-            f"ERROR: No '{column}' values found in iostat output",
+            "ERROR: No '{}' values found in iostat output".format(column),
             file=sys.stderr,
         )
         return 1
-    print(f"{sum(values) / len(values):.2f}%")
+    print("{:.2f}%".format(sum(values) / len(values)))
     return 0
 
 
@@ -64,7 +64,7 @@ def main():
             check=True,
         )
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: iostat failed: {e}", file=sys.stderr)
+        print("ERROR: iostat failed: {}".format(e), file=sys.stderr)
         return 1
 
     return parse_iostat_column(result.stdout, column)

@@ -23,7 +23,7 @@ import subprocess
 import unittest
 from unittest.mock import mock_open, patch
 
-import host_utils
+import checkbox_support.helpers.host_utils as host_utils
 
 
 class TestGetArchTriple(unittest.TestCase):
@@ -206,29 +206,29 @@ class TestVendorPrefixesFromVulkaninfo(unittest.TestCase):
 
 
 class TestActiveVendorPrefixes(unittest.TestCase):
-    @patch("host_utils.prime_selected_vendor", return_value="intel")
+    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value="intel")
     def test_returns_prime_vendor(self, _prime):
         self.assertEqual(host_utils._active_vendor_prefixes(), ("intel",))
 
-    @patch("host_utils.prime_selected_vendor", return_value=None)
-    @patch("host_utils.find_plz_run", return_value="/usr/bin/plz-run")
-    @patch("host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
-    @patch("host_utils._run_vulkaninfo", return_value="vendorID = 0x8086\n")
+    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value=None)
+    @patch("checkbox_support.helpers.host_utils.find_plz_run", return_value="/usr/bin/plz-run")
+    @patch("checkbox_support.helpers.host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
+    @patch("checkbox_support.helpers.host_utils._run_vulkaninfo", return_value="vendorID = 0x8086\n")
     def test_returns_vulkaninfo_vendor(self, _vkinfo, _arch, _plz, _prime):
         self.assertEqual(host_utils._active_vendor_prefixes(), ("intel",))
 
-    @patch("host_utils.prime_selected_vendor", return_value=None)
-    @patch("host_utils.find_plz_run", return_value=None)
-    @patch("host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
+    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value=None)
+    @patch("checkbox_support.helpers.host_utils.find_plz_run", return_value=None)
+    @patch("checkbox_support.helpers.host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_falls_back_to_sysfs(self, _arch, _plz, _prime):
         with patch("os.listdir", return_value=["card1"]), patch(
             "builtins.open", mock_open(read_data="0x8086\n")
         ):
             self.assertEqual(host_utils._active_vendor_prefixes(), ("intel",))
 
-    @patch("host_utils.prime_selected_vendor", return_value=None)
-    @patch("host_utils.find_plz_run", return_value=None)
-    @patch("host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
+    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value=None)
+    @patch("checkbox_support.helpers.host_utils.find_plz_run", return_value=None)
+    @patch("checkbox_support.helpers.host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_none_when_all_methods_fail(self, _arch, _plz, _prime):
         with patch("os.listdir", side_effect=OSError):
             self.assertIsNone(host_utils._active_vendor_prefixes())

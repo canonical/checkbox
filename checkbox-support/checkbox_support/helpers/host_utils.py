@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2025 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 # Written by:
 #   Shane McKee <shane.mckee@canonical.com>
 #

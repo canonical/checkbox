@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2025 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 # Written by:
 #   Shane McKee <shane.mckee@canonical.com>
 #
@@ -34,7 +34,7 @@ import os
 import subprocess
 import sys
 
-from host_utils import (  # noqa: F401
+from checkbox_support.helpers.host_utils import (
     _active_vendor_prefixes,
     check_host_gpu,
     find_host_icd_filenames,

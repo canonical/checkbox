@@ -80,13 +80,12 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
             has_failed_dep = True
             # Check if the dependency was manually skipped
             if inhibitor.related_job:
-                related_job_state = job_state_map.get(
-                    inhibitor.related_job.id
-                )
+                related_job_state = job_state_map.get(inhibitor.related_job.id)
                 if (
                     related_job_state
                     and related_job_state.result
-                    and related_job_state.result.outcome == IJobResult.OUTCOME_SKIP
+                    and related_job_state.result.outcome
+                    == IJobResult.OUTCOME_SKIP
                 ):
                     outcome = IJobResult.OUTCOME_SKIP
                 else:
@@ -109,7 +108,9 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
 
     # If we found a manual skip, use that outcome
     if outcome == IJobResult.OUTCOME_SKIP:
-        return outcome, skip_reason if skip_reason["related_dependencies"] else None
+        return outcome, (
+            skip_reason if skip_reason["related_dependencies"] else None
+        )
 
     # Determine outcome based on priority:
     # FAILED_MANIFEST > FAILED_DEP > FAILED_RESOURCE
@@ -131,4 +132,3 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
         return outcome, skip_reason
     else:
         return outcome, None
-

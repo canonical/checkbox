@@ -496,7 +496,9 @@ class RerunWidget(CategoryWidget):
         IJobResult.OUTCOME_SKIP: _("Manually Skipped Jobs"),
         IJobResult.OUTCOME_CRASH: _("Crashed Jobs"),
         IJobResult.OUTCOME_NOT_SUPPORTED: _("Jobs with failed dependencies"),
-        IJobResult.OUTCOME_SKIPPED_DEPENDENCY: _("Jobs with failed dependencies"),
+        IJobResult.OUTCOME_SKIPPED_DEPENDENCY: _(
+            "Jobs with failed dependencies"
+        ),
         IJobResult.OUTCOME_SKIPPED_RESOURCE: _("Jobs with unmet resources"),
         IJobResult.OUTCOME_SKIPPED_MANIFEST: _("Jobs with unmet manifest"),
     }

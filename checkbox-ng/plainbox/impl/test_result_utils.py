@@ -32,9 +32,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         job_state = Mock()
         job_state.readiness_inhibitor_list = []
 
-        outcome, skip_reason = determine_outcome_and_skip_reason(
-            job_state, {}
-        )
+        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
         self.assertEqual(outcome, IJobResult.OUTCOME_NOT_SUPPORTED)
         self.assertIsNone(skip_reason)
@@ -107,9 +105,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         job_state = Mock()
         job_state.readiness_inhibitor_list = [inhibitor]
 
-        outcome, skip_reason = determine_outcome_and_skip_reason(
-            job_state, {}
-        )
+        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
         self.assertEqual(outcome, IJobResult.OUTCOME_SKIPPED_RESOURCE)
         self.assertIsNotNone(skip_reason)
@@ -130,9 +126,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         job_state = Mock()
         job_state.readiness_inhibitor_list = [inhibitor]
 
-        outcome, skip_reason = determine_outcome_and_skip_reason(
-            job_state, {}
-        )
+        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
         self.assertEqual(outcome, IJobResult.OUTCOME_SKIPPED_MANIFEST)
         self.assertIsNotNone(skip_reason)
@@ -164,13 +158,15 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         job_state = Mock()
         job_state.readiness_inhibitor_list = [inhibitor1, inhibitor2]
 
-        outcome, skip_reason = determine_outcome_and_skip_reason(
-            job_state, {}
-        )
+        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
         self.assertEqual(outcome, IJobResult.OUTCOME_SKIPPED_RESOURCE)
-        self.assertIn("package.name == 'pkg1'", skip_reason["related_resources"])
-        self.assertIn("package.name == 'pkg2'", skip_reason["related_resources"])
+        self.assertIn(
+            "package.name == 'pkg1'", skip_reason["related_resources"]
+        )
+        self.assertIn(
+            "package.name == 'pkg2'", skip_reason["related_resources"]
+        )
 
     def test_mixed_inhibitors_dep_priority(self):
         """Test that FAILED_DEP takes priority over FAILED_RESOURCE."""
@@ -208,7 +204,9 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         """Test that FAILED_MANIFEST takes priority over FAILED_RESOURCE."""
         manifest_expr = Mock()
         manifest_expr.text = "manifest.has_feature == 'True'"
-        manifest_expr.manifest_id_list = ["com.canonical.plainbox::manifest-id"]
+        manifest_expr.manifest_id_list = [
+            "com.canonical.plainbox::manifest-id"
+        ]
 
         manifest_inhibitor = Mock()
         manifest_inhibitor.cause = InhibitionCause.FAILED_RESOURCE
@@ -228,9 +226,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
             manifest_inhibitor,
         ]
 
-        outcome, skip_reason = determine_outcome_and_skip_reason(
-            job_state, {}
-        )
+        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
         # FAILED_MANIFEST should take priority over other FAILED_RESOURCE
         self.assertEqual(outcome, IJobResult.OUTCOME_SKIPPED_MANIFEST)
@@ -275,9 +271,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         job_state = Mock()
         job_state.readiness_inhibitor_list = [inhibitor]
 
-        outcome, skip_reason = determine_outcome_and_skip_reason(
-            job_state, {}
-        )
+        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
         # UNDESIRED should not affect the outcome
         self.assertEqual(outcome, IJobResult.OUTCOME_NOT_SUPPORTED)
@@ -295,9 +289,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         job_state = Mock()
         job_state.readiness_inhibitor_list = [inhibitor]
 
-        outcome, skip_reason = determine_outcome_and_skip_reason(
-            job_state, {}
-        )
+        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
         # PENDING_RESOURCE should not affect the outcome
         self.assertEqual(outcome, IJobResult.OUTCOME_NOT_SUPPORTED)

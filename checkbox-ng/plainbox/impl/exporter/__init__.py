@@ -275,7 +275,9 @@ class SessionStateExporterBase(ISessionStateExporter):
 
             # Add skip_reason if present
             if job_state.result.skip_reason:
-                data["result_map"][job_id]["skip_reason"] = job_state.result.skip_reason
+                data["result_map"][job_id][
+                    "skip_reason"
+                ] = job_state.result.skip_reason
 
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:

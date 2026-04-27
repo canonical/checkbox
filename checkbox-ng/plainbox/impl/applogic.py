@@ -75,7 +75,6 @@ def run_job_if_possible(session, runner, config, job, update=True, ui=None):
     return job_state, job_result
 
 
-
 def get_all_exporter_names():
     """
     Get the identifiers (names) of all the supported session state exporters.

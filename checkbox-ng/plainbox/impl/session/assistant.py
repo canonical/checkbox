@@ -51,6 +51,7 @@ from plainbox.impl.developer import (
 )
 from plainbox.impl.providers import get_providers
 from plainbox.impl.result import JobResultBuilder, MemoryJobResult
+from plainbox.impl.result_utils import determine_outcome_and_skip_reason
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import (
@@ -1647,11 +1648,8 @@ class SessionAssistant:
             self._manager.checkpoint()
             ui.finished_running(job, job_state, builder.get_result())
         else:
-            # Set the outcome of jobs that cannot start to
-            # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to
-            # a job with an OUTCOME_SKIP outcome, if that is the case mirror
-            # that outcome. This makes 'skip' stronger than 'not-supported'
-            outcome = IJobResult.OUTCOME_NOT_SUPPORTED
+            # Special handling for fail-on-resource flag
+            outcome = None
             for inhibitor in job_state.readiness_inhibitor_list:
                 if (
                     inhibitor.cause == InhibitionCause.FAILED_RESOURCE
@@ -1659,16 +1657,15 @@ class SessionAssistant:
                 ):
                     outcome = IJobResult.OUTCOME_FAIL
                     break
-                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
-                    continue
-                related_job_state = self._context.state.job_state_map[
-                    inhibitor.related_job.id
-                ]
-                if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
-                    outcome = IJobResult.OUTCOME_SKIP
+            # If fail-on-resource doesn't apply, determine the outcome from inhibitors
+            outcome, skip_reason = determine_outcome_and_skip_reason(
+                job_state, self._context.state.job_state_map
+            )
             builder = JobResultBuilder(
                 outcome=outcome, comments=job_state.get_readiness_description()
             )
+            if skip_reason:
+                builder.skip_reason = skip_reason
             ui.job_cannot_start(job, job_state, builder.get_result())
         ui.finished(job, job_state, builder.get_result())
         # Set up expectations so that run_job() and use_job_result() must be
@@ -1756,6 +1753,9 @@ class SessionAssistant:
                     IJobResult.OUTCOME_CRASH,
                     IJobResult.OUTCOME_SKIP,
                     IJobResult.OUTCOME_NOT_SUPPORTED,
+                    IJobResult.OUTCOME_SKIPPED_DEPENDENCY,
+                    IJobResult.OUTCOME_SKIPPED_RESOURCE,
+                    IJobResult.OUTCOME_SKIPPED_MANIFEST,
                 ):
                     rerun_candidates.append(self.get_job(job_id))
             if session_type == "auto":
@@ -1767,7 +1767,10 @@ class SessionAssistant:
                 if job_state.effective_auto_retry == "no":
                     continue
                 if job_state.result.outcome in (
-                    IJobResult.OUTCOME_NOT_SUPPORTED
+                    IJobResult.OUTCOME_NOT_SUPPORTED,
+                    IJobResult.OUTCOME_SKIPPED_DEPENDENCY,
+                    IJobResult.OUTCOME_SKIPPED_RESOURCE,
+                    IJobResult.OUTCOME_SKIPPED_MANIFEST,
                 ):
                     for inhibitor in job_state.readiness_inhibitor_list:
                         if inhibitor.cause == InhibitionCause.FAILED_DEP:

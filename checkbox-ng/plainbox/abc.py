@@ -204,10 +204,16 @@ class IJobResult(metaclass=ABCMeta):
     # skipped it. This is typically used for a manual job that is tedious or
     # was selected by accident.
     OUTCOME_SKIP = "skip"
-    # The not supported outcome is used when a job was about to run but a
-    # dependency or resource requirement prevent it from running.  XXX: perhaps
-    # this should be called "not available", not supported has the "unsupported
-    # code" feeling associated with it.
+    # The skipped outcomes are used when a job was about to run but could not
+    # start for various reasons (dependency failure, resource requirement, or
+    # manifest requirement). These outcomes replace the old OUTCOME_NOT_SUPPORTED
+    # to provide more granular information about why a job was skipped.
+    OUTCOME_SKIPPED_DEPENDENCY = "skipped-dependency"
+    OUTCOME_SKIPPED_RESOURCE = "skipped-resource"
+    OUTCOME_SKIPPED_MANIFEST = "skipped-manifest"
+    # /!\ The not supported outcome is DEPRECATED.
+    # Use OUTCOME_SKIPPED_DEPENDENCY, OUTCOME_SKIPPED_RESOURCE or
+    # OUTCOME_SKIPPED_MANIFEST instead.
     OUTCOME_NOT_SUPPORTED = "not-supported"
     # A temporary state that should be removed later on, used to indicate that
     # job runner is not implemented but the job "ran" so to speak.

@@ -42,6 +42,7 @@ from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result_utils import determine_outcome_and_skip_reason
 from plainbox.abc import IJobResult
 
 from checkbox_ng.config import load_configs
@@ -557,7 +558,10 @@ class RemoteSessionAssistant:
         job_state = self._sa.get_job_state(job_id)
 
         if not job_state.can_start():
-            outcome = IJobResult.OUTCOME_NOT_SUPPORTED
+            outcome, skip_reason = determine_outcome_and_skip_reason(
+                job_state, self._sa._context.state.job_state_map
+            )
+            # Override with FAIL for fail-on-resource flag
             for inhibitor in job_state.readiness_inhibitor_list:
                 if (
                     inhibitor.cause == InhibitionCause.FAILED_RESOURCE
@@ -565,19 +569,14 @@ class RemoteSessionAssistant:
                 ):
                     outcome = IJobResult.OUTCOME_FAIL
                     break
-                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
-                    continue
-                related_job_state = self._sa._context.state.job_state_map[
-                    inhibitor.related_job.id
-                ]
-                if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
-                    outcome = IJobResult.OUTCOME_SKIP
 
             def cant_start_builder(*args, **kwargs):
                 result_builder = JobResultBuilder(
                     outcome=outcome,
                     comments=job_state.get_readiness_description(),
                 )
+                if skip_reason:
+                    result_builder.skip_reason = skip_reason
                 return result_builder
 
             self._be = BackgroundExecutor(self, job_id, cant_start_builder)

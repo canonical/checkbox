@@ -584,7 +584,7 @@ b.matchMedia=b.matchMedia||(function(k,l){var i,g=k.documentElement,h=g.firstEle
                                 labels: [
                                     "failed",
                                     "passed",
-                                    "skipped",
+                                    "manually skipped",
                                 ]
                             },
                             options: {
@@ -616,7 +616,7 @@ b.matchMedia=b.matchMedia||(function(k,l){var i,g=k.documentElement,h=g.firstEle
                                                     return {
                                                         // Instead of `text: label,`
                                                         // We add the value to the string
-                                                        text: label + " : " + value,
+                                                        text: label + ": " + value,
                                                         fillStyle: fill,
                                                         strokeStyle: stroke,
                                                         lineWidth: bw,
@@ -687,7 +687,7 @@ b.matchMedia=b.matchMedia||(function(k,l){var i,g=k.documentElement,h=g.firstEle
                                 </tr>
                                 <tr>
                                     <td data-filtertext="job_id3" style='width:35%'>job_id3</td>
-                                    <td style='width:10%; font-weight: bold; color: #FF9900'>skipped</td>
+                                    <td style='width:10%; font-weight: bold; color: #FF9900'>manually skipped</td>
                                     <td style='width:10%'></td>
                                     <td style='width:10%'>1.0s</td>
                                     <td style='width:10%'></td>

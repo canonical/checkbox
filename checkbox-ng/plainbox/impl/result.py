@@ -155,7 +155,9 @@ OUTCOME_METADATA_MAP = {
     IJobResult.OUTCOME_SKIPPED_DEPENDENCY: OutcomeMetadata(
         value=IJobResult.OUTCOME_SKIPPED_DEPENDENCY,
         unicode_sigil="☐ ",
-        tr_outcome=C_("textual outcome", "job cannot be started (failed dependency)"),
+        tr_outcome=C_(
+            "textual outcome", "job cannot be started (failed dependency)"
+        ),
         tr_label=C_("chart label", "skipped"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
@@ -164,7 +166,9 @@ OUTCOME_METADATA_MAP = {
     IJobResult.OUTCOME_SKIPPED_RESOURCE: OutcomeMetadata(
         value=IJobResult.OUTCOME_SKIPPED_RESOURCE,
         unicode_sigil="☐ ",
-        tr_outcome=C_("textual outcome", "job cannot be started (unmet resource)"),
+        tr_outcome=C_(
+            "textual outcome", "job cannot be started (unmet resource)"
+        ),
         tr_label=C_("chart label", "skipped"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
@@ -173,7 +177,9 @@ OUTCOME_METADATA_MAP = {
     IJobResult.OUTCOME_SKIPPED_MANIFEST: OutcomeMetadata(
         value=IJobResult.OUTCOME_SKIPPED_MANIFEST,
         unicode_sigil="☐ ",
-        tr_outcome=C_("textual outcome", "job cannot be started (unmet manifest)"),
+        tr_outcome=C_(
+            "textual outcome", "job cannot be started (unmet manifest)"
+        ),
         tr_label=C_("chart label", "skipped"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",

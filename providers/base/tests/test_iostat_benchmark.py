@@ -64,7 +64,7 @@ class TestMain(unittest.TestCase):
         ):
             ret = iostat_benchmark.main()
         self.assertEqual(ret, 0)
-        mock_run.assert_called_once()
+        self.assertEqual(mock_run.call_count, 1)
         args, kwargs = mock_run.call_args
         self.assertEqual(args[0], ["iostat", "-x", "-m", "1", "10"])
         self.assertTrue(kwargs.get("check"))

@@ -21,13 +21,18 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import crucible_host
+from checkbox_support.helpers.host_utils import VulkanDetectionError
 
 
 class TestCmdResource(unittest.TestCase):
-    @patch("crucible_host.find_plz_run", return_value=None)
+    @patch(
+        "crucible_host.find_plz_run",
+        side_effect=VulkanDetectionError("plz-run not found"),
+    )
     @patch("crucible_host.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_1_when_plz_run_not_found(self, _arch, _plz):
-        self.assertEqual(crucible_host.cmd_resource(), 1)
+        with patch("sys.argv", ["crucible_host.py", "resource"]):
+            self.assertEqual(crucible_host.main(), 1)
 
 
 class TestCmdValidateInstall(unittest.TestCase):
@@ -50,7 +55,7 @@ class TestCmdRunTest(unittest.TestCase):
         mock_result.returncode = returncode
         return MagicMock(return_value=mock_result)
 
-    @patch("crucible_host._active_vendor_prefixes", return_value=None)
+    @patch("crucible_host.active_vendor_prefixes", return_value=None)
     @patch("crucible_host.find_host_icd_filenames", return_value=ICD)
     def test_forwards_nonzero_returncode(self, _icd, _prefixes):
         mock_run = self._mock_run(returncode=1)
@@ -59,7 +64,7 @@ class TestCmdRunTest(unittest.TestCase):
                 crucible_host.cmd_run_test([self.FILTER_PATTERN]), 1
             )
 
-    @patch("crucible_host._active_vendor_prefixes", return_value=None)
+    @patch("crucible_host.active_vendor_prefixes", return_value=None)
     @patch("crucible_host.find_host_icd_filenames", return_value=ICD)
     def test_passes_correct_args(self, _icd, _prefixes):
         mock_run = self._mock_run()
@@ -79,7 +84,7 @@ class TestCmdRunTest(unittest.TestCase):
         self.assertEqual(env["SNAP"], self.SNAP)
         self.assertEqual(env["NODEVICE_SELECT"], "1")
 
-    @patch("crucible_host._active_vendor_prefixes", return_value=None)
+    @patch("crucible_host.active_vendor_prefixes", return_value=None)
     @patch("crucible_host.find_host_icd_filenames", return_value="")
     def test_does_not_set_vk_icd_when_none_found(self, _icd, _prefixes):
         mock_run = self._mock_run()
@@ -87,7 +92,7 @@ class TestCmdRunTest(unittest.TestCase):
             crucible_host.cmd_run_test([self.FILTER_PATTERN])
         self.assertNotIn("VK_ICD_FILENAMES", mock_run.call_args[1]["env"])
 
-    @patch("crucible_host._active_vendor_prefixes", return_value=None)
+    @patch("crucible_host.active_vendor_prefixes", return_value=None)
     @patch("crucible_host.find_host_icd_filenames", return_value=ICD)
     def test_respects_explicit_vk_icd_filenames(self, _icd, _prefixes):
         explicit = "/usr/share/vulkan/icd.d/nvidia_icd.json"

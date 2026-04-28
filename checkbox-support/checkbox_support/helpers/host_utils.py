@@ -18,11 +18,14 @@
 
 """Shared utilities for host Vulkan test helpers."""
 
-import json
 import os
 import shutil
 import subprocess
 import sysconfig
+
+
+class VulkanDetectionError(Exception):
+    """Raised when a GPU/Vulkan detection step fails."""
 
 
 def get_arch_triple():
@@ -34,11 +37,17 @@ def get_arch_triple():
 
 
 def find_plz_run():
-    """Return the path to plz-run from PATH."""
-    return shutil.which("plz-run")
+    """Return the path to plz-run from PATH.
+
+    Raises VulkanDetectionError if plz-run is not found.
+    """
+    path = shutil.which("plz-run")
+    if path is None:
+        raise VulkanDetectionError("plz-run not found in PATH")
+    return path
 
 
-_VIRTUAL_ICD_LIBS = {"libvulkan_gfxstream.so", "libvulkan_virtio.so"}
+_VIRTUAL_ICD_PREFIXES = {"gfxstream", "virtio"}
 
 # Maps prime-select vendor name to ICD filename prefixes.
 # Used to filter the ICD list to the PRIME-selected GPU on multi-GPU systems.
@@ -48,8 +57,8 @@ _PRIME_VENDOR_ICD_PREFIXES = {
     "amd": ("radeon", "amd"),
 }
 
-# Maps PCI vendor ID from /sys/class/drm to ICD filename prefixes.
-_DRM_VENDOR_ICD_PREFIXES = {
+# Maps PCI vendor ID to ICD filename prefixes.
+_PCI_VENDOR_ICD_PREFIXES = {
     "0x8086": ("intel",),
     "0x1002": ("radeon", "amd"),
     "0x10de": ("nvidia",),
@@ -57,11 +66,11 @@ _DRM_VENDOR_ICD_PREFIXES = {
 
 
 def prime_selected_vendor():
-    """Return the GPU vendor chosen by prime-select, or None.
+    """Return the GPU vendor chosen by prime-select.
 
-    Returns one of the keys in _PRIME_VENDOR_ICD_PREFIXES, or None if
-    prime-select is not installed, returns an unrecognised value (e.g.
-    'on-demand'), or fails for any reason.
+    Returns one of the keys in _PRIME_VENDOR_ICD_PREFIXES.
+    Raises VulkanDetectionError if prime-select is not installed, fails,
+    or returns an unrecognised value (e.g. 'on-demand').
     """
     try:
         output = (
@@ -73,9 +82,13 @@ def prime_selected_vendor():
             .strip()
             .lower()
         )
-        return output if output in _PRIME_VENDOR_ICD_PREFIXES else None
-    except (FileNotFoundError, OSError, subprocess.CalledProcessError):
-        return None
+    except (OSError, subprocess.CalledProcessError) as e:
+        raise VulkanDetectionError("prime-select query failed") from e
+    if output not in _PRIME_VENDOR_ICD_PREFIXES:
+        raise VulkanDetectionError(
+            "prime-select returned unrecognised value: {!r}".format(output)
+        )
+    return output
 
 
 def _run_vulkaninfo(plz_run, arch_triple):
@@ -83,7 +96,7 @@ def _run_vulkaninfo(plz_run, arch_triple):
 
     vulkaninfo is executed inside a new mount/user namespace (via plz-run)
     so that it uses the host ICD stack instead of snap-bundled libraries.
-    Returns the output string, or None if vulkaninfo fails.
+    Raises VulkanDetectionError if vulkaninfo fails.
     """
     ld_library_path = "/usr/lib/{arch}:/usr/lib".format(arch=arch_triple)
     try:
@@ -103,72 +116,48 @@ def _run_vulkaninfo(plz_run, arch_triple):
             universal_newlines=True,
             stderr=subprocess.STDOUT,
         )
-    except subprocess.CalledProcessError:
-        return None
+    except subprocess.CalledProcessError as e:
+        raise VulkanDetectionError("vulkaninfo failed") from e
 
 
 def _vendor_prefixes_from_vulkaninfo(output):
     """Return ICD filename prefixes for the first recognised GPU vendor in
-    vulkaninfo --summary output, or None if no known vendor is found.
+    vulkaninfo --summary output.
 
     Matches on the vendorID field which is unambiguous across driver versions
     and device names.  The field is right-padded with spaces for alignment,
     so each line is stripped before matching.
+    Raises VulkanDetectionError if no known vendor is found.
     """
     for line in output.splitlines():
         stripped = line.strip()
         if not stripped.startswith("vendorID"):
             continue
-        for vid, prefixes in _DRM_VENDOR_ICD_PREFIXES.items():
+        for vid, prefixes in _PCI_VENDOR_ICD_PREFIXES.items():
             if vid in stripped:
                 return prefixes
-    return None
+    raise VulkanDetectionError("no known GPU vendor found in vulkaninfo output")
 
 
-def _active_vendor_prefixes():
-    """Return ICD filename prefixes for the active GPU, or None.
+def active_vendor_prefixes():
+    """Return ICD filename prefixes for the active GPU.
 
-    Detection order:
-    1. prime-select — authoritative on PRIME multi-GPU systems.
-    2. vulkaninfo via plz-run — available inside the Checkbox snap environment.
-    3. DRM sysfs — works in any context without external tools.
-    Returns None if no method identifies the vendor, which causes
-    find_host_icd_filenames to fall back to all non-virtual ICDs.
+    Tries prime-select first (authoritative on PRIME multi-GPU systems),
+    then falls back to vulkaninfo via plz-run.
+    Raises VulkanDetectionError if no method identifies the vendor.
     """
-    vendor = prime_selected_vendor()
-    if vendor is not None:
+    # prime-select is only present on NVIDIA hybrid systems; absence or
+    # unrecognised output (e.g. on-demand) is normal — fall through to vulkaninfo.
+    try:
+        vendor = prime_selected_vendor()
         return _PRIME_VENDOR_ICD_PREFIXES[vendor]
-    try:
-        arch_triple = get_arch_triple()
-    except RuntimeError:
-        return None
-    plz_run = find_plz_run()
-    output = (
-        _run_vulkaninfo(plz_run, arch_triple) if plz_run is not None else None
-    )
-    if output is not None:
-        prefixes = _vendor_prefixes_from_vulkaninfo(output)
-        if prefixes is not None:
-            return prefixes
-    # Final fallback: read PCI vendor ID from DRM sysfs (no external tools
-    # required — works even when plz-run is not in PATH).
-    try:
-        for entry in sorted(os.listdir("/sys/class/drm")):
-            if not entry.startswith("card") or not entry[4:].isdigit():
-                continue
-            vendor_path = "/sys/class/drm/{}/device/vendor".format(entry)
-            try:
-                with open(vendor_path) as f:
-                    vid = f.read().strip().lower()
-                prefixes = _DRM_VENDOR_ICD_PREFIXES.get(vid)
-                if prefixes is not None:
-                    return prefixes
-                break
-            except OSError:
-                continue
-    except OSError:
+    except VulkanDetectionError:
         pass
-    return None
+
+    plz_run = find_plz_run()
+    arch_triple = get_arch_triple()
+    output = _run_vulkaninfo(plz_run, arch_triple)
+    return _vendor_prefixes_from_vulkaninfo(output)
 
 
 def find_host_icd_filenames(vendor_prefixes=None):
@@ -182,36 +171,31 @@ def find_host_icd_filenames(vendor_prefixes=None):
     non-virtual ICDs (the Vulkan loader then selects the default device).
     """
     icd_dir = "/usr/share/vulkan/icd.d"
-    result = []
     try:
-        for name in sorted(os.listdir(icd_dir)):
-            if not name.endswith(".json"):
-                continue
-            path = os.path.join(icd_dir, name)
-            try:
-                with open(path) as f:
-                    data = json.load(f)
-                lib = os.path.basename(
-                    data.get("ICD", {}).get("library_path", "")
-                )
-                if lib in _VIRTUAL_ICD_LIBS:
-                    continue
-                if vendor_prefixes and not any(
-                    name.startswith(p) for p in vendor_prefixes
-                ):
-                    continue
-                result.append(path)
-            except (OSError, ValueError):
-                result.append(path)
-    except OSError:
-        pass
+        entries = sorted(os.listdir(icd_dir))
+    except OSError as e:
+        raise VulkanDetectionError(
+            "cannot read Vulkan ICD directory {}".format(icd_dir)
+        ) from e
+    result = []
+    for name in entries:
+        if not name.endswith(".json"):
+            continue
+        if any(name.startswith(p) for p in _VIRTUAL_ICD_PREFIXES):
+            continue
+        if vendor_prefixes and not any(
+            name.startswith(p) for p in vendor_prefixes
+        ):
+            continue
+        result.append(os.path.join(icd_dir, name))
     return ":".join(result)
 
 
 def check_host_gpu(plz_run, arch_triple):
     """Return True if a physical GPU is available via host Vulkan drivers."""
-    output = _run_vulkaninfo(plz_run, arch_triple)
-    if output is None:
+    try:
+        output = _run_vulkaninfo(plz_run, arch_triple)
+    except VulkanDetectionError:
         return False
     return any(
         t in output

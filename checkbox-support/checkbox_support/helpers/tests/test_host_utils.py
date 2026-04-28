@@ -17,13 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import io
-import json
 import subprocess
 import unittest
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
 
 import checkbox_support.helpers.host_utils as host_utils
+
+
+class TestFindPlzRun(unittest.TestCase):
+    @patch("shutil.which", return_value="/usr/bin/plz-run")
+    def test_returns_path_when_found(self, _which):
+        self.assertEqual(host_utils.find_plz_run(), "/usr/bin/plz-run")
+
+    @patch("shutil.which", return_value=None)
+    def test_raises_when_not_found(self, _which):
+        with self.assertRaises(host_utils.VulkanDetectionError):
+            host_utils.find_plz_run()
 
 
 class TestGetArchTriple(unittest.TestCase):
@@ -174,19 +183,22 @@ class TestPrimeSelectedVendor(unittest.TestCase):
         self.assertEqual(host_utils.prime_selected_vendor(), "intel")
 
     @patch("subprocess.check_output", return_value="on-demand\n")
-    def test_returns_none_for_on_demand(self, _mock):
-        self.assertIsNone(host_utils.prime_selected_vendor())
+    def test_raises_for_on_demand(self, _mock):
+        with self.assertRaises(host_utils.VulkanDetectionError):
+            host_utils.prime_selected_vendor()
 
     @patch("subprocess.check_output", side_effect=FileNotFoundError)
-    def test_returns_none_when_prime_select_not_found(self, _mock):
-        self.assertIsNone(host_utils.prime_selected_vendor())
+    def test_raises_when_prime_select_not_found(self, _mock):
+        with self.assertRaises(host_utils.VulkanDetectionError):
+            host_utils.prime_selected_vendor()
 
     @patch(
         "subprocess.check_output",
         side_effect=subprocess.CalledProcessError(1, "prime-select"),
     )
-    def test_returns_none_on_error(self, _mock):
-        self.assertIsNone(host_utils.prime_selected_vendor())
+    def test_raises_on_error(self, _mock):
+        with self.assertRaises(host_utils.VulkanDetectionError):
+            host_utils.prime_selected_vendor()
 
 
 class TestVendorPrefixesFromVulkaninfo(unittest.TestCase):
@@ -196,75 +208,42 @@ class TestVendorPrefixesFromVulkaninfo(unittest.TestCase):
             host_utils._vendor_prefixes_from_vulkaninfo(output), ("intel",)
         )
 
-    def test_returns_none_for_unknown_vendor(self):
+    def test_raises_for_unknown_vendor(self):
         output = "    vendorID           = 0x1234\n"
-        self.assertIsNone(host_utils._vendor_prefixes_from_vulkaninfo(output))
+        with self.assertRaises(host_utils.VulkanDetectionError):
+            host_utils._vendor_prefixes_from_vulkaninfo(output)
 
-    def test_returns_none_when_no_vendorid_line(self):
+    def test_raises_when_no_vendorid_line(self):
         output = "deviceType = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU\n"
-        self.assertIsNone(host_utils._vendor_prefixes_from_vulkaninfo(output))
+        with self.assertRaises(host_utils.VulkanDetectionError):
+            host_utils._vendor_prefixes_from_vulkaninfo(output)
 
 
 class TestActiveVendorPrefixes(unittest.TestCase):
     @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value="intel")
     def test_returns_prime_vendor(self, _prime):
-        self.assertEqual(host_utils._active_vendor_prefixes(), ("intel",))
+        self.assertEqual(host_utils.active_vendor_prefixes(), ("intel",))
 
-    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value=None)
+    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", side_effect=host_utils.VulkanDetectionError)
     @patch("checkbox_support.helpers.host_utils.find_plz_run", return_value="/usr/bin/plz-run")
     @patch("checkbox_support.helpers.host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
     @patch("checkbox_support.helpers.host_utils._run_vulkaninfo", return_value="vendorID = 0x8086\n")
     def test_returns_vulkaninfo_vendor(self, _vkinfo, _arch, _plz, _prime):
-        self.assertEqual(host_utils._active_vendor_prefixes(), ("intel",))
+        self.assertEqual(host_utils.active_vendor_prefixes(), ("intel",))
 
-    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value=None)
-    @patch("checkbox_support.helpers.host_utils.find_plz_run", return_value=None)
-    @patch("checkbox_support.helpers.host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
-    def test_falls_back_to_sysfs(self, _arch, _plz, _prime):
-        with patch("os.listdir", return_value=["card1"]), patch(
-            "builtins.open", mock_open(read_data="0x8086\n")
-        ):
-            self.assertEqual(host_utils._active_vendor_prefixes(), ("intel",))
-
-    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value=None)
-    @patch("checkbox_support.helpers.host_utils.find_plz_run", return_value=None)
-    @patch("checkbox_support.helpers.host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
-    def test_returns_none_when_all_methods_fail(self, _arch, _plz, _prime):
-        with patch("os.listdir", side_effect=OSError):
-            self.assertIsNone(host_utils._active_vendor_prefixes())
+    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", side_effect=host_utils.VulkanDetectionError)
+    @patch("checkbox_support.helpers.host_utils.find_plz_run", side_effect=host_utils.VulkanDetectionError)
+    def test_raises_when_all_methods_fail(self, _plz, _prime):
+        with self.assertRaises(host_utils.VulkanDetectionError):
+            host_utils.active_vendor_prefixes()
 
 
 class TestFindHostIcdFilenames(unittest.TestCase):
     ICD_DIR = "/usr/share/vulkan/icd.d"
 
-    def _icd_open(self, icd_map):
-        def _open(path, *args, **kwargs):
-            name = path.split("/")[-1]
-            if name in icd_map:
-                return io.StringIO(
-                    json.dumps(
-                        {
-                            "ICD": {
-                                "library_path": icd_map[name],
-                                "api_version": "1.3",
-                            }
-                        }
-                    )
-                )
-            raise OSError("not found: {}".format(path))
-
-        return _open
-
     def test_excludes_virtual_icds(self):
-        files = ["intel_icd.json", "gfxstream_vk_icd.json", "virtio_icd.json"]
-        libs = {
-            "intel_icd.json": "libvulkan_intel.so",
-            "gfxstream_vk_icd.json": "libvulkan_gfxstream.so",
-            "virtio_icd.json": "libvulkan_virtio.so",
-        }
-        with patch("os.listdir", return_value=files), patch(
-            "builtins.open", side_effect=self._icd_open(libs)
-        ):
+        files = ["intel_icd.json", "gfxstream_vk_icd.json", "virtio_gpu_icd.json"]
+        with patch("os.listdir", return_value=files):
             result = host_utils.find_host_icd_filenames()
         self.assertIn("{}/intel_icd.json".format(self.ICD_DIR), result)
         self.assertNotIn("gfxstream", result)
@@ -272,26 +251,23 @@ class TestFindHostIcdFilenames(unittest.TestCase):
 
     def test_filters_by_vendor_prefix(self):
         files = ["intel_icd.json", "radeon_icd.json"]
-        libs = {
-            "intel_icd.json": "libvulkan_intel.so",
-            "radeon_icd.json": "libvulkan_radeon.so",
-        }
-        with patch("os.listdir", return_value=files), patch(
-            "builtins.open", side_effect=self._icd_open(libs)
-        ):
+        with patch("os.listdir", return_value=files):
             result = host_utils.find_host_icd_filenames(("intel",))
         self.assertIn("intel_icd.json", result)
         self.assertNotIn("radeon_icd.json", result)
 
-    def test_returns_empty_string_when_dir_missing(self):
-        with patch("os.listdir", side_effect=OSError):
-            self.assertEqual(host_utils.find_host_icd_filenames(), "")
+    def test_skips_non_json_files(self):
+        files = ["intel_icd.json", "README.txt", "notes.md"]
+        with patch("os.listdir", return_value=files):
+            result = host_utils.find_host_icd_filenames()
+        self.assertIn("intel_icd.json", result)
+        self.assertNotIn("README.txt", result)
+        self.assertNotIn("notes.md", result)
 
-    def test_includes_file_on_parse_error(self):
-        with patch("os.listdir", return_value=["bad.json"]), patch(
-            "builtins.open", side_effect=OSError
-        ):
-            self.assertIn("bad.json", host_utils.find_host_icd_filenames())
+    def test_raises_when_icd_dir_missing(self):
+        with patch("os.listdir", side_effect=OSError):
+            with self.assertRaises(host_utils.VulkanDetectionError):
+                host_utils.find_host_icd_filenames()
 
 
 if __name__ == "__main__":

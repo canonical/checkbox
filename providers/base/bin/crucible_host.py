@@ -35,7 +35,8 @@ import subprocess
 import sys
 
 from checkbox_support.helpers.host_utils import (
-    _active_vendor_prefixes,
+    VulkanDetectionError,
+    active_vendor_prefixes,
     check_host_gpu,
     find_host_icd_filenames,
     find_plz_run,
@@ -45,12 +46,7 @@ from checkbox_support.helpers.host_utils import (
 
 def cmd_resource():
     arch_triple = get_arch_triple()
-
     plz_run = find_plz_run()
-    if plz_run is None:
-        logging.error("plz-run not found in PATH")
-        return 1
-
     if check_host_gpu(plz_run, arch_triple):
         logging.info("Found a Vulkan-capable GPU using host drivers")
         return 0
@@ -80,7 +76,7 @@ def cmd_run_test(test_args):
     # requires GLIBC_ABI_GNU2_TLS, which the snap's core24 glibc lacks.
     env = dict(os.environ, SNAP=snap, NODEVICE_SELECT="1")
     if not env.get("VK_ICD_FILENAMES"):
-        icd_filenames = find_host_icd_filenames(_active_vendor_prefixes())
+        icd_filenames = find_host_icd_filenames(active_vendor_prefixes())
         if icd_filenames:
             env["VK_ICD_FILENAMES"] = icd_filenames
     result = subprocess.run(
@@ -111,7 +107,7 @@ def main():
         else:
             logging.error("Unknown command: %s", command)
             return 1
-    except RuntimeError as exc:
+    except (RuntimeError, VulkanDetectionError) as exc:
         logging.error("%s", exc)
         return 1
 

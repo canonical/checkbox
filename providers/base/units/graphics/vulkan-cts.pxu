@@ -24,6 +24,8 @@ environ:
   XDG_RUNTIME_DIR
 estimated_duration: 1s
 command:
+ # Unset DISPLAY so vulkaninfo skips surface/window-system checks and runs
+ # in headless mode
  if env -u DISPLAY vulkan-cts.vulkaninfo --summary 2>&1 | grep "PHYSICAL_DEVICE_TYPE_.*_GPU"; then
    echo "PASS: Found a Vulkan-capable GPU"
  else

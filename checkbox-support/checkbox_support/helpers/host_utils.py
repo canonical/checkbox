@@ -38,7 +38,6 @@ def get_arch_triple():
 
 def find_plz_run():
     """Return the path to plz-run from PATH.
-
     Raises VulkanDetectionError if plz-run is not found.
     """
     path = shutil.which("plz-run")
@@ -47,6 +46,7 @@ def find_plz_run():
     return path
 
 
+# Loading these will hang
 _VIRTUAL_ICD_PREFIXES = {"gfxstream", "virtio"}
 
 # Maps prime-select vendor name to ICD filename prefixes.

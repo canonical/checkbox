@@ -409,3 +409,9 @@ include:
 bootstrap_include:
     graphics_card
     executable
+
+id: vrr-test-plan
+unit: test plan
+_name: Variable-Refresh-Rate Test Plan
+include:
+    graphics/variable-refresh-rate.*

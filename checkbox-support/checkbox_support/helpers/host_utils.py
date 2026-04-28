@@ -136,7 +136,9 @@ def _vendor_prefixes_from_vulkaninfo(output):
         for vid, prefixes in _PCI_VENDOR_ICD_PREFIXES.items():
             if vid in stripped:
                 return prefixes
-    raise VulkanDetectionError("no known GPU vendor found in vulkaninfo output")
+    raise VulkanDetectionError(
+        "no known GPU vendor found in vulkaninfo output"
+    )
 
 
 def active_vendor_prefixes():
@@ -146,8 +148,8 @@ def active_vendor_prefixes():
     then falls back to vulkaninfo via plz-run.
     Raises VulkanDetectionError if no method identifies the vendor.
     """
-    # prime-select is only present on NVIDIA hybrid systems; absence or
-    # unrecognised output (e.g. on-demand) is normal — fall through to vulkaninfo.
+    # prime-select is only present on NVIDIA hybrid systems;
+    # absence or unrecognised output is normal — fall through.
     try:
         vendor = prime_selected_vendor()
         return _PRIME_VENDOR_ICD_PREFIXES[vendor]

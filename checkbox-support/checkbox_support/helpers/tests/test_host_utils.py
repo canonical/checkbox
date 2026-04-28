@@ -220,19 +220,40 @@ class TestVendorPrefixesFromVulkaninfo(unittest.TestCase):
 
 
 class TestActiveVendorPrefixes(unittest.TestCase):
-    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", return_value="intel")
+    @patch(
+        "checkbox_support.helpers.host_utils.prime_selected_vendor",
+        return_value="intel",
+    )
     def test_returns_prime_vendor(self, _prime):
         self.assertEqual(host_utils.active_vendor_prefixes(), ("intel",))
 
-    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", side_effect=host_utils.VulkanDetectionError)
-    @patch("checkbox_support.helpers.host_utils.find_plz_run", return_value="/usr/bin/plz-run")
-    @patch("checkbox_support.helpers.host_utils.get_arch_triple", return_value="x86_64-linux-gnu")
-    @patch("checkbox_support.helpers.host_utils._run_vulkaninfo", return_value="vendorID = 0x8086\n")
+    @patch(
+        "checkbox_support.helpers.host_utils.prime_selected_vendor",
+        side_effect=host_utils.VulkanDetectionError,
+    )
+    @patch(
+        "checkbox_support.helpers.host_utils.find_plz_run",
+        return_value="/usr/bin/plz-run",
+    )
+    @patch(
+        "checkbox_support.helpers.host_utils.get_arch_triple",
+        return_value="x86_64-linux-gnu",
+    )
+    @patch(
+        "checkbox_support.helpers.host_utils._run_vulkaninfo",
+        return_value="vendorID = 0x8086\n",
+    )
     def test_returns_vulkaninfo_vendor(self, _vkinfo, _arch, _plz, _prime):
         self.assertEqual(host_utils.active_vendor_prefixes(), ("intel",))
 
-    @patch("checkbox_support.helpers.host_utils.prime_selected_vendor", side_effect=host_utils.VulkanDetectionError)
-    @patch("checkbox_support.helpers.host_utils.find_plz_run", side_effect=host_utils.VulkanDetectionError)
+    @patch(
+        "checkbox_support.helpers.host_utils.prime_selected_vendor",
+        side_effect=host_utils.VulkanDetectionError,
+    )
+    @patch(
+        "checkbox_support.helpers.host_utils.find_plz_run",
+        side_effect=host_utils.VulkanDetectionError,
+    )
     def test_raises_when_all_methods_fail(self, _plz, _prime):
         with self.assertRaises(host_utils.VulkanDetectionError):
             host_utils.active_vendor_prefixes()
@@ -242,7 +263,11 @@ class TestFindHostIcdFilenames(unittest.TestCase):
     ICD_DIR = "/usr/share/vulkan/icd.d"
 
     def test_excludes_virtual_icds(self):
-        files = ["intel_icd.json", "gfxstream_vk_icd.json", "virtio_gpu_icd.json"]
+        files = [
+            "intel_icd.json",
+            "gfxstream_vk_icd.json",
+            "virtio_gpu_icd.json",
+        ]
         with patch("os.listdir", return_value=files):
             result = host_utils.find_host_icd_filenames()
         self.assertIn("{}/intel_icd.json".format(self.ICD_DIR), result)

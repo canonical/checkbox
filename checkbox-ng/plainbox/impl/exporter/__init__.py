@@ -273,12 +273,6 @@ class SessionStateExporterBase(ISessionStateExporter):
                     "comments"
                 ] = job_state.result.comments
 
-            # Add skip_reason if present
-            if job_state.result.skip_reason:
-                data["result_map"][job_id][
-                    "skip_reason"
-                ] = job_state.result.skip_reason
-
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:
                 data["result_map"][job_id]["hash"] = job_state.job.checksum

@@ -531,6 +531,10 @@ class RenesasProject(PipelineInterface):
         self._framerate = framerate
         self._artifact_file = ""
         self._golden_sample = ""
+        self._codec_parser_map = {
+            GStreamerEncodePlugins.OMXH264ENC.value: "h264parse",
+            GStreamerEncodePlugins.OMXH265ENC.value: "h265parse",
+        }
 
     @property
     def artifact_file(self) -> str:
@@ -542,25 +546,29 @@ class RenesasProject(PipelineInterface):
     def psnr_reference_file(self) -> str:
         return self._golden_sample
 
-    def _omxh264_pipeline_builder(self) -> str:
+    def _264_265_pipeline_builder(self) -> str:
         """
         Build gstreamer pipeline for omxh264enc
         """
+        encode_parser = self._codec_parser_map.get(self._codec)
+
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
             "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
         )
         pipeline = (
-            "{} filesrc location={} ! qtdemux ! h264parse !"
+            "{} filesrc location={} ! qtdemux ! {} !"
             " omxh264dec use-dmabuf=false !"
             " video/x-raw,format={} ! {} use-dmabuf=true"
             " target-bitrate=10485760 !"
-            " h264parse ! mp4mux ! filesink location={}"
+            " {} ! mp4mux ! filesink location={}"
         ).format(
             GST_LAUNCH_BIN,
             self._golden_sample,
+            encode_parser,
             self._color_space,
             self._codec,
+            encode_parser,
             self.artifact_file,
         )
 
@@ -573,10 +581,14 @@ class RenesasProject(PipelineInterface):
         Returns:
             str: A GStreamer command.
         """
-        # RZG2 series support only omxh264enc as hardware encoder
-        # And only RZG2L supported.
-        if "rzg2l" in self._platform and self._codec == "omxh264enc":
-            return self._omxh264_pipeline_builder()
+        # Renesas RZ series support h264 and h265 as hardware decoder
+        # And some platform support both decoder.
+        # We make a simple logic to choose the decoder and build the pipeline,
+        # If the decoder is omxh265dec, we use h265parse, else we use
+        # h264parse.
+
+        if "omxh264enc" in self._codec or "omxh265enc" in self._codec:
+            return self._264_265_pipeline_builder()
         else:
             raise SystemExit(
                 "Error: unknow encoder '{}' be used".format(self._codec)

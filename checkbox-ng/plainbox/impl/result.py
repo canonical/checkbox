@@ -146,8 +146,41 @@ OUTCOME_METADATA_MAP = {
     IJobResult.OUTCOME_SKIP: OutcomeMetadata(
         value=IJobResult.OUTCOME_SKIP,
         unicode_sigil="☐ ",
-        tr_outcome=C_("textual outcome", "job skipped"),
-        tr_label=C_("chart label", "skipped"),
+        tr_outcome=C_("textual outcome", "job manually skipped"),
+        tr_label=C_("chart label", "manually skipped"),
+        color_ansi="\033[33;1m",
+        color_hex="#FF9900",
+        hexr_mapping="skip",
+    ),
+    IJobResult.OUTCOME_SKIPPED_DEPENDENCY: OutcomeMetadata(
+        value=IJobResult.OUTCOME_SKIPPED_DEPENDENCY,
+        unicode_sigil="☐ ",
+        tr_outcome=C_(
+            "textual outcome", "job cannot be started (failed dependency)"
+        ),
+        tr_label=C_("chart label", "skipped (failed dependency)"),
+        color_ansi="\033[33;1m",
+        color_hex="#FF9900",
+        hexr_mapping="skip",
+    ),
+    IJobResult.OUTCOME_SKIPPED_RESOURCE: OutcomeMetadata(
+        value=IJobResult.OUTCOME_SKIPPED_RESOURCE,
+        unicode_sigil="☐ ",
+        tr_outcome=C_(
+            "textual outcome", "job cannot be started (unmet resource)"
+        ),
+        tr_label=C_("chart label", "skipped (unmet resource)"),
+        color_ansi="\033[33;1m",
+        color_hex="#FF9900",
+        hexr_mapping="skip",
+    ),
+    IJobResult.OUTCOME_SKIPPED_MANIFEST: OutcomeMetadata(
+        value=IJobResult.OUTCOME_SKIPPED_MANIFEST,
+        unicode_sigil="☐ ",
+        tr_outcome=C_(
+            "textual outcome", "job cannot be started (unmet manifest)"
+        ),
+        tr_label=C_("chart label", "skipped (unmet manifest)"),
         color_ansi="\033[33;1m",
         color_hex="#FF9900",
         hexr_mapping="skip",
@@ -250,6 +283,12 @@ class JobResultBuilder(pod.POD):
     io_log_filename = pod.Field(
         "path to a structured I/O log file of the (optional) test process",
         str,
+        pod.UNSET,
+        assign_filter_list=[pod.unset_or_typed],
+    )
+    skip_reason = pod.Field(
+        "dict of inhibitors (reasons why a job could not start)",
+        dict,
         pod.UNSET,
         assign_filter_list=[pod.unset_or_typed],
     )
@@ -516,6 +555,29 @@ class _JobResultBase(IJobResult):
         :class:`plainbox.impl.session.suspend.SessionSuspendHelper4`.
         """
         return not bool(self._data)
+
+    @property
+    def skip_reason(self):
+        """
+        Dictionary that explains why a job could not start.
+
+        This is a dict of inhibitor lists that looks like this:
+
+        {
+            'related_dependencies': ['com.canonical.certification::smoke/false'],
+            'related_manifests': ["manifest.doesnt_exist == 'True'"],
+            'related_resources': []
+        }
+
+        or
+
+        {
+            'related_dependencies': [],
+            'related_manifests': [],
+            'related_resources': ['package.name == "missing-program"']
+        }
+        """
+        return self._data.get("skip_reason")
 
 
 class MemoryJobResult(_JobResultBase):

@@ -29,8 +29,6 @@ import collections
 import gettext
 import logging
 import os
-import sys
-from collections import defaultdict
 
 import yaml
 
@@ -43,7 +41,6 @@ from pathlib import Path
 
 from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
-from plainbox.impl.decorators import cached_property
 from plainbox.impl.secure.config import (
     Config,
     IValidator,
@@ -1258,149 +1255,18 @@ class Provider1(IProvider1):
         """
         return self.base_dir
 
-    @property
-    def custom_frontend_provider(self) -> bool:
-        """
-        Returns True if the provider is installed in a custom frontend
-
-        Custom frontend providers are installed in the custom frontend and
-        provided to the runtime via a content interface that mounts them in
-        /snap/runtime_name/current/custom_frontends/custom_frontendX?
-        (where the first that gets connected is custom_frontend and the others
-         are custom_frontend1..N)
-        """
-        return bool(os.getenv("SNAP")) and "custom_frontends" in self.base_dir
-
-    def custom_frontend_root(self) -> Path:
-        if not self.custom_frontend_provider:
-            raise ValueError("Provider is not a custom frontend")
-        return Path(self.base_dir).parent.parent.resolve()
-
-    def paths_to_custom_frontend_path(self, paths) -> list:
-        frontend_root = self.custom_frontend_root()
-        frontend_paths = [frontend_root / path for path in paths]
-        return [str(path) for path in frontend_paths if path.exists()]
-
-    @staticmethod
-    def _parse_extra_path_environment_file(source_root) -> defaultdict:
-        extra_path_environment = source_root / "extra_path_environment"
-        try:
-            text = extra_path_environment.read_text()
-        except FileNotFoundError:
-            return defaultdict(list)
-        lines = text.splitlines()
-        lines = (l.strip() for l in lines)
-        lines = filter(bool, lines)
-        lines = [l for l in lines if not l.startswith("#")]
-        to_r = defaultdict(list)
-        for line in lines:
-            try:
-                key, value = line.split("+=", maxsplit=1)
-                key = key.strip()
-                value = value.strip()
-                if value.startswith("/"):
-                    value = value[1:]
-                to_r[key].append(str(source_root / value))
-            except ValueError:
-                logger.error(
-                    "Ignoring malformed line in extra_path_environment {}".format(
-                        line
-                    )
-                )
-        return to_r
-
-    @cached_property
-    def extra_snap_environment(self) -> dict:
-        """
-        Additional environment variables from `$PROVIDER_ROOT/extra_path_environment`
-
-        $PROVIDER_ROOT is either $SNAP if test comes from a runtime provider
-        or custom_frontend_root
-        """
-        runtime_root = os.getenv("SNAP")
-        if not runtime_root:
-            return {}
-
-        runtime_root = Path(runtime_root)
-        # Always load the runtime ones as frontend assume that the dependencies
-        # from the frontend are available
-        to_r = self._parse_extra_path_environment_file(runtime_root)
-
-        if not self.custom_frontend_provider:
-            return dict(to_r)
-
-        custom_frontend_envvars = self._parse_extra_path_environment_file(
-            self.custom_frontend_root()
-        )
-
-        # give priority to the custom_frontend additions
-        for key, value in custom_frontend_envvars.items():
-            to_r[key] = value + to_r[key]
-
-        return dict(to_r)
 
     @property
     def extra_PYTHONPATH(self) -> list:
-        """
-        additional entry for PYTHONPATH, if needed.
-
-        This entry is required for CheckBox scripts to import the correct
-        CheckBox python libraries.
-        """
-        if not self.custom_frontend_provider:
-            return []
-        python_name = "python{}.{}".format(
-            sys.version_info.major, sys.version_info.minor
-        )
-        paths = [
-            "lib/{}/site-packages".format(python_name),
-            "lib/{}/dist-packages".format(python_name),
-            "usr/lib/{}/site-packages".format(python_name),
-            "usr/lib/{}/lib-dynload".format(python_name),
-            "usr/lib/python3/dist-packages",
-            "usr/local/lib/{}/dist-packages".format(python_name),
-        ]
-        return self.paths_to_custom_frontend_path(paths)
+        return []
 
     @property
     def extra_PATH(self) -> list:
-        """
-        Additional PATH entries necessary to make tests in this provider work
-
-        This includes all PATH entries that are necessary beside bin/ given
-        that it is populated (merged with the others) in the nest
-        """
-        if not self.custom_frontend_provider:
-            return []
-        paths = [
-            # Don't put a / in front or you will point to the root one
-            # as Path("/a/b") / "/a" == Path("/a")
-            "usr/local/bin",
-            "usr/local/sbin",
-            "usr/bin",
-            "usr/sbin",
-            "bin",
-            "sbin",
-        ]
-        return self.paths_to_custom_frontend_path(paths)
+        return []
 
     @property
     def extra_LD_LIBRARY_PATH(self):
-        """
-        Additional LD_LIBRARY_PATH necessary to run tests in this provider
-        """
-        if not self.custom_frontend_provider:
-            return []
-        paths = [
-            # Don't put a / in front or you will point to the root one
-            # as Path("/a/b") / "/a" == Path("/a")
-            "usr/lib",
-            "usr/lib64",
-            "lib",
-            "lib64",
-        ]
-
-        return self.paths_to_custom_frontend_path(paths)
+        return []
 
     @property
     def secure(self):

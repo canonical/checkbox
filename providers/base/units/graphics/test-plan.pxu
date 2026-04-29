@@ -360,6 +360,11 @@ nested_part:
     after-suspend-graphics-gpu-cert-manual
     after-suspend-monitor-gpu-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::graphics/1_cycle_resolution_.*
+    apply blocker to com.canonical.certification::graphics/2_cycle_resolution_.*
+    apply blocker to com.canonical.certification::after-suspend-graphics/1_cycle_resolution_.*
+    apply blocker to com.canonical.certification::after-suspend-graphics/2_cycle_resolution_.*
 
 id: graphic-base-26-04-automated
 unit: test plan
@@ -369,6 +374,10 @@ include:
 nested_part:
     graphics-gpu-cert-automated
     after-suspend-graphics-gpu-cert-automated
+certification_status_overrides:
+    apply blocker to com.canonical.certification::graphics/1_vkcube_.*
+    apply blocker to com.canonical.certification::graphics/2_vkcube_.*
+    apply blocker to com.canonical.certification::graphics/vulkaninfo.*
 
 id: opencl-core-test-plan
 unit: test plan

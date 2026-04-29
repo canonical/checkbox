@@ -84,6 +84,19 @@ nested_part:
     fingerprint-cert-manual
     after-suspend-fingerprint-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::fingerprint/detect
+    apply blocker to com.canonical.certification::fingerprint/enroll
+    apply blocker to com.canonical.certification::fingerprint/verify-no-match
+    apply blocker to com.canonical.certification::fingerprint/verify-match
+    apply blocker to com.canonical.certification::fingerprint/unlock
+    apply blocker to com.canonical.certification::fingerprint/delete
+    apply blocker to com.canonical.certification::after-suspend-fingerprint/detect
+    apply blocker to com.canonical.certification::after-suspend-fingerprint/enroll
+    apply blocker to com.canonical.certification::after-suspend-fingerprint/verify-no-match
+    apply blocker to com.canonical.certification::after-suspend-fingerprint/verify-match
+    apply blocker to com.canonical.certification::after-suspend-fingerprint/unlock
+    apply blocker to com.canonical.certification::after-suspend-fingerprint/delete
 
 id: fingerprint-base-26-04-automated
 unit: test plan

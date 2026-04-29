@@ -67,6 +67,22 @@ def main(args=sys.argv[1:]):
             str(args.sleep_delay),
         ]
         suspend_cmd = ["systemctl", "suspend"]
+        list_jobs_cmd = ["systemctl", "list-jobs", "*suspend*"]
+        timeout = 10
+        while timeout > 0:
+            output = subprocess.check_output(
+                list_jobs_cmd,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            ).strip()
+            if "No jobs running." in output or "No jobs listed." in output:
+                break
+            print("Suspend jobs ongoing, waiting...")
+            time.sleep(1)
+            timeout -= 1
+        else:
+            print("Timed out waiting for suspend jobs to finish")
+            return 1
         print("Running: {}".format(" ".join(rtcwake_cmd)))
         subprocess.check_call(rtcwake_cmd)
         print(
@@ -79,6 +95,8 @@ def main(args=sys.argv[1:]):
     if os.path.exists(log_path):
         print("Removing {}...".format(log_path))
         os.remove(log_path)
+
+    return 0
 
 
 if __name__ == "__main__":

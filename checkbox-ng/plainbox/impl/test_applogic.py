@@ -72,7 +72,9 @@ class RunJobIfPossibleTests(TestCase):
             self.job, self.job_state, self.config, None
         )
         self.assertEqual(result, job_result)
-        self.session.update_job_result.assert_called_once_with(self.job, job_result)
+        self.session.update_job_result.assert_called_once_with(
+            self.job, job_result
+        )
         self.assertEqual(state, self.job_state)
 
     def test_job_cannot_start_no_skip_reason(self):
@@ -83,7 +85,10 @@ class RunJobIfPossibleTests(TestCase):
         with mock.patch(
             "plainbox.impl.applogic.determine_outcome_and_skip_reason"
         ) as mock_determine:
-            mock_determine.return_value = (IJobResult.OUTCOME_NOT_SUPPORTED, None)
+            mock_determine.return_value = (
+                IJobResult.OUTCOME_NOT_SUPPORTED,
+                None,
+            )
             state, result = run_job_if_possible(
                 self.session, self.runner, self.config, self.job
             )
@@ -114,6 +119,8 @@ class RunJobIfPossibleTests(TestCase):
                 self.session, self.runner, self.config, self.job
             )
 
-            self.assertEqual(result.outcome, IJobResult.OUTCOME_SKIPPED_DEPENDENCY)
+            self.assertEqual(
+                result.outcome, IJobResult.OUTCOME_SKIPPED_DEPENDENCY
+            )
             self.assertEqual(result.skip_reason, skip_reason)
             self.assertEqual(result.comments, "Skipped")

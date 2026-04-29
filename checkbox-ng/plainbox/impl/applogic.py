@@ -32,7 +32,6 @@ from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.result_utils import determine_outcome_and_skip_reason
-from plainbox.impl.secure import config
 from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session.jobs import InhibitionCause

@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2025 Canonical Ltd.
+# Written by:
+#   Shane McKee <shane.mckee@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+import unittest
+from unittest.mock import MagicMock, patch
+
+import crucible_host
+from checkbox_support.helpers.host_utils import VulkanDetectionError
+
+
+class TestCmdResource(unittest.TestCase):
+    @patch(
+        "crucible_host.find_plz_run",
+        side_effect=VulkanDetectionError("plz-run not found"),
+    )
+    @patch("crucible_host.get_arch_triple", return_value="x86_64-linux-gnu")
+    def test_returns_1_when_plz_run_not_found(self, _arch, _plz):
+        with patch("sys.argv", ["crucible_host.py", "resource"]):
+            self.assertEqual(crucible_host.main(), 1)
+
+
+class TestCmdValidateInstall(unittest.TestCase):
+    @patch("os.path.isfile", return_value=True)
+    @patch("crucible_host.get_arch_triple", return_value="x86_64-linux-gnu")
+    def test_checks_correct_path(self, _arch, mock_isfile):
+        crucible_host.cmd_validate_install()
+        mock_isfile.assert_called_once_with(
+            "/usr/lib/x86_64-linux-gnu/libvulkan.so.1"
+        )
+
+
+class TestCmdRunTest(unittest.TestCase):
+    SNAP = "/snap/crucible/current"
+    ICD = "/usr/share/vulkan/icd.d/intel_icd.json"
+    FILTER_PATTERN = "func.depthstencil.*"
+
+    def _mock_run(self, returncode=0):
+        mock_result = MagicMock()
+        mock_result.returncode = returncode
+        return MagicMock(return_value=mock_result)
+
+    @patch("crucible_host.active_vendor_prefixes", return_value=None)
+    @patch("crucible_host.find_host_icd_filenames", return_value=ICD)
+    def test_forwards_nonzero_returncode(self, _icd, _prefixes):
+        mock_run = self._mock_run(returncode=1)
+        with patch("subprocess.run", mock_run):
+            self.assertEqual(
+                crucible_host.cmd_run_test([self.FILTER_PATTERN]), 1
+            )
+
+    @patch("crucible_host.active_vendor_prefixes", return_value=None)
+    @patch("crucible_host.find_host_icd_filenames", return_value=ICD)
+    def test_passes_correct_args(self, _icd, _prefixes):
+        mock_run = self._mock_run()
+        with patch("subprocess.run", mock_run):
+            crucible_host.cmd_run_test([self.FILTER_PATTERN])
+        self.assertEqual(
+            mock_run.call_args[0][0],
+            [
+                "{}/test".format(self.SNAP),
+                "--no-confinement",
+                "--no-fork",
+                self.FILTER_PATTERN,
+            ],
+        )
+        env = mock_run.call_args[1]["env"]
+        self.assertEqual(env["VK_ICD_FILENAMES"], self.ICD)
+        self.assertEqual(env["SNAP"], self.SNAP)
+        self.assertEqual(env["NODEVICE_SELECT"], "1")
+
+    @patch("crucible_host.active_vendor_prefixes", return_value=None)
+    @patch("crucible_host.find_host_icd_filenames", return_value="")
+    def test_does_not_set_vk_icd_when_none_found(self, _icd, _prefixes):
+        mock_run = self._mock_run()
+        with patch("subprocess.run", mock_run):
+            crucible_host.cmd_run_test([self.FILTER_PATTERN])
+        self.assertNotIn("VK_ICD_FILENAMES", mock_run.call_args[1]["env"])
+
+    @patch("crucible_host.active_vendor_prefixes", return_value=None)
+    @patch("crucible_host.find_host_icd_filenames", return_value=ICD)
+    def test_respects_explicit_vk_icd_filenames(self, _icd, _prefixes):
+        explicit = "/usr/share/vulkan/icd.d/nvidia_icd.json"
+        mock_run = self._mock_run()
+        with patch("subprocess.run", mock_run), patch.dict(
+            "os.environ", {"VK_ICD_FILENAMES": explicit}
+        ):
+            crucible_host.cmd_run_test([self.FILTER_PATTERN])
+        self.assertEqual(
+            mock_run.call_args[1]["env"]["VK_ICD_FILENAMES"], explicit
+        )
+
+
+class TestMain(unittest.TestCase):
+    @patch("crucible_host.cmd_run_test", return_value=0)
+    def test_dispatches_run_test_with_args(self, mock_cmd):
+        with patch(
+            "sys.argv",
+            ["crucible_host.py", "run-test", "--fork", "func.depthstencil.*"],
+        ):
+            self.assertEqual(crucible_host.main(), 0)
+        mock_cmd.assert_called_once_with(["--fork", "func.depthstencil.*"])
+
+    def test_returns_1_with_no_args(self):
+        with patch("sys.argv", ["crucible_host.py"]):
+            self.assertEqual(crucible_host.main(), 1)
+
+    @patch(
+        "crucible_host.cmd_resource",
+        side_effect=RuntimeError("could not determine multiarch triple"),
+    )
+    def test_returns_1_on_runtime_error(self, _cmd):
+        with patch("sys.argv", ["crucible_host.py", "resource"]):
+            self.assertEqual(crucible_host.main(), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

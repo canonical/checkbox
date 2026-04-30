@@ -1,0 +1,95 @@
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-on-battery-power-setup
+plugin: shell
+environ:
+  - PLAINBOX_SESSION_SHARE
+depends:
+  - com.canonical.certification::suspend/suspend_advanced_auto
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_dc_mode == 'True'
+  - manifest.has_suspend_support == 'True'
+group: group_suspend_on_battery_power
+estimated_duration: '5.0'
+command: |
+  echo "Backup all dbus settings"
+  dconf dump / > "$PLAINBOX_SESSION_SHARE"/dc-env-for-restore-dconf
+  echo "Enable "On battery Power" under Automatic Suspend with a delay of 5 minutes"
+  gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'suspend'
+  gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 300
+  echo "Set Screen Blank for 1 minute in power settings"
+  gsettings set org.gnome.desktop.session idle-delay 60
+---
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-on-battery-power-test
+plugin: user-interact-verify
+user: root
+depends:
+  - power-management/suspend-on-battery-power-setup
+group: group_suspend_on_battery_power
+estimated_duration: '360.0'
+command: |
+  echo "Make sure system running on battery power, then press Enter"
+  read -r
+  idle_suspend.py --mode battery --suspend-time 5 --extra-percent 20
+---
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-on-battery-power-teardown
+plugin: shell
+depends:
+  - power-management/suspend-on-battery-power-setup
+after:
+  - power-management/suspend-on-battery-power-test
+group: group_suspend_on_battery_power
+estimated_duration: '5.0'
+command: |
+  echo "Restore all dbus settings"
+  dconf load / < "$PLAINBOX_SESSION_SHARE"/dc-env-for-restore-dconf
+---
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-on-AC-power-setup
+plugin: shell
+environ:
+  - PLAINBOX_SESSION_SHARE
+depends:
+  - com.canonical.certification::suspend/suspend_advanced_auto
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_suspend_support == 'True'
+group: group_suspend_on_ac_power
+estimated_duration: '5.0'
+command: |
+  echo "Backup all dbus settings"
+  dconf dump / > "$PLAINBOX_SESSION_SHARE"/ac-env-for-restore-dconf
+  echo "Enable "Plugged in" under Automatic Suspend with a delay of 5 minutes"
+  gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'suspend'
+  gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 300
+  echo "Set Screen Blank for 1 minute in power settings"
+  gsettings set org.gnome.desktop.session idle-delay 60
+---
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-on-AC-power-test
+plugin: shell
+user: root
+depends:
+  - power-management/suspend-on-AC-power-setup
+group: group_suspend_on_ac_power
+estimated_duration: '360.0'
+command: |
+  rtcwake -m no -s 360
+  idle_suspend.py --mode ac --suspend-time 5 --extra-percent 20
+---
+category_id: com.canonical.plainbox::power-management
+id: power-management/suspend-on-AC-power-teardown
+plugin: shell
+depends:
+  - power-management/suspend-on-AC-power-setup
+after:
+  - power-management/suspend-on-AC-power-test
+group: group_suspend_on_ac_power
+estimated_duration: '5.0'
+command: |
+  echo "Restore all dbus settings"
+  dconf load / < "$PLAINBOX_SESSION_SHARE"/ac-env-for-restore-dconf

@@ -286,6 +286,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         while True:
             try:
                 if interrupted:
+                    # handling ctrl+c, assumes we are already connected
                     _logger.info("controller: Session interrupted")
                     interrupted = False  # we are handling the interruption ATM
                     # next line can raise exception due to connection being
@@ -294,47 +295,49 @@ class RemoteController(ReportsStage, MainLoopStage):
                     keep_running = self._handle_interrupt()
                     if not keep_running:
                         break
-                conn = rpyc.connect(host, port, config=config, keepalive=True)
-                keep_running = True
-
-                def quitter(msg):
-                    # this will be called when the agent decides to disconnect
-                    # this controller
-                    nonlocal server_msg
-                    nonlocal keep_running
-                    keep_running = False
-                    server_msg = msg
-
-                with contextlib.suppress(AttributeError):
-                    # TODO: REMOTE_API
-                    # when bumping the remote api make this bit obligatory
-                    # i.e. remove the suppressing
-                    conn.root.register_controller_blaster(quitter)
-                self._sa = conn.root.get_sa()
-                self.sa.conn = conn
-                # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-                # the check and bailout is not needed if the agent as up to
-                # date as this controller, so after bumping RAPI we can assume
-                # that agent is always passwordless
-                if not self.sa.passwordless_sudo:
-                    raise SystemExit(
-                        _(
-                            "This version of Checkbox requires the agent"
-                            " to be run as root"
-                        )
+                else:
+                    # here we either connecting or re-connecting
+                    conn = rpyc.connect(
+                        host, port, config=config, keepalive=True
                     )
+                    keep_running = True
 
-                self.check_remote_api_match()
+                    def quitter(msg):
+                        # this will be called when the agent decides to disconnect
+                        # this controller
+                        nonlocal server_msg
+                        nonlocal keep_running
+                        keep_running = False
+                        server_msg = msg
 
-                state, payload = self.sa.whats_up()
-                _logger.info("controller: Main dispatch with state: %s", state)
-                if printed_reconnecting and ever_disconnected:
-                    print(
-                        "...\nReconnected (took: {}s)".format(
-                            int(time.time() - disconnection_time)
+                    with contextlib.suppress(AttributeError):
+                        # TODO: REMOTE_API
+                        # when bumping the remote api make this bit obligatory
+                        # i.e. remove the suppressing
+                        conn.root.register_controller_blaster(quitter)
+                    self._sa = conn.root.get_sa()
+                    self.sa.conn = conn
+                    # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+                    # the check and bailout is not needed if the agent as up to
+                    # date as this controller, so after bumping RAPI we can assume
+                    # that agent is always passwordless
+                    if not self.sa.passwordless_sudo:
+                        raise SystemExit(
+                            _(
+                                "This version of Checkbox requires the agent"
+                                " to be run as root"
+                            )
                         )
-                    )
-                    printed_reconnecting = False
+
+                    self.check_remote_api_match()
+
+                    if printed_reconnecting and ever_disconnected:
+                        print(
+                            "...\nReconnected (took: {}s)".format(
+                                int(time.time() - disconnection_time)
+                            )
+                        )
+                        printed_reconnecting = False
                 keep_running = self.continue_session()
             except EOFError as exc:
                 if keep_running:

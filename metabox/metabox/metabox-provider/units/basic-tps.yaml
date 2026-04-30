@@ -77,3 +77,9 @@ bootstrap_include:
 include:
   - template_validation_invalid_fields
   - template_validation_missing_parameter
+---
+unit: test plan
+id: tired_test_plan
+name: Test plan that sleeps, terminates only
+include:
+  - sleep_1000s

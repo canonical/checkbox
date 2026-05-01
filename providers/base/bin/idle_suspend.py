@@ -21,7 +21,6 @@ import re
 import subprocess
 import time
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional, Tuple
 
 GSETTINGS_POWER = "org.gnome.settings-daemon.plugins.power"
 GSETTINGS_SESSION = "org.gnome.desktop.session"
@@ -46,7 +45,7 @@ AC_ONLINE_GLOBS = [
 ]
 
 
-def run_cmd(cmd: List[str], check: bool = True) -> str:
+def run_cmd(cmd: "list[str]", check: bool = True) -> str:
     """Run a shell command and return stdout as a stripped string."""
     result = subprocess.run(
         cmd,
@@ -59,7 +58,7 @@ def run_cmd(cmd: List[str], check: bool = True) -> str:
     return result.stdout.strip()
 
 
-def _find_ac_online_path() -> Optional[str]:
+def _find_ac_online_path() -> "str | None":
     """Return the first sysfs AC online path found, or None."""
     for pattern in AC_ONLINE_GLOBS:
         paths = glob.glob(pattern)
@@ -116,7 +115,7 @@ def get_journal_since(since: datetime) -> str:
     )
 
 
-def _parse_ts(ts_str: str) -> Optional[datetime]:
+def _parse_ts(ts_str: str) -> "datetime | None":
     """Parse a short-iso timestamp string to a naive UTC datetime.
 
     Returns None on parse failure.
@@ -126,12 +125,12 @@ def _parse_ts(ts_str: str) -> Optional[datetime]:
         dt = datetime.strptime(normalized, "%Y-%m-%dT%H:%M:%S%z")
     except ValueError:
         return None
-    return dt.replace(tzinfo=timezone.utc) - dt.utcoffset()
+    return dt.replace(tzinfo=timezone.utc) - (dt.utcoffset() or timedelta())
 
 
 def parse_journal_suspend_times(
     journal_output: str,
-) -> Tuple[Optional[datetime], Optional[datetime]]:
+) -> ("datetime | None", "datetime | None"):
     """Parse journal output for the latest suspend and resume times.
 
     Returns a tuple (suspend_utc, resume_utc) of naive UTC datetimes.
@@ -239,7 +238,10 @@ def main() -> None:
 
     print("Log at ({})".format(log_start_utc.strftime("%Y-%m-%dT%H:%M:%SZ")))
     print("Suspend at ({})".format(suspend_utc.strftime("%Y-%m-%dT%H:%M:%SZ")))
-    print("Resume at ({})".format(resume_utc.strftime("%Y-%m-%dT%H:%M:%SZ")))
+    if resume_utc:
+        print(
+            "Resume at ({})".format(resume_utc.strftime("%Y-%m-%dT%H:%M:%SZ"))
+        )
     print(
         "Suspend delay {:.1f}s vs expected {}s "
         "(tolerance {:.1f}s).".format(

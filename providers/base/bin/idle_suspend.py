@@ -45,19 +45,6 @@ AC_ONLINE_GLOBS = [
 ]
 
 
-def run_cmd(cmd: "list[str]", check: bool = True) -> str:
-    """Run a shell command and return stdout as a stripped string."""
-    result = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True,
-    )
-    if check and result.returncode != 0:
-        raise RuntimeError("Command {} failed: {}".format(cmd, result.stderr))
-    return result.stdout.strip()
-
-
 def _find_ac_online_path() -> "str | None":
     """Return the first sysfs AC online path found, or None."""
     for pattern in AC_ONLINE_GLOBS:
@@ -95,24 +82,24 @@ def log_timestamp() -> datetime:
     message = "SUSPEND_TEST_START: {}".format(
         now.strftime("%Y-%m-%dT%H:%M:%SZ")
     )
-    run_cmd(["logger", "-t", LOGGER_TAG, message])
+    subprocess.check_output(
+        ["logger", "-t", LOGGER_TAG, message],
+        stderr=subprocess.STDOUT,
+    )
     return now
 
 
 def get_journal_since(since: datetime) -> str:
     """Retrieve journal entries since the given naive UTC datetime."""
     since_str = since.strftime("%Y-%m-%d %H:%M:%S")
-    return run_cmd(
-        [
-            "journalctl",
-            "--since",
-            since_str,
-            "--no-pager",
-            "-o",
-            "short-iso",
-        ],
-        check=False,
-    )
+    cmd = ["journalctl", "--since", since_str, "--no-pager", "-o", "short-iso"]
+    try:
+        output = subprocess.check_output(
+            cmd, stderr=subprocess.DEVNULL, universal_newlines=True
+        )
+    except subprocess.CalledProcessError as exc:
+        output = exc.output or ""
+    return output.strip()
 
 
 def _parse_ts(ts_str: str) -> "datetime | None":

@@ -31,7 +31,6 @@ from idle_suspend import (
     get_journal_since,
     log_timestamp,
     parse_journal_suspend_times,
-    run_cmd,
 )
 
 UTC = timezone.utc
@@ -45,60 +44,6 @@ _TS3 = "2026-04-17T03:10:00+00:00"
 _TS1_DT = datetime(2026, 4, 17, 3, 0, 0, tzinfo=UTC)
 _TS2_DT = datetime(2026, 4, 17, 3, 5, 0, tzinfo=UTC)
 _TS3_DT = datetime(2026, 4, 17, 3, 10, 0, tzinfo=UTC)
-
-
-# ---------------------------------------------------------------------------
-# run_cmd
-# ---------------------------------------------------------------------------
-
-
-class TestRunCmd(unittest.TestCase):
-    def _make_result(self, returncode=0, stdout="", stderr=""):
-        r = MagicMock()
-        r.returncode = returncode
-        r.stdout = stdout
-        r.stderr = stderr
-        return r
-
-    def test_success_returns_stripped_stdout(self):
-        with patch(
-            "subprocess.run",
-            return_value=self._make_result(stdout="  hello  \n"),
-        ):
-            self.assertEqual(run_cmd(["echo", "hello"]), "hello")
-
-    def test_failure_raises_runtime_error_when_check_true(self):
-        with patch(
-            "subprocess.run",
-            return_value=self._make_result(returncode=1, stderr="oops"),
-        ):
-            with self.assertRaises(RuntimeError) as ctx:
-                run_cmd(["false"])
-        self.assertIn("oops", str(ctx.exception))
-
-    def test_failure_no_raise_when_check_false(self):
-        with patch(
-            "subprocess.run",
-            return_value=self._make_result(returncode=1, stdout="  out  "),
-        ):
-            self.assertEqual(run_cmd(["false"], check=False), "out")
-
-    def test_subprocess_called_with_correct_kwargs(self):
-        with patch(
-            "subprocess.run",
-            return_value=self._make_result(),
-        ) as mock_run:
-            run_cmd(["ls"])
-        _, kwargs = mock_run.call_args
-        self.assertEqual(kwargs["stdout"], subprocess.PIPE)
-        self.assertEqual(kwargs["stderr"], subprocess.PIPE)
-        self.assertTrue(kwargs["universal_newlines"])
-
-    def test_empty_stdout_returns_empty_string(self):
-        with patch(
-            "subprocess.run", return_value=self._make_result(stdout="")
-        ):
-            self.assertEqual(run_cmd(["true"]), "")
 
 
 # ---------------------------------------------------------------------------
@@ -198,29 +143,29 @@ class TestCheckPowerMode(unittest.TestCase):
 
 class TestLogTimestamp(unittest.TestCase):
     def test_returns_aware_utc_datetime(self):
-        with patch("idle_suspend.run_cmd"):
+        with patch("subprocess.check_output"):
             result = log_timestamp()
         self.assertIsInstance(result, datetime)
         self.assertEqual(result.tzinfo, UTC)
 
     def test_calls_logger_with_tag(self):
-        with patch("idle_suspend.run_cmd") as mock_run:
+        with patch("subprocess.check_output") as mock_co:
             log_timestamp()
-        cmd = mock_run.call_args[0][0]
+        cmd = mock_co.call_args[0][0]
         self.assertIn("logger", cmd)
         self.assertIn("-t", cmd)
         self.assertIn(idle_suspend.LOGGER_TAG, cmd)
 
     def test_message_contains_start_marker(self):
-        with patch("idle_suspend.run_cmd") as mock_run:
+        with patch("subprocess.check_output") as mock_co:
             log_timestamp()
-        cmd = mock_run.call_args[0][0]
+        cmd = mock_co.call_args[0][0]
         self.assertTrue(any("SUSPEND_TEST_START" in arg for arg in cmd))
 
     def test_timestamp_in_message_matches_returned_value(self):
-        with patch("idle_suspend.run_cmd") as mock_run:
+        with patch("subprocess.check_output") as mock_co:
             result = log_timestamp()
-        cmd = mock_run.call_args[0][0]
+        cmd = mock_co.call_args[0][0]
         ts_str = result.strftime("%Y-%m-%dT%H:%M:%SZ")
         self.assertTrue(any(ts_str in arg for arg in cmd))
 
@@ -234,29 +179,29 @@ class TestGetJournalSince(unittest.TestCase):
     _since = datetime(2026, 4, 17, 3, 0, 0, tzinfo=UTC)
 
     def test_calls_journalctl_with_since_arg(self):
-        with patch("idle_suspend.run_cmd", return_value="") as mock_run:
+        with patch("subprocess.check_output", return_value="") as mock_co:
             get_journal_since(self._since)
-        cmd = mock_run.call_args[0][0]
+        cmd = mock_co.call_args[0][0]
         self.assertIn("journalctl", cmd)
         self.assertIn("--since", cmd)
         idx = cmd.index("--since")
         self.assertEqual(cmd[idx + 1], "2026-04-17 03:00:00")
 
-    def test_uses_check_false(self):
-        with patch("idle_suspend.run_cmd", return_value="") as mock_run:
-            get_journal_since(self._since)
-        kwargs = mock_run.call_args[1]
-        self.assertFalse(kwargs.get("check", True))
+    def test_called_process_error_is_suppressed(self):
+        exc = subprocess.CalledProcessError(1, "journalctl", output="partial")
+        with patch("subprocess.check_output", side_effect=exc):
+            result = get_journal_since(self._since)
+        self.assertEqual(result, "partial")
 
-    def test_returns_run_cmd_output(self):
-        with patch("idle_suspend.run_cmd", return_value="journal output"):
+    def test_returns_output(self):
+        with patch("subprocess.check_output", return_value="journal output"):
             result = get_journal_since(self._since)
         self.assertEqual(result, "journal output")
 
     def test_short_iso_format_requested(self):
-        with patch("idle_suspend.run_cmd", return_value="") as mock_run:
+        with patch("subprocess.check_output", return_value="") as mock_co:
             get_journal_since(self._since)
-        cmd = mock_run.call_args[0][0]
+        cmd = mock_co.call_args[0][0]
         self.assertIn("short-iso", cmd)
 
 

@@ -59,6 +59,15 @@ def check_power_mode(mode: str) -> None:
 
     Raises SystemExit if the requirement is not met.
     """
+    if not glob.glob("/sys/class/power_supply/*"):
+        # No power supply entries found; assume AC mode.
+        print(
+            "No power supply found under /sys/class/power_supply/; "
+            "Skip power mode verification.",
+            flush=True,
+        )
+        return
+
     ac_path = _find_ac_online_path()
     if ac_path is None:
         raise SystemExit("Cannot determine AC power status.")

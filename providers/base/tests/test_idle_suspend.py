@@ -98,41 +98,61 @@ class TestCheckPowerMode(unittest.TestCase):
     def _patch_path(self, path):
         return patch("idle_suspend._find_ac_online_path", return_value=path)
 
+    def _patch_glob(self, entries):
+        """Patch glob.glob used inside check_power_mode for the directory check."""
+        return patch("idle_suspend.glob.glob", return_value=entries)
+
+    def test_no_power_supply_dir_assumes_ac_and_does_not_raise(self):
+        with self._patch_glob([]):
+            check_power_mode("ac")  # must not raise
+
+    def test_no_power_supply_dir_assumes_ac_for_battery_mode_does_not_raise(
+        self,
+    ):
+        with self._patch_glob([]):
+            check_power_mode("battery")  # must not raise (silently assumes AC)
+
     def test_no_ac_path_raises_systemexit(self):
-        with self._patch_path(None):
-            with self.assertRaises(SystemExit) as ctx:
-                check_power_mode("ac")
+        with self._patch_glob(["/sys/class/power_supply/BAT0"]):
+            with self._patch_path(None):
+                with self.assertRaises(SystemExit) as ctx:
+                    check_power_mode("ac")
         self.assertIn("Cannot determine", str(ctx.exception))
 
     def test_oserror_reading_file_raises_systemexit(self):
-        with self._patch_path("/fake/path"):
-            with patch("builtins.open", side_effect=OSError("no perm")):
-                with self.assertRaises(SystemExit) as ctx:
-                    check_power_mode("ac")
+        with self._patch_glob(["/sys/class/power_supply/AC0"]):
+            with self._patch_path("/fake/path"):
+                with patch("builtins.open", side_effect=OSError("no perm")):
+                    with self.assertRaises(SystemExit) as ctx:
+                        check_power_mode("ac")
         self.assertIn("Cannot read power status", str(ctx.exception))
 
     def test_ac_mode_on_ac_does_not_raise(self):
-        with self._patch_path("/fake/path"):
-            with patch("builtins.open", mock_open(read_data="1\n")):
-                check_power_mode("ac")  # must not raise
+        with self._patch_glob(["/sys/class/power_supply/AC0"]):
+            with self._patch_path("/fake/path"):
+                with patch("builtins.open", mock_open(read_data="1\n")):
+                    check_power_mode("ac")  # must not raise
 
     def test_ac_mode_on_battery_raises(self):
-        with self._patch_path("/fake/path"):
-            with patch("builtins.open", mock_open(read_data="0\n")):
-                with self.assertRaises(SystemExit) as ctx:
-                    check_power_mode("ac")
+        with self._patch_glob(["/sys/class/power_supply/AC0"]):
+            with self._patch_path("/fake/path"):
+                with patch("builtins.open", mock_open(read_data="0\n")):
+                    with self.assertRaises(SystemExit) as ctx:
+                        check_power_mode("ac")
         self.assertIn("battery", str(ctx.exception))
 
     def test_battery_mode_on_battery_does_not_raise(self):
-        with self._patch_path("/fake/path"):
-            with patch("builtins.open", mock_open(read_data="0\n")):
-                check_power_mode("battery")  # must not raise
+        with self._patch_glob(["/sys/class/power_supply/BAT0"]):
+            with self._patch_path("/fake/path"):
+                with patch("builtins.open", mock_open(read_data="0\n")):
+                    check_power_mode("battery")  # must not raise
 
     def test_battery_mode_on_ac_raises(self):
-        with self._patch_path("/fake/path"):
-            with patch("builtins.open", mock_open(read_data="1\n")):
-                with self.assertRaises(SystemExit) as ctx:
-                    check_power_mode("battery")
+        with self._patch_glob(["/sys/class/power_supply/AC0"]):
+            with self._patch_path("/fake/path"):
+                with patch("builtins.open", mock_open(read_data="1\n")):
+                    with self.assertRaises(SystemExit) as ctx:
+                        check_power_mode("battery")
         self.assertIn("AC power", str(ctx.exception))
 
 

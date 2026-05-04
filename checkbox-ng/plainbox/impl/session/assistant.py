@@ -865,6 +865,7 @@ class SessionAssistant:
             self.get_job_state: "to get the current state of a job",
             self.finish_bootstrap: "to finish bootstrapping after running all jobs",
             self.get_session_id: "used internally by get_job",
+            self.finalize_session: "to finalize the session",
         }
         return [job.id for job in self._context.state.run_list]
 
@@ -981,6 +982,7 @@ class SessionAssistant:
             self.get_job_state: "to get the current state of a job",
             self.finish_bootstrap: "to finish bootstrapping after running all jobs",
             self.get_session_id: "used internally by get_job",
+            self.finalize_session: "to finalize the session",
         }
         return [job.id for job in self._context.state.run_list]
 

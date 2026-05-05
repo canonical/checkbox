@@ -552,13 +552,18 @@ class RenesasProject(PipelineInterface):
         """
         encode_parser = self._codec_parser_map.get(self._codec)
 
+
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
             "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
         )
+        if "h264" in self._codec:
+            decoder = "omxh264dec"
+        elif "h265" in self._codec:
+            decoder = "omxh265dec"
         pipeline = (
             "{} filesrc location={} ! qtdemux ! {} !"
-            " omxh264dec use-dmabuf=false !"
+            " {} use-dmabuf=false !"
             " video/x-raw,format={} ! {} use-dmabuf=true"
             " target-bitrate=10485760 !"
             " {} ! mp4mux ! filesink location={}"
@@ -566,6 +571,7 @@ class RenesasProject(PipelineInterface):
             GST_LAUNCH_BIN,
             self._golden_sample,
             encode_parser,
+            decoder,
             self._color_space,
             self._codec,
             encode_parser,
@@ -587,7 +593,10 @@ class RenesasProject(PipelineInterface):
         # If the decoder is omxh265dec, we use h265parse, else we use
         # h264parse.
 
-        if "omxh264enc" in self._codec or "omxh265enc" in self._codec:
+        if self._codec in (
+            GStreamerEncodePlugins.OMXH264ENC.value,
+            GStreamerEncodePlugins.OMXH265ENC.value,
+        ):
             return self._264_265_pipeline_builder()
         else:
             raise SystemExit(

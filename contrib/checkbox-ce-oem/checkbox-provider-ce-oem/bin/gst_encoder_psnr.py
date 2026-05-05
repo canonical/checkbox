@@ -29,6 +29,7 @@ from gst_utils import (
     PipelineInterface,
     GStreamerMuxerType,
     GStreamerEncodePlugins,
+    GStreamerDecodePlugins,
     MetadataValidator,
     get_big_bug_bunny_golden_sample,
     generate_artifact_name,
@@ -557,9 +558,9 @@ class RenesasProject(PipelineInterface):
             "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
         )
         if "h264" in self._codec:
-            decoder = "omxh264dec"
+            decoder = GStreamerDecodePlugins.OMXH264DEC.value
         elif "h265" in self._codec:
-            decoder = "omxh265dec"
+            decoder = GStreamerDecodePlugins.OMXH265DEC.value
         pipeline = (
             "{} filesrc location={} ! qtdemux ! {} !"
             " {} use-dmabuf=false !"

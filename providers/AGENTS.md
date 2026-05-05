@@ -52,7 +52,14 @@ tox -e py312
 
 ## PXU unit files
 
-Unit files use an RFC 822-style format. Common unit types:
+Unit files can be written in RFC 822-style (`.pxu`) or YAML (`.yaml`).
+When creating a **new** unit file, use YAML format (`.yaml` extension,
+with `---` separating multiple units in the same file). Refer to the
+per-unit-type JSON schemas in `unit_json_schema/` (e.g.
+`unit_json_schema/job.schema.json`) for the required and optional fields
+of each unit type.
+
+Common unit types:
 
 - `job` — a single test job (has `id`, `plugin`, `command`, …)
 - `test plan` — an ordered list of jobs

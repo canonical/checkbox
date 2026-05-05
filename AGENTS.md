@@ -114,7 +114,12 @@ breaking dependency changes in snaps. Provider-only changes cannot be
 
 ### PR template requirements
 
-Fill in all sections of `.github/pull_request_template.md`:
+**Do not write the PR description.** PR descriptions must be written by the
+human author. If asked to fill in or generate a PR description, explicitly
+refuse and ask the human to write it.
+
+The template (`.github/pull_request_template.md`) has four sections that the
+author must complete:
 
 - **Description** — problem solved + implementation approach + data-format
   changes.

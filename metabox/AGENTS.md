@@ -28,10 +28,10 @@ pip install -e .
 ## Running metabox
 
 ```bash
-metabox <config-file.yaml>
+metabox <config-file.py>
 ```
 
-Configuration files live in `metabox/configs/`. Each YAML config describes
+Configuration files live in `metabox/configs/`. Each Python config describes
 which scenarios to run and what Checkbox versions to use.
 
 ## Project structure
@@ -42,7 +42,7 @@ metabox/
 │   ├── core/        # Container/VM lifecycle, scenario runner
 │   ├── scenarios/   # Individual test scenarios
 │   └── main.py      # CLI entry point
-├── configs/         # Example YAML configuration files
+├── configs/         # Example Python configuration files
 └── pyproject.toml
 ```
 

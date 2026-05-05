@@ -480,7 +480,7 @@ class NxpIMX8mProject(PipelineInterface):
             "{}p_{}fps_vp8.webm".format(self._height, self._framerate),
         )
         pipeline = (
-            "{} filesrc location={} ! qtdemux ! decodebin !"
+            "{} filesrc location={} ! matroskademux ! decodebin !"
             " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
             " v4l2vp8enc ! matroskamux ! filesink location={}"
         ).format(

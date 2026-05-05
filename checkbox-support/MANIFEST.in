@@ -5,5 +5,6 @@ global-include CHANGELOG*
 recursive-include checkbox_support/vendor/brisque/models *.txt *.pickle
 recursive-include checkbox_support/scripts/tests/test_data *.txt
 recursive-exclude debian *
+exclude AGENTS.md
 exclude .coveragerc
 exclude tox.ini

@@ -169,7 +169,7 @@ class GenioProject(PipelineInterface):
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
         self._golden_sample = get_test_file_path_by_params(
-            self._width_from, self._height_from, self._framerate
+            self._width_from, self._height_from, self._framerate, self._codec
         )
         self._artifact_file = ""
 
@@ -186,7 +186,7 @@ class GenioProject(PipelineInterface):
         be the compared reference file for PSNR.
         """
         golden_reference = get_test_file_path_by_params(
-            self._width_to, self._height_to, self._framerate
+            self._width_to, self._height_to, self._framerate, self._codec
         )
         if not os.path.exists(golden_reference):
             raise SystemExit(

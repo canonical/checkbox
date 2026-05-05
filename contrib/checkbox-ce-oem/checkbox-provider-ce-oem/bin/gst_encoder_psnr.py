@@ -552,7 +552,6 @@ class RenesasProject(PipelineInterface):
         """
         encode_parser = self._codec_parser_map.get(self._codec)
 
-
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
             "{}p_{}fps_h264.mp4".format(self._height, self._framerate),

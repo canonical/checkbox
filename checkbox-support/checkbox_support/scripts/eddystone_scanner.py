@@ -27,6 +27,11 @@ from checkbox_support.vendor.beacontools import (
     BeaconScanner,
     EddystoneURLFrame,
 )
+from checkbox_support.vendor.beacontools.const import (
+    BluetoothAddressType,
+    ScanFilter,
+    ScanType,
+)
 from checkbox_support.helpers.timeout import timeout
 from checkbox_support.helpers.retry import retry
 from checkbox_support.interactive_cmd import InteractiveCommand
@@ -65,6 +70,13 @@ def beacon_scan(hci_device, debug=False):
         callback,
         bt_device_id=hci_device,
         packet_filter=EddystoneURLFrame,
+        scan_parameters={
+            "scan_type": ScanType.ACTIVE,
+            "interval_ms": 10,
+            "window_ms": 10,
+            "address_type": BluetoothAddressType.PUBLIC,
+            "filter_type": ScanFilter.ALL,
+        },
         debug=debug,
     )
 

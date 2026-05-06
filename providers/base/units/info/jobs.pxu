@@ -532,7 +532,7 @@ command:
 id: lstopo_verbose_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: lstopo -v
+command: HWLOC_COMPONENTS=-gl lstopo --output-format console
 estimated_duration: 0.015
 requires: executable.name == 'lstopo'
 _purpose: Attaches the system topology as presented by the lstopo command

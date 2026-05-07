@@ -11,6 +11,9 @@ by Canonical. This is a monorepo. Core components are `checkbox-ng`,
 ## Code review checklist
 
 When reviewing a pull request, verify the following:
+Prefer simple, direct solutions in reviews. Flag unnecessary abstraction,
+speculative extension points, or new dependencies when they are not justified
+by the current change.
 
 ### PR hygiene
 
@@ -41,7 +44,7 @@ When reviewing a pull request, verify the following:
 
 - [ ] Any public API change to `checkbox-ng` or `checkbox-support` must use
   the `(Breaking)` marker.
-- [ ] PXU grammar/field changes must use `(Breaking)`.
+- [ ] PXU grammar or field requirement changes must use `(Breaking)`.
 - [ ] Provider-only changes must use `(Infra)`, `(BugFix)`, or `(New)` —
   never `(Breaking)`.
 

@@ -60,6 +60,15 @@ directory (if it exists) for local context, commands, and constraints.
   [Codecov](https://codecov.io) and the bot comments on every PR.
 - Do not add tests that chase coverage numbers mechanically; test behaviour.
 
+### Design preferences
+
+- KISS first: prefer the simplest clear solution that satisfies the current
+  requirement.
+- YAGNI second: do not add abstraction, configuration, extension points, or
+  new dependencies for hypothetical future needs.
+- SOLID third: apply SOLID principles selectively when they improve
+  maintainability; do not force patterns or indirection.
+
 ---
 
 ## Version control rules

@@ -17,7 +17,7 @@ deployable component with its own packaging, tests, and release pipeline.
 |---|---|
 | `checkbox-ng/` | Core CLI application and the `plainbox` engine |
 | `checkbox-support/` | Python helpers and parsers used by checkbox-ng and providers |
-| `providers/` | Test-plan definitions (PXU units + shell/Python scripts) |
+| `providers/` | Test-plan definitions (PXU/YAML units + shell/Python scripts) |
 | `checkbox-core-snap/` | Snapcraft recipe for the Checkbox core snap |
 | `checkbox-snap/` | Snapcraft recipe for the Checkbox test-runner snap |
 | `metabox/` | Integration-testing tool using LXD containers / VMs |
@@ -117,15 +117,16 @@ Every PR title must end with one of the following traceability markers
 | `(Breaking)` | Breaks backward compatibility (see below) |
 
 **Breaking** includes: any public API change to `checkbox-ng` or
-`checkbox-support`, changes to PXU grammar or field requirements, and
-breaking dependency changes in snaps. Provider-only changes cannot be
-`(Breaking)`.
+`checkbox-support`, changes to unit file grammar or field requirements
+(PXU or YAML), and breaking dependency changes in snaps. Provider-only
+changes cannot be `(Breaking)`.
 
 ### PR template requirements
 
-**Do not write the PR description.** PR descriptions must be written by the
-human author. If asked to fill in or generate a PR description, explicitly
-refuse and ask the human to write it.
+**Do not write or edit the PR description** — not on creation, not as
+progress updates, and not via any automated tool (e.g. `report_progress`).
+PR descriptions must be written by the human author. If asked to fill in or
+generate a PR description, explicitly refuse and ask the human to write it.
 
 The template (`.github/pull_request_template.md`) has four sections that the
 author must complete:

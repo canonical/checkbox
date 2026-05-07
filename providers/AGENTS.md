@@ -27,7 +27,7 @@ Each provider in this directory is independently installable.
 ```
 <provider>/
 ├── manage.py       # Provider management script (validate, build, develop, test)
-├── units/          # PXU unit files (jobs, test plans, categories, …)
+├── units/          # Unit files — jobs, test plans, categories, … (.pxu or .yaml)
 ├── bin/            # Executable scripts (shell, Python) called by jobs
 ├── data/           # Data files referenced by jobs
 └── tests/          # Python unit tests for scripts in bin/

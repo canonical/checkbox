@@ -1368,6 +1368,19 @@ class UdevadmParser(object):
         # as disks (categorization is done elsewhere). Note that the *parent*
         # device will have no category, though it's not ignored per se.
         if device.bus in ("pci", "nvme") and device.driver == "nvme":
+            # Ignore DISK-category nvme devices whose derived name has no
+            # corresponding block device in lsblk — these are character devices
+            # (e.g. nvmeXcYnZ) that have no /dev/ node and cannot be tested.
+            if (
+                device.category == "DISK"
+                and "DEVNAME" not in device._environment
+                and self.lsblk
+                and not any(
+                    d.get("kname") == device.name
+                    for d in self.lsblk.get("blockdevices", [])
+                )
+            ):
+                return True
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
         if (

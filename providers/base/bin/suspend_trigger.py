@@ -81,8 +81,7 @@ def main(args=sys.argv[1:]):
             time.sleep(1)
             timeout -= 1
         else:
-            print("Timed out waiting for suspend jobs to finish")
-            return 1
+            raise SystemExit("Timed out waiting for suspend jobs to finish")
         print("Running: {}".format(" ".join(rtcwake_cmd)))
         subprocess.check_call(rtcwake_cmd)
         print(
@@ -95,8 +94,6 @@ def main(args=sys.argv[1:]):
     if os.path.exists(log_path):
         print("Removing {}...".format(log_path))
         os.remove(log_path)
-
-    return 0
 
 
 if __name__ == "__main__":

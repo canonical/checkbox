@@ -212,11 +212,14 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
 
         mock_check_output.return_value = "1 jobs listed. (suspend ongoing)"
 
-        result = suspend_trigger.main([])
+        with self.assertRaises(SystemExit) as cm:
+            suspend_trigger.main([])
 
-        self.assertEqual(result, 1)
+        self.assertEqual(
+            str(cm.exception), "Timed out waiting for suspend jobs to finish"
+        )
 
-        # Verify that check_output was called exactly 10 times (your loop limit).
+        # Verify that check_output was called exactly 10 times (loop limit).
         self.assertEqual(mock_check_output.call_count, 10)
 
         # Verify that rtcwake was NEVER called (because of the timeout).

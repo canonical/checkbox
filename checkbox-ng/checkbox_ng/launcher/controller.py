@@ -239,8 +239,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             "To solve this, upgrade the agent to the controller version.\n"
             "If you are unsure about the nomenclature or what any of this "
             "means, see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference/"
-            "glossary.html\n\n"
+            "https://checkbox.readthedocs.io/latest/reference/glossary/\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
 
@@ -250,8 +249,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             "To solve this, upgrade the controller to the agent version.\n"
             "If you are unsure about the nomenclature or what any of this "
             "means, see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference/"
-            "glossary.html\n\n"
+            "https://checkbox.readthedocs.io/latest/reference/glossary/\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
 

@@ -6,6 +6,8 @@ import platform
 import subprocess
 import sys
 
+from typing import List, Dict
+
 from checkbox_ng.support.release_info import get_release_info
 from checkbox_ng.support.parsers.meminfo import MeminfoParser
 from checkbox_ng.support.parsers.udevadm import parse_udevadm_output
@@ -24,6 +26,49 @@ def get_kernel_cmdline(cmdline_path="/proc/cmdline") -> str:
     with open(cmdline_path) as fp:
         cmdline = fp.read().strip()
     return cmdline
+
+
+def get_kernel_modules(modules_path="/proc/modules") -> List[Dict]:
+    """
+    Get information about all the available kernel modules
+
+    Each line in the modules file consists of the following information for
+    each module:
+
+    name:         Name of the module.
+    size:         Memory size of the module, in bytes.
+    instances:    How many instances of the module are currently loaded.
+    dependencies: If the module depends upon another module to be present
+                  in order to function, and lists those modules.
+    state:        The load state of the module: Live, Loading or Unloading.
+    offset:       Current kernel memory offset for the loaded module.
+    """
+    kernel_modules = []
+    with open(modules_path) as f:
+        for line in f.readlines():
+            line = line.strip()
+            if line:
+                name, size, instances, dependencies, state, offset = (
+                    line.split(" ")[:6]
+                )
+                if dependencies == "-":
+                    dependencies = ""
+
+                kernel_modules.append(
+                    {
+                        "name": name,
+                        "size": int(size),
+                        "instances": int(instances),
+                        # in /proc/modules, dependencies look like this:
+                        # ghash_clmulni_intel,aesni_intel,crypto_simd,
+                        "dependencies": dependencies.strip()
+                        .strip(",")
+                        .split(","),
+                        "state": state,
+                        "offset": int(offset, 16),
+                    }
+                )
+    return kernel_modules
 
 
 def get_devices():
@@ -115,6 +160,9 @@ def parse_args(argv=None):
         "kernel_cmdline", help="Return kernel command line information"
     )
     subparsers.add_parser(
+        "kernel_modules", help="Return modules loaded in the kernel"
+    )
+    subparsers.add_parser(
         "devices", help="Return devices found by the udeadvm parser"
     )
     subparsers.add_parser(
@@ -140,6 +188,7 @@ def main(argv=None):
     command_map = {
         "distribution": get_release_info,
         "kernel_cmdline": get_kernel_cmdline,
+        "kernel_modules": get_kernel_modules,
         "devices": get_devices,
         "debian_packages": get_debian_packages,
         "bios": get_bios_info,

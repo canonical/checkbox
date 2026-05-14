@@ -117,7 +117,7 @@ parts:
 ################################################################################
   plz-run:
     plugin: go
-    source: https://github.com/Hook25/plz-run.git
+    source: https://github.com/canonical/plz-run.git
     source-type: git
 ################################################################################
 # statically linked nsenter as plz-run launches nsenter outside of the namespace
@@ -150,7 +150,7 @@ parts:
 ################################################################################
 # Upstream: https://github.com/fwts/fwts/blob/master/snapcraft.yaml
   fwts:
-    source-tag: "V25.07.00"
+    source-tag: "V26.03.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git
@@ -245,7 +245,6 @@ parts:
       - python3-jinja2
       - python3-packaging
       - python3-requests-oauthlib
-      - python3-requests-unixsocket
       - python3-urwid
       - python3-xlsxwriter
       - python3-yaml
@@ -271,7 +270,6 @@ parts:
       - dmidecode
       - libjson-xs-perl
       - pciutils
-      - python3-requests-unixsocket
       - smartmontools
     override-build: |
       cd src && autoreconf -i && cd -

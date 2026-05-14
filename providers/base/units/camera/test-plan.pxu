@@ -121,7 +121,7 @@ include:
     camera/multiple-resolution-images_.*
     camera/multiple-resolution-images-rpi_.*
     camera/multiple-resolution-images-rpi-attachment_.*
-    camera/roundtrip-qrcode_.*
+    camera/camera-quality-rpi_name
 bootstrap_include:
     device
 

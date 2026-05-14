@@ -25,4 +25,12 @@ used in the job definition itself or even in the script called by the
     files within the runtime environment. For example, when using the
     checkbox24 snap, the runtime is ``/snap/checkbox24/current``.
 
+``CHECKBOX_RUNNING_STRICT_SNAP``
+    Defined when Checkbox is running from a strict snap with value ``1``.
+    Can be used to detect if the job is running inside a snap namespace or not.
+
+``CHECKBOX_OS_IS_UBUNTUCORE``
+    Defined when Checkbox is running on a Ubuntu Core system with value ``1``.
+    Can be used to change the behaviour of testing on Ubuntu Core.
+
 .. _Base provider data directory: https://github.com/canonical/checkbox/tree/main/providers/base/data

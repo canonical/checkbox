@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/test-plan.schema.json",
+  "$id": "test-plan.schema.json",
   "title": "Test Plan Unit",
   "description": "Schema that describes a Checkbox Test Plan unit",
   "$defs": {

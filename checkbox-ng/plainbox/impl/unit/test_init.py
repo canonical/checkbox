@@ -24,13 +24,15 @@ Test definitions for plainbox.impl.unit (package init file)
 """
 
 from unittest import TestCase
+from unittest.mock import MagicMock
+from textwrap import dedent
 
-from plainbox.impl.unit import get_accessed_parameters
+from plainbox.impl.unit import get_accessed_parameters, get_array_field_qualify
 
 
-class FunctionTests(TestCase):
+class GetAccessedParametersTest(TestCase):
 
-    def test_get_accessed_parameters(self):
+    def test_pxu_comptibility(self):
         self.assertEqual(get_accessed_parameters("some text"), frozenset())
         self.assertEqual(
             get_accessed_parameters("some {parametric} text"),
@@ -42,4 +44,81 @@ class FunctionTests(TestCase):
         self.assertEqual(
             get_accessed_parameters("some {1} {2} {3} text"),
             frozenset(["1", "2", "3"]),
+        )
+
+    def test_structured_get_accessed_paramters_list(self):
+        self.assertEqual(
+            get_accessed_parameters(
+                [
+                    "no parameters",
+                    "some {parameter}",
+                    "{multiple} {parameters}",
+                ]
+            ),
+            frozenset(["parameter", "multiple", "parameters"]),
+        )
+
+    def test_structured_get_accessed_paramters_dict(self):
+        self.assertEqual(
+            get_accessed_parameters(
+                [
+                    "no parameters",
+                    {"some {parameter}": {"certification-status": "blocker"}},
+                    {
+                        "{multiple} {parameters}": {
+                            "certification-status": "blocker"
+                        }
+                    },
+                ]
+            ),
+            frozenset(["parameter", "multiple", "parameters"]),
+        )
+
+
+class GetArrayFieldQualify(TestCase):
+    def qualifier(self, s: str):
+        s = s.strip()
+        if "::" in s:
+            return s
+        return "com.canonical.certification::" + s
+
+    def test_pxu_comptibility(self):
+
+        self.assertEqual(
+            get_array_field_qualify(
+                dedent("""
+                some
+                # some comment
+                other
+                # some other comment
+                com.canonical.plainbox::pre_qualified
+                """),
+                "include",
+                self.qualifier,
+                MagicMock(),
+            ),
+            [
+                "com.canonical.certification::some",
+                "com.canonical.certification::other",
+                "com.canonical.plainbox::pre_qualified",
+            ],
+        )
+
+    def test_nominal(self):
+        self.assertEqual(
+            get_array_field_qualify(
+                [
+                    "some",
+                    "other",
+                    "com.canonical.plainbox::pre_qualified",
+                ],
+                "include",
+                self.qualifier,
+                MagicMock(),
+            ),
+            [
+                "com.canonical.certification::some",
+                "com.canonical.certification::other",
+                "com.canonical.plainbox::pre_qualified",
+            ],
         )

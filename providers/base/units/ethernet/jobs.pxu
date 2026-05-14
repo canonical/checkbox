@@ -355,7 +355,7 @@ environ:
  TEST_TARGET_IPERF
  LD_LIBRARY_PATH
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4
-_purpose: 
+_purpose:
  This test uses iperf3 to ensure network devices pass data at an acceptable
  minimum percentage of advertised speed.
 
@@ -398,12 +398,8 @@ estimated_duration: 2s
 command: check_static.py nm {{ interface }}
 requires:
   net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
-  {%- if __on_ubuntucore__ %}
-  snap.name == 'network-manager'
-  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
-  {%- else %}
+  environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager')
   executable.name == 'nmcli'
-  {% endif -%}
 
 unit: template
 template-resource: device

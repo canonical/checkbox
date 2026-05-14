@@ -360,6 +360,11 @@ nested_part:
     after-suspend-graphics-gpu-cert-manual
     after-suspend-monitor-gpu-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::graphics/1_cycle_resolution_.*
+    apply blocker to com.canonical.certification::graphics/2_cycle_resolution_.*
+    apply blocker to com.canonical.certification::after-suspend-graphics/1_cycle_resolution_.*
+    apply blocker to com.canonical.certification::after-suspend-graphics/2_cycle_resolution_.*
 
 id: graphic-base-26-04-automated
 unit: test plan
@@ -369,13 +374,47 @@ include:
 nested_part:
     graphics-gpu-cert-automated
     after-suspend-graphics-gpu-cert-automated
+certification_status_overrides:
+    apply blocker to com.canonical.certification::graphics/1_vkcube_.*
+    apply blocker to com.canonical.certification::graphics/2_vkcube_.*
+    apply blocker to com.canonical.certification::graphics/vulkaninfo.*
 
-id: opencl-test-plan
+id: opencl-core-test-plan
 unit: test plan
-_name: Graphics test plan for verifying OpenCL
+_name: Graphics test plan for verifying OpenCL (core/snap)
 include:
     setup/install_opencl_cts
-    graphics/cl_.*
+    graphics/cl_core_.*
+bootstrap_include:
+    graphics_card
+    executable
+
+id: opencl-host-test-plan
+unit: test plan
+_name: Graphics test plan for verifying OpenCL (host)
+include:
+    setup/install_opencl_cts
+    graphics/cl_host_.*
+bootstrap_include:
+    graphics_card
+    executable
+
+id: vulkan-core-test-plan
+unit: test plan
+_name: Graphics test plan for verifying Vulkan CTS (core/snap)
+include:
+    setup/install_vulkan_cts
+    graphics/vk_core_.*
+bootstrap_include:
+    graphics_card
+    executable
+
+id: vulkan-classic-test-plan
+unit: test plan
+_name: Graphics test plan for verifying Vulkan CTS (classic)
+include:
+    setup/install_vulkan_cts
+    graphics/vk_classic_.*
 bootstrap_include:
     graphics_card
     executable

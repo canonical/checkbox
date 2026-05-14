@@ -865,6 +865,7 @@ class SessionAssistant:
             self.get_job_state: "to get the current state of a job",
             self.finish_bootstrap: "to finish bootstrapping after running all jobs",
             self.get_session_id: "used internally by get_job",
+            self.finalize_session: "to finalize the session",
         }
         return [job.id for job in self._context.state.run_list]
 
@@ -942,47 +943,6 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state()
         )
-
-    def bootstrapping(self):
-        return self._metadata.bootstrapping
-
-    @raises(UnexpectedMethodCall)
-    def start_bootstrap(self):
-        """
-        Starts the bootstrap process returning the list of all jobs to run to
-        bootstrap the session.
-
-        :raises UnexpectedMethodCall:
-            If the call is made at an unexpected time. Do not catch this error.
-            It is a bug in your program. The error message will indicate what
-            is the likely cause.
-
-        This method, together with :meth:`run_job`, can be used instead of
-        :meth:`boostrap` to have control over when bootstrapping jobs are run.
-        This is done to provide a UI to the process as :meth:`bootstrap` is
-        silent.
-        """
-        UsageExpectation.of(self).enforce()
-        self._metadata.bootstrapping = True
-        desired_job_list = select_units(
-            self._context.state.job_list,
-            [
-                plan.get_bootstrap_qualifier()
-                for plan in (self._manager.test_plans)
-            ]
-            + self._exclude_qualifiers,
-        )
-        self._context.state.update_desired_job_list(
-            desired_job_list, include_mandatory=False
-        )
-        UsageExpectation.of(self).allowed_calls = {
-            self.run_job: "to run bootstrap job",
-            self.get_job: "to get the job definition by id",
-            self.get_job_state: "to get the current state of a job",
-            self.finish_bootstrap: "to finish bootstrapping after running all jobs",
-            self.get_session_id: "used internally by get_job",
-        }
-        return [job.id for job in self._context.state.run_list]
 
     def finish_setup(self):
         UsageExpectation.of(self).enforce()

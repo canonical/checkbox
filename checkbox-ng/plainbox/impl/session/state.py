@@ -27,25 +27,26 @@ import json
 import logging
 import re
 import shutil
-
 from contextlib import suppress
+from copy import copy
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
-from plainbox.impl.depmgr import DependencyDuplicateError
-from plainbox.impl.depmgr import DependencyError
-from plainbox.impl.depmgr import DependencySolver
+from plainbox.impl.depmgr import (
+    DependencyDuplicateError,
+    DependencyError,
+    DependencySolver,
+)
 from plainbox.impl.secure.qualifiers import select_units
-from plainbox.impl.session.jobs import JobState
-from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
+from plainbox.impl.session.jobs import JobState, UndesiredJobReadinessInhibitor
 from plainbox.impl.session.system_information import (
     collect as collect_system_information,
 )
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.impl.unit.unit import on_ubuntucore
+from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 
@@ -645,6 +646,9 @@ class SessionDeviceContext:
             job = job_state.job
             self._override_update(job)
 
+    # TODO: Overrides probably don't need to be at State level, since they
+    # are computed earlier. We could then move these functions to be reusable
+    # for things like the `expand` subcommand instead of duplicating code.
     def _override_update(self, job):
         """
         Apply overrides to job if they are directly related or apply to the
@@ -1185,7 +1189,8 @@ class SessionState:
 
     def _add_job_siblings_unit(self, new_job, recompute, via):
         if new_job.siblings:
-            for overrides in json.loads(new_job.tr_siblings()):
+            siblings = new_job.siblings
+            for overrides in siblings:
                 data = {
                     key: value
                     for key, value in new_job._data.items()
@@ -1204,61 +1209,52 @@ class SessionState:
                     recompute,
                     via,
                 )
-        if Suspend.AUTO_FLAG in new_job.get_flag_set():
+        suspend_siblings = [
+            (Suspend.AUTO_FLAG, Suspend.AUTO_JOB_ID, "after-suspend"),
+            (
+                Suspend.MANUAL_FLAG,
+                Suspend.MANUAL_JOB_ID,
+                "after-suspend-manual",
+            ),
+        ]
+        for suspend_flag, suspend_job_id, suspend_prefix in suspend_siblings:
+            if suspend_flag not in new_job.get_flag_set():
+                continue
             data = {
-                key: value
+                key: copy(value)
                 for key, value in new_job._data.items()
                 if not key.endswith("siblings")
             }
-            data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
-            data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
-            data["id"] = "after-suspend-{}".format(new_job.partial_id)
+            if isinstance(data["flags"], str):
+                # LEGACY: pxu compatibility, flags are now a list
+                data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
+                data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
+            else:
+                with suppress(ValueError):
+                    data["flags"].remove(Suspend.AUTO_FLAG)
+                with suppress(ValueError):
+                    data["flags"].remove(Suspend.MANUAL_FLAG)
 
+            data["id"] = "{}-{}".format(suspend_prefix, new_job.partial_id)
             data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
-            if new_job.depends:
+
+            if isinstance(new_job.depends, list) or not new_job.depends:
+                data["depends"] = (new_job.depends or []) + [
+                    new_job.id,
+                    suspend_job_id,
+                ]
+            elif new_job.depends:
+                # LEGACY: pxu compatibility, depends is now a list
                 data["depends"] += " {}".format(new_job.id)
-            else:
-                data["depends"] = "{}".format(new_job.id)
-            data["depends"] += " {}".format(Suspend.AUTO_JOB_ID)
-            if new_job.after:
+                data["depends"] += " {}".format(suspend_job_id)
+
+            if isinstance(new_job.after, list) or not new_job.after:
+                data["after"] = (new_job.after or []) + [new_job.id]
+            elif new_job.after:
+                # LEGACY: pxu compatibility, after is now a list
                 data["after"] += " {}".format(new_job.id)
-            else:
-                data["after"] = "{}".format(new_job.id)
             if new_job.group:
-                data["group"] = "after-suspend-{}".format(new_job.group)
-            self._add_job_unit(
-                JobDefinition(
-                    data,
-                    origin=new_job.origin,
-                    provider=new_job.provider,
-                    controller=new_job.controller,
-                    parameters=new_job.parameters,
-                    field_offset_map=new_job.field_offset_map,
-                ),
-                recompute,
-                via,
-            )
-        if Suspend.MANUAL_FLAG in new_job.get_flag_set():
-            data = {
-                key: value
-                for key, value in new_job._data.items()
-                if not key.endswith("siblings")
-            }
-            data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
-            data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
-            data["id"] = "after-suspend-manual-{}".format(new_job.partial_id)
-            data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
-            if new_job.depends:
-                data["depends"] += " {}".format(new_job.id)
-            else:
-                data["depends"] = "{}".format(new_job.id)
-            data["depends"] += " {}".format(Suspend.MANUAL_JOB_ID)
-            if new_job.after:
-                data["after"] += " {}".format(new_job.id)
-            else:
-                data["after"] = "{}".format(new_job.id)
-            if new_job.group:
-                data["group"] = "after-suspend-{}".format(new_job.group)
+                data["group"] = "{}-{}".format(suspend_prefix, new_job.group)
             self._add_job_unit(
                 JobDefinition(
                     data,

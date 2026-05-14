@@ -409,6 +409,11 @@ nested_part:
     usb3-cert-automated
     after-suspend-usb-cert-automated
     after-suspend-usb3-cert-automated
+certification_status_overrides:
+    apply blocker to com.canonical.certification::usb/storage-detect
+    apply blocker to com.canonical.certification::usb/storage-preinserted-.*
+    apply blocker to com.canonical.certification::after-suspend-usb/storage-detect
+    apply blocker to com.canonical.certification::after-suspend-usb/storage-preinserted-.*
 
 id: usb-c-base-26-04-manual
 unit: test plan
@@ -420,6 +425,9 @@ nested_part:
     usb-c-cert-manual
     after-suspend-usb-c-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::usb-c/c-to-ethernet-adapter-insert
+    apply blocker to com.canonical.certification::after-suspend-usb-c/c-to-ethernet-adapter-insert
 
 id: usb-c-base-26-04-automated
 unit: test plan

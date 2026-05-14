@@ -332,6 +332,20 @@ field_translators = {
 }
 
 
+def no_space_formatters(value):
+    """
+    Greedy replace all {{ jinja_template_values }} -> {{jinja_template_values}}
+
+    This is greedy and doesn't work in general but because these are used
+    relatively little and the cost to implementing this properly is very high
+    (need a new parser for space stringables) while this is rarely wrong, this
+    is a compromise.
+    """
+    if isinstance(value, str) and "{{" in value and "}}" in value:
+        return value.replace("{{ ", "{{").replace(" }}", "}}")
+    return value
+
+
 def translate_unit(unit_dict: dict) -> dict:
     from ruamel.yaml.comments import CommentedMap
 
@@ -343,6 +357,7 @@ def translate_unit(unit_dict: dict) -> dict:
     to_return = CommentedMap()
     for key, value in unit_dict.items():
         key = no_more_translations(key)
+        value = no_space_formatters(value)
         try:
             translated = field_translators[key](value)
             to_return[key] = translated

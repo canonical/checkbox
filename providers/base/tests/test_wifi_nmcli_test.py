@@ -152,7 +152,10 @@ class TestTurnDownNmConnections(unittest.TestCase):
     @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
-        return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
+        return_value={
+            "Wireless1": {"uuid": "uuid1", "state": "activated"},
+            "Wireless2": {"uuid": "uuid2", "state": "deactivated"},
+        },
     )
     def test_turn_down_single_connection(
         self, get_connections_mock, sp_check_call_mock

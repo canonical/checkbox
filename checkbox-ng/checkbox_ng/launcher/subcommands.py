@@ -1493,6 +1493,12 @@ class Expand:
                         "Unknown unit type {}".format(obj["unit"])
                     )
 
+    # TODO: This function is a duplicate of
+    # plainbox.impl.session.state.SessionDeviceContext._override_update()
+    # which itself uses JobState.apply_overrides(). The reason is in expand,
+    # we cannot use anything from the job or the session state. This should
+    # probably be refactored, given that the overrides are available at test
+    # plan level and should not be part of the job state to begin with...
     def get_effective_certification_status(self, unit):
         if unit.unit == "template":
             unit_id = unit.template_id
@@ -1500,9 +1506,14 @@ class Expand:
             unit_id = unit.id
         for regex, override_field_list in self.override_list:
             if re.match(regex, unit_id):
-                for field, value in override_field_list:
-                    if field == "certification_status":
-                        return value
+                with contextlib.suppress(IndexError):
+                    cert_overrides = [
+                        value
+                        for (field, value) in override_field_list
+                        if field == "certification_status"
+                    ]
+                    # highest priority is last, list is in "inverse dept" order
+                    return cert_overrides[-1]
         if hasattr(unit, "certification_status"):
             return unit.certification_status
         return "non-blocker"
@@ -1512,6 +1523,10 @@ class ListBootstrapped:
     @property
     def sa(self):
         return self.ctx.sa
+
+    @lru_cache(maxsize=1)
+    def get_normal_user(self):
+        return self.ctx.args.normal_user or guess_normal_user()
 
     def register_arguments(self, parser):
         parser.add_argument(
@@ -1528,14 +1543,26 @@ class ListBootstrapped:
             help=_(
                 (
                     "output format, as passed to print function. "
-                    "Use '?' to list possible values"
+                    "Use '?' to list possible values. "
+                    "Use 'json' to print all objects as a json"
                 )
             ),
+        )
+        parser.add_argument(
+            "--normal-user",
+            help="Normal non-root user to use during bootstrap",
         )
 
     def invoked(self, ctx):
         self.ctx = ctx
-        self.sa.start_new_session("checkbox-listing-ephemeral")
+        runner_kwargs = {
+            "normal_user_provider": self.get_normal_user,
+            "password_provider": sudo_password_provider.get_sudo_password,
+            "stdin": None,
+        }
+        self.sa.start_new_session(
+            "checkbox-listing-ephemeral", UnifiedRunner, runner_kwargs
+        )
 
         tps = self.sa.get_test_plans()
         testplan_id = get_testplan_id_by_id(
@@ -1545,15 +1572,23 @@ class ListBootstrapped:
             raise SystemExit("Test plan not found")
         self.sa.select_test_plan(testplan_id)
         self.sa.bootstrap()
+
         jobs = []
         for job in self.sa.get_static_todo_list():
             job_unit = self.sa.get_job(job)
-            attrs = job_unit._raw_data.copy()
+
+            # use get_record_value to apply template expansions else all values
+            # beside id and partial_id would be un-templated in the output
+            attrs = {
+                field: job_unit.get_record_value(field)
+                for field in job_unit._raw_data
+            }
             attrs["full_id"] = job_unit.id
             attrs["id"] = job_unit.partial_id
             attrs["certification_status"] = self.ctx.sa.get_job_state(
                 job
             ).effective_certification_status
+
             jobs.append(attrs)
         if ctx.args.format == "?":
             all_keys = set()
@@ -1562,7 +1597,9 @@ class ListBootstrapped:
             print(_("Available fields are:"))
             print(", ".join(sorted(list(all_keys))))
             return
-        if ctx.args.format:
+        if ctx.args.format == "json":
+            json.dump(jobs, sys.stdout)
+        elif ctx.args.format:
             for job in jobs:
                 unescaped = ctx.args.format.replace("\\n", "\n").replace(
                     "\\t", "\t"

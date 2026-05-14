@@ -251,7 +251,9 @@ _verification:
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
+    manifest.has_suspend_support == 'True'
     sleep.mem == 'supported'
     rtc.state == 'supported'
 _summary: Automated test of suspend function
@@ -1711,6 +1713,7 @@ command:
 _summary: Run fwts oops tests post-suspension to ensure system stability.
 
 id: suspend/oops_results_after_suspend.log
+depends: suspend/oops_after_suspend
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 estimated_duration: 0.5

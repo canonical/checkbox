@@ -388,6 +388,34 @@ class UselessFieldValidator(CorrectFieldValueValidator):
         super().__init__(correct_fn, kind, severity, message, onlyif)
 
 
+class DeprecatedSchemaValidator(CorrectFieldValueValidator):
+    """
+    Validator ensuring that deprecated schema types are not used
+    """
+
+    def __init__(
+        self,
+        kind=None,
+        severity=None,
+        old_type=None,
+        new_type=None,
+    ):
+        # ignore Nones to not give a misleading error.
+        # If a value is compulsory another validator will catch it
+        def correct_fn(value):
+            return value is None or isinstance(value, new_type)
+
+        message = "field should be '{}' but is '{}'".format(
+            new_type.__name__, old_type.__name__
+        )
+
+        # PXUs are all strings, we are changing the schema for yamls
+        def onlyif(unit):
+            return unit.origin.yaml
+
+        super().__init__(correct_fn, kind, severity, message, onlyif)
+
+
 class MemberOfFieldValidator(CorrectFieldValueValidator):
     """Validator ensuring the value is a member of a given set."""
 

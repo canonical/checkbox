@@ -27,8 +27,6 @@ include:
  keys/power-button                              certification-status=blocker
  keys/power-button-event                        certification-status=blocker
  keys/fn-lock                                   certification-status=non-blocker
- keys/power-button-suspend                      certification-status=blocker
- keys/sleep                                     certification-status=blocker
 
 id: after-suspend-keys-cert-manual
 unit: test plan
@@ -49,8 +47,8 @@ include:
    after-suspend-keys/power-button                certification-status=blocker
    after-suspend-keys/power-button-event          certification-status=blocker
    after-suspend-keys/fn-lock                     certification-status=non-blocker
-   after-suspend-keys/power-button-suspend        certification-status=blocker
-   after-suspend-keys/sleep                       certification-status=blocker
+   keys/power-button-suspend                      certification-status=blocker
+   keys/sleep                                     certification-status=blocker
 
 id: keys-cert-automated
 unit: test plan
@@ -135,6 +133,11 @@ nested_part:
     keys-cert-manual
     after-suspend-keys-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::keys/fn-lock
+    apply blocker to com.canonical.certification::keys/power-button-suspend
+    apply blocker to com.canonical.certification::keys/sleep
+    apply blocker to com.canonical.certification::after-suspend-keys/fn-lock
 
 id: keys-base-26-04-automated
 unit: test plan

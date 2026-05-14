@@ -218,6 +218,23 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(unit5.get_record_value("key", "default"), "default")
         self.assertEqual(unit6.get_record_value("key"), None)
         self.assertEqual(unit6.get_record_value("key", "default"), "default")
+        unit_sibling = Unit(
+            {
+                "id": "id_{a}",
+                "siblings": [{"id": "some"}],
+            },
+            parameters={"id": None},
+        )
+        self.assertEqual(
+            unit_sibling.get_record_value("siblings"), [{"id": "some"}]
+        )
+        unit_environ = Unit(
+            {"id": "some{a}", "environ": ["A", "B", "C"]},
+            parameters={"id": None},
+        )
+        self.assertEqual(
+            unit_environ.get_record_value("environ"), ["A", "B", "C"]
+        )
 
     def test_get_translated_data__typical(self):
         """

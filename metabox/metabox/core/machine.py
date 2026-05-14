@@ -269,13 +269,12 @@ class ContainerBaseMachine:
         # Note: running the following commands as part of standard setup does
         # not make them persistent as after restoring snapshots user/1000
         # is gone from /run
-        pulseaudio_setup_cmds = [
+        user_runtime_setup_cmds = [
             "sudo mkdir -v -p /run/user/1000/pulse",
             "sudo chown -R ubuntu:ubuntu /run/user/1000/",
-            "pulseaudio --start --exit-idle-time=-1 --disallow-module-loading",
         ]
         env = {"XDG_RUNTIME_DIR": "/run/user/1000"}
-        for cmd in pulseaudio_setup_cmds:
+        for cmd in user_runtime_setup_cmds:
             run_or_raise(self._container, cmd, env)
 
     def switch_off_networking(self):

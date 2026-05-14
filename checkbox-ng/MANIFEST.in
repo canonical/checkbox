@@ -6,18 +6,22 @@ global-include COPYING LICENSE
 global-include README*
 global-include Vagrantfile
 
+exclude AGENTS.md
 exclude HACKING.md
 exclude .coveragerc
 exclude mk-venv
 exclude tox.ini
 
 include plainbox/impl/resource_constants.yaml
+
 include plainbox/impl/providers/categories/README.md
 include plainbox/impl/providers/categories/manage.py
 include plainbox/impl/providers/categories/po/*.po
 include plainbox/impl/providers/categories/po/*.pot
 include plainbox/impl/providers/categories/po/POTFILES.in
 include plainbox/impl/providers/categories/units/*.pxu
+include plainbox/impl/providers/categories/units/*.yml
+include plainbox/impl/providers/categories/units/*.yaml
 
 include plainbox/impl/providers/exporters/README.md
 include plainbox/impl/providers/exporters/manage.py
@@ -25,6 +29,8 @@ include plainbox/impl/providers/exporters/po/*.po
 include plainbox/impl/providers/exporters/po/*.pot
 include plainbox/impl/providers/exporters/po/POTFILES.in
 include plainbox/impl/providers/exporters/units/*.pxu
+include plainbox/impl/providers/exporters/units/*.yml
+include plainbox/impl/providers/exporters/units/*.yaml
 include plainbox/impl/providers/exporters/data/*
 
 include plainbox/impl/providers/manifest/README.md
@@ -34,6 +40,9 @@ include plainbox/impl/providers/manifest/po/*.po
 include plainbox/impl/providers/manifest/po/*.pot
 include plainbox/impl/providers/manifest/po/POTFILES.in
 include plainbox/impl/providers/manifest/units/*.pxu
+include plainbox/impl/providers/manifest/units/*.yml
+include plainbox/impl/providers/manifest/units/*.yaml
+
 include plainbox/vendor/inxi
 
 recursive-exclude daily-package-testing *

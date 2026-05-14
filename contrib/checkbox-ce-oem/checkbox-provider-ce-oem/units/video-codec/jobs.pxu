@@ -183,13 +183,12 @@ template-engine: jinja2
 template-resource: video_codec_resource
 template-filter:
     video_codec_resource.scenario == "gst_encoder_psnr"
-    video_codec_resource.platform == "rzg2l"
 template-unit: job
 template-id: ce-oem-video-codec/renesas-gst_encoder_psnr
-_template-summary: Verify the PSNR ratio for specific encoder on Renesas RZG2L platform
+_template-summary: Verify the PSNR ratio for specific encoder on Renesas platform
 id: ce-oem-video-codec/renesas-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
-_summary: Encoder PSNR - RZG2L - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
-_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Renesas RZG2L platform
+_summary: Encoder PSNR - Renesas - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
+_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Renesas platform
 plugin: shell
 user: root
 category_id: video-codec

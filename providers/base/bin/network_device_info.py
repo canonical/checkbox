@@ -96,8 +96,7 @@ class Utils:
                 file=sys.stderr,
             )
             ipv4_addr = "***NOT CONFIGURED***"
-        finally:
-            return ipv4_addr
+        return ipv4_addr
 
     @staticmethod
     def get_ipv6_address(interface):

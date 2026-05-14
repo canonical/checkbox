@@ -27,17 +27,20 @@ Test definitions for plainbox.impl.resouce module
 import ast
 from unittest import TestCase, expectedFailure
 
-from plainbox.impl.resource import CodeNotAllowed
-from plainbox.impl.resource import ExpressionCannotEvaluateError
-from plainbox.impl.resource import ExpressionFailedError
-from plainbox.impl.resource import FakeResource
-from plainbox.impl.resource import NoResourcesReferenced
-from plainbox.impl.resource import Resource
-from plainbox.impl.resource import ResourceExpression
-from plainbox.impl.resource import ResourceNodeVisitor
-from plainbox.impl.resource import ResourceProgram
-from plainbox.impl.resource import ResourceProgramError
-from plainbox.impl.resource import ResourceSyntaxError
+from plainbox.impl.resource import (
+    CodeNotAllowed,
+    ExpressionCannotEvaluateError,
+    ExpressionFailedError,
+    FakeResource,
+    NoResourcesReferenced,
+    Resource,
+    ResourceExpression,
+    ResourceNodeVisitor,
+    ResourceProgram,
+    ResourceProgramError,
+    ResourceSyntaxError,
+    parse_imports_stmt,
+)
 
 
 class ExpressionFailedTests(TestCase):
@@ -476,9 +479,10 @@ class ResourceProgramTests(TestCase):
     def setUp(self):
         super(ResourceProgramTests, self).setUp()
         self.prog = ResourceProgram(
-            "\n"  # empty lines are ignored
-            "package.name == 'fwts'\n"
-            "platform.arch in ('i386', 'amd64')"
+            [
+                "package.name == 'fwts'",
+                "platform.arch in ('i386', 'amd64')",
+            ]
         )
 
     def test_expressions(self):
@@ -542,11 +546,58 @@ class ResourceProgramTests(TestCase):
         self.assertTrue(self.prog.evaluate_or_raise(resource_map))
 
     def test_namespace_support(self):
+        # LEGACY: this uses a pxu-style resource program intentionally for coverage
         prog = ResourceProgram(
-            "package.name == 'fwts'\n" "platform.arch in ('i386', 'amd64')",
+            "\npackage.name == 'fwts'\n" "platform.arch in ('i386', 'amd64')",
             implicit_namespace="com.canonical",
         )
         self.assertEqual(
             prog.required_resources,
             {"com.canonical::package", "com.canonical::platform"},
         )
+
+
+class ParseImportsStmtTest(TestCase):
+    def test_nominal(self):
+        self.assertEqual(
+            list(parse_imports_stmt(["from a.b.c import d"])),
+            [("a.b.c::d", "d")],
+        )
+
+    def test_nominal_alias(self):
+        self.assertEqual(
+            list(parse_imports_stmt(["from a.b.c import d as k"])),
+            [("a.b.c::d", "k")],
+        )
+
+    def test_nominal_multitem(self):
+        self.assertEqual(
+            list(
+                parse_imports_stmt(
+                    ["from a.b.c import d", "from a.b.j import j"]
+                )
+            ),
+            [("a.b.c::d", "d"), ("a.b.j::j", "j")],
+        )
+
+    def test_pxu_legacy_compatibility(self):
+        self.assertEqual(
+            list(
+                parse_imports_stmt("from a.b.c import d\nfrom a.b.j import j")
+            ),
+            [("a.b.c::d", "d"), ("a.b.j::j", "j")],
+        )
+
+    def test_error_short(self):
+        with self.assertRaises(ValueError):
+            list(parse_imports_stmt(["from a.b.c"]))
+
+    def test_error_wrong_grammar(self):
+        with self.assertRaises(ValueError):
+            list(parse_imports_stmt(["form a.b.c import k"]))
+        with self.assertRaises(ValueError):
+            list(parse_imports_stmt(["from a.b.c iport k"]))
+        with self.assertRaises(ValueError):
+            list(parse_imports_stmt(["from a.b.c import c::k"]))
+        with self.assertRaises(ValueError):
+            list(parse_imports_stmt(["from a.b.c import k a z"]))

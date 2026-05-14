@@ -117,6 +117,9 @@ nested_part:
     touchscreen-cert-manual
     after-suspend-touchscreen-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::touchscreen/multitouch-rotate
+    apply blocker to com.canonical.certification::after-suspend-touchscreen/multitouch-rotate
 
 id: touchscreen-base-26-04-automated
 unit: test plan

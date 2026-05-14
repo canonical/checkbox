@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "setup-job.schema.json",
+  "title": "Setup Job Unit",
+  "description": "Schema that describes a Checkbox Setup Job unit",
+  "$defs": {
+    "setupJobFields": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID (Setup Job Unit)",
+          "description": "Unique identifier of the job",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary (Setup Job Unit)",
+          "description": "Human readable description of the job",
+          "type": "string"
+        },
+        "category_id": {
+          "title": "Category ID (Setup Job Unit)",
+          "description": "Identifier of the category this job belongs to.",
+          "type": "string"
+        },
+        "plugin": {
+          "title": "Plugin (Setup Job Unit)",
+          "description": "Type of job. Determines how the job is run and how the outcome is determined.",
+          "type": "string",
+          "enum": ["manual", "shell", "user-interact", "user-interact-verify", "attachment", "resource"],
+          "default": "shell"
+        },
+        "certification-status": {
+          "title": "Certification Status (Setup Job Unit)",
+          "description": "Certification status used to determine if the job is required for certification.",
+          "type": "string",
+          "enum": ["non-blocker", "blocker"]
+        },
+        "command": {
+          "title": "Command (Setup Job Unit)",
+          "description": "Command to execute, run using the default system shell.",
+          "type": "string"
+        },
+        "user": {
+          "title": "User (Setup Job Unit)",
+          "description": "The user to run the job as, most commonly used to run jobs as root.",
+          "type": "string"
+        },
+        "environ": {
+          "title": "Environ (Setup Job Unit)",
+          "description": "List of environment variable names to pass to the job command.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimated_duration": {
+          "title": "Estimated Duration (Setup Job Unit)",
+          "description": "Estimated job duration as a float in seconds or a duration string (e.g. 1h 2m 30s).",
+          "oneOf": [
+            { "type": "number", "minimum": 0 },
+            { "type": "string", "pattern": "^\\d+(\\.\\d+)?$" },
+            { "type": "string", "pattern": "^(\\d+h)?[: ]*(\\d+m)?[: ]*(\\d+s)?$" }
+          ]
+        },
+        "flags": {
+          "title": "Flags (Setup Job Unit)",
+          "description": "List of flags that may influence how Checkbox runs the job.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "reset-locale",
+              "preserve-locale",
+              "win32",
+              "noreturn",
+              "explicit-fail",
+              "has-leftovers",
+              "simple",
+              "preserve-cwd",
+              "fail-on-resource",
+              "also-after-suspend",
+              "also-after-suspend-manual",
+              "cachable"
+            ]
+          }
+        },
+        "imports": {
+          "title": "Imports (Setup Job Unit)",
+          "description": "List of resource job imports from other namespaces.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "allOf": [{ "$ref": "#/$defs/setupJobFields" }],
+  "properties": {
+    "unit": {
+      "title": "Unit (Setup Job Unit)",
+      "description": "The type of unit.",
+      "const": "setup job"
+    }
+  },
+  "required": ["id"],
+  "unevaluatedProperties": false
+}

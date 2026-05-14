@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/canonical/checkbox/blob/main/schema_checkbox/exporter.schema.json",
+  "$id": "exporter.schema.json",
   "title": "Exporter Unit",
   "description": "Schema that describes a Checkbox Exporter unit",
   "type": "object",

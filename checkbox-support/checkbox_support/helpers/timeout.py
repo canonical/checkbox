@@ -30,10 +30,17 @@ import traceback
 import subprocess
 
 from queue import Empty
-from functools import partial
+from functools import partial, wraps
 from unittest.mock import patch
-from contextlib import wraps, suppress
-from multiprocessing import Process, Queue
+from contextlib import suppress
+import multiprocessing
+
+# The inner function `_f` in run_with_timeout may be a closure and cannot be
+# pickled, so it requires the "fork" start method. Python 3.14 changed the
+# default start method on Linux away from "fork", so we request it explicitly.
+_fork_context = multiprocessing.get_context("fork")
+Process = _fork_context.Process
+Queue = _fork_context.Queue
 
 
 def is_picklable(value):

@@ -18,49 +18,15 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 import sys
-
-# Filename where cpuinfo is stored.
-MODULES_FILENAME = "/proc/modules"
-
-
-def get_module(line):
-    """
-    Each line consists of the following information for each module:
-
-    name:         Name of the module.
-    size:         Memory size of the module, in bytes.
-    instances:    How many instances of the module are currently loaded.
-    dependencies: If the module depends upon another module to be present
-                  in order to function, and lists those modules.
-    state:        The load state of the module: Live, Loading or Unloading.
-    offset:       Current kernel memory offset for the loaded module.
-    """
-    name, size, instances, dependencies, state, offset = line.split(" ")[:6]
-    if dependencies == "-":
-        dependencies = ""
-
-    return {
-        "name": name,
-        "size": int(size),
-        "instances": int(instances),
-        "dependencies": dependencies.replace(",", " ").strip(),
-        "state": state,
-        "offset": int(offset, 16),
-    }
-
-
-def get_modules(filename):
-    file = open(filename, "r")
-    for line in file.readlines():
-        line = line.strip()
-        if line:
-            yield get_module(line)
+from checkbox_ng.support.device_info import get_kernel_modules
 
 
 def main():
-    modules = get_modules(MODULES_FILENAME)
+    modules = get_kernel_modules()
     for module in modules:
         for key, value in module.items():
+            if isinstance(value, list):
+                value = " ".join(value)
             if value != "":
                 print("%s: %s" % (key, value))
 

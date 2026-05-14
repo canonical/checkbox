@@ -30,7 +30,7 @@ import logging
 import os
 import string
 from contextlib import suppress
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 
 from jinja2 import Template
@@ -678,6 +678,14 @@ class Unit(metaclass=UnitType):
             return {key: frozenset() for key in self._data}
 
     @classmethod
+    def from_yaml_unit_data(cls, unit_data, provider=None, origin=None):
+        return cls(
+            unit_data,
+            origin=origin,
+            provider=provider,
+        )
+
+    @classmethod
     def from_rfc822_record(cls, record, provider=None):
         """
         Create a new Unit from RFC822 record. The resulting instance may not be
@@ -709,6 +717,55 @@ class Unit(metaclass=UnitType):
         else:
             return {}
 
+    def _get_record_value_leaf(self, name, value):
+        assert isinstance(
+            value, str
+        ), "Value '{}' is not leaf but type {} ({})".format(
+            name, type(value), value
+        )
+        if self.template_engine == "jinja2":
+            if self.is_parametric or self.unit != "template":
+                # Add the current system environment variables to the
+                # parameters so that they can be used in all fields (i.e. not
+                # just in the command shell). By adding here rather than in the
+                # template instantiation we avoid problems with creation of
+                # checkpoints
+                tmp_params = (self.parameters or {}).copy()
+                tmp_params.update(
+                    {
+                        "__checkbox_env__": self._checkbox_env(),
+                        "__system_env__": os.environ,
+                        "__on_ubuntucore__": on_ubuntucore(),
+                    }
+                )
+                value = Template(value).render(tmp_params)
+        elif self.is_parametric:
+            try:
+                value = string.Formatter().vformat(value, (), self.parameters)
+            except KeyError as e:
+                raise MissingParam(self.template_id, name, value, e.args[0])
+        return value
+
+    def _get_record_value(self, name, value):
+        """
+        Obtain the normalized version of the input value
+        """
+        if value is None:
+            return value
+        if isinstance(value, str):
+            return self._get_record_value_leaf(name, value)
+        elif isinstance(value, list):
+            f = partial(self._get_record_value, name)
+            return list(map(f, value))
+        elif isinstance(value, dict):
+            # Note: don't use get_record_value because it assumes name is in
+            #       self, but thats not true for sibling
+            return {
+                x: self._get_record_value(x, y) for (x, y) in value.items()
+            }
+        else:
+            return value
+
     @instance_method_lru_cache(maxsize=None)
     def get_record_value(self, name, default=None):
         """
@@ -725,40 +782,7 @@ class Unit(metaclass=UnitType):
         value = self._data.get("_{}".format(name))
         if value is None:
             value = self._data.get(name, default)
-        if value is not None and self.is_parametric:
-            if self.template_engine == "jinja2":
-                # Add the current system environment variables to the
-                # parameters so that they can be used in all fields (i.e. not
-                # just in the command shell). By adding here rather than in the
-                # template instantiation we avoid problems with creation of
-                # checkpoints
-                tmp_params = self.parameters.copy()
-                tmp_params.update({"__checkbox_env__": self._checkbox_env()})
-                tmp_params.update({"__system_env__": os.environ})
-                tmp_params.update({"__on_ubuntucore__": on_ubuntucore()})
-                value = Template(value).render(tmp_params)
-            else:
-                try:
-                    value = string.Formatter().vformat(
-                        value, (), self.parameters
-                    )
-                except KeyError as e:
-                    raise MissingParam(
-                        self.template_id, name, value, e.args[0]
-                    )
-        elif (
-            value is not None
-            and self.template_engine == "jinja2"
-            and not self.is_parametric
-            and not self.unit == "template"
-        ):
-            tmp_params = {
-                "__checkbox_env__": self._checkbox_env(),
-                "__system_env__": os.environ,
-                "__on_ubuntucore__": on_ubuntucore(),
-            }
-            value = Template(value).render(tmp_params)
-        return value
+        return self._get_record_value(name, value)
 
     @instance_method_lru_cache(maxsize=None)
     def get_raw_record_value(self, name, default=None):

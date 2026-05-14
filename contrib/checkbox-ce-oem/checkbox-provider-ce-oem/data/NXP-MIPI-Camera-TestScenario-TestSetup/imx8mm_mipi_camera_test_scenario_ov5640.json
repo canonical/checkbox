@@ -1,0 +1,77 @@
+{
+    "capture_image": [
+        {
+            "camera": "ov5640",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "i.MX6S_CSI (platform:32e20000.csi1_bridge)",
+            "formats": [
+                "YUY2",
+                "NV12",
+                "RGB"
+            ],
+            "resolutions": [
+                {
+                    "width": 320,
+                    "height": 240
+                },
+                {
+                    "width": 640,
+                    "height": 480
+                },
+                {
+                    "width": 720,
+                    "height": 480
+                },
+                {
+                    "width": 1280,
+                    "height": 720
+                },
+                {
+                    "width": 1920,
+                    "height": 1080
+                }
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "ov5640",
+            "method": "gstreamer",
+            "physical_interface": "csi1",
+            "v4l2_device_name": "i.MX6S_CSI (platform:32e20000.csi1_bridge)",
+            "formats": [
+                "YUY2",
+                "NV12",
+                "RGB"
+            ],
+            "resolutions": [
+                {
+                    "width": 320,
+                    "height": 240,
+                    "fps": 30
+                },
+                {
+                    "width": 640,
+                    "height": 480,
+                    "fps": 30
+                },
+                {
+                    "width": 720,
+                    "height": 480,
+                    "fps": 30
+                },
+                {
+                    "width": 1280,
+                    "height": 720,
+                    "fps": 30
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 30
+                }
+            ]
+        }
+    ]
+}

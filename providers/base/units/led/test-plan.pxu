@@ -190,6 +190,9 @@ nested_part:
     led-cert-manual
     after-suspend-led-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::led/fn
+    apply blocker to com.canonical.certification::after-suspend-led/fn
 
 id: led-base-26-04-automated
 unit: test plan

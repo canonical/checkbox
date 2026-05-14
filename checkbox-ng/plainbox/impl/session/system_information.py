@@ -20,7 +20,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 5
+    COLLECTOR_OUTPUTS_VERSION = 6
 
     def to_json(self) -> str:
         to_dump = {
@@ -336,6 +336,16 @@ class KernelCmdlineCollector(Collector):
     def __init__(self):
         super().__init__(
             collection_cmd=["device-info", "kernel_cmdline"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class KernelModuleslineCollector(Collector):
+    COLLECTOR_NAME = "kernel_modules"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "kernel_modules"],
             version_cmd=["echo", "-n", checkbox_version],
         )
 

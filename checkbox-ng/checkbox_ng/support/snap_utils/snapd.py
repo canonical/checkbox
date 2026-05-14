@@ -1,15 +1,26 @@
-# Copyright 2019 Canonical Ltd.
-# All rights reserved.
+# This file is part of Checkbox.
 #
+# Copyright 2019-2026 Canonical Ltd.
 # Written by:
 #    Jonathan Cave <jonathan.cave@canonical.com>
+#    Massimiliano Girardi <massimiliano.girardi@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import http.client
 import json
+import socket
 import time
-
-from requests.exceptions import HTTPError
-
-import requests_unixsocket
 
 
 class AsyncException(Exception):
@@ -24,14 +35,36 @@ class SnapdRequestError(Exception):
         self.kind = kind
 
     @classmethod
-    def from_http_error(cls, http_error):
-        response = http_error.response.json()["result"]
-        return cls(response["message"], response.get("kind", ""))
+    def from_response(cls, response_body):
+        result = json.loads(response_body)["result"]
+        return cls(result["message"], result.get("kind", ""))
+
+
+class SnapdResponse:
+
+    def __init__(self, headers, text):
+        self.headers = headers
+        self.text = text
+
+
+class SnapdConnection(http.client.HTTPConnection):
+
+    def __init__(self, sock_path="/run/snapd.socket"):
+        super().__init__("localhost")
+        self.sock_path = sock_path
+
+    def connect(self):
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.sock.connect(self.sock_path)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
 
 
 class Snapd:
-
-    _url = "http+unix://%2Frun%2Fsnapd.socket"
 
     _snaps = "/v2/snaps"
     _find = "/v2/find"
@@ -41,7 +74,6 @@ class Snapd:
     _assertions = "/v2/assertions"
 
     def __init__(self, task_timeout=30, poll_interval=1, verbose=False):
-        self._session = requests_unixsocket.Session()
         self._task_timeout = task_timeout
         self._poll_interval = poll_interval
         self._verbose = verbose
@@ -50,32 +82,30 @@ class Snapd:
         if self._verbose:
             print("(info) {}".format(msg), flush=True)
 
-    def _get(self, path, params=None, decode=True):
-        r = self._session.get(self._url + path, params=params)
-        try:
-            r.raise_for_status()
+    def _request(self, method, path, data=None, params=None, decode=True):
+        if params:
+            path = "{}?{}".format(path, params)
+        with SnapdConnection() as conn:
+            headers = {}
+            if data is not None:
+                headers["Content-Type"] = "application/json"
+            conn.request(method, path, body=data, headers=headers)
+            resp = conn.getresponse()
+            body = resp.read().decode()
+            if resp.status >= 400:
+                raise SnapdRequestError.from_response(body)
             if decode:
-                return r.json()
-        except HTTPError as exc:
-            raise SnapdRequestError.from_http_error(exc) from exc
-        return r
+                return json.loads(body)
+            return SnapdResponse(resp.headers, body)
+
+    def _get(self, path, params=None, decode=True):
+        return self._request("GET", path, params=params, decode=decode)
 
     def _post(self, path, data=None, decode=True):
-        r = self._session.post(self._url + path, data=data)
-        try:
-            r.raise_for_status()
-            if decode:
-                return r.json()
-        except HTTPError as exc:
-            raise SnapdRequestError.from_http_error(exc) from exc
-        return r
+        return self._request("POST", path, data=data, decode=decode)
 
     def _put(self, path, data=None, decode=True):
-        r = self._session.put(self._url + path, data=data)
-        r.raise_for_status()
-        if decode:
-            return r.json()
-        return r
+        return self._request("PUT", path, data=data, decode=decode)
 
     def _poll_change(self, change_id):
         maxtime = time.time() + self._task_timeout
@@ -101,12 +131,14 @@ class Snapd:
                         )
                     self._info(message)
                 elif task["status"] == "Wait":
-                    message = "({}) {}".format(task["status"], task["summary"])
-                    self._info(message)
+                    self._info(
+                        "({}) {}".format(task["status"], task["summary"])
+                    )
                     return
                 elif task["status"] == "Error":
-                    message = "({}) {}".format(task["status"], task["summary"])
-                    self._info(message)
+                    self._info(
+                        "({}) {}".format(task["status"], task["summary"])
+                    )
                     raise AsyncException(task.get("log"))
             time.sleep(self._poll_interval)
 

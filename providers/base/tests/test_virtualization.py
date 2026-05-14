@@ -20,7 +20,14 @@ import itertools
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
-from virtualization import LXDTest_vm
+from virtualization import LXDTest, LXDTest_vm
+
+
+class TestLXDTest(TestCase):
+    @patch("virtualization.get_release_to_test", return_value="24.04")
+    def test_default_remote_is_ubuntu_daily(self, _):
+        lxd = LXDTest()
+        self.assertEqual(lxd.default_remote, "ubuntu-daily:")
 
 
 class TestLXDTest_vm(TestCase):
@@ -207,6 +214,12 @@ class TestLXDTest_vm(TestCase):
         self.assertTrue(self_mock.setup.called)
         self.assertTrue(start_result)
         self.assertTrue(print_mock.called)
+
+    @patch("virtualization.get_release_to_test")
+    def test_default_remote_is_ubuntu_daily(self, mock_release):
+        mock_release.return_value = "24.04"
+        vm = LXDTest_vm()
+        self.assertEqual(vm.default_remote, "ubuntu-daily:")
 
     def test_setup_failure(self):
         self_mock = MagicMock()

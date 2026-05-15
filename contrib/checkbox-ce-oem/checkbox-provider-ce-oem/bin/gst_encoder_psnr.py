@@ -31,11 +31,12 @@ from gst_utils import (
     GStreamerEncodePlugins,
     GStreamerDecodePlugins,
     MetadataValidator,
-    get_big_bug_bunny_golden_sample,
     generate_artifact_name,
     compare_psnr,
     delete_file,
     execute_command,
+    get_test_file_path_by_params,
+    manage_test_file_by_params,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -201,8 +202,8 @@ class GenioProject(PipelineInterface):
         }
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = get_big_bug_bunny_golden_sample(
-            width=self._width, height=self._height, framerate=self._framerate
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate
         )
         self._artifact_file = ""
 
@@ -333,9 +334,8 @@ class CarmelProject(PipelineInterface):
         }
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = os.path.join(
-            VIDEO_CODEC_TESTING_DATA,
-            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "h264"
         )
         self._artifact_file = ""
 
@@ -428,9 +428,8 @@ class NxpIMX8mProject(PipelineInterface):
         """
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = os.path.join(
-            VIDEO_CODEC_TESTING_DATA,
-            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "h264"
         )
         pipeline = (
             "{} filesrc location={} ! qtdemux ! decodebin !"
@@ -453,9 +452,8 @@ class NxpIMX8mProject(PipelineInterface):
         """
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = os.path.join(
-            VIDEO_CODEC_TESTING_DATA,
-            "{}p_{}fps_h265.mp4".format(self._height, self._framerate),
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "h265"
         )
         pipeline = (
             "{} filesrc location={} ! qtdemux ! decodebin !"
@@ -476,9 +474,8 @@ class NxpIMX8mProject(PipelineInterface):
         """
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = os.path.join(
-            VIDEO_CODEC_TESTING_DATA,
-            "{}p_{}fps_vp8.webm".format(self._height, self._framerate),
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "vp8"
         )
         pipeline = (
             "{} filesrc location={} ! qtdemux ! decodebin !"
@@ -552,10 +549,8 @@ class RenesasProject(PipelineInterface):
         Build gstreamer pipeline for omxh264enc
         """
         encode_parser = self._codec_parser_map.get(self._codec)
-
-        self._golden_sample = os.path.join(
-            VIDEO_CODEC_TESTING_DATA,
-            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "h264"
         )
         if "h264" in self._codec:
             decoder = GStreamerDecodePlugins.OMXH264DEC.value
@@ -606,22 +601,27 @@ class RenesasProject(PipelineInterface):
 
 def main() -> None:
     args = register_arguments()
-    p = project_factory(args)
-    logging.info("Step 1: Generating artifact...")
-    cmd = p.build_pipeline()
-    # execute command
-    execute_command(cmd=cmd)
-    logging.info("\nStep 2: Checking metadata...")
-    mv = MetadataValidator(file_path=p.artifact_file)
-    mv.validate("width", args.width).validate("height", args.height).validate(
-        "frame_rate", args.framerate
-    ).validate("codec", args.encoder_plugin).is_valid()
-    logging.info("\nStep 3: Comparing PSNR...")
-    compare_psnr(
-        golden_reference_file=p.psnr_reference_file,
-        artifact_file=p.artifact_file,
-    )
-    delete_file(file_path=p.artifact_file)
+    with manage_test_file_by_params(
+        args.width, args.height, args.framerate, args.encoder_plugin
+    ):
+        p = project_factory(args)
+        logging.info("Step 1: Generating artifact...")
+        cmd = p.build_pipeline()
+        # execute command
+        execute_command(cmd=cmd)
+        logging.info("\nStep 2: Checking metadata...")
+        mv = MetadataValidator(file_path=p.artifact_file)
+        mv.validate("width", args.width).validate(
+            "height", args.height
+        ).validate("frame_rate", args.framerate).validate(
+            "codec", args.encoder_plugin
+        ).is_valid()
+        logging.info("\nStep 3: Comparing PSNR...")
+        compare_psnr(
+            golden_reference_file=p.psnr_reference_file,
+            artifact_file=p.artifact_file,
+        )
+        delete_file(file_path=p.artifact_file)
 
 
 if __name__ == "__main__":

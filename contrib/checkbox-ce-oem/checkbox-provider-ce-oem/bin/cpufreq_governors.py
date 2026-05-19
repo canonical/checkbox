@@ -165,11 +165,12 @@ class CPUScalingHandler:
         self.sys_cpu_dir = "/sys/devices/system/cpu"
         self.policy = policy
         self.cpu_policies = self.get_cpu_policies()
-        self.min_freq = self.get_min_frequency()
-        self.max_freq = self.get_max_frequency()
-        self.governors = self.get_supported_governors()
-        self.original_governor = self.get_governor()
-        self.affected_cpus = self.get_affected_cpus().split()
+        if self.cpu_policies:
+            self.min_freq = self.get_min_frequency()
+            self.max_freq = self.get_max_frequency()
+            self.governors = self.get_supported_governors()
+            self.original_governor = self.get_governor()
+            self.affected_cpus = self.get_affected_cpus().split()
 
     def get_cpu_policies(self) -> List:
         """

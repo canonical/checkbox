@@ -116,6 +116,7 @@ def _parse_ts(ts_str: str) -> "datetime | None":
 
     Returns None on parse failure.
     """
+    # Python's %z directive in strptime() expects timezone offsets WITHOUT a colon
     normalized = re.sub(r"([+-]\d{2}):(\d{2})$", r"\1\2", ts_str)
     try:
         dt = datetime.strptime(normalized, "%Y-%m-%dT%H:%M:%S%z")
@@ -126,7 +127,7 @@ def _parse_ts(ts_str: str) -> "datetime | None":
 
 def parse_journal_suspend_times(
     journal_output: str,
-) -> ("datetime | None", "datetime | None"):
+) -> "tuple[datetime | None, datetime | None]":
     """Parse journal output for the latest suspend and resume times.
 
     Returns a tuple (suspend_utc, resume_utc) of naive UTC datetimes.
@@ -134,8 +135,9 @@ def parse_journal_suspend_times(
     """
     suspend_utc = None
     resume_utc = None
+    # The timezone format is different between ubuntu 22.04 and 24.04.
     ts_re = re.compile(
-        r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})"
+        r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:?\d{2})"
     )
     for line in journal_output.splitlines():
         match = ts_re.match(line)

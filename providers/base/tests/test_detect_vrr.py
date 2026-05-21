@@ -35,14 +35,12 @@ import detect_vrr  # noqa: E402
 
 
 def _null_ptr():
-    """Return a MagicMock that evaluates as falsy (simulates a NULL pointer)."""
     ptr = MagicMock()
     ptr.__bool__ = MagicMock(return_value=False)
     return ptr
 
 
 def _ptr(contents):
-    """Return a MagicMock that evaluates as truthy with the given .contents."""
     ptr = MagicMock()
     ptr.__bool__ = MagicMock(return_value=True)
     ptr.contents = contents
@@ -58,7 +56,6 @@ def _make_res(connector_ids):
 
 
 def _make_conn(connection=1, props=None, prop_values=None):
-    """Build a mock drmModeConnector."""
     conn = MagicMock()
     conn.connection = connection
     props = props or []
@@ -69,15 +66,12 @@ def _make_conn(connection=1, props=None, prop_values=None):
 
 
 def _make_prop(name):
-    """Build a mock drmModePropertyRes with the given property name."""
     prop = MagicMock()
     prop.name.decode.return_value = name
     return prop
 
 
 class TestGetVrrCapableMonitors(unittest.TestCase):
-    """Tests for get_vrr_capable_monitors()."""
-
     def setUp(self):
         # Each test gets a fresh mock drm object.
         self.mock_drm = MagicMock()
@@ -242,8 +236,6 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
 
 
 class TestMain(unittest.TestCase):
-    """Tests for main()."""
-
     def setUp(self):
         detect_vrr.drm = None
 
@@ -306,7 +298,7 @@ class TestMain(unittest.TestCase):
         mock_get_vrr.assert_not_called()
 
     def test_initializes_drm_restype_after_load(self):
-        """main() must set the restype for the three DRM getter functions."""
+
         import ctypes
 
         card0 = MagicMock(spec=Path)

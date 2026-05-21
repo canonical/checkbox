@@ -143,8 +143,8 @@ OUTCOME_METADATA_MAP = {
         color_hex="#DC3912",
         hexr_mapping="fail",
     ),
-    IJobResult.OUTCOME_SKIP: OutcomeMetadata(
-        value=IJobResult.OUTCOME_SKIP,
+    IJobResult.OUTCOME_MANUAL_SKIP: OutcomeMetadata(
+        value=IJobResult.OUTCOME_MANUAL_SKIP,
         unicode_sigil="☐ ",
         tr_outcome=C_("textual outcome", "job manually skipped"),
         tr_label=C_("chart label", "manually skipped"),

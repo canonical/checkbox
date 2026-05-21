@@ -507,7 +507,7 @@ class Launcher(MainLoopStage, ReportsStage):
         outcome = {
             "pass": IJobResult.OUTCOME_PASS,
             "fail": IJobResult.OUTCOME_FAIL,
-            "skip": IJobResult.OUTCOME_SKIP,
+            "skip": IJobResult.OUTCOME_MANUAL_SKIP,
             "rerun": IJobResult.OUTCOME_UNDECIDED,
         }[resume_params.action]
         return self._resume_session(
@@ -593,7 +593,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Failed after resuming execution"
                 )
-        elif outcome == IJobResult.OUTCOME_SKIP:
+        elif outcome == IJobResult.OUTCOME_MANUAL_SKIP:
             if is_cert_blocker and not comments:
                 result_dict["comments"] = request_comment(
                     "why you want to skip it"
@@ -860,7 +860,7 @@ class Launcher(MainLoopStage, ReportsStage):
                         result_dict["comments"] = _(
                             "Skipped after resuming execution"
                         )
-                    result_dict["outcome"] = IJobResult.OUTCOME_SKIP
+                    result_dict["outcome"] = IJobResult.OUTCOME_MANUAL_SKIP
                     result = MemoryJobResult(result_dict)
                     break
             elif cmd == "pass":

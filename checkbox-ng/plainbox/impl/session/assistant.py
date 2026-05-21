@@ -1742,7 +1742,7 @@ class SessionAssistant:
                 if job_state.result.outcome in (
                     IJobResult.OUTCOME_FAIL,
                     IJobResult.OUTCOME_CRASH,
-                    IJobResult.OUTCOME_SKIP,
+                    IJobResult.OUTCOME_MANUAL_SKIP,
                     IJobResult.OUTCOME_NOT_SUPPORTED,
                     IJobResult.OUTCOME_SKIPPED_DEPENDENCY,
                     IJobResult.OUTCOME_SKIPPED_RESOURCE,

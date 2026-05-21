@@ -553,7 +553,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
                 )
-            result_dict["outcome"] = IJobResult.OUTCOME_SKIP
+            result_dict["outcome"] = IJobResult.OUTCOME_MANUAL_SKIP
         elif resume_params.action == "rerun":
             # if the job outcome is set to none it will be rerun
             result_dict["outcome"] = None

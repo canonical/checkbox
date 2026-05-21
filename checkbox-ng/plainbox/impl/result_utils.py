@@ -43,7 +43,7 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
        cannot start
 
     Outcome determination follows this priority:
-    - If any dependency was manually skipped, outcome is OUTCOME_SKIP
+    - If any dependency was manually skipped, outcome is OUTCOME_MANUAL_SKIP
     - Else if there are failed manifest expressions, outcome is
     OUTCOME_SKIPPED_MANIFEST
     - Else if there are FAILED_DEP inhibitors, outcome is
@@ -90,9 +90,9 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
                     related_job_state
                     and related_job_state.result
                     and related_job_state.result.outcome
-                    == IJobResult.OUTCOME_SKIP
+                    == IJobResult.OUTCOME_MANUAL_SKIP
                 ):
-                    outcome = IJobResult.OUTCOME_SKIP
+                    outcome = IJobResult.OUTCOME_MANUAL_SKIP
                 else:
                     skip_reason["related_dependencies"].append(
                         inhibitor.related_job.id
@@ -116,7 +116,7 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
                     )
 
     # If we found a manual skip, use that outcome
-    if outcome == IJobResult.OUTCOME_SKIP:
+    if outcome == IJobResult.OUTCOME_MANUAL_SKIP:
         return outcome, (
             skip_reason if skip_reason["related_dependencies"] else None
         )

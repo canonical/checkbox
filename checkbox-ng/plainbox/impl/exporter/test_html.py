@@ -93,7 +93,7 @@ class HTMLExporterTests(TestCase):
         )
         self.result_skip = MemoryJobResult(
             {
-                "outcome": IJobResult.OUTCOME_SKIP,
+                "outcome": IJobResult.OUTCOME_MANUAL_SKIP,
                 "execution_duration": 1.0,
                 "comments": "No such device",
             }

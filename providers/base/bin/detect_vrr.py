@@ -149,7 +149,7 @@ def get_vrr_capable_monitors(dri_card: Path) -> bool:
     return vrr_capable
 
 
-if __name__ == "__main__":
+def main():
     at_least_1_capable = False
     for path in Path("/dev/dri").iterdir():
         if os.path.basename(str(path)).startswith("card"):
@@ -160,3 +160,7 @@ if __name__ == "__main__":
         raise SystemExit(
             "[ ERR ] None of the monitors connected to this DUT supports VRR"
         )
+
+
+if __name__ == "__main__":
+    main()

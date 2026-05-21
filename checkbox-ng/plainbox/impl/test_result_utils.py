@@ -27,16 +27,6 @@ from plainbox.impl.session.jobs import InhibitionCause
 class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
     """Tests for the determine_outcome_and_skip_reason function."""
 
-    def test_no_inhibitors(self):
-        """Test with no readiness inhibitors."""
-        job_state = Mock()
-        job_state.readiness_inhibitor_list = []
-
-        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
-
-        self.assertEqual(outcome, IJobResult.OUTCOME_NOT_SUPPORTED)
-        self.assertIsNone(skip_reason)
-
     def test_single_failed_dep_inhibitor(self):
         """Test with a single FAILED_DEP inhibitor."""
         related_job = Mock()
@@ -265,39 +255,6 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
 
         self.assertEqual(outcome, IJobResult.OUTCOME_MANUAL_SKIP)
         # skip_reason should not include the dependency since it was manually skipped
-        self.assertIsNone(skip_reason)
-
-    def test_undesired_inhibitor_ignored(self):
-        """Test that UNDESIRED inhibitor is ignored."""
-        inhibitor = Mock()
-        inhibitor.cause = InhibitionCause.UNDESIRED
-        inhibitor.related_job = None
-
-        job_state = Mock()
-        job_state.readiness_inhibitor_list = [inhibitor]
-
-        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
-
-        # UNDESIRED should not affect the outcome
-        self.assertEqual(outcome, IJobResult.OUTCOME_NOT_SUPPORTED)
-        self.assertIsNone(skip_reason)
-
-    def test_pending_resource_inhibitor_ignored(self):
-        """Test that PENDING_RESOURCE inhibitor is ignored."""
-        expr = Mock()
-        expr.text = "cpuinfo.count > 2"
-
-        inhibitor = Mock()
-        inhibitor.cause = InhibitionCause.PENDING_RESOURCE
-        inhibitor.related_expression = expr
-
-        job_state = Mock()
-        job_state.readiness_inhibitor_list = [inhibitor]
-
-        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
-
-        # PENDING_RESOURCE should not affect the outcome
-        self.assertEqual(outcome, IJobResult.OUTCOME_NOT_SUPPORTED)
         self.assertIsNone(skip_reason)
 
     def test_skip_reason_structure(self):

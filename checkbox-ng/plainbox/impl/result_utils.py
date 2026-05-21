@@ -64,9 +64,6 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
         - related_resources: list of resource expressions that failed
         - related_manifests: list of manifest expressions that failed
     """
-    if not job_state.readiness_inhibitor_list:
-        return IJobResult.OUTCOME_NOT_SUPPORTED, None
-
     # Check for manual skip outcome and collect all inhibitors
     outcome = None
     skip_reason = {
@@ -129,8 +126,6 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
         outcome = IJobResult.OUTCOME_SKIPPED_DEPENDENCY
     elif has_failed_resource:
         outcome = IJobResult.OUTCOME_SKIPPED_RESOURCE
-    else:
-        outcome = IJobResult.OUTCOME_NOT_SUPPORTED
 
     # Return skip_reason only if we have any inhibitors to report
     if (

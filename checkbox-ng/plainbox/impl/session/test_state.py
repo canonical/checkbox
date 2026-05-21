@@ -175,7 +175,9 @@ class RegressionTests(TestCase):
             {"a": IJobResult.OUTCOME_FAIL},
         )
 
-        result_skip = MemoryJobResult({"outcome": IJobResult.OUTCOME_MANUAL_SKIP})
+        result_skip = MemoryJobResult(
+            {"outcome": IJobResult.OUTCOME_MANUAL_SKIP}
+        )
         state.update_job_result(job_a, result_skip)
         self.assertEqual(
             state.category_outcome_map,

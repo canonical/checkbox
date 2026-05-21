@@ -104,6 +104,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
 
         job_state = Mock()
         job_state.readiness_inhibitor_list = [inhibitor]
+        job_state.job.get_flag_set.return_value = set()
 
         outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
@@ -125,6 +126,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
 
         job_state = Mock()
         job_state.readiness_inhibitor_list = [inhibitor]
+        job_state.job.get_flag_set.return_value = set()
 
         outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
@@ -157,6 +159,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
 
         job_state = Mock()
         job_state.readiness_inhibitor_list = [inhibitor1, inhibitor2]
+        job_state.job.get_flag_set.return_value = set()
 
         outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
@@ -187,6 +190,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
 
         job_state = Mock()
         job_state.readiness_inhibitor_list = [res_inhibitor, dep_inhibitor]
+        job_state.job.get_flag_set.return_value = set()
 
         job_state_map = {"job1": Mock(result=Mock(outcome="fail"))}
 
@@ -225,6 +229,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
             resource_inhibitor,
             manifest_inhibitor,
         ]
+        job_state.job.get_flag_set.return_value = set()
 
         outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
 
@@ -361,6 +366,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
             dep_inhibitor2,
             manifest_inhibitor,
         ]
+        job_state.job.get_flag_set.return_value = set()
 
         job_state_map = {
             "job1": Mock(result=Mock(outcome="fail")),

@@ -19,19 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-_mock_slugify = MagicMock(side_effect=lambda x: x)
-sys.modules.setdefault("checkbox_support", MagicMock())
-sys.modules.setdefault("checkbox_support.helpers", MagicMock())
-sys.modules.setdefault(
-    "checkbox_support.helpers.slugify", MagicMock(slugify=_mock_slugify)
-)
-
-import detect_vrr  # noqa: E402
+import detect_vrr
 
 
 def _null_ptr():

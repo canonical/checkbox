@@ -226,9 +226,15 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
 
         self._call()
 
-        self.mock_drm.drmModeFreeProperty.assert_called_once_with(prop_ptr_mock)
-        self.mock_drm.drmModeFreeConnector.assert_called_once_with(conn_ptr_mock)
-        self.mock_drm.drmModeFreeResources.assert_called_once_with(res_ptr_mock)
+        self.mock_drm.drmModeFreeProperty.assert_called_once_with(
+            prop_ptr_mock
+        )
+        self.mock_drm.drmModeFreeConnector.assert_called_once_with(
+            conn_ptr_mock
+        )
+        self.mock_drm.drmModeFreeResources.assert_called_once_with(
+            res_ptr_mock
+        )
 
 
 class TestMain(unittest.TestCase):

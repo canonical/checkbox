@@ -203,7 +203,7 @@ class IJobResult(metaclass=ABCMeta):
     # The skip outcome is used when the operator selected a job but then
     # skipped it. This is typically used for a manual job that is tedious or
     # was selected by accident.
-    OUTCOME_SKIP = "skip"
+    OUTCOME_MANUAL_SKIP = "skip"
     # The skipped outcomes are used when a job was about to run but could not
     # start for various reasons (dependency failure, resource requirement, or
     # manifest requirement). These outcomes replace the old OUTCOME_NOT_SUPPORTED

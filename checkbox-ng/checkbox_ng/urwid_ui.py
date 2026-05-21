@@ -493,7 +493,7 @@ class RerunWidget(CategoryWidget):
 
     section_names = {
         IJobResult.OUTCOME_FAIL: _("Failed Jobs"),
-        IJobResult.OUTCOME_SKIP: _("Manually Skipped Jobs"),
+        IJobResult.OUTCOME_MANUAL_SKIP: _("Manually Skipped Jobs"),
         IJobResult.OUTCOME_CRASH: _("Crashed Jobs"),
         IJobResult.OUTCOME_NOT_SUPPORTED: _("Jobs with failed dependencies"),
         IJobResult.OUTCOME_SKIPPED_DEPENDENCY: _(

@@ -1477,7 +1477,7 @@ class SessionState:
             # Generate categories status
             child_status = job_state.result.outcome
             if category not in tmp_result_map:
-                tmp_result_map[category] = IJobResult.OUTCOME_SKIP
+                tmp_result_map[category] = IJobResult.OUTCOME_MANUAL_SKIP
             if child_status in (
                 IJobResult.OUTCOME_FAIL,
                 IJobResult.OUTCOME_CRASH,
@@ -1492,12 +1492,12 @@ class SessionState:
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
             ):
-                tmp_result_map[category] = IJobResult.OUTCOME_SKIP
+                tmp_result_map[category] = IJobResult.OUTCOME_MANUAL_SKIP
         return tmp_result_map
 
     @property
     def resource_global_outcome(self):
-        global_outcome = IJobResult.OUTCOME_SKIP
+        global_outcome = IJobResult.OUTCOME_MANUAL_SKIP
         for job_state in self.job_state_map.values():
             if (
                 job_state.job.plugin != "resource"
@@ -1520,12 +1520,12 @@ class SessionState:
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
             ):
-                global_outcome = IJobResult.OUTCOME_SKIP
+                global_outcome = IJobResult.OUTCOME_MANUAL_SKIP
         return global_outcome
 
     @property
     def attachment_global_outcome(self):
-        global_outcome = IJobResult.OUTCOME_SKIP
+        global_outcome = IJobResult.OUTCOME_MANUAL_SKIP
         for job_state in self.job_state_map.values():
             if (
                 job_state.job.plugin != "attachment"
@@ -1548,7 +1548,7 @@ class SessionState:
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
             ):
-                global_outcome = IJobResult.OUTCOME_SKIP
+                global_outcome = IJobResult.OUTCOME_MANUAL_SKIP
         return global_outcome
 
     def get_certification_status_map(

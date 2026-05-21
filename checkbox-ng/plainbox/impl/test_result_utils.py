@@ -242,7 +242,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         self.assertIn("cpuinfo.count > 2", skip_reason["related_resources"])
 
     def test_manual_skip_of_dependency(self):
-        """Test that manual skip of a dependency results in OUTCOME_SKIP."""
+        """Test that manual skip of a dependency results in OUTCOME_MANUAL_SKIP."""
         related_job = Mock()
         related_job.id = "job1"
 
@@ -255,7 +255,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
 
         # The related job was manually skipped
         skipped_result = Mock()
-        skipped_result.outcome = IJobResult.OUTCOME_SKIP
+        skipped_result.outcome = IJobResult.OUTCOME_MANUAL_SKIP
 
         job_state_map = {"job1": Mock(result=skipped_result)}
 
@@ -263,7 +263,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
             job_state, job_state_map
         )
 
-        self.assertEqual(outcome, IJobResult.OUTCOME_SKIP)
+        self.assertEqual(outcome, IJobResult.OUTCOME_MANUAL_SKIP)
         # skip_reason should not include the dependency since it was manually skipped
         self.assertIsNone(skip_reason)
 

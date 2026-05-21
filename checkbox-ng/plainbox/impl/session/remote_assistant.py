@@ -600,7 +600,7 @@ class RemoteSessionAssistant:
 
                 def skipped_builder(*args, **kwargs):
                     result_builder = JobResultBuilder(
-                        outcome=IJobResult.OUTCOME_SKIP
+                        outcome=IJobResult.OUTCOME_MANUAL_SKIP
                     )
                     if self._current_comments != "":
                         result_builder.comments = self._current_comments

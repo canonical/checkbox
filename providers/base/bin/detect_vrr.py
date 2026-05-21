@@ -26,16 +26,10 @@ import os
 from pathlib import Path
 from checkbox_support.helpers.slugify import slugify
 
-# this should find "libdrm.so.2"
-# works on xenial too, though we won't test vrr on that
-libdrm_path = ctypes.util.find_library("drm")
-if not libdrm_path:
-    raise ImportError("libdrm not found")
-drm = ctypes.CDLL(libdrm_path)
-
 
 # https://github.com/CPFL/drm/blob/6f90b77ea903756c87ae614c093e3d816ebb26fc/xf86drmMode.h#L72
 DRM_MODE_PROP_NAME_LEN = 32
+drm = None  # type: ctypes.CDLL | None
 
 
 class drmModePropertyRes(ctypes.Structure):
@@ -89,11 +83,6 @@ class drmModeRes(ctypes.Structure):
     ]
 
 
-drm.drmModeGetResources.restype = ctypes.POINTER(drmModeRes)
-drm.drmModeGetConnector.restype = ctypes.POINTER(drmModeConnector)
-drm.drmModeGetProperty.restype = ctypes.POINTER(drmModePropertyRes)
-
-
 def get_vrr_capable_monitors(dri_card: Path) -> bool:
     """Checks if a /dev/dri/cardN is vrr capable
     A monitor must be connected and active for the result to be accurate
@@ -102,6 +91,10 @@ def get_vrr_capable_monitors(dri_card: Path) -> bool:
     :raises RuntimeError: Failed to open /dev/driN
     :raises RuntimeError: drmModeGetResources returned nullptr
     """
+
+    if not drm:
+        raise SystemExit("drm library was not initialized")
+
     vrr_capable = False
     with dri_card.open() as f:
         fd = f.fileno()
@@ -150,6 +143,18 @@ def get_vrr_capable_monitors(dri_card: Path) -> bool:
 
 
 def main():
+    # this should find "libdrm.so.2"
+    # works on xenial too, though we won't test vrr on that
+    libdrm_path = ctypes.util.find_library("drm")
+    if not libdrm_path:
+        raise ImportError("libdrm not found")
+
+    global drm
+    drm = ctypes.CDLL(libdrm_path)
+    drm.drmModeGetResources.restype = ctypes.POINTER(drmModeRes)
+    drm.drmModeGetConnector.restype = ctypes.POINTER(drmModeConnector)
+    drm.drmModeGetProperty.restype = ctypes.POINTER(drmModePropertyRes)
+
     at_least_1_capable = False
     for path in Path("/dev/dri").iterdir():
         if os.path.basename(str(path)).startswith("card"):

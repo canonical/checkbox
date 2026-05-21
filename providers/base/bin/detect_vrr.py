@@ -26,7 +26,6 @@ import os
 from pathlib import Path
 from checkbox_support.helpers.slugify import slugify
 
-
 # https://github.com/CPFL/drm/blob/6f90b77ea903756c87ae614c093e3d816ebb26fc/xf86drmMode.h#L72
 DRM_MODE_PROP_NAME_LEN = 32
 drm = None  # type: ctypes.CDLL | None
@@ -158,7 +157,9 @@ def main():
     at_least_1_capable = False
     for path in Path("/dev/dri").iterdir():
         if os.path.basename(str(path)).startswith("card"):
-            at_least_1_capable = at_least_1_capable or get_vrr_capable_monitors(path)
+            at_least_1_capable = (
+                at_least_1_capable or get_vrr_capable_monitors(path)
+            )
 
     if not at_least_1_capable:
         # fail here to allow fail-on-resource in the actual job

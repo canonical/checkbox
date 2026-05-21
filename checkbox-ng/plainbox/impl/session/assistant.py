@@ -1648,16 +1648,7 @@ class SessionAssistant:
             self._manager.checkpoint()
             ui.finished_running(job, job_state, builder.get_result())
         else:
-            # Special handling for fail-on-resource flag
             outcome = None
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if (
-                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE
-                    and "fail-on-resource" in job.get_flag_set()
-                ):
-                    outcome = IJobResult.OUTCOME_FAIL
-                    break
-            # If fail-on-resource doesn't apply, determine the outcome from inhibitors
             outcome, skip_reason = determine_outcome_and_skip_reason(
                 job_state, self._context.state.job_state_map
             )

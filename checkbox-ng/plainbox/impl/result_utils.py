@@ -36,16 +36,21 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
     Determine the correct outcome and skip_reason for a job that cannot start.
 
     This function examines the job's readiness inhibitors and determines:
-    1. The most appropriate outcome (SKIPPED_DEPENDENCY, SKIPPED_RESOURCE, or
-       SKIPPED_MANIFEST), with special handling for manual skip outcomes
+    1. The most appropriate outcome (SKIPPED_DEPENDENCY, SKIPPED_RESOURCE,
+       SKIPPED_MANIFEST or FAILED), with special handling for manual skip
+       outcomes
     2. A skip_reason dict containing structured information about why the job
        cannot start
 
     Outcome determination follows this priority:
     - If any dependency was manually skipped, outcome is OUTCOME_SKIP
-    - Else if there are failed manifest expressions, outcome is OUTCOME_SKIPPED_MANIFEST
-    - Else if there are FAILED_DEP inhibitors, outcome is OUTCOME_SKIPPED_DEPENDENCY
-    - Else if there are failed resource expressions, outcome is OUTCOME_SKIPPED_RESOURCE
+    - Else if there are failed manifest expressions, outcome is
+    OUTCOME_SKIPPED_MANIFEST
+    - Else if there are FAILED_DEP inhibitors, outcome is
+    OUTCOME_SKIPPED_DEPENDENCY
+    - Else if there are failed resource expressions, outcome is
+    OUTCOME_SKIPPED_RESOURCE, except if `fail-on-resource` flag is used, in
+    which case outcome is OUTCOME_FAIL
     - Else outcome is OUTCOME_NOT_SUPPORTED
 
     :param job_state:
@@ -94,6 +99,10 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
                     )
         elif inhibitor.cause == InhibitionCause.FAILED_RESOURCE:
             has_failed_resource = True
+            # Special handling for fail-on-resource flag
+            if "fail-on-resource" in job_state.job.get_flag_set():
+                outcome = IJobResult.OUTCOME_FAIL
+                break
             if inhibitor.related_expression:
                 # Check if this is a manifest expression
                 if inhibitor.related_expression.manifest_id_list:

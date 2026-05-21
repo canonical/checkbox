@@ -561,14 +561,6 @@ class RemoteSessionAssistant:
             outcome, skip_reason = determine_outcome_and_skip_reason(
                 job_state, self._sa._context.state.job_state_map
             )
-            # Override with FAIL for fail-on-resource flag
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if (
-                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE
-                    and "fail-on-resource" in job.get_flag_set()
-                ):
-                    outcome = IJobResult.OUTCOME_FAIL
-                    break
 
             def cant_start_builder(*args, **kwargs):
                 result_builder = JobResultBuilder(

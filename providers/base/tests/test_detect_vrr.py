@@ -252,12 +252,11 @@ class TestMain(unittest.TestCase):
 
         with (
             patch("ctypes.util.find_library", return_value="libdrm.so.2"),
-            patch("ctypes.CDLL") as mock_cdll,
+            patch("ctypes.CDLL"),
             patch("os.path.basename", return_value="card0"),
             patch.object(Path, "iterdir", return_value=iter([card0])),
             patch("detect_vrr.get_vrr_capable_monitors", return_value=False),
         ):
-            mock_cdll.return_value = MagicMock()
             with self.assertRaises(SystemExit) as cm:
                 detect_vrr.main()
 
@@ -270,16 +269,15 @@ class TestMain(unittest.TestCase):
 
         with (
             patch("ctypes.util.find_library", return_value="libdrm.so.2"),
-            patch("ctypes.CDLL") as mock_cdll,
             patch("os.path.basename", return_value="card0"),
+            patch("ctypes.CDLL"),
             patch.object(Path, "iterdir", return_value=iter([card0])),
             patch("detect_vrr.get_vrr_capable_monitors", return_value=True),
         ):
-            mock_cdll.return_value = MagicMock()
-            # Should not raise
             detect_vrr.main()
 
-    def test_skips_non_card_entries_in_dri_dir(self):
+    @patch("detect_vrr.get_vrr_capable_monitors")
+    def test_skips_non_card_entries_in_dri_dir(self, mock_get_vrr: MagicMock):
         render0 = MagicMock(spec=Path)
         render0.__str__ = MagicMock(return_value="/dev/dri/renderD128")
 
@@ -288,7 +286,6 @@ class TestMain(unittest.TestCase):
             patch("ctypes.CDLL"),
             patch("os.path.basename", return_value="renderD128"),
             patch.object(Path, "iterdir", return_value=iter([render0])),
-            patch("detect_vrr.get_vrr_capable_monitors") as mock_get_vrr,
         ):
             with self.assertRaises(SystemExit):
                 detect_vrr.main()

@@ -1,0 +1,21 @@
+*.pyc
+*.snap
+__pycache__
+build/mo/*
+dist/*.tar.gz
+parts/
+snap/.snapcraft
+snap/gui/
+stage/
+prime/
+
+# following files are populated by the prepare.sh script and should be ignored
+config/
+checkbox-ng/
+checkbox-support/
+providers/
+version.txt
+
+# following files are the result of the build process
+checkbox*.txt
+checkbox*.snap

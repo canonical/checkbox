@@ -78,8 +78,12 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
         mock_file.__enter__ = MagicMock(return_value=mock_file)
         mock_file.__exit__ = MagicMock(return_value=False)
         mock_file.fileno.return_value = 5
-        with patch.object(Path, "open", return_value=mock_file):
+        patcher = patch.object(Path, "open", return_value=mock_file)
+        patcher.start()
+        try:
             return detect_vrr.get_vrr_capable_monitors(Path(path))
+        finally:
+            patcher.stop()
 
     def test_raises_systemexit_when_drm_not_initialized(self):
         detect_vrr.drm = None
@@ -95,7 +99,7 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
         self.mock_drm.drmModeGetResources.return_value = _ptr(_make_res([]))
         result = self._call()
         self.assertFalse(result)
-        self.mock_drm.drmModeFreeResources.assert_called_once()
+        self.assertEqual(self.mock_drm.drmModeFreeResources.call_count, 1)
 
     def test_returns_false_for_disconnected_connector(self):
         conn = _make_conn(connection=0)  # 0 = disconnected
@@ -160,7 +164,8 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
 
         self.assertTrue(result)
 
-    def test_prints_info_when_vrr_capable(self):
+    @patch("builtins.print")
+    def test_prints_info_when_vrr_capable(self, mock_print):
         prop = _make_prop("vrr_capable")
         conn = _make_conn(connection=1, props=[100], prop_values=[1])
         conn.connector_id = 42
@@ -168,8 +173,7 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
         self.mock_drm.drmModeGetConnector.return_value = _ptr(conn)
         self.mock_drm.drmModeGetProperty.return_value = _ptr(prop)
 
-        with patch("builtins.print") as mock_print:
-            self._call("/dev/dri/card0")
+        self._call("/dev/dri/card0")
 
         mock_print.assert_any_call("vrr_supported: True")
 
@@ -222,15 +226,9 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
 
         self._call()
 
-        self.mock_drm.drmModeFreeProperty.assert_called_once_with(
-            prop_ptr_mock
-        )
-        self.mock_drm.drmModeFreeConnector.assert_called_once_with(
-            conn_ptr_mock
-        )
-        self.mock_drm.drmModeFreeResources.assert_called_once_with(
-            res_ptr_mock
-        )
+        self.mock_drm.drmModeFreeProperty.assert_called_once_with(prop_ptr_mock)
+        self.mock_drm.drmModeFreeConnector.assert_called_once_with(conn_ptr_mock)
+        self.mock_drm.drmModeFreeResources.assert_called_once_with(res_ptr_mock)
 
 
 class TestMain(unittest.TestCase):
@@ -240,75 +238,77 @@ class TestMain(unittest.TestCase):
     def tearDown(self):
         detect_vrr.drm = None
 
-    def test_raises_import_error_when_libdrm_not_found(self):
-        with patch("ctypes.util.find_library", return_value=None):
-            with self.assertRaises(ImportError):
-                detect_vrr.main()
+    @patch("ctypes.util.find_library", return_value=None)
+    def test_raises_import_error_when_libdrm_not_found(self, mock_find):
+        with self.assertRaises(ImportError):
+            detect_vrr.main()
 
-    def test_raises_systemexit_when_no_vrr_capable_card(self):
+    @patch("detect_vrr.get_vrr_capable_monitors", return_value=False)
+    @patch.object(Path, "iterdir")
+    @patch("os.path.basename", return_value="card0")
+    @patch("ctypes.CDLL")
+    @patch("ctypes.util.find_library", return_value="libdrm.so.2")
+    def test_raises_systemexit_when_no_vrr_capable_card(
+        self, mock_find, mock_cdll, mock_basename, mock_iterdir, mock_get_vrr
+    ):
         card0 = MagicMock(spec=Path)
         card0.__str__ = MagicMock(return_value="/dev/dri/card0")
         card0.name = "card0"
+        mock_iterdir.return_value = iter([card0])
 
-        with (
-            patch("ctypes.util.find_library", return_value="libdrm.so.2"),
-            patch("ctypes.CDLL"),
-            patch("os.path.basename", return_value="card0"),
-            patch.object(Path, "iterdir", return_value=iter([card0])),
-            patch("detect_vrr.get_vrr_capable_monitors", return_value=False),
-        ):
-            with self.assertRaises(SystemExit) as cm:
-                detect_vrr.main()
+        with self.assertRaises(SystemExit) as cm:
+            detect_vrr.main()
 
         self.assertIn("VRR", str(cm.exception))
 
-    def test_exits_cleanly_when_at_least_one_vrr_capable_card(self):
+    @patch("detect_vrr.get_vrr_capable_monitors", return_value=True)
+    @patch.object(Path, "iterdir")
+    @patch("os.path.basename", return_value="card0")
+    @patch("ctypes.CDLL")
+    @patch("ctypes.util.find_library", return_value="libdrm.so.2")
+    def test_exits_cleanly_when_at_least_one_vrr_capable_card(
+        self, mock_find, mock_cdll, mock_basename, mock_iterdir, mock_get_vrr
+    ):
         card0 = MagicMock(spec=Path)
         card0.__str__ = MagicMock(return_value="/dev/dri/card0")
         card0.name = "card0"
-
-        with (
-            patch("ctypes.util.find_library", return_value="libdrm.so.2"),
-            patch("os.path.basename", return_value="card0"),
-            patch("ctypes.CDLL"),
-            patch.object(Path, "iterdir", return_value=iter([card0])),
-            patch("detect_vrr.get_vrr_capable_monitors", return_value=True),
-        ):
-            detect_vrr.main()
+        mock_iterdir.return_value = iter([card0])
+        detect_vrr.main()
 
     @patch("detect_vrr.get_vrr_capable_monitors")
-    def test_skips_non_card_entries_in_dri_dir(self, mock_get_vrr: MagicMock):
+    @patch.object(Path, "iterdir")
+    @patch("os.path.basename", return_value="renderD128")
+    @patch("ctypes.CDLL")
+    @patch("ctypes.util.find_library", return_value="libdrm.so.2")
+    def test_skips_non_card_entries_in_dri_dir(
+        self, mock_find, mock_cdll, mock_basename, mock_iterdir, mock_get_vrr
+    ):
         render0 = MagicMock(spec=Path)
         render0.__str__ = MagicMock(return_value="/dev/dri/renderD128")
+        mock_iterdir.return_value = iter([render0])
 
-        with (
-            patch("ctypes.util.find_library", return_value="libdrm.so.2"),
-            patch("ctypes.CDLL"),
-            patch("os.path.basename", return_value="renderD128"),
-            patch.object(Path, "iterdir", return_value=iter([render0])),
-        ):
-            with self.assertRaises(SystemExit):
-                detect_vrr.main()
+        with self.assertRaises(SystemExit):
+            detect_vrr.main()
 
         mock_get_vrr.assert_not_called()
 
-    def test_initializes_drm_restype_after_load(self):
-
+    @patch("detect_vrr.get_vrr_capable_monitors", return_value=True)
+    @patch.object(Path, "iterdir")
+    @patch("os.path.basename", return_value="card0")
+    @patch("ctypes.CDLL")
+    @patch("ctypes.util.find_library", return_value="libdrm.so.2")
+    def test_initializes_drm_restype_after_load(
+        self, mock_find, mock_cdll, mock_basename, mock_iterdir, mock_get_vrr
+    ):
         import ctypes
 
         card0 = MagicMock(spec=Path)
         card0.__str__ = MagicMock(return_value="/dev/dri/card0")
-
         mock_lib = MagicMock()
+        mock_cdll.return_value = mock_lib
+        mock_iterdir.return_value = iter([card0])
 
-        with (
-            patch("ctypes.util.find_library", return_value="libdrm.so.2"),
-            patch("ctypes.CDLL", return_value=mock_lib),
-            patch("os.path.basename", return_value="card0"),
-            patch.object(Path, "iterdir", return_value=iter([card0])),
-            patch("detect_vrr.get_vrr_capable_monitors", return_value=True),
-        ):
-            detect_vrr.main()
+        detect_vrr.main()
 
         self.assertEqual(
             mock_lib.drmModeGetResources.restype,

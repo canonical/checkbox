@@ -153,7 +153,7 @@ def main():
     at_least_1_capable = False
     for path in Path("/dev/dri").iterdir():
         if os.path.basename(str(path)).startswith("card"):
-            at_least_1_capable = get_vrr_capable_monitors(path)
+            at_least_1_capable = at_least_1_capable or get_vrr_capable_monitors(path)
 
     if not at_least_1_capable:
         # fail here to allow fail-on-resource in the actual job

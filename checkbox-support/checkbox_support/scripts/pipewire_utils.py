@@ -551,7 +551,7 @@ class PipewireTest:
             except subprocess.CalledProcessError as e:
                 print(
                     "[ ERR ] Failed to run test command:",
-                    e, # exception already shows the cmd array
+                    e,  # exception already shows the cmd array
                     file=sys.stderr,
                 )
                 nothing_failed = False

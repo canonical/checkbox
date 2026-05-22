@@ -116,7 +116,7 @@ def _parse_ts(ts_str: str) -> "datetime | None":
 
     Returns None on parse failure.
     """
-    # Python's %z directive in strptime() expects timezone offsets WITHOUT a colon
+    # Python %z directive in strptime expects timezone offsets WITHOUT a colon
     normalized = re.sub(r"([+-]\d{2}):(\d{2})$", r"\1\2", ts_str)
     try:
         dt = datetime.strptime(normalized, "%Y-%m-%dT%H:%M:%S%z")

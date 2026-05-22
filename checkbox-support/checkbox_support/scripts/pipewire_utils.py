@@ -443,9 +443,22 @@ class PipewireTest:
         tested_ids = set()  # type: set[int]
         nothing_failed = True
 
+        N = None  # type: int | None # num audio sinks snapshot
         while True:
+            # print("N is", N)
+            # always re-discover audio sinks
+            # allow new sinks so if something was forgotten, it's fixable
             audio_sink_ids = list(self._find_available_audio_sinks().items())
-            N = len(audio_sink_ids)
+
+            if N is not None and len(audio_sink_ids) < N:
+                # panic when sinks are removed
+                raise SystemExit(
+                    "Some sinks were removed unexpectedly "
+                    + "({} sinks -> {} sinks)".format(N, len(audio_sink_ids))
+                )
+            else:
+                N = len(audio_sink_ids)
+
             if N == 0:
                 raise SystemExit("No audio sinks are available for this test")
 
@@ -457,8 +470,9 @@ class PipewireTest:
                         "({}) - '{}' {}".format(
                             i,
                             node_description,
-                            ("- Tested" if node_id in tested_ids else ""),
-                        )
+                            "- Tested" if node_id in tested_ids else "",
+                        ),
+                        flush=True,
                     )
 
                 print(
@@ -529,7 +543,11 @@ class PipewireTest:
                 )
                 nothing_failed = False
             except subprocess.CalledProcessError as e:
-                print("[ ERR ]", e, file=sys.stderr)
+                print(
+                    "[ ERR ] Failed to run '{}':".format(cmd),
+                    e,
+                    file=sys.stderr,
+                )
                 nothing_failed = False
             finally:
                 tested_ids.add(audio_sink_ids[idx][0])

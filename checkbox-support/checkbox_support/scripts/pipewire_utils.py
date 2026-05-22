@@ -442,13 +442,13 @@ class PipewireTest:
 
         tested_ids = set()  # type: set[int]
         nothing_failed = True
-        audio_sink_ids = list(self._find_available_audio_sinks().items())
-        N = len(audio_sink_ids)
-
-        if N == 0:
-            raise SystemExit("No audio sinks are available for this test")
 
         while True:
+            audio_sink_ids = list(self._find_available_audio_sinks().items())
+            N = len(audio_sink_ids)
+            if N == 0:
+                raise SystemExit("No audio sinks are available for this test")
+
             try:
                 for i, (node_id, node_description) in enumerate(
                     audio_sink_ids

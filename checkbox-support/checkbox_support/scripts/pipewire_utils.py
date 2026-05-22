@@ -475,9 +475,14 @@ class PipewireTest:
 
                 print(
                     "Choose an audio sink to test [0-{}],".format(N - 1),
+                    "hit enter to rediscover sinks,",
                     "or type 'q' to quit:",
                     flush=True,
                 )
+                # do not use the built-in prompt here
+                # for some reason the prompt is always buffered when running
+                # inside the checkbox env, so the test case would look frozen
+                # when it's waiting for inputs
                 choice = input()
 
                 if choice == "q":
@@ -501,6 +506,9 @@ class PipewireTest:
                             )
                             + "but expected {}".format(N)
                         )
+                elif choice == "":
+                    # rediscovery
+                    continue
 
                 idx = int(choice)
                 subprocess.check_call(

@@ -475,7 +475,7 @@ class PipewireTest:
 
                 print(
                     "Choose an audio sink to test [0-{}],".format(N - 1),
-                    "hit enter to rediscover sinks,",
+                    "hit ENTER to rediscover sinks,",
                     "or type 'q' to quit:",
                     flush=True,
                 )

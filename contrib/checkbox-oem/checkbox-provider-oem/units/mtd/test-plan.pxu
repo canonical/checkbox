@@ -1,0 +1,22 @@
+id: oem-mtd-full
+unit: test plan
+_name: Memory Technology Device tests
+_description: Full Memory Technology Device tests for devices
+include:
+nested_part:
+  oem-mtd-automated
+  oem-mtd-manual
+
+id: oem-mtd-automated
+unit: test plan
+_name: Memory Technology Device auto tests
+_description: Automated Memory Technology Device tests for devices
+bootstrap_include:
+include:
+
+id: oem-mtd-manual
+unit: test plan
+_name: Memory Technology Device manual tests
+_description: Manual Memory Technology Device tests for devices
+include:
+

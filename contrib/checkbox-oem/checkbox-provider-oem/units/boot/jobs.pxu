@@ -1,0 +1,30 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: boot/boot-up-time-under-2-min
+estimated_duration: 2.0
+imports: from com.canonical.certification import dmi
+requires:
+  snap_executable.name == 'systemd-analyze'
+  snap_executable.name == 'systemctl'
+  dmi.product in ['Notebook','Laptop']
+command: boot-up-time-check.sh
+_summary:
+  Check if boot up finished under 2 minutes
+_description:
+  This test verifies that boot up time was less than 2 minutes on Notebook and Laptop
+_purpose:
+  This test verifies that boot up time was less than 2 minutes on Notebook and Laptop
+
+plugin: shell
+id: boot/grub_boothole
+category_id: com.canonical.plainbox::miscellanea
+user: root
+imports: from com.canonical.certification import lsb
+requires:
+  lsb.codename in ('xenial', 'bionic', 'focal')
+command:
+  boot-check_grub_boothole.sh
+_description:
+  Check if kernel and grub are new enough to fix the boothole issue.
+  https://docs.google.com/document/d/1EheQcQ5fzdwW_JOXz5LChqObu6di4GztkxRtVxtUYGs/edit#heading=h.ek2fnosafgow
+

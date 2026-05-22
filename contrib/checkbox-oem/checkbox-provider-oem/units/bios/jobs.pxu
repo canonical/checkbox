@@ -1,0 +1,34 @@
+unit: template
+template-resource: cpuinfo
+template-filter:
+  cpuinfo.type in ['GenuineIntel','AuthenticAMD']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: bios/acpi-bios-error_{type}
+command: bios-acpi_bios_error.py
+_summary: Check if kernel reports ACPI BIOS Error
+_description:
+  Check if the kernel reports ACPI BIOS Error
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: bios/dump_libsmbios_tokens
+requires:
+  snap_executable.name == 'smbios-token-ctl'
+command:
+  set -x
+  # shellcheck disable=SC2230
+  smbios-token-ctl -d 2>&1 | tee "${PLAINBOX_SESSION_SHARE}"/libsmbios_tokens
+_summary: Dump libsmbios tokens
+_description:
+  Please refer to https://trello.com/c/Vt0jzJin for detail
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: bios/dump_libsmbios_tokens_attachment
+depends: bios/dump_libsmbios_tokens
+estimated_duration: 1.0
+command: [ -e "${PLAINBOX_SESSION_SHARE}"/libsmbios_tokens ] && cat "${PLAINBOX_SESSION_SHARE}"/libsmbios_tokens
+_description:
+  Attached log, please refer to https://trello.com/c/Vt0jzJin for detail

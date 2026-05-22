@@ -1,0 +1,118 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the IoT devices running Ubuntu Server.
+#
+
+id: oem-iot-server-24-04
+unit: test plan
+_name: OEM-IOT - Full manual + automated OEM tests for Ubuntu Server 24.04
+_description:
+  Combined manual and automated test plans for IoT devices running Ubuntu Server.
+include:
+nested_part:
+  oem-iot-server-24-04-automated
+  oem-iot-server-24-04-manual
+  oem-iot-server-24-04-stress
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-server-24-04-automated
+unit: test plan
+_name: OEM-IOT - Automated only OEM tests for Ubuntu Server 24.04
+_description:
+  Ubuntu Server OEM test plan for the IoT devices. This test plan contains
+  all of the automated tests used to validate the IoT devices.
+bootstrap_include:
+  com.canonical.certification::cpuinfo
+  com.canonical.certification::device
+  com.canonical.certification::dmi
+nested_part:
+  com.canonical.certification::client-cert-iot-server-24-04-automated
+  oem-automated
+include:
+  com.canonical.certification::miscellanea/debsums
+  com.canonical.certification::miscellanea/screen-private-ppa
+  com.canonical.certification::power-management-cpu-cstate-cert-automated
+  com.canonical.certification::power-management/switch_power_mode
+  bios/acpi-bios-error_.*                                                 certification-status=blocker
+  bios/dump_libsmbios_tokens
+  bios/dump_libsmbios_tokens_attachment
+  boot/boot-up-time-under-2-min
+  boot/grub_boothole
+  device/check-device-runtime-pm_.*
+  device/intel-hid_.*
+  device/intel-vtd-enabled_.*
+  device/tgp-rid-check_.*
+  kernel/check_.*_start_rt_ucode_failed
+  kernel/check_.*_start_wm_firmware_failed
+  kernel/check_.*_unchecked_msr_access_error
+  kernel/check-kernel                                                     certification-status=blocker
+  kernel/check_UBSAN_error
+  miscellanea/ac-automatic-suspend-estar-settings_.*
+  miscellanea/check-oem-recovery-version
+  miscellanea/check-production-suite
+  miscellanea/check-secureboot-fish-not-installed
+  miscellanea/csme-detection-tool
+  miscellanea/cvescan
+  miscellanea/gate_rste_raid
+  miscellanea/image-url
+  miscellanea/platform-userguide-test
+  miscellanea/screen-pkg-not-public
+  miscellanea/screen-pkg-not-supported-by-canonical
+  miscellanea/sideload-hook-no-fail
+  miscellanea/somerville-installation
+  miscellanea/somerville-platform-meta-test
+  power-management/intel_pmc_core
+  thermal/check-thermald-unknown-cond
+  thermal/intel-cpu-thermal
+  thermal/intel-p-state
+  thermal/intel-powerclamp
+  thermal/intel-rapl
+  thermal/intel-rapl-mmio_.*
+  thermal/intel-x86-pkg-temp-thermal
+  thermal/proc_thermal_.*
+  thermal/thermal-policy-set_.*
+  thermal/thermald
+  thermal/valid-thermal-zone-trip-points
+  wwan/check-fcclock-state_.*
+  wwan/get-wwan-firmware-version
+exclude:
+  com.canonical.certification::after-suspend-bluetooth4/beacon_.*
+  com.canonical.certification::after-suspend-graphics/1_auto_switch_card_.*
+  com.canonical.certification::bluetooth4/beacon_eddystone.*
+  com.canonical.certification::bluetooth/bluetooth_obex_.*
+  com.canonical.certification::graphics/1_auto_switch_card_.*
+  com.canonical.certification::graphics/2_.*
+  com.canonical.certification::suspend/1_.*
+  com.canonical.certification::suspend/2_.*
+  com.canonical.certification::suspend/bluetooth_obex_.*
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-server-24-04-manual
+unit: test plan
+_name: OEM-IOT - Manual only OEM tests for Ubuntu Server 24.04
+_description:
+  Ubuntu Server OEM test plan for the IoT devices. This test plan contains
+  all of the tests that require manual control of device hardware
+  or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+  oem-manual
+exclude:
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-server-24-04-stress
+unit: test plan
+_name: OEM-IOT - Stress only OEM tests for Ubuntu Server 24.04
+_description:
+    Ubuntu Server OEM test plan that includes all stress tests required for IoT devices
+include:
+nested_part:
+  oem-stress
+exclude:
+certification_status_overrides:
+  apply blocker to .*

@@ -1,0 +1,21 @@
+id: oem-printer-full
+unit: test plan
+_name: Printer tests
+_description: Full printer tests for devices
+include:
+nested_part:
+  oem-printer-automated
+  oem-printer-manual
+
+id: oem-printer-automated
+unit: test plan
+_name: Printer auto tests
+_description: Automated printer tests for devices
+include:
+
+id: oem-printer-manual
+unit: test plan
+_name: Printer manual tests
+_description: Manual printer tests for devices
+bootstrap_include:
+include:

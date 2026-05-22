@@ -445,9 +445,7 @@ class PipewireTest:
 
         N = None  # type: int | None # num audio sinks snapshot
         while True:
-            # print("N is", N)
-            # always re-discover audio sinks
-            # allow new sinks so if something was forgotten, it's fixable
+            # always re-discover audio sinks to allow new sinks
             audio_sink_ids = list(self._find_available_audio_sinks().items())
 
             if N is not None and len(audio_sink_ids) < N:

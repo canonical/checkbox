@@ -402,7 +402,12 @@ class PipewireTest:
             mclass = client["info"]["props"].get("media.class")
             if mclass == "Audio/Device":
                 ports = client["info"]["params"]["EnumRoute"]
-                assert type(ports) is list
+                if not isinstance(ports, list):
+                    raise TypeError(
+                        "Expected client['info']['params']['EnumRoute'] "
+                        + "to be a list, but got "
+                        + str(type(ports))
+                    )
 
             for p in ports:
                 chosen = None
@@ -495,6 +500,12 @@ class PipewireTest:
                     "Please select an index from 0 to", N - 1, file=sys.stderr
                 )
                 continue
+            except subprocess.CalledProcessError as e:
+                print(
+                    "[ ERR ] Failed to set default audio sink: {}".format(e),
+                    file=sys.stderr,
+                )
+                continue
 
             node_id, node_description = audio_sink_ids[idx]
 
@@ -505,7 +516,7 @@ class PipewireTest:
                     "Testing '{}', id={}, command={}, {}s timeout".format(
                         node_description, node_id, cmd, TIMEOUT
                     ),
-                    flush=True
+                    flush=True,
                 )
                 # don't let this fail, just go to the next sink
                 subprocess.run(cmd, timeout=TIMEOUT, check=True)

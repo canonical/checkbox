@@ -439,7 +439,7 @@ class PipewireTest:
         Interactively execute the cmd for each audio sink discovered
         by pipewire
 
-        :param cmd: the command to run, passed directory to subprocess.run()
+        :param cmd: the command to run, passed directly to subprocess.run()
         """
 
         tested_ids = set()  # type: set[int]

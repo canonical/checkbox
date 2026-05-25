@@ -182,9 +182,6 @@ _steps:
 _verification:
     Did the monitor go blank and turn on again after a few seconds?
 
-unit: template
-template-resource: graphics_card
-template-filter: graphics_card.prime_gpu_offload == 'Off'
 flags: also-after-suspend
 id: monitor/powersaving
 plugin: user-interact-verify
@@ -482,9 +479,6 @@ _verification:
     Was the desktop displayed correctly with on the screen connected using a
     "USB Type-C to VGA" adapter in every mode?
 
-unit: template
-template-resource: graphics_card
-template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/dvi
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_dvi == 'True'

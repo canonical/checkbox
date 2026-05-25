@@ -190,7 +190,7 @@ _description:
  Graphics tests (integrated GPU) (Manual)
 include:
  miscellanea/chvt
- graphics/1_maximum_resolution_.*           certiftemplate-id: monitor/hdmiication-status=blocker
+ graphics/1_maximum_resolution_.*           certification-status=blocker
  graphics/1_glxgears_.*                     certification-status=blocker
  graphics/1_rotation_.*                     certification-status=blocker
  graphics/1_video_.*                        certification-status=blocker
@@ -425,7 +425,7 @@ id: graphic-base-26-04-manual
 unit: test plan
 _name: Graphics for 26.04 (Manual)
 _description: Manual tests for graphics
-include:graphics-gpu-cert-26-04-manual
+include:
     keys/video-out
     after-suspend-keys/video-out
 nested_part:

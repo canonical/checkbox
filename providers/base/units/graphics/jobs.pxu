@@ -128,9 +128,6 @@ _purpose:
  resolution (800x600) on the {vendor} {product} graphics card. See here for details:
  https://help.ubuntu.com/community/Installation/SystemRequirements
 
-unit: template
-template-resource: graphics_card
-template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/primary_minimum_resolution

@@ -291,7 +291,7 @@ command:
  # shellcheck disable=SC1091
  if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then
-   randr_cycle.py -c resolution --prefix {index} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
+   randr_cycle.py -c resolution --prefix primary --screenshot_dir="$PLAINBOX_SESSION_SHARE"
  else
    xrandr_cycle.py --screenshot-dir="$PLAINBOX_SESSION_SHARE"
  fi
@@ -343,7 +343,7 @@ command:
  # shellcheck disable=SC1091
  if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then
-   randr_cycle.py -c transform --prefix {index} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
+   randr_cycle.py -c transform --prefix primary --screenshot_dir="$PLAINBOX_SESSION_SHARE"
  else
    rotation_test.py
  fi

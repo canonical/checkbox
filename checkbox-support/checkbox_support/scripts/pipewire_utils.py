@@ -513,6 +513,8 @@ class PipewireTest:
                     continue
 
                 idx = int(choice)
+                if idx < 0:
+                    raise IndexError("Negative indices are not allowed")
 
                 subprocess.check_call(
                     ["wpctl", "set-default", str(audio_sink_ids[idx][0])]

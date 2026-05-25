@@ -972,7 +972,10 @@ class PipewireTest:
             "--command",
             type=str,
             required=True,
-            help="command for testing",
+            help=(
+                "Command for testing, "
+                + "this command should play audio using the default audio sink"
+            ),
         )
 
         # Add parser for show default device function

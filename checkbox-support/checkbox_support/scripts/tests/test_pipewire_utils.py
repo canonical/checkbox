@@ -1303,6 +1303,10 @@ class ArgsParsingTests(unittest.TestCase):
         self.assertEqual(rv.status_1, "s1")
         self.assertEqual(rv.status_2, "s2")
 
+        args = ["iter-audio-sinks", "-c", "speaker-test"]
+        rv = pt._args_parsing(args)
+        self.assertEqual(rv.command, "speaker-test")
+
 
 class FunctionSelectTests(unittest.TestCase):
     @patch(

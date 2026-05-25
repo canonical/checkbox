@@ -607,7 +607,6 @@ class GoThroughPortTests(unittest.TestCase):
 
 
 class IterAudioSinksTests(unittest.TestCase):
-
     def _fake_sp_check_output(self, *args, **_) -> str:
         if args[0] == "pw-dump Device":
             with (TEST_DATA_DIR / "pw_dump_device_happy_path.txt").open() as f:
@@ -821,6 +820,33 @@ class IterAudioSinksTests(unittest.TestCase):
             ):
                 count += 1
         self.assertNotEqual(count, 0)
+
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    def test_enum_route_not_a_list(
+        self,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        original = pt._get_pw_dump
+
+        def fake_pw_dump_rv(p_type: 't.Literal["Device", "Node"]'):
+            result = original(p_type)
+            if p_type == "Device":
+                for dev in result:
+                    if dev["info"]["params"].get("EnumRoute") is not None:
+                        dev["info"]["params"]["EnumRoute"] = None
+                        break
+            return result
+
+        pt._get_pw_dump = fake_pw_dump_rv
+        with self.assertRaises(TypeError):
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
 
     @patch("checkbox_support.scripts.pipewire_utils.input")
     @patch("subprocess.check_call")
@@ -1159,7 +1185,6 @@ Settings
 
 
 class DefaultDeviceIsRealTests(unittest.TestCase):
-
     @patch("subprocess.check_output")
     def test_happy_path(self, mock_check_output: MagicMock):
 

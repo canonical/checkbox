@@ -183,6 +183,7 @@ template-engine: jinja2
 template-resource: video_codec_resource
 template-filter:
     video_codec_resource.scenario == "gst_encoder_psnr"
+    video_codec_resource.platform in ["rzg2l", "rzg3e", "rzv2l", "rzv2h", "rzv2n"]
 template-unit: job
 template-id: ce-oem-video-codec/renesas-gst_encoder_psnr
 _template-summary: Verify the PSNR ratio for specific encoder on Renesas platform

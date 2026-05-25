@@ -848,6 +848,50 @@ class IterAudioSinksTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
 
+    @patch("checkbox_support.scripts.pipewire_utils.print")
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_non_output_route_is_skipped(
+        self,
+        _: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+        mock_print: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        original = pt._get_pw_dump
+
+        def fake_pw_dump_rv(p_type: 't.Literal["Device", "Node"]'):
+            result = original(p_type)
+            if p_type == "Device":
+                for dev in result:
+                    if dev["id"] == 44:
+                        for route in dev["info"]["params"]["EnumRoute"]:
+                            if route["devices"] == [1]:
+                                route["direction"] = "Input"
+                                break
+                        break
+            return result
+
+        pt._get_pw_dump = fake_pw_dump_rv
+        mock_input.side_effect = ("q",)
+        with self.assertRaises(SystemExit):
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        skip_calls = [
+            c
+            for c in mock_print.call_args_list
+            if len(c[0]) >= 2 and c[0][1] == "because it's not a sink"
+        ]
+        self.assertNotEqual(len(skip_calls), 0)
+
     @patch("checkbox_support.scripts.pipewire_utils.input")
     @patch("subprocess.check_call")
     @patch("subprocess.check_output")

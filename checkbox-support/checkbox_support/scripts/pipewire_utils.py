@@ -435,9 +435,11 @@ class PipewireTest:
                         checked = input()
 
     def iter_audio_sinks(self, cmd: "list[str]"):
-        """Execute the cmd for each audio sink discovered by pipewire
+        """
+        Interactively execute the cmd for each audio sink discovered
+        by pipewire
 
-        :param cmd: the command to run
+        :param cmd: the command to run, passed directory to subprocess.run()
         """
 
         tested_ids = set()  # type: set[int]
@@ -511,6 +513,7 @@ class PipewireTest:
                     continue
 
                 idx = int(choice)
+
                 subprocess.check_call(
                     ["wpctl", "set-default", str(audio_sink_ids[idx][0])]
                 )
@@ -522,7 +525,8 @@ class PipewireTest:
                 continue
             except subprocess.CalledProcessError as e:
                 print(
-                    "[ ERR ] Failed to set default audio sink: {}".format(e),
+                    "[ ERR ] Failed to set default audio sink:",
+                    e,
                     file=sys.stderr,
                 )
                 continue
@@ -568,9 +572,10 @@ class PipewireTest:
         """
         Finds the list of audio "devices" as shown in gnome's control center
 
-        :return: Returns a set of IDs that can be consumed by wpctl.
+        :return: Returns a dict[int, str]
                  The values are human readable names.
                  These IDs are the "ID" to use as shown in `wpctl --help`
+                 They match the numbers in `wpctl status`'s audio section
         """
         testable_node_ids = {}  # type: dict[int, str]
         pw_audio_devices = [
@@ -585,7 +590,7 @@ class PipewireTest:
         ]
 
         for node in pw_sink_nodes:
-            # IDs of these "nodes" can be passed to wpctl set-default
+            # IDs of these "nodes" can be passed to `wpctl set-default`
             node_id = int(node["id"])
             device_id = int(node["info"]["props"]["device.id"])
 

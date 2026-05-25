@@ -892,6 +892,50 @@ class IterAudioSinksTests(unittest.TestCase):
         ]
         self.assertNotEqual(len(skip_calls), 0)
 
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_empty_input_triggers_rediscovery(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        mock_input.side_effect = ("", "q")
+        with self.assertRaises(SystemExit):
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        mock_run.assert_not_called()
+
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_negative_index_is_rejected(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        mock_input.side_effect = ("-1", "q")
+        with self.assertRaises(SystemExit):
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        mock_run.assert_not_called()
+
     @patch("checkbox_support.scripts.pipewire_utils.input")
     @patch("subprocess.check_call")
     @patch("subprocess.check_output")

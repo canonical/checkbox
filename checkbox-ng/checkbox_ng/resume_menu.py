@@ -278,7 +278,6 @@ class ResumeMenu:
                 self._ACTION_MENU_STATIC_ELEMENTS
             )
             action = self._action_buttons[action_index][1]
-
             self._chosen_action = action
         elif key.upper() == "C":
             self._chosen_action = "comment"
@@ -294,7 +293,7 @@ class ResumeMenu:
 
         if self._chosen_action == "comment":
             self.loop.widget = self._comment_view
-        else:
+        elif self._chosen_action:
             raise urwid.ExitMainLoop()
 
     def _handle_input_on_comment_box(self, key):

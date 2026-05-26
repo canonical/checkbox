@@ -34,15 +34,15 @@ jobs:
           - arch: arm64
             tag: ARM64
           - release: 18
-            snapcraft_version: 7.x
+            snapcraft_version: 7.x/stable
           - release: 20
-            snapcraft_version: 7.x
+            snapcraft_version: 7.x/stable
           - release: 22
-            snapcraft_version: 8.x
+            snapcraft_version: 8.x/stable
           - release: 24
-            snapcraft_version: 8.x
+            snapcraft_version: 8.x/stable
           - release: 26
-            snapcraft_version: 8.x
+            snapcraft_version: 9.x/beta
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}"]
@@ -70,7 +70,7 @@ jobs:
           attempt_limit: 5
           with: |
             path: checkbox-core-snap/series${{ matrix.release }}
-            snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
+            snapcraft-channel: ${{ matrix.snapcraft_version }}
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: Upload logs on failure
@@ -120,7 +120,7 @@ jobs:
             snapcraft_version: 8.x
     runs-on:
       group: "Canonical self-hosted runners"
-      labels: ["self-hosted", "linux", "jammy", "large", "${{ matrix.tag }}"]
+      labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
     steps:

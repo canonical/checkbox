@@ -4,6 +4,66 @@
 # Test plans and (optionally) jobs unique to the IoT devices running Ubuntu Core.
 #
 
+id: ce-oem-iot-ubuntucore-26
+unit: test plan
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for Ubuntu Core 26
+_description:
+    Combined manual and automated test plans for IoT devices running Ubuntu Core.
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-26-manual
+    ce-oem-iot-ubuntucore-26-automated
+    ce-oem-iot-ubuntucore-26-stress
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-26-manual
+unit: test plan
+_name: CE-OEM-IOT - Manual only OEMQA tests for Ubuntu Core 26
+_description:
+    Ubuntu Core OEMQA test plan for the IoT devices. This test plan contains
+    all of the tests that require manual control of device hardware
+    or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-manual
+    com.canonical.certification::client-cert-iot-ubuntucore-26-manual
+    after-suspend-ce-oem-manual
+exclude:
+    com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-26-automated
+unit: test plan
+_name: CE-OEM-IOT - Automated only OEMQA tests for Ubuntu Core 26
+_description:
+    Ubuntu Core OEMQA test plan for the IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
+include:
+nested_part:
+    ce-oem-automated
+    com.canonical.certification::client-cert-iot-ubuntucore-26-automated
+    after-suspend-ce-oem-automated
+exclude:
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-26-stress
+unit: test plan
+_name: CE-OEM-IOT - Stress only OEMQA tests for Ubuntu Core 26
+_description:
+    Ubuntu Core OEMQA test plan that includes all stress tests required for IoT devices
+include:
+nested_part:
+    com.canonical.certification::client-cert-iot-ubuntucore-26-stress
+    ce-oem-stress
+exclude:
+    com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*
+
 id: ce-oem-iot-ubuntucore-24
 unit: test plan
 _name: CE-OEM-IOT - Full manual + automated OEMQA tests for Ubuntu Core 24

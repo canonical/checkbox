@@ -59,6 +59,7 @@ jobs:
           cd checkbox-core-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare.sh series${{ matrix.release }}
+          sudo snap refresh lxd --channel=6/beta
 
       - id: snap_build
         uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49

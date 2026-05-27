@@ -1,0 +1,74 @@
+id: nxp_ele_list_tv_files
+plugin: resource
+_summary: Enumerate available NXP ELE test vector files
+_description:
+    Discover test vector files from common oem-imx-secure-enclave locations.
+    Outputs Checkbox resource records with tv_file, tv_name, tv_category and tv_variant
+    for category-aware template expansion.
+estimated_duration: 5
+command:
+    nxp_ele_test.py --list-tv
+
+id: ce-oem-nxp-ele/device-node
+category_id: crypto
+_summary: Check OP-TEE device node has been probed in the system.
+plugin: shell
+user: root
+estimated_duration: 20.0
+requires: manifest.has_nxp_secure_element_ele == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
+    node="$(find /dev -type c -regex '.*/\(hsm\)[0-9]_ch[0-9]')"
+    if [[ -n $node ]]; then
+        echo -e "\nInfo: Find HSM node in the system!"
+        for x in $node
+        do
+            echo -e "\n$x"
+        done
+    else
+        echo -e "\nError: Not able to find HSM node in the system!"
+        exit 1
+    fi
+
+id: ce-oem-nxp-ele/hsm_run_perf
+plugin: shell
+_summary: Run NXP ELE HSM performance test
+_description:
+    Execute oem-imx-secure-enclave.ele-hsm-perf-test with nvm_daemon
+    stop/cleanup/start/stop lifecycle.
+user: root
+category_id: crypto
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_nxp_secure_element_ele == 'True'
+depends: ce-oem-nxp-ele/device-node
+flags: also-after-suspend
+estimated_duration: 120
+command:
+    nxp_ele_test.py --run-perf
+
+unit: template
+template-resource: nxp_ele_list_tv_files
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-nxp-ele/hsm_run_tv
+id: ce-oem-nxp-ele/hsm_run_tv_{{ tv_category }}_{{ tv_variant }}_{{ tv_name }}
+_summary: Run NXP ELE {{ tv_category }} ({{ tv_variant }}) vector
+_template-summary: Run NXP ELE test vector by category
+_description:
+    Execute oem-imx-secure-enclave.ele-hsm-test with test vector.
+    Category: {{ tv_category }}
+    Variant: {{ tv_variant }}
+    Vector: {{ tv_name }}
+    File: {{ tv_file }}
+    The test runs with nvm_daemon stop/cleanup/start/stop lifecycle
+    to ensure clean state for each vector execution.
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_nxp_secure_element_ele == 'True'
+depends: ce-oem-nxp-ele/device-node
+user: root
+category_id: crypto
+flags: also-after-suspend
+estimated_duration: 60
+command:
+    nxp_ele_test.py --run-tv "{{ tv_file }}"

@@ -109,8 +109,8 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
         result = self._call()
 
         self.assertFalse(result)
-        # drmModeFreeConnector is not called when the connector is skipped
-        self.mock_drm.drmModeFreeConnector.assert_not_called()
+        # still need to free the pointer 
+        self.mock_drm.drmModeFreeConnector.assert_called_once()
 
     def test_skips_null_connector_pointer(self):
         self.mock_drm.drmModeGetResources.return_value = _ptr(_make_res([10]))

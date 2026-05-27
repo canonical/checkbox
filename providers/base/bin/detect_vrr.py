@@ -113,6 +113,7 @@ def get_vrr_capable_monitors(dri_card: Path) -> bool:
 
             conn = conn_ptr.contents
             if conn.connection != 1:  # ignore disconnected connectors
+                drm.drmModeFreeConnector(conn_ptr)
                 continue
 
             for j in range(conn.count_props):

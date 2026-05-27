@@ -331,8 +331,6 @@ parts:
       - freeipmi-tools
       - fscrypt
       - fswebcam
-      - glmark2
-      - glmark2-es2
       - glmark2-wayland
       - glmark2-es2-wayland
       - gnome-screenshot

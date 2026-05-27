@@ -1,0 +1,39 @@
+unit: job
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::graphics
+id: graphics/variable-refresh-rate-manual
+flags:
+  - also-after-suspend
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - executable.name == 'qmlscene'
+  - manifest.has_vrr_support == 'True'
+  - dmi.sane_product == 'portable' # don't run this if there's no built-in screen
+# the hud shows an fps graph over time
+# vblank_mode=3 forces vsync for opengl
+# https://dri.freedesktop.org/wiki/ConfigurationOptions/
+# MESA_VK_WSI_PRESENT_MODE=relaxed is the relaxed vsync for vulkan
+# https://docs.mesa3d.org/envvars.html#envvar-MESA_VK_WSI_PRESENT_MODE
+# vblank is ignored by vulkan and the MESA_VK var is ignored by opengl => they don't conflict each other
+command: >-
+  GALLIUM_HUD=fps
+  MESA_VK_WSI_PRESENT_MODE=relaxed
+  vblank_mode=3
+  qmlscene "$PLAINBOX_PROVIDER_DATA"/vrr_rectangles_test.qml --fullscreen
+estimated_duration: "20s"
+summary: This test checks if Variable-Refresh-Rate (VRR) is working on the built-in display
+steps: |
+  1. Press Enter to start the test program
+  2. Inside the test program, you will see multiple rectangles bouncing inside the window. 
+     Adjust the FPS slider and look for screen tearing. 
+     It's OK for the FPS meter to not match the requested FPS.
+  3. If the DUT appears to be struggling to render all the rectangles, 
+     use the bottom slider to adjust the amount.
+  4. Press Esc to quit the program
+  5. Mark as pass if no tearing was observed, fail otherwise.
+---
+unit: manifest entry
+id: has_vrr_support
+name: Does the device have a built-in display with Variable Refresh Rate (VRR)?
+value-type: bool

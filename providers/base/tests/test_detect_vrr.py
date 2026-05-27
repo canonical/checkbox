@@ -109,7 +109,7 @@ class TestGetVrrCapableMonitors(unittest.TestCase):
         result = self._call()
 
         self.assertFalse(result)
-        # still need to free the pointer 
+        # still need to free the pointer
         self.mock_drm.drmModeFreeConnector.assert_called_once()
 
     def test_skips_null_connector_pointer(self):

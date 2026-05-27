@@ -514,6 +514,10 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def _resume_session(self, resume_params):
         metadata = self.sa.prepare_resume_session(resume_params.session_id)
+        # If there are no more jobs to run, resume. The empty dict is sent
+        # so that the last job result is not modified nor re-run.
+        if not metadata.remaining_todo_jobs:
+            return self.resume_by_id(resume_params.session_id, {})
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
@@ -626,6 +630,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             (
                 candidate.id,
                 generate_resume_candidate_description(candidate),
+                candidate.metadata.remaining_todo_jobs,
             )
             for candidate in resumable_sessions
         ]

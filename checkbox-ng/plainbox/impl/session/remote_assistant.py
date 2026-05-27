@@ -857,6 +857,10 @@ class RemoteSessionAssistant:
     ):
         if not last_job_id:
             return
+        # If there are no more jobs to run, it means the last job already has
+        # a result, and does not need to be updated
+        if not self._sa._metadata.remaining_todo_jobs:
+            return
         if result_interactively_decided:
             result_dict = result_interactively_decided
         else:

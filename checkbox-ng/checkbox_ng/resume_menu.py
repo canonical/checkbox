@@ -162,7 +162,7 @@ class ResumeMenu:
 
     def _create_menu_frame(self):
         """Create an urwid frame for the menu."""
-        menu_entries = [urwid.Button(id) for id, _ in self._entries]
+        menu_entries = [urwid.Button(id) for id, _, _ in self._entries]
 
         self._menu_body = ReactiveListBox(
             urwid.SimpleFocusListWalker(
@@ -251,8 +251,13 @@ class ResumeMenu:
         if key == "enter":
             self.chosen_session = self._entries[self.focused_index][0]
             # now let's show action menu, operator will chose what to do with
-            # the session
-            self.loop.widget = self._action_view
+            # the last job if there are still jobs to run in the todo list
+            if self._entries[self.focused_index][2]:
+                self.loop.widget = self._action_view
+            # otherwise, just continue (to the re-run screen or
+            # session finalization process)
+            else:
+                raise urwid.ExitMainLoop()
 
         elif key == "esc":
             self.chosen_session = None

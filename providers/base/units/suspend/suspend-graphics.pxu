@@ -122,7 +122,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_auto
 template-id: suspend/index_xrandr_screens_after_suspend.tar.gz_auto
-depends: after-suspend-graphics/cycle_resolution_primary | after-suspend-graphics/{index}_cycle_resolution_{product_slug}
+depends: after-suspend-graphics/{index}_cycle_resolution_{product_slug}
 command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
 _purpose: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 _summary: Attach screenshots from suspend/cycle resolutions after suspend test to results.

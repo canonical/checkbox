@@ -127,7 +127,8 @@ def get_vrr_capable_monitors(dri_card: Path) -> bool:
                     # that means we are on the right index
                     # use j to index into the value array
                     if conn.prop_values[j] == 1:
-                        print("card_name:", slugify(str(dri_card)))
+                        # lstrip to avoid excessive underscores in names
+                        print("card_name:", slugify(str(dri_card)).lstrip("_"))
                         print("connection_id:", conn_id)
                         print("vrr_supported: True")
                         print()
@@ -158,9 +159,9 @@ def main():
     at_least_1_capable = False
     for path in Path("/dev/dri").iterdir():
         if os.path.basename(str(path)).startswith("card"):
-            at_least_1_capable = (
-                at_least_1_capable or get_vrr_capable_monitors(path)
-            )
+            # need to check every card
+            curr_card_is_vrr_capable = get_vrr_capable_monitors(path)
+            at_least_1_capable = at_least_1_capable or curr_card_is_vrr_capable
 
     if not at_least_1_capable:
         # fail here to allow fail-on-resource in the actual job

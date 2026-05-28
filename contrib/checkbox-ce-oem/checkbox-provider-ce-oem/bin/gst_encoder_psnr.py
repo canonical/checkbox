@@ -478,7 +478,7 @@ class NxpIMX8mProject(PipelineInterface):
             self._width, self._height, self._framerate, "vp8"
         )
         pipeline = (
-            "{} filesrc location={} ! qtdemux ! decodebin !"
+            "{} filesrc location={} ! matroskademux ! decodebin !"
             " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
             " v4l2vp8enc ! matroskamux ! filesink location={}"
         ).format(

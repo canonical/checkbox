@@ -329,7 +329,6 @@ _verification:
     connected using a "USB Type-C to DisplayPort" adapter in every mode?
 
 id: monitor/type-c_displayport
-template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_usbc_video == 'True'
@@ -374,7 +373,6 @@ _verification:
     connected using a "USB Type-C to HDMI" adapter in every mode?
 
 id: monitor/type-c_hdmi
-template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_usbc_video == 'True'
@@ -419,7 +417,6 @@ _verification:
     connected using a "USB Type-C to VGA" adapter in every mode?
 
 id: monitor/type-c_vga
-template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_usbc_video == 'True'

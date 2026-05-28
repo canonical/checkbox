@@ -162,11 +162,10 @@ command:
 estimated_duration: 10.0
 _summary: Test maximum supported resolution
 _purpose:
- This test will verify the maximum supported resolution on the graphics card.
+ This test will verify the maximum supported resolution on the primary graphics card.
 _steps:
- 1. Select the graphics card (a reboot may be necessary)
- 2. Consult the system's specifications and locate the screen's maximum supported resolution.
- 3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
+ 1. Consult the system's specifications and locate the screen's maximum supported resolution.
+ 2. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
 _verification:
  Is this the maximum resolution for the display connected to the graphics card?
 
@@ -228,7 +227,6 @@ flags: also-after-suspend
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 requires:
- package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command:
  # shellcheck disable=SC1091

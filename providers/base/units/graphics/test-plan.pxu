@@ -169,7 +169,7 @@ include:
  after-suspend-graphics/index_valid_glxgears_fullscreen_product_slug   certification-status=blocker
  after-suspend-graphics/valid_glxgears                                 certification-status=blocker
  after-suspend-graphics/valid_glxgears_fullscreen                      certification-status=blocker
- suspend/1_xrandr_screens_after_suspend.tar.gz_auto
+ suspend/xrandr_screens_after_suspend_primary
 
 id: graphics-integrated-gpu-cert-full
 unit: test plan

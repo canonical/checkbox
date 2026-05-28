@@ -366,7 +366,7 @@ command:
 _purpose:
     DisplayPort audio via USB Type-C port interface verification
 _steps:
-    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Typce-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Type-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
     2. Commence the test
 _verification:
     Did you hear the sound from the DisplayPort device?
@@ -401,7 +401,7 @@ command:
 _purpose:
     DisplayPort audio via USB Type-C port interface verification
 _steps:
-    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Typce-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Type-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
     2. Commence the test
 _verification:
     Did you hear the sound from the DisplayPort device?

@@ -1384,6 +1384,15 @@ class UdevadmParser(object):
         # as disks (categorization is done elsewhere). Note that the *parent*
         # device will have no category, though it's not ignored per se.
         if device.bus in ("pci", "nvme") and device.driver == "nvme":
+            # Some platforms expose NVMe path objects as DISK devices without
+            # DEVNAME. Keep them only if the derived name resolves to an
+            # actual block device node.
+            if (
+                device.category == "DISK"
+                and "DEVNAME" not in device._environment
+                and device.name is None
+            ):
+                return True
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
         if (

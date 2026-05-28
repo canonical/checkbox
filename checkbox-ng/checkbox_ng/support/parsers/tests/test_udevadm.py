@@ -15,6 +15,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import stat
 
 from io import StringIO
 from unittest import TestCase
@@ -34,6 +35,7 @@ from checkbox_ng.support.parsers.udevadm import (
     UdevadmParser,
     decode_id,
     find_pkname_is_root_mountpoint,
+    has_dev_block_node,
     is_readonly_partition,
     is_small_partition,
 )
@@ -83,6 +85,24 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])
+
+    def test_has_dev_block_node(self):
+        class StatResult(object):
+            st_mode = stat.S_IFBLK
+
+        stat_result = StatResult()
+        with patch(
+            "checkbox_ng.support.parsers.udevadm.os.stat",
+            return_value=stat_result,
+        ):
+            self.assertTrue(has_dev_block_node("nvme0n1"))
+
+    def test_has_dev_block_node_returns_false_on_oserror(self):
+        with patch(
+            "checkbox_ng.support.parsers.udevadm.os.stat",
+            side_effect=OSError,
+        ):
+            self.assertFalse(has_dev_block_node("nvme0n1"))
 
     def test_mi300x_video(self):
         """Tests that AMD's MI300X accelerator is marked as a video device."""

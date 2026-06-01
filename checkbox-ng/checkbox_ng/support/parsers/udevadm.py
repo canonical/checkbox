@@ -27,7 +27,6 @@ from subprocess import check_output, CalledProcessError
 import os
 import re
 import string
-import stat
 
 from checkbox_ng.support.helpers.slugify import slugify
 from checkbox_ng.support.lib.bit import get_bitmask
@@ -139,14 +138,6 @@ def is_small_partition(devname, lsblk=None):
     return False
 
 
-def has_dev_block_node(name):
-    """Return True if name resolves to a user-visible block-device node"""
-    try:
-        return stat.S_ISBLK(os.stat(os.path.join("/dev", name)).st_mode)
-    except (TypeError, OSError):
-        return False
-
-
 class UdevadmDevice(object):
     __slots__ = (
         "_environment",
@@ -222,28 +213,20 @@ class UdevadmDevice(object):
             and "DEVNAME" not in self._environment
         ):
             # Use DEVPATH
-            candidates = []
             devpath = self._environment.get("DEVPATH", "")
-
             # First try to match nvmeXcYnZ (virtual NVMe device)
             match = re.search(r"/(nvme\d+c\d+n\d+)(?:/|$)", devpath)
             if match:
-                candidates.append(match.group(1))
-
+                return match.group(1)
             # Then try to match nvmeXnY (standard namespace device)
             match = re.search(r"/(nvme\d+n\d+)(?:/|$)", devpath)
             if match:
-                candidates.append(match.group(1))
-
+                return match.group(1)
             # Fallback: match nvmeX (controller) and append n1
             match = re.search(r"/nvme/nvme(\d+)(?:/|$)", devpath)
             if match:
                 nvme_num = match.group(1)
-                candidates.append("nvme{}n1".format(nvme_num))
-
-            for candidate in candidates:
-                if has_dev_block_node(candidate):
-                    return candidate
+                return "nvme{}n1".format(nvme_num)
         return None
 
     @property
@@ -1384,15 +1367,6 @@ class UdevadmParser(object):
         # as disks (categorization is done elsewhere). Note that the *parent*
         # device will have no category, though it's not ignored per se.
         if device.bus in ("pci", "nvme") and device.driver == "nvme":
-            # Some platforms expose NVMe path objects as DISK devices without
-            # DEVNAME. Keep them only if the derived name resolves to an
-            # actual block device node.
-            if (
-                device.category == "DISK"
-                and "DEVNAME" not in device._environment
-                and device.name is None
-            ):
-                return True
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
         if (

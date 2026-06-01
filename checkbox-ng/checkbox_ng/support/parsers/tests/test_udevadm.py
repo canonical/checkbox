@@ -15,11 +15,9 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import stat
 
 from io import StringIO
 from unittest import TestCase
-from unittest.mock import patch
 from textwrap import dedent
 
 try:
@@ -35,7 +33,6 @@ from checkbox_ng.support.parsers.udevadm import (
     UdevadmParser,
     decode_id,
     find_pkname_is_root_mountpoint,
-    has_dev_block_node,
     is_readonly_partition,
     is_small_partition,
 )
@@ -86,24 +83,6 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])
 
-    def test_has_dev_block_node(self):
-        class StatResult(object):
-            st_mode = stat.S_IFBLK
-
-        stat_result = StatResult()
-        with patch(
-            "checkbox_ng.support.parsers.udevadm.os.stat",
-            return_value=stat_result,
-        ):
-            self.assertTrue(has_dev_block_node("nvme0n1"))
-
-    def test_has_dev_block_node_returns_false_on_oserror(self):
-        with patch(
-            "checkbox_ng.support.parsers.udevadm.os.stat",
-            side_effect=OSError,
-        ):
-            self.assertFalse(has_dev_block_node("nvme0n1"))
-
     def test_mi300x_video(self):
         """Tests that AMD's MI300X accelerator is marked as a video device."""
         stream = StringIO(dedent("""
@@ -134,85 +113,81 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_nvme_name_detection_without_devname(self):
         """Test NVMe device name extraction from DEVPATH when DEVNAME is missing."""
-        with patch(
-            "checkbox_ng.support.parsers.udevadm.has_dev_block_node",
-            return_value=True,
-        ):
 
-            # Test case 1: Virtual NVMe device (nvmeXcYnZ pattern)
-            stream = StringIO(dedent("""
-                    P: /devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
-                    E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
-                    E: DEVTYPE=disk
-                    E: DRIVER=nvme
-                    E: SUBSYSTEM=nvme
-                    E: ID_SERIAL=test-serial
-                    """))
-            parser = UdevadmParser(stream)
-            devices = parser.run()
-            self.assertEqual(len(devices), 1)
-            self.assertEqual(devices[0].name, "nvme0c0n1")
-            self.assertEqual(devices[0].category, "DISK")
+        # Test case 1: Virtual NVMe device (nvmeXcYnZ pattern)
+        stream = StringIO(dedent("""
+                P: /devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
+                E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """))
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme0c0n1")
+        self.assertEqual(devices[0].category, "DISK")
 
-            # Test case 2: Standard namespace device (nvmeXnY pattern)
-            stream = StringIO(dedent("""
-                    P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme0/nvme0n1
-                    E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme0/nvme0n1
-                    E: DEVTYPE=disk
-                    E: DRIVER=nvme
-                    E: SUBSYSTEM=nvme
-                    E: ID_SERIAL=test-serial
-                    """))
-            parser = UdevadmParser(stream)
-            devices = parser.run()
-            self.assertEqual(len(devices), 1)
-            self.assertEqual(devices[0].name, "nvme0n1")
-            self.assertEqual(devices[0].category, "DISK")
+        # Test case 2: Standard namespace device (nvmeXnY pattern)
+        stream = StringIO(dedent("""
+                P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme0/nvme0n1
+                E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme0/nvme0n1
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """))
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme0n1")
+        self.assertEqual(devices[0].category, "DISK")
 
-            # Test case 3: Controller device (nvmeX pattern -> nvmeXn1)
-            stream = StringIO(dedent("""
-                    P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme0
-                    E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme0
-                    E: DEVTYPE=disk
-                    E: DRIVER=nvme
-                    E: SUBSYSTEM=nvme
-                    E: ID_SERIAL=test-serial
-                    """))
-            parser = UdevadmParser(stream)
-            devices = parser.run()
-            self.assertEqual(len(devices), 1)
-            self.assertEqual(devices[0].name, "nvme0n1")
-            self.assertEqual(devices[0].category, "DISK")
+        # Test case 3: Controller device (nvmeX pattern - should fallback to nvmeXn1)
+        stream = StringIO(dedent("""
+                P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme0
+                E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme0
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """))
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme0n1")
+        self.assertEqual(devices[0].category, "DISK")
 
-            # Test case 4: Multiple digit numbers (nvme10c5n2)
-            stream = StringIO(dedent("""
-                    P: /devices/virtual/nvme-subsystem/nvme-subsys10/nvme10c5n2
-                    E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys10/nvme10c5n2
-                    E: DEVTYPE=disk
-                    E: DRIVER=nvme
-                    E: SUBSYSTEM=nvme
-                    E: ID_SERIAL=test-serial
-                    """))
-            parser = UdevadmParser(stream)
-            devices = parser.run()
-            self.assertEqual(len(devices), 1)
-            self.assertEqual(devices[0].name, "nvme10c5n2")
-            self.assertEqual(devices[0].category, "DISK")
+        # Test case 4: Multiple digit numbers (nvme10c5n2)
+        stream = StringIO(dedent("""
+                P: /devices/virtual/nvme-subsystem/nvme-subsys10/nvme10c5n2
+                E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys10/nvme10c5n2
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """))
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme10c5n2")
+        self.assertEqual(devices[0].category, "DISK")
 
-            # Test case 5: Controller device with multi-digit number
-            stream = StringIO(dedent("""
-                    P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme15
-                    E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme15
-                    E: DEVTYPE=disk
-                    E: DRIVER=nvme
-                    E: SUBSYSTEM=nvme
-                    E: ID_SERIAL=test-serial
-                    """))
-            parser = UdevadmParser(stream)
-            devices = parser.run()
-            self.assertEqual(len(devices), 1)
-            self.assertEqual(devices[0].name, "nvme15n1")
-            self.assertEqual(devices[0].category, "DISK")
+        # Test case 5: Controller device with multi-digit number (nvme15 -> nvme15n1)
+        stream = StringIO(dedent("""
+                P: /devices/pci0000:00/0000:00:1d.0/nvme/nvme15
+                E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/nvme/nvme15
+                E: DEVTYPE=disk
+                E: DRIVER=nvme
+                E: SUBSYSTEM=nvme
+                E: ID_SERIAL=test-serial
+                """))
+        parser = UdevadmParser(stream)
+        devices = parser.run()
+        self.assertEqual(len(devices), 1)
+        self.assertEqual(devices[0].name, "nvme15n1")
+        self.assertEqual(devices[0].category, "DISK")
 
         # Test case 6: NVMe device WITH DEVNAME should use DEVNAME
         stream = StringIO(dedent("""
@@ -230,24 +205,6 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(len(devices), 1)
         self.assertEqual(devices[0].name, "nvme1n1")
         self.assertEqual(devices[0].category, "DISK")
-
-    def test_nvme_disk_without_devname_is_pruned_without_block_node(self):
-        """Test NVMe path objects are pruned when no block node exists."""
-
-        stream = StringIO(dedent("""
-                P: /devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
-                E: DEVPATH=/devices/virtual/nvme-subsystem/nvme-subsys0/nvme0c0n1
-                E: DEVTYPE=disk
-                E: DRIVER=nvme
-                E: SUBSYSTEM=nvme
-                E: ID_SERIAL=test-serial
-                """))
-        with patch(
-            "checkbox_ng.support.parsers.udevadm.has_dev_block_node",
-            return_value=False,
-        ):
-            parser = UdevadmParser(stream)
-            self.assertEqual(parser.run(), [])
 
     def test_openfirmware_network(self):
         stream = StringIO(dedent("""
@@ -1213,34 +1170,62 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         This test verifies that the NVMe name detection correctly handles
         both standard nvmeXnY pattern and virtual nvmeXcYnZ pattern.
         """
-        expected_names = {
+        devices = self.parse("DISK_SAMSUNG_KIOXIA")
+        # Count total NVMe disks (2 standard + 8 virtual = 10)
+        nvme_disks = [
+            d
+            for d in devices
+            if d.category == "DISK" and d.name and d.name.startswith("nvme")
+        ]
+        self.assertEqual(
+            len(nvme_disks),
+            10,
+            "Expected 10 NVMe disks, found {}".format(len(nvme_disks)),
+        )
+
+        # Verify standard NVMe disk names are correctly detected
+        standard_nvme_names = [d.name for d in nvme_disks if "c" not in d.name]
+        self.assertIn(
             "nvme0n1",
+            standard_nvme_names,
+            "Standard Samsung disk nvme0n1 should be detected",
+        )
+        self.assertIn(
             "nvme1n1",
-            "nvme2n1",
-            "nvme3n1",
-            "nvme4n1",
-            "nvme5n1",
-            "nvme6n1",
-            "nvme7n1",
-            "nvme8n1",
-            "nvme9n1",
-        }
-        with patch(
-            "checkbox_ng.support.parsers.udevadm.has_dev_block_node"
-        ) as mock_has_dev_block_node:
-            mock_has_dev_block_node.side_effect = (
-                lambda name: name in expected_names
+            standard_nvme_names,
+            "Standard Samsung disk nvme1n1 should be detected",
+        )
+
+        # Verify virtual NVMe disk names are correctly detected with controller notation
+        virtual_nvme_names = [d.name for d in nvme_disks if "c" in d.name]
+        expected_virtual_names = [
+            "nvme2c2n1",
+            "nvme3c3n1",
+            "nvme4c4n1",
+            "nvme5c5n1",
+            "nvme6c6n1",
+            "nvme7c7n1",
+            "nvme8c8n1",
+            "nvme9c9n1",
+        ]
+        for expected_name in expected_virtual_names:
+            self.assertIn(
+                expected_name,
+                virtual_nvme_names,
+                "Virtual Kioxia disk {} should be detected".format(
+                    expected_name
+                ),
             )
-            devices = self.parse("DISK_SAMSUNG_KIOXIA")
-            nvme_disks = [
-                d
-                for d in devices
-                if d.category == "DISK"
-                and d.name
-                and d.name.startswith("nvme")
-            ]
-            self.assertEqual(len(nvme_disks), 10)
-            self.assertEqual({d.name for d in nvme_disks}, expected_names)
+
+        # Verify we have exactly 2 standard and 8 virtual NVMe disks
+        self.assertEqual(
+            len(standard_nvme_names), 2, "Should have 2 standard NVMe disks"
+        )
+        self.assertEqual(
+            len(virtual_nvme_names),
+            8,
+            "Should have 8 virtual NVMe disks with controller notation",
+        )
 
     def test_SHUTTLE_DH170_WITH_USB_DISK(self):
         """DH170 with USB stick comparing pre and post reboot."""

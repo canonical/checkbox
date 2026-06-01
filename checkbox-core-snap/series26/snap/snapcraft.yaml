@@ -1,12 +1,13 @@
-name: checkbox24
+name: checkbox26
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-grade: stable
 confinement: strict
 
 adopt-info: version-calculator
 
-base: core24
+grade: devel
+build-base: devel
+base: core26
 
 # Don't forget to add a new slot if a new provider part is added in the parts
 # section below.
@@ -74,7 +75,7 @@ apps:
       system-observe, tpm, udisks2, account-control, accounts-service,
       login-session-control, login-session-observe]
     environment:
-      PYTHONPATH: $SNAP/lib/python3.12/site-packages/:$SNAP/lib64/python3.12/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+      PYTHONPATH: $SNAP/lib/python3.14/site-packages/:$SNAP/lib64/python3.14/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
   agent:
     command: bin/checkbox-cli run-agent
     daemon: simple
@@ -83,7 +84,7 @@ apps:
     plugs: *standard
     install-mode: disable
     environment:
-      PYTHONPATH: $SNAP/lib/python3.12/site-packages/:$SNAP/lib64/python3.12/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+      PYTHONPATH: $SNAP/lib/python3.14/site-packages/:$SNAP/lib64/python3.14/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
 
 package-repositories:
   - type: apt
@@ -146,7 +147,7 @@ parts:
       - flex
       - autopoint
     override-build: |
-      snapcraftctl build
+      craftctl default
       ./autogen.sh
       ./configure --disable-all-programs --enable-nsenter --enable-setpriv \
         --enable-static-programs=nsenter
@@ -203,15 +204,15 @@ parts:
       - v4l-utils
       # added to stage python:
       - libpython3-stdlib
-      - libpython3.12-stdlib
-      - libpython3.12-minimal
+      - libpython3.14-stdlib
+      - libpython3.14-minimal
       - python3-pip
       - python3-setuptools
       - python3-wheel
       - python3-venv
       - python3-minimal
       - python3-pkg-resources
-      - python3.12-minimal
+      - python3.14-minimal
     build-packages:
       - libbluetooth-dev
       - python3-dev
@@ -225,7 +226,7 @@ parts:
       - -**/__pycache__
       - -debian
     build-environment:
-      - C_INCLUDE_PATH: /usr/include/python3.12
+      - C_INCLUDE_PATH: /usr/include/python3.14
       - PYTHONPATH: $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $CRAFT_STAGE/version.txt)"
     override-build: |
@@ -248,15 +249,15 @@ parts:
       - python3-xlsxwriter
       # added to stage python:
       - libpython3-stdlib
-      - libpython3.12-stdlib
-      - libpython3.12-minimal
+      - libpython3.14-stdlib
+      - libpython3.14-minimal
       - python3-pip
       - python3-setuptools
       - python3-wheel
       - python3-venv
       - python3-minimal
       - python3-pkg-resources
-      - python3.12-minimal
+      - python3.14-minimal
       - python3-yaml
     python-packages:
       - requests-oauthlib
@@ -291,8 +292,7 @@ parts:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
       cd src && autoreconf -i && cd -
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
-      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-resource --root="$CRAFT_PART_INSTALL"
@@ -311,22 +311,11 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-base --root="$CRAFT_PART_INSTALL"
-    override-prime: |
-      # needed because else this will trigger the store autoreviewer and be autorejected
-      # cleaning this bit should not cause any issue but if it does do not only remove this line
-      # contact also the store/update the package because else this will always trigger
-      # a manual review
-      for libamd_path in $(find .. -name "*.so.*"); do
-        echo "Clearing execstack on $libamd_path";
-        # the || true is because there are some  "*.so*.py" in gdblib
-        execstack --clear-execstack "$libamd_path" || true
-      done;
-      craftctl default
     stage-packages:
       - python3-opencv
       - bc
@@ -342,12 +331,6 @@ parts:
       - freeipmi-tools
       - fscrypt
       - fswebcam
-      - gir1.2-cheese-3.0
-      - gir1.2-clutter-1.0
-      - gir1.2-gst-plugins-base-1.0
-      - gir1.2-gudev-1.0
-      - glmark2
-      - glmark2-es2
       - glmark2-wayland
       - glmark2-es2-wayland
       - gnome-screenshot
@@ -408,7 +391,6 @@ parts:
       - on arm64:
           - python3-rpi.gpio # only in focal
     build-packages:
-      - execstack # needed to clear the execstack
       - libasound2-dev
       - libcap-dev
     organize:
@@ -422,7 +404,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -438,7 +420,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -454,7 +436,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -468,7 +450,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -482,7 +464,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -496,7 +478,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -510,7 +492,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -524,22 +506,12 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.14/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tutorial --root="$CRAFT_PART_INSTALL"
     after: [checkbox-provider-base]
-  ################################################################################
-  rpi-support-binaries:
-    plugin: nil
-    stage-packages:
-      - on armhf:
-          - libraspberrypi0
-      - on arm64:
-          - libraspberrypi0
-    organize:
-      usr/lib/lib*.so: usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/
   ################################################################################
   lk-boot-env:
     plugin: nil

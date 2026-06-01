@@ -48,6 +48,32 @@ bootstrap_include:
     graphics_card
     light_sensor_resource
 
+id: monitor-gpu-cert-26-04-manual
+unit: test plan
+_name: Monitor tests for 26.04 (GPU) (Manual)
+_description:
+ Monitor tests (GPU) (Manual)
+include:
+ monitor/powersaving                        certification-status=blocker
+ power-management/light_sensor              certification-status=blocker
+ monitor/dim_brightness                     certification-status=blocker
+ monitor/displayport                        certification-status=blocker
+ audio/playback_displayport                 certification-status=blocker
+ monitor/type-c_displayport                 certification-status=blocker
+ audio/playback_type-c_displayport          certification-status=blocker
+ monitor/type-c_hdmi                        certification-status=blocker
+ audio/playback_type-c_hdmi                 certification-status=blocker
+ monitor/type-c_vga                         certification-status=blocker
+ monitor/dvi                                certification-status=blocker
+ monitor/hdmi                               certification-status=blocker
+ audio/playback_hdmi                        certification-status=blocker
+ monitor/thunderbolt3                       certification-status=blocker
+ audio/playback_thunderbolt3                certification-status=blocker
+ thunderbolt3/daisy-chain                   certification-status=blocker
+ monitor/multi-head                         certification-status=blocker
+bootstrap_include:
+    graphics_card
+
 id: after-suspend-monitor-gpu-cert-full
 unit: test plan
 _name: Monitor tests (after suspend, GPU)
@@ -94,6 +120,32 @@ include:
 bootstrap_include:
     graphics_card
     light_sensor_resource
+
+id: after-suspend-monitor-gpu-cert-26-04-manual
+unit: test plan
+_name: Monitor tests for 26.04 (after suspend, GPU) (Manual)
+_description:
+ Monitor tests (after suspend, GPU) (Manual)
+include:
+ after-suspend-monitor/powersaving                        certification-status=blocker
+ after-suspend-power-management/light_sensor              certification-status=blocker
+ after-suspend-monitor/dim_brightness                     certification-status=blocker
+ after-suspend-monitor/displayport                        certification-status=blocker
+ after-suspend-audio/playback_displayport                 certification-status=blocker
+ after-suspend-monitor/type-c_displayport                 certification-status=blocker
+ after-suspend-audio/playback_type-c_displayport          certification-status=blocker
+ after-suspend-monitor/type-c_hdmi                        certification-status=blocker
+ after-suspend-audio/playback_type-c_hdmi                 certification-status=blocker
+ after-suspend-monitor/type-c_vga                         certification-status=blocker
+ after-suspend-monitor/dvi                                certification-status=blocker
+ after-suspend-monitor/hdmi                               certification-status=blocker
+ after-suspend-audio/playback_hdmi                        certification-status=blocker
+ after-suspend-monitor/thunderbolt3                       certification-status=blocker
+ after-suspend-audio/playback_thunderbolt3                certification-status=blocker
+ after-suspend-thunderbolt3/daisy-chain                   certification-status=blocker
+ after-suspend-monitor/multi-head                         certification-status=blocker
+bootstrap_include:
+    graphics_card
 
 id: monitor-integrated-gpu-cert-full
 unit: test plan
@@ -400,22 +452,9 @@ _description: Manual tests for monitor
 include:
 nested_part:
     submission-cert-full
-    monitor-gpu-cert-manual
-    after-suspend-monitor-gpu-cert-manual
+    monitor-gpu-cert-26-04-manual
+    after-suspend-monitor-gpu-cert-26-04-manual
     info-attachment-cert-full
-certification_status_overrides:
-    apply blocker to com.canonical.certification::power-management/light_sensor
-    apply blocker to com.canonical.certification::monitor/1_thunderbolt3_.*
-    apply blocker to com.canonical.certification::audio/1_playback_thunderbolt3_.*
-    apply blocker to com.canonical.certification::monitor/2_thunderbolt3_.*
-    apply blocker to com.canonical.certification::audio/2_playback_thunderbolt3_.*
-    apply blocker to com.canonical.certification::thunderbolt3/daisy-chain
-    apply blocker to com.canonical.certification::after-suspend-power-management/light_sensor
-    apply blocker to com.canonical.certification::after-suspend-monitor/1_thunderbolt3_.*
-    apply blocker to com.canonical.certification::after-suspend-audio/1_playback_thunderbolt3_.*
-    apply blocker to com.canonical.certification::after-suspend-monitor/2_thunderbolt3_.*
-    apply blocker to com.canonical.certification::after-suspend-audio/2_playback_thunderbolt3_.*
-    apply blocker to com.canonical.certification::after-suspend-thunderbolt3/daisy-chain
 
 id: monitor-base-26-04-automated
 unit: test plan

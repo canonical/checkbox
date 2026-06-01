@@ -33,6 +33,27 @@ include:
 bootstrap_include:
     graphics_card
 
+id: graphics-gpu-cert-26-04-automated
+unit: test plan
+_name: Graphics tests for 26.04 (Automated)
+_description:
+ Graphics tests (Automated)
+include:
+ graphics/VESA_drivers_not_in_use                           certification-status=blocker
+ graphics/index_driver_version_product_slug                 certification-status=blocker
+ graphics/gl_support_primary                                certification-status=blocker
+ graphics/index_minimum_resolution_product_slug             certification-status=blocker
+ graphics/index_auto_glxgears_product_slug                  certification-status=blocker
+ graphics/index_auto_glxgears_fullscreen_product_slug       certification-status=blocker
+ graphics/auto_glxgears                                     certification-status=blocker
+ graphics/auto_glxgears_fullscreen                          certification-status=blocker
+ suspend/resolution_before_suspend                          certification-status=blocker
+ graphics/index_vkcube_product_slug                         certification-status=blocker
+ graphics/vulkaninfo-debug                                  certification-status=blocker
+ graphics/vulkaninfo-api-version                            certification-status=blocker
+bootstrap_include:
+    graphics_card
+
 id: graphics-gpu-cert-manual
 unit: test plan
 _name: Graphics tests (Manual)
@@ -51,6 +72,24 @@ include:
 bootstrap_include:
     graphics_card
 
+id: graphics-gpu-cert-26-04-manual
+unit: test plan
+_name: Graphics tests for 26.04 (Manual)
+_description:
+ Graphics tests (Manual)
+include:
+ miscellanea/chvt
+ graphics/maximum_resolution_primary                     certification-status=blocker
+ graphics/rotation_primary                               certification-status=blocker
+ graphics/video_primary                                  certification-status=blocker
+ graphics/cycle_resolution_primary                       certification-status=blocker
+ graphics/index_valid_glxgears_product_slug              certification-status=blocker
+ graphics/index_valid_glxgears_fullscreen_product_slug   certification-status=blocker
+ graphics/valid_glxgears                                 certification-status=blocker
+ graphics/valid_glxgears_fullscreen                      certification-status=blocker
+bootstrap_include:
+    graphics_card
+
 id: after-suspend-graphics-gpu-cert-full
 unit: test plan
 _name: After suspend tests
@@ -59,6 +98,23 @@ include:
 nested_part:
  com.canonical.certification::after-suspend-graphics-gpu-cert-automated
  com.canonical.certification::after-suspend-graphics-gpu-cert-manual
+
+id: after-suspend-graphics-gpu-cert-26-04-automated
+unit: test plan
+_name: After suspend tests for 26.04 (GPU automated)
+_description: After suspend tests (GPU automated)
+include:
+ suspend/suspend-time-check                                               certification-status=non-blocker
+ suspend/suspend-single-log-attach                                        certification-status=non-blocker
+ after-suspend-graphics/VESA_drivers_not_in_use                           certification-status=blocker
+ after-suspend-graphics/index_driver_version_product_slug                 certification-status=blocker
+ after-suspend-graphics/gl_support_primary                                certification-status=blocker
+ after-suspend-graphics/index_minimum_resolution_product_slug             certification-status=blocker
+ after-suspend-graphics/index_auto_glxgears_product_slug                  certification-status=blocker
+ after-suspend-graphics/index_auto_glxgears_fullscreen_product_slug       certification-status=blocker
+ after-suspend-graphics/auto_glxgears                                     certification-status=blocker
+ after-suspend-graphics/auto_glxgears_fullscreen                          certification-status=blocker
+ suspend/resolution_after_suspend                                         certification-status=blocker
 
 id: after-suspend-graphics-gpu-cert-automated
 unit: test plan
@@ -95,6 +151,25 @@ include:
  after-suspend-graphics/valid_glxgears                    certification-status=blocker
  after-suspend-graphics/valid_glxgears_fullscreen         certification-status=blocker
  suspend/1_xrandr_screens_after_suspend.tar.gz_auto
+
+id: after-suspend-graphics-gpu-cert-26-04-manual
+unit: test plan
+_name: After suspend tests for 26.04 (GPU manual)
+_description: After suspend tests (GPU manual)
+include:
+ power-management/lid_close_suspend_open                               certification-status=blocker
+ power-management/lid                                                  certification-status=blocker
+ after-suspend-miscellanea/chvt
+ suspend/display_after_suspend                                         certification-status=blocker
+ after-suspend-graphics/maximum_resolution_primary                     certification-status=blocker
+ after-suspend-graphics/rotation_primary                               certification-status=blocker
+ after-suspend-graphics/video_primary                                  certification-status=blocker
+ after-suspend-graphics/cycle_resolution_primary                       certification-status=blocker
+ after-suspend-graphics/index_valid_glxgears_product_slug              certification-status=blocker
+ after-suspend-graphics/index_valid_glxgears_fullscreen_product_slug   certification-status=blocker
+ after-suspend-graphics/valid_glxgears                                 certification-status=blocker
+ after-suspend-graphics/valid_glxgears_fullscreen                      certification-status=blocker
+ suspend/xrandr_screens_after_suspend_primary
 
 id: graphics-integrated-gpu-cert-full
 unit: test plan
@@ -355,16 +430,11 @@ include:
     after-suspend-keys/video-out
 nested_part:
     submission-cert-full
-    graphics-gpu-cert-manual
-    monitor-gpu-cert-manual
-    after-suspend-graphics-gpu-cert-manual
-    after-suspend-monitor-gpu-cert-manual
+    graphics-gpu-cert-26-04-manual
+    monitor-gpu-cert-26-04-manual
+    after-suspend-graphics-gpu-cert-26-04-manual
+    after-suspend-monitor-gpu-cert-26-04-manual
     info-attachment-cert-full
-certification_status_overrides:
-    apply blocker to com.canonical.certification::graphics/1_cycle_resolution_.*
-    apply blocker to com.canonical.certification::graphics/2_cycle_resolution_.*
-    apply blocker to com.canonical.certification::after-suspend-graphics/1_cycle_resolution_.*
-    apply blocker to com.canonical.certification::after-suspend-graphics/2_cycle_resolution_.*
 
 id: graphic-base-26-04-automated
 unit: test plan
@@ -372,12 +442,8 @@ _name: Graphic for 26.04 (Automated)
 _description: Automated tests for graphic
 include:
 nested_part:
-    graphics-gpu-cert-automated
-    after-suspend-graphics-gpu-cert-automated
-certification_status_overrides:
-    apply blocker to com.canonical.certification::graphics/1_vkcube_.*
-    apply blocker to com.canonical.certification::graphics/2_vkcube_.*
-    apply blocker to com.canonical.certification::graphics/vulkaninfo.*
+    graphics-gpu-cert-26-04-automated
+    after-suspend-graphics-gpu-cert-26-04-automated
 
 id: opencl-core-test-plan
 unit: test plan

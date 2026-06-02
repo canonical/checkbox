@@ -1209,10 +1209,8 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "WATCHDOG"), 1)
 
     def test_DISK_SAMSUNG_KIOXIA(self):
-        """
-        This test verifies that the NVMe name detection correctly handles
-        both standard nvmeXnY pattern and virtual nvmeXcYnZ pattern.
-        """
+        # This test verifies that the NVMe name detection correctly handles
+        # both standard nvmeXnY pattern and virtual nvmeXcYnZ pattern.
         expected_names = {
             "nvme0n1",
             "nvme1n1",
@@ -1241,6 +1239,76 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
             ]
             self.assertEqual(len(nvme_disks), 10)
             self.assertEqual({d.name for d in nvme_disks}, expected_names)
+
+    def test_NVIDIA_DGXA100(self):
+        # DGXA100 exposes DEVNAME-less NVMe path objects with nvmeXcYnZ paths.
+        # These must resolve to real nvmeXn1 block nodes.
+        expected_names = {
+            "nvme0n1",
+            "nvme1n1",
+            "nvme2n1",
+            "nvme3n1",
+            "nvme4n1",
+            "nvme5n1",
+        }
+        # the user-openable block node names which the nvmeXcYnZ
+        # DEVPATH-derived entries should fall through to
+        expected_path_object_names = {
+            (
+                "/devices/pci0000:00/0000:00:01.1/0000:01:00.0/"
+                "0000:02:00.0/0000:03:00.0/0000:04:14.0/0000:09:00.0/"
+                "nvme/nvme0/nvme0c0n1"
+            ): "nvme0n1",
+            (
+                "/devices/pci0000:40/0000:40:01.1/0000:41:00.0/"
+                "0000:42:08.0/0000:50:00.0/0000:51:00.0/0000:52:00.0/"
+                "nvme/nvme2/nvme2c2n1"
+            ): "nvme2n1",
+            (
+                "/devices/pci0000:80/0000:80:01.1/0000:81:00.0/"
+                "0000:82:00.0/0000:83:00.0/0000:84:14.0/0000:8a:00.0/"
+                "nvme/nvme3/nvme3c3n1"
+            ): "nvme3n1",
+            (
+                "/devices/pci0000:b0/0000:b0:01.1/0000:b1:00.0/"
+                "0000:b2:08.0/0000:be:00.0/0000:bf:04.0/0000:ca:00.0/"
+                "nvme/nvme4/nvme4c4n1"
+            ): "nvme4n1",
+        }
+        bad_names = {
+            "nvme0c0n1",
+            "nvme2c2n1",
+            "nvme3c3n1",
+            "nvme4c4n1",
+        }
+
+        with patch(
+            "checkbox_ng.support.parsers.udevadm.has_dev_block_node"
+        ) as mock_has_dev_block_node:
+            mock_has_dev_block_node.side_effect = (
+                lambda name: name in expected_names
+            )
+            devices = self.parse("NVIDIA_DGXA100")
+            nvme_disks = [
+                d
+                for d in devices
+                if d.category == "DISK"
+                and d.name
+                and d.name.startswith("nvme")
+            ]
+            self.assertEqual(self.count(devices, "DISK"), 6)
+            self.assertEqual(len(nvme_disks), 6)
+            self.assertEqual({d.name for d in nvme_disks}, expected_names)
+            self.assertTrue(bad_names.isdisjoint({d.name for d in nvme_disks}))
+            self.assertEqual(
+                {
+                    d._environment.get("DEVPATH"): d.name
+                    for d in nvme_disks
+                    if d._environment.get("DEVPATH")
+                    in expected_path_object_names
+                },
+                expected_path_object_names,
+            )
 
     def test_SHUTTLE_DH170_WITH_USB_DISK(self):
         """DH170 with USB stick comparing pre and post reboot."""

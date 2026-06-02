@@ -2598,7 +2598,7 @@ plugin: user-interact-verify
 estimated_duration: 60.0
 command:
     if check_audio_daemon.sh ; then
-        checkbox-support-pipewire-utils through -m sink -c "speaker-test -c 2 -l 1 -t wav"
+        checkbox-support-pipewire-utils iter-audio-sinks -c "speaker-test -c 2 -l 1 -t wav"
     else
         indexes=$(pacmd list-sinks | grep -e 'index' -e 'available' | grep -B 1 -e 'available: unknown' -e 'available: yes' | grep index | awk '{print $NF}')
         for index in $indexes

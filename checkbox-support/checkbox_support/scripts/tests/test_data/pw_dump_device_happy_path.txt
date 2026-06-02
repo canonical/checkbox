@@ -1,0 +1,789 @@
+[
+  {
+    "id": 44,
+    "type": "PipeWire:Interface:Device",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "alsa.card": 0,
+        "alsa.card_name": "HD-Audio Generic",
+        "alsa.components": "HDA:1002aa01,00aa0100,00100900",
+        "alsa.driver_name": "snd_hda_intel",
+        "alsa.id": "Generic",
+        "alsa.long_card_name": "HD-Audio Generic at 0xb45c8000 irq 142",
+        "alsa.mixer_name": "ATI R6xx HDMI",
+        "api.acp.auto-port": false,
+        "api.acp.auto-profile": false,
+        "api.alsa.card": 0,
+        "api.alsa.card.longname": "HD-Audio Generic at 0xb45c8000 irq 142",
+        "api.alsa.card.name": "HD-Audio Generic",
+        "api.alsa.path": "hw:0",
+        "api.alsa.split-enable": true,
+        "api.alsa.use-acp": true,
+        "api.dbus.ReserveDevice1": "Audio0",
+        "api.dbus.ReserveDevice1.Priority": -20,
+        "client.id": 42,
+        "device.api": "alsa",
+        "device.bus": "pci",
+        "device.bus-path": "pci-0000:c3:00.1",
+        "device.description": "Radeon High Definition Audio Controller [Rembrandt/Strix]",
+        "device.enum.api": "udev",
+        "device.icon-name": "audio-card-analog-pci",
+        "device.name": "alsa_card.pci-0000_c3_00.1",
+        "device.nick": "HD-Audio Generic",
+        "device.plugged.usec": 13012287,
+        "device.product.id": "0x1640",
+        "device.product.name": "Radeon High Definition Audio Controller [Rembrandt/Strix]",
+        "device.string": 0,
+        "device.subsystem": "sound",
+        "device.sysfs.path": "/devices/pci0000:00/0000:00:08.1/0000:c3:00.1/sound/card0",
+        "device.vendor.id": "0x1002",
+        "device.vendor.name": "Advanced Micro Devices, Inc. [AMD/ATI]",
+        "factory.id": 15,
+        "media.class": "Audio/Device",
+        "object.id": 44,
+        "object.path": "alsa:acp:Generic",
+        "object.serial": 44,
+        "spa.object.id": 2
+      },
+      "params": {
+        "EnumProfile": [
+          {
+            "index": 0,
+            "name": "off",
+            "description": "Off",
+            "priority": 0,
+            "available": "yes",
+            "classes": [
+              0
+            ]
+          },
+          {
+            "index": 1,
+            "name": "HiFi",
+            "description": "Play HiFi quality Music",
+            "priority": 13000,
+            "available": "yes",
+            "classes": [
+              1,
+              [
+                "Audio/Sink",
+                4,
+                "card.profile.devices",
+                [ 0, 1, 2, 3 ]
+              ]
+            ]
+          },
+          {
+            "index": 2,
+            "name": "pro-audio",
+            "description": "Pro Audio",
+            "priority": 1,
+            "available": "unknown",
+            "classes": [
+              1,
+              [
+                "Audio/Sink",
+                4,
+                "card.profile.devices",
+                [ 4, 5, 6, 7 ]
+              ]
+            ]
+          }
+        ],
+        "Profile": [
+          {
+            "index": 1,
+            "name": "HiFi",
+            "description": "Play HiFi quality Music",
+            "priority": 13000,
+            "available": "yes",
+            "classes": [
+              1,
+              [
+                "Audio/Sink",
+                4,
+                "card.profile.devices",
+                [ 0, 1, 2, 3 ]
+              ]
+            ],
+            "save": false
+          }
+        ],
+        "EnumRoute": [
+          {
+            "index": 0,
+            "direction": "Output",
+            "name": "[Out] HDMI4",
+            "description": "HDMI / DisplayPort 4 Output",
+            "priority": 1400,
+            "available": "no",
+            "info": [
+              4,
+              "port.type",
+              "hdmi",
+              "port.availability-group",
+              "HDMI/DP,pcm=9",
+              "device.icon_name",
+              "video-display",
+              "card.profile.port",
+              "0"
+            ],
+            "profiles": [ 1 ],
+            "devices": [ 0 ]
+          },
+          {
+            "index": 1,
+            "direction": "Output",
+            "name": "[Out] HDMI3",
+            "description": "HDMI / DisplayPort 3 Output",
+            "priority": 1300,
+            "available": "no",
+            "info": [
+              4,
+              "port.type",
+              "hdmi",
+              "port.availability-group",
+              "HDMI/DP,pcm=8",
+              "device.icon_name",
+              "video-display",
+              "card.profile.port",
+              "1"
+            ],
+            "profiles": [ 1 ],
+            "devices": [ 1 ]
+          },
+          {
+            "index": 2,
+            "direction": "Output",
+            "name": "[Out] HDMI2",
+            "description": "HDMI / DisplayPort 2 Output",
+            "priority": 1200,
+            "available": "yes",
+            "info": [
+              6,
+              "port.type",
+              "hdmi",
+              "port.availability-group",
+              "HDMI/DP,pcm=7",
+              "device.icon_name",
+              "video-display",
+              "card.profile.port",
+              "2",
+              "device.product.name",
+              "LG IPS FULLHD",
+              "iec958.codecs.detected",
+              "[\"PCM\"]"
+            ],
+            "profiles": [ 1 ],
+            "devices": [ 2 ]
+          },
+          {
+            "index": 3,
+            "direction": "Output",
+            "name": "[Out] HDMI1",
+            "description": "HDMI / DisplayPort 1 Output",
+            "priority": 1100,
+            "available": "no",
+            "info": [
+              4,
+              "port.type",
+              "hdmi",
+              "port.availability-group",
+              "HDMI/DP,pcm=3",
+              "device.icon_name",
+              "video-display",
+              "card.profile.port",
+              "3"
+            ],
+            "profiles": [ 1 ],
+            "devices": [ 3 ]
+          }
+        ],
+        "Route": [
+          {
+            "index": 2,
+            "direction": "Output",
+            "name": "[Out] HDMI2",
+            "description": "HDMI / DisplayPort 2 Output",
+            "priority": 1200,
+            "available": "yes",
+            "info": [
+              8,
+              "port.type",
+              "hdmi",
+              "port.availability-group",
+              "HDMI/DP,pcm=7",
+              "device.icon_name",
+              "video-display",
+              "card.profile.port",
+              "2",
+              "device.product.name",
+              "LG IPS FULLHD",
+              "iec958.codecs.detected",
+              "[\"PCM\"]",
+              "route.hw-mute",
+              "false",
+              "route.hw-volume",
+              "false"
+            ],
+            "profiles": [ 1 ],
+            "device": 2,
+            "props": {
+              "mute": false,
+              "channelVolumes": [ 1.000000, 1.000000 ],
+              "volumeBase": 1.000000,
+              "volumeStep": 0.000015,
+              "channelMap": [ "FL", "FR" ],
+              "softVolumes": [ 1.000000, 1.000000 ],
+              "latencyOffsetNsec": 0
+            },
+            "devices": [ 2 ],
+            "profile": 1,
+            "save": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 45,
+    "type": "PipeWire:Interface:Device",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "alsa.card": 1,
+        "alsa.card_name": "HD-Audio Generic",
+        "alsa.components": "HDA:10ec0245,103c8d08,00100001",
+        "alsa.driver_name": "snd_hda_intel",
+        "alsa.id": "Generic_1",
+        "alsa.long_card_name": "HD-Audio Generic at 0xb45c0000 irq 143",
+        "alsa.mixer_name": "Realtek ALC245",
+        "api.acp.auto-port": false,
+        "api.acp.auto-profile": false,
+        "api.alsa.card": 1,
+        "api.alsa.card.longname": "HD-Audio Generic at 0xb45c0000 irq 143",
+        "api.alsa.card.name": "HD-Audio Generic",
+        "api.alsa.path": "hw:1",
+        "api.alsa.split-enable": true,
+        "api.alsa.use-acp": true,
+        "api.dbus.ReserveDevice1": "Audio1",
+        "api.dbus.ReserveDevice1.Priority": -20,
+        "client.id": 42,
+        "device.api": "alsa",
+        "device.bus": "pci",
+        "device.bus-path": "pci-0000:c3:00.6",
+        "device.description": "Family 17h/19h/1ah HD Audio Controller",
+        "device.enum.api": "udev",
+        "device.icon-name": "audio-card-analog-pci",
+        "device.name": "alsa_card.pci-0000_c3_00.6",
+        "device.nick": "HD-Audio Generic",
+        "device.plugged.usec": 13076837,
+        "device.product.id": "0x15e3",
+        "device.product.name": "Family 17h/19h/1ah HD Audio Controller",
+        "device.string": 1,
+        "device.subsystem": "sound",
+        "device.sysfs.path": "/devices/pci0000:00/0000:00:08.1/0000:c3:00.6/sound/card1",
+        "device.vendor.id": "0x1022",
+        "device.vendor.name": "Advanced Micro Devices, Inc. [AMD]",
+        "factory.id": 15,
+        "media.class": "Audio/Device",
+        "object.id": 45,
+        "object.path": "alsa:acp:Generic_1",
+        "object.serial": 45,
+        "spa.object.id": 4
+      },
+      "params": {
+        "EnumProfile": [
+          {
+            "index": 0,
+            "name": "off",
+            "description": "Off",
+            "priority": 0,
+            "available": "yes",
+            "classes": [
+              0
+            ]
+          },
+          {
+            "index": 1,
+            "name": "HiFi (Headphones, Mic1, Mic2)",
+            "description": "Play HiFi quality Music (Headphones, Mic1, Mic2)",
+            "priority": 8500,
+            "available": "no",
+            "classes": [
+              2,
+              [
+                "Audio/Source",
+                2,
+                "card.profile.devices",
+                [ 1, 2 ]
+              ],
+              [
+                "Audio/Sink",
+                1,
+                "card.profile.devices",
+                [ 3 ]
+              ]
+            ]
+          },
+          {
+            "index": 2,
+            "name": "HiFi (Mic1, Mic2, Speaker)",
+            "description": "Play HiFi quality Music (Mic1, Mic2, Speaker)",
+            "priority": 8400,
+            "available": "yes",
+            "classes": [
+              2,
+              [
+                "Audio/Source",
+                2,
+                "card.profile.devices",
+                [ 1, 2 ]
+              ],
+              [
+                "Audio/Sink",
+                1,
+                "card.profile.devices",
+                [ 0 ]
+              ]
+            ]
+          },
+          {
+            "index": 3,
+            "name": "pro-audio",
+            "description": "Pro Audio",
+            "priority": 1,
+            "available": "unknown",
+            "classes": [
+              2,
+              [
+                "Audio/Source",
+                1,
+                "card.profile.devices",
+                [ 5 ]
+              ],
+              [
+                "Audio/Sink",
+                1,
+                "card.profile.devices",
+                [ 4 ]
+              ]
+            ]
+          }
+        ],
+        "Profile": [
+          {
+            "index": 2,
+            "name": "HiFi (Mic1, Mic2, Speaker)",
+            "description": "Play HiFi quality Music (Mic1, Mic2, Speaker)",
+            "priority": 8400,
+            "available": "yes",
+            "classes": [
+              2,
+              [
+                "Audio/Source",
+                2,
+                "card.profile.devices",
+                [ 1, 2 ]
+              ],
+              [
+                "Audio/Sink",
+                1,
+                "card.profile.devices",
+                [ 0 ]
+              ]
+            ],
+            "save": false
+          }
+        ],
+        "EnumRoute": [
+          {
+            "index": 0,
+            "direction": "Output",
+            "name": "[Out] Speaker",
+            "description": "Speaker",
+            "priority": 100,
+            "available": "unknown",
+            "info": [
+              3,
+              "port.type",
+              "speaker",
+              "device.icon_name",
+              "audio-speakers",
+              "card.profile.port",
+              "0"
+            ],
+            "profiles": [ 2 ],
+            "devices": [ 0 ]
+          },
+          {
+            "index": 1,
+            "direction": "Input",
+            "name": "[In] Mic2",
+            "description": "Headphones Stereo Microphone",
+            "priority": 200,
+            "available": "no",
+            "info": [
+              4,
+              "port.type",
+              "mic",
+              "port.availability-group",
+              "Mic",
+              "device.icon_name",
+              "audio-input-microphone",
+              "card.profile.port",
+              "1"
+            ],
+            "profiles": [ 2, 1 ],
+            "devices": [ 1 ]
+          },
+          {
+            "index": 2,
+            "direction": "Input",
+            "name": "[In] Mic1",
+            "description": "Digital Microphone",
+            "priority": 100,
+            "available": "unknown",
+            "info": [
+              3,
+              "port.type",
+              "mic",
+              "device.icon_name",
+              "audio-input-microphone",
+              "card.profile.port",
+              "2"
+            ],
+            "profiles": [ 2, 1 ],
+            "devices": [ 2 ]
+          },
+          {
+            "index": 3,
+            "direction": "Output",
+            "name": "[Out] Headphones",
+            "description": "Headphones",
+            "priority": 200,
+            "available": "no",
+            "info": [
+              4,
+              "port.type",
+              "headphones",
+              "port.availability-group",
+              "Headphone",
+              "device.icon_name",
+              "audio-headphones",
+              "card.profile.port",
+              "3"
+            ],
+            "profiles": [ 1 ],
+            "devices": [ 3 ]
+          }
+        ],
+        "Route": [
+          {
+            "index": 0,
+            "direction": "Output",
+            "name": "[Out] Speaker",
+            "description": "Speaker",
+            "priority": 100,
+            "available": "unknown",
+            "info": [
+              5,
+              "port.type",
+              "speaker",
+              "device.icon_name",
+              "audio-speakers",
+              "card.profile.port",
+              "0",
+              "route.hw-mute",
+              "true",
+              "route.hw-volume",
+              "true"
+            ],
+            "profiles": [ 2 ],
+            "device": 0,
+            "props": {
+              "mute": true,
+              "channelVolumes": [ 0.386722, 0.386722 ],
+              "volumeBase": 1.000000,
+              "volumeStep": 0.000015,
+              "channelMap": [ "FL", "FR" ],
+              "softVolumes": [ 1.000000, 1.000000 ],
+              "latencyOffsetNsec": 0
+            },
+            "devices": [ 0 ],
+            "profile": 2,
+            "save": true
+          },
+          {
+            "index": 2,
+            "direction": "Input",
+            "name": "[In] Mic1",
+            "description": "Digital Microphone",
+            "priority": 100,
+            "available": "unknown",
+            "info": [
+              5,
+              "port.type",
+              "mic",
+              "device.icon_name",
+              "audio-input-microphone",
+              "card.profile.port",
+              "2",
+              "route.hw-mute",
+              "true",
+              "route.hw-volume",
+              "false"
+            ],
+            "profiles": [ 2, 1 ],
+            "device": 2,
+            "props": {
+              "mute": false,
+              "channelVolumes": [ 1.000000, 1.000000 ],
+              "volumeBase": 1.000000,
+              "volumeStep": 0.000015,
+              "channelMap": [ "FL", "FR" ],
+              "softVolumes": [ 1.000000, 1.000000 ],
+              "latencyOffsetNsec": 0
+            },
+            "devices": [ 2 ],
+            "profile": 2,
+            "save": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 55,
+    "type": "PipeWire:Interface:Device",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "api.v4l2.cap.bus_info": "usb-0000:c3:00.4-1",
+        "api.v4l2.cap.capabilities": "84a00001",
+        "api.v4l2.cap.card": "HP 5MP Camera: HP 5MP Camera",
+        "api.v4l2.cap.device-caps": 4200001,
+        "api.v4l2.cap.driver": "uvcvideo",
+        "api.v4l2.cap.version": "6.17.13",
+        "api.v4l2.path": "/dev/video0",
+        "client.id": 42,
+        "device.api": "v4l2",
+        "device.bus": "usb",
+        "device.bus-path": "pci-0000:c3:00.4-usb-0:1:1.0",
+        "device.capabilities": ":capture:",
+        "device.description": "HP 5MP Camera",
+        "device.devids": "[ 20736 ]",
+        "device.enum.api": "udev",
+        "device.name": "v4l2_device.pci-0000_c3_00.4-usb-0_1_1.0",
+        "device.plugged.usec": 12949314,
+        "device.product.id": "0x00e4",
+        "device.product.name": "HP 5MP Camera",
+        "device.serial": "DTRPP0A5AKQ1P4_HP_5MP_Camera_200901010001",
+        "device.subsystem": "video4linux",
+        "device.sysfs.path": "/devices/pci0000:00/0000:00:08.1/0000:c3:00.4/usb1/1-1/1-1:1.0/video4linux/video0",
+        "device.vendor.id": "0x30c9",
+        "device.vendor.name": "DTRPP0A5AKQ1P4",
+        "factory.id": 15,
+        "media.class": "Video/Device",
+        "object.id": 55,
+        "object.path": "v4l2:/dev/video0",
+        "object.serial": 55
+      },
+      "params": {
+      }
+    }
+  },
+  {
+    "id": 56,
+    "type": "PipeWire:Interface:Device",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "api.v4l2.cap.bus_info": "usb-0000:c3:00.4-1",
+        "api.v4l2.cap.capabilities": "84a00001",
+        "api.v4l2.cap.card": "HP 5MP Camera: HP 5MP Camera",
+        "api.v4l2.cap.device-caps": "04a00000",
+        "api.v4l2.cap.driver": "uvcvideo",
+        "api.v4l2.cap.version": "6.17.13",
+        "api.v4l2.path": "/dev/video1",
+        "client.id": 42,
+        "device.api": "v4l2",
+        "device.bus": "usb",
+        "device.bus-path": "pci-0000:c3:00.4-usb-0:1:1.0",
+        "device.capabilities": ":",
+        "device.description": "HP 5MP Camera",
+        "device.devids": "[ 20737 ]",
+        "device.enum.api": "udev",
+        "device.name": "v4l2_device.pci-0000_c3_00.4-usb-0_1_1.0.2",
+        "device.plugged.usec": 12949344,
+        "device.product.id": "0x00e4",
+        "device.product.name": "HP 5MP Camera",
+        "device.serial": "DTRPP0A5AKQ1P4_HP_5MP_Camera_200901010001",
+        "device.subsystem": "video4linux",
+        "device.sysfs.path": "/devices/pci0000:00/0000:00:08.1/0000:c3:00.4/usb1/1-1/1-1:1.0/video4linux/video1",
+        "device.vendor.id": "0x30c9",
+        "device.vendor.name": "DTRPP0A5AKQ1P4",
+        "factory.id": 15,
+        "media.class": "Video/Device",
+        "object.id": 56,
+        "object.path": "v4l2:/dev/video1",
+        "object.serial": 56
+      },
+      "params": {
+      }
+    }
+  },
+  {
+    "id": 57,
+    "type": "PipeWire:Interface:Device",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "api.v4l2.cap.bus_info": "usb-0000:c3:00.4-1",
+        "api.v4l2.cap.capabilities": "84a00001",
+        "api.v4l2.cap.card": "HP 5MP Camera: HP IR Camera",
+        "api.v4l2.cap.device-caps": 4200001,
+        "api.v4l2.cap.driver": "uvcvideo",
+        "api.v4l2.cap.version": "6.17.13",
+        "api.v4l2.path": "/dev/video2",
+        "client.id": 42,
+        "device.api": "v4l2",
+        "device.bus": "usb",
+        "device.bus-path": "pci-0000:c3:00.4-usb-0:1:1.2",
+        "device.capabilities": ":capture:",
+        "device.description": "HP 5MP Camera",
+        "device.devids": "[ 20738 ]",
+        "device.enum.api": "udev",
+        "device.name": "v4l2_device.pci-0000_c3_00.4-usb-0_1_1.2",
+        "device.plugged.usec": 12961148,
+        "device.product.id": "0x00e4",
+        "device.product.name": "HP 5MP Camera",
+        "device.serial": "DTRPP0A5AKQ1P4_HP_5MP_Camera_200901010001",
+        "device.subsystem": "video4linux",
+        "device.sysfs.path": "/devices/pci0000:00/0000:00:08.1/0000:c3:00.4/usb1/1-1/1-1:1.2/video4linux/video2",
+        "device.vendor.id": "0x30c9",
+        "device.vendor.name": "DTRPP0A5AKQ1P4",
+        "factory.id": 15,
+        "media.class": "Video/Device",
+        "object.id": 57,
+        "object.path": "v4l2:/dev/video2",
+        "object.serial": 57
+      },
+      "params": {
+      }
+    }
+  },
+  {
+    "id": 58,
+    "type": "PipeWire:Interface:Device",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "api.v4l2.cap.bus_info": "usb-0000:c3:00.4-1",
+        "api.v4l2.cap.capabilities": "84a00001",
+        "api.v4l2.cap.card": "HP 5MP Camera: HP IR Camera",
+        "api.v4l2.cap.device-caps": "04a00000",
+        "api.v4l2.cap.driver": "uvcvideo",
+        "api.v4l2.cap.version": "6.17.13",
+        "api.v4l2.path": "/dev/video3",
+        "client.id": 42,
+        "device.api": "v4l2",
+        "device.bus": "usb",
+        "device.bus-path": "pci-0000:c3:00.4-usb-0:1:1.2",
+        "device.capabilities": ":",
+        "device.description": "HP 5MP Camera",
+        "device.devids": "[ 20739 ]",
+        "device.enum.api": "udev",
+        "device.name": "v4l2_device.pci-0000_c3_00.4-usb-0_1_1.2.2",
+        "device.plugged.usec": 12961174,
+        "device.product.id": "0x00e4",
+        "device.product.name": "HP 5MP Camera",
+        "device.serial": "DTRPP0A5AKQ1P4_HP_5MP_Camera_200901010001",
+        "device.subsystem": "video4linux",
+        "device.sysfs.path": "/devices/pci0000:00/0000:00:08.1/0000:c3:00.4/usb1/1-1/1-1:1.2/video4linux/video3",
+        "device.vendor.id": "0x30c9",
+        "device.vendor.name": "DTRPP0A5AKQ1P4",
+        "factory.id": 15,
+        "media.class": "Video/Device",
+        "object.id": 58,
+        "object.path": "v4l2:/dev/video3",
+        "object.serial": 58
+      },
+      "params": {
+      }
+    }
+  },
+  {
+    "id": 64,
+    "type": "PipeWire:Interface:Device",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "api.libcamera.location": "front",
+        "api.libcamera.path": "\\_SB_.PCI0.GPPA.XHC1.RHUB.HS01-1:1.0-30c9:00e4",
+        "client.id": 42,
+        "device.api": "libcamera",
+        "device.description": "HP 5MP Camera: HP 5MP Camera",
+        "device.devids": "[ 20736 ]",
+        "device.enum.api": "libcamera.manager",
+        "device.name": "libcamera_device.\\_SB_.PCI0.GPPA.XHC1.RHUB.HS01-1:1.0-30c9:00e4",
+        "device.product.name": "HP 5MP Camera: HP 5MP Camera",
+        "factory.id": 15,
+        "media.class": "Video/Device",
+        "object.id": 64,
+        "object.path": "libcamera:\\_SB_.PCI0.GPPA.XHC1.RHUB.HS01-1:1.0-30c9:00e4",
+        "object.serial": 64
+      },
+      "params": {
+        "EnumProfile": [
+        ],
+        "Profile": [ ]
+      }
+    }
+  },
+  {
+    "id": 65,
+    "type": "PipeWire:Interface:Device",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "api.libcamera.location": "front",
+        "api.libcamera.path": "\\_SB_.PCI0.GPPA.XHC1.RHUB.HS01-1:1.2-30c9:00e4",
+        "client.id": 42,
+        "device.api": "libcamera",
+        "device.description": "HP 5MP Camera: HP IR Camera",
+        "device.devids": "[ 20738 ]",
+        "device.enum.api": "libcamera.manager",
+        "device.name": "libcamera_device.\\_SB_.PCI0.GPPA.XHC1.RHUB.HS01-1:1.2-30c9:00e4",
+        "device.product.name": "HP 5MP Camera: HP IR Camera",
+        "factory.id": 15,
+        "media.class": "Video/Device",
+        "object.id": 65,
+        "object.path": "libcamera:\\_SB_.PCI0.GPPA.XHC1.RHUB.HS01-1:1.2-30c9:00e4",
+        "object.serial": 65
+      },
+      "params": {
+        "EnumProfile": [
+        ],
+        "Profile": [ ]
+      }
+    }
+  }
+]

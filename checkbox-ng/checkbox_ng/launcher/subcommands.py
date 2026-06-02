@@ -599,7 +599,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 else:
                     result_dict["comments"] = newline_join(
                         result_dict["comments"],
-                        "Failed after resuming execution"
+                        "Failed after resuming execution",
                     )
             elif outcome == IJobResult.OUTCOME_SKIP:
                 if is_cert_blocker and not comments:
@@ -609,7 +609,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 else:
                     result_dict["comments"] = newline_join(
                         result_dict["comments"],
-                        "Skipped after resuming execution"
+                        "Skipped after resuming execution",
                     )
             elif outcome == IJobResult.OUTCOME_CRASH:
                 if is_cert_blocker and not comments:
@@ -617,7 +617,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 else:
                     result_dict["comments"] = newline_join(
                         result_dict["comments"],
-                        "Crashed after resuming execution"
+                        "Crashed after resuming execution",
                     )
             elif outcome == IJobResult.OUTCOME_UNDECIDED:
                 # if we don't call use_job_result it means we'll rerun the job

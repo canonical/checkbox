@@ -795,7 +795,7 @@ class ControllerTests(TestCase):
             "123",
             {
                 "comments": "Initial comment\nSkipped after resuming execution",
-                "outcome": mock_IJobResult.OUTCOME_SKIP,
+                "outcome": mock_IJobResult.OUTCOME_MANUAL_SKIP,
             },
         )
 
@@ -838,7 +838,7 @@ class ControllerTests(TestCase):
             "123",
             {
                 "comments": "comment requested from user",
-                "outcome": mock_IJobResult.OUTCOME_SKIP,
+                "outcome": mock_IJobResult.OUTCOME_MANUAL_SKIP,
             },
         )
 

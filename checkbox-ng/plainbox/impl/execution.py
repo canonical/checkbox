@@ -144,14 +144,14 @@ class UnifiedRunner(IJobRunner):
                 )
             )
             return JobResultBuilder(
-                outcome=IJobResult.OUTCOME_SKIP,
+                outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                 comments=_("Unsupported plugin type: {}".format(job.plugin)),
             ).get_result()
 
         # resource and attachment jobs are always run (even in dry runs)
         if self._dry_run and job.plugin not in ("resource", "attachment"):
             return JobResultBuilder(
-                outcome=IJobResult.OUTCOME_SKIP,
+                outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                 comments=_("Job skipped in dry-run mode"),
             ).get_result()
 

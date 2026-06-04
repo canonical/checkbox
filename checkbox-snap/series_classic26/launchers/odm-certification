@@ -12,7 +12,6 @@ filter = com.canonical.certification::client-cert-odm-desktop-26-04-*
     com.canonical.certification::client-cert-odm-desktop-18-04-*
     com.canonical.certification::client-cert-odm-server-26-04-*
     com.canonical.certification::client-cert-odm-server-24-04-*
-    com.canonical.certification::client-cert-odm-server-26-04-*
     com.canonical.certification::client-cert-odm-server-22-04-*
     com.canonical.certification::client-cert-odm-server-20-04-*
     com.canonical.certification::client-cert-odm-server-18-04-*

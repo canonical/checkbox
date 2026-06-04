@@ -6,6 +6,7 @@ stock_reports = text, submission_files
 [test plan]
 unit = com.canonical.certification::client-cert-odm-ubuntucore-26-manual
 filter = com.canonical.certification::client-cert-odm-desktop-26-04-*
+    com.canonical.certification::client-cert-odm-desktop-24-04-*
     com.canonical.certification::client-cert-odm-desktop-22-04-*
     com.canonical.certification::client-cert-odm-desktop-20-04-*
     com.canonical.certification::client-cert-odm-desktop-18-04-*

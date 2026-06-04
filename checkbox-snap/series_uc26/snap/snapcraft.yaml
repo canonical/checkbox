@@ -13,39 +13,39 @@ plugs:
   checkbox-runtime:
     interface: content
     target: $SNAP/checkbox-runtime
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-resource:
     interface: content
     target: $SNAP/providers/checkbox-provider-resource
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-checkbox:
     interface: content
     target: $SNAP/providers/checkbox-provider-checkbox
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-docker:
     interface: content
     target: $SNAP/providers/checkbox-provider-docker
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-tpm2:
     interface: content
     target: $SNAP/providers/checkbox-provider-tpm2
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-sru:
     interface: content
     target: $SNAP/providers/checkbox-provider-sru
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-gpgpu:
     interface: content
     target: $SNAP/providers/checkbox-provider-gpgpu
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-certification-client:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-client
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-certification-server:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-server
-    default-provider: checkbox24
+    default-provider: checkbox26
 
 apps:
   checkbox-cli:

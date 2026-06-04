@@ -27,6 +27,14 @@ include:
   - stub/user-interact-verify
 ---
 unit: test plan
+id: basic-session-resume-manual
+name: Basic Manual (for Session Resume Scenario)
+include:
+  - basic-shell-passing
+  - basic-shell-failing
+  - stub/manual
+---
+unit: test plan
 id: display-manual
 name: Display Manual
 include:

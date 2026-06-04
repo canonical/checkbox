@@ -33,14 +33,12 @@ import os
 import sys
 
 sys.path.append(os.path.expandvars("$SNAP/usr/lib/python3/dist-packages"))
-sitepkgpath = "$SNAP/lib/python{}.{}/site-packages".format(
-    sys.version_info[0], sys.version_info[1])
+sitepkgpath = "$SNAP/lib/python3.14/site-packages"
 sys.path.append(os.path.expandvars(sitepkgpath))
 
 sys.path.append(os.path.expandvars(
-    "$SNAP/checkbox-runtime/usr/lib/python3/dist-packages"))
-runtimepath = "$SNAP/checkbox-runtime/lib/python{}.{}/site-packages".format(
-    sys.version_info[0], sys.version_info[1])
+    "/snap/checkbox26/current/usr/lib/python3/dist-packages"))
+runtimepath = "/snap/checkbox26/current/lib/python3.14/site-packages"
 sys.path.append(os.path.expandvars(runtimepath))
 
 try:
@@ -48,18 +46,10 @@ try:
 except ImportError:
     msg = """
 checkbox-support not found!
-You need to connect this snap to the checkbox22 snap.
+You need to install the checkbox26 snap:
 
-You can do this with those commands:
-
-snap connect $SNAP_NAME:checkbox-runtime  checkbox22:checkbox-runtime
-snap connect $SNAP_NAME:provider-resource checkbox22:provider-resource
-snap connect $SNAP_NAME:provider-checkbox checkbox22:provider-checkbox
-snap connect $SNAP_NAME:provider-docker   checkbox22:provider-docker
-snap connect $SNAP_NAME:provider-tpm2     checkbox22:provider-tpm2
-snap connect $SNAP_NAME:provider-sru      checkbox22:provider-sru
-snap connect $SNAP_NAME:provider-certification-client  checkbox22:provider-certification-client
+snap install checkbox26
     """
     print(os.path.expandvars(msg), file=sys.stderr)
-    sys.exit(0)
+    sys.exit(1)
 refresh_configuration()

@@ -48,17 +48,17 @@ try:
 except ImportError:
     msg = """
 checkbox-support not found!
-You need to connect this snap to the checkbox22 snap.
+You need to connect this snap to the checkbox26 snap.
 
 You can do this with those commands:
 
-snap connect $SNAP_NAME:checkbox-runtime  checkbox22:checkbox-runtime
-snap connect $SNAP_NAME:provider-resource checkbox22:provider-resource
-snap connect $SNAP_NAME:provider-checkbox checkbox22:provider-checkbox
-snap connect $SNAP_NAME:provider-docker   checkbox22:provider-docker
-snap connect $SNAP_NAME:provider-tpm2     checkbox22:provider-tpm2
-snap connect $SNAP_NAME:provider-sru      checkbox22:provider-sru
-snap connect $SNAP_NAME:provider-certification-client  checkbox22:provider-certification-client
+snap connect $SNAP_NAME:checkbox-runtime  checkbox26:checkbox-runtime
+snap connect $SNAP_NAME:provider-resource checkbox26:provider-resource
+snap connect $SNAP_NAME:provider-checkbox checkbox26:provider-checkbox
+snap connect $SNAP_NAME:provider-docker   checkbox26:provider-docker
+snap connect $SNAP_NAME:provider-tpm2     checkbox26:provider-tpm2
+snap connect $SNAP_NAME:provider-sru      checkbox26:provider-sru
+snap connect $SNAP_NAME:provider-certification-client  checkbox26:provider-certification-client
     """
     print(os.path.expandvars(msg), file=sys.stderr)
     sys.exit(0)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2025 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 # Written by:
 #   Shane McKee <shane.mckee@canonical.com>
 #
@@ -18,16 +18,15 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Host Vulkan helper for Checkbox.
+Host crucible helper for Checkbox.
 
 Subcommands:
-  resource          Emit a resource record if a GPU is available via host
-                    Vulkan drivers (used by depends:
-                    graphics/vk_classic_gpu_avail).
-  validate-install  Emit a resource record if the host Vulkan ICD loader is
-                    installed (used by depends: graphics/vk_classic_vk_avail).
-  run-test ARGS...  Run a vulkan-cts test binary with --no-confinement,
-                    forwarding all remaining arguments to the test.
+  resource          Check whether a GPU is available via host Vulkan drivers
+                    (used by depends: graphics/crucible_classic_gpu_avail).
+  validate-install  Check whether the host Vulkan ICD loader is installed
+                    (used by depends: graphics/crucible_classic_vk_avail).
+  run-test ARGS...  Run a crucible test using host Vulkan libraries,
+                    forwarding all remaining arguments to crucible run.
 """
 
 import logging
@@ -66,13 +65,13 @@ def cmd_validate_install():
         return 0
     logging.error("Host Vulkan ICD loader not found at %s", host_vk)
     logging.error(
-        "Install libvulkan1 or equivalent before running host Vulkan tests"
+        "Install libvulkan1 or equivalent before running host crucible tests"
     )
     return 1
 
 
 def cmd_run_test(test_args):
-    snap = "/snap/vulkan-cts/current"
+    snap = "/snap/crucible/current"
     # NODEVICE_SELECT disables VK_LAYER_MESA_device_select — the layer
     # requires GLIBC_ABI_GNU2_TLS, which the snap's core24 glibc lacks.
     env = dict(os.environ, SNAP=snap, NODEVICE_SELECT="1")
@@ -81,7 +80,7 @@ def cmd_run_test(test_args):
         if icd_filenames:
             env["VK_ICD_FILENAMES"] = icd_filenames
     result = subprocess.run(
-        ["{}/test".format(snap), "--no-confinement"] + test_args,
+        ["{}/test".format(snap), "--no-confinement", "--no-fork"] + test_args,
         env=env,
     )
     return result.returncode
@@ -93,7 +92,8 @@ def main():
     )
     if len(sys.argv) < 2:
         logging.error(
-            "Usage: vk_host.py {resource,validate-install,run-test} [args...]"
+            "Usage: crucible_host.py"
+            " {resource,validate-install,run-test} [args...]"
         )
         return 1
     command = sys.argv[1]

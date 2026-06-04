@@ -5,8 +5,7 @@ confinement: strict
 
 adopt-info: version-calculator
 
-grade: devel
-build-base: devel
+grade: stable
 base: core26
 
 # Don't forget to add a new slot if a new provider part is added in the parts

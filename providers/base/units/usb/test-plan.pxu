@@ -274,16 +274,6 @@ include:
     usb-c/storage-manual                       certification-status=blocker
     usb-c/c-to-ethernet-adapter-insert
 
-id: after-suspend-usb-c-cert-full
-unit: test plan
-_name: USB Type-C tests (after suspend)
-_description: USB Type-C tests (after suspend)
-include:
-    after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
-    after-suspend-usb-c/c-to-a-adapter/storage-manual        certification-status=blocker
-    after-suspend-usb-c/storage-manual                       certification-status=blocker
-    after-suspend-usb-c/c-to-ethernet-adapter-insert
-
 id: usb-c-cert-manual
 unit: test plan
 _name: USB Type-C tests (Manual)
@@ -297,6 +287,16 @@ unit: test plan
 _name: USB Type-C tests (Automated)
 _description: USB Type-C tests (Automated)
 include:
+
+id: after-suspend-usb-c-cert-full
+unit: test plan
+_name: USB Type-C tests (after suspend)
+_description: USB Type-C tests (after suspend)
+include:
+    after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
+    after-suspend-usb-c/c-to-a-adapter/storage-manual        certification-status=blocker
+    after-suspend-usb-c/storage-manual                       certification-status=blocker
+    after-suspend-usb-c/c-to-ethernet-adapter-insert
 
 id: after-suspend-usb-c-cert-manual
 unit: test plan

@@ -1,0 +1,5 @@
+checkbox-provider-dpdk (0.1.0) UNRELEASED; urgency=medium
+
+  * Initial release
+
+ -- Rene Orozco Martinez <rene.orozco@canonical.com>  Tue, 10 Mar 2026 15:10:44 -0600

@@ -159,6 +159,7 @@ class UdevadmDevice(object):
         "_subvendor_id",
         "_vendor_slug",
         "_symlinks",
+        "_attributes",
     )
 
     def __init__(
@@ -170,10 +171,12 @@ class UdevadmDevice(object):
         bits=None,
         stack=[],
         symlinks=None,
+        attributes=None,
     ):
         self._environment = environment
         self._name = name
         self._lsblk = lsblk
+        self._attributes = attributes or {}
         self._list_partitions = list_partitions
         self._bits = bits
         self._stack = stack
@@ -1368,18 +1371,9 @@ class UdevadmParser(object):
         # as disks (categorization is done elsewhere). Note that the *parent*
         # device will have no category, though it's not ignored per se.
         if device.bus in ("pci", "nvme") and device.driver == "nvme":
-            # Ignore DISK-category nvme devices whose derived name has no
-            # corresponding block device in lsblk — these are character devices
-            # (e.g. nvmeXcYnZ) that have no /dev/ node and cannot be tested.
-            if (
-                device.category == "DISK"
-                and "DEVNAME" not in device._environment
-                and self.lsblk
-                and not any(
-                    d.get("kname") == device.name
-                    for d in self.lsblk.get("blockdevices", [])
-                )
-            ):
+            # Ignore nvme DISK devices the kernel marks as hidden — these have
+            # no /dev/ node and cannot be tested (A: hidden=1 in udevadm).
+            if device._attributes.get("hidden") == "1":
                 return True
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
@@ -1470,6 +1464,7 @@ class UdevadmParser(object):
             element = None
             symlinks = []
             environment = {}
+            attributes = {}
             for line in record.splitlines():
                 line_match = line_pattern.match(line)
                 if not line_match:
@@ -1495,6 +1490,12 @@ class UdevadmParser(object):
                         )
                     element = key_match.group("key")
                     environment[element] = key_match.group("value")
+                elif key == "A":
+                    key_match = multi_pattern.match(value)
+                    if key_match:
+                        attributes[key_match.group("key")] = key_match.group(
+                            "value"
+                        )
 
             # Update stack
             while stack:
@@ -1513,6 +1514,7 @@ class UdevadmParser(object):
                 self.bits,
                 list(stack),
                 symlinks,
+                attributes,
             )
             if not self._ignoreDevice(device):
                 if device._raw_path in self.devices:

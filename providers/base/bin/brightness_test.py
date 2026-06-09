@@ -29,9 +29,10 @@ import os
 import time
 
 from glob import glob
+from pathlib import Path
 
 
-class Brightness(object):
+class Brightness:
     def __init__(self, path="/sys/class/backlight"):
         self.sysfs_path = path
         self.interfaces = self._get_interfaces_from_path()
@@ -112,6 +113,9 @@ class Brightness(object):
         else:
             return 0
 
+    def get_scale(self, path) -> str:
+        return Path(path) / "scale"
+
 
 def main():
     brightness = Brightness()
@@ -139,9 +143,23 @@ def main():
             max_brightness / 2, os.path.join(interface, "brightness")
         )
 
-        # Check that "actual_brightness" reports the same value we
-        # set "brightness" to
-        exit_status += brightness.was_brightness_applied(interface)
+        if brightness.get_scale(interface) != "non-linear":
+            # NOTE: the actual_brightness check
+            #       only makes sense if the scale is linear
+            #
+            # since the naked-eye perceives brightness logarithmically
+            # the BIOS might have already scaled the values,
+            # which means the actual_brightness (raw register) value
+            # grows logarithmically i.e will not be max_brightness // 2
+            #
+            # notably on AMD gpus, the 'scale' file explicitly says non-linear,
+            # thus we should not be checking it unless there's a way to know
+            # what that conversion formula is
+            #
+            # additionally, the scale file on intel gpus says "unknown"
+            # but behaves like "linear",
+            # so let's only exclude non-linear for now
+            exit_status += brightness.was_brightness_applied(interface)
 
         # Wait a little bit before going back to the original value
         time.sleep(2)

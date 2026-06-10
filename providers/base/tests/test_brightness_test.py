@@ -13,7 +13,9 @@ class TestGetScale(unittest.TestCase):
 
     def test_reads_non_linear_scale(self):
         b = Brightness.__new__(Brightness)
-        with patch("brightness_test.Path.read_text", return_value="non-linear\n"):
+        with patch(
+            "brightness_test.Path.read_text", return_value="non-linear\n"
+        ):
             result = b.get_scale("/sys/class/backlight/amdgpu_bl0")
         self.assertEqual(result, "non-linear\n")
 
@@ -41,27 +43,35 @@ class TestMainScaleBranch(unittest.TestCase):
         return ctx.exception.code
 
     def test_linear_scale_calls_check_and_exits_zero_on_success(self):
-        mock_b = self._make_mock_brightness("linear", was_applied_return_value=0)
+        mock_b = self._make_mock_brightness(
+            "linear", was_applied_return_value=0
+        )
         rv = self._run_main(mock_b)
         mock_b.was_brightness_applied.assert_called_once_with(self.INTERFACE)
         self.assertEqual(rv, 0)
 
     def test_linear_scale_calls_check_and_exits_one_on_failure(self):
-        mock_b = self._make_mock_brightness("linear", was_applied_return_value=1)
+        mock_b = self._make_mock_brightness(
+            "linear", was_applied_return_value=1
+        )
         rv = self._run_main(mock_b)
         mock_b.was_brightness_applied.assert_called_once_with(self.INTERFACE)
         self.assertEqual(rv, 1)
 
     def test_unknown_scale_calls_check_and_exits_zero(self):
         # intel case
-        mock_b = self._make_mock_brightness("unknown", was_applied_return_value=0)
+        mock_b = self._make_mock_brightness(
+            "unknown", was_applied_return_value=0
+        )
         rv = self._run_main(mock_b)
         mock_b.was_brightness_applied.assert_called_once_with(self.INTERFACE)
         self.assertEqual(rv, 0)
 
     def test_non_linear_scale_skips_check_and_exits_zero(self):
         # amd case
-        mock_b = self._make_mock_brightness("non-linear", was_applied_return_value=1)
+        mock_b = self._make_mock_brightness(
+            "non-linear", was_applied_return_value=1
+        )
         rv = self._run_main(mock_b)
         mock_b.was_brightness_applied.assert_not_called()
         self.assertEqual(rv, 0)

@@ -150,7 +150,7 @@ def main():
             # since the naked-eye perceives brightness logarithmically
             # the BIOS might have already scaled the values,
             # which means the actual_brightness (raw register) value
-            # grows logarithmically i.e will not be max_brightness // 2
+            # grows logarithmically and will not be max_brightness / 2
             #
             # notably on AMD gpus, the 'scale' file explicitly says non-linear,
             # thus we should not be checking it unless there's a way to know

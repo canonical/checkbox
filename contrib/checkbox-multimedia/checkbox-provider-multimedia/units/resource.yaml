@@ -1,0 +1,19 @@
+plugin: resource
+id: video_accel_resource
+category_id: multimedia
+summary: Generate hardware video acceleration test resources from C3 manifest
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_hw_video_accel == 'True'
+environ:
+  - HW_VIDEO_ACCEL_VAAPI_DECODE
+  - HW_VIDEO_ACCEL_VAAPI_ENCODE
+  - HW_VIDEO_ACCEL_VDPAU_DECODE
+  - HW_VIDEO_ACCEL_VULKAN_DECODE
+  - HW_VIDEO_ACCEL_NVDEC_DECODE
+  - HW_VIDEO_ACCEL_NVENC_ENCODE
+  - PLAINBOX_PROVIDER_DATA
+command: |
+  video_accel_resource.py --backends ffmpeg,gstreamer
+estimated_duration: 0.5

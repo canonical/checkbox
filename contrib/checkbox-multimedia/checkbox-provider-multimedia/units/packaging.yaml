@@ -1,0 +1,3 @@
+unit: packaging meta-data
+os-id: ubuntu
+Depends: vainfo, ffmpeg, vdpauinfo, gstreamer1.0-plugins-bad

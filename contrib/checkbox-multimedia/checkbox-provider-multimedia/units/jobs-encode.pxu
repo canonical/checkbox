@@ -1,0 +1,18 @@
+unit: template
+template-engine: jinja2
+template-resource: video_accel_resource
+template-filter: video_accel_resource.scenario == "encode"
+template-unit: job
+template-id: multimedia/encode
+template-summary: HW encode: {{ codec }} {{ profile }} via {{ encoder }}
+id: multimedia/encode-{{ encoder }}-{{ profile_slug }}
+category_id: multimedia
+plugin: shell
+summary: HW encode: {{ codec }} {{ profile }} via {{ encoder }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hw_video_accel == 'True'
+estimated_duration: 1m
+flags: simple
+environ: PLAINBOX_PROVIDER_DATA
+command:
+    hw_video_encode_test.py --encoder {{ ffmpeg_encoder }} --profile-opts "{{ ffmpeg_profile_opts }}"

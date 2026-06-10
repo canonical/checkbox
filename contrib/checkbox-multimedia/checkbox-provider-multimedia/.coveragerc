@@ -1,0 +1,13 @@
+[run]
+branch = True
+source = bin,manage
+omit =
+    tests/*
+
+[report]
+exclude_lines =
+    @abc.abstractmethod
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == .__main__.:
+show_missing = True

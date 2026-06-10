@@ -1,0 +1,24 @@
+unit: manifest entry
+id: has_hw_video_accel
+_name: Has support for hardware video acceleration
+value-type: bool
+---
+unit: manifest entry
+id: has_vdpau
+_name: Has VDPAU support
+value-type: bool
+---
+unit: manifest entry
+id: has_vulkan_video
+_name: Has Vulkan Video support
+value-type: bool
+---
+unit: manifest entry
+id: has_nvdec
+_name: Has NVIDIA NVDEC support
+value-type: bool
+---
+unit: manifest entry
+id: has_nvenc
+_name: Has NVIDIA NVENC support
+value-type: bool

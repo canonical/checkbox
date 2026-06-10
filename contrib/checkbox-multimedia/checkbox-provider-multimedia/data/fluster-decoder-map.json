@@ -1,0 +1,116 @@
+{
+  "fluster_decoders": {
+    "va-api": {
+      "ffmpeg": {
+        "H.264": "FFmpeg-H.264-VAAPI",
+        "H.265": "FFmpeg-H.265-VAAPI",
+        "VP8": "FFmpeg-VP8-VAAPI",
+        "VP9": "FFmpeg-VP9-VAAPI",
+        "AV1": "FFmpeg-AV1-VAAPI",
+        "MPEG-2": "FFmpeg-MPEG2_VIDEO-VAAPI",
+        "MPEG-4": "FFmpeg-MPEG4_VIDEO-VAAPI"
+      },
+      "gstreamer": {
+        "H.264": "GStreamer-H.264-VAAPI-Gst1.0",
+        "H.265": "GStreamer-H.265-VAAPI-Gst1.0",
+        "VP8": "GStreamer-VP8-VAAPI-Gst1.0",
+        "VP9": "GStreamer-VP9-VAAPI-Gst1.0",
+        "AV1": "GStreamer-AV1-VAAPI-Gst1.0"
+      }
+    },
+    "vdpau": {
+      "ffmpeg": {
+        "H.264": "FFmpeg-H.264-VDPAU",
+        "H.265": "FFmpeg-H.265-VDPAU",
+        "VP9": "FFmpeg-VP9-VDPAU",
+        "AV1": "FFmpeg-AV1-VDPAU"
+      },
+      "gstreamer": {
+        "H.264": "GStreamer-H.264-VDPAU-Gst1.0",
+        "H.265": "GStreamer-H.265-VDPAU-Gst1.0"
+      }
+    },
+    "vulkan-video": {
+      "ffmpeg": {
+        "H.264": "FFmpeg-H.264-Vulkan",
+        "H.265": "FFmpeg-H.265-Vulkan",
+        "VP9": "FFmpeg-VP9-Vulkan",
+        "AV1": "FFmpeg-AV1-Vulkan"
+      },
+      "gstreamer": {
+        "H.264": "GStreamer-H.264-Vulkan-Gst1.0",
+        "H.265": "GStreamer-H.265-Vulkan-Gst1.0",
+        "VP9": "GStreamer-VP9-Vulkan-Gst1.0",
+        "AV1": "GStreamer-AV1-Vulkan-Gst1.0"
+      }
+    },
+    "nvdec": {
+      "ffmpeg": {
+        "H.264": "FFmpeg-H.264-CUDA",
+        "H.265": "FFmpeg-H.265-CUDA",
+        "VP8": "FFmpeg-VP8-CUDA",
+        "VP9": "FFmpeg-VP9-CUDA",
+        "AV1": "FFmpeg-AV1-CUDA"
+      },
+      "gstreamer": {
+        "H.264": "GStreamer-H.264-NVDEC-Gst1.0",
+        "H.265": "GStreamer-H.265-NVDEC-Gst1.0",
+        "VP9": "GStreamer-VP9-NVDEC-Gst1.0"
+      }
+    }
+  },
+  "test_suites": {
+    "H.264": {
+      "Constrained Baseline": ["JVT-AVC_V1"],
+      "Baseline": ["JVT-AVC_V1"],
+      "Main": ["JVT-AVC_V1"],
+      "High": ["JVT-AVC_V1"],
+      "High 10": ["JVT-FR-EXT"],
+      "High 4:2:2": ["JVT-FR-EXT"],
+      "High 4:4:4": ["JVT-FR-EXT"],
+      "Extended": ["JVT-AVC_V1"]
+    },
+    "H.265": {
+      "Main": ["JCT-VC-HEVC_V1"],
+      "Main 10": ["JCT-VC-RExt"],
+      "RExt": ["JCT-VC-RExt"],
+      "SCC": ["JCT-VC-SCC"]
+    },
+    "VP8": {
+      "Profile 0": ["VP8-TEST-VECTORS"]
+    },
+    "VP9": {
+      "Profile 0": ["VP9-TEST-VECTORS"],
+      "Profile 1": ["VP9-TEST-VECTORS"],
+      "Profile 2": ["VP9-TEST-VECTORS-HIGH"]
+    },
+    "AV1": {
+      "Main": ["AV1-TEST-VECTORS", "AV1-ARGON-PROFILE0-CORE-ANNEX-B"],
+      "High": ["AV1-ARGON-PROFILE1-CORE-ANNEX-B"],
+      "Professional": ["AV1-ARGON-PROFILE2-CORE-ANNEX-B"]
+    },
+    "MPEG-2": {
+      "Simple": ["MPEG2_VIDEO-MAIN"],
+      "Main": ["MPEG2_VIDEO-MAIN"],
+      "4:2:2": ["MPEG2_VIDEO-422"]
+    },
+    "MPEG-4": {
+      "Simple": ["MPEG4_VIDEO-SimpleProfile"],
+      "Advanced Simple": ["MPEG4_VIDEO-AdvancedSimpleProfile"]
+    }
+  },
+  "encode_profiles": {
+    "va-api": {
+      "h264_vaapi": {"codec": "H.264", "profiles": ["Constrained Baseline", "Main", "High"]},
+      "hevc_vaapi": {"codec": "H.265", "profiles": ["Main", "Main 10"]},
+      "vp8_vaapi": {"codec": "VP8", "profiles": ["Profile 0"]},
+      "vp9_vaapi": {"codec": "VP9", "profiles": ["Profile 0"]},
+      "av1_vaapi": {"codec": "AV1", "profiles": ["Main"]}
+    },
+    "nvenc": {
+      "h264_nvenc": {"codec": "H.264", "profiles": ["Main", "High"]},
+      "hevc_nvenc": {"codec": "H.265", "profiles": ["Main", "Main 10"]},
+      "av1_nvenc": {"codec": "AV1", "profiles": ["Main"]}
+    }
+  }
+}

@@ -1,0 +1,18 @@
+unit: template
+template-engine: jinja2
+template-resource: video_accel_resource
+template-filter: video_accel_resource.scenario == "fluster-decode"
+template-unit: job
+template-id: multimedia/fluster-decode
+template-summary: Fluster conformance: {{ codec }} {{ profile }} decode via {{ decoder }}
+id: multimedia/fluster-{{ decoder }}-{{ profile_slug }}-{{ test_suite }}
+category_id: multimedia
+plugin: shell
+summary: Fluster conformance: {{ codec }} {{ profile }} decode via {{ decoder }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hw_video_accel == 'True'
+estimated_duration: 20m
+flags: simple
+environ: PLAINBOX_PROVIDER_DATA
+command:
+    fluster_runner.py -d {{ decoder }} -ts {{ test_suite }} -p "{{ profile }}" --timeout 60 -j 1

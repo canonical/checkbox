@@ -1,0 +1,37 @@
+plugin: manual
+id: multimedia/firefox-vaapi
+category_id: multimedia
+summary: Verify Firefox uses VA-API for hardware video decoding
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_hw_video_accel == 'True'
+purpose: |
+  Check that Firefox is configured to use VA-API hardware video decoding.
+steps: |
+  1. Open Firefox
+  2. Navigate to about:support
+  3. Look for "HW Video Decoding" or "VA-API" in the Graphics section
+  4. Play a video on a streaming site (e.g. YouTube)
+verification: |
+  Is "HW Video Decoding" listed as available/supported in about:support?
+estimated_duration: 60.0
+---
+plugin: manual
+id: multimedia/chromium-vaapi
+category_id: multimedia
+summary: Verify Chromium uses VA-API for hardware video decoding
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_hw_video_accel == 'True'
+purpose: |
+  Check that Chromium is configured to use VA-API hardware video decoding.
+steps: |
+  1. Open Chromium
+  2. Navigate to chrome://gpu
+  3. Look for "Video Decode" under "Rasterization" or "Hardware Protected Video Decode"
+  4. Play a video on a streaming site (e.g. YouTube)
+verification: |
+  Is "Video Decode" listed as hardware accelerated in chrome://gpu?
+estimated_duration: 60.0

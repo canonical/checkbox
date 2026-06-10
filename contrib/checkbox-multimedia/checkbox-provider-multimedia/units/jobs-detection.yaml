@@ -1,0 +1,69 @@
+plugin: shell
+id: multimedia/va-api-detect
+category_id: multimedia
+summary: Detect VA-API hardware video acceleration
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import package
+requires:
+  - package.name == 'vainfo'
+  - manifest.has_hw_video_accel == 'True'
+command: |
+  vainfo 2>&1
+estimated_duration: 5.0
+---
+plugin: shell
+id: multimedia/vdpau-detect
+category_id: multimedia
+summary: Detect VDPAU hardware video acceleration
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import package
+requires:
+  - package.name == 'vdpauinfo'
+  - manifest.has_vdpau == 'True'
+command: |
+  vdpauinfo 2>&1
+estimated_duration: 5.0
+---
+plugin: shell
+id: multimedia/vulkan-video-detect
+category_id: multimedia
+summary: Detect Vulkan Video hardware acceleration extensions
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import package
+requires:
+  - package.name == 'vulkan-tools'
+  - manifest.has_vulkan_video == 'True'
+command: |
+  vulkaninfo 2>&1 | grep "VK_KHR_video_" || echo "No Vulkan Video extensions found"
+estimated_duration: 5.0
+---
+plugin: shell
+id: multimedia/nvidia-nvdec-detect
+category_id: multimedia
+summary: Detect NVIDIA NVDEC capability
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import package
+requires:
+  - package.name == 'nvidia-utils'
+  - manifest.has_nvdec == 'True'
+command: |
+  nvidia-smi --query-gpu=decoder.stats.sessionCount,decoder.stats.averageFps --format=csv,noheader 2>&1 || echo "NVDEC not available"
+estimated_duration: 2.0
+---
+plugin: shell
+id: multimedia/nvidia-nvenc-detect
+category_id: multimedia
+summary: Detect NVIDIA NVENC capability
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import package
+requires:
+  - package.name == 'nvidia-utils'
+  - manifest.has_nvenc == 'True'
+command: |
+  nvidia-smi --query-gpu=encoder.stats.sessionCount,encoder.stats.averageFps --format=csv,noheader 2>&1 || echo "NVENC not available"
+estimated_duration: 2.0

@@ -1,0 +1,52 @@
+id: multimedia-full
+_name: Multimedia hardware video acceleration tests (full)
+unit: test plan
+_description:
+  Complete multimedia hardware video acceleration test suite covering
+  detection, Fluster decoder conformance, encode, and application
+  integration.
+include:
+  multimedia/va-api-detect
+  multimedia/vdpau-detect
+  multimedia/vulkan-video-detect
+  multimedia/nvidia-nvdec-detect
+  multimedia/nvidia-nvenc-detect
+  multimedia/fluster-.*
+  multimedia/encode-.*
+  multimedia/firefox-vaapi
+  multimedia/chromium-vaapi
+bootstrap_include:
+  video_accel_resource
+  com.canonical.certification::graphics_card
+  com.canonical.certification::package
+---
+id: multimedia-automated
+_name: Multimedia hardware video acceleration tests (automated)
+unit: test plan
+_description:
+  Automated multimedia hardware video acceleration tests: detection,
+  Fluster decoder conformance, and encode.
+include:
+  multimedia/va-api-detect
+  multimedia/vdpau-detect
+  multimedia/vulkan-video-detect
+  multimedia/nvidia-nvdec-detect
+  multimedia/nvidia-nvenc-detect
+  multimedia/fluster-.*
+  multimedia/encode-.*
+bootstrap_include:
+  video_accel_resource
+  com.canonical.certification::graphics_card
+  com.canonical.certification::package
+---
+id: multimedia-manual
+_name: Multimedia hardware video acceleration tests (manual)
+unit: test plan
+_description:
+  Manual application integration tests for multimedia hardware video
+  acceleration.
+include:
+  multimedia/firefox-vaapi
+  multimedia/chromium-vaapi
+bootstrap_include:
+  video_accel_resource

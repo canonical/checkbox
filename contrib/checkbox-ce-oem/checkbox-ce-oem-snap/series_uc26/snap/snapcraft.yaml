@@ -4,35 +4,35 @@ description: "Checkbox CE OEM test runner and public providers"
 confinement: strict
 grade: stable
 
-version: '1.0-noble'
+version: '1.0-resolute'
 
-base: core24
+base: core26
 
 plugs:
   checkbox-runtime:
     interface: content
     target: $SNAP/checkbox-runtime
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-resource:
     interface: content
     target: $SNAP/providers/checkbox-provider-resource
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-checkbox:
     interface: content
     target: $SNAP/providers/checkbox-provider-checkbox
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-tpm2:
     interface: content
     target: $SNAP/providers/checkbox-provider-tpm2
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-docker:
     interface: content
     target: $SNAP/providers/checkbox-provider-docker
-    default-provider: checkbox24
+    default-provider: checkbox26
   provider-certification-client:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-client
-    default-provider: checkbox24
+    default-provider: checkbox26
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
@@ -84,17 +84,14 @@ parts:
       - snmp
       - python3-rpyc
       - gpsd
-    override-prime: |
-      craftctl default
-      rm lib/systemd/system/alsa-utils.service
     override-build: |
-      export PYTHONPATH=/snap/checkbox24/current/lib/python3.12/site-packages/
-      for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      export PYTHONPATH=/snap/checkbox26/current/lib/python3.14/site-packages/
+      for path in $(find "/snap/checkbox26/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ce-oem --root="$CRAFT_PART_INSTALL"
     build-snaps:
-      - checkbox24
+      - checkbox26
     build-packages:
       - python3-dev
       - python3-jinja2
@@ -117,16 +114,16 @@ parts:
     source: https://github.com/OP-TEE/optee_test.git
     source-type: git
     build-snaps:
-      - checkbox24
+      - checkbox26
     build-packages:
       - jq
       - python3-requests-unixsocket
     build-environment:
       - PART_DEST: ${CRAFT_PART_INSTALL}/providers/checkbox-provider-ce-oem/data/
       - PROVIDER_SRC: ${CRAFT_PROJECT_DIR}/checkbox-provider-ce-oem
-      - PYTHONPATH: /snap/checkbox24/current/lib/python3.12/site-packages/
+      - PYTHONPATH: /snap/checkbox26/current/lib/python3.14/site-packages/
     override-pull: |
-      snapcraftctl pull
+      craftctl default
       cp ${PROVIDER_SRC}/data/xtest_supported_version.json .
       cp ${PROVIDER_SRC}/bin/optee_helper.py .
       cp ${PROVIDER_SRC}/bin/look_up_xtest.py .
@@ -168,6 +165,5 @@ parts:
     source: config/
 
 layout:
-  # This is an workaround to access alsa config on UC24 core image
   /usr/share/alsa:
     bind: $SNAP/usr/share/alsa

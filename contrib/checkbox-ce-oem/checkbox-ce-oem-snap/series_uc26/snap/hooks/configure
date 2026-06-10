@@ -9,7 +9,7 @@ checkbox config format in `$SNAP_DATA/checkbox.conf`.
 
 config_vars should list all the configuration variables in a `key=value`
 syntax. The line can list variable name only, if the variable should not have a
-default value. All keys should comprise of CAPS, numbers and undescores (_).
+default value. All keys should comprise of CAPS, numbers and underscores (_).
 E.g.:
 
 OPEN_N_SSID

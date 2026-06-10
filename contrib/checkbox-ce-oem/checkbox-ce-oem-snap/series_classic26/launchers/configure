@@ -37,8 +37,7 @@ sudo snap install checkbox26
 def main():
     # we need run as root to be able to write to /var/snap/...
     if os.geteuid() != 0:
-        print('You have to run this command with sudo')
-        return
+        raise SystemExit('You have to run this command with sudo')
 
     if len(sys.argv) > 1 and sys.argv[1] == '-l':
         print_checkbox_conf()

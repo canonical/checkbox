@@ -114,7 +114,7 @@ class Brightness:
             return 0
 
     def get_scale(self, path) -> str:
-        return Path(path) / "scale"
+        return (Path(path) / "scale").read_text()
 
 
 def main():

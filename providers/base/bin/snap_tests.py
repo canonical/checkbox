@@ -68,7 +68,8 @@ def remove_if_present(snapd, snap_name):
 def get_snapd_client():
     logger = logging.getLogger("snapd")
     logger.handlers.clear()
-    # here we are printing to sys.stdout so that progress flushes the correct stream
+    # here we are printing to sys.stdout so that progress flushes the correct
+    # stream
     handler = logging.StreamHandler(sys.stdout)
     # double space makes it easier to tell what is test progress and what is
     # logs
@@ -182,9 +183,8 @@ class SnapRevert:
         rev = r["revision"]
         if rev != stable_rev:
             print(
-                "Fail: Failed to revert to stable revision ({}), got: {}".format(
-                    stable_rev, rev
-                )
+                "Fail: Failed to revert to stable revision ({}), "
+                "got: {}".format(stable_rev, rev)
             )
             return 1
         if rev == installed_rev:
@@ -216,9 +216,8 @@ class SnapReupdate:
         rev = r["revision"]
         if rev != edge_rev:
             print(
-                "Fail: Failed to refresh to edge, expected revision: {}, got {}".format(
-                    edge_rev, rev
-                )
+                "Fail: Failed to refresh to edge, expected revision: {}"
+                ", got {}".format(edge_rev, rev)
             )
             return 1
         print("Pass: Snap re-updated correctly")

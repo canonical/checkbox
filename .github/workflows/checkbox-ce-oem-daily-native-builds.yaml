@@ -27,7 +27,7 @@ jobs:
       matrix:
         # other confs cross-built by checkbox-daily-cross-build.yaml
         type: [classic, uc]
-        release: [20, 22, 24]
+        release: [20, 22, 24, 26]
         arch: [amd64, arm64]
         include:
           - arch: amd64

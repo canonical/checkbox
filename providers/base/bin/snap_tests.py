@@ -56,13 +56,13 @@ def pretty_exit_async_exception(f):
 
 
 def remove_if_present(snapd, snap_name):
-    if snapd.list(TEST_SNAP):
+    if snapd.list(snap_name):
         print(
             "Test snap '{}' is already installed. Removing it...".format(
                 snap_name
             )
         )
-        snapd.remove(TEST_SNAP)
+        snapd.remove(snap_name)
 
 
 def get_snapd_client():

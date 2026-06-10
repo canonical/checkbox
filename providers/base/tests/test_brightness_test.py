@@ -33,11 +33,9 @@ class TestMainScaleBranch(unittest.TestCase):
         return mock_b
 
     def _run_main(self, mock_b):
-        with (
-            patch("brightness_test.Brightness", return_value=mock_b),
-            patch("brightness_test.os.geteuid", return_value=0),
-            patch("brightness_test.time.sleep"),
-        ):
+        with patch("brightness_test.Brightness", return_value=mock_b), patch(
+            "brightness_test.os.geteuid", return_value=0
+        ), patch("brightness_test.time.sleep"):
             with self.assertRaises(SystemExit) as ctx:
                 main()
         return ctx.exception.code

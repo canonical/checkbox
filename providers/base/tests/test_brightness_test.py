@@ -9,7 +9,7 @@ class TestGetScale(unittest.TestCase):
         b = Brightness.__new__(Brightness)
         with patch("brightness_test.Path.read_text", return_value="linear\n"):
             result = b.get_scale("/sys/class/backlight/intel_backlight")
-        self.assertEqual(result, "linear\n")
+        self.assertEqual(result, "linear")
 
     def test_reads_non_linear_scale(self):
         b = Brightness.__new__(Brightness)
@@ -17,7 +17,7 @@ class TestGetScale(unittest.TestCase):
             "brightness_test.Path.read_text", return_value="non-linear\n"
         ):
             result = b.get_scale("/sys/class/backlight/amdgpu_bl0")
-        self.assertEqual(result, "non-linear\n")
+        self.assertEqual(result, "non-linear")
 
 
 class TestMainScaleBranch(unittest.TestCase):

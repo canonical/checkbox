@@ -1242,15 +1242,20 @@ class CustomFrontendPROVIDERPATHTest(TestCase):
         self.assertEqual(get_secure_custom_frontend_PROVIDERPATH_list(), [])
 
     @patch("plainbox.impl.secure.providers.v1.Path")
+    @patch("plainbox.impl.secure.providers.v1.logger")
     @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1/current"))
-    def test_path_custom_frontend(self, mock_Path):
+    def test_path_custom_frontend(self, mock_logger, mock_Path):
         custom_frontends = mock_Path() / "custom_frontends"
         custom_frontends.exists.return_value = True
 
         # valid, has a custom_frontend/providers
         valid_custom_frontend = MagicMock()
+        valid_custom_frontend.iterdir.return_value = [
+            Path("providers"),
+            Path("bin"),
+        ]
         valid_custom_frontend_providers = valid_custom_frontend / "providers"
-        valid_custom_frontend_providers.exists = Mock(return_value=True)
+        valid_custom_frontend_providers.exists.return_value = True
         # frontend contains 2 providers
         valid_custom_frontend_providers.iterdir.return_value = [
             Path("a"),
@@ -1258,8 +1263,10 @@ class CustomFrontendPROVIDERPATHTest(TestCase):
         ]
 
         # invalid, doesn't have custom_frontend/providers
+        # but is non-empty
         invalid_custom_frontend = MagicMock()
         (invalid_custom_frontend / "providers").exists.return_value = False
+        invalid_custom_frontend.iterdir.return_value = [Path("bin")]
 
         custom_frontends.iterdir.return_value = [
             valid_custom_frontend,
@@ -1268,6 +1275,28 @@ class CustomFrontendPROVIDERPATHTest(TestCase):
         self.assertEqual(
             get_secure_custom_frontend_PROVIDERPATH_list(), ["a", "b"]
         )
+        self.assertTrue(mock_logger.error.called)
+
+    @patch("plainbox.impl.secure.providers.v1.Path")
+    @patch("plainbox.impl.secure.providers.v1.logger")
+    @patch("os.getenv", new=Mock(return_value="/snap/checkbox24/x1/current"))
+    def test_path_custom_frontend_default_ignored(
+        self, mock_logger, mock_Path
+    ):
+        custom_frontends = mock_Path() / "custom_frontends"
+        custom_frontends.exists.return_value = True
+
+        # invalid, doesn't have custom_frontend/providers
+        # but is non-empty
+        default_custom_frontend = MagicMock()
+        (default_custom_frontend / "providers").exists.return_value = False
+        default_custom_frontend.iterdir.return_value = []
+
+        custom_frontends.iterdir.return_value = [
+            default_custom_frontend,
+        ]
+        self.assertEqual(get_secure_custom_frontend_PROVIDERPATH_list(), [])
+        self.assertFalse(mock_logger.error.called)
 
 
 @patch("plainbox.impl.secure.providers.v1.logger")

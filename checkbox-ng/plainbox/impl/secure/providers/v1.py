@@ -2060,12 +2060,17 @@ def get_secure_custom_frontend_PROVIDERPATH_list():
     for custom_frontend_root in custom_frontends_path.iterdir():
         providers_path = custom_frontend_root / "providers"
         if not providers_path.exists():
-            logger.error(
-                "Custom frontend must have `providers` directory in root. "
-                "Invalid custom frontend found: {}".format(
-                    custom_frontend_root
+            # since core26, the target of all interfaces is always created even
+            # if the content interface is not plugged. This warning is supposed
+            # to notify if the custom frontend they plugged is invalid. This is
+            # why it checks if the dir is non-empty
+            if any(True for _ in custom_frontend_root.iterdir()):
+                logger.error(
+                    "Custom frontend must have `providers` directory in root. "
+                    "Invalid custom frontend found: {}".format(
+                        custom_frontend_root
+                    )
                 )
-            )
             continue
         providers_paths += providers_path.iterdir()
     return list(map(str, providers_paths))

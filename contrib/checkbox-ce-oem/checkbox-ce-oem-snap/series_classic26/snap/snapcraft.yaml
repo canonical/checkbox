@@ -1,6 +1,6 @@
 name: checkbox-ce-oem
-summary: Checkbox CE OEM test runner and public providers for 24.04 classic
-description: "Checkbox CE OEM test runner and public providers for 24.04 classic"
+summary: Checkbox CE OEM test runner and public providers for 26.04 classic
+description: "Checkbox CE OEM test runner and public providers for 26.04 classic"
 confinement: classic
 grade: stable
 

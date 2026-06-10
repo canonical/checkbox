@@ -40,6 +40,8 @@ jobs:
             snapcraft_version: 8.x
           - release: 24
             snapcraft_version: 8.x
+          - release: 26
+            snapcraft_version: 9.x
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "jammy", "large", "${{ matrix.tag }}"]

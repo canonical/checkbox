@@ -11,6 +11,7 @@ case "$SNAP_ARCH" in
     ;;
     *)
         echo "Unsupported architecture: $SNAP_ARCH"
+        exit 1
     ;;
 esac
 
@@ -45,7 +46,7 @@ else
     echo "Running in configure hook, wrapper_common not required"
   else
     echo "ERROR: no $RUNTIME/wrapper_common found"
-    exit 0
+    exit 1
   fi
 fi
 

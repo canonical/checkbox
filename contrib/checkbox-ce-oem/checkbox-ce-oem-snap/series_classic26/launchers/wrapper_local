@@ -11,6 +11,7 @@ case "$SNAP_ARCH" in
     ;;
     *)
         echo "Unsupported architecture: $SNAP_ARCH"
+        exit 1
     ;;
 esac
 
@@ -39,7 +40,7 @@ if [ -e $RUNTIME/wrapper_common_classic ]; then
   . $RUNTIME/wrapper_common_classic
 else
   echo "ERROR: no $RUNTIME/wrapper_common_classic found"
-  exit 0
+  exit 1
 fi
 
 exec "$@"

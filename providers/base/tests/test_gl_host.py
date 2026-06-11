@@ -95,27 +95,103 @@ class TestCmdValidateInstall(unittest.TestCase):
 
 class TestCmdRunTest(unittest.TestCase):
     SNAP = "/snap/opengl-cts/current"
+    PLZ_RUN = "/snap/checkbox22/current/bin/plz-run"
+
+    def _run(self, mock_run, returncode=0):
+        mock_run.return_value = MagicMock(returncode=returncode)
+        with patch("gl_host.get_arch_triple", return_value="x86_64-linux-gnu"):
+            with patch("gl_host.find_plz_run", return_value=self.PLZ_RUN):
+                with patch("os.makedirs"):
+                    with patch("os.symlink"):
+                        with patch("shutil.rmtree"):
+                            with patch(
+                                "tempfile.mkdtemp",
+                                return_value="/tmp/gl_test_xyz",
+                            ):
+                                return gl_host.cmd_run_test(
+                                    ["--deqp-case=KHR-GLES32.info.*"]
+                                )
 
     @patch("subprocess.run")
-    def test_passes_test_args_to_snap_binary(self, mock_run):
-        mock_run.return_value = MagicMock(returncode=0)
-        gl_host.cmd_run_test(["--deqp-case=KHR-GLES32.info.*"])
+    def test_calls_glcts_via_plz_run(self, mock_run):
+        self._run(mock_run)
         cmd = mock_run.call_args[0][0]
-        self.assertEqual(cmd[0], "{}/test".format(self.SNAP))
-        self.assertIn("--no-confinement", cmd)
+        self.assertEqual(cmd[0], self.PLZ_RUN)
+        self.assertIn("{}/usr/bin/glcts".format(self.SNAP), cmd)
+        self.assertIn("--deqp-surface-type=fbo", cmd)
         self.assertIn("--deqp-case=KHR-GLES32.info.*", cmd)
 
     @patch("subprocess.run")
-    def test_sets_snap_env(self, mock_run):
+    def test_sets_host_egl_env(self, mock_run):
+        self._run(mock_run)
+        cmd = mock_run.call_args[0][0]
+        self.assertIn("EGL_PLATFORM=surfaceless", cmd)
+        self.assertIn(
+            "LD_LIBRARY_PATH=/tmp/gl_test_xyz:/usr/lib/x86_64-linux-gnu:/usr/lib",
+            cmd,
+        )
+        self.assertIn("SNAP={}".format(self.SNAP), cmd)
+
+    @patch("subprocess.run")
+    def test_creates_egl_symlink(self, mock_run):
         mock_run.return_value = MagicMock(returncode=0)
-        gl_host.cmd_run_test(["--deqp-case=KHR-GLES32.info.*"])
-        self.assertEqual(mock_run.call_args[1]["env"]["SNAP"], self.SNAP)
+        with patch("gl_host.get_arch_triple", return_value="x86_64-linux-gnu"):
+            with patch("gl_host.find_plz_run", return_value=self.PLZ_RUN):
+                with patch("os.makedirs"):
+                    with patch("os.symlink") as mock_symlink:
+                        with patch("shutil.rmtree"):
+                            with patch(
+                                "tempfile.mkdtemp",
+                                return_value="/tmp/gl_test_xyz",
+                            ):
+                                gl_host.cmd_run_test(
+                                    ["--deqp-case=KHR-GLES32.info.*"]
+                                )
+        mock_symlink.assert_called_once_with(
+            "/usr/lib/x86_64-linux-gnu/libEGL.so.1",
+            "/tmp/gl_test_xyz/libEGL.so",
+        )
 
     @patch("subprocess.run")
     def test_returns_subprocess_returncode(self, mock_run):
-        mock_run.return_value = MagicMock(returncode=1)
-        self.assertEqual(
-            gl_host.cmd_run_test(["--deqp-case=KHR-GLES32.info.*"]), 1
+        self.assertEqual(self._run(mock_run, returncode=1), 1)
+
+    @patch("subprocess.run")
+    def test_cleans_up_tmpdir(self, mock_run):
+        mock_run.return_value = MagicMock(returncode=0)
+        with patch("gl_host.get_arch_triple", return_value="x86_64-linux-gnu"):
+            with patch("gl_host.find_plz_run", return_value=self.PLZ_RUN):
+                with patch("os.makedirs"):
+                    with patch("os.symlink"):
+                        with patch("shutil.rmtree") as mock_rmtree:
+                            with patch(
+                                "tempfile.mkdtemp",
+                                return_value="/tmp/gl_test_xyz",
+                            ):
+                                gl_host.cmd_run_test(
+                                    ["--deqp-case=KHR-GLES32.info.*"]
+                                )
+        mock_rmtree.assert_called_once_with(
+            "/tmp/gl_test_xyz", ignore_errors=True
+        )
+
+    @patch("subprocess.run", side_effect=OSError("exec failed"))
+    def test_cleans_up_tmpdir_on_error(self, mock_run):
+        with patch("gl_host.get_arch_triple", return_value="x86_64-linux-gnu"):
+            with patch("gl_host.find_plz_run", return_value=self.PLZ_RUN):
+                with patch("os.makedirs"):
+                    with patch("os.symlink"):
+                        with patch("shutil.rmtree") as mock_rmtree:
+                            with patch(
+                                "tempfile.mkdtemp",
+                                return_value="/tmp/gl_test_xyz",
+                            ):
+                                with self.assertRaises(OSError):
+                                    gl_host.cmd_run_test(
+                                        ["--deqp-case=KHR-GLES32.info.*"]
+                                    )
+        mock_rmtree.assert_called_once_with(
+            "/tmp/gl_test_xyz", ignore_errors=True
         )
 
 

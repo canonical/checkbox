@@ -32,10 +32,16 @@ Subcommands:
 
 import logging
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 
-from checkbox_support.helpers.host_utils import get_arch_triple
+from checkbox_support.helpers.host_utils import (
+    VulkanDetectionError,
+    find_plz_run,
+    get_arch_triple,
+)
 
 
 class OpenGLError(Exception):
@@ -90,11 +96,38 @@ def cmd_validate_install():
 
 def cmd_run_test(test_args):
     snap = "/snap/opengl-cts/current"
-    result = subprocess.run(
-        ["{}/test".format(snap), "--no-confinement"] + test_args,
-        env=dict(os.environ, SNAP=snap),
-    )
-    return result.returncode
+    arch_triple = get_arch_triple()
+    plz_run = find_plz_run()
+    host_egl = "/usr/lib/{}/libEGL.so.1".format(arch_triple)
+    work_dir = os.path.expanduser("~/.opengl-cts")
+    os.makedirs(work_dir, exist_ok=True)
+
+    # glcts dlopens the unversioned 'libEGL.so', but the host only ships
+    # 'libEGL.so.1'. Create a symlink in a temp dir and prepend it to
+    # LD_LIBRARY_PATH so glcts finds it.
+    tmpdir = tempfile.mkdtemp()
+    try:
+        os.symlink(host_egl, os.path.join(tmpdir, "libEGL.so"))
+        host_lib = "{}:/usr/lib/{}:/usr/lib".format(tmpdir, arch_triple)
+        result = subprocess.run(
+            [
+                plz_run,
+                "-E", "EGL_PLATFORM=surfaceless",
+                "-E", "DISPLAY=",
+                "-E", "WAYLAND_DISPLAY=",
+                "-E", "LD_LIBRARY_PATH={}".format(host_lib),
+                "-E", "SNAP={}".format(snap),
+                "--",
+                "{}/usr/bin/glcts".format(snap),
+                "--deqp-surface-type=fbo",
+            ]
+            + test_args
+            + ["--deqp-log-filename={}/TestResults.qpa".format(work_dir)],
+            cwd="{}/usr/share/opengl-cts".format(snap),
+        )
+        return result.returncode
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 def main():
@@ -117,7 +150,7 @@ def main():
         else:
             logging.error("Unknown command: %s", command)
             return 1
-    except (RuntimeError, OpenGLError) as exc:
+    except (RuntimeError, OpenGLError, VulkanDetectionError) as exc:
         logging.error("%s", exc)
         return 1
     return 0

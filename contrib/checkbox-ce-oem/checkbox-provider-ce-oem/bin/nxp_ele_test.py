@@ -40,46 +40,60 @@ def eprint(message: str) -> None:
 
 
 def resolve_command(candidates: List[str], command_label: str) -> str:
-    """Resolve the first available executable command from a candidate list."""
+    """
+    Resolve the first available executable command from a candidate list.
+    """
     for candidate in candidates:
         if shutil.which(candidate) is not None:
             return candidate
     raise RuntimeError(
-        f"[NXP_ELE] Required command for {command_label} not found. "
-        f"Tried: {', '.join(candidates)}"
+        "[NXP_ELE] Required command for {} not found. Tried: {}".format(
+            command_label,
+            ", ".join(candidates),
+        )
     )
 
 
 def ensure_systemctl_available() -> None:
     """Ensure systemctl is available for daemon lifecycle management."""
     if shutil.which("systemctl") is None:
-        raise RuntimeError("[NXP_ELE] Required command 'systemctl' was not found in PATH.")
+        raise RuntimeError(
+            "[NXP_ELE] Required command 'systemctl' was not found in PATH."
+        )
 
 
-def run_with_optional_sudo(command: List[str], allow_failure: bool = False) -> int:
+def run_with_optional_sudo(
+    command: List[str], allow_failure: bool = False
+) -> int:
     """Run command directly as root or through sudo when needed."""
     final_command = list(command)
     if os.geteuid() != 0:
         sudo_path = shutil.which("sudo")
         if sudo_path is None:
             raise RuntimeError(
-                "[NXP_ELE] Root privileges are required and 'sudo' is not available."
+                "Root privileges are required and 'sudo' is not available."
             )
         final_command = [sudo_path] + final_command
 
-    print(f"[NXP_ELE] Running command: {' '.join(final_command)}")
+    print("[NXP_ELE] Running command: {}".format(" ".join(final_command)))
     result = subprocess.run(final_command, check=False)
     if result.returncode != 0 and not allow_failure:
         raise RuntimeError(
-            "[NXP_ELE] Command failed with exit code "
-            f"{result.returncode}: {' '.join(final_command)}"
+            "[NXP_ELE] Command failed with exit code {}: {}".format(
+                result.returncode, " ".join(final_command)
+            )
         )
     return result.returncode
 
 
 def resolve_nvm_daemon_service_name() -> str:
     """Resolve the available NVM daemon systemd unit name."""
-    list_units_cmd = ["systemctl", "list-unit-files", "--type=service", "--no-legend"]
+    list_units_cmd = [
+        "systemctl",
+        "list-unit-files",
+        "--type=service",
+        "--no-legend",
+    ]
     result = subprocess.run(
         list_units_cmd,
         check=False,
@@ -88,8 +102,9 @@ def resolve_nvm_daemon_service_name() -> str:
     )
     if result.returncode != 0:
         raise RuntimeError(
-            "[NXP_ELE] Failed to query systemd unit files via "
-            f"'{' '.join(list_units_cmd)}'."
+            "[NXP_ELE] Failed to query systemd unit files via {}".format(
+                " ".join(list_units_cmd)
+            )
         )
 
     available_units = set()
@@ -103,19 +118,23 @@ def resolve_nvm_daemon_service_name() -> str:
     for candidate in NVM_DAEMON_SERVICE_CANDIDATES:
         if candidate in available_units:
             return candidate
-        if candidate.endswith(".service") and candidate[:-8] in available_units:
+        if (
+            candidate.endswith(".service")
+            and candidate[:-8] in available_units
+        ):
             return candidate[:-8]
 
     raise RuntimeError(
-        "[NXP_ELE] Could not find supported NVM daemon service. "
-        f"Tried: {', '.join(NVM_DAEMON_SERVICE_CANDIDATES)}"
+        "Could not find supported NVM daemon service. Tried: {}".format(
+            ", ".join(NVM_DAEMON_SERVICE_CANDIDATES)
+        )
     )
 
 
 def set_nvm_daemon_state(action: str, service_name: str) -> None:
     """Start or stop the NVM daemon service."""
     if action not in ("start", "stop"):
-        raise RuntimeError(f"[NXP_ELE] Unsupported daemon action: {action}")
+        raise RuntimeError("Unsupported daemon action: {}".format(action))
     run_with_optional_sudo(["systemctl", action, service_name])
 
 
@@ -123,10 +142,10 @@ def cleanup_nvm_data() -> None:
     """Delete NVM test data directories content when present."""
     for directory in NVM_DATA_DIRECTORIES:
         if not directory.exists():
-            print(f"[NXP_ELE] Cleanup skipped (not found): {directory}")
+            print("# Cleanup skipped (not found): {}".format(directory))
             continue
 
-        print(f"[NXP_ELE] Cleaning directory: {directory}")
+        print("# Cleaning directory: {}".format(directory))
         for child in directory.iterdir():
             if child.is_dir() and not child.is_symlink():
                 run_with_optional_sudo(["rm", "-rf", str(child)])
@@ -155,7 +174,7 @@ def parse_tv_metadata(tv_file: Path) -> Tuple[str, str]:
 
     variant_candidates = ("persistent_ap", "volatile_ap", "ap", "n", "p")
     for variant in variant_candidates:
-        suffix = f"_{variant}"
+        suffix = "_{}".format(variant)
         if raw.endswith(suffix):
             category = raw[: -len(suffix)]
             if category:
@@ -167,15 +186,19 @@ def parse_tv_metadata(tv_file: Path) -> Tuple[str, str]:
 
 def get_candidate_directories() -> List[Path]:
     """Build candidate TV directories, including snap revision paths."""
-    candidates: List[Path] = list(CANDIDATE_DIRECTORIES)
+    candidates = list(CANDIDATE_DIRECTORIES)
     snap_root = Path("/snap/oem-imx-secure-enclave")
     if snap_root.is_dir():
-        for revision_dir in sorted(snap_root.iterdir(), key=lambda path: path.name):
+        for revision_dir in sorted(
+            snap_root.iterdir(), key=lambda path: path.name
+        ):
             if not revision_dir.is_dir():
                 continue
             candidates.append(revision_dir / "usr/share/se/test_vectors")
             candidates.append(revision_dir / "usr/share/se/test_vectors/psa")
-            candidates.append(revision_dir / "usr/share/oem-imx-secure-enclave")
+            candidates.append(
+                revision_dir / "usr/share/oem-imx-secure-enclave"
+            )
 
     return candidates
 
@@ -186,12 +209,15 @@ def discover_tv_files() -> List[Path]:
     results: List[Path] = []
 
     all_candidates = get_candidate_directories()
-    existing_dirs = [directory for directory in all_candidates if directory.is_dir()]
+    existing_dirs = [
+        directory for directory in all_candidates if directory.is_dir()
+    ]
     if not existing_dirs:
         candidates = ", ".join(str(path) for path in all_candidates)
         raise RuntimeError(
-            "[NXP_ELE] No candidate TV directories found. "
-            f"Checked: {candidates}"
+            "[NXP_ELE] No candidate TV directories found. Checked: {}".format(
+                candidates
+            )
         )
 
     for root in existing_dirs:
@@ -228,7 +254,10 @@ def build_tv_records(tv_files: List[Path]) -> List[Dict[str, str]]:
         tv_category, tv_variant = parse_tv_metadata(tv_file)
         sequence = used_names.get(base_name, 0)
         used_names[base_name] = sequence + 1
-        tv_name = base_name if sequence == 0 else f"{base_name}_{sequence + 1}"
+        if sequence > 0:
+            tv_name = "{}_{}".format(base_name, sequence + 1)
+        else:
+            tv_name = base_name
 
         records.append(
             {
@@ -253,10 +282,10 @@ def list_tv_records() -> int:
         return 1
 
     for record in build_tv_records(tv_files):
-        print(f"tv_file: {record['tv_file']}")
-        print(f"tv_name: {record['tv_name']}")
-        print(f"tv_category: {record['tv_category']}")
-        print(f"tv_variant: {record['tv_variant']}")
+        print("tv_file: {}".format(record["tv_file"]))
+        print("tv_name: {}".format(record["tv_name"]))
+        print("tv_category: {}".format(record["tv_category"]))
+        print("tv_variant: {}".format(record["tv_variant"]))
         print()
 
     return 0
@@ -270,19 +299,19 @@ def nvm_daemon_lifecycle():
     is_started = False
 
     try:
-        print(f"[NXP_ELE] Stopping {service_name} before cleanup")
+        print("[NXP_ELE] Stopping {} before cleanup".format(service_name))
         set_nvm_daemon_state("stop", service_name)
 
         cleanup_nvm_data()
 
-        print(f"[NXP_ELE] Starting {service_name} for test execution")
+        print("[NXP_ELE] Starting {} for test execution".format(service_name))
         set_nvm_daemon_state("start", service_name)
         is_started = True
 
         yield
     finally:
         if is_started:
-            print(f"[NXP_ELE] Stopping {service_name} after test")
+            print("[NXP_ELE] Stopping {} after test".format(service_name))
             try:
                 set_nvm_daemon_state("stop", service_name)
             except RuntimeError as exc:
@@ -290,17 +319,23 @@ def nvm_daemon_lifecycle():
 
 
 def run_with_nvm_lifecycle(test_command: List[str], test_label: str) -> int:
-    """Execute one test command with the NVM daemon stop/cleanup/start/stop lifecycle."""
+    """
+    Execute one test command with the NVM daemon lifecycle.
+    """
     test_exit = 1
     try:
         with nvm_daemon_lifecycle():
-            test_exit = run_with_optional_sudo(test_command, allow_failure=True)
+            test_exit = run_with_optional_sudo(
+                test_command, allow_failure=True
+            )
             if test_exit != 0:
                 eprint(
-                    f"[NXP_ELE] {test_label} failed with exit code {test_exit}"
+                    "[NXP_ELE] {} failed with exit code {}".format(
+                        test_label, test_exit
+                    )
                 )
                 return test_exit
-            
+
             print("[NXP_ELE] PASS: {} execution succeeded".format(test_label))
             return 0
     except RuntimeError as exc:
@@ -309,11 +344,15 @@ def run_with_nvm_lifecycle(test_command: List[str], test_label: str) -> int:
 
 
 def run_tv_file(tv_file: str) -> int:
-    """Run one TV file with required daemon stop/cleanup/start/stop lifecycle."""
-    test_command_bin = resolve_command(ELE_HSM_TEST_COMMAND_CANDIDATES, "ele_hsm_test")
+    """
+    Run one TV file with required daemon stop/cleanup/start/stop lifecycle.
+    """
+    test_command_bin = resolve_command(
+        ELE_HSM_TEST_COMMAND_CANDIDATES, "ele_hsm_test"
+    )
     file_path = Path(tv_file).expanduser().resolve()
     if not file_path.exists() or not file_path.is_file():
-        eprint(f"[NXP_ELE] TV file does not exist: {file_path}")
+        eprint("[NXP_ELE] TV file does not exist: {}".format(file_path))
         return 1
 
     return run_with_nvm_lifecycle(
@@ -324,7 +363,9 @@ def run_tv_file(tv_file: str) -> int:
 
 def run_perf_test() -> int:
     """Run ELE HSM performance test with required daemon lifecycle."""
-    perf_command_bin = resolve_command(ELE_HSM_PERF_TEST_COMMAND_CANDIDATES, "ele_hsm_perf_test")
+    perf_command_bin = resolve_command(
+        ELE_HSM_PERF_TEST_COMMAND_CANDIDATES, "ele_hsm_perf_test"
+    )
     return run_with_nvm_lifecycle(
         [perf_command_bin],
         "Performance test",
@@ -337,19 +378,23 @@ def parse_args() -> argparse.Namespace:
         description=(
             "List NXP ELE test vectors or execute ELE HSM tests "
             "with NVM daemon setup."
-        )
+        ),
     )
     action_group = parser.add_mutually_exclusive_group(required=True)
     action_group.add_argument(
         "--list-tv",
         action="store_true",
-        help="List discovered TV files as Checkbox resource records (key=value).",
+        help=(
+            "List discovered TV files as Checkbox resource records"
+            " (key=value)."
+        ),
     )
     action_group.add_argument(
         "--run-tv",
         metavar="PATH",
         help=(
-            "Run one TV file via: [sudo] oem-imx-secure-enclave.ele-hsm-test <PATH>, "
+            "Run one TV file via: "
+            "[sudo] oem-imx-secure-enclave.ele-hsm-test <PATH>, "
             "including nvm_daemon stop/cleanup/start/stop."
         ),
     )

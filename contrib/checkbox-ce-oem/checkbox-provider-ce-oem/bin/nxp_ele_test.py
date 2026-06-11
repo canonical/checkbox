@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
@@ -261,13 +262,13 @@ def list_tv_records() -> int:
     return 0
 
 
-def run_with_nvm_lifecycle(test_command: List[str], success_message: str, fail_label: str) -> int:
-    """Execute one test command with the NVM daemon stop/cleanup/start/stop lifecycle."""
+@contextmanager
+def nvm_daemon_lifecycle():
+    """Context manager for NVM daemon lifecycle around test execution."""
     ensure_systemctl_available()
     service_name = resolve_nvm_daemon_service_name()
+    is_started = False
 
-    test_exit = 1
-    daemon_stop_failed = False
     try:
         print(f"[NXP_ELE] Stopping {service_name} before cleanup")
         set_nvm_daemon_state("stop", service_name)
@@ -276,25 +277,35 @@ def run_with_nvm_lifecycle(test_command: List[str], success_message: str, fail_l
 
         print(f"[NXP_ELE] Starting {service_name} for test execution")
         set_nvm_daemon_state("start", service_name)
+        is_started = True
 
-        test_exit = run_with_optional_sudo(test_command, allow_failure=True)
-        if test_exit != 0:
-            eprint(
-                f"[NXP_ELE] {fail_label} failed with exit code {test_exit}"
-            )
-        else:
-            print(success_message)
+        yield
     finally:
-        print(f"[NXP_ELE] Stopping {service_name} after test")
-        try:
-            set_nvm_daemon_state("stop", service_name)
-        except RuntimeError as exc:
-            eprint(str(exc))
-            daemon_stop_failed = True
+        if is_started:
+            print(f"[NXP_ELE] Stopping {service_name} after test")
+            try:
+                set_nvm_daemon_state("stop", service_name)
+            except RuntimeError as exc:
+                eprint(str(exc))
 
-    if daemon_stop_failed and test_exit == 0:
+
+def run_with_nvm_lifecycle(test_command: List[str], test_label: str) -> int:
+    """Execute one test command with the NVM daemon stop/cleanup/start/stop lifecycle."""
+    test_exit = 1
+    try:
+        with nvm_daemon_lifecycle():
+            test_exit = run_with_optional_sudo(test_command, allow_failure=True)
+            if test_exit != 0:
+                eprint(
+                    f"[NXP_ELE] {test_label} failed with exit code {test_exit}"
+                )
+                return test_exit
+            
+            print("[NXP_ELE] PASS: {} execution succeeded".format(test_label))
+            return 0
+    except RuntimeError as exc:
+        eprint("[NXP_ELE] Error during {}: {}".format(test_label, str(exc)))
         return 1
-    return test_exit
 
 
 def run_tv_file(tv_file: str) -> int:
@@ -304,10 +315,10 @@ def run_tv_file(tv_file: str) -> int:
     if not file_path.exists() or not file_path.is_file():
         eprint(f"[NXP_ELE] TV file does not exist: {file_path}")
         return 1
+
     return run_with_nvm_lifecycle(
         [test_command_bin, str(file_path)],
-        f"[NXP_ELE] PASS: TV execution succeeded for {file_path}",
-        f"ELE HSM test ({test_command_bin})",
+        "TV execution",
     )
 
 
@@ -316,8 +327,7 @@ def run_perf_test() -> int:
     perf_command_bin = resolve_command(ELE_HSM_PERF_TEST_COMMAND_CANDIDATES, "ele_hsm_perf_test")
     return run_with_nvm_lifecycle(
         [perf_command_bin],
-        f"[NXP_ELE] PASS: Performance test succeeded ({perf_command_bin})",
-        f"ELE HSM performance test ({perf_command_bin})",
+        "Performance test",
     )
 
 

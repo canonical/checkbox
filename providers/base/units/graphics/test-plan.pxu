@@ -485,6 +485,26 @@ bootstrap_include:
     graphics_card
     executable
 
+id: opengl-core-test-plan
+unit: test plan
+_name: Graphics test plan for verifying OpenGL CTS (core/snap)
+include:
+    setup/install_opengl_cts
+    graphics/gl_core_.*
+bootstrap_include:
+    graphics_card
+    executable
+
+id: opengl-classic-test-plan
+unit: test plan
+_name: Graphics test plan for verifying OpenGL CTS (classic)
+include:
+    setup/install_opengl_cts
+    graphics/gl_classic_.*
+bootstrap_include:
+    graphics_card
+    executable
+
 id: crucible-core-test-plan
 unit: test plan
 _name: Graphics test plan for crucible (core/snap)

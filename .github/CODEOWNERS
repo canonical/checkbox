@@ -10,3 +10,5 @@ contrib/checkbox-dss-validation @canonical/solutions-qa
 # PE team
 contrib/checkbox-gfx @canonical/partner-eng
 .github/workflows/tox-contrib-checkbox-gfx.yaml @canonical/partner-eng
+contrib/checkbox-multimedia @canonical/partner-eng
+.github/workflows/tox-contrib-provider-checkbox-multimedia.yaml @canonical/partner-eng

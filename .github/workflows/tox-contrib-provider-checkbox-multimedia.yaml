@@ -1,0 +1,54 @@
+name: Test checkbox-provider-multimedia (from contrib area) with tox
+permissions:
+  contents: read
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-multimedia/checkbox-provider-multimedia/**
+      - .github/workflows/tox-contrib-provider-checkbox-multimedia.yaml
+  pull_request:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-multimedia/checkbox-provider-multimedia/**
+      - .github/workflows/tox-contrib-provider-checkbox-multimedia.yaml
+  workflow_dispatch:
+
+jobs:
+  tox_test_contrib_multimedia_provider:
+    name: Test checkbox-provider-multimedia (from contrib area) with tox
+    defaults:
+      run:
+        working-directory: contrib/checkbox-multimedia/checkbox-provider-multimedia
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python: ["3.12"]
+        include:
+          - python: "3.12"
+            tox_env_name: "py312"
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get update
+          sudo apt-get install -y -qq gcc python$PYTHON_VERSION-dev
+          pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: provider-multimedia

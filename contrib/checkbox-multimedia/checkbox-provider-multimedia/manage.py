@@ -21,8 +21,6 @@ setup(
     name="checkbox-provider-multimedia",
     namespace="com.canonical.contrib",
     version="0.1",
-    description=N_(
-        "Checkbox provider for multimedia testing"
-    ),
+    description=N_("Checkbox provider for multimedia testing"),
     gettext_domain="checkbox-provider-multimedia",
 )

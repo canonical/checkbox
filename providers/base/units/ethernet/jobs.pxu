@@ -76,7 +76,7 @@ _purpose:
 
 unit: template
 template-resource: device
-template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
+template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN' and device.product_slug != 'Virtual_Ethernet_'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/multi_iperf3_nic_device{__index__}_{interface}

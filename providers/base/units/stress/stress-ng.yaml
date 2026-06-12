@@ -1,35 +1,39 @@
 unit: job
 id: stress_ng_stressors
 plugin: resource
-_summary: Gather list of test stressors from stress-ng
-_description:
- _purpose:
-  stress-ng divides tests into stressors. The goal is to get a list of stressors so tests can be divided
-  up accordingly.
-environ: STRESS_NG_EXTRA_UNSUPPORTED
-command:
- command -v stress-ng >/dev/null 2>&1 || { >&2 echo "stress-ng command not found"; exit 1; }
- capture_stressor.py
+summary: Gather list of test stressors from stress-ng
+description: |
+  _purpose:
+   stress-ng divides tests into stressors. The goal is to get a list of stressors so tests can be divided
+   up accordingly.
+environ:
+  - STRESS_NG_EXTRA_UNSUPPORTED
+command: |
+  command -v stress-ng >/dev/null 2>&1 || { >&2 echo "stress-ng command not found"; exit 1; }
+  capture_stressor.py
 estimated_duration: 1s
-flags: preserve-locale
-
+flags:
+  - preserve-locale
+---
 unit: template
 template-unit: job
 template-resource: stress_ng_stressors
-template-filter: stress_ng_stressors.root == "False"
+template-filter:
+  - stress_ng_stressors.root == "False"
 id: stress/stress-ng-test-for-stressor-{stressor}-user
 template-id: stress/stress-ng-test-for-stressor-stressor-user
 category_id: com.canonical.plainbox::stress
-_summary: Run the stress-ng stressor {stressor} (as normal user)
-_purpose:
- Runs the stressors from stress-ng. Tests run using the
- same number of processes as online processors.
+summary: Run the stress-ng stressor {stressor} (as normal user)
+purpose: |
+  Runs the stressors from stress-ng. Tests run using the
+  same number of processes as online processors.
 requires:
-  (stress_ng_stressors.stressor == "{stressor}" and stress_ng_stressors.unsupported == "False")
+  - (stress_ng_stressors.stressor == "{stressor}" and stress_ng_stressors.unsupported == "False")
 plugin: shell
-estimated_duration: 30.0
-environ: STRESS_NG_STRESSORS_TIMEOUT
-command:
+estimated_duration: '30.0'
+environ:
+  - STRESS_NG_STRESSORS_TIMEOUT
+command: |
   cd /var/tmp || exit $?
   PATHOLOGICAL="{pathological}"
   if [ "$PATHOLOGICAL" = "True" ]; then
@@ -45,25 +49,27 @@ command:
     0|3|4) exit 0;;
     *)     exit 1;;
   esac
-
+---
 unit: template
 template-unit: job
 template-resource: stress_ng_stressors
-template-filter: stress_ng_stressors.root == "True"
+template-filter:
+  - stress_ng_stressors.root == "True"
 id: stress/stress-ng-test-for-stressor-{stressor}-root
 template-id: stress/stress-ng-test-for-stressor-stressor-root
 category_id: com.canonical.plainbox::stress
-_summary: Run the stress-ng stressor {stressor} (as root)
-_purpose:
- Runs the stressors from stress-ng. Tests run using the
- same number of processes as online processors.
+summary: Run the stress-ng stressor {stressor} (as root)
+purpose: |
+  Runs the stressors from stress-ng. Tests run using the
+  same number of processes as online processors.
 requires:
-  (stress_ng_stressors.stressor == "{stressor}" and stress_ng_stressors.unsupported == "False")
+  - (stress_ng_stressors.stressor == "{stressor}" and stress_ng_stressors.unsupported == "False")
 plugin: shell
 user: root
-estimated_duration: 30.0
-environ: STRESS_NG_STRESSORS_TIMEOUT
-command:
+estimated_duration: '30.0'
+environ:
+  - STRESS_NG_STRESSORS_TIMEOUT
+command: |
   cd /var/tmp || exit $?
   PATHOLOGICAL="{pathological}"
   if [ "$PATHOLOGICAL" = "True" ]; then
@@ -79,15 +85,14 @@ command:
     0|3|4) exit 0;;
     *)     exit 1;;
   esac
-
-plugin:shell
+---
+plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/store_and_change_oomd_config
-estimated_duration: 3.0
+estimated_duration: '3.0'
 user: root
-_summary:
-  Store and change 10-oomd-user-service-defaults.conf
-command:
+summary: Store and change 10-oomd-user-service-defaults.conf
+command: |
   systemd_oomd_conf_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
   if [ -e ${systemd_oomd_conf_path} ]; then
     echo "Storing original oomd config..."
@@ -104,16 +109,16 @@ command:
     echo "Config doesn't exist."
     echo "Won't change anything"
   fi
-
-plugin:shell
+---
+plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/restore_oomd_config
-depends: stress/store_and_change_oomd_config
-estimated_duration: 3.0
+depends:
+  - stress/store_and_change_oomd_config
+estimated_duration: '3.0'
 user: root
-_summary:
-  Restore to original 10-oomd-user-service-defaults.conf
-command:
+summary: Restore to original 10-oomd-user-service-defaults.conf
+command: |
   systemd_oomd_conf_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
   if [ -e ${systemd_oomd_conf_path} ]; then
     echo "Before restoring config:"

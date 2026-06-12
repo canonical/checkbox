@@ -17,7 +17,7 @@ unit: template
 template-unit: job
 template-resource: stress_ng_stressors
 template-filter: stress_ng_stressors.root == "False"
-id: stress/stress-ng-test-for-stressor-{stressor}
+id: stress/stress-ng-test-for-stressor-{stressor}-user
 template-id: stress/stress-ng-test-for-stressor-stressor-user
 category_id: com.canonical.plainbox::stress
 _summary: Run the stress-ng stressor {stressor} (as normal user)
@@ -50,7 +50,7 @@ unit: template
 template-unit: job
 template-resource: stress_ng_stressors
 template-filter: stress_ng_stressors.root == "True"
-id: stress/stress-ng-test-for-stressor-{stressor}
+id: stress/stress-ng-test-for-stressor-{stressor}-root
 template-id: stress/stress-ng-test-for-stressor-stressor-root
 category_id: com.canonical.plainbox::stress
 _summary: Run the stress-ng stressor {stressor} (as root)

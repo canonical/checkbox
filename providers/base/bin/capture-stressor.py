@@ -14,55 +14,65 @@ classes_list = ["cpu", "cpu-cache", "memory", "os", "pipe", "scheduler", "vm"]
 extra_attributes = ["root", "pathological", "unsupported"]
 stressor_attributes = defaultdict(lambda: defaultdict(bool))
 
-stressor_attributes["apparmor"]["root"] = True
-stressor_attributes["binderfs"]["root"] = True
-stressor_attributes["cgroup"]["root"] = True
-stressor_attributes["chroot"]["root"] = True
-stressor_attributes["dfp"]["root"] = True
-stressor_attributes["fanotify"]["root"] = True
-stressor_attributes["icmp-flood"]["root"] = True
-stressor_attributes["idle-page"]["root"] = True
-stressor_attributes["klog"]["root"] = True
-stressor_attributes["loop"]["root"] = True
-stressor_attributes["lsm"]["root"] = True
-stressor_attributes["memhotplug"]["root"] = True
-stressor_attributes["module"]["root"] = True
-stressor_attributes["mseal"]["root"] = True
-stressor_attributes["netlink-proc"]["root"] = True
-stressor_attributes["netlink-task"]["root"] = True
-stressor_attributes["physmmap"]["root"] = True
-stressor_attributes["physpage"]["root"] = True
-stressor_attributes["plugin"]["root"] = True
-stressor_attributes["quota"]["root"] = True
-stressor_attributes["ramfs"]["root"] = True
-stressor_attributes["rawpkt"]["root"] = True
-stressor_attributes["rawsock"]["root"] = True
-stressor_attributes["rawudp"]["root"] = True
-stressor_attributes["rdrand"]["root"] = True
-stressor_attributes["seccomp"]["root"] = True
-stressor_attributes["secretmem"]["root"] = True
-stressor_attributes["smi"]["root"] = True
-stressor_attributes["softlockup"]["root"] = True
-stressor_attributes["statmount"]["root"] = True
-stressor_attributes["swap"]["root"] = True
-stressor_attributes["tsc"]["root"] = True
-stressor_attributes["tun"]["root"] = True
-stressor_attributes["umount"]["root"] = True
-stressor_attributes["uprobe"]["root"] = True
-stressor_attributes["userfaultfd"]["root"] = True
-stressor_attributes["usersyscall"]["root"] = True
-stressor_attributes["ioport"]["root"] = True
-stressor_attributes["ipsec-mb"]["root"] = True
-stressor_attributes["x86cpuid"]["root"] = True
-stressor_attributes["x86syscall"]["root"] = True
+stressors_requiring_root = [
+    "apparmor",
+    "binderfs",
+    "cgroup",
+    "chroot",
+    "dfp",
+    "fanotify",
+    "icmp-flood",
+    "idle-page",
+    "klog",
+    "loop",
+    "lsm",
+    "memhotplug",
+    "module",
+    "mseal",
+    "netlink-proc",
+    "netlink-task",
+    "physmmap",
+    "physpage",
+    "plugin",
+    "quota",
+    "ramfs",
+    "rawpkt",
+    "rawsock",
+    "rawudp",
+    "rdrand",
+    "seccomp",
+    "secretmem",
+    "smi",
+    "softlockup",
+    "statmount",
+    "swap",
+    "tsc",
+    "tun",
+    "umount",
+    "uprobe",
+    "userfaultfd",
+    "usersyscall",
+    "ioport",
+    "ipsec-mb",
+    "x86cpuid",
+    "x86syscall",
+    "bad-ioctl",
+    "bind-mount",
+    "mlockmany",
+    "oom-pipe",
+    "sysinval",
+    "watchdog",
+]
+for stressor in stressors_requiring_root:
+    stressor_attributes[stressor]["root"] = True
 
-stressor_attributes["bad-ioctl"].update(root=True, pathological=True)
-stressor_attributes["bind-mount"].update(root=True, pathological=True)
-stressor_attributes["cpu-online"].update(root=True, pathological=True)
-stressor_attributes["mlockmany"].update(root=True, pathological=True)
-stressor_attributes["oom-pipe"].update(root=True, pathological=True)
-stressor_attributes["sysinval"].update(root=True, pathological=True)
-stressor_attributes["watchdog"].update(root=True, pathological=True)
+stressor_attributes["bad-ioctl"]["pathological"] = True
+stressor_attributes["bind-mount"]["pathological"] = True
+stressor_attributes["cpu-online"]["pathological"] = True
+stressor_attributes["mlockmany"]["pathological"] = True
+stressor_attributes["oom-pipe"]["pathological"] = True
+stressor_attributes["sysinval"]["pathological"] = True
+stressor_attributes["watchdog"]["pathological"] = True
 
 if platform.machine().lower() not in ["x86_64", "amd64"]:
     # stressors are x86 specific
@@ -100,7 +110,6 @@ def main():
         # the `stress-ng --class` command returns something like this:
         # class 'cpu' stressors: af-alg atomic bitonicsort ...
         class_stressor_list = output.split(": ", 1)[1].split()
-
 
         for class_stressor in class_stressor_list:
             if class_stressor in stressors_list:

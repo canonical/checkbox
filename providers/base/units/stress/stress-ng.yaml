@@ -2,10 +2,9 @@ unit: job
 id: stress_ng_stressors
 plugin: resource
 summary: Gather list of test stressors from stress-ng
-description: |
-  _purpose:
-   stress-ng divides tests into stressors. The goal is to get a list of stressors so tests can be divided
-   up accordingly.
+purpose: |
+  stress-ng divides tests into stressors. The goal is to get a list of stressors so tests can be divided
+  up accordingly.
 environ:
   - STRESS_NG_EXTRA_UNSUPPORTED
 command: |

@@ -73,6 +73,8 @@ if platform.machine().lower() not in ["x86_64", "amd64"]:
 
 
 def main():
+    # STRESS_NG_EXTRA_UNSUPPORTED is a space-separated list of stressors to
+    # skip, for instance "ioport x86cpuid x86syscall"
     extra_unsupported = os.getenv("STRESS_NG_EXTRA_UNSUPPORTED", "").split()
     for unsupported in extra_unsupported:
         stressor_attributes[unsupported]["unsupported"] = True
@@ -95,7 +97,10 @@ def main():
         except Exception as err:
             raise SystemExit(err)
 
+        # the `stress-ng --class` command returns something like this:
+        # class 'cpu' stressors: af-alg atomic bitonicsort ...
         class_stressor_list = output.split(": ", 1)[1].split()
+
 
         for class_stressor in class_stressor_list:
             if class_stressor in stressors_list:

@@ -20,7 +20,7 @@ template-filter: stress_ng_stressors.root == "False"
 id: stress/stress-ng-test-for-stressor-{stressor}
 template-id: stress/stress-ng-test-for-stressor-stressor-user
 category_id: com.canonical.plainbox::stress
-_summary: Run the stress-ng stressor {stressor}
+_summary: Run the stress-ng stressor {stressor} (as normal user)
 _purpose:
  Runs the stressors from stress-ng. Tests run using the
  same number of processes as online processors.
@@ -53,7 +53,7 @@ template-filter: stress_ng_stressors.root == "True"
 id: stress/stress-ng-test-for-stressor-{stressor}
 template-id: stress/stress-ng-test-for-stressor-stressor-root
 category_id: com.canonical.plainbox::stress
-_summary: Run the stress-ng stressor {stressor}
+_summary: Run the stress-ng stressor {stressor} (as root)
 _purpose:
  Runs the stressors from stress-ng. Tests run using the
  same number of processes as online processors.

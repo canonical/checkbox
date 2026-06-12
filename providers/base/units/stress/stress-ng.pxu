@@ -9,7 +9,7 @@ _description:
 environ: STRESS_NG_EXTRA_UNSUPPORTED
 command:
  command -v stress-ng >/dev/null 2>&1 || { >&2 echo "stress-ng command not found"; exit 1; }
- capture-stressor.py
+ capture_stressor.py
 estimated_duration: 1s
 flags: preserve-locale
 

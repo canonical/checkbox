@@ -76,9 +76,7 @@ def _has_drm_gpu():
 
 def cmd_resource():
     if not _has_drm_gpu():
-        raise OpenGLError(
-            "No known GPU found in DRM sysfs (/sys/class/drm)"
-        )
+        raise OpenGLError("No known GPU found in DRM sysfs (/sys/class/drm)")
     logging.info("Found an OpenGL-capable GPU in DRM sysfs")
 
 
@@ -112,11 +110,16 @@ def cmd_run_test(test_args):
         result = subprocess.run(
             [
                 plz_run,
-                "-E", "EGL_PLATFORM=surfaceless",
-                "-E", "DISPLAY=",
-                "-E", "WAYLAND_DISPLAY=",
-                "-E", "LD_LIBRARY_PATH={}".format(host_lib),
-                "-E", "SNAP={}".format(snap),
+                "-E",
+                "EGL_PLATFORM=surfaceless",
+                "-E",
+                "DISPLAY=",
+                "-E",
+                "WAYLAND_DISPLAY=",
+                "-E",
+                "LD_LIBRARY_PATH={}".format(host_lib),
+                "-E",
+                "SNAP={}".format(snap),
                 "--",
                 "{}/usr/bin/glcts".format(snap),
                 "--deqp-surface-type=fbo",

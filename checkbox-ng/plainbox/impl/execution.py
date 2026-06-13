@@ -56,6 +56,12 @@ from plainbox.impl.runner import (
     JobRunnerUIDelegate,
     slugify,
 )
+from plainbox.impl.secure.providers.custom_frontend import (
+    extra_LD_LIBRARY_PATH,
+    extra_PATH,
+    extra_PYTHONPATH,
+    extra_snap_environment,
+)
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.unit.job import InvalidJob, supported_plugins
@@ -603,17 +609,15 @@ def get_execution_environment(job, environ, session_id, nest_dir):
                 job.provider.locale_dir
             )
     # Use PATH that can lookup checkbox scripts
-    env = add_to_environment(env, "PYTHONPATH", job.provider.extra_PYTHONPATH)
+    env = add_to_environment(env, "PYTHONPATH", extra_PYTHONPATH())
 
     # Inject nest_dir into PATH
-    env = add_to_environment(env, "PATH", [nest_dir] + job.provider.extra_PATH)
+    env = add_to_environment(env, "PATH", [nest_dir] + extra_PATH())
 
-    env = add_to_environment(
-        env, "LD_LIBRARY_PATH", job.provider.extra_LD_LIBRARY_PATH
-    )
+    env = add_to_environment(env, "LD_LIBRARY_PATH", extra_LD_LIBRARY_PATH())
 
     # custom frontend / runtime may define extra envvars in this config file
-    for key, value in job.provider.extra_snap_environment.items():
+    for key, value in extra_snap_environment().items():
         env = add_to_environment(env, key, value)
 
     # Add per-session shared state directory

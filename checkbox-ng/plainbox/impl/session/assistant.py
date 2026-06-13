@@ -1457,6 +1457,9 @@ class SessionAssistant:
         """
         self._metadata.running_job_name = job["id"]
         self._metadata.last_job_start_time = time.time()
+        self._context.state.metadata.remaining_todo_jobs = bool(
+            self.get_dynamic_todo_list()
+        )
         self._manager.checkpoint()
 
     @raises(ValueError, TypeError, UnexpectedMethodCall)
@@ -1526,6 +1529,9 @@ class SessionAssistant:
         if job_state.can_start():
             ui.about_to_start_running(job, job_state)
             self._context.state.metadata.running_job_name = job.id
+            self._context.state.metadata.remaining_todo_jobs = bool(
+                self.get_dynamic_todo_list()
+            )
             self._manager.checkpoint()
             autorestart = (
                 self._restart_strategy is not None
@@ -1684,6 +1690,9 @@ class SessionAssistant:
             # happens when using `checkbox-cli run, or plainbox`, and with old,
             # legacy Launchers. They are not expected to do auto-retries.
             pass
+        self._context.state.metadata.remaining_todo_jobs = bool(
+            self.get_dynamic_todo_list()
+        )
         self._manager.checkpoint()
         # Set up expectations so that run_job() and use_job_result() must be
         # called in pairs and applications cannot just forget and call

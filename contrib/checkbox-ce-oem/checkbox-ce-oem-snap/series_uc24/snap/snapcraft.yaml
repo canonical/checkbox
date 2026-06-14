@@ -84,6 +84,7 @@ parts:
       - snmp
       - python3-rpyc
       - gpsd
+      - python3-pygame
     override-prime: |
       craftctl default
       rm lib/systemd/system/alsa-utils.service

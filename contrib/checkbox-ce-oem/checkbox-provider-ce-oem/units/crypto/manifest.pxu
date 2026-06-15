@@ -17,3 +17,8 @@ unit: manifest entry
 id: has_hardware_rng
 _name: Hardware Random Number Generate support
 value-type: bool
+
+unit: manifest entry
+id: has_nxp_secure_element_ele
+name: NXP EdgeLock Secure Enclave (ELE) supported on this device?
+value-type: bool

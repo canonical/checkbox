@@ -182,6 +182,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "AMD Genoa":        ['0xa10f11'],                                # 2022
         "AMD Bergamo":      ['0xaa0f01'],                                # 2023
         "AMD Siena SP6":    ['0xaa0f02'],                                # 2023
+        "AMD Sorano SP6":   ['0xb00f20'],                                # 2026
         "AMD Turin":        ['0xb00f21', '0xb10f10'],                    # 2024
         "AMD Grado":        ['0xb40f40'],                                # 2025
 

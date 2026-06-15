@@ -46,6 +46,7 @@ from plainbox.impl.unit.validators import (
     ShellProgramValidator,
     UnitReferenceValidator,
     UselessFieldValidator,
+    DeprecatedSchemaValidator,
 )
 
 from plainbox.impl.validation import Problem, Severity
@@ -891,6 +892,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     message=_("environ without a command makes no sense"),
                     onlyif=lambda unit: unit.command is None,
                 ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.estimated_duration: [
                 concrete_validators.templateInvariant,
@@ -917,6 +921,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         )
                     ],
                 ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
                 # TODO: should not refer to deprecated jobs,
                 #       onlyif job itself is not deprecated
             ],
@@ -935,6 +942,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         )
                     ],
                 ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.before: [
                 CorrectFieldValueValidator(
@@ -950,6 +960,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
                             message=_("the referenced unit is not a job"),
                         )
                     ],
+                ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
                 ),
             ],
             fields.group: [],
@@ -977,6 +990,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
                             ),
                         ),
                     ],
+                ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
                 ),
                 # TODO: should not refer to deprecated jobs,
                 #       onlyif job itself is not deprecated
@@ -1008,6 +1024,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         )
                     ],
                 ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
                 # TODO: should not refer to deprecated jobs,
                 #       onlyif job itself is not deprecated
             ],
@@ -1031,6 +1050,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             fields.flags: [
                 concrete_validators.templateInvariant,
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.certification_status: [
                 concrete_validators.templateInvariant,

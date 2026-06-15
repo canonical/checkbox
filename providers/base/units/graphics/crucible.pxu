@@ -1,0 +1,263 @@
+unit: setup job
+plugin: shell
+id: setup/install_crucible
+category_id: com.canonical.plainbox::graphics
+_summary: Install crucible snap
+_purpose:
+ This job will install the crucible snap, a dependency of crucible graphics testing
+user: root
+command:
+ if snap list crucible &>/dev/null; then
+   snap refresh --edge crucible
+ else
+   snap install --edge crucible
+ fi
+estimated_duration: 1m
+
+plugin: resource
+id: graphics/vk_crucible_gpu_avail
+category_id: com.canonical.plainbox::graphics
+user: root
+_summary: Checks for Vulkan-capable GPU
+environ:
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+estimated_duration: 1s
+command:
+ if env -u DISPLAY crucible.vulkaninfo --summary 2>&1 | grep "PHYSICAL_DEVICE_TYPE_.*_GPU"; then
+   echo "PASS: Found a Vulkan-capable GPU"
+ else
+   echo "FAIL: No Vulkan-capable GPU found"
+   exit 1
+ fi
+
+id: graphics/crucible_core_stencil_triangles
+depends:
+  graphics/vk_crucible_gpu_avail
+setup_include:
+  setup/install_crucible
+category_id: com.canonical.plainbox::graphics
+flags: simple
+user: root
+_summary: Run the stencil-triangles tests via crucible (core)
+environ:
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+estimated_duration: 5m
+command: crucible.test 'func.depthstencil.stencil-triangles.clear-0x17.ref-0x17.*'
+_siblings: [
+  { "id": "graphics/crucible_core_aspect_stencil",
+    "_summary": "Run the aspect-stencil tests via crucible (core)",
+    "command": "crucible.test 'func.miptree.s8-uint.aspect-stencil.view-2d.levels02.*'" },
+  { "id": "graphics/crucible_core_aspect_depth",
+    "_summary": "Run the aspect-depth tests via crucible (core)",
+    "command": "crucible.test 'func.miptree.d32-sfloat.aspect-depth.*'" },
+  { "id": "graphics/crucible_core_r8g8b8a8_aspect_color",
+    "_summary": "Run the r8g8b8a8-aspect-color tests via crucible (core)",
+    "command": "crucible.test 'func.miptree.r8g8b8a8-unorm.aspect-color.*'" },
+  { "id": "graphics/crucible_core_bc3_aspect_color",
+    "_summary": "Run the bc3-aspect-color tests via crucible (core)",
+    "command": "crucible.test 'func.miptree.bc3-unorm.aspect-color.*'" },
+  { "id": "graphics/crucible_core_bench",
+    "_summary": "Run the bench tests via crucible (core)",
+    "command": "crucible.test 'bench.*'" },
+  { "id": "graphics/crucible_core_bug",
+    "_summary": "Run the bug tests via crucible (core)",
+    "command": "crucible.test 'bug.*'" },
+  { "id": "graphics/crucible_core_depthstencil",
+    "_summary": "Run the depthstencil tests via crucible (core)",
+    "command": "crucible.test 'func.depthstencil.*'" },
+  { "id": "graphics/crucible_core_desc",
+    "_summary": "Run the desc tests via crucible (core)",
+    "command": "crucible.test 'func.desc.*'" },
+  { "id": "graphics/crucible_core_draw",
+    "_summary": "Run the draw tests via crucible (core)",
+    "command": "crucible.test 'func.draw*'" },
+  { "id": "graphics/crucible_core_gs_basic",
+    "_summary": "Run the gs-basic tests via crucible (core)",
+    "command": "crucible.test 'func.gs.basic'" },
+  { "id": "graphics/crucible_core_first",
+    "_summary": "Run the first tests via crucible (core)",
+    "command": "crucible.test 'func.first'" },
+  { "id": "graphics/crucible_core_compute",
+    "_summary": "Run the compute tests via crucible (core)",
+    "command": "crucible.test 'func.compute.*'" },
+  { "id": "graphics/crucible_core_shader",
+    "_summary": "Run the shader tests via crucible (core)",
+    "command": "crucible.test 'func.shader.*'" },
+  { "id": "graphics/crucible_core_issue",
+    "_summary": "Run the issue tests via crucible (core)",
+    "command": "crucible.test 'func.issue*'" },
+  { "id": "graphics/crucible_core_mesh",
+    "_summary": "Run the mesh tests via crucible (core)",
+    "command": "crucible.test 'func.mesh.*'" },
+  { "id": "graphics/crucible_core_example",
+    "_summary": "Run the example tests via crucible (core)",
+    "command": "crucible.test 'example.*'" },
+  { "id": "graphics/crucible_core_buffer",
+    "_summary": "Run the buffer tests via crucible (core)",
+    "command": "crucible.test 'func.buffer.*'" },
+  { "id": "graphics/crucible_core_cmd_buffer",
+    "_summary": "Run the cmd-buffer tests via crucible (core)",
+    "command": "crucible.test 'func.cmd-buffer.*'" },
+  { "id": "graphics/crucible_core_copy",
+    "_summary": "Run the copy tests via crucible (core)",
+    "command": "crucible.test 'func.copy.*'" },
+  { "id": "graphics/crucible_core_event",
+    "_summary": "Run the event tests via crucible (core)",
+    "command": "crucible.test 'func.event.*'" },
+  { "id": "graphics/crucible_core_query",
+    "_summary": "Run the query tests via crucible (core)",
+    "command": "crucible.test 'func.query.*'" },
+  { "id": "graphics/crucible_core_interleaved_cmd_buffers",
+    "_summary": "Run the interleaved-cmd-buffers tests via crucible (core)",
+    "command": "crucible.test 'func.interleaved-cmd-buffers.*'" },
+  { "id": "graphics/crucible_core_memory_budget",
+    "_summary": "Run the memory_budget tests via crucible (core)",
+    "command": "crucible.test 'func.memory_budget'" },
+  { "id": "graphics/crucible_core_renderpass",
+    "_summary": "Run the renderpass tests via crucible (core)",
+    "command": "crucible.test 'func.renderpass.*'" },
+  { "id": "graphics/crucible_core_memory_fd",
+    "_summary": "Run the memory-fd tests via crucible (core)",
+    "command": "crucible.test 'func.memory-fd.*'" },
+  { "id": "graphics/crucible_core_stress",
+    "_summary": "Run the stress tests via crucible (core)",
+    "command": "crucible.test 'stress.*'" },
+  { "id": "graphics/crucible_core_self",
+    "_summary": "Run the self tests via crucible (core)",
+    "command": "crucible.test 'self.*'" },
+  { "id": "graphics/crucible_core_calibrated_timestamps",
+    "_summary": "Run the calibrated-timestamps tests via crucible (core)",
+    "command": "crucible.test 'func.calibrated-timestamps.*'" },
+  { "id": "graphics/crucible_core_sync",
+    "_summary": "Run the sync tests via crucible (core)",
+    "command": "crucible.test 'func.sync.*'" }]
+
+unit: job
+plugin: shell
+id: graphics/crucible_classic_gpu_avail
+category_id: com.canonical.plainbox::graphics
+user: root
+_summary: Checks for Vulkan-capable GPU using host drivers
+environ:
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+  PATH
+  VK_ICD_FILENAMES
+estimated_duration: 1s
+command: crucible_host.py resource
+
+unit: job
+plugin: shell
+id: graphics/crucible_classic_vk_avail
+category_id: com.canonical.plainbox::graphics
+user: root
+_summary: Checks for host Vulkan ICD loader required by crucible --no-confinement
+estimated_duration: 1s
+command: crucible_host.py validate-install
+
+id: graphics/crucible_classic_stencil_triangles
+depends:
+  graphics/crucible_classic_gpu_avail
+  graphics/crucible_classic_vk_avail
+setup_include:
+  setup/install_crucible
+category_id: com.canonical.plainbox::graphics
+flags: simple
+user: root
+_summary: Run the stencil-triangles tests via crucible (classic)
+environ:
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+  VK_ICD_FILENAMES
+estimated_duration: 5m
+command: crucible_host.py run-test 'func.depthstencil.stencil-triangles.clear-0x17.ref-0x17.*'
+_siblings: [
+  { "id": "graphics/crucible_classic_aspect_stencil",
+    "_summary": "Run the aspect-stencil tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.miptree.s8-uint.aspect-stencil.view-2d.levels02.*'" },
+  { "id": "graphics/crucible_classic_aspect_depth",
+    "_summary": "Run the aspect-depth tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.miptree.d32-sfloat.aspect-depth.*'" },
+  { "id": "graphics/crucible_classic_r8g8b8a8_aspect_color",
+    "_summary": "Run the r8g8b8a8-aspect-color tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.miptree.r8g8b8a8-unorm.aspect-color.*'" },
+  { "id": "graphics/crucible_classic_bc3_aspect_color",
+    "_summary": "Run the bc3-aspect-color tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.miptree.bc3-unorm.aspect-color.*'" },
+  { "id": "graphics/crucible_classic_bench",
+    "_summary": "Run the bench tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'bench.*'" },
+  { "id": "graphics/crucible_classic_bug",
+    "_summary": "Run the bug tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'bug.*'" },
+  { "id": "graphics/crucible_classic_depthstencil",
+    "_summary": "Run the depthstencil tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.depthstencil.*'" },
+  { "id": "graphics/crucible_classic_desc",
+    "_summary": "Run the desc tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.desc.*'" },
+  { "id": "graphics/crucible_classic_draw",
+    "_summary": "Run the draw tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.draw*'" },
+  { "id": "graphics/crucible_classic_gs_basic",
+    "_summary": "Run the gs-basic tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.gs.basic'" },
+  { "id": "graphics/crucible_classic_first",
+    "_summary": "Run the first tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.first'" },
+  { "id": "graphics/crucible_classic_compute",
+    "_summary": "Run the compute tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.compute.*'" },
+  { "id": "graphics/crucible_classic_shader",
+    "_summary": "Run the shader tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.shader.*'" },
+  { "id": "graphics/crucible_classic_issue",
+    "_summary": "Run the issue tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.issue*'" },
+  { "id": "graphics/crucible_classic_mesh",
+    "_summary": "Run the mesh tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.mesh.*'" },
+  { "id": "graphics/crucible_classic_example",
+    "_summary": "Run the example tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'example.*'" },
+  { "id": "graphics/crucible_classic_buffer",
+    "_summary": "Run the buffer tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.buffer.*'" },
+  { "id": "graphics/crucible_classic_cmd_buffer",
+    "_summary": "Run the cmd-buffer tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.cmd-buffer.*'" },
+  { "id": "graphics/crucible_classic_copy",
+    "_summary": "Run the copy tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.copy.*'" },
+  { "id": "graphics/crucible_classic_event",
+    "_summary": "Run the event tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.event.*'" },
+  { "id": "graphics/crucible_classic_query",
+    "_summary": "Run the query tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.query.*'" },
+  { "id": "graphics/crucible_classic_interleaved_cmd_buffers",
+    "_summary": "Run the interleaved-cmd-buffers tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.interleaved-cmd-buffers.*'" },
+  { "id": "graphics/crucible_classic_memory_budget",
+    "_summary": "Run the memory_budget tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.memory_budget'" },
+  { "id": "graphics/crucible_classic_renderpass",
+    "_summary": "Run the renderpass tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.renderpass.*'" },
+  { "id": "graphics/crucible_classic_memory_fd",
+    "_summary": "Run the memory-fd tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.memory-fd.*'" },
+  { "id": "graphics/crucible_classic_stress",
+    "_summary": "Run the stress tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'stress.*'" },
+  { "id": "graphics/crucible_classic_self",
+    "_summary": "Run the self tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'self.*'" },
+  { "id": "graphics/crucible_classic_calibrated_timestamps",
+    "_summary": "Run the calibrated-timestamps tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.calibrated-timestamps.*'" },
+  { "id": "graphics/crucible_classic_sync",
+    "_summary": "Run the sync tests via crucible (classic)",
+    "command": "crucible_host.py run-test 'func.sync.*'" }]

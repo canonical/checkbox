@@ -56,13 +56,12 @@ command: |
 ---
 id: stub/manual
 summary: A simple manual job
-description: |
-  PURPOSE:
-      This test checks that the manual plugin works fine
-  STEPS:
-      1. Add a comment
-      2. Set the result as passed
-  VERIFICATION:
+purpose: |
+  This test checks that the manual plugin works fine
+steps: |
+  1. Add a comment
+  2. Set the result as passed
+verification: |
       Check that in the report the result is passed and the comment is displayed
 plugin: manual
 estimated_duration: '30'
@@ -79,14 +78,13 @@ estimated_duration: '30'
 ---
 id: stub/user-interact
 summary: A simple user interaction job
-description: |
-  PURPOSE:
-      This test checks that the user-interact plugin works fine
-  STEPS:
-      1. Read this description
-      2. Press the test button
-  VERIFICATION:
-      Check that in the report the result is passed
+purpose: |
+  This test checks that the user-interact plugin works fine
+steps: |
+  1. Read this description
+  2. Press the test button
+verification: |
+  Check that in the report the result is passed
 plugin: user-interact
 flags:
   - preserve-locale
@@ -108,17 +106,16 @@ estimated_duration: '30'
 ---
 id: stub/user-verify
 summary: A simple user verification job
-description: |
-  PURPOSE:
-      This test checks that the user-verify plugin works fine
-  STEPS:
-      1. Read this description
-      2. Ensure that the command has been started automatically
-      3. Do not press the test button
-      4. Look at the output and determine the outcome of the test
-  VERIFICATION:
-      The command should have printed "Please select 'pass'"
-plugin: user-verify
+purpose: |
+  This test checks that the user-verify plugin works fine
+steps: |
+  1. Read this description
+  2. Ensure that the command has been started automatically
+  3. Do not press the test button
+  4. Look at the output and determine the outcome of the test
+verification: |
+  The command should have printed "Please select 'pass'"
+plugin: user-interact-verify
 flags:
   - preserve-locale
 command: echo "Please select 'pass'"
@@ -135,7 +132,7 @@ steps: |
   3. Do not press the test button
   4. Look at the output and determine the outcome of the test
 verification: The command should have printed "Please select 'pass'"
-plugin: user-verify
+plugin: user-interact-verify
 flags:
   - preserve-locale
 command: echo "Please select 'pass'"
@@ -143,16 +140,15 @@ estimated_duration: '30'
 ---
 id: stub/user-interact-verify
 summary: A simple user interaction and verification job
-description: |
-  PURPOSE:
-      This test checks that the user-interact-verify plugin works fine
-  STEPS:
-      1. Read this description
-      2. Ensure that the command has not been started yet
-      3. Press the test button
-      4. Look at the output and determine the outcome of the test
-  VERIFICATION:
-      The command should have printed "Please select 'pass'"
+purpose: |
+  This test checks that the user-interact-verify plugin works fine
+steps: |
+  1. Read this description
+  2. Ensure that the command has not been started yet
+  3. Press the test button
+  4. Look at the output and determine the outcome of the test
+verification: |
+  The command should have printed "Please select 'pass'"
 plugin: user-interact-verify
 flags:
   - preserve-locale
@@ -178,18 +174,17 @@ estimated_duration: '25'
 ---
 id: stub/user-interact-verify-passing
 summary: A suggested-passing user-verification-interaction job
-description: |
-  PURPOSE:
-      This test checks that the application user interface auto-suggests 'pass'
-      as the outcome of a test for user-interact-verify jobs that have a command
-      which completes successfully.
-  STEPS:
-      1. Read this description
-      2. Ensure that the command has not been started yet
-      3. Press the test button
-      4. Confirm the auto-suggested value
-  VERIFICATION:
-      The auto suggested value should have been 'pass'
+purpose: |
+  This test checks that the application user interface auto-suggests 'pass'
+  as the outcome of a test for user-interact-verify jobs that have a command
+  which completes successfully.
+steps: |
+  1. Read this description
+  2. Ensure that the command has not been started yet
+  3. Press the test button
+  4. Confirm the auto-suggested value
+verification: |
+  The auto suggested value should have been 'pass'
 plugin: user-interact-verify
 flags:
   - preserve-locale
@@ -218,18 +213,17 @@ estimated_duration: '25'
 ---
 id: stub/user-interact-verify-failing
 summary: A suggested-failing user-verification-interaction job
-description: |
-  PURPOSE:
-      This test checks that the application user interface auto-suggests 'fail'
-      as the outcome of a test for user-interact-verify jobs that have a command
-      which completes unsuccessfully.
-  STEPS:
-      1. Read this description
-      2. Ensure that the command has not been started yet
-      3. Press the test button
-      4. Confirm the auto-suggested value
-  VERIFICATION:
-      The auto suggested value should have been 'fail'
+purpose: |
+  This test checks that the application user interface auto-suggests 'fail'
+  as the outcome of a test for user-interact-verify jobs that have a command
+  which completes unsuccessfully.
+steps: |
+  1. Read this description
+  2. Ensure that the command has not been started yet
+  3. Press the test button
+  4. Confirm the auto-suggested value
+verification: |
+  The auto suggested value should have been 'fail'
 plugin: user-interact-verify
 flags:
   - preserve-locale
@@ -260,21 +254,20 @@ plugin: user-interact-verify
 id: graphics/glxgears
 command: glxgears; true
 summary: Test that glxgears works
-description: |
-  PURPOSE:
-      This test tests the basic 3D capabilities of your video card
-  STEPS:
-      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
-      2. Verify that the animation is not jerky or slow.
-  VERIFICATION:
-      1. Did the 3d animation appear?
-      2. Was the animation free from slowness/jerkiness?
+purpose: |
+  This test tests the basic 3D capabilities of your video card
+steps: |
+  1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+  2. Verify that the animation is not jerky or slow.
+verification: |
+  1. Did the 3d animation appear?
+  2. Was the animation free from slowness/jerkiness?
 ---
 plugin: shell
 id: dependency_installation
 command: dependency_installation.py
 summary: Verify that all required modules are installed
-description: Verify that all required modules are installed
+purpose: Verify that all required modules are installed
 ---
 id: resource_names
 summary: Returns names usable in templates along with their validity as an id

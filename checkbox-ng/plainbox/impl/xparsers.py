@@ -456,6 +456,14 @@ class OverrideFieldList(Node):
             entries.append(FieldOverride.parse(line, lineno, col_offset))
         return OverrideFieldList(initial_lineno, col_offset, entries)
 
+    @staticmethod
+    def from_preparsed(override_lst):
+        return OverrideFieldList(
+            0,
+            0,
+            [FieldOverride.parse(override, 0, 0) for override in override_lst],
+        )
+
 
 class OverrideExpression(Node):
     """node representing a single override statement"""

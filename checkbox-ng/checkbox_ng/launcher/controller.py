@@ -109,6 +109,9 @@ class SimpleUI(NormalUI, MainLoopStage):
     def black_text(text, end="\n"):
         print(SimpleUI.C.BLACK(text), end=end, file=sys.stdout)
 
+    def yellow_text(text, end="\n"):
+        print(SimpleUI.C.YELLOW(text), end=end, file=sys.stderr)
+
     def horiz_line():
         print(SimpleUI.C.WHITE("-" * 80))
 
@@ -236,8 +239,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             "To solve this, upgrade the agent to the controller version.\n"
             "If you are unsure about the nomenclature or what any of this "
             "means, see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference/"
-            "glossary.html\n\n"
+            "https://checkbox.readthedocs.io/latest/reference/glossary/\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
 
@@ -247,8 +249,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             "To solve this, upgrade the controller to the agent version.\n"
             "If you are unsure about the nomenclature or what any of this "
             "means, see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference/"
-            "glossary.html\n\n"
+            "https://checkbox.readthedocs.io/latest/reference/glossary/\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
 
@@ -902,9 +903,17 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self.finish_job()
                 break
 
-    def finish_job(self, result=None):
+    def finish_job(self, result=None, job_state=None):
         _logger.info("controller: Finishing job with a result: %s", result)
         job_result = self.sa.finish_job(result)
+        if (
+            job_state
+            and result
+            and result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED
+        ):
+            print(_("Job cannot be started because:"))
+            for inhibitor in job_state.readiness_inhibitor_list:
+                SimpleUI.yellow_text(" - {}".format(inhibitor))
         SimpleUI.horiz_line()
         print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
@@ -1097,7 +1106,8 @@ class RemoteController(ReportsStage, MainLoopStage):
                             break
                         else:
                             self.finish_job(
-                                interaction.extra._builder.get_result()
+                                interaction.extra._builder.get_result(),
+                                job_state,
                             )
                             next_job = True
                             break

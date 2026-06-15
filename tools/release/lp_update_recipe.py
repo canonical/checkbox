@@ -41,8 +41,7 @@ def get_active_series():
         "focal",
         "jammy",
         "noble",
-        "plucky",
-        "questing",
+        "resolute",
     }
     lp = get_launchpad_client()
     active_series = {

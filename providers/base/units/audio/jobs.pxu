@@ -110,6 +110,41 @@ _steps:
 _verification:
     Did you hear the sound from the HDMI device?
 
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_hdmi
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_hdmi == 'True'
+ manifest.has_audio_playback == 'True'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name in ['pulseaudio-utils', 'pipewire']
+flags: also-after-suspend
+command:
+  if check_audio_daemon.sh ; then
+    checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+  else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  fi
+  exit $EXIT_CODE
+_purpose:
+    HDMI audio interface verification
+_steps:
+    1. Plug an external HDMI device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the HDMI device?
+
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
@@ -117,6 +152,41 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_displayport_{product_slug}
 template-id: audio/index_playback_displayport_product_slug
+estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_dp == 'True'
+ manifest.has_audio_playback == 'True'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name in ['pulseaudio-utils', 'pipewire']
+flags: also-after-suspend
+command:
+  if check_audio_daemon.sh ; then
+    checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+  else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  fi
+  exit $EXIT_CODE
+_purpose:
+    DisplayPort audio interface verification
+_steps:
+    1. Plug an external DisplayPort device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the DisplayPort device?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_displayport
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -227,6 +297,41 @@ _steps:
 _verification:
     Did you hear the sound from the Thunderbolt device?
 
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_thunderbolt3
+imports: from com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_thunderbolt3 == 'True'
+ manifest.has_audio_playback == 'True'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name in ['pulseaudio-utils', 'pipewire']
+flags: also-after-suspend
+command:
+  if check_audio_daemon.sh ; then
+    checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+  else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  fi
+  exit $EXIT_CODE
+_purpose:
+    Thunderbolt audio interface verification
+_steps:
+    1. Plug an external Thunderbolt device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the Thunderbolt device?
+
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
@@ -261,7 +366,42 @@ command:
 _purpose:
     DisplayPort audio via USB Type-C port interface verification
 _steps:
-    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Typce-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Type-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the DisplayPort device?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_type-c_displayport
+imports: from com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_usbc_video == 'True'
+ manifest.has_audio_playback == 'True'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name in ['pulseaudio-utils', 'pipewire']
+flags: also-after-suspend
+command:
+  if check_audio_daemon.sh ; then
+    checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+  else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  fi
+  exit $EXIT_CODE
+_purpose:
+    DisplayPort audio via USB Type-C port interface verification
+_steps:
+    1. Plug an external DisplayPort device with sound on a USB Type-C port using a "USB Type-C to DisplayPort" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
     2. Commence the test
 _verification:
     Did you hear the sound from the DisplayPort device?
@@ -273,6 +413,43 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_type-c_hdmi_{product_slug}
 template-id: audio/index_playback_type-c_hdmi_product_slug
+imports: from com.canonical.plainbox import manifest
+estimated_duration: 30.0
+requires:
+ manifest.has_usbc_video == 'True'
+ manifest.has_audio_playback == 'True'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name in ['pulseaudio-utils', 'pipewire']
+flags: also-after-suspend
+command:
+  if check_audio_daemon.sh ; then
+    checkbox-support-pipewire-utils show -t audio
+    set -e
+    checkbox-support-pipewire-utils default_device_is_real -d audio-sink
+    checkbox-support-pipewire-utils gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+  else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  fi
+  exit $EXIT_CODE
+_purpose:
+    HDMI audio via USB Type-C port interface verification
+_steps:
+    1. Plug an external HDMI device with sound into a USB Type-C port using a "USB Type-C to HDMI" adapter (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Begin the test
+_verification:
+    Did you hear the sound from the HDMI device?
+_summary:
+    Verify HDMI audio playback through the USB Type-C port using a "USB Type-C to HDMI" adapter and confirm sound output.
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+id: audio/playback_type-c_hdmi
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -1053,7 +1230,7 @@ requires: snap.name == 'pulseaudio'
 category_id: com.canonical.plainbox::audio
 estimated_duration: 1m
 
-id: after-suspend-audio/after-suspend-audio-occupied
+id: audio/post-suspend-audio-occupied
 _summary: Verify the test audio I/O after suspend with previously occupied devices.
 _purpose:
  Validate the audio could input and output after suspending while audio devices are occupied before suspending

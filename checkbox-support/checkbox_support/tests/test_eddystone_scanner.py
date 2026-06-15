@@ -105,3 +105,18 @@ class TestEddystoneScanner(unittest.TestCase):
         )
         mock_init.assert_called_once_with()
         mock_beacon_scan.assert_called_with(1, True)
+
+    @patch("time.sleep")
+    @patch("checkbox_support.scripts.eddystone_scanner.InteractiveCommand")
+    def test_initial_scripts(self, mock_command, mock_sleep):
+
+        mock_command_instance = mock_command.return_value
+        mock_btctl = MagicMock()
+        mock_command_instance.__enter__.return_value = mock_btctl
+
+        eddystone_scanner.init_bluetooth()
+        mock_command.assert_called_with("bluetoothctl")
+        mock_btctl.writeline.assert_any_call("power on")
+        mock_btctl.writeline.assert_any_call("scan on")
+        mock_btctl.writeline.assert_any_call("exit")
+        self.assertEqual(mock_sleep.call_count, 2)

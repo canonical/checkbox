@@ -27,25 +27,26 @@ import json
 import logging
 import re
 import shutil
-
 from contextlib import suppress
+from copy import copy
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
-from plainbox.impl.depmgr import DependencyDuplicateError
-from plainbox.impl.depmgr import DependencyError
-from plainbox.impl.depmgr import DependencySolver
+from plainbox.impl.depmgr import (
+    DependencyDuplicateError,
+    DependencyError,
+    DependencySolver,
+)
 from plainbox.impl.secure.qualifiers import select_units
-from plainbox.impl.session.jobs import JobState
-from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
+from plainbox.impl.session.jobs import JobState, UndesiredJobReadinessInhibitor
 from plainbox.impl.session.system_information import (
     collect as collect_system_information,
 )
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.impl.unit.unit import on_ubuntucore
+from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 
@@ -645,6 +646,9 @@ class SessionDeviceContext:
             job = job_state.job
             self._override_update(job)
 
+    # TODO: Overrides probably don't need to be at State level, since they
+    # are computed earlier. We could then move these functions to be reusable
+    # for things like the `expand` subcommand instead of duplicating code.
     def _override_update(self, job):
         """
         Apply overrides to job if they are directly related or apply to the
@@ -1217,7 +1221,7 @@ class SessionState:
             if suspend_flag not in new_job.get_flag_set():
                 continue
             data = {
-                key: value
+                key: copy(value)
                 for key, value in new_job._data.items()
                 if not key.endswith("siblings")
             }

@@ -39,9 +39,11 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators, get_array_field_qualify
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import (
+    DeprecatedSchemaValidator,
     FieldValidatorBase,
     ReferenceConstraint,
     UnitReferenceValidator,
+    Severity,
     compute_value_map,
 )
 from plainbox.impl.validation import Problem
@@ -635,9 +637,15 @@ class TestPlanUnit(UnitWithId):
             ],
             fields.include: [
                 concrete_validators.present,
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.mandatory_include: [
                 NoBaseIncludeValidator(),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.setup_include: [
                 NoBaseIncludeValidator(),
@@ -659,6 +667,9 @@ class TestPlanUnit(UnitWithId):
                         ),
                     ],
                 ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
+                ),
             ],
             fields.bootstrap_include: [
                 NoBaseIncludeValidator(),
@@ -677,6 +688,9 @@ class TestPlanUnit(UnitWithId):
                             ),
                         ),
                     ],
+                ),
+                DeprecatedSchemaValidator(
+                    Problem.deprecated, Severity.warning, str, list
                 ),
             ],
             fields.estimated_duration: [
@@ -908,11 +922,18 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
                         (pattern, "certification_status", blocker_status)
                     )
 
-            V().visit(
-                OverrideFieldList.parse(
+            if isinstance(testplan.certification_status_overrides, str):
+                # LEGACY: pxu compatibility, now certification_status_overrides
+                #         is a list
+                to_visit = OverrideFieldList.parse(
                     testplan.certification_status_overrides
                 )
-            )
+            else:
+                to_visit = OverrideFieldList.from_preparsed(
+                    testplan.certification_status_overrides
+                )
+
+            V().visit(to_visit)
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_blocker_status_overrides(tp_unit))
         return override_list

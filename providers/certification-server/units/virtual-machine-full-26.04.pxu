@@ -1,0 +1,56 @@
+id: virtual-machine-full-26.04
+_name: 26.04 Virtual Machine Full (For Hypervisors)
+unit: test plan
+_description:
+    This whitelist is intended to be used for testing Ubuntu Guests on 
+    hypervisors. The tests contained here should work in any test lab 
+    envrionment. Please use this whitelist for the Ubuntu Certification 
+    self-testing programme.
+nested_part:
+    com.canonical.certification::server-info-attachment-automated
+include:
+    benchmarks/disk/hdparm-read_.*          certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_.*    certification-status=blocker
+    benchmarks/system/cpu_on_idle           certification-status=non-blocker
+    benchmarks/system/disk_on_idle          certification-status=non-blocker
+    cpu/clocktest                           certification-status=blocker
+    cpu/cpufreq_test-server                 certification-status=non-blocker
+    cpu/maxfreq_test                        certification-status=blocker
+    cpu/maxfreq_test-log-attach             certification-status=non-blocker
+    cpu/topology                            certification-status=blocker
+    cpu/armhf_vfp_support_.*                certification-status=non-blocker
+    cpu/arm64_vfp_support_.*                certification-status=non-blocker
+    cpu/cstates                             certification-status=non-blocker
+    cpu/cstates_results.log                 certification-status=non-blocker
+    disk/detect                             certification-status=blocker
+    disk/stats_.*                           certification-status=blocker
+    disk/read_performance_.*                certification-status=blocker
+    disk/disk_stress_ng_(?!sru).*           certification-status=blocker
+    disk/disk_cpu_load_.*                   certification-status=blocker
+    ethernet/info_automated_server          certification-status=non-blocker
+    ethernet/ethtool_info                   certification-status=non-blocker
+    ethernet/ethertool_check_.*             certification-status=non-blocker
+    ethernet/multi_iperf3_nic_device.*      certification-status=blocker
+    info/secure-boot-check                  certification-status=blocker
+    miscellanea/apport-directory            certification-status=non-blocker
+    miscellanea/check_prerelease            certification-status=blocker
+    miscellanea/cpuid                       certification-status=blocker
+    miscellanea/debsums                     certification-status=non-blocker
+    miscellanea/kernel_taint_test           certification-status=blocker
+    miscellanea/submission-resources        certification-status=non-blocker
+    networking/predictable_names            certification-status=blocker
+    networking/ntp                          certification-status=non-blocker
+    power-management/rtc                    certification-status=blocker
+    memory/info                             certification-status=blocker
+    stress/memory_stress_ng                 certification-status=blocker
+    stress/cpu_stress_ng_test               certification-status=blocker
+    virtualization/verify_lxd               certification-status=blocker
+    miscellanea/oops                        certification-status=blocker
+    miscellanea/oops_results.log            certification-status=non-blocker
+    miscellanea/olog                        certification-status=blocker
+    miscellanea/olog_results.log            certification-status=non-blocker
+    miscellanea/klog                        certification-status=blocker
+    miscellanea/klog_results.log            certification-status=non-blocker
+bootstrap_include:
+    device
+    executable

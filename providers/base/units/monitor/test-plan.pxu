@@ -26,7 +26,9 @@ _description:
  Monitor tests (GPU) (Manual)
 include:
  monitor/1_powersaving_.*                   certification-status=blocker
- power-management/light_sensor
+ power-management/light_sensor_detect
+ power-management/light_sensor_test_device
+ monitor/als_monitor_brightness_control
  monitor/1_dim_brightness_.*                certification-status=blocker
  monitor/1_displayport_.*                   certification-status=blocker
  audio/1_playback_displayport_.*            certification-status=blocker
@@ -41,6 +43,33 @@ include:
  monitor/1_thunderbolt3_.*                  certification-status=non-blocker
  audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
  thunderbolt3/daisy-chain                   certification-status=non-blocker
+ monitor/multi-head                         certification-status=blocker
+bootstrap_include:
+    graphics_card
+    light_sensor_resource
+
+id: monitor-gpu-cert-26-04-manual
+unit: test plan
+_name: Monitor tests for 26.04 (GPU) (Manual)
+_description:
+ Monitor tests (GPU) (Manual)
+include:
+ monitor/powersaving                        certification-status=blocker
+ power-management/light_sensor              certification-status=blocker
+ monitor/dim_brightness                     certification-status=blocker
+ monitor/displayport                        certification-status=blocker
+ audio/playback_displayport                 certification-status=blocker
+ monitor/type-c_displayport                 certification-status=blocker
+ audio/playback_type-c_displayport          certification-status=blocker
+ monitor/type-c_hdmi                        certification-status=blocker
+ audio/playback_type-c_hdmi                 certification-status=blocker
+ monitor/type-c_vga                         certification-status=blocker
+ monitor/dvi                                certification-status=blocker
+ monitor/hdmi                               certification-status=blocker
+ audio/playback_hdmi                        certification-status=blocker
+ monitor/thunderbolt3                       certification-status=blocker
+ audio/playback_thunderbolt3                certification-status=blocker
+ thunderbolt3/daisy-chain                   certification-status=blocker
  monitor/multi-head                         certification-status=blocker
 bootstrap_include:
     graphics_card
@@ -70,7 +99,9 @@ _description:
  Monitor tests (after suspend, GPU) (Manual)
 include:
  after-suspend-monitor/1_powersaving_.*                   certification-status=blocker
- after-suspend-power-management/light_sensor
+ after-suspend-power-management/light_sensor_detect
+ after-suspend-power-management/light_sensor_test_device
+ after-suspend-monitor/als_monitor_brightness_control
  after-suspend-monitor/1_dim_brightness_.*                certification-status=blocker
  after-suspend-monitor/1_displayport_.*                   certification-status=blocker
  after-suspend-audio/1_playback_displayport_.*            certification-status=blocker
@@ -85,6 +116,33 @@ include:
  after-suspend-monitor/1_thunderbolt3_.*                  certification-status=non-blocker
  after-suspend-audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
  after-suspend-thunderbolt3/daisy-chain                   certification-status=non-blocker
+ after-suspend-monitor/multi-head                         certification-status=blocker
+bootstrap_include:
+    graphics_card
+    light_sensor_resource
+
+id: after-suspend-monitor-gpu-cert-26-04-manual
+unit: test plan
+_name: Monitor tests for 26.04 (after suspend, GPU) (Manual)
+_description:
+ Monitor tests (after suspend, GPU) (Manual)
+include:
+ after-suspend-monitor/powersaving                        certification-status=blocker
+ after-suspend-power-management/light_sensor              certification-status=blocker
+ after-suspend-monitor/dim_brightness                     certification-status=blocker
+ after-suspend-monitor/displayport                        certification-status=blocker
+ after-suspend-audio/playback_displayport                 certification-status=blocker
+ after-suspend-monitor/type-c_displayport                 certification-status=blocker
+ after-suspend-audio/playback_type-c_displayport          certification-status=blocker
+ after-suspend-monitor/type-c_hdmi                        certification-status=blocker
+ after-suspend-audio/playback_type-c_hdmi                 certification-status=blocker
+ after-suspend-monitor/type-c_vga                         certification-status=blocker
+ after-suspend-monitor/dvi                                certification-status=blocker
+ after-suspend-monitor/hdmi                               certification-status=blocker
+ after-suspend-audio/playback_hdmi                        certification-status=blocker
+ after-suspend-monitor/thunderbolt3                       certification-status=blocker
+ after-suspend-audio/playback_thunderbolt3                certification-status=blocker
+ after-suspend-thunderbolt3/daisy-chain                   certification-status=blocker
  after-suspend-monitor/multi-head                         certification-status=blocker
 bootstrap_include:
     graphics_card
@@ -394,8 +452,8 @@ _description: Manual tests for monitor
 include:
 nested_part:
     submission-cert-full
-    monitor-gpu-cert-manual
-    after-suspend-monitor-gpu-cert-manual
+    monitor-gpu-cert-26-04-manual
+    after-suspend-monitor-gpu-cert-26-04-manual
     info-attachment-cert-full
 
 id: monitor-base-26-04-automated

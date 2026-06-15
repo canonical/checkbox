@@ -532,9 +532,9 @@ command:
 id: lstopo_verbose_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: lstopo -v
+command: HWLOC_COMPONENTS=-gl lstopo-no-graphics -v
 estimated_duration: 0.015
-requires: executable.name == 'lstopo'
+requires: executable.name == 'lstopo-no-graphics'
 _purpose: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo
 
@@ -546,7 +546,7 @@ requires: executable.name == 'lstopo'
 _purpose: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo command to present system topology.
 command:
- lstopo "$PLAINBOX_SESSION_SHARE"/lstopo_visual.png; \
+ HWLOC_COMPONENTS=-gl lstopo "$PLAINBOX_SESSION_SHARE"/lstopo_visual.png; \
  [ -e "$PLAINBOX_SESSION_SHARE/lstopo_visual.png" ] && \
  cat "$PLAINBOX_SESSION_SHARE/lstopo_visual.png"
 

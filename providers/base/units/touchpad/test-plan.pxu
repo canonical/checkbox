@@ -99,6 +99,9 @@ nested_part:
     touchpad-cert-manual
     after-suspend-touchpad-cert-manual
     info-attachment-cert-full
+certification_status_overrides:
+    apply blocker to com.canonical.certification::touchpad/palm-rejection
+    apply blocker to com.canonical.certification::after-suspend-touchpad/palm-rejection
 
 id: touchpad-base-26-04-automated
 unit: test plan

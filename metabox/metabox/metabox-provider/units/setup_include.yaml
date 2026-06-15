@@ -2,11 +2,11 @@ unit: setup job
 id: simple_setup_guard
 flags:
   - simple
-name: Creates a file in session share that can then be verified by normal jobs
+summary: Creates a file in session share that can then be verified by normal jobs
 command: echo "setup_include" > $PLAINBOX_SESSION_SHARE/setup_include_guard
 ---
 id: simple_bootstrap_guard
-name: Creates a file in session share that can then be verified by normal jobs
+summary: Creates a file in session share that can then be verified by normal jobs
 plugin: resource
 flags:
   - simple
@@ -40,7 +40,7 @@ include:
 ---
 unit: setup job
 id: setup_restart
-name: Restarts Checkbox during setup (simulates machine reboot)
+summary: Restarts Checkbox during setup (simulates machine reboot)
 plugin: shell
 user: root
 flags:
@@ -51,7 +51,7 @@ command: |
 ---
 unit: setup job
 id: setup_restart_guard
-name: Creates a file in session share that can then be verified by normal jobs
+summary: Creates a file in session share that can then be verified by normal jobs
 plugin: shell
 command: echo "setup_restart" > $PLAINBOX_SESSION_SHARE/setup_restart_guard
 ---

@@ -795,6 +795,7 @@ class SessionAssistant:
             self.get_job: "to decide what result should be assigned",
             self.get_job_state: "to see if the job result was already decided",
             self.use_job_result: "to assign the decided result to the job",
+            self.get_dynamic_todo_list: "to see what is yet to be executed",
             self.start_setup: "to be called after setting the last job result",
         }
 
@@ -823,6 +824,7 @@ class SessionAssistant:
             self.run_job: "to run setup job",
             self.get_job: "to get the job definition by id",
             self.get_job_state: "to get the current state of a job",
+            self.get_dynamic_todo_list: "to see what is yet to be executed",
             self.finish_setup: "to finish setting up after running all jobs",
             self.get_session_id: "used internally by get_job",
             self.get_category: "used by UIs to represent a job",
@@ -865,6 +867,7 @@ class SessionAssistant:
             self.get_job_state: "to get the current state of a job",
             self.finish_bootstrap: "to finish bootstrapping after running all jobs",
             self.get_session_id: "used internally by get_job",
+            self.get_dynamic_todo_list: "to see what is yet to be executed",
             self.finalize_session: "to finalize the session",
         }
         return [job.id for job in self._context.state.run_list]

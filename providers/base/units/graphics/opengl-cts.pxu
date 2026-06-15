@@ -177,6 +177,7 @@ id: graphics/gl_classic_gl_avail
 category_id: com.canonical.plainbox::graphics
 user: root
 _summary: Checks for host OpenGL EGL loader required by opengl-cts --no-confinement
+requires: package.name == 'libegl-dev'
 estimated_duration: 1s
 command: gl_host.py validate-install
 

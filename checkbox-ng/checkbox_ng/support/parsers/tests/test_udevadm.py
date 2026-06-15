@@ -87,7 +87,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         return len([d for d in devices if d.category == category])
 
     def test_has_dev_block_node(self):
-        class StatResult(object):
+        class StatResult:
             st_mode = stat.S_IFBLK
 
         stat_result = StatResult()
@@ -1209,8 +1209,10 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "WATCHDOG"), 1)
 
     def test_DISK_SAMSUNG_KIOXIA(self):
-        # This test verifies that the NVMe name detection correctly handles
-        # both standard nvmeXnY pattern and virtual nvmeXcYnZ pattern.
+        """
+        This test verifies that the NVMe name detection correctly handles
+        both standard nvmeXnY pattern and virtual nvmeXcYnZ pattern.
+        """
         expected_names = {
             "nvme0n1",
             "nvme1n1",
@@ -1241,8 +1243,10 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
             self.assertEqual({d.name for d in nvme_disks}, expected_names)
 
     def test_NVIDIA_DGXA100(self):
-        # DGXA100 exposes DEVNAME-less NVMe path objects with nvmeXcYnZ paths.
-        # These must resolve to real nvmeXn1 block nodes.
+        """
+        DGXA100 exposes DEVNAME-less NVMe path objects with nvmeXcYnZ paths.
+        These must resolve to real nvmeXn1 block nodes.
+        """
         expected_names = {
             "nvme0n1",
             "nvme1n1",

@@ -9,7 +9,7 @@ import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
 
 ELE_HSM_TEST_COMMAND_CANDIDATES = [
     "oem-imx-secure-enclave.ele-hsm-test",
@@ -205,8 +205,8 @@ def get_candidate_directories() -> List[Path]:
 
 def discover_tv_files() -> List[Path]:
     """Discover test vector files from candidate directories."""
-    found: Set[str] = set()
-    results: List[Path] = []
+    found = set()
+    results = []
 
     all_candidates = get_candidate_directories()
     existing_dirs = [
@@ -246,8 +246,8 @@ def build_tv_records(tv_files: List[Path]) -> List[Dict[str, str]]:
       - tv_category: parsed functional category (e.g. set1_cipher)
       - tv_variant: parsed profile/variant (e.g. ap, p, n, persistent_ap)
     """
-    records: List[Dict[str, str]] = []
-    used_names: Dict[str, int] = {}
+    records = []
+    used_names = {}
 
     for tv_file in tv_files:
         base_name = sanitize_name(tv_file.stem)

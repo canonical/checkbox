@@ -103,6 +103,7 @@ class SessionMetaData:
         app_blob=b"",
         app_id=None,
         custom_joblist=False,
+        remaining_todo_jobs=False,
     ):
         """Initialize a new session state meta-data object."""
         if flags is None:
@@ -115,14 +116,16 @@ class SessionMetaData:
         self._custom_joblist = custom_joblist
         self._rejected_jobs = []
         self._last_job_start_time = None
+        self._remaining_todo_jobs = remaining_todo_jobs
 
     def __repr__(self):
         """Get the representation of the session state meta-data."""
-        return "<{} title:{!r} flags:{!r} running_job_name:{!r}>".format(
+        return "<{} title:{!r} flags:{!r} running_job_name:{!r} remaining_todo_jobs:{!r}>".format(
             self.__class__.__name__,
             self.title,
             self.flags,
             self.running_job_name,
+            self.remaining_todo_jobs,
         )
 
     @property
@@ -165,6 +168,14 @@ class SessionMetaData:
     def title(self, title):
         """set the session title to the given value."""
         self._title = title
+
+    @property
+    def remaining_todo_jobs(self):
+        return self._remaining_todo_jobs
+
+    @remaining_todo_jobs.setter
+    def remaining_todo_jobs(self, remaining_todo_jobs: bool):
+        self._remaining_todo_jobs = remaining_todo_jobs
 
     def update_feature_flags(self, config):
         """

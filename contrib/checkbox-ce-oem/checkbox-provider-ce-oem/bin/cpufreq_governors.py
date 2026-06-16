@@ -971,7 +971,7 @@ def main():
         if not test.test_governor():
             sys.exit(1)
     except ValueError as err:
-        logging.error(str(err))
+        logging.error(repr(err))
         sys.exit(1)
 
 

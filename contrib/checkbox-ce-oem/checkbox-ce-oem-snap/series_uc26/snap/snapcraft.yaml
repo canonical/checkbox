@@ -85,7 +85,7 @@ parts:
       - python3-rpyc
       - gpsd
     override-build: |
-      export PYTHONPATH=/snap/checkbox26/current/lib/python3.14/site-packages/:/usr/lib/python3/dist-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=/snap/checkbox26/current/lib/python3.14/site-packages/:/usr/lib/python3/dist-packages
       for path in $(find "/snap/checkbox26/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build

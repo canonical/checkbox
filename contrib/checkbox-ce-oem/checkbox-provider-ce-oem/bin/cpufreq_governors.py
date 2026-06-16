@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import abc
 import argparse
 import contextlib
 import logging
@@ -497,10 +498,8 @@ class CPUScalingHandler:
         return self.set_policy_attribute("scaling_setspeed", frequency)
 
 
-class CPUScalingTest:
+class CPUScalingTest(abc.ABC):
     """A class for CPU scaling test operations."""
-
-    test_description = ""
     _registry = {}
 
     @classmethod
@@ -522,6 +521,11 @@ class CPUScalingTest:
         """
         self.policy = policy
         self.handler = CPUScalingHandler(policy=self.policy)
+
+    @property
+    @abc.abstractmethod
+    def description(self):
+        pass
 
     @classmethod
     def create(cls, governor, policy=0):
@@ -719,20 +723,12 @@ class CPUScalingTest:
                 sys.exit("Governor '{}' not supported".format(governor))
         return success
 
+    @abc.abstractmethod
     def test_governor(self) -> bool:
         """
-        Run the CPU Scaling Governor Test.
-
-        This function is a placeholder for running the CPU scaling governor
-        test. It should be implemented in the subclasses for specific
-        governors.
-
-        Returns:
-            bool: True if the test passes, False otherwise.
+        Run the CPU scaling test for the specific governor.
         """
-        raise NotImplementedError(
-            "This method should be implemented in subclass."
-        )
+        pass
 
 
 @CPUScalingTest.register("userspace")
@@ -740,11 +736,12 @@ class UserspaceCPUScalingTest(CPUScalingTest):
     """
     CPU scaling test operations specific to the userspace governor.
     """
-
-    description = (
-        "This job sets the governor to 'userspace' and verifies the frequency"
-        " when setting it to maximum and minimum."
-    )
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'userspace' and verifies "
+            "the frequency when setting it to maximum and minimum."
+        )
 
     def test_governor(self) -> bool:
         """
@@ -774,10 +771,12 @@ class PerformanceCPUScalingTest(CPUScalingTest):
     governors.
     """
 
-    description = (
-        "This job sets the governor to 'performance' and verifies whether"
-        " the frequency is maximum."
-    )
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'performance' and verifies whether"
+            " the frequency is maximum."
+        )
 
     def test_governor(self) -> bool:
         """
@@ -800,10 +799,12 @@ class PowersaveCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the powersave governor.
     """
 
-    description = (
-        "This job sets the governor to 'powersave' and verifies whether"
-        " the frequency is minimum."
-    )
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'powersave' and verifies whether"
+            " the frequency is minimum."
+        )
 
     def test_governor(self) -> bool:
         """
@@ -826,11 +827,13 @@ class OndemandCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the ondemand governor.
     """
 
-    description = (
-        "This job sets the governor to 'ondemand' and verifies whether the"
-        " frequency will be maximum after stressing CPUs and settling down"
-        " after sleeping for a few seconds."
-    )
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'ondemand' and verifies whether "
+            "the frequency will be maximum after stressing CPUs and "
+            "settling down after sleeping for a few seconds."
+        )
 
     def test_governor(self) -> bool:
         """
@@ -853,11 +856,13 @@ class ConservativeCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the conservative governor.
     """
 
-    description = (
-        "This job sets the governor to 'conservative' and verifies whether"
-        " the frequency will be maximum after stressing CPUs and"
-        " settling down after sleeping for a few seconds."
-    )
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'conservative' and verifies "
+            "whether the frequency will be maximum after stressing CPUs and"
+            " settling down after sleeping for a few seconds."
+        )
 
     def test_governor(self) -> bool:
         """
@@ -880,11 +885,13 @@ class SchedutilCPUScalingTest(CPUScalingTest):
     CPU scaling test operations specific to the schedutil governor.
     """
 
-    description = (
-        "This job sets the governor to 'schedutil' and verifies whether the"
-        " frequency will be maximum after stressing CPUs and"
-        " settling down after sleeping for a few seconds."
-    )
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'schedutil' and verifies whether"
+            " the frequency will be maximum after stressing CPUs and"
+            " settling down after sleeping for a few seconds."
+        )
 
     def test_governor(self) -> bool:
         """

@@ -500,6 +500,7 @@ class CPUScalingHandler:
 
 class CPUScalingTest(abc.ABC):
     """A class for CPU scaling test operations."""
+
     _registry = {}
 
     @classmethod
@@ -736,6 +737,7 @@ class UserspaceCPUScalingTest(CPUScalingTest):
     """
     CPU scaling test operations specific to the userspace governor.
     """
+
     @property
     def description(self):
         return (

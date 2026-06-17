@@ -246,11 +246,7 @@ estimated_duration: 0.11
 plugin: resource
 category_id: information_gathering
 _summary: Create resource info for environment variables
-command:
- IFS=$'\n'
- for e in $(env | sed 's/=/:/g'); do
-     echo "$e" | awk -F':' '{print $1 ": " $2}'
- done
+command: environment_resource.py
 
 id: mobilebroadband
 estimated_duration: 0.38

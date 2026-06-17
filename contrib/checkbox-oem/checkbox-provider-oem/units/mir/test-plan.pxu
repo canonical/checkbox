@@ -1,0 +1,21 @@
+id: oem-mir-full
+unit: test plan
+_name: Mir tests
+_description: Full graphics tests on Mir
+include:
+nested_part:
+  oem-mir-automated
+  oem-mir-manual
+
+id: oem-mir-automated
+unit: test plan
+_name: Mir auto tests
+_description: Automated graphics tests on Mir
+bootstrap_include:
+include:
+
+id: oem-mir-manual
+unit: test plan
+_name: Mir manual tests
+_description: Manual graphics tests on Mir
+include:

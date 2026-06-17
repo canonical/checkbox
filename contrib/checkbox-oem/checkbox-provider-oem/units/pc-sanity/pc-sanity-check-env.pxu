@@ -1,0 +1,21 @@
+unit: packaging meta-data
+os-id: ubuntu
+Depends:
+  libopenscap8
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_language_packages
+command:
+ [ -z "$(find /var/lib/apt/periodic/update-success-stamp -mmin -10)" ] && sudo apt-get update
+ pkgs="$(check-language-support -l "${LANG/.UTF-8/}")"
+ if [ -z "$pkgs" ]
+ then
+     exit 0
+ else
+     echo Missing packages: "$pkgs"
+     exit 1
+ fi
+_summary: Check if all needed language packages are installed
+_description:
+ To check if all needed language packages are in the system

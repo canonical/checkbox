@@ -19,7 +19,7 @@ def wait_for_suspend_jobs_to_finish():
         stderr=subprocess.STDOUT,
         universal_newlines=True,
     ).strip()
-    if "No jobs running." not in output and "No jobs listed." not in output:
+    if output not in ("No jobs running.", "No jobs listed."):
         raise RuntimeError(
             "Suspend jobs ongoing.\n"
             f"Active jobs list:\n{output}"

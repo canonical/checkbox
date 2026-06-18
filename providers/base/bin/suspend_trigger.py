@@ -21,8 +21,7 @@ def wait_for_suspend_jobs_to_finish():
     ).strip()
     if output not in ("No jobs running.", "No jobs listed."):
         raise RuntimeError(
-            "Suspend jobs ongoing.\n"
-            f"Active jobs list:\n{output}"
+            "Suspend jobs ongoing.\n" f"Active jobs list:\n{output}"
         )
 
 

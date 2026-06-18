@@ -21,7 +21,7 @@ def wait_for_suspend_jobs_to_finish():
     ).strip()
     if output not in ("No jobs running.", "No jobs listed."):
         raise RuntimeError(
-            "Suspend jobs ongoing.\n" f"Active jobs list:\n{output}"
+            "Suspend jobs ongoing.\nActive jobs list:\n{}".format(output)
         )
 
 
@@ -86,7 +86,8 @@ def main(args=sys.argv[1:]):
             wait_for_suspend_jobs_to_finish()
         except RuntimeError as e:
             raise SystemExit(
-                f"Timed out waiting for suspend jobs to finish.\nDetails: {e}"
+                "Timed out waiting for suspend jobs to finish."
+                "\nDetails: {}".format(e)
             )
         print("Running: {}".format(" ".join(rtcwake_cmd)))
         subprocess.check_call(rtcwake_cmd)

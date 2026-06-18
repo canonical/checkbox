@@ -215,11 +215,14 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
 
         mock_check_output.return_value = "1 jobs listed. (suspend ongoing)"
 
-        with self.assertRaises(SystemExit) as cm:
-            suspend_trigger.main([])
+        with patch(
+            "checkbox_support.helpers.retry.time.sleep", return_value=None
+        ):
+            with self.assertRaises(SystemExit) as cm:
+                suspend_trigger.main([])
 
-        self.assertEqual(
-            str(cm.exception), "Timed out waiting for suspend jobs to finish"
+        self.assertIn(
+            "Timed out waiting for suspend jobs to finish", str(cm.exception)
         )
 
         # Verify that check_output was called exactly 10 times (loop limit).

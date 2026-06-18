@@ -1,6 +1,8 @@
 unit: template
 template-resource: device
-template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
+template-filter:
+    device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
+    device.product_slug != "PS_2_Generic_Mouse"
 plugin: manual
 category_id: com.canonical.plainbox::input
 id: input/pointing_{product_slug}_{category}_{__index__}
@@ -66,7 +68,9 @@ _summary: Test the accelerometer's detection and operation as a joystick device.
 
 unit: template
 template-resource: device
-template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD'
+template-filter:
+    device.category == 'MOUSE' or device.category == 'TOUCHPAD'
+    device.product_slug != "PS_2_Generic_Mouse"
 plugin: manual
 category_id: com.canonical.plainbox::input
 id: input/clicking_{product_slug}_{category}_{__index__}

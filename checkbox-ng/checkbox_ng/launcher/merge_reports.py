@@ -128,7 +128,7 @@ class MergeReports:
     def _populate_session_state(self, job, state):
         self.job_list = []
         self.category_list = []
-        
+
         io_log = [
             IOLogRecord(count, "stdout", line.encode("utf-8"))
             for count, line in enumerate(

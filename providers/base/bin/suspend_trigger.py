@@ -85,8 +85,10 @@ def main(args=sys.argv[1:]):
         suspend_cmd = ["systemctl", "suspend"]
         try:
             wait_for_suspend_jobs_to_finish()
-        except RuntimeError:
-            raise SystemExit("Timed out waiting for suspend jobs to finish")
+        except RuntimeError as e:
+            raise SystemExit(
+                f"Timed out waiting for suspend jobs to finish.\nDetails: {e}"
+            )
         print("Running: {}".format(" ".join(rtcwake_cmd)))
         subprocess.check_call(rtcwake_cmd)
         print(

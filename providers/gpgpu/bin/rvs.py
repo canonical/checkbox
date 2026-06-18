@@ -51,6 +51,7 @@ class ModuleRunner:
         # CHECKBOX-2021: Snap confinement prevents access to /usr/share
         snap_bins = ["/snap/bin/rvs", "/snap/bin/rocm-validation-suite"]
         if any(rvs.match(p) for p in snap_bins):
+            RVS_SNAP_COMMON.mkdir(parents=True, exist_ok=True)
             shutil.copy(config, RVS_SNAP_COMMON)
             self.config = RVS_SNAP_COMMON / config.name
 

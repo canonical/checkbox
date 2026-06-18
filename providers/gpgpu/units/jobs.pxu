@@ -37,6 +37,7 @@ _siblings: [
 id: gpgpu/rvs-gpup
 category_id: gpgpu
 plugin: shell
+user: root
 estimated_duration: 4
 requires:
     graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'

@@ -1,6 +1,6 @@
 # Copilot Instructions — Checkbox monorepo
 
-> **Global rules apply** — shell, git, secrets, destructive ops, and PR conventions are in `~/.github/copilot-instructions.md`.
+> Optional: you can add personal Copilot instructions in `~/.github/copilot-instructions.md`; this repository’s rules are defined below.
 
 ## Overview
 

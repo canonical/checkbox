@@ -20,7 +20,10 @@ def wait_for_suspend_jobs_to_finish():
         universal_newlines=True,
     ).strip()
     if "No jobs running." not in output and "No jobs listed." not in output:
-        raise RuntimeError("Suspend jobs ongoing")
+        raise RuntimeError(
+            "Suspend jobs ongoing.\n"
+            f"Active jobs list:\n{output}"
+        )
 
 
 def main(args=sys.argv[1:]):

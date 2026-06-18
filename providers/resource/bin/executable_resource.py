@@ -7,8 +7,7 @@ from contextlib import suppress
 
 def iter_if_accessible(path: Path):
     with suppress(OSError):
-        return path.iterdir()
-    return iter([])
+        yield from path.iterdir()
 
 
 def main():

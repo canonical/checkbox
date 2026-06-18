@@ -16,6 +16,21 @@ class TestIterIfAccessible(TestCase):
         self.assertEqual(result, [Path("/usr/bin/ls"), Path("/usr/bin/cat")])
 
     @patch("executable_resource.Path.iterdir")
+    def test_iterdir_oserror_while_consuming(self, iterdir_mock):
+        class FailingIterator:
+            def __iter__(self):
+                return self
+
+            def __next__(self):
+                raise OSError("Permission denied")
+
+        iterdir_mock.return_value = FailingIterator()
+        result = list(
+            executable_resource.iter_if_accessible(Path("/no/access"))
+        )
+        self.assertEqual(result, [])
+
+    @patch("executable_resource.Path.iterdir")
     def test_iterdir_oserror(self, iterdir_mock):
         iterdir_mock.side_effect = OSError("Permission denied")
         result = list(

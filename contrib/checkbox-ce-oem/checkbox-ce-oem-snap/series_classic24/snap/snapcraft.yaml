@@ -46,6 +46,7 @@ parts:
       - snmp
       - python3-rpyc
       - gpsd
+      - python3-pygame
     override-prime: |
       craftctl default
     override-build: |

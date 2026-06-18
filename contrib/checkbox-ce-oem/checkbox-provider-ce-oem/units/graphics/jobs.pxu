@@ -11,3 +11,17 @@ _summary: Verify Nvidia proprietary driver with DRM modeset for full rendering s
 _purpose:
     Verify that the Nvidia card is using the proprietary driver with nvidia-drm modeset enabled,
     ensuring the system can render properly on all Nvidia graphics cards with proprietary drivers.
+
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: ce-oem-graphics/drm-intial-check
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.drm_initial_check == 'True'
+user: root
+command: drm.py
+_summary: Verify each step of drm initialation and run time status
+_purpose:
+    Make sure low level driver function is valid
+

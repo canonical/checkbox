@@ -40,7 +40,9 @@ def custom_frontend_roots() -> list:
     if not CUSTOM_FRONTEND_LOCATION:
         return []
     try:
-        return list(filter(Path.is_dir, CUSTOM_FRONTEND_LOCATION.iterdir()))
+        return list(
+            sorted(filter(Path.is_dir, CUSTOM_FRONTEND_LOCATION.iterdir()))
+        )
     except FileNotFoundError:
         return []
 

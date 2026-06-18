@@ -187,8 +187,9 @@ class TestSuspendTriggerRTCWake(unittest.TestCase):
         mock_check_output.side_effect = error
 
         # The script should propagate the exception
-        with self.assertRaises(subprocess.CalledProcessError):
-            suspend_trigger.main([])
+        with patch("checkbox_support.helpers.retry.time.sleep", return_value=None):
+            with self.assertRaises(subprocess.CalledProcessError):
+                suspend_trigger.main([])
 
         # Verify that only the first command was attempted
         self.assertTrue(mock_check_output.called)

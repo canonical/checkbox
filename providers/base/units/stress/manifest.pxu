@@ -2,7 +2,6 @@ unit: manifest entry
 id: _ignore_reboot_loop_tests
 _name: Ignore reboot loop (warm-boot and cold-boot stress) tests
 value-type: bool
-hidden-reason: Reboot loop stress tests should be run during certification.
-  However, in some lab or regression environments these long-running reboot
-  cycles are not feasible, so this flag allows them to be skipped without
-  affecting the rest of the test plan.
+hidden-reason: The reboot loop stress tests should be run only for 
+  certification and they must be skipped. Since we don't have a separate stress
+  test plan for odm, we will use this manifest entry.

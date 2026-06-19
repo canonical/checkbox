@@ -711,5 +711,14 @@ class SessionSuspendHelper10(SessionSuspendHelper9):
         return data
 
 
+class SessionSuspendHelper11(SessionSuspendHelper10):
+    VERSION = 11
+
+    def _repr_SessionMetaData(self, obj, session_dir):
+        data = super()._repr_SessionMetaData(obj, session_dir)
+        data["remaining_todo_jobs"] = obj.remaining_todo_jobs
+        return data
+
+
 # Alias for the most recent version
-SessionSuspendHelper = SessionSuspendHelper10
+SessionSuspendHelper = SessionSuspendHelper11

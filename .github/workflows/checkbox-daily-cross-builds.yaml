@@ -1,4 +1,4 @@
-name: Checkbox Snap daily cross-builds
+name: Checkbox Snap cross-builds
 permissions:
   contents: read
 on:

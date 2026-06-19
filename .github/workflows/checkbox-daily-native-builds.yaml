@@ -1,4 +1,4 @@
-name: Checkbox Snap daily native builds
+name: Checkbox Snap native builds
 permissions:
   contents: read
 on:
@@ -36,13 +36,13 @@ jobs:
           - release: 18
             snapcraft_version: 7.x/stable
           - release: 20
-            snapcraft_version: 7.x/stable
+            snapcraft_version: 8.x/stable
           - release: 22
             snapcraft_version: 8.x/stable
           - release: 24
             snapcraft_version: 8.x/stable
           - release: 26
-            snapcraft_version: 9.x/beta
+            snapcraft_version: 9.x/stable
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}"]
@@ -119,13 +119,13 @@ jobs:
           - release: 18
             snapcraft_version: 7.x/stable
           - release: 20
-            snapcraft_version: 7.x/stable
+            snapcraft_version: 8.x/stable
           - release: 22
             snapcraft_version: 8.x/stable
           - release: 24
             snapcraft_version: 8.x/stable
           - release: 26
-            snapcraft_version: 9.x/beta
+            snapcraft_version: 9.x/stable
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}"]

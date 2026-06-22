@@ -191,51 +191,51 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Hygon C86-4G 7490": ['0x900f41'],                               # 2024
 
         # Intel
-        "Penryn":            ['0x1067a'],                                 # 2007
-        "Nehalem":           ['0x106a', '0x106e5', '0x206e'],             # 2008
-        "Pineview":          ['0x106ca'],                                 # 2009
-        "Westmere":          ['0x2065', '0x206c', '0x206f'],              # 2010
-        "Sandy Bridge":      ['0x206a', '0x206d6', '0x206d7'],            # 2011
-        "Ivy Bridge":        ['0x306a', '0x306e'],                        # 2012
-        "Haswell":           ['0x306c', '0x4065', '0x4066', '0x306f'],    # 2013
-        "Broadwell":         ['0x4067', '0x306d4', '0x5066', '0x406f'],   # 2014
-        "Skylake":           ['0x406e3', '0x506e3', '0x50654',            # 2015
+        "Penryn":            ['0x1067a'],                                # 2007
+        "Nehalem":           ['0x106a', '0x106e5', '0x206e'],            # 2008
+        "Pineview":          ['0x106ca'],                                # 2009
+        "Westmere":          ['0x2065', '0x206c', '0x206f'],             # 2010
+        "Sandy Bridge":      ['0x206a', '0x206d6', '0x206d7'],           # 2011
+        "Ivy Bridge":        ['0x306a', '0x306e'],                       # 2012
+        "Haswell":           ['0x306c', '0x4065', '0x4066', '0x306f'],   # 2013
+        "Broadwell":         ['0x4067', '0x306d4', '0x5066', '0x406f'],  # 2014
+        "Skylake":           ['0x406e3', '0x506e3', '0x50654',           # 2015
                               '0x50652'],
-        "Knights Landing":   ['0x5067'],                                  # 2016
-        "Kaby Lake":         ['0x806e9', '0x906e9'],                      # 2016
+        "Knights Landing":   ['0x5067'],                                 # 2016
+        "Kaby Lake":         ['0x806e9', '0x906e9'],                     # 2016
         # Amber Lake Y (low power refresh of Kaby Lake) shares CPUID 0x806e9
-        "Apollo Lake":       ['0x506c9', '0x506ca'],                      # 2016
-        "Knights Mill":      ['0x8065'],                                  # 2017
-        "Coffee Lake":       ['0x806ea', '0x906ea', '0x906eb',            # 2017
+        "Apollo Lake":       ['0x506c9', '0x506ca'],                     # 2016
+        "Knights Mill":      ['0x8065'],                                 # 2017
+        "Coffee Lake":       ['0x806ea', '0x906ea', '0x906eb',           # 2017
                               '0x906ec', '0x906ed'],
-        "Gemini Lake":       ['0x706a1', '0x706a8'],                      # 2017
-        "Canon Lake":        ['0x6066'],                                  # 2018
-        "Whisky Lake":       ['0x806eb', '0x806ec'],                      # 2018
+        "Gemini Lake":       ['0x706a1', '0x706a8'],                     # 2017
+        "Canon Lake":        ['0x6066'],                                 # 2018
+        "Whisky Lake":       ['0x806eb', '0x806ec'],                     # 2018
         # Amber Lake Y shares CPUID 0x806ec and 0x806eb with Whisky Lake
-        "Amber Lake Y":      ['0x406e8'],                                 # 2018
-        "Cascade Lake":      ['0x50655', '0x50656', '0x50657'],           # 2019
-        "Ice Lake":          ['0x606e6', '0x606a6', '0x706e6',            # 2019
+        "Amber Lake Y":      ['0x406e8'],                                # 2018
+        "Cascade Lake":      ['0x50655', '0x50656', '0x50657'],          # 2019
+        "Ice Lake":          ['0x606e6', '0x606a6', '0x706e6',           # 2019
                               '0x606c1'],
-        "Comet Lake":        ['0x806ec', '0xa065'],                       # 2019
-        "Cooper Lake":       ['0x5065a', '0x5065b'],                      # 2020
-        "Tiger Lake":        ['0x806c1'],                                 # 2020
-        "Elkhart Lake":      ['0x90660', '0x90661'],                      # 2021
-        "Jasper Lake":       ['0x906c0'],                                 # 2021
-        "Rocket Lake":       ['0xa0671'],                                 # 2021
-        "Alder Lake":        ['0x906a4', '0x906a3', '0x90675',            # 2021
+        "Comet Lake":        ['0x806ec', '0xa065'],                      # 2019
+        "Cooper Lake":       ['0x5065a', '0x5065b'],                     # 2020
+        "Tiger Lake":        ['0x806c1'],                                # 2020
+        "Elkhart Lake":      ['0x90660', '0x90661'],                     # 2021
+        "Jasper Lake":       ['0x906c0'],                                # 2021
+        "Rocket Lake":       ['0xa0671'],                                # 2021
+        "Alder Lake":        ['0x906a4', '0x906a3', '0x90675',           # 2021
                               '0x90672'],
-        "Raptor Lake":       ['0xb0671', '0xb06f2', '0xb06f5',            # 2022
+        "Raptor Lake":       ['0xb0671', '0xb06f2', '0xb06f5',           # 2022
                               '0xb06a2'],
-        "Sapphire Rapids":   ['0x806f3', '0x806f6', '0x806f7',            # 2023
+        "Sapphire Rapids":   ['0x806f3', '0x806f6', '0x806f7',           # 2023
                               '0x806f8'],
-        "Emerald Rapids":    ['0xc06f2'],                                 # 2023
-        "Meteor Lake":       ['0xa06a4'],                                 # 2023
-        "Sierra Forest":     ['0xa06f3'],                                 # 2024
-        "Granite Rapids":    ['0xa06e0', '0xa06d0', '0xa06d1'],           # 2024
-        "Granite Rapids-D":  ['0xa06e1'],                                 # 2024
-        "Lunar Lake":        ['0xb06d1'],                                 # 2024
-        "Arrow Lake":        ['0xc0660', '0xc0652'],                      # 2024
-        "Panther Lake":      ['0xc06c0'],                                 # 2025
+        "Emerald Rapids":    ['0xc06f2'],                                # 2023
+        "Meteor Lake":       ['0xa06a4'],                                # 2023
+        "Sierra Forest":     ['0xa06f3'],                                # 2024
+        "Granite Rapids":    ['0xa06e0', '0xa06d0', '0xa06d1'],          # 2024
+        "Granite Rapids-D":  ['0xa06e1'],                                # 2024
+        "Lunar Lake":        ['0xb06d1'],                                # 2024
+        "Arrow Lake":        ['0xc0660', '0xc0652'],                     # 2024
+        "Panther Lake":      ['0xc06c0'],                                # 2025
         "Clearwater Forest": ['0xd06d1']                                 # 2026
     }
     for key in CPUIDS.keys():

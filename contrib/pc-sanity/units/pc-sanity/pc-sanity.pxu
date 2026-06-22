@@ -129,10 +129,13 @@ description:
     A plan following SRU plan to exclude dGPU switching temporary.
 
 id: pc-sanity-smoke-test-24-04-without-cert-desktop
-_name: pc-sanity-smoke-test 24.04 without cert-desktop plan (Ubuntu Desktop)
+_name: pc-sanity-smoke-test 24.04 (Ubuntu Desktop, without cert-desktop)
 unit: test plan
 _description:
-    This test plan is for smoke test as sanity before release image without nested client-cert-desktop-24-04-automated
+    Smoke-test plan for 24.04 that runs pc-sanity-base and
+    power-management-cpu-cstate-cert-automated, without nesting
+    client-cert-desktop-24-04-automated.
+include:
 nested_part:
     com.canonical.certification::pc-sanity-base
     com.canonical.certification::power-management-cpu-cstate-cert-automated

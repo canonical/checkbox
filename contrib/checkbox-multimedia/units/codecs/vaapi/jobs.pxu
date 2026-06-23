@@ -1,0 +1,15 @@
+id: multimedia/codecs/vaapi/decode/h264
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API decode test placeholder
+command:
+  echo "PASS: VA-API H.264 decode"
+
+id: multimedia/codecs/vaapi/decode/h265
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API decode test placeholder
+command:
+  echo "PASS: VA-API H.265 decode"

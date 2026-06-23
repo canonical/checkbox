@@ -1,0 +1,7 @@
+unit: test plan
+id: multimedia-all
+_name: All multimedia tests
+include:
+  multimedia/video/playback
+  multimedia/codecs/vaapi/decode
+  multimedia/codecs/nvdec/decode

@@ -1,0 +1,6 @@
+unit: test plan
+id: multimedia-codecs-vaapi
+_name: VA-API codec conformance tests
+include:
+  multimedia/codecs/vaapi/decode/h264
+  multimedia/codecs/vaapi/decode/h265

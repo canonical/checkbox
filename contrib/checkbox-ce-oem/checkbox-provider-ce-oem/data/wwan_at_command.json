@@ -1,0 +1,7 @@
+{
+    "SIM7672G-LNGV": {
+        "Network registration": "AT+COPS?",
+        "Set APN": "AT+CGDCONT=1",
+        "Set auto-dial": "AT+DIALMODE=0"
+    }
+}

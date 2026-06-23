@@ -7,7 +7,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_h264_constrained_baseline_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API H.264 Constrained Baseline decode"
+  "TODO: VA-API H.264 Baseline decode"
 
 id: multimedia/image/codecs/h264/decode/main/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -18,7 +18,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_h264_main_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API H.264 Main decode"
+  echo "TODO: VA-API H.264 Main decode"
 
 id: multimedia/image/codecs/h264/decode/high/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -29,7 +29,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_h264_high_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API H.264 High decode"
+  fluster run -d GStreamer-H.264-VAAPI-Gst1.0 -j1 -ts JVT-AVC_V1
 
 id: multimedia/image/codecs/h264/decode/high10/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -40,7 +40,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_h264_high10_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API H.264 High 10 decode"
+  fluster run -d GStreamer-H.264-VAAPI-Gst1.0 -j1 -ts JVT-FR-EXT
 
 id: multimedia/image/codecs/h264/decode/high422/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -51,7 +51,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_h264_high422_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API H.264 High 4:2:2 decode"
+  "TODO: VA-API H.264 High 422 decode"
 
 id: multimedia/image/codecs/h264/decode/high444/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -62,4 +62,4 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_h264_high444_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API H.264 High 4:4:4 decode"
+  "TODO: VA-API H.264 High 444 decode"

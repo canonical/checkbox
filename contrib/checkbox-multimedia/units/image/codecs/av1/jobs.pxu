@@ -7,7 +7,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_av1_profile0_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API AV1 Profile 0 decode"
+  fluster run -d GStreamer-AV1-VAAPI-Gst1.0 -j1 -ts AV1-ARGON-PROFILE0-CORE-ANNEX-B
 
 id: multimedia/image/codecs/av1/decode/profile1/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -18,7 +18,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_av1_profile1_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API AV1 Profile 1 decode"
+  fluster run -d GStreamer-AV1-VAAPI-Gst1.0 -j1 -ts AV1-ARGON-PROFILE1-CORE-ANNEX-B
 
 id: multimedia/image/codecs/av1/decode/profile2/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -29,4 +29,4 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_av1_profile2_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API AV1 Profile 2 decode"
+  fluster run -d GStreamer-AV1-VAAPI-Gst1.0 -j1 -ts AV1-ARGON-PROFILE2-CORE-ANNEX-B

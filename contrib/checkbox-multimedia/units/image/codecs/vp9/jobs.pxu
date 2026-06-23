@@ -7,7 +7,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_vp9_profile0_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API VP9 Profile 0 decode"
+  fluster run -d GStreamer-VP9-VAAPI-Gst1.0 -j1 -ts VP9-TEST-VECTORS
 
 id: multimedia/image/codecs/vp9/decode/profile1/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -18,7 +18,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_vp9_profile1_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API VP9 Profile 1 decode"
+  fluster run -d GStreamer-VP9-VAAPI-Gst1.0 -j1 -ts VP9-TEST-VECTORS
 
 id: multimedia/image/codecs/vp9/decode/profile2/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -29,7 +29,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_vp9_profile2_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API VP9 Profile 2 decode"
+  echo "TODO: VA-API VP9 Profile 2 decode"
 
 id: multimedia/image/codecs/vp9/decode/profile3/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -40,4 +40,4 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_vp9_profile3_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API VP9 Profile 3 decode"
+  echo "TODO: VA-API VP9 Profile 3 decode"

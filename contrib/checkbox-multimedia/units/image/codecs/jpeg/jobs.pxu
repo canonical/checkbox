@@ -7,4 +7,4 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_jpeg_baseline_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API JPEG Baseline decode"
+  echo "TODO: VA-API JPEG Baseline decode"

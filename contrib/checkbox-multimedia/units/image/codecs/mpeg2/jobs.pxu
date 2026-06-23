@@ -7,7 +7,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_mpeg2_simple_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API MPEG-2 Simple decode"
+  "TODO: VA-API MPEG-2 Simple decode"
 
 id: multimedia/image/codecs/mpeg2/decode/main/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -18,4 +18,4 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_mpeg2_main_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API MPEG-2 Main decode"
+  fluster run -d GStreamer-MPEG2_VIDEO-Libav-Gst1.0 -j1 -ts MPEG2_VIDEO-MAIN

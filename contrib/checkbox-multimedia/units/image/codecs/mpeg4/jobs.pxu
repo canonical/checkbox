@@ -7,7 +7,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_mpeg4_simple_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API MPEG-4 Simple decode"
+  fluster run -d GStreamer-MPEG4_VIDEO-Libav-Gst1.0 -j1 -ts MPEG4_VIDEO-SimpleProfile
 
 id: multimedia/image/codecs/mpeg4/decode/advanced_simple/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -18,7 +18,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_mpeg4_advanced_simple_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API MPEG-4 Advanced Simple decode"
+  fluster run -d GStreamer-MPEG4_VIDEO-Libav-Gst1.0 -j1 -ts MPEG4_VIDEO-AdvancedSimpleProfile
 
 id: multimedia/image/codecs/mpeg4/decode/main/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
@@ -29,4 +29,4 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_mpeg4_main_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API MPEG-4 Main decode"
+  "TODO: VA-API MPEG-4 Main decode"

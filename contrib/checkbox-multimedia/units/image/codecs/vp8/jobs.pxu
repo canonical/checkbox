@@ -7,4 +7,4 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_vp8_version0_3_decoder_vaapi == 'True'
 command:
-  echo "PASS: VA-API VP8 decode"
+  fluster run -d GStreamer-VP8-VAAPI-Gst1.0 -j1 -ts VP8-TEST-VECTORS

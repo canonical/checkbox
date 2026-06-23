@@ -1,0 +1,7 @@
+unit: test plan
+id: multimedia-codecs-vaapi-vc1
+_name: VA-API VC-1 decode tests
+include:
+  multimedia/image/codecs/vc1/decode/simple/vaapi
+  multimedia/image/codecs/vc1/decode/main/vaapi
+  multimedia/image/codecs/vc1/decode/advanced/vaapi

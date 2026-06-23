@@ -1,8 +1,0 @@
-unit: test plan
-id: multimedia-codecs-vaapi-vp9
-_name: VA-API VP9 decode tests
-include:
-  multimedia/codecs/vaapi/decode/vp9/profile0
-  multimedia/codecs/vaapi/decode/vp9/profile1
-  multimedia/codecs/vaapi/decode/vp9/profile2
-  multimedia/codecs/vaapi/decode/vp9/profile3

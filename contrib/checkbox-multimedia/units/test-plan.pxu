@@ -3,5 +3,13 @@ id: multimedia-all
 _name: All multimedia tests
 include:
   multimedia/video/playback
-  multimedia/codecs/vaapi/decode
-  multimedia/codecs/nvdec/decode
+  multimedia/image/codecs/av1/decode
+  multimedia/image/codecs/h264/decode
+  multimedia/image/codecs/h265/decode
+  multimedia/image/codecs/jpeg/decode
+  multimedia/image/codecs/mpeg2/decode
+  multimedia/image/codecs/mpeg4/decode
+  multimedia/image/codecs/vc1/decode
+  multimedia/image/codecs/vp8/decode
+  multimedia/image/codecs/vp9/decode
+  multimedia/image/codecs/nvdec/decode

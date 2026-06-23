@@ -1,4 +1,4 @@
-id: multimedia/codecs/vaapi/decode/h265/main
+id: multimedia/image/codecs/h265/decode/main/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -6,7 +6,7 @@ _summary: VA-API H.265 Main decode
 command:
   echo "PASS: VA-API H.265 Main decode"
 
-id: multimedia/codecs/vaapi/decode/h265/main10
+id: multimedia/image/codecs/h265/decode/main10/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -14,7 +14,7 @@ _summary: VA-API H.265 Main 10 decode
 command:
   echo "PASS: VA-API H.265 Main 10 decode"
 
-id: multimedia/codecs/vaapi/decode/h265/main12
+id: multimedia/image/codecs/h265/decode/main12/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -22,7 +22,7 @@ _summary: VA-API H.265 Main 12 decode
 command:
   echo "PASS: VA-API H.265 Main 12 decode"
 
-id: multimedia/codecs/vaapi/decode/h265/main422_10
+id: multimedia/image/codecs/h265/decode/main422_10/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -30,7 +30,7 @@ _summary: VA-API H.265 Main 4:2:2 10 decode
 command:
   echo "PASS: VA-API H.265 Main 4:2:2 10 decode"
 
-id: multimedia/codecs/vaapi/decode/h265/main444
+id: multimedia/image/codecs/h265/decode/main444/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -38,7 +38,7 @@ _summary: VA-API H.265 Main 4:4:4 decode
 command:
   echo "PASS: VA-API H.265 Main 4:4:4 decode"
 
-id: multimedia/codecs/vaapi/decode/h265/main444_10
+id: multimedia/image/codecs/h265/decode/main444_10/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -46,7 +46,7 @@ _summary: VA-API H.265 Main 4:4:4 10 decode
 command:
   echo "PASS: VA-API H.265 Main 4:4:4 10 decode"
 
-id: multimedia/codecs/vaapi/decode/h265/main444_12
+id: multimedia/image/codecs/h265/decode/main444_12/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s

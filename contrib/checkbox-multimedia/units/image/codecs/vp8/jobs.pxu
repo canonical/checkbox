@@ -1,4 +1,4 @@
-id: multimedia/codecs/vaapi/decode/vp8/version0_3
+id: multimedia/image/codecs/vp8/decode/version0_3/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s

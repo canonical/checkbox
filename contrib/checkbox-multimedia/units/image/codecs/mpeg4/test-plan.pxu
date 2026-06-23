@@ -1,0 +1,7 @@
+unit: test plan
+id: multimedia-codecs-vaapi-mpeg4
+_name: VA-API MPEG-4 decode tests
+include:
+  multimedia/image/codecs/mpeg4/decode/simple/vaapi
+  multimedia/image/codecs/mpeg4/decode/advanced_simple/vaapi
+  multimedia/image/codecs/mpeg4/decode/main/vaapi

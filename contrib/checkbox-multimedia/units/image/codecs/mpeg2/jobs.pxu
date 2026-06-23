@@ -1,4 +1,4 @@
-id: multimedia/codecs/vaapi/decode/mpeg2/simple
+id: multimedia/image/codecs/mpeg2/decode/simple/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -6,7 +6,7 @@ _summary: VA-API MPEG-2 Simple decode
 command:
   echo "PASS: VA-API MPEG-2 Simple decode"
 
-id: multimedia/codecs/vaapi/decode/mpeg2/main
+id: multimedia/image/codecs/mpeg2/decode/main/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s

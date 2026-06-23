@@ -1,0 +1,11 @@
+unit: test plan
+id: multimedia-codecs-vaapi-h265
+_name: VA-API H.265 / HEVC decode tests
+include:
+  multimedia/image/codecs/h265/decode/main/vaapi
+  multimedia/image/codecs/h265/decode/main10/vaapi
+  multimedia/image/codecs/h265/decode/main12/vaapi
+  multimedia/image/codecs/h265/decode/main422_10/vaapi
+  multimedia/image/codecs/h265/decode/main444/vaapi
+  multimedia/image/codecs/h265/decode/main444_10/vaapi
+  multimedia/image/codecs/h265/decode/main444_12/vaapi

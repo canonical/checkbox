@@ -1,6 +1,0 @@
-unit: test plan
-id: multimedia-codecs
-_name: Multimedia codec tests
-include:
-  multimedia/codecs/vaapi/decode
-  multimedia/codecs/nvdec/decode

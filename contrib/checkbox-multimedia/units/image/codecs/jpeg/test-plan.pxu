@@ -2,4 +2,4 @@ unit: test plan
 id: multimedia-codecs-vaapi-jpeg
 _name: VA-API JPEG decode tests
 include:
-  multimedia/codecs/vaapi/decode/jpeg/baseline
+  multimedia/image/codecs/jpeg/decode/baseline/vaapi

@@ -1,4 +1,4 @@
-id: multimedia/codecs/vaapi/decode/av1/profile0
+id: multimedia/image/codecs/av1/decode/profile0/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -6,7 +6,7 @@ _summary: VA-API AV1 Profile 0 decode
 command:
   echo "PASS: VA-API AV1 Profile 0 decode"
 
-id: multimedia/codecs/vaapi/decode/av1/profile1
+id: multimedia/image/codecs/av1/decode/profile1/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -14,7 +14,7 @@ _summary: VA-API AV1 Profile 1 decode
 command:
   echo "PASS: VA-API AV1 Profile 1 decode"
 
-id: multimedia/codecs/vaapi/decode/av1/profile2
+id: multimedia/image/codecs/av1/decode/profile2/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s

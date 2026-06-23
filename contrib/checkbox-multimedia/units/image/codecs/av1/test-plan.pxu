@@ -1,0 +1,7 @@
+unit: test plan
+id: multimedia-codecs-vaapi-av1
+_name: VA-API AV1 decode tests
+include:
+  multimedia/image/codecs/av1/decode/profile0/vaapi
+  multimedia/image/codecs/av1/decode/profile1/vaapi
+  multimedia/image/codecs/av1/decode/profile2/vaapi

@@ -1,4 +1,4 @@
-id: multimedia/codecs/vaapi/decode/vc1/simple
+id: multimedia/image/codecs/vc1/decode/simple/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -6,7 +6,7 @@ _summary: VA-API VC-1 Simple decode
 command:
   echo "PASS: VA-API VC-1 Simple decode"
 
-id: multimedia/codecs/vaapi/decode/vc1/main
+id: multimedia/image/codecs/vc1/decode/main/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
@@ -14,7 +14,7 @@ _summary: VA-API VC-1 Main decode
 command:
   echo "PASS: VA-API VC-1 Main decode"
 
-id: multimedia/codecs/vaapi/decode/vc1/advanced
+id: multimedia/image/codecs/vc1/decode/advanced/vaapi
 category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s

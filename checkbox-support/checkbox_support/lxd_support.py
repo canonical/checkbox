@@ -168,6 +168,7 @@ class LXD:
                 self.run,
                 5,
                 2,
+                True,
                 "lxc image copy {}{} local: --alias {}".format(
                     self.remote, self.release, self.image_alias.hex
                 ),
@@ -263,6 +264,7 @@ class LXDVM(LXD):
                 self.run,
                 5,
                 15,
+                True,
                 "lxc image copy {}{} local: --alias {} --vm".format(
                     self.remote, self.release, self.image_alias.hex
                 ),

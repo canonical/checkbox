@@ -156,7 +156,9 @@ def setup_nvidia_gpu_operator(version: str, is_microk8s: bool) -> None:
         "ds/nvidia-operator-validator",
     ]:
         cmd = f"kubectl -n {ns} rollout status {daemonset}"
-        run_with_retry(subprocess.run, 200, 3, shlex.split(cmd), check=True)
+        run_with_retry(
+            subprocess.run, 200, 3, True, shlex.split(cmd), check=True
+        )
     print("Finished NVIDIA GPU operator setup successfully", flush=True)
 
 
@@ -207,7 +209,9 @@ def setup_intel_gpu_plugin(version: str, is_microk8s: bool) -> None:
         "kubectl -n node-feature-discovery rollout status ds/nfd-worker",
         "kubectl -n default rollout status ds/intel-gpu-plugin",
     ]:
-        run_with_retry(subprocess.run, 100, 3, shlex.split(cmd), check=True)
+        run_with_retry(
+            subprocess.run, 100, 3, True, shlex.split(cmd), check=True
+        )
     print("Finished Intel GPU plugin setup successfully", flush=True)
 
 

@@ -13,7 +13,11 @@ on:
       # - match: subset of jobs to run (ex. .*wireless.*)
       #
       # One possible matrix_to_create would therefore look like this:
-      # matrix_to_create=[{ data_source: "distro: desktop-22-04-2-uefi", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
+      # matrix_to_create=[{ data_source: "{distro: desktop-22-04-2-uefi}", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
+      #
+      # If you are using the GitHub web interface to run this workflow, use
+      # json formatting for the matrix.
+      # [{"data_source": "{distro: desktop-22-04-2-uefi}", "queue": "202509-37899", "test_plan": "com.canonical.certification::memory-automated"}]
       #
       # To run this workflow manually you can use the `gh` cli utility as follows:
       # gh workflow run dispatch_lab_job.yaml -f 'matrix_to_create=[...]'

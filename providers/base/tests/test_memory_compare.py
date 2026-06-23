@@ -96,7 +96,9 @@ class MemoryCompareTests(unittest.TestCase):
         )
 
     @patch("memory_compare.check_output")
-    def test_vram_detection_uses_journalctl_grep_context(self, mock_check_output):
+    def test_vram_detection_uses_journalctl_grep_context(
+        self, mock_check_output
+    ):
         mock_check_output.return_value = (
             "before context\n"
             "amdgpu 0000:65:00.0: amdgpu: "

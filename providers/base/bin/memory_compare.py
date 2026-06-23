@@ -50,7 +50,11 @@ class LshwJsonResult:
 
 def get_installed_memory_size():
     try:
-        output = check_output(["lshw", "-json"], universal_newlines=True, stderr=PIPE)
+        output = check_output(
+            ["lshw", "-json"],
+            universal_newlines=True,
+            stderr=PIPE,
+        )
     except CalledProcessError:
         return 0
     lshw = LshwJsonParser(output)
@@ -100,7 +104,10 @@ def get_igpu_vram_size():
 
     try:
         vram_output = check_output(
-            JOURNALCTL_COMMAND, universal_newlines=True, stderr=PIPE, shell=True
+            JOURNALCTL_COMMAND,
+            universal_newlines=True,
+            stderr=PIPE,
+            shell=True,
         )
 
     except (CalledProcessError, FileNotFoundError, PermissionError) as e:
@@ -112,7 +119,11 @@ def get_igpu_vram_size():
     return get_igpu_vram_size_from_kernel_log(vram_output)
 
 
-def get_adjusted_memory_difference(installed_memory, visible_memory, igpu_vram):
+def get_adjusted_memory_difference(
+    installed_memory,
+    visible_memory,
+    igpu_vram,
+):
     difference = installed_memory - visible_memory
     if difference <= 0:
         return 0
@@ -144,7 +155,11 @@ def main():
     threshold = get_threshold(installed_memory)
 
     difference = HumanReadableBytes(
-        get_adjusted_memory_difference(installed_memory, visible_memory, igpu_vram)
+        get_adjusted_memory_difference(
+            installed_memory,
+            visible_memory,
+            igpu_vram,
+        )
     )
     try:
         percentage = difference / installed_memory * 100
@@ -156,7 +171,7 @@ def main():
         )
         print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
         print(
-            "\nFAIL: Either lshw or /proc/meminfo returned a memory size of 0 kB",
+            "\nFAIL: Either lshw or /proc/meminfo returned a size of 0 kB",
             file=sys.stderr,
         )
         return 1
@@ -187,8 +202,8 @@ def main():
             )
         print(
             "\nFAIL: Meminfo reports %d less than lshw, "
-            "a difference of %.2f%%. Only a variance of %d%% in "
-            "reported memory is allowed." % (difference, percentage, threshold),
+            "a difference of %.2f%%. Only a variance of %d%% in reported "
+            "memory is allowed." % (difference, percentage, threshold),
             file=sys.stderr,
         )
         return 1

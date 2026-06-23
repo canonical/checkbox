@@ -82,8 +82,8 @@ class MemoryCompareTests(unittest.TestCase):
         self.assertEqual(stdout, "Results:\n")
         self.assertIn("returned a memory size of 0 kB", stderr)
 
-    def test_dmesg_parser_prefers_used_vram_and_ignores_unrelated_lines(self):
-        dmesg = """\
+    def test_kernel_log_parser_prefers_used_vram(self):
+        kernel_log = """\
 [    0.824195] rtc_cmos 00:01: alarms up to one month, 114 bytes nvram
 [    2.870716] amdgpu 0000:03:00.0: amdgpu: VRAM: 2048M 0x0 (2048M used)
 [    2.870727] [drm] Detected VRAM RAM=4096M, BAR=4096M
@@ -91,22 +91,26 @@ class MemoryCompareTests(unittest.TestCase):
 """
 
         self.assertEqual(
-            memory_compare.get_igpu_vram_size_from_dmesg(dmesg),
+            memory_compare.get_igpu_vram_size_from_kernel_log(kernel_log),
             2048 * self.MiB,
         )
 
     @patch("memory_compare.check_output")
-    def test_vram_detection_falls_back_to_journalctl(self, mock_check_output):
-        mock_check_output.side_effect = [
-            "amdgpu drm module list without VRAM details",
-            "amdgpu 0000:65:00.0: amdgpu: VRAM: 4096M 0x0 (4096M used)",
-        ]
+    def test_vram_detection_uses_journalctl(self, mock_check_output):
+        mock_check_output.return_value = (
+            "amdgpu 0000:65:00.0: amdgpu: "
+            "VRAM: 4096M 0x0 (4096M used)"
+        )
 
         self.assertEqual(
             memory_compare.get_igpu_vram_size(),
             4096 * self.MiB,
         )
-        self.assertEqual(mock_check_output.call_count, 2)
+        mock_check_output.assert_called_once_with(
+            ["journalctl", "-k", "-b", "--no-pager"],
+            universal_newlines=True,
+            stderr=memory_compare.PIPE,
+        )
 
 
 if __name__ == "__main__":

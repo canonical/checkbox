@@ -76,6 +76,7 @@ def get_visible_memory_size():
 VRAM_REPORTED_RE = re.compile(r"\bVRAM:\s*(\d+)\s*([KMGT])\b")
 VRAM_USED_RE = re.compile(r"\((\d+)\s*([KMGT])\s+used\)")
 VRAM_RAM_RE = re.compile(r"\bVRAM RAM=(\d+)\s*([KMGT])\b")
+JOURNALCTL_COMMAND = ["journalctl", "-k", "-b", "--no-pager"]
 
 
 def _memory_size_to_bytes(size, unit):
@@ -89,52 +90,31 @@ def _memory_size_to_bytes(size, unit):
     return int(size) * multipliers[unit]
 
 
-def get_igpu_vram_size_from_dmesg(dmesg_output):
-    used_vram_sizes = []
-    vram_sizes = []
-    for line in dmesg_output.splitlines():
-        used_match = VRAM_USED_RE.search(line)
-        if used_match:
-            used_vram_sizes.append(
-                _memory_size_to_bytes(
-                    used_match.group(1), used_match.group(2)
-                )
-            )
-            continue
-
-        for regex in (VRAM_RAM_RE, VRAM_REPORTED_RE):
-            match = regex.search(line)
-            if match:
-                vram_sizes.append(
-                    _memory_size_to_bytes(match.group(1), match.group(2))
-                )
-                break
-
+def get_igpu_vram_size_from_kernel_log(kernel_log):
+    used_vram_sizes = [
+        _memory_size_to_bytes(match.group(1), match.group(2))
+        for match in VRAM_USED_RE.finditer(kernel_log)
+    ]
     if used_vram_sizes:
         return max(used_vram_sizes)
-    if vram_sizes:
-        return max(vram_sizes)
-    return 0
+
+    reported_vram_sizes = []
+    for regex in (VRAM_RAM_RE, VRAM_REPORTED_RE):
+        reported_vram_sizes.extend(
+            _memory_size_to_bytes(match.group(1), match.group(2))
+            for match in regex.finditer(kernel_log)
+        )
+    return max(reported_vram_sizes, default=0)
 
 
 def get_igpu_vram_size():
-    commands = (
-        ["dmesg"],
-        ["journalctl", "-k", "-b", "--no-pager"],
-    )
-    for command in commands:
-        output = get_kernel_log(command)
-        vram_size = get_igpu_vram_size_from_dmesg(output)
-        if vram_size:
-            return vram_size
-    return 0
-
-
-def get_kernel_log(command):
     try:
-        return check_output(command, universal_newlines=True, stderr=PIPE)
+        output = check_output(
+            JOURNALCTL_COMMAND, universal_newlines=True, stderr=PIPE
+        )
     except (CalledProcessError, FileNotFoundError, PermissionError):
-        return ""
+        return 0
+    return get_igpu_vram_size_from_kernel_log(output)
 
 
 def get_adjusted_memory_difference(

@@ -53,6 +53,20 @@ class TestRetry(TestCase):
         self.assertIn("Attempt 7 failed", mock_stdout.getvalue())
         self.assertNotIn("Attempt 8 failed", mock_stdout.getvalue())
 
+    @patch("time.sleep")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_decorator_max_attempts_no_print(self, mock_stdout, mock_sleep):
+        @retry(max_attempts=1, delay=10, print_logs=False)
+        def f():
+            return 1 / 0
+
+        with self.assertRaises(ZeroDivisionError):
+            f()
+        self.assertNotIn("Attempt 1 failed", mock_stdout.getvalue())
+        self.assertNotIn(
+            "All the attempts have failed!", mock_stdout.getvalue()
+        )
+
     def test_decorator_wrong_max_attempts(self):
         @retry(-1, 10)
         def f():
@@ -74,5 +88,6 @@ class TestRetry(TestCase):
             return (args, kwargs)
 
         self.assertEqual(
-            k(1, 2, 3, abc=10), fake_run_with_retry(k, 5, 10, 1, 2, 3, abc=10)
+            k(1, 2, 3, abc=10),
+            fake_run_with_retry(k, 5, 10, True, 1, 2, 3, abc=10),
         )

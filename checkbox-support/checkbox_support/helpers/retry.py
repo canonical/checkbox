@@ -29,11 +29,13 @@ import time
 from unittest.mock import patch
 
 
-def run_with_retry(f, max_attempts, delay, *args, **kwargs):
+def run_with_retry(f, max_attempts, delay, print_logs=True, *args, **kwargs):
     """
     Run the f function. If it fails, retry for up to max_attempts times, adding
     a backoff and a jitter on top of a delay (in seconds). If none of the runs
-    succeed, raise the encountered exception.
+    succeed, raise the encountered exception. By default, it will print some
+    logs about its status (number of attempts, time to wait, etc.), unless
+    print_logs is set to False.
     """
     initial_delay = 1
     backoff_factor = 2
@@ -51,19 +53,22 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
         attempt_string = "Attempt {}/{} (function '{}')".format(
             attempt, max_attempts, f.__name__
         )
-        print()
-        print("=" * len(attempt_string))
-        print(attempt_string)
-        print("=" * len(attempt_string), flush=True)
+        if print_logs:
+            print()
+            print("=" * len(attempt_string))
+            print(attempt_string)
+            print("=" * len(attempt_string), flush=True)
         try:
             result = f(*args, **kwargs)
             return result
         except BaseException as e:
-            print("Attempt {} failed:".format(attempt))
-            print(e)
-            print(flush=True)
+            if print_logs:
+                print("Attempt {} failed:".format(attempt))
+                print(e)
+                print(flush=True)
             if attempt >= max_attempts:
-                print("All the attempts have failed!", flush=True)
+                if print_logs:
+                    print("All the attempts have failed!", flush=True)
                 raise
             min_delay = min(
                 initial_delay * (backoff_factor**attempt),
@@ -73,33 +78,40 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
                 0, delay * 0.5
             )  # Jitter: up to 50% of the delay
             total_delay = min_delay + jitter
-            print(
-                "Waiting {:.2f} seconds before retrying...".format(
-                    total_delay
-                ),
-                flush=True,
-            )
+            if print_logs:
+                print(
+                    "Waiting {:.2f} seconds before retrying...".format(
+                        total_delay
+                    ),
+                    flush=True,
+                )
             time.sleep(total_delay)
 
 
-def retry(max_attempts, delay):
+def retry(max_attempts, delay, print_logs=True):
     """
     Run the decorated function. If it fails, retry for up to max_attempts
     times, adding a backoff and a jitter on top of a delay (in seconds).
-    If none of the runs succeed, raise the encountered exception.
+    If none of the runs succeed, raise the encountered exception. By default,
+    it will print some logs about its status (number of attempts, time to wait,
+    etc.), unless print_logs is set to False.
     """
 
     def decorator_retry(f):
         @functools.wraps(f)
         def _f(*args, **kwargs):
-            return run_with_retry(f, max_attempts, delay, *args, **kwargs)
+            return run_with_retry(
+                f, max_attempts, delay, print_logs, *args, **kwargs
+            )
 
         return _f
 
     return decorator_retry
 
 
-def fake_run_with_retry(f, max_attempts, delay, *args, **kwargs):
+def fake_run_with_retry(
+    f, max_attempts, delay, print_logs=True, *args, **kwargs
+):
     return f(*args, **kwargs)
 
 

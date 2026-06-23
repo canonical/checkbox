@@ -87,7 +87,7 @@ jobs:
           persist-credentials: false
       # needed by providers that pull checkbox-support
       - name: Install PPA and dependencies
-        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         with:
           attempt_limit: 3
           command: |

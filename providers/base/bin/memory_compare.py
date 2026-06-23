@@ -23,8 +23,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
 import re
+import sys
 from subprocess import check_output, CalledProcessError, PIPE
 
 from checkbox_support.helpers.human_readable_bytes import HumanReadableBytes
@@ -73,6 +73,79 @@ def get_visible_memory_size():
     return meminfo["total"]
 
 
+VRAM_REPORTED_RE = re.compile(r"\bVRAM:\s*(\d+)\s*([KMGT])\b")
+VRAM_USED_RE = re.compile(r"\((\d+)\s*([KMGT])\s+used\)")
+VRAM_RAM_RE = re.compile(r"\bVRAM RAM=(\d+)\s*([KMGT])\b")
+
+
+def _memory_size_to_bytes(size, unit):
+    unit = unit.upper()
+    multipliers = {
+        "K": 1024,
+        "M": 1024**2,
+        "G": 1024**3,
+        "T": 1024**4,
+    }
+    return int(size) * multipliers[unit]
+
+
+def get_igpu_vram_size_from_dmesg(dmesg_output):
+    used_vram_sizes = []
+    vram_sizes = []
+    for line in dmesg_output.splitlines():
+        used_match = VRAM_USED_RE.search(line)
+        if used_match:
+            used_vram_sizes.append(
+                _memory_size_to_bytes(
+                    used_match.group(1), used_match.group(2)
+                )
+            )
+            continue
+
+        for regex in (VRAM_RAM_RE, VRAM_REPORTED_RE):
+            match = regex.search(line)
+            if match:
+                vram_sizes.append(
+                    _memory_size_to_bytes(match.group(1), match.group(2))
+                )
+                break
+
+    if used_vram_sizes:
+        return max(used_vram_sizes)
+    if vram_sizes:
+        return max(vram_sizes)
+    return 0
+
+
+def get_igpu_vram_size():
+    commands = (
+        ["dmesg"],
+        ["journalctl", "-k", "-b", "--no-pager"],
+    )
+    for command in commands:
+        output = get_kernel_log(command)
+        vram_size = get_igpu_vram_size_from_dmesg(output)
+        if vram_size:
+            return vram_size
+    return 0
+
+
+def get_kernel_log(command):
+    try:
+        return check_output(command, universal_newlines=True, stderr=PIPE)
+    except (CalledProcessError, FileNotFoundError, PermissionError):
+        return ""
+
+
+def get_adjusted_memory_difference(
+    installed_memory, visible_memory, igpu_vram
+):
+    difference = installed_memory - visible_memory
+    if difference <= 0:
+        return 0
+    return difference - min(igpu_vram, difference)
+
+
 def get_threshold(installed_memory):
     GB = 1024**3
     if installed_memory <= 2 * GB:
@@ -94,9 +167,14 @@ def main():
 
     installed_memory = HumanReadableBytes(get_installed_memory_size())
     visible_memory = HumanReadableBytes(get_visible_memory_size())
+    igpu_vram = HumanReadableBytes(get_igpu_vram_size())
     threshold = get_threshold(installed_memory)
 
-    difference = HumanReadableBytes(installed_memory - visible_memory)
+    difference = HumanReadableBytes(
+        get_adjusted_memory_difference(
+            installed_memory, visible_memory, igpu_vram
+        )
+    )
     try:
         percentage = difference / installed_memory * 100
     except ZeroDivisionError:
@@ -117,6 +195,8 @@ def main():
         print("Results:")
         print("\t/proc/meminfo reports:\t{}".format(visible_memory))
         print("\tlshw reports:\t{}".format(installed_memory))
+        if igpu_vram:
+            print("\tiGPU VRAM compensation:\t{}".format(igpu_vram))
         print(
             "\nPASS: Meminfo reports %s less than lshw, a "
             "difference of %.2f%%. This is less than the "
@@ -130,6 +210,11 @@ def main():
             file=sys.stderr,
         )
         print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
+        if igpu_vram:
+            print(
+                "\tiGPU VRAM compensation:\t{}".format(igpu_vram),
+                file=sys.stderr,
+            )
         print(
             "\nFAIL: Meminfo reports %d less than lshw, "
             "a difference of %.2f%%. Only a variance of %d%% in "

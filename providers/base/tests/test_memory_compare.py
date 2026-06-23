@@ -5,6 +5,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
+from subprocess import CalledProcessError
 from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -95,6 +96,26 @@ class MemoryCompareTests(unittest.TestCase):
             2048 * self.MiB,
         )
 
+    def test_kernel_log_parser_returns_zero_without_used_vram(self):
+        kernel_log = """\
+[    2.870727] [drm] Detected VRAM RAM=4096M, BAR=4096M
+[    2.871060] [drm] amdgpu: 4096M of VRAM memory ready
+"""
+
+        self.assertEqual(
+            memory_compare.get_igpu_vram_size_from_kernel_log(kernel_log),
+            0,
+        )
+
+    @patch("memory_compare.MeminfoParser")
+    def test_visible_memory_size_uses_meminfo_total(self, mock_parser):
+        parser = mock_parser.return_value
+        parser.run.return_value = {"total": 123456789}
+
+        self.assertEqual(memory_compare.get_visible_memory_size(), 123456789)
+        mock_parser.assert_called_once_with()
+        parser.run.assert_called_once_with()
+
     @patch("memory_compare.check_output")
     def test_vram_detection_uses_journalctl_grep_context(
         self, mock_check_output
@@ -122,6 +143,27 @@ class MemoryCompareTests(unittest.TestCase):
         self.assertIn("before context", stdout.getvalue())
         self.assertIn("VRAM: 4096M", stdout.getvalue())
         self.assertIn("after context", stdout.getvalue())
+
+    @patch("memory_compare.check_output")
+    def test_vram_detection_returns_zero_without_output(
+        self, mock_check_output
+    ):
+        mock_check_output.return_value = ""
+
+        self.assertEqual(memory_compare.get_igpu_vram_size(), 0)
+
+    @patch("memory_compare.check_output")
+    def test_vram_detection_returns_zero_when_journalctl_fails(
+        self, mock_check_output
+    ):
+        mock_check_output.side_effect = CalledProcessError(
+            1, "journalctl -k -b --no-pager | grep -C10 VRAM"
+        )
+
+        stderr = StringIO()
+        with redirect_stderr(stderr):
+            self.assertEqual(memory_compare.get_igpu_vram_size(), 0)
+        self.assertIn("Failed to get kernel log output:", stderr.getvalue())
 
 
 if __name__ == "__main__":

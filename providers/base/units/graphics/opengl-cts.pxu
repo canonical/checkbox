@@ -14,7 +14,8 @@ command:
  fi
 estimated_duration: 1m
 
-plugin: resource
+unit: job
+plugin: shell
 id: graphics/gl_gpu_avail
 category_id: com.canonical.plainbox::graphics
 user: root

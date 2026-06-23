@@ -2,5 +2,12 @@ unit: test plan
 id: multimedia-codecs-vaapi
 _name: VA-API codec conformance tests
 include:
+  multimedia/codecs/vaapi/decode/av1
   multimedia/codecs/vaapi/decode/h264
   multimedia/codecs/vaapi/decode/h265
+  multimedia/codecs/vaapi/decode/jpeg
+  multimedia/codecs/vaapi/decode/mpeg2
+  multimedia/codecs/vaapi/decode/mpeg4
+  multimedia/codecs/vaapi/decode/vc1
+  multimedia/codecs/vaapi/decode/vp8
+  multimedia/codecs/vaapi/decode/vp9

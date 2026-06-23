@@ -33,7 +33,6 @@ from checkbox_support.parsers.meminfo import MeminfoParser
 
 
 class LshwJsonResult:
-
     memory_reported = 0
     banks_reported = 0
 
@@ -51,9 +50,7 @@ class LshwJsonResult:
 
 def get_installed_memory_size():
     try:
-        output = check_output(
-            ["lshw", "-json"], universal_newlines=True, stderr=PIPE
-        )
+        output = check_output(["lshw", "-json"], universal_newlines=True, stderr=PIPE)
     except CalledProcessError:
         return 0
     lshw = LshwJsonParser(output)
@@ -73,12 +70,6 @@ def get_visible_memory_size():
     return meminfo["total"]
 
 
-VRAM_REPORTED_RE = re.compile(r"\bVRAM:\s*(\d+)\s*([KMGT])\b")
-VRAM_USED_RE = re.compile(r"\((\d+)\s*([KMGT])\s+used\)")
-VRAM_RAM_RE = re.compile(r"\bVRAM RAM=(\d+)\s*([KMGT])\b")
-JOURNALCTL_COMMAND = ["journalctl", "-k", "-b", "--no-pager"]
-
-
 def _memory_size_to_bytes(size, unit):
     unit = unit.upper()
     multipliers = {
@@ -91,35 +82,37 @@ def _memory_size_to_bytes(size, unit):
 
 
 def get_igpu_vram_size_from_kernel_log(kernel_log):
+
+    # Example:
+    #   amdgpu ... VRAM: 4096M ... (4096M used)
+    # Captured groups:
+    #   group 1: "4096" (size), group 2: "M" (unit)
+    VRAM_USED_RE = re.compile(r"\((\d+)\s*([KMGT])\s+used\)")
     used_vram_sizes = [
         _memory_size_to_bytes(match.group(1), match.group(2))
         for match in VRAM_USED_RE.finditer(kernel_log)
     ]
-    if used_vram_sizes:
-        return max(used_vram_sizes)
-
-    reported_vram_sizes = []
-    for regex in (VRAM_RAM_RE, VRAM_REPORTED_RE):
-        reported_vram_sizes.extend(
-            _memory_size_to_bytes(match.group(1), match.group(2))
-            for match in regex.finditer(kernel_log)
-        )
-    return max(reported_vram_sizes, default=0)
+    return max(used_vram_sizes, default=0)
 
 
 def get_igpu_vram_size():
+    JOURNALCTL_COMMAND = "journalctl -k -b --no-pager | grep -C10 VRAM"
+
     try:
-        output = check_output(
-            JOURNALCTL_COMMAND, universal_newlines=True, stderr=PIPE
+        vram_output = check_output(
+            JOURNALCTL_COMMAND, universal_newlines=True, stderr=PIPE, shell=True
         )
-    except (CalledProcessError, FileNotFoundError, PermissionError):
+
+    except (CalledProcessError, FileNotFoundError, PermissionError) as e:
+        print("Failed to get kernel log output: {}".format(e), file=sys.stderr)
         return 0
-    return get_igpu_vram_size_from_kernel_log(output)
+
+    if vram_output:
+        print("Kernel VRAM log output:\n{}".format(vram_output))
+    return get_igpu_vram_size_from_kernel_log(vram_output)
 
 
-def get_adjusted_memory_difference(
-    installed_memory, visible_memory, igpu_vram
-):
+def get_adjusted_memory_difference(installed_memory, visible_memory, igpu_vram):
     difference = installed_memory - visible_memory
     if difference <= 0:
         return 0
@@ -151,9 +144,7 @@ def main():
     threshold = get_threshold(installed_memory)
 
     difference = HumanReadableBytes(
-        get_adjusted_memory_difference(
-            installed_memory, visible_memory, igpu_vram
-        )
+        get_adjusted_memory_difference(installed_memory, visible_memory, igpu_vram)
     )
     try:
         percentage = difference / installed_memory * 100
@@ -165,8 +156,7 @@ def main():
         )
         print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
         print(
-            "\nFAIL: Either lshw or /proc/meminfo returned a memory size "
-            "of 0 kB",
+            "\nFAIL: Either lshw or /proc/meminfo returned a memory size of 0 kB",
             file=sys.stderr,
         )
         return 1
@@ -198,8 +188,7 @@ def main():
         print(
             "\nFAIL: Meminfo reports %d less than lshw, "
             "a difference of %.2f%%. Only a variance of %d%% in "
-            "reported memory is allowed."
-            % (difference, percentage, threshold),
+            "reported memory is allowed." % (difference, percentage, threshold),
             file=sys.stderr,
         )
         return 1

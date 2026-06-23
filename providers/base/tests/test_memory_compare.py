@@ -96,21 +96,30 @@ class MemoryCompareTests(unittest.TestCase):
         )
 
     @patch("memory_compare.check_output")
-    def test_vram_detection_uses_journalctl(self, mock_check_output):
+    def test_vram_detection_uses_journalctl_grep_context(self, mock_check_output):
         mock_check_output.return_value = (
+            "before context\n"
             "amdgpu 0000:65:00.0: amdgpu: "
-            "VRAM: 4096M 0x0 (4096M used)"
+            "VRAM: 4096M 0x0 (4096M used)\n"
+            "after context"
         )
 
-        self.assertEqual(
-            memory_compare.get_igpu_vram_size(),
-            4096 * self.MiB,
-        )
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            self.assertEqual(
+                memory_compare.get_igpu_vram_size(),
+                4096 * self.MiB,
+            )
         mock_check_output.assert_called_once_with(
-            ["journalctl", "-k", "-b", "--no-pager"],
+            "journalctl -k -b --no-pager | grep -C10 VRAM",
             universal_newlines=True,
             stderr=memory_compare.PIPE,
+            shell=True,
         )
+        self.assertIn("Kernel VRAM log output:", stdout.getvalue())
+        self.assertIn("before context", stdout.getvalue())
+        self.assertIn("VRAM: 4096M", stdout.getvalue())
+        self.assertIn("after context", stdout.getvalue())
 
 
 if __name__ == "__main__":

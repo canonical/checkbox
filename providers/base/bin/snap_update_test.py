@@ -25,6 +25,7 @@ import os
 import sys
 import time
 
+from checkbox_support.helpers.retry import retry
 from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.snapd import AsyncException
 from checkbox_support.snap_utils.snapd import SnapdRequestError
@@ -63,6 +64,11 @@ def get_snaps_base_rev() -> dict:
     return base_rev_info
 
 
+@retry(max_attempts=3, delay=10, print_logs=False)
+def find_snap(name):
+    return Snapd().find(name, exact=True)
+
+
 class SnapInfo:
     def __init__(self, name):
         snap = Snapd().list(name)
@@ -78,7 +84,7 @@ class SnapInfo:
         self.base_revision = get_snaps_base_rev().get(name, "")
 
         revisions = {}
-        for item in Snapd().find(name, exact=True):
+        for item in find_snap(name):
             for channel, info in item["channels"].items():
                 revisions[channel] = info["revision"]
 

@@ -1,0 +1,29 @@
+unit: manifest entry
+id: has_h264_constrained_baseline_decoder_vaapi
+_name: Has VA-API support for H.264 Constrained Baseline decode
+value-type: bool
+
+unit: manifest entry
+id: has_h264_main_decoder_vaapi
+_name: Has VA-API support for H.264 Main decode
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high_decoder_vaapi
+_name: Has VA-API support for H.264 High decode
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high10_decoder_vaapi
+_name: Has VA-API support for H.264 High 10 decode
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high422_decoder_vaapi
+_name: Has VA-API support for H.264 High 4:2:2 decode
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high444_decoder_vaapi
+_name: Has VA-API support for H.264 High 4:4:4 decode
+value-type: bool

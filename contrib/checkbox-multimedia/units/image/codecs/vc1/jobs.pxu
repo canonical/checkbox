@@ -3,6 +3,9 @@ category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
 _summary: VA-API VC-1 Simple decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vc1_simple_decoder_vaapi == 'True'
 command:
   echo "PASS: VA-API VC-1 Simple decode"
 
@@ -11,6 +14,9 @@ category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
 _summary: VA-API VC-1 Main decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vc1_main_decoder_vaapi == 'True'
 command:
   echo "PASS: VA-API VC-1 Main decode"
 
@@ -19,5 +25,8 @@ category_id: com.canonical.contrib.multimedia.codecs
 flags: simple
 estimated_duration: 1s
 _summary: VA-API VC-1 Advanced decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vc1_advanced_decoder_vaapi == 'True'
 command:
   echo "PASS: VA-API VC-1 Advanced decode"

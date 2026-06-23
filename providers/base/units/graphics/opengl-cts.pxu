@@ -40,7 +40,6 @@ setup_include:
   setup/install_opengl_cts
 category_id: com.canonical.plainbox::graphics
 flags: simple
-user: root
 _summary: Run the info tests from OpenGL-CTS (core)
 environ:
   XDG_SESSION_TYPE

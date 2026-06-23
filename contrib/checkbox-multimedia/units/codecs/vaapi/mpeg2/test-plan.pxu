@@ -1,0 +1,6 @@
+unit: test plan
+id: multimedia-codecs-vaapi-mpeg2
+_name: VA-API MPEG-2 decode tests
+include:
+  multimedia/codecs/vaapi/decode/mpeg2/simple
+  multimedia/codecs/vaapi/decode/mpeg2/main

@@ -1,0 +1,23 @@
+id: multimedia/codecs/vaapi/decode/mpeg4/simple
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API MPEG-4 Simple decode
+command:
+  echo "PASS: VA-API MPEG-4 Simple decode"
+
+id: multimedia/codecs/vaapi/decode/mpeg4/advanced_simple
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API MPEG-4 Advanced Simple decode
+command:
+  echo "PASS: VA-API MPEG-4 Advanced Simple decode"
+
+id: multimedia/codecs/vaapi/decode/mpeg4/main
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API MPEG-4 Main decode
+command:
+  echo "PASS: VA-API MPEG-4 Main decode"

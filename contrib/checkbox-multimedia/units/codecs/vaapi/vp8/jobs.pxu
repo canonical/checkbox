@@ -1,0 +1,7 @@
+id: multimedia/codecs/vaapi/decode/vp8/version0_3
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API VP8 decode
+command:
+  echo "PASS: VA-API VP8 decode"

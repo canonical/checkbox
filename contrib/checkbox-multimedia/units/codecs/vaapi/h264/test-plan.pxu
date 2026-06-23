@@ -1,0 +1,10 @@
+unit: test plan
+id: multimedia-codecs-vaapi-h264
+_name: VA-API H.264 / AVC decode tests
+include:
+  multimedia/codecs/vaapi/decode/h264/constrained_baseline
+  multimedia/codecs/vaapi/decode/h264/main
+  multimedia/codecs/vaapi/decode/h264/high
+  multimedia/codecs/vaapi/decode/h264/high10
+  multimedia/codecs/vaapi/decode/h264/high422
+  multimedia/codecs/vaapi/decode/h264/high444

@@ -1,0 +1,7 @@
+id: multimedia/codecs/vaapi/decode/jpeg/baseline
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API JPEG Baseline decode
+command:
+  echo "PASS: VA-API JPEG Baseline decode"

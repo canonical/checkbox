@@ -1,0 +1,5 @@
+unit: test plan
+id: multimedia-codecs-vaapi-vp8
+_name: VA-API VP8 decode tests
+include:
+  multimedia/codecs/vaapi/decode/vp8/version0_3

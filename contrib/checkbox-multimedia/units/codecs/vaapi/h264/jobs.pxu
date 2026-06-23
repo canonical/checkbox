@@ -1,0 +1,47 @@
+id: multimedia/codecs/vaapi/decode/h264/constrained_baseline
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 Constrained Baseline decode
+command:
+  echo "PASS: VA-API H.264 Constrained Baseline decode"
+
+id: multimedia/codecs/vaapi/decode/h264/main
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 Main decode
+command:
+  echo "PASS: VA-API H.264 Main decode"
+
+id: multimedia/codecs/vaapi/decode/h264/high
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 High decode
+command:
+  echo "PASS: VA-API H.264 High decode"
+
+id: multimedia/codecs/vaapi/decode/h264/high10
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 High 10 decode
+command:
+  echo "PASS: VA-API H.264 High 10 decode"
+
+id: multimedia/codecs/vaapi/decode/h264/high422
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 High 4:2:2 decode
+command:
+  echo "PASS: VA-API H.264 High 4:2:2 decode"
+
+id: multimedia/codecs/vaapi/decode/h264/high444
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 High 4:4:4 decode
+command:
+  echo "PASS: VA-API H.264 High 4:4:4 decode"

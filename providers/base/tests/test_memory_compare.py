@@ -80,7 +80,7 @@ class MemoryCompareTests(unittest.TestCase):
 
         self.assertEqual(result, 1)
         self.assertEqual(stdout, "Results:\n")
-        self.assertIn("returned a memory size of 0 kB", stderr)
+        self.assertIn("returned a size of 0 kB", stderr)
 
     def test_kernel_log_parser_prefers_used_vram(self):
         kernel_log = """\

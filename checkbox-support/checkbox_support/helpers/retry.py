@@ -25,6 +25,7 @@ delay, backoff and jitter.
 
 import functools
 import random
+import sys
 import time
 from unittest.mock import patch
 
@@ -51,19 +52,23 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
         attempt_string = "Attempt {}/{} (function '{}')".format(
             attempt, max_attempts, f.__name__
         )
-        print()
-        print("=" * len(attempt_string))
-        print(attempt_string)
-        print("=" * len(attempt_string), flush=True)
+        print(file=sys.stderr)
+        print("=" * len(attempt_string), file=sys.stderr)
+        print(attempt_string, file=sys.stderr)
+        print("=" * len(attempt_string), file=sys.stderr, flush=True)
         try:
             result = f(*args, **kwargs)
             return result
         except BaseException as e:
-            print("Attempt {} failed:".format(attempt))
-            print(e)
-            print(flush=True)
+            print("Attempt {} failed:".format(attempt), file=sys.stderr)
+            print(e, file=sys.stderr)
+            print(file=sys.stderr, flush=True)
             if attempt >= max_attempts:
-                print("All the attempts have failed!", flush=True)
+                print(
+                    "All the attempts have failed!",
+                    file=sys.stderr,
+                    flush=True,
+                )
                 raise
             min_delay = min(
                 initial_delay * (backoff_factor**attempt),
@@ -77,6 +82,7 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
                 "Waiting {:.2f} seconds before retrying...".format(
                     total_delay
                 ),
+                file=sys.stderr,
                 flush=True,
             )
             time.sleep(total_delay)

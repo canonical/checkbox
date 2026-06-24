@@ -21,7 +21,7 @@ command:
     if [ -n "${PWM_ALLOW:-}" ]; then
         set -- "$@" --allow "$PWM_ALLOW"
     fi
-    sudo pwm_test.py "$@"
+    sudo env "PATH=$PATH" pwm_test.py "$@"
 
 unit: template
 template-resource: ce-oem-pwm/pwm-list

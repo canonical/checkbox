@@ -56,6 +56,9 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
         print("=" * len(attempt_string), file=sys.stderr)
         print(attempt_string, file=sys.stderr)
         print("=" * len(attempt_string), file=sys.stderr, flush=True)
+        # also flush stdout to prevent messages being printed in the wrong
+        # order
+        sys.stdout.flush()
         try:
             result = f(*args, **kwargs)
             return result
@@ -63,12 +66,14 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             print("Attempt {} failed:".format(attempt), file=sys.stderr)
             print(e, file=sys.stderr)
             print(file=sys.stderr, flush=True)
+            # also flush stdout to prevent messages being printed in the wrong
+            # order
+            sys.stdout.flush()
             if attempt >= max_attempts:
-                print(
-                    "All the attempts have failed!",
-                    file=sys.stderr,
-                    flush=True,
-                )
+                print("All the attempts have failed!", file=sys.stderr, flush=True)
+                # also flush stdout to prevent messages being printed in the
+                # wrong order
+                sys.stdout.flush()
                 raise
             min_delay = min(
                 initial_delay * (backoff_factor**attempt),
@@ -85,6 +90,9 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
                 file=sys.stderr,
                 flush=True,
             )
+            # also flush stdout to prevent messages being printed in the wrong
+            # order
+            sys.stdout.flush()
             time.sleep(total_delay)
 
 

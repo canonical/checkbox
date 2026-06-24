@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
 
-import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
-from pathlib import Path
 from subprocess import CalledProcessError
-from unittest.mock import patch
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT / "checkbox-ng"))
-sys.path.insert(0, str(REPO_ROOT / "checkbox-support"))
-sys.path.insert(0, str(REPO_ROOT / "providers" / "base" / "bin"))
-
-import memory_compare  # noqa: E402
+import textwrap
+from unittest.mock import call, patch
+import memory_compare
 
 
 class MemoryCompareTests(unittest.TestCase):
@@ -84,28 +77,34 @@ class MemoryCompareTests(unittest.TestCase):
         self.assertIn("returned a size of 0 kB", stderr)
 
     def test_kernel_log_parser_prefers_used_vram(self):
-        kernel_log = """\
-[    0.824195] rtc_cmos 00:01: alarms up to one month, 114 bytes nvram
-[    2.870716] amdgpu 0000:03:00.0: amdgpu: VRAM: 2048M 0x0 (2048M used)
-[    2.870727] [drm] Detected VRAM RAM=4096M, BAR=4096M
-[    2.871060] [drm] amdgpu: 2048M of VRAM memory ready
-"""
+        kernel_log = textwrap.dedent("""\
+            [0.824195] rtc_cmos 00:01: alarms up to one month, 114 bytes nvram
+            [2.870716] amdgpu 00:03:00.0: amdgpu: VRAM: 2048M 0x0 (2048M used)
+            [2.870727] [drm] Detected VRAM RAM=4096M, BAR=4096M
+            [2.871060] [drm] amdgpu: 2048M of VRAM memory ready
+        """)
 
-        self.assertEqual(
-            memory_compare.get_igpu_vram_size_from_kernel_log(kernel_log),
-            2048 * self.MiB,
-        )
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            self.assertEqual(
+                memory_compare.get_igpu_vram_size_from_kernel_log(kernel_log),
+                2048 * self.MiB,
+            )
+        self.assertIn("Detected VRAM size", stdout.getvalue())
 
     def test_kernel_log_parser_returns_zero_without_used_vram(self):
-        kernel_log = """\
-[    2.870727] [drm] Detected VRAM RAM=4096M, BAR=4096M
-[    2.871060] [drm] amdgpu: 4096M of VRAM memory ready
-"""
+        kernel_log = textwrap.dedent("""\
+            [    2.870727] [drm] Detected VRAM RAM=4096M, BAR=4096M
+            [    2.871060] [drm] amdgpu: 4096M of VRAM memory ready
+        """)
 
-        self.assertEqual(
-            memory_compare.get_igpu_vram_size_from_kernel_log(kernel_log),
-            0,
-        )
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            self.assertEqual(
+                memory_compare.get_igpu_vram_size_from_kernel_log(kernel_log),
+                0,
+            )
+        self.assertIn("Detected VRAM size", stdout.getvalue())
 
     @patch("memory_compare.MeminfoParser")
     def test_visible_memory_size_uses_meminfo_total(self, mock_parser):
@@ -120,12 +119,14 @@ class MemoryCompareTests(unittest.TestCase):
     def test_vram_detection_uses_journalctl_grep_context(
         self, mock_check_output
     ):
-        mock_check_output.return_value = (
+        journal = "full kernel log with VRAM somewhere"
+        vram_output = (
             "before context\n"
             "amdgpu 0000:65:00.0: amdgpu: "
             "VRAM: 4096M 0x0 (4096M used)\n"
             "after context"
         )
+        mock_check_output.side_effect = [journal, vram_output]
 
         stdout = StringIO()
         with redirect_stdout(stdout):
@@ -133,11 +134,15 @@ class MemoryCompareTests(unittest.TestCase):
                 memory_compare.get_igpu_vram_size(),
                 4096 * self.MiB,
             )
-        mock_check_output.assert_called_once_with(
-            "journalctl -k -b --no-pager | grep -C10 VRAM",
-            universal_newlines=True,
-            stderr=memory_compare.PIPE,
-            shell=True,
+        mock_check_output.assert_has_calls(
+            [
+                call(["journalctl", "-k", "-b", "--no-pager"], universal_newlines=True),
+                call(
+                    ["grep", "-C10", "VRAM"],
+                    input=journal,
+                    universal_newlines=True,
+                ),
+            ]
         )
         self.assertIn("Kernel VRAM log output:", stdout.getvalue())
         self.assertIn("before context", stdout.getvalue())
@@ -148,16 +153,22 @@ class MemoryCompareTests(unittest.TestCase):
     def test_vram_detection_returns_zero_without_output(
         self, mock_check_output
     ):
-        mock_check_output.return_value = ""
+        mock_check_output.side_effect = [
+            "kernel log without vram",
+            CalledProcessError(1, ["grep", "-C10", "VRAM"]),
+        ]
 
-        self.assertEqual(memory_compare.get_igpu_vram_size(), 0)
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            self.assertEqual(memory_compare.get_igpu_vram_size(), 0)
+        self.assertIn("No VRAM log output found", stdout.getvalue())
 
     @patch("memory_compare.check_output")
     def test_vram_detection_returns_zero_when_journalctl_fails(
         self, mock_check_output
     ):
         mock_check_output.side_effect = CalledProcessError(
-            1, "journalctl -k -b --no-pager | grep -C10 VRAM"
+            1, ["journalctl", "-k", "-b", "--no-pager"]
         )
 
         stderr = StringIO()

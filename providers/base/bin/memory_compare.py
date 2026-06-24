@@ -75,13 +75,7 @@ def get_visible_memory_size():
 
 
 def _memory_size_to_bytes(size, unit):
-    unit = unit.upper()
-    multipliers = {
-        "K": 1024,
-        "M": 1024**2,
-        "G": 1024**3,
-        "T": 1024**4,
-    }
+    multipliers = {"K": 1024, "M": 1024**2, "G": 1024**3, "T": 1024**4}
     return int(size) * multipliers[unit]
 
 
@@ -91,31 +85,39 @@ def get_igpu_vram_size_from_kernel_log(kernel_log):
     #   amdgpu ... VRAM: 4096M ... (4096M used)
     # Captured groups:
     #   group 1: "4096" (size), group 2: "M" (unit)
-    VRAM_USED_RE = re.compile(r"\((\d+)\s*([KMGT])\s+used\)")
-    used_vram_sizes = [
-        _memory_size_to_bytes(match.group(1), match.group(2))
-        for match in VRAM_USED_RE.finditer(kernel_log)
-    ]
-    return max(used_vram_sizes, default=0)
+    VRAM_USED_RE = re.compile(r"VRAM.*\((\d+)\s*([KMGT])\s+used\)")
+
+    # Find all matches in the kernel log and get the last one.
+    vram_size = 0
+    for match in VRAM_USED_RE.finditer(kernel_log):
+        vram_size = _memory_size_to_bytes(match.group(1), match.group(2))
+
+    print("Detected VRAM size in kernel log: {}\n".format(vram_size))
+    return vram_size
 
 
 def get_igpu_vram_size():
-    JOURNALCTL_COMMAND = "journalctl -k -b --no-pager | grep -C10 VRAM"
+    # Get the kernel log output for the current boot and search for VRAM usage.
+    journal_cmd = "journalctl -k -b --no-pager".split()
 
     try:
-        vram_output = check_output(
-            JOURNALCTL_COMMAND,
-            universal_newlines=True,
-            stderr=PIPE,
-            shell=True,
-        )
+        journal = check_output(journal_cmd, universal_newlines=True)
 
     except (CalledProcessError, FileNotFoundError, PermissionError) as e:
         print("Failed to get kernel log output: {}".format(e), file=sys.stderr)
         return 0
 
-    if vram_output:
-        print("Kernel VRAM log output:\n{}".format(vram_output))
+    # Get the context of the VRAM log lines to help with debugging.
+    try:
+        grep_cmd = "grep -C10 VRAM".split()
+        vram_output = check_output(
+            grep_cmd, input=journal, universal_newlines=True
+        )
+    except CalledProcessError:
+        print("No VRAM log output found in kernel log")
+        return 0
+
+    print("Kernel VRAM log output:\n{}".format(vram_output))
     return get_igpu_vram_size_from_kernel_log(vram_output)
 
 

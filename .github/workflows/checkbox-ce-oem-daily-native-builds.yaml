@@ -5,14 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       store_upload:
-        description: 'Should the workflow upload to the store?'
+        description: "Should the workflow upload to the store?"
         default: false
         required: false
         type: boolean
   workflow_call:
     inputs:
       store_upload:
-        description: 'Should the workflow upload to the store?'
+        description: "Should the workflow upload to the store?"
         default: false
         required: false
         type: boolean
@@ -27,7 +27,7 @@ jobs:
       matrix:
         # other confs cross-built by checkbox-daily-cross-build.yaml
         type: [classic, uc]
-        release: [20, 22, 24]
+        release: [20, 22, 24, 26]
         arch: [amd64, arm64]
         include:
           - arch: amd64
@@ -35,18 +35,20 @@ jobs:
           - arch: arm64
             tag: ARM64
           - release: 20
-            snapcraft_version: 7.x
+            snapcraft_version: 7.x/stable
           - release: 22
-            snapcraft_version: 8.x
+            snapcraft_version: 8.x/stable
           - release: 24
-            snapcraft_version: 8.x
+            snapcraft_version: 8.x/stable
+          - release: 26
+            snapcraft_version: 9.x/candidate
     runs-on:
       group: "Canonical self-hosted runners"
-      labels: ["self-hosted", "linux", "jammy", "large", "${{ matrix.tag }}"]
+      labels: ["self-hosted", "linux", "noble", "large", "${{ matrix.tag }}"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -58,7 +60,7 @@ jobs:
           ./prepare.sh series_${{ matrix.type }}${{ matrix.release }}
 
       - id: snap_build
-        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:
@@ -67,7 +69,7 @@ jobs:
           attempt_limit: 5
           with: |
             path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}
-            snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
+            snapcraft-channel: ${{ matrix.snapcraft_version }}
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: Upload logs on failure

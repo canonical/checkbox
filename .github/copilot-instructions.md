@@ -1,4 +1,6 @@
-# Copilot instructions — Checkbox monorepo
+# Copilot Instructions — Checkbox monorepo
+
+> Optional: you can add personal Copilot instructions in `~/.github/copilot-instructions.md`; this repository’s rules are defined below.
 
 ## Overview
 

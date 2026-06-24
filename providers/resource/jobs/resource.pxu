@@ -126,8 +126,7 @@ plugin: resource
 category_id: information_gathering
 _summary: Enumerate available system executables
 _description: Generates a resource for all available executables
-command:
-  xargs -n1 -d: <<< "$PATH" | xargs -I{} find -H {} -maxdepth 1 -xtype f -executable -printf "name: %f\n\n" 2> /dev/null | sort -u | awk '{print}' ORS='\n\n' || true
+command: executable_resource.py
 
 id: device
 estimated_duration: 0.48
@@ -246,11 +245,7 @@ estimated_duration: 0.11
 plugin: resource
 category_id: information_gathering
 _summary: Create resource info for environment variables
-command:
- IFS=$'\n'
- for e in $(env | sed 's/=/:/g'); do
-     echo "$e" | awk -F':' '{print $1 ": " $2}'
- done
+command: environment_resource.py
 
 id: mobilebroadband
 estimated_duration: 0.38

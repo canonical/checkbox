@@ -38,7 +38,7 @@ jobs:
       paths: ${{ steps.paths.outputs.paths }}
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -82,12 +82,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
       # needed by providers that pull checkbox-support
       - name: Install PPA and dependencies
-        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         with:
           attempt_limit: 3
           command: |

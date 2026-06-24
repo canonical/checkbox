@@ -1,4 +1,4 @@
-name: Checkbox Snap daily native builds
+name: Checkbox Snap native builds
 permissions:
   contents: read
 on:
@@ -36,20 +36,20 @@ jobs:
           - release: 18
             snapcraft_version: 7.x/stable
           - release: 20
-            snapcraft_version: 7.x/stable
+            snapcraft_version: 8.x/stable
           - release: 22
             snapcraft_version: 8.x/stable
           - release: 24
             snapcraft_version: 8.x/stable
           - release: 26
-            snapcraft_version: 9.x/beta
+            snapcraft_version: 9.x/stable
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }}  (${{matrix.arch}})
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -67,7 +67,7 @@ jobs:
           sudo snap refresh lxd --channel=latest/beta || sudo snap install lxd --channel=latest/beta
 
       - id: snap_build
-        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Build the snap
         timeout-minutes: 600 # 10hours
         with:
@@ -119,20 +119,20 @@ jobs:
           - release: 18
             snapcraft_version: 7.x/stable
           - release: 20
-            snapcraft_version: 7.x/stable
+            snapcraft_version: 8.x/stable
           - release: 22
             snapcraft_version: 8.x/stable
           - release: 24
             snapcraft_version: 8.x/stable
           - release: 26
-            snapcraft_version: 9.x/beta
+            snapcraft_version: 9.x/stable
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -150,7 +150,7 @@ jobs:
           sudo snap refresh lxd --channel=latest/beta || sudo snap install lxd --channel=latest/beta
 
       - id: snap_build
-        uses: Wandalen/wretry.action@71a909ebf09f3ffdc6f42a17bd54ecb43481da49
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:

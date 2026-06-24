@@ -22,14 +22,31 @@ command:
     if [ -n "${PWM_ALLOW:-}" ]; then
         set -- "$@" --allow "$PWM_ALLOW"
     fi
-    pwm_test.py "$@"
+    pwm_test.py "$@" | awk '
+        /^PWM_CHIP_NAME:/ {
+            chip = substr($0, 16)
+            pwm_id = chip
+            gsub(/[^A-Za-z0-9_.-]/, "-", pwm_id)
+            print
+            next
+        }
+        /^PWM_NAME:/ {
+            pwm_name = substr($0, 11)
+            safe_pwm_name = pwm_name
+            gsub(/[^A-Za-z0-9_.-]/, "-", safe_pwm_name)
+            print
+            print "PWM_ID: " pwm_id "-" safe_pwm_name
+            next
+        }
+        { print }
+    '
 
 unit: template
 template-resource: ce-oem-pwm/pwm-list
 template-unit: job
 template-engine: jinja2
 template-id: ce-oem-pwm/sysfs-validation
-id: ce-oem-pwm/sysfs-validation-{{ PWM_CHIP_NAME }}-{{ PWM_NAME }}
+id: ce-oem-pwm/sysfs-validation-{{ PWM_ID }}
 _template-summary: Validate PWM sysfs controls
 _summary:
     Validate PWM sysfs controls for {{ PWM_CHIP_NAME }} {{ PWM_NAME }}

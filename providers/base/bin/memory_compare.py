@@ -74,11 +74,6 @@ def get_visible_memory_size():
     return meminfo["total"]
 
 
-def _memory_size_to_bytes(size, unit):
-    multipliers = {"K": 1024, "M": 1024**2, "G": 1024**3, "T": 1024**4}
-    return int(size) * multipliers[unit]
-
-
 def get_igpu_vram_size_from_kernel_log(kernel_log):
 
     # Example:
@@ -90,7 +85,9 @@ def get_igpu_vram_size_from_kernel_log(kernel_log):
     # Find all matches in the kernel log and get the last one.
     vram_size = 0
     for match in VRAM_USED_RE.finditer(kernel_log):
-        vram_size = _memory_size_to_bytes(match.group(1), match.group(2))
+        vram_size = HumanReadableBytes(
+            "{}{}iB".format(match.group(1), match.group(2))
+        )
 
     print("Detected VRAM size in kernel log: {}\n".format(vram_size))
     return vram_size
@@ -122,10 +119,11 @@ def get_igpu_vram_size():
 
 
 def get_adjusted_memory_difference(
-    installed_memory,
-    visible_memory,
-    igpu_vram,
+    installed_memory, visible_memory, igpu_vram
 ):
+    # Calculate the difference between installed and visible memory, and
+    # subtract the iGPU VRAM. Since the previous version did not accounted
+    # for negative differences, we will trim the result to 0 if its negative.
     difference = installed_memory - visible_memory
     if difference <= 0:
         return 0
@@ -158,9 +156,7 @@ def main():
 
     difference = HumanReadableBytes(
         get_adjusted_memory_difference(
-            installed_memory,
-            visible_memory,
-            igpu_vram,
+            installed_memory, visible_memory, igpu_vram
         )
     )
     try:

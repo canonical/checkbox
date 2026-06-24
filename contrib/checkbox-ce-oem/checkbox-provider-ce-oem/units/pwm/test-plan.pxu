@@ -15,5 +15,4 @@ _description:
 bootstrap_include:
     ce-oem-pwm/pwm-list
 include:
-    ce-oem-pwm/sysfs-validation-.*
-
+    ce-oem-pwm/sysfs-validation

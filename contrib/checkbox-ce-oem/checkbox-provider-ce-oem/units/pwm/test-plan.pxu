@@ -1,0 +1,19 @@
+id: ce-oem-pwm-full
+unit: test plan
+_name: PWM tests
+_description:
+    Full PWM sysfs validation tests for devices.
+include:
+    nested_part:
+        ce-oem-pwm-automated
+
+id: ce-oem-pwm-automated
+unit: test plan
+_name: PWM automated tests
+_description:
+    Automated PWM sysfs validation tests for devices.
+bootstrap_include:
+    ce-oem-pwm/pwm-list
+include:
+    ce-oem-pwm/sysfs-validation-.*
+

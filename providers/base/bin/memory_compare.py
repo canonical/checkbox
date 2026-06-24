@@ -51,9 +51,7 @@ class LshwJsonResult:
 def get_installed_memory_size():
     try:
         output = check_output(
-            ["lshw", "-json"],
-            universal_newlines=True,
-            stderr=PIPE,
+            ["lshw", "-json"], universal_newlines=True, stderr=PIPE
         )
     except CalledProcessError:
         return 0

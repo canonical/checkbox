@@ -136,7 +136,10 @@ class MemoryCompareTests(unittest.TestCase):
             )
         mock_check_output.assert_has_calls(
             [
-                call(["journalctl", "-k", "-b", "--no-pager"], universal_newlines=True),
+                call(
+                    ["journalctl", "-k", "-b", "--no-pager"],
+                    universal_newlines=True,
+                ),
                 call(
                     ["grep", "-C10", "VRAM"],
                     input=journal,

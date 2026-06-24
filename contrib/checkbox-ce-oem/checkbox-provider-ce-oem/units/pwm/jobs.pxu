@@ -6,6 +6,7 @@ _description:
     resolving stable PWM controller names. This resource is used to instantiate
     one sysfs validation job for each eligible PWM output.
 plugin: resource
+user: root
 category_id: pwm
 estimated_duration: 5s
 imports: from com.canonical.plainbox import manifest
@@ -21,7 +22,7 @@ command:
     if [ -n "${PWM_ALLOW:-}" ]; then
         set -- "$@" --allow "$PWM_ALLOW"
     fi
-    sudo env "PATH=$PATH" pwm_test.py "$@"
+    pwm_test.py "$@"
 
 unit: template
 template-resource: ce-oem-pwm/pwm-list

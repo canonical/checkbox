@@ -142,14 +142,10 @@ def get_threshold(installed_memory):
         return 10
 
 
-def main():
-    if os.geteuid() != 0:
-        print("This script must be run as root.", file=sys.stderr)
-        return 1
-
-    installed_memory = HumanReadableBytes(get_installed_memory_size())
-    visible_memory = HumanReadableBytes(get_visible_memory_size())
-    igpu_vram = HumanReadableBytes(get_igpu_vram_size())
+def compare_memory(installed_memory, visible_memory, igpu_vram):
+    installed_memory = HumanReadableBytes(installed_memory)
+    visible_memory = HumanReadableBytes(visible_memory)
+    igpu_vram = HumanReadableBytes(igpu_vram)
     threshold = get_threshold(installed_memory)
 
     difference = HumanReadableBytes(
@@ -203,6 +199,17 @@ def main():
             file=sys.stderr,
         )
         return 1
+
+
+def main():
+    if os.geteuid() != 0:
+        print("This script must be run as root.", file=sys.stderr)
+        return 1
+    installed_memory = get_installed_memory_size()
+    visible_memory = get_visible_memory_size()
+    igpu_vram = get_igpu_vram_size()
+
+    return compare_memory(installed_memory, visible_memory, igpu_vram)
 
 
 if __name__ == "__main__":

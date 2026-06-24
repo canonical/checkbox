@@ -11,56 +11,61 @@ import memory_compare
 
 class MemoryCompareTests(unittest.TestCase):
 
-    GiB = 1024**3
-    MiB = 1024**2
-
-    def run_main(self, installed, visible, igpu_vram):
+    def compare_memory(self, installed, visible, igpu_vram):
         stdout = StringIO()
         stderr = StringIO()
-        with patch("memory_compare.os.geteuid", return_value=0):
-            with patch(
-                "memory_compare.get_installed_memory_size",
-                return_value=installed,
-            ):
-                with patch(
-                    "memory_compare.get_visible_memory_size",
-                    return_value=visible,
-                ):
-                    with patch(
-                        "memory_compare.get_igpu_vram_size",
-                        return_value=igpu_vram,
-                    ):
-                        with redirect_stdout(stdout), redirect_stderr(stderr):
-                            result = memory_compare.main()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            result = memory_compare.compare_memory(
+                installed, visible, igpu_vram
+            )
         return result, stdout.getvalue(), stderr.getvalue()
 
-    def test_main_keeps_existing_behavior_without_vram(self):
-        installed = 16 * self.GiB
-        visible = int(15.42 * self.GiB)
+    def test_compare_memory_keeps_existing_behavior_without_vram(self):
+        installed = memory_compare.HumanReadableBytes("16GiB")
+        visible = int(installed * 15.42 / 16)
 
-        result, stdout, stderr = self.run_main(installed, visible, 0)
+        result, stdout, stderr = self.compare_memory(installed, visible, 0)
 
         self.assertEqual(result, 0)
         self.assertIn("PASS: Meminfo reports", stdout)
         self.assertNotIn("iGPU VRAM compensation", stdout)
         self.assertEqual(stderr, "")
 
-    def test_main_compensates_igpu_vram_before_threshold_check(self):
-        installed = 8 * self.GiB
+    def test_compare_memory_compensates_igpu_vram_before_threshold_check(self):
+        installed = memory_compare.HumanReadableBytes("8GiB")
         visible = installed - 2503073792
-        igpu_vram = 2048 * self.MiB
+        igpu_vram = memory_compare.HumanReadableBytes("2048MiB")
 
-        result, stdout, stderr = self.run_main(installed, visible, igpu_vram)
+        result, stdout, stderr = self.compare_memory(
+            installed, visible, igpu_vram
+        )
 
         self.assertEqual(result, 0)
         self.assertIn("iGPU VRAM compensation:\t2GiB", stdout)
         self.assertIn("difference of 4.14%", stdout)
         self.assertEqual(stderr, "")
 
+    def test_compare_memory_fails_when_difference_exceeds_threshold(self):
+        installed = memory_compare.HumanReadableBytes("32GiB")
+        visible = memory_compare.HumanReadableBytes("24GiB")
+        igpu_vram = memory_compare.HumanReadableBytes("2GiB")
+
+        result, stdout, stderr = self.compare_memory(
+            installed, visible, igpu_vram
+        )
+
+        self.assertEqual(result, 1)
+        self.assertEqual(stdout, "")
+        self.assertIn("Results:", stderr)
+        self.assertIn("/proc/meminfo reports:\t24GiB", stderr)
+        self.assertIn("lshw reports:\t32GiB", stderr)
+        self.assertIn("iGPU VRAM compensation:\t2GiB", stderr)
+        self.assertIn("Only a variance of 10% in reported memory", stderr)
+
     def test_adjusted_difference_is_never_negative(self):
-        installed = 8 * self.GiB
-        visible = installed - 512 * self.MiB
-        igpu_vram = 2048 * self.MiB
+        installed = memory_compare.HumanReadableBytes("8GiB")
+        visible = installed - memory_compare.HumanReadableBytes("512MiB")
+        igpu_vram = memory_compare.HumanReadableBytes("2048MiB")
 
         self.assertEqual(
             memory_compare.get_adjusted_memory_difference(
@@ -70,7 +75,9 @@ class MemoryCompareTests(unittest.TestCase):
         )
 
     def test_zero_memory_error_stays_unchanged(self):
-        result, stdout, stderr = self.run_main(0, 0, 2048 * self.MiB)
+        igpu_vram = memory_compare.HumanReadableBytes("2048MiB")
+
+        result, stdout, stderr = self.compare_memory(0, 0, igpu_vram)
 
         self.assertEqual(result, 1)
         self.assertEqual(stdout, "Results:\n")
@@ -88,7 +95,7 @@ class MemoryCompareTests(unittest.TestCase):
         with redirect_stdout(stdout):
             self.assertEqual(
                 memory_compare.get_igpu_vram_size_from_kernel_log(kernel_log),
-                2048 * self.MiB,
+                memory_compare.HumanReadableBytes("2048MiB"),
             )
         self.assertIn("Detected VRAM size", stdout.getvalue())
 
@@ -132,7 +139,7 @@ class MemoryCompareTests(unittest.TestCase):
         with redirect_stdout(stdout):
             self.assertEqual(
                 memory_compare.get_igpu_vram_size(),
-                4096 * self.MiB,
+                memory_compare.HumanReadableBytes("4096MiB"),
             )
         mock_check_output.assert_has_calls(
             [

@@ -11,6 +11,27 @@ import memory_compare
 
 class MemoryCompareTests(unittest.TestCase):
 
+    @patch("memory_compare.compare_memory")
+    @patch("memory_compare.get_igpu_vram_size")
+    @patch("memory_compare.get_visible_memory_size")
+    @patch("memory_compare.get_installed_memory_size")
+    @patch("memory_compare.os.geteuid", return_value=0)
+    def test_main_passes_collected_memory_values_to_compare_memory(
+        self,
+        mock_geteuid,
+        mock_installed,
+        mock_visible,
+        mock_vram,
+        mock_compare_memory,
+    ):
+        mock_installed.return_value = 1
+        mock_visible.return_value = 2
+        mock_vram.return_value = 3
+        mock_compare_memory.return_value = 0
+
+        self.assertEqual(memory_compare.main(), 0)
+        mock_compare_memory.assert_called_once_with(1, 2, 3)
+
     def compare_memory(self, installed, visible, igpu_vram):
         stdout = StringIO()
         stderr = StringIO()

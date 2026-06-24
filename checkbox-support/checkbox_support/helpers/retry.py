@@ -70,7 +70,11 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             # order
             sys.stdout.flush()
             if attempt >= max_attempts:
-                print("All the attempts have failed!", file=sys.stderr, flush=True)
+                print(
+                    "All the attempts have failed!",
+                    file=sys.stderr,
+                    flush=True,
+                )
                 # also flush stdout to prevent messages being printed in the
                 # wrong order
                 sys.stdout.flush()

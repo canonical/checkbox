@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
 import datetime
 import fcntl
 import ipaddress
@@ -46,6 +46,7 @@ from contextlib import contextmanager, suppress
 from pathlib import Path
 import sys
 import time
+from collections.abc import MutableMapping
 
 # Global results[] variable to pass results from multiple threads....
 results = []
@@ -199,8 +200,9 @@ class IPerfPerformanceTest(object):
         # to iperf3, thus disabling NUMA features.
         if node_num == -1:
             logging.warning(
-                "WARNING: Could not find the NUMA node "
-                "associated with {}!".format(device)
+                "WARNING: Could not find the NUMA node associated with {}!".format(
+                    device
+                )
             )
         else:
             logging.info("NUMA node of {} is {}....".format(device, node_num))
@@ -445,7 +447,6 @@ class IPerfPerformanceTest(object):
 
 
 class StressPerformanceTest:
-
     def __init__(self, interface, target, iperf3):
         self.interface = interface
         self.target = target
@@ -611,23 +612,40 @@ class Interface(socket.socket):
         return self._read_data("phys_switch_id")
 
 
-def get_test_parameters(args, environ):
-    # Decide the actual values for test parameters, which can come
-    # from one of two possible sources: command-line
-    # arguments, or environment variables.
-    # - If command-line args were given, they take precedence
-    # - Next come environment variables, if set.
+def get_test_parameters(args: Namespace, environ: "MutableMapping[str, str]"):
+    """
+    Decide the actual values for test parameters, which can come
+    from one of two possible sources: command-line
+    arguments, or environment variables.
+    - If command-line args were given, they take precedence
+    - Next come environment variables, if set.
 
-    params = {"test_target_iperf": None}
+    :param args: args from argparser
+    :param environ: environment variable dict, usually os.environ
+    :return: test params dict, see the params variable
+    """
+
+    params = {
+        # test_target_iperf is a comma separated list of ip addresses
+        # example: TEST_TARGET_IPERF=10.102.10.1,10.102.10.2,10.102.10.3
+        "test_target_iperf": None,
+        # max_speed_override is a comma separated list of INTERFACE:SPEED pairs
+        # where INTERFACE is the interface shown in ethtool like eno1
+        # and SPEED is an integer string like 200000 (unit is Megabytes)
+        # example: MAX_EXPECTED_SPEED_OVERRIDE=eno1:1000,enp1s1:2500
+        "max_expected_speed_override": None,
+    }  # type: dict[str, str | None]
 
     # See if we have environment variables
     for key in params.keys():
-        params[key] = os.environ.get(key.upper(), "")
+        params[key] = environ.get(key.upper())  # preserve None
 
     # Finally, see if we have the command-line arguments that are the ultimate
     # override.
     if args.target:
         params["test_target_iperf"] = args.target
+    if args.max_expected_speed_override:
+        params["max_expected_speed_override"] = args.max_speed_override
 
     return params
 
@@ -847,13 +865,13 @@ def check_underspeed(iface):
         and network_if.max_speed != 0
     ):
         logging.error(
-            "Detected link speed ({}) is lower than detected max "
-            "speed ({})".format(network_if.link_speed, network_if.max_speed)
+            "Detected link speed ({}) is lower than detected max speed ({})".format(
+                network_if.link_speed, network_if.max_speed
+            )
         )
         logging.error("Check your device configuration and try again.")
         logging.error(
-            "If you want to override and test despite this "
-            "under-speed link, use"
+            "If you want to override and test despite this under-speed link, use"
         )
         logging.error("the --underspeed-ok option.")
         return True
@@ -995,19 +1013,18 @@ def interface_test(args):
         # Default values found in config file
         logging.error("Valid target server has not been supplied.")
         logging.error(
-            "Configuration settings can be configured 3 different " "ways:"
+            "Configuration settings can be configured 3 different ways:"
         )
         logging.error(
-            "1- If calling the script directly, pass the --target " "option"
+            "1- If calling the script directly, pass the --target option"
         )
         logging.error("2- Define the TEST_TARGET_IPERF environment variable")
         logging.error(
-            "3- If running the test via checkbox/plainbox, define " "the "
+            "3- If running the test via checkbox/plainbox, define the "
         )
         logging.error("target in /etc/xdg/canonical-certification.conf")
         logging.error(
-            "Please run this script with -h to see more details on "
-            "how to configure"
+            "Please run this script with -h to see more details on how to configure"
         )
         sys.exit(1)
 
@@ -1158,6 +1175,7 @@ TEST_TARGET_IPERF = iperf-server.example.com
         ),
     )
     test_parser.add_argument("--target", type=str)
+    test_parser.add_argument("--max-expected-speed-override", type=str)
     action.add_argument(
         "--datasize",
         type=str,
@@ -1298,13 +1316,17 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
+
+    print(args)
+    return
+
     if (
         args.func.__name__ is interface_test
         and not args.cpu_load_fail_threshold != 100
         and not args.iperf3
     ):
         parser.error(
-            "--cpu-load-fail-threshold can only be set with " "--iperf3."
+            "--cpu-load-fail-threshold can only be set with --iperf3."
         )
 
     if args.debug:

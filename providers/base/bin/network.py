@@ -983,7 +983,7 @@ def interface_test_initialize(
             raise CalledProcessError(3, "restore network failed")
 
 
-def interface_test(args):
+def interface_test(args: Namespace):
     if not ("test_type" in vars(args)):
         return
 
@@ -1278,9 +1278,6 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
-
-    print(args)
-    return
 
     if (
         args.func.__name__ is interface_test

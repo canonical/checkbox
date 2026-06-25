@@ -1075,14 +1075,14 @@ def interface_test(args: Namespace):
         test_targets_list = make_target_list(
             args.interface, test_targets, True
         )
-        if test_parameters["max_expected_speed_override"]:
-            max_expected_speed_override = (
+        if test_parameters.get("max_expected_speed_override"):
+            max_expected_speed_override_dict = (
                 make_max_expected_speed_override_dict(
                     test_parameters["max_expected_speed_override"]
                 )
             )
         else:
-            max_expected_speed_override = {}
+            max_expected_speed_override_dict = {}
 
     # Validate that we got reasonable values
     if not test_targets_list or "example.com" in test_targets:
@@ -1125,7 +1125,7 @@ def interface_test(args: Namespace):
                 error_number = run_test(
                     args,
                     test_target,
-                    max_expected_speed_override.get(args.interface),
+                    max_expected_speed_override_dict.get(args.interface),
                 )
                 elapsed_seconds = (
                     datetime.datetime.now() - start_time

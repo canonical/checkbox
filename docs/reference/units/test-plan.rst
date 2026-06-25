@@ -144,6 +144,27 @@ copy such constructs when working on a new test plan from scratch
     Note that mandatory jobs will always be run first (along with their
     dependent jobs).
 
+.. option:: setup_include
+
+    A multi-line list of setup job identifiers that should be run before the
+    normal bootstrapping phase begins. Setup jobs are used to prepare the device
+    under test, such as installing dependencies, loading required kernel modules
+    or starting services needed by the rest of the test plan.
+
+    Example::
+
+        setup_include:
+            setup/install_example_tool
+
+    Note that each entry in the ``setup_include`` section must be a valid
+    :doc:`setup_job` unit identifier and cannot be a regular expression
+    pattern. Only setup job units are allowed in this section.
+
+    .. warning::
+
+        If any setup job fails, the whole test run be aborted after the setup
+        phase and will fail.
+
 .. option:: bootstrap_include
 
     A multi-line list of job identifiers that should be run first, before the

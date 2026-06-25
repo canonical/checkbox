@@ -92,3 +92,72 @@ command:
     echo "## Perform the GPIO loopback test"
     gpio_loopback_test.py -oc {{OUTPUT_GPIO_CHIP_NUMBER}} -ic {{INPUT_GPIO_CHIP_NUMBER}} -po {{PHYSICAL_OUTPUT_PORT}} -go {{GPIO_OUTPUT_PIN}} -pi {{PHYSICAL_INPUT_PORT}} -gi {{GPIO_INPUT_PIN}}
 
+
+id: ce-oem-gpiod-gpio/simple-resource
+_summary: Generates libgpiod GPIO lines for simple GPIO tests
+_description:
+    Generates GPIO line resources for libgpiod-based GPIO simple tests.
+    Use GPIOD_GPIO_IGNORE to exclude unsafe lines. Supported ignore
+    formats include gpiochip14, gpiochip14-*, gpiochip16-0..4, and
+    comma-separated combinations. GPIOD_GPIO_ALLOW_NAMED is accepted for
+    compatibility; named unused lines are included by default.
+estimated_duration: 0.02
+category_id: com.canonical.certification::gpio
+plugin: resource
+user: root
+environ:
+    GPIOD_GPIO_IGNORE
+    GPIOD_GPIO_ALLOW_NAMED
+command:
+    set --
+    if [ -n "$GPIOD_GPIO_IGNORE" ]; then
+        set -- "$@" --ignore "$GPIOD_GPIO_IGNORE"
+    fi
+    case "$GPIOD_GPIO_ALLOW_NAMED" in
+        1|true|True|yes|Yes)
+            set -- "$@" --allow-named
+            ;;
+    esac
+    gpio_test_subprocess.py resource simple "$@" --format text | sed 's/=/\: /'
+
+
+unit: template
+template-resource: ce-oem-gpiod-gpio/simple-resource
+template-unit: job
+template-id: ce-oem-gpiod-gpio/simple-input
+_template-summary: Test libgpiod GPIO input on {GPIO_CHIP}-{GPIO_LINE}
+id: ce-oem-gpiod-gpio/simple-input-{GPIO_CHIP}-{GPIO_LINE}
+_summary: Test libgpiod GPIO input on {GPIO_CHIP}-{GPIO_LINE}
+_description:
+    Request GPIO line {GPIO_CHIP}-{GPIO_LINE} as input through
+    libgpiod and read its value.
+plugin: shell
+user: root
+category_id: com.canonical.certification::gpio
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gpiod_gpio == 'True'
+estimated_duration: 10s
+flags: also-after-suspend
+command:
+    gpio_test_subprocess.py test simple input {GPIO_CHIP} {GPIO_LINE}
+
+
+unit: template
+template-resource: ce-oem-gpiod-gpio/simple-resource
+template-unit: job
+template-id: ce-oem-gpiod-gpio/simple-output
+_template-summary: Test libgpiod GPIO output on {GPIO_CHIP}-{GPIO_LINE}
+id: ce-oem-gpiod-gpio/simple-output-{GPIO_CHIP}-{GPIO_LINE}
+_summary: Test libgpiod GPIO output on {GPIO_CHIP}-{GPIO_LINE}
+_description:
+    Request GPIO line {GPIO_CHIP}-{GPIO_LINE} as output through
+    libgpiod, toggle low/high, and restore its original state.
+plugin: shell
+user: root
+category_id: com.canonical.certification::gpio
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gpiod_gpio == 'True'
+estimated_duration: 10s
+flags: also-after-suspend
+command:
+    gpio_test_subprocess.py test simple output {GPIO_CHIP} {GPIO_LINE}

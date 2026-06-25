@@ -68,6 +68,7 @@ class IPerfPerformanceTest(object):
         reverse,
         protocol="tcp",
         data_size="1",
+        expected_max_speed: "int | None" = None,
         run_time=None,
         scan_timeout=3600,
         iface_timeout=120,
@@ -82,6 +83,7 @@ class IPerfPerformanceTest(object):
         self.iperf3 = iperf3
         self.num_threads = num_threads
         self.data_size = data_size
+        self.expected_max_speed = expected_max_speed
         self.run_time = run_time
         self.scan_timeout = scan_timeout
         self.iface_timeout = iface_timeout
@@ -248,7 +250,7 @@ class IPerfPerformanceTest(object):
         # if max_speed is 0, assume it's wifi and move on
         if self.iface.max_speed == 0:
             logging.warning(
-                "No max speed detected, assuming Wireless device "
+                "No max speed (from ethtool) detected, assuming Wireless device "
                 "and continuing with test."
             )
 
@@ -334,7 +336,10 @@ class IPerfPerformanceTest(object):
         throughput = self.summarize_speeds()
         invalid_speed = False
         try:
-            percent = throughput / int(self.iface.max_speed) * 100
+            if self.expected_max_speed is None:
+                percent = throughput / int(self.iface.max_speed) * 100
+            else:
+                percent = throughput / self.expected_max_speed * 100
         except (ZeroDivisionError, TypeError):
             # Catches a condition where the interface functions fine but
             # ethtool fails to properly report max speed. In this case
@@ -645,7 +650,7 @@ def can_ping(the_interface, test_target):
     return working_interface
 
 
-def run_test(args, test_target):
+def run_test(args, test_target, expected_max_speed: "int | None" = None):
     # Ensure that interface is fully up by waiting until it can
     # ping the test server
     logging.info("Testing {} against {}".format(args.interface, test_target))
@@ -659,6 +664,13 @@ def run_test(args, test_target):
         )
         return 1
 
+    if expected_max_speed:
+        logging.warning(
+            "Expected maximum transfer speed was overridden to: {}".format(
+                expected_max_speed
+            )
+        )
+
     # Execute requested networking test
     if args.test_type.lower() == "iperf":
         error_number = 0
@@ -670,6 +682,7 @@ def run_test(args, test_target):
             args.iperf3,
             args.num_threads,
             args.reverse,
+            expected_max_speed=expected_max_speed
         )
         if args.datasize:
             iperf_benchmark.data_size = args.datasize
@@ -993,6 +1006,12 @@ def interface_test(args: Namespace):
     if args.test_type.lower() == "iperf" or args.test_type.lower() == "stress":
         test_targets = test_parameters["test_target_iperf"]
         test_targets_list = make_target_list(args.interface, test_targets, True)
+        if args.max_expected_speed_override:
+            max_expected_speed_override = make_max_expected_speed_override_dict(
+                args.max_expected_speed_override
+            )
+        else:
+            max_expected_speed_override = {}
 
     # Validate that we got reasonable values
     if not test_targets_list or "example.com" in test_targets:
@@ -1024,7 +1043,9 @@ def interface_test(args: Namespace):
             # or we run out of both targets and time
             while test_targets_list:
                 test_target = test_targets_list.pop().strip()
-                error_number = run_test(args, test_target)
+                error_number = run_test(
+                    args, test_target, max_expected_speed_override.get(args.interface)
+                )
                 elapsed_seconds = (datetime.datetime.now() - start_time).seconds
                 if (
                     elapsed_seconds > args.scan_timeout and not first_loop

@@ -161,3 +161,44 @@ estimated_duration: 10s
 flags: also-after-suspend
 command:
     gpio_test_subprocess.py test simple output {GPIO_CHIP} {GPIO_LINE}
+
+
+id: ce-oem-gpiod-gpio/loopback-resource
+_summary: Generates libgpiod GPIO loopback pairs
+_description:
+    Generates GPIO loopback resources for libgpiod-based GPIO loopback tests.
+    Define GPIOD_GPIO_LOOPBACK_PAIRS with comma-separated INPUT:OUTPUT pairs.
+    Example: GPIOD_GPIO_LOOPBACK_PAIRS=gpiochip0-100:gpiochip0-0
+estimated_duration: 0.02
+category_id: com.canonical.certification::gpio
+plugin: resource
+user: root
+environ: GPIOD_GPIO_LOOPBACK_PAIRS
+command:
+    if [ -z "$GPIOD_GPIO_LOOPBACK_PAIRS" ]; then
+        echo "GPIOD_GPIO_LOOPBACK_PAIRS is not defined" >&2
+        exit 1
+    fi
+    gpio_test_subprocess.py resource loopback --pairs "$GPIOD_GPIO_LOOPBACK_PAIRS" --format text | sed 's/=/\: /'
+
+
+unit: template
+template-resource: ce-oem-gpiod-gpio/loopback-resource
+template-unit: job
+template-id: ce-oem-gpiod-gpio/loopback
+_template-summary: Test libgpiod GPIO loopback
+id: ce-oem-gpiod-gpio/loopback-input-{GPIO_INPUT_CHIP}-{GPIO_INPUT_LINE}-output-{GPIO_OUTPUT_CHIP}-{GPIO_OUTPUT_LINE}
+_summary: Test libgpiod GPIO loopback
+_description:
+    Drive GPIO output line {GPIO_OUTPUT_CHIP}-{GPIO_OUTPUT_LINE} and
+    verify GPIO input line {GPIO_INPUT_CHIP}-{GPIO_INPUT_LINE} follows
+    low and high states through libgpiod.
+plugin: shell
+user: root
+category_id: com.canonical.certification::gpio
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gpiod_gpio == 'True'
+estimated_duration: 20s
+flags: also-after-suspend
+command:
+    gpio_test_subprocess.py test loopback {GPIO_INPUT_CHIP} {GPIO_INPUT_LINE} {GPIO_OUTPUT_CHIP} {GPIO_OUTPUT_LINE}

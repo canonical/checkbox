@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""GPIO validation using the Python gpiod binding."""
+"""GPIO validation using the Python gpiod binding.
+
+This script is the Python API implementation of the CE OEM gpiod GPIO tests.
+It discovers GPIO lines through ``import gpiod`` and performs line requests
+without calling the libgpiod command-line tools.  Test commands print
+human-readable progress blocks while keeping ``GPIO_TEST_RESULT=...`` available
+for Checkbox parsing.
+"""
 
 from __future__ import annotations
 
@@ -17,6 +24,8 @@ CONSUMER = "gpio-test"
 
 @dataclass(frozen=True)
 class GpioLine:
+    """Description of one GPIO line discovered from the Python gpiod API."""
+
     chip: str
     offset: int
     name: str
@@ -27,6 +36,8 @@ class GpioLine:
 
 @dataclass(frozen=True)
 class TestState:
+    """Cached Python gpiod module, API style and GPIO discovery data."""
+
     gpiod: object
     style: str
     lines: dict[str, GpioLine]
@@ -34,15 +45,21 @@ class TestState:
 
 @dataclass(frozen=True)
 class SavedLineState:
+    """Original line state used to restore GPIO direction and value."""
+
     line: GpioLine
     value: int | None
 
 
 class GpioTestError(Exception):
+    """Base exception for expected GPIO test failures."""
+
     pass
 
 
 class StepError(GpioTestError):
+    """Exception that records the human-readable step that failed."""
+
     def __init__(self, step: str, message: str) -> None:
         super().__init__(message)
         self.step = step
@@ -50,21 +67,29 @@ class StepError(GpioTestError):
 
 
 def print_step(message: str) -> str:
+    """Print and return a human-readable progress step."""
+
     print()
     print(f"[INFO] {message}")
     return message
 
 
 def print_detail(key: str, value: object) -> None:
+    """Print an indented key/value detail line under the current step."""
+
     print(f"       {key}: {value}")
 
 
 def print_test_header(name: str, target: str) -> None:
+    """Print the test name and target line or line pair."""
+
     print(f"TEST: {name}")
     print(f"TARGET: {target}")
 
 
 def print_result(status: str) -> None:
+    """Print the human and machine-readable final test result."""
+
     upper = status.upper()
     print()
     print(f"RESULT: {upper}")
@@ -72,6 +97,8 @@ def print_result(status: str) -> None:
 
 
 def python_gpiod_error(action: str, line: str, exc: Exception) -> str:
+    """Format Python gpiod operation failures as user-facing messages."""
+
     return (
         f"Python gpiod failed to {action} {line}: {exc} "
         "(kernel/libgpiod operation error)"
@@ -79,6 +106,8 @@ def python_gpiod_error(action: str, line: str, exc: Exception) -> str:
 
 
 def import_gpiod():
+    """Import and return the Python gpiod module."""
+
     try:
         import gpiod  # type: ignore
     except (
@@ -89,6 +118,8 @@ def import_gpiod():
 
 
 def api_style(gpiod) -> str:
+    """Detect whether the imported gpiod module exposes v1 or v2 APIs."""
+
     if hasattr(gpiod, "request_lines") and hasattr(gpiod, "LineSettings"):
         return "v2"
     if hasattr(gpiod, "Chip"):
@@ -97,6 +128,8 @@ def api_style(gpiod) -> str:
 
 
 def gpiod_version(gpiod) -> str:
+    """Return the best available Python gpiod version string."""
+
     for attr in ("__version__", "version"):
         value = getattr(gpiod, attr, None)
         if callable(value):
@@ -107,11 +140,15 @@ def gpiod_version(gpiod) -> str:
 
 
 def chip_path(chip: str) -> str:
+    """Return a /dev path for a chip when that path exists."""
+
     path = Path("/dev") / chip
     return str(path) if path.exists() else chip
 
 
 def chip_names() -> list[str]:
+    """Return sorted GPIO chip names from /dev."""
+
     names = [Path(path).name for path in glob.glob("/dev/gpiochip*")]
     return sorted(
         names,
@@ -124,11 +161,15 @@ def chip_names() -> list[str]:
 
 
 def value_attr(obj, name: str):
+    """Read an attribute that may be exposed as a value or method."""
+
     attr = getattr(obj, name, None)
     return attr() if callable(attr) else attr
 
 
 def normalized_direction(direction) -> str | None:
+    """Normalize gpiod direction constants to input/output strings."""
+
     if direction is None:
         return None
     if isinstance(direction, int):
@@ -142,6 +183,8 @@ def normalized_direction(direction) -> str | None:
 
 
 def line_info_v1(gpiod, chip_name: str, offset: int) -> GpioLine:
+    """Read one line description using the Python gpiod v1 API."""
+
     chip = gpiod.Chip(chip_name)
     try:
         line = chip.get_line(offset)
@@ -160,6 +203,8 @@ def line_info_v1(gpiod, chip_name: str, offset: int) -> GpioLine:
 
 
 def line_count_v1(gpiod, chip_name: str) -> int:
+    """Return a chip line count using the Python gpiod v1 API."""
+
     chip = gpiod.Chip(chip_name)
     try:
         count = value_attr(chip, "num_lines")
@@ -173,6 +218,8 @@ def line_count_v1(gpiod, chip_name: str) -> int:
 
 
 def line_info_v2(gpiod, chip_name: str, offset: int) -> GpioLine:
+    """Read one line description using the Python gpiod v2 API."""
+
     chip = gpiod.Chip(chip_path(chip_name))
     try:
         info = chip.get_line_info(offset)
@@ -190,6 +237,8 @@ def line_info_v2(gpiod, chip_name: str, offset: int) -> GpioLine:
 
 
 def line_count_v2(gpiod, chip_name: str) -> int:
+    """Return a chip line count using the Python gpiod v2 API."""
+
     chip = gpiod.Chip(chip_path(chip_name))
     try:
         info = chip.get_info()
@@ -204,6 +253,8 @@ def line_count_v2(gpiod, chip_name: str) -> int:
 
 
 def load_lines(chip: str | None = None) -> dict[str, GpioLine]:
+    """Discover GPIO lines, optionally limited to one chip."""
+
     gpiod = import_gpiod()
     style = api_style(gpiod)
     names = [chip] if chip else chip_names()
@@ -228,6 +279,8 @@ def load_lines(chip: str | None = None) -> dict[str, GpioLine]:
 
 
 def print_gpio_inventory(lines: dict[str, GpioLine]) -> None:
+    """Print all discovered GPIO lines in a human-readable format."""
+
     by_chip: dict[str, list[GpioLine]] = {}
     for line in lines.values():
         by_chip.setdefault(line.chip, []).append(line)
@@ -248,6 +301,8 @@ def print_gpio_inventory(lines: dict[str, GpioLine]) -> None:
 
 
 def initialize_test_state() -> TestState:
+    """Collect and cache API version and full GPIO discovery for one test."""
+
     print_step("Get Python gpiod version")
     gpiod = import_gpiod()
     style = api_style(gpiod)
@@ -261,6 +316,8 @@ def initialize_test_state() -> TestState:
 
 
 def parse_line_id(identifier: str) -> tuple[str, int]:
+    """Parse ``gpiochipN-LINE`` into chip name and line offset."""
+
     parts = identifier.strip().split("-", 1)
     if (
         len(parts) != 2
@@ -272,6 +329,12 @@ def parse_line_id(identifier: str) -> tuple[str, int]:
 
 
 def parse_ignore(value: str | None, lines: dict[str, GpioLine]) -> set[str]:
+    """Expand ignore expressions into concrete ``gpiochipN-LINE`` keys.
+
+    Supported input forms are ``gpiochipN-LINE``, ``gpiochipN-START..END``,
+    ``gpiochipN`` and ``gpiochipN-*``.
+    """
+
     if not value:
         return set()
 
@@ -307,6 +370,8 @@ def parse_ignore(value: str | None, lines: dict[str, GpioLine]) -> set[str]:
 
 
 def parse_pairs(value: str) -> list[tuple[str, int, str, int]]:
+    """Parse comma-separated loopback pairs in ``INPUT:OUTPUT`` format."""
+
     pairs = []
     for item in value.split(","):
         if ":" not in item:
@@ -319,6 +384,8 @@ def parse_pairs(value: str) -> list[tuple[str, int, str, int]]:
 
 
 def emit_records(records: list[dict[str, object]], fmt: str) -> None:
+    """Emit Checkbox resource records as text or JSON."""
+
     if fmt == "json":
         print(json.dumps(records, indent=2, sort_keys=True))
         return
@@ -329,11 +396,15 @@ def emit_records(records: list[dict[str, object]], fmt: str) -> None:
 
 
 def sort_key(identifier: str) -> tuple[int, int]:
+    """Return a numeric sort key for ``gpiochipN-LINE`` identifiers."""
+
     chip, offset = identifier.split("-", 1)
     return int(chip.removeprefix("gpiochip")), int(offset)
 
 
 def resource_simple(args: argparse.Namespace) -> int:
+    """Generate unused GPIO line resources for simple input/output jobs."""
+
     lines = load_lines()
     ignored = parse_ignore(args.ignore, lines)
     candidates = []
@@ -347,6 +418,8 @@ def resource_simple(args: argparse.Namespace) -> int:
 
 
 def resource_loopback(args: argparse.Namespace) -> int:
+    """Generate validated GPIO loopback resources from pair definitions."""
+
     lines = load_lines()
     records = []
     for out_chip, out_line, in_chip, in_line in parse_pairs(args.pairs):
@@ -377,6 +450,8 @@ def resource_loopback(args: argparse.Namespace) -> int:
 
 
 def get_line_or_raise(chip: str, offset: int, purpose: str = "") -> GpioLine:
+    """Find a line from fresh discovery or raise a step-aware error."""
+
     label = f"{chip}-{offset}"
     print_step(f"Find {purpose + ' ' if purpose else ''}{label}")
     lines = load_lines(chip)
@@ -391,6 +466,8 @@ def get_line_from_state_or_raise(
     offset: int,
     purpose: str = "",
 ) -> GpioLine:
+    """Find a line in cached test state or raise a step-aware error."""
+
     label = f"{chip}-{offset}"
     print_step(f"Find {purpose + ' ' if purpose else ''}{label}")
     if label not in state.lines:
@@ -401,6 +478,8 @@ def get_line_from_state_or_raise(
 def get_loopback_lines_or_raise(
     args: argparse.Namespace, state: TestState
 ) -> tuple[GpioLine, GpioLine]:
+    """Return output and input lines for a loopback test."""
+
     out_label = f"{args.out_chip}-{args.out_line}"
     in_label = f"{args.in_chip}-{args.in_line}"
     print_step(f"Find input {in_label}")
@@ -417,6 +496,8 @@ def get_loopback_lines_or_raise(
 
 
 def ensure_unused(line: GpioLine) -> None:
+    """Fail the current step if a line is already requested."""
+
     step = print_step(f"Check {line.chip}-{line.offset} is unused")
     if line.used:
         raise StepError(
@@ -425,6 +506,8 @@ def ensure_unused(line: GpioLine) -> None:
 
 
 def request_input_v1(gpiod, chip_name: str, offset: int):
+    """Request one line as input through the Python gpiod v1 API."""
+
     chip = gpiod.Chip(chip_name)
     line = chip.get_line(offset)
     line.request(consumer=CONSUMER, type=gpiod.LINE_REQ_DIR_IN)
@@ -432,6 +515,8 @@ def request_input_v1(gpiod, chip_name: str, offset: int):
 
 
 def request_output_v1(gpiod, chip_name: str, offset: int, value: int):
+    """Request one line as output through the Python gpiod v1 API."""
+
     chip = gpiod.Chip(chip_name)
     line = chip.get_line(offset)
     line.request(
@@ -441,6 +526,8 @@ def request_output_v1(gpiod, chip_name: str, offset: int, value: int):
 
 
 def release_v1(handle) -> None:
+    """Release a Python gpiod v1 line handle and close its chip."""
+
     chip, line = handle
     try:
         line.release()
@@ -451,6 +538,8 @@ def release_v1(handle) -> None:
 
 
 def request_input_v2(gpiod, chip_name: str, offset: int):
+    """Request one line as input through the Python gpiod v2 API."""
+
     settings = gpiod.LineSettings(direction=gpiod.line.Direction.INPUT)
     return gpiod.request_lines(
         chip_path(chip_name), consumer=CONSUMER, config={offset: settings}
@@ -458,6 +547,8 @@ def request_input_v2(gpiod, chip_name: str, offset: int):
 
 
 def request_output_v2(gpiod, chip_name: str, offset: int, value: int):
+    """Request one line as output through the Python gpiod v2 API."""
+
     output_value = (
         gpiod.line.Value.ACTIVE if value else gpiod.line.Value.INACTIVE
     )
@@ -470,6 +561,8 @@ def request_output_v2(gpiod, chip_name: str, offset: int, value: int):
 
 
 def read_handle(gpiod, style: str, handle, offset: int) -> int:
+    """Read a value from an active Python gpiod line request."""
+
     if style == "v2":
         value = handle.get_value(offset)
         return 1 if value == gpiod.line.Value.ACTIVE else 0
@@ -479,6 +572,8 @@ def read_handle(gpiod, style: str, handle, offset: int) -> int:
 def set_handle_value(
     gpiod, style: str, handle, offset: int, value: int
 ) -> None:
+    """Set a value on an active Python gpiod line request."""
+
     if style == "v2":
         output_value = (
             gpiod.line.Value.ACTIVE if value else gpiod.line.Value.INACTIVE
@@ -489,6 +584,8 @@ def set_handle_value(
 
 
 def release_handle(style: str, handle) -> None:
+    """Release a Python gpiod v1 or v2 request handle."""
+
     if style == "v2":
         handle.release()
     else:
@@ -496,6 +593,8 @@ def release_handle(style: str, handle) -> None:
 
 
 def request_input(gpiod, style: str, chip_name: str, offset: int):
+    """Dispatch input requests to the detected Python gpiod API."""
+
     return (
         request_input_v2(gpiod, chip_name, offset)
         if style == "v2"
@@ -504,6 +603,8 @@ def request_input(gpiod, style: str, chip_name: str, offset: int):
 
 
 def request_output(gpiod, style: str, chip_name: str, offset: int, value: int):
+    """Dispatch output requests to the detected Python gpiod API."""
+
     return (
         request_output_v2(gpiod, chip_name, offset, value)
         if style == "v2"
@@ -512,6 +613,8 @@ def request_output(gpiod, style: str, chip_name: str, offset: int, value: int):
 
 
 def save_line_state(state: TestState, line: GpioLine) -> SavedLineState:
+    """Save the original direction and readable output value."""
+
     value = None
     if line.direction == "output":
         handle = request_input(
@@ -525,6 +628,8 @@ def save_line_state(state: TestState, line: GpioLine) -> SavedLineState:
 
 
 def restore_line_state(state: TestState, saved: SavedLineState) -> None:
+    """Restore one line to its original direction and saved value."""
+
     line = saved.line
     if line.direction == "input":
         handle = request_input(
@@ -546,6 +651,8 @@ def restore_line_state(state: TestState, saved: SavedLineState) -> None:
 def recover_saved_states(
     state: TestState | None, states: list[SavedLineState]
 ) -> None:
+    """Best-effort restoration for all saved line states."""
+
     if state is None:
         return
     for saved in states:
@@ -559,6 +666,8 @@ def recover_saved_states(
 
 
 def test_simple_input(args: argparse.Namespace) -> int:
+    """Run the simple input test for one GPIO line."""
+
     handle = None
     try:
         print_test_header("GPIO simple input", f"{args.chip}-{args.line}")
@@ -604,6 +713,8 @@ def test_simple_input(args: argparse.Namespace) -> int:
 
 
 def test_simple_output(args: argparse.Namespace) -> int:
+    """Run the simple output low/high test for one GPIO line."""
+
     handle = None
     state: TestState | None = None
     saved: SavedLineState | None = None
@@ -671,6 +782,8 @@ def test_simple_output(args: argparse.Namespace) -> int:
 
 
 def test_loopback(args: argparse.Namespace) -> int:
+    """Run a physical loopback test using an input/output line pair."""
+
     out_handle = None
     in_handle = None
     state: TestState | None = None
@@ -825,6 +938,8 @@ def test_loopback(args: argparse.Namespace) -> int:
 
 
 def fail_current_step(exc: Exception) -> int:
+    """Print a failed result and return a Checkbox-compatible exit code."""
+
     if isinstance(exc, StepError):
         print()
         print(f"[FAIL] {exc.step}")
@@ -840,6 +955,8 @@ def fail_current_step(exc: Exception) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Create the command-line parser for resources and tests."""
+
     formatter = argparse.RawDescriptionHelpFormatter
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=formatter
@@ -945,6 +1062,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    """Parse arguments and dispatch to the selected subcommand."""
+
     parser = build_parser()
     args = parser.parse_args()
     try:

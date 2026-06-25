@@ -391,7 +391,7 @@ def emit_records(records: list[dict[str, object]], fmt: str) -> None:
         return
     for record in records:
         for key, value in record.items():
-            print(f"{key}={value}")
+            print(f"{key}: {value}")
         print()
 
 

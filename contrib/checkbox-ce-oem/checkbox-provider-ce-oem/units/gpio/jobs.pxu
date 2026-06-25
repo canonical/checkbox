@@ -118,7 +118,7 @@ command:
             set -- "$@" --allow-named
             ;;
     esac
-    gpio_test_subprocess.py resource simple "$@" --format text | sed 's/=/\: /'
+    gpio_test_subprocess.py resource simple "$@" --format text
 
 
 unit: template
@@ -179,7 +179,7 @@ command:
         echo "GPIOD_GPIO_LOOPBACK_PAIRS is not defined" >&2
         exit 1
     fi
-    gpio_test_subprocess.py resource loopback --pairs "$GPIOD_GPIO_LOOPBACK_PAIRS" --format text | sed 's/=/\: /'
+    gpio_test_subprocess.py resource loopback --pairs "$GPIOD_GPIO_LOOPBACK_PAIRS" --format text
 
 
 unit: template

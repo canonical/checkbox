@@ -26,6 +26,6 @@ include:
     ce-oem-gpio/loopback-on-phycial-output-.*-input-.*
     ce-oem-gpio/check-slots
     ce-oem-gpio/node-export-test
-    ce-oem-gpiod-gpio/simple-input
-    ce-oem-gpiod-gpio/simple-output
-    ce-oem-gpiod-gpio/loopback
+    ce-oem-gpiod-gpio/simple-input-GPIO_CHIP-GPIO_LINE
+    ce-oem-gpiod-gpio/simple-output-GPIO_CHIP-GPIO_LINE
+    ce-oem-gpiod-gpio/loopback-input-GPIO_INPUT_CHIP-GPIO_INPUT_LINE-output-GPIO_OUTPUT_CHIP-GPIO_OUTPUT_LINE

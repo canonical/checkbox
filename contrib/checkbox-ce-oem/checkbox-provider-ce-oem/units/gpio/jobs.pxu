@@ -124,12 +124,13 @@ command:
 unit: template
 template-resource: ce-oem-gpiod-gpio/simple-resource
 template-unit: job
-template-id: ce-oem-gpiod-gpio/simple-input
-_template-summary: Test libgpiod GPIO input on {GPIO_CHIP}-{GPIO_LINE}
-id: ce-oem-gpiod-gpio/simple-input-{GPIO_CHIP}-{GPIO_LINE}
-_summary: Test libgpiod GPIO input on {GPIO_CHIP}-{GPIO_LINE}
+template-engine: jinja2
+template-id: ce-oem-gpiod-gpio/simple-input-GPIO_CHIP-GPIO_LINE
+_template-summary: Test libgpiod GPIO input on {{GPIO_CHIP}}-{{GPIO_LINE}}
+id: ce-oem-gpiod-gpio/simple-input-{{GPIO_CHIP}}-{{GPIO_LINE}}
+_summary: Test libgpiod GPIO input on {{GPIO_CHIP}}-{{GPIO_LINE}}
 _description:
-    Request GPIO line {GPIO_CHIP}-{GPIO_LINE} as input through
+    Request GPIO line {{GPIO_CHIP}}-{{GPIO_LINE}} as input through
     libgpiod and read its value.
 plugin: shell
 user: root
@@ -139,18 +140,19 @@ requires: manifest.has_gpiod_gpio == 'True'
 estimated_duration: 10s
 flags: also-after-suspend
 command:
-    gpio_test_subprocess.py test simple input {GPIO_CHIP} {GPIO_LINE}
+    gpio_test_subprocess.py test simple input {{GPIO_CHIP}} {{GPIO_LINE}}
 
 
 unit: template
 template-resource: ce-oem-gpiod-gpio/simple-resource
 template-unit: job
-template-id: ce-oem-gpiod-gpio/simple-output
-_template-summary: Test libgpiod GPIO output on {GPIO_CHIP}-{GPIO_LINE}
-id: ce-oem-gpiod-gpio/simple-output-{GPIO_CHIP}-{GPIO_LINE}
-_summary: Test libgpiod GPIO output on {GPIO_CHIP}-{GPIO_LINE}
+template-engine: jinja2
+template-id: ce-oem-gpiod-gpio/simple-output-GPIO_CHIP-GPIO_LINE
+_template-summary: Test libgpiod GPIO output on {{GPIO_CHIP}}-{{GPIO_LINE}}
+id: ce-oem-gpiod-gpio/simple-output-{{GPIO_CHIP}}-{{GPIO_LINE}}
+_summary: Test libgpiod GPIO output on {{GPIO_CHIP}}-{{GPIO_LINE}}
 _description:
-    Request GPIO line {GPIO_CHIP}-{GPIO_LINE} as output through
+    Request GPIO line {{GPIO_CHIP}}-{{GPIO_LINE}} as output through
     libgpiod, toggle low/high, and restore its original state.
 plugin: shell
 user: root
@@ -160,7 +162,7 @@ requires: manifest.has_gpiod_gpio == 'True'
 estimated_duration: 10s
 flags: also-after-suspend
 command:
-    gpio_test_subprocess.py test simple output {GPIO_CHIP} {GPIO_LINE}
+    gpio_test_subprocess.py test simple output {{GPIO_CHIP}} {{GPIO_LINE}}
 
 
 id: ce-oem-gpiod-gpio/loopback-resource
@@ -185,13 +187,14 @@ command:
 unit: template
 template-resource: ce-oem-gpiod-gpio/loopback-resource
 template-unit: job
-template-id: ce-oem-gpiod-gpio/loopback
+template-engine: jinja2
+template-id: ce-oem-gpiod-gpio/loopback-input-GPIO_INPUT_CHIP-GPIO_INPUT_LINE-output-GPIO_OUTPUT_CHIP-GPIO_OUTPUT_LINE
 _template-summary: Test libgpiod GPIO loopback
-id: ce-oem-gpiod-gpio/loopback-input-{GPIO_INPUT_CHIP}-{GPIO_INPUT_LINE}-output-{GPIO_OUTPUT_CHIP}-{GPIO_OUTPUT_LINE}
+id: ce-oem-gpiod-gpio/loopback-input-{{GPIO_INPUT_CHIP}}-{{GPIO_INPUT_LINE}}-output-{{GPIO_OUTPUT_CHIP}}-{{GPIO_OUTPUT_LINE}}
 _summary: Test libgpiod GPIO loopback
 _description:
-    Drive GPIO output line {GPIO_OUTPUT_CHIP}-{GPIO_OUTPUT_LINE} and
-    verify GPIO input line {GPIO_INPUT_CHIP}-{GPIO_INPUT_LINE} follows
+    Drive GPIO output line {{GPIO_OUTPUT_CHIP}}-{{GPIO_OUTPUT_LINE}} and
+    verify GPIO input line {{GPIO_INPUT_CHIP}}-{{GPIO_INPUT_LINE}} follows
     low and high states through libgpiod.
 plugin: shell
 user: root
@@ -201,4 +204,4 @@ requires: manifest.has_gpiod_gpio == 'True'
 estimated_duration: 20s
 flags: also-after-suspend
 command:
-    gpio_test_subprocess.py test loopback {GPIO_INPUT_CHIP} {GPIO_INPUT_LINE} {GPIO_OUTPUT_CHIP} {GPIO_OUTPUT_LINE}
+    gpio_test_subprocess.py test loopback {{GPIO_INPUT_CHIP}} {{GPIO_INPUT_LINE}} {{GPIO_OUTPUT_CHIP}} {{GPIO_OUTPUT_LINE}}

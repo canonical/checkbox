@@ -13,7 +13,6 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-
 DEBUGFS_PWM = Path("/sys/kernel/debug/pwm")
 SYSFS_PWM = Path("/sys/class/pwm")
 TEST_PERIOD = "1000000"

@@ -202,9 +202,8 @@ class IPerfPerformanceTest(object):
         # to iperf3, thus disabling NUMA features.
         if node_num == -1:
             logging.warning(
-                "WARNING: Could not find the NUMA node associated with {}!".format(
-                    device
-                )
+                "WARNING: Could not find the NUMA node"
+                + " associated with {}!".format(device)
             )
         else:
             logging.info("NUMA node of {} is {}....".format(device, node_num))
@@ -262,8 +261,8 @@ class IPerfPerformanceTest(object):
         # if max_speed is 0, assume it's wifi and move on
         if self.iface.max_speed == 0:
             logging.warning(
-                "No max speed (from ethtool) detected, assuming Wireless device "
-                "and continuing with test."
+                "No max speed (from ethtool) detected, "
+                + "assuming Wireless device and continuing with test."
             )
 
         threads = self.num_threads
@@ -367,8 +366,10 @@ class IPerfPerformanceTest(object):
                 if self.expected_max_speed != self.iface.max_speed:
                     logging.warning("MANUAL OVERRIDE WAS USED".center(80, "-"))
                     logging.warning(
-                        "The expected maximum speed of '{}' was manually overridden to '{}'".format(
-                            self.iface.interface,
+                        "The expected maximum speed of '{}' ".format(
+                            self.iface.interface
+                        )
+                        + "was manually overridden to '{}'".format(
                             self.expected_max_speed,
                         )
                     )
@@ -718,7 +719,8 @@ def run_test(args, test_target, expected_max_speed: "int | None" = None):
 
     if expected_max_speed:
         logging.warning(
-            "Expected maximum transfer speed of '{}' was overridden to: {}".format(
+            "Expected maximum transfer speed of "
+            + "'{}' was overridden to: {}".format(
                 args.interface, expected_max_speed
             )
         )
@@ -933,15 +935,16 @@ def check_underspeed(iface):
         and network_if.max_speed != 0
     ):
         logging.error(
-            "Detected link speed ({}) is lower than detected max speed ({})".format(
-                network_if.link_speed, network_if.max_speed
+            "Detected link speed ({}) ".format(network_if.link_speed)
+            + "is lower than detected max speed ({})".format(
+                network_if.max_speed
             )
         )
         logging.error("Check your device configuration and try again.")
         logging.error(
-            "If you want to override and test despite this under-speed link, use"
+            "If you want to override and test despite this under-speed link,"
         )
-        logging.error("the --underspeed-ok option.")
+        logging.error("use the --underspeed-ok option.")
         return True
     return False
 
@@ -1100,7 +1103,8 @@ def interface_test(args: Namespace):
         )
         logging.error("target in /etc/xdg/canonical-certification.conf")
         logging.error(
-            "Please run this script with -h to see more details on how to configure"
+            "Please run this script with -h "
+            + "to see more details on how to configure"
         )
         sys.exit(1)
 

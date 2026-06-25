@@ -297,6 +297,7 @@ class ResourceCommand:
                 print()
             print(f"PWM_CHIP_NAME: {output.chip_name}")
             print(f"PWM_NAME: {output.pwm_name}")
+            print(f"PWM_ID: {make_resource_id(output)}")
             print(f"Consumer: {output.consumer_label}")
 
         return 0
@@ -814,6 +815,12 @@ def pwm_name_to_index(pwm_name: str) -> int:
 def pwm_name_to_sysfs(pwm_name: str) -> str:
     """Convert a debugfs PWM name like `pwm-2` to sysfs name `pwm2`."""
     return f"pwm{pwm_name_to_index(pwm_name)}"
+
+
+def make_resource_id(output: PwmOutput) -> str:
+    """Create a safe Checkbox job-id suffix for a PWM output."""
+    raw_id = f"{output.chip_name}-{output.pwm_name}"
+    return re.sub(r"[^A-Za-z0-9_.-]", "-", raw_id)
 
 
 def find_output(

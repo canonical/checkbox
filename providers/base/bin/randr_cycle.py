@@ -19,6 +19,8 @@
 # along with Checkbox. If not, see <http://www.gnu.org/licenses/>.
 
 
+import shutil
+
 from checkbox_support.dbus.gnome_monitor import MutterDisplayMode as Mode
 from checkbox_support.helpers import display_info
 from collections import namedtuple
@@ -41,9 +43,7 @@ def _is_too_small(mode: Mode) -> bool:
     :param mode:  The Mode that defined in checkbox_support.dbus.gnome_monitor
     """
     aspect = Fraction(mode.width, mode.height)
-    return (
-        mode.width < MIN_RESOLUTION.w or mode.width / aspect < MIN_RESOLUTION.h
-    )
+    return mode.width < MIN_RESOLUTION.w or mode.width / aspect < MIN_RESOLUTION.h
 
 
 def _is_duplicate_resolution(mode: Mode, processed_resolutions: list):
@@ -136,7 +136,13 @@ def action(filename, **kwargs):
     else:
         path_and_filename = "{}.jpg".format(filename)
     time.sleep(5)
-    subprocess.check_output(["gnome-screenshot", "-f", path_and_filename])
+    if shutil.which("gnome-screenshot"):
+        subprocess.run(["gnome-screenshot", "-f", path_and_filename])
+    else:
+        print(
+            "gnome-screenshot is not installed. Not taking any screenshots.",
+            "This is expected for 26.04 onwards",
+        )
 
 
 class MonitorTest:
@@ -222,8 +228,7 @@ class MonitorTest:
             "--screenshot_dir",
             default=os.getenv("HOME", "~"),
             help=(
-                "Specify a directory to store screenshots in. "
-                "(default: %(default)s)"
+                "Specify a directory to store screenshots in. (default: %(default)s)"
             ),
         )
 

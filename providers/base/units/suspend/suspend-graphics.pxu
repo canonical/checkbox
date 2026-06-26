@@ -89,7 +89,6 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_cycle_resolutions_after_suspend_{{ product_slug }}_graphics
 template-id: suspend/index_cycle_resolutions_after_suspend_product_slug_graphics
-requires: package.name == 'xorg'
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto

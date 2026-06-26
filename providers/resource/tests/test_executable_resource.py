@@ -85,7 +85,7 @@ class TestExecutableResource(TestCase):
         self.assertIn("name: custom_tool", lines)
         self.assertIn("name: ls", lines)
 
-    @patch("executable_resource.Path.exists", return_value=False)
+    @patch("executable_resource.Path.resolve", side_effect=FileNotFoundError)
     @patch("executable_resource.print")
     @patch("executable_resource.iter_if_accessible")
     @patch("executable_resource.os.get_exec_path")
@@ -94,7 +94,7 @@ class TestExecutableResource(TestCase):
         get_exec_path_mock,
         iter_mock,
         print_mock,
-        exists_mock,
+        resolve_mock,
     ):
         get_exec_path_mock.return_value = ["/does/not/exist"]
 

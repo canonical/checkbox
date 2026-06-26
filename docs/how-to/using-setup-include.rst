@@ -6,6 +6,10 @@ before Checkbox starts the normal bootstrapping phase. This is useful to pull in
 heavy dependencies or prepare the system to bootstrap correctly (e.g., installing
 drivers).
 
+The execution sequence of a test plan that uses ``setup_include`` is
+
+  setup  →  bootstrap  →  testing phase
+
 Creating a setup job
 --------------------
 

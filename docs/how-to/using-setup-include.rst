@@ -2,9 +2,9 @@ Using ``setup_include``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Use ``setup_include`` when a test plan needs to prepare the device under test
-before Checkbox starts the normal bootstrapping phase. This is useful to pull
-heavy dependencies or prepare the system to correctly bootstrap (i.e.
-installing drivers).
+before Checkbox starts the normal bootstrapping phase. This is useful to pull in
+heavy dependencies or prepare the system to bootstrap correctly (e.g., installing
+drivers).
 
 Creating a setup job
 --------------------

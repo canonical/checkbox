@@ -85,13 +85,13 @@ The following fields may be used by the setup job unit:
     duration in seconds.
 
     This field can also be expressed with separate sections for the number of
-    hours, minutes and seconds. The format, as regular expression, is
+    hours, minutes and seconds. The format, as a regular expression, is
     ``(\d+h)?[: ]*(\d+m)?[: ]*(\d+s)?``. For example, ``1h 2m 30s`` or ``5m``.
 
 .. option:: flags
 
     (optional) - This field contains a list of flags separated by spaces or
-    commas that might induce Checkbox to run the setup job in particular way.
+    commas that might induce Checkbox to run the setup job in a particular way.
     Currently, the following flags are accepted by the setup job schema:
 
     .. option:: reset-locale

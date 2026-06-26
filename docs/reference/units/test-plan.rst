@@ -162,8 +162,8 @@ copy such constructs when working on a new test plan from scratch
 
     .. warning::
 
-        If any setup job fails, the whole test run be aborted after the setup
-        phase and will fail.
+        If any setup job fails, the whole test run will be aborted after the setup
+        phase and marked as failed.
 
 .. option:: bootstrap_include
 

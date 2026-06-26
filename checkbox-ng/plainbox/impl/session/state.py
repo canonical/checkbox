@@ -865,11 +865,27 @@ class SessionState:
 
     @property
     def manifest(self):
+        # do not cache this, as it may change during the test run due to both
+        # pre-setup and post boostrap manifest saving
         manifest_path = WellKnownDirsHelper.manifest_file()
         if not os.path.isfile(manifest_path):
             return {}
         with open(manifest_path, "r") as stream:
             return json.load(stream)
+
+    def save_manifest(self, manifest_answers):
+        manifest_cache = dict()
+        manifest = WellKnownDirsHelper.manifest_file()
+        if os.path.isfile(manifest):
+            with open(manifest, "rt", encoding="UTF-8") as stream:
+                manifest_cache = json.load(stream)
+        manifest_cache.update(manifest_answers)
+        print("Saving manifest to {}".format(manifest))
+        with open(manifest, "wt", encoding="UTF-8") as stream:
+            json.dump(manifest_cache, stream, sort_keys=True, indent=2)
+
+        # manifest requiring jobs may now be runnable
+        self._recompute_job_readiness()
 
     def trim_job_list(self, qualifier):
         """

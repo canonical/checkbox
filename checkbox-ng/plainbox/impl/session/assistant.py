@@ -829,6 +829,7 @@ class SessionAssistant:
             self.finish_setup: "to finish setting up after running all jobs",
             self.get_session_id: "used internally by get_job",
             self.get_category: "used by UIs to represent a job",
+            self.get_manifest_repr: "to know which manifests should be filled",
         }
         return [job.id for job in self._context.state.run_list]
 
@@ -1387,10 +1388,22 @@ class SessionAssistant:
         def didnt_run_yet(job):
             return job_state_map[job.id].result.outcome is None
 
-        todo_list = filter(didnt_run_yet, run_list)
+        def get_required_manifests_if_any(job):
+            try:
+                return job.get_required_manifest_ids()
+            except AttributeError:  # only setup_jobs
+                return []
+
+        todo_list = [x for x in run_list if didnt_run_yet(x)]
+        manifest_id_set = {
+            manifest_id
+            for job in todo_list
+            for manifest_id in get_required_manifests_if_any(job)
+        }
+
         resource_programs = (job.get_resource_program() for job in todo_list)
         resource_programs = filter(bool, resource_programs)
-        manifest_id_set = {
+        manifest_id_set |= {
             manifest_id
             for resource_program in resource_programs
             for expression in resource_program.expression_list
@@ -1441,15 +1454,7 @@ class SessionAssistant:
         """
         Record the manifest on disk.
         """
-        manifest_cache = dict()
-        manifest = WellKnownDirsHelper.manifest_file()
-        if os.path.isfile(manifest):
-            with open(manifest, "rt", encoding="UTF-8") as stream:
-                manifest_cache = json.load(stream)
-        manifest_cache.update(manifest_answers)
-        print("Saving manifest to {}".format(manifest))
-        with open(manifest, "wt", encoding="UTF-8") as stream:
-            json.dump(manifest_cache, stream, sort_keys=True, indent=2)
+        self._context.state.save_manifest(manifest_answers)
 
     def note_metadata_starting_job(self, job, job_state):
         """

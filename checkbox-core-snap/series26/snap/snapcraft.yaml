@@ -332,7 +332,6 @@ parts:
       - fswebcam
       - glmark2-wayland
       - glmark2-es2-wayland
-      - gnome-screenshot
       - gstreamer1.0-tools
       - gstreamer1.0-plugins-bad
       - gstreamer1.0-pulseaudio

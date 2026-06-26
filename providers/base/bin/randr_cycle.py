@@ -137,6 +137,8 @@ def action(filename, **kwargs):
         path_and_filename = "{}.jpg".format(filename)
     time.sleep(5)
     if shutil.which("gnome-screenshot"):
+        # gnome-screenshot no longer works on 26.04+
+        # until we find an alternative, ignore screenshot errors for now
         subprocess.run(["gnome-screenshot", "-f", path_and_filename])
     else:
         print(

@@ -158,11 +158,13 @@ class TestResolutionFilter(unittest.TestCase):
 
 
 class TestActionFunction(unittest.TestCase):
-    @patch("subprocess.check_output")
+    @patch("shutil.which")
+    @patch("subprocess.run")
     @patch("time.sleep")
-    def test_action_with_path(self, mock_sleep, mock_subprocess):
+    def test_action_with_path(self, mock_sleep, mock_subprocess, mock_which):
         filename = "monitor_1920x1080_normal_"
         path = "/tmp/screenshots"
+        mock_which.return_value = True
         action(filename, path=path)
 
         expected_path_and_filename = "{}/{}.jpg".format(path, filename)
@@ -171,10 +173,12 @@ class TestActionFunction(unittest.TestCase):
         )
         mock_sleep.assert_called_once_with(5)
 
-    @patch("subprocess.check_output")
+    @patch("shutil.which")
+    @patch("subprocess.run")
     @patch("time.sleep")
-    def test_action_without_path(self, mock_sleep, mock_subprocess):
+    def test_action_without_path(self, mock_sleep, mock_subprocess, mock_which):
         filename = "monitor_1920x1080_normal_"
+        mock_which.return_value = True
         action(filename)
 
         expected_path_and_filename = filename + ".jpg"
@@ -182,17 +186,6 @@ class TestActionFunction(unittest.TestCase):
             ["gnome-screenshot", "-f", expected_path_and_filename]
         )
         mock_sleep.assert_called_once_with(5)
-
-    @patch("subprocess.check_output")
-    @patch("time.sleep")
-    def test_action_subprocess_error(self, mock_sleep, mock_subprocess):
-        filename = "monitor_1920x1080_normal_"
-        mock_subprocess.side_effect = subprocess.CalledProcessError(
-            1, "gnome-screenshot"
-        )
-
-        with self.assertRaises(subprocess.CalledProcessError):
-            action(filename)
 
 
 class GenScreenshotPath(unittest.TestCase):
@@ -240,9 +233,7 @@ class GenScreenshotPath(unittest.TestCase):
             mt.gen_screenshot_path("1", "key", "test"),
             "test/1_xrandr_screens_key",
         )
-        mock_mkdir.assert_called_with(
-            "test/1_xrandr_screens_key", exist_ok=True
-        )
+        mock_mkdir.assert_called_with("test/1_xrandr_screens_key", exist_ok=True)
 
 
 class TestScreenshotTarring(unittest.TestCase):
@@ -264,12 +255,8 @@ class TestScreenshotTarring(unittest.TestCase):
 
         mock_tar_open.assert_called_once_with("screenshots.tgz", "w:gz")
         self.assertEqual(mock_tar.add.call_count, 2)
-        mock_tar.add.assert_any_call(
-            "screenshots/screenshot1.png", "screenshot1.png"
-        )
-        mock_tar.add.assert_any_call(
-            "screenshots/screenshot2.png", "screenshot2.png"
-        )
+        mock_tar.add.assert_any_call("screenshots/screenshot1.png", "screenshot1.png")
+        mock_tar.add.assert_any_call("screenshots/screenshot2.png", "screenshot2.png")
 
     @patch("os.listdir")
     @patch("tarfile.open")
@@ -283,9 +270,7 @@ class TestScreenshotTarring(unittest.TestCase):
 
         try:
             mt.tar_screenshot_dir(path)
-            result = (
-                True  # If no exception is raised, we consider it successful.
-            )
+            result = True  # If no exception is raised, we consider it successful.
         except Exception:
             result = False
 
@@ -350,9 +335,7 @@ class MainTests(unittest.TestCase):
     @patch("checkbox_support.helpers.display_info.get_monitor_config")
     @patch("randr_cycle.MonitorTest.gen_screenshot_path")
     @patch("randr_cycle.MonitorTest.tar_screenshot_dir")
-    def test_cycle_both(
-        self, mock_dir, mock_path, mock_config, mock_parse_args
-    ):
+    def test_cycle_both(self, mock_dir, mock_path, mock_config, mock_parse_args):
         args_mock = MagicMock()
         args_mock.cycle = "both"
         args_mock.keyword = ""
@@ -379,9 +362,7 @@ class MainTests(unittest.TestCase):
     @patch("checkbox_support.helpers.display_info.get_monitor_config")
     @patch("randr_cycle.MonitorTest.gen_screenshot_path")
     @patch("randr_cycle.MonitorTest.tar_screenshot_dir")
-    def test_cycle_resolution(
-        self, mock_dir, mock_path, mock_config, mock_parse_args
-    ):
+    def test_cycle_resolution(self, mock_dir, mock_path, mock_config, mock_parse_args):
         args_mock = MagicMock()
         args_mock.cycle = "resolution"
         args_mock.keyword = ""
@@ -408,9 +389,7 @@ class MainTests(unittest.TestCase):
     @patch("checkbox_support.helpers.display_info.get_monitor_config")
     @patch("randr_cycle.MonitorTest.gen_screenshot_path")
     @patch("randr_cycle.MonitorTest.tar_screenshot_dir")
-    def test_cycle_transform(
-        self, mock_dir, mock_path, mock_config, mock_parse_args
-    ):
+    def test_cycle_transform(self, mock_dir, mock_path, mock_config, mock_parse_args):
         args_mock = MagicMock()
         args_mock.cycle = "transform"
         args_mock.keyword = ""
@@ -443,7 +422,8 @@ class MainTests(unittest.TestCase):
         mock_parse_args.return_value = args_mock
 
         mock_config.side_effect = ValueError("Error")
-        with self.assertRaisesRegex(
-            SystemExit, "Current host is not support: Error"
-        ):
+        with self.assertRaisesRegex(SystemExit, "Current host is not support: Error"):
             MonitorTest().main()
+
+if __name__ == "__main__":
+    unittest.main()

@@ -25,6 +25,7 @@ Session State Handling.
 import collections
 import json
 import logging
+import os
 import re
 import shutil
 from contextlib import suppress
@@ -40,6 +41,7 @@ from plainbox.impl.depmgr import (
 )
 from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.jobs import JobState, UndesiredJobReadinessInhibitor
+from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.session.system_information import (
     collect as collect_system_information,
 )
@@ -860,6 +862,14 @@ class SessionState:
         self._system_information = None
 
         super(SessionState, self).__init__()
+
+    @property
+    def manifest(self):
+        manifest_path = WellKnownDirsHelper.manifest_file()
+        if not os.path.isfile(manifest_path):
+            return {}
+        with open(manifest_path, "r") as stream:
+            return json.load(stream)
 
     def trim_job_list(self, qualifier):
         """

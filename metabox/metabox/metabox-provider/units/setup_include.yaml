@@ -75,3 +75,23 @@ bootstrap_include:
 include:
   - verify_simple_guards
   - verify_resume_guards
+---
+id: manifest_setup_include
+unit: setup job
+flags: [simple]
+requires_manifest:
+  - setup_manifest_true
+command: |
+  echo abc
+---
+unit: manifest entry
+id: setup_manifest_true
+name: Setup manifest to be shown before running manifest
+value-type: bool
+---
+id: manifest_setup_include_tp
+unit: test plan
+name: Test manifest in setup include
+setup_include:
+  - manifest_setup_include
+include: []

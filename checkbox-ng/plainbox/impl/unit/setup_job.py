@@ -22,12 +22,16 @@
 """
 
 import logging
+import re
 
-from plainbox.i18n import gettext as _, gettext_noop as N_
+from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
+from plainbox.impl.decorators import cached_property
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.job import JobDefinition, propertywithsymbols
 from plainbox.impl.unit.validators import (
+    CorrectFieldValueValidator,
     MemberOfFieldValidator,
 )
 
@@ -74,6 +78,18 @@ class SetupJobUnit(JobDefinition):
             plugin = "shell"
         return plugin
 
+    @cached_property
+    def requires_manifest(self):
+        return self.get_record_value("requires_manifest")
+
+    def get_required_manifest_ids(self):
+        manifest_ids = self.requires_manifest
+        if manifest_ids is None:
+            return []
+        if not isinstance(manifest_ids, list):
+            raise ValueError(_("requires_manifest must be a list"))
+        return [self.qualify_id(manifest_id) for manifest_id in manifest_ids]
+
     class Meta:
 
         # this Meta name is job because we are restricting a job but not
@@ -102,6 +118,7 @@ class SetupJobUnit(JobDefinition):
             certification_status = "certification_status"
             siblings = "siblings"
             auto_retry = "auto_retry"
+            requires_manifest = "requires_manifest"
 
         field_validators = {
             fields.name: JobDefinition.Meta.field_validators[fields.name],
@@ -144,5 +161,13 @@ class SetupJobUnit(JobDefinition):
             ],
             fields.auto_retry: JobDefinition.Meta.field_validators[
                 fields.auto_retry
+            ],
+            fields.requires_manifest: [
+                concrete_validators.templateInvariant,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        unit.get_required_manifest_ids() is not None
+                    )
+                ),
             ],
         }

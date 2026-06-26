@@ -213,6 +213,27 @@ class CheckBoxSessionStateController(ISessionStateController):
                     return True
         return False
 
+    def get_requires_manifests_inhibitor_list(self, session_state, job):
+        try:
+            requires_manifests = job.get_required_manifest_ids()
+        except AttributeError:
+            return []
+        manifest = session_state.manifest
+        failing_manifests = [
+            manifest_id
+            for manifest_id in requires_manifests
+            if not manifest.get(manifest_id)
+        ]
+        if not failing_manifests:
+            return []
+        return [
+            JobReadinessInhibitor(
+                cause=InhibitionCause.REQUIRED_MANIFEST,
+                related_job=job,
+                related_manifests=failing_manifests,
+            )
+        ]
+
     def get_inhibitor_list(self, session_state, job):
         """
         Get a list of readiness inhibitors that inhibit a particular job.
@@ -228,6 +249,9 @@ class CheckBoxSessionStateController(ISessionStateController):
             List of JobReadinessInhibitor
         """
         inhibitors = []
+        inhibitors += self.get_requires_manifests_inhibitor_list(
+            session_state, job
+        )
         # Check if all job resource requirements are met
         prog = job.get_resource_program()
         if prog is not None:

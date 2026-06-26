@@ -84,3 +84,21 @@ class TestExecutableResource(TestCase):
         self.assertIn("name: cat", lines)
         self.assertIn("name: custom_tool", lines)
         self.assertIn("name: ls", lines)
+
+    @patch("executable_resource.Path.resolve", side_effect=FileNotFoundError)
+    @patch("executable_resource.print")
+    @patch("executable_resource.iter_if_accessible")
+    @patch("executable_resource.os.get_exec_path")
+    def test_main_skips_nonexistent_paths(
+        self,
+        get_exec_path_mock,
+        iter_mock,
+        print_mock,
+        resolve_mock,
+    ):
+        get_exec_path_mock.return_value = ["/does/not/exist"]
+
+        executable_resource.main()
+
+        iter_mock.assert_not_called()
+        print_mock.assert_not_called()

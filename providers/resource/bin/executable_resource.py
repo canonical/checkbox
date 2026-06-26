@@ -11,7 +11,7 @@ def iter_if_accessible(path: Path):
 
 
 def main():
-    paths = {Path(x).resolve() for x in os.get_exec_path()}
+    paths = {Path(x).resolve() for x in os.get_exec_path() if Path(x).exists()}
     executables = set()
     for path in paths:
         all_files = filter(Path.is_file, iter_if_accessible(path))

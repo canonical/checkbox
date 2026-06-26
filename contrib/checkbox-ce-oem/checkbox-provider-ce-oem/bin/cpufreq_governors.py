@@ -202,7 +202,7 @@ class CPUScalingHandler:
         """
         if policy not in self.cpu_policies:
             raise ValueError(
-                "CPU policy {} is not available. Available policies: {}".format(
+                "policy {} is not available. Available policies: {}".format(
                     policy, self.cpu_policies
                 )
             )
@@ -496,7 +496,11 @@ def print_policies_list() -> None:
                     cpu_scaling_handler.get_scaling_driver()
                 )
             )
-            print("affected_cpus: {}".format(cpu_scaling_handler.get_affected_cpus()))
+            print(
+                "affected_cpus: {}".format(
+                    cpu_scaling_handler.get_affected_cpus()
+                )
+            )
             print("cpb: {}".format(cpu_scaling_handler.get_cpb()))
             print("governor: {}".format(governor))
             print("supported: {}".format(governor in supported_governors))
@@ -524,7 +528,7 @@ class CPUScalingTest(abc.ABC):
 
         Args:
             policy (int): The CPU policy number to be used (default is 0).
-            governor (str): The name of the governor to be used (default is None)
+            governor (str): The governor name to be used (default is None)
         """
         self.policy = policy
         self.governor = governor
@@ -562,7 +566,7 @@ class CPUScalingTest(abc.ABC):
 
     def validate_governor_support(self) -> bool:
         """
-        Validate if the specified governor is supported by the current CPU policy.
+        Validate if the specified governor is supported by current CPU policy.
 
         Args:
             governor (str): The name of the governor to validate.

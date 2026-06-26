@@ -232,7 +232,8 @@ class MonitorTest:
             "--screenshot_dir",
             default=os.getenv("HOME", "~"),
             help=(
-                "Specify a directory to store screenshots in. (default: %(default)s)"
+                "Specify a directory to store screenshots in. "
+                + "(default: %(default)s)"
             ),
         )
 

@@ -142,7 +142,7 @@ def action(filename, **kwargs):
     if shutil.which("gnome-screenshot"):
         # gnome-screenshot no longer works on 26.04+
         # until we find an alternative, ignore screenshot errors for now
-        
+
         # also make sure this doesn't hang forever
         with suppress(subprocess.TimeoutExpired):
             subprocess.run(

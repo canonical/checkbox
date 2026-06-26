@@ -189,6 +189,22 @@ class TestActionFunction(unittest.TestCase):
         )
         mock_sleep.assert_called_once_with(5)
 
+    @patch("shutil.which")
+    @patch("subprocess.run")
+    @patch("time.sleep")
+    def test_action_without_gnome_screenshot_installed(
+        self,
+        mock_sleep: MagicMock,
+        mock_subprocess: MagicMock,
+        mock_which: MagicMock,
+    ):
+        filename = "monitor_1920x1080_normal_"
+        mock_which.return_value = False
+        action(filename)
+
+        mock_subprocess.assert_not_called()
+        mock_sleep.assert_called_once_with(5)
+
 
 class GenScreenshotPath(unittest.TestCase):
     """

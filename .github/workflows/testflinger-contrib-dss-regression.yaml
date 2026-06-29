@@ -133,7 +133,7 @@ jobs:
 
           echo "local_path=$PWD/job.yaml" >> $GITHUB_OUTPUT
       - name: Submit testflinger job
-        uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
+        uses: canonical/testflinger/.github/actions/submit@a31f6a872972435eca93e058c5320aa88099382e
         with:
           poll: true
           job-path: ${{ steps.build-job-file.outputs.local_path }}

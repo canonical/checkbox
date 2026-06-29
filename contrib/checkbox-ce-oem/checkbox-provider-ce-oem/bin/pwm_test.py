@@ -50,6 +50,20 @@ class PwmOutput:
 
 
 @dataclass(frozen=True)
+class PwmController:
+    """PWM controller parsed from `/sys/kernel/debug/pwm`."""
+
+    chip_name: str
+    device_count: int
+    outputs: tuple[PwmOutput, ...]
+
+    @property
+    def chip_basename(self) -> str:
+        """Return the stable basename used by sysfs device symlink targets."""
+        return self.chip_name.rsplit("/", 1)[-1]
+
+
+@dataclass(frozen=True)
 class TestValues:
     """Period and duty-cycle values used by the test command."""
 
@@ -111,7 +125,8 @@ class DebugfsPwmParser:
     """Parse Linux debugfs PWM controller and output records."""
 
     CONTROLLER_RE = re.compile(
-        r"^\s*(?:\d+:\s*)?(?P<name>[^,]+),\s+\d+\s+PWM devices?\s*$"
+        r"^\s*(?:\d+:\s*)?(?P<name>[^,]+),\s+"
+        r"(?P<count>\d+)\s+PWM devices?\s*$"
     )
     PWM_RE = re.compile(
         r"^\s*(?P<pwm>pwm-\d+)\s+\((?P<consumer>.*)\):\s*(?P<state>.*)$"
@@ -127,12 +142,38 @@ class DebugfsPwmParser:
             Parsed PWM output records.
         """
         outputs: list[PwmOutput] = []
+        for controller in self.parse_controllers(text):
+            outputs.extend(controller.outputs)
+        return outputs
+
+    def parse_controllers(self, text: str) -> list[PwmController]:
+        """Parse debugfs text into PWM controllers and their outputs.
+
+        Args:
+            text: Raw contents of `/sys/kernel/debug/pwm`.
+
+        Returns:
+            Parsed PWM controller records.
+        """
+        controllers: list[PwmController] = []
+        outputs: list[PwmOutput] = []
         current_chip: str | None = None
+        current_count = 0
 
         for line in text.splitlines():
             controller_match = self.CONTROLLER_RE.match(line)
             if controller_match:
+                if current_chip is not None:
+                    controllers.append(
+                        PwmController(
+                            chip_name=current_chip,
+                            device_count=current_count,
+                            outputs=tuple(outputs),
+                        )
+                    )
                 current_chip = controller_match.group("name").strip()
+                current_count = int(controller_match.group("count"))
+                outputs = []
                 continue
 
             pwm_match = self.PWM_RE.match(line)
@@ -141,7 +182,16 @@ class DebugfsPwmParser:
 
             outputs.append(self._parse_output(current_chip, pwm_match))
 
-        return outputs
+        if current_chip is not None:
+            controllers.append(
+                PwmController(
+                    chip_name=current_chip,
+                    device_count=current_count,
+                    outputs=tuple(outputs),
+                )
+            )
+
+        return controllers
 
     def _parse_output(
         self,
@@ -225,8 +275,25 @@ class PwmSysfs:
             raise PwmError(f"no PWM outputs found in {self.debugfs_pwm}")
         return outputs
 
+    def read_controllers(self) -> list[PwmController]:
+        """Read and parse all PWM controllers from debugfs."""
+        try:
+            text = self.debugfs_pwm.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise PwmError(f"cannot read {self.debugfs_pwm}: {exc}") from exc
+
+        controllers = self.parser.parse_controllers(text)
+        if not controllers:
+            raise PwmError(f"no PWM controllers found in {self.debugfs_pwm}")
+        return controllers
+
     def resolve_pwmchip_path(self, output: PwmOutput) -> Path:
         """Map a stable debugfs chip name to the current sysfs pwmchip path."""
+        return self.resolve_pwmchip_path_by_name(output.chip_name)
+
+    def resolve_pwmchip_path_by_name(self, chip_name: str) -> Path:
+        """Map a stable debugfs chip name to the current sysfs pwmchip path."""
+        chip_basename = chip_name.rsplit("/", 1)[-1]
         device_glob = str(self.sysfs_pwm / "pwmchip*" / "device")
         for device_link in glob.glob(device_glob):
             link_path = Path(device_link)
@@ -234,10 +301,10 @@ class PwmSysfs:
                 target_basename = os.path.basename(os.readlink(link_path))
             except OSError:
                 continue
-            if target_basename == output.chip_basename:
+            if target_basename == chip_basename:
                 return link_path.parent
         raise PwmError(
-            f"cannot map {output.chip_name} to a current "
+            f"cannot map {chip_name} to a current "
             f"{self.sysfs_pwm}/pwmchip* node"
         )
 
@@ -310,6 +377,75 @@ class ResourceCommand:
         if is_ignored(output, ignore):
             return False
         return output.consumer is None or is_allowed(output, allow)
+
+
+class CheckCommand:
+    """Implement the `check` subcommand."""
+
+    def __init__(self, pwm: PwmSysfs) -> None:
+        """Create a check command.
+
+        Args:
+            pwm: Gateway used to read debugfs and sysfs PWM mapping data.
+        """
+        self.pwm = pwm
+
+    def run(self, expected_total: int | None) -> int:
+        """Print PWM inventory and optionally validate the total device count.
+
+        Args:
+            expected_total: Optional expected total PWM output count.
+
+        Returns:
+            Process exit code.
+        """
+        if expected_total is not None and expected_total < 0:
+            raise PwmError(
+                "--PWM_DEV_TOTAL_NUM must be greater than or equal to 0"
+            )
+
+        controllers = self.pwm.read_controllers()
+        total_devices = sum(
+            len(controller.outputs) for controller in controllers
+        )
+
+        self._print_mapping(controllers)
+        print(f"TOTAL_PWM_CHIP_NUM: {len(controllers)}")
+        print(f"TOTAL_PWM_DEV_NUM: {total_devices}")
+
+        if expected_total is None:
+            print("RESULT: PASS")
+            return 0
+
+        print(f"EXPECTED_PWM_DEV_TOTAL_NUM: {expected_total}")
+        if total_devices == expected_total:
+            print("RESULT: PASS")
+            return 0
+
+        print("RESULT: FAIL")
+        print(
+            f"ERROR: discovered {total_devices} PWM devices, "
+            f"expected {expected_total}"
+        )
+        return 1
+
+    def _print_mapping(self, controllers: list[PwmController]) -> None:
+        first = True
+        for controller in controllers:
+            pwmchip = self.pwm.resolve_pwmchip_path_by_name(
+                controller.chip_name
+            ).name
+            for output in controller.outputs:
+                if not first:
+                    print()
+                first = False
+                print(f"PWM_CHIP: {pwmchip}")
+                print(f"PWM_CHIP_NAME: {controller.chip_name}")
+                print(f"PWM_NAME: {output.pwm_name}")
+                print(f"Consumer: {output.consumer_label}")
+
+        if not first:
+            print()
 
 
 class PwmRestorer:
@@ -865,6 +1001,11 @@ def print_resource(args: argparse.Namespace) -> int:
     return ResourceCommand(PwmSysfs()).run(args.ignore, args.allow)
 
 
+def check_inventory(args: argparse.Namespace) -> int:
+    """CLI adapter for the `check` command."""
+    return CheckCommand(PwmSysfs()).run(args.pwm_dev_total_num)
+
+
 def run_test(args: argparse.Namespace) -> int:
     """CLI adapter for the `test` command."""
     values = validate_test_values(args.period, args.duty_cycle)
@@ -896,6 +1037,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Comma-separated controller or consumer names to include.",
     )
     resource.set_defaults(func=print_resource)
+
+    check = subparsers.add_parser(
+        "check",
+        help="List PWM inventory and optionally validate device count.",
+    )
+    check.add_argument(
+        "--PWM_DEV_TOTAL_NUM",
+        dest="pwm_dev_total_num",
+        type=int,
+        help="Expected total PWM device count.",
+    )
+    check.set_defaults(func=check_inventory)
 
     test = subparsers.add_parser("test", help="Validate one PWM output.")
     test.add_argument("pwm_chip_name", metavar="PWM_CHIP_NAME")

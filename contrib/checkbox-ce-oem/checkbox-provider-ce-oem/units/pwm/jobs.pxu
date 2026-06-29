@@ -24,6 +24,27 @@ command:
     fi
     pwm_test.py "$@"
 
+id: ce-oem-pwm/check
+_summary:
+    Check PWM device inventory
+_description:
+    Lists all PWM chips and PWM outputs exposed by the device. If
+    PWM_DEV_TOTAL_NUM is provided by the launcher environment, the job also
+    verifies that the discovered PWM output count matches that expected value.
+plugin: shell
+user: root
+category_id: pwm
+estimated_duration: 30s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_pwm == 'True'
+environ: PWM_DEV_TOTAL_NUM
+command:
+    if [ -n "${PWM_DEV_TOTAL_NUM:-}" ]; then
+        pwm_test.py check --PWM_DEV_TOTAL_NUM "$PWM_DEV_TOTAL_NUM"
+    else
+        pwm_test.py check
+    fi
+
 unit: template
 template-resource: ce-oem-pwm/pwm-list
 template-unit: job

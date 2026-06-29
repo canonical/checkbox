@@ -130,7 +130,7 @@ class MainLoopStage(CheckboxUiStage):
                     "manual",
                 ):
                     result_builder = JobResultBuilder(
-                        outcome=IJobResult.OUTCOME_SKIP,
+                        outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                         comments=_(
                             "Trying to run interactive job in a silent"
                             " session"
@@ -189,7 +189,7 @@ class MainLoopStage(CheckboxUiStage):
                             continue
                         else:
                             result_builder = JobResultBuilder(
-                                outcome=IJobResult.OUTCOME_SKIP,
+                                outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                                 comments=_(
                                     "Explicitly skipped before execution"
                                 ),
@@ -230,7 +230,7 @@ class MainLoopStage(CheckboxUiStage):
             allowed_outcome = [
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
-                IJobResult.OUTCOME_SKIP,
+                IJobResult.OUTCOME_MANUAL_SKIP,
             ]
         allowed_actions = [Action("c", _("add a comment"), "set-comments")]
         if IJobResult.OUTCOME_PASS in allowed_outcome:
@@ -253,7 +253,7 @@ class MainLoopStage(CheckboxUiStage):
                     "set-fail",
                 )
             )
-        if IJobResult.OUTCOME_SKIP in allowed_outcome:
+        if IJobResult.OUTCOME_MANUAL_SKIP in allowed_outcome:
             allowed_actions.append(
                 Action(
                     "s",
@@ -340,7 +340,7 @@ class MainLoopStage(CheckboxUiStage):
                     )
                     continue
                 else:
-                    result_builder.outcome = IJobResult.OUTCOME_SKIP
+                    result_builder.outcome = IJobResult.OUTCOME_MANUAL_SKIP
             elif cmd == "set-suggested":
                 result_builder.outcome = suggested_outcome
             elif cmd == "set-comments":

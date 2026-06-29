@@ -150,7 +150,7 @@ class UnifiedRunner(IJobRunner):
                 )
             )
             return JobResultBuilder(
-                outcome=IJobResult.OUTCOME_MANUAL_SKIP,
+                outcome=IJobResult.OUTCOME_CRASH,
                 comments=_("Unsupported plugin type: {}".format(job.plugin)),
             ).get_result()
 

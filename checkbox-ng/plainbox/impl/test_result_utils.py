@@ -104,6 +104,28 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         self.assertEqual(skip_reason["related_dependencies"], [])
         self.assertEqual(skip_reason["related_manifests"], [])
 
+    def test_failed_resource_inhibitor_fail_on_resource_flag(self):
+        """FAILED_RESOURCE inhibitor when fail-on-resource flag used."""
+        expr = Mock()
+        expr.text = "cpuinfo.count > 2"
+        expr.manifest_id_list = []
+
+        inhibitor = Mock()
+        inhibitor.cause = InhibitionCause.FAILED_RESOURCE
+        inhibitor.related_expression = expr
+
+        job_state = Mock()
+        job_state.readiness_inhibitor_list = [inhibitor]
+        job_state.job.get_flag_set.return_value = {"fail-on-resource"}
+
+        outcome, skip_reason = determine_outcome_and_skip_reason(job_state, {})
+
+        self.assertEqual(outcome, IJobResult.OUTCOME_FAIL)
+        self.assertIsNotNone(skip_reason)
+        self.assertIn("cpuinfo.count > 2", skip_reason["related_resources"])
+        self.assertEqual(skip_reason["related_dependencies"], [])
+        self.assertEqual(skip_reason["related_manifests"], [])
+
     def test_failed_manifest_inhibitor(self):
         """Test with a FAILED_RESOURCE inhibitor for a manifest."""
         expr = Mock()

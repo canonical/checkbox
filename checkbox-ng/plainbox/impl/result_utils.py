@@ -96,10 +96,6 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
                     )
         elif inhibitor.cause == InhibitionCause.FAILED_RESOURCE:
             has_failed_resource = True
-            # Special handling for fail-on-resource flag
-            if "fail-on-resource" in job_state.job.get_flag_set():
-                outcome = IJobResult.OUTCOME_FAIL
-                break
             if inhibitor.related_expression:
                 # Check if this is a manifest expression
                 if inhibitor.related_expression.manifest_id_list:
@@ -125,7 +121,10 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
     elif has_failed_dep:
         outcome = IJobResult.OUTCOME_SKIPPED_DEPENDENCY
     elif has_failed_resource:
-        outcome = IJobResult.OUTCOME_SKIPPED_RESOURCE
+        if "fail-on-resource" in job_state.job.get_flag_set():
+            outcome = IJobResult.OUTCOME_FAIL
+        else:
+            outcome = IJobResult.OUTCOME_SKIPPED_RESOURCE
 
     # Return skip_reason only if we have any inhibitors to report
     if (

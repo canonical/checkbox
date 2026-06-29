@@ -51,7 +51,6 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
     - Else if there are failed resource expressions, outcome is
     OUTCOME_SKIPPED_RESOURCE, except if `fail-on-resource` flag is used, in
     which case outcome is OUTCOME_FAIL
-    - Else outcome is OUTCOME_NOT_SUPPORTED
 
     :param job_state:
         A JobState object containing readiness_inhibitor_list and result info

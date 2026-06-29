@@ -146,7 +146,7 @@ def action(filename, **kwargs):
         # also make sure this doesn't hang forever
         with suppress(subprocess.TimeoutExpired):
             subprocess.run(
-                ["gnome-screenshot", "-f", path_and_filename], timeout=10
+                ["gnome-screenshot", "-f", path_and_filename], timeout=5
             )
     else:
         print(

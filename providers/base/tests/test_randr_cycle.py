@@ -169,7 +169,7 @@ class TestActionFunction(unittest.TestCase):
 
         expected_path_and_filename = "{}/{}.jpg".format(path, filename)
         mock_subprocess.assert_called_once_with(
-            ["gnome-screenshot", "-f", expected_path_and_filename], timeout=10
+            ["gnome-screenshot", "-f", expected_path_and_filename], timeout=5
         )
         mock_sleep.assert_called_once_with(5)
 
@@ -185,7 +185,7 @@ class TestActionFunction(unittest.TestCase):
 
         expected_path_and_filename = filename + ".jpg"
         mock_subprocess.assert_called_once_with(
-            ["gnome-screenshot", "-f", expected_path_and_filename], timeout=10
+            ["gnome-screenshot", "-f", expected_path_and_filename], timeout=5
         )
         mock_sleep.assert_called_once_with(5)
 

@@ -330,7 +330,8 @@ Following fields may be used by the job unit:
     .. option:: fail-on-resource
         
         This flag makes Checkbox fail the job if one of the resource
-        requirements evaluates to False.
+        requirements evaluates to False. This does not apply to manifest
+        entries.
 
     .. option:: also-after-suspend
         

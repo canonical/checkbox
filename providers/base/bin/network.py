@@ -369,7 +369,7 @@ class IPerfPerformanceTest(object):
                         "The expected maximum speed of '{}' ".format(
                             self.iface.interface
                         )
-                        + "was manually overridden to '{}'".format(
+                        + "was manually overridden to '{}' Mbps".format(
                             self.expected_max_speed,
                         )
                     )
@@ -722,7 +722,7 @@ def run_test(args, test_target, expected_max_speed: "int | None" = None):
     if expected_max_speed:
         logging.warning(
             "Expected maximum transfer speed of "
-            + "'{}' was overridden to: {}".format(
+            + "'{}' was overridden to: {} Mbps".format(
                 args.interface, expected_max_speed
             )
         )

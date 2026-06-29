@@ -578,8 +578,9 @@ def recover_saved_states(
         try:
             restore_line_state(saved, major)
         except Exception as exc:
+            line_id = f"{saved.line.chip}-{saved.line.offset}"
             print(
-                f"GPIO_RECOVERY_ERROR={saved.line.chip}-{saved.line.offset}: {exc}",
+                f"GPIO_RECOVERY_ERROR={line_id}: {exc}",
                 file=sys.stderr,
             )
 
@@ -698,9 +699,11 @@ def test_loopback(args: argparse.Namespace) -> int:
     saved_states: list[SavedLineState] = []
     major: int | None = None
     try:
+        in_id = f"{args.in_chip}-{args.in_line}"
+        out_id = f"{args.out_chip}-{args.out_line}"
         print_test_header(
             "GPIO loopback",
-            f"input={args.in_chip}-{args.in_line} output={args.out_chip}-{args.out_line}",
+            f"input={in_id} output={out_id}",
         )
         state = initialize_test_state()
         major = state.major
@@ -710,27 +713,20 @@ def test_loopback(args: argparse.Namespace) -> int:
                 "Check loopback lines", "output and input line are the same"
             )
 
-        step = print_step(
-            f"Check {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line} are unused"
-        )
+        step = print_step(f"Check {out_id} and {in_id} are unused")
         if output.used or input_.used:
             raise StepError(
                 step, "one or both loopback lines are already used"
             )
 
-        print_step(
-            f"Save original state for {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line}"
-        )
+        print_step(f"Save original state for {out_id} and {in_id}")
         saved_states = [
             save_line_state(output, state.major),
             save_line_state(input_, state.major),
         ]
-        print_step(f"Request {args.out_chip}-{args.out_line} as output")
-        print_detail(
-            "note",
-            "gpioset requests and holds the output line while verification runs",
-        )
-        print_step(f"Request {args.in_chip}-{args.in_line} as input")
+        print_step(f"Request {out_id} as output")
+        print_detail("note", "gpioset requests and holds output during read")
+        print_step(f"Request {in_id} as input")
         print_detail(
             "note",
             "gpioget requests the input line when each read command runs",
@@ -738,52 +734,46 @@ def test_loopback(args: argparse.Namespace) -> int:
 
         held: subprocess.Popen[str] | None = None
         for _ in range(args.repeat):
-            print_step(f"Set {args.out_chip}-{args.out_line} low")
+            print_step(f"Set {out_id} low")
             held = start_held_value(
                 args.out_chip, args.out_line, 0, state.major
             )
             try:
                 time.sleep(args.delay)
-                print_step(f"Verify {args.in_chip}-{args.in_line} reads low")
+                print_step(f"Verify {in_id} reads low")
                 if read_value(args.in_chip, args.in_line, state.major) != 0:
                     raise StepError(
-                        f"Verify {args.in_chip}-{args.in_line} reads low",
+                        f"Verify {in_id} reads low",
                         "input did not read low",
                     )
             finally:
                 stop_held_value(held)
                 held = None
 
-            print_step(f"Set {args.out_chip}-{args.out_line} high")
+            print_step(f"Set {out_id} high")
             held = start_held_value(
                 args.out_chip, args.out_line, 1, state.major
             )
             try:
                 time.sleep(args.delay)
-                print_step(f"Verify {args.in_chip}-{args.in_line} reads high")
+                print_step(f"Verify {in_id} reads high")
                 if read_value(args.in_chip, args.in_line, state.major) != 1:
                     raise StepError(
-                        f"Verify {args.in_chip}-{args.in_line} reads high",
+                        f"Verify {in_id} reads high",
                         "input did not read high",
                     )
             finally:
                 stop_held_value(held)
                 held = None
 
-        print_step(
-            f"Recover original state for {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line}"
-        )
+        print_step(f"Recover original state for {out_id} and {in_id}")
         recover_saved_states(saved_states, state.major)
-        print_step(
-            f"Release {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line}"
-        )
+        print_step(f"Release {out_id} and {in_id}")
         print_result("pass")
         return 0
     except Exception as exc:
         if saved_states:
-            print_step(
-                f"Recover original state for {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line}"
-            )
+            print_step(f"Recover original state for {out_id} and {in_id}")
             recover_saved_states(saved_states, major)
         return fail_current_step(exc)
 
@@ -824,18 +814,23 @@ def build_parser() -> argparse.ArgumentParser:
         epilog=(
             "Examples:\n"
             "  gpio_test_subprocess.py resource simple\n"
-            "  gpio_test_subprocess.py resource simple --ignore gpiochip0-2,gpiochip1-14\n"
-            "  gpio_test_subprocess.py resource simple --ignore gpiochip14,gpiochip16-0..4\n"
-            "  gpio_test_subprocess.py resource simple --ignore gpiochip14-*,gpiochip16-0..1,gpiochip16-2..4\n"
-            "  gpio_test_subprocess.py resource simple --allow-named --format json\n"
+            "  gpio_test_subprocess.py resource simple "
+            "--ignore gpiochip0-2,gpiochip1-14\n"
+            "  gpio_test_subprocess.py resource simple "
+            "--ignore gpiochip14,gpiochip16-0..4\n"
+            "  gpio_test_subprocess.py resource simple "
+            "--ignore gpiochip14-*,gpiochip16-0..1,gpiochip16-2..4\n"
+            "  gpio_test_subprocess.py resource simple "
+            "--allow-named --format json\n"
         ),
     )
     simple_resource.add_argument(
         "--ignore",
         metavar="IDS",
         help=(
-            "Comma-separated GPIO lines, ranges, or chips to exclude. Supports "
-            "gpiochipN-LINE, gpiochipN-START..END, gpiochipN, and gpiochipN-*. "
+            "Comma-separated GPIO lines, ranges, or chips to exclude. "
+            "Supports gpiochipN-LINE, gpiochipN-START..END, gpiochipN, "
+            "and gpiochipN-*. "
             "Examples: gpiochip0-2,gpiochip14,gpiochip16-0..4."
         ),
     )
@@ -860,8 +855,10 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=formatter,
         epilog=(
             "Examples:\n"
-            "  gpio_test_subprocess.py resource loopback --pairs gpiochip0-100:gpiochip0-0\n"
-            "  gpio_test_subprocess.py resource loopback --pairs gpiochip0-100:gpiochip0-0,gpiochip1-2:gpiochip1-1\n"
+            "  gpio_test_subprocess.py resource loopback "
+            "--pairs gpiochip0-100:gpiochip0-0\n"
+            "  gpio_test_subprocess.py resource loopback "
+            "--pairs gpiochip0-100:gpiochip0-0,gpiochip1-2:gpiochip1-1\n"
             "\n"
             "Pair format is INPUT:OUTPUT.\n"
         ),
@@ -912,16 +909,40 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+class SubprocessGpioApplication:
+    """Command-line application for subprocess-based GPIO validation."""
+
+    def __init__(self, parser: argparse.ArgumentParser) -> None:
+        """Initialize the application with an argument parser.
+
+        Args:
+            parser: Parser that attaches a callable ``func`` to parsed args.
+        """
+
+        self._parser = parser
+
+    def run(self, argv: list[str] | None = None) -> int:
+        """Parse arguments and run the selected resource or test command.
+
+        Args:
+            argv: Optional argument list for tests. ``None`` reads sys.argv.
+
+        Returns:
+            Process exit status.
+        """
+
+        args = self._parser.parse_args(argv)
+        try:
+            return args.func(args)
+        except GpioTestError as exc:
+            print(f"GPIO_ERROR={exc}", file=sys.stderr)
+            return 1
+
+
 def main() -> int:
     """Parse arguments and dispatch to the selected subcommand."""
 
-    parser = build_parser()
-    args = parser.parse_args()
-    try:
-        return args.func(args)
-    except GpioTestError as exc:
-        print(f"GPIO_ERROR={exc}", file=sys.stderr)
-        return 1
+    return SubprocessGpioApplication(build_parser()).run()
 
 
 if __name__ == "__main__":

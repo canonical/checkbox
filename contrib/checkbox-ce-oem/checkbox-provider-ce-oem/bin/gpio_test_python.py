@@ -295,9 +295,11 @@ def print_gpio_inventory(lines: dict[str, GpioLine]) -> None:
             used = "used" if line.used else "unused"
             direction = line.direction or "unknown"
             active = "active-low" if line.active_low else "active-high"
-            print(
-                f"         line {line.offset:3}: {name:18} {used:6} {direction:7} {active}"
+            line_text = (
+                f"         line {line.offset:3}: {name:18} "
+                f"{used:6} {direction:7} {active}"
             )
+            print(line_text)
 
 
 def initialize_test_state() -> TestState:
@@ -659,8 +661,9 @@ def recover_saved_states(
         try:
             restore_line_state(state, saved)
         except Exception as exc:
+            line_id = f"{saved.line.chip}-{saved.line.offset}"
             print(
-                f"GPIO_RECOVERY_ERROR={saved.line.chip}-{saved.line.offset}: {exc}",
+                f"GPIO_RECOVERY_ERROR={line_id}: {exc}",
                 file=sys.stderr,
             )
 
@@ -789,9 +792,11 @@ def test_loopback(args: argparse.Namespace) -> int:
     state: TestState | None = None
     saved_states: list[SavedLineState] = []
     try:
+        in_id = f"{args.in_chip}-{args.in_line}"
+        out_id = f"{args.out_chip}-{args.out_line}"
         print_test_header(
             "GPIO loopback",
-            f"input={args.in_chip}-{args.in_line} output={args.out_chip}-{args.out_line}",
+            f"input={in_id} output={out_id}",
         )
         state = initialize_test_state()
         output, input_ = get_loopback_lines_or_raise(args, state)
@@ -800,22 +805,18 @@ def test_loopback(args: argparse.Namespace) -> int:
                 "Check loopback lines", "output and input line are the same"
             )
 
-        step = print_step(
-            f"Check {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line} are unused"
-        )
+        step = print_step(f"Check {out_id} and {in_id} are unused")
         if output.used or input_.used:
             raise StepError(
                 step, "one or both loopback lines are already used"
             )
 
-        print_step(
-            f"Save original state for {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line}"
-        )
+        print_step(f"Save original state for {out_id} and {in_id}")
         saved_states = [
             save_line_state(state, output),
             save_line_state(state, input_),
         ]
-        step = print_step(f"Request {args.out_chip}-{args.out_line} as output")
+        step = print_step(f"Request {out_id} as output")
         print_detail("note", "Python gpiod API requests the output line here")
         try:
             out_handle = request_output(
@@ -824,11 +825,9 @@ def test_loopback(args: argparse.Namespace) -> int:
         except Exception as exc:
             raise StepError(
                 step,
-                python_gpiod_error(
-                    "request output", f"{args.out_chip}-{args.out_line}", exc
-                ),
+                python_gpiod_error("request output", out_id, exc),
             ) from exc
-        step = print_step(f"Request {args.in_chip}-{args.in_line} as input")
+        step = print_step(f"Request {in_id} as input")
         print_detail("note", "Python gpiod API requests the input line here")
         try:
             in_handle = request_input(
@@ -837,13 +836,11 @@ def test_loopback(args: argparse.Namespace) -> int:
         except Exception as exc:
             raise StepError(
                 step,
-                python_gpiod_error(
-                    "request input", f"{args.in_chip}-{args.in_line}", exc
-                ),
+                python_gpiod_error("request input", in_id, exc),
             ) from exc
 
         for _ in range(args.repeat):
-            step = print_step(f"Set {args.out_chip}-{args.out_line} low")
+            step = print_step(f"Set {out_id} low")
             try:
                 set_handle_value(
                     state.gpiod, state.style, out_handle, args.out_line, 0
@@ -851,14 +848,10 @@ def test_loopback(args: argparse.Namespace) -> int:
             except Exception as exc:
                 raise StepError(
                     step,
-                    python_gpiod_error(
-                        "set low", f"{args.out_chip}-{args.out_line}", exc
-                    ),
+                    python_gpiod_error("set low", out_id, exc),
                 ) from exc
             time.sleep(args.delay)
-            step = print_step(
-                f"Verify {args.in_chip}-{args.in_line} reads low"
-            )
+            step = print_step(f"Verify {in_id} reads low")
             try:
                 input_value = read_handle(
                     state.gpiod, state.style, in_handle, args.in_line
@@ -866,17 +859,15 @@ def test_loopback(args: argparse.Namespace) -> int:
             except Exception as exc:
                 raise StepError(
                     step,
-                    python_gpiod_error(
-                        "read", f"{args.in_chip}-{args.in_line}", exc
-                    ),
+                    python_gpiod_error("read", in_id, exc),
                 ) from exc
             if input_value != 0:
                 raise StepError(
-                    f"Verify {args.in_chip}-{args.in_line} reads low",
+                    f"Verify {in_id} reads low",
                     "input did not read low",
                 )
 
-            step = print_step(f"Set {args.out_chip}-{args.out_line} high")
+            step = print_step(f"Set {out_id} high")
             try:
                 set_handle_value(
                     state.gpiod, state.style, out_handle, args.out_line, 1
@@ -884,14 +875,10 @@ def test_loopback(args: argparse.Namespace) -> int:
             except Exception as exc:
                 raise StepError(
                     step,
-                    python_gpiod_error(
-                        "set high", f"{args.out_chip}-{args.out_line}", exc
-                    ),
+                    python_gpiod_error("set high", out_id, exc),
                 ) from exc
             time.sleep(args.delay)
-            step = print_step(
-                f"Verify {args.in_chip}-{args.in_line} reads high"
-            )
+            step = print_step(f"Verify {in_id} reads high")
             try:
                 input_value = read_handle(
                     state.gpiod, state.style, in_handle, args.in_line
@@ -899,27 +886,21 @@ def test_loopback(args: argparse.Namespace) -> int:
             except Exception as exc:
                 raise StepError(
                     step,
-                    python_gpiod_error(
-                        "read", f"{args.in_chip}-{args.in_line}", exc
-                    ),
+                    python_gpiod_error("read", in_id, exc),
                 ) from exc
             if input_value != 1:
                 raise StepError(
-                    f"Verify {args.in_chip}-{args.in_line} reads high",
+                    f"Verify {in_id} reads high",
                     "input did not read high",
                 )
 
-        print_step(
-            f"Recover original state for {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line}"
-        )
+        print_step(f"Recover original state for {out_id} and {in_id}")
         release_handle(state.style, out_handle)
         release_handle(state.style, in_handle)
         out_handle = None
         in_handle = None
         recover_saved_states(state, saved_states)
-        print_step(
-            f"Release {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line}"
-        )
+        print_step(f"Release {out_id} and {in_id}")
         print_result("pass")
         return 0
     except Exception as exc:
@@ -930,9 +911,7 @@ def test_loopback(args: argparse.Namespace) -> int:
                 except Exception:
                     pass
         if saved_states:
-            print_step(
-                f"Recover original state for {args.out_chip}-{args.out_line} and {args.in_chip}-{args.in_line}"
-            )
+            print_step(f"Recover original state for {out_id} and {in_id}")
             recover_saved_states(state, saved_states)
         return fail_current_step(exc)
 
@@ -973,18 +952,23 @@ def build_parser() -> argparse.ArgumentParser:
         epilog=(
             "Examples:\n"
             "  gpio_test_python.py resource simple\n"
-            "  gpio_test_python.py resource simple --ignore gpiochip0-2,gpiochip1-14\n"
-            "  gpio_test_python.py resource simple --ignore gpiochip14,gpiochip16-0..4\n"
-            "  gpio_test_python.py resource simple --ignore gpiochip14-*,gpiochip16-0..1,gpiochip16-2..4\n"
-            "  gpio_test_python.py resource simple --allow-named --format json\n"
+            "  gpio_test_python.py resource simple "
+            "--ignore gpiochip0-2,gpiochip1-14\n"
+            "  gpio_test_python.py resource simple "
+            "--ignore gpiochip14,gpiochip16-0..4\n"
+            "  gpio_test_python.py resource simple "
+            "--ignore gpiochip14-*,gpiochip16-0..1,gpiochip16-2..4\n"
+            "  gpio_test_python.py resource simple "
+            "--allow-named --format json\n"
         ),
     )
     simple_resource.add_argument(
         "--ignore",
         metavar="IDS",
         help=(
-            "Comma-separated GPIO lines, ranges, or chips to exclude. Supports "
-            "gpiochipN-LINE, gpiochipN-START..END, gpiochipN, and gpiochipN-*. "
+            "Comma-separated GPIO lines, ranges, or chips to exclude. "
+            "Supports gpiochipN-LINE, gpiochipN-START..END, gpiochipN, "
+            "and gpiochipN-*. "
             "Examples: gpiochip0-2,gpiochip14,gpiochip16-0..4."
         ),
     )
@@ -1009,8 +993,10 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=formatter,
         epilog=(
             "Examples:\n"
-            "  gpio_test_python.py resource loopback --pairs gpiochip0-100:gpiochip0-0\n"
-            "  gpio_test_python.py resource loopback --pairs gpiochip0-100:gpiochip0-0,gpiochip1-2:gpiochip1-1\n"
+            "  gpio_test_python.py resource loopback "
+            "--pairs gpiochip0-100:gpiochip0-0\n"
+            "  gpio_test_python.py resource loopback "
+            "--pairs gpiochip0-100:gpiochip0-0,gpiochip1-2:gpiochip1-1\n"
             "\n"
             "Pair format is INPUT:OUTPUT.\n"
         ),
@@ -1061,16 +1047,40 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+class PythonGpioApplication:
+    """Command-line application for Python gpiod GPIO validation."""
+
+    def __init__(self, parser: argparse.ArgumentParser) -> None:
+        """Initialize the application with an argument parser.
+
+        Args:
+            parser: Parser that attaches a callable ``func`` to parsed args.
+        """
+
+        self._parser = parser
+
+    def run(self, argv: list[str] | None = None) -> int:
+        """Parse arguments and run the selected resource or test command.
+
+        Args:
+            argv: Optional argument list for tests. ``None`` reads sys.argv.
+
+        Returns:
+            Process exit status.
+        """
+
+        args = self._parser.parse_args(argv)
+        try:
+            return args.func(args)
+        except GpioTestError as exc:
+            print(f"GPIO_ERROR={exc}", file=sys.stderr)
+            return 1
+
+
 def main() -> int:
     """Parse arguments and dispatch to the selected subcommand."""
 
-    parser = build_parser()
-    args = parser.parse_args()
-    try:
-        return args.func(args)
-    except GpioTestError as exc:
-        print(f"GPIO_ERROR={exc}", file=sys.stderr)
-        return 1
+    return PythonGpioApplication(build_parser()).run()
 
 
 if __name__ == "__main__":

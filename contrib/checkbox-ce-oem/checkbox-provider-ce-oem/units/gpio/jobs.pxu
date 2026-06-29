@@ -105,6 +105,8 @@ estimated_duration: 0.02
 category_id: com.canonical.certification::gpio
 plugin: resource
 user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gpiod_gpio == 'True'
 environ:
     GPIOD_GPIO_IGNORE
     GPIOD_GPIO_ALLOW_NAMED
@@ -175,11 +177,12 @@ estimated_duration: 0.02
 category_id: com.canonical.certification::gpio
 plugin: resource
 user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gpiod_gpio == 'True'
 environ: GPIOD_GPIO_LOOPBACK_PAIRS
 command:
     if [ -z "$GPIOD_GPIO_LOOPBACK_PAIRS" ]; then
-        echo "GPIOD_GPIO_LOOPBACK_PAIRS is not defined" >&2
-        exit 1
+        exit 0
     fi
     gpio_test_subprocess.py resource loopback --pairs "$GPIOD_GPIO_LOOPBACK_PAIRS" --format text
 

@@ -49,7 +49,7 @@ class _PluginValues(SymbolDef):
     shell = "shell"
 
 
-def valid_requires_manifests(values, _):
+def valid_requires_manifest(values, _):
     if values is None:
         return True
     if not isinstance(values, list):
@@ -190,6 +190,6 @@ class SetupJobUnit(JobDefinition):
             ],
             fields.requires_manifest: [
                 concrete_validators.templateInvariant,
-                CorrectFieldValueValidator(valid_requires_manifests),
+                CorrectFieldValueValidator(valid_requires_manifest),
             ],
         }

@@ -1390,15 +1390,15 @@ class SessionAssistant:
 
         def get_required_manifests_if_any(job):
             try:
-                return job.get_required_manifest_ids()
+                return job.get_required_manifests_spec()
             except AttributeError:  # only setup_jobs
                 return []
 
         todo_list = [x for x in run_list if didnt_run_yet(x)]
         manifest_id_set = {
-            manifest_id
+            manifest_spec.id
             for job in todo_list
-            for manifest_id in get_required_manifests_if_any(job)
+            for manifest_spec in get_required_manifests_if_any(job)
         }
 
         resource_programs = (job.get_resource_program() for job in todo_list)

@@ -81,12 +81,26 @@ unit: setup job
 flags: [simple]
 requires_manifest:
   - setup_manifest_true
+  - setup_manifest_false: false
 command: |
-  echo abc
+  echo Setup job
+---
+id: manifest_include_followup
+flags: [simple]
+imports: from com.canonical.plainbox import manifest
+requires:
+  - manifest.setup_manifest_true == "True"
+command: |
+  echo Setup job
 ---
 unit: manifest entry
 id: setup_manifest_true
-name: Setup manifest to be shown before running manifest
+name: Setup manifest to be shown before running manifest that has to be true
+value-type: bool
+---
+unit: manifest entry
+id: setup_manifest_false
+name: Setup manifest to be shown before running manifest that has to be false
 value-type: bool
 ---
 id: manifest_setup_include_tp
@@ -94,4 +108,5 @@ unit: test plan
 name: Test manifest in setup include
 setup_include:
   - manifest_setup_include
-include: []
+include:
+  - manifest_include_followup

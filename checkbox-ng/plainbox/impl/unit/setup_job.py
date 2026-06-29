@@ -22,7 +22,7 @@
 """
 
 import logging
-import re
+from collections import namedtuple
 
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
@@ -47,6 +47,24 @@ class _PluginValues(SymbolDef):
     """
 
     shell = "shell"
+
+
+def valid_requires_manifests(values, _):
+    if values is None:
+        return True
+    if not isinstance(values, list):
+        return False
+    # strings are a valid requires manifests, they are the manifest id == True
+    values = [value for value in values if not isinstance(value, str)]
+    return all(
+        isinstance(value, dict)
+        and len(value) == 1
+        and isinstance(list(value)[0], str)
+        for value in values
+    )
+
+
+RequiredManifest = namedtuple("RequiredManifest", ["id", "value"])
 
 
 class SetupJobUnit(JobDefinition):
@@ -82,13 +100,21 @@ class SetupJobUnit(JobDefinition):
     def requires_manifest(self):
         return self.get_record_value("requires_manifest")
 
-    def get_required_manifest_ids(self):
-        manifest_ids = self.requires_manifest
-        if manifest_ids is None:
+    def _get_required_manifests_spec(self, manifest_spec):
+        if isinstance(manifest_spec, str):
+            id, value = manifest_spec, True
+        else:
+            id, value = list(manifest_spec.items())[0]
+        return RequiredManifest(self.qualify_id(id), value)
+
+    def get_required_manifests_spec(self):
+        manifest_specs = self.requires_manifest
+        if manifest_specs is None:
             return []
-        if not isinstance(manifest_ids, list):
-            raise ValueError(_("requires_manifest must be a list"))
-        return [self.qualify_id(manifest_id) for manifest_id in manifest_ids]
+        return [
+            self._get_required_manifests_spec(manifest_id)
+            for manifest_id in manifest_specs
+        ]
 
     class Meta:
 
@@ -164,10 +190,6 @@ class SetupJobUnit(JobDefinition):
             ],
             fields.requires_manifest: [
                 concrete_validators.templateInvariant,
-                CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        unit.get_required_manifest_ids() is not None
-                    )
-                ),
+                CorrectFieldValueValidator(valid_requires_manifests),
             ],
         }

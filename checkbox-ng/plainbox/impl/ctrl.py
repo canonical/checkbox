@@ -215,14 +215,14 @@ class CheckBoxSessionStateController(ISessionStateController):
 
     def get_requires_manifests_inhibitor_list(self, session_state, job):
         try:
-            requires_manifests = job.get_required_manifest_ids()
+            requires_manifests = job.get_required_manifests_spec()
         except AttributeError:
             return []
         manifest = session_state.manifest
         failing_manifests = [
-            manifest_id
-            for manifest_id in requires_manifests
-            if not manifest.get(manifest_id)
+            manifest_spec.id
+            for manifest_spec in requires_manifests
+            if manifest.get(manifest_spec.id, False) != manifest_spec.value
         ]
         if not failing_manifests:
             return []

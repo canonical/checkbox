@@ -672,7 +672,9 @@ def get_test_parameters(args: Namespace, environ: "MutableMapping[str, str]"):
     if args.target:
         params["test_target_iperf"] = args.target
     if args.max_expected_speed_override:
-        params["max_expected_speed_override"] = args.max_expected_speed_override
+        params["max_expected_speed_override"] = (
+            args.max_expected_speed_override
+        )
 
     return params
 

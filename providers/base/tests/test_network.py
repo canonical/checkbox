@@ -740,9 +740,7 @@ class InterfaceTestWithMaxSpeedOverrideTests(unittest.TestCase):
             network.interface_test(args)
 
         mock_make_override_dict.assert_called_once_with("eth0:5000")
-        mock_run.assert_called_once_with(
-            args, "192.168.1.1", 5000
-        )
+        mock_run.assert_called_once_with(args, "192.168.1.1", 5000)
 
     @patch("time.sleep")
     @patch("network.run_test")
@@ -803,5 +801,5 @@ class InterfaceClassTest(unittest.TestCase):
         self.assertEqual(self.obj_intf.phys_switch_id, "test")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

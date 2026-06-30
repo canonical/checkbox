@@ -864,21 +864,19 @@ class CameraTestTests(unittest.TestCase):
     def test_validate_image_wrong_format(self, mock_exists):
         mock_camera = MagicMock()
         mock_exists.return_value = True
-        with patch("builtins.open", mock_open(read_data=b"")):
-            with (
-                patch("builtins.print") as mocked_print,
-                patch("camera_test.check_output") as mock_check_output,
-            ):
-                mock_check_output.return_value = "inode/empty"
-                result = CameraTest._validate_image(
-                    mock_camera, "/tmp/test.jpg", 480, 320
-                )
-                # should not even start reading the file if the `file` command
-                # check didn't pass
-                mocked_print.assert_any_call(
-                    "Image is not a standard JPEG file"
-                )
-                self.assertEqual(result, False)
+        with patch("builtins.open", mock_open(read_data=b"")), patch(
+            "builtins.print"
+        ) as mocked_print, patch(
+            "camera_test.check_output"
+        ) as mock_check_output:
+            mock_check_output.return_value = "inode/empty"
+            result = CameraTest._validate_image(
+                mock_camera, "/tmp/test.jpg", 480, 320
+            )
+            # should not even start reading the file if the `file` command
+            # check didn't pass
+            mocked_print.assert_any_call("Image is not a standard JPEG file")
+            self.assertEqual(result, False)
 
     @patch("builtins.open")
     @patch("os.path.exists")

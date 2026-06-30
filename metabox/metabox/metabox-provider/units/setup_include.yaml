@@ -103,7 +103,8 @@ command: |
 ---
 id: verify_setup_manifest_ran
 flags: [simple]
-imports: from com.canonical.plainbox import manifest
+imports:
+  - from com.canonical.plainbox import manifest
 command: |
   if test -f $PLAINBOX_SESSION_SHARE/setup_manifest_guard; then
     echo "setup job ran correctly"

@@ -414,6 +414,10 @@ class CheckCommand:
         print(f"TOTAL_PWM_DEV_NUM: {total_devices}")
 
         if expected_total is None:
+            if total_devices == 0:
+                print("RESULT: FAIL")
+                print("ERROR: discovered 0 PWM devices")
+                return 1
             print("RESULT: PASS")
             return 0
 

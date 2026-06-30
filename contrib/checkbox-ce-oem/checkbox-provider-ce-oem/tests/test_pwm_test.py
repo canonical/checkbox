@@ -117,6 +117,26 @@ class TestCheckCommand(unittest.TestCase):
         self.assertIn("TOTAL_PWM_DEV_NUM: 3", text)
         self.assertIn("RESULT: PASS", text)
 
+    def test_check_without_expected_count_fails_with_zero_devices(self):
+        controllers = [
+            PwmController(
+                chip_name="platform/11008000.pwm",
+                device_count=0,
+                outputs=(),
+            )
+        ]
+        output = io.StringIO()
+
+        with redirect_stdout(output):
+            result = CheckCommand(FakePwmSysfs(controllers)).run(None)
+
+        self.assertEqual(result, 1)
+        text = output.getvalue()
+        self.assertIn("TOTAL_PWM_CHIP_NUM: 1", text)
+        self.assertIn("TOTAL_PWM_DEV_NUM: 0", text)
+        self.assertIn("RESULT: FAIL", text)
+        self.assertIn("ERROR: discovered 0 PWM devices", text)
+
     def test_check_validates_expected_count_mismatch(self):
         output = io.StringIO()
 

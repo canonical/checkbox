@@ -234,7 +234,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Granite Rapids":    ['0xa06e0', '0xa06d0', '0xa06d1'],          # 2024
         "Granite Rapids-D":  ['0xa06e1'],                                # 2024
         "Lunar Lake":        ['0xb06d1'],                                # 2024
-        "Arrow Lake":        ['0xc0660', '0xc0652'],                     # 2024
+        "Arrow Lake":        ['0xc0660', '0xc0652', '0xc0662'],          # 2024
         "Panther Lake":      ['0xc06c0'],                                # 2025
         "Clearwater Forest": ['0xd06d1']                                 # 2026
     }

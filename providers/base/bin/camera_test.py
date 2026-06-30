@@ -374,12 +374,10 @@ class CameraTest:
             self.GLib.timeout_add_seconds(10, self._stop_pipeline)
             self._setup_video_gstreamer()
 
-    def _get_int_or_int_array(
-        self, gst_struct: "Gst.Structure", fieldname: str
-    ) -> "list[int]":
+    def _get_int_or_int_array(self, gst_struct, fieldname: str) -> "list[int]":
         """Attempt to get an int or a int array from gst_struct.fieldname
 
-        :param gst_struct: the struct to get data from
+        :param gst_struct: the Gst.Structure to get data from
         :param fieldname: name of the field like "width"
         :raises RuntimeError: the field isn't an int or a int array
         :return: a list[int] with 1 or more elements

@@ -29,6 +29,7 @@ import os
 import re
 import shutil
 from contextlib import suppress
+from pathlib import Path
 from copy import copy
 
 from plainbox.abc import IJobResult
@@ -860,6 +861,9 @@ class SessionState:
         self._metadata = SessionMetaData()
         # If unset, this is loaded via system_information
         self._system_information = None
+        # manifest cache, refreshed on file writes
+        self._manifest = {}
+        self._manifest_last_mod_time = 0
 
         super(SessionState, self).__init__()
 
@@ -867,22 +871,26 @@ class SessionState:
     def manifest(self):
         # do not cache this, as it may change during the test run due to both
         # pre-setup and post boostrap manifest saving
-        manifest_path = WellKnownDirsHelper.manifest_file()
-        if not os.path.isfile(manifest_path):
+        manifest_path = Path(WellKnownDirsHelper.manifest_file())
+        if not manifest_path.is_file():
             return {}
-        with open(manifest_path, "r") as stream:
-            return json.load(stream)
+        last_mod_time = manifest_path.stat().st_mtime
+        if last_mod_time != self._manifest_last_mod_time:
+            with manifest_path.open("r") as f:
+                self._manifest_last_mod_time = last_mod_time
+                self._manifest = json.load(f)
+        return self._manifest
 
     def save_manifest(self, manifest_answers):
-        manifest_cache = dict()
-        manifest = WellKnownDirsHelper.manifest_file()
-        if os.path.isfile(manifest):
-            with open(manifest, "rt", encoding="UTF-8") as stream:
-                manifest_cache = json.load(stream)
-        manifest_cache.update(manifest_answers)
-        logger.info("Saving manifest to {}".format(manifest))
-        with open(manifest, "wt", encoding="UTF-8") as stream:
-            json.dump(manifest_cache, stream, sort_keys=True, indent=2)
+        manifest = dict()
+        manifest_path = Path(WellKnownDirsHelper.manifest_file())
+        if manifest_path.is_file():
+            with manifest_path.open("r") as f:
+                manifest = json.load(f)
+        manifest.update(manifest_answers)
+        logger.info("Saving manifest to {}".format(manifest_path))
+        with manifest_path.open("w") as f:
+            json.dump(manifest, f, sort_keys=True, indent=2)
 
         # manifest requiring jobs may now be runnable
         self._recompute_job_readiness()

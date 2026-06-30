@@ -286,6 +286,9 @@ class CameraTestTests(unittest.TestCase):
         mock_make = mock_camera.Gst.ElementFactory.make
         mock_camera.Gst.State.PAUSED = "paused"
         mock_camera.Gst.State.PLAYING = "playing"
+        mock_camera._get_int_or_int_array.side_effect = [[640], [480, 320]]
+        mock_camera._width = 640
+        mock_camera._height = 480
 
         CameraTest._setup_video_gstreamer(mock_camera)
         make_calls = mock_make.call_args_list
@@ -307,6 +310,9 @@ class CameraTestTests(unittest.TestCase):
         mock_make = mock_camera.Gst.ElementFactory.make
         mock_camera.Gst.State.PAUSED = "paused"
         mock_camera.Gst.State.PLAYING = "playing"
+        mock_camera._get_int_or_int_array.side_effect = [[640], [480, 320]]
+        mock_camera._width = 640
+        mock_camera._height = 480
 
         CameraTest._setup_video_gstreamer(mock_camera, "sink")
         make_calls = mock_make.call_args_list
@@ -340,6 +346,9 @@ class CameraTestTests(unittest.TestCase):
         mock_camera.GLib.Error = Exception
         mock_camera.GLib.MainLoop.return_value.run.side_effect = Exception()
         mock_camera.Gst.State.NULL = "null"
+        mock_camera._get_int_or_int_array.side_effect = [[640], [480, 320]]
+        mock_camera._width = 640
+        mock_camera._height = 480
         CameraTest._setup_video_gstreamer(mock_camera)
 
         self.assertEqual(mock_camera.main_loop.run.call_count, 1)
@@ -856,9 +865,10 @@ class CameraTestTests(unittest.TestCase):
         mock_camera = MagicMock()
         mock_exists.return_value = True
         with patch("builtins.open", mock_open(read_data=b"")):
-            with patch("builtins.print") as mocked_print, patch(
-                "camera_test.check_output"
-            ) as mock_check_output:
+            with (
+                patch("builtins.print") as mocked_print,
+                patch("camera_test.check_output") as mock_check_output,
+            ):
                 mock_check_output.return_value = "inode/empty"
                 result = CameraTest._validate_image(
                     mock_camera, "/tmp/test.jpg", 480, 320

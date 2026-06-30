@@ -1011,9 +1011,7 @@ class GetIntOrIntArrayTests(unittest.TestCase):
         mock_struct.get_field_type.return_value = "GstValueRange"
 
         with self.assertRaises(RuntimeError) as ctx:
-            CameraTest._get_int_or_int_array(
-                mock_camera, mock_struct, "width"
-            )
+            CameraTest._get_int_or_int_array(mock_camera, mock_struct, "width")
 
         self.assertIn("width", str(ctx.exception))
         self.assertIn("GstValueRange", str(ctx.exception))

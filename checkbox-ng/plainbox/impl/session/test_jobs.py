@@ -183,7 +183,7 @@ class JobReadinessInhibitorTests(TestCase):
             related_job=job,
             related_manifests=["manifest-id"],
         )
-        self.assertEqual(str(obj), "manifest: 'manifest-id' is false")
+        self.assertEqual(str(obj), "manifest: 'manifest-id' unmet")
 
     def test_unknown_global(self):
         self.assertEqual(

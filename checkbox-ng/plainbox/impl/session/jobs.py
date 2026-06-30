@@ -61,7 +61,7 @@ class InhibitionCause(IntEnum):
             This job has a resource requirement that evaluated to a false value
 
         REQUIRED_MANIFEST:
-            This job requred a manifest that is either False or None
+            This job required a manifest that is either False or undefined
     """
 
     UNDESIRED = 0
@@ -267,12 +267,10 @@ class JobReadinessInhibitor(pod.POD):
             )
         elif self.cause == InhibitionCause.REQUIRED_MANIFEST:
             if len(self.related_manifests) == 1:
-                return _("manifest: {!r} is false").format(
+                return _("manifest: {!r} unmet").format(
                     self.related_manifests[0]
                 )
-            return _("manifests: {!r} are false").format(
-                self.related_manifests
-            )
+            return _("manifests: {!r} unmet").format(self.related_manifests)
         elif self.cause == InhibitionCause.NOT_FAILED_DEP:
             return _("required dependency {!r} did not fail").format(
                 self.related_job.id

@@ -430,9 +430,7 @@ class TestLauncher(TestCase):
         failed = Launcher.setup(self_mock)
 
         self.assertTrue(self_mock.sa.start_setup.called)
-        self_mock._save_manifest.assert_called_once_with(
-            interactive=self_mock.configuration.get_value.return_value
-        )
+        self_mock._save_manifest.assert_called_once_with(interactive=False)
         self_mock.configuration.get_value.assert_called_once_with(
             "test selection", "forced"
         )

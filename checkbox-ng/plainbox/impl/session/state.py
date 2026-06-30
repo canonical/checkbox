@@ -880,7 +880,7 @@ class SessionState:
             with open(manifest, "rt", encoding="UTF-8") as stream:
                 manifest_cache = json.load(stream)
         manifest_cache.update(manifest_answers)
-        print("Saving manifest to {}".format(manifest))
+        logger.info("Saving manifest to {}".format(manifest))
         with open(manifest, "wt", encoding="UTF-8") as stream:
             json.dump(manifest_cache, stream, sort_keys=True, indent=2)
 

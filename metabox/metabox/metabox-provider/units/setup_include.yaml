@@ -76,37 +76,46 @@ include:
   - verify_simple_guards
   - verify_resume_guards
 ---
-id: manifest_setup_include
-unit: setup job
-flags: [simple]
-requires_manifest:
-  - setup_manifest_true
-  - setup_manifest_false: false
-command: |
-  echo Setup job
----
-id: manifest_include_followup
-flags: [simple]
-imports: from com.canonical.plainbox import manifest
-requires:
-  - manifest.setup_manifest_true == "True"
-command: |
-  echo Setup job
----
-unit: manifest entry
-id: setup_manifest_true
-name: Setup manifest to be shown before running manifest that has to be true
-value-type: bool
----
 unit: manifest entry
 id: setup_manifest_false
 name: Setup manifest to be shown before running manifest that has to be false
 value-type: bool
 ---
-id: manifest_setup_include_tp
+unit: manifest entry
+id: _setup_manifest_hidden
+name: Setup manifest hidden from the UI
+value-type: bool
+---
+unit: manifest entry
+id: setup_job_manifest
+name: Setup job manifest question shown
+value-type: bool
+---
+unit: setup job
+id: setup_job_requiring_manifest
+flags: [simple]
+requires_manifest:
+  - setup_job_manifest
+  - setup_manifest_false: false
+  - _setup_manifest_hidden
+command: |
+  echo "setup_ran" > $PLAINBOX_SESSION_SHARE/setup_manifest_guard
+---
+id: verify_setup_manifest_ran
+flags: [simple]
+imports: from com.canonical.plainbox import manifest
+command: |
+  if test -f $PLAINBOX_SESSION_SHARE/setup_manifest_guard; then
+    echo "setup job ran correctly"
+  else
+    echo "setup job did not run"
+    exit 1
+  fi
+---
+id: manifest_menu_setup_job_tp
 unit: test plan
-name: Test manifest in setup include
+name: Test manifest menu shown for setup job
 setup_include:
-  - manifest_setup_include
+  - setup_job_requiring_manifest
 include:
-  - manifest_include_followup
+  - verify_setup_manifest_ran

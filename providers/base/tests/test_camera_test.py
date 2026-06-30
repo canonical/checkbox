@@ -967,5 +967,57 @@ class CameraTestTests(unittest.TestCase):
         sys.stdout = sys.__stdout__
 
 
+class GetIntOrIntArrayTests(unittest.TestCase):
+    """tests CameraTest._get_int_or_int_array."""
+
+    def _make_camera(self):
+        return MagicMock(spec=CameraTest)
+
+    def test_int_only_happy_path(self):
+        mock_camera = self._make_camera()
+        mock_struct = MagicMock()
+        mock_struct.get_int.return_value = (True, 1920)
+
+        result = CameraTest._get_int_or_int_array(
+            mock_camera, mock_struct, "width"
+        )
+
+        mock_struct.get_int.assert_called_once_with("width")
+        self.assertEqual(result, [1920])
+
+    def test_int_array_happy_path(self):
+        mock_camera = self._make_camera()
+        mock_struct = MagicMock()
+        mock_struct.get_int.return_value = (False, 0)
+
+        mock_value_array = MagicMock()
+        mock_value_array.n_values = 3
+        mock_value_array.get_nth.side_effect = [640, 1280, 1920]
+        mock_struct.get_list.return_value = (True, mock_value_array)
+
+        result = CameraTest._get_int_or_int_array(
+            mock_camera, mock_struct, "width"
+        )
+
+        mock_struct.get_int.assert_called_once_with("width")
+        mock_struct.get_list.assert_called_once_with("width")
+        self.assertEqual(result, [640, 1280, 1920])
+
+    def test_both_fail(self):
+        mock_camera = self._make_camera()
+        mock_struct = MagicMock()
+        mock_struct.get_int.return_value = (False, 0)
+        mock_struct.get_list.return_value = (False, None)
+        mock_struct.get_field_type.return_value = "GstValueRange"
+
+        with self.assertRaises(RuntimeError) as ctx:
+            CameraTest._get_int_or_int_array(
+                mock_camera, mock_struct, "width"
+            )
+
+        self.assertIn("width", str(ctx.exception))
+        self.assertIn("GstValueRange", str(ctx.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

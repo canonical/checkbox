@@ -815,7 +815,8 @@ class CameraTest:
             # more formats, so we ignore it
             if e.errno != errno.EINVAL:
                 print(
-                    "Unable to determine Pixel Formats, this may be a driver issue."
+                    "Unable to determine Pixel Formats,",
+                    "this may be a driver issue.",
                 )
             return supported_pixel_formats
         return supported_pixel_formats

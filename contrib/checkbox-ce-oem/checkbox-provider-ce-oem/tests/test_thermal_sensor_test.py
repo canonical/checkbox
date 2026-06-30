@@ -21,7 +21,7 @@ class ThermalMonitorTest(unittest.TestCase):
         mock_file.return_value = True
         mock_text.side_effect = mock_results
 
-        thermal_node = thermal_sensor_test.ThermalMonitor("fake-thermal")
+        thermal_node = thermal_sensor_test.ThermalMonitor(name="fake-thermal")
         self.assertListEqual(
             [
                 thermal_node.name,
@@ -39,7 +39,9 @@ class ThermalMonitorTest(unittest.TestCase):
         """
         mock_file.return_value = False
         with self.assertRaises(FileNotFoundError):
-            thermal_node = thermal_sensor_test.ThermalMonitor("fake-thermal")
+            thermal_node = thermal_sensor_test.ThermalMonitor(
+                name="fake-thermal"
+            )
             thermal_node.type
 
     @mock.patch("thermal_sensor_test.check_temperature")
@@ -54,7 +56,10 @@ class ThermalMonitorTest(unittest.TestCase):
         """
         mock_args = mock.Mock(
             return_value=argparse.Namespace(
-                name="fake-thermal", duration=30, extra_commands="stress-ng"
+                name="fake-thermal",
+                type=None,
+                duration=30,
+                extra_commands="stress-ng",
             )
         )
         mock_text.side_effect = ["30000", "30000", "31000"]
@@ -76,7 +81,10 @@ class ThermalMonitorTest(unittest.TestCase):
     ):
         mock_args = mock.Mock(
             return_value=argparse.Namespace(
-                name="fake-thermal", duration=2, extra_commands="stress-ng"
+                name="fake-thermal",
+                type=None,
+                duration=2,
+                extra_commands="stress-ng",
             )
         )
         mock_text.return_value = "30000"

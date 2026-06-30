@@ -578,7 +578,7 @@ class RemoteController(ReportsStage, MainLoopStage):
     def setup(self, resume_payload=None):
         setup_jobs = json.loads(self.sa.start_setup_json())
         self._save_manifest(
-            interactive=self.launcher.get_value("test selection", "forced")
+            interactive=not self.launcher.get_value("test selection", "forced")
         )
         starting_index = 0
         if resume_payload:

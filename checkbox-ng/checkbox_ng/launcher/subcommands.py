@@ -642,7 +642,7 @@ class Launcher(MainLoopStage, ReportsStage):
     def setup(self):
         setup_jobs = self.sa.start_setup()
         self._save_manifest(
-            interactive=self.configuration.get_value(
+            interactive=not self.configuration.get_value(
                 "test selection", "forced"
             )
         )

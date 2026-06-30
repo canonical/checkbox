@@ -130,7 +130,9 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         """Test with a FAILED_RESOURCE inhibitor for a manifest."""
         expr = Mock()
         expr.text = "manifest.has_thunderbolt3 == 'True'"
-        expr.manifest_id_list = ["com.canonical.plainbox::manifest-id"]
+        expr.manifest_id_list = [
+            "com.canonical.certification::has_thunderbolt3"
+        ]
 
         inhibitor = Mock()
         inhibitor.cause = InhibitionCause.FAILED_RESOURCE
@@ -145,11 +147,45 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         self.assertEqual(outcome, IJobResult.OUTCOME_SKIPPED_MANIFEST)
         self.assertIsNotNone(skip_reason)
         self.assertIn(
-            "manifest.has_thunderbolt3 == 'True'",
+            "com.canonical.certification::has_thunderbolt3",
             skip_reason["related_manifests"],
         )
         self.assertEqual(skip_reason["related_dependencies"], [])
         self.assertEqual(skip_reason["related_resources"], [])
+
+    def test_required_manifest_inhibitor_matches_failed_manifest(self):
+        """Test REQUIRED_MANIFEST matches failed manifest expressions."""
+        expr = Mock()
+        expr.text = "manifest.has_thunderbolt3 == 'True'"
+        expr.manifest_id_list = [
+            "com.canonical.certification::has_thunderbolt3"
+        ]
+
+        failed_manifest_inhibitor = Mock()
+        failed_manifest_inhibitor.cause = InhibitionCause.FAILED_RESOURCE
+        failed_manifest_inhibitor.related_expression = expr
+
+        required_manifest_inhibitor = Mock()
+        required_manifest_inhibitor.cause = InhibitionCause.REQUIRED_MANIFEST
+        required_manifest_inhibitor.related_manifests = [
+            "com.canonical.certification::has_thunderbolt3"
+        ]
+
+        failed_manifest_job_state = Mock()
+        failed_manifest_job_state.readiness_inhibitor_list = [
+            failed_manifest_inhibitor
+        ]
+        failed_manifest_job_state.job.get_flag_set.return_value = set()
+
+        required_manifest_job_state = Mock()
+        required_manifest_job_state.readiness_inhibitor_list = [
+            required_manifest_inhibitor
+        ]
+
+        self.assertEqual(
+            determine_outcome_and_skip_reason(required_manifest_job_state, {}),
+            determine_outcome_and_skip_reason(failed_manifest_job_state, {}),
+        )
 
     def test_multiple_failed_resources(self):
         """Test with multiple FAILED_RESOURCE inhibitors."""
@@ -221,7 +257,7 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         manifest_expr = Mock()
         manifest_expr.text = "manifest.has_feature == 'True'"
         manifest_expr.manifest_id_list = [
-            "com.canonical.plainbox::manifest-id"
+            "com.canonical.certification::has_feature"
         ]
 
         manifest_inhibitor = Mock()
@@ -249,7 +285,8 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         self.assertEqual(outcome, IJobResult.OUTCOME_SKIPPED_MANIFEST)
         # But skip_reason should include both
         self.assertIn(
-            "manifest.has_feature == 'True'", skip_reason["related_manifests"]
+            "com.canonical.certification::has_feature",
+            skip_reason["related_manifests"],
         )
         self.assertIn("cpuinfo.count > 2", skip_reason["related_resources"])
 
@@ -332,7 +369,9 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
 
         manifest_expr = Mock()
         manifest_expr.text = "manifest.has_touchpad == 'True'"
-        manifest_expr.manifest_id_list = ["has_touchpad"]
+        manifest_expr.manifest_id_list = [
+            "com.canonical.certification::has_touchpad"
+        ]
 
         manifest_inhibitor = Mock()
         manifest_inhibitor.cause = InhibitionCause.FAILED_RESOURCE
@@ -363,5 +402,6 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         self.assertIn("job2", skip_reason["related_dependencies"])
         self.assertIn("cpuinfo.count > 4", skip_reason["related_resources"])
         self.assertIn(
-            "manifest.has_touchpad == 'True'", skip_reason["related_manifests"]
+            "com.canonical.certification::has_touchpad",
+            skip_reason["related_manifests"],
         )

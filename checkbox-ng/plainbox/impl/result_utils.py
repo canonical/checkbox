@@ -103,9 +103,9 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
                 # Check if this is a manifest expression
                 if inhibitor.related_expression.manifest_id_list:
                     has_failed_manifest = True
-                    skip_reason["related_manifests"].append(
-                        inhibitor.related_expression.text
-                    )
+                    skip_reason[
+                        "related_manifests"
+                    ] += inhibitor.related_expression.manifest_id_list
                 else:
                     skip_reason["related_resources"].append(
                         inhibitor.related_expression.text

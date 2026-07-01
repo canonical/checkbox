@@ -90,9 +90,10 @@ class InteractiveWebsocket(SafeWebSocketClient):
         self._result_lock = threading.Lock()
 
     def received_message(self, message):
-        if len(message.data) == 0:
+        if message.data is None or len(message.data) == 0:
             self.close()
             self._connection_closed = True
+            return
         message_data_str = message.data.decode("utf-8", errors="ignore")
         raw_msg = message_data_str = self.ansi_escape.sub("", message_data_str)
         if self.verbose:

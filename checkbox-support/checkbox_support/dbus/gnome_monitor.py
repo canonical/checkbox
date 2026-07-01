@@ -132,13 +132,13 @@ class PhysicalMonitor(_PhysicalMonitorT):
     def is_builtin(self) -> bool:
         return self.properties.get("is-builtin", False)
 
-    def max_resolution(self) -> "tuple[int, int]":
+    def get_max_resolution(self) -> "tuple[int, int]":
         """Get the maximum physcial resolution of this monitor
 
         :raises ValueError: if there's no supported modes
         :raises RuntimeError: if all modes are 0
         :return: (width, height) pair like (1920, 1080)
-        """        
+        """
         max_w, max_h = 0, 0
         if len(self.modes) == 0:
             raise ValueError(
@@ -154,6 +154,13 @@ class PhysicalMonitor(_PhysicalMonitorT):
             raise RuntimeError("Unexpected max resolution of 0x0")
 
         return max_w, max_h
+
+    def get_current_mode(self) -> "MutterDisplayMode | None":
+        # it' possible to return none
+        # if somehow all monitors are turned off
+        for mode in self.modes:
+            if mode.is_current:
+                return mode
 
 
 _LogicalMonitorT = NamedTuple(

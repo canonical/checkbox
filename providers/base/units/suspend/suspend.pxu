@@ -1151,7 +1151,6 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
-requires: package.name == 'xorg'
 depends: suspend/suspend_advanced_auto
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
@@ -1176,7 +1175,6 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
 template-id: suspend/index_cycle_resolutions_after_suspend_product_slug
-requires: package.name == 'xorg'
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 estimated_duration: 120.0
@@ -1199,7 +1197,6 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/cycle_resolutions_after_suspend_auto
 estimated_duration: 1.2
-requires: package.name == 'xorg'
 depends: suspend/suspend_advanced_auto
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 _purpose:

@@ -498,7 +498,7 @@ class UnifiedRunner(IJobRunner):
             logger.error("No job is currently running")
             return
         if not target_user:
-            os.kill(self._running_jobs_pid, signal)
+            os.killpg(self._running_jobs_pid, signal)
         else:
             # process used sudo, so sudo is needed to kill it
             in_r, in_w = os.pipe()

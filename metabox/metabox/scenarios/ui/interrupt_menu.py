@@ -18,13 +18,13 @@
 import textwrap
 
 import metabox.core.keys as keys
-from metabox.core.actions import Expect, Send, Start, Signal
+from metabox.core.actions import Expect, Send, Start, Signal, RunCmd
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
 
-@tag("ui", "interact")
-class CtrlCMenu(Scenario):
+@tag("ui", "interact", "interrupt")
+class CtrlCMenuNothing(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent("""
         [launcher]
@@ -40,34 +40,100 @@ class CtrlCMenu(Scenario):
     steps = [
         Start(),
         Expect("ID: 2021.com.canonical.certification::sleep_1000s"),
+        Expect("starting to sleep"),
         Signal(keys.SIGINT),
-        Expect("Interruption"),
-        # Do nothing, go back to the test
+        Expect("Interruption!"),
         Expect("(X) Nothing"),
         Send(keys.KEY_ENTER),
         Expect(
-            "In progress: 2021.com.canonical.certification::sleep_1000s (1/1)"
+            "In progress: 2021.com.canonical.certification::sleep_1000s (1/2)"
         ),
+    ]
+
+
+@tag("ui", "interact", "interrupt")
+class CtrlCMenuStopTestCase(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::tired_test_plan
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
+
+    steps = [
+        Start(),
+        Expect("ID: 2021.com.canonical.certification::sleep_1000s"),
+        Expect("starting to sleep"),
         Signal(keys.SIGINT),
         Expect("Interruption!"),
-        Expect("Press <Enter> or <ESC> to continue"),
-        # we are now disconnecting the controller
-        Send(keys.KEY_DOWN),
-        Send(keys.KEY_DOWN),
-        Send(keys.KEY_SPACE),
+        Send(keys.KEY_DOWN + keys.KEY_SPACE),
+        Expect("(X) Stop the test case in progress"),
+        Send(keys.KEY_ENTER),
+        Expect("Outcome: job crashed"),
+        Expect("ID: 2021.com.canonical.certification::basic-shell-passing"),
+    ]
+
+
+@tag("ui", "interact", "interrupt")
+class CtrlCMenuPause(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::tired_test_plan
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
+
+    steps = [
+        Start(),
+        Expect("ID: 2021.com.canonical.certification::sleep_1000s"),
+        Expect("starting to sleep"),
+        Signal(keys.SIGINT),
+        Expect("Interruption!"),
+        Send(keys.KEY_DOWN * 2 + keys.KEY_SPACE),
         Expect("(X) Pause"),
         Send(keys.KEY_ENTER),
         Start(target="controller"),
         Expect(
-            "In progress: 2021.com.canonical.certification::sleep_1000s (1/1)"
+            "In progress: 2021.com.canonical.certification::sleep_1000s (1/2)"
         ),
+    ]
+
+
+@tag("ui", "interact", "interrupt")
+class CtrlCMenuEndSession(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::tired_test_plan
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
+
+    steps = [
+        Start(),
+        Expect("ID: 2021.com.canonical.certification::sleep_1000s"),
+        Expect("starting to sleep"),
         Signal(keys.SIGINT),
         Expect("Interruption!"),
-        Expect("Press <Enter> or <ESC> to continue"),
-        # we are now crashing the test to continue the session
-        Send(keys.KEY_DOWN),
-        Send(keys.KEY_SPACE),
-        Expect("(X) Stop the test case in progress"),
+        Send(keys.KEY_DOWN * 4 + keys.KEY_SPACE),
+        Expect("(X) End this test session"),
+        # Note: this is the session re-starting as we have an automated
+        #       launcher
         Send(keys.KEY_ENTER),
-        Expect("Crashed Jobs"),
+        Expect("ID: 2021.com.canonical.certification::sleep_1000s"),
+        Expect("starting to sleep"),
     ]

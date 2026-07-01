@@ -91,3 +91,4 @@ id: tired_test_plan
 name: Test plan that sleeps, terminates only
 include:
   - sleep_1000s
+  - basic-shell-passing

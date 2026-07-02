@@ -54,7 +54,7 @@ class SysfsDrmCardInfo:
         self.dpms_enabled = (Path(path) / "dpms").read_text().strip() == "On"
 
     def __str__(self) -> str:
-        return "{}: {}x{} enabled={}, is_connected={}, dpms_enabled={}".format(
+        return "{}: max_resolution={}x{} enabled={}, is_connected={}, dpms_enabled={}".format(
             self.port,
             self.max_width,
             self.max_height,

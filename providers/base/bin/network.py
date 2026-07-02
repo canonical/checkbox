@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
 import datetime
 import fcntl
 import ipaddress
@@ -46,6 +46,7 @@ from contextlib import contextmanager, suppress
 from pathlib import Path
 import sys
 import time
+from collections.abc import MutableMapping
 
 # Global results[] variable to pass results from multiple threads....
 results = []
@@ -67,6 +68,7 @@ class IPerfPerformanceTest(object):
         reverse,
         protocol="tcp",
         data_size="1",
+        expected_max_speed: "int | None" = None,
         run_time=None,
         scan_timeout=3600,
         iface_timeout=120,
@@ -81,6 +83,7 @@ class IPerfPerformanceTest(object):
         self.iperf3 = iperf3
         self.num_threads = num_threads
         self.data_size = data_size
+        self.expected_max_speed = expected_max_speed
         self.run_time = run_time
         self.scan_timeout = scan_timeout
         self.iface_timeout = iface_timeout
@@ -199,8 +202,8 @@ class IPerfPerformanceTest(object):
         # to iperf3, thus disabling NUMA features.
         if node_num == -1:
             logging.warning(
-                "WARNING: Could not find the NUMA node "
-                "associated with {}!".format(device)
+                "WARNING: Could not find the NUMA node"
+                + " associated with {}!".format(device)
             )
         else:
             logging.info("NUMA node of {} is {}....".format(device, node_num))
@@ -258,8 +261,8 @@ class IPerfPerformanceTest(object):
         # if max_speed is 0, assume it's wifi and move on
         if self.iface.max_speed == 0:
             logging.warning(
-                "No max speed detected, assuming Wireless device "
-                "and continuing with test."
+                "No max speed (from ethtool) detected, "
+                + "assuming Wireless device and continuing with test."
             )
 
         threads = self.num_threads
@@ -346,7 +349,31 @@ class IPerfPerformanceTest(object):
         throughput = self.summarize_speeds()
         invalid_speed = False
         try:
-            percent = throughput / int(self.iface.max_speed) * 100
+            if self.expected_max_speed is None:
+                percent = (throughput / self.iface.max_speed) * 100
+                logging.info(
+                    "{:03.2f}% of theoretical max {} Mb/s".format(
+                        percent, int(self.iface.max_speed)
+                    )
+                )
+            else:
+                percent = throughput / self.expected_max_speed * 100
+                logging.info(
+                    "{:03.2f}% of expected max {} Mb/s".format(
+                        percent, int(self.expected_max_speed)
+                    )
+                )
+                if self.expected_max_speed != self.iface.max_speed:
+                    logging.warning("MANUAL OVERRIDE WAS USED".center(80, "-"))
+                    logging.warning(
+                        "The expected maximum speed of '{}' ".format(
+                            self.iface.interface
+                        )
+                        + "was manually overridden to '{}' Mbps".format(
+                            self.expected_max_speed,
+                        )
+                    )
+                    logging.warning("-" * 80)
         except (ZeroDivisionError, TypeError):
             # Catches a condition where the interface functions fine but
             # ethtool fails to properly report max speed. In this case
@@ -362,14 +389,9 @@ class IPerfPerformanceTest(object):
             logging.warning("Unable to obtain maximum speed.")
             logging.warning("Considering the test as passed.")
             return 0
+
         # Below is guaranteed to not throw an exception because we'll
         # have exited above if it did.
-        logging.info(
-            "{:03.2f}% of theoretical max {} Mb/s".format(
-                percent, int(self.iface.max_speed)
-            )
-        )
-
         if self.iperf3:
             cpu_load = self.summarize_cpu()
             logging.info(
@@ -388,11 +410,18 @@ class IPerfPerformanceTest(object):
             )
             if percent < self.fail_threshold:
                 logging.error("  Transfer speed: {} Mb/s".format(throughput))
-                logging.error(
-                    "  {:03.2f}% of theoretical max {} Mb/s\n".format(
-                        percent, int(self.iface.max_speed)
+                if self.expected_max_speed:
+                    logging.error(
+                        "  {:03.2f}% of expected max {} Mb/s\n".format(
+                            percent, int(self.expected_max_speed)
+                        )
                     )
-                )
+                else:
+                    logging.error(
+                        "  {:03.2f}% of theoretical max {} Mb/s\n".format(
+                            percent, int(self.iface.max_speed)
+                        )
+                    )
             if cpu_load > self.cpu_load_fail_threshold:
                 logging.error("  CPU load: {}%".format(cpu_load))
                 logging.error(
@@ -445,7 +474,6 @@ class IPerfPerformanceTest(object):
 
 
 class StressPerformanceTest:
-
     def __init__(self, interface, target, iperf3):
         self.interface = interface
         self.target = target
@@ -611,23 +639,42 @@ class Interface(socket.socket):
         return self._read_data("phys_switch_id")
 
 
-def get_test_parameters(args, environ):
-    # Decide the actual values for test parameters, which can come
-    # from one of two possible sources: command-line
-    # arguments, or environment variables.
-    # - If command-line args were given, they take precedence
-    # - Next come environment variables, if set.
+def get_test_parameters(args: Namespace, environ: "MutableMapping[str, str]"):
+    """
+    Decide the actual values for test parameters, which can come
+    from one of two possible sources: command-line
+    arguments, or environment variables.
+    - If command-line args were given, they take precedence
+    - Next come environment variables, if set.
 
-    params = {"test_target_iperf": None}
+    :param args: args from argparser
+    :param environ: environment variable dict, usually os.environ
+    :return: test params dict, see the params variable
+    """
+
+    params = {
+        # test_target_iperf is a comma separated list of ip addresses
+        # example: TEST_TARGET_IPERF=10.102.10.1,10.102.10.2,10.102.10.3
+        "test_target_iperf": None,
+        # max_speed_override is a comma separated list of INTERFACE:SPEED pairs
+        # where INTERFACE is the interface shown in ethtool like eno1
+        # and SPEED is an integer string like 200000 (unit is Megabytes)
+        # example: MAX_EXPECTED_SPEED_OVERRIDE=eno1:1000,enp1s1:2500
+        "max_expected_speed_override": None,
+    }  # type: dict[str, str | None]
 
     # See if we have environment variables
     for key in params.keys():
-        params[key] = os.environ.get(key.upper(), "")
+        params[key] = environ.get(key.upper())  # preserve None
 
     # Finally, see if we have the command-line arguments that are the ultimate
     # override.
     if args.target:
         params["test_target_iperf"] = args.target
+    if args.max_expected_speed_override:
+        params["max_expected_speed_override"] = (
+            args.max_expected_speed_override
+        )
 
     return params
 
@@ -654,7 +701,7 @@ def can_ping(the_interface, test_target):
     return working_interface
 
 
-def run_test(args, test_target):
+def run_test(args, test_target, expected_max_speed: "int | None" = None):
     # Ensure that interface is fully up by waiting until it can
     # ping the test server
     logging.info("Testing {} against {}".format(args.interface, test_target))
@@ -672,6 +719,14 @@ def run_test(args, test_target):
         )
         return 1
 
+    if expected_max_speed:
+        logging.warning(
+            "Expected maximum transfer speed of "
+            + "'{}' was overridden to: {} Mbps".format(
+                args.interface, expected_max_speed
+            )
+        )
+
     # Execute requested networking test
     if args.test_type.lower() == "iperf":
         error_number = 0
@@ -683,6 +738,7 @@ def run_test(args, test_target):
             args.iperf3,
             args.num_threads,
             args.reverse,
+            expected_max_speed=expected_max_speed,
         )
         if args.datasize:
             iperf_benchmark.data_size = args.datasize
@@ -776,6 +832,40 @@ def make_target_list(iface, test_targets, log_warnings):
     return return_list
 
 
+def make_max_expected_speed_override_dict(max_expected_speed_override: str):
+    """Convert the max_expected_speed_override env var string to a dict
+
+    Example: MAX_EXPECTED_SPEED_OVERRIDE=eno1:1000,enp1s1:2500
+
+    This string doesn't have to have all the interfaces. If an interface is
+    not specified, its speed reported by ethtool will be used.
+
+    :param max_expected_speed_override: string from the environment variable
+    :return: dict[str, int], key is interface, value is max speed in megabytes
+    """
+    out = {}  # type: dict[str, int]
+    try:
+        iface_speed_words = max_expected_speed_override.strip().split(",")
+        for iface_speed_word in iface_speed_words:
+            words = iface_speed_word.split(":")
+            if len(words) != 2:
+                raise ValueError(
+                    "Expected string of the form 'eno1:1000', "
+                    + "but got '{}'".format(iface_speed_word)
+                )
+
+            out[words[0]] = int(words[1])
+    except Exception as e:
+        logging.error(
+            "Failed to parse MAX_EXPECTED_SPEED_OVERRIDE, error: '{}'".format(
+                e,
+            )
+        )
+        raise e
+
+    return out
+
+
 # Wait until the specified interface comes up, or until iface_timeout.
 def wait_for_iface_up(iface, timeout):
     deadline = time.time() + timeout
@@ -847,15 +937,16 @@ def check_underspeed(iface):
         and network_if.max_speed != 0
     ):
         logging.error(
-            "Detected link speed ({}) is lower than detected max "
-            "speed ({})".format(network_if.link_speed, network_if.max_speed)
+            "Detected link speed ({}) ".format(network_if.link_speed)
+            + "is lower than detected max speed ({})".format(
+                network_if.max_speed
+            )
         )
         logging.error("Check your device configuration and try again.")
         logging.error(
-            "If you want to override and test despite this "
-            "under-speed link, use"
+            "If you want to override and test despite this under-speed link,"
         )
-        logging.error("the --underspeed-ok option.")
+        logging.error("use the --underspeed-ok option.")
         return True
     return False
 
@@ -977,7 +1068,7 @@ def interface_test_initialize(
             raise CalledProcessError(3, "restore network failed")
 
 
-def interface_test(args):
+def interface_test(args: Namespace):
     if not ("test_type" in vars(args)):
         return
 
@@ -989,25 +1080,33 @@ def interface_test(args):
         test_targets_list = make_target_list(
             args.interface, test_targets, True
         )
+        if test_parameters.get("max_expected_speed_override"):
+            max_expected_speed_override_dict = (
+                make_max_expected_speed_override_dict(
+                    test_parameters["max_expected_speed_override"]
+                )
+            )
+        else:
+            max_expected_speed_override_dict = {}
 
     # Validate that we got reasonable values
     if not test_targets_list or "example.com" in test_targets:
         # Default values found in config file
         logging.error("Valid target server has not been supplied.")
         logging.error(
-            "Configuration settings can be configured 3 different " "ways:"
+            "Configuration settings can be configured 3 different ways:"
         )
         logging.error(
-            "1- If calling the script directly, pass the --target " "option"
+            "1- If calling the script directly, pass the --target option"
         )
         logging.error("2- Define the TEST_TARGET_IPERF environment variable")
         logging.error(
-            "3- If running the test via checkbox/plainbox, define " "the "
+            "3- If running the test via checkbox/plainbox, define the "
         )
         logging.error("target in /etc/xdg/canonical-certification.conf")
         logging.error(
-            "Please run this script with -h to see more details on "
-            "how to configure"
+            "Please run this script with -h "
+            + "to see more details on how to configure"
         )
         sys.exit(1)
 
@@ -1029,7 +1128,11 @@ def interface_test(args):
             # or we run out of both targets and time
             while test_targets_list:
                 test_target = test_targets_list.pop().strip()
-                error_number = run_test(args, test_target)
+                error_number = run_test(
+                    args,
+                    test_target,
+                    max_expected_speed_override_dict.get(args.interface),
+                )
                 elapsed_seconds = (
                     datetime.datetime.now() - start_time
                 ).seconds
@@ -1158,6 +1261,7 @@ TEST_TARGET_IPERF = iperf-server.example.com
         ),
     )
     test_parser.add_argument("--target", type=str)
+    test_parser.add_argument("--max-expected-speed-override", type=str)
     action.add_argument(
         "--datasize",
         type=str,
@@ -1298,13 +1402,14 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
+
     if (
         args.func.__name__ is interface_test
         and not args.cpu_load_fail_threshold != 100
         and not args.iperf3
     ):
         parser.error(
-            "--cpu-load-fail-threshold can only be set with " "--iperf3."
+            "--cpu-load-fail-threshold can only be set with --iperf3."
         )
 
     if args.debug:

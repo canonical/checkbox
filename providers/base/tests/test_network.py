@@ -639,6 +639,143 @@ class NetworkTests(unittest.TestCase):
         self.assertEqual(mock_logging.call_count, 7)
 
 
+class MakeMaxExpectedSpeedOverrideDictTests(unittest.TestCase):
+    def test_single_entry_happy_path(self):
+        result = network.make_max_expected_speed_override_dict("eno1:1000")
+        self.assertEqual(result, {"eno1": 1000})
+
+    def test_multiple_entries_happy_path(self):
+        result = network.make_max_expected_speed_override_dict(
+            "eno1:1000,enp1s1:2500"
+        )
+        self.assertEqual(result, {"eno1": 1000, "enp1s1": 2500})
+
+    def test_leading_trailing_whitespace_stripped(self):
+        result = network.make_max_expected_speed_override_dict("  eno1:1000  ")
+        self.assertEqual(result, {"eno1": 1000})
+
+    def test_invalid_no_colon_raises(self):
+        with self.assertRaises(ValueError):
+            network.make_max_expected_speed_override_dict("eno1")
+
+    def test_invalid_non_integer_speed_raises(self):
+        with self.assertRaises(ValueError):
+            network.make_max_expected_speed_override_dict("eno1:notanumber")
+
+    def test_invalid_extra_colon_raises(self):
+        with self.assertRaises(ValueError):
+            network.make_max_expected_speed_override_dict("eno1:1000:extra")
+
+
+class GetTestParametersTests(unittest.TestCase):
+    def _make_args(self, target=None, max_expected_speed_override=None):
+        return Namespace(
+            target=target,
+            max_expected_speed_override=max_expected_speed_override,
+        )
+
+    def test_no_env_vars_no_args_returns_none(self):
+        result = network.get_test_parameters(self._make_args(), {})
+        self.assertIsNone(result["test_target_iperf"])
+        self.assertIsNone(result["max_expected_speed_override"])
+
+    def test_env_var_test_target_iperf(self):
+        environ = {"TEST_TARGET_IPERF": "192.168.1.1"}
+        result = network.get_test_parameters(self._make_args(), environ)
+        self.assertEqual(result["test_target_iperf"], "192.168.1.1")
+        self.assertIsNone(result["max_expected_speed_override"])
+
+    def test_env_var_max_expected_speed_override(self):
+        environ = {"MAX_EXPECTED_SPEED_OVERRIDE": "eno1:1000,enp1s1:2500"}
+        result = network.get_test_parameters(self._make_args(), environ)
+        self.assertEqual(
+            result["max_expected_speed_override"], "eno1:1000,enp1s1:2500"
+        )
+
+    def test_cli_target_overrides_env(self):
+        environ = {"TEST_TARGET_IPERF": "192.168.1.1"}
+        args = self._make_args(target="10.0.0.1")
+        result = network.get_test_parameters(args, environ)
+        self.assertEqual(result["test_target_iperf"], "10.0.0.1")
+
+    def test_missing_env_var_preserves_none(self):
+        result = network.get_test_parameters(self._make_args(), {})
+        self.assertIsNone(result["test_target_iperf"])
+
+
+class InterfaceTestWithMaxSpeedOverrideTests(unittest.TestCase):
+    @patch("time.sleep")
+    @patch("network.make_max_expected_speed_override_dict")
+    @patch("network.run_test")
+    @patch("network.interface_test_initialize")
+    @patch("network.make_target_list")
+    @patch("network.get_test_parameters")
+    def test_interface_test_passes_override_speed_to_run_test(
+        self,
+        mock_get_test_params,
+        mock_mk_targets,
+        mock_net_init,
+        mock_run,
+        mock_make_override_dict,
+        mock_sleep,
+    ):
+        """run_test receives the overridden speed for the given interface."""
+        args = Namespace(
+            test_type="iperf",
+            interface="eth0",
+            scan_timeout=4,
+            underspeed_ok=True,
+            dont_toggle_ifaces=True,
+            iface_timeout=1,
+        )
+        mock_get_test_params.return_value = {
+            "test_target_iperf": "127.0.0.1",
+            "max_expected_speed_override": "eth0:5000",
+        }
+        mock_make_override_dict.return_value = {"eth0": 5000}
+        mock_mk_targets.return_value = ["192.168.1.1"]
+        mock_run.return_value = 0
+
+        with redirect_stderr(StringIO()):
+            network.interface_test(args)
+
+        mock_make_override_dict.assert_called_once_with("eth0:5000")
+        mock_run.assert_called_once_with(args, "192.168.1.1", 5000)
+
+    @patch("time.sleep")
+    @patch("network.run_test")
+    @patch("network.interface_test_initialize")
+    @patch("network.make_target_list")
+    @patch("network.get_test_parameters")
+    def test_interface_test_no_override_passes_none_to_run_test(
+        self,
+        mock_get_test_params,
+        mock_mk_targets,
+        mock_net_init,
+        mock_run,
+        mock_sleep,
+    ):
+        args = Namespace(
+            test_type="iperf",
+            interface="eth0",
+            scan_timeout=4,
+            underspeed_ok=True,
+            dont_toggle_ifaces=True,
+            iface_timeout=1,
+        )
+        mock_get_test_params.return_value = {
+            "test_target_iperf": "127.0.0.1",
+            "max_expected_speed_override": None,
+        }
+        mock_mk_targets.return_value = ["192.168.1.1"]
+        mock_run.return_value = 0
+
+        with redirect_stderr(StringIO()):
+            network.interface_test(args)
+
+        mock_run.assert_called_once_with(args, "192.168.1.1", None)
+
+
 class InterfaceClassTest(unittest.TestCase):
 
     @patch("network.Interface.__init__", Mock(return_value=None))
@@ -662,3 +799,7 @@ class InterfaceClassTest(unittest.TestCase):
         mock_read.return_value = "test"
 
         self.assertEqual(self.obj_intf.phys_switch_id, "test")
+
+
+if __name__ == "__main__":
+    unittest.main()

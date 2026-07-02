@@ -84,6 +84,7 @@ value-type: bool
 unit: manifest entry
 id: _setup_manifest_hidden
 name: Setup manifest hidden from the UI
+hidden-reason: Intentionally hidden to validate that it is not shown in the UI
 value-type: bool
 ---
 unit: manifest entry
@@ -120,3 +121,21 @@ setup_include:
   - setup_job_requiring_manifest
 include:
   - verify_setup_manifest_ran
+---
+id: verify_setup_manifest_not_ran
+flags: [simple]
+command: |
+  if test -f $PLAINBOX_SESSION_SHARE/setup_manifest_guard; then
+    echo "setup job ran, when it should have been skipped"
+    exit 1
+  else
+    echo "setup job did not run, as expected"
+  fi
+---
+id: manifest_menu_setup_job_tp_not_ran
+unit: test plan
+name: Test that skipping actually works for setup jobs
+setup_include:
+  - setup_job_requiring_manifest
+include:
+  - verify_setup_manifest_not_ran

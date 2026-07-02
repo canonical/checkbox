@@ -184,3 +184,28 @@ class ManifestSelectionUsesLauncherManifestForSetupJob(Scenario):
         Expect("2021.com.canonical.certification::verify_setup_manifest_ran"),
         Expect("job passed"),
     ]
+
+
+@tag("manual", "interact", "manifest")
+class ManifestSelectionUsesLauncherManifestForSetupJobNotRan(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit=2021.com.canonical.certification::manifest_menu_setup_job_tp_not_ran
+        forced = yes
+        [test selection]
+        forced = yes
+        [manifest]
+        2021.com.canonical.certification::setup_job_manifest=False
+        """)
+
+    steps = [
+        Start(),
+        ExpectNot("System Manifest", timeout=0.5),
+        Expect(
+            "2021.com.canonical.certification::verify_setup_manifest_not_ran"
+        ),
+        Expect("job passed"),
+    ]

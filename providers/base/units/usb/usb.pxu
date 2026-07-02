@@ -38,6 +38,9 @@ category_id: com.canonical.plainbox::usb
 id: usb/HID
 flags: also-after-suspend
 depends: usb/detect
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_usb_type_a == 'True'
 estimated_duration: 1.0
 command: keyboard_test.py
 _description:
@@ -52,7 +55,10 @@ _verification:
 _summary: Verify USB HID devices functionality by performing specified actions.
 
 id: usb/storage-manual
-flags: also-after-suspend fail-on-resource
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_usb_type_a == 'True'
 _summary: Test USB 2.0 storage device insertion + read/write + removal.
 _purpose:
     Check system can detect insertion of a USB 2.0 storage device.
@@ -80,8 +86,10 @@ estimated_duration: 120
 
 id: usb3/storage-manual
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
 requires:
  usb.usb3 == 'supported'
+ manifest.has_usb_type_a == 'True'
 _summary: Test USB 3.0 storage device insertion + read/write + removal.
 _purpose:
     Check system can detect insertion of a USB 3.0 storage device.
@@ -257,6 +265,9 @@ _purpose:
 depends: usb/storage-detect
 
 id: usb/hid
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_usb_type_a == 'True'
 _summary: USB keyboard works
 _purpose:
  Check USB input device works

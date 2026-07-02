@@ -159,10 +159,10 @@ def check_max_resolution_in_gnome():
             monitor.info.vendor, monitor.info.product, monitor.info.connector
         )
 
+        # preserve the original logic of ignoring inactive monitors
         if curr is None:
-            raise SystemExit(
-                msg_prefix + " has no active mode. Is it turned off?"
-            )
+            print(msg_prefix, "has no active mode. Skipping.")
+            continue
 
         max_w, max_h = monitor.get_max_resolution()
         if curr.width != max_w or curr.height != max_h:
@@ -189,4 +189,5 @@ def check_max_resolution_in_gnome():
 
 
 if __name__ == "__main__":
+    # print(get_sysfs_info())
     check_max_resolution_in_gnome()

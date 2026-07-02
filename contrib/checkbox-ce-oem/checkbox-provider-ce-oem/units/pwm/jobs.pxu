@@ -1,0 +1,76 @@
+id: ce-oem-pwm/pwm-list
+_summary:
+    Generates a PWM resource list from sysfs and debugfs
+_description:
+    Generates a PWM resource list by reading /sys/kernel/debug/pwm and
+    resolving stable PWM controller names. This resource is used to instantiate
+    one sysfs validation job for each eligible PWM output.
+plugin: resource
+user: root
+category_id: pwm
+estimated_duration: 5s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_pwm == 'True'
+environ:
+    PWM_IGNORE
+    PWM_ALLOW
+command:
+    set -- resource
+    if [ -n "${PWM_IGNORE:-}" ]; then
+        set -- "$@" --ignore "$PWM_IGNORE"
+    fi
+    if [ -n "${PWM_ALLOW:-}" ]; then
+        set -- "$@" --allow "$PWM_ALLOW"
+    fi
+    pwm_test.py "$@"
+
+id: ce-oem-pwm/check
+_summary:
+    Check PWM device inventory
+_description:
+    Lists all PWM chips and PWM outputs exposed by the device. If
+    PWM_DEV_TOTAL_NUM is provided by the launcher environment, the job also
+    verifies that the discovered PWM output count matches that expected value.
+plugin: shell
+user: root
+category_id: pwm
+estimated_duration: 30s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_pwm == 'True'
+environ: PWM_DEV_TOTAL_NUM
+command:
+    if [ -n "${PWM_DEV_TOTAL_NUM:-}" ]; then
+        pwm_test.py check --PWM_DEV_TOTAL_NUM "$PWM_DEV_TOTAL_NUM"
+    else
+        pwm_test.py check
+    fi
+
+unit: template
+template-resource: ce-oem-pwm/pwm-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-pwm/sysfs-validation
+id: ce-oem-pwm/sysfs-validation-{{ PWM_ID }}
+_template-summary: Validate PWM sysfs controls
+_summary:
+    Validate PWM sysfs controls for {{ PWM_CHIP_NAME }} {{ PWM_NAME }}
+_description:
+    Validate period, duty_cycle, polarity, and enable controls for the selected
+    PWM output. The test uses the stable PWM controller name and PWM output name
+    discovered by the PWM resource job, then resolves the current pwmchip node
+    at runtime.
+plugin: shell
+user: root
+category_id: pwm
+estimated_duration: 30s
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_pwm == 'True'
+environ:
+    PWM_TEST_PERIOD
+    PWM_TEST_DUTY_CYCLE
+command:
+    pwm_test.py test "{{ PWM_CHIP_NAME }}" "{{ PWM_NAME }}" \
+        --period "${PWM_TEST_PERIOD:-1000000}" \
+        --duty-cycle "${PWM_TEST_DUTY_CYCLE:-500000}" \
+        {% if Consumer != "NotDefined" %}--force{% endif %}

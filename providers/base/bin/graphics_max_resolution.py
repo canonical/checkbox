@@ -147,7 +147,7 @@ def ubuntu16_main():
         )
 
 
-def main():
+def check_max_resolution_in_gnome():
     mutter_state = MonitorConfigGnome().get_current_state()
 
     failed = False
@@ -158,7 +158,7 @@ def main():
         )
 
         if curr is None:
-            raise RuntimeError(
+            raise SystemExit(
                 msg_prefix + " has no active mode. Is it turned off?"
             )
 
@@ -176,7 +176,10 @@ def main():
             failed = True
         else:
             print(
-                "[ OK ] {} is set to its maximum resolution".format(msg_prefix)
+                "[ OK ] {} is set to its maximum resolution".format(
+                    msg_prefix
+                ),
+                "{}x{}".format(curr.width, curr.height),
             )
 
     if failed:
@@ -184,4 +187,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    check_max_resolution_in_gnome()

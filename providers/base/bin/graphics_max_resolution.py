@@ -153,6 +153,7 @@ def check_max_resolution_in_gnome():
     mutter_state = MonitorConfigGnome().get_current_state()
 
     failed = False
+    total_gnome_res = 0
     for monitor in mutter_state.physical_monitors:
         curr = monitor.get_current_mode()
         msg_prefix = "Monitor '{} {}', connected at '{}'".format(
@@ -161,7 +162,7 @@ def check_max_resolution_in_gnome():
 
         # preserve the original logic of ignoring inactive monitors
         if curr is None:
-            print(msg_prefix, "has no active mode. Skipping.")
+            print("[ WARN ]", msg_prefix, "has no active mode. Skipping.")
             continue
 
         max_w, max_h = monitor.get_max_resolution()
@@ -183,9 +184,36 @@ def check_max_resolution_in_gnome():
                 ),
                 "{}x{}".format(curr.width, curr.height),
             )
+            total_gnome_res += curr.width * curr.height
 
     if failed:
+        # no need to do the sysfs check if gnome
+        # is already NOT using the max resolution
         raise SystemExit("See the logs above to see which monitors failed")
+
+    # now we know gnome is using the maximum resolution
+    # compare it with sysfs
+    total_sysfs_res = 0
+    print("Checking against these max resolutions shown in sysfs:")
+    sysfs_info = get_sysfs_info()
+    for p in sysfs_info:
+        print(
+            " - {}: {}x{} ({})".format(
+                p["port"], p["width"], p["height"], p["enabled"]
+            )
+        )
+        if p["enabled"] == "enabled":
+            total_sysfs_res += int(p["width"]) * int(p["height"])
+
+    # instead of checking each individual display
+    # where we have to do edid matching
+    # just add them all together and compare the sum
+    if total_gnome_res == total_sysfs_res:
+        print("[ OK ] Maximum resolution reported by GNOME matches sysfs")
+    else:
+        raise SystemExit(
+            "[ ERR ] Maximum resolution reported by GNOME does not match sysfs"
+        )
 
 
 if __name__ == "__main__":

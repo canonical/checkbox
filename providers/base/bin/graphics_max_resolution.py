@@ -149,7 +149,7 @@ def ubuntu16_main():
         )
 
 
-def check_max_resolution_in_gnome():
+def main():
     mutter_state = MonitorConfigGnome().get_current_state()
 
     failed = False
@@ -217,5 +217,4 @@ def check_max_resolution_in_gnome():
 
 
 if __name__ == "__main__":
-    # print(get_sysfs_info())
-    check_max_resolution_in_gnome()
+    main()

@@ -300,6 +300,39 @@ def stress_memory(args):
     # Low-thread-count stressors -- throttle to >8 threads...
     ltc_stressors = ["stack", "bigheap", "brk"]
 
+    if args.stressor is not None:
+        if args.stressor in crt_stressors:
+            sng_timeout, thread_count = args.base_time, 0
+        elif args.stressor in vrt_stressors:
+            sng_timeout, thread_count = vrt, 0
+        elif args.stressor in ltc_stressors:
+            sng_timeout, thread_count = vrt, 8
+        else:
+            print(
+                "** Unknown memory stressor '{}'. Valid options: {}".format(
+                    args.stressor,
+                    ", ".join(crt_stressors + vrt_stressors + ltc_stressors),
+                )
+            )
+            return 1
+        test_object = StressNg(
+            stressors=[args.stressor],
+            sng_timeout=sng_timeout,
+            wrapper_timeout=sng_timeout * 2,
+            thread_count=thread_count,
+            oom_avoid_bytes=oom_avoid_bytes,
+        )
+        retval = test_object.run()
+        print(test_object.results)
+        if my_swap is not None and args.keep_swap is False:
+            print("Deleting temporary swap file....")
+            cmd = "swapoff {}".format(my_swap)
+            Popen(
+                shlex.split(cmd), stderr=STDOUT, stdout=PIPE
+            ).communicate()[0]
+            os.remove(my_swap)
+        return retval
+
     est_runtime = (
         len(crt_stressors) * args.base_time + len(vrt_stressors) * vrt
     )
@@ -472,6 +505,13 @@ def main():
         type=str,
         help="OOM avoidance memory (default=10%%, 5%% for >255GB)",
         default=None,
+    )
+    memory_parser.add_argument(
+        "--stressor",
+        type=str,
+        default=None,
+        help="Run only the named stress-ng memory stressor (e.g. matrix, vm)"
+        " instead of the full suite",
     )
 
     # Disk parameters

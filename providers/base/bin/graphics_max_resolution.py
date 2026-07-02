@@ -24,6 +24,7 @@ from glob import glob
 import os
 import sys
 from pathlib import Path
+from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
 
 gi.require_versions({"Gtk": "3.0", "Gdk": "3.0"})
 from gi.repository import Gdk, Gtk  # noqa: E402
@@ -85,7 +86,7 @@ def get_monitors_info():
     return monitors
 
 
-if __name__ == "__main__":
+def ubuntu16_main():
     sysfs_entries = get_sysfs_info()
     mons_entries = get_monitors_info()
     total_sysfs_res = 0
@@ -146,3 +147,43 @@ if __name__ == "__main__":
                 "continuing."
             )
         )
+
+
+def main():
+    mutter_state = MonitorConfigGnome().get_current_state()
+
+    failed = False
+    for monitor in mutter_state.physical_monitors:
+        curr = monitor.get_current_mode()
+        msg_prefix = "Monitor '{} {}', connected at '{}'".format(
+            monitor.info.vendor, monitor.info.product, monitor.info.connector
+        )
+
+        if curr is None:
+            raise RuntimeError(
+                msg_prefix + " has no active mode. Is it turned off?"
+            )
+
+        max_w, max_h = monitor.get_max_resolution()
+        if curr.width != max_w or curr.height != max_h:
+            print(
+                "[ ERR ]",
+                msg_prefix,
+                "is not using its maximum resolution.",
+                "Expected {}x{}, but got {}x{}".format(
+                    max_w, max_h, curr.width, curr.height
+                ),
+                file=sys.stderr,
+            )
+            failed = True
+        else:
+            print(
+                "[ OK ] {} is set to its maximum resolution".format(msg_prefix)
+            )
+
+    if failed:
+        raise SystemExit("See the logs above to see which monitors failed")
+
+
+if __name__ == "__main__":
+    main()

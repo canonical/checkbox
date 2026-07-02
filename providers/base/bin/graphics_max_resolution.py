@@ -5,6 +5,7 @@
 # Copyright 2022 Canonical Ltd.
 #
 # Authors:
+#   Zhongning Li <zhongning.li@canonical.com>
 #   Pierre Equoy <pierre.equoy@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify

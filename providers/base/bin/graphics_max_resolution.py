@@ -33,7 +33,7 @@ class SysfsDrmCardInfo:
                 "{} requires a directory path.".format(type(self).__name__)
                 + "Example: /sys/class/drm/card1-eDP-1/"
             )
-        with open(Path(path) / "modes") as f:
+        with (Path(path) / "modes").open() as f:
             # Topmost line in the modes file is the max resolution
             max_resolution = f.readline().strip()
             if not max_resolution:
@@ -62,20 +62,17 @@ class SysfsDrmCardInfo:
             self.dpms_enabled,
         )
 
-
-def get_sysfs_info():
-    """
-    Go through each graphics cards sysfs entries to find max resolution if
-    connected to a monitor.
-    Return a list of ports with information about them.
-    """
-    out = []  # type: list[SysfsDrmCardInfo]
-    for str_path in glob("/sys/class/drm/card*-*"):
-        try:
-            out.append(SysfsDrmCardInfo(Path(str_path)))
-        except ValueError:
-            continue
-    return out
+    @classmethod
+    def get_all_active_ports(cls):
+        out = []  # type: list[SysfsDrmCardInfo]
+        for str_path in glob("/sys/class/drm/card*-*"):
+            try:
+                # use the constructor behavior of rejecting ports
+                # that have no monitor connected
+                out.append(SysfsDrmCardInfo(Path(str_path)))
+            except ValueError:
+                continue
+        return out
 
 
 def main():
@@ -124,7 +121,7 @@ def main():
     # compare it with sysfs
     total_sysfs_res = 0
     print("Checking against these max resolutions shown in sysfs:")
-    sysfs_info = get_sysfs_info()
+    sysfs_info = SysfsDrmCardInfo.get_all_active_ports()
     for drm_card in sysfs_info:
         print(" -", drm_card)
         if drm_card.enabled:
@@ -133,6 +130,7 @@ def main():
     # instead of checking each individual display
     # where we have to do edid matching
     # just add them all together and compare the sum
+    # this is the original behavior of this test case
     if total_gnome_res == total_sysfs_res:
         print("[ OK ] Maximum resolution reported by GNOME matches sysfs")
     else:

@@ -53,6 +53,38 @@ With this structure, Checkbox installs ``example-tool`` first. It then runs the
 bootstrap job that discovers devices or generates tests, and finally runs the
 main test selection.
 
+Using manifest values
+---------------------
+
+Use ``requires_manifest`` when a setup job should only run for specific manifest
+values. List a manifest entry directly when the required value is ``true``:
+
+.. code-block:: yaml
+
+    unit: setup job
+    id: setup/install_touchscreen_tool
+    summary: Install touchscreen test dependencies
+    plugin: shell
+    user: root
+    requires_manifest:
+      - has_touchscreen
+      - has_touchscreen_special_pen
+    command: snap install touchscreen-tool-pen
+
+Use an explicit key/value mapping when the setup job requires a manifest value to
+be ``false``:
+
+.. code-block:: yaml
+
+    unit: setup job
+    id: setup/install_non_touchscreen_tool
+    summary: Install non-touchscreen test dependencies
+    plugin: shell
+    user: root
+    requires_manifest:
+      - has_touchscreen: false
+    command: snap install non-touchscreen-tool
+
 When to use a setup job
 -----------------------
 

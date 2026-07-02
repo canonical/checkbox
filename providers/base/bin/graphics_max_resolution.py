@@ -20,9 +20,47 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 from glob import glob
+import os
 import sys
 from pathlib import Path
 from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
+
+
+class SysfsDrmCardInfo:
+    def __init__(self, path: Path) -> None:
+        if not path.is_dir():
+            raise ValueError(
+                "{} requires a directory path.".format(type(self).__name__)
+                + "Example: /sys/class/drm/card1-eDP-1/"
+            )
+        with open(Path(path) / "modes") as f:
+            # Topmost line in the modes file is the max resolution
+            max_resolution = f.readline().strip()
+            if not max_resolution:
+                raise ValueError(
+                    "No monitor is connected to this port {}".format(path)
+                )
+            str_width, str_height = max_resolution.split("x")
+            self.max_width, self.max_height = int(str_width), int(str_height)
+
+        self.enabled = (
+            Path(path) / "enabled"
+        ).read_text().strip() == "enabled"
+        self.is_connected = (
+            Path(path) / "status"
+        ).read_text().strip() == "connected"
+        self.port = os.path.basename(path)
+        self.dpms_enabled = (Path(path) / "dpms").read_text().strip() == "On"
+
+    def __str__(self) -> str:
+        return "{}: {}x{} enabled={}, is_connected={}, dpms_enabled={}".format(
+            self.port,
+            self.max_width,
+            self.max_height,
+            self.enabled,
+            self.is_connected,
+            self.dpms_enabled,
+        )
 
 
 def get_sysfs_info():
@@ -31,54 +69,13 @@ def get_sysfs_info():
     connected to a monitor.
     Return a list of ports with information about them.
     """
-    ports = glob("/sys/class/drm/card*-*")
-    entries = []
-    for p in ports:
-        with open(Path(p) / "modes") as f:
-            # Topmost line in the modes file is the max resolution
-            max_resolution = f.readline().strip()
-        if max_resolution:
-            # e.g. "/sys/class/drm/card0-HDMI-A-1"
-            port = p.split("/")[-1]
-            width, height = max_resolution.split("x")
-            with open(Path(p) / "enabled") as f:
-                enabled = f.readline().strip()
-            with open(Path(p) / "dpms") as f:
-                dpms = f.readline().strip()
-            with open(Path(p) / "status") as f:
-                status = f.readline().strip()
-            port_info = {
-                "port": port,
-                "width": int(width),
-                "height": int(height),
-                "enabled": enabled,  # "enabled" or "disabled"
-                "status": status,  # "connected" or "disconnected"
-                "dpms": dpms,  # "On" or "Off"
-            }
-            entries.append(port_info)
-    return entries
-
-
-def get_monitors_info():
-    """
-    Get information (model, manufacturer, resolution) from each connected
-    monitors using Gtk.
-    Return a list of monitors with their information.
-    """
-    Gtk.init()
-    display = Gdk.Display.get_default()
-    monitors = []
-    for i in range(display.get_n_monitors()):
-        mon = display.get_monitor(i)
-        monitor = {
-            "model": mon.get_model(),
-            "manufacturer": mon.get_manufacturer(),
-            "width": mon.get_geometry().width,
-            "height": mon.get_geometry().height,
-            "scale_factor": mon.get_scale_factor(),
-        }
-        monitors.append(monitor)
-    return monitors
+    out = []  # type: list[SysfsDrmCardInfo]
+    for str_path in glob("/sys/class/drm/card*-*"):
+        try:
+            out.append(SysfsDrmCardInfo(Path(str_path)))
+        except ValueError:
+            continue
+    return out
 
 
 def main():
@@ -128,14 +125,10 @@ def main():
     total_sysfs_res = 0
     print("Checking against these max resolutions shown in sysfs:")
     sysfs_info = get_sysfs_info()
-    for p in sysfs_info:
-        print(
-            " - {}: {}x{} ({})".format(
-                p["port"], p["width"], p["height"], p["enabled"]
-            )
-        )
-        if p["enabled"] == "enabled":
-            total_sysfs_res += int(p["width"]) * int(p["height"])
+    for drm_card in sysfs_info:
+        print(" -", drm_card)
+        if drm_card.enabled:
+            total_sysfs_res += drm_card.max_width * drm_card.max_height
 
     # instead of checking each individual display
     # where we have to do edid matching

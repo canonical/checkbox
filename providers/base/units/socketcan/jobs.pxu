@@ -16,6 +16,30 @@ command:
     ip link add vcan0 type vcan
   fi
 
+id: socketcan/check_interfaces
+category_id: socketcan
+_summary: Check CAN interfaces on the platform
+_description:
+  Check whether CAN interfaces exist on the platform.
+  If EXPECTED_CAN_INTERFACES is set, the detected count must match it.
+plugin: shell
+user: root
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.socket_can == 'True'
+estimated_duration: 1
+command:
+  expected_can_num="${EXPECTED_CAN_INTERFACES:-}"
+  detected_can_num="$(ip -o link show type can | wc -l | tr -d '[:space:]')"
+  if [ "${detected_can_num}" -eq 0 ]; then
+      echo "No CAN interfaces found on this platform"
+      exit 1
+  fi
+  if [ -n "${expected_can_num}" ] && [ "${detected_can_num}" -ne "${expected_can_num}" ]; then
+      echo "Expected ${expected_can_num} CAN interfaces, found ${detected_can_num}"
+      exit 1
+  fi
+
 id: socketcan/send_packet_local_sff_virtual
 depends: socketcan/modprobe_vcan
 _summary: Virtual CAN device support test (Raw, Local)

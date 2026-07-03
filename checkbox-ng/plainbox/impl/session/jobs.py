@@ -59,6 +59,9 @@ class InhibitionCause(IntEnum):
 
         FAILED_RESOURCE:
             This job has a resource requirement that evaluated to a false value
+
+        REQUIRED_MANIFEST:
+            This job required a manifest that is either False or undefined
     """
 
     UNDESIRED = 0
@@ -67,6 +70,7 @@ class InhibitionCause(IntEnum):
     PENDING_RESOURCE = 3
     FAILED_RESOURCE = 4
     NOT_FAILED_DEP = 5
+    REQUIRED_MANIFEST = 6
 
 
 def cause_convert_assign_filter(
@@ -166,7 +170,19 @@ class JobReadinessInhibitor(pod.POD):
         assign_filter_list=[pod.read_only_assign_filter],
     )
 
-    def __init__(self, cause, related_job=None, related_expression=None):
+    related_manifests = pod.Field(
+        doc="an (optional) list of missing manifest ids",
+        type=list,
+        assign_filter_list=[pod.read_only_assign_filter],
+    )
+
+    def __init__(
+        self,
+        cause,
+        related_job=None,
+        related_expression=None,
+        related_manifests=None,
+    ):
         """
         Initialize a new inhibitor with the specified cause.
 
@@ -174,7 +190,12 @@ class JobReadinessInhibitor(pod.POD):
         is either PENDING_RESOURCE or FAILED_RESOURCE related_expression is
         necessary as well. A ValueError is raised when this is violated.
         """
-        super().__init__(cause, related_job, related_expression)
+        super().__init__(
+            cause,
+            related_job,
+            related_expression,
+            related_manifests,
+        )
         if (
             self.cause != InhibitionCause.UNDESIRED
             and self.related_job is None
@@ -199,6 +220,17 @@ class JobReadinessInhibitor(pod.POD):
                     # TRANSLATORS: please don't translate related_expression, None
                     # and cause.
                     "related_expression must not be None when cause is {}"
+                ).format(self.cause.name)
+            )
+        if (
+            self.cause == InhibitionCause.REQUIRED_MANIFEST
+            and self.related_manifests is None
+        ):
+            raise ValueError(
+                _(
+                    # TRANSLATORS: please don't translate related_manifests, None
+                    # and cause.
+                    "related_manifests must not be None when cause is {}"
                 ).format(self.cause.name)
             )
 
@@ -233,6 +265,12 @@ class JobReadinessInhibitor(pod.POD):
             return _("resource expression {!r} evaluates to false").format(
                 self.related_expression.text
             )
+        elif self.cause == InhibitionCause.REQUIRED_MANIFEST:
+            if len(self.related_manifests) == 1:
+                return _("manifest: {!r} unmet").format(
+                    self.related_manifests[0]
+                )
+            return _("manifests: {!r} unmet").format(self.related_manifests)
         elif self.cause == InhibitionCause.NOT_FAILED_DEP:
             return _("required dependency {!r} did not fail").format(
                 self.related_job.id

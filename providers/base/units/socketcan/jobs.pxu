@@ -26,7 +26,7 @@ plugin: shell
 user: root
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
-requires: manifest.socket_can == 'True'
+requires: manifest.has_socket_can == 'True'
 estimated_duration: 1
 command:
   expected_can_num="${EXPECTED_CAN_INTERFACES:-}"

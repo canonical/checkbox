@@ -170,9 +170,17 @@ class Scenario:
     def assertNotEqual(self, first, second):
         return first != second
 
-    def start(self, cmd="", interactive=False, timeout=0):
+    def start(self, cmd="", interactive=False, timeout=0, target="both"):
         if self.mode == "remote":
-            outcome = self.start_all(interactive=interactive, timeout=timeout)
+            if target == "both":
+                outcome = self.start_all(
+                    interactive=interactive, timeout=timeout
+                )
+            elif target == "agent":
+                self.start_agent()
+                return
+            elif target == "controller":
+                outcome = self.start_controller(interactive, timeout)
             if interactive:
                 self._pts = outcome
             else:

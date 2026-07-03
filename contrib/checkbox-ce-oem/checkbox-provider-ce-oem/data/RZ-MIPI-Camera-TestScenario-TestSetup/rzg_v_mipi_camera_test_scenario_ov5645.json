@@ -8,8 +8,7 @@
             "formats": ["UYVY"],
             "resolutions": [
                 {"width": 1280, "height": 960},
-                {"width": 1920, "height": 1080},
-                {"width": 2592, "height": 1944}
+                {"width": 1920, "height": 1080}
             ]
         }
     ],
@@ -22,8 +21,7 @@
             "formats": ["UYVY"],
             "resolutions": [
                 {"width": 1280, "height": 960, "fps": 45},
-                {"width": 1920, "height": 1080, "fps": 30},
-                {"width": 2592, "height": 1944, "fps": 15}
+                {"width": 1920, "height": 1080, "fps": 30}
             ]
         }
     ]

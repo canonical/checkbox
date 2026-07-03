@@ -55,7 +55,9 @@ _description:
  Monitor tests (GPU) (Manual)
 include:
  monitor/powersaving                        certification-status=blocker
- power-management/light_sensor              certification-status=blocker
+ power-management/light_sensor_detect
+ power-management/light_sensor_test_device
+ monitor/als_monitor_brightness_control
  monitor/dim_brightness                     certification-status=blocker
  monitor/displayport                        certification-status=blocker
  audio/playback_displayport                 certification-status=blocker
@@ -73,6 +75,7 @@ include:
  monitor/multi-head                         certification-status=blocker
 bootstrap_include:
     graphics_card
+    light_sensor_resource
 
 id: after-suspend-monitor-gpu-cert-full
 unit: test plan
@@ -128,7 +131,9 @@ _description:
  Monitor tests (after suspend, GPU) (Manual)
 include:
  after-suspend-monitor/powersaving                        certification-status=blocker
- after-suspend-power-management/light_sensor              certification-status=blocker
+ after-suspend-power-management/light_sensor_detect
+ after-suspend-power-management/light_sensor_test_device
+ after-suspend-monitor/als_monitor_brightness_control
  after-suspend-monitor/dim_brightness                     certification-status=blocker
  after-suspend-monitor/displayport                        certification-status=blocker
  after-suspend-audio/playback_displayport                 certification-status=blocker
@@ -146,6 +151,7 @@ include:
  after-suspend-monitor/multi-head                         certification-status=blocker
 bootstrap_include:
     graphics_card
+    light_sensor_resource
 
 id: monitor-integrated-gpu-cert-full
 unit: test plan

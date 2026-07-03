@@ -45,6 +45,7 @@ def sane_product(og_product: str) -> str:
         "aio",
         "mini-pc",
         "main-server-chassis",
+        "rack-mount-chassis",
     ]:
         return "non-portable"
     elif cleaned in [

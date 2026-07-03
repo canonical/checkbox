@@ -2,7 +2,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2026 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 #
 # Authors:
 #   Zhongning Li <zhongning.li@canonical.com>
@@ -19,13 +19,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import unittest
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch
 
-from graphics_max_resolution import SysfsDrmCardInfo, main
+# gnome_monitor imports gi.repository at module level, which requires a
+# running GNOME session. Stub out the entire gi stack before any import
+# that transitively pulls it in, so we can test graphics_max_resolution
+# in isolation.
+_mock_gi = MagicMock()
+sys.modules.setdefault("gi", _mock_gi)
+sys.modules.setdefault("gi.repository", _mock_gi.repository)
+sys.modules.setdefault("gi.repository.Gio", _mock_gi.repository.Gio)
+sys.modules.setdefault("gi.repository.GLib", _mock_gi.repository.GLib)
+
+from graphics_max_resolution import SysfsDrmCardInfo, main  # noqa: E402
 
 
 def _make_drm_port(

@@ -78,6 +78,22 @@ The following fields may be used by the setup job unit:
     should be listed, not the *values*, which will be taken from the existing
     environment.
 
+.. option:: requires_manifest
+
+    (optional, YAML only) - A list of manifest entries that must match before
+    the setup job can run. This field is only supported in YAML unit
+    definitions.
+
+    List a manifest entry directly when the required value is ``true``::
+
+        requires_manifest:
+            - has_touchscreen
+
+    Use a mapping when the required value is ``false``::
+
+        requires_manifest:
+            - has_touchscreen: false
+
 .. option:: estimated_duration
 
     (optional) - This field contains metadata about how long the setup job is

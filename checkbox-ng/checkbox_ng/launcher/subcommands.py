@@ -641,6 +641,11 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def setup(self):
         setup_jobs = self.sa.start_setup()
+        self._save_manifest(
+            interactive=not self.configuration.get_value(
+                "test selection", "forced"
+            )
+        )
         failed_setups = self._run_setup_jobs(setup_jobs)
         self.sa.finish_setup()
         return failed_setups

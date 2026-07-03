@@ -95,6 +95,72 @@ class SessionStateSmokeTests(TestCase):
         self.assertEqual(expected, observed)
 
 
+class SessionStateManifestTests(TestCase):
+
+    @patch("plainbox.impl.session.state.json.load")
+    @patch("plainbox.impl.session.state.Path")
+    def test_manifest_loads_manifest_from_file(self, mock_path_cls, mock_load):
+        self_mock = MagicMock()
+        self_mock._manifest = {}
+        self_mock._manifest_last_mod_time = 0
+        manifest_path = mock_path_cls.return_value
+        manifest_path.is_file.return_value = True
+        manifest_path.stat.return_value.st_mtime = 1
+        manifest_file = manifest_path.open.return_value.__enter__.return_value
+        mock_load.return_value = {"manifest-id": True}
+
+        observed = SessionState.manifest.fget(self_mock)
+
+        self.assertEqual(observed, {"manifest-id": True})
+        self.assertEqual(self_mock._manifest, {"manifest-id": True})
+        self.assertEqual(self_mock._manifest_last_mod_time, 1)
+        manifest_path.open.assert_called_once_with("r")
+        mock_load.assert_called_once_with(manifest_file)
+
+    @patch("plainbox.impl.session.state.json.load")
+    @patch("plainbox.impl.session.state.Path")
+    def test_manifest_uses_cache_when_file_is_unchanged(
+        self, mock_path_cls, mock_load
+    ):
+        self_mock = MagicMock()
+        self_mock._manifest = {"manifest-id": True}
+        self_mock._manifest_last_mod_time = 1
+        manifest_path = mock_path_cls.return_value
+        manifest_path.is_file.return_value = True
+        manifest_path.stat.return_value.st_mtime = 1
+
+        observed = SessionState.manifest.fget(self_mock)
+
+        self.assertEqual(observed, {"manifest-id": True})
+        manifest_path.open.assert_not_called()
+        mock_load.assert_not_called()
+
+    @patch("plainbox.impl.session.state.json.dump")
+    @patch("plainbox.impl.session.state.json.load")
+    @patch("plainbox.impl.session.state.Path")
+    def test_save_manifest_updates_manifest_file(
+        self, mock_path_cls, mock_load, mock_dump
+    ):
+        self_mock = MagicMock()
+        manifest_path = mock_path_cls.return_value
+        manifest_path.is_file.return_value = True
+        manifest_file = manifest_path.open.return_value.__enter__.return_value
+        mock_load.return_value = {"old-id": True}
+
+        SessionState.save_manifest(self_mock, {"new-id": "value"})
+
+        manifest_path.open.assert_any_call("r")
+        manifest_path.open.assert_any_call("w")
+        mock_load.assert_called_once_with(manifest_file)
+        mock_dump.assert_called_once_with(
+            {"old-id": True, "new-id": "value"},
+            manifest_file,
+            sort_keys=True,
+            indent=2,
+        )
+        self_mock._recompute_job_readiness.assert_called_once_with()
+
+
 class RegressionTests(TestCase):
     # Tests for bugfixes
 

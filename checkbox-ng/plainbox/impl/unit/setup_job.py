@@ -22,12 +22,16 @@
 """
 
 import logging
+from collections import namedtuple
 
-from plainbox.i18n import gettext as _, gettext_noop as N_
+from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
+from plainbox.impl.decorators import cached_property
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.job import JobDefinition, propertywithsymbols
 from plainbox.impl.unit.validators import (
+    CorrectFieldValueValidator,
     MemberOfFieldValidator,
 )
 
@@ -43,6 +47,24 @@ class _PluginValues(SymbolDef):
     """
 
     shell = "shell"
+
+
+def valid_requires_manifest(values, _):
+    if values is None:
+        return True
+    if not isinstance(values, list):
+        return False
+    # strings are a valid requires manifests, they are the manifest id == True
+    values = [value for value in values if not isinstance(value, str)]
+    return all(
+        isinstance(value, dict)
+        and len(value) == 1
+        and isinstance(list(value)[0], str)
+        for value in values
+    )
+
+
+RequiredManifest = namedtuple("RequiredManifest", ["id", "value"])
 
 
 class SetupJobUnit(JobDefinition):
@@ -74,6 +96,26 @@ class SetupJobUnit(JobDefinition):
             plugin = "shell"
         return plugin
 
+    @cached_property
+    def requires_manifest(self):
+        return self.get_record_value("requires_manifest")
+
+    def _get_required_manifests_spec(self, manifest_spec):
+        if isinstance(manifest_spec, str):
+            id, value = manifest_spec, True
+        else:
+            id, value = list(manifest_spec.items())[0]
+        return RequiredManifest(self.qualify_id(id), value)
+
+    def get_required_manifests_spec(self):
+        manifest_specs = self.requires_manifest
+        if manifest_specs is None:
+            return []
+        return [
+            self._get_required_manifests_spec(manifest_id)
+            for manifest_id in manifest_specs
+        ]
+
     class Meta:
 
         # this Meta name is job because we are restricting a job but not
@@ -102,6 +144,7 @@ class SetupJobUnit(JobDefinition):
             certification_status = "certification_status"
             siblings = "siblings"
             auto_retry = "auto_retry"
+            requires_manifest = "requires_manifest"
 
         field_validators = {
             fields.name: JobDefinition.Meta.field_validators[fields.name],
@@ -144,5 +187,9 @@ class SetupJobUnit(JobDefinition):
             ],
             fields.auto_retry: JobDefinition.Meta.field_validators[
                 fields.auto_retry
+            ],
+            fields.requires_manifest: [
+                concrete_validators.templateInvariant,
+                CorrectFieldValueValidator(valid_requires_manifest),
             ],
         }

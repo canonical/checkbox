@@ -64,6 +64,11 @@ class JobReadinessInhibitorTests(TestCase):
         self.assertRaises(
             ValueError, JobReadinessInhibitor, InhibitionCause.FAILED_RESOURCE
         )
+        self.assertRaises(
+            ValueError,
+            JobReadinessInhibitor,
+            InhibitionCause.REQUIRED_MANIFEST,
+        )
         job = make_job("A")
         self.assertRaises(
             ValueError,
@@ -170,6 +175,15 @@ class JobReadinessInhibitorTests(TestCase):
                 " evaluates to false"
             ),
         )
+
+    def test_required_manifest(self):
+        job = make_job("A")
+        obj = JobReadinessInhibitor(
+            InhibitionCause.REQUIRED_MANIFEST,
+            related_job=job,
+            related_manifests=["manifest-id"],
+        )
+        self.assertEqual(str(obj), "manifest: 'manifest-id' unmet")
 
     def test_unknown_global(self):
         self.assertEqual(

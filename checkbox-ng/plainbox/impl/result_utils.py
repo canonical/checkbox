@@ -77,7 +77,11 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
     has_failed_manifest = False
 
     for inhibitor in job_state.readiness_inhibitor_list:
-        if inhibitor.cause == InhibitionCause.FAILED_DEP:
+        if inhibitor.cause == InhibitionCause.REQUIRED_MANIFEST:
+            has_failed_manifest = True
+            skip_reason["related_manifests"] += inhibitor.related_manifests
+
+        elif inhibitor.cause == InhibitionCause.FAILED_DEP:
             has_failed_dep = True
             # Check if the dependency was manually skipped
             if inhibitor.related_job:
@@ -99,9 +103,9 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
                 # Check if this is a manifest expression
                 if inhibitor.related_expression.manifest_id_list:
                     has_failed_manifest = True
-                    skip_reason["related_manifests"].append(
-                        inhibitor.related_expression.text
-                    )
+                    skip_reason[
+                        "related_manifests"
+                    ] += inhibitor.related_expression.manifest_id_list
                 else:
                     skip_reason["related_resources"].append(
                         inhibitor.related_expression.text

@@ -25,9 +25,11 @@ Session State Handling.
 import collections
 import json
 import logging
+import os
 import re
 import shutil
 from contextlib import suppress
+from pathlib import Path
 from copy import copy
 
 from plainbox.abc import IJobResult
@@ -40,6 +42,7 @@ from plainbox.impl.depmgr import (
 )
 from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.jobs import JobState, UndesiredJobReadinessInhibitor
+from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.session.system_information import (
     collect as collect_system_information,
 )
@@ -858,8 +861,39 @@ class SessionState:
         self._metadata = SessionMetaData()
         # If unset, this is loaded via system_information
         self._system_information = None
+        # manifest cache, refreshed on file writes
+        self._manifest = {}
+        self._manifest_last_mod_time = 0
 
         super(SessionState, self).__init__()
+
+    @property
+    def manifest(self):
+        # do not cache this, as it may change during the test run due to both
+        # pre-setup and post boostrap manifest saving
+        manifest_path = Path(WellKnownDirsHelper.manifest_file())
+        if not manifest_path.is_file():
+            return {}
+        last_mod_time = manifest_path.stat().st_mtime
+        if last_mod_time != self._manifest_last_mod_time:
+            with manifest_path.open("r") as f:
+                self._manifest_last_mod_time = last_mod_time
+                self._manifest = json.load(f)
+        return self._manifest
+
+    def save_manifest(self, manifest_answers):
+        manifest = dict()
+        manifest_path = Path(WellKnownDirsHelper.manifest_file())
+        if manifest_path.is_file():
+            with manifest_path.open("r") as f:
+                manifest = json.load(f)
+        manifest.update(manifest_answers)
+        logger.info("Saving manifest to {}".format(manifest_path))
+        with manifest_path.open("w") as f:
+            json.dump(manifest, f, sort_keys=True, indent=2)
+
+        # manifest requiring jobs may now be runnable
+        self._recompute_job_readiness()
 
     def trim_job_list(self, qualifier):
         """

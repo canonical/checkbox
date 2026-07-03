@@ -75,3 +75,67 @@ bootstrap_include:
 include:
   - verify_simple_guards
   - verify_resume_guards
+---
+unit: manifest entry
+id: setup_manifest_false
+name: Setup manifest to be shown before running manifest that has to be false
+value-type: bool
+---
+unit: manifest entry
+id: _setup_manifest_hidden
+name: Setup manifest hidden from the UI
+hidden-reason: Intentionally hidden to validate that it is not shown in the UI
+value-type: bool
+---
+unit: manifest entry
+id: setup_job_manifest
+name: Setup job manifest question shown
+value-type: bool
+---
+unit: setup job
+id: setup_job_requiring_manifest
+flags: [simple]
+requires_manifest:
+  - setup_job_manifest
+  - setup_manifest_false: false
+  - _setup_manifest_hidden
+command: |
+  echo "setup_ran" > $PLAINBOX_SESSION_SHARE/setup_manifest_guard
+---
+id: verify_setup_manifest_ran
+flags: [simple]
+imports:
+  - from com.canonical.plainbox import manifest
+command: |
+  if test -f $PLAINBOX_SESSION_SHARE/setup_manifest_guard; then
+    echo "setup job ran correctly"
+  else
+    echo "setup job did not run"
+    exit 1
+  fi
+---
+id: manifest_menu_setup_job_tp
+unit: test plan
+name: Test manifest menu shown for setup job
+setup_include:
+  - setup_job_requiring_manifest
+include:
+  - verify_setup_manifest_ran
+---
+id: verify_setup_manifest_not_ran
+flags: [simple]
+command: |
+  if test -f $PLAINBOX_SESSION_SHARE/setup_manifest_guard; then
+    echo "setup job ran, when it should have been skipped"
+    exit 1
+  else
+    echo "setup job did not run, as expected"
+  fi
+---
+id: manifest_menu_setup_job_tp_not_ran
+unit: test plan
+name: Test that skipping actually works for setup jobs
+setup_include:
+  - setup_job_requiring_manifest
+include:
+  - verify_setup_manifest_not_ran

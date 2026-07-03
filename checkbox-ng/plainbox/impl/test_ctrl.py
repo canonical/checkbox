@@ -193,6 +193,69 @@ class CheckBoxSessionStateControllerTests(TestCase):
         session_state.job_state_map["j2"].job = j2
         self.assertEqual(self.ctrl.get_inhibitor_list(session_state, j1), [])
 
+    def test_get_requires_manifest_inhibitor_list__no_manifest_specs(self):
+        job = object()
+        session_state = mock.MagicMock(spec=SessionState)
+        self_mock = mock.MagicMock()
+
+        self.assertEqual(
+            CheckBoxSessionStateController.get_requires_manifest_inhibitor_list(
+                self_mock, session_state, job
+            ),
+            [],
+        )
+
+    def test_get_requires_manifest_inhibitor_list__undefined_false(self):
+        job = mock.MagicMock()
+        manifest_spec = mock.MagicMock(id="manifest-id", value=False)
+        job.get_required_manifests_spec.return_value = [manifest_spec]
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.manifest = {}
+        self_mock = mock.MagicMock()
+
+        self.assertEqual(
+            CheckBoxSessionStateController.get_requires_manifest_inhibitor_list(
+                self_mock, session_state, job
+            ),
+            [],
+        )
+
+    def test_get_requires_manifest_inhibitor_list__defined_true(self):
+        job = mock.MagicMock()
+        manifest_spec = mock.MagicMock(id="manifest-id", value=True)
+        job.get_required_manifests_spec.return_value = [manifest_spec]
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.manifest = {"manifest-id": True}
+        self_mock = mock.MagicMock()
+
+        self.assertEqual(
+            CheckBoxSessionStateController.get_requires_manifest_inhibitor_list(
+                self_mock, session_state, job
+            ),
+            [],
+        )
+
+    def test_get_requires_manifest_inhibitor_list__defined_false(self):
+        job = mock.MagicMock()
+        manifest_spec = mock.MagicMock(id="manifest-id", value=True)
+        job.get_required_manifests_spec.return_value = [manifest_spec]
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.manifest = {"manifest-id": False}
+        self_mock = mock.MagicMock()
+
+        self.assertEqual(
+            CheckBoxSessionStateController.get_requires_manifest_inhibitor_list(
+                self_mock, session_state, job
+            ),
+            [
+                JobReadinessInhibitor(
+                    cause=InhibitionCause.REQUIRED_MANIFEST,
+                    related_job=job,
+                    related_manifests=["manifest-id"],
+                )
+            ],
+        )
+
     def test_get_inhibitor_list_PENDING_DEP(self):
         # verify that jobs that depend on another job or wait (via after) for
         # another  that hasn't been invoked yet produce the PENDING_DEP

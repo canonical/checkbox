@@ -22,6 +22,7 @@ _description: Automated thermal tests for devices
 bootstrap_include:
     thermal_zones
 include:
+    ce-oem-thermal/snapshot_before_suspend
     ce-oem-thermal/temperature_.*
 
 id: after-suspend-ce-oem-thermal-manual
@@ -37,4 +38,5 @@ _description: Automated after suspend thermal tests for devices
 bootstrap_include:
     thermal_zones
 include:
+    after-suspend-ce-oem-thermal/compare_snapshot_after_suspend
     after-suspend-ce-oem-thermal/temperature_.*

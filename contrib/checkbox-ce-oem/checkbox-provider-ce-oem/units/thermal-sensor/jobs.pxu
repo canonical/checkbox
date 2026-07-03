@@ -6,16 +6,43 @@ _description:
 estimated_duration: 1s
 command: thermal_sensor_test.py dump
 
+id: ce-oem-thermal/snapshot_before_suspend
+plugin: shell
+user: root
+before: suspend/suspend_advanced_auto
+estimated_duration: 1s
+_summary: Record thermal zone snapshot before suspend
+_description:
+ Record thermal zone identities before suspend for post-resume comparison.
+command:
+    thermal_sensor_test.py snapshot -o "$PLAINBOX_SESSION_SHARE"/thermal_before_suspend.tsv
+
+id: after-suspend-ce-oem-thermal/compare_snapshot_after_suspend
+plugin: shell
+user: root
+depends: 
+  com.canonical.certification::suspend/suspend_advanced_auto 
+  ce-oem-thermal/snapshot_before_suspend
+estimated_duration: 2s
+_summary: Verify thermal zone identities after suspend
+_description:
+ Compare thermal zone identities after resume against the pre-suspend snapshot.
+command:
+    thermal_sensor_test.py snapshot -o "$PLAINBOX_SESSION_SHARE"/thermal_after_suspend.tsv && \
+    thermal_sensor_test.py compare --before "$PLAINBOX_SESSION_SHARE"/thermal_before_suspend.tsv --after "$PLAINBOX_SESSION_SHARE"/thermal_after_suspend.tsv --fail-on-diff
+
 unit: template
 template-resource: thermal_zones
-id: ce-oem-thermal/temperature_{name}_{type}
-_summary: Check Thermal temperature of {name} - {type}
+id: ce-oem-thermal/temperature_{stable_id}_{type}
+_summary: Check Thermal temperature of {type} - {stable_id}
 _description:
-    Test a thermal temperature for {name} - {type}.
+    Test a thermal temperature for {type} ({stable_id}).
 category_id: thermal
 plugin: shell
 user: root
 estimated_duration: 5m
+environ:
+    TZ_IGNORE_TEMP_CHECK
 flags: also-after-suspend
 command:
-    thermal_sensor_test.py monitor -n {name}
+    thermal_sensor_test.py monitor --stable-id {stable_id} --zone-type "{type}"

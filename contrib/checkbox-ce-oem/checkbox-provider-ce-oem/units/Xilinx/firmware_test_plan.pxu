@@ -1,0 +1,8 @@
+id: xilinx-firmware-automated
+unit: test plan
+_name: Automated Xilinx firmware test
+_description: Automated Xilinx firmware test
+include:
+    xilinx-firmware/info-.*
+bootstrap_include:
+    com.canonical.certification::lsb

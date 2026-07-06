@@ -1,0 +1,18 @@
+id: jetson-vpi-automated
+unit: test plan
+_name: Jetson VPI automated tests
+_description: Automated Jetson VPI tests
+include:
+    jetson-vpi/.*
+bootstrap_include:
+    jetson_tegra_details
+
+id: jetson-core-vpi-automated
+unit: test plan
+_name: Jetson core VPI automated tests
+_description: Automated Jetson core VPI tests
+include:
+    jetson-core-vpi/.*
+bootstrap_include:
+    jetson_tegra_details
+    jetson_lockdown

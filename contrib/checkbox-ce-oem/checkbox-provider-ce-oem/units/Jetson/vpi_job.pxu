@@ -1,0 +1,329 @@
+unit: category
+id: jetson-vpi
+_name: Jetson VPI tests
+
+unit: category
+id: jetson-core-vpi
+_name: Jetson core VPI tests
+
+id: jetson-vpi/install-packages
+_summary: Install VPI packages
+plugin: shell
+category_id: jetson-vpi
+imports:
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ jetson_tegra_details.model != 'NVIDIA IGX Orin Development Kit'
+ manifest.is_Jetson == 'True'
+user: root
+command:
+  if [ $(lsb_release --codename | cut -f2) == "noble" ]; then
+    apt install -y vpi4-dev vpi4-samples
+  elif [ $(lsb_release --codename | cut -f2) == "jammy" ]; then
+    apt install -y vpi3-dev vpi3-samples
+    update-alternatives \
+          --install /etc/ld.so.conf.d/aarch64-linux-gnu_EGL.conf \
+          aarch64-linux-gnu_egl_conf \
+          /usr/lib/aarch64-linux-gnu/tegra-egl/ld.so.conf 1000
+  fi
+  ldconfig
+  apt install -y nvidia-vpi libopencv-dev libopencv cmake build-essential python3-numpy python3-pil libopencv-python
+
+
+id: jetson-vpi/build-sample
+_summary: Build VPI sample code
+plugin: shell
+category_id: jetson-vpi
+depends: jetson-vpi/install-packages
+imports:
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ jetson_tegra_details.model != 'NVIDIA IGX Orin Development Kit'
+ manifest.is_Jetson == 'True'
+user: root
+command:
+  set -ex
+  unset LD_LIBRARY_PATH
+  export
+  cd /opt/nvidia/vpi*/samples/
+  for f in */CMakeLists.txt ; do pushd $(dirname $f) ; cmake -DOpenCV_DIR=/usr/lib/cmake/opencv4 . ; VERBOSE=1 make -j 2 ; popd ; done
+
+id: jetson-vpi/run-sample-cpp-cpu
+_summary: Run VPI samples (C++) on CPU
+plugin: shell
+category_id: jetson-vpi
+depends: jetson-vpi/build-sample
+user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.is_Jetson == 'True'
+command:
+  set -ex
+  cd /opt/nvidia/vpi*/samples/
+  pushd 01-convolve_2d
+  ./vpi_sample_01_convolve_2d cpu  ../assets/kodim08.png
+  popd
+  pushd 03-harris_corners
+  ./vpi_sample_03_harris_corners cpu  ../assets/kodim08.png
+  popd
+  pushd 06-klt_tracker
+  ./vpi_sample_06_klt_tracker cpu  ../assets/dashcam.mp4 ../assets/dashcam_bboxes.txt
+  popd
+  pushd 10-perspwarp
+  ./vpi_sample_10_perspwarp cpu  ../assets/noisy.mp4
+  popd
+  pushd 14-background_subtractor
+  ./vpi_sample_14_background_subtractor cpu  ../assets/pedestrians.mp4
+  popd
+
+id: jetson-vpi/run-sample-cpp-cuda
+_summary: Run VPI samples (C++) on CUDA
+plugin: shell
+category_id: jetson-vpi
+depends: jetson-vpi/build-sample
+user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.is_Jetson == 'True'
+command:
+  set -ex
+  cd /opt/nvidia/vpi*/samples/
+  pushd 01-convolve_2d
+  ./vpi_sample_01_convolve_2d cuda ../assets/kodim08.png
+  popd
+  pushd 02-stereo_disparity
+  ./vpi_sample_02_stereo_disparity cuda         ../assets/chair_stereo_left.png ../assets/chair_stereo_right.png
+  popd
+  pushd 03-harris_corners
+  ./vpi_sample_03_harris_corners cuda ../assets/kodim08.png
+  popd
+  pushd 06-klt_tracker
+  ./vpi_sample_06_klt_tracker cuda ../assets/dashcam.mp4 ../assets/dashcam_bboxes.txt
+  popd
+  pushd 09-tnr
+  ./vpi_sample_09_tnr cuda ../assets/noisy.mp4
+  popd
+  pushd 10-perspwarp
+  ./vpi_sample_10_perspwarp cuda ../assets/noisy.mp4
+  popd
+  pushd 14-background_subtractor
+  ./vpi_sample_14_background_subtractor cuda ../assets/pedestrians.mp4
+  popd
+
+id: jetson-vpi/run-sample-cpp-pva
+_summary: Run VPI samples (C++) on PVA and VIC
+plugin: shell
+category_id: jetson-vpi
+depends: jetson-vpi/build-sample
+imports:
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
+ manifest.is_Jetson == 'True'
+user: root
+command:
+  set -ex
+  cd /opt/nvidia/vpi*/samples/
+  pushd 01-convolve_2d
+  ./vpi_sample_01_convolve_2d pva  ../assets/kodim08.png
+  popd
+  pushd 02-stereo_disparity
+  ./vpi_sample_02_stereo_disparity ofa          ../assets/chair_stereo_left.png ../assets/chair_stereo_right.png
+  ./vpi_sample_02_stereo_disparity ofa-pva-vic  ../assets/chair_stereo_left.png ../assets/chair_stereo_right.png
+  popd
+  pushd 03-harris_corners
+  ./vpi_sample_03_harris_corners pva  ../assets/kodim08.png
+  popd
+  pushd 06-klt_tracker
+  ./vpi_sample_06_klt_tracker pva  ../assets/dashcam.mp4 ../assets/dashcam_bboxes.txt
+  popd
+  pushd 09-tnr
+  ./vpi_sample_09_tnr vic  ../assets/noisy.mp4
+  popd
+  pushd 10-perspwarp
+  ./vpi_sample_10_perspwarp vic  ../assets/noisy.mp4
+  popd
+
+
+id: jetson-vpi/run-sample-py-cpu
+_summary: Run VPI samples (Python) on CPU
+plugin: shell
+category_id: jetson-vpi
+depends: jetson-vpi/install-packages
+user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.is_Jetson == 'True'
+command:
+  set -ex
+  unset PYTHONUSERBASE
+  unset PYTHONPATH
+  unset PYTHONHOME
+  cd /opt/nvidia/vpi*/samples/
+  pushd 01-convolve_2d
+  /usr/bin/python3 main.py cpu  ../assets/kodim08.png
+  popd
+  pushd 03-harris_corners
+  /usr/bin/python3 main.py cpu  ../assets/kodim08.png
+  popd
+  pushd 06-klt_tracker
+  /usr/bin/python3 main.py cpu  ../assets/dashcam.mp4 ../assets/dashcam_bboxes.txt
+  popd
+  pushd 10-perspwarp
+  /usr/bin/python3 main.py cpu  ../assets/noisy.mp4
+  popd
+  pushd 14-background_subtractor
+  /usr/bin/python3 main.py cpu  ../assets/pedestrians.mp4
+  popd
+
+id: jetson-vpi/run-sample-py-cuda
+_summary: Run VPI samples (Python) on CUDA
+plugin: shell
+category_id: jetson-vpi
+depends: jetson-vpi/install-packages
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'python3-numpy'
+ package.name == 'python3-pil'
+ package.name == 'libopencv-python'
+ manifest.is_Jetson == 'True'
+user: root
+command:
+  set -ex
+  unset PYTHONUSERBASE
+  unset PYTHONPATH
+  unset PYTHONHOME
+  cd /opt/nvidia/vpi*/samples/
+  pushd 01-convolve_2d
+  /usr/bin/python3 main.py cuda ../assets/kodim08.png
+  popd
+  pushd 02-stereo_disparity
+  /usr/bin/python3 main.py cuda         ../assets/chair_stereo_left.png ../assets/chair_stereo_right.png
+  popd
+  pushd 03-harris_corners
+  /usr/bin/python3 main.py cuda ../assets/kodim08.png
+  popd
+  pushd 06-klt_tracker
+  /usr/bin/python3 main.py cuda ../assets/dashcam.mp4 ../assets/dashcam_bboxes.txt
+  popd
+  pushd 09-tnr
+  /usr/bin/python3 main.py cuda ../assets/noisy.mp4
+  popd
+  pushd 10-perspwarp
+  /usr/bin/python3 main.py cuda ../assets/noisy.mp4
+  popd
+  pushd 14-background_subtractor
+  /usr/bin/python3 main.py cuda ../assets/pedestrians.mp4
+  popd
+
+id: jetson-vpi/run-sample-py-pva
+_summary: Run VPI samples (Python) on PVA and VIC
+plugin: shell
+category_id: jetson-vpi
+depends: jetson-vpi/install-packages
+imports:
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
+ manifest.is_Jetson == 'True'
+user: root
+command:
+  set -ex
+  unset PYTHONUSERBASE
+  unset PYTHONPATH
+  unset PYTHONHOME
+  cd /opt/nvidia/vpi*/samples/
+  pushd 01-convolve_2d
+  /usr/bin/python3 main.py pva  ../assets/kodim08.png
+  popd
+  pushd 02-stereo_disparity
+  /usr/bin/python3 main.py ofa          ../assets/chair_stereo_left.png ../assets/chair_stereo_right.png
+  /usr/bin/python3 main.py ofa-pva-vic  ../assets/chair_stereo_left.png ../assets/chair_stereo_right.png
+  popd
+  pushd 03-harris_corners
+  /usr/bin/python3 main.py pva  ../assets/kodim08.png
+  popd
+  pushd 06-klt_tracker
+  /usr/bin/python3 main.py pva  ../assets/dashcam.mp4 ../assets/dashcam_bboxes.txt
+  popd
+  pushd 09-tnr
+  /usr/bin/python3 main.py vic  ../assets/noisy.mp4
+  popd
+  pushd 10-perspwarp
+  /usr/bin/python3 main.py vic  ../assets/noisy.mp4
+  popd
+
+
+id: jetson-core-vpi/run-sample-snap-cpu
+_summary: Run VPI samples (snap) on CPU
+plugin: shell
+category_id: jetson-core-vpi
+imports:
+ from com.canonical.certification import snap
+ from com.canonical.plainbox import manifest
+requires:
+ snap.name == 'vpi-samples'
+ manifest.is_Jetson == 'True'
+user: root
+command:
+  set -ex
+  cd /tmp
+  snap run vpi-samples.vpi-sample-01-convolve-2d cpu  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/kodim08.png
+  snap run vpi-samples.vpi-sample-03-harris-corners cpu  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/kodim08.png
+  snap run vpi-samples.vpi-sample-06-klt-tracker cpu  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/dashcam.mp4 /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/dashcam_bboxes.txt
+  snap run vpi-samples.vpi-sample-10-perspwarp cpu  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/noisy.mp4
+  snap run vpi-samples.vpi-sample-14-background-subtractor cpu  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/pedestrians.mp4
+
+id: jetson-core-vpi/run-sample-snap-cuda
+_summary: Run VPI samples (snap) on CUDA
+plugin: shell
+category_id: jetson-core-vpi
+imports:
+ from com.canonical.certification import snap
+ from com.canonical.plainbox import manifest
+requires:
+ snap.name == 'vpi-samples'
+ manifest.is_Jetson == 'True'
+user: root
+command:
+  set -ex
+  cd /tmp
+  snap run vpi-samples.vpi-sample-01-convolve-2d cuda /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/kodim08.png
+  snap run vpi-samples.vpi-sample-02-stereo-disparity cuda         /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/chair_stereo_left.png /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/chair_stereo_right.png
+  snap run vpi-samples.vpi-sample-03-harris-corners cuda /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/kodim08.png
+  snap run vpi-samples.vpi-sample-06-klt-tracker cuda /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/dashcam.mp4 /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/dashcam_bboxes.txt
+  snap run vpi-samples.vpi-sample-09-tnr cuda /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/noisy.mp4
+  snap run vpi-samples.vpi-sample-10-perspwarp cuda /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/noisy.mp4
+  snap run vpi-samples.vpi-sample-14-background-subtractor cuda /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/pedestrians.mp4
+
+id: jetson-core-vpi/run-sample-snap-pva
+_summary: Run VPI samples (snap) on PVA and VIC
+plugin: shell
+category_id: jetson-core-vpi
+imports:
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.certification import snap
+ from com.canonical.plainbox import manifest
+ from com.canonical.contrib import jetson_lockdown
+requires:
+ snap.name == 'vpi-samples'
+ jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
+ jetson_lockdown.mode == 'none'
+ manifest.is_Jetson == 'True'
+user: root
+command:
+  set -ex
+  AUTH_VAL=$(cat /sys/kernel/debug/pva0/vpu_app_authentication)
+  trap "echo $AUTH_VAL > /sys/kernel/debug/pva0/vpu_app_authentication" EXIT
+  cd /tmp
+  echo 0 > /sys/kernel/debug/pva0/vpu_app_authentication
+  snap run vpi-samples.vpi-sample-01-convolve-2d pva  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/kodim08.png
+  snap run vpi-samples.vpi-sample-02-stereo-disparity ofa          /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/chair_stereo_left.png /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/chair_stereo_right.png
+  snap run vpi-samples.vpi-sample-02-stereo-disparity ofa-pva-vic  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/chair_stereo_left.png /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/chair_stereo_right.png
+  snap run vpi-samples.vpi-sample-03-harris-corners pva  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/kodim08.png
+  snap run vpi-samples.vpi-sample-06-klt-tracker pva  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/dashcam.mp4 /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/dashcam_bboxes.txt
+  snap run vpi-samples.vpi-sample-09-tnr vic  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/noisy.mp4
+  snap run vpi-samples.vpi-sample-10-perspwarp vic  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/noisy.mp4

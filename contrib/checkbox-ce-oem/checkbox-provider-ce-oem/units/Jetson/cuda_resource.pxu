@@ -1,0 +1,17 @@
+id: jetson_cuda_samples_list
+estimated_duration: 0.01
+plugin: resource
+imports: from com.canonical.plainbox import manifest
+requires: manifest.is_Jetson == 'True'
+command:
+    /opt/nvidia/run-cuda-samples.py --list
+_description: Creates resource info for CUDA-samples tests
+
+id: jetson_cuda_samples_list_core
+estimated_duration: 0.01
+plugin: resource
+imports: from com.canonical.plainbox import manifest
+requires: manifest.is_Jetson == 'True'
+command:
+    for f in $(cat /snap/cuda-samples/current/etc/cuda-samples.list); do printf "name: %s\n\n" "$f"; done
+_description: Creates resource info for CUDA-samples tests

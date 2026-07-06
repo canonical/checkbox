@@ -1,0 +1,37 @@
+id: jetson-gpu-automated
+unit: test plan
+_name: Jetson GPU automated tests
+_description: Automated Jetson GPU tests
+include:
+    jetson-gpu/nvidia-smi
+    jetson-core-gpu/nvidia-smi
+
+id: jetson-cuda-automated
+unit: test plan
+_name: Jetson CUDA automated tests
+_description: Automated Jetson CUDA tests
+include:
+    jetson-gpu/cuda-samples-.*
+    jetson-core-gpu/cuda-samples-.*
+bootstrap_include:
+    jetson_cuda_samples_list
+    jetson_cuda_samples_list_core
+
+id: jetson-tensorrt-automated
+unit: test plan
+_name: Jetson TensorRT automated tests
+_description: Automated Jetson TensorRT tests
+include:
+    jetson-gpu/tensorrt-samples-.*
+    jetson-core-gpu/tensorrt-samples-.*
+bootstrap_include:
+    jetson_tensorrt_samples_list
+    jetson_tensorrt_samples_list_core
+
+id: jetson-cudnn-automated
+unit: test plan
+_name: Jetson cuDNN automated tests
+_description: Automated Jetson cuDNN tests
+include:
+    jetson-gpu/cudnn/.*
+    jetson-core-gpu/cudnn/.*

@@ -1,0 +1,40 @@
+unit: template
+template-resource: jetson_cuda_samples_list
+template-unit: job
+category_id: jetson-gpu
+id: jetson-gpu/cuda-samples-{name}
+user: root
+plugin: shell
+imports: from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'cuda-toolkit' in package.name
+# executable.name == '/opt/nvidia/run-cuda-samples.py'
+ manifest.is_Jetson == 'True'
+command: /opt/nvidia/run-cuda-samples.py -t {path}
+_template-summary:
+ Run cuda-samples tests
+_summary:
+ Run the cuda-samples test {name}
+_description:
+ Run the cuda-samples test {name}
+
+unit: template
+template-resource: jetson_cuda_samples_list_core
+template-unit: job
+category_id: jetson-core-gpu
+id: jetson-core-gpu/cuda-samples-{name}
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'cuda-samples'
+ manifest.is_Jetson == 'True'
+command: sudo cuda-samples {name}
+_template-summary:
+ Run cuda-samples tests on core
+_summary:
+ Run the cuda-samples test {name} on core
+_description:
+ Run the cuda-samples test {name} on core

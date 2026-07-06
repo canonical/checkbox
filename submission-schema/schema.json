@@ -146,12 +146,6 @@
             "$ref": "#/definitions/Result"
           }
         },
-        "resource-results": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Result"
-          }
-        },
         "attachment-results": {
           "type": "array",
           "items": {

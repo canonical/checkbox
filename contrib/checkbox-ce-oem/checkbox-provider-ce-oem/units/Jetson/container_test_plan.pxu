@@ -1,0 +1,13 @@
+id: jetson-container-automated
+unit: test plan
+_name: Jetson automated container tests
+_description: Automated Jetson container tests
+include:
+    jetson-container/.*
+
+id: jetson-core-container-automated
+unit: test plan
+_name: Jetson core automated container tests
+_description: Automated Jetson core container tests
+include:
+    jetson-core-container/.*

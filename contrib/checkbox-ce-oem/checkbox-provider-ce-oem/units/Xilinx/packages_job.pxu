@@ -1,0 +1,389 @@
+unit: category
+id: xilinx-package-tests
+_name: Xilinx Package Functionality Tests
+
+id: xilinx-package-test/dfx-mgr-with-no-args
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - Call With No Args
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_call_with_no_args
+
+
+id: xilinx-package-test/dfx-mgr-with-unknown
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - Call With Unknown Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_call_with_unknown_option
+
+
+id: xilinx-package-test/dfx-mgr-listPackage
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - listPackage Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_listPackage_option
+
+
+id: xilinx-package-test/dfx-mgr-help
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - help Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_help_option
+
+
+id: xilinx-package-test/dfx-mgr-load
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - load Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_load_option
+
+
+id: xilinx-package-test/dfx-mgr-remove
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - remove Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_remove_option
+
+
+id: xilinx-package-test/dfx-mgr-listUIO
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - listUIO Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_listUIO_option
+
+
+id: xilinx-package-test/dfx-mgr-allocBuffer
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - allocBuffer Option [To be implemented]
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_allocBuffer_option
+
+
+id: xilinx-package-test/dfx-mgr-freeBuffer
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - freeBuffer Option [To be implemented]
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_freeBuffer_option
+
+
+id: xilinx-package-test/dfx-mgr-getFDs
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - getFDs Option [To be implemented]
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_getFDs_option
+
+
+id: xilinx-package-test/dfx-mgr-getRMInfo
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - getRMInfo Option [To be implemented]
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_getRMInfo_option
+
+
+id: xilinx-package-test/dfx-mgr-getShellFD
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - getShellFD Option [To be implemented]
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_getShellFD_option
+
+
+id: xilinx-package-test/dfx-mgr-getClockFD
+category_id: xilinx-package-tests
+plugin: shell
+_summary: DFX Manager Package - getClockFD Option [To be implemented]
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'dfx-mgr'
+ manifest.is_Xilinx == 'True'
+user: root
+estimated_duration: 1s
+command:
+  version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
+  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_getClockFD_option
+
+
+id: xilinx-package-test/kria-dashboard-is-running
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Kria Dashboard Package - Runs Correctly
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'kria-dashboard' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 7s
+user: root
+command:
+  xilinx_kria_dashboard_test.py -v TestKriaDashboardPackage.test_kria_dashboard_runs
+
+
+id: xilinx-package-test/kria-dashboard-serves
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Kria Dashboard Package - Serves Correctly
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'kria-dashboard' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 10s
+user: root
+command:
+  xilinx_kria_dashboard_test.py -v TestKriaDashboardPackage.test_kria_dashboard_serves
+
+
+id: xilinx-package-test/kria-dashboard-restart
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Kria Dashboard Package - Restarts Correctly
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'kria-dashboard' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 7s
+user: root
+command:
+  xilinx_kria_dashboard_test.py -v TestKriaDashboardPackage.test_kria_dashboard_service_restart
+
+
+id: xilinx-package-test/kria-dashboard-stop
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Kria Dashboard Package - Stops Correctly
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'kria-dashboard' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 7s
+user: root
+command:
+  xilinx_kria_dashboard_test.py -v TestKriaDashboardPackage.test_kria_dashboard_service_stop
+
+
+id: xilinx-package-test/xrt-help-option
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Xilinx Runtime Package - help Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'xrt' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 1s
+user: root
+command:
+  version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
+  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_help_option
+
+
+id: xilinx-package-test/xrt-version-option
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Xilinx Runtime Package - version Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'xrt' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 1s
+user: root
+command:
+  version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
+  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_version_option
+
+
+id: xilinx-package-test/xrt-examine-option
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Xilinx Runtime Package - examine Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'xrt' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 1s
+user: root
+command:
+  version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
+  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_examine_command
+
+
+id: xilinx-package-test/xrt-examine-help
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Xilinx Runtime Package - examine --help Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'xrt' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 1s
+user: root
+command:
+  version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
+  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_examine_help
+
+
+id: xilinx-package-test/xrt-examine-devices
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Xilinx Runtime Package - examine Check Devices
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'xrt' == package.name and 'xlnx-firmware-kv260-nlp-smartvision' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 3s
+user: root
+command:
+  version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
+  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_examine_devices
+
+
+id: xilinx-package-test/xrt-configure-option
+category_id: xilinx-package-tests
+plugin: shell
+_summary: Xilinx Runtime Package - configure Option
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ 'xrt' == package.name
+ manifest.is_Xilinx == 'True'
+estimated_duration: 1s
+user: root
+command:
+  version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
+  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_configure_command

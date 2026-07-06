@@ -5,4 +5,5 @@ _description: Automated Xilinx DTB tests
 include:
     xilinx-dtb/components_.*
 bootstrap_include:
+    com.canonical.certification::package
     xilinx_sku

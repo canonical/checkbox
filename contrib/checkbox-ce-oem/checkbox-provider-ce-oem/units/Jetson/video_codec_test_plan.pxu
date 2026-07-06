@@ -1,0 +1,17 @@
+id: jetson-video-codec-automated
+unit: test plan
+_name: Jetson video codec automated tests
+_description: Automated Jetson video codec tests
+include:
+    jetson-video-codec/.*
+bootstrap_include:
+    jetson_tegra_details
+
+id: jetson-core-video-codec-automated
+unit: test plan
+_name: Jetson core video codec automated tests
+_description: Automated Jetson core video codec tests
+include:
+    jetson-core-video-codec/.*
+bootstrap_include:
+    jetson_tegra_details

@@ -26,15 +26,19 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch
 
-# gnome_monitor imports gi.repository at module level, which requires a
-# running GNOME session. Stub out the entire gi stack before any import
-# that transitively pulls it in, so we can test graphics_max_resolution
-# in isolation.
 _mock_gi = MagicMock()
 sys.modules.setdefault("gi", _mock_gi)
 sys.modules.setdefault("gi.repository", _mock_gi.repository)
 sys.modules.setdefault("gi.repository.Gio", _mock_gi.repository.Gio)
 sys.modules.setdefault("gi.repository.GLib", _mock_gi.repository.GLib)
+
+_mock_gnome_monitor = MagicMock()
+sys.modules.setdefault("checkbox_support", _mock_gnome_monitor)
+sys.modules.setdefault("checkbox_support.dbus", _mock_gnome_monitor.dbus)
+sys.modules.setdefault(
+    "checkbox_support.dbus.gnome_monitor",
+    _mock_gnome_monitor.dbus.gnome_monitor,
+)
 
 from graphics_max_resolution import SysfsDrmCardInfo, main  # noqa: E402
 

@@ -1,0 +1,11 @@
+id: jetson_camera_sensors
+plugin: resource
+_summary: Jetson camera sensors
+imports:
+ from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'nvargus_nvraw'
+ manifest.is_Jetson == 'True'
+command: jetson_camera_sensors.py
+_description: Creates a resource for available Jetson camera sensors

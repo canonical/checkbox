@@ -19,6 +19,9 @@
 # along with Checkbox. If not, see <http://www.gnu.org/licenses/>.
 
 
+from contextlib import suppress
+import shutil
+
 from checkbox_support.dbus.gnome_monitor import MutterDisplayMode as Mode
 from checkbox_support.helpers import display_info
 from collections import namedtuple
@@ -136,7 +139,20 @@ def action(filename, **kwargs):
     else:
         path_and_filename = "{}.jpg".format(filename)
     time.sleep(5)
-    subprocess.check_output(["gnome-screenshot", "-f", path_and_filename])
+    if shutil.which("gnome-screenshot"):
+        # gnome-screenshot no longer works on 26.04+
+        # until we find an alternative, ignore screenshot errors for now
+
+        # also make sure this doesn't hang forever
+        with suppress(subprocess.TimeoutExpired):
+            subprocess.run(
+                ["gnome-screenshot", "-f", path_and_filename], timeout=5
+            )
+    else:
+        print(
+            "gnome-screenshot is not installed. Not taking any screenshots.",
+            "This is expected for 26.04 onwards",
+        )
 
 
 class MonitorTest:
@@ -223,7 +239,7 @@ class MonitorTest:
             default=os.getenv("HOME", "~"),
             help=(
                 "Specify a directory to store screenshots in. "
-                "(default: %(default)s)"
+                + "(default: %(default)s)"
             ),
         )
 

@@ -1,0 +1,6 @@
+id: jetson-tegra-tests-automated
+unit: test plan
+_name: Jetson Tegra automated tests
+_description: Automated Jetson Tegra tests
+include:
+    jetson-tegra-tests/.*

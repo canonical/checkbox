@@ -1,0 +1,57 @@
+unit: category
+id: jetson-tegra-tests
+_name: Jetson Tegra tests
+
+id: jetson-tegra-tests/clone_tests_repo
+category_id: jetson-tegra-tests
+plugin: shell
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'git'
+ manifest.is_Jetson == 'True'
+command:
+ set -ex
+ cd ${HOME}
+ if [ ! -d "tegra-tests" ]; then
+    git clone https://github.com/thierryreding/tegra-tests -b jetpack6.x
+ else
+    echo "tegra-tests already exists"
+ fi
+_summary:
+ Clone the repository with the Tegra tests
+_description:
+ Clone the repository with the Tegra tests
+
+id: jetson-tegra-tests/inspect_logs
+category_id: jetson-tegra-tests
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.is_Jetson == 'True'
+command:
+ set -ex
+ cd ${HOME}
+ sudo tegra-tests/tests/boot.py  -s -v logs
+depends:
+ jetson-tegra-tests/clone_tests_repo
+_summary:
+ Inspect the Kernel log looking for warnings and errors
+_description:
+ Inspect the Kernel log looking for warnings and errors
+
+id: jetson-tegra-tests/inspect_devices
+category_id: jetson-tegra-tests
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.is_Jetson == 'True'
+command:
+ set -ex
+ cd ${HOME}
+ sudo tegra-tests/tests/boot.py  -s -v devices
+depends:
+ jetson-tegra-tests/clone_tests_repo
+_summary:
+ Inspect which devices have been registered
+_description:
+ Inspect which devices have been registered

@@ -31,7 +31,7 @@ import os
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.secure import config
+from plainbox.impl.result_utils import determine_outcome_and_skip_reason
 from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session.jobs import InhibitionCause
@@ -58,23 +58,16 @@ def run_job_if_possible(session, runner, config, job, update=True, ui=None):
     if job_state.can_start():
         job_result = runner.run_job(job, job_state, config, ui)
     else:
-        # Set the outcome of jobs that cannot start to
-        # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to
-        # a job with an OUTCOME_SKIP outcome, if that is the case mirror
-        # that outcome. This makes 'skip' stronger than 'not-supported'
-        outcome = IJobResult.OUTCOME_NOT_SUPPORTED
-        for inhibitor in job_state.readiness_inhibitor_list:
-            if inhibitor.cause != InhibitionCause.FAILED_DEP:
-                continue
-            related_job_state = session.job_state_map[inhibitor.related_job.id]
-            if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
-                outcome = IJobResult.OUTCOME_SKIP
-        job_result = MemoryJobResult(
-            {
-                "outcome": outcome,
-                "comments": job_state.get_readiness_description(),
-            }
+        outcome, skip_reason = determine_outcome_and_skip_reason(
+            job_state, session.job_state_map
         )
+        result_data = {
+            "outcome": outcome,
+            "comments": job_state.get_readiness_description(),
+        }
+        if skip_reason:
+            result_data["skip_reason"] = skip_reason
+        job_result = MemoryJobResult(result_data)
     assert job_result is not None
     if update:
         session.update_job_result(job, job_result)

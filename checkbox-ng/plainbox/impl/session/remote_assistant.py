@@ -42,6 +42,7 @@ from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result_utils import determine_outcome_and_skip_reason
 from plainbox.abc import IJobResult
 
 from checkbox_ng.config import load_configs
@@ -557,27 +558,17 @@ class RemoteSessionAssistant:
         job_state = self._sa.get_job_state(job_id)
 
         if not job_state.can_start():
-            outcome = IJobResult.OUTCOME_NOT_SUPPORTED
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if (
-                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE
-                    and "fail-on-resource" in job.get_flag_set()
-                ):
-                    outcome = IJobResult.OUTCOME_FAIL
-                    break
-                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
-                    continue
-                related_job_state = self._sa._context.state.job_state_map[
-                    inhibitor.related_job.id
-                ]
-                if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
-                    outcome = IJobResult.OUTCOME_SKIP
+            outcome, skip_reason = determine_outcome_and_skip_reason(
+                job_state, self._sa._context.state.job_state_map
+            )
 
             def cant_start_builder(*args, **kwargs):
                 result_builder = JobResultBuilder(
                     outcome=outcome,
                     comments=job_state.get_readiness_description(),
                 )
+                if skip_reason:
+                    result_builder.skip_reason = skip_reason
                 return result_builder
 
             self._be = BackgroundExecutor(self, job_id, cant_start_builder)
@@ -609,7 +600,7 @@ class RemoteSessionAssistant:
 
                 def skipped_builder(*args, **kwargs):
                     result_builder = JobResultBuilder(
-                        outcome=IJobResult.OUTCOME_SKIP
+                        outcome=IJobResult.OUTCOME_MANUAL_SKIP
                     )
                     if self._current_comments != "":
                         result_builder.comments = self._current_comments
@@ -856,6 +847,10 @@ class RemoteSessionAssistant:
         self, last_job_id, result_interactively_decided={}
     ):
         if not last_job_id:
+            return
+        # If there are no more jobs to run, it means the last job already has
+        # a result, and does not need to be updated
+        if not self._sa._metadata.remaining_todo_jobs:
             return
         if result_interactively_decided:
             result_dict = result_interactively_decided

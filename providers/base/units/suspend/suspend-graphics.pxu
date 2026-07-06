@@ -89,7 +89,6 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_cycle_resolutions_after_suspend_{{ product_slug }}_graphics
 template-id: suspend/index_cycle_resolutions_after_suspend_product_slug_graphics
-requires: package.name == 'xorg'
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -124,6 +123,14 @@ id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_auto
 template-id: suspend/index_xrandr_screens_after_suspend.tar.gz_auto
 depends: after-suspend-graphics/{index}_cycle_resolution_{product_slug}
 command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
+_purpose: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
+_summary: Attach screenshots from suspend/cycle resolutions after suspend test to results.
+
+plugin: attachment
+category_id: com.canonical.plainbox::suspend
+id: suspend/xrandr_screens_after_suspend_primary
+depends: graphics/cycle_resolution_primary
+command: [ -f "$PLAINBOX_SESSION_SHARE"/primary_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/primary_xrandr_screens_after_suspend.tgz
 _purpose: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 _summary: Attach screenshots from suspend/cycle resolutions after suspend test to results.
 

@@ -80,7 +80,7 @@ jobs:
               com.canonical.contrib::has_intel_gpus = false
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
@@ -133,7 +133,7 @@ jobs:
 
           echo "local_path=$PWD/job.yaml" >> $GITHUB_OUTPUT
       - name: Submit testflinger job
-        uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
+        uses: canonical/testflinger/.github/actions/submit@a31f6a872972435eca93e058c5320aa88099382e
         with:
           poll: true
           job-path: ${{ steps.build-job-file.outputs.local_path }}

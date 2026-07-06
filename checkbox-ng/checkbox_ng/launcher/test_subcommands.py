@@ -430,6 +430,10 @@ class TestLauncher(TestCase):
         failed = Launcher.setup(self_mock)
 
         self.assertTrue(self_mock.sa.start_setup.called)
+        self_mock._save_manifest.assert_called_once_with(interactive=False)
+        self_mock.configuration.get_value.assert_called_once_with(
+            "test selection", "forced"
+        )
         self.assertTrue(self_mock._run_setup_jobs.called)
         self.assertTrue(self_mock.sa.finish_setup.called)
         self.assertEqual(failed, ["failed1"])
@@ -484,7 +488,9 @@ class TestLauncher(TestCase):
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
-        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+        self.assertEqual(
+            result_dict["outcome"], IJobResult.OUTCOME_MANUAL_SKIP
+        )
         # given that no comment was in resume_params, the resume procedure asks for it
         self.assertTrue(request_comment_mock.called)
 
@@ -513,7 +519,9 @@ class TestLauncher(TestCase):
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
-        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+        self.assertEqual(
+            result_dict["outcome"], IJobResult.OUTCOME_MANUAL_SKIP
+        )
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())

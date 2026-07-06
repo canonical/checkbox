@@ -1,0 +1,134 @@
+unit: job
+id: stress_ng_stressors
+plugin: resource
+summary: Gather list of test stressors from stress-ng
+purpose: |
+  stress-ng divides tests into stressors. The goal is to get a list of stressors so tests can be divided
+  up accordingly.
+environ:
+  - STRESS_NG_EXTRA_UNSUPPORTED
+command: |
+  command -v stress-ng >/dev/null 2>&1 || { >&2 echo "stress-ng command not found"; exit 1; }
+  capture_stressor.py
+estimated_duration: 1s
+flags:
+  - preserve-locale
+---
+unit: template
+template-unit: job
+template-resource: stress_ng_stressors
+template-filter:
+  - stress_ng_stressors.root == "False"
+id: stress/stress-ng-test-for-stressor-{stressor}-user
+template-id: stress/stress-ng-test-for-stressor-stressor-user
+category_id: com.canonical.plainbox::stress
+summary: Run the stress-ng stressor {stressor} (as normal user)
+purpose: |
+  Runs the stressors from stress-ng. Tests run using the
+  same number of processes as online processors.
+requires:
+  - (stress_ng_stressors.stressor == "{stressor}" and stress_ng_stressors.unsupported == "False")
+plugin: shell
+estimated_duration: '30.0'
+environ:
+  - STRESS_NG_STRESSORS_TIMEOUT
+command: |
+  cd /var/tmp || exit $?
+  PATHOLOGICAL="{pathological}"
+  if [ "$PATHOLOGICAL" = "True" ]; then
+    FLAG="--pathological"
+  else
+    FLAG=""
+  fi
+  stress-ng --{stressor} 0 $FLAG --timeout "${{STRESS_NG_STRESSORS_TIMEOUT:-30}}" --oom-avoid-bytes 10% --skip-silent --verbose
+  # Error code definition - 3(no resource), 4(not implemented)
+  EXIT_CODE=$?
+  echo "EXIT_CODE="$EXIT_CODE
+  case $EXIT_CODE in
+    0|3|4) exit 0;;
+    *)     exit 1;;
+  esac
+---
+unit: template
+template-unit: job
+template-resource: stress_ng_stressors
+template-filter:
+  - stress_ng_stressors.root == "True"
+id: stress/stress-ng-test-for-stressor-{stressor}-root
+template-id: stress/stress-ng-test-for-stressor-stressor-root
+category_id: com.canonical.plainbox::stress
+summary: Run the stress-ng stressor {stressor} (as root)
+purpose: |
+  Runs the stressors from stress-ng. Tests run using the
+  same number of processes as online processors.
+requires:
+  - (stress_ng_stressors.stressor == "{stressor}" and stress_ng_stressors.unsupported == "False")
+plugin: shell
+user: root
+estimated_duration: '30.0'
+environ:
+  - STRESS_NG_STRESSORS_TIMEOUT
+command: |
+  cd /var/tmp || exit $?
+  PATHOLOGICAL="{pathological}"
+  if [ "$PATHOLOGICAL" = "True" ]; then
+    FLAG="--pathological"
+  else
+    FLAG=""
+  fi
+  stress-ng --{stressor} 0 $FLAG --timeout "${{STRESS_NG_STRESSORS_TIMEOUT:-30}}" --oom-avoid-bytes 10% --skip-silent --verbose
+  # Error code definition - 3(no resource), 4(not implemented)
+  EXIT_CODE=$?
+  echo "EXIT_CODE="$EXIT_CODE
+  case $EXIT_CODE in
+    0|3|4) exit 0;;
+    *)     exit 1;;
+  esac
+---
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/store_and_change_oomd_config
+estimated_duration: '3.0'
+user: root
+summary: Store and change 10-oomd-user-service-defaults.conf
+command: |
+  systemd_oomd_conf_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+  if [ -e ${systemd_oomd_conf_path} ]; then
+    echo "Storing original oomd config..."
+    cat ${systemd_oomd_conf_path} > "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf
+    echo "Before changing config (Original config):"
+    cat ${systemd_oomd_conf_path}
+    echo
+    echo "Changing oomd config to auto..."
+    sed -i 's/ManagedOOMMemoryPressure=kill/ManagedOOMMemoryPressure=auto/g' ${systemd_oomd_conf_path}
+    systemctl daemon-reload
+    echo "After changing config:"
+    cat ${systemd_oomd_conf_path}
+  else
+    echo "Config doesn't exist."
+    echo "Won't change anything"
+  fi
+---
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/restore_oomd_config
+depends:
+  - stress/store_and_change_oomd_config
+estimated_duration: '3.0'
+user: root
+summary: Restore to original 10-oomd-user-service-defaults.conf
+command: |
+  systemd_oomd_conf_path=/usr/lib/systemd/system/user@.service.d/10-oomd-user-service-defaults.conf
+  if [ -e ${systemd_oomd_conf_path} ]; then
+    echo "Before restoring config:"
+    cat ${systemd_oomd_conf_path}
+    echo
+    echo "Restoring original oomd config..."
+    cat "$PLAINBOX_SESSION_SHARE"/10-oomd-user-service-defaults.conf > ${systemd_oomd_conf_path}
+    systemctl daemon-reload
+    echo "After restoring config (Original config):"
+    cat ${systemd_oomd_conf_path}
+  else
+    echo "Config doesn't exist."
+    echo "Won't restore anything."
+  fi

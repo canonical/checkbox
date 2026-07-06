@@ -156,6 +156,54 @@ If a change affects the Checkbox test-report submission format, update
 
 ---
 
+## Code review
+
+### Routing (monorepo)
+
+- Apply the global rules above, plus the nearest component `AGENTS.md`
+  (`checkbox-ng/`, `checkbox-support/`, `providers/`, `metabox/`). Local
+  rules take precedence for that component.
+
+### Scope
+
+- Review the PR diff and the behaviour it changes. Do not request unrelated
+  rewrites, refactors, or scope expansion.
+- Prefer simple, direct solutions: flag unnecessary abstraction, speculative
+  extension points, or new dependencies not justified by the change
+  (KISS / YAGNI).
+
+### Severity
+
+- **Must flag**: correctness regressions and security issues (OWASP Top 10,
+  unsafe deserialization, prompt injection in tool output, secrets in code).
+- **Optional**: style, naming, and structural suggestions — mark these as
+  non-blocking nice-to-haves.
+
+### Documentation
+
+- Require documentation updates for user-facing or public-API changes:
+  `checkbox-ng` / `checkbox-support` public interfaces, PXU or YAML unit
+  grammar, exporters, and the submission schema.
+
+### Checkbox watch items
+
+Verify these easy-to-miss, project-specific rules when the diff touches them:
+
+- Submission-format changes update `submission-schema/schema.json`.
+- New hidden `manifest entry` units are coordinated with the DUT config repo.
+- New behaviour is covered by `unittest` / `doctest` / `pytest` tests.
+
+### Do not review or comment
+
+- **Ignore** generated files and vendored / third-party code (any
+  `*/vendor/` subtree). Do not review or comment on them.
+- **Do not comment** on concerns CI already enforces — `black` formatting,
+  `flake8`, ShellCheck, coverage percentage, and GPG-signed commits — unless
+  the diff clearly breaks the rule.
+- Do not comment on issues unrelated to the PR.
+
+---
+
 ## How to choose which AGENTS.md to follow
 
 1. Read this root file first for global rules.

@@ -447,6 +447,7 @@ class Launcher(MainLoopStage, ReportsStage):
             (
                 candidate.id,
                 generate_resume_candidate_description(candidate),
+                candidate.metadata.remaining_todo_jobs,
             )
             for candidate in resume_candidates
         ]
@@ -504,12 +505,15 @@ class Launcher(MainLoopStage, ReportsStage):
                 return False
 
     def _resume_session_via_resume_params(self, resume_params):
-        outcome = {
-            "pass": IJobResult.OUTCOME_PASS,
-            "fail": IJobResult.OUTCOME_FAIL,
-            "skip": IJobResult.OUTCOME_SKIP,
-            "rerun": IJobResult.OUTCOME_UNDECIDED,
-        }[resume_params.action]
+        if resume_params.action:
+            outcome = {
+                "pass": IJobResult.OUTCOME_PASS,
+                "fail": IJobResult.OUTCOME_FAIL,
+                "skip": IJobResult.OUTCOME_MANUAL_SKIP,
+                "rerun": IJobResult.OUTCOME_UNDECIDED,
+            }[resume_params.action]
+        else:
+            outcome = None
         return self._resume_session(
             resume_params.session_id, outcome, resume_params.comments
         )
@@ -574,50 +578,56 @@ class Launcher(MainLoopStage, ReportsStage):
             if outcome is None:
                 outcome = self._get_autoresume_outcome_last_job(metadata)
 
-        last_job = metadata.running_job_name
-        is_cert_blocker = (
-            self.sa.get_job_state(last_job).effective_certification_status
-            == "blocker"
-        )
-        # If we resumed maybe not rerun the same, probably broken job
-        result_dict = {"comments": comments, "outcome": outcome}
-        if outcome == IJobResult.OUTCOME_PASS:
-            result_dict["comments"] = newline_join(
-                result_dict["comments"], "Passed after resuming execution"
+        # If there are more jobs to run, resume the session and modify the
+        # last job result.
+        if metadata.remaining_todo_jobs:
+            last_job = metadata.running_job_name
+            is_cert_blocker = (
+                self.sa.get_job_state(last_job).effective_certification_status
+                == "blocker"
             )
+            # If we resumed maybe not rerun the same, probably broken job
+            result_dict = {"comments": comments, "outcome": outcome}
+            if outcome == IJobResult.OUTCOME_PASS:
+                result_dict["comments"] = newline_join(
+                    result_dict["comments"], "Passed after resuming execution"
+                )
 
-        elif outcome == IJobResult.OUTCOME_FAIL:
-            if is_cert_blocker and not comments:
-                result_dict["comments"] = request_comment("why it failed")
+            elif outcome == IJobResult.OUTCOME_FAIL:
+                if is_cert_blocker and not comments:
+                    result_dict["comments"] = request_comment("why it failed")
+                else:
+                    result_dict["comments"] = newline_join(
+                        result_dict["comments"],
+                        "Failed after resuming execution",
+                    )
+            elif outcome == IJobResult.OUTCOME_MANUAL_SKIP:
+                if is_cert_blocker and not comments:
+                    result_dict["comments"] = request_comment(
+                        "why you want to skip it"
+                    )
+                else:
+                    result_dict["comments"] = newline_join(
+                        result_dict["comments"],
+                        "Skipped after resuming execution",
+                    )
+            elif outcome == IJobResult.OUTCOME_CRASH:
+                if is_cert_blocker and not comments:
+                    result_dict["comments"] = request_comment("why it failed")
+                else:
+                    result_dict["comments"] = newline_join(
+                        result_dict["comments"],
+                        "Crashed after resuming execution",
+                    )
+            elif outcome == IJobResult.OUTCOME_UNDECIDED:
+                # if we don't call use_job_result it means we'll rerun the job
+                return
             else:
-                result_dict["comments"] = newline_join(
-                    result_dict["comments"], "Failed after resuming execution"
+                raise ValueError(
+                    "Unsupported outcome for resume {}".format(outcome)
                 )
-        elif outcome == IJobResult.OUTCOME_SKIP:
-            if is_cert_blocker and not comments:
-                result_dict["comments"] = request_comment(
-                    "why you want to skip it"
-                )
-            else:
-                result_dict["comments"] = newline_join(
-                    result_dict["comments"], "Skipped after resuming execution"
-                )
-        elif outcome == IJobResult.OUTCOME_CRASH:
-            if is_cert_blocker and not comments:
-                result_dict["comments"] = request_comment("why it failed")
-            else:
-                result_dict["comments"] = newline_join(
-                    result_dict["comments"], "Crashed after resuming execution"
-                )
-        elif outcome == IJobResult.OUTCOME_UNDECIDED:
-            # if we don't call use_job_result it means we'll rerun the job
-            return
-        else:
-            raise ValueError(
-                "Unsupported outcome for resume {}".format(outcome)
-            )
-        result = MemoryJobResult(result_dict)
-        self.sa.use_job_result(last_job, result)
+            result = MemoryJobResult(result_dict)
+            self.sa.use_job_result(last_job, result)
         if self.sa.setting_up():
             self.setup()
             self.bootstrap()
@@ -631,6 +641,11 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def setup(self):
         setup_jobs = self.sa.start_setup()
+        self._save_manifest(
+            interactive=not self.configuration.get_value(
+                "test selection", "forced"
+            )
+        )
         failed_setups = self._run_setup_jobs(setup_jobs)
         self.sa.finish_setup()
         return failed_setups
@@ -860,7 +875,7 @@ class Launcher(MainLoopStage, ReportsStage):
                         result_dict["comments"] = _(
                             "Skipped after resuming execution"
                         )
-                    result_dict["outcome"] = IJobResult.OUTCOME_SKIP
+                    result_dict["outcome"] = IJobResult.OUTCOME_MANUAL_SKIP
                     result = MemoryJobResult(result_dict)
                     break
             elif cmd == "pass":

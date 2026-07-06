@@ -85,6 +85,8 @@ def get_platform() -> Platform:
         oem_ubuntu_codename = "jellyfish"
     elif sys_ubuntu_codename == "noble":
         oem_ubuntu_codename = "numbat"
+    elif sys_ubuntu_codename == "resolute":
+        oem_ubuntu_codename = "raccoon"
     if oem_ubuntu_codename is None:
         raise Exception("oem ubuntu codename is empty.")
 

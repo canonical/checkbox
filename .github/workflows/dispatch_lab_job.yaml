@@ -12,11 +12,31 @@ on:
       # - test_plan: Checkbox test plan to run (ex. com.canonical.certification::sru)
       # - match: subset of jobs to run (ex. .*wireless.*)
       #
-      # One possible matrix_to_create would therefore look like this:
-      # matrix_to_create=[{ data_source: "distro: desktop-22-04-2-uefi", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
+      # Example of a json formatted matrix to create:
+      #  1 job:
+      #  [{"data_source": "{distro: desktop-22-04-2-uefi}", "queue": "202506-36885", "match": ".*wireless.*", "test_plan": "com.canonical.certification::sru"}]
+      # matrix_to_create=[{ data_source: "{distro: desktop-22-04-2-uefi}", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
+      #  2 jobs:
+      # [
+      #     {
+      #         "data_source": "{distro: desktop-22-04-2-uefi}",
+      #         "queue": "202506-36885",
+      #         "match": ".*wireless.*",
+      #         "test_plan": "com.canonical.certification::sru"
+      #     },
+      #     {
+      #         "data_source": "{distro: desktop-22-04-2-uefi}",
+      #         "queue": "202506-36886",
+      #         "match": ".*wireless.*",
+      #         "test_plan": "com.canonical.certification::sru"
+      #     }
+      # ]
       #
       # To run this workflow manually you can use the `gh` cli utility as follows:
       # gh workflow run dispatch_lab_job.yaml -f 'matrix_to_create=[...]'
+      #
+      # You can run it from a branch or commit using the `--ref` option:
+      # gh workflow run dispatch_lab_job.yaml  --ref <branch_or_commit> -f 'matrix_to_create=[...]'
       matrix_to_create:
         description: 'Json formatted description of the jobs to dispatch'
         required: true
@@ -35,7 +55,7 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
 
@@ -44,7 +64,7 @@ jobs:
         run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Run the spec
-        uses: canonical/checkbox/.github/actions/checkbox_source_deb@644cfdf70d7128f206b605f736503e7ad14a4833
+        uses: canonical/checkbox/.github/actions/checkbox_source_deb@9fb2aca844e54d893ef02b43cffd95fe1fdf5027
         with:
           data_source: ${{ matrix.spec.data_source }}
           queue: ${{ matrix.spec.queue }}

@@ -8,6 +8,21 @@ import time
 import os
 
 from checkbox_support.scripts import fwts_test
+from checkbox_support.helpers.retry import retry
+
+
+@retry(max_attempts=10, delay=4)
+def wait_for_suspend_jobs_to_finish():
+    list_jobs_cmd = ["systemctl", "list-jobs", "*suspend*"]
+    output = subprocess.check_output(
+        list_jobs_cmd,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    ).strip()
+    if output not in ("No jobs running.", "No jobs listed."):
+        raise RuntimeError(
+            "Suspend jobs ongoing.\nActive jobs list:\n{}".format(output)
+        )
 
 
 def main(args=sys.argv[1:]):
@@ -67,6 +82,13 @@ def main(args=sys.argv[1:]):
             str(args.sleep_delay),
         ]
         suspend_cmd = ["systemctl", "suspend"]
+        try:
+            wait_for_suspend_jobs_to_finish()
+        except RuntimeError as e:
+            raise SystemExit(
+                "Timed out waiting for suspend jobs to finish."
+                "\nDetails: {}".format(e)
+            )
         print("Running: {}".format(" ".join(rtcwake_cmd)))
         subprocess.check_call(rtcwake_cmd)
         print(

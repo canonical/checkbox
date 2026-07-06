@@ -1,0 +1,8 @@
+id: xilinx-dtb-automated
+unit: test plan
+_name: Automated Xilinx DTB tests
+_description: Automated Xilinx DTB tests
+include:
+    xilinx-dtb/components_.*
+bootstrap_include:
+    xilinx_sku

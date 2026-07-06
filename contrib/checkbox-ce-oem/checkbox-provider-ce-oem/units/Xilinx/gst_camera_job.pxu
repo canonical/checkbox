@@ -30,7 +30,7 @@ _purpose:
 _steps:
     1. Click on Test to capture
 _verification:
-    Verified the jpg in seesion folder and the quality of picture is good.
+    Verified the jpg in session folder and the quality of picture is good.
 
 unit: template
 template-resource: com.canonical.certification::device

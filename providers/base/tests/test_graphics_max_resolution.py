@@ -33,8 +33,6 @@ sys.modules.setdefault("gi.repository.Gio", _mock_gi.repository.Gio)
 sys.modules.setdefault("gi.repository.GLib", _mock_gi.repository.GLib)
 
 _mock_gnome_monitor = MagicMock()
-sys.modules.setdefault("checkbox_support", _mock_gnome_monitor)
-sys.modules.setdefault("checkbox_support.dbus", _mock_gnome_monitor.dbus)
 sys.modules.setdefault(
     "checkbox_support.dbus.gnome_monitor",
     _mock_gnome_monitor.dbus.gnome_monitor,

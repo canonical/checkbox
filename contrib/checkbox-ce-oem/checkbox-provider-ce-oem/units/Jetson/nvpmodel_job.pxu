@@ -1,0 +1,118 @@
+unit: category
+id: jetson-nvpmodel
+_name: Jetson nvpmodel tests
+
+unit: category
+id: jetson-core-nvpmodel
+_name: Jetson core nvpmodel tests
+
+unit: template
+template-resource: jetson_nvpmodel_list_core
+template-unit: job
+id: jetson-core-nvpmodel/set_mode_{mode_id}
+category_id: jetson-core-nvpmodel
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'nvpmodel'
+ manifest.is_Jetson == 'True'
+command:
+  sudo snap run nvpmodel.nvpmodel -m {mode_id} --force
+  # If the mode was already set before running checkbox the system will not be rebooted
+  # and checkbox will get stuck due to the no return flag,
+  # so it is better to enforce the reboot always.
+  reboot
+flags: noreturn
+_template-summary:
+ Set a power mode using nvpmodel on core
+_summary:
+ Set the power mode ID={mode_id} using nvpmodel on core
+_description:
+ Set the power mode ID={mode_id} using nvpmodel on core
+after:
+  {previous_read_id}
+
+unit: template
+template-resource: jetson_nvpmodel_list_core
+template-unit: job
+id: jetson-core-nvpmodel/get_mode_{mode_id}
+category_id: jetson-core-nvpmodel
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'nvpmodel'
+ manifest.is_Jetson == 'True'
+command:
+  echo "checking the mode={mode_id}"
+  sudo snap run nvpmodel.nvpmodel --query
+  sudo snap run nvpmodel.jetson-clocks-show
+  power_mode=$(sudo snap run nvpmodel --query | tr -s " " | cut -d " " -f4 | head -n 1)
+  sudo snap run nvpmodel --parse --verbose | grep POWER_MODEL | grep $power_mode | grep ID={mode_id}
+_template-summary:
+ Confirm that a power mode was correctly set by nvpmodel on core
+_summary:
+ Confirm that the power mode ID={mode_id} was correctly set by nvpmodel on core
+_description:
+ Confirm that the power mode ID={mode_id} was correctly set by nvpmodel on core
+depends:
+  jetson-core-nvpmodel/set_mode_{mode_id}
+
+unit: template
+template-resource: jetson_nvpmodel_list
+template-unit: job
+id: jetson-nvpmodel/set_mode_{mode_id}
+category_id: jetson-nvpmodel
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'nvpmodel'
+ manifest.is_Jetson == 'True'
+command:
+  sudo nvpmodel -m {mode_id} --force
+  # If the mode was already set before running checkbox the system will not be rebooted
+  # and checkbox will get stuck due to the no return flag,
+  # so it is better to enforce the reboot always.
+  reboot
+flags: noreturn
+_template-summary:
+ Set a power mode using nvpmodel
+_summary:
+ Set the power mode ID={mode_id} using nvpmodel
+_description:
+ Set the power mode ID={mode_id} using nvpmodel
+after:
+  {previous_read_id}
+
+unit: template
+template-resource: jetson_nvpmodel_list
+template-unit: job
+id: jetson-nvpmodel/get_mode_{mode_id}
+category_id: jetson-nvpmodel
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'nvpmodel'
+ executable.name == 'jetson_clocks'
+ manifest.is_Jetson == 'True'
+command:
+  echo "checking the mode={mode_id}"
+  sudo nvpmodel --query
+  sudo jetson_clocks --show
+  power_mode=$(sudo nvpmodel --query | tr -s " " | cut -d " " -f4 | head -n 1)
+  sudo nvpmodel --parse --verbose | grep POWER_MODEL | grep $power_mode | grep ID={mode_id}
+_template-summary:
+ Confirm that a power mode was correctly set by nvpmodel
+_summary:
+ Confirm that the power mode ID={mode_id} was correctly set by nvpmodel
+_description:
+ Confirm that the power mode ID={mode_id} was correctly set by nvpmodel
+depends:
+  jetson-nvpmodel/set_mode_{mode_id}

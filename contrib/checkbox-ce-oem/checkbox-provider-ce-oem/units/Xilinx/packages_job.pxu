@@ -363,11 +363,12 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'xrt' == package.name and 'xlnx-firmware-kv260-nlp-smartvision' == package.name
- manifest.is_Xilinx == 'True'
+  'xrt' == package.name
+  manifest.is_Xilinx == 'True'
 estimated_duration: 3s
 user: root
 command:
+  dpkg-query -W -f='${Status}' xlnx-firmware-kv260-nlp-smartvision 2>/dev/null | grep -q "installed" || { echo "Required package xlnx-firmware-kv260-nlp-smartvision is not installed"; exit 1; }
   version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
   xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_examine_devices
 

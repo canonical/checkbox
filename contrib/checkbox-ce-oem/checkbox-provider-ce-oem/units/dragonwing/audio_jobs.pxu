@@ -200,7 +200,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-16bit-8000hz-mono.wav ! wavparse ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-16bit-8000hz-mono.wav" ! wavparse ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -221,7 +221,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-16bit-44100hz-stereo.wav ! wavparse ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-16bit-44100hz-stereo.wav" ! wavparse ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -242,7 +242,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-24bit-48000hz-stereo.wav ! wavparse ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-24bit-48000hz-stereo.wav" ! wavparse ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -263,7 +263,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-24bit-192000hz-mono.wav ! wavparse ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-24bit-192000hz-mono.wav" ! wavparse ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -284,7 +284,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-16bit-96000hz-51ch.wav ! wavparse ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-16bit-96000hz-51ch.wav" ! wavparse ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -305,7 +305,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-24bit-32000hz-71ch.wav ! wavparse ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-24bit-32000hz-71ch.wav" ! wavparse ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -326,8 +326,8 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    mkdir -p $PLAINBOX_SESSION_SHARE/audio
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S16LE, channels=1, rate=8000 ! audioconvert ! wavenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-16bit-8000Hz-mono.wav
+    mkdir -p "$PLAINBOX_SESSION_SHARE/audio"
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S16LE, channels=1, rate=8000 ! audioconvert ! wavenc ! filesink location="$PLAINBOX_SESSION_SHARE/audio/encode-16bit-8000Hz-mono.wav"
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -348,8 +348,8 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    mkdir -p $PLAINBOX_SESSION_SHARE/audio
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S32LE, channels=2, rate=192000 ! audioconvert ! wavenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-32bit-192000Hz-stereo.wav
+    mkdir -p "$PLAINBOX_SESSION_SHARE/audio"
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S32LE, channels=2, rate=192000 ! audioconvert ! wavenc ! filesink location="$PLAINBOX_SESSION_SHARE/audio/encode-32bit-192000Hz-stereo.wav"
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -370,8 +370,8 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    mkdir -p $PLAINBOX_SESSION_SHARE/audio
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S24LE, channels=2, rate=44100 ! audioconvert ! wavenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-24bit-44100Hz-stereo.wav
+    mkdir -p "$PLAINBOX_SESSION_SHARE/audio"
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S24LE, channels=2, rate=44100 ! audioconvert ! wavenc ! filesink location="$PLAINBOX_SESSION_SHARE/audio/encode-24bit-44100Hz-stereo.wav"
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -392,8 +392,8 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    mkdir -p $PLAINBOX_SESSION_SHARE/audio
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S24LE, channels=1, rate=48000 ! audioconvert ! wavenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-24bit-48000Hz-mono.wav
+    mkdir -p "$PLAINBOX_SESSION_SHARE/audio"
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S24LE, channels=1, rate=48000 ! audioconvert ! wavenc ! filesink location="$PLAINBOX_SESSION_SHARE/audio/encode-24bit-48000Hz-mono.wav"
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -414,8 +414,8 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    mkdir -p $PLAINBOX_SESSION_SHARE/audio
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S16LE, channels=1, rate=44100 ! audioconvert ! flacenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-16bit-44100Hz-mono.flac
+    mkdir -p "$PLAINBOX_SESSION_SHARE/audio"
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S16LE, channels=1, rate=44100 ! audioconvert ! flacenc ! filesink location="$PLAINBOX_SESSION_SHARE/audio/encode-16bit-44100Hz-mono.flac"
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -436,7 +436,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-320kbps-48000Hz-stereo-CBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-320kbps-48000Hz-stereo-CBR.mp3" ! mpegaudioparse ! mpg123audiodec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -457,7 +457,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-80kbps-8000Hz-mono-CBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-80kbps-8000Hz-mono-CBR.mp3" ! mpegaudioparse ! mpg123audiodec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -478,7 +478,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-64kbps-32000Hz-mono-CBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-64kbps-32000Hz-mono-CBR.mp3" ! mpegaudioparse ! mpg123audiodec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -499,7 +499,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-48000Hz-quailty9-stereo-VBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-48000Hz-quailty9-stereo-VBR.mp3" ! mpegaudioparse ! mpg123audiodec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -520,7 +520,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-8000Hz-quailty6-mono-VBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-8000Hz-quailty6-mono-VBR.mp3" ! mpegaudioparse ! mpg123audiodec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -541,7 +541,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-22050Hz-quailty8-stereo-VBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-22050Hz-quailty8-stereo-VBR.mp3" ! mpegaudioparse ! mpg123audiodec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -562,7 +562,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-192bs-8000hz-mono-cl0.flac ! flacparse ! flacdec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-192bs-8000hz-mono-cl0.flac" ! flacparse ! flacdec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -583,7 +583,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-4608bs-192000hz-stereo-cl8.flac ! flacparse ! flacdec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-4608bs-192000hz-stereo-cl8.flac" ! flacparse ! flacdec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -604,7 +604,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-2304bs-44100hz-mono-cl3.flac ! flacparse ! flacdec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-2304bs-44100hz-mono-cl3.flac" ! flacparse ! flacdec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -625,7 +625,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-4096bs-48000hz-stereo-cl5.flac ! flacparse ! flacdec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-4096bs-48000hz-stereo-cl5.flac" ! flacparse ! flacdec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -646,7 +646,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-1024bs-32000hz-ch51-cl5.flac ! flacparse ! flacdec ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-1024bs-32000hz-ch51-cl5.flac" ! flacparse ! flacdec ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -667,7 +667,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-VBR-350000bps-48000hz-stereo.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-VBR-350000bps-48000hz-stereo.ogg" ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -688,7 +688,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-VBR-160000bps-44100hz-stereo.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-VBR-160000bps-44100hz-stereo.ogg" ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -709,7 +709,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-VBR-8000bps-8000hz-mono.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-VBR-8000bps-8000hz-mono.ogg" ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -730,7 +730,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-CBR-256000bps-48000hz-stereo.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-CBR-256000bps-48000hz-stereo.ogg" ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -751,7 +751,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-CBR-45000bps-8000hz-mono.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-CBR-45000bps-8000hz-mono.ogg" ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -772,7 +772,7 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-ABR-48000bps-22050hz-mono.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-ABR-48000bps-22050hz-mono.ogg" ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
@@ -793,4 +793,4 @@ _verification:
 command: 
     set -x
     export GST_DEBUG=2
-    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-ABR-240000bps-48000hz-stereo.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location="$GST_TEST_DATA/audio/decode-ABR-240000bps-48000hz-stereo.ogg" ! oggdemux ! vorbisdec ! audioconvert ! pulsesink

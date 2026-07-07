@@ -1,0 +1,176 @@
+id: genio_device_soc
+plugin: resource
+_summary: Collect and report the type of Genio SoC
+estimated_duration: 0.1
+command:
+    output=$(tr -d '\0' < /proc/device-tree/compatible)
+    IFS=','
+    read -a output_arr <<< "$output"
+    IFS='-'
+    read -a s <<< "${output_arr[1]}"
+    echo "SoC: ${s[0]}"
+    echo
+
+id: genio-serial/uart1-rpi-hat-loopback-{{ SoC }}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC == "mt8395"
+template-unit: job
+template-engine: jinja2
+category_id: genio-serial
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+user: root
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    executable.name == "genio-test-tool.serialcheck"
+    manifest.has_genio_uart_loopback == "True"
+    manifest.has_genio_g1200_j34_short == "False"
+_summary: Test UART1 functionality on Raspberry Pi Hat
+_description:
+    This test checks the UART1 functionality on Raspberry Pi Hat by connecting UTXD (Pin#8) and URXD (Pin#10) with jumper or wire.
+    Please make sure there is no jumper or wire connected on J43 (not short).
+command:
+    genio_serialcheck.py {{ SoC }}
+
+id: genio-serial/uart1-j52-loopback-{{ SoC }}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC == "mt8395"
+template-unit: job
+template-engine: jinja2
+category_id: genio-serial
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+user: root
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    executable.name == "genio-test-tool.serialcheck"
+    manifest.has_genio_g1200_j34_short == "True"
+    manifest.has_genio_g1200_j52_txd_rxd_connection == "True"
+_summary: Test UART1 functionality on J52
+_description:
+    This test checks the UART1 functionality on J52.
+    Please make sure the following requirements are fulfilled:
+      1. A jumper or wire connects on J43 (short).
+      2. A jumper or wire connects the TXD and RXD on J52 (short).
+      3. A jumper or wire connects the 3v3 on Raspberry Pi Hat (Pin#17) to VIO on J52.
+command:
+    genio_serialcheck.py {{ SoC }}
+
+id: genio-serial/uart1-micro-b-{{ SoC }}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC in ["mt8390", "mt8370", "mt8365"]
+template-unit: job
+template-engine: jinja2
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    executable.name == "genio-test-tool.serialcheck"
+category_id: genio-serial
+estimated_duration: 2s
+plugin: manual
+flags: also-after-suspend
+_summary: Test the functionality of UART1 port by sending and receiving data
+_purpose:
+    To test if the data can be received from Host to this DUT via Micro-B UART1 port.
+_steps:
+    1. Connect the DUT's micro-b UART1 to Host.
+    2. On DUT, create a random data called binary which size is 4K for test:
+      $ dd if=/dev/urandom of=binary count=1 bs=4096
+    3. Copy the random data to Host.
+    4. On DUT, run the following command to be a receiver:
+      $ genio-test-tool.serialcheck -d /dev/ttyS1 -f binary -m r -l 5 -b 921600
+    5. On Host, run the following command to be a sender:
+      $ genio-test-tool.serialcheck -d /dev/ttyUSBx -f binary -m t -l 5 -b 921600
+        - Replace ttyUSBx with the proper usb port number according to the detected one (ttyUSB0, ttyUSB1, ttyUSB2, ...)
+    6. Repeat step 4 and 5 with the available baud:
+        - Available baud: 9600 115200 576000 921600
+_verification:
+    On DUT, the rx data amount should be 20480 like the following sample.
+    `cts: 0 dsr: 0 rng: 0 dcd: 0 rx: 20480 tx: 0 frame 0 ovr 0 par: 0 brk: 0 buf_ovrr: 0`
+
+id: genio-serial/uart2-rpi-hat-loopback-{{ SoC }}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC in ["mt8390", "mt8370", "mt8365"]
+template-unit: job
+template-engine: jinja2
+category_id: genio-serial
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+user: root
+environ: GENIO_DEVICE
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    executable.name == "genio-test-tool.serialcheck"
+    manifest.has_genio_uart_loopback == "True"
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G700" %}
+    manifest.has_genio_g700_j4202_as_rpi_mode == "True" and manifest.has_genio_g700_j4203_as_rpi_mode == "True"
+    {%- endif %}
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G510" %}
+    manifest.has_genio_g510_j4202_as_rpi_mode == "True" and manifest.has_genio_g510_j4203_as_rpi_mode == "True"
+    {%- endif %}
+_summary: Test UART2 functionality on Raspberry Pi Hat
+_description:
+    This test checks the UART2 functionality on Raspberry Pi Hat by connecting
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G350" %} TXD2 (Pin#8) and RXD2 (Pin#10){%- else %} UTXD2 (Pin#8) and URXD2 (Pin#10){%- endif %} with jumper or wire.
+command:
+    genio_serialcheck.py {{ SoC }}
+
+id: genio-serial/uart2-micro-b-{{ SoC }}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC in ["mt8390", "mt8370"]
+template-unit: job
+template-engine: jinja2
+category_id: genio-serial
+estimated_duration: 2s
+plugin: manual
+flags: also-after-suspend
+environ: GENIO_DEVICE
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    executable.name == "genio-test-tool.serialcheck"
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G700" %}
+    manifest.has_genio_g700_j4202_as_rpi_mode == "False" and manifest.has_genio_g700_j4203_as_rpi_mode == "False"
+    {%- endif %}
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G510" %}
+    manifest.has_genio_g510_j4202_as_rpi_mode == "False" and manifest.has_genio_g510_j4203_as_rpi_mode == "False"
+    {%- endif %}
+_summary: Test the functionality of Micro-B UART2 port by sending and receiving data
+_purpose:
+    To test if the data can be received from Host to this DUT via Micro-B UART2 port.
+_steps:
+    1. Connect the DUT's Micro-B UART2 to Host via Micro-B to USB cable.
+    2. On DUT, create a random data called binary which size is 4K:
+      $ dd if=/dev/urandom of=binary count=1 bs=4096
+    3. Copy the random data to Host.
+    4. On DUT, run the following command to be a receiver:
+      $ genio-test-tool.serialcheck -d /dev/ttyS2 -f binary -m r -l 5 -b 921600
+    5. On Host, run the following command to be a sender:
+      $ genio-test-tool.serialcheck -d /dev/ttyUSBx -f binary -m t -l 5 -b 921600
+        - Replace ttyUSBx with the proper usb port number according to the detected one (ttyUSB0, ttyUSB1, ttyUSB2, ...)
+    6. Repeat step 4 and 5 with the available baud:
+        - Available baud: 9600 115200 576000 921600
+_verification:
+    On DUT, the rx data amount should be 20480 like the following sample.
+    `cts: 0 dsr: 0 rng: 0 dcd: 0 rx: 20480 tx: 0 frame 0 ovr 0 par: 0 brk: 0 buf_ovrr: 0`

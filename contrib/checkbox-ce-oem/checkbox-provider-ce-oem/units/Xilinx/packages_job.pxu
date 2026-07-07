@@ -231,7 +231,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'kria-dashboard' == package.name
+ package.name == 'kria-dashboard'
  manifest.is_Xilinx == 'True'
 estimated_duration: 7s
 user: root
@@ -247,7 +247,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'kria-dashboard' == package.name
+ package.name == 'kria-dashboard'
  manifest.is_Xilinx == 'True'
 estimated_duration: 10s
 user: root
@@ -263,7 +263,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'kria-dashboard' == package.name
+ package.name == 'kria-dashboard'
  manifest.is_Xilinx == 'True'
 estimated_duration: 7s
 user: root
@@ -279,7 +279,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'kria-dashboard' == package.name
+ package.name == 'kria-dashboard'
  manifest.is_Xilinx == 'True'
 estimated_duration: 7s
 user: root
@@ -295,7 +295,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'xrt' == package.name
+ package.name == 'xrt'
  manifest.is_Xilinx == 'True'
 estimated_duration: 1s
 user: root
@@ -312,7 +312,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'xrt' == package.name
+ package.name == 'xrt'
  manifest.is_Xilinx == 'True'
 estimated_duration: 1s
 user: root
@@ -329,7 +329,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'xrt' == package.name
+ package.name == 'xrt'
  manifest.is_Xilinx == 'True'
 estimated_duration: 1s
 user: root
@@ -346,7 +346,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'xrt' == package.name
+ package.name == 'xrt'
  manifest.is_Xilinx == 'True'
 estimated_duration: 1s
 user: root
@@ -363,7 +363,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
-  'xrt' == package.name
+  package.name == 'xrt'
   manifest.is_Xilinx == 'True'
 estimated_duration: 3s
 user: root
@@ -381,7 +381,7 @@ imports:
  from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
- 'xrt' == package.name
+ package.name == 'xrt'
  manifest.is_Xilinx == 'True'
 estimated_duration: 1s
 user: root

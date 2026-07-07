@@ -9,7 +9,7 @@ command: thermal_sensor_test.py dump
 id: ce-oem-thermal/snapshot_before_suspend
 plugin: shell
 user: root
-before: suspend/suspend_advanced_auto
+before: com.canonical.certification::suspend/suspend_advanced_auto
 estimated_duration: 1s
 _summary: Record thermal zone snapshot before suspend
 _description:

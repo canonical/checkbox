@@ -50,8 +50,8 @@ command:
   echo "checking the mode={mode_id}"
   sudo snap run nvpmodel.nvpmodel --query
   sudo snap run nvpmodel.jetson-clocks-show
-  power_mode=$(sudo snap run nvpmodel --query | tr -s " " | cut -d " " -f4 | head -n 1)
-  sudo snap run nvpmodel --parse --verbose | grep POWER_MODEL | grep "$power_mode" | grep ID={mode_id}
+  power_mode=$(sudo snap run nvpmodel.nvpmodel --query | tr -s " " | cut -d " " -f4 | head -n 1)
+  sudo snap run nvpmodel.nvpmodel --parse --verbose | grep POWER_MODEL | grep "$power_mode" | grep ID={mode_id}
 _template-summary:
  Confirm that a power mode was correctly set by nvpmodel on core
 _summary:

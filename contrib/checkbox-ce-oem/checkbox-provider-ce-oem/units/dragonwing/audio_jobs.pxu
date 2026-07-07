@@ -80,7 +80,7 @@ command:
         exit 1
     else
         echo "File found:"
-        echo $file_found
+        echo "$file_found"
     fi
 
 plugin: manual

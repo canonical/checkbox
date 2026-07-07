@@ -1,0 +1,23 @@
+id: ce-oem-ebbr-full
+unit: test plan
+_name: CE OEM EBBR tests
+_description: Full CE OEM EBBR tests for devices
+include:
+nested_part:
+    ce-oem-ebbr-manual
+    ce-oem-ebbr-automated
+
+id: ce-oem-ebbr-manual
+unit: test plan
+_name: CE OEM EBBR manual tests
+_description: Manual CE OEM EBBR tests for devices
+include:
+
+id: ce-oem-ebbr-automated
+unit: test plan
+_name: CE OEM EBBR auto tests
+_description: Automated CE OEM EBBR tests for devices
+bootstrap_include:
+    ce-oem-ebbr/fwts_ebbr_resource
+include:
+    ce-oem-ebbr/fwts-ebbr-.*

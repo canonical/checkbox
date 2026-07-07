@@ -1,0 +1,34 @@
+id: ce-oem-ebbr/fwts_ebbr_resource
+_summary: Generates FWTS EBBR cases for EBBR tests
+estimated_duration: 0.02
+category_id: ce-oem-ebbr
+plugin: resource
+command:
+    ebbr_resource.py
+
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-ebbr/fwts_ebbr_resource
+template-unit: job
+id: ce-oem-ebbr/fwts-ebbr-{{ case }}
+_summary: FWTS EBBR {{ case }} test
+_description: FWTS EBBR {{ description }} test
+plugin: shell
+user: root
+category_id: ce-oem-ebbr
+estimated_duration: 5s
+flags: also-after-suspend
+environ: PLAINBOX_SESSION_SHARE
+command:
+    echo -e "\n## Running FWTS of test: {{ case }}"
+    fwts_log_path="$PLAINBOX_SESSION_SHARE"/fwts_{{ case }}.log
+    fwts -q -r "$fwts_log_path" {{ case }}
+    cat "$fwts_log_path"
+    echo -e "\n## Checking FWTS log failures..."
+    if [[ -f "$fwts_log_path" ]]; then
+        sleep_test_log_check.py -v --ignore-warning -t all "$fwts_log_path"
+        RET=$?
+    else
+        RET=1
+    fi
+    exit $RET

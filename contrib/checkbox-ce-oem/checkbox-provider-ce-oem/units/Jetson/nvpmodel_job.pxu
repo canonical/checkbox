@@ -9,6 +9,7 @@ _name: Jetson core nvpmodel tests
 unit: template
 template-resource: jetson_nvpmodel_list_core
 template-unit: job
+template-id: jetson-core-nvpmodel/set_mode_mode_id
 id: jetson-core-nvpmodel/set_mode_{mode_id}
 category_id: jetson-core-nvpmodel
 user: root
@@ -37,6 +38,7 @@ after:
 unit: template
 template-resource: jetson_nvpmodel_list_core
 template-unit: job
+template-id: jetson-core-nvpmodel/get_mode_mode_id
 id: jetson-core-nvpmodel/get_mode_{mode_id}
 category_id: jetson-core-nvpmodel
 user: root
@@ -64,6 +66,7 @@ depends:
 unit: template
 template-resource: jetson_nvpmodel_list
 template-unit: job
+template-id: jetson-nvpmodel/set_mode_mode_id
 id: jetson-nvpmodel/set_mode_{mode_id}
 category_id: jetson-nvpmodel
 user: root
@@ -92,6 +95,7 @@ after:
 unit: template
 template-resource: jetson_nvpmodel_list
 template-unit: job
+template-id: jetson-nvpmodel/get_mode_mode_id
 id: jetson-nvpmodel/get_mode_{mode_id}
 category_id: jetson-nvpmodel
 user: root

@@ -3,8 +3,8 @@ unit: test plan
 _name: Jetson nvpmodel automated tests
 _description: Automated Jetson nvpmodel tests
 include:
-    jetson-nvpmodel/set_mode_.*
-    jetson-nvpmodel/get_mode_.*
+    jetson-nvpmodel/set_mode_mode_id
+    jetson-nvpmodel/get_mode_mode_id
 bootstrap_include:
     jetson_nvpmodel_list
 
@@ -13,7 +13,7 @@ unit: test plan
 _name: Jetson core nvpmodel automated tests
 _description: Automated Jetson core nvpmodel tests
 include:
-    jetson-core-nvpmodel/set_mode_.*
-    jetson-core-nvpmodel/get_mode_.*
+    jetson-core-nvpmodel/set_mode_mode_id
+    jetson-core-nvpmodel/get_mode_mode_id
 bootstrap_include:
     jetson_nvpmodel_list_core

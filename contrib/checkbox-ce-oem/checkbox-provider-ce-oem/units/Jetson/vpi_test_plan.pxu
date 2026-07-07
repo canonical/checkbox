@@ -3,7 +3,14 @@ unit: test plan
 _name: Jetson VPI automated tests
 _description: Automated Jetson VPI tests
 include:
-    jetson-vpi/.*
+    jetson-vpi/install-packages
+    jetson-vpi/build-sample
+    jetson-vpi/run-sample-cpp-cpu
+    jetson-vpi/run-sample-cpp-cuda
+    jetson-vpi/run-sample-cpp-pva
+    jetson-vpi/run-sample-py-cpu
+    jetson-vpi/run-sample-py-cuda
+    jetson-vpi/run-sample-py-pva
 bootstrap_include:
     jetson_tegra_details
 
@@ -12,7 +19,9 @@ unit: test plan
 _name: Jetson core VPI automated tests
 _description: Automated Jetson core VPI tests
 include:
-    jetson-core-vpi/.*
+    jetson-core-vpi/run-sample-snap-cpu
+    jetson-core-vpi/run-sample-snap-cuda
+    jetson-core-vpi/run-sample-snap-pva
 bootstrap_include:
     jetson_tegra_details
     jetson_lockdown

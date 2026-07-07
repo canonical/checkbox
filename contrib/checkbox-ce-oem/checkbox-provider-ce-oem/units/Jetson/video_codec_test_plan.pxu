@@ -3,7 +3,8 @@ unit: test plan
 _name: Jetson video codec automated tests
 _description: Automated Jetson video codec tests
 include:
-    jetson-video-codec/.*
+    jetson-video-codec/transcoding-thor
+    jetson-video-codec/transcoding
 bootstrap_include:
     jetson_tegra_details
 
@@ -12,6 +13,6 @@ unit: test plan
 _name: Jetson core video codec automated tests
 _description: Automated Jetson core video codec tests
 include:
-    jetson-core-video-codec/.*
+    jetson-core-video-codec/transcoding
 bootstrap_include:
     jetson_tegra_details

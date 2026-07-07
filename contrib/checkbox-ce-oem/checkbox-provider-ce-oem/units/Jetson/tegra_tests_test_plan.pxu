@@ -3,4 +3,6 @@ unit: test plan
 _name: Jetson Tegra automated tests
 _description: Automated Jetson Tegra tests
 include:
-    jetson-tegra-tests/.*
+    jetson-tegra-tests/clone_tests_repo
+    jetson-tegra-tests/inspect_logs
+    jetson-tegra-tests/inspect_devices

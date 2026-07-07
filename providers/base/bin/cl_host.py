@@ -31,20 +31,14 @@ Subcommands:
 """
 
 import os
-import shutil
 import subprocess
 import sys
-import sysconfig
 
-
-def get_arch_triple():
-    """Return the Debian multiarch triple for the current architecture."""
-    return sysconfig.get_config_var("MULTIARCH")
-
-
-def find_plz_run():
-    """Return the path to plz-run from the running checkbox snap."""
-    return shutil.which("plz-run")
+from checkbox_support.helpers.host_utils import (
+    VulkanDetectionError,
+    find_plz_run,
+    get_arch_triple,
+)
 
 
 def check_host_gpu(plz_run, arch_triple):
@@ -82,9 +76,10 @@ def check_host_gpu(plz_run, arch_triple):
 def cmd_resource():
     arch_triple = get_arch_triple()
 
-    plz_run = find_plz_run()
-    if plz_run is None:
-        print("FAIL: plz-run not found in any checkbox snap", file=sys.stderr)
+    try:
+        plz_run = find_plz_run()
+    except VulkanDetectionError as exc:
+        print("FAIL: {}".format(exc), file=sys.stderr)
         return 1
 
     if check_host_gpu(plz_run, arch_triple):

@@ -4,7 +4,7 @@ plugin: resource
 imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'
 command:
-    model_count=$(sudo snap run nvpmodel --parse --verbose | grep -c POWER_MODEL)
+    model_count=$(sudo snap run nvpmodel.nvpmodel --parse --verbose | grep -c POWER_MODEL)
     f=$((model_count - 1))
     while [ "$f" -ge 0 ]
     do

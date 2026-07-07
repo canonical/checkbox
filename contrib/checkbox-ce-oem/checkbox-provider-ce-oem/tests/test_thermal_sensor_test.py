@@ -200,7 +200,7 @@ class ThermalMonitorTest(unittest.TestCase):
                 output = stdout.getvalue()
 
         self.assertIn(
-            "summary: before=2 after=2 missing=1 new=1 identity_changed=0 renumbered=1",
+            "summary: before=2 after=2 missing=1 new=1 stable_id_upgraded=0 identity_changed=0 renumbered=1",
             output,
         )
         self.assertIn(

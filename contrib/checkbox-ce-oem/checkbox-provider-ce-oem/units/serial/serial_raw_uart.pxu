@@ -1,0 +1,75 @@
+id: ce-oem-serial/raw-uart-list
+_summary:
+    Generates raw UART loopback resources from user configuration
+_description:
+    Generates one resource for each raw UART listed in RAW_UART_PORTS.
+    NAME:TARGET:BAUD
+plugin: resource
+estimated_duration: 1.0
+environ:
+    RAW_UART_PORTS
+command:
+    if [ -z "$RAW_UART_PORTS" ]; then
+        exit 0
+    fi
+    serial_raw_uart_test.py list "$RAW_UART_PORTS"
+
+unit: template
+template-resource: ce-oem-serial/raw-uart-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-serial/raw-uart-loopback-quick-tests
+id: ce-oem-serial/raw-uart-loopback-quick-{{ name_id }}-{{ target_id }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_serial_raw_uart_loopback == 'True'
+_template-summary:
+    Quick raw UART loopback tests
+_summary: Quick raw UART loopback test for {{ name }}
+_purpose:
+    To check that raw UART {{ name }} can send and receive loopback data.
+_description:
+    This test opens {{ target }} as a raw UART loopback target and verifies a
+    short transmit/receive ping at baud setting {{ baud }}.
+plugin: shell
+user: root
+category_id: com.canonical.certification::serial
+estimated_duration: 10
+flags: also-after-suspend
+command:
+    serial_raw_uart_test.py quick \
+        --target "{{ target }}" \
+        --baud "{{ baud }}"
+
+unit: template
+template-resource: ce-oem-serial/raw-uart-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-serial/raw-uart-loopback-stress-tests
+id: ce-oem-serial/raw-uart-loopback-stress-{{ name_id }}-{{ target_id }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_serial_raw_uart_loopback == 'True'
+_template-summary:
+    Stress raw UART loopback tests
+_summary: Stress raw UART loopback test for {{ name }}
+_purpose:
+    To check that raw UART {{ name }} can send and receive repeated loopback
+    payloads.
+_description:
+    This test opens {{ target }} as a raw UART loopback target and verifies
+    repeated transmit/receive payloads at baud setting {{ baud }}.
+plugin: shell
+user: root
+category_id: com.canonical.certification::serial
+estimated_duration: 60
+flags: also-after-suspend
+environ:
+    RAW_UART_STRESS_COUNT
+    RAW_UART_STRESS_SIZE
+command:
+    serial_raw_uart_test.py stress \
+        --target "{{ target }}" \
+        --baud "{{ baud }}" \
+        --count "${RAW_UART_STRESS_COUNT:-100}" \
+        --size "${RAW_UART_STRESS_SIZE:-1024}"

@@ -19,9 +19,12 @@ _description:
 bootstrap_include:
     ce-oem-serial/serial-list
     ce-oem-serial/serial-console-list
+    ce-oem-serial/raw-uart-list
 include:
     ce-oem-serial/serial-transmit-data-tests
     ce-oem-serial/serial-console-tests
+    ce-oem-serial/raw-uart-loopback-quick-tests
+    ce-oem-serial/raw-uart-loopback-stress-tests
 
 id: before-suspend-ce-oem-serial-automated
 unit: test plan
@@ -31,9 +34,12 @@ _description:
 bootstrap_include:
     ce-oem-serial/serial-list
     ce-oem-serial/serial-console-list
+    ce-oem-serial/raw-uart-list
 include:
     ce-oem-serial/serial-transmit-data-.*
     ce-oem-serial/serial-console-(?!list\b).*$
+    ce-oem-serial/raw-uart-loopback-quick-tests
+    ce-oem-serial/raw-uart-loopback-stress-tests
 
 id: after-suspend-ce-oem-serial-automated
 unit: test plan
@@ -43,9 +49,12 @@ _description:
 bootstrap_include:
     ce-oem-serial/serial-list
     ce-oem-serial/serial-console-list
+    ce-oem-serial/raw-uart-list
 include:
     after-suspend-ce-oem-serial/serial-transmit-data-.*
     after-suspend-ce-oem-serial/serial-console-.*
+    after-suspend-ce-oem-serial/raw-uart-loopback-quick-tests
+    after-suspend-ce-oem-serial/raw-uart-loopback-stress-tests
 
 id: ce-oem-serial-stress
 unit: test plan

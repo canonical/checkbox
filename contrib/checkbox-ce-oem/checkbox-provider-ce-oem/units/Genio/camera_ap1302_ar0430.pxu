@@ -1,0 +1,292 @@
+id: genio-mipi-camera/firmware-checking-ap1302-ar0430
+plugin: shell
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_onsemi_ap1302_isp_and_ar0430_camera_module_as_yuv_sensor == 'True'
+estimated_duration: 0.1
+_summary: Verify if the ap1302_ar0430_single_fw.bin is existed at /lib/firmware
+command:
+    FILE="/lib/firmware/ap1302_ar0430_single_fw.bin"
+    if [ -f "$FILE" ]; then
+        echo "File $FILE exists"
+        exit 0
+    else
+        echo "File $FILE doesn't exist."
+        exit 1
+    fi
+
+id: genio-mipi-camera/driver-probe-checking-ap1302-ar0430
+plugin: shell
+category_id: com.canonical.plainbox::camera
+depends: genio-mipi-camera/firmware-checking-ap1302-ar0430
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_onsemi_ap1302_isp_and_ar0430_camera_module_as_yuv_sensor == 'True'
+estimated_duration: 0.1
+user:root
+_summary: Verify if the failed to probe driver infomation of ap1302 exists in dmesg
+command:
+    # https://bugs.launchpad.net/baoshan/+bug/2075571
+    # Execute dmesg and filter logs related to ap1302
+    LOG=$(dmesg | grep ap1302)
+    # List of keywords (expandable)
+    KEYWORDS=("error" "failed" "fail" "warning")
+    # Initialize a variable to store the detection result
+    HAS_ERRORS=false
+    # Echo the entire log content
+    echo "dmesg log of ap1302:"
+    echo "$LOG"
+    # Check if the log contains any keywords
+    for keyword in "${KEYWORDS[@]}"; do
+        if echo "$LOG" | grep -iq "$keyword"; then
+            HAS_ERRORS=true
+            break
+        fi
+    done
+    # Output summary based on the detection result
+    if [ "$HAS_ERRORS" = true ]; then
+        echo "Error or failure-related messages detected in the logs."
+        exit 1
+    else
+        echo "No error or failure-related messages detected in the logs."
+        exit 0
+    fi
+
+id: genio-mipi-camera/ap1302-ar0430-v4l2-ctl-capture
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_onsemi_ap1302_isp_and_ar0430_camera_module_as_yuv_sensor == 'True'
+depends: genio-mipi-camera/firmware-checking-ap1302-ar0430
+estimated_duration: 0.1
+_summary: Onsemi AP1302 with AR0430 captures image via v4l2-ctl
+_purpose:
+    Captures image via v4l2-ctl
+_steps:
+    1. Install v4l-utils package if not already installed:
+       sudo apt install v4l-utils
+    2. Find the AP1302-AR0430 camera video nodes:
+       (If support ImgSensor)
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       (If support v4l2 sensor)
+       v4l2-ctl --list-devices | grep camsv -A 1
+       Note: AP1302-AR0430 will only have 1 video node for Preview, Video, and Capture on the same node.
+    3. (If support v4l2 sensor), 
+       Get the media node
+       v4l2-ctl --list-devices | grep -E *camsys -A 1
+       Set camera capture format through media-ctl for CSI0
+       media-ctl -d /dev/media<N> -V "'ap1302.2-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':4 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050000.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+       Set camera capture format through media-ctl for CSI0 
+       media-ctl -d /dev/media<N> -V "'ap1302.3-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':5 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050800.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+    4. (If support ImgSensor)Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    5. Capture a UYVY image:
+       v4l2-ctl -d /dev/videoX \
+         --set-fmt-video=width=2316,height=1746,pixelformat=UYVY \
+         --set-parm=30 \
+         --stream-mmap \
+         --stream-skip=30 \
+         --stream-count=1 \
+         --stream-to=/tmp/ap1302_ar0430.yuv \
+         --verbose
+_verification:
+    1. Does the command can be performed without any problem?
+    2. Copy the captured videos to your host and check their quality via ffplay:
+       # For UYVY format
+       ffplay -f rawvideo -video_size 2316x1746 -pixel_format uyvy422 -i /tmp/ap1302_ar0430.yuv
+
+id: genio-mipi-camera/ap1302-ar0430-gstreamer-capture
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_onsemi_ap1302_isp_and_ar0430_camera_module_as_yuv_sensor == 'True'
+depends: genio-mipi-camera/firmware-checking-ap1302-ar0430
+estimated_duration: 0.1
+_summary: Onsemi AP1302 with AR0430 captures image via gstreamer v4l2src plugin
+_purpose:
+    Capture image via gstreamer v4l2src plugin
+_steps:
+    1. Install required packages if not already installed:
+       sudo apt install v4l-utils gstreamer1.0-tools
+    2. Find the AP1302-AR0430 camera video nodes:
+       (If support ImgSensor)
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       (If support v4l2 sensor)
+       v4l2-ctl --list-devices | grep camsv -A 1
+       Note: AP1302-AR0430 will only have 1 video node for Preview, Video, and Capture on the same node.
+    3. (If support v4l2 sensor), 
+       Get the media node
+       v4l2-ctl --list-devices | grep -E *camsys -A 1
+       Set camera capture format through media-ctl for CSI0
+       media-ctl -d /dev/media<N> -V "'ap1302.2-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':4 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050000.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+       Set camera capture format through media-ctl for CSI0 
+       media-ctl -d /dev/media<N> -V "'ap1302.3-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':5 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050800.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+    4. (If support ImgSensor)Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    5. Capture a UYVY image using gstreamer:
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=2316,height=1746,format=UYVY,framerate=30/1 \
+         ! multifilesink location=/tmp/ap1302_ar0430.yuv max-files=1
+_verification:
+    1. Does the command can be performed without any problem?
+    2. Copy the captured videos to your host and check their quality via ffplay:
+       # For UYVY format
+       ffplay -f rawvideo -video_size 2316x1746 -pixel_format uyvy422 -i /tmp/ap1302_ar0430.yuv
+
+id: genio-mipi-camera/ap1302-ar0430-v4l2-ctl-video
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_onsemi_ap1302_isp_and_ar0430_camera_module_as_yuv_sensor == 'True'
+depends: genio-mipi-camera/firmware-checking-ap1302-ar0430
+estimated_duration: 0.1
+_summary: Onsemi AP1302 with AR0430 record video via v4l2-ctl
+_purpose:
+    Record video via v4l2-ctl
+_steps:
+    1. Install v4l-utils package if not already installed:
+       sudo apt install v4l-utils
+    2. Find the AP1302-AR0430 camera video nodes:
+       (If support ImgSensor)
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       (If support v4l2 sensor)
+       v4l2-ctl --list-devices | grep camsv -A 1
+       Note: AP1302-AR0430 will only have 1 video node for Preview, Video, and Capture on the same node.
+    3. (If support v4l2 sensor), 
+       Get the media node
+       v4l2-ctl --list-devices | grep -E *camsys -A 1
+       Set camera capture format through media-ctl for CSI0
+       media-ctl -d /dev/media<N> -V "'ap1302.2-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':4 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050000.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+       Set camera capture format through media-ctl for CSI0 
+       media-ctl -d /dev/media<N> -V "'ap1302.3-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':5 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050800.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+    4. (If support ImgSensor)Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    5. Capture a video in different formats:
+       # For UYVY format
+       v4l2-ctl -d /dev/videoX \
+         --set-fmt-video=width=2316,height=1746,pixelformat=UYVY \
+         --set-parm=30 \
+         --stream-mmap \
+         --stream-count=100 \
+         --stream-to=/tmp/ap1302_ar0430.yuv \
+         --verbose
+_verification:
+    1. Does the command can be performed without any problem?
+    2. Copy the captured videos to your host and check their quality via ffplay:
+       # For UYVY format
+       ffplay -f rawvideo -video_size 2316x1746 -pixel_format uyvy422 -i /tmp/ap1302_ar0430.yuv
+
+id: genio-mipi-camera/ap1302-ar0430-gstreamer-video
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_onsemi_ap1302_isp_and_ar0430_camera_module_as_yuv_sensor == 'True'
+depends: genio-mipi-camera/firmware-checking-ap1302-ar0430
+estimated_duration: 0.1
+_summary: Onsemi AP1302 with AR0430 capture video via gstreamer v4l2src plugin
+_purpose:
+    Capture video via gstreamer v4l2src plugin
+_steps:
+    1. Install required packages if not already installed:
+       sudo apt install v4l-utils gstreamer1.0-tools
+    2. Find the AP1302-AR0430 camera video nodes:
+       (If support ImgSensor)
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       (If support v4l2 sensor)
+       v4l2-ctl --list-devices | grep camsv -A 1
+       Note: AP1302-AR0430 will only have 1 video node for Preview, Video, and Capture on the same node.
+    3. (If support v4l2 sensor), 
+       Get the media node
+       v4l2-ctl --list-devices | grep -E *camsys -A 1
+       Set camera capture format through media-ctl for CSI0
+       media-ctl -d /dev/media<N> -V "'ap1302.2-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':4 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050000.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+       Set camera capture format through media-ctl for CSI0 
+       media-ctl -d /dev/media<N> -V "'ap1302.3-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':5 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050800.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+    4. (If support ImgSensor)Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    5. Capture a video in different formats:
+       # For UYVY format
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=2316,height=1746,format=UYVY,framerate=30/1 \
+         ! filesink location=/tmp/ap1302_ar0430.yuv
+_verification:
+    1. Does the command can be performed without any problem?
+    2. Copy the captured videos to your host and check their quality via ffplay:
+       # For UYVY format
+       ffplay -f rawvideo -video_size 2316x1746 -pixel_format uyvy422 -i /tmp/ap1302_ar0430.yuv
+
+id: genio-mipi-camera/ap1302-ar0430-gstreamer-display
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_onsemi_ap1302_isp_and_ar0430_camera_module_as_yuv_sensor == 'True'
+depends: genio-mipi-camera/firmware-checking-ap1302-ar0430
+estimated_duration: 0.1
+_summary: Onsemi AP1302 with AR0430 display the video streaming on panel or monitor
+_purpose:
+    Display the video streaming on panel or monitor
+_steps:
+    1. Install required packages if not already installed:
+       sudo apt install v4l-utils gstreamer1.0-tools
+    2. Find the AP1302-AR0430 camera video nodes:
+       (If support ImgSensor)
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       (If support v4l2 sensor)
+       v4l2-ctl --list-devices | grep camsv -A 1
+       Note: AP1302-AR0430 will only have 1 video node for Preview, Video, and Capture on the same node.
+    3. (If support v4l2 sensor), 
+       Get the media node
+       v4l2-ctl --list-devices | grep -E *camsys -A 1
+       Set camera capture format through media-ctl for CSI0
+       media-ctl -d /dev/media<N> -V "'ap1302.2-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':4 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050000.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+       Set camera capture format through media-ctl for CSI0 
+       media-ctl -d /dev/media<N> -V "'ap1302.3-003d':2 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15040000.seninf':5 [fmt:UYVY8_1X16/2316x1746]"
+       media-ctl -d /dev/media<N> -V "'15050800.camsv':1 [fmt:UYVY8_1X16/2316x1746]"
+    4. (If support ImgSensor)Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    5. Preview a UYVY video for 5 seconds:
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=2316,height=1746,format=UYVY,framerate=30/1 \
+         ! waylandsink sync=false
+_verification:
+    1. Does the command can be performed without any problem?
+    2. The video streaming should be shown on panel

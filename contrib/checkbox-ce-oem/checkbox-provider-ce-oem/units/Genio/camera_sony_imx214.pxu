@@ -1,0 +1,209 @@
+id: genio-mipi-camera/sony-imx214-v4l2-ctl-capture
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_sony_imx214_camera_module_as_raw_sensor == 'True'
+estimated_duration: 0.1
+_summary: Sony IMX214 captures image via v4l2-ctl
+_purpose:
+    This test tests the qterminal display capabilities
+_steps:
+    1. Install v4l-utils package if not already installed:
+       sudo apt install v4l-utils
+    2. Find the IMX214 camera video nodes:
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       Note: IMX214 will have 3 video nodes - Preview, Video, and Capture
+    3. Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    4. Capture a JPEG image:
+       v4l2-ctl -d /dev/videoX \
+         --set-fmt-video=width=3840,height=2160,pixelformat=JPEG \
+         --set-parm=30 \
+         --stream-mmap \
+         --stream-skip=30 \
+         --stream-count=1 \
+         --stream-to=/tmp/imx214.jpg \
+         --verbose
+_verification:
+    1. Does the command can be performed wihtout any problem?
+    2. Copy the captured image to your host and check its quality via Viewer (e.g., ffplay)
+
+id: genio-mipi-camera/sony-imx214-gstreamer-capture
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_sony_imx214_camera_module_as_raw_sensor == 'True'
+estimated_duration: 0.1
+_summary: Sony IMX214 captures image via gstreamer v4l2src plugin
+_purpose:
+    Capture image via gstreamer v4l2src plugin
+_steps:
+    1. Install required packages if not already installed:
+       sudo apt install v4l-utils gstreamer1.0-tools
+    2. Find the IMX214 camera video nodes:
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       Note: IMX214 will have 3 video nodes - Preview, Video, and Capture
+    3. Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    4. Capture a JPEG image using gstreamer:
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX \
+         ! image/jpeg,width=3840,height=2160,format=JPEG,framerate=30/1 \
+         ! multifilesink location=/tmp/imx214.jpg max-files=1
+_verification:
+    1. Does the command can be performed wihtout any problem?
+    2. Copy the captured image to your host and check its quality via Viewer (e.g., VLC)
+
+id: genio-mipi-camera/sony-imx214-v4l2-ctl-video
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_sony_imx214_camera_module_as_raw_sensor == 'True'
+estimated_duration: 0.1
+_summary: Sony IMX214 captures video via v4l2-ctl
+_purpose:
+    Record video via v4l2-ctl
+_steps:
+    1. Install v4l-utils package if not already installed:
+       sudo apt install v4l-utils
+    2. Find the IMX214 camera video nodes:
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       Note: IMX214 will have 3 video nodes - Preview, Video, and Capture
+    3. Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    4. Capture a video in different formats:
+       # For RGB3 format
+       v4l2-ctl -d /dev/videoX \
+         --set-fmt-video=width=3840,height=2160,pixelformat=RGB3 \
+         --set-parm=30 \
+         --stream-mmap \
+         --stream-count=100 \
+         --stream-to=/tmp/imx214_rgb3.yuv \
+         --verbose
+       # For YUYV format  
+       v4l2-ctl -d /dev/videoX \
+         --set-fmt-video=width=3840,height=2160,pixelformat=YUYV \
+         --set-parm=30 \
+         --stream-mmap \
+         --stream-count=100 \
+         --stream-to=/tmp/imx214_yuyv.yuv \
+         --verbose
+       # For NM12 format
+       v4l2-ctl -d /dev/videoX \
+         --set-fmt-video=width=3840,height=2160,pixelformat=NM12 \
+         --set-parm=30 \
+         --stream-mmap \
+         --stream-count=100 \
+         --stream-to=/tmp/imx214_nm12.yuv \
+         --verbose
+       # For YM21 format
+       v4l2-ctl -d /dev/videoX \
+         --set-fmt-video=width=3840,height=2160,pixelformat=YM21 \
+         --set-parm=30 \
+         --stream-mmap \
+         --stream-count=100 \
+         --stream-to=/tmp/imx214_ym21.yuv \
+         --verbose
+_verification:
+    1. Does the command can be performed without any problem?
+    2. Copy the captured videos to your host and check their quality via ffplay:
+       # For RGB3 format
+       ffplay -f rawvideo -video_size 3840x2160 -pixel_format rgb24 -i /tmp/imx214_rgb3.yuv
+       # For YUYV format
+       ffplay -f rawvideo -video_size 3840x2160 -pixel_format yuyv422 -i /tmp/imx214_yuyv.yuv
+       # For NM12 format
+       ffplay -f rawvideo -video_size 3840x2176 -pixel_format nv12 -i /tmp/imx214_nm12.yuv
+       # For YM21 format
+       ffplay -f rawvideo -video_size 3840x2160 -pixel_format nv21 -i /tmp/imx214_ym21.yuv
+       Note: For NM12 format, if width is not divisible by 16 or height is not divisible by 32,
+             round up video_size to the next multiple (e.g. 3840x2176 for height 2160)
+
+id: genio-mipi-camera/sony-imx214-gstreamer-video
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_sony_imx214_camera_module_as_raw_sensor == 'True'
+estimated_duration: 0.1
+_summary: Sony IMX214 record video via gstreamer v4l2src plugin
+_purpose:
+    Record video via gstreamer v4l2src plugin
+_steps:
+    1. Install required packages if not already installed:
+       sudo apt install v4l-utils gstreamer1.0-tools
+    2. Find the IMX214 camera video nodes:
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       Note: IMX214 will have 3 video nodes - Preview, Video, and Capture
+    3. Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    4. Capture a (RGB, YUY2, NV12) video for 5 seconds:
+       # For RGB format
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=3840,height=2160,format=RGB,framerate=30/1 \
+         ! filesink location=/tmp/imx214_rgb.yuv
+       # For YUY2 format  
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=3840,height=2160,format=YUY2,framerate=30/1 \
+         ! filesink location=/tmp/imx214_yuy2.yuv
+       # For NV12 format
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=3840,height=2160,format=NV12,framerate=30/1 \
+         ! filesink location=/tmp/imx214_nv12.yuv
+_verification:
+    1. Does the command can be performed without any problem?
+    2. Copy the captured videos to your host and check their quality via ffplay:
+       # For RGB format
+       ffplay -f rawvideo -video_size 3840x2160 -pixel_format rgb24 -i /tmp/imx214_rgb.yuv
+       # For YUY2 format
+       ffplay -f rawvideo -video_size 3840x2160 -pixel_format yuyv422 -i /tmp/imx214_yuy2.yuv
+       # For NV12 format
+       ffplay -f rawvideo -video_size 3840x2176 -pixel_format nv12 -i /tmp/imx214_nv12.yuv
+       Note: For NV12 format, if width is not divisible by 16 or height is not divisible by 32,
+             round up video_size to the next multiple (e.g. 3840x2176 for height 2160)
+
+id: genio-mipi-camera/sony-imx214-gstreamer-display
+plugin: manual
+category_id: com.canonical.plainbox::camera
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_sony_imx214_camera_module_as_raw_sensor == 'True'
+estimated_duration: 0.1
+_summary: Sony IMX214 display the video streaming on panel or monitor
+_purpose:
+    Display the video streaming on panel or monitor
+_steps:
+    1. Install required packages if not already installed:
+       sudo apt install v4l-utils gstreamer1.0-tools
+    2. Find the IMX214 camera video nodes:
+       v4l2-ctl --list-devices | grep mtk-v4l2-camera -A 4
+       Note: IMX214 will have 3 video nodes - Preview, Video, and Capture
+    3. Check supported formats for the capture node:
+       v4l2-ctl -d /dev/videoX --list-formats-ext
+    4. Preview a (RGB, YUY2, NV12) video for 5 seconds:
+       # For RGB format
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=3840,height=2160,format=RGB,framerate=30/1 \
+         ! waylandsink sync=false
+       # For YUY2 format
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=3840,height=2160,format=YUY2,framerate=30/1 \
+         ! waylandsink sync=false
+       # For NV12 format  
+       timeout -s2 --preserve-status 5s gst-launch-1.0 v4l2src device=/dev/videoX io-mode=dmabuf \
+         ! video/x-raw,width=3840,height=2160,format=NV12,framerate=30/1 \
+         ! waylandsink sync=false
+_verification:
+    1. Does the command can be performed wihtout any problem?
+    2. The video streaming should be shown on panel

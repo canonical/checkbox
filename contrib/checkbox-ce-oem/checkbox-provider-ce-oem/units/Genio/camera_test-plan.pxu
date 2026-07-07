@@ -1,0 +1,24 @@
+id: genio-mipi-camera-manual
+unit: test plan
+_name: Genio MIPI Camera manual tests
+_description: Manual tests for Genio MIPI Camera in before suspend and post suspend stage
+bootstrap_include:
+include:
+    genio-mipi-camera/firmware-checking-ap1302-ar0830
+    genio-mipi-camera/firmware-checking-ap1302-ar0430
+    genio-mipi-camera/driver-probe-checking-ap1302-ar0430
+    genio-mipi-camera/ap1302-ar0830-v4l2-ctl-capture
+    genio-mipi-camera/ap1302-ar0830-gstreamer-capture
+    genio-mipi-camera/ap1302-ar0830-v4l2-ctl-video
+    genio-mipi-camera/ap1302-ar0830-gstreamer-video
+    genio-mipi-camera/ap1302-ar0830-gstreamer-display
+    genio-mipi-camera/ap1302-ar0430-v4l2-ctl-capture
+    genio-mipi-camera/ap1302-ar0430-gstreamer-capture
+    genio-mipi-camera/ap1302-ar0430-v4l2-ctl-video
+    genio-mipi-camera/ap1302-ar0430-gstreamer-video
+    genio-mipi-camera/ap1302-ar0430-gstreamer-display
+    genio-mipi-camera/sony-imx214-v4l2-ctl-capture
+    genio-mipi-camera/sony-imx214-gstreamer-capture
+    genio-mipi-camera/sony-imx214-v4l2-ctl-video
+    genio-mipi-camera/sony-imx214-gstreamer-video
+    genio-mipi-camera/sony-imx214-gstreamer-display

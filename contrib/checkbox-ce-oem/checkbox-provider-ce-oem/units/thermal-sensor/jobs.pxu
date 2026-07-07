@@ -20,9 +20,9 @@ command:
 id: after-suspend-ce-oem-thermal/compare_snapshot_after_suspend
 plugin: shell
 user: root
-depends: 
-  com.canonical.certification::suspend/suspend_advanced_auto 
-  ce-oem-thermal/snapshot_before_suspend
+depends:
+    com.canonical.certification::suspend/suspend_advanced_auto
+    ce-oem-thermal/snapshot_before_suspend
 estimated_duration: 2s
 _summary: Verify thermal zone identities after suspend
 _description:

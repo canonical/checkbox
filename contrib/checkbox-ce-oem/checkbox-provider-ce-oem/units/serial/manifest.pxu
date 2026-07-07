@@ -7,3 +7,8 @@ unit: manifest entry
 id: has_serial_console_loopback
 _name: Does serial console port loopback to itself?
 value-type: bool
+
+unit: manifest entry
+id: has_rs485_modbus_peripheral
+_name: Has RS485 Modbus peripheral connected?
+value-type: bool

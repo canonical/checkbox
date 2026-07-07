@@ -189,7 +189,12 @@ class ThermalMonitorTest(unittest.TestCase):
             before.write_text(before_data)
             after.write_text(after_data)
 
-            args = argparse.Namespace(before=str(before), after=str(after))
+            args = argparse.Namespace(
+                before=str(before),
+                after=str(after),
+                allow_legacy_id_upgrade=False,
+                fail_on_diff=False,
+            )
             with mock.patch("sys.stdout", new_callable=io.StringIO) as stdout:
                 thermal_sensor_test.compare_thermal_snapshots(args)
                 output = stdout.getvalue()

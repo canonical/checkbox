@@ -22,27 +22,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import cl_host
-
-
-class TestGetArchTriple(unittest.TestCase):
-    @patch("sysconfig.get_config_var", return_value="x86_64-linux-gnu")
-    def test_returns_multiarch_from_sysconfig(self, mock_gcv):
-        self.assertEqual(cl_host.get_arch_triple(), "x86_64-linux-gnu")
-        mock_gcv.assert_called_once_with("MULTIARCH")
-
-
-class TestFindPlzRun(unittest.TestCase):
-    @patch("shutil.which", return_value="/snap/checkbox22/current/bin/plz-run")
-    def test_returns_path_when_found(self, mock_which):
-        self.assertEqual(
-            cl_host.find_plz_run(),
-            "/snap/checkbox22/current/bin/plz-run",
-        )
-        mock_which.assert_called_once_with("plz-run")
-
-    @patch("shutil.which", return_value=None)
-    def test_returns_none_when_not_found(self, mock_which):
-        self.assertIsNone(cl_host.find_plz_run())
+from checkbox_support.helpers.host_utils import VulkanDetectionError
 
 
 class TestCheckHostGpu(unittest.TestCase):
@@ -133,7 +113,10 @@ class TestCmdResource(unittest.TestCase):
     def test_returns_1_when_no_gpu(self, _arch, _plz, _check):
         self.assertEqual(cl_host.cmd_resource(), 1)
 
-    @patch("cl_host.find_plz_run", return_value=None)
+    @patch(
+        "cl_host.find_plz_run",
+        side_effect=VulkanDetectionError("plz-run not found in PATH"),
+    )
     @patch("cl_host.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_1_when_plz_run_not_found(self, _arch, _plz):
         self.assertEqual(cl_host.cmd_resource(), 1)

@@ -1,0 +1,796 @@
+plugin: user-interact-verify
+category_id: dragonwing-audio
+id: dragonwing-audio/record-16-bit-48000Hz-stereo
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_audio_capture == "True"
+    manifest.has_audio_playback == "True"
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_audio_codec_support == 'True'
+depends: dragonwing-audio/check-pulseaudio-running
+_summary: Audio record 16 bit stereo 48000Hz 
+_description: The test will record sound for 10 seconds and playback right after
+_steps:
+    Press enter to start record for 10 seconds
+command:
+    echo "Start recording..."
+    arecord -d 10 -r 48000 --format=S16_LE -c 2 -t wav mic_recording.wav
+    echo "Recording done"
+    echo "Playing the recorded sound clip..."
+    aplay -c 2 -r 48000 -f S16_LE mic_recording.wav
+    rm mic_recording.wav
+_verification:
+    1. Is the clip sounded no pops and glitches?
+    2. the mediainfo of the clip's sample rate, bitrate, and channels should be matched
+
+plugin: manual
+category_id: dragonwing-audio
+id: dragonwing-audio/playback-16-bit-44100Hz-mono
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_audio_playback == "True"
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_audio_codec_support == 'True'
+depends: dragonwing-audio/check-pulseaudio-running
+_summary: Audio playback 16 bit 44100Hz mono sound clip 
+_description: the test aim to check the sound clip playback 
+_steps:
+    1. Prepare a 16 bit 44100Hz mono sound clip
+    2. play the file with command
+    $ aplay -c 1 -r 44100 -f S16_LE {audio_file}
+_verification:
+    Is the clip sounded no pops and glitches?
+
+plugin: shell
+category_id: dragonwing-audio
+id: dragonwing-audio/check-pulseaudio-running
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_audio_codec_support == 'True'
+_summary: Check if pulseaudio is running
+command:
+    pgrep -ax pulseaudio
+
+plugin: shell
+category_id: dragonwing-audio
+id: dragonwing-audio/check-diag-router-running
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_audio_codec_support == 'True'
+_summary: Check if diag-router is running
+command:
+    pgrep -ax diag-router
+
+plugin: shell
+category_id: dragonwing-audio
+id: dragonwing-audio/check-acdb-files-exist
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_audio_codec_support == 'True'
+_summary: Check if acdb files exist
+command:
+    file_found=$(find / -name workspaceFileXml.qwsp 2>/dev/null)
+    if [[ -z "$file_found" ]]; then
+        echo "workspaceFileXml.qwsp not found"
+        exit 1
+    else
+        echo "File found:"
+        echo $file_found
+    fi
+
+plugin: manual
+category_id: dragonwing-audio
+id: dragonwing-audio/decode-offload-CBR-stereo-mp3
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_audio_codec_support == 'True'
+_summary: Audio decode offload with CBR stereo mp3 file
+_description: Test decode offload with CBR stereo mp3 audio clip
+_steps:
+    1. Prepare an CBR stereo mp3 audio clip
+    2. Playback the clip on DUT by
+    $ paplay -v -d offload0 --encoding=mpeg --raw {audio_file}
+_verification:
+    sound has no crashes or obvious distortions
+
+plugin: manual
+category_id: dragonwing-audio
+id: dragonwing-audio/decode-offload-VBR-mono-mp3
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_audio_codec_support == 'True'
+_summary: Audio decode offload with VBR mono mp3 file
+_description: Test decode offload with VBR mono mp3 audio clip
+_steps:
+    1. Prepare an VBR mono mp3 audio clip
+    2. Playback the clip on DUT by
+    $ paplay -v -d offload0 --encoding=mpeg --raw {audio_file}
+_verification:
+    sound has no crashes or obvious distortions
+
+plugin: manual
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-play-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/gst-play-trickmode
+_summary: Verify gst-play trickmode 
+_description:
+    Verified gst-play-1.0 trickmode control
+_steps:
+    1. excute command to play audio clip
+      $ gst-play-1.0 trickmode_1.wav --audiosink='pulsesink'
+    2. While playing, 
+      - press space to pause
+      - press 0 to restart
+_verification:
+    Does it pause while pressing space?
+    Does it restart while pressing 0?
+
+plugin: manual
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-play-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/gst-play-trickmode-multifiles
+_summary: Verify trickmode switch between multifiles
+_description:
+    Verified gst-play-1.0 trickmode control
+_steps:
+    1. excute command to play audio clip
+      $ gst-play-1.0 trickmode_1.wav trickmode_2.wav --audiosink='pulsesink'
+    2. While playing, press > or < to switch between two clips
+_verification:
+    Does it switch between clips?
+
+plugin: manual
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-play-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/gst-play-trickmode-volume
+_summary: Verify gst-play trickmode adjust volume
+_description:
+    Verified gst-play-1.0 trickmode control
+_steps:
+    1. excute command to play audio clip by half volume
+      $ gst-play-1.0 trickmode_1.wav trickmode_1.wav --audiosink='pulsesink' --volume=0.5
+    2. excute command to play audio clip by 0 volume
+      $ gst-play-1.0 trickmode_1.wav trickmode_1.wav --audiosink='pulsesink' --volume=0.0
+    3. excute command to play audio clip by full volume
+      $ gst-play-1.0 trickmode_1.wav trickmode_1.wav --audiosink='pulsesink' --volume=1.0
+_verification:
+    Does the volume changes? 
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-16bit-8000hz-mono-wav
+_summary: decode 16bit 8000hz mono wav audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-16bit-8000hz-mono.wav ! wavparse ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-16bit-44100hz-stereo-wav
+_summary: decode 16bit 44100hz stereo wav audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-16bit-44100hz-stereo.wav ! wavparse ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-24bit-48000hz-stereo-wav
+_summary: decode 24bit 48000hz stereo wav audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-24bit-48000hz-stereo.wav ! wavparse ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-24bit-192000hz-mono-wav
+_summary: decode 24bit 192000hz mono wav audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-24bit-192000hz-mono.wav ! wavparse ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-16bit-96000hz-51ch-wav
+_summary: decode 16bit 96000hz 5.1 channels wav audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-16bit-96000hz-51ch.wav ! wavparse ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-24bit-32000hz-71ch-wav
+_summary: decode 24bit 32000hz 7.1 channels wav audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-24bit-32000hz-71ch.wav ! wavparse ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/encode-16bit-8000Hz-mono-wav
+_summary: encode 16bit 8000Hz mono wav audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Recorded file should have correct property and sound without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    mkdir -p $PLAINBOX_SESSION_SHARE/audio
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S16LE, channels=1, rate=8000 ! audioconvert ! wavenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-16bit-8000Hz-mono.wav
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/encode-32bit-192000Hz-stereo-wav
+_summary: encode 32bit 192000Hz stereo wav audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Recorded file should have correct property and sound without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    mkdir -p $PLAINBOX_SESSION_SHARE/audio
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S32LE, channels=2, rate=192000 ! audioconvert ! wavenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-32bit-192000Hz-stereo.wav
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/encode-24bit-44100Hz-stereo-wav
+_summary: encode 24bit 44100Hz stereo wav audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Recorded file should have correct property and sound without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    mkdir -p $PLAINBOX_SESSION_SHARE/audio
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S24LE, channels=2, rate=44100 ! audioconvert ! wavenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-24bit-44100Hz-stereo.wav
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/encode-24bit-48000Hz-mono-wav
+_summary: encode 24bit 48000Hz mono wav audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Recorded file should have correct property and sound without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    mkdir -p $PLAINBOX_SESSION_SHARE/audio
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S24LE, channels=1, rate=48000 ! audioconvert ! wavenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-24bit-48000Hz-mono.wav
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/encode-16bit-44100Hz-mono-wav
+_summary: encode 16bit 44100Hz mono wav audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Recorded file should have correct property and sound without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    mkdir -p $PLAINBOX_SESSION_SHARE/audio
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f -v pulsesrc ! audio/x-raw, format=S16LE, channels=1, rate=44100 ! audioconvert ! flacenc ! filesink location=$PLAINBOX_SESSION_SHARE/audio/encode-16bit-44100Hz-mono.flac
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-320kbps-48000Hz-stereo-CBR-mp3
+_summary: decode 320kbps 48000Hz stereo CBR mp3 audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-320kbps-48000Hz-stereo-CBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-80kbps-8000Hz-mono-CBR-mp3
+_summary: decode 80kbps 8000Hz mono CBR mp3 audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-80kbps-8000Hz-mono-CBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-64kbps-32000Hz-mono-CBR-mp3
+_summary: decode 64kbps 32000Hz mono CBR mp3 audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-64kbps-32000Hz-mono-CBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-48000Hz-quailty9-stereo-VBR-mp3
+_summary: decode 48000Hz quailty9 stereo VBR mp3 audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-48000Hz-quailty9-stereo-VBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-8000Hz-quailty6-mono-VBR-mp3
+_summary: decode 8000Hz quailty6 mono VBR mp3 audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-8000Hz-quailty6-mono-VBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-22050Hz-quailty8-stereo-VBR-mp3
+_summary: decode 22050Hz quailty8 stereo VBR mp3 audio clip
+environ: GST_TEST_DATA PLAINBOX_SESSION_SHARE
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-22050Hz-quailty8-stereo-VBR.mp3 ! mpegaudioparse ! mpg123audiodec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-192bs-8000hz-mono-cl0-flac
+_summary: decode 192 blocksize 8000hz mono compression level 0 flac audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-192bs-8000hz-mono-cl0.flac ! flacparse ! flacdec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-4608bs-192000hz-stereo-cl8-flac
+_summary: decode 4608 blocksize 192000hz stereo compression level 8 flac audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-4608bs-192000hz-stereo-cl8.flac ! flacparse ! flacdec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-2304bs-44100hz-mono-cl3-flac
+_summary: decode 2304 blocksize 44100hz mono compression level 3 flac audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-2304bs-44100hz-mono-cl3.flac ! flacparse ! flacdec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-4096bs-48000hz-stereo-cl5-flac
+_summary: decode 4096 blocksize 48000hz stereo compression level 5 flac audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-4096bs-48000hz-stereo-cl5.flac ! flacparse ! flacdec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-1024bs-32000hz-ch51-cl5-flac
+_summary: decode 1024 blocksize 32000hz 5.1 channels compression level 5 flac audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-1024bs-32000hz-ch51-cl5.flac ! flacparse ! flacdec ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-VBR-350000bps-48000hz-stereo-ogg
+_summary: decode VBR 350000 bps 48000hz stereo ogg audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-VBR-350000bps-48000hz-stereo.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-VBR-160000bps-44100hz-stereo-ogg
+_summary: decode VBR 160000 bps 44100hz stereo ogg audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-VBR-160000bps-44100hz-stereo.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-VBR-8000bps-8000hz-mono-ogg
+_summary: decode VBR 8000 bps 8000hz mono ogg audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-VBR-8000bps-8000hz-mono.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-CBR-256000bps-48000hz-stereo-ogg
+_summary: decode CBR 256000 bps 48000hz stereo ogg audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-CBR-256000bps-48000hz-stereo.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-CBR-45000bps-8000hz-mono-ogg
+_summary: decode CBR 45000 bps 8000hz mono ogg audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-CBR-45000bps-8000hz-mono.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-ABR-48000bps-22050hz-mono-ogg
+_summary: decode ABR 48000 bps 22050hz mono ogg audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-ABR-48000bps-22050hz-mono.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink
+
+plugin: user-interact-verify
+category_id: dragonwing-audio
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_hardware_audio_codec_support == 'True'
+id: dragonwing-audio/decode-ABR-240000bps-48000hz-stereo-ogg
+_summary: decode ABR 240000 bps 48000hz stereo ogg audio clip
+environ: GST_TEST_DATA
+_steps:
+    Press enter to start playing the audio clip
+_verification:
+    Playback should be smooth without glitches, pops, pause
+command: 
+    set -x
+    export GST_DEBUG=2
+    timeout -s2 --preserve-status 5s gst-launch-1.0 -f filesrc location=$GST_TEST_DATA/audio/decode-ABR-240000bps-48000hz-stereo.ogg ! oggdemux ! vorbisdec ! audioconvert ! pulsesink

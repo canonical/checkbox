@@ -1,0 +1,16 @@
+unit: manifest entry
+id: is_dragonwing_series
+_name: Is Dragonwing platform?
+_prompt: Dragonwing specific?
+value-type: bool
+
+unit: manifest entry
+id: has_dragonwing_sensing_hub
+_name: Has Dragonwing sensing hub?
+_prompt: Dragonwing specific?
+value-type: bool
+
+unit: manifest entry
+id: has_hardware_audio_codec_support
+_name: Has hardware audio codec support?
+value-type: bool

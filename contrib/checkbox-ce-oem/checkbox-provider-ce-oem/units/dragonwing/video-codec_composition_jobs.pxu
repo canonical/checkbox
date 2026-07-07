@@ -1,0 +1,209 @@
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.contrib import dragonwing_platform_info
+requires:
+    dragonwing_platform_info.Model in ("RB8",)
+id: dragonwing-video/composition-16-streams-automated
+flags: also-after-suspend
+_summary: Test video composition 16 video streams
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f qtivcomposer name=mix \
+    sink_0::position="<0, 0>" sink_0::dimensions="<480, 270>" \
+    sink_1::position="<480, 0>" sink_1::dimensions="<480, 270>" \
+    sink_2::position="<960, 0>" sink_2::dimensions="<480, 270>" \
+    sink_3::position="<1440, 0>" sink_3::dimensions="<480, 270>" \
+    sink_4::position="<0, 270>" sink_4::dimensions="<480, 270>" \
+    sink_5::position="<480, 270>" sink_5::dimensions="<480, 270>" \
+    sink_6::position="<960, 270>" sink_6::dimensions="<480, 270>" \
+    sink_7::position="<1440, 270>" sink_7::dimensions="<480, 270>" \
+    sink_8::position="<0, 540>" sink_8::dimensions="<480, 270>" \
+    sink_9::position="<480, 540>" sink_9::dimensions="<480, 270>" \
+    sink_10::position="<960, 540>" sink_10::dimensions="<480, 270>" \
+    sink_11::position="<1440, 540>" sink_11::dimensions="<480, 270>" \
+    sink_12::position="<0, 810>" sink_12::dimensions="<480, 270>" \
+    sink_13::position="<480, 810>" sink_13::dimensions="<480, 270>" \
+    sink_14::position="<960, 810>" sink_14::dimensions="<480, 270>" \
+    sink_15::position="<1440, 810>" sink_15::dimensions="<480, 270>" mix. \
+    ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/composition-16-streams-automated.mp4" \
+    filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix.
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/composition-8-streams-automated
+flags: also-after-suspend
+_summary: Test video composition 8 video streams
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f qtivcomposer name=mix \
+    sink_0::position="<0, 0>" sink_0::dimensions="<640, 360>" \
+    sink_1::position="<640, 0>" sink_1::dimensions="<640, 360>" \
+    sink_2::position="<1280, 0>" sink_2::dimensions="<640, 360>" \
+    sink_3::position="<0, 360>" sink_3::dimensions="<640, 360>" \
+    sink_4::position="<1280, 360>" sink_4::dimensions="<640, 360>" \
+    sink_5::position="<0, 720>" sink_5::dimensions="<640, 360>" \
+    sink_6::position="<640, 720>" sink_6::dimensions="<640, 360>" \
+    sink_7::position="<1280, 720>" sink_7::dimensions="<640, 360>" mix. \
+    ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/composition-8-streams-automated.mp4" \
+    filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix.
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/composition-4-streams-automated
+flags: also-after-suspend
+_summary: Test video composition 4 video streams
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f qtivcomposer name=mix \
+    sink_0::position="<0, 0>" sink_0::dimensions="<960, 540>" \
+    sink_1::position="<960, 0>" sink_1::dimensions="<960, 540>" \
+    sink_2::position="<0, 540>" sink_2::dimensions="<960, 540>" \
+    sink_3::position="<960, 540>" sink_3::dimensions="<960, 540>" mix. \
+    ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/composition-4-streams-automated.mp4" \
+    filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix.
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/composition-2-streams-pip-automated
+flags: also-after-suspend
+_summary: Test video composition 2 video streams picture in picture
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f qtivcomposer name=mix \
+    sink_0::position="<0, 0>" sink_0::dimensions="<1280, 720>" \
+    sink_1::position="<590, 310>" sink_1::dimensions="<640, 360>" mix. \
+    ! queue ! video/x-raw,format=NV12_Q08C,width=1280,height=720,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/composition-2-streams-pip-automated.mp4" \
+    filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix.
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/composition
+flags: also-after-suspend
+_summary: Test video composition pipelines and check the output video clips
+_purpose: Test video composition pipelines and check the output video clips
+_steps:
+    1. Test the below command with multiple streams output
+    gst-launch-1.0 -f qtivcomposer name=mix \
+    sink_0::position="<0, 0>" sink_0::dimensions="<960, 540>" \
+    sink_1::position="<960, 0>" sink_1::dimensions="<960, 540>" \
+    sink_2::position="<0, 540>" sink_2::dimensions="<960, 540>" \
+    sink_3::position="<960, 540>" sink_3::dimensions="<960, 540>" mix. \
+    ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location=composition.mp4 \
+    filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix. filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" ! qtdemux \
+    ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! queue ! mix.
+_verification:
+    check the output composition.mp4, no abnormal symptoms are observed

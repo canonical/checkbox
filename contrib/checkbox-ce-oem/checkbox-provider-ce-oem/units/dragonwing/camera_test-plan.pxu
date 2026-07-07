@@ -1,0 +1,77 @@
+id: dragonwing-camera-full
+unit: test plan
+_name: Dragonwing camera tests
+_description: Full camera tests for dragonwing
+include:
+nested_part:
+    dragonwing-camera-manual
+    dragonwing-camera-automated
+
+id: dragonwing-camera-manual
+unit: test plan
+_name: Dragonwing manual camera tests
+_description: Manual camera tests for dragonwing
+include:
+
+id: dragonwing-camera-automated
+unit: test plan
+_name: Dragonwing automated camera tests
+_description: automated camera tests for dragonwing
+nested_part:
+include:
+
+id: dragonwing-camera-gstreamer-manual
+unit: test plan
+_name: Dragonwing gstreamer manual camera tests
+_description: gstreamer manual camera tests for dragonwing
+mandatory_include:
+    com.canonical.certification::package
+bootstrap_include:
+    dragonwing-camera/camera-list
+include:
+    dragonwing-camera/preview
+    dragonwing-camera/video-encode
+    dragonwing-camera/snapshot
+    dragonwing-camera/multi-cameras
+    dragonwing-camera/multi-streams
+
+id: after-suspend-dragonwing-camera-gstreamer-manual
+unit: test plan
+_name: Dragonwing gstreamer manual camera tests after suspend
+_description: gstreamer manual camera tests for dragonwing after suspend
+mandatory_include:
+    com.canonical.certification::package
+bootstrap_include:
+    dragonwing-camera/camera-list
+include:
+    after-suspend-dragonwing-camera/preview
+    after-suspend-dragonwing-camera/video-encode
+    after-suspend-dragonwing-camera/snapshot
+    after-suspend-dragonwing-camera/multi-cameras
+    after-suspend-dragonwing-camera/multi-streams
+
+id: dragonwing-camera-gstreamer-automated
+unit: test plan
+_name: Dragonwing gstreamer automated camera tests
+_description: gstreamer Automated camera tests for dragonwing
+mandatory_include:
+    com.canonical.certification::package
+bootstrap_include:
+    dragonwing-camera/camera-list
+include:
+    dragonwing-camera/yuv-automated
+    dragonwing-camera/video-encode-automated
+    dragonwing-camera/snapshot-automated
+
+id: after-suspend-dragonwing-camera-gstreamer-automated
+unit: test plan
+_name: Dragonwing gstreamer automated camera tests after suspend
+_description: gstreamer Automated camera tests for dragonwing after suspend
+mandatory_include:
+    com.canonical.certification::package
+bootstrap_include:
+    dragonwing-camera/camera-list
+include:
+    after-suspend-dragonwing-camera/yuv-automated
+    after-suspend-dragonwing-camera/video-encode-automated
+    after-suspend-dragonwing-camera/snapshot-automated

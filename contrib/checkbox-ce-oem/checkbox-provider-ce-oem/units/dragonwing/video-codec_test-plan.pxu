@@ -1,0 +1,162 @@
+id: dragonwing-video-full
+unit: test plan
+_name: Dragonwing video tests
+_description: Full video tests for dragonwing
+include:
+nested_part:
+    dragonwing-video-manual
+    dragonwing-video-automated
+
+id: dragonwing-video-manual
+unit: test plan
+_name: Carmel manual video tests
+_description: Manual video tests for dragonwing
+include:
+
+id: dragonwing-video-automated
+unit: test plan
+_name: Carmel automated video tests
+_description: Automated video tests for dragonwing
+include:
+
+id: dragonwing-video-gstreamer-automated
+unit: test plan
+_name: Carmel automated video gstreamer tests
+_description: Automated video gstreamer tests for dragonwing
+mandatory_include:
+    executable
+nested_part:
+include:
+    dragonwing-video/transform-rotate-90-automated
+    dragonwing-video/transform-rotate-180-automated
+    dragonwing-video/transform-rotate-90CCW-automated
+    dragonwing-video/transform-scale-720p-4k-automated
+    dragonwing-video/transform-scale-480p-1080p-automated
+    dragonwing-video/transform-scale-4k-720p-automated
+    dragonwing-video/transform-scale-1080p-480p-automated
+    dragonwing-video/transform-horizontal-flip-automated
+    dragonwing-video/transform-vertical-flip-automated
+    dragonwing-video/overlay-static-image-automated
+    dragonwing-video/overlay-usertext-automated
+    dragonwing-video/overlay-datetime-automated
+    dragonwing-video/overlay-boundingbox-automated
+    dragonwing-video/overlay-non-inverse-circular-automated
+    dragonwing-video/decoder-h264-480p-automated
+    dragonwing-video/decoder-h264-720p-automated
+    dragonwing-video/decoder-h264-1080p-automated
+    dragonwing-video/decoder-h264-4k-automated
+    dragonwing-video/decoder-h265-480p-automated
+    dragonwing-video/decoder-h265-720p-automated
+    dragonwing-video/decoder-h265-1080p-automated
+    dragonwing-video/decoder-h265-4k-automated
+    dragonwing-video/decoder-vp9-4k-automated
+    dragonwing-video/decoder-vp9-UHD-automated
+    dragonwing-video/encoder-h264-480p-automated
+    dragonwing-video/encoder-h264-720p-automated
+    dragonwing-video/encoder-h264-1080p-automated
+    dragonwing-video/encoder-h264-4k-automated
+    dragonwing-video/encoder-h265-480p-automated
+    dragonwing-video/encoder-h265-720p-automated
+    dragonwing-video/encoder-h265-1080p-automated
+    dragonwing-video/encoder-h265-4k-automated
+    dragonwing-video/encoder-slice-based-10-slices-automated
+    dragonwing-video/encoder-slice-based-8-slices-automated
+    dragonwing-video/encoder-slice-based-3-slices-automated
+    dragonwing-video/encoder-slice-based-max-bytes-automated
+    dragonwing-video/composition-16-streams-automated
+    dragonwing-video/composition-8-streams-automated
+    dragonwing-video/composition-4-streams-automated
+    dragonwing-video/composition-2-streams-pip-automated
+    dragonwing-video/split-9-streams-automated
+    dragonwing-video/split-16-streams-automated
+
+id: dragonwing-video-gstreamer-manual
+unit: test plan
+_name: Carmel automated video gstreamer tests
+_description: Automated video gstreamer tests for dragonwing
+mandatory_include:
+    executable
+nested_part:
+include:
+    dragonwing-video/transform-rotate
+    dragonwing-video/transform-flip
+    dragonwing-video/transform-scale
+    dragonwing-video/overlay
+    dragonwing-video/split
+    dragonwing-video/composition
+    dragonwing-video/decoder-h264
+    dragonwing-video/decoder-h265
+    dragonwing-video/decoder-vp9
+    dragonwing-video/encoder-h264
+    dragonwing-video/encoder-h265
+
+id: after-suspend-dragonwing-video-gstreamer-manual
+unit: test plan
+_name: Carmel automated video gstreamer tests after suspend
+_description: Automated video gstreamer tests for dragonwing after suspend
+mandatory_include:
+    executable
+nested_part:
+include:
+    after-suspend-dragonwing-video/transform-rotate
+    after-suspend-dragonwing-video/transform-flip
+    after-suspend-dragonwing-video/transform-scale
+    after-suspend-dragonwing-video/overlay
+    after-suspend-dragonwing-video/split
+    after-suspend-dragonwing-video/composition
+    after-suspend-dragonwing-video/decoder-h264
+    after-suspend-dragonwing-video/decoder-h265
+    after-suspend-dragonwing-video/decoder-vp9
+    after-suspend-dragonwing-video/encoder-h264
+    after-suspend-dragonwing-video/encoder-h265
+
+id: after-suspend-dragonwing-video-gstreamer-automated
+unit: test plan
+_name: Carmel automated video gstreamer tests after suspend
+_description: Automated video gstreamer tests for dragonwing after suspend
+mandatory_include:
+    executable
+nested_part:
+include:
+    after-suspend-dragonwing-video/transform-rotate-90-automated
+    after-suspend-dragonwing-video/transform-rotate-180-automated
+    after-suspend-dragonwing-video/transform-rotate-90CCW-automated
+    after-suspend-dragonwing-video/transform-scale-720p-4k-automated
+    after-suspend-dragonwing-video/transform-scale-480p-1080p-automated
+    after-suspend-dragonwing-video/transform-scale-4k-720p-automated
+    after-suspend-dragonwing-video/transform-scale-1080p-480p-automated
+    after-suspend-dragonwing-video/transform-horizontal-flip-automated
+    after-suspend-dragonwing-video/transform-vertical-flip-automated
+    after-suspend-dragonwing-video/overlay-static-image-automated
+    after-suspend-dragonwing-video/overlay-usertext-automated
+    after-suspend-dragonwing-video/overlay-datetime-automated
+    after-suspend-dragonwing-video/overlay-boundingbox-automated
+    after-suspend-dragonwing-video/overlay-non-inverse-circular-automated
+    after-suspend-dragonwing-video/decoder-h264-480p-automated
+    after-suspend-dragonwing-video/decoder-h264-720p-automated
+    after-suspend-dragonwing-video/decoder-h264-1080p-automated
+    after-suspend-dragonwing-video/decoder-h264-4k-automated
+    after-suspend-dragonwing-video/decoder-h265-480p-automated
+    after-suspend-dragonwing-video/decoder-h265-720p-automated
+    after-suspend-dragonwing-video/decoder-h265-1080p-automated
+    after-suspend-dragonwing-video/decoder-h265-4k-automated
+    after-suspend-dragonwing-video/decoder-vp9-4k-automated
+    after-suspend-dragonwing-video/decoder-vp9-UHD-automated
+    after-suspend-dragonwing-video/encoder-h264-480p-automated
+    after-suspend-dragonwing-video/encoder-h264-720p-automated
+    after-suspend-dragonwing-video/encoder-h264-1080p-automated
+    after-suspend-dragonwing-video/encoder-h264-4k-automated
+    after-suspend-dragonwing-video/encoder-h265-480p-automated
+    after-suspend-dragonwing-video/encoder-h265-720p-automated
+    after-suspend-dragonwing-video/encoder-h265-1080p-automated
+    after-suspend-dragonwing-video/encoder-h265-4k-automated
+    after-suspend-dragonwing-video/encoder-slice-based-10-slices-automated
+    after-suspend-dragonwing-video/encoder-slice-based-8-slices-automated
+    after-suspend-dragonwing-video/encoder-slice-based-3-slices-automated
+    after-suspend-dragonwing-video/encoder-slice-based-max-bytes-automated
+    after-suspend-dragonwing-video/composition-16-streams-automated
+    after-suspend-dragonwing-video/composition-8-streams-automated
+    after-suspend-dragonwing-video/composition-4-streams-automated
+    after-suspend-dragonwing-video/composition-2-streams-pip-automated
+    after-suspend-dragonwing-video/split-9-streams-automated
+    after-suspend-dragonwing-video/split-16-streams-automated

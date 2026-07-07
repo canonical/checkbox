@@ -89,7 +89,7 @@ command:
   export GST_PLUGIN_PATH="$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
   unset DISPLAY
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=1 sensor-id={source_index} ! \
-  'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \ 'format=(string)NV12' ! nvjpegenc ! filesink \
+  'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12' ! nvjpegenc ! filesink \
    location="$HOME"/jetson-camera-gstreamer-image_{source_index}.jpg
 
 id: jetson-camera/gstreamer-video_sensor_{source_index}

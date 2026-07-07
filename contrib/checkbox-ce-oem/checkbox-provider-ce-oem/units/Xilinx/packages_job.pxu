@@ -50,7 +50,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_listPackage_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_list_package_option
 
 
 id: xilinx-package-test/dfx-mgr-help
@@ -118,7 +118,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_listUIO_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_list_uio_option
 
 
 id: xilinx-package-test/dfx-mgr-allocBuffer
@@ -135,7 +135,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_allocBuffer_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_alloc_buffer_option
 
 
 id: xilinx-package-test/dfx-mgr-freeBuffer
@@ -152,7 +152,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_freeBuffer_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_free_buffer_option
 
 
 id: xilinx-package-test/dfx-mgr-getFDs
@@ -169,7 +169,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_getFDs_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_get_fds_option
 
 
 id: xilinx-package-test/dfx-mgr-getRMInfo
@@ -186,7 +186,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_getRMInfo_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_get_rm_info_option
 
 
 id: xilinx-package-test/dfx-mgr-getShellFD
@@ -203,7 +203,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_getShellFD_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_get_shell_fd_option
 
 
 id: xilinx-package-test/dfx-mgr-getClockFD
@@ -220,7 +220,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_getClockFD_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_get_clock_fd_option
 
 
 id: xilinx-package-test/kria-dashboard-is-running

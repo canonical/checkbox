@@ -92,7 +92,7 @@ class TestDfxMgrPackage(unittest.TestCase):
         except subprocess.CalledProcessError:
             self.fail("dfx-mgr-client -tchavadar should not throw an error")
 
-    def test_listPackage_option(self):
+    def test_list_package_option(self):
         result = subprocess.run(
             ["dfx-mgr-client", "-listPackage"], check=True, capture_output=True
         )
@@ -155,30 +155,30 @@ class TestDfxMgrPackage(unittest.TestCase):
 
         self.assertTrue("-1" in example_package.active_slot)
 
-    def test_listUIO_option(self):
+    def test_list_uio_option(self):
         subprocess.run(["dfx-mgr-client", "-listUIO", "0"], check=True)
 
-    def test_allocBuffer_option(self):
+    def test_alloc_buffer_option(self):
         # no clear information about expected behaviour
         pass
 
-    def test_freeBuffer_option(self):
+    def test_free_buffer_option(self):
         # no clear information about expected behaviour
         pass
 
-    def test_getFDs_option(self):
+    def test_get_fds_option(self):
         # no clear information about expected behaviour
         pass
 
-    def test_getRMInfo_option(self):
+    def test_get_rm_info_option(self):
         # no clear information about expected behaviour
         pass
 
-    def test_getShellFD_option(self):
+    def test_get_shell_fd_option(self):
         # no clear information about expected behaviour
         pass
 
-    def test_getClockFD_option(self):
+    def test_get_clock_fd_option(self):
         # no clear information about expected behaviour
         pass
 

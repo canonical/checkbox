@@ -1,0 +1,65 @@
+id: xilinx-server
+unit: test plan
+_name: Xilinx server tests
+_description:
+    Combined migrated Xilinx project-specific tests for Ubuntu Server images.
+include:
+    xilinx-dtb/components_.*
+    xilinx-firmware/info-.*
+    xilinx-gst-camera/capture-.*
+    xilinx-gst-camera/video-.*
+    after-suspend-xilinx-gst-camera/capture-.*
+    after-suspend-xilinx-gst-camera/video-.*
+    xilinx-package-test/.*
+    xilinx-vcu/.*
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::lsb
+    com.canonical.certification::package
+    xilinx_sku
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-desktop
+unit: test plan
+_name: Xilinx desktop tests
+_description:
+    Combined migrated Xilinx project-specific tests for Ubuntu Desktop images.
+include:
+    xilinx-dtb/components_.*
+    xilinx-firmware/info-.*
+    xilinx-gst-camera/capture-.*
+    xilinx-gst-camera/video-.*
+    after-suspend-xilinx-gst-camera/capture-.*
+    after-suspend-xilinx-gst-camera/video-.*
+    xilinx-package-test/.*
+    xilinx-vcu/.*
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::lsb
+    com.canonical.certification::package
+    xilinx_sku
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-core
+unit: test plan
+_name: Xilinx core tests
+_description:
+    Combined migrated Xilinx project-specific tests for Ubuntu Core images.
+include:
+    xilinx-dtb/components_.*
+    xilinx-firmware/info-.*
+    xilinx-gst-camera/capture-.*
+    xilinx-gst-camera/video-.*
+    after-suspend-xilinx-gst-camera/capture-.*
+    after-suspend-xilinx-gst-camera/video-.*
+    xilinx-package-test/.*
+    xilinx-vcu/.*
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::lsb
+    com.canonical.certification::package
+    xilinx_sku
+certification_status_overrides:
+    apply blocker to .*

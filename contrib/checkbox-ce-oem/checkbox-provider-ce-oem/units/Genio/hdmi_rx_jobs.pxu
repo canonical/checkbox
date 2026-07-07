@@ -1,0 +1,162 @@
+id: genio-hdmi-rx/module-detect
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 1
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_hdmi_rx == "True"
+user: root
+_summary: Check the mtk_hdmirx module has been loaded
+command:
+    echo "Check the mtk_hdmirx module has been loaded..."
+    lsmod | grep -w mtk_hdmirx
+    if [[ "$?" -ne 0 ]]; then
+        echo "Failed: The 'mtk_hdmirx' module isn't loaded!"
+        exit 1
+    fi
+    echo
+    echo "Pass"
+
+id: genio-hdmi-rx/plug-event-detect
+plugin: user-interact
+category_id: genio-hdmi-rx
+estimated_duration: 20
+depends: genio-hdmi-rx/module-detect
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
+flags: also-after-suspend
+user: root
+command:
+    genio_hdmirx_output_checker.py verify_events "plug"
+_summary: Check events from hdmi_rx tool while plugging the HDMI cable to HDMI RX port
+_purpose:
+    This test checks the HDMI_RX_PWR_5V_CHANGE, HDMI_RX_PLUG_IN, HDMI_RX_TIMING_LOCK and HDMI_RX_AUD_LOCK events can be detected
+    while the HDMI RX port is connected with a host or player such as a laptop through an HDMI cable.
+_steps:
+    On the host or player side, such as a laptop with Ubuntu 22.04 Desktop Image:
+        1. Plug an HDMI cable to the host or player.
+        2. After connecting the HDMI cable to DUT, open GNOME Settings Sound and make sure the sink output is HDMI output.
+    On DUT side:
+        1. Press "Enter" to perform event detection.
+        2. You will have 15 seconds to plug the HDMI cable to HDMI RX port.
+
+id: genio-hdmi-rx/check-hdmi-cable-connection
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends: genio-hdmi-rx/module-detect
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
+flags: also-after-suspend
+user: root
+command:
+    genio_hdmirx_output_checker.py verify_check_cable_output "hdmi connected"
+_summary: Check the HDMI connection by using hdmi_rx tool
+_description:
+    This test checks that the hdmi_rx tool shows the "hdmi connected" information after
+    the HDMI RX port is connected with a host or player such as a laptop through an HDMI cable.
+
+id: genio-hdmi-rx/check-video-info
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends: genio-hdmi-rx/module-detect
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
+flags: also-after-suspend
+user: root
+command:
+    genio_hdmirx_output_checker.py verify_get_video_info_output -rh "1920" -rv "1080" -rr "60"
+_summary: Check video information from hdmi_rx tool
+_description:
+    This test checks that video information from hdmi_rx tool matches the expected
+    v.hactive = 1920, v.vactive = 1080 and v.frame_rate = 60 once the HDMI RX port
+    is connected with a host or player such as a laptop through an HDMI cable.
+
+id: genio-hdmi-rx/check-audio-info
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends: genio-hdmi-rx/module-detect
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
+flags: also-after-suspend
+user: root
+command:
+    genio_hdmirx_output_checker.py verify_get_audio_info_output -ab "24" -ac "2" -asf "48.0"
+_summary: Check audio information from hdmi_rx tool
+_description:
+    This test checks that audio information from hdmi_rx tool matches the expected
+    24 bits, Channel Number [2] and 48.0 kHz once the HDMI RX port is connected
+    with a host or player such as a laptop through an HDMI cable.
+
+id: genio-hdmi-rx/disable-then-enable-hdmi
+plugin: shell
+category_id: genio-hdmi-rx
+estimated_duration: 5
+depends: genio-hdmi-rx/module-detect
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
+flags: also-after-suspend
+user: root
+command:
+    genio_hdmirx_output_checker.py verify_disable_then_enable
+_summary: Disable and then enable the HDMI RX functionality by hdmi_rx tool
+_description:
+    This test disables the HDMI RX functionality by using hdmi_rx tool while the HDMI RX port is still connected, then enables it.
+    It checks the HDMI connection state after disable and enable to verify that the state reflects the expected situation.
+
+id: genio-hdmi-rx/unplug-event-detect
+plugin: user-interact
+category_id: genio-hdmi-rx
+estimated_duration: 20
+depends: genio-hdmi-rx/module-detect
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
+requires:
+    manifest.is_Genio == 'True'
+    manifest.has_genio_hdmi_rx == "True"
+    executable.name == "genio-test-tool.hdmi-rx-tool"
+flags: also-after-suspend
+user: root
+command:
+    genio_hdmirx_output_checker.py verify_events "unplug"
+_summary: Check events from hdmi_rx tool while removing the HDMI cable from HDMI RX port
+_purpose:
+    This test checks the HDMI_RX_AUD_UNLOCK, HDMI_RX_TIMING_UNLOCK, HDMI_RX_PWR_5V_CHANGE and HDMI_RX_PLUG_OUT events can be detected
+    while removing the HDMI cable from HDMI RX port.
+_steps:
+    On the host or player side, such as a laptop with Ubuntu 22.04 Desktop Image:
+        1. Plug an HDMI cable to the host or player.
+        2. After connecting the HDMI cable to DUT, open GNOME Settings Sound and make sure the sink output is HDMI output.
+    On DUT side:
+        1. Plug the HDMI cable to HDMI RX port if it is not connected yet.
+        2. Press "Enter" to perform event detection.
+        3. You will have 15 seconds to remove the HDMI cable from HDMI RX port.

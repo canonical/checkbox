@@ -104,6 +104,20 @@ class SerialRawUartTest(unittest.TestCase):
             [115200, 57600, 38400, 19200, 9600],
         )
 
+    def test_get_sweep_down_rates(self):
+        self.assertEqual(
+            serial_raw_uart_test.get_sweep_down_rates(115200),
+            [115200, 57600, 38400, 19200, 9600],
+        )
+        self.assertEqual(
+            serial_raw_uart_test.get_sweep_down_rates(123456),
+            [123456, 115200, 57600, 38400, 19200, 9600],
+        )
+
+    def test_sweep_down_requires_integer_baud(self):
+        with self.assertRaisesRegex(ValueError, "requires an integer baud"):
+            serial_raw_uart_test.get_sweep_down_rates("max")
+
     @mock.patch(
         "serial_raw_uart_test.get_driver_baud_base", return_value=3000000
     )
@@ -210,6 +224,24 @@ class SerialRawUartTest(unittest.TestCase):
         self.assertTrue(results[1].passed)
         self.assertIn("Max working baud: 57600", output.getvalue())
 
+    @mock.patch("serial_raw_uart_test.open_serial_and_run")
+    @mock.patch("serial_raw_uart_test.resolve_device")
+    def test_run_loopback_sweep_down(self, mock_resolve, mock_open):
+        mock_resolve.return_value = serial_raw_uart_test.UartDevice(
+            "/dev/ttyS0", "/dev/ttyS0", 4000000, False
+        )
+        mock_open.return_value = True
+
+        with mock.patch("sys.stdout", StringIO()):
+            results = serial_raw_uart_test.run_loopback(
+                "/dev/ttyS0", 115200, "quick", sweep_down=True
+            )
+
+        self.assertEqual(
+            [result.baud_rate for result in results],
+            [115200, 57600, 38400, 19200, 9600],
+        )
+
     @mock.patch("serial_raw_uart_test.run_loopback")
     def test_quick_command_exits_nonzero_on_failure(self, mock_run_loopback):
         mock_run_loopback.return_value = [
@@ -249,6 +281,61 @@ class SerialRawUartTest(unittest.TestCase):
             "stress",
             stress_count=50,
             stress_size=512,
+            sweep_down=False,
+        )
+
+    @mock.patch("serial_raw_uart_test.run_loopback")
+    def test_quick_command_uses_sweep_down(self, mock_run_loopback):
+        mock_run_loopback.return_value = [
+            serial_raw_uart_test.LoopbackResult(115200, True, "PASSED")
+        ]
+
+        serial_raw_uart_test.main(
+            [
+                "quick",
+                "--target",
+                "/dev/ttyS0",
+                "--baud",
+                "115200",
+                "--sweep-down",
+            ]
+        )
+
+        mock_run_loopback.assert_called_once_with(
+            "/dev/ttyS0",
+            115200,
+            "quick",
+            sweep_down=True,
+        )
+
+    @mock.patch("serial_raw_uart_test.run_loopback")
+    def test_stress_command_uses_sweep_down(self, mock_run_loopback):
+        mock_run_loopback.return_value = [
+            serial_raw_uart_test.LoopbackResult(115200, True, "PASSED")
+        ]
+
+        serial_raw_uart_test.main(
+            [
+                "stress",
+                "--target",
+                "/dev/ttyS0",
+                "--baud",
+                "115200",
+                "--count",
+                "50",
+                "--size",
+                "512",
+                "--sweep-down",
+            ]
+        )
+
+        mock_run_loopback.assert_called_once_with(
+            "/dev/ttyS0",
+            115200,
+            "stress",
+            stress_count=50,
+            stress_size=512,
+            sweep_down=True,
         )
 
     def test_serial_exception_is_available_for_mocks(self):

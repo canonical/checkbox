@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""List and test raw UART loopback devices for CE OEM serial jobs."""
+"""List and test raw UART self-loopback devices for CE OEM serial jobs."""
 
 import argparse
 import fcntl
@@ -47,7 +47,7 @@ DRIVER_DEV_PREFIX = {
 
 
 class RawUartPort:
-    """A configured raw UART loopback target."""
+    """A configured raw UART self-loopback target."""
 
     def __init__(self, name, target, baud):
         self.name = name
@@ -292,8 +292,19 @@ def get_rates_to_test(baud_base, baud):
     raise ValueError("unsupported baud mode: {}".format(baud))
 
 
+def get_sweep_down_rates(baud):
+    """Return descending standard rates from the configured baud to 9600."""
+
+    if not isinstance(baud, int):
+        raise ValueError("--sweep-down requires an integer baud rate")
+    rates = [rate for rate in STANDARD_RATES if 9600 <= rate <= baud]
+    if baud not in rates:
+        rates.append(baud)
+    return sorted(set(rates), reverse=True)
+
+
 def run_ping(serial_conn):
-    """Run a quick loopback ping on an open serial connection."""
+    """Run a quick self-loopback ping on an open serial connection."""
 
     serial_conn.timeout = 1.0
     serial_conn.reset_input_buffer()
@@ -305,7 +316,7 @@ def run_ping(serial_conn):
 
 
 def run_stress(serial_conn, count, size, timeout_factor=3.0):
-    """Run loopback stress traffic on an open serial connection."""
+    """Run self-loopback stress traffic on an open serial connection."""
 
     byte_time = (size * 10) / serial_conn.baudrate
     serial_conn.timeout = max(2.0, byte_time * timeout_factor)
@@ -333,11 +344,22 @@ def open_serial_and_run(dev_node, baud_rate, run_fn):
         time.sleep(0.1)
 
 
-def run_loopback(target, baud, mode, stress_count=100, stress_size=1024):
-    """Run quick or stress loopback tests for one target."""
+def run_loopback(
+    target,
+    baud,
+    mode,
+    stress_count=100,
+    stress_size=1024,
+    sweep_down=False,
+):
+    """Run quick or stress self-loopback tests for one target."""
 
     device = resolve_device(target)
-    rates = get_rates_to_test(device.baud_base, baud)
+    rates = (
+        get_sweep_down_rates(baud)
+        if sweep_down
+        else get_rates_to_test(device.baud_base, baud)
+    )
     results = []
 
     for rate in rates:
@@ -396,16 +418,26 @@ def parse_args(argv=None):
     )
 
     quick_parser = subparsers.add_parser(
-        "quick", help="Run a raw UART loopback ping test"
+        "quick", help="Run a raw UART self-loopback ping test"
     )
     quick_parser.add_argument("--target", required=True)
     quick_parser.add_argument("--baud", required=True, type=parse_baud)
+    quick_parser.add_argument(
+        "--sweep-down",
+        action="store_true",
+        help="Sweep from --baud down to 9600; requires integer --baud",
+    )
 
     stress_parser = subparsers.add_parser(
-        "stress", help="Run a raw UART loopback stress test"
+        "stress", help="Run a raw UART self-loopback stress test"
     )
     stress_parser.add_argument("--target", required=True)
     stress_parser.add_argument("--baud", required=True, type=parse_baud)
+    stress_parser.add_argument(
+        "--sweep-down",
+        action="store_true",
+        help="Sweep from --baud down to 9600; requires integer --baud",
+    )
     stress_parser.add_argument(
         "--count",
         required=True,
@@ -431,7 +463,12 @@ def main(argv=None):
             print_raw_uart_resources(args.config)
             return
         if args.command == "quick":
-            results = run_loopback(args.target, args.baud, "quick")
+            results = run_loopback(
+                args.target,
+                args.baud,
+                "quick",
+                sweep_down=args.sweep_down,
+            )
         elif args.command == "stress":
             results = run_loopback(
                 args.target,
@@ -439,6 +476,7 @@ def main(argv=None):
                 "stress",
                 stress_count=args.count,
                 stress_size=args.size,
+                sweep_down=args.sweep_down,
             )
         else:
             parser.print_usage()

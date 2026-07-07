@@ -9,6 +9,6 @@ _name: Does serial console port loopback to itself?
 value-type: bool
 
 unit: manifest entry
-id: has_serial_raw_uart_loopback
-_name: Has raw UART ports connected for loopback?
+id: has_serial_raw_uart_self_loopback
+_name: Has raw UART ports connected for self-loopback?
 value-type: bool

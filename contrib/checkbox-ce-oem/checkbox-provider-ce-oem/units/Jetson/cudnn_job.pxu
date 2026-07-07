@@ -9,7 +9,7 @@ requires:
  package.name == 'libfreeimage-dev'
  manifest.is_Jetson == 'True'
 command:
-  cd /usr/src/cudnn_samples_v9/mnistCUDNN/
+  cd /usr/src/cudnn_samples_v9/mnistCUDNN/ || exit
   ./mnistCUDNN
 _summary:
  Run the mnistCUDNN sample
@@ -26,7 +26,7 @@ requires:
  package.name == 'libcudnn9-samples'
  manifest.is_Jetson == 'True'
 command:
-  cd /usr/src/cudnn_samples_v9/conv_sample/
+  cd /usr/src/cudnn_samples_v9/conv_sample/ || exit
   ./run_conv_sample.sh
 _summary:
  Run the conv_sample sample

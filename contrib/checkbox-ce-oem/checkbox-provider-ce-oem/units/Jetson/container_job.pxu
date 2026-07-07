@@ -8,6 +8,7 @@ _name: Jetson core container tests
 
 id: jetson-container/cuda-samples-docker-13.0.0-runtime
 command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
   set -ex
   docker run --rm --net=host --runtime nvidia -e DISPLAY=$DISPLAY \
     -e LD_PRELOAD=/usr/lib/aarch64-linux-gnu/nvidia/libcuda.so \
@@ -31,6 +32,7 @@ requires:
 id: jetson-container/cuda-samples-docker-12.6.11-runtime
 _summary: Run the cuda-samples tests 1_Utilities in a docker container
 command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
   set -ex
   docker run --rm --net=host --runtime nvidia -e DISPLAY=$DISPLAY \
     -v /tmp/.X11-unix/:/tmp/.X11-unix -v \
@@ -52,6 +54,7 @@ requires:
 id: jetson-container/tensorrt-samples-docker-10.3.0-runtime
 _summary: Run the tensorrt samples test in a docker container
 command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
   set -ex
   docker run --rm --net=host --runtime nvidia -e DISPLAY=$DISPLAY \
     -v /tmp/.X11-unix/:/tmp/.X11-unix -v \
@@ -81,6 +84,7 @@ requires:
  package.name == 'nvidia-driver-535-server-open' or package.name == 'nvidia-driver-535-open'
  manifest.is_Jetson == 'True'
 command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
   set -ex
   TEMPDIR=`mktemp -t -d container.XXXXXXXXXX`
   echo "Moving to working dir $TEMPDIR"
@@ -124,6 +128,7 @@ requires:
  package.name == 'linux-nvidia-tegra-igx-tegra-igpu-igx-defaults' or 'igpu-jetson-defaults' in package.name or 'igpu-jetson-nvgpu-defaults' in package.name
  manifest.is_Jetson == 'True'
 command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
   set -ex
   TEMPDIR=`mktemp -t -d container.XXXXXXXXXX`
   echo "Moving to working dir $TEMPDIR"
@@ -210,6 +215,7 @@ requires:
  snap.name == 'docker'
  manifest.is_Jetson == 'True'
 command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
   set -ex
   echo "Make sure graphics-core22 interface is connected"
   sudo snap connect docker:graphics-core22 nvidia-tegra-runtime:graphics-core22

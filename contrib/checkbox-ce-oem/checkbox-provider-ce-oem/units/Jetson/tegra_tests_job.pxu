@@ -13,7 +13,7 @@ requires:
  manifest.is_Jetson == 'True'
 command:
  set -ex
- cd ${HOME}
+ cd "${HOME}"
  if [ ! -d "tegra-tests" ]; then
     git clone https://github.com/thierryreding/tegra-tests -b jetpack6.x
  else
@@ -31,7 +31,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'
 command:
  set -ex
- cd ${HOME}
+ cd "${HOME}"
  sudo tegra-tests/tests/boot.py  -s -v logs
 depends:
  jetson-tegra-tests/clone_tests_repo
@@ -47,7 +47,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'
 command:
  set -ex
- cd ${HOME}
+ cd "${HOME}"
  sudo tegra-tests/tests/boot.py  -s -v devices
 depends:
  jetson-tegra-tests/clone_tests_repo

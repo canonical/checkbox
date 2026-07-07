@@ -13,5 +13,5 @@ plugin: resource
 imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'
 command:
-    for f in $(cat /snap/tensorrt-samples/current/etc/tensorrt-samples.list); do printf "name: %s\n\n" "$f"; done
+    while IFS= read -r f; do printf "name: %s\n\n" "$f"; done < /snap/tensorrt-samples/current/etc/tensorrt-samples.list
 _description: Creates resource info for Tensor RT samples tests

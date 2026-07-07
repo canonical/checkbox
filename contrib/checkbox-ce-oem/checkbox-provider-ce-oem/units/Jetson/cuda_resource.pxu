@@ -13,5 +13,5 @@ plugin: resource
 imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'
 command:
-    for f in $(cat /snap/cuda-samples/current/etc/cuda-samples.list); do printf "name: %s\n\n" "$f"; done
+    while IFS= read -r f; do printf "name: %s\n\n" "$f"; done < /snap/cuda-samples/current/etc/cuda-samples.list
 _description: Creates resource info for CUDA-samples tests

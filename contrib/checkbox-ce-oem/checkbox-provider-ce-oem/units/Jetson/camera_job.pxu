@@ -25,7 +25,7 @@ requires:
 command:
   set -ex
   unset DISPLAY
-  jetson_timeout_wrapper.sh 10s nvargus_nvraw --c {source_index} --format jpg --file $HOME/jetson-camera-nvargus-image_sensor_{source_index}.jpg
+  jetson_timeout_wrapper.sh 10s nvargus_nvraw --c {source_index} --format jpg --file "$HOME"/jetson-camera-nvargus-image_sensor_{source_index}.jpg
 
 id: jetson-core-camera/nvargus-image_sensor_{source_index}
 unit: template
@@ -45,7 +45,7 @@ requires:
 command:
   set -ex
   unset DISPLAY
-  jetson_timeout_wrapper.sh 10s nvargus_nvraw --c {source_index} --format jpg --file $HOME/jetson-camera-nvargus-image_{source_index}.jpg
+  jetson_timeout_wrapper.sh 10s nvargus_nvraw --c {source_index} --format jpg --file "$HOME"/jetson-camera-nvargus-image_{source_index}.jpg
 
 id: jetson-camera/gstreamer-image_sensor_{source_index}
 unit: template
@@ -69,7 +69,7 @@ command:
   unset DISPLAY
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=1 sensor-id={source_index} ! \
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \ 'format=(string)NV12' ! nvjpegenc ! filesink \
-   location=$HOME/jetson-camera-gstreamer-image_{source_index}.jpg
+   location="$HOME"/jetson-camera-gstreamer-image_{source_index}.jpg
 
 id: jetson-core-camera/gstreamer-image_sensor_{source_index}
 unit: template
@@ -86,11 +86,11 @@ imports:
 requires: manifest.is_Jetson == 'True'
 command:
   set -ex
-  export GST_PLUGIN_PATH=$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  export GST_PLUGIN_PATH="$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
   unset DISPLAY
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=1 sensor-id={source_index} ! \
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \ 'format=(string)NV12' ! nvjpegenc ! filesink \
-   location=$HOME/jetson-camera-gstreamer-image_{source_index}.jpg
+   location="$HOME"/jetson-camera-gstreamer-image_{source_index}.jpg
 
 id: jetson-camera/gstreamer-video_sensor_{source_index}
 unit: template
@@ -118,7 +118,7 @@ command:
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \
   'format=(string)NV12, framerate=(fraction)30/1' ! \
   nvv4l2h265enc bitrate=8000000 ! h265parse ! qtmux ! \
-  filesink location=$HOME/jetson-camera-gstreamer-video_{source_index}.mp4
+  filesink location="$HOME"/jetson-camera-gstreamer-video_{source_index}.mp4
 
 id: jetson-core-camera/gstreamer-video_sensor_{source_index}
 unit: template
@@ -137,11 +137,11 @@ requires:
  jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
  manifest.is_Jetson == 'True'
 command:
-  export GST_PLUGIN_SYSTEM_PATH=$SNAP/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0:$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0
-  export GST_PLUGIN_SCANNER=$SNAP/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
+  export GST_PLUGIN_SYSTEM_PATH="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0:"$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0
+  export GST_PLUGIN_SCANNER="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
   unset DISPLAY
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=300 sensor-id={source_index} ! \
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \
   'format=(string)NV12, framerate=(fraction)30/1' ! \
   nvv4l2h265enc bitrate=8000000 ! h265parse ! qtmux ! \
-  filesink location=$HOME/jetson-camera-gstreamer-video_{source_index}.mp4
+  filesink location="$HOME"/jetson-camera-gstreamer-video_{source_index}.mp4

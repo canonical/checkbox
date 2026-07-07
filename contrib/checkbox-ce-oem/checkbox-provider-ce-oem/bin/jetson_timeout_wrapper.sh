@@ -16,4 +16,4 @@ trap print_status EXIT
 
 TIMEOUT=$1
 shift 1
-timeout -k 10 $TIMEOUT $@
+timeout -k 10 "$TIMEOUT" "$@"

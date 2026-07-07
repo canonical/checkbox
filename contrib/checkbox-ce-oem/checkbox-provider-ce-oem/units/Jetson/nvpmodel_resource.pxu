@@ -4,12 +4,12 @@ plugin: resource
 imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'
 command:
-    model_count=$(sudo snap run nvpmodel --parse --verbose | grep POWER_MODEL | wc -l)
-    f=$(( model_count - 1 ))
-    while [ $f -ge 0 ]
+    model_count=$(sudo snap run nvpmodel --parse --verbose | grep -c POWER_MODEL)
+    f=$((model_count - 1))
+    while [ "$f" -ge 0 ]
     do
      printf "mode_id: %s\n" "$f"
-     if [ $f -eq $((model_count - 1)) ]
+     if [ "$f" -eq "$((model_count - 1))" ]
      then
       printf "previous_read_id:\n"
      else
@@ -17,7 +17,7 @@ command:
      fi
      printf "\n"
      x=$f
-     f=$(( $f - 1 ))
+     f=$((f - 1))
     done
 _description: Creates resource info for the nvpmodel tests
 
@@ -31,12 +31,12 @@ requires:
  executable.name == 'nvpmodel'
  manifest.is_Jetson == 'True'
 command:
-    model_count=$(nvpmodel --parse --verbose | grep POWER_MODEL | wc -l)
-    f=$(( model_count - 1 ))
-    while [ $f -ge 0 ]
+    model_count=$(nvpmodel --parse --verbose | grep -c POWER_MODEL)
+    f=$((model_count - 1))
+    while [ "$f" -ge 0 ]
     do
      printf "mode_id: %s\n" "$f"
-     if [ $f -eq $((model_count - 1)) ]
+     if [ "$f" -eq "$((model_count - 1))" ]
      then
       printf "previous_read_id:\n"
      else
@@ -44,6 +44,6 @@ command:
      fi
      printf "\n"
      x=$f
-     f=$(( $f - 1 ))
+     f=$((f - 1))
     done
 _description: Creates resource info for the nvpmodel tests

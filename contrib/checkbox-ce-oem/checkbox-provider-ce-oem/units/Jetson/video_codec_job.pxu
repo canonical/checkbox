@@ -24,7 +24,7 @@ command:
   set -ex
   export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
   export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:$LD_LIBRARY_PATH
-  cd ${HOME}
+  cd "${HOME}"
   wget -nv https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip
   unzip -qu bbb_sunflower_1080p_30fps_normal.mp4.zip
   echo "H.264 Decode (NVIDIA Accelerated Decode) to H265 encode"
@@ -59,7 +59,7 @@ command:
   set -ex
   export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
   export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:$LD_LIBRARY_PATH
-  cd ${HOME}
+  cd "${HOME}"
   wget -nv https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip
   unzip -qu bbb_sunflower_1080p_30fps_normal.mp4.zip
   echo "H.264 Decode (NVIDIA Accelerated Decode) to H265 encode"
@@ -92,10 +92,10 @@ requires:
  manifest.is_Jetson == 'True'
 command:
   set -ex
-  export GST_PLUGIN_PATH=$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
-  export GST_PLUGIN_SYSTEM_PATH=$SNAP/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0
-  export GST_PLUGIN_SCANNER=$SNAP/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
-  cd ${HOME}
+  export GST_PLUGIN_PATH="$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  export GST_PLUGIN_SYSTEM_PATH="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0
+  export GST_PLUGIN_SCANNER="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
+  cd "${HOME}"
   wget -nv https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip
   unzip -qu bbb_sunflower_1080p_30fps_normal.mp4.zip
   echo "H.264 Decode (NVIDIA Accelerated Decode) to H265 encode"

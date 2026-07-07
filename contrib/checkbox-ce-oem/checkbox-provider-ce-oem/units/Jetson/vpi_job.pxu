@@ -18,9 +18,10 @@ requires:
  manifest.is_Jetson == 'True'
 user: root
 command:
-  if [ $(lsb_release --codename | cut -f2) == "noble" ]; then
+  codename=$(lsb_release --codename | cut -f2)
+  if [ "$codename" = "noble" ]; then
     apt install -y vpi4-dev vpi4-samples
-  elif [ $(lsb_release --codename | cut -f2) == "jammy" ]; then
+  elif [ "$codename" = "jammy" ]; then
     apt install -y vpi3-dev vpi3-samples
     update-alternatives \
           --install /etc/ld.so.conf.d/aarch64-linux-gnu_EGL.conf \
@@ -48,7 +49,7 @@ command:
   unset LD_LIBRARY_PATH
   export
   cd /opt/nvidia/vpi*/samples/
-  for f in */CMakeLists.txt ; do pushd $(dirname $f) ; cmake -DOpenCV_DIR=/usr/lib/cmake/opencv4 . ; VERBOSE=1 make -j 2 ; popd ; done
+  for f in */CMakeLists.txt ; do pushd "$(dirname "$f")" ; cmake -DOpenCV_DIR=/usr/lib/cmake/opencv4 . ; VERBOSE=1 make -j 2 ; popd ; done
 
 id: jetson-vpi/run-sample-cpp-cpu
 _summary: Run VPI samples (C++) on CPU
@@ -317,7 +318,7 @@ user: root
 command:
   set -ex
   AUTH_VAL=$(cat /sys/kernel/debug/pva0/vpu_app_authentication)
-  trap "echo $AUTH_VAL > /sys/kernel/debug/pva0/vpu_app_authentication" EXIT
+  trap 'echo "$AUTH_VAL" > /sys/kernel/debug/pva0/vpu_app_authentication' EXIT
   cd /tmp
   echo 0 > /sys/kernel/debug/pva0/vpu_app_authentication
   snap run vpi-samples.vpi-sample-01-convolve-2d pva  /snap/vpi-samples/current/opt/nvidia/vpi3/samples/assets/kodim08.png

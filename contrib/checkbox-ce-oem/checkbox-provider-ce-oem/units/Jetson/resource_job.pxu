@@ -15,6 +15,6 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'
 command:
     # lockdown mode can be none, integrity or confidentiality
-    lockdown_mode=$(cat /sys/kernel/security/lockdown | grep -o "\[.*\]" | sed 's/\[//g ; s/\]//g')
+    lockdown_mode=$(grep -o "\[.*\]" < /sys/kernel/security/lockdown | sed 's/\[//g ; s/\]//g')
     echo "mode: $lockdown_mode"
 _description: Creates a resource that contains the kernel lockdown mode of the device. When EFI secure boot is enabled, this will automatically be set to "integrity"

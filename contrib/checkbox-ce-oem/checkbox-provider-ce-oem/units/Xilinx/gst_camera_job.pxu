@@ -6,10 +6,14 @@ unit: template
 template-resource: com.canonical.certification::device
 template-filter: device.category == 'CAPTURE' and 'hdmi' not in device.path
 template-unit: job
+template-id: xilinx-gst-camera/capture-jpg_name
 plugin: user-interact-verify
 id: xilinx-gst-camera/capture-jpg_{name}
+_template-summary:
+    Camera capture JPG test
 category_id: xilinx-gst-camera
 estimated_duration: 1m
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
     xilinx_sku.short_name == 'zcu104'
@@ -18,13 +22,6 @@ depends: com.canonical.certification::camera/detect
 _summary: Camera capture JPG test for {product_slug}
 command:
     gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location="$PLAINBOX_SESSION_SHARE"/camera_capture.jpg
-_siblings: [
-    {{"id": "after-suspend-xilinx-gst-camera/capture-jpg_{name}",
-     "_summary": "Camera capture JPG test for {product_slug} after suspend",
-     "command": "gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location=\"$PLAINBOX_SESSION_SHARE\"/after-suspend-camera_capture.jpg",
-     "requires": "xilinx_sku.short_name == 'zcu104' and manifest.is_Xilinx == 'True'",
-     "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}}
-    ]
 _purpose:
     This test will capture a jpg file and save it in session folder
 _steps:
@@ -36,10 +33,14 @@ unit: template
 template-resource: com.canonical.certification::device
 template-filter: device.category == 'CAPTURE' and 'hdmi' not in device.path
 template-unit: job
+template-id: xilinx-gst-camera/video-capture_name
 id: xilinx-gst-camera/video-capture_{name}
+_template-summary:
+    Camera video capture test
 category_id: xilinx-gst-camera
 plugin: user-interact-verify
 estimated_duration: 1m
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
     xilinx_sku.short_name == 'zcu104'
@@ -48,13 +49,6 @@ depends: com.canonical.certification::camera/detect
 _summary: Camera video capture test for {product_slug}
 command:
     gst-launch-1.0 v4l2src device=/dev/{name} ! videoconvert ! video/x-raw,format=UYVY,width=1920,height=1080 ! videoconvert ! ximagesink
-_siblings: [
-    {{"id": "after-suspend-xilinx-gst-camera/video-capture_{name}",
-     "_summary": "Camera video capture test for {product_slug} after suspend",
-     "command": "gst-launch-1.0 v4l2src device=/dev/{name} ! videoconvert ! video/x-raw,format=UYVY,width=1920,height=1080 ! videoconvert ! ximagesink",
-     "requires": "xilinx_sku.short_name == 'zcu104' and manifest.is_Xilinx == 'True'",
-     "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}}
-    ]
 _purpose:
     This test will check the video capture of {product_slug} camera
 _steps:
@@ -66,10 +60,14 @@ unit: template
 template-resource: com.canonical.certification::device
 template-filter: device.category == 'CAPTURE' and 'hdmi' not in device.path
 template-unit: job
+template-id: xilinx-gst-camera/capture-jpg_auto_name
 plugin: shell
 id: xilinx-gst-camera/capture-jpg_auto_{name}
+_template-summary:
+    Camera capture JPG test
 category_id: xilinx-gst-camera
 estimated_duration: 5
+flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
     xilinx_sku.short_name == 'zcu104'
@@ -78,12 +76,5 @@ depends: com.canonical.certification::camera/detect
 _summary: Camera capture JPG test for {product_slug}
 command:
     gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location="$PLAINBOX_SESSION_SHARE"/camera_capture.jpg
-_siblings: [
-    {{"id": "after-suspend-xilinx-gst-camera/capture-jpg_auto_{name}",
-     "_summary": "Camera capture JPG test for {product_slug} after suspend",
-     "command": "gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location=\"$PLAINBOX_SESSION_SHARE\"/after-suspend-camera_capture.jpg",
-     "requires": "xilinx_sku.short_name == 'zcu104' and manifest.is_Xilinx == 'True'",
-     "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}}
-    ]
 _purpose:
     This test will capture a jpg file and save it in session folder

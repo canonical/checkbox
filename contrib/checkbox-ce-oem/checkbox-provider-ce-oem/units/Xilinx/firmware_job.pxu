@@ -6,6 +6,7 @@ unit: template
 template-resource: com.canonical.certification::lsb
 template-id: xilinx-firmware/info-release
 id: xilinx-firmware/info-{release}
+_template-summary: Attach Xilinx boot firmware status
 plugin: attachment
 category_id: xilinx-firmware
 imports: from com.canonical.plainbox import manifest

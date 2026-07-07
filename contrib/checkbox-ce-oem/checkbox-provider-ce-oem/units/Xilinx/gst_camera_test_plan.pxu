@@ -3,19 +3,8 @@ unit: test plan
 _name: Xilinx manual camera test
 _description: Manual camera test via gstreamer
 include:
-    xilinx-gst-camera/capture-.*
-    xilinx-gst-camera/video-.*
-bootstrap_include:
-    com.canonical.certification::device
-    xilinx_sku
-
-id: after-suspend-xilinx-gst-camera-manual
-unit: test plan
-_name: Xilinx manual camera test (after suspend)
-_description: Manual camera test via gstreamer (after suspend)
-include:
-    after-suspend-xilinx-gst-camera/capture-.*
-    after-suspend-xilinx-gst-camera/video-.*
+    xilinx-gst-camera/capture-jpg_name
+    xilinx-gst-camera/video-capture_name
 bootstrap_include:
     com.canonical.certification::device
     xilinx_sku
@@ -25,17 +14,7 @@ unit: test plan
 _name: Xilinx automated camera test
 _description: Automated camera test via gstreamer
 include:
-    xilinx-gst-camera/capture-jpg_auto.*
-bootstrap_include:
-    com.canonical.certification::device
-    xilinx_sku
-
-id: after-suspend-xilinx-gst-camera-auto
-unit: test plan
-_name: Xilinx automated camera test (after suspend)
-_description: Automated camera test via gstreamer (after suspend)
-include:
-    after-suspend-xilinx-gst-camera/capture-jpg_auto.*
+    xilinx-gst-camera/capture-jpg_auto_name
 bootstrap_include:
     com.canonical.certification::device
     xilinx_sku

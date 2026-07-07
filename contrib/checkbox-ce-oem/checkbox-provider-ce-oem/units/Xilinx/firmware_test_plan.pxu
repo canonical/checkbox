@@ -3,6 +3,6 @@ unit: test plan
 _name: Automated Xilinx firmware test
 _description: Automated Xilinx firmware test
 include:
-    xilinx-firmware/info-.*
+    xilinx-firmware/info-release
 bootstrap_include:
     com.canonical.certification::lsb

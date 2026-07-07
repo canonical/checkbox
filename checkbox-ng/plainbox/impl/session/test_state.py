@@ -438,7 +438,10 @@ class SessionStateAPITests(TestCase):
         # Both jobs got added to job list
         self.assertEqual(len(session.job_list), 2)
         self.assertEqual(session.job_list[1].id, "after-suspend-A")
-        self.assertEqual(session.job_list[1].after, "early_job A")
+        self.assertEqual(session.job_list[1].after, "early_job")
+        self.assertEqual(
+            set(session.job_list[1].depends), {"A", Suspend.AUTO_JOB_ID}
+        )
         self.assertEqual(session.job_list[1].group, "after-suspend-group1")
 
     def test_also_after_suspend_flag_extra_fields_yaml(self):
@@ -458,7 +461,11 @@ class SessionStateAPITests(TestCase):
         # Both jobs got added to job list
         self.assertEqual(len(session.job_list), 3)
         self.assertEqual(session.job_list[1].id, "after-suspend-A")
-        self.assertEqual(session.job_list[1].after, ["early_job", "A"])
+        self.assertEqual(session.job_list[1].after, ["early_job"])
+        self.assertEqual(
+            set(session.job_list[1].depends),
+            {"A", Suspend.AUTO_JOB_ID, "other_job"},
+        )
         self.assertEqual(
             session.job_list[1].depends,
             ["other_job", "A", Suspend.AUTO_JOB_ID],
@@ -519,7 +526,11 @@ class SessionStateAPITests(TestCase):
         # Both jobs got added to job list
         self.assertEqual(len(session.job_list), 2)
         self.assertEqual(session.job_list[1].id, "after-suspend-manual-A")
-        self.assertEqual(session.job_list[1].after, "early_job A")
+        self.assertEqual(session.job_list[1].after, "early_job")
+        self.assertEqual(
+            set(session.job_list[1].depends),
+            {"A", Suspend.MANUAL_JOB_ID},
+        )
         self.assertEqual(
             session.job_list[1].group, "after-suspend-manual-group1"
         )

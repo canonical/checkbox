@@ -13,8 +13,8 @@ requires:
 user: root
 command:
     set -e
-    ctrlsw_decoder -avc -in $PLAINBOX_PROVIDER_DATA/Xilinx/video/small.h264 -out $PLAINBOX_SESSION_SHARE/small-ctrlsw_decoder.yuv -bd 8
-    omx_decoder $PLAINBOX_PROVIDER_DATA/Xilinx/video/small.h264 -avc -o $PLAINBOX_SESSION_SHARE/small-omx_decoder.yuv
+    ctrlsw_decoder -avc -in "$PLAINBOX_PROVIDER_DATA"/Xilinx/video/small.h264 -out "$PLAINBOX_SESSION_SHARE"/small-ctrlsw_decoder.yuv -bd 8
+    omx_decoder "$PLAINBOX_PROVIDER_DATA"/Xilinx/video/small.h264 -avc -o "$PLAINBOX_SESSION_SHARE"/small-omx_decoder.yuv
 _summary: H.264 decoder test
 
 id: xilinx-vcu/decoder-h265
@@ -28,8 +28,8 @@ requires:
 user: root
 command:
     set -e
-    ctrlsw_decoder -hevc -in $PLAINBOX_PROVIDER_DATA/Xilinx/video/hevc.h265 -out $PLAINBOX_SESSION_SHARE/hevc-ctrlsw_decoder.yuv -bd 8
-    omx_decoder $PLAINBOX_PROVIDER_DATA/Xilinx/video/hevc.h265 -hevc -o $PLAINBOX_SESSION_SHARE/hevc-omx_decoder.yuv
+    ctrlsw_decoder -hevc -in "$PLAINBOX_PROVIDER_DATA"/Xilinx/video/hevc.h265 -out "$PLAINBOX_SESSION_SHARE"/hevc-ctrlsw_decoder.yuv -bd 8
+    omx_decoder "$PLAINBOX_PROVIDER_DATA"/Xilinx/video/hevc.h265 -hevc -o "$PLAINBOX_SESSION_SHARE"/hevc-omx_decoder.yuv
 _summary: H.265 decoder test
 
 id: xilinx-vcu/encoder-h264
@@ -43,7 +43,7 @@ requires:
 user: root
 depends: xilinx-vcu/decoder-h264
 command:
-    omx_encoder $PLAINBOX_SESSION_SHARE/small-omx_decoder.yuv --avc --width 560 --height 320 --fourcc nv12
+    omx_encoder "$PLAINBOX_SESSION_SHARE"/small-omx_decoder.yuv --avc --width 560 --height 320 --fourcc nv12
 _summary: H.264 encoder test
 
 id: xilinx-vcu/encoder-h265
@@ -57,5 +57,5 @@ requires:
 user: root
 depends: xilinx-vcu/decoder-h265
 command:
-    omx_encoder $PLAINBOX_SESSION_SHARE/hevc-omx_decoder.yuv --hevc --width 560 --height 320 --fourcc nv12
+    omx_encoder "$PLAINBOX_SESSION_SHARE"/hevc-omx_decoder.yuv --hevc --width 560 --height 320 --fourcc nv12
 _summary: H.265 encoder test

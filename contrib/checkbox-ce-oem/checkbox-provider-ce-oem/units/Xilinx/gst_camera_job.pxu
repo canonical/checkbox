@@ -17,11 +17,11 @@ requires:
 depends: com.canonical.certification::camera/detect
 _summary: Camera capture JPG test for {product_slug}
 command:
-    gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location=$PLAINBOX_SESSION_SHARE/camera_capture.jpg
+    gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location="$PLAINBOX_SESSION_SHARE"/camera_capture.jpg
 _siblings: [
     {{"id": "after-suspend-xilinx-gst-camera/capture-jpg_{name}",
      "_summary": "Camera capture JPG test for {product_slug} after suspend",
-     "command": "gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location=$PLAINBOX_SESSION_SHARE/after-suspend-camera_capture.jpg",
+     "command": "gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location=\"$PLAINBOX_SESSION_SHARE\"/after-suspend-camera_capture.jpg",
      "requires": "xilinx_sku.short_name == 'zcu104' and manifest.is_Xilinx == 'True'",
      "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}}
     ]
@@ -77,11 +77,11 @@ requires:
 depends: com.canonical.certification::camera/detect
 _summary: Camera capture JPG test for {product_slug}
 command:
-    gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location=$PLAINBOX_SESSION_SHARE/camera_capture.jpg
+    gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location="$PLAINBOX_SESSION_SHARE"/camera_capture.jpg
 _siblings: [
     {{"id": "after-suspend-xilinx-gst-camera/capture-jpg_auto_{name}",
      "_summary": "Camera capture JPG test for {product_slug} after suspend",
-     "command": "gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location=$PLAINBOX_SESSION_SHARE/after-suspend-camera_capture.jpg",
+     "command": "gst-launch-1.0 v4l2src num-buffers=1 device=/dev/{name} ! jpegenc ! filesink location=\"$PLAINBOX_SESSION_SHARE\"/after-suspend-camera_capture.jpg",
      "requires": "xilinx_sku.short_name == 'zcu104' and manifest.is_Xilinx == 'True'",
      "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}}
     ]

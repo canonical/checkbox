@@ -25,14 +25,17 @@ import unittest
 import subprocess
 from typing import NamedTuple, List
 
-
-class Package(NamedTuple):
-    accelerator: str
-    accel_type: str
-    base: str
-    base_type: str
-    slots: str
-    active_slot: str
+Package = NamedTuple(
+    "Package",
+    [
+        ("accelerator", str),
+        ("accel_type", str),
+        ("base", str),
+        ("base_type", str),
+        ("slots", str),
+        ("active_slot", str),
+    ],
+)
 
 
 class TestDfxMgrPackage(unittest.TestCase):

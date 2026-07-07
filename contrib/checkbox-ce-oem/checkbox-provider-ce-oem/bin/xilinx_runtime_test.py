@@ -43,7 +43,9 @@ class TestXilinxRuntimePackage(unittest.TestCase):
         for package in cls.packages_before_test:
             if not ("-1" in package.active_slot):
                 subprocess.run(
-                    shlex.split(f"dfx-mgr-client -load {package.accelerator}"),
+                    shlex.split(
+                        "dfx-mgr-client -load {}".format(package.accelerator)
+                    ),
                     check=False,
                     stdout=subprocess.DEVNULL,
                 )
@@ -77,7 +79,8 @@ class TestXilinxRuntimePackage(unittest.TestCase):
                 break
         if is_slot_active:
             subprocess.run(
-                shlex.split(f"dfx-mgr-client -remove {slot}"), check=True
+                shlex.split("dfx-mgr-client -remove {}".format(slot)),
+                check=True,
             )
             sleep(1)  # give time to settle
 
@@ -160,7 +163,9 @@ class TestXilinxRuntimePackage(unittest.TestCase):
         )
         subprocess.run(
             shlex.split(
-                f"xbutil examine -f json -o {examine_output_path} --force"
+                "xbutil examine -f json -o {} --force".format(
+                    examine_output_path
+                )
             ),
             check=True,
         )
@@ -187,7 +192,9 @@ class TestXilinxRuntimePackage(unittest.TestCase):
         )
         subprocess.run(
             shlex.split(
-                f"xbutil examine -f json -o {examine_output_path} --force"
+                "xbutil examine -f json -o {} --force".format(
+                    examine_output_path
+                )
             )
         ).check_returncode()
         with open(examine_output_path, "r") as f:
@@ -197,7 +204,9 @@ class TestXilinxRuntimePackage(unittest.TestCase):
                 "kv260-nlp-smartvision.xclbin"
             )
             subprocess.run(
-                shlex.split(f"xbutil program -d {bdf} -u {xclbin_path}"),
+                shlex.split(
+                    "xbutil program -d {} -u {}".format(bdf, xclbin_path)
+                ),
                 check=True,
             )
 

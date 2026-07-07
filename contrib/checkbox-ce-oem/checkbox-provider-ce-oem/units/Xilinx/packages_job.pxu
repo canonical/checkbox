@@ -16,7 +16,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_call_with_no_args
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_call_with_no_args
 
 
 id: xilinx-package-test/dfx-mgr-with-unknown
@@ -33,7 +33,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_call_with_unknown_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_call_with_unknown_option
 
 
 id: xilinx-package-test/dfx-mgr-listPackage
@@ -50,7 +50,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_listPackage_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_listPackage_option
 
 
 id: xilinx-package-test/dfx-mgr-help
@@ -67,7 +67,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_help_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_help_option
 
 
 id: xilinx-package-test/dfx-mgr-load
@@ -84,7 +84,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_load_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_load_option
 
 
 id: xilinx-package-test/dfx-mgr-remove
@@ -101,7 +101,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_remove_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_remove_option
 
 
 id: xilinx-package-test/dfx-mgr-listUIO
@@ -118,7 +118,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_listUIO_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_listUIO_option
 
 
 id: xilinx-package-test/dfx-mgr-allocBuffer
@@ -135,7 +135,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_allocBuffer_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_allocBuffer_option
 
 
 id: xilinx-package-test/dfx-mgr-freeBuffer
@@ -152,7 +152,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_freeBuffer_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_freeBuffer_option
 
 
 id: xilinx-package-test/dfx-mgr-getFDs
@@ -169,7 +169,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_getFDs_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_getFDs_option
 
 
 id: xilinx-package-test/dfx-mgr-getRMInfo
@@ -186,7 +186,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_getRMInfo_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_getRMInfo_option
 
 
 id: xilinx-package-test/dfx-mgr-getShellFD
@@ -203,7 +203,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_getShellFD_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_getShellFD_option
 
 
 id: xilinx-package-test/dfx-mgr-getClockFD
@@ -220,7 +220,7 @@ user: root
 estimated_duration: 1s
 command:
   version_under_test=$(apt-cache policy dfx-mgr | awk '/Installed:/ {print $2}')
-  xilinx_dfx_mgr_test.py -v --vut $version_under_test TestDfxMgrPackage.test_getClockFD_option
+  xilinx_dfx_mgr_test.py -v --vut "$version_under_test" TestDfxMgrPackage.test_getClockFD_option
 
 
 id: xilinx-package-test/kria-dashboard-is-running
@@ -301,7 +301,7 @@ estimated_duration: 1s
 user: root
 command:
   version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
-  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_help_option
+  xilinx_runtime_test.py -v --vut "$version_under_test" TestXilinxRuntimePackage.test_help_option
 
 
 id: xilinx-package-test/xrt-version-option
@@ -318,7 +318,7 @@ estimated_duration: 1s
 user: root
 command:
   version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
-  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_version_option
+  xilinx_runtime_test.py -v --vut "$version_under_test" TestXilinxRuntimePackage.test_version_option
 
 
 id: xilinx-package-test/xrt-examine-option
@@ -335,7 +335,7 @@ estimated_duration: 1s
 user: root
 command:
   version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
-  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_examine_command
+  xilinx_runtime_test.py -v --vut "$version_under_test" TestXilinxRuntimePackage.test_examine_command
 
 
 id: xilinx-package-test/xrt-examine-help
@@ -352,7 +352,7 @@ estimated_duration: 1s
 user: root
 command:
   version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
-  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_examine_help
+  xilinx_runtime_test.py -v --vut "$version_under_test" TestXilinxRuntimePackage.test_examine_help
 
 
 id: xilinx-package-test/xrt-examine-devices
@@ -370,7 +370,7 @@ user: root
 command:
   dpkg-query -W -f='${Status}' xlnx-firmware-kv260-nlp-smartvision 2>/dev/null | grep -q "installed" || { echo "Required package xlnx-firmware-kv260-nlp-smartvision is not installed"; exit 1; }
   version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
-  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_examine_devices
+  xilinx_runtime_test.py -v --vut "$version_under_test" TestXilinxRuntimePackage.test_examine_devices
 
 
 id: xilinx-package-test/xrt-configure-option
@@ -387,4 +387,4 @@ estimated_duration: 1s
 user: root
 command:
   version_under_test=$(apt-cache policy xrt | awk '/Installed:/ {print $2}')
-  xilinx_runtime_test.py -v --vut $version_under_test TestXilinxRuntimePackage.test_configure_command
+  xilinx_runtime_test.py -v --vut "$version_under_test" TestXilinxRuntimePackage.test_configure_command

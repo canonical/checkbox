@@ -11,12 +11,13 @@ category_id: xilinx-firmware
 imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Xilinx == 'True'
 command:
-    if [ "{release}" = "20.04" ]; then
+    release="{release}"
+    if [ "$release" = "20.04" ]; then
         xlnx-config --xmutil bootfw_status
-    elif dpkg --compare-versions "{release}" ge "22.04"; then
+    elif dpkg --compare-versions "$release" ge "22.04"; then
         image_update -p
     else
-        echo "Unknown image version: {release}"
+        echo "Unknown image version: $release"
         exit 1
     fi
 estimated_duration: 1

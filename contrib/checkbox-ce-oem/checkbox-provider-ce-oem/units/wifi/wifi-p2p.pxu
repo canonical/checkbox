@@ -1,0 +1,311 @@
+unit: template
+template-resource: com.canonical.certification::device
+template-filter: device.category == 'WIRELESS' and device.interface == 'p2p0'
+template-unit: job
+id: ce-oem-wireless/P2P_connection_{interface}_manual
+user: root
+category_id: wifi_p2p
+_summary: Create Wi-Fi P2P on {interface}
+plugin: user-interact
+estimated_duration: 120.0
+_description:
+  Check that the system can create a Wi-Fi P2P connection.
+_steps:
+   1. On another device, use command to create connection HOST(DUT).
+    $ nmcli c add type wifi-p2p ifname p2p0 con-name test wifi-p2p.peer {mac}
+   2. Bring up connection
+    $ nmcli c up test
+   3. Ping the HOST ip "10.42.0.1"
+_verification:
+  Did the client manage to connect the HOST and able to ping the HOST?
+flags: preserve-locale also-after-suspend
+environ: WIFI_P2P_PEER_MAC
+command:
+   wifi_test.py --type wifi-p2p --interface {interface} --peer "$WIFI_P2P_PEER_MAC" --manual
+
+id: ce-oem-wireless/P2P_connection_as_autonomous_go
+user: root
+environ: P2P_INTERFACE P2P_PAIR_MAC
+_summary: establish Wi-Fi P2P connection as autonomous GO
+_steps:
+  1. Prepare a peer device with p2p_supplicant.conf file
+  """
+  ctrl_interface=/var/run/wpa_supplicant
+  disable_scan_offload=1
+  update_config=1
+  device_name=p2p_test_pair
+  device_type=1-0050F204-1
+  config_methods=virtual_push_button physical_display keypad
+  p2p_ssid_postfix=-p2p
+  p2p_go_intent=7
+  persistent_reconnect=1
+  p2p_no_group_iface=1
+  pmf=1
+  """
+  2. Start wpa_supplicant on peer device's p2p interface by
+    $ sudo wpa_supplicant -i p2p0 -D nl80211 -c p2p_supplicant.conf -B
+  3. Let the pair device enter discovery state by
+    $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
+  4. On DUT, press enter to start and follow the instructions to connect
+command:
+  wifi_direct_test.py connect -i $P2P_INTERFACE --role autonomous-go --pair-mac $P2P_PAIR_MAC
+_verification:
+    Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
+    Can successfully ping between DUT and pair device
+plugin: user-interact-verify
+category_id: wifi_p2p
+estimated_duration: 60
+_description:
+ Test P2P connection as autonomous GO
+
+id: ce-oem-wireless/P2P_connection_as_negotiation_go
+user: root
+environ: P2P_INTERFACE P2P_PAIR_MAC
+_summary: establish Wi-Fi P2P connection as negotiation GO 
+_steps:
+  1. Prepare a peer device with p2p_supplicant.conf file
+  """
+  ctrl_interface=/var/run/wpa_supplicant
+  disable_scan_offload=1
+  update_config=1
+  device_name=p2p_test_pair
+  device_type=1-0050F204-1
+  config_methods=virtual_push_button physical_display keypad
+  p2p_ssid_postfix=-p2p
+  p2p_go_intent=7
+  persistent_reconnect=1
+  p2p_no_group_iface=1
+  pmf=1
+  """
+  2. Start wpa_supplicant on peer device's p2p interface by
+    $ sudo wpa_supplicant -i p2p0 -D nl80211 -c p2p_supplicant.conf -B
+  3. Let the pair device enter discovery state by
+    $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
+  4. On DUT, press enter to start and follow the instructions to connect
+command:
+  wifi_direct_test.py connect -i $P2P_INTERFACE --role negotiation-go --pair-mac $P2P_PAIR_MAC
+_verification:
+    Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
+    Can successfully ping between DUT and pair device
+plugin: user-interact-verify
+category_id: wifi_p2p
+estimated_duration: 60
+_description:
+ Test P2P connection as negotiation GO
+
+id: ce-oem-wireless/P2P_connection_as_client
+user: root
+environ: P2P_INTERFACE P2P_PAIR_MAC
+_summary: establish Wi-Fi P2P connection as client
+_steps:
+  1. Prepare a peer device with p2p_supplicant.conf file
+  """
+  ctrl_interface=/var/run/wpa_supplicant
+  disable_scan_offload=1
+  update_config=1
+  device_name=p2p_test_pair
+  device_type=1-0050F204-1
+  config_methods=virtual_push_button physical_display keypad
+  p2p_ssid_postfix=-p2p
+  p2p_go_intent=7
+  persistent_reconnect=1
+  p2p_no_group_iface=1
+  pmf=1
+  """
+  2. Start wpa_supplicant on peer device's p2p interface by
+    $ sudo wpa_supplicant -i p2p0 -D nl80211 -c p2p_supplicant.conf -B
+  3. Let the pair device enter discovery state by
+    $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
+  4. On DUT, press enter to start and follow the instructions to connect
+command:
+  wifi_direct_test.py connect -i $P2P_INTERFACE --role client --pair-mac $P2P_PAIR_MAC
+_verification:
+    Check both DUT and pair device's wpa_state are completed and DUT's mode is station
+    Can successfully ping between DUT and pair device
+plugin: user-interact-verify
+category_id: wifi_p2p
+estimated_duration: 60
+_description:
+ Test P2P connection as client
+
+id: ce-oem-wireless/P2P_connection_HT_ch6
+user: root
+environ: P2P_INTERFACE P2P_PAIR_MAC
+_summary: establish Wi-Fi P2P connection on HT channel 6
+_steps:
+  1. Prepare a peer device with p2p_supplicant.conf file
+  """
+  ctrl_interface=/var/run/wpa_supplicant
+  disable_scan_offload=1
+  update_config=1
+  device_name=p2p_test_pair
+  device_type=1-0050F204-1
+  config_methods=virtual_push_button physical_display keypad
+  p2p_ssid_postfix=-p2p
+  p2p_go_intent=7
+  persistent_reconnect=1
+  p2p_no_group_iface=1
+  p2p_listen_channel=1
+  pmf=1
+  """
+  2. Start wpa_supplicant on peer device's p2p interface by
+    $ sudo wpa_supplicant -i p2p0 -D nl80211 -c p2p_supplicant.conf -B
+  3. Let the pair device enter discovery state by
+    $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
+  4. On DUT, press enter to start and follow the instructions to connect
+command:
+  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m ht -ch 6
+_verification:
+    Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
+    Can successfully ping between DUT and pair device
+plugin: user-interact-verify
+category_id: wifi_p2p
+estimated_duration: 60
+_description:
+ Test P2P connection on HT channel 6
+
+id: ce-oem-wireless/P2P_connection_HT_ch149
+user: root
+environ: P2P_INTERFACE P2P_PAIR_MAC
+_summary: establish Wi-Fi P2P connection on HT channel 149
+_steps:
+  1. Prepare a peer device with p2p_supplicant.conf file
+  """
+  ctrl_interface=/var/run/wpa_supplicant
+  disable_scan_offload=1
+  update_config=1
+  device_name=p2p_test_pair
+  device_type=1-0050F204-1
+  config_methods=virtual_push_button physical_display keypad
+  p2p_ssid_postfix=-p2p
+  p2p_go_intent=7
+  persistent_reconnect=1
+  p2p_no_group_iface=1
+  p2p_listen_channel=1
+  pmf=1
+  """
+  2. Start wpa_supplicant on peer device's p2p interface by
+    $ sudo wpa_supplicant -i p2p0 -D nl80211 -c p2p_supplicant.conf -B
+  3. Let the pair device enter discovery state by
+    $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
+  4. On DUT, press enter to start and follow the instructions to connect
+command:
+  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m ht -ch 149
+_verification:
+    Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
+    Can successfully ping between DUT and pair device
+plugin: user-interact-verify
+category_id: wifi_p2p
+estimated_duration: 60
+_description:
+ Test P2P connection on HT channel 149
+
+id: ce-oem-wireless/P2P_connection_VHT_ch149
+user: root
+environ: P2P_INTERFACE P2P_PAIR_MAC
+_summary: establish Wi-Fi P2P connection on VHT channel 149
+_steps:
+  1. Prepare a peer device with p2p_supplicant.conf file
+  """
+  ctrl_interface=/var/run/wpa_supplicant
+  disable_scan_offload=1
+  update_config=1
+  device_name=p2p_test_pair
+  device_type=1-0050F204-1
+  config_methods=virtual_push_button physical_display keypad
+  p2p_ssid_postfix=-p2p
+  p2p_go_intent=7
+  persistent_reconnect=1
+  p2p_no_group_iface=1
+  p2p_listen_channel=1
+  pmf=1
+  """
+  2. Start wpa_supplicant on peer device's p2p interface by
+    $ sudo wpa_supplicant -i p2p0 -D nl80211 -c p2p_supplicant.conf -B
+  3. Let the pair device enter discovery state by
+    $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
+  4. On DUT, press enter to start and follow the instructions to connect
+command:
+  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m vht -ch 149
+_verification:
+    Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
+    Can successfully ping between DUT and pair device
+plugin: user-interact-verify
+category_id: wifi_p2p
+estimated_duration: 60
+_description:
+ Test P2P connection on VHT channel 149
+
+id: ce-oem-wireless/P2P_connection_HE_ch6
+user: root
+environ: P2P_INTERFACE P2P_PAIR_MAC
+_summary: establish Wi-Fi P2P connection on HE channel 6
+_steps:
+  1. Prepare a peer device with p2p_supplicant.conf file
+  """
+  ctrl_interface=/var/run/wpa_supplicant
+  disable_scan_offload=1
+  update_config=1
+  device_name=p2p_test_pair
+  device_type=1-0050F204-1
+  config_methods=virtual_push_button physical_display keypad
+  p2p_ssid_postfix=-p2p
+  p2p_go_intent=7
+  persistent_reconnect=1
+  p2p_no_group_iface=1
+  p2p_listen_channel=1
+  p2p_go_he=1
+  pmf=1
+  """
+  2. Start wpa_supplicant on peer device's p2p interface by
+    $ sudo wpa_supplicant -i p2p0 -D nl80211 -c p2p_supplicant.conf -B
+  3. Let the pair device enter discovery state by
+    $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
+  4. On DUT, press enter to start and follow the instructions to connect
+command:
+  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m he -ch 6
+_verification:
+    Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
+    Can successfully ping between DUT and pair device
+plugin: user-interact-verify
+category_id: wifi_p2p
+estimated_duration: 60
+_description:
+ Test P2P connection on HE channel 6
+
+id: ce-oem-wireless/P2P_connection_HE_ch149
+user: root
+environ: P2P_INTERFACE P2P_PAIR_MAC
+_summary: establish Wi-Fi P2P connection on HE channel 149
+_steps:
+  1. Prepare a peer device with p2p_supplicant.conf file
+  """
+  ctrl_interface=/var/run/wpa_supplicant
+  disable_scan_offload=1
+  update_config=1
+  device_name=p2p_test_pair
+  device_type=1-0050F204-1
+  config_methods=virtual_push_button physical_display keypad
+  p2p_ssid_postfix=-p2p
+  p2p_go_intent=7
+  persistent_reconnect=1
+  p2p_no_group_iface=1
+  p2p_listen_channel=1
+  p2p_go_he=1
+  pmf=1
+  """
+  2. Start wpa_supplicant on peer device's p2p interface by
+    $ sudo wpa_supplicant -i p2p0 -D nl80211 -c p2p_supplicant.conf -B
+  3. Let the pair device enter discovery state by
+    $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
+  4. On DUT, press enter to start and follow the instructions to connect
+command:
+  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m he -ch 149
+_verification:
+    Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
+    Can successfully ping between DUT and pair device
+plugin: user-interact-verify
+category_id: wifi_p2p
+estimated_duration: 60
+_description:
+ Test P2P connection on HE channel 149

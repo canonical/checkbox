@@ -49,8 +49,8 @@ class TestKriaDashboardPackage(unittest.TestCase):
         return_code = subprocess.call(
             ["systemctl", command, "--quiet", "kria-dashboard"]
         )
-        # during the tests we saw that the kria-dashboard is failing eventually after some time
-        # so here we are giving it an extra time to settle just to be sure it is working as expected
+        # Give kria-dashboard extra time to settle because it can fail
+        # eventually after start.
         sleep(5)
         return return_code
 

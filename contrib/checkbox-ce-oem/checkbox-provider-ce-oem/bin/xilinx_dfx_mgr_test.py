@@ -86,7 +86,7 @@ class TestDfxMgrPackage(unittest.TestCase):
                 check=True,
                 stdout=subprocess.DEVNULL,
             )
-        except:
+        except subprocess.CalledProcessError:
             self.fail("dfx-mgr-client -tchavadar should not throw an error")
 
     def test_listPackage_option(self):

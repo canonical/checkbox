@@ -46,12 +46,12 @@ compatible_patterns = subprocess.check_output(
     shell=True,
     universal_newlines=True,
 ).splitlines()
-for l in compatible_patterns:
-    item = re.split(", ", l.replace('"', "").replace(";", ""))
+for compatible_pattern in compatible_patterns:
+    item = re.split(", ", compatible_pattern.replace('"', "").replace(";", ""))
     if item in dt_lookup_list:
-        print("Found in /proc/device-tree/:", l)
+        print("Found in /proc/device-tree/:", compatible_pattern)
     else:
-        print("ERROR: Not found:", l, file=sys.stderr)
+        print("ERROR: Not found:", compatible_pattern, file=sys.stderr)
         exit_status = 1
 
 raise SystemExit(exit_status)

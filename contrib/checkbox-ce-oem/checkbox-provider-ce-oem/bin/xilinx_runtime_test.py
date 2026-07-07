@@ -39,7 +39,7 @@ class TestXilinxRuntimePackage(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        subprocess.run(shlex.split(f"dfx-mgr-client -remove"), check=False)
+        subprocess.run(shlex.split("dfx-mgr-client -remove"), check=False)
         for package in cls.packages_before_test:
             if not ("-1" in package.active_slot):
                 subprocess.run(
@@ -140,7 +140,7 @@ class TestXilinxRuntimePackage(unittest.TestCase):
         self.assertIn(
             "xbutil examine",
             str(result.stdout),
-            "Output of the `examine --help` must contain 'xbutil examine' field.",
+            "`examine --help` must contain 'xbutil examine' field.",
         )
 
     def test_examine_devices(self):
@@ -168,7 +168,9 @@ class TestXilinxRuntimePackage(unittest.TestCase):
             json_data = json.load(f)
             self.assertTrue(len(json_data["system"]["host"]["devices"]) > 0)
 
-    @unittest.skip  # skip the program command test it looks like dfx-mgr is already programming xclbin when application is loaded
+    @unittest.skip(
+        "dfx-mgr appears to program xclbin when application is loaded"
+    )
     def test_program_command(self):
         self._remove_dfx_package()
 
@@ -190,10 +192,12 @@ class TestXilinxRuntimePackage(unittest.TestCase):
         ).check_returncode()
         with open(examine_output_path, "r") as f:
             bdf = json.load(f)["system"]["host"]["devices"][0]["bdf"]
+            xclbin_path = (
+                "/lib/firmware/xilinx/kv260-nlp-smartvision/"
+                "kv260-nlp-smartvision.xclbin"
+            )
             subprocess.run(
-                shlex.split(
-                    f"xbutil program -d {bdf} -u /lib/firmware/xilinx/kv260-nlp-smartvision/kv260-nlp-smartvision.xclbin"
-                ),
+                shlex.split(f"xbutil program -d {bdf} -u {xclbin_path}"),
                 check=True,
             )
 

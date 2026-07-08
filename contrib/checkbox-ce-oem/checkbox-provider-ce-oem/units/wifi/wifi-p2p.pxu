@@ -12,7 +12,7 @@ _description:
   Check that the system can create a Wi-Fi P2P connection.
 _steps:
    1. On another device, use command to create connection HOST(DUT).
-    $ nmcli c add type wifi-p2p ifname p2p0 con-name test wifi-p2p.peer {mac}
+     $ nmcli c add type wifi-p2p ifname p2p0 con-name test wifi-p2p.peer $WIFI_P2P_PEER_MAC
    2. Bring up connection
     $ nmcli c up test
    3. Ping the HOST ip "10.42.0.1"

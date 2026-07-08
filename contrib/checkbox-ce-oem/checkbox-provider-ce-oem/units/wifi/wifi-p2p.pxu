@@ -23,7 +23,7 @@ _verification:
 flags: preserve-locale also-after-suspend
 environ: WIFI_P2P_PEER_MAC
 command:
-   wifi_test.py --type wifi-p2p --interface {{ interface }} --peer "$WIFI_P2P_PEER_MAC" --manual
+  wifi_test.py --type wifi-p2p --interface "{{ interface }}" --peer "$WIFI_P2P_PEER_MAC" --manual
 
 id: ce-oem-wireless/P2P_connection_as_autonomous_go
 user: root
@@ -50,7 +50,7 @@ _steps:
     $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
   4. On DUT, press enter to start and follow the instructions to connect
 command:
-  wifi_direct_test.py connect -i $P2P_INTERFACE --role autonomous-go --pair-mac $P2P_PAIR_MAC
+  wifi_direct_test.py connect -i "$P2P_INTERFACE" --role autonomous-go --pair-mac "$P2P_PAIR_MAC"
 _verification:
     Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
     Can successfully ping between DUT and pair device
@@ -85,7 +85,7 @@ _steps:
     $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
   4. On DUT, press enter to start and follow the instructions to connect
 command:
-  wifi_direct_test.py connect -i $P2P_INTERFACE --role negotiation-go --pair-mac $P2P_PAIR_MAC
+  wifi_direct_test.py connect -i "$P2P_INTERFACE" --role negotiation-go --pair-mac "$P2P_PAIR_MAC"
 _verification:
     Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
     Can successfully ping between DUT and pair device
@@ -120,7 +120,7 @@ _steps:
     $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
   4. On DUT, press enter to start and follow the instructions to connect
 command:
-  wifi_direct_test.py connect -i $P2P_INTERFACE --role client --pair-mac $P2P_PAIR_MAC
+  wifi_direct_test.py connect -i "$P2P_INTERFACE" --role client --pair-mac "$P2P_PAIR_MAC"
 _verification:
     Check both DUT and pair device's wpa_state are completed and DUT's mode is station
     Can successfully ping between DUT and pair device
@@ -156,7 +156,7 @@ _steps:
     $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
   4. On DUT, press enter to start and follow the instructions to connect
 command:
-  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m ht -ch 6
+  wifi_direct_test.py connect -i "$P2P_INTERFACE" --pair-mac "$P2P_PAIR_MAC" -m ht -ch 6
 _verification:
     Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
     Can successfully ping between DUT and pair device
@@ -192,7 +192,7 @@ _steps:
     $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
   4. On DUT, press enter to start and follow the instructions to connect
 command:
-  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m ht -ch 149
+  wifi_direct_test.py connect -i "$P2P_INTERFACE" --pair-mac "$P2P_PAIR_MAC" -m ht -ch 149
 _verification:
     Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
     Can successfully ping between DUT and pair device
@@ -228,7 +228,7 @@ _steps:
     $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
   4. On DUT, press enter to start and follow the instructions to connect
 command:
-  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m vht -ch 149
+  wifi_direct_test.py connect -i "$P2P_INTERFACE" --pair-mac "$P2P_PAIR_MAC" -m vht -ch 149
 _verification:
     Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
     Can successfully ping between DUT and pair device
@@ -265,7 +265,7 @@ _steps:
     $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
   4. On DUT, press enter to start and follow the instructions to connect
 command:
-  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m he -ch 6
+  wifi_direct_test.py connect -i "$P2P_INTERFACE" --pair-mac "$P2P_PAIR_MAC" -m he -ch 6
 _verification:
     Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
     Can successfully ping between DUT and pair device
@@ -302,7 +302,7 @@ _steps:
     $ sudo wpa_cli -i p2p0 p2p_find 60 (to discovery for 60 seconds)
   4. On DUT, press enter to start and follow the instructions to connect
 command:
-  wifi_direct_test.py connect -i $P2P_INTERFACE --pair-mac $P2P_PAIR_MAC -m he -ch 149
+  wifi_direct_test.py connect -i "$P2P_INTERFACE" --pair-mac "$P2P_PAIR_MAC" -m he -ch 149
 _verification:
     Check both DUT and pair device's wpa_state are completed and DUT's mode=P2P GO
     Can successfully ping between DUT and pair device

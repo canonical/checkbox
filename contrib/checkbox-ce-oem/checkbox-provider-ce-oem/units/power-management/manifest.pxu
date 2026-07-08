@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_pdu
 _name: Does platform not supported RTC wake and intend to power cycle via PDU?
 value-type: bool
+
+unit: manifest entry
+id: has_usb_wakeup_hid
+_name: Does the platform support wake from suspend by USB HID?
+value-type: bool

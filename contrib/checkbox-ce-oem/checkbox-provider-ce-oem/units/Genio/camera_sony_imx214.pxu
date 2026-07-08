@@ -1,6 +1,6 @@
 id: genio-mipi-camera/sony-imx214-v4l2-ctl-capture
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -33,7 +33,7 @@ _verification:
 
 id: genio-mipi-camera/sony-imx214-gstreamer-capture
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -61,7 +61,7 @@ _verification:
 
 id: genio-mipi-camera/sony-imx214-v4l2-ctl-video
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -128,7 +128,7 @@ _verification:
 
 id: genio-mipi-camera/sony-imx214-gstreamer-video
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -173,7 +173,7 @@ _verification:
 
 id: genio-mipi-camera/sony-imx214-gstreamer-display
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:

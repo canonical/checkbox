@@ -1,6 +1,6 @@
 id: genio-mipi-camera/firmware-checking-ap1302-ar0430
 plugin: shell
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -20,7 +20,7 @@ command:
 
 id: genio-mipi-camera/driver-probe-checking-ap1302-ar0430
 plugin: shell
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 depends: genio-mipi-camera/firmware-checking-ap1302-ar0430
 imports:
     from com.canonical.plainbox import manifest
@@ -59,7 +59,7 @@ command:
 
 id: genio-mipi-camera/ap1302-ar0430-v4l2-ctl-capture
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -109,7 +109,7 @@ _verification:
 
 id: genio-mipi-camera/ap1302-ar0430-gstreamer-capture
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -154,7 +154,7 @@ _verification:
 
 id: genio-mipi-camera/ap1302-ar0430-v4l2-ctl-video
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -204,7 +204,7 @@ _verification:
 
 id: genio-mipi-camera/ap1302-ar0430-gstreamer-video
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -250,7 +250,7 @@ _verification:
 
 id: genio-mipi-camera/ap1302-ar0430-gstreamer-display
 plugin: manual
-category_id: com.canonical.plainbox::camera
+category_id: genio-camera
 imports:
     from com.canonical.plainbox import manifest
 requires:

@@ -63,12 +63,20 @@ _template-summary:
     Validate ALSA UCM sink devices
 _summary: Validate ALSA UCM sink {{ SinksDeviceName }} on {{ SoundCard }}
 _purpose:
-    To check that ALSA UCM sink {{ SinksDevice }} can be enabled and used for
-    playback on sound card {{ SoundCard }}.
+    To check that ALSA UCM sink {{ SinksDevice }} can be enabled and that a
+    human can hear playback from sound card {{ SoundCard }}.
 _description:
     This test applies the UCM verb {{ Verbs }} and sink {{ SinksDevice }} on
-    card {{ SoundNumber }}, then runs a short playback stream verification.
-plugin: shell
+    card {{ SoundNumber }}, then runs a short playback stream. A human must
+    confirm the sound is audible and clear.
+_steps:
+    1. Connect the expected speaker, headset, HDMI monitor, or other audio
+       output device for {{ SinksDeviceName }}.
+    2. Start the test and listen for the generated playback sound.
+    3. Confirm whether the sound is heard clearly from the expected output.
+_verification:
+    Did you hear clear audio from {{ SinksDeviceName }}?
+plugin: user-interact-verify
 user: root
 category_id: com.canonical.certification::audio
 estimated_duration: 30
@@ -92,12 +100,24 @@ _template-summary:
     Validate ALSA UCM source devices
 _summary: Validate ALSA UCM source {{ SourceDeviceName }} on {{ SoundCard }}
 _purpose:
-    To check that ALSA UCM source {{ SourceDevice }} can be enabled and used for
-    capture on sound card {{ SoundCard }}.
+    To check that ALSA UCM source {{ SourceDevice }} can be enabled and capture
+    audio on sound card {{ SoundCard }}.
 _description:
     This test applies the UCM verb {{ Verbs }} and source {{ SourceDevice }} on
-    card {{ SoundNumber }}, then runs a short capture stream verification.
-plugin: shell
+    card {{ SoundNumber }}, then records a short WAV file. A human must play or
+    copy the recorded file and confirm the captured sound is correct.
+_steps:
+    1. Prepare the expected microphone or capture device for
+       {{ SourceDeviceName }}.
+    2. Start the test and produce an audible input signal, such as speaking into
+       the microphone.
+    3. Note the recorded WAV path printed by the command.
+    4. Play the recorded file, or copy it to another system and play it there.
+    5. Confirm whether the recording contains clear audio from the expected
+       source.
+_verification:
+    Does the recorded WAV file contain clear audio from {{ SourceDeviceName }}?
+plugin: user-interact-verify
 user: root
 category_id: com.canonical.certification::audio
 estimated_duration: 30
@@ -124,13 +144,24 @@ _summary:
 _purpose:
     To check that ALSA UCM sink {{ SinksDevice }} and source {{ SourceDevice }}
     can be enabled together and used for loopback validation on sound card
-    {{ SoundCard }}.
+    {{ SoundCard }}, with human confirmation of the recorded audio quality.
 _description:
     This test applies the UCM verb {{ Verbs }}, enables sink {{ SinksDevice }}
     and source {{ SourceDevice }}, runs playback and capture concurrently, and
     checks that the captured WAV file is large enough to indicate loopback
-    activity.
-plugin: shell
+    activity. A human must play or copy the recorded file and confirm the
+    captured sound is correct.
+_steps:
+    1. Prepare the expected audio loopback path between {{ SinksDeviceName }} and
+       {{ SourceDeviceName }}.
+    2. Start the test and wait for playback plus capture to complete.
+    3. Note the recorded WAV path printed by the command.
+    4. Play the recorded file, or copy it to another system and play it there.
+    5. Confirm whether the recording contains clear loopback audio.
+_verification:
+    Does the recorded WAV file contain clear loopback audio from
+    {{ SinksDeviceName }} to {{ SourceDeviceName }}?
+plugin: user-interact-verify
 user: root
 category_id: com.canonical.certification::audio
 estimated_duration: 60

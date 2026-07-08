@@ -1,9 +1,18 @@
 # ALSA UCM tests
 
-The ALSA UCM tests validate sound cards that expose ALSA Use Case Manager
-verbs and devices. The tests discover UCM Sink devices, Source devices, and
-configured Sink:Source loopback pairs, then generate Checkbox jobs for each
-resource row.
+The ALSA UCM tests are semi-automatic tests for sound cards that expose ALSA
+Use Case Manager verbs and devices. The helper discovers UCM Sink devices,
+Source devices, and configured Sink:Source loopback pairs, then generates
+Checkbox jobs for each resource row.
+
+The jobs run the required ALSA commands automatically, but a human must confirm
+the final audio result:
+
+- Sink tests: confirm that the playback sound is audible and clear.
+- Source tests: play or copy the recorded WAV file and confirm the capture is
+  clear.
+- Loopback tests: play or copy the recorded WAV file and confirm the loopback
+  audio quality is correct.
 
 ## Test plan
 
@@ -24,6 +33,9 @@ ce-oem-audio/alsa-ucm-loopback-tests
 
 The template jobs use `flags: also-after-suspend`, so Checkbox can generate
 after-suspend variants when the plan is used in a suspend flow.
+
+The generated jobs use `user-interact-verify` because the final pass/fail
+decision depends on human audio verification.
 
 ## Manifest
 
@@ -121,14 +133,18 @@ SourceDeviceName: Digital Microphone
 
 ## Test commands
 
-Sink/source jobs run one generated resource row at a time:
+Sink/source jobs run one generated resource row at a time. Sink jobs play a
+test sound that the operator must hear. Source jobs record a WAV file and print
+the file path so the operator can play or copy it for verification:
 
 ```bash
 alsa_ucm_test.py test -c 0 -v HiFi -d Speaker
 alsa_ucm_test.py test -c 0 -v HiFi -d Mic
 ```
 
-Loopback jobs enable one sink and one source together:
+Loopback jobs enable one sink and one source together. The helper records a WAV
+file and prints the file path so the operator can play or copy it for
+verification:
 
 ```bash
 alsa_ucm_test.py loopback-test -c 0 -v HiFi \

@@ -106,17 +106,21 @@ class SerialRawUartTest(unittest.TestCase):
 
     def test_get_sweep_down_rates(self):
         self.assertEqual(
-            serial_raw_uart_test.get_sweep_down_rates(115200),
+            serial_raw_uart_test.get_sweep_down_rates(0, 115200),
             [115200, 57600, 38400, 19200, 9600],
         )
         self.assertEqual(
-            serial_raw_uart_test.get_sweep_down_rates(123456),
+            serial_raw_uart_test.get_sweep_down_rates(0, 123456),
             [123456, 115200, 57600, 38400, 19200, 9600],
+        )
+        self.assertEqual(
+            serial_raw_uart_test.get_sweep_down_rates(115200, "max"),
+            [115200, 57600, 38400, 19200, 9600],
         )
 
     def test_sweep_down_requires_integer_baud(self):
-        with self.assertRaisesRegex(ValueError, "requires an integer baud"):
-            serial_raw_uart_test.get_sweep_down_rates("max")
+        with self.assertRaisesRegex(ValueError, "integer baud rate or max"):
+            serial_raw_uart_test.get_sweep_down_rates(115200, "sweep")
 
     @mock.patch(
         "serial_raw_uart_test.get_driver_baud_base", return_value=3000000

@@ -292,14 +292,19 @@ def get_rates_to_test(baud_base, baud):
     raise ValueError("unsupported baud mode: {}".format(baud))
 
 
-def get_sweep_down_rates(baud):
+def get_sweep_down_rates(baud_base, baud):
     """Return descending standard rates from the configured baud to 9600."""
 
-    if not isinstance(baud, int):
-        raise ValueError("--sweep-down requires an integer baud rate")
-    rates = [rate for rate in STANDARD_RATES if 9600 <= rate <= baud]
-    if baud not in rates:
-        rates.append(baud)
+    if baud == "max":
+        start_baud = baud_base if baud_base > 0 else 115200
+    elif isinstance(baud, int):
+        start_baud = baud
+    else:
+        raise ValueError("--sweep-down requires an integer baud rate or max")
+
+    rates = [rate for rate in STANDARD_RATES if 9600 <= rate <= start_baud]
+    if start_baud not in rates:
+        rates.append(start_baud)
     return sorted(set(rates), reverse=True)
 
 
@@ -356,7 +361,7 @@ def run_loopback(
 
     device = resolve_device(target)
     rates = (
-        get_sweep_down_rates(baud)
+        get_sweep_down_rates(device.baud_base, baud)
         if sweep_down
         else get_rates_to_test(device.baud_base, baud)
     )

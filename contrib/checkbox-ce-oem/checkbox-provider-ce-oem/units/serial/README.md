@@ -63,8 +63,9 @@ by default. This default is used when `RAW_UART_SWEEP_DOWN` is not set:
 RAW_UART_SWEEP_DOWN=true
 ```
 
-`RAW_UART_SWEEP_DOWN` requires `BAUD` to be an integer, such as `115200`. It is
-not valid with `max`, `sweep`, or `autoscan-max`.
+`RAW_UART_SWEEP_DOWN` supports integer baud values, such as `115200`, and
+`max`, which starts from the driver-reported baud base. It is not valid with
+`sweep` or `autoscan-max`.
 
 Disable sweep-down explicitly when you only want to test the configured integer
 baud rate:

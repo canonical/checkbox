@@ -75,6 +75,9 @@
               "bios": {
                 "$ref": "#/definitions/SystemInformationOject"
               },
+              "chassis": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
               "debian_packages": {
                 "$ref": "#/definitions/SystemInformationOject"
               },

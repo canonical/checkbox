@@ -19,46 +19,49 @@ import os
 from checkbox_ng.support.lib.conversion import string_to_type
 
 
-# See also 3.3.4.1 of the "System Management BIOS Reference Specification,
-# Version 2.6.1" (Preliminary Standard) document, available from
-# http://www.dmtf.org/standards/smbios.
+# See also 7.4.1 "System Enclosure or Chassis Types" of the "System Management
+# BIOS Specification, Version 3.9.0" (DSP0134), available
+# from https://www.dmtf.org/standards/smbios.
 class Dmi:
-    chassis = (
-        ("Undefined", "unknown"),  # 0x00
-        ("Other", "unknown"),
-        ("Unknown", "unknown"),
-        ("Desktop", "desktop"),
-        ("Low Profile Desktop", "desktop"),
-        ("Pizza Box", "server"),
-        ("Mini Tower", "desktop"),
-        ("Tower", "desktop"),
-        ("Portable", "laptop"),
-        ("Laptop", "laptop"),
-        ("Notebook", "laptop"),
-        ("Hand Held", "handheld"),
-        ("Docking Station", "laptop"),
-        ("All In One", "unknown"),
-        ("Sub Notebook", "laptop"),
-        ("Space-saving", "desktop"),
-        ("Lunch Box", "unknown"),
-        ("Main Server Chassis", "server"),
-        ("Expansion Chassis", "unknown"),
-        ("Sub Chassis", "unknown"),
-        ("Bus Expansion Chassis", "unknown"),
-        ("Peripheral Chassis", "unknown"),
-        ("RAID Chassis", "unknown"),
-        ("Rack Mount Chassis", "unknown"),
-        ("Sealed-case PC", "unknown"),
-        ("Multi-system", "unknown"),
-        ("CompactPCI", "unknonw"),
-        ("AdvancedTCA", "unknown"),
-        ("Blade", "server"),
-        ("Blade Enclosure", "unknown"),
+    chassis_types = (
+        "Undefined",  # 0x00 placeholder for SMBIOS alignment
+        "Other",
+        "Unknown",
+        "Desktop",
+        "Low Profile Desktop",
+        "Pizza Box",
+        "Mini Tower",
+        "Tower",
+        "Portable",
+        "Laptop",
+        "Notebook",
+        "Hand Held",
+        "Docking Station",
+        "All In One",
+        "Sub Notebook",
+        "Space-saving",
+        "Lunch Box",
+        "Main Server Chassis",
+        "Expansion Chassis",
+        "Sub Chassis",
+        "Bus Expansion Chassis",
+        "Peripheral Chassis",
+        "RAID Chassis",
+        "Rack Mount Chassis",
+        "Sealed-case PC",
+        "Multi-system",
+        "Compact PCI",
+        "Advanced TCA",
+        "Blade",
+        "Blade Enclosure",
+        "Tablet",
+        "Convertible",
+        "Detachable",
+        "IoT Gateway",
+        "Embedded PC",
+        "Mini PC",
+        "Stick PC",
     )
-
-    chassis_names = tuple(c[0] for c in chassis)
-    chassis_types = tuple(c[1] for c in chassis)
-    chassis_name_to_type = dict(chassis)
 
     type_names = (
         "BIOS",  # 0x00
@@ -185,9 +188,11 @@ class DmiDevice:
             type_string = self._attributes.get("chassis_type", "0")
             try:
                 type_index = int(type_string)
-                return Dmi.chassis_names[type_index]
             except ValueError:
                 return type_string
+            if 0 <= type_index < len(Dmi.chassis_types):
+                return Dmi.chassis_types[type_index]
+            return "Unknown"
 
         for name in "name", "version":
             attribute = "%s_%s" % (self.category.lower(), name)

@@ -33,6 +33,7 @@ try:
 except ImportError:
     from pkg_resources import resource_filename
 
+from checkbox_ng.support.lib.dmi import Dmi, DmiDevice
 from checkbox_ng.support.parsers.dmidecode import DmidecodeParser
 from checkbox_ng.support.parsers.tests.test_dmi import TestDmiMixin, DmiResult
 
@@ -206,3 +207,17 @@ class TestLenovoSystemX(TestCase):
             "family": "System X",
         }
         self.assertDictEqual(dmi_device.raw_attributes, correct_values)
+
+
+class TestChassisProduct(TestCase):
+    def make_chassis(self, chassis_type):
+        return DmiDevice({"chassis_type": chassis_type}, "CHASSIS")
+
+    def test_out_of_range_index(self):
+        """Test that an index beyond the known list returns unknown."""
+        index = str(len(Dmi.chassis_types))
+        self.assertEqual(self.make_chassis(index).product, "Unknown")
+
+    def test_non_numeric_type(self):
+        """Test that a non-numeric type returns the type string."""
+        self.assertEqual(self.make_chassis("Notebook").product, "Notebook")

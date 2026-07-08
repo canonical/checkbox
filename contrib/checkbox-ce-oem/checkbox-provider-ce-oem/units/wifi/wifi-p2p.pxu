@@ -1,11 +1,13 @@
 unit: template
+template-engine: jinja2
 template-resource: com.canonical.certification::device
 template-filter: device.category == 'WIRELESS' and device.interface == 'p2p0'
+template-id: ce-oem-wireless/P2P_connection_test
 template-unit: job
-id: ce-oem-wireless/P2P_connection_{interface}_manual
+id: ce-oem-wireless/P2P_connection_{{ interface }}_manual
 user: root
 category_id: wifi_p2p
-_summary: Create Wi-Fi P2P on {interface}
+_summary: Create Wi-Fi P2P on {{ interface }}
 plugin: user-interact
 estimated_duration: 120.0
 _description:
@@ -14,14 +16,14 @@ _steps:
    1. On another device, use command to create connection HOST(DUT).
      $ nmcli c add type wifi-p2p ifname p2p0 con-name test wifi-p2p.peer $WIFI_P2P_PEER_MAC
    2. Bring up connection
-    $ nmcli c up test
+     $ nmcli c up test
    3. Ping the HOST ip "10.42.0.1"
 _verification:
   Did the client manage to connect the HOST and able to ping the HOST?
 flags: preserve-locale also-after-suspend
 environ: WIFI_P2P_PEER_MAC
 command:
-   wifi_test.py --type wifi-p2p --interface {interface} --peer "$WIFI_P2P_PEER_MAC" --manual
+   wifi_test.py --type wifi-p2p --interface {{ interface }} --peer "$WIFI_P2P_PEER_MAC" --manual
 
 id: ce-oem-wireless/P2P_connection_as_autonomous_go
 user: root

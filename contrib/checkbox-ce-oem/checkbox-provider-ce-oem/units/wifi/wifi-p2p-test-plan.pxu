@@ -15,15 +15,4 @@ bootstrap_include:
     com.canonical.certification::device
     com.canonical.certification::wifi_interface_mode
 include:
-    ce-oem-wireless/P2P_connection_.*
-
-id: after-suspend-ce-oem-wifi-p2p-manual
-unit: test plan
-_name: ce-oem manual WiFi P2P tests after suspend
-_description: Manual WiFi P2P tests after suspend
-mandatory_include:
-bootstrap_include:
-    com.canonical.certification::device
-    com.canonical.certification::wifi_interface_mode
-include:
-    after-suspend-ce-oem-wireless/P2P_connection_.*
+    ce-oem-wireless/P2P_connection_test

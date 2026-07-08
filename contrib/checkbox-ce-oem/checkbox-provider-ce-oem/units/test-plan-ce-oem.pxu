@@ -55,7 +55,6 @@ nested_part:
     ce-oem-barcode-scanner-manual
     ce-oem-printer-manual
     ce-oem-cash-drawer-manual
-    ce-oem-wifi-p2p-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -145,7 +144,6 @@ nested_part:
     after-suspend-ce-oem-barcode-scanner-manual
     after-suspend-ce-oem-printer-manual
     after-suspend-ce-oem-cash-drawer-manual
-    after-suspend-ce-oem-wifi-p2p-manual
 certification_status_overrides:
     apply blocker to .*
 

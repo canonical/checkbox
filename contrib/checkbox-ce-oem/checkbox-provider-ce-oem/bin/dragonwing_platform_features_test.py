@@ -39,7 +39,7 @@ def read_file(path):
         with open(path, "r") as file:
             return file.read().strip()
     except Exception as e:
-        logging.error(f"Failed to read {path}: {e}")
+        logging.error("Failed to read {}: {}".format(path, e))
         raise
 
 
@@ -83,7 +83,7 @@ def check_cpu_online():
             offline_cpus.append(cpu)
 
     if offline_cpus:
-        logging.error(f"CPUs offline: {offline_cpus}")
+        logging.error("CPUs offline: {}".format(offline_cpus))
         sys.exit(1)
 
     logging.info("All CPUs are online.")
@@ -165,9 +165,9 @@ def check_dmabuf():
 
     # check dmabuf dir exist
     for path in ["/dev/dma_heap", "/sys/class/dma_heap"]:
-        logging.info(f"Checking dir {path}...")
+        logging.info("Checking dir {}...".format(path))
         if not os.path.exists(path):
-            logging.error(f"{path} does not exist!")
+            logging.error("{} does not exist!".format(path))
             sys.exit(1)
 
     logging.info("All dmabuf checks passed.")

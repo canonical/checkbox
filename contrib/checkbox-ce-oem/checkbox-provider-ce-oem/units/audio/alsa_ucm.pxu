@@ -1,0 +1,146 @@
+id: ce-oem-audio/alsa-ucm-sinks-list
+_summary:
+    Generates ALSA UCM sink resources
+_description:
+    Generates one resource for each ALSA UCM Sink device. If
+    ALSA_UCM_LOOPBACK_PAIRING is set, paired sinks are excluded from this
+    sink-only resource list.
+plugin: resource
+estimated_duration: 5.0
+environ:
+    ALSA_UCM_LOOPBACK_PAIRING
+command:
+    if [ -n "$ALSA_UCM_LOOPBACK_PAIRING" ]; then
+        alsa_ucm_test.py resource sinks --pairing "$ALSA_UCM_LOOPBACK_PAIRING"
+    else
+        alsa_ucm_test.py resource sinks
+    fi
+
+id: ce-oem-audio/alsa-ucm-sources-list
+_summary:
+    Generates ALSA UCM source resources
+_description:
+    Generates one resource for each ALSA UCM Source device. If
+    ALSA_UCM_LOOPBACK_PAIRING is set, paired sources are excluded from this
+    source-only resource list.
+plugin: resource
+estimated_duration: 5.0
+environ:
+    ALSA_UCM_LOOPBACK_PAIRING
+command:
+    if [ -n "$ALSA_UCM_LOOPBACK_PAIRING" ]; then
+        alsa_ucm_test.py resource sources --pairing "$ALSA_UCM_LOOPBACK_PAIRING"
+    else
+        alsa_ucm_test.py resource sources
+    fi
+
+id: ce-oem-audio/alsa-ucm-loopback-list
+_summary:
+    Generates ALSA UCM loopback resources
+_description:
+    Generates one resource for each configured ALSA UCM Sink:Source loopback
+    pair. If ALSA_UCM_LOOPBACK_PAIRING is unset, this resource emits no rows.
+plugin: resource
+estimated_duration: 5.0
+environ:
+    ALSA_UCM_LOOPBACK_PAIRING
+command:
+    if [ -z "$ALSA_UCM_LOOPBACK_PAIRING" ]; then
+        exit 0
+    fi
+    alsa_ucm_test.py resource loopback --pairing "$ALSA_UCM_LOOPBACK_PAIRING"
+
+unit: template
+template-resource: ce-oem-audio/alsa-ucm-sinks-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-audio/alsa-ucm-sink-tests
+id: ce-oem-audio/alsa-ucm-sink-{{ SoundCard }}-{{ Verbs }}-{{ SinksDevice }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_alsa_ucm == 'True'
+_template-summary:
+    Validate ALSA UCM sink devices
+_summary: Validate ALSA UCM sink {{ SinksDeviceName }} on {{ SoundCard }}
+_purpose:
+    To check that ALSA UCM sink {{ SinksDevice }} can be enabled and used for
+    playback on sound card {{ SoundCard }}.
+_description:
+    This test applies the UCM verb {{ Verbs }} and sink {{ SinksDevice }} on
+    card {{ SoundNumber }}, then runs a short playback stream verification.
+plugin: shell
+user: root
+category_id: com.canonical.certification::audio
+estimated_duration: 30
+flags: also-after-suspend
+command:
+    alsa_ucm_test.py test \
+        -c "{{ SoundNumber }}" \
+        -v "{{ Verbs }}" \
+        -d "{{ SinksDevice }}"
+
+unit: template
+template-resource: ce-oem-audio/alsa-ucm-sources-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-audio/alsa-ucm-source-tests
+id: ce-oem-audio/alsa-ucm-source-{{ SoundCard }}-{{ Verbs }}-{{ SourceDevice }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_alsa_ucm == 'True'
+_template-summary:
+    Validate ALSA UCM source devices
+_summary: Validate ALSA UCM source {{ SourceDeviceName }} on {{ SoundCard }}
+_purpose:
+    To check that ALSA UCM source {{ SourceDevice }} can be enabled and used for
+    capture on sound card {{ SoundCard }}.
+_description:
+    This test applies the UCM verb {{ Verbs }} and source {{ SourceDevice }} on
+    card {{ SoundNumber }}, then runs a short capture stream verification.
+plugin: shell
+user: root
+category_id: com.canonical.certification::audio
+estimated_duration: 30
+flags: also-after-suspend
+command:
+    alsa_ucm_test.py test \
+        -c "{{ SoundNumber }}" \
+        -v "{{ Verbs }}" \
+        -d "{{ SourceDevice }}"
+
+unit: template
+template-resource: ce-oem-audio/alsa-ucm-loopback-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-audio/alsa-ucm-loopback-tests
+id: ce-oem-audio/alsa-ucm-loopback-{{ SoundCard }}-{{ Verbs }}-{{ SinksDevice }}-{{ SourceDevice }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_alsa_ucm == 'True'
+_template-summary:
+    Validate ALSA UCM loopback pairs
+_summary:
+    Validate ALSA UCM loopback {{ SinksDeviceName }} to {{ SourceDeviceName }}
+_purpose:
+    To check that ALSA UCM sink {{ SinksDevice }} and source {{ SourceDevice }}
+    can be enabled together and used for loopback validation on sound card
+    {{ SoundCard }}.
+_description:
+    This test applies the UCM verb {{ Verbs }}, enables sink {{ SinksDevice }}
+    and source {{ SourceDevice }}, runs playback and capture concurrently, and
+    checks that the captured WAV file is large enough to indicate loopback
+    activity.
+plugin: shell
+user: root
+category_id: com.canonical.certification::audio
+estimated_duration: 60
+flags: also-after-suspend
+environ:
+    ALSA_UCM_LOOPBACK_DURATION
+command:
+    alsa_ucm_test.py loopback-test \
+        -c "{{ SoundNumber }}" \
+        -v "{{ Verbs }}" \
+        --sink-device "{{ SinksDevice }}" \
+        --source-device "{{ SourceDevice }}" \
+        --duration "${ALSA_UCM_LOOPBACK_DURATION:-10}"

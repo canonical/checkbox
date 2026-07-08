@@ -1,0 +1,131 @@
+id: genio-server
+unit: test plan
+_name: Genio server tests
+_description:
+    Combined manual and automated Genio project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    genio-server-manual
+    genio-server-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: genio-server-manual
+unit: test plan
+_name: Genio server manual tests
+_description:
+    Manual Genio project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    genio-aiml-manual
+    genio-mipi-camera-manual
+    genio-hdmi-rx-manual
+    genio-serial-manual
+    after-suspend-genio-serial-manual
+    after-suspend-genio-hdmi-rx-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: genio-server-automated
+unit: test plan
+_name: Genio server automated tests
+_description:
+    Automated Genio project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    genio-thermal-automated
+    genio-aiml-automated
+    genio-serial-automated
+    after-suspend-genio-serial-automated
+    after-suspend-genio-aiml-automated
+    after-suspend-genio-thermal-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: genio-desktop
+unit: test plan
+_name: Genio desktop tests
+_description:
+    Combined manual and automated Genio project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    genio-desktop-manual
+    genio-desktop-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: genio-desktop-manual
+unit: test plan
+_name: Genio desktop manual tests
+_description:
+    Manual Genio project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    genio-aiml-manual
+    genio-mipi-camera-manual
+    genio-hdmi-rx-manual
+    genio-serial-manual
+    after-suspend-genio-serial-manual
+    after-suspend-genio-hdmi-rx-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: genio-desktop-automated
+unit: test plan
+_name: Genio desktop automated tests
+_description:
+    Automated Genio project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    genio-thermal-automated
+    genio-aiml-automated
+    genio-serial-automated
+    after-suspend-genio-serial-automated
+    after-suspend-genio-aiml-automated
+    after-suspend-genio-thermal-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: genio-core
+unit: test plan
+_name: Genio core tests
+_description:
+    Combined manual and automated Genio project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    genio-core-manual
+    genio-core-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: genio-core-manual
+unit: test plan
+_name: Genio core manual tests
+_description:
+    Manual Genio project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    genio-aiml-manual
+    genio-mipi-camera-manual
+    genio-hdmi-rx-manual
+    genio-serial-manual
+    after-suspend-genio-serial-manual
+    after-suspend-genio-hdmi-rx-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: genio-core-automated
+unit: test plan
+_name: Genio core automated tests
+_description:
+    Automated Genio project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    genio-thermal-automated
+    genio-aiml-automated
+    genio-serial-automated
+    after-suspend-genio-serial-automated
+    after-suspend-genio-aiml-automated
+    after-suspend-genio-thermal-automated
+certification_status_overrides:
+    apply blocker to .*

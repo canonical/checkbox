@@ -50,6 +50,11 @@
         {%- endfor %}
     },
 {%- endif %}
+{%- if ns ~ 'dmi' in state.resource_map %}
+{%- for dmi_resource in state.resource_map[ns ~ 'dmi'] if dmi_resource.chassis %}
+    "chassis": "{{ dmi_resource.chassis }}",
+{%- endfor %}
+{%- endif %}
     "results": [
     {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin != "attachment" %}
         {

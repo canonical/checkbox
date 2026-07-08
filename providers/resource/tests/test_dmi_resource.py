@@ -17,9 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 from unittest import TestCase
-from unittest.mock import MagicMock
+
+import contextlib
+import io
+
+from checkbox_ng.support.lib.dmi import DmiDevice
 
 import dmi_resource
 
@@ -86,3 +89,21 @@ class TestDmiResource(TestCase):
         products = ["strange-iot-product"]
         category = set(map(dmi_resource.display_type, products))
         self.assertEqual(category, {"external"})
+
+
+class TestDmiResultChassis(TestCase):
+    def output_for(self, device):
+        stream = io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            dmi_resource.DmiResult().addDmiDevice(device)
+        return stream.getvalue()
+
+    def test_chassis_device_outputs_mapped_chassis_type(self):
+        """Test that a CHASSIS device outputs its mapped chassis type."""
+        device = DmiDevice({"chassis_type": "10"}, "CHASSIS")
+        self.assertIn("chassis: Notebook", self.output_for(device))
+
+    def test_chassis_field_only_outputs_for_chassis_devices(self):
+        """Test that the chassis field is only included for CHASSIS devices."""
+        device = DmiDevice({"system_name": "20AMOS3"}, "SYSTEM")
+        self.assertNotIn("chassis:", self.output_for(device))

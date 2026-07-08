@@ -1,5 +1,6 @@
 unit: manifest entry
 id: is_Genio
 _name: Is this a Genio platform?
+_prompt: Genio specific?
 value-type: bool
 

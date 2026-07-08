@@ -219,18 +219,24 @@ class ThermalMonitorTest(unittest.TestCase):
         self.assertEqual(thermal_node.stable_source, "/soc/thermal/node")
 
     def test_compare_thermal_snapshots_human_readable_output(self):
-        before_data = "\n".join(
-            [
-                "sid-a\tthermal_zone1\tcpu\t/source/cpu",
-                "sid-b\tthermal_zone2\tgpu\t/source/gpu",
-            ]
-        ) + "\n"
-        after_data = "\n".join(
-            [
-                "sid-a\tthermal_zone5\tcpu\t/source/cpu",
-                "sid-c\tthermal_zone3\tddr\t/source/ddr",
-            ]
-        ) + "\n"
+        before_data = (
+            "\n".join(
+                [
+                    "sid-a\tthermal_zone1\tcpu\t/source/cpu",
+                    "sid-b\tthermal_zone2\tgpu\t/source/gpu",
+                ]
+            )
+            + "\n"
+        )
+        after_data = (
+            "\n".join(
+                [
+                    "sid-a\tthermal_zone5\tcpu\t/source/cpu",
+                    "sid-c\tthermal_zone3\tddr\t/source/ddr",
+                ]
+            )
+            + "\n"
+        )
 
         with tempfile.TemporaryDirectory() as tmpdir:
             before = Path(tmpdir).joinpath("before.tsv")

@@ -33,10 +33,13 @@ command:
 
 unit: template
 template-resource: thermal_zones
-id: ce-oem-thermal/temperature_{stable_id}_{type}
-_summary: Check Thermal temperature of {type} - {stable_id}
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-thermal/temperature-test
+id: ce-oem-thermal/temperature_{{ stable_id }}_{{ type }}
+_summary: Check Thermal temperature of {{ type }} - {{ stable_id }}
 _description:
-    Test a thermal temperature for {type} ({stable_id}).
+    Test a thermal temperature for {{ type }} ({{ stable_id }}).
 category_id: thermal
 plugin: shell
 user: root
@@ -45,4 +48,4 @@ environ:
     TZ_IGNORE_TEMP_CHECK
 flags: also-after-suspend
 command:
-    thermal_sensor_test.py monitor --stable-id {stable_id} --zone-type "{type}"
+    thermal_sensor_test.py monitor --stable-id {{ stable_id }} --zone-type "{{ type }}"

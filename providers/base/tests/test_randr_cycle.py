@@ -206,15 +206,58 @@ class TestActionFunction(unittest.TestCase):
         mock_sleep.assert_called_once_with(5)
 
 
+class TestIsSuspendSupport(unittest.TestCase):
+    @patch("randr_cycle.get_manifest")
+    def test_suspend_supported_when_manifest_has_key_true(
+        self, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": True
+        }
+        mt = MonitorTest()
+        self.assertTrue(mt.is_suspend_support())
+
+    @patch("randr_cycle.get_manifest")
+    def test_suspend_not_supported_when_manifest_has_key_false(
+        self, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": False
+        }
+        mt = MonitorTest()
+        self.assertFalse(mt.is_suspend_support())
+
+    @patch("randr_cycle.get_manifest")
+    def test_suspend_not_supported_when_manifest_missing_key(
+        self, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {}
+        mt = MonitorTest()
+        self.assertFalse(mt.is_suspend_support())
+
+    @patch("randr_cycle.get_manifest")
+    def test_suspend_not_supported_when_manifest_has_other_keys(
+        self, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {"other_key": True}
+        mt = MonitorTest()
+        self.assertFalse(mt.is_suspend_support())
+
+
 class GenScreenshotPath(unittest.TestCase):
     """
     This function should generate dictionary such as
     [screenshot_dir]_[keyword]
     """
 
+    @patch("randr_cycle.get_manifest")
     @patch("os.makedirs")
-    def test_before_suspend_without_keyword(self, mock_mkdir):
-
+    def test_before_suspend_without_keyword(
+        self, mock_mkdir, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": True
+        }
         mt = MonitorTest()
         with patch("builtins.open", mock_open(read_data="0")) as mock_file:
             self.assertEqual(
@@ -223,9 +266,14 @@ class GenScreenshotPath(unittest.TestCase):
         mock_file.assert_called_with("/sys/power/suspend_stats/success", "r")
         mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
 
+    @patch("randr_cycle.get_manifest")
     @patch("os.makedirs")
-    def test_after_suspend_without_keyword(self, mock_mkdir):
-
+    def test_after_suspend_without_keyword(
+        self, mock_mkdir, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": True
+        }
         mt = MonitorTest()
         with patch("builtins.open", mock_open(read_data="1")) as mock_file:
             self.assertEqual(
@@ -237,9 +285,10 @@ class GenScreenshotPath(unittest.TestCase):
             "test/xrandr_screens_after_suspend", exist_ok=True
         )
 
+    @patch("randr_cycle.get_manifest")
     @patch("os.makedirs")
-    def test_with_keyword(self, mock_mkdir):
-
+    def test_with_keyword(self, mock_mkdir, mock_get_manifest):
+        mock_get_manifest.return_value = {}
         mt = MonitorTest()
         self.assertEqual(
             mt.gen_screenshot_path("", "key", "test"),
@@ -254,6 +303,23 @@ class GenScreenshotPath(unittest.TestCase):
         mock_mkdir.assert_called_with(
             "test/1_xrandr_screens_key", exist_ok=True
         )
+
+    @patch("randr_cycle.get_manifest")
+    @patch("os.makedirs")
+    def test_without_suspend_support_and_no_postfix(
+        self, mock_mkdir, mock_get_manifest
+    ):
+        """
+        When suspend is not supported and no postfix is provided,
+        suspend stats should not be checked
+        """
+        mock_get_manifest.return_value = {}
+        mt = MonitorTest()
+        # No open() call should be made since suspend is not supported
+        self.assertEqual(
+            mt.gen_screenshot_path("", "", "test"), "test/xrandr_screens"
+        )
+        mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
 
 
 class TestScreenshotTarring(unittest.TestCase):

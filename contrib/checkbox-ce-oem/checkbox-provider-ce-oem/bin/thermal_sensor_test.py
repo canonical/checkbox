@@ -175,7 +175,7 @@ def _reconcile_legacy_id_upgrades(
 ):
     """Best-effort mapping for stable_id algorithm upgrades.
 
-    This is intended for snapshots produced before/after stable_id strategy 
+    This is intended for snapshots produced before/after stable_id strategy
     changes where the thermal zone identity did not actually change.
     """
     after_by_name_type = {}
@@ -281,7 +281,8 @@ def monitor_temperature_change(target_name, thermal_op, duration, cmd):
 
     if result is False:
         logging.error(
-            "# The temperature of the %s (%s) thermal remains consistently at %s",
+            "# The temperature of the %s (%s) thermal remains "
+            "consistently at %s",
             target_name,
             thermal_op.type,
             initial_value,

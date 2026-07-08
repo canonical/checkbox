@@ -61,13 +61,23 @@ class ThermalMonitorTest(unittest.TestCase):
                 name="fake-thermal", duration=30, extra_commands="stress-ng"
             )
         )
-        mock_text.side_effect = ["30000", "30000", "31000"]
+        mock_text.side_effect = [
+            "acpitz",
+            "acpitz",
+            "enabled",
+            "30000",
+            "31000",
+            "acpitz",
+        ]
         mock_check_temp.return_value = True
 
         with self.assertLogs() as lc:
             thermal_sensor_test.thermal_monitor_test(mock_args())
             self.assertIn(
-                "# The temperature of fake-thermal thermal has been altered",
+                (
+                    "# The temperature of fake-thermal "
+                    "(acpitz) thermal has been altered"
+                ),
                 lc.output[-1],
             )
 
@@ -83,11 +93,50 @@ class ThermalMonitorTest(unittest.TestCase):
                 name="fake-thermal", duration=2, extra_commands="stress-ng"
             )
         )
-        mock_text.return_value = "30000"
+        mock_text.side_effect = [
+            "acpitz",
+            "acpitz",
+            "enabled",
+            "30000",
+            "30000",
+            "30000",
+            "acpitz",
+        ]
         mock_check_temp.return_value = False
 
         with self.assertRaises(SystemExit):
             thermal_sensor_test.thermal_monitor_test(mock_args())
+
+    @mock.patch("pathlib.Path.read_text")
+    @mock.patch("pathlib.Path.exists")
+    def test_thermal_monitor_ignore_temp_check_reads_once(
+        self, mock_exists, mock_text
+    ):
+        mock_args = mock.Mock(
+            return_value=argparse.Namespace(
+                name="fake-thermal",
+                duration=30,
+                extra_commands="stress-ng",
+                stable_id=None,
+                zone_type=None,
+            )
+        )
+        mock_exists.return_value = True
+        mock_text.side_effect = [
+            "acpitz",
+            "acpitz",
+            "enabled",
+            "30000",
+            "acpitz",
+            "acpitz",
+        ]
+
+        with mock.patch.dict(
+            "os.environ", {"TZ_IGNORE_TEMP_CHECK": "acpitz"}, clear=False
+        ):
+            thermal_sensor_test.thermal_monitor_test(mock_args())
+
+        self.assertEqual(mock_text.call_count, 6)
 
     @mock.patch("thermal_sensor_test.ThermalMonitor")
     @mock.patch("pathlib.Path.glob")
@@ -200,11 +249,17 @@ class ThermalMonitorTest(unittest.TestCase):
                 output = stdout.getvalue()
 
         self.assertIn(
-            "summary: before=2 after=2 missing=1 new=1 stable_id_upgraded=0 identity_changed=0 renumbered=1",
+            (
+                "summary: before=2 after=2 missing=1 new=1 "
+                "stable_id_upgraded=0 identity_changed=0 renumbered=1"
+            ),
             output,
         )
         self.assertIn(
-            "renumbered: type=cpu stable_id=sid-a thermal_zone1 -> thermal_zone5",
+            (
+                "renumbered: type=cpu stable_id=sid-a "
+                "thermal_zone1 -> thermal_zone5"
+            ),
             output,
         )
         self.assertIn(

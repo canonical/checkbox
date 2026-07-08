@@ -1,0 +1,185 @@
+unit: job
+category_id: iiotg-tgpio
+id: iiotg-tgpio/ptp-virtual-device-node-detect
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+_summary: Check if there's at least one virtual ptp device node
+_description:
+    This test is to check if there's at least one virtual ptp device node
+user: root
+command:
+    udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+' 
+
+unit: job
+category_id: iiotg-tgpio
+id: iiotg-tgpio/intc-driver-loaded
+plugin: shell
+_summary: Verify if all the Intel Controller(INTC) for TGPIO is loaded
+_description:
+    This test is to enumerate the loaded TGPIO driver. It's hardcoded, so it should
+    always be INTC1021, INTC1022, INTC1023, INTC1024.
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+user: root
+depends: iiotg-tgpio/ptp-virtual-device-node-detect
+command:
+    expected_modules='INTC1021 INTC1022 INTC1023 INTC1024'
+    EXIT=0
+    output=$(modinfo ptp-intel-pmc-tgpio | grep alias)
+    for m in ${expected_modules}
+    do
+        echo "Checking module: ${m}"
+        if echo "${output}" | grep -q "${m}"; then
+            echo "PASS: ${m} is loaded."
+        else
+            echo "FAIL: ${m} is not loaded."
+            EXIT=1
+        fi
+    done
+    exit $EXIT
+
+unit: template
+template-resource: iiotg-tgpio/ptp-device-node-info
+template-unit: job
+category_id: iiotg-tgpio
+id: iiotg-tgpio/ptp-time-check-loopback-{ptp_device_node}
+plugin: shell
+_summary:  Check PTP device node function on {ptp_device_node}
+_description:
+    This test is to check if the ptp device can send and receive time stamp on {ptp_device_node}.
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+    manifest.iiotg_tgpio_loopback_capability == 'True'
+user: root
+depends: iiotg-tgpio/ptp-virtual-device-node-detect
+command:
+    timestamp_count=10
+    echo "Sending timestamps from pin 0 to pin 1..."
+    testptp -d {ptp_device_node} -i 0 -L 0,2 -p 1000000000
+    testptp -d {ptp_device_node} -i 1 -L 1,1 -e 100 -o "$timestamp_count" -E | tee "$PLAINBOX_SESSION_SHARE"/ptp-time-check-pin0-to-pin1.stdout
+    iiotg_check_ptp_event_time_time.sh "$PLAINBOX_SESSION_SHARE"/ptp-time-check-pin0-to-pin1.stdout "$timestamp_count"
+    echo ""
+    echo "Sending timestamps from pin 1 to pin 0..."
+    testptp -d {ptp_device_node} -i 1 -L 1,2 -p 1000000000
+    testptp -d {ptp_device_node} -i 0 -L 0,1 -e 100 -o "$timestamp_count" -E | tee "$PLAINBOX_SESSION_SHARE"/ptp-time-check-pin1-to-pin0.stdout
+    iiotg_check_ptp_event_time_time.sh "$PLAINBOX_SESSION_SHARE"/ptp-time-check-pin1-to-pin0.stdout "$timestamp_count"
+
+unit: template
+template-resource: iiotg-tgpio/ptp-device-node-info
+template-unit: job
+category_id: iiotg-tgpio
+id: iiotg-tgpio/ptp-time-check-send-{ptp_device_node}
+plugin: user-interact-verify
+_summary:  Send timestamp on PTP device node {ptp_device_node}
+_description:
+    This test will send timestamps for 15 seconds. You need another machine to receive it.
+_purpose:
+    This test it to test if DUT can send timestamps via TGPIO.
+_steps:
+    1. Connect TGPIO pin on DUT to another TGPIO pin on another machine.
+    2. Press enter to start sending timestamps.
+    3. Run `checkbox-Iiotg-classic.checkbox-cli  run com.canonical.contrib::iiotg-tgpio/ptp-time-receive-host` and follow the steps on another DUT to receive timestamps.
+_verification:
+    Is the output of another machine pass?
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+    manifest.iiotg_tgpio_loopback_capability == 'False'
+user: root
+depends: iiotg-tgpio/ptp-virtual-device-node-detect
+command:
+    testptp -d {ptp_device_node} -i 0 -L 0,2 -p 1000000000
+    sleep 15
+flags: preserve-locale
+
+unit: template
+template-resource: iiotg-tgpio/ptp-device-node-info
+template-unit: job
+category_id: iiotg-tgpio
+id: iiotg-tgpio/ptp-time-check-receive-{ptp_device_node}
+plugin: user-interact
+_summary:  Receive timestamp on PTP device node {ptp_device_node}
+_description:
+    This test will receive timestamps from another machine via PTP device node {ptp_device_node}.
+    You need another machine to send the timestamps.
+_purpose:
+    This test it to test if DUT can receive timestamps via TGPIO.
+_steps:
+    1. Connect TGPIO pin on DUT to another TGPIO pin on another machine.
+    2. Run `checkbox-Iiotg-classic.checkbox-cli  run com.canonical.contrib::iiotg-tgpio/ptp-time-send-host` and follow the steps on another DUT to send timestamps.
+    3. Press enter to start receiving timestamps.
+_verification:
+    The verification of this test is automated.
+    Do not change the automatically selected result.
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+    manifest.iiotg_tgpio_loopback_capability == 'False'
+user: root
+depends: iiotg-tgpio/ptp-virtual-device-node-detect
+command:
+    timestamp_count=10
+    testptp -d {ptp_device_node} -i 0 -L 0,1 -e 100 -o "$timestamp_count" -E | tee "$PLAINBOX_SESSION_SHARE"/ptp-time-check-receive.stdout
+    iiotg_check_ptp_event_time_time.sh "$PLAINBOX_SESSION_SHARE"/ptp-time-check-receive.stdout "$timestamp_count"
+flags: preserve-locale
+
+unit: job
+id: iiotg-tgpio/ptp-time-send-host
+plugin: user-interact-verify
+_summary:  Send timestamp on PTP device node
+_description:
+    This job is to help testing another DUT running the job `iiotg-tgpio/ptp-time-receive-.*`, so this job should not be run alone.
+    This job will send timestamps for 20 seconds. You will need another machine to receive it.
+_purpose:
+    This job is to help testing iiotg-tgpio/ptp-time-check-send-.* on another machine.
+_steps:
+    1. Connect this DUT another machine via TGPIO pins.
+    2. Press enter on this DUT to start sending timestamps.
+    3. Press enter on the other DUT to start receiving timestamps.
+_verification:
+    There's no test here. You can mark it pass after you finishing your test(iiotg-tgpio/ptp-time-receive-.*) on the other machine.
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+user: root
+command:
+    ptp_device_node=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')
+    testptp -d "$ptp_device_node" -i 0 -L 0,2 -p 1000000000
+    sleep 20
+flags: preserve-locale
+
+unit: job
+category_id: iiotg-tgpio
+id: iiotg-tgpio/ptp-time-receive-host
+plugin: user-interact
+_summary:  Receive timestamp on PTP device node
+_description:
+    This job is to help testing another DUT running the job `iiotg-tgpio/ptp-time-send-.*`, so this job should not be run alone.
+    This job will receive timestamps from another machine via PTP device node. You will need another machine to send the timestamps.
+_purpose:
+    This job is to help testing iiotg-tgpio/ptp-time-check-send-.* on another machine.
+_steps:
+    1. Connect this DUT another machine via TGPIO pins.
+    2. Press enter on the other DUT to send timestamps.
+    3. Press enter on this machine to start receiving timestamps.
+_verification:
+    There's no test here. You can mark it pass after you finishing your test(iiotg-tgpio/ptp-time-check-send-.*) on the other machine.
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+user: root
+command:
+    timestamp_count=10
+    ptp_device_node=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')
+    testptp -d "$ptp_device_node" -i 0 -L 0,1 -e 100 -o "$timestamp_count" -E | tee "$PLAINBOX_SESSION_SHARE"/ptp-time-receive.stdout
+    iiotg_check_ptp_event_time_time.sh "$PLAINBOX_SESSION_SHARE"/ptp-time-receive.stdout "$timestamp_count"
+flags: preserve-locale

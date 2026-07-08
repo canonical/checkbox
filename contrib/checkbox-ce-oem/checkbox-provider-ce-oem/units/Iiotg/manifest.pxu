@@ -1,0 +1,4 @@
+unit: manifest entry
+id: is_Iiotg
+_name: Is this an Iiotg platform?
+value-type: bool

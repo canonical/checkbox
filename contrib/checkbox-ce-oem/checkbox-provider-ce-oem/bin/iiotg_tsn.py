@@ -4,7 +4,6 @@ import argparse
 import subprocess
 import shlex
 import time
-import netifaces
 import re
 import os
 from threading import Event
@@ -703,14 +702,28 @@ def iperf3_client(
 
 
 def get_interface_ip(interface):
-    try:
-        # Get the IP address associated with the specified interface
-        ip_address = netifaces.ifaddresses(interface)[netifaces.AF_INET][0][
-            "addr"
-        ]
-        return ip_address
-    except KeyError:
-        raise SystemExit("Cannot find ip address for {}".format(interface))
+    cmd = ["ip", "-4", "-o", "addr", "show", "dev", interface]
+    result = subprocess.run(
+        cmd,
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise SystemExit(
+            "Cannot find ip address for {}: {}".format(
+                interface, result.stderr.strip()
+            )
+        )
+
+    for line in result.stdout.splitlines():
+        tokens = line.split()
+        if "inet" in tokens:
+            ip_with_prefix = tokens[tokens.index("inet") + 1]
+            return ip_with_prefix.split("/")[0]
+
+    raise SystemExit("Cannot find ip address for {}".format(interface))
 
 
 def parse_string(string: str):

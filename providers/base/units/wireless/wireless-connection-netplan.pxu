@@ -1,3 +1,7 @@
+# Wi-Fi client jobs optionally read per-band shell credentials from
+# $PLAINBOX_SESSION_SHARE/wifi-<band>.env. The file should define the
+# same variable names used by the job command, for example WPA_BG_SSID
+# and WPA_BG_PSK. Missing files fall back to the environment.
 unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
@@ -13,6 +17,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_BE_SSID" -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_BE_SSID NET_DRIVER_INFO
@@ -38,6 +43,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_AX_SSID" -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_AX_SSID NET_DRIVER_INFO
@@ -63,6 +69,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-ac.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_AC_SSID" -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_AC_SSID NET_DRIVER_INFO
@@ -88,6 +95,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-bg.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_BG_SSID" -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_BG_SSID NET_DRIVER_INFO
@@ -112,6 +120,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-n.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_N_SSID" -d
 user: root
 environ: LD_LIBRARY_PATH OPEN_N_SSID NET_DRIVER_INFO
@@ -136,6 +145,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_BE_SSID" -k "$WPA_BE_PSK" -d
 user: root
 environ: LD_LIBRARY_PATH WPA_BE_SSID WPA_BE_PSK NET_DRIVER_INFO
@@ -161,6 +171,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_AX_SSID" -k "$WPA_AX_PSK" -d
 user: root
 environ: LD_LIBRARY_PATH WPA_AX_SSID WPA_AX_PSK NET_DRIVER_INFO
@@ -186,6 +197,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_BE_SSID" -k "$WPA3_BE_PSK" -d --wpa3
 user: root
 environ: LD_LIBRARY_PATH WPA3_BE_SSID WPA3_BE_PSK NET_DRIVER_INFO
@@ -211,6 +223,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_AX_SSID" -k "$WPA3_AX_PSK" -d --wpa3
 user: root
 environ: LD_LIBRARY_PATH WPA3_AX_SSID WPA3_AX_PSK NET_DRIVER_INFO
@@ -236,6 +249,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-ac.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_AC_SSID" -k "$WPA_AC_PSK" -d
 user: root
 environ: LD_LIBRARY_PATH WPA_AC_SSID WPA_AC_PSK NET_DRIVER_INFO
@@ -261,6 +275,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-bg.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_BG_SSID" -k "$WPA_BG_PSK" -d
 user: root
 environ: LD_LIBRARY_PATH WPA_BG_SSID WPA_BG_PSK NET_DRIVER_INFO
@@ -285,6 +300,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    source "$PLAINBOX_SESSION_SHARE/wifi-n.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_N_SSID" -k "$WPA_N_PSK" -d
 user: root
 environ: LD_LIBRARY_PATH WPA_N_SSID WPA_N_PSK NET_DRIVER_INFO

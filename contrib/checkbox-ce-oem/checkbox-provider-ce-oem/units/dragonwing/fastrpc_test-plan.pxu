@@ -6,19 +6,11 @@ include:
 nested_part:
     dragonwing-fastrpc-manual
     dragonwing-fastrpc-automated
-    after-suspend-dragonwing-fastrpc-manual
-    after-suspend-dragonwing-fastrpc-automated
 
 id: dragonwing-fastrpc-manual
 unit: test plan
 _name: Dragonwing manual fastrpc tests
 _description: Manual fastrpc tests for dragonwing
-include:
-
-id: after-suspend-dragonwing-fastrpc-manual
-unit: test plan
-_name: Dragonwing manual fastrpc tests after suspend
-_description: Manual fastrpc tests for dragonwing after suspend
 include:
 
 id: dragonwing-fastrpc-automated
@@ -29,12 +21,3 @@ include:
     dragonwing-fastrpc/adsp
     dragonwing-fastrpc/cdsp
     dragonwing-fastrpc/gdsp
-
-id: after-suspend-dragonwing-fastrpc-automated
-unit: test plan
-_name: Dragonwing automated fastrpc tests after suspend
-_description: Automated fastrpc tests for dragonwing after suspend
-include:
-    after-suspend-dragonwing-fastrpc/adsp
-    after-suspend-dragonwing-fastrpc/cdsp
-    after-suspend-dragonwing-fastrpc/gdsp

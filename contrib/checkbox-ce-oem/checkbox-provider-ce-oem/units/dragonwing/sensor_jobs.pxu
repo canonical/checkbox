@@ -22,49 +22,55 @@ command:
     dragonwing_sensor_test.py detect-sensors -p "$DRAGONWING_PLATFORM"
 
 unit: template
+template-engine: jinja2
 template-resource: dragonwing-sensor/sensor-list
+template-unit: job
 template-id: dragonwing-sensor/streaming-test
 _template-summary: Test sensor streaming at each supported rates
-_summary: Test {name} streaming at sample rate {sample_rate}
+_summary: Test {{ name }} streaming at sample rate {{ sample_rate }}
 category_id: dragonwing-sensor
 depends: dragonwing-sensor/detect
 imports: 
     from com.canonical.certification import executable
 requires:
     executable.name == 'ssc_drva_test'
-id: dragonwing-sensor/{name}-streaming-rate-{sample_rate}
+id: dragonwing-sensor/{{ name }}-streaming-rate-{{ sample_rate }}
 flags: also-after-suspend
 user: root
 plugin: shell
 _steps:
     1. Press enter to start streaming test
 _verification:
-    Is the test result passed and total sample (event counter) approximately equal to {sample_rate} * 10?
+    Is the test result passed and total sample (event counter) approximately equal to {{ sample_rate }} * 10?
 _description:
-    Test {name} streaming at sample rate {sample_rate}
+    Test {{ name }} streaming at sample rate {{ sample_rate }}
 command: 
-    dragonwing_sensor_test.py streaming -s {name} -d 10 -r {sample_rate}
+    # shellcheck disable=SC1083
+    dragonwing_sensor_test.py streaming -s "{{ name }}" -d 10 -r {{ sample_rate }}
 
 unit: template
+template-engine: jinja2
 template-resource: dragonwing-sensor/sensor-list
+template-unit: job
 template-id: dragonwing-sensor/streaming-workhorse-test
 _template-summary: Test sensor streaming workhorse at each supported rates
-_summary: Test {name} streaming workhorse at sample rate {sample_rate}
+_summary: Test {{ name }} streaming workhorse at sample rate {{ sample_rate }}
 category_id: dragonwing-sensor
 depends: dragonwing-sensor/detect
 imports: 
     from com.canonical.certification import executable
 requires:
     executable.name == 'see_workhorse'
-id: dragonwing-sensor/{name}-streaming-workhorse-rate-{sample_rate}
+id: dragonwing-sensor/{{ name }}-streaming-workhorse-rate-{{ sample_rate }}
 flags: also-after-suspend
 user: root
 plugin: shell
 _steps:
     1. Press enter to start streaming test
 _verification:
-    Is the test result passed and total sample (event counter) approximately equal to {sample_rate} * 10?
+    Is the test result passed and total sample (event counter) approximately equal to {{ sample_rate }} * 10?
 _description:
-    Test {name} streaming workhorse at sample rate {sample_rate}
+    Test {{ name }} streaming workhorse at sample rate {{ sample_rate }}
 command: 
-    dragonwing_sensor_test.py streaming-workhorse -s {name} -d 10 -r {sample_rate}
+    # shellcheck disable=SC1083
+    dragonwing_sensor_test.py streaming-workhorse -s "{{ name }}" -d 10 -r {{ sample_rate }}

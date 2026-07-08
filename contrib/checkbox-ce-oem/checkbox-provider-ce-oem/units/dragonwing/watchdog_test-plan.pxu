@@ -7,12 +7,6 @@ nested_part:
     dragonwing-watchdog-manual
     dragonwing-watchdog-automated
 
-id: dragonwing-watchdog-manual
-unit: test plan
-_name: Dragonwing manual watchdog tests
-_description: Manual watchdog tests for dragonwing
-include:
-
 id: dragonwing-watchdog-automated
 unit: test plan
 _name: Dragonwing automated watchdog tests

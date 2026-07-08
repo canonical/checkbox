@@ -30,10 +30,12 @@ command:
     done
 
 unit: template
+template-engine: jinja2
 template-resource: dragonwing-camera/camera-list
+template-unit: job
 template-id: dragonwing-camera/preview
 _template-summary: Test camera preview
-_summary: Test {resolution} preview on {name}
+_summary: Test {{ resolution }} preview on {{ name }}
 category_id: dragonwing-camera
 imports:
     from com.canonical.certification import executable
@@ -42,7 +44,7 @@ requires:
     executable.name == 'gst-launch-1.0'
     manifest.is_dragonwing_series == 'True'
     manifest.has_vendor_specific_mipi_camera == 'True'
-id: dragonwing-camera/{name}-preview-{resolution}
+id: dragonwing-camera/{{ name }}-preview-{{ resolution }}
 plugin: user-interact-verify
 flags: also-after-suspend
 _verification:
@@ -54,15 +56,17 @@ command:
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/camera"
     # shellcheck disable=SC1083
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={camera} name=camsrc video_1::type=preview \
-    ! video/x-raw,format=NV12,width={width},height={height},framerate=30/1 \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={{ camera }} name=camsrc video_1::type=preview \
+    ! video/x-raw,format=NV12,width={{ width }},height={{ height }},framerate=30/1 \
     ! waylandsink fullscreen=true async=true sync=false
 
 unit: template
+template-engine: jinja2
 template-resource: dragonwing-camera/camera-list
+template-unit: job
 template-id: dragonwing-camera/yuv-automated
 _template-summary: Test camera output to .yuv
-_summary: Test {resolution} output to .yuv on {name}
+_summary: Test {{ resolution }} output to .yuv on {{ name }}
 category_id: dragonwing-camera
 imports:
     from com.canonical.certification import executable
@@ -71,7 +75,7 @@ requires:
     executable.name == 'gst-launch-1.0'
     manifest.is_dragonwing_series == 'True'
     manifest.has_vendor_specific_mipi_camera == 'True'
-id: dragonwing-camera/{name}-yuv-{resolution}-automated
+id: dragonwing-camera/{{ name }}-yuv-{{ resolution }}-automated
 plugin: shell
 flags: also-after-suspend
 environ: PLAINBOX_SESSION_SHARE
@@ -81,15 +85,17 @@ command:
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/camera"
     # shellcheck disable=SC1083
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={camera} name=camsrc \
-    ! video/x-raw,format=NV12_Q08C,width={width},height={height},framerate=30/1 \
-    ! multifilesink enable-last-sample=false location="$PLAINBOX_SESSION_SHARE/camera/{name}-yuv-{resolution}_%d.yuv" max-files=1
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={{ camera }} name=camsrc \
+    ! video/x-raw,format=NV12_Q08C,width={{ width }},height={{ height }},framerate=30/1 \
+    ! multifilesink enable-last-sample=false location="$PLAINBOX_SESSION_SHARE/camera/{{ name }}-yuv-{{ resolution }}_%d.yuv" max-files=1
 
 unit: template
+template-engine: jinja2
 template-resource: dragonwing-camera/camera-list
+template-unit: job
 template-id: dragonwing-camera/video-encode-automated
 _template-summary: Test camera video encode
-_summary: Test {resolution} video encode from source {name}
+_summary: Test {{ resolution }} video encode from source {{ name }}
 category_id: dragonwing-camera
 imports:
     from com.canonical.certification import executable
@@ -98,7 +104,7 @@ requires:
     executable.name == 'gst-launch-1.0'
     manifest.is_dragonwing_series == 'True'
     manifest.has_vendor_specific_mipi_camera == 'True'
-id: dragonwing-camera/{name}-video-encode-{resolution}-automated
+id: dragonwing-camera/{{ name }}-video-encode-{{ resolution }}-automated
 plugin: shell
 flags: also-after-suspend
 environ: PLAINBOX_SESSION_SHARE
@@ -108,10 +114,10 @@ command:
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/camera"
     # shellcheck disable=SC1083
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={camera} name=camsrc \
-    ! video/x-raw,format=NV12_Q08C,width={width},height={height},framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={{ camera }} name=camsrc \
+    ! video/x-raw,format=NV12_Q08C,width={{ width }},height={{ height }},framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
     ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
-    ! filesink location="$PLAINBOX_SESSION_SHARE/camera/{name}-video-encode-{resolution}.mp4"
+    ! filesink location="$PLAINBOX_SESSION_SHARE/camera/{{ name }}-video-encode-{{ resolution }}.mp4"
 
 plugin: manual
 flags: also-after-suspend
@@ -139,10 +145,12 @@ _verification:
     check the output video-encode.mp4, no abnormal symptoms are observed
 
 unit: template
+template-engine: jinja2
 template-resource: dragonwing-camera/camera-list
+template-unit: job
 template-id: dragonwing-camera/snapshot-automated
 _template-summary: Test camera output to jpeg
-_summary: Test {resolution} output to jpeg on {name}
+_summary: Test {{ resolution }} output to jpeg on {{ name }}
 category_id: dragonwing-camera
 imports:
     from com.canonical.certification import executable
@@ -153,7 +161,7 @@ requires:
     manifest.is_dragonwing_series == 'True'
     manifest.has_vendor_specific_mipi_camera == 'True'
     dragonwing_platform_info.Model not in ("RB8",)
-id: dragonwing-camera/{name}-snapshot-{resolution}-automated
+id: dragonwing-camera/{{ name }}-snapshot-{{ resolution }}-automated
 plugin: shell
 flags: also-after-suspend
 environ: PLAINBOX_SESSION_SHARE
@@ -163,9 +171,9 @@ command:
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/camera"
     # shellcheck disable=SC1083
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={camera} name=camsrc video_0::type=preview \
-    ! "image/jpeg,width={width},height={height},framerate=30/1" \
-    ! multifilesink location="$PLAINBOX_SESSION_SHARE/camera/{name}-snapshot-{resolution}_%d.jpg" max-files=1 async=false sync=true
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={{ camera }} name=camsrc video_0::type=preview \
+    ! "image/jpeg,width={{ width }},height={{ height }},framerate=30/1" \
+    ! multifilesink location="$PLAINBOX_SESSION_SHARE/camera/{{ name }}-snapshot-{{ resolution }}_%d.jpg" max-files=1 async=false sync=true
 
 plugin: manual
 category_id: dragonwing-camera

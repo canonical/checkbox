@@ -1232,28 +1232,9 @@ class SessionState:
             if recompute:
                 self._recompute_job_readiness()
 
-    def _add_job_siblings_unit(self, new_job, recompute, via):
-        if new_job.siblings:
-            siblings = new_job.siblings
-            for overrides in siblings:
-                data = {
-                    key: value
-                    for key, value in new_job._data.items()
-                    if not key.endswith("siblings")
-                }
-                data.update(overrides)
-                self._add_job_unit(
-                    JobDefinition(
-                        data,
-                        origin=new_job.origin,
-                        provider=new_job.provider,
-                        controller=new_job.controller,
-                        parameters=new_job.parameters,
-                        field_offset_map=new_job.field_offset_map,
-                    ),
-                    recompute,
-                    via,
-                )
+    def _get_flags_siblings(self, job):
+        siblings = []  # this is exactly what would live in the siblings field
+        # aka a list of overrides
         suspend_siblings = [
             (Suspend.AUTO_FLAG, Suspend.AUTO_JOB_ID, "after-suspend"),
             (
@@ -1263,51 +1244,58 @@ class SessionState:
             ),
         ]
         for suspend_flag, suspend_job_id, suspend_prefix in suspend_siblings:
-            if suspend_flag not in new_job.get_flag_set():
+            if suspend_flag not in job.get_flag_set():
                 continue
-            data = {
-                key: copy(value)
-                for key, value in new_job._data.items()
-                if not key.endswith("siblings")
-            }
-            if isinstance(data["flags"], str):
+            overrides = {}
+            if isinstance(job.flags, str):
                 # LEGACY: pxu compatibility, flags are now a list
-                data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
-                data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
+                overrides["flags"] = job.flags.replace(
+                    Suspend.AUTO_FLAG, ""
+                ).replace(Suspend.MANUAL_FLAG, "")
             else:
+                overrides["flags"] = job.flags.copy()
                 with suppress(ValueError):
-                    data["flags"].remove(Suspend.AUTO_FLAG)
+                    overrides["flags"].remove(Suspend.AUTO_FLAG)
                 with suppress(ValueError):
-                    data["flags"].remove(Suspend.MANUAL_FLAG)
+                    overrides["flags"].remove(Suspend.MANUAL_FLAG)
 
-            data["id"] = "{}-{}".format(suspend_prefix, new_job.partial_id)
-            data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
+            overrides["id"] = "{}-{}".format(suspend_prefix, job.partial_id)
+            overrides["_summary"] = "{} after suspend (S3)".format(job.summary)
 
-            if isinstance(new_job.depends, list) or not new_job.depends:
-                data["depends"] = (new_job.depends or []) + [
-                    new_job.id,
+            if isinstance(job.depends, list) or not job.depends:
+                overrides["depends"] = (job.depends or []) + [
+                    job.id,
                     suspend_job_id,
                 ]
-            elif new_job.depends:
+            elif job.depends:
                 # LEGACY: pxu compatibility, depends is now a list
-                data["depends"] += " {}".format(new_job.id)
-                data["depends"] += " {}".format(suspend_job_id)
+                overrides["depends"] = "{} {} {}".format(
+                    job.depends, job.id, suspend_job_id
+                )
 
-            if isinstance(new_job.after, list) or not new_job.after:
-                data["after"] = (new_job.after or []) + [new_job.id]
-            elif new_job.after:
-                # LEGACY: pxu compatibility, after is now a list
-                data["after"] += " {}".format(new_job.id)
-            if new_job.group:
-                data["group"] = "{}-{}".format(suspend_prefix, new_job.group)
+            if job.group:
+                overrides["group"] = "{}-{}".format(suspend_prefix, job.group)
+            siblings.append(overrides)
+        return siblings
+
+    def _add_job_siblings_unit(self, job, recompute, via):
+        siblings = job.siblings or []
+        siblings += self._get_flags_siblings(job)
+        for overrides in siblings:
+            data = {
+                key: value
+                for key, value in job._data.items()
+                if not key.endswith("siblings")
+            }
+            data.update(overrides)
             self._add_job_unit(
                 JobDefinition(
                     data,
-                    origin=new_job.origin,
-                    provider=new_job.provider,
-                    controller=new_job.controller,
-                    parameters=new_job.parameters,
-                    field_offset_map=new_job.field_offset_map,
+                    origin=job.origin,
+                    provider=job.provider,
+                    controller=job.controller,
+                    parameters=job.parameters,
+                    field_offset_map=job.field_offset_map,
                 ),
                 recompute,
                 via,

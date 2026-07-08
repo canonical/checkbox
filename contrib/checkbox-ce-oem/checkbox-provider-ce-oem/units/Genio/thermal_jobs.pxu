@@ -1,0 +1,57 @@
+id: genio-thermal/simulate-overheating
+_summary: Test that thermal protection shuts the system down when overheated
+_description: Simulate overheating to shut the system down automatically. The system will power on automatically after waiting 1 minute.
+category_id: genio-thermal
+flags: preserve-locale noreturn autorestart also-after-suspend
+user: root
+plugin: shell
+estimated_duration: 60
+environ: PLAINBOX_SESSION_SHARE
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+command:
+    path_of_current_date_time="$PLAINBOX_SESSION_SHARE/current-date-time"
+    path_of_thermal_is_malfunction="$PLAINBOX_SESSION_SHARE/thermal-is-malfunction"
+    if [ -f "$path_of_current_date_time" ]; then
+        rm "$path_of_current_date_time"
+    fi
+    if [ -f "$path_of_thermal_is_malfunction" ]; then
+        rm "$path_of_thermal_is_malfunction"
+    fi
+    touch "$path_of_current_date_time"
+    date '+%F %H:%M:%S' > "$path_of_current_date_time"
+    rtcwake -v -m no -s 60
+    echo 999999 > /sys/class/thermal/thermal_zone0/emul_temp
+    sleep 10
+    touch "$path_of_thermal_is_malfunction"
+    reboot
+
+id: genio-thermal/post-simulate-overheating
+depends: genio-thermal/simulate-overheating
+category_id: genio-thermal
+_summary: Post simulate-overheating check
+_description: Check the thermal protection log after simulate-overheating
+user: root
+plugin: shell
+estimated_duration: 1.0
+flags: also-after-suspend
+environ: PLAINBOX_SESSION_SHARE
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Genio == 'True'
+command:
+    if [ -f "$PLAINBOX_SESSION_SHARE/thermal-is-malfunction" ]; then
+        echo "ERROR: found the $PLAINBOX_SESSION_SHARE/thermal-is-malfunction file exists"
+        echo "FAIL: thermal is malfunction, it cannot shut system down when overheating"
+        exit 1
+    fi
+    time_record_before_shutdown=$(cat "${PLAINBOX_SESSION_SHARE}/current-date-time")
+    temp_log=$( mktemp )
+    journalctl --since "$time_record_before_shutdown" -p emerg | tee "$temp_log"
+    golden_message="reboot: HARDWARE PROTECTION shutdown (Temperature too high)"
+    if ! grep -qw "$golden_message" "$temp_log" ; then
+        echo "FAIL: no '$golden_message' message be found in journal"
+        exit 1
+    fi
+    echo "PASS: found '$golden_message' in journal log"

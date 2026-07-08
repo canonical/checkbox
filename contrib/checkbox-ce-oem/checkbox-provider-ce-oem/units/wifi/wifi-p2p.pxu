@@ -61,7 +61,7 @@ _description:
 id: ce-oem-wireless/P2P_connection_as_negotiation_go
 user: root
 environ: P2P_INTERFACE P2P_PAIR_MAC
-_summary: establish Wi-Fi P2P connection as negotiation GO 
+_summary: establish Wi-Fi P2P connection as negotiation GO
 _steps:
   1. Prepare a peer device with p2p_supplicant.conf file
   """

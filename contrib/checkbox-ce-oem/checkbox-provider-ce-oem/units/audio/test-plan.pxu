@@ -21,10 +21,11 @@ include:
 
 id: ce-oem-audio-alsa-ucm
 unit: test plan
-_name: ALSA UCM tests
+_name: ALSA UCM semi-automatic tests
 _description:
-    Standalone ALSA UCM validation tests for sinks, sources, and configured
-    loopback pairs.
+    Standalone ALSA UCM semi-automatic validation tests for sinks, sources, and
+    configured loopback pairs. These tests run helper commands but require human
+    confirmation of playback or recorded audio quality.
 bootstrap_include:
     ce-oem-audio/alsa-ucm-sinks-list
     ce-oem-audio/alsa-ucm-sources-list

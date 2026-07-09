@@ -25,6 +25,19 @@ command:
     fwts -q -r "$fwts_log_path" {{ case }}
     cat "$fwts_log_path"
     echo -e "\n## Checking FWTS log failures..."
+    sleep_test_checker_path=""
+    for base_bin in /snap/checkbox*/current/providers/checkbox-provider-base/bin; do
+        if [[ -x "$base_bin/sleep_test_log_check.py" ]]; then
+            sleep_test_checker_path="$base_bin"
+            break
+        fi
+    done
+    if [[ -n "$sleep_test_checker_path" ]]; then
+        export PATH="$PATH:$sleep_test_checker_path"
+    else
+        echo "Cannot find sleep_test_log_check.py under checkbox snap base provider path"
+        exit 1
+    fi
     if [[ -f "$fwts_log_path" ]]; then
         sleep_test_log_check.py -v --ignore-warning -t all "$fwts_log_path"
         RET=$?

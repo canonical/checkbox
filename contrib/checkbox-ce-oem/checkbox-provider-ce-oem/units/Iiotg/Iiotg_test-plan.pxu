@@ -15,7 +15,6 @@ _description:
     Manual Iiotg project-specific tests for Ubuntu Server images.
 include:
 nested_part:
-    iiotg-watchdog-manual
     iiotg-tsn-manual
     iiotg-tgpio-manual
     iiotg-thermal-manual
@@ -29,7 +28,6 @@ _description:
     Automated Iiotg project-specific tests for Ubuntu Server images.
 include:
 nested_part:
-    iiotg-watchdog-automated
     iiotg-tsn-automated
     iiotg-tgpio-automated
     iiotg-thermal-automated
@@ -55,7 +53,6 @@ _description:
     Manual Iiotg project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
-    iiotg-watchdog-manual
     iiotg-tsn-manual
     iiotg-tgpio-manual
     iiotg-thermal-manual
@@ -69,7 +66,6 @@ _description:
     Automated Iiotg project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
-    iiotg-watchdog-automated
     iiotg-tsn-automated
     iiotg-tgpio-automated
     iiotg-thermal-automated
@@ -95,7 +91,6 @@ _description:
     Manual Iiotg project-specific tests for Ubuntu Core images.
 include:
 nested_part:
-    iiotg-watchdog-manual
     iiotg-tsn-manual
     iiotg-tgpio-manual
     iiotg-thermal-manual
@@ -109,7 +104,6 @@ _description:
     Automated Iiotg project-specific tests for Ubuntu Core images.
 include:
 nested_part:
-    iiotg-watchdog-automated
     iiotg-tsn-automated
     iiotg-tgpio-automated
     iiotg-thermal-automated

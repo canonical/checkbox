@@ -15,7 +15,7 @@ apps:
   configure:
     command-chain: [bin/wrapper_local]
     command: bin/configure
-  agent:
+  remote-slave:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper slave
     daemon: simple
@@ -37,8 +37,15 @@ parts:
     plugin: dump
     source: checkbox-provider-oem
     source-type: local
+    override-build: |
+      export PYTHONPATH=/snap/checkbox26/current/lib/python3.14/site-packages/:/usr/lib/python3/dist-packages
+      for path in $(find "/snap/checkbox26/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-oem --root="$CRAFT_PART_INSTALL"
     build-snaps:
       - checkbox26
+    build-attributes:
+      - enable-patchelf
     build-packages:
       - intltool
       - gcc
@@ -56,26 +63,19 @@ parts:
       - iputils-ping
       - i2c-tools
       - jq
-      - libopenscap25t64
+      # - libopenscap25t64
       - lsb-release
       - modemmanager
-      - msr-tools
+      # - msr-tools
       - openscap-scanner
       - pciutils
       - python3
       - python3-apt
       - python3-pip
-      - smbios-utils
+      # - smbios-utils
       - ubuntu-report
       - xautomation
       - wget
-    override-build: |
-      export PYTHONPATH=/snap/checkbox26/current/lib/python3.14/site-packages/
-      for path in $(find "/snap/checkbox26/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
-      python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-oem --root="$CRAFT_PART_INSTALL"
-    build-attributes:
-      - enable-patchelf
   launchers:
     plugin: dump
     source: launchers/

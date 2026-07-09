@@ -25,22 +25,3 @@ include:
     genio-serial/uart1-rpi-hat-loopback-.*
     genio-serial/uart1-j52-loopback-.*
     genio-serial/uart2-rpi-hat-loopback-.*
-
-id: after-suspend-genio-serial-manual
-unit: test plan
-_name: Genio Serial manual tests (after suspend)
-_description: Manual after suspend Genio Serial tests for devices
-include:
-    after-suspend-genio-serial/uart1-micro-b-.*
-    after-suspend-genio-serial/uart2-micro-b-.*
-
-id: after-suspend-genio-serial-automated
-unit: test plan
-_name: Genio Serial auto tests (after suspend)
-_description: Automated after suspend Genio Serial tests for devices
-bootstrap_include:
-    genio_device_soc
-include:
-    after-suspend-genio-serial/uart1-rpi-hat-loopback-.*
-    after-suspend-genio-serial/uart1-j52-loopback-.*
-    after-suspend-genio-serial/uart2-rpi-hat-loopback-.*

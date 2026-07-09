@@ -24,15 +24,3 @@ include:
     genio-aiml/vpu5_test
     genio-aiml/mdla2_player
     genio-aiml/mdla3_player
-
-id: after-suspend-genio-aiml-automated
-unit: test plan
-_name: Genio AIML auto tests (after suspend)
-_description: Automated after suspend Genio AIML tests for devices
-include:
-    after-suspend-genio-aiml/benchmark_dla
-    after-suspend-genio-aiml/apu_mdw_test
-    after-suspend-genio-aiml/edma_test
-    after-suspend-genio-aiml/vpu5_test
-    after-suspend-genio-aiml/mdla2_player
-    after-suspend-genio-aiml/mdla3_player

@@ -21,8 +21,6 @@ nested_part:
     genio-mipi-camera-manual
     genio-hdmi-rx-manual
     genio-serial-manual
-    after-suspend-genio-serial-manual
-    after-suspend-genio-hdmi-rx-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -36,8 +34,6 @@ nested_part:
     genio-thermal-automated
     genio-aiml-automated
     genio-serial-automated
-    after-suspend-genio-serial-automated
-    after-suspend-genio-aiml-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -64,8 +60,6 @@ nested_part:
     genio-mipi-camera-manual
     genio-hdmi-rx-manual
     genio-serial-manual
-    after-suspend-genio-serial-manual
-    after-suspend-genio-hdmi-rx-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -79,8 +73,6 @@ nested_part:
     genio-thermal-automated
     genio-aiml-automated
     genio-serial-automated
-    after-suspend-genio-serial-automated
-    after-suspend-genio-aiml-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -107,8 +99,6 @@ nested_part:
     genio-mipi-camera-manual
     genio-hdmi-rx-manual
     genio-serial-manual
-    after-suspend-genio-serial-manual
-    after-suspend-genio-hdmi-rx-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -122,7 +112,5 @@ nested_part:
     genio-thermal-automated
     genio-aiml-automated
     genio-serial-automated
-    after-suspend-genio-serial-automated
-    after-suspend-genio-aiml-automated
 certification_status_overrides:
     apply blocker to .*

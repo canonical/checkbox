@@ -6,8 +6,6 @@ include:
 nested_part:
     genio-thermal-manual
     genio-thermal-automated
-    after-suspend-genio-thermal-manual
-    after-suspend-genio-thermal-automated
 
 id: genio-thermal-manual
 unit: test plan

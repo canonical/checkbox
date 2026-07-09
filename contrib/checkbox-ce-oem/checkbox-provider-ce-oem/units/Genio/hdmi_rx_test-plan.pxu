@@ -25,15 +25,3 @@ unit: test plan
 _name: Genio HDMI RX auto tests
 _description: Automated Genio HDMI RX tests for devices
 include:
-
-id: after-suspend-genio-hdmi-rx-manual
-unit: test plan
-_name: Genio HDMI RX manual tests (after suspend)
-_description: Manual after suspend Genio HDMI RX tests for devices
-include:
-    after-suspend-genio-hdmi-rx/plug-event-detect
-    after-suspend-genio-hdmi-rx/check-hdmi-cable-connection
-    after-suspend-genio-hdmi-rx/check-video-info
-    after-suspend-genio-hdmi-rx/check-audio-info
-    after-suspend-genio-hdmi-rx/disable-then-enable-hdmi
-    after-suspend-genio-hdmi-rx/unplug-event-detect

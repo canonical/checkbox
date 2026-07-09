@@ -309,18 +309,31 @@ class GenScreenshotPath(unittest.TestCase):
     def test_without_suspend_support_and_no_postfix(
         self, mock_mkdir, mock_get_manifest
     ):
-        """
-        When suspend is not supported and no postfix is provided,
-        suspend stats should not be checked
-        """
         mock_get_manifest.return_value = {}
         mt = MonitorTest()
-        # No open() call should be made since suspend is not supported
-        self.assertEqual(
-            mt.gen_screenshot_path("", "", "test"), "test/xrandr_screens"
-        )
+        with patch("builtins.open", mock_open()) as mock_file:
+            self.assertEqual(
+                mt.gen_screenshot_path("", "", "test"),
+                "test/xrandr_screens",
+            )
+        mock_file.assert_not_called()
         mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
 
+    @patch("randr_cycle.get_manifest")
+    @patch("os.makedirs")
+    def test_suspend_supported_but_suspend_stats_missing(
+        self, mock_mkdir, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": True
+        }
+        mt = MonitorTest()
+        with patch("builtins.open", side_effect=FileNotFoundError):
+            self.assertEqual(
+                mt.gen_screenshot_path("", "", "test"),
+                "test/xrandr_screens",
+            )
+        mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
 
 class TestScreenshotTarring(unittest.TestCase):
     @patch("os.listdir")

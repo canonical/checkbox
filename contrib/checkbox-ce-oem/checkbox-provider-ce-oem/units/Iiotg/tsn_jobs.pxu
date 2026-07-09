@@ -174,8 +174,9 @@ requires:
     manifest.has_iiotg_tsn == 'True'
 command:
     echo "## Setting frame preemption on..."
-    ret=$(ethtool-rt.ethtool --set-frame-preemption {interface} fp on)
-    if [[ "$ret" != "0" ]]; then
+    ethtool-rt.ethtool --set-frame-preemption {interface} fp on
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
         echo "[FAIL] Cannot set frame preemption via the command below"
         echo "ethtool-rt.ethtool --set-frame-preemption {interface} fp on"
         echo ""

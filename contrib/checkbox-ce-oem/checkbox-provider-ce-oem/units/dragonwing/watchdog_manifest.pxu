@@ -1,5 +1,5 @@
 unit: manifest entry
 id: has_dragonwing_gunyah_hypervisor_watchdog
 _name: has Gunyah hypervisor watchdog
-_prompt: Does it support gh-watchdog
+_prompt: Dragonwing specific?
 value-type: bool

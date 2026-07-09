@@ -1279,12 +1279,24 @@ class SessionState:
         return siblings
 
     def _get_job_data_directly_required_suspend(self, job_data):
+        """
+        Get which suspend ids the current job data follows
+
+        :param job_data:
+            job data to inspect
+        :returns:
+            set of suspend job ids that the job data either depends on or comes
+            after
+        """
         to_r = set()
 
         def pxu_compatible_in(con):
             if isinstance(con, list):
+                # yaml path, in works fine here as it "full matches"
                 return con
-            # this is not perfect but it is good enough for what we need here
+            # string in doesn't work well for string because the manual id is
+            # contained in the auto id.
+            # This is not perfect but it is good enough for what we need.
             return con.split()
 
         for suspend_id in [Suspend.AUTO_JOB_ID, Suspend.MANUAL_JOB_ID]:

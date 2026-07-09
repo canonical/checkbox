@@ -98,9 +98,7 @@ def check_pattern(output: str, pattern: str) -> bool:
     return any(regex.search(line) for line in output.split("\n"))
 
 
-def check_positive(
-    output: str, positive_pattern: str = r"all pass"
-) -> bool:
+def check_positive(output: str, positive_pattern: str = r"all pass") -> bool:
     """
     Checks if any line in the given output string matches the positive pattern.
 
@@ -169,9 +167,7 @@ def do_benchmark_dla(args) -> bool:
     res = compare_inference_times_of_benchmark_dla(data=output)
 
     if not res:
-        print(
-            "Error: not all mdla's average inference time less than vpu_fpu"
-        )
+        print("Error: not all mdla's average inference time less than vpu_fpu")
     return res
 
 

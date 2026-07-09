@@ -48,11 +48,7 @@ class HdmiRxToolRunner:
         self._tool_name = tool_name
         self._expected_pattern = "(?i)hdmirx tool version"
 
-    def _run_expect(
-        self,
-        action: str = "h",
-        timeout: int = 3
-    ):
+    def _run_expect(self, action: str = "h", timeout: int = 3):
         """Execute the specific action which are supported by HDMI RX tool"""
         command_output = pexpect.run(
             self._tool_name,

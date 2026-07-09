@@ -18,17 +18,10 @@
 
 import argparse
 import logging
-import os
 import sys
-import time
 
 from contextlib import contextmanager
 from genio_hdmirx_runner import HdmiRxToolRunner
-# zapper has been remove from checkbox support
-# Therefore, import it from checkbux support will have problem.
-# This is the workaround to handle this issue, I still keep the logic of
-# handling zapper in this script
-# from checkbox_support.scripts.zapper_proxy import zapper_run
 
 logging.basicConfig(level=logging.INFO)
 
@@ -105,30 +98,14 @@ def verify_check_cable_output(expected_str: str):
     logging.info("Verify PASS")
 
 
-def verify_events(action_type: str, has_zapper: bool):
+def verify_events(action_type: str):
     if action_type not in ["plug", "unplug"]:
         raise ValueError("Action type must be either 'plug' or 'unplug'")
 
     logging.info("Check the evetns for '{}' action...".format(action_type))
     outout = ""
     expected_events = []
-    if has_zapper:
-        zapper_host = os.environ.get("ZAPPER_HOST")
-        if not zapper_host:
-            raise SystemExit("ZAPPER_HOST environment variable not found!")
-        with zapper_video_hotplugger_ctx(zapper_host, action_type):
-            logging.debug("Before thread safe observin...")
-            outout = HdmiRxToolRunner().thread_safe_start_observing(
-                timeout=30,
-                func=simulate_plug_unplug_behavior,
-                fn_kwargs={
-                    "zapper_host": zapper_host,
-                    "action_type": action_type,
-                },
-            )
-            logging.debug("After thread safe observin...")
-    else:
-        outout = HdmiRxToolRunner().start_observing()
+    outout = HdmiRxToolRunner().start_observing()
 
     logging.info(outout)
 
@@ -146,18 +123,6 @@ def verify_events(action_type: str, has_zapper: bool):
             "HDMI_RX_PWR_5V_CHANGE",
             "HDMI_RX_PLUG_OUT",
         }
-
-    if has_zapper:
-        # Ignore the following evevts because they can be detect as the
-        # physical HDMI cable be plugged or unplugged. Since we are using
-        # zapper, the HDMI cable is always be connected with DUT, we cannot get
-        # some events listed below.
-        discard_events = {
-            "HDMI_RX_PWR_5V_CHANGE",
-            "HDMI_RX_PLUG_IN",
-            "HDMI_RX_PLUG_OUT",
-        }
-        expected_events -= discard_events
 
     success = True
     for event in expected_events:
@@ -252,50 +217,6 @@ def verify_get_audio_info_output(
         raise SystemExit("Verify Failed")
 
 
-@contextmanager
-def zapper_video_hotplugger_ctx(
-    zapper_host: str = "", action_type: str = "plug"
-):
-    try:
-        logging.info("Setup......")
-        if action_type == "plug":
-            # We want to test the plug action of HDMI RX port,
-            # so we have to make sure the HDMI Video Hotplugger is OFF previous
-            simulate_plug_unplug_behavior(zapper_host, "unplug")
-        elif action_type == "unplug":
-            # We want to test the unplug action of HDMI RX port,
-            # so we have to make sure the HDMI Video Hotplugger is ON previous
-            simulate_plug_unplug_behavior(zapper_host, "plug")
-        yield
-    finally:
-        logging.info("Tear Down......")
-        if action_type == "unplug":
-            # Always keep the zapper's video hotplugger HDMI port as ON
-            simulate_plug_unplug_behavior(zapper_host, "plug")
-
-
-def zapper_video_hotplugger_control(
-    zapper_host: str = "", port: str = "HDMI", state: str = "ON"
-):
-    zapper_run(
-        zapper_host, "video_hotplugger_set_state", "default", port, state
-    )
-    # Delay for a while let zapper does change properly
-    # and let the Host (PC, Laptop) does detect properly
-    time.sleep(5)
-
-
-def simulate_plug_unplug_behavior(
-    zapper_host: str = "", action_type: str = "plug"
-):
-    if action_type == "plug":
-        logging.info("Zapper simulates the plug HDMI action")
-        zapper_video_hotplugger_control(zapper_host=zapper_host, state="ON")
-    elif action_type == "unplug":
-        logging.info("zapper simulates the unplug HDMI action")
-        zapper_video_hotplugger_control(zapper_host=zapper_host, state="OFF")
-
-
 def arg_parser():
     parser = argparse.ArgumentParser(
         description="Veirfy the output of hdmirx tool"
@@ -329,13 +250,6 @@ def arg_parser():
         "action_type",
         choices=["plug", "unplug"],
         help="The type of action we are interested in",
-    )
-
-    parser_verify_events.add_argument(
-        "-wz",
-        "--with_zapper",
-        action="store_true",
-        help="Simulate the plug and unplug actions with Zapper",
     )
 
     # Subparser for verify_get_video_info_output
@@ -398,7 +312,7 @@ def main():
     elif args.action == "verify_check_cable_output":
         verify_check_cable_output(args.expected_str)
     elif args.action == "verify_events":
-        verify_events(args.action_type, args.with_zapper)
+        verify_events(args.action_type)
     elif args.action == "verify_get_video_info_output":
         verify_get_video_info_output(
             args.resolution_horizontal,

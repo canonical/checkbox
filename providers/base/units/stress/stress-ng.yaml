@@ -132,3 +132,77 @@ command: |
     echo "Config doesn't exist."
     echo "Won't restore anything."
   fi
+---
+# An enabled systemd runtime (hardware) watchdog can reset the DUT while
+# stress-ng stressors starve the system, aborting the whole run. Disable it
+# for the duration of the stress-ng tests and restore it afterwards.
+# See https://warthogs.atlassian.net/browse/PERI-991 (original issue) and
+# https://warthogs.atlassian.net/browse/OEMQA-6781 (generic migration).
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/store_and_disable_watchdog
+estimated_duration: '3.0'
+user: root
+summary: Store the systemd runtime watchdog state and disable it
+purpose: |
+  Records the current RuntimeWatchdog setting and, only if the watchdog is
+  enabled, disables it with a systemd drop-in so stress-ng cannot trigger a
+  watchdog reset. If the watchdog is already disabled, nothing is changed.
+command: |
+  original=$(systemctl show -p RuntimeWatchdogUSec --value)
+  echo "Original RuntimeWatchdogUSec: ${original:-<unset>}"
+  echo "$original" > "$PLAINBOX_SESSION_SHARE"/stress-ng-watchdog-original-usec
+  if [ -z "$original" ] || [ "$original" = "0" ]; then
+    echo "Runtime watchdog is already disabled. Keeping it disabled."
+    exit 0
+  fi
+  echo "Disabling runtime watchdog via systemd drop-in..."
+  mkdir -p /etc/systemd/system.conf.d
+  printf '[Manager]\nRuntimeWatchdogSec=0\n' \
+    > /etc/systemd/system.conf.d/99-checkbox-stress-ng-watchdog.conf
+  systemctl daemon-reexec
+  sleep 1
+  current=$(systemctl show -p RuntimeWatchdogUSec --value)
+  if [ "$current" != "0" ]; then
+    echo "RuntimeWatchdogUSec is '$current', expected '0'"
+    exit 1
+  fi
+  echo "Runtime watchdog disabled (original setting: $original)"
+---
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/restore_watchdog
+depends:
+  - stress/store_and_disable_watchdog
+estimated_duration: '3.0'
+user: root
+summary: Restore the systemd runtime watchdog to its original state
+purpose: |
+  Removes the drop-in created by stress/store_and_disable_watchdog so the
+  runtime watchdog returns to its original configuration. If the watchdog
+  was already disabled before the run, nothing was changed and nothing is
+  restored.
+command: |
+  state_file="$PLAINBOX_SESSION_SHARE"/stress-ng-watchdog-original-usec
+  dropin=/etc/systemd/system.conf.d/99-checkbox-stress-ng-watchdog.conf
+  if [ ! -f "$state_file" ]; then
+    echo "No stored watchdog state found; store job did not record state."
+    exit 1
+  fi
+  original=$(cat "$state_file")
+  echo "Original RuntimeWatchdogUSec: ${original:-<unset>}"
+  if [ ! -e "$dropin" ]; then
+    echo "Watchdog was already disabled before the run. Nothing to restore."
+    exit 0
+  fi
+  echo "Removing drop-in and restoring original watchdog configuration..."
+  rm -f "$dropin"
+  systemctl daemon-reexec
+  sleep 1
+  current=$(systemctl show -p RuntimeWatchdogUSec --value)
+  echo "RuntimeWatchdogUSec after restore: ${current:-<unset>}"
+  if [ "$current" != "$original" ]; then
+    echo "Restored value '$current' does not match original '$original'"
+    exit 1
+  fi
+  echo "Runtime watchdog restored to its original state"

@@ -335,6 +335,7 @@ class GenScreenshotPath(unittest.TestCase):
             )
         mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
 
+
 class TestScreenshotTarring(unittest.TestCase):
     @patch("os.listdir")
     @patch("tarfile.open")

@@ -188,10 +188,13 @@ class MonitorTest:
             path = path + "_" + postfix
         elif self.is_suspend_support():
             # check the status is before or after suspend
-            with open("/sys/power/suspend_stats/success", "r") as s:
-                suspend_count = s.readline().strip("\n")
-                if suspend_count != "0":
-                    path = "{}_after_suspend".format(path)
+            try:
+                with open("/sys/power/suspend_stats/success", "r") as s:
+                    suspend_count = s.readline().strip("\n")
+                    if suspend_count != "0":
+                        path = "{}_after_suspend".format(path)
+            except (IOError, OSError):
+                pass
         os.makedirs(path, exist_ok=True)
 
         return path

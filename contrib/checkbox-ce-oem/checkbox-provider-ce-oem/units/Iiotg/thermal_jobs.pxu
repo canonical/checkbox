@@ -42,7 +42,7 @@ command:
         exit 0
     else
         echo "Lack of MMIO interface for power capping."
-        echo "It depends on proc_thermal, plesae check if processor thermal device exists"
+        echo "It depends on proc_thermal, please check if processor thermal device exists"
         echo "and proc_thermal driver has probed properly."
         lspci -nnk
         exit 1

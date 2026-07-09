@@ -42,7 +42,7 @@ estimated_duration: 1.0
 
 id: ce-oem-power-management/usb_wakeup_hid
 category_id: com.canonical.plainbox::power-management
-_summary: Test waking up the system from suspend using a USB HID device.
+_summary: Wake from suspend via USB HID device
 _purpose:
     To check that a USB HID device can wake the system from suspend.
 _description:

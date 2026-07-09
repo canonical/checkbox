@@ -1,4 +1,6 @@
-e: Iiotg server tests
+id: iiotg-server
+unit: test plan
+_name: Iiotg server tests
 _description:
     Combined manual and automated Iiotg project-specific tests for Ubuntu Server images.
 include:

@@ -12,4 +12,5 @@ Reference
    units/index
    snaps
    submission-schema
+   system-information
    job-status

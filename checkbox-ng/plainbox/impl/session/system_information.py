@@ -20,7 +20,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 6
+    COLLECTOR_OUTPUTS_VERSION = 7
 
     def to_json(self) -> str:
         to_dump = {
@@ -295,21 +295,19 @@ class JournalctlCollector(Collector):
     COLLECTOR_NAME = "journalctl"
 
     def collector_parser(self, collector_output):
-        return list(map(json.loads, collector_output.splitlines()))
+        return collector_output
 
     def __init__(self):
-        to_collect = 80000  # limit the lines to 80k, ~80Mb of memory
+        to_collect = 200000  # limit the lines to 200k, ~2Mb of memory
         if low_memory_device():
             # when memory is low, we can't afford to load all that json into
             # memory, try to collect a few logs either way
-            to_collect = 8000
+            to_collect = 80000
         super().__init__(
             collection_cmd=[
                 "journalctl",
-                "--output",
-                "json",
                 "--since",
-                "-3 days",
+                "-1 days",
                 "-n",
                 str(to_collect),
             ],

@@ -23,6 +23,7 @@ from contextlib import suppress
 import shutil
 
 from checkbox_support.dbus.gnome_monitor import MutterDisplayMode as Mode
+from checkbox_support.manifest import get_manifest
 from checkbox_support.helpers import display_info
 from collections import namedtuple
 from fractions import Fraction
@@ -156,6 +157,15 @@ def action(filename, **kwargs):
 
 
 class MonitorTest:
+    def is_suspend_support(self) -> bool:
+        """
+        Using has_suspend_support in the manifest
+        to check whether suspend is supported
+        """
+        key = "com.canonical.certification::has_suspend_support"
+        manifest = get_manifest()
+        return key in manifest.keys() and manifest[key]
+
     def gen_screenshot_path(
         self, prefix: str, postfix: str, screenshot_dir: str
     ) -> str:
@@ -176,12 +186,15 @@ class MonitorTest:
 
         if postfix and postfix != "":
             path = path + "_" + postfix
-        else:
+        elif self.is_suspend_support():
             # check the status is before or after suspend
-            with open("/sys/power/suspend_stats/success", "r") as s:
-                suspend_count = s.readline().strip("\n")
-                if suspend_count != "0":
-                    path = "{}_after_suspend".format(path)
+            try:
+                with open("/sys/power/suspend_stats/success", "r") as s:
+                    suspend_count = s.readline().strip("\n")
+                    if suspend_count != "0":
+                        path = "{}_after_suspend".format(path)
+            except (IOError, OSError):
+                pass
         os.makedirs(path, exist_ok=True)
 
         return path
@@ -190,7 +203,7 @@ class MonitorTest:
         """
         Tar up the screenshots for uploading.
 
-        :param path: the dictionary for screenshot
+        :param  path: the dictionary for screenshot
         """
         try:
             with tarfile.open(path + ".tgz", "w:gz") as screen_tar:

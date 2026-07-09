@@ -215,7 +215,7 @@ command:
         true;
     else
         journalctl -k > "$report_folder"/dmesg.log
-        lspci -nnk > "$report_folder"/dmesg.log
+        lspci -nnk > "$report_folder"/lspci-nnk.log
         lsmod > "$report_folder"/lsmod.log
         false;
         echo "proc_thermal driver is not loaded."

@@ -329,9 +329,10 @@ class UdevadmDevice(object):
                     r"^(llce){0,1}can[0-9]+$", self._environment["INTERFACE"]
                 ):
                     return "SOCKETCAN"
-            if "ID_MODEL" in self._environment:
-                if self._environment["ID_MODEL"].startswith("XClarity"):
-                    return "BMC_NETWORK"
+            if self._environment.get("ID_MODEL", "").startswith(
+                "XClarity"
+            ) or self._environment.get("ID_NET_NAME", "").startswith("bmc_"):
+                return "BMC_NETWORK"
             if self._stack:
                 parent = self._stack[-1]
                 if "PCI_CLASS" in parent._environment:
@@ -350,6 +351,9 @@ class UdevadmDevice(object):
                             return "INFINIBAND"
             if self.driver and "rndis" in self.driver:
                 return "USB"
+            model = self._environment.get("ID_MODEL", "").lower()
+            if "virtual" in model and "ethernet" in model:
+                return "VIRTUAL_NETWORK"
             return "NETWORK"
 
         if self.bus == "bluetooth":

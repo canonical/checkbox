@@ -4,7 +4,7 @@ plugin: shell
 user: root
 _summary: Check if DRP-AI is working
 _purpose:
-    Check if DRP-AI is working by running a inference sample.
+    Check if DRP-AI is working by running an inference sample.
     https://github.com/canonical/rzv_drp-ai_tvm_snap
 imports:
     from com.canonical.plainbox import manifest

@@ -2,8 +2,9 @@ id: genio-thermal/simulate-overheating
 _summary: Test that thermal protection shuts the system down when overheated
 _description: Simulate overheating to shut the system down automatically. The system will power on automatically after waiting 1 minute.
 category_id: genio-thermal
-flags: preserve-locale noreturn autorestart also-after-suspend
+flags: preserve-locale noreturn autorestart
 user: root
+before: suspend/suspend_advanced_auto
 plugin: shell
 estimated_duration: 60
 environ: PLAINBOX_SESSION_SHARE
@@ -35,7 +36,6 @@ _description: Check the thermal protection log after simulate-overheating
 user: root
 plugin: shell
 estimated_duration: 1.0
-flags: also-after-suspend
 environ: PLAINBOX_SESSION_SHARE
 imports: from com.canonical.plainbox import manifest
 requires:

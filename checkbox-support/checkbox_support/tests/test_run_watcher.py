@@ -229,7 +229,7 @@ class TestRunWatcher(unittest.TestCase):
     def test_parse_journal_line(self, mock_print):
         mock_storage = MagicMock()
         StorageWatcher._parse_journal_line(mock_storage, "hello")
-        mock_print.assert_called_once_with("hello")
+        mock_print.assert_called_once_with("hello", flush=True)
 
     @patch("checkbox_support.scripts.run_watcher.super")
     def test_usb_storage_parse_journal_line(self, mock_super):

@@ -84,7 +84,7 @@ class StorageInterface(ABC):
         :param line_str: str of the scanned log lines.
         """
 
-        print(line_str)
+        print(line_str, flush=True)
 
     @abstractmethod
     def _validate_insertion(self):
@@ -474,14 +474,44 @@ def main():
         watcher = USBStorage(args.storage_type)
 
     if args.testcase == "insertion":
-        mounted_partition = watcher.run_insertion()
-        watcher.run_removal(mounted_partition)
+        try:
+            mounted_partition = watcher.run_insertion()
+        except TimeoutError:
+            raise SystemExit(
+                "The {} insertion could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
+
+        try:
+            watcher.run_removal(mounted_partition)
+        except TimeoutError:
+            raise SystemExit(
+                "The {} removal could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
+
     elif args.testcase == "storage":
-        mounted_partition = watcher.run_insertion()
+        try:
+            mounted_partition = watcher.run_insertion()
+        except TimeoutError:
+            raise SystemExit(
+                "The {} insertion could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
         watcher.run_storage(mounted_partition)
         print("Press Enter to start removal", flush=True)
         input()
-        watcher.run_removal(mounted_partition)
+        try:
+            watcher.run_removal(mounted_partition)
+        except TimeoutError:
+            raise SystemExit(
+                "The {} removal could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
     else:
         raise SystemExit("Invalid test case")
 

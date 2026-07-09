@@ -1,0 +1,23 @@
+id: renesas-rz-drp-ai/inference
+category_id: renesas-rz-drp-ai
+plugin: shell
+user: root
+_summary: Check if DRP-AI is working
+_purpose:
+    Check if DRP-AI is working by running a inference sample.
+    https://github.com/canonical/rzv_drp-ai_tvm_snap
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_renesas_rz_drp_ai == 'True'
+    manifest.is_renesas_rz_series == 'True'
+command:
+    rzv-drp-ai-tvm-examples.tutorial-app 2>&1 | tee /tmp/output.log
+    echo "Checking if any error or inference by CPU ..."
+    if ! grep -q "CPU-only model\|\[ERROR\]" /tmp/output.log;then
+        echo "Success: Running by DRP-AI without error!"
+        exit 0;
+    else
+        echo "Fail: Running by CPU-only model or error!"
+        exit 1;
+    fi

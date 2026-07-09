@@ -12,8 +12,8 @@ unit: test plan
 _name: Genio Serial manual tests
 _description: Manual Genio Serial tests for devices
 include:
-    genio-serial/uart1-micro-b-.*
-    genio-serial/uart2-micro-b-.*
+    genio-serial/uart1-micro-b-SoC
+    genio-serial/uart2-micro-b-SoC
 
 id: genio-serial-automated
 unit: test plan
@@ -22,6 +22,6 @@ _description: Automated Genio Serial tests for devices
 bootstrap_include:
     genio_device_soc
 include:
-    genio-serial/uart1-rpi-hat-loopback-.*
-    genio-serial/uart1-j52-loopback-.*
-    genio-serial/uart2-rpi-hat-loopback-.*
+    genio-serial/uart1-rpi-hat-loopback-SoC
+    genio-serial/uart1-j52-loopback-SoC
+    genio-serial/uart2-rpi-hat-loopback-SoC

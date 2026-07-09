@@ -1,22 +1,11 @@
-id: genio_device_soc
-plugin: resource
-_summary: Collect and report the type of Genio SoC
-estimated_duration: 0.1
-command:
-    output=$(tr -d '\0' < /proc/device-tree/compatible)
-    IFS=','
-    read -a output_arr <<< "$output"
-    IFS='-'
-    read -a s <<< "${output_arr[1]}"
-    echo "SoC: ${s[0]}"
-    echo
-
 id: genio-serial/uart1-rpi-hat-loopback-{{ SoC }}
 unit: template
 template-resource: genio_device_soc
 template-filter: genio_device_soc.SoC == "mt8395"
 template-unit: job
 template-engine: jinja2
+template-id: genio-serial/uart1-rpi-hat-loopback-SoC
+_template-summary: Test UART1 functionality on Raspberry Pi Hat
 category_id: genio-serial
 estimated_duration: 2s
 plugin: shell
@@ -43,6 +32,8 @@ template-resource: genio_device_soc
 template-filter: genio_device_soc.SoC == "mt8395"
 template-unit: job
 template-engine: jinja2
+template-id: genio-serial/uart1-j52-loopback-SoC
+_template-summary: Test UART1 functionality on J52
 category_id: genio-serial
 estimated_duration: 2s
 plugin: shell
@@ -72,6 +63,9 @@ template-resource: genio_device_soc
 template-filter: genio_device_soc.SoC in ["mt8390", "mt8370", "mt8365"]
 template-unit: job
 template-engine: jinja2
+template-id: genio-serial/uart1-micro-b-SoC
+_template-summary:
+    Test UART1 data transmission and reception over the Micro-B port
 imports:
     from com.canonical.plainbox import manifest
     from com.canonical.certification import executable
@@ -107,6 +101,8 @@ template-resource: genio_device_soc
 template-filter: genio_device_soc.SoC in ["mt8390", "mt8370", "mt8365"]
 template-unit: job
 template-engine: jinja2
+template-id: genio-serial/uart2-rpi-hat-loopback-SoC
+_template-summary: Test UART2 functionality on Raspberry Pi Hat
 category_id: genio-serial
 estimated_duration: 2s
 plugin: shell
@@ -139,11 +135,13 @@ template-resource: genio_device_soc
 template-filter: genio_device_soc.SoC in ["mt8390", "mt8370"]
 template-unit: job
 template-engine: jinja2
+template-id: genio-serial/uart2-micro-b-SoC
+_template-summary:
+    Test UART2 data transmission and reception over the Micro-B port
 category_id: genio-serial
 estimated_duration: 2s
 plugin: manual
 flags: also-after-suspend
-environ: GENIO_DEVICE
 imports:
     from com.canonical.plainbox import manifest
     from com.canonical.certification import executable

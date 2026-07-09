@@ -10,8 +10,7 @@ user: root
 _summary: Check the mtk_hdmirx module has been loaded
 command:
     echo "Check the mtk_hdmirx module has been loaded..."
-    lsmod | grep -w mtk_hdmirx
-    if [[ "$?" -ne 0 ]]; then
+    if ! lsmod | grep -w mtk_hdmirx; then
         echo "Failed: The 'mtk_hdmirx' module isn't loaded!"
         exit 1
     fi

@@ -1350,7 +1350,10 @@ class SessionState:
             before += list(sibling_required_not_job)
         else:
             before += " " + " ".join(sibling_required_not_job)
-        job._data["before"] = before
+        # here change the property, not the _data. Changing the data may lead
+        # (on resume) that the same unit is re-adopted, but given we've mutated
+        # the data, it is different and it crashes Checkbox
+        job.before = before
 
     def remove_unit(self, unit, *, recompute=True):
         """

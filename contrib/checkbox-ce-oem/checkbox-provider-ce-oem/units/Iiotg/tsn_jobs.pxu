@@ -189,4 +189,4 @@ command:
         echo ""
         exit 1
     fi
-    echo "[PASS] Set Frame Preemption succussfully!"
+    echo "[PASS] Set Frame Preemption successfully!"

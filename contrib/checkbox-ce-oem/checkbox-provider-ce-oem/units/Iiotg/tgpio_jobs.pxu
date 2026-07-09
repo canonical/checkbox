@@ -147,6 +147,7 @@ _steps:
     3. Press enter on the other DUT to start receiving timestamps.
 _verification:
     There's no test here. You can mark it pass after you finishing your test(iiotg-tgpio/ptp-time-receive-.*) on the other machine.
+imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
@@ -173,6 +174,7 @@ _steps:
     3. Press enter on this machine to start receiving timestamps.
 _verification:
     There's no test here. You can mark it pass after you finishing your test(iiotg-tgpio/ptp-time-check-send-.*) on the other machine.
+imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'

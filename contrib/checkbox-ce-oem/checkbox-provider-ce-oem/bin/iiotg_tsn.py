@@ -453,9 +453,7 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
 
 
 def credit_based_shaper(
-    interface: str,
-    server_ip: str,
-    timeout: int = 10
+    interface: str, server_ip: str, timeout: int = 10
 ) -> None:
     """
     Setup a credit-based shaper on the specified interface.
@@ -572,9 +570,7 @@ def traffic_scheduling(
         "sched-entry S 04 5000000 "
         "sched-entry S 08 5000000 "
         "flags 0x2 "
-        "txtime-delay 0".format(
-            interface
-        )
+        "txtime-delay 0".format(interface)
     )
     result = subprocess.run(
         shlex.split(cmd),
@@ -820,9 +816,7 @@ def main():
     # Perform the specified testing item or server_mode
     if args.run == "server":
         # Run server_mode
-        server_mode(
-            args.interfaces, cfg=args.master_config
-        )
+        server_mode(args.interfaces, cfg=args.master_config)
         return
     elif len(args.interfaces) != 1:
         # Exit if interfaces is not a single element

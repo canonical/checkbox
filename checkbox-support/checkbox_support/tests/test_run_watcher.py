@@ -632,3 +632,63 @@ class TestRunWatcher(unittest.TestCase):
         watcher = mock_thunderbolt.return_value
         # check that the watcher is an ThunderboltStorage object
         self.assertIsInstance(watcher, ThunderboltStorage)
+
+    @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_insertion_timeout(self, mock_parse_args, mock_usb):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="insertion", storage_type="usb2"
+        )
+        mock_usb.return_value.run_insertion.side_effect = TimeoutError
+        with self.assertRaises(SystemExit) as cm:
+            main()
+        self.assertEqual(
+            cm.exception.args[0],
+            "The usb2 insertion could not be detected in time.",
+        )
+        self.assertEqual(mock_usb.return_value.run_removal.call_count, 0)
+
+    @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_removal_timeout(self, mock_parse_args, mock_usb):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="insertion", storage_type="usb2"
+        )
+        mock_usb.return_value.run_removal.side_effect = TimeoutError
+        with self.assertRaises(SystemExit) as cm:
+            main()
+        self.assertEqual(
+            cm.exception.args[0],
+            "The usb2 removal could not be detected in time.",
+        )
+
+    @patch("checkbox_support.scripts.run_watcher.input", MagicMock())
+    @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_storage_insertion_timeout(self, mock_parse_args, mock_usb):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="storage", storage_type="usb3"
+        )
+        mock_usb.return_value.run_insertion.side_effect = TimeoutError
+        with self.assertRaises(SystemExit) as cm:
+            main()
+        self.assertEqual(
+            cm.exception.args[0],
+            "The usb3 insertion could not be detected in time.",
+        )
+        self.assertEqual(mock_usb.return_value.run_storage.call_count, 0)
+
+    @patch("checkbox_support.scripts.run_watcher.input", MagicMock())
+    @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_storage_removal_timeout(self, mock_parse_args, mock_usb):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="storage", storage_type="usb3"
+        )
+        mock_usb.return_value.run_removal.side_effect = TimeoutError
+        with self.assertRaises(SystemExit) as cm:
+            main()
+        self.assertEqual(
+            cm.exception.args[0],
+            "The usb3 removal could not be detected in time.",
+        )

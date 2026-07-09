@@ -200,7 +200,7 @@ class MonitorTest:
         """
         Tar up the screenshots for uploading.
 
-        :param path: the dictionary for screenshot
+        :param  path: the dictionary for screenshot
         """
         try:
             with tarfile.open(path + ".tgz", "w:gz") as screen_tar:

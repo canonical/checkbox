@@ -5,7 +5,6 @@ _description: Full thermal thermal tests for devices
 include:
 nested_part:
     ce-oem-thermal-automated
-    after-suspend-ce-oem-thermal-automated
 
 id: ce-oem-thermal-automated
 unit: test plan

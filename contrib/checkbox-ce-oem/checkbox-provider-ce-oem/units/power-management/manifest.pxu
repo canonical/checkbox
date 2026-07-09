@@ -5,5 +5,5 @@ value-type: bool
 
 unit: manifest entry
 id: has_usb_wakeup_hid
-_name: Does the platform support wake from suspend by USB HID?
+_name: Does the platform support waking from suspend via USB HID?
 value-type: bool

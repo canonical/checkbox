@@ -1278,7 +1278,40 @@ class SessionState:
             siblings.append(overrides)
         return siblings
 
+    def _get_job_data_directly_required_suspend(self, job_data):
+        """
+        Get which suspend ids the current job data follows
+
+        :param job_data:
+            job data to inspect
+        :returns:
+            set of suspend job ids that the job data either depends on or comes
+            after
+        """
+        to_r = set()
+
+        def pxu_compatible_in(con):
+            if isinstance(con, list):
+                # yaml path, in works fine here as it "full matches"
+                return con
+            # string in doesn't work well for string because the manual id is
+            # contained in the auto id.
+            # This is not perfect but it is good enough for what we need.
+            return con.split()
+
+        for suspend_id in [Suspend.AUTO_JOB_ID, Suspend.MANUAL_JOB_ID]:
+            if suspend_id in pxu_compatible_in(job_data.get("depends", [])):
+                to_r.add(suspend_id)
+            elif suspend_id in pxu_compatible_in(job_data.get("after", [])):
+                to_r.add(suspend_id)
+        return to_r
+
     def _add_job_siblings_unit(self, job, recompute, via):
+        job_requiring_suspend = set(
+            self._get_job_data_directly_required_suspend(job._data)
+        )
+        siblings_requiring_suspend = set()
+
         siblings = job.siblings or []
         siblings += self._get_flags_siblings(job)
         for overrides in siblings:
@@ -1300,6 +1333,27 @@ class SessionState:
                 recompute,
                 via,
             )
+            siblings_requiring_suspend |= (
+                self._get_job_data_directly_required_suspend(data)
+            )
+        sibling_required_not_job = (
+            siblings_requiring_suspend - job_requiring_suspend
+        )
+        # when a job doesn't require to be after suspend but has a sibling that
+        # wants to be the job is always before suspend
+        if not sibling_required_not_job:
+            return
+        # Note: intentionally avoid accessing before directly as it is a
+        #       cached property
+        before = job._data.get("before", [])
+        if isinstance(before, list):
+            before += list(sibling_required_not_job)
+        else:
+            before += " " + " ".join(sibling_required_not_job)
+        # here change the property, not the _data. Changing the data may lead
+        # (on resume) that the same unit is re-adopted, but given we've mutated
+        # the data, it is different and it crashes Checkbox
+        job.before = before
 
     def remove_unit(self, unit, *, recompute=True):
         """

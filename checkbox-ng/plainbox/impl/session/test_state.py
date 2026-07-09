@@ -22,6 +22,7 @@ plainbox.impl.test_session
 Test definitions for plainbox.impl.session module
 """
 
+import json
 from doctest import REPORT_NDIFF, DocTestSuite
 from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
@@ -422,6 +423,63 @@ class SessionStateAPITests(TestCase):
             [UndesiredJobReadinessInhibitor],
         )
 
+    def test_also_after_suspend_flag_adds_before_constraint(self):
+        job = make_job("A", summary="foo", flags=[Suspend.AUTO_FLAG])
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        self.assertEqual(job.before, [Suspend.AUTO_JOB_ID])
+
+    def test_also_after_suspend_flag_preserves_before_constraint(self):
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=[Suspend.AUTO_FLAG],
+            before="later_job",
+        )
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        self.assertEqual(job.before, "later_job " + Suspend.AUTO_JOB_ID)
+
+    def test_also_after_suspend_manual_flag_adds_before_constraint(self):
+        job = make_job("A", summary="foo", flags=[Suspend.MANUAL_FLAG])
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        self.assertEqual(job.before, [Suspend.MANUAL_JOB_ID])
+
+    def test_also_after_suspend_flags_add_before_constraints(self):
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=[Suspend.AUTO_FLAG, Suspend.MANUAL_FLAG],
+        )
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        self.assertEqual(
+            set(job.before),
+            {Suspend.AUTO_JOB_ID, Suspend.MANUAL_JOB_ID},
+        )
+
+    def test_also_after_suspend_flag_with_suspend_dep_no_before(self):
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=[Suspend.AUTO_FLAG],
+            depends=[Suspend.AUTO_JOB_ID],
+        )
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        self.assertEqual(job.before, None)
+
     def test_also_after_suspend_flag_extra_fields(self):
         # Define a job
         job = make_job(
@@ -509,6 +567,65 @@ class SessionStateAPITests(TestCase):
             session.job_state_map[sibling.id].readiness_inhibitor_list,
             [UndesiredJobReadinessInhibitor],
         )
+
+    def test_sibling_with_suspend_dep_adds_before_constraint(self):
+        job = make_job(
+            "A",
+            summary="foo",
+            siblings=json.dumps(
+                [
+                    {
+                        "id": "after-suspend-A",
+                        "depends": "A " + Suspend.AUTO_JOB_ID,
+                    }
+                ]
+            ),
+        )
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        self.assertEqual(job.before, [Suspend.AUTO_JOB_ID])
+
+    def test_sibling_with_suspend_dep_preserves_before_constraint(self):
+        job = make_job(
+            "A",
+            summary="foo",
+            siblings=json.dumps(
+                [
+                    {
+                        "id": "after-suspend-A",
+                        "depends": "A " + Suspend.AUTO_JOB_ID,
+                    }
+                ]
+            ),
+            before="later_job",
+        )
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        self.assertEqual(job.before, "later_job " + Suspend.AUTO_JOB_ID)
+
+    def test_sibling_with_suspend_dep_and_suspend_dep_no_before(self):
+        job = make_job(
+            "A",
+            summary="foo",
+            siblings=json.dumps(
+                [
+                    {
+                        "id": "after-suspend-A",
+                        "depends": "A " + Suspend.AUTO_JOB_ID,
+                    }
+                ]
+            ),
+            depends=[Suspend.AUTO_JOB_ID],
+        )
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        self.assertIsNone(job.before)
 
     def test_also_after_suspend_manual_flag_extra_fields(self):
         # Define a job
@@ -1209,9 +1326,7 @@ class SessionDeviceContextTests(SignalTestCase):
         self.unit.provider = self.provider
         self.provider.unit_list = [self.unit]
         self.provider.problem_list = []
-        self.job = Mock(name="job", spec_set=JobDefinition, siblings=None)
-        self.job.get_flag_set = Mock(return_value=())
-        self.job.Meta.name = "job"
+        self.job = make_job("job")
 
     def test_smoke(self):
         """

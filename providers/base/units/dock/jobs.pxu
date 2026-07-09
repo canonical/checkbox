@@ -2486,7 +2486,7 @@ estimated_duration: 300.00
 _purpose:
     This test is to check if the device is still working after reboot.
 _steps:
-    Reboot the system.
+    With the dock connected, reboot the system.
 _verification:
     Mark it Pass if you have rebooted the system.
     The functionality will be verified through the following test cases.
@@ -2516,7 +2516,7 @@ estimated_duration: 300.00
 _purpose:
     This test is to check if the device is still functional after suspend.
 _steps:
-    1. Suspend the system.
+    1. With the dock connected, suspend the system.
     2. Wait for 30 seconds.
     3. Resume the system.
 _verification:
@@ -2537,7 +2537,7 @@ _steps:
     1. Ensure the dock is connected.
     2. Suspend the system.
     3. Wait for 30 seconds.
-    4. Hotplug dock.
+    4. While the system is suspended, hotplug the dock.
     5. Resume the system.
 _verification:
     Mark it as Pass if the system can resume automatically when the dock
@@ -2554,7 +2554,7 @@ estimated_duration: 300.00
 _purpose:
     This test is to check if the device is still working after power-off.
 _steps:
-    1. Power off the system.
+    1. With the dock connected, power off the system.
     2. Wait for 30 seconds.
     3. Power on the system.
 _verification:

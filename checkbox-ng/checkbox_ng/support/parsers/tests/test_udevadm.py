@@ -273,6 +273,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = parser.run()
         self.assertEqual(devices[0].category, "NETWORK")
 
+    def test_bmc_network_vs_network_count(self):
+        """
+        bmc-created virtual networks should be in their own category
+        """
+        devices = self.parse("bmc_network_vs_network")
+        self.assertEqual(self.count(devices, "NETWORK"), 3)
+        self.assertEqual(self.count(devices, "BMC_NETWORK"), 1)
+
     def test_KIOXIA_TransMemory(self):
         # this is a non-regression test to check that the KIOXIA TransMemory
         # USB stick is detected as a usb stick and not a mediacard

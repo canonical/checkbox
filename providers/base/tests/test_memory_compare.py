@@ -93,9 +93,10 @@ class MemoryCompareTests(unittest.TestCase):
         installed = memory_compare.HumanReadableBytes("32GiB")
         visible = memory_compare.HumanReadableBytes("24GiB")
         igpu_vram = memory_compare.HumanReadableBytes("2GiB")
+        kexec_crash_size = memory_compare.HumanReadableBytes("512MiB")
 
         result, stdout, stderr = self.compare_memory(
-            installed, visible, igpu_vram, 0
+            installed, visible, igpu_vram, kexec_crash_size
         )
 
         self.assertEqual(result, 1)
@@ -104,6 +105,7 @@ class MemoryCompareTests(unittest.TestCase):
         self.assertIn("/proc/meminfo reports:\t24GiB", stderr)
         self.assertIn("lshw reports:\t32GiB", stderr)
         self.assertIn("iGPU VRAM compensation:\t2GiB", stderr)
+        self.assertIn("kexec crash memory compensation:\t512MiB", stderr)
         self.assertIn("Only a variance of 10% in reported memory", stderr)
 
     def test_adjusted_difference_is_never_negative(self):

@@ -1,0 +1,15 @@
+unit: manifest entry
+id: has_va_api
+_prompt: Does this machine have VA-API support?
+_name: VA-API
+value-type: bool
+
+id: platform_config_resource
+plugin: resource
+category_id: com.canonical.contrib.multimedia
+estimated_duration: 1
+_summary: Platform configuration resource
+_description: Detects platform capabilities (GPU vendor, architecture, available codecs)
+environ: PLATFORM_CONFIG
+command:
+  platform_config_resource.py

@@ -1,0 +1,14 @@
+unit: manifest entry
+id: has_vc1_simple_decoder_vaapi
+_name: Has VA-API support for VC-1 Simple decode
+value-type: bool
+
+unit: manifest entry
+id: has_vc1_main_decoder_vaapi
+_name: Has VA-API support for VC-1 Main decode
+value-type: bool
+
+unit: manifest entry
+id: has_vc1_advanced_decoder_vaapi
+_name: Has VA-API support for VC-1 Advanced decode
+value-type: bool

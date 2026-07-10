@@ -1,0 +1,14 @@
+unit: test plan
+id: multimedia-all
+_name: All multimedia tests
+include:
+nested_part:
+  multimedia-codecs-vaapi-av1
+  multimedia-codecs-vaapi-h264
+  multimedia-codecs-vaapi-h265
+  multimedia-codecs-vaapi-vp8
+  multimedia-codecs-vaapi-vp9
+  multimedia-codecs-vaapi-jpeg
+  multimedia-codecs-vaapi-mpeg2
+  multimedia-codecs-vaapi-mpeg4
+  multimedia-codecs-vaapi-vc1

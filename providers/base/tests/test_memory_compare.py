@@ -12,6 +12,7 @@ import memory_compare
 class MemoryCompareTests(unittest.TestCase):
 
     @patch("memory_compare.compare_memory")
+    @patch("memory_compare.get_kexec_crash_size")
     @patch("memory_compare.get_igpu_vram_size")
     @patch("memory_compare.get_visible_memory_size")
     @patch("memory_compare.get_installed_memory_size")
@@ -22,22 +23,24 @@ class MemoryCompareTests(unittest.TestCase):
         mock_installed,
         mock_visible,
         mock_vram,
+        mock_kexec_crash_size,
         mock_compare_memory,
     ):
         mock_installed.return_value = 1
         mock_visible.return_value = 2
         mock_vram.return_value = 3
+        mock_kexec_crash_size.return_value = 4
         mock_compare_memory.return_value = 0
 
         self.assertEqual(memory_compare.main(), 0)
-        mock_compare_memory.assert_called_once_with(1, 2, 3)
+        mock_compare_memory.assert_called_once_with(1, 2, 3, 4)
 
-    def compare_memory(self, installed, visible, igpu_vram):
+    def compare_memory(self, installed, visible, igpu_vram, kexec_crash_size):
         stdout = StringIO()
         stderr = StringIO()
         with redirect_stdout(stdout), redirect_stderr(stderr):
             result = memory_compare.compare_memory(
-                installed, visible, igpu_vram
+                installed, visible, igpu_vram, kexec_crash_size
             )
         return result, stdout.getvalue(), stderr.getvalue()
 
@@ -45,7 +48,7 @@ class MemoryCompareTests(unittest.TestCase):
         installed = memory_compare.HumanReadableBytes("16GiB")
         visible = int(installed * 15.42 / 16)
 
-        result, stdout, stderr = self.compare_memory(installed, visible, 0)
+        result, stdout, stderr = self.compare_memory(installed, visible, 0, 0)
 
         self.assertEqual(result, 0)
         self.assertIn("PASS: Meminfo reports", stdout)
@@ -58,12 +61,32 @@ class MemoryCompareTests(unittest.TestCase):
         igpu_vram = memory_compare.HumanReadableBytes("2048MiB")
 
         result, stdout, stderr = self.compare_memory(
-            installed, visible, igpu_vram
+            installed, visible, igpu_vram, 0
         )
 
         self.assertEqual(result, 0)
         self.assertIn("iGPU VRAM compensation:\t2GiB", stdout)
         self.assertIn("difference of 4.14%", stdout)
+        self.assertEqual(stderr, "")
+
+    def test_compare_memory_compensates_kexec_memory_before_threshold_check(
+        self,
+    ):
+        installed = memory_compare.HumanReadableBytes("8GiB")
+        visible = memory_compare.HumanReadableBytes("6GiB")
+        igpu_vram = memory_compare.HumanReadableBytes("512MiB")
+        kexec_crash_size = memory_compare.HumanReadableBytes("512MiB")
+
+        result, stdout, stderr = self.compare_memory(
+            installed, visible, igpu_vram, kexec_crash_size
+        )
+
+        self.assertEqual(result, 0)
+        self.assertIn(
+            "kexec crash memory compensation:\t512MiB",
+            stdout,
+        )
+        self.assertIn("difference of 12.50%", stdout)
         self.assertEqual(stderr, "")
 
     def test_compare_memory_fails_when_difference_exceeds_threshold(self):
@@ -72,7 +95,7 @@ class MemoryCompareTests(unittest.TestCase):
         igpu_vram = memory_compare.HumanReadableBytes("2GiB")
 
         result, stdout, stderr = self.compare_memory(
-            installed, visible, igpu_vram
+            installed, visible, igpu_vram, 0
         )
 
         self.assertEqual(result, 1)
@@ -86,11 +109,11 @@ class MemoryCompareTests(unittest.TestCase):
     def test_adjusted_difference_is_never_negative(self):
         installed = memory_compare.HumanReadableBytes("8GiB")
         visible = installed - memory_compare.HumanReadableBytes("512MiB")
-        igpu_vram = memory_compare.HumanReadableBytes("2048MiB")
+        reserved = memory_compare.HumanReadableBytes("2048MiB")
 
         self.assertEqual(
             memory_compare.get_adjusted_memory_difference(
-                installed, visible, igpu_vram
+                installed, visible, reserved
             ),
             0,
         )
@@ -98,7 +121,7 @@ class MemoryCompareTests(unittest.TestCase):
     def test_zero_memory_error_stays_unchanged(self):
         igpu_vram = memory_compare.HumanReadableBytes("2048MiB")
 
-        result, stdout, stderr = self.compare_memory(0, 0, igpu_vram)
+        result, stdout, stderr = self.compare_memory(0, 0, igpu_vram, 0)
 
         self.assertEqual(result, 1)
         self.assertEqual(stdout, "Results:\n")
@@ -206,6 +229,25 @@ class MemoryCompareTests(unittest.TestCase):
         with redirect_stderr(stderr):
             self.assertEqual(memory_compare.get_igpu_vram_size(), 0)
         self.assertIn("Failed to get kernel log output:", stderr.getvalue())
+
+    @patch("memory_compare.open")
+    def test_kexec_crash_size_returns_size_when_crash_is_loaded(
+        self, mock_open
+    ):
+        mock_open.side_effect = [
+            unittest.mock.mock_open(read_data="2097152\n").return_value,
+            unittest.mock.mock_open(read_data="1\n").return_value,
+        ]
+
+        self.assertEqual(memory_compare.get_kexec_crash_size(), 2097152)
+
+    @patch("memory_compare.open")
+    def test_kexec_crash_size_returns_zero_when_sysfs_unavailable(
+        self, mock_open
+    ):
+        mock_open.side_effect = FileNotFoundError
+
+        self.assertEqual(memory_compare.get_kexec_crash_size(), 0)
 
 
 if __name__ == "__main__":

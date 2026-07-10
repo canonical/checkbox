@@ -45,8 +45,13 @@ def reload_systemd() -> None:
 
 
 def state_file() -> Path:
-    """Return the session-share file holding the original watchdog value."""
-    return Path(os.environ["PLAINBOX_SESSION_SHARE"]) / STATE_FILE_NAME
+    """Return the session-share file holding the original watchdog value.
+
+    Defaults to /tmp when PLAINBOX_SESSION_SHARE is not set, so the
+    script can also be run on its own outside a Checkbox session.
+    """
+    session_share = os.environ.get("PLAINBOX_SESSION_SHARE", "/tmp")
+    return Path(session_share) / STATE_FILE_NAME
 
 
 def disable() -> int:

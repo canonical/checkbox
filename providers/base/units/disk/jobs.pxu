@@ -117,6 +117,13 @@ id: disk/disk_stress_ng_{name}
 template-id: disk/disk_stress_ng_name
 estimated_duration: 4560.0
 user: root
+# Run inside the stress-ng group so the systemd runtime watchdog stays
+# disabled (stress/store_and_disable_watchdog) until every stress-ng job,
+# including this one, has finished. The ordering is ignored in plans that
+# do not include the watchdog jobs.
+group: stress-ng
+after: stress/store_and_disable_watchdog
+before: stress/restore_watchdog
 requires:
  executable.name == 'stress-ng'
  executable.name == 'uuidgen'

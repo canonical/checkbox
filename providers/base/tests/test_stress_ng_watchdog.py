@@ -31,6 +31,15 @@ class WatchdogTestBase(unittest.TestCase):
         )
 
 
+class TestStateFile(unittest.TestCase):
+    def test_defaults_to_tmp_without_session_share(self):
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertEqual(
+                stress_ng_watchdog.state_file(),
+                Path("/tmp") / stress_ng_watchdog.STATE_FILE_NAME,
+            )
+
+
 class TestDisable(WatchdogTestBase):
     @patch.object(stress_ng_watchdog, "get_watchdog_usec", return_value="0")
     def test_already_disabled_changes_nothing(self, _usec):

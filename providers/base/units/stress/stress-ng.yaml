@@ -26,6 +26,11 @@ summary: Run the stress-ng stressor {stressor} (as normal user)
 purpose: |
   Runs the stressors from stress-ng. Tests run using the
   same number of processes as online processors.
+group: stress-ng
+after:
+  - stress/store_and_disable_watchdog
+before:
+  - stress/restore_watchdog
 requires:
   - (stress_ng_stressors.stressor == "{stressor}" and stress_ng_stressors.unsupported == "False")
 plugin: shell
@@ -61,6 +66,11 @@ summary: Run the stress-ng stressor {stressor} (as root)
 purpose: |
   Runs the stressors from stress-ng. Tests run using the
   same number of processes as online processors.
+group: stress-ng
+after:
+  - stress/store_and_disable_watchdog
+before:
+  - stress/restore_watchdog
 requires:
   - (stress_ng_stressors.stressor == "{stressor}" and stress_ng_stressors.unsupported == "False")
 plugin: shell
@@ -136,11 +146,15 @@ command: |
 # An enabled systemd runtime (hardware) watchdog can reset the DUT while
 # stress-ng stressors starve the system, aborting the whole run. Disable it
 # for the duration of the stress-ng tests and restore it afterwards.
+# The stressor templates above carry group/after/before fields so the
+# stressor jobs always run between these two jobs regardless of the test
+# plan include order.
 # See https://warthogs.atlassian.net/browse/PERI-991 (original issue) and
 # https://warthogs.atlassian.net/browse/OEMQA-6781 (generic migration).
 plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/store_and_disable_watchdog
+group: stress-ng
 estimated_duration: '3.0'
 user: root
 summary: Store the systemd runtime watchdog state and disable it
@@ -153,6 +167,7 @@ command: stress_ng_watchdog.py disable
 plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/restore_watchdog
+group: stress-ng
 depends:
   - stress/store_and_disable_watchdog
 estimated_duration: '3.0'

@@ -484,6 +484,7 @@ command:
 
 plugin: user-interact-verify
 category_id: dragonwing-audio
+flags: also-after-suspend
 imports:
     from com.canonical.certification import executable
     from com.canonical.plainbox import manifest

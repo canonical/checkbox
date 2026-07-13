@@ -14,13 +14,13 @@ _name: Touchscreen tests (Manual)
 _description:
  Touchscreen tests (Manual)
 include:
- touchscreen/drag-n-drop                    certification-status=blocker
- touchscreen/multitouch-zoom                certification-status=blocker
- touchscreen/multitouch-rotate
- touchscreen/evdev/single-touch-tap-.*      certification-status=blocker
- touchscreen/evdev/2-touch-tap-.*           certification-status=blocker
- touchscreen/evdev/3-touch-tap-.*           certification-status=blocker
- touchscreen/evdev/4-touch-tap-.*           certification-status=blocker
+ touchscreen/evdev/single-touch-tap-product_slug      certification-status=blocker
+ touchscreen/evdev/2-touch-tap-product_slug           certification-status=blocker
+ touchscreen/evdev/3-touch-tap-product_slug           certification-status=blocker
+ touchscreen/evdev/4-touch-tap-product_slug           certification-status=blocker
+ touchscreen/drag-n-drop-product_slug                 certification-status=blocker
+ touchscreen/multitouch-zoom-product_slug             certification-status=blocker
+ touchscreen/multitouch-rotate-product_slug
 bootstrap_include:
  device
 
@@ -47,13 +47,13 @@ _name: Touchscreen tests (Manual after suspend)
 _description:
  Touchscreen tests (Manual after suspend)
 include:
- after-suspend-touchscreen/drag-n-drop                certification-status=blocker
- after-suspend-touchscreen/multitouch-zoom            certification-status=blocker
- after-suspend-touchscreen/multitouch-rotate
- after-suspend-touchscreen/evdev/single-touch-tap-.*  certification-status=blocker
- after-suspend-touchscreen/evdev/2-touch-tap-.*       certification-status=blocker
- after-suspend-touchscreen/evdev/3-touch-tap-.*       certification-status=blocker
- after-suspend-touchscreen/evdev/4-touch-tap-.*       certification-status=blocker
+ after-suspend-touchscreen/evdev/single-touch-tap-product_slug     certification-status=blocker
+ after-suspend-touchscreen/evdev/2-touch-tap-product_slug          certification-status=blocker
+ after-suspend-touchscreen/evdev/3-touch-tap-product_slug          certification-status=blocker
+ after-suspend-touchscreen/evdev/4-touch-tap-product_slug          certification-status=blocker
+ after-suspend-touchscreen/drag-n-drop-product_slug                certification-status=blocker
+ after-suspend-touchscreen/multitouch-zoom-product_slug            certification-status=blocker
+ after-suspend-touchscreen/multitouch-rotate-product_slug
 bootstrap_include:
  device
 
@@ -118,8 +118,8 @@ nested_part:
     after-suspend-touchscreen-cert-manual
     info-attachment-cert-full
 certification_status_overrides:
-    apply blocker to com.canonical.certification::touchscreen/multitouch-rotate
-    apply blocker to com.canonical.certification::after-suspend-touchscreen/multitouch-rotate
+    apply blocker to com.canonical.certification::touchscreen/multitouch-rotate-product_slug
+    apply blocker to com.canonical.certification::after-suspend-touchscreen/multitouch-rotate-product_slug
 
 id: touchscreen-base-26-04-automated
 unit: test plan

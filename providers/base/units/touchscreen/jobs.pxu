@@ -46,9 +46,18 @@ _verification:
     Does tap recognition work?
 _summary: Test for touchscreen tap recognition functionality.
 
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
 plugin: manual
 category_id: com.canonical.plainbox::touchscreen
-id: touchscreen/drag-n-drop
+id: touchscreen/drag-n-drop-{{ product_slug }}
+template-id: touchscreen/drag-n-drop-product_slug
+group: touchscreen_basic
+depends: touchscreen/evdev/single-touch-tap-{{ product_slug }}
+after: touchscreen/evdev/4-touch-tap-{{ product_slug }}
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
@@ -66,9 +75,18 @@ _verification:
 flags: also-after-suspend
 _summary: Assess touchscreen functionality for drag & drop tasks.
 
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::touchscreen
-id: touchscreen/multitouch-zoom
+id: touchscreen/multitouch-zoom-{{ product_slug }}
+template-id: touchscreen/multitouch-zoom-product_slug
+group: touchscreen_basic
+depends: touchscreen/evdev/2-touch-tap-{{ product_slug }}
+after: touchscreen/drag-n-drop-{{ product_slug }}
 _summary: Check touchscreen pinch gesture for zoom
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen_multitouch == 'True'
@@ -84,9 +102,18 @@ _verification:
     Did the blue square change size following the gesture?
 flags: also-after-suspend
 
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::touchscreen
-id: touchscreen/multitouch-rotate
+id: touchscreen/multitouch-rotate-{{ product_slug }}
+template-id: touchscreen/multitouch-rotate-product_slug
+group: touchscreen_basic
+depends: touchscreen/evdev/2-touch-tap-{{ product_slug }}
+after: touchscreen/drag-n-drop-{{ product_slug }}
 _summary: Check touchscreen pinch gesture for rotate
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen_multitouch == 'True'
@@ -214,6 +241,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/single-touch-tap-{{ product_slug }}
 template-id: touchscreen/evdev/single-touch-tap-product_slug
+group: touchscreen_basic
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
@@ -238,6 +266,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/2-touch-tap-{{ product_slug }}
 template-id: touchscreen/evdev/2-touch-tap-product_slug
+group: touchscreen_basic
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen_multitouch == 'True'
 estimated_duration: 10.0
@@ -264,6 +293,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/3-touch-tap-{{ product_slug }}
 template-id: touchscreen/evdev/3-touch-tap-product_slug
+group: touchscreen_basic
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen_multitouch == 'True'
 estimated_duration: 10.0
@@ -290,6 +320,7 @@ plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/4-touch-tap-{{ product_slug }}
 template-id: touchscreen/evdev/4-touch-tap-product_slug
+group: touchscreen_basic
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen_multitouch == 'True'
 estimated_duration: 10.0

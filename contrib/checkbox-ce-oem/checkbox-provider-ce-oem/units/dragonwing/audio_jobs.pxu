@@ -67,6 +67,7 @@ command:
 
 plugin: shell
 category_id: dragonwing-audio
+flags: also-after-suspend
 id: dragonwing-audio/check-acdb-files-exist
 imports: from com.canonical.plainbox import manifest
 requires:

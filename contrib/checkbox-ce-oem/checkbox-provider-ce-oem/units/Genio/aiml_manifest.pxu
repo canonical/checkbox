@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_genio_neuro_pilot_package_been_support
+_prompt: Genio Machine Learning Specific:
+_name: Genio specific?
+value-type: bool

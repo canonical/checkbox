@@ -177,13 +177,12 @@ command:
         # shellcheck disable=SC2013
         for tp_temp in $(cat "$zone"/trip_point_*_temp)
         do
-            # shellcheck disable=SC2086
-            if [ $tp_temp -gt 0 ]; then
+            if [ "$tp_temp" -gt 0 ]; then
                 pass=1
                 break
             fi
         done
-        if [ $pass -eq 0 ]; then
+        if [ "$pass" -eq 0 ]; then
             echo "$tp_type contains no valid trip point"
             tail "$zone"/trip_point_*_temp
             exit 1
@@ -244,21 +243,21 @@ command:
     {%- if __on_ubuntucore__ %}
         # 0 means active, all other error values are considered OK
         # because we only want to make sure that thermald is not running
-        if [ $RETVAL -eq 0 ];
+        if [ "$RETVAL" -eq 0 ];
         then
             echo "FAIL: thermald is active in core image."
             exit 1
         fi
         echo "PASS: thermald is inactive in core image"
     {%- else %}
-        if [ $RETVAL -ne 0 ];
+        if [ "$RETVAL" -ne 0 ];
         then
             echo "FAIL: thermald is not active"
             echo "==="
             echo "# journalctl -b -u thermald"
             journalctl -b -u thermald --no-pager
             echo "==="
-            exit $RETVAL
+            exit "$RETVAL"
         fi
         echo "PASS: thermald is active in classic image"
     {% endif -%}

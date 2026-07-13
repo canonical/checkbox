@@ -41,7 +41,7 @@ command:
             EXIT=1
         fi
     done
-    exit $EXIT
+    exit "$EXIT"
 
 unit: template
 template-resource: iiotg-tgpio/ptp-device-node-info

@@ -140,7 +140,7 @@ _purpose:
 environ:
     TSN_CREDIT_BASED_SHAPER_TESTING_TIME
 command:
-    iiotg_tsn.py --run credit_based_shaper --interface {{ interface }}  -t ${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-10} --server-ip {{ server_ip }}
+    iiotg_tsn.py --run credit_based_shaper --interface {{ interface }}  -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-10}" --server-ip {{ server_ip }}
 
 unit: template
 template-resource: iiotg-tsn/tsn-device-ip-match
@@ -163,7 +163,7 @@ _purpose:
 environ:
     TSN_CREDIT_BASED_SHAPER_TESTING_TIME
 command:
-    iiotg_tsn.py --run traffic_scheduling --interface {{ interface }} -t ${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-25} --server-ip {{ server_ip }}
+    iiotg_tsn.py --run traffic_scheduling --interface {{ interface }} -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-25}" --server-ip {{ server_ip }}
 
 
 unit: template

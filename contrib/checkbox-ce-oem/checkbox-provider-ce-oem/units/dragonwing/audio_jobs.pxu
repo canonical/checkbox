@@ -56,6 +56,7 @@ command:
 
 plugin: shell
 category_id: dragonwing-audio
+flags: also-after-suspend
 id: dragonwing-audio/check-diag-router-running
 imports: from com.canonical.plainbox import manifest
 requires:

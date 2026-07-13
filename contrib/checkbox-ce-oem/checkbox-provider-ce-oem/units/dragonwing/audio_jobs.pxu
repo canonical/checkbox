@@ -87,6 +87,7 @@ command:
 
 plugin: manual
 category_id: dragonwing-audio
+flags: also-after-suspend
 id: dragonwing-audio/decode-offload-CBR-stereo-mp3
 imports: from com.canonical.plainbox import manifest
 requires:

@@ -53,6 +53,7 @@ command:
         iiotg_tsn.py --parse-string "$TSN_DEVICE_IP_LIST"
     else
         echo "You did not set the environment variable 'TSN_DEVICE_IP_LIST'"
+        exit 1
     fi
 
 

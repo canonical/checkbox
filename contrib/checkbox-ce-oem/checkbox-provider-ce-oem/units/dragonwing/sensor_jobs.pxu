@@ -4,7 +4,7 @@ id: dragonwing-sensor/sensor-list
 _summary: get sensors list and supported rate
 environ: DRAGONWING_PLATFORM
 command:
-    dragonwing_sensor_test.py sensor-list -p "$DRAGONWING_PLATFORM"
+    [ -n "$DRAGONWING_PLATFORM" ] && dragonwing_sensor_test.py sensor-list -p "$DRAGONWING_PLATFORM" || exit 1
 
 _summary: Detect sensors on the system
 category_id: dragonwing-sensor
@@ -19,7 +19,7 @@ user: root
 plugin: shell
 environ: DRAGONWING_PLATFORM
 command: 
-    dragonwing_sensor_test.py detect-sensors -p "$DRAGONWING_PLATFORM"
+    [ -n "$DRAGONWING_PLATFORM" ] &&  dragonwing_sensor_test.py detect-sensors -p "$DRAGONWING_PLATFORM" || exit 1
 
 unit: template
 template-engine: jinja2

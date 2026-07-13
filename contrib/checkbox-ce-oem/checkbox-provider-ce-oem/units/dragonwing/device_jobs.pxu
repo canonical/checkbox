@@ -4,7 +4,7 @@ _summary: Collect and report the type of SoC
 estimated_duration: 0.1
 environ: DRAGONWING_SOC
 command:
-    echo "SoC: $DRAGONWING_SOC"
+    [ -n "$DRAGONWING_SOC" ] && "SoC: $DRAGONWING_SOC" || exit 1
     echo
 
 id: dragonwing_platform_info
@@ -13,5 +13,5 @@ _summary: Report the model type of platform
 estimated_duration: 0.1
 environ: DRAGONWING_PLATFORM
 command:
-    echo "Model: $DRAGONWING_PLATFORM"
+    [ -n "$DRAGONWING_PLATFORM" ] && echo "Model: $DRAGONWING_PLATFORM" || exit 1
     echo

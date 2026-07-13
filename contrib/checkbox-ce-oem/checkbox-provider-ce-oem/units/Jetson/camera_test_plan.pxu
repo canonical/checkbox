@@ -1,0 +1,25 @@
+id: jetson-camera-automated
+unit: test plan
+_name: Jetson automated camera tests
+_description: Automated Jetson camera tests
+include:
+    jetson-camera/nvargus-image_sensor_source_index
+    jetson-camera/gstreamer-image_sensor_source_index
+    jetson-camera/gstreamer-video_sensor_source_index
+bootstrap_include:
+    com.canonical.certification::device
+    jetson_camera_sensors
+    jetson_tegra_details
+
+id: jetson-core-camera-automated
+unit: test plan
+_name: Jetson core automated camera tests
+_description: Automated Jetson core camera tests
+include:
+    jetson-core-camera/nvargus-image_sensor_source_index
+    jetson-core-camera/gstreamer-image_sensor_source_index
+    jetson-core-camera/gstreamer-video_sensor_source_index
+bootstrap_include:
+    com.canonical.certification::device
+    jetson_camera_sensors
+    jetson_tegra_details

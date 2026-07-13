@@ -1,0 +1,159 @@
+unit: category
+id: jetson-camera
+_name: Jetson camera tests
+
+unit: category
+id: jetson-core-camera
+_name: Jetson core camera tests
+
+unit: template
+template-id: jetson-camera/nvargus-image_sensor_source_index
+id: jetson-camera/nvargus-image_sensor_{source_index}
+template-unit: job
+template-resource: jetson_camera_sensors
+_template-summary: Capture an image using nvargus_nvraw with HW accelerated JPEG encoding
+_summary: Capture an image using nvargus_nvraw (sensor{source_index})
+plugin: shell
+category_id: jetson-camera
+flags: also-after-suspend
+imports: 
+ from com.canonical.certification import package
+ from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'nvidia-tegra-drivers-36'
+ executable.name == 'nvargus_nvraw'
+ manifest.is_Jetson == 'True'
+command:
+  set -ex
+  unset DISPLAY
+  jetson_timeout_wrapper.sh 10s nvargus_nvraw --c {source_index} --format jpg --file "$HOME"/jetson-camera-nvargus-image_sensor_{source_index}.jpg
+
+unit: template
+template-id: jetson-core-camera/nvargus-image_sensor_source_index
+id: jetson-core-camera/nvargus-image_sensor_{source_index}
+template-unit: job
+template-resource: jetson_camera_sensors
+_template-summary: Capture an image using nvargus_nvraw with HW accelerated JPEG encoding
+_summary: Capture an image using nvargus_nvraw (sensor{source_index})
+plugin: shell
+category_id: jetson-core-camera
+flags: also-after-suspend
+user: root
+imports:
+ from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'nvargus_nvraw'
+ manifest.is_Jetson == 'True'
+command:
+  set -ex
+  unset DISPLAY
+  jetson_timeout_wrapper.sh 10s nvargus_nvraw --c {source_index} --format jpg --file "$HOME"/jetson-camera-nvargus-image_{source_index}.jpg
+
+unit: template
+template-id: jetson-camera/gstreamer-image_sensor_source_index
+id: jetson-camera/gstreamer-image_sensor_{source_index}
+template-unit: job
+template-resource: jetson_camera_sensors
+_template-summary: Capture an image via gstreamer with HW accelerated JPEG encoding
+_summary: Capture a JPEG image via gstreamer (sensor{source_index})
+plugin: shell
+category_id: jetson-camera
+flags: also-after-suspend
+imports: 
+ from com.canonical.certification import package
+ from com.canonical.certification import device
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'nvidia-tegra-drivers-36' or (package.name == 'nvidia-l4t-gstreamer' and package.name == 'nvidia-l4t-camera')
+ package.name == 'gstreamer1.0-tools'
+ manifest.is_Jetson == 'True'
+command:
+  set -ex
+  export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  unset DISPLAY
+  jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=1 sensor-id={source_index} ! \
+  'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12' ! nvjpegenc ! filesink \
+   location="$HOME"/jetson-camera-gstreamer-image_{source_index}.jpg
+
+unit: template
+template-id: jetson-core-camera/gstreamer-image_sensor_source_index
+id: jetson-core-camera/gstreamer-image_sensor_{source_index}
+template-unit: job
+template-resource: jetson_camera_sensors
+_template-summary: Capture an image via gstreamer with HW accelerated JPEG encoding
+_summary: Capture a JPEG image via gstreamer (sensor{source_index})
+plugin: shell
+category_id: jetson-core-camera
+flags: also-after-suspend
+user: root
+imports:
+ from com.canonical.certification import device
+ from com.canonical.plainbox import manifest
+requires: manifest.is_Jetson == 'True'
+command:
+  set -ex
+  export GST_PLUGIN_PATH="$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  unset DISPLAY
+  jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=1 sensor-id={source_index} ! \
+  'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12' ! nvjpegenc ! filesink \
+   location="$HOME"/jetson-camera-gstreamer-image_{source_index}.jpg
+
+unit: template
+template-id: jetson-camera/gstreamer-video_sensor_source_index
+id: jetson-camera/gstreamer-video_sensor_{source_index}
+template-unit: job
+template-resource: jetson_camera_sensors
+_template-summary: Record a video via gstreamer with H265 HW accelerated encoding
+_summary: Record an H265 video via gstreamer (sensor{source_index})
+plugin: shell
+category_id: jetson-camera
+flags: also-after-suspend
+imports: 
+ from com.canonical.certification import package
+ from com.canonical.certification import device
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'gstreamer1.0-tools'
+ package.name == 'nvidia-tegra-drivers-36' or (package.name == 'nvidia-l4t-gstreamer' and package.name == 'nvidia-l4t-camera')
+ jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
+ manifest.is_Jetson == 'True'
+command:
+  set -ex
+  export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  unset DISPLAY
+  jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=300 sensor-id={source_index} ! \
+  'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \
+  'format=(string)NV12, framerate=(fraction)30/1' ! \
+  nvv4l2h265enc bitrate=8000000 ! h265parse ! qtmux ! \
+  filesink location="$HOME"/jetson-camera-gstreamer-video_{source_index}.mp4
+
+unit: template
+template-id: jetson-core-camera/gstreamer-video_sensor_source_index
+id: jetson-core-camera/gstreamer-video_sensor_{source_index}
+template-unit: job
+template-resource: jetson_camera_sensors
+_template-summary: Record a video via gstreamer with H265 HW accelerated encoding
+_summary: Record an H265 video via gstreamer (sensor{source_index})
+plugin: shell
+category_id: jetson-core-camera
+flags: also-after-suspend
+user: root
+imports:
+ from com.canonical.certification import device
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
+ manifest.is_Jetson == 'True'
+command:
+  export GST_PLUGIN_SYSTEM_PATH="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0:"$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0
+  export GST_PLUGIN_SCANNER="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
+  unset DISPLAY
+  jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=300 sensor-id={source_index} ! \
+  'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \
+  'format=(string)NV12, framerate=(fraction)30/1' ! \
+  nvv4l2h265enc bitrate=8000000 ! h265parse ! qtmux ! \
+  filesink location="$HOME"/jetson-camera-gstreamer-video_{source_index}.mp4

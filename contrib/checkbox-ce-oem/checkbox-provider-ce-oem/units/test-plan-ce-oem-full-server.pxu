@@ -34,7 +34,6 @@ nested_part:
     genio-server-manual
     iiotg-server-manual
     jetson-server-manual
-    rz-server-manual
     xilinx-server-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*

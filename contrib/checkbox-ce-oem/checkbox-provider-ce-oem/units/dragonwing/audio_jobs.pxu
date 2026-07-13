@@ -45,6 +45,7 @@ _verification:
 
 plugin: shell
 category_id: dragonwing-audio
+flags: also-after-suspend
 id: dragonwing-audio/check-pulseaudio-running
 imports: from com.canonical.plainbox import manifest
 requires:

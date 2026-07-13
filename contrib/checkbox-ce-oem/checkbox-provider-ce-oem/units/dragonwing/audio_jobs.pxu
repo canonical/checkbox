@@ -26,6 +26,7 @@ _verification:
 
 plugin: manual
 category_id: dragonwing-audio
+flags: also-after-suspend
 id: dragonwing-audio/playback-16-bit-44100Hz-mono
 imports:
     from com.canonical.plainbox import manifest

@@ -1,0 +1,208 @@
+unit: job
+category_id: iiotg-tsn
+id: iiotg-tsn/tsn-detected
+plugin: shell
+_summary: Check if there is at least one ethernet interface support TSN
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_iiotg_tsn == 'True'
+user: root
+command:
+    DEVLIST=$(lspci |grep -i "ethernet controller" |cut -d' ' -f1)
+    exit_code=1
+    for DEVICE in $DEVLIST; do
+        if lspci -nnvv -s "$DEVICE" | grep -qi 'precision time measurement'; then
+            INTERFACE=""
+            for net_path in /sys/class/net/*; do
+                target_path=$(readlink -f "$net_path")
+                case "$target_path" in
+                    *"$DEVICE"*)
+                        INTERFACE=$(basename "$net_path")
+                        break
+                        ;;
+                esac
+            done
+            if [ -n "$INTERFACE" ]; then
+                echo "$INTERFACE : TSN supported!"
+                exit_code=0
+            fi
+        fi
+    done
+    echo ""
+    if [ "$exit_code" -eq 0 ]; then
+        echo "PASS: Found at least one ethernet interface supporting TSN!"
+    else
+        echo "FAIL: There's no ethernet interface supporting TSN!"
+    fi
+    exit "$exit_code"
+
+unit: job
+category_id: iiotg-tsn
+id: iiotg-tsn/tsn-device-ip-match
+plugin: resource
+_summary: list tsn ethernet interface and connected server ip
+_description:
+    It should be this format, INTERFACE:SERVER_IP
+    e.g. enp1s0:192.168.1.200,enp2s0:192.168.2.200
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+environ:
+    TSN_DEVICE_IP_LIST
+command:
+    if [ -v TSN_DEVICE_IP_LIST ]; then
+        iiotg_tsn.py --parse-string "$TSN_DEVICE_IP_LIST"
+    else
+        echo "You did not set the environment variable 'TSN_DEVICE_IP_LIST'"
+        exit 1
+    fi
+
+
+unit: template
+template-resource: iiotg-tsn/tsn-device-ip-match
+template-unit: job
+template-id: iiotg-tsn/test-env-setup
+template-engine: jinja2
+id: iiotg-tsn/test-env-setup-for-{{ interface }}
+category_id: iiotg-tsn
+_summary: Setup TSN testing environment for Ethernet interface {{ interface }}
+_description: 
+    Setup Testing environment for TSN
+depends: iiotg-tsn/tsn-detected
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_iiotg_tsn == 'True'
+plugin: shell
+user: root
+command:
+    iiotg_tsn_test_env_setup.sh {{ interface }}
+
+unit: template
+template-resource: iiotg-tsn/tsn-device-ip-match
+template-unit: job
+template-engine: jinja2
+template-id: iiotg-tsn/ieee802-1as-2011/ptp4l-interfaces
+_template-summary: Time sync to another machine via ethernet interfaces
+id: iiotg-tsn/ieee802-1as-2011/ptp4l-{{ interface }}
+category_id: iiotg-tsn
+_summary:
+    Time sync to another machine as client via {{ interface }}
+depends:
+    iiotg-tsn/tsn-detected
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_iiotg_tsn == 'True'
+plugin: shell
+user: root
+environ:
+    SNAP
+    PTP4L_TESTING_TIME
+    PTP_CLIENT_CFG
+command:
+    iiotg_tsn.py --run ptp4l -i {{ interface }} -t "${PTP4L_TESTING_TIME:-60}" --client-config "${PTP_CLIENT_CFG:-"$SNAP"/usr/share/doc/linuxptp/configs/automotive-slave.cfg}"
+
+unit: template
+template-resource: iiotg-tsn/tsn-device-ip-match
+template-unit: job
+template-engine: jinja2
+template-id: iiotg-tsn/ieee802-1as-2011/phc2sys-interfaces
+id: iiotg-tsn/ieee802-1as-2011/phc2sys-{{ interface }}
+category_id: iiotg-tsn
+_summary:
+    System time sync to PTP hardware clock on {{ interface }}
+depends:
+    iiotg-tsn/tsn-detected
+    iiotg-tsn/ieee802-1as-2011/ptp4l-{{ interface }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_iiotg_tsn == 'True'
+plugin: shell
+user: root
+environ:
+    SNAP
+    PHC2SYS_TESTING_TIME
+    PTP_CLIENT_CFG
+command:
+    iiotg_tsn.py --run phc2sys -i {{ interface }} -t "${PHC2SYS_TESTING_TIME:-60}" --client-config "${PTP_CLIENT_CFG:-"$SNAP"/usr/share/doc/linuxptp/configs/automotive-slave.cfg}"
+
+unit: template
+template-resource: iiotg-tsn/tsn-device-ip-match
+template-unit: job
+template-engine: jinja2
+template-id: iiotg-tsn/ieee802-1qav/credit-based-shaper
+id: iiotg-tsn/ieee802-1qav/credit-based-shaper-{{ interface }}
+category_id: iiotg-tsn
+_summary: Credit-Based Shaper on {{ interface }}
+depends:
+    iiotg-tsn/tsn-detected
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_iiotg_tsn == 'True'
+plugin: shell
+user: root
+_purpose:
+    To check if the system can send packets in the certain rate
+environ:
+    TSN_CREDIT_BASED_SHAPER_TESTING_TIME
+command:
+    iiotg_tsn.py --run credit_based_shaper --interface {{ interface }}  -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-10}" --server-ip {{ server_ip }}
+
+unit: template
+template-resource: iiotg-tsn/tsn-device-ip-match
+template-unit: job
+template-engine: jinja2
+template-id: iiotg-tsn/ieee802-1qbv/traffic-scheduling
+id: iiotg-tsn/ieee802-1qbv/traffic-scheduling-{{ interface }}
+category_id: iiotg-tsn
+_summary: Traffic scheduling on {{ interface }}
+depends:
+    iiotg-tsn/tsn-detected
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_iiotg_tsn == 'True'
+plugin: shell
+user: root
+_purpose:
+    To check if the system can transmit 4 streams of iperf udp traffic
+    using TAPRIO qdisc to limit the bandwidth of each stream.
+environ:
+    TSN_CREDIT_BASED_SHAPER_TESTING_TIME
+command:
+    iiotg_tsn.py --run traffic_scheduling --interface {{ interface }} -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-25}" --server-ip {{ server_ip }}
+
+
+unit: template
+template-resource: iiotg-tsn/tsn-device-ip-match
+template-unit: job
+template-id: iiotg-tsn/ieee802-1qbu/check-frame-preemption
+id: iiotg-tsn/ieee802-1qbu/check-frame-preemption-{interface}
+category_id: iiotg-tsn
+_summary: Frame preemption check
+depends:
+    iiotg-tsn/tsn-detected
+plugin: shell
+user: root
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import snap
+requires:
+    snap.name == "ethtool-rt"
+    manifest.has_iiotg_tsn == 'True'
+command:
+    echo "## Setting frame preemption on..."
+    ethtool-rt.ethtool --set-frame-preemption {interface} fp on
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "[FAIL] Cannot set frame preemption via the command below"
+        echo "ethtool-rt.ethtool --set-frame-preemption {interface} fp on"
+        echo ""
+        exit 1
+    fi
+    echo "## Showing frame preemption settings..."
+    output=$(ethtool-rt.ethtool --show-frame-preemption {interface})
+    echo "$output"
+    if ! echo "$output" | grep -q "enabled: enabled"; then
+        echo "[FAIL] Frame Preemption is not enabled!"
+        echo ""
+        exit 1
+    fi
+    echo "[PASS] Set Frame Preemption successfully!"

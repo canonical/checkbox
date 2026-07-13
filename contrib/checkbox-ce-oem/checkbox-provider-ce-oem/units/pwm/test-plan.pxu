@@ -4,8 +4,8 @@ _name: PWM tests
 _description:
     Full PWM sysfs validation tests for devices.
 include:
-    nested_part:
-        ce-oem-pwm-automated
+nested_part:
+    ce-oem-pwm-automated
 
 id: ce-oem-pwm-automated
 unit: test plan

@@ -2,8 +2,11 @@ id: jetson_nvpmodel_list_core
 estimated_duration: 0.01
 plugin: resource
 command:
-    # Self-gating: nvpmodel snap not installed — no records.
-    [ -d /snap/nvpmodel ] || exit 0
+    # Fail visibly: the core nvpmodel plan requires the nvpmodel snap.
+    if [ ! -d /snap/nvpmodel ]; then
+        echo "nvpmodel snap not installed" >&2
+        exit 1
+    fi
     model_count=$(sudo snap run nvpmodel.nvpmodel --parse --verbose | grep -c POWER_MODEL)
     f=$((model_count - 1))
     while [ "$f" -ge 0 ]

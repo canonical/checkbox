@@ -2,8 +2,14 @@ id: jetson_tensorrt_samples_list
 estimated_duration: 0.01
 plugin: resource
 command:
-    # Self-gating: no sample runner installed — no records.
-    [ -x /opt/nvidia/run-tensorrt-samples.py ] || exit 0
+    # The deb and snap variants bootstrap in the same plans: stay quiet
+    # when the core (snap) variant covers this device, fail visibly when
+    # no tensorrt-samples variant is present at all.
+    if [ ! -x /opt/nvidia/run-tensorrt-samples.py ]; then
+        [ -f /snap/tensorrt-samples/current/etc/tensorrt-samples.list ] && exit 0
+        echo "tensorrt-samples not found (neither deb runner nor snap)" >&2
+        exit 1
+    fi
     /opt/nvidia/run-tensorrt-samples.py --list
 _description: Creates resource info for Tensor RT samples tests
 
@@ -11,7 +17,13 @@ id: jetson_tensorrt_samples_list_core
 estimated_duration: 0.01
 plugin: resource
 command:
-    # Self-gating: tensorrt-samples snap not installed — no records.
-    [ -f /snap/tensorrt-samples/current/etc/tensorrt-samples.list ] || exit 0
+    # The deb and snap variants bootstrap in the same plans: stay quiet
+    # when the deb variant covers this device, fail visibly when no
+    # tensorrt-samples variant is present at all.
+    if [ ! -f /snap/tensorrt-samples/current/etc/tensorrt-samples.list ]; then
+        [ -x /opt/nvidia/run-tensorrt-samples.py ] && exit 0
+        echo "tensorrt-samples not found (neither snap nor deb runner)" >&2
+        exit 1
+    fi
     while IFS= read -r f; do printf "name: %s\n\n" "$f"; done < /snap/tensorrt-samples/current/etc/tensorrt-samples.list
 _description: Creates resource info for Tensor RT samples tests

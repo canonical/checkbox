@@ -1,0 +1,6 @@
+id: dragonwing-misc-automated
+unit: test plan
+_name: Dragonwing automated miscellanea tests
+_description: Automated miscellanea tests for dragonwing
+include:
+    dragonwing-misc/check-zram-enablement

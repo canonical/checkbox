@@ -1,0 +1,150 @@
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/overlay-static-image-automated
+flags: also-after-suspend
+_summary: Test video overlay - static image
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    setprop persist.overlay.use_c2d_blit 2
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivoverlay images="{(structure)\"Image1,path=$GST_TEST_DATA/video/static_image.rgba,resolution=<240,56>,destination=<0,0,240,56>;\"}" \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
+    ! queue ! h264parse ! mp4mux ! queue \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/overlay-static-image-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/overlay-usertext-automated
+flags: also-after-suspend
+_summary: Test video overlay - usertext
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    setprop persist.overlay.use_c2d_blit 2
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivoverlay strings="{(structure)\"Text1,contents=\\\"Ubuntu\ Testing\\\",fontsize=40,position=<20,20>,color=0xFF00FFFF;\"}" \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
+    ! queue ! h264parse ! mp4mux ! queue \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/overlay-usertext-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/overlay-datetime-automated
+flags: also-after-suspend
+_summary: Test video overlay - datetime
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    setprop persist.overlay.use_c2d_blit 2
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivoverlay timestamps="{(structure)\"Date/Time,format=\\\"%d/%m/%Y\ %H:%M:%S\\\",fontsize=40,position=<20,20>,color=0xff0000ff;\"}" \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
+    ! queue ! h264parse ! mp4mux ! queue \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/overlay-datetime-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/overlay-boundingbox-automated
+flags: also-after-suspend
+_summary: Test video overlay - boundingbox
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    setprop persist.overlay.use_c2d_blit 2
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivoverlay bboxes="{(structure)\"Box1,position=<150,150>,dimensions=<300,400>,color=0xFF0000FF;\"}" \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
+    ! queue ! h264parse ! mp4mux ! queue \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/overlay-boundingbox-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/overlay-non-inverse-circular-automated
+flags: also-after-suspend
+_summary: Test video overlay - non-inverse-circular
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    setprop persist.overlay.use_c2d_blit 2
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivoverlay masks="{(structure)\"Mask1,color=0xff0011ff,circle=<200,200,100>;\"}" \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
+    ! queue ! h264parse ! mp4mux ! queue \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/overlay-non-inverse-circular-automated.mp4"
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/overlay
+flags: also-after-suspend
+_summary: Test video overlay pipelines and check the output video clips
+_purpose: Test video overlay pipelines and check the output video clips
+_steps:
+    1. Set overlay property with below command
+    $ setprop persist.overlay.use_c2d_blit 2
+    2. Test the below command with different overlay user cases
+    $ gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivoverlay {overlay user cases} \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
+    ! queue ! h264parse ! mp4mux ! queue \
+    ! filesink location=overlay.mp4
+    ---
+    Overlay user cases:
+    - images="{(structure)\"Image1,path=static_image.rgba,resolution=<240,56>,destination=<0,0,240,56>;\"}"
+    - strings="{(structure)\"Text1,contents=\\\"Ubuntu\ Testing\\\",fontsize=40,position=<0,0>,color=0xFF00FFFF;\"}"
+    - timestamps="{(structure)\"Date/Time,format=\\\"%d/%m/%Y\ %H:%M:%S\\\",fontsize=20,position=<0,0>,color=0xff0000ff;\"}"
+    - masks="{(structure)\"Mask1,color=0xff0011ff,circle=<100,100,50>;\"}"
+    - bboxes="{(structure)\"Box1,position=<100,100>,dimensions=<200,300>,color=0xFF0000FF;\"}"
+_verification:
+    check the output overlay.mp4, no abnormal symptoms are observed

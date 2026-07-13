@@ -1,0 +1,260 @@
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-rotate-90-automated
+flags: also-after-suspend
+_summary: Test video rotate for 90 degree
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform rotate=90CW ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-rotate-90-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-rotate-180-automated
+flags: also-after-suspend
+_summary: Test video rotate for 180 degree
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform rotate=180 ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-rotate-180-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-rotate-90CCW-automated
+flags: also-after-suspend
+_summary: Test video rotate for 90CCW degree
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform rotate=90CCW ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-rotate-90CCW-automated.mp4"
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-rotate
+flags: also-after-suspend
+_summary: Test video rotate pipeline and check the output video clips
+_purpose: Test video rotate pipeline and check the output video clips
+_steps:
+    1. Test the below command with rotate=90CW/180/90CCW
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform rotate={rotate_degree} ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location=transform-rotate.mp4
+_verification:
+    check the output transform-rotate.mp4, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-horizontal-flip-automated
+flags: also-after-suspend
+_summary: Test video horizontal flip
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform flip-horizontal=true ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-horizontal-flip-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-vertical-flip-automated
+flags: also-after-suspend
+_summary: Test video vertical flip
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform flip-vertical=true ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-vertical-flip-automated.mp4"
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-flip
+flags: also-after-suspend
+_summary: Test video flip pipeline and check the output video clips
+_purpose: Test video flip pipeline and check the output video clips
+_steps:
+    1. Test the below command with flip-{horizontal/vertical}=true
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform flip-{horizontal/vertical}=true ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location=transform-flip.mp4
+_verification:
+    check the output transform-flip.mp4, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-scale-720p-4k-automated
+flags: also-after-suspend
+_summary: Test video scale from 720p to 4k
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform ! queue ! video/x-raw,format=NV12_Q08C,width=3840,height=2160,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-scale-720p-4k-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-scale-480p-1080p-automated
+flags: also-after-suspend
+_summary: Test video scale from 480p to 1080p
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/480p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-scale-480p-1080p-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-scale-4k-720p-automated
+flags: also-after-suspend
+_summary: Test video scale from 4k to 720p
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform ! queue ! video/x-raw,format=NV12_Q08C,width=1280,height=720,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-scale-4k-720p-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-scale-1080p-480p-automated
+flags: also-after-suspend
+_summary: Test video scale from 1080p to 480p
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform ! queue ! video/x-raw,format=NV12_Q08C,width=640,height=480,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location="$PLAINBOX_SESSION_SHARE/video/transform-scale-1080p-480p-automated.mp4"
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/transform-scale
+flags: also-after-suspend
+_summary: Test video scale pipeline and check the output video clips
+_purpose: Test video scale pipeline and check the output video clips
+_steps:
+    1. Test the below command with scale resolutions
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/{before_resolution}_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivtransform ! queue ! video/x-raw,format=NV12_Q08C,width={after-width},height={after-height},framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! queue ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue \
+    ! mp4mux ! queue ! filesink location=transform-scale.mp4
+_verification:
+    check the output transform-scale.mp4, no abnormal symptoms are observed

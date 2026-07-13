@@ -1,0 +1,291 @@
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h264-480p-automated
+flags: also-after-suspend
+_summary: Test video encoder H264 480p 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/480p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-h264-480p-automated.h264"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h264-720p-automated
+flags: also-after-suspend
+_summary: Test video encoder H264 720p 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-h264-720p-automated.h264"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h264-1080p-automated
+flags: also-after-suspend
+_summary: Test video encoder H264 1080p 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-h264-1080p-automated.h264"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h264-4k-automated
+flags: also-after-suspend
+_summary: Test video encoder H264 4k 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-h264-4k-automated.h264"
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h264
+flags: also-after-suspend
+_summary: Test video encoder pipeline and check the output video clips
+_purpose: Test video encoder pipeline and check the output video clips
+_steps:
+    1. Test the below command with maximum/minimum supported resolutions
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/{resolution}_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location=encoder.h264
+_verification:
+    check the output encoder.h264, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h265-480p-automated
+flags: also-after-suspend
+_summary: Test video encoder H265 480p 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/480p_30fps_h265.mp4" \
+    ! qtdemux ! queue ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h265enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-h265-480p-automated.h265"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h265-720p-automated
+flags: also-after-suspend
+_summary: Test video encoder H265 720p 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h265.mp4" \
+    ! qtdemux ! queue ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h265enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-h265-720p-automated.h265"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h265-1080p-automated
+flags: also-after-suspend
+_summary: Test video encoder H265 1080p 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h265.mp4" \
+    ! qtdemux ! queue ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h265enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-h265-1080p-automated.h265"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h265-4k-automated
+flags: also-after-suspend
+_summary: Test video encoder H265 4k 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_h265.mp4" \
+    ! qtdemux ! queue ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h265enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-h265-4k-automated.h265"
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-h265
+flags: also-after-suspend
+_summary: Test video encoder pipeline and check the output video clips
+_purpose: Test video encoder pipeline and check the output video clips
+_steps:
+    1. Test the below command with maximum/minimum supported resolutions
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/{resolution}_30fps_h265.mp4" \
+    ! qtdemux ! queue ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h265enc capture-io-mode=4 output-io-mode=5 \
+    ! filesink location=encoder.h265
+_verification:
+    check the output encoder.h265, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-slice-based-10-slices-automated
+flags: also-after-suspend
+_summary: Test slice-based encoding - 10 slices per framerate
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,slice_partitioning_method=1,number_of_mbs_in_a_slice=368,video_bitrate_mode=1;" \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-slice-based-10-slices-automated.h264"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-slice-based-8-slices-automated
+flags: also-after-suspend
+_summary: Test slice-based encoding - 8 slices per framerate
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,slice_partitioning_method=1,number_of_mbs_in_a_slice=460,video_bitrate_mode=1;" \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-slice-based-8-slices-automated.h264"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-slice-based-3-slices-automated
+flags: also-after-suspend
+_summary: Test slice-based encoding - 3 slices per framerate
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,slice_partitioning_method=1,number_of_mbs_in_a_slice=2720,video_bitrate_mode=1;" \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-slice-based-3-slices-automated.h264"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/encoder-slice-based-max-bytes-automated
+flags: also-after-suspend
+_summary: Test slice-based encoding - max bytes
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,slice_partitioning_method=2,maximum_bytes_in_a_slice=2500,video_bitrate_mode=1;" \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/encoder-slice-based-max-bytes-automated.h264"

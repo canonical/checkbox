@@ -1,0 +1,135 @@
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/split-9-streams-automated
+flags: also-after-suspend
+_summary: Test video split to 9 streams 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivsplit name=split \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    qtivcomposer name=mixer sink_0::position="<0, 0>" sink_0::dimensions="<640, 360>" \
+    sink_1::position="<640, 0>" sink_1::dimensions="<640, 360>" \
+    sink_2::position="<1280, 0>" sink_2::dimensions="<640, 360>" \
+    sink_3::position="<0, 360>" sink_3::dimensions="<640, 360>" \
+    sink_4::position="<640, 360>" sink_4::dimensions="<640, 360>" \
+    sink_5::position="<1280, 360>" sink_5::dimensions="<640, 360>" \
+    sink_6::position="<0, 720>" sink_6::dimensions="<640, 360>" \
+    sink_7::position="<640, 720>" sink_7::dimensions="<640, 360>" \
+    sink_8::position="<1280, 720>" sink_8::dimensions="<640, 360>" mixer. \
+    ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue ! mp4mux ! queue \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/split-9-streams-automated.mp4"
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/split-16-streams-automated
+flags: also-after-suspend
+_summary: Test video split to 16 streams 
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivsplit name=split \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    qtivcomposer name=mixer sink_0::position="<0, 0>" sink_0::dimensions="<480, 270>" \
+    sink_1::position="<480, 0>" sink_1::dimensions="<480, 270>" \
+    sink_2::position="<960, 0>" sink_2::dimensions="<480, 270>" \
+    sink_3::position="<1440, 0>" sink_3::dimensions="<480, 270>" \
+    sink_4::position="<0,270>" sink_4::dimensions="<480, 270>" \
+    sink_5::position="<480,270>" sink_5::dimensions="<480, 270>" \
+    sink_6::position="<960, 270>" sink_6::dimensions="<480, 270>" \
+    sink_7::position="<1440, 270>" sink_7::dimensions="<480, 270>" \
+    sink_8::position="<0, 540>" sink_8::dimensions="<480, 270>" \
+    sink_9::position="<480, 540>" sink_9::dimensions="<480, 270>" \
+    sink_10::position="<960, 540>" sink_10::dimensions="<480, 270>" \
+    sink_11::position="<1440, 540>" sink_11::dimensions="<480, 270>" \
+    sink_12::position="<0, 810>" sink_12::dimensions="<480, 270>" \
+    sink_13::position="<480, 810>" sink_13::dimensions="<480, 270>" \
+    sink_14::position="<960, 810>" sink_14::dimensions="<480, 270>" \
+    sink_15::position="<1440, 810>" sink_15::dimensions="<480, 270>" mixer. \
+    ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue ! mp4mux ! queue \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/video/split-16-streams-automated.mp4"
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/split
+flags: also-after-suspend
+_summary: Test video split pipelines and check the output video clips
+_purpose: Test video split pipelines and check the output video clips
+_steps:
+    1. Test the below command with multiple streams output
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" \
+    ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
+    ! qtivsplit name=split \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    split. ! queue ! mixer. \
+    qtivcomposer name=mixer sink_0::position="<0, 0>" sink_0::dimensions="<640, 360>" \
+    sink_1::position="<640, 0>" sink_1::dimensions="<640, 360>" \
+    sink_2::position="<1280, 0>" sink_2::dimensions="<640, 360>" \
+    sink_3::position="<0, 360>" sink_3::dimensions="<640, 360>" \
+    sink_4::position="<640, 360>" sink_4::dimensions="<640, 360>" \
+    sink_5::position="<1280, 360>" sink_5::dimensions="<640, 360>" \
+    sink_6::position="<0, 720>" sink_6::dimensions="<640, 360>" \
+    sink_7::position="<640, 720>" sink_7::dimensions="<640, 360>" \
+    sink_8::position="<1280, 720>" sink_8::dimensions="<640, 360>" mixer. \
+    ! queue ! video/x-raw,format=NV12_Q08C,width=1920,height=1080,framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! queue ! mp4mux ! queue \
+    ! filesink location=split.mp4
+_verification:
+    check the output split.mp4, no abnormal symptoms are observed

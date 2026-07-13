@@ -1,5 +1,6 @@
 plugin: user-interact-verify
 category_id: dragonwing-audio
+flags: also-after-suspend
 id: dragonwing-audio/record-16-bit-48000Hz-stereo
 imports:
     from com.canonical.plainbox import manifest

@@ -38,3 +38,30 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_pdu == 'True'
 command: reboot_check_test.sh -s
 estimated_duration: 1.0
+
+
+id: ce-oem-power-management/usb_wakeup_hid
+category_id: com.canonical.plainbox::power-management
+_summary: Wake from suspend via USB HID device
+_purpose:
+    To check that a USB HID device can wake the system from suspend.
+_description:
+    This test suspends the system and asks the operator to wake it with a
+    connected USB HID device, such as a keyboard or mouse.
+_steps:
+    1. Enable USB wake-up support in firmware/BIOS if required.
+    2. Connect a USB HID device, such as a keyboard or mouse.
+    3. Press "Test" to enter suspend mode.
+    4. Wait at least 30 seconds to confirm the system stays suspended and does
+       not automatically resume.
+    5. Press a key or click/move the USB HID device to wake the system.
+_verification:
+    Did the system wake up from suspend when you used the USB HID device?
+unit: job
+plugin: user-interact-verify
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_usb_wakeup_hid == 'True'
+depends: com.canonical.certification::suspend/suspend_advanced_auto
+command: systemctl suspend
+user: root
+estimated_duration: 120.0

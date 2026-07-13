@@ -4,6 +4,7 @@ _name: Xilinx Package Functionality Tests
 
 id: xilinx-package-test/dfx-mgr-with-no-args
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: DFX Manager Package - Call With No Args
 imports:
@@ -21,6 +22,7 @@ command:
 
 id: xilinx-package-test/dfx-mgr-with-unknown
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: DFX Manager Package - Call With Unknown Option
 imports:
@@ -38,6 +40,7 @@ command:
 
 id: xilinx-package-test/dfx-mgr-listPackage
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: DFX Manager Package - listPackage Option
 imports:
@@ -55,6 +58,7 @@ command:
 
 id: xilinx-package-test/dfx-mgr-help
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: DFX Manager Package - help Option
 imports:
@@ -72,6 +76,7 @@ command:
 
 id: xilinx-package-test/dfx-mgr-load
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: DFX Manager Package - load Option
 imports:
@@ -89,6 +94,7 @@ command:
 
 id: xilinx-package-test/dfx-mgr-remove
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: DFX Manager Package - remove Option
 imports:
@@ -106,6 +112,7 @@ command:
 
 id: xilinx-package-test/dfx-mgr-listUIO
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: DFX Manager Package - listUIO Option
 imports:
@@ -225,6 +232,7 @@ command:
 
 id: xilinx-package-test/kria-dashboard-is-running
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Kria Dashboard Package - Runs Correctly
 imports:
@@ -241,6 +249,7 @@ command:
 
 id: xilinx-package-test/kria-dashboard-serves
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Kria Dashboard Package - Serves Correctly
 imports:
@@ -257,6 +266,7 @@ command:
 
 id: xilinx-package-test/kria-dashboard-restart
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Kria Dashboard Package - Restarts Correctly
 imports:
@@ -273,6 +283,7 @@ command:
 
 id: xilinx-package-test/kria-dashboard-stop
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Kria Dashboard Package - Stops Correctly
 imports:
@@ -289,6 +300,7 @@ command:
 
 id: xilinx-package-test/xrt-help-option
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Xilinx Runtime Package - help Option
 imports:
@@ -306,6 +318,7 @@ command:
 
 id: xilinx-package-test/xrt-version-option
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Xilinx Runtime Package - version Option
 imports:
@@ -323,6 +336,7 @@ command:
 
 id: xilinx-package-test/xrt-examine-option
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Xilinx Runtime Package - examine Option
 imports:
@@ -340,6 +354,7 @@ command:
 
 id: xilinx-package-test/xrt-examine-help
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Xilinx Runtime Package - examine --help Option
 imports:
@@ -357,6 +372,7 @@ command:
 
 id: xilinx-package-test/xrt-examine-devices
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Xilinx Runtime Package - examine Check Devices
 imports:
@@ -375,6 +391,7 @@ command:
 
 id: xilinx-package-test/xrt-configure-option
 category_id: xilinx-package-tests
+flags: also-after-suspend
 plugin: shell
 _summary: Xilinx Runtime Package - configure Option
 imports:

@@ -4,6 +4,7 @@ _name: Xilinx Video Codec Unit
 
 id: xilinx-vcu/decoder-h264
 category_id: xilinx-vcu
+flags: also-after-suspend
 plugin: shell
 estimated_duration: 10s
 imports: from com.canonical.plainbox import manifest
@@ -19,6 +20,7 @@ _summary: H.264 decoder test
 
 id: xilinx-vcu/decoder-h265
 category_id: xilinx-vcu
+flags: also-after-suspend
 plugin: shell
 estimated_duration: 1m
 imports: from com.canonical.plainbox import manifest
@@ -34,6 +36,7 @@ _summary: H.265 decoder test
 
 id: xilinx-vcu/encoder-h264
 category_id: xilinx-vcu
+flags: also-after-suspend
 plugin: shell
 estimated_duration: 1m
 imports: from com.canonical.plainbox import manifest
@@ -48,6 +51,7 @@ _summary: H.264 encoder test
 
 id: xilinx-vcu/encoder-h265
 category_id: xilinx-vcu
+flags: also-after-suspend
 plugin: shell
 estimated_duration: 1m
 imports: from com.canonical.plainbox import manifest

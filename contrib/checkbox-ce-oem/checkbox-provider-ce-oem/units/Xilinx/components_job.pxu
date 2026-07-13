@@ -13,6 +13,7 @@ _summary: Check all DTB compatible properties are loaded in /proc/device-tree
 command: xilinx_component_test.py {short_name}
 plugin: shell
 category_id: xilinx-dtb-components
+flags: also-after-suspend
 estimated_duration: 1m
 imports:
     from com.canonical.certification import package

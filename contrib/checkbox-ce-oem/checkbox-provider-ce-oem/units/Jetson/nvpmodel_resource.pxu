@@ -1,9 +1,9 @@
 id: jetson_nvpmodel_list_core
 estimated_duration: 0.01
 plugin: resource
-imports: from com.canonical.plainbox import manifest
-requires: manifest.is_Jetson == 'True'
 command:
+    # Self-gating: nvpmodel snap not installed — no records.
+    [ -d /snap/nvpmodel ] || exit 0
     model_count=$(sudo snap run nvpmodel.nvpmodel --parse --verbose | grep -c POWER_MODEL)
     f=$((model_count - 1))
     while [ "$f" -ge 0 ]
@@ -26,10 +26,8 @@ estimated_duration: 0.01
 plugin: resource
 imports:
  from com.canonical.certification import executable
- from com.canonical.plainbox import manifest
 requires:
  executable.name == 'nvpmodel'
- manifest.is_Jetson == 'True'
 command:
     model_count=$(nvpmodel --parse --verbose | grep -c POWER_MODEL)
     f=$((model_count - 1))

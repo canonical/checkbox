@@ -1,19 +1,19 @@
 id: jetson_tegra_details
 estimated_duration: 0.02
 plugin: resource
-imports: from com.canonical.plainbox import manifest
-requires: manifest.is_Jetson == 'True'
 command:
-    echo "qspi-version: $(cat /sys/class/dmi/id/bios_date)--$(cat /sys/class/dmi/id/bios_version)"
+    # Self-gating: no device-tree model means not a Jetson — no records.
+    [ -e /proc/device-tree/model ] || exit 0
+    echo "qspi-version: $(cat /sys/class/dmi/id/bios_date 2>/dev/null)--$(cat /sys/class/dmi/id/bios_version 2>/dev/null)"
     echo "model: $(tr -d '\0' < /proc/device-tree/model)"
 _description: Get the Jetson device details
 
 id: jetson_lockdown
 plugin: resource
 _summary: Get kernel lockdown mode
-imports: from com.canonical.plainbox import manifest
-requires: manifest.is_Jetson == 'True'
 command:
+    # Self-gating: no lockdown interface — no records.
+    [ -f /sys/kernel/security/lockdown ] || exit 0
     # lockdown mode can be none, integrity or confidentiality
     lockdown_mode=$(grep -o "\[.*\]" < /sys/kernel/security/lockdown | sed 's/\[//g ; s/\]//g')
     echo "mode: $lockdown_mode"

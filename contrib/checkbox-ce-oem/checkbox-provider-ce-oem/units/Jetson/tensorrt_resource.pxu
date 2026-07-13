@@ -1,17 +1,17 @@
 id: jetson_tensorrt_samples_list
 estimated_duration: 0.01
 plugin: resource
-imports: from com.canonical.plainbox import manifest
-requires: manifest.is_Jetson == 'True'
 command:
+    # Self-gating: no sample runner installed — no records.
+    [ -x /opt/nvidia/run-tensorrt-samples.py ] || exit 0
     /opt/nvidia/run-tensorrt-samples.py --list
 _description: Creates resource info for Tensor RT samples tests
 
 id: jetson_tensorrt_samples_list_core
 estimated_duration: 0.01
 plugin: resource
-imports: from com.canonical.plainbox import manifest
-requires: manifest.is_Jetson == 'True'
 command:
+    # Self-gating: tensorrt-samples snap not installed — no records.
+    [ -f /snap/tensorrt-samples/current/etc/tensorrt-samples.list ] || exit 0
     while IFS= read -r f; do printf "name: %s\n\n" "$f"; done < /snap/tensorrt-samples/current/etc/tensorrt-samples.list
 _description: Creates resource info for Tensor RT samples tests

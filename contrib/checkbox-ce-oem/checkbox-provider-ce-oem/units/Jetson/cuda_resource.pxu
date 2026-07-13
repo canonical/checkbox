@@ -1,17 +1,17 @@
 id: jetson_cuda_samples_list
 estimated_duration: 0.01
 plugin: resource
-imports: from com.canonical.plainbox import manifest
-requires: manifest.is_Jetson == 'True'
 command:
+    # Self-gating: no sample runner installed — no records.
+    [ -x /opt/nvidia/run-cuda-samples.py ] || exit 0
     /opt/nvidia/run-cuda-samples.py --list
 _description: Creates resource info for CUDA-samples tests
 
 id: jetson_cuda_samples_list_core
 estimated_duration: 0.01
 plugin: resource
-imports: from com.canonical.plainbox import manifest
-requires: manifest.is_Jetson == 'True'
 command:
+    # Self-gating: cuda-samples snap not installed — no records.
+    [ -f /snap/cuda-samples/current/etc/cuda-samples.list ] || exit 0
     while IFS= read -r f; do printf "name: %s\n\n" "$f"; done < /snap/cuda-samples/current/etc/cuda-samples.list
 _description: Creates resource info for CUDA-samples tests

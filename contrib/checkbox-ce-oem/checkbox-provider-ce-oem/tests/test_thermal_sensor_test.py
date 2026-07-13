@@ -1,6 +1,10 @@
 import unittest
 import argparse
+import tempfile
+import io
 from unittest import mock
+from unittest.mock import PropertyMock
+from pathlib import Path
 import thermal_sensor_test
 
 
@@ -57,13 +61,23 @@ class ThermalMonitorTest(unittest.TestCase):
                 name="fake-thermal", duration=30, extra_commands="stress-ng"
             )
         )
-        mock_text.side_effect = ["30000", "30000", "31000"]
+        mock_text.side_effect = [
+            "acpitz",
+            "acpitz",
+            "enabled",
+            "30000",
+            "31000",
+            "acpitz",
+        ]
         mock_check_temp.return_value = True
 
         with self.assertLogs() as lc:
             thermal_sensor_test.thermal_monitor_test(mock_args())
             self.assertIn(
-                "# The temperature of fake-thermal thermal has been altered",
+                (
+                    "# The temperature of fake-thermal "
+                    "(acpitz) thermal has been altered"
+                ),
                 lc.output[-1],
             )
 
@@ -79,8 +93,186 @@ class ThermalMonitorTest(unittest.TestCase):
                 name="fake-thermal", duration=2, extra_commands="stress-ng"
             )
         )
-        mock_text.return_value = "30000"
+        mock_text.side_effect = [
+            "acpitz",
+            "acpitz",
+            "enabled",
+            "30000",
+            "30000",
+            "30000",
+            "acpitz",
+        ]
         mock_check_temp.return_value = False
 
         with self.assertRaises(SystemExit):
             thermal_sensor_test.thermal_monitor_test(mock_args())
+
+    @mock.patch("pathlib.Path.read_text")
+    @mock.patch("pathlib.Path.exists")
+    def test_thermal_monitor_ignore_temp_check_reads_once(
+        self, mock_exists, mock_text
+    ):
+        mock_args = mock.Mock(
+            return_value=argparse.Namespace(
+                name="fake-thermal",
+                duration=30,
+                extra_commands="stress-ng",
+                stable_id=None,
+                zone_type=None,
+            )
+        )
+        mock_exists.return_value = True
+        mock_text.side_effect = [
+            "acpitz",
+            "acpitz",
+            "enabled",
+            "30000",
+            "acpitz",
+            "acpitz",
+        ]
+
+        with mock.patch.dict(
+            "os.environ", {"TZ_IGNORE_TEMP_CHECK": "acpitz"}, clear=False
+        ):
+            thermal_sensor_test.thermal_monitor_test(mock_args())
+
+        self.assertEqual(mock_text.call_count, 6)
+
+    @mock.patch("thermal_sensor_test.ThermalMonitor")
+    @mock.patch("pathlib.Path.glob")
+    def test_resolve_thermal_zone_name_by_stable_id(
+        self, mock_glob, mock_thermal_monitor
+    ):
+        mock_glob.return_value = [Path("thermal_zone9"), Path("thermal_zone1")]
+
+        def monitor_factory(name):
+            monitor = mock.Mock()
+            monitor.name = name
+            if name == "thermal_zone1":
+                monitor.stable_id = "match-id"
+                monitor.type = "x86_pkg_temp"
+            else:
+                monitor.stable_id = "other-id"
+                monitor.type = "acpitz"
+            return monitor
+
+        mock_thermal_monitor.side_effect = monitor_factory
+
+        self.assertEqual(
+            thermal_sensor_test.resolve_thermal_zone_name(
+                "match-id", zone_type="x86_pkg_temp"
+            ),
+            "thermal_zone1",
+        )
+
+    @mock.patch("thermal_sensor_test.resolve_thermal_zone_name")
+    def test_monitor_fails_when_stable_id_cannot_be_resolved(
+        self, mock_resolve
+    ):
+        mock_resolve.return_value = None
+        mock_args = mock.Mock(
+            return_value=argparse.Namespace(
+                name=None,
+                stable_id="missing-id",
+                zone_type="acpitz",
+                duration=10,
+                extra_commands="stress-ng",
+            )
+        )
+
+        with self.assertRaises(SystemExit):
+            thermal_sensor_test.thermal_monitor_test(mock_args())
+
+    @mock.patch.object(
+        thermal_sensor_test.ThermalMonitor,
+        "type",
+        new_callable=PropertyMock,
+    )
+    @mock.patch.object(
+        thermal_sensor_test.ThermalMonitor,
+        "device_path",
+        new_callable=PropertyMock,
+    )
+    @mock.patch.object(
+        thermal_sensor_test.ThermalMonitor,
+        "firmware_node_path",
+        new_callable=PropertyMock,
+    )
+    @mock.patch.object(
+        thermal_sensor_test.ThermalMonitor,
+        "of_node_path",
+        new_callable=PropertyMock,
+    )
+    def test_stable_source_prefers_of_node(
+        self,
+        mock_of_node_path,
+        mock_firmware_node_path,
+        mock_device_path,
+        mock_type,
+    ):
+        mock_of_node_path.return_value = "/soc/thermal/node"
+        mock_firmware_node_path.return_value = ""
+        mock_device_path.return_value = "/sys/devices/virtual/thermal/fallback"
+        mock_type.return_value = "acpitz"
+
+        thermal_node = thermal_sensor_test.ThermalMonitor("fake-thermal")
+        self.assertEqual(thermal_node.stable_source, "/soc/thermal/node")
+
+    def test_compare_thermal_snapshots_human_readable_output(self):
+        before_data = (
+            "\n".join(
+                [
+                    "sid-a\tthermal_zone1\tcpu\t/source/cpu",
+                    "sid-b\tthermal_zone2\tgpu\t/source/gpu",
+                ]
+            )
+            + "\n"
+        )
+        after_data = (
+            "\n".join(
+                [
+                    "sid-a\tthermal_zone5\tcpu\t/source/cpu",
+                    "sid-c\tthermal_zone3\tddr\t/source/ddr",
+                ]
+            )
+            + "\n"
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            before = Path(tmpdir).joinpath("before.tsv")
+            after = Path(tmpdir).joinpath("after.tsv")
+            before.write_text(before_data)
+            after.write_text(after_data)
+
+            args = argparse.Namespace(
+                before=str(before),
+                after=str(after),
+                allow_legacy_id_upgrade=False,
+                fail_on_diff=False,
+            )
+            with mock.patch("sys.stdout", new_callable=io.StringIO) as stdout:
+                thermal_sensor_test.compare_thermal_snapshots(args)
+                output = stdout.getvalue()
+
+        self.assertIn(
+            (
+                "summary: before=2 after=2 missing=1 new=1 "
+                "stable_id_upgraded=0 identity_changed=0 renumbered=1"
+            ),
+            output,
+        )
+        self.assertIn(
+            (
+                "renumbered: type=cpu stable_id=sid-a "
+                "thermal_zone1 -> thermal_zone5"
+            ),
+            output,
+        )
+        self.assertIn(
+            "missing_after: type=gpu stable_id=sid-b name=thermal_zone2",
+            output,
+        )
+        self.assertIn(
+            "new_after: type=ddr stable_id=sid-c name=thermal_zone3",
+            output,
+        )

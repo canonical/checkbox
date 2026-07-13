@@ -34,9 +34,9 @@ jobs:
           - arch: arm64
             tag: ARM64
           - release: 18
-            snapcraft_version: 7.x/stable
+            snapcraft_version: 6.x/stable
           - release: 20
-            snapcraft_version: 8.x/stable
+            snapcraft_version: 7.x/stable
           - release: 22
             snapcraft_version: 8.x/stable
           - release: 24
@@ -45,7 +45,7 @@ jobs:
             snapcraft_version: 9.x/stable
     runs-on:
       group: "Canonical self-hosted runners"
-      labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}"]
+      labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }}  (${{matrix.arch}})
     steps:
@@ -60,11 +60,16 @@ jobs:
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare.sh series${{ matrix.release }}
 
-      - name: Refresh LXD to latest/beta
+      - name: Refresh snapd to latest/stable
+        run: |
+          # Note: snapd bug, snap install always returns 0
+          sudo snap refresh snapd --channel=latest/stable || sudo snap install snapd --channel=latest/stable
+
+      - name: Refresh LXD to latest/stable
         if: matrix.release >= 26 # temporary workaround snapcraft 9 doesn't work on 5.x
         run: |
           # Note: snapd bug, snap install always returns 0
-          sudo snap refresh lxd --channel=latest/beta || sudo snap install lxd --channel=latest/beta
+          sudo snap refresh lxd --channel=latest/stable || sudo snap install lxd --channel=latest/stable
 
       - id: snap_build
         uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
@@ -118,9 +123,9 @@ jobs:
           - arch: arm64
             tag: ARM64
           - release: 18
-            snapcraft_version: 7.x/stable
+            snapcraft_version: 6.x/stable
           - release: 20
-            snapcraft_version: 8.x/stable
+            snapcraft_version: 7.x/stable
           - release: 22
             snapcraft_version: 8.x/stable
           - release: 24
@@ -129,7 +134,7 @@ jobs:
             snapcraft_version: 9.x/stable
     runs-on:
       group: "Canonical self-hosted runners"
-      labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}"]
+      labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
     steps:
@@ -144,11 +149,16 @@ jobs:
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare_${{ matrix.type }}.sh series_${{ matrix.type }}${{ matrix.release }}
 
-      - name: Refresh LXD to latest/beta
+      - name: Refresh snapd to latest/stable
+        run: |
+          # Note: snapd bug, snap install always returns 0
+          sudo snap refresh snapd --channel=latest/stable || sudo snap install snapd --channel=latest/stable
+
+      - name: Refresh LXD to latest/stable
         if: matrix.release >= 26 # temporary workaround snapcraft 9 doesn't work on 5.x
         run: |
           # Note: snapd bug, snap install always returns 0
-          sudo snap refresh lxd --channel=latest/beta || sudo snap install lxd --channel=latest/beta
+          sudo snap refresh lxd --channel=latest/stable || sudo snap install lxd --channel=latest/stable
 
       - id: snap_build
         uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec

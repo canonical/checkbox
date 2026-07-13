@@ -2,7 +2,10 @@ plugin: shell
 category_id: dragonwing-video
 imports:
     from com.canonical.contrib import dragonwing_platform_info
+    from com.canonical.plainbox import manifest
 requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
     dragonwing_platform_info.Model in ("RB8",)
 id: dragonwing-video/composition-16-streams-automated
 flags: also-after-suspend

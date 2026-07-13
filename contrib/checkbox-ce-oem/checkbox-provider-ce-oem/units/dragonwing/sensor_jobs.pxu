@@ -32,7 +32,9 @@ category_id: dragonwing-sensor
 depends: dragonwing-sensor/detect
 imports: 
     from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
 requires:
+    manifest.is_dragonwing_series == 'True'
     executable.name == 'ssc_drva_test'
 id: dragonwing-sensor/{{ name }}-streaming-rate-{{ sample_rate }}
 flags: also-after-suspend
@@ -59,7 +61,9 @@ category_id: dragonwing-sensor
 depends: dragonwing-sensor/detect
 imports: 
     from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
 requires:
+    manifest.is_dragonwing_series == 'True'
     executable.name == 'see_workhorse'
 id: dragonwing-sensor/{{ name }}-streaming-workhorse-rate-{{ sample_rate }}
 flags: also-after-suspend

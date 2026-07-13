@@ -2,10 +2,10 @@ unit: template
 template-engine: jinja2
 template-resource: thermal_zones
 template-id: strict-confinement/temperature-test
-id: strict-confinement/temperature_{{ name }}_{{ type }}
-_summary: Check Thermal temperature of {{ name }} - {{ type }}
+id: strict-confinement/temperature_{{ stable_id }}_{{ type }}
+_summary: Check Thermal temperature of {{ type }} - {{ stable_id }}
 _description:
-    Test a thermal temperature for {{ name }} - {{ type }}.
+  Test a thermal temperature for {{ type }} ({{ stable_id }}).
 category_id: strict-confinement-mode
 plugin: shell
 estimated_duration: 5m
@@ -19,4 +19,4 @@ requires:
   snap.name == 'test-strict-confinement'
   connections.slot == "snapd:hardware-observe" and connections.plug == "test-strict-confinement:hardware-observe"
 command:
-  test-strict-confinement.thermal-test monitor -n {{ name }} --extra-commands "dd if=/dev/zero of=/dev/null"
+  test-strict-confinement.thermal-test monitor --stable-id {{ stable_id }} --zone-type "{{ type }}" --extra-commands "dd if=/dev/zero of=/dev/null"

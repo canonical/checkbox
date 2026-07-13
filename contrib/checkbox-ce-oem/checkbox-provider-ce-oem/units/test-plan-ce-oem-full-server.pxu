@@ -30,6 +30,12 @@ nested_part:
     ce-oem-manual
     com.canonical.certification::client-cert-iot-server-26-04-manual
     after-suspend-ce-oem-manual
+    dragonwing-server-manual
+    genio-server-manual
+    iiotg-server-manual
+    jetson-server-manual
+    rz-server-manual
+    xilinx-server-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
 certification_status_overrides:
@@ -46,6 +52,12 @@ nested_part:
     ce-oem-automated
     com.canonical.certification::client-cert-iot-server-26-04-automated
     after-suspend-ce-oem-automated
+    dragonwing-server-automated
+    genio-server-automated
+    iiotg-server-automated
+    jetson-server-automated
+    rz-server-automated
+    xilinx-server-automated
 exclude:
 certification_status_overrides:
     apply blocker to .*

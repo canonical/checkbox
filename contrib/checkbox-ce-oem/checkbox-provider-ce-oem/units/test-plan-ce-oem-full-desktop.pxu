@@ -30,6 +30,12 @@ nested_part:
     ce-oem-manual
     com.canonical.certification::client-cert-iot-desktop-26-04-manual
     after-suspend-ce-oem-manual
+    dragonwing-desktop-manual
+    genio-desktop-manual
+    iiotg-desktop-manual
+    jetson-desktop-manual
+    rz-desktop-manual
+    xilinx-desktop-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
 certification_status_overrides:
@@ -46,6 +52,12 @@ nested_part:
     ce-oem-automated
     com.canonical.certification::client-cert-iot-desktop-26-04-automated
     after-suspend-ce-oem-automated
+    dragonwing-desktop-automated
+    genio-desktop-automated
+    iiotg-desktop-automated
+    jetson-desktop-automated
+    rz-desktop-automated
+    xilinx-desktop-automated
 exclude:
 certification_status_overrides:
     apply blocker to .*

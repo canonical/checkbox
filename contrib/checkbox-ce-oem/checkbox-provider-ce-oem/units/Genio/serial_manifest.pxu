@@ -1,6 +1,6 @@
 unit: manifest entry
 id: has_genio_uart_loopback
-_prompt: Does this Genio platform have the following on Raspberry Pi Hat?:
+_prompt: Genio specific?
 _name: UART Loopback Connector
 value-type: bool
 

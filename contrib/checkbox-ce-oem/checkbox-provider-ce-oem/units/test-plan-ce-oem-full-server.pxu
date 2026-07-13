@@ -27,6 +27,11 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
+    dragonwing-server-manual
+    genio-server-manual
+    iiotg-server-manual
+    jetson-server-manual
+    xilinx-server-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-server-26-04-manual
     after-suspend-ce-oem-manual
@@ -43,6 +48,12 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    dragonwing-server-automated
+    genio-server-automated
+    iiotg-server-automated
+    jetson-server-automated
+    rz-server-automated
+    xilinx-server-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-server-26-04-automated
     after-suspend-ce-oem-automated

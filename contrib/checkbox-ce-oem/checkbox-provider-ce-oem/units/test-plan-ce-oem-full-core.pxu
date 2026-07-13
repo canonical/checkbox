@@ -27,6 +27,11 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
+    dragonwing-core-manual
+    genio-core-manual
+    iiotg-core-manual
+    jetson-core-manual
+    xilinx-core-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-ubuntucore-26-manual
     after-suspend-ce-oem-manual
@@ -43,6 +48,12 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    dragonwing-core-automated
+    genio-core-automated
+    iiotg-core-automated
+    jetson-core-automated
+    rz-core-automated
+    xilinx-core-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-ubuntucore-26-automated
     after-suspend-ce-oem-automated

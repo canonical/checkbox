@@ -15,24 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# This script is used to interact with the mtk_hdmirx_tool. You can find the
-# source code of mtk_hdmi_rx from the following link:
-#   - https://gitlab.com/mediatek/aiot/bsp/mtk-hdmirx-tool
-#
-# The following output is the first glance of hdmirx_tool.
-# User can choose any action to manipulate with it.
-#
-#   root@mtk-genio:/home/ubuntu# ./hdmirx_tool
-#   hdmirx tool version:   1.0.0
-#   hdmirx driver version: 1.0.0
-#
-#   1) enable hdmi      2) disable hdmi
-#   3) get device info  4) check cable
-#   5) get video info   6) check video locked
-#   7) get audio info   8) check audio locked
-#   a) start observing  b) stop observing
-#   h) help             q) quit
+
 import argparse
 import inspect
 import logging
@@ -60,102 +43,41 @@ class HdmiRxToolRunner:
 
     def enable_hdmi(self):
         """Enable HDMI RX Feature
-        Example Output:
-            getchar=1
-            hdmi_enable[1]
         """
         return self._run_expect(action="1")
 
     def disable_hdmi(self):
         """Disable HDMI RX Feature
-        Example Output:
-            getchar=2
-            hdmi_enable[0]
         """
         return self._run_expect(action="2")
 
     def get_device_info(self):
         """Get device information through HDMI RX
-        Example Output:
-            getchar=3
-            hdmi_get_device_info
-            d.hdmirx5v = 1
-            d.hpd = 1
-            d.power_on = 1
-            d.vid_locked = 0
-            d.aud_locked = 0
-            d.hdcp_version = 0
         """
         return self._run_expect(action="3")
 
     def check_cable(self):
         """Get the connection state of HDMI RX
-        Example Output:
-            getchar=4
-            hdmi_check_cable
-            hdmi_get_device_info
-            hdmi connected
         """
         return self._run_expect(action="4")
 
     def get_video_info(self):
         """Get video information through HDMI RX
-        Example Output:
-            getchar=5
-            hdmi_get_video_info
-            v.cs = 0
-            v.dp = 0
-            v.htotal = 0
-            v.vtotal = 0
-            v.hactive = 0
-            v.vactive = 0
-            v.is_pscan = 1
-            v.hdmi_mode = 0
-            v.frame_rate = 0
-            v.pixclk = 0
         """
         return self._run_expect(action="5")
 
     def check_video_locked(self):
         """Check the lock state of video through HDMI RX
-        Example Output:
-            getchar=6
-            hdmi_check_video_locked
-            hdmi_get_device_info
-            video unlocked
         """
         return self._run_expect(action="6")
 
     def get_audio_info(self):
         """Get audio information through HDMI RX
-        Example Output:
-            getchar=7
-            hdmi_get_audio_info
-            a.info.is_HBRAudio = 0
-            a.info.is_DSDAudio = 0
-            a.info.is_RawSDAudio = 0
-            a.info.is_PCMMultiCh = 1
-            a.caps.SampleFreq = 1
-            a.caps.AudInf.info.AudioChannelCount = 0
-            a.caps.AudInf.info.SpeakerPlacement = 0
-            a.caps.AudChStat.WordLen = 0
-            Audio Bits:
-                not indicated (default)
-            Audio Channel Info:
-                Channel Number by Stream Header
-                Speaker Placement [0x0]
-            Audio Sample Freq:
-                Please mapping [1] to HDMI2_AUD_FS manually..
         """
         return self._run_expect(action="7")
 
     def check_audio_locked(self):
         """Check the lock state of audio through HDMI RX
-        Example Output:
-            getchar=8
-            hdmi_check_audio_locked
-            hdmi_get_device_info
-            audio unlocked
         """
         return self._run_expect(action="8")
 
@@ -207,14 +129,6 @@ class HdmiRxToolRunner:
 
     def show_help(self):
         """Show help message
-        Example Output:
-            getchar=h
-            1) enable hdmi      2) disable hdmi
-            3) get device info  4) check cable
-            5) get video info   6) check video locked
-            7) get audio info   8) check audio locked
-            a) start observing  b) stop observing
-            h) help             q) quit
         """
         return self._run_expect(action="h")
 

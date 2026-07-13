@@ -1,9 +1,11 @@
 unit: manifest entry
 id: iiotg_tgpio_loopback_capability
 _name: Iiotg TGPIO loopback support (2 or more pins)
+_prompt: Iiotg specific?
 value-type: bool
 
 unit: manifest entry
 id: has_iiotg_tgpio
 _name: Iiotg TGPIO support (at least 1 pin)
+_prompt: Iiotg specific?
 value-type: bool

@@ -43,6 +43,9 @@ _summary: list tsn ethernet interface and connected server ip
 _description:
     It should be this format, INTERFACE:SERVER_IP
     e.g. enp1s0:192.168.1.200,enp2s0:192.168.2.200
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
 environ:
     TSN_DEVICE_IP_LIST
 command:

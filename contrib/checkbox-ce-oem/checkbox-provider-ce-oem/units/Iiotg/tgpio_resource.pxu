@@ -3,6 +3,9 @@ id: iiotg-tgpio/ptp-device-node-info
 plugin: resource
 _summary:  Get the PTP device node
 _description: Get the PTP device node, TGPIO will be used such as /devices/virtual/ptp/ptp*.
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
 user: root
 command:
     nodes=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')

@@ -152,6 +152,27 @@ def _update_adc_nodes_mapping(nodes_mapping, input_num):
     return nodes_mapping
 
 
+def _validate_adc_node_count(device_path, expected_num):
+    """
+    Validate the number of ADC voltage input nodes matches the expected count.
+
+    Args:
+        device_path (Path): The IIO device path
+        expected_num (int): The expected number of voltage input nodes
+
+    Raises:
+        ValueError: If the actual node count does not match expected_num
+    """
+    actual_nodes = list(device_path.glob("in_voltage*_raw"))
+    actual_num = len(actual_nodes)
+    if actual_num != expected_num:
+        raise ValueError(
+            "Expected {} ADC input nodes, but found {}.".format(
+                expected_num, actual_num
+            )
+        )
+
+
 def check_sensor(name, type, nodes):
     """
     Validate the sysfs of industrial I/O accelerometer sensor
@@ -168,10 +189,13 @@ def check_sensor(name, type, nodes):
 
     for sub_node in nodes[type]:
         tmp_node = iio_node.joinpath(sub_node)
-        _check_node(tmp_node)
-        value = tmp_node.read_text().strip("\n")
-        logging.info("The value of %s node is %s", tmp_node, value)
-        readings.append(value)
+        try:
+            _check_node(tmp_node)
+            value = tmp_node.read_text().strip("\n")
+            logging.info("The value of %s node is %s", tmp_node, value)
+            readings.append(value)
+        except FileNotFoundError as e:
+            logging.error(str(e))
 
     if readings and _check_reading(readings):
         logging.info("The %s sensor test passed", type)
@@ -188,6 +212,8 @@ def validate_iio_sensor(args):
     """
     if args.type == "adc":
         nodes = _update_adc_nodes_mapping(NODE_MAPPING, args.input_num)
+        iio_node = _check_device(args.name)
+        _validate_adc_node_count(iio_node, args.input_num)
     else:
         nodes = NODE_MAPPING
 

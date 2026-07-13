@@ -1,65 +1,65 @@
-id: renesas-rz-server
+id: rz-server
 unit: test plan
 _name: renesas-rz server tests
 _description:
     Combined manual and automated renesas-rz project-specific tests for Ubuntu Server images.
 include:
 nested_part:
-    renesas-rz-server-automated
+    rz-server-automated
 certification_status_overrides:
     apply blocker to .*
 
-id: renesas-rz-server-automated
+id: rz-server-automated
 unit: test plan
 _name: renesas-rz server automated tests
 _description:
     Automated renesas-rz project-specific tests for Ubuntu Server images.
 include:
 nested_part:
-    renesas-rz-drp-ai-automated
+    rz-drp-ai-automated
 certification_status_overrides:
     apply blocker to .*
 
-id: renesas-rz-desktop
+id: rz-desktop
 unit: test plan
 _name: renesas-rz desktop tests
 _description:
     Combined manual and automated renesas-rz project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
-    renesas-rz-desktop-automated
+    rz-desktop-automated
 certification_status_overrides:
     apply blocker to .*
 
-id: renesas-rz-desktop-automated
+id: rz-desktop-automated
 unit: test plan
 _name: renesas-rz desktop automated tests
 _description:
     Automated renesas-rz project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
-    renesas-rz-drp-ai-automated
+    rz-drp-ai-automated
 certification_status_overrides:
     apply blocker to .*
 
-id: renesas-rz-core
+id: rz-core
 unit: test plan
 _name: renesas-rz core tests
 _description:
     Combined manual and automated renesas-rz project-specific tests for Ubuntu Core images.
 include:
 nested_part:
-    renesas-rz-core-automated
+    rz-core-automated
 certification_status_overrides:
     apply blocker to .*
 
-id: renesas-rz-core-automated
+id: rz-core-automated
 unit: test plan
 _name: renesas-rz core automated tests
 _description:
     Automated renesas-rz project-specific tests for Ubuntu Core images.
 include:
 nested_part:
-    renesas-rz-drp-ai-automated
+    rz-drp-ai-automated
 certification_status_overrides:
     apply blocker to .*

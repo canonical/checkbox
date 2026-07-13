@@ -1,5 +1,5 @@
-id: renesas-rz-drp-ai/inference
-category_id: renesas-rz-drp-ai
+id: rz-drp-ai/inference
+category_id: rz-drp-ai
 plugin: shell
 user: root
 _summary: Check if DRP-AI is working
@@ -9,8 +9,8 @@ _purpose:
 imports:
     from com.canonical.plainbox import manifest
 requires:
-    manifest.has_renesas_rz_drp_ai == 'True'
-    manifest.is_renesas_rz_series == 'True'
+    manifest.has_rz_drp_ai == 'True'
+    manifest.is_rz_series == 'True'
 command:
     set -o pipefail
     output_file="$(mktemp /var/tmp/renesas-rz-drp-ai.XXXXXX)"

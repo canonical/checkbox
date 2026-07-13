@@ -42,43 +42,35 @@ class HdmiRxToolRunner:
         return command_output
 
     def enable_hdmi(self):
-        """Enable HDMI RX Feature
-        """
+        """Enable HDMI RX Feature"""
         return self._run_expect(action="1")
 
     def disable_hdmi(self):
-        """Disable HDMI RX Feature
-        """
+        """Disable HDMI RX Feature"""
         return self._run_expect(action="2")
 
     def get_device_info(self):
-        """Get device information through HDMI RX
-        """
+        """Get device information through HDMI RX"""
         return self._run_expect(action="3")
 
     def check_cable(self):
-        """Get the connection state of HDMI RX
-        """
+        """Get the connection state of HDMI RX"""
         return self._run_expect(action="4")
 
     def get_video_info(self):
-        """Get video information through HDMI RX
-        """
+        """Get video information through HDMI RX"""
         return self._run_expect(action="5")
 
     def check_video_locked(self):
-        """Check the lock state of video through HDMI RX
-        """
+        """Check the lock state of video through HDMI RX"""
         return self._run_expect(action="6")
 
     def get_audio_info(self):
-        """Get audio information through HDMI RX
-        """
+        """Get audio information through HDMI RX"""
         return self._run_expect(action="7")
 
     def check_audio_locked(self):
-        """Check the lock state of audio through HDMI RX
-        """
+        """Check the lock state of audio through HDMI RX"""
         return self._run_expect(action="8")
 
     def start_observing(self, timeout: int = 15):

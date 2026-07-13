@@ -1,0 +1,43 @@
+id: ce-oem-monitor/backlight_panel_list
+_summary: Enumerate built-in backlight panel devices
+_description:
+    List /sys/class/backlight entries and map them to panel aliases
+    using the optional BACKLIGHT_PANEL_MAP environment variable.
+    Format: alias:device[,alias:device ...]
+    Example: BACKLIGHT_PANEL_MAP=dsi:backlight-lcd0,edp:backlight-lcd1
+estimated_duration: 0.02
+category_id: com.canonical.plainbox::monitor
+plugin: resource
+environ: BACKLIGHT_PANEL_MAP
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_built_in_panel == "True"
+command:
+    backlight_panel.py resource --panel-mapping "$BACKLIGHT_PANEL_MAP"
+
+id: ce-oem-monitor/panel-brightness-{{panel_alias}}
+template-id: ce-oem-monitor/panel-brightness-panel_alias
+unit: template
+template-resource: ce-oem-monitor/backlight_panel_list
+template-unit: job
+template-engine: jinja2
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::monitor
+user: root
+flags: also-after-suspend
+estimated_duration: 12.0
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_built_in_panel == "True"
+_template-summary:
+    Test the brightness of all panel backlight devices
+_summary:
+    Test the built-in brightness of {{panel_alias}} backlight ({{device}})
+_purpose:
+    Ramp brightness across 5 levels on {{device}} and verify it applies.
+command:
+    backlight_panel.py test -d {{device}}
+_verification:
+    Did the brightness of the built-in display or panel change across different brightness levels?

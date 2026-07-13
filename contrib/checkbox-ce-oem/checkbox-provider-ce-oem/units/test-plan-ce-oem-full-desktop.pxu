@@ -34,7 +34,6 @@ nested_part:
     genio-desktop-manual
     iiotg-desktop-manual
     jetson-desktop-manual
-    rz-desktop-manual
     xilinx-desktop-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*

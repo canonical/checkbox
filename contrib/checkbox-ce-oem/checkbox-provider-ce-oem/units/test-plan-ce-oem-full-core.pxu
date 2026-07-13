@@ -34,7 +34,6 @@ nested_part:
     genio-core-manual
     iiotg-core-manual
     jetson-core-manual
-    rz-core-manual
     xilinx-core-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*

@@ -55,6 +55,7 @@ id: jetson-vpi/run-sample-cpp-cpu
 _summary: Run VPI samples (C++) on CPU
 plugin: shell
 category_id: jetson-vpi
+flags: also-after-suspend
 depends: jetson-vpi/build-sample
 user: root
 imports: from com.canonical.plainbox import manifest
@@ -82,6 +83,7 @@ id: jetson-vpi/run-sample-cpp-cuda
 _summary: Run VPI samples (C++) on CUDA
 plugin: shell
 category_id: jetson-vpi
+flags: also-after-suspend
 depends: jetson-vpi/build-sample
 user: root
 imports: from com.canonical.plainbox import manifest
@@ -115,6 +117,7 @@ id: jetson-vpi/run-sample-cpp-pva
 _summary: Run VPI samples (C++) on PVA and VIC
 plugin: shell
 category_id: jetson-vpi
+flags: also-after-suspend
 depends: jetson-vpi/build-sample
 imports:
  from com.canonical.contrib import jetson_tegra_details
@@ -151,6 +154,7 @@ id: jetson-vpi/run-sample-py-cpu
 _summary: Run VPI samples (Python) on CPU
 plugin: shell
 category_id: jetson-vpi
+flags: also-after-suspend
 depends: jetson-vpi/install-packages
 user: root
 imports: from com.canonical.plainbox import manifest
@@ -181,6 +185,7 @@ id: jetson-vpi/run-sample-py-cuda
 _summary: Run VPI samples (Python) on CUDA
 plugin: shell
 category_id: jetson-vpi
+flags: also-after-suspend
 depends: jetson-vpi/install-packages
 imports:
  from com.canonical.certification import package
@@ -223,6 +228,7 @@ id: jetson-vpi/run-sample-py-pva
 _summary: Run VPI samples (Python) on PVA and VIC
 plugin: shell
 category_id: jetson-vpi
+flags: also-after-suspend
 depends: jetson-vpi/install-packages
 imports:
  from com.canonical.contrib import jetson_tegra_details
@@ -262,6 +268,7 @@ id: jetson-core-vpi/run-sample-snap-cpu
 _summary: Run VPI samples (snap) on CPU
 plugin: shell
 category_id: jetson-core-vpi
+flags: also-after-suspend
 imports:
  from com.canonical.certification import snap
  from com.canonical.plainbox import manifest
@@ -282,6 +289,7 @@ id: jetson-core-vpi/run-sample-snap-cuda
 _summary: Run VPI samples (snap) on CUDA
 plugin: shell
 category_id: jetson-core-vpi
+flags: also-after-suspend
 imports:
  from com.canonical.certification import snap
  from com.canonical.plainbox import manifest
@@ -304,6 +312,7 @@ id: jetson-core-vpi/run-sample-snap-pva
 _summary: Run VPI samples (snap) on PVA and VIC
 plugin: shell
 category_id: jetson-core-vpi
+flags: also-after-suspend
 imports:
  from com.canonical.contrib import jetson_tegra_details
  from com.canonical.certification import snap

@@ -2,6 +2,7 @@ unit: template
 template-resource: jetson_tensorrt_samples_list
 template-unit: job
 category_id: jetson-gpu
+flags: also-after-suspend
 template-id: jetson-gpu/tensorrt-samples-name
 id: jetson-gpu/tensorrt-samples-{name}
 user: root
@@ -24,6 +25,7 @@ unit: template
 template-resource: jetson_tensorrt_samples_list_core
 template-unit: job
 category_id: jetson-core-gpu
+flags: also-after-suspend
 template-id: jetson-core-gpu/tensorrt-samples-name
 id: jetson-core-gpu/tensorrt-samples-{name}
 user: root

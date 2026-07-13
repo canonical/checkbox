@@ -2,6 +2,7 @@ unit: template
 template-resource: jetson_cuda_samples_list
 template-unit: job
 category_id: jetson-gpu
+flags: also-after-suspend
 template-id: jetson-gpu/cuda-samples-name
 id: jetson-gpu/cuda-samples-{name}
 user: root
@@ -24,6 +25,7 @@ unit: template
 template-resource: jetson_cuda_samples_list_core
 template-unit: job
 category_id: jetson-core-gpu
+flags: also-after-suspend
 template-id: jetson-core-gpu/cuda-samples-name
 id: jetson-core-gpu/cuda-samples-{name}
 user: root

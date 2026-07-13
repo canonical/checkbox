@@ -10,6 +10,7 @@ id: jetson-video-codec/transcoding-thor
 _summary: Transcode video stream using GPU HW acceleration on Thor
 plugin: shell
 category_id: jetson-video-codec
+flags: also-after-suspend
 imports:
  from com.canonical.certification import package
  from com.canonical.contrib import jetson_tegra_details
@@ -45,6 +46,7 @@ id: jetson-video-codec/transcoding
 _summary: Transcode video stream using GPU HW acceleration
 plugin: shell
 category_id: jetson-video-codec
+flags: also-after-suspend
 imports:
  from com.canonical.certification import package
  from com.canonical.contrib import jetson_tegra_details
@@ -83,6 +85,7 @@ id: jetson-core-video-codec/transcoding
 _summary: Transcode video stream using GPU HW acceleration
 plugin: shell
 category_id: jetson-core-video-codec
+flags: also-after-suspend
 user: root
 imports:
  from com.canonical.contrib import jetson_tegra_details

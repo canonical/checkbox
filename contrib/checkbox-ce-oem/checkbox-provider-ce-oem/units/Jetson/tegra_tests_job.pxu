@@ -26,6 +26,7 @@ _description:
 
 id: jetson-tegra-tests/inspect_logs
 category_id: jetson-tegra-tests
+flags: also-after-suspend
 plugin: shell
 imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'
@@ -42,6 +43,7 @@ _description:
 
 id: jetson-tegra-tests/inspect_devices
 category_id: jetson-tegra-tests
+flags: also-after-suspend
 plugin: shell
 imports: from com.canonical.plainbox import manifest
 requires: manifest.is_Jetson == 'True'

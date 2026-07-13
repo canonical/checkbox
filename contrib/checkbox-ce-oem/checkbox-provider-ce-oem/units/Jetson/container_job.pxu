@@ -19,6 +19,7 @@ command:
     bash -c "apt update && apt install -y python3 && /opt/nvidia/run-cuda-samples.py -c 1_Utilities"
 plugin: shell
 category_id: jetson-container
+flags: also-after-suspend
 estimated_duration: 10m
 user: root
 imports:
@@ -42,6 +43,7 @@ command:
     bash -c "apt update && apt install -y python3 && /opt/nvidia/run-cuda-samples.py -c 1_Utilities"
 plugin: shell
 category_id: jetson-container
+flags: also-after-suspend
 estimated_duration: 10m
 user: root
 imports: from com.canonical.certification import package
@@ -64,6 +66,7 @@ command:
     /opt/nvidia/run-tensorrt-samples.py
 plugin: shell
 category_id: jetson-container
+flags: also-after-suspend
 estimated_duration: 10m
 user: root
 imports: from com.canonical.certification import package
@@ -77,6 +80,7 @@ id: jetson-container/dGPU
 _summary: Run DLFW Container Tests with dGPU
 plugin: shell
 category_id: jetson-container
+flags: also-after-suspend
 imports: from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
@@ -121,6 +125,7 @@ id: jetson-container/iGPU
 _summary: Run DLFW Container Tests with iGPU
 plugin: shell
 category_id: jetson-container
+flags: also-after-suspend
 imports: from com.canonical.certification import package
  from com.canonical.plainbox import manifest
 requires:
@@ -205,6 +210,7 @@ id: jetson-core-container/iGPU
 _summary: Run DLFW Container Tests with iGPU
 plugin: shell
 category_id: jetson-core-container
+flags: also-after-suspend
 user: root
 imports:
  from com.canonical.certification import snap

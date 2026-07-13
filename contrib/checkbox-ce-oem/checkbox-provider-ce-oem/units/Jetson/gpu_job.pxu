@@ -11,6 +11,7 @@ _summary: Run nvidia-smi to display GPU related information
 command: nvidia-smi
 plugin: shell
 category_id: jetson-gpu
+flags: also-after-suspend
 estimated_duration: 0.1
 user: root
 imports: from com.canonical.certification import executable
@@ -24,6 +25,7 @@ _summary: Run nvidia-smi to display GPU related information on core
 command: sudo nvidia-tegra-runtime.nvidia-smi
 plugin: shell
 category_id: jetson-core-gpu
+flags: also-after-suspend
 estimated_duration: 0.1
 user: root
 imports: from com.canonical.certification import executable

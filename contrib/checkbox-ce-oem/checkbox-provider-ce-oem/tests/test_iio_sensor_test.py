@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 from io import StringIO
 from contextlib import redirect_stdout
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import iio_sensor_test
 
@@ -138,6 +138,34 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
                     iio_sensor_test.NODE_MAPPING,
                 )
 
+    @patch("pathlib.Path.read_text")
+    @patch("iio_sensor_test._check_node")
+    @patch("iio_sensor_test._check_device")
+    def test_check_sensor_continues_after_missing_node(
+        self, mock_check_device, mock_check_node, mock_read_text
+    ):
+        """
+        Tests that check_sensor continues reading remaining nodes even when
+        one node is missing (FileNotFoundError is caught and skipped).
+        """
+        mock_check_device.return_value = Path("fake/path")
+        # First node missing, remaining two exist
+        mock_check_node.side_effect = [
+            FileNotFoundError("in_pressure_input node not exists"),
+            None,
+            None,
+        ]
+        mock_read_text.return_value = "123"
+
+        # Should NOT raise - 2 valid readings were still collected
+        iio_sensor_test.check_sensor(
+            "test_sensor_name", "pressure", iio_sensor_test.NODE_MAPPING
+        )
+
+        # read_text called only for the 2 nodes that existed
+        pressure_nodes = iio_sensor_test.NODE_MAPPING["pressure"]
+        self.assertEqual(mock_read_text.call_count, len(pressure_nodes) - 1)
+
     @patch("iio_sensor_test.check_sensor")
     def test_validate_iio_sensor(self, mock_check_sensor):
         """
@@ -153,15 +181,23 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
             "test_sensor_name", "pressure", iio_sensor_test.NODE_MAPPING
         )
 
+    @patch("iio_sensor_test._validate_adc_node_count")
+    @patch("iio_sensor_test._check_device")
     @patch("iio_sensor_test.check_sensor")
-    def test_validate_iio_sensor_for_adc(self, mock_check_sensor):
+    def test_validate_iio_sensor_for_adc(
+        self, mock_check_sensor, mock_check_device, mock_validate_count
+    ):
         """
         Tests the main validation function for an ADC sensor.
         """
+        mock_check_device.return_value = Path("fake/path")
         mock_args = argparse.Namespace(type="adc", name="ad7490", input_num=4)
 
         iio_sensor_test.validate_iio_sensor(mock_args)
 
+        # Verify device was looked up and count was validated
+        mock_check_device.assert_called_once_with("ad7490")
+        mock_validate_count.assert_called_once_with(Path("fake/path"), 4)
         # Verify that the node mapping was updated for the ADC before checking
         updated_nodes = iio_sensor_test._update_adc_nodes_mapping(
             iio_sensor_test.NODE_MAPPING, 4
@@ -169,6 +205,42 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
         mock_check_sensor.assert_called_once_with(
             "ad7490", "adc", updated_nodes
         )
+
+    def test_validate_adc_node_count_match(self):
+        """
+        Tests that _validate_adc_node_count does not raise when the actual
+        node count matches the expected number.
+        """
+        mock_device_path = MagicMock()
+        mock_device_path.glob.return_value = [
+            Path("in_voltage{}_raw".format(i)) for i in range(4)
+        ]
+        # Should not raise
+        iio_sensor_test._validate_adc_node_count(mock_device_path, 4)
+        mock_device_path.glob.assert_called_once_with("in_voltage*_raw")
+
+    def test_validate_adc_node_count_mismatch(self):
+        """
+        Tests that _validate_adc_node_count raises ValueError when the actual
+        node count does not match the expected number (both too-few and
+        too-many cases).
+        """
+        mock_device_path = MagicMock()
+
+        # Fewer nodes than expected
+        mock_device_path.glob.return_value = [
+            Path("in_voltage0_raw"),
+            Path("in_voltage1_raw"),
+        ]
+        with self.assertRaises(ValueError):
+            iio_sensor_test._validate_adc_node_count(mock_device_path, 4)
+
+        # More nodes than expected
+        mock_device_path.glob.return_value = [
+            Path("in_voltage{}_raw".format(i)) for i in range(6)
+        ]
+        with self.assertRaises(ValueError):
+            iio_sensor_test._validate_adc_node_count(mock_device_path, 4)
 
     def test_dump_sensor_resource(self):
         """

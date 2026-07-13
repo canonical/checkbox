@@ -1,0 +1,257 @@
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h264-480p-automated
+flags: also-after-suspend
+_summary: Test video decoder H264 480p to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/480p_30fps_h264.mp4" \
+    ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h264-720p-automated
+flags: also-after-suspend
+_summary: Test video decoder H264 720p to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" \
+    ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h264-1080p-automated
+flags: also-after-suspend
+_summary: Test video decoder H264 1080p to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h264-4k-automated
+flags: also-after-suspend
+_summary: Test video decoder H264 4k to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_h264.mp4" \
+    ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h264
+flags: also-after-suspend
+_summary: Test video decoder pipeline and check the output on actual display
+_purpose: Test video decoder pipeline and check the output on actual display
+_steps:
+    1. Test the below command with maximum/minimum supported resolutions
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/{resolution}_30fps_h264.mp4" \
+    ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! waylandsink fullscreen=true
+_verification:
+    check the decode output on connected display, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h265-480p-automated
+flags: also-after-suspend
+_summary: Test video decoder H265 480p to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/480p_30fps_h265.mp4" \
+    ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h265-720p-automated
+flags: also-after-suspend
+_summary: Test video decoder H265 720p to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h265.mp4" \
+    ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h265-1080p-automated
+flags: also-after-suspend
+_summary: Test video decoder H265 1080p to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h265.mp4" \
+    ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h265-4k-automated
+flags: also-after-suspend
+_summary: Test video decoder H265 4k to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_h265.mp4" \
+    ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-h265
+flags: also-after-suspend
+_summary: Test video decoder pipeline and check the output on actual display
+_purpose: Test video decoder pipeline and check the output on actual display
+_steps:
+    1. Test the below command with maximum/minimum supported resolutions
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/{resolution}_30fps_h265.mp4" \
+    ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! waylandsink fullscreen=true
+_verification:
+    check the decode output on connected display, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-vp9-4k-automated
+flags: also-after-suspend
+_summary: Test video decoder vp9 4k to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_vp9.webm" \
+    ! matroskademux ! v4l2vp9dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+plugin: shell
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-vp9-UHD-automated
+flags: also-after-suspend
+_summary: Test video decoder vp9 UHD to fakesink
+environ: PLAINBOX_SESSION_SHARE
+command:
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/video"
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/2160p_30fps_vp9.webm" \
+    ! matroskademux ! v4l2vp9dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! fakesink sync=true
+
+
+plugin: manual
+category_id: dragonwing-video
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_video_codec == 'True'
+id: dragonwing-video/decoder-vp9
+flags: also-after-suspend
+_summary: Test video decoder pipeline and check the output on actual display
+_purpose: Test video decoder pipeline and check the output on actual display
+_steps:
+    1. Test the below command with maximum/minimum supported resolutions
+    gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/{resolution}_30fps_vp9.webm" \
+    ! matroskademux ! v4l2vp9dec capture-io-mode=4 output-io-mode=4 \
+    ! video/x-raw, format=NV12 ! waylandsink fullscreen=true
+_verification:
+    check the decode output on connected display, no abnormal symptoms are observed

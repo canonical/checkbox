@@ -1,0 +1,32 @@
+id: dragonwing-sensor-full
+unit: test plan
+_name: Dragonwing sensor tests
+_description: Full sensor tests for dragonwing
+include:
+nested_part:
+    dragonwing-sensor-manual
+    dragonwing-sensor-automated
+
+id: dragonwing-sensor-manual
+unit: test plan
+_name: Carmel manual sensor tests
+_description: Manual sensor tests for dragonwing
+mandatory_include:
+  executable
+bootstrap_include:
+    dragonwing-sensor/sensor-list
+include:
+
+
+id: dragonwing-sensor-automated
+unit: test plan
+_name: Carmel automated sensor tests
+_description: Automated sensor tests for dragonwing
+mandatory_include:
+  executable
+bootstrap_include:
+    dragonwing-sensor/sensor-list
+include:
+    dragonwing-sensor/detect
+    dragonwing-sensor/streaming-test
+    dragonwing-sensor/streaming-workhorse-test

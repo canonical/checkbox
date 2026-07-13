@@ -1,0 +1,17 @@
+id: dragonwing_soc_info
+plugin: resource
+_summary: Collect and report the type of SoC
+estimated_duration: 0.1
+environ: DRAGONWING_SOC
+command:
+    [ -n "$DRAGONWING_SOC" ] && "SoC: $DRAGONWING_SOC" || exit 1
+    echo
+
+id: dragonwing_platform_info
+plugin: resource
+_summary: Report the model type of platform
+estimated_duration: 0.1
+environ: DRAGONWING_PLATFORM
+command:
+    [ -n "$DRAGONWING_PLATFORM" ] && echo "Model: $DRAGONWING_PLATFORM" || exit 1
+    echo

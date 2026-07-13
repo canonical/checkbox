@@ -181,7 +181,7 @@ sitemap_show_lastmod = True
 #######################
 
 html_static_path = [".sphinx/_static"]
-# templates_path = ["_templates"]
+templates_path = [".sphinx/_templates"]
 
 # Adds custom CSS files, located under 'html_static_path'
 html_css_files = [

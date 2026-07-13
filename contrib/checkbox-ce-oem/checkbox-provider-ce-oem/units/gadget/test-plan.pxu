@@ -12,6 +12,7 @@ unit: test plan
 _name: gadget related manual tests
 _description: Manual gadget related tests for devices
 include:
+    ce-oem-gadget/splash-screen
 
 id: ce-oem-gadget-automated
 unit: test plan

@@ -11,9 +11,20 @@ command:
     exit_code=1
     for DEVICE in $DEVLIST; do
         if lspci -nnvv -s "$DEVICE" | grep -qi 'precision time measurement'; then
-            INTERFACE=$(ls -l /sys/class/net |grep "$DEVICE" |cut -d'/' -f8)
-            echo "$INTERFACE : TSN supported!"
-            exit_code=0
+            INTERFACE=""
+            for net_path in /sys/class/net/*; do
+                target_path=$(readlink -f "$net_path")
+                case "$target_path" in
+                    *"$DEVICE"*)
+                        INTERFACE=$(basename "$net_path")
+                        break
+                        ;;
+                esac
+            done
+            if [ -n "$INTERFACE" ]; then
+                echo "$INTERFACE : TSN supported!"
+                exit_code=0
+            fi
         fi
     done
     echo ""
@@ -83,7 +94,7 @@ environ:
     PTP4L_TESTING_TIME
     PTP_CLIENT_CFG
 command:
-    iiotg_tsn.py --run ptp4l -i {{ interface }} -t ${PTP4L_TESTING_TIME:-60} --client-config ${PTP_CLIENT_CFG:-"$SNAP"/usr/share/doc/linuxptp/configs/automotive-slave.cfg}
+    iiotg_tsn.py --run ptp4l -i {{ interface }} -t "${PTP4L_TESTING_TIME:-60}" --client-config "${PTP_CLIENT_CFG:-"$SNAP"/usr/share/doc/linuxptp/configs/automotive-slave.cfg}"
 
 unit: template
 template-resource: iiotg-tsn/tsn-device-ip-match
@@ -107,7 +118,7 @@ environ:
     PHC2SYS_TESTING_TIME
     PTP_CLIENT_CFG
 command:
-    iiotg_tsn.py --run phc2sys -i {{ interface }} -t ${PHC2SYS_TESTING_TIME:-60} --client-config ${PTP_CLIENT_CFG:-"$SNAP"/usr/share/doc/linuxptp/configs/automotive-slave.cfg}
+    iiotg_tsn.py --run phc2sys -i {{ interface }} -t "${PHC2SYS_TESTING_TIME:-60}" --client-config "${PTP_CLIENT_CFG:-"$SNAP"/usr/share/doc/linuxptp/configs/automotive-slave.cfg}"
 
 unit: template
 template-resource: iiotg-tsn/tsn-device-ip-match

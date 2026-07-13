@@ -1,0 +1,116 @@
+id: xilinx-server
+unit: test plan
+_name: Xilinx server tests
+_description:
+    Combined manual and automated Xilinx project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    xilinx-server-manual
+    xilinx-server-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-server-manual
+unit: test plan
+_name: Xilinx server manual tests
+_description:
+    Manual Xilinx project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    xilinx-gst-camera-manual
+    xilinx-vcu-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-server-automated
+unit: test plan
+_name: Xilinx server automated tests
+_description:
+    Automated Xilinx project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    xilinx-dtb-automated
+    xilinx-firmware-automated
+    xilinx-gst-camera-auto
+    xilinx-kria-package-test-auto
+    xilinx-vcu-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-desktop
+unit: test plan
+_name: Xilinx desktop tests
+_description:
+    Combined manual and automated Xilinx project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    xilinx-desktop-manual
+    xilinx-desktop-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-desktop-manual
+unit: test plan
+_name: Xilinx desktop manual tests
+_description:
+    Manual Xilinx project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    xilinx-gst-camera-manual
+    xilinx-vcu-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-desktop-automated
+unit: test plan
+_name: Xilinx desktop automated tests
+_description:
+    Automated Xilinx project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    xilinx-dtb-automated
+    xilinx-firmware-automated
+    xilinx-gst-camera-auto
+    xilinx-kria-package-test-auto
+    xilinx-vcu-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-core
+unit: test plan
+_name: Xilinx core tests
+_description:
+    Combined manual and automated Xilinx project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    xilinx-core-manual
+    xilinx-core-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-core-manual
+unit: test plan
+_name: Xilinx core manual tests
+_description:
+    Manual Xilinx project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    xilinx-gst-camera-manual
+    xilinx-vcu-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: xilinx-core-automated
+unit: test plan
+_name: Xilinx core automated tests
+_description:
+    Automated Xilinx project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    xilinx-dtb-automated
+    xilinx-firmware-automated
+    xilinx-gst-camera-auto
+    xilinx-kria-package-test-auto
+    xilinx-vcu-automated
+certification_status_overrides:
+    apply blocker to .*

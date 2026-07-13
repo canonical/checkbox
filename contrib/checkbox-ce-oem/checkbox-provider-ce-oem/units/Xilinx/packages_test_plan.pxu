@@ -1,0 +1,69 @@
+id: xilinx-dfx-mgr-package-test-auto
+unit: test plan
+_name: Xilinx dfx-mgr Package Tests (Automated)
+_description:
+  Xilinx dfx-mgr Package Tests (Automated)
+include:
+  xilinx-package-test/dfx-mgr-with-no-args
+  xilinx-package-test/dfx-mgr-with-unknown
+  xilinx-package-test/dfx-mgr-listPackage
+  xilinx-package-test/dfx-mgr-help
+  xilinx-package-test/dfx-mgr-load
+  xilinx-package-test/dfx-mgr-remove
+  xilinx-package-test/dfx-mgr-listUIO
+bootstrap_include:
+  com.canonical.certification::package
+
+id: xilinx-kria-dashboard-package-test-auto
+unit: test plan
+_name: Xilinx kria-dashboard Package Tests (Automated)
+_description:
+  Xilinx kria-dashboard Package Tests (Automated)
+include:
+  xilinx-package-test/kria-dashboard-is-running
+  xilinx-package-test/kria-dashboard-serves
+  xilinx-package-test/kria-dashboard-restart
+  xilinx-package-test/kria-dashboard-stop
+bootstrap_include:
+  com.canonical.certification::package
+
+id: xilinx-xrt-package-test-auto
+unit: test plan
+_name: Xilinx xrt Package Tests (Automated)
+_description:
+  Xilinx xrt Package Tests (Automated)
+include:
+  xilinx-package-test/xrt-help-option
+  xilinx-package-test/xrt-version-option
+  xilinx-package-test/xrt-examine-option
+  xilinx-package-test/xrt-examine-help
+  xilinx-package-test/xrt-examine-devices
+bootstrap_include:
+  com.canonical.certification::package
+
+
+id: xilinx-kria-package-test-auto
+unit: test plan
+_name: Xilinx Package Tests (Automated)
+_description:
+  Xilinx Package Tests (Automated)
+include:
+  xilinx-package-test/dfx-mgr-with-no-args
+  xilinx-package-test/dfx-mgr-with-unknown
+  xilinx-package-test/dfx-mgr-listPackage
+  xilinx-package-test/dfx-mgr-help
+  xilinx-package-test/dfx-mgr-load
+  xilinx-package-test/dfx-mgr-remove
+  xilinx-package-test/dfx-mgr-listUIO
+  xilinx-package-test/xrt-help-option
+  xilinx-package-test/xrt-version-option
+  xilinx-package-test/xrt-examine-option
+  xilinx-package-test/xrt-examine-help
+  xilinx-package-test/xrt-examine-devices
+  xilinx-package-test/xrt-configure-option
+  xilinx-package-test/kria-dashboard-is-running
+  xilinx-package-test/kria-dashboard-serves
+  xilinx-package-test/kria-dashboard-restart
+  xilinx-package-test/kria-dashboard-stop
+bootstrap_include:
+  com.canonical.certification::package

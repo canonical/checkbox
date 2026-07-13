@@ -120,8 +120,7 @@ class HdmiRxToolRunner:
                 child.terminate()
 
     def show_help(self):
-        """Show help message
-        """
+        """Show help message"""
         return self._run_expect(action="h")
 
 

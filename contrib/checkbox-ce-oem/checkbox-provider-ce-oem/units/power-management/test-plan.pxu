@@ -6,10 +6,11 @@ include:
     ce-oem-power-management/cold-reboot-by-pdu
     ce-oem-power-management/post-cold-reboot-by-pdu
 
-id: ce-oem-power-manual
+id: after-suspend-ce-oem-power-manual
 unit: test plan
-_name: Manual power tests
+_name: After suspend manual power tests
 _description:
-    Manual and semi-automatic power-management tests for devices.
+    Manual and semi-automatic power-management tests for devices that must
+    run after suspend.
 include:
     ce-oem-power-management/usb_wakeup_hid

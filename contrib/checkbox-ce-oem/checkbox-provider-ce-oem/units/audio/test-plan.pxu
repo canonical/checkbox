@@ -19,7 +19,7 @@ _name: Audio auto tests
 _description: Automated audio tests for devices
 include:
 
-id: ce-oem-audio-alsa-ucm
+id: ce-oem-audio-alsa-ucm-manual
 unit: test plan
 _name: ALSA UCM semi-automatic tests
 _description:

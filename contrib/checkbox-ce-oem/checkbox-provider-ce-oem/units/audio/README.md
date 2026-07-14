@@ -16,10 +16,10 @@ the final audio result:
 
 ## Test plan
 
-Run the standalone plan:
+Run the plan directly (it is also nested in `ce-oem-manual`):
 
 ```text
-ce-oem-audio-alsa-ucm
+ce-oem-audio-alsa-ucm-manual
 ```
 
 This plan is not included in `ce-oem-audio-automated`. It includes these

@@ -18,6 +18,7 @@ import argparse
 import os
 import time
 from typing import Dict, List, Optional
+from checkbox_support.helpers.slugify import slugify
 
 
 def get_all_sensors() -> List[Dict[str, str]]:
@@ -60,6 +61,7 @@ def get_all_sensors() -> List[Dict[str, str]]:
             sensors.append(
                 {
                     "name": sensor_name if sensor_name else device,
+                    "device": slugify(device),
                     "path": dev_path,
                 }
             )
@@ -90,6 +92,7 @@ def main():
     subparsers.add_parser("detect", help="Detect if light sensors exist")
 
     test_parser = subparsers.add_parser("test", help="Test specific sensor")
+    test_parser.add_argument("--device", required=True, help="Device index")
     test_parser.add_argument("--name", required=True, help="Device name")
     test_parser.add_argument(
         "--rounds", type=int, default=5, help="Test rounds"
@@ -116,6 +119,7 @@ def main():
         sensors = get_all_sensors()
         for s in sensors:
             print("name: {}".format(s["name"]))
+            print("device: {}".format(s["device"]))
             print()
 
     elif args.command == "detect":
@@ -126,14 +130,20 @@ def main():
     elif args.command == "test":
         sensors = get_all_sensors()
         sensors_with_matching_name = [
-            s for s in sensors if s["name"] == args.name
+            s
+            for s in sensors
+            if s["name"] == args.name and s["device"] == args.device
         ]
         if len(sensors_with_matching_name) == 0:
-            raise SystemExit("Error: Sensor '{}' not found.".format(args.name))
+            raise SystemExit(
+                "Error: Sensor '{}/{}' not found.".format(
+                    args.device, args.name
+                )
+            )
         elif len(sensors_with_matching_name) > 1:
             raise SystemExit(
-                "Warning: More than 1 sensor has the name '{}'.".format(
-                    args.name
+                "Warning: More than 1 sensor has the name '{}/{}'.".format(
+                    args.device, args.name
                 )
             )
         target_sensor = sensors_with_matching_name[0]

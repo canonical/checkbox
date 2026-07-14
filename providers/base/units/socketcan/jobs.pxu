@@ -16,28 +16,24 @@ command:
     ip link add vcan0 type vcan
   fi
 
-id: socketcan/check_interfaces
+id: socketcan/detect_can
 category_id: socketcan
-_summary: Check CAN interfaces on the platform
-_description:
-  Check whether CAN interfaces exist on the platform.
-  If EXPECTED_CAN_INTERFACES is set, the detected count must match it.
+_summary: Ensure socketcan are available for detection.
+_purpose:
+  Test to detect if there are available socketcan interfaces
+  If EXPECTED_COUNT_OF_CAN_INTERFACES is set, the detected count must match
+  it.
+  e.g. EXPECTED_COUNT_OF_CAN_INTERFACES=2
 plugin: shell
 user: root
 flags: also-after-suspend
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_socket_can == 'True'
 estimated_duration: 1
+environ: EXPECTED_COUNT_OF_CAN_INTERFACES
 command:
-  expected_can_num="${EXPECTED_CAN_INTERFACES:-}"
-  detected_can_num="$(ip -o link show type can | wc -l | tr -d '[:space:]')"
-  if [ "${detected_can_num}" -eq 0 ]; then
-      echo "No CAN interfaces found on this platform"
-      exit 1
-  fi
-  if [ -n "${expected_can_num}" ] && [ "${detected_can_num}" -ne "${expected_can_num}" ]; then
-      echo "Expected ${expected_can_num} CAN interfaces, found ${detected_can_num}"
-      exit 1
+  if [ -n "${EXPECTED_COUNT_OF_CAN_INTERFACES:-}" ]; then
+    socketcan_test.py --check-interfaces --expected-count "${EXPECTED_COUNT_OF_CAN_INTERFACES}"
+  else
+    socketcan_test.py --check-interfaces
   fi
 
 id: socketcan/send_packet_local_sff_virtual

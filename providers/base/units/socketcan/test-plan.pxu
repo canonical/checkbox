@@ -5,7 +5,7 @@ _name: SocketCAN Tests (Automated, Remote)
 _description:
   SocketCAN Tests (Automated, Remote)
 include:
-  socketcan/check_interfaces
+  socketcan/detect_can
   socketcan/send_packet_remote_.*
 
 
@@ -23,7 +23,7 @@ _name: SocketCAN Tests (Automated, Remote, After Suspend)
 _description:
   SocketCAN Tests (Automated, Remote, After Suspend)
 include:
-  after-suspend-socketcan/check_interfaces
+  after-suspend-socketcan/detect_can
   after-suspend-socketcan/send_packet_remote_.*
 
 
@@ -41,7 +41,7 @@ _name: SocketCAN Tests (Automated, Local)
 _description:
   SocketCAN Tests (Automated, Local)
 include:
-  socketcan/check_interfaces
+  socketcan/detect_can
   socketcan/send_packet_local_.*
 
 
@@ -59,7 +59,7 @@ _name: SocketCAN Tests (Automated, Local, After Suspend)
 _description:
   SocketCAN Tests (Automated, Local, After Suspend)
 include:
-  after-suspend-socketcan/check_interfaces
+  after-suspend-socketcan/detect_can
   after-suspend-socketcan/send_packet_local_.*
 
 

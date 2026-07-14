@@ -19,6 +19,7 @@ from cpu_idle_state import (
     Logger,
     CpuBenchmark,
     CpuIdleTest,
+    main,
 )
 
 
@@ -274,23 +275,20 @@ class TestCpuBenchmark(unittest.TestCase):
         Test burn_cpu_cycles method executes the expected number of
         iterations
         """
-        # We can't easily count the exact iterations without modifying the
-        # method, but we can verify it takes a reasonable amount of time to
-        # execute indicating the loop ran
+        # Count math.sqrt calls to verify the loop ran the expected number
+        # of iterations (4 sqrt calls per iteration, 100 iterations = 400
+        # calls) instead of asserting on wall-clock time, which is flaky
+        # on slow or heavily loaded hosts
 
         benchmark = CpuBenchmark(Logger(verbose=False))
 
         # Execute multiple times to ensure consistency
         for i in range(3):
-            start_time = time.time()
-            benchmark.burn_cpu_cycles()
-            end_time = time.time()
+            with patch("math.sqrt") as mock_sqrt:
+                mock_sqrt.return_value = 2.0
+                benchmark.burn_cpu_cycles()
 
-            execution_time = end_time - start_time
-            # Should take some measurable time (not instant)
-            self.assertGreater(execution_time, 0.0)  # Should take some time
-            # Should not take too long (indicating it's not stuck)
-            self.assertLess(execution_time, 1.0)  # Less than 1 second
+            self.assertEqual(mock_sqrt.call_count, 400)
 
     @patch.object(CpuBenchmark, "get_cpu_affinity")
     @patch.object(CpuBenchmark, "set_cpu_affinity")
@@ -1783,14 +1781,16 @@ class TestMainFunction(unittest.TestCase):
     """Test cases for main function logic"""
 
     def test_main_root_check_logic(self):
-        """Test main function root check logic"""
-        # Test the root check logic without running the full main function
+        """Test main function exits with an error when not running as root"""
+        with patch("sys.argv", ["cpu_idle_state.py"]):
+            with patch("os.geteuid", return_value=1000):
+                with patch("builtins.print") as mock_print:
+                    with self.assertRaises(SystemExit) as context:
+                        main()
 
-        # Mock os.geteuid to return non-root
-        with patch("os.geteuid", return_value=1):
-            # This simulates the root check in main function
-            # We test the logic without actually calling os.geteuid()
-            pass
+        self.assertEqual(context.exception.code, 1)
+        printed = " ".join(str(call) for call in mock_print.call_args_list)
+        self.assertIn("must be run as root", printed)
 
     def test_main_exit_codes(self):
         """Test main function exit code logic"""

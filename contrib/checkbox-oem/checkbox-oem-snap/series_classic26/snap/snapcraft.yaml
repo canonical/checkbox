@@ -4,7 +4,7 @@ description: "Checkbox OEM test runner and public providers for 26.04 classic"
 confinement: classic
 grade: stable
 
-version: '1.0-resolute'
+version: '0.4.0'
 
 base: core26
 

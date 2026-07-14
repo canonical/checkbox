@@ -48,8 +48,8 @@ estimated_duration: 2s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_ptp == 'True'
 command:
-    PTP_ID=$(ethtool -T {eth-interface} | grep "PTP Hardware Clock:" | cut -d' ' -f4)
-    if [ "$PTP_ID" = "none" ]; then
+    PTP_ID=$(ethtool -T {eth-interface} | grep -E "PTP Hardware Clock:|Hardware timestamp provider index:" | grep -oE '[0-9]+$')
+    if [ -z "$PTP_ID" ]; then
         echo "Device {eth-interface} does not support hardware PTP."
         exit 1
     else

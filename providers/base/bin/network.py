@@ -52,6 +52,9 @@ import typing as t
 results = []
 
 
+ETH_P_IBOE = 0x8915
+SIOCGIFNETMASK = 0x891B
+
 class IPerfPerformanceTest:
     """Measures performance of interface using iperf client
     and target. Calculated speed is measured against theorectical
@@ -509,21 +512,24 @@ class Interface(socket.socket):
         super(Interface, self).__init__(socket.AF_INET, socket.IPPROTO_ICMP)
 
         self.interface = interface
+        self.dev_path = Path("/sys/class/net") / interface
 
-        self.dev_path = os.path.join("/sys/class/net", self.interface)
+        if not self.dev_path.exists():
+            raise FileNotFoundError("Not such interface: " + interface)
 
-    def _read_data(self, type):
+    def _read_data(self, attribute: str):
         try:
-            return open(os.path.join(self.dev_path, type)).read().strip()
+            # use .read_text to have file automatically close itself
+            return (self.dev_path / attribute).read_text().strip()
         except OSError:
-            logging.warning("%s: Attribute not found", type)
+            logging.warning("%s: Attribute not found", attribute)
 
     @property
     def ipaddress(self):
         freq = struct.pack("256s", self.interface[:15].encode())
 
         try:
-            nic_data = fcntl.ioctl(self.fileno(), 0x8915, freq)
+            nic_data = fcntl.ioctl(self.fileno(), ETH_P_IBOE, freq)
         except IOError:
             logging.error("No IP address for %s", self.interface)
             return None
@@ -534,7 +540,7 @@ class Interface(socket.socket):
         freq = struct.pack("256s", self.interface.encode())
 
         try:
-            mask_data = fcntl.ioctl(self.fileno(), 0x891B, freq)
+            mask_data = fcntl.ioctl(self.fileno(), SIOCGIFNETMASK, freq)
         except IOError:
             logging.error("No netmask for %s", self.interface)
             return None

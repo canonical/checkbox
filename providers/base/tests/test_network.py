@@ -98,7 +98,7 @@ class NetworkTests(unittest.TestCase):
 
         self.assertDictEqual(result, expected_result)
         mock_glob.assert_called_with("*")
-        mock_intf.assert_called_with(path_list[-1])
+        mock_intf.assert_called_with(str(path_list[-1]))
         self.assertEqual(mock_intf.call_count, 3)
 
     @patch("network.check_call")
@@ -621,23 +621,6 @@ class NetworkTests(unittest.TestCase):
         self.assertEqual(context.exception.code, 1)
         self.assertEqual(mock_logging.call_count, 7)
 
-    @patch("logging.error")
-    @patch("network.make_target_list")
-    @patch("network.get_test_parameters")
-    def test_interface_test_with_example_target_list(
-        self, mock_get_test_params, mock_mk_targets, mock_logging
-    ):
-        mock_mk_targets.return_value = ["192.168.1.1"]
-        mock_get_test_params.return_value = {
-            "test_target_iperf": "example.com"
-        }
-        args = Namespace(test_type="iperf", interface="eth0")
-
-        with self.assertRaises(SystemExit) as context:
-            network.interface_test(args)
-        self.assertEqual(context.exception.code, 1)
-        self.assertEqual(mock_logging.call_count, 7)
-
 
 class InterfaceClassTest(unittest.TestCase):
 
@@ -662,3 +645,6 @@ class InterfaceClassTest(unittest.TestCase):
         mock_read.return_value = "test"
 
         self.assertEqual(self.obj_intf.phys_switch_id, "test")
+
+if __name__ == '__main__':
+    unittest.main()

@@ -995,7 +995,7 @@ def interface_test_initialize(
 
 
 def interface_test(args: Namespace):
-    if hasattr(args, "test_type"):
+    if not hasattr(args, "test_type"):
         return
 
     # Get the actual test data from one of two possible sources

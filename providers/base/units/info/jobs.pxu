@@ -185,7 +185,7 @@ _description: Attaches a report of sysfs attributes.
 command:
  for i in $(udevadm info --export-db | sed -n 's/^P: //p'); do
   echo "P: $i"
-  udevadm info --attribute-walk --path=/sys"$i" 2>/dev/null | sed -n 's/    ATTR{\(.*\)}=="\(.*\)"/A: \1=\2/p'
+  timeout 10 udevadm info --attribute-walk --path=/sys"$i" 2>/dev/null | sed -n 's/    ATTR{\(.*\)}=="\(.*\)"/A: \1=\2/p'
   echo
  done
 estimated_duration: 6.344
@@ -376,12 +376,11 @@ _summary: Attaches info about disk partitions
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/buildstamp
-template-engine: jinja2
 estimated_duration: 0.1
 _description: Attaches the buildstamp identifier for the OS
 _summary: Attaches the buildstamp identifier for the OS
 command:
-    {%- if __on_ubuntucore__ %}
+    if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
         if [ -s /run/mnt/ubuntu-seed/.disk/info ]; then
             cat /run/mnt/ubuntu-seed/.disk/info
         elif [ -s /writable/system-data/etc/buildstamp ]; then
@@ -391,7 +390,7 @@ command:
         else
             exit 1
         fi
-    {% else -%}
+    else
         if [ -s /var/lib/ubuntu_dist_channel ]; then  # PC projects
             cat /var/lib/ubuntu_dist_channel
         elif [ -s /var/log/installer/media-info ]; then  # Stock installer info
@@ -403,7 +402,7 @@ command:
         else
             exit 1
         fi
-    {% endif -%}
+    fi
 
 plugin: shell
 category_id: com.canonical.plainbox::info
@@ -533,9 +532,9 @@ command:
 id: lstopo_verbose_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: lstopo -v
+command: HWLOC_COMPONENTS=-gl lstopo-no-graphics -v
 estimated_duration: 0.015
-requires: executable.name == 'lstopo'
+requires: executable.name == 'lstopo-no-graphics'
 _purpose: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo
 
@@ -547,7 +546,7 @@ requires: executable.name == 'lstopo'
 _purpose: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo command to present system topology.
 command:
- lstopo "$PLAINBOX_SESSION_SHARE"/lstopo_visual.png; \
+ HWLOC_COMPONENTS=-gl lstopo "$PLAINBOX_SESSION_SHARE"/lstopo_visual.png; \
  [ -e "$PLAINBOX_SESSION_SHARE/lstopo_visual.png" ] && \
  cat "$PLAINBOX_SESSION_SHARE/lstopo_visual.png"
 

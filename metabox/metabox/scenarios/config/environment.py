@@ -29,8 +29,7 @@ class CheckboxConfEnvvarCaseSensitive(Scenario):
     Check that environment variables are case sensitive
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -43,8 +42,7 @@ class CheckboxConfEnvvarCaseSensitive(Scenario):
         CASE = CASE
         Case = Case
         case = case
-        """
-    )
+        """)
     steps = [
         AssertPrinted("CASE"),
         AssertPrinted("Case"),
@@ -59,8 +57,7 @@ class CheckboxConfXDG(Scenario):
     """
 
     checkbox_conf = read_text(environment, "checkbox_etc_xdg.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -69,8 +66,7 @@ class CheckboxConfXDG(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf),
         Start(),
@@ -86,8 +82,7 @@ class CheckboxConfLocalHome(Scenario):
 
     modes = ["local"]
     checkbox_conf = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -96,8 +91,7 @@ class CheckboxConfLocalHome(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         MkTree("/home/ubuntu/.config/"),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf),
@@ -114,8 +108,7 @@ class CheckboxConfRemoteHome(Scenario):
 
     modes = ["remote"]
     checkbox_conf = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -124,8 +117,7 @@ class CheckboxConfRemoteHome(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         MkTree("/root/.config/", privileged=True),
         Put("/root/.config/checkbox.conf", checkbox_conf),
@@ -142,8 +134,7 @@ class CheckboxConfSnap(Scenario):
 
     origins = ["snap", "classic-snap"]
     checkbox_conf = read_text(environment, "checkbox_snap_dir.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -152,8 +143,7 @@ class CheckboxConfSnap(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         MkTree("/var/snap/checkbox/current/"),
         Put("/var/snap/checkbox/current/checkbox.conf", checkbox_conf),
@@ -168,8 +158,7 @@ class CheckboxConfLauncher(Scenario):
     else is available.
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -180,8 +169,7 @@ class CheckboxConfLauncher(Scenario):
         forced = yes
         [environment]
         source = LAUNCHER
-        """
-    )
+        """)
     steps = [
         AssertPrinted("source: LAUNCHER"),
     ]
@@ -196,8 +184,7 @@ class CheckboxConfLocalHomePrecedence(Scenario):
     modes = ["local"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -206,8 +193,7 @@ class CheckboxConfLocalHomePrecedence(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
         MkTree("/home/ubuntu/.config/"),
@@ -225,8 +211,7 @@ class CheckboxConfLauncherPrecedence(Scenario):
 
     modes = ["remote"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -237,8 +222,7 @@ class CheckboxConfLauncherPrecedence(Scenario):
         forced = yes
         [environment]
         source = REMOTE LAUNCHER
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
         Start(),
@@ -266,8 +250,7 @@ class CheckboxConfLocalResolutionOrder(Scenario):
     modes = ["local"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -278,8 +261,7 @@ class CheckboxConfLocalResolutionOrder(Scenario):
         forced = yes
         [environment]
         var1 = LAUNCHER
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
         MkTree("/home/ubuntu/.config/"),
@@ -304,8 +286,7 @@ class CheckboxConfRemoteAgentResolutionOrder(Scenario):
     modes = ["remote"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -316,8 +297,7 @@ class CheckboxConfRemoteAgentResolutionOrder(Scenario):
         forced = yes
         [environment]
         var2 = LAUNCHER
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         MkTree("/root/.config", privileged=True),

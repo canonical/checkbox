@@ -30,8 +30,7 @@ from . import config_files
 @tag("config", "transport")
 class TransportSecureIDSetInLauncherOnly(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [ui]
@@ -50,8 +49,7 @@ class TransportSecureIDSetInLauncherOnly(Scenario):
         [report:launcher_report]
         transport = launcher_transport
         exporter = json
-        """
-    )
+        """)
     steps = [Start(), AssertPrinted("launcher is not a valid secure_id")]
 
 
@@ -59,8 +57,7 @@ class TransportSecureIDSetInLauncherOnly(Scenario):
 class TransportSecureIDSetInConfigOnly(Scenario):
     modes = ["remote"]
     checkbox_conf_xdg = read_text(config_files, "custom_transport.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [ui]
@@ -70,8 +67,7 @@ class TransportSecureIDSetInConfigOnly(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         Start(),
@@ -83,8 +79,7 @@ class TransportSecureIDSetInConfigOnly(Scenario):
 class TransportSecureIDOverwrittenByLauncher(Scenario):
     modes = ["remote"]
     checkbox_conf_xdg = read_text(config_files, "custom_transport.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [ui]
@@ -103,8 +98,7 @@ class TransportSecureIDOverwrittenByLauncher(Scenario):
         [report:launcher_report]
         transport = launcher_transport
         exporter = json
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         Start(),

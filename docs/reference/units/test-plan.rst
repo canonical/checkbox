@@ -11,10 +11,11 @@ Jobs are selected by either listing their identifier or a regular expression
 that matches their identifier. Listing a template identifier will select all
 the jobs instantiated by it. Selected jobs are executed in the sequence they
 appear in the list, unless they need to be reordered to satisfy dependencies
-which always take priority. It is also possible to :option:`test-plan exclude`
-jobs from the selection using the same principles.
+which always take priority. It is also possible to
+:option:`exclude<test-plan exclude>` jobs from the selection using the same
+principles.
 
-Test plans can be :option:`test-plan nested_part`, so you can
+Test plans can be :option:`nested<test-plan nested_part>`, so you can
 define several smaller test plans and combine them into a bigger one, which
 helps with maintenance and flexibility.
 
@@ -120,6 +121,10 @@ copy such constructs when working on a new test plan from scratch
     below for examples on how you can refer to jobs from other providers
     (you simply use their fully qualified name for that).
 
+    Finally, some options like the job category or its certification status can
+    be overridden inline in this section. See the
+    :ref:`test-plan-inline-overrides` section for more information.
+
 .. option:: mandatory_include
 
     A multi-line list of job identifiers or patterns matching such identifiers
@@ -138,6 +143,27 @@ copy such constructs when working on a new test plan from scratch
 
     Note that mandatory jobs will always be run first (along with their
     dependent jobs).
+
+.. option:: setup_include
+
+    A multi-line list of setup job identifiers that should be run before the
+    normal bootstrapping phase begins. Setup jobs are used to prepare the device
+    under test, such as installing dependencies, loading required kernel modules
+    or starting services needed by the rest of the test plan.
+
+    Example::
+
+        setup_include:
+            setup/install_example_tool
+
+    Note that each entry in the ``setup_include`` section must be a valid
+    :doc:`setup_job` unit identifier and cannot be a regular expression
+    pattern. Only setup job units are allowed in this section.
+
+    .. warning::
+
+        If any setup job fails, the whole test run will be aborted after the setup
+        phase and marked as failed.
 
 .. option:: bootstrap_include
 
@@ -195,7 +221,7 @@ copy such constructs when working on a new test plan from scratch
 
     For example let's consider a job definition that tests if a specific piece
     of hardware works correctly after a suspend-resume cycle. Let's assume that
-    the job definition  has a natural association with the category describing
+    the job definition has a natural association with the category describing
     such hardware devices. In one test plan, this test will be associated
     with the hardware-specific category (using the natural association). In
     a special suspend-resume test plan the same job definition can
@@ -229,6 +255,11 @@ copy such constructs when working on a new test plan from scratch
     The job definition with the partial identifier ``foo`` will be associated
     with the ``cat-2`` category.
 
+    .. note::
+
+        Categories can also be overriden directly in the :option:`include`
+        section using :ref:`inline overrides<test-plan-inline-overrides>`.
+
 .. option:: certification_status_overrides
 
     A multi-line list of certification status override statements.
@@ -244,6 +275,12 @@ copy such constructs when working on a new test plan from scratch
     certification blocker::
 
         apply blocker to .*wireless.*
+
+    .. note::
+
+        Certification statuses can also be overriden directly in the
+        :option:`include` section using
+        :ref:`inline overrides<test-plan-inline-overrides>`.
 
     .. note::
 
@@ -294,6 +331,40 @@ copy such constructs when working on a new test plan from scratch
     may be more accurate as it doesn't include the accumulated sum of
     mis-estimates from all of the job definitions selected by a particular test
     plan.
+
+.. _test-plan-inline-overrides:
+
+Inline Overrides
+================
+
+In addition to the :option:`certification_status_overrides` and
+:option:`category_overrides` fields, overrides can be applied on a line-by-line
+basis in the list of included tests.
+
+This is heavily used in Canonical Hardware Certification program to define the
+certification status of tests executed as part of a given test plan. This is
+because a given test might be required to pass for some certification programs,
+but optional for others.
+
+In the following example, ``graphics/driver_version`` and
+``graphics/gl_support`` have their certification status set to ``blocker`` in
+the test plan. ::
+
+    id: graphics-gpu-cert-automated
+    unit: test plan
+    _name: Graphics tests (Automated)
+    _description:
+     Graphics tests (Automated)
+    include:
+        graphics/driver_version             certification-status=blocker
+        graphics/gl_support                 certification-status=blocker
+        graphics/minimum_resolution
+
+.. note::
+
+    The certification status of the ``graphics/minimum_resolution`` job is left
+    untouched (it might be ``blocker`` or ``non-blocker``, depending on how it
+    was defined at job level).
 
 .. _test-plan-examples:
 

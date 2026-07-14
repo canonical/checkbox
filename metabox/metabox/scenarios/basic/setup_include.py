@@ -26,14 +26,12 @@ from metabox.core import keys
 
 @tag("setup_include")
 class SetupIncludeBasicManual(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         stock_reports = text
         [test plan]
         unit = 2021.com.canonical.certification::basic_setup_include_works
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("Press <Enter> to continue"),
@@ -51,8 +49,7 @@ class SetupIncludeBasicManual(Scenario):
 
 @tag("setup_include")
 class SetupIncludeBasicAutomated(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         stock_reports = text
         [test plan]
@@ -62,8 +59,7 @@ class SetupIncludeBasicAutomated(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("simple_setup_guard"),
@@ -78,8 +74,7 @@ class SetupIncludeBasicAutomated(Scenario):
 @tag("setup_include")
 class SetupIncludeResumeAutomatedLocal(Scenario):
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         stock_reports = text
         [test plan]
@@ -87,8 +82,7 @@ class SetupIncludeResumeAutomatedLocal(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("simple_setup_guard"),
@@ -112,8 +106,7 @@ class SetupIncludeResumeAutomatedLocal(Scenario):
 @tag("setup_include")
 class SetupIncludeResumeAutomatedRemote(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         stock_reports = text
         [test plan]
@@ -121,8 +114,7 @@ class SetupIncludeResumeAutomatedRemote(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("simple_setup_guard"),

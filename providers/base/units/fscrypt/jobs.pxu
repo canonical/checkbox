@@ -1,0 +1,18 @@
+id: fscrypt/check-kernel-config
+plugin: shell
+category_id: fscrypt
+command: kernel_config.py --config-flag CONFIG_FS_ENCRYPTION
+estimated_duration: 0.005
+_purpose: Checks the value of the CONFIG_FS_ENCRYPTION flag in the kernel configuration
+_summary: Check if the kernel is compiled with filesystem encryption support
+
+id: fscrypt/check-support
+plugin: shell
+category_id: fscrypt
+estimated_duration: 5s
+user: root
+depends: fscrypt/check-kernel-config
+requires: executable.name == "fscrypt"
+_summary: Check fscrypt support
+_purpose: Create an ext4 image and test the filesystem encryption feature
+command: fscrypt_test.py

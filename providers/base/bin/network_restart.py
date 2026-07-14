@@ -3,6 +3,7 @@
 Reboot networking, wait for a while and check if it's possible to send
 some pings
 """
+
 import sys
 import os
 import time

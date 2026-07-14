@@ -21,7 +21,6 @@
 Run CPU, memory, and disk stress tests using the stress-ng binary program.
 """
 
-
 from argparse import ArgumentParser, RawTextHelpFormatter
 from subprocess import (
     CalledProcessError,

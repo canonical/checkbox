@@ -19,6 +19,7 @@
 Bunch of helpers to make it easier to reuse logic and UI functionality
 associated with a particular stage of checkbox execution.
 """
+
 import abc
 import datetime
 import gettext
@@ -129,7 +130,7 @@ class MainLoopStage(CheckboxUiStage):
                     "manual",
                 ):
                     result_builder = JobResultBuilder(
-                        outcome=IJobResult.OUTCOME_SKIP,
+                        outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                         comments=_(
                             "Trying to run interactive job in a silent"
                             " session"
@@ -188,7 +189,7 @@ class MainLoopStage(CheckboxUiStage):
                             continue
                         else:
                             result_builder = JobResultBuilder(
-                                outcome=IJobResult.OUTCOME_SKIP,
+                                outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                                 comments=_(
                                     "Explicitly skipped before execution"
                                 ),
@@ -229,7 +230,7 @@ class MainLoopStage(CheckboxUiStage):
             allowed_outcome = [
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
-                IJobResult.OUTCOME_SKIP,
+                IJobResult.OUTCOME_MANUAL_SKIP,
             ]
         allowed_actions = [Action("c", _("add a comment"), "set-comments")]
         if IJobResult.OUTCOME_PASS in allowed_outcome:
@@ -252,7 +253,7 @@ class MainLoopStage(CheckboxUiStage):
                     "set-fail",
                 )
             )
-        if IJobResult.OUTCOME_SKIP in allowed_outcome:
+        if IJobResult.OUTCOME_MANUAL_SKIP in allowed_outcome:
             allowed_actions.append(
                 Action(
                     "s",
@@ -339,7 +340,7 @@ class MainLoopStage(CheckboxUiStage):
                     )
                     continue
                 else:
-                    result_builder.outcome = IJobResult.OUTCOME_SKIP
+                    result_builder.outcome = IJobResult.OUTCOME_MANUAL_SKIP
             elif cmd == "set-suggested":
                 result_builder.outcome = suggested_outcome
             elif cmd == "set-comments":
@@ -501,8 +502,7 @@ class ReportsStage(CheckboxUiStage):
         new_origin = "stock_reports"
         if report == "text":
             additional_config = ConfigurationType.from_text(
-                textwrap.dedent(
-                    """
+                textwrap.dedent("""
                     [exporter:text]
                     unit = com.canonical.plainbox::text
                     [transport:stdout]
@@ -512,15 +512,13 @@ class ReportsStage(CheckboxUiStage):
                     exporter = text
                     forced = yes
                     transport = stdout
-                    """
-                ),
+                    """),
                 new_origin,
             )
             self.sa.config.update_from_another(additional_config, new_origin)
         elif report == "certification":
             additional_config = ConfigurationType.from_text(
-                textwrap.dedent(
-                    """
+                textwrap.dedent("""
                     [exporter:tar]
                     unit = com.canonical.plainbox::tar
                     [transport:c3]
@@ -528,15 +526,13 @@ class ReportsStage(CheckboxUiStage):
                     [report:upload to certification]
                     exporter = tar
                     transport = c3
-                    """
-                ),
+                    """),
                 new_origin,
             )
             self.sa.config.update_from_another(additional_config, new_origin)
         elif report == "certification-staging":
             additional_config = ConfigurationType.from_text(
-                textwrap.dedent(
-                    """
+                textwrap.dedent("""
                     [exporter:tar]
                     unit = com.canonical.plainbox::tar
                     [transport:c3]
@@ -545,8 +541,7 @@ class ReportsStage(CheckboxUiStage):
                     [report:upload to certification-staging]
                     exporter = tar
                     transport = c3
-                    """
-                ),
+                    """),
                 new_origin,
             )
             self.sa.config.update_from_another(additional_config, new_origin)
@@ -558,8 +553,7 @@ class ReportsStage(CheckboxUiStage):
             ]:
                 path = self._get_submission_file_path(file_ext)
                 os.makedirs(os.path.dirname(path), exist_ok=True)
-                template = textwrap.dedent(
-                    """
+                template = textwrap.dedent("""
                     [transport:{exporter}_file]
                     path = {path}
                     type = file
@@ -569,8 +563,7 @@ class ReportsStage(CheckboxUiStage):
                     exporter = {exporter}
                     forced = yes
                     transport = {exporter}_file
-                    """
-                )
+                    """)
                 additional_config = ConfigurationType.from_text(
                     template.format(exporter=exporter, path=path), new_origin
                 )
@@ -582,8 +575,7 @@ class ReportsStage(CheckboxUiStage):
             file_ext = ".json"
             path = self._get_submission_file_path(file_ext)
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            template = textwrap.dedent(
-                """
+            template = textwrap.dedent("""
                 [transport:{exporter}_file]
                 path = {path}
                 type = file
@@ -593,8 +585,7 @@ class ReportsStage(CheckboxUiStage):
                 exporter = {exporter}
                 forced = yes
                 transport = {exporter}_file
-                """
-            )
+                """)
             additional_config = ConfigurationType.from_text(
                 template.format(exporter=exporter, path=path), new_origin
             )

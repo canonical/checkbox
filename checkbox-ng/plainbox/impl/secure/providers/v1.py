@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013-2015 Canonical Ltd.
+# Copyright 2013-2026 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # PEP440 version pattern:
 # Copyright (c) Donald Stufft and individual contributors.
@@ -23,38 +24,51 @@
 :mod:`plainbox.impl.secure.providers.v1` -- Implementation of V1 provider
 =========================================================================
 """
+
 import collections
 import gettext
 import logging
 import os
 
+import yaml
+
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
+
+from pathlib import Path
+
 from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
-from plainbox.impl.secure.config import Config, Variable
+from plainbox.impl.secure.config import (
+    Config,
+    IValidator,
+    NotEmptyValidator,
+    NotUnsetValidator,
+    PatternValidator,
+    Unset,
+    Variable,
+)
 from plainbox.impl.secure.config import (
     ValidationError as ConfigValidationError,
 )
-from plainbox.impl.secure.config import IValidator
-from plainbox.impl.secure.config import NotEmptyValidator
-from plainbox.impl.secure.config import NotUnsetValidator
-from plainbox.impl.secure.config import PatternValidator
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.plugins import FsPlugInCollection
-from plainbox.impl.secure.plugins import LazyFsPlugInCollection
-from plainbox.impl.secure.plugins import PlugIn
-from plainbox.impl.secure.plugins import PlugInError
-from plainbox.impl.secure.plugins import now
-from plainbox.impl.secure.rfc822 import FileTextSource
-from plainbox.impl.secure.rfc822 import RFC822SyntaxError
-from plainbox.impl.secure.rfc822 import load_rfc822_records
+from plainbox.impl.secure.plugins import (
+    FsPlugInCollection,
+    LazyFsPlugInCollection,
+    PlugIn,
+    PlugInError,
+    now,
+)
+from plainbox.impl.secure.rfc822 import (
+    FileTextSource,
+    RFC822SyntaxError,
+    load_rfc822_records,
+)
 from plainbox.impl.unit import all_units
-from plainbox.impl.unit.file import FileRole
-from plainbox.impl.unit.file import FileUnit
-from plainbox.impl.unit.testplan import TestPlanUnit
-from plainbox.impl.validation import Severity
-from plainbox.impl.validation import ValidationError
-
+from plainbox.impl.unit.file import FileRole, FileUnit
+from plainbox.impl.validation import Severity, ValidationError
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
 
@@ -73,6 +87,7 @@ class ProviderContentPlugIn(PlugIn):
         The list of loaded units
     """
 
+    # fmt: off
     def __init__(
         self,
         filename,
@@ -85,6 +100,9 @@ class ProviderContentPlugIn(PlugIn):
         check=True,
         context=None
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         start_time = now()
         try:
             # Inspect the file
@@ -165,10 +183,10 @@ class ProviderContentPlugIn(PlugIn):
         )
 
 
-class UnitPlugIn(ProviderContentPlugIn):
+class RFC822UnitPlugIn(ProviderContentPlugIn):
     """
     A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
-    list of :class:`plainbox.impl.unit.Unit` instances from a file.
+    list of :class:`plainbox.impl.unit.Unit` instances from a pxu file.
     """
 
     def inspect(
@@ -232,6 +250,141 @@ class UnitPlugIn(ProviderContentPlugIn):
                 raise PlugInError(
                     _("Cannot define unit from record {!r}: {}").format(
                         record, exc
+                    )
+                )
+            if check:
+                for issue in unit.check(context=context, live=True):
+                    if issue.severity is Severity.error:
+                        raise PlugInError(
+                            _("Problem in unit definition, {}").format(issue)
+                        )
+            if validate:
+                try:
+                    unit.validate(**validation_kwargs)
+                except ValidationError as exc:
+                    raise PlugInError(
+                        _("Problem in unit definition, field {}: {}").format(
+                            exc.field, exc.problem
+                        )
+                    )
+            unit_list.append(unit)
+            logger.debug(_("Loaded %r"), unit)
+        return unit_list
+
+    def discover_units(
+        self,
+        inspect_result: "List[Unit]",
+        filename: str,
+        text: str,
+        provider: "Provider1",
+    ) -> "Iterable[Unit]":
+        for unit in inspect_result:
+            yield unit
+        yield self.make_file_unit(filename, provider)
+
+    # NOTE: this version of plugin_object() is just for legacy code support
+    @property
+    def plugin_object(self):
+        return self.unit_list
+
+    @staticmethod
+    def _get_unit_cls(unit_name):
+        """
+        Get a class that implements the specified unit
+        """
+        # TODO: transition to lazy plugin collection
+        all_units.load()
+        return all_units.get_by_name(unit_name).plugin_object
+
+
+class YAMLUnitPlugIn(ProviderContentPlugIn):
+    """
+    A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
+    list of :class:`plainbox.impl.unit.Unit` instances from a yaml file.
+    """
+
+    def _load_units(self, text):
+        loader = yaml.Loader(text)
+        try:
+            while loader.check_node():
+                node = loader.get_node()
+                start = node.start_mark
+                end = node.end_mark
+                value = loader.construct_document(node)
+                yield (value, start.line, end.line)
+        finally:
+            loader.dispose()
+
+    def inspect(
+        self,
+        filename: str,
+        text: str,
+        provider: "Provider1",
+        validate: bool,
+        validation_kwargs: "Dict[str, Any]",
+        check: bool,
+        context: "???",
+    ) -> "Any":
+        """
+        Load all units from their YAML representation.
+
+        :param filename:
+            Name of the file with unit definitions
+        :param text:
+            Full text of the file with unit definitions (lazy)
+        :param provider:
+            A provider object to which those units belong to
+        :param validate:
+            Enable unit validation. Incorrect unit definitions will not be
+            loaded and will abort the process of loading of the remainder of
+            the jobs.  This is ON by default to prevent broken units from being
+            used. This is a keyword-only argument.
+        :param validation_kwargs:
+            Keyword arguments to pass to the Unit.validate().  Note, this is a
+            single argument. This is a keyword-only argument.
+        :param check:
+            Enable unit checking. Incorrect unit definitions will not be loaded
+            and will abort the process of loading of the remainder of the jobs.
+            This is OFF by default to prevent broken units from being used.
+            This is a keyword-only argument.
+        :param context:
+            If checking, use this validation context.
+        """
+        logger.debug(_("Loading units from %r..."), filename)
+
+        try:
+            units_data = self._load_units(str(text))
+        except yaml.YAMLError as exc:
+            raise PlugInError(
+                _("Cannot load job definitions from {!r}: {}").format(
+                    filename, exc
+                )
+            )
+        unit_list = []
+        for unit_data, start_line, end_line in units_data:
+            unit_name = unit_data.get("unit", "job")
+            try:
+                unit_cls = self._get_unit_cls(unit_name)
+            except KeyError:
+                raise PlugInError(
+                    _("Unknown unit type: {!r}").format(unit_name)
+                )
+            try:
+                unit = unit_cls.from_yaml_unit_data(
+                    unit_data,
+                    provider=provider,
+                    origin=Origin(
+                        # Origin is ""human readable"" so the line ranges are
+                        # start + 1, end as humans count from 1.
+                        FileTextSource(filename),
+                        start_line + 1,
+                        end_line,
+                    ),
+                )
+            except ValueError as exc:
+                raise PlugInError(
+                    _("Cannot define unit from record {!r}: {}").format(
+                        unit_data, exc
                     )
                 )
             if check:
@@ -445,8 +598,10 @@ class ProviderContentClassifier:
         classify_fn_list = []
         if self.provider.jobs_dir:
             classify_fn_list.append(self._classify_pxu_jobs)
+            classify_fn_list.append(self._classify_yaml_jobs)
         if self.provider.units_dir:
             classify_fn_list.append(self._classify_pxu_units)
+            classify_fn_list.append(self._classify_yaml_units)
         if self.provider.data_dir:
             classify_fn_list.append(self._classify_data)
         if self.provider.bin_dir:
@@ -496,7 +651,28 @@ class ProviderContentClassifier:
                 return (
                     FileRole.unit_source,
                     self.provider.jobs_dir,
-                    UnitPlugIn,
+                    RFC822UnitPlugIn,
+                )
+
+    def _classify_yaml_jobs(self, filename: str):
+        """classify certain files in jobs_dir as unit source"""
+        if filename.startswith(self.provider.jobs_dir):
+            ext = os.path.splitext(filename)[1]
+            if ext in {".yaml", ".yml"}:
+                return (
+                    FileRole.unit_source,
+                    self.provider.units_dir,
+                    YAMLUnitPlugIn,
+                )
+
+    def _classify_yaml_units(self, filename: str):
+        if filename.startswith(self.provider.units_dir):
+            ext = os.path.splitext(filename)[1]
+            if ext in {".yaml", ".yml"}:
+                return (
+                    FileRole.unit_source,
+                    self.provider.units_dir,
+                    YAMLUnitPlugIn,
                 )
 
     def _classify_pxu_units(self, filename: str):
@@ -508,7 +684,7 @@ class ProviderContentClassifier:
                 return (
                     FileRole.unit_source,
                     self.provider.units_dir,
-                    UnitPlugIn,
+                    RFC822UnitPlugIn,
                 )
 
     def _classify_data(self, filename: str):
@@ -721,6 +897,7 @@ class Provider1(IProvider1):
     number of fields involved in basic initialization.
     """
 
+    # fmt: off
     def __init__(
         self,
         name,
@@ -742,6 +919,9 @@ class Provider1(IProvider1):
         context=None,
         sideloaded=False
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -845,6 +1025,7 @@ class Provider1(IProvider1):
         if self._gettext_domain and self._locale_dir:
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
+    # fmt: off
     @classmethod
     def from_definition(
         cls,
@@ -857,6 +1038,9 @@ class Provider1(IProvider1):
         context=None,
         sideloaded=False
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize a provider from Provider1Definition object
 
@@ -1071,18 +1255,18 @@ class Provider1(IProvider1):
         """
         return self.base_dir
 
+
     @property
-    def extra_PYTHONPATH(self):
-        """
-        additional entry for PYTHONPATH, if needed.
+    def extra_PYTHONPATH(self) -> list:
+        return []
 
-        This entry is required for CheckBox scripts to import the correct
-        CheckBox python libraries.
+    @property
+    def extra_PATH(self) -> list:
+        return []
 
-        .. note::
-            The result may be None
-        """
-        return None
+    @property
+    def extra_LD_LIBRARY_PATH(self):
+        return []
 
     @property
     def secure(self):
@@ -1660,6 +1844,7 @@ class Provider1PlugIn(PlugIn):
     files
     """
 
+    # fmt: off
     def __init__(
         self,
         filename,
@@ -1671,6 +1856,9 @@ class Provider1PlugIn(PlugIn):
         check=None,
         context=None
     ):
+        # Python3.5 compatibility, black would put a trailing comma ^^
+        # but that is not supported in python3.5. Leave fmt off for now
+        # fmt: on
         """
         Initialize the plug-in with the specified name and external object
         """
@@ -1720,6 +1908,40 @@ class Provider1PlugIn(PlugIn):
         )
 
 
+def get_secure_custom_frontend_PROVIDERPATH_list():
+    """
+    Additional PROVIDERPATH for custom-frontend interface
+
+    Custom frontend that adopted the custom-frontend interface provide their
+    root as content. From this root the installed providers are always at
+    $custom_frontend_root/providers/
+    """
+    snap_path = os.getenv("SNAP")
+    if not snap_path:
+        return []
+    custom_frontends_path = Path(snap_path) / "custom_frontends"
+    if not custom_frontends_path.exists():
+        return []
+    providers_paths = []
+    for custom_frontend_root in custom_frontends_path.iterdir():
+        providers_path = custom_frontend_root / "providers"
+        if not providers_path.exists():
+            # since core26, the target of all interfaces is always created even
+            # if the content interface is not plugged. This warning is supposed
+            # to notify if the custom frontend they plugged is invalid. This is
+            # why it checks if the dir is non-empty
+            if any(True for _ in custom_frontend_root.iterdir()):
+                logger.error(
+                    "Custom frontend must have `providers` directory in root. "
+                    "Invalid custom frontend found: {}".format(
+                        custom_frontend_root
+                    )
+                )
+            continue
+        providers_paths += providers_path.iterdir()
+    return list(map(str, providers_paths))
+
+
 def get_secure_PROVIDERPATH_list():
     """
     Computes the secure value of PROVIDERPATH
@@ -1739,7 +1961,7 @@ def get_secure_PROVIDERPATH_list():
             return [
                 os.path.join(snap_providers_path, provider)
                 for provider in os.listdir(snap_providers_path)
-            ]
+            ] + get_secure_custom_frontend_PROVIDERPATH_list()
     else:
         return [
             "/usr/local/share/plainbox-providers-1",

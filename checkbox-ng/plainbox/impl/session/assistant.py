@@ -51,6 +51,7 @@ from plainbox.impl.developer import (
 )
 from plainbox.impl.providers import get_providers
 from plainbox.impl.result import JobResultBuilder, MemoryJobResult
+from plainbox.impl.result_utils import determine_outcome_and_skip_reason
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import (
@@ -588,22 +589,6 @@ class SessionAssistant:
         self._metadata = self._context.state.metadata
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)
-        if self._metadata.running_job_name:
-            job = self._context.get_unit(
-                self._metadata.running_job_name, "job"
-            )
-            if "autorestart" in job.get_flag_set():
-                result = JobResultBuilder(
-                    outcome=(
-                        IJobResult.OUTCOME_PASS
-                        if "noreturn" in job.get_flag_set()
-                        else IJobResult.OUTCOME_FAIL
-                    ),
-                    return_code=0,
-                    io_log_filename=self._runner.get_record_path_for_job(job),
-                ).get_result()
-                self._context.state.update_job_result(job, result)
-                self._manager.checkpoint()
         self._restart_strategy = detect_restart_strategy(self)
         _logger.info("Session strategy: %r", self._restart_strategy)
         self._job_start_time = self._metadata.last_job_start_time
@@ -811,6 +796,7 @@ class SessionAssistant:
             self.get_job: "to decide what result should be assigned",
             self.get_job_state: "to see if the job result was already decided",
             self.use_job_result: "to assign the decided result to the job",
+            self.get_dynamic_todo_list: "to see what is yet to be executed",
             self.start_setup: "to be called after setting the last job result",
         }
 
@@ -839,9 +825,11 @@ class SessionAssistant:
             self.run_job: "to run setup job",
             self.get_job: "to get the job definition by id",
             self.get_job_state: "to get the current state of a job",
+            self.get_dynamic_todo_list: "to see what is yet to be executed",
             self.finish_setup: "to finish setting up after running all jobs",
             self.get_session_id: "used internally by get_job",
             self.get_category: "used by UIs to represent a job",
+            self.get_manifest_repr: "to know which manifests should be filled",
         }
         return [job.id for job in self._context.state.run_list]
 
@@ -881,6 +869,8 @@ class SessionAssistant:
             self.get_job_state: "to get the current state of a job",
             self.finish_bootstrap: "to finish bootstrapping after running all jobs",
             self.get_session_id: "used internally by get_job",
+            self.get_dynamic_todo_list: "to see what is yet to be executed",
+            self.finalize_session: "to finalize the session",
         }
         return [job.id for job in self._context.state.run_list]
 
@@ -958,47 +948,6 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state()
         )
-
-    def bootstrapping(self):
-        return self._metadata.bootstrapping
-
-    @raises(UnexpectedMethodCall)
-    def start_bootstrap(self):
-        """
-        Starts the bootstrap process returning the list of all jobs to run to
-        bootstrap the session.
-
-        :raises UnexpectedMethodCall:
-            If the call is made at an unexpected time. Do not catch this error.
-            It is a bug in your program. The error message will indicate what
-            is the likely cause.
-
-        This method, together with :meth:`run_job`, can be used instead of
-        :meth:`boostrap` to have control over when bootstrapping jobs are run.
-        This is done to provide a UI to the process as :meth:`bootstrap` is
-        silent.
-        """
-        UsageExpectation.of(self).enforce()
-        self._metadata.bootstrapping = True
-        desired_job_list = select_units(
-            self._context.state.job_list,
-            [
-                plan.get_bootstrap_qualifier()
-                for plan in (self._manager.test_plans)
-            ]
-            + self._exclude_qualifiers,
-        )
-        self._context.state.update_desired_job_list(
-            desired_job_list, include_mandatory=False
-        )
-        UsageExpectation.of(self).allowed_calls = {
-            self.run_job: "to run bootstrap job",
-            self.get_job: "to get the job definition by id",
-            self.get_job_state: "to get the current state of a job",
-            self.finish_bootstrap: "to finish bootstrapping after running all jobs",
-            self.get_session_id: "used internally by get_job",
-        }
-        return [job.id for job in self._context.state.run_list]
 
     def finish_setup(self):
         UsageExpectation.of(self).enforce()
@@ -1439,10 +1388,22 @@ class SessionAssistant:
         def didnt_run_yet(job):
             return job_state_map[job.id].result.outcome is None
 
-        todo_list = filter(didnt_run_yet, run_list)
+        def get_required_manifests_if_any(job):
+            try:
+                return job.get_required_manifests_spec()
+            except AttributeError:  # only setup_jobs
+                return []
+
+        todo_list = [x for x in run_list if didnt_run_yet(x)]
+        manifest_id_set = {
+            manifest_spec.id
+            for job in todo_list
+            for manifest_spec in get_required_manifests_if_any(job)
+        }
+
         resource_programs = (job.get_resource_program() for job in todo_list)
         resource_programs = filter(bool, resource_programs)
-        manifest_id_set = {
+        manifest_id_set |= {
             manifest_id
             for resource_program in resource_programs
             for expression in resource_program.expression_list
@@ -1493,15 +1454,7 @@ class SessionAssistant:
         """
         Record the manifest on disk.
         """
-        manifest_cache = dict()
-        manifest = WellKnownDirsHelper.manifest_file()
-        if os.path.isfile(manifest):
-            with open(manifest, "rt", encoding="UTF-8") as stream:
-                manifest_cache = json.load(stream)
-        manifest_cache.update(manifest_answers)
-        print("Saving manifest to {}".format(manifest))
-        with open(manifest, "wt", encoding="UTF-8") as stream:
-            json.dump(manifest_cache, stream, sort_keys=True, indent=2)
+        self._context.state.save_manifest(manifest_answers)
 
     def note_metadata_starting_job(self, job, job_state):
         """
@@ -1513,6 +1466,9 @@ class SessionAssistant:
         """
         self._metadata.running_job_name = job["id"]
         self._metadata.last_job_start_time = time.time()
+        self._context.state.metadata.remaining_todo_jobs = bool(
+            self.get_dynamic_todo_list()
+        )
         self._manager.checkpoint()
 
     @raises(ValueError, TypeError, UnexpectedMethodCall)
@@ -1582,6 +1538,9 @@ class SessionAssistant:
         if job_state.can_start():
             ui.about_to_start_running(job, job_state)
             self._context.state.metadata.running_job_name = job.id
+            self._context.state.metadata.remaining_todo_jobs = bool(
+                self.get_dynamic_todo_list()
+            )
             self._manager.checkpoint()
             autorestart = (
                 self._restart_strategy is not None
@@ -1640,8 +1599,16 @@ class SessionAssistant:
                                 )
                             )
             if not native:
+                as_systemd_unit = (
+                    self._metadata.FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER
+                    in self._metadata.flags
+                )
                 result = self._runner.run_job(
-                    job, job_state, self._config.environment, ui
+                    job,
+                    job_state,
+                    self._config.environment,
+                    ui,
+                    as_systemd_unit=as_systemd_unit,
                 )
                 builder = result.get_builder()
             else:
@@ -1655,28 +1622,15 @@ class SessionAssistant:
             self._manager.checkpoint()
             ui.finished_running(job, job_state, builder.get_result())
         else:
-            # Set the outcome of jobs that cannot start to
-            # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to
-            # a job with an OUTCOME_SKIP outcome, if that is the case mirror
-            # that outcome. This makes 'skip' stronger than 'not-supported'
-            outcome = IJobResult.OUTCOME_NOT_SUPPORTED
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if (
-                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE
-                    and "fail-on-resource" in job.get_flag_set()
-                ):
-                    outcome = IJobResult.OUTCOME_FAIL
-                    break
-                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
-                    continue
-                related_job_state = self._context.state.job_state_map[
-                    inhibitor.related_job.id
-                ]
-                if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
-                    outcome = IJobResult.OUTCOME_SKIP
+            outcome = None
+            outcome, skip_reason = determine_outcome_and_skip_reason(
+                job_state, self._context.state.job_state_map
+            )
             builder = JobResultBuilder(
                 outcome=outcome, comments=job_state.get_readiness_description()
             )
+            if skip_reason:
+                builder.skip_reason = skip_reason
             ui.job_cannot_start(job, job_state, builder.get_result())
         ui.finished(job, job_state, builder.get_result())
         # Set up expectations so that run_job() and use_job_result() must be
@@ -1732,6 +1686,9 @@ class SessionAssistant:
             # happens when using `checkbox-cli run, or plainbox`, and with old,
             # legacy Launchers. They are not expected to do auto-retries.
             pass
+        self._context.state.metadata.remaining_todo_jobs = bool(
+            self.get_dynamic_todo_list()
+        )
         self._manager.checkpoint()
         # Set up expectations so that run_job() and use_job_result() must be
         # called in pairs and applications cannot just forget and call
@@ -1762,8 +1719,11 @@ class SessionAssistant:
                 if job_state.result.outcome in (
                     IJobResult.OUTCOME_FAIL,
                     IJobResult.OUTCOME_CRASH,
-                    IJobResult.OUTCOME_SKIP,
+                    IJobResult.OUTCOME_MANUAL_SKIP,
                     IJobResult.OUTCOME_NOT_SUPPORTED,
+                    IJobResult.OUTCOME_SKIPPED_DEPENDENCY,
+                    IJobResult.OUTCOME_SKIPPED_RESOURCE,
+                    IJobResult.OUTCOME_SKIPPED_MANIFEST,
                 ):
                     rerun_candidates.append(self.get_job(job_id))
             if session_type == "auto":
@@ -1775,7 +1735,10 @@ class SessionAssistant:
                 if job_state.effective_auto_retry == "no":
                     continue
                 if job_state.result.outcome in (
-                    IJobResult.OUTCOME_NOT_SUPPORTED
+                    IJobResult.OUTCOME_NOT_SUPPORTED,
+                    IJobResult.OUTCOME_SKIPPED_DEPENDENCY,
+                    IJobResult.OUTCOME_SKIPPED_RESOURCE,
+                    IJobResult.OUTCOME_SKIPPED_MANIFEST,
                 ):
                     for inhibitor in job_state.readiness_inhibitor_list:
                         if inhibitor.cause == InhibitionCause.FAILED_DEP:

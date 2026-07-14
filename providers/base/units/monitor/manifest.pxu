@@ -9,3 +9,8 @@ id: has_muxpi_hdmi
 _prompt: Is the device connected to the following?:
 _name: MuxPi HDMI Port
 value-type: bool
+
+unit: manifest entry
+id: has_monitor_als_brightness_control
+_name: Ambient Light Sensor for Monitor Brightness Control
+value-type: bool

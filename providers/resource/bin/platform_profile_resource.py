@@ -20,6 +20,7 @@
 # pylint: disable=consider-using-f-string
 
 """Provides a resource to check if platform profiles are supported."""
+
 from pathlib import Path
 
 

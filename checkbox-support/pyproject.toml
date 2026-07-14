@@ -10,11 +10,8 @@
   description='CheckBox support library'
   dynamic = ["version"]
   dependencies=[
-    'pyparsing>=2.2.0',
     'requests>=1.0',
     'distro>=1.0',
-    'requests_unixsocket>=0.1.2; python_version>="3.5" and python_version<="3.11"',
-    'requests_unixsocket2; python_version>="3.12"',
     'importlib_metadata; python_version<"3.8"',
     'pyyaml',
   ]
@@ -29,10 +26,8 @@ jammy_prod = [ # Note: ancient versions of pip fail to see this section, use pip
   'charset-normalizer==2.0.6',
   'distro==1.7.0',
   'idna==2.10', # universe is 3.3 but it is incompatible with requests
-  'pyparsing==2.4.7',
   'requests==2.25.1',
   'distro==1.7.0',
-  'requests_unixsocket==0.2.0',
   'pyyaml==6.0', # universe is 5.4.1 but it doesn't install anymore (cython issue)
   'urllib3==1.26.5', # called python3-yaml in universe
   'numpy==1.21.5',
@@ -44,10 +39,8 @@ noble_prod = [
   'charset-normalizer==3.3.2',
   'distro==1.9.0',
   'idna==3.6',
-  'pyparsing==3.1.1',
   'PyYAML==6.0.1',
   'requests==2.31.0',
-  'requests-unixsocket==0.3.0',
   'urllib3==2.0.7',
   'numpy==1.26.4',
   'opencv-python==4.6.0.66'

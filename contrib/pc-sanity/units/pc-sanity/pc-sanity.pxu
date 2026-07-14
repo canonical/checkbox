@@ -44,6 +44,7 @@ include:
     com.canonical.certification::miscellanea/gate_rste_raid
     com.canonical.certification::miscellanea/screen-pkg-not-public
     com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
+    com.canonical.certification::miscellanea/screen-private-ppa
     com.canonical.certification::miscellanea/edid-continuous-frequency
     com.canonical.certification::miscellanea/bluetooth-on-off-rfkill_.*
     com.canonical.certification::miscellanea/csme-detection-tool
@@ -71,6 +72,7 @@ include:
     com.canonical.certification::miscellanea/check-kernel                              certification-status=blocker
     com.canonical.certification::info/image-url
     com.canonical.certification::miscellanea/sideload-hook-no-fail
+    com.canonical.certification::miscellanea/check-hardware-attributes
 
 id: pc-sanity-smoke-test
 _name: pc-sanity-smoke-test (Ubuntu Desktop)
@@ -125,6 +127,24 @@ bootstrap_include:
     cpuinfo
 description:
     A plan following SRU plan to exclude dGPU switching temporary.
+
+id: pc-sanity-smoke-test-24-04-without-cert-desktop
+_name: pc-sanity-smoke-test 24.04 (Ubuntu Desktop, without cert-desktop)
+unit: test plan
+_description:
+    Smoke-test plan for 24.04 that runs pc-sanity-base and
+    power-management-cpu-cstate-cert-automated, without nesting
+    client-cert-desktop-24-04-automated.
+include:
+nested_part:
+    com.canonical.certification::pc-sanity-base
+    com.canonical.certification::power-management-cpu-cstate-cert-automated
+bootstrap_include:
+    device
+    graphics_card
+    cpuinfo
+description:
+    A plan to run pc-sanity-base and power-management-cpu-cstate-cert-automated.
 
 id: graphics-dgpu-auto-switch-testing
 unit: test plan

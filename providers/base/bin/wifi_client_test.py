@@ -10,12 +10,12 @@ This script will run wireless network test automatically.
 
 To see how to use, please run "./wifi_client_test.py --help"
 """
+
 import argparse
 import os
 import subprocess
 import sys
 import time
-
 
 # Configuration file path
 CFG_PATH = "/etc/network/interfaces.d/plainbox_wifi_client_test"

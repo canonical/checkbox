@@ -1,0 +1,159 @@
+unit: category
+id: audio
+name: Audio tests
+---
+unit: category
+id: benchmarks
+name: Benchmarks tests
+---
+unit: category
+id: bluetooth
+name: Bluetooth tests
+---
+unit: category
+id: camera
+name: Camera tests
+---
+unit: category
+id: codecs
+name: Codec tests
+---
+unit: category
+id: cpu
+name: CPU tests
+---
+unit: category
+id: daemons
+name: System Daemon tests
+---
+unit: category
+id: disk
+name: Disk tests
+---
+unit: category
+id: ethernet
+name: Ethernet Device tests
+---
+unit: category
+id: esata
+name: eSATA disk tests
+---
+unit: category
+id: fingerprint
+name: Fingerprint reader tests
+---
+unit: category
+id: firewire
+name: Firewire disk tests
+---
+unit: category
+id: firmware
+name: Firmware tests
+---
+unit: category
+id: floppy
+name: Floppy disk tests
+---
+unit: category
+id: graphics
+name: Graphics tests
+---
+unit: category
+id: hibernate
+name: Hibernation tests
+---
+unit: category
+id: info
+name: Informational tests
+---
+unit: category
+id: input
+name: Input Devices tests
+---
+unit: category
+id: keys
+name: Hotkey tests
+---
+unit: category
+id: led
+name: LED tests
+---
+unit: category
+id: mediacard
+name: Media Card tests
+---
+unit: category
+id: memory
+name: Memory tests
+---
+unit: category
+id: mir
+name: MIR tests
+---
+unit: category
+id: miscellanea
+name: Miscellaneous tests
+---
+unit: category
+id: monitor
+name: Monitor tests
+---
+unit: category
+id: networking
+name: Non-device specific networking tests
+---
+unit: category
+id: optical
+name: Optical Drive tests
+---
+unit: category
+id: expresscard
+name: ExpressCard tests
+---
+unit: category
+id: peripheral
+name: Peripheral tests
+---
+unit: category
+id: power-management
+name: Power Management tests
+---
+unit: category
+id: suspend
+name: Suspend tests
+---
+unit: category
+id: touchpad
+name: Touchpad tests
+---
+unit: category
+id: touchscreen
+name: Touchscreen tests
+---
+unit: category
+id: usb
+name: USB tests
+---
+unit: category
+id: user_apps
+name: User Applications
+---
+unit: category
+id: virtualization
+name: Virtualization tests
+---
+unit: category
+id: wireless
+name: Wireless networking tests
+---
+unit: category
+id: mobilebroadband
+name: Mobile broadband tests
+---
+unit: category
+id: stress
+name: Stress tests
+---
+unit: category
+id: uncategorised
+name: Uncategorised

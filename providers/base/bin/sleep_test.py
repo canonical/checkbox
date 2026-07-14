@@ -362,7 +362,7 @@ def main():
                       purposes",
     )
     parser.add_option_group(group)
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
     options_dict = vars(options)
 
     if not (os.geteuid() == 0):

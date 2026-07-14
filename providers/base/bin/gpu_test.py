@@ -213,7 +213,7 @@ def main():
                 shell=True,
             )
         )
-    (x_res, y_res) = re.search(
+    x_res, y_res = re.search(
         b"DG:\s+(\d+)x(\d+)",  # noqa: W605
         subprocess.check_output("wmctrl -d", shell=True),
     ).groups()

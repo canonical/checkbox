@@ -32,15 +32,10 @@ from plainbox.impl.unit.validators import (
     PresentFieldValidator,
     TemplateInvariantFieldValidator,
     TemplateVariantFieldValidator,
-    TranslatableFieldValidator,
-    UntranslatableFieldValidator,
 )
 
-
-translatable = TranslatableFieldValidator()
 templateVariant = TemplateVariantFieldValidator()
 templateInvariant = TemplateInvariantFieldValidator()
-untranslatable = UntranslatableFieldValidator()
 present = PresentFieldValidator()
 
 oneLine = CorrectFieldValueValidator(

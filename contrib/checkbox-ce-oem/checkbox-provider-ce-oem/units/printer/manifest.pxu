@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_printer
+_name: Does the platform have a printer?
+value-type: bool

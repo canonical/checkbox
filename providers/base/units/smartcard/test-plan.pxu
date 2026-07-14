@@ -1,0 +1,70 @@
+id: smartcard-cert-full
+unit: test plan
+_name: Full Smartcard tests
+_description:
+ Mediacard tests
+include:
+nested_part:
+ com.canonical.certification::smartcard-cert-manual
+ com.canonical.certification::smartcard-cert-automated
+
+id: smartcard-cert-manual
+unit: test plan
+_name: Smartcard tests (Manual)
+_description:
+ Smartcard tests (Manual)
+bootstrap_include:
+  smartcard_resource_contact
+  smartcard_resource_contactless
+include:
+ smartcard/smartcard-reader-detect-contact-manual
+ smartcard/smartcard-reader-detect-contactless-manual
+
+id: smartcard-cert-automated
+unit: test plan
+_name: Smartcard tests (Automated)
+_description:
+ Smartcard tests (Automated)
+bootstrap_include:
+  smartcard_resource_contact
+  smartcard_resource_contactless
+include:
+ smartcard/smartcard-reader-info
+ smartcard/smartcard-reader-detect-contact
+ smartcard/smartcard-reader-detect-contactless
+ smartcard/smartcard-reader-send-apdu-auto
+
+id: after-suspend-smartcard-cert-full
+unit: test plan
+_name: Full Smartcard tests (After Suspend)
+_description:
+ Smartcard tests (After Suspend)
+include:
+nested_part:
+ com.canonical.certification::after-suspend-smartcard-cert-manual
+ com.canonical.certification::after-suspend-smartcard-cert-automated
+
+id: after-suspend-smartcard-cert-manual
+unit: test plan
+_name: Smartcard tests (After Suspend Manual)
+_description:
+ Smartcard tests (After Suspend Manual)
+bootstrap_include:
+  smartcard_resource_contact
+  smartcard_resource_contactless
+include:
+ after-suspend-smartcard/smartcard-reader-detect-contact-manual
+ after-suspend-smartcard/smartcard-reader-detect-contactless-manual
+
+id: after-suspend-smartcard-cert-automated
+unit: test plan
+_name: Smartcard tests (After Suspend Automated)
+_description:
+ Smartcard tests (After Suspend Automated)
+bootstrap_include:
+  smartcard_resource_contact
+  smartcard_resource_contactless
+include:
+ after-suspend-smartcard/smartcard-reader-detect-contact
+ after-suspend-smartcard/smartcard-reader-detect-contactless
+ after-suspend-smartcard/smartcard-reader-send-apdu-auto

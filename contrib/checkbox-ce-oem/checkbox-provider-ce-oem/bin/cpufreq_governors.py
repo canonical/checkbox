@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import abc
 import argparse
 import contextlib
 import logging
@@ -152,48 +153,77 @@ def context_stress_cpus():
         stop_stress_cpus(processes)
 
 
+SYS_CPU_PATH = "/sys/devices/system/cpu"
+
+
+def get_cpu_policies() -> List:
+    """
+    Get a list of available CPU policies.
+
+    Returns:
+        List: A sorted list of available CPU policy numbers.
+    """
+    path = os.path.join(SYS_CPU_PATH, "cpufreq")
+    try:
+        policies = [
+            int(policy[6:])
+            for policy in os.listdir(path)
+            if re.match(r"policy\d+", policy)
+        ]
+    except IOError:
+        print("ERROR: Failed to get CPU policies from {}".format(path))
+        return []
+    if not policies:
+        print("ERROR: No CPU policies found in {}".format(path))
+        return []
+    return sorted(policies)
+
+
 class CPUScalingHandler:
     """A class for getting and setting CPU scaling information."""
 
-    def __init__(self, policy=0):
+    def __init__(self):
         """
         Initialize the CPUScalingHandler object.
 
         Args:
             policy (int): The CPU policy number to be used (default is 0).
         """
-        self.sys_cpu_dir = "/sys/devices/system/cpu"
+        self.sys_cpu_dir = SYS_CPU_PATH
+        self.policy = None
+        self.cpu_policies = get_cpu_policies()
+
+    def set_cpu_policy(self, policy):
+        """
+        Set the CPU policy to be used.
+
+        Args:
+            policy (int): The CPU policy number to be set.
+        """
+        if policy not in self.cpu_policies:
+            raise ValueError(
+                "policy {} is not available. Available policies: {}".format(
+                    policy, self.cpu_policies
+                )
+            )
         self.policy = policy
-        self.cpu_policies = self.get_cpu_policies()
         self.min_freq = self.get_min_frequency()
         self.max_freq = self.get_max_frequency()
         self.governors = self.get_supported_governors()
         self.original_governor = self.get_governor()
-        self.affected_cpus = self.get_affected_cpus()
+        self.affected_cpus = self.get_affected_cpus().split()
 
-    def get_cpu_policies(self) -> List:
+    def check_cpu_policy(self) -> bool:
         """
-        Get a list of available CPU policies.
+        Check if the CPU policy is set.
 
         Returns:
-            List: A sorted list of available CPU policy numbers.
+            bool: True if the CPU policy is set, False otherwise.
         """
-        path = os.path.join(self.sys_cpu_dir, "cpufreq")
-        try:
-            policies = [
-                int(policy[6:])
-                for policy in os.listdir(path)
-                if re.match(r"policy\d+", policy)
-            ]
-        except IOError:
-            print("ERROR: Failed to get CPU policies from {}".format(path))
-            return []
-        if not policies:
-            print("ERROR: No CPU policies found in {}".format(path))
-            return []
-        return sorted(policies)
+        if self.policy is None:
+            raise ValueError("CPU policy is not set. Please set it first.")
 
-    def get_scaling_driver(self, policy=0) -> str:
+    def get_scaling_driver(self) -> str:
         """
         Get the scaling driver used by a specific CPU policy.
 
@@ -203,64 +233,18 @@ class CPUScalingHandler:
         Returns:
             str: The name of the scaling driver for the specified policy.
         """
-        path = os.path.join(
-            self.sys_cpu_dir,
-            "cpufreq",
-            "policy{}".format(policy),
-            "scaling_driver",
-        )
-        try:
-            with open(path, "r") as attr_file:
-                line = attr_file.read()
-                return line.strip()
-        except IOError:
-            print("ERROR: Fail to get scaling driver from {}".format(path))
-            return ""
+        return self.get_policy_attribute("scaling_driver")
 
-    def get_cpb(self, policy=0) -> str:
+    def get_cpb(self) -> str:
         """
         Get the core performance boost (cpb) used by a specific CPU policy.
         Ref. https://en.wikipedia.org/wiki/AMD_Turbo_Core
-
-        Args:
-            policy (int): The CPU policy number to query (default is 0).
 
         Returns:
             str: The value of the cpb for the specified policy.
                  1 means enabled, 0 means disabled.
         """
-        path = os.path.join(
-            self.sys_cpu_dir,
-            "cpufreq",
-            "policy{}".format(policy),
-            "cpb",
-        )
-        try:
-            with open(path, "r") as attr_file:
-                line = attr_file.read()
-                return line.strip()
-        except IOError:
-            print("ERROR: Fail to get cpb from {}".format(path))
-            return ""
-
-    def print_policies_list(self) -> bool:
-        """
-        Print the list of CPU policies and their corresponding scaling drivers
-
-        The output is in Checkbox resource job format.
-
-        Returns:
-            bool: True if the list is printed successfully, False otherwise.
-        """
-
-        if not self.cpu_policies:
-            return False
-        for policy in self.cpu_policies:
-            print("policy: {}".format(policy))
-            print("scaling_driver: {}".format(self.get_scaling_driver(policy)))
-            print("cpb: {}".format(self.get_cpb(policy)))
-            print()
-        return True
+        return self.get_policy_attribute("cpb")
 
     def get_attribute(self, attr) -> str:
         """
@@ -292,6 +276,7 @@ class CPUScalingHandler:
         Returns:
             str: The value of the specified attribute for the current policy.
         """
+        self.check_cpu_policy()
         return self.get_attribute(
             "cpufreq/policy{}/{}".format(self.policy, attr)
         )
@@ -331,6 +316,7 @@ class CPUScalingHandler:
         Returns:
             bool: True if the attribute is set successfully, False otherwise.
         """
+        self.check_cpu_policy()
         return self.set_attribute(
             "cpufreq/policy{}/{}".format(self.policy, attr), value
         )
@@ -343,7 +329,9 @@ class CPUScalingHandler:
             int: The minimum CPU frequency in kHz.
         """
         frequency = self.get_policy_attribute("scaling_min_freq")
-        return int(frequency) if frequency else 0
+        if not frequency:
+            raise RuntimeError("Unable to retrieve min frequency")
+        return int(frequency)
 
     def get_max_frequency(self) -> int:
         """
@@ -353,7 +341,9 @@ class CPUScalingHandler:
             int: The maximum CPU frequency in kHz.
         """
         frequency = self.get_policy_attribute("scaling_max_freq")
-        return int(frequency) if frequency else 0
+        if not frequency:
+            raise RuntimeError("Unable to retrieve max frequency")
+        return int(frequency)
 
     def get_current_frequency(self) -> int:
         """
@@ -364,7 +354,9 @@ class CPUScalingHandler:
         """
         frequency = self.get_policy_attribute("scaling_cur_freq")
         logging.debug("Current CPU frequency: %s", frequency)
-        return int(frequency) if frequency else 0
+        if not frequency:
+            raise RuntimeError("Unable to retrieve current frequency")
+        return int(frequency)
 
     def get_affected_cpus(self) -> List:
         """
@@ -373,8 +365,7 @@ class CPUScalingHandler:
         Returns:
             List: A list of affected CPUs as strings.
         """
-        values = self.get_policy_attribute("affected_cpus")
-        return values.split()
+        return self.get_policy_attribute("affected_cpus")
 
     def get_supported_governors(self) -> List:
         """
@@ -476,18 +467,115 @@ class CPUScalingHandler:
         return self.set_policy_attribute("scaling_setspeed", frequency)
 
 
-class CPUScalingTest:
+def print_policies_list() -> None:
+    """
+    Print the list of CPU policies and their corresponding scaling drivers
+
+    The output is in Checkbox resource job format.
+
+    Returns:
+        None
+    """
+    logging.getLogger().disabled = True
+    cpu_scaling_handler = CPUScalingHandler()
+    if not cpu_scaling_handler.cpu_policies:
+        print("policy: NotAvailable")
+        print("scaling_driver: NotAvailable")
+        print("cpb: NotAvailable")
+        return
+
+    available_governor_tests = CPUScalingTest._registry.keys()
+
+    for policy in cpu_scaling_handler.cpu_policies:
+        cpu_scaling_handler.set_cpu_policy(policy)
+        supported_governors = cpu_scaling_handler.get_supported_governors()
+        for governor in available_governor_tests:
+            print("policy: {}".format(policy))
+            print(
+                "scaling_driver: {}".format(
+                    cpu_scaling_handler.get_scaling_driver()
+                )
+            )
+            print(
+                "affected_cpus: {}".format(
+                    cpu_scaling_handler.get_affected_cpus()
+                )
+            )
+            print("cpb: {}".format(cpu_scaling_handler.get_cpb()))
+            print("governor: {}".format(governor))
+            print("supported: {}".format(governor in supported_governors))
+            print()
+
+
+class CPUScalingTest(abc.ABC):
     """A class for CPU scaling test operations."""
 
-    def __init__(self, policy=0):
+    _registry = {}
+
+    @classmethod
+    def register(cls, key):
+        """Register test classes by governor name."""
+
+        def decorator(test_cls):
+            cls._registry[key] = test_cls
+            return test_cls
+
+        return decorator
+
+    def __init__(self, policy=0, governor=None):
         """
         Initialize the CPUScalingTest object.
 
         Args:
             policy (int): The CPU policy number to be used (default is 0).
+            governor (str): The governor name to be used (default is None)
         """
         self.policy = policy
-        self.handler = CPUScalingHandler(policy=self.policy)
+        self.governor = governor
+        self.handler = CPUScalingHandler()
+        self.handler.set_cpu_policy(policy)
+
+    @property
+    @abc.abstractmethod
+    def description(self):
+        pass
+
+    @classmethod
+    def create(cls, governor, policy=0):
+        """
+        Create a test instance by governor name.
+
+        Args:
+            governor (str): The name of the governor test to create.
+            policy (int): The CPU policy number to be used (default is 0).
+
+        Returns:
+            CPUScalingTest: An instance of the appropriate test class.
+
+        Raises:
+            ValueError: If the governor is not supported.
+        """
+        test_class = cls._registry.get(governor.lower())
+        if test_class is None:
+            raise ValueError(
+                "Governor '{}' not supported. Available: {}".format(
+                    governor, ", ".join(sorted(cls._registry.keys()))
+                )
+            )
+        return test_class(policy=policy, governor=governor)
+
+    def validate_governor_support(self) -> bool:
+        """
+        Validate if the specified governor is supported by current CPU policy.
+
+        Args:
+            governor (str): The name of the governor to validate.
+
+        Returns:
+            bool: True if the governor is supported, False otherwise.
+        """
+        supported_governors = self.handler.get_supported_governors()
+        return self.governor in supported_governors
 
     def print_policy_info(self):
         """
@@ -516,31 +604,6 @@ class CPUScalingTest:
 
         logging.info("Current Governor: %s", self.handler.original_governor)
 
-    def test_driver_detect(self) -> bool:
-        """
-        Print the unique scaling drivers used by available CPU policies.
-
-        If there are multiple drivers, they will be listed in a
-        space-separated format. Example:
-        "scaling_driver: driver_a driver_b"
-
-        Returns:
-            bool: True if the drivers are printed successfully,
-                  False otherwise.
-        """
-        if not self.handler.cpu_policies:
-            return False
-        drivers = []
-        for policy in self.handler.cpu_policies:
-            driver = self.handler.get_scaling_driver(policy)
-            if driver and driver not in drivers:
-                drivers.append(driver)
-        if not drivers:
-            return False
-        else:
-            print("scaling_driver: {}".format(" ".join(drivers)))
-            return True
-
     @with_timeout()
     def is_frequency_equal_to_target(self, target) -> bool:
         """
@@ -556,6 +619,24 @@ class CPUScalingTest:
         curr_freq = self.handler.get_current_frequency()
         logging.info("Current CPU frequency is %s", curr_freq)
         return curr_freq == target
+
+    @with_timeout()
+    def is_frequency_close_to_target(self, target) -> bool:
+        """
+        Check if the current CPU frequency is close to the target frequency.
+
+        Args:
+        - target (str or int): The target CPU frequency to compare against.
+
+        Returns:
+        - bool: Returns True if the current frequency matches the target
+                frequency; otherwise, returns False.
+        """
+        curr_freq = self.handler.get_current_frequency()
+        logging.info("Current CPU frequency is %s", curr_freq)
+        margin = abs(target - curr_freq)
+
+        return (margin / target) < 0.01
 
     @with_timeout()
     def is_frequency_settled_down(self) -> bool:
@@ -601,11 +682,11 @@ class CPUScalingTest:
         with self.handler.context_set_governor(governor):
             if governor in ["ondemand", "conservative", "schedutil"]:
                 with context_stress_cpus():
-                    if self.is_frequency_equal_to_target(
+                    if self.is_frequency_close_to_target(
                         target=frequencies_mapping[governor][0]
                     ):
                         logging.info(
-                            "Verified current CPU frequency is equal to "
+                            "Verified current CPU frequency is close to "
                             "%s frequency %s MHz",
                             frequencies_mapping[governor][1],
                             (frequencies_mapping[governor][0] / 1000),
@@ -613,7 +694,7 @@ class CPUScalingTest:
                     else:
                         success = False
                         logging.error(
-                            "Could not verify that cpu frequency is equal to "
+                            "Could not verify that cpu frequency is close to "
                             "%s frequency %s MHz",
                             frequencies_mapping[governor][1],
                             (frequencies_mapping[governor][0] / 1000),
@@ -651,7 +732,7 @@ class CPUScalingTest:
                     target=frequencies_mapping[governor][0],
                 ):
                     logging.info(
-                        "Verified current CPU frequency is close to "
+                        "Verified current CPU frequency is equal to "
                         "%s frequency %s MHz",
                         frequencies_mapping[governor][1],
                         (frequencies_mapping[governor][0] / 1000),
@@ -659,7 +740,7 @@ class CPUScalingTest:
                 else:
                     success = False
                     logging.error(
-                        "Could not verify that cpu frequency has close to "
+                        "Could not verify that cpu frequency has equal to "
                         "%s frequency %s MHz",
                         frequencies_mapping[governor][1],
                         (frequencies_mapping[governor][0] / 1000),
@@ -668,7 +749,28 @@ class CPUScalingTest:
                 sys.exit("Governor '{}' not supported".format(governor))
         return success
 
-    def test_userspace(self) -> bool:
+    @abc.abstractmethod
+    def test_governor(self) -> bool:
+        """
+        Run the CPU scaling test for the specific governor.
+        """
+        pass
+
+
+@CPUScalingTest.register("userspace")
+class UserspaceCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the userspace governor.
+    """
+
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'userspace' and verifies "
+            "the frequency when setting it to maximum and minimum."
+        )
+
+    def test_governor(self) -> bool:
         """
         Run the Userspace Governor Test.
 
@@ -688,7 +790,22 @@ class CPUScalingTest:
             self.handler.min_freq,
         )
 
-    def test_performance(self) -> bool:
+
+@CPUScalingTest.register("performance")
+class PerformanceCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the performance and powersave
+    governors.
+    """
+
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'performance' and verifies whether"
+            " the frequency is maximum."
+        )
+
+    def test_governor(self) -> bool:
         """
         Run the Performance Governor Test.
 
@@ -702,7 +819,21 @@ class CPUScalingTest:
         governor = "performance"
         return self.test_frequency_influence(governor)
 
-    def test_powersave(self) -> bool:
+
+@CPUScalingTest.register("powersave")
+class PowersaveCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the powersave governor.
+    """
+
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'powersave' and verifies whether"
+            " the frequency is minimum."
+        )
+
+    def test_governor(self) -> bool:
         """
         Run the Powersave Governor Test.
 
@@ -716,7 +847,22 @@ class CPUScalingTest:
         governor = "powersave"
         return self.test_frequency_influence(governor)
 
-    def test_ondemand(self) -> bool:
+
+@CPUScalingTest.register("ondemand")
+class OndemandCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the ondemand governor.
+    """
+
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'ondemand' and verifies whether "
+            "the frequency will be maximum after stressing CPUs and "
+            "settling down after sleeping for a few seconds."
+        )
+
+    def test_governor(self) -> bool:
         """
         Run the Ondemand Governor Test.
 
@@ -730,7 +876,22 @@ class CPUScalingTest:
         governor = "ondemand"
         return self.test_frequency_influence(governor)
 
-    def test_conservative(self) -> bool:
+
+@CPUScalingTest.register("conservative")
+class ConservativeCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the conservative governor.
+    """
+
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'conservative' and verifies "
+            "whether the frequency will be maximum after stressing CPUs and"
+            " settling down after sleeping for a few seconds."
+        )
+
+    def test_governor(self) -> bool:
         """
         Run the Conservative Governor Test.
 
@@ -744,7 +905,22 @@ class CPUScalingTest:
         governor = "conservative"
         return self.test_frequency_influence(governor)
 
-    def test_schedutil(self) -> bool:
+
+@CPUScalingTest.register("schedutil")
+class SchedutilCPUScalingTest(CPUScalingTest):
+    """
+    CPU scaling test operations specific to the schedutil governor.
+    """
+
+    @property
+    def description(self):
+        return (
+            "This job sets the governor to 'schedutil' and verifies whether"
+            " the frequency will be maximum after stressing CPUs and"
+            " settling down after sleeping for a few seconds."
+        )
+
+    def test_governor(self) -> bool:
         """
         Run the Schedutil Governor Test.
 
@@ -768,7 +944,6 @@ def main():
                      test run.
         --policy-resource: Print the policies list in Checkbox resource job
                            format.
-        --driver-detect: Print the CPU scaling driver.
         --policy: Run the test on a specific CPU policy (default is policy 0).
         --governor: Run a specific governor test.
     """
@@ -783,11 +958,6 @@ def main():
         "--policy-resource",
         action="store_true",
         help="Print the polices list in Checkbox resource job format.",
-    )
-    parser.add_argument(
-        "--driver-detect",
-        action="store_true",
-        help="Print the CPU scaling driver.",
     )
     parser.add_argument(
         "--policy",
@@ -806,23 +976,28 @@ def main():
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-    handler = CPUScalingHandler()
     if args.policy_resource:
-        handler.print_policies_list()
+        print_policies_list()
         sys.exit(0)
 
-    test = CPUScalingTest(policy=args.policy)
-    if args.driver_detect:
-        sys.exit(0) if test.test_driver_detect() else sys.exit(1)
+    if not args.governor:
+        parser.print_help()
+        sys.exit(1)
 
     try:
+        test = CPUScalingTest.create(args.governor, policy=int(args.policy))
+        logging.info(test.description)
         test.print_policy_info()
-        if args.governor not in handler.governors:
-            probe_governor_module(args.governor)
-        if not getattr(test, "test_{}".format(args.governor))():
+        if not test.validate_governor_support():
+            logging.error(
+                "Governor '%s' is not supported by CPU policy%s",
+                args.governor,
+                args.policy,
+            )
+        if not test.test_governor():
             sys.exit(1)
-    except AttributeError:
-        logging.error("Given governor is not supported")
+    except ValueError as err:
+        logging.error(repr(err))
         sys.exit(1)
 
 

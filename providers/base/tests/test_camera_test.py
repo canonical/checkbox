@@ -248,14 +248,12 @@ class CameraTestTests(unittest.TestCase):
                 "resolutions": [[640, 480]],
             },
         ]
-        expected_str = textwrap.dedent(
-            """
+        expected_str = textwrap.dedent("""
             Format: YUYV (YUYV)
             Resolutions: 640x480,320x240
             Format: fake (fake)
             Resolutions: 640x480
-            """
-        ).lstrip()
+            """).lstrip()
 
         mock_camera = MagicMock()
         return_str = CameraTest._supported_formats_to_string(
@@ -288,6 +286,9 @@ class CameraTestTests(unittest.TestCase):
         mock_make = mock_camera.Gst.ElementFactory.make
         mock_camera.Gst.State.PAUSED = "paused"
         mock_camera.Gst.State.PLAYING = "playing"
+        mock_camera._get_int_or_int_array.side_effect = [[640], [480, 320]]
+        mock_camera._width = 640
+        mock_camera._height = 480
 
         CameraTest._setup_video_gstreamer(mock_camera)
         make_calls = mock_make.call_args_list
@@ -309,6 +310,9 @@ class CameraTestTests(unittest.TestCase):
         mock_make = mock_camera.Gst.ElementFactory.make
         mock_camera.Gst.State.PAUSED = "paused"
         mock_camera.Gst.State.PLAYING = "playing"
+        mock_camera._get_int_or_int_array.side_effect = [[640], [480, 320]]
+        mock_camera._width = 640
+        mock_camera._height = 480
 
         CameraTest._setup_video_gstreamer(mock_camera, "sink")
         make_calls = mock_make.call_args_list
@@ -342,6 +346,9 @@ class CameraTestTests(unittest.TestCase):
         mock_camera.GLib.Error = Exception
         mock_camera.GLib.MainLoop.return_value.run.side_effect = Exception()
         mock_camera.Gst.State.NULL = "null"
+        mock_camera._get_int_or_int_array.side_effect = [[640], [480, 320]]
+        mock_camera._width = 640
+        mock_camera._height = 480
         CameraTest._setup_video_gstreamer(mock_camera)
 
         self.assertEqual(mock_camera.main_loop.run.call_count, 1)
@@ -857,20 +864,19 @@ class CameraTestTests(unittest.TestCase):
     def test_validate_image_wrong_format(self, mock_exists):
         mock_camera = MagicMock()
         mock_exists.return_value = True
-        with patch("builtins.open", mock_open(read_data=b"")):
-            with patch("builtins.print") as mocked_print, patch(
-                "camera_test.check_output"
-            ) as mock_check_output:
-                mock_check_output.return_value = "inode/empty"
-                result = CameraTest._validate_image(
-                    mock_camera, "/tmp/test.jpg", 480, 320
-                )
-                # should not even start reading the file if the `file` command
-                # check didn't pass
-                mocked_print.assert_any_call(
-                    "Image is not a standard JPEG file"
-                )
-                self.assertEqual(result, False)
+        with patch("builtins.open", mock_open(read_data=b"")), patch(
+            "builtins.print"
+        ) as mocked_print, patch(
+            "camera_test.check_output"
+        ) as mock_check_output:
+            mock_check_output.return_value = "inode/empty"
+            result = CameraTest._validate_image(
+                mock_camera, "/tmp/test.jpg", 480, 320
+            )
+            # should not even start reading the file if the `file` command
+            # check didn't pass
+            mocked_print.assert_any_call("Image is not a standard JPEG file")
+            self.assertEqual(result, False)
 
     @patch("builtins.open")
     @patch("os.path.exists")
@@ -957,6 +963,56 @@ class CameraTestTests(unittest.TestCase):
     def tearDown(self):
         # release stdout
         sys.stdout = sys.__stdout__
+
+
+class GetIntOrIntArrayTests(unittest.TestCase):
+    """tests CameraTest._get_int_or_int_array."""
+
+    def _make_camera(self):
+        return MagicMock(spec=CameraTest)
+
+    def test_int_only_happy_path(self):
+        mock_camera = self._make_camera()
+        mock_struct = MagicMock()
+        mock_struct.get_int.return_value = (True, 1920)
+
+        result = CameraTest._get_int_or_int_array(
+            mock_camera, mock_struct, "width"
+        )
+
+        mock_struct.get_int.assert_called_once_with("width")
+        self.assertEqual(result, [1920])
+
+    def test_int_array_happy_path(self):
+        mock_camera = self._make_camera()
+        mock_struct = MagicMock()
+        mock_struct.get_int.return_value = (False, 0)
+
+        mock_value_array = MagicMock()
+        mock_value_array.n_values = 3
+        mock_value_array.get_nth.side_effect = [640, 1280, 1920]
+        mock_struct.get_list.return_value = (True, mock_value_array)
+
+        result = CameraTest._get_int_or_int_array(
+            mock_camera, mock_struct, "width"
+        )
+
+        mock_struct.get_int.assert_called_once_with("width")
+        mock_struct.get_list.assert_called_once_with("width")
+        self.assertEqual(result, [640, 1280, 1920])
+
+    def test_both_fail(self):
+        mock_camera = self._make_camera()
+        mock_struct = MagicMock()
+        mock_struct.get_int.return_value = (False, 0)
+        mock_struct.get_list.return_value = (False, None)
+        mock_struct.get_field_type.return_value = "GstValueRange"
+
+        with self.assertRaises(RuntimeError) as ctx:
+            CameraTest._get_int_or_int_array(mock_camera, mock_struct, "width")
+
+        self.assertIn("width", str(ctx.exception))
+        self.assertIn("GstValueRange", str(ctx.exception))
 
 
 if __name__ == "__main__":

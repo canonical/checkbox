@@ -19,6 +19,7 @@
 :mod:`plainbox.impl.commands.session` -- run sub-command
 ========================================================
 """
+
 import warnings
 
 warnings.warn(

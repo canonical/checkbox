@@ -115,6 +115,7 @@ id: graphics/{index}_minimum_resolution_{product_slug}
 template-id: graphics/index_minimum_resolution_product_slug
 flags: also-after-suspend
 requires:
+ desktop_session.desktop_session == 'True'
  device.category == 'VIDEO'
 command:
  # shellcheck disable=SC1091
@@ -149,6 +150,24 @@ _steps:
  3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
 _verification:
  Is this the maximum resolution for the display connected to the {vendor} {product} graphics card?
+
+id: graphics/maximum_resolution_primary
+flags: also-after-suspend
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::graphics
+requires:
+ device.category == 'VIDEO'
+command:
+   graphics_max_resolution.py
+estimated_duration: 10.0
+_summary: Test maximum supported resolution
+_purpose:
+ This test will verify the maximum supported resolution on the primary graphics card.
+_steps:
+ 1. Consult the system's specifications and locate the screen's maximum supported resolution.
+ 2. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
+_verification:
+ Is this the maximum resolution for the display connected to the graphics card?
 
 unit: template
 template-resource: graphics_card
@@ -203,6 +222,23 @@ _steps:
 _verification:
  Do you see color bars and static?
 
+id: graphics/video_primary
+flags: also-after-suspend
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::graphics
+requires:
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+command:
+ # shellcheck disable=SC1091
+ gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+_summary: Test that video can be displayed
+_purpose:
+ This test will test the default display with a sample video
+_steps:
+ 1. Click "Test" to display a video test.
+_verification:
+ Do you see color bars and static?
+
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/VESA_drivers_not_in_use
@@ -220,14 +256,14 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_cycle_resolution_{product_slug}
 template-id: graphics/index_cycle_resolution_product_slug
 flags: also-after-suspend
-requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
- if [[ $XDG_SESSION_TYPE == "wayland" ]]
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
  then
-   gnome_randr_cycle.py --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+   randr_cycle.py -c resolution --prefix {index} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
  else
    xrandr_cycle.py --screenshot-dir="$PLAINBOX_SESSION_SHARE"
  fi
@@ -241,6 +277,30 @@ _steps:
 _verification:
      Did the screen appear to be working for each mode?
 
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::graphics
+id: graphics/cycle_resolution_primary
+flags: also-after-suspend
+depends: graphics/VESA_drivers_not_in_use
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+command:
+ # shellcheck disable=SC1091
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
+ then
+   randr_cycle.py -c resolution --prefix primary --screenshot_dir="$PLAINBOX_SESSION_SHARE"
+ else
+   xrandr_cycle.py --screenshot-dir="$PLAINBOX_SESSION_SHARE"
+ fi
+estimated_duration: 250.000
+_summary: Test resolution cycling
+_description:
+_purpose:
+     This test cycles through the detected video modes for the graphics card
+_steps:
+     1. Click "Test" to start cycling through the video modes
+_verification:
+     Did the screen appear to be working for each mode?
+
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
@@ -249,14 +309,44 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_rotation_{product_slug}
 template-id: graphics/index_rotation_product_slug
 flags: also-after-suspend
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
- rotation_test.py
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
+ then
+   randr_cycle.py -c transform --prefix {index} --screenshot_dir="$PLAINBOX_SESSION_SHARE"
+ else
+   rotation_test.py
+ fi
 estimated_duration: 20.000
 _summary: Test rotation for {vendor} {product}
 _purpose:
  This test will test display rotation on the {vendor} {product} graphics card
+_steps:
+ 1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
+ 2. Try moving the mouse or try opening multiple terminals via ‘Ctrl+Alt+T’ every time the screen automatically turns.
+ 3. Check if all rotations (normal, right, inverted, left) took place without permanent screen corruption.
+_verification:
+ Did the display rotation take place without permanent screen corruption?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::graphics
+id: graphics/rotation_primary
+flags: also-after-suspend
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+command:
+ # shellcheck disable=SC1091
+ if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
+ then
+   randr_cycle.py -c transform --prefix primary --screenshot_dir="$PLAINBOX_SESSION_SHARE"
+ else
+   rotation_test.py
+ fi
+estimated_duration: 20.000
+_summary: Test rotation
+_purpose:
+ This test will test display rotation on the graphics card
 _steps:
  1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
  2. Try moving the mouse or try opening multiple terminals via ‘Ctrl+Alt+T’ every time the screen automatically turns.
@@ -279,6 +369,18 @@ _purpose: Check that {vendor} {product} hardware is able to run a desktop sessio
 _summary: Test OpenGL support for {vendor} {product}
 user: root
 
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/gl_support_primary
+flags: also-after-suspend
+environ: CHECKBOX_RUNTIME
+command:
+    gl_support.py
+estimated_duration: 0.131
+_purpose: Check that hardware is able to run a desktop session (OpenGL)
+_summary: Test OpenGL support
+user: root
+
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.driver in ['nvidia', 'pcieport', 'amdgpu', 'amdgpu-pro']
@@ -286,7 +388,9 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_opengl_renderer_{product_slug}
 template-id: graphics/index_valid_opengl_renderer_product_slug
-requires: executable.name == 'glxinfo'
+requires:
+ executable.name == 'glxinfo'
+ lsb.release >= "22.04"
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index} {path}
@@ -303,10 +407,11 @@ template-resource: graphics_card
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_auto_glxgears_{product_slug}
+template-id: graphics/index_auto_glxgears_product_slug
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.sane_product == "portable"
+    dmi.display_type == "integrated"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -364,6 +469,7 @@ template-resource: graphics_card
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_vkcube_{product_slug}
+template-id: graphics/index_vkcube_product_slug
 requires:
     executable.name == 'vkcube'
     dmi.sane_product in ['portable', 'not-portable']
@@ -382,10 +488,11 @@ template-resource: graphics_card
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_glxgears_{product_slug}
+template-id: graphics/index_valid_glxgears_product_slug
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.sane_product == "portable"
+    dmi.display_type == "integrated"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -411,10 +518,11 @@ template-resource: graphics_card
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_auto_glxgears_fullscreen_{product_slug}
+template-id: graphics/index_auto_glxgears_fullscreen_product_slug
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.sane_product == "portable"
+    dmi.display_type == "integrated"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -432,10 +540,11 @@ template-resource: graphics_card
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_glxgears_fullscreen_{product_slug}
+template-id: graphics/index_valid_glxgears_fullscreen_product_slug
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
-    dmi.sane_product == "portable"
+    dmi.display_type == "integrated"
 user: root
 command:
  # shellcheck disable=SC1091
@@ -758,3 +867,25 @@ _steps:
     1. Commence the test to start rendering
 _verification:
     Did all the videos and images rendered correctly?
+
+unit: template
+template-resource: browser_resource
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/webgl-conformance-test-{browser}
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+    executable.name == '{browser}'
+    manifest.has_webgl_support == 'True'
+environ:
+    WEBGL_CONFORMANCE_TEST_URL
+command:
+    # shellcheck disable=SC1091
+    webgl_conformance_test.py {browser}
+estimated_duration: 3600s
+_summary:
+    Test whether the WebGL conformance test works for {browser}
+_description:
+    Execute the WebGL conformance test for {browser} and automatically validate the outcome.

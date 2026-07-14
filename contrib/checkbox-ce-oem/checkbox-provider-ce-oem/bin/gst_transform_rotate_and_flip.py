@@ -38,7 +38,6 @@ from gst_utils import (
     execute_command,
 )
 
-
 logging.basicConfig(level=logging.INFO)
 
 

@@ -84,6 +84,8 @@ _description:
 plugin: shell
 user: root
 category_id: com.canonical.certification::gpio
+imports: from com.canonical.plainbox import manifest
+requires: manifest.gpio_loopback == 'True'
 estimated_duration: 5s
 flags: also-after-suspend
 command:

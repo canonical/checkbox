@@ -40,7 +40,6 @@ from subprocess import (
     SubprocessError,
 )
 
-
 logger = logging.getLogger("sudo_broker")
 
 

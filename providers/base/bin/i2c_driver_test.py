@@ -60,15 +60,35 @@ class Device:
         )
         detected_i2c_bus = []
         for line in result.splitlines():
-            detected_i2c_bus.append(line.split("\t")[0].split("-")[1])
+            fields = line.split("\t")
+            bus_id = fields[0].split("-")[1]
+            bus_name = fields[2].strip()
+            detected_i2c_bus.append((bus_id, bus_name))
         print("Detected buses: {}".format(detected_i2c_bus))
+
+        ignored_i2c_buses = list(
+            filter(
+                lambda e: e != "",
+                map(
+                    str.strip,
+                    os.environ.get("IGNORED_I2C_BUSES", "").split(","),
+                ),
+            )
+        )
+        print("Ignored buses: {}".format(ignored_i2c_buses))
 
         # Detect device on each bus
         exit_code = 1
-        for i in detected_i2c_bus:
-            print("Checking I2C bus {}".format(i))
+        for bus_id, bus_name in detected_i2c_bus:
+            if bus_name in ignored_i2c_buses:
+                print(
+                    "Ignoring bus id: {}, name: {}\n".format(bus_id, bus_name)
+                )
+                continue
+
+            print("Checking I2C bus id: {}, name: {}".format(bus_id, bus_name))
             result = subprocess.check_output(
-                ["i2cdetect", "-y", "-r", str(i)], universal_newlines=True
+                ["i2cdetect", "-y", "-r", str(bus_id)], universal_newlines=True
             )
             print(result)
             result_lines = result.splitlines()[1:]
@@ -87,7 +107,11 @@ class I2cDriverTest:
 
     def main(self):
         subcommands = {"bus": Bus, "device": Device}
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            epilog="NOTE: When using 'device', the IGNORED_I2C_BUSES "
+            "environment variable is respected and should contain "
+            "a comma-separated list of bus names to ignore."
+        )
         parser.add_argument("subcommand", type=str, choices=subcommands)
         parser.add_argument(
             "-b",

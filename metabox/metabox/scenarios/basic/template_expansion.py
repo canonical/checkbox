@@ -33,8 +33,7 @@ class InvalidUnitErrorUserVisible(Scenario):
     if some of the expanded units are invalid and reports it to the user
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         #!/usr/bin/env checkbox-cli
         [launcher]
         launcher_version = 1
@@ -55,8 +54,7 @@ class InvalidUnitErrorUserVisible(Scenario):
         transport = local_file
         exporter = tar
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted("template_validation_invalid_fields_somename"),
@@ -77,8 +75,7 @@ class LocalResumeInvalidUnitErrorUserVisible(Scenario):
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         #!/usr/bin/env checkbox-cli
         [launcher]
         launcher_version = 1
@@ -99,8 +96,7 @@ class LocalResumeInvalidUnitErrorUserVisible(Scenario):
         transport = local_file
         exporter = tar
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted("reboot-emulator"),
@@ -127,8 +123,7 @@ class RemoteResumeInvalidUnitErrorUserVisible(Scenario):
     """
 
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         #!/usr/bin/env checkbox-cli
         [launcher]
         launcher_version = 1
@@ -149,8 +144,7 @@ class RemoteResumeInvalidUnitErrorUserVisible(Scenario):
         transport = local_file
         exporter = tar
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted("reboot-emulator"),
@@ -176,8 +170,7 @@ class RemoteResumeInvalidUnitErrorIgnoredBackwardCompatibility(Scenario):
     """
 
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         #!/usr/bin/env checkbox-cli
         [launcher]
         launcher_version = 1
@@ -200,8 +193,7 @@ class RemoteResumeInvalidUnitErrorIgnoredBackwardCompatibility(Scenario):
         forced = yes
         [features]
         strict_template_expansion=false
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted("reboot-emulator"),

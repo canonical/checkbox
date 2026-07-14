@@ -19,6 +19,7 @@
 :mod:`plainbox.impl.decorators` -- utility decorators
 =====================================================
 """
+
 import functools
 import logging
 

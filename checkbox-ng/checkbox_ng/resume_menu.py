@@ -19,6 +19,7 @@
 """
 This module contains Uriwd components used on Resume Session screen.
 """
+
 import urwid
 
 from collections import namedtuple
@@ -161,7 +162,7 @@ class ResumeMenu:
 
     def _create_menu_frame(self):
         """Create an urwid frame for the menu."""
-        menu_entries = [urwid.Button(id) for id, _ in self._entries]
+        menu_entries = [urwid.Button(id) for id, _, _ in self._entries]
 
         self._menu_body = ReactiveListBox(
             urwid.SimpleFocusListWalker(
@@ -250,8 +251,13 @@ class ResumeMenu:
         if key == "enter":
             self.chosen_session = self._entries[self.focused_index][0]
             # now let's show action menu, operator will chose what to do with
-            # the session
-            self.loop.widget = self._action_view
+            # the last job if there are still jobs to run in the todo list
+            if self._entries[self.focused_index][2]:
+                self.loop.widget = self._action_view
+            # otherwise, just continue (to the re-run screen or
+            # session finalization process)
+            else:
+                raise urwid.ExitMainLoop()
 
         elif key == "esc":
             self.chosen_session = None
@@ -277,7 +283,6 @@ class ResumeMenu:
                 self._ACTION_MENU_STATIC_ELEMENTS
             )
             action = self._action_buttons[action_index][1]
-
             self._chosen_action = action
         elif key.upper() == "C":
             self._chosen_action = "comment"
@@ -293,7 +298,7 @@ class ResumeMenu:
 
         if self._chosen_action == "comment":
             self.loop.widget = self._comment_view
-        else:
+        elif self._chosen_action:
             raise urwid.ExitMainLoop()
 
     def _handle_input_on_comment_box(self, key):

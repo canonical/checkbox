@@ -28,8 +28,7 @@ class ReturnCodeIsOneOnFail(Scenario):
     in the test plan fails.
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -40,8 +39,7 @@ class ReturnCodeIsOneOnFail(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertRetCode(1),
@@ -55,8 +53,7 @@ class ReturnCodeIsOneOnCrash(Scenario):
     in the test plan crashes.
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -67,8 +64,7 @@ class ReturnCodeIsOneOnCrash(Scenario):
         forced = yes
         [ui]
         type = silent
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertRetCode(1),

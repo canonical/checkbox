@@ -25,23 +25,19 @@ from metabox.core.utils import tag
 
 @tag("manual", "interact", "manifest")
 class ManifestSelectionNoHiddenSetFalse(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test plan]
         unit=2021.com.canonical.certification::hidden_manifest_testplan
         forced = yes
-        """
-    )
-    machine_manifest = textwrap.dedent(
-        """
+        """)
+    machine_manifest = textwrap.dedent("""
         {
             "2021.com.canonical.certification::_hidden_manifest" : true
         }
-        """
-    )
+        """)
 
     steps = [
         # put in the machine a manifest that sets the hidden_manifest. Given
@@ -67,8 +63,7 @@ class ManifestSelectionNoHiddenSetFalse(Scenario):
 
 @tag("manual", "interact", "manifest")
 class ManifestSelectionCanSetHiddenLauncher(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -77,15 +72,12 @@ class ManifestSelectionCanSetHiddenLauncher(Scenario):
         forced = yes
         [manifest]
         2021.com.canonical.certification::_hidden_manifest=True
-        """
-    )
-    machine_manifest = textwrap.dedent(
-        """
+        """)
+    machine_manifest = textwrap.dedent("""
         {
             "2021.com.canonical.certification::_hidden_manifest" : true
         }
-        """
-    )
+        """)
 
     steps = [
         Start(),
@@ -102,4 +94,118 @@ class ManifestSelectionCanSetHiddenLauncher(Scenario):
         Expect("job passed"),
         Expect("2021.com.canonical.certification::job_requires_not_hidden"),
         Expect("job cannot be started"),
+    ]
+
+
+@tag("manual", "interact", "manifest")
+class ManifestSelectionShownForSetupJobManifest(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit=2021.com.canonical.certification::manifest_menu_setup_job_tp
+        forced = yes
+        [manifest]
+        2021.com.canonical.certification::_setup_manifest_hidden=True
+        """)
+
+    steps = [
+        Start(),
+        Expect("System Manifest"),
+        Expect("Setup job manifest question shown"),
+        Expect("manifest that has to be"),
+        ExpectNot("hidden from the UI", timeout=0.1),
+        Expect("Press (T) to start Testing"),
+        Send("ynt"),
+        Expect("Choose tests to run on your system"),
+        Send("t"),
+        Expect("2021.com.canonical.certification::verify_setup_manifest_ran"),
+        Expect("job passed"),
+    ]
+
+
+@tag("manual", "interact", "manifest")
+class ManifestSelectionUsesOnDiskManifestForSetupJob(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit=2021.com.canonical.certification::manifest_menu_setup_job_tp
+        forced = yes
+        [manifest]
+        2021.com.canonical.certification::_setup_manifest_hidden=True
+        """)
+    machine_manifest = textwrap.dedent("""
+        {
+            "2021.com.canonical.certification::setup_job_manifest" : true,
+            "2021.com.canonical.certification::setup_manifest_false" : false
+        }
+        """)
+
+    steps = [
+        MkTree("/var/tmp/checkbox-ng"),
+        Put("/var/tmp/checkbox-ng/machine-manifest.json", machine_manifest),
+        Start(),
+        Expect("System Manifest"),
+        Expect("Setup job manifest question shown"),
+        Expect("manifest that has to be"),
+        ExpectNot("hidden from the UI", timeout=0.1),
+        Expect("Press (T) to start Testing"),
+        Send("t"),
+        Expect("Choose tests to run on your system"),
+        Send("t"),
+        Expect("2021.com.canonical.certification::verify_setup_manifest_ran"),
+        Expect("job passed"),
+    ]
+
+
+@tag("manual", "interact", "manifest")
+class ManifestSelectionUsesLauncherManifestForSetupJob(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit=2021.com.canonical.certification::manifest_menu_setup_job_tp
+        forced = yes
+        [test selection]
+        forced = yes
+        [manifest]
+        2021.com.canonical.certification::setup_job_manifest=True
+        2021.com.canonical.certification::setup_manifest_false=False
+        2021.com.canonical.certification::_setup_manifest_hidden=True
+        """)
+
+    steps = [
+        Start(),
+        ExpectNot("System Manifest", timeout=0.5),
+        Expect("2021.com.canonical.certification::verify_setup_manifest_ran"),
+        Expect("job passed"),
+    ]
+
+
+@tag("manual", "interact", "manifest")
+class ManifestSelectionUsesLauncherManifestForSetupJobNotRan(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit=2021.com.canonical.certification::manifest_menu_setup_job_tp_not_ran
+        forced = yes
+        [test selection]
+        forced = yes
+        [manifest]
+        2021.com.canonical.certification::setup_job_manifest=False
+        """)
+
+    steps = [
+        Start(),
+        ExpectNot("System Manifest", timeout=0.5),
+        Expect(
+            "2021.com.canonical.certification::verify_setup_manifest_not_ran"
+        ),
+        Expect("job passed"),
     ]

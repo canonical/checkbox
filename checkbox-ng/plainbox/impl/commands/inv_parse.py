@@ -19,6 +19,7 @@
 :mod:`plainbox.impl.commands.inv_parser` -- parser sub-command
 ==============================================================
 """
+
 import io
 import sys
 

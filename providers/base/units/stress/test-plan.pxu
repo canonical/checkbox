@@ -289,11 +289,12 @@ unit: test plan
 _name: Automated stress-ng tests
 _description: Automated stress-ng tests for Snappy Ubuntu Core devices
 include:
-    stress/stress-ng-test-for-stressor-.*
+    stress/stress-ng-test-for-stressor-stressor-user
+    stress/stress-ng-test-for-stressor-stressor-root
     disk/disk_stress_ng_name
 bootstrap_include:
     device
-    stress-ng-stressors
+    stress_ng_stressors
 
 id: stress-iperf3-automated
 unit: test plan
@@ -319,9 +320,25 @@ unit: test plan
 _name: SRU stress tests
 _description: SRU stress tests for disk, CPU, and memory
 include:
-    disk/disk_stress_ng_sru_.*    
+    disk/disk_stress_ng_sru_.*
     stress/cpu_stress_ng_test_sru
     stress/memory_stress_ng_sru
 bootstrap_include:
     device
     executable
+
+id: stress-base-26-04-automated
+unit: test plan
+_name: Stress for 26.04 (Automated)
+_description: Automated tests for stress
+include:
+nested_part:
+    stress-ng-cert-automated
+    stress-iperf3-automated
+    suspend-cycles-stress-test
+    stress-warmboot-coldboot-automated
+    stress-pm-graph
+certification_status_overrides:
+    apply blocker to com.canonical.certification::warm-boot-loop-.*
+    apply blocker to com.canonical.certification::cold-boot-loop-.*
+    apply blocker to com.canonical.certification::ethernet/iperf3_.*

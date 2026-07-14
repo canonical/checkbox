@@ -19,6 +19,7 @@
 :mod:`plainbox.impl.commands.cmd_parser` -- parser sub-command
 ==============================================================
 """
+
 from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.parsers import all_parsers
@@ -54,8 +55,7 @@ class ParseCommand(PlainBoxCommand):
             help=_("parse stdin with the specified parser"),
             prog="plainbox dev parse",
             # TRANSLATORS: please keep plainbox.parsers untranslated.
-            description=_(
-                """
+            description=_("""
             This command can be used to invoke any of the parsers exposed
             to the `plainbox.parsers` entry point, parse standard input and
             produce a JSON dump of the resulting data structure on stdout.
@@ -63,8 +63,7 @@ class ParseCommand(PlainBoxCommand):
             Keep in mind that most parsers were designed with the 'C' locale in
             mind. You may have to override the environment variable LANG to
             "C".
-            """
-            ),
+            """),
             epilog=(
                 _("Example: ")
                 + "LANG=C pactl list | plainbox dev parse pactl-list"

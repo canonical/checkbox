@@ -19,8 +19,7 @@ warn(){
 info(){
  eval pass${i}=3
 }
-
-steps="Fix_APT_Issues Verify_Config_File Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
+steps="Fix_APT_Issues Verify_Config_File Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check"
 
 while getopts "i" opt; do
   case $opt in
@@ -879,27 +878,6 @@ elif [ ! -d /sys/firmware/efi ]; then
 	echo " $efi"
 	eval info${i}=\"$efi\"
 	info
-fi
-}
-
-# Detect NVDIMMs in the system and prompt user to configure before testing
-NVDIMM_Detection(){
-echoname "NVDIMM Detection"
-if [ ! -c /dev/nmem0 ]; then
-    nvdimm="NVDIMMs NOT detected"
-    echo " $nvdimm"
-    eval info${i}=\"$nvdimm\"
-    info
-elif [ -c /dev/nmem0 ]; then
-    nvdimm="NVDIMMs detected"
-    echo " $nvdimm"
-    echo " If you have not done so already, you will"
-    echo " need to configure the NVDIMMs to be able to"
-    echo " test both Memory and AppDirect modes."
-    echo " Please refer to the Self Testing Guide for"
-    echo " more information."
-    eval info${i}=\"$nvdimm\"
-    info
 fi
 }
 

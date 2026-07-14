@@ -140,15 +140,13 @@ class TestLauncher(TestCase):
     @patch(
         "checkbox_ng.launcher.subcommands.open",
         new_callable=mock_open,
-        read_data=textwrap.dedent(
-            """
+        read_data=textwrap.dedent("""
             [launcher]
             app_id = "appid"
             app_version = 0
             session_title = "session_title"
             session_desc = "description"
-            """
-        ),
+            """),
     )
     def test_start_new_session_ok(self, _):
         self_mock = MagicMock()
@@ -281,14 +279,10 @@ class TestLauncher(TestCase):
         self, load_config_mock, configuration_mock
     ):
         self_mock = MagicMock()
-        app_blob = {
-            "launcher": textwrap.dedent(
-                """
+        app_blob = {"launcher": textwrap.dedent("""
                 [launcher]
                 launcher_version = 1
-                """
-            )
-        }
+                """)}
 
         Launcher.load_configs_from_app_blob(self_mock, app_blob)
 
@@ -436,6 +430,10 @@ class TestLauncher(TestCase):
         failed = Launcher.setup(self_mock)
 
         self.assertTrue(self_mock.sa.start_setup.called)
+        self_mock._save_manifest.assert_called_once_with(interactive=False)
+        self_mock.configuration.get_value.assert_called_once_with(
+            "test selection", "forced"
+        )
         self.assertTrue(self_mock._run_setup_jobs.called)
         self.assertTrue(self_mock.sa.finish_setup.called)
         self.assertEqual(failed, ["failed1"])
@@ -490,7 +488,9 @@ class TestLauncher(TestCase):
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
-        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+        self.assertEqual(
+            result_dict["outcome"], IJobResult.OUTCOME_MANUAL_SKIP
+        )
         # given that no comment was in resume_params, the resume procedure asks for it
         self.assertTrue(request_comment_mock.called)
 
@@ -519,7 +519,9 @@ class TestLauncher(TestCase):
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
-        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+        self.assertEqual(
+            result_dict["outcome"], IJobResult.OUTCOME_MANUAL_SKIP
+        )
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
@@ -990,43 +992,46 @@ class TestLauncherReturnCodes(TestCase):
         self.assertEqual(self.launcher.invoked(self.ctx), 1)
 
 
-class TestLListBootstrapped(TestCase):
+class TestListBootstrapped(TestCase):
     def setUp(self):
         self.launcher = ListBootstrapped()
         self.ctx = Mock()
         self.ctx.args = Mock(TEST_PLAN="", format="")
+
+        def identity(self, name):
+            return self._raw_data[name]
+
+        job_1 = Mock(
+            _raw_data={
+                "id": "namespace1::test-job1",
+                "summary": "fake-job1",
+                "plugin": "manual",
+                "description": "fake-description1",
+                "certification_status": "non-blocker",
+            },
+            id="namespace1::test-job1",
+            partial_id="test-job1",
+        )
+        job_2 = Mock(
+            _raw_data={
+                "id": "namespace2::test-job2",
+                "summary": "fake-job2",
+                "plugin": "shell",
+                "command": "ls",
+                "certification_status": "non-blocker",
+            },
+            id="namespace2::test-job2",
+            partial_id="test-job2",
+        )
+        job_1.get_record_value = partial(identity, job_1)
+        job_2.get_record_value = partial(identity, job_2)
         self.ctx.sa = Mock(
             start_new_session=Mock(),
             get_test_plans=Mock(return_value=["test-plan1", "test-plan2"]),
             select_test_plan=Mock(),
             bootstrap=Mock(),
             get_static_todo_list=Mock(return_value=["test-job1", "test-job2"]),
-            get_job=Mock(
-                side_effect=[
-                    Mock(
-                        _raw_data={
-                            "id": "namespace1::test-job1",
-                            "summary": "fake-job1",
-                            "plugin": "manual",
-                            "description": "fake-description1",
-                            "certification_status": "non-blocker",
-                        },
-                        id="namespace1::test-job1",
-                        partial_id="test-job1",
-                    ),
-                    Mock(
-                        _raw_data={
-                            "id": "namespace2::test-job2",
-                            "summary": "fake-job2",
-                            "plugin": "shell",
-                            "command": "ls",
-                            "certification_status": "non-blocker",
-                        },
-                        id="namespace2::test-job2",
-                        partial_id="test-job2",
-                    ),
-                ]
-            ),
+            get_job=Mock(side_effect=[job_1, job_2]),
             get_job_state=Mock(
                 return_value=Mock(effective_certification_status="blocker")
             ),
@@ -1200,6 +1205,11 @@ class TestExpand(TestCase):
                 "id": "job1",
             }
         )
+        job2 = JobDefinition(
+            {
+                "id": "job2",
+            }
+        )
         template1 = TemplateUnit(
             {
                 "template-id": "template1",
@@ -1213,9 +1223,77 @@ class TestExpand(TestCase):
                     ("certification_status", "blocker"),
                 ],
             ),
+            (
+                "^job2$",
+                [
+                    (
+                        "certification_status",
+                        "blocker",
+                    ),  # Usually inline override
+                    (
+                        "certification_status",
+                        "non-blocker",
+                    ),  # Usually top level section override
+                ],
+            ),
         ]
         self.assertEqual(
             self.launcher.get_effective_certification_status(job1), "blocker"
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job2),
+            "non-blocker",
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(template1),
+            "non-blocker",
+        )
+
+    def test_get_effective_certificate_status_no_override(self):
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
+        template1 = TemplateUnit(
+            {
+                "template-id": "template1",
+                "id": "job-{res}",
+            }
+        )
+        self.launcher.override_list = []
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job1),
+            "non-blocker",
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(template1),
+            "non-blocker",
+        )
+
+    def test_get_effective_certificate_status_no_certification_override(self):
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
+        template1 = TemplateUnit(
+            {
+                "template-id": "template1",
+                "id": "job-{res}",
+            }
+        )
+        self.launcher.override_list = [
+            (
+                "^job1$",
+                [
+                    ("category_id", "com.canonical.certification::test"),
+                ],
+            ),
+        ]
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job1),
+            "non-blocker",
         )
         self.assertEqual(
             self.launcher.get_effective_certification_status(template1),

@@ -177,25 +177,21 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="SocketCAN Tests",
-        epilog=textwrap.dedent(
-            """
+        epilog=textwrap.dedent("""
         Examples:
             socketcan_test.py can0 123
             socketcan_test.py can0 212 --remote
             socketcan_test.py can0 FA123 --effid
-            socketcan_test.py can0 E407DB --effid --fdmode"""
-        ).lstrip(),
+            socketcan_test.py can0 E407DB --effid --fdmode""").lstrip(),
     )
     parser.add_argument("interface", type=str, help="Interface name e.g. can0")
     parser.add_argument(
         "can_id",
         type=str,
-        help=textwrap.dedent(
-            """
+        help=textwrap.dedent("""
         CAN ID of source in Hex, max of 11 bits using Standard Frame
         Format (SFF). Specifying use of Extended Frame Format (EFF)
-        allows the use of up to 29 bit IDs."""
-        ).lstrip(),
+        allows the use of up to 29 bit IDs.""").lstrip(),
     )
     parser.add_argument(
         "--remote",

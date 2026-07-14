@@ -20,6 +20,7 @@
 :mod:`checkbox-ng.launcher.merge_reports` -- merge-reports sub-command
 ======================================================================
 """
+
 import json
 import os
 import tarfile
@@ -34,16 +35,19 @@ from plainbox.impl.unit.category import CategoryUnit
 from plainbox.impl.providers.special import get_exporters
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
 from plainbox.impl.session.system_information import (
-    CollectionOutput,
     CollectorOutputs,
 )
-
 
 #: Name-space prefix for Canonical Certification
 CERTIFICATION_NS = "com.canonical.certification::"
 
 
 class MergeReports:
+    def __init__(self):
+        self.job_list = []
+        self.category_list = []
+        self.system_information = []
+
     def register_arguments(self, parser):
         parser.add_argument(
             "submission",
@@ -59,15 +63,19 @@ class MergeReports:
             help="save combined test results to the specified FILE",
         )
 
-    def _parse_submission(self, submission, tmpdir, mode="list"):
+    def _get_submission_json(self, submission, tmpdir):
+        with tarfile.open(submission) as tar:
+            tar.extractall(tmpdir.name)
+            with open(os.path.join(tmpdir.name, "submission.json")) as f:
+                submission_json = json.load(f)
+        return submission_json
+
+    def _parse_submission(self, data, mode="list"):
         try:
-            with tarfile.open(submission) as tar:
-                tar.extractall(tmpdir.name)
-                with open(os.path.join(tmpdir.name, "submission.json")) as f:
-                    data = json.load(f)
             for result in data["results"]:
                 result["plugin"] = "shell"  # Required so default to shell
                 result["summary"] = result["name"]
+                result["template-id"] = result["template_id"]
                 # 'id' field in json file only contains partial id
                 result["id"] = result.get("full_id", result["id"])
                 if "::" not in result["id"]:
@@ -107,14 +115,9 @@ class MergeReports:
                     self.category_dict[cat_id] = CategoryUnit(
                         {"id": cat_id, "name": cat_name}
                     )
-            if mode == "list":
-                self.system_information.append(
-                    CollectorOutputs.from_dict(data["system_information"])
-                )
-            elif mode == "dict":
-                self.system_information = CollectorOutputs.from_dict(
-                    data["system_information"]
-                )
+            self.system_information = CollectorOutputs.from_dict(
+                data["system_information"]
+            )
         except OSError as e:
             raise SystemExit(e)
         except KeyError as e:
@@ -123,6 +126,9 @@ class MergeReports:
         return data["title"]
 
     def _populate_session_state(self, job, state):
+        self.job_list = []
+        self.category_list = []
+
         io_log = [
             IOLogRecord(count, "stdout", line.encode("utf-8"))
             for count, line in enumerate(
@@ -188,10 +194,8 @@ class MergeReports:
         manager_list = []
         for submission in ctx.args.submission:
             tmpdir = TemporaryDirectory()
-            self.job_list = []
-            self.category_list = []
-            self.system_information = []
-            session_title = self._parse_submission(submission, tmpdir)
+            submission_json = self._get_submission_json(submission, tmpdir)
+            session_title = self._parse_submission(submission_json)
             manager = SessionManager.create_with_unit_list(
                 self.job_list + self.category_list
             )

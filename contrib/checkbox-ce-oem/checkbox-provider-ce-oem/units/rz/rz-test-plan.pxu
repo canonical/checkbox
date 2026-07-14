@@ -1,0 +1,65 @@
+id: rz-server
+unit: test plan
+_name: renesas-rz server tests
+_description:
+    Combined manual and automated renesas-rz project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    rz-server-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: rz-server-automated
+unit: test plan
+_name: renesas-rz server automated tests
+_description:
+    Automated renesas-rz project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    rz-drp-ai-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: rz-desktop
+unit: test plan
+_name: renesas-rz desktop tests
+_description:
+    Combined manual and automated renesas-rz project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    rz-desktop-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: rz-desktop-automated
+unit: test plan
+_name: renesas-rz desktop automated tests
+_description:
+    Automated renesas-rz project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    rz-drp-ai-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: rz-core
+unit: test plan
+_name: renesas-rz core tests
+_description:
+    Combined manual and automated renesas-rz project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    rz-core-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: rz-core-automated
+unit: test plan
+_name: renesas-rz core automated tests
+_description:
+    Automated renesas-rz project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    rz-drp-ai-automated
+certification_status_overrides:
+    apply blocker to .*

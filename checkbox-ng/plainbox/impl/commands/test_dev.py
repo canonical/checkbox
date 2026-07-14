@@ -21,6 +21,7 @@ plainbox.impl.commands.test_dev
 
 Test definitions for plainbox.impl.dev module
 """
+
 import argparse
 from inspect import cleandoc
 from unittest import TestCase
@@ -58,8 +59,7 @@ class TestDevCommand(TestCase):
         self.maxDiff = None
         self.assertEqual(
             io.stdout,
-            cleandoc(
-                """
+            cleandoc("""
                 usage: plainbox dev <subcommand> ...
 
                 positional arguments:
@@ -68,9 +68,5 @@ class TestDevCommand(TestCase):
 
                 {}:
                   -h, --help  show this help message and exit
-                """.format(
-                    optionals_section
-                )
-            )
-            + "\n",
+                """.format(optionals_section)) + "\n",
         )

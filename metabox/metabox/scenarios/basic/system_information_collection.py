@@ -24,8 +24,7 @@ from metabox.core.utils import tag
 
 @tag("system_information")
 class SystemInformationCollection(Scenario):
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -43,8 +42,7 @@ class SystemInformationCollection(Scenario):
         exporter = json
         transport = out
         forced = yes
-        """
-    )
+        """)
 
     steps = [
         AssertPrinted('"system_information"'),

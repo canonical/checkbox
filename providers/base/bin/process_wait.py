@@ -7,7 +7,6 @@ import time
 from optparse import OptionParser
 from subprocess import Popen, PIPE
 
-
 COMMAND_FORMAT = "pgrep -f %(options)s %(process)s"
 
 
@@ -55,7 +54,7 @@ def main(args):
         "--uid",
         help="Effective user name or id of the running processes",
     )
-    (options, processes) = parser.parse_args(args)
+    options, processes = parser.parse_args(args)
 
     process_args = []
     if options.uid is not None:

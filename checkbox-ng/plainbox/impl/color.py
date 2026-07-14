@@ -21,6 +21,7 @@
 :mod:`plainbox.impl.color` -- ANSI color codes
 ==============================================
 """
+
 import sys
 
 

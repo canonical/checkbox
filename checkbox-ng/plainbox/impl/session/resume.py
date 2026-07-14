@@ -196,6 +196,7 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
             8: SessionPeekHelper8,
             9: SessionPeekHelper9,
             10: SessionPeekHelper10,
+            11: SessionPeekHelper11,
         }
         try:
             return version_peek_helper_map[version]().peek_json(json_repr)
@@ -322,6 +323,7 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
             8: SessionResumeHelper8,
             9: SessionResumeHelper9,
             10: SessionResumeHelper10,
+            11: SessionResumeHelper11,
         }
         try:
             helper_class = version_session_resume_map[version]
@@ -477,6 +479,16 @@ class MetaDataHelper7MixIn(MetaDataHelper6MixIn):
         )
 
 
+class MetaDataHelper11MixIn(MetaDataHelper7MixIn):
+    def _restore_SessionState_metadata(cls, metadata, session_repr):
+        super()._restore_SessionState_metadata(metadata, session_repr)
+        metadata.remaining_todo_jobs = _validate(
+            session_repr["metadata"],
+            key="remaining_todo_jobs",
+            value_type=bool,
+        )
+
+
 class SessionPeekHelper1(MetaDataHelper1MixIn):
     """
     Helper class for implementing session peek feature.
@@ -626,6 +638,19 @@ class SessionPeekHelper10(SessionPeekHelper9):
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper10` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
+class SessionPeekHelper11(MetaDataHelper11MixIn, SessionPeekHelper10):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper11` which has
     been pre-processed by :class:`SessionPeekHelper` (to strip the initial
     envelope).
 
@@ -1304,6 +1329,10 @@ class SessionResumeHelper9(SessionResumeHelper8):
 
 
 class SessionResumeHelper10(SessionResumeHelper9):
+    pass
+
+
+class SessionResumeHelper11(MetaDataHelper11MixIn, SessionResumeHelper10):
     pass
 
 

@@ -4,6 +4,7 @@ import re
 import shlex
 import subprocess
 import uuid
+import contextlib
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -12,15 +13,14 @@ from typing import Any
 from checkbox_support.scripts.psnr import get_average_psnr
 
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
+GST_DISCOVERER = os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
-if not VIDEO_CODEC_TESTING_DATA or not os.path.exists(
-    VIDEO_CODEC_TESTING_DATA
-):
-    raise SystemExit(
-        "Error: Please define the proper path of golden sample folder to "
-        "the environment variable 'VIDEO_CODEC_TESTING_DATA'"
-    )
+if not VIDEO_CODEC_TESTING_DATA:
+    VIDEO_CODEC_TESTING_DATA = os.path.join(os.path.expanduser("~"), "video")
+
+if not os.path.exists(VIDEO_CODEC_TESTING_DATA):
+    os.makedirs(VIDEO_CODEC_TESTING_DATA, exist_ok=True)
 # Folder stores the golden samples
 SAMPLE_2_FOLDER = "sample_2_big_bug_bunny"
 
@@ -29,6 +29,14 @@ class GStreamerEncodePlugins(Enum):
     V4L2H264ENC = "v4l2h264enc"
     V4L2H265ENC = "v4l2h265enc"
     V4L2JPEGENC = "v4l2jpegenc"
+    V4L2VP8ENC = "v4l2vp8enc"
+    OMXH264ENC = "omxh264enc"
+    OMXH265ENC = "omxh265enc"
+
+
+class GStreamerDecodePlugins(Enum):
+    OMXH264DEC = "omxh264dec"
+    OMXH265DEC = "omxh265dec"
 
 
 class GStreamerMuxerType(Enum):
@@ -62,6 +70,28 @@ class GStreamerMuxerType(Enum):
             )
 
 
+def _identify_gst_bin_from_snap(bin_name: str) -> bool:
+    """
+    Identify the gstreamer binary path.
+
+    :param bin_name:
+        The gstreamer binary name.
+
+    :returns:
+        The gstreamer binary path.
+    """
+    ret = subprocess.run(["which", bin_name], capture_output=True)
+    if ret.returncode != 0:
+        raise SystemExit(
+            "Error: Cannot find the gstreamer binary. name: {}".format(
+                bin_name
+            )
+        )
+    if ret.stdout.decode("utf-8").strip().startswith == "/snap/":
+        return True
+    return False
+
+
 def execute_command(cmd: str = "", timeout: int = 300) -> str:
     """
     Executes the GStreamer command and extracts the specific data from the
@@ -75,6 +105,34 @@ def execute_command(cmd: str = "", timeout: int = 300) -> str:
         The extracted last_message.
     """
     try:
+        bin_from_snap = _identify_gst_bin_from_snap(GST_LAUNCH_BIN)
+
+        if bin_from_snap:
+            logging.info(
+                "GStreamer binary is from snap package, "
+                "skip setting USER_DEFINED_GST_LD_LIBRARY_PATH "
+                "and USER_DEFINED_GST_PLUGIN_PATH"
+            )
+            env = None
+        else:
+            env = os.environ.copy()
+            # Update GStreamer library path and plugin path if user defined
+            gst_ld_path = os.environ.get("USER_DEFINED_GST_LD_LIBRARY_PATH")
+            gst_plugin_path = os.environ.get("USER_DEFINED_GST_PLUGIN_PATH")
+            logging.info("User defined LD_LIBRARY_PATH: %s", gst_ld_path)
+            logging.info("User defined LD_PLUGIN_PATH: %s", gst_plugin_path)
+            if gst_ld_path:
+                logging.info(
+                    "Append %s to LD_LIBRARY_PATH for GStreamer", gst_ld_path
+                )
+                env.update(LD_LIBRARY_PATH=gst_ld_path)
+            if gst_plugin_path:
+                logging.info(
+                    "Append %s to GST_PLUGIN_PATH for GStreamer",
+                    gst_plugin_path,
+                )
+                env.update(GST_PLUGIN_PATH=gst_plugin_path)
+
         logging.info("Starting command: '{}'".format(cmd))
         ret = subprocess.run(
             shlex.split(cmd),
@@ -83,6 +141,7 @@ def execute_command(cmd: str = "", timeout: int = 300) -> str:
             stderr=subprocess.PIPE,
             universal_newlines=True,
             timeout=timeout,
+            env=env,
         )
         logging.info(ret.stdout)
         return ret.stdout
@@ -169,6 +228,93 @@ def get_big_bug_bunny_golden_sample(
     return full_path
 
 
+@contextlib.contextmanager
+def manage_test_file_by_name(
+    file_name: str, target_dir: str = VIDEO_CODEC_TESTING_DATA
+):
+    """
+    Context manager that downloads the test file and deletes it upon
+    exiting the context. If the file already exists before this context,
+    it will skip downloading and will NOT delete it upon exiting.
+    """
+    file_path = os.path.join(target_dir, file_name)
+    file_existed = os.path.exists(file_path)
+
+    if not file_existed:
+        base_url = os.environ.get(
+            "CODEC_FILE_SOURCE",
+            "https://github.com/canonical/CodecCrafter/raw/main/video/",
+        )
+        if not base_url.endswith("/"):
+            base_url += "/"
+
+        url = "{}{}".format(base_url, file_name)
+        logging.info("Downloading test file from %s to %s", url, file_path)
+        try:
+            subprocess.run(["wget", "-O", file_path, url], check=True)
+        except subprocess.CalledProcessError as e:
+            raise SystemExit(
+                "Failed to download test file from {}: {}".format(url, e)
+            )
+
+    try:
+        yield file_path
+    finally:
+        if not file_existed and os.path.exists(file_path):
+            delete_file(file_path)
+
+
+def get_resolution_string(width: int, height: int) -> str:
+    if width == 3840 and height == 2160:
+        return "4k"
+    elif width == 2560 and height == 1440:
+        return "2k"
+    else:
+        return "{}p".format(height)
+
+
+def get_test_file_name_by_params(
+    width: int, height: int, framerate: int, plugin_name: str
+) -> str:
+    if "264" in plugin_name or "265" in plugin_name:
+        ext = "mp4"
+        core_codec = "h265" if "265" in plugin_name else "h264"
+    elif "vp8" in plugin_name or "vp9" in plugin_name:
+        ext = "webm"
+        core_codec = "vp9" if "vp9" in plugin_name else "vp8"
+    else:
+        ext = "mp4"
+        core_codec = "h264"
+
+    resolution_str = get_resolution_string(width, height)
+    return "{}_{}fps_{}.{}".format(resolution_str, framerate, core_codec, ext)
+
+
+@contextlib.contextmanager
+def manage_test_file_by_params(
+    width: int, height: int, framerate: int, plugin_name: str
+):
+    """
+    Context manager that downloads the generic test file based on params
+    and deletes it upon exiting the context.
+    """
+    file_name = get_test_file_name_by_params(
+        width, height, framerate, plugin_name
+    )
+    with manage_test_file_by_name(file_name) as file_path:
+        yield file_path
+
+
+def get_test_file_path_by_params(
+    width: int, height: int, framerate: int, plugin_name: str
+) -> str:
+    """Returns the absolute path for the target generic test file."""
+    file_name = get_test_file_name_by_params(
+        width, height, framerate, plugin_name
+    )
+    return os.path.join(VIDEO_CODEC_TESTING_DATA, file_name)
+
+
 class MetadataValidator:
     INVALID_PATTERN = "Validation failed: expected '{}: {}' be found"
 
@@ -181,7 +327,7 @@ class MetadataValidator:
         """
         self._file_path = file_path
         self._metadata = execute_command(
-            cmd="gst-discoverer-1.0 {}".format(self._file_path)
+            cmd="{} {}".format(GST_DISCOVERER, self._file_path)
         )
         self._errors = []
 
@@ -242,6 +388,8 @@ class MetadataValidator:
             GStreamerEncodePlugins.V4L2H264ENC.value: "H.264",
             GStreamerEncodePlugins.V4L2H265ENC.value: "H.265",
             GStreamerEncodePlugins.V4L2JPEGENC.value: "JPEG",
+            GStreamerEncodePlugins.V4L2VP8ENC.value: "VP8",
+            GStreamerEncodePlugins.OMXH264ENC.value: "H.264",
         }
         if expected not in codec_map:
             raise SystemExit(

@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_pwm_fan_controller
+_name: Does device supported PWM Fan Controller?
+value-type: bool

@@ -3,6 +3,7 @@
 If you're debugging this program, set PM_TEST_DRY_RUN in your environment.
 It will make the script not run actual S3, S4, reboot and poweroff commands.
 """
+
 import gi
 import json
 import logging

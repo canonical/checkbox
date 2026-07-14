@@ -19,6 +19,7 @@
 This module contains implementation of the controller end of the remote execution
 functionality.
 """
+
 import contextlib
 import getpass
 import gettext
@@ -108,6 +109,9 @@ class SimpleUI(NormalUI, MainLoopStage):
     def black_text(text, end="\n"):
         print(SimpleUI.C.BLACK(text), end=end, file=sys.stdout)
 
+    def yellow_text(text, end="\n"):
+        print(SimpleUI.C.YELLOW(text), end=end, file=sys.stderr)
+
     def horiz_line():
         print(SimpleUI.C.WHITE("-" * 80))
 
@@ -142,11 +146,11 @@ class RemoteController(ReportsStage, MainLoopStage):
         """
         return {
             RemoteSessionStates.Idle: cls.resume_or_start_new_session,
-            RemoteSessionStates.Started: cls.setup_and_continue,
+            RemoteSessionStates.Started: cls.restart,
             RemoteSessionStates.SettingUp: cls.setup_and_continue,
             RemoteSessionStates.SetupCompleted: cls.restart,
             RemoteSessionStates.Bootstrapping: cls.restart,
-            RemoteSessionStates.Bootstrapped: cls.select_jobs,
+            RemoteSessionStates.Bootstrapped: cls.resume_select_jobs,
             RemoteSessionStates.TestsSelected: cls.run_interactable_jobs,
             RemoteSessionStates.Running: cls.wait_and_continue,
             RemoteSessionStates.Interacting: cls.resume_interacting,
@@ -235,8 +239,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             "To solve this, upgrade the agent to the controller version.\n"
             "If you are unsure about the nomenclature or what any of this "
             "means, see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference/"
-            "glossary.html\n\n"
+            "https://checkbox.readthedocs.io/latest/reference/glossary/\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
 
@@ -246,8 +249,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             "To solve this, upgrade the controller to the agent version.\n"
             "If you are unsure about the nomenclature or what any of this "
             "means, see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference/"
-            "glossary.html\n\n"
+            "https://checkbox.readthedocs.io/latest/reference/glossary/\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
 
@@ -285,6 +287,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         while True:
             try:
                 if interrupted:
+                    # handling ctrl+c, assumes we are already connected
                     _logger.info("controller: Session interrupted")
                     interrupted = False  # we are handling the interruption ATM
                     # next line can raise exception due to connection being
@@ -293,60 +296,54 @@ class RemoteController(ReportsStage, MainLoopStage):
                     keep_running = self._handle_interrupt()
                     if not keep_running:
                         break
-                conn = rpyc.connect(host, port, config=config, keepalive=True)
-                keep_running = True
-
-                def quitter(msg):
-                    # this will be called when the agent decides to disconnect
-                    # this controller
-                    nonlocal server_msg
-                    nonlocal keep_running
-                    keep_running = False
-                    server_msg = msg
-
-                with contextlib.suppress(AttributeError):
-                    # TODO: REMOTE_API
-                    # when bumping the remote api make this bit obligatory
-                    # i.e. remove the suppressing
-                    conn.root.register_controller_blaster(quitter)
-                self._sa = conn.root.get_sa()
-                self.sa.conn = conn
-                # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-                # the check and bailout is not needed if the agent as up to
-                # date as this controller, so after bumping RAPI we can assume
-                # that agent is always passwordless
-                if not self.sa.passwordless_sudo:
-                    raise SystemExit(
-                        _(
-                            "This version of Checkbox requires the agent"
-                            " to be run as root"
-                        )
+                else:
+                    # here we either connecting or re-connecting
+                    conn = rpyc.connect(
+                        host, port, config=config, keepalive=True
                     )
+                    keep_running = True
 
-                self.check_remote_api_match()
+                    def quitter(msg):
+                        # this will be called when the agent decides to disconnect
+                        # this controller
+                        nonlocal server_msg
+                        nonlocal keep_running
+                        keep_running = False
+                        server_msg = msg
 
-                state, payload = self.sa.whats_up()
-                _logger.info("controller: Main dispatch with state: %s", state)
-                if printed_reconnecting and ever_disconnected:
-                    print(
-                        "...\nReconnected (took: {}s)".format(
-                            int(time.time() - disconnection_time)
+                    with contextlib.suppress(AttributeError):
+                        # TODO: REMOTE_API
+                        # when bumping the remote api make this bit obligatory
+                        # i.e. remove the suppressing
+                        conn.root.register_controller_blaster(quitter)
+                    self._sa = conn.root.get_sa()
+                    self.sa.conn = conn
+                    # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+                    # the check and bailout is not needed if the agent as up to
+                    # date as this controller, so after bumping RAPI we can assume
+                    # that agent is always passwordless
+                    if not self.sa.passwordless_sudo:
+                        raise SystemExit(
+                            _(
+                                "This version of Checkbox requires the agent"
+                                " to be run as root"
+                            )
                         )
-                    )
-                    printed_reconnecting = False
+
+                    self.check_remote_api_match()
+
+                    if printed_reconnecting and ever_disconnected:
+                        print(
+                            "...\nReconnected (took: {}s)".format(
+                                int(time.time() - disconnection_time)
+                            )
+                        )
+                        printed_reconnecting = False
                 keep_running = self.continue_session()
             except EOFError as exc:
                 if keep_running:
                     print("Connection lost!")
-                    # this is yucky but it works, in case of explicit
-                    # connection closing by the agent we get this msg
                     _logger.info("controller: Connection lost due to: %s", exc)
-                    if str(exc) == "stream has been closed":
-                        print(
-                            "Agent explicitly disconnected you. Possible "
-                            "reason: new controller connected to the agent"
-                        )
-                        break
                     print(exc)
                     time.sleep(1)
                 else:
@@ -520,6 +517,10 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def _resume_session(self, resume_params):
         metadata = self.sa.prepare_resume_session(resume_params.session_id)
+        # If there are no more jobs to run, resume. The empty dict is sent
+        # so that the last job result is not modified nor re-run.
+        if not metadata.remaining_todo_jobs:
+            return self.resume_by_id(resume_params.session_id, {})
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
@@ -560,7 +561,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
                 )
-            result_dict["outcome"] = IJobResult.OUTCOME_SKIP
+            result_dict["outcome"] = IJobResult.OUTCOME_MANUAL_SKIP
         elif resume_params.action == "rerun":
             # if the job outcome is set to none it will be rerun
             result_dict["outcome"] = None
@@ -579,6 +580,9 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def setup(self, resume_payload=None):
         setup_jobs = json.loads(self.sa.start_setup_json())
+        self._save_manifest(
+            interactive=not self.launcher.get_value("test selection", "forced")
+        )
         starting_index = 0
         if resume_payload:
             last_running_job = resume_payload["last_job"]
@@ -632,6 +636,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             (
                 candidate.id,
                 generate_resume_candidate_description(candidate),
+                candidate.metadata.remaining_todo_jobs,
             )
             for candidate in resumable_sessions
         ]
@@ -712,6 +717,9 @@ class RemoteController(ReportsStage, MainLoopStage):
             )
 
         self.sa.save_manifest_json(json.dumps(to_save_manifest))
+
+    def resume_select_jobs(self, all_jobs_json):
+        return self.select_jobs(json.loads(all_jobs_json))
 
     def select_jobs(self, all_jobs):
         if self.launcher.get_value("test selection", "forced"):
@@ -906,9 +914,17 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self.finish_job()
                 break
 
-    def finish_job(self, result=None):
+    def finish_job(self, result=None, job_state=None):
         _logger.info("controller: Finishing job with a result: %s", result)
         job_result = self.sa.finish_job(result)
+        if (
+            job_state
+            and result
+            and result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED
+        ):
+            print(_("Job cannot be started because:"))
+            for inhibitor in job_state.readiness_inhibitor_list:
+                SimpleUI.yellow_text(" - {}".format(inhibitor))
         SimpleUI.horiz_line()
         print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
@@ -1101,7 +1117,8 @@ class RemoteController(ReportsStage, MainLoopStage):
                             break
                         else:
                             self.finish_job(
-                                interaction.extra._builder.get_result()
+                                interaction.extra._builder.get_result(),
+                                job_state,
                             )
                             next_job = True
                             break

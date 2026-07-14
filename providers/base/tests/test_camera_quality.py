@@ -30,7 +30,6 @@ import numpy as np
 from checkbox_support.helpers.timeout import mock_timeout
 import camera_quality_test as cqt
 
-
 default_dir = Path(__file__).parent.joinpath("../data")
 data_dir = Path(os.getenv("PLAINBOX_PROVIDER_DATA", default=default_dir))
 

@@ -26,12 +26,12 @@ from metabox.core.actions import (
 from metabox.core.utils import tag
 
 provider_path = Path("/home/ubuntu/checkbox/metabox/metabox/metabox-provider")
-packaging_pxu_path = provider_path / "units/packaging.pxu"
+packaging_yaml_path = provider_path / "units/packaging.yaml"
 substvar_path = provider_path / "debian/metabox-provider.substvars"
 
-pxu_path = Path(__file__).parent / "packaging.pxu"
-with pxu_path.open("r") as file:
-    packaging_pxu = file.read()
+yaml_path = Path(__file__).parent / "packaging.yaml"
+with yaml_path.open("r") as file:
+    packaging_yaml = file.read()
 
 
 @tag("packaging")
@@ -45,7 +45,7 @@ class DebPackagingJammy(Scenario):
     start_session = False
     config_override = {"local": {"releases": ["jammy"]}}
     steps = [
-        Put(packaging_pxu_path, packaging_pxu),
+        Put(packaging_yaml_path, packaging_yaml),
         RunManage(args="packaging"),
         AssertInFile("dep-pack-gt-20", substvar_path),
         AssertInFile("rec-pack-gt-20", substvar_path),
@@ -63,7 +63,7 @@ class DebPackagingFocal(Scenario):
     start_session = False
     config_override = {"local": {"releases": ["focal"]}}
     steps = [
-        Put(packaging_pxu_path, packaging_pxu),
+        Put(packaging_yaml_path, packaging_yaml),
         RunManage(args="packaging"),
         AssertInFile("dep-pack-le-20", substvar_path),
         AssertInFile("rec-pack-le-20", substvar_path),
@@ -80,7 +80,7 @@ class DebPackagingBionic(Scenario):
     modes = ["local"]
     config_override = {"local": {"releases": ["bionic"]}}
     steps = [
-        Put(packaging_pxu_path, packaging_pxu),
+        Put(packaging_yaml_path, packaging_yaml),
         RunManage(args="packaging"),
         AssertInFile("dep-pack-le-20", substvar_path),
         AssertInFile("rec-pack-le-20", substvar_path),
@@ -97,7 +97,7 @@ class DebPackagingXenial(Scenario):
     modes = ["local"]
     config_override = {"local": {"releases": ["xenial"]}}
     steps = [
-        Put(packaging_pxu_path, packaging_pxu),
+        Put(packaging_yaml_path, packaging_yaml),
         RunManage(args="packaging"),
         AssertInFile("dep-pack-le-20", substvar_path),
         AssertInFile("rec-pack-le-20", substvar_path),

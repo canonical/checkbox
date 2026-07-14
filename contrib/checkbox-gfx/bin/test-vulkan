@@ -16,3 +16,6 @@ type = silent
 auto_retry = yes
 max_attempts = 3
 delay_before_retry = 15
+
+[environment]
+DISPLAY = :0

@@ -1,7 +1,6 @@
 import tensorflow as tf
 import intel_extension_for_tensorflow as itex
 
-
 print(tf.__version__)
 print(itex.__version__)
 

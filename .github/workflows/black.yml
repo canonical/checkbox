@@ -12,9 +12,9 @@ jobs:
   check-with-black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
-      - uses: psf/black@af0ba72a73598c76189d6dd1b21d8532255d5942
+      - uses: psf/black@87928e6d6761a4a6d22250e1fee5601b3998086e
         with:
           options: "--check --diff --line-length 79 --extend-exclude '/vendor/'"

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 
-
 USAGE = """
 led_sysfs_resource.py resource
 

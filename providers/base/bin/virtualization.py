@@ -23,6 +23,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+
 from argparse import ArgumentParser
 import os
 import logging
@@ -638,7 +639,7 @@ class LXDTest(object):
         self.template_tarball = None
         self.name = "testbed"
         self.image_alias = uuid4().hex
-        self.default_remote = "ubuntu:"
+        self.default_remote = "ubuntu-daily:"
         self.os_version = get_release_to_test()
 
     def run_command(self, cmd):
@@ -830,7 +831,7 @@ class LXDTest_vm(object):
         self.template_tarball = None
         self.name = "testbed"
         self.image_alias = uuid4().hex
-        self.default_remote = "ubuntu:"
+        self.default_remote = "ubuntu-daily:"
         self.os_version = get_release_to_test()
 
     def run_command(self, cmd, log_stderr=True):

@@ -21,6 +21,7 @@
 """
 this script monitors the systemd journal to catch insert/removal USB events
 """
+
 import argparse
 import logging
 import re
@@ -83,7 +84,7 @@ class StorageInterface(ABC):
         :param line_str: str of the scanned log lines.
         """
 
-        print(line_str)
+        print(line_str, flush=True)
 
     @abstractmethod
     def _validate_insertion(self):
@@ -369,6 +370,23 @@ class MediacardComboStorage(MediacardStorage, USBStorage):
         MediacardStorage._parse_journal_line(self, line_str)
         USBStorage._parse_journal_line(self, line_str)
 
+        # Also handle SD card readers that appear as SCSI/USB mass storage (sd*)
+        # Check for capacity change patterns first (for action detection)
+        if (
+            "detected capacity change from 0 to" in line_str
+            and " to 0" not in line_str
+        ):
+            # This is an insertion - always update to reflect current action
+            self.action = "insertion"
+            self.device = "SD/MMC via USB reader"
+        elif (
+            "detected capacity change from" in line_str and " to 0" in line_str
+        ):
+            # This is a removal - always update to reflect current action
+            self.action = "removal"
+
+        return super()._parse_journal_line(line_str)
+
 
 class ThunderboltStorage(StorageWatcher):
     """
@@ -456,14 +474,44 @@ def main():
         watcher = USBStorage(args.storage_type)
 
     if args.testcase == "insertion":
-        mounted_partition = watcher.run_insertion()
-        watcher.run_removal(mounted_partition)
+        try:
+            mounted_partition = watcher.run_insertion()
+        except TimeoutError:
+            raise SystemExit(
+                "The {} insertion could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
+
+        try:
+            watcher.run_removal(mounted_partition)
+        except TimeoutError:
+            raise SystemExit(
+                "The {} removal could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
+
     elif args.testcase == "storage":
-        mounted_partition = watcher.run_insertion()
+        try:
+            mounted_partition = watcher.run_insertion()
+        except TimeoutError:
+            raise SystemExit(
+                "The {} insertion could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
         watcher.run_storage(mounted_partition)
         print("Press Enter to start removal", flush=True)
         input()
-        watcher.run_removal(mounted_partition)
+        try:
+            watcher.run_removal(mounted_partition)
+        except TimeoutError:
+            raise SystemExit(
+                "The {} removal could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
     else:
         raise SystemExit("Invalid test case")
 

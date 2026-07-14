@@ -28,7 +28,6 @@ The script returns 0 on success and 1 on failure, with output
 via Python logging about the nature of the success/failure.
 """
 
-
 import logging
 import shlex
 import sys

@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -e
+
+source $(dirname "$0")/setup-env.sh
+
+package_is_installed() {
+  pkg_name=$1
+  return $(dpkg -s $pkg_name >/dev/null 2>&1 && echo 0 || echo 1)
+}
+
+prepare_for_build() {
+    sudo apt update -y
+    sudo apt install -y build-essential cmake ocl-icd-libopencl1 libva2 libva-drm2 libze-dev libze-intel-gpu-dev libpng-dev libboost-all-dev libmfx-gen1.2 ninja-build clang ocl-icd-opencl-dev clinfo python3-pip meson glslang-tools pkg-config cmake libvulkan-dev libgl1 mesa-common-dev libglfw3-dev libgles2-mesa-dev
+pip3 install opencv-python lxml --break-system-packages
+
+    sudo apt install -y libze-intel-gpu-raytracing
+
+    echo "Installing Level Zero Raytracing tests"
+    # install level-zero-raytracing-support testing
+    if package_is_installed intel-level-zero-gpu-raytracing; then
+        RT_VERSION=$(dpkg -s intel-level-zero-gpu-raytracing | grep '^Version:' | awk '{print $2}' | cut -d'-' -f1)
+    else
+        RT_VERSION=$(dpkg -s libze-intel-gpu-raytracing | grep '^Version:' | awk '{print $2}' | cut -d'-' -f1)
+    fi
+    cd $WORKING_DIR
+    mkdir sycl_linux && cd sycl_linux
+    wget https://github.com/intel/llvm/releases/download/nightly-2024-06-10/sycl_linux.tar.gz
+    tar xf sycl_linux.tar.gz
+    sudo mv $WORKING_DIR/sycl_linux $INSTALL_DIR/sycl_linux
+}
+
+if [ "$VENDOR" = "Intel" ]; then
+    prepare_for_build
+
+    cd $INSTALL_DIR/sycl_linux
+    # Set up the expected paths
+    export SYCL_BUNDLE_ROOT=$(pwd)
+    export PATH=$SYCL_BUNDLE_ROOT/bin:$PATH
+    export CPATH=$SYCL_BUNDLE_ROOT/include:$CPATH
+    export LIBRARY_PATH=$SYCL_BUNDLE_ROOT/lib:$LIBRARY_PATH
+    export LD_LIBRARY_PATH=$SYCL_BUNDLE_ROOT/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$SYCL_BUNDLE_ROOT/linux/lib/x64:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$SYCL_BUNDLE_ROOT/lib/oclgpu:$LD_LIBRARY_PATH
+
+    cd $WORKING_DIR
+    if [ ! -d "level-zero-raytracing-support" ]; then
+      echo "Cloning v${RT_VERSION}"
+      git clone -b v${RT_VERSION} https://github.com/intel/level-zero-raytracing-support
+    fi
+    cd level-zero-raytracing-support
+    mkdir -p build
+    cd build/
+    cmake -G Ninja -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_C_COMPILER=clang -D CMAKE_BUILD_TYPE=Release -D ZE_RAYTRACING_SYCL_TESTS=LEVEL_ZERO_RTAS_BUILDER ..
+    cmake --build . --target package && echo "Level zero raytracing build complete" || exit 1
+    sudo mv $WORKING_DIR/level-zero-raytracing-support $INSTALL_DIR
+else
+    echo "Not installing Level Zero testing because it is Intel-specific"
+fi

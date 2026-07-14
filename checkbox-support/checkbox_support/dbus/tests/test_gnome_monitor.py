@@ -170,6 +170,92 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         )
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
+    def test_get_current_resolution_excludes_non_current(
+        self, mock_dbus_proxy
+    ):
+        """
+        Test that get_current_resolutions only returns resolutions
+        for modes that are marked as current.
+        """
+
+        mock_proxy = Mock()
+        mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
+
+        gnome_monitor = MonitorConfigGnome()
+
+        # Use plain booleans instead of GLib.Variant since GLib is
+        # mocked; the code accesses properties via dict.get() so plain
+        # values work correctly and let us test truthy/falsy behavior.
+        raw = (
+            1,
+            [
+                (
+                    ("eDP-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "1920x1200@59.950",
+                            1920,
+                            1200,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": True,
+                                "is-preferred": True,
+                            },
+                        ),
+                        (
+                            "1280x720@60.000",
+                            1280,
+                            720,
+                            60.0,
+                            1.0,
+                            [1.0],
+                            {
+                                "is-current": False,
+                                "is-preferred": False,
+                            },
+                        ),
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", True),
+                        "display-name": GLib.Variant("s", "Built-in display"),
+                    },
+                ),
+                (
+                    ("HDMI-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "2560x1440@59.950",
+                            2560,
+                            1440,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": False,
+                                "is-preferred": True,
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", False),
+                        "display-name": GLib.Variant("s", "External Display"),
+                    },
+                ),
+            ],
+            [],
+            {},
+        )
+        mock_proxy.call_sync.return_value = (
+            self.MockGetCurrentStateReturnValue(raw)
+        )
+        resolutions = gnome_monitor.get_current_resolutions()
+        # Only eDP-1's current mode should appear;
+        # HDMI-1 has no current mode and eDP-1's non-current mode is excluded
+        self.assertEqual(resolutions, {"eDP-1": "1920x1200"})
+
+    @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_bad_input_type(self, mock_dbus_proxy):
         mock_proxy = Mock()
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy

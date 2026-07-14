@@ -112,6 +112,7 @@ actual provider::
 A driver suitable for Fedora might be developed later so at this time it is
 not documented.
 """
+
 import abc
 import errno
 import logging
@@ -183,12 +184,9 @@ class PackagingMetaDataUnit(Unit):
 
         field_validators = {
             fields.os_id: [
-                concrete_validators.untranslatable,
                 concrete_validators.present,
             ],
-            fields.os_version_id: [
-                concrete_validators.untranslatable,
-            ],
+            fields.os_version_id: [],
             fields.Depends: [
                 UniqueValueValidator(),
             ],

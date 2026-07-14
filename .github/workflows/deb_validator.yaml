@@ -38,7 +38,7 @@ jobs:
       paths: ${{ steps.paths.outputs.paths }}
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -82,15 +82,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
       # needed by providers that pull checkbox-support
       - name: Install PPA and dependencies
-        run: |
-          sudo add-apt-repository ppa:checkbox-dev/edge
-          sudo apt-get update
-          sudo apt-get install -qq -y dpkg-dev fakeroot
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        with:
+          attempt_limit: 3
+          command: |
+            sudo add-apt-repository ppa:checkbox-dev/edge
+            sudo apt-get update
+            sudo apt-get install -qq -y dpkg-dev fakeroot
       - name: Prepare installation
         env:
           MATRIX_PATH: ${{ matrix.path }}

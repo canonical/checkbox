@@ -7,6 +7,8 @@
 # is used by the open source AMD driver and nvidia proprietary driver to
 # trigger the use of discrete GPU.
 
+set -x
+
 DRIVER=$1
 INDEX=$2
 PCIBUS="$(echo "$3" | rev | cut -d '/' -f 1 | rev)"
@@ -22,7 +24,8 @@ ensure_xdg_session_type() {
         sleep 1
 
         echo "Waiting for XDG_SESSION_TYPE to be set"
-        SESSION=$(loginctl list-sessions --no-legend | grep 'seat0' | cut -d ' ' -f 1)
+        SESSION=$(loginctl list-sessions --no-legend | grep 'seat0' | awk '{print $1}')
+
 
         XDG_SESSION_TYPE=$(loginctl show-session "${SESSION}" | grep 'Type' | cut -d '=' -f 2)
 
@@ -54,7 +57,7 @@ if [[ ${NB_GPU} -gt 1 ]]; then
             export DRI_PRIME=
         fi
     elif [[ ${DRIVER} == "nvidia" || ${DRIVER} == "pcieport" ]]; then
-        nvidia_nvlink_check.sh
+        nvidia_nvlink_check.py
         NVLINK=$?
         if [[ ${INDEX} -gt 1 && ${NVLINK} -ne 0 && "$(prime-select query)" = 'on-demand' ]]; then
             echo "Setting up PRIME GPU offloading for nvidia discrete GPU"

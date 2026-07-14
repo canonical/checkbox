@@ -1,0 +1,309 @@
+unit: setup job
+plugin: shell
+id: setup/install_opengl_cts
+category_id: com.canonical.plainbox::graphics
+_summary: Install opengl-cts snap
+_purpose:
+ This job will install the opengl-cts snap, a dependency of opengl conformance testing
+user: root
+command:
+ if snap list opengl-cts &>/dev/null; then
+   snap refresh --beta opengl-cts
+ else
+   snap install --beta opengl-cts
+ fi
+estimated_duration: 1m
+
+unit: job
+plugin: shell
+id: graphics/gl_gpu_avail
+category_id: com.canonical.plainbox::graphics
+_summary: Checks for OpenGL-capable GPU
+environ:
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+  DISPLAY
+estimated_duration: 1s
+command:
+ if opengl-cts.glxinfo 2>&1 | grep "OpenGL renderer string" | grep -qiv "llvmpipe\|softpipe\|swrast"; then
+   echo "PASS: Found an OpenGL-capable GPU"
+ else
+   echo "FAIL: No OpenGL-capable GPU found"
+   exit 1
+ fi
+
+id: graphics/gl_core_info
+depends:
+  graphics/gl_gpu_avail
+setup_include:
+  setup/install_opengl_cts
+category_id: com.canonical.plainbox::graphics
+flags: simple
+_summary: Run the info tests from OpenGL-CTS (core)
+environ:
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+estimated_duration: 5m
+command:
+  # All options can be found in opengl-cts.list-tests
+  opengl-cts.test --headless --deqp-case=KHR-GLES32.info.*
+_siblings: [
+  { "id": "graphics/gl_core_shaders",
+    "_summary": "Run the shaders tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.shaders.*" },
+  { "id": "graphics/gl_core_geometry_shader",
+    "_summary": "Run the geometry_shader tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.geometry_shader.*" },
+  { "id": "graphics/gl_core_gpu_shader5",
+    "_summary": "Run the gpu_shader5 tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.gpu_shader5.*" },
+  { "id": "graphics/gl_core_tessellation_shader",
+    "_summary": "Run the tessellation_shader tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.tessellation_shader.*" },
+  { "id": "graphics/gl_core_texture_cube_map_array",
+    "_summary": "Run the texture_cube_map_array tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.texture_cube_map_array.*" },
+  { "id": "graphics/gl_core_texture_border_clamp",
+    "_summary": "Run the texture_border_clamp tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.texture_border_clamp.*" },
+  { "id": "graphics/gl_core_texture_buffer",
+    "_summary": "Run the texture_buffer tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.texture_buffer.*" },
+  { "id": "graphics/gl_core_draw_buffers_indexed",
+    "_summary": "Run the draw_buffers_indexed tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.draw_buffers_indexed.*" },
+  { "id": "graphics/gl_core_constant_expressions",
+    "_summary": "Run the constant_expressions tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.constant_expressions.*" },
+  { "id": "graphics/gl_core_shader_macros",
+    "_summary": "Run the shader_macros tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.shader_macros.*" },
+  { "id": "graphics/gl_core_separable_programs_tf",
+    "_summary": "Run the separable_programs_tf tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.separable_programs_tf.*" },
+  { "id": "graphics/gl_core_copy_image",
+    "_summary": "Run the copy_image tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.copy_image.*" },
+  { "id": "graphics/gl_core_texture2d",
+    "_summary": "Run the texture2d tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.internalformat.texture2d.*" },
+  { "id": "graphics/gl_core_copy_tex_image",
+    "_summary": "Run the copy_tex_image tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.internalformat.copy_tex_image.*" },
+  { "id": "graphics/gl_core_renderbuffer",
+    "_summary": "Run the renderbuffer tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.rgb5_a1" },
+  { "id": "graphics/gl_core_renderbuffer_depth_component32f",
+    "_summary": "Run the renderbuffer_depth_component32f tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.depth_component32f" },
+  { "id": "graphics/gl_core_renderbuffer_depth32f_stencil8",
+    "_summary": "Run the renderbuffer_depth32f_stencil8 tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.depth32f_stencil8" },
+  { "id": "graphics/gl_core_sampler2darrayshadow_fragment",
+    "_summary": "Run the sampler2darrayshadow_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.sampler2darrayshadow_fragment" },
+  { "id": "graphics/gl_core_sampler2darrayshadow_bias_fragment",
+    "_summary": "Run the sampler2darrayshadow_bias_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.sampler2darrayshadow_bias_fragment" },
+  { "id": "graphics/gl_core_samplercubearrayshadow_vertex",
+    "_summary": "Run the samplercubearrayshadow_vertex tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_vertex" },
+  { "id": "graphics/gl_core_samplercubearrayshadow_fragment",
+    "_summary": "Run the samplercubearrayshadow_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_fragment" },
+  { "id": "graphics/gl_core_samplercubearrayshadow_bias_fragment",
+    "_summary": "Run the samplercubearrayshadow_bias_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_bias_fragment" },
+  { "id": "graphics/gl_core_textureoffset_sampler2darrayshadow_vertex",
+    "_summary": "Run the textureoffset_sampler2darrayshadow_vertex tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_vertex" },
+  { "id": "graphics/gl_core_textureoffset_sampler2darrayshadow_fragment",
+    "_summary": "Run the textureoffset_sampler2darrayshadow_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_fragment" },
+  { "id": "graphics/gl_core_textureoffset_sampler2darrayshadow_bias_fragment",
+    "_summary": "Run the textureoffset_sampler2darrayshadow_bias_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_bias_fragment" },
+  { "id": "graphics/gl_core_texturelod_sampler2darrayshadow_vertex",
+    "_summary": "Run the texturelod_sampler2darrayshadow_vertex tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.sampler2darrayshadow_vertex" },
+  { "id": "graphics/gl_core_texturelod_sampler2darrayshadow_fragment",
+    "_summary": "Run the texturelod_sampler2darrayshadow_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.sampler2darrayshadow_fragment" },
+  { "id": "graphics/gl_core_texturelod_samplercubeshadow_vertex",
+    "_summary": "Run the texturelod_samplercubeshadow_vertex tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubeshadow_vertex" },
+  { "id": "graphics/gl_core_texturelod_samplercubeshadow_fragment",
+    "_summary": "Run the texturelod_samplercubeshadow_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubeshadow_fragment" },
+  { "id": "graphics/gl_core_texturelod_samplercubearrayshadow_fragment",
+    "_summary": "Run the texturelod_samplercubearrayshadow_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubearrayshadow_fragment" },
+  { "id": "graphics/gl_core_texturelodoffset_sampler2darrayshadow_vertex",
+    "_summary": "Run the texturelodoffset_sampler2darrayshadow_vertex tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelodoffset.sampler2darrayshadow_vertex" },
+  { "id": "graphics/gl_core_texturelodoffset_sampler2darrayshadow_fragment",
+    "_summary": "Run the texturelodoffset_sampler2darrayshadow_fragment tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelodoffset.sampler2darrayshadow_fragment" },
+  { "id": "graphics/gl_core_nearest_edge",
+    "_summary": "Run the nearest_edge tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.nearest_edge.*" },
+  { "id": "graphics/gl_core_framebuffer_completeness",
+    "_summary": "Run the framebuffer_completeness tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.framebuffer_completeness.*" },
+  { "id": "graphics/gl_core_texture_compatibility",
+    "_summary": "Run the texture_compatibility tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.texture_compatibility.*" },
+  { "id": "graphics/gl_core_compressed_format",
+    "_summary": "Run the compressed_format tests from OpenGL-CTS (core)",
+    "command": "opengl-cts.test --headless --deqp-case=KHR-GLES32.core.compressed_format.*" }]
+
+unit: job
+plugin: shell
+id: graphics/gl_classic_gpu_avail
+category_id: com.canonical.plainbox::graphics
+user: root
+_summary: Checks for OpenGL-capable GPU using host drivers
+environ:
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+  PATH
+estimated_duration: 1s
+command: gl_host.py resource
+
+unit: job
+plugin: shell
+id: graphics/gl_classic_gl_avail
+category_id: com.canonical.plainbox::graphics
+user: root
+_summary: Checks for host OpenGL EGL loader required by opengl-cts --no-confinement
+requires: package.name == 'libegl-dev'
+estimated_duration: 1s
+command: gl_host.py validate-install
+
+id: graphics/gl_classic_info
+depends:
+  graphics/gl_classic_gpu_avail
+  graphics/gl_classic_gl_avail
+setup_include:
+  setup/install_opengl_cts
+category_id: com.canonical.plainbox::graphics
+flags: simple
+user: root
+_summary: Run the info tests from OpenGL-CTS (classic)
+environ:
+  XDG_SESSION_TYPE
+  XDG_RUNTIME_DIR
+estimated_duration: 5m
+command:
+  # All options can be found in opengl-cts.list-tests
+  # gl_host.py used to wrap extra env vars, paths, and flags vs Core tests
+  gl_host.py run-test --deqp-case=KHR-GLES32.info.*
+_siblings: [
+  { "id": "graphics/gl_classic_shaders",
+    "_summary": "Run the shaders tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.shaders.*" },
+  { "id": "graphics/gl_classic_geometry_shader",
+    "_summary": "Run the geometry_shader tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.geometry_shader.*" },
+  { "id": "graphics/gl_classic_gpu_shader5",
+    "_summary": "Run the gpu_shader5 tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.gpu_shader5.*" },
+  { "id": "graphics/gl_classic_tessellation_shader",
+    "_summary": "Run the tessellation_shader tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.tessellation_shader.*" },
+  { "id": "graphics/gl_classic_texture_cube_map_array",
+    "_summary": "Run the texture_cube_map_array tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.texture_cube_map_array.*" },
+  { "id": "graphics/gl_classic_texture_border_clamp",
+    "_summary": "Run the texture_border_clamp tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.texture_border_clamp.*" },
+  { "id": "graphics/gl_classic_texture_buffer",
+    "_summary": "Run the texture_buffer tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.texture_buffer.*" },
+  { "id": "graphics/gl_classic_draw_buffers_indexed",
+    "_summary": "Run the draw_buffers_indexed tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.draw_buffers_indexed.*" },
+  { "id": "graphics/gl_classic_constant_expressions",
+    "_summary": "Run the constant_expressions tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.constant_expressions.*" },
+  { "id": "graphics/gl_classic_shader_macros",
+    "_summary": "Run the shader_macros tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.shader_macros.*" },
+  { "id": "graphics/gl_classic_separable_programs_tf",
+    "_summary": "Run the separable_programs_tf tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.separable_programs_tf.*" },
+  { "id": "graphics/gl_classic_copy_image",
+    "_summary": "Run the copy_image tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.copy_image.*" },
+  { "id": "graphics/gl_classic_texture2d",
+    "_summary": "Run the texture2d tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.internalformat.texture2d.*" },
+  { "id": "graphics/gl_classic_copy_tex_image",
+    "_summary": "Run the copy_tex_image tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.internalformat.copy_tex_image.*" },
+  { "id": "graphics/gl_classic_renderbuffer",
+    "_summary": "Run the renderbuffer tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.rgb5_a1" },
+  { "id": "graphics/gl_classic_renderbuffer_depth_component32f",
+    "_summary": "Run the renderbuffer_depth_component32f tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.depth_component32f" },
+  { "id": "graphics/gl_classic_renderbuffer_depth32f_stencil8",
+    "_summary": "Run the renderbuffer_depth32f_stencil8 tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.internalformat.renderbuffer.depth32f_stencil8" },
+  { "id": "graphics/gl_classic_sampler2darrayshadow_fragment",
+    "_summary": "Run the sampler2darrayshadow_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.sampler2darrayshadow_fragment" },
+  { "id": "graphics/gl_classic_sampler2darrayshadow_bias_fragment",
+    "_summary": "Run the sampler2darrayshadow_bias_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.sampler2darrayshadow_bias_fragment" },
+  { "id": "graphics/gl_classic_samplercubearrayshadow_vertex",
+    "_summary": "Run the samplercubearrayshadow_vertex tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_vertex" },
+  { "id": "graphics/gl_classic_samplercubearrayshadow_fragment",
+    "_summary": "Run the samplercubearrayshadow_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_fragment" },
+  { "id": "graphics/gl_classic_samplercubearrayshadow_bias_fragment",
+    "_summary": "Run the samplercubearrayshadow_bias_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texture.samplercubearrayshadow_bias_fragment" },
+  { "id": "graphics/gl_classic_textureoffset_sampler2darrayshadow_vertex",
+    "_summary": "Run the textureoffset_sampler2darrayshadow_vertex tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_vertex" },
+  { "id": "graphics/gl_classic_textureoffset_sampler2darrayshadow_fragment",
+    "_summary": "Run the textureoffset_sampler2darrayshadow_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_fragment" },
+  { "id": "graphics/gl_classic_textureoffset_sampler2darrayshadow_bias_fragment",
+    "_summary": "Run the textureoffset_sampler2darrayshadow_bias_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.textureoffset.sampler2darrayshadow_bias_fragment" },
+  { "id": "graphics/gl_classic_texturelod_sampler2darrayshadow_vertex",
+    "_summary": "Run the texturelod_sampler2darrayshadow_vertex tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.sampler2darrayshadow_vertex" },
+  { "id": "graphics/gl_classic_texturelod_sampler2darrayshadow_fragment",
+    "_summary": "Run the texturelod_sampler2darrayshadow_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.sampler2darrayshadow_fragment" },
+  { "id": "graphics/gl_classic_texturelod_samplercubeshadow_vertex",
+    "_summary": "Run the texturelod_samplercubeshadow_vertex tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubeshadow_vertex" },
+  { "id": "graphics/gl_classic_texturelod_samplercubeshadow_fragment",
+    "_summary": "Run the texturelod_samplercubeshadow_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubeshadow_fragment" },
+  { "id": "graphics/gl_classic_texturelod_samplercubearrayshadow_fragment",
+    "_summary": "Run the texturelod_samplercubearrayshadow_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelod.samplercubearrayshadow_fragment" },
+  { "id": "graphics/gl_classic_texturelodoffset_sampler2darrayshadow_vertex",
+    "_summary": "Run the texturelodoffset_sampler2darrayshadow_vertex tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelodoffset.sampler2darrayshadow_vertex" },
+  { "id": "graphics/gl_classic_texturelodoffset_sampler2darrayshadow_fragment",
+    "_summary": "Run the texturelodoffset_sampler2darrayshadow_fragment tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.ext_texture_shadow_lod.texturelodoffset.sampler2darrayshadow_fragment" },
+  { "id": "graphics/gl_classic_nearest_edge",
+    "_summary": "Run the nearest_edge tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.nearest_edge.*" },
+  { "id": "graphics/gl_classic_framebuffer_completeness",
+    "_summary": "Run the framebuffer_completeness tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.framebuffer_completeness.*" },
+  { "id": "graphics/gl_classic_texture_compatibility",
+    "_summary": "Run the texture_compatibility tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.texture_compatibility.*" },
+  { "id": "graphics/gl_classic_compressed_format",
+    "_summary": "Run the compressed_format tests from OpenGL-CTS (classic)",
+    "command": "gl_host.py run-test --deqp-case=KHR-GLES32.core.compressed_format.*" }]

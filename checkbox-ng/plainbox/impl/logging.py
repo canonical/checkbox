@@ -36,7 +36,6 @@ import sys
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import ansi_on, ansi_off
 
-
 logger = logging.getLogger("plainbox.logging")
 
 # XXX: enable ansi escape sequences if sys.std{out,err} are both TTYs

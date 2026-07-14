@@ -26,7 +26,6 @@ from checkbox_support.parsers.v4l2_compliance import (
 )
 from checkbox_support.helpers.release_info import get_release_info
 
-
 # add more or exclude blockers here
 BLOCKERS = IOCTL_USED_BY_V4L2SRC
 

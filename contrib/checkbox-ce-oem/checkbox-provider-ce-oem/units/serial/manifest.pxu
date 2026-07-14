@@ -1,5 +1,5 @@
 unit: manifest entry
-id: has_serial_ehco_server
+id: has_serial_echo_server
 _name: Has the serial ports connect to the serial echo server?
 value-type: bool
 

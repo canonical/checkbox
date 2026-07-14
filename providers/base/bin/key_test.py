@@ -32,7 +32,6 @@ from gettext import gettext as _
 from gi.repository import GLib
 from optparse import OptionParser
 
-
 EXIT_WITH_FAILURE = 1
 EXIT_WITH_SUCCESS = 0
 EXIT_TIMEOUT = 30
@@ -387,7 +386,7 @@ Hint to find codes:
         action="store_true",
         help="Test for scancodes instead of keycodes.",
     )
-    (options, args) = parser.parse_args(args)
+    options, args = parser.parse_args(args)
 
     # Get reporter factory from options or environment.
     if options.interface == "auto":

@@ -42,8 +42,7 @@ class ManifestLauncherAuto(Scenario):
     tests selection was skipped or not
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [test plan]
@@ -54,8 +53,7 @@ class ManifestLauncherAuto(Scenario):
         forced = yes
         [manifest]
         2021.com.canonical.certification::manifest_location = 0
-    """
-    )
+    """)
 
     steps = [AssertPrinted(".*Outcome: job passed.*")]
 
@@ -68,8 +66,7 @@ class ManifestLauncherManual(Scenario):
     tests selection was skipped or not
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [test plan]
@@ -78,8 +75,7 @@ class ManifestLauncherManual(Scenario):
         unit = 2021.com.canonical.certification::manifest_test_support
         [manifest]
         2021.com.canonical.certification::manifest_location = 0
-    """
-    )
+    """)
 
     steps = [
         Expect("tests to run on your system"),
@@ -101,8 +97,7 @@ class ManifestConfigCacheAuto(Scenario):
 
     conf_correct = read_text(test_manifest, "correct.json")
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [test plan]
@@ -111,8 +106,7 @@ class ManifestConfigCacheAuto(Scenario):
         forced = yes
         [test selection]
         forced = yes
-    """
-    )
+    """)
 
     steps = [
         MkTree("/var/tmp/checkbox-ng"),
@@ -131,16 +125,14 @@ class ManifestConfigCacheManual(Scenario):
 
     conf_correct = read_text(test_manifest, "correct.json")
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [test plan]
         # filtering to avoid the test being out of bound
         forced = yes
         unit = 2021.com.canonical.certification::manifest_test_support
-    """
-    )
+    """)
 
     steps = [
         MkTree("/var/tmp/checkbox-ng"),
@@ -166,8 +158,7 @@ class ManifestConfigPrecedenceAuto(Scenario):
 
     conf_wrong = read_text(test_manifest, "wrong.json")
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [test plan]
@@ -178,8 +169,7 @@ class ManifestConfigPrecedenceAuto(Scenario):
         forced = yes
         [manifest]
         2021.com.canonical.certification::manifest_location = 0
-    """
-    )
+    """)
 
     steps = [
         MkTree("/var/tmp/checkbox-ng"),
@@ -199,8 +189,7 @@ class ManifestConfigPrecedenceManual(Scenario):
 
     conf_wrong = read_text(test_manifest, "wrong.json")
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         [test plan]
@@ -209,8 +198,7 @@ class ManifestConfigPrecedenceManual(Scenario):
         unit = 2021.com.canonical.certification::manifest_test_support
         [manifest]
         2021.com.canonical.certification::manifest_location = 0
-    """
-    )
+    """)
 
     steps = [
         MkTree("/var/tmp/checkbox-ng"),

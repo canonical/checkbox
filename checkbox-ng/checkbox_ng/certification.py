@@ -36,7 +36,6 @@ from plainbox.impl.transport import TransportBase
 from plainbox.impl.transport import TransportError
 import requests
 
-
 logger = getLogger("checkbox.ng.certification")
 
 

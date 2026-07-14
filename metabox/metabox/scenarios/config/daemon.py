@@ -14,8 +14,7 @@ from . import config_files
 @tag("daemon", "normal_user")
 class DaemonNormalUserSetInLauncherNoConfig(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -26,8 +25,7 @@ class DaemonNormalUserSetInLauncherNoConfig(Scenario):
         forced = yes
         [daemon]
         normal_user = launcher_user
-        """
-    )
+        """)
     steps = [
         RunCmd("sudo useradd launcher_user"),
         Start(),
@@ -39,8 +37,7 @@ class DaemonNormalUserSetInLauncherNoConfig(Scenario):
 class DaemonNormalUserSetInConfig(Scenario):
     modes = ["remote"]
     checkbox_conf_xdg = read_text(config_files, "daemon_section_only.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -49,8 +46,7 @@ class DaemonNormalUserSetInConfig(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         RunCmd("sudo useradd config_user"),
@@ -63,8 +59,7 @@ class DaemonNormalUserSetInConfig(Scenario):
 class DaemonNormalUserOverwittenByLauncher(Scenario):
     modes = ["remote"]
     checkbox_conf_xdg = read_text(config_files, "daemon_section_only.conf")
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -75,8 +70,7 @@ class DaemonNormalUserOverwittenByLauncher(Scenario):
         forced = yes
         [daemon]
         normal_user = launcher_user
-        """
-    )
+        """)
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         RunCmd("sudo useradd launcher_user"),
@@ -88,8 +82,7 @@ class DaemonNormalUserOverwittenByLauncher(Scenario):
 @tag("daemon", "normal_user")
 class DaemonNormalUserGuessed(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -98,8 +91,7 @@ class DaemonNormalUserGuessed(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted("user:ubuntu"),
@@ -109,8 +101,7 @@ class DaemonNormalUserGuessed(Scenario):
 @tag("daemon", "normal_user")
 class DaemonNormalUserDoesntExist(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -121,8 +112,7 @@ class DaemonNormalUserDoesntExist(Scenario):
         forced = yes
         [daemon]
         normal_user = testuser
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted("User 'testuser' doesn't exist!"),
@@ -132,8 +122,7 @@ class DaemonNormalUserDoesntExist(Scenario):
 @tag("daemon", "agent", "normal_user")
 class NewNameForDaemonWorks(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -144,8 +133,7 @@ class NewNameForDaemonWorks(Scenario):
         forced = yes
         [agent]
         normal_user = testuser
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted("User 'testuser' doesn't exist!"),
@@ -155,8 +143,7 @@ class NewNameForDaemonWorks(Scenario):
 @tag("daemon", "agent", "normal_user")
 class DeprecatedDaemon(Scenario):
     modes = ["remote"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -167,8 +154,7 @@ class DeprecatedDaemon(Scenario):
         forced = yes
         [daemon]
         normal_user = testuser
-        """
-    )
+        """)
     steps = [
         Start(),
         AssertPrinted(

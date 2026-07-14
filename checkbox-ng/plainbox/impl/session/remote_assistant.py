@@ -42,6 +42,7 @@ from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result_utils import determine_outcome_and_skip_reason
 from plainbox.abc import IJobResult
 
 from checkbox_ng.config import load_configs
@@ -304,6 +305,9 @@ class RemoteSessionAssistant:
             "DISPLAY": self._set_envvar_from_proc("DISPLAY"),
             "WAYLAND_DISPLAY": self._set_envvar_from_proc("WAYLAND_DISPLAY"),
             "XAUTHORITY": self._set_envvar_from_proc("XAUTHORITY"),
+            "XDG_CURRENT_DESKTOP": self._set_envvar_from_proc(
+                "XDG_CURRENT_DESKTOP"
+            ),
             "XDG_SESSION_TYPE": self._set_envvar_from_proc("XDG_SESSION_TYPE"),
             "XDG_RUNTIME_DIR": "/run/user/{}".format(uid),
             "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/{}/bus".format(
@@ -320,9 +324,8 @@ class RemoteSessionAssistant:
         target_envvars = {
             "DISPLAY",
             "XAUTHORITY",
+            "XDG_CURRENT_DESKTOP",
             "XDG_SESSION_TYPE",
-            "XDG_RUNTIME_DIR",
-            "DBUS_SESSION_BUS_ADDRESS",
             "WAYLAND_DISPLAY",
         }
         extra_env = {}
@@ -359,15 +362,14 @@ class RemoteSessionAssistant:
             present_keys = i_env.keys() & missing_keys
             extra_env.update({k: i_env[k] for k in present_keys})
 
+        # inheriting these two basically never works because they are either
+        # the following or a transient value inherited from another snap, which
+        # will not work.
         uid = pwd.getpwnam(self._normal_user).pw_uid
-        # we may be starting before a user session, lets try to assign a
-        # default value to the runtime dir and dbus session
-        if "XDG_RUNTIME_DIR" not in extra_env:
-            extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
-        if "DBUS_SESSION_BUS_ADDRESS" not in extra_env:
-            extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
-                "unix:path=/run/user/{}/bus".format(uid)
-            )
+        extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
+        extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
+            "unix:path=/run/user/{}/bus".format(uid)
+        )
         return extra_env
 
     @allowed_when(RemoteSessionStates.Idle)
@@ -556,27 +558,17 @@ class RemoteSessionAssistant:
         job_state = self._sa.get_job_state(job_id)
 
         if not job_state.can_start():
-            outcome = IJobResult.OUTCOME_NOT_SUPPORTED
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if (
-                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE
-                    and "fail-on-resource" in job.get_flag_set()
-                ):
-                    outcome = IJobResult.OUTCOME_FAIL
-                    break
-                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
-                    continue
-                related_job_state = self._sa._context.state.job_state_map[
-                    inhibitor.related_job.id
-                ]
-                if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
-                    outcome = IJobResult.OUTCOME_SKIP
+            outcome, skip_reason = determine_outcome_and_skip_reason(
+                job_state, self._sa._context.state.job_state_map
+            )
 
             def cant_start_builder(*args, **kwargs):
                 result_builder = JobResultBuilder(
                     outcome=outcome,
                     comments=job_state.get_readiness_description(),
                 )
+                if skip_reason:
+                    result_builder.skip_reason = skip_reason
                 return result_builder
 
             self._be = BackgroundExecutor(self, job_id, cant_start_builder)
@@ -608,7 +600,7 @@ class RemoteSessionAssistant:
 
                 def skipped_builder(*args, **kwargs):
                     result_builder = JobResultBuilder(
-                        outcome=IJobResult.OUTCOME_SKIP
+                        outcome=IJobResult.OUTCOME_MANUAL_SKIP
                     )
                     if self._current_comments != "":
                         result_builder.comments = self._current_comments
@@ -698,7 +690,7 @@ class RemoteSessionAssistant:
         elif self.state == RemoteSessionStates.Interacting:
             payload = self._current_interaction
         elif self.state == RemoteSessionStates.Bootstrapped:
-            payload = self._sa.get_static_todo_list()
+            payload = json.dumps(self._sa.get_static_todo_list())
         elif self.state == RemoteSessionStates.SettingUp:
             # this is set by the resume_by_id function or None
             payload = {"last_job": self._last_job}
@@ -855,6 +847,10 @@ class RemoteSessionAssistant:
         self, last_job_id, result_interactively_decided={}
     ):
         if not last_job_id:
+            return
+        # If there are no more jobs to run, it means the last job already has
+        # a result, and does not need to be updated
+        if not self._sa._metadata.remaining_todo_jobs:
             return
         if result_interactively_decided:
             result_dict = result_interactively_decided

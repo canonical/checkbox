@@ -21,12 +21,12 @@
 :mod:`checkbox_ng.config` -- CheckBoxNG configuration
 =====================================================
 """
+
 import gettext
 import logging
 import os
 
 from plainbox.impl.config import Configuration
-
 
 _ = gettext.gettext
 

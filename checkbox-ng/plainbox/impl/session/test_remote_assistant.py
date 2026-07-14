@@ -251,12 +251,10 @@ class RemoteAssistantTests(TestCase):
             with mock.patch("os.path.exists", os_path_exists_mock):
                 with mock.patch(
                     "builtins.open",
-                    mock.mock_open(
-                        read_data="""{
+                    mock.mock_open(read_data="""{
                         "outcome" : "pass",
                         "comments" : "Outcome loaded from file"
-                        }"""
-                    ),
+                        }"""),
                 ):
                     os_path_exists_mock.return_value = True
                     RemoteSessionAssistant.resume_by_id(rsa)
@@ -295,12 +293,10 @@ class RemoteAssistantTests(TestCase):
             with mock.patch("os.path.exists", os_path_exists_mock):
                 with mock.patch(
                     "builtins.open",
-                    mock.mock_open(
-                        read_data="""{
+                    mock.mock_open(read_data="""{
                         "outcome" : "unknown_value_for_outcome",
                         "comments" : "Outcome loaded from file"
-                        }"""
-                    ),
+                        }"""),
                 ):
                     os_path_exists_mock.return_value = True
                     RemoteSessionAssistant.resume_by_id(rsa)

@@ -221,14 +221,12 @@ class DebianPackagingDriverTests(TestCase):
         self.assertFalse(self.debian_jessie_driver.is_applicable(unit))
 
     def test_read_os_version_from_text(self):
-        file_content = textwrap.dedent(
-            """\
+        file_content = textwrap.dedent("""\
         unit: packaging meta-data
         os-id: ubuntu
         os-version-id: >=20.04
         Depends: python3-opencv
-        """
-        )
+        """)
 
         record = load_rfc822_records(file_content)[0]
         unit = PackagingMetaDataUnit.from_rfc822_record(record)
@@ -238,14 +236,12 @@ class DebianPackagingDriverTests(TestCase):
         self.assertTrue(self.ubuntu_jammy_driver.is_applicable(unit))
 
     def test_read_os_version_comparison_from_text(self):
-        file_content = textwrap.dedent(
-            """\
+        file_content = textwrap.dedent("""\
         unit: packaging meta-data
         os-id: ubuntu
         os-version-id: 20.04
         Depends: python3-opencv
-        """
-        )
+        """)
 
         record = load_rfc822_records(file_content)[0]
         unit = PackagingMetaDataUnit.from_rfc822_record(record)

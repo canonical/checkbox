@@ -20,6 +20,7 @@
 :mod:`checkbox-ng.launcher.merge_submissions` -- merge-submissions sub-command
 ==============================================================================
 """
+
 import tarfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -66,8 +67,9 @@ class MergeSubmissions(MergeReports):
         self.category_dict = {}
         self.system_information = {}
         for submission in ctx.args.submission:
+            submission_json = self._get_submission_json(submission, tmpdir)
             session_title = self._parse_submission(
-                submission, tmpdir, mode="dict"
+                submission_json, mode="dict"
             )
         manager = SessionManager.create_with_unit_list(
             list(self.job_dict.values()) + list(self.category_dict.values())

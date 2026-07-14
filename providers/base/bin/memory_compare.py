@@ -23,8 +23,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
 import re
+import sys
 from subprocess import check_output, CalledProcessError, PIPE
 
 from checkbox_support.helpers.human_readable_bytes import HumanReadableBytes
@@ -33,7 +33,6 @@ from checkbox_support.parsers.meminfo import MeminfoParser
 
 
 class LshwJsonResult:
-
     memory_reported = 0
     banks_reported = 0
 
@@ -66,20 +65,67 @@ def get_installed_memory_size():
         return result.banks_reported
 
 
-class MeminfoResult:
-
-    memtotal = 0
-
-    def setMemory(self, memory):
-        self.memtotal = memory["total"]
-
-
 def get_visible_memory_size():
-    parser = MeminfoParser(open("/proc/meminfo"))
-    result = MeminfoResult()
-    parser.run(result)
+    parser = MeminfoParser()
+    meminfo = parser.run()
 
-    return result.memtotal
+    return meminfo["total"]
+
+
+def get_igpu_vram_size_from_kernel_log(kernel_log):
+
+    # Example:
+    #   amdgpu ... VRAM: 4096M ... (4096M used)
+    # Captured groups:
+    #   group 1: "4096" (size), group 2: "M" (unit)
+    VRAM_USED_RE = re.compile(r"VRAM.*\((\d+)\s*([KMGT])\s+used\)")
+
+    # Find all matches in the kernel log and get the last one.
+    vram_size = 0
+    for match in VRAM_USED_RE.finditer(kernel_log):
+        vram_size = HumanReadableBytes(
+            "{}{}iB".format(match.group(1), match.group(2))
+        )
+
+    print("Detected VRAM size in kernel log: {}\n".format(vram_size))
+    return vram_size
+
+
+def get_igpu_vram_size():
+    # Get the kernel log output for the current boot and search for VRAM usage.
+    journal_cmd = "journalctl -k -b --no-pager".split()
+
+    try:
+        journal = check_output(journal_cmd, universal_newlines=True)
+
+    except (CalledProcessError, FileNotFoundError, PermissionError) as e:
+        print("Failed to get kernel log output: {}".format(e), file=sys.stderr)
+        return 0
+
+    # Get the context of the VRAM log lines to help with debugging.
+    try:
+        grep_cmd = "grep -C10 VRAM".split()
+        vram_output = check_output(
+            grep_cmd, input=journal, universal_newlines=True
+        )
+    except CalledProcessError:
+        print("No VRAM log output found in kernel log")
+        return 0
+
+    print("Kernel VRAM log output:\n{}".format(vram_output))
+    return get_igpu_vram_size_from_kernel_log(vram_output)
+
+
+def get_adjusted_memory_difference(
+    installed_memory, visible_memory, igpu_vram
+):
+    # Calculate the difference between installed and visible memory, and
+    # subtract the iGPU VRAM. Since the previous version did not accounted
+    # for negative differences, we will trim the result to 0 if its negative.
+    difference = installed_memory - visible_memory
+    if difference <= 0:
+        return 0
+    return difference - min(igpu_vram, difference)
 
 
 def get_threshold(installed_memory):
@@ -96,16 +142,17 @@ def get_threshold(installed_memory):
         return 10
 
 
-def main():
-    if os.geteuid() != 0:
-        print("This script must be run as root.", file=sys.stderr)
-        return 1
-
-    installed_memory = HumanReadableBytes(get_installed_memory_size())
-    visible_memory = HumanReadableBytes(get_visible_memory_size())
+def compare_memory(installed_memory, visible_memory, igpu_vram):
+    installed_memory = HumanReadableBytes(installed_memory)
+    visible_memory = HumanReadableBytes(visible_memory)
+    igpu_vram = HumanReadableBytes(igpu_vram)
     threshold = get_threshold(installed_memory)
 
-    difference = HumanReadableBytes(installed_memory - visible_memory)
+    difference = HumanReadableBytes(
+        get_adjusted_memory_difference(
+            installed_memory, visible_memory, igpu_vram
+        )
+    )
     try:
         percentage = difference / installed_memory * 100
     except ZeroDivisionError:
@@ -116,8 +163,7 @@ def main():
         )
         print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
         print(
-            "\nFAIL: Either lshw or /proc/meminfo returned a memory size "
-            "of 0 kB",
+            "\nFAIL: Either lshw or /proc/meminfo returned a size of 0 kB",
             file=sys.stderr,
         )
         return 1
@@ -126,6 +172,8 @@ def main():
         print("Results:")
         print("\t/proc/meminfo reports:\t{}".format(visible_memory))
         print("\tlshw reports:\t{}".format(installed_memory))
+        if igpu_vram:
+            print("\tiGPU VRAM compensation:\t{}".format(igpu_vram))
         print(
             "\nPASS: Meminfo reports %s less than lshw, a "
             "difference of %.2f%%. This is less than the "
@@ -139,14 +187,29 @@ def main():
             file=sys.stderr,
         )
         print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
+        if igpu_vram:
+            print(
+                "\tiGPU VRAM compensation:\t{}".format(igpu_vram),
+                file=sys.stderr,
+            )
         print(
             "\nFAIL: Meminfo reports %d less than lshw, "
-            "a difference of %.2f%%. Only a variance of %d%% in "
-            "reported memory is allowed."
-            % (difference, percentage, threshold),
+            "a difference of %.2f%%. Only a variance of %d%% in reported "
+            "memory is allowed." % (difference, percentage, threshold),
             file=sys.stderr,
         )
         return 1
+
+
+def main():
+    if os.geteuid() != 0:
+        print("This script must be run as root.", file=sys.stderr)
+        return 1
+    installed_memory = get_installed_memory_size()
+    visible_memory = get_visible_memory_size()
+    igpu_vram = get_igpu_vram_size()
+
+    return compare_memory(installed_memory, visible_memory, igpu_vram)
 
 
 if __name__ == "__main__":

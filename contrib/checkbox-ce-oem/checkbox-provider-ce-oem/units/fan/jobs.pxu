@@ -1,0 +1,42 @@
+id: ce-oem-fan/pwm-controller-list
+_summary:
+    Generates a pwm fan controller resource based on user supplied configuration
+_description:
+    A pwm fan controller resource that relies on the user
+    specifying the number of fan controller.
+    This is to allow template jobs to then be instantiated.
+    FAN_CONTROLLERS=controller_name1|controller_name2
+    FAN_CONTROLLERS=pwmfan1|pwmfan2
+plugin: resource
+estimated_duration: 1.0
+environ:
+    PWM_FAN_CONTROLLERS
+command:
+    if [ -z "$PWM_FAN_CONTROLLERS" ]; then
+        exit 0
+    fi
+    awk '{split($0, arr, "|"); for (i in arr) {printf "name: %s\n\n", arr[i]}}' <<< "$PWM_FAN_CONTROLLERS"
+
+
+unit: template
+template-resource: ce-oem-fan/pwm-controller-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-fan/pwm-fan-controller-test
+id: ce-oem-fan/pwm-fan-controller-test-{{ name }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_pwm_fan_controller == 'True'
+_template-summary: To check if the user could adjust pwm fan speed
+_summary: To check if user could control the fan speed with {{ name }} pwm fan controller
+_purpose:
+    To check that controlling fan speed with {{ name }} pwm fan controller works as expected
+_description:
+    The scripts will turn on fan to maximum speed and turn of fan
+plugin: shell
+user: root
+category_id: com.canonical.certification::serial
+estimated_duration: 30
+flags: also-after-suspend
+command:
+    pwm_fan_test.py {{ name }}

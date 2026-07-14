@@ -21,3 +21,8 @@ id: has_dvi
 _name: DVI
 _prompt: Does this machine have the following graphics ports?
 value-type: bool
+
+unit: manifest entry
+id: has_webgl_support
+_name: Support WebGL testing
+value-type: bool

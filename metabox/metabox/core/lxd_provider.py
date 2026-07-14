@@ -24,16 +24,18 @@ lxd_provider
 This module implements the LXD Machine and LXD Machine Provider.
 LXD machines are containers that can run metabox scenarios in them.
 """
+
 import json
 import os
-import sys
 import time
 import yaml
-import subprocess
 from pathlib import Path
 from contextlib import contextmanager, suppress
 
-import pkg_resources
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files
 import pylxd
 from loguru import logger
 from pylxd.exceptions import ClientConnectionFailed, LXDAPIException, NotFound
@@ -58,14 +60,14 @@ class LxdMachineProvider:
         effective_machine_config,
         debug_machine_setup=False,
         dispose=False,
-        use_existing=False,
+        reprovision_existing=False,
     ):
         self._session_config = session_config
         self._machine_config = effective_machine_config
         self._debug_machine_setup = debug_machine_setup
         self._owned_containers = []
         self._dispose = dispose
-        self._use_existing = use_existing
+        self._reprovision_existing = reprovision_existing
 
         # TODO: maybe add handlers for more complicated client connections
         #       like a remote LXD host and/or authenticated access
@@ -82,8 +84,8 @@ class LxdMachineProvider:
         self._get_existing_machines()
         for config in self._machine_config:
             if config in [oc.config for oc in self._owned_containers]:
-                if self._use_existing:
-                    # if use_existing, try to piggy back on the already
+                if self._reprovision_existing:
+                    # if reprovision_existing, try to piggy back on the already
                     # existing container(if any), deploy and install the new code.
                     # this will probably take way less than reprovisioning a
                     # full machine, but may not work!
@@ -96,7 +98,7 @@ class LxdMachineProvider:
                         if oc.config != config
                     ]
                     self._create_machine(
-                        config, use_existing=self._use_existing
+                        config, reprovision_existing=self._reprovision_existing
                     )
                 continue
             self._create_machine(config)
@@ -138,12 +140,10 @@ class LxdMachineProvider:
                 )
 
     def _create_profiles(self):
-        profiles_path = pkg_resources.resource_filename(
-            "metabox", "lxd_profiles"
-        )
-        for profile_file in os.listdir(profiles_path):
-            profile_name = Path(profile_file).stem
-            with open(os.path.join(profiles_path, profile_file)) as f:
+        profiles_dir = files("metabox") / "lxd_profiles"
+        for profile_file in profiles_dir.iterdir():
+            profile_name = Path(profile_file.name).stem
+            with profile_file.open() as f:
                 profile_dict = yaml.load(f, Loader=yaml.FullLoader)
             if self.client.profiles.exists(profile_name):
                 profile = self.client.profiles.get(profile_name)
@@ -165,16 +165,16 @@ class LxdMachineProvider:
                     "{} LXD profile created successfully", profile_name
                 )
 
-    def _create_container(self, config, name, use_existing=False):
+    def _create_container(self, config, name, reprovision_existing=False):
         """
-        Create a container from the given config or when use_existing,
+        Create a container from the given config or, when reprovision_existing,
         try to get the old one by name and rollback it to provisioned
         """
-        if use_existing:
+        if reprovision_existing:
             container = None
             with suppress(NotFound):
                 container = self.client.containers.get(name)
-                logger.opt(colors=True).debug("[<y>re-using</y>    ] {}", name)
+                logger.opt(colors=True).info("[<y>re-using</y>    ] {}", name)
             if container:
                 if container.status != "Stopped":
                     container.stop(wait=True)
@@ -200,10 +200,10 @@ class LxdMachineProvider:
         container = self.client.containers.create(config, wait=True)
         return container
 
-    def _create_machine(self, config, use_existing=False):
-        if use_existing and not config.origin == "source":
+    def _create_machine(self, config, reprovision_existing=False):
+        if reprovision_existing and not config.origin == "source":
             raise ValueError(
-                "Use existing can not be enabled in non source runs"
+                "Reprovision existing can not be enabled in non source runs"
             )
         name = "metabox-{}".format(config)
         base_profiles = ["default", "checkbox"]
@@ -227,7 +227,7 @@ class LxdMachineProvider:
 
         try:
             container = self._create_container(
-                lxd_config, name, use_existing=use_existing
+                lxd_config, name, reprovision_existing=reprovision_existing
             )
             machine = machine_selector(config, container)
             container.start(wait=True)
@@ -235,7 +235,7 @@ class LxdMachineProvider:
             max_attempt = self.LXD_CREATE_TIMEOUT / self.LXD_POLL_INTERVAL
             while attempt < max_attempt:
                 time.sleep(self.LXD_POLL_INTERVAL)
-                (ret, out, err) = container.execute(
+                ret, out, err = container.execute(
                     ["cloud-init", "status", "--long"]
                 )
                 if "status: done" in out:
@@ -257,7 +257,7 @@ class LxdMachineProvider:
             self._store_config(machine)
             logger.debug("Stopping container {}...", container.name)
             container.stop(wait=True)
-            if use_existing:
+            if reprovision_existing:
                 with suppress(NotFound):
                     container.snapshots.get("provisioned").delete(wait=True)
                     logger.debug("Deleted old 'provisioned'")

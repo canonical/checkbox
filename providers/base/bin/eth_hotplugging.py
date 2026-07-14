@@ -111,7 +111,7 @@ def _check_routable_state(interface, renderer):
 @retry(max_attempts=10, delay=5)
 def wait_for_routable_state(interface, renderer, do_routable=True):
     routable_msg = "routable" if do_routable else "NOT routable"
-    (routable, _) = _check_routable_state(interface, renderer)
+    routable, _ = _check_routable_state(interface, renderer)
     if routable == do_routable:
         print("Reached {} state".format(routable_msg))
         return

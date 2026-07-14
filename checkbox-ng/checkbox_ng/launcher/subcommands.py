@@ -18,12 +18,12 @@
 """
 Definition of sub-command classes for checkbox-cli
 """
-from argparse import ArgumentTypeError
-from argparse import RawDescriptionHelpFormatter
-from argparse import SUPPRESS
+
+from argparse import ArgumentTypeError, RawDescriptionHelpFormatter, SUPPRESS
 from collections import defaultdict
 from string import Formatter
 from tempfile import TemporaryDirectory
+from functools import lru_cache
 import fnmatch
 import itertools
 import contextlib
@@ -81,6 +81,7 @@ from checkbox_ng.utils import (
     generate_resume_candidate_description,
     request_comment,
 )
+from checkbox_ng.user_utils import guess_normal_user
 
 _ = gettext.gettext
 
@@ -446,6 +447,7 @@ class Launcher(MainLoopStage, ReportsStage):
             (
                 candidate.id,
                 generate_resume_candidate_description(candidate),
+                candidate.metadata.remaining_todo_jobs,
             )
             for candidate in resume_candidates
         ]
@@ -503,12 +505,15 @@ class Launcher(MainLoopStage, ReportsStage):
                 return False
 
     def _resume_session_via_resume_params(self, resume_params):
-        outcome = {
-            "pass": IJobResult.OUTCOME_PASS,
-            "fail": IJobResult.OUTCOME_FAIL,
-            "skip": IJobResult.OUTCOME_SKIP,
-            "rerun": IJobResult.OUTCOME_UNDECIDED,
-        }[resume_params.action]
+        if resume_params.action:
+            outcome = {
+                "pass": IJobResult.OUTCOME_PASS,
+                "fail": IJobResult.OUTCOME_FAIL,
+                "skip": IJobResult.OUTCOME_MANUAL_SKIP,
+                "rerun": IJobResult.OUTCOME_UNDECIDED,
+            }[resume_params.action]
+        else:
+            outcome = None
         return self._resume_session(
             resume_params.session_id, outcome, resume_params.comments
         )
@@ -573,50 +578,56 @@ class Launcher(MainLoopStage, ReportsStage):
             if outcome is None:
                 outcome = self._get_autoresume_outcome_last_job(metadata)
 
-        last_job = metadata.running_job_name
-        is_cert_blocker = (
-            self.sa.get_job_state(last_job).effective_certification_status
-            == "blocker"
-        )
-        # If we resumed maybe not rerun the same, probably broken job
-        result_dict = {"comments": comments, "outcome": outcome}
-        if outcome == IJobResult.OUTCOME_PASS:
-            result_dict["comments"] = newline_join(
-                result_dict["comments"], "Passed after resuming execution"
+        # If there are more jobs to run, resume the session and modify the
+        # last job result.
+        if metadata.remaining_todo_jobs:
+            last_job = metadata.running_job_name
+            is_cert_blocker = (
+                self.sa.get_job_state(last_job).effective_certification_status
+                == "blocker"
             )
+            # If we resumed maybe not rerun the same, probably broken job
+            result_dict = {"comments": comments, "outcome": outcome}
+            if outcome == IJobResult.OUTCOME_PASS:
+                result_dict["comments"] = newline_join(
+                    result_dict["comments"], "Passed after resuming execution"
+                )
 
-        elif outcome == IJobResult.OUTCOME_FAIL:
-            if is_cert_blocker and not comments:
-                result_dict["comments"] = request_comment("why it failed")
+            elif outcome == IJobResult.OUTCOME_FAIL:
+                if is_cert_blocker and not comments:
+                    result_dict["comments"] = request_comment("why it failed")
+                else:
+                    result_dict["comments"] = newline_join(
+                        result_dict["comments"],
+                        "Failed after resuming execution",
+                    )
+            elif outcome == IJobResult.OUTCOME_MANUAL_SKIP:
+                if is_cert_blocker and not comments:
+                    result_dict["comments"] = request_comment(
+                        "why you want to skip it"
+                    )
+                else:
+                    result_dict["comments"] = newline_join(
+                        result_dict["comments"],
+                        "Skipped after resuming execution",
+                    )
+            elif outcome == IJobResult.OUTCOME_CRASH:
+                if is_cert_blocker and not comments:
+                    result_dict["comments"] = request_comment("why it failed")
+                else:
+                    result_dict["comments"] = newline_join(
+                        result_dict["comments"],
+                        "Crashed after resuming execution",
+                    )
+            elif outcome == IJobResult.OUTCOME_UNDECIDED:
+                # if we don't call use_job_result it means we'll rerun the job
+                return
             else:
-                result_dict["comments"] = newline_join(
-                    result_dict["comments"], "Failed after resuming execution"
+                raise ValueError(
+                    "Unsupported outcome for resume {}".format(outcome)
                 )
-        elif outcome == IJobResult.OUTCOME_SKIP:
-            if is_cert_blocker and not comments:
-                result_dict["comments"] = request_comment(
-                    "why you want to skip it"
-                )
-            else:
-                result_dict["comments"] = newline_join(
-                    result_dict["comments"], "Skipped after resuming execution"
-                )
-        elif outcome == IJobResult.OUTCOME_CRASH:
-            if is_cert_blocker and not comments:
-                result_dict["comments"] = request_comment("why it failed")
-            else:
-                result_dict["comments"] = newline_join(
-                    result_dict["comments"], "Crashed after resuming execution"
-                )
-        elif outcome == IJobResult.OUTCOME_UNDECIDED:
-            # if we don't call use_job_result it means we'll rerun the job
-            return
-        else:
-            raise ValueError(
-                "Unsupported outcome for resume {}".format(outcome)
-            )
-        result = MemoryJobResult(result_dict)
-        self.sa.use_job_result(last_job, result)
+            result = MemoryJobResult(result_dict)
+            self.sa.use_job_result(last_job, result)
         if self.sa.setting_up():
             self.setup()
             self.bootstrap()
@@ -630,9 +641,21 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def setup(self):
         setup_jobs = self.sa.start_setup()
+        self._save_manifest(
+            interactive=not self.configuration.get_value(
+                "test selection", "forced"
+            )
+        )
         failed_setups = self._run_setup_jobs(setup_jobs)
         self.sa.finish_setup()
         return failed_setups
+
+    @lru_cache(maxsize=1)
+    def get_normal_user(self):
+        return (
+            self.configuration.get_value("agent", "normal_user")
+            or guess_normal_user()
+        )
 
     def _start_new_session(self):
         print(_("Preparing..."))
@@ -644,9 +667,7 @@ class Launcher(MainLoopStage, ReportsStage):
         if app_version:
             title += " {}".format(app_version)
         runner_kwargs = {
-            "normal_user_provider": lambda: self.configuration.get_value(
-                "agent", "normal_user"
-            ),
+            "normal_user_provider": self.get_normal_user,
             "password_provider": sudo_password_provider.get_sudo_password,
             "stdin": None,
         }
@@ -854,7 +875,7 @@ class Launcher(MainLoopStage, ReportsStage):
                         result_dict["comments"] = _(
                             "Skipped after resuming execution"
                         )
-                    result_dict["outcome"] = IJobResult.OUTCOME_SKIP
+                    result_dict["outcome"] = IJobResult.OUTCOME_MANUAL_SKIP
                     result = MemoryJobResult(result_dict)
                     break
             elif cmd == "pass":
@@ -1487,6 +1508,12 @@ class Expand:
                         "Unknown unit type {}".format(obj["unit"])
                     )
 
+    # TODO: This function is a duplicate of
+    # plainbox.impl.session.state.SessionDeviceContext._override_update()
+    # which itself uses JobState.apply_overrides(). The reason is in expand,
+    # we cannot use anything from the job or the session state. This should
+    # probably be refactored, given that the overrides are available at test
+    # plan level and should not be part of the job state to begin with...
     def get_effective_certification_status(self, unit):
         if unit.unit == "template":
             unit_id = unit.template_id
@@ -1494,9 +1521,14 @@ class Expand:
             unit_id = unit.id
         for regex, override_field_list in self.override_list:
             if re.match(regex, unit_id):
-                for field, value in override_field_list:
-                    if field == "certification_status":
-                        return value
+                with contextlib.suppress(IndexError):
+                    cert_overrides = [
+                        value
+                        for (field, value) in override_field_list
+                        if field == "certification_status"
+                    ]
+                    # highest priority is last, list is in "inverse dept" order
+                    return cert_overrides[-1]
         if hasattr(unit, "certification_status"):
             return unit.certification_status
         return "non-blocker"
@@ -1506,6 +1538,10 @@ class ListBootstrapped:
     @property
     def sa(self):
         return self.ctx.sa
+
+    @lru_cache(maxsize=1)
+    def get_normal_user(self):
+        return self.ctx.args.normal_user or guess_normal_user()
 
     def register_arguments(self, parser):
         parser.add_argument(
@@ -1522,14 +1558,26 @@ class ListBootstrapped:
             help=_(
                 (
                     "output format, as passed to print function. "
-                    "Use '?' to list possible values"
+                    "Use '?' to list possible values. "
+                    "Use 'json' to print all objects as a json"
                 )
             ),
+        )
+        parser.add_argument(
+            "--normal-user",
+            help="Normal non-root user to use during bootstrap",
         )
 
     def invoked(self, ctx):
         self.ctx = ctx
-        self.sa.start_new_session("checkbox-listing-ephemeral")
+        runner_kwargs = {
+            "normal_user_provider": self.get_normal_user,
+            "password_provider": sudo_password_provider.get_sudo_password,
+            "stdin": None,
+        }
+        self.sa.start_new_session(
+            "checkbox-listing-ephemeral", UnifiedRunner, runner_kwargs
+        )
 
         tps = self.sa.get_test_plans()
         testplan_id = get_testplan_id_by_id(
@@ -1539,15 +1587,23 @@ class ListBootstrapped:
             raise SystemExit("Test plan not found")
         self.sa.select_test_plan(testplan_id)
         self.sa.bootstrap()
+
         jobs = []
         for job in self.sa.get_static_todo_list():
             job_unit = self.sa.get_job(job)
-            attrs = job_unit._raw_data.copy()
+
+            # use get_record_value to apply template expansions else all values
+            # beside id and partial_id would be un-templated in the output
+            attrs = {
+                field: job_unit.get_record_value(field)
+                for field in job_unit._raw_data
+            }
             attrs["full_id"] = job_unit.id
             attrs["id"] = job_unit.partial_id
             attrs["certification_status"] = self.ctx.sa.get_job_state(
                 job
             ).effective_certification_status
+
             jobs.append(attrs)
         if ctx.args.format == "?":
             all_keys = set()
@@ -1556,7 +1612,9 @@ class ListBootstrapped:
             print(_("Available fields are:"))
             print(", ".join(sorted(list(all_keys))))
             return
-        if ctx.args.format:
+        if ctx.args.format == "json":
+            json.dump(jobs, sys.stdout)
+        elif ctx.args.format:
             for job in jobs:
                 unescaped = ctx.args.format.replace("\\n", "\n").replace(
                     "\\t", "\t"

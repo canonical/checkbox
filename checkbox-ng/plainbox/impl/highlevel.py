@@ -28,7 +28,6 @@ import logging
 
 from plainbox.impl.session.storage import WellKnownDirsHelper
 
-
 logger = logging.getLogger("plainbox.highlevel")
 
 

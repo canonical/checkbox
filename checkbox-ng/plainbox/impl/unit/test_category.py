@@ -116,17 +116,6 @@ class CategoryUnitFieldValidationTests(UnitWithIdFieldValidationTests):
 
     unit_cls = CategoryUnit
 
-    def test_name__translatable(self):
-        issue_list = self.unit_cls(
-            {"name": "name"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.name,
-            Problem.expected_i18n,
-            Severity.warning,
-        )
-
     def test_name__template_variant(self):
         issue_list = self.unit_cls(
             {"name": "name"}, provider=self.provider, parameters={}

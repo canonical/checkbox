@@ -39,7 +39,6 @@ from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
 from plainbox.impl.secure.providers.v1 import get_secure_PROVIDERPATH_list
 
-
 logger = logging.getLogger("plainbox.providers.v1")
 
 

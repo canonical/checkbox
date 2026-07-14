@@ -183,3 +183,14 @@ class MainTests(unittest.TestCase):
         # (so nothing to release here)
         with self.assertRaises(SystemExit):
             get_version.main([])
+
+    @patch("get_version.check_output")
+    @patch("get_version.print")
+    def test_get_version_dont_crash_nospace(
+        self, print_mock, check_output_mock
+    ):
+        check_output_mock.side_effect = [
+            "v1.2.3",
+            "a (new) #1\nb",
+        ]
+        get_version.main([])

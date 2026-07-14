@@ -31,26 +31,20 @@ class TestCyclictest(unittest.TestCase):
         self.assertEqual(latency, 100)
 
     def test_verify_cyclictest_results_pass(self):
-        mock_result = MagicMock(
-            stdout="# Max Latencies: 00010 00020\n\
-                                # Histogram Overflows: 00000 00000\n"
-        )
+        mock_result = MagicMock(stdout="# Max Latencies: 00010 00020\n\
+                                # Histogram Overflows: 00000 00000\n")
         return_code = verify_cyclictest_results(mock_result)
         self.assertEqual(return_code, 0)
 
     def test_verify_cyclictest_results_fail_latency(self):
-        mock_result = MagicMock(
-            stdout="# Max Latencies: 00200 00200\n\
-                                # Histogram Overflows: 00000 00000\n"
-        )
+        mock_result = MagicMock(stdout="# Max Latencies: 00200 00200\n\
+                                # Histogram Overflows: 00000 00000\n")
         return_code = verify_cyclictest_results(mock_result)
         self.assertEqual(return_code, 1)
 
     def test_verify_cyclictest_results_fail_overflow(self):
-        mock_result = MagicMock(
-            stdout="# Max Latencies: 00010 00020\n\
-                                # Histogram Overflows: 00001 00000\n"
-        )
+        mock_result = MagicMock(stdout="# Max Latencies: 00010 00020\n\
+                                # Histogram Overflows: 00001 00000\n")
         return_code = verify_cyclictest_results(mock_result)
         self.assertEqual(return_code, 1)
 

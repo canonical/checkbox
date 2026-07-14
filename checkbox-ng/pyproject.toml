@@ -12,6 +12,7 @@
   dependencies = [
     'packaging',
     'psutil',
+    'pyparsing>=2.2.0',
     'requests >= 1.0',
     'urwid >= 1.1.1',
     'Jinja2 >= 2.7',
@@ -90,6 +91,9 @@ noble_prod = [
   'xlsxwriter==3.1.9',
   'pyyaml==6.0.1',
 ]
+translator = [
+  'ruamel.yaml'
+]
 [tool.black]
   line-length = 79
   # Exclude vendorized code (e.g. the stuff in plainbox/vendor/)
@@ -101,6 +105,7 @@ noble_prod = [
 [project.scripts]
   checkbox-cli = "checkbox_ng.launcher.checkbox_cli:main"
   checkbox-provider-tools = "checkbox_ng.launcher.provider_tools:main"
+  device-info = "checkbox_ng.support.device_info:main"
 [project.entry-points."plainbox.exporter"]
   text = "plainbox.impl.exporter.text:TextSessionStateExporter"
   tar = "plainbox.impl.exporter.tar:TARSessionStateExporter"

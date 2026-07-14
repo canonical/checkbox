@@ -393,15 +393,13 @@ class ConstraintExplanation:
 
     def __str__(self):
         return (
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 Expression: {}
                     Pre filter:
                       {namespace_name} = {}
                     Post filter:
                       {namespace_name} = {}
-                """
-            )
+                """)
             .strip()
             .format(
                 self.expression,

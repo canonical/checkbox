@@ -1,0 +1,119 @@
+unit: category
+id: jetson-video-codec
+_name: Jetson video codec tests
+
+unit: category
+id: jetson-core-video-codec
+_name: Jetson core video codec tests
+
+id: jetson-video-codec/transcoding-thor
+_summary: Transcode video stream using GPU HW acceleration on Thor
+plugin: shell
+category_id: jetson-video-codec
+flags: also-after-suspend
+imports:
+ from com.canonical.certification import package
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'gstreamer1.0-tools'
+ package.name == 'unzip'
+ package.name == 'ffmpeg'
+ jetson_tegra_details.model == 'NVIDIA Jetson AGX Thor Developer Kit' or jetson_tegra_details.model == 'NVIDIA Jetson Thor Developer Kit'
+ manifest.is_Jetson == 'True'
+command:
+  set -ex
+  export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:$LD_LIBRARY_PATH
+  cd "${HOME}"
+  wget -nv https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip
+  unzip -qu bbb_sunflower_1080p_30fps_normal.mp4.zip
+  echo "H.264 Decode (NVIDIA Accelerated Decode) to H265 encode"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=bbb_sunflower_1080p_30fps_normal.mp4 ! qtdemux ! queue ! \
+    h264parse ! nvv4l2decoder ! nvv4l2h265enc bitrate=8000000 ! h265parse ! \
+    qtmux ! filesink location=jetson-transcoding-h265-reenc.mp4 -e
+  echo "H.265 Decode (NVIDIA Accelerated Decode) to H264 Encode (NVIDIA Accelerated Encode)"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=jetson-transcoding-h265-reenc.mp4 ! qtdemux ! queue ! h265parse ! nvv4l2decoder ! \
+    nvv4l2h264enc bitrate=20000000 ! h264parse ! queue ! qtmux name=mux ! filesink \
+    location=jetson-transcoding-h264-reenc.mp4 -e
+  echo "H.264 Decode (NVIDIA Accelerated Decode) to H.265 Encode (NVIDIA Accelerated Encode)"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=jetson-transcoding-h264-reenc.mp4 ! qtdemux ! \
+    h264parse ! nvv4l2decoder ! nvv4l2h265enc bitrate=8000000 ! h265parse ! \
+    qtmux ! filesink location=jetson-transcoding-h265-reenc-2x.mp4  -e
+  ffmpeg -v error -i jetson-transcoding-h265-reenc-2x.mp4 -f null -
+
+id: jetson-video-codec/transcoding
+_summary: Transcode video stream using GPU HW acceleration
+plugin: shell
+category_id: jetson-video-codec
+flags: also-after-suspend
+imports:
+ from com.canonical.certification import package
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'gstreamer1.0-tools'
+ package.name == 'unzip'
+ package.name == 'ffmpeg'
+ jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super' and jetson_tegra_details.model != 'NVIDIA Jetson AGX Thor Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Thor Developer Kit'
+ manifest.is_Jetson == 'True'
+command:
+  set -ex
+  export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:$LD_LIBRARY_PATH
+  cd "${HOME}"
+  wget -nv https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip
+  unzip -qu bbb_sunflower_1080p_30fps_normal.mp4.zip
+  echo "H.264 Decode (NVIDIA Accelerated Decode) to H265 encode"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=bbb_sunflower_1080p_30fps_normal.mp4 ! qtdemux ! queue ! \
+    h264parse ! nvv4l2decoder ! nvv4l2h265enc bitrate=8000000 ! h265parse ! \
+    qtmux ! filesink location=jetson-transcoding-h265-reenc.mp4 -e
+  echo "H.265 Decode (NVIDIA Accelerated Decode) to AV1 Encode (NVIDIA Accelerated Encode)"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=jetson-transcoding-h265-reenc.mp4 ! qtdemux ! queue ! h265parse ! nvv4l2decoder ! \
+    nvv4l2av1enc ! matroskamux name=mux ! filesink location=jetson-transcoding-av1-reenc.mkv -e
+  echo "AV1 Decode (NVIDIA Accelerated Decode) to H.264 encode"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=jetson-transcoding-av1-reenc.mkv ! matroskademux ! queue ! av1parse ! \
+    nvv4l2decoder ! nvv4l2h264enc bitrate=20000000 ! h264parse ! queue ! qtmux name=mux ! filesink \
+    location=jetson-transcoding-h264-reenc.mp4 -e
+  echo "H.264 Decode (NVIDIA Accelerated Decode) to AV1"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=jetson-transcoding-h264-reenc.mp4 ! qtdemux ! \
+    h264parse ! nvv4l2decoder ! nvv4l2av1enc ! matroskamux name=mux ! \
+    filesink location=jetson-transcoding-av1-reenc-2x.mkv -e
+  ffmpeg -v error -i jetson-transcoding-av1-reenc-2x.mkv -f null -
+
+id: jetson-core-video-codec/transcoding
+_summary: Transcode video stream using GPU HW acceleration
+plugin: shell
+category_id: jetson-core-video-codec
+flags: also-after-suspend
+user: root
+imports:
+ from com.canonical.contrib import jetson_tegra_details
+ from com.canonical.plainbox import manifest
+requires:
+ jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
+ manifest.is_Jetson == 'True'
+command:
+  set -ex
+  export GST_PLUGIN_PATH="$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  export GST_PLUGIN_SYSTEM_PATH="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0
+  export GST_PLUGIN_SCANNER="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
+  cd "${HOME}"
+  wget -nv https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4.zip
+  unzip -qu bbb_sunflower_1080p_30fps_normal.mp4.zip
+  echo "H.264 Decode (NVIDIA Accelerated Decode) to H265 encode"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=bbb_sunflower_1080p_30fps_normal.mp4 ! qtdemux ! queue ! \
+    h264parse ! nvv4l2decoder ! nvv4l2h265enc bitrate=8000000 ! h265parse ! \
+    qtmux ! filesink location=jetson-transcoding-h265-reenc.mp4 -e
+  echo "H.265 Decode (NVIDIA Accelerated Decode) to AV1 Encode (NVIDIA Accelerated Encode)"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=jetson-transcoding-h265-reenc.mp4 ! qtdemux ! queue ! h265parse ! nvv4l2decoder ! \
+    nvv4l2av1enc ! matroskamux name=mux ! filesink location=jetson-transcoding-av1-reenc.mkv -e
+  echo "AV1 Decode (NVIDIA Accelerated Decode) to H.264 encode"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=jetson-transcoding-av1-reenc.mkv ! matroskademux ! queue ! av1parse ! \
+    nvv4l2decoder ! nvv4l2h264enc bitrate=20000000 ! h264parse ! queue ! qtmux name=mux ! filesink \
+    location=jetson-transcoding-h264-reenc.mp4 -e
+  echo "H.264 Decode (NVIDIA Accelerated Decode) to AV1"
+  jetson_timeout_wrapper.sh 2m gst-launch-1.0 filesrc location=jetson-transcoding-h264-reenc.mp4 ! qtdemux ! \
+    h264parse ! nvv4l2decoder ! nvv4l2av1enc ! matroskamux name=mux ! \
+    filesink location=jetson-transcoding-av1-reenc-2x.mkv -e
+  ffmpeg -v error -i jetson-transcoding-av1-reenc-2x.mkv -f null -

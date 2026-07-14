@@ -21,6 +21,7 @@ plainbox.impl.test_decorators
 
 Test definitions for plainbox.impl.decorators module
 """
+
 import sys
 import unittest
 

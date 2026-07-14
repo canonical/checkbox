@@ -4,7 +4,6 @@ import yaml
 import subprocess
 import sys
 
-
 # From TCG Algorithm Registry: Definition of TPM2_ALG_ID Constants
 # https://trustedcomputinggroup.org/wp-content/uploads/TCG-_Algorithm_Registry_r1p32_pub.pdf
 # https://github.com/tpm2-software/tpm2-tools/blob/master/lib/tpm2_alg_util.c

@@ -42,7 +42,7 @@ for interface, driver in driver_list:
             if path.is_file():
                 # Path.read_text is new in python 3.5 but we want to support
                 # trusty as well, which uses python 3.4 by default.
-                with open(str(path), "r") as f:
+                with open(str(path), "r", errors="backslashreplace") as f:
                     print("    {}: {}".format(path.name, f.read().strip()))
     print()
     print("Checking kernel ring buffer for {} messages:".format(driver))

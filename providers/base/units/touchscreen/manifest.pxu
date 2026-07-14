@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_touchscreen
 _name: Touchscreen
 value-type: bool
+
+unit: manifest entry
+id: has_touchscreen_multitouch
+_name: Touchscreen Multi-touch Support
+value-type: bool

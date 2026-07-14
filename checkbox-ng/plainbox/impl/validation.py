@@ -30,7 +30,6 @@ from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
 
-
 logger = logging.getLogger("plainbox.validation")
 
 

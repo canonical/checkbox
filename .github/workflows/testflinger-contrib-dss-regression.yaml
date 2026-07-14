@@ -49,7 +49,7 @@ jobs:
   regression-tests:
     needs: checkbox-dss-snap-build
     name: Tests
-    runs-on: [testflinger]
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     defaults:
       run:
         working-directory: contrib/checkbox-dss-validation
@@ -80,10 +80,10 @@ jobs:
               com.canonical.contrib::has_intel_gpus = false
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         name: Download artifact with the built snap
         with:
           name: checkbox-dss.snap
@@ -133,7 +133,7 @@ jobs:
 
           echo "local_path=$PWD/job.yaml" >> $GITHUB_OUTPUT
       - name: Submit testflinger job
-        uses: canonical/testflinger/.github/actions/submit@a5c430ce76f981b5f344c65d82201a27f1e8c18a
+        uses: canonical/testflinger/.github/actions/submit@a31f6a872972435eca93e058c5320aa88099382e
         with:
           poll: true
           job-path: ${{ steps.build-job-file.outputs.local_path }}

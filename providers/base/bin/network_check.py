@@ -3,6 +3,7 @@
 Check that it's possible to establish a http connection against
 ubuntu.com
 """
+
 from argparse import ArgumentParser
 import http.client
 import urllib.request

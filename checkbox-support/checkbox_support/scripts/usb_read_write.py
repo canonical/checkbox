@@ -31,7 +31,6 @@ import logging
 import errno
 import contextlib
 
-
 PLAINBOX_SESSION_SHARE = os.environ.get("PLAINBOX_SESSION_SHARE", "")
 FOLDER_TO_MOUNT = tempfile.mkdtemp()
 REPETITION_NUM = 5  # number to repeat the read/write test units.
@@ -380,10 +379,8 @@ def get_md5sum(file_to_check):
             logging.debug("MD5SUM of %s: %s" % (file_to_check, md5sum))
             return md5sum
         else:
-            logging.error(
-                "Could not found file to check its MD5SUM. \
-                           Check the folder permission?"
-            )
+            logging.error("Could not found file to check its MD5SUM. \
+                           Check the folder permission?")
             sys.exit(1)
     except OSError as e:
         if e.errno == errno.ENOENT:

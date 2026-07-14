@@ -7,11 +7,14 @@ These how-to guides cover key operations and processes in Checkbox.
    :maxdepth: 1
    :glob:
 
-   custom-app
    nested-test-plan
    side-loading
    agent-service
    freeze-checkbox-version
    launcher/*
    using-match
+   using-setup-include
+   using-groups
    ancient-python
+   custom-frontend-envvars
+   migrate-away-jinja2

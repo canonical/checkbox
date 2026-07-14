@@ -3,6 +3,7 @@
 cpu_topology.py
 Written by Jeffrey Lane <jeffrey.lane@canonical.com>
 """
+
 import sys
 import os
 import re

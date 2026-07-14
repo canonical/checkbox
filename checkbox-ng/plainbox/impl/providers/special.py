@@ -33,7 +33,6 @@ from plainbox.impl import get_plainbox_dir
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 
-
 logger = logging.getLogger("plainbox.providers.special")
 
 

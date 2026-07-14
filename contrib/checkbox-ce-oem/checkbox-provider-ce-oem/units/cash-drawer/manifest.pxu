@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_cash_drawer
+_name: Does the platform have a cash drawer?
+value-type: bool

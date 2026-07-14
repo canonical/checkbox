@@ -52,7 +52,6 @@ from plainbox.impl.result import OUTCOME_METADATA_MAP
 from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.config import CheckboxINIParser
 
-
 #: Name-space prefix for Canonical Certification
 CERTIFICATION_NS = "com.canonical.certification::"
 
@@ -81,6 +80,25 @@ def json_load_ordered_dict(text):
 def highlight_keys(text):
     """A filter for rendering keys as bold html text."""
     return re.sub(r"(\w+:\s)", r"<b>\1</b>", text)
+
+
+def pretty_json_decode_error(
+    error: json.decoder.JSONDecodeError, lines_around=3
+):
+    lineno = error.lineno
+    colno = error.colno
+    lines = error.doc.splitlines()
+    min_line = max(lineno - lines_around, 0)
+    max_line = min(lineno + lines_around, len(lines) - 1)
+    center = min(lineno + 1, len(lines))
+    error_repr = lines[min_line:center]
+    error_repr.append(" " * colno + "^^^ " + str(error))
+    error_repr += lines[center:max_line]
+    if isinstance(error_repr[0], str):
+        return "\n".join(error_repr)
+    else:
+        # defer decoding here to avoid decoding the whole document
+        return b"\n".join(error_repr).decode("utf8")
 
 
 class Jinja2SessionStateExporter(SessionStateExporterBase):
@@ -279,5 +297,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             s = raw.decode("utf-8") if type(raw) == bytes else raw
             json.loads(s)
             return []
+        except json.decoder.JSONDecodeError as exc:
+            return pretty_json_decode_error(exc)
         except Exception as exc:
             return [str(exc)]

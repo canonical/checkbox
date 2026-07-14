@@ -94,6 +94,8 @@ def turn_down_nm_connections():
     print_head("Turn off NM all connections")
     connections = _get_nm_wireless_connections()
     for name, value in connections.items():
+        if value["state"] != "activated":
+            continue
         uuid = value["uuid"]
         print("Turn down connection", name)
         cmd = "nmcli c down {}".format(uuid)
@@ -417,7 +419,7 @@ def backup_netplan_files(backup_dir: str, netplan_dir: str):
         os.chown(temp_path, st.st_uid, st.st_gid)
         print("Backed up: {} -> {}".format(yaml_file, temp_path))
 
-    print("Netplan files backed up to: {}", backup_dir)
+    print("Netplan files backed up to:", backup_dir)
 
 
 def restore_netplan_files(backup_dir: str, netplan_dir: str):

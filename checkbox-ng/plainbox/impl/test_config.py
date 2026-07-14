@@ -18,6 +18,7 @@
 """
 This module contains tests for the new Checkbox Config module
 """
+
 from contextlib import contextmanager
 import logging
 from unittest import TestCase

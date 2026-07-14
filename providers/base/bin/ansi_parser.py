@@ -134,7 +134,7 @@ def main(args):
         metavar="FILE",
         help="File where to output the result.",
     )
-    (options, args) = parser.parse_args(args)
+    options, args = parser.parse_args(args)
 
     # Write to stdout
     if not options.output or options.output == "-":

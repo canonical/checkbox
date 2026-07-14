@@ -1,0 +1,11 @@
+Connected to 7a:45:58:1b:1f:3e (on wlp0s20f3)
+	SSID: wifi7-ap
+	freq: 5745.0
+	RX: 605997625 bytes (417417 packets)
+	TX: 11780015 bytes (49106 packets)
+	signal: -52 dBm
+	rx bitrate: 344.1 MBit/s 40MHz HE-MCS 7 HE-NSS 2 HE-GI 0 HE-DCM 0
+	tx bitrate: 573.5 MBit/s 40MHz HE-MCS 11 HE-NSS 2 HE-GI 0 HE-DCM 0
+	bss flags: short-slot-time
+	dtim period: 3
+	beacon int: 100

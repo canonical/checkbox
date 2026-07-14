@@ -26,7 +26,6 @@ import tempfile
 
 import xml.dom.minidom as minidom
 
-
 RECOVERY_PACKAGES = ["dell-recovery", "ubuntu-recovery"]
 
 
@@ -158,7 +157,7 @@ class RecoveryInfo:
                 print("Found recovery partition")
                 return
 
-        (recovery_type, recovery_partition) = partition
+        recovery_type, recovery_partition = partition
 
         subcommand = sys.argv[1]
         sub_commands = ("version", "file", "checktype")

@@ -22,7 +22,6 @@ import os
 import argparse
 import sys
 
-
 MAIN_REGULATORS = (
     "vs1",
     "vgpu11",

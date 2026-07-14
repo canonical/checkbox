@@ -94,16 +94,17 @@ class TestMain(TestCase):
 
 @patch("rvs.logging")
 class TestModuleRunner(TestCase):
-    @patch("pathlib.Path.glob")
-    def test_rvs_snap(self, glob_mock, logging_mock):
+    @patch("shutil.copy")
+    def test_rvs_snap(self, copy_mock, logging_mock):
         config = Path("/usr/share/checkbox-provider-gpgpu/data/rvs-gpup.conf")
         snap_rvs = Path("/snap/bin/rvs")
-        expected_rvs = Path(
-            "/snap/rocm-validation-suite/current/opt/rocm-6.4.1/bin/rvs"
-        )
-        glob_mock.return_value = [expected_rvs]
+        expected_config = Path(
+            "~/snap/rocm-validation-suite/common/rvs-gpup.conf"
+        ).expanduser()
         runner = ModuleRunner(snap_rvs, config)
-        self.assertEqual(runner.rvs, expected_rvs)
+        self.assertEqual(runner.rvs, snap_rvs)
+        self.assertEqual(runner.config, expected_config)
+        self.assertTrue(copy_mock.called)
 
     @patch("subprocess.run", return_value=MagicMock(returncode=255))
     def test_run_failure(self, run_mock, logging_mock):

@@ -279,5 +279,10 @@ _siblings: [
     "command": "run_vulkan_cts.py --test_file wsi.txt" },
   { "id": "gfx_mesa_vk_ycbcr",
     "_summary": "Run the ycbcr tests from VK-GL-CTS",
-    "command": "run_vulkan_cts.py --test_file ycbcr.txt" }
+    "command": "run_vulkan_cts.py --test_file ycbcr.txt" },
+  { "id": "vk_subset_for_nvidia",
+    "estimated_duration": "10m",
+    "_summary": "Run the VK-GL-CTS subset that nvidia requested.",
+    "command": "run_vulkan_cts.py --test_file cts_subset.txt --from_provider_data --terminate_on_fail" }
   ]
+  

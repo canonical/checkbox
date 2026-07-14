@@ -23,13 +23,13 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
+
 import abc
 import logging
 
 from plainbox.impl.clitools import CommandBase
 from plainbox.impl.clitools import ToolBase
 from plainbox.impl.providers import get_providers
-
 
 logger = logging.getLogger("plainbox.commands")
 

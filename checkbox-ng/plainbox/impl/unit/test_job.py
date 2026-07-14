@@ -226,17 +226,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         # disable this test.
         pass
 
-    def test_name__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_name": "name"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.name,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
-
     def test_name__template_variant(self):
         issue_list = self.unit_cls(
             {"name": "name"}, parameters={}, provider=self.provider
@@ -257,28 +246,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             self.unit_cls.Meta.fields.name,
             Problem.deprecated,
             Severity.advice,
-        )
-
-    def test_summary__translatable(self):
-        issue_list = self.unit_cls(
-            {"summary": "summary"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.summary,
-            Problem.expected_i18n,
-            Severity.warning,
-        )
-
-    def test_summary__template_variant(self):
-        issue_list = self.unit_cls(
-            {"summary": "summary"}, provider=self.provider, parameters={}
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.summary,
-            Problem.constant,
-            Severity.error,
         )
 
     def test_summary__present(self):
@@ -309,17 +276,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             issue_list,
             self.unit_cls.Meta.fields.summary,
             Problem.wrong,
-            Severity.warning,
-        )
-
-    def test_plugin__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_plugin": "plugin"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.plugin,
-            Problem.unexpected_i18n,
             Severity.warning,
         )
 
@@ -364,17 +320,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.deprecated,
             Severity.advice,
             message,
-        )
-
-    def test_command__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_command": "command"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.command,
-            Problem.unexpected_i18n,
-            Severity.warning,
         )
 
     def test_command__present__on_non_manual(self):
@@ -440,12 +385,10 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
     def test_command__has_valid_syntax(self):
         issue_list = self.unit_cls(
-            {
-                "command": """# Echo a few numbers
+            {"command": """# Echo a few numbers
             for i in 1 2 "3; do
                 echo $i
-            done"""
-            },
+            done"""},
             provider=self.provider,
         ).check()
         message = "field 'command', No closing quotation, near '2'"
@@ -464,17 +407,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         # report it at the end of the input which is the line with 'done'
         self.assertEqual(
             issue.origin.line_start, issue.unit.origin.line_start + 3
-        )
-
-    def test_description__translatable(self):
-        issue_list = self.unit_cls(
-            {"description": "description"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.description,
-            Problem.expected_i18n,
-            Severity.warning,
         )
 
     def test_description__template_variant(self):
@@ -505,17 +437,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.missing,
             Severity.error,
             message,
-        )
-
-    def test_user__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_user": "user"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.user,
-            Problem.unexpected_i18n,
-            Severity.warning,
         )
 
     def test_user__template_invarinat(self):
@@ -557,15 +478,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             message,
         )
 
-    def test_environ__untranslatable(self):
-        issue_list = self.unit_cls({"_environ": "environ"}).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.environ,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
-
     def test_environ__useless_without_command(self):
         message = "field 'environ', environ without a command makes no sense"
         issue_list = self.unit_cls(
@@ -577,18 +489,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.useless,
             Severity.warning,
             message,
-        )
-
-    def test_estimated_duration__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_estimated_duration": "estimated_duration"},
-            provider=self.provider,
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.estimated_duration,
-            Problem.unexpected_i18n,
-            Severity.warning,
         )
 
     def test_estimated_duration__template_invarinat(self):
@@ -615,17 +515,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.wrong,
             Severity.error,
             message,
-        )
-
-    def test_depends__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_depends": "depends"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.depends,
-            Problem.unexpected_i18n,
-            Severity.warning,
         )
 
     def test_depends__refers_to_other_units(self):
@@ -657,17 +546,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             message,
         )
 
-    def test_after__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_after": "after"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.after,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
-
     def test_after__refers_to_other_units(self):
         unit = self.unit_cls({"after": "some-unit"}, provider=self.provider)
         message = "field 'after', unit 'ns::some-unit' is not available"
@@ -695,17 +573,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.bad_reference,
             Severity.error,
             message,
-        )
-
-    def test_requires__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_requires": "requires"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.requires,
-            Problem.unexpected_i18n,
-            Severity.warning,
         )
 
     def test_requires__refers_to_other_units(self):
@@ -760,17 +627,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             message,
         )
 
-    def test_shell__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_shell": "shell"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.shell,
-            Problem.unexpected_i18n,
-            Severity.warning,
-        )
-
     def test_shell__template_invarinat(self):
         issue_list = self.unit_cls(
             {"shell": "{attr}"},
@@ -795,17 +651,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.wrong,
             Severity.error,
             message,
-        )
-
-    def test_category_id__untranslatable(self):
-        issue_list = self.unit_cls(
-            {"_category_id": "category_id"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.category_id,
-            Problem.unexpected_i18n,
-            Severity.warning,
         )
 
     def test_category_id__template_invarinat(self):
@@ -852,17 +697,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.bad_reference,
             Severity.error,
             message,
-        )
-
-    def test_siblings__valid_json(self):
-        issue_list = self.unit_cls(
-            {"_siblings": "foo"}, provider=self.provider
-        ).check()
-        self.assertIssueFound(
-            issue_list,
-            self.unit_cls.Meta.fields.siblings,
-            Problem.syntax_error,
-            Severity.error,
         )
 
     def test_siblings__is_list(self):
@@ -975,7 +809,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
         self.assertEqual(job.description, "description-value")
-        self.assertEqual(job.siblings, '[{"id": "foo", "depends": "bar"}]')
+        self.assertEqual(job.siblings, [{"id": "foo", "depends": "bar"}])
 
     def test_smoke_min_record(self):
         job = JobDefinition(self._min_record.data)

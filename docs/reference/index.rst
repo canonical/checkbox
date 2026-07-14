@@ -8,6 +8,7 @@ Reference
    glossary
    stack
    launcher
+   envvar
    units/index
    snaps
    submission-schema

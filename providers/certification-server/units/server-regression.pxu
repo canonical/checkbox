@@ -14,7 +14,6 @@ nested_part:
     com.canonical.certification::server-ethernet-sru
     com.canonical.certification::server-memory
     com.canonical.certification::server-networking
-    com.canonical.certification::nvdimm-full
     com.canonical.certification::stress-sru-tests
 include:
     info/hdparm_.*.txt                         certification-status=non-blocker

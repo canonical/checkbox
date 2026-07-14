@@ -46,5 +46,5 @@ def rpyc_client(host, cmd, *args, **kwargs):
         )
     except rpyc.core.vinegar.GenericException as exc:
         raise SystemExit(
-            "Zapper host failed to process the requested command."
+            "RPyC host failed to process the requested command."
         ) from exc

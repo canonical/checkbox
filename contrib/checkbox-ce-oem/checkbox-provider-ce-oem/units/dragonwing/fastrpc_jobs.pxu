@@ -1,0 +1,56 @@
+plugin: shell
+category_id: dragonwing-fastrpc
+id: dragonwing-fastrpc/adsp
+_summary: Verify fastRPC and aDSP with Hexagon SDK
+flags: also-after-suspend
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import dragonwing_soc_info
+requires:
+    manifest.is_dragonwing_series == 'True'
+    dragonwing_soc_info.SoC in ("qcs6490", "qcs5430", "qcs8275" ,"qcs9075", "IQ-X7181")
+user: root
+command:
+    dragonwing_fastrpc_test.sh 0:0
+
+plugin: shell
+category_id: dragonwing-fastrpc
+id: dragonwing-fastrpc/cdsp
+_summary: Verify fastRPC and cDSP with Hexagon SDK
+flags: also-after-suspend
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import dragonwing_soc_info
+requires:
+    manifest.is_dragonwing_series == 'True'
+    dragonwing_soc_info.SoC in ("qcs6490", "qcs5430", "qcs8275" ,"qcs9075", "IQ-X7181")
+environ: DRAGONWING_SOC
+user: root
+command:
+    case "$DRAGONWING_SOC" in
+        "qcs6490"|"qcs5430"|"qcs8275"|"IQ-X7181")
+            dragonwing_fastrpc_test.sh 3:0 3:1
+            ;;
+        "qcs9075")
+            dragonwing_fastrpc_test.sh 3:0 3:1 4:0 4:1
+            ;;
+        *)
+            echo "No configuration for SoC: $DRAGONWING_SOC"
+            exit 1
+            ;;
+    esac
+
+plugin: shell
+category_id: dragonwing-fastrpc
+id: dragonwing-fastrpc/gdsp
+_summary: Verify fastRPC and gDSP with Hexagon SDK
+flags: also-after-suspend
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import dragonwing_soc_info
+requires:
+    manifest.is_dragonwing_series == 'True'
+    dragonwing_soc_info.SoC in ("qcs9075")
+user: root
+command:
+    dragonwing_fastrpc_test.sh 5:0 5:1 6:0 6:1

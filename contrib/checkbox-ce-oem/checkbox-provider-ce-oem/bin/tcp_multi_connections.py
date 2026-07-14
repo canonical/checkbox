@@ -9,7 +9,6 @@ import random
 from datetime import datetime, timedelta
 from enum import Enum
 
-
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",

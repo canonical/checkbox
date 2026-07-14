@@ -25,7 +25,6 @@ from subprocess import (
     PIPE,
 )
 
-
 # Command to retrieve dpkg information.
 COMMAND = "dpkg --version"
 

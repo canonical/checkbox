@@ -21,6 +21,7 @@ checkbox_support.helpers.human_readable_bytes
 
 Utility class for representing ammount of bytes in human readable fashion
 """
+
 import sys
 from math import copysign, log, trunc
 

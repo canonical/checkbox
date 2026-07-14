@@ -294,7 +294,7 @@ def wait_for_routable(interface, renderer, max_wait=30):
     routable = False
     state = ""
     while not routable and attempts < max_wait:
-        (routable, state) = _check_routable_state(interface, renderer)
+        routable, state = _check_routable_state(interface, renderer)
         time.sleep(1)
         attempts += 1
 

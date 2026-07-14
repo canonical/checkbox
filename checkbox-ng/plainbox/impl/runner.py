@@ -39,7 +39,6 @@ from plainbox.impl.result import IOLogRecord
 from plainbox.vendor import extcmd
 from plainbox.vendor import morris
 
-
 logger = logging.getLogger("plainbox.runner")
 
 

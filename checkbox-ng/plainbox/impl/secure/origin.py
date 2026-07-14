@@ -73,6 +73,12 @@ class Origin:
         self.line_start = line_start
         self.line_end = line_end
 
+    @property
+    def yaml(self):
+        return self.source.filename.endswith(
+            ".yaml"
+        ) or self.source.filename.endswith(".yml")
+
     def mode(self):
         """
         Compute the "mode" of this origin instance.

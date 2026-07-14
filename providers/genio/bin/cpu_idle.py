@@ -22,7 +22,6 @@
 import os
 import argparse
 
-
 GENERAL_PATH = "cpu%d/cpuidle/state%d/%s"
 
 

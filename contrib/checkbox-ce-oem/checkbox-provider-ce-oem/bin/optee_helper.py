@@ -11,7 +11,6 @@ from look_up_xtest import look_up_app
 from pathlib import Path
 from xtest_install_ta import find_ta_path, install_ta
 
-
 TEST_FILE_PREFIX = "optee-test-"
 
 

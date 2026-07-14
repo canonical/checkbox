@@ -1,0 +1,140 @@
+[
+  {
+    "id": 78,
+    "type": "PipeWire:Interface:Client",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props" ],
+      "props": {
+        "application.language": "en_US.UTF-8",
+        "application.name": "gnome-shell",
+        "application.process.binary": "gnome-shell",
+        "application.process.id": 6025,
+        "application.process.user": "ubuntu",
+        "clock.power-of-two-quantum": true,
+        "core.name": "pipewire-ubuntu-6025",
+        "core.version": "1.4.7",
+        "cpu.max-align": 32,
+        "default.clock.max-quantum": 2048,
+        "default.clock.min-quantum": 32,
+        "default.clock.quantum": 1024,
+        "default.clock.quantum-floor": 4,
+        "default.clock.quantum-limit": 8192,
+        "default.clock.rate": 48000,
+        "default.video.height": 480,
+        "default.video.rate.denom": 1,
+        "default.video.rate.num": 25,
+        "default.video.width": 640,
+        "link.max-buffers": 64,
+        "log.level": 0,
+        "mem.allow-mlock": true,
+        "mem.warn-mlock": false,
+        "module.id": 2,
+        "object.id": 78,
+        "object.serial": 60,
+        "pipewire.access": "unrestricted",
+        "pipewire.protocol": "protocol-native",
+        "pipewire.sec.gid": 1000,
+        "pipewire.sec.label": "unconfined",
+        "pipewire.sec.pid": 6025,
+        "pipewire.sec.socket": "pipewire-0",
+        "pipewire.sec.uid": 1000,
+        "settings.check-quantum": false,
+        "settings.check-rate": false,
+        "window.x11.display": ":0"
+      }
+    }
+  },
+  {
+    "id": 60,
+    "type": "PipeWire:Interface:Node",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "max-input-ports": 0,
+      "max-output-ports": 1,
+      "change-mask": [ "input-ports", "output-ports", "state", "props", "params" ],
+      "n-input-ports": 0,
+      "n-output-ports": 1,
+      "state": "suspended",
+      "error": null,
+      "props": {
+        "api.v4l2.cap.bus_info": "usb-0000:00:14.0-3",
+        "api.v4l2.cap.capabilities": "84a00001",
+        "api.v4l2.cap.card": "Integrated_Webcam_FHD: Integrat",
+        "api.v4l2.cap.device-caps": 4200001,
+        "api.v4l2.cap.driver": "uvcvideo",
+        "api.v4l2.cap.version": "6.17.2",
+        "api.v4l2.path": "/dev/video2",
+        "client.id": 47,
+        "clock.quantum-limit": 8192,
+        "device.api": "v4l2",
+        "device.devids": "[ 20738 ]",
+        "device.id": 54,
+        "device.product.id": "0x558d",
+        "device.vendor.id": "0x0bda",
+        "factory.id": 11,
+        "factory.name": "api.v4l2.source",
+        "media.class": "Video/Source",
+        "media.role": "Camera",
+        "node.description": "Integrated_Webcam_FHD (V4L2)",
+        "node.driver": true,
+        "node.loop.name": "data-loop.0",
+        "node.name": "v4l2_input.pci-0000_00_14.0-usb-0_3_1.2",
+        "node.nick": "Integrated_Webcam_FHD",
+        "node.pause-on-idle": false,
+        "object.id": 60,
+        "object.path": "v4l2:/dev/video2",
+        "object.serial": 88,
+        "priority.session": 980
+      },
+      "params": {
+        "PropInfo": [
+          {
+            "id": "device",
+            "description": "The V4L2 device",
+            "type": "/dev/video2"
+          },
+          {
+            "id": "deviceName",
+            "description": "The V4L2 device name",
+            "type": ""
+          },
+          {
+            "id": "deviceFd",
+            "description": "The V4L2 fd",
+            "type": 0
+          },
+          {
+            "id": "id-019a0910",
+            "type": {
+              "default": false,
+              "alt1": false,
+              "alt2": true
+            },
+            "description": "Privacy"
+          }
+        ],
+        "Props": [
+          {
+            "device": "/dev/video2",
+            "deviceName": "",
+            "deviceFd": 0,
+            "id-019a0910": false
+          }
+        ],
+        "EnumFormat": [
+          {
+            "mediaType": "video",
+            "mediaSubtype": "raw",
+            "format": "GRAY8",
+            "size": { "width": 640, "height": 360 },
+            "framerate": { "num": 15, "denom": 1 }
+          }
+        ],
+        "Format": [ ]
+      }
+    }
+  }
+]

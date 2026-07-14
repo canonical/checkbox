@@ -39,6 +39,7 @@ Recommends: bonnie++,
             python3-dbus,
             python3-evdev,
             python3-gi,
+            python3-pyscard,
             smartmontools,
             sysstat,
             ${plainbox:Recommends}

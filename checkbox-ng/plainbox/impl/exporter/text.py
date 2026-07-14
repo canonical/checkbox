@@ -25,6 +25,7 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
+
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
 from plainbox.impl.exporter import SessionStateExporterBase

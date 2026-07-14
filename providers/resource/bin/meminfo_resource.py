@@ -21,9 +21,6 @@ import sys
 
 from checkbox_support.parsers.meminfo import MeminfoParser
 
-# Filename where meminfo is stored.
-MEMINFO_FILENAME = "/proc/meminfo"
-
 
 class MeminfoResult:
 
@@ -33,11 +30,10 @@ class MeminfoResult:
 
 
 def main():
-    stream = open(MEMINFO_FILENAME)
-    parser = MeminfoParser(stream)
-
+    parser = MeminfoParser()
     result = MeminfoResult()
-    parser.run(result)
+    meminfo = parser.run()
+    result.setMemory(meminfo)
 
     return 0
 

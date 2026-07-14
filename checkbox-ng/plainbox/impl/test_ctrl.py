@@ -24,10 +24,8 @@ Test definitions for plainbox.impl.ctrl module
 """
 
 from unittest import TestCase
-import json
 
 from plainbox.abc import IJobResult
-from plainbox.suspend_consts import Suspend
 from plainbox.impl.ctrl import (
     CheckBoxSessionStateController,
     SymLinkNest,
@@ -94,14 +92,6 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertEqual(
             self.ctrl.get_dependency_set(job_f),
             {(DependencyType.DEPENDS, "j6"), (DependencyType.RESOURCE, "j6")},
-        )
-        # Job with an "also-after-suspend" flag, meaning this job should be
-        # set to run before the suspend job
-        job_g = JobDefinition({"id": "j7", "flags": Suspend.AUTO_FLAG})
-        suspend_job = JobDefinition({"id": Suspend.AUTO_JOB_ID})
-        self.assertEqual(
-            self.ctrl.get_dependency_set(suspend_job, [job_g]),
-            {(DependencyType.AFTER, "j7")},
         )
 
     def test_add_before_deps(self):
@@ -192,6 +182,69 @@ class CheckBoxSessionStateControllerTests(TestCase):
         session_state.resource_map = {"j2": [Resource({"attr": "ok"})]}
         session_state.job_state_map["j2"].job = j2
         self.assertEqual(self.ctrl.get_inhibitor_list(session_state, j1), [])
+
+    def test_get_requires_manifest_inhibitor_list__no_manifest_specs(self):
+        job = object()
+        session_state = mock.MagicMock(spec=SessionState)
+        self_mock = mock.MagicMock()
+
+        self.assertEqual(
+            CheckBoxSessionStateController.get_requires_manifest_inhibitor_list(
+                self_mock, session_state, job
+            ),
+            [],
+        )
+
+    def test_get_requires_manifest_inhibitor_list__undefined_false(self):
+        job = mock.MagicMock()
+        manifest_spec = mock.MagicMock(id="manifest-id", value=False)
+        job.get_required_manifests_spec.return_value = [manifest_spec]
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.manifest = {}
+        self_mock = mock.MagicMock()
+
+        self.assertEqual(
+            CheckBoxSessionStateController.get_requires_manifest_inhibitor_list(
+                self_mock, session_state, job
+            ),
+            [],
+        )
+
+    def test_get_requires_manifest_inhibitor_list__defined_true(self):
+        job = mock.MagicMock()
+        manifest_spec = mock.MagicMock(id="manifest-id", value=True)
+        job.get_required_manifests_spec.return_value = [manifest_spec]
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.manifest = {"manifest-id": True}
+        self_mock = mock.MagicMock()
+
+        self.assertEqual(
+            CheckBoxSessionStateController.get_requires_manifest_inhibitor_list(
+                self_mock, session_state, job
+            ),
+            [],
+        )
+
+    def test_get_requires_manifest_inhibitor_list__defined_false(self):
+        job = mock.MagicMock()
+        manifest_spec = mock.MagicMock(id="manifest-id", value=True)
+        job.get_required_manifests_spec.return_value = [manifest_spec]
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.manifest = {"manifest-id": False}
+        self_mock = mock.MagicMock()
+
+        self.assertEqual(
+            CheckBoxSessionStateController.get_requires_manifest_inhibitor_list(
+                self_mock, session_state, job
+            ),
+            [
+                JobReadinessInhibitor(
+                    cause=InhibitionCause.REQUIRED_MANIFEST,
+                    related_job=job,
+                    related_manifests=["manifest-id"],
+                )
+            ],
+        )
 
     def test_get_inhibitor_list_PENDING_DEP(self):
         # verify that jobs that depend on another job or wait (via after) for
@@ -299,91 +352,6 @@ class CheckBoxSessionStateControllerTests(TestCase):
         jsm_j3.job = j3
         jsm_j3.result.outcome = IJobResult.OUTCOME_PASS
         self.assertEqual(self.ctrl.get_inhibitor_list(session_state, j1), [])
-
-    def test_get_inhibitor_list__suspend_job(self):
-        j1 = JobDefinition(
-            {
-                "id": "j1",
-                "flags": Suspend.AUTO_FLAG,
-            }
-        )
-        j2 = JobDefinition(
-            {
-                "id": "j2",
-            }
-        )
-        suspend_job = JobDefinition({"id": Suspend.AUTO_JOB_ID})
-        session_state = mock.MagicMock(spec=SessionState)
-        session_state.job_state_map = {
-            "j1": mock.Mock(spec_set=JobState),
-            "j2": mock.Mock(spec_set=JobState),
-            Suspend.AUTO_JOB_ID: mock.Mock(spec_set=JobState),
-        }
-        jsm_j1 = session_state.job_state_map["j1"]
-        jsm_j1.job = j1
-        jsm_j1.result.outcome = IJobResult.OUTCOME_NONE
-        jsm_j1.readiness_inhibitor_list = []
-        jsm_j2 = session_state.job_state_map["j2"]
-        jsm_j2.job = j2
-        jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
-        jsm_j2.readiness_inhibitor_list = []
-        jsm_suspend = session_state.job_state_map[Suspend.AUTO_JOB_ID]
-        jsm_suspend.job = suspend_job
-        jsm_suspend.result.outcome = IJobResult.OUTCOME_NONE
-        jsm_suspend.readiness_inhibitor_list = []
-        self.assertEqual(
-            self.ctrl.get_inhibitor_list(session_state, suspend_job),
-            [JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j1, None)],
-        )
-
-    def test_is_job_impacting_suspend__wrong_suspend_job(self):
-        job = JobDefinition(
-            {
-                "id": "job",
-            }
-        )
-        self.assertEqual(
-            self.ctrl._is_job_impacting_suspend("wrong-suspend-job-id", job),
-            False,
-        )
-
-    def test_is_job_impacting_suspend__flag(self):
-        job = JobDefinition(
-            {
-                "id": "job",
-                "flags": "also-after-suspend",
-            }
-        )
-        self.assertEqual(
-            self.ctrl._is_job_impacting_suspend(Suspend.AUTO_JOB_ID, job), True
-        )
-        self.assertEqual(
-            self.ctrl._is_job_impacting_suspend(Suspend.MANUAL_JOB_ID, job),
-            False,
-        )
-
-    def test_is_job_impacting_suspend__siblings(self):
-        job = JobDefinition(
-            {
-                "id": "job",
-                "siblings": json.dumps(
-                    [
-                        {
-                            "id": "sibling-j1",
-                            "depends": Suspend.MANUAL_JOB_ID,
-                        }
-                    ]
-                ),
-            }
-        )
-        self.assertEqual(
-            self.ctrl._is_job_impacting_suspend(Suspend.AUTO_JOB_ID, job),
-            False,
-        )
-        self.assertEqual(
-            self.ctrl._is_job_impacting_suspend(Suspend.MANUAL_JOB_ID, job),
-            True,
-        )
 
     def test_observe_result__normal(self):
         job = mock.Mock(spec=JobDefinition)

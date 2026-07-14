@@ -29,14 +29,15 @@ from gst_utils import (
     PipelineInterface,
     GStreamerMuxerType,
     GStreamerEncodePlugins,
+    GStreamerDecodePlugins,
     MetadataValidator,
-    get_big_bug_bunny_golden_sample,
     generate_artifact_name,
     compare_psnr,
     delete_file,
     execute_command,
+    get_test_file_path_by_params,
+    manage_test_file_by_params,
 )
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -144,6 +145,24 @@ def project_factory(args: argparse.Namespace) -> Any:
             height=args.height,
             framerate=args.framerate,
         )
+    elif "imx8m" in args.platform:
+        return NxpIMX8mProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            color_space=args.color_space,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
+        )
+    elif "rz" in args.platform:
+        return RenesasProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            color_space=args.color_space,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
+        )
     else:
         raise SystemExit(
             "Error: Cannot get the implementation for '{}'".format(
@@ -183,8 +202,8 @@ class GenioProject(PipelineInterface):
         }
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = get_big_bug_bunny_golden_sample(
-            width=self._width, height=self._height, framerate=self._framerate
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate
         )
         self._artifact_file = ""
 
@@ -315,10 +334,8 @@ class CarmelProject(PipelineInterface):
         }
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = os.path.join(
-            VIDEO_CODEC_TESTING_DATA,
-            "video",
-            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "h264"
         )
         self._artifact_file = ""
 
@@ -372,24 +389,239 @@ class CarmelProject(PipelineInterface):
             )
 
 
+class NxpIMX8mProject(PipelineInterface):
+    """NXP i.MX8M project pipeline handler and builder"""
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        color_space: str,
+        width: int,
+        height: int,
+        framerate: int,
+    ) -> None:
+        self._platform = platform
+        self._codec = codec
+        self._color_space = color_space
+        self._width = width
+        self._height = height
+        self._framerate = framerate
+        self._artifact_file = ""
+
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            if self._codec == GStreamerEncodePlugins.V4L2VP8ENC.value:
+                self._artifact_file = generate_artifact_name(extension="mkv")
+            else:
+                self._artifact_file = generate_artifact_name()
+        return self._artifact_file
+
+    @property
+    def psnr_reference_file(self) -> str:
+        return self._golden_sample
+
+    def _h264_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 encoder
+        """
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "h264"
+        )
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! decodebin !"
+            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
+            " v4l2h264enc extra-controls="
+            '"controls,h264_profile=1,video_bitrate=15000000;" !'
+            " h264parse ! mp4mux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def _h265_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 encoder
+        """
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "h265"
+        )
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! decodebin !"
+            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
+            " v4l2h265enc ! h265parse ! mp4mux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def _vp8_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 encoder
+        """
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "vp8"
+        )
+        pipeline = (
+            "{} filesrc location={} ! matroskademux ! decodebin !"
+            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
+            " v4l2vp8enc ! matroskamux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def build_pipeline(self) -> str:
+        """
+        Build the GStreamer commands based on the codec.
+
+        Returns:
+            str: A GStreamer command.
+        """
+        if self._codec == GStreamerEncodePlugins.V4L2H264ENC.value:
+            return self._h264_pipeline_builder()
+        elif self._codec == GStreamerEncodePlugins.V4L2H265ENC.value:
+            return self._h265_pipeline_builder()
+        elif self._codec == GStreamerEncodePlugins.V4L2VP8ENC.value:
+            return self._vp8_pipeline_builder()
+        else:
+            raise SystemExit(
+                "Error: unknow encoder '{}' be used".format(self._codec)
+            )
+
+
+class RenesasProject(PipelineInterface):
+    """Renesas project pipeline handler and builder"""
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        color_space: str,
+        width: int,
+        height: int,
+        framerate: int,
+    ) -> None:
+        self._platform = platform
+        self._codec = codec
+        self._color_space = color_space
+        self._width = width
+        self._height = height
+        self._framerate = framerate
+        self._artifact_file = ""
+        self._golden_sample = ""
+        self._codec_parser_map = {
+            GStreamerEncodePlugins.OMXH264ENC.value: "h264parse",
+            GStreamerEncodePlugins.OMXH265ENC.value: "h265parse",
+        }
+
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            self._artifact_file = generate_artifact_name()
+        return self._artifact_file
+
+    @property
+    def psnr_reference_file(self) -> str:
+        return self._golden_sample
+
+    def _264_265_pipeline_builder(self) -> str:
+        """
+        Build gstreamer pipeline for omxh264enc
+        """
+        encode_parser = self._codec_parser_map.get(self._codec)
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, "h264"
+        )
+        if "h264" in self._codec:
+            decoder = GStreamerDecodePlugins.OMXH264DEC.value
+        elif "h265" in self._codec:
+            decoder = GStreamerDecodePlugins.OMXH265DEC.value
+        pipeline = (
+            "{} filesrc location={} ! qtdemux ! {} !"
+            " {} use-dmabuf=false !"
+            " video/x-raw,format={} ! {} use-dmabuf=true"
+            " target-bitrate=10485760 !"
+            " {} ! mp4mux ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            encode_parser,
+            decoder,
+            self._color_space,
+            self._codec,
+            encode_parser,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def build_pipeline(self) -> str:
+        """
+        Build the GStreamer commands based on the codec.
+
+        Returns:
+            str: A GStreamer command.
+        """
+        # Renesas RZ series support h264 and h265 as hardware decoder
+        # And some platform support both decoder.
+        # We make a simple logic to choose the decoder and build the pipeline,
+        # If the decoder is omxh265dec, we use h265parse, else we use
+        # h264parse.
+
+        if self._codec in (
+            GStreamerEncodePlugins.OMXH264ENC.value,
+            GStreamerEncodePlugins.OMXH265ENC.value,
+        ):
+            return self._264_265_pipeline_builder()
+        else:
+            raise SystemExit(
+                "Error: unknow encoder '{}' be used".format(self._codec)
+            )
+
+
 def main() -> None:
     args = register_arguments()
-    p = project_factory(args)
-    logging.info("Step 1: Generating artifact...")
-    cmd = p.build_pipeline()
-    # execute command
-    execute_command(cmd=cmd)
-    logging.info("\nStep 2: Checking metadata...")
-    mv = MetadataValidator(file_path=p.artifact_file)
-    mv.validate("width", args.width).validate("height", args.height).validate(
-        "frame_rate", args.framerate
-    ).validate("codec", args.encoder_plugin).is_valid()
-    logging.info("\nStep 3: Comparing PSNR...")
-    compare_psnr(
-        golden_reference_file=p.psnr_reference_file,
-        artifact_file=p.artifact_file,
-    )
-    delete_file(file_path=p.artifact_file)
+    with manage_test_file_by_params(
+        args.width, args.height, args.framerate, args.encoder_plugin
+    ):
+        p = project_factory(args)
+        logging.info("Step 1: Generating artifact...")
+        cmd = p.build_pipeline()
+        # execute command
+        execute_command(cmd=cmd)
+        logging.info("\nStep 2: Checking metadata...")
+        mv = MetadataValidator(file_path=p.artifact_file)
+        mv.validate("width", args.width).validate(
+            "height", args.height
+        ).validate("frame_rate", args.framerate).validate(
+            "codec", args.encoder_plugin
+        ).is_valid()
+        logging.info("\nStep 3: Comparing PSNR...")
+        compare_psnr(
+            golden_reference_file=p.psnr_reference_file,
+            artifact_file=p.artifact_file,
+        )
+        delete_file(file_path=p.artifact_file)
 
 
 if __name__ == "__main__":

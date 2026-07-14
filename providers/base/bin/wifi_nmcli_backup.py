@@ -16,7 +16,6 @@ from pathlib import Path
 
 from packaging import version as version_parser
 
-
 NM_CON_DIR = "/etc/NetworkManager/system-connections"
 SAVE_DIR = os.path.join(
     os.path.expandvars("$PLAINBOX_SESSION_SHARE"), "stored-system-connections"

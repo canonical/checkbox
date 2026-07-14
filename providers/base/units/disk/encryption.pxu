@@ -1,7 +1,6 @@
 id: disk/encryption/detect
 category_id: com.canonical.plainbox::disk
 plugin: shell
-template-engine: jinja2
 user: root
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -14,11 +13,11 @@ _purpose:
   Examine the system to detect if one of the standard full disk encryption
   implementations is in use
 command:
-  {%- if __on_ubuntucore__ %}
+  if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
   fde_tests.py
-  {%- else %}
+  else
   fde_tests.py desktop
-  {% endif -%}
+  fi
 estimated_duration: 2.0
 
 id: disk/encryption/check-fde-tpm

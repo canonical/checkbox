@@ -69,6 +69,8 @@ test_data:
     # then insert the manifest entries via the stacker
     stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE $RESOURCES_PATH/launcher_override.conf
 
+    _run sudo reboot
+
     wait_for_ssh --allow-degraded
 
     check_for_checkbox_service

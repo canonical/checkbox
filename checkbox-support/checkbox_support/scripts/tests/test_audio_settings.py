@@ -29,7 +29,7 @@ from checkbox_support.scripts.audio_settings import (
     _guess_hdmi_profile,
     volume_pattern,
 )
-from checkbox_support.parsers.tests.test_pactl import PactlDataMixIn
+from checkbox_ng.support.parsers.tests.test_pactl import PactlDataMixIn
 
 
 class SetProfileTest(unittest.TestCase, PactlDataMixIn):

@@ -106,7 +106,6 @@ class CategoryUnit(UnitWithId):
 
         field_validators = {
             fields.name: [
-                concrete_validators.translatable,
                 concrete_validators.templateVariant,
                 concrete_validators.present,
                 concrete_validators.oneLine,

@@ -55,8 +55,7 @@ class TestDiskResource(unittest.TestCase):
 
     @patch("disk_resource.check_output")
     def test_get_blockdevices_info_ok(self, mock_check_output):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             {
                 "blockdevices": [
                     {
@@ -69,8 +68,7 @@ class TestDiskResource(unittest.TestCase):
                     }
                 ]
             }
-            """
-        )
+            """)
         result = disk_resource.get_blockdevices_info()
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1)
@@ -87,8 +85,7 @@ class TestMain(unittest.TestCase):
     @patch("disk_resource.check_output")
     @patch("disk_resource.print_as_resource")
     def test_main(self, mock_print_as_resource, mock_check_output):
-        mock_check_output.return_value = textwrap.dedent(
-            """
+        mock_check_output.return_value = textwrap.dedent("""
             {
                 "blockdevices": [
                     {
@@ -112,8 +109,7 @@ class TestMain(unittest.TestCase):
 
                 ]
             }
-            """
-        )
+            """)
 
         disk_resource.main()
 

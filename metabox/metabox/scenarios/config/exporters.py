@@ -27,8 +27,7 @@ class ExporterSettingOptions(Scenario):
     checkbox
     """
 
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         stock_reports = text
         [test plan]
@@ -38,6 +37,5 @@ class ExporterSettingOptions(Scenario):
         forced = yes
         [exporter:text]
         options=squash-io-log
-        """
-    )
+        """)
     steps = [Start(), AssertRetCode(0)]

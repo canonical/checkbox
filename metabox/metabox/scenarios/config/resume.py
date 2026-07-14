@@ -36,8 +36,7 @@ class ConfigLoadedAlsoAfterResume(Scenario):
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -56,8 +55,7 @@ class ConfigLoadedAlsoAfterResume(Scenario):
         Case=Case
         CASE=CASE
         source=source
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("source: source"),
@@ -75,8 +73,7 @@ class ConfigLoadedAlsoWhenResumableSessionAvailable(Scenario):
     """
 
     modes = ["local"]
-    config_file = textwrap.dedent(
-        """
+    config_file = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -95,8 +92,7 @@ class ConfigLoadedAlsoWhenResumableSessionAvailable(Scenario):
         Case=Case
         CASE=CASE
         source=source
-        """
-    )
+        """)
     steps = [
         # generate a resume candidate
         Start(),

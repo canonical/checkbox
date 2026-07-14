@@ -999,8 +999,9 @@ class JobResultResumeMixIn:
             str(boom.exception),
             (
                 "Value for key 'outcome' not in allowed set ['crash', 'fail',"
-                " None, 'not-implemented', 'not-supported', 'pass', 'skip', "
-                "'undecided']"
+                " None, 'not-implemented', 'not-supported', 'pass', 'skip',"
+                " 'skipped-dependency', 'skipped-manifest',"
+                " 'skipped-resource', 'undecided']"
             ),
         )
 

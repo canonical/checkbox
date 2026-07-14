@@ -42,6 +42,9 @@ Most tests need dependencies, and a helper script is available to install each c
 checkbox-gfx.install-vulkan
 checkbox-gfx.install-opengl
 checkbox-gfx.install-opencl
+checkbox-gfx.install-crucible
+checkbox-gfx.install-lvl-zero
+checkbox-gfx.install-lvl-zero-rt
 ```
 
 # Automated Run
@@ -49,10 +52,13 @@ checkbox-gfx.install-opencl
 Each category of tests is run separately:
 
 ```shell
+checkbox-gfx.test-crucible
 checkbox-gfx.test-opencl
 checkbox-gfx.test-opengl
 checkbox-gfx.test-opengl-short
 checkbox-gfx.test-vulkan
+checkbox-gfx.test-lvl-zero
+checkbox-gfx.test-lvl-zero-rt
 ```
 
 Due to some tests causing dropped SSH connections, running the tests remotely should be done like this:

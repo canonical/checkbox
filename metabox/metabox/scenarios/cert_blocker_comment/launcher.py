@@ -32,8 +32,7 @@ class ManualJobFailed(Scenario):
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -42,8 +41,7 @@ class ManualJobFailed(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("Pick an action"),
@@ -67,8 +65,7 @@ class ManualJobSkipped(Scenario):
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -77,8 +74,7 @@ class ManualJobSkipped(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("Pick an action"),
@@ -106,8 +102,7 @@ class UserInteractVerifyJobFailed(Scenario):
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -116,8 +111,7 @@ class UserInteractVerifyJobFailed(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("Pick an action"),
@@ -144,8 +138,7 @@ class UserInteractVerifyJobSkippedAfterRun(Scenario):
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -154,8 +147,7 @@ class UserInteractVerifyJobSkippedAfterRun(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("Pick an action"),
@@ -185,8 +177,7 @@ class UserInteractVerifyJobSkippedBeforeRun(Scenario):
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -195,8 +186,7 @@ class UserInteractVerifyJobSkippedBeforeRun(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("Pick an action"),
@@ -224,8 +214,7 @@ class UserInteractJobSkippedBeforeRun(Scenario):
     """
 
     modes = ["local"]
-    launcher = textwrap.dedent(
-        """
+    launcher = textwrap.dedent("""
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -234,8 +223,7 @@ class UserInteractJobSkippedBeforeRun(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """
-    )
+        """)
     steps = [
         Start(),
         Expect("Pick an action"),

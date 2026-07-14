@@ -27,7 +27,6 @@ returns a value of 1. The script also returns a value of 1 if
 # tainted, the script notes this fact and returns 0.
 """
 
-
 import sys
 import shlex
 from argparse import ArgumentParser

@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """Exporter Entry Unit."""
+
 import re
 import json
 import logging
@@ -128,13 +129,11 @@ class ExporterUnit(UnitWithId):
         field_validators = {
             fields.summary: [
                 PresentFieldValidator(severity=Severity.advice),
-                concrete_validators.translatable,
                 concrete_validators.oneLine,
                 concrete_validators.shortValue,
             ],
             fields.entry_point: [
                 concrete_validators.present,
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda entry_point: next(
                         iter(
@@ -149,23 +148,21 @@ class ExporterUnit(UnitWithId):
             ],
             fields.file_extension: [
                 concrete_validators.present,
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda extension: re.search(r"^[\w\.\-]+$", extension),
                     Problem.syntax_error,
                     Severity.error,
                 ),
             ],
-            fields.options: [
-                concrete_validators.untranslatable,
-            ],
+            fields.options: [],
             fields.data: [
-                concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: json.loads(value),
                     Problem.syntax_error,
                     Severity.error,
-                    onlyif=lambda unit: unit.data,
+                    onlyif=lambda unit: unit.data
+                    # LEGACY: pxu compatibility, now data is a dict
+                    and isinstance(unit.data, str),
                 ),
                 CorrectFieldValueValidator(
                     lambda value, unit: os.path.isfile(
@@ -177,7 +174,9 @@ class ExporterUnit(UnitWithId):
                     Problem.wrong,
                     Severity.error,
                     message=_("Jinja2 template not found"),
-                    onlyif=lambda unit: unit.entry_point == "jinja2",
+                    onlyif=lambda unit: unit.entry_point == "jinja2"
+                    # LEGACY: pxu compatibility, now value is a template
+                    and isinstance(unit.data, str),
                 ),
             ],
         }
@@ -223,6 +222,9 @@ class ExporterUnitSupport:
     def _get_data(self, exporter):
         """Data to send to the exporter class."""
         if exporter.data:
+            if isinstance(exporter.data, dict):
+                return exporter.data
+            # LEGACY: pxu compatibility, now data is a dict
             return json.loads(exporter.data)
         else:
             return {}
@@ -230,6 +232,9 @@ class ExporterUnitSupport:
     def _get_option_list(self, exporter):
         """Option list to send to the exporter class."""
         if exporter.options:
+            if isinstance(exporter.options, list):
+                return exporter.options
+            # LEGACY: pxu compatibility, now objects is a list
             return re.split(r"[;,\s]+", exporter.options)
         else:
             return []

@@ -457,7 +457,7 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 20.0
 id: miscellanea/sosreport
 user: root
-requires: executable.name == 'sosreport'
+requires: executable.name in ('sosreport', 'sos')
 command: sos report --batch -n lxd --tmp-dir "$PLAINBOX_SESSION_SHARE"
 _summary: Generate baseline sosreport
 _purpose: Generates a baseline sosreport of logs and system data
@@ -568,6 +568,27 @@ requires:
   bootloader.name == "grub"
 command: grub_file_check.sh
 
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/screen-private-ppa
+user: root
+command:
+  echo "Checking for private PPAs in /etc/apt/sources.list and /etc/apt/sources.list.d/*"
+  if grep -qrE 'private-ppa.launchpad.net' "/etc/apt/sources.list"* ; then
+      echo 'The following files have private PPA access'
+      grep -lrE 'private-ppa.launchpad.net' "/etc/apt/sources.list"*
+      exit 1
+  fi
+  if grep -qrE 'private-ppa.launchpadcontent.net' "/etc/apt/sources.list"* ; then
+      echo 'The following files have private PPA access'
+      grep -lrE 'private-ppa.launchpadcontent.net' "/etc/apt/sources.list"*
+      exit 1
+  fi
+  echo "No private PPAs found in sources list files."
+_summary: check if any private ppas are added
+_description:
+ This checks if any private ppas are added to the system, fails if any found.
+
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/wallpaper
@@ -633,6 +654,13 @@ _steps:
 _verification:
     1. The system boots into the factory recovery system successfully.
 
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 120.0
+id: miscellanea/check-hardware-attributes
+command: check_hardware_attributes.py
+_summary: Check that all the attributes are able to read
+
 id: miscellanea/secure-boot-enabled
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -672,4 +700,4 @@ _purpose:
   The test automatically detects and uses the appropriate checking method:
   - UEFI-based secure boot using mokutil
   - FIT image-based secure boot using dumpimage
-  
+

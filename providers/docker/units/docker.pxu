@@ -21,8 +21,11 @@ command:
     echo 'compose_command: docker.compose'
     #A readable&writable path for docker snap
     echo 'root_dir: /var/snap/docker/common'
- else
+ elif command -v docker-compose > /dev/null; then
     echo 'compose_command: docker-compose'
+    echo 'root_dir: /var/lib/docker'
+ else
+    echo 'compose_command: docker compose'
     echo 'root_dir: /var/lib/docker'
  fi
  #avoid escape '{}' in docker inspect
@@ -372,8 +375,13 @@ command:
  [ $restartPolicy = on-failure ] || exit 1
  maximumRetryCount=$(docker inspect  -f {maximumRetryCount} $ID)
  [ $maximumRetryCount = 3 ] || exit 1
- sleep 10
- restartCount=$(docker inspect -f {restartCount} $ID)
+ count=0
+ while [ $count -lt 10 ]; do
+   restartCount=$(docker inspect -f {restartCount} $ID)
+   [ $restartCount = 3 ] && break
+   sleep 3
+   count=$((count + 1))
+ done
  [ $restartCount = 3 ] || exit 1
  docker rm -f $ID
 _summary: Test container restart policy with on_failure applied

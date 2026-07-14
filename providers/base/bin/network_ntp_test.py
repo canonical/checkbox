@@ -29,6 +29,7 @@ By default, we're hitting ntp.ubuntu.com, however you can use any valid NTP
 server by passing the URL to the program via --server
 
 """
+
 import sys
 import os
 import logging

@@ -1,0 +1,5 @@
+unit: manifest entry
+id: is_Jetson
+_name: Is this a Jetson platform?
+_prompt: Jetson specific:
+value-type: bool

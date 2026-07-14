@@ -1,0 +1,13 @@
+plugin: shell
+category_id: dragonwing-misc
+id: dragonwing-misc/check-zram-enablement
+flags: also-after-suspend
+imports:
+    from com.canonical.certification import package
+    from com.canonical.plainbox import manifest
+requires:
+    package.name == "zram-config"
+    manifest.is_dragonwing_series == 'True'
+_summary: Check if zram is enabled
+command:
+    dragonwing_platform_features_test.py check-zram-enablement

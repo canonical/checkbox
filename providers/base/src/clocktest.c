@@ -24,7 +24,9 @@
 int test_clock_jitter(){
     cpu_set_t cpumask;
     struct timespec *time;
-    unsigned long nsec;
+    struct timespec t_before, t_after;
+    unsigned long loop_nsec, expected_nsec;
+    long adjusted, min_adjusted, max_adjusted;
     unsigned slow_cpu, fast_cpu;
     double jitter;
     double largest_jitter = 0.0;
@@ -50,6 +52,7 @@ int test_clock_jitter(){
     }
 
     for (iter=0; iter<ITERATIONS; iter++){
+        clock_gettime(CLOCK_REALTIME, &t_before);
         for (cpu=0; cpu < num_cpus; cpu++) {
             CPU_ZERO(&cpumask); CPU_SET(cpu,&cpumask);
             if (setaffinity(cpumask) < 0){
@@ -68,15 +71,24 @@ int test_clock_jitter(){
                 return 1;
             }
         }
+        clock_gettime(CLOCK_REALTIME, &t_after);
 
+         /* 
+          * Adjust for the time it takes to actually run the loop. On 
+          * high-core systems, the loop overhead itself creates enough 
+          * lag to look like clock skew, leading to false positives
+          */
+        loop_nsec = NSEC(t_after) - NSEC(t_before);
         slow_cpu = fast_cpu = 0;
+        min_adjusted = max_adjusted = (long)(NSEC(time[0]) - NSEC(t_before));
         for (cpu=0; cpu < num_cpus; cpu++) {
-            nsec = NSEC(time[cpu]);
-            if (nsec < NSEC(time[slow_cpu])) { slow_cpu = cpu; }
-            if (nsec > NSEC(time[fast_cpu])) { fast_cpu = cpu; }
+            expected_nsec = NSEC(t_before) +
+                (unsigned long)((double)cpu / (num_cpus - 1) * loop_nsec);
+            adjusted = (long)(NSEC(time[cpu]) - expected_nsec);
+            if (adjusted < min_adjusted) { min_adjusted = adjusted; slow_cpu = cpu; }
+            if (adjusted > max_adjusted) { max_adjusted = adjusted; fast_cpu = cpu; }
         }
-        jitter = ((double)(NSEC(time[fast_cpu]) - NSEC(time[slow_cpu]))
-                  / (double)NSEC_PER_SEC);
+        jitter = (double)(max_adjusted - min_adjusted) / (double)NSEC_PER_SEC;
 
 #ifdef DEBUG
         printf("DEBUG: max jitter for pass %u was %f (cpu %u,%u)\n",

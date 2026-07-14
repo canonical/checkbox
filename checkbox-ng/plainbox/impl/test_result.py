@@ -23,6 +23,7 @@ plainbox.impl.test_result
 
 Test definitions for plainbox.impl.result module
 """
+
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 import doctest

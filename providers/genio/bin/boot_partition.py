@@ -166,10 +166,8 @@ class TestPartedBootDevice:
             raise SystemExit("ERROR: Cannot find sdc or mmcblk0 in dev")
 
     def main(self):
-        parser = ArgumentParser(
-            description="Check if the disk information\
-                                            is correct"
-        )
+        parser = ArgumentParser(description="Check if the disk information\
+                                            is correct")
         parser.add_argument("--path", help="the device path for checking")
         parser.add_argument(
             "--check_device_name",

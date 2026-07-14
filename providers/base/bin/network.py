@@ -46,30 +46,31 @@ from contextlib import contextmanager, suppress
 from pathlib import Path
 import sys
 import time
+import typing as t
 
 # Global results[] variable to pass results from multiple threads....
 results = []
 
 
-class IPerfPerformanceTest(object):
+class IPerfPerformanceTest:
     """Measures performance of interface using iperf client
     and target. Calculated speed is measured against theorectical
     throughput of selected interface"""
 
     def __init__(
         self,
-        interface,
-        target,
-        fail_threshold,
-        cpu_load_fail_threshold,
-        iperf3,
-        num_threads,
-        reverse,
-        protocol="tcp",
-        data_size="1",
-        run_time=None,
-        scan_timeout=3600,
-        iface_timeout=120,
+        interface: str,
+        target: str,
+        fail_threshold: float,
+        cpu_load_fail_threshold: float,
+        iperf3: str,
+        num_threads: int,
+        reverse: bool,
+        protocol: "t.Literal['tcp', 'udp']" = "tcp",
+        data_size: int = 1,
+        run_time: "int | None" = None,
+        scan_timeout: int = 3600,
+        iface_timeout: int = 120,
     ):
 
         self.iface = Interface(interface)
@@ -86,7 +87,7 @@ class IPerfPerformanceTest(object):
         self.iface_timeout = iface_timeout
         self.reverse = reverse
 
-    def run_one_thread(self, cmd, port_num):
+    def run_one_thread(self, cmd: str, port_num: int):
         """Run a single test thread, storing the output in the global results[]
         variable."""
         cmd = cmd + " -p {}".format(port_num)
@@ -199,8 +200,9 @@ class IPerfPerformanceTest(object):
         # to iperf3, thus disabling NUMA features.
         if node_num == -1:
             logging.warning(
-                "WARNING: Could not find the NUMA node "
-                "associated with {}!".format(device)
+                "WARNING: Could not find the NUMA node associated with {}!".format(
+                    device
+                )
             )
         else:
             logging.info("NUMA node of {} is {}....".format(device, node_num))
@@ -445,7 +447,6 @@ class IPerfPerformanceTest(object):
 
 
 class StressPerformanceTest:
-
     def __init__(self, interface, target, iperf3):
         self.interface = interface
         self.target = target
@@ -495,7 +496,7 @@ class Interface(socket.socket):
     Simple class that provides network interface information.
     """
 
-    def __init__(self, interface):
+    def __init__(self, interface: str):
 
         super(Interface, self).__init__(socket.AF_INET, socket.IPPROTO_ICMP)
 
@@ -847,13 +848,13 @@ def check_underspeed(iface):
         and network_if.max_speed != 0
     ):
         logging.error(
-            "Detected link speed ({}) is lower than detected max "
-            "speed ({})".format(network_if.link_speed, network_if.max_speed)
+            "Detected link speed ({}) is lower than detected max speed ({})".format(
+                network_if.link_speed, network_if.max_speed
+            )
         )
         logging.error("Check your device configuration and try again.")
         logging.error(
-            "If you want to override and test despite this "
-            "under-speed link, use"
+            "If you want to override and test despite this under-speed link, use"
         )
         logging.error("the --underspeed-ok option.")
         return True
@@ -995,19 +996,18 @@ def interface_test(args):
         # Default values found in config file
         logging.error("Valid target server has not been supplied.")
         logging.error(
-            "Configuration settings can be configured 3 different " "ways:"
+            "Configuration settings can be configured 3 different ways:"
         )
         logging.error(
-            "1- If calling the script directly, pass the --target " "option"
+            "1- If calling the script directly, pass the --target option"
         )
         logging.error("2- Define the TEST_TARGET_IPERF environment variable")
         logging.error(
-            "3- If running the test via checkbox/plainbox, define " "the "
+            "3- If running the test via checkbox/plainbox, define the "
         )
         logging.error("target in /etc/xdg/canonical-certification.conf")
         logging.error(
-            "Please run this script with -h to see more details on "
-            "how to configure"
+            "Please run this script with -h to see more details on how to configure"
         )
         sys.exit(1)
 
@@ -1304,7 +1304,7 @@ TEST_TARGET_IPERF = iperf-server.example.com
         and not args.iperf3
     ):
         parser.error(
-            "--cpu-load-fail-threshold can only be set with " "--iperf3."
+            "--cpu-load-fail-threshold can only be set with --iperf3."
         )
 
     if args.debug:

@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 import datetime
 import fcntl
 import ipaddress
@@ -72,7 +72,6 @@ class IPerfPerformanceTest:
         scan_timeout: int = 3600,
         iface_timeout: int = 120,
     ):
-
         self.iface = Interface(interface)
         self.interface = interface
         self.target = target
@@ -103,7 +102,9 @@ class IPerfPerformanceTest:
             if iperf_exception.returncode != 124:
                 # timeout command will return 124 if iperf timed out, so any
                 # other return value means something did fail
-                if "unable to connect to server" in iperf_exception.output:
+                if "unable to connect to server" in str(
+                    iperf_exception.output
+                ):
                     logging.error(
                         "Unable to connect to server on port {}".format(
                             port_num
@@ -187,9 +188,15 @@ class IPerfPerformanceTest:
                 avg_cpu = sum_cpu / n
         return avg_cpu
 
-    def find_numa(self, device):
-        """Return the NUMA node of the specified network device."""
-        filename = "/sys/class/net/" + device + "/device/numa_node"
+    def find_numa(self, device: str):
+        """
+        Return the NUMA node of the specified network device.
+
+        :param device: device name like eno1
+        :return: node int, from /sys/class/net/<device>/device/numa_node
+                 returns -1 if unsupported
+        """
+        filename = (Path("/sys/class/net/") / device) / "device" / "numa_node"
         try:
             with open(filename, "r") as file:
                 node_num = int(file.read())
@@ -208,12 +215,14 @@ class IPerfPerformanceTest:
             logging.info("NUMA node of {} is {}....".format(device, node_num))
         return node_num
 
-    def extract_core_list(self, line):
-        """Extract a list of CPU cores from a line of the form:
-        NUMA node# CPU(s):    a-b[,c-d[,...]]"""
+    def extract_core_list(self, line: str):
+        """
+        Extract a list of CPU cores from a line of the form:
+        NUMA node# CPU(s):    a-b[,c-d[,...]]
+        """
         colon = line.find(":")
         cpu_list = line[colon + 1 :]
-        core_list = []
+        core_list = []  # type: list[int]
         for core_range in cpu_list.split(","):
             # Skip it if the CPU list for the NUMA node is empty....
             core_range = core_range.strip()
@@ -237,7 +246,7 @@ class IPerfPerformanceTest:
         logging.debug("Will use CPU cores: {}....".format(core_list))
         return core_list
 
-    def find_cores(self, numa_node):
+    def find_cores(self, numa_node: int) -> "list[int]":
         """Return a list of CPU cores tied to the specified NUMA node."""
         numa_return = check_output(
             "lscpu", universal_newlines=True, stderr=STDOUT
@@ -245,9 +254,7 @@ class IPerfPerformanceTest:
         # Note: If numa_node = -1, the below will never find a match, so
         # core_list will remain empty, and later in the script, the -A option
         # to iperf3 will be dropped.
-        expression = "NUMA node.*" + str(numa_node) + ".*CPU"
-
-        regex = re.compile(expression)
+        regex = re.compile("NUMA node.*{}.*CPU".format(numa_node))
         core_list = []
         if numa_return:
             for i in numa_return:
@@ -261,7 +268,7 @@ class IPerfPerformanceTest:
         if self.iface.max_speed == 0:
             logging.warning(
                 "No max speed detected, assuming Wireless device "
-                "and continuing with test."
+                + "and continuing with test."
             )
 
         threads = self.num_threads
@@ -276,17 +283,18 @@ class IPerfPerformanceTest:
         # for running iperf -- but only one; within that thread, iperf 2's
         # own multi-threading handles that detail.)
         if self.iperf3:
-            self.executable = "iperf3 -V"
+            executable = "iperf3 -V"
             start_port = 5201
             iperf_threads = 1
             python_threads = threads
             node = self.find_numa(self.interface)
             core_list = self.find_cores(node)
         else:
-            self.executable = "iperf"
+            executable = "iperf"
             start_port = 5001
             iperf_threads = threads
             python_threads = 1
+            core_list = []
 
         # IN THEORY, limiting the per-thread bit rate should help spread the
         # load across all the threads and prevent huge discrepancies in CPU
@@ -300,7 +308,7 @@ class IPerfPerformanceTest:
         # If we set run_time, use that instead to build the command.
         if self.run_time is not None:
             cmd = "{} -b {}M -c {} -t {} -i 1 -f m -P {}".format(
-                self.executable,
+                executable,
                 thread_bit_rate,
                 self.target,
                 self.run_time,
@@ -315,10 +323,10 @@ class IPerfPerformanceTest:
             # or 1080 seconds per Gigabit. This will allow for a long period of
             # time without timeout to catch devices that slow down, and also
             # not prematurely end iperf on low-bandwidth devices.
-            self.timeout = 1080 * int(self.data_size)
+            timeout = 1080 * int(self.data_size)
             cmd = "timeout -k 1 {} {} -b {}M -c {} -n {}G -i 1 -f m -P {}".format(  # noqa: E501
-                self.timeout,
-                self.executable,
+                timeout,
+                executable,
                 thread_bit_rate,
                 self.target,
                 self.data_size,
@@ -534,7 +542,10 @@ class Interface(socket.socket):
 
     @property
     def link_speed(self):
-        return int(self._read_data("speed"))
+        raw = self._read_data("speed")
+        if raw is None:
+            raise ValueError("Speed value not found for " + self.interface)
+        return int(raw)
 
     @property
     def max_speed(self):
@@ -619,7 +630,7 @@ def get_test_parameters(args, environ):
     # - If command-line args were given, they take precedence
     # - Next come environment variables, if set.
 
-    params = {"test_target_iperf": None}
+    params = {"test_target_iperf": ""}
 
     # See if we have environment variables
     for key in params.keys():
@@ -805,7 +816,7 @@ def get_network_ifaces():
         ):
             continue
         logging.debug("Retrieve the network attribute for %s interface", iface)
-        network_if = Interface(iface)
+        network_if = Interface(iface.name)
         network_info[iface.name] = {
             "status": network_if.status,
             "phys_switch_id": network_if.phys_switch_id,
@@ -936,8 +947,8 @@ def interface_test_initialize(
     target_dev, underspeed_ok, dont_toggle_ifaces, recover_timeout
 ):
     tempfile_route = tempfile.TemporaryFile()
+    network_info = get_network_ifaces()
     try:
-        network_info = get_network_ifaces()
         # Back up routing table, since network down/up process
         # tends to trash it....
         logging.debug("Backup routing table")
@@ -951,7 +962,6 @@ def interface_test_initialize(
             not dont_toggle_ifaces,
             recover_timeout,
         )
-
         yield
 
     finally:
@@ -978,8 +988,8 @@ def interface_test_initialize(
             raise CalledProcessError(3, "restore network failed")
 
 
-def interface_test(args):
-    if not ("test_type" in vars(args)):
+def interface_test(args: Namespace):
+    if hasattr(args, "test_type"):
         return
 
     # Get the actual test data from one of two possible sources
@@ -990,9 +1000,12 @@ def interface_test(args):
         test_targets_list = make_target_list(
             args.interface, test_targets, True
         )
+    else:
+        test_targets = None
+        test_targets_list = []
 
     # Validate that we got reasonable values
-    if not test_targets_list or "example.com" in test_targets:
+    if not test_targets_list:
         # Default values found in config file
         logging.error("Valid target server has not been supplied.")
         logging.error(
@@ -1056,10 +1069,10 @@ def interface_test(args):
         return 3
 
 
-def interface_info(args):
+def interface_info(args: Namespace):
 
     info_set = ""
-    if "all" in vars(args):
+    if hasattr(args, "all"):
         info_set = args.all
 
     for key, value in vars(args).items():

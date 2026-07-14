@@ -28,11 +28,19 @@ booted FIT kernel image is inspected with dumpimage: a signed image
 indicates a verified-boot setup, an unsigned one indicates secure boot
 is not in use.  Note this checks signature presence, not that the
 bootloader actually enforces verification.
+
+Some ARM platforms expose /sys/firmware/efi without fully implementing
+EBBR, making their SecureBoot variable untrustworthy.  Those platforms
+must pin the detection method with --method fit (or the
+SECURE_BOOT_CHECK_METHOD environment variable, settable from the
+Checkbox configuration).  Platforms with neither a trustworthy
+SecureBoot variable nor a FIT image cannot be checked generically.
 """
 
 import argparse
 import glob
 import logging
+import os
 import re
 import subprocess
 import sys
@@ -101,9 +109,8 @@ def find_fit_image():
         if matches:
             logging.debug("Using FIT image: %s", matches[0])
             return matches[0]
-    raise SystemExit(
-        "No FIT kernel image found (searched: {})".format(", ".join(patterns))
-    )
+    logging.debug("No FIT kernel image found (searched: %s)", patterns)
+    return None
 
 
 def get_fit_state(image_path):
@@ -136,13 +143,44 @@ def get_fit_state(image_path):
     return "disabled"
 
 
-def get_secure_boot_state():
-    """Detect the platform type and return the secure boot state."""
-    if Path(EFI_DIR).is_dir():
-        logging.debug("UEFI system, reading the SecureBoot EFI variable")
+def get_secure_boot_state(method="auto"):
+    """Return the secure boot state using the requested method.
+
+    Some ARM platforms boot through an EFI flow and expose
+    /sys/firmware/efi without fully implementing EBBR, so their
+    SecureBoot variable is not trustworthy.  Auto-detection cannot spot
+    those; such platforms must select the method explicitly ("fit" when
+    they boot a FIT image) via --method or SECURE_BOOT_CHECK_METHOD.
+    """
+    if method == "uefi":
         return get_uefi_state()
-    logging.info("Non-UEFI system, checking the FIT image signature")
-    return get_fit_state(find_fit_image())
+    if method == "fit":
+        image = find_fit_image()
+        if not image:
+            raise SystemExit(
+                "No FIT kernel image found (searched: {})".format(
+                    ", ".join(FIT_IMAGE_GLOBS)
+                )
+            )
+        return get_fit_state(image)
+    # auto: the SecureBoot EFI variable is the strongest evidence when
+    # the firmware provides one; otherwise fall back to the FIT image
+    if Path(SECUREBOOT_VAR).is_file():
+        logging.debug("SecureBoot EFI variable present, reading it")
+        return get_uefi_state()
+    image = find_fit_image()
+    if image:
+        logging.info(
+            "No SecureBoot EFI variable, checking the FIT image signature"
+        )
+        return get_fit_state(image)
+    if Path(EFI_DIR).is_dir():
+        # EFI firmware without a SecureBoot variable and no FIT image
+        return get_uefi_state()
+    raise SystemExit(
+        "Cannot determine the secure boot state: no SecureBoot EFI "
+        "variable and no FIT kernel image found on this system"
+    )
 
 
 def parse_args(argv=None):
@@ -151,6 +189,13 @@ def parse_args(argv=None):
         "expected",
         choices=["enabled", "disabled"],
         help="the expected secure boot state",
+    )
+    parser.add_argument(
+        "--method",
+        choices=["auto", "uefi", "fit"],
+        default=None,
+        help="force the detection method (default: the "
+        "SECURE_BOOT_CHECK_METHOD environment variable, or auto)",
     )
     parser.add_argument(
         "--verbose",
@@ -166,7 +211,11 @@ def main(argv=None):
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(levelname)s: %(message)s",
     )
-    state = get_secure_boot_state()
+    method = args.method or os.environ.get("SECURE_BOOT_CHECK_METHOD", "auto")
+    if method not in ("auto", "uefi", "fit"):
+        raise SystemExit("Invalid SECURE_BOOT_CHECK_METHOD: {}".format(method))
+    logging.debug("Detection method: %s", method)
+    state = get_secure_boot_state(method)
     print("Secure boot state: {}".format(state))
     if state != args.expected:
         raise SystemExit(

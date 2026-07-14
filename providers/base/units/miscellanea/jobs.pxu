@@ -669,6 +669,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_secure_boot == 'True'
 user: root
+environ: SECURE_BOOT_CHECK_METHOD
 command:
   check_secure_boot_state.py enabled --verbose
 _summary:
@@ -679,6 +680,9 @@ _purpose:
   systems the state is read from the SecureBoot EFI variable; on non-UEFI
   systems the booted FIT kernel image must carry a signature (which
   indicates a verified-boot setup, not that the bootloader enforces it).
+  ARM platforms that boot via EFI without full EBBR support (untrustworthy
+  SecureBoot variable) should set SECURE_BOOT_CHECK_METHOD=fit in the
+  Checkbox configuration.
 
 id: miscellanea/secure-boot-disabled
 plugin: shell
@@ -688,6 +692,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_secure_boot == 'False'
 user: root
+environ: SECURE_BOOT_CHECK_METHOD
 command:
   check_secure_boot_state.py disabled --verbose
 _summary:
@@ -697,4 +702,7 @@ _purpose:
   when the manifest indicates the system does not support secure boot. On
   UEFI systems the state is read from the SecureBoot EFI variable; on
   non-UEFI systems the booted FIT kernel image must carry no signature.
+  ARM platforms that boot via EFI without full EBBR support (untrustworthy
+  SecureBoot variable) should set SECURE_BOOT_CHECK_METHOD=fit in the
+  Checkbox configuration.
 

@@ -141,10 +141,8 @@ class TestFindFitImage(unittest.TestCase):
 
     @patch("check_secure_boot_state.glob.glob", return_value=[])
     @patch("check_secure_boot_state.on_ubuntucore", return_value=False)
-    def test_no_image_raises(self, _core, _glob, _prefix):
-        with self.assertRaises(SystemExit) as ctx:
-            check_secure_boot_state.find_fit_image()
-        self.assertIn("No FIT kernel image found", str(ctx.exception))
+    def test_no_image_returns_none(self, _core, _glob, _prefix):
+        self.assertIsNone(check_secure_boot_state.find_fit_image())
 
 
 @patch("check_secure_boot_state.subprocess.check_output")
@@ -196,8 +194,8 @@ class TestGetFitState(unittest.TestCase):
 class TestGetSecureBootState(unittest.TestCase):
     @patch("check_secure_boot_state.get_uefi_state", return_value="enabled")
     @patch("check_secure_boot_state.Path")
-    def test_uefi_route(self, mock_path, mock_uefi):
-        mock_path.return_value.is_dir.return_value = True
+    def test_auto_prefers_secureboot_variable(self, mock_path, mock_uefi):
+        mock_path.return_value.is_file.return_value = True
         self.assertEqual(
             check_secure_boot_state.get_secure_boot_state(), "enabled"
         )
@@ -209,12 +207,59 @@ class TestGetSecureBootState(unittest.TestCase):
         return_value="/boot/a.itb",
     )
     @patch("check_secure_boot_state.Path")
-    def test_fit_route(self, mock_path, mock_find, mock_fit):
-        mock_path.return_value.is_dir.return_value = False
+    def test_auto_falls_back_to_fit(self, mock_path, mock_find, mock_fit):
+        mock_path.return_value.is_file.return_value = False
         self.assertEqual(
             check_secure_boot_state.get_secure_boot_state(), "disabled"
         )
         mock_fit.assert_called_with("/boot/a.itb")
+
+    @patch("check_secure_boot_state.get_uefi_state", return_value="disabled")
+    @patch("check_secure_boot_state.find_fit_image", return_value=None)
+    @patch("check_secure_boot_state.Path")
+    def test_auto_efi_without_variable_or_fit(
+        self, mock_path, _find, mock_uefi
+    ):
+        mock_path.return_value.is_file.return_value = False
+        mock_path.return_value.is_dir.return_value = True
+        self.assertEqual(
+            check_secure_boot_state.get_secure_boot_state(), "disabled"
+        )
+        self.assertEqual(mock_uefi.call_count, 1)
+
+    @patch("check_secure_boot_state.find_fit_image", return_value=None)
+    @patch("check_secure_boot_state.Path")
+    def test_auto_nothing_found_raises(self, mock_path, _find):
+        mock_path.return_value.is_file.return_value = False
+        mock_path.return_value.is_dir.return_value = False
+        with self.assertRaises(SystemExit) as ctx:
+            check_secure_boot_state.get_secure_boot_state()
+        self.assertIn("Cannot determine", str(ctx.exception))
+
+    @patch("check_secure_boot_state.get_uefi_state", return_value="enabled")
+    def test_method_uefi_forced(self, mock_uefi):
+        self.assertEqual(
+            check_secure_boot_state.get_secure_boot_state("uefi"),
+            "enabled",
+        )
+        self.assertEqual(mock_uefi.call_count, 1)
+
+    @patch("check_secure_boot_state.get_fit_state", return_value="enabled")
+    @patch(
+        "check_secure_boot_state.find_fit_image",
+        return_value="/boot/a.itb",
+    )
+    def test_method_fit_forced(self, _find, mock_fit):
+        self.assertEqual(
+            check_secure_boot_state.get_secure_boot_state("fit"), "enabled"
+        )
+        mock_fit.assert_called_with("/boot/a.itb")
+
+    @patch("check_secure_boot_state.find_fit_image", return_value=None)
+    def test_method_fit_without_image_raises(self, _find):
+        with self.assertRaises(SystemExit) as ctx:
+            check_secure_boot_state.get_secure_boot_state("fit")
+        self.assertIn("No FIT kernel image found", str(ctx.exception))
 
 
 class TestMain(unittest.TestCase):
@@ -239,12 +284,55 @@ class TestMain(unittest.TestCase):
         self.assertIn("disabled", str(ctx.exception))
         self.assertIn("enabled", str(ctx.exception))
 
+    @patch("builtins.print")
+    @patch(
+        "check_secure_boot_state.get_secure_boot_state",
+        return_value="enabled",
+    )
+    def test_method_from_environment(self, mock_state, _print):
+        env = {"SECURE_BOOT_CHECK_METHOD": "fit"}
+        with patch.dict("os.environ", env):
+            check_secure_boot_state.main(["enabled"])
+        mock_state.assert_called_with("fit")
+
+    @patch("builtins.print")
+    @patch(
+        "check_secure_boot_state.get_secure_boot_state",
+        return_value="enabled",
+    )
+    def test_method_flag_overrides_environment(self, mock_state, _print):
+        env = {"SECURE_BOOT_CHECK_METHOD": "fit"}
+        with patch.dict("os.environ", env):
+            check_secure_boot_state.main(["enabled", "--method", "uefi"])
+        mock_state.assert_called_with("uefi")
+
+    def test_invalid_method_from_environment(self):
+        env = {"SECURE_BOOT_CHECK_METHOD": "bogus"}
+        with patch.dict("os.environ", env):
+            with self.assertRaises(SystemExit) as ctx:
+                check_secure_boot_state.main(["enabled"])
+        self.assertIn("Invalid SECURE_BOOT_CHECK_METHOD", str(ctx.exception))
+
 
 class TestArgumentParser(unittest.TestCase):
     def test_parses_expected_and_verbose(self):
         args = check_secure_boot_state.parse_args(["enabled", "--verbose"])
         self.assertEqual(args.expected, "enabled")
         self.assertTrue(args.verbose)
+        self.assertIsNone(args.method)
+
+    def test_parses_method(self):
+        args = check_secure_boot_state.parse_args(
+            ["disabled", "--method", "fit"]
+        )
+        self.assertEqual(args.method, "fit")
+
+    @patch("sys.stderr")
+    def test_invalid_method_rejected(self, _stderr):
+        with self.assertRaises(SystemExit):
+            check_secure_boot_state.parse_args(
+                ["enabled", "--method", "bogus"]
+            )
 
     @patch("sys.stderr")
     def test_invalid_state_rejected(self, _stderr):

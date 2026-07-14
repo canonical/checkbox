@@ -1,8 +1,11 @@
 id: ce-oem-ebbr/fwts_ebbr_resource
-_summary: Generates FWTS EBBR cases for EBBR tests
+_summary: Generates FWTS Embedded Base Boot Requirements (EBBR) cases
 estimated_duration: 0.02
 category_id: ce-oem-ebbr
 plugin: resource
+imports:
+    from com.canonical.certification import cpuinfo
+requires: cpuinfo.platform in ("aarch64", "armv7l")
 command:
     ebbr_resource.py
 
@@ -10,11 +13,18 @@ unit: template
 template-engine: jinja2
 template-resource: ce-oem-ebbr/fwts_ebbr_resource
 template-unit: job
+template-id: ce-oem-ebbr/fwts-ebbr-test
 id: ce-oem-ebbr/fwts-ebbr-{{ case }}
-_summary: FWTS EBBR {{ case }} test
-_description: FWTS EBBR {{ description }} test
+_summary: FWTS ARM Embedded Base Boot Requirements (EBBR) {{ case }} test
+_description: FWTS ARM Embedded Base Boot Requirements (EBBR) {{ description }} test
 plugin: shell
 user: root
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import cpuinfo
+requires:
+    manifest.has_arm_ebbr == 'True'
+    cpuinfo.platform in ("aarch64", "armv7l")
 category_id: ce-oem-ebbr
 estimated_duration: 5s
 flags: also-after-suspend

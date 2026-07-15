@@ -48,12 +48,9 @@ import sys
 import time
 import typing as t
 
-# Global results[] variable to pass results from multiple threads....
-results = []
-
-
 ETH_P_IBOE = 0x8915
 SIOCGIFNETMASK = 0x891B
+
 
 class IPerfPerformanceTest:
     """Measures performance of interface using iperf client
@@ -71,7 +68,7 @@ class IPerfPerformanceTest:
         reverse: bool,
         # the following are never used anywhere
         # so their types are basically guesswork
-        protocol: "t.Literal['tcp', 'udp']" = "tcp", 
+        protocol: "t.Literal['tcp', 'udp']" = "tcp",
         data_size: int = 1,
         run_time: "int | None" = None,
         scan_timeout: int = 3600,
@@ -90,10 +87,11 @@ class IPerfPerformanceTest:
         self.scan_timeout = scan_timeout
         self.iface_timeout = iface_timeout
         self.reverse = reverse
+        self.results = []  # type: list[str]
+        self._results_lock = threading.Lock()
 
     def run_one_thread(self, cmd: str, port_num: int):
-        """Run a single test thread, storing the output in the global results[]
-        variable."""
+        """Run a single test thread, storing the output in self.results[]."""
         cmd = cmd + " -p {}".format(port_num)
         logging.debug("Executing command {}".format(cmd))
         logging.info("Connecting to port {} on server....".format(port_num))
@@ -138,14 +136,15 @@ class IPerfPerformanceTest:
                 # a partial (but usable) result.
                 logging.warning("iperf timed out - this should be OK")
                 iperf_return = iperf_exception.output
-        results.append(iperf_return)
+        with self._results_lock:
+            self.results.append(iperf_return)
 
     def summarize_speeds(self):
-        """Search the global results[] variable, computing the throughput for
-        each thread and returning the total throughput for all threads."""
+        """Search self.results[], computing the throughput for each thread
+        and returning the total throughput for all threads."""
         total_throughput = 0
         n = 0
-        for run in results:
+        for run in self.results:
             logging.debug(run)
             # iperf3 provides "sender" and "receiver" summaries; remove them
             run = re.sub(r".*(sender|receiver)", "", run)
@@ -177,7 +176,7 @@ class IPerfPerformanceTest:
         sum_cpu = 0.0
         avg_cpu = 0.0
         n = 0
-        for thread_results in results:
+        for thread_results in self.results:
             # "CPU Utilization" line present only in iperf3 output
             new_cpu = re.findall(
                 r"CPU Utilization.*local/sender\s([\w\.]+)", thread_results
@@ -340,7 +339,7 @@ class IPerfPerformanceTest:
         # Handle threading -- start Python threads (even if just one is
         # used), then use join() to wait for them all to complete....
         t = []
-        results.clear()
+        self.results.clear()
         for thread_num in range(0, python_threads):
             if self.iperf3 and len(core_list) > 0:
                 core = core_list[thread_num % len(core_list)]
@@ -1008,7 +1007,7 @@ def interface_test(args: Namespace):
             args.interface, test_targets, True
         )
     else:
-        test_targets = ''
+        test_targets = ""
         test_targets_list = []
 
     # Validate that we got reasonable values

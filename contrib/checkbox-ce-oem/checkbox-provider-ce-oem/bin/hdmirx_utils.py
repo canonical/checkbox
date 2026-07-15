@@ -154,7 +154,7 @@ _IOC_WRITE = 1
 _IOC_READ = 2
 
 
-def _IOC(direction, magic, nr, size):
+def _IOC(direction, magic, nr, size):  # noqa: N802 (kernel macro name)
     return (
         (direction << _IOC_DIRSHIFT)
         | (ord(magic) << _IOC_TYPESHIFT)
@@ -163,15 +163,15 @@ def _IOC(direction, magic, nr, size):
     )
 
 
-def _IOW(magic, nr, size):
+def _IOW(magic, nr, size):  # noqa: N802 (kernel macro name)
     return _IOC(_IOC_WRITE, magic, nr, size)
 
 
-def _IOR(magic, nr, size):
+def _IOR(magic, nr, size):  # noqa: N802 (kernel macro name)
     return _IOC(_IOC_READ, magic, nr, size)
 
 
-def _IOWR(magic, nr, size):
+def _IOWR(magic, nr, size):  # noqa: N802 (kernel macro name)
     return _IOC(_IOC_READ | _IOC_WRITE, magic, nr, size)
 
 

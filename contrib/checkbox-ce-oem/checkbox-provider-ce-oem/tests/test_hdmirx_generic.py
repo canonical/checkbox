@@ -22,7 +22,7 @@ import ctypes
 import unittest
 from unittest.mock import mock_open, patch
 
-import hdmirx_generic as G
+import hdmirx_generic as G  # noqa: N812 (short test alias)
 from hdmirx_generic import (
     V4L2Backend,
     _frame_rate_hz,

@@ -46,7 +46,7 @@ from hdmirx_utils import (
 # --------------------------------------------------------------------------
 # Video / device structs
 # --------------------------------------------------------------------------
-class HDMIRX_VID_PARA(ctypes.Structure):
+class HDMIRX_VID_PARA(ctypes.Structure):  # noqa: N801 (C struct name)
     _fields_ = [
         ("cs", ctypes.c_int),  # enum HDMIRX_CS
         ("dp", ctypes.c_int),  # enum HdmiRxDP
@@ -61,7 +61,7 @@ class HDMIRX_VID_PARA(ctypes.Structure):
     ]  # sizeof == 40
 
 
-class HDMIRX_DEV_INFO(ctypes.Structure):
+class HDMIRX_DEV_INFO(ctypes.Structure):  # noqa: N801 (C struct name)
     _fields_ = [
         ("hdmirx5v", ctypes.c_uint8),
         ("hpd", ctypes.c_bool),
@@ -142,7 +142,7 @@ class _AudExtraInfo(ctypes.Structure):
     ]
 
 
-class HDMIRX_AUD_INFO(ctypes.Structure):
+class HDMIRX_AUD_INFO(ctypes.Structure):  # noqa: N801 (C struct name)
     _fields_ = [("caps", _AudCaps), ("info", _AudExtraInfo)]  # sizeof == 28
 
 

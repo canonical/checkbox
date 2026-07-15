@@ -69,7 +69,9 @@ class IPerfPerformanceTest:
         iperf3: str,
         num_threads: int,
         reverse: bool,
-        protocol: "t.Literal['tcp', 'udp']" = "tcp",
+        # the following are never used anywhere
+        # so their types are basically guesswork
+        protocol: "t.Literal['tcp', 'udp']" = "tcp", 
         data_size: int = 1,
         run_time: "int | None" = None,
         scan_timeout: int = 3600,
@@ -199,10 +201,9 @@ class IPerfPerformanceTest:
         :return: node int, from /sys/class/net/<device>/device/numa_node
                  returns -1 if unsupported
         """
-        filename = (Path("/sys/class/net/") / device) / "device" / "numa_node"
+        filename = Path("/sys/class/net/") / device / "device" / "numa_node"
         try:
-            with open(filename, "r") as file:
-                node_num = int(file.read())
+            node_num = int(filename.read_text().strip())
         except FileNotFoundError:
             node_num = -1
         # Some systems (that don't support NUMA?) produce a node_num of -1.
@@ -672,7 +673,7 @@ def can_ping(the_interface, test_target):
     return working_interface
 
 
-def run_test(args, test_target):
+def run_test(args: Namespace, test_target: str):
     # Ensure that interface is fully up by waiting until it can
     # ping the test server
     logging.info("Testing {} against {}".format(args.interface, test_target))
@@ -732,7 +733,7 @@ def run_test(args, test_target):
     return error_number
 
 
-def make_target_list(iface, test_targets, log_warnings):
+def make_target_list(iface: str, test_targets: str, log_warnings: bool):
     """Convert comma-separated string of test targets into a list form.
 
     Converts test target list in string form into Python list form, omitting
@@ -1007,7 +1008,7 @@ def interface_test(args: Namespace):
             args.interface, test_targets, True
         )
     else:
-        test_targets = None
+        test_targets = ''
         test_targets_list = []
 
     # Validate that we got reasonable values

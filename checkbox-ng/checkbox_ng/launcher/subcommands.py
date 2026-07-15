@@ -711,9 +711,7 @@ class Launcher(MainLoopStage, ReportsStage):
             except FileNotFoundError:
                 pass
         self.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
-        failed_setups = self.setup()
-        if failed_setups:
-            raise SystemExit("Failed to prepare the machine")
+        self.setup()
         self.bootstrap()
 
     def _delete_old_sessions(self, ids):

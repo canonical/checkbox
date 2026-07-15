@@ -17,6 +17,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_BE_SSID" -d
 user: root
@@ -43,6 +44,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_AX_SSID" -d
 user: root
@@ -69,6 +71,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-ac.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_AC_SSID" -d
 user: root
@@ -95,6 +98,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-bg.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_BG_SSID" -d
 user: root
@@ -120,6 +124,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-n.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_N_SSID" -d
 user: root
@@ -145,6 +150,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_BE_SSID" -k "$WPA_BE_PSK" -d
 user: root
@@ -171,6 +177,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_AX_SSID" -k "$WPA_AX_PSK" -d
 user: root
@@ -197,6 +204,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_BE_SSID" -k "$WPA3_BE_PSK" -d --wpa3
 user: root
@@ -223,6 +231,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_AX_SSID" -k "$WPA3_AX_PSK" -d --wpa3
 user: root
@@ -249,6 +258,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-ac.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_AC_SSID" -k "$WPA_AC_PSK" -d
 user: root
@@ -275,6 +285,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-bg.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_BG_SSID" -k "$WPA_BG_PSK" -d
 user: root
@@ -300,6 +311,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
+    # shellcheck source=/dev/null
     source "$PLAINBOX_SESSION_SHARE/wifi-n.env" 2> /dev/null || true
     wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_N_SSID" -k "$WPA_N_PSK" -d
 user: root

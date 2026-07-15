@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_hdmi_rx
+_name: HDMI RX (Input)
+_prompt: Does this machine support the HDMI RX feature?
+value-type: bool

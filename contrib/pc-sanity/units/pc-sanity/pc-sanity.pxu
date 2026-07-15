@@ -105,7 +105,7 @@ id: pc-sanity-smoke-test-24-04
 _name: pc-sanity-smoke-test 24.04 (Ubuntu Desktop)
 unit: test plan
 _description:
-    This test plan is for smoke test as sanity before release image.
+    Smoke-test plan to sanity-check images before release.
 include:
 exclude:
     com.canonical.certification::after-suspend-bluetooth4/beacon_.*
@@ -126,13 +126,13 @@ bootstrap_include:
     graphics_card
     cpuinfo
 description:
-    A plan following SRU plan to exclude dGPU switching temporary.
+    Smoke-test plan for 24.04 to sanity-check images before release.
 
 id: pc-sanity-smoke-test-26-04
 _name: pc-sanity-smoke-test 26.04 (Ubuntu Desktop)
 unit: test plan
 _description:
-    This test plan is for smoke test as sanity before release image.
+    Smoke-test plan to sanity-check images before release.
 include:
 exclude:
     com.canonical.certification::after-suspend-bluetooth4/beacon_.*
@@ -153,7 +153,7 @@ bootstrap_include:
     graphics_card
     cpuinfo
 description:
-    A plan following SRU plan to exclude dGPU switching temporary.
+    Smoke-test plan for 26.04 to sanity-check images before release.
 
 
 id: pc-sanity-smoke-test-24-04-without-cert-desktop

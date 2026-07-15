@@ -87,7 +87,8 @@ class IPerfPerformanceTest:
         self.scan_timeout = scan_timeout
         self.iface_timeout = iface_timeout
         self.reverse = reverse
-        self.results = []  # type: list[str]
+
+        self._results = []  # type: list[str]
         self._results_lock = threading.Lock()
 
     def run_one_thread(self, cmd: str, port_num: int):
@@ -137,14 +138,14 @@ class IPerfPerformanceTest:
                 logging.warning("iperf timed out - this should be OK")
                 iperf_return = iperf_exception.output
         with self._results_lock:
-            self.results.append(iperf_return)
+            self._results.append(iperf_return)
 
     def summarize_speeds(self):
         """Search self.results[], computing the throughput for each thread
         and returning the total throughput for all threads."""
         total_throughput = 0
         n = 0
-        for run in self.results:
+        for run in self._results:
             logging.debug(run)
             # iperf3 provides "sender" and "receiver" summaries; remove them
             run = re.sub(r".*(sender|receiver)", "", run)
@@ -176,7 +177,7 @@ class IPerfPerformanceTest:
         sum_cpu = 0.0
         avg_cpu = 0.0
         n = 0
-        for thread_results in self.results:
+        for thread_results in self._results:
             # "CPU Utilization" line present only in iperf3 output
             new_cpu = re.findall(
                 r"CPU Utilization.*local/sender\s([\w\.]+)", thread_results
@@ -339,7 +340,7 @@ class IPerfPerformanceTest:
         # Handle threading -- start Python threads (even if just one is
         # used), then use join() to wait for them all to complete....
         t = []
-        self.results.clear()
+        self._results.clear()
         for thread_num in range(0, python_threads):
             if self.iperf3 and len(core_list) > 0:
                 core = core_list[thread_num % len(core_list)]

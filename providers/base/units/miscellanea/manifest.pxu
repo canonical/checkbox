@@ -7,3 +7,10 @@ unit: manifest entry
 id: has_sriov
 _name: SR-IOV support
 value-type: bool
+
+unit: manifest entry
+id: _has_experimental_testing
+_name: Experimental testing
+value-type: bool
+hidden-reason: Experimental jobs should run only on systems explicitly flagged
+  for that coverage through configuration.

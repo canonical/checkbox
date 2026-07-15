@@ -48,7 +48,7 @@ _HDMIRX_DRIVER_HINTS = ("hdmirx", "hdmi-rx", "hdmi rx")
 _V4L2_DV_BT_656_1120 = 0  # struct v4l2_dv_timings.type for BT timings
 
 
-class v4l2_fract(ctypes.Structure):
+class v4l2_fract(ctypes.Structure):  # noqa: N801 (UAPI struct name)
     _pack_ = 1
     _fields_ = [
         ("numerator", ctypes.c_uint32),
@@ -56,7 +56,7 @@ class v4l2_fract(ctypes.Structure):
     ]
 
 
-class v4l2_bt_timings(ctypes.Structure):
+class v4l2_bt_timings(ctypes.Structure):  # noqa: N801 (UAPI struct name)
     _pack_ = 1
     _fields_ = [
         ("width", ctypes.c_uint32),
@@ -82,12 +82,12 @@ class v4l2_bt_timings(ctypes.Structure):
     ]  # sizeof == 124 (packed)
 
 
-class _v4l2_dv_union(ctypes.Union):
+class _v4l2_dv_union(ctypes.Union):  # noqa: N801 (UAPI struct name)
     _pack_ = 1
     _fields_ = [("bt", v4l2_bt_timings), ("reserved", ctypes.c_uint32 * 32)]
 
 
-class v4l2_dv_timings(ctypes.Structure):
+class v4l2_dv_timings(ctypes.Structure):  # noqa: N801 (UAPI struct name)
     _pack_ = 1
     _fields_ = [("type", ctypes.c_uint32), ("u", _v4l2_dv_union)]
     # union deliberately kept named ('u') rather than anonymous

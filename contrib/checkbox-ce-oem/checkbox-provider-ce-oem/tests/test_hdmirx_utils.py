@@ -27,7 +27,7 @@ import ctypes
 import unittest
 from unittest.mock import patch
 
-import hdmirx_utils as U
+import hdmirx_utils as U  # noqa: N812 (short test alias)
 from hdmirx_utils import (
     AbiMismatch,
     AudioInfo,

@@ -1,0 +1,54 @@
+id: ce-oem-hdmi-rx-full
+unit: test plan
+_name: HDMI RX (Input) tests
+_description: Full HDMI RX (input) tests for devices
+include:
+nested_part:
+    ce-oem-hdmi-rx-manual
+    ce-oem-hdmi-rx-automated
+
+id: ce-oem-hdmi-rx-manual
+unit: test plan
+_name: HDMI RX (Input) manual tests
+_description: Manual HDMI RX (input) tests for devices
+include:
+    ce-oem-hdmi-rx/module-detect
+    ce-oem-hdmi-rx/plug-event-detect
+    ce-oem-hdmi-rx/check-hdmi-cable-connection
+    ce-oem-hdmi-rx/check-video-info
+    ce-oem-hdmi-rx/check-audio-info
+    ce-oem-hdmi-rx/disable-then-enable-hdmi
+    ce-oem-hdmi-rx/unplug-event-detect
+
+id: ce-oem-hdmi-rx-automated
+unit: test plan
+_name: HDMI RX (Input) auto tests
+_description: Automated HDMI RX (input) tests for devices
+include:
+
+id: after-suspend-ce-oem-hdmi-rx-full
+unit: test plan
+_name: HDMI RX (Input) tests (after suspend)
+_description: Full after suspend HDMI RX (input) tests for devices
+include:
+nested_part:
+    after-suspend-ce-oem-hdmi-rx-manual
+    after-suspend-ce-oem-hdmi-rx-automated
+
+id: after-suspend-ce-oem-hdmi-rx-manual
+unit: test plan
+_name: HDMI RX (Input) manual tests (after suspend)
+_description: Manual after suspend HDMI RX (input) tests for devices
+include:
+    after-suspend-ce-oem-hdmi-rx/plug-event-detect
+    after-suspend-ce-oem-hdmi-rx/check-hdmi-cable-connection
+    after-suspend-ce-oem-hdmi-rx/check-video-info
+    after-suspend-ce-oem-hdmi-rx/check-audio-info
+    after-suspend-ce-oem-hdmi-rx/disable-then-enable-hdmi
+    after-suspend-ce-oem-hdmi-rx/unplug-event-detect
+
+id: after-suspend-ce-oem-hdmi-rx-automated
+unit: test plan
+_name: HDMI RX (Input) auto tests (after suspend)
+_description: Automated after suspend HDMI RX (input) tests for devices
+include:

@@ -1,0 +1,133 @@
+id: ce-oem-hdmi-rx/module-detect
+plugin: shell
+category_id: ce-oem-hdmi-rx
+estimated_duration: 1
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx == "True"
+user: root
+_summary: Check that an HDMI RX kernel driver is loaded
+_description:
+    Detect an available HDMI RX backend (the Genio mtk_hdmirx char
+    device or a mainline V4L2 HDMI RX node) without relying on any
+    vendor binary.
+command: hdmirx_tool.py module-check
+
+id: ce-oem-hdmi-rx/plug-event-detect
+plugin: user-interact
+category_id: ce-oem-hdmi-rx
+estimated_duration: 20
+depends: ce-oem-hdmi-rx/module-detect
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx == "True"
+flags: also-after-suspend
+user: root
+command: hdmirx_tool.py wait-event plug
+_summary: Detect the HDMI RX events while plugging the HDMI cable
+_purpose:
+    This test checks that the PWR_5V_CHANGE, PLUG_IN, TIMING_LOCK and
+    AUD_LOCK events can be detected while the HDMI RX port is connected
+    to a Host or Player such as a Laptop through an HDMI cable.
+_steps:
+    On the Host or Player side (e.g. a Laptop with Ubuntu Desktop):
+        1. Check and set the value of the Sample Specification to be
+           "s16le 2ch 48000Hz" (list sinks via '$ pactl list sinks').
+        2. Plug an HDMI cable into the Host or Player.
+    On the DUT side:
+        1. Press "Enter" to start event detection.
+        2. You will have 15 seconds to plug the HDMI cable into the
+           HDMI RX port.
+
+id: ce-oem-hdmi-rx/check-hdmi-cable-connection
+plugin: shell
+category_id: ce-oem-hdmi-rx
+estimated_duration: 5
+depends: ce-oem-hdmi-rx/module-detect
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx == "True"
+flags: also-after-suspend
+user: root
+command: hdmirx_tool.py cable
+_summary: Check the HDMI RX cable connection
+_description:
+    This test checks that the HDMI RX device reports "hdmi connected"
+    (HPD and 5V present) after the HDMI RX port has been connected to a
+    Host or Player such as a Laptop through an HDMI cable.
+
+id: ce-oem-hdmi-rx/check-video-info
+plugin: shell
+category_id: ce-oem-hdmi-rx
+estimated_duration: 5
+depends:
+    ce-oem-hdmi-rx/module-detect
+    ce-oem-hdmi-rx/check-hdmi-cable-connection
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx == "True"
+flags: also-after-suspend
+user: root
+command: hdmirx_tool.py video-info -rh 1920 -rv 1080 -rr 60
+_summary: Check the received HDMI RX video information
+_description:
+    This test checks that the received video information matches the
+    expectation. It expects hactive = 1920, vactive = 1080 and
+    frame_rate = 60 once the HDMI RX port is connected to a Host or
+    Player through an HDMI cable.
+
+id: ce-oem-hdmi-rx/check-audio-info
+plugin: shell
+category_id: ce-oem-hdmi-rx
+estimated_duration: 5
+depends:
+    ce-oem-hdmi-rx/module-detect
+    ce-oem-hdmi-rx/check-hdmi-cable-connection
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx == "True"
+flags: also-after-suspend
+user: root
+command: hdmirx_tool.py audio-info -ab 24 -ac 2 -asf 48.0
+_summary: Check the received HDMI RX audio information
+_description:
+    This test checks that the received audio information matches the
+    expectation. It expects a 24-bit word length, 2 channels and a
+    48.0 kHz sample frequency once the HDMI RX port is connected to a
+    Host or Player through an HDMI cable.
+
+id: ce-oem-hdmi-rx/disable-then-enable-hdmi
+plugin: shell
+category_id: ce-oem-hdmi-rx
+estimated_duration: 10
+depends:
+    ce-oem-hdmi-rx/module-detect
+    ce-oem-hdmi-rx/check-hdmi-cable-connection
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx == "True"
+flags: also-after-suspend
+user: root
+command: hdmirx_tool.py disable-then-enable
+_summary: Disable and re-enable the HDMI RX functionality
+_description:
+    This test disables the HDMI RX functionality, verifies the cable is
+    reported as disconnected, then re-enables it and verifies the cable
+    is reported as connected again. The HDMI RX port stays physically
+    connected throughout.
+
+id: ce-oem-hdmi-rx/unplug-event-detect
+plugin: user-interact
+category_id: ce-oem-hdmi-rx
+estimated_duration: 20
+depends: ce-oem-hdmi-rx/module-detect
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx == "True"
+flags: also-after-suspend
+user: root
+command: hdmirx_tool.py wait-event unplug
+_summary: Detect the HDMI RX events while unplugging the HDMI cable
+_purpose:
+    This test checks that the AUD_UNLOCK, TIMING_UNLOCK, PWR_5V_CHANGE
+    and PLUG_OUT events can be detected while removing the HDMI cable
+    from the HDMI RX port.
+_steps:
+    1. Plug the HDMI cable into the HDMI RX port if it is not connected
+       yet.
+    2. Press "Enter" to start event detection.
+    3. You will have 15 seconds to remove the HDMI cable from the HDMI
+       RX port.

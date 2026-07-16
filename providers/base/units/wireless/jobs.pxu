@@ -53,8 +53,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-bg.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-bg.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-bg.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-bg.env"
+  fi
   wifi_nmcli_test.py secured {{ interface }} "$WPA_BG_SSID" "$WPA_BG_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -79,8 +82,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-bg.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-bg.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-bg.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-bg.env"
+  fi
   wifi_nmcli_test.py open {{ interface }} "$OPEN_BG_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -105,8 +111,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-n.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-n.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-n.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-n.env"
+  fi
   wifi_nmcli_test.py secured {{ interface }} "$WPA_N_SSID" "$WPA_N_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -131,8 +140,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-n.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-n.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-n.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-n.env"
+  fi
   wifi_nmcli_test.py open {{ interface }} "$OPEN_N_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -157,8 +169,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-ac.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ac.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-ac.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-ac.env"
+  fi
   wifi_nmcli_test.py secured {{ interface }} "$WPA_AC_SSID" "$WPA_AC_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -184,8 +199,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-ac.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ac.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-ac.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-ac.env"
+  fi
   wifi_nmcli_test.py open {{ interface }} "$OPEN_AC_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -211,8 +229,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ax.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-ax.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-ax.env"
+  fi
   wifi_nmcli_test.py secured {{ interface }} "$WPA_AX_SSID" "$WPA_AX_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -238,8 +259,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ax.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-ax.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-ax.env"
+  fi
   wifi_nmcli_test.py secured {{ interface }} "$WPA3_AX_SSID" "$WPA3_AX_PSK" --exchange sae
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -265,8 +289,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-ax.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ax.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-ax.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-ax.env"
+  fi
   wifi_nmcli_test.py open {{ interface }} "$OPEN_AX_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -292,8 +319,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-be.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-be.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-be.env"
+  fi
   wifi_nmcli_test.py secured {{ interface }} "$WPA_BE_SSID" "$WPA_BE_PSK"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -319,8 +349,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-be.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-be.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-be.env"
+  fi
   wifi_nmcli_test.py secured {{ interface }} "$WPA3_BE_SSID" "$WPA3_BE_PSK" --exchange sae
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
@@ -375,8 +408,11 @@ plugin: shell
 user: root
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
-  # shellcheck source=/dev/null
-  source "$PLAINBOX_SESSION_SHARE/wifi-be.env" 2> /dev/null || true
+  if [ -f "$PLAINBOX_SESSION_SHARE/wifi-be.env" ]; then
+    echo "Loading Wi-Fi credentials from $PLAINBOX_SESSION_SHARE/wifi-be.env"
+    # shellcheck source=/dev/null
+    source "$PLAINBOX_SESSION_SHARE/wifi-be.env"
+  fi
   wifi_nmcli_test.py open {{ interface }} "$OPEN_BE_SSID"
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0

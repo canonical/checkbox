@@ -56,28 +56,25 @@ def detect(preferred=None):
     ``None`` auto-detects the first available backend. Raises
     ``NoBackendError`` on an empty, unknown, or absent backend.
     """
+    known = ", ".join(c.name for c in BACKENDS)
     if preferred is not None:
         if not preferred.strip():
             raise NoBackendError(
                 "no backend selected: set HDMIRX_BACKEND to one of: "
-                "{}".format(", ".join(c.name for c in BACKENDS))
+                "{}".format(known)
             )
         for cls in BACKENDS:
             if cls.name == preferred:
                 return cls()
         raise NoBackendError(
-            "unknown backend {!r}; known: {}".format(
-                preferred, ", ".join(c.name for c in BACKENDS)
-            )
+            "unknown backend {!r}; known: {}".format(preferred, known)
         )
     for cls in BACKENDS:
         backend = cls()
         if backend.is_available():
             return backend
     raise NoBackendError(
-        "no HDMI RX backend available (tried: {})".format(
-            ", ".join(c.name for c in BACKENDS)
-        )
+        "no HDMI RX backend available (tried: {})".format(known)
     )
 
 
@@ -92,9 +89,6 @@ def _poll_until(predicate, timeout=5.0, interval=0.5):
         time.sleep(interval)
 
 
-# --------------------------------------------------------------------------
-# Sub-command handlers: each returns (reasons, data). reasons empty == pass.
-# --------------------------------------------------------------------------
 def _cmd_module_check(backend, args):
     if backend.module_present():
         return [], {"module_present": True}

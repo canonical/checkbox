@@ -43,9 +43,6 @@ from hdmirx_utils import (
 )
 
 
-# --------------------------------------------------------------------------
-# Video / device structs
-# --------------------------------------------------------------------------
 class HDMIRX_VID_PARA(ctypes.Structure):  # noqa: N801 (C struct name)
     _fields_ = [
         ("cs", ctypes.c_int),  # enum HDMIRX_CS
@@ -72,10 +69,6 @@ class HDMIRX_DEV_INFO(ctypes.Structure):  # noqa: N801 (C struct name)
     ]  # sizeof == 12
 
 
-# --------------------------------------------------------------------------
-# Audio structs (AUDIO_INFOFRAME_LEN = 10 -> HDMIRX_AUD_INFO sizeof 28)
-# All members are u8 / bitfields, so alignment is 1.
-# --------------------------------------------------------------------------
 class _AudInfoFrameInfo(ctypes.Structure):
     _fields_ = [
         ("Type", ctypes.c_uint8),
@@ -146,9 +139,6 @@ class HDMIRX_AUD_INFO(ctypes.Structure):  # noqa: N801 (C struct name)
     _fields_ = [("caps", _AudCaps), ("info", _AudExtraInfo)]  # sizeof == 28
 
 
-# --------------------------------------------------------------------------
-# Decode tables (verbatim from inc/hdmi_if.h + src/hdmirx_tool.cpp)
-# --------------------------------------------------------------------------
 _COLORSPACE = {
     0: Colorspace.RGB,
     1: Colorspace.YUV444,

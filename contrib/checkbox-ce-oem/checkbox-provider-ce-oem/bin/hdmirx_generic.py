@@ -45,7 +45,6 @@ from hdmirx_utils import (
 
 # Driver ``name`` substrings that identify an HDMI RX capture node.
 _HDMIRX_DRIVER_HINTS = ("hdmirx", "hdmi-rx", "hdmi rx")
-_V4L2_DV_BT_656_1120 = 0  # struct v4l2_dv_timings.type for BT timings
 
 
 class v4l2_fract(ctypes.Structure):  # noqa: N801 (UAPI struct name)

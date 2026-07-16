@@ -45,9 +45,6 @@ from abc import ABC, abstractmethod
 from enum import Enum
 
 
-# --------------------------------------------------------------------------
-# Models
-# --------------------------------------------------------------------------
 class Colorspace(Enum):
     RGB = "RGB"
     YUV444 = "YUV444"
@@ -144,9 +141,6 @@ class HdmiRxBackend(ABC):
         """kind in {'plug','unplug'}; return the set of Event seen."""
 
 
-# --------------------------------------------------------------------------
-# Linux ioctl number helpers (asm-generic encoding)
-# --------------------------------------------------------------------------
 _IOC_TYPESHIFT = 8
 _IOC_SIZESHIFT = 16
 _IOC_DIRSHIFT = 30
@@ -175,9 +169,6 @@ def _IOWR(magic, nr, size):  # noqa: N802 (kernel macro name)
     return _IOC(_IOC_READ | _IOC_WRITE, magic, nr, size)
 
 
-# --------------------------------------------------------------------------
-# Netlink uevent listener (pure stdlib, no ABI surface)
-# --------------------------------------------------------------------------
 NETLINK_KOBJECT_UEVENT = 15
 
 
@@ -228,9 +219,6 @@ def _decode_event(raw_value, event_map):
         return None
 
 
-# --------------------------------------------------------------------------
-# Reusable ioctl-char-device backend base
-# --------------------------------------------------------------------------
 class IoctlError(OSError):
     """An ioctl call failed; carries the command key and device path."""
 
@@ -332,9 +320,6 @@ class IoctlCharBackend(HdmiRxBackend):
         """Map a raw ctypes struct to an AudioInfo."""
 
 
-# --------------------------------------------------------------------------
-# Verification helpers (expected vs actual -> list of reason strings)
-# --------------------------------------------------------------------------
 _PLUG_EVENTS = frozenset(
     [Event.PWR_5V_CHANGE, Event.PLUG_IN, Event.TIMING_LOCK, Event.AUD_LOCK]
 )

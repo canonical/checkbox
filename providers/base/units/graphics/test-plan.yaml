@@ -767,3 +767,52 @@ include:
 bootstrap_include:
   - graphics_card
   - executable
+---
+id: level-zero-core-short-test-plan
+unit: test plan
+name: Graphics short test plan for verifying Level Zero (core/snap)
+include:
+  - setup/install_level_zero_tests
+  - graphics/lz_gpu_avail
+  - graphics/lz_core_test_affinity_helper
+  - graphics/lz_core_test_barrier
+  - graphics/lz_core_test_cmdlist
+  - graphics/lz_core_test_cmdqueue
+  - graphics/lz_core_test_context
+  - graphics/lz_core_test_copy
+  - graphics/lz_core_test_device
+  - graphics/lz_core_test_driver
+  - graphics/lz_core_test_event
+  - graphics/lz_core_test_fence
+  - graphics/lz_core_test_image
+  - graphics/lz_core_test_memory
+  - graphics/lz_core_test_module
+  - graphics/lz_core_test_sampler
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: level-zero-classic-short-test-plan
+unit: test plan
+name: Graphics short test plan for verifying Level Zero (classic)
+include:
+  - setup/install_level_zero_tests
+  - graphics/lz_classic_gpu_avail
+  - graphics/lz_classic_lz_avail
+  - graphics/lz_classic_test_affinity_helper
+  - graphics/lz_classic_test_barrier
+  - graphics/lz_classic_test_cmdlist
+  - graphics/lz_classic_test_cmdqueue
+  - graphics/lz_classic_test_context
+  - graphics/lz_classic_test_copy
+  - graphics/lz_classic_test_device
+  - graphics/lz_classic_test_driver
+  - graphics/lz_classic_test_event
+  - graphics/lz_classic_test_fence
+  - graphics/lz_classic_test_image
+  - graphics/lz_classic_test_memory
+  - graphics/lz_classic_test_module
+  - graphics/lz_classic_test_sampler
+bootstrap_include:
+  - graphics_card
+  - executable

@@ -18,6 +18,7 @@ unit: job
 plugin: shell
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_pdu == 'True'
+environ: NETWORK_PDU_CONF NETWORK_PDU_TYPE STRESS_BOOT_WAKEUP_DELAY STRESS_BOOT_WAIT_DELAY
 command:
     sleep 5
     [[ -z "$STRESS_BOOT_WAKEUP_DELAY" ]] && STRESS_BOOT_WAKEUP_DELAY=60

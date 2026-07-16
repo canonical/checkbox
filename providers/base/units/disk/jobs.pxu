@@ -117,11 +117,14 @@ id: disk/disk_stress_ng_{name}
 template-id: disk/disk_stress_ng_name
 estimated_duration: 4560.0
 user: root
+environ: STRESS_NG_DISK_TIME
 requires:
  executable.name == 'stress-ng'
  executable.name == 'uuidgen'
 _summary: Disk stress-ng test for {product_slug}
-_purpose: Disk stress-ng test for {product_slug}
+_purpose:
+ Disk stress-ng test for {product_slug}
+ Usage: set STRESS_NG_DISK_TIME to override the default 240 second running time.
 command:
   if [ -n "$STRESS_NG_DISK_TIME" ]
   then

@@ -32,7 +32,7 @@ import logging
 from pathlib import Path
 
 logging.basicConfig()
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 # these 2 are used to make same ioctl request as ethtool
 # https://github.com/torvalds/linux/blob/3b029c035b34bbc693405ddf759f0e9b920c27f1/include/uapi/linux/sockios.h#L102
 SIOCETHTOOL = 0x8946
@@ -60,14 +60,14 @@ class ethtool_ts_info(ctypes.Structure):
     ]
 
     def __str__(self) -> str:
-        lines = []  # type: list[str]
+        words = []  # type: list[str]
         for field in self._fields_:
             name = field[0]
             value = getattr(self, name)
             if isinstance(value, ctypes.Array):
                 value = list(value)
-            lines.append("{}={}".format(name, value))
-        return "ethtool_ts_info({})".format(", ".join(lines))
+            words.append("{}={}".format(name, value))
+        return "ethtool_ts_info({})".format(", ".join(words))
 
 
 # this is only used to make the SIOCETHTOOL ioctl request
@@ -119,7 +119,7 @@ def _is_ethernet_interface(interface: str) -> bool:
             return False
 
         return True
-    except Exception:
+    except OSError:
         # assume false if failed to read any of the paths above
         return False
 
@@ -160,11 +160,14 @@ def is_ptp_capable(interface: str) -> bool:
     :return: if kernel says the interface supports ptp
              AND The /dev/ptpX device exists
     """
-    info = get_ts_info(interface)
-    phc_index = int(info.phc_index)
-    expected_ptp_device_path = "/dev/ptp{}".format(phc_index)
+    try:
+        info = get_ts_info(interface)
+        phc_index = int(info.phc_index)
+        expected_ptp_device_path = "/dev/ptp{}".format(phc_index)
 
-    return phc_index >= 0 and os.path.exists(expected_ptp_device_path)
+        return phc_index >= 0 and os.path.exists(expected_ptp_device_path)
+    except (OSError, ValueError):
+        return False
 
 
 if __name__ == "__main__":

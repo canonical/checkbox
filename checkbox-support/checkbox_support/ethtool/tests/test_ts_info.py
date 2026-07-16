@@ -17,14 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Unit tests for checkbox_support.ethtool.ts_info
-
-These tests never touch real hardware or the kernel: every ioctl() call
-and every filesystem read under /sys/class/net is mocked so the suite
-can run unmodified on a headless CI runner (e.g. GitHub Actions).
-"""
-
 import ctypes
 import tempfile
 from pathlib import Path
@@ -151,10 +143,7 @@ class TestIsEthernetInterface(TestCase):
 
 class TestGetTsInfo(TestCase):
     def _fake_ioctl(self, fd, request, arg, mutate_flag=False):
-        """Simulate the kernel writing into the ethtool_ts_info struct
-
-        pointed to by arg.ifr_data, the same way SIOCETHTOOL would.
-        """
+        # mock kernel response to the SIOCETHTOOL ioctl
         self.assertEqual(request, SIOCETHTOOL)
         info_ptr = ctypes.cast(arg.ifr_data, ctypes.POINTER(ethtool_ts_info))
         info_ptr.contents.so_timestamping = 0x1F

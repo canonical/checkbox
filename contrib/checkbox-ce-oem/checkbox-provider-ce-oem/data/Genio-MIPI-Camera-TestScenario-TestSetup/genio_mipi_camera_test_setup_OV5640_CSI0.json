@@ -1,0 +1,47 @@
+{
+    "media_node_v4l2_name": "mtk-seninf (platform:1a080000.seninf-top)",
+    "cameras": [
+        {
+            "physical_interface": "csi0",
+            "pads": [
+                {
+                    "action": "set_format",
+                    "node": "ov5640 7-003c",
+                    "source": 0,
+                    "fmt": "YUYV8_1X16",
+                    "field": "none"
+                },
+                {
+                    "action": "set_format",
+                    "node": "seninf-0",
+                    "source": 1,
+                    "fmt": "YUYV8_1X16",
+                    "field": "none"
+                },
+                {
+                    "action": "set_format",
+                    "node": "1a092000.camsv2",
+                    "source": 1,
+                    "fmt": "YUYV8_1X16",
+                    "field": "none"
+                }
+            ],
+            "links": [
+                {
+                    "source_entity": "seninf-0",
+                    "source_pad_number": 1,
+                    "sink_entity": "1a092000.camsv2",
+                    "sink_pad_number": 0,
+                    "flags": 1
+                },
+                {
+                    "source_entity": "ov5640 7-003c",
+                    "source_pad_number": 0,
+                    "sink_entity": "seninf-0",
+                    "sink_pad_number": 0,
+                    "flags": 1
+                }
+            ]
+        }
+    ]
+}

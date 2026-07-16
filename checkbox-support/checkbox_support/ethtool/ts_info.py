@@ -77,6 +77,23 @@ class ifreq(ctypes.Structure):
     _fields_ = [
         ("ifr_name", ctypes.c_char * IFNAMSIZ),
         ("ifr_data", ctypes.c_void_p),
+        # https://github.com/torvalds/linux/blob/3b029c035b34bbc693405ddf759f0e9b920c27f1/include/uapi/linux/if.h#L234-L256
+        # the rest of the ifreq struct is a 24 byte union
+        # because the largest member is the ifmap struct
+        # which has (long*2 + shot + char*3)
+        # therefore this padding should be 16 bytes
+        (
+            "_ifr_padding",
+            ctypes.c_byte
+            * (
+                ctypes.sizeof(ctypes.c_long) * 2
+                + ctypes.sizeof(ctypes.c_short)
+                + ctypes.sizeof(ctypes.c_char) * 3
+                + 3  # in the ifmap struct, it says "3 bytes to spare"
+                # make sure to account for ifr_data
+                - ctypes.sizeof(ctypes.c_void_p)
+            ),
+        ),
     ]
 
 
@@ -148,3 +165,7 @@ def is_ptp_capable(interface: str) -> bool:
     expected_ptp_device_path = "/dev/ptp{}".format(phc_index)
 
     return phc_index >= 0 and os.path.exists(expected_ptp_device_path)
+
+
+if __name__ == "__main__":
+    print(get_ts_info("enx5c925ed71416"))

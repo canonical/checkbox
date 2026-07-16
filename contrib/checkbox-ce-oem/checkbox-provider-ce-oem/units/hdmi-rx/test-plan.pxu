@@ -1,54 +1,111 @@
-id: ce-oem-hdmi-rx-full
+# ==========================================================================
+# Two HDMI RX test-plan families: v4l2 (generic) and specific (HDMIRX_BACKEND)
+# ==========================================================================
+
+# --------------------------------------------------------------------------
+# V4L2 (generic)
+# --------------------------------------------------------------------------
+id: ce-oem-hdmi-rx-v4l2-full
 unit: test plan
-_name: HDMI RX (Input) tests
-_description: Full HDMI RX (input) tests for devices
+_name: HDMI RX (Input) via V4L2 tests
+_description: Full generic V4L2 HDMI RX (input) tests for devices
 include:
 nested_part:
-    ce-oem-hdmi-rx-manual
-    ce-oem-hdmi-rx-automated
+    ce-oem-hdmi-rx-v4l2-manual
+    ce-oem-hdmi-rx-v4l2-automated
 
-id: ce-oem-hdmi-rx-manual
+id: ce-oem-hdmi-rx-v4l2-manual
 unit: test plan
-_name: HDMI RX (Input) manual tests
-_description: Manual HDMI RX (input) tests for devices
+_name: HDMI RX (Input) via V4L2 manual tests
+_description: Manual generic V4L2 HDMI RX (input) tests for devices
 include:
-    ce-oem-hdmi-rx/module-detect
-    ce-oem-hdmi-rx/plug-event-detect
-    ce-oem-hdmi-rx/check-hdmi-cable-connection
-    ce-oem-hdmi-rx/check-video-info
-    ce-oem-hdmi-rx/check-audio-info
-    ce-oem-hdmi-rx/disable-then-enable-hdmi
-    ce-oem-hdmi-rx/unplug-event-detect
+    ce-oem-hdmi-rx-v4l2/module-detect
+    ce-oem-hdmi-rx-v4l2/check-hdmi-cable-connection
+    ce-oem-hdmi-rx-v4l2/check-video-info
 
-id: ce-oem-hdmi-rx-automated
+id: ce-oem-hdmi-rx-v4l2-automated
 unit: test plan
-_name: HDMI RX (Input) auto tests
-_description: Automated HDMI RX (input) tests for devices
+_name: HDMI RX (Input) via V4L2 auto tests
+_description: Automated generic V4L2 HDMI RX (input) tests for devices
 include:
 
-id: after-suspend-ce-oem-hdmi-rx-full
+id: after-suspend-ce-oem-hdmi-rx-v4l2-full
 unit: test plan
-_name: HDMI RX (Input) tests (after suspend)
-_description: Full after suspend HDMI RX (input) tests for devices
+_name: HDMI RX (Input) via V4L2 tests (after suspend)
+_description: Full after suspend generic V4L2 HDMI RX (input) tests
 include:
 nested_part:
-    after-suspend-ce-oem-hdmi-rx-manual
-    after-suspend-ce-oem-hdmi-rx-automated
+    after-suspend-ce-oem-hdmi-rx-v4l2-manual
+    after-suspend-ce-oem-hdmi-rx-v4l2-automated
 
-id: after-suspend-ce-oem-hdmi-rx-manual
+id: after-suspend-ce-oem-hdmi-rx-v4l2-manual
 unit: test plan
-_name: HDMI RX (Input) manual tests (after suspend)
-_description: Manual after suspend HDMI RX (input) tests for devices
+_name: HDMI RX (Input) via V4L2 manual tests (after suspend)
+_description: Manual after suspend generic V4L2 HDMI RX (input) tests
 include:
-    after-suspend-ce-oem-hdmi-rx/plug-event-detect
-    after-suspend-ce-oem-hdmi-rx/check-hdmi-cable-connection
-    after-suspend-ce-oem-hdmi-rx/check-video-info
-    after-suspend-ce-oem-hdmi-rx/check-audio-info
-    after-suspend-ce-oem-hdmi-rx/disable-then-enable-hdmi
-    after-suspend-ce-oem-hdmi-rx/unplug-event-detect
+    after-suspend-ce-oem-hdmi-rx-v4l2/check-hdmi-cable-connection
+    after-suspend-ce-oem-hdmi-rx-v4l2/check-video-info
 
-id: after-suspend-ce-oem-hdmi-rx-automated
+id: after-suspend-ce-oem-hdmi-rx-v4l2-automated
 unit: test plan
-_name: HDMI RX (Input) auto tests (after suspend)
-_description: Automated after suspend HDMI RX (input) tests for devices
+_name: HDMI RX (Input) via V4L2 auto tests (after suspend)
+_description: Automated after suspend generic V4L2 HDMI RX (input) tests
+include:
+
+# --------------------------------------------------------------------------
+# Platform-specific (HDMIRX_BACKEND)
+# --------------------------------------------------------------------------
+id: ce-oem-hdmi-rx-specific-full
+unit: test plan
+_name: HDMI RX (Input) via platform backend tests
+_description: Full platform-specific HDMI RX (input) tests for devices
+include:
+nested_part:
+    ce-oem-hdmi-rx-specific-manual
+    ce-oem-hdmi-rx-specific-automated
+
+id: ce-oem-hdmi-rx-specific-manual
+unit: test plan
+_name: HDMI RX (Input) via platform backend manual tests
+_description: Manual platform-specific HDMI RX (input) tests for devices
+include:
+    ce-oem-hdmi-rx-specific/module-detect
+    ce-oem-hdmi-rx-specific/plug-event-detect
+    ce-oem-hdmi-rx-specific/check-hdmi-cable-connection
+    ce-oem-hdmi-rx-specific/check-video-info
+    ce-oem-hdmi-rx-specific/check-audio-info
+    ce-oem-hdmi-rx-specific/disable-then-enable-hdmi
+    ce-oem-hdmi-rx-specific/unplug-event-detect
+
+id: ce-oem-hdmi-rx-specific-automated
+unit: test plan
+_name: HDMI RX (Input) via platform backend auto tests
+_description: Automated platform-specific HDMI RX (input) tests for devices
+include:
+
+id: after-suspend-ce-oem-hdmi-rx-specific-full
+unit: test plan
+_name: HDMI RX (Input) via platform backend tests (after suspend)
+_description: Full after suspend platform-specific HDMI RX (input) tests
+include:
+nested_part:
+    after-suspend-ce-oem-hdmi-rx-specific-manual
+    after-suspend-ce-oem-hdmi-rx-specific-automated
+
+id: after-suspend-ce-oem-hdmi-rx-specific-manual
+unit: test plan
+_name: HDMI RX (Input) via platform backend manual tests (after suspend)
+_description: Manual after suspend platform-specific HDMI RX (input) tests
+include:
+    after-suspend-ce-oem-hdmi-rx-specific/plug-event-detect
+    after-suspend-ce-oem-hdmi-rx-specific/check-hdmi-cable-connection
+    after-suspend-ce-oem-hdmi-rx-specific/check-video-info
+    after-suspend-ce-oem-hdmi-rx-specific/check-audio-info
+    after-suspend-ce-oem-hdmi-rx-specific/disable-then-enable-hdmi
+    after-suspend-ce-oem-hdmi-rx-specific/unplug-event-detect
+
+id: after-suspend-ce-oem-hdmi-rx-specific-automated
+unit: test plan
+_name: HDMI RX (Input) via platform backend auto tests (after suspend)
+_description: Automated after suspend platform-specific HDMI RX (input) tests
 include:

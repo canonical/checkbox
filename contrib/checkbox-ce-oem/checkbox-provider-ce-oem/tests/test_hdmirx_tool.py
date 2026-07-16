@@ -162,6 +162,25 @@ class TestDetect(unittest.TestCase):
             with self.assertRaises(NoBackendError):
                 detect()
 
+    def test_empty_backend_is_hard_error(self):
+        # An unset HDMIRX_BACKEND arrives as "" and must error, not
+        # silently auto-detect.
+        class Avail(object):
+            name = "avail"
+
+            def is_available(self):
+                return True
+
+        with patch("hdmirx_tool.BACKENDS", [Avail]):
+            with self.assertRaises(NoBackendError) as ctx:
+                detect("")
+        self.assertIn("HDMIRX_BACKEND", str(ctx.exception))
+
+    def test_whitespace_backend_is_hard_error(self):
+        with patch("hdmirx_tool.BACKENDS", []):
+            with self.assertRaises(NoBackendError):
+                detect("   ")
+
 
 class TestModuleCheck(unittest.TestCase):
     def test_pass(self):

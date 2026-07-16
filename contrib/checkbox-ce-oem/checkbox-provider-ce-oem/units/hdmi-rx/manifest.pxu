@@ -1,5 +1,11 @@
 unit: manifest entry
-id: has_hdmi_rx
-_name: HDMI RX (Input)
-_prompt: Does this machine support the HDMI RX feature?
+id: has_hdmi_rx_v4l2
+_name: HDMI RX (Input) via mainline V4L2
+_prompt: Does this machine expose HDMI RX through a mainline V4L2 node?
+value-type: bool
+
+unit: manifest entry
+id: has_hdmi_rx_specific
+_name: HDMI RX (Input) via a platform-specific backend
+_prompt: Does this machine use a platform-specific HDMI RX backend (needs the HDMIRX_BACKEND variable, e.g. genio)?
 value-type: bool

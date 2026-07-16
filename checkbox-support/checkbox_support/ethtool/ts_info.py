@@ -58,6 +58,16 @@ class ethtool_ts_info(ctypes.Structure):
         ("rx_reserved", ctypes.c_uint32 * 3),
     ]
 
+    def __str__(self) -> str:
+        lines = []  # type: list[str]
+        for field in self._fields_:
+            name = field[0]
+            value = getattr(self, name)
+            if isinstance(value, ctypes.Array):
+                value = list(value)
+            lines.append("{}={}".format(name, value))
+        return "ethtool_ts_info({})".format(", ".join(lines))
+
 
 # this is only used to make the SIOCETHTOOL ioctl request
 # we don't need any of the field values in this struct

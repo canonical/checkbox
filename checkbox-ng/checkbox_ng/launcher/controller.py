@@ -318,7 +318,13 @@ class RemoteController(ReportsStage, MainLoopStage):
                     # clean is used to recover from the sa being in a weird
                     # unrecoverable state
                     if self._clean:
-                        self._sa.reset_session()
+                        try:
+                            self._sa.reset_session()
+                        except AttributeError:
+                            # backward compatibility with older agents
+                            # Note: this method is not as good, it doesn't reload
+                            #       the units
+                            self._sa._reset_sa()
                     # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
                     # the check and bailout is not needed if the agent as up to
                     # date as this controller, so after bumping RAPI we can assume

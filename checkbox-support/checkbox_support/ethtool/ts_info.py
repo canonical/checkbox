@@ -31,7 +31,6 @@ import socket
 import logging
 from pathlib import Path
 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
 # these 2 are used to make same ioctl request as ethtool
 # https://github.com/torvalds/linux/blob/3b029c035b34bbc693405ddf759f0e9b920c27f1/include/uapi/linux/sockios.h#L102
@@ -80,7 +79,7 @@ class ifreq(ctypes.Structure):
         # https://github.com/torvalds/linux/blob/3b029c035b34bbc693405ddf759f0e9b920c27f1/include/uapi/linux/if.h#L234-L256
         # the rest of the ifreq struct is a 24 byte union
         # because the largest member is the ifmap struct
-        # which has (long*2 + shot + char*3)
+        # which has (long*2 + short + char*3)
         # therefore this padding should be 16 bytes
         (
             "_ifr_padding",

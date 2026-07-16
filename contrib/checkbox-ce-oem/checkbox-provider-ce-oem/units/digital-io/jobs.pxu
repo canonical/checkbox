@@ -70,6 +70,7 @@ _description:
 plugin: shell
 user: root
 category_id: digital-io
+environ: DIGITAL_IO_CONSOLE
 estimated_duration: 40s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_digital_io == 'True'

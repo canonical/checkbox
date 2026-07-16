@@ -3,8 +3,12 @@ plugin: user-interact-verify
 category_id: buzzer
 user: root
 estimated_duration: 5
+environ: BEEP_PATH
 _summary: Buzzer that probe as an input PC speaker test
-_purpose: Check the functionality of buzzer
+_purpose:
+    Check the functionality of buzzer
+    Usage: set BEEP_PATH to the input event device for the PC speaker, e.g.
+    BEEP_PATH=/dev/input/event1 (see contrib/checkbox-ce-oem/README.md).
 _steps:
  1. Press enter and listen to the buzzer
 _verification:
@@ -24,6 +28,7 @@ _description:
 estimated_duration: 0.02
 category_id: buzzer
 plugin: resource
+environ: GPIO_BUZZER
 command:
     awk '{
         split($0, record, " ")
@@ -58,6 +63,7 @@ _description:
 estimated_duration: 0.02
 category_id: buzzer
 plugin: resource
+environ: PWM_BUZZER
 command:
     awk '{
         split($0, record, " ")

@@ -33,7 +33,7 @@ _description:
         STRESS_BOOT_WAIT_DELAY=60
 unit: job
 plugin: shell
-environ: STRESS_BOOT_WAKEUP_DELAY
+environ: STRESS_BOOT_WAKEUP_DELAY NETWORK_PDU_TYPE NETWORK_PDU_CONF
 command:
     cold_reboot_by_pdu.sh -t "$NETWORK_PDU_TYPE" -p "$NETWORK_PDU_CONF" -d "$STRESS_BOOT_WAKEUP_DELAY"
 user: root

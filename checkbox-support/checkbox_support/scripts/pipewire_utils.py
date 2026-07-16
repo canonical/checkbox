@@ -953,6 +953,7 @@ class PipewireTest:
             "-m",
             "--mode",
             type=str,
+            required=True,
             help="Monitor either sinks or sources",
             choices=("sinks", "sources"),
         )
@@ -971,6 +972,7 @@ class PipewireTest:
         parser_through.add_argument(
             "-m",
             "--mode",
+            required=True,
             type=str,
             help="Either sinks or sources",
             choices=("sinks", "sources"),

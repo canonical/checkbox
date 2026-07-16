@@ -1,13 +1,3 @@
-# ==========================================================================
-# HDMI RX (Input) tests -- two independent suites:
-#   * v4l2      : the generic mainline V4L2 path (video + cable presence).
-#   * specific  : a platform-specific backend chosen by $HDMIRX_BACKEND
-#                 (e.g. genio). If HDMIRX_BACKEND is unset the tool errors.
-# ==========================================================================
-
-# --------------------------------------------------------------------------
-# V4L2 (generic) suite -- gated on manifest.has_hdmi_rx_v4l2
-# --------------------------------------------------------------------------
 id: ce-oem-hdmi-rx-v4l2/module-detect
 plugin: shell
 category_id: ce-oem-hdmi-rx
@@ -56,42 +46,58 @@ _description:
     Player through an HDMI cable.
 command: hdmirx_tool.py --backend v4l2 video-info -rh 1920 -rv 1080 -rr 60
 
-# --------------------------------------------------------------------------
-# Platform-specific suite -- gated on manifest.has_hdmi_rx_specific.
-# Every job selects the backend from $HDMIRX_BACKEND (e.g. genio); if it is
-# unset the tool exits 1 with "set HDMIRX_BACKEND to one of: ...".
-# --------------------------------------------------------------------------
-id: ce-oem-hdmi-rx-specific/module-detect
+id: ce-oem-hdmi-rx-backend
+plugin: resource
+category_id: ce-oem-hdmi-rx
+estimated_duration: 0.02
+environ: HDMIRX_BACKEND
+_summary: Enumerate the platform-specific HDMI RX backends
+_description:
+    Emits one "backend" record per name in the HDMIRX_BACKEND
+    environment variable (space separated), e.g. HDMIRX_BACKEND="genio".
+    Unset -> no records -> no platform-specific HDMI RX jobs.
+command:
+    awk '{for (i = 1; i <= NF; i++) printf "backend: %s\n\n", $i}' <<< "$HDMIRX_BACKEND"
+
+unit: template
+template-resource: ce-oem-hdmi-rx-backend
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-hdmi-rx-specific/module-detect-tests
+id: ce-oem-hdmi-rx-specific/module-detect-{{ backend }}
+_template-summary: Check the platform-specific HDMI RX driver is loaded
 plugin: shell
 category_id: ce-oem-hdmi-rx
 estimated_duration: 1
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi_rx_specific == "True"
-environ: HDMIRX_BACKEND
 user: root
-_summary: Check that the platform-specific HDMI RX driver is loaded
+_summary: Check the {{ backend }} HDMI RX driver is loaded
 _description:
-    Check the kernel driver for the backend named by $HDMIRX_BACKEND
-    (e.g. genio -> mtk_hdmirx) is loaded. Errors if HDMIRX_BACKEND is
-    not set.
-command: hdmirx_tool.py --backend "$HDMIRX_BACKEND" module-check
+    Check the kernel driver for the {{ backend }} HDMI RX backend is loaded.
+command: hdmirx_tool.py --backend {{ backend }} module-check
 
-id: ce-oem-hdmi-rx-specific/plug-event-detect
+unit: template
+template-resource: ce-oem-hdmi-rx-backend
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-hdmi-rx-specific/plug-event-detect-tests
+id: ce-oem-hdmi-rx-specific/plug-event-detect-{{ backend }}
+_template-summary: Detect the HDMI RX events while plugging the HDMI cable
 plugin: user-interact
 category_id: ce-oem-hdmi-rx
 estimated_duration: 20
-depends: ce-oem-hdmi-rx-specific/module-detect
+depends: ce-oem-hdmi-rx-specific/module-detect-{{ backend }}
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi_rx_specific == "True"
-environ: HDMIRX_BACKEND
 flags: also-after-suspend
 user: root
-command: hdmirx_tool.py --backend "$HDMIRX_BACKEND" wait-event plug
-_summary: Detect the HDMI RX events while plugging the HDMI cable
+command: hdmirx_tool.py --backend {{ backend }} wait-event plug
+_summary: Detect the {{ backend }} HDMI RX plug events
 _purpose:
     This test checks that the PWR_5V_CHANGE, PLUG_IN, TIMING_LOCK and
-    AUD_LOCK events can be detected while the HDMI RX port is connected
-    to a Host or Player such as a Laptop through an HDMI cable.
+    AUD_LOCK events can be detected on the {{ backend }} backend while the
+    HDMI RX port is connected to a Host or Player through an HDMI cable.
 _steps:
     On the Host or Player side (e.g. a Laptop with Ubuntu Desktop):
         1. Check and set the value of the Sample Specification to be
@@ -102,99 +108,124 @@ _steps:
         2. You will have 15 seconds to plug the HDMI cable into the
            HDMI RX port.
 
-id: ce-oem-hdmi-rx-specific/check-hdmi-cable-connection
+unit: template
+template-resource: ce-oem-hdmi-rx-backend
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-hdmi-rx-specific/check-hdmi-cable-connection-tests
+id: ce-oem-hdmi-rx-specific/check-hdmi-cable-connection-{{ backend }}
+_template-summary: Check the HDMI RX cable connection (specific backend)
 plugin: shell
 category_id: ce-oem-hdmi-rx
 estimated_duration: 5
-depends: ce-oem-hdmi-rx-specific/module-detect
+depends: ce-oem-hdmi-rx-specific/module-detect-{{ backend }}
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi_rx_specific == "True"
-environ: HDMIRX_BACKEND
 flags: also-after-suspend
 user: root
-_summary: Check the HDMI RX cable connection (specific backend)
+_summary: Check the {{ backend }} HDMI RX cable connection
 _description:
-    This test checks that the HDMI RX device reports "hdmi connected"
-    (HPD and 5V present) after the HDMI RX port has been connected to a
-    Host or Player through an HDMI cable.
-command: hdmirx_tool.py --backend "$HDMIRX_BACKEND" cable
+    This test checks that the {{ backend }} HDMI RX device reports
+    "hdmi connected" (HPD and 5V present) after the HDMI RX port has
+    been connected to a Host or Player through an HDMI cable.
+command: hdmirx_tool.py --backend {{ backend }} cable
 
-id: ce-oem-hdmi-rx-specific/check-video-info
-plugin: shell
-category_id: ce-oem-hdmi-rx
-estimated_duration: 5
-depends:
-    ce-oem-hdmi-rx-specific/module-detect
-    ce-oem-hdmi-rx-specific/check-hdmi-cable-connection
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hdmi_rx_specific == "True"
-environ: HDMIRX_BACKEND
-flags: also-after-suspend
-user: root
-_summary: Check the received HDMI RX video information (specific backend)
-_description:
-    This test checks that the received video information matches the
-    expectation. It expects hactive = 1920, vactive = 1080 and
-    frame_rate = 60 once the HDMI RX port is connected to a Host or
-    Player through an HDMI cable.
-command: hdmirx_tool.py --backend "$HDMIRX_BACKEND" video-info -rh 1920 -rv 1080 -rr 60
-
-id: ce-oem-hdmi-rx-specific/check-audio-info
+unit: template
+template-resource: ce-oem-hdmi-rx-backend
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-hdmi-rx-specific/check-video-info-tests
+id: ce-oem-hdmi-rx-specific/check-video-info-{{ backend }}
+_template-summary: Check the received HDMI RX video information (specific)
 plugin: shell
 category_id: ce-oem-hdmi-rx
 estimated_duration: 5
 depends:
-    ce-oem-hdmi-rx-specific/module-detect
-    ce-oem-hdmi-rx-specific/check-hdmi-cable-connection
+    ce-oem-hdmi-rx-specific/module-detect-{{ backend }}
+    ce-oem-hdmi-rx-specific/check-hdmi-cable-connection-{{ backend }}
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi_rx_specific == "True"
-environ: HDMIRX_BACKEND
 flags: also-after-suspend
 user: root
-_summary: Check the received HDMI RX audio information (specific backend)
+_summary: Check the {{ backend }} HDMI RX video information
 _description:
-    This test checks that the received audio information matches the
-    expectation. It expects a 24-bit word length, 2 channels and a
-    48.0 kHz sample frequency once the HDMI RX port is connected to a
-    Host or Player through an HDMI cable.
-command: hdmirx_tool.py --backend "$HDMIRX_BACKEND" audio-info -ab 24 -ac 2 -asf 48.0
+    This test checks that the video information reported by the
+    {{ backend }} backend matches the expectation: hactive = 1920,
+    vactive = 1080 and frame_rate = 60 once the HDMI RX port is
+    connected to a Host or Player through an HDMI cable.
+command: hdmirx_tool.py --backend {{ backend }} video-info -rh 1920 -rv 1080 -rr 60
 
-id: ce-oem-hdmi-rx-specific/disable-then-enable-hdmi
+unit: template
+template-resource: ce-oem-hdmi-rx-backend
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-hdmi-rx-specific/check-audio-info-tests
+id: ce-oem-hdmi-rx-specific/check-audio-info-{{ backend }}
+_template-summary: Check the received HDMI RX audio information (specific)
+plugin: shell
+category_id: ce-oem-hdmi-rx
+estimated_duration: 5
+depends:
+    ce-oem-hdmi-rx-specific/module-detect-{{ backend }}
+    ce-oem-hdmi-rx-specific/check-hdmi-cable-connection-{{ backend }}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_hdmi_rx_specific == "True"
+flags: also-after-suspend
+user: root
+_summary: Check the {{ backend }} HDMI RX audio information
+_description:
+    This test checks that the audio information reported by the
+    {{ backend }} backend matches the expectation: a 24-bit word length,
+    2 channels and a 48.0 kHz sample frequency once the HDMI RX port is
+    connected to a Host or Player through an HDMI cable.
+command: hdmirx_tool.py --backend {{ backend }} audio-info -ab 24 -ac 2 -asf 48.0
+
+unit: template
+template-resource: ce-oem-hdmi-rx-backend
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-hdmi-rx-specific/disable-then-enable-hdmi-tests
+id: ce-oem-hdmi-rx-specific/disable-then-enable-hdmi-{{ backend }}
+_template-summary: Disable and re-enable HDMI RX (specific backend)
 plugin: shell
 category_id: ce-oem-hdmi-rx
 estimated_duration: 10
 depends:
-    ce-oem-hdmi-rx-specific/module-detect
-    ce-oem-hdmi-rx-specific/check-hdmi-cable-connection
+    ce-oem-hdmi-rx-specific/module-detect-{{ backend }}
+    ce-oem-hdmi-rx-specific/check-hdmi-cable-connection-{{ backend }}
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi_rx_specific == "True"
-environ: HDMIRX_BACKEND
 flags: also-after-suspend
 user: root
-_summary: Disable and re-enable the HDMI RX functionality (specific backend)
+_summary: Disable and re-enable the {{ backend }} HDMI RX functionality
 _description:
-    This test disables the HDMI RX functionality, verifies the cable is
-    reported as disconnected, then re-enables it and verifies the cable
-    is reported as connected again. The HDMI RX port stays physically
-    connected throughout.
-command: hdmirx_tool.py --backend "$HDMIRX_BACKEND" disable-then-enable
+    This test disables the {{ backend }} HDMI RX functionality, verifies the
+    cable is reported as disconnected, then re-enables it and verifies
+    the cable is reported as connected again. The HDMI RX port stays
+    physically connected throughout.
+command: hdmirx_tool.py --backend {{ backend }} disable-then-enable
 
-id: ce-oem-hdmi-rx-specific/unplug-event-detect
+unit: template
+template-resource: ce-oem-hdmi-rx-backend
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-hdmi-rx-specific/unplug-event-detect-tests
+id: ce-oem-hdmi-rx-specific/unplug-event-detect-{{ backend }}
+_template-summary: Detect the HDMI RX events while unplugging the HDMI cable
 plugin: user-interact
 category_id: ce-oem-hdmi-rx
 estimated_duration: 20
-depends: ce-oem-hdmi-rx-specific/module-detect
+depends: ce-oem-hdmi-rx-specific/module-detect-{{ backend }}
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi_rx_specific == "True"
-environ: HDMIRX_BACKEND
 flags: also-after-suspend
 user: root
-command: hdmirx_tool.py --backend "$HDMIRX_BACKEND" wait-event unplug
-_summary: Detect the HDMI RX events while unplugging the HDMI cable
+command: hdmirx_tool.py --backend {{ backend }} wait-event unplug
+_summary: Detect the {{ backend }} HDMI RX unplug events
 _purpose:
     This test checks that the AUD_UNLOCK, TIMING_UNLOCK, PWR_5V_CHANGE
-    and PLUG_OUT events can be detected while removing the HDMI cable
-    from the HDMI RX port.
+    and PLUG_OUT events can be detected on the {{ backend }} backend while
+    removing the HDMI cable from the HDMI RX port.
 _steps:
     1. Plug the HDMI cable into the HDMI RX port if it is not connected
        yet.

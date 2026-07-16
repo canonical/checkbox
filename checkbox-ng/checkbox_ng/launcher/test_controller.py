@@ -975,7 +975,7 @@ class ControllerTests(TestCase):
 
     def test_should_start_via_autoresume_true(self):
         last_session_mock = mock.MagicMock()
-        self_mock = mock.MagicMock()
+        self_mock = mock.MagicMock(_clean=False)
         self_mock.sa.get_resumable_sessions.return_value = iter(
             [last_session_mock]
         )
@@ -1011,7 +1011,7 @@ class ControllerTests(TestCase):
         )
 
     def test_should_start_via_autoresume_no_testplan_id_in_app_blob(self):
-        self_mock = mock.MagicMock()
+        self_mock = mock.MagicMock(_clean=False)
         last_session_mock = mock.MagicMock()
         self_mock.sa.get_resumable_sessions.return_value = iter(
             [last_session_mock]

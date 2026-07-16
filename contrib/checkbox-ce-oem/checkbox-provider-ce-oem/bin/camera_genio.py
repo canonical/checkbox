@@ -186,7 +186,7 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
                 v4l2_device_name, arch, camera_value
             )
         elif camera_value == SupportedCamera.OV5640.value:
-            return self._resolve_ov5640(v4l2_device_name, camera_value)
+            return self._resolve_ov5640(v4l2_device_name, arch, camera_value)
         else:
             log_and_raise_error(
                 "Unsupported camera type: {}".format(camera), CameraError

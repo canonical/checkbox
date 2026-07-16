@@ -432,7 +432,10 @@ _description:
  A serial port resource that instead of automatically detecting the hardware
  relies on the user specifying the ports. This is to allow template jobs to
  then be instantiated.
+ Usage: set SERIAL_PORTS_STATIC to a whitespace-separated list of serial
+ device paths, e.g. SERIAL_PORTS_STATIC="/dev/ttyS0 /dev/ttyUSB0".
 plugin: resource
+environ: SERIAL_PORTS_STATIC
 category_id: information_gathering
 estimated_duration: 1.0
 command:

@@ -27,6 +27,7 @@ category_id: com.canonical.plainbox::touchscreen
 id: ce-oem-touchscreen/evdev/maximum-touch-tap-{{ product_slug }}
 imports: from com.canonical.certification import device
 estimated_duration: 10.0
+environ: TOUCHSCREEN_MAX_FINGERS
 _purpose:
     Validate that maximum-touch tap is properly detected
     the maximum finger support is 10 by default

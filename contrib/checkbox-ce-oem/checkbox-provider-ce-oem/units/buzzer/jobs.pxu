@@ -14,6 +14,7 @@ _steps:
 _verification:
     Do you hear the beep sound?
 command:
+    [[ -z "$BEEP_PATH" ]] && echo "BEEP_PATH is not set. See contrib/checkbox-ce-oem/README.md for configuration details." >&2 && exit 1
     beep "$BEEP_PATH"
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest

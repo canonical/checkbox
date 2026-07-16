@@ -54,7 +54,7 @@ SIOCGIFNETMASK = 0x891B
 
 class IPerfPerformanceTest:
     """Measures performance of interface using iperf client
-    and target. Calculated speed is measured against theorectical
+    and target. Calculated speed is measured against theoretical
     throughput of selected interface"""
 
     def __init__(

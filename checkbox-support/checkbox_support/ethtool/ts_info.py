@@ -138,8 +138,9 @@ def is_ptp_capable(interface: str) -> bool:
     This is equivalent to checking the "PTP Hardware Clock" line in ethtool
     and testing if the corresponding device node exists
 
-    :param interface: _description_
-    :return: _description_
+    :param interface: the interface to check
+    :return: if kernel says the interface supports ptp 
+             AND The /dev/ptpX device exists
     """
     info = get_ts_info(interface)
     phc_index = int(info.phc_index)

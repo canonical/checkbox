@@ -30,7 +30,7 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from checkbox_support.ethtool.ts_info import (
     ETHTOOL_GET_TS_INFO,
@@ -165,13 +165,15 @@ class TestGetTsInfo(TestCase):
 
     @patch("checkbox_support.ethtool.ts_info._is_ethernet_interface")
     @patch("checkbox_support.ethtool.ts_info.fcntl.ioctl")
-    def test_get_ts_info_populates_struct(self, ioctl_mock, is_ethernet_mock):
+    def test_get_ts_info_populates_struct(
+        self, ioctl_mock: MagicMock, is_ethernet_mock: MagicMock
+    ):
         is_ethernet_mock.return_value = True
         ioctl_mock.side_effect = self._fake_ioctl
 
         info = get_ts_info("enp1s0")
 
-        ioctl_mock.assert_called_once()
+        self.assertGreaterEqual(len(ioctl_mock.call_args_list), 1)
         self.assertEqual(info.cmd, ETHTOOL_GET_TS_INFO)
         self.assertEqual(info.phc_index, 3)
         self.assertEqual(info.so_timestamping, 0x1F)

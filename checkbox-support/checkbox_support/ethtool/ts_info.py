@@ -31,6 +31,7 @@ import socket
 import logging
 from pathlib import Path
 
+logging.basicConfig()
 logger = logging.getLogger()
 # these 2 are used to make same ioctl request as ethtool
 # https://github.com/torvalds/linux/blob/3b029c035b34bbc693405ddf759f0e9b920c27f1/include/uapi/linux/sockios.h#L102
@@ -139,7 +140,7 @@ def is_ptp_capable(interface: str) -> bool:
     and testing if the corresponding device node exists
 
     :param interface: the interface to check
-    :return: if kernel says the interface supports ptp 
+    :return: if kernel says the interface supports ptp
              AND The /dev/ptpX device exists
     """
     info = get_ts_info(interface)

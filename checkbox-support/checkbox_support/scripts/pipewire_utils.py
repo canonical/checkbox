@@ -33,9 +33,9 @@ import gi
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GLib", "2.0")
-from gi.repository import (
-    GLib,  # noqa: E402
-    Gst,  # noqa: E402
+from gi.repository import (  # noqa: E402
+    GLib,  # pyright: ignore[reportMissingModuleSource]
+    Gst,  # pyright: ignore[reportMissingModuleSource]
 )
 
 
@@ -322,7 +322,7 @@ class PipewireTest:
 
         return PipewireTestError.NO_ERROR
 
-    def _get_audio_config(self, mode):
+    def _get_audio_config(self, mode: "t.Literal['sink', 'source']"):
         """
         Get simple audio configuration
         This function parse output of pw-dump to find the device type
@@ -336,20 +336,20 @@ class PipewireTest:
         clients = self._get_pw_dump("Device")
         cfg = set()  # type: set[tuple[str, str, str]]
         for client in clients:
-            active_ports = None
+            active_ports = []
             mclass = client["info"]["props"].get("media.class")
             if mclass == "Audio/Device":
-                active_ports = client["info"]["params"]["Route"]
-            if active_ports:
-                for p in active_ports:
-                    if p["direction"] == self._get_pw_type(mode):
-                        cfg.add(
-                            (
-                                "{} #{}".format(mode, client["id"]),
-                                p["name"],
-                                p["available"],
-                            )
+                active_ports = client["info"]["params"]["EnumRoute"]
+
+            for p in active_ports:
+                if p["direction"] == self._get_pw_type(mode):
+                    cfg.add(
+                        (
+                            "{} #{}".format(mode, client["id"]),
+                            p["name"],
+                            p["available"],
                         )
+                    )
         return cfg
 
     def monitor_active_port_change(self, timeout, mode) -> int:

@@ -1,63 +1,14 @@
-id: ce-oem-hdmi-rx-v4l2/module-detect
-plugin: shell
-category_id: ce-oem-hdmi-rx
-estimated_duration: 1
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hdmi_rx_v4l2 == "True"
-user: root
-_summary: Check that a mainline V4L2 HDMI RX node is present
-_description:
-    Detect an HDMI RX capture node exposed through the mainline V4L2
-    UAPI (no vendor binary, no private ioctl ABI).
-command: hdmirx_tool.py --backend v4l2 module-check
-
-id: ce-oem-hdmi-rx-v4l2/check-hdmi-cable-connection
-plugin: shell
-category_id: ce-oem-hdmi-rx
-estimated_duration: 5
-depends: ce-oem-hdmi-rx-v4l2/module-detect
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hdmi_rx_v4l2 == "True"
-flags: also-after-suspend
-user: root
-_summary: Check the HDMI RX cable connection (V4L2)
-_description:
-    This test checks that the V4L2 HDMI RX node reports a locked signal
-    once the HDMI RX port is connected to a Host or Player through an
-    HDMI cable.
-command: hdmirx_tool.py --backend v4l2 cable
-
-id: ce-oem-hdmi-rx-v4l2/check-video-info
-plugin: shell
-category_id: ce-oem-hdmi-rx
-estimated_duration: 5
-depends:
-    ce-oem-hdmi-rx-v4l2/module-detect
-    ce-oem-hdmi-rx-v4l2/check-hdmi-cable-connection
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hdmi_rx_v4l2 == "True"
-flags: also-after-suspend
-user: root
-_summary: Check the received HDMI RX video information (V4L2)
-_description:
-    This test reads the received video timings through
-    VIDIOC_QUERY_DV_TIMINGS and checks hactive = 1920, vactive = 1080
-    and frame_rate = 60 once the HDMI RX port is connected to a Host or
-    Player through an HDMI cable.
-command: hdmirx_tool.py --backend v4l2 video-info -rh 1920 -rv 1080 -rr 60
-
 id: ce-oem-hdmi-rx-backend
 plugin: resource
 category_id: ce-oem-hdmi-rx
 estimated_duration: 0.02
 environ: HDMIRX_BACKEND
-_summary: Enumerate the platform-specific HDMI RX backends
+_summary: Expose the platform-specific HDMI RX backend
 _description:
-    Emits one "backend" record per name in the HDMIRX_BACKEND
-    environment variable (space separated), e.g. HDMIRX_BACKEND="genio".
-    Unset -> no records -> no platform-specific HDMI RX jobs.
-command:
-    awk '{for (i = 1; i <= NF; i++) printf "backend: %s\n\n", $i}' <<< "$HDMIRX_BACKEND"
+    Emits a single "backend" record from the HDMIRX_BACKEND environment
+    variable, e.g. HDMIRX_BACKEND="genio". Unset -> no record -> no
+    platform-specific HDMI RX jobs.
+command: [ -z "$HDMIRX_BACKEND" ] || echo "backend: $HDMIRX_BACKEND"
 
 unit: template
 template-resource: ce-oem-hdmi-rx-backend

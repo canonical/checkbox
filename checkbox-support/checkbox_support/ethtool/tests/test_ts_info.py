@@ -76,7 +76,11 @@ class TestEthtoolTsInfoStr(TestCase):
 
 class TestIsEthernetInterface(TestCase):
     def _make_sys_class_net(
-        self, tmp_dir, has_type=True, is_ether=True, has_device=True,
+        self,
+        tmp_dir,
+        has_type=True,
+        is_ether=True,
+        has_device=True,
         is_wifi=False,
     ):
         iface_dir = Path(tmp_dir) / "enp1s0"
@@ -94,8 +98,9 @@ class TestIsEthernetInterface(TestCase):
             base = self._make_sys_class_net(tmp_dir)
             with patch(
                 "checkbox_support.ethtool.ts_info.Path",
-                side_effect=lambda p: base if "/sys/class/net" in p
-                else Path(p),
+                side_effect=lambda p: (
+                    base if "/sys/class/net" in p else Path(p)
+                ),
             ):
                 self.assertTrue(_is_ethernet_interface("enp1s0"))
 
@@ -104,8 +109,9 @@ class TestIsEthernetInterface(TestCase):
             base = self._make_sys_class_net(tmp_dir, is_ether=False)
             with patch(
                 "checkbox_support.ethtool.ts_info.Path",
-                side_effect=lambda p: base if "/sys/class/net" in p
-                else Path(p),
+                side_effect=lambda p: (
+                    base if "/sys/class/net" in p else Path(p)
+                ),
             ):
                 self.assertFalse(_is_ethernet_interface("enp1s0"))
 
@@ -114,8 +120,9 @@ class TestIsEthernetInterface(TestCase):
             base = self._make_sys_class_net(tmp_dir, has_device=False)
             with patch(
                 "checkbox_support.ethtool.ts_info.Path",
-                side_effect=lambda p: base if "/sys/class/net" in p
-                else Path(p),
+                side_effect=lambda p: (
+                    base if "/sys/class/net" in p else Path(p)
+                ),
             ):
                 self.assertFalse(_is_ethernet_interface("enp1s0"))
 
@@ -124,8 +131,9 @@ class TestIsEthernetInterface(TestCase):
             base = self._make_sys_class_net(tmp_dir, is_wifi=True)
             with patch(
                 "checkbox_support.ethtool.ts_info.Path",
-                side_effect=lambda p: base if "/sys/class/net" in p
-                else Path(p),
+                side_effect=lambda p: (
+                    base if "/sys/class/net" in p else Path(p)
+                ),
             ):
                 self.assertFalse(_is_ethernet_interface("enp1s0"))
 
@@ -134,8 +142,9 @@ class TestIsEthernetInterface(TestCase):
             base = Path(tmp_dir)
             with patch(
                 "checkbox_support.ethtool.ts_info.Path",
-                side_effect=lambda p: base if "/sys/class/net" in p
-                else Path(p),
+                side_effect=lambda p: (
+                    base if "/sys/class/net" in p else Path(p)
+                ),
             ):
                 self.assertFalse(_is_ethernet_interface("does-not-exist"))
 
@@ -147,9 +156,7 @@ class TestGetTsInfo(TestCase):
         pointed to by arg.ifr_data, the same way SIOCETHTOOL would.
         """
         self.assertEqual(request, SIOCETHTOOL)
-        info_ptr = ctypes.cast(
-            arg.ifr_data, ctypes.POINTER(ethtool_ts_info)
-        )
+        info_ptr = ctypes.cast(arg.ifr_data, ctypes.POINTER(ethtool_ts_info))
         info_ptr.contents.so_timestamping = 0x1F
         info_ptr.contents.phc_index = 3
         info_ptr.contents.tx_types = 7
@@ -158,9 +165,7 @@ class TestGetTsInfo(TestCase):
 
     @patch("checkbox_support.ethtool.ts_info._is_ethernet_interface")
     @patch("checkbox_support.ethtool.ts_info.fcntl.ioctl")
-    def test_get_ts_info_populates_struct(
-        self, ioctl_mock, is_ethernet_mock
-    ):
+    def test_get_ts_info_populates_struct(self, ioctl_mock, is_ethernet_mock):
         is_ethernet_mock.return_value = True
         ioctl_mock.side_effect = self._fake_ioctl
 
@@ -212,6 +217,7 @@ class TestIsPtpCapable(TestCase):
         exists_mock.return_value = False
 
         self.assertFalse(is_ptp_capable("enp1s0"))
+
 
 if __name__ == "__main__":
     unittest.main()

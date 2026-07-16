@@ -322,7 +322,7 @@ class PipewireTest:
 
         return PipewireTestError.NO_ERROR
 
-    def _get_audio_config(self, mode: "t.Literal['sink', 'source']"):
+    def _get_audio_config(self, mode: "t.Literal['sinks', 'sources']"):
         """
         Get simple audio configuration
         This function parse output of pw-dump to find the device type
@@ -352,7 +352,9 @@ class PipewireTest:
                     )
         return cfg
 
-    def monitor_active_port_change(self, timeout, mode) -> int:
+    def monitor_active_port_change(
+        self, timeout: int, mode: "t.Literal['sinks', 'sources']"
+    ) -> int:
         """
         Monitoring Audio active port changing
         This script checks if the active port on either sinks
@@ -383,7 +385,9 @@ class PipewireTest:
         self.logger.info("Couldn't detect active port change!")
         return PipewireTestError.NO_CHANGE_DETECTED
 
-    def go_through_ports(self, cmd: str, mode: 't.Literal["source", "sink"]'):
+    def go_through_ports(
+        self, cmd: str, mode: 't.Literal["sinks", "sources"]'
+    ):
         """
         Go through available ports for testing
         This script checks if the ports on either sinks
@@ -946,7 +950,11 @@ class PipewireTest:
             help="Timeout after which the script fails",
         )
         parser_monitor.add_argument(
-            "-m", "--mode", type=str, help="Monitor either sinks or sources"
+            "-m",
+            "--mode",
+            type=str,
+            help="Monitor either sinks or sources",
+            choices=("sinks", "sources"),
         )
 
         # Add parser for go through function
@@ -961,7 +969,11 @@ class PipewireTest:
             help="command for testing",
         )
         parser_through.add_argument(
-            "-m", "--mode", type=str, help="Either sinks or sources"
+            "-m",
+            "--mode",
+            type=str,
+            help="Either sinks or sources",
+            choices=("sinks", "sources"),
         )
 
         parser_iter_sink = subparsers.add_parser(

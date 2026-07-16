@@ -1,0 +1,75 @@
+unit: template
+template-resource: device
+template-filter:
+  device.driver == 'iwlwifi'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::wireless
+id: kernel/check_{driver}_start_rt_ucode_failed
+command: kernel-check-error-string.sh "Failed to start RT ucode"
+_summary: Check if kernel log contains iwlwifi failed to start RT ucode
+_description:
+  Check if the system experience iwlwifi failed to start RT ucode.
+
+unit: template
+template-resource: device
+template-filter:
+  device.driver == 'mt7921e'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::wireless
+id: kernel/check_{driver}_start_wm_firmware_failed
+command: kernel-check-error-string.sh "Failed to start WM firmware"
+_summary: Check if kernel log contains mt7921e failed to start WM firmware
+_description:
+  Check if the system experience mt7921e failed to start WM firmware.
+
+unit: template
+template-resource: cpuinfo
+template-filter:
+  cpuinfo.type == 'GenuineIntel'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::cpu
+id: kernel/check_{type}_unchecked_msr_access_error
+command: kernel-check-error-string.sh "unchecked MSR access error"
+_summary: Check if kernel log contains unchecked MSR access error
+_description:
+ Check if the system experience unchecked MSR access error.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: kernel/check-kernel
+user: root
+environ:
+  SNAP
+command:
+  if [ -n "$SNAP" ]; then
+    SNAP_PREFIX="/var/lib/snapd/hostfs";
+  else
+    SNAP_PREFIX="";
+  fi
+  case $(find $SNAP_PREFIX/boot -name 'vmlinuz-*' | wc -l) in
+    0)
+      echo "No Linux kernel is installed"
+      exit 1
+      ;;
+    1)
+      echo "One and only one Linux kernel is installed"
+      ;;
+    *)
+      echo "More than one Linux kernel is installed"
+      exit 1
+      ;;
+  esac
+_summary: Check Linux kernel installation status
+_description:
+  Check if one and only one Linux kernel is installed. If the kernel that the meta package depends on is different from bugsy-config/chroot, two kernels will be installed.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: kernel/check_UBSAN_error
+command: kernel-check-error-string.sh "UBSAN:"
+_summary: Check if kernel log contains Undefined Behavior Sanitizer (UBSAN) error
+_description:
+  Check if the system experience Undefined Behavior Sanitizer (UBSAN) error.

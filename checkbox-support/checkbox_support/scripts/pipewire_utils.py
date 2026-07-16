@@ -260,7 +260,7 @@ class PipewireTest:
             for client in clients:
                 mclass = client["info"]["props"].get("media.class")
                 if mclass == "Audio/Device":
-                    for route in client["info"]["params"]["Route"]:
+                    for route in client["info"]["params"]["EnumRoute"]:
                         name = route["name"]
                         available = route["available"]
                         if (

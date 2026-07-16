@@ -406,7 +406,7 @@ class GstPipeLineTests(unittest.TestCase):
                    "object.serial": 29
                  },
                  "params": {
-                     "Route": [{
+                     "EnumRoute": [{
                          "name": "hdmi_demo_output",
                          "available": "yes",
                          "description": "hdmi demo output",
@@ -478,7 +478,7 @@ class MonitorActivePortTests(unittest.TestCase):
                            "object.serial": 29
                          },
                          "params": {
-                             "Route": [{
+                             "EnumRoute": [{
                                  "name": "hdmi_demo_output",
                                  "available": "yes",
                                  "direction": "Output",
@@ -521,7 +521,7 @@ class MonitorActivePortTests(unittest.TestCase):
                           "object.serial": 29
                         },
                         "params": {
-                            "Route": [{
+                            "EnumRoute": [{
                                 "name": "hdmi_after_output",
                                 "available": "yes",
                                 "direction": "Output",
@@ -539,7 +539,7 @@ class MonitorActivePortTests(unittest.TestCase):
         mock_checkout.return_value = self.before_device
         self.assertEqual(
             PipewireTestError.NO_CHANGE_DETECTED,
-            pt.monitor_active_port_change(2, "sink"),
+            pt.monitor_active_port_change(2, "sinks"),
         )
 
     @patch("subprocess.check_output")
@@ -549,7 +549,7 @@ class MonitorActivePortTests(unittest.TestCase):
         mock_checkout.side_effect = [self.before_device, self.after_device]
         self.assertEqual(
             PipewireTestError.NO_ERROR,
-            pt.monitor_active_port_change(2, "sink"),
+            pt.monitor_active_port_change(2, "sinks"),
         )
 
 
@@ -603,7 +603,7 @@ class GoThroughPortTests(unittest.TestCase):
 
         mock_checkout.return_value = self.device
         mock_input.side_effect = ["yes", "yes"]
-        self.assertEqual(None, pt.go_through_ports("echo test", "sink"))
+        self.assertEqual(None, pt.go_through_ports("echo test", "sinks"))
 
 
 class IterAudioSinksTests(unittest.TestCase):
@@ -1397,15 +1397,15 @@ class ArgsParsingTests(unittest.TestCase):
         self.assertEqual(rv.PIPELINE, "PIPELINE")
         self.assertEqual(rv.device, "device")
 
-        args = ["monitor", "-t", "30", "-m", "mode"]
+        args = ["monitor", "-t", "30", "-m", "sinks"]
         rv = pt._args_parsing(args)
         self.assertEqual(rv.timeout, 30)
-        self.assertEqual(rv.mode, "mode")
+        self.assertEqual(rv.mode, "sinks")
 
-        args = ["through", "-c", "echo", "-m", "mode"]
+        args = ["through", "-c", "echo", "-m", "sources"]
         rv = pt._args_parsing(args)
         self.assertEqual(rv.command, "echo")
-        self.assertEqual(rv.mode, "mode")
+        self.assertEqual(rv.mode, "sources")
 
         args = ["show", "-t", "AUDIO"]
         rv = pt._args_parsing(args)
@@ -1458,7 +1458,7 @@ class FunctionSelectTests(unittest.TestCase):
     )
     def test_monitor(self, mock_monitor):
         pt = PipewireTest()
-        args = ["monitor", "-t", "30", "-m", "mode"]
+        args = ["monitor", "-t", "30", "-m", "sinks"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 66)
 
@@ -1468,7 +1468,7 @@ class FunctionSelectTests(unittest.TestCase):
     )
     def test_through(self, mock_through):
         pt = PipewireTest()
-        args = ["through", "-c", "echo", "-m", "mode"]
+        args = ["through", "-c", "echo", "-m", "sinks"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 55)
 

@@ -249,7 +249,8 @@ class PipewireTest:
         Checks whether the sink is available for the given device.
         This function parse output of pw-dump to find the device type
         equals PipeWire:Interface:Device and media.class equals Audio/Device.
-        For pipewire, the active port will be listed under info.params.Route.
+        For pipewire, the active port will be listed under 
+            info.params.EnumRoute.
         Therefore, you could check this object to know the state of it.
 
         :param device: device you would like to check
@@ -327,7 +328,8 @@ class PipewireTest:
         Get simple audio configuration
         This function parse output of pw-dump to find the device type
         equals PipeWire:Interface:Device and media.class equals Audio/Device.
-        For pipewire, the active port will be listed under info.params.Route.
+        For pipewire, the active port will be listed under 
+            info.params.EnumRoute.
         Therefore, you could check this object to know the state of it.
 
         :param mode: sink or source

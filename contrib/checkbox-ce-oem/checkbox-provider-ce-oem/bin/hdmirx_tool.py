@@ -50,12 +50,18 @@ class NoBackendError(RuntimeError):
 def detect(preferred=None):
     """Return an available backend instance.
 
-    With ``preferred`` (a backend ``name``) that backend is forced even
-    if it does not detect itself, so failures surface with a clear
-    error. Otherwise the first backend whose ``is_available()`` is true
-    wins. Raises ``NoBackendError`` if none is available.
+    ``preferred`` selects a backend by ``name`` and forces it even if it
+    does not detect itself. An empty string (e.g. an unset
+    ``HDMIRX_BACKEND``) is a hard error, not a silent auto-detect.
+    ``None`` auto-detects the first available backend. Raises
+    ``NoBackendError`` on an empty, unknown, or absent backend.
     """
-    if preferred:
+    if preferred is not None:
+        if not preferred.strip():
+            raise NoBackendError(
+                "no backend selected: set HDMIRX_BACKEND to one of: "
+                "{}".format(", ".join(c.name for c in BACKENDS))
+            )
         for cls in BACKENDS:
             if cls.name == preferred:
                 return cls()
@@ -194,8 +200,8 @@ def build_parser():
     )
     parser.add_argument(
         "--backend",
-        choices=[c.name for c in BACKENDS],
-        help="force a backend instead of auto-detecting",
+        help="backend name (e.g. genio, v4l2); an empty value errors, "
+        "omit to auto-detect",
     )
     parser.add_argument(
         "--json", action="store_true", help="print a JSON result"

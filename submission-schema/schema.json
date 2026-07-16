@@ -218,6 +218,9 @@
         },
         "buildstamp": {
           "type": "string"
+        },
+        "chassis": {
+          "type": "string"
         }
       },
       "required": [

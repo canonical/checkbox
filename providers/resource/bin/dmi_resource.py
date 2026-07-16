@@ -104,6 +104,8 @@ class DmiResult:
             if attribute == "product" and value:
                 print("{}: {}".format("sane_product", sane_product(value)))
                 print("{}: {}".format("display_type", display_type(value)))
+                if device.category == "CHASSIS":
+                    print("{}: {}".format("chassis", value))
 
         print()
 

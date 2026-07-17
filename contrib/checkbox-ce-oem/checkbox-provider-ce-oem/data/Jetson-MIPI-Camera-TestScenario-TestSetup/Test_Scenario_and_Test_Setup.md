@@ -56,6 +56,16 @@ GST_LAUNCH_BIN=/snap/bin/gst-launch-1.0
 NVARGUS_NVRAW_BIN=/snap/bin/nvargus_nvraw
 ```
 
+> **Note:** snap-packaged checkbox pre-exports `GST_PLUGIN_SYSTEM_PATH` and
+> `GST_PLUGIN_SCANNER` in its wrapper, and checkbox only injects config
+> `[environment]` values for variables that are not already set — so
+> `GST_PLUGIN_*` overrides take no effect under a checkbox snap (verified on
+> checkbox 7.3.0). This is one more reason the multimedia-snap aliases are
+> the supported route on Ubuntu Core: `GST_LAUNCH_BIN` and
+> `NVARGUS_NVRAW_BIN` are not preset, always inject, and the aliased tools
+> run inside the multimedia snap where its own plugin paths and Argus
+> socket apply.
+
 `DISPLAY` is unset by the test itself (Argus tries to bring up an EGL
 preview when it is set, which wedges headless runs), so nothing is needed
 in the configuration for it.

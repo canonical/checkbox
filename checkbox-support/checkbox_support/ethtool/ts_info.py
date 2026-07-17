@@ -70,16 +70,6 @@ class ethtool_ts_info(ctypes.Structure):
 
 
 # ------ these structs are only used to make the ioctl request
-class sockaddr(ctypes.Structure):
-    _fields_ = [
-        # unsigned short int
-        ("sa_family", ctypes.c_ushort),
-        # char sa_data[14];
-        # note that ipv6 doesn't use this
-        ("sa_data", ctypes.c_char * 14),
-    ]
-
-
 class ifmap(ctypes.Structure):
     _fields_ = [
         ("mem_start", ctypes.c_ulong),

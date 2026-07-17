@@ -84,7 +84,7 @@ class MergeReports:
                     self.job_list.append(JobDefinition(result))
                 elif mode == "dict":
                     self.job_dict[result["id"]] = JobDefinition(result)
-            # backward compatibility, now resrouce-result are in results
+            # backward compatibility, now resource-result are in results
             for result in data.get("resource-results", []):
                 result["plugin"] = "resource"
                 result["summary"] = result["name"]

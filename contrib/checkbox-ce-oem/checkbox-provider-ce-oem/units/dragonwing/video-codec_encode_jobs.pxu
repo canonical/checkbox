@@ -8,7 +8,7 @@ requires:
 id: dragonwing-video/encoder-h264-480p-automated
 flags: also-after-suspend
 _summary: Test video encoder H264 480p 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -29,7 +29,7 @@ requires:
 id: dragonwing-video/encoder-h264-720p-automated
 flags: also-after-suspend
 _summary: Test video encoder H264 720p 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -50,7 +50,7 @@ requires:
 id: dragonwing-video/encoder-h264-1080p-automated
 flags: also-after-suspend
 _summary: Test video encoder H264 1080p 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -71,7 +71,7 @@ requires:
 id: dragonwing-video/encoder-h264-4k-automated
 flags: also-after-suspend
 _summary: Test video encoder H264 4k 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -112,7 +112,7 @@ requires:
 id: dragonwing-video/encoder-h265-480p-automated
 flags: also-after-suspend
 _summary: Test video encoder H265 480p 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -133,7 +133,7 @@ requires:
 id: dragonwing-video/encoder-h265-720p-automated
 flags: also-after-suspend
 _summary: Test video encoder H265 720p 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -154,7 +154,7 @@ requires:
 id: dragonwing-video/encoder-h265-1080p-automated
 flags: also-after-suspend
 _summary: Test video encoder H265 1080p 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -175,7 +175,7 @@ requires:
 id: dragonwing-video/encoder-h265-4k-automated
 flags: also-after-suspend
 _summary: Test video encoder H265 4k 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -216,7 +216,7 @@ requires:
 id: dragonwing-video/encoder-slice-based-10-slices-automated
 flags: also-after-suspend
 _summary: Test slice-based encoding - 10 slices per framerate
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -237,7 +237,7 @@ requires:
 id: dragonwing-video/encoder-slice-based-8-slices-automated
 flags: also-after-suspend
 _summary: Test slice-based encoding - 8 slices per framerate
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -258,7 +258,7 @@ requires:
 id: dragonwing-video/encoder-slice-based-3-slices-automated
 flags: also-after-suspend
 _summary: Test slice-based encoding - 3 slices per framerate
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -279,7 +279,7 @@ requires:
 id: dragonwing-video/encoder-slice-based-max-bytes-automated
 flags: also-after-suspend
 _summary: Test slice-based encoding - max bytes
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2

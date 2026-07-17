@@ -8,7 +8,7 @@ requires:
 id: dragonwing-video/split-9-streams-automated
 flags: also-after-suspend
 _summary: Test video split to 9 streams 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -49,7 +49,7 @@ requires:
 id: dragonwing-video/split-16-streams-automated
 flags: also-after-suspend
 _summary: Test video split to 16 streams 
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2

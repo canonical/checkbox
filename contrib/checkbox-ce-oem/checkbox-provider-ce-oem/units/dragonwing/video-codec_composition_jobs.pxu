@@ -10,7 +10,7 @@ requires:
 id: dragonwing-video/composition-16-streams-automated
 flags: also-after-suspend
 _summary: Test video composition 16 video streams
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -80,7 +80,7 @@ requires:
 id: dragonwing-video/composition-8-streams-automated
 flags: also-after-suspend
 _summary: Test video composition 8 video streams
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -126,7 +126,7 @@ requires:
 id: dragonwing-video/composition-4-streams-automated
 flags: also-after-suspend
 _summary: Test video composition 4 video streams
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -160,7 +160,7 @@ requires:
 id: dragonwing-video/composition-2-streams-pip-automated
 flags: also-after-suspend
 _summary: Test video composition 2 video streams picture in picture
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2

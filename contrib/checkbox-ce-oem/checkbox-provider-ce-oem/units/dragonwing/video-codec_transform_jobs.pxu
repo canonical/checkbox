@@ -8,7 +8,7 @@ requires:
 id: dragonwing-video/transform-rotate-90-automated
 flags: also-after-suspend
 _summary: Test video rotate for 90 degree
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -30,7 +30,7 @@ requires:
 id: dragonwing-video/transform-rotate-180-automated
 flags: also-after-suspend
 _summary: Test video rotate for 180 degree
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -52,7 +52,7 @@ requires:
 id: dragonwing-video/transform-rotate-90CCW-automated
 flags: also-after-suspend
 _summary: Test video rotate for 90CCW degree
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -95,7 +95,7 @@ requires:
 id: dragonwing-video/transform-horizontal-flip-automated
 flags: also-after-suspend
 _summary: Test video horizontal flip
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -117,7 +117,7 @@ requires:
 id: dragonwing-video/transform-vertical-flip-automated
 flags: also-after-suspend
 _summary: Test video vertical flip
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -160,7 +160,7 @@ requires:
 id: dragonwing-video/transform-scale-720p-4k-automated
 flags: also-after-suspend
 _summary: Test video scale from 720p to 4k
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -182,7 +182,7 @@ requires:
 id: dragonwing-video/transform-scale-480p-1080p-automated
 flags: also-after-suspend
 _summary: Test video scale from 480p to 1080p
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -204,7 +204,7 @@ requires:
 id: dragonwing-video/transform-scale-4k-720p-automated
 flags: also-after-suspend
 _summary: Test video scale from 4k to 720p
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2
@@ -226,7 +226,7 @@ requires:
 id: dragonwing-video/transform-scale-1080p-480p-automated
 flags: also-after-suspend
 _summary: Test video scale from 1080p to 480p
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     export GST_DEBUG=2

@@ -7,6 +7,7 @@ _steps:
 _verification:
  RTC can wake up the system successfully.
  environ: RTC_DEVICE_FILE
+environ: RTC_DEVICE_FILE
 command:
  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m disable
  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m off -s 30

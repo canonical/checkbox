@@ -18,6 +18,7 @@ id: wireless/wireless_scanning_{{ interface }}
 template-id: wireless/wireless_scanning_interface
 user: root
 _summary: Test system can discover Wi-Fi networks on {{ interface }}
+environ: NET_DRIVER_INFO
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py scan {{ interface }}
@@ -51,6 +52,7 @@ _purpose:
   Check system can connect to 802.11b/g AP with wpa security
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO WPA_BG_PSK WPA_BG_SSID
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-bg.env" ]; then
@@ -80,6 +82,7 @@ _purpose:
   Check the system can connect to an insecure 802.11b/g AP
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO OPEN_BG_SSID
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-bg.env" ]; then
@@ -109,6 +112,7 @@ _purpose:
   Check if the system can connect to an 802.11n AP with WPA security.
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO WPA_N_PSK WPA_N_SSID
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-n.env" ]; then
@@ -138,6 +142,7 @@ _purpose:
   Check if the system can connect to an unsecured 802.11n access point.
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO OPEN_N_SSID
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-n.env" ]; then
@@ -167,6 +172,7 @@ _purpose:
   Check system can connect to 802.11ac AP with wpa security
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO WPA_AC_PSK WPA_AC_SSID
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ac.env" ]; then
@@ -197,6 +203,7 @@ _purpose:
   Check system can connect to insecure 802.11ac AP
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO OPEN_AC_SSID
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ac.env" ]; then

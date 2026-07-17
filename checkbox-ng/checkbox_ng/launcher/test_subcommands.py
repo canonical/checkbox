@@ -43,6 +43,7 @@ from checkbox_ng.launcher.subcommands import (
     get_testplan_id_by_id,
     print_objs,
 )
+from checkbox_ng.launcher.stages import MainLoopStage
 from checkbox_ng.urwid_ui import ManifestBrowser
 
 
@@ -1394,6 +1395,23 @@ class TestUtilsFunctions(TestCase):
 
 
 class TestRun(TestCase):
+    def test_just_run_test_plan_calls_setup(self):
+        self_mock = MagicMock()
+        tp_id = "com.canonical.certification::some-tp"
+        Run.just_run_test_plan(self_mock, tp_id)
+        self_mock.sa.select_test_plan.assert_called_once()
+        self_mock.setup.assert_called_once()
+        self_mock.sa.bootstrap.assert_called_once()
+
+    def test_setup_starts_and_ends_setup_and_runs_jobs(self):
+        self_mock = MagicMock()
+        setup_jobs = ["job1", "job2"]
+        self_mock.sa.start_setup.return_value = setup_jobs
+        Run.setup(self_mock)
+        self_mock.sa.start_setup.assert_called_once()
+        self_mock._run_jobs.assert_called_once_with(setup_jobs)
+        self_mock.sa.finish_setup.assert_called_once()
+
     @patch("checkbox_ng.launcher.subcommands.Explorer")
     def test__get_relevant_units(self, explorer_mock):
         self_mock = MagicMock()

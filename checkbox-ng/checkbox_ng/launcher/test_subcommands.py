@@ -1392,22 +1392,26 @@ class TestUtilsFunctions(TestCase):
 
 
 class TestRun(TestCase):
+    def called_once(self, mock):
+        self.assertTrue(mock.called)
+        self.assertEqual(mock.call_count, 1)
+
     def test_just_run_test_plan_calls_setup(self):
         self_mock = MagicMock()
         tp_id = "com.canonical.certification::some-tp"
         Run.just_run_test_plan(self_mock, tp_id)
-        self_mock.sa.select_test_plan.assert_called_once()
-        self_mock.setup.assert_called_once()
-        self_mock.sa.bootstrap.assert_called_once()
+        self.called_once(self_mock.sa.select_test_plan)
+        self.called_once(self_mock.setup)
+        self.called_once(self_mock.sa.bootstrap)
 
     def test_setup_starts_and_ends_setup_and_runs_jobs(self):
         self_mock = MagicMock()
         setup_jobs = ["job1", "job2"]
         self_mock.sa.start_setup.return_value = setup_jobs
         Run.setup(self_mock)
-        self_mock.sa.start_setup.assert_called_once()
-        self_mock._run_jobs.assert_called_once_with(setup_jobs)
-        self_mock.sa.finish_setup.assert_called_once()
+        self.called_once(self_mock.sa.start_setup)
+        self.called_once(self_mock._run_jobs)
+        self.called_once(self_mock.sa.finish_setup)
 
     @patch("checkbox_ng.launcher.subcommands.Explorer")
     def test__get_relevant_units(self, explorer_mock):

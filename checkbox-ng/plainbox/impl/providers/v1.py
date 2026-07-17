@@ -127,3 +127,9 @@ class InsecureProvider1PlugInCollection(FsPlugInCollection):
 
 # Collection of all providers
 all_providers = InsecureProvider1PlugInCollection()
+
+
+def reload_all_providers():
+    global all_providers
+
+    all_providers = InsecureProvider1PlugInCollection()

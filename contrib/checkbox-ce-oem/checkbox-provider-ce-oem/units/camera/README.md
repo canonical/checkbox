@@ -407,6 +407,18 @@ For comprehensive details about RZ platform configurations, test scenarios, and 
 
 **[RZ Test Scenario and Test Setup Documentation](../../data/RZ-MIPI-Camera-TestScenario-TestSetup/README.md)**
 
+### Jetson Test Scenario and Test Setup Documentation
+
+For comprehensive details about Jetson platform configurations, test scenarios, and test setups, refer to:
+
+**[Jetson Test Scenario and Test Setup Documentation](../../data/Jetson-MIPI-Camera-TestScenario-TestSetup/Test_Scenario_and_Test_Setup.md)**
+
+This documentation includes:
+
+- Argus-based sensor configurations (no test setup / media-ctl files needed — scenario files only)
+- IMX274 Dual (AGX Orin) and IMX219 (Orin NX + Orin Nano) configurations
+- Quick reference table for all supported configurations
+
 
 ## Troubleshooting
 

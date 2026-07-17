@@ -85,6 +85,9 @@ class SupportedMethods(Enum):
     # gstreamer can be used to generate the mp4, jpeg and other common files.
     # It's more like the real user scenario.
     GSTREAMER = "gstreamer"
+    # nvargus_nvraw is the Argus CLI tool on NVIDIA Jetson platforms.
+    # It captures the native Bayer raw data before the ISP processes it.
+    NVARGUS_NVRAW = "nvargus_nvraw"
 
     def __str__(self):
         return self.value
@@ -188,6 +191,10 @@ def camera_factory(platform: str, camera_module: str) -> Type[CameraInterface]:
         from camera_rz import rz_camera_factory
 
         return rz_camera_factory(platform, camera_module)
+    elif "jetson" in platform:
+        from camera_jetson import jetson_camera_factory
+
+        return jetson_camera_factory(camera_module=camera_module)
     else:
         log_and_raise_error(
             "Cannot find the '{}' platform".format(platform),
@@ -1099,6 +1106,10 @@ class CameraResources:
                     # Add fps for video scenarios
                     if scenario_type == "record_video":
                         resource_item["fps"] = resolution["fps"]
+
+                    # Add the sensor mode only when the resolution declares it
+                    if "mode" in resolution:
+                        resource_item["mode"] = resolution["mode"]
 
                     self._resource_items.append(resource_item)
 

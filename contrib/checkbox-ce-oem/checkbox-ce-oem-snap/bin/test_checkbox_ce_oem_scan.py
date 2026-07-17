@@ -188,6 +188,25 @@ class TestGetProviderNamespace(unittest.TestCase):
             )
 
 
+class TestIsReservedEnviron(unittest.TestCase):
+    def test_exact_names_reserved(self):
+        for name in (
+            "XDG_CURRENT_DESKTOP",
+            "XDG_SESSION_TYPE",
+            "PLAINBOX_PROVIDER_DATA",
+            "PLAINBOX_SESSION_SHARE",
+        ):
+            self.assertTrue(gl._is_reserved_environ(name))
+
+    def test_prefixed_names_reserved(self):
+        self.assertTrue(gl._is_reserved_environ("XDG_RUNTIME_DIR"))
+        self.assertTrue(gl._is_reserved_environ("PLAINBOX_ANYTHING_ELSE"))
+
+    def test_non_reserved_names_pass_through(self):
+        for name in ("MYVAR", "OPEN_BE_SSID", "NET_DRIVER_INFO"):
+            self.assertFalse(gl._is_reserved_environ(name))
+
+
 class TestBuildCache(unittest.TestCase):
     def _make_repo(self, tmp):
         root = Path(tmp)
@@ -223,6 +242,38 @@ class TestBuildCache(unittest.TestCase):
             self.assertIn("MYVAR", job["environ"])
             self.assertIn("has_thing", job["manifest"])
             self.assertEqual(job["manifest"], sorted(job["manifest"]))
+
+    def test_reserved_environ_vars_are_filtered_out(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "providers").mkdir()
+            (root / "contrib").mkdir()
+            prov = root / "providers" / "myprov"
+            prov.mkdir()
+            (prov / "manage.py").write_text('setup(namespace="com.example")\n')
+            units = prov / "units"
+            units.mkdir()
+            (units / "jobs.pxu").write_text(
+                "unit: job\nid: my-job\nsummary: A job\n"
+                "environ: MYVAR XDG_CURRENT_DESKTOP XDG_SESSION_TYPE "
+                "PLAINBOX_PROVIDER_DATA PLAINBOX_SESSION_SHARE "
+                "XDG_RUNTIME_DIR PLAINBOX_FOO\n"
+            )
+            cache = gl.build_cache([root])
+            job = cache["jobs"]["com.example::my-job"]
+            # Legit, ODM-configurable var is kept.
+            self.assertIn("MYVAR", job["environ"])
+            # Exact-name and prefix-based reserved vars are dropped.
+            for reserved in (
+                "XDG_CURRENT_DESKTOP",
+                "XDG_SESSION_TYPE",
+                "PLAINBOX_PROVIDER_DATA",
+                "PLAINBOX_SESSION_SHARE",
+                "XDG_RUNTIME_DIR",
+                "PLAINBOX_FOO",
+            ):
+                self.assertNotIn(reserved, job["environ"])
+            self.assertEqual(job["environ"], ["MYVAR"])
 
     def test_job_has_bare_id_requires_and_source_file(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Bump whenever the cache schema changes so stale caches are auto-invalidated.
-_CACHE_VERSION = 8
+_CACHE_VERSION = 9
 
 _MAN_RE = re.compile(r"manifest\.([a-zA-Z0-9_]+)")
 _SKIP_UNIT_TYPES = frozenset(
@@ -35,6 +35,31 @@ _SKIP_UNIT_TYPES = frozenset(
         "attachment",
     }
 )
+
+# Vars jobs may declare in `environ:` that are set by the OS/desktop
+# session or the Checkbox runtime itself, never by an ODM integrator.
+# Hidden from both the JSON inventory dump and gen_launcher.py's TUI.
+_RESERVED_ENVIRON_NAMES = frozenset(
+    {
+        "XDG_CURRENT_DESKTOP",
+        "XDG_SESSION_TYPE",
+        "PLAINBOX_PROVIDER_DATA",
+        "PLAINBOX_SESSION_SHARE",
+    }
+)
+_RESERVED_ENVIRON_PREFIXES = ("XDG_", "PLAINBOX_")
+
+
+def _is_reserved_environ(name: str) -> bool:
+    """Return True if *name* is an OS/runtime-reserved environ var.
+
+    These are set by the desktop session or the Checkbox runtime, so
+    surfacing them as ODM-configurable launcher values would only
+    invite type errors (manifests only support bool) and confusion.
+    """
+    return name in _RESERVED_ENVIRON_NAMES or name.startswith(
+        _RESERVED_ENVIRON_PREFIXES
+    )
 
 
 def find_repo_root(start: Path) -> Path:
@@ -310,7 +335,11 @@ def build_cache(repo_roots: list[Path]) -> dict:
                 declared_envs = environ_field.split() if environ_field else []
                 # Only use vars explicitly declared in the environ: field.
                 # Scanning $VAR patterns from command text produces noise.
-                all_envs = sorted(set(declared_envs))
+                # Drop OS/runtime-reserved vars (see _is_reserved_environ):
+                # they're never meant to be set by an ODM integrator.
+                all_envs = sorted(
+                    {e for e in declared_envs if not _is_reserved_environ(e)}
+                )
 
                 manifest_keys = list(
                     {k for k in _MAN_RE.findall(requires) if k != "ns"}

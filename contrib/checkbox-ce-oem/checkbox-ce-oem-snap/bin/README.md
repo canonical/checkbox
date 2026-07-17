@@ -235,6 +235,15 @@ Only variables explicitly declared in a job's `environ:` field are
 collected. Variables referenced implicitly in a job's `command:` shell
 script are intentionally excluded to avoid noise.
 
+OS/Checkbox-runtime-reserved vars are also excluded, even if declared in
+`environ:` — they're never meant to be set by an ODM integrator (and
+manifest/environment values here are simple strings, so surfacing them
+just invites confusion). This is an exact-name list
+(`XDG_CURRENT_DESKTOP`, `XDG_SESSION_TYPE`, `PLAINBOX_PROVIDER_DATA`,
+`PLAINBOX_SESSION_SHARE`) plus prefix matching (`XDG_*`, `PLAINBOX_*`)
+so future vars in the same families are auto-excluded without code
+changes. See `_is_reserved_environ()` in `checkbox_ce_oem_scan.py`.
+
 ## Ctrl+C
 
 Ctrl+C is intentionally blocked while the TUI is running. Use `q` to quit
@@ -286,13 +295,14 @@ expansion without any file I/O.
 python3 -m unittest test_checkbox_ce_oem_scan test_gen_launcher -v
 ```
 
-97 unit tests total, split across two files:
+101 unit tests total, split across two files:
 
 - `test_checkbox_ce_oem_scan.py` — the data layer (PXU parsing, cache
   schema, plan expansion, glob matching, manifest/environ extraction,
-  default repo-root discovery, hidden manifest filtering, multi-root
-  scanning, top-level plan discovery, cache version invalidation,
-  `dump_inventory_json`, and the standalone CLI's `main()`).
+  reserved-environ-var filtering, default repo-root discovery, hidden
+  manifest filtering, multi-root scanning, top-level plan discovery,
+  cache version invalidation, `dump_inventory_json`, and the standalone
+  CLI's `main()`).
 - `test_gen_launcher.py` — the TUI layer (launcher file format,
   existing-launcher import, `ItemRow` edit-mode state transitions, job
   purpose/description formatting, and right-pane focus-switching, `Tab`

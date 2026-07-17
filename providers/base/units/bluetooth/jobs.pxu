@@ -96,6 +96,7 @@ _summary: Verify the capability to transfer files through a Bluetooth connection
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio-a2dp
+group: bluetooth_basic
 depends: bluetooth/detect-output
 flags: also-after-suspend
 estimated_duration: 120.0
@@ -210,6 +211,7 @@ _summary: Conduct an automated Bluetooth file transfer stress test ensuring file
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-mouse
+group: bluetooth_basic
 depends: bluetooth/detect-output
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
@@ -232,6 +234,7 @@ _summary:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-keyboard
+group: bluetooth_basic
 depends: bluetooth/detect-output
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
@@ -468,6 +471,7 @@ _purpose: This is an automated Bluetooth file transfer test. It sends an image t
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio_record_playback
+group: bluetooth_basic
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 flags: also-after-suspend

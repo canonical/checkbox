@@ -631,6 +631,7 @@ _verification:
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/operation-system-installation
+before: suspend/suspend_advanced_auto
 estimated_duration: 30.0
 _purpose:
     Verify that the operating system can be installed successfully.
@@ -644,6 +645,7 @@ _verification:
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/factory-recovery
+depends: miscellanea/operation-system-installation
 estimated_duration: 30.0
 _purpose:
     Verify that the factory recovery can be restored successfully.

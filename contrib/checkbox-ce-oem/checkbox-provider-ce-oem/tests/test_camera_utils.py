@@ -55,6 +55,24 @@ class TestCameraResourcesItems(unittest.TestCase):
         self.assertEqual(record["mode"], 2)
         self.assertEqual(record["fps"], 30)
 
+    def test_capture_image_optional_fps(self):
+        resources = CameraResources()
+        resources._current_scenario_name = "capture_image"
+        item = self._item(
+            camera_id="0",
+            resolutions=[
+                {"width": 3280, "height": 2464, "fps": 21, "mode": 0}
+            ],
+        )
+        resources.capture_image([item])
+
+        record = resources._resource_items[0]
+        # capture fps pins slow sensor modes but stays out of the job name
+        self.assertEqual(record["fps"], 21)
+        self.assertEqual(
+            record["name"], "imx219_cam0_gstreamer_3280x2464_mode0_NV12"
+        )
+
     def test_missing_identifier_skips_item(self):
         resources = CameraResources()
         resources._current_scenario_name = "capture_image"

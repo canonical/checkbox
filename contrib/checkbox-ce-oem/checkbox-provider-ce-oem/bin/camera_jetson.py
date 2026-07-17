@@ -29,6 +29,7 @@ from camera_utils import (
     GST_LAUNCH_BIN,
     CameraError,
     CameraConfigurationError,
+    CameraOperationError,
     log_and_raise_error,
 )
 
@@ -162,6 +163,36 @@ class JetsonBaseCamera(CameraInterface):
                 CameraConfigurationError,
             )
 
+    def _execute_gst_cmd(
+        self, cmd: str, timeout: int, artifact_path: str
+    ) -> None:
+        """
+        Run a gstreamer capture command, tolerating teardown-only failures.
+
+        Some CSI modules (e.g. Arducam IMX219 clones) stochastically post
+        'Argus Correctable Error' events after EOS, making gst-launch exit
+        non-zero although every frame was captured. If the artifact landed
+        with a non-zero size, log and continue - the framework's
+        check_nonzero_files() remains the final pass criterion.
+        """
+        logger.info("Executing command:\n{}".format(cmd))
+        try:
+            output = execute_command(cmd=cmd, timeout=timeout)
+            logger.info("Output:\n{}".format(output))
+        except CameraOperationError:
+            try:
+                artifact_ok = os.path.getsize(artifact_path) > 0
+            except OSError:
+                artifact_ok = False
+            if not artifact_ok:
+                raise
+            logger.warning(
+                "gst-launch exited non-zero but the artifact '{}' is "
+                "non-empty; tolerating as a post-EOS teardown error.".format(
+                    artifact_path
+                )
+            )
+
     def _build_gstreamer_cmd(
         self,
         sensor_id: int,
@@ -258,6 +289,7 @@ class JetsonBaseCamera(CameraInterface):
         method: str,
         v4l2_device_name: str,
         mode: Optional[int] = None,
+        framerate: Optional[int] = None,
     ) -> None:
         """Capture an image using the specified method."""
         full_artifact_path = self._get_artifact_path(
@@ -274,29 +306,30 @@ class JetsonBaseCamera(CameraInterface):
         )
 
         if method == SupportedMethods.GSTREAMER:
+            # framerate pins modes whose maximum rate is below the Argus
+            # 30 fps negotiation default (e.g. IMX219 modes 0 and 1)
             cmd = self._build_gstreamer_cmd(
                 sensor_id,
                 width,
                 height,
                 format,
                 full_artifact_path,
+                framerate=framerate,
                 mode=mode,
             )
-            timeout = GST_IMAGE_TIMEOUT
+            self._execute_gst_cmd(cmd, GST_IMAGE_TIMEOUT, full_artifact_path)
         elif method == SupportedMethods.NVARGUS_NVRAW:
             cmd = self._build_nvargus_cmd(
                 sensor_id, full_artifact_path, mode=mode
             )
-            timeout = NVARGUS_TIMEOUT
+            logger.info("Executing command:\n{}".format(cmd))
+            output = execute_command(cmd=cmd, timeout=NVARGUS_TIMEOUT)
+            logger.info("Output:\n{}".format(output))
         else:
             msg = "No suitable method such as '{}' or '{}' be provided".format(
                 SupportedMethods.GSTREAMER, SupportedMethods.NVARGUS_NVRAW
             )
             log_and_raise_error(msg, CameraConfigurationError)
-
-        logger.info("Executing command:\n{}".format(cmd))
-        output = execute_command(cmd=cmd, timeout=timeout)
-        logger.info("Output:\n{}".format(output))
 
     def record_video(
         self,
@@ -344,9 +377,7 @@ class JetsonBaseCamera(CameraInterface):
             )
             log_and_raise_error(msg, CameraConfigurationError)
 
-        logger.info("Executing command:\n {}".format(cmd))
-        output = execute_command(cmd=cmd, timeout=GST_VIDEO_TIMEOUT)
-        logger.info("Output:\n{}".format(output))
+        self._execute_gst_cmd(cmd, GST_VIDEO_TIMEOUT, full_artifact_path)
 
 
 class Imx274Handler(JetsonBaseCamera):

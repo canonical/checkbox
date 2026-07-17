@@ -124,9 +124,12 @@ def _execute_capture_image_scenario(
         artifact_store_path: Path to store artifacts
         artifact_name: Base name for artifacts
     """
-    # Only pass the sensor mode when the scenario declares one: the platforms
-    # that don't use it don't accept it either.
+    # Only pass the sensor mode / capture framerate when the scenario
+    # declares them: the platforms that don't use them don't accept them
+    # either.
     extra = {"mode": args.mode} if args.mode is not None else {}
+    if args.framerate is not None:
+        extra["framerate"] = args.framerate
 
     iteration = 5  # Capture multiple images
     for i in range(1, iteration + 1):

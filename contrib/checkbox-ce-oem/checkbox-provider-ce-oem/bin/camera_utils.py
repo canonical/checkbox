@@ -166,6 +166,15 @@ def execute_command(cmd: str = "", timeout: int = 300) -> str:
             "Command timed out: {}".format(e),
             CameraTimeoutError,
         )
+    except subprocess.CalledProcessError as e:
+        # Surface the child's own diagnostics (e.g. the Argus error text),
+        # which otherwise never reach the job's io-log
+        logger.error("stdout:\n{}".format(e.stdout))
+        logger.error("stderr:\n{}".format(e.stderr))
+        log_and_raise_error(
+            "Failed to execute command: {}".format(e),
+            CameraOperationError,
+        )
     except Exception as e:
         log_and_raise_error(
             "Failed to execute command: {}".format(e),
@@ -1145,8 +1154,11 @@ class CameraResources:
                         "height": resolution["height"],
                     }
 
-                    # Add fps for video scenarios
-                    if scenario_type == "record_video":
+                    # fps is mandatory for video scenarios and optional for
+                    # capture ones, where it pins sensor modes whose maximum
+                    # rate sits below the default negotiation rate (Argus
+                    # defaults to 30 fps, above e.g. IMX219 mode 0's 21 fps)
+                    if scenario_type == "record_video" or "fps" in resolution:
                         resource_item["fps"] = resolution["fps"]
 
                     # Add the sensor mode only when the resolution declares it

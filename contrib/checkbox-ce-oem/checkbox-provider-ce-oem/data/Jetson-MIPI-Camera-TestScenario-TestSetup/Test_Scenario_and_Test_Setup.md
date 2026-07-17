@@ -24,18 +24,36 @@ configurations.
 
 ## Required Checkbox Environment
 
-The NVIDIA GStreamer plugins (`nvarguscamerasrc`, `nvvidconv`) are not on
-GStreamer's default search path, so the checkbox configuration must point
-GStreamer at them (the jobs pass these variables through to the test):
+The capture tools (`gst-launch-1.0` with the NVIDIA plugins, and
+`nvargus_nvraw`) must be reachable from the checkbox jobs. The jobs pass
+`GST_LAUNCH_BIN`, `NVARGUS_NVRAW_BIN`, `GST_PLUGIN_PATH`,
+`GST_PLUGIN_SYSTEM_PATH` and `GST_PLUGIN_SCANNER` through from the checkbox
+configuration, so each image type supplies what it needs:
+
+**Classic / deb images** — the NVIDIA GStreamer plugins are off the default
+search path:
 
 ```ini
-# Deb / classic image
 GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+```
 
-# Snap (checkbox-ce-oem): the working pair covers both the checkbox
-# runtime's core elements and the NVIDIA plugin dir
-GST_PLUGIN_SYSTEM_PATH=/snap/checkbox-ce-oem/current/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0:/snap/checkbox-ce-oem/current/usr/lib/aarch64-linux-gnu/gstreamer-1.0
-GST_PLUGIN_SCANNER=/snap/checkbox-ce-oem/current/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
+**Ubuntu Core images** — checkbox-ce-oem carries no NVIDIA stack. Install
+the NVIDIA multimedia snap (which hosts the Argus daemon and its own
+GStreamer with the NVIDIA plugins) and alias its tools to the classic
+command names before testing:
+
+```bash
+sudo snap alias <multimedia-snap>.gst-launch gst-launch-1.0
+sudo snap alias <multimedia-snap>.nvargus-nvraw nvargus_nvraw
+```
+
+The multimedia snap resolves its own plugin paths, so no `GST_PLUGIN_*`
+variables are needed. If the aliases are not on the job `PATH`, point the
+tool overrides at them instead:
+
+```ini
+GST_LAUNCH_BIN=/snap/bin/gst-launch-1.0
+NVARGUS_NVRAW_BIN=/snap/bin/nvargus_nvraw
 ```
 
 `DISPLAY` is unset by the test itself (Argus tries to bring up an EGL

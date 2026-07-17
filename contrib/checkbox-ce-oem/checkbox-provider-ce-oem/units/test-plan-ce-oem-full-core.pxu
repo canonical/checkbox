@@ -154,7 +154,7 @@ exclude:
 certification_status_overrides:
     apply blocker to .*
 
-id: ce-oem-ubuntucore-20-manual
+id: ce-oem-iot-ubuntucore-20-manual
 unit: test plan
 _name: CE-OEM-IOT - Manual only OEMQA tests for Ubuntu Core 20
 _description:

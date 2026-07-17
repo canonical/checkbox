@@ -18,3 +18,4 @@ fi
 
 echo "Copying over providers to $series"
 rsync -r --links ../checkbox-provider-ce-oem "$series/"
+rsync -r --links bin "$series/"

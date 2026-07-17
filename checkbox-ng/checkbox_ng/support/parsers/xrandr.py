@@ -40,7 +40,7 @@ DP-3 AOC 2770M GDBFBHA000236
 import re
 import subprocess
 from collections import defaultdict, namedtuple
-from typing import Dict, List, Set
+from typing import Dict, Set
 from checkbox_ng.support.monitor_config import MonitorConfig
 
 Mode = namedtuple(

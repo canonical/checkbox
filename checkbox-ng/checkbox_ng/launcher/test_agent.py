@@ -16,13 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
 from unittest import TestCase, mock
 
 from checkbox_ng.launcher.agent import exit_if_port_unavailable
 from checkbox_ng.launcher.agent import RemoteAgent
-from plainbox.impl.session.assistant import ResumeCandidate
-from plainbox.impl.session.state import SessionMetaData
 
 
 @mock.patch("checkbox_ng.launcher.agent._")

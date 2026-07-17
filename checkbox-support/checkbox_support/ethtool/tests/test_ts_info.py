@@ -145,7 +145,9 @@ class TestGetTsInfo(TestCase):
     def _fake_ioctl(self, fd, request, arg, mutate_flag=False):
         # mock kernel response to the SIOCETHTOOL ioctl
         self.assertEqual(request, SIOCETHTOOL)
-        info_ptr = ctypes.cast(arg.ifr_data, ctypes.POINTER(ethtool_ts_info))
+        info_ptr = ctypes.cast(
+            arg.ifr_ifru.ifr_data, ctypes.POINTER(ethtool_ts_info)
+        )
         info_ptr.contents.so_timestamping = 0x1F
         info_ptr.contents.phc_index = 3
         info_ptr.contents.tx_types = 7

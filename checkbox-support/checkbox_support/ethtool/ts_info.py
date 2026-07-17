@@ -69,31 +69,49 @@ class ethtool_ts_info(ctypes.Structure):
         return "ethtool_ts_info({})".format(", ".join(words))
 
 
-# this is only used to make the SIOCETHTOOL ioctl request
-# we don't need any of the field values in this struct
-# https://github.com/torvalds/linux/blob/3b029c035b34bbc693405ddf759f0e9b920c27f1/include/uapi/linux/if.h#L234-L256
+# ------ these structs are only used to make the ioctl request
+class sockaddr(ctypes.Structure):
+    _fields_ = [
+        # unsigned short int
+        ("sa_family", ctypes.c_ushort),
+        # char sa_data[14];
+        # note that ipv6 doesn't use this
+        ("sa_data", ctypes.c_char * 14),
+    ]
+
+
+class ifmap(ctypes.Structure):
+    _fields_ = [
+        ("mem_start", ctypes.c_ulong),
+        ("mem_end", ctypes.c_ulong),
+        ("base_addr", ctypes.c_ushort),
+        ("irq", ctypes.c_ubyte),  # ubyte is unsigned char
+        ("dma", ctypes.c_ubyte),
+        ("port", ctypes.c_ubyte),
+    ]
+
+
+class ifr_ifru(ctypes.Union):
+    _fields_ = [
+        # there are more union members in the source code
+        # we are not really using them here so they are omitted
+        ("ifr_data", ctypes.c_void_p),
+        # ifmap is included for the padding
+        # because it's the largest union member
+        # it has to be here to avoid this field going out of bounds
+        ("ifr_map", ifmap),
+    ]
+
+
+# https://github.com/torvalds/linux/blob/fce2dfa773ced15f27dd27cd0b482a7473cdcf2a/include/uapi/linux/if.h#L234-L256
 class ifreq(ctypes.Structure):
     _fields_ = [
         ("ifr_name", ctypes.c_char * IFNAMSIZ),
-        ("ifr_data", ctypes.c_void_p),
-        # https://github.com/torvalds/linux/blob/3b029c035b34bbc693405ddf759f0e9b920c27f1/include/uapi/linux/if.h#L234-L256
-        # the rest of the ifreq struct is a 24 byte union
-        # because the largest member is the ifmap struct
-        # which has (long*2 + short + char*3)
-        # therefore this padding should be 16 bytes
-        (
-            "_ifr_padding",
-            ctypes.c_byte
-            * (
-                ctypes.sizeof(ctypes.c_long) * 2
-                + ctypes.sizeof(ctypes.c_short)
-                + ctypes.sizeof(ctypes.c_char) * 3
-                + 3  # in the ifmap struct, it says "3 bytes to spare"
-                # make sure to account for ifr_data
-                - ctypes.sizeof(ctypes.c_void_p)
-            ),
-        ),
+        ("ifr_ifru", ifr_ifru),
     ]
+
+
+# ------------------------------------------------
 
 
 def _is_ethernet_interface(interface: str) -> bool:
@@ -141,7 +159,7 @@ def get_ts_info(interface: str) -> ethtool_ts_info:
 
     ifr = ifreq()
     ifr.ifr_name = interface.encode()
-    ifr.ifr_data = ctypes.cast(ctypes.pointer(info), ctypes.c_void_p)
+    ifr.ifr_ifru.ifr_data = ctypes.cast(ctypes.pointer(info), ctypes.c_void_p)
 
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         fcntl.ioctl(sock.fileno(), SIOCETHTOOL, ifr, True)
@@ -167,7 +185,3 @@ def is_ptp_capable(interface: str) -> bool:
         return phc_index >= 0 and os.path.exists(expected_ptp_device_path)
     except (OSError, ValueError):
         return False
-
-
-if __name__ == "__main__":
-    print(get_ts_info("enx5c925ed71416"))

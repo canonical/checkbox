@@ -35,6 +35,7 @@ configuration, so each image type supplies what it needs:
 search path:
 
 ```ini
+GST_LAUNCH_BIN=/usr/bin/gst-launch-1.0
 GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
 ```
 

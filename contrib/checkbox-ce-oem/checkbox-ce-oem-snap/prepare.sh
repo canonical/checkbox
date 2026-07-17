@@ -45,3 +45,4 @@ fi
 sed -i "s/^version:.*/version: '${new_version}'/" "$snapcraft_file"
 echo "Updated $snapcraft_file version:"
 grep '^version:' "$snapcraft_file"
+rsync -r --links bin "$series/"

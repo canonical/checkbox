@@ -57,6 +57,10 @@ apps:
     command-chain: [bin/wrapper_local]
     command: bin/test-runner
     plugs: *standard
+  launcher-generator:
+    command-chain: [bin/wrapper_local]
+    command: bin/gen_launcher.py
+    plugs: *standard
 
 passthrough:
   hooks:
@@ -158,6 +162,11 @@ parts:
   launchers:
     plugin: dump
     source: launchers/
+    organize:
+      '*': bin/
+  bin-scripts:
+    plugin: dump
+    source: bin/
     organize:
       '*': bin/
   config-variables:

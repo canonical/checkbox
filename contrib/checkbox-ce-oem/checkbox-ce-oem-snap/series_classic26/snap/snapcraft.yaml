@@ -26,6 +26,9 @@ apps:
   test-runner:
     command-chain: [bin/wrapper_local]
     command: bin/test-runner
+  launcher-generator:
+    command-chain: [bin/wrapper_local]
+    command: bin/gen_launcher.py
 
 passthrough:
   hooks:
@@ -130,6 +133,12 @@ parts:
   launchers:
     plugin: dump
     source: launchers/
+    build-attributes: [no-patchelf]
+    organize:
+      '*': bin/
+  bin-scripts:
+    plugin: dump
+    source: bin/
     build-attributes: [no-patchelf]
     organize:
       '*': bin/

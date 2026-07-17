@@ -4,8 +4,8 @@ _name: MIPI Camera tests
 _description: Full tests for MIPI Camera
 include:
 nested_part:
-    mipi-camera-manual
-    mipi-camera-automated
+    ce-oem-mipi-camera-manual
+    ce-oem-mipi-camera-automated
 
 id: ce-oem-mipi-camera-manual
 unit: test plan

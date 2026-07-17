@@ -92,12 +92,13 @@ Jetson configurations only require test scenario files (no test setup needed).
   - [`jetson_mipi_camera_test_scenario_imx219_cam0.json`](jetson_mipi_camera_test_scenario_imx219_cam0.json)
   - [`jetson_mipi_camera_test_scenario_imx219_cam1.json`](jetson_mipi_camera_test_scenario_imx219_cam1.json)
 
-> **Note:** the Orin NX and Orin Nano DUTs carry the same single module but
-> fitted on different carrier-board connectors — one on `cam0`, the other on
-> `cam1` — and the connector label is part of every job id. Point
-> `MIPI_SCENARIO_DEFINITION_FILE_PATH` at the file matching where the module
-> is fitted. `camera_id` stays `0` in both files: Argus indexes the sensors
-> it detects, not the connectors.
+> **Note:** the single module can be fitted on either carrier-board
+> connector (`cam0` / `cam1`), and the connector label is part of every job
+> id, so there is one scenario file per connector. Point
+> `MIPI_SCENARIO_DEFINITION_FILE_PATH` at the file matching the DUT's
+> wiring — the current certification Orin NX and Orin Nano DUTs both carry
+> the module on `cam0`. `camera_id` stays `0` in both files: Argus indexes
+> the sensors it detects, not the connectors.
 
 | Argus mode | Resolution | FPS |
 | --- | --- | --- |

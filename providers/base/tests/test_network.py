@@ -44,17 +44,17 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
         self.assertListEqual(core_list, [])
 
     def test_find_numa_reports_node(self):
-        with patch("builtins.open", mock_open(read_data="1")) as mo:
+        with patch("pathlib.Path.open", mock_open(read_data="1")):
             returned = network.IPerfPerformanceTest.find_numa(None, "device")
             self.assertEqual(returned, 1)
 
     def test_find_numa_minus_one_from_sysfs(self):
-        with patch("builtins.open", mock_open(read_data="-1")) as mo:
+        with patch("pathlib.Path.open", mock_open(read_data="-1")) as mo:
             returned = network.IPerfPerformanceTest.find_numa(None, "device")
             self.assertEqual(returned, -1)
 
     def test_find_numa_numa_node_not_found(self):
-        with patch("builtins.open", mock_open()) as mo:
+        with patch("pathlib.Path.open", mock_open()) as mo:
             mo.side_effect = FileNotFoundError
             returned = network.IPerfPerformanceTest.find_numa(None, "device")
             self.assertEqual(returned, -1)

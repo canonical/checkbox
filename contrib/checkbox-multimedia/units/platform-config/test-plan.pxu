@@ -1,0 +1,5 @@
+unit: test plan
+id: multimedia-platform-config
+_name: Platform configuration detection
+include:
+  platform_config_resource

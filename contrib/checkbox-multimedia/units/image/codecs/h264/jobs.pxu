@@ -1,0 +1,43 @@
+id: multimedia/image/codecs/h264/decode/avc_baseline_main/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 Baseline / Main / Extended decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_h264_constrained_baseline_decoder_vaapi == 'True' or manifest.has_h264_main_decoder_vaapi == 'True'
+command:
+  fluster run -d GStreamer-H.264-VAAPI-Gst1.0 -j1 -ts JVT-AVC_V1
+
+id: multimedia/image/codecs/h264/decode/frext/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 High / High 10 / High 4:2:2 decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_h264_high_decoder_vaapi == 'True' or manifest.has_h264_high10_decoder_vaapi == 'True' or manifest.has_h264_high422_decoder_vaapi == 'True'
+command:
+  fluster run -d GStreamer-H.264-VAAPI-Gst1.0 -j1 -ts JVT-FR-EXT
+
+id: multimedia/image/codecs/h264/decode/professional/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API H.264 Professional profiles decode (High 4:4:4)
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_h264_high444_decoder_vaapi == 'True'
+command:
+  fluster run -d GStreamer-H.264-VAAPI-Gst1.0 -j1 -ts JVT-Professional_profiles
+
+id: multimedia/image/codecs/h264/encode/main/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 10s
+_summary: VA-API H.264 Main encode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_h264_encoder_vaapi == 'True'
+command:
+  gst_encoder_quality.py --codec h264 --width 1920 --height 1080 --framerate 30 --num-buffers 60

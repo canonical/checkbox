@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_jpeg_baseline_decoder_vaapi
+_name: Has VA-API support for JPEG Baseline decode
+value-type: bool
+
+unit: manifest entry
+id: has_jpeg_encoder_vaapi
+_name: Has JPEG encoding support
+value-type: bool

@@ -286,7 +286,7 @@ class StressPerformanceTestTests(unittest.TestCase):
         with redirect_stdout(StringIO()):
             result = test.run()
         self.assertEqual(result, 0)
-        ping_mock.terminate.assert_called_once()
+        self.assertEqual(ping_mock.terminate.call_count, 1)
 
     @patch("subprocess.Popen")
     def test_run_iperf3_command_used(self, mock_popen):
@@ -982,7 +982,7 @@ class NetworkTests(unittest.TestCase):
         result = network.run_test(args, "192.168.1.1")
 
         self.assertEqual(result, 0)
-        mock_benchmark.run.assert_called_once()
+        self.assertEqual(mock_benchmark.run.call_count, 1)
 
     @patch("network.StressPerformanceTest")
     @patch("network.can_ping")
@@ -996,7 +996,7 @@ class NetworkTests(unittest.TestCase):
         result = network.run_test(args, "192.168.1.1")
 
         self.assertEqual(result, 0)
-        mock_benchmark.run.assert_called_once()
+        self.assertEqual(mock_benchmark.run.call_count, 1)
 
     @patch("network.can_ping")
     def test_run_test_unknown_type(self, mock_can_ping):
@@ -1110,7 +1110,7 @@ class NetworkTests(unittest.TestCase):
             result = network.run_test(args, "192.168.1.1")
 
         self.assertEqual(result, 0)
-        mock_opt.assert_called_once()
+        self.assertEqual(mock_opt.call_count, 1)
 
     @patch("network.can_ping")
     @patch("network.interface_test_initialize")
@@ -1231,7 +1231,7 @@ class InterfaceClassTest(unittest.TestCase):
         mock_read_text.side_effect = OSError
 
         self.assertIsNone(self.obj_intf._read_data("operstate"))
-        mock_warn.assert_called_once()
+        self.assertEqual(mock_warn.call_count, 1)
 
     @patch("network.fcntl.ioctl")
     def test_ipaddress_success(self, mock_ioctl):

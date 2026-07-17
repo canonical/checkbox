@@ -6,6 +6,7 @@ Authors
   Jeff Marcom <jeff.marcom@canonical.com>
   Daniel Manrique <roadmr@ubuntu.com>
   Jeff Lane <jeff@ubuntu.com>
+  Zhongning Li <zhongning.li@canonical.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3,

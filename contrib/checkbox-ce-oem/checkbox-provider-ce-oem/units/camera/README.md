@@ -49,6 +49,16 @@ export MIPI_SCENARIO_DEFINITION_FILE_PATH=data/Genio-MIPI-Camera-TestScenario-Te
 export MIPI_SCENARIO_DEFINITION_FILE_PATH=/usr/share/checkbox/data/Genio-MIPI-Camera-TestScenario-TestSetup/scenario.json
 ```
 
+### Camera Identifier
+
+Each scenario item identifies its camera with `v4l2_device_name` (the name
+shown by `v4l2-ctl --list-devices`) — this is the default. Platforms whose
+capture method does not address the camera by its v4l2 name can declare
+`camera_id` instead, which overrides `v4l2_device_name` as the identifier
+passed to the test (e.g. on Jetson, `camera_id` holds the Argus source
+index consumed by `nvarguscamerasrc sensor-id=` / `nvargus_nvraw --c`).
+Every item must declare at least one of the two.
+
 ## Template Jobs
 
 Two template jobs are generated based on the output of `mipi_camera_resource`:
@@ -56,14 +66,26 @@ Two template jobs are generated based on the output of `mipi_camera_resource`:
 ### Image Capture Job
 
 ```text
-id: mipi-camera/capture-image_{{ camera }}_{{ physical_interface }}_{{ method }}_{{ width }}x{{ height }}_{{ format }}
+id: ce-oem-mipi-camera/capture-image_{{ name }}
 ```
 
 ### Video Recording Job
 
 ```text
-id: mipi-camera/record-video_{{ camera }}_{{ physical_interface }}_{{ method }}_{{ width }}x{{ height }}@{{ fps }}fps_{{ format }}
+id: ce-oem-mipi-camera/record-video_{{ name }}
 ```
+
+The `name` field is composed by the resource job so the job templates stay
+free of conditionals:
+
+```text
+<camera>_<physical_interface>_<method>_<width>x<height>[@<fps>fps][_mode<mode>]_<format>
+```
+
+`@<fps>fps` appears only for `record_video` items, and `_mode<mode>` only
+when the scenario declares a sensor `mode` for the resolution (e.g. the
+Argus mode index on Jetson). Example:
+`imx219_cam0_gstreamer_1920x1080@30fps_mode2_NV12`.
 
 **Required Environment Variables:**
 
@@ -83,6 +105,7 @@ id: mipi-camera/record-video_{{ camera }}_{{ physical_interface }}_{{ method }}_
 ### Optional
 
 - `MIPI_CAMERA_SETUP_CONF_FILE_PATH`: Path to the setup configuration file in JSON format (required if your camera needs to configure format/resolution of pads or set pad links)
+- `GST_PLUGIN_PATH`, `GST_PLUGIN_SYSTEM_PATH`, `GST_PLUGIN_SCANNER`: GStreamer plugin search paths, passed through to the test environment. Required on platforms whose GStreamer plugins live off the default search path (e.g. the NVIDIA plugins on Jetson — see the [Jetson documentation](../../data/Jetson-MIPI-Camera-TestScenario-TestSetup/Test_Scenario_and_Test_Setup.md) for the deb and snap values)
 
 ### Environment Variable Examples
 

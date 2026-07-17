@@ -1063,6 +1063,31 @@ class CameraResources:
                 CameraConfigurationError,
             )
 
+    @staticmethod
+    def _compose_name(
+        item: dict, resolution: dict, format_str: str, scenario_type: str
+    ) -> str:
+        """
+        Compose the human-readable name a job id is built from, so the
+        job templates stay free of jinja2 conditionals.
+
+        e.g. imx219_cam0_gstreamer_1920x1080@30fps_mode2_NV12
+        """
+        name = "{}_{}_{}_{}x{}".format(
+            item["camera"],
+            item["physical_interface"],
+            item["method"],
+            resolution["width"],
+            resolution["height"],
+        )
+        if scenario_type == CameraScenarios.RECORD_VIDEO.value:
+            name += "@{}fps".format(resolution["fps"])
+        # The mode suffix keeps sensor modes sharing a resolution and frame
+        # rate distinguishable (e.g. IMX274 Argus modes 1 and 3)
+        if "mode" in resolution:
+            name += "_mode{}".format(resolution["mode"])
+        return name + "_{}".format(format_str)
+
     def _process_scenario_items(
         self, scenarios: list, scenario_type: str
     ) -> None:
@@ -1078,7 +1103,6 @@ class CameraResources:
             "camera",
             "method",
             "physical_interface",
-            "v4l2_device_name",
             "resolutions",
             "formats",
         ]
@@ -1088,16 +1112,34 @@ class CameraResources:
                 self._validate_scenario_item(item, required_fields)
                 self._validate_resolution_formats(item, scenario_type)
 
+                # v4l2_device_name is the default camera identifier; the
+                # optional camera_id key overrides it for capture methods
+                # that do not address the camera by its v4l2 name (e.g. the
+                # Argus source index on Jetson).
+                device_name = item.get("camera_id") or item.get(
+                    "v4l2_device_name"
+                )
+                if device_name is None:
+                    log_and_raise_error(
+                        "Scenario item for camera '{}' needs "
+                        "'v4l2_device_name' or its 'camera_id' "
+                        "override".format(item["camera"]),
+                        CameraConfigurationError,
+                    )
+
                 # Generate resources for each resolution/format combination
                 for resolution, format_str in product(
                     item["resolutions"], item["formats"]
                 ):
                     resource_item = {
                         "scenario": self._current_scenario_name,
+                        "name": self._compose_name(
+                            item, resolution, format_str, scenario_type
+                        ),
                         "camera": item["camera"],
                         "method": item["method"],
                         "physical_interface": item["physical_interface"],
-                        "v4l2_device_name": item["v4l2_device_name"],
+                        "v4l2_device_name": device_name,
                         "format": format_str,
                         "width": resolution["width"],
                         "height": resolution["height"],

@@ -3,8 +3,8 @@
         {
             "camera": "imx219",
             "method": "nvargus_nvraw",
-            "physical_interface": "cam0",
-            "v4l2_device_name": "0",
+            "physical_interface": "cam1",
+            "camera_id": "0",
             "formats": ["NVRAW"],
             "resolutions": [
                 {"width": 3280, "height": 2464, "mode": 0},
@@ -17,8 +17,8 @@
         {
             "camera": "imx219",
             "method": "gstreamer",
-            "physical_interface": "cam0",
-            "v4l2_device_name": "0",
+            "physical_interface": "cam1",
+            "camera_id": "0",
             "formats": ["NV12"],
             "resolutions": [
                 {"width": 3280, "height": 2464, "mode": 0},
@@ -33,8 +33,8 @@
         {
             "camera": "imx219",
             "method": "gstreamer",
-            "physical_interface": "cam0",
-            "v4l2_device_name": "0",
+            "physical_interface": "cam1",
+            "camera_id": "0",
             "formats": ["NV12"],
             "resolutions": [
                 {"width": 3280, "height": 2464, "fps": 21, "mode": 0},

@@ -4,7 +4,7 @@
             "camera": "imx274",
             "method": "nvargus_nvraw",
             "physical_interface": "cam0",
-            "v4l2_device_name": "0",
+            "camera_id": "0",
             "formats": ["NVRAW"],
             "resolutions": [
                 {"width": 3840, "height": 2160, "mode": 0},
@@ -17,7 +17,7 @@
             "camera": "imx274",
             "method": "nvargus_nvraw",
             "physical_interface": "cam1",
-            "v4l2_device_name": "1",
+            "camera_id": "1",
             "formats": ["NVRAW"],
             "resolutions": [
                 {"width": 3840, "height": 2160, "mode": 0},
@@ -30,7 +30,7 @@
             "camera": "imx274",
             "method": "gstreamer",
             "physical_interface": "cam0",
-            "v4l2_device_name": "0",
+            "camera_id": "0",
             "formats": ["NV12"],
             "resolutions": [
                 {"width": 3840, "height": 2160, "mode": 0},
@@ -43,7 +43,7 @@
             "camera": "imx274",
             "method": "gstreamer",
             "physical_interface": "cam1",
-            "v4l2_device_name": "1",
+            "camera_id": "1",
             "formats": ["NV12"],
             "resolutions": [
                 {"width": 3840, "height": 2160, "mode": 0},
@@ -58,7 +58,7 @@
             "camera": "imx274",
             "method": "gstreamer",
             "physical_interface": "cam0",
-            "v4l2_device_name": "0",
+            "camera_id": "0",
             "formats": ["NV12"],
             "resolutions": [
                 {"width": 3840, "height": 2160, "fps": 60, "mode": 0},
@@ -71,7 +71,7 @@
             "camera": "imx274",
             "method": "gstreamer",
             "physical_interface": "cam1",
-            "v4l2_device_name": "1",
+            "camera_id": "1",
             "formats": ["NV12"],
             "resolutions": [
                 {"width": 3840, "height": 2160, "fps": 60, "mode": 0},

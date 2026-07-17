@@ -38,21 +38,18 @@ NVARGUS_NVRAW_BIN = shutil.which(
     os.getenv("NVARGUS_NVRAW_BIN", "nvargus_nvraw")
 )
 
-# GStreamer plugin search paths. The NVIDIA plugins (nvarguscamerasrc,
-# nvvidconv) are not on the default search path, so every Jetson gstreamer job
-# has to point GStreamer at them - the deb ones included. Values copied
-# verbatim from units/Jetson/camera_job.pxu:74 (deb) and :152-153 (the snap
-# video job, which is the working snap pair: it covers both the checkbox
-# runtime's core elements and the NVIDIA dir).
-DEB_GST_PLUGIN_PATH = "/usr/lib/aarch64-linux-gnu/gstreamer-1.0/"
-SNAP_GST_PLUGIN_SYSTEM_PATHS = (
-    "checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0",
-    "usr/lib/aarch64-linux-gnu/gstreamer-1.0",
-)
-SNAP_GST_PLUGIN_SCANNER = (
-    "checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/"
-    "gstreamer-1.0/gst-plugin-scanner"
-)
+# DISPLAY must be unset for every Argus capture (both nvargus_nvraw and
+# nvarguscamerasrc try to bring up an EGL preview when it is set, which
+# wedges headless/ssh runs) - the legacy units/Jetson jobs all start with
+# 'unset DISPLAY'. execute_command() runs without a shell, so /usr/bin/env
+# carries the unset instead.
+#
+# The GStreamer plugin search paths (the NVIDIA plugins are not on the
+# default search path) are deliberately NOT set here: GST_PLUGIN_PATH,
+# GST_PLUGIN_SYSTEM_PATH and GST_PLUGIN_SCANNER are passed through the
+# checkbox environment via the jobs' environ list, so each project supplies
+# its own values - see units/camera/README.md.
+ENV_PREFIX = "/usr/bin/env -u DISPLAY"
 
 # Timeouts in seconds for execute_command(). Mandatory, not a nice-to-have:
 # wedged Argus captures have happened, which is why every current Jetson job is
@@ -122,52 +119,6 @@ def jetson_camera_factory(camera_module: str) -> Type[CameraInterface]:
     return handler_class
 
 
-def gst_env_prefix() -> str:
-    """
-    Build an 'env' prefix for the gst-launch command.
-
-    execute_command() runs subprocess.run(shlex.split(cmd)) - there is no shell
-    and no env= parameter - so an 'export X=...; gst-launch ...' command string
-    is unrunnable and a literal "$SNAP" would never expand. /usr/bin/env
-    carries both the DISPLAY unset and the plugin variables with no framework
-    change, so the snap paths are built here in Python instead.
-
-    Deb vs snap is decided by where GST_LAUNCH_BIN (already shutil.which()
-    resolved in camera_utils) lives.
-
-    Returns:
-        The env prefix, without a trailing space.
-
-    Raises:
-        CameraConfigurationError: If running from a snap with SNAP unset
-    """
-    if not GST_LAUNCH_BIN or not GST_LAUNCH_BIN.startswith("/snap/"):
-        return "/usr/bin/env -u DISPLAY GST_PLUGIN_PATH={}".format(
-            DEB_GST_PLUGIN_PATH
-        )
-
-    snap = os.getenv("SNAP")
-    if not snap:
-        log_and_raise_error(
-            "'{}' is a snap binary but the SNAP environment variable is "
-            "unset, so the GStreamer plugin paths cannot be built.".format(
-                GST_LAUNCH_BIN
-            ),
-            CameraConfigurationError,
-        )
-
-    plugin_system_path = ":".join(
-        os.path.join(snap, path) for path in SNAP_GST_PLUGIN_SYSTEM_PATHS
-    )
-    return (
-        "/usr/bin/env -u DISPLAY GST_PLUGIN_SYSTEM_PATH={} "
-        "GST_PLUGIN_SCANNER={}".format(
-            plugin_system_path,
-            os.path.join(snap, SNAP_GST_PLUGIN_SCANNER),
-        )
-    )
-
-
 class JetsonBaseCamera(CameraInterface):
     """
     Base class for Jetson camera implementations.
@@ -189,9 +140,11 @@ class JetsonBaseCamera(CameraInterface):
         """
         Get the Argus source index for the given camera.
 
-        On Jetson, v4l2_device_name carries the Argus source_index as a string
-        ("0" / "1") rather than a v4l2 name - it is what 'nvargus_nvraw --c N'
-        and 'nvarguscamerasrc sensor-id=N' actually consume.
+        On Jetson the scenario JSON declares camera_id - the Argus
+        source_index as a string ("0" / "1"), which is what
+        'nvargus_nvraw --c N' and 'nvarguscamerasrc sensor-id=N' actually
+        consume - and the resource generator carries it in the framework's
+        default identifier field, v4l2_device_name.
 
         Do not derive this from physical_interface, the VI channel or the i2c
         bus number: the AGX Orin's two sensors sit on VI channels 0 and 2, and
@@ -203,10 +156,9 @@ class JetsonBaseCamera(CameraInterface):
             return int(v4l2_device_name)
         except (TypeError, ValueError):
             log_and_raise_error(
-                "Invalid v4l2_device_name '{}': on Jetson this field carries "
-                "the Argus source index (e.g. '0'), not a device name.".format(
-                    v4l2_device_name
-                ),
+                "Invalid camera identifier '{}': on Jetson the scenario's "
+                "camera_id carries the Argus source index (e.g. '0'), not "
+                "a device name.".format(v4l2_device_name),
                 CameraConfigurationError,
             )
 
@@ -260,7 +212,7 @@ class JetsonBaseCamera(CameraInterface):
         # otherwise be a syntax error. shlex.split() strips the quotes back off
         # before execution, so argv is unaffected either way.
         return "{} {} {} ! '{}' ! nvvidconv ! '{}' ! {}".format(
-            gst_env_prefix(),
+            ENV_PREFIX,
             GST_LAUNCH_BIN,
             " ".join(src_words),
             ",".join(caps_words),
@@ -288,7 +240,7 @@ class JetsonBaseCamera(CameraInterface):
                 CameraConfigurationError,
             )
 
-        words = [NVARGUS_NVRAW_BIN, "--c {}".format(sensor_id)]
+        words = [ENV_PREFIX, NVARGUS_NVRAW_BIN, "--c {}".format(sensor_id)]
         if mode is not None:
             words.append("--mode {}".format(mode))
         words.append("--format nvraw")

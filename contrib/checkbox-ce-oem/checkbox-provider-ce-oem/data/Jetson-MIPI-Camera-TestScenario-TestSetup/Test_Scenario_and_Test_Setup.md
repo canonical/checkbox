@@ -16,10 +16,31 @@ configurations.
 > `nvarguscamerasrc sensor-mode=`. This is what makes sensor modes that share a
 > resolution and frame rate (IMX274 modes 1 and 3) separately testable.
 
-> **Note:** `v4l2_device_name` holds the Argus `source_index` (0 / 1), not a
-> `/dev/video` name. Argus addresses sensors by index; the Tegra v4l2 names embed
-> an i2c bus number and a device-tree VI channel, neither of which tracks the
-> sensor index (the AGX Orin's two sensors are on VI channels 0 and 2).
+> **Note:** every item declares `camera_id` — the Argus `source_index`
+> (0 / 1) — instead of the framework's default `v4l2_device_name` identifier.
+> Argus addresses sensors by index; the Tegra v4l2 names embed an i2c bus
+> number and a device-tree VI channel, neither of which tracks the sensor
+> index (the AGX Orin's two sensors are on VI channels 0 and 2).
+
+## Required Checkbox Environment
+
+The NVIDIA GStreamer plugins (`nvarguscamerasrc`, `nvvidconv`) are not on
+GStreamer's default search path, so the checkbox configuration must point
+GStreamer at them (the jobs pass these variables through to the test):
+
+```ini
+# Deb / classic image
+GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+
+# Snap (checkbox-ce-oem): the working pair covers both the checkbox
+# runtime's core elements and the NVIDIA plugin dir
+GST_PLUGIN_SYSTEM_PATH=/snap/checkbox-ce-oem/current/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0:/snap/checkbox-ce-oem/current/usr/lib/aarch64-linux-gnu/gstreamer-1.0
+GST_PLUGIN_SCANNER=/snap/checkbox-ce-oem/current/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
+```
+
+`DISPLAY` is unset by the test itself (Argus tries to bring up an EGL
+preview when it is set, which wedges headless runs), so nothing is needed
+in the configuration for it.
 
 ## Overview
 
@@ -67,7 +88,16 @@ Jetson configurations only require test scenario files (no test setup needed).
 - Hardware: Arducam Nvidia Jetson native camera IMX219
 - Boards: Jetson Orin NX, Jetson Orin Nano (same sensor, same mode set)
 - Documentation: [Arducam Nvidia Jetson native camera IMX219](https://docs.arducam.com/Nvidia-Jetson-Camera/Native-Camera/imx219/) (L4T 35.x table)
-- Configuration: [`jetson_mipi_camera_test_scenario_imx219.json`](jetson_mipi_camera_test_scenario_imx219.json)
+- Configuration (one file per carrier-board connector):
+  - [`jetson_mipi_camera_test_scenario_imx219_cam0.json`](jetson_mipi_camera_test_scenario_imx219_cam0.json)
+  - [`jetson_mipi_camera_test_scenario_imx219_cam1.json`](jetson_mipi_camera_test_scenario_imx219_cam1.json)
+
+> **Note:** the Orin NX and Orin Nano DUTs carry the same single module but
+> fitted on different carrier-board connectors — one on `cam0`, the other on
+> `cam1` — and the connector label is part of every job id. Point
+> `MIPI_SCENARIO_DEFINITION_FILE_PATH` at the file matching where the module
+> is fitted. `camera_id` stays `0` in both files: Argus indexes the sensors
+> it detects, not the connectors.
 
 | Argus mode | Resolution | FPS |
 | --- | --- | --- |

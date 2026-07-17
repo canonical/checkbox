@@ -35,9 +35,9 @@ from camera_utils import (
 
 logger = logging.getLogger(__name__)
 
-NVARGUS_NVRAW_BIN = shutil.which(
-    os.getenv("NVARGUS_NVRAW_BIN", "nvargus_nvraw")
-)
+# Resolved from PATH: /snap/bin/nvargus_nvraw (the multimedia snap alias set
+# up before testing on Ubuntu Core) or /usr/bin / /usr/sbin on classic images
+NVARGUS_NVRAW_BIN = shutil.which("nvargus_nvraw")
 
 # DISPLAY must be unset for every Argus capture (both nvargus_nvraw and
 # nvarguscamerasrc try to bring up an EGL preview when it is set, which

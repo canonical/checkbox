@@ -40,7 +40,7 @@ imports:
     from com.canonical.plainbox import manifest
 requires:
     manifest.has_vendor_specific_mipi_camera == "True"
-environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH GST_LAUNCH_BIN NVARGUS_NVRAW_BIN MEDIA_CTL_CMD V4L2_CTL_CMD GST_PLUGIN_PATH GST_PLUGIN_SYSTEM_PATH GST_PLUGIN_SCANNER
+environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH GST_LAUNCH_BIN MEDIA_CTL_CMD V4L2_CTL_CMD GST_PLUGIN_PATH GST_PLUGIN_SYSTEM_PATH GST_PLUGIN_SCANNER
 command:
     camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_device_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH"{% if mode is defined %} -md {{ mode }}{% endif %}{% if fps is defined %} -fps {{ fps }}{% endif %}
 
@@ -66,6 +66,6 @@ imports:
     from com.canonical.plainbox import manifest
 requires:
     manifest.has_vendor_specific_mipi_camera == "True"
-environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH GST_LAUNCH_BIN NVARGUS_NVRAW_BIN MEDIA_CTL_CMD V4L2_CTL_CMD GST_PLUGIN_PATH GST_PLUGIN_SYSTEM_PATH GST_PLUGIN_SCANNER
+environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH GST_LAUNCH_BIN MEDIA_CTL_CMD V4L2_CTL_CMD GST_PLUGIN_PATH GST_PLUGIN_SYSTEM_PATH GST_PLUGIN_SCANNER
 command:
     camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_device_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH" -fps {{ fps }}{% if mode is defined %} -md {{ mode }}{% endif %}

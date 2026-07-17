@@ -25,8 +25,9 @@ configurations.
 ## Required Checkbox Environment
 
 The capture tools (`gst-launch-1.0` with the NVIDIA plugins, and
-`nvargus_nvraw`) must be reachable from the checkbox jobs. The jobs pass
-`GST_LAUNCH_BIN`, `NVARGUS_NVRAW_BIN`, `GST_PLUGIN_PATH`,
+`nvargus_nvraw`) must be reachable from the checkbox jobs — making them so
+is a pre-test setup step, not the test's job. `nvargus_nvraw` is resolved
+from `PATH`; the jobs pass `GST_LAUNCH_BIN`, `GST_PLUGIN_PATH`,
 `GST_PLUGIN_SYSTEM_PATH` and `GST_PLUGIN_SCANNER` through from the checkbox
 configuration, so each image type supplies what it needs:
 
@@ -48,12 +49,12 @@ sudo snap alias <multimedia-snap>.nvargus-nvraw nvargus_nvraw
 ```
 
 The multimedia snap resolves its own plugin paths, so no `GST_PLUGIN_*`
-variables are needed. If the aliases are not on the job `PATH`, point the
-tool overrides at them instead:
+variables are needed. The aliases land in `/snap/bin`, which is on `PATH`,
+so `nvargus_nvraw` resolves without configuration; if the job environment
+misses it for gst, point the override at the alias:
 
 ```ini
 GST_LAUNCH_BIN=/snap/bin/gst-launch-1.0
-NVARGUS_NVRAW_BIN=/snap/bin/nvargus_nvraw
 ```
 
 > **Note:** snap-packaged checkbox pre-exports `GST_PLUGIN_SYSTEM_PATH` and
@@ -61,10 +62,9 @@ NVARGUS_NVRAW_BIN=/snap/bin/nvargus_nvraw
 > `[environment]` values for variables that are not already set — so
 > `GST_PLUGIN_*` overrides take no effect under a checkbox snap (verified on
 > checkbox 7.3.0). This is one more reason the multimedia-snap aliases are
-> the supported route on Ubuntu Core: `GST_LAUNCH_BIN` and
-> `NVARGUS_NVRAW_BIN` are not preset, always inject, and the aliased tools
-> run inside the multimedia snap where its own plugin paths and Argus
-> socket apply.
+> the supported route on Ubuntu Core: the aliased tools run inside the
+> multimedia snap where its own plugin paths and Argus socket apply, and
+> `GST_LAUNCH_BIN` (not preset, always injects) can point at the alias.
 
 `DISPLAY` is unset by the test itself (Argus tries to bring up an EGL
 preview when it is set, which wedges headless runs), so nothing is needed

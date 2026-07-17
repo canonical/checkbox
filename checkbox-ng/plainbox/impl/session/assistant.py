@@ -33,7 +33,6 @@ import logging
 import os
 import shlex
 import time
-from contextlib import suppress
 from collections import defaultdict
 from tempfile import SpooledTemporaryFile
 
@@ -75,7 +74,6 @@ from plainbox.impl.session.restart import (
 )
 from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.storage import WellKnownDirsHelper
-from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.transport import OAuthTransport, TransportError
 from plainbox.impl.unit.exporter import ExporterError
 from plainbox.impl.unit.unit import Unit

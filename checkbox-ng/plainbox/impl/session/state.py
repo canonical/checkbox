@@ -25,12 +25,10 @@ Session State Handling.
 import collections
 import json
 import logging
-import os
 import re
 import shutil
 from contextlib import suppress
 from pathlib import Path
-from copy import copy
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _

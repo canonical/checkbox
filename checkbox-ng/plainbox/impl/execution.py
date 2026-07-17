@@ -39,7 +39,7 @@ import tempfile
 import threading
 import time
 from contextlib import suppress
-from subprocess import check_call, check_output, run
+from subprocess import check_call, run
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _

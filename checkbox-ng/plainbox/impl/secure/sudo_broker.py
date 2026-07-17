@@ -23,14 +23,11 @@ transmitted over network in plaintext, so it's up to the operator to use
 secure connection.
 """
 
-import gc
 import getpass
-import hashlib
 import logging
 import os
 import sys
 
-from plainbox.i18n import gettext as _
 from subprocess import (
     check_output,
     check_call,

@@ -1214,8 +1214,14 @@ class Run(MainLoopStage):
         except KeyboardInterrupt:
             return 1
 
+    def setup(self):
+        setup_jobs = self.sa.start_setup()
+        self._run_jobs(setup_jobs)
+        self.sa.finish_setup()
+
     def just_run_test_plan(self, tp_id):
         self.sa.select_test_plan(tp_id)
+        self.setup()
         self.sa.bootstrap()
         print(self.C.header(_("Running Selected Test Plan")))
         self._run_jobs(self.sa.get_dynamic_todo_list())

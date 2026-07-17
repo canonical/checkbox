@@ -8,7 +8,7 @@ requires:
 id: dragonwing-video/overlay-static-image-automated
 flags: also-after-suspend
 _summary: Test video overlay - static image
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     setprop persist.overlay.use_c2d_blit 2
@@ -32,7 +32,7 @@ requires:
 id: dragonwing-video/overlay-usertext-automated
 flags: also-after-suspend
 _summary: Test video overlay - usertext
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     setprop persist.overlay.use_c2d_blit 2
@@ -56,7 +56,7 @@ requires:
 id: dragonwing-video/overlay-datetime-automated
 flags: also-after-suspend
 _summary: Test video overlay - datetime
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     setprop persist.overlay.use_c2d_blit 2
@@ -80,7 +80,7 @@ requires:
 id: dragonwing-video/overlay-boundingbox-automated
 flags: also-after-suspend
 _summary: Test video overlay - boundingbox
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     setprop persist.overlay.use_c2d_blit 2
@@ -104,7 +104,7 @@ requires:
 id: dragonwing-video/overlay-non-inverse-circular-automated
 flags: also-after-suspend
 _summary: Test video overlay - non-inverse-circular
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE GST_TEST_DATA
 command:
     set -x
     setprop persist.overlay.use_c2d_blit 2

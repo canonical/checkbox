@@ -32,7 +32,6 @@ from plainbox.impl.unit.template import TemplateUnit
 from checkbox_ng.launcher.subcommands import (
     Run,
     Expand,
-    List,
     Launcher,
     ListBootstrapped,
     IncompatibleJobError,
@@ -43,8 +42,6 @@ from checkbox_ng.launcher.subcommands import (
     get_testplan_id_by_id,
     print_objs,
 )
-from checkbox_ng.launcher.stages import MainLoopStage
-from checkbox_ng.urwid_ui import ManifestBrowser
 
 
 class TestSharedFunctions(TestCase):

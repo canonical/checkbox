@@ -23,7 +23,7 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 import json
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output
 import os
 import re
 import string

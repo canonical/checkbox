@@ -100,6 +100,13 @@ jobs:
           name: checkbox${{ matrix.release }}_${{ matrix.arch }}
           path: ${{ steps.snap_build.outputs.snap }}
 
+      - name: Refresh snapcraft to latest/stable
+        run: |
+          # some versions of snapcraft (6.x for now) fail to upload to the
+          # store, also, there is no reason to use an old snapcraft version
+          # to publish
+          sudo snap refresh snapcraft --channel=latest/stable
+
       - name: Publish track
         if: inputs.store_upload
         uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
@@ -188,6 +195,13 @@ jobs:
         with:
           name: series_${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}
           path: ${{ steps.snap_build.outputs.snap }}
+
+      - name: Refresh snapcraft to latest/stable
+        run: |
+          # some versions of snapcraft (6.x for now) fail to upload to the
+          # store, also, there is no reason to use an old snapcraft version
+          # to publish
+          sudo snap refresh snapcraft --channel=latest/stable
 
       - name: Publish track
         # this is done this way because the store doesn't allow the same artifact to be uploaded twice

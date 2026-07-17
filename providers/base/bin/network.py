@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Copyright (C) 2012-2015 Canonical Ltd.
+Copyright (C) 2012-2026 Canonical Ltd.
 
 Authors
   Jeff Marcom <jeff.marcom@canonical.com>

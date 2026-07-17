@@ -16,6 +16,26 @@ command:
     ip link add vcan0 type vcan
   fi
 
+id: socketcan/detect_can
+category_id: socketcan
+_summary: Ensure socketcan are available for detection.
+_purpose:
+  Test to detect if there are available socketcan interfaces
+  If EXPECTED_COUNT_OF_CAN_INTERFACES is set, the detected count must match
+  it.
+  e.g. EXPECTED_COUNT_OF_CAN_INTERFACES=2
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 1
+environ: EXPECTED_COUNT_OF_CAN_INTERFACES
+command:
+  if [ -n "${EXPECTED_COUNT_OF_CAN_INTERFACES:-}" ]; then
+    socketcan_test.py --check-interfaces --expected-count "${EXPECTED_COUNT_OF_CAN_INTERFACES}"
+  else
+    socketcan_test.py --check-interfaces
+  fi
+
 id: socketcan/send_packet_local_sff_virtual
 depends: socketcan/modprobe_vcan
 _summary: Virtual CAN device support test (Raw, Local)

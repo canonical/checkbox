@@ -1,5 +1,5 @@
 {
-    "media_node_v4l2_name": "mtk-seninf (platform:1a080000.seninf-top)",
+    "media_node_v4l2_name": "mtk-seninf (platform:1a004000.seninf-top)",
     "cameras": [
         {
             "physical_interface": "csi1",

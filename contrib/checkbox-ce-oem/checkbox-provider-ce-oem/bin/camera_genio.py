@@ -272,57 +272,20 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
         self, v4l2_device_name: str, camera_value: str
     ) -> Dict[str, str]:
         """Resolve video nodes for V4L2 sensor OV5640."""
-        # On Genio 520/720 OV5640 (V4L2 Sensor), the media device is probed
-        # from the seninf-top platform node (see MTK documentation). The video
-        # capture device (camsv) is a different V4L2 device group, so we may
-        # not find /dev/mediaX under the same group name as v4l2_device_name.
-        media_dev = self.get_first_media_node(v4l2_device_name)
-        if not media_dev:
-            log_and_raise_error(
-                "Could not find media device for {}".format(camera_value),
-                CameraConfigurationError,
-            )
-
-        self._log_info(
-            "Found media device for '{}' - '{}': {}".format(
-                v4l2_device_name, camera_value, media_dev
-            )
-        )
-
-        # OV5640 uses CAMSV video streams. The entity is always one of:
-        # - 1a092000.camsv2
-        # - 1a093000.camsv3
-        # Just detect which one is referenced by the v4l2 device name.
-        entity = None
-        if "1a092000.camsv2" in v4l2_device_name:
-            entity = "1a092000.camsv2"
-        elif "1a093000.camsv3" in v4l2_device_name:
-            entity = "1a093000.camsv3"
-
-        if not entity:
-            log_and_raise_error(
-                "Could not derive CAMSV media entity from '{}' for {}. "
-                "Expected '1a092000.camsv2' or '1a093000.camsv3' in the "
-                "v4l2 device name.".format(v4l2_device_name, camera_value),
-                CameraConfigurationError,
-            )
-
-        cmd = "{} -d {} --entity '{} video stream'".format(
-            MEDIA_CTL_CMD, media_dev, entity
-        )
-        video_node = execute_command(cmd).strip()
-        if not video_node:
+        video_nodes = self.get_video_nodes(v4l2_device_name)
+        if not video_nodes:
             log_and_raise_error(
                 "Could not find video node for {}".format(camera_value),
                 CameraConfigurationError,
             )
-        return {"all": video_node}
+        return {"all": video_nodes[0]}
 
     def _resolve_v4l2_sensor_ap1302_ar0830(
         self, v4l2_device_name: str, camera_value: str
     ) -> Dict[str, str]:
         """Resolve video nodes for V4L2 sensor AP1302 AR0830."""
         media_dev = self.get_first_media_node(v4l2_device_name)
+        logger.info(media_dev)
         if not media_dev:
             log_and_raise_error(
                 "Could not find media device for {}".format(camera_value),
@@ -339,6 +302,9 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
             MEDIA_CTL_CMD, media_dev
         )
         video_node = execute_command(cmd).strip()
+        logger("Found video node for '{}' - '{}': {}".format(
+            v4l2_device_name, camera_value, video_node
+        ))
         if not video_node:
             log_and_raise_error(
                 "Could not find video node for {}".format(camera_value),

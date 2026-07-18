@@ -39,7 +39,6 @@ _summary: Capture an image using nvargus_nvraw (sensor{source_index})
 plugin: shell
 category_id: jetson-core-camera
 flags: also-after-suspend
-user: root
 imports:
  from com.canonical.certification import executable
  from com.canonical.plainbox import manifest
@@ -87,7 +86,6 @@ _summary: Capture a JPEG image via gstreamer (sensor{source_index})
 plugin: shell
 category_id: jetson-core-camera
 flags: also-after-suspend
-user: root
 imports:
  from com.canonical.certification import device
  from com.canonical.plainbox import manifest
@@ -140,7 +138,6 @@ _summary: Record an H265 video via gstreamer (sensor{source_index})
 plugin: shell
 category_id: jetson-core-camera
 flags: also-after-suspend
-user: root
 imports:
  from com.canonical.certification import device
  from com.canonical.contrib import jetson_tegra_details

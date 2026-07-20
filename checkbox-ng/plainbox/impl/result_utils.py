@@ -31,6 +31,30 @@ from plainbox.abc import IJobResult
 from plainbox.impl.session.jobs import InhibitionCause
 
 
+def pretty_skip_reason(skip_reason):
+    """
+    Returns a pretty string to explain why a job was skipped
+
+    This takes into consideration precedence
+    """
+    if skip_reason.get("related_manifests"):
+        return (
+            "Job cannot be started because of unmet manifest:\n- "
+            + "\n- ".join(skip_reason["related_manifests"])
+        )
+    elif skip_reason.get("related_dependencies"):
+        return (
+            "Job cannot be started because of failed dependency:\n- "
+            + "\n- ".join(skip_reason["related_dependencies"])
+        )
+    elif skip_reason.get("related_resources"):
+        return (
+            "Job cannot be started because of unmet resource:\n- "
+            + "\n- ".join(skip_reason["related_resources"])
+        )
+    raise ValueError("Unable to explain skip reason")
+
+
 def determine_outcome_and_skip_reason(job_state, job_state_map):
     """
     Determine the correct outcome and skip_reason for a job that cannot start.

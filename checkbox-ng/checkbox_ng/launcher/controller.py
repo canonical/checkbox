@@ -41,6 +41,7 @@ from plainbox.abc import IJobResult
 from plainbox.impl.color import Colorizer
 from plainbox.impl.config import Configuration
 from plainbox.impl.session.state import SessionMetaData
+from plainbox.impl.result_utils import pretty_skip_reason
 from plainbox.impl.session.resume import (
     IncompatibleJobError,
     CorruptedSessionError,
@@ -933,16 +934,16 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def finish_job(self, result=None, job_state=None):
         _logger.info("controller: Finishing job with a result: %s", result)
-        job_result = self.sa.finish_job(result)
-        if (
-            job_state
-            and result
-            and result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED
-        ):
-            print(_("Job cannot be started because:"))
-            for inhibitor in job_state.readiness_inhibitor_list:
-                SimpleUI.yellow_text(" - {}".format(inhibitor))
+        if result and hasattr(result, "skip_reason"):
+            skip_reason = result.skip_reason
+            try:
+                skip_reason_str = pretty_skip_reason(skip_reason)
+                SimpleUI.yellow_text(skip_reason_str)
+            except ValueError:
+                pass  # unable to pretty print skip reason
+
         SimpleUI.horiz_line()
+        job_result = self.sa.finish_job(result)
         print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
     def abandon(self):

@@ -33,16 +33,14 @@ variables consumed by jobs are documented in [`../README.md`](../README.md).
 
 ## Unit layout and naming conventions
 
-One directory per feature under `units/`:
+Common per-feature layout under `units/<feature>/` (not every feature has every file):
 
-```
-units/<feature>/
-├── category.pxu     # unit: category, id: <feature> (no prefix)
-├── jobs.pxu         # jobs, resource jobs, template units
-├── manifest.pxu     # manifest entries (has_<feature>)
-├── test-plan.pxu    # test plans, incl. after-suspend variants
-└── cases_and_environ.md / README.md   # optional per-feature docs
-```
+    units/<feature>/
+    ├── category.pxu     # optional: category unit, id: <feature> (no prefix)
+    ├── jobs.pxu         # optional: jobs, resource jobs, template units
+    ├── manifest.pxu     # optional: manifest entries (has_<feature>)
+    ├── test-plan.pxu    # optional: test plans, incl. after-suspend variants
+    └── cases_and_environ.md / README.md   # optional per-feature docs
 
 SoC-specific directories (`Genio/`, `dragonwing/`, `rz/`, `Xilinx/`)
 group several topics per directory using `<topic>_jobs.pxu`,

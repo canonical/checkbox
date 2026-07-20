@@ -1,7 +1,31 @@
 {
     "SIM7672G-LNGV": {
+        "Base communication": "AT",
+        "SIM status": {
+            "cmd": "AT+CPIN?",
+            "expect": "READY"
+        },
+        "Signal quality": {
+            "cmd": "AT+CSQ",
+            "expect_min": 10
+        },
         "Network registration": "AT+COPS?",
-        "Set APN": "AT+CGDCONT=1",
-        "Set auto-dial": "AT+DIALMODE=0"
+        "Set APN": "AT+CGDCONT=1,\"IP\",\"{APN}\"",
+        "Set auto-dial": "AT+DIALMODE=0",
+        "Verify GPRS attachment": {
+            "cmd": "AT+CGATT?",
+            "expect": "CGATT: 1",
+            "poll": true
+        },
+        "Verify PDP context active": {
+            "cmd": "AT+CGACT?",
+            "expect": "CGACT: 1,1",
+            "poll": true
+        },
+        "Verify IP assignment": {
+            "cmd": "AT+CGPADDR=1",
+            "expect_nonempty": true,
+            "poll": true
+        }
     }
 }

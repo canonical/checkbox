@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_wwan_module_via_at_command
 _name: Is the WWAN module controlled via AT commands
 value-type: bool
+
+unit: manifest entry
+id: has_wwan_reset_recovery
+_name: Does the WWAN module need reset/recovery (AT+CRESET) testing
+value-type: bool

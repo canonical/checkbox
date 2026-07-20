@@ -776,17 +776,6 @@ include:
   - graphics/lz_gpu_avail
   - graphics/lz_core_test_affinity_helper
   - graphics/lz_core_test_barrier
-  - graphics/lz_core_test_cmdqueue
-  - graphics/lz_core_test_context
-  - graphics/lz_core_test_copy
-  - graphics/lz_core_test_device
-  - graphics/lz_core_test_driver
-  - graphics/lz_core_test_event
-  - graphics/lz_core_test_fence
-  - graphics/lz_core_test_image
-  - graphics/lz_core_test_memory
-  - graphics/lz_core_test_module
-  - graphics/lz_core_test_sampler
 bootstrap_include:
   - graphics_card
   - executable

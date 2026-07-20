@@ -1,0 +1,53 @@
+id: ce-oem-hdmi-rx-v4l2-full
+unit: test plan
+_name: HDMI RX (Input) via V4L2 tests
+_description: Full generic V4L2 HDMI RX (input) tests for devices
+include:
+nested_part:
+    ce-oem-hdmi-rx-v4l2-manual
+    ce-oem-hdmi-rx-v4l2-automated
+
+id: ce-oem-hdmi-rx-v4l2-manual
+unit: test plan
+_name: HDMI RX (Input) via V4L2 manual tests
+_description: Manual generic V4L2 HDMI RX (input) tests for devices
+include:
+    ce-oem-hdmi-rx-v4l2/module-detect
+    ce-oem-hdmi-rx-v4l2/check-hdmi-cable-connection
+    ce-oem-hdmi-rx-v4l2/check-video-info
+
+id: ce-oem-hdmi-rx-v4l2-automated
+unit: test plan
+_name: HDMI RX (Input) via V4L2 auto tests
+_description: Automated generic V4L2 HDMI RX (input) tests for devices
+include:
+
+id: ce-oem-hdmi-rx-specific-full
+unit: test plan
+_name: HDMI RX (Input) via platform backend tests
+_description: Full platform-specific HDMI RX (input) tests for devices
+include:
+nested_part:
+    ce-oem-hdmi-rx-specific-manual
+    ce-oem-hdmi-rx-specific-automated
+
+id: ce-oem-hdmi-rx-specific-manual
+unit: test plan
+_name: HDMI RX (Input) via platform backend manual tests
+_description: Manual platform-specific HDMI RX (input) tests for devices
+bootstrap_include:
+    ce-oem-hdmi-rx-backend
+include:
+    ce-oem-hdmi-rx-specific/module-detect-tests
+    ce-oem-hdmi-rx-specific/plug-event-detect-tests
+    ce-oem-hdmi-rx-specific/check-hdmi-cable-connection-tests
+    ce-oem-hdmi-rx-specific/check-video-info-tests
+    ce-oem-hdmi-rx-specific/check-audio-info-tests
+    ce-oem-hdmi-rx-specific/disable-then-enable-hdmi-tests
+    ce-oem-hdmi-rx-specific/unplug-event-detect-tests
+
+id: ce-oem-hdmi-rx-specific-automated
+unit: test plan
+_name: HDMI RX (Input) via platform backend auto tests
+_description: Automated platform-specific HDMI RX (input) tests for devices
+include:

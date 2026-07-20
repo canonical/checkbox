@@ -341,9 +341,11 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
             MEDIA_CTL_CMD, media_dev
         )
         video_node = execute_command(cmd).strip()
-        logger("Found video node for '{}' - '{}': {}".format(
-            v4l2_device_name, camera_value, video_node
-        ))
+        logger.info(
+            "Found video node for '{}' - '{}': {}".format(
+                v4l2_device_name, camera_value, video_node
+            )
+        )
         if not video_node:
             log_and_raise_error(
                 "Could not find video node for {}".format(camera_value),
@@ -641,10 +643,12 @@ class SonyIMX214(GenioBaseCamera):
         super().__init__(v4l2_devices)
         self._camera = SupportedCamera.SONY_IMX214
 
+
 class SonyIMX258(GenioBaseCamera):
     def __init__(self, v4l2_devices: str):
         super().__init__(v4l2_devices)
         self._camera = SupportedCamera.SONY_IMX258
+
 
 class OV5640(GenioBaseCamera):
     def __init__(self, v4l2_devices: str):

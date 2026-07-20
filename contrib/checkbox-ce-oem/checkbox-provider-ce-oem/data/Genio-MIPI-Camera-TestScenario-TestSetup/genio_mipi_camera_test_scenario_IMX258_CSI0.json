@@ -1,0 +1,26 @@
+{
+    "capture_image": [
+        {
+            "camera": "sony_imx258",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv (platform:1a092000.camsv2)",
+            "formats": ["MBBA"],
+            "resolutions": [
+                {"width": 2104, "height": 1560}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "sony_imx258",
+            "method": "v4l2-ctl",
+            "physical_interface": "csi0",
+            "v4l2_device_name": "mtk-camsv (platform:1a092000.camsv2)",
+            "formats": ["MBBA"],
+            "resolutions": [
+                {"width": 2104, "height": 1560, "fps": 30}
+            ]
+        }
+    ]
+}

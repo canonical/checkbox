@@ -2,7 +2,7 @@ unit: template
 template-resource: com.canonical.certification::wwan_resource
 template-unit: job
 id: ce-oem-wwan/gsm-connection-at-command-{manufacturer}-{model}-{hw_id}-auto
-template-id: ce-oem-wwan/gsm-connection-at-command-manufacturer-model-hw_id-auto
+template-id: ce-oem-wwan/gsm-connection-at-command-manufacturer-model-auto
 _summary: Verify a GSM broadband modem can create a data connection via AT command
 _template-summary: Verify a GSM broadband modem can create a data connection via AT command
 _purpose:
@@ -23,16 +23,54 @@ user: root
 estimated_duration: 10.0
 category_id: com.canonical.certification::wwan
 flags: preserve-locale also-after-suspend preserve-cwd
-imports: from com.canonical.plainbox import manifest
+imports:
+  from com.canonical.plainbox import manifest
+  from com.canonical.certification import snap
+  from com.canonical.certification import package
 depends: com.canonical.certification::wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 requires:
   manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
   manifest.has_wwan_module_via_at_command == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
-_siblings:
-    [{{
-      "id": "ce-oem-wwan/gsm-reconnection-at-command-{manufacturer}-{model}-{hw_id}-auto",
-      "_summary": "Verify a GSM broadband modem can create a data connection via AT command",
-      "depends": "ce-oem-wwan/gsm-connection-at-command-{manufacturer}-{model}-{hw_id}-auto"
-    }}]
+
+unit: template
+template-resource: com.canonical.certification::wwan_resource
+template-unit: job
+id: ce-oem-wwan/gsm-reset-recovery-at-command-{manufacturer}-{model}-{hw_id}-auto
+template-id: ce-oem-wwan/gsm-reset-recovery-at-command-manufacturer-model-auto
+_summary: Verify a GSM broadband modem recovers after a software reset
+_template-summary: Verify a GSM broadband modem recovers after a software reset (AT+CRESET)
+_purpose:
+  Issues a modem software reset (AT+CRESET) and verifies the modem
+  re-enumerates over USB and re-registers on the network afterwards,
+  falling back to an AT+CFUN radio cycle if registration stays denied.
+  This is a separate, longer-running test from the base connection
+  test, so it only runs on projects/devices whose manifest opts into
+  WWAN reset/recovery testing.
+plugin: shell
+command:
+  BEGIN_RESET_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+  wwan_connection_at_command.py {hw_id} --action reset-recovery
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    echo "==== Service units logs ===="
+    journalctl -q -u "snap.network-manager.networkmanager.service" -u "snap.modem-manager.modemmanager.service" --no-pager --since "$BEGIN_RESET_TEST_TS" -o cat
+    exit $RETVAL
+  fi
+environ: LD_LIBRARY_PATH WWAN_CONTROL_IF WWAN_RESET_WAIT WWAN_RESET_COPS_TIMEOUT WWAN_RESET_DENIED_TIMEOUT WWAN_RESET_RADIO_CYCLE_WAIT
+user: root
+estimated_duration: 240.0
+category_id: com.canonical.certification::wwan
+flags: preserve-locale also-after-suspend preserve-cwd
+imports:
+  from com.canonical.plainbox import manifest
+  from com.canonical.certification import snap
+  from com.canonical.certification import package
+depends: ce-oem-wwan/gsm-connection-at-command-{manufacturer}-{model}-{hw_id}-auto
+requires:
+  manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
+  manifest.has_wwan_module_via_at_command == 'True'
+  manifest.has_wwan_reset_recovery == 'True'
+  snap.name == 'modem-manager' or package.name == 'modemmanager'

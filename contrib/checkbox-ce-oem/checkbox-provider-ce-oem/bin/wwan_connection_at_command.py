@@ -25,7 +25,29 @@ import sys
 import time
 
 PLAINBOX_PROVIDER_DATA = os.getenv("PLAINBOX_PROVIDER_DATA", "")
-DEFAULT_CONFIG = os.path.join(PLAINBOX_PROVIDER_DATA, "wwan_at_command.json")
+WWAN_AT_COMMAND_DATA_DIR = os.path.join(
+    PLAINBOX_PROVIDER_DATA, "wwan_at_command"
+)
+
+
+def resolve_config_path(wwan_at_command):
+    """Resolve a WWAN_AT_COMMAND_JSON value to a config file path.
+
+    If `wwan_at_command` is already a full path (absolute, or contains
+    a path separator), it is used as-is. Otherwise it's treated as a
+    bare filename and looked up inside
+    $PLAINBOX_PROVIDER_DATA/wwan_at_command/.
+    """
+    if os.path.isabs(wwan_at_command) or os.sep in wwan_at_command:
+        return wwan_at_command
+    return os.path.join(WWAN_AT_COMMAND_DATA_DIR, wwan_at_command)
+
+
+DEFAULT_CONFIG = (
+    resolve_config_path(os.environ["WWAN_AT_COMMAND_JSON"])
+    if os.environ.get("WWAN_AT_COMMAND_JSON")
+    else None
+)
 
 
 def run_cmd(args):
@@ -592,7 +614,11 @@ def parse_args():
     parser.add_argument(
         "--config",
         default=DEFAULT_CONFIG,
-        help="Path to wwan_at_command.json (default: %(default)s)",
+        help="Path to the wwan_at_command JSON config (default: taken"
+        " from the WWAN_AT_COMMAND_JSON environment variable; a bare"
+        " filename is resolved against"
+        " $PLAINBOX_PROVIDER_DATA/wwan_at_command/, a full path is"
+        " used as-is)",
     )
     parser.add_argument(
         "--action",
@@ -614,6 +640,14 @@ def main():
 
     if args.action == "reset-recovery":
         sys.exit(0 if reset_and_recover(args.hw_id) else 1)
+
+    if not args.config:
+        logging.error(
+            "No config path given: set the WWAN_AT_COMMAND_JSON"
+            " environment variable (a bare filename resolves against"
+            " $PLAINBOX_PROVIDER_DATA/wwan_at_command/) or pass --config"
+        )
+        sys.exit(1)
 
     apn = os.environ.get("WWAN_APN", "")
     iface = os.environ.get("WWAN_NET_IF", "")

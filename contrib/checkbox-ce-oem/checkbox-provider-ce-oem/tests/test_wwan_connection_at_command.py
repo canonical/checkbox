@@ -35,9 +35,7 @@ class TestGetField(unittest.TestCase):
     @patch("wwan_connection_at_command.run_cmd")
     def test_extracts_named_field(self, mock_run_cmd):
         mock_run_cmd.return_value = (0, self.MMCLI_OUTPUT, "")
-        self.assertEqual(
-            wcac.get_field(0, "equipment id"), "865031064538696"
-        )
+        self.assertEqual(wcac.get_field(0, "equipment id"), "865031064538696")
         self.assertEqual(wcac.get_field(0, "registration"), "roaming")
         self.assertEqual(wcac.get_field(0, "operator id"), "46697")
 
@@ -148,9 +146,7 @@ class TestRunAtStep(unittest.TestCase):
     @patch("wwan_connection_at_command.mmcli_at")
     def test_apn_placeholder_is_substituted(self, mock_at):
         mock_at.return_value = (0, "response: ''\n", "")
-        wcac.run_at_step(
-            0, "Set APN", 'AT+CGDCONT=1,"IP","{APN}"', self.ENV
-        )
+        wcac.run_at_step(0, "Set APN", 'AT+CGDCONT=1,"IP","{APN}"', self.ENV)
         sent_cmd = mock_at.call_args[0][1]
         self.assertEqual(sent_cmd, 'AT+CGDCONT=1,"IP","internet"')
 
@@ -179,9 +175,7 @@ class TestRunAtStep(unittest.TestCase):
         self.assertTrue(wcac.run_at_step(0, "Signal quality", spec, self.ENV))
 
         mock_at.return_value = (0, "response: '+CSQ: 3,0'\n", "")
-        self.assertFalse(
-            wcac.run_at_step(0, "Signal quality", spec, self.ENV)
-        )
+        self.assertFalse(wcac.run_at_step(0, "Signal quality", spec, self.ENV))
 
     @patch("time.sleep", return_value=None)
     @patch("wwan_connection_at_command.mmcli_at")
@@ -236,7 +230,11 @@ class TestDeprioritizeDefaultRoute(unittest.TestCase):
     @patch("wwan_connection_at_command.run_cmd")
     def test_lowers_metric_of_existing_default_route(self, mock_run_cmd):
         mock_run_cmd.side_effect = [
-            (0, "default via 192.168.0.1 dev enx0 proto dhcp metric 100\n", ""),
+            (
+                0,
+                "default via 192.168.0.1 dev enx0 proto dhcp metric 100\n",
+                "",
+            ),
             (0, "", ""),
         ]
         wcac.deprioritize_default_route("enx0", metric=200)
@@ -244,8 +242,17 @@ class TestDeprioritizeDefaultRoute(unittest.TestCase):
         self.assertEqual(
             replace_call,
             [
-                "sudo", "ip", "route", "replace", "default",
-                "via", "192.168.0.1", "dev", "enx0", "metric", "200",
+                "sudo",
+                "ip",
+                "route",
+                "replace",
+                "default",
+                "via",
+                "192.168.0.1",
+                "dev",
+                "enx0",
+                "metric",
+                "200",
             ],
         )
 
@@ -309,8 +316,10 @@ class TestResetRecoveryHelpers(unittest.TestCase):
     ):
         # denied first (triggers exactly one radio cycle), then roaming
         mock_get_field.side_effect = [
-            "denied", None,
-            "roaming", "46697",
+            "denied",
+            None,
+            "roaming",
+            "46697",
         ]
         ok, registration, operator_id = wcac.wait_for_registration(
             0, timeout=120, radio_cycle_wait=45
@@ -344,8 +353,12 @@ class TestResetAndRecover(unittest.TestCase):
     @patch("wwan_connection_at_command.send_reset", return_value=True)
     @patch("wwan_connection_at_command.resolve_modem_index", return_value=0)
     def test_happy_path(
-        self, mock_resolve, mock_send_reset, mock_poll,
-        mock_verify_cops, mock_wait_registration,
+        self,
+        mock_resolve,
+        mock_send_reset,
+        mock_poll,
+        mock_verify_cops,
+        mock_wait_registration,
     ):
         mock_poll.return_value = 1
         mock_wait_registration.return_value = (True, "roaming", "46697")

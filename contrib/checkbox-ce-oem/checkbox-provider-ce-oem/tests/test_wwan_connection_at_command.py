@@ -1,4 +1,6 @@
+import importlib
 import itertools
+import os
 import unittest
 from unittest.mock import patch
 
@@ -17,6 +19,85 @@ class TestParseResponse(unittest.TestCase):
     def test_returns_none_when_missing(self):
         output = "error: couldn't find modem\n"
         self.assertIsNone(wcac.parse_response(output))
+
+
+class TestResolveConfigPath(unittest.TestCase):
+    @patch(
+        "wwan_connection_at_command.WWAN_AT_COMMAND_DATA_DIR",
+        "/var/tmp/checkbox-providers/checkbox-provider-ce-oem/data"
+        "/wwan_at_command",
+    )
+    def test_bare_filename_resolved_against_data_dir(self):
+        self.assertEqual(
+            wcac.resolve_config_path("SIM7672G-LNGV_wwan_at_command.json"),
+            "/var/tmp/checkbox-providers/checkbox-provider-ce-oem/data"
+            "/wwan_at_command/SIM7672G-LNGV_wwan_at_command.json",
+        )
+
+    def test_absolute_path_used_as_is(self):
+        self.assertEqual(
+            wcac.resolve_config_path("/etc/wwan/custom.json"),
+            "/etc/wwan/custom.json",
+        )
+
+    def test_relative_path_with_separator_used_as_is(self):
+        self.assertEqual(
+            wcac.resolve_config_path("configs/custom.json"),
+            "configs/custom.json",
+        )
+
+
+class TestDefaultConfigFromEnv(unittest.TestCase):
+    """Exercise the module-level DEFAULT_CONFIG wiring itself.
+
+    DEFAULT_CONFIG is computed once at import time from
+    WWAN_AT_COMMAND_JSON/PLAINBOX_PROVIDER_DATA, so these tests reload
+    the module under controlled environment variables and always
+    reload it back to a clean state afterwards.
+    """
+
+    def _reload_with_env(self, env):
+        with patch.dict(os.environ, env, clear=False):
+            importlib.reload(wcac)
+
+    def tearDown(self):
+        importlib.reload(wcac)
+
+    def test_bare_filename_env_resolves_under_data_dir(self):
+        self._reload_with_env(
+            {
+                "PLAINBOX_PROVIDER_DATA": "/var/tmp/checkbox-providers"
+                "/checkbox-provider-ce-oem/data",
+                "WWAN_AT_COMMAND_JSON": "SIM7672G-LNGV_wwan_at_command.json",
+            }
+        )
+        self.assertEqual(
+            wcac.DEFAULT_CONFIG,
+            "/var/tmp/checkbox-providers/checkbox-provider-ce-oem/data"
+            "/wwan_at_command/SIM7672G-LNGV_wwan_at_command.json",
+        )
+
+    def test_full_path_env_used_as_is(self):
+        self._reload_with_env(
+            {"WWAN_AT_COMMAND_JSON": "/etc/wwan/custom.json"}
+        )
+        self.assertEqual(wcac.DEFAULT_CONFIG, "/etc/wwan/custom.json")
+
+    def test_unset_env_gives_no_default(self):
+        with patch.dict(os.environ, {}, clear=False) as _:
+            os.environ.pop("WWAN_AT_COMMAND_JSON", None)
+            importlib.reload(wcac)
+        self.assertIsNone(wcac.DEFAULT_CONFIG)
+
+
+class TestMainConfigValidation(unittest.TestCase):
+    @patch.object(wcac, "DEFAULT_CONFIG", None)
+    def test_exits_when_no_config_available(self):
+        test_argv = ["wwan_connection_at_command.py", "865031064538696"]
+        with patch("sys.argv", test_argv):
+            with self.assertRaises(SystemExit) as ctx:
+                wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
 
 
 class TestGetField(unittest.TestCase):

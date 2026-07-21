@@ -8,6 +8,12 @@ _template-summary: Verify a GSM broadband modem can create a data connection via
 _purpose:
   Any modems discovered by the resource job that list GSM support
   will be tested to ensure a data connection can be made.
+  .
+  The AT command sequence for the modem is driven by the
+  WWAN_AT_COMMAND_JSON environment variable, which names a JSON config
+  file (see wwan_connection_at_command.py). A bare filename (e.g.
+  SIM7672G-LNGV_wwan_at_command.json) is looked up under
+  $PLAINBOX_PROVIDER_DATA/wwan_at_command/; a full path is used as-is.
 plugin: shell
 command:
   BEGIN_CONNECTION_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
@@ -18,7 +24,7 @@ command:
     journalctl -q -u "snap.network-manager.networkmanager.service" -u "snap.modem-manager.modemmanager.service" --no-pager --since "$BEGIN_CONNECTION_TEST_TS" -o cat
     exit $RETVAL
   fi
-environ: LD_LIBRARY_PATH WWAN_CONTROL_IF WWAN_NET_IF WWAN_APN WWAN_SETUPTIME
+environ: LD_LIBRARY_PATH WWAN_CONTROL_IF WWAN_NET_IF WWAN_APN WWAN_SETUPTIME WWAN_AT_COMMAND_JSON
 user: root
 estimated_duration: 10.0
 category_id: com.canonical.certification::wwan

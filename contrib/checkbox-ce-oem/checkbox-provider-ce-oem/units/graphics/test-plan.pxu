@@ -13,8 +13,11 @@ unit: test plan
 _name: CE-OEM Graphics tests (Automated)
 _description:
     Graphics tests (Automated)
+bootstrap_include:
+    opencl_clinfo_resource
 include:
     ce-oem-graphics/nvidia-drm-modeset-check
+    ce-oem-graphics/detect_opencl
 
 id: ce-oem-graphics-manual
 unit: test plan

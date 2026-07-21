@@ -3,7 +3,7 @@ unit: test plan
 _name: CE-OEM Automated wwan tests
 _description: CE-OEM Automated wwan tests for Snappy Ubuntu Core devices
 include:
-    ce-oem-wwan/gsm-connection-at-command-manufacturer-model-auto
-    ce-oem-wwan/gsm-reset-recovery-at-command-manufacturer-model-auto
+    ce-oem-wwan/gsm-connection-at-command-auto
+    ce-oem-wwan/gsm-recovery-at-command-auto
 bootstrap_include:
     com.canonical.certification::wwan_resource

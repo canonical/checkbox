@@ -82,6 +82,14 @@ def highlight_keys(text):
     return re.sub(r"(\w+:\s)", r"<b>\1</b>", text)
 
 
+def do_nl2br(value):
+    """Convert newlines to <br/> tags for HTML display."""
+    if value is None:
+        return ""
+    result = escape(value).replace("\n", Markup("<br/>"))
+    return Markup(result)
+
+
 def pretty_json_decode_error(
     error: json.decoder.JSONDecodeError, lines_around=3
 ):
@@ -182,6 +190,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         env.filters["strip_ns"] = do_strip_ns
         env.filters["json_load_ordered_dict"] = json_load_ordered_dict
         env.filters["highlight_keys"] = highlight_keys
+        env.filters["nl2br"] = do_nl2br
         env.tests["is_name"] = do_is_name
 
     def dump(self, data, stream):

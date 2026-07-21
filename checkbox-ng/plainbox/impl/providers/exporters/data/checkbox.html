@@ -334,7 +334,7 @@
                                     {%- else %}
                                     <td style='width:10%'></td>
                                     {%- endif %}
-                                    <td style='width:35%'>{% autoescape false %}{{ job_state.result.comments if job_state.result.comments != None }}{% endautoescape %}</td>
+                                    <td style='width:35%'>{{ job_state.result.comments|nl2br if job_state.result.comments != None }}</td>
                                 </tr>
                             {%- endfor %}
                             </tbody>
@@ -375,7 +375,7 @@
                                     <td style='width:10%'></td>
                                     {%- endif %}
                                     <td style='width:10%'></td>
-                                    <td style='width:35%'>{% autoescape false %}{{ job_state.result.comments if job_state.result.comments != None }}{% endautoescape %}</td>
+                                    <td style='width:35%'>{{ job_state.result.comments|nl2br if job_state.result.comments != None }}</td>
                                 </tr>
                             {%- endfor %}
                             </tbody>
@@ -410,7 +410,7 @@
                                     {%- else %}
                                     <td style='width:10%'></td>
                                     {%- endif %}
-                                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                                    <td style='width:35%'>{{ job_state.result.comments|nl2br if job_state.result.comments != None }}</td>
                                 </tr>
                                 {%- else %}
                                 <tr>
@@ -426,7 +426,7 @@
                                     {%- else %}
                                     <td style='width:10%'></td>
                                     {%- endif %}
-                                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                                    <td style='width:35%'>{{ job_state.result.comments|nl2br if job_state.result.comments != None }}</td>
                                 </tr>
                                 {%- endif %}
                             {%- endfor %}
@@ -459,7 +459,7 @@
                                     {%- else %}
                                     <td style='width:10%'></td>
                                     {%- endif %}
-                                    <td style='width:35%'>{{ job_state.result.comments if job_state.result.comments != None }}</td>
+                                    <td style='width:35%'>{{ job_state.result.comments|nl2br if job_state.result.comments != None }}</td>
                                 </tr>
                     {%- if loop.last %}
                             </tbody>

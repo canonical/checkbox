@@ -20,7 +20,10 @@ import unittest
 from unittest.mock import Mock
 
 from plainbox.abc import IJobResult
-from plainbox.impl.result_utils import determine_outcome_and_skip_reason
+from plainbox.impl.result_utils import (
+    determine_outcome_and_skip_reason,
+    pretty_skip_reason,
+)
 from plainbox.impl.session.jobs import InhibitionCause
 
 
@@ -405,3 +408,77 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
             "com.canonical.certification::has_touchpad",
             skip_reason["related_manifests"],
         )
+
+
+class PrettySkipReasonTests(unittest.TestCase):
+
+    def test_only_related_dependencies(self):
+        skip_reason = {
+            "related_dependencies": ["job1", "job2"],
+            "related_resources": [],
+            "related_manifests": [],
+        }
+        result = pretty_skip_reason(skip_reason)
+        self.assertIn("job1", result)
+        self.assertIn("job2", result)
+
+    def test_only_related_resources(self):
+        skip_reason = {
+            "related_dependencies": [],
+            "related_resources": ["cpuinfo.count > 2"],
+            "related_manifests": [],
+        }
+        result = pretty_skip_reason(skip_reason)
+        self.assertIn("cpuinfo.count > 2", result)
+
+    def test_only_related_manifests(self):
+        skip_reason = {
+            "related_dependencies": [],
+            "related_resources": [],
+            "related_manifests": [
+                "com.canonical.certification::has_thunderbolt3"
+            ],
+        }
+        result = pretty_skip_reason(skip_reason)
+        self.assertIn("com.canonical.certification::has_thunderbolt3", result)
+
+    def test_precedence_manifests_before_dependencies(self):
+        skip_reason = {
+            "related_dependencies": ["job1"],
+            "related_resources": [],
+            "related_manifests": ["com.canonical.certification::has_feature"],
+        }
+        result = pretty_skip_reason(skip_reason)
+        self.assertIn("com.canonical.certification::has_feature", result)
+        self.assertNotIn("job1", result)
+
+    def test_precedence_dependencies_before_resources(self):
+        """Test that dependencies appear before resources in the output."""
+        skip_reason = {
+            "related_dependencies": ["job1"],
+            "related_resources": ["cpuinfo.count > 2"],
+            "related_manifests": [],
+        }
+        result = pretty_skip_reason(skip_reason)
+        self.assertIn("job1", result)
+        self.assertNotIn("cpuinfo.count > 2", result)
+
+    def test_precedence_all_fields(self):
+        skip_reason = {
+            "related_dependencies": ["job1"],
+            "related_resources": ["cpuinfo.count > 2"],
+            "related_manifests": ["com.canonical.certification::has_touchpad"],
+        }
+        result = pretty_skip_reason(skip_reason)
+        self.assertIn("com.canonical.certification::has_touchpad", result)
+        self.assertNotIn("job1", result)
+        self.assertNotIn("cpuinfo.count > 2", result)
+
+    def test_no_valid_fields_raises_value_error(self):
+        skip_reason = {
+            "related_dependencies": [],
+            "related_resources": [],
+            "related_manifests": [],
+        }
+        with self.assertRaises(ValueError):
+            pretty_skip_reason(skip_reason)

@@ -46,7 +46,7 @@ template-unit: job
 id: ce-oem-wwan/gsm-reset-recovery-at-command-{manufacturer}-{model}-{hw_id}-auto
 template-id: ce-oem-wwan/gsm-reset-recovery-at-command-manufacturer-model-auto
 _summary: Verify a GSM broadband modem recovers after a software reset via AT command
-_template-summary: Verify a GSM broadband modem recovers after a software reset (AT+CRESET) via AT command
+_template-summary: Verify a GSM broadband modem recovers after a software reset (AT+CRESET)
 _purpose:
   Issues a modem software reset (AT+CRESET) and verifies the modem
   re-enumerates over USB and re-registers on the network afterwards,

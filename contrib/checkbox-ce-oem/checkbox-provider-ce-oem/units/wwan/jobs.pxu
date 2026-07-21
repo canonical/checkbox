@@ -2,7 +2,7 @@ unit: template
 template-resource: com.canonical.certification::wwan_resource
 template-unit: job
 id: ce-oem-wwan/gsm-connection-at-command-{manufacturer}-{model}-{hw_id}-auto
-template-id: ce-oem-wwan/gsm-connection-at-command-manufacturer-model-auto
+template-id: ce-oem-wwan/gsm-connection-at-command-auto
 _summary: Verify a GSM broadband modem can create a data connection via AT command
 _template-summary: Verify a GSM broadband modem can create a data connection via AT command
 _purpose:
@@ -43,10 +43,10 @@ requires:
 unit: template
 template-resource: com.canonical.certification::wwan_resource
 template-unit: job
-id: ce-oem-wwan/gsm-reset-recovery-at-command-{manufacturer}-{model}-{hw_id}-auto
-template-id: ce-oem-wwan/gsm-reset-recovery-at-command-manufacturer-model-auto
-_summary: Verify a GSM broadband modem recovers after a software reset via AT command
-_template-summary: Verify a GSM broadband modem recovers after a software reset via AT command
+id: ce-oem-wwan/gsm-recovery-at-command-{manufacturer}-{model}-{hw_id}-auto
+template-id: ce-oem-wwan/gsm-recovery-at-command-auto
+_summary: Verify a GSM broadband modem recovers its data connection via AT command
+_template-summary: Verify a GSM broadband modem recovers its data connection via AT command
 _purpose:
   Issues a modem software reset (AT+CRESET) and verifies the modem
   re-enumerates over USB and re-registers on the network afterwards,

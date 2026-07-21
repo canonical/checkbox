@@ -25,6 +25,7 @@ import sys
 from plainbox.abc import IJobRunnerUI
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
+from plainbox.impl.result_utils import pretty_skip_reason
 
 logger = logging.getLogger("checkbox-ng.launcher.run")
 
@@ -212,6 +213,12 @@ class NormalUI(IJobRunnerUI):
             print()
 
     def job_cannot_start(self, job, job_state, result):
+        if hasattr(result, "skip_reason") and result.skip_reason:
+            try:
+                print(self.C.YELLOW(pretty_skip_reason(result.skip_reason)))
+                return
+            except ValueError:
+                pass
         print(_("Job cannot be started because:"))
         for inhibitor in job_state.readiness_inhibitor_list:
             print(" - {}".format(self.C.YELLOW(inhibitor)))

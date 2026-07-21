@@ -1,9 +1,18 @@
 unit: manifest entry
 id: has_wwan_module_via_at_command
-_name: Is the WWAN module controlled via AT commands
+_name: WWAN module controlled via AT commands
+_prompt:
+  Is this WWAN module's data connection established and verified
+  using raw AT commands sent through ModemManager
+  (mmcli --command=...), instead of ModemManager's own Simple/Bearer
+  connection API?
 value-type: bool
 
 unit: manifest entry
-id: has_wwan_reset_recovery
-_name: Does the WWAN module need reset/recovery (AT+CRESET) testing
+id: has_wwan_module_via_at_command_reset_recovery
+_name: WWAN module AT-command reset/recovery testing
+_prompt:
+  Does this WWAN module's AT-command test plan also need to verify
+  recovery after a software reset (AT+CRESET), including re-enumeration
+  and re-registration on the network?
 value-type: bool

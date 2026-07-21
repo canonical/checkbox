@@ -78,5 +78,5 @@ requires:
   manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
   manifest.has_wwan_module_via_at_command == 'True'
-  manifest.has_wwan_reset_recovery == 'True'
+  manifest.has_wwan_module_via_at_command_reset_recovery == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'

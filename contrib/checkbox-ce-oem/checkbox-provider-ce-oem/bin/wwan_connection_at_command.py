@@ -535,11 +535,11 @@ def reset_and_recover(hw_id):
     then waits for network registration, falling back to one AT+CFUN
     radio cycle if registration stays denied for too long.
 
-    Not every module/project needs this (see the has_wwan_reset_recovery
-    manifest entry gating the job that calls this), and it needs much
-    longer timeouts than the normal connection test, so it's driven by
-    its own WWAN_RESET_* environment variables rather than
-    WWAN_SETUPTIME.
+    Not every module/project needs this (see the
+    has_wwan_module_via_at_command_reset_recovery manifest entry gating
+    the job that calls this), and it needs much longer timeouts than
+    the normal connection test, so it's driven by its own WWAN_RESET_*
+    environment variables rather than WWAN_SETUPTIME.
     """
     reset_wait = int(os.environ.get("WWAN_RESET_WAIT", "30"))
     cops_timeout = int(os.environ.get("WWAN_RESET_COPS_TIMEOUT", "30"))

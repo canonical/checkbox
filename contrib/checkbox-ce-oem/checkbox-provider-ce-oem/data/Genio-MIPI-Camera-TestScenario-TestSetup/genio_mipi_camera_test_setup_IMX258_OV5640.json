@@ -6,38 +6,38 @@
             "pads": [
                 {
                     "action": "set_format",
-                    "node": "ov5640 7-003c",
+                    "node": "imx258 7-001a",
                     "source": 0,
-                    "fmt": "YUYV8_1X16",
+                    "fmt": "SBGGR10_1X10",
                     "field": "none"
                 },
                 {
                     "action": "set_format",
                     "node": "seninf-0",
                     "source": 1,
-                    "fmt": "YUYV8_1X16",
+                    "fmt": "SBGGR10_1X10",
                     "field": "none"
                 },
                 {
                     "action": "set_format",
                     "node": "1a092000.camsv2",
                     "source": 1,
-                    "fmt": "YUYV8_1X16",
+                    "fmt": "SBGGR10_1X10",
                     "field": "none"
                 }
             ],
             "links": [
                 {
-                    "source_entity": "seninf-0",
-                    "source_pad_number": 1,
-                    "sink_entity": "1a092000.camsv2",
+                    "source_entity": "imx258 7-001a",
+                    "source_pad_number": 0,
+                    "sink_entity": "seninf-0",
                     "sink_pad_number": 0,
                     "flags": 1
                 },
                 {
-                    "source_entity": "ov5640 7-003c",
-                    "source_pad_number": 0,
-                    "sink_entity": "seninf-0",
+                    "source_entity": "seninf-0",
+                    "source_pad_number": 1,
+                    "sink_entity": "1a092000.camsv2",
                     "sink_pad_number": 0,
                     "flags": 1
                 }
@@ -70,16 +70,16 @@
             ],
             "links": [
                 {
-                    "source_entity": "seninf-1",
-                    "source_pad_number": 1,
-                    "sink_entity": "1a093000.camsv3",
+                    "source_entity": "ov5640 8-003c",
+                    "source_pad_number": 0,
+                    "sink_entity": "seninf-1",
                     "sink_pad_number": 0,
                     "flags": 1
                 },
                 {
-                    "source_entity": "ov5640 8-003c",
-                    "source_pad_number": 0,
-                    "sink_entity": "seninf-1",
+                    "source_entity": "seninf-1",
+                    "source_pad_number": 1,
+                    "sink_entity": "1a093000.camsv3",
                     "sink_pad_number": 0,
                     "flags": 1
                 }

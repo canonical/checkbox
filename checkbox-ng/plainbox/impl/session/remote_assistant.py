@@ -43,6 +43,7 @@ from plainbox.impl.providers.v1 import (
 )
 from plainbox.impl.result import JobResultBuilder, MemoryJobResult
 from plainbox.impl.result_utils import determine_outcome_and_skip_reason
+from plainbox.impl.result_utils import pretty_skip_reason
 from plainbox.impl.secure.providers.v1 import (
     reload_all_providers as reload_all_secure_providers,
 )
@@ -567,9 +568,13 @@ class RemoteSessionAssistant:
             )
 
             def cant_start_builder(*args, **kwargs):
+                try:
+                    comments = pretty_skip_reason(skip_reason)
+                except (ValueError, TypeError):
+                    comments = job_state.get_readiness_description()
                 result_builder = JobResultBuilder(
                     outcome=outcome,
-                    comments=job_state.get_readiness_description(),
+                    comments=comments,
                 )
                 if skip_reason:
                     result_builder.skip_reason = skip_reason

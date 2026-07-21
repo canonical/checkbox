@@ -66,7 +66,7 @@ def run_cmd(args):
 
 def mmcli_list():
     """Return (rc, stdout) for mmcli -L."""
-    rc, stdout, _ = run_cmd(["sudo", "mmcli", "-L"])
+    rc, stdout, _ = run_cmd(["mmcli", "-L"])
     return rc, stdout
 
 
@@ -86,7 +86,7 @@ def mmcli_modem_ids():
 
 def get_field(mm_id, key):
     """Return the value of a `key:` field from mmcli -m <mm_id> output."""
-    rc, stdout, _ = run_cmd(["sudo", "mmcli", "-m", str(mm_id)])
+    rc, stdout, _ = run_cmd(["mmcli", "-m", str(mm_id)])
     if rc != 0:
         return None
     for line in stdout.splitlines():
@@ -99,7 +99,7 @@ def get_field(mm_id, key):
 
 def get_equipment_id(mm_id):
     """Return the equipment id (IMEI) reported by mmcli -m <mm_id>."""
-    rc, stdout, _ = run_cmd(["sudo", "mmcli", "-m", str(mm_id)])
+    rc, stdout, _ = run_cmd(["mmcli", "-m", str(mm_id)])
     if rc != 0:
         return None
     m = re.search(r"equipment id:\s*'?([^'\s]+)", stdout)
@@ -135,7 +135,7 @@ def resolve_modem_index_polling(hw_id, timeout, interval=3):
 
 def get_modem_state(mm_id):
     """Return the modem's ModemManager state (e.g. 'enabled', 'disabled')."""
-    rc, stdout, _ = run_cmd(["sudo", "mmcli", "-m", str(mm_id)])
+    rc, stdout, _ = run_cmd(["mmcli", "-m", str(mm_id)])
     if rc != 0:
         return None
     for line in stdout.splitlines():
@@ -166,7 +166,7 @@ def ensure_modem_enabled(mm_id):
         return True
 
     logging.info("Modem is '%s', enabling via ModemManager ...", state)
-    rc, stdout, stderr = run_cmd(["sudo", "mmcli", "-m", str(mm_id), "-e"])
+    rc, stdout, stderr = run_cmd(["mmcli", "-m", str(mm_id), "-e"])
     if rc != 0:
         logging.warning(
             "Failed to enable modem (rc=%s): %s",
@@ -190,7 +190,6 @@ def mmcli_at(modem_idx, at_cmd, timeout=10):
     """Send an AT command via mmcli; return (rc, stdout, stderr)."""
     return run_cmd(
         [
-            "sudo",
             "mmcli",
             "-m",
             str(modem_idx),
@@ -233,7 +232,7 @@ def log_connection_diagnostics(modem_idx, iface):
         "[DIAG] ip -s link show dev %s:\n%s", iface, link_stdout.strip()
     )
 
-    _, dmesg_stdout, _ = run_cmd(["sudo", "sh", "-c", "dmesg | tail -n 40"])
+    _, dmesg_stdout, _ = run_cmd(["sh", "-c", "dmesg | tail -n 40"])
     logging.info("[DIAG] dmesg (tail):\n%s", dmesg_stdout.strip())
     logging.info("[DIAG] ---------------------------------")
 
@@ -266,7 +265,6 @@ def deprioritize_default_route(iface, metric=200):
     )
     run_cmd(
         [
-            "sudo",
             "ip",
             "route",
             "replace",
@@ -381,7 +379,7 @@ def run_ping(iface, modem_idx):
     """
     # 1. Bring the link UP
     logging.info("[NET] Bringing up interface %s ...", iface)
-    rc, _, stderr = run_cmd(["sudo", "ip", "link", "set", iface, "up"])
+    rc, _, stderr = run_cmd(["ip", "link", "set", iface, "up"])
     if rc != 0:
         logging.error(
             "[NET] Failed to bring up %s: rc=%s stderr=%s",
@@ -394,7 +392,7 @@ def run_ping(iface, modem_idx):
     # 2. Ask NetworkManager to (re)connect the device; best-effort only,
     #    NetworkManager may already be handling this on its own.
     logging.info("[NET] Asking NetworkManager to connect %s ...", iface)
-    run_cmd(["sudo", "nmcli", "device", "connect", iface])
+    run_cmd(["nmcli", "device", "connect", iface])
 
     # 3. Wait for NetworkManager's own DHCP client to assign a lease
     setuptime = int(os.environ.get("WWAN_SETUPTIME", "30"))

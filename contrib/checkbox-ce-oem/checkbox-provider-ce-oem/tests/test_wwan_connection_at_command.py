@@ -323,7 +323,6 @@ class TestDeprioritizeDefaultRoute(unittest.TestCase):
         self.assertEqual(
             replace_call,
             [
-                "sudo",
                 "ip",
                 "route",
                 "replace",
@@ -487,9 +486,9 @@ class TestRunPing(unittest.TestCase):
         self, mock_run_cmd, mock_deprioritize
     ):
         def fake_run_cmd(args):
-            if args[:3] == ["sudo", "ip", "link"]:
+            if args[:3] == ["ip", "link", "set"]:
                 return (0, "", "")
-            if args[:2] == ["sudo", "nmcli"]:
+            if args[:2] == ["nmcli", "device"]:
                 return (0, "", "")
             if args[:3] == ["ip", "addr", "show"]:
                 return (0, "inet 192.168.0.100/24 brd 192.168.0.255\n", "")
@@ -508,9 +507,9 @@ class TestRunPing(unittest.TestCase):
         self, mock_run_cmd, mock_sleep, mock_diag
     ):
         def fake_run_cmd(args):
-            if args[:3] == ["sudo", "ip", "link"]:
+            if args[:3] == ["ip", "link", "set"]:
                 return (0, "", "")
-            if args[:2] == ["sudo", "nmcli"]:
+            if args[:2] == ["nmcli", "device"]:
                 return (0, "", "")
             if args[:3] == ["ip", "addr", "show"]:
                 return (0, "no inet here\n", "")

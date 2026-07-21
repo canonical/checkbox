@@ -1,6 +1,6 @@
 // Replaces rtd-address with new-address in links
 
-const rtd_address = 'canonical-checkbox-documentation.readthedocs-hosted.com';
+const rtd_address = 'canonical-checkbox.readthedocs-hosted.com';
 const new_address = 'ubuntu.com/docs/checkbox';
 
 function escapeRegExp(value) {

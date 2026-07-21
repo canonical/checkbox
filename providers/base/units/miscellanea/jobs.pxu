@@ -660,3 +660,49 @@ estimated_duration: 120.0
 id: miscellanea/check-hardware-attributes
 command: check_hardware_attributes.py
 _summary: Check that all the attributes are able to read
+
+id: miscellanea/secure-boot-enabled
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_secure_boot == 'True'
+user: root
+environ: SECURE_BOOT_CHECK_METHOD
+command:
+  check_secure_boot_state.py enabled --verbose
+_summary:
+  Verify secure boot is enabled when manifest indicates support
+_purpose:
+  This test verifies that secure boot is currently enabled on the system
+  when the manifest indicates the system supports secure boot. On UEFI
+  systems the state is read from the SecureBoot EFI variable; on non-UEFI
+  systems the booted FIT kernel image must carry a signature (which
+  indicates a verified-boot setup, not that the bootloader enforces it).
+  ARM platforms that boot via EFI without full EBBR support (untrustworthy
+  SecureBoot variable) should set SECURE_BOOT_CHECK_METHOD=fit in the
+  Checkbox configuration.
+
+id: miscellanea/secure-boot-disabled
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 0.5
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_secure_boot == 'False'
+user: root
+environ: SECURE_BOOT_CHECK_METHOD
+command:
+  check_secure_boot_state.py disabled --verbose
+_summary:
+  Verify secure boot is disabled when manifest indicates no support
+_purpose:
+  This test verifies that secure boot is currently disabled on the system
+  when the manifest indicates the system does not support secure boot. On
+  UEFI systems the state is read from the SecureBoot EFI variable; on
+  non-UEFI systems the booted FIT kernel image must carry no signature.
+  ARM platforms that boot via EFI without full EBBR support (untrustworthy
+  SecureBoot variable) should set SECURE_BOOT_CHECK_METHOD=fit in the
+  Checkbox configuration.
+

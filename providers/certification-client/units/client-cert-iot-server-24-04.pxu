@@ -102,6 +102,8 @@ _description:
 include:
   disk/encryption/detect
   miscellanea/secure_boot_mode
+  miscellanea/secure-boot-enabled
+  miscellanea/secure-boot-disabled
 mandatory_include:
   com.canonical.plainbox::manifest
   executable

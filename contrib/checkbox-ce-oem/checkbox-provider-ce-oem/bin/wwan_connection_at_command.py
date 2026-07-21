@@ -131,17 +131,20 @@ def ensure_modem_enabled(mm_id):
     False otherwise. Never aborts the test: raw AT commands can still
     work over the primary port even while the modem stays disabled.
     """
-    ready_states = ("enabled", "searching", "registered",
-                    "connecting", "connected")
+    ready_states = (
+        "enabled",
+        "searching",
+        "registered",
+        "connecting",
+        "connected",
+    )
     state = get_modem_state(mm_id)
     logging.info("Modem state : %s", state)
     if state in ready_states:
         return True
 
     logging.info("Modem is '%s', enabling via ModemManager ...", state)
-    rc, stdout, stderr = run_cmd(
-        ["sudo", "mmcli", "-m", str(mm_id), "-e"]
-    )
+    rc, stdout, stderr = run_cmd(["sudo", "mmcli", "-m", str(mm_id), "-e"])
     if rc != 0:
         logging.warning(
             "Failed to enable modem (rc=%s): %s",
@@ -188,7 +191,10 @@ def run_at_query(modem_idx, at_cmd, timeout=10):
     if rc != 0 or resp is None:
         logging.warning(
             "[DIAG] %s -> rc=%s stdout=%s stderr=%s",
-            at_cmd, rc, stdout.strip(), stderr.strip(),
+            at_cmd,
+            rc,
+            stdout.strip(),
+            stderr.strip(),
         )
     return resp
 
@@ -232,12 +238,23 @@ def deprioritize_default_route(iface, metric=200):
     logging.info(
         "[NET] Lowering priority of default route via %s dev %s"
         " (metric=%d)",
-        gw, iface, metric,
+        gw,
+        iface,
+        metric,
     )
     run_cmd(
         [
-            "sudo", "ip", "route", "replace", "default",
-            "via", gw, "dev", iface, "metric", str(metric),
+            "sudo",
+            "ip",
+            "route",
+            "replace",
+            "default",
+            "via",
+            gw,
+            "dev",
+            iface,
+            "metric",
+            str(metric),
         ]
     )
 
@@ -285,7 +302,11 @@ def run_at_step(modem_idx, name, spec, env, timeout=15):
         poll = spec.get("poll", False)
     else:
         cmd, expect, expect_nonempty, expect_min, poll = (
-            spec, None, False, None, False,
+            spec,
+            None,
+            False,
+            None,
+            False,
         )
 
     cmd = cmd.replace("{APN}", env["WWAN_APN"])
@@ -342,7 +363,9 @@ def run_ping(iface, modem_idx):
     if rc != 0:
         logging.error(
             "[NET] Failed to bring up %s: rc=%s stderr=%s",
-            iface, rc, stderr.strip(),
+            iface,
+            rc,
+            stderr.strip(),
         )
         return False
 
@@ -355,7 +378,8 @@ def run_ping(iface, modem_idx):
     setuptime = int(os.environ.get("WWAN_SETUPTIME", "30"))
     logging.info(
         "[NET] Waiting up to %ss for a DHCP lease on %s ...",
-        setuptime, iface,
+        setuptime,
+        iface,
     )
     ip_stdout = ""
     waited = 0
@@ -431,9 +455,7 @@ def send_reset(modem_idx):
 
 def verify_cops(modem_idx, timeout):
     """Verify AT+COPS? responds (any response) within `timeout` seconds."""
-    logging.info(
-        "[RESET] Verifying AT+COPS? responds within %ss ...", timeout
-    )
+    logging.info("[RESET] Verifying AT+COPS? responds within %ss ...", timeout)
     rc, stdout, stderr = mmcli_at(modem_idx, "AT+COPS?", timeout=timeout)
     resp = parse_response(stdout)
     logging.info("[RESET] AT+COPS? rc=%s stdout=%s", rc, stdout.strip())
@@ -468,7 +490,8 @@ def wait_for_registration(modem_idx, timeout, radio_cycle_wait, interval=5):
         operator_id = get_field(modem_idx, "operator id")
         logging.info(
             "[RESET] registration=%s operator_id=%s",
-            registration, operator_id,
+            registration,
+            operator_id,
         )
         if registration in ("home", "roaming"):
             return True, registration, operator_id
@@ -499,9 +522,7 @@ def reset_and_recover(hw_id):
     reset_wait = int(os.environ.get("WWAN_RESET_WAIT", "30"))
     cops_timeout = int(os.environ.get("WWAN_RESET_COPS_TIMEOUT", "30"))
     denied_timeout = int(os.environ.get("WWAN_RESET_DENIED_TIMEOUT", "120"))
-    radio_cycle_wait = int(
-        os.environ.get("WWAN_RESET_RADIO_CYCLE_WAIT", "45")
-    )
+    radio_cycle_wait = int(os.environ.get("WWAN_RESET_RADIO_CYCLE_WAIT", "45"))
 
     modem_idx = resolve_modem_index(hw_id)
     logging.info("=== WWAN Reset & Recovery Test ===")
@@ -519,7 +540,8 @@ def reset_and_recover(hw_id):
         logging.error(
             "[FAIL] Modem with equipment id '%s' did not reappear within"
             " %ss",
-            hw_id, reset_wait,
+            hw_id,
+            reset_wait,
         )
         return False
     logging.info("[PASS] Modem reappeared as index %s", new_modem_idx)
@@ -545,7 +567,8 @@ def reset_and_recover(hw_id):
 
     logging.info(
         "[PASS] Modem re-registered: registration=%s operator_id=%s",
-        registration, operator_id,
+        registration,
+        operator_id,
     )
     return True
 

@@ -44,10 +44,23 @@ class XdgPortalScreenshotter:
     def __init__(self, app_id: str):
         self.app_id = app_id
         self._desktop_file_path = None
+        self._permission_app_id = app_id
+        self._is_snap = self._running_in_snap()
+        if self._is_snap:
+            instance_name = os.environ.get(
+                "SNAP_INSTANCE_NAME", os.environ.get("SNAP_NAME")
+            )
+            self._permission_app_id = "snap.{}".format(instance_name)
+
+    @staticmethod
+    def _running_in_snap() -> bool:
+        return bool(
+            os.environ.get("SNAP_NAME") or os.environ.get("SNAP_INSTANCE_NAME")
+        )
 
     def setup(self):
-        """Create the desktop file the portal's Registry call expects.
-        Call once, before capture()."""
+        if self._is_snap:
+            return
         self._desktop_file_path = self._ensure_desktop_file()
 
     def cleanup(self, conn: "Gio.DBusConnection | None"):
@@ -66,7 +79,8 @@ class XdgPortalScreenshotter:
         handled the request (whether it succeeded, failed, or the user
         cancelled) - False means "not available, try the next tier"."""
         try:
-            self._register(conn)
+            if not self._is_snap:
+                self._register(conn)
             self._pre_authorize(conn)
         except GLib.Error as e:
             print(
@@ -173,7 +187,7 @@ class XdgPortalScreenshotter:
             GLib.Variant.new_string("screenshot"),
             GLib.Variant.new_boolean(True),
             GLib.Variant.new_string("screenshot"),
-            GLib.Variant.new_string(self.app_id),
+            GLib.Variant.new_string(self._permission_app_id),
             perms,
         )
         conn.call_sync(
@@ -192,7 +206,7 @@ class XdgPortalScreenshotter:
         params = GLib.Variant.new_tuple(
             GLib.Variant.new_string("screenshot"),
             GLib.Variant.new_string("screenshot"),
-            GLib.Variant.new_string(self.app_id),
+            GLib.Variant.new_string(self._permission_app_id),
         )
         try:
             conn.call_sync(
@@ -473,3 +487,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -18,8 +18,10 @@ defines, per WWAN module, the ordered sequence of AT commands to run over
 
 - **`<MODULE_NAME>`** must be a substring that appears literally in the
   output of `mmcli -L` for the target modem (e.g. the model name reported
-  under `Hardware | model:`). `detect_module()` picks the first module key
-  found in `mmcli -L` output and uses its steps.
+  under `Hardware | model:`). `detect_module()` iterates the JSON keys in
+  file order and picks the first key whose name is a substring of the
+  `mmcli -L` output, so when multiple keys could match, the one that
+  appears first in the file wins.
 - **`<Step name>`** is a free-form, human-readable label used only for
   logging (`[AT] <Step name> -> <cmd>`, `[PASS]/[FAIL] <Step name>`).
 - Steps run **in the order they appear in the file** (Python/JSON preserve

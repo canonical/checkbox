@@ -1,6 +1,6 @@
 unit: job
 plugin: shell
-id: setup/install_level_zero
+id: setup/install_level_zero_tests
 category_id: com.canonical.plainbox::graphics
 summary: Install level-zero-tests snap
 purpose: This job will install the level-zero-tests snap, a dependency of Level Zero conformance testing
@@ -34,7 +34,7 @@ command: |
 id: graphics/lz_core_test_affinity_helper
 depends:
   - graphics/lz_gpu_avail
-  - setup/install_level_zero
+  - setup/install_level_zero_tests
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple
@@ -419,7 +419,7 @@ depends:
   - graphics/lz_classic_gpu_avail
   - graphics/lz_classic_lz_avail
 setup_include:
-  - setup/install_level_zero
+  - setup/install_level_zero_tests
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple

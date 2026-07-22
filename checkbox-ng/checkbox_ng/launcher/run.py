@@ -218,7 +218,7 @@ class NormalUI(IJobRunnerUI):
                 print(self.C.YELLOW(pretty_skip_reason(result.skip_reason)))
                 return
             except ValueError:
-                pass
+                pass  # unable to pretty print skip reason
         print(_("Job cannot be started because:"))
         for inhibitor in job_state.readiness_inhibitor_list:
             print(" - {}".format(self.C.YELLOW(inhibitor)))

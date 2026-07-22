@@ -68,3 +68,19 @@ command:
   # always succeed for known failures
   echo "Known failure, exited with: $?"
   exit 0
+
+unit: job
+plugin: shell
+category_id: com.canonical.plainbox::npu
+id: npu/qualcomm_cloud_ai_driver_detect
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_qualcomm_cloud_ai_npu == 'True'
+command:
+ module_loaded_test.py qaic -n
+estimated_duration: 5s
+summary:
+    Test this machine have the Qualcomm Cloud AI NPU driver loaded or not
+description:
+    The An Qualcomm Cloud AI NPU driver should be loaded and could be validated by
+    the outcome of lsmod automatically.

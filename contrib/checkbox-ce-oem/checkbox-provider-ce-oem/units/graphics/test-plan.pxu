@@ -18,6 +18,7 @@ bootstrap_include:
 include:
     ce-oem-graphics/nvidia-drm-modeset-check
     ce-oem-graphics/detect_opencl
+    ce-oem-graphics/opencl-property-validation
 
 id: ce-oem-graphics-manual
 unit: test plan

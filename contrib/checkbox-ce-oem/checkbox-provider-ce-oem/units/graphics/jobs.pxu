@@ -14,8 +14,7 @@ _purpose:
 
 plugin: shell
 category_id: com.canonical.plainbox::graphics
-id: ce-oem-graphics/detect_opencl_capability
-user: root
+id: ce-oem-graphics/detect_opencl
 _summary: Detect OpenCL platform and device availability using clinfo
 _purpose:
     Check that at least one OpenCL platform and device are listed by clinfo.
@@ -26,11 +25,34 @@ command: clinfo_test.py detect -b "${CLINFO_EXECUTABLE:-clinfo}"
 plugin: resource
 category_id: com.canonical.plainbox::graphics
 id: opencl_clinfo_resource
-user: root
 _summary: Collect OpenCL platform and device pairs from clinfo
 _purpose:
     Emit OpenCL platform and device records with an ignore flag for the _verification jobs.
 environ: CLINFO_EXECUTABLE CLINFO_IGNORE_PLATFORM_AND_DEVICE_LIST
 command:
     clinfo_test.py resource -b "${CLINFO_EXECUTABLE:-clinfo}" -i "${CLINFO_IGNORE_PLATFORM_AND_DEVICE_LIST:-}"
+
+
+unit: template
+template-engine: jinja2
+template-resource: opencl_clinfo_resource
+template-unit: job
+template-id: ce-oem-graphics/opencl-property-validation
+template-filter:
+    opencl_clinfo_resource.ignore == "false"
+id: ce-oem-graphics/opencl-property-validation-{{platform_number}}-{{device_number}}
+category_id: com.canonical.plainbox::graphics
+_summary: Validate OpenCL properties on platform: '{{platform}}' device: '{{device}}'
+_purpose:
+    Validate selected OpenCL property values for the '{platform}'/'{device}' pair
+    discovered by the OpenCL resource job.
+plugin: shell
+estimated_duration: 1s
+flags: also-after-suspend
+environ: CLINFO_EXECUTABLE CLINFO_VALIDATION_JSON_FILE
+command:
+    clinfo_test.py test -b "${CLINFO_EXECUTABLE:-clinfo}" \
+      -vjp "${CLINFO_VALIDATION_JSON_FILE:-}" \
+      -p "{platform}" -pn "{platform_number}" \
+      -d "{device}" -dn "{device_number}"
 

@@ -193,7 +193,9 @@ def parse_ignore_spec(spec: str) -> Set[Tuple[str, str]]:
 
 
 def parse_property_value(output: str, property_name: str) -> Optional[str]:
-    """Extract a property value from clinfo --prop output."""
+    """Extract a property value from clinfo --prop output.
+    https://registry.khronos.org/OpenCL/specs/unified/refpages/man/html/clGetDeviceInfo.html
+    """
     pattern = re.compile(PROP_PATTERN_TEMPLATE.format(re.escape(property_name)))
     for line in output.splitlines():
         match = pattern.search(line)
@@ -207,7 +209,7 @@ def load_validation_set(
     platform: str,
     device: str,
 ) -> Optional[ValidationSet]:
-    """Load validation set from JSON if path is provided."""
+    """Load validation set from JSON if path is provided, use default otherwise."""
     if not validation_json_path:
         return dict(DEFAULT_VALIDATION_SET)
 
@@ -264,11 +266,29 @@ def cmd_detect(binary: str) -> int:
             logger.error(list_result.stderr.rstrip())
         return list_result.returncode
 
+    logger.info(
+        "OpenCL platform/device list:\n%s",
+        list_result.stdout.rstrip(),
+    )
+
+    has_platform = any(
+        PLATFORM_PATTERN.match(line)
+        for line in list_result.stdout.splitlines()
+    )
+    if not has_platform:
+        logger.error(
+            "No OpenCL platform found! "
+            "(OpenCL runtime may not be installed)"
+        )
+        return 1
+
     records = parse_clinfo_list_output(list_result.stdout)
     if not records:
-        logger.error("No OpenCL platform/device found!")
+        logger.error(
+            "OpenCL platform detected but no device found! "
+            "(runtime installed but no usable device)"
+        )
         return 1
-    logger.info(": \n%s\n\nPASS: OpenCL platform/device detected", list_result.stdout.rstrip())
 
     return 0
 

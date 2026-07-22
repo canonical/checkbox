@@ -121,8 +121,10 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/efi_boot_mode
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
+ manifest._ignore_efi_boot_mode == 'False'
 _summary: Test that system booted in EFI mode
 _purpose:
  Test to verify that the system booted in EFI mode.

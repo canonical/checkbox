@@ -16,6 +16,8 @@ estimated_duration: 1m
 unit: job
 plugin: shell
 id: graphics/lz_gpu_avail
+depends:
+  - setup/install_level_zero_tests
 category_id: com.canonical.plainbox::graphics
 user: root
 summary: Checks for GPU for level-zero-tests

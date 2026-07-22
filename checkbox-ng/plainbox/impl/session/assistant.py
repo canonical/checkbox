@@ -1629,9 +1629,7 @@ class SessionAssistant:
                 comments = pretty_skip_reason(skip_reason)
             except (ValueError, TypeError):
                 comments = job_state.get_readiness_description()
-            builder = JobResultBuilder(
-                outcome=outcome, comments=comments
-            )
+            builder = JobResultBuilder(outcome=outcome, comments=comments)
             if skip_reason:
                 builder.skip_reason = skip_reason
             ui.job_cannot_start(job, job_state, builder.get_result())

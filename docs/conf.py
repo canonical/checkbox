@@ -150,7 +150,7 @@ html_context = {
 # - https://git.launchpad.net/example
 #
 html_theme_options = {
-    'source_edit_link': 'https://github.com/canonical/checkbox',
+    "source_edit_link": "https://github.com/canonical/checkbox",
 }
 
 # Project slug; see https://meta.discourse.org/t/what-is-category-slug/87897
@@ -158,7 +158,7 @@ html_theme_options = {
 # TODO: If your documentation is hosted on https://docs.ubuntu.com/,
 #       uncomment and update as needed.
 
-slug = 'docs/checkbox'      # required when hosted on ubuntu.com
+slug = "docs/checkbox"  # required when hosted on ubuntu.com
 
 #######################
 # Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
@@ -191,7 +191,7 @@ html_css_files = [
 
 # Adds custom JavaScript files, located under 'html_static_path'
 html_js_files = [
-    "overwrite_links.js",   # support ReadTheDocs flyout when hosted at ubuntu.com/docs
+    "overwrite_links.js",  # support ReadTheDocs flyout when hosted at ubuntu.com/docs
 ]
 
 #############

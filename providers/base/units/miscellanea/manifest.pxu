@@ -14,3 +14,11 @@ _name: Experimental testing
 value-type: bool
 hidden-reason: Experimental jobs should run only on systems explicitly flagged
   for that coverage through configuration.
+
+unit: manifest entry
+id: _ignore_efi_boot_mode
+_name: Ignore EFI boot mode requirement
+value-type: bool
+hidden-reason: Some ARM boards (e.g. Raspberry Pi) boot via native firmware
+  rather than UEFI and should not run efi_boot_mode test when running in
+  the lab.

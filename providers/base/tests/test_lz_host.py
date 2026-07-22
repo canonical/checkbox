@@ -53,9 +53,7 @@ class TestCheckHostGpu(unittest.TestCase):
     def test_returns_true_when_render_node_and_loader_found(
         self, _glob, _isfile
     ):
-        self.assertTrue(
-            lz_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
-        )
+        self.assertTrue(lz_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE))
 
     @patch("os.path.isfile", return_value=True)
     @patch(

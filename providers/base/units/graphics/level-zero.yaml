@@ -420,7 +420,6 @@ id: graphics/lz_classic_test_affinity_helper
 depends:
   - graphics/lz_classic_gpu_avail
   - graphics/lz_classic_lz_avail
-setup_include:
   - setup/install_level_zero_tests
 category_id: com.canonical.plainbox::graphics
 flags:

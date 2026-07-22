@@ -59,6 +59,7 @@ from checkbox_ng.urwid_ui import (
     interrupt_dialog,
     resume_dialog,
     ResumeInstead,
+    InterruptDialogAnswer,
 )
 from checkbox_ng.utils import (
     generate_resume_candidate_description,
@@ -475,6 +476,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.bootstrap_and_continue()
 
     def automatically_start_via_launcher_and_continue(self):
+        SimpleUI.header("Starting new automated session via launcher")
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
@@ -482,6 +484,9 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def resume_last_session_and_continue(self):
         last_abandoned_session = next(self.sa.get_resumable_sessions())
+        SimpleUI.header(
+            "Resuming last session: {}".format(last_abandoned_session.id)
+        )
         return self.resume_by_id(last_abandoned_session.id)
 
     def start_session(self):
@@ -577,6 +582,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         return self.resume_by_id(resume_params.session_id, result_dict)
 
     def interactively_choose_test_plan_and_continue(self):
+        SimpleUI.header("Starting new interactive session")
         tps = self.start_session()
         _logger.info("controller: Interactively choosing TP.")
         while True:
@@ -781,19 +787,24 @@ class RemoteController(ReportsStage, MainLoopStage):
             self._sa.terminate()
             return False
         response = interrupt_dialog(self._target_host)
-        if response == "cancel":
+        if response == InterruptDialogAnswer.CANCEL:
             return True
-        elif response == "kill-controller":
+        elif response == InterruptDialogAnswer.KILL_CONTROLLER:
             return False
-        elif response == "kill-agent":
+        elif response == InterruptDialogAnswer.KILL_AGENT:
             self._sa.terminate()
             return False
-        elif response == "abandon":
+        elif response == InterruptDialogAnswer.FINALIZE:
             self._sa.finalize_session()
             return True
-        elif response == "kill-command":
+        elif response == InterruptDialogAnswer.FINALIZE_EXIT:
+            self._sa.finalize_session()
+            return False
+        elif response == InterruptDialogAnswer.KILL_COMMAND:
             self._sa.send_signal(signal.SIGKILL.value)
             return True
+        elif response is None:
+            return False
 
     def finish_session(self, *args):
         print(self.C.header("Results"))

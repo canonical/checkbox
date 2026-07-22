@@ -150,8 +150,8 @@ def ensure_modem_enabled(mm_id):
     """Make sure the modem is enabled via ModemManager before testing.
 
     Returns True if the modem ends up in an enabled (or better) state,
-    False otherwise. Never aborts the test: raw AT commands can still
-    work over the primary port even while the modem stays disabled.
+    False otherwise. Callers should treat False as fatal and stop the
+    test rather than continue.
     """
     ready_states = (
         "enabled",
@@ -179,7 +179,7 @@ def ensure_modem_enabled(mm_id):
     logging.info("Modem state after enable: %s", state)
     if state not in ready_states:
         logging.warning(
-            "Modem still not enabled (state=%s); continuing anyway",
+            "Modem still not enabled (state=%s)",
             state,
         )
         return False
@@ -661,7 +661,11 @@ def main():
     config = load_config(args.config)
     module_name, at_steps = detect_module(config)
     modem_idx = resolve_modem_index(args.hw_id)
-    ensure_modem_enabled(modem_idx)
+    if not ensure_modem_enabled(modem_idx):
+        logging.error(
+            "Aborting: modem %s could not be confirmed enabled", modem_idx
+        )
+        sys.exit(1)
 
     logging.info("=== WWAN Connection Test ===")
     logging.info("Module      : %s", module_name)

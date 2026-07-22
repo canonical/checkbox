@@ -99,6 +99,34 @@ class TestMainConfigValidation(unittest.TestCase):
                 wcac.main()
         self.assertEqual(ctx.exception.code, 1)
 
+    @patch(
+        "wwan_connection_at_command.ensure_modem_enabled",
+        return_value=False,
+    )
+    @patch("wwan_connection_at_command.resolve_modem_index", return_value=0)
+    @patch("wwan_connection_at_command.detect_module")
+    @patch("wwan_connection_at_command.load_config", return_value={})
+    @patch.dict(os.environ, {"WWAN_APN": "internet", "WWAN_NET_IF": "enx0"})
+    def test_exits_when_modem_cannot_be_enabled(
+        self,
+        mock_load_config,
+        mock_detect_module,
+        mock_resolve,
+        mock_ensure_enabled,
+    ):
+        mock_detect_module.return_value = ("SIM7672G-LNGV", {})
+        test_argv = [
+            "wwan_connection_at_command.py",
+            "865031064538696",
+            "--config",
+            "/tmp/wwan_at_command.json",
+        ]
+        with patch("sys.argv", test_argv):
+            with self.assertRaises(SystemExit) as ctx:
+                wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+        mock_ensure_enabled.assert_called_once_with(0)
+
 
 class TestGetField(unittest.TestCase):
     MMCLI_OUTPUT = (

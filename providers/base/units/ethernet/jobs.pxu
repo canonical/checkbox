@@ -326,6 +326,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 id: ethernet/hotplug-{{ interface }}
 template-id: ethernet/hotplug-interface
+depends: ethernet/detect
 _summary: Ensure hotplugging works on port {{ interface }}
 _purpose:
  Check that hotplugging works on port {{ interface }}

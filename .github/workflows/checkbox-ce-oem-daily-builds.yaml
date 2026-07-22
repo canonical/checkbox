@@ -27,21 +27,22 @@ jobs:
           persist-credentials: false
       - name: Check for commits
         id: commit_check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # get the last daily build that passed by
-          # 1. getting all workflows that are daily builds (path == ...)
-          # 2. removing those that did not result in success
-          # 3. selecting the date/time they started at (format: %Y-%m-%dT%H:%M:%sZ)
-          # 4. removing the Z postfix from the date to make it usable by git directly
-          export LAST_PASS_DAILY_BUILD=`gh api repos/canonical/checkbox/actions/runs --paginate --jq '.workflow_runs[] | select(.path == ".github/workflows/checkbox-ce-oem-daily-build.yml") | select(.conclusion == "success") | .run_started_at | .[:-1]' | head -1`
-          commit_count=$(git log --since="$LAST_PASS_DAILY_BUILD" --oneline -- contrib/checkbox-ce-oem | wc -l)
-          echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT
+          # Trigger daily builds when there are recent changes in the CE OEM provider.
+          recent_commits=$(git log --since="24 hours ago" --oneline -- contrib/checkbox-ce-oem)
+          commit_count=$(printf "%s\n" "$recent_commits" | sed '/^$/d' | wc -l | tr -d ' ')
+          echo "Recent commits in contrib/checkbox-ce-oem (last 24 hours):"
+          if [ "$commit_count" -gt 0 ]; then
+            printf "%s\n" "$recent_commits"
+          else
+            echo "(none)"
+          fi
+          echo "Found $commit_count commits in contrib/checkbox-ce-oem in the last 24 hours."
+          echo "new_commit_count=$commit_count" >> "$GITHUB_OUTPUT"
 
   checkbox-ce-oem-snap-cross-build-upload-daily:
     needs: check_for_commits
-    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.check_for_commits.outputs.new_commit_count != '0' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-ce-oem-daily-cross-builds.yaml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -50,7 +51,7 @@ jobs:
 
   checkbox-ce-oem-snap-native-build-upload-daily:
     needs: check_for_commits
-    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.check_for_commits.outputs.new_commit_count != '0' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-ce-oem-daily-native-builds.yaml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}

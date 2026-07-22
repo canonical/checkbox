@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_npu
 _name: An NPU
 value-type: bool
+
+unit: manifest entry
+id: has_qualcomm_cloud_ai_npu
+_name: An Qualcomm Cloud AI NPU
+value-type: bool

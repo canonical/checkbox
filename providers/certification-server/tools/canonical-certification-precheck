@@ -478,6 +478,35 @@ fi
 LXD_Image_Check(){
 echoname "LXD Image Check"
 
+local template_needs_fallback=0
+local rootfs_needs_fallback=0
+
+# Validate that default upstream LXD image assets are reachable.
+validate_upstream_lxd_images() {
+    local upstream_template_url="http://cloud-images.ubuntu.com/$codename/current/$codename-server-cloudimg-$arch-lxd.tar.xz"
+    local upstream_rootfs_url="http://cloud-images.ubuntu.com/$codename/current/$codename-server-cloudimg-$arch.squashfs"
+    local failed=0
+
+    if curl --output /dev/null --silent --head -fail "$upstream_template_url"; then
+        echo -e " We can get the LXD template image from $upstream_template_url."
+    else
+        echo -e " We cannot get the LXD template image from $upstream_template_url."
+        failed=1
+    fi
+
+    if curl --output /dev/null --silent --head -fail "$upstream_rootfs_url"; then
+        echo -e " We can get the LXD rootfs image from $upstream_rootfs_url."
+    else
+        echo -e " We cannot get the LXD rootfs image from $upstream_rootfs_url."
+        failed=1
+    fi
+
+    if [ "$failed" -eq 0 ]; then
+        return 0
+    fi
+    return 1
+}
+
 #Check template image
 if grep "^LXD_TEMPLATE =" $configfile >/dev/null; then
     templateurl=$(grep ^LXD_TEMPLATE $configfile|awk '{print $3}')
@@ -540,7 +569,7 @@ else
         fi
     else
         echo -e " Leaving LXD_TEMPLATE unconfigured"
-        fail
+        template_needs_fallback=1
     fi
 fi
 # Check RootFS
@@ -607,6 +636,16 @@ else
         fi
     else
         echo -e " Leaving LXD_ROOTFS unconfigured"
+        rootfs_needs_fallback=1
+    fi
+fi
+
+if [ "$template_needs_fallback" -eq 1 ] || [ "$rootfs_needs_fallback" -eq 1 ]; then
+    if validate_upstream_lxd_images; then
+        echo -e " Continuing to use upstream LXD images"
+        pass
+    else
+        echo -e " Marking as failed"
         fail
     fi
 fi

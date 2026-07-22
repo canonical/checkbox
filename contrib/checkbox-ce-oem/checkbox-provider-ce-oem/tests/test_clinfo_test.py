@@ -19,7 +19,125 @@ class TestClinfoTest(unittest.TestCase):
     @patch("clinfo_test.resolve_binary", return_value="/usr/bin/clinfo")
     @patch("clinfo_test.run_clinfo")
     @patch("clinfo_test.logger")
+    def test_cmd_detect_fail_when_no_platform_or_device(
+        self, mock_logger, mock_run_clinfo, _mock_resolve_binary
+    ):
+        mock_run_clinfo.side_effect = [
+            subprocess.CompletedProcess(
+                args=["-v"], returncode=0, stdout="", stderr=""
+            ),
+            subprocess.CompletedProcess(
+                args=["-l"], returncode=0, stdout="", stderr=""
+            ),
+        ]
+
+        result = clinfo_test.cmd_detect("clinfo")
+
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_any_call(
+            "No OpenCL platform found! "
+            "(OpenCL runtime may not be installed)"
+        )
+
+    @patch("clinfo_test.resolve_binary", return_value="/usr/bin/clinfo")
+    @patch("clinfo_test.run_clinfo")
+    @patch("clinfo_test.logger")
+    def test_cmd_detect_fail_when_platform_exists_without_device(
+        self, mock_logger, mock_run_clinfo, _mock_resolve_binary
+    ):
+        mock_run_clinfo.side_effect = [
+            subprocess.CompletedProcess(
+                args=["-v"], returncode=0, stdout="", stderr=""
+            ),
+            subprocess.CompletedProcess(
+                args=["-l"],
+                returncode=0,
+                stdout="Platform #0: rusticl\n",
+                stderr="",
+            ),
+        ]
+
+        result = clinfo_test.cmd_detect("clinfo")
+
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_any_call(
+            "OpenCL platform detected but no device found! "
+            "(runtime installed but no usable device)"
+        )
+
+    @patch("clinfo_test.resolve_binary", side_effect=FileNotFoundError("clinfo"))
+    def test_cmd_detect_raises_when_binary_missing(self, _mock_resolve_binary):
+        with self.assertRaises(FileNotFoundError):
+            clinfo_test.cmd_detect("clinfo")
+
+    @patch("clinfo_test.resolve_binary", return_value="/usr/bin/clinfo")
+    @patch("clinfo_test.run_clinfo")
+    def test_cmd_detect_pass_when_platform_device_not_on_first_line(
+        self, mock_run_clinfo, _mock_resolve_binary
+    ):
+        mock_run_clinfo.side_effect = [
+            subprocess.CompletedProcess(
+                args=["-v"], returncode=0, stdout="", stderr=""
+            ),
+            subprocess.CompletedProcess(
+                args=["-l"],
+                returncode=0,
+                stdout=(
+                    "Number of platforms                               1\n"
+                    "Platform #0: ARM Platform\n"
+                    " `-- Device #0: Mali-G57 r0p0\n"
+                ),
+                stderr="",
+            ),
+        ]
+
+        result = clinfo_test.cmd_detect("clinfo")
+
+        self.assertEqual(result, 0)
+
+    @patch("clinfo_test.resolve_binary", return_value="/usr/bin/clinfo")
+    @patch("clinfo_test.run_clinfo")
     def test_cmd_test_pass_with_default_validation_set(
+        self, mock_run_clinfo, _mock_resolve_binary
+    ):
+        prop_values = {
+            "CL_DEVICE_AVAILABLE": "CL_TRUE",
+            "CL_DEVICE_COMPILER_AVAILABLE": "CL_TRUE",
+            "CL_DEVICE_EXECUTION_CAPABILITIES": "CL_EXEC_KERNEL",
+        }
+
+        def side_effect(_binary_path, args, capture_output=False):
+            self.assertTrue(capture_output)
+            prop_name = args[3]
+            output = "[ARM/0]    {}    {}\n".format(
+                prop_name,
+                prop_values[prop_name],
+            )
+            return subprocess.CompletedProcess(
+                args=args,
+                returncode=0,
+                stdout=output,
+                stderr="",
+            )
+
+        mock_run_clinfo.side_effect = side_effect
+
+        result = clinfo_test.cmd_test(
+            binary="clinfo",
+            validation_json_path="",
+            platform="ARM Platform",
+            platform_number=0,
+            device="Mali-G57 r0p1",
+            device_number=0,
+        )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(mock_run_clinfo.call_count, 3)
+
+    @patch("clinfo_test.resolve_binary", return_value="/usr/bin/clinfo")
+    @patch("clinfo_test.run_clinfo")
+    @patch("clinfo_test.logger")
+    def test_cmd_test_logs_validated_properties(
         self, mock_logger, mock_run_clinfo, _mock_resolve_binary
     ):
         prop_values = {
@@ -58,7 +176,7 @@ class TestClinfoTest(unittest.TestCase):
         mock_logger.info.assert_any_call("Validated OpenCL properties:")
         for prop_name, prop_value in prop_values.items():
             mock_logger.info.assert_any_call(
-                "%s", "{}: {}".format(prop_name, prop_value)
+                "\t%s", "{}: {}".format(prop_name, prop_value)
             )
 
     @patch("clinfo_test.resolve_binary", return_value="/usr/bin/clinfo")

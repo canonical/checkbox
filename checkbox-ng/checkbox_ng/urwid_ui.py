@@ -25,6 +25,7 @@
 import os
 import time
 from enum import Enum
+from collections import OrderedDict
 
 from gettext import gettext as _
 
@@ -830,12 +831,12 @@ class TestPlanBrowser:
 
 
 class InterruptDialogAnswer(Enum):
-    CANCEL = "cancel"
-    KILL_COMMAND = "kill-command"
-    KILL_CONTROLLER = "kill-controller"
-    KILL_AGENT = "kill-agent"
-    FINALIZE = "finalize"
-    FINALIZE_EXIT = "finalize-exit"
+    CANCEL = 0  # auto() doesn't exist in python3.5
+    KILL_COMMAND = 1
+    KILL_CONTROLLER = 2
+    KILL_AGENT = 3
+    FINALIZE = 4
+    FINALIZE_EXIT = 5
 
 
 def interrupt_dialog(host):
@@ -847,24 +848,26 @@ def interrupt_dialog(host):
         ("foot", "light gray", "black"),
         ("start", "dark green,bold", "black"),
     ]
-    choices = {
-        InterruptDialogAnswer.CANCEL: _("Nothing, continue testing (ESC)"),
-        InterruptDialogAnswer.KILL_COMMAND: _(
-            "Stop the test case in progress and move on to the next"
-        ),
-        InterruptDialogAnswer.KILL_CONTROLLER: _(
-            "Pause the test session and disconnect from the agent (CTRL+C)"
-        ),
-        InterruptDialogAnswer.KILL_AGENT: _(
-            "Exit and stop the Checkbox agent on the DUT at {}".format(host)
-        ),
-        InterruptDialogAnswer.FINALIZE: _(
-            "End this test session preserving its data and launch a new one"
-        ),
-        InterruptDialogAnswer.FINALIZE_EXIT: _(
-            "End this test session preserving its data and exit (Q)"
-        ),
-    }
+    choices = OrderedDict()
+    choices[InterruptDialogAnswer.CANCEL] = _(
+        "Nothing, continue testing (ESC)"
+    )
+    choices[InterruptDialogAnswer.KILL_COMMAND] = _(
+        "Stop the test case in progress and move on to the next"
+    )
+    choices[InterruptDialogAnswer.KILL_CONTROLLER] = _(
+        "Pause the test session and disconnect from the agent (CTRL+C)"
+    )
+    choices[InterruptDialogAnswer.KILL_AGENT] = _(
+        "Exit and stop the Checkbox agent on the DUT at {}".format(host)
+    )
+    choices[InterruptDialogAnswer.FINALIZE] = _(
+        "End this test session preserving its data and launch a new one"
+    )
+    choices[InterruptDialogAnswer.FINALIZE_EXIT] = _(
+        "End this test session preserving its data and exit (Q)"
+    )
+
     footer_text = [
         ("Press "),
         ("start", "<Enter>"),

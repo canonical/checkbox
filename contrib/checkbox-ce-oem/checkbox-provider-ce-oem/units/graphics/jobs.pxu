@@ -44,7 +44,7 @@ id: ce-oem-graphics/opencl-property-validation-{{platform_number}}-{{device_numb
 category_id: com.canonical.plainbox::graphics
 _summary: Validate OpenCL properties on platform: '{{platform}}' device: '{{device}}'
 _purpose:
-    Validate selected OpenCL property values for the '{platform}'/'{device}' pair
+    Validate selected OpenCL property values for the platform: '{{platform}}' device: '{{device}} pair
     discovered by the OpenCL resource job.
 plugin: shell
 estimated_duration: 1s
@@ -53,6 +53,6 @@ environ: CLINFO_EXECUTABLE CLINFO_VALIDATION_JSON_FILE
 command:
     clinfo_test.py test -b "${CLINFO_EXECUTABLE:-clinfo}" \
       -vjp "${CLINFO_VALIDATION_JSON_FILE:-}" \
-      -p "{platform}" -pn "{platform_number}" \
-      -d "{device}" -dn "{device_number}"
+      -p "{{platform}}" -pn "{{platform_number}}" \
+      -d "{{device}}" -dn "{{device_number}}"
 

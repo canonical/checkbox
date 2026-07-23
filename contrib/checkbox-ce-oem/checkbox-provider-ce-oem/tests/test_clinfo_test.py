@@ -292,7 +292,7 @@ class TestClinfoTest(unittest.TestCase):
         )
 
         mock_loader.assert_called_once_with(
-            "/tmp/validation.json", enable_loggder=True
+            "/tmp/validation.json", enable_logger=True
         )
         self.assertEqual(
             result,

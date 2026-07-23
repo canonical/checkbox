@@ -218,7 +218,7 @@ def load_validation_set(
         return dict(DEFAULT_VALIDATION_SET)
 
     logger.info("Loading validation set from specified JSON file")
-    data = load_json_file(validation_json_path, enable_loggder=True)
+    data = load_json_file(validation_json_path, enable_logger=True)
 
     # Check if the specific platform exist in the loaded data.
     platform_data = data.get(platform)

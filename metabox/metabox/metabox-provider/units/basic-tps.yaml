@@ -92,3 +92,14 @@ name: Test plan that sleeps, terminates only
 include:
   - sleep_1000s
   - basic-shell-passing
+---
+unit: test plan
+id: skipping_test_plan
+name: Test plan to test skipping
+bootstrap_include:
+  - requires_skip
+include:
+  - simple_skipped
+  - failing_job
+  - skipped_by_dependency
+  - skipped_by_manifest

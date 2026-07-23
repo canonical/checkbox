@@ -311,3 +311,50 @@ command: |
 summary: Tests that generated units are validated and reported when params are missing
 flags:
   - simple
+---
+id: requires_skip
+summary: Returns nothing to test skipping
+plugin: resource
+command: |
+  true
+---
+id: simple_skipped
+flags:
+  - simple
+summary: This job is skipped
+requires:
+  - requires_skip.missing == "missing value"
+command: |
+  false
+---
+id: failing_job
+flags:
+  - simple
+summary: This job always fails
+command: |
+  false
+---
+id: skipped_by_dependency
+flags:
+  - simple
+summary: This job is skipped due to failed dependency
+depends:
+  - failing_job
+command: |
+  true
+---
+id: skipped_by_manifest
+flags:
+  - simple
+summary: This job is skipped due to unmet manifest
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.skipping_test_manifest == 'True'
+command: |
+  true
+---
+unit: manifest entry
+id: skipping_test_manifest
+name: Manifest entry for testing skip due to unmet manifest
+value-type: bool

@@ -51,6 +51,7 @@ from plainbox.impl.developer import (
 from plainbox.impl.providers import get_providers
 from plainbox.impl.result import JobResultBuilder, MemoryJobResult
 from plainbox.impl.result_utils import determine_outcome_and_skip_reason
+from plainbox.impl.result_utils import pretty_skip_reason
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import (
@@ -1624,9 +1625,11 @@ class SessionAssistant:
             outcome, skip_reason = determine_outcome_and_skip_reason(
                 job_state, self._context.state.job_state_map
             )
-            builder = JobResultBuilder(
-                outcome=outcome, comments=job_state.get_readiness_description()
-            )
+            try:
+                comments = pretty_skip_reason(skip_reason)
+            except (ValueError, TypeError):
+                comments = job_state.get_readiness_description()
+            builder = JobResultBuilder(outcome=outcome, comments=comments)
             if skip_reason:
                 builder.skip_reason = skip_reason
             ui.job_cannot_start(job, job_state, builder.get_result())

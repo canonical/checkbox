@@ -63,5 +63,41 @@ class TestLoadJsonFile(unittest.TestCase):
             os.remove(bad_json_path)
 
 
+class TestBuildCommand(unittest.TestCase):
+    def test_build_command_builds_expected_command(self):
+        command = general_utils.build_command(
+            {
+                "bin": "foo.bar",
+                "lib_paths": ["/path/to/lib1", "/path/to/lib2"],
+                "env": {"VAR1": "value1", "VAR2": "value2"},
+            }
+        )
+
+        self.assertEqual(
+            command,
+            'LD_LIBRARY_PATH="/path/to/lib1:/path/to/lib2:$LD_LIBRARY_PATH" '
+            'VAR1="value1" VAR2="value2" foo.bar',
+        )
+
+    def test_build_command_raises_value_error_when_bin_missing(self):
+        with self.assertRaisesRegex(ValueError, r"config\['bin'\]"):
+            general_utils.build_command({"env": {"VAR": "value"}})
+
+    def test_build_command_rejects_invalid_env_and_lib_paths(self):
+        with self.assertRaisesRegex(ValueError, r"config\['lib_paths'\]"):
+            general_utils.build_command(
+                {"bin": "foo.bar", "lib_paths": "/path/to/lib"}
+            )
+
+        with self.assertRaisesRegex(ValueError, r"config\['env'\]"):
+            general_utils.build_command(
+                {"bin": "foo.bar", "env": ["VAR=value"]}
+            )
+
+    def test_build_command_raises_type_error_when_config_is_not_dict(self):
+        with self.assertRaisesRegex(TypeError, "config must be a dictionary"):
+            general_utils.build_command(None)
+
+
 if __name__ == "__main__":
     unittest.main()

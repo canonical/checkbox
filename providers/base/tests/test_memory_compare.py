@@ -5,7 +5,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from subprocess import CalledProcessError
 import textwrap
-from unittest.mock import call, patch
+from unittest.mock import call, mock_open, patch
 import memory_compare
 
 
@@ -233,15 +233,50 @@ class MemoryCompareTests(unittest.TestCase):
         self.assertIn("Failed to get kernel log output:", stderr.getvalue())
 
     @patch("memory_compare.open")
-    def test_kexec_crash_size_returns_size_when_crash_is_loaded(
-        self, mock_open
+    def test_kexec_crash_size_returns_zero_when_crash_is_not_loaded(
+        self, mock_builtin_open
     ):
-        mock_open.side_effect = [
-            unittest.mock.mock_open(read_data="2097152\n").return_value,
-            unittest.mock.mock_open(read_data="1\n").return_value,
-        ]
+        sysfs_values = {
+            "/sys/kernel/kexec_crash_loaded": "0\n",
+            "/sys/kernel/kexec_crash_size": "0\n",
+        }
+        mock_builtin_open.side_effect = lambda path, _: mock_open(
+            read_data=sysfs_values[path]
+        ).return_value
 
-        self.assertEqual(memory_compare.get_kexec_crash_size(), 2097152)
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            self.assertEqual(memory_compare.get_kexec_crash_size(), 0)
+
+        mock_builtin_open.assert_called_once_with(
+            "/sys/kernel/kexec_crash_loaded", "r"
+        )
+        self.assertIn("No kexec crash kernel loaded", stdout.getvalue())
+
+    @patch("memory_compare.open")
+    def test_kexec_crash_size_returns_size_when_crash_is_loaded(
+        self, mock_builtin_open
+    ):
+        sysfs_values = {
+            "/sys/kernel/kexec_crash_loaded": "1\n",
+            "/sys/kernel/kexec_crash_size": "2097152\n",
+        }
+        mock_builtin_open.side_effect = lambda path, _: mock_open(
+            read_data=sysfs_values[path]
+        ).return_value
+
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            self.assertEqual(memory_compare.get_kexec_crash_size(), 2097152)
+
+        self.assertEqual(
+            mock_builtin_open.call_args_list,
+            [
+                call("/sys/kernel/kexec_crash_loaded", "r"),
+                call("/sys/kernel/kexec_crash_size", "r"),
+            ],
+        )
+        self.assertIn("Detected kexec crash size: 2MiB", stdout.getvalue())
 
     @patch("memory_compare.open")
     def test_kexec_crash_size_returns_zero_when_sysfs_unavailable(

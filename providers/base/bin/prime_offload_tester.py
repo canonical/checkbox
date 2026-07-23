@@ -253,15 +253,19 @@ class PrimeOffloader:
             ):
                 raise SystemExit("System isn't on-demand mode")
 
-            # prime offload couldn't running on nvlink active or inactive
-            # Therefore, only return empty string is supported environment.
+            # Prime offload cannot run when NVLink is active or inactive.
+            allowed_outputs = [
+                "does not have or support nvlink",
+            ]
             nvlink = subprocess.check_output(
                 ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
             )
             if nvlink:
-                if "error" in nvlink.lower():
-                    raise SystemExit("nvidia driver error")
-                raise SystemExit("NVLINK detected")
+                nvlink_lower = nvlink.lower()
+                if not any(
+                    output in nvlink_lower for output in allowed_outputs
+                ):
+                    raise SystemExit("NVLINK detected")
         except FileNotFoundError:
             self.logger.info(
                 "No prime-select, it should be ok to run prime offload"

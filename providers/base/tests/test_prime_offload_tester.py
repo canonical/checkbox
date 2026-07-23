@@ -443,6 +443,18 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
         mock_check.side_effect = FileNotFoundError
         self.assertEqual(po.check_nv_offload_env(), None)
 
+    @patch("subprocess.check_output")
+    def test_nvlink_not_supported(self, mock_check):
+        po = PrimeOffloader()
+        mock_check.side_effect = [
+            "on-demand",
+            "GPU 0: NVIDIA JMJWOA-Generic-GPU "
+            "(UUID: GPU-483cccbe-9d80-0d7b-5c48-12e6c8696e50)\n"
+            "Device does not have or support Nvlink\n",
+        ]
+
+        self.assertIsNone(po.check_nv_offload_env())
+
 
 class CmdRunnerTests(unittest.TestCase):
     """

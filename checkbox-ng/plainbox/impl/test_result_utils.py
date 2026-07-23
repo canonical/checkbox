@@ -482,3 +482,9 @@ class PrettySkipReasonTests(unittest.TestCase):
         }
         with self.assertRaises(ValueError):
             pretty_skip_reason(skip_reason)
+
+    def test_none_raises_value_error(self):
+        # this is convenient because allows us to call the function
+        # unconditionally when a job wasn't skipped (so it has no skip reason)
+        with self.assertRaises(ValueError):
+            pretty_skip_reason(None)

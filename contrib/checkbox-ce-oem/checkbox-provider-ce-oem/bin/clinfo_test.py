@@ -35,6 +35,7 @@ import subprocess
 import sys
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, TypedDict
 
+from general_utils import load_json_file
 
 PLATFORM_PATTERN = re.compile(r"^\s*Platform\s+#(\d+):\s*(.+?)\s*$")
 DEVICE_PATTERN = re.compile(r"^\s*[`|]--\s*Device\s+#(\d+):\s*(.+?)\s*$")
@@ -211,27 +212,25 @@ def load_validation_set(
 ) -> Optional[ValidationSet]:
     """Load validation set from JSON if path is provided, use default otherwise."""
     if not validation_json_path:
+        logger.info(
+            "No validation JSON path provided, using default validation set"
+        )
         return dict(DEFAULT_VALIDATION_SET)
 
-    if not os.path.isfile(validation_json_path):
-        logger.error(
-            "validation json file not found: %s",
-            validation_json_path,
-        )
-        return None
+    logger.info("Loading validation set from specified JSON file")
+    data = load_json_file(validation_json_path, enable_loggder=True)
 
-    with open(validation_json_path, "r", encoding="utf-8") as file_obj:
-        data = json.load(file_obj)
-
+    # Check if the specific platform exist in the loaded data.
     platform_data = data.get(platform)
     if not isinstance(platform_data, dict):
-        logger.error("platform: '%s' not found in validation json", platform)
+        logger.error("platform: '%s' not found in validation json file", platform)
         return None
 
+    # Check if the specific device under the platform exists in the loaded data.
     device_data = platform_data.get(device)
     if not isinstance(device_data, dict):
         logger.error(
-            "device: '%s' not found in validation json", device
+            "device: '%s' not found in validation json file", device
         )
         return None
 
@@ -243,7 +242,7 @@ def load_validation_set(
 
     if not validation_set:
         logger.error(
-            "validation set is empty for %s / %s", platform, device
+            "validation set is empty for platform: '%s', device: '%s'", platform, device
         )
         return None
 

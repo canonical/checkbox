@@ -18,8 +18,8 @@ id: ce-oem-graphics/detect_opencl
 _summary: Detect OpenCL platform and device availability using clinfo
 _purpose:
     Check that at least one OpenCL platform and device are listed by clinfo.
-environ: CLINFO_EXECUTABLE
-command: clinfo_test.py detect -b "${CLINFO_EXECUTABLE:-clinfo}"
+environ: PLAINBOX_PROVIDER_DATA CLINFO_EXECUTABLE_JSON_FILE
+command: clinfo_test.py detect -cejp "${CLINFO_EXECUTABLE_JSON_FILE:-}"
 
 
 plugin: resource
@@ -28,9 +28,11 @@ id: opencl_clinfo_resource
 _summary: Collect OpenCL platform and device pairs from clinfo
 _purpose:
     Emit OpenCL platform and device records with an ignore flag for the _verification jobs.
-environ: CLINFO_EXECUTABLE CLINFO_IGNORE_PLATFORM_AND_DEVICE_LIST
+environ: PLAINBOX_PROVIDER_DATA CLINFO_EXECUTABLE_JSON_FILE CLINFO_VALIDATION_JSON_FILE
 command:
-    clinfo_test.py resource -b "${CLINFO_EXECUTABLE:-clinfo}" -i "${CLINFO_IGNORE_PLATFORM_AND_DEVICE_LIST:-}"
+    clinfo_test.py resource \
+      -cejp "${CLINFO_EXECUTABLE_JSON_FILE:-}" \
+      -vjp "${CLINFO_VALIDATION_JSON_FILE:-}"
 
 
 unit: template
@@ -49,9 +51,10 @@ _purpose:
 plugin: shell
 estimated_duration: 1s
 flags: also-after-suspend
-environ: CLINFO_EXECUTABLE CLINFO_VALIDATION_JSON_FILE
+environ: PLAINBOX_PROVIDER_DATA CLINFO_EXECUTABLE_JSON_FILE CLINFO_VALIDATION_JSON_FILE
 command:
-    clinfo_test.py test -b "${CLINFO_EXECUTABLE:-clinfo}" \
+    clinfo_test.py test \
+      -cejp "${CLINFO_EXECUTABLE_JSON_FILE:-}" \
       -vjp "${CLINFO_VALIDATION_JSON_FILE:-}" \
       -p "{{platform}}" -pn "{{platform_number}}" \
       -d "{{device}}" -dn "{{device_number}}"

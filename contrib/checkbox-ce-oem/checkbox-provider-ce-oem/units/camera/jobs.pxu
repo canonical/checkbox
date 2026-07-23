@@ -25,7 +25,7 @@ template-unit: job
 template-id: ce-oem-mipi-camera/capture-image-scenario
 template-filter:
     mipi_camera_resource.scenario == "capture_image"
-id: ce-oem-mipi-camera/capture-image_{{ camera }}_{{ physical_interface }}_{{ method }}_{{ width }}x{{ height }}_{{ format }}
+id: ce-oem-mipi-camera/capture-image_{{ name }}
 _template-summary: MIPI Camera Captures Image
 _summary: {{ camera }} captures {{ width }}x{{ height }} {{ format }} images via {{ method }}
 _description: Test {{ camera }} sensor on the {{ physical_interface }} slot can capture {{ width }}x{{ height }} {{ format }} images via {{ method }} method
@@ -39,9 +39,9 @@ imports:
     from com.canonical.plainbox import manifest
 requires:
     manifest.has_vendor_specific_mipi_camera == "True"
-environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
+environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH GST_LAUNCH_BIN MEDIA_CTL_CMD V4L2_CTL_CMD GST_PLUGIN_PATH GST_PLUGIN_SYSTEM_PATH GST_PLUGIN_SCANNER
 command:
-    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_device_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH"
+    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_device_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH"{% if mode is defined %} -md {{ mode }}{% endif %}{% if fps is defined %} -fps {{ fps }}{% endif %}
 
 unit: template
 template-engine: jinja2
@@ -50,7 +50,7 @@ template-unit: job
 template-id: ce-oem-mipi-camera/record-video-scenario
 template-filter:
     mipi_camera_resource.scenario == "record_video"
-id: ce-oem-mipi-camera/record-video_{{ camera }}_{{ physical_interface }}_{{ method }}_{{ width }}x{{ height }}@{{ fps }}fps_{{ format }}
+id: ce-oem-mipi-camera/record-video_{{ name }}
 _template-summary: MIPI Camera Records Video
 _summary: {{ camera }} records a {{ width }}x{{ height }}@{{ fps }}fps {{ format }} video via {{ method }}
 _description: Test {{ camera }} sensor on the {{ physical_interface }} slot can record {{ width }}x{{ height }}@{{ fps }}fps {{ format }} video via {{ method }} method
@@ -64,6 +64,6 @@ imports:
     from com.canonical.plainbox import manifest
 requires:
     manifest.has_vendor_specific_mipi_camera == "True"
-environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
+environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH GST_LAUNCH_BIN MEDIA_CTL_CMD V4L2_CTL_CMD GST_PLUGIN_PATH GST_PLUGIN_SYSTEM_PATH GST_PLUGIN_SCANNER
 command:
-    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_device_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH" -fps {{ fps }}
+    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_device_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH" -fps {{ fps }}{% if mode is defined %} -md {{ mode }}{% endif %}

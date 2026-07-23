@@ -123,16 +123,20 @@ def get_kexec_crash_size():
     kexec_crash_load_path = "/sys/kernel/kexec_crash_loaded"
     kexec_crash_size_path = "/sys/kernel/kexec_crash_size"
 
-    def read_sysfs(path):
-        try:
-            with open(path, "r") as f:
-                return int(f.read().strip())
-        except (FileNotFoundError, ValueError):
-            return 0
+    try:
+        with open(kexec_crash_load_path, "r") as f:
+            # kexec crash kernel is only loaded if kexec_crash_loaded = 1.
+            if f.read().strip() != "1":
+                print("No kexec crash kernel loaded")
+                return 0
+        with open(kexec_crash_size_path, "r") as f:
+            kexec_crash_size = HumanReadableBytes(int(f.read().strip()))
+    except (FileNotFoundError, ValueError):
+        print("No kexec crash size found")
+        return 0
 
-    return read_sysfs(kexec_crash_size_path) * read_sysfs(
-        kexec_crash_load_path
-    )
+    print("Detected kexec crash size: {}\n".format(kexec_crash_size))
+    return kexec_crash_size
 
 
 def get_adjusted_memory_difference(

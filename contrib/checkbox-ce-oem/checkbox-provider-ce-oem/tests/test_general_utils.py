@@ -54,7 +54,7 @@ class TestLoadJsonFile(unittest.TestCase):
             with patch.object(general_utils, "PLAINBOX_PROVIDER_DATA", ""):
                 with patch("general_utils.logging.warning") as mock_warning:
                     data = general_utils.load_json_file(
-                        bad_json_path, enable_loggder=True
+                        bad_json_path, enable_logger=True
                     )
 
             self.assertEqual(data, {})

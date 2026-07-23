@@ -5,16 +5,16 @@ import logging
 PLAINBOX_PROVIDER_DATA = os.getenv("PLAINBOX_PROVIDER_DATA", "")
 
 
-def load_json_file(json_file_path: str, enable_loggder: bool = False) -> dict:
+def load_json_file(json_file_path: str, enable_logger: bool = False) -> dict:
     """Load a JSON file, preferring the provider data directory if set."""
     def _load(path: str):
         try:
-            if enable_loggder:
+            if enable_logger:
                 logging.info(f"Attempting to load JSON file: {path}")
             with open(path, "r", encoding="utf-8") as file_obj:
                 return json.load(file_obj)
         except (FileNotFoundError, PermissionError, json.JSONDecodeError, OSError):
-            if enable_loggder:
+            if enable_logger:
                 logging.warning(f"Failed to load JSON file: {path}")
             return None
 

@@ -20,28 +20,35 @@
 """OpenCL clinfo helper for CE OEM graphics jobs.
 
 Subcommands:
-  detect    Verify clinfo exists and that at least one platform/device exists.
+  detect    Verify clinfo exists and that at least one platform/device pair
+            is listed. Use -cejp to point to a JSON file describing a custom
+            clinfo executable (e.g. a snap build); omit for system clinfo.
   resource  Emit platform/device records for Checkbox resource jobs.
-  test      Placeholder validation command (currently same detection baseline).
+            Use -vjp to point to a JSON file whose 'ignored_set' lists
+            platform/device pairs that should be skipped.
+  test      Validate OpenCL device properties against a baseline set.
+            Use -vjp to point to a JSON file whose 'customized_validation_set'
+            extends the default properties for specific platform/device pairs.
 """
 
 import argparse
-import json
 import logging
 import os
 import re
 import shutil
 import subprocess
 import sys
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, TypedDict
+from typing import Dict, List, Optional, Set, Tuple, TypedDict
 
-from general_utils import load_json_file
+from general_utils import build_command, load_json_file
 
 PLATFORM_PATTERN = re.compile(r"^\s*Platform\s+#(\d+):\s*(.+?)\s*$")
 DEVICE_PATTERN = re.compile(r"^\s*[`|]--\s*Device\s+#(\d+):\s*(.+?)\s*$")
-PAIR_PATTERN = re.compile(r"['\"]([^'\"]+)['\"]\s*:\s*['\"]([^'\"]+)['\"]")
 PROP_PATTERN_TEMPLATE = r"\b{}\b\s+(.+?)\s*$"
 
+# Default validation set for OpenCL device properties. This can be extended
+# or overridden by a JSON file with 'customized_validation_set' for specific
+# platform/device pairs.
 DEFAULT_VALIDATION_SET = {
     "CL_DEVICE_AVAILABLE": "CL_TRUE",
     "CL_DEVICE_COMPILER_AVAILABLE": "CL_TRUE",
@@ -67,30 +74,55 @@ class ClinfoRecord(TypedDict):
 ValidationSet = Dict[str, str]
 
 
-def resolve_binary(binary_name: str) -> str:
-    """Resolve a binary path from explicit path or PATH lookup."""
-    if os.path.sep in binary_name:
-        if os.path.isfile(binary_name) and os.access(binary_name, os.X_OK):
-            return binary_name
-        binary_path = None
+def _resolve_clinfo_command(
+    clinfo_executable_json_path: str,
+    enable_logger: bool = False
+) -> Optional[str]:
+    """Resolve clinfo command from JSON config or system PATH.
+    
+    Returns:
+        Command string if successful, None if failed.
+    """
+    if clinfo_executable_json_path:
+        data = load_json_file(clinfo_executable_json_path, enable_logger=enable_logger)
+        executable_config = data.get("executable")
+        if not isinstance(executable_config, dict):
+            logger.error(
+                "No valid 'executable' key in: %s",
+                clinfo_executable_json_path,
+            )
+            return None
+        try:
+            command = build_command(executable_config, enable_logger=enable_logger)
+            return command
+        except (TypeError, ValueError) as exc:
+            logger.error("Failed to build clinfo command: %s", exc)
+            return None
     else:
-        binary_path = shutil.which(binary_name)
-
-    if binary_path is None:
-        logger.error("clinfo binary not found: %s", binary_name)
-        raise FileNotFoundError(binary_name)
-
-    return binary_path
+        binary = shutil.which("clinfo")
+        if binary is None:
+            logger.error("clinfo binary not found in PATH")
+            return None
+        return binary
 
 
-def run_clinfo(
-    binary_path: str,
-    args: Sequence[str],
-    capture_output: bool = False,
+def _run_clinfo_command(
+    command: str,
+    capture_output: bool = True,
 ) -> subprocess.CompletedProcess:
-    """Run clinfo and return a CompletedProcess object."""
+    """Run a clinfo command with common subprocess options.
+    
+    Args:
+        command: Shell command string to execute.
+        capture_output: Whether to capture stdout and stderr.
+    
+    Returns:
+        CompletedProcess with return code and captured output.
+    """
+    logger.debug("Running command: %s", command)
     return subprocess.run(
-        [binary_path, *args],
+        command,
+        shell=True,
         check=False,
         text=True,
         capture_output=capture_output,
@@ -128,69 +160,24 @@ def parse_clinfo_list_output(output: str) -> List[ClinfoRecord]:
     return records
 
 
-def parse_json_pairs(payload: str) -> Set[Tuple[str, str]]:
-    """Parse ignore pairs from JSON string or object."""
-    parsed: Any = json.loads(payload)
-    ignored: Set[Tuple[str, str]] = set()
+def parse_ignored_set(
+    validation_json_path: str,
+) -> Set[Tuple[str, str]]:
+    """Load ignored platform/device pairs from 'ignored_set' in a JSON file."""
+    if not validation_json_path:
+        return set()
 
-    if isinstance(parsed, dict):
-        for platform, devices in parsed.items():
-            if isinstance(platform, str) and isinstance(devices, str):
-                ignored.add((platform, devices))
-            elif isinstance(platform, str) and isinstance(devices, list):
+    data = load_json_file(validation_json_path)
+    ignored_set_data = data.get("ignored_set", {})
+    logger.debug("Loaded ignored_set data: %s", ignored_set_data)
+    pairs: Set[Tuple[str, str]] = set()
+    if isinstance(ignored_set_data, dict):
+        for platform, devices in ignored_set_data.items():
+            if isinstance(devices, list):
                 for device in devices:
                     if isinstance(device, str):
-                        ignored.add((platform, device))
-        return ignored
-
-    if isinstance(parsed, list):
-        for item in parsed:
-            if not isinstance(item, dict):
-                continue
-            platform = item.get("platform")
-            device = item.get("device")
-            if isinstance(platform, str) and isinstance(device, str):
-                ignored.add((platform, device))
-        return ignored
-
-    return ignored
-
-
-def parse_ignore_spec(spec: str) -> Set[Tuple[str, str]]:
-    """Parse ignore spec from raw pairs, json text, or JSON file path."""
-    if not spec or not spec.strip():
-        return set()
-
-    raw_spec = spec.strip()
-    if os.path.isfile(raw_spec):
-        with open(raw_spec, "r", encoding="utf-8") as file_obj:
-            raw_spec = file_obj.read().strip()
-
-    if not raw_spec:
-        return set()
-
-    ignored_pairs: Set[Tuple[str, str]] = set()
-    try:
-        ignored_pairs |= parse_json_pairs(raw_spec)
-    except (json.JSONDecodeError, TypeError):
-        pass
-
-    for platform, device in PAIR_PATTERN.findall(raw_spec):
-        ignored_pairs.add((platform, device))
-
-    if ignored_pairs:
-        return ignored_pairs
-
-    for part in raw_spec.split(","):
-        if ":" not in part:
-            continue
-        platform, device = part.split(":", 1)
-        platform = platform.strip(" ' \"")
-        device = device.strip(" ' \"")
-        if platform and device:
-            ignored_pairs.add((platform, device))
-
-    return ignored_pairs
+                        pairs.add((platform, device))
+    return pairs
 
 
 def parse_property_value(output: str, property_name: str) -> Optional[str]:
@@ -209,57 +196,58 @@ def load_validation_set(
     validation_json_path: str,
     platform: str,
     device: str,
-) -> Optional[ValidationSet]:
-    """Load validation set from JSON if path is provided, use default otherwise."""
+) -> ValidationSet:
+    """Load validation set; extends defaults with customized_validation_set."""
+    validation_set: ValidationSet = dict(DEFAULT_VALIDATION_SET)
+
     if not validation_json_path:
         logger.info(
             "No validation JSON path provided, using default validation set"
         )
-        return dict(DEFAULT_VALIDATION_SET)
+        return validation_set
 
-    logger.info("Loading validation set from specified JSON file")
     data = load_json_file(validation_json_path, enable_logger=True)
+    customized = data.get("customized_validation_set", {})
 
-    # Check if the specific platform exist in the loaded data.
-    platform_data = data.get(platform)
+    if not isinstance(customized, dict):
+        return validation_set
+
+    platform_data = customized.get(platform)
     if not isinstance(platform_data, dict):
-        logger.error("platform: '%s' not found in validation json file", platform)
-        return None
+        logger.info(
+            "No customized validation set for platform: '%s', using defaults",
+            platform,
+        )
+        return validation_set
 
-    # Check if the specific device under the platform exists in the loaded data.
     device_data = platform_data.get(device)
     if not isinstance(device_data, dict):
-        logger.error(
-            "device: '%s' not found in validation json file", device
+        logger.info(
+            "No customized validation set for device: '%s', using defaults",
+            device,
         )
-        return None
+        return validation_set
 
-    validation_set: ValidationSet = {}
     for key, value in device_data.items():
-        if not isinstance(key, str):
-            continue
-        validation_set[key] = value if isinstance(value, str) else str(value)
-
-    if not validation_set:
-        logger.error(
-            "validation set is empty for platform: '%s', device: '%s'", platform, device
-        )
-        return None
+        if isinstance(key, str):
+            validation_set[key] = (
+                value if isinstance(value, str) else str(value)
+            )
 
     return validation_set
 
 
-def cmd_detect(binary: str) -> int:
-    binary_path = resolve_binary(binary)
+def cmd_detect(clinfo_executable_json_path: str) -> int:
+    command = _resolve_clinfo_command(clinfo_executable_json_path)
+    if command is None:
+        return 1
 
-    version_result = run_clinfo(binary_path, ["-v"])
+    version_result = _run_clinfo_command(command + " -v", capture_output=False)
     if version_result.returncode != 0:
-        logger.error(
-            "Unable to query clinfo version using %s", binary_path
-        )
+        logger.error("Unable to query clinfo version")
         return version_result.returncode
 
-    list_result = run_clinfo(binary_path, ["-l"], capture_output=True)
+    list_result = _run_clinfo_command(command + " -l")
     if list_result.returncode != 0:
         if list_result.stderr:
             logger.error(list_result.stderr.rstrip())
@@ -292,17 +280,22 @@ def cmd_detect(binary: str) -> int:
     return 0
 
 
-def cmd_resource(binary: str, ignore: str) -> int:
-    binary_path = resolve_binary(binary)
+def cmd_resource(
+    clinfo_executable_json_path: str,
+    validation_json_path: str,
+) -> int:
+    command = _resolve_clinfo_command(clinfo_executable_json_path)
+    if command is None:
+        return 1
 
-    list_result = run_clinfo(binary_path, ["-l"], capture_output=True)
+    list_result = _run_clinfo_command(command + " -l")
     if list_result.returncode != 0:
         if list_result.stderr:
             logger.error(list_result.stderr.rstrip())
         return list_result.returncode
 
     records = parse_clinfo_list_output(list_result.stdout)
-    ignored_pairs = parse_ignore_spec(ignore)
+    ignored_pairs = parse_ignored_set(validation_json_path)
 
     for record in records:
         is_ignored = (record["platform"], record["device"]) in ignored_pairs
@@ -317,7 +310,7 @@ def cmd_resource(binary: str, ignore: str) -> int:
 
 
 def cmd_test(
-    binary: str,
+    clinfo_executable_json_path: str,
     validation_json_path: str,
     platform: str,
     platform_number: int,
@@ -325,15 +318,15 @@ def cmd_test(
     device_number: int,
 ) -> int:
     """Validate selected OpenCL device properties."""
-    binary_path = resolve_binary(binary)
+    command = _resolve_clinfo_command(clinfo_executable_json_path)
+    if command is None:
+        return 1
 
     validation_set = load_validation_set(
         validation_json_path,
         platform,
         device,
     )
-    if validation_set is None:
-        return 1
 
     logger.info(
         "Validating OpenCL properties for platform: '%s', device: '%s'",
@@ -344,10 +337,8 @@ def cmd_test(
     validated_properties = []
     mismatches = []
     for prop_name, expected_value in validation_set.items():
-        prop_result = run_clinfo(
-            binary_path,
-            ["-d", target, "--prop", prop_name],
-            capture_output=True,
+        prop_result = _run_clinfo_command(
+            "{} -d {} --prop {}".format(command, target, prop_name)
         )
         if prop_result.returncode != 0:
             error_text = prop_result.stderr.strip() or prop_result.stdout.strip()
@@ -404,10 +395,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     common_parser = argparse.ArgumentParser(add_help=False)
     common_parser.add_argument(
-        "-b",
-        "--binary",
-        default="clinfo",
-        help="clinfo executable path or command name",
+        "-cejp",
+        "--clinfo-executable-json-path",
+        default="",
+        help="path to JSON file describing the customized clinfo executable",
+    )
+    common_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="enable debug logging",
     )
 
     subparsers.add_parser("detect", parents=[common_parser])
@@ -416,10 +412,10 @@ def build_parser() -> argparse.ArgumentParser:
         "resource", parents=[common_parser]
     )
     resource_parser.add_argument(
-        "-i",
-        "--ignore",
+        "-vjp",
+        "--validation-json-path",
         default="",
-        help="ignored platform/device pairs or path to JSON file",
+        help="path to validation JSON file (reads ignored_set)",
     )
 
     test_parser = subparsers.add_parser("test", parents=[common_parser])
@@ -427,7 +423,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-vjp",
         "--validation-json-path",
         default="",
-        help="path to validation json file",
+        help="path to validation JSON file (reads customized_validation_set)",
     )
     test_parser.add_argument(
         "-p",
@@ -461,13 +457,19 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+
     if args.action == "detect":
-        return cmd_detect(args.binary)
+        return cmd_detect(args.clinfo_executable_json_path)
     if args.action == "resource":
-        return cmd_resource(args.binary, args.ignore)
+        return cmd_resource(
+            args.clinfo_executable_json_path,
+            args.validation_json_path,
+        )
     if args.action == "test":
         return cmd_test(
-            args.binary,
+            args.clinfo_executable_json_path,
             args.validation_json_path,
             args.platform,
             args.platform_number,

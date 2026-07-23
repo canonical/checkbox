@@ -385,7 +385,6 @@ def cmd_test(
             logger.info("\t%s", validated_property)
 
     if mismatches:
-
         logger.error("Failed OpenCL properties:")
         for mismatch in mismatches:
             logger.error("\t%s", mismatch)
@@ -440,7 +439,6 @@ def build_parser() -> argparse.ArgumentParser:
         "-pn",
         "--platform-number",
         required=True,
-        type=int,
         help="OpenCL platform number",
     )
     test_parser.add_argument(
@@ -453,7 +451,6 @@ def build_parser() -> argparse.ArgumentParser:
         "-dn",
         "--device-number",
         required=True,
-        type=int,
         help="OpenCL device number",
     )
 

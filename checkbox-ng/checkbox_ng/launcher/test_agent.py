@@ -26,7 +26,6 @@ from checkbox_ng.launcher.agent import RemoteAgent
 @mock.patch("checkbox_ng.launcher.agent._logger")
 @mock.patch("checkbox_ng.launcher.agent.is_passwordless_sudo")
 @mock.patch("checkbox_ng.launcher.agent.SessionAssistantAgent")
-@mock.patch("checkbox_ng.launcher.agent.RemoteDebRestartStrategy")
 @mock.patch("checkbox_ng.launcher.agent.RemoteSessionAssistant")
 @mock.patch("checkbox_ng.launcher.agent.ThreadedServer")
 @mock.patch("os.geteuid")
@@ -39,7 +38,6 @@ class AgentTests(TestCase):
         geteuid_mock,
         threaded_server_mock,
         remote_assistant_mock,
-        remote_strategy_mock,
         session_assistant_mock,
         pwdless_sudo_mock,
         logger_mock,
@@ -70,7 +68,6 @@ class AgentTests(TestCase):
         geteuid_mock,
         threaded_server_mock,
         remote_assistant_mock,
-        remote_strategy_mock,
         session_assistant_mock,
         pwdless_sudo_mock,
         logger_mock,
@@ -101,7 +98,6 @@ class AgentTests(TestCase):
         geteuid_mock,
         threaded_server_mock,
         remote_assistant_mock,
-        remote_strategy_mock,
         sa_mock,
         pwdless_sudo_mock,
         logger_mock,

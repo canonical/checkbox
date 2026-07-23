@@ -19,6 +19,8 @@
 
 """Support code for enforcing usage expectations on public API."""
 
+from collections import deque
+
 __all__ = ("UsageExpectation",)
 
 MODIFICATION_HISTORY = 5
@@ -128,8 +130,7 @@ class UsageExpectation:
         """
         self.cls = cls
         self._allowed_calls = {}
-        self._last_modifications = [None] * MODIFICATION_HISTORY
-        self._last_modifications_i = 0
+        self.history = deque([], maxlen=MODIFICATION_HISTORY)
 
     def allow(self, current_function, function, reason):
         self._allowed_calls[function.__name__] = reason
@@ -150,20 +151,12 @@ class UsageExpectation:
         self._modified(current_function)
 
     def _modified(self, current_function):
-        self._last_modifications[self._last_modifications_i] = "{}.{}".format(
-            current_function.__self__.__class__.__name__,
-            current_function.__name__,
+        self.history.append(
+            "{}.{}".format(
+                current_function.__self__.__class__.__name__,
+                current_function.__name__,
+            )
         )
-        self._last_modifications_i += 1
-        self._last_modifications_i %= len(self._last_modifications)
-
-    @property
-    def history(self):
-        history = [
-            self._last_modifications[self._last_modifications_i - i]
-            for i, _ in enumerate(self._last_modifications)
-        ]
-        return [h for h in reversed(history) if h is not None]
 
     def enforce(self, current_function):
         """

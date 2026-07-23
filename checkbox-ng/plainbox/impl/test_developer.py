@@ -48,6 +48,31 @@ class UsageExpectationTests(unittest.TestCase):
         self.assertIs(ue2, UsageExpectation.of(foo2))
         self.assertIsNot(ue1, ue2)
 
+    def test_add_remove(self):
+        foo = _Foo()
+        ue = UsageExpectation.of(foo)
+        ue.allow(foo.m1, foo.m1, "some motivation")
+        foo.m1()
+        with self.assertRaises(UnexpectedMethodCall):
+            foo.m2()
+        ue.disallow(foo.m1, foo.m1)
+        with self.assertRaises(UnexpectedMethodCall):
+            foo.m1()
+        ue.allow(foo.m2, foo.m2, "some other motivation")
+        foo.m2()
+        # m1 allowed, then m1 disallowed them m2 allowed
+        self.assertEqual(list(ue.history), ["_Foo.m1", "_Foo.m1", "_Foo.m2"])
+
+    def test_add_not_clear(self):
+        foo = _Foo()
+        ue = UsageExpectation.of(foo)
+        ue.allow(foo.m2, foo.m2, "some")
+        UsageExpectation.of(foo).allow_all(
+            foo.m1, {foo.m1: "call m1 now"}, clear=False
+        )
+        foo.m1()
+        foo.m2()
+
     def test_enforce(self):
         """Check that .enforce() works and produces useful messages."""
         foo = _Foo()

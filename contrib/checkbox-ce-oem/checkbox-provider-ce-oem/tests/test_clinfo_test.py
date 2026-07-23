@@ -274,6 +274,54 @@ class TestClinfoTest(unittest.TestCase):
 
         self.assertIsNone(result)
 
+    @patch("clinfo_test.load_json_file")
+    def test_load_validation_set_uses_general_utils_loader(self, mock_loader):
+        mock_loader.return_value = {
+            "ARM Platform": {
+                "Mali-G57 r0p1": {
+                    "CL_DEVICE_AVAILABLE": "CL_TRUE",
+                    "CL_DEVICE_MAX_COMPUTE_UNITS": 2,
+                }
+            }
+        }
+
+        result = clinfo_test.load_validation_set(
+            validation_json_path="/tmp/validation.json",
+            platform="ARM Platform",
+            device="Mali-G57 r0p1",
+        )
+
+        mock_loader.assert_called_once_with(
+            "/tmp/validation.json", enable_loggder=True
+        )
+        self.assertEqual(
+            result,
+            {
+                "CL_DEVICE_AVAILABLE": "CL_TRUE",
+                "CL_DEVICE_MAX_COMPUTE_UNITS": "2",
+            },
+        )
+
+    @patch("clinfo_test.load_json_file")
+    def test_load_validation_set_returns_none_when_device_missing(
+        self, mock_loader
+    ):
+        mock_loader.return_value = {
+            "ARM Platform": {
+                "Other Device": {
+                    "CL_DEVICE_AVAILABLE": "CL_TRUE",
+                }
+            }
+        }
+
+        result = clinfo_test.load_validation_set(
+            validation_json_path="/tmp/validation.json",
+            platform="ARM Platform",
+            device="Mali-G57 r0p1",
+        )
+
+        self.assertIsNone(result)
+
     def test_parse_property_value(self):
         output = (
             "[ARM/0]    CL_DEVICE_AVAILABLE                             "

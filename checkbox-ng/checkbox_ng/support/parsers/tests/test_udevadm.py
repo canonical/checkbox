@@ -1466,6 +1466,22 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "PARTITION"), 1)
         self.assertEqual(self.count(devices, "DISK"), 1)
 
+    def test_physical_cdrom_not_ignored_with_iso9660_disc(self):
+        """
+        Physical CDROM drives must NOT be ignored even when the inserted disc
+        uses an iso9660 filesystem or is smaller than 100 MiB.
+
+        Regression test: PR #2154 introduced is_readonly_partition() and
+        is_small_partition() to filter out Recovery USB partitions, but did
+        not exempt CDROM devices. This caused physical optical drives with
+        an iso9660 disc to be silently dropped from the device list.
+        """
+        devices = self.parse(
+            "HP_DVDRW_WITH_ISO9660_DISC",
+            with_lsblk=True,
+        )
+        self.assertEqual(self.count(devices, "CDROM"), 1)
+
     def test_VRAID_machine(self):
         """
         The machine with VRAID will have the different _stack length.

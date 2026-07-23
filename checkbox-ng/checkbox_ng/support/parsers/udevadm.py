@@ -1328,13 +1328,16 @@ class UdevadmParser(object):
         if device.major == "94":
             return False
 
-        # Ignore partitions that are either readonly or too small, because
-        # these fail the removable storage tests.
-        if is_readonly_partition(device.name, self.lsblk):
-            return True
+        # Ignore block devices (typically partitions) that are either readonly or
+        # too small (<= 100 MiB), because these fail the removable storage tests.
+        # CDROM devices are exempt: optical media are expected to be readonly and
+        # may legitimately be smaller than 100 MiB.
+        if device.category != "CDROM":
+            if is_readonly_partition(device.name, self.lsblk):
+                return True
 
-        if is_small_partition(device.name, self.lsblk):
-            return True
+            if is_small_partition(device.name, self.lsblk):
+                return True
 
         # Keep /dev/mapper devices (non swap)
         if "/dev/mapper" in device._environment.get("DEVLINKS", ""):

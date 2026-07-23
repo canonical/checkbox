@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2026 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -20,26 +21,16 @@
 
 import unittest
 
-from plainbox.impl.developer import DeveloperError
-from plainbox.impl.developer import UnexpectedMethodCall
-from plainbox.impl.developer import UsageExpectation
+from plainbox.impl.developer import UnexpectedMethodCall, UsageExpectation
 
 
 class _Foo:
 
     def m1(self):
-        UsageExpectation.of(self).enforce()
+        UsageExpectation.of(self).enforce(self.m1)
 
     def m2(self):
-        UsageExpectation.of(self).enforce()
-
-
-class UnexpectedMethodCallTests(unittest.TestCase):
-    """Tests for the UnexpectedMethodCall class."""
-
-    def test_ancestry(self):
-        """Check that UnexpectedMethodCall is a subclass of DeveloperError."""
-        self.assertTrue(issubclass(UnexpectedMethodCall, DeveloperError))
+        UsageExpectation.of(self).enforce(self.m2)
 
 
 class UsageExpectationTests(unittest.TestCase):
@@ -60,7 +51,9 @@ class UsageExpectationTests(unittest.TestCase):
     def test_enforce(self):
         """Check that .enforce() works and produces useful messages."""
         foo = _Foo()
-        UsageExpectation.of(foo).allowed_calls = {foo.m1: "call m1 now"}
+        UsageExpectation.of(foo).allow_all(
+            foo.m1, {foo.m1: "call m1 now"}, clear=True
+        )
         # Nothing should happen here
         foo.m1()
         # Exception should be raised here
@@ -71,17 +64,16 @@ class UsageExpectationTests(unittest.TestCase):
             """
 Uh, oh...
 
-You are not expected to call _Foo.m2() at this time.
+If you see this message then there is a bug somewhere in Checkbox. We are
+sorry for this. Please report this to us.
 
-If you see this message then there is a bug somewhere in your code. We are
-sorry for this. Perhaps the documentation is flawed, incomplete or confusing.
-Please reach out to us if  this happens more often than you'd like.
-
+You are not expected to call _Foo.m2 at this time.
 The set of allowed calls, at this time, is:
 
  - call _Foo.m1() to call m1 now.
 
-Refer to the documentation of _Foo for details.
-    TIP: python -m pydoc plainbox.impl.test_developer._Foo
+The last 5 modifications were done by (most recent last):
+
+ - _Foo.m1
 """,
         )

@@ -940,7 +940,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                 skip_reason_str = pretty_skip_reason(skip_reason)
                 SimpleUI.yellow_text(skip_reason_str)
             except ValueError:
-                pass  # unable to pretty print skip reason
+                # unable to pretty print skip reason, it may be that the job
+                # wasnt skipped at all!
+                pass
 
         SimpleUI.horiz_line()
         job_result = self.sa.finish_job(result)

@@ -37,6 +37,7 @@ def pretty_skip_reason(skip_reason):
 
     This takes into consideration precedence
     """
+    skip_reason = skip_reason or {}
     if skip_reason.get("related_manifests"):
         return (
             "Job cannot be started because of unmet manifest:\n- "

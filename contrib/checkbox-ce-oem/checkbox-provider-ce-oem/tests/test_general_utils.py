@@ -21,7 +21,9 @@ class TestLoadJsonFile(unittest.TestCase):
             with open(full_path, "w", encoding="utf-8") as file_obj:
                 json.dump(payload, file_obj)
 
-            with patch.object(general_utils, "PLAINBOX_PROVIDER_DATA", provider_dir):
+            with patch.object(
+                general_utils, "PLAINBOX_PROVIDER_DATA", provider_dir
+            ):
                 data = general_utils.load_json_file(rel_path)
 
             self.assertEqual(data, payload)
@@ -34,7 +36,9 @@ class TestLoadJsonFile(unittest.TestCase):
             with open(abs_path, "w", encoding="utf-8") as file_obj:
                 json.dump(payload, file_obj)
 
-            with patch.object(general_utils, "PLAINBOX_PROVIDER_DATA", "/tmp/provider"):
+            with patch.object(
+                general_utils, "PLAINBOX_PROVIDER_DATA", "/tmp/provider"
+            ):
                 data = general_utils.load_json_file(abs_path)
 
             self.assertEqual(data, payload)
@@ -46,7 +50,9 @@ class TestLoadJsonFile(unittest.TestCase):
         self.assertEqual(data, {})
 
     def test_load_json_file_returns_empty_dict_and_logs_on_invalid_json(self):
-        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", delete=False
+        ) as temp_file:
             temp_file.write("{invalid json")
             bad_json_path = temp_file.name
 

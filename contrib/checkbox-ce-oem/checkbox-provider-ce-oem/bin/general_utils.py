@@ -7,13 +7,19 @@ PLAINBOX_PROVIDER_DATA = os.getenv("PLAINBOX_PROVIDER_DATA", "")
 
 def load_json_file(json_file_path: str, enable_logger: bool = False) -> dict:
     """Load a JSON file, preferring the provider data directory if set."""
+
     def _load(path: str):
         try:
             if enable_logger:
                 logging.info(f"Attempting to load JSON file: {path}")
             with open(path, "r", encoding="utf-8") as file_obj:
                 return json.load(file_obj)
-        except (FileNotFoundError, PermissionError, json.JSONDecodeError, OSError):
+        except (
+            FileNotFoundError,
+            PermissionError,
+            json.JSONDecodeError,
+            OSError,
+        ):
             if enable_logger:
                 logging.warning(f"Failed to load JSON file: {path}")
             return None
@@ -32,34 +38,34 @@ def load_json_file(json_file_path: str, enable_logger: bool = False) -> dict:
 
 def build_command(config: dict, enable_logger: bool = False) -> str:
     """
-        A handy utility function to construct a command string with environment variables and library paths.
-    
-        Example 1:
-            
-            config = {
-                "bin": "snap.foo.bar",
-                "lib_paths": ["/path/to/lib1", "/path/to/lib2"],
-                "env": {
-                    "VAR1": "value1",
-                    "VAR2": "value2"
-                }
+    A handy utility function to construct a command string with environment variables and library paths.
+
+    Example 1:
+
+        config = {
+            "bin": "snap.foo.bar",
+            "lib_paths": ["/path/to/lib1", "/path/to/lib2"],
+            "env": {
+                "VAR1": "value1",
+                "VAR2": "value2"
             }
+        }
 
-            You will get the command string as follows:
-                'LD_LIBRARY_PATH="/path/to/lib1:/path/to/lib2:$LD_LIBRARY_PATH" VAR1="value1" VAR2="value2" snap.'
+        You will get the command string as follows:
+            'LD_LIBRARY_PATH="/path/to/lib1:/path/to/lib2:$LD_LIBRARY_PATH" VAR1="value1" VAR2="value2" snap.'
 
-        Example 2:
+    Example 2:
 
-            config = {
-                "bin": "foo.bar",
-                "lib_paths": [],
-                "env": {
-                    "VAR1": "value1"
-                }
+        config = {
+            "bin": "foo.bar",
+            "lib_paths": [],
+            "env": {
+                "VAR1": "value1"
             }
+        }
 
-            You will get the command string as follows:
-                'VAR1="value1" foo.bar'
+        You will get the command string as follows:
+            'VAR1="value1" foo.bar'
     """
     if not isinstance(config, dict):
         raise TypeError("config must be a dictionary")
@@ -93,4 +99,3 @@ def build_command(config: dict, enable_logger: bool = False) -> str:
         logging.info(f"Constructed command: {cmd}")
 
     return cmd
-    

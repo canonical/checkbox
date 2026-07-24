@@ -103,3 +103,15 @@ include:
   - failing_job
   - skipped_by_dependency
   - skipped_by_manifest
+---
+unit: test plan
+id: xfail_testplan
+name: Test plan to test xfail tests
+include:
+  - xfailing_job_failing
+  - xfailing_job_passing
+  - failing_job:
+      xfail: true
+  - basic-shell-failing
+xfail_overrides:
+  apply true to basic-shell-failing

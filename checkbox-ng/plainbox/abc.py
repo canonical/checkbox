@@ -200,6 +200,11 @@ class IJobResult(metaclass=ABCMeta):
     # button.
     OUTCOME_PASS = "pass"
     OUTCOME_FAIL = "fail"
+    # The outcome xfail_pass and xfail_fail are used to separate legitimate
+    # pass OUTCOME_PASS from "fake" pass OUTCOME_XFAIL_PASS and normal failures
+    # OUTCOME_FAIL from miracles
+    OUTCOME_XFAIL_PASS = "xfail_pass"
+    OUTCOME_XFAIL_FAIL = "xfail_fail"
     # The skip outcome is used when the operator selected a job but then
     # skipped it. This is typically used for a manual job that is tedious or
     # was selected by accident.

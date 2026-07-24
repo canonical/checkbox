@@ -436,6 +436,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.get_record_value("auto-retry", "unspecified")
 
+    @cached_property
+    def xfail(self):
+        """
+        Whether this job is expected to fail.
+
+        When set to true, a failure of this job is considered expected
+        and should not be treated as an error. The default value is
+        false.
+        """
+        # str is backward compatibility for pxus
+        value = str(self.get_record_value("xfail", "false"))
+        return value.lower() == "true"
+
     @propertywithsymbols(symbols=_CertificationStatusValues)
     def certification_status(self):
         """
@@ -759,7 +772,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
         )
 
     class Meta:
-
         name = N_("job")
 
         class fields(SymbolDef):
@@ -791,6 +803,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             certification_status = "certification_status"
             siblings = "siblings"
             auto_retry = "auto_retry"
+            xfail = "xfail"
 
         field_validators = {
             fields.name: [
@@ -833,8 +846,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated,
                     Severity.advice,
                     message=_(
-                        "please use PLAINBOX_PROVIDER_DATA"
-                        " instead of CHECKBOX_SHARE"
+                        "please use PLAINBOX_PROVIDER_DATA instead of CHECKBOX_SHARE"
                     ),
                     onlyif=lambda unit: unit.command is not None,
                 ),
@@ -844,8 +856,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated,
                     Severity.advice,
                     message=_(
-                        "please use PLAINBOX_SESSION_SHARE"
-                        " instead of CHECKBOX_DATA"
+                        "please use PLAINBOX_SESSION_SHARE instead of CHECKBOX_DATA"
                     ),
                     onlyif=lambda unit: unit.command is not None,
                 ),
@@ -861,10 +872,12 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         " set of purpose, steps, and verification "
                         "fields"
                     ),
-                    onlyif=lambda unit: unit.plugin == "manual"
-                    and unit.purpose is None
-                    and unit.steps is None
-                    and unit.verification is None,
+                    onlyif=lambda unit: (
+                        unit.plugin == "manual"
+                        and unit.purpose is None
+                        and unit.steps is None
+                        and unit.verification is None
+                    ),
                 ),
                 # Description or a set of purpose, steps and verification
                 # fields is recommended for all other jobs
@@ -900,16 +913,15 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 CorrectFieldValueValidator(
                     lambda duration: float(duration) > 0,
                     message="value must be a positive number",
-                    onlyif=lambda unit: (
-                        unit.get_record_value("estimated_duration")
+                    onlyif=lambda unit: unit.get_record_value(
+                        "estimated_duration"
                     ),
                 ),
             ],
             fields.depends: [
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        unit.get_direct_dependencies() is not None
-                    )
+                    lambda value, unit: unit.get_direct_dependencies()
+                    is not None
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_direct_dependencies(),
@@ -928,9 +940,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             fields.after: [
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        unit.get_after_dependencies() is not None
-                    )
+                    lambda value, unit: unit.get_after_dependencies()
+                    is not None
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_after_dependencies(),
@@ -947,9 +958,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             fields.before: [
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        unit.get_before_dependencies() is not None
-                    )
+                    lambda value, unit: unit.get_before_dependencies()
+                    is not None
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_before_dependencies(),
@@ -978,12 +988,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
                             message=_("the referenced unit is not a job"),
                         ),
                         ReferenceConstraint(
-                            lambda referrer, referee: (
-                                referee.plugin == "resource"
-                            ),
-                            onlyif=lambda referrer, referee: (
-                                referee.unit == "job"
-                            ),
+                            lambda referrer, referee: referee.plugin
+                            == "resource",
+                            onlyif=lambda referrer, referee: referee.unit
+                            == "job",
                             message=_(
                                 "the referenced job is not a resource job"
                             ),
@@ -1007,9 +1015,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.imports: [
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        list(unit.get_imported_jobs()) is not None
-                    )
+                    lambda value, unit: list(unit.get_imported_jobs())
+                    is not None
                 ),
                 UnitReferenceValidator(
                     lambda unit: [
@@ -1037,9 +1044,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     ),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: (
-                                referee.unit == "category"
-                            ),
+                            lambda referrer, referee: referee.unit
+                            == "category",
                             message=_("the referenced unit is not a category"),
                         )
                     ],
@@ -1100,11 +1106,33 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.templateInvariant,
                 MemberOfFieldValidator(_AutoRetryValues.get_all_symbols()),
             ],
+            fields.xfail: [
+                concrete_validators.templateInvariant,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        unit.get_record_value("xfail")
+                        # str values are PXU backward compatibility
+                        in ("true", "false", True, False)
+                    ),
+                    Problem.wrong,
+                    Severity.error,
+                    message=_("xfail must be 'true' or 'false'"),
+                    onlyif=lambda unit: unit.get_record_value("xfail")
+                    is not None,
+                ),
+                CorrectFieldValueValidator(
+                    lambda value, unit: unit.plugin != "resource",
+                    Problem.wrong,
+                    Severity.error,
+                    message=_("xfail is not supported on resource jobs"),
+                    onlyif=lambda unit: unit.get_record_value("xfail")
+                    is not None,
+                ),
+            ],
         }
 
 
 class InvalidJob(JobDefinition):
-
     def __init__(self, *args, errors=[], **kwargs):
         assert errors, "Unit is not invalid"
         self.errors = errors
@@ -1137,7 +1165,6 @@ class InvalidJob(JobDefinition):
         )
 
     class Meta:
-
         name = N_("job")
 
         class fields(SymbolDef):
@@ -1167,6 +1194,7 @@ class InvalidJob(JobDefinition):
             certification_status = "certification_status"
             siblings = "siblings"
             auto_retry = "auto_retry"
+            xfail = "xfail"
 
     def __str__(self):
         return self.summary

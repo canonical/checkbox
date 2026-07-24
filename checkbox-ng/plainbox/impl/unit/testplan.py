@@ -27,6 +27,9 @@ import logging
 import operator
 import re
 
+from itertools import chain
+from typing import List, Tuple
+
 from plainbox.i18n import gettext as _
 from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.secure.qualifiers import (
@@ -45,6 +48,7 @@ from plainbox.impl.unit.validators import (
     UnitReferenceValidator,
     Severity,
     compute_value_map,
+    field2prop,
 )
 from plainbox.impl.validation import Problem
 from plainbox.impl.xparsers import (
@@ -141,6 +145,72 @@ class NoBaseIncludeValidator(FieldValidatorBase):
                 raise NotImplementedError
 
 
+class OverrideFieldValueValidator(FieldValidatorBase):
+    """
+    Validator that parses an override field (using 'apply <value> to
+    <pattern>' grammar) and checks that each override value is a member
+    of an allowed set.
+    """
+
+    def __init__(self, allowed_values, message=None):
+        super().__init__(message)
+        self.allowed_values = allowed_values
+
+    def check(self, parent, unit, field):
+        value = getattr(unit, field2prop(field))
+        if value is None:
+            return
+        from plainbox.impl.xparsers import (
+            Error,
+            FieldOverride,
+            OverrideFieldList,
+            Visitor,
+        )
+
+        issues = []
+
+        class V(Visitor):
+
+            def visit_FieldOverride_node(self, node: FieldOverride):
+                if node.value.text not in self.allowed_values:
+                    issues.append(
+                        parent.error(
+                            unit,
+                            field,
+                            Problem.wrong,
+                            self.message
+                            or _(
+                                "value {!r} is not allowed, expected"
+                                " one of: {}".format(
+                                    node.value.text,
+                                    ", ".join(self.allowed_values),
+                                )
+                            ),
+                        )
+                    )
+
+            def visit_Error_node(self, node: Error):
+                issues.append(
+                    parent.error(
+                        unit,
+                        field,
+                        Problem.syntax_error,
+                        node.msg,
+                    )
+                )
+
+        V.allowed_values = self.allowed_values
+        V.message = self.message
+        if isinstance(value, str):
+            parsed = OverrideFieldList.parse(value)
+        elif isinstance(value, list):
+            parsed = OverrideFieldList.from_preparsed(value)
+        else:
+            return
+        V().visit(parsed)
+        return issues
+
+
 class TestPlanUnit(UnitWithId):
     """
     Test plan class
@@ -215,6 +285,10 @@ class TestPlanUnit(UnitWithId):
     @cached_property
     def certification_status_overrides(self):
         return self.get_record_value("certification_status_overrides")
+
+    @cached_property
+    def xfail_overrides(self):
+        return self.get_record_value("xfail_overrides")
 
     @property
     def provider_list(self):
@@ -624,6 +698,7 @@ class TestPlanUnit(UnitWithId):
             estimated_duration = "estimated_duration"
             icon = "icon"
             category_overrides = "category-overrides"
+            xfail_overrides = "xfail-overrides"
 
         field_validators = {
             fields.name: [
@@ -697,6 +772,9 @@ class TestPlanUnit(UnitWithId):
                 concrete_validators.templateInvariant,
             ],
             fields.icon: [],
+            fields.xfail_overrides: [
+                OverrideFieldValueValidator(["true", "false"]),
+            ],
         }
 
 
@@ -853,15 +931,22 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             The code below in *not* resilient to errors so make sure to
             validate the unit before starting with the helper.
         """
-        override_map = collections.defaultdict(list)
-        # ^^ Dict[str, Tuple[str, str]]
-        for pattern, field_value_list in self._get_inline_overrides(testplan):
-            override_map[pattern].extend(field_value_list)
-        for pattern, field, value in self._get_category_overrides(testplan):
-            override_map[pattern].append((field, value))
-        for pattern, field, value in self._get_blocker_status_overrides(
-            testplan
-        ):
+        override_map = collections.defaultdict(
+            list
+        )  # type: collections.defaultdict[str, List[Tuple[str, str]]]
+        overrides = (
+            (pattern, field, value)
+            for pattern, field_value_list in self._get_inline_overrides(
+                testplan
+            )
+            for (field, value) in field_value_list
+        )
+        overrides = chain(overrides, self._get_category_overrides(testplan))
+        overrides = chain(
+            overrides, self._get_blocker_status_overrides(testplan)
+        )
+        overrides = chain(overrides, self._get_xfail_overrides(testplan))
+        for pattern, field, value in overrides:
             override_map[pattern].append((field, value))
         return sorted(
             (key, field_value_list)
@@ -895,6 +980,43 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         V().visit(OverrideFieldList.parse(testplan.category_overrides))
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_category_overrides(tp_unit))
+        return override_list
+
+    def _get_xfail_overrides(
+        self, testplan: TestPlanUnit
+    ) -> "List[Tuple[str, str, str]]]":
+        """
+        Look at the xfail overrides and collect refined data about what
+        overrides to apply. The result is represented as a list of tuples
+        ``(pattern, field, value)`` where ``pattern`` is the string that
+        describes the pattern, ``field`` is the field to which an override
+        must be applied (but without the ``effective_`` prefix) and ``value``
+        is the overridden value.
+        """
+        override_list = []
+        if testplan.xfail_overrides is not None:
+
+            class V(Visitor):
+
+                def visit_FieldOverride_node(self, node: FieldOverride):
+                    blocker_status = node.value.text
+                    pattern = r"^{}$".format(
+                        testplan.qualify_id(node.pattern.text)
+                    )
+                    override_list.append((pattern, "xfail", blocker_status))
+
+            if isinstance(testplan.xfail_overrides, str):
+                # LEGACY: pxu compatibility, now certification_status_overrides
+                #         is a list
+                to_visit = OverrideFieldList.parse(testplan.xfail_overrides)
+            else:
+                to_visit = OverrideFieldList.from_preparsed(
+                    testplan.xfail_overrides
+                )
+
+            V().visit(to_visit)
+        for tp_unit in testplan.get_nested_part():
+            override_list.extend(self._get_blocker_status_overrides(tp_unit))
         return override_list
 
     def _get_blocker_status_overrides(

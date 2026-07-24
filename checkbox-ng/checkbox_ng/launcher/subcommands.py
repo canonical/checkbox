@@ -1217,7 +1217,6 @@ class Run(MainLoopStage):
         self.sa.finish_setup()
 
     def just_run_test_plan(self, tp_id):
-        self.sa.setup()
         self.sa.select_test_plan(tp_id)
         self.setup()
         self.sa.bootstrap()

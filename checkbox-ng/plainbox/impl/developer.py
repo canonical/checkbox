@@ -20,6 +20,14 @@
 """Support code for enforcing usage expectations on public API."""
 
 from collections import deque
+from collections.abc import Callable
+
+import sys
+
+if sys.version_info < (3, 9):
+    from typing import Dict
+else:
+    Dict = dict
 
 __all__ = ("UsageExpectation",)
 
@@ -129,25 +137,66 @@ class UsageExpectation:
             something goes wrong.
         """
         self.cls = cls
-        self._allowed_calls = {}
+        self._allowed_calls = {}  # type: Dict[str, str]
         self.history = deque([], maxlen=MODIFICATION_HISTORY)
 
-    def allow(self, current_function, function, reason):
+    def allow(
+        self, current_function: Callable, function: Callable, reason: str
+    ):
+        """
+        Allow the current object to call the given function.
+
+        :param current_function:
+            The function that called this method. This is used to record the
+            history of modifications.
+        :param function:
+            The function that is now allowed to be called.
+        :param reason:
+            A string that explains why the function is allowed to be called.
+        """
         self._allowed_calls[function.__name__] = reason
         self._modified(current_function)
 
-    def disallow(self, current_function, function):
+    def disallow(self, current_function: Callable, function: Callable):
+        """
+        Disallow the current object to call the given function.
+
+        :param current_function:
+            The function that called this method. This is used to record the
+            history of modifications.
+        :param function:
+            The function that is now disallowed to be called.
+        """
         del self._allowed_calls[function.__name__]
         self._modified(current_function)
 
-    def allow_all(self, current_function, function_reason, clear=True):
-        function_reason = {
+    def allow_all(
+        self,
+        current_function: Callable,
+        function_reason: Dict[Callable, str],
+        clear=True,
+    ):
+        """
+        Allow the current object to call all given functions.
+
+        :param current_function:
+            The function that called this method. This is used to record the
+            history of modifications.
+        :param function_reason:
+            A dictionary mapping functions to strings that explain why each
+            function is allowed to be called.
+        :param clear:
+            If True (default), replace the current set of allowed calls with
+            the new ones. If False, merge the new allowed calls into the
+            existing set.
+        """
+        str_function_reason = {
             f.__name__: reason for f, reason in function_reason.items()
         }
         if clear:
-            self._allowed_calls = function_reason
+            self._allowed_calls = str_function_reason
         else:
-            self._allowed_calls.update(function_reason)
+            self._allowed_calls.update(str_function_reason)
         self._modified(current_function)
 
     def _modified(self, current_function):
@@ -158,9 +207,12 @@ class UsageExpectation:
             )
         )
 
-    def enforce(self, current_function):
+    def enforce(self, current_function: Callable):
         """
         Enforce that usage expectations of the caller are met.
+
+        This method checks if the `current_function` is allowed to be called at
+        this time or raises an UnexpectedMethodCall
 
         :raises UnexpectedMethodCall:
             If the expectations are not met.

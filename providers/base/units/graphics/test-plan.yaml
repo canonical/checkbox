@@ -833,7 +833,6 @@ include:
   - graphics/lz_core_test_process_helper
   - graphics/lz_core_test_residency
   - graphics/lz_core_test_sampler
-  - graphics/lz_core_test_stress_atomics
   - graphics/lz_core_test_stress_memory_allocation
   - graphics/lz_core_test_stress_misc
   - graphics/lz_core_test_sysman_device

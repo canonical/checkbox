@@ -1,0 +1,695 @@
+id: graphics-gpu-cert-full
+unit: test plan
+name: Graphics tests (GPU)
+description: Graphics tests (GPU)
+include: []
+bootstrap_include:
+  - graphics_card
+nested_part:
+  - com.canonical.certification::graphics-gpu-cert-automated
+  - com.canonical.certification::graphics-gpu-cert-manual
+---
+id: graphics-gpu-cert-automated
+unit: test plan
+name: Graphics tests (Automated)
+description: Graphics tests (Automated)
+include:
+  - graphics/VESA_drivers_not_in_use:
+      certification-status: blocker
+  - graphics/1_driver_version_.*:
+      certification-status: blocker
+  - graphics/1_gl_support_.*:
+      certification-status: blocker
+  - graphics/1_minimum_resolution_.*
+  - graphics/2_driver_version_.*:
+      certification-status: blocker
+  - graphics/2_minimum_resolution_.*
+  - graphics/1_auto_glxgears_.*:
+      certification-status: blocker
+  - graphics/2_auto_glxgears_.*:
+      certification-status: blocker
+  - graphics/auto_glxgears:
+      certification-status: blocker
+  - graphics/auto_glxgears_fullscreen:
+      certification-status: blocker
+  - suspend/resolution_before_suspend:
+      certification-status: blocker
+  - graphics/1_vkcube_.*:
+      certification-status: non-blocker
+  - graphics/2_vkcube_.*:
+      certification-status: non-blocker
+  - graphics/vulkaninfo.*:
+      certification-status: non-blocker
+bootstrap_include:
+  - graphics_card
+---
+id: graphics-gpu-cert-26-04-automated
+unit: test plan
+name: Graphics tests for 26.04 (Automated)
+description: Graphics tests (Automated)
+include:
+  - graphics/VESA_drivers_not_in_use:
+      certification-status: blocker
+  - graphics/index_driver_version_product_slug:
+      certification-status: blocker
+  - graphics/gl_support_primary:
+      certification-status: blocker
+  - graphics/index_minimum_resolution_product_slug:
+      certification-status: blocker
+  - graphics/index_auto_glxgears_product_slug:
+      certification-status: blocker
+  - graphics/index_auto_glxgears_fullscreen_product_slug:
+      certification-status: blocker
+  - graphics/auto_glxgears:
+      certification-status: blocker
+  - graphics/auto_glxgears_fullscreen:
+      certification-status: blocker
+  - suspend/resolution_before_suspend:
+      certification-status: blocker
+  - graphics/index_vkcube_product_slug:
+      certification-status: blocker
+  - graphics/vulkaninfo-debug:
+      certification-status: blocker
+  - graphics/vulkaninfo-api-version:
+      certification-status: blocker
+bootstrap_include:
+  - graphics_card
+---
+id: graphics-gpu-cert-manual
+unit: test plan
+name: Graphics tests (Manual)
+description: Graphics tests (Manual)
+include:
+  - miscellanea/chvt
+  - graphics/1_maximum_resolution_.*:
+      certification-status: blocker
+  - graphics/1_rotation_.*:
+      certification-status: blocker
+  - graphics/1_video_.*:
+      certification-status: blocker
+  - graphics/1_cycle_resolution_.*:
+      certification-status: non-blocker
+  - graphics/1_valid_glxgears_.*:
+      certification-status: blocker
+  - graphics/2_valid_glxgears_.*:
+      certification-status: blocker
+  - graphics/valid_glxgears:
+      certification-status: blocker
+  - graphics/valid_glxgears_fullscreen:
+      certification-status: blocker
+bootstrap_include:
+  - graphics_card
+---
+id: graphics-gpu-cert-26-04-manual
+unit: test plan
+name: Graphics tests for 26.04 (Manual)
+description: Graphics tests (Manual)
+include:
+  - miscellanea/chvt
+  - graphics/maximum_resolution_primary:
+      certification-status: blocker
+  - graphics/rotation_primary:
+      certification-status: blocker
+  - graphics/video_primary:
+      certification-status: blocker
+  - graphics/cycle_resolution_primary:
+      certification-status: blocker
+  - graphics/index_valid_glxgears_product_slug:
+      certification-status: blocker
+  - graphics/index_valid_glxgears_fullscreen_product_slug:
+      certification-status: blocker
+  - graphics/valid_glxgears:
+      certification-status: blocker
+  - graphics/valid_glxgears_fullscreen:
+      certification-status: blocker
+bootstrap_include:
+  - graphics_card
+---
+id: after-suspend-graphics-gpu-cert-full
+unit: test plan
+name: After suspend tests
+description: After suspend tests
+include: []
+nested_part:
+  - com.canonical.certification::after-suspend-graphics-gpu-cert-automated
+  - com.canonical.certification::after-suspend-graphics-gpu-cert-manual
+---
+id: after-suspend-graphics-gpu-cert-26-04-automated
+unit: test plan
+name: After suspend tests for 26.04 (GPU automated)
+description: After suspend tests (GPU automated)
+include:
+  - suspend/suspend-time-check:
+      certification-status: non-blocker
+  - suspend/suspend-single-log-attach:
+      certification-status: non-blocker
+  - after-suspend-graphics/VESA_drivers_not_in_use:
+      certification-status: blocker
+  - after-suspend-graphics/index_driver_version_product_slug:
+      certification-status: blocker
+  - after-suspend-graphics/gl_support_primary:
+      certification-status: blocker
+  - after-suspend-graphics/index_minimum_resolution_product_slug:
+      certification-status: blocker
+  - after-suspend-graphics/index_auto_glxgears_product_slug:
+      certification-status: blocker
+  - after-suspend-graphics/index_auto_glxgears_fullscreen_product_slug:
+      certification-status: blocker
+  - after-suspend-graphics/auto_glxgears:
+      certification-status: blocker
+  - after-suspend-graphics/auto_glxgears_fullscreen:
+      certification-status: blocker
+  - suspend/resolution_after_suspend:
+      certification-status: blocker
+---
+id: after-suspend-graphics-gpu-cert-automated
+unit: test plan
+name: After suspend tests (GPU automated)
+description: After suspend tests (GPU automated)
+include:
+  - suspend/suspend-time-check:
+      certification-status: non-blocker
+  - suspend/suspend-single-log-attach:
+      certification-status: non-blocker
+  - after-suspend-graphics/VESA_drivers_not_in_use:
+      certification-status: blocker
+  - after-suspend-graphics/1_driver_version_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_gl_support_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_minimum_resolution_.*
+  - after-suspend-graphics/1_auto_glxgears_.*:
+      certification-status: blocker
+  - after-suspend-graphics/2_auto_glxgears_.*:
+      certification-status: blocker
+  - after-suspend-graphics/auto_glxgears:
+      certification-status: blocker
+  - after-suspend-graphics/auto_glxgears_fullscreen:
+      certification-status: blocker
+  - suspend/resolution_after_suspend:
+      certification-status: blocker
+---
+id: after-suspend-graphics-gpu-cert-manual
+unit: test plan
+name: After suspend tests (GPU manual)
+description: After suspend tests (GPU manual)
+include:
+  - power-management/lid_close_suspend_open:
+      certification-status: blocker
+  - power-management/lid:
+      certification-status: blocker
+  - after-suspend-miscellanea/chvt
+  - suspend/display_after_suspend:
+      certification-status: blocker
+  - after-suspend-graphics/1_maximum_resolution_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_rotation_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_video_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_cycle_resolution_.*:
+      certification-status: non-blocker
+  - after-suspend-graphics/1_valid_glxgears_.*:
+      certification-status: blocker
+  - after-suspend-graphics/2_valid_glxgears_.*:
+      certification-status: blocker
+  - after-suspend-graphics/valid_glxgears:
+      certification-status: blocker
+  - after-suspend-graphics/valid_glxgears_fullscreen:
+      certification-status: blocker
+  - suspend/1_xrandr_screens_after_suspend.tar.gz_auto
+---
+id: after-suspend-graphics-gpu-cert-26-04-manual
+unit: test plan
+name: After suspend tests for 26.04 (GPU manual)
+description: After suspend tests (GPU manual)
+include:
+  - power-management/lid_close_suspend_open:
+      certification-status: blocker
+  - power-management/lid:
+      certification-status: blocker
+  - after-suspend-miscellanea/chvt
+  - suspend/display_after_suspend:
+      certification-status: blocker
+  - after-suspend-graphics/maximum_resolution_primary:
+      certification-status: blocker
+  - after-suspend-graphics/rotation_primary:
+      certification-status: blocker
+  - after-suspend-graphics/video_primary:
+      certification-status: blocker
+  - after-suspend-graphics/cycle_resolution_primary:
+      certification-status: blocker
+  - after-suspend-graphics/index_valid_glxgears_product_slug:
+      certification-status: blocker
+  - after-suspend-graphics/index_valid_glxgears_fullscreen_product_slug:
+      certification-status: blocker
+  - after-suspend-graphics/valid_glxgears:
+      certification-status: blocker
+  - after-suspend-graphics/valid_glxgears_fullscreen:
+      certification-status: blocker
+  - suspend/xrandr_screens_after_suspend_primary
+---
+id: graphics-integrated-gpu-cert-full
+unit: test plan
+name: Graphics tests (integrated GPU)
+description: Graphics tests (integrated GPU)
+include: []
+bootstrap_include:
+  - graphics_card
+nested_part:
+  - com.canonical.certification::graphics-integrated-gpu-cert-automated
+  - com.canonical.certification::graphics-integrated-gpu-cert-manual
+---
+id: graphics-integrated-gpu-cert-manual
+unit: test plan
+name: Graphics tests (integrated GPU) (Manual)
+description: Graphics tests (integrated GPU) (Manual)
+include:
+  - miscellanea/chvt
+  - graphics/1_maximum_resolution_.*:
+      certification-status: blocker
+  - graphics/1_glxgears_.*:
+      certification-status: blocker
+  - graphics/1_rotation_.*:
+      certification-status: blocker
+  - graphics/1_video_.*:
+      certification-status: blocker
+  - graphics/1_cycle_resolution_.*:
+      certification-status: non-blocker
+bootstrap_include:
+  - graphics_card
+---
+id: graphics-integrated-gpu-cert-automated
+unit: test plan
+name: Graphics tests (integrated GPU) (Automated)
+description: Graphics tests (integrated GPU) (Automated)
+include:
+  - graphics/1_auto_switch_card_.*:
+      certification-status: blocker
+  - graphics/VESA_drivers_not_in_use:
+      certification-status: blocker
+  - graphics/1_driver_version_.*:
+      certification-status: blocker
+  - graphics/1_gl_support_.*:
+      certification-status: blocker
+  - graphics/1_minimum_resolution_.*
+  - suspend/1_resolution_before_suspend_.*_auto:
+      certification-status: blocker
+bootstrap_include:
+  - graphics_card
+---
+id: graphics-discrete-gpu-cert-full
+unit: test plan
+name: Graphics tests (discrete GPU)
+description: Graphics tests (discrete GPU)
+include: []
+bootstrap_include:
+  - graphics_card
+nested_part:
+  - com.canonical.certification::graphics-discrete-gpu-cert-automated
+  - com.canonical.certification::graphics-discrete-gpu-cert-manual
+---
+id: graphics-discrete-gpu-cert-manual
+unit: test plan
+name: Graphics tests (discrete GPU) (Manual)
+description: Graphics tests (discrete GPU) (Manual)
+include:
+  - graphics/2_maximum_resolution_.*:
+      certification-status: blocker
+  - graphics/2_glxgears_.*:
+      certification-status: blocker
+  - graphics/2_rotation_.*:
+      certification-status: blocker
+  - graphics/2_video_.*:
+      certification-status: blocker
+  - graphics/2_cycle_resolution_.*:
+      certification-status: non-blocker
+bootstrap_include:
+  - graphics_card
+---
+id: graphics-discrete-gpu-cert-automated
+unit: test plan
+name: Graphics tests (discrete GPU) (Automated)
+description: Graphics tests (discrete GPU) (Automated)
+include:
+  - graphics/2_auto_switch_card_.*:
+      certification-status: blocker
+  - graphics/2_valid_opengl_renderer_.*:
+      certification-status: blocker
+  - graphics/2_driver_version_.*:
+      certification-status: blocker
+  - graphics/2_gl_support_.*:
+      certification-status: blocker
+  - graphics/2_minimum_resolution_.*
+  - suspend/2_resolution_before_suspend_.*_auto:
+      certification-status: blocker
+bootstrap_include:
+  - graphics_card
+---
+id: after-suspend-graphics-integrated-gpu-cert-full
+unit: test plan
+name: After suspend tests (integrated GPU)
+description: After suspend tests (integrated GPU)
+include: []
+nested_part:
+  - com.canonical.certification::after-suspend-graphics-integrated-gpu-cert-automated
+  - com.canonical.certification::after-suspend-graphics-integrated-gpu-cert-manual
+---
+id: after-suspend-graphics-integrated-gpu-cert-automated
+unit: test plan
+name: After suspend tests (integrated GPU automated)
+description: After suspend tests (integrated GPU automated)
+include:
+  - after-suspend-graphics/1_auto_switch_card_.*:
+      certification-status: blocker
+  - suspend/1_suspend_after_switch_to_card_.*_auto:
+      certification-status: blocker
+  - suspend/1_suspend-time-check_.*_auto:
+      certification-status: non-blocker
+  - suspend/1_suspend-single-log-attach_.*_auto:
+      certification-status: non-blocker
+  - after-suspend-graphics/VESA_drivers_not_in_use:
+      certification-status: blocker
+  - after-suspend-graphics/1_driver_version_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_gl_support_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_minimum_resolution_.*
+  - suspend/1_resolution_after_suspend_.*_auto:
+      certification-status: blocker
+---
+id: after-suspend-graphics-integrated-gpu-cert-manual
+unit: test plan
+name: After suspend tests (integrated GPU manual)
+description: After suspend tests (integrated GPU manual)
+include:
+# or suspend/{{index}}_suspend_after_switch_to_card_{{product_slug}}_auto (two GPUs)
+  - after-suspend-miscellanea/chvt
+  - suspend/1_display_after_suspend_.*_graphics:
+      certification-status: blocker
+  - after-suspend-graphics/1_maximum_resolution_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_glxgears_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_rotation_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_video_.*:
+      certification-status: blocker
+  - after-suspend-graphics/1_cycle_resolution_.*:
+      certification-status: non-blocker
+  - suspend/1_xrandr_screens_after_suspend.tar.gz_auto
+  - power-management/lid_close_suspend_open:
+      certification-status: blocker
+  - power-management/lid:
+      certification-status: blocker
+---
+id: after-suspend-graphics-discrete-gpu-cert-full
+unit: test plan
+name: After suspend tests (discrete GPU)
+description: After suspend tests (discrete GPU)
+include: []
+nested_part:
+  - com.canonical.certification::after-suspend-graphics-discrete-gpu-cert-automated
+  - com.canonical.certification::after-suspend-graphics-discrete-gpu-cert-manual
+---
+id: after-suspend-graphics-discrete-gpu-cert-automated
+unit: test plan
+name: After suspend tests (discrete GPU automated)
+description: After suspend tests (discrete GPU automated)
+include:
+  - suspend/2_suspend_after_switch_to_card_.*_auto:
+      certification-status: blocker
+  - suspend/2_suspend-time-check_.*_auto:
+      certification-status: non-blocker
+  - suspend/2_suspend-single-log-attach_.*_auto:
+      certification-status: non-blocker
+  - after-suspend-graphics/2_driver_version_.*:
+      certification-status: blocker
+  - after-suspend-graphics/2_gl_support_.*:
+      certification-status: blocker
+  - after-suspend-graphics/2_minimum_resolution_.*
+  - suspend/2_resolution_after_suspend_.*_auto:
+      certification-status: blocker
+---
+id: after-suspend-graphics-discrete-gpu-cert-manual
+unit: test plan
+name: After suspend tests (discrete GPU manual)
+description: After suspend tests (discrete GPU manual)
+include:
+  - suspend/2_display_after_suspend_.*_graphics:
+      certification-status: blocker
+  - after-suspend-graphics/2_maximum_resolution_.*:
+      certification-status: blocker
+  - after-suspend-graphics/2_glxgears_.*:
+      certification-status: blocker
+  - after-suspend-graphics/2_rotation_.*:
+      certification-status: blocker
+  - after-suspend-graphics/2_video_.*:
+      certification-status: blocker
+  - after-suspend-graphics/2_cycle_resolution_.*:
+      certification-status: non-blocker
+  - suspend/2_xrandr_screens_after_suspend_.*.tar.gz_auto
+---
+id: graphics-integrated-gpu-cert-blockers
+unit: test plan
+name: Graphics tests (integrated GPU, certification blockers only)
+description: Graphics tests (integrated GPU, certification blockers only)
+include:
+  - graphics/1_auto_switch_card_.*:
+      certification-status: blocker
+  - graphics/VESA_drivers_not_in_use:
+      certification-status: blocker
+  - graphics/1_maximum_resolution_.*:
+      certification-status: blocker
+  - graphics/1_glxgears_.*:
+      certification-status: blocker
+  - graphics/1_driver_version_.*:
+      certification-status: blocker
+  - graphics/1_gl_support_.*:
+      certification-status: blocker
+  - graphics/1_rotation_.*:
+      certification-status: blocker
+  - graphics/1_video_.*:
+      certification-status: blocker
+  - suspend/1_resolution_before_suspend_.*_auto:
+      certification-status: blocker
+bootstrap_include:
+  - graphics_card
+---
+id: graphics-discrete-gpu-cert-blockers
+unit: test plan
+name: Graphics tests (discrete GPU, certification blockers only)
+description: Graphics tests (discrete GPU, certification blockers only)
+include:
+  - graphics/2_auto_switch_card_.*:
+      certification-status: blocker
+  - graphics/2_maximum_resolution_.*:
+      certification-status: blocker
+  - graphics/2_valid_opengl_renderer_.*:
+      certification-status: blocker
+  - graphics/2_glxgears_.*:
+      certification-status: blocker
+  - graphics/2_driver_version_.*:
+      certification-status: blocker
+  - graphics/2_gl_support_.*:
+      certification-status: blocker
+  - graphics/2_rotation_.*:
+      certification-status: blocker
+  - graphics/2_video_.*:
+      certification-status: blocker
+bootstrap_include:
+  - graphics_card
+---
+id: after-suspend-graphics-integrated-gpu-cert-blockers
+unit: test plan
+name: After suspend tests (integrated GPU, certification blockers only)
+description: After suspend tests (integrated GPU, certification blockers only)
+include:
+  - after-suspend-graphics/1_auto_switch_card_.*:
+      certification-status: blocker
+  - suspend/1_suspend_after_switch_to_card_.*_auto:
+      certification-status: blocker
+  - suspend/1_gl_support_after_suspend_.*_auto:
+      certification-status: blocker
+  - suspend/1_driver_version_after_suspend_.*_auto:
+      certification-status: blocker
+  - suspend/1_resolution_after_suspend_.*_auto:
+      certification-status: blocker
+  - suspend/1_display_after_suspend_.*_graphics:
+      certification-status: blocker
+  - suspend/1_glxgears_after_suspend_.*_graphics:
+      certification-status: blocker
+  - suspend/1_rotation_after_suspend_.*_graphics:
+      certification-status: blocker
+  - suspend/1_video_after_suspend_.*_graphics:
+      certification-status: blocker
+  - power-management/lid_close_suspend_open:
+      certification-status: blocker
+  - power-management/lid:
+      certification-status: blocker
+---
+id: after-suspend-graphics-discrete-gpu-cert-blockers
+unit: test plan
+name: After suspend tests (discrete GPU, certification blockers only)
+description: After suspend tests (discrete GPU, certification blockers only)
+include:
+  - suspend/2_resolution_before_suspend_.*_auto:
+      certification-status: blocker
+  - suspend/2_suspend_after_switch_to_card_.*_graphics:
+      certification-status: blocker
+  - suspend/2_gl_support_after_suspend_.*_auto:
+      certification-status: blocker
+  - suspend/2_driver_version_after_suspend_.*_auto:
+      certification-status: blocker
+  - suspend/2_resolution_after_suspend_.*_auto:
+      certification-status: blocker
+  - suspend/2_display_after_suspend_.*_graphics:
+      certification-status: blocker
+  - suspend/2_glxgears_after_suspend_.*_graphics:
+      certification-status: blocker
+  - suspend/2_rotation_after_suspend_.*_graphics:
+      certification-status: blocker
+  - suspend/2_video_after_suspend_.*_graphics:
+      certification-status: blocker
+---
+id: webgl-conformance-test
+unit: test plan
+name: WebGL conformance test
+description: WebGL conformance test
+include:
+  - graphics/webgl-conformance-test-.*
+bootstrap_include:
+  - browser_resource
+---
+id: after-suspend-webgl-conformance-test
+unit: test plan
+name: WebGL conformance test (After suspend)
+description: WebGL conformance test
+include:
+  - after-suspend-graphics/webgl-conformance-test-.*
+bootstrap_include:
+  - browser_resource
+---
+id: graphic-base-26-04-manual
+unit: test plan
+name: Graphics for 26.04 (Manual)
+description: Manual tests for graphics
+include:
+  - keys/video-out
+  - after-suspend-keys/video-out
+nested_part:
+  - submission-cert-full
+  - graphics-gpu-cert-26-04-manual
+  - monitor-gpu-cert-26-04-manual
+  - after-suspend-graphics-gpu-cert-26-04-manual
+  - after-suspend-monitor-gpu-cert-26-04-manual
+  - info-attachment-cert-full
+---
+id: graphic-base-26-04-automated
+unit: test plan
+name: Graphic for 26.04 (Automated)
+description: Automated tests for graphic
+include: []
+nested_part:
+  - graphics-gpu-cert-26-04-automated
+  - after-suspend-graphics-gpu-cert-26-04-automated
+---
+id: opencl-core-test-plan
+unit: test plan
+name: Graphics test plan for verifying OpenCL (core/snap)
+include:
+  - setup/install_opencl_cts
+  - graphics/cl_core_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: opencl-host-test-plan
+unit: test plan
+name: Graphics test plan for verifying OpenCL (host)
+include:
+  - setup/install_opencl_cts
+  - graphics/cl_host_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: vulkan-core-test-plan
+unit: test plan
+name: Graphics test plan for verifying Vulkan CTS (core/snap)
+include:
+  - setup/install_vulkan_cts
+  - graphics/vk_core_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: vulkan-classic-test-plan
+unit: test plan
+name: Graphics test plan for verifying Vulkan CTS (classic)
+include:
+  - setup/install_vulkan_cts
+  - graphics/vk_classic_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: opengl-core-test-plan
+unit: test plan
+name: Graphics test plan for verifying OpenGL CTS (core/snap)
+include:
+  - setup/install_opengl_cts
+  - graphics/gl_core_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: opengl-classic-test-plan
+unit: test plan
+name: Graphics test plan for verifying OpenGL CTS (classic)
+include:
+  - setup/install_opengl_cts
+  - graphics/gl_classic_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: crucible-core-test-plan
+unit: test plan
+name: Graphics test plan for crucible (core/snap)
+include:
+  - setup/install_crucible
+  - graphics/crucible_core_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: crucible-classic-test-plan
+unit: test plan
+name: Graphics test plan for crucible (classic)
+include:
+  - setup/install_crucible
+  - graphics/crucible_classic_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: level-zero-core-test-plan
+unit: test plan
+name: Graphics test plan for verifying Level Zero (core/snap)
+include:
+  - setup/install_level_zero_tests
+  - graphics/lz_core_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: level-zero-classic-test-plan
+unit: test plan
+name: Graphics test plan for verifying Level Zero (classic)
+include:
+  - setup/install_level_zero_tests
+  - graphics/lz_classic_.*
+bootstrap_include:
+  - graphics_card
+  - executable

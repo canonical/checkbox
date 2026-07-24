@@ -358,3 +358,19 @@ unit: manifest entry
 id: skipping_test_manifest
 name: Manifest entry for testing skip due to unmet manifest
 value-type: bool
+---
+id: xfailing_job_passing
+flags:
+  - simple
+summary: This job always xfails (passes)
+xfail: true
+command: |
+  false
+---
+id: xfailing_job_failing
+flags:
+  - simple
+summary: This job always fails (xfail pass)
+xfail: true
+command: |
+  true

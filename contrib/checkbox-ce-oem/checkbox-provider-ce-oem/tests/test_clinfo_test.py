@@ -336,6 +336,27 @@ class TestClinfoTest(unittest.TestCase):
         self.assertIn("device: DevB", output)
         self.assertIn("ignore: true", output)
 
+    @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
+    @patch("clinfo_test._run_clinfo_command")
+    @patch("clinfo_test.parse_ignored_set")
+    def test_cmd_resource_returns_1_when_no_records_found(
+        self,
+        mock_parse_ignored_set,
+        mock_run,
+        _mock_resolve,
+    ):
+        mock_run.return_value = subprocess.CompletedProcess(
+            args="clinfo -l",
+            returncode=0,
+            stdout="Number of platforms 0\n",
+            stderr="",
+        )
+
+        result = clinfo_test.cmd_resource("", "/tmp/validation.json")
+
+        self.assertEqual(result, 1)
+        mock_parse_ignored_set.assert_not_called()
+
     @patch("clinfo_test._resolve_clinfo_command", return_value=None)
     def test_cmd_test_returns_1_when_command_cannot_resolve(
         self,

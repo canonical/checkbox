@@ -38,7 +38,8 @@ def load_json_file(json_file_path: str, enable_logger: bool = False) -> dict:
 
 def build_command(config: dict, enable_logger: bool = False) -> str:
     """
-    A handy utility function to construct a command string with environment variables and library paths.
+    A handy utility function to construct a command string with
+    environment variables and library paths.
 
     Example 1:
 
@@ -52,7 +53,8 @@ def build_command(config: dict, enable_logger: bool = False) -> str:
         }
 
         You will get the command string as follows:
-            'LD_LIBRARY_PATH="/path/to/lib1:/path/to/lib2:$LD_LIBRARY_PATH" VAR1="value1" VAR2="value2" snap.'
+            'LD_LIBRARY_PATH="/path/to/lib1:/path/to/lib2:$LD_LIBRARY_PATH" '
+            'VAR1="value1" VAR2="value2" snap.'
 
     Example 2:
 

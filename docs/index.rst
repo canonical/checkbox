@@ -1,4 +1,4 @@
-:relatedlinks: [Diátaxis](https://diataxis.fr/)
+:relatedlinks: [Project&#32;repository](https://github.com/canonical/checkbox)
 
 .. _home:
 

@@ -396,6 +396,139 @@ class FindOffloadTests(unittest.TestCase):
         self.assertEqual(po.check_result, True)
 
 
+class CheckNvLinkStatusTests(unittest.TestCase):
+    """
+    Test the check_nv_link_status method that uses ctypes to check NVLink.
+    """
+
+    @patch("prime_offload_tester.ctypes.CDLL")
+    def test_library_not_found(self, mock_cdll):
+        po = PrimeOffloader()
+        # Library not found
+        mock_cdll.side_effect = OSError("Library not found")
+        self.assertEqual(False, po.check_nv_link_status())
+
+    @patch("prime_offload_tester.ctypes.CDLL")
+    def test_nvml_init_failed(self, mock_cdll):
+        po = PrimeOffloader()
+        mock_nvml = MagicMock()
+        mock_cdll.return_value = mock_nvml
+        # NVML init returns non-zero (failure)
+        mock_nvml.nvmlInit_v2.return_value = 1
+        self.assertEqual(False, po.check_nv_link_status())
+
+    @patch("prime_offload_tester.ctypes.CDLL")
+    def test_device_count_failed(self, mock_cdll):
+        po = PrimeOffloader()
+        mock_nvml = MagicMock()
+        mock_cdll.return_value = mock_nvml
+        # NVML init succeeds
+        mock_nvml.nvmlInit_v2.return_value = 0
+        # Device count fails
+        mock_nvml.nvmlDeviceGetCount_v2.return_value = 1
+        self.assertEqual(False, po.check_nv_link_status())
+
+    @patch("prime_offload_tester.ctypes.byref")
+    @patch("prime_offload_tester.ctypes.POINTER")
+    @patch("prime_offload_tester.ctypes.c_uint")
+    @patch("prime_offload_tester.ctypes.CDLL")
+    def test_no_devices(
+        self, mock_cdll, mock_c_uint, mock_pointer, mock_byref
+    ):
+        po = PrimeOffloader()
+        mock_nvml = MagicMock()
+        mock_cdll.return_value = mock_nvml
+        # Mock POINTER and byref to avoid ctypes errors
+        mock_pointer.return_value = MagicMock()
+        mock_byref.side_effect = lambda x: x
+        # NVML init succeeds
+        mock_nvml.nvmlInit_v2.return_value = 0
+        # Device count succeeds with 0 devices
+        mock_nvml.nvmlDeviceGetCount_v2.return_value = 0
+        device_count_obj = MagicMock()
+        device_count_obj.value = 0
+        mock_c_uint.return_value = device_count_obj
+        self.assertEqual(False, po.check_nv_link_status())
+
+    @patch("prime_offload_tester.ctypes.byref")
+    @patch("prime_offload_tester.ctypes.POINTER")
+    @patch("prime_offload_tester.ctypes.c_void_p")
+    @patch("prime_offload_tester.ctypes.c_uint")
+    @patch("prime_offload_tester.ctypes.CDLL")
+    def test_nvlink_detected(
+        self,
+        mock_cdll,
+        mock_c_uint,
+        mock_c_void_p,
+        mock_pointer,
+        mock_byref,
+    ):
+        po = PrimeOffloader()
+        mock_nvml = MagicMock()
+        mock_cdll.return_value = mock_nvml
+        # Mock POINTER and byref to avoid ctypes errors
+        mock_pointer.return_value = MagicMock()
+        mock_byref.side_effect = lambda x: x
+        # NVML init succeeds
+        mock_nvml.nvmlInit_v2.return_value = 0
+        # Device count succeeds with 1 device
+        mock_nvml.nvmlDeviceGetCount_v2.return_value = 0
+        device_count_obj = MagicMock()
+        device_count_obj.value = 1
+        # Get device handle succeeds
+        mock_nvml.nvmlDeviceGetHandleByIndex_v2.return_value = 0
+        # NVLink state check succeeds and link is active (state=1)
+        mock_nvml.nvmlDeviceGetNvLinkState.return_value = 0
+        # First call returns device_count, subsequent calls return state
+        state_obj = MagicMock()
+        state_obj.value = 1  # Active link
+        # Return device_count first, then state objects for each link check
+        mock_c_uint.side_effect = [device_count_obj] + [state_obj] * 6
+        self.assertEqual(True, po.check_nv_link_status())
+
+    @patch("prime_offload_tester.ctypes.byref")
+    @patch("prime_offload_tester.ctypes.POINTER")
+    @patch("prime_offload_tester.ctypes.c_void_p")
+    @patch("prime_offload_tester.ctypes.c_uint")
+    @patch("prime_offload_tester.ctypes.CDLL")
+    def test_nvlink_not_detected(
+        self,
+        mock_cdll,
+        mock_c_uint,
+        mock_c_void_p,
+        mock_pointer,
+        mock_byref,
+    ):
+        po = PrimeOffloader()
+        mock_nvml = MagicMock()
+        mock_cdll.return_value = mock_nvml
+        # Mock POINTER and byref to avoid ctypes errors
+        mock_pointer.return_value = MagicMock()
+        mock_byref.side_effect = lambda x: x
+        # NVML init succeeds
+        mock_nvml.nvmlInit_v2.return_value = 0
+        # Device count succeeds with 1 device
+        mock_nvml.nvmlDeviceGetCount_v2.return_value = 0
+        device_count_obj = MagicMock()
+        device_count_obj.value = 1
+        # Get device handle succeeds
+        mock_nvml.nvmlDeviceGetHandleByIndex_v2.return_value = 0
+        # NVLink not supported
+        mock_nvml.nvmlDeviceGetNvLinkState.return_value = 3  # NOT_SUPPORTED
+        state_obj = MagicMock()
+        state_obj.value = 0  # Inactive link
+        # Return device_count first, then state objects
+        mock_c_uint.side_effect = [device_count_obj] + [state_obj] * 6
+        self.assertEqual(False, po.check_nv_link_status())
+
+    @patch("prime_offload_tester.ctypes.CDLL")
+    def test_exception_handling(self, mock_cdll):
+        po = PrimeOffloader()
+        # Raise an unexpected exception
+        mock_cdll.side_effect = Exception("Unexpected error")
+        self.assertEqual(False, po.check_nv_link_status())
+
+
 class CheckNvOffloadEnvTests(unittest.TestCase):
     """
     This function will check this system could use prime offload or not.
@@ -416,28 +549,16 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_nvlink_check(self, mock_check):
         po = PrimeOffloader()
-        # with nv driver, on-demand mode. This might be NVLINK environment
-        mock_check.return_value = "prime-select on-demand"
+        # with nv driver, on-demand mode, nvlink detected
+        mock_check.return_value = "on-demand"
+        po.check_nv_link_status = MagicMock(return_value=True)
         with self.assertRaises(SystemExit):
             po.check_nv_offload_env()
-        mock_check.assert_called_with(
-            ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
-        )
 
-        # with nv driver, on-demand mode, nv driver error
-        mock_check.side_effect = ["on-demand", "error"]
-        with self.assertRaises(SystemExit):
-            po.check_nv_offload_env()
-        mock_check.assert_called_with(
-            ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
-        )
-
-        # with nv driver, on-demand mode, no nv driver error
-        mock_check.side_effect = ["on-demand", ""]
+        # with nv driver, on-demand mode, no nvlink
+        mock_check.return_value = "on-demand"
+        po.check_nv_link_status = MagicMock(return_value=False)
         self.assertEqual(None, po.check_nv_offload_env())
-        mock_check.assert_called_with(
-            ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
-        )
 
         # No prime-select
         mock_check.side_effect = FileNotFoundError

@@ -33,7 +33,6 @@ Subcommands:
 
 import argparse
 import logging
-import os
 import re
 import shutil
 import subprocess
@@ -300,6 +299,12 @@ def cmd_resource(
         return list_result.returncode
 
     records = parse_clinfo_list_output(list_result.stdout)
+    if not records:
+        logger.error(
+            "No OpenCL platform/device records found! "
+            "(OpenCL runtime may not be installed)"
+        )
+        return 1
     ignored_pairs = parse_ignored_set(validation_json_path)
 
     for record in records:

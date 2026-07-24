@@ -74,6 +74,10 @@ class UnexpectedMethodCall(Exception):
             a part of a string that looks like this: ``' - call {fn_name}() to
             {why}.'``. Developers should use explanations that look natural in
             this context. This text is not meant for internationalization.
+        :param history:
+            A sequence of functions that modified the allowed_pairs and how
+            they did so (fn_name, action), where action is "allow", "disallow",
+            "allow_all_clear", "allow_all_no_clear"
         """
         self.cls = cls
         self.fn_name = fn_name
@@ -91,7 +95,8 @@ class UnexpectedMethodCall(Exception):
                 )
                 for allowed_fn_name, why in self.allowed_pairs
             ),
-            modification_history=" - " + "\n - ".join(self.history),
+            modification_history=" - "
+            + "\n - ".join("{} ({})".format(*x) for x in self.history),
             modification_size=str(MODIFICATION_HISTORY),
         )
 
@@ -155,7 +160,7 @@ class UsageExpectation:
             A string that explains why the function is allowed to be called.
         """
         self._allowed_calls[function.__name__] = reason
-        self._modified(current_function)
+        self._modified(current_function, "allow")
 
     def disallow(self, current_function: Callable, function: Callable):
         """
@@ -168,7 +173,7 @@ class UsageExpectation:
             The function that is now disallowed to be called.
         """
         del self._allowed_calls[function.__name__]
-        self._modified(current_function)
+        self._modified(current_function, "disallow")
 
     def allow_all(
         self,
@@ -195,15 +200,20 @@ class UsageExpectation:
         }
         if clear:
             self._allowed_calls = str_function_reason
+            action = "allow_all, clear"
         else:
             self._allowed_calls.update(str_function_reason)
-        self._modified(current_function)
+            action = "allow_all, don't clear"
+        self._modified(current_function, action)
 
-    def _modified(self, current_function):
+    def _modified(self, current_function, action):
         self.history.append(
-            "{}.{}".format(
-                current_function.__self__.__class__.__name__,
-                current_function.__name__,
+            (
+                "{}.{}".format(
+                    current_function.__self__.__class__.__name__,
+                    current_function.__name__,
+                ),
+                action,
             )
         )
 

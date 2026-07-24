@@ -61,7 +61,14 @@ class UsageExpectationTests(unittest.TestCase):
         ue.allow(foo.m2, foo.m2, "some other motivation")
         foo.m2()
         # m1 allowed, then m1 disallowed them m2 allowed
-        self.assertEqual(list(ue.history), ["_Foo.m1", "_Foo.m1", "_Foo.m2"])
+        self.assertEqual(
+            list(ue.history),
+            [
+                ("_Foo.m1", "allow"),
+                ("_Foo.m1", "disallow"),
+                ("_Foo.m2", "allow"),
+            ],
+        )
 
     def test_add_not_clear(self):
         foo = _Foo()
@@ -76,9 +83,9 @@ class UsageExpectationTests(unittest.TestCase):
     def test_enforce(self):
         """Check that .enforce() works and produces useful messages."""
         foo = _Foo()
-        UsageExpectation.of(foo).allow_all(
-            foo.m1, {foo.m1: "call m1 now"}, clear=True
-        )
+        ue = UsageExpectation.of(foo)
+        ue.allow_all(foo.m1, {foo.m1: "call m1 now"}, clear=True)
+        ue.allow(foo.m1, foo.m1, "stack the history")
         # Nothing should happen here
         foo.m1()
         # Exception should be raised here
@@ -95,10 +102,11 @@ sorry for this. Please report this to us.
 You are not expected to call _Foo.m2 at this time.
 The set of allowed calls, at this time, is:
 
- - call _Foo.m1() to call m1 now.
+ - call _Foo.m1() to stack the history.
 
 The last 5 modifications were done by (most recent last):
 
- - _Foo.m1
+ - _Foo.m1 (allow_all, clear)
+ - _Foo.m1 (allow)
 """,
         )

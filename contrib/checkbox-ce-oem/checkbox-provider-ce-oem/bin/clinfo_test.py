@@ -75,16 +75,17 @@ ValidationSet = Dict[str, str]
 
 
 def _resolve_clinfo_command(
-    clinfo_executable_json_path: str,
-    enable_logger: bool = False
+    clinfo_executable_json_path: str, enable_logger: bool = False
 ) -> Optional[str]:
     """Resolve clinfo command from JSON config or system PATH.
-    
+
     Returns:
         Command string if successful, None if failed.
     """
     if clinfo_executable_json_path:
-        data = load_json_file(clinfo_executable_json_path, enable_logger=enable_logger)
+        data = load_json_file(
+            clinfo_executable_json_path, enable_logger=enable_logger
+        )
         executable_config = data.get("executable")
         if not isinstance(executable_config, dict):
             logger.error(
@@ -93,7 +94,9 @@ def _resolve_clinfo_command(
             )
             return None
         try:
-            command = build_command(executable_config, enable_logger=enable_logger)
+            command = build_command(
+                executable_config, enable_logger=enable_logger
+            )
             return command
         except (TypeError, ValueError) as exc:
             logger.error("Failed to build clinfo command: %s", exc)
@@ -111,11 +114,11 @@ def _run_clinfo_command(
     capture_output: bool = True,
 ) -> subprocess.CompletedProcess:
     """Run a clinfo command with common subprocess options.
-    
+
     Args:
         command: Shell command string to execute.
         capture_output: Whether to capture stdout and stderr.
-    
+
     Returns:
         CompletedProcess with return code and captured output.
     """
@@ -184,7 +187,9 @@ def parse_property_value(output: str, property_name: str) -> Optional[str]:
     """Extract a property value from clinfo --prop output.
     https://registry.khronos.org/OpenCL/specs/unified/refpages/man/html/clGetDeviceInfo.html
     """
-    pattern = re.compile(PROP_PATTERN_TEMPLATE.format(re.escape(property_name)))
+    pattern = re.compile(
+        PROP_PATTERN_TEMPLATE.format(re.escape(property_name))
+    )
     for line in output.splitlines():
         match = pattern.search(line)
         if match:
@@ -341,7 +346,9 @@ def cmd_test(
             "{} -d {} --prop {}".format(command, target, prop_name)
         )
         if prop_result.returncode != 0:
-            error_text = prop_result.stderr.strip() or prop_result.stdout.strip()
+            error_text = (
+                prop_result.stderr.strip() or prop_result.stdout.strip()
+            )
             mismatches.append(
                 "{}: command failed ({}) {}".format(
                     prop_name,
@@ -353,7 +360,9 @@ def cmd_test(
 
         actual_value = parse_property_value(prop_result.stdout, prop_name)
         if actual_value is None:
-            mismatches.append("{}: property output not found".format(prop_name))
+            mismatches.append(
+                "{}: property output not found".format(prop_name)
+            )
             continue
 
         if actual_value != expected_value:
@@ -366,9 +375,7 @@ def cmd_test(
             )
             continue
 
-        validated_properties.append(
-            "{}: {}".format(prop_name, actual_value)
-        )
+        validated_properties.append("{}: {}".format(prop_name, actual_value))
 
     if validated_properties:
         logger.info("Validated OpenCL properties:")
@@ -384,7 +391,7 @@ def cmd_test(
     logger.info(
         "PASS: OpenCL validation passed (platform: '%s', device: '%s')",
         platform,
-        device
+        device,
     )
     return 0
 

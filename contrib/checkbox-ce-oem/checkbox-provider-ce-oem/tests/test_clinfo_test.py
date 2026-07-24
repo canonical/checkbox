@@ -7,7 +7,6 @@ import sys
 import unittest
 from unittest.mock import patch
 
-
 SCRIPT_DIR = os.path.dirname(__file__)
 BIN_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "bin"))
 if BIN_DIR not in sys.path:
@@ -24,9 +23,7 @@ class TestClinfoTest(unittest.TestCase):
         mock_build_command,
         mock_load_json_file,
     ):
-        mock_load_json_file.return_value = {
-            "executable": {"bin": "clinfo"}
-        }
+        mock_load_json_file.return_value = {"executable": {"bin": "clinfo"}}
 
         result = clinfo_test._resolve_clinfo_command("/tmp/cfg.json")
 
@@ -39,7 +36,9 @@ class TestClinfoTest(unittest.TestCase):
         )
 
     @patch("clinfo_test.load_json_file", return_value={})
-    def test_resolve_clinfo_command_invalid_executable_data(self, _mock_loader):
+    def test_resolve_clinfo_command_invalid_executable_data(
+        self, _mock_loader
+    ):
         result = clinfo_test._resolve_clinfo_command("/tmp/cfg.json")
         self.assertIsNone(result)
 
@@ -50,9 +49,7 @@ class TestClinfoTest(unittest.TestCase):
         _mock_build_command,
         mock_load_json_file,
     ):
-        mock_load_json_file.return_value = {
-            "executable": {"bin": "clinfo"}
-        }
+        mock_load_json_file.return_value = {"executable": {"bin": "clinfo"}}
 
         result = clinfo_test._resolve_clinfo_command("/tmp/cfg.json")
 
@@ -120,7 +117,9 @@ class TestClinfoTest(unittest.TestCase):
         self.assertEqual(clinfo_test.parse_ignored_set(""), set())
 
     @patch("clinfo_test.load_json_file")
-    def test_parse_ignored_set_filters_invalid_entries(self, mock_load_json_file):
+    def test_parse_ignored_set_filters_invalid_entries(
+        self, mock_load_json_file
+    ):
         mock_load_json_file.return_value = {
             "ignored_set": {
                 "platform-a": ["dev-a", "dev-b", 2],
@@ -451,13 +450,13 @@ class TestClinfoTest(unittest.TestCase):
         self.assertEqual(result, 0)
 
     @patch("clinfo_test.cmd_detect", return_value=7)
-    @patch("sys.argv", ["clinfo_test.py", "detect"]) 
+    @patch("sys.argv", ["clinfo_test.py", "detect"])
     def test_main_routes_detect(self, mock_cmd_detect):
         self.assertEqual(clinfo_test.main(), 7)
         mock_cmd_detect.assert_called_once_with("")
 
     @patch("clinfo_test.cmd_resource", return_value=8)
-    @patch("sys.argv", ["clinfo_test.py", "resource"]) 
+    @patch("sys.argv", ["clinfo_test.py", "resource"])
     def test_main_routes_resource(self, mock_cmd_resource):
         self.assertEqual(clinfo_test.main(), 8)
         mock_cmd_resource.assert_called_once_with("", "")

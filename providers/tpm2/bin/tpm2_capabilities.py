@@ -230,10 +230,15 @@ def build_capabilities():
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         description=(
-            "Query TPM2 capabilities. With no arguments, print all "
+            "Query TPM2 capabilities. With --resource, print all "
             "capabilities as a Checkbox resource. With both CAPABILITY "
             "and VALUE, check whether VALUE is supported for CAPABILITY."
         )
+    )
+    parser.add_argument(
+        "--resource",
+        action="store_true",
+        help="Print all capabilities as a Checkbox resource unit",
     )
     parser.add_argument(
         "capability",
@@ -250,8 +255,16 @@ def parse_args(argv=None):
     )
     args = parser.parse_args(argv)
 
-    if (args.capability is None) != (args.value is None):
-        parser.error("use [capability] [supported-values] to test")
+    if args.resource:
+        if args.capability is not None or args.value is not None:
+            parser.error(
+                "--resource cannot be combined with capability/value"
+            )
+    else:
+        if args.capability is None or args.value is None:
+            parser.error(
+                "use --resource, or [capability] [supported-values] to test"
+            )
 
     return args
 
@@ -260,8 +273,8 @@ def main(argv=None):
     args = parse_args(argv)
     tpm2_cap = build_capabilities()
 
-    if args.capability is None:
-        # with no args print as resource unit
+    if args.resource:
+        # print as resource unit
         for k, v in tpm2_cap.items():
             print("{}: {}".format(k, " ".join(sorted(v))))
         return

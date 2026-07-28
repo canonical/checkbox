@@ -252,8 +252,7 @@ def parse_args(argv=None):
         "capability",
         nargs="?",
         help=(
-            "Capability group to query "
-            "(e.g. hash, assymetric, pcr_banks)"
+            "Capability group to query " "(e.g. hash, assymetric, pcr_banks)"
         ),
     )
     parser.add_argument(
@@ -296,9 +295,7 @@ def main(argv=None):
     if args.resource_pcr_banks:
         # print each PCR bank as a separate resource record
         banks = sorted(tpm2_cap["pcr_banks"])
-        print(
-            "\n\n".join("pcr_bank: {}".format(bank) for bank in banks)
-        )
+        print("\n\n".join("pcr_bank: {}".format(bank) for bank in banks))
         return
 
     try:

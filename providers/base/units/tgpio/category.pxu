@@ -1,0 +1,3 @@
+unit: category
+id: tgpio
+_name: TGPIO (Timed-Aware GPIO) Tests

@@ -1,0 +1,23 @@
+id: oem-socketcan-full
+unit: test plan
+_name: SocketCAN remote test
+_description: SocketCAN remote tests for devices
+include:
+nested_part:
+  oem-socketcan-manual
+  oem-socketcan-stress-automated
+
+id: oem-socketcan-manual
+unit: test plan
+_name:  SocketCAN manual Tests (Manual, Remote)
+_description: SocketCAN manual Tests (Manual, Remote)
+bootstrap_include:
+include:
+
+id: oem-socketcan-stress-automated
+unit: test plan
+_name: SocketCAN send stress Tests (Automated, Remote)
+_description:
+    SocketCAN send stress Tests (Automated, Remote)
+bootstrap_include:
+include:

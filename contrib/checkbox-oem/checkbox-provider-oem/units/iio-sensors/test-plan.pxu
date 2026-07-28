@@ -1,0 +1,22 @@
+id: oem-iio-sensors-full
+unit: test plan
+_name: Industrial I/O sensor tests
+_description: Full tests for Industrial I/O sensors
+include:
+nested_part:
+  oem-iio-sensors-automated
+  oem-iio-sensors-manual
+
+id: oem-iio-sensors-automated
+unit: test plan
+_name: Industrial I/O sensor auto tests
+_description: Automated tests for Industrial I/O sensors in before suspend and post suspend stage
+              # Not nested this test plan for now due to it leads the mismatch job order
+bootstrap_include:
+include:
+
+id: oem-iio-sensors-manual
+unit: test plan
+_name: Industrial I/O sensor manual tests
+_description: Manual tests for Industrial I/O sensors in before suspend and post suspend stage
+include:

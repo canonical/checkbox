@@ -1,0 +1,21 @@
+id: oem-power-management-full
+unit: test plan
+_name: Power management tests
+_description: Full power-management tests for devices
+include:
+nested_part:
+  oem-power-management-automated
+  oem-power-management-manual
+
+id: oem-power-management-automated
+unit: test plan
+_name: Power management auto tests
+_description: Automated power-management tests for devices
+include:
+
+id: oem-power-management-manual
+unit: test plan
+_name: Power management manual tests
+_description: Manual power-management tests for devices
+include:
+

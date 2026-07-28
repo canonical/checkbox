@@ -1,0 +1,26 @@
+id: oem-ptp-full
+unit: test plan
+_name: PTP tests
+_description: Full PTP tests for devices
+include:
+nested_part:
+  oem-ptp-automated
+  oem-ptp-manual
+
+id: oem-ptp-automated
+unit: test plan
+_name: PTP auto tests
+_description: Automated PTP tests for devices
+bootstrap_include:
+include:
+
+id: oem-ptp-manual
+unit: test plan
+_name: PTP manual tests
+_description:
+    Manual PTP tests for devices
+    This is not nested in oem-manual because the current
+    test job steps are duplicated with the auto test job.
+    The manual test steps here is used as a reference.
+bootstrap_include:
+include:

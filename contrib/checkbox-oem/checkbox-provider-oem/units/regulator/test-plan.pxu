@@ -1,0 +1,21 @@
+id: oem-regulator-full
+unit: test plan
+_name: Regulator tests
+_description: Full Regulator tests for devices
+include:
+nested_part:
+  oem-regulator-automated
+  oem-regulator-manual
+
+id: oem-regulator-automated
+unit: test plan
+_name: Regulator auto tests
+_description: Automated led tests for devices
+include:
+
+id: oem-regulator-manual
+unit: test plan
+_name: Regulator manual tests
+_description: Manual regulator tests for devices
+include:
+

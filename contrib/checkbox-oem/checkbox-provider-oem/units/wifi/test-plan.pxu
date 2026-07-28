@@ -1,0 +1,23 @@
+id: oem-wifi-full
+unit: test plan
+_name: oem WiFi mode tests
+_description: Full WiFi mode tests for oem
+include:
+nested_part:
+  oem-wifi-automated
+  oem-wifi-manual
+
+id: oem-wifi-automated
+unit: test plan
+_name: oem automated WiFi mode tests
+_description: automated WiFi mode tests for oem
+bootstrap_include:
+include:
+
+id: oem-wifi-manual
+unit: test plan
+_name: oem manual WiFi mode tests
+_description: Manual WiFi mode tests
+bootstrap_include:
+include:
+

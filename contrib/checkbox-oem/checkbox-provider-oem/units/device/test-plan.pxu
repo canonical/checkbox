@@ -1,0 +1,23 @@
+id: oem-device-full
+unit: test plan
+_name: Device Tree tests
+_description: Full Device Tree tests for devices
+include:
+nested_part:
+  oem-device-automated
+  oem-device-manual
+
+id: oem-device-automated
+unit: test plan
+_name: Device Tree auto tests
+_description: Automated Device Tree tests for devices
+bootstrap_include:
+include:
+
+id: oem-device-manual
+unit: test plan
+_name: Device Tree manual tests
+_description: Manual Device Tree tests for devices
+bootstrap_include:
+include:
+    

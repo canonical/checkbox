@@ -1,0 +1,22 @@
+id: oem-cpu-full
+unit: test plan
+_name: CPU tests
+_description: Full CPU tests for devices
+include:
+nested_part:
+  oem-cpu-automated
+  oem-cpu-manual
+
+id: oem-cpu-automated
+unit: test plan
+_name: CPU auto tests
+_description: Automated CPU tests for devices
+bootstrap_include:
+include:
+
+id: oem-cpu-manual
+unit: test plan
+_name: CPU manual tests
+_description: Manual CPU tests for devices
+bootstrap_include:
+include:

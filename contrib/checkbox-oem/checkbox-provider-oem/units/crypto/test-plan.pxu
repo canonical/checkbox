@@ -1,0 +1,21 @@
+id: oem-crypto-full
+unit: test plan
+_name: Crypto tests
+_description: Full crypto tests for devices
+include:
+nested_part:
+  oem-crypto-automated
+  oem-crypto-manual
+
+id: oem-crypto-automated
+unit: test plan
+_name: Crypto auto tests
+_description: Automated crypto tests for devices
+bootstrap_include:
+include:
+
+id: oem-crypto-manual
+unit: test plan
+_name: Crypto manual tests
+_description: Manual crypto tests for devices
+include:

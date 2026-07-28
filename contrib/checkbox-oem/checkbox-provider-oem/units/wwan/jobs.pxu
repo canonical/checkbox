@@ -1,0 +1,33 @@
+unit: template
+template-resource: device
+template-filter:
+  (device.vendor_id == '32902' and device.product_id == '30048') or (device.vendor_id == '5315' and device.product_id == '19829')
+template-unit: job
+requires:
+  snap_executable.name == 'mmcli'
+plugin: shell
+category_id: com.canonical.plainbox::mobilebroadband
+id: wwan/check-fcclock-state_{product_id}_{__index__}
+user: root
+command:
+  wwan-check-fcclock-state.sh {path}
+_summary: Check the fcclock state of ({product_id})
+_description:
+  The test case is for checking the fcclock state of WWAN module
+
+plugin: attachment
+category_id: com.canonical.plainbox::mobilebroadband
+id: wwan/get-wwan-firmware-version
+estimated_duration: 2.0
+imports: from com.canonical.certification import mobilebroadband
+requires:
+  snap_executable.name == 'mmcli'
+  mobilebroadband.gsm == 'supported'
+command:
+  for i in $(mmcli -L | awk '/freedesktop\/ModemManager1\/Modem/ {print $1;}'); do
+    echo "model: $(mmcli -m "$i" | grep "model" | awk -F'model:' '{print $2}')"
+    echo "revision: $(mmcli -m "$i" | grep "firmware revision" | awk -F'firmware revision:' '{print $2}')"
+  done
+_description:
+  Attach WWAN module FW info.
+

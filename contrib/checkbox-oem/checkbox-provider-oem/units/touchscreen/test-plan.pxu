@@ -1,0 +1,8 @@
+id: oem-touchscreen-manual
+unit: test plan
+_name: Touchscreen evdev tests
+_description:
+  Touchscreen evdev tests
+include:
+bootstrap_include:
+

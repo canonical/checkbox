@@ -1,0 +1,22 @@
+id: oem-ethernet-full
+unit: test plan
+_name: TCP connection tests
+_description: TCP connection test of the device
+include:
+nested_part:
+  oem-ethernet-automated
+
+id: oem-ethernet-automated
+unit: test plan
+_name: TCP connection test plan
+_description: TCP connection test
+estimated_duration: 300
+include:
+
+id: oem-ethernet-stress
+unit: test plan
+_name: TCP stress test plan
+_description: TCP stress
+estimated_duration: 60h
+bootstrap_include:
+include:

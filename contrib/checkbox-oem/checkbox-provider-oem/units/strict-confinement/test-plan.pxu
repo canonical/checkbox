@@ -1,0 +1,32 @@
+id: oem-strict-confinement-full
+unit: test plan
+_name: Full manual + automated tests for Ubuntu Core in strict confinement
+_description:
+  Combined manual and automated test plans for Ubuntu Core in strict confinement environment.
+include:
+nested_part:
+  oem-strict-confinement-automated
+  oem-strict-confinement-manual
+
+id: oem-strict-confinement-automated
+unit: test plan
+_name: Automated only tests for Ubuntu Core in strict confinement
+_description:
+  Ubuntu Core test plan for the strict confinement environment.
+  This test plan contains all of the automated tests used to validate
+  the Ubuntu Core in strict confinement environment.
+include:
+nested_part:
+exclude:
+
+id: oem-strict-confinement-manual
+unit: test plan
+_name: Manual only tests for Ubuntu Core in strict confinement
+_description:
+  Ubuntu Core test plan for strict confinement environment.
+  This test plan contains all of the tests that require manual
+  control of device hardware or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+exclude:

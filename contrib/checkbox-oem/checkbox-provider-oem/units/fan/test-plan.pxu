@@ -1,0 +1,21 @@
+id: oem-fan-full
+unit: test plan
+_name: PWM Fan tests
+_description: Full PWM Fan tests for devices
+include:
+nested_part:
+  oem-fan-automated
+  oem-fan-manual
+
+id: oem-fan-automated
+unit: test plan
+_name: PWM Fan tests automated tests
+_description: Automated PWM Fan tests for devices
+include:
+
+id: oem-fan-manual
+unit: test plan
+_name: PWM Fan manual tests
+_description: Manual PWM Fan tests for devices
+bootstrap_include:
+include:

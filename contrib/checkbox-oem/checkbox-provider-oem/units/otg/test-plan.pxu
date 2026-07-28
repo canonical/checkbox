@@ -1,0 +1,22 @@
+id: oem-otg-full
+unit: test plan
+_name: OTG tests
+_description: Full OTG tests for devices
+include:
+nested_part:
+  oem-otg-automated
+  oem-otg-manual
+
+id: oem-otg-automated
+unit: test plan
+_name: OTG auto tests
+_description: Automated OTG tests for devices
+bootstrap_include:
+include:
+
+id: oem-otg-manual
+unit: test plan
+_name: OTG manual tests
+_description: Manual OTG tests for devices
+bootstrap_include:
+include:

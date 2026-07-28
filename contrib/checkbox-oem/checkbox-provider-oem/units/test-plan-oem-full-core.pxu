@@ -1,0 +1,58 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the IoT devices running Ubuntu Core.
+#
+
+id: oem-iot-ubuntucore-24
+unit: test plan
+_name: OEM-IOT - Full manual + automated OEM tests for Ubuntu Core 24
+_description:
+  Combined manual and automated test plans for IoT devices running Ubuntu Core.
+include:
+nested_part:
+  oem-iot-ubuntucore-24-automated
+  oem-iot-ubuntucore-24-manual
+  oem-iot-ubuntucore-24-stress
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-ubuntucore-24-automated
+unit: test plan
+_name: OEM-IOT - Automated only OEM tests for Ubuntu Core 24
+_description:
+  Ubuntu Core OEM test plan for the IoT devices. This test plan contains
+  all of the automated tests used to validate the IoT devices.
+include:
+nested_part:
+  oem-automated
+exclude:
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-ubuntucore-24-manual
+unit: test plan
+_name: OEM-IOT - Manual only OEM tests for Ubuntu Core 24
+_description:
+  Ubuntu Core OEM test plan for the IoT devices. This test plan contains
+  all of the tests that require manual control of device hardware
+  or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+  oem-manual
+exclude:
+certification_status_overrides:
+  apply blocker to .*
+
+id: oem-iot-ubuntucore-24-stress
+unit: test plan
+_name: OEM-IOT - Stress only OEM tests for Ubuntu Core 24
+_description:
+  Ubuntu Core OEM test plan that includes all stress tests required for IoT devices
+include:
+nested_part:
+  oem-stress
+exclude:
+certification_status_overrides:
+  apply blocker to .*

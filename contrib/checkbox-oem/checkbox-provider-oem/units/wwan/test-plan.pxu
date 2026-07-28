@@ -1,0 +1,22 @@
+id: oem-wwan-full
+unit: test plan
+_name: WWAN tests
+_description: Full wwan tests for devices
+include:
+nested_part:
+  oem-wwan-automated
+  oem-wwan-manual
+
+id: oem-wwan-automated
+unit: test plan
+_name: WWAN auto tests
+_description: Automated wwan tests for devices
+bootstrap_include:
+include:
+
+id: oem-wwan-manual
+unit: test plan
+_name: WWAN manual tests
+_description: Manual wwan tests for devices
+include:
+

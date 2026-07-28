@@ -1,0 +1,22 @@
+id: oem-camera-full
+unit: test plan
+_name: MIPI Camera tests
+_description: Full tests for MIPI Camera
+include:
+nested_part:
+  oem-camera-automated
+  oem-camera-manual
+
+id: oem-camera-automated
+unit: test plan
+_name: MIPI Camera auto tests
+_description: Automated tests for MIPI Camera in before suspend and post suspend stage
+bootstrap_include:
+include:
+
+id: oem-camera-manual
+unit: test plan
+_name: MIPI Camera manual tests
+_description: Manual tests for MIPI Camera in before suspend and post suspend stage
+bootstrap_include:
+include:

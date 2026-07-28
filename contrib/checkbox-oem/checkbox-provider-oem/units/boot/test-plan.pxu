@@ -1,0 +1,22 @@
+id: oem-boot-full
+unit: test plan
+_name: Boot test
+_description: Boot tests for devices
+include:
+nested_part:
+  oem-boot-automated
+  oem-boot-manual
+
+id: oem-boot-automated
+unit: test plan
+_name: Boot manual Tests (Automated)
+_description: Boot manual Tests (Automated)
+bootstrap_include:
+include:
+
+id: oem-boot-manual
+unit: test plan
+_name: Boot manual Tests (Manual)
+_description: Boot manual Tests (Manual)
+bootstrap_include:
+include:

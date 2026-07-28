@@ -1,0 +1,21 @@
+id: oem-thermal-full
+unit: test plan
+_name: Thermal thermal tests
+_description: Full thermal thermal tests for devices
+include:
+nested_part:
+  oem-thermal-automated
+  oem-thermal-manual
+
+id: oem-thermal-automated
+unit: test plan
+_name: Thermal auto tests
+_description: Automated thermal tests for devices
+bootstrap_include:
+include:
+
+id: oem-thermal-manual
+unit: test plan
+_name: Thermal manual tests
+_description: Manual thermal tests for devices
+include:

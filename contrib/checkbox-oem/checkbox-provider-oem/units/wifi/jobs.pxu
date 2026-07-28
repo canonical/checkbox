@@ -1,0 +1,15 @@
+unit: template
+template-resource: device
+template-filter:
+  device.category == 'WIRELESS'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::wireless
+id: wifi/check_{interface}_wifi6e_enabled
+requires:
+  snap_executable.name == 'iw'
+command: wifi-check_wifi6e.py {interface}
+_summary: Check the status of Wifi6e
+_description:
+  Check if the system enable Wifi6e 6GHz band with Kernel less then 5.15
+

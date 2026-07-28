@@ -44,4 +44,4 @@ estimated_duration: 1
 _summary: tpm2 capabilities (algorithms and pcr banks)
 user: root
 command:
- tpm2_capabilities.py
+ tpm2_capabilities.py --resource

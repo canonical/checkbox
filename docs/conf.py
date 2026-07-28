@@ -68,7 +68,7 @@ copyright = "%s GPL-3.0, %s" % (datetime.date.today().year, author)
 # NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
 #       and is used by social media platforms; see https://ogp.me/
 
-ogp_site_url = "https://canonical-checkbox.readthedocs-hosted.com/latest/"
+ogp_site_url = f"https://ubuntu.com/docs/checkbox/{os.environ.get('READTHEDOCS_VERSION', 'local')}/"
 
 # Preview name of the documentation website
 ogp_site_name = project
@@ -149,16 +149,16 @@ html_context = {
 # - https://launchpad.net/example
 # - https://git.launchpad.net/example
 #
-# html_theme_options = {
-# 'source_edit_link': 'https://github.com/canonical/sphinx-docs-starter-pack',
-# }
+html_theme_options = {
+    "source_edit_link": "https://github.com/canonical/checkbox",
+}
 
 # Project slug; see https://meta.discourse.org/t/what-is-category-slug/87897
 #
 # TODO: If your documentation is hosted on https://docs.ubuntu.com/,
 #       uncomment and update as needed.
 
-# slug = ''
+slug = "docs/checkbox"  # required when hosted on ubuntu.com
 
 #######################
 # Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
@@ -166,7 +166,8 @@ html_context = {
 
 # Use RTD canonical URL to ensure duplicate pages have a specific canonical URL
 
-html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+html_baseurl = f"https://ubuntu.com/docs/checkbox/{os.environ.get('READTHEDOCS_VERSION', 'local')}/"
+sitemap_filename = "doc-sitemap.xml"
 
 # sphinx-sitemap uses html_baseurl to generate the full URL for each page:
 
@@ -181,7 +182,7 @@ sitemap_show_lastmod = True
 #######################
 
 html_static_path = [".sphinx/_static"]
-# templates_path = ["_templates"]
+templates_path = [".sphinx/_templates"]
 
 # Adds custom CSS files, located under 'html_static_path'
 html_css_files = [
@@ -189,7 +190,9 @@ html_css_files = [
 ]
 
 # Adds custom JavaScript files, located under 'html_static_path'
-# html_js_files = []
+html_js_files = [
+    "overwrite_links.js",  # support ReadTheDocs flyout when hosted at ubuntu.com/docs
+]
 
 #############
 # Redirects #

@@ -20,6 +20,7 @@ bootstrap_include:
   - com.canonical.certification::dmi
   - com.canonical.certification::removable_partition
   - com.canonical.certification::serial_ports_static
+  - com.canonical.certification::tpm2_pcr_banks
 include:
   - com.canonical.plainbox::manifest
   - com.canonical.certification::executable
@@ -87,9 +88,9 @@ include:
   - com.canonical.certification::socketcan/send_packet_local_fd_virtual
   - com.canonical.certification::clevis-encrypt-tpm2/precheck
   - com.canonical.certification::clevis-encrypt-tpm2/detect-rsa-capabilities
-  - com.canonical.certification::clevis-encrypt-tpm2/rsa
+  - com.canonical.certification::clevis-encrypt-tpm2/rsa_.*
   - com.canonical.certification::clevis-encrypt-tpm2/detect-ecc-capabilities
-  - com.canonical.certification::clevis-encrypt-tpm2/ecc
+  - com.canonical.certification::clevis-encrypt-tpm2/ecc_.*
   - com.canonical.certification::usb/storage-detect
   - com.canonical.certification::suspend/suspend_advanced_auto
   - com.canonical.certification::after-suspend-audio/detect-playback-devices

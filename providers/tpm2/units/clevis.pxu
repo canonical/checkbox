@@ -27,15 +27,19 @@ _summary: clevis encrypt/decrypt precheck
 flags: simple
 command: true
 
-id: clevis-encrypt-tpm2/detect-rsa-capabilities
+unit: template
+template-resource: tpm2_pcr_banks
+template-unit: job
+template-id: clevis-encrypt-tpm2/detect-rsa-capabilities-pcr-bank
+id: clevis-encrypt-tpm2/detect-rsa-capabilities-{pcr_bank}
 category_id: tpm2
 plugin: shell
 depends: clevis-encrypt-tpm2/precheck
 user: root
-_summary: Ensure the TPM has required capabilities for clevis RSA test
+_summary: Ensure the TPM has required capabilities ({pcr_bank} PCR bank and hash) for clevis RSA
 command:
-  tpm2_capabilities.py hash sha256 && \
-  tpm2_capabilities.py pcr_banks sha256 && \
+  tpm2_capabilities.py hash {pcr_bank} && \
+  tpm2_capabilities.py pcr_banks {pcr_bank} && \
   tpm2_capabilities.py assymetric rsa
 
 unit: template
@@ -45,7 +49,7 @@ template-id: clevis-encrypt-tpm2/rsa_pcr_bank
 id: clevis-encrypt-tpm2/rsa_{pcr_bank}
 category_id: tpm2
 plugin: shell
-depends: clevis-encrypt-tpm2/detect-rsa-capabilities
+depends: clevis-encrypt-tpm2/detect-rsa-capabilities-{pcr_bank}
 estimated_duration: 30
 _summary: clevis encrypt/decrypt key rsa using {pcr_bank} PCR bank and hash
 user: root
@@ -57,15 +61,19 @@ command:
  echo "+ Compare with the original string"
  [[ $result == $rand ]]
 
-id: clevis-encrypt-tpm2/detect-ecc-capabilities
+unit: template
+template-resource: tpm2_pcr_banks
+template-unit: job
+template-id: clevis-encrypt-tpm2/detect-ecc-capabilities-pcr-bank
+id: clevis-encrypt-tpm2/detect-ecc-capabilities-{pcr_bank}
 category_id: tpm2
 plugin: shell
 depends: clevis-encrypt-tpm2/precheck
 user: root
-_summary: Ensure the TPM has required capabilities for clevis ECC test
+_summary: Ensure the TPM has required capabilities ({pcr_bank} PCR bank and hash) for clevis ECC test
 command:
-  tpm2_capabilities.py hash sha256 && \
-  tpm2_capabilities.py pcr_banks sha256 && \
+  tpm2_capabilities.py hash {pcr_bank} && \
+  tpm2_capabilities.py pcr_banks {pcr_bank} && \
   tpm2_capabilities.py assymetric ecc
 
 unit: template
@@ -75,7 +83,7 @@ template-id: clevis-encrypt-tpm2/ecc_pcr_bank
 id: clevis-encrypt-tpm2/ecc_{pcr_bank}
 category_id: tpm2
 plugin: shell
-depends: clevis-encrypt-tpm2/detect-ecc-capabilities
+depends: clevis-encrypt-tpm2/detect-ecc-capabilities-{pcr_bank}
 estimated_duration: 30
 _summary: clevis encrypt/decrypt key ecc using {pcr_bank} PCR bank and hash
 user: root

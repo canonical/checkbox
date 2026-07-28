@@ -306,6 +306,7 @@ _summary: Attach the bootchart log from the latest bootchart test run.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: installer_bootchart.tgz
+requires: lsb.distributor_id != "Ubuntu Core"
 command: [ -f /var/log/installer/bootchart.tgz ] && cat /var/log/installer/bootchart.tgz
 _purpose: Attach the installer bootchart tarball if it exists.
 _summary: Attach installer bootchart tarball if present.
@@ -313,6 +314,7 @@ _summary: Attach installer bootchart tarball if present.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: installer_debug.gz
+requires: lsb.distributor_id != "Ubuntu Core"
 user: root
 command: [ -d /var/log/installer ] && tar zcvf installer.tgz /var/log/installer
 estimated_duration: 0.1

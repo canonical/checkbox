@@ -87,9 +87,9 @@ include:
   - com.canonical.certification::socketcan/send_packet_local_eff_virtual
   - com.canonical.certification::socketcan/send_packet_local_fd_virtual
   - com.canonical.certification::clevis-encrypt-tpm2/precheck
-  - com.canonical.certification::clevis-encrypt-tpm2/detect-rsa-capabilities
+  - com.canonical.certification::clevis-encrypt-tpm2/detect-rsa-capabilities.*
   - com.canonical.certification::clevis-encrypt-tpm2/rsa_.*
-  - com.canonical.certification::clevis-encrypt-tpm2/detect-ecc-capabilities
+  - com.canonical.certification::clevis-encrypt-tpm2/detect-ecc-capabilities.*
   - com.canonical.certification::clevis-encrypt-tpm2/ecc_.*
   - com.canonical.certification::usb/storage-detect
   - com.canonical.certification::suspend/suspend_advanced_auto

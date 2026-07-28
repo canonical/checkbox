@@ -94,9 +94,9 @@ bootstrap_include:
     tpm2_pcr_banks
 include:
     clevis-encrypt-tpm2/precheck    certification-status=blocker
-    clevis-encrypt-tpm2/detect-rsa-capabilities    certification-status=blocker
+    clevis-encrypt-tpm2/detect-rsa-capabilities-pcr-bank    certification-status=blocker
     clevis-encrypt-tpm2/rsa_pcr_bank    certification-status=blocker
-    clevis-encrypt-tpm2/detect-ecc-capabilities    certification-status=blocker
+    clevis-encrypt-tpm2/detect-ecc-capabilities-pcr-bank    certification-status=blocker
     clevis-encrypt-tpm2/ecc_pcr_bank    certification-status=blocker
 
 

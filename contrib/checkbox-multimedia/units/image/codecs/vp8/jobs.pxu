@@ -1,0 +1,21 @@
+id: multimedia/image/codecs/vp8/decode/version0_3/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API VP8 decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vp8_version0_3_decoder_vaapi == 'True'
+command:
+  fluster run -d GStreamer-VP8-VAAPI-Gst1.0 -j1 -ts VP8-TEST-VECTORS
+
+id: multimedia/image/codecs/vp8/encode/version0_3/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 10s
+_summary: VA-API VP8 encode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vp8_encoder_vaapi == 'True'
+command:
+  gst_encoder_quality.py --codec vp8 --width 1920 --height 1080 --framerate 30 --num-buffers 60

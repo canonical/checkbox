@@ -1,0 +1,32 @@
+id: multimedia/image/codecs/vp9/decode/8bit/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API VP9 8-bit decode (Profile 0 / 1)
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vp9_profile0_decoder_vaapi == 'True' or manifest.has_vp9_profile1_decoder_vaapi == 'True'
+command:
+  fluster run -d GStreamer-VP9-VAAPI-Gst1.0 -j1 -ts VP9-TEST-VECTORS
+
+id: multimedia/image/codecs/vp9/decode/high/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API VP9 high bit-depth decode (Profile 2 / 3)
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vp9_profile2_decoder_vaapi == 'True' or manifest.has_vp9_profile3_decoder_vaapi == 'True'
+command:
+  fluster run -d GStreamer-VP9-VAAPI-Gst1.0 -j1 -ts VP9-TEST-VECTORS-HIGH
+
+id: multimedia/image/codecs/vp9/encode/profile0/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 10s
+_summary: VA-API VP9 Profile 0 encode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_vp9_encoder_vaapi == 'True'
+command:
+  gst_encoder_quality.py --codec vp9 --width 1920 --height 1080 --framerate 30 --num-buffers 60

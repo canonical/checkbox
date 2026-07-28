@@ -1,0 +1,24 @@
+unit: manifest entry
+id: has_vp9_profile0_decoder_vaapi
+_name: Has VA-API support for VP9 Profile 0 decode
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile1_decoder_vaapi
+_name: Has VA-API support for VP9 Profile 1 decode
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile2_decoder_vaapi
+_name: Has VA-API support for VP9 Profile 2 decode
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile3_decoder_vaapi
+_name: Has VA-API support for VP9 Profile 3 decode
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_encoder_vaapi
+_name: Has VA-API support for VP9 encoding
+value-type: bool

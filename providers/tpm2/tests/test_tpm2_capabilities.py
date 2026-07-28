@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import tpm2_capabilities
 
-
 HERE = os.path.dirname(os.path.abspath(__file__))
 TEST_DATA = os.path.join(HERE, "test_data")
 
@@ -57,9 +56,7 @@ class TestBuildCapabilities(unittest.TestCase):
         self.assertIn("aes128", caps["symmetric"])
 
         # Hash algorithms in the sample.
-        self.assertEqual(
-            caps["hash"], {"sha1", "sha256", "sha384"}
-        )
+        self.assertEqual(caps["hash"], {"sha1", "sha256", "sha384"})
 
         # Keyed hash.
         self.assertEqual(

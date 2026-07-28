@@ -241,6 +241,14 @@ def parse_args(argv=None):
         help="Print all capabilities as a Checkbox resource unit",
     )
     parser.add_argument(
+        "--resource-pcr-banks",
+        action="store_true",
+        help=(
+            "Print each available PCR bank as a separate Checkbox "
+            "resource record"
+        ),
+    )
+    parser.add_argument(
         "capability",
         nargs="?",
         help=(
@@ -255,15 +263,21 @@ def parse_args(argv=None):
     )
     args = parser.parse_args(argv)
 
-    if args.resource:
+    modes = [args.resource, args.resource_pcr_banks]
+    if any(modes):
+        if sum(modes) > 1:
+            parser.error(
+                "--resource and --resource-pcr-banks are mutually exclusive"
+            )
         if args.capability is not None or args.value is not None:
             parser.error(
-                "--resource cannot be combined with capability/value"
+                "resource flags cannot be combined with capability/value"
             )
     else:
         if args.capability is None or args.value is None:
             parser.error(
-                "use --resource, or [capability] [supported-values] to test"
+                "use --resource, --resource-pcr-banks, or "
+                "[capability] [supported-values] to test"
             )
 
     return args
@@ -277,6 +291,14 @@ def main(argv=None):
         # print as resource unit
         for k, v in tpm2_cap.items():
             print("{}: {}".format(k, " ".join(sorted(v))))
+        return
+
+    if args.resource_pcr_banks:
+        # print each PCR bank as a separate resource record
+        banks = sorted(tpm2_cap["pcr_banks"])
+        print(
+            "\n\n".join("pcr_bank: {}".format(bank) for bank in banks)
+        )
         return
 
     try:

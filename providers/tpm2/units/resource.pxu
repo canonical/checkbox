@@ -45,3 +45,12 @@ _summary: tpm2 capabilities (algorithms and pcr banks)
 user: root
 command:
  tpm2_capabilities.py --resource
+
+id: tpm2_pcr_banks
+category_id: tpm2
+plugin: resource
+estimated_duration: 1
+_summary: Print each TPM2 PCR bank as a separate resource record
+user: root
+command:
+ tpm2_capabilities.py --resource-pcr-banks

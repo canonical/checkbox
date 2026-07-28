@@ -132,6 +132,36 @@ class PhysicalMonitor(_PhysicalMonitorT):
     def is_builtin(self) -> bool:
         return self.properties.get("is-builtin", False)
 
+    def get_max_resolution(self) -> "tuple[int, int]":
+        """Get the maximum physcial resolution of this monitor
+
+        :raises ValueError: if there's no supported modes
+        :raises RuntimeError: if all modes are 0
+        :return: (width, height) pair like (1920, 1080)
+        """
+        max_w, max_h = 0, 0
+        if len(self.modes) == 0:
+            raise ValueError(
+                "Monitor {} doesn't have any supported modes!".format(
+                    self.info.connector
+                )
+            )
+        for mode in self.modes:
+            if (mode.width, mode.height) >= (max_w, max_h):
+                max_w, max_h = mode.width, mode.height
+
+        if (max_w, max_h) == (0, 0):
+            raise RuntimeError("Unexpected max resolution of 0x0")
+
+        return max_w, max_h
+
+    def get_current_mode(self) -> "MutterDisplayMode | None":
+        # it' possible to return none
+        # if somehow all monitors are turned off
+        for mode in self.modes:
+            if mode.is_current:
+                return mode
+
 
 _LogicalMonitorT = NamedTuple(
     "_LogicalMonitorT",
@@ -344,7 +374,7 @@ class MonitorConfigGnome(MonitorConfig):
         cycle_transforms: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
         post_cycle_action: Callable[..., Any] = lambda *a, **k: sleep(5),
-        **post_cycle_action_kwargs: Any
+        **post_cycle_action_kwargs: Any,
     ):
         """Automatically cycle through the supported monitor configurations.
 

@@ -187,11 +187,13 @@ templates_path = [".sphinx/_templates"]
 # Adds custom CSS files, located under 'html_static_path'
 html_css_files = [
     "checkbox-doc.css",
+    "https://assets.ubuntu.com/v1/d86746ef-cookie_banner.css",  # Google Analytics cookie banner
 ]
 
 # Adds custom JavaScript files, located under 'html_static_path'
 html_js_files = [
     "overwrite_links.js",  # support ReadTheDocs flyout when hosted at ubuntu.com/docs
+    "https://assets.ubuntu.com/v1/287a5e8f-bundle.js",  # Google Analytics cookie banner
 ]
 
 #############

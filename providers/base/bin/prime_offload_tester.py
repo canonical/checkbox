@@ -30,6 +30,7 @@ import re
 import os
 import typing as T
 from shlex import split as sh_split
+import ctypes
 
 
 class PrimeOffloader:
@@ -238,6 +239,97 @@ class PrimeOffloader:
         self.logger.info("  Couldn't find process {}".format(cmd))
         self.check_result = True
 
+    def check_nv_link_status(self) -> bool:
+        """
+        Check NVLink status using ctypes binding to libnvml.
+
+        Returns True if NVLink is active/detected, False otherwise.
+        Returns False if nvml library is not available.
+        """
+        try:
+            # Try to load the NVIDIA Management Library
+            try:
+                nvml = ctypes.CDLL("libnvidia-ml.so.1")
+            except OSError:
+                # Library not found, assume no NVLink
+                self.logger.info(
+                    "libnvidia-ml.so.1 not found, assuming no NVLink"
+                )
+                return False
+
+            # Define NVML return codes
+            NVML_SUCCESS = 0
+            NVML_ERROR_NOT_SUPPORTED = 3
+
+            # Initialize NVML
+            nvmlInit = nvml.nvmlInit_v2
+            nvmlInit.restype = ctypes.c_int
+
+            ret = nvmlInit()
+            if ret != NVML_SUCCESS:
+                self.logger.info("NVML initialization failed")
+                return False
+
+            # Get device count
+            nvmlDeviceGetCount = nvml.nvmlDeviceGetCount_v2
+            nvmlDeviceGetCount.argtypes = [ctypes.POINTER(ctypes.c_uint)]
+            nvmlDeviceGetCount.restype = ctypes.c_int
+
+            device_count = ctypes.c_uint()
+            ret = nvmlDeviceGetCount(ctypes.byref(device_count))
+            if ret != NVML_SUCCESS:
+                nvml.nvmlShutdown()
+                return False
+
+            # Check each device for NVLink
+            nvmlDeviceGetHandleByIndex = nvml.nvmlDeviceGetHandleByIndex_v2
+            nvmlDeviceGetHandleByIndex.argtypes = [
+                ctypes.c_uint,
+                ctypes.POINTER(ctypes.c_void_p),
+            ]
+            nvmlDeviceGetHandleByIndex.restype = ctypes.c_int
+
+            nvmlDeviceGetNvLinkState = nvml.nvmlDeviceGetNvLinkState
+            nvmlDeviceGetNvLinkState.argtypes = [
+                ctypes.c_void_p,
+                ctypes.c_uint,
+                ctypes.POINTER(ctypes.c_uint),
+            ]
+            nvmlDeviceGetNvLinkState.restype = ctypes.c_int
+
+            nvlink_detected = False
+            for i in range(device_count.value):
+                handle = ctypes.c_void_p()
+                ret = nvmlDeviceGetHandleByIndex(i, ctypes.byref(handle))
+                if ret != NVML_SUCCESS:
+                    continue
+
+                # Check NVLink links (typically 0-5 for modern GPUs)
+                for link in range(6):
+                    state = ctypes.c_uint()
+                    ret = nvmlDeviceGetNvLinkState(
+                        handle, link, ctypes.byref(state)
+                    )
+                    # Skip if not supported
+                    if ret == NVML_ERROR_NOT_SUPPORTED:
+                        continue
+                    # Check if link is active (state == 1)
+                    if ret == NVML_SUCCESS and state.value == 1:
+                        nvlink_detected = True
+                        break
+
+                if nvlink_detected:
+                    break
+
+            # Shutdown NVML
+            nvml.nvmlShutdown()
+
+            return nvlink_detected
+
+        except Exception as e:
+            self.logger.info("Error checking NVLink status: {}".format(e))
+            return False
+
     def check_nv_offload_env(self):
         """
         prime offload of nvidia driver is limited.
@@ -254,13 +346,8 @@ class PrimeOffloader:
                 raise SystemExit("System isn't on-demand mode")
 
             # prime offload couldn't running on nvlink active or inactive
-            # Therefore, only return empty string is supported environment.
-            nvlink = subprocess.check_output(
-                ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
-            )
-            if nvlink:
-                if "error" in nvlink.lower():
-                    raise SystemExit("nvidia driver error")
+            # Use ctypes binding to libnvml to check NVLink status
+            if self.check_nv_link_status():
                 raise SystemExit("NVLINK detected")
         except FileNotFoundError:
             self.logger.info(
@@ -350,6 +437,10 @@ class PrimeOffloader:
             }
         else:
             offload_env = {"DRI_PRIME": "pci-{}".format(dri_pci_bdf_format)}
+            offload_env = {
+                "DRI_PRIME": "pci-{}".format(dri_pci_bdf_format),
+                "__GLX_VENDOR_LIBRARY_NAME": "mesa",
+            }
 
         env.update(offload_env)
         self.logger.info("prime offload env: {}".format(offload_env))

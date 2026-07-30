@@ -70,10 +70,18 @@ def _generate_artifact_pattern(
         args.height,
     )
 
+    # Keep sensor modes sharing a resolution in their own artifact folder,
+    # mirroring the mode suffix of the job id.
+    mode_pattern = ""
+    if args.mode is not None:
+        mode_pattern = "_mode{}".format(args.mode)
+
     if scenario_name == CameraScenarios.CAPTURE_IMAGE:
-        return base_pattern + "_{}".format(args.format)
+        return base_pattern + "{}_{}".format(mode_pattern, args.format)
     elif scenario_name == CameraScenarios.RECORD_VIDEO:
-        return base_pattern + "@{}fps_{}".format(args.framerate, args.format)
+        return base_pattern + "@{}fps{}_{}".format(
+            args.framerate, mode_pattern, args.format
+        )
     else:
         raise ValueError("Unsupported scenario: {}".format(scenario_name))
 
@@ -116,6 +124,13 @@ def _execute_capture_image_scenario(
         artifact_store_path: Path to store artifacts
         artifact_name: Base name for artifacts
     """
+    # Only pass the sensor mode / capture framerate when the scenario
+    # declares them: the platforms that don't use them don't accept them
+    # either.
+    extra = {"mode": args.mode} if args.mode is not None else {}
+    if args.framerate is not None:
+        extra["framerate"] = args.framerate
+
     iteration = 5  # Capture multiple images
     for i in range(1, iteration + 1):
         logger.info("\n\n===== Iteration {} =====\n".format(i))
@@ -127,6 +142,7 @@ def _execute_capture_image_scenario(
             store_path=artifact_store_path,
             artifact_name=artifact_name + "_{}".format(i),
             v4l2_device_name=args.v4l2_device_name,
+            **extra
         )
 
 
@@ -145,6 +161,10 @@ def _execute_record_video_scenario(
         artifact_store_path: Path to store artifacts
         artifact_name: Base name for artifacts
     """
+    # Only pass the sensor mode when the scenario declares one: the platforms
+    # that don't use it don't accept it either.
+    extra = {"mode": args.mode} if args.mode is not None else {}
+
     handler_instance.record_video(
         width=args.width,
         height=args.height,
@@ -155,6 +175,7 @@ def _execute_record_video_scenario(
         artifact_name=artifact_name,
         method=args.method,
         v4l2_device_name=args.v4l2_device_name,
+        **extra
     )
 
 
@@ -324,6 +345,14 @@ def register_arguments() -> argparse.Namespace:
         "--framerate",
         type=int,
         help=("fps of camera"),
+    )
+
+    parser_testing.add_argument(
+        "-md",
+        "--mode",
+        type=int,
+        default=None,
+        help=("Optional: sensor mode of camera"),
     )
 
     args = parser.parse_args()

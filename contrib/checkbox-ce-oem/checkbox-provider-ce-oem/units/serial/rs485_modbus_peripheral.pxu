@@ -1,0 +1,51 @@
+id: ce-oem-serial/rs485-modbus-peripheral-list
+_summary:
+    Generates RS485 Modbus peripheral resources from user configuration
+_description:
+    Generates one resource for each RS485 Modbus peripheral listed in
+    RS485_MODBUS_PERIPHERALS.
+    NAME:NODE:BAUDRATE:UNIT_ID:REGISTER_TYPE:REGISTER_ADDRESS:REGISTER_COUNT:PARITY
+plugin: resource
+estimated_duration: 1.0
+environ:
+    RS485_MODBUS_PERIPHERALS
+command:
+    if [ -z "$RS485_MODBUS_PERIPHERALS" ]; then
+        exit 0
+    fi
+    rs485_modbus_test.py list "$RS485_MODBUS_PERIPHERALS"
+
+unit: template
+template-resource: ce-oem-serial/rs485-modbus-peripheral-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-serial/rs485-modbus-read-tests
+id: ce-oem-serial/rs485-modbus-read-{{ name_id }}-{{ node_id }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_rs485_modbus_peripheral == 'True'
+_template-summary:
+    Read registers from configured RS485 Modbus peripherals
+_summary: Read RS485 Modbus registers from {{ name }}
+_purpose:
+    To check that the DUT can read raw registers from RS485 Modbus
+    peripheral {{ name }} on {{ node }}.
+_description:
+    This test opens {{ node }} as an RS485 Modbus RTU client with baudrate
+    {{ baudrate }}, parity {{ parity }}, unit ID {{ unit_id }}, and reads
+    {{ register_count }} {{ register_type }} register(s) starting at address
+    {{ register_address }}.
+plugin: shell
+user: root
+category_id: com.canonical.certification::serial
+estimated_duration: 5
+flags: also-after-suspend
+command:
+    rs485_modbus_test.py read \
+        --port "{{ node }}" \
+        --baudrate "{{ baudrate }}" \
+        --unit-id "{{ unit_id }}" \
+        --register-type "{{ register_type }}" \
+        --address "{{ register_address }}" \
+        --count "{{ register_count }}" \
+        --parity "{{ parity }}"

@@ -95,13 +95,8 @@ def build_capabilities():
             "Please make sure you have installed tpm-tools and tpm chip."
         )
 
-    try:
-        Loader = yaml.FullLoader
-    except AttributeError:
-        Loader = yaml.SafeLoader  # Fallback for older PyYAML / Python 3.6
-
-    algs_list = yaml.load(algs_caps, Loader=Loader)
-    pcrs_list = yaml.load(pcrs_caps, Loader=Loader)
+    algs_list = yaml.load(algs_caps, Loader=yaml.SafeLoader)
+    pcrs_list = yaml.load(pcrs_caps, Loader=yaml.SafeLoader)
 
     for alg, prop in algs_list.items():
         # Assymetric

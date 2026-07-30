@@ -1,0 +1,96 @@
+id: ce-oem-serial/raw-uart-list
+_summary:
+    Generates raw UART self-loopback resources from user configuration
+_description:
+    Generates one resource for each raw UART listed in RAW_UART_PORTS.
+    NAME:TARGET:BAUD
+plugin: resource
+estimated_duration: 1.0
+environ:
+    RAW_UART_PORTS
+command:
+    if [ -z "$RAW_UART_PORTS" ]; then
+        exit 0
+    fi
+    serial_raw_uart_test.py list "$RAW_UART_PORTS"
+
+unit: template
+template-resource: ce-oem-serial/raw-uart-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-serial/raw-uart-self-loopback-quick-tests
+id: ce-oem-serial/raw-uart-self-loopback-quick-{{ name_id }}-{{ target_id }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_serial_raw_uart_self_loopback == 'True'
+_template-summary:
+    Quick raw UART self-loopback tests
+_summary: Quick raw UART self-loopback test for {{ name }}
+_purpose:
+    To check that raw UART {{ name }} can send and receive self-loopback data.
+_description:
+    This test opens {{ target }} as a raw UART self-loopback target and verifies
+    a short transmit/receive ping at baud setting {{ baud }}.
+plugin: shell
+user: root
+category_id: com.canonical.certification::serial
+estimated_duration: 10
+flags: also-after-suspend
+environ:
+    RAW_UART_SWEEP_DOWN
+command:
+    case "${RAW_UART_SWEEP_DOWN:-true}" in
+        0|false|False|FALSE|no|No|NO)
+            SWEEP_DOWN_OPTION=""
+            ;;
+        *)
+            SWEEP_DOWN_OPTION="--sweep-down"
+            ;;
+    esac
+    serial_raw_uart_test.py quick \
+        --target "{{ target }}" \
+        --baud "{{ baud }}" \
+        $SWEEP_DOWN_OPTION
+
+unit: template
+template-resource: ce-oem-serial/raw-uart-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-serial/raw-uart-self-loopback-stress-tests
+id: ce-oem-serial/raw-uart-self-loopback-stress-{{ name_id }}-{{ target_id }}
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_serial_raw_uart_self_loopback == 'True'
+_template-summary:
+    Stress raw UART self-loopback tests
+_summary: Stress raw UART self-loopback test for {{ name }}
+_purpose:
+    To check that raw UART {{ name }} can send and receive repeated self-loopback
+    payloads.
+_description:
+    This test opens {{ target }} as a raw UART self-loopback target and verifies
+    repeated transmit/receive payloads at baud setting {{ baud }}.
+plugin: shell
+user: root
+category_id: com.canonical.certification::serial
+estimated_duration: 60
+flags: also-after-suspend
+environ:
+    RAW_UART_STRESS_COUNT
+    RAW_UART_STRESS_SIZE
+    RAW_UART_SWEEP_DOWN
+command:
+    case "${RAW_UART_SWEEP_DOWN:-true}" in
+        0|false|False|FALSE|no|No|NO)
+            SWEEP_DOWN_OPTION=""
+            ;;
+        *)
+            SWEEP_DOWN_OPTION="--sweep-down"
+            ;;
+    esac
+    serial_raw_uart_test.py stress \
+        --target "{{ target }}" \
+        --baud "{{ baud }}" \
+        --count "${RAW_UART_STRESS_COUNT:-100}" \
+        --size "${RAW_UART_STRESS_SIZE:-1024}" \
+        $SWEEP_DOWN_OPTION

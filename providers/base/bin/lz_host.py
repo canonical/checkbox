@@ -38,7 +38,7 @@ import subprocess
 import sys
 
 from checkbox_support.helpers.host_utils import (
-    VulkanDetectionError,
+    HostGPUDetectionError,
     find_plz_run,
     get_arch_triple,
 )
@@ -67,7 +67,7 @@ def cmd_resource():
 
     try:
         plz_run = find_plz_run()
-    except VulkanDetectionError as exc:
+    except HostGPUDetectionError as exc:
         logging.error("%s", exc)
         return 1
 
@@ -122,7 +122,7 @@ def main():
         else:
             logging.error("Unknown command: %s", command)
             return 1
-    except (RuntimeError, VulkanDetectionError) as exc:
+    except (RuntimeError, HostGPUDetectionError) as exc:
         logging.error("%s", exc)
         return 1
 

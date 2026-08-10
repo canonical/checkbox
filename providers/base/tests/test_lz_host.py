@@ -21,7 +21,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import lz_host
-from checkbox_support.helpers.host_utils import VulkanDetectionError
+from checkbox_support.helpers.host_utils import HostGPUDetectionError
 
 
 class TestCheckHostGpu(unittest.TestCase):
@@ -92,7 +92,7 @@ class TestCmdResource(unittest.TestCase):
 
     @patch(
         "lz_host.find_plz_run",
-        side_effect=VulkanDetectionError("plz-run not found in PATH"),
+        side_effect=HostGPUDetectionError("plz-run not found in PATH"),
     )
     @patch("lz_host.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_1_when_plz_run_not_found(self, _arch, _plz):
@@ -194,9 +194,9 @@ class TestMain(unittest.TestCase):
 
     @patch(
         "lz_host.cmd_resource",
-        side_effect=VulkanDetectionError("plz-run gone"),
+        side_effect=HostGPUDetectionError("plz-run gone"),
     )
-    def test_catches_vulkan_detection_error(self, _cmd):
+    def test_catches_host_gpu_detection_error(self, _cmd):
         with patch("sys.argv", ["lz_host.py", "resource"]):
             self.assertEqual(lz_host.main(), 1)
 

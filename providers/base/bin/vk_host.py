@@ -36,7 +36,7 @@ import subprocess
 import sys
 
 from checkbox_support.helpers.host_utils import (
-    VulkanDetectionError,
+    HostGPUDetectionError,
     active_vendor_prefixes,
     check_host_gpu,
     find_host_icd_filenames,
@@ -107,7 +107,7 @@ def main():
         else:
             logging.error("Unknown command: %s", command)
             return 1
-    except (RuntimeError, VulkanDetectionError) as exc:
+    except (RuntimeError, HostGPUDetectionError) as exc:
         logging.error("%s", exc)
         return 1
 

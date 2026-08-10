@@ -36,7 +36,7 @@ import subprocess
 import sys
 
 from checkbox_support.helpers.host_utils import (
-    VulkanDetectionError,
+    HostGPUDetectionError,
     find_plz_run,
     get_arch_triple,
 )
@@ -142,7 +142,7 @@ def main():
         else:
             logging.error("Unknown command: %s", command)
             return 1
-    except (RuntimeError, OpenGLError, VulkanDetectionError) as exc:
+    except (RuntimeError, OpenGLError, HostGPUDetectionError) as exc:
         logging.error("%s", exc)
         return 1
     return 0

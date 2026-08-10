@@ -5,6 +5,10 @@ _description:
     Generates one resource for each RS485 Modbus peripheral listed in
     RS485_MODBUS_PERIPHERALS.
     NAME:NODE:BAUDRATE:UNIT_ID:REGISTER_TYPE:REGISTER_ADDRESS:REGISTER_COUNT:PARITY
+    For single device:
+    RS485_MODBUS_PERIPHERALS=device0:/dev/ttyS0:9600:1:holding:0:2:N
+    For multiple devices (seperate with the white space):
+    RS485_MODBUS_PERIPHERALS="device0:/dev/ttyS0:9600:1:holding:0:2:N meter0:/dev/ttyS1:19200:2:input:10:4:E"
 plugin: resource
 estimated_duration: 1.0
 environ:

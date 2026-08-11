@@ -25,7 +25,6 @@
 import inspect
 import logging
 import os
-import re
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.providers.v1 import IQNValidator

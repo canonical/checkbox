@@ -1,0 +1,17 @@
+id: xilinx-vcu-automated
+unit: test plan
+_name: Xilinx VCU automated test
+_description: Xilinx encode/decode video automated tests
+include:
+    xilinx-vcu/decoder-h264
+    xilinx-vcu/decoder-h265
+    xilinx-vcu/encoder-h264
+    xilinx-vcu/encoder-h265
+bootstrap_include:
+    xilinx_sku
+
+id: xilinx-vcu-manual
+unit: test plan
+_name: Xilinx VCU manual test
+_description: Xilinx encode/decode video manual tests
+include:

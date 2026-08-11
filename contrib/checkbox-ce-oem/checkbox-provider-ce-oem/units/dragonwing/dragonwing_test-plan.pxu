@@ -1,0 +1,125 @@
+id: dragonwing-server
+unit: test plan
+_name: Dragonwing server tests
+_description:
+    Combined manual and automated Dragonwing project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    dragonwing-server-manual
+    dragonwing-server-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: dragonwing-server-manual
+unit: test plan
+_name: Dragonwing server manual tests
+_description:
+    Manual Dragonwing project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    dragonwing-audio-manual
+    dragonwing-camera-gstreamer-manual
+    dragonwing-video-gstreamer-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: dragonwing-server-automated
+unit: test plan
+_name: Dragonwing server automated tests
+_description:
+    Automated Dragonwing project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    dragonwing-audio-automated
+    dragonwing-camera-gstreamer-automated
+    dragonwing-fastrpc-automated
+    dragonwing-sensor-automated
+    dragonwing-video-gstreamer-automated
+    dragonwing-watchdog-automated
+    dragonwing-misc-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: dragonwing-desktop
+unit: test plan
+_name: Dragonwing desktop tests
+_description:
+    Combined manual and automated Dragonwing project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    dragonwing-desktop-manual
+    dragonwing-desktop-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: dragonwing-desktop-manual
+unit: test plan
+_name: Dragonwing desktop manual tests
+_description:
+    Manual Dragonwing project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    dragonwing-audio-manual
+    dragonwing-camera-gstreamer-manual
+    dragonwing-video-gstreamer-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: dragonwing-desktop-automated
+unit: test plan
+_name: Dragonwing desktop automated tests
+_description:
+    Automated Dragonwing project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    dragonwing-audio-automated
+    dragonwing-camera-gstreamer-automated
+    dragonwing-fastrpc-automated
+    dragonwing-sensor-automated
+    dragonwing-video-gstreamer-automated
+    dragonwing-watchdog-automated
+    dragonwing-misc-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: dragonwing-core
+unit: test plan
+_name: Dragonwing core tests
+_description:
+    Combined manual and automated Dragonwing project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    dragonwing-core-manual
+    dragonwing-core-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: dragonwing-core-manual
+unit: test plan
+_name: Dragonwing core manual tests
+_description:
+    Manual Dragonwing project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    dragonwing-audio-manual
+    dragonwing-camera-gstreamer-manual
+    dragonwing-video-gstreamer-manual
+certification_status_overrides:
+    apply blocker to .*
+
+id: dragonwing-core-automated
+unit: test plan
+_name: Dragonwing core automated tests
+_description:
+    Automated Dragonwing project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    dragonwing-audio-automated
+    dragonwing-camera-gstreamer-automated
+    dragonwing-fastrpc-automated
+    dragonwing-sensor-automated
+    dragonwing-video-gstreamer-automated
+    dragonwing-watchdog-automated
+    dragonwing-misc-automated
+certification_status_overrides:
+    apply blocker to .*

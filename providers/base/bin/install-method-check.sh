@@ -152,15 +152,15 @@ verify_maas_ip
 get_maas_version
 find_subiquity_log
 
-MAAS_FOUND=$((INSTALL_DATASOURCE_FOUND && MAAS_IP_FOUND && MAAS_VERSION_FOUND))
+MAAS_FOUND=$((INSTALL_DATASOURCE_FOUND && (MAAS_IP_FOUND || MAAS_VERSION_FOUND)))
 SUBIQUITY_FOUND=$((INSTALL_DATASOURCE_FOUND && SUBIQUITY_LOG_FOUND))
 
 if [[ $CONFIRM_INSTALL_TYPE == "maas" ]] ; then
     RETVAL=$((! MAAS_FOUND)) || SUBIQUITY_FOUND
     if [[ $RETVAL == 0 ]] ; then
-        echo "PASS: System appears to have been installed by MANIACS-compliant MAAS."
+        echo "PASS: System appears to have been installed by MAAS."
     else
-        echo "FAIL: System appears to have not been installed by MANIACS-compliant MAAS."
+        echo "FAIL: System appears to have not been installed by MAAS."
     fi
 elif [[ $CONFIRM_INSTALL_TYPE == "subiquity" ]] ; then
     RETVAL=$((! SUBIQUITY_FOUND)) || MAAS_FOUND

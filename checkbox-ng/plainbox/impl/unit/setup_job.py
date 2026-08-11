@@ -24,7 +24,6 @@
 import logging
 from collections import namedtuple
 
-from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.decorators import cached_property
 from plainbox.impl.symbol import SymbolDef

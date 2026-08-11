@@ -8,6 +8,7 @@ template-id: wireless/nmcli_wifi_ap_bg_interface
 user: root
 _summary: Create 802.11b/g Wi-Fi AP on {{ interface }} using NetworkManager
 _purpose: Create an 802.11b/g Wi-Fi access point on a specified interface using NetworkManager command-line tools.
+environ: NET_DRIVER_INFO
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py ap {{ interface }} bg
@@ -30,6 +31,7 @@ id: wireless/nmcli_wifi_ap_a_{{ interface }}
 template-id: wireless/nmcli_wifi_ap_a_interface
 user: root
 _summary: Create 802.11a Wi-Fi AP on {{ interface }} using NetworkManager
+environ: NET_DRIVER_INFO
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py ap {{ interface }} a

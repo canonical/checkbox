@@ -1,0 +1,144 @@
+id: genio-aiml/benchmark_dla
+category_id: genio-aiml
+_summary: Run Deep Learning Benchmark test via MediaTek-proprietary binaries (DLA)
+_description:
+    Run the MediaTek-proprietary Machine Learning solution through Neuron Run-time API
+    to get and compare the average inference time of MDLA and VPU.
+user: root
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 30.0
+imports:
+    from com.canonical.certification import lsb
+    from com.canonical.certification import package
+    from com.canonical.plainbox import manifest
+requires:
+    lsb.distributor_id != "Ubuntu Core"
+    manifest.is_Genio == 'True'
+    manifest.has_genio_neuro_pilot_package_been_support == "True"
+    package.name == "mediatek-apusys-firmware-genio510" or package.name == "mediatek-apusys-firmware-genio700" or package.name == "mediatek-apusys-firmware-genio1200"
+    package.name == "mediatek-libneuron"
+    package.name == "mediatek-neuron-utils"
+    package.name == "mediatek-libneuron-dev"
+command:
+    genio_machine_learning.py benchmark_dla
+
+id: genio-aiml/apu_mdw_test
+category_id: genio-aiml
+_summary: Run apu_mdw_test tool's "simple test" case
+_description:
+    apu_mdw_test is a MediaTek proprietary unit test program for APUSYS
+user: root
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 5.0
+imports:
+    from com.canonical.certification import lsb
+    from com.canonical.certification import package
+    from com.canonical.plainbox import manifest
+requires:
+    lsb.distributor_id != "Ubuntu Core"
+    manifest.is_Genio == 'True'
+    manifest.has_genio_neuro_pilot_package_been_support == "True"
+    package.name == "mediatek-apusys-firmware-genio510" or package.name == "mediatek-apusys-firmware-genio700" or package.name == "mediatek-apusys-firmware-genio1200"
+    package.name == "mediatek-libneuron"
+    package.name == "mediatek-neuron-utils"
+    package.name == "mediatek-libneuron-dev"
+command:
+    genio_machine_learning.py apu_mdw_test -c 0 -s 0
+
+id: genio-aiml/edma_test
+category_id: genio-aiml
+_summary: Run edma_test tool
+_description:
+    edma_test is a MediaTek proprietary unit test program for EDMA.
+user: root
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 5.0
+imports:
+    from com.canonical.certification import lsb
+    from com.canonical.certification import package
+    from com.canonical.plainbox import manifest
+requires:
+    lsb.distributor_id != "Ubuntu Core"
+    manifest.is_Genio == 'True'
+    manifest.has_genio_neuro_pilot_package_been_support == "True"
+    package.name == "mediatek-apusys-firmware-genio510" or package.name == "mediatek-apusys-firmware-genio700" or package.name == "mediatek-apusys-firmware-genio1200"
+    package.name == "mediatek-libneuron"
+    package.name == "mediatek-neuron-utils"
+    package.name == "mediatek-libneuron-dev"
+command:
+    genio_machine_learning.py edma_test -l 10
+
+id: genio-aiml/vpu5_test
+category_id: genio-aiml
+_summary: Run vpu5_test tool's vpu_flo_d2d_k7 algorithm
+_description:
+    vpu5_test is a MediaTek proprietary unit test program for VPU
+user: root
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 5.0
+imports:
+    from com.canonical.certification import lsb
+    from com.canonical.certification import package
+    from com.canonical.plainbox import manifest
+requires:
+    lsb.distributor_id != "Ubuntu Core"
+    manifest.is_Genio == 'True'
+    manifest.has_genio_neuro_pilot_package_been_support == "True"
+    package.name == "mediatek-apusys-firmware-genio510" or package.name == "mediatek-apusys-firmware-genio700" or package.name == "mediatek-apusys-firmware-genio1200"
+    package.name == "mediatek-libneuron"
+    package.name == "mediatek-neuron-utils"
+    package.name == "mediatek-libneuron-dev"
+command:
+    genio_machine_learning.py vpu5_test -a k7 -l 1 -t 1 -v
+
+id: genio-aiml/mdla2_player
+category_id: genio-aiml
+_summary: Run mdla2_player tool's built-in pattern
+_description:
+    mdla2_player is a MediaTek proprietary MDLA unit test program for G1200
+user: root
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 5.0
+imports:
+    from com.canonical.certification import lsb
+    from com.canonical.certification import package
+    from com.canonical.plainbox import manifest
+requires:
+    lsb.distributor_id != "Ubuntu Core"
+    manifest.is_Genio == 'True'
+    manifest.has_genio_neuro_pilot_package_been_support == "True"
+    package.name == "mediatek-apusys-firmware-genio1200"
+    package.name == "mediatek-libneuron"
+    package.name == "mediatek-neuron-utils"
+    package.name == "mediatek-libneuron-dev"
+command:
+    genio_machine_learning.py mdla2_player -f Test -d 3
+
+id: genio-aiml/mdla3_player
+category_id: genio-aiml
+_summary: Run mdla3_player tool's built-in pattern
+_description:
+    mdla3_player is a MediaTek proprietary MDLA unit test program for G510/G700
+user: root
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 5.0
+imports:
+    from com.canonical.certification import lsb
+    from com.canonical.certification import package
+    from com.canonical.plainbox import manifest
+requires:
+    lsb.distributor_id != "Ubuntu Core"
+    manifest.is_Genio == 'True'
+    manifest.has_genio_neuro_pilot_package_been_support == "True"
+    package.name == "mediatek-apusys-firmware-genio510" or package.name == "mediatek-apusys-firmware-genio700"
+    package.name == "mediatek-libneuron"
+    package.name == "mediatek-neuron-utils"
+    package.name == "mediatek-libneuron-dev"
+command:
+    genio_machine_learning.py mdla3_player -f Test -d 3

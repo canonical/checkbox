@@ -1,0 +1,33 @@
+id: iiotg-thermal-full
+_name: Iiotg CPU Thermal tests
+unit: test plan
+include:
+bootstrap_include:
+nested_part:
+    iiotg-thermal-manual
+    iiotg-thermal-automated
+
+id: iiotg-thermal-manual
+_name: Iiotg CPU Thermal tests (manual)
+unit: test plan
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::cpuinfo
+include:
+
+id: iiotg-thermal-automated
+_name: Iiotg CPU Thermal tests (automated)
+unit: test plan
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::cpuinfo
+include:
+    iiotg-thermal/intel-rapl
+    iiotg-thermal/intel-rapl-mmio
+    iiotg-thermal/intel-p-state
+    iiotg-thermal/intel-powerclamp
+    iiotg-thermal/intel-cpu-thermal
+    iiotg-thermal/intel-x86-pkg-temp-thermal
+    iiotg-thermal/valid-thermal-zone-trip-points
+    iiotg-thermal/proc_thermal
+    iiotg-thermal/thermald

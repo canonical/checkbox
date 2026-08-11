@@ -124,11 +124,14 @@ user: root
 group: stress-ng
 after: stress/store_and_disable_watchdog
 before: stress/restore_watchdog
+environ: STRESS_NG_DISK_TIME
 requires:
  executable.name == 'stress-ng'
  executable.name == 'uuidgen'
 _summary: Disk stress-ng test for {product_slug}
-_purpose: Disk stress-ng test for {product_slug}
+_purpose:
+ Disk stress-ng test for {product_slug}
+ Usage: set STRESS_NG_DISK_TIME to override the default 240 second running time.
 command:
   if [ -n "$STRESS_NG_DISK_TIME" ]
   then

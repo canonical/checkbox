@@ -7,6 +7,7 @@ _description:
 estimated_duration: 0.02
 category_id: button
 plugin: resource
+environ: GPIO_BUTTONS
 command:
     awk '{
         split($0, record, " ")
@@ -40,6 +41,7 @@ _description:
     e.g. INTERRUPTS_BUTTONS=s1 s2
 estimated_duration: 0.02
 plugin: resource
+environ: INTERRUPTS_BUTTONS
 command:
     awk '{
         split($0, record, " ")

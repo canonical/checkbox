@@ -1,6 +1,7 @@
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/basic
+group: touchpad_basic
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -78,6 +79,8 @@ _siblings:
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/singletouch-selection
+group: touchpad_basic
+depends: touchpad/basic
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -94,6 +97,8 @@ _verification:
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch-rightclick
+group: touchpad_basic
+depends: touchpad/basic
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -116,6 +121,8 @@ _summary:
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/multitouch
+group: touchpad_basic
+depends: touchpad/basic
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -137,6 +144,8 @@ _summary: Test the touchpad's 2-finger scroll functionality.
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/drag-and-drop
+group: touchpad_basic
+depends: touchpad/basic
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -212,6 +221,8 @@ _summary: Check if the touchpad is recognized as a mouse by the system.
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/continuous-move
+group: touchpad_basic
+depends: touchpad/basic
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -253,6 +264,8 @@ _purpose:
     make sure that firmware/labeling bit is set in touchpad firmware.
 
 id: touchpad/palm-rejection
+group: touchpad_basic
+depends: touchpad/basic
 flags: also-after-suspend
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad

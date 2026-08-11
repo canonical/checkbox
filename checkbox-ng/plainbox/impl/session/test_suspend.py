@@ -24,7 +24,6 @@
 Test definitions for :mod:`plainbox.impl.session.suspend` module
 """
 
-from functools import partial
 from unittest import TestCase
 import gzip
 

@@ -124,7 +124,7 @@ def main():
     taint_meanings = [
         "proprietary module was loaded",
         "module was force loaded",
-        "SMP kernel oops on an officially SMP incapable CPU",
+        "CPU is running outside the specification limits",
         "module was force unloaded",
         "processor reported a Machine Check Exception (MCE)",
         "bad page referenced or some unexpected page flags",

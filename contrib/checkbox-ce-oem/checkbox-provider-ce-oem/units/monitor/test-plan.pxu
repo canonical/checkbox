@@ -1,0 +1,16 @@
+id: ce-oem-monitor-full
+unit: test plan
+_name: Monitor tests
+_description: Full built-in monitor or panel tests
+include:
+nested_part:
+    ce-oem-monitor-automated
+
+id: ce-oem-monitor-automated
+unit: test plan
+_name: Built-in monitor or panel auto tests
+_description: Automated built-in monitor or panel tests
+bootstrap_include:
+    ce-oem-monitor/backlight_panel_list
+include:
+    ce-oem-monitor/panel-brightness-panel_alias

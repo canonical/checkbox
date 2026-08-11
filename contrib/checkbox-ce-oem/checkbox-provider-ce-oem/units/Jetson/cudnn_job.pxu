@@ -1,0 +1,100 @@
+id: jetson-gpu/cudnn/mnistCUDNN
+category_id: jetson-gpu
+flags: also-after-suspend
+user: root
+plugin: shell
+imports: from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'libcudnn9-samples'
+ package.name == 'libfreeimage-dev'
+ manifest.is_Jetson == 'True'
+command:
+  cd /usr/src/cudnn_samples_v9/mnistCUDNN/ || exit
+  ./mnistCUDNN
+_summary:
+ Run the mnistCUDNN sample
+_description:
+ Run the mnistCUDNN sample
+
+id: jetson-gpu/cudnn/conv_sample
+category_id: jetson-gpu
+flags: also-after-suspend
+user: root
+plugin: shell
+imports: from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'libcudnn9-samples'
+ manifest.is_Jetson == 'True'
+command:
+  cd /usr/src/cudnn_samples_v9/conv_sample/ || exit
+  ./run_conv_sample.sh
+_summary:
+ Run the conv_sample sample
+_description:
+ Run the conv_sample sample
+
+id: jetson-core-gpu/cudnn/conv
+category_id: jetson-core-gpu
+flags: also-after-suspend
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'cudnn-samples.conv-sample'
+ manifest.is_Jetson == 'True'
+command: sudo cudnn-samples.conv-sample
+_summary:
+ Run the cudnn-samples.conv-sample on core
+_description:
+ Run the cudnn-samples.conv-sample on core
+
+id: jetson-core-gpu/cudnn/mnist-cudnn
+category_id: jetson-core-gpu
+flags: also-after-suspend
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'cudnn-samples.mnist-cudnn-sample'
+ manifest.is_Jetson == 'True'
+command: sudo cudnn-samples.mnist-cudnn-sample
+_summary:
+ Run the cudnn-samples.mnist-cudnn-sample on core
+_description:
+ Run the cudnn-samples.mnist-cudnn-sample on core
+
+id: jetson-core-gpu/cudnn/multi-head-attention
+category_id: jetson-core-gpu
+flags: also-after-suspend
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'cudnn-samples.multi-head-attention-sample'
+ manifest.is_Jetson == 'True'
+command: sudo cudnn-samples.multi-head-attention-sample
+_summary:
+ Run the cudnn-samples.multi-head-attention-sample on core
+_description:
+ Run the cudnn-samples.multi-head-attention-sample on core
+
+id: jetson-core-gpu/cudnn/rnn
+category_id: jetson-core-gpu
+flags: also-after-suspend
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'cudnn-samples.rnn-sample'
+ manifest.is_Jetson == 'True'
+command: sudo cudnn-samples.rnn-sample
+_summary:
+ Run the cudnn-samples.rnn-sample on core
+_description:
+ Run the cudnn-samples.rnn-sample on core

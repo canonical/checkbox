@@ -27,6 +27,11 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
+    dragonwing-desktop-manual
+    genio-desktop-manual
+    iiotg-desktop-manual
+    jetson-desktop-manual
+    xilinx-desktop-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-desktop-26-04-manual
     after-suspend-ce-oem-manual
@@ -43,6 +48,12 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    dragonwing-desktop-automated
+    genio-desktop-automated
+    iiotg-desktop-automated
+    jetson-desktop-automated
+    rz-desktop-automated
+    xilinx-desktop-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-desktop-26-04-automated
     after-suspend-ce-oem-automated

@@ -7,3 +7,18 @@ unit: manifest entry
 id: has_sriov
 _name: SR-IOV support
 value-type: bool
+
+unit: manifest entry
+id: _has_experimental_testing
+_name: Experimental testing
+value-type: bool
+hidden-reason: Experimental jobs should run only on systems explicitly flagged
+  for that coverage through configuration.
+
+unit: manifest entry
+id: _ignore_efi_boot_mode
+_name: Ignore EFI boot mode requirement
+value-type: bool
+hidden-reason: Some ARM boards (e.g. Raspberry Pi) boot via native firmware
+  rather than UEFI and should not run efi_boot_mode test when running in
+  the lab.

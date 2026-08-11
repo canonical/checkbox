@@ -1,0 +1,80 @@
+id: iiotg-tsn-full
+_name: Iiotg Time Sensitive Networking (TSN) tests
+unit: test plan
+include: 
+bootstrap_include:
+    iiotg-tsn/tsn-device-ip-match
+nested_part:
+    iiotg-tsn-manual
+    iiotg-tsn-automated
+
+id: iiotg-tsn-manual
+_name: Iiotg Time Sensitive Networking (TSN) test (manual)
+unit: test plan
+bootstrap_include:
+    iiotg-tsn/tsn-device-ip-match
+include:
+    iiotg-tsn/tsn-detected
+    iiotg-tsn/test-env-setup
+nested_part:
+
+id: iiotg-tsn-automated
+_name: Iiotg Time Sensitive Networking (TSN) test (automated)
+unit: test plan
+bootstrap_include:
+    iiotg-tsn/tsn-device-ip-match
+include:
+    iiotg-tsn/test-env-setup
+nested_part:
+    iiotg-tsn/ieee802-1as-2011
+    iiotg-tsn-ieee802-1qav
+    iiotg-tsn-ieee802-1qbu
+    iiotg-tsn-ieee802-1qbv
+
+id: iiotg-tsn/ieee802-1as-2011
+_name: Iiotg Time Sensitive Networking Test Plan for IEEE 802.1AS-2011
+_description:
+    This testplan is to check if it could follow IEEE 802.1AS-2011.
+     - To achieve time synchronization between two platforms.
+     - To synchronize each platforms's system clock with PHC (Physical hardware clock)
+       using hardware cross-timestamping (which is selected by phc2sys automatically).
+unit: test plan
+bootstrap_include:
+    iiotg-tsn/tsn-device-ip-match
+include:
+    iiotg-tsn/test-env-setup
+    iiotg-tsn/ieee802-1as-2011/ptp4l-interfaces
+    iiotg-tsn/ieee802-1as-2011/phc2sys-interfaces
+
+id: iiotg-tsn-ieee802-1qav
+_name: Iiotg Time Sensitive Networking Test Plan for IEEE 802.1Qav
+_description:
+    This testplan is to check if it could follow IEEE 802.1Qav Credit-Based Shaper.
+unit: test plan
+bootstrap_include:
+    iiotg-tsn/tsn-device-ip-match
+include:
+    iiotg-tsn/test-env-setup
+    iiotg-tsn/ieee802-1qav/credit-based-shaper
+
+id: iiotg-tsn-ieee802-1qbv
+_name: Iiotg Time Sensitive Networking Test Plan for IEEE 802.1Qbv
+_description:
+    This testplan is to check if it could follow IEEE 802.1Qbv Time Aware Shaper (TAS).
+unit: test plan
+bootstrap_include:
+    iiotg-tsn/tsn-device-ip-match
+include:
+    iiotg-tsn/test-env-setup
+    iiotg-tsn/ieee802-1qbv/traffic-scheduling
+
+id: iiotg-tsn-ieee802-1qbu
+_name: Iiotg Time Sensitive Networking Test Plan for IEEE 802.1Qbu
+_description:
+    This testplan is to check if it could follow IEEE 802.1Qbu Frame Preemption.
+unit: test plan
+bootstrap_include:
+    iiotg-tsn/tsn-device-ip-match
+include:
+    iiotg-tsn/test-env-setup
+    iiotg-tsn/ieee802-1qbu/check-frame-preemption

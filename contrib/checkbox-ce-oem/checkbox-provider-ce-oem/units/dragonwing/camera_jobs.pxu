@@ -1,0 +1,251 @@
+plugin: resource
+category_id: dragonwing-camera
+id: dragonwing-camera/camera-list
+_summary: get cameras list and supported resolutions
+environ: CARMEL_CAMERAS
+command:
+    [ -n "$CARMEL_CAMERAS" ] && dragonwing_camera_test.py camera-list -c "$CARMEL_CAMERAS" || exit 1
+
+plugin: user-interact-verify
+category_id: dragonwing-camera
+id: dragonwing-camera/check-generated-files-from-gst-tests
+_summary: check generated files from gstreamer camera tests
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+_verification:
+    Do the generated yuv/mp4/jpeg files looks normal?
+command:
+    echo "checking files generated from gstreamer tests..."
+    echo -e "List the files have been verified (enter q to finish):"
+    INPUT=""
+    until [ "$INPUT" = "q" ]; do
+        read -r INPUT
+        echo "$INPUT"
+    done
+
+unit: template
+template-engine: jinja2
+template-resource: dragonwing-camera/camera-list
+template-unit: job
+template-id: dragonwing-camera/preview
+_template-summary: Test camera preview
+_summary: Test {{ resolution }} preview on {{ name }}
+category_id: dragonwing-camera
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+id: dragonwing-camera/{{ name }}-preview-{{ resolution }}
+plugin: user-interact-verify
+flags: also-after-suspend
+_verification:
+    The preview on the display looks as expected without any abnormal symptoms
+environ: PLAINBOX_SESSION_SHARE
+command: 
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/camera"
+    # shellcheck disable=SC1083
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={{ camera }} name=camsrc video_1::type=preview \
+    ! video/x-raw,format=NV12,width={{ width }},height={{ height }},framerate=30/1 \
+    ! waylandsink fullscreen=true async=true sync=false
+
+unit: template
+template-engine: jinja2
+template-resource: dragonwing-camera/camera-list
+template-unit: job
+template-id: dragonwing-camera/yuv-automated
+_template-summary: Test camera output to .yuv
+_summary: Test {{ resolution }} output to .yuv on {{ name }}
+category_id: dragonwing-camera
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+id: dragonwing-camera/{{ name }}-yuv-{{ resolution }}-automated
+plugin: shell
+flags: also-after-suspend
+environ: PLAINBOX_SESSION_SHARE
+command: 
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/camera"
+    # shellcheck disable=SC1083
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={{ camera }} name=camsrc \
+    ! video/x-raw,format=NV12_Q08C,width={{ width }},height={{ height }},framerate=30/1 \
+    ! multifilesink enable-last-sample=false location="$PLAINBOX_SESSION_SHARE/camera/{{ name }}-yuv-{{ resolution }}_%d.yuv" max-files=1
+
+unit: template
+template-engine: jinja2
+template-resource: dragonwing-camera/camera-list
+template-unit: job
+template-id: dragonwing-camera/video-encode-automated
+_template-summary: Test camera video encode
+_summary: Test {{ resolution }} video encode from source {{ name }}
+category_id: dragonwing-camera
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+id: dragonwing-camera/{{ name }}-video-encode-{{ resolution }}-automated
+plugin: shell
+flags: also-after-suspend
+environ: PLAINBOX_SESSION_SHARE
+command: 
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/camera"
+    # shellcheck disable=SC1083
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={{ camera }} name=camsrc \
+    ! video/x-raw,format=NV12_Q08C,width={{ width }},height={{ height }},framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location="$PLAINBOX_SESSION_SHARE/camera/{{ name }}-video-encode-{{ resolution }}.mp4"
+
+plugin: manual
+flags: also-after-suspend
+category_id: dragonwing-camera
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+id: dragonwing-camera/video-encode
+_summary: Test video encode pipeline and check output video clips
+_purpose:
+    Test video encode to .mp4 and check output video clips
+_steps:
+    1. Test the below command with maximum supported resolution of connected camera
+    2. Test the below command with minimun supported resolution of connected camera
+    gst-launch-1.0 -f -e qtiqmmfsrc camera={camera} name=camsrc \
+    ! video/x-raw,format=NV12_Q08C,width={width},height={height},framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location=video-encode.mp4
+    3. repead above steps if there are multiple cameras
+_verification:
+    check the output video-encode.mp4, no abnormal symptoms are observed
+
+unit: template
+template-engine: jinja2
+template-resource: dragonwing-camera/camera-list
+template-unit: job
+template-id: dragonwing-camera/snapshot-automated
+_template-summary: Test camera output to jpeg
+_summary: Test {{ resolution }} output to jpeg on {{ name }}
+category_id: dragonwing-camera
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.contrib import dragonwing_platform_info
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+    dragonwing_platform_info.Model not in ("RB8",)
+id: dragonwing-camera/{{ name }}-snapshot-{{ resolution }}-automated
+plugin: shell
+flags: also-after-suspend
+environ: PLAINBOX_SESSION_SHARE
+command: 
+    set -x
+    export GST_DEBUG=2
+    export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+    mkdir -p "$PLAINBOX_SESSION_SHARE/camera"
+    # shellcheck disable=SC1083
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -e qtiqmmfsrc camera={{ camera }} name=camsrc video_0::type=preview \
+    ! "image/jpeg,width={{ width }},height={{ height }},framerate=30/1" \
+    ! multifilesink location="$PLAINBOX_SESSION_SHARE/camera/{{ name }}-snapshot-{{ resolution }}_%d.jpg" max-files=1 async=false sync=true
+
+plugin: manual
+category_id: dragonwing-camera
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.contrib import dragonwing_platform_info
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+id: dragonwing-camera/snapshot
+flags: also-after-suspend
+_summary: Test snapshot pipeline and check output jpeg
+_purpose:
+    Test snapshot pipeline and check output jpeg
+_steps:
+    1. Test the below command with maximum supported resolution of connected camera
+    2. Test the below command with minimun supported resolution of connected camera
+    gst-launch-1.0 -f -e qtiqmmfsrc camera={camera} name=camsrc video_0::type=preview \
+    ! "image/jpeg,width={width},height={height},framerate=30/1" \
+    ! multifilesink location=snapshot%d.jpg max-files=1 async=false sync=true
+    3. repead above steps if there are multiple cameras
+_verification:
+    check the output snapshot.jpeg, no abnormal symptoms are observed
+
+plugin: manual
+category_id: dragonwing-camera
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+id: dragonwing-camera/multi-streams
+flags: also-after-suspend
+_summary: Test multi-streams pipeline and checsk output files
+_purpose:
+    Test multi-streams pipeline and check output files
+_steps:
+    1. Test the below command with maximum supported resolution of connected camera
+    2. Test the below command with minimun supported resolution of connected camera
+    gst-launch-1.0 -f -e qtiqmmfsrc name=camsrc camera={camera} video_2::type=preview \
+    camsrc.video_0 ! video/x-raw,format=NV12_Q08C,width={width},height={height},framerate=30/1,interlace-mode=progressive,colorimetry=bt601 ! queue \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate_mode=0,video_bitrate=6000000,h264_i_frame_qp_value=27,h264_b_frame_qp_value=28,h264_p_frame_qp_value=28,video_gop_size=29,h264_entropy_mode=1,h264_profile=4;" ! queue \
+    ! h264parse ! mp4mux ! queue ! filesink location="multi-streams.mp4" \
+    camsrc.video_1 ! "image/jpeg,width={width},height={height}" ! queue ! multifilesink location=multi-streams_%d.jpg max-files=1 sync=true async=false \
+    camsrc.video_2 ! "video/x-bayer,format=rggb,bpp=(string)10,width=4056,height=3040" ! multifilesink location=multi-streams_%d.raw max-files=1 sync=true async=false
+_verification:
+    check the output files, no abnormal symptoms are observed
+
+plugin: manual
+category_id: dragonwing-camera
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == 'gst-launch-1.0'
+    manifest.is_dragonwing_series == 'True'
+    manifest.has_vendor_specific_mipi_camera == 'True'
+id: dragonwing-camera/multi-cameras
+flags: also-after-suspend
+_summary: Test multi camera encoding
+_purpose:
+    Check multi cameras encoding to .mp4 file
+_steps:
+    1. Prepare two supported camera sensors and connect to the system
+    2. Test the below command with maximum supported resolution of both cameras
+    3. Test the below command with minimun supported resolution of both cameras
+    gst-launch-1.0 -f -e qtiqmmfsrc name=camsrc \
+    ! video/x-raw,format=NV12_Q08C,width={width},height={height},framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location=camera1.mp4 \
+    qtiqmmfsrc camera=1 ! video/x-raw,format=NV12_Q08C,width={width},height={height},framerate=30/1,interlace-mode=progressive,colorimetry=bt601 \
+    ! v4l2h264enc capture-io-mode=4 output-io-mode=5 ! h264parse ! mp4mux \
+    ! filesink location=camera2.mp4
+_verification:
+    check the output camera.mp4, no abnormal symptoms are observed

@@ -45,6 +45,7 @@ template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_displayport_{product_slug}
 template-id: monitor/index_displayport_product_slug
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_dp == 'True'
 flags: also-after-suspend
@@ -67,6 +68,7 @@ template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_hdmi_{product_slug}
 template-id: monitor/index_hdmi_product_slug
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi == 'True'
 flags: also-after-suspend
@@ -146,6 +148,7 @@ _summary:
     Verify multi-monitor output functionality on desktop systems.
 
 id: monitor/multi-head
+group: monitor_external_output
 requires: dmi.sane_product == "non-portable"
 flags: also-after-suspend
 plugin: manual
@@ -267,6 +270,7 @@ template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_thunderbolt3_{product_slug}
 template-id: monitor/index_thunderbolt3_product_slug
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
@@ -286,6 +290,7 @@ _verification:
     screen in every mode?
 
 id: monitor/thunderbolt3
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
@@ -308,6 +313,7 @@ unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_displayport_{product_slug}
 template-id: monitor/index_type-c_displayport_product_slug
+group: monitor_external_output
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -329,6 +335,7 @@ _verification:
     connected using a "USB Type-C to DisplayPort" adapter in every mode?
 
 id: monitor/type-c_displayport
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_usbc_video == 'True'
@@ -352,6 +359,7 @@ unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_hdmi_{product_slug}
 template-id: monitor/index_type-c_hdmi_product_slug
+group: monitor_external_output
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -373,6 +381,7 @@ _verification:
     connected using a "USB Type-C to HDMI" adapter in every mode?
 
 id: monitor/type-c_hdmi
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_usbc_video == 'True'
@@ -396,6 +405,7 @@ unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_vga_{product_slug}
 template-id: monitor/index_type-c_vga_product_slug
+group: monitor_external_output
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -417,6 +427,7 @@ _verification:
     connected using a "USB Type-C to VGA" adapter in every mode?
 
 id: monitor/type-c_vga
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_usbc_video == 'True'
@@ -477,6 +488,7 @@ _verification:
     "USB Type-C to VGA" adapter in every mode?
 
 id: monitor/dvi
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_dvi == 'True'
 flags: also-after-suspend
@@ -494,6 +506,7 @@ _verification:
 _summary: Check DVI port functionality by connecting a display and verifying different display modes.
 
 id: monitor/hdmi
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi == 'True'
 flags: also-after-suspend
@@ -511,6 +524,7 @@ _verification:
 _summary: Check HDMI port functionality as a monitor interconnect.
 
 id: monitor/displayport
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_dp == 'True'
 flags: also-after-suspend

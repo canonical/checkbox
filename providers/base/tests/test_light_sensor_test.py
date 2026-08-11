@@ -65,6 +65,7 @@ class TestGetAllSensors(unittest.TestCase):
             result = lst.get_all_sensors()
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["name"], "apds9960_light")
+        self.assertEqual(result[0]["device"], "iio_device0")
         self.assertEqual(result[0]["path"], dev)
 
     @patch("light_sensor_test.os.listdir", return_value=["iio:device0"])
@@ -110,6 +111,7 @@ class TestGetAllSensors(unittest.TestCase):
         result = lst.get_all_sensors()
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["name"], "iio:device0")
+        self.assertEqual(result[0]["device"], "iio_device0")
 
     @patch("light_sensor_test.os.listdir", return_value=["iio:device0"])
     @patch("light_sensor_test.os.path.exists")
@@ -170,7 +172,9 @@ class TestGetAllSensors(unittest.TestCase):
 
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["name"], "tsl2591")
+        self.assertEqual(result[0]["device"], "iio_device0")
         self.assertEqual(result[1]["name"], "ltr559")
+        self.assertEqual(result[1]["device"], "iio_device1")
 
 
 class TestReadIlluminance(unittest.TestCase):
@@ -254,15 +258,25 @@ class TestMainResource(unittest.TestCase):
     @patch("light_sensor_test.get_all_sensors")
     def test_prints_sensor_names(self, mock_sensors):
         mock_sensors.return_value = [
-            {"name": "tsl2591", "path": "/sys/bus/iio/devices/iio:device0"},
-            {"name": "ltr559", "path": "/sys/bus/iio/devices/iio:device1"},
+            {
+                "name": "tsl2591",
+                "device": "iio_device0",
+                "path": "/sys/bus/iio/devices/iio:device0",
+            },
+            {
+                "name": "ltr559",
+                "device": "iio_device1",
+                "path": "/sys/bus/iio/devices/iio:device1",
+            },
         ]
         with patch("sys.argv", ["lst", "resource"]):
             with patch("sys.stdout", new_callable=StringIO) as mock_out:
                 lst.main()
         output = mock_out.getvalue()
         self.assertIn("name: tsl2591", output)
+        self.assertIn("device: iio_device0", output)
         self.assertIn("name: ltr559", output)
+        self.assertIn("device: iio_device1", output)
 
     @patch("light_sensor_test.get_all_sensors", return_value=[])
     def test_no_output_when_no_sensors(self, _sensors):
@@ -275,7 +289,9 @@ class TestMainResource(unittest.TestCase):
 class TestMainDetect(unittest.TestCase):
     @patch("light_sensor_test.get_all_sensors")
     def test_exits_cleanly_when_sensors_present(self, mock_sensors):
-        mock_sensors.return_value = [{"name": "tsl2591", "path": "/dev/null"}]
+        mock_sensors.return_value = [
+            {"name": "tsl2591", "device": "iio_device0", "path": "/dev/null"}
+        ]
         with patch("sys.argv", ["lst", "detect"]):
             lst.main()  # must not raise
 
@@ -297,11 +313,15 @@ class TestMainNoCommand(unittest.TestCase):
 
 class TestMainTest(unittest.TestCase):
 
-    SENSOR = {"name": "tsl2591", "path": "/sys/bus/iio/devices/iio:device0"}
+    SENSOR = {
+        "name": "tsl2591",
+        "device": "iio_device0",
+        "path": "/sys/bus/iio/devices/iio:device0",
+    }
 
     def _run_test_cmd(self, read_values, extra_args=None, sensors=None):
         """
-        Helper: run `lst test --name tsl2591 --rounds N ...` with mocked
+        Helper: run `lst test --device iio_device0 --name tsl2591 --rounds N ...` with mocked
         read_illuminance returning successive values from read_values.
         Returns (stdout_str, exception_or_None).
         """
@@ -310,6 +330,8 @@ class TestMainTest(unittest.TestCase):
         args = [
             "lst",
             "test",
+            "--device",
+            "iio_device0",
             "--name",
             "tsl2591",
             "--rounds",
@@ -343,7 +365,17 @@ class TestMainTest(unittest.TestCase):
 
     def test_raises_systemexit_when_sensor_not_found(self):
         with patch(
-            "sys.argv", ["lst", "test", "--name", "unknown", "--rounds", "1"]
+            "sys.argv",
+            [
+                "lst",
+                "test",
+                "--device",
+                "unknown-device",
+                "--name",
+                "unknown",
+                "--rounds",
+                "1",
+            ],
         ), patch(
             "light_sensor_test.get_all_sensors", return_value=[self.SENSOR]
         ):
@@ -354,7 +386,17 @@ class TestMainTest(unittest.TestCase):
     def test_raises_systemexit_when_duplicate_sensor_names(self):
         duplicate_sensors = [self.SENSOR, self.SENSOR]
         with patch(
-            "sys.argv", ["lst", "test", "--name", "tsl2591", "--rounds", "1"]
+            "sys.argv",
+            [
+                "lst",
+                "test",
+                "--device",
+                "iio_device0",
+                "--name",
+                "tsl2591",
+                "--rounds",
+                "1",
+            ],
         ), patch(
             "light_sensor_test.get_all_sensors", return_value=duplicate_sensors
         ):
@@ -403,6 +445,8 @@ class TestMainTest(unittest.TestCase):
             [
                 "lst",
                 "test",
+                "--device",
+                "iio_device0",
                 "--name",
                 "tsl2591",
                 "--rounds",
@@ -437,6 +481,8 @@ class TestMainTest(unittest.TestCase):
             [
                 "lst",
                 "test",
+                "--device",
+                "iio_device0",
                 "--name",
                 "tsl2591",
                 "--rounds",
@@ -470,6 +516,8 @@ class TestMainTest(unittest.TestCase):
             [
                 "lst",
                 "test",
+                "--device",
+                "iio_device0",
                 "--name",
                 "tsl2591",
                 "--rounds",

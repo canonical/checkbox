@@ -50,7 +50,6 @@ from plainbox.impl.unit.validators import (
 )
 
 from plainbox.impl.validation import Problem, Severity
-from plainbox.impl.xparsers import Error, Text, Visitor, WordList
 
 __all__ = ["JobDefinition", "propertywithsymbols"]
 

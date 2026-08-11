@@ -33,9 +33,9 @@ import gi
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GLib", "2.0")
-from gi.repository import (
-    GLib,  # noqa: E402
-    Gst,  # noqa: E402
+from gi.repository import (  # noqa: E402
+    GLib,  # pyright: ignore[reportMissingModuleSource]
+    Gst,  # pyright: ignore[reportMissingModuleSource]
 )
 
 
@@ -249,7 +249,8 @@ class PipewireTest:
         Checks whether the sink is available for the given device.
         This function parse output of pw-dump to find the device type
         equals PipeWire:Interface:Device and media.class equals Audio/Device.
-        For pipewire, the active port will be listed under info.params.Route.
+        For pipewire, the active port will be listed under
+            info.params.EnumRoute.
         Therefore, you could check this object to know the state of it.
 
         :param device: device you would like to check
@@ -260,7 +261,7 @@ class PipewireTest:
             for client in clients:
                 mclass = client["info"]["props"].get("media.class")
                 if mclass == "Audio/Device":
-                    for route in client["info"]["params"]["Route"]:
+                    for route in client["info"]["params"]["EnumRoute"]:
                         name = route["name"]
                         available = route["available"]
                         if (
@@ -322,12 +323,13 @@ class PipewireTest:
 
         return PipewireTestError.NO_ERROR
 
-    def _get_audio_config(self, mode):
+    def _get_audio_config(self, mode: "t.Literal['sinks', 'sources']"):
         """
         Get simple audio configuration
         This function parse output of pw-dump to find the device type
         equals PipeWire:Interface:Device and media.class equals Audio/Device.
-        For pipewire, the active port will be listed under info.params.Route.
+        For pipewire, the active port will be listed under
+            info.params.EnumRoute.
         Therefore, you could check this object to know the state of it.
 
         :param mode: sink or source
@@ -336,23 +338,25 @@ class PipewireTest:
         clients = self._get_pw_dump("Device")
         cfg = set()  # type: set[tuple[str, str, str]]
         for client in clients:
-            active_ports = None
+            active_ports = []
             mclass = client["info"]["props"].get("media.class")
             if mclass == "Audio/Device":
-                active_ports = client["info"]["params"]["Route"]
-            if active_ports:
-                for p in active_ports:
-                    if p["direction"] == self._get_pw_type(mode):
-                        cfg.add(
-                            (
-                                "{} #{}".format(mode, client["id"]),
-                                p["name"],
-                                p["available"],
-                            )
+                active_ports = client["info"]["params"]["EnumRoute"]
+
+            for p in active_ports:
+                if p["direction"] == self._get_pw_type(mode):
+                    cfg.add(
+                        (
+                            "{} #{}".format(mode, client["id"]),
+                            p["name"],
+                            p["available"],
                         )
+                    )
         return cfg
 
-    def monitor_active_port_change(self, timeout, mode) -> int:
+    def monitor_active_port_change(
+        self, timeout: int, mode: "t.Literal['sinks', 'sources']"
+    ) -> int:
         """
         Monitoring Audio active port changing
         This script checks if the active port on either sinks
@@ -383,7 +387,9 @@ class PipewireTest:
         self.logger.info("Couldn't detect active port change!")
         return PipewireTestError.NO_CHANGE_DETECTED
 
-    def go_through_ports(self, cmd: str, mode: 't.Literal["source", "sink"]'):
+    def go_through_ports(
+        self, cmd: str, mode: 't.Literal["sinks", "sources"]'
+    ):
         """
         Go through available ports for testing
         This script checks if the ports on either sinks
@@ -946,7 +952,12 @@ class PipewireTest:
             help="Timeout after which the script fails",
         )
         parser_monitor.add_argument(
-            "-m", "--mode", type=str, help="Monitor either sinks or sources"
+            "-m",
+            "--mode",
+            type=str,
+            required=True,
+            help="Monitor either sinks or sources",
+            choices=("sinks", "sources"),
         )
 
         # Add parser for go through function
@@ -961,7 +972,12 @@ class PipewireTest:
             help="command for testing",
         )
         parser_through.add_argument(
-            "-m", "--mode", type=str, help="Either sinks or sources"
+            "-m",
+            "--mode",
+            required=True,
+            type=str,
+            help="Either sinks or sources",
+            choices=("sinks", "sources"),
         )
 
         parser_iter_sink = subparsers.add_parser(

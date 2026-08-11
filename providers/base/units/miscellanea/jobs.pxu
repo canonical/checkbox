@@ -121,8 +121,10 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/efi_boot_mode
+imports: from com.canonical.plainbox import manifest
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
+ manifest._ignore_efi_boot_mode == 'False'
 _summary: Test that system booted in EFI mode
 _purpose:
  Test to verify that the system booted in EFI mode.
@@ -631,6 +633,7 @@ _verification:
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/operation-system-installation
+before: suspend/suspend_advanced_auto
 estimated_duration: 30.0
 _purpose:
     Verify that the operating system can be installed successfully.
@@ -644,6 +647,7 @@ _verification:
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/factory-recovery
+depends: miscellanea/operation-system-installation
 estimated_duration: 30.0
 _purpose:
     Verify that the factory recovery can be restored successfully.

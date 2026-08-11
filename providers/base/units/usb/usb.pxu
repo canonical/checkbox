@@ -52,6 +52,7 @@ _verification:
 _summary: Verify USB HID devices functionality by performing specified actions.
 
 id: usb/storage-manual
+group: peripherals_manual
 flags: also-after-suspend fail-on-resource
 _summary: Test USB 2.0 storage device insertion + read/write + removal.
 _purpose:
@@ -79,6 +80,7 @@ category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
 id: usb3/storage-manual
+group: peripherals_manual
 flags: also-after-suspend
 requires:
  usb.usb3 == 'supported'
@@ -257,6 +259,7 @@ _purpose:
 depends: usb/storage-detect
 
 id: usb/hid
+group: peripherals_manual
 _summary: USB keyboard works
 _purpose:
  Check USB input device works

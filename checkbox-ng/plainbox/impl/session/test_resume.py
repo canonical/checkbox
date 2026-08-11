@@ -29,7 +29,6 @@ import base64
 import binascii
 import copy
 import gzip
-import json
 
 from plainbox.abc import IUnitQualifier
 from plainbox.abc import IJobResult

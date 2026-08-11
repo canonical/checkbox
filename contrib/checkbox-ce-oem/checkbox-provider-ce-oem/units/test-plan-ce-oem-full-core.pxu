@@ -27,6 +27,11 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
+    dragonwing-core-manual
+    genio-core-manual
+    iiotg-core-manual
+    jetson-core-manual
+    xilinx-core-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-ubuntucore-26-manual
     after-suspend-ce-oem-manual
@@ -43,6 +48,12 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    dragonwing-core-automated
+    genio-core-automated
+    iiotg-core-automated
+    jetson-core-automated
+    rz-core-automated
+    xilinx-core-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-ubuntucore-26-automated
     after-suspend-ce-oem-automated
@@ -135,6 +146,7 @@ include:
     com.canonical.certification::disk/encryption/check-fde-tpm                 # keep if FDE with TPM is enabled
     com.canonical.certification::ubuntucore/kernel-failboot-.*                 # keep if kernel snap is not pc-kernel
 nested_part:
+    jetson-core-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-ubuntucore-22-manual
     after-suspend-ce-oem-manual
@@ -143,7 +155,7 @@ exclude:
 certification_status_overrides:
     apply blocker to .*
 
-id: ce-oem-ubuntucore-20-manual
+id: ce-oem-iot-ubuntucore-20-manual
 unit: test plan
 _name: CE-OEM-IOT - Manual only OEMQA tests for Ubuntu Core 20
 _description:
@@ -192,6 +204,7 @@ include:
     com.canonical.certification::miscellanea/secure_boot_mode_.*               # keep if secure boot is enabled
     com.canonical.certification::disk/encryption/detect                        # keep if FDE is enabled
 nested_part:
+    jetson-core-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-ubuntucore-22-automated
     after-suspend-ce-oem-automated

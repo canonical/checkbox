@@ -82,7 +82,6 @@ parts:
       - device-tree-compiler
       - linuxptp
       - snmp
-      - python3-serial
       - gpsd
     override-prime: |
       snapcraftctl prime

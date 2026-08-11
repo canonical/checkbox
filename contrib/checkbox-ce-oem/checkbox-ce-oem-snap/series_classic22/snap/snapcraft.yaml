@@ -45,7 +45,6 @@ parts:
       - linuxptp
       - snmp
       - python3-rpyc
-      - python3-serial
       - gpsd
     override-prime: |
       snapcraftctl prime

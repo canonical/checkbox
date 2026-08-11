@@ -84,26 +84,30 @@ def build_decode_command(input_file, device, output_file):
 
 
 def build_encode_command(input_file, device, output_codec, output_file):
-    """Build the ffmpeg command line for a hardware encode test."""
+    """Build the ffmpeg command line for a hardware encode test.
+
+    The input is decoded in software and uploaded to a VAAPI surface
+    (``format=nv12,hwupload``) so the test exercises the hardware *encoder*
+    in isolation, independent of whether the input codec can be hardware
+    *decoded*. Audio is dropped (``-an``) to avoid an unrelated audio
+    transcode.
+    """
     return [
         "ffmpeg",
-        "-hwaccel",
-        "vaapi",
-        "-vaapi_device",
-        device,
-        "-t",
-        DURATION,
         "-hide_banner",
         "-loglevel",
         "info",
-        "-hwaccel_output_format",
-        "vaapi",
+        "-init_hw_device",
+        "vaapi=va:{}".format(device),
+        "-filter_hw_device",
+        "va",
         "-i",
         input_file,
-        "-rc_mode",
-        "CQP",
-        "-low_power",
-        "1",
+        "-t",
+        DURATION,
+        "-an",
+        "-vf",
+        "format=nv12,hwupload",
         "-c:v",
         output_codec,
         "-y",

@@ -55,7 +55,13 @@ class TestCommandBuilders(unittest.TestCase):
         cmd = m.build_encode_command(
             "in.mp4", "/dev/dri/renderD128", "h264_vaapi", "o.mp4"
         )
-        self.assertIn("-hwaccel_output_format", cmd)
+        self.assertIn("-init_hw_device", cmd)
+        self.assertIn("vaapi=va:/dev/dri/renderD128", cmd)
+        self.assertIn("-filter_hw_device", cmd)
+        # explicit upload/format filter is what makes VAAPI encode work
+        self.assertIn("format=nv12,hwupload", cmd)
+        # audio is dropped to avoid an unrelated transcode
+        self.assertIn("-an", cmd)
         self.assertIn("h264_vaapi", cmd)
         self.assertIn("-c:v", cmd)
         self.assertEqual(cmd[-1], "o.mp4")

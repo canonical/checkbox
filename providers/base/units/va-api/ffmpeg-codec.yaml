@@ -1,9 +1,46 @@
 # ffmpeg VAAPI hardware video decode/encode tests.
 # Sample media files are provided by the media-samples snap; set
 # MEDIA_SAMPLES_PATH to override the default snap mount location.
+#
+# These tests use the DRM render node directly (headless), so they gate
+# on their own render-node VA-API check rather than the display-based
+# va-api/va-initialize job.
+unit: job
+plugin: shell
+id: va-api/ffmpeg_hw_vaapi_device
+category_id: va-api
+summary: Check VA-API is usable on the DRM render node for ffmpeg tests
+purpose:
+ Confirms the VA-API driver loads on the DRM render node (the headless
+ path the ffmpeg hardware codec tests use) before running them.
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - executable.name == 'ffmpeg'
+  - executable.name == 'vainfo'
+  - cpuinfo.platform == 'x86_64'
+  - manifest.has_va_api == 'True'
+user: root
+environ:
+  - VAAPI_DEVICE
+  - LIBVA_DRIVER_NAME
+estimated_duration: 5s
+command: |
+  device="${VAAPI_DEVICE:-/dev/dri/renderD128}"
+  if [ ! -e "$device" ]; then
+    echo "FAIL: VA-API render node $device not found"
+    exit 1
+  fi
+  if vainfo --display drm --device "$device"; then
+    echo "PASS: VA-API usable on $device"
+  else
+    echo "FAIL: vainfo could not initialise VA-API on $device"
+    exit 1
+  fi
+---
 id: va-api/ffmpeg_hw_decode_av1_1080p_mkv
 depends:
-  - va-api/va-initialize
+  - va-api/ffmpeg_hw_vaapi_device
 category_id: va-api
 flags:
   - simple
@@ -14,6 +51,7 @@ summary: ffmpeg VAAPI hardware decode of AV1 1080p video
 environ:
   - MEDIA_SAMPLES_PATH
   - VAAPI_DEVICE
+  - LIBVA_DRIVER_NAME
 estimated_duration: 1m
 command: ffmpeg_hw_codec_test.py decode av1/bbb_sunflower_1080p_30fps_normal_AV1.mkv --profile 32 --entrypoint 1
 siblings:
@@ -122,7 +160,7 @@ siblings:
 ---
 id: va-api/ffmpeg_hw_encode_h264_1080p
 depends:
-  - va-api/va-initialize
+  - va-api/ffmpeg_hw_vaapi_device
 category_id: va-api
 flags:
   - simple
@@ -133,6 +171,7 @@ summary: ffmpeg VAAPI hardware encode to H264 1080p video
 environ:
   - MEDIA_SAMPLES_PATH
   - VAAPI_DEVICE
+  - LIBVA_DRIVER_NAME
 estimated_duration: 1m
 command: ffmpeg_hw_codec_test.py encode av1/bbb_sunflower_1080p_30fps_normal_AV1.mkv --output-codec h264_vaapi --output-container mp4 --profile '(6|7|13)' --entrypoint '(6|8)'
 siblings:
@@ -147,10 +186,10 @@ siblings:
     command: ffmpeg_hw_codec_test.py encode vp9/bbb_sunflower_2160p_60fps_normal_VP9.mkv --output-codec hevc_vaapi --output-container mp4 --profile '(17|18|23|24|25|26|27|28|29|30|31|34)' --entrypoint '(6|8)'
   - id: va-api/ffmpeg_hw_encode_vp9_1080p
     summary: ffmpeg VAAPI hardware encode to VP9 1080p video
-    command: ffmpeg_hw_codec_test.py encode h264/bbb_sunflower_1080p_30fps_normal_h264.mp4 --output-codec vp9_vaapi --output-container mkv --profile '(19|20|21|22)' --entrypoint '8'
+    command: ffmpeg_hw_codec_test.py encode h264/bbb_sunflower_1080p_30fps_normal_h264.mp4 --output-codec vp9_vaapi --output-container mkv --profile '(19|20|21|22)' --entrypoint '(6|8)'
   - id: va-api/ffmpeg_hw_encode_vp9_2160p
     summary: ffmpeg VAAPI hardware encode to VP9 4K video
-    command: ffmpeg_hw_codec_test.py encode h264/bbb_sunflower_2160p_30fps_normal_h264.mp4 --output-codec vp9_vaapi --output-container mkv --profile '(19|20|21|22)' --entrypoint '8'
+    command: ffmpeg_hw_codec_test.py encode h264/bbb_sunflower_2160p_30fps_normal_h264.mp4 --output-codec vp9_vaapi --output-container mkv --profile '(19|20|21|22)' --entrypoint '(6|8)'
   - id: va-api/ffmpeg_hw_encode_mpeg2_1080p
     summary: ffmpeg VAAPI hardware encode to MPEG2 1080p video
     command: ffmpeg_hw_codec_test.py encode av1/bbb_sunflower_1080p_30fps_normal_AV1.mkv --output-codec mpeg2_vaapi --output-container mkv --profile '(0|1)' --entrypoint '(6|8)'

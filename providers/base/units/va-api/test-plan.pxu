@@ -16,7 +16,7 @@ id: va-api-automated
 _name: Hardware video acceleration tests (automated)
 unit: test plan
 include:
-    va-api/va-initialize
+    va-api/ffmpeg_hw_vaapi_device
     va-api/ffmpeg_hw_decode_.*
     va-api/ffmpeg_hw_encode_.*
 bootstrap_include:

@@ -13,7 +13,9 @@ def load_json_file(
 
     if not json_file_path or not isinstance(json_file_path, str):
         if enable_logger:
-            logging.warning("Empty JSON file path provided, returning empty dictionary")
+            logging.warning(
+                "Empty JSON file path provided, returning empty dictionary"
+            )
         return {}
 
     if not Path(json_file_path).is_absolute():
@@ -41,9 +43,12 @@ def load_json_file(
         if enable_logger:
             logging.warning("Failed to load JSON file: %s", resolved_path)
         return {}
-        
 
-def find_full_path_of_binary(command: str, enable_logger: bool = False,) -> str | None:
+
+def find_full_path_of_binary(
+    command: str,
+    enable_logger: bool = False,
+) -> str | None:
     """Find the full path of a command using the predefined priority order.
 
     Args:
@@ -63,7 +68,9 @@ def find_full_path_of_binary(command: str, enable_logger: bool = False,) -> str 
 
     if Path(command).is_absolute() and Path(command).is_file():
         if enable_logger:
-            logging.info("Command '%s' is an absolute path and exists", command)
+            logging.info(
+                "Command '%s' is an absolute path and exists", command
+            )
         return command
 
     for directory in search_paths:
@@ -71,7 +78,9 @@ def find_full_path_of_binary(command: str, enable_logger: bool = False,) -> str 
 
         if command_path.is_file() and command_path.stat().st_mode & 0o111:
             if enable_logger:
-                logging.info("Found command '%s' at: %s", command, command_path)
+                logging.info(
+                    "Found command '%s' at: %s", command, command_path
+                )
             return str(command_path)
 
     if enable_logger:
@@ -120,9 +129,13 @@ def build_customized_command(
     logging.debug("LD_LIBRARY_PATH: %s", ld_library_path)
     if ld_library_path:
         if not isinstance(ld_library_path, (list, tuple)):
-            raise ValueError("cmd_config['LD_LIBRARY_PATH'] must be a list of strings")
+            raise ValueError(
+                "cmd_config['LD_LIBRARY_PATH'] must be a list of strings"
+            )
         if any(not isinstance(path, str) for path in ld_library_path):
-            raise ValueError("cmd_config['LD_LIBRARY_PATH'] must be a list of strings")
+            raise ValueError(
+                "cmd_config['LD_LIBRARY_PATH'] must be a list of strings"
+            )
 
         lib_str = ":".join(ld_library_path)
         command_parts.append(f'LD_LIBRARY_PATH="{lib_str}:$LD_LIBRARY_PATH"')
@@ -148,28 +161,28 @@ def resolve_executable_commands(
     executable_json_path: str = "",
     enable_logger: bool = False,
 ) -> Optional[Dict[str, str]]:
-    """Resolve multiple commands using executable JSON mapping and fallbacks.
-    
-        Args:
-            default_commands (List[str]): A list of default command names to resolve.
-            executable_json_path (str): Path to the JSON file containing command mappings.
-            enable_logger (bool): If True, logs the resolution process.
+    """Resolve command strings using optional JSON-based customization.
 
-        Example:
-            default_commands = ["foo", "bar"]  # It can be a mix of full paths and command names.
-            executable_json_path = "path/to/executable.json"
-            # Suppose the executable.json content looks like this:
-                {
-                    "foo": {
-                        "LD_PATH": ["/path/to/lib1"],
-                        "env1": "value1",
-                    }
+    Args:
+        default_commands (List[str]): A list of default command names to resolve.
+        executable_json_path (str): Path to the JSON file containing command mappings.
+        enable_logger (bool): If True, logs the resolution process.
+
+    Example:
+        default_commands = ["foo", "bar"]  # It can be a mix of full paths and command names.
+        executable_json_path = "path/to/executable.json"
+        # Suppose the executable.json content looks like this:
+            {
+                "foo": {
+                    "LD_PATH": ["/path/to/lib1"],
+                    "env1": "value1",
                 }
-            Returns:
-                {
-                    "foo": "LD_LIBRARY_PATH="/path/to/lib1:$LD_LIBRARY_PATH" env1="value1" /usr/bin/foo",
-                    "bar": "/usr/bin/bar"
-                }
+            }
+        Returns:
+            {
+                "foo": "LD_LIBRARY_PATH="/path/to/lib1:$LD_LIBRARY_PATH" env1="value1" /usr/bin/foo",
+                "bar": "/usr/bin/bar"
+            }
     """
     if not default_commands:
         raise ValueError("default_commands must not be empty")
@@ -192,7 +205,9 @@ def resolve_executable_commands(
     for default_command in unique_commands:
         command = build_customized_command(
             full_path_cmd=find_full_path_of_binary(default_command),
-            cmd_config=data.get(Path(default_command).name, {}),    # Get the specific command configuration from the JSON data
+            cmd_config=data.get(
+                Path(default_command).name, {}
+            ),  # Get the specific command configuration from the JSON data
             enable_logger=enable_logger,
         )
         if command is None:
@@ -210,18 +225,20 @@ def resolve_default_commands(
     enable_logger: bool = False,
 ) -> Dict[str, str]:
     """Resolve a list of default commands and build the full path to them.
-    
-        Example:
-            default_commands = ["foo", "bar"]
-            Returns:
-                {
-                    "foo": "/usr/bin/foo",
-                    "bar": "/usr/bin/bar"
-                }
+
+    Example:
+        default_commands = ["foo", "bar"]
+        Returns:
+            {
+                "foo": "/usr/bin/foo",
+                "bar": "/usr/bin/bar"
+            }
     """
     resolved_commands: Dict[str, str] = {}
     for default_command in default_commands:
-        resolved_commands[default_command] = find_full_path_of_binary(default_command)
+        resolved_commands[default_command] = find_full_path_of_binary(
+            default_command
+        )
     if enable_logger:
         logging.info("Resolved default commands: %s", resolved_commands)
     return resolved_commands

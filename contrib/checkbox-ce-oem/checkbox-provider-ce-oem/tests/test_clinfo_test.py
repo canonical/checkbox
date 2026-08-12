@@ -9,61 +9,39 @@ from unittest.mock import patch
 
 SCRIPT_DIR = os.path.dirname(__file__)
 BIN_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "bin"))
+CHECKBOX_SUPPORT_DIR = os.path.normpath(
+    os.path.join(SCRIPT_DIR, "..", "..", "..", "..", "checkbox-support")
+)
+CHECKBOX_NG_DIR = os.path.normpath(
+    os.path.join(SCRIPT_DIR, "..", "..", "..", "..", "checkbox-ng")
+)
 if BIN_DIR not in sys.path:
     sys.path.insert(0, BIN_DIR)
+if CHECKBOX_SUPPORT_DIR not in sys.path:
+    sys.path.insert(0, CHECKBOX_SUPPORT_DIR)
+if CHECKBOX_NG_DIR not in sys.path:
+    sys.path.insert(0, CHECKBOX_NG_DIR)
 
 import clinfo_test
 
 
 class TestClinfoTest(unittest.TestCase):
-    @patch("clinfo_test.load_json_file")
-    @patch("clinfo_test.build_command", return_value="/opt/custom-clinfo")
-    def test_resolve_clinfo_command_from_json(
+    @patch(
+        "clinfo_test.resolve_executable_commands",
+        return_value={"clinfo": "cmd"},
+    )
+    def test_resolve_clinfo_command_delegates_to_general_utils(
         self,
-        mock_build_command,
-        mock_load_json_file,
+        mock_resolve,
     ):
-        mock_load_json_file.return_value = {"executable": {"bin": "clinfo"}}
+        result = clinfo_test._resolve_clinfo_command("/tmp/executable.json")
 
-        result = clinfo_test._resolve_clinfo_command("/tmp/cfg.json")
-
-        self.assertEqual(result, "/opt/custom-clinfo")
-        mock_load_json_file.assert_called_once_with(
-            "/tmp/cfg.json", enable_logger=False
+        self.assertEqual(result, "cmd")
+        mock_resolve.assert_called_once_with(
+            default_commands=["clinfo"],
+            executable_json_path="/tmp/executable.json",
+            enable_logger=False,
         )
-        mock_build_command.assert_called_once_with(
-            {"bin": "clinfo"}, enable_logger=False
-        )
-
-    @patch("clinfo_test.load_json_file", return_value={})
-    def test_resolve_clinfo_command_invalid_executable_data(
-        self, _mock_loader
-    ):
-        result = clinfo_test._resolve_clinfo_command("/tmp/cfg.json")
-        self.assertIsNone(result)
-
-    @patch("clinfo_test.load_json_file")
-    @patch("clinfo_test.build_command", side_effect=ValueError("bad config"))
-    def test_resolve_clinfo_command_build_command_failure(
-        self,
-        _mock_build_command,
-        mock_load_json_file,
-    ):
-        mock_load_json_file.return_value = {"executable": {"bin": "clinfo"}}
-
-        result = clinfo_test._resolve_clinfo_command("/tmp/cfg.json")
-
-        self.assertIsNone(result)
-
-    @patch("clinfo_test.shutil.which", return_value=None)
-    def test_resolve_clinfo_command_missing_system_clinfo(self, _mock_which):
-        result = clinfo_test._resolve_clinfo_command("")
-        self.assertIsNone(result)
-
-    @patch("clinfo_test.shutil.which", return_value="/usr/bin/clinfo")
-    def test_resolve_clinfo_command_uses_system_clinfo(self, _mock_which):
-        result = clinfo_test._resolve_clinfo_command("")
-        self.assertEqual(result, "/usr/bin/clinfo")
 
     @patch("clinfo_test.subprocess.run")
     def test_run_clinfo_command_uses_common_subprocess_options(self, mock_run):
@@ -204,11 +182,12 @@ class TestClinfoTest(unittest.TestCase):
         )
 
     @patch("clinfo_test._resolve_clinfo_command", return_value=None)
-    def test_cmd_detect_returns_1_when_command_cannot_resolve(
+    def test_cmd_detect_raises_type_error_when_command_cannot_resolve(
         self,
         _mock_resolve,
     ):
-        self.assertEqual(clinfo_test.cmd_detect(""), 1)
+        with self.assertRaises(TypeError):
+            clinfo_test.cmd_detect("")
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test._run_clinfo_command")
@@ -294,11 +273,12 @@ class TestClinfoTest(unittest.TestCase):
         self.assertEqual(clinfo_test.cmd_detect(""), 0)
 
     @patch("clinfo_test._resolve_clinfo_command", return_value=None)
-    def test_cmd_resource_returns_1_when_command_cannot_resolve(
+    def test_cmd_resource_raises_type_error_when_command_cannot_resolve(
         self,
         _mock_resolve,
     ):
-        self.assertEqual(clinfo_test.cmd_resource("", ""), 1)
+        with self.assertRaises(TypeError):
+            clinfo_test.cmd_resource("", "")
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test._run_clinfo_command")
@@ -358,19 +338,19 @@ class TestClinfoTest(unittest.TestCase):
         mock_parse_ignored_set.assert_not_called()
 
     @patch("clinfo_test._resolve_clinfo_command", return_value=None)
-    def test_cmd_test_returns_1_when_command_cannot_resolve(
+    def test_cmd_test_raises_type_error_when_command_cannot_resolve(
         self,
         _mock_resolve,
     ):
-        result = clinfo_test.cmd_test(
-            "",
-            "",
-            "platform",
-            0,
-            "device",
-            0,
-        )
-        self.assertEqual(result, 1)
+        with self.assertRaises(TypeError):
+            clinfo_test.cmd_test(
+                "",
+                "",
+                "platform",
+                0,
+                "device",
+                0,
+            )
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test.load_validation_set")
@@ -401,7 +381,7 @@ class TestClinfoTest(unittest.TestCase):
         )
 
         self.assertEqual(result, 1)
-        self.assertIn("-d 0:0", mock_run.call_args[0][0])
+        self.assertIn("-d 0:0", mock_run.call_args.kwargs["command"])
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test.load_validation_set")
@@ -448,7 +428,9 @@ class TestClinfoTest(unittest.TestCase):
         }
         mock_load_validation_set.return_value = validation_set
 
-        def side_effect(command, capture_output=True):
+        def side_effect(
+            command=None, capture_output=True, enable_logger=False
+        ):
             prop_name = command.rsplit(" ", 1)[1]
             return subprocess.CompletedProcess(
                 args=command,
@@ -475,6 +457,15 @@ class TestClinfoTest(unittest.TestCase):
     def test_main_routes_detect(self, mock_cmd_detect):
         self.assertEqual(clinfo_test.main(), 7)
         mock_cmd_detect.assert_called_once_with("")
+
+    @patch("clinfo_test.cmd_detect", return_value=7)
+    @patch(
+        "sys.argv",
+        ["clinfo_test.py", "detect", "-ejp", "/tmp/executable.json"],
+    )
+    def test_main_routes_detect_with_explicit_ejp(self, mock_cmd_detect):
+        self.assertEqual(clinfo_test.main(), 7)
+        mock_cmd_detect.assert_called_once_with("/tmp/executable.json")
 
     @patch("clinfo_test.cmd_resource", return_value=8)
     @patch("sys.argv", ["clinfo_test.py", "resource"])

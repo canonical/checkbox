@@ -93,15 +93,14 @@ def build_customized_command(
     cmd_config: dict,
     enable_logger: bool = False,
 ) -> str:
-    """
-    A handy utility function to construct a command string with
-    library paths and environment variables.
+    """Construct a command string with optional environment variables.
 
     Args:
-        full_path_cmd (str): The full path to the command to be executed.
-        cmd_config (dict): A dictionary containing environment variable names as keys
-                           and their corresponding values. The special key
-                           "LD_LIBRARY_PATH" can be used to specify a list of library paths.
+        full_path_cmd (str): Full path to the command to be executed.
+        cmd_config (dict): A dictionary containing environment variable
+                           names as keys and their corresponding values.
+                           The special key "LD_LIBRARY_PATH" can be used
+                           to specify a list of library paths.
         enable_logger (bool): If True, logs the constructed command.
 
     Input:
@@ -112,7 +111,7 @@ def build_customized_command(
             "env2": "value2",
         }
     Returns:
-        'LD_LIBRARY_PATH="/path/to/lib1:$LD_LIBRARY_PATH" env1="value1" env2="value2" /usr/bin/foo'
+        A shell command string.
     """
     if not isinstance(full_path_cmd, str):
         raise TypeError("full_path_cmd must be a string type")
@@ -124,7 +123,8 @@ def build_customized_command(
         raise TypeError("config must be a dictionary")
 
     command_parts = []
-    # Handle LD_LIBRARY_PATH before other environment variables to make sure it is prepended correctly
+    # Handle LD_LIBRARY_PATH before other environment variables to make
+    # sure it is prepended correctly.
     ld_library_path = cmd_config.get("LD_LIBRARY_PATH")
     logging.debug("LD_LIBRARY_PATH: %s", ld_library_path)
     if ld_library_path:
@@ -164,12 +164,13 @@ def resolve_executable_commands(
     """Resolve command strings using optional JSON-based customization.
 
     Args:
-        default_commands (List[str]): A list of default command names to resolve.
-        executable_json_path (str): Path to the JSON file containing command mappings.
+        default_commands (List[str]): Default command names to resolve.
+        executable_json_path (str): JSON file path with command mappings.
         enable_logger (bool): If True, logs the resolution process.
 
     Example:
-        default_commands = ["foo", "bar"]  # It can be a mix of full paths and command names.
+        # It can be a mix of full paths and command names.
+        default_commands = ["foo", "bar"]
         executable_json_path = "path/to/executable.json"
         # Suppose the executable.json content looks like this:
             {
@@ -180,7 +181,7 @@ def resolve_executable_commands(
             }
         Returns:
             {
-                "foo": "LD_LIBRARY_PATH="/path/to/lib1:$LD_LIBRARY_PATH" env1="value1" /usr/bin/foo",
+                "foo": "LD_LIBRARY_PATH="/path/to/lib1:$LD_LIBRARY_PATH" env1="value1" /usr/bin/foo",   # noqa E501
                 "bar": "/usr/bin/bar"
             }
     """
@@ -207,7 +208,8 @@ def resolve_executable_commands(
             full_path_cmd=find_full_path_of_binary(default_command),
             cmd_config=data.get(
                 Path(default_command).name, {}
-            ),  # Get the specific command configuration from the JSON data
+            ),
+            # Get the specific command configuration from the JSON data.
             enable_logger=enable_logger,
         )
         if command is None:

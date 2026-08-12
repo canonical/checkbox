@@ -75,7 +75,7 @@ ValidationSet = Dict[str, str]
 
 def _resolve_clinfo_command(
     clinfo_executable_json_path: str, enable_logger: bool = False
-) -> str:
+) -> Optional[str]:
     """Resolve clinfo command from JSON config or system PATH.
 
     Returns:

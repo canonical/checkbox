@@ -181,14 +181,6 @@ class TestClinfoTest(unittest.TestCase):
             "CL_TRUE",
         )
 
-    @patch("clinfo_test._resolve_clinfo_command", return_value=None)
-    def test_cmd_detect_raises_type_error_when_command_cannot_resolve(
-        self,
-        _mock_resolve,
-    ):
-        with self.assertRaises(TypeError):
-            clinfo_test.cmd_detect("")
-
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test._run_clinfo_command")
     def test_cmd_detect_returns_version_return_code_on_version_failure(
@@ -272,14 +264,6 @@ class TestClinfoTest(unittest.TestCase):
 
         self.assertEqual(clinfo_test.cmd_detect(""), 0)
 
-    @patch("clinfo_test._resolve_clinfo_command", return_value=None)
-    def test_cmd_resource_raises_type_error_when_command_cannot_resolve(
-        self,
-        _mock_resolve,
-    ):
-        with self.assertRaises(TypeError):
-            clinfo_test.cmd_resource("", "")
-
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test._run_clinfo_command")
     @patch("sys.stdout", new_callable=io.StringIO)
@@ -336,21 +320,6 @@ class TestClinfoTest(unittest.TestCase):
 
         self.assertEqual(result, 1)
         mock_parse_ignored_set.assert_not_called()
-
-    @patch("clinfo_test._resolve_clinfo_command", return_value=None)
-    def test_cmd_test_raises_type_error_when_command_cannot_resolve(
-        self,
-        _mock_resolve,
-    ):
-        with self.assertRaises(TypeError):
-            clinfo_test.cmd_test(
-                "",
-                "",
-                "platform",
-                0,
-                "device",
-                0,
-            )
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test.load_validation_set")

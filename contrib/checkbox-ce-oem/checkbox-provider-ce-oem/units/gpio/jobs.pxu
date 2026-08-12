@@ -153,7 +153,7 @@ template-id: ce-oem-gpiod-gpio/simple-output-GPIO_CHIP-GPIO_LINE
 _template-summary: Test libgpiod GPIO output on {{GPIO_CHIP}}-{{GPIO_LINE}}
 id: ce-oem-gpiod-gpio/simple-output-{{GPIO_CHIP}}-{{GPIO_LINE}}
 _summary: Test libgpiod GPIO output on {{GPIO_CHIP}}-{{GPIO_LINE}}
-_description:
+_purpose:
     Request GPIO line {{GPIO_CHIP}}-{{GPIO_LINE}} as output through
     libgpiod, toggle low/high, and restore its original state.
 plugin: shell

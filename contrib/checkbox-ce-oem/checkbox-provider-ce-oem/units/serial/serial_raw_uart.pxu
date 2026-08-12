@@ -1,7 +1,7 @@
 id: ce-oem-serial/raw-uart-list
 _summary:
     Generates raw UART self-loopback resources from user configuration
-_description:
+_purpose:
     Generates one resource for each raw UART listed in RAW_UART_PORTS.
     NAME:TARGET:BAUD
 plugin: resource

@@ -9,10 +9,6 @@ estimated_duration: 0.02
 category_id: com.canonical.plainbox::monitor
 plugin: resource
 environ: BACKLIGHT_PANEL_MAP
-imports:
-    from com.canonical.plainbox import manifest
-requires:
-    manifest.has_built_in_panel == "True"
 command:
     backlight_panel.py resource --panel-mapping "$BACKLIGHT_PANEL_MAP"
 

@@ -48,7 +48,7 @@ def load_json_file(
 def find_full_path_of_binary(
     command: str,
     enable_logger: bool = False,
-) -> str | None:
+) -> Optional[str]:
     """Find the full path of a command using the predefined priority order.
 
     Args:
@@ -206,10 +206,7 @@ def resolve_executable_commands(
     for default_command in unique_commands:
         command = build_customized_command(
             full_path_cmd=find_full_path_of_binary(default_command),
-            cmd_config=data.get(
-                Path(default_command).name, {}
-            ),
-            # Get the specific command configuration from the JSON data.
+            cmd_config=data.get(Path(default_command).name, {}),
             enable_logger=enable_logger,
         )
         if command is None:

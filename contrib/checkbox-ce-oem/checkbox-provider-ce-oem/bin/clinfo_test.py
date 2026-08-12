@@ -90,9 +90,7 @@ def _resolve_clinfo_command(
 
 
 def _run_clinfo_command(
-    command: str,
-    capture_output: bool = True,
-    enable_logger: bool = False
+    command: str, capture_output: bool = True, enable_logger: bool = False
 ) -> subprocess.CompletedProcess:
     """Run a clinfo command with common subprocess options.
 
@@ -232,7 +230,9 @@ def cmd_detect(clinfo_executable_json_path: str) -> int:
         logger.error("Unable to query clinfo version")
         return version_result.returncode
 
-    list_result = _run_clinfo_command(command=command + " -l", enable_logger=True)
+    list_result = _run_clinfo_command(
+        command=command + " -l", enable_logger=True
+    )
     if list_result.returncode != 0:
         if list_result.stderr:
             logger.error(list_result.stderr.rstrip())
@@ -326,7 +326,7 @@ def cmd_test(
     for prop_name, expected_value in validation_set.items():
         prop_result = _run_clinfo_command(
             command="{} -d {} --prop {}".format(command, target, prop_name),
-            enable_logger=True
+            enable_logger=True,
         )
         if prop_result.returncode != 0:
             error_text = (

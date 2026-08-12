@@ -1,0 +1,14 @@
+id: vaapi_codec
+category_id: va-api
+plugin: resource
+user: root
+environ: VAAPI_DEVICE LIBVA_DRIVER_NAME
+_summary:
+    Report the VA-API profiles and entrypoints supported by the render node
+command:
+    vaapi_codec_resource.py
+_description:
+    Emits one record per VA-API (profile, entrypoint) pair reported by
+    vainfo on the DRM render node, with numeric ids matching the VAProfile
+    and VAEntrypoint enums. The ffmpeg codec jobs use this to skip codecs
+    the platform cannot accelerate instead of failing on them.

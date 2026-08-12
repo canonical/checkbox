@@ -46,6 +46,7 @@ flags:
   - simple
 requires:
   - executable.name == 'ffmpeg'
+  - vaapi_codec.profile_id == '32' and vaapi_codec.entrypoint_id == '1'
 user: root
 summary: ffmpeg VAAPI hardware decode of AV1 1080p video
 environ:
@@ -58,105 +59,207 @@ siblings:
   - id: va-api/ffmpeg_hw_decode_av1_1080p_webm
     summary: ffmpeg VAAPI hardware decode of AV1 1080p video
     command: ffmpeg_hw_codec_test.py decode av1/bbb_sunflower_1080p_30fps_normal_AV1.webm --profile 32 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '32' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_av1_180p_mp4
     summary: ffmpeg VAAPI hardware decode of AV1 180p video
     command: ffmpeg_hw_codec_test.py decode av1/bbb_sunflower_180p_30fps_normal_av1.mp4 --profile 32 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '32' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_av1_2160p_mkv
     summary: ffmpeg VAAPI hardware decode of AV1 4K video
     command: ffmpeg_hw_codec_test.py decode av1/bbb_sunflower_2160p_30fps_normal_AV1.mkv --profile 32 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '32' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_av1_2160p_webm
     summary: ffmpeg VAAPI hardware decode of AV1 4K video
     command: ffmpeg_hw_codec_test.py decode av1/bbb_sunflower_2160p_30fps_normal_AV1.webm --profile 32 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '32' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_av1_360p_mp4
     summary: ffmpeg VAAPI hardware decode of AV1 360p video
     command: ffmpeg_hw_codec_test.py decode av1/bbb_sunflower_360p_30fps_normal_av1.mp4 --profile 32 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '32' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_av1_480p_mp4
     summary: ffmpeg VAAPI hardware decode of AV1 480p video
     command: ffmpeg_hw_codec_test.py decode av1/bbb_sunflower_480p_30fps_normal_av1.mp4 --profile 32 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '32' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_av1_720p_mp4
     summary: ffmpeg VAAPI hardware decode of AV1 720p video
     command: ffmpeg_hw_codec_test.py decode av1/bbb_sunflower_720p_30fps_normal_av1.mp4 --profile 32 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '32' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_h264_1080p_mp4
     summary: ffmpeg VAAPI hardware decode of H264 1080p video
     command: ffmpeg_hw_codec_test.py decode h264/bbb_sunflower_1080p_30fps_normal_h264.mp4 --profile 7 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '7' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_h264_180p_mp4
     summary: ffmpeg VAAPI hardware decode of H264 180p video
     command: ffmpeg_hw_codec_test.py decode h264/bbb_sunflower_180p_30fps_normal_h264.mp4 --profile 7 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '7' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_h264_2160p_mp4
     summary: ffmpeg VAAPI hardware decode of H264 4K video
     command: ffmpeg_hw_codec_test.py decode h264/bbb_sunflower_2160p_30fps_normal_h264.mp4 --profile 7 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '7' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_h264_360p_mp4
     summary: ffmpeg VAAPI hardware decode of H264 360p video
     command: ffmpeg_hw_codec_test.py decode h264/bbb_sunflower_360p_30fps_normal_h264.mp4 --profile 7 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '7' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_h264_480p_mp4
     summary: ffmpeg VAAPI hardware decode of H264 480p video
     command: ffmpeg_hw_codec_test.py decode h264/bbb_sunflower_480p_30fps_normal_h264.mp4 --profile 7 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '7' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_h264_720p_mp4
     summary: ffmpeg VAAPI hardware decode of H264 720p video
     command: ffmpeg_hw_codec_test.py decode h264/bbb_sunflower_720p_30fps_normal_h264.mp4 --profile 7 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '7' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_mjpeg_1080p_avi
     summary: ffmpeg VAAPI hardware decode of MJPEG 1080p video
     command: ffmpeg_hw_codec_test.py decode mjpeg/bbb_sunflower_1080p_30fps_normal_mjpeg.avi --profile 12 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '12' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_mjpeg_180p_avi
     summary: ffmpeg VAAPI hardware decode of MJPEG 180p video
     command: ffmpeg_hw_codec_test.py decode mjpeg/bbb_sunflower_180p_30fps_normal_mjpeg.avi --profile 12 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '12' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_mjpeg_2160p_avi
     summary: ffmpeg VAAPI hardware decode of MJPEG 4K video
     command: ffmpeg_hw_codec_test.py decode mjpeg/bbb_sunflower_2160p_30fps_normal_mjpeg.avi --profile 12 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '12' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_mjpeg_360p_avi
     summary: ffmpeg VAAPI hardware decode of MJPEG 360p video
     command: ffmpeg_hw_codec_test.py decode mjpeg/bbb_sunflower_360p_30fps_normal_mjpeg.avi --profile 12 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '12' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_mjpeg_480p_avi
     summary: ffmpeg VAAPI hardware decode of MJPEG 480p video
     command: ffmpeg_hw_codec_test.py decode mjpeg/bbb_sunflower_480p_30fps_normal_mjpeg.avi --profile 12 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '12' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_mjpeg_720p_avi
     summary: ffmpeg VAAPI hardware decode of MJPEG 720p video
     command: ffmpeg_hw_codec_test.py decode mjpeg/bbb_sunflower_720p_30fps_normal_mjpeg.avi --profile 12 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '12' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_mpeg2_2160p_mpg
     summary: ffmpeg VAAPI hardware decode of MPEG2 4K video
     command: ffmpeg_hw_codec_test.py decode mpeg2/bbb_sunflower_2160p_30fps_normal_mpeg2.mpg --profile 1 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '1' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp8_1080p_webm
     summary: ffmpeg VAAPI hardware decode of VP8 1080p video
     command: ffmpeg_hw_codec_test.py decode vp8/bbb_sunflower_1080p_30fps_normal_vp8.webm --profile 14 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '14' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp8_180p_webm
     summary: ffmpeg VAAPI hardware decode of VP8 180p video
     command: ffmpeg_hw_codec_test.py decode vp8/bbb_sunflower_180p_30fps_normal_vp8.webm --profile 14 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '14' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp8_2160p_webm
     summary: ffmpeg VAAPI hardware decode of VP8 4K video
     command: ffmpeg_hw_codec_test.py decode vp8/bbb_sunflower_2160p_30fps_normal_vp8.webm --profile 14 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '14' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp8_360p_webm
     summary: ffmpeg VAAPI hardware decode of VP8 360p video
     command: ffmpeg_hw_codec_test.py decode vp8/bbb_sunflower_360p_30fps_normal_vp8.webm --profile 14 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '14' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp8_480p_webm
     summary: ffmpeg VAAPI hardware decode of VP8 480p video
     command: ffmpeg_hw_codec_test.py decode vp8/bbb_sunflower_480p_30fps_normal_vp8.webm --profile 14 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '14' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp8_720p_webm
     summary: ffmpeg VAAPI hardware decode of VP8 720p video
     command: ffmpeg_hw_codec_test.py decode vp8/bbb_sunflower_720p_30fps_normal_vp8.webm --profile 14 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '14' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp9_1080p_mkv
     summary: ffmpeg VAAPI hardware decode of VP9 1080p video
     command: ffmpeg_hw_codec_test.py decode vp9/bbb_sunflower_1080p_30fps_normal_VP9.mkv --profile 19 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '19' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp9_1080p_webm
     summary: ffmpeg VAAPI hardware decode of VP9 1080p video
     command: ffmpeg_hw_codec_test.py decode vp9/bbb_sunflower_1080p_30fps_normal_VP9.webm --profile 19 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '19' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp9_180p_webm
     summary: ffmpeg VAAPI hardware decode of VP9 180p video
     command: ffmpeg_hw_codec_test.py decode vp9/bbb_sunflower_180p_30fps_normal_vp9.webm --profile 19 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '19' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp9_2160p_mkv
     summary: ffmpeg VAAPI hardware decode of VP9 4K video
     command: ffmpeg_hw_codec_test.py decode vp9/bbb_sunflower_2160p_60fps_normal_VP9.mkv --profile 19 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '19' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp9_2160p_webm
     summary: ffmpeg VAAPI hardware decode of VP9 4K video
     command: ffmpeg_hw_codec_test.py decode vp9/bbb_sunflower_2160p_60fps_normal_VP9.webm --profile 19 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '19' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp9_360p_webm
     summary: ffmpeg VAAPI hardware decode of VP9 360p video
     command: ffmpeg_hw_codec_test.py decode vp9/bbb_sunflower_360p_30fps_normal_vp9.webm --profile 19 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '19' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp9_480p_webm
     summary: ffmpeg VAAPI hardware decode of VP9 480p video
     command: ffmpeg_hw_codec_test.py decode vp9/bbb_sunflower_480p_30fps_normal_vp9.webm --profile 19 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '19' and vaapi_codec.entrypoint_id == '1'
   - id: va-api/ffmpeg_hw_decode_vp9_720p_webm
     summary: ffmpeg VAAPI hardware decode of VP9 720p video
     command: ffmpeg_hw_codec_test.py decode vp9/bbb_sunflower_720p_30fps_normal_vp9.webm --profile 19 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id == '19' and vaapi_codec.entrypoint_id == '1'
 ---
 id: va-api/ffmpeg_hw_encode_h264_1080p
 depends:
@@ -166,6 +269,7 @@ flags:
   - simple
 requires:
   - executable.name == 'ffmpeg'
+  - vaapi_codec.profile_id in ('6', '7', '13') and vaapi_codec.entrypoint_id in ('6', '8')
 user: root
 summary: ffmpeg VAAPI hardware encode to H264 1080p video
 environ:
@@ -178,18 +282,36 @@ siblings:
   - id: va-api/ffmpeg_hw_encode_h264_2160p
     summary: ffmpeg VAAPI hardware encode to H264 4K video
     command: ffmpeg_hw_codec_test.py encode vp9/bbb_sunflower_2160p_60fps_normal_VP9.mkv --output-codec h264_vaapi --output-container mp4 --profile '(6|7|13)' --entrypoint '(6|8)'
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id in ('6', '7', '13') and vaapi_codec.entrypoint_id in ('6', '8')
   - id: va-api/ffmpeg_hw_encode_h265_1080p
     summary: ffmpeg VAAPI hardware encode to H265 1080p video
     command: ffmpeg_hw_codec_test.py encode av1/bbb_sunflower_1080p_30fps_normal_AV1.mkv --output-codec hevc_vaapi --output-container mp4 --profile '(17|18|23|24|25|26|27|28|29|30|31|34)' --entrypoint '(6|8)'
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id in ('17', '18', '23', '24', '25', '26', '27', '28', '29', '30', '31', '34') and vaapi_codec.entrypoint_id in ('6', '8')
   - id: va-api/ffmpeg_hw_encode_h265_2160p
     summary: ffmpeg VAAPI hardware encode to H265 4K video
     command: ffmpeg_hw_codec_test.py encode vp9/bbb_sunflower_2160p_60fps_normal_VP9.mkv --output-codec hevc_vaapi --output-container mp4 --profile '(17|18|23|24|25|26|27|28|29|30|31|34)' --entrypoint '(6|8)'
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id in ('17', '18', '23', '24', '25', '26', '27', '28', '29', '30', '31', '34') and vaapi_codec.entrypoint_id in ('6', '8')
   - id: va-api/ffmpeg_hw_encode_vp9_1080p
     summary: ffmpeg VAAPI hardware encode to VP9 1080p video
     command: ffmpeg_hw_codec_test.py encode h264/bbb_sunflower_1080p_30fps_normal_h264.mp4 --output-codec vp9_vaapi --output-container mkv --profile '(19|20|21|22)' --entrypoint '(6|8)'
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id in ('19', '20', '21', '22') and vaapi_codec.entrypoint_id in ('6', '8')
   - id: va-api/ffmpeg_hw_encode_vp9_2160p
     summary: ffmpeg VAAPI hardware encode to VP9 4K video
     command: ffmpeg_hw_codec_test.py encode h264/bbb_sunflower_2160p_30fps_normal_h264.mp4 --output-codec vp9_vaapi --output-container mkv --profile '(19|20|21|22)' --entrypoint '(6|8)'
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id in ('19', '20', '21', '22') and vaapi_codec.entrypoint_id in ('6', '8')
   - id: va-api/ffmpeg_hw_encode_mpeg2_1080p
     summary: ffmpeg VAAPI hardware encode to MPEG2 1080p video
     command: ffmpeg_hw_codec_test.py encode av1/bbb_sunflower_1080p_30fps_normal_AV1.mkv --output-codec mpeg2_vaapi --output-container mkv --profile '(0|1)' --entrypoint '(6|8)'
+    requires:
+      - executable.name == 'ffmpeg'
+      - vaapi_codec.profile_id in ('0', '1') and vaapi_codec.entrypoint_id in ('6', '8')

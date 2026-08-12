@@ -20,3 +20,4 @@ include:
     va-api/ffmpeg_hw_decode_.*
     va-api/ffmpeg_hw_encode_.*
 bootstrap_include:
+    vaapi_codec

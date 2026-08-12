@@ -169,7 +169,7 @@ command:
 
 id: ce-oem-gpiod-gpio/loopback-resource
 _summary: Generates libgpiod GPIO loopback pairs
-_description:
+_purpose:
     Generates GPIO loopback resources for libgpiod-based GPIO loopback tests.
     Define GPIOD_GPIO_LOOPBACK_PAIRS with comma-separated INPUT:OUTPUT pairs.
     Example: GPIOD_GPIO_LOOPBACK_PAIRS=gpiochip0-100:gpiochip0-0

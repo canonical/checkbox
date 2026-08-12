@@ -31,6 +31,30 @@ Checks that `clinfo` is available and that at least one OpenCL platform and
 device pair can be listed. This job fails if no platform is found (OpenCL
 runtime not installed) or if a platform is found but no device is usable.
 
+#### Scenario: Pass
+
+Have at least 1 platform and 1 device pair like below.
+
+```bash
+ubuntu@ubuntu:~$ clinfo -l
+Platform #0: ARM Platform
+`-- Device #0: Mali-G57 r0p1
+```
+#### Scenario: Fail
+
+1. No any platform & device (It's because the OpenCL Runtime is not installed)
+
+```bash
+ubuntu@ubuntu:~$ clinfo -l
+```
+
+2. Have a platform without any device (The OpenCL Runtime is installed, but no usable devices)
+
+```bash
+ubuntu@ubuntu:~$ clinfo -l
+Platform #0: rusticl
+```
+
 ### `opencl_clinfo_resource`
 
 Runs `clinfo -l` to enumerate all OpenCL platform/device pairs and emits
@@ -46,6 +70,22 @@ Checkbox resource records. Each record contains:
 
 Records where `ignore` is `true` are filtered out by the template and do not
 produce validation jobs.
+
+#### Example
+
+```
+platform: ARM Platform
+platform_number: 0
+device: Mali-G57 r0p0
+device_number: 0
+ignore: false
+
+platform: Portable Computing Language
+platform_number: 1
+device: cpu--cortex-a55
+device_number: 0
+ignore: true
+```
 
 ### `ce-oem-graphics/opencl-property-validation-{{platform_number}}-{{device_number}}`
 

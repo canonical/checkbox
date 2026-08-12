@@ -131,7 +131,7 @@ template-id: ce-oem-gpiod-gpio/simple-input-GPIO_CHIP-GPIO_LINE
 _template-summary: Test libgpiod GPIO input on {{GPIO_CHIP}}-{{GPIO_LINE}}
 id: ce-oem-gpiod-gpio/simple-input-{{GPIO_CHIP}}-{{GPIO_LINE}}
 _summary: Test libgpiod GPIO input on {{GPIO_CHIP}}-{{GPIO_LINE}}
-_description:
+_purpose:
     Request GPIO line {{GPIO_CHIP}}-{{GPIO_LINE}} as input through
     libgpiod and read its value.
 plugin: shell

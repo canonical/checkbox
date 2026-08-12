@@ -67,7 +67,6 @@ _summary: Stress raw UART self-loopback test for {{ name }}
 _purpose:
     To check that raw UART {{ name }} can send and receive repeated self-loopback
     payloads.
-_description:
     This test opens {{ target }} as a raw UART self-loopback target and verifies
     repeated transmit/receive payloads at baud setting {{ baud }}.
 plugin: shell

@@ -95,7 +95,7 @@ command:
 
 id: ce-oem-gpiod-gpio/simple-resource
 _summary: Generates libgpiod GPIO lines for simple GPIO tests
-_description:
+_purpose:
     Generates GPIO line resources for libgpiod-based GPIO simple tests.
     Use GPIOD_GPIO_IGNORE to exclude unsafe lines. Supported ignore
     formats include gpiochip14, gpiochip14-*, gpiochip16-0..4, and

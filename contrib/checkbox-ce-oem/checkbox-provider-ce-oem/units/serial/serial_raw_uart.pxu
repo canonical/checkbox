@@ -28,7 +28,6 @@ _template-summary:
 _summary: Quick raw UART self-loopback test for {{ name }}
 _purpose:
     To check that raw UART {{ name }} can send and receive self-loopback data.
-_description:
     This test opens {{ target }} as a raw UART self-loopback target and verifies
     a short transmit/receive ping at baud setting {{ baud }}.
 plugin: shell

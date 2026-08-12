@@ -195,7 +195,7 @@ template-id: ce-oem-gpiod-gpio/loopback-input-GPIO_INPUT_CHIP-GPIO_INPUT_LINE-ou
 _template-summary: Test libgpiod GPIO loopback
 id: ce-oem-gpiod-gpio/loopback-input-{{GPIO_INPUT_CHIP}}-{{GPIO_INPUT_LINE}}-output-{{GPIO_OUTPUT_CHIP}}-{{GPIO_OUTPUT_LINE}}
 _summary: Test libgpiod GPIO loopback
-_description:
+_purpose:
     Drive GPIO output line {{GPIO_OUTPUT_CHIP}}-{{GPIO_OUTPUT_LINE}} and
     verify GPIO input line {{GPIO_INPUT_CHIP}}-{{GPIO_INPUT_LINE}} follows
     low and high states through libgpiod.

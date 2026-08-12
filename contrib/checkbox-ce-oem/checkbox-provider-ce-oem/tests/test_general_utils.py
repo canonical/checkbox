@@ -618,10 +618,7 @@ class TestFindFullPathOfBinary(unittest.TestCase):
         mock_is_file,
         mock_stat,
     ):
-        def side_effect(path_obj):
-            return str(path_obj) == "/usr/local/bin/mycmd"
-
-        mock_is_file.side_effect = side_effect
+        mock_is_file.side_effect = [False, False, False, False, True]
         mock_stat.return_value = type("Stat", (), {"st_mode": 0o755})()
 
         self.assertEqual(

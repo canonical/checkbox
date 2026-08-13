@@ -117,12 +117,15 @@ def _is_ethernet_interface(interface: str) -> bool:
 
         # check for ARPHRD_ETHER
         if (sys_class_net_interface / "type").read_text().strip() != "1":
+            logger.debug("'{}' is not ARPHRD_ETHER".format(interface))
             return False
         # skip everything not associated with a physical device
         if not (sys_class_net_interface / "device").exists():
+            logger.debug("'{}' is not a physical device".format(interface))
             return False
         # wifi interfaces (16.04+)
         if (sys_class_net_interface / "phy80211").exists():
+            logging.debug("'{}' is a wifi device".format(interface))
             return False
 
         return True

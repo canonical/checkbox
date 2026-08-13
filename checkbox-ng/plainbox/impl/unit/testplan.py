@@ -1016,7 +1016,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
 
             V().visit(to_visit)
         for tp_unit in testplan.get_nested_part():
-            override_list.extend(self._get_blocker_status_overrides(tp_unit))
+            override_list.extend(self._get_xfail_overrides(tp_unit))
         return override_list
 
     def _get_blocker_status_overrides(

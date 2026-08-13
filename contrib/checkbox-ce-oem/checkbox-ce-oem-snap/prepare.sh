@@ -21,7 +21,10 @@ rsync -r --links ../checkbox-provider-ce-oem "$series/"
 
 snapcraft_file="$series/snap/snapcraft.yaml"
 provider_commit_short_hash=$(git log -1 --format='%h' -- ../checkbox-provider-ce-oem)
-
+if [ -z "$provider_commit_short_hash" ]; then
+	echo "Could not determine commit hash for ../checkbox-provider-ce-oem"
+	exit 1
+fi
 if [ ! -f "$snapcraft_file" ]; then
 	echo "$snapcraft_file not found"
 	exit 1

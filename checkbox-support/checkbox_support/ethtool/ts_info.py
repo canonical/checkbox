@@ -157,15 +157,15 @@ def get_ts_info(interface: str) -> ethtool_ts_info:
     return info
 
 
-def is_ptp_capable(interface: str) -> 'Path | None':
-    """Checks if <interface> supports PTP
+def find_ptp_device(interface: str) -> 'Path | None':
+    """Checks if <interface> supports PTP, and 
+    returns the /dev/ptpX path if supported
 
     This is equivalent to checking the "PTP Hardware Clock" line in ethtool
     and testing if the corresponding device node exists
 
     :param interface: the interface to check
-    :return: if kernel says the interface supports ptp
-             AND The /dev/ptpX device exists
+    :return: /dev/ptpX if it exists, None otherwise
     """
     try:
         info = get_ts_info(interface)

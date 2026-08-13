@@ -29,7 +29,7 @@ from checkbox_support.ethtool.ts_info import (
     SIOCETHTOOL,
     ethtool_ts_info,
     get_ts_info,
-    is_ptp_capable,
+    find_ptp_device,
     _is_ethernet_interface,
 )
 
@@ -190,7 +190,7 @@ class TestIsPtpCapable(TestCase):
         get_ts_info_mock.return_value = ethtool_ts_info(phc_index=0)
         exists_mock.return_value = True
 
-        self.assertTrue(is_ptp_capable("enp1s0"))
+        self.assertTrue(find_ptp_device("enp1s0"))
         exists_mock.assert_called_once_with("/dev/ptp0")
 
     @patch("checkbox_support.ethtool.ts_info.os.path.exists")
@@ -199,7 +199,7 @@ class TestIsPtpCapable(TestCase):
         get_ts_info_mock.return_value = ethtool_ts_info(phc_index=-1)
         exists_mock.return_value = False
 
-        self.assertFalse(is_ptp_capable("enp1s0"))
+        self.assertFalse(find_ptp_device("enp1s0"))
 
     @patch("checkbox_support.ethtool.ts_info.os.path.exists")
     @patch("checkbox_support.ethtool.ts_info.get_ts_info")
@@ -209,7 +209,7 @@ class TestIsPtpCapable(TestCase):
         get_ts_info_mock.return_value = ethtool_ts_info(phc_index=1)
         exists_mock.return_value = False
 
-        self.assertFalse(is_ptp_capable("enp1s0"))
+        self.assertFalse(find_ptp_device("enp1s0"))
 
 
 if __name__ == "__main__":

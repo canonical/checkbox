@@ -164,11 +164,15 @@ parts:
     source: launchers/
     organize:
       '*': bin/
-  bin-scripts:
+  launcher-generator:
     plugin: dump
-    source: bin/
+    source: checkbox-launcher-generator/src/
     organize:
-      '*': bin/
+      gen_launcher.py: bin/gen_launcher.py
+      checkbox_ce_oem_scan.py: bin/checkbox_ce_oem_scan.py
+    stage:
+       - bin/gen_launcher.py
+       - bin/checkbox_ce_oem_scan.py
   config-variables:
     plugin: dump
     source: config/

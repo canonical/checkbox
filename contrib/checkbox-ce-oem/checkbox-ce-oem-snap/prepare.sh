@@ -18,6 +18,7 @@ fi
 
 echo "Copying over providers to $series"
 rsync -r --links ../checkbox-provider-ce-oem "$series/"
+rsync -r --links checkbox-launcher-generator "$series/"
 
 snapcraft_file="$series/snap/snapcraft.yaml"
 provider_commit_short_hash=$(git log -1 --format='%h' -- ../checkbox-provider-ce-oem)
@@ -45,4 +46,3 @@ fi
 sed -i "s/^version:.*/version: '${new_version}'/" "$snapcraft_file"
 echo "Updated $snapcraft_file version:"
 grep '^version:' "$snapcraft_file"
-rsync -r --links bin "$series/"

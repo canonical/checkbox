@@ -27,6 +27,8 @@ jobs:
           persist-credentials: false
       - name: Check for commits
         id: commit_check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Trigger daily builds when there are recent changes in the CE OEM provider.
           TARGET="contrib/checkbox-ce-oem"

@@ -29,16 +29,35 @@ jobs:
         id: commit_check
         run: |
           # Trigger daily builds when there are recent changes in the CE OEM provider.
-          recent_commits=$(git log --since="24 hours ago" --oneline -- contrib/checkbox-ce-oem)
-          commit_count=$(printf "%s\n" "$recent_commits" | sed '/^$/d' | wc -l | tr -d ' ')
-          echo "Recent commits in contrib/checkbox-ce-oem (last 24 hours):"
-          if [ "$commit_count" -gt 0 ]; then
-            printf "%s\n" "$recent_commits"
+          TARGET="contrib/checkbox-ce-oem"
+          time_since="24 hours ago"
+  
+          recent_commits=$(git log --since="$time_since" --oneline -- "$TARGET")
+  
+          if [ -z "$recent_commits" ]; then
+            echo "No commits in the last 24 hours. Checking since last successful build..."
+      
+            last_pass=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs" --paginate \
+              --jq '.workflow_runs[] | select(.path == ".github/workflows/checkbox-ce-oem-daily-builds.yaml" and .conclusion == "success") | .run_started_at' \
+              | head -1)
+      
+            time_since=${last_pass:-"1970-01-01T00:00:00Z"}
+            recent_commits=$(git log --since="$time_since" --oneline -- "$TARGET")
+           fi
+  
+          if [ -n "$recent_commits" ]; then
+             commit_count=$(echo "$recent_commits" | wc -l)
+             echo "Recent commits in $TARGET (since $time_since):"
+             echo "$recent_commits"
           else
+            commit_count=0
+            echo "Recent commits in $TARGET (since $time_since):"
             echo "(none)"
           fi
-          echo "Found $commit_count commits in contrib/checkbox-ce-oem in the last 24 hours."
+  
+          echo "Found $commit_count commits in $TARGET since $time_since."
           echo "new_commit_count=$commit_count" >> "$GITHUB_OUTPUT"
+
 
   checkbox-ce-oem-snap-cross-build-upload-daily:
     needs: check_for_commits

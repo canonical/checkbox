@@ -999,11 +999,11 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             class V(Visitor):
 
                 def visit_FieldOverride_node(self, node: FieldOverride):
-                    blocker_status = node.value.text
+                    xfail_status = node.value.text
                     pattern = r"^{}$".format(
                         testplan.qualify_id(node.pattern.text)
                     )
-                    override_list.append((pattern, "xfail", blocker_status))
+                    override_list.append((pattern, "xfail", xfail_status))
 
             if isinstance(testplan.xfail_overrides, str):
                 # LEGACY: pxu compatibility, now certification_status_overrides

@@ -146,7 +146,7 @@ OUTCOME_METADATA_MAP = {
     IJobResult.OUTCOME_XFAIL_PASS: OutcomeMetadata(
         value=IJobResult.OUTCOME_XFAIL_PASS,
         unicode_sigil="☑ ",
-        tr_outcome=C_("textual outcome", "expected failure failed"),
+        tr_outcome=C_("textual outcome", "failed as expected"),
         tr_label=C_("chart label", "xfail-passed"),
         color_ansi="\033[32;1m",
         color_hex="#6AA84F",
@@ -155,7 +155,7 @@ OUTCOME_METADATA_MAP = {
     IJobResult.OUTCOME_XFAIL_FAIL: OutcomeMetadata(
         value=IJobResult.OUTCOME_XFAIL_FAIL,
         unicode_sigil="☒ ",
-        tr_outcome=C_("textual outcome", "expected failure passed"),
+        tr_outcome=C_("textual outcome", "passed unexpectedly"),
         tr_label=C_("chart label", "xfail-failed"),
         color_ansi="\033[31;1m",
         color_hex="#DC3912",

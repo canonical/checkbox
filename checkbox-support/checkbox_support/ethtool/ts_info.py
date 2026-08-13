@@ -157,7 +157,7 @@ def get_ts_info(interface: str) -> ethtool_ts_info:
     return info
 
 
-def is_ptp_capable(interface: str) -> bool:
+def is_ptp_capable(interface: str) -> 'Path | None':
     """Checks if <interface> supports PTP
 
     This is equivalent to checking the "PTP Hardware Clock" line in ethtool
@@ -170,8 +170,9 @@ def is_ptp_capable(interface: str) -> bool:
     try:
         info = get_ts_info(interface)
         phc_index = int(info.phc_index)
-        expected_ptp_device_path = "/dev/ptp{}".format(phc_index)
+        expected_ptp_device_path = Path("/dev/ptp{}".format(phc_index))
 
-        return phc_index >= 0 and os.path.exists(expected_ptp_device_path)
+        if phc_index >= 0 and expected_ptp_device_path.exists():
+            return expected_ptp_device_path
     except (OSError, ValueError):
-        return False
+        return None

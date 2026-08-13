@@ -9,7 +9,7 @@ import types
 import unittest
 from pathlib import Path
 
-_SCRIPT = Path(__file__).parent / "gen_launcher.py"
+_SCRIPT = Path(__file__).parent.parent / "src" / "gen_launcher.py"
 
 
 def _load_module():

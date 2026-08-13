@@ -9,7 +9,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-_SCRIPT = Path(__file__).parent / "checkbox_ce_oem_scan.py"
+_SCRIPT = Path(__file__).parent.parent / "src" / "checkbox_ce_oem_scan.py"
 
 
 def _load_module():

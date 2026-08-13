@@ -9,7 +9,12 @@ def load_json_file(
     json_file_path: str,
     enable_logger: bool = False,
 ) -> Dict[str, Any]:
-    """Load a JSON file with executable-path validation semantics."""
+    """Load a JSON file and return its contents as a dictionary.
+    
+        Does not raise exceptions for missing or unreadable files; instead,
+        it returns an empty dictionary. Let the caller handle the case of an empty
+        dictionary if needed.
+    """
 
     if not json_file_path or not isinstance(json_file_path, str):
         if enable_logger:
@@ -18,16 +23,8 @@ def load_json_file(
             )
         return {}
 
-    if not Path(json_file_path).is_absolute():
-        plainbox_provider_data = os.getenv("PLAINBOX_PROVIDER_DATA", "")
-        if not plainbox_provider_data:
-            logging.error(
-                "Relative executable JSON path requires "
-                "PLAINBOX_PROVIDER_DATA: %s",
-                json_file_path,
-            )
-        resolved_path = os.path.join(plainbox_provider_data, json_file_path)
-    else:
+    resolved_path = os.path.join(os.getenv("PLAINBOX_PROVIDER_DATA", ""), json_file_path)
+    if not Path(resolved_path).exists():
         resolved_path = json_file_path
 
     try:
@@ -48,14 +45,14 @@ def load_json_file(
 def find_full_path_of_binary(
     command: str,
     enable_logger: bool = False,
-) -> Optional[str]:
+) -> str:
     """Find the full path of a command using the predefined priority order.
 
     Args:
         command: The command name to search for.
 
     Returns:
-        The absolute path of the command if found, otherwise None.
+        The absolute path of the command if found, otherwise an empty string.
     """
     search_paths = (
         Path("/usr/bin"),
@@ -64,6 +61,7 @@ def find_full_path_of_binary(
         Path("/sbin"),
         Path("/usr/local/bin"),
         Path("/usr/local/sbin"),
+        Path("/snap/bin"),
     )
 
     if Path(command).is_absolute() and Path(command).is_file():
@@ -85,7 +83,7 @@ def find_full_path_of_binary(
 
     if enable_logger:
         logging.warning("Command '%s' not found in search paths", command)
-    return None
+    return ""
 
 
 def build_customized_command(
@@ -93,7 +91,8 @@ def build_customized_command(
     cmd_config: dict,
     enable_logger: bool = False,
 ) -> str:
-    """Construct a command string with optional environment variables.
+    """Construct a command string with optional environment variables
+    and library paths.
 
     Args:
         full_path_cmd (str): Full path to the command to be executed.
@@ -116,8 +115,10 @@ def build_customized_command(
     if not isinstance(full_path_cmd, str):
         raise TypeError("full_path_cmd must be a string type")
 
-    if not Path(full_path_cmd).is_absolute():
-        raise TypeError("full_path_cmd must be an absolute path")
+    full_path_cmd = full_path_cmd.strip()
+
+    if not (Path(full_path_cmd).is_file() and Path(full_path_cmd).stat().st_mode & 0o111):
+        raise TypeError("full_path_cmd must be an absolute path to an executable file")
 
     if not isinstance(cmd_config, dict):
         raise TypeError("config must be a dictionary")
@@ -148,7 +149,7 @@ def build_customized_command(
             raise ValueError("cmd_config must map env names to string values")
         command_parts.append(f'{key}="{value}"')
 
-    command_parts.append(full_path_cmd.strip())
+    command_parts.append(full_path_cmd)
     cmd = " ".join(command_parts)
     if enable_logger:
         logging.info("Constructed command: %s", cmd)
@@ -197,7 +198,7 @@ def resolve_executable_commands(
         return resolve_default_commands(unique_commands)
 
     data = load_json_file(executable_json_path, enable_logger=enable_logger)
-    # Empty or missing mapping file means no remapping is needed.
+    # Empty or missing mapping file means no need to customize commands.
     if not data:
         return resolve_default_commands(unique_commands)
 
@@ -209,8 +210,6 @@ def resolve_executable_commands(
             cmd_config=data.get(Path(default_command).name, {}),
             enable_logger=enable_logger,
         )
-        if command is None:
-            return None
         resolved_commands[default_command] = command
 
     if enable_logger:

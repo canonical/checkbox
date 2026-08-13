@@ -11,7 +11,7 @@
     <testcase classname="{{ job_state.job.id }}" name="{{ job_state.job.id }}" time="{{ job_state.result.execution_duration }}">
     {%- if job_state.result.outcome == 'skip' or job_state.result.outcome == 'not-supported' -%}
       <skipped />
-    {%- elif job_state.result.outcome == 'fail' -%}
+    {%- elif job_state.result.outcome in ['fail', 'xfail-fail'] -%}
       <failure type="">
       {{ job_state.result.io_log_as_flat_text }}
       </failure>

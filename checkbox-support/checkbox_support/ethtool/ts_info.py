@@ -65,7 +65,7 @@ class ethtool_ts_info(ctypes.Structure):
             value = getattr(self, name)
             if isinstance(value, ctypes.Array):
                 value = list(value)
-            words.append(f"{name}={value}")
+            words.append("{}={}".format(name, value))
         return "ethtool_ts_info({})".format(", ".join(words))
 
 
@@ -143,7 +143,9 @@ def get_ts_info(interface: str) -> ethtool_ts_info:
              because it directly maps to /dev/ptpX
     """
     if not _is_ethernet_interface(interface):
-        logger.warning(f"{interface} is not a physical ethernet interface")
+        logger.warning(
+            "{} is not a physical ethernet interface".format(interface)
+        )
 
     info = ethtool_ts_info()
     info.cmd = ETHTOOL_GET_TS_INFO

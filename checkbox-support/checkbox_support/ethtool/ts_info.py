@@ -27,6 +27,7 @@ https://git.kernel.org/pub/scm/network/ethtool/ethtool.git/tree/ethtool.c#n4986
 import ctypes
 import fcntl
 import logging
+import os
 import socket
 from pathlib import Path
 
@@ -167,9 +168,9 @@ def find_ptp_device(interface: str) -> "Path | None":
     try:
         info = get_ts_info(interface)
         phc_index = int(info.phc_index)
-        expected_ptp_device_path = Path(f"/dev/ptp{phc_index}")
-
-        if phc_index >= 0 and expected_ptp_device_path.exists():
-            return expected_ptp_device_path
+        expected_ptp_device_path = "/dev/ptp{}".format(phc_index)
+        # os.path.exists is easier to patch in unit tests
+        if phc_index >= 0 and os.path.exists(expected_ptp_device_path):
+            return Path(expected_ptp_device_path)
     except (OSError, ValueError):
         return None

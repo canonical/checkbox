@@ -26,9 +26,8 @@ https://git.kernel.org/pub/scm/network/ethtool/ethtool.git/tree/ethtool.c#n4986
 
 import ctypes
 import fcntl
-import os
-import socket
 import logging
+import socket
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -65,7 +64,7 @@ class ethtool_ts_info(ctypes.Structure):
             value = getattr(self, name)
             if isinstance(value, ctypes.Array):
                 value = list(value)
-            words.append("{}={}".format(name, value))
+            words.append(f"{name}={value}")
         return "ethtool_ts_info({})".format(", ".join(words))
 
 
@@ -116,7 +115,7 @@ def _is_ethernet_interface(interface: str) -> bool:
         sys_class_net_interface = Path("/sys/class/net/") / interface
 
         # check for ARPHRD_ETHER
-        if not (sys_class_net_interface / "type").read_text().strip() == "1":
+        if (sys_class_net_interface / "type").read_text().strip() != "1":
             return False
         # skip everything not associated with a physical device
         if not (sys_class_net_interface / "device").exists():
@@ -140,9 +139,7 @@ def get_ts_info(interface: str) -> ethtool_ts_info:
              because it directly maps to /dev/ptpX
     """
     if not _is_ethernet_interface(interface):
-        logger.warning(
-            "{} is not a physical ethernet interface".format(interface)
-        )
+        logger.warning(f"{interface} is not a physical ethernet interface")
 
     info = ethtool_ts_info()
     info.cmd = ETHTOOL_GET_TS_INFO
@@ -157,8 +154,8 @@ def get_ts_info(interface: str) -> ethtool_ts_info:
     return info
 
 
-def find_ptp_device(interface: str) -> 'Path | None':
-    """Checks if <interface> supports PTP, and 
+def find_ptp_device(interface: str) -> "Path | None":
+    """Checks if <interface> supports PTP, and
     returns the /dev/ptpX path if supported
 
     This is equivalent to checking the "PTP Hardware Clock" line in ethtool
@@ -170,7 +167,7 @@ def find_ptp_device(interface: str) -> 'Path | None':
     try:
         info = get_ts_info(interface)
         phc_index = int(info.phc_index)
-        expected_ptp_device_path = Path("/dev/ptp{}".format(phc_index))
+        expected_ptp_device_path = Path(f"/dev/ptp{phc_index}")
 
         if phc_index >= 0 and expected_ptp_device_path.exists():
             return expected_ptp_device_path

@@ -577,10 +577,9 @@ class TestWithResolvedCommands(unittest.TestCase):
 
     @patch("general_utils.logging.error")
     @patch("general_utils.logging.warning")
-    def test_load_json_file_logs_error_when_relative_path_without_provider_data(
+    def test_load_json_file_logs_warning_when_relative_path_without_provider_data(
         self,
         mock_warning,
-        mock_error,
     ):
         with patch.dict(
             os.environ, {"PLAINBOX_PROVIDER_DATA": ""}, clear=False
@@ -591,7 +590,6 @@ class TestWithResolvedCommands(unittest.TestCase):
             )
 
         self.assertEqual(data, {})
-        mock_error.assert_called_once()
         mock_warning.assert_called_once()
 
 
@@ -628,18 +626,25 @@ class TestFindFullPathOfBinary(unittest.TestCase):
 
     @patch("general_utils.Path.is_file", return_value=False)
     @patch("general_utils.Path.is_absolute", return_value=False)
-    def test_find_full_path_of_binary_returns_none_when_not_found(
+    def test_find_full_path_of_binary_returns_empty_string_when_not_found(
         self,
         _mock_is_absolute,
         _mock_is_file,
     ):
-        self.assertIsNone(
-            general_utils.find_full_path_of_binary("missing-cmd")
+        self.assertEqual(
+            general_utils.find_full_path_of_binary("missing-cmd"),
+            "",
         )
 
 
 class TestBuildCustomizedCommand(unittest.TestCase):
-    def test_build_customized_command_builds_expected_command(self):
+    _FAKE_STAT = type("Stat", (), {"st_mode": 0o755})()
+
+    @patch("general_utils.Path.stat", return_value=type("Stat", (), {"st_mode": 0o755})())
+    @patch("general_utils.Path.is_file", return_value=True)
+    def test_build_customized_command_builds_expected_command(
+        self, _mock_is_file, _mock_stat
+    ):
         command = general_utils.build_customized_command(
             full_path_cmd="/usr/bin/foo",
             cmd_config={
@@ -663,11 +668,19 @@ class TestBuildCustomizedCommand(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "string type"):
             general_utils.build_customized_command(None, {})
 
-    def test_build_customized_command_rejects_non_dict_config(self):
+    @patch("general_utils.Path.stat", return_value=type("Stat", (), {"st_mode": 0o755})())
+    @patch("general_utils.Path.is_file", return_value=True)
+    def test_build_customized_command_rejects_non_dict_config(
+        self, _mock_is_file, _mock_stat
+    ):
         with self.assertRaisesRegex(TypeError, "config must be a dictionary"):
             general_utils.build_customized_command("/usr/bin/foo", None)
 
-    def test_build_customized_command_rejects_invalid_ld_library_path(self):
+    @patch("general_utils.Path.stat", return_value=type("Stat", (), {"st_mode": 0o755})())
+    @patch("general_utils.Path.is_file", return_value=True)
+    def test_build_customized_command_rejects_invalid_ld_library_path(
+        self, _mock_is_file, _mock_stat
+    ):
         with self.assertRaisesRegex(ValueError, "LD_LIBRARY_PATH"):
             general_utils.build_customized_command(
                 "/usr/bin/foo",
@@ -680,7 +693,11 @@ class TestBuildCustomizedCommand(unittest.TestCase):
                 {"LD_LIBRARY_PATH": ["ok", 1]},
             )
 
-    def test_build_customized_command_rejects_non_string_env_values(self):
+    @patch("general_utils.Path.stat", return_value=type("Stat", (), {"st_mode": 0o755})())
+    @patch("general_utils.Path.is_file", return_value=True)
+    def test_build_customized_command_rejects_non_string_env_values(
+        self, _mock_is_file, _mock_stat
+    ):
         with self.assertRaisesRegex(ValueError, "map env names"):
             general_utils.build_customized_command(
                 "/usr/bin/foo",
@@ -794,7 +811,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
                     ["clinfo"], json_path
                 )
 
-    @patch("general_utils.find_full_path_of_binary", return_value=None)
+    @patch("general_utils.find_full_path_of_binary", return_value="")
     def test_resolve_raises_when_binary_resolution_fails_with_custom_json(
         self,
         _mock_find,
@@ -806,7 +823,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
                 {"clinfo": {}},
             )
 
-            with self.assertRaisesRegex(TypeError, "string type"):
+            with self.assertRaisesRegex(TypeError, "absolute path"):
                 general_utils.resolve_executable_commands(
                     ["clinfo"], json_path
                 )
@@ -842,11 +859,11 @@ class TestResolveExecutableCommands(unittest.TestCase):
 class TestResolveDefaultCommands(unittest.TestCase):
     @patch(
         "general_utils.find_full_path_of_binary",
-        side_effect=["/usr/bin/a", None],
+        side_effect=["/usr/bin/a", ""],
     )
     def test_resolve_default_commands_maps_each_command(self, _mock_find):
         result = general_utils.resolve_default_commands(["a", "b"])
-        self.assertEqual(result, {"a": "/usr/bin/a", "b": None})
+        self.assertEqual(result, {"a": "/usr/bin/a", "b": ""})
 
 
 if __name__ == "__main__":

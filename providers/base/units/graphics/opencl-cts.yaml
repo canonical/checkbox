@@ -1,9 +1,8 @@
-unit: job
+unit: setup job
 plugin: shell
 id: setup/install_opencl_cts
 category_id: com.canonical.plainbox::graphics
 summary: Install opencl-cts snap
-purpose: This job will install the opencl-cts snap, a dependency of opencl conformance testing
 user: root
 command: |
   if snap list opencl-cts &>/dev/null; then
@@ -251,8 +250,6 @@ id: graphics/cl_host_basic
 depends:
   - graphics/cl_host_gpu_avail
   - graphics/cl_host_ocl_avail
-setup_include:
-  - setup/install_opencl_cts
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple

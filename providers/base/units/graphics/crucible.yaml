@@ -3,7 +3,6 @@ plugin: shell
 id: setup/install_crucible
 category_id: com.canonical.plainbox::graphics
 summary: Install crucible snap
-purpose: This job will install the crucible snap, a dependency of crucible graphics testing
 user: root
 command: |
   if snap list crucible &>/dev/null; then
@@ -33,8 +32,6 @@ command: |
 id: graphics/crucible_core_stencil_triangles
 depends:
   - graphics/vk_crucible_gpu_avail
-setup_include:
-  - setup/install_crucible
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple
@@ -161,8 +158,6 @@ id: graphics/crucible_classic_stencil_triangles
 depends:
   - graphics/crucible_classic_gpu_avail
   - graphics/crucible_classic_vk_avail
-setup_include:
-  - setup/install_crucible
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple

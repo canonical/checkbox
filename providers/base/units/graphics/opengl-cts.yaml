@@ -3,7 +3,6 @@ plugin: shell
 id: setup/install_opengl_cts
 category_id: com.canonical.plainbox::graphics
 summary: Install opengl-cts snap
-purpose: This job will install the opengl-cts snap, a dependency of opengl conformance testing
 user: root
 command: |
   if snap list opengl-cts &>/dev/null; then
@@ -34,8 +33,6 @@ command: |
 id: graphics/gl_core_info
 depends:
   - graphics/gl_gpu_avail
-setup_include:
-  - setup/install_opengl_cts
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple
@@ -200,8 +197,6 @@ id: graphics/gl_classic_info
 depends:
   - graphics/gl_classic_gpu_avail
   - graphics/gl_classic_gl_avail
-setup_include:
-  - setup/install_opengl_cts
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple

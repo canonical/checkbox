@@ -3,7 +3,6 @@ plugin: shell
 id: setup/install_vulkan_cts
 category_id: com.canonical.plainbox::graphics
 summary: Install vulkan-cts snap
-purpose: This job will install the vulkan-cts snap, a dependency of vulkan conformance testing
 user: root
 command: |
   if snap list vulkan-cts &>/dev/null; then
@@ -35,8 +34,6 @@ command: |
 id: graphics/vk_core_api
 depends:
   - graphics/vk_gpu_avail
-setup_include:
-  - setup/install_vulkan_cts
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple
@@ -371,8 +368,6 @@ id: graphics/vk_classic_api
 depends:
   - graphics/vk_classic_gpu_avail
   - graphics/vk_classic_vk_avail
-setup_include:
-  - setup/install_vulkan_cts
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple

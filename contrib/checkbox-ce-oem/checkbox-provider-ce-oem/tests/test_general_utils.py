@@ -191,7 +191,10 @@ class TestFindFullPathOfBinary(unittest.TestCase):
 class TestBuildCustomizedCommand(unittest.TestCase):
     _FAKE_STAT = type("Stat", (), {"st_mode": 0o755})()
 
-    @patch("general_utils.Path.stat", return_value=type("Stat", (), {"st_mode": 0o755})())
+    @patch(
+        "general_utils.Path.stat",
+        return_value=type("Stat", (), {"st_mode": 0o755})(),
+    )
     @patch("general_utils.Path.is_file", return_value=True)
     def test_build_customized_command_builds_expected_command(
         self, _mock_is_file, _mock_stat
@@ -219,7 +222,10 @@ class TestBuildCustomizedCommand(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "string type"):
             general_utils.build_customized_command(None, {})
 
-    @patch("general_utils.Path.stat", return_value=type("Stat", (), {"st_mode": 0o755})())
+    @patch(
+        "general_utils.Path.stat",
+        return_value=type("Stat", (), {"st_mode": 0o755})(),
+    )
     @patch("general_utils.Path.is_file", return_value=True)
     def test_build_customized_command_rejects_non_dict_config(
         self, _mock_is_file, _mock_stat
@@ -227,7 +233,10 @@ class TestBuildCustomizedCommand(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "config must be a dictionary"):
             general_utils.build_customized_command("/usr/bin/foo", None)
 
-    @patch("general_utils.Path.stat", return_value=type("Stat", (), {"st_mode": 0o755})())
+    @patch(
+        "general_utils.Path.stat",
+        return_value=type("Stat", (), {"st_mode": 0o755})(),
+    )
     @patch("general_utils.Path.is_file", return_value=True)
     def test_build_customized_command_rejects_invalid_ld_library_path(
         self, _mock_is_file, _mock_stat
@@ -244,7 +253,10 @@ class TestBuildCustomizedCommand(unittest.TestCase):
                 {"LD_LIBRARY_PATH": ["ok", 1]},
             )
 
-    @patch("general_utils.Path.stat", return_value=type("Stat", (), {"st_mode": 0o755})())
+    @patch(
+        "general_utils.Path.stat",
+        return_value=type("Stat", (), {"st_mode": 0o755})(),
+    )
     @patch("general_utils.Path.is_file", return_value=True)
     def test_build_customized_command_rejects_non_string_env_values(
         self, _mock_is_file, _mock_stat

@@ -10,10 +10,10 @@ def load_json_file(
     enable_logger: bool = False,
 ) -> Dict[str, Any]:
     """Load a JSON file and return its contents as a dictionary.
-    
-        Does not raise exceptions for missing or unreadable files; instead,
-        it returns an empty dictionary. Let the caller handle the case of an empty
-        dictionary if needed.
+
+    Does not raise exceptions for missing or unreadable files.
+    Instead, it returns an empty dictionary. Let the caller handle
+    the case of an empty dictionary if needed.
     """
 
     if not json_file_path or not isinstance(json_file_path, str):
@@ -23,7 +23,9 @@ def load_json_file(
             )
         return {}
 
-    resolved_path = os.path.join(os.getenv("PLAINBOX_PROVIDER_DATA", ""), json_file_path)
+    resolved_path = os.path.join(
+        os.getenv("PLAINBOX_PROVIDER_DATA", ""), json_file_path
+    )
     if not Path(resolved_path).exists():
         resolved_path = json_file_path
 
@@ -117,8 +119,13 @@ def build_customized_command(
 
     full_path_cmd = full_path_cmd.strip()
 
-    if not (Path(full_path_cmd).is_file() and Path(full_path_cmd).stat().st_mode & 0o111):
-        raise TypeError("full_path_cmd must be an absolute path to an executable file")
+    if not (
+        Path(full_path_cmd).is_file()
+        and Path(full_path_cmd).stat().st_mode & 0o111
+    ):
+        raise TypeError(
+            "full_path_cmd must be an absolute path to an executable file"
+        )
 
     if not isinstance(cmd_config, dict):
         raise TypeError("config must be a dictionary")

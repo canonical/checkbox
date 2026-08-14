@@ -1010,7 +1010,9 @@
         "not-supported",
         "crash",
         "skip",
-        "undecided"
+        "undecided",
+        "xfail_pass",
+        "xfail_fail"
       ],
       "title": "Outcome"
     },

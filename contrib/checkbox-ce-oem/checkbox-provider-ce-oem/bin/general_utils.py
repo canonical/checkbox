@@ -247,4 +247,3 @@ def resolve_default_commands(
     if enable_logger:
         logging.info("Resolved default commands: %s", resolved_commands)
     return resolved_commands
-

@@ -35,7 +35,6 @@ command: |
 id: graphics/cl_core_basic
 depends:
   - graphics/cl_gpu_avail
-  - setup/install_opencl_cts
 category_id: com.canonical.plainbox::graphics
 flags:
   - simple

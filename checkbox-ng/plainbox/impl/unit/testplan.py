@@ -941,11 +941,12 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             )
             for (field, value) in field_value_list
         )
-        overrides = chain(overrides, self._get_category_overrides(testplan))
         overrides = chain(
-            overrides, self._get_blocker_status_overrides(testplan)
+            overrides,
+            self._get_category_overrides(testplan),
+            self._get_blocker_status_overrides(testplan),
+            self._get_xfail_overrides(testplan),
         )
-        overrides = chain(overrides, self._get_xfail_overrides(testplan))
         for pattern, field, value in overrides:
             override_map[pattern].append((field, value))
         return sorted(
@@ -958,7 +959,6 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
     ):
         """
         Parses recursively .*_overrides testplan field into an override list
-
         """
         override_list = []
         tp_overrides = getattr(testplan, override_attr)
@@ -967,6 +967,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             class V(Visitor):
 
                 def visit_FieldOverride_node(self, node: FieldOverride):
+                    print(override_name)
                     status = node.value.text
                     pattern = r"^{}$".format(
                         testplan.qualify_id(node.pattern.text)

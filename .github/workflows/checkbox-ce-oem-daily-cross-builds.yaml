@@ -42,6 +42,10 @@ jobs:
             arch: amd64
           - release: 24
             arch: arm64
+          - release: 26
+            arch: amd64
+          - release: 26
+            arch: arm64
     runs-on: ubuntu-latest
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})

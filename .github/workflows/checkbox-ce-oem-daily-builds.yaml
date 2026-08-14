@@ -30,18 +30,40 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # get the last daily build that passed by
-          # 1. getting all workflows that are daily builds (path == ...)
-          # 2. removing those that did not result in success
-          # 3. selecting the date/time they started at (format: %Y-%m-%dT%H:%M:%sZ)
-          # 4. removing the Z postfix from the date to make it usable by git directly
-          export LAST_PASS_DAILY_BUILD=`gh api repos/canonical/checkbox/actions/runs --paginate --jq '.workflow_runs[] | select(.path == ".github/workflows/checkbox-ce-oem-daily-build.yml") | select(.conclusion == "success") | .run_started_at | .[:-1]' | head -1`
-          commit_count=$(git log --since="$LAST_PASS_DAILY_BUILD" --oneline -- contrib/checkbox-ce-oem | wc -l)
-          echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT
+          # Trigger daily builds when there are recent changes in the CE OEM provider.
+          TARGET="contrib/checkbox-ce-oem"
+          time_since="24 hours ago"
+  
+          recent_commits=$(git log --since="$time_since" --oneline -- "$TARGET")
+  
+          if [ -z "$recent_commits" ]; then
+            echo "No commits in the last 24 hours. Checking since last successful build..."
+      
+            last_pass=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs" --paginate \
+              --jq '.workflow_runs[] | select(.path == ".github/workflows/checkbox-ce-oem-daily-builds.yaml" and .conclusion == "success") | .run_started_at' \
+              | head -1)
+      
+            time_since=${last_pass:-"1970-01-01T00:00:00Z"}
+            recent_commits=$(git log --since="$time_since" --oneline -- "$TARGET")
+           fi
+  
+          if [ -n "$recent_commits" ]; then
+             commit_count=$(echo "$recent_commits" | wc -l)
+             echo "Recent commits in $TARGET (since $time_since):"
+             echo "$recent_commits"
+          else
+            commit_count=0
+            echo "Recent commits in $TARGET (since $time_since):"
+            echo "(none)"
+          fi
+  
+          echo "Found $commit_count commits in $TARGET since $time_since."
+          echo "new_commit_count=$commit_count" >> "$GITHUB_OUTPUT"
+
 
   checkbox-ce-oem-snap-cross-build-upload-daily:
     needs: check_for_commits
-    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.check_for_commits.outputs.new_commit_count != '0' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-ce-oem-daily-cross-builds.yaml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -50,7 +72,7 @@ jobs:
 
   checkbox-ce-oem-snap-native-build-upload-daily:
     needs: check_for_commits
-    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.check_for_commits.outputs.new_commit_count != '0' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-ce-oem-daily-native-builds.yaml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}

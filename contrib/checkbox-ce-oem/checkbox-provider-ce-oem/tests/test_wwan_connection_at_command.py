@@ -2,23 +2,180 @@ import importlib
 import itertools
 import os
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import wwan_connection_at_command as wcac
 
 
-class TestParseResponse(unittest.TestCase):
-    def test_extracts_quoted_value(self):
-        output = "response: '+COPS: 0,,,7'\n"
-        self.assertEqual(wcac.parse_response(output), "+COPS: 0,,,7")
+class FakeSerial:
+    """A minimal fake serial.Serial for testing ModemAtController."""
 
-    def test_extracts_empty_value(self):
-        output = "response: ''\n"
-        self.assertEqual(wcac.parse_response(output), "")
+    def __init__(self, lines=()):
+        self._lines = list(lines)
+        self.written = []
+        self.closed = False
 
-    def test_returns_none_when_missing(self):
-        output = "error: couldn't find modem\n"
-        self.assertIsNone(wcac.parse_response(output))
+    def reset_input_buffer(self):
+        pass
+
+    def write(self, data):
+        self.written.append(data)
+
+    def flush(self):
+        pass
+
+    def readline(self):
+        if self._lines:
+            return (self._lines.pop(0) + "\r\n").encode("utf-8")
+        return b""
+
+    def close(self):
+        self.closed = True
+
+
+def make_modem(lines=()):
+    """Build a ModemAtController with a FakeSerial already attached."""
+    modem = wcac.ModemAtController("/dev/ttyUSB2")
+    modem.ser = FakeSerial(lines)
+    return modem
+
+
+class TestModemAtControllerLifecycle(unittest.TestCase):
+    @patch("wwan_connection_at_command.serial.Serial")
+    def test_open_creates_serial_and_disables_echo(self, mock_serial_cls):
+        fake_ser = MagicMock()
+        fake_ser.readline.side_effect = [b"OK\r\n"]
+        mock_serial_cls.return_value = fake_ser
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+
+        result = modem.open()
+
+        self.assertIs(result, modem)
+        self.assertIs(modem.ser, fake_ser)
+        mock_serial_cls.assert_called_once_with(
+            "/dev/ttyUSB2", baudrate=115200, timeout=2
+        )
+        fake_ser.write.assert_called_once_with(b"ATE0\r\n")
+
+    def test_close_closes_serial_and_clears_it(self):
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        fake_ser = MagicMock()
+        modem.ser = fake_ser
+
+        modem.close()
+
+        fake_ser.close.assert_called_once()
+        self.assertIsNone(modem.ser)
+
+    def test_close_is_a_noop_when_never_opened(self):
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        modem.close()  # must not raise
+        self.assertIsNone(modem.ser)
+
+    @patch("wwan_connection_at_command.serial.Serial")
+    def test_context_manager_opens_and_closes(self, mock_serial_cls):
+        fake_ser = MagicMock()
+        fake_ser.readline.side_effect = [b"OK\r\n"]
+        mock_serial_cls.return_value = fake_ser
+
+        with wcac.ModemAtController("/dev/ttyUSB2") as modem:
+            self.assertIs(modem.ser, fake_ser)
+
+        fake_ser.close.assert_called_once()
+
+    @patch("wwan_connection_at_command.time.sleep", return_value=None)
+    @patch("wwan_connection_at_command.serial.Serial")
+    def test_open_polling_retries_until_available(
+        self, mock_serial_cls, mock_sleep
+    ):
+        fake_ser = MagicMock()
+        fake_ser.readline.side_effect = [b"OK\r\n"]
+        mock_serial_cls.side_effect = [
+            wcac.serial.SerialException("busy"),
+            fake_ser,
+        ]
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+
+        result = modem.open_polling(timeout=10, interval=1)
+
+        self.assertIs(result, modem)
+        self.assertIs(modem.ser, fake_ser)
+
+    @patch(
+        "wwan_connection_at_command.time.time",
+        side_effect=itertools.count(1000, 50),
+    )
+    @patch("wwan_connection_at_command.time.sleep", return_value=None)
+    @patch("wwan_connection_at_command.serial.Serial")
+    def test_open_polling_gives_up_after_timeout(
+        self, mock_serial_cls, mock_sleep, mock_time
+    ):
+        mock_serial_cls.side_effect = wcac.serial.SerialException("busy")
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+
+        self.assertIsNone(modem.open_polling(timeout=5))
+
+
+class TestSendCommand(unittest.TestCase):
+    def test_returns_ok_response(self):
+        modem = make_modem(["+CSQ: 15,0", "", "OK"])
+        rc, raw = modem.send_command("AT+CSQ")
+        self.assertEqual(rc, 0)
+        self.assertIn("+CSQ: 15,0", raw)
+        self.assertIn("OK", raw)
+
+    def test_returns_error_response(self):
+        modem = make_modem(["ERROR"])
+        rc, raw = modem.send_command("AT+BOGUS")
+        self.assertEqual(rc, 1)
+        self.assertIn("ERROR", raw)
+
+    def test_skips_echoed_command_line(self):
+        modem = make_modem(["AT+CSQ", "+CSQ: 15,0", "OK"])
+        rc, raw = modem.send_command("AT+CSQ")
+        self.assertEqual(rc, 0)
+        self.assertNotIn("AT+CSQ", raw.splitlines())
+
+    def test_writes_command_with_crlf(self):
+        modem = make_modem(["OK"])
+        modem.send_command("AT")
+        self.assertEqual(modem.ser.written, [b"AT\r\n"])
+
+    @patch(
+        "wwan_connection_at_command.time.time",
+        side_effect=itertools.count(1000, 50),
+    )
+    def test_times_out_without_terminator(self, mock_time):
+        modem = make_modem([])
+        rc, raw = modem.send_command("AT", timeout=5)
+        self.assertEqual(rc, 1)
+
+
+class TestParseAtResponse(unittest.TestCase):
+    def test_strips_ok_terminator(self):
+        self.assertEqual(
+            wcac.parse_at_response("+CSQ: 15,0\nOK"), "+CSQ: 15,0"
+        )
+
+    def test_strips_error_terminator(self):
+        self.assertEqual(wcac.parse_at_response("ERROR"), "")
+
+    def test_returns_empty_for_bare_ok(self):
+        self.assertEqual(wcac.parse_at_response("OK"), "")
+
+
+class TestQuery(unittest.TestCase):
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_returns_parsed_response_on_success(self, mock_send):
+        mock_send.return_value = (0, "+CSQ: 15,0\nOK")
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertEqual(modem.query("AT+CSQ"), "+CSQ: 15,0")
+
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_returns_none_on_failure(self, mock_send):
+        mock_send.return_value = (1, "ERROR")
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertIsNone(modem.query("AT+CSQ"))
 
 
 class TestResolveConfigPath(unittest.TestCase):
@@ -91,33 +248,52 @@ class TestDefaultConfigFromEnv(unittest.TestCase):
 
 
 class TestMainConfigValidation(unittest.TestCase):
+    def test_exits_when_no_control_if_set(self):
+        env = dict(os.environ)
+        env.pop("WWAN_CONTROL_IF", None)
+        test_argv = ["wwan_connection_at_command.py"]
+        with patch.dict(os.environ, env, clear=True):
+            with patch("sys.argv", test_argv):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+
     @patch.object(wcac, "DEFAULT_CONFIG", None)
+    @patch.dict(os.environ, {"WWAN_CONTROL_IF": "/dev/ttyUSB2"})
     def test_exits_when_no_config_available(self):
-        test_argv = ["wwan_connection_at_command.py", "865031064538696"]
+        test_argv = ["wwan_connection_at_command.py"]
         with patch("sys.argv", test_argv):
             with self.assertRaises(SystemExit) as ctx:
                 wcac.main()
         self.assertEqual(ctx.exception.code, 1)
 
     @patch(
-        "wwan_connection_at_command.ensure_modem_enabled",
+        "wwan_connection_at_command.ModemAtController.ensure_radio_enabled",
         return_value=False,
     )
-    @patch("wwan_connection_at_command.resolve_modem_index", return_value=0)
-    @patch("wwan_connection_at_command.detect_module")
+    @patch("wwan_connection_at_command.ModemAtController.detect_module")
+    @patch("wwan_connection_at_command.ModemAtController.close")
+    @patch("wwan_connection_at_command.ModemAtController.open")
     @patch("wwan_connection_at_command.load_config", return_value={})
-    @patch.dict(os.environ, {"WWAN_APN": "internet", "WWAN_NET_IF": "enx0"})
-    def test_exits_when_modem_cannot_be_enabled(
+    @patch.dict(
+        os.environ,
+        {
+            "WWAN_APN": "internet",
+            "WWAN_NET_IF": "enx0",
+            "WWAN_CONTROL_IF": "/dev/ttyUSB2",
+        },
+    )
+    def test_exits_when_radio_cannot_be_enabled(
         self,
         mock_load_config,
+        mock_open,
+        mock_close,
         mock_detect_module,
-        mock_resolve,
         mock_ensure_enabled,
     ):
         mock_detect_module.return_value = ("SIM7672G-LNGV", {})
         test_argv = [
             "wwan_connection_at_command.py",
-            "865031064538696",
             "--config",
             "/tmp/wwan_at_command.json",
         ]
@@ -125,179 +301,168 @@ class TestMainConfigValidation(unittest.TestCase):
             with self.assertRaises(SystemExit) as ctx:
                 wcac.main()
         self.assertEqual(ctx.exception.code, 1)
-        mock_ensure_enabled.assert_called_once_with(0)
+        mock_ensure_enabled.assert_called_once()
+        mock_close.assert_called_once()
 
 
-class TestGetField(unittest.TestCase):
-    MMCLI_OUTPUT = (
-        "  --------------------------------\n"
-        "  Hardware |         manufacturer: SIMCOM INCORPORATED\n"
-        "           |         equipment id: 865031064538696\n"
-        "  --------------------------------\n"
-        "  Status   |                state: disabled\n"
-        "           |          power state: on\n"
-        "  --------------------------------\n"
-        "  3GPP     |         registration: roaming\n"
-        "           |          operator id: 46697\n"
-    )
-
-    @patch("wwan_connection_at_command.run_cmd")
-    def test_extracts_named_field(self, mock_run_cmd):
-        mock_run_cmd.return_value = (0, self.MMCLI_OUTPUT, "")
-        self.assertEqual(wcac.get_field(0, "equipment id"), "865031064538696")
-        self.assertEqual(wcac.get_field(0, "registration"), "roaming")
-        self.assertEqual(wcac.get_field(0, "operator id"), "46697")
-
-    @patch("wwan_connection_at_command.run_cmd")
-    def test_state_is_not_confused_with_power_state(self, mock_run_cmd):
-        # Regression test: "power state: on" must not match a lookup
-        # for the "state" field.
-        mock_run_cmd.return_value = (0, self.MMCLI_OUTPUT, "")
-        self.assertEqual(wcac.get_field(0, "state"), "disabled")
-
-    @patch("wwan_connection_at_command.run_cmd")
-    def test_returns_none_on_nonzero_rc(self, mock_run_cmd):
-        mock_run_cmd.return_value = (1, "", "error")
-        self.assertIsNone(wcac.get_field(0, "state"))
-
-    @patch("wwan_connection_at_command.run_cmd")
-    def test_returns_none_when_field_absent(self, mock_run_cmd):
-        mock_run_cmd.return_value = (0, self.MMCLI_OUTPUT, "")
-        self.assertIsNone(wcac.get_field(0, "nonexistent field"))
-
-
-class TestModemDiscovery(unittest.TestCase):
-    MMCLI_LIST_OUTPUT = (
-        "/org/freedesktop/ModemManager1/Modem/0 [SIMCOM] SIM7672G-LNGV\n"
-        "/org/freedesktop/ModemManager1/Modem/2 [SIMCOM] SIM7672G-LNGV\n"
-    )
-
-    @patch("wwan_connection_at_command.mmcli_list")
-    def test_mmcli_modem_ids_parses_all_indices(self, mock_list):
-        mock_list.return_value = (0, self.MMCLI_LIST_OUTPUT)
-        self.assertEqual(wcac.mmcli_modem_ids(), [0, 2])
-
-    @patch("wwan_connection_at_command.mmcli_list")
-    def test_mmcli_modem_ids_exits_on_failure(self, mock_list):
-        mock_list.return_value = (1, "")
-        with self.assertRaises(SystemExit):
-            wcac.mmcli_modem_ids()
-
-    @patch("wwan_connection_at_command.get_equipment_id")
-    @patch("wwan_connection_at_command.mmcli_modem_ids")
-    def test_resolve_modem_index_matches_by_equipment_id(
-        self, mock_ids, mock_eq_id
-    ):
-        mock_ids.return_value = [0, 2]
-        mock_eq_id.side_effect = lambda mm_id: {
-            0: "111111111111111",
-            2: "865031064538696",
-        }[mm_id]
-        self.assertEqual(wcac.resolve_modem_index("865031064538696"), 2)
-
-    @patch("wwan_connection_at_command.get_equipment_id")
-    @patch("wwan_connection_at_command.mmcli_modem_ids")
-    def test_resolve_modem_index_exits_when_not_found(
-        self, mock_ids, mock_eq_id
-    ):
-        mock_ids.return_value = [0]
-        mock_eq_id.return_value = "000000000000000"
-        with self.assertRaises(SystemExit):
-            wcac.resolve_modem_index("865031064538696")
-
-    @patch("time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.get_equipment_id")
-    @patch("wwan_connection_at_command.mmcli_modem_ids")
-    def test_resolve_modem_index_polling_retries_then_finds(
-        self, mock_ids, mock_eq_id, mock_sleep
-    ):
-        # First poll: modem hasn't re-enumerated yet. Second poll: found.
-        mock_ids.side_effect = [[], [3]]
-        mock_eq_id.return_value = "865031064538696"
-        result = wcac.resolve_modem_index_polling(
-            "865031064538696", timeout=10, interval=1
+class TestDetectModule(unittest.TestCase):
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_matches_first_known_module(self, mock_send):
+        mock_send.return_value = (
+            0,
+            "SIMCOM_INCORPORATED\nSIM7672G-LNGV\nOK",
         )
-        self.assertEqual(result, 3)
-        mock_sleep.assert_called_once_with(1)
+        config = {"SIM7672G-LNGV": {"Set auto-dial": "AT+DIALMODE=0"}}
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        name, steps = modem.detect_module(config)
+        self.assertEqual(name, "SIM7672G-LNGV")
+        self.assertEqual(steps, config["SIM7672G-LNGV"])
 
-    @patch("time.sleep", return_value=None)
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_exits_when_no_module_matches(self, mock_send):
+        mock_send.return_value = (0, "UNKNOWN_MODEL\nOK")
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        with self.assertRaises(SystemExit):
+            modem.detect_module({"SIM7672G-LNGV": {}})
+
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_exits_when_ati_fails(self, mock_send):
+        mock_send.return_value = (1, "ERROR")
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        with self.assertRaises(SystemExit):
+            modem.detect_module({"SIM7672G-LNGV": {}})
+
+
+class TestGetCfunState(unittest.TestCase):
+    @patch("wwan_connection_at_command.ModemAtController.query")
+    def test_parses_cfun_value(self, mock_query):
+        mock_query.return_value = "+CFUN: 1"
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertEqual(modem.get_cfun_state(), 1)
+
     @patch(
-        "wwan_connection_at_command.time.time",
-        side_effect=itertools.count(1000, 50),
+        "wwan_connection_at_command.ModemAtController.query",
+        return_value=None,
     )
-    @patch("wwan_connection_at_command.mmcli_modem_ids", return_value=[])
-    def test_resolve_modem_index_polling_times_out(
-        self, mock_ids, mock_time, mock_sleep
+    def test_returns_none_when_query_fails(self, mock_query):
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertIsNone(modem.get_cfun_state())
+
+
+class TestEnsureRadioEnabled(unittest.TestCase):
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch(
+        "wwan_connection_at_command.ModemAtController.query",
+        return_value="+CFUN: 1",
+    )
+    def test_already_enabled_skips_enable_command(self, mock_query, mock_send):
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertTrue(modem.ensure_radio_enabled())
+        mock_send.assert_not_called()
+
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("wwan_connection_at_command.ModemAtController.query")
+    def test_enables_when_not_already_enabled(self, mock_query, mock_send):
+        mock_query.side_effect = ["+CFUN: 4", "+CFUN: 1"]
+        mock_send.return_value = (0, "OK")
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertTrue(modem.ensure_radio_enabled())
+        mock_send.assert_called_once_with("AT+CFUN=1", timeout=10)
+
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch(
+        "wwan_connection_at_command.ModemAtController.query",
+        return_value="+CFUN: 4",
+    )
+    def test_fails_when_enable_command_fails(self, mock_query, mock_send):
+        mock_send.return_value = (1, "ERROR")
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertFalse(modem.ensure_radio_enabled())
+
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("wwan_connection_at_command.ModemAtController.query")
+    def test_fails_when_still_not_enabled_after_command(
+        self, mock_query, mock_send
     ):
-        result = wcac.resolve_modem_index_polling(
-            "865031064538696", timeout=10
-        )
-        self.assertIsNone(result)
+        mock_query.side_effect = ["+CFUN: 4", "+CFUN: 4"]
+        mock_send.return_value = (0, "OK")
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertFalse(modem.ensure_radio_enabled())
 
 
 class TestRunAtStep(unittest.TestCase):
     ENV = {"WWAN_APN": "internet", "WWAN_NET_IF": "enx0"}
 
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_plain_string_step_passes_on_any_response(self, mock_at):
-        mock_at.return_value = (0, "response: ''\n", "")
+    def _modem(self):
+        return wcac.ModemAtController("/dev/ttyUSB2")
+
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_plain_string_step_passes_on_any_response(self, mock_send):
+        mock_send.return_value = (0, "OK")
+        modem = self._modem()
         self.assertTrue(
-            wcac.run_at_step(0, "Set auto-dial", "AT+DIALMODE=0", self.ENV)
+            modem.run_at_step("Set auto-dial", "AT+DIALMODE=0", self.ENV)
         )
 
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_plain_string_step_fails_on_nonzero_rc(self, mock_at):
-        mock_at.return_value = (1, "", "error: couldn't find modem")
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_plain_string_step_fails_on_nonzero_rc(self, mock_send):
+        mock_send.return_value = (1, "ERROR")
+        modem = self._modem()
         self.assertFalse(
-            wcac.run_at_step(0, "Set auto-dial", "AT+DIALMODE=0", self.ENV)
+            modem.run_at_step("Set auto-dial", "AT+DIALMODE=0", self.ENV)
         )
 
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_apn_placeholder_is_substituted(self, mock_at):
-        mock_at.return_value = (0, "response: ''\n", "")
-        wcac.run_at_step(0, "Set APN", 'AT+CGDCONT=1,"IP","{APN}"', self.ENV)
-        sent_cmd = mock_at.call_args[0][1]
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_apn_placeholder_is_substituted(self, mock_send):
+        mock_send.return_value = (0, "OK")
+        modem = self._modem()
+        modem.run_at_step("Set APN", 'AT+CGDCONT=1,"IP","{APN}"', self.ENV)
+        sent_cmd = mock_send.call_args[0][0]
         self.assertEqual(sent_cmd, 'AT+CGDCONT=1,"IP","internet"')
 
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_expect_substring_pass_and_fail(self, mock_at):
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_expect_substring_pass_and_fail(self, mock_send):
         spec = {"cmd": "AT+CPIN?", "expect": "READY"}
-        mock_at.return_value = (0, "response: '+CPIN: READY'\n", "")
-        self.assertTrue(wcac.run_at_step(0, "SIM status", spec, self.ENV))
+        modem = self._modem()
+        mock_send.return_value = (0, "+CPIN: READY\nOK")
+        self.assertTrue(modem.run_at_step("SIM status", spec, self.ENV))
 
-        mock_at.return_value = (0, "response: '+CPIN: SIM PIN'\n", "")
-        self.assertFalse(wcac.run_at_step(0, "SIM status", spec, self.ENV))
+        mock_send.return_value = (0, "+CPIN: SIM PIN\nOK")
+        self.assertFalse(modem.run_at_step("SIM status", spec, self.ENV))
 
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_expect_nonempty_pass_and_fail(self, mock_at):
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_expect_nonempty_pass_and_fail(self, mock_send):
         spec = {"cmd": "AT+CGPADDR=1", "expect_nonempty": True}
-        mock_at.return_value = (0, "response: '10.0.0.5'\n", "")
-        self.assertTrue(wcac.run_at_step(0, "Verify IP", spec, self.ENV))
+        modem = self._modem()
+        mock_send.return_value = (0, "+CGPADDR: 1,10.0.0.5\nOK")
+        self.assertTrue(modem.run_at_step("Verify IP", spec, self.ENV))
 
-        mock_at.return_value = (0, "response: ''\n", "")
-        self.assertFalse(wcac.run_at_step(0, "Verify IP", spec, self.ENV))
+        mock_send.return_value = (0, "OK")
+        self.assertFalse(modem.run_at_step("Verify IP", spec, self.ENV))
 
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_expect_min_pass_and_fail(self, mock_at):
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_expect_min_pass_and_fail(self, mock_send):
         spec = {"cmd": "AT+CSQ", "expect_min": 10}
-        mock_at.return_value = (0, "response: '+CSQ: 15,0'\n", "")
-        self.assertTrue(wcac.run_at_step(0, "Signal quality", spec, self.ENV))
+        modem = self._modem()
+        mock_send.return_value = (0, "+CSQ: 15,0\nOK")
+        self.assertTrue(modem.run_at_step("Signal quality", spec, self.ENV))
 
-        mock_at.return_value = (0, "response: '+CSQ: 3,0'\n", "")
-        self.assertFalse(wcac.run_at_step(0, "Signal quality", spec, self.ENV))
+        mock_send.return_value = (0, "+CSQ: 3,0\nOK")
+        self.assertFalse(modem.run_at_step("Signal quality", spec, self.ENV))
 
     @patch("time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_poll_retries_until_pass(self, mock_at, mock_sleep):
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_poll_retries_until_pass(self, mock_send, mock_sleep):
         spec = {"cmd": "AT+CGATT?", "expect": "CGATT: 1", "poll": True}
-        mock_at.side_effect = [
-            (0, "response: '+CGATT: 0'\n", ""),
-            (0, "response: '+CGATT: 1'\n", ""),
+        mock_send.side_effect = [
+            (0, "+CGATT: 0\nOK"),
+            (0, "+CGATT: 1\nOK"),
         ]
+        modem = self._modem()
         self.assertTrue(
-            wcac.run_at_step(0, "Verify GPRS attachment", spec, self.ENV)
+            modem.run_at_step("Verify GPRS attachment", spec, self.ENV)
         )
-        self.assertEqual(mock_at.call_count, 2)
+        self.assertEqual(mock_send.call_count, 2)
         mock_sleep.assert_called_once()
 
     @patch("time.sleep", return_value=None)
@@ -305,34 +470,16 @@ class TestRunAtStep(unittest.TestCase):
         "wwan_connection_at_command.time.time",
         side_effect=itertools.count(1000, 50),
     )
-    @patch("wwan_connection_at_command.mmcli_at")
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
     def test_poll_gives_up_after_deadline(
-        self, mock_at, mock_time, mock_sleep
+        self, mock_send, mock_time, mock_sleep
     ):
         spec = {"cmd": "AT+CGATT?", "expect": "CGATT: 1", "poll": True}
-        mock_at.return_value = (0, "response: '+CGATT: 0'\n", "")
+        mock_send.return_value = (0, "+CGATT: 0\nOK")
+        modem = self._modem()
         self.assertFalse(
-            wcac.run_at_step(0, "Verify GPRS attachment", spec, self.ENV)
+            modem.run_at_step("Verify GPRS attachment", spec, self.ENV)
         )
-
-
-class TestDetectModule(unittest.TestCase):
-    @patch("wwan_connection_at_command.mmcli_list")
-    def test_matches_first_known_module(self, mock_list):
-        mock_list.return_value = (
-            0,
-            "/org/.../Modem/0 [SIMCOM] SIM7672G-LNGV\n",
-        )
-        config = {"SIM7672G-LNGV": {"Set auto-dial": "AT+DIALMODE=0"}}
-        name, steps = wcac.detect_module(config)
-        self.assertEqual(name, "SIM7672G-LNGV")
-        self.assertEqual(steps, config["SIM7672G-LNGV"])
-
-    @patch("wwan_connection_at_command.mmcli_list")
-    def test_exits_when_no_module_matches(self, mock_list):
-        mock_list.return_value = (0, "/org/.../Modem/0 [OTHER] UNKNOWN\n")
-        with self.assertRaises(SystemExit):
-            wcac.detect_module({"SIM7672G-LNGV": {}})
 
 
 class TestDeprioritizeDefaultRoute(unittest.TestCase):
@@ -371,142 +518,224 @@ class TestDeprioritizeDefaultRoute(unittest.TestCase):
         self.assertEqual(mock_run_cmd.call_count, 1)
 
 
+class TestRegistrationParsing(unittest.TestCase):
+    def _modem(self):
+        return wcac.ModemAtController("/dev/ttyUSB2")
+
+    @patch("wwan_connection_at_command.ModemAtController.query")
+    def test_get_registration_maps_stat_codes(self, mock_query):
+        mock_query.return_value = "+CREG: 0,5"
+        modem = self._modem()
+        self.assertEqual(modem.get_registration(), "roaming")
+
+    @patch(
+        "wwan_connection_at_command.ModemAtController.query",
+        return_value=None,
+    )
+    def test_get_registration_returns_none_on_failure(self, mock_query):
+        modem = self._modem()
+        self.assertIsNone(modem.get_registration())
+
+    @patch("wwan_connection_at_command.ModemAtController.query")
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_get_operator_id_extracts_numeric_plmn(
+        self, mock_send, mock_query
+    ):
+        mock_query.return_value = '+COPS: 0,2,"46697",7'
+        modem = self._modem()
+        self.assertEqual(modem.get_operator_id(), "46697")
+        mock_send.assert_called_once_with("AT+COPS=3,2", timeout=5)
+
+
 class TestResetRecoveryHelpers(unittest.TestCase):
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_send_reset_pass_and_fail(self, mock_at):
-        mock_at.return_value = (0, "response: ''\n", "")
-        self.assertTrue(wcac.send_reset(0))
+    def _modem(self):
+        return wcac.ModemAtController("/dev/ttyUSB2")
 
-        mock_at.return_value = (1, "", "error")
-        self.assertFalse(wcac.send_reset(0))
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_send_reset_pass_and_fail(self, mock_send):
+        modem = self._modem()
+        mock_send.return_value = (0, "OK")
+        self.assertTrue(modem.send_reset())
 
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_verify_cops_pass_and_fail(self, mock_at):
-        mock_at.return_value = (0, "response: '+COPS: 0,,,7'\n", "")
-        self.assertTrue(wcac.verify_cops(0, timeout=30))
+        mock_send.return_value = (1, "ERROR")
+        self.assertFalse(modem.send_reset())
 
-        mock_at.return_value = (1, "", "timed out")
-        self.assertFalse(wcac.verify_cops(0, timeout=30))
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_verify_cops_pass_and_fail(self, mock_send):
+        modem = self._modem()
+        mock_send.return_value = (0, "+COPS: 0,,,7\nOK")
+        self.assertTrue(modem.verify_cops(timeout=30))
+
+        mock_send.return_value = (1, "")
+        self.assertFalse(modem.verify_cops(timeout=30))
 
     @patch("time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.mmcli_at")
-    def test_radio_cycle_sends_cfun_off_then_on(self, mock_at, mock_sleep):
-        wcac.radio_cycle(0, wait_seconds=45)
-        sent_cmds = [call.args[1] for call in mock_at.call_args_list]
+    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    def test_radio_cycle_sends_cfun_off_then_on(self, mock_send, mock_sleep):
+        modem = self._modem()
+        modem.radio_cycle(wait_seconds=45)
+        sent_cmds = [call.args[0] for call in mock_send.call_args_list]
         self.assertEqual(sent_cmds, ["AT+CFUN=4", "AT+CFUN=1"])
         mock_sleep.assert_any_call(45)
 
     @patch("time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.get_field")
+    @patch("wwan_connection_at_command.ModemAtController.get_operator_id")
+    @patch("wwan_connection_at_command.ModemAtController.get_registration")
     def test_wait_for_registration_passes_immediately(
-        self, mock_get_field, mock_sleep
+        self, mock_get_reg, mock_get_op, mock_sleep
     ):
-        mock_get_field.side_effect = lambda mm_id, key: {
-            "registration": "roaming",
-            "operator id": "46697",
-        }[key]
-        ok, registration, operator_id = wcac.wait_for_registration(
-            0, timeout=120, radio_cycle_wait=45
+        mock_get_reg.return_value = "roaming"
+        mock_get_op.return_value = "46697"
+        modem = self._modem()
+        ok, registration, operator_id = modem.wait_for_registration(
+            timeout=120, radio_cycle_wait=45
         )
         self.assertTrue(ok)
         self.assertEqual(registration, "roaming")
         self.assertEqual(operator_id, "46697")
 
-    @patch("wwan_connection_at_command.radio_cycle")
+    @patch("wwan_connection_at_command.ModemAtController.radio_cycle")
     @patch("time.sleep", return_value=None)
     @patch(
         "wwan_connection_at_command.time.time",
         side_effect=itertools.count(1000, 200),
     )
-    @patch("wwan_connection_at_command.get_field")
+    @patch("wwan_connection_at_command.ModemAtController.get_operator_id")
+    @patch("wwan_connection_at_command.ModemAtController.get_registration")
     def test_wait_for_registration_cycles_radio_once_then_passes(
-        self, mock_get_field, mock_time, mock_sleep, mock_radio_cycle
+        self,
+        mock_get_reg,
+        mock_get_op,
+        mock_time,
+        mock_sleep,
+        mock_radio_cycle,
     ):
         # denied first (triggers exactly one radio cycle), then roaming
-        mock_get_field.side_effect = [
-            "denied",
-            None,
-            "roaming",
-            "46697",
-        ]
-        ok, registration, operator_id = wcac.wait_for_registration(
-            0, timeout=120, radio_cycle_wait=45
+        mock_get_reg.side_effect = ["denied", "roaming"]
+        mock_get_op.side_effect = [None, "46697"]
+        modem = self._modem()
+        ok, registration, operator_id = modem.wait_for_registration(
+            timeout=120, radio_cycle_wait=45
         )
         self.assertTrue(ok)
         self.assertEqual(registration, "roaming")
-        mock_radio_cycle.assert_called_once_with(0, 45)
+        mock_radio_cycle.assert_called_once_with(45)
 
-    @patch("wwan_connection_at_command.radio_cycle")
+    @patch("wwan_connection_at_command.ModemAtController.radio_cycle")
     @patch("time.sleep", return_value=None)
     @patch(
         "wwan_connection_at_command.time.time",
         side_effect=itertools.count(1000, 200),
     )
-    @patch("wwan_connection_at_command.get_field", return_value="denied")
+    @patch(
+        "wwan_connection_at_command.ModemAtController.get_operator_id",
+        return_value=None,
+    )
+    @patch(
+        "wwan_connection_at_command.ModemAtController.get_registration",
+        return_value="denied",
+    )
     def test_wait_for_registration_fails_after_one_cycle(
-        self, mock_get_field, mock_time, mock_sleep, mock_radio_cycle
+        self,
+        mock_get_reg,
+        mock_get_op,
+        mock_time,
+        mock_sleep,
+        mock_radio_cycle,
     ):
-        ok, registration, operator_id = wcac.wait_for_registration(
-            0, timeout=120, radio_cycle_wait=45
+        modem = self._modem()
+        ok, registration, operator_id = modem.wait_for_registration(
+            timeout=120, radio_cycle_wait=45
         )
         self.assertFalse(ok)
         self.assertEqual(registration, "denied")
-        mock_radio_cycle.assert_called_once_with(0, 45)
+        mock_radio_cycle.assert_called_once_with(45)
 
 
 class TestResetAndRecover(unittest.TestCase):
-    @patch("wwan_connection_at_command.wait_for_registration")
-    @patch("wwan_connection_at_command.verify_cops", return_value=True)
-    @patch("wwan_connection_at_command.resolve_modem_index_polling")
-    @patch("wwan_connection_at_command.send_reset", return_value=True)
-    @patch("wwan_connection_at_command.resolve_modem_index", return_value=0)
+    @patch(
+        "wwan_connection_at_command.ModemAtController" ".wait_for_registration"
+    )
+    @patch(
+        "wwan_connection_at_command.ModemAtController.verify_cops",
+        return_value=True,
+    )
+    @patch("wwan_connection_at_command.ModemAtController.open_polling")
+    @patch(
+        "wwan_connection_at_command.ModemAtController.send_reset",
+        return_value=True,
+    )
+    @patch("wwan_connection_at_command.ModemAtController.close")
+    @patch("wwan_connection_at_command.ModemAtController.open")
     def test_happy_path(
         self,
-        mock_resolve,
+        mock_open,
+        mock_close,
         mock_send_reset,
         mock_poll,
         mock_verify_cops,
         mock_wait_registration,
     ):
-        mock_poll.return_value = 1
         mock_wait_registration.return_value = (True, "roaming", "46697")
-        self.assertTrue(wcac.reset_and_recover("865031064538696"))
-        mock_send_reset.assert_called_once_with(0)
+        self.assertTrue(wcac.reset_and_recover("/dev/ttyUSB2"))
+        mock_send_reset.assert_called_once()
+        self.assertEqual(mock_close.call_count, 2)
         mock_verify_cops.assert_called_once()
         mock_wait_registration.assert_called_once()
 
-    @patch("wwan_connection_at_command.send_reset", return_value=False)
-    @patch("wwan_connection_at_command.resolve_modem_index", return_value=0)
+    @patch(
+        "wwan_connection_at_command.ModemAtController.send_reset",
+        return_value=False,
+    )
+    @patch("wwan_connection_at_command.ModemAtController.close")
+    @patch("wwan_connection_at_command.ModemAtController.open")
     def test_fails_fast_when_reset_command_rejected(
-        self, mock_resolve, mock_send_reset
+        self, mock_open, mock_close, mock_send_reset
     ):
-        self.assertFalse(wcac.reset_and_recover("865031064538696"))
+        self.assertFalse(wcac.reset_and_recover("/dev/ttyUSB2"))
 
-    @patch("wwan_connection_at_command.resolve_modem_index_polling")
-    @patch("wwan_connection_at_command.send_reset", return_value=True)
-    @patch("wwan_connection_at_command.resolve_modem_index", return_value=0)
-    def test_fails_when_modem_never_reenumerates(
-        self, mock_resolve, mock_send_reset, mock_poll
+    @patch(
+        "wwan_connection_at_command.ModemAtController.open_polling",
+        return_value=None,
+    )
+    @patch(
+        "wwan_connection_at_command.ModemAtController.send_reset",
+        return_value=True,
+    )
+    @patch("wwan_connection_at_command.ModemAtController.close")
+    @patch("wwan_connection_at_command.ModemAtController.open")
+    def test_fails_when_control_port_never_reappears(
+        self, mock_open, mock_close, mock_send_reset, mock_poll
     ):
-        mock_poll.return_value = None
-        self.assertFalse(wcac.reset_and_recover("865031064538696"))
+        self.assertFalse(wcac.reset_and_recover("/dev/ttyUSB2"))
 
-    @patch("wwan_connection_at_command.verify_cops", return_value=False)
-    @patch("wwan_connection_at_command.resolve_modem_index_polling")
-    @patch("wwan_connection_at_command.send_reset", return_value=True)
-    @patch("wwan_connection_at_command.resolve_modem_index", return_value=0)
+    @patch(
+        "wwan_connection_at_command.ModemAtController.verify_cops",
+        return_value=False,
+    )
+    @patch("wwan_connection_at_command.ModemAtController.open_polling")
+    @patch(
+        "wwan_connection_at_command.ModemAtController.send_reset",
+        return_value=True,
+    )
+    @patch("wwan_connection_at_command.ModemAtController.close")
+    @patch("wwan_connection_at_command.ModemAtController.open")
     def test_fails_when_cops_never_responds(
-        self, mock_resolve, mock_send_reset, mock_poll, mock_verify_cops
+        self,
+        mock_open,
+        mock_close,
+        mock_send_reset,
+        mock_poll,
+        mock_verify_cops,
     ):
-        mock_poll.return_value = 1
-        self.assertFalse(wcac.reset_and_recover("865031064538696"))
+        self.assertFalse(wcac.reset_and_recover("/dev/ttyUSB2"))
 
 
 class TestRunPing(unittest.TestCase):
     @patch("wwan_connection_at_command.run_cmd")
     def test_fails_fast_when_link_up_fails(self, mock_run_cmd):
         mock_run_cmd.return_value = (1, "", "no such device")
-        self.assertFalse(wcac.run_ping("enx0", 0))
+        self.assertFalse(wcac.run_ping("enx0", MagicMock()))
 
     @patch("wwan_connection_at_command.deprioritize_default_route")
     @patch("wwan_connection_at_command.run_cmd")
@@ -525,15 +754,12 @@ class TestRunPing(unittest.TestCase):
             return (0, "", "")
 
         mock_run_cmd.side_effect = fake_run_cmd
-        self.assertTrue(wcac.run_ping("enx0", 0))
+        self.assertTrue(wcac.run_ping("enx0", MagicMock()))
         mock_deprioritize.assert_called_once_with("enx0")
 
-    @patch("wwan_connection_at_command.log_connection_diagnostics")
     @patch("time.sleep", return_value=None)
     @patch("wwan_connection_at_command.run_cmd")
-    def test_fails_when_no_ip_assigned(
-        self, mock_run_cmd, mock_sleep, mock_diag
-    ):
+    def test_fails_when_no_ip_assigned(self, mock_run_cmd, mock_sleep):
         def fake_run_cmd(args):
             if args[:3] == ["ip", "link", "set"]:
                 return (0, "", "")
@@ -544,9 +770,10 @@ class TestRunPing(unittest.TestCase):
             return (0, "", "")
 
         mock_run_cmd.side_effect = fake_run_cmd
+        modem = MagicMock()
         with patch("os.environ.get", return_value="0"):
-            self.assertFalse(wcac.run_ping("enx0", 0))
-        mock_diag.assert_called_once_with(0, "enx0")
+            self.assertFalse(wcac.run_ping("enx0", modem))
+        modem.log_connection_diagnostics.assert_called_once_with("enx0")
 
 
 if __name__ == "__main__":

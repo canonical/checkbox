@@ -2,8 +2,11 @@
 
 This file drives [`bin/wwan_connection_at_command.py`](../bin/wwan_connection_at_command.py),
 the script behind the `ce-oem-wwan/gsm-connection-at-command-*` jobs. It
-defines, per WWAN module, the ordered sequence of AT commands to run over
-`mmcli -m <idx> --command=...` to bring up a data connection and verify it.
+defines, per WWAN module, the ordered sequence of AT commands to send
+directly over the module's serial control interface (`WWAN_CONTROL_IF`)
+to bring up a data connection and verify it. The script talks to the
+modem with raw AT commands only — it does not use ModemManager/`mmcli`
+at all.
 
 ## Top-level structure
 
@@ -17,11 +20,10 @@ defines, per WWAN module, the ordered sequence of AT commands to run over
 ```
 
 - **`<MODULE_NAME>`** must be a substring that appears literally in the
-  output of `mmcli -L` for the target modem (e.g. the model name reported
-  under `Hardware | model:`). `detect_module()` iterates the JSON keys in
-  file order and picks the first key whose name is a substring of the
-  `mmcli -L` output, so when multiple keys could match, the one that
-  appears first in the file wins.
+  modem's `ATI` (identification) response. `detect_module()` sends `ATI`
+  and iterates the JSON keys in file order, picking the first key whose
+  name is a substring of that response, so when multiple keys could
+  match, the one that appears first in the file wins.
 - **`<Step name>`** is a free-form, human-readable label used only for
   logging (`[AT] <Step name> -> <cmd>`, `[PASS]/[FAIL] <Step name>`).
 - Steps run **in the order they appear in the file** (Python/JSON preserve
@@ -32,9 +34,8 @@ defines, per WWAN module, the ordered sequence of AT commands to run over
 
 Each step's value is either:
 
-1. **A plain AT command string** — passes as soon as `mmcli` returns
-   `rc == 0` and *any* response (including an empty one, `response: ''`,
-   which is how ModemManager reports a bare `OK`):
+1. **A plain AT command string** — passes as soon as the modem's response
+   ends with `OK` (including a bare `OK` with no other data):
 
    ```json
    "Set auto-dial": "AT+DIALMODE=0"
@@ -141,13 +142,15 @@ runs after these steps automatically, the same way for every module.
 
 ## Adding a new module
 
-1. Run `mmcli -L` and `mmcli -m <idx>` on the target modem to get its exact
-   model string.
+1. Connect to the target modem's serial control interface directly (e.g.
+   `screen /dev/ttyUSB2 115200` or similar) and send `ATI` to get its
+   exact model string.
 2. Add a new top-level key using that string (or a distinctive substring
    of it).
 3. Work out the module's AT command set (vendor AT command reference) for
    SIM status, signal quality, APN, and auto-dial/PDP activation, adapting
    the `expect*`/`poll` fields as needed for that firmware's response
    format.
-4. Validate manually first (e.g. via `mmcli -m <idx> --command="..."`) so
-   you know the exact expected substrings before encoding them here.
+4. Validate manually first (e.g. by sending the AT command directly over
+   the serial port) so you know the exact expected substrings before
+   encoding them here.

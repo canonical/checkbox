@@ -256,3 +256,126 @@ exclude:
 certification_status_overrides:
     apply blocker to .*
 
+id: ce-oem-iot-server-26-04-rt
+unit: test plan
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for realtime Ubuntu Server 26.04
+_description:
+    Combined manual and automated test plans for realtime IoT devices running Ubuntu Server.
+include:
+nested_part:
+    ce-oem-iot-server-26-04-manual-rt
+    ce-oem-iot-server-26-04-automated-rt
+    ce-oem-iot-server-26-04-stress-rt
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-26-04-manual-rt
+unit: test plan
+_name: CE-OEM-IOT - Manual only OEMQA tests for realtime Ubuntu Server 26.04
+_description:
+    Ubuntu Server OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the tests that require manual control of device hardware
+    or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-server-26-04-manual
+    com.canonical.certification::rt-performance-tests-manual
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-26-04-automated-rt
+unit: test plan
+_name: CE-OEM-IOT - Automated only OEMQA tests for realtime Ubuntu Server 26.04
+_description:
+    Ubuntu Server OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-server-26-04-automated
+    com.canonical.certification::rt-performance-tests-automated
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-26-04-stress-rt
+unit: test plan
+_name: CE-OEM-IOT - Stress only OEMQA tests for realtime Ubuntu Server 26.04
+_description:
+    Ubuntu Server OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the stress tests used to validate the IoT devices.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-server-26-04-stress
+    com.canonical.certification::rt-performance-tests-stress
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-24-04-rt
+unit: test plan
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for realtime Ubuntu Server 24.04
+_description:
+    Combined manual and automated test plans for realtime IoT devices running Ubuntu Server.
+include:
+nested_part:
+    ce-oem-iot-server-24-04-manual-rt
+    ce-oem-iot-server-24-04-automated-rt
+    ce-oem-iot-server-24-04-stress-rt
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-24-04-manual-rt
+unit: test plan
+_name: CE-OEM-IOT - Manual only OEMQA tests for realtime Ubuntu Server 24.04
+_description:
+    Ubuntu Server OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the tests that require manual control of device hardware
+    or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-server-24-04-manual
+    com.canonical.certification::rt-performance-tests-manual
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-24-04-automated-rt
+unit: test plan
+_name: CE-OEM-IOT - Automated only OEMQA tests for realtime Ubuntu Server 24.04
+_description:
+    Ubuntu Server OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-server-24-04-automated
+    com.canonical.certification::rt-performance-tests-automated
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-24-04-stress-rt
+unit: test plan
+_name: CE-OEM-IOT - Stress only OEMQA tests for realtime Ubuntu Server 24.04
+_description:
+    Ubuntu Server OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the stress tests used to validate the IoT devices.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-server-24-04-stress
+    com.canonical.certification::rt-performance-tests-stress
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*

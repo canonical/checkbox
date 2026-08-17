@@ -75,6 +75,68 @@ exclude:
 certification_status_overrides:
     apply blocker to .*
 
+id: ce-oem-iot-ubuntucore-26-rt
+unit: test plan
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for realtime Ubuntu Core 26
+_description:
+    Combined manual and automated test plans for realtime IoT devices running Ubuntu Core.
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-26-manual-rt
+    ce-oem-iot-ubuntucore-26-automated-rt
+    ce-oem-iot-ubuntucore-26-stress-rt
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-26-manual-rt
+unit: test plan
+_name: CE-OEM-IOT - Manual only OEMQA tests for realtime Ubuntu Core 26
+_description:
+    Ubuntu Core OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the tests that require manual control of device hardware
+    or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-26-manual
+    com.canonical.certification::rt-performance-tests-manual
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-26-automated-rt
+unit: test plan
+_name: CE-OEM-IOT - Automated only OEMQA tests for realtime Ubuntu Core 26
+_description:
+    Ubuntu Core OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-26-automated
+    com.canonical.certification::rt-performance-tests-automated
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-26-stress-rt
+unit: test plan
+_name: CE-OEM-IOT - Stress only OEMQA tests for realtime Ubuntu Core 26
+_description:
+    Ubuntu Core OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the stress tests used to validate the IoT devices.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-26-stress
+    com.canonical.certification::rt-performance-tests-stress
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
 id: ce-oem-iot-ubuntucore-24
 unit: test plan
 _name: CE-OEM-IOT - Full manual + automated OEMQA tests for Ubuntu Core 24
@@ -272,3 +334,64 @@ exclude:
 certification_status_overrides:
     apply blocker to .*
 
+id: ce-oem-iot-ubuntucore-24-rt
+unit: test plan
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for realtime Ubuntu Core 24
+_description:
+    Combined manual and automated test plans for realtime IoT devices running Ubuntu Core.
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-24-manual-rt
+    ce-oem-iot-ubuntucore-24-automated-rt
+    ce-oem-iot-ubuntucore-24-stress-rt
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-24-manual-rt
+unit: test plan
+_name: CE-OEM-IOT - Manual only OEMQA tests for realtime Ubuntu Core 24
+_description:
+    Ubuntu Core OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the tests that require manual control of device hardware
+    or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-24-manual
+    com.canonical.certification::rt-performance-tests-manual
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-24-automated-rt
+unit: test plan
+_name: CE-OEM-IOT - Automated only OEMQA tests for realtime Ubuntu Core 24
+_description:
+    Ubuntu Core OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-24-automated
+    com.canonical.certification::rt-performance-tests-automated
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-ubuntucore-24-stress-rt
+unit: test plan
+_name: CE-OEM-IOT - Stress only OEMQA tests for realtime Ubuntu Core 24
+_description:
+    Ubuntu Core OEMQA test plan for the realtime IoT devices. This test plan contains
+    all of the stress tests used to validate the IoT devices.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-iot-ubuntucore-24-stress
+    com.canonical.certification::rt-performance-tests-stress
+exclude:
+    .*::.*suspend.*
+certification_status_overrides:
+    apply blocker to .*

@@ -155,6 +155,37 @@ Jetson configurations only require test scenario files (no test setup needed).
 > needed — the Orin Nano supports video recording on all five modes like any
 > other board.
 
+### e-CAM200 Quad
+
+**Test Scenario:**
+
+- Hardware: 4x e-con Systems e-CAM200_CUONX (onsemi AR2020 20MP), one
+  camera per CSI port in the 2-lane configuration
+- Board: Jetson Orin NX on a custom carrier exposing four 2-lane CSI ports
+  (`cam0`..`cam3`, Argus source index 0..3)
+- Documentation: e-con e-CAM200_CUONX Datasheet rev 1.2 / GStreamer Usage
+  Guide (2-lane frame-rate table)
+- Configuration: [`jetson_mipi_camera_test_scenario_ecam200_quad.json`](jetson_mipi_camera_test_scenario_ecam200_quad.json)
+
+| Argus mode | Resolution | FPS (2-lane) |
+| --- | --- | --- |
+| 0 | 5120x3840 | 15 |
+| 1 | 3840x2160 | 25 |
+| 2 | 2560x1920 | 30 |
+| 3 | 1920x1080 | 60 |
+
+> **Note:** the `mode` indexes are assumed from the order of e-con's
+> published resolution table and MUST be verified against the DUT on the
+> first run (`nvargus_nvraw --lps` / the GST_ARGUS mode table in any
+> gstreamer job log); correct the JSON if the driver enumerates them
+> differently. The fps values are the 2-lane figures — the 4-lane rates do
+> not apply to this wiring.
+
+> **Note:** each camera is tested by its own generated jobs, one camera at
+> a time; the product's 4-simultaneous-stream operation is not exercised by
+> these jobs. A 300-frame 5120x3840 NV12 recording is ~8.8 GB, which is why
+> the gstreamer video timeout is sized at 600 s.
+
 ## Capture Methods
 
 - `gstreamer` — `nvarguscamerasrc sensor-mode=M` → NVMM NV12 → `nvvidconv` →
@@ -168,3 +199,4 @@ Jetson configurations only require test scenario files (no test setup needed).
 | --- | --- | --- | --- | --- |
 | IMX274 Dual | Jetson AGX Orin Developer Kit | ✅ Required | ❌ Not needed | 2 |
 | IMX219 | Jetson Orin NX, Jetson Orin Nano | ✅ Required | ❌ Not needed | 1 |
+| e-CAM200 Quad | Jetson Orin NX (custom 4x 2-lane carrier) | ✅ Required | ❌ Not needed | 4 |

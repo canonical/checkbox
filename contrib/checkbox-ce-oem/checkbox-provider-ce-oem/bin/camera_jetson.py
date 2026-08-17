@@ -62,14 +62,13 @@ ENV_PREFIX = "/usr/bin/env -u DISPLAY"
 # use 30s for a gstreamer still.
 NVARGUS_TIMEOUT = 10
 GST_IMAGE_TIMEOUT = 30
-# Video needs more than today's 30s (camera_job.pxu:127, :155): that 30s only
-# had to cover an H265-encoded 1080p mp4 (~30 MB). Dropping the encoder makes
-# this path write-bound instead. Worst case here is 300 frames of 3280x2464
-# NV12 (IMX219 mode 0 @21fps) = ~3.5 GiB, which is ~14s of capture but several
-# times that to land on disk. 180s tolerates a ~20 MB/s sustained write floor
-# while still bounding a wedge, and stays under execute_command()'s 300s
-# default so the bound is strictly tighter than doing nothing.
-GST_VIDEO_TIMEOUT = 180
+# Video needs more than the legacy 30s (camera_job.pxu:127, :155): that 30s
+# only had to cover an H265-encoded 1080p mp4 (~30 MB). Dropping the encoder
+# makes this path write-bound instead. Worst case here is 300 frames of
+# 5120x3840 NV12 (e-CAM200 mode 0 @15fps) = ~8.8 GB, which is 20s of capture
+# but several times that to land on disk. 600s tolerates a ~20 MB/s
+# sustained write floor while still bounding a wedged capture.
+GST_VIDEO_TIMEOUT = 600
 
 
 class SupportedCamera(Enum):
@@ -82,6 +81,10 @@ class SupportedCamera(Enum):
 
     IMX274 = "imx274"  # Sony IMX274 sensor (AGX Orin Developer Kit, x2)
     IMX219 = "imx219"  # Sony IMX219 sensor (Orin NX and Orin Nano, x1)
+    # e-con e-CAM200_CUONX module (onsemi AR2020 20MP sensor); named after
+    # the module, not the sensor, because the mode/rate table is e-con's
+    # driver implementation, not a property of the bare AR2020
+    ECAM200 = "ecam200"
 
     def __str__(self):
         return self.value
@@ -106,6 +109,7 @@ def jetson_camera_factory(camera_module: str) -> Type[CameraInterface]:
         for cam, handler in {
             SupportedCamera.IMX274: Imx274Handler,
             SupportedCamera.IMX219: Imx219Handler,
+            SupportedCamera.ECAM200: Ecam200Handler,
         }.items()
     }
 
@@ -394,3 +398,11 @@ class Imx219Handler(JetsonBaseCamera):
     def __init__(self, v4l2_devices: str):
         super().__init__(v4l2_devices)
         self._camera = SupportedCamera.IMX219
+
+
+class Ecam200Handler(JetsonBaseCamera):
+    """Handler for the e-con e-CAM200_CUONX (AR2020) camera."""
+
+    def __init__(self, v4l2_devices: str):
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.ECAM200

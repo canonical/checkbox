@@ -1,0 +1,28 @@
+{
+  "gst_video_decoder_performance_fakesink": [
+    {
+      "decoder_plugin": "nvv4l2decoder",
+      "golden_sample_file": "1080p_30fps_h264.mp4",
+      "minimum_fps": 30,
+      "enable_performance_mode": false
+    },
+    {
+      "decoder_plugin": "nvv4l2decoder",
+      "golden_sample_file": "1080p_30fps_h265.mp4",
+      "minimum_fps": 30,
+      "enable_performance_mode": false
+    },
+    {
+      "decoder_plugin": "nvv4l2decoder",
+      "golden_sample_file": "1080p_30fps_vp9.webm",
+      "minimum_fps": 30,
+      "enable_performance_mode": false
+    },
+    {
+      "decoder_plugin": "nvv4l2decoder",
+      "golden_sample_file": "1080p_30fps_av1.webm",
+      "minimum_fps": 30,
+      "enable_performance_mode": false
+    }
+  ]
+}

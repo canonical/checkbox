@@ -58,7 +58,9 @@ command:
 unit: template
 template-engine: jinja2
 template-resource: video_codec_resource
-template-filter: video_codec_resource.scenario == "gst_video_decoder_performance_fakesink"
+template-filter:
+    video_codec_resource.scenario == "gst_video_decoder_performance_fakesink"
+    video_codec_resource.platform not in ["orin-agx", "orin-nx", "orin-nano", "thor"]
 template-unit: job
 template-id: ce-oem-video-codec/gst_video_decoder_performance_fakesink
 _template-summary: To check if the performance of decoder doesn't violate Pass Criteria
@@ -150,6 +152,49 @@ _template-summary: Verify the PSNR ratio meets requirement for specific encoder 
 id: ce-oem-video-codec/carmel-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
 _summary: Encoder PSNR - Carmel - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
 _description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Carmel platform
+plugin: shell
+user: root
+category_id: video-codec
+estimated_duration: 60s
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER
+command:
+    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter:
+    video_codec_resource.scenario == "gst_video_decoder_performance_fakesink"
+    video_codec_resource.platform in ["orin-agx", "orin-nx", "orin-nano", "thor"]
+template-unit: job
+template-id: ce-oem-video-codec/jetson-gst_video_decoder_performance_fakesink
+_template-summary: To check if the performance of decoder doesn't violate Pass Criteria on Jetson
+id: ce-oem-video-codec/jetson-{{ scenario }}-{{ decoder_plugin }}-{{ golden_sample_file_name }}
+_summary: Performance test of decoder {{ decoder_plugin }} with {{ golden_sample_file_name }} - fakesink
+_description: Test if while the sink is fakesink, the decoder's performance, {{ decoder_plugin }}, doesn't violate the Pass Criteria. (1) There are no frame losses (2) Average FPS not fall below the specification's definition
+plugin: shell
+user: root
+category_id: video-codec
+estimated_duration: 1s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_video_codec == 'True'
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME PLATFORM_NAME
+command:
+    gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "$PLATFORM_NAME"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter:
+    video_codec_resource.scenario == "gst_encoder_psnr"
+    video_codec_resource.platform in ["orin-agx", "orin-nx", "thor"]
+template-unit: job
+template-id: ce-oem-video-codec/jetson-gst_encoder_psnr
+_template-summary: Verify the PSNR ratio meets requirement for specific encoder on Jetson
+id: ce-oem-video-codec/jetson-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
+_summary: Encoder PSNR - Jetson - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
+_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Jetson platform
 plugin: shell
 user: root
 category_id: video-codec

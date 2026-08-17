@@ -240,6 +240,48 @@ def build_renesas_gst_command(
     return cmd
 
 
+def build_jetson_gst_command(
+    gst_bin: str,
+    golden_sample_path: str,
+    decoder: str,
+    sink: str,
+    fpsdisplaysink_sync: str,
+) -> str:
+    """
+    Builds a GStreamer command to process the golden sample on Jetson.
+
+    On Jetson every codec is decoded by the single nvv4l2decoder element,
+    which emits NVMM buffers; nvvidconv brings them back to system memory
+    for the sink. parsebin picks the demuxer/parser for any container.
+
+    :param gst_bin:
+        The binary name of gstreamer. Default is "gst-launch-1.0"
+        You can assign the snap name to GST_LAUNCH_BIN env variable if you
+        want to using snap.
+    :param golden_sample_path:
+        The path to the golden sample file.
+    :param decoder:
+        The decoder to use for the video, e.g., "nvv4l2decoder".
+    :param sink:
+        The desired sink option, e.g., "fakesink".
+    :param fpsdisplaysink_sync:
+        The property option of fpsdisplaysink."
+        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
+        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
+
+    :returns:
+        The GStreamer command to execute.
+    """
+    cmd = (
+        "{} -v filesrc location={} ! parsebin ! queue ! {} ! queue ! "
+        "nvvidconv ! video/x-raw,format=NV12 ! "
+        'queue ! fpsdisplaysink video-sink="{}"'
+        " text-overlay=false sync={}"
+    ).format(gst_bin, golden_sample_path, decoder, sink, fpsdisplaysink_sync)
+
+    return cmd
+
+
 def is_valid_result(input_text: str, min_fps: float) -> bool:
     """
     Extracts the last-message value from the given input string.
@@ -312,6 +354,16 @@ def main() -> None:
     gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
     if "imx8m" in args.platform:
         cmd = build_imx_gst_command(
+            gst_bin=gst_launch_bin,
+            golden_sample_path=args.golden_sample_path,
+            decoder=args.decoder_plugin,
+            sink=args.sink,
+            fpsdisplaysink_sync=args.fpsdisplaysink_sync,
+        )
+    elif args.platform.startswith(("orin", "thor")) or (
+        "jetson" in args.platform
+    ):
+        cmd = build_jetson_gst_command(
             gst_bin=gst_launch_bin,
             golden_sample_path=args.golden_sample_path,
             decoder=args.decoder_plugin,

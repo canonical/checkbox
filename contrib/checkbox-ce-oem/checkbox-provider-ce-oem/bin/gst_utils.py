@@ -32,6 +32,10 @@ class GStreamerEncodePlugins(Enum):
     V4L2JPEGENC = "v4l2jpegenc"
     V4L2VP8ENC = "v4l2vp8enc"
     OMXH264ENC = "omxh264enc"
+    # NVIDIA Jetson hardware encoders (L4T gstreamer plugins)
+    NVV4L2H264ENC = "nvv4l2h264enc"
+    NVV4L2H265ENC = "nvv4l2h265enc"
+    NVV4L2AV1ENC = "nvv4l2av1enc"
 
 
 class GStreamerMuxerType(Enum):
@@ -298,6 +302,9 @@ class MetadataValidator:
             GStreamerEncodePlugins.V4L2JPEGENC.value: "JPEG",
             GStreamerEncodePlugins.V4L2VP8ENC.value: "VP8",
             GStreamerEncodePlugins.OMXH264ENC.value: "H.264",
+            GStreamerEncodePlugins.NVV4L2H264ENC.value: "H.264",
+            GStreamerEncodePlugins.NVV4L2H265ENC.value: "H.265",
+            GStreamerEncodePlugins.NVV4L2AV1ENC.value: "AV1",
         }
         if expected not in codec_map:
             raise SystemExit(

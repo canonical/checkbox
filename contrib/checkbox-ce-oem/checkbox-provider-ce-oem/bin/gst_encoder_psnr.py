@@ -143,6 +143,14 @@ def project_factory(args: argparse.Namespace) -> Any:
             height=args.height,
             framerate=args.framerate,
         )
+    elif args.platform.startswith(("orin", "thor")):
+        return JetsonProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
+        )
     elif "imx8m" in args.platform:
         return NxpIMX8mProject(
             platform=args.platform,
@@ -382,6 +390,105 @@ class CarmelProject(PipelineInterface):
             GStreamerEncodePlugins.V4L2H265ENC.value,
         ):
             return self._264_265_pipeline_builder()
+        else:
+            raise SystemExit(
+                "Error: unknow encoder '{}' be used".format(self._codec)
+            )
+
+
+class JetsonProject(PipelineInterface):
+    """
+    Jetson (Orin / Thor) project pipeline handler and builder.
+
+    All hardware codecs are reached through NVIDIA's L4T gstreamer
+    plugins: the single nvv4l2decoder element decodes every codec, and
+    the nvv4l2{h264,h265,av1}enc elements encode. The decoder emits
+    NVMM buffers which the encoders consume directly, so no conversion
+    element sits between them.
+    """
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        width: int,
+        height: int,
+        framerate: int,
+    ) -> None:
+        self._platform = platform
+        self._codec = codec
+        self._width = width
+        self._height = height
+        self._framerate = framerate
+        self._codec_parser_map = {
+            GStreamerEncodePlugins.NVV4L2H264ENC.value: "h264parse",
+            GStreamerEncodePlugins.NVV4L2H265ENC.value: "h265parse",
+            GStreamerEncodePlugins.NVV4L2AV1ENC.value: "av1parse",
+        }
+        # Bitrates follow the legacy Jetson transcode jobs; the AV1
+        # encoder keeps its default.
+        self._codec_bitrate_map = {
+            GStreamerEncodePlugins.NVV4L2H264ENC.value: " bitrate=20000000",
+            GStreamerEncodePlugins.NVV4L2H265ENC.value: " bitrate=8000000",
+            GStreamerEncodePlugins.NVV4L2AV1ENC.value: "",
+        }
+        # This sample video file will be consumed by any gstreamer pipeline
+        # as input video. Always an h264 file, decoded by nvv4l2decoder.
+        self._golden_sample = os.path.join(
+            VIDEO_CODEC_TESTING_DATA,
+            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
+        )
+        self._artifact_file = ""
+
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            # AV1-in-mp4 support is inconsistent in gstreamer 1.20, so the
+            # AV1 artifact goes into a matroska container instead.
+            if self._codec == GStreamerEncodePlugins.NVV4L2AV1ENC.value:
+                self._artifact_file = generate_artifact_name(extension="mkv")
+            else:
+                self._artifact_file = generate_artifact_name()
+        return self._artifact_file
+
+    @property
+    def psnr_reference_file(self) -> str:
+        return self._golden_sample
+
+    def _encode_pipeline_builder(self) -> str:
+        """
+        Build the gstreamer pipeline: decode the h264 golden sample with
+        nvv4l2decoder, re-encode it with the codec under test.
+        """
+        if self._codec == GStreamerEncodePlugins.NVV4L2AV1ENC.value:
+            mux = "matroskamux"
+        else:
+            mux = "mp4mux"
+        pipeline = (
+            "{} -e filesrc location={} ! qtdemux ! queue ! h264parse !"
+            " nvv4l2decoder ! queue ! {}{} ! {} ! {} ! queue !"
+            " filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._codec,
+            self._codec_bitrate_map[self._codec],
+            self._codec_parser_map[self._codec],
+            mux,
+            self.artifact_file,
+        )
+
+        return pipeline
+
+    def build_pipeline(self) -> str:
+        """
+        Build the GStreamer commands based on the codec.
+
+        Returns:
+            str: A GStreamer command.
+        """
+        if self._codec in self._codec_parser_map:
+            return self._encode_pipeline_builder()
         else:
             raise SystemExit(
                 "Error: unknow encoder '{}' be used".format(self._codec)

@@ -204,7 +204,15 @@ class GstResources:
             self._resource_items.append(
                 {
                     "scenario": self._current_scenario_name,
+                    # platform and the extension-less sample name let
+                    # platform-filtered templates build unique job ids when
+                    # one decoder element serves several codecs (e.g. the
+                    # Jetson nvv4l2decoder)
+                    "platform": self._conf_name,
                     "decoder_plugin": item["decoder_plugin"],
+                    "golden_sample_file_name": os.path.splitext(
+                        os.path.basename(item["golden_sample_file"])
+                    )[0],
                     "minimum_fps": item["minimum_fps"],
                     "golden_sample_file": os.path.join(
                         self._args.video_codec_testing_data_path,

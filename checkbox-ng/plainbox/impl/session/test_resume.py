@@ -1000,7 +1000,7 @@ class JobResultResumeMixIn:
                 "Value for key 'outcome' not in allowed set ['crash', 'fail',"
                 " None, 'not-implemented', 'not-supported', 'pass', 'skip',"
                 " 'skipped-dependency', 'skipped-manifest',"
-                " 'skipped-resource', 'undecided']"
+                " 'skipped-resource', 'undecided', 'xfail_fail', 'xfail_pass']"
             ),
         )
 

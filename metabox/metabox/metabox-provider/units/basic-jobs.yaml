@@ -363,6 +363,9 @@ id: xfailing_job_passing
 flags:
   - simple
 summary: This job always xfails (passes)
+purpose: |
+  This job fails, but it is marked as an expected failure, so it actually
+  "fake" passes
 xfail: true
 command: |
   false
@@ -370,7 +373,10 @@ command: |
 id: xfailing_job_failing
 flags:
   - simple
-summary: This job always fails (xfail pass)
+summary: This job always fails (xfail fail)
+purpose: |
+  This job passes, but it is marked as an expected failure, so it actually
+  fails (xfail fail) as it failed to fail
 xfail: true
 command: |
   true

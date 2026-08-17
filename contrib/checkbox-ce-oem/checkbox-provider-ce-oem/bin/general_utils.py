@@ -206,12 +206,16 @@ def resolve_configured_commands(
 
     # No custom mapping path means default command strings are used.
     if not executable_json_path:
-        return resolve_path_commands(unique_commands, enable_logger=enable_logger)
+        return resolve_path_commands(
+            unique_commands, enable_logger=enable_logger
+        )
 
     data = load_json_file(executable_json_path, enable_logger=enable_logger)
     # Empty or missing mapping file means no need to customize commands.
     if not data:
-        return resolve_path_commands(unique_commands, enable_logger=enable_logger)
+        return resolve_path_commands(
+            unique_commands, enable_logger=enable_logger
+        )
 
     resolved_commands = {
         cmd: build_customized_command(

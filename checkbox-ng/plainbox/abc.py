@@ -202,8 +202,14 @@ class IJobResult(metaclass=ABCMeta):
     OUTCOME_FAIL = "fail"
     # The outcome xfail_pass and xfail_fail are used to separate legitimate
     # pass OUTCOME_PASS from "fake" pass OUTCOME_XFAIL_PASS and normal failures
-    # OUTCOME_FAIL from miracles
+    # OUTCOME_FAIL from miracles.
+    # When a test has outcome OUTCOME_XFAIL_PASS it means that:
+    # 1. the test is an expected failure (xfail = true)
+    # 2. the test failed
     OUTCOME_XFAIL_PASS = "xfail_pass"
+    # When a test has outcome OUTCOME_XFAIL_FAIL it means that:
+    # 1. the test was expected to fail (xfail = true)
+    # 2. the test actually passed (failed to fail)
     OUTCOME_XFAIL_FAIL = "xfail_fail"
     # The skip outcome is used when the operator selected a job but then
     # skipped it. This is typically used for a manual job that is tedious or

@@ -163,8 +163,9 @@ Jetson configurations only require test scenario files (no test setup needed).
   camera per CSI port in the 2-lane configuration
 - Board: Jetson Orin NX on a custom carrier exposing four 2-lane CSI ports
   (`cam0`..`cam3`, Argus source index 0..3)
-- Documentation: e-con e-CAM200_CUONX Datasheet rev 1.2 / GStreamer Usage
-  Guide (2-lane frame-rate table)
+- Documentation: [e-CAM200_CUONX product page](https://www.e-consystems.com/nvidia-cameras/jetson-orin-nx-cameras/20mp-ar2020-high-resolution-camera.asp)
+  (datasheet rev 1.2 / GStreamer Usage Guide downloads; 2-lane frame-rate
+  table)
 - Configuration: [`jetson_mipi_camera_test_scenario_ecam200_quad.json`](jetson_mipi_camera_test_scenario_ecam200_quad.json)
 
 | Argus mode | Resolution | FPS (2-lane) |

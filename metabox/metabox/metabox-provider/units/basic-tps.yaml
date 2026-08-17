@@ -114,4 +114,4 @@ include:
       xfail: true
   - basic-shell-failing
 xfail_overrides:
-  apply true to basic-shell-failing
+  - apply true to basic-shell-failing

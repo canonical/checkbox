@@ -159,7 +159,7 @@ class OverrideFieldValueValidator(FieldValidatorBase):
     def check(self, parent, unit, field):
         value = getattr(unit, field2prop(field))
         if value is None:
-            return
+            return []
         from plainbox.impl.xparsers import (
             Error,
             FieldOverride,

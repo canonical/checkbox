@@ -104,30 +104,35 @@ print(customized_commands.get(CMD_BAR))
 # /snap/bin/bar
 ```
 
-### With decorator for multi-command flows
+### With decorator for single-command function
 
-If you need to resolve several commands once and inject them into your
-workflow function, you can use a decorator.
+If your function takes a command argument (for example `cmd`), you can
+use a decorator to resolve that argument at runtime.
 
 ```python
 # example.py
 
 from general_utils import with_resolved_commands
 
-CMD_FOO = "foo"
-CMD_BAR = "bar"
+@with_resolved_commands
+def run_cmd(cmd: str):
+    print(f"Running: {cmd}")
 
 
-@with_resolved_commands(
-    default_commands=[CMD_FOO, CMD_BAR],
-    inject_param="my_resolved_commands",
-)
-def run_checks(my_resolved_commands):
-    foo_cmd = my_resolved_commands[CMD_FOO] + " --version"
-    bar_cmd = my_resolved_commands[CMD_BAR] + " --list"
-    print(foo_cmd)
-    print(bar_cmd)
-
-
-run_checks()
+run_cmd("foo")
+# Running: LD_LIBRARY_PATH="/path/to/lib1:$LD_LIBRARY_PATH" hello="world" /usr/bin/foo
 ```
+
+For functions that take a different argument name:
+
+```python
+@with_resolved_commands(target_arg="command", enable_logger=False)
+def execute_tool(command: str, timeout: int = 10):
+    print(f"Executing: {command} with timeout {timeout}")
+
+
+execute_tool("foo")
+```
+
+For multi-command workflows, prefer the non-decorator example above
+(`resolve_executable_commands`) to keep the logic explicit.

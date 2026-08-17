@@ -451,128 +451,90 @@ class TestResolveDefaultCommands(unittest.TestCase):
 
 
 class TestWithResolvedCommands(unittest.TestCase):
-    def test_rejects_empty_default_commands(self):
-        with self.assertRaisesRegex(ValueError, "default_commands"):
-            general_utils.with_resolved_commands([])
-
-    def test_rejects_empty_inject_param(self):
-        with self.assertRaisesRegex(ValueError, "inject_param"):
-            general_utils.with_resolved_commands(["clinfo"], inject_param="")
+    def test_rejects_empty_target_arg(self):
+        with self.assertRaisesRegex(ValueError, "target_arg"):
+            general_utils.with_resolved_commands(target_arg="")
 
     @patch(
         "general_utils.resolve_executable_commands",
         return_value={"clinfo": "custom-clinfo"},
     )
-    def test_injects_resolved_commands_mapping(self, mock_resolve):
-        @general_utils.with_resolved_commands(["clinfo"])
-        def _func(**kwargs):
-            return kwargs["resolved_commands"]
+    def test_resolves_default_cmd_argument_without_parentheses(
+        self,
+        mock_resolve,
+    ):
+        @general_utils.with_resolved_commands
+        def _func(cmd):
+            return cmd
 
-        result = _func()
-
-        self.assertEqual(result, {"clinfo": "custom-clinfo"})
-        mock_resolve.assert_called_once_with(
-            default_commands=["clinfo"],
-            enable_logger=False,
-        )
-
-    @patch(
-        "general_utils.resolve_executable_commands",
-        return_value={"clinfo": "custom-clinfo"},
-    )
-    def test_uses_custom_inject_param(self, _mock_resolve):
-        @general_utils.with_resolved_commands(
-            ["clinfo"],
-            inject_param="commands",
-        )
-        def _func(**kwargs):
-            return kwargs["commands"]
-
-        self.assertEqual(_func(), {"clinfo": "custom-clinfo"})
-
-    @patch(
-        "general_utils.resolve_executable_commands",
-        return_value={"clinfo": "custom-clinfo"},
-    )
-    def test_overrides_existing_injected_kwarg(self, _mock_resolve):
-        @general_utils.with_resolved_commands(["clinfo"])
-        def _func(**kwargs):
-            return kwargs["resolved_commands"]
-
-        self.assertEqual(
-            _func(resolved_commands={"clinfo": "manual"}),
-            {"clinfo": "custom-clinfo"},
-        )
-
-    @patch(
-        "general_utils.resolve_executable_commands",
-        return_value={"clinfo": "custom-clinfo"},
-    )
-    def test_forwards_args_and_kwargs(self, _mock_resolve):
-        @general_utils.with_resolved_commands(["clinfo"])
-        def _func(prefix, *, suffix="", resolved_commands=None):
-            self.assertEqual(
-                resolved_commands,
-                {"clinfo": "custom-clinfo"},
-            )
-            return prefix + suffix
-
-        self.assertEqual(_func("a", suffix="b"), "ab")
-
-    @patch(
-        "general_utils.resolve_executable_commands",
-        return_value={"a": "/usr/bin/a"},
-    )
-    def test_deduplicates_default_commands_for_resolver(self, mock_resolve):
-        @general_utils.with_resolved_commands(["a", "a"])
-        def _func(**kwargs):
-            return kwargs["resolved_commands"]
-
-        _func()
-
-        mock_resolve.assert_called_once_with(
-            default_commands=["a"],
-            enable_logger=False,
-        )
-
-    @patch(
-        "general_utils.resolve_executable_commands",
-        return_value={"clinfo": ""},
-    )
-    def test_raises_when_unresolved_in_strict_mode(self, _mock_resolve):
-        @general_utils.with_resolved_commands(["clinfo"], strict=True)
-        def _func(**_kwargs):
-            return None
-
-        with self.assertRaisesRegex(ValueError, "Failed to resolve"):
-            _func()
-
-    @patch(
-        "general_utils.resolve_executable_commands",
-        return_value={"clinfo": ""},
-    )
-    def test_allows_unresolved_in_non_strict_mode(self, _mock_resolve):
-        @general_utils.with_resolved_commands(["clinfo"], strict=False)
-        def _func(**kwargs):
-            return kwargs["resolved_commands"]
-
-        self.assertEqual(_func(), {"clinfo": ""})
-
-    @patch(
-        "general_utils.resolve_executable_commands",
-        return_value={"clinfo": "custom-clinfo"},
-    )
-    def test_passes_enable_logger_to_resolver(self, mock_resolve):
-        @general_utils.with_resolved_commands(["clinfo"], enable_logger=True)
-        def _func(**kwargs):
-            return kwargs["resolved_commands"]
-
-        _func()
-
+        self.assertEqual(_func("clinfo"), "custom-clinfo")
         mock_resolve.assert_called_once_with(
             default_commands=["clinfo"],
             enable_logger=True,
         )
+
+    @patch(
+        "general_utils.resolve_executable_commands",
+        return_value={"foo": "custom-foo"},
+    )
+    def test_resolves_custom_target_arg_with_options(self, mock_resolve):
+        @general_utils.with_resolved_commands(
+            target_arg="command",
+            enable_logger=False,
+        )
+        def _func(command, timeout=10):
+            return command, timeout
+
+        result = _func("foo", timeout=20)
+        self.assertEqual(result, ("custom-foo", 20))
+        mock_resolve.assert_called_once_with(
+            default_commands=["foo"],
+            enable_logger=False,
+        )
+
+    @patch(
+        "general_utils.resolve_executable_commands",
+        return_value={},
+    )
+    def test_raises_when_unresolved_in_strict_mode(self, _mock_resolve):
+        @general_utils.with_resolved_commands
+        def _func(cmd):
+            return cmd
+
+        with self.assertRaisesRegex(ValueError, "Failed to resolve command"):
+            _func("clinfo")
+
+    @patch(
+        "general_utils.resolve_executable_commands",
+        return_value={},
+    )
+    def test_keeps_original_when_unresolved_in_non_strict_mode(
+        self,
+        _mock_resolve,
+    ):
+        @general_utils.with_resolved_commands(strict=False)
+        def _func(cmd):
+            return cmd
+
+        self.assertEqual(_func("clinfo"), "clinfo")
+
+    @patch("general_utils.resolve_executable_commands")
+    def test_skips_resolution_when_target_arg_not_present(self, mock_resolve):
+        @general_utils.with_resolved_commands
+        def _func(name):
+            return name
+
+        self.assertEqual(_func("foo"), "foo")
+        mock_resolve.assert_not_called()
+
+    @patch("general_utils.resolve_executable_commands")
+    def test_skips_resolution_for_non_string_target(self, mock_resolve):
+        @general_utils.with_resolved_commands
+        def _func(cmd):
+            return cmd
+
+        self.assertEqual(_func(123), 123)
+        mock_resolve.assert_not_called()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,10 @@
 import json
+import inspect
 import logging
 import os
-from functools import wraps
+from functools import partial, wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 
 def load_json_file(
@@ -211,13 +212,14 @@ def resolve_executable_commands(
 
     resolved_commands = {}
 
-    for default_command in unique_commands:
-        command = build_customized_command(
-            full_path_cmd=find_full_path_of_binary(default_command),
-            cmd_config=data.get(Path(default_command).name, {}),
+    resolved_commands = {
+        cmd: build_customized_command(
+            full_path_cmd=find_full_path_of_binary(cmd),
+            cmd_config=data.get(Path(cmd).name, {}),
             enable_logger=enable_logger,
         )
-        resolved_commands[default_command] = command
+        for cmd in unique_commands
+    }
 
     if enable_logger:
         logging.info("Resolved customized commands: %s", resolved_commands)
@@ -239,67 +241,77 @@ def resolve_default_commands(
                 "bar": "/usr/bin/bar"
             }
     """
-    resolved_commands: Dict[str, str] = {}
-    for default_command in default_commands:
-        resolved_commands[default_command] = find_full_path_of_binary(
-            default_command
-        )
+    resolved_commands = {
+        cmd: find_full_path_of_binary(cmd) for cmd in default_commands
+    }
     if enable_logger:
         logging.info("Resolved default commands: %s", resolved_commands)
     return resolved_commands
 
 
 def with_resolved_commands(
-    default_commands: List[str],
-    inject_param: str = "resolved_commands",
+    func: Optional[Callable] = None,
+    *,
+    target_arg: str = "cmd",
     enable_logger: bool = True,
     strict: bool = True,
 ) -> Callable:
-    """Inject resolved command mapping into a wrapped function.
+    """Resolve a command argument dynamically before calling a function.
 
-    The command mapping is always resolved from the current environment,
-    including ``EXECUTABLE_JSON_PATH`` when it is present.
+    Can be used with or without parentheses:
+        @with_resolved_commands
+        def run(cmd):
+            ...
+
+        @with_resolved_commands(target_arg="command", strict=False)
+        def run(command):
+            ...
 
     Args:
-        default_commands: Command names to resolve.
-        inject_param: Keyword argument name used for injection.
+        func: Wrapped function when used without parentheses.
+        target_arg: Argument name containing the command to resolve.
         enable_logger: If True, enable resolver logging.
-        strict: If True, raise ValueError when any command is unresolved.
+        strict: If True, raise ValueError when command is unresolved.
 
     Returns:
-        A decorator that injects ``{command: resolved_command}`` mapping.
+        A decorator or wrapped callable.
     """
-    if not default_commands:
-        raise ValueError("default_commands must not be empty")
-    if any(not command for command in default_commands):
-        raise ValueError("default_commands must contain non-empty strings")
-    if not inject_param:
-        raise ValueError("inject_param must not be empty")
+    if not target_arg:
+        raise ValueError("target_arg must not be empty")
 
-    unique_commands = list(dict.fromkeys(default_commands))
+    if func is None:
+        return partial(
+            with_resolved_commands,
+            target_arg=target_arg,
+            enable_logger=enable_logger,
+            strict=strict,
+        )
 
-    def _decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def _wrapped(*args, **kwargs):
-            resolved_commands = resolve_executable_commands(
-                default_commands=unique_commands,
-                enable_logger=enable_logger,
-            )
-            if strict:
-                unresolved = [
-                    command
-                    for command in unique_commands
-                    if not resolved_commands.get(command)
-                ]
-                if unresolved:
-                    missing = ", ".join(unresolved)
+    signature = inspect.signature(func)
+
+    @wraps(func)
+    def _wrapped(*args: Any, **kwargs: Any) -> Any:
+        bound_args = signature.bind(*args, **kwargs)
+        bound_args.apply_defaults()
+
+        if target_arg in bound_args.arguments:
+            original_cmd = bound_args.arguments[target_arg]
+
+            if isinstance(original_cmd, str) and original_cmd:
+                resolved_mapping = resolve_executable_commands(
+                    default_commands=[original_cmd],
+                    enable_logger=enable_logger,
+                )
+                resolved_cmd = resolved_mapping.get(original_cmd)
+
+                if strict and not resolved_cmd:
                     raise ValueError(
-                        f"Failed to resolve executable commands: {missing}"
+                        f"Failed to resolve command: {original_cmd}"
                     )
 
-            kwargs[inject_param] = resolved_commands
-            return func(*args, **kwargs)
+                if resolved_cmd:
+                    bound_args.arguments[target_arg] = resolved_cmd
 
-        return _wrapped
+        return func(*bound_args.args, **bound_args.kwargs)
 
-    return _decorator
+    return _wrapped

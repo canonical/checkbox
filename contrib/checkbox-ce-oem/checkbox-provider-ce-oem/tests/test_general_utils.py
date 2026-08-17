@@ -280,7 +280,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
         return_value="/usr/bin/clinfo",
     )
     def test_resolve_uses_default_command_when_no_json_path(self, _mock_find):
-        result = general_utils.resolve_executable_commands(["clinfo"])
+        result = general_utils.resolve_configured_commands(["clinfo"])
 
         self.assertEqual(result, {"clinfo": "/usr/bin/clinfo"})
 
@@ -294,7 +294,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
             {"EXECUTABLE_JSON_PATH": "/tmp/definitely-not-existing.json"},
             clear=False,
         ):
-            result = general_utils.resolve_executable_commands(["clinfo"])
+            result = general_utils.resolve_configured_commands(["clinfo"])
 
         self.assertEqual(result, {"clinfo": "/usr/bin/clinfo"})
 
@@ -311,7 +311,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
             {"EXECUTABLE_JSON_PATH": "relative.json"},
             clear=True,
         ):
-            result = general_utils.resolve_executable_commands(["clinfo"])
+            result = general_utils.resolve_configured_commands(["clinfo"])
 
         self.assertEqual(result, {"clinfo": "/usr/bin/clinfo"})
 
@@ -344,7 +344,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
                 {"EXECUTABLE_JSON_PATH": json_path},
                 clear=False,
             ):
-                result = general_utils.resolve_executable_commands(["clinfo"])
+                result = general_utils.resolve_configured_commands(["clinfo"])
 
         self.assertEqual(result, {"clinfo": "custom-clinfo"})
         mock_build.assert_called_once_with(
@@ -382,7 +382,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
                 clear=False,
             ):
                 with self.assertRaisesRegex(TypeError, "full_path_cmd"):
-                    general_utils.resolve_executable_commands(["clinfo"])
+                    general_utils.resolve_configured_commands(["clinfo"])
 
     @patch("general_utils.find_full_path_of_binary", return_value="")
     def test_resolve_raises_when_binary_resolution_fails_with_custom_json(
@@ -402,7 +402,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
                 clear=False,
             ):
                 with self.assertRaisesRegex(TypeError, "absolute path"):
-                    general_utils.resolve_executable_commands(["clinfo"])
+                    general_utils.resolve_configured_commands(["clinfo"])
 
     @patch(
         "general_utils.find_full_path_of_binary",
@@ -414,7 +414,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
             {"EXECUTABLE_JSON_PATH": ""},
             clear=False,
         ):
-            result = general_utils.resolve_executable_commands(
+            result = general_utils.resolve_configured_commands(
                 ["cmd-a", "cmd-b"]
             )
 
@@ -433,7 +433,7 @@ class TestResolveExecutableCommands(unittest.TestCase):
             {"EXECUTABLE_JSON_PATH": ""},
             clear=False,
         ):
-            result = general_utils.resolve_executable_commands(
+            result = general_utils.resolve_configured_commands(
                 ["clinfo", "clinfo"]
             )
 
@@ -446,7 +446,7 @@ class TestResolveDefaultCommands(unittest.TestCase):
         side_effect=["/usr/bin/a", ""],
     )
     def test_resolve_default_commands_maps_each_command(self, _mock_find):
-        result = general_utils.resolve_default_commands(["a", "b"])
+        result = general_utils.resolve_path_commands(["a", "b"])
         self.assertEqual(result, {"a": "/usr/bin/a", "b": ""})
 
 
@@ -456,7 +456,7 @@ class TestWithResolvedCommands(unittest.TestCase):
             general_utils.with_resolved_commands(target_arg="")
 
     @patch(
-        "general_utils.resolve_executable_commands",
+        "general_utils.resolve_configured_commands",
         return_value={"clinfo": "custom-clinfo"},
     )
     def test_resolves_default_cmd_argument_without_parentheses(
@@ -474,7 +474,7 @@ class TestWithResolvedCommands(unittest.TestCase):
         )
 
     @patch(
-        "general_utils.resolve_executable_commands",
+        "general_utils.resolve_configured_commands",
         return_value={"foo": "custom-foo"},
     )
     def test_resolves_custom_target_arg_with_options(self, mock_resolve):
@@ -493,7 +493,7 @@ class TestWithResolvedCommands(unittest.TestCase):
         )
 
     @patch(
-        "general_utils.resolve_executable_commands",
+        "general_utils.resolve_configured_commands",
         return_value={},
     )
     def test_raises_when_unresolved_in_strict_mode(self, _mock_resolve):
@@ -505,7 +505,7 @@ class TestWithResolvedCommands(unittest.TestCase):
             _func("clinfo")
 
     @patch(
-        "general_utils.resolve_executable_commands",
+        "general_utils.resolve_configured_commands",
         return_value={},
     )
     def test_keeps_original_when_unresolved_in_non_strict_mode(
@@ -518,7 +518,7 @@ class TestWithResolvedCommands(unittest.TestCase):
 
         self.assertEqual(_func("clinfo"), "clinfo")
 
-    @patch("general_utils.resolve_executable_commands")
+    @patch("general_utils.resolve_configured_commands")
     def test_skips_resolution_when_target_arg_not_present(self, mock_resolve):
         @general_utils.with_resolved_commands
         def _func(name):
@@ -527,7 +527,7 @@ class TestWithResolvedCommands(unittest.TestCase):
         self.assertEqual(_func("foo"), "foo")
         mock_resolve.assert_not_called()
 
-    @patch("general_utils.resolve_executable_commands")
+    @patch("general_utils.resolve_configured_commands")
     def test_skips_resolution_for_non_string_target(self, mock_resolve):
         @general_utils.with_resolved_commands
         def _func(cmd):

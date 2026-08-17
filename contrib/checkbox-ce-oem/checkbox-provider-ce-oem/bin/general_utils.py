@@ -166,7 +166,7 @@ def build_customized_command(
     return cmd
 
 
-def resolve_executable_commands(
+def resolve_configured_commands(
     default_commands: List[str],
     enable_logger: bool = False,
 ) -> Dict[str, str]:
@@ -194,7 +194,10 @@ def resolve_executable_commands(
     """
     if not default_commands:
         raise ValueError("default_commands must not be empty")
-    if any(not command for command in default_commands):
+    if not all(
+        isinstance(command, str) and command.strip()
+        for command in default_commands
+    ):
         raise ValueError("default_commands must contain non-empty strings")
 
     unique_commands = list(dict.fromkeys(default_commands))
@@ -203,14 +206,12 @@ def resolve_executable_commands(
 
     # No custom mapping path means default command strings are used.
     if not executable_json_path:
-        return resolve_default_commands(unique_commands)
+        return resolve_path_commands(unique_commands, enable_logger=enable_logger)
 
     data = load_json_file(executable_json_path, enable_logger=enable_logger)
     # Empty or missing mapping file means no need to customize commands.
     if not data:
-        return resolve_default_commands(unique_commands)
-
-    resolved_commands = {}
+        return resolve_path_commands(unique_commands, enable_logger=enable_logger)
 
     resolved_commands = {
         cmd: build_customized_command(
@@ -227,11 +228,11 @@ def resolve_executable_commands(
     return resolved_commands
 
 
-def resolve_default_commands(
+def resolve_path_commands(
     default_commands: List[str],
     enable_logger: bool = False,
 ) -> Dict[str, str]:
-    """Resolve a list of default commands and build the full path to them.
+    """Resolve a list of commands and build the full path to them.
 
     Example:
         default_commands = ["foo", "bar"]
@@ -298,7 +299,7 @@ def with_resolved_commands(
             original_cmd = bound_args.arguments[target_arg]
 
             if isinstance(original_cmd, str) and original_cmd:
-                resolved_mapping = resolve_executable_commands(
+                resolved_mapping = resolve_configured_commands(
                     default_commands=[original_cmd],
                     enable_logger=enable_logger,
                 )

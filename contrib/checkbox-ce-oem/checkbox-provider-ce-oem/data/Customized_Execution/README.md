@@ -84,13 +84,13 @@ customize your commands.
 ```python
 # example.py
 
-from general_utils import resolve_executable_commands 
+from general_utils import resolve_configured_commands
 
 CMD_FOO="foo"
 CMD_BAR="bar"
 
 def resolve_commands(enable_logger: bool = False):
-    resolved_commands = resolve_executable_commands(
+    resolved_commands = resolve_configured_commands(
         default_commands=[CMD_FOO, CMD_BAR],
         enable_logger=enable_logger,
     )
@@ -135,4 +135,4 @@ execute_tool("foo")
 ```
 
 For multi-command workflows, prefer the non-decorator example above
-(`resolve_executable_commands`) to keep the logic explicit.
+(`resolve_configured_commands`) to keep the logic explicit.

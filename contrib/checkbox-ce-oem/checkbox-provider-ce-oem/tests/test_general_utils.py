@@ -289,10 +289,12 @@ class TestResolveExecutableCommands(unittest.TestCase):
         return_value="/usr/bin/clinfo",
     )
     def test_resolve_falls_back_when_json_file_missing(self, _mock_find):
-        result = general_utils.resolve_executable_commands(
-            ["clinfo"],
-            executable_json_path="/tmp/definitely-not-existing.json",
-        )
+        with patch.dict(
+            os.environ,
+            {"EXECUTABLE_JSON_PATH": "/tmp/definitely-not-existing.json"},
+            clear=False,
+        ):
+            result = general_utils.resolve_executable_commands(["clinfo"])
 
         self.assertEqual(result, {"clinfo": "/usr/bin/clinfo"})
 
@@ -304,10 +306,12 @@ class TestResolveExecutableCommands(unittest.TestCase):
         self,
         _mock_find,
     ):
-        with patch.dict("os.environ", {}, clear=True):
-            result = general_utils.resolve_executable_commands(
-                ["clinfo"], executable_json_path="relative.json"
-            )
+        with patch.dict(
+            os.environ,
+            {"EXECUTABLE_JSON_PATH": "relative.json"},
+            clear=True,
+        ):
+            result = general_utils.resolve_executable_commands(["clinfo"])
 
         self.assertEqual(result, {"clinfo": "/usr/bin/clinfo"})
 
@@ -335,9 +339,12 @@ class TestResolveExecutableCommands(unittest.TestCase):
                 },
             )
 
-            result = general_utils.resolve_executable_commands(
-                ["clinfo"], json_path
-            )
+            with patch.dict(
+                os.environ,
+                {"EXECUTABLE_JSON_PATH": json_path},
+                clear=False,
+            ):
+                result = general_utils.resolve_executable_commands(["clinfo"])
 
         self.assertEqual(result, {"clinfo": "custom-clinfo"})
         mock_build.assert_called_once_with(
@@ -369,10 +376,13 @@ class TestResolveExecutableCommands(unittest.TestCase):
                 {"clinfo": {}},
             )
 
-            with self.assertRaisesRegex(TypeError, "full_path_cmd"):
-                general_utils.resolve_executable_commands(
-                    ["clinfo"], json_path
-                )
+            with patch.dict(
+                os.environ,
+                {"EXECUTABLE_JSON_PATH": json_path},
+                clear=False,
+            ):
+                with self.assertRaisesRegex(TypeError, "full_path_cmd"):
+                    general_utils.resolve_executable_commands(["clinfo"])
 
     @patch("general_utils.find_full_path_of_binary", return_value="")
     def test_resolve_raises_when_binary_resolution_fails_with_custom_json(
@@ -386,20 +396,27 @@ class TestResolveExecutableCommands(unittest.TestCase):
                 {"clinfo": {}},
             )
 
-            with self.assertRaisesRegex(TypeError, "absolute path"):
-                general_utils.resolve_executable_commands(
-                    ["clinfo"], json_path
-                )
+            with patch.dict(
+                os.environ,
+                {"EXECUTABLE_JSON_PATH": json_path},
+                clear=False,
+            ):
+                with self.assertRaisesRegex(TypeError, "absolute path"):
+                    general_utils.resolve_executable_commands(["clinfo"])
 
     @patch(
         "general_utils.find_full_path_of_binary",
         side_effect=["/usr/bin/cmd-a", "/usr/bin/cmd-b"],
     )
     def test_resolve_multiple_commands_in_one_call(self, _mock_find):
-        result = general_utils.resolve_executable_commands(
-            ["cmd-a", "cmd-b"],
-            executable_json_path="",
-        )
+        with patch.dict(
+            os.environ,
+            {"EXECUTABLE_JSON_PATH": ""},
+            clear=False,
+        ):
+            result = general_utils.resolve_executable_commands(
+                ["cmd-a", "cmd-b"]
+            )
 
         self.assertEqual(
             result,
@@ -411,10 +428,14 @@ class TestResolveExecutableCommands(unittest.TestCase):
         return_value="/usr/bin/clinfo",
     )
     def test_resolve_deduplicates_input_commands(self, _mock_find):
-        result = general_utils.resolve_executable_commands(
-            ["clinfo", "clinfo"],
-            executable_json_path="",
-        )
+        with patch.dict(
+            os.environ,
+            {"EXECUTABLE_JSON_PATH": ""},
+            clear=False,
+        ):
+            result = general_utils.resolve_executable_commands(
+                ["clinfo", "clinfo"]
+            )
 
         self.assertEqual(result, {"clinfo": "/usr/bin/clinfo"})
 

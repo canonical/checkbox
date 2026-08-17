@@ -166,20 +166,17 @@ def build_customized_command(
 
 def resolve_executable_commands(
     default_commands: List[str],
-    executable_json_path: str = "",
     enable_logger: bool = False,
 ) -> Optional[Dict[str, str]]:
     """Resolve command strings using optional JSON-based customization.
 
     Args:
         default_commands (List[str]): Default command names to resolve.
-        executable_json_path (str): JSON file path with command mappings.
         enable_logger (bool): If True, logs the resolution process.
 
     Example:
         # It can be a mix of full paths and command names.
         default_commands = ["foo", "bar"]
-        executable_json_path = "path/to/executable.json"
         # Suppose the executable.json content looks like this:
             {
                 "foo": {
@@ -200,8 +197,10 @@ def resolve_executable_commands(
 
     unique_commands = list(dict.fromkeys(default_commands))
 
+    executable_json_path = os.environ.get("EXECUTABLE_JSON_PATH", "").strip()
+
     # No custom mapping path means default command strings are used.
-    if executable_json_path is None or not executable_json_path.strip():
+    if not executable_json_path:
         return resolve_default_commands(unique_commands)
 
     data = load_json_file(executable_json_path, enable_logger=enable_logger)

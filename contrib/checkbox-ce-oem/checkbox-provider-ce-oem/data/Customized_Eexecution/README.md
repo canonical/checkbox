@@ -20,15 +20,15 @@ Therefore, we implemented a flexible approach that uses a predefined JSON file t
 }
 ```
 
-- `LD_PATH` prepends entries to `LD_LIBRARY_PATH` before the command is run.
+- `LD_PATH` (optional) prepends entries to `LD_LIBRARY_PATH` before the command is run.
 - Any other key/value pair is prepended as an environment variable assignment.
 
 ### Checkbox Environment Variable
 
 `EXECUTABLE_JSON_PATH`: the path of predefined JSON file that need to be fed into Checkbox.
 - No matter the file path is relative or absolute, we try to find it under `$PLAINBOX_PROVIDER_DATA` folder first
-    - If you defiend it as `relative path` like `genio/my-customized-cmd.json`, we will look for it from the `$PLAINBOX_PROVIDER_DATA/genio/my-customized-cmd.json`
-    - If the JSON file doesn't exist, then we will look for the file according to the value you defiended, in this example, it's `genio/my-customized-cmd.json`. So, it means you can also use the `absolute path` to get the JSON file from anywhere.
+    - If you defiend it as `relative path` like `Customized_Eexecution/genio_customized_execution.json`, we will look for it from the `$PLAINBOX_PROVIDER_DATA/Customized_Eexecution/genio_customized_execution.json`
+    - If the JSON file doesn't exist, then we will look for the file according to the value you defiended, in this example, it's `Customized_Eexecution/genio_customized_execution.json`. So, it means you can also use the `absolute path` to get the JSON file from anywhere.
 
 ## How to Use
 
@@ -75,7 +75,7 @@ plugin: shell
 id: ce-oem-demo/foo_bar
 _summary: Execute foo and bar commands
 environ: PLAINBOX_PROVIDER_DATA EXECUTABLE_JSON_PATH
-command: example.py -ejp "${EXECUTABLE_JSON_PATH:-}"
+command: example.py
 ```
 
 Immport the helper function, `resolve_executable_commands`, from `general_utils.py` into your script to customize your commands.
@@ -91,7 +91,6 @@ CMD_BAR="bar"
 def patched_foo_command(executable_json_path: str, enable_logger: bool):
     resolved_commands = resolve_executable_commands(
         default_commands=[CMD_FOO, CMD_BAR],
-        executable_json_path=executable_json_path,
         enable_logger=enable_logger,
     )
     return resolved_commands

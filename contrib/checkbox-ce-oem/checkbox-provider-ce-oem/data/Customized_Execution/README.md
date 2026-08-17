@@ -27,8 +27,8 @@ Therefore, we implemented a flexible approach that uses a predefined JSON file t
 
 `EXECUTABLE_JSON_PATH`: the path of predefined JSON file that need to be fed into Checkbox.
 - No matter the file path is relative or absolute, we try to find it under `$PLAINBOX_PROVIDER_DATA` folder first
-    - If you defiend it as `relative path` like `Customized_Eexecution/genio_customized_execution.json`, we will look for it from the `$PLAINBOX_PROVIDER_DATA/Customized_Eexecution/genio_customized_execution.json`
-    - If the JSON file doesn't exist, then we will look for the file according to the value you defiended, in this example, it's `Customized_Eexecution/genio_customized_execution.json`. So, it means you can also use the `absolute path` to get the JSON file from anywhere.
+    - If you defiend it as `relative path` like `Customized_Execution/genio_customized_execution.json`, we will look for it from the `$PLAINBOX_PROVIDER_DATA/Customized_Execution/genio_customized_execution.json`
+    - If the JSON file doesn't exist, then we will look for the file according to the value you defiended, in this example, it's `Customized_Execution/genio_customized_execution.json`. So, it means you can also use the `absolute path` to get the JSON file from anywhere.
 
 ## How to Use
 
@@ -78,7 +78,8 @@ environ: PLAINBOX_PROVIDER_DATA EXECUTABLE_JSON_PATH
 command: example.py
 ```
 
-Immport the helper function, `resolve_executable_commands`, from `general_utils.py` into your script to customize your commands.
+Import helper functions from `general_utils.py` into your script to
+customize your commands.
 
 ```python
 # example.py
@@ -88,17 +89,45 @@ from general_utils import resolve_executable_commands
 CMD_FOO="foo"
 CMD_BAR="bar"
 
-def patched_foo_command(executable_json_path: str, enable_logger: bool):
+def resolve_commands(enable_logger: bool = False):
     resolved_commands = resolve_executable_commands(
         default_commands=[CMD_FOO, CMD_BAR],
         enable_logger=enable_logger,
     )
     return resolved_commands
 
-customized_commands = patched_foo_command(executable_json_path, False)
+customized_commands = resolve_commands(False)
 
 print(customized_commands.get(CMD_FOO))
 # LD_LIBRARY_PATH="/path/to/lib1:$LD_LIBRARY_PATH" hello="world" /usr/bin/foo
 print(customized_commands.get(CMD_BAR))
 # /snap/bin/bar
+```
+
+### With decorator for multi-command flows
+
+If you need to resolve several commands once and inject them into your
+workflow function, you can use a decorator.
+
+```python
+# example.py
+
+from general_utils import with_resolved_commands
+
+CMD_FOO = "foo"
+CMD_BAR = "bar"
+
+
+@with_resolved_commands(
+    default_commands=[CMD_FOO, CMD_BAR],
+    inject_param="my_resolved_commands",
+)
+def run_checks(my_resolved_commands):
+    foo_cmd = my_resolved_commands[CMD_FOO] + " --version"
+    bar_cmd = my_resolved_commands[CMD_BAR] + " --list"
+    print(foo_cmd)
+    print(bar_cmd)
+
+
+run_checks()
 ```

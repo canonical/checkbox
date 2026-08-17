@@ -1,8 +1,9 @@
 import json
 import logging
 import os
+from functools import wraps
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List
 
 
 def load_json_file(
@@ -167,7 +168,7 @@ def build_customized_command(
 def resolve_executable_commands(
     default_commands: List[str],
     enable_logger: bool = False,
-) -> Optional[Dict[str, str]]:
+) -> Dict[str, str]:
     """Resolve command strings using optional JSON-based customization.
 
     Args:
@@ -246,3 +247,59 @@ def resolve_default_commands(
     if enable_logger:
         logging.info("Resolved default commands: %s", resolved_commands)
     return resolved_commands
+
+
+def with_resolved_commands(
+    default_commands: List[str],
+    inject_param: str = "resolved_commands",
+    enable_logger: bool = True,
+    strict: bool = True,
+) -> Callable:
+    """Inject resolved command mapping into a wrapped function.
+
+    The command mapping is always resolved from the current environment,
+    including ``EXECUTABLE_JSON_PATH`` when it is present.
+
+    Args:
+        default_commands: Command names to resolve.
+        inject_param: Keyword argument name used for injection.
+        enable_logger: If True, enable resolver logging.
+        strict: If True, raise ValueError when any command is unresolved.
+
+    Returns:
+        A decorator that injects ``{command: resolved_command}`` mapping.
+    """
+    if not default_commands:
+        raise ValueError("default_commands must not be empty")
+    if any(not command for command in default_commands):
+        raise ValueError("default_commands must contain non-empty strings")
+    if not inject_param:
+        raise ValueError("inject_param must not be empty")
+
+    unique_commands = list(dict.fromkeys(default_commands))
+
+    def _decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def _wrapped(*args, **kwargs):
+            resolved_commands = resolve_executable_commands(
+                default_commands=unique_commands,
+                enable_logger=enable_logger,
+            )
+            if strict:
+                unresolved = [
+                    command
+                    for command in unique_commands
+                    if not resolved_commands.get(command)
+                ]
+                if unresolved:
+                    missing = ", ".join(unresolved)
+                    raise ValueError(
+                        f"Failed to resolve executable commands: {missing}"
+                    )
+
+            kwargs[inject_param] = resolved_commands
+            return func(*args, **kwargs)
+
+        return _wrapped
+
+    return _decorator

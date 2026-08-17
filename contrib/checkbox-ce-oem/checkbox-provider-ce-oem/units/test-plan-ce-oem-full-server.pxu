@@ -258,7 +258,7 @@ certification_status_overrides:
 
 id: ce-oem-iot-server-26-04-rt
 unit: test plan
-_name: CE-OEM-IOT - Full manual + automated OEMQA tests for realtime Ubuntu Server 26.04
+_name: CE-OEM-IOT - Full manual + automated tests for realtime Ubuntu Server 26.04
 _description:
     Combined manual and automated test plans for realtime IoT devices running Ubuntu Server.
 include:
@@ -320,7 +320,7 @@ certification_status_overrides:
 
 id: ce-oem-iot-server-24-04-rt
 unit: test plan
-_name: CE-OEM-IOT - Full manual + automated OEMQA tests for realtime Ubuntu Server 24.04
+_name: CE-OEM-IOT - Full manual + automated tests for realtime Ubuntu Server 24.04
 _description:
     Combined manual and automated test plans for realtime IoT devices running Ubuntu Server.
 include:

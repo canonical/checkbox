@@ -77,7 +77,7 @@ certification_status_overrides:
 
 id: ce-oem-iot-desktop-26-04-rt
 unit: test plan
-_name: CE-OEM-IOT - Full manual + automated OEMQA tests for realtime Ubuntu Desktop 26.04
+_name: CE-OEM-IOT - Full manual + automated tests for realtime Ubuntu Desktop 26.04
 _description:
     Combined manual and automated test plans for realtime IoT devices running Ubuntu Desktop.
 include:
@@ -199,7 +199,7 @@ certification_status_overrides:
 
 id: ce-oem-iot-desktop-24-04-rt
 unit: test plan
-_name: CE-OEM-IOT - Full manual + automated OEMQA tests for realtime Ubuntu Desktop 24.04
+_name: CE-OEM-IOT - Full manual + automated tests for realtime Ubuntu Desktop 24.04
 _description:
     Combined manual and automated test plans for realtime IoT devices running Ubuntu Desktop.
 include:

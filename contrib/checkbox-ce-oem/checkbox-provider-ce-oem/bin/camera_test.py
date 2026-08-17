@@ -109,6 +109,51 @@ def _create_artifact_store_path(
     return artifact_store_path
 
 
+def _get_staging_base_path() -> str:
+    """
+    Base directory the capture tools write into before the artifacts are
+    moved to the session share.
+
+    Confined capture tools cannot write into PLAINBOX_SESSION_SHARE (e.g.
+    on Ubuntu Core the multimedia snap's AppArmor profile only reaches the
+    invoking user's own home via the 'home' plug), so every capture is
+    staged under the job user's home first. Camera jobs run as the normal
+    user, so this is the normal user's home.
+    """
+    return os.path.join(os.path.expanduser("~"), "checkbox-camera-staging")
+
+
+def _create_staging_store_path(
+    args: argparse.Namespace, scenario_name: CameraScenarios
+) -> str:
+    """Create and prepare the staging directory for one scenario run."""
+    staging_store_path = os.path.join(
+        _get_staging_base_path(),
+        scenario_name.value,
+        _generate_artifact_pattern(args, scenario_name),
+    )
+    generate_artificat_folder(staging_store_path)
+    return staging_store_path
+
+
+def _move_artifacts(staging_store_path: str, artifact_store_path: str) -> None:
+    """
+    Move every staged artifact into the session share and drop the
+    now-empty staging directories.
+    """
+    for entry in os.listdir(staging_store_path):
+        shutil.move(
+            os.path.join(staging_store_path, entry),
+            os.path.join(artifact_store_path, entry),
+        )
+    shutil.rmtree(staging_store_path, ignore_errors=True)
+    try:
+        # prune empty parents up to (and including) the staging base
+        os.removedirs(os.path.dirname(staging_store_path))
+    except OSError:
+        pass
+
+
 def _execute_capture_image_scenario(
     args: argparse.Namespace,
     handler_instance: CameraInterface,
@@ -197,26 +242,31 @@ def _execute_scenario(
     Returns:
         str: Path to artifact store directory
     """
-    # Create artifact store path
+    # Create artifact store path and the staging path the capture tools
+    # actually write to
     artifact_store_path = _create_artifact_store_path(args, scenario_name)
+    staging_store_path = _create_staging_store_path(args, scenario_name)
 
     # Execute the appropriate scenario
     if scenario_name == CameraScenarios.CAPTURE_IMAGE:
         _execute_capture_image_scenario(
             args,
             handler_instance,
-            artifact_store_path,
+            staging_store_path,
             artifact_name,
         )
     elif scenario_name == CameraScenarios.RECORD_VIDEO:
         _execute_record_video_scenario(
             args,
             handler_instance,
-            artifact_store_path,
+            staging_store_path,
             artifact_name,
         )
     else:
         raise ValueError("Unsupported scenario: {}".format(scenario_name))
+
+    # Land the staged artifacts where checkbox expects them
+    _move_artifacts(staging_store_path, artifact_store_path)
 
     return artifact_store_path
 

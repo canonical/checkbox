@@ -41,13 +41,25 @@ GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
 
 **Ubuntu Core images** — checkbox-ce-oem carries no NVIDIA stack. Install
 the NVIDIA multimedia snap (which hosts the Argus daemon and its own
-GStreamer with the NVIDIA plugins) and alias its tools to the classic
-command names before testing:
+GStreamer with the NVIDIA plugins), connect its `home` interface, and
+alias its tools to the classic command names before testing:
 
 ```bash
-sudo snap alias <multimedia-snap>.gst-launch gst-launch-1.0
-sudo snap alias <multimedia-snap>.nvargus-nvraw nvargus_nvraw
+sudo snap connect multimedia:home
+sudo snap alias multimedia.gst-launch gst-launch-1.0
+sudo snap alias multimedia.nvargus-nvraw nvargus_nvraw
 ```
+
+The `home` connection matters because the snap is strictly confined and can
+only write capture artifacts into the invoking user's home — which is where
+the framework stages them (`~/checkbox-camera-staging/...`) before moving
+them into the checkbox session share.
+
+The camera jobs run as the normal user, so the image must grant that user
+access to the NVIDIA device nodes (`/dev/nvmap`, `/dev/nvhost-*`, ...);
+without it every capture fails with
+`NvRmMemInitNvmap failed with Permission denied` /
+`(Argus) Error NotSupported: No EGL device available`.
 
 The multimedia snap resolves its own plugin paths, so no `GST_PLUGIN_*`
 variables are needed. The aliases land in `/snap/bin`, which is on `PATH`,

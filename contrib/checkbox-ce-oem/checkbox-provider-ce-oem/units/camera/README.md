@@ -158,6 +158,15 @@ The camera testing system follows this workflow:
 5. **Test Execution**: For `testing` action, creates camera handler instance and executes the specified scenario
 6. **Artifact Management**: Handles file creation, validation, and cleanup
 
+**Artifact staging**: capture tools write into
+`~/checkbox-camera-staging/<scenario>/<pattern>/` (the job user's home) and
+`camera_test.py` moves the artifacts into
+`$PLAINBOX_SESSION_SHARE/<scenario>/<pattern>/` once the scenario finishes.
+This keeps confined capture tools working: e.g. on Ubuntu Core the
+snap-packaged tools can only write the invoking user's own home (`home`
+plug), never the checkbox session share. Camera jobs run as the normal
+user, so the staging area is that user's home.
+
 #### Workflow Diagram
 
 ```mermaid

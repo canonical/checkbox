@@ -363,8 +363,15 @@ class GstResources:
 
     def main(self):
         for scenario in self._scenarios:
+            handler = getattr(self, scenario, None)
+            if handler is None:
+                raise SystemExit(
+                    "Error: unknown scenario '{}' in '{}' conf".format(
+                        scenario, self._conf_name
+                    )
+                )
             self._current_scenario_name = scenario
-            getattr(self, scenario)(self._scenarios[scenario])
+            handler(self._scenarios[scenario])
             self._dump_resources()
 
     def _dump_resources(self):
@@ -383,6 +390,11 @@ class GstResources:
 
 def main() -> None:
     args = register_arguments()
+    if not args.video_codec_testing_data_path:
+        raise SystemExit(
+            "Error: VIDEO_CODEC_TESTING_DATA is not set - golden sample"
+            " paths cannot be composed"
+        )
     GstResources(args).main()
 
 

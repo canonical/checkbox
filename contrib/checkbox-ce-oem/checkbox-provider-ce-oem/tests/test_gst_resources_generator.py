@@ -6,6 +6,7 @@ from codec_platforms import (
     get_platform_family,
 )
 from gst_resources_generator import (
+    GstResources,
     compose_encoder_psnr_name,
     compose_decoder_performance_name,
 )
@@ -73,6 +74,17 @@ class TestComposeEncoderPsnrName(unittest.TestCase):
             compose_encoder_psnr_name("newplatform", self._config(mux="")),
             "gst_encoder_psnr-v4l2h264enc-1920x1080@30fps-NV12",
         )
+
+
+class TestScenarioDispatch(unittest.TestCase):
+    def test_unknown_scenario_exits_with_conf_context(self):
+        resources = GstResources.__new__(GstResources)
+        resources._scenarios = {"not_a_scenario": []}
+        resources._conf_name = "some-conf"
+        with self.assertRaises(SystemExit) as ctx:
+            resources.main()
+        self.assertIn("not_a_scenario", str(ctx.exception))
+        self.assertIn("some-conf", str(ctx.exception))
 
 
 class TestComposeDecoderPerformanceName(unittest.TestCase):

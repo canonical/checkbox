@@ -23,9 +23,9 @@ import os
 import re
 
 from performance_mode_controller import get_performance_ctx_function
+from codec_platforms import codec_factory
 from gst_utils import (
     execute_command,
-    GStreamerDecodePlugins,
     manage_test_file_by_name,
 )
 
@@ -150,108 +150,6 @@ def build_gst_command(
     return cmd
 
 
-def build_imx_gst_command(
-    gst_bin: str,
-    golden_sample_path: str,
-    decoder: str,
-    sink: str,
-    fpsdisplaysink_sync: str,
-) -> str:
-    """
-    Builds a GStreamer command to process the golden sample.
-
-    :param gst_bin:
-        The binary name of gstreamer. Default is "gst-launch-1.0"
-        You can assign the snap name to GST_LAUNCH_BIN env variable if you
-        want to using snap.
-    :param golden_sample:
-        The path to the golden sample file.
-    :param decoder:
-        The decoder to use for the video, e.g., "v4l2vp8dec", "v4l2vp9dec".
-    :param sink:
-        The desired sink option, e.g., "fakesink".
-    :param fpsdisplaysink_sync:
-        The property option of fpsdisplaysink."
-        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
-        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
-
-    :returns:
-        The GStreamer command to execute.
-    """
-    if decoder == "v4l2h264dec":
-        part_pipeline = "qtdemux ! h264parse ! {}".format(decoder)
-        # qtdemux ! h264parse ! v4l2h264dec
-    elif decoder == "v4l2h265dec":
-        part_pipeline = "qtdemux ! h265parse ! {}".format(decoder)
-        # qtdemux ! h264parse ! v4l2h264dec
-    elif decoder in ["v4l2vp8dec", "v4l2vp9dec"]:
-        part_pipeline = "matroskademux ! queue ! {}".format(decoder)
-        # matroskademux ! queue ! v4l2vp9dec
-    cmd = (
-        "{} -v filesrc location={} ! {} ! queue ! videoconvert ! "
-        "queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
-    ).format(
-        gst_bin, golden_sample_path, part_pipeline, sink, fpsdisplaysink_sync
-    )
-
-    return cmd
-
-
-def build_renesas_gst_command(
-    gst_bin: str,
-    golden_sample_path: str,
-    decoder: str,
-    sink: str,
-    fpsdisplaysink_sync: str,
-    platform: str,
-) -> str:
-    """
-    Builds a GStreamer command to process the golden sample.
-
-    :param gst_bin:
-        The binary name of gstreamer. Default is "gst-launch-1.0"
-        You can assign the snap name to GST_LAUNCH_BIN env variable if you
-        want to using snap.
-    :param golden_sample:
-        The path to the golden sample file.
-    :param decoder:
-        The decoder to use for the video, e.g., "omxh264dec".
-    :param sink:
-        The desired sink option, e.g., "fakesink".
-    :param fpsdisplaysink_sync:
-        The property option of fpsdisplaysink."
-        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
-        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
-
-    :returns:
-        The GStreamer command to execute.
-    """
-    # Renesas RZ series support h264 and h265 as hardware decoder
-    # And some platform support both decoder.
-    # We make a simple logic to choose the decoder and build the pipeline,
-    # If the decoder is omxh265dec, we use h265parse, else we use h264parse.
-    codec_parser_map = {
-        GStreamerDecodePlugins.OMXH264DEC.value: "h264parse",
-        GStreamerDecodePlugins.OMXH265DEC.value: "h265parse",
-    }
-    logging.info("Building pipeline for platform: %s", platform)
-
-    encode_parser = codec_parser_map.get(decoder)
-    part_pipeline = "qtdemux ! {} ! {} use-dmabuf=true".format(
-        encode_parser, decoder
-    )
-
-    cmd = (
-        "{} -v filesrc location={} ! {} ! queue !"
-        " vspmfilter dmabuf-use=true !"
-        " queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
-    ).format(
-        gst_bin, golden_sample_path, part_pipeline, sink, fpsdisplaysink_sync
-    )
-
-    return cmd
-
-
 def is_valid_result(input_text: str, min_fps: float) -> bool:
     """
     Extracts the last-message value from the given input string.
@@ -321,16 +219,17 @@ def main() -> None:
         target_dir=os.path.dirname(args.golden_sample_path),
     ):
         gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
-        if "imx8m" in args.platform:
-            cmd = build_imx_gst_command(
-                gst_bin=gst_launch_bin,
-                golden_sample_path=args.golden_sample_path,
-                decoder=args.decoder_plugin,
-                sink=args.sink,
-                fpsdisplaysink_sync=args.fpsdisplaysink_sync,
-            )
-        elif "rz" in args.platform:
-            cmd = build_renesas_gst_command(
+        # Platforms with their own decoder pipeline provide a
+        # build_decoder_performance_command in their codec_<family>.py
+        # module; everyone else uses the generic pipeline.
+        module = codec_factory(args.platform)
+        builder = (
+            getattr(module, "build_decoder_performance_command", None)
+            if module
+            else None
+        )
+        if builder:
+            cmd = builder(
                 gst_bin=gst_launch_bin,
                 golden_sample_path=args.golden_sample_path,
                 decoder=args.decoder_plugin,

@@ -20,6 +20,18 @@ environ: VIDEO_CODEC_JSON_CONFIG_NAME VIDEO_CODEC_TESTING_DATA PLAINBOX_PROVIDER
 command:
     gst_resources_generator.py "$VIDEO_CODEC_JSON_CONFIG_NAME" -gtdp "$VIDEO_CODEC_TESTING_DATA"
 
+id: ce-oem-video-codec/readiness
+_summary: Verify installation of the GStreamer tools
+_description: Checks if the system has the necessary GStreamer binaries installed to proceed with video codec testing.
+estimated_duration: 2s
+category_id: video-codec
+plugin: shell
+environ: GST_LAUNCH_BIN GST_DISCOVERER
+command:
+    for tool in "${GST_LAUNCH_BIN:-gst-launch-1.0}" "${GST_DISCOVERER:-gst-discoverer-1.0}"; do
+        command -v "$tool" || { echo "Error: $tool not found"; exit 1; }
+    done
+
 unit: template
 template-engine: jinja2
 template-resource: video_codec_resource
@@ -36,6 +48,7 @@ estimated_duration: 1s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
+depends: ce-oem-video-codec/readiness
 environ: GST_LAUNCH_BIN
 command:
     gst_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}
@@ -56,6 +69,7 @@ estimated_duration: 30s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
+depends: ce-oem-video-codec/readiness
 environ: GST_LAUNCH_BIN
 _steps:
     1. Plug a headset/earphone to the device
@@ -85,6 +99,7 @@ estimated_duration: 1s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
+depends: ce-oem-video-codec/readiness
 environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME
 command:
     gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "{{ platform }}"
@@ -106,6 +121,7 @@ estimated_duration: 60s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
+depends: ce-oem-video-codec/readiness
 environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f {{ framerate }} -m "{{ mux }}"
@@ -126,6 +142,7 @@ estimated_duration: 60s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
+depends: ce-oem-video-codec/readiness
 environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_transform_rotate_and_flip.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi "{{ width }}" -hi "{{ height }}" -f "{{ framerate }}" -a "{{ action }}"
@@ -146,6 +163,7 @@ estimated_duration: 60s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
+depends: ce-oem-video-codec/readiness
 environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_transform_resize.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wf "{{ width_from }}" -hf "{{ height_from }}" -wt "{{ width_to }}" -ht "{{ height_to }}" -f "{{ framerate }}"

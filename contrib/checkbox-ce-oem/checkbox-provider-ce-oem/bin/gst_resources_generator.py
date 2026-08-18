@@ -136,7 +136,7 @@ class GstResources:
         self._resource_items = []
         self._has_desktop_environment = has_desktop_environment()
 
-    def _v4l2_video_decoder_md5_checksum_comparison_helper(
+    def _video_decoder_md5_checksum_comparison_helper(
         self,
         decoder_plugin: str,
         width: str,
@@ -146,7 +146,7 @@ class GstResources:
     ) -> dict:
         """
         Generate a resource item dictionary for
-        gst_v4l2_video_decoder_md5_checksum_comparison scenario
+        gst_video_decoder_md5_checksum_comparison scenario
         """
         name = "{}x{}-{}-{}".format(width, height, decoder_plugin, color_space)
         name_with_format = "{}.{}".format(name, source_format)
@@ -182,13 +182,13 @@ class GstResources:
 
         return returned_dict
 
-    def gst_v4l2_video_decoder_md5_checksum_comparison(
+    def gst_video_decoder_md5_checksum_comparison(
         self, scenario_data: "list[dict]"
     ) -> None:
         for item in scenario_data:
             self._resource_items.extend(
                 [
-                    self._v4l2_video_decoder_md5_checksum_comparison_helper(
+                    self._video_decoder_md5_checksum_comparison_helper(
                         decoder_plugin=item["decoder_plugin"],
                         width=resolution["width"],
                         height=resolution["height"],

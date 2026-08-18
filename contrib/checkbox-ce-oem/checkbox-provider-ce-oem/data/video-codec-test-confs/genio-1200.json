@@ -1,5 +1,5 @@
 {
-  "gst_v4l2_video_decoder_md5_checksum_comparison": [
+  "gst_video_decoder_md5_checksum_comparison": [
     {
       "decoder_plugin": "v4l2h264dec",
       "resolutions": [{ "width": 320, "height": 320 }],

@@ -23,7 +23,7 @@ import argparse
 
 from gst_utils import (
     GST_LAUNCH_BIN,
-    PipelineInterface,
+    BaseCodecProject,
     GStreamerEncodePlugins,
     generate_artifact_name,
     get_test_file_path_by_params,
@@ -92,7 +92,7 @@ def build_decoder_performance_command(
     return cmd
 
 
-class NxpIMX8mProject(PipelineInterface):
+class NxpIMX8mProject(BaseCodecProject):
     """NXP i.MX8M project pipeline handler and builder"""
 
     def __init__(
@@ -104,13 +104,25 @@ class NxpIMX8mProject(PipelineInterface):
         height: int,
         framerate: int,
     ) -> None:
-        self._platform = platform
-        self._codec = codec
-        self._color_space = color_space
-        self._width = width
-        self._height = height
-        self._framerate = framerate
-        self._artifact_file = ""
+        super().__init__(
+            platform=platform,
+            codec=codec,
+            width=width,
+            height=height,
+            framerate=framerate,
+            color_space=color_space,
+        )
+        self._pipeline_builders = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: (
+                self._h264_pipeline_builder
+            ),
+            GStreamerEncodePlugins.V4L2H265ENC.value: (
+                self._h265_pipeline_builder
+            ),
+            GStreamerEncodePlugins.V4L2VP8ENC.value: (
+                self._vp8_pipeline_builder
+            ),
+        }
 
     @property
     def artifact_file(self) -> str:
@@ -120,10 +132,6 @@ class NxpIMX8mProject(PipelineInterface):
             else:
                 self._artifact_file = generate_artifact_name()
         return self._artifact_file
-
-    @property
-    def psnr_reference_file(self) -> str:
-        return self._golden_sample
 
     def _h264_pipeline_builder(self) -> str:
         """
@@ -192,21 +200,3 @@ class NxpIMX8mProject(PipelineInterface):
         )
 
         return pipeline
-
-    def build_pipeline(self) -> str:
-        """
-        Build the GStreamer commands based on the codec.
-
-        Returns:
-            str: A GStreamer command.
-        """
-        if self._codec == GStreamerEncodePlugins.V4L2H264ENC.value:
-            return self._h264_pipeline_builder()
-        elif self._codec == GStreamerEncodePlugins.V4L2H265ENC.value:
-            return self._h265_pipeline_builder()
-        elif self._codec == GStreamerEncodePlugins.V4L2VP8ENC.value:
-            return self._vp8_pipeline_builder()
-        else:
-            raise SystemExit(
-                "Error: unknow encoder '{}' be used".format(self._codec)
-            )

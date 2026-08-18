@@ -24,10 +24,9 @@ import logging
 
 from gst_utils import (
     GST_LAUNCH_BIN,
-    PipelineInterface,
+    BaseCodecProject,
     GStreamerEncodePlugins,
     GStreamerDecodePlugins,
-    generate_artifact_name,
     get_test_file_path_by_params,
 )
 
@@ -101,7 +100,7 @@ def build_decoder_performance_command(
     return cmd
 
 
-class RenesasProject(PipelineInterface):
+class RenesasProject(BaseCodecProject):
     """Renesas project pipeline handler and builder"""
 
     def __init__(
@@ -113,28 +112,26 @@ class RenesasProject(PipelineInterface):
         height: int,
         framerate: int,
     ) -> None:
-        self._platform = platform
-        self._codec = codec
-        self._color_space = color_space
-        self._width = width
-        self._height = height
-        self._framerate = framerate
-        self._artifact_file = ""
-        self._golden_sample = ""
+        super().__init__(
+            platform=platform,
+            codec=codec,
+            width=width,
+            height=height,
+            framerate=framerate,
+            color_space=color_space,
+        )
         self._codec_parser_map = {
             GStreamerEncodePlugins.OMXH264ENC.value: "h264parse",
             GStreamerEncodePlugins.OMXH265ENC.value: "h265parse",
         }
-
-    @property
-    def artifact_file(self) -> str:
-        if not self._artifact_file:
-            self._artifact_file = generate_artifact_name()
-        return self._artifact_file
-
-    @property
-    def psnr_reference_file(self) -> str:
-        return self._golden_sample
+        self._pipeline_builders = {
+            GStreamerEncodePlugins.OMXH264ENC.value: (
+                self._264_265_pipeline_builder
+            ),
+            GStreamerEncodePlugins.OMXH265ENC.value: (
+                self._264_265_pipeline_builder
+            ),
+        }
 
     def _264_265_pipeline_builder(self) -> str:
         """
@@ -166,26 +163,3 @@ class RenesasProject(PipelineInterface):
         )
 
         return pipeline
-
-    def build_pipeline(self) -> str:
-        """
-        Build the GStreamer commands based on the codec.
-
-        Returns:
-            str: A GStreamer command.
-        """
-        # Renesas RZ series support h264 and h265 as hardware decoder
-        # And some platform support both decoder.
-        # We make a simple logic to choose the decoder and build the pipeline,
-        # If the decoder is omxh265dec, we use h265parse, else we use
-        # h264parse.
-
-        if self._codec in (
-            GStreamerEncodePlugins.OMXH264ENC.value,
-            GStreamerEncodePlugins.OMXH265ENC.value,
-        ):
-            return self._264_265_pipeline_builder()
-        else:
-            raise SystemExit(
-                "Error: unknow encoder '{}' be used".format(self._codec)
-            )

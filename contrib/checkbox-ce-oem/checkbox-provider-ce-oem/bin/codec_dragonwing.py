@@ -24,9 +24,8 @@ import argparse
 
 from gst_utils import (
     GST_LAUNCH_BIN,
-    PipelineInterface,
+    BaseCodecProject,
     GStreamerEncodePlugins,
-    generate_artifact_name,
     get_test_file_path_by_params,
 )
 
@@ -42,7 +41,7 @@ def create_encoder_psnr_project(args: argparse.Namespace):
     )
 
 
-class DragonwingProject(PipelineInterface):
+class DragonwingProject(BaseCodecProject):
     """Dragonwing project pipeline handler and builder"""
 
     def __init__(
@@ -53,11 +52,13 @@ class DragonwingProject(PipelineInterface):
         height: int,
         framerate: int,
     ) -> None:
-        self._platform = platform
-        self._codec = codec
-        self._width = width
-        self._height = height
-        self._framerate = framerate
+        super().__init__(
+            platform=platform,
+            codec=codec,
+            width=width,
+            height=height,
+            framerate=framerate,
+        )
         self._codec_parser_map = {
             GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse",
             GStreamerEncodePlugins.V4L2H265ENC.value: "h265parse",
@@ -67,17 +68,14 @@ class DragonwingProject(PipelineInterface):
         self._golden_sample = get_test_file_path_by_params(
             self._width, self._height, self._framerate, "h264"
         )
-        self._artifact_file = ""
-
-    @property
-    def artifact_file(self) -> str:
-        if not self._artifact_file:
-            self._artifact_file = generate_artifact_name()
-        return self._artifact_file
-
-    @property
-    def psnr_reference_file(self) -> str:
-        return self._golden_sample
+        self._pipeline_builders = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: (
+                self._264_265_pipeline_builder
+            ),
+            GStreamerEncodePlugins.V4L2H265ENC.value: (
+                self._264_265_pipeline_builder
+            ),
+        }
 
     def _264_265_pipeline_builder(self) -> str:
         """
@@ -100,20 +98,3 @@ class DragonwingProject(PipelineInterface):
         )
 
         return pipeline
-
-    def build_pipeline(self) -> str:
-        """
-        Build the GStreamer commands based on the codec.
-
-        Returns:
-            str: A GStreamer command.
-        """
-        if self._codec in (
-            GStreamerEncodePlugins.V4L2H264ENC.value,
-            GStreamerEncodePlugins.V4L2H265ENC.value,
-        ):
-            return self._264_265_pipeline_builder()
-        else:
-            raise SystemExit(
-                "Error: unknow encoder '{}' be used".format(self._codec)
-            )

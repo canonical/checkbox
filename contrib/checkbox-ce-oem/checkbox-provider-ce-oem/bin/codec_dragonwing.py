@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox. If not, see <http://www.gnu.org/licenses/>.
-"""NVIDIA Carmel (Xavier) platform pipelines for the video-codec
+"""Qualcomm Dragonwing platform pipelines for the video-codec
 scenarios."""
 
 import argparse
@@ -32,8 +32,8 @@ from gst_utils import (
 
 
 def create_encoder_psnr_project(args: argparse.Namespace):
-    """Create the encoder-PSNR pipeline project for Carmel."""
-    return CarmelProject(
+    """Create the encoder-PSNR pipeline project for Dragonwing."""
+    return DragonwingProject(
         platform=args.platform,
         codec=args.encoder_plugin,
         width=args.width,
@@ -42,8 +42,8 @@ def create_encoder_psnr_project(args: argparse.Namespace):
     )
 
 
-class CarmelProject(PipelineInterface):
-    """Carmel project pipeline handler and builder"""
+class DragonwingProject(PipelineInterface):
+    """Dragonwing project pipeline handler and builder"""
 
     def __init__(
         self,

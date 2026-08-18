@@ -102,15 +102,81 @@ class Device:
         print("I2C device detected")
 
 
+class Address:
+    """Check that an expected I2C device address responds on a bus."""
+
+    def invoked(self, args):
+        # Make sure that we have root privileges
+        if os.geteuid() != 0:
+            raise SystemExit("Error: please run this command as root")
+        if args.address is None:
+            raise SystemExit("Error: -a/--address is required")
+        address = int(args.address, 16)
+        result = subprocess.check_output(
+            ["i2cdetect", "-y", "-r", str(args.bus)], universal_newlines=True
+        )
+        print(result)
+        state = None
+        for line in result.splitlines()[1:]:
+            if ":" not in line:
+                continue
+            if int(line.split(":", 1)[0], 16) == address & 0xF0:
+                # i2cdetect rows are fixed-width: 3 chars per cell, the
+                # first cell starting at column 4
+                offset = 4 + 3 * (address & 0x0F)
+                state = line[offset : offset + 2].strip() or None
+        if state is None:
+            raise SystemExit(
+                "Test failed, address 0x{:02x} was not scanned by i2cdetect "
+                "on bus {}".format(address, args.bus)
+            )
+        if state == "--":
+            raise SystemExit(
+                "Test failed, no device detected at address 0x{:02x} on "
+                "bus {}".format(address, args.bus)
+            )
+        print(
+            "Device detected at address 0x{:02x} on bus {} ({})".format(
+                address, args.bus, state
+            )
+        )
+
+
+class ExpectedDeviceResource:
+    """Print expected I2C devices from configuration as resource records."""
+
+    def invoked(self, args):
+        entries = os.environ.get("EXPECTED_I2C_DEVICES", "")
+        for entry in filter(None, map(str.strip, entries.split(","))):
+            try:
+                bus, _, address = entry.partition(":")
+                print("bus: {}".format(int(bus)))
+                print("address: 0x{:02x}".format(int(address, 16)))
+                print()
+            except ValueError:
+                raise SystemExit(
+                    "Invalid EXPECTED_I2C_DEVICES entry: '{}', expected "
+                    "<bus>:<address> e.g. 1:0x2d".format(entry)
+                )
+
+
 class I2cDriverTest:
     """I2C driver test."""
 
     def main(self):
-        subcommands = {"bus": Bus, "device": Device}
+        subcommands = {
+            "bus": Bus,
+            "device": Device,
+            "address": Address,
+            "resource": ExpectedDeviceResource,
+        }
         parser = argparse.ArgumentParser(
             epilog="NOTE: When using 'device', the IGNORED_I2C_BUSES "
             "environment variable is respected and should contain "
-            "a comma-separated list of bus names to ignore."
+            "a comma-separated list of bus names to ignore. "
+            "When using 'resource', the EXPECTED_I2C_DEVICES environment "
+            "variable should contain a comma-separated list of "
+            "<bus>:<address> entries, e.g. '1:0x2d,1:0x68'."
         )
         parser.add_argument("subcommand", type=str, choices=subcommands)
         parser.add_argument(
@@ -118,7 +184,15 @@ class I2cDriverTest:
             "--bus",
             type=int,
             default=0,
-            help="Expected number of I2C bus.",
+            help="Expected number of I2C buses ('bus') or the bus number "
+            "to scan ('address').",
+        )
+        parser.add_argument(
+            "-a",
+            "--address",
+            type=str,
+            help="Expected I2C device address in hex, e.g. 0x2d "
+            "('address' only).",
         )
         args = parser.parse_args()
         subcommands[args.subcommand]().invoked(args)

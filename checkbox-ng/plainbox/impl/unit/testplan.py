@@ -48,7 +48,7 @@ from plainbox.impl.unit.validators import (
     UnitReferenceValidator,
     Severity,
     compute_value_map,
-    field2prop,
+    OverrideFieldValueValidator,
 )
 from plainbox.impl.validation import Problem
 from plainbox.impl.xparsers import (
@@ -143,72 +143,6 @@ class NoBaseIncludeValidator(FieldValidatorBase):
                     )
             else:
                 raise NotImplementedError
-
-
-class OverrideFieldValueValidator(FieldValidatorBase):
-    """
-    Validator that parses an override field (using 'apply <value> to
-    <pattern>' grammar) and checks that each override value is a member
-    of an allowed set.
-    """
-
-    def __init__(self, allowed_values, message=None):
-        super().__init__(message)
-        self.allowed_values = allowed_values
-
-    def check(self, parent, unit, field):
-        value = getattr(unit, field2prop(field))
-        if value is None:
-            return []
-        from plainbox.impl.xparsers import (
-            Error,
-            FieldOverride,
-            OverrideFieldList,
-            Visitor,
-        )
-
-        issues = []
-
-        class V(Visitor):
-
-            def visit_FieldOverride_node(self, node: FieldOverride):
-                if node.value.text not in self.allowed_values:
-                    issues.append(
-                        parent.error(
-                            unit,
-                            field,
-                            Problem.wrong,
-                            self.message
-                            or _(
-                                "value {!r} is not allowed, expected"
-                                " one of: {}".format(
-                                    node.value.text,
-                                    ", ".join(self.allowed_values),
-                                )
-                            ),
-                        )
-                    )
-
-            def visit_Error_node(self, node: Error):
-                issues.append(
-                    parent.error(
-                        unit,
-                        field,
-                        Problem.syntax_error,
-                        node.msg,
-                    )
-                )
-
-        V.allowed_values = self.allowed_values
-        V.message = self.message
-        if isinstance(value, str):
-            parsed = OverrideFieldList.parse(value)
-        elif isinstance(value, list):
-            parsed = OverrideFieldList.from_preparsed(value)
-        else:
-            return
-        V().visit(parsed)
-        return issues
 
 
 class TestPlanUnit(UnitWithId):

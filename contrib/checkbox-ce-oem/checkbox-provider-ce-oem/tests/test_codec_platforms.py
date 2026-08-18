@@ -5,6 +5,7 @@ import codec_genio
 import codec_imx
 import codec_rz
 from codec_platforms import codec_factory
+from gst_utils import BaseCodecProject, PipelineInterface
 
 
 class TestCodecFactory(unittest.TestCase):
@@ -39,6 +40,33 @@ class TestCodecFactory(unittest.TestCase):
         self.assertFalse(
             hasattr(codec_dragonwing, "build_decoder_performance_command")
         )
+
+
+class TestBaseCodecProject(unittest.TestCase):
+    """Every platform project inherits the basic class (which itself
+    implements the PipelineInterface ABC) and overrides only what
+    differs, like the camera platform classes."""
+
+    def test_platform_projects_inherit_the_basic_class(self):
+        for project_class in (
+            codec_genio.GenioProject,
+            codec_dragonwing.DragonwingProject,
+            codec_imx.NxpIMX8mProject,
+            codec_rz.RenesasProject,
+        ):
+            self.assertTrue(issubclass(project_class, BaseCodecProject))
+            self.assertTrue(issubclass(project_class, PipelineInterface))
+
+    def test_build_pipeline_rejects_unknown_encoder(self):
+        project = BaseCodecProject(
+            platform="any",
+            codec="unknownenc",
+            width=1920,
+            height=1080,
+            framerate=30,
+        )
+        with self.assertRaises(SystemExit):
+            project.build_pipeline()
 
 
 if __name__ == "__main__":

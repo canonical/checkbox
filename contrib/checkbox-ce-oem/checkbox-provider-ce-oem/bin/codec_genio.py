@@ -26,7 +26,7 @@ from gst_utils import (
     VIDEO_CODEC_TESTING_DATA,
     SAMPLE_2_FOLDER,
     GST_LAUNCH_BIN,
-    PipelineInterface,
+    BaseCodecProject,
     GStreamerMuxerType,
     GStreamerEncodePlugins,
     generate_artifact_name,
@@ -47,7 +47,7 @@ def create_encoder_psnr_project(args: argparse.Namespace):
     )
 
 
-class GenioProject(PipelineInterface):
+class GenioProject(BaseCodecProject):
     """
     Genio project manages platforms and codecs, and handles
     building.
@@ -65,13 +65,15 @@ class GenioProject(PipelineInterface):
         framerate: int,
         mux: str,
     ) -> None:
-        self._platform = platform
-        self._codec = codec
-        self._color_space = color_space
-        self._width = width
-        self._height = height
-        self._framerate = framerate
-        self._mux = mux
+        super().__init__(
+            platform=platform,
+            codec=codec,
+            width=width,
+            height=height,
+            framerate=framerate,
+            color_space=color_space,
+            mux=mux,
+        )
         self._codec_parser_map = {
             GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse",
             GStreamerEncodePlugins.V4L2H265ENC.value: "h265parse",
@@ -82,7 +84,17 @@ class GenioProject(PipelineInterface):
         self._golden_sample = get_test_file_path_by_params(
             self._width, self._height, self._framerate, "h264"
         )
-        self._artifact_file = ""
+        self._pipeline_builders = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: (
+                self._264_265_pipeline_builder
+            ),
+            GStreamerEncodePlugins.V4L2H265ENC.value: (
+                self._264_265_pipeline_builder
+            ),
+            GStreamerEncodePlugins.V4L2JPEGENC.value: (
+                self._v4l2jpegenc_pipeline_builder
+            ),
+        }
 
     @property
     def artifact_file(self) -> str:
@@ -167,23 +179,3 @@ class GenioProject(PipelineInterface):
             self.artifact_file,
         )
         return final_pipeline
-
-    def build_pipeline(self) -> str:
-        """
-        Build the GStreamer commands based on the platform and codec.
-
-        Returns:
-            str: A GStreamer command based on the platform and
-            codec.
-        """
-        if self._codec in (
-            GStreamerEncodePlugins.V4L2H264ENC.value,
-            GStreamerEncodePlugins.V4L2H265ENC.value,
-        ):
-            return self._264_265_pipeline_builder()
-        elif self._codec == GStreamerEncodePlugins.V4L2JPEGENC.value:
-            return self._v4l2jpegenc_pipeline_builder()
-        else:
-            raise SystemExit(
-                "Error: unknow encoder '{}' be used".format(self._codec)
-            )

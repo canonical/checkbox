@@ -36,9 +36,13 @@ The video-codec framework follows the same concept as the camera framework
    golden-sample name (only when one decoder element serves several
    codecs).
 3. **Add `bin/codec_<family>.py`** when the platform needs its own
-   pipelines: expose `create_encoder_psnr_project(args)` (returning a
-   `PipelineInterface` implementation) and, if the generic
-   decoder-performance pipeline does not fit,
+   pipelines: expose `create_encoder_psnr_project(args)` returning a
+   project class that inherits `BaseCodecProject` (`bin/gst_utils.py`) —
+   the basic class implements the `PipelineInterface` ABC with the shared
+   defaults, so the platform class only fills `self._pipeline_builders`
+   with its codec → builder mapping and overrides what differs, the same
+   way the camera platform classes inherit their base camera class. If
+   the generic decoder-performance pipeline does not fit, also expose
    `build_decoder_performance_command(...)`. Platforms that only use the
    generic pipelines can skip the module entirely.
 4. **Provide the golden samples** the conf references in the testing-data

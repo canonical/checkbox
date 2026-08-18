@@ -87,7 +87,11 @@ category_id: rtc_category
 estimated_duration: 5
 environ:
 command: 
-    rtc_time=$(cat "/sys/class/rtc/{rtc}/since_epoch")
+    rtc_path="/sys/class/rtc/{rtc}/since_epoch"
+    if ! rtc_time=$(cat "$rtc_path" 2>/dev/null); then
+        echo "FAILED to read RTC time from {rtc}" >&2
+        exit 1
+    fi
     sys_time=$(date +"%s")
     result=$(("$sys_time" - "$rtc_time"))
     if [[ "$result" -le "5" ]]; then

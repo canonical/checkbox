@@ -19,8 +19,11 @@ The video-codec framework follows the same concept as the camera framework
   templates. The per-family id shapes live in the `PLATFORM_FAMILIES`
   table in `bin/codec_platforms.py`.
 - Platform-specific gstreamer pipelines live in `bin/codec_<family>.py`
-  modules resolved by `codec_factory()` — the per-scenario scripts carry
-  no platform knowledge.
+  modules resolved by `codec_factory()` — the encoder-PSNR and
+  decoder-performance scripts carry no platform knowledge. (The
+  genio-only transform scripts still keep their own pipeline classes;
+  they move to the factory when a second family needs the transform
+  scenarios.)
 
 ## Contributing: Adding New Platforms
 

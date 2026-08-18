@@ -73,6 +73,6 @@ class BaseCodecProject(PipelineInterface):
         builder = self._pipeline_builders.get(self._codec)
         if builder is None:
             raise SystemExit(
-                "Error: unknow encoder '{}' be used".format(self._codec)
+                "Error: unknown encoder '{}' be used".format(self._codec)
             )
         return builder()

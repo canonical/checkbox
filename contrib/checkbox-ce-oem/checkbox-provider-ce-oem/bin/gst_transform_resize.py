@@ -108,6 +108,10 @@ def register_arguments():
     return args
 
 
+# The transform scenarios are genio-only and pre-date codec_factory();
+# when another platform needs them, move the pipeline classes into its
+# codec_<family>.py module and route through codec_factory() the way
+# gst_encoder_psnr.py does.
 def project_factory(args: argparse.Namespace) -> Any:
     """
     Factory function to create a project instance based on the platform

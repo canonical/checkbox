@@ -87,7 +87,7 @@ def _identify_gst_bin_from_snap(bin_name: str) -> bool:
                 bin_name
             )
         )
-    if ret.stdout.decode("utf-8").strip().startswith == "/snap/":
+    if ret.stdout.decode("utf-8").strip().startswith("/snap/"):
         return True
     return False
 

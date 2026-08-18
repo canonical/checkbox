@@ -97,7 +97,13 @@ def codec_factory(platform: str):
     family = get_platform_family(platform)
     if not family:
         return None
+    module_name = "codec_{}".format(family)
     try:
-        return importlib.import_module("codec_{}".format(family))
-    except ImportError:
-        return None
+        return importlib.import_module(module_name)
+    except ImportError as error:
+        # Only "the family ships no module" maps to the generic
+        # pipelines; a broken import inside an existing module must
+        # surface as itself, not as an unknown platform.
+        if error.name == module_name:
+            return None
+        raise

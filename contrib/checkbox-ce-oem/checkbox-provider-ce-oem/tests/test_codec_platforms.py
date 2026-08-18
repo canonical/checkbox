@@ -1,11 +1,12 @@
 import unittest
+from unittest import mock
 
 import codec_dragonwing
 import codec_genio
 import codec_imx
 import codec_rz
 from codec_base import BaseCodecProject
-from codec_platforms import codec_factory
+from codec_platforms import PLATFORM_FAMILIES, PlatformFamily, codec_factory
 from gst_utils import PipelineInterface
 
 
@@ -20,6 +21,23 @@ class TestCodecFactory(unittest.TestCase):
 
     def test_factory_returns_none_for_unknown_platform(self):
         self.assertIsNone(codec_factory("newplatform"))
+
+    def test_factory_returns_none_for_family_without_module(self):
+        PLATFORM_FAMILIES["fakefam"] = PlatformFamily(id_prefix="fakefam")
+        try:
+            self.assertIsNone(codec_factory("fakefam-1"))
+        finally:
+            del PLATFORM_FAMILIES["fakefam"]
+
+    def test_factory_surfaces_broken_module_imports(self):
+        # a bad import INSIDE codec_<family>.py must not be masked as
+        # an unknown platform
+        with mock.patch(
+            "codec_platforms.importlib.import_module",
+            side_effect=ImportError("boom", name="missing_dependency"),
+        ):
+            with self.assertRaises(ImportError):
+                codec_factory("genio-1200")
 
     def test_module_scenario_apis(self):
         for module in (

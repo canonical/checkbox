@@ -4,8 +4,9 @@ import codec_dragonwing
 import codec_genio
 import codec_imx
 import codec_rz
+from codec_base import BaseCodecProject
 from codec_platforms import codec_factory
-from gst_utils import BaseCodecProject, PipelineInterface
+from gst_utils import PipelineInterface
 
 
 class TestCodecFactory(unittest.TestCase):

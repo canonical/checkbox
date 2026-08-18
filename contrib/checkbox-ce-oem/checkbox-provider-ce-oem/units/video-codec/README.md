@@ -37,7 +37,7 @@ The video-codec framework follows the same concept as the camera framework
    codecs).
 3. **Add `bin/codec_<family>.py`** when the platform needs its own
    pipelines: expose `create_encoder_psnr_project(args)` returning a
-   project class that inherits `BaseCodecProject` (`bin/gst_utils.py`) —
+   project class that inherits `BaseCodecProject` (`bin/codec_base.py`) —
    the basic class implements the `PipelineInterface` ABC with the shared
    defaults, so the platform class only fills `self._pipeline_builders`
    with its codec → builder mapping and overrides what differs, the same

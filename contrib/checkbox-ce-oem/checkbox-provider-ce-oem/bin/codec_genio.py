@@ -22,11 +22,11 @@
 import argparse
 import os
 
+from codec_base import BaseCodecProject
 from gst_utils import (
     VIDEO_CODEC_TESTING_DATA,
     SAMPLE_2_FOLDER,
     GST_LAUNCH_BIN,
-    BaseCodecProject,
     GStreamerMuxerType,
     GStreamerEncodePlugins,
     generate_artifact_name,

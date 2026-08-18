@@ -967,7 +967,6 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             class V(Visitor):
 
                 def visit_FieldOverride_node(self, node: FieldOverride):
-                    print(override_name)
                     status = node.value.text
                     pattern = r"^{}$".format(
                         testplan.qualify_id(node.pattern.text)

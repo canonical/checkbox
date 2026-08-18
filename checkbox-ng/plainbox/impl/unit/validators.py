@@ -29,14 +29,12 @@ import os
 import shlex
 import sys
 
+from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
 from plainbox.i18n import ngettext
 from plainbox.impl import pod
-from plainbox.abc import IProvider1
 from plainbox.impl.unit import get_accessed_parameters
-from plainbox.impl.validation import Issue
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
+from plainbox.impl.validation import Issue, Problem, Severity
 
 __all__ = [
     "CorrectFieldValueValidator",
@@ -48,6 +46,7 @@ __all__ = [
     "TemplateVariantFieldValidator",
     "UniqueValueValidator",
     "UnitReferenceValidator",
+    "OverrideFieldValueValidator",
 ]
 
 
@@ -785,7 +784,7 @@ class OverrideFieldValueValidator(FieldValidatorBase):
 
         class V(Visitor):
 
-            def visit_FieldOverride_node(self, node: FieldOverride):
+            def visit_FieldOverride_node(self, node):
                 if node.value.text not in self.allowed_values:
                     issues.append(
                         parent.error(

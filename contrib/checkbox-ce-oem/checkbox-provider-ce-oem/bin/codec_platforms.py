@@ -72,6 +72,12 @@ PLATFORM_FAMILIES = {
         id_prefix="renesas",
         encoder_id_suffix_fields=("color_space",),
     ),
+    "jetson": PlatformFamily(
+        id_prefix="jetson",
+        # one nvv4l2decoder element serves every codec, so performance
+        # ids carry the golden-sample name to stay unique per codec
+        perf_id_includes_sample=True,
+    ),
 }
 
 

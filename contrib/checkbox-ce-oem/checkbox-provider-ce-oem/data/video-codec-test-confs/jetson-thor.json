@@ -1,0 +1,76 @@
+{
+  "gst_encoder_psnr": [
+    {
+      "encoder_plugin": "nvv4l2h264enc",
+      "resolutions": [
+        {
+          "width": 3840,
+          "height": 2160,
+          "fps": 30
+        },
+        {
+          "width": 1920,
+          "height": 1088,
+          "fps": 120
+        },
+        {
+          "width": 1280,
+          "height": 720,
+          "fps": 240
+        },
+        {
+          "width": 640,
+          "height": 480,
+          "fps": 30
+        }
+      ]
+    },
+    {
+      "encoder_plugin": "nvv4l2h265enc",
+      "resolutions": [
+        {
+          "width": 3840,
+          "height": 2160,
+          "fps": 30
+        },
+        {
+          "width": 1920,
+          "height": 1088,
+          "fps": 120
+        },
+        {
+          "width": 1280,
+          "height": 720,
+          "fps": 240
+        },
+        {
+          "width": 640,
+          "height": 480,
+          "fps": 30
+        }
+      ]
+    }
+  ],
+  "gst_video_decoder_performance_fakesink": [
+    {
+      "decoder_plugin": "nvv4l2decoder",
+      "golden_sample_file": "1080p_30fps_h264.mp4",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "nvv4l2decoder",
+      "golden_sample_file": "1080p_30fps_h265.mp4",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "nvv4l2decoder",
+      "golden_sample_file": "1080p_30fps_vp9.webm",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "nvv4l2decoder",
+      "golden_sample_file": "1080p_30fps_av1.webm",
+      "minimum_fps": 30
+    }
+  ]
+}

@@ -23,6 +23,7 @@ _description: Automated tests for Video Codec in before suspend and post suspend
 bootstrap_include:
     video_codec_resource
 include:
+    ce-oem-video-codec/readiness
     ce-oem-video-codec/gst_video_decoder_md5_checksum_comparison
     ce-oem-video-codec/gst_video_decoder_performance_fakesink
     ce-oem-video-codec/gst_encoder_psnr

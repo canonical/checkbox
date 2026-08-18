@@ -51,7 +51,7 @@ flags: also-after-suspend
 depends: ce-oem-video-codec/readiness
 environ: GST_LAUNCH_BIN
 command:
-    gst_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}
+    gst_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}} -p "{{ platform }}"
 
 unit: template
 template-engine: jinja2

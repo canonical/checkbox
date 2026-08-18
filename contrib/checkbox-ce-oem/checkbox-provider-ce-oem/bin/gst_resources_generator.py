@@ -172,6 +172,7 @@ class GstResources:
                 height,
                 color_space,
             ),
+            "platform": self._conf_name,
             "decoder_plugin": decoder_plugin,
             "width": width,
             "height": height,

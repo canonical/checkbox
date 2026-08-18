@@ -25,6 +25,8 @@ import shlex
 import subprocess
 from typing import Any
 
+from codec_platforms import codec_factory
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -68,6 +70,14 @@ def register_arguments():
         required=True,
         type=str,
         help="Color space be used in gstreamer format e.g. I420 or NV12",
+    )
+
+    parser.add_argument(
+        "-p",
+        "--platform",
+        required=True,
+        type=str,
+        help="device platform uses for choosing pipeline builder e.g. imx8mp",
     )
 
     args = parser.parse_args()
@@ -197,12 +207,30 @@ def validate_video_decoder_md5_checksum(args: Any) -> None:
         )
     # Run command to get comapred md5 checksum by consuming golden sample
     gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
-    cmd = build_gst_command(
-        gst_bin=gst_launch_bin,
-        golden_sample_path=args.golden_sample_path,
-        decoder=args.decoder_plugin,
-        color_sapce=args.color_space,
+    # Platforms with their own decoder pipeline provide a
+    # build_decoder_md5_checksum_command in their codec_<family>.py
+    # module; everyone else uses the generic pipeline.
+    module = codec_factory(args.platform)
+    builder = (
+        getattr(module, "build_decoder_md5_checksum_command", None)
+        if module
+        else None
     )
+    if builder:
+        cmd = builder(
+            gst_bin=gst_launch_bin,
+            golden_sample_path=args.golden_sample_path,
+            decoder=args.decoder_plugin,
+            color_space=args.color_space,
+            platform=args.platform,
+        )
+    else:
+        cmd = build_gst_command(
+            gst_bin=gst_launch_bin,
+            golden_sample_path=args.golden_sample_path,
+            decoder=args.decoder_plugin,
+            color_sapce=args.color_space,
+        )
     compared_md5_data = get_md5_checksum_from_command(cmd).rstrip(os.linesep)
 
     logging.info(

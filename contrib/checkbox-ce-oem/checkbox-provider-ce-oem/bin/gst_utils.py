@@ -39,6 +39,17 @@ class GStreamerDecodePlugins(Enum):
     OMXH265DEC = "omxh265dec"
 
 
+class GStreamerTransformActions(Enum):
+    ROTATE_90 = "rotate_90"
+    ROTATE_180 = "rotate_180"
+    ROTATE_270 = "rotate_270"
+    VERTICAL_FLIP = "vertical_flip"
+    HORIZONTAL_FLIP = "horizontal_flip"
+
+    def __str__(self):
+        return self.value
+
+
 class GStreamerMuxerType(Enum):
     """
     An enumeration representing different GStreamer muxers and their

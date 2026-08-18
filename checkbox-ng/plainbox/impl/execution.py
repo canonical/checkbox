@@ -212,6 +212,19 @@ class UnifiedRunner(IJobRunner):
         # this is left here to conform to the interface
         return []
 
+    @staticmethod
+    def _return_code_to_outcome(return_code, xfail):
+        if return_code == 0:
+            if xfail:
+                return IJobResult.OUTCOME_XFAIL_FAIL
+            return IJobResult.OUTCOME_PASS
+        elif return_code < 0:
+            return IJobResult.OUTCOME_CRASH
+        else:
+            if xfail:
+                return IJobResult.OUTCOME_XFAIL_PASS
+            return IJobResult.OUTCOME_FAIL
+
     def _run_command(self, job, environ, as_systemd_unit, xfail=False):
         start_time = time.time()
         slug = slugify(job.id)
@@ -243,18 +256,8 @@ class UnifiedRunner(IJobRunner):
                 job, environ, ecmd, self._stdin, as_systemd_unit
             )
             io_log_gen.on_new_record.disconnect(writer.write_record)
-        if return_code == 0:
-            outcome = IJobResult.OUTCOME_PASS
-            if xfail:
-                outcome = IJobResult.OUTCOME_XFAIL_FAIL
-        elif return_code < 0:
-            outcome = IJobResult.OUTCOME_CRASH
-        else:
-            outcome = IJobResult.OUTCOME_FAIL
-            if xfail:
-                outcome = IJobResult.OUTCOME_XFAIL_PASS
         return JobResultBuilder(
-            outcome=outcome,
+            outcome=self._return_code_to_outcome(return_code, xfail),
             return_code=return_code,
             io_log_filename=log,
             execution_duration=time.time() - start_time,

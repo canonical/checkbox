@@ -97,8 +97,7 @@ class TestGetMD5ChecksumFromCommand(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     @patch(
-        "gst_video_decoder_md5_checksum_comparison."
-        "extract_the_md5_checksum"
+        "gst_video_decoder_md5_checksum_comparison." "extract_the_md5_checksum"
     )
     @patch("subprocess.run")
     def test_get_md5_checksum_from_command_success(
@@ -162,9 +161,7 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     @patch("os.path.exists")
-    @patch(
-        "gst_video_decoder_md5_checksum_comparison." "build_gst_command"
-    )
+    @patch("gst_video_decoder_md5_checksum_comparison." "build_gst_command")
     @patch(
         "gst_video_decoder_md5_checksum_comparison."
         "get_md5_checksum_from_command"
@@ -290,9 +287,7 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
         mock_open.assert_not_called()
 
     @patch("os.path.exists")
-    @patch(
-        "gst_video_decoder_md5_checksum_comparison." "build_gst_command"
-    )
+    @patch("gst_video_decoder_md5_checksum_comparison." "build_gst_command")
     @patch(
         "gst_video_decoder_md5_checksum_comparison."
         "get_md5_checksum_from_command"

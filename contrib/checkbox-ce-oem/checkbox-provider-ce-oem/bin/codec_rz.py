@@ -22,9 +22,9 @@
 import argparse
 import logging
 
+from codec_base import BaseCodecProject
 from gst_utils import (
     GST_LAUNCH_BIN,
-    BaseCodecProject,
     GStreamerEncodePlugins,
     GStreamerDecodePlugins,
     get_test_file_path_by_params,

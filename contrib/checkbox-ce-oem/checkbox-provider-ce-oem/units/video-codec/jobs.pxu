@@ -39,7 +39,7 @@ template-filter: video_codec_resource.scenario == "gst_video_decoder_md5_checksu
 template-unit: job
 template-id: ce-oem-video-codec/gst_video_decoder_md5_checksum_comparison
 _template-summary: To check if the MD5 checksum is same as golden reference under specific decoder
-id: ce-oem-video-codec/{{ name }}
+id: ce-oem-video-codec/{{ name }}{# gst_video_decoder_md5_checksum_comparison #}
 _summary: MD5 checksum comparison {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }}
 _description: Compare the MD5 checksum to golden reference by decoding the {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }} video via gstreamer
 plugin: shell
@@ -60,7 +60,7 @@ template-filter: video_codec_resource.scenario == "gst_v4l2_audio_video_synchron
 template-unit: job
 template-id: ce-oem-video-codec/gst_v4l2_audio_video_synchronization
 _template-summary: To check if the relative timing of audio and video is synchronized
-id: ce-oem-video-codec/{{ name }}
+id: ce-oem-video-codec/{{ name }}{# gst_v4l2_audio_video_synchronization #}
 _summary: AV-Sync test of decoder {{ decoder_plugin }} with {{ golden_sample_file_name }} file
 _purpose: To check if the relative timing of audio and video of {{ golden_sample_file_name }} file is synchronized under a specific {{ decoder_plugin }} decoder
 plugin: user-interact-verify
@@ -89,7 +89,7 @@ template-filter: video_codec_resource.scenario == "gst_video_decoder_performance
 template-unit: job
 template-id: ce-oem-video-codec/gst_video_decoder_performance_fakesink
 _template-summary: To check if the performance of decoder doesn't violate Pass Criteria
-id: ce-oem-video-codec/{{ name }}
+id: ce-oem-video-codec/{{ name }}{# gst_video_decoder_performance_fakesink #}
 _summary: Performance test of decoder - {{ name }}
 _description: Test if while the sink is fakesink, the decoder's performance, {{ decoder_plugin }}, doesn't violate the Pass Criteria. (1) There are no frame losses (2) Average FPS not fall below the specification's definition
 plugin: shell
@@ -112,7 +112,7 @@ template-filter:
 template-unit: job
 template-id: ce-oem-video-codec/gst_encoder_psnr
 _template-summary: Verify the PSNR ratio meets requirement for specific encoder
-id: ce-oem-video-codec/{{ name }}
+id: ce-oem-video-codec/{{ name }}{# gst_encoder_psnr #}
 _summary: Encoder PSNR - {{ name }}
 _description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold
 plugin: shell
@@ -134,7 +134,7 @@ template-filter:
 template-unit: job
 template-id: ce-oem-video-codec/gst_transform_rotate_and_flip
 _template-summary: Check if the rotation or flip operations are functional
-id: ce-oem-video-codec/{{ name }}
+id: ce-oem-video-codec/{{ name }}{# gst_transform_rotate_and_flip #}
 _summary: Perform {{ action }} - {{ width }}x{{ height }}_{{ framerate }}fps file
 plugin: shell
 category_id: video-codec
@@ -155,7 +155,7 @@ template-filter:
 template-unit: job
 template-id: ce-oem-video-codec/gst_transform_resize
 _template-summary: Check if the resize (scale up or down) are functional
-id: ce-oem-video-codec/{{ name }}
+id: ce-oem-video-codec/{{ name }}{# gst_transform_resize #}
 _summary: Perform resize - from {{ width_from }}x{{ height_from }} to {{ width_to }}x{{ height_to }} file
 plugin: shell
 category_id: video-codec

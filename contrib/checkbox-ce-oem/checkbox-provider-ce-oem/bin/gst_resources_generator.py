@@ -24,8 +24,59 @@ import logging
 from itertools import product
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from checkbox_support.snap_utils.system import on_ubuntucore
+from codec_platforms import PLATFORM_FAMILIES, get_platform_family
 
 logging.basicConfig(level=logging.INFO)
+
+
+def compose_encoder_psnr_name(conf_name: str, config: dict) -> str:
+    """
+    Compose the job name for a gst_encoder_psnr record from the family's
+    PLATFORM_FAMILIES entry, reproducing each platform's historical job-id
+    shape exactly, so the single generic template renders byte-identical
+    ids.
+    """
+    base = "{}-{}-{}x{}@{}fps".format(
+        config["scenario"],
+        config["encoder_plugin"],
+        config["width"],
+        config["height"],
+        config["framerate"],
+    )
+    family = get_platform_family(conf_name)
+    if family:
+        spec = PLATFORM_FAMILIES[family]
+        parts = [spec.id_prefix] if spec.id_prefix else []
+        parts.append(base)
+        parts.extend(
+            str(config[field]) for field in spec.encoder_id_suffix_fields
+        )
+        return "-".join(parts)
+    # unknown platform: no prefix, append the optional fields only when set
+    parts = [base]
+    parts.extend(
+        str(config[field]) for field in ("color_space", "mux") if config[field]
+    )
+    return "-".join(parts)
+
+
+def compose_decoder_performance_name(
+    conf_name: str, decoder_plugin: str, sample_name: str, scenario: str
+) -> str:
+    """
+    Compose the job name for a decoder-performance record from the
+    family's PLATFORM_FAMILIES entry.
+    """
+    base = "{}-{}".format(scenario, decoder_plugin)
+    family = get_platform_family(conf_name)
+    # historical performance ids carry no family prefix; only families
+    # whose ids need the sample name for uniqueness get the full shape
+    if not family or not PLATFORM_FAMILIES[family].perf_id_includes_sample:
+        return base
+    spec = PLATFORM_FAMILIES[family]
+    parts = [spec.id_prefix] if spec.id_prefix else []
+    parts.extend([base, sample_name])
+    return "-".join(parts)
 
 
 def register_arguments() -> argparse.Namespace:
@@ -114,6 +165,13 @@ class GstResources:
 
         returned_dict = {
             "scenario": self._current_scenario_name,
+            "name": "{}-{}-{}x{}-{}".format(
+                self._current_scenario_name,
+                decoder_plugin,
+                width,
+                height,
+                color_space,
+            ),
             "decoder_plugin": decoder_plugin,
             "width": width,
             "height": height,
@@ -166,6 +224,9 @@ class GstResources:
                     "color_space": color_space,
                     "mux": mux,
                 }
+                config["name"] = compose_encoder_psnr_name(
+                    self._conf_name, config
+                )
                 self._resource_items.append(config)
 
     def gst_v4l2_audio_video_synchronization(
@@ -184,6 +245,12 @@ class GstResources:
                 self._resource_items.append(
                     {
                         "scenario": self._current_scenario_name,
+                        "name": "{}-{}-{}-{}".format(
+                            self._current_scenario_name,
+                            item["decoder_plugin"],
+                            sample_file["file_name"],
+                            video_sink,
+                        ),
                         "video_sink": video_sink,
                         "decoder_plugin": item["decoder_plugin"],
                         "golden_sample_file_name": sample_file["file_name"],
@@ -201,10 +268,21 @@ class GstResources:
         self, scenario_data: "list[dict]"
     ) -> None:
         for item in scenario_data:
+            sample_name = os.path.splitext(
+                os.path.basename(item["golden_sample_file"])
+            )[0]
             self._resource_items.append(
                 {
                     "scenario": self._current_scenario_name,
+                    "name": compose_decoder_performance_name(
+                        self._conf_name,
+                        item["decoder_plugin"],
+                        sample_name,
+                        self._current_scenario_name,
+                    ),
+                    "platform": self._conf_name,
                     "decoder_plugin": item["decoder_plugin"],
+                    "golden_sample_file_name": sample_name,
                     "minimum_fps": item["minimum_fps"],
                     "golden_sample_file": os.path.join(
                         self._args.video_codec_testing_data_path,
@@ -242,6 +320,14 @@ class GstResources:
                     "framerate": resolution.get("fps"),
                     "action": action,
                 }
+                config["name"] = "{}-{}_{}_{}x{}_{}fps".format(
+                    config["scenario"],
+                    config["encoder_plugin"],
+                    config["action"],
+                    config["width"],
+                    config["height"],
+                    config["framerate"],
+                )
                 self._resource_items.append(config)
 
     def gst_transform_resize(self, scenario_data: "list[dict]") -> None:
@@ -264,6 +350,15 @@ class GstResources:
                     "height_to": resolution.get("height_to"),
                     "framerate": resolution.get("fps"),
                 }
+                config["name"] = "{}-{}_from_{}x{}_{}fps_to_{}x{}".format(
+                    config["scenario"],
+                    config["encoder_plugin"],
+                    config["width_from"],
+                    config["height_from"],
+                    config["framerate"],
+                    config["width_to"],
+                    config["height_to"],
+                )
                 self._resource_items.append(config)
 
     def main(self):

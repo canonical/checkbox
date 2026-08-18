@@ -59,6 +59,14 @@ class TestCodecFactory(unittest.TestCase):
         self.assertFalse(
             hasattr(codec_dragonwing, "build_decoder_performance_command")
         )
+        # the transform scenarios resolve through the factory too; only
+        # genio implements them today
+        self.assertTrue(
+            hasattr(codec_genio, "create_transform_rotate_and_flip_project")
+        )
+        self.assertTrue(
+            hasattr(codec_genio, "create_transform_resize_project")
+        )
 
 
 class TestBaseCodecProject(unittest.TestCase):

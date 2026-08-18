@@ -19,20 +19,14 @@
 
 import argparse
 import logging
-import os
 
-from typing import Any
 
+from codec_platforms import codec_factory
 from gst_utils import (
-    GST_LAUNCH_BIN,
-    PipelineInterface,
-    GStreamerEncodePlugins,
     MetadataValidator,
-    generate_artifact_name,
     compare_psnr,
     delete_file,
     execute_command,
-    get_test_file_path_by_params,
     manage_test_file_by_params,
 )
 
@@ -108,122 +102,6 @@ def register_arguments():
     return args
 
 
-# The transform scenarios are genio-only and pre-date codec_factory();
-# when another platform needs them, move the pipeline classes into its
-# codec_<family>.py module and route through codec_factory() the way
-# gst_encoder_psnr.py does.
-def project_factory(args: argparse.Namespace) -> Any:
-    """
-    Factory function to create a project instance based on the platform
-    specified in the argparse arguments.
-    Args:
-        args (argparse.Namespace): A parsed argument object that contains the
-            project parameters.
-    Returns:
-        Any: An instance of the project class (e.g., `GenioProject`) created
-            with the specified parameters.
-    Raises:
-        SystemExit: If the platform is not recognized or supported.
-    """
-    if "genio" in args.platform:
-        return GenioProject(
-            platform=args.platform,
-            codec=args.encoder_plugin,
-            width_from=args.width_from,
-            height_from=args.height_from,
-            width_to=args.width_to,
-            height_to=args.height_to,
-            framerate=args.framerate,
-        )
-    else:
-        raise SystemExit(
-            "Error: Cannot get the implementation for '{}'".format(
-                args.platform
-            )
-        )
-
-
-class GenioProject(PipelineInterface):
-    """
-    Genio project manages platforms and codecs, and handles
-    building.
-    Spec: https://download.mediatek.com/aiot/download/release-note/v24.0/v24.0_IoT_Yocto_Feature_Table_v1.0.pdf     # noqa: E501
-    """
-
-    def __init__(
-        self,
-        platform: str,
-        codec: str,
-        width_from: int,
-        height_from: int,
-        width_to: int,
-        height_to: int,
-        framerate: int,
-    ):
-        self._platform = platform
-        self._codec = codec
-        self._width_from = width_from
-        self._height_from = height_from
-        self._width_to = width_to
-        self._height_to = height_to
-        self._framerate = framerate
-        self._codec_parser_map = {
-            GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
-        }
-        # This sample video file will be consumed by any gstreamer piple as
-        # input video.
-        self._golden_sample = get_test_file_path_by_params(
-            self._width_from, self._height_from, self._framerate, self._codec
-        )
-        self._artifact_file = ""
-
-    @property
-    def artifact_file(self) -> str:
-        if not self._artifact_file:
-            self._artifact_file = generate_artifact_name(extension="mp4")
-        return self._artifact_file
-
-    @property
-    def psnr_reference_file(self) -> str:
-        """
-        A golden reference which has been transformed in advance. It's used to
-        be the compared reference file for PSNR.
-        """
-        golden_reference = get_test_file_path_by_params(
-            self._width_to, self._height_to, self._framerate, self._codec
-        )
-        if not os.path.exists(golden_reference):
-            raise SystemExit(
-                "Error: Golden PSNR reference '{}' doesn't exist".format(
-                    golden_reference
-                )
-            )
-
-        return golden_reference
-
-    def build_pipeline(self) -> str:
-        """
-        Build the GStreamer commands based on the platform and codec.
-        Returns:
-            str: A GStreamer command based on the platform and
-            codec.
-        """
-        pipeline = (
-            "{} filesrc location={} ! decodebin ! v4l2convert ! "
-            "video/x-raw,width={},height={} ! {} ! {} ! mp4mux ! filesink"
-            " location={}"
-        ).format(
-            GST_LAUNCH_BIN,
-            self._golden_sample,
-            self._width_to,
-            self._height_to,
-            self._codec,
-            self._codec_parser_map.get(self._codec),
-            self.artifact_file,
-        )
-        return pipeline
-
-
 def main() -> None:
     args = register_arguments()
     with manage_test_file_by_params(
@@ -232,7 +110,19 @@ def main() -> None:
         with manage_test_file_by_params(
             args.width_to, args.height_to, args.framerate, args.encoder_plugin
         ):
-            p = project_factory(args)
+            # The platform's pipelines live in its codec_<family>.py
+            # module, resolved the same way every other scenario
+            # resolves them.
+            module = codec_factory(args.platform)
+            if module is None or not hasattr(
+                module, "create_transform_resize_project"
+            ):
+                raise SystemExit(
+                    "Error: Cannot get the implementation for '{}'".format(
+                        args.platform
+                    )
+                )
+            p = module.create_transform_resize_project(args)
             logging.info("Step 1: Generating artifact...")
             cmd = p.build_pipeline()
             # execute command

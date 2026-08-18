@@ -186,6 +186,7 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
                 "golden_sample_md5_checksum_path": "my_test.md5",
                 "decoder_plugin": "fake_decoder",
                 "color_space": "NN",
+                "platform": "unknownplatform",
             },
         )()
 
@@ -226,6 +227,7 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
                 "golden_sample_md5_checksum_path": "golden_sample.md5",
                 "decoder_plugin": "fake_decoder",
                 "color_space": "NN",
+                "platform": "unknownplatform",
             },
         )()
 
@@ -266,6 +268,7 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
                 ),
                 "decoder_plugin": "fake_decoder",
                 "color_space": "NN",
+                "platform": "unknownplatform",
             },
         )()
 
@@ -312,6 +315,7 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
                 "golden_sample_md5_checksum_path": "golden_sample.md5",
                 "decoder_plugin": "fake_decoder",
                 "color_space": "NN",
+                "platform": "unknownplatform",
             },
         )()
 

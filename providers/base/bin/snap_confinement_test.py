@@ -142,7 +142,7 @@ class SnapsConfinementVerifier:
             r"checkbox.*",
             r"^mir-test-tools$",
             r"^graphics-test-tools$",
-            r"^sosreport$"
+            r"^sosreport$",
         ]
         self._allowlist_from_config_var = [
             element.strip()

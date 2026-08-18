@@ -7,10 +7,13 @@ This readme provides an overview of the different video codec scenarios
 The video-codec framework follows the same concept as the camera framework
 (`units/camera`):
 
-- A per-DUT conf file in `data/video-codec-test-confs/<platform>.json`
-  (selected by `VIDEO_CODEC_JSON_CONFIG_NAME`) declares which scenarios,
-  plugins and resolutions the platform tests. A platform runs a scenario
-  if and only if its conf declares it.
+- A per-DUT conf file in `data/video-codec-test-confs/` (selected by
+  `VIDEO_CODEC_JSON_CONFIG_NAME`) declares which scenarios, plugins and
+  resolutions the platform tests. A platform runs a scenario if and only
+  if its conf declares it. Conf files follow one naming rule:
+  `<family>[-<board>].json` — the file name starts with its platform
+  family (e.g. `genio-1200.json`, `imx-8mp.json`, `rzg2l.json`,
+  `dragonwing.json`).
 - The resource job composes a `name` per record, and every job-id template
   is the generic `ce-oem-video-codec/{{ name }}` — no per-platform
   templates. The per-family id shapes live in the `PLATFORM_FAMILIES`
@@ -21,13 +24,15 @@ The video-codec framework follows the same concept as the camera framework
 
 ## Contributing: Adding New Platforms
 
-1. **Create the conf file** `data/video-codec-test-confs/<platform>.json`
+1. **Create the conf file** `data/video-codec-test-confs/<family>[-<board>].json`
    with the scenario sections the platform supports (copy an existing
-   conf as reference — e.g. `rzg2l.json` for a small one).
+   conf as reference — e.g. `rzg2l.json` for a small one). The file name
+   must start with the platform family name.
 2. **Add one `PlatformFamily` entry** to `PLATFORM_FAMILIES` in
-   `bin/codec_platforms.py` (or add the conf-name prefix to an existing
-   family). Declare its job-id prefix, which optional fields its encoder
-   ids append, and whether its decoder-performance ids need the
+   `bin/codec_platforms.py`, keyed by the family name (boards of an
+   existing family need no new entry — their conf names already match).
+   Declare its job-id prefix, which optional fields its encoder ids
+   append, and whether its decoder-performance ids need the
    golden-sample name (only when one decoder element serves several
    codecs).
 3. **Add `bin/codec_<family>.py`** when the platform needs its own

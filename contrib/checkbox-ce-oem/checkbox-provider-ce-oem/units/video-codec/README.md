@@ -58,7 +58,7 @@ Before starting the testing, please read the [OQ013 - Video Codec Testing Docume
 
 ## Scenarios
 
-### Scenario: gst_v4l2_video_decoder_md5_checksum_comparison
+### Scenario: gst_video_decoder_md5_checksum_comparison
 
 #### Goal
   

@@ -12,12 +12,12 @@
         - [video_codec_resource](#video_codec_resource)
 - GST_LAUNCH_BIN
     - Affected Test Cases:
-        - [ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison](#ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison)
+        - [ce-oem-video-codec/gst_video_decoder_md5_checksum_comparison](#ce-oem-video-codec/gst_video_decoder_md5_checksum_comparison)
 
 ## Detailed test cases contains environ variable
 ### <a id='video_codec_resource'>video_codec_resource</a>
 - **summary:**
-Generates mappings for all Vedio Codec Scenarios
+Generates mappings for all Video Codec Scenarios
 
 - **description:**
 ```
@@ -36,7 +36,7 @@ gst_resources_generator.py "$VIDEO_CODEC_JSON_CONFIG_NAME" -gtdp "$VIDEO_CODEC_T
 ```
 [Back to top](#top)
 
-### <a id='ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison'>ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison</a>
+### <a id='ce-oem-video-codec/gst_video_decoder_md5_checksum_comparison'>ce-oem-video-codec/gst_video_decoder_md5_checksum_comparison</a>
 - **summary:**
 MD5 checksum comparison {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }}
 
@@ -56,6 +56,6 @@ GST_LAUNCH_BIN
 
 - **command:**
 ```
-   gst_v4l2_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}
+   gst_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}
 ```
 [Back to top](#top)

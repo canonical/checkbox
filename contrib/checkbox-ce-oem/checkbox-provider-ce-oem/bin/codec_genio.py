@@ -77,9 +77,10 @@ class GenioProject(PipelineInterface):
             GStreamerEncodePlugins.V4L2H265ENC.value: "h265parse",
         }
         # This sample video file will be consumed by any gstreamer piple as
-        # input video.
+        # input video. Genio always encodes from the h264 sample, like the
+        # other platforms that decode then re-encode.
         self._golden_sample = get_test_file_path_by_params(
-            self._width, self._height, self._framerate
+            self._width, self._height, self._framerate, "h264"
         )
         self._artifact_file = ""
 

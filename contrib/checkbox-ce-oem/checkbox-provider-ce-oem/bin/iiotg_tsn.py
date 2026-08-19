@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
-from collections import deque
 import os
 import re
 import shlex
 import subprocess
 import sys
 import time
-import typing as t
+from collections import deque
 from contextlib import contextmanager
 from ipaddress import ip_address
 from pathlib import Path
@@ -168,7 +167,7 @@ def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
             "0",  # and physical hardware clock to 0
             "-c",  # client clock source is CLOCK_REALTIME
             "CLOCK_REALTIME",
-            "-w",  #  wait for ptp4l to be ready
+            "-w",  # wait for ptp4l to be ready
             "-m",  # print the messages to stdout
             "--step_threshold=1",
             "--transportSpecific=1",  # see ptp4l()
@@ -202,7 +201,7 @@ def server_mode(
         ValueError: If the number of interfaces and server_ips is not the same.
     """
 
-    processes = []  # type: list[subprocess.Popen[t.Any]]
+    processes = []  # type: list[subprocess.Popen[str]]
 
     # Iterate over each interface and run ptp4l as master
     for interface in interfaces:
@@ -221,7 +220,8 @@ def server_mode(
         for port, cpu in zip(range(5201, 5204), range(1, 4)):
             # Run iperf3 server
             process = subprocess.Popen(
-                ["iperf3", "-s", "-B", ip, "-p", str(port), "-A", str(cpu)]
+                ["iperf3", "-s", "-B", ip, "-p", str(port), "-A", str(cpu)],
+                text=True,
             )
             processes.append(process)
 
@@ -820,7 +820,8 @@ def parse_string(string: str):
         if not (Path("/sys/class/net/") / interface).exists():
             raise SystemExit(
                 (
-                    "Parsed interface '{}', but it doesn't exist under /sys/class/net"
+                    "Parsed interface '{}', "
+                    "but it doesn't exist under /sys/class/net"
                 ).format(interface)
             )
         # this will raise ValueError for us if addr invalid
@@ -857,7 +858,8 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         required=True,
         help=(
-            "TSN ethernet interfaces to serve. ptp4l will run on these interfaces"
+            "TSN ethernet interfaces to serve. "
+            "ptp4l will run on these interfaces."
         ),
     )
     server_parser.add_argument(
@@ -872,7 +874,8 @@ def parse_args() -> argparse.Namespace:
     client_parser = subparsers.add_parser(
         "client",
         help=(
-            "Run a TSN test on the client. Specify a subcommand then -h to see usage."
+            "Run a TSN test on the client. "
+            "Specify a subcommand then -h to see usage."
         ),
     )
     client_subparsers = client_parser.add_subparsers(

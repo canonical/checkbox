@@ -615,7 +615,7 @@ def traffic_scheduling(
     interface: str,
     server_ip: str,
     cfg: "Path | None" = None,
-    timeout: int = 30,
+    timeout: int = 25,
 ) -> None:
     """
     Schedules traffic by running ptp4l command, setting qdisc,
@@ -627,7 +627,7 @@ def traffic_scheduling(
         server_ip (str): The IP address of the server.
         cfg (str): The configuration file path.
         timeout (int, optional): The time in seconds to wait for
-        each operation. Defaults to 30.
+        each operation. Defaults to 25.
 
     Returns:
         None
@@ -635,7 +635,7 @@ def traffic_scheduling(
 
     if timeout < 30:
         raise SystemExit(
-            "Traffic scheduling timeout must be at least 30 seconds. "
+            "Traffic scheduling timeout must be at least 25 seconds. "
             + f"(got {timeout})"
         )
 

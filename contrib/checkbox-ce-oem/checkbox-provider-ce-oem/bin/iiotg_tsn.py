@@ -295,8 +295,8 @@ def time_sync_ptp4l(
         # NOTE: if the error mentions deleting files in /var/run
         # NOTE: that means a previous ptp4l run was force killed / crashed
         # NOTE: re-run the test and those lines won't appear
-        print("Standard Error (stderr):")
-        print(stderr)
+        print("Standard Error (stderr):", file=sys.stderr)
+        print(stderr, file=sys.stderr)
         raise SystemExit(
             "[Error] Caught error while running ptp4l on {}".format(interface)
         )

@@ -94,7 +94,7 @@ def ptp4l(
     return process
 
 
-def phc2sys(interface: str, timeout: int = 60) -> subprocess.Popen:
+def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
     """Run phc2sys command to sync system clock to physical hardware clock.
 
     Args:
@@ -106,28 +106,23 @@ def phc2sys(interface: str, timeout: int = 60) -> subprocess.Popen:
         subprocess.Popen: A process object representing the
         running phc2sys command.
     """
-    # Build the phc2sys command with the provided parameters.
-    # The command uses the timeout utility to limit the execution time.
-    # phc2sys is used to sync the system clock to the physical hardware clock.
-    # The -s specifies the interface to sync.
-    # The -O 0 flag sets the offset between system clock
-    # and physical hardware clock to 0.
-    # The -c specify the slave clock source.
-    # The -w flag wait for ptp4l.
-    # The -m flag print the messages.
-    # The --step_threshold=1 flag sets the step threshold to 1.
-    # The --transportSpecific=1 the transport specific field. [0-255]
-    cmd = (
-        "timeout {} phc2sys -s {} "
-        "-O 0 -c CLOCK_REALTIME -w -m "
-        "--step_threshold=1 --transportSpecific=1"
-    ).format(timeout, interface)
 
-    # Run the phc2sys command with the provided parameters.
-    # The command is run with stdout and stderr redirected to pipes.
-    # Text mode is enabled to allow access to the output as text.
     process = subprocess.Popen(
-        shlex.split(cmd),
+        [
+            "timeout",
+            str(timeout),
+            "phc2sys",
+            "-s",  # the interface to sync
+            interface,
+            "-O",  # -O 0 sets the offset between system clock
+            "0",  # and physical hardware clock to 0
+            "-c",  # client clock source is CLOCK_REALTIME
+            "CLOCK_REALTIME",
+            "-w",  #  wait for ptp4l
+            "-m",  # print the messages
+            "--step_threshold=1",
+            "--transportSpecific=1",  # transport specific, 0~255
+        ],
         stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
         stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
         text=True,  # Enable text mode, so output can be accessed as text.
@@ -233,8 +228,7 @@ def time_sync_ptp4l(
     """
     if timeout < 30:
         raise SystemExit(
-            "[ERROR] timeout should be at least 30 seconds "
-            "to let the time synchronized"
+            "[ERROR] timeout should be at least 30 seconds to let the time synchronized"
         )
     # Run ptp4l as a subprocess and get its output
     process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
@@ -292,8 +286,7 @@ def time_sync_phc2sys(
     """
     if timeout < 30:
         raise SystemExit(
-            "[ERROR] timeout should be at least 30 seconds "
-            "to let the time synchronized"
+            "[ERROR] timeout should be at least 30 seconds to let the time synchronized"
         )
     # Run ptp4l as a subprocess and get its output
     ptp4l(interface=interface, cfg=cfg, timeout=timeout)
@@ -644,9 +637,7 @@ def traffic_scheduling(
         # Need increasing bytes in every queue
         if int(after) - int(before) < 0:
             raise SystemExit(
-                "[FAIL] Sent bytes is not increasing "
-                "in every queue!\n"
-                "100:1 to 100:4"
+                "[FAIL] Sent bytes is not increasing in every queue!\n100:1 to 100:4"
             )
     print("[PASS] Sent bytes is increasing in every queue!")
 

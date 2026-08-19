@@ -7,8 +7,8 @@ import time
 import re
 import os
 from threading import Event
-from typing import List
 from contextlib import contextmanager
+import typing as t
 
 
 def clear_qdisc_settings(interface: str) -> None:
@@ -133,7 +133,7 @@ def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
 
 
 def server_mode(
-    interfaces: List,
+    interfaces: "list[str]",
     cfg: str = "/usr/share/doc/linuxptp/configs/automotive-master.cfg",
 ) -> None:
     """Run ptp4l as master in every port.
@@ -152,8 +152,7 @@ def server_mode(
         ValueError: If the number of interfaces and server_ips is not the same.
     """
 
-    # List to store the process objects
-    processes = []
+    processes = []  # type: list[subprocess.Popen[t.Any]]
 
     # Iterate over each interface and run ptp4l as master
     for interface in interfaces:
@@ -172,9 +171,7 @@ def server_mode(
         for port, cpu in zip(range(5201, 5204), range(1, 4)):
             # Run iperf3 server
             process = subprocess.Popen(
-                shlex.split(
-                    "iperf3 -s -B {} -p {} -A {}".format(ip, port, cpu)
-                )
+                ['iperf3', '-s', '-B', ip, '-p', str(port), '-A', str(cpu)]
             )
             processes.append(process)
 
@@ -184,8 +181,7 @@ def server_mode(
         # Print separator line
         print("===========================================================")
 
-    # Print message to press ctrl + c to end this
-    print("Press ctrl + c to end this.")
+    print("Press ctrl + c to stop the server")
 
     try:
         # Wait for KeyboardInterrupt
@@ -196,7 +192,6 @@ def server_mode(
             process.terminate()
         print("Terminated all ptp4l and iperf3 process")
 
-    return
 
 
 def time_sync_ptp4l(

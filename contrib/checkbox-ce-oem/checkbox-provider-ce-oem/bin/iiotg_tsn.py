@@ -225,7 +225,8 @@ def time_sync_ptp4l(
     """
     if timeout < 30:
         raise SystemExit(
-            "[ERROR] timeout should be at least 30 seconds to let the time synchronized"
+            "[ERROR] timeout should be at least 30 seconds "
+            + "for a successful time sync"
         )
     # Run ptp4l as a subprocess and get its output
     process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
@@ -298,7 +299,8 @@ def time_sync_phc2sys(
     """
     if timeout < 30:
         raise SystemExit(
-            "[ERROR] timeout should be at least 30 seconds for a successful time sync"
+            "[ERROR] timeout should be at least 30 seconds "
+            + "for a successful time sync"
         )
     # Run ptp4l as a subprocess and get its output
     ptp4l(interface=interface, cfg=cfg, timeout=timeout)
@@ -651,7 +653,8 @@ def traffic_scheduling(
         # Need increasing bytes in every queue
         if int(after) - int(before) < 0:
             raise SystemExit(
-                "[FAIL] Sent bytes is not increasing in every queue!\n100:1 to 100:4"
+                "[FAIL] Sent bytes is not increasing in every queue!\n"
+                + "100:1 to 100:4"
             )
     print("[PASS] Sent bytes is increasing in every queue!")
 

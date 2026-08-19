@@ -216,9 +216,9 @@ def time_sync_ptp4l(
     Prints:
         Standard Output (stdout): The output of ptp4l.
         Standard Error (stderr): The error output of ptp4l, if any.
-        [PASS] Masteroffset is between -100 to 100: If the master offset is
+        [PASS] Master offset is between -100 to 100: If the master offset is
             between -100 and 100.
-        [FAIL] Masteroffset is not between -100 to 100: If the master offset
+        [FAIL] Master offset is not between -100 to 100: If the master offset
             is not between -100 and 100.
     """
     if timeout < 30:
@@ -242,11 +242,16 @@ def time_sync_ptp4l(
         )
 
     # Check the last 10 seconds of ptp4l output
+    # a successful output looks like this:
+    # ptp4l[11408.871]: master offset -5 s2 freq +7652 path delay 12
+    # we want to check the master_offset = -5 value from that line
+    # if abs(master_offset) < 100, then the test passes
+    # a failed run usually has very large numbers instead of -5
     lines = stdout.splitlines()
     for line in lines[-10:]:
         try:
-            offset = int(line.split()[3])
-            if not -100 < offset < 100:
+            master_offset = int(line.split()[3])
+            if not -100 < master_offset < 100:
                 raise SystemExit(
                     "[FAIL] Master offset is not between -100 to 100"
                 )

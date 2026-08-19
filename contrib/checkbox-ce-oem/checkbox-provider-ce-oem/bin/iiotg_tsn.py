@@ -723,7 +723,7 @@ def get_interface_ip(interface: str):
 
 def parse_string(string: str):
     """It should be this format, INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2"""
-    interface_ip_pairs = string.split(",")
+    interface_ip_pairs = string.strip().split(",")
     if len(interface_ip_pairs) == 0:
         raise SystemExit(
             "Found no INTERFACE:SERVER_IP pairs in '{}'".format(string)

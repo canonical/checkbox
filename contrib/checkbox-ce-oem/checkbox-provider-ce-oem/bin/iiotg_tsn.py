@@ -522,6 +522,14 @@ def credit_based_shaper(
         server_ip (str): The IP address of the server to send traffic to.
         timeout (int): The timeout for the shaper in seconds.
     """
+    # quick sanity check and make sure server is reachable
+    print(
+        "Make sure we can reach the iperf sever at",
+        server_ip,
+        "through interface",
+        interface,
+    )
+    subprocess.run(["ping", "-I", interface, "-c", "5", server_ip], check=True)
 
     # Replace the main qdisc with a multi-queue qdisc (mqprio) with four
     # traffic classes and 1 queue for each class
@@ -561,8 +569,17 @@ def credit_based_shaper(
     time.sleep(5)
 
     # Run iperf3 client to measure the upload speed
-    process = iperf3_client(server_ip, get_interface_ip(interface), timeout)
-    stdout, stderr = process.communicate()
+    print(
+        "Starting iperf3 client at",
+        interface,
+        "to measure upload speed",
+        f"(will run for {timeout} seconds)",
+        flush=True,
+    )
+    iperf_process = iperf3_client(
+        server_ip, get_interface_ip(interface), timeout
+    )
+    stdout, stderr = iperf_process.communicate()
 
     # Check for errors in the iperf3 output
     if stderr:
@@ -587,10 +604,10 @@ def credit_based_shaper(
 
     # Print the upload speed and a success message
     print(
-        "[PASS] The upload speed is between 90 and 100 Mbps\n",
-        "The upload speed is",
+        "[PASS] The upload speed",
         speed_bits,
         "Mbps",
+        "is between 90 and 100 Mbps!",
     )
 
 
@@ -619,7 +636,7 @@ def traffic_scheduling(
     if timeout < 25:
         raise SystemExit("Timeout must be at least 25 seconds.")
     print("Running ptp4l on {}...".format(interface))
-    ptp4l(interface, cfg, timeout)
+    ptp4l(interface, cfg, timeout, print_to_console=True)
     time.sleep(10)
 
     print("Setting qdisc...")
